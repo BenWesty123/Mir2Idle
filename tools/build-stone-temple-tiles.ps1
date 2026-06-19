@@ -1,0 +1,106 @@
+param(
+  [string]$DataRoot = "C:/Users/bb-we/Documents/Crystal-master/Next/NextClient/Data",
+  [string]$MapLib = "Map/WemadeMir2/Tiles.Lib",
+  [string]$MapIndex = "../public/maptiles/index.json",
+  [string]$OutputSheet = "../public/maptiles/stone-temple.png",
+  [string]$SetId = "stone-temple",
+  [string]$Label = "Stone Temple",
+  # Only 2500-2504 render as full floor tiles here; 44/195x export black, 508x are sparse overlays.
+  [int[]]$Frames = @(2500, 2501, 2502, 2503, 2504)
+)
+
+$ErrorActionPreference = "Stop"
+
+function Export-TileRange([int]$start, [int]$count, [string]$folder) {
+  $out = Join-Path $PSScriptRoot $folder
+  & (Join-Path $PSScriptRoot "export-map-tile-review.ps1") `
+    -DataRoot $DataRoot `
+    -MapLib $MapLib `
+    -OutputRoot $folder `
+    -StartFrame $start `
+    -FrameCount $count `
+    -MaxVisible 200 `
+    -IncludeAllFrames | Out-Null
+  $tiles = (Get-Content (Join-Path $out "tiles.json") -Raw | ConvertFrom-Json).tiles
+  foreach ($tile in $tiles) {
+    $tile | Add-Member -NotePropertyName imagePath -NotePropertyValue (Join-Path $out $tile.file) -Force
+  }
+  return $tiles
+}
+
+$byFrame = @{}
+foreach ($batch in @(
+  @{ Start = 40; Count = 10; Folder = "../tile-review/stone-temple-tiles-build-a" },
+  @{ Start = 1948; Count = 12; Folder = "../tile-review/stone-temple-tiles-build-b" },
+  @{ Start = 2498; Count = 8; Folder = "../tile-review/stone-temple-tiles-build-c" },
+  @{ Start = 5080; Count = 50; Folder = "../tile-review/stone-temple-tiles-build-d" }
+)) {
+  foreach ($tile in (Export-TileRange $batch.Start $batch.Count $batch.Folder)) {
+    $byFrame[[string]$tile.frame] = $tile
+  }
+}
+
+$picked = foreach ($frame in $Frames) {
+  $key = [string]$frame
+  if (-not $byFrame.ContainsKey($key)) { throw "Tile frame $frame not found in Tiles.Lib export" }
+  $byFrame[$key]
+}
+
+Add-Type -AssemblyName System.Drawing
+$bitmaps = New-Object System.Collections.Generic.List[object]
+$slotWidth = 1
+$slotHeight = 1
+try {
+  foreach ($tile in $picked) {
+    $imagePath = $tile.imagePath
+    $bitmap = [System.Drawing.Bitmap]::FromFile($imagePath)
+    $bitmaps.Add($bitmap)
+    $slotWidth = [Math]::Max($slotWidth, $bitmap.Width)
+    $slotHeight = [Math]::Max($slotHeight, $bitmap.Height)
+  }
+
+  $sheet = [System.Drawing.Bitmap]::new($slotWidth * $bitmaps.Count, $slotHeight, [System.Drawing.Imaging.PixelFormat]::Format32bppArgb)
+  $graphics = [System.Drawing.Graphics]::FromImage($sheet)
+  $graphics.Clear([System.Drawing.Color]::Transparent)
+  for ($slot = 0; $slot -lt $bitmaps.Count; $slot++) {
+    $graphics.DrawImageUnscaled($bitmaps[$slot], $slot * $slotWidth, 0)
+  }
+  $graphics.Dispose()
+
+  $sheetPath = Join-Path $PSScriptRoot $OutputSheet
+  New-Item -ItemType Directory -Force -Path (Split-Path $sheetPath) | Out-Null
+  $sheet.Save($sheetPath, [System.Drawing.Imaging.ImageFormat]::Png)
+  $sheet.Dispose()
+}
+finally {
+  foreach ($bitmap in $bitmaps) { $bitmap.Dispose() }
+}
+
+$tiles = for ($slot = 0; $slot -lt $picked.Count; $slot++) {
+  $tile = $picked[$slot]
+  [ordered]@{
+    slot = $slot
+    srcFrame = [int]$tile.frame
+    w = [int]$tile.width
+    h = [int]$tile.height
+    offsetX = [int]$tile.offsetX
+    offsetY = [int]$tile.offsetY
+  }
+}
+
+$indexPath = Join-Path $PSScriptRoot $MapIndex
+$index = Get-Content -LiteralPath $indexPath -Raw | ConvertFrom-Json
+$existing = @($index.sets | Where-Object { $_.id -ne $SetId })
+$entry = [ordered]@{
+  id = $SetId
+  label = $Label
+  sheet = Split-Path $sheetPath -Leaf
+  slotWidth = $slotWidth
+  slotHeight = $slotHeight
+  tiles = $tiles
+}
+$index.sets = @($entry) + $existing
+$index | ConvertTo-Json -Depth 20 | Set-Content -LiteralPath $indexPath -Encoding UTF8
+
+Write-Host "Stone Temple tiles: $($tiles.Count) slots ($slotWidth x $slotHeight)"
+$tiles | ForEach-Object { Write-Host "  slot $($_.slot) <- frame $($_.srcFrame)" }

@@ -1,0 +1,11 @@
+name = "lom-idle-v2-stats"
+main = "worker.js"
+compatibility_date = "2026-05-24"
+
+[vars]
+ALLOWED_ORIGIN = "*"
+
+[[d1_databases]]
+binding = "DB"
+database_name = "lom-idle-v2-stats"
+database_id = "replace-with-your-d1-database-id"

@@ -1,0 +1,34 @@
+# Generated tooling data
+tools/generated-data/
+
+# Node
+node_modules/
+
+# Built itch package (regenerate with: npm run package:itch)
+dist/
+
+# Cloudflare Wrangler local state and deploy config (contains account + DB identifiers)
+.wrangler/
+tools/stats-worker/wrangler.toml
+
+# Large asset folders — keep local, don't push to GitHub
+new content/
+tile-review/
+public/
+outputs/
+content-audit/
+# Binary media
+**/*.png
+**/*.jpg
+**/*.jpeg
+**/*.gif
+**/*.webp
+**/*.bmp
+**/*.wav
+**/*.ogg
+**/*.mp3
+**/*.Lib
+**/*.zip
+# Logs
+server.err.log
+server.out.log

@@ -1,0 +1,12 @@
+id,name,type,slot,class,crystalIndex,crystalName,iconLibrary,iconFrame,stackable,maxStack,dcMin,dcMax,mcMin,mcMax,scMin,scMax,acMin,acMax,amcMin,amcMax,hp,mp,accuracy,agility,luck,attackSpeed,zone,dropChance,buy,sell
+wooden-sword,Wooden Sword,weapon,weapon,warrior,221,WoodenSword,Items,30,false,1,2,4,0,0,0,0,0,0,0,0,0,0,0,0,0,0,zone-1-grasslands,0.03,50,10
+bronze-sword,Bronze Sword,weapon,weapon,warrior,224,BronzeSword,Items,31,false,1,3,7,0,0,0,0,0,0,0,0,0,0,0,0,0,0,zone-1-grasslands,0.012,900,180
+iron-sword,Iron Sword,weapon,weapon,warrior,226,IronSword,Items,36,false,1,5,9,0,0,0,0,0,0,0,0,0,0,0,0,0,0,zone-1-grasslands,0.006,1100,220
+spirit-blade,Spirit Blade,weapon,weapon,warrior,1,SpiritBlade,Items,54,false,1,8,20,0,0,0,0,0,0,0,0,0,0,3,0,0,-1,zone-1-grasslands,0.001,30000,6000
+base-dress,Base Dress,armour,armour,any,317,BaseDress(M),Items,60,false,1,0,0,0,0,0,0,2,2,0,1,0,0,0,0,0,0,zone-1-grasslands,0.025,120,24
+spirit-helmet,Spirit Helmet,helmet,helmet,any,7,SpiritHelmet,Items,110,false,1,0,0,0,0,0,0,3,4,1,2,0,0,0,0,0,0,zone-1-grasslands,0.004,20000,4000
+spirit-bracelet,Spirit Bracelet,bracelet,bracelet,warrior,9,SpiritBracelet,Items,213,false,1,1,2,0,0,0,0,0,0,0,0,0,0,0,0,0,0,zone-1-grasslands,0.006,10000,2000
+spirit-ring,Spirit Ring,ring,ring,wizard,10,SpiritRing,Items,179,false,1,0,0,1,5,0,0,0,0,0,0,0,0,0,0,0,0,zone-1-grasslands,0.004,10000,2000
+spirit-necklace,Spirit Necklace,necklace,necklace,taoist,8,SpiritNecklace,Items,249,false,1,0,0,0,0,0,4,0,0,0,0,0,0,0,0,0,0,zone-1-grasslands,0.004,10000,2000
+hp-drug-small,Small HP Drug,potion,consumable,any,658,(HP)DrugSmall,Items,398,true,64,0,0,0,0,0,0,0,0,0,0,30,0,0,0,0,0,zone-1-grasslands,0.08,40,8
+mp-drug-small,Small MP Drug,potion,consumable,any,659,(MP)DrugSmall,Items,394,true,64,0,0,0,0,0,0,0,0,0,0,0,40,0,0,0,0,zone-1-grasslands,0.06,40,8

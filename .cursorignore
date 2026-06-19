@@ -1,0 +1,47 @@
+﻿# Release builds and old itch zips (~3.3 GB)
+dist/
+
+# Tile review: 30,000+ PNG previews and catalogs
+tile-review/
+
+# Runtime game assets (1000+ PNG, 500+ JSON atlases, 300+ WAV)
+public/
+
+# Dependencies and local deploy state
+node_modules/
+.wrangler/
+
+# Generated / scratch output
+tools/generated-data/
+content-audit/
+outputs/
+tmp/
+
+# Crystal library binaries used only by export scripts (181 files)
+**/*.Lib
+
+# Binary and archive assets
+**/*.png
+**/*.jpg
+**/*.jpeg
+**/*.gif
+**/*.webp
+**/*.bmp
+**/*.ogg
+**/*.mp3
+**/*.wav
+**/*.zip
+**/*.tar
+**/*.tar.gz
+**/*.7z
+
+# Large generated data blobs (grep or scripts when needed)
+src/data/crystal-maps.json
+src/data/crystal-items.json
+src/data/crystal-monsters.json
+src/data/crystal-npcs.json
+src/data/items.json
+public/mapstamps/
+
+# Review HTML pages (not game source)
+**/*.html

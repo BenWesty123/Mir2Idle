@@ -1,0 +1,48 @@
+﻿{
+  "files.exclude": {
+    "dist": true,
+    "tile-review": true,
+    "node_modules": true,
+    ".wrangler": true,
+    "tools/generated-data": true,
+    "outputs": true,
+    "tmp": true
+  },
+  "search.exclude": {
+    "dist": true,
+    "tile-review": true,
+    "public": true,
+    "node_modules": true,
+    ".wrangler": true,
+    "tools/generated-data": true,
+    "content-audit": true,
+    "outputs": true,
+    "tmp": true,
+    "**/*.Lib": true,
+    "**/*.zip": true,
+    "**/*.png": true,
+    "**/*.wav": true,
+    "src/data/crystal-maps.json": true,
+    "src/data/crystal-items.json": true,
+    "src/data/crystal-monsters.json": true,
+    "src/data/crystal-npcs.json": true
+  },
+  "files.watcherExclude": {
+    "**/dist/**": true,
+    "**/tile-review/**": true,
+    "**/public/**": true,
+    "**/node_modules/**": true,
+    "**/.wrangler/**": true,
+    "**/tools/generated-data/**": true,
+    "**/*.png": true,
+    "**/*.jpg": true,
+    "**/*.jpeg": true,
+    "**/*.gif": true,
+    "**/*.webp": true,
+    "**/*.wav": true,
+    "**/*.ogg": true,
+    "**/*.mp3": true,
+    "**/*.zip": true,
+    "**/*.Lib": true
+  }
+}

@@ -1,0 +1,922 @@
+{
+  "dataRoot": "C:/Users/bb-we/Documents/Crystal-master/Next/NextClient/Data",
+  "outputRoot": "../public/spellfx",
+  "direction": 2,
+  "spells": [
+    {
+      "id": "FireBall",
+      "layers": [
+        {
+          "file": "Magic",
+          "start": 0,
+          "count": 10,
+          "directionMul": 0,
+          "totalDurationMs": 600
+        }
+      ],
+      "projectile": {
+        "file": "Magic",
+        "baseIndex": 10,
+        "frameCount": 6,
+        "skip": 4,
+        "facing8": 2,
+        "interval": 30,
+        "moveDurationMs": 400,
+        "delayMs": 320,
+        "startOffsetX": 12,
+        "startOffsetY": -48,
+        "endOffsetX": 110,
+        "endOffsetY": -22
+      }
+    },
+    {
+      "id": "Healing",
+      "layers": [
+        {
+          "file": "Magic",
+          "start": 200,
+          "count": 10,
+          "totalDurationMs": 600
+        }
+      ]
+    },
+    {
+      "id": "HealingRestore",
+      "layers": [
+        {
+          "file": "Magic",
+          "start": 370,
+          "count": 10,
+          "totalDurationMs": 800
+        }
+      ]
+    },
+    {
+      "id": "SoulShield",
+      "layers": [],
+      "projectile": {
+        "file": "Magic",
+        "baseIndex": 1160,
+        "frameCount": 3,
+        "skip": 0,
+        "facing8": 2,
+        "interval": 30,
+        "moveDurationMs": 400,
+        "delayMs": 0,
+        "startOffsetX": 8,
+        "startOffsetY": -42,
+        "endOffsetX": 40,
+        "endOffsetY": -42
+      }
+    },
+    {
+      "id": "SoulShieldImpact",
+      "layers": [
+        {
+          "file": "Magic",
+          "start": 1320,
+          "count": 15,
+          "totalDurationMs": 1200
+        }
+      ]
+    },
+    {
+      "id": "BlessedArmour",
+      "layers": [],
+      "projectile": {
+        "file": "Magic",
+        "baseIndex": 1160,
+        "frameCount": 3,
+        "skip": 0,
+        "facing8": 2,
+        "interval": 30,
+        "moveDurationMs": 400,
+        "delayMs": 0,
+        "startOffsetX": 8,
+        "startOffsetY": -42,
+        "endOffsetX": 40,
+        "endOffsetY": -42
+      }
+    },
+    {
+      "id": "BlessedArmourImpact",
+      "layers": [
+        {
+          "file": "Magic",
+          "start": 1340,
+          "count": 15,
+          "totalDurationMs": 1200
+        }
+      ]
+    },
+    {
+      "id": "Repulsion",
+      "layers": [
+        {
+          "file": "Magic",
+          "start": 900,
+          "count": 6,
+          "totalDurationMs": 600
+        }
+      ]
+    },
+    {
+      "id": "ElectricShock",
+      "layers": [
+        {
+          "file": "Magic",
+          "start": 1560,
+          "count": 10,
+          "totalDurationMs": 600
+        }
+      ]
+    },
+    {
+      "id": "Poisoning",
+      "layers": [
+        {
+          "file": "Magic",
+          "start": 600,
+          "count": 10,
+          "totalDurationMs": 600
+        }
+      ]
+    },
+    {
+      "id": "GreatFireBall",
+      "layers": [
+        {
+          "file": "Magic",
+          "start": 400,
+          "count": 10,
+          "totalDurationMs": 600
+        }
+      ],
+      "projectile": {
+        "file": "Magic",
+        "baseIndex": 410,
+        "frameCount": 6,
+        "skip": 4,
+        "facing8": 2,
+        "interval": 30,
+        "moveDurationMs": 420,
+        "delayMs": 320,
+        "startOffsetX": 10,
+        "startOffsetY": -46,
+        "endOffsetX": 108,
+        "endOffsetY": -24
+      }
+    },
+    {
+      "id": "HellFire",
+      "layers": [
+        {
+          "file": "Magic",
+          "start": 920,
+          "count": 10,
+          "totalDurationMs": 600
+        }
+      ]
+    },
+    {
+      "id": "ThunderBolt",
+      "layers": [
+        {
+          "file": "Magic2",
+          "start": 20,
+          "count": 3,
+          "totalDurationMs": 300
+        }
+      ]
+    },
+    {
+      "id": "SummonSkeleton",
+      "layers": [
+        {
+          "file": "Magic",
+          "start": 1500,
+          "count": 10,
+          "totalDurationMs": 600
+        }
+      ]
+    },
+    {
+      "id": "StormEscape",
+      "layers": [
+        {
+          "file": "Magic3",
+          "start": 590,
+          "count": 10,
+          "totalDurationMs": 600
+        }
+      ]
+    },
+    {
+      "id": "Teleport",
+      "layers": [
+        {
+          "file": "Magic",
+          "start": 1590,
+          "count": 10,
+          "totalDurationMs": 600
+        }
+      ]
+    },
+    {
+      "id": "Blink",
+      "layers": [
+        {
+          "file": "Magic",
+          "start": 1590,
+          "count": 10,
+          "totalDurationMs": 600
+        }
+      ]
+    },
+    {
+      "id": "Hiding",
+      "layers": [
+        {
+          "file": "Magic",
+          "start": 1520,
+          "count": 10,
+          "totalDurationMs": 600
+        }
+      ]
+    },
+    {
+      "id": "Haste",
+      "layers": [
+        {
+          "file": "Magic2",
+          "start": 2140,
+          "count": 6,
+          "directionMul": 10,
+          "totalDurationMs": 600
+        }
+      ]
+    },
+    {
+      "id": "Fury",
+      "layers": [
+        {
+          "file": "Magic3",
+          "start": 200,
+          "count": 8,
+          "totalDurationMs": 800
+        },
+        {
+          "file": "Magic3",
+          "start": 187,
+          "count": 10,
+          "totalDurationMs": 1000
+        }
+      ]
+    },
+    {
+      "id": "ImmortalSkin",
+      "layers": [
+        {
+          "file": "Magic3",
+          "start": 550,
+          "count": 17,
+          "totalDurationMs": 2400
+        },
+        {
+          "file": "Magic3",
+          "start": 570,
+          "count": 5,
+          "totalDurationMs": 600
+        }
+      ]
+    },
+    {
+      "id": "FireBang",
+      "layers": [
+        {
+          "file": "Magic",
+          "start": 1650,
+          "count": 10,
+          "totalDurationMs": 600
+        }
+      ]
+    },
+    {
+      "id": "FireWall",
+      "layers": [
+        {
+          "file": "Magic",
+          "start": 1620,
+          "count": 10,
+          "totalDurationMs": 600
+        }
+      ]
+    },
+    {
+      "id": "HealingCircle",
+      "layers": [
+        {
+          "file": "Magic3",
+          "start": 620,
+          "count": 10,
+          "totalDurationMs": 600
+        }
+      ]
+    },
+    {
+      "id": "MoonMist",
+      "layers": [
+        {
+          "file": "Magic3",
+          "start": 680,
+          "count": 25,
+          "totalDurationMs": 1800
+        }
+      ]
+    },
+    {
+      "id": "TrapHexagon",
+      "layers": [
+        {
+          "file": "Magic",
+          "start": 1380,
+          "count": 10,
+          "totalDurationMs": 600
+        }
+      ]
+    },
+    {
+      "id": "EnergyRepulsor",
+      "layers": [
+        {
+          "file": "Magic2",
+          "start": 190,
+          "count": 6,
+          "totalDurationMs": 600
+        }
+      ]
+    },
+    {
+      "id": "FireBurst",
+      "layers": [
+        {
+          "file": "Magic2",
+          "start": 2320,
+          "count": 10,
+          "totalDurationMs": 600
+        }
+      ]
+    },
+    {
+      "id": "FlameDisruptor",
+      "layers": [
+        {
+          "file": "Magic2",
+          "start": 130,
+          "count": 6,
+          "totalDurationMs": 600
+        }
+      ]
+    },
+    {
+      "id": "SummonShinsu",
+      "layers": [
+        {
+          "file": "Magic2",
+          "start": 0,
+          "count": 10,
+          "totalDurationMs": 600
+        }
+      ]
+    },
+    {
+      "id": "UltimateEnhancer",
+      "layers": [
+        {
+          "file": "Magic2",
+          "start": 160,
+          "count": 15,
+          "totalDurationMs": 1000
+        }
+      ]
+    },
+    {
+      "id": "FrostCrunch",
+      "layers": [
+        {
+          "file": "Magic2",
+          "start": 400,
+          "count": 10,
+          "totalDurationMs": 600
+        }
+      ]
+    },
+    {
+      "id": "Purification",
+      "layers": [
+        {
+          "file": "Magic2",
+          "start": 600,
+          "count": 10,
+          "totalDurationMs": 600
+        }
+      ]
+    },
+    {
+      "id": "FlameField",
+      "layers": [
+        {
+          "file": "Magic2",
+          "start": 910,
+          "count": 23,
+          "totalDurationMs": 1800
+        }
+      ]
+    },
+    {
+      "id": "Trap",
+      "layers": [
+        {
+          "file": "Magic2",
+          "start": 2340,
+          "count": 11,
+          "totalDurationMs": 1100
+        }
+      ]
+    },
+    {
+      "id": "MoonLight",
+      "layers": [
+        {
+          "file": "Magic2",
+          "start": 2380,
+          "count": 10,
+          "totalDurationMs": 600
+        }
+      ]
+    },
+    {
+      "id": "SwiftFeet",
+      "layers": [
+        {
+          "file": "Magic2",
+          "start": 2440,
+          "count": 16,
+          "totalDurationMs": 1600
+        }
+      ]
+    },
+    {
+      "id": "LightBody",
+      "layers": [
+        {
+          "file": "Magic2",
+          "start": 2470,
+          "count": 10,
+          "totalDurationMs": 600
+        }
+      ]
+    },
+    {
+      "id": "PoisonSword",
+      "layers": [
+        {
+          "file": "Magic2",
+          "start": 2490,
+          "count": 10,
+          "directionMul": 10,
+          "totalDurationMs": 1100
+        }
+      ]
+    },
+    {
+      "id": "DarkBody",
+      "layers": [
+        {
+          "file": "Magic2",
+          "start": 2580,
+          "count": 10,
+          "totalDurationMs": 1000
+        }
+      ]
+    },
+    {
+      "id": "ThunderStorm",
+      "layers": [
+        {
+          "file": "Magic",
+          "start": 1680,
+          "count": 10,
+          "totalDurationMs": 600
+        }
+      ]
+    },
+    {
+      "id": "MassHealing",
+      "layers": [
+        {
+          "file": "Magic",
+          "start": 1790,
+          "count": 10,
+          "totalDurationMs": 600
+        }
+      ]
+    },
+    {
+      "id": "IceStorm",
+      "layers": [
+        {
+          "file": "Magic",
+          "start": 3840,
+          "count": 10,
+          "totalDurationMs": 600
+        },
+        {
+          "file": "Magic",
+          "start": 3850,
+          "count": 20,
+          "totalDurationMs": 1300,
+          "anchor": "enemy",
+          "delayMs": 500
+        }
+      ]
+    },
+    {
+      "id": "MagicShield",
+      "layers": [
+        {
+          "file": "Magic",
+          "start": 3880,
+          "count": 10,
+          "totalDurationMs": 600
+        },
+        {
+          "file": "Magic",
+          "start": 3890,
+          "count": 3,
+          "totalDurationMs": 600
+        },
+        {
+          "file": "Magic",
+          "start": 3900,
+          "count": 3,
+          "totalDurationMs": 600
+        }
+      ]
+    },
+    {
+      "id": "TurnUndead",
+      "layers": [
+        {
+          "file": "Magic",
+          "start": 3920,
+          "count": 10,
+          "totalDurationMs": 600
+        }
+      ]
+    },
+    {
+      "id": "MagicBooster",
+      "layers": [
+        {
+          "file": "Magic3",
+          "start": 80,
+          "count": 9,
+          "totalDurationMs": 900
+        }
+      ]
+    },
+    {
+      "id": "PetEnhancer",
+      "layers": [
+        {
+          "file": "Magic3",
+          "start": 200,
+          "count": 8,
+          "totalDurationMs": 800
+        }
+      ]
+    },
+    {
+      "id": "Revelation",
+      "layers": [
+        {
+          "file": "Magic",
+          "start": 3960,
+          "count": 20,
+          "totalDurationMs": 1200
+        }
+      ]
+    },
+    {
+      "id": "ProtectionField",
+      "layers": [
+        {
+          "file": "Magic2",
+          "start": 1520,
+          "count": 10,
+          "totalDurationMs": 600
+        }
+      ]
+    },
+    {
+      "id": "Rage",
+      "layers": [
+        {
+          "file": "Magic2",
+          "start": 1510,
+          "count": 10,
+          "totalDurationMs": 600
+        }
+      ]
+    },
+    {
+      "id": "Vampirism",
+      "layers": [
+        {
+          "file": "Magic2",
+          "start": 1040,
+          "count": 7,
+          "totalDurationMs": 600
+        }
+      ]
+    },
+    {
+      "id": "LionRoar",
+      "layers": [
+        {
+          "file": "Magic2",
+          "start": 710,
+          "count": 20,
+          "totalDurationMs": 1200
+        }
+      ]
+    },
+    {
+      "id": "BattleCry",
+      "layers": [
+        {
+          "file": "Magic2",
+          "start": 710,
+          "count": 20,
+          "totalDurationMs": 1200
+        }
+      ]
+    },
+    {
+      "id": "TwinDrakeBlade",
+      "layers": [
+        {
+          "file": "Magic2",
+          "start": 210,
+          "count": 6,
+          "totalDurationMs": 500
+        },
+        {
+          "file": "Magic2",
+          "start": 220,
+          "count": 6,
+          "directionMul": 20,
+          "totalDurationMs": 500
+        }
+      ]
+    },
+    {
+      "id": "Entrapment",
+      "layers": [
+        {
+          "file": "Magic2",
+          "start": 990,
+          "count": 10,
+          "totalDurationMs": 600
+        }
+      ]
+    },
+    {
+      "id": "BladeAvalanche",
+      "layers": [
+        {
+          "file": "Magic2",
+          "start": 740,
+          "count": 15,
+          "directionMul": 20,
+          "totalDurationMs": 1500
+        }
+      ]
+    },
+    {
+      "id": "SlashingBurst",
+      "layers": [
+        {
+          "file": "Magic2",
+          "start": 1700,
+          "count": 9,
+          "directionMul": 10,
+          "totalDurationMs": 900
+        }
+      ]
+    },
+    {
+      "id": "CounterAttack",
+      "layers": [
+        {
+          "file": "Magic",
+          "start": 3480,
+          "count": 10,
+          "directionMul": 10,
+          "totalDurationMs": 1000
+        },
+        {
+          "file": "Magic3",
+          "start": 140,
+          "count": 2,
+          "totalDurationMs": 200
+        }
+      ]
+    },
+    {
+      "id": "CrescentSlash",
+      "layers": [
+        {
+          "file": "Magic2",
+          "start": 2620,
+          "count": 20,
+          "directionMul": 20,
+          "totalDurationMs": 2000
+        }
+      ]
+    },
+    {
+      "id": "Mirroring",
+      "layers": [
+        {
+          "file": "Magic2",
+          "start": 650,
+          "count": 10,
+          "totalDurationMs": 600
+        }
+      ]
+    },
+    {
+      "id": "Blizzard",
+      "layers": [
+        {
+          "file": "Magic2",
+          "start": 1540,
+          "count": 8,
+          "totalDurationMs": 600
+        }
+      ]
+    },
+    {
+      "id": "MeteorStrike",
+      "layers": [
+        {
+          "file": "Magic2",
+          "start": 1590,
+          "count": 10,
+          "totalDurationMs": 600
+        }
+      ]
+    },
+    {
+      "id": "HeavenlySword",
+      "layers": [
+        {
+          "file": "Magic2",
+          "start": 2230,
+          "count": 8,
+          "directionMul": 10,
+          "totalDurationMs": 800
+        }
+      ]
+    },
+    {
+      "id": "ElementalBarrier",
+      "layers": [
+        {
+          "file": "Magic3",
+          "start": 1880,
+          "count": 8,
+          "totalDurationMs": 600
+        }
+      ]
+    },
+    {
+      "id": "PoisonShot",
+      "layers": [
+        {
+          "file": "Magic3",
+          "start": 2300,
+          "count": 8,
+          "totalDurationMs": 1000
+        }
+      ]
+    },
+    {
+      "id": "OneWithNature",
+      "layers": [
+        {
+          "file": "Magic3",
+          "start": 2710,
+          "count": 8,
+          "totalDurationMs": 1200
+        }
+      ]
+    },
+    {
+      "id": "FireBounce",
+      "layers": [
+        {
+          "file": "Magic",
+          "start": 400,
+          "count": 10,
+          "totalDurationMs": 600
+        }
+      ]
+    },
+    {
+      "id": "MeteorShower",
+      "layers": [
+        {
+          "file": "Magic",
+          "start": 400,
+          "count": 10,
+          "totalDurationMs": 600
+        }
+      ]
+    },
+    {
+      "id": "Slaying",
+      "layers": [
+        {
+          "file": "Magic",
+          "start": 1820,
+          "count": 6,
+          "directionMul": 10,
+          "totalDurationMs": 600
+        }
+      ]
+    },
+    {
+      "id": "Thrusting",
+      "layers": [
+        {
+          "file": "Magic",
+          "start": 2190,
+          "count": 6,
+          "directionMul": 10,
+          "totalDurationMs": 600
+        }
+      ]
+    },
+    {
+      "id": "HalfMoon",
+      "layers": [
+        {
+          "file": "Magic",
+          "start": 2560,
+          "count": 6,
+          "directionMul": 10,
+          "totalDurationMs": 600
+        }
+      ]
+    },
+    {
+      "id": "CrossHalfMoon",
+      "layers": [
+        {
+          "file": "Magic2",
+          "start": 40,
+          "count": 6,
+          "directionMul": 10,
+          "totalDurationMs": 600
+        }
+      ]
+    },
+    {
+      "id": "DoubleSlash",
+      "layers": [
+        {
+          "file": "Magic2",
+          "start": 2050,
+          "count": 6,
+          "directionMul": 10,
+          "totalDurationMs": 600
+        }
+      ]
+    },
+    {
+      "id": "FlamingSword",
+      "layers": [
+        {
+          "file": "Magic",
+          "start": 3480,
+          "count": 6,
+          "directionMul": 10,
+          "totalDurationMs": 600
+        }
+      ]
+    }
+  ]
+}

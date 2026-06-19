@@ -1,0 +1,333 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <title>Bicheon Wall — Town Area Picker</title>
+  <style>
+    :root { color-scheme: dark; }
+    body { margin: 0; font: 14px/1.45 Segoe UI, sans-serif; background: #12151c; color: #e8dcc0; }
+    main { max-width: 1500px; margin: 0 auto; padding: 20px; }
+    h1 { margin: 0 0 8px; font-size: 22px; }
+    p, li { color: #b9aa88; }
+    .toolbar { display: flex; flex-wrap: wrap; gap: 12px; align-items: center; margin: 16px 0; }
+    .toolbar label { display: flex; gap: 8px; align-items: center; cursor: pointer; }
+    .coords, .output {
+      font-family: Consolas, monospace;
+      background: #1b2029;
+      border: 1px solid #3a4354;
+      padding: 8px 12px;
+      border-radius: 6px;
+    }
+    .coords { min-width: 260px; }
+    .output {
+      width: 100%;
+      margin-top: 12px;
+      white-space: pre-wrap;
+      word-break: break-word;
+      font-size: 12px;
+      line-height: 1.5;
+    }
+    button {
+      background: #2a3344;
+      color: #e8dcc0;
+      border: 1px solid #4a5568;
+      border-radius: 6px;
+      padding: 8px 12px;
+      cursor: pointer;
+    }
+    button:hover { background: #364055; }
+    button.primary { background: #6b4f1d; border-color: #c9a24d; }
+    .viewer {
+      position: relative;
+      display: inline-block;
+      border: 1px solid #3a4354;
+      background: #0d1016;
+      max-width: 100%;
+      overflow: auto;
+      user-select: none;
+    }
+    #mapImage {
+      display: block;
+      max-width: none;
+      height: auto;
+      image-rendering: pixelated;
+      cursor: crosshair;
+    }
+    .overlay { position: absolute; inset: 0; pointer-events: none; }
+    .marker {
+      position: absolute;
+      transform: translate(-50%, -50%);
+      pointer-events: none;
+      box-shadow: 0 0 0 1px rgba(0,0,0,.75);
+    }
+    .marker.dot {
+      width: 12px;
+      height: 12px;
+      border-radius: 50%;
+      border: 2px solid #fff;
+    }
+    .marker.focus { background: #e74c3c; }
+    .marker.new-focus { background: #f39c12; }
+    .marker.safe { background: #2ecc71; width: 10px; height: 10px; border-width: 1px; }
+    .marker.rect {
+      border: 2px dashed rgba(255,255,255,.9);
+      background: rgba(52,152,219,.12);
+      box-sizing: border-box;
+      transform: none;
+    }
+    .marker.rect.current { border-color: #e74c3c; background: rgba(231,76,60,.1); }
+    .marker.rect.new { border-color: #f39c12; background: rgba(243,156,18,.14); }
+    .marker.rect.drag { border-color: #2ecc71; background: rgba(46,204,113,.12); }
+    .legend { display: flex; flex-wrap: wrap; gap: 14px; margin-top: 12px; }
+    .legend span { display: inline-flex; align-items: center; gap: 6px; }
+    .dot { width: 10px; height: 10px; border-radius: 50%; display: inline-block; }
+    .mode-active { color: #f4ddb0; font-weight: 700; }
+  </style>
+</head>
+<body>
+  <main>
+    <h1>Bicheon Wall — Town Area Picker</h1>
+    <p>Zoomed-out render from Crystal <code>0.map</code>. Use this to pick the idle town stamp crop and camera focus. Scroll the map panel if needed — coverage is listed below after load.</p>
+    <p id="coverage" class="coords" style="display:inline-block;margin:0 0 12px;"></p>
+    <ul>
+      <li><strong>Drag</strong> on the map to draw a new stamp rectangle (orange when done).</li>
+      <li><strong>Shift+click</strong> to set the focus / spawn point (orange dot).</li>
+      <li>Plain <strong>click</strong> copies <code>X,Y</code> to clipboard.</li>
+      <li>Red dashed box = current in-game town stamp. Red dot = current focus.</li>
+    </ul>
+    <div class="toolbar">
+      <div class="coords" id="coords">Loading…</div>
+      <label><input type="checkbox" id="toggleMarkers" checked /> Show overlays</label>
+      <label id="modeCropLabel"><input type="radio" name="mode" value="crop" checked /> Drag crop</label>
+      <label id="modeFocusLabel"><input type="radio" name="mode" value="focus" /> Click focus</label>
+      <button type="button" id="resetSelection">Reset selection</button>
+      <button type="button" id="copyParams" class="primary">Copy build params</button>
+    </div>
+    <div class="viewer" id="viewer">
+      <img id="mapImage" src="city-overview.png" alt="Bicheon Wall overview" />
+      <div class="overlay" id="overlay"></div>
+    </div>
+    <pre class="output" id="output"></pre>
+    <div class="legend">
+      <span><i class="dot" style="background:#e74c3c"></i> Current stamp / focus</span>
+      <span><i class="dot" style="background:#f39c12"></i> New selection</span>
+      <span><i class="dot" style="background:#2ecc71"></i> Safe zones</span>
+    </div>
+  </main>
+  <script>
+    let meta = null;
+    let selection = null;
+    let newFocus = null;
+    let dragStart = null;
+    let dragCurrent = null;
+
+    const viewer = document.getElementById("viewer");
+    const overlay = document.getElementById("overlay");
+    const img = document.getElementById("mapImage");
+    const coords = document.getElementById("coords");
+    const output = document.getElementById("output");
+    const toggle = document.getElementById("toggleMarkers");
+
+    function cellScale() {
+      return {
+        w: meta.cellWidth * meta.overviewScale,
+        h: meta.cellHeight * meta.overviewScale,
+      };
+    }
+
+    function mapPointToPixel(mapX, mapY) {
+      const s = cellScale();
+      return {
+        left: (mapX - meta.cropX) * s.w,
+        top: (mapY - meta.cropY) * s.h,
+      };
+    }
+
+    function pixelToMap(clientX, clientY) {
+      const rect = img.getBoundingClientRect();
+      const px = (clientX - rect.left) / rect.width * img.naturalWidth;
+      const py = (clientY - rect.top) / rect.height * img.naturalHeight;
+      const s = cellScale();
+      const mapX = Math.floor(px / s.w) + meta.cropX;
+      const mapY = Math.floor(py / s.h) + meta.cropY;
+      return { mapX, mapY };
+    }
+
+    function normalizeRect(a, b) {
+      const x1 = Math.min(a.mapX, b.mapX);
+      const y1 = Math.min(a.mapY, b.mapY);
+      const x2 = Math.max(a.mapX, b.mapX);
+      const y2 = Math.max(a.mapY, b.mapY);
+      return {
+        x: x1,
+        y: y1,
+        w: Math.max(1, x2 - x1 + 1),
+        h: Math.max(1, y2 - y1 + 1),
+      };
+    }
+
+    function addRect(parent, rect, className, title) {
+      const tl = mapPointToPixel(rect.x, rect.y);
+      const s = cellScale();
+      const node = document.createElement("div");
+      node.className = "marker rect " + className;
+      node.style.left = tl.left + "px";
+      node.style.top = tl.top + "px";
+      node.style.width = (rect.w * s.w) + "px";
+      node.style.height = (rect.h * s.h) + "px";
+      node.title = title;
+      parent.appendChild(node);
+    }
+
+    function addDot(parent, x, y, className, title) {
+      const point = mapPointToPixel(x, y);
+      const node = document.createElement("div");
+      node.className = "marker dot " + className;
+      node.style.left = point.left + "px";
+      node.style.top = point.top + "px";
+      node.title = title + " (" + x + ", " + y + ")";
+      parent.appendChild(node);
+    }
+
+    function buildParamsText() {
+      const stamp = selection || meta.currentStamp;
+      const focusX = newFocus?.x ?? meta.currentStamp.focusX;
+      const focusY = newFocus?.y ?? meta.currentStamp.focusY;
+      return [
+        "# Paste into tools/build-bicheon-wall-stamp.ps1 defaults, then rebuild:",
+        "powershell -File tools/build-bicheon-wall-stamp.ps1 `",
+        "  -CropX " + stamp.cropX + " `",
+        "  -CropY " + stamp.cropY + " `",
+        "  -CropWCells " + stamp.cropWCells + " `",
+        "  -CropHCells " + stamp.cropHCells + " `",
+        "  -FocusMapX " + focusX + " `",
+        "  -FocusMapY " + focusY,
+        "",
+        "Crop: " + stamp.cropX + "," + stamp.cropY + " size " + stamp.cropWCells + "x" + stamp.cropHCells,
+        "Focus: " + focusX + "," + focusY,
+      ].join("\n");
+    }
+
+    function updateOutput() {
+      output.textContent = buildParamsText();
+    }
+
+    function renderOverlays() {
+      overlay.innerHTML = "";
+      if (!toggle.checked || !meta) return;
+
+      const cur = meta.currentStamp;
+      addRect(
+        overlay,
+        { x: cur.cropX, y: cur.cropY, w: cur.cropWCells, h: cur.cropHCells },
+        "current",
+        "Current in-game stamp"
+      );
+      addDot(overlay, cur.focusX, cur.focusY, "focus", "Current focus");
+
+      if (selection) {
+        addRect(overlay, selection, "new", "New stamp crop");
+      }
+      if (dragStart && dragCurrent) {
+        addRect(overlay, normalizeRect(dragStart, dragCurrent), "drag", "Dragging…");
+      }
+      if (newFocus) {
+        addDot(overlay, newFocus.x, newFocus.y, "new-focus", "New focus");
+      }
+      for (const zone of meta.safeZones || []) {
+        addDot(overlay, zone.x, zone.y, "safe", zone.label || "Safe zone");
+      }
+    }
+
+    function activeMode() {
+      return document.querySelector('input[name="mode"]:checked')?.value || "crop";
+    }
+
+    async function loadMeta() {
+      const response = await fetch("meta.json?" + Date.now());
+      meta = await response.json();
+      img.width = meta.scaledWidth;
+      img.height = meta.scaledHeight;
+      coords.textContent = "Hover the map…";
+      const cov = document.getElementById("coverage");
+      if (cov) {
+        cov.textContent = "Visible map cells: X "
+          + meta.cropX + "–" + (meta.cropX + meta.cropWCells)
+          + ", Y " + meta.cropY + "–" + (meta.cropY + meta.cropHCells);
+      }
+      updateOutput();
+      renderOverlays();
+    }
+
+    img.addEventListener("mousemove", (event) => {
+      if (!meta) return;
+      const { mapX, mapY } = pixelToMap(event.clientX, event.clientY);
+      coords.textContent = "Map: " + mapX + ", " + mapY;
+      if (dragStart) {
+        dragCurrent = { mapX, mapY };
+        renderOverlays();
+      }
+    });
+
+    img.addEventListener("mousedown", (event) => {
+      if (!meta || activeMode() !== "crop" || event.button !== 0) return;
+      dragStart = pixelToMap(event.clientX, event.clientY);
+      dragCurrent = dragStart;
+      renderOverlays();
+    });
+
+    window.addEventListener("mouseup", () => {
+      if (!dragStart || !dragCurrent) return;
+      selection = normalizeRect(dragStart, dragCurrent);
+      dragStart = null;
+      dragCurrent = null;
+      updateOutput();
+      renderOverlays();
+    });
+
+    img.addEventListener("click", async (event) => {
+      if (!meta) return;
+      const point = pixelToMap(event.clientX, event.clientY);
+      if (event.shiftKey || activeMode() === "focus") {
+        newFocus = { x: point.mapX, y: point.mapY };
+        updateOutput();
+        renderOverlays();
+        coords.textContent = "Focus set: " + point.mapX + ", " + point.mapY;
+        return;
+      }
+      const text = point.mapX + ", " + point.mapY;
+      coords.textContent = "Copied: " + text;
+      try { await navigator.clipboard.writeText(text); } catch {}
+    });
+
+    toggle.addEventListener("change", renderOverlays);
+    document.getElementById("resetSelection").addEventListener("click", () => {
+      selection = null;
+      newFocus = null;
+      dragStart = null;
+      dragCurrent = null;
+      updateOutput();
+      renderOverlays();
+    });
+    document.getElementById("copyParams").addEventListener("click", async () => {
+      const text = buildParamsText();
+      output.textContent = text;
+      try { await navigator.clipboard.writeText(text); } catch {}
+      coords.textContent = "Copied build params";
+    });
+    document.querySelectorAll('input[name="mode"]').forEach((input) => {
+      input.addEventListener("change", () => {
+        document.getElementById("modeCropLabel").classList.toggle("mode-active", activeMode() === "crop");
+        document.getElementById("modeFocusLabel").classList.toggle("mode-active", activeMode() === "focus");
+      });
+    });
+
+    img.addEventListener("load", () => { renderOverlays(); });
+    loadMeta().catch((error) => {
+      coords.textContent = "Failed to load meta.json";
+      output.textContent = String(error);
+    });
+    document.getElementById("modeCropLabel").classList.add("mode-active");
+  </script>
+</body>
+</html>

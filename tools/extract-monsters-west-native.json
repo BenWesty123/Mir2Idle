@@ -1,0 +1,17 @@
+{
+  "dataRoot": "./generated-data/monsters",
+  "outputRoot": "../public/monsters",
+  "direction": 6,
+  "actions": {
+    "standing": { "start": 0, "count": 4, "offset": 4, "interval": 500 },
+    "walking": { "start": 32, "count": 6, "offset": 6, "interval": 100 },
+    "attack1": { "start": 80, "count": 6, "offset": 6, "interval": 100 },
+    "struck": { "start": 128, "count": 2, "offset": 2, "interval": 200 },
+    "die": { "start": 144, "count": 10, "offset": 10, "interval": 100 },
+    "dead": { "start": 153, "count": 1, "offset": 10, "interval": 1000 },
+    "revive": { "start": 144, "count": 10, "offset": 10, "interval": 100 }
+  },
+  "layers": [
+    { "name": "monster", "folder": "Monster" }
+  ]
+}

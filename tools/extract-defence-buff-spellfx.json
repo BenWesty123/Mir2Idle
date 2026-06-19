@@ -1,0 +1,65 @@
+{
+  "dataRoot": "C:/Users/bb-we/Documents/Crystal-master/Next/NextClient/Data",
+  "outputRoot": "../public/spellfx",
+  "direction": 2,
+  "spells": [
+    {
+      "id": "SoulShield",
+      "layers": [],
+      "projectile": {
+        "file": "Magic",
+        "baseIndex": 1160,
+        "frameCount": 3,
+        "skip": 0,
+        "facing8": 2,
+        "interval": 30,
+        "moveDurationMs": 400,
+        "delayMs": 0,
+        "startOffsetX": 8,
+        "startOffsetY": -42,
+        "endOffsetX": 40,
+        "endOffsetY": -42
+      }
+    },
+    {
+      "id": "SoulShieldImpact",
+      "layers": [
+        {
+          "file": "Magic",
+          "start": 1320,
+          "count": 15,
+          "totalDurationMs": 1200
+        }
+      ]
+    },
+    {
+      "id": "BlessedArmour",
+      "layers": [],
+      "projectile": {
+        "file": "Magic",
+        "baseIndex": 1160,
+        "frameCount": 3,
+        "skip": 0,
+        "facing8": 2,
+        "interval": 30,
+        "moveDurationMs": 400,
+        "delayMs": 0,
+        "startOffsetX": 8,
+        "startOffsetY": -42,
+        "endOffsetX": 40,
+        "endOffsetY": -42
+      }
+    },
+    {
+      "id": "BlessedArmourImpact",
+      "layers": [
+        {
+          "file": "Magic",
+          "start": 1340,
+          "count": 15,
+          "totalDurationMs": 1200
+        }
+      ]
+    }
+  ]
+}
