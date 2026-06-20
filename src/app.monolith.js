@@ -636,6 +636,47 @@ function bossOrbDrops(chance = 0.01) {
   return BOSS_ORB_ITEM_IDS.map((id) => ({ id, chance }));
 }
 
+const BDD_SCORPION_IWT_PREMIUM_DROPS = [
+  { id: "8-trigram-wheel", chance: 0.025 },
+  { id: "adamantine-necklace", chance: 0.025 },
+  { id: "baek-ta-glove", chance: 0.025 },
+  { id: "black-boots", chance: 0.01 },
+  { id: "boundless-ring", chance: 0.025 },
+  { id: "great-helmet", chance: 0.01 },
+  { id: "hang-ma-wheel", chance: 0.025 },
+  { id: "helmet-of-hero", chance: 0.01 },
+  { id: "hero-necklace", chance: 0.025 },
+  { id: "leather-boots", chance: 0.025 },
+  { id: "noble-ring", chance: 0.05 },
+  { id: "requiem-necklace", chance: 0.025 },
+  { id: "soul-ring", chance: 0.05 },
+  { id: "spirit-reformer", chance: 0.025 },
+  { id: "tae-guk-ring", chance: 0.025 },
+  { id: "tao-coronet", chance: 0.01 },
+  { id: "thunder-ring", chance: 0.025 },
+  { id: "wisdom-coronet", chance: 0.01 },
+];
+
+const KING_HOG_PREMIUM_DROPS = [
+  { id: "8-trigram-wheel", chance: 0.05 },
+  { id: "adamantine-necklace", chance: 0.05 },
+  { id: "baek-ta-glove", chance: 0.05 },
+  { id: "black-boots", chance: 0.1 },
+  { id: "bok-ma-wheel", chance: 0.05 },
+  { id: "gold-belt", chance: 0.1 },
+  { id: "great-helmet", chance: 0.05 },
+  { id: "hang-ma-wheel", chance: 0.05 },
+  { id: "helmet-of-hero", chance: 0.05 },
+  { id: "hero-necklace", chance: 0.05 },
+  { id: "holy-tao-wheel", chance: 0.05 },
+  { id: "noble-ring", chance: 0.05 },
+  { id: "requiem-necklace", chance: 0.05 },
+  { id: "soul-ring", chance: 0.05 },
+  { id: "spirit-reformer", chance: 0.05 },
+  { id: "tao-coronet", chance: 0.05 },
+  { id: "wisdom-coronet", chance: 0.05 },
+];
+
 const WOMA_TAURUS_BOSS_DROPS = {
   gold: 20000,
   items: [
@@ -665,7 +706,6 @@ const INCARNATED_WT_BOSS_DROPS = {
     { id: "black-dragon-staff", chance: 1 / 10 },
     { id: "black-dragon-soul-sabre", chance: 1 / 10 },
     { id: "skeleton-helmet", chance: 1 / 10 },
-    { id: "heaven-armour", chance: 0.05 },
     { id: "steel-armour", chance: 0.05 },
     { id: "titan-armour", chance: 0.05 },
     { id: "dragon-robe", chance: 0.05 },
@@ -697,6 +737,7 @@ const INCARNATED_WT_BOSS_DROPS = {
     { id: "dragon-slayer", chance: 0.025 },
     { id: "dragon-staff", chance: 0.025 },
     { id: "soul-sabre", chance: 0.025 },
+    ...BDD_SCORPION_IWT_PREMIUM_DROPS,
     ...bossGemDrops(0.05),
     ...bossOrbDrops(0.01),
   ],
@@ -762,6 +803,55 @@ const ZUMA_TAURUS_BOSS_DROPS = {
     { id: "soul-sabre", chance: 0.025 },
     ...bossGemDrops(0.05),
     ...bossOrbDrops(0.01),
+  ],
+};
+const INCARNATED_ZT_BOSS_DROPS = {
+  gold: 20000,
+  items: [
+    { id: "zuma-relic", chance: 0.1 },
+    { id: "awakening-soul", chance: 0.2 },
+    { id: "book-twin-drake-blade", chance: 0.1 },
+    { id: "zuma-judgement-mace", chance: 1 / 10 },
+    { id: "zuma-war-mage-staff", chance: 1 / 10 },
+    { id: "zuma-soul-spring-wand", chance: 1 / 10 },
+    { id: "skeleton-helmet", chance: 1 / 10 },
+    { id: "iron-armour", chance: 0.05 },
+    { id: "wizard-robe", chance: 0.05 },
+    { id: "pearl-armour", chance: 0.05 },
+    { id: "claw-necklace", chance: 0.1 },
+    { id: "pearl-necklace", chance: 0.1 },
+    { id: "life-necklace", chance: 0.1 },
+    { id: "spirit-necklace", chance: 0.1 },
+    { id: "gale-necklace", chance: 0.1 },
+    { id: "green-bead", chance: 0.05 },
+    { id: "demonic-bells", chance: 0.05 },
+    { id: "soul-necklace", chance: 0.05 },
+    { id: "knight-bracelet", chance: 0.05 },
+    { id: "soul-spring-bracelet", chance: 0.05 },
+    { id: "dragon-bracelet", chance: 0.05 },
+    { id: "dragon-ring", chance: 0.1 },
+    { id: "ruby-ring", chance: 0.1 },
+    { id: "platinum-ring", chance: 0.1 },
+    { id: "spirit-ring", chance: 0.05 },
+    { id: "power-ring", chance: 0.05 },
+    { id: "violet-ring", chance: 0.05 },
+    { id: "titan-ring", chance: 0.05 },
+    { id: "judgement-mace", chance: 0.05 },
+    { id: "war-mage-staff", chance: 0.05 },
+    { id: "soul-spring-wand", chance: 0.05 },
+    { id: "war-spirit-blade", chance: 0.06 },
+    { id: "magic-scythe", chance: 0.06 },
+    { id: "stone-bamboo-fan", chance: 0.06 },
+    { id: "black-iron-helmet", chance: 0.05 },
+    { id: "dragon-slayer", chance: 0.025 },
+    { id: "dragon-staff", chance: 0.025 },
+    { id: "soul-sabre", chance: 0.025 },
+    { id: "heaven-sword", chance: 0.005 },
+    { id: "heaven-armour", chance: 0.005 },
+    ...KING_HOG_PREMIUM_DROPS,
+    { id: "oma-spirit-ring", chance: 0.05 },
+    ...bossGemDrops(0.05),
+    ...bossOrbDrops(0.02),
   ],
 };
 const EVIL_CENTIPEDE_BOSS_DROPS = {
@@ -888,6 +978,7 @@ const KING_SCORPION_BOSS_DROPS = {
     { id: "black-dragon-staff", chance: 0.025 },
     { id: "black-dragon-soul-sabre", chance: 0.025 },
     { id: "book-ice-storm", chance: 0.1 },
+    ...BDD_SCORPION_IWT_PREMIUM_DROPS,
     ...bossGemDrops(0.05),
     ...bossOrbDrops(0.01),
   ],
@@ -1126,6 +1217,7 @@ const KING_HOG_BOSS_DROPS = {
     { id: "impact-drug-m", chance: 0.12 },
     { id: "magic-drug-m", chance: 0.12 },
     { id: "taoist-drug-m", chance: 0.12 },
+    ...KING_HOG_PREMIUM_DROPS,
     ...bossGemDrops(0.1),
     ...bossOrbDrops(0.02),
   ],
@@ -1180,6 +1272,7 @@ const DARK_DEVIL_BOSS_DROPS = {
     { id: "impact-drug-m", chance: 0.15 },
     { id: "magic-drug-m", chance: 0.15 },
     { id: "taoist-drug-m", chance: 0.15 },
+    ...KING_HOG_PREMIUM_DROPS,
     ...bossGemDrops(0.12),
     ...bossOrbDrops(0.025),
   ],
@@ -1187,7 +1280,7 @@ const DARK_DEVIL_BOSS_DROPS = {
 const BOSS_DROP_TABLE_BY_LABEL = {
   "Wooma Taurus": WOMA_TAURUS_BOSS_DROPS,
   "Incarnated Wooma Taurus": INCARNATED_WT_BOSS_DROPS,
-  "Incarnated Zuma Taurus": ZUMA_TAURUS_BOSS_DROPS,
+  "Incarnated Zuma Taurus": INCARNATED_ZT_BOSS_DROPS,
   "Evil Snake": EVIL_SNAKE_BOSS_DROPS,
   "Zuma Taurus": ZUMA_TAURUS_BOSS_DROPS,
   "Evil Centipede": EVIL_CENTIPEDE_BOSS_DROPS,
@@ -2442,6 +2535,7 @@ const state = {
   activeScene: null,
   weaponRefine: createDefaultWeaponRefineState(),
   bossEntryZoneId: null,
+  bossEntryFromGroupDungeonAdvance: false,
   bossAssistSelection: [],
   bossEmpowerSelected: false,
   pendingBossAssistSelection: [],
@@ -2621,6 +2715,7 @@ const sceneScrollPositions = new Map();
 let combatSkillBarSignature = "";
 let playerHudSignature = "";
 let hotbarSignature = "";
+let partySwitchBarSignature = "";
 let lastSimulationAt = performance.now();
 let suppressSimulationRender = false;
 let musicAudio = null;
@@ -2693,6 +2788,7 @@ function labShellHtml() {
         <div class="stage-shell">
           <div class="player-resource-hud" id="playerResourceHud" hidden></div>
           <div class="stage" id="stage">
+            <div class="party-switch-bar" id="partySwitchBar" aria-label="Switch party character" hidden></div>
             <div class="crystal-hotbar" id="hotbar" aria-label="Potion hotbar"></div>
             <div class="combat-skill-bar" id="combatSkillBar" hidden></div>
           </div>
@@ -2746,6 +2842,7 @@ function gameShellHtml() {
           <div class="stage-shell game-stage-shell">
             <div class="player-resource-hud" id="playerResourceHud" hidden></div>
             <div class="stage" id="stage">
+              <div class="party-switch-bar" id="partySwitchBar" aria-label="Switch party character" hidden></div>
               <div class="crystal-hotbar" id="hotbar" aria-label="Potion hotbar"></div>
               <div class="combat-skill-bar" id="combatSkillBar" hidden></div>
             </div>
@@ -2793,6 +2890,7 @@ const els = {
   playerResourceHud: document.querySelector("#playerResourceHud"),
   hotbar: document.querySelector("#hotbar"),
   combatSkillBar: document.querySelector("#combatSkillBar"),
+  partySwitchBar: document.querySelector("#partySwitchBar"),
   readout: document.querySelector("#readout"),
   frameMeta: document.querySelector("#frameMeta"),
   gamePanel: document.querySelector("#gamePanel"),
@@ -3438,7 +3536,7 @@ function sanitizeBossRespawns(respawns = {}) {
   if (!respawns || typeof respawns !== "object") return {};
   return Object.fromEntries(
     Object.entries(respawns)
-      .filter(([zoneId]) => bossRoomDef(zoneId))
+      .filter(([zoneId]) => zoneTracksBossRespawn(zoneId))
       .map(([zoneId, readyAt]) => [zoneId, Math.max(0, Math.trunc(Number(readyAt) || 0))]),
   );
 }
@@ -3535,7 +3633,7 @@ function sanitizeBossKills(kills = {}) {
   if (!kills || typeof kills !== "object") return {};
   return Object.fromEntries(
     Object.entries(kills)
-      .filter(([zoneId]) => bossRoomDef(zoneId))
+      .filter(([zoneId]) => zoneTracksBossRespawn(zoneId))
       .map(([zoneId, count]) => [zoneId, Math.max(0, Math.trunc(Number(count) || 0))]),
   );
 }
@@ -6019,6 +6117,7 @@ function resetRuntimeGameState() {
   state.characterTab = "character";
   state.activeScene = null;
   state.bossEntryZoneId = null;
+  state.bossEntryFromGroupDungeonAdvance = false;
   state.bossAssistSelection = [];
   state.bossEmpowerSelected = false;
   state.pendingBossAssistSelection = [];
@@ -6033,6 +6132,7 @@ function invalidateUi() {
   combatSkillBarSignature = "";
   playerHudSignature = "";
   hotbarSignature = "";
+  partySwitchBarSignature = "";
 }
 
 function renderEnemyControls() {
@@ -12163,6 +12263,7 @@ function closeScene(scene = null, updateUrl = true) {
     if (state.activeScene === "townNpc" || state.activeScene === "storage" || state.activeScene === "bossEntry" || state.activeScene === "weaponRefine") state.activeScene = null;
     if (scene === "bossEntry") {
       state.bossEntryZoneId = null;
+      state.bossEntryFromGroupDungeonAdvance = false;
       state.bossEmpowerSelected = false;
     }
     if (scene === "townNpc") resetWeaponRefineState();
@@ -12173,6 +12274,7 @@ function closeScene(scene = null, updateUrl = true) {
     }
     if (state.activeScene === "townNpc" || state.activeScene === "storage" || state.activeScene === "weaponRefine") state.game.selectedTownNpcId = null;
     state.bossEntryZoneId = null;
+    state.bossEntryFromGroupDungeonAdvance = false;
     state.activeScene = null;
     state.openScenes.character = false;
     state.openScenes.inventory = false;
@@ -12247,6 +12349,7 @@ function buildSceneOverlaySignature(openScenes, bossEntryZoneId) {
     storagePage2Purchased: state.account.storage.page2Purchased,
     upgradeCategory: state.upgradeCategory,
     bossEntryZoneId: state.bossEntryZoneId,
+    bossEntryFromGroupDungeonAdvance: state.bossEntryFromGroupDungeonAdvance,
     bossAssistSelection: state.bossAssistSelection,
     bossRespawns: state.game.bossRespawns,
     bossKills: state.game.bossKills,
@@ -12488,6 +12591,10 @@ function groupDungeonBossSwarmEntrySceneHtml(zone) {
   const config = groupDungeonBossSwarmConfig(zone);
   const selected = selectedBossAssistIds();
   const nextZone = groupDungeonNextFloorZone(zone);
+  const bossName = groupDungeonBossSwarmLabel(zone);
+  const remainingMs = groupDungeonBossRespawnRemainingMs(zone);
+  const respawning = remainingMs > 0;
+  const respawnMinutes = groupDungeonBossRespawnMinutes(zone);
   const base = zone?.groupDungeonBossSwarmConfig ?? {};
   const spawnSchedule = config.spawnAllAtOnce
     ? `${config.totalSpawns} total · all at once`
@@ -12512,13 +12619,26 @@ function groupDungeonBossSwarmEntrySceneHtml(zone) {
         <dt>HP</dt><dd>${boss?.maxHp ?? "-"}</dd>
         <dt>Defend with</dt><dd>${escapeHtml(enemyAttackDefenceGuidance(boss))}</dd>`;
     })();
+  const respawnStatusHtml = respawning
+    ? `
+      <div class="boss-entry-respawn-status" aria-live="polite">
+        <strong class="boss-entry-respawn-boss">${escapeHtml(bossName)}</strong>
+        <span class="boss-entry-respawn-label">Respawns in</span>
+        <strong class="boss-entry-respawn-countdown">${escapeHtml(formatDuration(remainingMs))}</strong>
+        <p class="boss-entry-note muted">The bosses will not appear until then. You can still enter the room and wait, or advance to the next floor from there.</p>
+      </div>
+    `
+    : respawnMinutes > 0
+      ? `<p class="boss-warning muted">After a clear, ${escapeHtml(bossName)} respawns in ${escapeHtml(formatBossRespawnDelay(respawnMinutes))}.</p>`
+      : "";
   return `
     <section class="boss-entry-panel">
       <p class="boss-warning">
         You're entering ${escapeHtml(zone.label)} with your ${escapeHtml(state.activeCharacterId)}.
       </p>
+      ${respawnStatusHtml}
       <p class="boss-warning muted">
-        ${escapeHtml(groupDungeonBossSwarmEntrySummary(zone, config))}
+        ${respawning ? `Defeat all ${escapeHtml(bossName)} to continue once they return.` : escapeHtml(groupDungeonBossSwarmEntrySummary(zone, config))}
       </p>
       <dl class="boss-entry-stats">
         ${bossRows}
@@ -12540,7 +12660,139 @@ function groupDungeonBossSwarmEntrySceneHtml(zone) {
   `;
 }
 
+function groupDungeonAdvancePartyLabel() {
+  const classIds = bossPartyClassOrder([state.activeCharacterId, ...selectedBossAssistIds()]);
+  return classIds.map((classId) => escapeHtml(classId)).join(", ");
+}
+
+function groupDungeonAdvanceBossEntrySceneHtml(zone) {
+  const boss = ENEMY_TEMPLATES.find((enemy) => zone.enemyIds.includes(enemy.id));
+  const bossName = boss?.name ?? "Boss";
+  const nextZone = groupDungeonNextFloorZone(zone);
+  const remainingMs = groupDungeonBossRespawnRemainingMs(zone);
+  const respawning = remainingMs > 0;
+  const respawnMinutes = groupDungeonBossRespawnMinutes(zone);
+  const respawnStatusHtml = respawning
+    ? `
+      <div class="boss-entry-respawn-status" aria-live="polite">
+        <strong class="boss-entry-respawn-boss">${escapeHtml(bossName)}</strong>
+        <span class="boss-entry-respawn-label">Respawns in</span>
+        <strong class="boss-entry-respawn-countdown">${escapeHtml(formatDuration(remainingMs))}</strong>
+        <p class="boss-entry-note muted">The boss will not appear until then. You can still enter the room and wait, or advance to the next floor from there.</p>
+      </div>
+    `
+    : `
+      <p class="boss-warning muted">
+        ${respawnMinutes > 0
+          ? `Defeat ${escapeHtml(bossName)} to continue. After a kill it respawns in ${escapeHtml(formatBossRespawnDelay(respawnMinutes))}.`
+          : `Defeat ${escapeHtml(bossName)} to unlock ${nextZone ? escapeHtml(nextZone.label) : "the next floor"}.`
+        }
+      </p>
+    `;
+  return `
+    <section class="boss-entry-panel">
+      <p class="boss-warning">
+        Advance to ${escapeHtml(zone.label)} with your party.
+      </p>
+      ${respawnStatusHtml}
+      <dl class="boss-entry-stats">
+        <dt>Boss</dt><dd>${escapeHtml(bossName)}</dd>
+        <dt>Party</dt><dd>${groupDungeonAdvancePartyLabel()}</dd>
+        <dt>HP</dt><dd>${boss?.maxHp ?? "-"}</dd>
+        <dt>Defend with</dt><dd>${escapeHtml(enemyAttackDefenceGuidance(boss))}</dd>
+      </dl>
+      <footer class="boss-entry-footer">
+        <button
+          type="button"
+          class="primary boss-entry-fight-button"
+          data-confirm-boss-zone="${escapeHtml(zone.id)}"
+        >
+          Enter ${escapeHtml(zone.label)}
+        </button>
+      </footer>
+    </section>
+  `;
+}
+
+function groupDungeonAdvanceBossSwarmEntrySceneHtml(zone) {
+  const config = groupDungeonBossSwarmConfig(zone);
+  const nextZone = groupDungeonNextFloorZone(zone);
+  const bossName = groupDungeonBossSwarmLabel(zone);
+  const remainingMs = groupDungeonBossRespawnRemainingMs(zone);
+  const respawning = remainingMs > 0;
+  const respawnMinutes = groupDungeonBossRespawnMinutes(zone);
+  const base = zone?.groupDungeonBossSwarmConfig ?? {};
+  const spawnSchedule = config.spawnAllAtOnce
+    ? `${config.totalSpawns} total · all at once`
+    : Array.isArray(base.spawnQueue) && base.spawnQueue.some((entry) => (entry.spawnDelayMs || 0) > 0)
+      ? base.spawnQueue.map((entry) => {
+        const count = Math.max(1, Math.trunc(Number(entry.count) || 1));
+        const delaySec = Math.round(Math.max(0, Math.trunc(Number(entry.spawnDelayMs) || 0)) / 1000);
+        return delaySec <= 0 ? `${count} now` : `${count} after ${delaySec}s`;
+      }).join(" · ")
+      : config.firstSpawnDelayMs <= 0
+        ? `${config.totalSpawns} total · now, +${Math.round(config.spawnIntervalMs / 1000)}s, +${Math.round(config.spawnIntervalMs / 1000) * 2}s`
+        : `${config.totalSpawns} total · every ${Math.round(config.spawnIntervalMs / 1000)}s`;
+  const bossRows = Array.isArray(base.spawnQueue) && base.spawnQueue.length
+    ? base.spawnQueue.map((entry) => {
+      const template = ENEMY_TEMPLATES.find((enemy) => enemy.id === Math.trunc(Number(entry.templateId)));
+      const count = Math.max(1, Math.trunc(Number(entry.count) || 1));
+      return `<dt>${escapeHtml(template?.name ?? "Boss")}</dt><dd>${count} · ${template?.maxHp ?? "-"} HP · ${escapeHtml(enemyAttackDefenceGuidance(template))}</dd>`;
+    }).join("")
+    : (() => {
+      const boss = ENEMY_TEMPLATES.find((enemy) => zone.enemyIds.includes(enemy.id));
+      return `<dt>Boss</dt><dd>${escapeHtml(boss?.name ?? "Boss")}</dd>
+        <dt>HP</dt><dd>${boss?.maxHp ?? "-"}</dd>
+        <dt>Defend with</dt><dd>${escapeHtml(enemyAttackDefenceGuidance(boss))}</dd>`;
+    })();
+  const respawnStatusHtml = respawning
+    ? `
+      <div class="boss-entry-respawn-status" aria-live="polite">
+        <strong class="boss-entry-respawn-boss">${escapeHtml(bossName)}</strong>
+        <span class="boss-entry-respawn-label">Respawns in</span>
+        <strong class="boss-entry-respawn-countdown">${escapeHtml(formatDuration(remainingMs))}</strong>
+        <p class="boss-entry-note muted">The bosses will not appear until then. You can still enter the room and wait, or advance to the next floor from there.</p>
+      </div>
+    `
+    : respawnMinutes > 0
+      ? `<p class="boss-warning muted">After a clear, ${escapeHtml(bossName)} respawns in ${escapeHtml(formatBossRespawnDelay(respawnMinutes))}.</p>`
+      : "";
+  return `
+    <section class="boss-entry-panel">
+      <p class="boss-warning">
+        Advance to ${escapeHtml(zone.label)} with your party.
+      </p>
+      ${respawnStatusHtml}
+      <p class="boss-warning muted">
+        ${respawning ? `Defeat all ${escapeHtml(bossName)} to continue once they return.` : escapeHtml(groupDungeonBossSwarmEntrySummary(zone, config))}
+      </p>
+      <dl class="boss-entry-stats">
+        ${bossRows}
+        <dt>Spawns</dt><dd>${spawnSchedule}</dd>
+        <dt>Party</dt><dd>${groupDungeonAdvancePartyLabel()}</dd>
+      </dl>
+      <footer class="boss-entry-footer">
+        <button
+          type="button"
+          class="primary boss-entry-fight-button"
+          data-confirm-boss-zone="${escapeHtml(zone.id)}"
+        >
+          Enter ${escapeHtml(zone.label)}
+        </button>
+        ${nextZone ? `<p class="boss-entry-note muted">Clear all ${config.totalSpawns} to unlock ${escapeHtml(nextZone.label)}.</p>` : ""}
+      </footer>
+    </section>
+  `;
+}
+
+function groupDungeonAdvanceEntrySceneHtml(zone) {
+  if (groupDungeonBossSwarmZone(zone)) return groupDungeonAdvanceBossSwarmEntrySceneHtml(zone);
+  if (groupDungeonBossZone(zone)) return groupDungeonAdvanceBossEntrySceneHtml(zone);
+  return groupDungeonEntrySceneHtml(zone);
+}
+
 function groupDungeonEntrySceneHtml(zone) {
+  if (state.bossEntryFromGroupDungeonAdvance) return groupDungeonAdvanceEntrySceneHtml(zone);
   if (groupDungeonBossSwarmZone(zone)) return groupDungeonBossSwarmEntrySceneHtml(zone);
   if (groupDungeonBossZone(zone)) return groupDungeonBossEntrySceneHtml(zone);
   const selected = selectedBossAssistIds();
@@ -12573,18 +12825,32 @@ function groupDungeonEntrySceneHtml(zone) {
 
 function groupDungeonBossEntrySceneHtml(zone) {
   const boss = ENEMY_TEMPLATES.find((enemy) => zone.enemyIds.includes(enemy.id));
+  const bossName = boss?.name ?? "Boss";
   const selected = selectedBossAssistIds();
   const nextZone = groupDungeonNextFloorZone(zone);
+  const remainingMs = groupDungeonBossRespawnRemainingMs(zone);
+  const respawning = remainingMs > 0;
+  const respawnMinutes = groupDungeonBossRespawnMinutes(zone);
+  const respawnStatusHtml = respawning
+    ? `
+      <div class="boss-entry-respawn-status" aria-live="polite">
+        <strong class="boss-entry-respawn-boss">${escapeHtml(bossName)}</strong>
+        <span class="boss-entry-respawn-label">Respawns in</span>
+        <strong class="boss-entry-respawn-countdown">${escapeHtml(formatDuration(remainingMs))}</strong>
+        <p class="boss-entry-note muted">The boss will not appear until then. You can still enter the room and wait, or advance to the next floor from there.</p>
+      </div>
+    `
+    : respawnMinutes > 0
+      ? `<p class="boss-warning muted">After a kill, ${escapeHtml(bossName)} respawns in ${escapeHtml(formatBossRespawnDelay(respawnMinutes))}.</p>`
+      : `<p class="boss-warning muted">Defeat the boss to unlock ${nextZone ? escapeHtml(nextZone.label) : "the next floor"}.</p>`;
   return `
     <section class="boss-entry-panel">
       <p class="boss-warning">
-        You're about to fight ${escapeHtml(boss?.name ?? "the floor boss")} with your ${escapeHtml(state.activeCharacterId)}.
+        You're about to fight ${escapeHtml(bossName)} with your ${escapeHtml(state.activeCharacterId)}.
       </p>
-      <p class="boss-warning muted">
-        Defeat the boss to unlock ${nextZone ? escapeHtml(nextZone.label) : "the next floor"}.
-      </p>
+      ${respawnStatusHtml}
       <dl class="boss-entry-stats">
-        <dt>Boss</dt><dd>${escapeHtml(boss?.name ?? "Boss")}</dd>
+        <dt>Boss</dt><dd>${escapeHtml(bossName)}</dd>
         <dt>Party</dt><dd>${1 + selected.size}</dd>
         <dt>HP</dt><dd>${boss?.maxHp ?? "-"}</dd>
         <dt>Defend with</dt><dd>${escapeHtml(enemyAttackDefenceGuidance(boss))}</dd>
@@ -12596,7 +12862,7 @@ function groupDungeonBossEntrySceneHtml(zone) {
           class="primary boss-entry-fight-button"
           data-confirm-boss-zone="${escapeHtml(zone.id)}"
         >
-          Fight ${escapeHtml(boss?.name ?? "Boss")}
+          ${respawning ? `Enter ${escapeHtml(zone.label)}` : `Fight ${escapeHtml(bossName)}`}
         </button>
       </footer>
     </section>
@@ -14297,16 +14563,33 @@ async function confirmBossZoneEntry(zoneId) {
   const zone = PROTOTYPE_ZONES.find((entry) => entry.id === zoneId);
   const isBossRoom = Boolean(zone && bossRoomDef(zone.id));
   const isGroupDungeon = Boolean(zone && groupDungeonZone(zone));
+  const advancingFromDungeon = Boolean(state.bossEntryFromGroupDungeonAdvance);
   if (!zone || (!isBossRoom && !isGroupDungeon)) return;
-  if (isBossRoom && bossRespawnRemainingMs(zone.id) > 0) {
+  if (!advancingFromDungeon && isBossRoom && bossRespawnRemainingMs(zone.id) > 0) {
     sceneSignature = "";
     renderSceneOverlay();
     playSfx("ui.button", { volume: 0.25, throttleMs: 120 });
     return;
   }
+  if (advancingFromDungeon) {
+    const party = state.battle.bossParty;
+    if (party?.members?.length) {
+      syncBossPartyMembersToCharacters(party, { applyControlled: false });
+      state.battle.bossParty = null;
+    }
+    clearGroupDungeonRunState();
+    state.game.groupDungeonRun = null;
+    state.bossEntryFromGroupDungeonAdvance = false;
+    state.bossEntryZoneId = null;
+    closeScene(false);
+    pushBattleLog(`Advancing to ${zone.label}.`);
+    await enterZone(zone.id);
+    return;
+  }
   captureActiveCharacterState();
   state.pendingBossAssistSelection = [...selectedBossAssistIds()];
   state.bossEntryZoneId = null;
+  state.bossEntryFromGroupDungeonAdvance = false;
   closeScene(false);
   await enterZone(zone.id);
 }
@@ -14514,9 +14797,10 @@ function groupDungeonBossSwarmLabel(zone = groupDungeonWaveZone()) {
   return ENEMY_TEMPLATES.find((entry) => entry.id === config.templateId)?.name ?? "boss";
 }
 
-function resetGroupDungeonBossSwarmRun(now = performance.now(), zone = groupDungeonWaveZone()) {
+function resetGroupDungeonBossSwarmRun(now = performance.now(), zone = groupDungeonWaveZone(), options = {}) {
   const config = groupDungeonBossSwarmConfig(zone);
   const bossLabel = groupDungeonBossSwarmLabel(zone);
+  const skipInitialSpawn = Boolean(options.skipInitialSpawn);
   state.battle.swarm = {
     enemies: [],
     nextId: 0,
@@ -14532,11 +14816,13 @@ function resetGroupDungeonBossSwarmRun(now = performance.now(), zone = groupDung
       spawnIntervalMs: config.spawnIntervalMs,
       nextSpawnAt: now,
       complete: false,
+      waitingForRespawn: skipInitialSpawn,
     },
   };
   state.battle.enemy = null;
   state.battle.enemyId = null;
   markGroupDungeonWaveUiDirty();
+  if (skipInitialSpawn) return;
   if (config.spawnAllAtOnce) {
     pushBattleLog(`${config.totalSpawns} ${bossLabel} emerge together.`);
   } else if (config.spawnPlan.some((entry, index) => index > 0 && (entry.spawnAtMs ?? 0) > 0)) {
@@ -14581,6 +14867,26 @@ function spawnGroupDungeonBossSwarmEnemy(now = performance.now()) {
 function spawnPendingGroupDungeonBossSwarmEnemies(now = performance.now()) {
   const bossSwarm = groupDungeonBossSwarmState();
   if (!bossSwarm || bossSwarm.complete) return;
+  if (groupDungeonBossRespawnRemainingMs(activeZone()) > 0) return;
+  if (bossSwarm.waitingForRespawn) {
+    bossSwarm.waitingForRespawn = false;
+    bossSwarm.fightStartAt = now;
+    bossSwarm.nextSpawnAt = now;
+    const zone = groupDungeonWaveZone();
+    const config = groupDungeonBossSwarmConfig(zone);
+    const bossLabel = groupDungeonBossSwarmLabel(zone);
+    if (config.spawnAllAtOnce) {
+      pushBattleLog(`${config.totalSpawns} ${bossLabel} emerge together.`);
+    } else if (config.spawnPlan.some((entry, index) => index > 0 && (entry.spawnAtMs ?? 0) > 0)) {
+      const firstDelaySec = Math.round((config.spawnPlan.find((entry, index) => index > 0 && (entry.spawnAtMs ?? 0) > 0)?.spawnAtMs ?? 0) / 1000);
+      pushBattleLog(`${bossLabel} — the first boss emerges now; reinforcements in ${firstDelaySec}s.`);
+    } else {
+      const intervalSec = Math.round(config.spawnIntervalMs / 1000);
+      pushBattleLog(config.firstSpawnDelayMs <= 0
+        ? `${config.totalSpawns} ${bossLabel} — one now, then one every ${intervalSec}s.`
+        : `${config.totalSpawns} ${bossLabel} will emerge every ${intervalSec}s.`);
+    }
+  }
   if (bossSwarm.spawned >= bossSwarm.totalSpawns) {
     bossSwarm.nextSpawnAt = Number.POSITIVE_INFINITY;
     return;
@@ -14615,10 +14921,15 @@ function finishGroupDungeonBossSwarmEncounter(now = performance.now()) {
   const zone = activeZone();
   const nextZone = groupDungeonNextFloorZone(zone);
   const bossLabel = groupDungeonBossSwarmLabel(zone);
+  const respawnMinutes = groupDungeonBossRespawnMinutes(zone);
+  if (respawnMinutes > 0) {
+    setBossRespawn(zone.id);
+    pushBattleLog(`${bossLabel} will respawn in ${formatBossRespawnDelay(respawnMinutes)}.`);
+  }
   pushBattleLog(`All ${bossLabel} defeated.`);
   pushBattleLog(nextZone
     ? `Advance to ${nextZone.label} when you are ready.`
-    : "The next floor is not ready yet.");
+    : "Dungeon complete — return to town when you are ready.");
   markGroupDungeonWaveUiDirty();
   gamePanelSignature = "";
   gamePanelDynamicSignature = "";
@@ -14669,40 +14980,49 @@ function groupDungeonNextFloorZone(zone = activeZone()) {
   if (!groupDungeonZone(zone)) return null;
   const floor = Math.max(1, Math.trunc(Number(zone.groupDungeonFloor) || 1));
   const dungeonId = String(zone.groupDungeon || "");
-  return PROTOTYPE_ZONES.find((entry) => entry.groupDungeon === dungeonId && entry.groupDungeonFloor === floor + 1) ?? null;
+  // Floors may skip numbers if a zone is not implemented yet; pick the next higher floor.
+  const candidates = PROTOTYPE_ZONES
+    .map((entry) => ({
+      entry,
+      entryFloor: Math.max(1, Math.trunc(Number(entry.groupDungeonFloor) || 1)),
+    }))
+    .filter(({ entry, entryFloor }) => entry.groupDungeon === dungeonId && entryFloor > floor);
+  if (!candidates.length) return null;
+  candidates.sort((a, b) => a.entryFloor - b.entryFloor);
+  return candidates[0].entry;
 }
 
 function groupDungeonAdvanceButtonHtml() {
   const zone = activeZone();
   const party = state.battle.bossParty;
-  if (!groupDungeonZone(zone) || !party?.active || party.defeated) return "";
+  // Allow advancing both while active (wave/boss-swarm floors) and after a boss floor has
+  // finished (victory state, party.active === false), but never once the run is defeated.
+  if (!groupDungeonZone(zone) || party?.defeated || (!party?.active && !party?.finished)) return "";
   const isBossSwarm = groupDungeonBossSwarmZone(zone);
   const isBossFloor = groupDungeonBossZone(zone);
   if (isBossSwarm) {
-    if (!groupDungeonBossSwarmState()?.complete) return "";
+    if (!groupDungeonBossSwarmState()?.complete && !groupDungeonBossCanSkipFloor(zone, party)) return "";
   } else if (isBossFloor && !party.finished) {
-    return "";
+    if (!groupDungeonBossCanSkipFloor(zone, party)) return "";
   } else if (!isBossFloor) {
     const waves = groupDungeonWaveState();
     if (!waves?.endless) return "";
   }
   const nextZone = groupDungeonNextFloorZone(zone);
-  if (!nextZone) {
-    return `<button class="game-wide-button" type="button" disabled>Next Floor (Coming Soon)</button>`;
-  }
+  if (!nextZone) return "";
   return `<button class="primary game-wide-button" type="button" data-advance-group-dungeon-floor>Advance to ${escapeHtml(nextZone.label)}</button>`;
 }
 
 async function advanceGroupDungeonFloor() {
   const zone = activeZone();
   const party = state.battle.bossParty;
-  if (!groupDungeonZone(zone) || !party?.active || party.defeated) return;
+  if (!groupDungeonZone(zone) || party?.defeated || (!party?.active && !party?.finished)) return;
   const isBossSwarm = groupDungeonBossSwarmZone(zone);
   const isBossFloor = groupDungeonBossZone(zone);
   if (isBossSwarm) {
-    if (!groupDungeonBossSwarmState()?.complete) return;
+    if (!groupDungeonBossSwarmState()?.complete && !groupDungeonBossCanSkipFloor(zone, party)) return;
   } else if (isBossFloor && !party.finished) {
-    return;
+    if (!groupDungeonBossCanSkipFloor(zone, party)) return;
   } else if (!isBossFloor) {
     const waves = groupDungeonWaveState();
     if (!waves?.endless) return;
@@ -14715,11 +15035,22 @@ async function advanceGroupDungeonFloor() {
     renderGameUiPanel();
     return;
   }
+  syncBossPartyMembersToCharacters(party, { applyControlled: false });
   const assistIds = bossPartyMemberClassIds(party).filter((classId) => classId !== state.activeCharacterId);
+  state.pendingBossAssistSelection = assistIds;
+  const isNextBossRoom = groupDungeonBossZone(nextZone) || groupDungeonBossSwarmZone(nextZone);
+  if (isNextBossRoom) {
+    state.bossEntryZoneId = nextZone.id;
+    state.bossEntryFromGroupDungeonAdvance = true;
+    state.activeScene = "bossEntry";
+    sceneSignature = "";
+    renderSceneOverlay();
+    playSfx("ui.button", { volume: 0.35, throttleMs: 80 });
+    return;
+  }
   state.battle.bossParty = null;
   clearGroupDungeonRunState();
   state.game.groupDungeonRun = null;
-  state.pendingBossAssistSelection = assistIds;
   pushBattleLog(`Advancing to ${nextZone.label}.`);
   await enterZone(nextZone.id);
 }
@@ -16426,9 +16757,42 @@ function syncAccountBossRespawnsToCharacters() {
   }
 }
 
+function groupDungeonBossRespawnMinutes(zone = activeZone()) {
+  if (!zone || (!groupDungeonBossZone(zone) && !groupDungeonBossSwarmZone(zone))) return 0;
+  return Math.max(0, Math.trunc(Number(zone?.groupDungeonBossRespawnMinutes) || 0));
+}
+
+function zoneTracksBossRespawn(zoneId) {
+  if (bossRoomDef(zoneId)) return true;
+  const zone = PROTOTYPE_ZONES.find((entry) => entry.id === zoneId);
+  return groupDungeonBossRespawnMinutes(zone) > 0;
+}
+
+function groupDungeonBossRespawnRemainingMs(zone = activeZone()) {
+  const zoneId = typeof zone === "string" ? zone : zone?.id;
+  const zoneRef = typeof zone === "string" ? PROTOTYPE_ZONES.find((entry) => entry.id === zone) : zone;
+  if (!zoneId || groupDungeonBossRespawnMinutes(zoneRef) <= 0) return 0;
+  return bossRespawnRemainingMs(zoneId);
+}
+
+function groupDungeonBossCanSkipFloor(zone = activeZone(), party = state.battle.bossParty) {
+  if (!party?.active || party.finished || party.defeated) return false;
+  if (groupDungeonBossRespawnRemainingMs(zone) <= 0) return false;
+  if (groupDungeonBossZone(zone)) {
+    return !state.battle.enemy;
+  }
+  if (groupDungeonBossSwarmZone(zone)) {
+    const bossSwarm = groupDungeonBossSwarmState();
+    return Boolean(bossSwarm && !bossSwarm.complete && bossSwarm.spawned === 0 && groupDungeonSwarmLivingCount() === 0);
+  }
+  return false;
+}
+
 function bossRespawnDelayMs(zoneId) {
   const def = bossRoomDef(zoneId);
-  return Math.max(0, Math.trunc(Number(def?.respawnMinutes) || 0) * 60 * 1000);
+  if (def) return Math.max(0, Math.trunc(Number(def.respawnMinutes) || 0) * 60 * 1000);
+  const zone = PROTOTYPE_ZONES.find((entry) => entry.id === zoneId);
+  return groupDungeonBossRespawnMinutes(zone) * 60 * 1000;
 }
 
 function bossRespawnReadyAt(zoneId) {
@@ -16436,8 +16800,11 @@ function bossRespawnReadyAt(zoneId) {
 }
 
 function setBossRespawn(zoneId, defeatedAt = Date.now()) {
-  if (!bossRoomDef(zoneId)) return;
-  const readyAt = Math.max(0, Math.trunc(Number(defeatedAt) || Date.now())) + bossRespawnDelayMs(zoneId);
+  if (!zoneTracksBossRespawn(zoneId)) return;
+  let defeatTime = Math.max(0, Math.trunc(Number(defeatedAt) || Date.now()));
+  // Boss-swarm finish passes performance.now(); respawn checks use Date.now().
+  if (defeatTime < 1_000_000_000_000) defeatTime = Date.now();
+  const readyAt = defeatTime + bossRespawnDelayMs(zoneId);
   state.account.bossRespawns = {
     ...accountBossRespawns(),
     [zoneId]: readyAt,
@@ -16451,7 +16818,7 @@ function bossRespawnRemainingMs(zoneId, now = Date.now()) {
 }
 
 function incrementAccountBossKill(zoneId) {
-  if (!bossRoomDef(zoneId)) return;
+  if (!zoneTracksBossRespawn(zoneId)) return;
   const kills = accountBossKills();
   kills[zoneId] = Math.max(0, Math.trunc(Number(kills[zoneId]) || 0)) + 1;
   ensureAccountStats();
@@ -17071,6 +17438,11 @@ function bindControls() {
     const selectPlayerClassButton = event.target.closest("[data-select-player-class]");
     if (selectPlayerClassButton && root.contains(selectPlayerClassButton)) {
       void selectPlayerClass(selectPlayerClassButton.dataset.selectPlayerClass);
+      return;
+    }
+    const switchPartyMemberButton = event.target.closest("[data-switch-party-member]");
+    if (switchPartyMemberButton && root.contains(switchPartyMemberButton)) {
+      switchControlledPartyMember(switchPartyMemberButton.dataset.switchPartyMember);
       return;
     }
     const exportSaveButton = event.target.closest("[data-export-save]");
@@ -17839,7 +18211,16 @@ function beginBossPartyFight(zoneId, now = performance.now()) {
     } else if (restoredRun?.zoneId === zoneId && restoredRun.kind === "groupDungeonBossSwarm") {
       restoreGroupDungeonBossSwarmStateFromRun(restoredRun, now, entryZone);
     } else {
-      resetGroupDungeonBossSwarmRun(now, entryZone);
+      const bossRespawning = groupDungeonBossRespawnRemainingMs(entryZone) > 0;
+      resetGroupDungeonBossSwarmRun(now, entryZone, { skipInitialSpawn: bossRespawning });
+      if (bossRespawning) {
+        state.battle.phase = "idle";
+        state.battle.enemyAggro = false;
+        state.battle.enemyRevealed = false;
+        state.battle.nextEnemyAttackAt = 0;
+        setPlayerAction("stance", now);
+        pushBattleLog(`${groupDungeonBossSwarmLabel(entryZone)} is recovering. Respawns in ${formatDuration(groupDungeonBossRespawnRemainingMs(entryZone))}. Advance to the next floor anytime, or wait here.`);
+      }
     }
     syncGroupDungeonPrimaryEnemy();
     void reloadEnemyAtlas();
@@ -17855,22 +18236,35 @@ function beginBossPartyFight(zoneId, now = performance.now()) {
     void reloadEnemyAtlas();
   } else if (isGroupDungeonBoss) {
     clearGroupDungeonRunState();
-    state.battle.phase = "engaged";
-    state.battle.enemyAggro = true;
-    state.battle.enemyRevealed = true;
-    state.battle.enemyX = bossPartyEnemyApproachX(members);
+    const bossRespawning = groupDungeonBossRespawnRemainingMs(entryZone) > 0;
     state.battle.bossParty.lastAdvanceAt = now;
     state.battle.cameraX = (groupDungeonCameraAnchorWorldX() ?? state.battle.playerX) - playerScreenX();
     state.battle.bossParty.lockedCameraX = null;
     ensureMapStampArenaLock();
-    state.battle.nextEnemyAttackAt = now + Math.max(400, Math.trunc(Number(enemy?.attackMs) || 1400));
-    setEnemyLocomotion("standing", now);
-    if (enemy?.monsterIndex) {
-      state.enemy.index = enemy.monsterIndex;
-      void reloadEnemyAtlas();
-    }
-    if (groupDungeonBossReinforcementsZone(entryZone)) {
-      initGroupDungeonBossReinforcements(now, entryZone);
+    if (bossRespawning) {
+      const bossTemplate = ENEMY_TEMPLATES.find((entry) => entryZone.enemyIds.includes(entry.id));
+      state.battle.enemy = null;
+      state.battle.enemyId = null;
+      state.battle.enemyAggro = false;
+      state.battle.enemyRevealed = false;
+      state.battle.nextEnemyAttackAt = 0;
+      state.battle.phase = "idle";
+      setPlayerAction("stance", now);
+      pushBattleLog(`${bossTemplate?.name ?? "The boss"} is recovering. Respawns in ${formatDuration(groupDungeonBossRespawnRemainingMs(entryZone))}. Advance to the next floor anytime, or wait here.`);
+    } else {
+      state.battle.phase = "engaged";
+      state.battle.enemyAggro = true;
+      state.battle.enemyRevealed = true;
+      state.battle.enemyX = bossPartyEnemyApproachX(members);
+      state.battle.nextEnemyAttackAt = now + Math.max(400, Math.trunc(Number(enemy?.attackMs) || 1400));
+      setEnemyLocomotion("standing", now);
+      if (enemy?.monsterIndex) {
+        state.enemy.index = enemy.monsterIndex;
+        void reloadEnemyAtlas();
+      }
+      if (groupDungeonBossReinforcementsZone(entryZone)) {
+        initGroupDungeonBossReinforcements(now, entryZone);
+      }
     }
   } else if (enemy?.monsterIndex) {
     state.enemy.index = enemy.monsterIndex;
@@ -17890,7 +18284,9 @@ function beginBossPartyFight(zoneId, now = performance.now()) {
     }
   } else if (isGroupDungeonBoss) {
     pushBattleLog(`Party enters ${entryZone.label}: ${members.map((member) => member.classId).join(", ")}.`);
-    pushBattleLog(`${enemy?.name ?? "The boss"} engages the party.`);
+    if (!groupDungeonBossRespawnRemainingMs(entryZone)) {
+      pushBattleLog(`${enemy?.name ?? "The boss"} engages the party.`);
+    }
   } else {
     pushBattleLog(`Boss party formed: ${members.map((member) => member.classId).join(", ")}.`);
     if (enemyUsesFixedArenaSpawn(enemy)) {
@@ -18517,12 +18913,64 @@ function bossPartyMemberVisualClip(member, action = member?.visualAction) {
   return null;
 }
 
+function spawnGroupDungeonBossEnemy(now, zone = activeZone()) {
+  const party = state.battle.bossParty;
+  if (!party?.active || !groupDungeonBossZone(zone) || groupDungeonBossRespawnRemainingMs(zone) > 0) return false;
+  const template = ENEMY_TEMPLATES.find((enemy) => zone.enemyIds.includes(enemy.id));
+  if (!template) return false;
+  state.battle.enemyId = template.id;
+  state.battle.enemy = {
+    ...template,
+    hp: template.maxHp,
+    mp: template.maxMp,
+    poisons: [],
+    debuffs: [],
+  };
+  state.battle.phase = "engaged";
+  state.battle.enemyAggro = true;
+  state.battle.enemyRevealed = true;
+  state.battle.enemyX = bossPartyEnemyApproachX(party.members);
+  state.battle.nextEnemyAttackAt = now + Math.max(400, Math.trunc(Number(template.attackMs) || 1400));
+  setEnemyLocomotion("standing", now);
+  if (template.monsterIndex) {
+    state.enemy.index = template.monsterIndex;
+    void reloadEnemyAtlas();
+  }
+  if (groupDungeonBossReinforcementsZone(zone)) {
+    initGroupDungeonBossReinforcements(now, zone);
+  }
+  pushBattleLog(`${template.name} enters the fight.`);
+  return true;
+}
+
+function updateGroupDungeonBossWaitingRoom(now) {
+  const party = state.battle.bossParty;
+  if (!party?.active || !groupDungeonBossZone(activeZone())) return false;
+  bossPartySyncControlledPlayerRef();
+  updateBossPartyVisualFrames(now);
+  for (const member of party.members) {
+    updateBossPartyMemberPotionRegen(member, now);
+    updateBossPartyMemberHealRegen(member, now);
+    bossPartyAutoUsePotions(member, now);
+  }
+  if (party.pet) updateBossPartyMemberHealRegen(party.pet, now);
+  syncBossPartyControlledRecoveryToState();
+  updateBossPartyEffects(now);
+  updateBossPartyHealFx(now);
+  updateDefenceBuffFx(now);
+  spawnGroupDungeonBossEnemy(now);
+  return true;
+}
+
 function updateBossPartyBattle(now) {
   const party = state.battle.bossParty;
   if (!party?.active) return false;
   if (groupDungeonSwarmActive()) return updateGroupDungeonBossPartyBattle(now);
   const enemy = state.battle.enemy;
-  if (!enemy) return false;
+  if (!enemy) {
+    if (groupDungeonBossZone(activeZone())) return updateGroupDungeonBossWaitingRoom(now);
+    return false;
+  }
   bossPartySyncControlledPlayerRef();
   updateBossPartyVisualFrames(now);
   updateBossPartyMeleeAdvance(now);
@@ -21660,6 +22108,138 @@ function bossPartySyncControlledPlayerRef() {
   syncBossPartyControlledInventoryToState(leaderClassId);
 }
 
+// Live character switching is only offered inside group dungeons (bDD and future group
+// content). Boss/KR rooms intentionally keep a fixed controlled character. Switching stays
+// available after a floor is cleared (the "finished" victory state) so the player can make
+// changes before advancing; it is only disabled once the run is defeated.
+function bossPartyCanSwitchControl() {
+  const party = state.battle.bossParty;
+  if (!party || party.defeated) return false;
+  if (!party.active && !party.finished) return false;
+  if (!groupDungeonZone(activeZone())) return false;
+  return (party.members ?? []).some((member) => member.alive && member.hp > 0);
+}
+
+// Swap which party member the player controls, live, without ever risking a character's
+// saved data. The historical item-overwrite bug happened when the controlled pointer was
+// moved before the outgoing member's live inventory/magic was flushed back into it (a save
+// could then copy the previous character's items onto the newly selected character). The
+// ordering below is the safety guarantee: FLUSH the outgoing member while live state still
+// belongs to it, SWAP the pointers, then LOAD the incoming member into live state. The
+// critical section is fully synchronous (no awaits) so no save/auto-save can interleave.
+function switchControlledPartyMember(classId) {
+  const party = state.battle.bossParty;
+  if (!bossPartyCanSwitchControl()) return false;
+  const targetClassId = normalizeCharacterId(classId);
+  const target = party.members.find((member) => member.classId === targetClassId);
+  if (!target || !target.alive || target.hp <= 0) return false;
+
+  const currentClassId = bossPartyControlledClassId();
+  if (targetClassId === currentClassId) return false;
+
+  const now = performance.now();
+
+  // 1) FLUSH the outgoing member. state.activeCharacterId / state.inventory / state.magic and
+  //    party.leaderClassId all still point at the current member here, so this guarded sync
+  //    writes the live data back into the correct member object and nowhere else.
+  if (normalizeCharacterId(state.activeCharacterId) === currentClassId) {
+    syncBossPartyControlledMemberFromState(currentClassId);
+  }
+  const outgoing = party.members.find((member) => member.classId === currentClassId) ?? null;
+
+  // Charge/queued-cast state mirrors the controlled class into state.battle; clear the live
+  // mirror so a Warrior's pending charge cannot bleed onto a Wizard, etc.
+  clearFlamingSwordChargeState(state.battle);
+  clearTwinDrakeChargeState(state.battle);
+  state.battle.queuedCombatSpellId = null;
+
+  // 2) SWAP. The controlled member is the leader in every sense (rewards, player ref, save),
+  //    so both move together to keep all existing leader-keyed logic consistent.
+  party.controlledClassId = targetClassId;
+  party.leaderClassId = targetClassId;
+
+  // 3) LOAD the incoming member into live state (member -> state is read-only for the member).
+  state.activeCharacterId = targetClassId;
+  state.battle.combatClass = targetClassId;
+  bossPartySyncControlledPlayerRef();
+  syncBossPartyControlledRecoveryToState(target);
+  normalizeAutoCastSpellsForClass(targetClassId);
+
+  // Persist immediately. The state is now fully consistent for the new controlled member, so
+  // this snapshot (and any later auto-save) records each character's own data correctly.
+  saveGameState(true);
+
+  // Reset the player sprite/animation to the newly controlled character.
+  setPlayerAction("stance", now);
+  applyEquippedVisualIndexes();
+  void reloadAtlases();
+  // Refresh the outgoing member's assist sprite in case equipment changed while controlled.
+  if (outgoing) void preloadBossPartyMemberVisualAtlases(outgoing).then(() => render());
+
+  invalidateUi();
+  renderCombatSkillBar();
+  renderHotbar();
+  renderPlayerResourceHud();
+  renderGamePanel();
+  renderSceneOverlay();
+  renderPartySwitchBar();
+  render();
+  playSfx("ui.button", { volume: 0.35, throttleMs: 80 });
+  pushBattleLog(`Now controlling ${targetClassId}.`);
+  return true;
+}
+
+function partySwitchBarHtml() {
+  const party = state.battle.bossParty;
+  if (!party?.members?.length) return "";
+  const controlledClassId = bossPartyControlledClassId();
+  return party.members
+    .slice()
+    .sort((a, b) => BOSS_PARTY_ORDER.indexOf(a.classId) - BOSS_PARTY_ORDER.indexOf(b.classId))
+    .map((member) => {
+      const controlled = member.classId === controlledClassId;
+      const dead = !member.alive || member.hp <= 0;
+      const disabled = controlled || dead ? "disabled" : "";
+      const classes = ["party-switch-button"];
+      if (controlled) classes.push("controlled");
+      if (dead) classes.push("dead");
+      const stateLabel = controlled ? "Controlling" : dead ? "Defeated" : "Switch";
+      return `
+        <button type="button" class="${classes.join(" ")}" data-switch-party-member="${escapeHtml(member.classId)}" ${disabled}
+          title="${controlled ? "Currently controlling" : dead ? "Defeated" : `Control ${escapeHtml(member.classId)}`}">
+          <span class="party-switch-name">${escapeHtml(member.classId)}</span>
+          <span class="party-switch-hp">${stateLabel}</span>
+        </button>
+      `;
+    })
+    .join("");
+}
+
+function renderPartySwitchBar() {
+  if (!els.partySwitchBar) return;
+  const party = state.battle.bossParty;
+  const shouldShow = bossPartyOnField()
+    && !party?.defeated
+    && groupDungeonZone(activeZone())
+    && (party?.members?.length ?? 0) >= 2;
+  if (!shouldShow) {
+    if (!els.partySwitchBar.hidden || partySwitchBarSignature) {
+      els.partySwitchBar.hidden = true;
+      els.partySwitchBar.innerHTML = "";
+      partySwitchBarSignature = "";
+    }
+    return;
+  }
+  const signature = JSON.stringify({
+    controlled: bossPartyControlledClassId(),
+    members: party.members.map((member) => `${member.classId}:${member.alive && member.hp > 0 ? "alive" : "dead"}`),
+  });
+  if (signature === partySwitchBarSignature) return;
+  partySwitchBarSignature = signature;
+  els.partySwitchBar.hidden = false;
+  els.partySwitchBar.innerHTML = partySwitchBarHtml();
+}
+
 function finishBossPartyEnemy(now) {
   const party = state.battle.bossParty;
   const enemy = state.battle.enemy;
@@ -21675,7 +22255,9 @@ function finishBossPartyEnemy(now) {
   } else {
     awardBossPartyKillShare(now, { enemy });
   }
-  if (!isGroupDungeonBoss) setBossRespawn(party.zoneId);
+  if (zoneTracksBossRespawn(party.zoneId ?? state.game.activeZoneId)) {
+    setBossRespawn(party.zoneId ?? state.game.activeZoneId);
+  }
   freezeBossPartyMembersForAftermath(party, now);
   setEnemyAction("die", false, now);
   playMonsterSfx("death");
@@ -21700,9 +22282,13 @@ function finishBossPartyEnemy(now) {
   pushBattleLog(`${enemy.name} is defeated.`);
   if (isGroupDungeonBoss) {
     const nextZone = groupDungeonNextFloorZone(entryZone);
+    const respawnMinutes = groupDungeonBossRespawnMinutes(entryZone);
+    if (respawnMinutes > 0) {
+      pushBattleLog(`${enemy.name} will respawn in ${formatBossRespawnDelay(respawnMinutes)}.`);
+    }
     pushBattleLog(nextZone
       ? `Advance to ${nextZone.label} when you are ready.`
-      : "The next floor is not ready yet.");
+      : "Dungeon complete — return to town when you are ready.");
   } else {
     pushBattleLog(`${enemy.name} will respawn in ${formatBossRespawnDelay(bossRoomDef(party.zoneId)?.respawnMinutes ?? BOSS_RESPAWN_MINUTES_STANDARD)}.`);
     pushBattleLog("Return To Town when you are ready.");
@@ -21752,7 +22338,7 @@ function finishBossPartyDefeat(now) {
 function bossDropTableForEnemy(enemy = state.battle.enemy) {
   if (!enemy) return null;
   if (isIncarnatedWoomaTaurusEnemy(enemy)) return INCARNATED_WT_BOSS_DROPS;
-  if (isIncarnatedZumaTaurusEnemy(enemy)) return ZUMA_TAURUS_BOSS_DROPS;
+  if (isIncarnatedZumaTaurusEnemy(enemy)) return INCARNATED_ZT_BOSS_DROPS;
   if (isWoomaTaurusEnemy(enemy)) return WOMA_TAURUS_BOSS_DROPS;
   if (isEvilSnakeEnemy(enemy)) return EVIL_SNAKE_BOSS_DROPS;
   if (isZumaTaurusEnemy(enemy)) return ZUMA_TAURUS_BOSS_DROPS;
@@ -27263,6 +27849,7 @@ function render() {
   renderBattlePanel();
   renderSceneOverlay({ deferUserInteraction: true });
   renderCombatSkillBar();
+  renderPartySwitchBar();
   applyCombatHudLayout();
 }
 

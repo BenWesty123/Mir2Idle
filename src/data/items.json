@@ -906,14 +906,18 @@
       },
       "drop": {
         "zones": [
+          "zone-bdd-2",
+          "zone-bdd-4",
+          "zone-dead-mines-kr",
           "zone-stone-temple-2",
-          "zone-wooma-temple-2",
-          "zone-dead-mines-kr"
+          "zone-wooma-temple-2"
         ],
-        "chance": 0.006,
+        "chance": 0.1,
         "chances": {
           "zone-wooma-temple-2": 0.0012,
-          "zone-dead-mines-kr": 0.0222
+          "zone-dead-mines-kr": 0.0222,
+          "zone-bdd-2": 0.01,
+          "zone-bdd-4": 0.01
         },
         "enemyChances": {
           "118": {
@@ -9614,13 +9618,17 @@
       },
       "drop": {
         "zones": [
+          "zone-bdd-2",
+          "zone-bdd-4",
           "zone-dead-mines-1",
           "zone-dead-mines-2"
         ],
-        "chance": 0.004,
+        "chance": 0.025,
         "chances": {
           "zone-dead-mines-1": 0.003,
-          "zone-dead-mines-2": 0.004
+          "zone-dead-mines-2": 0.004,
+          "zone-bdd-2": 0.025,
+          "zone-bdd-4": 0.025
         },
         "enemyChances": {
           "118": {
@@ -12356,7 +12364,12 @@
         "buy": 19000,
         "sell": 3800
       },
-      "crystalType": "Ring"
+      "crystalType": "Ring",
+      "drop": {
+        "zones": [],
+        "chances": {},
+        "chance": 0.05
+      }
     },
     {
       "id": "pearl-armour",
@@ -20992,7 +21005,18 @@
         "buy": 24000,
         "sell": 4800
       },
-      "crystalType": "Helmet"
+      "crystalType": "Helmet",
+      "drop": {
+        "zones": [
+          "zone-bdd-2",
+          "zone-bdd-4"
+        ],
+        "chances": {
+          "zone-bdd-2": 0.01,
+          "zone-bdd-4": 0.01
+        },
+        "chance": 0.05
+      }
     },
     {
       "id": "great-helmet",
@@ -21049,7 +21073,18 @@
         "buy": 40000,
         "sell": 8000
       },
-      "crystalType": "Helmet"
+      "crystalType": "Helmet",
+      "drop": {
+        "zones": [
+          "zone-bdd-2",
+          "zone-bdd-4"
+        ],
+        "chances": {
+          "zone-bdd-2": 0.01,
+          "zone-bdd-4": 0.01
+        },
+        "chance": 0.05
+      }
     },
     {
       "id": "wisdom-coronet",
@@ -21106,7 +21141,18 @@
         "buy": 40000,
         "sell": 8000
       },
-      "crystalType": "Helmet"
+      "crystalType": "Helmet",
+      "drop": {
+        "zones": [
+          "zone-bdd-2",
+          "zone-bdd-4"
+        ],
+        "chances": {
+          "zone-bdd-2": 0.01,
+          "zone-bdd-4": 0.01
+        },
+        "chance": 0.05
+      }
     },
     {
       "id": "tao-coronet",
@@ -21163,7 +21209,18 @@
         "buy": 40000,
         "sell": 8000
       },
-      "crystalType": "Helmet"
+      "crystalType": "Helmet",
+      "drop": {
+        "zones": [
+          "zone-bdd-2",
+          "zone-bdd-4"
+        ],
+        "chances": {
+          "zone-bdd-2": 0.01,
+          "zone-bdd-4": 0.01
+        },
+        "chance": 0.05
+      }
     },
     {
       "id": "dragon-boots",
@@ -21277,7 +21334,12 @@
         "buy": 25000,
         "sell": 5000
       },
-      "crystalType": "Belt"
+      "crystalType": "Belt",
+      "drop": {
+        "zones": [],
+        "chances": {},
+        "chance": 0.1
+      }
     },
     {
       "id": "hero-necklace",
@@ -21334,7 +21396,18 @@
         "buy": 15000,
         "sell": 3000
       },
-      "crystalType": "Necklace"
+      "crystalType": "Necklace",
+      "drop": {
+        "zones": [
+          "zone-bdd-2",
+          "zone-bdd-4"
+        ],
+        "chances": {
+          "zone-bdd-2": 0.025,
+          "zone-bdd-4": 0.025
+        },
+        "chance": 0.05
+      }
     },
     {
       "id": "adamantine-necklace",
@@ -21391,7 +21464,18 @@
         "buy": 15000,
         "sell": 3000
       },
-      "crystalType": "Necklace"
+      "crystalType": "Necklace",
+      "drop": {
+        "zones": [
+          "zone-bdd-2",
+          "zone-bdd-4"
+        ],
+        "chances": {
+          "zone-bdd-2": 0.025,
+          "zone-bdd-4": 0.025
+        },
+        "chance": 0.05
+      }
     },
     {
       "id": "requiem-necklace",
@@ -21448,7 +21532,18 @@
         "buy": 15000,
         "sell": 3000
       },
-      "crystalType": "Necklace"
+      "crystalType": "Necklace",
+      "drop": {
+        "zones": [
+          "zone-bdd-2",
+          "zone-bdd-4"
+        ],
+        "chances": {
+          "zone-bdd-2": 0.025,
+          "zone-bdd-4": 0.025
+        },
+        "chance": 0.05
+      }
     },
     {
       "id": "8-trigram-wheel",
@@ -21505,7 +21600,18 @@
         "buy": 25000,
         "sell": 5000
       },
-      "crystalType": "Bracelet"
+      "crystalType": "Bracelet",
+      "drop": {
+        "zones": [
+          "zone-bdd-2",
+          "zone-bdd-4"
+        ],
+        "chances": {
+          "zone-bdd-2": 0.025,
+          "zone-bdd-4": 0.025
+        },
+        "chance": 0.05
+      }
     },
     {
       "id": "hang-ma-wheel",
@@ -21562,7 +21668,18 @@
         "buy": 25000,
         "sell": 5000
       },
-      "crystalType": "Bracelet"
+      "crystalType": "Bracelet",
+      "drop": {
+        "zones": [
+          "zone-bdd-2",
+          "zone-bdd-4"
+        ],
+        "chances": {
+          "zone-bdd-2": 0.025,
+          "zone-bdd-4": 0.025
+        },
+        "chance": 0.05
+      }
     },
     {
       "id": "bok-ma-wheel",
@@ -21619,7 +21736,12 @@
         "buy": 25000,
         "sell": 5000
       },
-      "crystalType": "Bracelet"
+      "crystalType": "Bracelet",
+      "drop": {
+        "zones": [],
+        "chances": {},
+        "chance": 0.05
+      }
     },
     {
       "id": "baek-ta-glove",
@@ -21676,7 +21798,18 @@
         "buy": 25000,
         "sell": 5000
       },
-      "crystalType": "Bracelet"
+      "crystalType": "Bracelet",
+      "drop": {
+        "zones": [
+          "zone-bdd-2",
+          "zone-bdd-4"
+        ],
+        "chances": {
+          "zone-bdd-2": 0.025,
+          "zone-bdd-4": 0.025
+        },
+        "chance": 0.05
+      }
     },
     {
       "id": "spirit-reformer",
@@ -21733,7 +21866,18 @@
         "buy": 25000,
         "sell": 5000
       },
-      "crystalType": "Bracelet"
+      "crystalType": "Bracelet",
+      "drop": {
+        "zones": [
+          "zone-bdd-2",
+          "zone-bdd-4"
+        ],
+        "chances": {
+          "zone-bdd-2": 0.025,
+          "zone-bdd-4": 0.025
+        },
+        "chance": 0.05
+      }
     },
     {
       "id": "holy-tao-wheel",
@@ -21790,7 +21934,12 @@
         "buy": 25000,
         "sell": 5000
       },
-      "crystalType": "Bracelet"
+      "crystalType": "Bracelet",
+      "drop": {
+        "zones": [],
+        "chances": {},
+        "chance": 0.05
+      }
     },
     {
       "id": "noble-ring",
@@ -21847,7 +21996,18 @@
         "buy": 19000,
         "sell": 3800
       },
-      "crystalType": "Ring"
+      "crystalType": "Ring",
+      "drop": {
+        "zones": [
+          "zone-bdd-2",
+          "zone-bdd-4"
+        ],
+        "chances": {
+          "zone-bdd-2": 0.05,
+          "zone-bdd-4": 0.05
+        },
+        "chance": 0.05
+      }
     },
     {
       "id": "soul-ring",
@@ -21904,7 +22064,18 @@
         "buy": 19000,
         "sell": 3800
       },
-      "crystalType": "Ring"
+      "crystalType": "Ring",
+      "drop": {
+        "zones": [
+          "zone-bdd-2",
+          "zone-bdd-4"
+        ],
+        "chances": {
+          "zone-bdd-2": 0.05,
+          "zone-bdd-4": 0.05
+        },
+        "chance": 0.05
+      }
     },
     {
       "id": "boundless-ring",
@@ -21961,7 +22132,18 @@
         "buy": 28000,
         "sell": 5600
       },
-      "crystalType": "Ring"
+      "crystalType": "Ring",
+      "drop": {
+        "zones": [
+          "zone-bdd-2",
+          "zone-bdd-4"
+        ],
+        "chances": {
+          "zone-bdd-2": 0.025,
+          "zone-bdd-4": 0.025
+        },
+        "chance": 0.025
+      }
     },
     {
       "id": "thunder-ring",
@@ -22018,7 +22200,18 @@
         "buy": 28000,
         "sell": 5600
       },
-      "crystalType": "Ring"
+      "crystalType": "Ring",
+      "drop": {
+        "zones": [
+          "zone-bdd-2",
+          "zone-bdd-4"
+        ],
+        "chances": {
+          "zone-bdd-2": 0.025,
+          "zone-bdd-4": 0.025
+        },
+        "chance": 0.025
+      }
     },
     {
       "id": "tae-guk-ring",
@@ -22075,7 +22268,18 @@
         "buy": 28000,
         "sell": 5600
       },
-      "crystalType": "Ring"
+      "crystalType": "Ring",
+      "drop": {
+        "zones": [
+          "zone-bdd-2",
+          "zone-bdd-4"
+        ],
+        "chances": {
+          "zone-bdd-2": 0.025,
+          "zone-bdd-4": 0.025
+        },
+        "chance": 0.025
+      }
     }
   ]
 }

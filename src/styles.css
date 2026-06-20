@@ -481,6 +481,72 @@ button.active,
   display: none;
 }
 
+.party-switch-bar {
+  position: absolute;
+  left: 50%;
+  top: 12px;
+  z-index: 11;
+  display: flex;
+  gap: 6px;
+  max-width: calc(100% - 24px);
+  padding: 5px 6px;
+  border: 1px solid rgba(88, 72, 47, 0.85);
+  background: rgba(12, 10, 8, 0.9);
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.35);
+  transform: translateX(-50%);
+  image-rendering: pixelated;
+  pointer-events: auto;
+}
+
+.party-switch-bar[hidden] {
+  display: none;
+}
+
+.party-switch-button {
+  display: grid;
+  gap: 1px;
+  min-width: 72px;
+  padding: 4px 8px;
+  border: 1px solid rgba(73, 58, 38, 0.95);
+  background: rgba(28, 22, 15, 0.95);
+  color: #b7a375;
+  font: inherit;
+  line-height: 1.1;
+  text-align: center;
+  cursor: pointer;
+}
+
+.party-switch-button:hover:not(:disabled) {
+  border-color: rgba(225, 187, 93, 0.75);
+  color: #ead9b2;
+}
+
+.party-switch-button .party-switch-name {
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.party-switch-button .party-switch-hp {
+  font-size: 10px;
+  opacity: 0.85;
+}
+
+.party-switch-button.controlled {
+  border-color: rgba(225, 187, 93, 0.95);
+  background: rgba(60, 47, 24, 0.95);
+  color: #f3e3b6;
+  cursor: default;
+}
+
+.party-switch-button.dead {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.party-switch-button:disabled {
+  cursor: not-allowed;
+}
+
 .combat-skill-control {
   display: grid;
   grid-template-rows: 50px 17px;
@@ -1503,6 +1569,36 @@ dd {
   font-size: 18px;
   font-variant-numeric: tabular-nums;
   line-height: 1.1;
+}
+
+.boss-entry-respawn-status {
+  display: grid;
+  gap: 4px;
+  margin: 0 0 8px;
+  padding: 10px 12px;
+  border: 1px solid rgba(88, 72, 47, 0.85);
+  background: rgba(20, 16, 11, 0.92);
+  text-align: center;
+}
+
+.boss-entry-respawn-boss {
+  color: #f3e3b6;
+  font-size: 16px;
+}
+
+.boss-entry-respawn-label {
+  color: #ad9466;
+  font-size: 11px;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+.boss-entry-respawn-status .boss-entry-respawn-countdown {
+  font-size: 22px;
+}
+
+.boss-entry-respawn-status .boss-entry-note {
+  margin-top: 4px;
 }
 
 .boss-party-status {
