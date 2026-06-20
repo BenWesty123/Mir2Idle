@@ -96,3 +96,34 @@ npm.cmd run dev      # then open http://localhost:4177 and confirm in-game
 ```
 
 If `check` fails, read the first error - the linter points at the exact file/line (e.g. a duplicate declaration or a typo).
+
+---
+
+## 7. Change or add an item's icon image
+
+Item icons are packed into a committed **atlas** (`public/item-icons/items-atlas.png`) plus a coordinate map (`public/item-icons/items-atlas.json`). The game reads both and shows each icon from the atlas. Individual icon PNGs in `public/item-icons/items/` are only the source used to build the atlas - they are NOT shipped.
+
+After you add/replace an icon PNG (or change which `icon.src` an item uses):
+
+```powershell
+npm.cmd run build:item-atlas    # repacks public/item-icons/items-atlas.png + .json
+npm.cmd run dev                 # open http://localhost:4177, open inventory, confirm icons look right
+```
+
+The regenerated `items-atlas.png` + `items-atlas.json` simply stay in `public/` alongside the other game art (that whole folder is your local asset store). For paper-doll/character art, the equivalent is `npm.cmd run build:stateitem-atlas` (regenerates `public/ui/character/stateitems-atlas.*`).
+
+Why this matters: the atlas is built and tested in dev, so the itch release copies and renders the exact same file. Never let packaging rebuild it.
+
+---
+
+## 8. Release to itch.io safely
+
+```powershell
+npm.cmd run release:itch
+```
+
+This one command audits assets, builds the upload zip in `dist/`, and then **boots the real packaged build in a headless browser** to confirm it still works.
+
+- Packaging only **copies a chosen subset of your files** into `dist/itch/`; it never deletes or edits anything in your project and never rebuilds atlases. So what you tested in dev is what ships.
+- If the final "Release boot check" step is RED, **do not upload** - the package differs from the tested build (e.g. a needed file was not copied). Read the listed problem (a missing asset URL or a console error) and fix it, then re-run.
+- Upload the `dist/lom-idle-v2-itch-*.zip` it prints, using the on-screen itch.io settings (HTML, embed in page).

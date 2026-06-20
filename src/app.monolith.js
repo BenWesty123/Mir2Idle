@@ -904,7 +904,7 @@ const TOWN_VISUALS = {
 };
 
 const MAP_STAMP_ASSET_VERSION = "20260619-bdd-dark-devil-27-34";
-const MONSTER_ASSET_VERSION = "20260620-zuma-archer-aim-center";
+const MONSTER_ASSET_VERSION = "20260620-minotaur-361-from-lib094";
 const COMBAT_LOG_SUMMARY_PREFIX = "Combat:";
 
 // --- Restored offline group-dungeon simulator (recovered from src/game split) ---
@@ -2282,6 +2282,7 @@ async function init() {
     ...CHARACTER_PAPER_DOLL_FRAMES,
     ...(await loadJson("./public/ui/character/stateitems.json").catch(() => ({}))),
   };
+  await applyStateItemAtlas(state.characterStateItems);
   const loadedSave = loadSavedGameState();
   if (!loadedSave) {
     state.characters = createDefaultCharacterStates();
@@ -6373,8 +6374,13 @@ function reduceEnemyHp(enemy, damage) {
   maybeTriggerEnemyEnrage(enemy);
 }
 
-function trainingRoomCastGapMs(spell, learned) {
-  return crystalSpellCastCooldownMs(spell, learned);
+function trainingRoomCastGapMs(_spell, _learned) {
+  // Academy cycles practice casts — not each spell's combat cooldown (Fury is ~10 min).
+  // Pace by attack speed so Fury's AS boost actually speeds training here too.
+  return Math.max(
+    CRYSTAL_PLAYER_ACTION_LOCK_MS,
+    Math.min(CRYSTAL_SPELL_GLOBAL_LOCK_MS, attackDelayMs(effectivePlayerAttackSpeed(), playerCombatLevel())),
+  );
 }
 
 function isTrainingRoomCombat() {
@@ -6441,7 +6447,8 @@ function trainingRoomPlayCastVisual(spell, now) {
 
 function trainingRoomCastWarrior(spell, learned, cost, now) {
   const battle = state.battle;
-  if (spell.toggle) return false;
+  // Toggle attack skills (Half Moon, Thrusting) are not charge casts — train via the
+  // generic swing path below. Do not bail out on spell.toggle here.
 
   if (spell.id === "TwinDrakeBlade") {
     if (warriorTwinDrakeReady()) {
@@ -6493,6 +6500,7 @@ function trainingRoomCastWarrior(spell, learned, cost, now) {
 
   if (spell.buff) {
     if (spell.id !== "Fury") return false;
+    if (now < (battle.furyUntil ?? 0)) return false;
     trainingRoomSpendMp(spell, learned, cost);
     battle.furyUntil = now + 60000 + (Number(learned?.level) || 0) * 10000;
     battle.furyBonus = 4;
@@ -7177,7 +7185,7 @@ function accountUpgradeRequirementHtml(upgrade) {
     const met = owned >= cost.quantity;
     rows.push(`
       <div class="upgrade-material has-tooltip ${met ? "met" : "missing"}" data-tooltip-item="${escapeHtml(cost.itemId)}">
-        ${itemIconMarkup(item)}
+        ${itemIconHtml(item)}
         <span>${escapeHtml(item?.name ?? cost.itemId)}</span>
         <strong>${owned}/${cost.quantity}</strong>
       </div>
@@ -8731,21 +8739,28 @@ function magicSpellByShape(shape) {
 
 function itemIconSrc(item) {
   if (!item) return "";
-  return item.icon?.src ?? item.icon?.sheet ?? "";
+  return item.icon?.src ?? "";
 }
 
-function itemIconMarkup(item) {
-  const icon = item?.icon;
-  if (!icon) return "";
-  if (icon.sheet) {
-    const w = Math.max(1, Math.trunc(Number(icon.w) || 32));
-    const h = Math.max(1, Math.trunc(Number(icon.h) || 32));
-    const sx = Math.max(0, Math.trunc(Number(icon.sx) || 0));
-    const sy = Math.max(0, Math.trunc(Number(icon.sy) || 0));
-    return `<span class="item-icon-sprite" style="width:${w}px;height:${h}px;background-image:url('${escapeHtml(icon.sheet)}');background-position:-${sx}px -${sy}px;background-repeat:no-repeat;" aria-hidden="true"></span>`;
+function itemIconHtml(item) {
+  const src = itemIconSrc(item);
+  return src ? `<img src="${escapeHtml(src)}" alt="" />` : "";
+}
+
+// Merge committed paper-doll atlas coordinates (public/ui/character/stateitems-atlas.json)
+// onto the loaded stateitem frames. The x/y/w/h placement still comes from the
+// untouched stateitems.json; this only adds the shared sheet + sx/sy crop.
+async function applyStateItemAtlas(frames) {
+  const atlas = await loadJson("./public/ui/character/stateitems-atlas.json").catch(() => null);
+  const map = atlas?.frames;
+  if (!map || !atlas.sheet || !frames) return;
+  for (const [key, frame] of Object.entries(frames)) {
+    const coords = map[key];
+    if (!coords || !frame) continue;
+    frame.sheet = atlas.sheet;
+    frame.sx = coords.sx;
+    frame.sy = coords.sy;
   }
-  if (icon.src) return `<img src="${escapeHtml(icon.src)}" alt="" />`;
-  return "";
 }
 
 function bookItemsForSpell(spellId) {
@@ -12984,7 +12999,7 @@ function crystalEquipmentItemHtml(entry, item, slotId) {
       draggable="false"
       title="${escapeHtml(itemDisplayName(item, entry))}"
     >
-      ${itemIconMarkup(item)}
+      ${itemIconHtml(item)}
     </div>
   `;
 }
@@ -13047,7 +13062,7 @@ function crystalStorageItemHtml(entry, item) {
       draggable="false"
       title="${escapeHtml(itemDisplayName(item, entry))}"
     >
-      ${itemIconMarkup(item)}
+      ${itemIconHtml(item)}
       ${stack}
     </div>
   `;
@@ -13146,7 +13161,7 @@ function crystalInventoryItemHtml(entry, item) {
       draggable="false"
       title="${escapeHtml(itemDisplayName(item, entry))}"
     >
-      ${itemIconMarkup(item)}
+      ${itemIconHtml(item)}
       ${stack}
     </div>
   `;
@@ -13490,7 +13505,7 @@ function inventoryDestroyConfirmHtml() {
         <button type="button" class="inventory-destroy-close" data-cancel-inventory-destroy aria-label="Cancel destroy item">X</button>
         <div class="inventory-destroy-title">Destroy Item</div>
         <div class="inventory-destroy-item has-tooltip" data-tooltip-item="${escapeHtml(item.id)}" data-tooltip-entry="${escapeHtml(entry.id)}">
-          ${itemIconMarkup(item)}
+          ${itemIconHtml(item)}
           <strong>${escapeHtml(label)}</strong>
         </div>
         <p>This will destroy the item.</p>
@@ -13666,7 +13681,7 @@ function inventoryItemHtml(entry) {
     : "";
   return `
     <div class="inventory-item has-tooltip ${equipped ? "equipped" : ""} ${locked ? "locked" : ""}" data-tooltip-item="${item.id}" data-tooltip-entry="${entry.id}">
-      ${itemIconMarkup(item)}
+      ${itemIconHtml(item)}
       ${stack}
       <strong>${escapeHtml(itemDisplayName(item, entry))}</strong>
       <span>${requirement.ok ? tag : requirement.reason}</span>
@@ -16269,7 +16284,7 @@ function traderSellRowHtml(entry, item) {
   const value = itemSellValue(item, quantity);
   return `
     <div class="npc-shop-row trader-sell-row" data-tooltip-item="${escapeHtml(item.id)}" data-tooltip-entry="${escapeHtml(entry.id)}">
-      ${itemIconMarkup(item)}
+      ${itemIconHtml(item)}
       <span class="npc-shop-item">
         <strong>${escapeHtml(itemDisplayName(item, entry))}${stack}</strong>
         <span>${escapeHtml(shopItemMetaText(item))}</span>
@@ -16316,7 +16331,7 @@ function shopBuyRowHtml(item) {
     : "";
   return `
     <div class="npc-shop-row shop-buy-row ${canBuy ? "" : "locked"}" data-tooltip-item="${escapeHtml(item.id)}">
-      ${itemIconMarkup(item)}
+      ${itemIconHtml(item)}
       <span class="npc-shop-item">
         <strong>${escapeHtml(item.name)}</strong>
         <span>${escapeHtml(shopItemMetaText(item))}${owned ? ` | Have ${owned}` : ""}</span>
@@ -16456,7 +16471,7 @@ function weaponRefineSlotHtml(kind, index, { large = false } = {}) {
         data-tooltip-entry="${escapeHtml(entry.id)}"
         title="${escapeHtml(itemDisplayName(item, entry))}"
       >
-        ${itemIconMarkup(item)}
+        ${itemIconHtml(item)}
         ${purity}
         ${kind === "weapon" && refineFx === "fail" ? `<span class="weapon-refine-crack" aria-hidden="true"></span>` : ""}
       </div>
@@ -16491,7 +16506,7 @@ function weaponRefinePickerRowHtml(entry, item) {
   const statHint = isRefineJewelleryItem(item) ? refineJewelleryStatHint(entry, item) : "";
   return `
     <div class="npc-shop-row weapon-refine-picker-row" data-tooltip-item="${escapeHtml(item.id)}" data-tooltip-entry="${escapeHtml(entry.id)}">
-      ${itemIconMarkup(item)}
+      ${itemIconHtml(item)}
       <span class="npc-shop-item">
         <strong>${escapeHtml(itemDisplayName(item, entry))}</strong>
         <span>${escapeHtml(statHint || shopItemMetaText(item))}${purity}</span>
@@ -16529,7 +16544,7 @@ function smithCombineRowHtml(option) {
     : escapeHtml(consumeName);
   return `
     <div class="npc-shop-row smith-combine-row" data-tooltip-item="${escapeHtml(item.id)}" data-tooltip-entry="${escapeHtml(target.id)}">
-      ${itemIconMarkup(item)}
+      ${itemIconHtml(item)}
       <span class="npc-shop-item">
         <strong>${escapeHtml(keepName)}</strong>
         <span>${count} owned | Keeps best | +1 ${escapeHtml(stat.label)} | Consumes ${consumeLabel}</span>
@@ -26565,7 +26580,7 @@ function hotbarSlotHtml(slot) {
         draggable="false"
         title="${escapeHtml(itemDisplayName(item, entry))}"
       >
-        ${itemIconMarkup(item)}
+        ${itemIconHtml(item)}
         ${isStackableItem(item) && entry.quantity > 1 ? `<span class="hotbar-qty">${entry.quantity}</span>` : ""}
       </button>
     `

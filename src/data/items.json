@@ -20814,7 +20814,7 @@
       "icon": {
         "library": "Items",
         "frame": 425,
-        "src": "/public/item-icons/items/frame_000425.png"
+        "src": "./public/item-icons/items/frame_000425.png"
       },
       "requirements": {
         "type": "none",
@@ -20884,7 +20884,7 @@
       "icon": {
         "library": "Items",
         "frame": 423,
-        "src": "/public/item-icons/items/frame_000423.png"
+        "src": "./public/item-icons/items/frame_000423.png"
       },
       "requirements": {
         "type": "none",
@@ -20954,7 +20954,7 @@
       "icon": {
         "library": "Items",
         "frame": 421,
-        "src": "/public/item-icons/items/frame_000421.png"
+        "src": "./public/item-icons/items/frame_000421.png"
       },
       "requirements": {
         "type": "none",

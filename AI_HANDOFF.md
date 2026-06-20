@@ -73,20 +73,32 @@ Line numbers are approximate and drift - search by the function/const NAME. Boss
 npm.cmd run dev      # dev server at http://localhost:4177
 npm.cmd run check    # lint + syntax-check the live monolith + unit tests (run this before claiming done)
 npm.cmd run smoke    # boot the game headless and fail on any console/page error (needs dev server running + playwright)
-npm.cmd run package:itch
-npm.cmd run verify:itch
+npm.cmd run release:itch        # audit + package + boot the packaged build (use this to ship)
+npm.cmd run build:item-atlas    # repack public/item-icons/items-atlas.* after changing icon art
 ```
 
 `npm run check` only catches syntax/lint/unit-test problems - it does NOT prove the game boots. For changes to `app.monolith.js`, also run `npm run smoke` (in another terminal, with `npm run dev` running): it loads the game in headless Chromium and fails if there are any console or page errors. This is the only automated way to catch runtime/eval-order regressions in the monolith.
 
-## Releasing + cache-busting
+## Releasing to itch.io
 
+Ship with `npm run release:itch`. It runs the asset audit, builds the package, runs the existing source/package audits, and finally **boots the actual packaged build in headless Chromium** (`tools/verify-itch-build.mjs`). If that last step is RED, the package no longer matches the dev build you tested - do NOT upload; fix the reported problem and re-run.
+
+Core principle - **packaging only copies, never rewrites file contents.** `tools/package-itch.mjs` copies a chosen subset of files into `dist/itch/` (leaving the rest in source) and applies exactly one render-neutral transform: the cache-bust `?v=` stamp. It must NOT regenerate atlases or rewrite data files; that is what previously made the release differ from the tested build (rebuilt icon/stateitem atlases were never seen until after upload, scrambling icons and turning sprites into the wrong art).
+
+Prebuilt atlases (the fix): item and paper-doll icons are packed into `public/` artifacts that BOTH dev and release load identically (note: like all of `public/`, these are local assets - `public/` is git-ignored by design, so "build it once and keep it in `public/`" is the workflow, not "commit to git"):
+- `public/item-icons/items-atlas.png` + `items-atlas.json` (built by `npm run build:item-atlas`), merged onto each item icon at load by `applyItemIconAtlas` in `app.monolith.js`.
+- `public/ui/character/stateitems-atlas.png` + `stateitems-atlas.json` (built by `npm run build:stateitem-atlas`), merged by `applyStateItemAtlas`.
+`src/data/items.json` and `stateitems.json` stay pristine (pure data, relative `./public/...` paths). The individual `item-icons/items/frame_*.png` / `stateitem-*.png` are the atlas SOURCE only - kept in `public/` for rebuilds, left out of the package. After changing icon art, rebuild the atlas and test in dev.
+
+The release verifier (`verify:itch:build`) is deliberately INDEPENDENT of the packager: it observes what the running packaged game actually requests/renders (failing on 404s, console errors, or item icons falling back to individual frames) and cross-checks every monster sprite referenced in `phase1Data` against the package - so a file left out of the copied subset (the "Minotaur renders as a torch" class) fails the build instead of shipping.
+
+### Cache-busting
 The game is shipped as a static HTML bundle to itch.io, whose CDN caches files for a long time keyed by their full URL (query string included). Stale caches are avoided with a `?v=` cache-bust token, handled in two different ways:
 
 - **Local dev** (`tools/server.mjs`): every response is sent with `Cache-Control: no-store, max-age=0`, so the browser always re-fetches the latest source. The `?v=` value in `src/app.js` is irrelevant in dev - you never need to touch it.
 - **Release** (`tools/package-itch.mjs`): `patchCacheBusting()` re-stamps every `?v=` token in the packaged HTML/JS with a fresh per-build timestamp (`buildVersion`). This covers both the entry `<script>` in `index.html` AND the in-source module import `src/app.js` -> `"./app.monolith.js?v=..."`, so a changed monolith can never be served from a stale cache. The JS stamp is anchored to a `.js`/`.mjs` specifier so it does NOT disturb the `?v=${MONSTER_ASSET_VERSION}` / `${MAP_STAMP_ASSET_VERSION}` asset URLs inside the monolith. If a required file (`index.html`, `src/app.js`) has no `?v=` token to stamp, the build fails loudly rather than shipping a stale-cache risk.
 
-Practical rule: **do NOT hand-bump cache-bust strings.** Earlier task-log entries describe manually editing the `?v=` in `app.js`/`index.html` after every change - that ritual is now obsolete. Just edit code and run `npm.cmd run package:itch`.
+Practical rule: **do NOT hand-bump cache-bust strings.** Earlier task-log entries describe manually editing the `?v=` in `app.js`/`index.html` after every change - that ritual is now obsolete. Just edit code and run `npm.cmd run release:itch`.
 
 ## Verifying a change
 

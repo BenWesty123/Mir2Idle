@@ -19,8 +19,14 @@ alwaysApply: true
 - Use the `NAVIGATION MAP` comment block near the top of `src/app.monolith.js`, and the system map in `AI_HANDOFF.md`.
 - Search by function/const NAME, not by line number (line numbers drift).
 
+## Releasing to itch.io (copy-only packaging)
+- Release with `npm run release:itch`. It packages AND boots the packaged build headlessly (`verify:itch:build`). If that boot check is RED, do NOT upload - the release differs from the tested dev build.
+- Packaging only COPIES a chosen subset of files into `dist/itch/`; it must NEVER regenerate atlases or rewrite data files. The dev build must render from the exact same committed files that ship.
+- Item/paper-doll icons are PREBUILT atlases in `public/` (`public/item-icons/items-atlas.*`, `public/ui/character/stateitems-atlas.*`), merged onto icons at load by `applyItemIconAtlas` / `applyStateItemAtlas`. After changing icon art, run `npm run build:item-atlas` (or `build:stateitem-atlas`) and test in dev. Do NOT add a package-time atlas rebuild back into `tools/package-itch.mjs`.
+- Asset paths in source must be relative (`./public/...`), never absolute (`/public/...`), so they work on itch's subpath without rewriting.
+
 ## House rules
 - Preserve player saves. If you change save structure, add migration logic (extend the `sanitize*` / `restore*` functions; never silently drop fields).
 - Do not edit generated `dist/` output as source.
-- Do NOT hand-edit `?v=` cache-bust strings in `src/app.js` / `index.html`. `tools/package-itch.mjs` re-stamps them automatically per release, and the dev server is `no-store`. (See "Releasing + cache-busting" in `AI_HANDOFF.md`.)
+- Do NOT hand-edit `?v=` cache-bust strings in `src/app.js` / `index.html`. `tools/package-itch.mjs` re-stamps them automatically per release, and the dev server is `no-store`. (See "Releasing to itch.io" in `AI_HANDOFF.md`.)
 - For UI spacing/layout tweaks, batch the changes and confirm with a screenshot instead of guessing pixel values across many iterations.

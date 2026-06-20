@@ -1057,7 +1057,7 @@ export function taoistSpellByShape(shape) {
 export function magicIconSrc(spell) {
   if (!spell || spell.icon == null) return "";
   const crystalSkillFrame = Number(spell.icon) * 2;
-  return `/public/magic-icons/images/frame_${String(crystalSkillFrame).padStart(6, "0")}.png`;
+  return `./public/magic-icons/images/frame_${String(crystalSkillFrame).padStart(6, "0")}.png`;
 }
 
 export function spellMpCost(spell, learned) {

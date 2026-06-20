@@ -808,10 +808,12 @@ dd {
 }
 
 .npc-shop-row img {
+  justify-self: center;
   width: 28px;
   height: 28px;
   object-fit: contain;
   image-rendering: pixelated;
+  flex: none;
 }
 
 .npc-shop-item {
@@ -2573,7 +2575,6 @@ dd {
 }
 
 .upgrade-material img,
-.upgrade-material .item-icon-sprite,
 .upgrade-material-icon {
   width: 24px;
   height: 24px;
@@ -3658,16 +3659,7 @@ dd {
   opacity: 0.72;
 }
 
-.item-icon-sprite {
-  display: inline-block;
-  image-rendering: pixelated;
-  flex: none;
-}
-
-.inventory-item img,
-.inventory-item .item-icon-sprite,
 .crystal-inventory-item img,
-.crystal-inventory-item .item-icon-sprite,
 .crystal-storage-item img {
   width: 32px;
   height: 32px;
@@ -3900,8 +3892,7 @@ dd {
   font-size: 12px;
 }
 
-.inventory-item img,
-.inventory-item .item-icon-sprite {
+.inventory-item img {
   grid-row: 1 / span 2;
   width: 28px;
   height: 28px;

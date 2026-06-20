@@ -1,8 +1,15 @@
 param(
   [string]$InputRoot = "$PSScriptRoot\..\public\ui\character",
-  [string]$OutputRoot = "$PSScriptRoot\..\dist\itch\public\ui\character",
+  [string]$OutputRoot = "$PSScriptRoot\..\public\ui\character",
   [int]$MaxAtlasHeight = 4000
 )
+
+# NOTE: This builds a COMMITTED dev artifact. It writes the atlas PNG and a
+# coordinate map (stateitems-atlas.json) into the source public/ tree and NEVER
+# edits stateitems.json. The game merges these coordinates at load time (see
+# applyStateItemAtlas in src/app.monolith.js), so dev and the itch release
+# render from the same committed files. Run via:
+#   npm run build:stateitem-atlas   (after changing paper-doll stateitems)
 
 $ErrorActionPreference = "Stop"
 Add-Type -AssemblyName System.Drawing
@@ -116,5 +123,19 @@ $atlasPath = Join-Path $OutputRoot "stateitems-atlas.png"
 $atlas.Save($atlasPath, [System.Drawing.Imaging.ImageFormat]::Png)
 $atlas.Dispose()
 
-$packed | ConvertTo-Json -Depth 8 | Set-Content -LiteralPath (Join-Path $OutputRoot "stateitems.json")
+# Write a coordinate map instead of overwriting stateitems.json. The game loads
+# this map and merges sheet/sx/sy onto each paper-doll frame at runtime (the x/y/w/h
+# placement still comes from the untouched stateitems.json).
+$frames = [ordered]@{}
+foreach ($key in ($packed.Keys)) {
+  $frame = $packed[$key]
+  $frames[[string]$key] = [ordered]@{ sx = $frame.sx; sy = $frame.sy }
+}
+$map = [ordered]@{
+  sheet = "./public/ui/character/stateitems-atlas.png"
+  frames = $frames
+}
+$mapPath = Join-Path $OutputRoot "stateitems-atlas.json"
+$map | ConvertTo-Json -Depth 8 | Set-Content -LiteralPath $mapPath
 Write-Output "Built stateitem atlas with $($packed.Count) frames -> $atlasPath"
+Write-Output "Wrote stateitem atlas map -> $mapPath"

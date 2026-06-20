@@ -10,6 +10,8 @@
     "export:crystal-world": "powershell -ExecutionPolicy Bypass -File tools/export-crystal-world.ps1",
     "export:item-icons": "powershell -ExecutionPolicy Bypass -File tools/export-item-icon-review.ps1",
     "export:monster-atlases": "powershell -ExecutionPolicy Bypass -File tools/export-monster-atlases.ps1",
+    "build:item-atlas": "powershell -ExecutionPolicy Bypass -File tools/build-item-icons-atlas.ps1",
+    "build:stateitem-atlas": "powershell -ExecutionPolicy Bypass -File tools/build-stateitem-atlas.ps1",
     "audit:phase1": "node tools/build-phase1-content-audit.mjs",
     "build:phase1-items": "node tools/build-phase1-items.mjs",
     "build:zones-json": "node tools/build-zones-json.mjs",
@@ -21,11 +23,12 @@
     "verify:itch": "node tools/verify-itch-release.mjs --require-package",
     "verify:itch:source": "node tools/verify-itch-release.mjs --source-only",
     "audit:itch": "node tools/audit-itch-package.mjs",
-    "release:itch": "npm run audit:release && npm run package:itch && npm run verify:itch && npm run audit:itch",
+    "verify:itch:build": "node tools/verify-itch-build.mjs",
+    "release:itch": "npm run audit:release && npm run package:itch && npm run verify:itch && npm run audit:itch && npm run verify:itch:build",
     "lint": "oxlint src tools",
     "test": "node --test \"tests/**/*.test.mjs\"",
     "smoke": "node tools/smoke-game.mjs",
-    "check": "oxlint src tools && node --check src/app.js && node --check src/app.monolith.js && node --check src/bossDrops.js && node --check src/atlas.js && node --check src/groupDungeonSwarm.js && node --check src/playerActions.js && node --check src/spellBodyActions.js && node --check src/battleData.js && node --check src/phase1Data.js && node --check src/warriorMagic.js && node --check src/buffPotions.js && node --check src/zumaArcherSwarm.js && node --check tools/build-phase1-items.mjs && node --check tools/merge-item-drops.mjs && node --check tools/build-sfx-assets.mjs && node --check tools/itch-spellfx-manifest.mjs && node --check tools/verify-itch-release.mjs && node --check tools/package-itch.mjs && node --check tools/audit-itch-package.mjs && node --check tools/server.mjs && node --check tools/stats-worker/worker.js && node --test \"tests/**/*.test.mjs\" && npm run verify:itch:source"
+    "check": "oxlint src tools && node --check src/app.js && node --check src/app.monolith.js && node --check src/bossDrops.js && node --check src/atlas.js && node --check src/groupDungeonSwarm.js && node --check src/playerActions.js && node --check src/spellBodyActions.js && node --check src/battleData.js && node --check src/phase1Data.js && node --check src/warriorMagic.js && node --check src/buffPotions.js && node --check src/zumaArcherSwarm.js && node --check tools/build-phase1-items.mjs && node --check tools/merge-item-drops.mjs && node --check tools/build-sfx-assets.mjs && node --check tools/itch-spellfx-manifest.mjs && node --check tools/verify-itch-release.mjs && node --check tools/package-itch.mjs && node --check tools/audit-itch-package.mjs && node --check tools/verify-itch-build.mjs && node --check tools/server.mjs && node --check tools/stats-worker/worker.js && node --test \"tests/**/*.test.mjs\" && npm run verify:itch:source"
   },
   "devDependencies": {
     "oxlint": "^1.70.0",

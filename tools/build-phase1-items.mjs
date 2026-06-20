@@ -466,7 +466,7 @@ function itemDefinition(item, dropsByName, curatedDropsById) {
     icon: {
       library: item.icon?.library ?? "Items",
       frame,
-      src: item.type === "Book" ? "/public/item-icons/books/images/frame_003640.png" : `/public/item-icons/items/${frameFileName(frame)}`,
+      src: item.type === "Book" ? "./public/item-icons/books/images/frame_003640.png" : `./public/item-icons/items/${frameFileName(frame)}`,
     },
     requirements: requirementFor(item),
     stackable: isStackable,

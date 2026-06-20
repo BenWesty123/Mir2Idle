@@ -1,9 +1,16 @@
 param(
   [string]$ItemsPath = "$PSScriptRoot\..\src\data\items.json",
   [string]$InputRoot = "$PSScriptRoot\..\public\item-icons\items",
-  [string]$OutputRoot = "$PSScriptRoot\..\dist\itch\public\item-icons",
+  [string]$OutputRoot = "$PSScriptRoot\..\public\item-icons",
   [int]$MaxAtlasHeight = 4000
 )
+
+# NOTE: This builds a COMMITTED dev artifact. It writes the atlas PNG and a
+# coordinate map (items-atlas.json) into the source public/ tree and NEVER
+# edits src/data/items.json. The game merges these coordinates onto item icons
+# at load time, so the dev build and the itch release render from the exact
+# same committed files (packaging only copies them). Run via:
+#   npm run build:item-atlas   (after changing or adding item icons)
 
 $ErrorActionPreference = "Stop"
 Add-Type -AssemblyName System.Drawing
@@ -129,22 +136,21 @@ $atlasPath = Join-Path $OutputRoot "items-atlas.png"
 $atlas.Save($atlasPath, [System.Drawing.Imaging.ImageFormat]::Png)
 $atlas.Dispose()
 
-$updated = 0
-foreach ($item in $itemsData.items) {
-  $src = [string]$item.icon.src
-  if ([string]::IsNullOrWhiteSpace($src) -or $src -notmatch "item-icons/items/") { continue }
-  $fileName = [System.IO.Path]::GetFileName($src)
-  $frame = $packed[$fileName]
-  if (-not $frame) { continue }
-  $item.icon | Add-Member -NotePropertyName sheet -NotePropertyValue $frame.sheet -Force
-  $item.icon | Add-Member -NotePropertyName sx -NotePropertyValue $frame.sx -Force
-  $item.icon | Add-Member -NotePropertyName sy -NotePropertyValue $frame.sy -Force
-  $item.icon | Add-Member -NotePropertyName w -NotePropertyValue $frame.w -Force
-  $item.icon | Add-Member -NotePropertyName h -NotePropertyValue $frame.h -Force
-  $item.icon.PSObject.Properties.Remove("src")
-  $updated++
+# Write a coordinate map instead of rewriting items.json. The game loads this
+# map and merges sx/sy/w/h onto each item icon at runtime (see applyItemIconAtlas
+# in src/app.monolith.js), so items.json stays a pure CSV-generated source file.
+$frames = [ordered]@{}
+foreach ($name in ($packed.Keys | Sort-Object)) {
+  $frame = $packed[$name]
+  $frames[$name] = [ordered]@{ sx = $frame.sx; sy = $frame.sy; w = $frame.w; h = $frame.h }
 }
-
-$itemsData | ConvertTo-Json -Depth 20 | Set-Content -LiteralPath $ItemsPath
+$map = [ordered]@{
+  sheet = "./public/item-icons/items-atlas.png"
+  width = $atlasWidth
+  height = $atlasHeight
+  frames = $frames
+}
+$mapPath = Join-Path $OutputRoot "items-atlas.json"
+$map | ConvertTo-Json -Depth 8 | Set-Content -LiteralPath $mapPath
 Write-Output "Built item icon atlas with $($packed.Count) frames -> $atlasPath"
-Write-Output "Updated $updated item icon entries in $ItemsPath"
+Write-Output "Wrote item icon atlas map -> $mapPath"

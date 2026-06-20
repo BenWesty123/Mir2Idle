@@ -228,7 +228,7 @@ function buildUsedCommonSpriteFiles() {
 function shouldExcludePublic(relativePath) {
   if ([...publicExcludes].some((exclude) => relativePath === exclude || relativePath.startsWith(`${exclude}/`))) return true;
   if (/^ui\/character\/stateitem-\d+\.png$/.test(relativePath)) return true;
-  if (/^item-icons\/items\/frame_.+\.png$/.test(relativePath)) return true;
+  if (/^item-icons\/items-atlas\.(?:png|json)$/.test(relativePath)) return true;
   if (/^sprite-sets\/common\/(?:armour|hair|weapon)\/\d+\.(?:json|png)$/.test(relativePath)) {
     return !usedCommonSpriteFiles.has(relativePath);
   }
@@ -338,18 +338,6 @@ function patchCacheBusting() {
           `serving a stale cached module - restore a "...js?v=..." token (see src/app.js) before packaging.`,
       );
     }
-  }
-}
-
-function patchBrowserRelativePaths() {
-  const files = [
-    "src/data/items.json",
-    "src/warriorMagic.js",
-  ];
-  for (const relativePath of files) {
-    const filePath = path.join(packageRoot, relativePath);
-    const text = fs.readFileSync(filePath, "utf8").replaceAll('"/public/', '"./public/').replaceAll("`/public/", "`./public/");
-    fs.writeFileSync(filePath, text);
   }
 }
 
@@ -488,25 +476,6 @@ function createZipArchive() {
   return zipPath;
 }
 
-function buildPackagedItemIcons() {
-  execSync(
-    [
-      `powershell -ExecutionPolicy Bypass -File "${path.join(root, "tools/build-item-icons-atlas.ps1")}"`,
-      `-ItemsPath "${path.join(packageRoot, "src/data/items.json")}"`,
-      `-InputRoot "${path.join(root, "public/item-icons/items")}"`,
-      `-OutputRoot "${path.join(packageRoot, "public/item-icons")}"`,
-    ].join(" "),
-    { stdio: "inherit" },
-  );
-}
-
-function buildPackagedStateitems() {
-  execSync(
-    `powershell -ExecutionPolicy Bypass -File "${path.join(root, "tools/build-stateitem-atlas.ps1")}"`,
-    { stdio: "inherit" },
-  );
-}
-
 function validateZipEntryPaths(zipPath) {
   const listing = execSync(`tar -tf "${zipPath}"`, { encoding: "utf8" });
   const bad = listing.split("\n").find((entry) => entry.includes("\\"));
@@ -518,11 +487,8 @@ function validateZipEntryPaths(zipPath) {
 cleanOutput();
 for (const file of sourceFiles) copyFile(file);
 copyDirectory(path.join(root, "public"), path.join(packageRoot, "public"));
-buildPackagedStateitems();
-buildPackagedItemIcons();
 trimMaptileIndex();
 patchCacheBusting();
-patchBrowserRelativePaths();
 
 validateModuleClosure();
 const metrics = measureBuild();
