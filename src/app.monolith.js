@@ -466,9 +466,14 @@ const WARRIOR_AUTO_CHARGE_ORDER = ["FlamingSword", "TwinDrakeBlade"];
 const CRYSTAL_POISON_APPLY_DELAY_MS = 500;
 const CRYSTAL_POISON_TICK_MS = 2000;
 const CRYSTAL_POISON_RESIST_WEIGHT = 10;
+const FREEZING_ATTACK_WEIGHT = 10;
+const FREEZING_NORMAL_PROC_CHANCE_CAP = 0.35;
+const FREEZING_BOSS_PROC_CHANCE_CAP = 0.15;
 const EVIL_CENTIPEDE_ATTACK_IMPACT_MS = 500;
 const BONE_LORD_ATTACK_IMPACT_MS = 500;
-const KING_SCORPION_LINE_TILES = 2;
+const KING_SCORPION_LINE_TILES = 3;
+const KING_SCORPION_LINE_VFX_BASE_TILES = 2;
+const KING_SCORPION_LINE_VFX_STRETCH = 1.5;
 const KING_SCORPION_LINE_IMPACT_MS = 300;
 const KING_SCORPION_LINE_STEP_MS = 50;
 
@@ -1538,31 +1543,6 @@ const TELEPORT_REGIONS = [
     label: "Castle Gi-Ryoong",
     zoneIds: [
       "zone-bdd-1",
-      "zone-bdd-2",
-      "zone-bdd-3",
-      "zone-bdd-4",
-      "zone-bdd-5",
-      "zone-bdd-6",
-      "zone-bdd-7",
-      "zone-bdd-8",
-      "zone-bdd-10",
-      "zone-bdd-11",
-      "zone-bdd-12",
-      "zone-bdd-13",
-    ],
-  },
-  {
-    id: "extended-boss-lab",
-    label: "Extended Boss Lab",
-    zoneIds: [
-      "zone-manectric-king-kr",
-      "zone-flame-queen-kr",
-      "zone-flaming-mutant-kr",
-      "zone-scaly-beast-kr",
-      "zone-lab-stone-colossus",
-      "zone-lab-overseer",
-      "zone-lab-halberd-lord",
-      "zone-lab-white-boar",
     ],
   },
 ];
@@ -2513,6 +2493,7 @@ const state = {
   prototypeStats: {
     playerId: "",
     endpoint: "",
+    panelUrl: "",
     configured: false,
     submitting: false,
     lastSubmittedAt: 0,
@@ -4535,23 +4516,30 @@ function applyOfflineProgress(pending) {
   if (state.paused) return;
   if (state.battle.player.hp <= 0) return;
 
-  const groupDungeonMode = Boolean(pending.groupDungeonRun && groupDungeonZone(zone) && simulateOfflineGroupDungeonProgress);
-  const bossPartyMode = !groupDungeonMode && bossPartyOfflineSimulationActive(zone);
+  const groupDungeonMode = Boolean(pending.groupDungeonRun && groupDungeonZone(zone));
+  if (groupDungeonMode) {
+    // Offline simulation is not supported in group dungeons. The live save already
+    // preserved the party's progress on the way out, so skip the (non-functional)
+    // simulation and just tell the player instead of presenting an empty report.
+    presentGroupDungeonOfflineNotice(pending);
+    refreshOfflineProgressUi();
+    return;
+  }
+
+  const bossPartyMode = bossPartyOfflineSimulationActive(zone);
   let report;
   suppressSimulationRender = true;
   try {
-    report = groupDungeonMode
-      ? simulateOfflineGroupDungeonProgress(zone, pending, performance.now())
-      : bossPartyMode
-        ? simulateBossPartyCatchUp(pending.elapsedMs, performance.now())
-        : simulateOfflineProgress(zone, pending);
+    report = bossPartyMode
+      ? simulateBossPartyCatchUp(pending.elapsedMs, performance.now())
+      : simulateOfflineProgress(zone, pending);
   } finally {
     suppressSimulationRender = false;
   }
 
   if (!report || report.elapsedMs < OFFLINE_PROGRESS_MIN_MS) return;
   rebaseOfflineTransientTimers(report.simulatedEndedAt, performance.now());
-  if (groupDungeonMode || bossPartyMode) finalizeOfflineBossPartyState(report);
+  if (bossPartyMode) finalizeOfflineBossPartyState(report);
   else finalizeOfflineBattleState(zone, report);
   presentOfflineReport(report);
   refreshOfflineProgressUi();
@@ -5459,12 +5447,45 @@ function presentOfflineReport(report) {
   renderOfflineReport();
 }
 
+function presentGroupDungeonOfflineNotice(pending) {
+  const awayMs = Math.max(0, Math.trunc(Number(pending?.rawElapsedMs ?? pending?.elapsedMs) || 0));
+  const duration = formatDuration(awayMs);
+  const message = "Offline simulation does not work in group dungeons, but your progress was saved.";
+  state.game.offlineReport = {
+    kind: "groupDungeon",
+    duration,
+    message,
+  };
+  pushBattleLog(message);
+  addLootNotice("Group dungeon: progress saved", "item");
+  renderOfflineReport();
+}
+
 function renderOfflineReport() {
   const report = state.game.offlineReport;
   if (!els.offlineReport) return;
   if (!report) {
     els.offlineReport.hidden = true;
     els.offlineReport.innerHTML = "";
+    return;
+  }
+
+  if (report.kind === "groupDungeon") {
+    els.offlineReport.hidden = false;
+    els.offlineReport.innerHTML = `
+      <div class="offline-report-window" role="dialog" aria-modal="true" aria-labelledby="offlineReportTitle">
+        <header>
+          <div>
+            <p class="eyebrow">Offline Progress</p>
+            <h2 id="offlineReportTitle">While You Were Away</h2>
+          </div>
+          <button type="button" data-close-offline-report aria-label="Close offline report">X</button>
+        </header>
+        <p class="offline-report-message">${escapeHtml(report.message)}</p>
+        ${report.duration ? `<dl><dt>Away</dt><dd>${escapeHtml(String(report.duration))}</dd></dl>` : ""}
+        <button type="button" class="primary" data-close-offline-report>Continue</button>
+      </div>
+    `;
     return;
   }
 
@@ -5686,6 +5707,12 @@ function loadPrototypeStatsPlayerId() {
   }
 }
 
+function prototypeStatsPlayerLabel(playerId = state.prototypeStats.playerId) {
+  const accountId = String(playerId ?? "").split(":")[0];
+  if (!accountId) return "Player ????????";
+  return `Player ${accountId.slice(0, 8)}`;
+}
+
 function prototypeStatsNoticeRequired() {
   if (!state.settings.prototypeStatsEnabled) return false;
   return Math.max(0, Math.trunc(Number(state.settings.prototypeStatsNoticeVersion) || 0)) < STATS_NOTICE_VERSION;
@@ -5710,10 +5737,12 @@ function prototypeStatsCanSubmit() {
 async function loadPrototypeStatsConfig() {
   const config = await loadJson(STATS_CONFIG_URL).catch(() => ({}));
   const endpoint = typeof config.endpoint === "string" ? config.endpoint.trim() : "";
+  const panelUrl = typeof config.panel === "string" ? config.panel.trim() : "";
   state.prototypeStats.endpoint = endpoint;
+  state.prototypeStats.panelUrl = panelUrl;
   state.prototypeStats.configured = Boolean(endpoint) && config.enabled !== false;
   state.prototypeStats.statusText = state.prototypeStats.configured
-    ? "Anonymous progress stats ready."
+    ? (panelUrl ? "Anonymous progress stats ready. Leaderboard panel available." : "Anonymous progress stats ready.")
     : "Stats endpoint not configured yet.";
 }
 
@@ -6933,9 +6962,56 @@ function stopOneStepTest() {
   if (state.battle.phase === "stepTest") state.battle.phase = "idle";
 }
 
+const BATTLE_LOG_MAX_LINES = 12;
+const ACTIVITY_LOG_ROUTINE_ATTACK_SPELLS = [
+  "FireBall",
+  "Great FireBall",
+  "GreatFireBall",
+  "ThunderBolt",
+  "Ice Storm",
+  "IceStorm",
+  "FireWall",
+  "Firewall",
+  "Soul Fire Ball",
+  "SoulFireBall",
+  "Meteor Strike",
+  "MeteorStrike",
+  "Flame Disruptor",
+  "FlameDisruptor",
+];
+
 function pushBattleLog(text) {
-  state.battle.log.unshift(text);
-  state.battle.log = state.battle.log.slice(0, 12);
+  const line = String(text ?? "").trim();
+  if (!line || !shouldShowActivityLogLine(line)) return;
+  if (state.battle.log[0] === line) return;
+  state.battle.log.unshift(line);
+  state.battle.log = state.battle.log.slice(0, BATTLE_LOG_MAX_LINES);
+}
+
+function shouldShowActivityLogLine(line) {
+  if (line.startsWith(COMBAT_LOG_SUMMARY_PREFIX)) return false;
+  if (/burns on the ground/i.test(line)) return false;
+  if (isRoutineDamageActivityLine(line)) return false;
+  if (isRoutineAttackCastActivityLine(line)) return false;
+  return true;
+}
+
+function isRoutineDamageActivityLine(line) {
+  if (/\bmiss(?:es|ed)?\b/i.test(line)) return true;
+  if (/\b(?:hit|hits|strikes|burns)\b.+\bfor\s+\d+/i.test(line)) return true;
+  if (/\bfor\s+\d+\s+damage\b/i.test(line)) return true;
+  if (/Lightning strikes .+ for \d+/i.test(line)) return true;
+  if (/Twin Drake Blade hits .+ again for \d+/i.test(line)) return true;
+  if (/\bswings\b.+\bbut misses\b/i.test(line)) return true;
+  return false;
+}
+
+function isRoutineAttackCastActivityLine(line) {
+  if (!/\bcasts?\b/i.test(line)) return false;
+  if (/\b(?:Poison|Healing|SoulShield|BlessedArmour|UltimateEnhancer|MagicShield|MagicBooster|Mirroring|Summon|Skeleton|Shinsu|Holy Deva|Fury)\b/i.test(line)) {
+    return false;
+  }
+  return ACTIVITY_LOG_ROUTINE_ATTACK_SPELLS.some((spell) => line.includes(spell));
 }
 
 function pushRecentLoot(text) {
@@ -13161,7 +13237,11 @@ function optionsSceneHtml() {
           ${statsReady ? (statsEnabled ? "On" : "Off") : "Not Set"}
         </button>
       </div>
+      ${statsReady && state.prototypeStats.playerId
+        ? `<p class="options-note">Leaderboard name: <strong>${escapeHtml(prototypeStatsPlayerLabel())}</strong></p>`
+        : ""}
       ${state.prototypeStats.statusText ? `<p class="options-note">${escapeHtml(state.prototypeStats.statusText)}</p>` : ""}
+      ${state.prototypeStats.panelUrl ? `<p class="options-note"><a href="${escapeHtml(state.prototypeStats.panelUrl)}" target="_blank" rel="noopener noreferrer">Open Stats Leaderboard</a></p>` : ""}
       <div class="options-row">
         <div>
           <strong>Music</strong>
@@ -15684,22 +15764,22 @@ function groupDungeonSwarmBestBangCenterTile(spell, member = null) {
 
   let best = null;
   let bestScore = -Infinity;
-  const meleeX = groupDungeonSwarmMeleeWorldX();
   for (const center of candidates.values()) {
     const bangTiles = new Set(spellBangAreaTiles(center.worldX, center.mapRow).map(groupDungeonFireWallTileKey));
     let hits = 0;
     let remainingHp = 0;
-    let nearestHitDistance = Infinity;
+    let fitPenalty = 0;
     for (const enemy of enemies) {
       const tile = swarmEnemyReservedTile(enemy);
       if (!bangTiles.has(groupDungeonFireWallTileKey(tile))) continue;
       hits += 1;
       remainingHp += Math.max(0, Math.trunc(Number(enemy.hp) || 0));
-      nearestHitDistance = Math.min(nearestHitDistance, Math.abs(tile.worldX - meleeX) / GROUP_DUNGEON_SWARM_TILE_PX);
+      const xPenalty = Math.abs(tile.worldX - center.worldX) / GROUP_DUNGEON_SWARM_TILE_PX;
+      const rowPenalty = Math.abs(tile.mapRow - center.mapRow) / GROUP_DUNGEON_SWARM_CELL_HEIGHT;
+      fitPenalty += xPenalty + rowPenalty;
     }
     if (hits <= 0) continue;
-    const centerDistancePenalty = Math.abs(center.worldX - meleeX) / GROUP_DUNGEON_SWARM_TILE_PX;
-    const score = hits * 1000 + remainingHp / 1000 - nearestHitDistance * 2 - centerDistancePenalty;
+    const score = hits * 10000 + remainingHp / 1000 - fitPenalty * 5;
     if (score > bestScore) {
       best = center;
       bestScore = score;
@@ -19316,7 +19396,8 @@ function bossPartyWizardAction(member, now) {
   member.mp -= cost;
   applyWizardCastCooldown(spell, learned, now, member);
   clearQueuedCombatSpell(spell.id);
-  bossPartyControlledVisual(member, spell, spell.bodyAction ?? "spell", now);
+  const bangCenterTile = spell.impactMode === "bang" ? wizardBangCenterTile(enemy, spell, member) : null;
+  bossPartyControlledVisual(member, spell, spell.bodyAction ?? "spell", now, { centerTile: bangCenterTile });
   if (spell.impactMode !== "target") bossPartyCastSfx(member, spell.id, 0.5, 120);
 
   if (spell.id === "FireWall") {
@@ -19331,8 +19412,9 @@ function bossPartyWizardAction(member, now) {
   }
   if (spell.impactMode === "bang") {
     const baseValue = rollWizardMagicValue(spell, learned, member);
-    const centerTile = wizardBangCenterTile(enemy, spell, member);
+    const centerTile = bangCenterTile ?? wizardBangCenterTile(enemy, spell, member);
     state.battle.activeWizardSpellCenterTile = centerTile;
+    member.fxCenterTile = centerTile;
     partyBossImpacts().push({
       at: now + wizardImpactDelay(spell, state.wizardSpellAtlases[spell.id] ?? null),
       spellId: spell.id,
@@ -19493,6 +19575,7 @@ function bossPartyAttackEnemy(member, label, rollDamageFn, kind, now, onHit, ski
   }
   bossPartyShowEnemyDamage(member.classId, damage, now);
   pushBattleLog(`${member.classId} ${label} hits ${enemy.name} for ${damage}.`);
+  if (kind === "physical" && enemy.hp > 0) applyCrystalFreezingAttackProc(member, enemy, now);
   if (typeof onHit === "function") onHit(damage);
   maybeKillGroupDungeonSwarmEnemy(enemy, now);
   return true;
@@ -19506,11 +19589,12 @@ function bossPartyWeaponAttack(member, now) {
   return bossPartyAttackEnemy(member, "Attack", () => rollDamage(effectiveCombatStats(member).dc, enemyPhysicalDefence(state.battle.enemy), member.luck), "physical", now, () => bossPartyLevelPassiveWeaponMagic(member, now));
 }
 
-function bossPartyControlledVisual(member, skill, bodyAction, now) {
+function bossPartyControlledVisual(member, skill, bodyAction, now, options = {}) {
   member.visualAction = bodyAction ?? "attack1";
   member.visualFrame = 0;
   member.visualOneShot = true;
   member.visualLastTick = now;
+  member.fxCenterTile = options.centerTile ?? null;
   // Track per-member spell FX so assist members render their own overlays at their
   // position. The controlled member is drawn via the battle.active* path.
   if (member.classId === "Wizard" || member.classId === "Taoist") {
@@ -19527,7 +19611,7 @@ function bossPartyControlledVisual(member, skill, bodyAction, now) {
   state.battle.activeWizardSpell = member.classId === "Wizard" ? skill?.id ?? null : null;
   state.battle.activeWizardSpellAtlas = member.classId === "Wizard" ? (state.wizardSpellAtlases[skill?.id] ?? null) : null;
   state.battle.activeWizardSpellStartedAt = now;
-  state.battle.activeWizardSpellCenterTile = null;
+  state.battle.activeWizardSpellCenterTile = member.classId === "Wizard" ? (options.centerTile ?? null) : null;
   state.battle.activeTaoSpell = member.classId === "Taoist" ? skill?.id ?? null : null;
   state.battle.activeTaoSpellAtlas = member.classId === "Taoist" ? (state.taoistSpellAtlases[skill?.id] ?? null) : null;
   state.battle.activeTaoSpellStartedAt = now;
@@ -20840,11 +20924,11 @@ function kingScorpionPrimaryTarget() {
 
 function kingScorpionTargetInAttackRange(targetRef = kingScorpionPrimaryTarget()) {
   if (!targetRef) return false;
-  const dx = Math.abs(kingScorpionLaneTile(targetRef.worldX) - kingScorpionLaneTile(state.battle.enemyX));
-  const dy = 0;
-  if (dx > 2 || dy > 2) return false;
-  if (dx <= 0) return false;
-  return (dx <= 1 && dy <= 1) || (dx === dy) || (dx % 2 === dy % 2);
+  const maxTiles = kingScorpionLineTileDistance();
+  const bossTile = kingScorpionLaneTile(state.battle.enemyX);
+  const targetTile = kingScorpionLaneTile(targetRef.worldX);
+  const tilesAhead = bossTile - targetTile;
+  return tilesAhead >= 1 && tilesAhead <= maxTiles;
 }
 
 function kingScorpionForwardCellOccupied() {
@@ -20863,10 +20947,29 @@ function kingScorpionLineTargets(lineDistance = kingScorpionLineTileDistance()) 
   return hits;
 }
 
+function kingScorpionMeleeTargets(lineDistance = kingScorpionLineTileDistance()) {
+  const primary = kingScorpionPrimaryTarget();
+  if (!primary) return [];
+  const bossTile = kingScorpionLaneTile(state.battle.enemyX);
+  const tile = bossTile - kingScorpionLaneTile(primary.worldX);
+  if (tile < 1 || tile > lineDistance) return [];
+  return [{ ...primary, tile }];
+}
+
+function kingScorpionAttackTargets(ranged, lineDistance = kingScorpionLineTileDistance()) {
+  return ranged ? kingScorpionLineTargets(lineDistance) : kingScorpionMeleeTargets(lineDistance);
+}
+
 function kingScorpionLineImpactDelay(tileDistance, enemy = state.battle.enemy) {
   const tiles = Math.max(1, Math.trunc(Number(tileDistance) || 1));
   const base = Math.max(0, Math.trunc(Number(enemy?.attackImpactDelayMs) || KING_SCORPION_LINE_IMPACT_MS));
   return tiles * kingScorpionLineStepMs(enemy) + base;
+}
+
+function kingScorpionLineProjectileVfxMs(projectile, stretch = KING_SCORPION_LINE_VFX_STRETCH) {
+  const frames = Math.max(1, Math.trunc(Number(projectile?.frames?.length) || 1));
+  const interval = Math.max(1, Number(projectile?.interval) || 30);
+  return frames * interval * Math.max(1, Number(stretch) || 1);
 }
 
 function canKingScorpionAttack() {
@@ -20970,14 +21073,21 @@ function beginKingScorpionAttack(now) {
   const ranged = (enraged && enemy.enrageAlwaysRanged)
     || kingScorpionForwardCellOccupied()
     || randomInt(0, 4) === 0;
-  const lineTargets = kingScorpionLineTargets();
-  const animAction = ranged ? "attackRange1" : "attack1";
+  const lineTargets = kingScorpionAttackTargets(ranged);
+  const lineTiles = kingScorpionLineTileDistance(enemy);
+  const animAction = ranged && state.enemy.atlas?.actions?.attackRange1 ? "attackRange1" : "attack1";
   const clip = state.enemy.atlas?.actions?.[animAction];
   const animMs = Math.max(300, (clip?.frames?.length ?? 6) * (clip?.interval ?? 100));
+  const projectile = ranged ? state.enemy.atlas?.projectile : null;
+  const projectileVfxMs = ranged ? kingScorpionLineProjectileVfxMs(projectile) : 0;
+  const lastHitDelay = lineTargets.length
+    ? Math.max(...lineTargets.map((target) => kingScorpionLineImpactDelay(target.tile, enemy)))
+    : 0;
   state.battle.pendingEnemyStrike = {
     kind: "kingScorpionLine",
     startedAt: now,
     ranged,
+    lineTiles,
     hits: lineTargets.map((target) => ({
       kind: target.kind,
       entity: target.entity,
@@ -20986,7 +21096,7 @@ function beginKingScorpionAttack(now) {
       at: now + kingScorpionLineImpactDelay(target.tile),
       resolved: false,
     })),
-    vfxUntil: now + animMs,
+    vfxUntil: now + Math.max(lastHitDelay, ranged ? projectileVfxMs : animMs),
   };
   setEnemyAction(animAction, true, now);
   playMonsterSfx(enemyAttackSfxKind(enemy, ranged), enemy, { force: true, throttleMs: 0 });
@@ -23449,6 +23559,7 @@ function updatePendingTwinDrakeHits(now) {
     playWeaponHitSfx();
     addCombatText("enemy", damage, "damage", now);
     pushBattleLog(`Twin Drake Blade hits ${battle.enemy.name} again for ${damage}.`);
+    if (battle.enemy.hp > 0) applyCrystalFreezingAttackProc(attacker, battle.enemy, now);
     if (entry.applyStun) tryApplyTwinDrakeStun(battle.enemy, learned, now);
     if (battle.enemy.hp <= 0) {
       if (groupDungeonSwarmSideActive()) {
@@ -23544,6 +23655,7 @@ function warriorApplyPhysicalHit(skill, learned, damage, now) {
   else if (!playSpellSfx(skill.id, "impact", { volume: 0.48 })) playWeaponHitSfx();
   addCombatText("enemy", scaled, "damage", now);
   pushBattleLog(`${skill.id === "None" ? "Warrior" : skill.label} hits ${enemy.name} for ${scaled}.`);
+  if (enemy.hp > 0) applyCrystalFreezingAttackProc(battle.player, enemy, now);
   if (learned) levelWarriorMagic(skill, learned, now);
   levelPassiveWeaponMagic(now);
   rollSlayingChargeAfterAttack(now);
@@ -24135,6 +24247,40 @@ function playerFreezingStat(player = state.battle.player) {
   return Math.max(0, Math.trunc(Number(player?.freezing) || 0));
 }
 
+function crystalItemProcLevelOffset(attacker, enemy) {
+  const attackerLevel = Math.max(1, Math.trunc(Number(attacker?.level ?? state.game.progress.level) || 1));
+  const enemyLevel = Math.max(1, Math.trunc(Number(enemy?.level) || 1));
+  return enemyLevel > attackerLevel ? 0 : Math.min(10, attackerLevel - enemyLevel);
+}
+
+function crystalItemProcLevelRoll(levelOffset) {
+  const offset = Math.max(0, Math.trunc(Number(levelOffset) || 0));
+  return offset <= 1 || randomInt(0, offset - 1) === 0;
+}
+
+function rollCrystalFreezingAttack(attacker, enemy) {
+  const freezing = Math.max(0, Math.trunc(Number(attacker?.freezing) || 0));
+  if (freezing <= 0 || !enemy || enemy.hp <= 0) return 0;
+  const rawChance = Math.min(1, freezing / FREEZING_ATTACK_WEIGHT);
+  const chanceCap = bossDropTableForEnemy(enemy)
+    ? FREEZING_BOSS_PROC_CHANCE_CAP
+    : FREEZING_NORMAL_PROC_CHANCE_CAP;
+  if (Math.random() >= Math.min(rawChance, chanceCap)) return 0;
+  if (!crystalItemProcLevelRoll(crystalItemProcLevelOffset(attacker, enemy))) return 0;
+  return Math.min(10, 3 + randomInt(0, freezing - 1)) * 1000;
+}
+
+function applyCrystalFreezingAttackProc(attacker, enemy, now = performance.now(), options = {}) {
+  const durationMs = rollCrystalFreezingAttack(attacker, enemy);
+  const target = options.target ?? options.swarmEnemy ?? (enemy?.swarmId ? findGroupDungeonSwarmEnemy(enemy.swarmId) : null) ?? enemy;
+  if (durationMs <= 0 || !applyEnemySlow(target, durationMs, now)) return false;
+  const label = options.label ?? `${enemy.name} is slowed.`;
+  if (options.swarmEnemy) addSwarmEnemyCombatText(options.swarmEnemy, "Slowed", "frost", now);
+  else addCombatText("enemy", "Slowed", "frost", now);
+  pushBattleLog(label);
+  return true;
+}
+
 function frostCrunchCanProc(player, enemy) {
   const playerLevel = Math.max(1, Math.trunc(Number(player?.level ?? state.game.progress.level) || 1));
   const enemyLevel = Math.max(1, Math.trunc(Number(enemy?.level) || 1));
@@ -24176,7 +24322,7 @@ function applyFrostCrunchEffects(enemy, learned, player, now = performance.now()
   const freezing = playerFreezingStat(player);
   let applied = false;
   if (rollFrostCrunchSlow(skillLevel) && applyEnemySlow(enemy, frostCrunchSlowDurationMs(), now)) {
-    addCombatText("enemy", "Slow", "frost", now);
+    addCombatText("enemy", "Slowed", "frost", now);
     pushBattleLog(`${enemy.name} is slowed.`);
     applied = true;
   }
@@ -24428,6 +24574,7 @@ function wizardWeaponAttack(now, failedSpell = null) {
   playWeaponHitSfx();
   addCombatText("enemy", damage, "damage", now);
   pushBattleLog(`Wizard hits ${battle.enemy.name} with ${weaponName} for ${damage}.`);
+  if (battle.enemy.hp > 0) applyCrystalFreezingAttackProc(battle.player, battle.enemy, now);
 
   if (battle.enemy.hp <= 0) {
     finishEnemy(now);
@@ -25851,6 +25998,7 @@ function taoistWeaponAttack(now, failedSpell = null) {
   playWeaponHitSfx();
   addCombatText("enemy", damage, "damage", now);
   pushBattleLog(`Taoist hits ${battle.enemy.name} with ${weaponName} for ${damage}.`);
+  if (battle.enemy.hp > 0) applyCrystalFreezingAttackProc(battle.player, battle.enemy, now);
   levelPassiveWeaponMagic(now);
 
   if (battle.enemy.hp <= 0) {
@@ -25895,7 +26043,7 @@ function wizardBangTargetCount(centerTile = null, spell = null, member = null) {
 }
 
 function wizardAutoBangMinimumTargets(spell) {
-  return spell?.id === "IceStorm" ? 2 : 1;
+  return 1;
 }
 
 function wizardAutoSpellEligible(spell, member = null) {
@@ -27983,7 +28131,6 @@ function renderCanvasStage(displayFrame, frameCount) {
   drawEnemyHealthBar(ctx);
   drawTaoistPetHealthBar(ctx);
   drawEnemyPoisonDots(ctx);
-  drawEnemyDebuffBadges(ctx);
   drawSpellFxCanvas(ctx, displayFrame, frameCount);
   drawAttachedSpellFxCanvas(ctx);
   drawTwinDrakeReadyFxCanvas(ctx);
@@ -28963,6 +29110,7 @@ function drawGroupDungeonSwarmEnemyCanvas(ctx, enemy) {
   const { x: anchorX, y: anchorY } = swarmEnemyScreenAnchor(enemy);
   drawAtlasFrame(ctx, sheet, atlas.slotWidth, atlas.slotHeight, meta, anchorX, anchorY);
   drawEnemyActionBlendCanvas(ctx, atlas, sheet, anchorX, anchorY, enemy.action, enemy.frame);
+  drawEnemyDebuffTintCanvas(ctx, atlas, sheet, anchorX, anchorY, enemy.action, enemy.frame, enemyDebuffTint(enemy));
 }
 
 function drawEnemyCanvas(ctx) {
@@ -28978,7 +29126,7 @@ function drawEnemyCanvas(ctx) {
   const { x: anchorX, y: anchorY } = combatAnchor("enemy");
   drawAtlasFrame(ctx, sheet, atlas.slotWidth, atlas.slotHeight, meta, anchorX, anchorY);
   drawEnemyActionBlendCanvas(ctx, atlas, sheet, anchorX, anchorY, state.enemy.action, state.enemy.frame);
-  drawEnemyFrostDebuffOverlay(ctx);
+  drawEnemyDebuffTintCanvas(ctx, atlas, sheet, anchorX, anchorY, state.enemy.action, state.enemy.frame, enemyDebuffTint(state.battle.enemy));
 }
 
 function enemyActionBlendKey(action) {
@@ -29002,6 +29150,27 @@ function drawEnemyActionBlendCanvas(ctx, atlas, sheet, anchorX, anchorY, action,
   withScreenBlend(ctx, () => {
     drawAtlasFrame(ctx, sheet, atlas.slotWidth, atlas.slotHeight, blendMeta, anchorX, anchorY);
   });
+}
+
+function enemyDebuffTint(enemy, now = performance.now()) {
+  if (!enemy || enemy.hp <= 0) return null;
+  if (enemyFrozenActive(enemy, now)) return { color: "#3b6dff", alpha: 0.5 };
+  if (enemySlowActive(enemy, now)) return { color: "#7b3fd1", alpha: 0.42 };
+  return null;
+}
+
+function drawEnemyDebuffTintCanvas(ctx, atlas, sheet, anchorX, anchorY, action, frame, tint) {
+  if (!tint) return;
+  const clip = atlas?.actions?.[action];
+  const meta = clip?.frames?.[frame] ?? clip?.frames?.[0];
+  if (meta && !meta.empty) drawAtlasFrameTint(ctx, sheet, atlas.slotWidth, atlas.slotHeight, meta, anchorX, anchorY, tint);
+  const blendKey = enemyActionBlendKey(action);
+  const blendClip = blendKey ? atlas?.actions?.[blendKey] : null;
+  if (!blendClip?.frames?.length) return;
+  if (action === "die" && frame >= blendClip.frames.length) return;
+  const frameIndex = Math.max(0, Math.min(frame, blendClip.frames.length - 1));
+  const blendMeta = blendClip.frames[frameIndex];
+  if (blendMeta && !blendMeta.empty) drawAtlasFrameTint(ctx, sheet, atlas.slotWidth, atlas.slotHeight, blendMeta, anchorX, anchorY, tint);
 }
 
 function enemyProjectileVfxUntil(startedAt, projectile) {
@@ -29042,28 +29211,31 @@ function drawEnemyRangeProjectileCanvas(ctx) {
     if (!sheet) return;
     const now = performance.now();
     const startedAt = Number(strike.startedAt) || now;
-    const vfxUntil = Number(strike.vfxUntil) || startedAt + 600;
-    if (now < startedAt || now > vfxUntil) return;
+    const projectileEndAt = startedAt + kingScorpionLineProjectileVfxMs(projectile);
+    if (now < startedAt || now >= projectileEndAt) return;
+    const lineTiles = Math.max(1, Math.trunc(Number(strike.lineTiles) || kingScorpionLineTileDistance()));
+    const stretchX = lineTiles / KING_SCORPION_LINE_VFX_BASE_TILES;
     const frameIndex = Math.min(
       projectile.frames.length - 1,
-      Math.floor((now - startedAt) / Math.max(1, projectile.interval ?? 30)),
+      Math.floor((now - startedAt) / Math.max(1, (projectile.interval ?? 30) * KING_SCORPION_LINE_VFX_STRETCH)),
     );
     const meta = projectile.frames[frameIndex] ?? projectile.frames[0];
     if (!meta || meta.empty) return;
     const enemyAnchor = combatAnchor("enemy");
     const slotWidth = projectile.slotWidth ?? atlas.slotWidth;
     const slotHeight = projectile.slotHeight ?? atlas.slotHeight;
+    const w = Math.max(1, Math.trunc(Number(meta.w) || slotWidth));
+    const h = Math.max(1, Math.trunc(Number(meta.h) || slotHeight));
+    const ox = Math.trunc(Number(meta.offsetX) || 0);
+    const oy = Math.trunc(Number(meta.offsetY) || 0);
+    const sx = Math.trunc(Number(meta.slot) || 0) * slotWidth;
+    ctx.save();
+    ctx.translate(enemyAnchor.x, enemyAnchor.y);
+    ctx.scale(stretchX, 1);
     withScreenBlend(ctx, () => {
-      drawAtlasFrame(
-        ctx,
-        sheet,
-        slotWidth,
-        slotHeight,
-        { ...meta, offsetX: meta.offsetX + enemyAnchor.x, offsetY: meta.offsetY + enemyAnchor.y },
-        0,
-        0,
-      );
+      ctx.drawImage(sheet, sx, 0, w, h, ox, oy, w, h);
     });
+    ctx.restore();
     return;
   }
   if (!strikeShowsEnemyProjectileVfx(strike)) return;
@@ -29292,61 +29464,6 @@ function drawEnemyPoisonDots(ctx) {
   ctx.restore();
 }
 
-function drawEnemyFrostDebuffOverlay(ctx, now = performance.now()) {
-  const enemy = state.battle.enemy;
-  if (!state.showEnemies || !enemy || enemy.hp <= 0) return;
-  const frozen = enemyFrozenActive(enemy, now);
-  const slowed = !frozen && enemySlowActive(enemy, now);
-  if (!frozen && !slowed) return;
-
-  const bounds = enemyFrameBounds();
-  const width = Math.max(48, Math.round(bounds.width ?? 96));
-  const height = Math.max(64, Math.round(bounds.height ?? 112));
-  const x = Math.round(bounds.centerX - width / 2);
-  const y = Math.round(bounds.topY);
-  const pulse = 0.82 + Math.sin(now / 160) * 0.18;
-
-  ctx.save();
-  ctx.fillStyle = frozen
-    ? `rgba(168, 232, 255, ${0.38 * pulse})`
-    : `rgba(118, 188, 255, ${0.24 * pulse})`;
-  ctx.fillRect(x, y, width, height);
-  ctx.strokeStyle = frozen ? "rgba(214, 244, 255, 0.72)" : "rgba(164, 214, 255, 0.52)";
-  ctx.lineWidth = frozen ? 2 : 1;
-  ctx.strokeRect(x + 0.5, y + 0.5, width - 1, height - 1);
-  ctx.restore();
-}
-
-function drawEnemyDebuffBadges(ctx, now = performance.now()) {
-  const enemy = state.battle.enemy;
-  if (!state.showEnemies || !enemy || enemy.hp <= 0) return;
-  const frozen = enemyFrozenActive(enemy, now);
-  const slowed = !frozen && enemySlowActive(enemy, now);
-  if (!frozen && !slowed) return;
-
-  const bounds = enemyFrameBounds();
-  const label = frozen ? "Frozen" : "Slow";
-  const y = Math.round(bounds.topY - 34);
-
-  ctx.save();
-  ctx.font = "700 10px Segoe UI, system-ui, sans-serif";
-  const textWidth = Math.ceil(ctx.measureText(label).width);
-  const padX = 6;
-  const boxW = textWidth + padX * 2;
-  const boxH = 16;
-  const x = Math.round(bounds.centerX - boxW / 2);
-  ctx.fillStyle = "rgba(8, 18, 28, 0.82)";
-  ctx.fillRect(x, y, boxW, boxH);
-  ctx.strokeStyle = frozen ? "#b8ecff" : "#8ec8ff";
-  ctx.lineWidth = 1;
-  ctx.strokeRect(x + 0.5, y + 0.5, boxW - 1, boxH - 1);
-  ctx.textAlign = "center";
-  ctx.textBaseline = "middle";
-  ctx.fillStyle = frozen ? "#dff7ff" : "#c8e8ff";
-  ctx.fillText(label, bounds.centerX, y + boxH / 2);
-  ctx.restore();
-}
-
 function swarmEnemyFrameBounds(enemy) {
   const { x: anchorX, y: anchorY } = swarmEnemyScreenAnchor(enemy);
   const atlas = enemy.atlas ?? state.enemy.atlas;
@@ -29494,7 +29611,9 @@ function drawBossPartyMemberSpellFx(ctx, member, now) {
     x: Math.floor((member.worldX ?? state.battle.playerX) - state.battle.cameraX),
     y: Math.floor(state.stageHeight * LANE.y),
   };
-  const enemyAnchor = combatAnchor("enemy");
+  const enemyAnchor = spell?.impactMode === "bang"
+    ? wizardBangSpellAnchorFromCenter(member.fxCenterTile, combatAnchor("enemy"))
+    : combatAnchor("enemy");
   const fxAnchor = spell.effectAnchor === "enemy" ? enemyAnchor : memberAnchor;
   withScreenBlend(ctx, () => {
     for (const layer of atlas.layers) {
@@ -29508,7 +29627,7 @@ function drawBossPartyMemberSpellFx(ctx, member, now) {
     }
     if (spell.impactMode === "projectile") drawCombatProjectileCanvas(ctx, atlas, t, memberAnchor, enemyAnchor, hitAt);
     if (spell.impactMode === "projectile" && t >= hitAt && t <= hitAt + (spell.impactFlashMs ?? 250)) {
-      drawImpactFlashCanvas(ctx, atlas, t - hitAt, spellEnemyAnchor);
+      drawImpactFlashCanvas(ctx, atlas, t - hitAt, enemyAnchor);
     }
   });
 }
@@ -29573,6 +29692,44 @@ function drawAtlasFrame(ctx, sheet, slotWidth, slotHeight, meta, anchorX, anchor
     slotWidth * drawScale,
     slotHeight * drawScale,
   );
+}
+
+let atlasTintScratchCanvas = null;
+let atlasTintScratchCtx = null;
+
+function drawAtlasFrameTint(ctx, sheet, slotWidth, slotHeight, meta, anchorX, anchorY, tint, scale = 1) {
+  if (!tint || !sheet || !meta || meta.empty) return;
+  const drawScale = Math.max(0.1, Number(scale) || 1);
+  const w = Math.max(1, Math.trunc(Number(slotWidth) || 1));
+  const h = Math.max(1, Math.trunc(Number(slotHeight) || 1));
+  if (!atlasTintScratchCanvas) {
+    atlasTintScratchCanvas = document.createElement("canvas");
+    atlasTintScratchCtx = atlasTintScratchCanvas.getContext("2d");
+  }
+  if (!atlasTintScratchCtx) return;
+  if (atlasTintScratchCanvas.width !== w || atlasTintScratchCanvas.height !== h) {
+    atlasTintScratchCanvas.width = w;
+    atlasTintScratchCanvas.height = h;
+  }
+  atlasTintScratchCtx.clearRect(0, 0, w, h);
+  atlasTintScratchCtx.globalCompositeOperation = "source-over";
+  atlasTintScratchCtx.globalAlpha = 1;
+  atlasTintScratchCtx.drawImage(sheet, meta.slot * slotWidth, 0, slotWidth, slotHeight, 0, 0, w, h);
+  atlasTintScratchCtx.globalCompositeOperation = "source-atop";
+  atlasTintScratchCtx.fillStyle = tint.color;
+  atlasTintScratchCtx.fillRect(0, 0, w, h);
+  atlasTintScratchCtx.globalCompositeOperation = "source-over";
+
+  ctx.save();
+  ctx.globalAlpha = Math.max(0, Math.min(1, Number(tint.alpha) || 0.42));
+  ctx.drawImage(
+    atlasTintScratchCanvas,
+    anchorX + meta.offsetX * drawScale,
+    anchorY + meta.offsetY * drawScale,
+    slotWidth * drawScale,
+    slotHeight * drawScale,
+  );
+  ctx.restore();
 }
 
 /**
@@ -29789,7 +29946,10 @@ function spellTargetCellAnchorY(anchorY = Math.floor(state.stageHeight * LANE.y)
 }
 function wizardCombatSpellEnemyAnchor(spell, fallbackAnchor) {
   if (spell?.impactMode !== "bang") return fallbackAnchor;
-  const centerTile = state.battle.activeWizardSpellCenterTile;
+  return wizardBangSpellAnchorFromCenter(state.battle.activeWizardSpellCenterTile, fallbackAnchor);
+}
+
+function wizardBangSpellAnchorFromCenter(centerTile, fallbackAnchor) {
   if (!centerTile || !Number.isFinite(Number(centerTile.worldX))) return fallbackAnchor;
   const mapRow = Math.trunc(Number(centerTile.mapRow) || arenaSpawnMapRow());
   return {
@@ -30796,4 +30956,3 @@ function updateCoverage() {
 function title(text) {
   return text.charAt(0).toUpperCase() + text.slice(1);
 }
-

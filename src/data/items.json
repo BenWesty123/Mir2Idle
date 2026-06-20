@@ -6385,6 +6385,67 @@
       "crystalType": "Book"
     },
     {
+      "id": "book-ice-storm",
+      "name": "Ice Storm",
+      "type": "book",
+      "slot": "book",
+      "class": "wizard",
+      "source": {
+        "crystalIndex": 1005,
+        "name": "IceStorm"
+      },
+      "icon": {
+        "library": "Items",
+        "frame": 3641,
+        "src": "./public/item-icons/books/images/frame_003640.png"
+      },
+      "requirements": {
+        "type": "level",
+        "amount": 35,
+        "classMask": 2,
+        "genderMask": 3
+      },
+      "stackable": false,
+      "maxStack": 1,
+      "stats": {
+        "ac": [
+          0,
+          0
+        ],
+        "amc": [
+          0,
+          0
+        ],
+        "dc": [
+          0,
+          0
+        ],
+        "mc": [
+          0,
+          0
+        ],
+        "sc": [
+          0,
+          0
+        ],
+        "hp": 0,
+        "mp": 0,
+        "accuracy": 0,
+        "agility": 0,
+        "luck": 0,
+        "attackSpeed": 0
+      },
+      "shop": {
+        "buy": 20000,
+        "sell": 4000
+      },
+      "spell": {
+        "id": "IceStorm",
+        "shape": 46
+      },
+      "crystalType": "Book"
+    },
+    {
       "id": "book-fury",
       "name": "Fury",
       "type": "book",

@@ -1926,6 +1926,13 @@ dd {
   color: #f3e5c4;
 }
 
+.offline-report-message {
+  margin: 0 0 14px;
+  font-size: 14px;
+  line-height: 1.5;
+  color: #f3e5c4;
+}
+
 .offline-report-window > .primary {
   width: 100%;
 }

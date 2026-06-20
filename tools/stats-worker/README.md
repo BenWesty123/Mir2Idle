@@ -2,31 +2,48 @@
 
 This is a small anonymous leaderboard backend for the itch prototype. It stores only the generated player ID, level, XP, kills, per-boss kill counts, gold, current zone, playtime, and save version, with no player name field.
 
-The game now posts an account summary plus per-character summaries. The Worker keeps the account row under the generated player ID and stores character rows as `playerId:Warrior`, `playerId:Wizard`, etc. The default `/leaderboard` response ranks character rows so the response includes `characterClass`; if there are no character rows yet it falls back to account rows.
+The game posts an account summary plus per-character summaries. The Worker stores one account row per generated player ID and keeps per-character levels/stats JSON on that row. The default `/leaderboard` response ranks account rows by combined character levels, then Awakening Souls held.
 
 Useful leaderboard URLs:
 
 ```text
+/panel
 /leaderboard
 /leaderboard?scope=accounts
+/leaderboard?scope=characters
 /leaderboard?scope=all
 /leaderboard?limit=500
 ```
 
 The default limit is 250 rows. The maximum accepted `limit` is 500.
 
-Each leaderboard row now includes:
+Each account leaderboard row now includes:
 
+- `combinedCharacterLevels`: sum of Warrior + Wizard + Taoist levels
+- `awakeningSoulsHeld`: total Awakening Souls held account-wide
+- `characters`: per-class summary array for display
+- `characterLevels`: raw class-to-level map
+- `characterStats`: raw per-class stat summaries
 - `bossKills`: per-boss counts keyed by zone id, e.g. `{ "zone-wooma-temple-kr": 12, "zone-bug-cave-kr": 3 }`
 - `bossKillsTotal`: sum of all boss kill counts on that row
 
-If you already deployed the Worker before boss kills were added, run the migration against the live D1 database:
+If you already deployed the Worker before account ranking fields were added, run the migrations against the live D1 database:
 
 ```powershell
 npx wrangler d1 execute lom-idle-v2-stats --file .\migrate-boss-kills.sql --remote
+npx wrangler d1 execute lom-idle-v2-stats --file .\migrate-account-stats.sql --remote
+npx wrangler d1 execute lom-idle-v2-stats --file .\migrate-ranking-stats.sql --remote
 ```
 
-Then redeploy the Worker so `/stats` stores boss kills and `/leaderboard` returns them.
+Then redeploy the Worker so `/stats` stores account ranking fields and `/leaderboard` returns them.
+
+To wipe bad or legacy leaderboard data and start fresh:
+
+```powershell
+npx wrangler d1 execute lom-idle-v2-stats --file .\reset-leaderboard.sql --remote
+```
+
+This deletes all rows. New submissions will repopulate the board using the current account-only format.
 
 ## Deploy Outline
 
@@ -51,7 +68,8 @@ Example config:
 ```json
 {
   "enabled": true,
-  "endpoint": "https://your-worker.your-subdomain.workers.dev/stats"
+  "endpoint": "https://your-worker.your-subdomain.workers.dev/stats",
+  "panel": "https://your-worker.your-subdomain.workers.dev/panel"
 }
 ```
 

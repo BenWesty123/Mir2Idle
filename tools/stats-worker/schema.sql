@@ -14,10 +14,12 @@ CREATE TABLE IF NOT EXISTS leaderboard (
   rebirth_points_spent INTEGER NOT NULL DEFAULT 0,
   character_levels TEXT NOT NULL DEFAULT '{}',
   character_stats TEXT NOT NULL DEFAULT '[]',
+  awakening_souls_held INTEGER NOT NULL DEFAULT 0,
+  combined_character_levels INTEGER NOT NULL DEFAULT 0,
   last_reason TEXT,
   first_seen TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
   last_seen TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP
 );
 
 CREATE INDEX IF NOT EXISTS leaderboard_rank_idx
-ON leaderboard (highest_level DESC, experience DESC, kills DESC);
+ON leaderboard (combined_character_levels DESC, awakening_souls_held DESC, highest_level DESC);

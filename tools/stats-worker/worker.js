@@ -1,3 +1,5 @@
+import { PANEL_HTML } from "./panelHtml.js";
+
 const JSON_HEADERS = {
   "content-type": "application/json; charset=utf-8",
 };
@@ -215,6 +217,33 @@ function normalizeStatsPayload(payload) {
   };
 }
 
+function combinedCharacterLevels(levels = {}) {
+  return Object.values(parseJsonObject(levels)).reduce((sum, level) => sum + intValue(level), 0);
+}
+
+function formatLeaderboardCharacters(characterLevels, characterStats) {
+  const levels = parseJsonObject(characterLevels);
+  const stats = parseJsonArray(characterStats);
+  const statsByClass = Object.fromEntries(
+    stats
+      .map((entry) => [characterClassValue(entry?.characterClass), entry])
+      .filter(([classId]) => Boolean(classId)),
+  );
+  return Object.entries(levels)
+    .map(([classId, level]) => {
+      const summary = statsByClass[classId] ?? null;
+      return {
+        characterClass: classId,
+        level: Math.max(1, intValue(level, 1, 200)),
+        experience: intValue(summary?.experience),
+        kills: intValue(summary?.kills),
+        gold: intValue(summary?.gold),
+        stats: summary?.stats ?? null,
+      };
+    })
+    .sort((left, right) => right.level - left.level || left.characterClass.localeCompare(right.characterClass));
+}
+
 async function upsertLeaderboardRow(env, stats) {
   const existing = await env.DB.prepare(`
     SELECT boss_kills, rebirth_count, rebirth_points_gained, rebirth_points_spent
@@ -225,6 +254,8 @@ async function upsertLeaderboardRow(env, stats) {
   const bossKillsJson = JSON.stringify(bossKills);
   const characterLevelsJson = JSON.stringify(stats.account.characterLevels ?? {});
   const characterStatsJson = JSON.stringify(stats.characters ?? []);
+  const combinedLevels = combinedCharacterLevels(stats.account.characterLevels);
+  const awakeningSoulsHeld = intValue(stats.account.awakeningSoulsHeld);
 
   await env.DB.prepare(`
     INSERT INTO leaderboard (
@@ -243,9 +274,11 @@ async function upsertLeaderboardRow(env, stats) {
       rebirth_points_spent,
       character_levels,
       character_stats,
+      awakening_souls_held,
+      combined_character_levels,
       last_reason
     )
-    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
     ON CONFLICT(player_id) DO UPDATE SET
       highest_level = MAX(leaderboard.highest_level, excluded.highest_level),
       experience = MAX(leaderboard.experience, excluded.experience),
@@ -261,6 +294,8 @@ async function upsertLeaderboardRow(env, stats) {
       rebirth_points_spent = MAX(leaderboard.rebirth_points_spent, excluded.rebirth_points_spent),
       character_levels = excluded.character_levels,
       character_stats = excluded.character_stats,
+      awakening_souls_held = MAX(leaderboard.awakening_souls_held, excluded.awakening_souls_held),
+      combined_character_levels = MAX(leaderboard.combined_character_levels, excluded.combined_character_levels),
       last_reason = excluded.last_reason,
       last_seen = CURRENT_TIMESTAMP
   `).bind(
@@ -279,6 +314,8 @@ async function upsertLeaderboardRow(env, stats) {
     stats.account.rebirthPointsSpent,
     characterLevelsJson,
     characterStatsJson,
+    awakeningSoulsHeld,
+    combinedLevels,
     stats.reason,
   ).run();
 }
@@ -345,10 +382,12 @@ async function leaderboardRows(env, scope, limit) {
       rebirth_points_spent,
       character_levels,
       character_stats,
+      awakening_souls_held,
+      combined_character_levels,
       last_seen
     FROM leaderboard
     ${where}
-    ORDER BY highest_level DESC, experience DESC, kills DESC
+    ORDER BY combined_character_levels DESC, awakening_souls_held DESC, highest_level DESC, experience DESC, kills DESC
     LIMIT ?
   `).bind(limit).all();
 }
@@ -367,11 +406,16 @@ async function handleLeaderboardGet(request, env, headers) {
 
   const rows = (results.results ?? []).map((row, index) => {
     const bossKills = parseBossKills(row.boss_kills);
+    const characterLevels = parseJsonObject(row.character_levels);
+    const characterStats = parseJsonArray(row.character_stats);
+    const combinedLevels = intValue(row.combined_character_levels) || combinedCharacterLevels(characterLevels);
     return {
       rank: index + 1,
       player: publicPlayerLabel(row.player_id),
       characterClass: characterClassFromPlayerId(row.player_id),
       level: row.highest_level,
+      combinedCharacterLevels: combinedLevels,
+      awakeningSoulsHeld: intValue(row.awakening_souls_held),
       experience: row.experience,
       kills: row.kills,
       zoneKills: row.zone_kills,
@@ -383,8 +427,9 @@ async function handleLeaderboardGet(request, env, headers) {
       rebirthCount: intValue(row.rebirth_count),
       rebirthPointsGained: intValue(row.rebirth_points_gained),
       rebirthPointsSpent: intValue(row.rebirth_points_spent),
-      characterLevels: parseJsonObject(row.character_levels),
-      characterStats: parseJsonArray(row.character_stats),
+      characterLevels,
+      characterStats,
+      characters: formatLeaderboardCharacters(characterLevels, characterStats),
       lastSeen: row.last_seen,
     };
   });
@@ -400,6 +445,16 @@ export default {
     const url = new URL(request.url);
     if (url.pathname === "/stats" && request.method === "POST") return handleStatsPost(request, env, headers);
     if (url.pathname === "/leaderboard" && request.method === "GET") return handleLeaderboardGet(request, env, headers);
+    if ((url.pathname === "/" || url.pathname === "/panel") && request.method === "GET") {
+      return new Response(PANEL_HTML, {
+        status: 200,
+        headers: {
+          ...headers,
+          "content-type": "text/html; charset=utf-8",
+          "cache-control": "no-store",
+        },
+      });
+    }
 
     return json({ error: "Not found." }, 404, headers);
   },

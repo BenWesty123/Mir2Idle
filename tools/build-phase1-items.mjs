@@ -153,6 +153,7 @@ const idOverrides = {
   ThunderBolt: "book-thunderbolt",
   FireWall: "book-firewall",
   FrostCrunch: "book-frost-crunch",
+  IceStorm: "book-ice-storm",
   MagicShield: "book-magic-shield",
   WornBeadofPhoenix: "worn-bead-of-phoenix",
   "SoulArmour(M)": "soul-armour",
