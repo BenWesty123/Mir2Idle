@@ -35,7 +35,7 @@ for (const item of items) {
     issues.push({ category: "item-icon", id: item.id, detail: "broken or missing icon src" });
     continue;
   }
-  const rel = src.replace(/^\/public\//, "");
+  const rel = src.replace(/^\.?\/public\//, "");
   if (!fs.existsSync(publicPath(rel))) {
     issues.push({ category: "item-icon", id: item.id, detail: `missing ${rel}` });
   }
