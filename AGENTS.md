@@ -10,6 +10,7 @@ There is NO `src/game/` split anymore. It was a dead duplicate that the browser 
 ## Run and verify
 - Dev server: `npm run dev` (PowerShell: `npm.cmd run dev`), then open http://localhost:4177
 - ALWAYS run before claiming a change is done: `npm run check` (lint + syntax-check the live monolith + unit tests). It must pass.
+- For `app.monolith.js` changes, also run `npm run smoke` (with `npm run dev` running): it boots the game in headless Chromium and fails on any console/page error - the only automated catch for runtime regressions, which `check` cannot see.
 
 ## Releasing + cache-busting
 - Package for itch.io: `npm run package:itch` (PowerShell: `npm.cmd run package:itch`).

@@ -12,7 +12,7 @@ alwaysApply: true
 
 ## Before claiming a change is done
 1. Confirm the file you edited is reachable from `src/app.js`. The only chain is `src/app.js` -> `app.monolith.js` -> the sibling modules above. A file outside that chain has NO effect on the game.
-2. Run `npm run check` (PowerShell: `npm.cmd run check`). It must pass - it lints, syntax-checks the live monolith, and runs unit tests.
+2. Run `npm run check` (PowerShell: `npm.cmd run check`). It must pass - it lints, syntax-checks the live monolith, and runs unit tests. For `app.monolith.js` changes also run `npm run smoke` (with `npm run dev` running) - it boots the game headless and fails on any console/page error, which `check` cannot detect.
 3. Prefer editing DATA (JSON) over editing monolith logic. See `COOKBOOK.md` for copy-paste recipes.
 
 ## Finding code in the monolith

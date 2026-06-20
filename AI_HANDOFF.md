@@ -28,7 +28,7 @@ LOM Idle V2 is a browser-based idle prototype inspired by the Crystal/Mir2 files
 ## Key files
 
 - `src/app.js` - entry point; imports the monolith.
-- `src/app.monolith.js` - the whole game (logic + UI + canvas rendering). Has a `NAVIGATION MAP` comment at the top.
+- `src/app.monolith.js` - the whole game (logic + UI + canvas rendering). Has a `NAVIGATION MAP` comment at the top. The live `state` object is declared here (search `const state = {`).
 - `src/data/items.json` - item definitions and their zone-drop data (`item.drop.zones`, `item.drop.chances`, `item.drop.enemyChances`).
 - `src/bossDrops.js` - boss loot tables (keyed by boss display label) plus pure validators; imported by the monolith and by the tests.
 - `src/battleData.js` - player/enemy stats and the damage / XP / stat-roll formulas, plus the stat-object arithmetic helpers (`cloneStats`, `addStats`, `addRange`, `sanitizeItemBonusStats`). Pure functions; unit-tested.
@@ -72,9 +72,12 @@ Line numbers are approximate and drift - search by the function/const NAME. Boss
 ```powershell
 npm.cmd run dev      # dev server at http://localhost:4177
 npm.cmd run check    # lint + syntax-check the live monolith + unit tests (run this before claiming done)
+npm.cmd run smoke    # boot the game headless and fail on any console/page error (needs dev server running + playwright)
 npm.cmd run package:itch
 npm.cmd run verify:itch
 ```
+
+`npm run check` only catches syntax/lint/unit-test problems - it does NOT prove the game boots. For changes to `app.monolith.js`, also run `npm run smoke` (in another terminal, with `npm run dev` running): it loads the game in headless Chromium and fails if there are any console or page errors. This is the only automated way to catch runtime/eval-order regressions in the monolith.
 
 ## Releasing + cache-busting
 
@@ -89,7 +92,7 @@ Practical rule: **do NOT hand-bump cache-bust strings.** Earlier task-log entrie
 
 1. Confirm the edited file is reachable from `src/app.js`.
 2. `npm.cmd run check` must pass (lint + monolith syntax check + unit tests).
-3. `npm.cmd run dev`, open http://localhost:4177, confirm the game boots with no console errors and the change behaves as intended.
+3. `npm.cmd run dev`, then `npm.cmd run smoke` (headless boot, fails on console/page errors). Then open http://localhost:4177 and confirm the change behaves as intended.
 4. Add a short entry to `AI_TASK_LOG.md` (what changed, what was checked, any remaining risk).
 
 ## Important development rules

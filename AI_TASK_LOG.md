@@ -395,3 +395,24 @@ Use this format:
 
 ### Suggested Next Step
 - Decide path A vs B for the rest of Phase 6. If B, next safe targets are more pure leaves (e.g. item predicates `isOreItem`/`isStackableItem`/... once their constant deps move too). If A, scope the shared-state module carefully behind the test suite.
+
+## 2026-06-20 - Cursor - boot-test harness; decided AGAINST further monolith splitting
+
+### Changed
+- Committed the prior session's work as the first git checkpoint (`32d07be`).
+- Stood up runtime verification (kept): installed `playwright` (devDep) + Chromium and added `npm run smoke` (wraps `tools/smoke-game.mjs`), which boots the game headless and fails on any console/page error. `npm run check` only covers syntax/lint/unit tests and cannot catch runtime/eval-order regressions - smoke can. Documented it in AGENTS.md, AI_HANDOFF.md, and the always-on rule as the extra step for `app.monolith.js` changes.
+- Briefly prototyped Path A (a shared `src/state.js` the monolith fills via `Object.assign`) to enable splitting whole systems out of the monolith. It worked (check + smoke green), but I then REVERTED it - see decision below. The monolith again declares `const state = {...}` directly.
+
+### Decision: stop splitting the monolith
+- The explicit goal is "make it easier for LOWER-level AIs to work on this". Judged against that, further splitting the 28k-line monolith is net-negative: its systems are mutually recursive and share a large helper web, so each extracted file would need circular imports back into app.monolith.js plus handling of reassigned render-cache vars (`gamePanelSignature`, etc.). That is MORE context and MORE footguns for a weak model, not less.
+- The high-value weak-AI wins were already delivered in Phases 1-5: one source of truth (no dead-copy trap), oxlint (catches their undefined/dup errors), unit tests + smoke (red/green signal), navigation map + AGENTS.md + COOKBOOK + always-on rule (find code, verify changes), data-driven boss drops. The `state.js` foundation only paid off if we kept splitting, so it was reverted to avoid leftover indirection.
+
+### Checked
+- Baseline (32d07be) and post-revert both boot clean via `npm run smoke` (`errors: []`, assets loaded). `npm.cmd run check` green: 33/33 tests, oxlint clean, all node --check.
+
+### Notes / Risks
+- Net change kept this session beyond the checkpoint: the smoke harness + its docs. The codebase is otherwise back to the committed checkpoint's structure (no state.js).
+- Smoke test needs the dev server running + Playwright; intentionally NOT part of `npm run check` (keeps check fast/browser-free).
+
+### Suggested Next Step
+- Treat the hardening project as done. Future work should stay inside the monolith using the guardrails; only extract a piece if it is genuinely self-contained and pure (like the data modules), never a tangled "system".
