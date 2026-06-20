@@ -1,0 +1,286 @@
+{
+  "schemaVersion": 1,
+  "source": "src/phase1Data.js",
+  "zones": [
+    {
+      "id": "zone-bicheon-1",
+      "label": "Bicheon 1",
+      "description": "Province outskirts"
+    },
+    {
+      "id": "zone-bicheon-2",
+      "label": "Bicheon 2",
+      "description": "Cat and Yob hunting route"
+    },
+    {
+      "id": "zone-bicheon-3",
+      "label": "Bicheon 3",
+      "description": "Oma, Yeti, and spider route"
+    },
+    {
+      "id": "zone-bone-cave-1",
+      "label": "Bone Cave 1",
+      "description": "Natural Cave entrance"
+    },
+    {
+      "id": "zone-bone-cave-2",
+      "label": "Bone Cave 2",
+      "description": "Deeper skeleton route"
+    },
+    {
+      "id": "zone-bone-cave-kr",
+      "label": "Bone Cave KR",
+      "description": "King's Room boss loop"
+    },
+    {
+      "id": "zone-dead-mines-1",
+      "label": "Dead Mines 1",
+      "description": "First zombie mine floor"
+    },
+    {
+      "id": "zone-dead-mines-2",
+      "label": "Dead Mines 2",
+      "description": "Deeper zombie mine floor"
+    },
+    {
+      "id": "zone-dead-mines-kr",
+      "label": "Dead Mines KR",
+      "description": "Ghoul room"
+    },
+    {
+      "id": "zone-kings-tomb",
+      "label": "Kings Tomb",
+      "description": "Oma King Spirit boss room"
+    },
+    {
+      "id": "zone-insect-cave-1",
+      "label": "Insect Cave 1",
+      "description": "Woomyon Woods insect cave entrance"
+    },
+    {
+      "id": "zone-insect-cave-2",
+      "label": "Insect Cave 2",
+      "description": "Kek Tal and Horo Blaster route"
+    },
+    {
+      "id": "zone-insect-cave-kr",
+      "label": "Insect Cave KR",
+      "description": "Khazard boss loop"
+    },
+    {
+      "id": "zone-wooma-temple-1",
+      "label": "Wooma Temple 1",
+      "description": "Temple entrance route"
+    },
+    {
+      "id": "zone-wooma-temple-2",
+      "label": "Wooma Temple 2",
+      "description": "Inner temple route"
+    },
+    {
+      "id": "zone-wooma-temple-kr",
+      "label": "Wooma Temple KR",
+      "description": "Wooma Taurus boss room"
+    },
+    {
+      "id": "zone-bug-cave-1",
+      "label": "Bug Cave 1",
+      "description": "Mongchon worm cave entrance"
+    },
+    {
+      "id": "zone-bug-cave-2",
+      "label": "Bug Cave 2",
+      "description": "Deeper bug cave route"
+    },
+    {
+      "id": "zone-bug-cave-kr",
+      "label": "Bug Cave KR",
+      "description": "Evil Centipede boss room"
+    },
+    {
+      "id": "zone-stone-temple-1",
+      "label": "Stone Temple 1",
+      "description": "Angled stone tomb entrance"
+    },
+    {
+      "id": "zone-stone-temple-2",
+      "label": "Stone Temple 2",
+      "description": "Deeper stone tomb route"
+    },
+    {
+      "id": "zone-stone-temple-kr",
+      "label": "Stone Tomb KR",
+      "description": "Evil Snake boss room"
+    },
+    {
+      "id": "zone-zuma-temple-1",
+      "label": "Zuma Temple 1",
+      "description": "Zuma temple entrance route"
+    },
+    {
+      "id": "zone-zuma-temple-2",
+      "label": "Zuma Temple 2",
+      "description": "Deeper zuma temple route"
+    },
+    {
+      "id": "zone-zuma-temple-kr",
+      "label": "Zuma Temple KR",
+      "description": "Zuma Taurus boss room"
+    },
+    {
+      "id": "zone-viper-cave-1",
+      "label": "Viper Cave 1",
+      "description": "Serpent Valley snake cave entrance"
+    },
+    {
+      "id": "zone-viper-cave-2",
+      "label": "Viper Cave 2",
+      "description": "Deeper viper cave route"
+    },
+    {
+      "id": "zone-viper-cave-kr",
+      "label": "Viper Cave KR",
+      "description": "Yimoogi nest"
+    },
+    {
+      "id": "zone-prajna-cave-1",
+      "label": "Prajna Cave 1",
+      "description": "Prajna stone cave entrance"
+    },
+    {
+      "id": "zone-prajna-cave-2",
+      "label": "Prajna Cave 2",
+      "description": "Deeper prajna stone cave route"
+    },
+    {
+      "id": "zone-prajna-cave-kr",
+      "label": "Prajna Cave KR",
+      "description": "Bone Lord boss room"
+    },
+    {
+      "id": "zone-prajna-temple-1",
+      "label": "Prajna Temple 1",
+      "description": "Prajna temple entrance — mostly minotaurs"
+    },
+    {
+      "id": "zone-prajna-temple-2",
+      "label": "Prajna Temple 2",
+      "description": "Deeper prajna temple — guards as common as elementals"
+    },
+    {
+      "id": "zone-prajna-temple-kr",
+      "label": "Prajna Temple KR",
+      "description": "Minotaur King boss room — D2079 center"
+    },
+    {
+      "id": "zone-bdd-1",
+      "label": "Black Dragon Dungeon 1F",
+      "description": "Evil Tongs and Evil Snake — Crystal BDD floor mobs (EvilTongs20 / EvilSnake20)"
+    },
+    {
+      "id": "zone-bdd-2",
+      "label": "Black Dragon Dungeon 2F",
+      "description": "King Scorpion boss room — Crystal Black Snake Palace (D2002)"
+    },
+    {
+      "id": "zone-bdd-3",
+      "label": "Purgatory Hall",
+      "description": "Crystal BDD connector (D2005) — Ghoul, Zuma Archer, Red Boar, Zuma Statue, Wedge Moth, Black Maggot"
+    },
+    {
+      "id": "zone-bdd-4",
+      "label": "Wooma Palace (South)",
+      "description": "Crystal WoomaPalace south pocket (D2006) — three Incarnated Wooma Taurus emerge on a timer"
+    },
+    {
+      "id": "zone-bdd-5",
+      "label": "Wooma Palace (North)",
+      "description": "Crystal WoomaPalace north route (D2006) — Ghoul21, ZumaArcher21, WoomaGuardian6, Zuma Guardian, and Zuma Statue waves"
+    },
+    {
+      "id": "zone-bdd-6",
+      "label": "HwanMaJin",
+      "description": "Crystal HwanMaJin (D2007) — +50% BDD wave mobs: Ghoul, Zuma Archer, Zuma Statue, Zuma Guardian, White Boar, Wedge Moth"
+    },
+    {
+      "id": "zone-bdd-7",
+      "label": "Noble Hog Palace (South)",
+      "description": "Crystal Noble Hog Palace east pocket (D2008) — +50% BDD wave mobs (one per type): Zuma Archer, Zuma Statue, Zuma Guardian, White Boar, Wedge Moth"
+    },
+    {
+      "id": "zone-bdd-8",
+      "label": "Noble Hog Palace (North)",
+      "description": "Crystal Noble Hog Palace north pocket (D2008) — King Hog boss room"
+    },
+    {
+      "id": "zone-bdd-10",
+      "label": "HwanMaJin II",
+      "description": "Crystal HwanMaJin second section (D2010) east cluster — Zuma Archer, Zuma Statue, Zuma Guardian, White Boar, Wedge Moth"
+    },
+    {
+      "id": "zone-bdd-11",
+      "label": "Zuma Palace",
+      "description": "Crystal Zuma Palace (D2011) — Incarnated Zuma Taurus leads from the center row; two Incarnated Red Thunder Zuma join after 5s"
+    },
+    {
+      "id": "zone-bdd-12",
+      "label": "Prison Hall",
+      "description": "Crystal Prison Hall (D2012) east pocket — Zuma Archer, Zuma Statue, Zuma Guardian, Wedge Moth"
+    },
+    {
+      "id": "zone-bdd-13",
+      "label": "Dark Devil Palace",
+      "description": "Crystal Dark Devil Palace (D2013) — Dark Devil final BDD boss"
+    },
+    {
+      "id": "zone-manectric-king-kr",
+      "label": "Ice Hell KR",
+      "description": "Manectric King boss room — Crystal IceHellTemple_KR (HELL206)"
+    },
+    {
+      "id": "zone-flame-queen-kr",
+      "label": "Flame Queen KR",
+      "description": "Flame Queen boss room — Crystal low-HP room nuke pattern"
+    },
+    {
+      "id": "zone-flaming-mutant-kr",
+      "label": "Flaming Mutant KR",
+      "description": "Flaming Mutant boss room — Battle System arena (Hell_Bosss)"
+    },
+    {
+      "id": "zone-scaly-beast-kr",
+      "label": "Scaly Beast KR",
+      "description": "Scaly Beast boss room — stomp AoE + paralysis"
+    },
+    {
+      "id": "zone-lab-stone-colossus",
+      "label": "Lab: Stone Colossus",
+      "description": "Decoded Mir3Mobs Mon1 test fight"
+    },
+    {
+      "id": "zone-lab-overseer",
+      "label": "Lab: Overseer",
+      "description": "Decoded Killmaster Mobs 2 Mon25 test fight"
+    },
+    {
+      "id": "zone-lab-halberd-lord",
+      "label": "Lab: Halberd Lord",
+      "description": "Decoded Mon51 test fight"
+    },
+    {
+      "id": "zone-lab-white-boar",
+      "label": "Lab: White Boar",
+      "description": "Decoded NewMobsMagic Mon6 test fight"
+    },
+    {
+      "id": "zone-bichon-mine",
+      "label": "Dead Mines",
+      "description": "Crystal Dead Mines ore veins"
+    },
+    {
+      "id": "zone-training-academy",
+      "label": "Academy",
+      "description": "Crystal map 0110 — Trainer dummy"
+    }
+  ]
+}

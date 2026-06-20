@@ -21,14 +21,22 @@ const types = {
 createServer(async (req, res) => {
   try {
     const url = new URL(req.url ?? "/", `http://${req.headers.host}`);
-    const requested = url.pathname === "/" ? "/index.html" : decodeURIComponent(url.pathname);
-    const filePath = normalize(join(root, requested));
+    let requested = url.pathname === "/" ? "/index.html" : decodeURIComponent(url.pathname);
+    if (requested.endsWith("/")) requested += "index.html";
+    let filePath = normalize(join(root, requested));
     if (!filePath.startsWith(normalize(root))) {
       res.writeHead(403);
       res.end("Forbidden");
       return;
     }
-    const body = await readFile(filePath);
+    let body;
+    try {
+      body = await readFile(filePath);
+    } catch {
+      if (extname(filePath)) throw new Error("not found");
+      filePath = join(filePath, "index.html");
+      body = await readFile(filePath);
+    }
     res.writeHead(200, {
       "content-type": types[extname(filePath)] ?? "application/octet-stream",
       "cache-control": "no-store, max-age=0",

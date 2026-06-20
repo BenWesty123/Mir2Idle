@@ -12,6 +12,7 @@
     "export:monster-atlases": "powershell -ExecutionPolicy Bypass -File tools/export-monster-atlases.ps1",
     "audit:phase1": "node tools/build-phase1-content-audit.mjs",
     "build:phase1-items": "node tools/build-phase1-items.mjs",
+    "build:zones-json": "node tools/build-zones-json.mjs",
     "drops:merge": "node tools/merge-item-drops.mjs",
     "build:crystal-item-catalog": "node tools/build-crystal-item-catalog.mjs",
     "build:sfx": "node tools/build-sfx-assets.mjs",

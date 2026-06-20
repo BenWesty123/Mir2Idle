@@ -1,0 +1,89 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Drop Pool Builder — LOM Idle V2</title>
+    <link rel="stylesheet" href="./styles.css" />
+  </head>
+  <body>
+    <header>
+      <h1>Drop Pool Builder</h1>
+      <p class="sub">
+        Browse live game items from <code>src/data/items.json</code>, pick a zone, add items at a rarity tier, then export instructions for Cursor.
+      </p>
+      <div class="toolbar">
+        <select id="zoneSelect" aria-label="Target zone">
+          <option value="">Select target zone…</option>
+        </select>
+        <input id="search" type="search" placeholder="Search name, id, stats…" />
+        <select id="sort" aria-label="Sort order">
+          <option value="name-asc">Name (A→Z)</option>
+          <option value="name-desc">Name (Z→A)</option>
+          <option value="level-desc">Level req (high→low)</option>
+          <option value="level-asc">Level req (low→high)</option>
+          <option value="req-desc">Stat req (high→low)</option>
+          <option value="req-asc">Stat req (low→high)</option>
+          <option value="stats-desc">Stats (highest first)</option>
+          <option value="stats-asc">Stats (lowest first)</option>
+          <option value="type-name">Type → Name</option>
+        </select>
+        <label><input id="hideInPool" type="checkbox" /> Hide items already in pool</label>
+        <label><input id="dropsOnly" type="checkbox" /> Only items with existing drops</label>
+        <button type="button" id="reloadBtn">Reload items</button>
+        <button type="button" id="clearPoolBtn" class="danger">Clear pool</button>
+      </div>
+      <div class="legend">
+        <span><strong>Common</strong> 15%</span>
+        <span><strong>Uncommon</strong> 10%</span>
+        <span><strong>Rare</strong> 5%</span>
+        <span><strong>Ultra Rare</strong> 2.5%</span>
+        <span><strong>Epic</strong> 1%</span>
+        <span><strong>Mythical</strong> 0.5%</span>
+      </div>
+      <p class="status" id="status"></p>
+    </header>
+
+    <div class="layout">
+      <aside class="categories">
+        <h2>Categories</h2>
+        <div class="tab-list" id="categoryTabs"></div>
+      </aside>
+
+      <main>
+        <table>
+          <thead>
+            <tr>
+              <th></th>
+              <th>Item</th>
+              <th>Requirement</th>
+              <th>Stats</th>
+              <th>Current drop</th>
+              <th>Add to pool</th>
+            </tr>
+          </thead>
+          <tbody id="rows"></tbody>
+        </table>
+        <div class="empty hidden" id="empty">No items match the current filters.</div>
+      </main>
+
+      <aside class="pool">
+        <div>
+          <h2>Drop pool (<span id="poolCount">0</span>)</h2>
+          <p class="muted" id="poolZoneHint">Select a zone to start building a drop pool.</p>
+        </div>
+        <div class="pool-list" id="poolList"></div>
+        <div class="export-box">
+          <h2>Export</h2>
+          <textarea id="exportText" readonly placeholder="Add items to the pool, then click Generate export."></textarea>
+          <div class="export-actions">
+            <button type="button" id="generateBtn" class="primary">Generate export</button>
+            <button type="button" id="copyBtn">Copy to clipboard</button>
+          </div>
+        </div>
+      </aside>
+    </div>
+
+    <script type="module" src="./app.js"></script>
+  </body>
+</html>
