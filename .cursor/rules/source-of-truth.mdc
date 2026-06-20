@@ -1,0 +1,26 @@
+---
+description: Non-negotiable rules for the LOM Idle codebase - one source of truth, and how to verify a change actually landed
+alwaysApply: true
+---
+
+# LOM Idle - read before editing
+
+## The live game is ONE file
+- The entire running game is `src/app.monolith.js` (~28k lines), loaded via `src/app.js` -> `src/app.monolith.js`.
+- There is NO other copy. Do NOT create, restore, or edit a parallel `src/game/` split. A dead `src/game/` duplicate was deleted in June 2026 because edits to it silently did nothing (the browser only ever ran the monolith).
+- Game DATA lives in `src/data/` (`items.json`, ...) and in the sibling modules imported by the monolith: `src/bossDrops.js` (boss loot tables), `src/battleData.js`, `src/warriorMagic.js`, `src/phase1Data.js`, `src/playerActions.js`, `src/spellBodyActions.js`, `src/buffPotions.js`, `src/groupDungeonSwarm.js`, `src/zumaArcherSwarm.js`, `src/atlas.js`.
+
+## Before claiming a change is done
+1. Confirm the file you edited is reachable from `src/app.js`. The only chain is `src/app.js` -> `app.monolith.js` -> the sibling modules above. A file outside that chain has NO effect on the game.
+2. Run `npm run check` (PowerShell: `npm.cmd run check`). It must pass - it lints, syntax-checks the live monolith, and runs unit tests.
+3. Prefer editing DATA (JSON) over editing monolith logic. See `COOKBOOK.md` for copy-paste recipes.
+
+## Finding code in the monolith
+- Use the `NAVIGATION MAP` comment block near the top of `src/app.monolith.js`, and the system map in `AI_HANDOFF.md`.
+- Search by function/const NAME, not by line number (line numbers drift).
+
+## House rules
+- Preserve player saves. If you change save structure, add migration logic (extend the `sanitize*` / `restore*` functions; never silently drop fields).
+- Do not edit generated `dist/` output as source.
+- Do NOT hand-edit `?v=` cache-bust strings in `src/app.js` / `index.html`. `tools/package-itch.mjs` re-stamps them automatically per release, and the dev server is `no-store`. (See "Releasing + cache-busting" in `AI_HANDOFF.md`.)
+- For UI spacing/layout tweaks, batch the changes and confirm with a screenshot instead of guessing pixel values across many iterations.

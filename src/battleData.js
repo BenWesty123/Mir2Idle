@@ -193,3 +193,73 @@ export function twinDrakeAttackDelayMs(attackSpeed, level = 0) {
 export function randomInt(min, max) {
   return Math.floor(Math.random() * (max - min + 1)) + min;
 }
+
+// --- Stat-object arithmetic ---------------------------------------------
+// Pure helpers that operate on the runtime "stats" shape (paired ranges
+// dc/mc/sc/ac/amc plus scalar fields). No game state, DOM, or RNG. Used by
+// item stat totals, smith scoring, and character stat aggregation in the
+// monolith. Kept here (with the other stat formulas) so they are unit-tested.
+
+export function cloneStats(stats) {
+  return {
+    maxHp: stats.maxHp ?? stats.hp ?? 0,
+    maxMp: stats.maxMp ?? stats.mp ?? 0,
+    dc: [...(stats.dc ?? [0, 0])],
+    mc: [...(stats.mc ?? [0, 0])],
+    sc: [...(stats.sc ?? [0, 0])],
+    ac: [...(stats.ac ?? [0, 0])],
+    amc: [...(stats.amc ?? [0, 0])],
+    accuracy: stats.accuracy ?? 0,
+    agility: stats.agility ?? 0,
+    luck: stats.luck ?? 0,
+    attackSpeed: stats.attackSpeed ?? 0,
+    freezing: stats.freezing ?? 0,
+    poisonAttack: stats.poisonAttack ?? 0,
+    magicResist: stats.magicResist ?? 0,
+    poisonResist: stats.poisonResist ?? 0,
+    healthRecovery: stats.healthRecovery ?? 0,
+    poisonRecovery: stats.poisonRecovery ?? 0,
+    strong: stats.strong ?? 0,
+  };
+}
+
+export function addStats(target, source) {
+  for (const key of ["dc", "mc", "sc", "ac", "amc"]) addRange(target[key], source[key]);
+  target.maxHp += Number(source.hp) || 0;
+  target.maxMp += Number(source.mp) || 0;
+  target.accuracy += Number(source.accuracy) || 0;
+  target.agility += Number(source.agility) || 0;
+  target.luck += Number(source.luck) || 0;
+  target.attackSpeed += Number(source.attackSpeed) || 0;
+  target.freezing += Number(source.freezing) || 0;
+  target.poisonAttack += Number(source.poisonAttack) || 0;
+  target.magicResist += Number(source.magicResist) || 0;
+  target.poisonResist += Number(source.poisonResist) || 0;
+  target.healthRecovery += Number(source.healthRecovery) || 0;
+  target.poisonRecovery += Number(source.poisonRecovery) || 0;
+  target.strong += Number(source.strong) || 0;
+}
+
+export function addRange(target, source) {
+  if (!Array.isArray(target) || !Array.isArray(source)) return;
+  target[0] += Number(source[0]) || 0;
+  target[1] += Number(source[1]) || 0;
+}
+
+export function sanitizeItemBonusStats(stats) {
+  const bonusStats = {};
+  for (const key of ["dc", "mc", "sc", "ac", "amc"]) {
+    const value = Array.isArray(stats?.[key]) ? stats[key] : [0, 0];
+    bonusStats[key] = [
+      Math.trunc(Number(value[0]) || 0),
+      Math.trunc(Number(value[1]) || 0),
+    ];
+  }
+  for (const key of ["hp", "mp", "accuracy", "agility", "luck", "attackSpeed"]) {
+    bonusStats[key] = Math.trunc(Number(stats?.[key]) || 0);
+  }
+  for (const key of ["poisonAttack", "freezing", "magicResist", "poisonResist", "healthRecovery", "poisonRecovery", "strong"]) {
+    bonusStats[key] = Math.trunc(Number(stats?.[key]) || 0);
+  }
+  return bonusStats;
+}

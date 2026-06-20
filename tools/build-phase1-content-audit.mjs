@@ -430,7 +430,7 @@ const sensibleGear = warriorItemCandidates
   .filter((item) => sensibleGearTypes.has(item.type))
   .filter((item) => item.price > 0)
   .filter((item) => !/[?[\]]/.test(item.name))
-  .filter((item) => !/^Mystery/.test(item.name));
+  .filter((item) => !item.name.startsWith("Mystery"));
 
 const gearShortlistNames = new Set([
   "WoodenSword",

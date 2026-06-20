@@ -29,6 +29,7 @@ const sourceFiles = [
   "src/app.monolith.js",
   "src/atlas.js",
   "src/battleData.js",
+  "src/bossDrops.js",
   "src/buffPotions.js",
   "src/groupDungeonSwarm.js",
   "src/phase1Data.js",
@@ -300,10 +301,44 @@ function copyDirectory(from, to, relativeRoot = "") {
   }
 }
 
+// Files that MUST contain a `?v=` cache-bust token after copying. If the stamp
+// finds nothing to rewrite in one of these, the release would risk serving a
+// stale module from itch.io's long-lived CDN, so we fail the build loudly
+// instead. index.html holds the entry <script>; src/app.js holds the
+// `import "./app.monolith.js?v=..."` that pins the whole monolith.
+const CACHE_BUST_REQUIRED_FILES = ["index.html", "src/app.js"];
+
+/**
+ * Re-stamp `?v=` cache-bust tokens across every packaged HTML/JS source file.
+ * HTML uses a broad regex so the entry script, styles.css and any asset link
+ * are all stamped. JS uses a regex anchored to a `.js`/`.mjs` module specifier
+ * so it rewrites in-source imports (src/app.js -> "./app.monolith.js?v=...")
+ * WITHOUT touching the dynamic `?v=${MONSTER_ASSET_VERSION}` asset URLs that
+ * live inside the monolith.
+ */
+function stampCacheBust(relativePath, text) {
+  if (relativePath.endsWith(".html")) {
+    return text.replace(/\?v=[^"']+/g, `?v=${buildVersion}`);
+  }
+  return text.replace(/(\.m?js)\?v=[^"'`\s]+/g, `$1?v=${buildVersion}`);
+}
+
 function patchCacheBusting() {
-  const indexPath = path.join(packageRoot, "index.html");
-  const text = fs.readFileSync(indexPath, "utf8").replace(/\?v=[^"']+/g, `?v=${buildVersion}`);
-  fs.writeFileSync(indexPath, text);
+  for (const relativePath of sourceFiles) {
+    if (!/\.(?:html|m?js)$/.test(relativePath)) continue;
+    const filePath = path.join(packageRoot, relativePath);
+    if (!fs.existsSync(filePath)) continue;
+    const original = fs.readFileSync(filePath, "utf8");
+    const patched = stampCacheBust(relativePath, original);
+    if (patched !== original) {
+      fs.writeFileSync(filePath, patched);
+    } else if (CACHE_BUST_REQUIRED_FILES.includes(relativePath)) {
+      throw new Error(
+        `Cache-bust stamp found no ?v= token in ${relativePath}. The release would risk ` +
+          `serving a stale cached module - restore a "...js?v=..." token (see src/app.js) before packaging.`,
+      );
+    }
+  }
 }
 
 function patchBrowserRelativePaths() {
@@ -482,7 +517,6 @@ function validateZipEntryPaths(zipPath) {
 
 cleanOutput();
 for (const file of sourceFiles) copyFile(file);
-copyDirectory(path.join(root, "src/game"), path.join(packageRoot, "src/game"));
 copyDirectory(path.join(root, "public"), path.join(packageRoot, "public"));
 buildPackagedStateitems();
 buildPackagedItemIcons();

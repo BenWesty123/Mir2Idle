@@ -1,133 +1,108 @@
 ﻿# AI Handoff - LOM Idle V2
 
-This file is the shared project context for any AI or developer working on this repo. Read it before making changes.
+Shared project context for any AI or developer working on this repo. Read this and `AGENTS.md` before making changes, then read `AI_TASK_LOG.md` for recent history.
 
-## Source Of Truth
+## Source of truth (most important section)
 
-Working folder:
+The entire live game is `src/app.monolith.js` (~28,000 lines). It is loaded like this:
 
-`C:\Users\bb-we\Documents\LOM Idle Backup\lom-idle-v2 - Cursor`
+```
+src/app.js          ->  import "./app.monolith.js"
+src/app.monolith.js ->  imports the sibling data/logic modules in src/
+```
 
-Use this folder as the active project unless Ben says otherwise.
+There is no `src/game/` directory. A modular `src/game/` split was attempted by an earlier AI, but it was never wired into the running app, drifted out of sync, and even contained a syntax error - so edits made to it never reached the browser. It was deleted in June 2026. **Do not recreate or "re-split" into `src/game/`.** (A proper, tested re-split is planned later as its own effort; until then the monolith is canonical.)
 
-Do not treat older Codex folders or built `dist` output as the source of truth.
+Rule of thumb: if a file is not reachable from `src/app.js`, editing it does nothing. Always confirm reachability before claiming a change works.
 
-## Project Goal
+## Project goal
 
 LOM Idle V2 is a browser-based idle prototype inspired by the Crystal/Mir2 files. The aim is a playable public prototype with:
 
 - Multiple local characters/classes: Warrior, Wizard, Taoist.
 - Zone-based idle combat.
 - Boss/KR fights with respawn timers.
-- Group hunts and future multi-character boss assists.
+- Group hunts and multi-character boss assists.
 - Inventory, equipment, drops, shop, storage, mining, refining, spells, potions, saves, offline progress, sound, and Crystal-style UI.
 
-## Current High-Level Status
+## Key files
 
-The project has moved from a single large script into a modular structure under `src/game/`.
+- `src/app.js` - entry point; imports the monolith.
+- `src/app.monolith.js` - the whole game (logic + UI + canvas rendering). Has a `NAVIGATION MAP` comment at the top.
+- `src/data/items.json` - item definitions and their zone-drop data (`item.drop.zones`, `item.drop.chances`, `item.drop.enemyChances`).
+- `src/bossDrops.js` - boss loot tables (keyed by boss display label) plus pure validators; imported by the monolith and by the tests.
+- `src/battleData.js` - player/enemy stats and the damage / XP / stat-roll formulas, plus the stat-object arithmetic helpers (`cloneStats`, `addStats`, `addRange`, `sanitizeItemBonusStats`). Pure functions; unit-tested.
+- `src/warriorMagic.js`, `src/spellBodyActions.js` - spell/skill definitions and helpers.
+- `src/phase1Data.js` - zones, mining spots, monster/progression data.
+- `src/playerActions.js`, `src/groupDungeonSwarm.js`, `src/zumaArcherSwarm.js`, `src/buffPotions.js`, `src/atlas.js` - supporting data/logic imported by the monolith.
+- `public/` - runtime assets (sprites, atlases, audio). Large; gitignored/cursorignored.
+- `tools/` - build/audit/export/release tools and the dev server (`tools/server.mjs`).
+- `tests/` - `node --test` unit tests, run by `npm run check`.
+- `dist/` - generated release output. Never edit as source.
 
-Important files and folders:
+## System map inside `app.monolith.js`
 
-- `src/app.js` - entry point; imports the game module index.
-- `src/app.monolith.js` - older/reference monolith. Avoid editing unless intentionally syncing old logic.
-- `src/game/index.js` - module import order and bootstrap entry.
-- `src/game/runtime.js` - shared state/constants/data definitions.
-- `src/game/gameApi.js` - cross-module `G` registry.
-- `src/game/modules/` - main game systems.
-- `src/data/items.json` - item data.
-- `src/phase1Data.js` - zones, drops, monsters, and progression data.
-- `public/` - runtime assets.
-- `tools/` - build/audit/export/release tools.
-- `dist/` - generated output. Do not manually edit as source.
+Line numbers are approximate and drift - search by the function/const NAME. Boss loot tables now live in `src/bossDrops.js`, not here.
 
-## Important Development Rules
-
-- Preserve player saves whenever possible.
-- Do not remove old item definitions just because drops changed; players may already own them.
-- Do not edit generated `dist/itch` output as source.
-- Prefer changing source files under `src/`, `public/`, and `tools/`.
-- Run checks after meaningful changes.
-- Be careful with boss-party code; it is complex and easy to regress.
-- Keep class systems consistent where possible. Warrior, Wizard, and Taoist skills should share the same manual/auto/passive rules unless there is a deliberate exception.
-- If changing drops, item stats, class stats, spell damage, monster stats, or Crystal-derived values, check the Crystal/source data rather than guessing.
-- If changing save structure, add compatibility/migration logic.
+- Imports of sibling modules: top of file (~1-91)
+- `TESTING_XP_MULTIPLIER` (must be 1 for release): ~124
+- Tuning constants (inventory/storage sizes, boss respawn, boss-party combat, FX/lightning timings): ~124-640
+- `ACCOUNT_UPGRADE_DEFS` (account/rebirth upgrades): ~163
+- `BOSS_ROOM_DEFS` (boss rooms + "empower" config): ~353
+- `init()` boot + asset loading (loads `items.json` etc.): ~2236
+- Saves: `saveGameState`, `loadSavedGameState`, `exportGameSave`, `importGameSaveFromText`: ~2458
+- Save migration / load normalisation: `sanitize*`, `restore*`: ~2500-3850
+- Offline progress: `applyOfflineProgress` (~3853), `simulateOfflineProgress` (~4060)
+- Audio: `syncBackgroundMusic` (~4900), `playSfx` (~5000)
+- Inventory + equipment: `addInventoryItem` (~7306) and nearby
+- `renderGamePanel` (side panel UI): ~11314
+- `renderSceneOverlay` (Character/Inventory/Upgrades/Shop/Storage windows): ~11735
+- `enterZone` (zone + teleport entry): ~14032
+- `bindControls` (DOM input wiring): ~16861
+- `tick()` MAIN GAME LOOP: ~17390
+- Boss-party (KR) fights: `beginBossPartyFight` (~17532), `updateBossPartyBattle` (~18400)
+- Boss drop selection: `bossDropTableForEnemy` (~21803), `rollBossTableDrops` just below - tables come from `src/bossDrops.js`
+- Solo combat loop: `updateBattle` (~22369), `playerAttack` (~22531), `enemyAttack` (~25903)
+- Zone drops: `rollZoneDrops` / `zoneDropCandidates`: ~26285
+- `spawnNextEnemy`: ~26374
+- Canvas drawing / stage rendering: `drawBackdropGradient` (~28307) onward
 
 ## Commands
 
-Common dev commands:
-
 ```powershell
-cd "C:\Users\bb-we\Documents\LOM Idle Backup\lom-idle-v2 - Cursor"
-npm.cmd run dev
-```
-
-If PowerShell blocks npm scripts, use:
-
-```powershell
-npm.cmd run dev
-```
-
-Useful checks:
-
-```powershell
-npm.cmd run check
-npm.cmd run audit:itch
+npm.cmd run dev      # dev server at http://localhost:4177
+npm.cmd run check    # lint + syntax-check the live monolith + unit tests (run this before claiming done)
+npm.cmd run package:itch
 npm.cmd run verify:itch
 ```
 
-Release-related scripts may include:
+## Releasing + cache-busting
 
-```powershell
-npm.cmd run audit:release
-npm.cmd run release:itch
-```
+The game is shipped as a static HTML bundle to itch.io, whose CDN caches files for a long time keyed by their full URL (query string included). Stale caches are avoided with a `?v=` cache-bust token, handled in two different ways:
 
-If `audit:release` reports item icons missing, check whether it is a path-normalisation false positive involving paths like `./public/item-icons/...` before assuming assets are genuinely missing.
+- **Local dev** (`tools/server.mjs`): every response is sent with `Cache-Control: no-store, max-age=0`, so the browser always re-fetches the latest source. The `?v=` value in `src/app.js` is irrelevant in dev - you never need to touch it.
+- **Release** (`tools/package-itch.mjs`): `patchCacheBusting()` re-stamps every `?v=` token in the packaged HTML/JS with a fresh per-build timestamp (`buildVersion`). This covers both the entry `<script>` in `index.html` AND the in-source module import `src/app.js` -> `"./app.monolith.js?v=..."`, so a changed monolith can never be served from a stale cache. The JS stamp is anchored to a `.js`/`.mjs` specifier so it does NOT disturb the `?v=${MONSTER_ASSET_VERSION}` / `${MAP_STAMP_ASSET_VERSION}` asset URLs inside the monolith. If a required file (`index.html`, `src/app.js`) has no `?v=` token to stamp, the build fails loudly rather than shipping a stale-cache risk.
 
-## Architecture Notes
+Practical rule: **do NOT hand-bump cache-bust strings.** Earlier task-log entries describe manually editing the `?v=` in `app.js`/`index.html` after every change - that ritual is now obsolete. Just edit code and run `npm.cmd run package:itch`.
 
-The current module split uses a shared registry:
+## Verifying a change
 
-```js
-export const G = {};
-```
+1. Confirm the edited file is reachable from `src/app.js`.
+2. `npm.cmd run check` must pass (lint + monolith syntax check + unit tests).
+3. `npm.cmd run dev`, open http://localhost:4177, confirm the game boots with no console errors and the change behaves as intended.
+4. Add a short entry to `AI_TASK_LOG.md` (what changed, what was checked, any remaining risk).
 
-Modules attach functions to `G` and call across systems through it. This is pragmatic after splitting the old monolith, but it means missing dependencies can be hidden until runtime. When changing one module, search for related `G.someFunction` reads/writes.
+## Important development rules
 
-Likely system locations:
+- Preserve player saves whenever possible. If you change save structure, add compatibility/migration logic in the `sanitize*` / `restore*` functions.
+- Do not remove old item definitions just because drops changed; players may already own them.
+- Do not edit generated `dist/` output as source.
+- Be careful with boss-party code (`beginBossPartyFight` / `updateBossPartyBattle`); it is complex and easy to regress.
+- Keep class systems consistent: Warrior, Wizard, and Taoist skills should share the same manual/auto/passive rules unless there is a deliberate exception.
+- If changing drops, item stats, class stats, spell damage, monster stats, or Crystal-derived values, check the Crystal/source data rather than guessing.
+- Prefer changing DATA (`src/data/*.json`, sibling data modules) over monolith logic when possible. See `COOKBOOK.md`.
 
-- Combat loop: `src/game/modules/combat.js`
-- Boss party / boss KR fights: `src/game/modules/bossParty.js`
-- Group hunts / Black Dragon Dungeon: `src/game/modules/groupDungeon.js`
-- Mining: `src/game/modules/mining.js`
-- Inventory/equipment/refining/shop/storage: `src/game/modules/inventory.js`
-- Town/NPC scenes: `src/game/modules/town.js`
-- Save/load/migrations: `src/game/modules/persist.js`
-- Offline progress: `src/game/modules/offline.js`
-- Rendering/UI: `src/game/modules/render.js`, `src/game/modules/draw.js`
-- Audio/SFX/music: `src/game/modules/audio.js`
-- Stats/leaderboard tracking: `src/game/modules/stats.js`
-- Zones/progression: `src/game/modules/zone.js`
-
-## Known Larger Systems
-
-### Boss Fights
-
-Boss/KR fights now include more fleshed-out logic, respawn timers, party/assist concepts, drops, visuals, sounds, and offline hooks. Treat this system carefully. Bugs here can affect combat, save state, rewards, pets, and UI.
-
-### Group Hunts
-
-Black Dragon Dungeon is the first basic group hunt. It appears to be wave/swarm based, with monsters approaching the party. It may need balance and design work before it feels rewarding.
-
-### Mining And Refining
-
-Mining exists as a mode reached through the Refiner. Mining rolls ore/purity. Refining uses weapon + ore + jewellery + gold and can fail/break the weapon.
-
-### Future Season Play
-
-Solo play currently uses local saves and is not cheat-proof. Future season play should be server-authoritative if leaderboards/rewards matter. There is/was planning around keeping solo local and adding season play later.
-
-## Current Things To Watch
+## Things to watch
 
 - Package size and itch file count as assets grow.
 - Save compatibility as more account/character-wide systems are added.
@@ -135,12 +110,7 @@ Solo play currently uses local saves and is not cheat-proof. Future season play 
 - Class skill logic diverging between Warrior/Wizard/Taoist.
 - Drop balance across zones and KR bosses.
 - Group dungeon XP/reward balance.
-- Any release audit false positives caused by path handling.
 
-## Before Starting Work
+## Future season play
 
-1. Read this file.
-2. Read `AI_TASK_LOG.md`.
-3. Inspect the relevant source files before editing.
-4. Run the appropriate checks after editing.
-5. Add a short entry to `AI_TASK_LOG.md` describing what changed, what was checked, and any remaining risk.
+Solo play uses local saves and is not cheat-proof. Future season play should be server-authoritative if leaderboards/rewards matter. There is/was planning around keeping solo local and adding season play later (see `docs/season-play-architecture.md`).

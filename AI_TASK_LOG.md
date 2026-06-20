@@ -337,3 +337,61 @@ Use this format:
 - UI fix: increased the panel frame height and bottom padding while keeping text/buttons the same size, so action buttons sit above the lower decorative frame.
 - Cache bust: `20260619-trash-close-fit`.
 - Checked: `node --check src/app.js` and `node --check src/app.monolith.js` passed; browser booted `http://127.0.0.1:4177/?ui=game&scene=inventory&v=20260619-trash-close-fit` with no console errors.
+
+## 2026-06-20 - Cursor - hardening pass for AI-assisted edits
+
+### Changed
+- One source of truth: deleted the dead `src/game/` split and its tooling (`tools/split-app.mjs`, `check-game-modules.mjs`, `fix-shared-state.mjs`, `fix-runtime-exports.mjs`, `extract-constants.mjs`). The live game is now unambiguously `src/app.js` -> `src/app.monolith.js` -> sibling modules. Removed `src/game/` copying from `tools/package-itch.mjs` and the `split:app` script.
+- Guardrails + docs: added `AGENTS.md`, `COOKBOOK.md`, an always-on Cursor rule (`.cursor/rules/source-of-truth.mdc`), and a `NAVIGATION MAP` comment at the top of the monolith. Rewrote `AI_HANDOFF.md` to match reality (monolith is the entry point) and regenerated its system map with current line numbers.
+- Static analysis + tests wired into `npm run check`: added `oxlint` (`.oxlintrc.json`, correctness rules as errors) and a `node --test` suite (`tests/battleData`, `tests/buffPotions`, `tests/warriorMagic`, `tests/bossDrops`). Fixed a real `no-undef` bug Oxlint surfaced: `equipInventoryEntryToSlot` used `item` without defining it.
+- Boss drops extracted from the monolith into `src/bossDrops.js` (data + `bossGemDrops`/`bossOrbDrops` helpers + `BOSS_DROP_TABLE_BY_LABEL` + `validateBossDropTables`). `bossDropTableForEnemy` now looks up that map. Added validation tests that fail on a bad chance or an item id missing from `items.json`.
+- Cache-busting made automatic for releases: `tools/package-itch.mjs` `patchCacheBusting()` now re-stamps every `?v=` token across packaged HTML/JS - including `src/app.js`'s `import "./app.monolith.js?v=..."`, which was previously left pinned to a hand-typed version. JS stamping is anchored to a `.js`/`.mjs` specifier so it never touches the `?v=${MONSTER_ASSET_VERSION}` / `${MAP_STAMP_ASSET_VERSION}` asset URLs. Build fails loudly if a required file has no token. Documented the dev-no-store vs release-stamp model in `AGENTS.md`, `AI_HANDOFF.md`, and the rule.
+
+### Checked
+- `npm.cmd run check` passes: oxlint clean (warnings only), `node --check` on all source + tools, 29/29 unit tests, and `verify:itch:source`.
+- Verified the cache-bust regex on the real `src/app.js` (stamps the import exactly once, leaves the comment's `"?v="` intact) and confirmed it leaves `src/app.monolith.js` asset versions untouched.
+
+### Notes / Risks
+- Did not run a full `npm.cmd run package:itch` end-to-end this pass (heavy asset copy + PowerShell atlas builds). The stamping logic itself is verified in isolation; a real package run is the only remaining end-to-end confirmation.
+- Data inconsistency surfaced by the new tests: `black-dragon-slayer`, `black-dragon-staff`, `black-dragon-soul-sabre` are referenced by boss tables but absent from `items.json`, so they never drop. They are allow-listed in `tests/bossDrops.test.mjs` (KNOWN_MISSING_ITEM_IDS) to preserve current behavior; fix by adding them to `items.json` or deleting their entries in `src/bossDrops.js`.
+
+### Suggested Next Step
+- Retire the manual "bump the cache-bust string" ritual from older entries above - it is no longer needed. Optionally run `npm.cmd run package:itch` once to confirm the stamped bundle end-to-end.
+
+## 2026-06-20 - Cursor - cleanup, real bug fixes, boss-drop typo
+
+### Changed
+- Removed leftover clutter: deleted `src/app.monolith.js.bak` and `src/app.monolith.js.bak-frankenstein` (two ~1.1 MB duplicate monoliths that polluted every grep) and the one-off `tools/_extract-boss-drops.mjs`. (Confirmed `src/game/` and the 5 split tools were already gone - the prior session's deletions did land; an earlier stale file index made it look otherwise.)
+- Fixed 2 real latent bugs oxlint flagged (`no-constant-binary-expression`): `Number(x) ?? fallback` never falls back because `Number()` returns `NaN`, not nullish. `app.monolith.js` line ~14688 (`spawnIntervalMs` on boss-swarm restore) and ~15831 (boss-party target anchor `x`) now use a `Number.isFinite(...) ? ... : fallback` guard, so a missing/corrupt value yields the intended default instead of `NaN`.
+- Linting hardened: promoted `no-constant-binary-expression` to **error** (so that NaN-fallback class can't return) and configured `no-unused-expressions` as error with `allowShortCircuit`/`allowTernary` (the 8 flagged sites were all the deliberate `playSpellSfx("impact") || playSpellSfx("cast")` idiom; genuine no-ops still fail). Fixed the lone redundant `Boolean(...)` in `warriorSlayingPending` and a `unicorn` regex hint in `tools/build-phase1-content-audit.mjs`. `npm.cmd run check` is now warning-free.
+- Boss-drop content bug fixed: `src/bossDrops.js` referenced `black-dragon-slayer` / `black-dragon-staff` / `black-dragon-soul-sabre` in 2 tables (Incarnated Wooma Taurus @ 10%, and the table at ~L380 @ 2.5%). No `black-*` item exists; the real L40 class trio is `dragon-slayer` / `dragon-staff` / `soul-sabre` (used correctly in 11 other tables). Renamed the 6 references to the real ids, so those weapons now actually drop as authored. Removed the now-unneeded `KNOWN_MISSING_ITEM_IDS` allowlist from `tests/bossDrops.test.mjs`; that test now enforces strict id validation.
+
+### Checked
+- `npm.cmd run check` passes: oxlint clean (zero warnings), `node --check` on all source + tools, 29/29 unit tests (boss-drop id test now strict, no allowlist), `verify:itch:source`.
+- Proved the new lint guardrails are live with a throwaway probe: a genuine no-op statement and a `Number(x) ?? 10` both error; a `fn() || fn()` short-circuit passes.
+- Confirmed the rename creates no duplicate drop entries (neither affected table already listed the real ids).
+
+### Notes / Risks
+- The black-dragon rename means Incarnated Wooma Taurus now drops dragon-slayer/dragon-staff/soul-sabre at 10% each (and the other boss at 2.5%) - these were authored rates that were silently dead before. Reversible if brand-new "black dragon" items were actually intended (would require defining them in items.json with real stats/icons).
+- Still not run end-to-end this pass: a full `npm.cmd run package:itch`. Session work is uncommitted in git.
+
+### Suggested Next Step
+- Optionally run `npm.cmd run package:itch` once to confirm the cache-bust stamp end-to-end, then commit the session's work.
+
+## 2026-06-20 - Cursor - Phase 6 start: coupling scan + first stat-helper extraction
+
+### Changed
+- Phase 6 (shrink the monolith) kicked off the safe way. First ran a static coupling scan: of 1,775 top-level functions, ~826 (7.6k lines) never touch `state`/DOM/canvas, but the large "system" clusters (smith combine, combat ranges, item helpers) are NOT dependency-closed - they bottom out in the global `state` singleton and a shared helper web (`itemDefinition`, `inventoryEntries`, render-signature setters, etc.). Key finding: a clean "lift a whole system into its own file" is blocked by that shared-state coupling (the same thing that forced the old `src/game/` split to use a global `G` registry and then fail).
+- Given that, extracted the first genuinely dependency-closed pure set: the stat-object arithmetic helpers `cloneStats`, `addStats`, `addRange`, `sanitizeItemBonusStats`. Moved verbatim from `app.monolith.js` into `src/battleData.js` (the existing "stats & formulas" module), added them to the monolith's `battleData.js` import, and removed the originals. No behavior change.
+- Added 4 unit tests for them in `tests/battleData.test.mjs` (alias precedence, deep-copy of ranges, range/scalar accumulation, truncation + zeroed-shape coercion).
+
+### Checked
+- `npm.cmd run check` passes: oxlint clean, all `node --check`, 33/33 tests (was 29), `verify:itch:source`. oxlint's `no-undef`/`no-redeclare` confirm every call site now resolves through the import with no leftover duplicate definitions.
+
+### Notes / Risks
+- This first extraction is small/foundational by design (proof the pattern still holds). The bulk of the monolith (state-coupled logic) cannot move this cleanly without an architectural decision: either (A) introduce a shared `src/state.js` module that systems import (the "real" split, but structurally similar to the failed `G` registry - higher risk, now backed by lint+tests), or (B) keep extracting pure leaves into themed modules (low risk, modest size reduction). Awaiting that decision before going bigger.
+- Nav-map line numbers in `app.monolith.js` drift slightly upward (~85 fewer lines); the map says "search by name", so left as-is.
+- Session remains uncommitted in git per request.
+
+### Suggested Next Step
+- Decide path A vs B for the rest of Phase 6. If B, next safe targets are more pure leaves (e.g. item predicates `isOreItem`/`isStackableItem`/... once their constant deps move too). If A, scope the shared-state module carefully behind the test suite.

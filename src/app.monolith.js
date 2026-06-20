@@ -14,6 +14,10 @@ import {
   rollDamage,
   rollStat,
   statRange,
+  cloneStats,
+  addStats,
+  addRange,
+  sanitizeItemBonusStats,
 } from "./battleData.js";
 import { SPELL_GROUPS, bodyActionForSpell, spellLabel } from "./spellBodyActions.js";
 import { loadAtlas, loadJson, missingActions, sheetUrl } from "./atlas.js";
@@ -88,6 +92,36 @@ import {
   sanitizeStatBuffs,
   statBuffBonusLabel,
 } from "./buffPotions.js";
+import { BOSS_DROP_TABLE_BY_LABEL } from "./bossDrops.js";
+
+/* ============================================================================
+ * NAVIGATION MAP for this file (this IS the entire live game).
+ * Line numbers are APPROXIMATE and drift - search by the function/const NAME.
+ * Full system reference: AI_HANDOFF.md   |   Common edits: COOKBOOK.md
+ * ----------------------------------------------------------------------------
+ *  TESTING_XP_MULTIPLIER ......... XP testing multiplier (MUST be 1 for release) (~124)
+ *  tuning constants .............. inventory/storage sizes, boss respawn, FX/timings (~124-640)
+ *  ACCOUNT_UPGRADE_DEFS .......... account/rebirth upgrade defs (~163)
+ *  BOSS_ROOM_DEFS ................ boss rooms + "empower" config (~353)
+ *  BOSS DROP TABLES .............. moved OUT to src/bossDrops.js (tune drop rates there)
+ *  init() ........................ boot + asset loading (~2236)
+ *  saveGameState/loadSavedGameState/importGameSaveFromText  saves (~2458)
+ *  sanitize... / restore... ...... save migration + load normalisation (~2500-3850)
+ *  applyOfflineProgress/simulateOfflineProgress  offline progress (~3853-4900)
+ *  playSfx / syncBackgroundMusic .. audio: sfx + music (~4900-5070)
+ *  addInventoryItem / equipment ... inventory + equipment logic (~7306)
+ *  renderGamePanel ............... side panel UI (~11314)
+ *  renderSceneOverlay ............ Character/Inventory/Upgrades/Shop/Storage windows (~11735)
+ *  enterZone ..................... zone + teleport entry (~14032)
+ *  bindControls .................. DOM input wiring (~16861)
+ *  tick() ........................ MAIN GAME LOOP (~17390)
+ *  beginBossPartyFight/updateBossPartyBattle  boss-party (KR) fights (~17532-18400)
+ *  bossDropTableForEnemy/rollBossTableDrops  boss drop selection + roll (~21803); tables in src/bossDrops.js
+ *  updateBattle/playerAttack/enemyAttack  solo combat loop (~22369-25903)
+ *  rollZoneDrops/zoneDropCandidates  zone drops (data-driven from items.json) (~26285)
+ *  spawnNextEnemy ................ enemy spawning (~26374)
+ *  drawBackdropGradient / canvas draw  stage rendering (~28307+)
+ * ========================================================================== */
 
 // TESTING ONLY -- REMOVE BEFORE PUBLISHING AN UPDATE.
 // Global XP multiplier for faster local testing. Set to 1 before packaging.
@@ -607,697 +641,6 @@ const INCARNATED_RTZ_ENEMY_ID = 318;
 const DEFAULT_ARENA_BOSS_SPAWN_X = 300;
 const EVIL_CENTIPEDE_ENEMY_ID = 166;
 const EVIL_SNAKE_ENEMY_ID = 266;
-const BOSS_GEM_ITEM_IDS = [
-  "accuracygem",
-  "agilitygem",
-  "braverygem",
-  "disillusiongem",
-  "endurancegem",
-  "evilslayergem",
-  "freezinggem",
-  "magicgem",
-  "poisongem",
-  "protectiongem",
-  "soulgem",
-  "stormgem",
-];
-const BOSS_ORB_ITEM_IDS = [
-  "accuracyorb",
-  "agilityorb",
-  "braveryorb",
-  "disillusionorb",
-  "enduranceorb",
-  "evilslayerorb",
-  "freezingorb",
-  "magicorb",
-  "poisonorb",
-  "protectionorb",
-  "soulorb",
-  "stormorb",
-];
-function bossGemDrops(chance = 0.05) {
-  return BOSS_GEM_ITEM_IDS.map((id) => ({ id, chance }));
-}
-function bossOrbDrops(chance = 0.01) {
-  return BOSS_ORB_ITEM_IDS.map((id) => ({ id, chance }));
-}
-
-const BDD_SCORPION_IWT_PREMIUM_DROPS = [
-  { id: "8-trigram-wheel", chance: 0.025 },
-  { id: "adamantine-necklace", chance: 0.025 },
-  { id: "baek-ta-glove", chance: 0.025 },
-  { id: "black-boots", chance: 0.01 },
-  { id: "boundless-ring", chance: 0.025 },
-  { id: "great-helmet", chance: 0.01 },
-  { id: "hang-ma-wheel", chance: 0.025 },
-  { id: "helmet-of-hero", chance: 0.01 },
-  { id: "hero-necklace", chance: 0.025 },
-  { id: "leather-boots", chance: 0.025 },
-  { id: "noble-ring", chance: 0.05 },
-  { id: "requiem-necklace", chance: 0.025 },
-  { id: "soul-ring", chance: 0.05 },
-  { id: "spirit-reformer", chance: 0.025 },
-  { id: "tae-guk-ring", chance: 0.025 },
-  { id: "tao-coronet", chance: 0.01 },
-  { id: "thunder-ring", chance: 0.025 },
-  { id: "wisdom-coronet", chance: 0.01 },
-];
-
-const KING_HOG_PREMIUM_DROPS = [
-  { id: "8-trigram-wheel", chance: 0.05 },
-  { id: "adamantine-necklace", chance: 0.05 },
-  { id: "baek-ta-glove", chance: 0.05 },
-  { id: "black-boots", chance: 0.1 },
-  { id: "bok-ma-wheel", chance: 0.05 },
-  { id: "gold-belt", chance: 0.1 },
-  { id: "great-helmet", chance: 0.05 },
-  { id: "hang-ma-wheel", chance: 0.05 },
-  { id: "helmet-of-hero", chance: 0.05 },
-  { id: "hero-necklace", chance: 0.05 },
-  { id: "holy-tao-wheel", chance: 0.05 },
-  { id: "noble-ring", chance: 0.05 },
-  { id: "requiem-necklace", chance: 0.05 },
-  { id: "soul-ring", chance: 0.05 },
-  { id: "spirit-reformer", chance: 0.05 },
-  { id: "tao-coronet", chance: 0.05 },
-  { id: "wisdom-coronet", chance: 0.05 },
-];
-
-const WOMA_TAURUS_BOSS_DROPS = {
-  gold: 20000,
-  items: [
-    { id: "wooma-heart", chance: 0.1 },
-    { id: "awakening-soul", chance: 0.1 },
-    { id: "great-axe", chance: 0.3 },
-    { id: "mage-staff", chance: 0.3 },
-    { id: "serpent-sword", chance: 0.3 },
-    { id: "dragon-sword", chance: 1 / 55 },
-    { id: "dcstone-l", chance: 0.2 },
-    { id: "mcstone-l", chance: 0.2 },
-    { id: "scstone-l", chance: 0.2 },
-    { id: "expel-ring", chance: 0.2 },
-    { id: "spell-bracelet", chance: 0.2 },
-    { id: "black-iron-bracelet", chance: 0.2 },
-    { id: "book-frost-crunch", chance: 0.2 },
-    { id: "book-half-moon", chance: 0.1 },
-    ...bossGemDrops(0.05),
-    ...bossOrbDrops(0.01),
-  ],
-};
-const INCARNATED_WT_BOSS_DROPS = {
-  gold: 20000,
-  items: [
-    { id: "awakening-soul", chance: 0.2 },
-    { id: "black-dragon-slayer", chance: 1 / 10 },
-    { id: "black-dragon-staff", chance: 1 / 10 },
-    { id: "black-dragon-soul-sabre", chance: 1 / 10 },
-    { id: "skeleton-helmet", chance: 1 / 10 },
-    { id: "steel-armour", chance: 0.05 },
-    { id: "titan-armour", chance: 0.05 },
-    { id: "dragon-robe", chance: 0.05 },
-    { id: "claw-necklace", chance: 0.1 },
-    { id: "pearl-necklace", chance: 0.1 },
-    { id: "life-necklace", chance: 0.1 },
-    { id: "spirit-necklace", chance: 0.1 },
-    { id: "gale-necklace", chance: 0.1 },
-    { id: "green-bead", chance: 0.05 },
-    { id: "demonic-bells", chance: 0.05 },
-    { id: "soul-necklace", chance: 0.05 },
-    { id: "knight-bracelet", chance: 0.05 },
-    { id: "soul-spring-bracelet", chance: 0.05 },
-    { id: "dragon-bracelet", chance: 0.05 },
-    { id: "dragon-ring", chance: 0.1 },
-    { id: "ruby-ring", chance: 0.1 },
-    { id: "platinum-ring", chance: 0.1 },
-    { id: "spirit-ring", chance: 0.05 },
-    { id: "power-ring", chance: 0.05 },
-    { id: "violet-ring", chance: 0.05 },
-    { id: "titan-ring", chance: 0.05 },
-    { id: "judgement-mace", chance: 0.05 },
-    { id: "war-mage-staff", chance: 0.05 },
-    { id: "soul-spring-wand", chance: 0.05 },
-    { id: "war-spirit-blade", chance: 0.06 },
-    { id: "magic-scythe", chance: 0.06 },
-    { id: "stone-bamboo-fan", chance: 0.06 },
-    { id: "black-iron-helmet", chance: 0.05 },
-    { id: "dragon-slayer", chance: 0.025 },
-    { id: "dragon-staff", chance: 0.025 },
-    { id: "soul-sabre", chance: 0.025 },
-    ...BDD_SCORPION_IWT_PREMIUM_DROPS,
-    ...bossGemDrops(0.05),
-    ...bossOrbDrops(0.01),
-  ],
-};
-const EVIL_SNAKE_BOSS_DROPS = {
-  gold: 20000,
-  items: [
-    { id: "awakening-soul", chance: 0.1 },
-    { id: "great-axe", chance: 0.3 },
-    { id: "mage-staff", chance: 0.3 },
-    { id: "serpent-sword", chance: 0.3 },
-    { id: "dragon-sword", chance: 1 / 150 },
-    { id: "dcstone-l", chance: 0.2 },
-    { id: "mcstone-l", chance: 0.2 },
-    { id: "scstone-l", chance: 0.2 },
-    { id: "expel-ring", chance: 0.2 },
-    { id: "spell-bracelet", chance: 0.2 },
-    { id: "black-iron-bracelet", chance: 0.2 },
-    ...bossGemDrops(0.05),
-    ...bossOrbDrops(0.01),
-  ],
-};
-const ZUMA_TAURUS_BOSS_DROPS = {
-  gold: 20000,
-  items: [
-    { id: "zuma-relic", chance: 0.1 },
-    { id: "awakening-soul", chance: 0.2 },
-    { id: "book-twin-drake-blade", chance: 0.1 },
-    { id: "zuma-judgement-mace", chance: 1 / 10 },
-    { id: "zuma-war-mage-staff", chance: 1 / 10 },
-    { id: "zuma-soul-spring-wand", chance: 1 / 10 },
-    { id: "skeleton-helmet", chance: 1 / 10 },
-    { id: "iron-armour", chance: 0.05 },
-    { id: "wizard-robe", chance: 0.05 },
-    { id: "pearl-armour", chance: 0.05 },
-    { id: "claw-necklace", chance: 0.1 },
-    { id: "pearl-necklace", chance: 0.1 },
-    { id: "life-necklace", chance: 0.1 },
-    { id: "spirit-necklace", chance: 0.1 },
-    { id: "gale-necklace", chance: 0.1 },
-    { id: "green-bead", chance: 0.05 },
-    { id: "demonic-bells", chance: 0.05 },
-    { id: "soul-necklace", chance: 0.05 },
-    { id: "knight-bracelet", chance: 0.05 },
-    { id: "soul-spring-bracelet", chance: 0.05 },
-    { id: "dragon-bracelet", chance: 0.05 },
-    { id: "dragon-ring", chance: 0.1 },
-    { id: "ruby-ring", chance: 0.1 },
-    { id: "platinum-ring", chance: 0.1 },
-    { id: "spirit-ring", chance: 0.05 },
-    { id: "power-ring", chance: 0.05 },
-    { id: "violet-ring", chance: 0.05 },
-    { id: "titan-ring", chance: 0.05 },
-    { id: "judgement-mace", chance: 0.05 },
-    { id: "war-mage-staff", chance: 0.05 },
-    { id: "soul-spring-wand", chance: 0.05 },
-    { id: "war-spirit-blade", chance: 0.06 },
-    { id: "magic-scythe", chance: 0.06 },
-    { id: "stone-bamboo-fan", chance: 0.06 },
-    { id: "black-iron-helmet", chance: 0.05 },
-    { id: "dragon-slayer", chance: 0.025 },
-    { id: "dragon-staff", chance: 0.025 },
-    { id: "soul-sabre", chance: 0.025 },
-    ...bossGemDrops(0.05),
-    ...bossOrbDrops(0.01),
-  ],
-};
-const INCARNATED_ZT_BOSS_DROPS = {
-  gold: 20000,
-  items: [
-    { id: "zuma-relic", chance: 0.1 },
-    { id: "awakening-soul", chance: 0.2 },
-    { id: "book-twin-drake-blade", chance: 0.1 },
-    { id: "zuma-judgement-mace", chance: 1 / 10 },
-    { id: "zuma-war-mage-staff", chance: 1 / 10 },
-    { id: "zuma-soul-spring-wand", chance: 1 / 10 },
-    { id: "skeleton-helmet", chance: 1 / 10 },
-    { id: "iron-armour", chance: 0.05 },
-    { id: "wizard-robe", chance: 0.05 },
-    { id: "pearl-armour", chance: 0.05 },
-    { id: "claw-necklace", chance: 0.1 },
-    { id: "pearl-necklace", chance: 0.1 },
-    { id: "life-necklace", chance: 0.1 },
-    { id: "spirit-necklace", chance: 0.1 },
-    { id: "gale-necklace", chance: 0.1 },
-    { id: "green-bead", chance: 0.05 },
-    { id: "demonic-bells", chance: 0.05 },
-    { id: "soul-necklace", chance: 0.05 },
-    { id: "knight-bracelet", chance: 0.05 },
-    { id: "soul-spring-bracelet", chance: 0.05 },
-    { id: "dragon-bracelet", chance: 0.05 },
-    { id: "dragon-ring", chance: 0.1 },
-    { id: "ruby-ring", chance: 0.1 },
-    { id: "platinum-ring", chance: 0.1 },
-    { id: "spirit-ring", chance: 0.05 },
-    { id: "power-ring", chance: 0.05 },
-    { id: "violet-ring", chance: 0.05 },
-    { id: "titan-ring", chance: 0.05 },
-    { id: "judgement-mace", chance: 0.05 },
-    { id: "war-mage-staff", chance: 0.05 },
-    { id: "soul-spring-wand", chance: 0.05 },
-    { id: "war-spirit-blade", chance: 0.06 },
-    { id: "magic-scythe", chance: 0.06 },
-    { id: "stone-bamboo-fan", chance: 0.06 },
-    { id: "black-iron-helmet", chance: 0.05 },
-    { id: "dragon-slayer", chance: 0.025 },
-    { id: "dragon-staff", chance: 0.025 },
-    { id: "soul-sabre", chance: 0.025 },
-    { id: "heaven-sword", chance: 0.005 },
-    { id: "heaven-armour", chance: 0.005 },
-    ...KING_HOG_PREMIUM_DROPS,
-    { id: "oma-spirit-ring", chance: 0.05 },
-    ...bossGemDrops(0.05),
-    ...bossOrbDrops(0.02),
-  ],
-};
-const EVIL_CENTIPEDE_BOSS_DROPS = {
-  gold: 12500,
-  items: [
-    { id: "book-ultimate-enhancer", chance: 0.15 },
-    { id: "dragon-sword", chance: 1 / 25 },
-    { id: "awakening-soul", chance: 0.2 },
-    { id: "great-axe", chance: 1 / 20 },
-    { id: "mage-staff", chance: 1 / 20 },
-    { id: "serpent-sword", chance: 1 / 20 },
-    { id: "skeleton-helmet", chance: 1 / 20 },
-    { id: "claw-necklace", chance: 0.05 },
-    { id: "pearl-necklace", chance: 0.05 },
-    { id: "life-necklace", chance: 0.05 },
-    { id: "spirit-necklace", chance: 0.05 },
-    { id: "gale-necklace", chance: 0.05 },
-    { id: "green-bead", chance: 0.025 },
-    { id: "demonic-bells", chance: 0.025 },
-    { id: "soul-necklace", chance: 0.025 },
-    { id: "knight-bracelet", chance: 0.025 },
-    { id: "soul-spring-bracelet", chance: 0.025 },
-    { id: "dragon-bracelet", chance: 0.025 },
-    { id: "dragon-ring", chance: 0.05 },
-    { id: "ruby-ring", chance: 0.05 },
-    { id: "platinum-ring", chance: 0.05 },
-    { id: "spirit-ring", chance: 0.025 },
-    { id: "power-ring", chance: 0.025 },
-    { id: "violet-ring", chance: 0.025 },
-    { id: "titan-ring", chance: 0.025 },
-    { id: "judgement-mace", chance: 0.05 },
-    { id: "war-mage-staff", chance: 0.05 },
-    { id: "soul-spring-wand", chance: 0.05 },
-    { id: "black-iron-helmet", chance: 0.025 },
-    { id: "dragon-slayer", chance: 0.025 },
-    { id: "dragon-staff", chance: 0.025 },
-    { id: "soul-sabre", chance: 0.025 },
-    ...bossGemDrops(0.05),
-    ...bossOrbDrops(0.01),
-  ],
-};
-const BONE_LORD_BOSS_DROPS = {
-  gold: 16000,
-  items: [
-    { id: "book-summon-shinsu", chance: 0.1 },
-    { id: "awakening-soul", chance: 0.15 },
-    { id: "judgement-mace", chance: 0.07 },
-    { id: "war-mage-staff", chance: 0.07 },
-    { id: "soul-spring-wand", chance: 0.07 },
-    { id: "war-spirit-blade", chance: 0.03 },
-    { id: "magic-scythe", chance: 0.03 },
-    { id: "stone-bamboo-fan", chance: 0.03 },
-    { id: "skeleton-helmet", chance: 1 / 15 },
-    { id: "black-iron-helmet", chance: 0.04 },
-    { id: "iron-armour", chance: 0.05 },
-    { id: "wizard-robe", chance: 0.05 },
-    { id: "pearl-armour", chance: 0.05 },
-    { id: "claw-necklace", chance: 0.08 },
-    { id: "pearl-necklace", chance: 0.08 },
-    { id: "life-necklace", chance: 0.08 },
-    { id: "spirit-necklace", chance: 0.08 },
-    { id: "gale-necklace", chance: 0.07 },
-    { id: "green-bead", chance: 0.04 },
-    { id: "demonic-bells", chance: 0.04 },
-    { id: "soul-necklace", chance: 0.04 },
-    { id: "knight-bracelet", chance: 0.04 },
-    { id: "soul-spring-bracelet", chance: 0.04 },
-    { id: "dragon-bracelet", chance: 0.04 },
-    { id: "dragon-ring", chance: 0.08 },
-    { id: "ruby-ring", chance: 0.08 },
-    { id: "platinum-ring", chance: 0.08 },
-    { id: "spirit-ring", chance: 0.04 },
-    { id: "power-ring", chance: 0.04 },
-    { id: "violet-ring", chance: 0.04 },
-    { id: "titan-ring", chance: 0.04 },
-    { id: "death-gauntlet", chance: 0.03 },
-    { id: "smash-wheel", chance: 0.025 },
-    { id: "smash-ring", chance: 0.025 },
-    { id: "dragon-slayer", chance: 0.025 },
-    { id: "dragon-staff", chance: 0.025 },
-    { id: "soul-sabre", chance: 0.025 },
-    ...bossGemDrops(0.05),
-    ...bossOrbDrops(0.01),
-  ],
-};
-const KING_SCORPION_BOSS_DROPS = {
-  gold: 16000,
-  items: [
-    { id: "awakening-soul", chance: 0.15 },
-    { id: "judgement-mace", chance: 0.07 },
-    { id: "war-mage-staff", chance: 0.07 },
-    { id: "soul-spring-wand", chance: 0.07 },
-    { id: "war-spirit-blade", chance: 0.03 },
-    { id: "magic-scythe", chance: 0.03 },
-    { id: "stone-bamboo-fan", chance: 0.03 },
-    { id: "skeleton-helmet", chance: 1 / 15 },
-    { id: "black-iron-helmet", chance: 0.04 },
-    { id: "iron-armour", chance: 0.05 },
-    { id: "wizard-robe", chance: 0.05 },
-    { id: "pearl-armour", chance: 0.05 },
-    { id: "claw-necklace", chance: 0.08 },
-    { id: "pearl-necklace", chance: 0.08 },
-    { id: "life-necklace", chance: 0.08 },
-    { id: "spirit-necklace", chance: 0.08 },
-    { id: "gale-necklace", chance: 0.07 },
-    { id: "green-bead", chance: 0.04 },
-    { id: "demonic-bells", chance: 0.04 },
-    { id: "soul-necklace", chance: 0.04 },
-    { id: "knight-bracelet", chance: 0.04 },
-    { id: "soul-spring-bracelet", chance: 0.04 },
-    { id: "dragon-bracelet", chance: 0.04 },
-    { id: "dragon-ring", chance: 0.08 },
-    { id: "ruby-ring", chance: 0.08 },
-    { id: "platinum-ring", chance: 0.08 },
-    { id: "spirit-ring", chance: 0.04 },
-    { id: "power-ring", chance: 0.04 },
-    { id: "violet-ring", chance: 0.04 },
-    { id: "titan-ring", chance: 0.04 },
-    { id: "death-gauntlet", chance: 0.03 },
-    { id: "smash-wheel", chance: 0.025 },
-    { id: "smash-ring", chance: 0.025 },
-    { id: "dragon-sword", chance: 1 / 70 },
-    { id: "black-dragon-slayer", chance: 0.025 },
-    { id: "black-dragon-staff", chance: 0.025 },
-    { id: "black-dragon-soul-sabre", chance: 0.025 },
-    { id: "book-ice-storm", chance: 0.1 },
-    ...BDD_SCORPION_IWT_PREMIUM_DROPS,
-    ...bossGemDrops(0.05),
-    ...bossOrbDrops(0.01),
-  ],
-};
-const OMA_KING_SPIRIT_BOSS_DROPS = {
-  gold: 35000,
-  benedictionOils: 2,
-  items: [
-    { id: "awakening-soul", chance: 0.5 },
-    { id: "oma-spirit-ring", chance: 0.2 },
-    { id: "oma-king-robe", chance: 0.03 },
-    { id: "heaven-sword", chance: 0.005 },
-    { id: "heaven-armour", chance: 0.005 },
-    { id: "sword-of-war-god", chance: 0.03 },
-    { id: "blade-of-sorcery", chance: 0.03 },
-    { id: "dragon-slayer", chance: 0.06 },
-    { id: "dragon-staff", chance: 0.06 },
-    { id: "soul-sabre", chance: 0.06 },
-    { id: "judgement-mace", chance: 0.15 },
-    { id: "war-mage-staff", chance: 0.15 },
-    { id: "soul-spring-wand", chance: 0.15 },
-    { id: "war-spirit-blade", chance: 0.15 },
-    { id: "magic-scythe", chance: 0.15 },
-    { id: "stone-bamboo-fan", chance: 0.15 },
-    { id: "steel-armour", chance: 0.1 },
-    { id: "dragon-robe", chance: 0.1 },
-    { id: "titan-armour", chance: 0.1 },
-    { id: "skeleton-helmet", chance: 0.08 },
-    { id: "black-iron-helmet", chance: 0.05 },
-    { id: "shaman-helmet", chance: 0.05 },
-    { id: "brass-helmet", chance: 0.04 },
-    { id: "death-gauntlet", chance: 0.05 },
-    { id: "claw-necklace", chance: 0.08 },
-    { id: "pearl-necklace", chance: 0.08 },
-    { id: "life-necklace", chance: 0.08 },
-    { id: "spirit-necklace", chance: 0.08 },
-    { id: "gale-necklace", chance: 0.07 },
-    { id: "green-bead", chance: 0.05 },
-    { id: "demonic-bells", chance: 0.05 },
-    { id: "soul-necklace", chance: 0.05 },
-    { id: "knight-bracelet", chance: 0.06 },
-    { id: "soul-spring-bracelet", chance: 0.06 },
-    { id: "dragon-bracelet", chance: 0.06 },
-    { id: "dragon-ring", chance: 0.08 },
-    { id: "ruby-ring", chance: 0.08 },
-    { id: "platinum-ring", chance: 0.08 },
-    { id: "power-ring", chance: 0.06 },
-    { id: "titan-ring", chance: 0.06 },
-    { id: "violet-ring", chance: 0.06 },
-    { id: "spirit-ring", chance: 0.06 },
-    { id: "expel-ring", chance: 0.06 },
-    { id: "gale-ring", chance: 0.05 },
-    { id: "impact-drug-m", chance: 0.12 },
-    { id: "magic-drug-m", chance: 0.12 },
-    { id: "taoist-drug-m", chance: 0.12 },
-    ...bossGemDrops(0.05),
-    ...bossOrbDrops(0.01),
-  ],
-};
-const MINOTAUR_KING_BOSS_DROPS = {
-  gold: 25000,
-  items: [
-    { id: "awakening-soul", chance: 0.22 },
-    { id: "sword-of-war-god", chance: 0.01 },
-    { id: "blade-of-sorcery", chance: 0.01 },
-    { id: "heaven-sword", chance: 0.01 },
-    { id: "steel-armour", chance: 0.06 },
-    { id: "dragon-robe", chance: 0.06 },
-    { id: "titan-armour", chance: 0.06 },
-    { id: "dragon-slayer", chance: 0.03 },
-    { id: "dragon-staff", chance: 0.03 },
-    { id: "soul-sabre", chance: 0.03 },
-    { id: "war-spirit-blade", chance: 0.05 },
-    { id: "magic-scythe", chance: 0.05 },
-    { id: "stone-bamboo-fan", chance: 0.05 },
-    { id: "skeleton-helmet", chance: 0.08 },
-    { id: "black-iron-helmet", chance: 0.05 },
-    { id: "death-gauntlet", chance: 0.05 },
-    { id: "claw-necklace", chance: 0.1 },
-    { id: "pearl-necklace", chance: 0.1 },
-    { id: "life-necklace", chance: 0.1 },
-    { id: "spirit-necklace", chance: 0.1 },
-    { id: "gale-necklace", chance: 0.08 },
-    { id: "green-bead", chance: 0.05 },
-    { id: "demonic-bells", chance: 0.05 },
-    { id: "soul-necklace", chance: 0.05 },
-    { id: "knight-bracelet", chance: 0.05 },
-    { id: "soul-spring-bracelet", chance: 0.05 },
-    { id: "dragon-bracelet", chance: 0.05 },
-    { id: "dragon-ring", chance: 0.1 },
-    { id: "ruby-ring", chance: 0.1 },
-    { id: "platinum-ring", chance: 0.1 },
-    { id: "spirit-ring", chance: 0.05 },
-    { id: "power-ring", chance: 0.05 },
-    { id: "violet-ring", chance: 0.05 },
-    { id: "titan-ring", chance: 0.05 },
-    { id: "impact-drug-m", chance: 0.12 },
-    { id: "magic-drug-m", chance: 0.12 },
-    { id: "taoist-drug-m", chance: 0.12 },
-    ...bossGemDrops(0.05),
-    ...bossOrbDrops(0.01),
-  ],
-};
-const YIMOOGI_BOSS_DROPS = {
-  gold: 15000,
-  benedictionOils: 1,
-  items: [
-    { id: "awakening-soul", chance: 0.35 },
-    { id: "judgement-mace", chance: 0.1 },
-    { id: "war-mage-staff", chance: 0.1 },
-    { id: "soul-spring-wand", chance: 0.1 },
-    { id: "war-spirit-blade", chance: 0.05 },
-    { id: "magic-scythe", chance: 0.05 },
-    { id: "stone-bamboo-fan", chance: 0.05 },
-    { id: "dragon-slayer", chance: 0.025 },
-    { id: "dragon-staff", chance: 0.025 },
-    { id: "soul-sabre", chance: 0.025 },
-    { id: "steel-armour", chance: 0.1 },
-    { id: "dragon-robe", chance: 0.1 },
-    { id: "titan-armour", chance: 0.1 },
-    { id: "black-iron-helmet", chance: 0.1 },
-    { id: "helmet-of-hero", chance: 0.1 },
-    { id: "great-helmet", chance: 0.1 },
-    { id: "wisdom-coronet", chance: 0.1 },
-    { id: "tao-coronet", chance: 0.1 },
-    { id: "silk-boots", chance: 0.05 },
-    { id: "black-boots", chance: 0.05 },
-    { id: "dragon-boots", chance: 0.05 },
-    { id: "chain-belt", chance: 0.05 },
-    { id: "steel-belt", chance: 0.05 },
-    { id: "gold-belt", chance: 0.05 },
-    { id: "claw-necklace", chance: 0.1 },
-    { id: "life-necklace", chance: 0.1 },
-    { id: "pearl-necklace", chance: 0.1 },
-    { id: "green-bead", chance: 0.05 },
-    { id: "soul-necklace", chance: 0.05 },
-    { id: "demonic-bells", chance: 0.05 },
-    { id: "hero-necklace", chance: 0.03 },
-    { id: "adamantine-necklace", chance: 0.03 },
-    { id: "requiem-necklace", chance: 0.03 },
-    { id: "gale-necklace", chance: 0.03 },
-    { id: "gold-bracelet", chance: 0.1 },
-    { id: "knight-bracelet", chance: 0.1 },
-    { id: "spell-bracelet", chance: 0.1 },
-    { id: "3rd-eye-bracelet", chance: 0.1 },
-    { id: "steel-glove", chance: 0.1 },
-    { id: "black-iron-bracelet", chance: 0.05 },
-    { id: "dragon-bracelet", chance: 0.05 },
-    { id: "soul-spring-bracelet", chance: 0.05 },
-    { id: "8-trigram-wheel", chance: 0.05 },
-    { id: "hang-ma-wheel", chance: 0.05 },
-    { id: "bok-ma-wheel", chance: 0.05 },
-    { id: "baek-ta-glove", chance: 0.03 },
-    { id: "spirit-reformer", chance: 0.03 },
-    { id: "holy-tao-wheel", chance: 0.03 },
-    { id: "dragon-ring", chance: 0.1 },
-    { id: "ruby-ring", chance: 0.1 },
-    { id: "platinum-ring", chance: 0.1 },
-    { id: "power-ring", chance: 0.05 },
-    { id: "violet-ring", chance: 0.05 },
-    { id: "titan-ring", chance: 0.05 },
-    { id: "oma-spirit-ring", chance: 0.05 },
-    { id: "noble-ring", chance: 0.03 },
-    { id: "soul-ring", chance: 0.03 },
-    { id: "boundless-ring", chance: 0.03 },
-    { id: "thunder-ring", chance: 0.03 },
-    { id: "tae-guk-ring", chance: 0.03 },
-    { id: "sun-potion-medium", chance: 1 },
-    { id: "sun-potion-medium", chance: 1 },
-    { id: "sun-potion-medium", chance: 1 },
-    { id: "sun-potion-medium", chance: 1 / 2 },
-    { id: "sun-potion-medium", chance: 1 / 2 },
-    { id: "sun-potion-medium", chance: 1 / 2 },
-    { id: "sun-potion", chance: 1 },
-    { id: "sun-potion", chance: 1 },
-    { id: "sun-potion", chance: 1 },
-    { id: "sun-potion", chance: 1 / 2 },
-    { id: "sun-potion", chance: 1 / 2 },
-    { id: "sun-potion", chance: 1 / 2 },
-    { id: "sun-potion", chance: 1 / 2 },
-    { id: "sun-potion", chance: 1 / 2 },
-    { id: "magic-drug-s", chance: 1 / 60 },
-    { id: "impact-drug-s", chance: 1 / 60 },
-    { id: "taoist-drug-s", chance: 1 / 60 },
-    ...bossGemDrops(0.06),
-    ...bossOrbDrops(0.012),
-  ],
-};
-const KING_HOG_BOSS_DROPS = {
-  gold: 35000,
-  benedictionOils: 2,
-  items: [
-    { id: "awakening-soul", chance: 0.75 },
-    { id: "oma-spirit-ring", chance: 0.2 },
-    { id: "heaven-sword", chance: 0.005 },
-    { id: "heaven-armour", chance: 0.005 },
-    { id: "sword-of-war-god", chance: 0.03 },
-    { id: "blade-of-sorcery", chance: 0.03 },
-    { id: "dragon-slayer", chance: 0.06 },
-    { id: "dragon-staff", chance: 0.06 },
-    { id: "soul-sabre", chance: 0.06 },
-    { id: "judgement-mace", chance: 0.15 },
-    { id: "war-mage-staff", chance: 0.15 },
-    { id: "soul-spring-wand", chance: 0.15 },
-    { id: "war-spirit-blade", chance: 0.15 },
-    { id: "magic-scythe", chance: 0.15 },
-    { id: "stone-bamboo-fan", chance: 0.15 },
-    { id: "steel-armour", chance: 0.1 },
-    { id: "dragon-robe", chance: 0.1 },
-    { id: "titan-armour", chance: 0.1 },
-    { id: "skeleton-helmet", chance: 0.08 },
-    { id: "black-iron-helmet", chance: 0.05 },
-    { id: "shaman-helmet", chance: 0.05 },
-    { id: "brass-helmet", chance: 0.04 },
-    { id: "death-gauntlet", chance: 0.05 },
-    { id: "claw-necklace", chance: 0.08 },
-    { id: "pearl-necklace", chance: 0.08 },
-    { id: "life-necklace", chance: 0.08 },
-    { id: "spirit-necklace", chance: 0.08 },
-    { id: "gale-necklace", chance: 0.07 },
-    { id: "green-bead", chance: 0.05 },
-    { id: "demonic-bells", chance: 0.05 },
-    { id: "soul-necklace", chance: 0.05 },
-    { id: "knight-bracelet", chance: 0.06 },
-    { id: "soul-spring-bracelet", chance: 0.06 },
-    { id: "dragon-bracelet", chance: 0.06 },
-    { id: "dragon-ring", chance: 0.08 },
-    { id: "ruby-ring", chance: 0.08 },
-    { id: "platinum-ring", chance: 0.08 },
-    { id: "power-ring", chance: 0.06 },
-    { id: "titan-ring", chance: 0.06 },
-    { id: "violet-ring", chance: 0.06 },
-    { id: "spirit-ring", chance: 0.06 },
-    { id: "expel-ring", chance: 0.06 },
-    { id: "gale-ring", chance: 0.05 },
-    { id: "impact-drug-m", chance: 0.12 },
-    { id: "magic-drug-m", chance: 0.12 },
-    { id: "taoist-drug-m", chance: 0.12 },
-    ...KING_HOG_PREMIUM_DROPS,
-    ...bossGemDrops(0.1),
-    ...bossOrbDrops(0.02),
-  ],
-};
-const DARK_DEVIL_BOSS_DROPS = {
-  gold: 45000,
-  benedictionOils: 3,
-  items: [
-    { id: "awakening-soul", chance: 0.85 },
-    { id: "oma-spirit-ring", chance: 0.25 },
-    { id: "heaven-sword", chance: 0.008 },
-    { id: "heaven-armour", chance: 0.008 },
-    { id: "sword-of-war-god", chance: 0.04 },
-    { id: "blade-of-sorcery", chance: 0.04 },
-    { id: "dragon-slayer", chance: 0.08 },
-    { id: "dragon-staff", chance: 0.08 },
-    { id: "soul-sabre", chance: 0.08 },
-    { id: "judgement-mace", chance: 0.18 },
-    { id: "war-mage-staff", chance: 0.18 },
-    { id: "soul-spring-wand", chance: 0.18 },
-    { id: "war-spirit-blade", chance: 0.18 },
-    { id: "magic-scythe", chance: 0.18 },
-    { id: "stone-bamboo-fan", chance: 0.18 },
-    { id: "steel-armour", chance: 0.12 },
-    { id: "dragon-robe", chance: 0.12 },
-    { id: "titan-armour", chance: 0.12 },
-    { id: "skeleton-helmet", chance: 0.1 },
-    { id: "black-iron-helmet", chance: 0.06 },
-    { id: "shaman-helmet", chance: 0.06 },
-    { id: "brass-helmet", chance: 0.05 },
-    { id: "death-gauntlet", chance: 0.06 },
-    { id: "claw-necklace", chance: 0.1 },
-    { id: "pearl-necklace", chance: 0.1 },
-    { id: "life-necklace", chance: 0.1 },
-    { id: "spirit-necklace", chance: 0.1 },
-    { id: "gale-necklace", chance: 0.08 },
-    { id: "green-bead", chance: 0.06 },
-    { id: "demonic-bells", chance: 0.06 },
-    { id: "soul-necklace", chance: 0.06 },
-    { id: "knight-bracelet", chance: 0.08 },
-    { id: "soul-spring-bracelet", chance: 0.08 },
-    { id: "dragon-bracelet", chance: 0.08 },
-    { id: "dragon-ring", chance: 0.1 },
-    { id: "ruby-ring", chance: 0.1 },
-    { id: "platinum-ring", chance: 0.1 },
-    { id: "power-ring", chance: 0.08 },
-    { id: "titan-ring", chance: 0.08 },
-    { id: "violet-ring", chance: 0.08 },
-    { id: "spirit-ring", chance: 0.08 },
-    { id: "expel-ring", chance: 0.08 },
-    { id: "gale-ring", chance: 0.06 },
-    { id: "impact-drug-m", chance: 0.15 },
-    { id: "magic-drug-m", chance: 0.15 },
-    { id: "taoist-drug-m", chance: 0.15 },
-    ...KING_HOG_PREMIUM_DROPS,
-    ...bossGemDrops(0.12),
-    ...bossOrbDrops(0.025),
-  ],
-};
-const BOSS_DROP_TABLE_BY_LABEL = {
-  "Wooma Taurus": WOMA_TAURUS_BOSS_DROPS,
-  "Incarnated Wooma Taurus": INCARNATED_WT_BOSS_DROPS,
-  "Incarnated Zuma Taurus": INCARNATED_ZT_BOSS_DROPS,
-  "Evil Snake": EVIL_SNAKE_BOSS_DROPS,
-  "Zuma Taurus": ZUMA_TAURUS_BOSS_DROPS,
-  "Evil Centipede": EVIL_CENTIPEDE_BOSS_DROPS,
-  "Bone Lord": BONE_LORD_BOSS_DROPS,
-  "King Scorpion": KING_SCORPION_BOSS_DROPS,
-  "Minotaur King": MINOTAUR_KING_BOSS_DROPS,
-  "Yimoogi": YIMOOGI_BOSS_DROPS,
-  "Oma King Spirit": OMA_KING_SPIRIT_BOSS_DROPS,
-  "King Hog": KING_HOG_BOSS_DROPS,
-  "Dark Devil": DARK_DEVIL_BOSS_DROPS,
-};
 const RED_THUNDER_ZUMA_ENEMY_ID = 271;
 const ZUMA_TAURUS_ENEMY_ID = 272;
 const BONE_LORD_ENEMY_ID = 279;
@@ -6022,24 +5365,6 @@ function sanitizeDropPity(savedPity) {
       Math.max(0, Math.min(DROP_PITY_KILLS, Math.trunc(Number(savedPity[zone.id]) || 0))),
     ]),
   );
-}
-
-function sanitizeItemBonusStats(stats) {
-  const bonusStats = {};
-  for (const key of ["dc", "mc", "sc", "ac", "amc"]) {
-    const value = Array.isArray(stats?.[key]) ? stats[key] : [0, 0];
-    bonusStats[key] = [
-      Math.trunc(Number(value[0]) || 0),
-      Math.trunc(Number(value[1]) || 0),
-    ];
-  }
-  for (const key of ["hp", "mp", "accuracy", "agility", "luck", "attackSpeed"]) {
-    bonusStats[key] = Math.trunc(Number(stats?.[key]) || 0);
-  }
-  for (const key of ["poisonAttack", "freezing", "magicResist", "poisonResist", "healthRecovery", "poisonRecovery", "strong"]) {
-    bonusStats[key] = Math.trunc(Number(stats?.[key]) || 0);
-  }
-  return bonusStats;
 }
 
 function finiteNumberOrNull(value) {
@@ -11822,6 +11147,7 @@ async function equipInventoryEntryToSlot(entryId, slotId) {
     return;
   }
   const entry = check.entry;
+  const item = itemDefinition(entry.itemId);
   const sourceEquipmentSlot = equippedSlotForEntry(entry.id);
   const targetEntryId = state.inventory.equipment[slotId];
   if (targetEntryId === entry.id) return;
@@ -13901,52 +13227,6 @@ function applyLearnedMagicStatsForClass(stats, classId, magic = state.magic) {
   }
 }
 
-function cloneStats(stats) {
-  return {
-    maxHp: stats.maxHp ?? stats.hp ?? 0,
-    maxMp: stats.maxMp ?? stats.mp ?? 0,
-    dc: [...(stats.dc ?? [0, 0])],
-    mc: [...(stats.mc ?? [0, 0])],
-    sc: [...(stats.sc ?? [0, 0])],
-    ac: [...(stats.ac ?? [0, 0])],
-    amc: [...(stats.amc ?? [0, 0])],
-    accuracy: stats.accuracy ?? 0,
-    agility: stats.agility ?? 0,
-    luck: stats.luck ?? 0,
-    attackSpeed: stats.attackSpeed ?? 0,
-    freezing: stats.freezing ?? 0,
-    poisonAttack: stats.poisonAttack ?? 0,
-    magicResist: stats.magicResist ?? 0,
-    poisonResist: stats.poisonResist ?? 0,
-    healthRecovery: stats.healthRecovery ?? 0,
-    poisonRecovery: stats.poisonRecovery ?? 0,
-    strong: stats.strong ?? 0,
-  };
-}
-
-function addStats(target, source) {
-  for (const key of ["dc", "mc", "sc", "ac", "amc"]) addRange(target[key], source[key]);
-  target.maxHp += Number(source.hp) || 0;
-  target.maxMp += Number(source.mp) || 0;
-  target.accuracy += Number(source.accuracy) || 0;
-  target.agility += Number(source.agility) || 0;
-  target.luck += Number(source.luck) || 0;
-  target.attackSpeed += Number(source.attackSpeed) || 0;
-  target.freezing += Number(source.freezing) || 0;
-  target.poisonAttack += Number(source.poisonAttack) || 0;
-  target.magicResist += Number(source.magicResist) || 0;
-  target.poisonResist += Number(source.poisonResist) || 0;
-  target.healthRecovery += Number(source.healthRecovery) || 0;
-  target.poisonRecovery += Number(source.poisonRecovery) || 0;
-  target.strong += Number(source.strong) || 0;
-}
-
-function addRange(target, source) {
-  if (!Array.isArray(target) || !Array.isArray(source)) return;
-  target[0] += Number(source[0]) || 0;
-  target[1] += Number(source[1]) || 0;
-}
-
 function statListHtml(stats) {
   return `
     <dl class="stat-list">
@@ -15345,7 +14625,7 @@ function restoreGroupDungeonPauseSnapshot(snapshot, now = performance.now(), zon
       spawned: Math.min(totalSpawns, Math.max(0, Math.trunc(Number(saved.spawned) || paused.run.spawned || 0))),
       killed: Math.max(0, Math.trunc(Number(saved.killed) || paused.run.killed || 0)),
       totalSpawns,
-      spawnIntervalMs: Math.max(0, Math.trunc(Number(saved.spawnIntervalMs) ?? config.spawnIntervalMs)),
+      spawnIntervalMs: Math.max(0, Math.trunc(Number.isFinite(Number(saved.spawnIntervalMs)) ? Number(saved.spawnIntervalMs) : config.spawnIntervalMs)),
       nextSpawnAt: groupDungeonPauseTimestamp(saved.nextSpawnIn, now) || now,
       complete: Boolean(saved.complete || paused.run.complete),
     };
@@ -16488,7 +15768,7 @@ function bossPartyRandomRangedTargetInSwarmRange(tile, partyRow, rangeTiles) {
 function bossPartyCombatTargetAnchor(target) {
   if (!target) return combatAnchor("player");
   return {
-    x: Math.round((Number(target.worldX) ?? state.battle.playerX) - state.battle.cameraX),
+    x: Math.round((Number.isFinite(Number(target.worldX)) ? Number(target.worldX) : state.battle.playerX) - state.battle.cameraX),
     y: Math.round(state.stageHeight * LANE.y + 2),
   };
 }
@@ -22462,19 +21742,19 @@ function finishBossPartyDefeat(now) {
 
 function bossDropTableForEnemy(enemy = state.battle.enemy) {
   if (!enemy) return null;
-  if (isIncarnatedWoomaTaurusEnemy(enemy)) return INCARNATED_WT_BOSS_DROPS;
-  if (isIncarnatedZumaTaurusEnemy(enemy)) return INCARNATED_ZT_BOSS_DROPS;
-  if (isWoomaTaurusEnemy(enemy)) return WOMA_TAURUS_BOSS_DROPS;
-  if (isEvilSnakeEnemy(enemy)) return EVIL_SNAKE_BOSS_DROPS;
-  if (isZumaTaurusEnemy(enemy)) return ZUMA_TAURUS_BOSS_DROPS;
-  if (isEvilCentipedeEnemy(enemy)) return EVIL_CENTIPEDE_BOSS_DROPS;
-  if (isBoneLordEnemy(enemy)) return BONE_LORD_BOSS_DROPS;
-  if (isKingScorpionEnemy(enemy)) return KING_SCORPION_BOSS_DROPS;
-  if (isMinotaurKingEnemy(enemy)) return MINOTAUR_KING_BOSS_DROPS;
-  if (isYimoogiEnemy(enemy)) return YIMOOGI_BOSS_DROPS;
-  if (isOmaKingSpiritEnemy(enemy)) return OMA_KING_SPIRIT_BOSS_DROPS;
-  if (isKingHogEnemy(enemy)) return KING_HOG_BOSS_DROPS;
-  if (isDarkDevilEnemy(enemy)) return DARK_DEVIL_BOSS_DROPS;
+  if (isIncarnatedWoomaTaurusEnemy(enemy)) return BOSS_DROP_TABLE_BY_LABEL["Incarnated Wooma Taurus"];
+  if (isIncarnatedZumaTaurusEnemy(enemy)) return BOSS_DROP_TABLE_BY_LABEL["Incarnated Zuma Taurus"];
+  if (isWoomaTaurusEnemy(enemy)) return BOSS_DROP_TABLE_BY_LABEL["Wooma Taurus"];
+  if (isEvilSnakeEnemy(enemy)) return BOSS_DROP_TABLE_BY_LABEL["Evil Snake"];
+  if (isZumaTaurusEnemy(enemy)) return BOSS_DROP_TABLE_BY_LABEL["Zuma Taurus"];
+  if (isEvilCentipedeEnemy(enemy)) return BOSS_DROP_TABLE_BY_LABEL["Evil Centipede"];
+  if (isBoneLordEnemy(enemy)) return BOSS_DROP_TABLE_BY_LABEL["Bone Lord"];
+  if (isKingScorpionEnemy(enemy)) return BOSS_DROP_TABLE_BY_LABEL["King Scorpion"];
+  if (isMinotaurKingEnemy(enemy)) return BOSS_DROP_TABLE_BY_LABEL["Minotaur King"];
+  if (isYimoogiEnemy(enemy)) return BOSS_DROP_TABLE_BY_LABEL["Yimoogi"];
+  if (isOmaKingSpiritEnemy(enemy)) return BOSS_DROP_TABLE_BY_LABEL["Oma King Spirit"];
+  if (isKingHogEnemy(enemy)) return BOSS_DROP_TABLE_BY_LABEL["King Hog"];
+  if (isDarkDevilEnemy(enemy)) return BOSS_DROP_TABLE_BY_LABEL["Dark Devil"];
   return null;
 }
 
@@ -24149,7 +23429,7 @@ function clearWarriorSlayingReady(member = null) {
 
 function warriorSlayingPending(member = null) {
   if (member?.classId) return Boolean(member.slayingReady);
-  if (Boolean(state.battle.slayingReady)) return true;
+  if (state.battle.slayingReady) return true;
   const controlled = state.battle.bossParty?.active ? bossPartyControlledMember() : null;
   return Boolean(controlled?.classId === "Warrior" && controlled.slayingReady);
 }
