@@ -103,10 +103,10 @@ async function visit(query) {
   page.on("request", (r) => requests.push(r.url()));
   await page.goto(`${base}/${query}`, { waitUntil: "domcontentloaded", timeout: 60000 });
   await page.waitForTimeout(4000);
-  const iconImgs = await page.locator('img[src*="item-icons/items/frame_"]').count();
+  const frameImgs = await page.locator('img[src*="item-icons/items/frame_"]').count();
   const sprites = await page.locator(".item-icon-sprite").count();
   await page.close();
-  return { query, iconImgs, sprites };
+  return { query, frameImgs, sprites };
 }
 
 const scenes = [];
@@ -123,17 +123,18 @@ const inventory = scenes.find((s) => s.query.includes("inventory"));
 // --- Report ---
 console.log("Itch release boot check");
 console.log(`Served: dist/itch  |  monster sprites referenced: ${monsterIndices.size}`);
-for (const s of scenes) console.log(`  ${s.query} -> iconImgs:${s.iconImgs} sprites:${s.sprites}`);
+for (const s of scenes) console.log(`  ${s.query} -> sprites:${s.sprites} frameImgs:${s.frameImgs}`);
 console.log(`  item atlas requested: ${requestedAtlas}  |  individual-frame requests: ${individualFrameRequests.length}`);
 
 const problems = [];
 if (missingMonsters.length) problems.push(`Monster sprites missing from package:\n  - ${missingMonsters.join("\n  - ")}`);
 if (errors.length) problems.push(`Console/page errors in the packaged build:\n  - ${errors.join("\n  - ")}`);
 if (failedResponses.length) problems.push(`Asset requests that failed (file not copied into the package):\n  - ${failedResponses.join("\n  - ")}`);
-if (requestedAtlas) problems.push("Packaged build still requests items-atlas.png — item icons should use individual PNGs like the June 15 release.");
-if (inventory && inventory.iconImgs === 0) problems.push("Inventory rendered 0 item icon <img> tags — icons may not be rendering.");
-if (inventory && inventory.sprites > 0) problems.push("Inventory still renders CSS item-icon sprites — expected <img> tags only.");
+if (!requestedAtlas) problems.push("Packaged build never requested item-icons/items-atlas.png — item icons should crop from the committed atlas.");
+if (individualFrameRequests.length) problems.push(`Packaged build requested ${individualFrameRequests.length} individual item-icon frame PNG(s) — those are not shipped; icons must use the atlas.`);
+if (inventory && inventory.sprites === 0) problems.push("Inventory rendered 0 item-icon atlas sprites — icons may not be rendering.");
+if (inventory && inventory.frameImgs > 0) problems.push("Inventory still references individual item-icon frame <img> tags — expected atlas sprites only.");
 
 if (problems.length) fail(problems.join("\n\n"));
 
-console.log("\nRelease boot check passed: the packaged build boots clean, renders item icons from individual PNGs, and ships every referenced monster sprite.");
+console.log("\nRelease boot check passed: the packaged build boots clean, crops item icons from the committed atlas, and ships every referenced monster sprite.");

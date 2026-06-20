@@ -228,7 +228,9 @@ function buildUsedCommonSpriteFiles() {
 function shouldExcludePublic(relativePath) {
   if ([...publicExcludes].some((exclude) => relativePath === exclude || relativePath.startsWith(`${exclude}/`))) return true;
   if (/^ui\/character\/stateitem-\d+\.png$/.test(relativePath)) return true;
-  if (/^item-icons\/items-atlas\.(?:png|json)$/.test(relativePath)) return true;
+  // Ship the committed item-icon atlas (items-atlas.png/json), NOT the ~260
+  // individual frame PNGs — keeps the package under itch.io's 1,000-file limit.
+  if (/^item-icons\/items\/frame_.+\.png$/.test(relativePath)) return true;
   if (/^sprite-sets\/common\/(?:armour|hair|weapon)\/\d+\.(?:json|png)$/.test(relativePath)) {
     return !usedCommonSpriteFiles.has(relativePath);
   }

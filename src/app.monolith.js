@@ -2242,6 +2242,7 @@ async function init() {
   state.enemy.catalogue = await loadJson("./public/monsters/layers.json").catch(() => null);
   state.spellIndex = await loadJson("./public/spellfx/index.json").catch(() => ({ spells: [] }));
   state.itemData = await loadJson("./src/data/items.json").catch(() => ({ items: [] }));
+  await applyItemIconAtlas(state.itemData);
   state.mapTileIndex = await loadJson("./public/maptiles/index.json").catch(() => ({ sets: [] }));
   state.mapObjectIndex = await loadJson("./public/mapobjects/index.json").catch(() => ({ sets: [] }));
   state.mapStampIndex = await loadJson(`./public/mapstamps/index.json?v=${MAP_STAMP_ASSET_VERSION}`).catch(() => ({ stamps: [] }));
@@ -7185,7 +7186,7 @@ function accountUpgradeRequirementHtml(upgrade) {
     const met = owned >= cost.quantity;
     rows.push(`
       <div class="upgrade-material has-tooltip ${met ? "met" : "missing"}" data-tooltip-item="${escapeHtml(cost.itemId)}">
-        ${itemIconHtml(item)}
+        ${itemIconHtml(item, 24)}
         <span>${escapeHtml(item?.name ?? cost.itemId)}</span>
         <strong>${owned}/${cost.quantity}</strong>
       </div>
@@ -8742,7 +8743,67 @@ function itemIconSrc(item) {
   return item.icon?.src ?? "";
 }
 
-function itemIconHtml(item) {
+// Committed item-icon atlas (public/item-icons/items-atlas.*). We ship ONE
+// sheet instead of ~260 individual PNGs so the package stays under itch.io's
+// 1,000-file limit. Coordinates are merged onto each item icon at load; the
+// dev build renders from the exact same committed sheet (packaging only copies
+// it). Set once in init() via applyItemIconAtlas.
+let itemIconAtlas = null;
+
+async function applyItemIconAtlas(itemData) {
+  const atlas = await loadJson("./public/item-icons/items-atlas.json").catch(() => null);
+  const frames = atlas?.frames;
+  const width = Number(atlas?.width) || 0;
+  const height = Number(atlas?.height) || 0;
+  if (!frames || !atlas.sheet || width <= 0 || height <= 0) return;
+  itemIconAtlas = { sheet: atlas.sheet, width, height };
+  for (const item of itemData?.items ?? []) {
+    const icon = item?.icon;
+    const src = icon?.src;
+    const fileName = typeof src === "string" ? src.split("/").pop() : "";
+    const coords = fileName ? frames[fileName] : null;
+    if (!icon || !coords) continue;
+    icon.sx = coords.sx;
+    icon.sy = coords.sy;
+    icon.w = coords.w;
+    icon.h = coords.h;
+  }
+}
+
+// Pixel-exact atlas crop. Element is sized to the fitted icon only (not the full
+// square slot) so letterbox bands never sample neighbouring atlas cells.
+function itemIconSpritePx(value) {
+  return `${Math.round(value * 100) / 100}px`;
+}
+
+function itemIconSpriteStyle(icon, slotPx = 32) {
+  const { width: aw, height: ah, sheet } = itemIconAtlas;
+  const w = Math.trunc(icon.w);
+  const h = Math.trunc(icon.h);
+  const sx = Math.trunc(icon.sx);
+  const sy = Math.trunc(icon.sy);
+  const slot = Math.max(1, Number(slotPx) || 32);
+  const scale = Math.min(slot / w, slot / h);
+  return [
+    `width:${itemIconSpritePx(w * scale)}`,
+    `height:${itemIconSpritePx(h * scale)}`,
+    `background-image:url(${sheet})`,
+    `background-size:${itemIconSpritePx(aw * scale)} ${itemIconSpritePx(ah * scale)}`,
+    `background-position:${itemIconSpritePx(-sx * scale)} ${itemIconSpritePx(-sy * scale)}`,
+    "background-repeat:no-repeat",
+  ].join(";");
+}
+
+function itemIconHtml(item, slotPx = 32) {
+  const icon = item?.icon;
+  if (
+    itemIconAtlas
+    && icon
+    && Number.isFinite(icon.sx) && Number.isFinite(icon.sy)
+    && icon.w > 0 && icon.h > 0
+  ) {
+    return `<span class="item-icon-sprite" style="${itemIconSpriteStyle(icon, slotPx)}" aria-hidden="true"></span>`;
+  }
   const src = itemIconSrc(item);
   return src ? `<img src="${escapeHtml(src)}" alt="" />` : "";
 }
@@ -13681,7 +13742,7 @@ function inventoryItemHtml(entry) {
     : "";
   return `
     <div class="inventory-item has-tooltip ${equipped ? "equipped" : ""} ${locked ? "locked" : ""}" data-tooltip-item="${item.id}" data-tooltip-entry="${entry.id}">
-      ${itemIconHtml(item)}
+      ${itemIconHtml(item, 28)}
       ${stack}
       <strong>${escapeHtml(itemDisplayName(item, entry))}</strong>
       <span>${requirement.ok ? tag : requirement.reason}</span>
@@ -16284,7 +16345,7 @@ function traderSellRowHtml(entry, item) {
   const value = itemSellValue(item, quantity);
   return `
     <div class="npc-shop-row trader-sell-row" data-tooltip-item="${escapeHtml(item.id)}" data-tooltip-entry="${escapeHtml(entry.id)}">
-      ${itemIconHtml(item)}
+      ${itemIconHtml(item, 28)}
       <span class="npc-shop-item">
         <strong>${escapeHtml(itemDisplayName(item, entry))}${stack}</strong>
         <span>${escapeHtml(shopItemMetaText(item))}</span>
@@ -16331,7 +16392,7 @@ function shopBuyRowHtml(item) {
     : "";
   return `
     <div class="npc-shop-row shop-buy-row ${canBuy ? "" : "locked"}" data-tooltip-item="${escapeHtml(item.id)}">
-      ${itemIconHtml(item)}
+      ${itemIconHtml(item, 28)}
       <span class="npc-shop-item">
         <strong>${escapeHtml(item.name)}</strong>
         <span>${escapeHtml(shopItemMetaText(item))}${owned ? ` | Have ${owned}` : ""}</span>
@@ -16506,7 +16567,7 @@ function weaponRefinePickerRowHtml(entry, item) {
   const statHint = isRefineJewelleryItem(item) ? refineJewelleryStatHint(entry, item) : "";
   return `
     <div class="npc-shop-row weapon-refine-picker-row" data-tooltip-item="${escapeHtml(item.id)}" data-tooltip-entry="${escapeHtml(entry.id)}">
-      ${itemIconHtml(item)}
+      ${itemIconHtml(item, 28)}
       <span class="npc-shop-item">
         <strong>${escapeHtml(itemDisplayName(item, entry))}</strong>
         <span>${escapeHtml(statHint || shopItemMetaText(item))}${purity}</span>
@@ -16544,7 +16605,7 @@ function smithCombineRowHtml(option) {
     : escapeHtml(consumeName);
   return `
     <div class="npc-shop-row smith-combine-row" data-tooltip-item="${escapeHtml(item.id)}" data-tooltip-entry="${escapeHtml(target.id)}">
-      ${itemIconHtml(item)}
+      ${itemIconHtml(item, 28)}
       <span class="npc-shop-item">
         <strong>${escapeHtml(keepName)}</strong>
         <span>${count} owned | Keeps best | +1 ${escapeHtml(stat.label)} | Consumes ${consumeLabel}</span>

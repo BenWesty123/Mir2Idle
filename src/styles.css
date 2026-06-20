@@ -3668,6 +3668,34 @@ dd {
   pointer-events: none;
 }
 
+/* Item icons cropped from the committed atlas (see itemIconHtml). Inline styles
+   set pixel-exact crop/size; hosts centre the fitted sprite in the slot. */
+.item-icon-sprite {
+  display: block;
+  overflow: hidden;
+  image-rendering: pixelated;
+  pointer-events: none;
+}
+
+.crystal-inventory-item,
+.crystal-storage-item,
+.crystal-equipment-item,
+.hotbar-item {
+  display: grid;
+  place-items: center;
+}
+
+.inventory-destroy-item .item-icon-sprite,
+.npc-shop-row .item-icon-sprite,
+.inventory-item .item-icon-sprite {
+  justify-self: center;
+  align-self: center;
+}
+
+.inventory-item .item-icon-sprite {
+  grid-row: 1 / span 2;
+}
+
 .crystal-item-qty {
   position: absolute;
   right: 1px;
