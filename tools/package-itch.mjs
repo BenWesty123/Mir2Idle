@@ -26,6 +26,7 @@ const buildVersion = new Date()
 const sourceFiles = [
   "index.html",
   "src/app.js",
+  "src/app.monolith.js",
   "src/atlas.js",
   "src/battleData.js",
   "src/buffPotions.js",
@@ -35,10 +36,12 @@ const sourceFiles = [
   "src/spellBodyActions.js",
   "src/styles.css",
   "src/warriorMagic.js",
+  "src/zumaArcherSwarm.js",
   "src/data/items.json",
 ];
 
 const publicExcludes = new Set([
+  "debug",
   "item-icons/books/index.html",
   "item-icons/books/tiles.json",
   "magic-icons/index.html",
@@ -82,6 +85,7 @@ const PACKAGE_MAP_OBJECT_SET_IDS = [
   "bdd-dungeon-catalog",
   "oma-cave-walls",
   "prajna-cave-catalog",
+  "viper-cave-catalog",
   "prajna-temple-catalog",
   "stone-temple-catalog",
   "wemade-mir2-custom-objects",
@@ -102,6 +106,19 @@ const usedMapObjectFiles = buildUsedMapObjectFiles();
 const usedMaptileFiles = buildUsedMaptileFiles();
 const usedNpcFiles = buildUsedNpcFiles();
 const usedSpellfxFiles = buildUsedSpellfxFiles(root);
+const usedSfxFiles = buildUsedSfxFiles();
+
+function buildUsedSfxFiles() {
+  const files = new Set(["audio/sfx/manifest.json"]);
+  const manifestPath = path.join(root, "public/audio/sfx/manifest.json");
+  if (!fs.existsSync(manifestPath)) return files;
+  const manifest = readJsonFile(manifestPath);
+  for (const entry of Object.values(manifest.byKey ?? {})) {
+    const match = String(entry?.src ?? "").match(/audio\/sfx\/files\/[^"']+/);
+    if (match) files.add(match[0]);
+  }
+  return files;
+}
 
 function buildUsedItemIconFiles() {
   const files = new Set();
@@ -210,6 +227,7 @@ function buildUsedCommonSpriteFiles() {
 function shouldExcludePublic(relativePath) {
   if ([...publicExcludes].some((exclude) => relativePath === exclude || relativePath.startsWith(`${exclude}/`))) return true;
   if (/^ui\/character\/stateitem-\d+\.png$/.test(relativePath)) return true;
+  if (/^item-icons\/items\/frame_.+\.png$/.test(relativePath)) return true;
   if (/^sprite-sets\/common\/(?:armour|hair|weapon)\/\d+\.(?:json|png)$/.test(relativePath)) {
     return !usedCommonSpriteFiles.has(relativePath);
   }
@@ -238,6 +256,9 @@ function shouldExcludePublic(relativePath) {
   }
   if (relativePath.startsWith("spellfx/")) {
     return !usedSpellfxFiles.has(relativePath);
+  }
+  if (relativePath.startsWith("audio/sfx/")) {
+    return !usedSfxFiles.has(relativePath);
   }
   return false;
 }
@@ -314,6 +335,44 @@ function measureBuild() {
     mb: Number((bytes / 1024 / 1024).toFixed(2)),
     maxFileMb: Number((maxFileBytes / 1024 / 1024).toFixed(2)),
   };
+}
+
+function validateModuleClosure() {
+  const indexPath = path.join(packageRoot, "index.html");
+  const indexHtml = fs.readFileSync(indexPath, "utf8");
+  const entryMatch = indexHtml.match(/<script[^>]*src=["']([^"']+\.js)(?:\?[^"']*)?["']/);
+  if (!entryMatch) {
+    throw new Error("Could not find an entry <script> in packaged index.html.");
+  }
+  const entryRel = entryMatch[1].replace(/^\.\//, "");
+  const seen = new Set();
+  const missing = [];
+  const visit = (relativePath) => {
+    if (seen.has(relativePath)) return;
+    seen.add(relativePath);
+    const fullPath = path.join(packageRoot, relativePath);
+    if (!fs.existsSync(fullPath)) {
+      missing.push(relativePath);
+      return;
+    }
+    const text = fs.readFileSync(fullPath, "utf8");
+    const specs = [
+      ...[...text.matchAll(/(?:import|export)[^"'`]*?from\s*["'`]([^"'`]+)["'`]/g)].map((m) => m[1]),
+      ...[...text.matchAll(/import\s*["'`]([^"'`]+)["'`]/g)].map((m) => m[1]),
+    ];
+    for (const spec of specs) {
+      if (!spec.startsWith(".")) continue;
+      const clean = spec.split("?")[0];
+      const resolved = path.posix.normalize(path.posix.join(path.posix.dirname(relativePath), clean));
+      visit(resolved);
+    }
+  };
+  visit(entryRel);
+  if (missing.length) {
+    throw new Error(
+      `Packaged JS import closure is incomplete (would cause a blank screen):\n- ${missing.join("\n- ")}`,
+    );
+  }
 }
 
 function validateItchLimits(metrics, zipPath = null) {
@@ -394,6 +453,18 @@ function createZipArchive() {
   return zipPath;
 }
 
+function buildPackagedItemIcons() {
+  execSync(
+    [
+      `powershell -ExecutionPolicy Bypass -File "${path.join(root, "tools/build-item-icons-atlas.ps1")}"`,
+      `-ItemsPath "${path.join(packageRoot, "src/data/items.json")}"`,
+      `-InputRoot "${path.join(root, "public/item-icons/items")}"`,
+      `-OutputRoot "${path.join(packageRoot, "public/item-icons")}"`,
+    ].join(" "),
+    { stdio: "inherit" },
+  );
+}
+
 function buildPackagedStateitems() {
   execSync(
     `powershell -ExecutionPolicy Bypass -File "${path.join(root, "tools/build-stateitem-atlas.ps1")}"`,
@@ -414,10 +485,12 @@ for (const file of sourceFiles) copyFile(file);
 copyDirectory(path.join(root, "src/game"), path.join(packageRoot, "src/game"));
 copyDirectory(path.join(root, "public"), path.join(packageRoot, "public"));
 buildPackagedStateitems();
+buildPackagedItemIcons();
 trimMaptileIndex();
 patchCacheBusting();
 patchBrowserRelativePaths();
 
+validateModuleClosure();
 const metrics = measureBuild();
 const zipPath = createZipArchive();
 validateItchLimits(metrics, zipPath);

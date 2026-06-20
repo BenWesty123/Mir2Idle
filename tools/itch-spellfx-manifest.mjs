@@ -2,7 +2,7 @@ import fs from "node:fs";
 import path from "node:path";
 import { WARRIOR_COMBAT_SKILLS } from "../src/warriorMagic.js";
 
-export const WIZARD_COMBAT_SPELL_IDS = ["FireBall", "GreatFireBall", "ThunderBolt", "FireWall", "FrostCrunch", "MagicShield"];
+export const WIZARD_COMBAT_SPELL_IDS = ["FireBall", "GreatFireBall", "ThunderBolt", "FireWall", "FrostCrunch", "IceStorm", "MagicShield"];
 export const TAOIST_COMBAT_SPELL_IDS = [
   "Healing",
   "Poisoning",

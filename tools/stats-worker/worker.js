@@ -13,6 +13,9 @@ const BOSS_ZONE_IDS = new Set([
   "zone-prajna-temple-kr",
 ]);
 
+// No legitimate character can exceed this level in the current prototype content.
+const LEADERBOARD_MAX_VALID_LEVEL = 100;
+
 function corsHeaders(request, env) {
   const origin = request.headers.get("origin") || "*";
   const allowedOrigin = env.ALLOWED_ORIGIN || "*";
@@ -221,6 +224,39 @@ function combinedCharacterLevels(levels = {}) {
   return Object.values(parseJsonObject(levels)).reduce((sum, level) => sum + intValue(level), 0);
 }
 
+function levelExceedsLeaderboardCap(level) {
+  return intValue(level) > LEADERBOARD_MAX_VALID_LEVEL;
+}
+
+function statsExceedMaxLevel(stats) {
+  if (levelExceedsLeaderboardCap(stats?.highestLevel)) return true;
+  for (const level of Object.values(stats?.account?.characterLevels ?? {})) {
+    if (levelExceedsLeaderboardCap(level)) return true;
+  }
+  for (const character of stats?.characters ?? []) {
+    if (levelExceedsLeaderboardCap(character?.level)) return true;
+  }
+  return false;
+}
+
+function rowExceedsMaxLevel(row) {
+  if (levelExceedsLeaderboardCap(row?.highest_level)) return true;
+  for (const level of Object.values(parseJsonObject(row?.character_levels))) {
+    if (levelExceedsLeaderboardCap(level)) return true;
+  }
+  for (const entry of parseJsonArray(row?.character_stats)) {
+    if (levelExceedsLeaderboardCap(entry?.level)) return true;
+  }
+  return false;
+}
+
+async function deleteLeaderboardRow(env, playerId) {
+  await env.DB.prepare(`
+    DELETE FROM leaderboard
+    WHERE player_id = ?
+  `).bind(playerId).run();
+}
+
 function formatLeaderboardCharacters(characterLevels, characterStats) {
   const levels = parseJsonObject(characterLevels);
   const stats = parseJsonArray(characterStats);
@@ -336,6 +372,11 @@ async function handleStatsPost(request, env, headers) {
     return json({ error: "Use account playerId without character suffix." }, 400, headers);
   }
 
+  if (statsExceedMaxLevel(stats)) {
+    await deleteLeaderboardRow(env, stats.playerId);
+    return json({ ok: true, rejected: "invalid_level" }, 200, headers);
+  }
+
   await upsertLeaderboardRow(env, stats);
   return json({ ok: true, characters: stats.characters.length }, 200, headers);
 }
@@ -361,11 +402,11 @@ function leaderboardScopeValue(value) {
 }
 
 async function leaderboardRows(env, scope, limit) {
-  const where = {
-    accounts: "WHERE instr(player_id, ':') = 0",
-    characters: "WHERE instr(player_id, ':') > 0",
-    all: "",
-  }[scope] ?? "";
+  const scopeWhere = {
+    accounts: "instr(player_id, ':') = 0",
+    characters: "instr(player_id, ':') > 0",
+    all: "1 = 1",
+  }[scope] ?? "1 = 1";
   return env.DB.prepare(`
     SELECT
       player_id,
@@ -386,10 +427,11 @@ async function leaderboardRows(env, scope, limit) {
       combined_character_levels,
       last_seen
     FROM leaderboard
-    ${where}
+    WHERE ${scopeWhere}
+      AND highest_level <= ?
     ORDER BY combined_character_levels DESC, awakening_souls_held DESC, highest_level DESC, experience DESC, kills DESC
     LIMIT ?
-  `).bind(limit).all();
+  `).bind(LEADERBOARD_MAX_VALID_LEVEL, limit).all();
 }
 
 async function handleLeaderboardGet(request, env, headers) {
@@ -404,35 +446,37 @@ async function handleLeaderboardGet(request, env, headers) {
     results = await leaderboardRows(env, scope, limit);
   }
 
-  const rows = (results.results ?? []).map((row, index) => {
-    const bossKills = parseBossKills(row.boss_kills);
-    const characterLevels = parseJsonObject(row.character_levels);
-    const characterStats = parseJsonArray(row.character_stats);
-    const combinedLevels = intValue(row.combined_character_levels) || combinedCharacterLevels(characterLevels);
-    return {
-      rank: index + 1,
-      player: publicPlayerLabel(row.player_id),
-      characterClass: characterClassFromPlayerId(row.player_id),
-      level: row.highest_level,
-      combinedCharacterLevels: combinedLevels,
-      awakeningSoulsHeld: intValue(row.awakening_souls_held),
-      experience: row.experience,
-      kills: row.kills,
-      zoneKills: row.zone_kills,
-      bossKills,
-      bossKillsTotal: bossKillsTotal(bossKills),
-      gold: row.gold,
-      zone: row.active_zone_id,
-      playtimeMs: row.playtime_ms,
-      rebirthCount: intValue(row.rebirth_count),
-      rebirthPointsGained: intValue(row.rebirth_points_gained),
-      rebirthPointsSpent: intValue(row.rebirth_points_spent),
-      characterLevels,
-      characterStats,
-      characters: formatLeaderboardCharacters(characterLevels, characterStats),
-      lastSeen: row.last_seen,
-    };
-  });
+  const rows = (results.results ?? [])
+    .filter((row) => !rowExceedsMaxLevel(row))
+    .map((row, index) => {
+      const bossKills = parseBossKills(row.boss_kills);
+      const characterLevels = parseJsonObject(row.character_levels);
+      const characterStats = parseJsonArray(row.character_stats);
+      const combinedLevels = intValue(row.combined_character_levels) || combinedCharacterLevels(characterLevels);
+      return {
+        rank: index + 1,
+        player: publicPlayerLabel(row.player_id),
+        characterClass: characterClassFromPlayerId(row.player_id),
+        level: row.highest_level,
+        combinedCharacterLevels: combinedLevels,
+        awakeningSoulsHeld: intValue(row.awakening_souls_held),
+        experience: row.experience,
+        kills: row.kills,
+        zoneKills: row.zone_kills,
+        bossKills,
+        bossKillsTotal: bossKillsTotal(bossKills),
+        gold: row.gold,
+        zone: row.active_zone_id,
+        playtimeMs: row.playtime_ms,
+        rebirthCount: intValue(row.rebirth_count),
+        rebirthPointsGained: intValue(row.rebirth_points_gained),
+        rebirthPointsSpent: intValue(row.rebirth_points_spent),
+        characterLevels,
+        characterStats,
+        characters: formatLeaderboardCharacters(characterLevels, characterStats),
+        lastSeen: row.last_seen,
+      };
+    });
 
   return json({ scope, limit, rows }, 200, headers);
 }

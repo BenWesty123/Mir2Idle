@@ -20,6 +20,7 @@ const PACKAGE_MAP_OBJECT_SET_IDS = [
   "bdd-dungeon-catalog",
   "oma-cave-walls",
   "prajna-cave-catalog",
+  "viper-cave-catalog",
   "prajna-temple-catalog",
   "stone-temple-catalog",
   "wemade-mir2-custom-objects",
@@ -66,11 +67,16 @@ const usedMagic = new Set(
     .map((spell) => `magic-icons/images/frame_${String(Number(spell.icon) * 2).padStart(6, "0")}.png`),
 );
 
+const packagedItemAtlas = packaged.has("item-icons/items-atlas.png");
 const usedItems = new Set();
-for (const item of itemData.items ?? []) {
-  const src = item?.icon?.src;
-  if (typeof src === "string" && src.includes("item-icons/items/")) {
-    usedItems.add(`item-icons/items/${path.posix.basename(src)}`);
+if (packagedItemAtlas) {
+  usedItems.add("item-icons/items-atlas.png");
+} else {
+  for (const item of itemData.items ?? []) {
+    const src = item?.icon?.src;
+    if (typeof src === "string" && src.includes("item-icons/items/")) {
+      usedItems.add(`item-icons/items/${path.posix.basename(src)}`);
+    }
   }
 }
 

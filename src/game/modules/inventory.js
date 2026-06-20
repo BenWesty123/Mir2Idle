@@ -386,7 +386,7 @@ function accountUpgradeRequirementHtml(upgrade) {
     const met = owned >= cost.quantity;
     rows.push(`
       <div class="upgrade-material has-tooltip ${met ? "met" : "missing"}" data-tooltip-item="${G.escapeHtml(cost.itemId)}">
-        <img src="${G.escapeHtml(itemIconSrc(item))}" alt="" />
+        ${G.itemIconMarkup(item)}
         <span>${G.escapeHtml(item?.name ?? cost.itemId)}</span>
         <strong>${owned}/${cost.quantity}</strong>
       </div>
@@ -951,7 +951,23 @@ function equipmentSlotToGemSlot(slotId) {
 
 function itemIconSrc(item) {
   if (!item) return "";
-  return item.icon?.src ?? "";
+  return item.icon?.src ?? item.icon?.sheet ?? "";
+}
+
+function itemIconMarkup(item, className = "") {
+  if (!item?.icon) return "";
+  const icon = item.icon;
+  const classAttr = className ? ` class="${G.escapeHtml(className)}"` : "";
+  if (icon.sheet) {
+    const w = Math.max(1, Math.trunc(Number(icon.w) || 32));
+    const h = Math.max(1, Math.trunc(Number(icon.h) || 32));
+    const sx = Math.max(0, Math.trunc(Number(icon.sx) || 0));
+    const sy = Math.max(0, Math.trunc(Number(icon.sy) || 0));
+    return `<span${classAttr} style="display:inline-block;width:${w}px;height:${h}px;max-width:28px;max-height:28px;background:url('${G.escapeHtml(icon.sheet)}') -${sx}px -${sy}px no-repeat;image-rendering:pixelated;" role="img" aria-hidden="true"></span>`;
+  }
+  const src = icon.src ?? "";
+  if (!src) return "";
+  return `<img${classAttr} src="${G.escapeHtml(src)}" alt="" />`;
 }
 
 function accountUpgradeById(upgradeId) {
@@ -1428,7 +1444,7 @@ function inventoryItemHtml(entry) {
     : "";
   return `
     <div class="inventory-item has-tooltip ${equipped ? "equipped" : ""} ${locked ? "locked" : ""}" data-tooltip-item="${item.id}" data-tooltip-entry="${entry.id}">
-      <img src="${G.escapeHtml(itemIconSrc(item))}" alt="" />
+        ${G.itemIconMarkup(item)}
       ${stack}
       <strong>${G.escapeHtml(G.itemDisplayName(item, entry))}</strong>
       <span>${requirement.ok ? tag : requirement.reason}</span>
@@ -1611,7 +1627,7 @@ function weaponRefineSlotHtml(kind, index, { large = false } = {}) {
         data-tooltip-entry="${G.escapeHtml(entry.id)}"
         title="${G.escapeHtml(G.itemDisplayName(item, entry))}"
       >
-        <img src="${G.escapeHtml(itemIconSrc(item))}" alt="" />
+        ${G.itemIconMarkup(item)}
         ${purity}
         ${kind === "weapon" && refineFx === "fail" ? `<span class="weapon-refine-crack" aria-hidden="true"></span>` : ""}
       </div>
@@ -1646,7 +1662,7 @@ function weaponRefinePickerRowHtml(entry, item) {
   const statHint = G.isRefineJewelleryItem(item) ? G.refineJewelleryStatHint(entry, item) : "";
   return `
     <div class="npc-shop-row weapon-refine-picker-row" data-tooltip-item="${G.escapeHtml(item.id)}" data-tooltip-entry="${G.escapeHtml(entry.id)}">
-      <img src="${G.escapeHtml(itemIconSrc(item))}" alt="" />
+        ${G.itemIconMarkup(item)}
       <span class="npc-shop-item">
         <strong>${G.escapeHtml(G.itemDisplayName(item, entry))}</strong>
         <span>${G.escapeHtml(statHint || G.shopItemMetaText(item))}${purity}</span>
@@ -1666,7 +1682,7 @@ function smithCombineRowHtml(option) {
     : G.escapeHtml(consumeName);
   return `
     <div class="npc-shop-row smith-combine-row" data-tooltip-item="${G.escapeHtml(item.id)}" data-tooltip-entry="${G.escapeHtml(target.id)}">
-      <img src="${G.escapeHtml(itemIconSrc(item))}" alt="" />
+        ${G.itemIconMarkup(item)}
       <span class="npc-shop-item">
         <strong>${G.escapeHtml(keepName)}</strong>
         <span>${count} owned | Keeps best | +1 ${G.escapeHtml(stat.label)} | Consumes ${consumeLabel}</span>
@@ -1695,7 +1711,7 @@ function hotbarSlotHtml(slot) {
         draggable="false"
         title="${G.escapeHtml(G.itemDisplayName(item, entry))}"
       >
-        <img src="${G.escapeHtml(itemIconSrc(item))}" alt="" />
+        ${G.itemIconMarkup(item)}
         ${G.isStackableItem(item) && entry.quantity > 1 ? `<span class="hotbar-qty">${entry.quantity}</span>` : ""}
       </button>
     `
@@ -1787,6 +1803,7 @@ G.smithCombineSuccessChance = smithCombineSuccessChance;
 G.smithChanceText = smithChanceText;
 G.equipmentSlotToGemSlot = equipmentSlotToGemSlot;
 G.itemIconSrc = itemIconSrc;
+G.itemIconMarkup = itemIconMarkup;
 G.accountUpgradeById = accountUpgradeById;
 G.accountUpgradeUsesRebirthPoints = accountUpgradeUsesRebirthPoints;
 G.accountUpgradeTier = accountUpgradeTier;

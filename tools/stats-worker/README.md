@@ -45,6 +45,14 @@ npx wrangler d1 execute lom-idle-v2-stats --file .\reset-leaderboard.sql --remot
 
 This deletes all rows. New submissions will repopulate the board using the current account-only format.
 
+To remove existing rows with impossible character levels (any class above level 100):
+
+```powershell
+npx wrangler d1 execute lom-idle-v2-stats --file .\purge-cheater-levels.sql --remote
+```
+
+The Worker also rejects new `/stats` submissions above that cap and hides them from `/leaderboard` responses. Redeploy after updating `worker.js` so the live API enforces the rule.
+
 ## Deploy Outline
 
 1. Create a Cloudflare D1 database.

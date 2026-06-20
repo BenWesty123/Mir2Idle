@@ -468,7 +468,8 @@ const CRYSTAL_POISON_TICK_MS = 2000;
 const CRYSTAL_POISON_RESIST_WEIGHT = 10;
 const FREEZING_ATTACK_WEIGHT = 10;
 const FREEZING_NORMAL_PROC_CHANCE_CAP = 0.35;
-const FREEZING_BOSS_PROC_CHANCE_CAP = 0.15;
+const FREEZING_BOSS_MAX_STAT = 10;
+const FREEZING_BOSS_MAX_PROC_CHANCE = 0.15;
 const EVIL_CENTIPEDE_ATTACK_IMPACT_MS = 500;
 const BONE_LORD_ATTACK_IMPACT_MS = 500;
 const KING_SCORPION_LINE_TILES = 3;
@@ -7851,7 +7852,7 @@ function accountUpgradeRequirementHtml(upgrade) {
     const met = owned >= cost.quantity;
     rows.push(`
       <div class="upgrade-material has-tooltip ${met ? "met" : "missing"}" data-tooltip-item="${escapeHtml(cost.itemId)}">
-        <img src="${escapeHtml(itemIconSrc(item))}" alt="" />
+        ${itemIconMarkup(item)}
         <span>${escapeHtml(item?.name ?? cost.itemId)}</span>
         <strong>${owned}/${cost.quantity}</strong>
       </div>
@@ -9405,7 +9406,21 @@ function magicSpellByShape(shape) {
 
 function itemIconSrc(item) {
   if (!item) return "";
-  return item.icon?.src ?? "";
+  return item.icon?.src ?? item.icon?.sheet ?? "";
+}
+
+function itemIconMarkup(item) {
+  const icon = item?.icon;
+  if (!icon) return "";
+  if (icon.sheet) {
+    const w = Math.max(1, Math.trunc(Number(icon.w) || 32));
+    const h = Math.max(1, Math.trunc(Number(icon.h) || 32));
+    const sx = Math.max(0, Math.trunc(Number(icon.sx) || 0));
+    const sy = Math.max(0, Math.trunc(Number(icon.sy) || 0));
+    return `<span class="item-icon-sprite" style="width:${w}px;height:${h}px;background-image:url('${escapeHtml(icon.sheet)}');background-position:-${sx}px -${sy}px;background-repeat:no-repeat;" aria-hidden="true"></span>`;
+  }
+  if (icon.src) return `<img src="${escapeHtml(icon.src)}" alt="" />`;
+  return "";
 }
 
 function bookItemsForSpell(spellId) {
@@ -13643,7 +13658,7 @@ function crystalEquipmentItemHtml(entry, item, slotId) {
       draggable="false"
       title="${escapeHtml(itemDisplayName(item, entry))}"
     >
-      <img src="${escapeHtml(itemIconSrc(item))}" alt="" />
+      ${itemIconMarkup(item)}
     </div>
   `;
 }
@@ -13706,7 +13721,7 @@ function crystalStorageItemHtml(entry, item) {
       draggable="false"
       title="${escapeHtml(itemDisplayName(item, entry))}"
     >
-      <img src="${escapeHtml(itemIconSrc(item))}" alt="" />
+      ${itemIconMarkup(item)}
       ${stack}
     </div>
   `;
@@ -13805,7 +13820,7 @@ function crystalInventoryItemHtml(entry, item) {
       draggable="false"
       title="${escapeHtml(itemDisplayName(item, entry))}"
     >
-      <img src="${escapeHtml(itemIconSrc(item))}" alt="" />
+      ${itemIconMarkup(item)}
       ${stack}
     </div>
   `;
@@ -14195,7 +14210,7 @@ function inventoryDestroyConfirmHtml() {
         <button type="button" class="inventory-destroy-close" data-cancel-inventory-destroy aria-label="Cancel destroy item">X</button>
         <div class="inventory-destroy-title">Destroy Item</div>
         <div class="inventory-destroy-item has-tooltip" data-tooltip-item="${escapeHtml(item.id)}" data-tooltip-entry="${escapeHtml(entry.id)}">
-          <img src="${escapeHtml(itemIconSrc(item))}" alt="" />
+          ${itemIconMarkup(item)}
           <strong>${escapeHtml(label)}</strong>
         </div>
         <p>This will destroy the item.</p>
@@ -14371,7 +14386,7 @@ function inventoryItemHtml(entry) {
     : "";
   return `
     <div class="inventory-item has-tooltip ${equipped ? "equipped" : ""} ${locked ? "locked" : ""}" data-tooltip-item="${item.id}" data-tooltip-entry="${entry.id}">
-      <img src="${escapeHtml(itemIconSrc(item))}" alt="" />
+      ${itemIconMarkup(item)}
       ${stack}
       <strong>${escapeHtml(itemDisplayName(item, entry))}</strong>
       <span>${requirement.ok ? tag : requirement.reason}</span>
@@ -16974,7 +16989,7 @@ function traderSellRowHtml(entry, item) {
   const value = itemSellValue(item, quantity);
   return `
     <div class="npc-shop-row trader-sell-row" data-tooltip-item="${escapeHtml(item.id)}" data-tooltip-entry="${escapeHtml(entry.id)}">
-      <img src="${escapeHtml(itemIconSrc(item))}" alt="" />
+      ${itemIconMarkup(item)}
       <span class="npc-shop-item">
         <strong>${escapeHtml(itemDisplayName(item, entry))}${stack}</strong>
         <span>${escapeHtml(shopItemMetaText(item))}</span>
@@ -17021,7 +17036,7 @@ function shopBuyRowHtml(item) {
     : "";
   return `
     <div class="npc-shop-row shop-buy-row ${canBuy ? "" : "locked"}" data-tooltip-item="${escapeHtml(item.id)}">
-      <img src="${escapeHtml(itemIconSrc(item))}" alt="" />
+      ${itemIconMarkup(item)}
       <span class="npc-shop-item">
         <strong>${escapeHtml(item.name)}</strong>
         <span>${escapeHtml(shopItemMetaText(item))}${owned ? ` | Have ${owned}` : ""}</span>
@@ -17161,7 +17176,7 @@ function weaponRefineSlotHtml(kind, index, { large = false } = {}) {
         data-tooltip-entry="${escapeHtml(entry.id)}"
         title="${escapeHtml(itemDisplayName(item, entry))}"
       >
-        <img src="${escapeHtml(itemIconSrc(item))}" alt="" />
+        ${itemIconMarkup(item)}
         ${purity}
         ${kind === "weapon" && refineFx === "fail" ? `<span class="weapon-refine-crack" aria-hidden="true"></span>` : ""}
       </div>
@@ -17196,7 +17211,7 @@ function weaponRefinePickerRowHtml(entry, item) {
   const statHint = isRefineJewelleryItem(item) ? refineJewelleryStatHint(entry, item) : "";
   return `
     <div class="npc-shop-row weapon-refine-picker-row" data-tooltip-item="${escapeHtml(item.id)}" data-tooltip-entry="${escapeHtml(entry.id)}">
-      <img src="${escapeHtml(itemIconSrc(item))}" alt="" />
+      ${itemIconMarkup(item)}
       <span class="npc-shop-item">
         <strong>${escapeHtml(itemDisplayName(item, entry))}</strong>
         <span>${escapeHtml(statHint || shopItemMetaText(item))}${purity}</span>
@@ -17234,7 +17249,7 @@ function smithCombineRowHtml(option) {
     : escapeHtml(consumeName);
   return `
     <div class="npc-shop-row smith-combine-row" data-tooltip-item="${escapeHtml(item.id)}" data-tooltip-entry="${escapeHtml(target.id)}">
-      <img src="${escapeHtml(itemIconSrc(item))}" alt="" />
+      ${itemIconMarkup(item)}
       <span class="npc-shop-item">
         <strong>${escapeHtml(keepName)}</strong>
         <span>${count} owned | Keeps best | +1 ${escapeHtml(stat.label)} | Consumes ${consumeLabel}</span>
@@ -24261,11 +24276,10 @@ function crystalItemProcLevelRoll(levelOffset) {
 function rollCrystalFreezingAttack(attacker, enemy) {
   const freezing = Math.max(0, Math.trunc(Number(attacker?.freezing) || 0));
   if (freezing <= 0 || !enemy || enemy.hp <= 0) return 0;
-  const rawChance = Math.min(1, freezing / FREEZING_ATTACK_WEIGHT);
-  const chanceCap = bossDropTableForEnemy(enemy)
-    ? FREEZING_BOSS_PROC_CHANCE_CAP
-    : FREEZING_NORMAL_PROC_CHANCE_CAP;
-  if (Math.random() >= Math.min(rawChance, chanceCap)) return 0;
+  const procChance = bossDropTableForEnemy(enemy)
+    ? Math.min(FREEZING_BOSS_MAX_PROC_CHANCE, (freezing / FREEZING_BOSS_MAX_STAT) * FREEZING_BOSS_MAX_PROC_CHANCE)
+    : Math.min(FREEZING_NORMAL_PROC_CHANCE_CAP, freezing / FREEZING_ATTACK_WEIGHT);
+  if (Math.random() >= procChance) return 0;
   if (!crystalItemProcLevelRoll(crystalItemProcLevelOffset(attacker, enemy))) return 0;
   return Math.min(10, 3 + randomInt(0, freezing - 1)) * 1000;
 }
@@ -27271,7 +27285,7 @@ function hotbarSlotHtml(slot) {
         draggable="false"
         title="${escapeHtml(itemDisplayName(item, entry))}"
       >
-        <img src="${escapeHtml(itemIconSrc(item))}" alt="" />
+        ${itemIconMarkup(item)}
         ${isStackableItem(item) && entry.quantity > 1 ? `<span class="hotbar-qty">${entry.quantity}</span>` : ""}
       </button>
     `
@@ -28715,8 +28729,9 @@ function buildStampArenaDrawList(displayFrame) {
   if (state.showEnemies && state.battle.enemy && !groupDungeonSwarmActive()) {
     const visible = state.battle.enemyRevealed || state.enemy.action === "show";
     if (visible) {
+      const enemyMapRowOffset = arenaEnemyVisualDrawOffset().mapRow;
       entities.push({
-        zRow: spawnRow,
+        zRow: spawnRow + enemyMapRowOffset,
         worldX: Number(state.battle.enemyX) || 0,
         kindRank: STAMP_ARENA_KIND_RANK.enemy,
         draw: (ctx) => drawEnemyCanvas(ctx),
@@ -29123,7 +29138,7 @@ function drawEnemyCanvas(ctx) {
   if (!atlas || !clip || !meta || meta.empty) return;
   const sheet = cachedImage(monsterAtlasPngUrl(state.enemy.index));
   if (!sheet) return;
-  const { x: anchorX, y: anchorY } = combatAnchor("enemy");
+  const { x: anchorX, y: anchorY } = enemyVisualAnchor();
   drawAtlasFrame(ctx, sheet, atlas.slotWidth, atlas.slotHeight, meta, anchorX, anchorY);
   drawEnemyActionBlendCanvas(ctx, atlas, sheet, anchorX, anchorY, state.enemy.action, state.enemy.frame);
   drawEnemyDebuffTintCanvas(ctx, atlas, sheet, anchorX, anchorY, state.enemy.action, state.enemy.frame, enemyDebuffTint(state.battle.enemy));
@@ -30861,7 +30876,7 @@ function mapObjectSetById(objectSetId) {
 }
 
 function preferredMapSetOrder(sets) {
-  const priority = ["wemade-mir2-custom", "oma-cave", "prajna-cave", "prajna-temple", "wooma-temple", "stone-temple", "zuma-temple", "wemade-mir2", "forest", "shanda-mir2", "wemade-mir3", "wood", "sand", "snow"];
+  const priority = ["wemade-mir2-custom", "oma-cave", "prajna-cave", "viper-cave", "prajna-temple", "wooma-temple", "stone-temple", "zuma-temple", "bdd-dungeon", "wemade-mir2", "forest", "shanda-mir2", "wemade-mir3", "wood", "sand", "snow"];
   return [...sets].sort((a, b) => {
     const aIndex = priority.indexOf(a.id);
     const bIndex = priority.indexOf(b.id);
@@ -30878,6 +30893,24 @@ function arenaLaneYRatio(zone = activeZone()) {
 
 function arenaLaneYPx(zone = activeZone()) {
   return Math.floor(state.stageHeight * arenaLaneYRatio(zone));
+}
+
+// Visual-only nudge for stamp-arena bosses (sprite draw + z-row); combatAnchor / enemyX unchanged.
+function arenaEnemyVisualDrawOffset(zone = activeZone()) {
+  return {
+    x: Math.trunc(Number(zone?.arenaEnemyVisualOffsetX) || 0),
+    y: Math.trunc(Number(zone?.arenaEnemyVisualOffsetY) || 0),
+    mapRow: Math.trunc(Number(zone?.arenaEnemyMapRowOffset) || 0),
+  };
+}
+
+function enemyVisualAnchor() {
+  const base = combatAnchor("enemy");
+  const offset = arenaEnemyVisualDrawOffset();
+  return {
+    x: base.x + offset.x,
+    y: base.y + offset.y,
+  };
 }
 
 function combatAnchor(name) {

@@ -2314,7 +2314,7 @@ function crystalEquipmentItemHtml(entry, item, slotId) {
       draggable="false"
       title="${escapeHtml(G.itemDisplayName(item, entry))}"
     >
-      <img src="${escapeHtml(G.itemIconSrc(item))}" alt="" />
+      ${G.itemIconMarkup(item)}
     </div>
   `;
 }
@@ -2343,7 +2343,7 @@ function crystalStorageItemHtml(entry, item) {
       draggable="false"
       title="${escapeHtml(G.itemDisplayName(item, entry))}"
     >
-      <img src="${escapeHtml(G.itemIconSrc(item))}" alt="" />
+      ${G.itemIconMarkup(item)}
       ${stack}
     </div>
   `;
@@ -2376,7 +2376,7 @@ function crystalInventoryItemHtml(entry, item) {
       draggable="false"
       title="${escapeHtml(G.itemDisplayName(item, entry))}"
     >
-      <img src="${escapeHtml(G.itemIconSrc(item))}" alt="" />
+      ${G.itemIconMarkup(item)}
       ${stack}
     </div>
   `;

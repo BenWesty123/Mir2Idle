@@ -2797,19 +2797,55 @@ const STONE_TEMPLE_KINGS_ROOM_VISUALS = {
   mapStampOnly: true,
 };
 
+// Crystal SnakePre/SnakePre2 walkable floor: Tiles.Lib 2951-2955; walls from Objects5 (tools/build-viper-cave-*.ps1).
+const VIPER_CAVE_TILE_PATTERN = [
+  [0, 2, 4, 1, 3, 0, 2, 4, 1, 3, 0, 2],
+  [3, 1, 0, 4, 2, 3, 1, 0, 4, 2, 3, 1],
+  [2, 4, 3, 0, 1, 2, 4, 3, 0, 1, 2, 4],
+  [1, 0, 2, 3, 4, 1, 0, 2, 3, 4, 1, 0],
+  [4, 3, 1, 2, 0, 4, 3, 1, 2, 0, 4, 3],
+  [0, 1, 3, 4, 2, 0, 1, 3, 4, 2, 0, 1],
+];
+
+const VIPER_CAVE_DECOR_PERIOD = 4000;
+const VIPER_CAVE_DECOR_ROWS = [-4.2, -3.4, -3.0, -2.6, -2.1, -1.6, -1.2, -0.8, 0.45, 0.75, 1.05, 1.35];
+const VIPER_CAVE_DECORATIONS = [
+  // Sheet slots 0-9: catalog #22 #32 #31 #38 #55 #69 #77 #5 #12 #86
+  { id: "vc-catalog-22", slots: [0], worldX: 180, repeatEvery: VIPER_CAVE_DECOR_PERIOD },
+  { id: "vc-catalog-32", slots: [1], worldX: 500, repeatEvery: VIPER_CAVE_DECOR_PERIOD },
+  { id: "vc-catalog-31", slots: [2], worldX: 820, repeatEvery: VIPER_CAVE_DECOR_PERIOD },
+  { id: "vc-catalog-38", slots: [3], worldX: 1140, repeatEvery: VIPER_CAVE_DECOR_PERIOD },
+  { id: "vc-catalog-55", slots: [4], worldX: 1460, repeatEvery: VIPER_CAVE_DECOR_PERIOD },
+  { id: "vc-catalog-69", slots: [5], worldX: 1780, repeatEvery: VIPER_CAVE_DECOR_PERIOD },
+  { id: "vc-catalog-77", slots: [6], worldX: 2100, repeatEvery: VIPER_CAVE_DECOR_PERIOD },
+  { id: "vc-catalog-5", slots: [7], worldX: 2420, repeatEvery: VIPER_CAVE_DECOR_PERIOD },
+  { id: "vc-catalog-12", slots: [8], worldX: 2740, repeatEvery: VIPER_CAVE_DECOR_PERIOD },
+  { id: "vc-catalog-86", slots: [9], worldX: 3060, repeatEvery: VIPER_CAVE_DECOR_PERIOD },
+];
+
 const VIPER_CAVE_VISUALS = {
-  mapSet: "stone-temple",
+  mapSet: "viper-cave",
   backdrop: "cave",
-  groundTopRows: 6,
-  decorationSet: "stone-temple-catalog",
-  decorations: STONE_TEMPLE_DECORATIONS,
+  groundTopRows: 5,
+  groundBottomRows: 1,
+  stageMinWidth: 780,
+  stageMinHeight: 480,
+  stageMaxHeight: 540,
+  decorationSet: "viper-cave-catalog",
+  decorationRows: VIPER_CAVE_DECOR_ROWS,
+  decorations: VIPER_CAVE_DECORATIONS,
   objectPattern: [],
 };
 
 const VIPER_CAVE_KINGS_ROOM_VISUALS = {
-  ...VIPER_CAVE_VISUALS,
+  backdrop: "cave",
   decorations: [],
-  arenaLaneY: 0.82,
+  objectPattern: [],
+  mapStamp: "viper-cave-kr-center",
+  mapStampOnly: true,
+  stageMinWidth: 780,
+  stageMinHeight: 480,
+  stageMaxHeight: 540,
 };
 
 const ZUMA_TEMPLE_TILE_PATTERN = [
@@ -3446,7 +3482,7 @@ export const PHASE1_ZONES = [
     enemyIds: [410, 411, 410, 411, 410, 411],
     rewards: { gold: [190, 310] },
     ...VIPER_CAVE_VISUALS,
-    tilePattern: STONE_TEMPLE_TILE_PATTERN,
+    tilePattern: VIPER_CAVE_TILE_PATTERN,
   },
   {
     id: "zone-viper-cave-2",
@@ -3455,7 +3491,7 @@ export const PHASE1_ZONES = [
     enemyIds: [412, 413, 412, 413, 415],
     rewards: { gold: [230, 380] },
     ...VIPER_CAVE_VISUALS,
-    tilePattern: STONE_TEMPLE_TILE_PATTERN,
+    tilePattern: VIPER_CAVE_TILE_PATTERN,
   },
   {
     id: "zone-viper-cave-kr",
@@ -3464,8 +3500,12 @@ export const PHASE1_ZONES = [
     enemyIds: [414],
     rewards: { gold: [850, 1400] },
     arenaSpawnDistance: 180,
+    // Crystal SNAKE.map — party stand picked via viper-cave-kr-spot-picker
+    arenaSpawnMap: { x: 132, y: 126 },
+    arenaFocusMap: { x: 132, y: 126 },
+    // Visual-only: nudge sprite east (away from player); combat anchor / melee range unchanged.
+    arenaEnemyVisualOffsetX: 48,
     ...VIPER_CAVE_KINGS_ROOM_VISUALS,
-    tilePattern: STONE_TEMPLE_TILE_PATTERN,
   },
   {
     id: "zone-prajna-cave-1",

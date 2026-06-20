@@ -2315,7 +2315,7 @@ function traderSellRowHtml(entry, item) {
   const value = G.itemSellValue(item, quantity);
   return `
     <div class="npc-shop-row trader-sell-row" data-tooltip-item="${G.escapeHtml(item.id)}" data-tooltip-entry="${G.escapeHtml(entry.id)}">
-      <img src="${G.escapeHtml(G.itemIconSrc(item))}" alt="" />
+      ${G.itemIconMarkup(item)}
       <span class="npc-shop-item">
         <strong>${G.escapeHtml(G.itemDisplayName(item, entry))}${stack}</strong>
         <span>${G.escapeHtml(shopItemMetaText(item))}</span>
@@ -2340,7 +2340,7 @@ function shopBuyRowHtml(item) {
     : "";
   return `
     <div class="npc-shop-row shop-buy-row ${canBuy ? "" : "locked"}" data-tooltip-item="${G.escapeHtml(item.id)}">
-      <img src="${G.escapeHtml(G.itemIconSrc(item))}" alt="" />
+      ${G.itemIconMarkup(item)}
       <span class="npc-shop-item">
         <strong>${G.escapeHtml(item.name)}</strong>
         <span>${G.escapeHtml(shopItemMetaText(item))}${owned ? ` | Have ${owned}` : ""}</span>
