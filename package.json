@@ -12,6 +12,7 @@
     "export:monster-atlases": "powershell -ExecutionPolicy Bypass -File tools/export-monster-atlases.ps1",
     "audit:phase1": "node tools/build-phase1-content-audit.mjs",
     "build:phase1-items": "node tools/build-phase1-items.mjs",
+    "drops:merge": "node tools/merge-item-drops.mjs",
     "build:crystal-item-catalog": "node tools/build-crystal-item-catalog.mjs",
     "build:sfx": "node tools/build-sfx-assets.mjs",
     "audit:release": "node tools/audit-release-assets.mjs",
@@ -21,6 +22,6 @@
     "audit:itch": "node tools/audit-itch-package.mjs",
     "release:itch": "npm run audit:release && npm run package:itch && npm run verify:itch && npm run audit:itch",
     "split:app": "node tools/split-app.mjs",
-    "check": "node --check src/app.js && node tools/check-game-modules.mjs && node --check src/atlas.js && node --check src/groupDungeonSwarm.js && node --check src/playerActions.js && node --check src/spellBodyActions.js && node --check src/battleData.js && node --check src/phase1Data.js && node --check src/warriorMagic.js && node --check tools/build-phase1-items.mjs && node --check tools/build-sfx-assets.mjs && node --check tools/itch-spellfx-manifest.mjs && node --check tools/verify-itch-release.mjs && node --check tools/package-itch.mjs && node --check tools/audit-itch-package.mjs && node --check tools/server.mjs && node --check tools/stats-worker/worker.js && npm run verify:itch:source"
+    "check": "node --check src/app.js && node tools/check-game-modules.mjs && node --check src/atlas.js && node --check src/groupDungeonSwarm.js && node --check src/playerActions.js && node --check src/spellBodyActions.js && node --check src/battleData.js && node --check src/phase1Data.js && node --check src/warriorMagic.js && node --check tools/build-phase1-items.mjs && node --check tools/merge-item-drops.mjs && node --check tools/build-sfx-assets.mjs && node --check tools/itch-spellfx-manifest.mjs && node --check tools/verify-itch-release.mjs && node --check tools/package-itch.mjs && node --check tools/audit-itch-package.mjs && node --check tools/server.mjs && node --check tools/stats-worker/worker.js && npm run verify:itch:source"
   }
 }

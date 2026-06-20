@@ -2160,6 +2160,7 @@ function enemyActionBlendKey(action) {
   if (action === "walking") return "walkingBlend";
   if (action === "attack1") return "attack1Blend";
   if (action === "attackRange1") return "attackRange1Blend";
+  if (action === "die") return "dieBlend";
   return null;
 }
 

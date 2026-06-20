@@ -961,6 +961,60 @@ export const KING_HOG_BOSS_DROPS = {
     ...bossOrbDrops(0.02),
   ],
 };
+export const DARK_DEVIL_BOSS_DROPS = {
+  gold: 45000,
+  benedictionOils: 3,
+  items: [
+    { id: "awakening-soul", chance: 0.85 },
+    { id: "oma-spirit-ring", chance: 0.25 },
+    { id: "heaven-sword", chance: 0.008 },
+    { id: "heaven-armour", chance: 0.008 },
+    { id: "sword-of-war-god", chance: 0.04 },
+    { id: "blade-of-sorcery", chance: 0.04 },
+    { id: "dragon-slayer", chance: 0.08 },
+    { id: "dragon-staff", chance: 0.08 },
+    { id: "soul-sabre", chance: 0.08 },
+    { id: "judgement-mace", chance: 0.18 },
+    { id: "war-mage-staff", chance: 0.18 },
+    { id: "soul-spring-wand", chance: 0.18 },
+    { id: "war-spirit-blade", chance: 0.18 },
+    { id: "magic-scythe", chance: 0.18 },
+    { id: "stone-bamboo-fan", chance: 0.18 },
+    { id: "steel-armour", chance: 0.12 },
+    { id: "dragon-robe", chance: 0.12 },
+    { id: "titan-armour", chance: 0.12 },
+    { id: "skeleton-helmet", chance: 0.1 },
+    { id: "black-iron-helmet", chance: 0.06 },
+    { id: "shaman-helmet", chance: 0.06 },
+    { id: "brass-helmet", chance: 0.05 },
+    { id: "death-gauntlet", chance: 0.06 },
+    { id: "claw-necklace", chance: 0.1 },
+    { id: "pearl-necklace", chance: 0.1 },
+    { id: "life-necklace", chance: 0.1 },
+    { id: "spirit-necklace", chance: 0.1 },
+    { id: "gale-necklace", chance: 0.08 },
+    { id: "green-bead", chance: 0.06 },
+    { id: "demonic-bells", chance: 0.06 },
+    { id: "soul-necklace", chance: 0.06 },
+    { id: "knight-bracelet", chance: 0.08 },
+    { id: "soul-spring-bracelet", chance: 0.08 },
+    { id: "dragon-bracelet", chance: 0.08 },
+    { id: "dragon-ring", chance: 0.1 },
+    { id: "ruby-ring", chance: 0.1 },
+    { id: "platinum-ring", chance: 0.1 },
+    { id: "power-ring", chance: 0.08 },
+    { id: "titan-ring", chance: 0.08 },
+    { id: "violet-ring", chance: 0.08 },
+    { id: "spirit-ring", chance: 0.08 },
+    { id: "expel-ring", chance: 0.08 },
+    { id: "gale-ring", chance: 0.06 },
+    { id: "impact-drug-m", chance: 0.15 },
+    { id: "magic-drug-m", chance: 0.15 },
+    { id: "taoist-drug-m", chance: 0.15 },
+    ...bossGemDrops(0.12),
+    ...bossOrbDrops(0.025),
+  ],
+};
 export const MINOTAUR_KING_BOSS_DROPS = {
   gold: 25000,
   items: [
@@ -1017,6 +1071,7 @@ export const BOSS_DROP_TABLE_BY_LABEL = {
   "Minotaur King": MINOTAUR_KING_BOSS_DROPS,
   "Oma King Spirit": OMA_KING_SPIRIT_BOSS_DROPS,
   "King Hog": KING_HOG_BOSS_DROPS,
+  "Dark Devil": DARK_DEVIL_BOSS_DROPS,
 };
 export const RED_THUNDER_ZUMA_ENEMY_ID = 271;
 export const ZUMA_TAURUS_ENEMY_ID = 272;
@@ -1024,6 +1079,7 @@ export const BONE_LORD_ENEMY_ID = 279;
 export const MINOTAUR_KING_ENEMY_ID = 287;
 export const OMA_KING_SPIRIT_ENEMY_ID = 291;
 export const KING_HOG_ENEMY_ID = 316;
+export const DARK_DEVIL_ENEMY_ID = 319;
 export const MINOTAUR_KING_AOE_EVERY_N_ATTACKS = 5;
 export const PRAJNA_GUARD_ENEMY_IDS = new Set([285, 286]);
 export const RED_THUNDER_ZUMA_ZUMA_WEAPON_CHANCE = 0.02;
@@ -1252,6 +1308,8 @@ export const TELEPORT_REGIONS = [
       "zone-bdd-8",
       "zone-bdd-10",
       "zone-bdd-11",
+      "zone-bdd-12",
+      "zone-bdd-13",
     ],
   },
   {
@@ -1282,8 +1340,8 @@ export const TOWN_VISUALS = {
   stageMaxHeight: 480,
 };
 
-export const MAP_STAMP_ASSET_VERSION = "20260618-bdd-zuma-palace-28-24";
-export const MONSTER_ASSET_VERSION = "20260618-rtz-lightning";
+export const MAP_STAMP_ASSET_VERSION = "20260619-bdd-dark-devil-27-34";
+export const MONSTER_ASSET_VERSION = "20260619-dark-devil-77";
 
 export const TOWN_NPCS = [
   {
@@ -1734,6 +1792,7 @@ export function installConstants() {
   g.KING_SCORPION_BOSS_DROPS = KING_SCORPION_BOSS_DROPS;
   g.OMA_KING_SPIRIT_BOSS_DROPS = OMA_KING_SPIRIT_BOSS_DROPS;
   g.KING_HOG_BOSS_DROPS = KING_HOG_BOSS_DROPS;
+  g.DARK_DEVIL_BOSS_DROPS = DARK_DEVIL_BOSS_DROPS;
   g.MINOTAUR_KING_BOSS_DROPS = MINOTAUR_KING_BOSS_DROPS;
   g.BOSS_DROP_TABLE_BY_LABEL = BOSS_DROP_TABLE_BY_LABEL;
   g.BOSS_GEM_ITEM_IDS = BOSS_GEM_ITEM_IDS;
@@ -1746,6 +1805,7 @@ export function installConstants() {
   g.MINOTAUR_KING_ENEMY_ID = MINOTAUR_KING_ENEMY_ID;
   g.OMA_KING_SPIRIT_ENEMY_ID = OMA_KING_SPIRIT_ENEMY_ID;
   g.KING_HOG_ENEMY_ID = KING_HOG_ENEMY_ID;
+  g.DARK_DEVIL_ENEMY_ID = DARK_DEVIL_ENEMY_ID;
   g.MINOTAUR_KING_AOE_EVERY_N_ATTACKS = MINOTAUR_KING_AOE_EVERY_N_ATTACKS;
   g.PRAJNA_GUARD_ENEMY_IDS = PRAJNA_GUARD_ENEMY_IDS;
   g.RED_THUNDER_ZUMA_ZUMA_WEAPON_CHANCE = RED_THUNDER_ZUMA_ZUMA_WEAPON_CHANCE;

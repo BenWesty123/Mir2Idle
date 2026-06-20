@@ -180,6 +180,7 @@ const groups = [
       ...monsterSounds("Bone Blademan", 91),
       ...monsterSounds("Bone Archer", 92),
       ...monsterSounds("Bone Lord", 93, { range: 935 }),
+      ...monsterSounds("Dark Devil", 77, { range: 775 }),
       // Prajna Temple: monsterIndex is crystalIndex; Crystal BaseSound uses image * 10.
       ...monsterSoundsByImage("Minotaur", 361, 94),
       ...monsterSoundsByImage("Ice Minotaur", 363, 95),

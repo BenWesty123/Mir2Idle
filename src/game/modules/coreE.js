@@ -698,6 +698,13 @@ function isKingHogEnemy(enemy) {
   return enemy.id === (G.KING_HOG_ENEMY_ID ?? 316) || enemy.crystalName === "KingHog";
 }
 
+function isDarkDevilEnemy(enemy) {
+  if (!enemy) return false;
+  return enemy.attackMode === "darkDevil"
+    || enemy.id === (G.DARK_DEVIL_ENEMY_ID ?? 319)
+    || enemy.crystalName === "DarkDevil";
+}
+
 function isOmaKingSpiritEnemy(enemy) {
   if (!enemy) return false;
   return enemy.id === OMA_KING_SPIRIT_ENEMY_ID || enemy.crystalName === "OmaKingSpirit";
@@ -1911,6 +1918,7 @@ G.isIncarnatedWoomaTaurusEnemy = isIncarnatedWoomaTaurusEnemy;
 G.isIncarnatedZumaTaurusEnemy = isIncarnatedZumaTaurusEnemy;
 G.isOmaKingSpiritEnemy = isOmaKingSpiritEnemy;
 G.isKingHogEnemy = isKingHogEnemy;
+G.isDarkDevilEnemy = isDarkDevilEnemy;
 G.isPoisonItem = isPoisonItem;
 G.isTaoistAmuletItem = isTaoistAmuletItem;
 G.poisonItemKind = poisonItemKind;

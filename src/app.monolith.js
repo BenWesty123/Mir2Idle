@@ -57,6 +57,12 @@ import {
   swarmPickWalkStep,
   swarmSnapTileX,
   swarmTileOccupied,
+  travelProjectileAngleRad,
+  travelProjectileBaseFrame,
+  travelProjectileFrameMeta,
+  swarmProjectileTileCoords,
+  swarmProjectileTravelPoint,
+  swarmEnemyRangedProjectileOrigin,
   GROUP_DUNGEON_WAVE_SPAWN_CAP,
   GROUP_DUNGEON_WAVE_FIELD_CAP,
   GROUP_DUNGEON_WAVE_REFILL_THRESHOLD,
@@ -68,6 +74,10 @@ import {
   groupDungeonWaveSpawnCount,
   createGroupDungeonWaveState,
 } from "./groupDungeonSwarm.js";
+import {
+  createZumaArcherSwarmAttack,
+  isZumaArcherSwarmEnemy,
+} from "./zumaArcherSwarm.js";
 import {
   BUFF_POTION_DURATION_MS,
   applyStatBuffsToStats,
@@ -982,10 +992,86 @@ const MINOTAUR_KING_BOSS_DROPS = {
   ],
 };
 const YIMOOGI_BOSS_DROPS = {
-  gold: 30000,
+  gold: 15000,
   benedictionOils: 1,
   items: [
-    { id: "awakening-soul", chance: 0.3 },
+    { id: "awakening-soul", chance: 0.35 },
+    { id: "judgement-mace", chance: 0.1 },
+    { id: "war-mage-staff", chance: 0.1 },
+    { id: "soul-spring-wand", chance: 0.1 },
+    { id: "war-spirit-blade", chance: 0.05 },
+    { id: "magic-scythe", chance: 0.05 },
+    { id: "stone-bamboo-fan", chance: 0.05 },
+    { id: "dragon-slayer", chance: 0.025 },
+    { id: "dragon-staff", chance: 0.025 },
+    { id: "soul-sabre", chance: 0.025 },
+    { id: "steel-armour", chance: 0.1 },
+    { id: "dragon-robe", chance: 0.1 },
+    { id: "titan-armour", chance: 0.1 },
+    { id: "black-iron-helmet", chance: 0.1 },
+    { id: "helmet-of-hero", chance: 0.1 },
+    { id: "great-helmet", chance: 0.1 },
+    { id: "wisdom-coronet", chance: 0.1 },
+    { id: "tao-coronet", chance: 0.1 },
+    { id: "silk-boots", chance: 0.05 },
+    { id: "black-boots", chance: 0.05 },
+    { id: "dragon-boots", chance: 0.05 },
+    { id: "chain-belt", chance: 0.05 },
+    { id: "steel-belt", chance: 0.05 },
+    { id: "gold-belt", chance: 0.05 },
+    { id: "claw-necklace", chance: 0.1 },
+    { id: "life-necklace", chance: 0.1 },
+    { id: "pearl-necklace", chance: 0.1 },
+    { id: "green-bead", chance: 0.05 },
+    { id: "soul-necklace", chance: 0.05 },
+    { id: "demonic-bells", chance: 0.05 },
+    { id: "hero-necklace", chance: 0.03 },
+    { id: "adamantine-necklace", chance: 0.03 },
+    { id: "requiem-necklace", chance: 0.03 },
+    { id: "gale-necklace", chance: 0.03 },
+    { id: "gold-bracelet", chance: 0.1 },
+    { id: "knight-bracelet", chance: 0.1 },
+    { id: "spell-bracelet", chance: 0.1 },
+    { id: "3rd-eye-bracelet", chance: 0.1 },
+    { id: "steel-glove", chance: 0.1 },
+    { id: "black-iron-bracelet", chance: 0.05 },
+    { id: "dragon-bracelet", chance: 0.05 },
+    { id: "soul-spring-bracelet", chance: 0.05 },
+    { id: "8-trigram-wheel", chance: 0.05 },
+    { id: "hang-ma-wheel", chance: 0.05 },
+    { id: "bok-ma-wheel", chance: 0.05 },
+    { id: "baek-ta-glove", chance: 0.03 },
+    { id: "spirit-reformer", chance: 0.03 },
+    { id: "holy-tao-wheel", chance: 0.03 },
+    { id: "dragon-ring", chance: 0.1 },
+    { id: "ruby-ring", chance: 0.1 },
+    { id: "platinum-ring", chance: 0.1 },
+    { id: "power-ring", chance: 0.05 },
+    { id: "violet-ring", chance: 0.05 },
+    { id: "titan-ring", chance: 0.05 },
+    { id: "oma-spirit-ring", chance: 0.05 },
+    { id: "noble-ring", chance: 0.03 },
+    { id: "soul-ring", chance: 0.03 },
+    { id: "boundless-ring", chance: 0.03 },
+    { id: "thunder-ring", chance: 0.03 },
+    { id: "tae-guk-ring", chance: 0.03 },
+    { id: "sun-potion-medium", chance: 1 },
+    { id: "sun-potion-medium", chance: 1 },
+    { id: "sun-potion-medium", chance: 1 },
+    { id: "sun-potion-medium", chance: 1 / 2 },
+    { id: "sun-potion-medium", chance: 1 / 2 },
+    { id: "sun-potion-medium", chance: 1 / 2 },
+    { id: "sun-potion", chance: 1 },
+    { id: "sun-potion", chance: 1 },
+    { id: "sun-potion", chance: 1 },
+    { id: "sun-potion", chance: 1 / 2 },
+    { id: "sun-potion", chance: 1 / 2 },
+    { id: "sun-potion", chance: 1 / 2 },
+    { id: "sun-potion", chance: 1 / 2 },
+    { id: "sun-potion", chance: 1 / 2 },
+    { id: "magic-drug-s", chance: 1 / 60 },
+    { id: "impact-drug-s", chance: 1 / 60 },
+    { id: "taoist-drug-s", chance: 1 / 60 },
     ...bossGemDrops(0.06),
     ...bossOrbDrops(0.012),
   ],
@@ -1044,6 +1130,60 @@ const KING_HOG_BOSS_DROPS = {
     ...bossOrbDrops(0.02),
   ],
 };
+const DARK_DEVIL_BOSS_DROPS = {
+  gold: 45000,
+  benedictionOils: 3,
+  items: [
+    { id: "awakening-soul", chance: 0.85 },
+    { id: "oma-spirit-ring", chance: 0.25 },
+    { id: "heaven-sword", chance: 0.008 },
+    { id: "heaven-armour", chance: 0.008 },
+    { id: "sword-of-war-god", chance: 0.04 },
+    { id: "blade-of-sorcery", chance: 0.04 },
+    { id: "dragon-slayer", chance: 0.08 },
+    { id: "dragon-staff", chance: 0.08 },
+    { id: "soul-sabre", chance: 0.08 },
+    { id: "judgement-mace", chance: 0.18 },
+    { id: "war-mage-staff", chance: 0.18 },
+    { id: "soul-spring-wand", chance: 0.18 },
+    { id: "war-spirit-blade", chance: 0.18 },
+    { id: "magic-scythe", chance: 0.18 },
+    { id: "stone-bamboo-fan", chance: 0.18 },
+    { id: "steel-armour", chance: 0.12 },
+    { id: "dragon-robe", chance: 0.12 },
+    { id: "titan-armour", chance: 0.12 },
+    { id: "skeleton-helmet", chance: 0.1 },
+    { id: "black-iron-helmet", chance: 0.06 },
+    { id: "shaman-helmet", chance: 0.06 },
+    { id: "brass-helmet", chance: 0.05 },
+    { id: "death-gauntlet", chance: 0.06 },
+    { id: "claw-necklace", chance: 0.1 },
+    { id: "pearl-necklace", chance: 0.1 },
+    { id: "life-necklace", chance: 0.1 },
+    { id: "spirit-necklace", chance: 0.1 },
+    { id: "gale-necklace", chance: 0.08 },
+    { id: "green-bead", chance: 0.06 },
+    { id: "demonic-bells", chance: 0.06 },
+    { id: "soul-necklace", chance: 0.06 },
+    { id: "knight-bracelet", chance: 0.08 },
+    { id: "soul-spring-bracelet", chance: 0.08 },
+    { id: "dragon-bracelet", chance: 0.08 },
+    { id: "dragon-ring", chance: 0.1 },
+    { id: "ruby-ring", chance: 0.1 },
+    { id: "platinum-ring", chance: 0.1 },
+    { id: "power-ring", chance: 0.08 },
+    { id: "titan-ring", chance: 0.08 },
+    { id: "violet-ring", chance: 0.08 },
+    { id: "spirit-ring", chance: 0.08 },
+    { id: "expel-ring", chance: 0.08 },
+    { id: "gale-ring", chance: 0.06 },
+    { id: "impact-drug-m", chance: 0.15 },
+    { id: "magic-drug-m", chance: 0.15 },
+    { id: "taoist-drug-m", chance: 0.15 },
+    ...bossGemDrops(0.12),
+    ...bossOrbDrops(0.025),
+  ],
+};
 const BOSS_DROP_TABLE_BY_LABEL = {
   "Wooma Taurus": WOMA_TAURUS_BOSS_DROPS,
   "Incarnated Wooma Taurus": INCARNATED_WT_BOSS_DROPS,
@@ -1057,6 +1197,7 @@ const BOSS_DROP_TABLE_BY_LABEL = {
   "Yimoogi": YIMOOGI_BOSS_DROPS,
   "Oma King Spirit": OMA_KING_SPIRIT_BOSS_DROPS,
   "King Hog": KING_HOG_BOSS_DROPS,
+  "Dark Devil": DARK_DEVIL_BOSS_DROPS,
 };
 const RED_THUNDER_ZUMA_ENEMY_ID = 271;
 const ZUMA_TAURUS_ENEMY_ID = 272;
@@ -1069,6 +1210,7 @@ const FLAMING_MUTANT_ENEMY_ID = 295;
 const SCALY_BEAST_ENEMY_ID = 296;
 const OMA_KING_SPIRIT_ENEMY_ID = 291;
 const KING_HOG_ENEMY_ID = 316;
+const DARK_DEVIL_ENEMY_ID = 319;
 const MINOTAUR_KING_AOE_EVERY_N_ATTACKS = 5;
 const MASS_BURST_IMPACT_MS = 750;
 const MASS_BURST_COOLDOWN_MIN_MS = 2000;
@@ -1312,8 +1454,10 @@ const TELEPORT_REGIONS = [
       "zone-bdd-8",
       "zone-bdd-10",
       "zone-bdd-11",
+      "zone-bdd-12",
+      "zone-bdd-13",
     ],
-  },,
+  },
   {
     id: "extended-boss-lab",
     label: "Extended Boss Lab",
@@ -1342,8 +1486,8 @@ const TOWN_VISUALS = {
   stageMaxHeight: 480,
 };
 
-const MAP_STAMP_ASSET_VERSION = "20260618-bdd-zuma-palace-28-24";
-const MONSTER_ASSET_VERSION = "20260618-rtz-lightning";
+const MAP_STAMP_ASSET_VERSION = "20260619-bdd-dark-devil-27-34";
+const MONSTER_ASSET_VERSION = "20260620-zuma-archer-aim-center";
 const COMBAT_LOG_SUMMARY_PREFIX = "Combat:";
 
 // --- Restored offline group-dungeon simulator (recovered from src/game split) ---
@@ -2402,6 +2546,7 @@ const state = {
     activeWizardSpell: null,
     activeWizardSpellAtlas: null,
     activeWizardSpellStartedAt: 0,
+    activeWizardSpellCenterTile: null,
     activeTaoSpell: null,
     activeTaoSpellAtlas: null,
     activeTaoSpellStartedAt: 0,
@@ -10574,6 +10719,9 @@ function completeEnemySpawnReveal(now = performance.now()) {
   state.battle.enemyAggro = true;
   const enemy = state.battle.enemy;
   state.battle.nextEnemyAttackAt = now + Math.max(400, Math.trunc(Number(enemy?.attackMs) || 1400));
+  if (isDarkDevilEnemy(enemy)) {
+    enemy._darkDevilRangeReadyAt = now;
+  }
   pushBattleLog(`${enemy?.name ?? "The boss"} rises from the darkness!`);
 }
 
@@ -11338,7 +11486,7 @@ function updateEnemyPoisons(now, options = {}) {
   }
 
   if (enemy.hp <= 0 && !options.offline && !suppressSimulationRender) {
-    if (groupDungeonSwarmActive()) {
+    if (groupDungeonSwarmSideActive()) {
       syncBattleEnemyHpToSwarm();
       maybeKillGroupDungeonSwarmEnemy(enemy, now);
     } else {
@@ -14576,9 +14724,97 @@ async function advanceGroupDungeonFloor() {
   await enterZone(nextZone.id);
 }
 
+
 function groupDungeonSwarmActive() {
-  return groupDungeonZone() && Boolean(state.battle.bossParty?.active && state.battle.swarm);
+  return groupDungeonZone()
+    && Boolean(state.battle.bossParty?.active && state.battle.swarm && !state.battle.swarm.bossReinforcements);
 }
+
+function groupDungeonBossReinforcementsZone(zone = activeZone()) {
+  return Boolean(zone?.groupDungeon && zone?.groupDungeonBoss && zone?.groupDungeonBossReinforcements);
+}
+
+function groupDungeonBossReinforcementsConfig(zone = activeZone()) {
+  const base = zone?.groupDungeonBossReinforcementsConfig ?? {};
+  return {
+    templateId: Math.trunc(Number(base.templateId) || 309),
+    spawnIntervalMs: Math.max(500, Math.trunc(Number(base.spawnIntervalMs) || 2000)),
+    firstSpawnDelayMs: Math.max(0, Math.trunc(Number(base.firstSpawnDelayMs) || 2000)),
+    maxLiving: Math.max(1, Math.trunc(Number(base.maxLiving) || 16)),
+  };
+}
+
+function groupDungeonBossReinforcementsActive() {
+  return groupDungeonBossReinforcementsZone()
+    && Boolean(state.battle.bossParty?.active && state.battle.swarm?.bossReinforcements);
+}
+
+function groupDungeonSwarmSideActive() {
+  return groupDungeonSwarmActive() || groupDungeonBossReinforcementsActive();
+}
+
+function initGroupDungeonBossReinforcements(now, zone = activeZone()) {
+  const config = groupDungeonBossReinforcementsConfig(zone);
+  state.battle.swarm = {
+    bossReinforcements: true,
+    enemies: [],
+    nextId: 0,
+    reinforcements: {
+      nextSpawnAt: now + config.firstSpawnDelayMs,
+      spawned: 0,
+      config,
+    },
+  };
+}
+
+function spawnGroupDungeonBossReinforcement(now = performance.now()) {
+  const swarm = state.battle.swarm;
+  if (!swarm?.bossReinforcements) return null;
+  const config = swarm.reinforcements?.config ?? groupDungeonBossReinforcementsConfig();
+  const living = groupDungeonSwarmLivingCount(swarm);
+  if (living >= config.maxLiving) return null;
+  const template = ENEMY_TEMPLATES.find((entry) => entry.id === config.templateId);
+  if (!template) return null;
+  const arenaSpawnRow = arenaSpawnMapRow();
+  const spawned = swarm.reinforcements?.spawned ?? 0;
+  const spawnLane = GROUP_DUNGEON_SWARM_LANES[spawned % GROUP_DUNGEON_SWARM_LANES.length];
+  const enemy = buildSwarmEnemyFromTemplate(template, now, {
+    mapRow: swarmLaneMapRow(spawnLane, arenaSpawnRow),
+  });
+  while (swarmTileOccupied(enemy.worldX, enemy.mapRow, swarm.enemies, enemy.id)) {
+    enemy.worldX += LANE_TILE_PX;
+  }
+  swarm.enemies.push(enemy);
+  swarm.reinforcements.spawned += 1;
+  swarm.reinforcements.nextSpawnAt = now + config.spawnIntervalMs;
+  void ensureSwarmEnemyAtlas(enemy);
+  if (swarm.reinforcements.spawned === 1) {
+    pushBattleLog(`${template.name} reinforcements join the fight.`);
+  }
+  return enemy;
+}
+
+function updateGroupDungeonBossReinforcements(now) {
+  const swarm = state.battle.swarm;
+  if (!swarm?.bossReinforcements) return;
+  if ((state.battle.enemy?.hp ?? 0) <= 0 || state.battle.bossParty?.finished) return;
+  if (now < (swarm.reinforcements?.nextSpawnAt ?? 0)) return;
+  spawnGroupDungeonBossReinforcement(now);
+}
+
+function updateBossPartyReinforcementSwarm(now) {
+  if (!groupDungeonBossReinforcementsActive()) return;
+  updateGroupDungeonBossReinforcements(now);
+  updateSwarmEnemyPendingStrikes(now);
+  updateGroupDungeonSwarmMovement(now);
+  pruneGroupDungeonSwarmEnemies(now);
+  runGroupDungeonSwarmAttackPass(now);
+  const swarm = state.battle.swarm;
+  for (const swarmEnemy of swarm.enemies) {
+    tryConsumeSwarmEnemyPendingStruck(swarmEnemy, now);
+  }
+}
+
 
 function clearGroupDungeonRunState() {
   state.battle.swarm = null;
@@ -15034,7 +15270,7 @@ function groupDungeonSwarmFireWallInRange(center, spell, member) {
 }
 
 function groupDungeonSwarmBestFireWallCenterTile(spell, member, now) {
-  if (!groupDungeonSwarmActive()) return null;
+  if (!groupDungeonSwarmSideActive()) return null;
   const enemies = groupDungeonSwarmLivingEnemies();
   if (!enemies.length) return null;
 
@@ -15073,6 +15309,76 @@ function groupDungeonSwarmBestFireWallCenterTile(spell, member, now) {
     }
   }
   return best;
+}
+
+function groupDungeonSwarmBangCandidateCentersForTile(tile) {
+  const targetKey = groupDungeonFireWallTileKey(tile);
+  const candidates = [];
+  const xs = [
+    tile.worldX - GROUP_DUNGEON_SWARM_TILE_PX,
+    tile.worldX,
+    tile.worldX + GROUP_DUNGEON_SWARM_TILE_PX,
+  ];
+  for (const mapRow of groupDungeonSwarmFireWallRows()) {
+    for (const worldX of xs) {
+      const center = { worldX: swarmSnapTileX(worldX), mapRow };
+      const coversTarget = spellBangAreaTiles(center.worldX, center.mapRow)
+        .some((bangTile) => groupDungeonFireWallTileKey(bangTile) === targetKey);
+      if (coversTarget) candidates.push(center);
+    }
+  }
+  return candidates;
+}
+
+function groupDungeonSwarmBangInRange(center, spell, member) {
+  const casterX = Number(member?.worldX ?? state.battle.playerX);
+  if (!Number.isFinite(casterX)) return true;
+  const rangeTiles = Math.max(1, Math.trunc(Number(spell?.range) || 9));
+  return Math.abs(center.worldX - casterX) <= rangeTiles * GROUP_DUNGEON_SWARM_TILE_PX;
+}
+
+function groupDungeonSwarmBestBangCenterTile(spell, member = null) {
+  if (!groupDungeonSwarmSideActive()) return null;
+  const enemies = groupDungeonSwarmLivingEnemies();
+  if (!enemies.length) return null;
+
+  const candidates = new Map();
+  for (const enemy of enemies) {
+    const tile = swarmEnemyReservedTile(enemy);
+    for (const center of groupDungeonSwarmBangCandidateCentersForTile(tile)) {
+      if (!groupDungeonSwarmBangInRange(center, spell, member)) continue;
+      candidates.set(groupDungeonFireWallTileKey(center), center);
+    }
+  }
+
+  let best = null;
+  let bestScore = -Infinity;
+  const meleeX = groupDungeonSwarmMeleeWorldX();
+  for (const center of candidates.values()) {
+    const bangTiles = new Set(spellBangAreaTiles(center.worldX, center.mapRow).map(groupDungeonFireWallTileKey));
+    let hits = 0;
+    let remainingHp = 0;
+    let nearestHitDistance = Infinity;
+    for (const enemy of enemies) {
+      const tile = swarmEnemyReservedTile(enemy);
+      if (!bangTiles.has(groupDungeonFireWallTileKey(tile))) continue;
+      hits += 1;
+      remainingHp += Math.max(0, Math.trunc(Number(enemy.hp) || 0));
+      nearestHitDistance = Math.min(nearestHitDistance, Math.abs(tile.worldX - meleeX) / GROUP_DUNGEON_SWARM_TILE_PX);
+    }
+    if (hits <= 0) continue;
+    const centerDistancePenalty = Math.abs(center.worldX - meleeX) / GROUP_DUNGEON_SWARM_TILE_PX;
+    const score = hits * 1000 + remainingHp / 1000 - nearestHitDistance * 2 - centerDistancePenalty;
+    if (score > bestScore) {
+      best = center;
+      bestScore = score;
+    }
+  }
+  return best;
+}
+
+function canUseGroupDungeonSwarmBangSpell(spell, member = null) {
+  return Boolean(groupDungeonSwarmBestBangCenterTile(spell, member));
 }
 
 function canUseGroupDungeonSwarmFireWall(spell, member, now) {
@@ -15305,7 +15611,13 @@ function maybeTriggerEnemyEnrage(enemy, now = performance.now()) {
       changed = true;
     }
   }
-  if (changed) enemy._enrageStagesTriggered = triggered;
+  if (changed) {
+    enemy._enrageStagesTriggered = triggered;
+    if (isDarkDevilEnemy(enemy)) {
+      enemy._darkDevilRangeReadyAt = now;
+      pushBattleLog(`${enemy.name} enters a rage!`);
+    }
+  }
 }
 
 function reduceSwarmEnemyHp(swarmEnemy, damage, now = performance.now()) {
@@ -15393,7 +15705,7 @@ function tryConsumeSwarmEnemyPendingStruck(enemy, now) {
 }
 
 function strikeGroupDungeonSwarmEnemy(enemy, now) {
-  if (!groupDungeonSwarmActive() || !enemy?.swarmId) {
+  if (!groupDungeonSwarmSideActive() || !enemy?.swarmId) {
     setEnemyAction("struck", true, now);
     return;
   }
@@ -15402,13 +15714,14 @@ function strikeGroupDungeonSwarmEnemy(enemy, now) {
 }
 
 function maybeKillGroupDungeonSwarmEnemy(enemy, now) {
-  if (!groupDungeonSwarmActive() || !enemy?.swarmId || enemy.hp > 0) return;
+  if (!groupDungeonSwarmSideActive() || !enemy?.swarmId || enemy.hp > 0) return;
   const swarmEnemy = findGroupDungeonSwarmEnemy(enemy.swarmId);
   if (swarmEnemy && !swarmEnemy.dying) onGroupDungeonSwarmEnemyKilled(swarmEnemy, now);
 }
 
 function syncGroupDungeonPrimaryEnemy() {
-  if (!state.battle.swarm) return;
+  const swarm = state.battle.swarm;
+  if (!swarm || swarm.bossReinforcements) return;
   const primary = groupDungeonPrimarySwarmEnemy();
   if (!primary) {
     if (groupDungeonBossSwarmState()) {
@@ -15673,10 +15986,11 @@ function onGroupDungeonSwarmEnemyKilled(swarmEnemy, now = performance.now()) {
   playMonsterSfx("death", swarmEnemy);
   pushBattleLog(`${swarmEnemy.name} is defeated.`);
   const waves = groupDungeonWaveState();
-  if (waves) waves.killedThisWave += 1;
+  if (waves && !groupDungeonBossReinforcementsActive()) waves.killedThisWave += 1;
   markGroupDungeonWaveUiDirty();
   syncGroupDungeonPrimaryEnemy();
 }
+
 
 function isIncarnatedRedThunderZumaEnemy(enemy) {
   if (!enemy) return false;
@@ -15686,6 +16000,15 @@ function isIncarnatedRedThunderZumaEnemy(enemy) {
 
 function isRedThunderZumaSwarmEnemy(swarmEnemy) {
   return swarmEnemy?.templateId === INCARNATED_RTZ_ENEMY_ID;
+}
+
+function syncPrimarySwarmVisual(swarmEnemy, attackAction, now) {
+  if (state.battle.swarm?.bossReinforcements) return;
+  if (swarmEnemy.id !== groupDungeonPrimarySwarmEnemy()?.id) return;
+  state.enemy.action = attackAction;
+  state.enemy.frame = 0;
+  state.enemy.oneShot = true;
+  state.enemy.lastTick = now;
 }
 
 function redThunderZumaAttackRangeTiles(enemy) {
@@ -15721,12 +16044,77 @@ function bossPartyRandomLivingRangedTarget() {
   return pool[Math.floor(Math.random() * pool.length)];
 }
 
+function bossPartyLivingTargetsInSwarmRange(tile, partyRow, rangeTiles) {
+  return bossPartyAllLivingTargets().filter(
+    (target) => swarmRangeTilesBetween(tile.worldX, tile.mapRow, target.worldX, partyRow) <= rangeTiles,
+  );
+}
+
+function bossPartyRandomRangedTargetInSwarmRange(tile, partyRow, rangeTiles) {
+  const inRange = bossPartyLivingTargetsInSwarmRange(tile, partyRow, rangeTiles);
+  if (!inRange.length) return null;
+  const tank = bossPartyFrontTarget();
+  const nonTank = tank ? inRange.filter((target) => target !== tank) : inRange;
+  const pool = nonTank.length ? nonTank : inRange;
+  return pool[Math.floor(Math.random() * pool.length)];
+}
+
 function bossPartyCombatTargetAnchor(target) {
   if (!target) return combatAnchor("player");
   return {
     x: Math.round((Number(target.worldX) ?? state.battle.playerX) - state.battle.cameraX),
-    y: Math.floor(state.stageHeight * LANE.y),
+    y: Math.round(state.stageHeight * LANE.y + 2),
   };
+}
+
+// Aim arrows at the middle of the *visible* sprite pixels (offsetY..offsetY+h), not the full slot.
+const ZUMA_ARCHER_TORSO_FRACTION = 0.5;
+
+function torsoAnchorFromFrame(anchorX, anchorY, atlas, meta, fallbackY) {
+  if (!atlas || !meta || meta.empty) {
+    return { x: Math.round(anchorX), y: Math.round(fallbackY) };
+  }
+  const width = Number(meta.w) || atlas.slotWidth || 0;
+  const height = Number(meta.h) || atlas.slotHeight || 0;
+  const offsetX = Number(meta.offsetX) || 0;
+  const offsetY = Number(meta.offsetY) || 0;
+  return {
+    x: Math.round(anchorX + offsetX + width / 2),
+    y: Math.round(anchorY + offsetY + height * ZUMA_ARCHER_TORSO_FRACTION),
+  };
+}
+
+/** Torso aim point for party sprites (mid-height of the rendered body, not the foot line). */
+function bossPartyMemberTorsoAnchor(member) {
+  const anchorX = Math.round((Number(member?.worldX ?? state.battle.playerX)) - state.battle.cameraX);
+  const anchorY = Math.floor(state.stageHeight * LANE.y);
+  const action = member?.visualAction ?? (member?.alive !== false ? "stance" : "die");
+  const torsoLayers = ["armour", "hair", "weapon", "weaponBack", "weaponFront", "weaponAlt", "effect"];
+  for (const layer of torsoLayers) {
+    const atlas = member?.visualAtlases?.[layer]
+      ?? (member?.classId === bossPartyControlledClassId() ? state.atlases[layer] : null);
+    if (!atlas) continue;
+    const clip = atlas.actions?.[action] ?? atlas.actions?.stance ?? atlas.actions?.standing;
+    const frameIndex = Math.max(0, Math.min(Number(member?.visualFrame) || 0, (clip?.frames?.length ?? 1) - 1));
+    const meta = clip?.frames?.[frameIndex] ?? clip?.frames?.[0];
+    if (!clip || !meta || meta.empty) continue;
+    return torsoAnchorFromFrame(anchorX, anchorY, atlas, meta, anchorY - 40);
+  }
+  return { x: anchorX, y: Math.round(anchorY - 40) };
+}
+
+/** Zuma Archer travel arrow aim point — torso center, not feet. */
+function zumaArcherProjectileTargetAnchor(target) {
+  const party = state.battle.bossParty;
+  if (target === party?.pet) {
+    const pet = state.battle.taoPet;
+    const anchor = taoistPetAnchor();
+    const atlas = taoPetAtlasFor(pet);
+    const clip = atlas?.actions?.[pet?.action];
+    const meta = clip?.frames?.[pet?.frame ?? 0] ?? clip?.frames?.[0];
+    return torsoAnchorFromFrame(anchor.x, anchor.y, atlas, meta, anchor.y - 28);
+  }
+  return bossPartyMemberTorsoAnchor(target);
 }
 
 function swarmRangeTilesBetween(worldXA, mapRowA, worldXB, mapRowB) {
@@ -15741,12 +16129,7 @@ function redThunderZumaSwarmMeleeAttack(swarmEnemy, entity, target, tile, partyR
   const lane = swarmLaneFromMapRow(tile.mapRow, partyRow);
   const attackAction = swarmAttackActionForLane(lane);
   setSwarmEnemyAction(swarmEnemy, attackAction, true, now);
-  if (swarmEnemy.id === groupDungeonPrimarySwarmEnemy()?.id) {
-    state.enemy.action = attackAction;
-    state.enemy.frame = 0;
-    state.enemy.oneShot = true;
-    state.enemy.lastTick = now;
-  }
+  syncPrimarySwarmVisual(swarmEnemy, attackAction, now);
   playMonsterSfx("attack", swarmEnemy);
   applySwarmEnemyStrikeToTarget(swarmEnemy, entity, target, now, { ranged: false });
   swarmEnemy.nextAttackAt = now + effectiveEnemyAttackMs(swarmEnemy, now);
@@ -15759,12 +16142,7 @@ function redThunderZumaSwarmRangedAttack(swarmEnemy, entity, target, now) {
     ? "attackRange2"
     : (swarmEnemy.atlas?.actions?.attackRange1 ? "attackRange1" : "attack1");
   setSwarmEnemyAction(swarmEnemy, attackAction, true, now);
-  if (swarmEnemy.id === groupDungeonPrimarySwarmEnemy()?.id) {
-    state.enemy.action = attackAction;
-    state.enemy.frame = 0;
-    state.enemy.oneShot = true;
-    state.enemy.lastTick = now;
-  }
+  syncPrimarySwarmVisual(swarmEnemy, attackAction, now);
   playMonsterSfx("attack", swarmEnemy);
   swarmEnemy.pendingStrike = {
     startedAt: now,
@@ -15796,10 +16174,8 @@ function beginRedThunderZumaSwarmAttack(swarmEnemy, now) {
     }
   }
 
-  const target = bossPartyRandomLivingRangedTarget();
+  const target = bossPartyRandomRangedTargetInSwarmRange(tile, partyRow, rangeTiles);
   if (!target) return false;
-  const distanceTiles = swarmRangeTilesBetween(tile.worldX, tile.mapRow, target.worldX, partyRow);
-  if (distanceTiles > rangeTiles) return false;
 
   return redThunderZumaSwarmRangedAttack(swarmEnemy, entity, target, now);
 }
@@ -15839,11 +16215,33 @@ const applySwarmEnemyStrikeToTarget = (swarmEnemy, entity, target, now, { ranged
   if (target !== state.battle.bossParty?.pet && target.hp <= 0) bossPartyMarkMemberDead(target, now);
 }
 
-function resolveRedThunderZumaSwarmRangedStrike(swarmEnemy, strike, now) {
+const beginZumaArcherSwarmAttack = createZumaArcherSwarmAttack({
+  swarmEnemyToBattleEntity,
+  arenaSpawnMapRow,
+  bossPartyFrontTarget,
+  bossPartyRandomRangedTargetInSwarmRange,
+  swarmRangeTilesBetween,
+  setSwarmEnemyAction,
+  syncPrimarySwarmVisual,
+  playMonsterSfx,
+  enemyAttackSfxKind,
+  swarmEnemyScreenAnchor,
+  zumaArcherProjectileTargetAnchor,
+  enemyProjectileVfxUntil,
+  effectiveEnemyAttackMs,
+  applySwarmEnemyStrikeToTarget,
+  enemyRevealed: () => Boolean(state.battle.enemyRevealed),
+});
+
+function resolveSwarmRangedStrike(swarmEnemy, strike, now) {
   const target = strike?.target;
   if (!target || (target.hp ?? 0) <= 0) return;
   const entity = swarmEnemyToBattleEntity(swarmEnemy);
   applySwarmEnemyStrikeToTarget(swarmEnemy, entity, target, now, { ranged: true });
+}
+
+function resolveRedThunderZumaSwarmRangedStrike(swarmEnemy, strike, now) {
+  resolveSwarmRangedStrike(swarmEnemy, strike, now);
 }
 
 function updateSwarmEnemyPendingStrikes(now) {
@@ -15854,7 +16252,11 @@ function updateSwarmEnemyPendingStrikes(now) {
     if (!strike) continue;
     if (now >= strike.at && !strike.resolved) {
       strike.resolved = true;
-      resolveRedThunderZumaSwarmRangedStrike(swarmEnemy, strike, now);
+      if (isRedThunderZumaSwarmEnemy(swarmEnemy)) {
+        resolveRedThunderZumaSwarmRangedStrike(swarmEnemy, strike, now);
+      } else {
+        resolveSwarmRangedStrike(swarmEnemy, strike, now);
+      }
     }
     if (now >= (Number(strike.vfxUntil) || strike.at)) {
       swarmEnemy.pendingStrike = null;
@@ -15866,6 +16268,9 @@ function groupDungeonSwarmEnemyAttack(swarmEnemy, now) {
   if (isRedThunderZumaSwarmEnemy(swarmEnemy)) {
     return beginRedThunderZumaSwarmAttack(swarmEnemy, now);
   }
+  if (isZumaArcherSwarmEnemy(swarmEnemy)) {
+    return beginZumaArcherSwarmAttack(swarmEnemy, now);
+  }
   const target = bossPartyFrontTarget();
   if (!swarmEnemy || !target || swarmEnemy.hp <= 0 || !state.battle.enemyRevealed) return false;
   const meleeCol = swarmSnapTileX(groupDungeonSwarmMeleeWorldX());
@@ -15873,12 +16278,7 @@ function groupDungeonSwarmEnemyAttack(swarmEnemy, now) {
   const lane = swarmLaneFromMapRow(swarmEnemyTilePosition(swarmEnemy).mapRow, arenaSpawnMapRow());
   const attackAction = swarmAttackActionForLane(lane);
   setSwarmEnemyAction(swarmEnemy, attackAction, true, now);
-  if (swarmEnemy.id === groupDungeonPrimarySwarmEnemy()?.id) {
-    state.enemy.action = attackAction;
-    state.enemy.frame = 0;
-    state.enemy.oneShot = true;
-    state.enemy.lastTick = now;
-  }
+  syncPrimarySwarmVisual(swarmEnemy, attackAction, now);
   playMonsterSfx("attack", swarmEnemy);
   const { hit, damage } = resolveIncomingEnemyAttack(swarmEnemy, defenceTargetForIncomingAttack(target));
   if (!hit) {
@@ -15904,6 +16304,24 @@ function groupDungeonSwarmEnemyAttack(swarmEnemy, now) {
   pushBattleLog(`${swarmEnemy.name} hits ${target.name} for ${damage}.`);
   if (target !== state.battle.bossParty.pet && target.hp <= 0) bossPartyMarkMemberDead(target, now);
   return true;
+}
+
+function runGroupDungeonSwarmAttackPass(now) {
+  const swarm = state.battle.swarm;
+  if (!swarm?.enemies?.length) return;
+  for (const swarmEnemy of swarm.enemies) {
+    if (swarmEnemy.hp <= 0 || swarmEnemy.dying) continue;
+    if (enemyFrozenActive(swarmEnemy, now)) continue;
+    if (swarmEnemy.pendingStrike) continue;
+    if (swarmEnemy.stepToX != null) continue;
+    if (swarmEnemy.oneShot && swarmEnemy.action !== "standing") continue;
+    if (now < (swarmEnemy.nextAttackAt ?? 0)) continue;
+    if (groupDungeonSwarmEnemyAttack(swarmEnemy, now)) {
+      if (!isRedThunderZumaSwarmEnemy(swarmEnemy) && !isZumaArcherSwarmEnemy(swarmEnemy)) {
+        swarmEnemy.nextAttackAt = now + effectiveEnemyAttackMs(swarmEnemy, now);
+      }
+    }
+  }
 }
 
 function updateGroupDungeonBossPartyBattle(now) {
@@ -15961,19 +16379,7 @@ function updateGroupDungeonBossPartyBattle(now) {
     bossPartyMemberAction(member, now);
   }
 
-  for (const swarmEnemy of swarm.enemies) {
-    if (swarmEnemy.hp <= 0 || swarmEnemy.dying) continue;
-    if (enemyFrozenActive(swarmEnemy, now)) continue;
-    if (swarmEnemy.pendingStrike) continue;
-    if (swarmEnemy.stepToX != null) continue;
-    if (swarmEnemy.oneShot && swarmEnemy.action !== "standing") continue;
-    if (now < (swarmEnemy.nextAttackAt ?? 0)) continue;
-    if (groupDungeonSwarmEnemyAttack(swarmEnemy, now)) {
-      if (!isRedThunderZumaSwarmEnemy(swarmEnemy)) {
-        swarmEnemy.nextAttackAt = now + effectiveEnemyAttackMs(swarmEnemy, now);
-      }
-    }
-  }
+  runGroupDungeonSwarmAttackPass(now);
 
   // Crystal ActionFeed ordering: flinches play only after movement and attacks resolve.
   for (const swarmEnemy of swarm.enemies) {
@@ -17463,6 +17869,9 @@ function beginBossPartyFight(zoneId, now = performance.now()) {
       state.enemy.index = enemy.monsterIndex;
       void reloadEnemyAtlas();
     }
+    if (groupDungeonBossReinforcementsZone(entryZone)) {
+      initGroupDungeonBossReinforcements(now, entryZone);
+    }
   } else if (enemy?.monsterIndex) {
     state.enemy.index = enemy.monsterIndex;
     void reloadEnemyAtlas();
@@ -17824,7 +18233,7 @@ function bossPartyMemberEnemyDistance(member) {
 function bossPartyPetEnemyDistance(pet, enemy = state.battle.enemy) {
   if (!pet || !enemy) return Infinity;
   const petX = resolvedTaoPetWorldX(pet);
-  if (groupDungeonSwarmActive() && enemy.swarmId) {
+  if (groupDungeonSwarmSideActive() && enemy.swarmId) {
     const swarmEnemy = findGroupDungeonSwarmEnemy(enemy.swarmId);
     if (swarmEnemy) return Math.max(0, (Number(swarmEnemy.worldX) || 0) - petX);
   }
@@ -18163,6 +18572,7 @@ function updateBossPartyBattle(now) {
   }
   updateBossPartyMeleeAdvance(now);
   bossPartyAdvanceEnemy(now);
+  updateBossPartyReinforcementSwarm(now);
   bossPartySyncControlledPlayerRef();
   if (!isPlayerOneShotAction()) setPlayerLocomotion("stance", now);
   return true;
@@ -18171,6 +18581,7 @@ function updateBossPartyBattle(now) {
 function updateBossPartyAftermath(now) {
   const party = state.battle.bossParty;
   if (!party?.finished || !state.battle.enemy) return false;
+  updatePendingEnemyStrike(now);
   bossPartySyncControlledPlayerRef();
   for (const member of party.members) updateBossPartyMemberRestState(member, now);
   updateBossPartyVisualFrames(now);
@@ -18448,7 +18859,7 @@ function bossPartyWizardAction(member, now) {
     const learned = bossPartyLearned(member, candidate.id);
     if (!canWizardCastSpell(candidate, learned, now, member)) return false;
     if (candidate.id === "FireWall") return bossPartyFireWallHasUsefulTarget(candidate, member, now);
-    if (candidate.id === "IceStorm" && wizardBangTargetCount() < 2) return false;
+    if (!wizardAutoSpellEligible(candidate, member)) return false;
     return true;
   });
   if (!spell) return bossPartyWeaponAttack(member, now);
@@ -18462,23 +18873,25 @@ function bossPartyWizardAction(member, now) {
 
   if (spell.id === "FireWall") {
     const value = rollWizardMagicValue(spell, learned, member);
-    const centerTile = groupDungeonSwarmActive()
+    const centerTile = groupDungeonSwarmSideActive()
       ? groupDungeonSwarmBestFireWallCenterTile(spell, member, now)
       : null;
-    if (groupDungeonSwarmActive() && !centerTile) return false;
+    if (groupDungeonSwarmSideActive() && !centerTile) return false;
     createWizardGroundSpellEffect(spell, { value, worldX: state.battle.enemyX, centerTile }, now, member, learned);
     pushBattleLog(`${member.classId} casts ${spell.label}${centerTile ? " into the swarm" : ` under ${enemy.name}`}.`);
     return true;
   }
   if (spell.impactMode === "bang") {
     const baseValue = rollWizardMagicValue(spell, learned, member);
+    const centerTile = wizardBangCenterTile(enemy, spell, member);
+    state.battle.activeWizardSpellCenterTile = centerTile;
     partyBossImpacts().push({
       at: now + wizardImpactDelay(spell, state.wizardSpellAtlases[spell.id] ?? null),
       spellId: spell.id,
       label: spell.label,
       baseValue,
       bang: true,
-      centerTile: wizardBangCenterTile(enemy),
+      centerTile,
       casterClassId: member.classId,
     });
     pushBattleLog(`${member.classId} casts ${spell.label}.`);
@@ -18666,6 +19079,7 @@ function bossPartyControlledVisual(member, skill, bodyAction, now) {
   state.battle.activeWizardSpell = member.classId === "Wizard" ? skill?.id ?? null : null;
   state.battle.activeWizardSpellAtlas = member.classId === "Wizard" ? (state.wizardSpellAtlases[skill?.id] ?? null) : null;
   state.battle.activeWizardSpellStartedAt = now;
+  state.battle.activeWizardSpellCenterTile = null;
   state.battle.activeTaoSpell = member.classId === "Taoist" ? skill?.id ?? null : null;
   state.battle.activeTaoSpellAtlas = member.classId === "Taoist" ? (state.taoistSpellAtlases[skill?.id] ?? null) : null;
   state.battle.activeTaoSpellStartedAt = now;
@@ -19201,7 +19615,7 @@ function bossPartyGroundEffectActive(spellId, now) {
 }
 
 function bossPartyFireWallHasUsefulTarget(spell, member, now) {
-  if (groupDungeonSwarmActive()) return canUseGroupDungeonSwarmFireWall(spell, member, now);
+  if (groupDungeonSwarmSideActive()) return canUseGroupDungeonSwarmFireWall(spell, member, now);
   return !bossPartyGroundEffectActive("FireWall", now);
 }
 
@@ -19585,6 +19999,7 @@ function isKingHogEnemy(enemy = state.battle.enemy) {
   return enemy?.id === KING_HOG_ENEMY_ID || enemy?.crystalName === "KingHog";
 }
 
+
 function isKingScorpionEnemy(enemy = state.battle.enemy) {
   return enemy?.attackMode === "kingScorpion" || enemy?.crystalName === "KingScorpion";
 }
@@ -19593,6 +20008,157 @@ function isScalyBeastEnemy(enemy = state.battle.enemy) {
   return enemy?.attackMode === "scalyBeast"
     || enemy?.id === SCALY_BEAST_ENEMY_ID
     || enemy?.crystalName === "ScalyBeast";
+}
+
+function isDarkDevilEnemy(enemy = state.battle.enemy) {
+  return enemy?.attackMode === "darkDevil"
+    || enemy?.id === DARK_DEVIL_ENEMY_ID
+    || enemy?.crystalName === "DarkDevil";
+}
+
+function darkDevilBurstTargets(enemy = state.battle.enemy) {
+  if (!enemy || enemy.hp <= 0 || !state.battle.enemyRevealed) return [];
+  const targets = [];
+  const consider = (kind, entity, logName) => {
+    if (!entity || (entity.hp ?? 0) <= 0) return;
+    targets.push({
+      kind,
+      entity,
+      logName,
+      stats: defenceStatsForEntity(entity),
+    });
+  };
+  if (bossPartyActiveFight()) {
+    const party = state.battle.bossParty;
+    if (party?.pet?.active) consider("pet", party.pet, party.pet.name);
+    for (const member of party?.members ?? []) {
+      if (!member.alive || (member.hp ?? 0) <= 0) continue;
+      consider("member", member, member.classId);
+    }
+    return targets;
+  }
+  const battle = state.battle;
+  if (taoistPetCanTank() && battle.taoPet?.active && (battle.taoPet.hp ?? 0) > 0) {
+    consider("pet", battle.taoPet, battle.taoPet.name);
+  }
+  if ((battle.player?.hp ?? 0) > 0) {
+    consider("player", battle.player, battle.combatClass);
+  }
+  return targets;
+}
+
+function darkDevilMeleeRange(enemy = state.battle.enemy) {
+  const tiles = Math.max(1, Math.trunc(Number(enemy?.darkDevilMeleeRangeTiles) || 1));
+  return bossPartyActiveFight() ? tiles * LANE_TILE_PX : LANE.enemyRange;
+}
+
+function darkDevilRangeReady(enemy = state.battle.enemy, now = performance.now()) {
+  return now >= (Number(enemy?._darkDevilRangeReadyAt) || 0);
+}
+
+function scheduleDarkDevilRangeCooldown(enemy = state.battle.enemy, now = performance.now()) {
+  const enraged = enemyEnrageActive(enemy, now);
+  const minMs = Math.max(
+    0,
+    Math.trunc(Number(enraged ? enemy.darkDevilEnrageRangeCooldownMinMs : enemy.darkDevilRangeCooldownMinMs) || (enraged ? 800 : 2000)),
+  );
+  const maxMs = Math.max(
+    minMs,
+    Math.trunc(Number(enraged ? enemy.darkDevilEnrageRangeCooldownMaxMs : enemy.darkDevilRangeCooldownMaxMs) || (enraged ? 1800 : 5000)),
+  );
+  enemy._darkDevilRangeReadyAt = now + minMs + Math.floor(Math.random() * (maxMs - minMs + 1));
+}
+
+function darkDevilTargetDistance() {
+  if (bossPartyActiveFight()) {
+    const target = bossPartyFrontTarget();
+    return target ? bossPartyTargetEnemyDistance(target) : Infinity;
+  }
+  return enemyTargetDistance();
+}
+
+function darkDevilUsesRangeAttack(enemy = state.battle.enemy, now = performance.now()) {
+  if (enemyEnrageActive(enemy, now) && enemy.enrageAlwaysRanged) return true;
+  return darkDevilRangeReady(enemy, now);
+}
+
+function canDarkDevilAttack() {
+  const battle = state.battle;
+  if (battle.phase !== "engaged" || !battle.enemyRevealed || !battle.enemy?.hp) return false;
+  if (enemyFrozenActive(battle.enemy)) return false;
+  if (!battle.enemyAggro) return false;
+  const enemy = battle.enemy;
+  if (darkDevilUsesRangeAttack(enemy)) {
+    return darkDevilBurstTargets(enemy).length > 0;
+  }
+  return darkDevilTargetDistance() <= darkDevilMeleeRange(enemy);
+}
+
+function resolveDarkDevilBurstTarget(enemy, target, now, offsetIndex = 0) {
+  const multiplier = Math.max(1, Number(enemy.darkDevilRangeDamageMultiplier) || 3);
+  const boosted = { ...enemy, dc: scaleStatRange(enemy.dc, multiplier) };
+  resolveSplashStrikeTarget(boosted, target, now, offsetIndex, {
+    defenceType: enemy.rangedAttackDefenceType || "MACAgility",
+    ranged: true,
+  });
+}
+
+function beginDarkDevilAttack(now) {
+  if (state.battle.pendingEnemyStrike) return false;
+  const enemy = state.battle.enemy;
+  if (!canDarkDevilAttack()) return false;
+
+  if (darkDevilUsesRangeAttack(enemy, now)) {
+    scheduleDarkDevilRangeCooldown(enemy, now);
+    const startedAt = now;
+    const moveDurationMs = Math.max(0, Math.trunc(Number(enemy.attackImpactDelayMs) || 500));
+    const impactAt = startedAt + moveDurationMs;
+    const projectile = state.enemy.atlas?.projectile;
+    state.battle.pendingEnemyStrike = {
+      kind: "darkDevilBurst",
+      at: impactAt,
+      startedAt,
+      ranged: true,
+      moveDurationMs,
+      vfxUntil: Math.max(impactAt, enemyProjectileVfxUntil(startedAt, projectile)),
+    };
+    setEnemyAction(enemy.atlas?.actions?.attackRange1 ? "attackRange1" : "attack1", true, now);
+    playMonsterSfx("attack", enemy, { force: true, throttleMs: 0 });
+    return true;
+  }
+
+  const target = bossPartyActiveFight() ? bossPartyFrontTarget() : null;
+  if (bossPartyActiveFight()) {
+    if (!target) return false;
+    setEnemyAction("attack1", true, now);
+    playMonsterSfx("attack", enemy);
+    const { hit, damage } = resolveIncomingEnemyAttack(enemy, defenceTargetForIncomingAttack(target));
+    if (!hit) {
+      addCombatText(target.classId === bossPartyControlledClassId() ? "player" : "enemy", "Miss", "miss", now);
+      pushBattleLog(`${enemy.name} misses ${target.name}.`);
+      return true;
+    }
+    target.hp = Math.max(0, target.hp - damage);
+    if (target === state.battle.bossParty.pet) {
+      setTaoPetAction("struck", true, now);
+      if (target.hp <= 0) bossPartyMarkPetDead(now);
+    } else if (target.classId === bossPartyControlledClassId()) {
+      setPlayerAction("struck", now + 250, true);
+      addCombatText("player", damage, "enemyDamage", now);
+      playSfx("player.flinch", bossPartySfxParams(target, 0.45, 120));
+    } else {
+      target.visualAction = "struck";
+      target.visualFrame = 0;
+      target.visualOneShot = true;
+      target.visualLastTick = now;
+      playSfx("player.flinch", bossPartySfxParams(target, 0.45, 120));
+    }
+    pushBattleLog(`${enemy.name} hits ${target.name} for ${damage}.`);
+    if (target !== state.battle.bossParty.pet && target.hp <= 0) bossPartyMarkMemberDead(target, now);
+    return true;
+  }
+
+  return enemyAttack(now);
 }
 
 function isFlamingMutantEnemy(enemy = state.battle.enemy) {
@@ -20149,6 +20715,7 @@ function resolveSplashStrikeTarget(enemy, target, now, offsetIndex = 0, options 
   }
 }
 
+
 function beginScalyBeastAttack(now) {
   if (state.battle.pendingEnemyStrike) return false;
   if (!canScalyBeastAttack()) return false;
@@ -20216,6 +20783,7 @@ function canBoneLordAttack() {
   if (!battle.enemyAggro) return false;
   return boneLordTargetDistance() <= boneLordAttackRange(battle.enemy);
 }
+
 
 function boneLordProjectileTargetAnchor() {
   if (bossPartyActiveFight()) {
@@ -20878,6 +21446,20 @@ function updatePendingEnemyStrike(now) {
     if (now >= vfxUntil) state.battle.pendingEnemyStrike = null;
     return;
   }
+  if (strike.kind === "darkDevilBurst") {
+    if (now >= strike.at && !strike.resolved) {
+      strike.resolved = true;
+      const enemy = state.battle.enemy;
+      if (!enemy || enemy.hp <= 0 || !state.battle.enemyRevealed) {
+        if (now >= vfxUntil) state.battle.pendingEnemyStrike = null;
+        return;
+      }
+      const targets = darkDevilBurstTargets(enemy);
+      targets.forEach((target, index) => resolveDarkDevilBurstTarget(enemy, target, now, index));
+    }
+    if (now >= vfxUntil) state.battle.pendingEnemyStrike = null;
+    return;
+  }
   if (now >= strike.at && !strike.resolved) {
     strike.resolved = true;
     const enemy = state.battle.enemy;
@@ -20900,6 +21482,7 @@ function bossPartyEnemyAttack(now) {
   if (isEvilCentipedeEnemy(enemy)) return beginEvilCentipedeAttack(now);
   if (isMassBurstEnemy(enemy)) return beginMassBurstAttack(now);
   if (isScalyBeastEnemy(enemy)) return beginScalyBeastAttack(now);
+  if (isDarkDevilEnemy(enemy)) return beginDarkDevilAttack(now);
   if (isKingScorpionEnemy(enemy)) return beginKingScorpionAttack(now);
   if (enemyHasRangedMeleeAttack(enemy)) return beginBoneLordAttack(now);
   const target = bossPartyFrontTarget();
@@ -21103,7 +21686,9 @@ function finishBossPartyEnemy(now) {
   state.battle.nextPlayerAttackAt = 0;
   state.battle.nextEnemyAttackAt = 0;
   state.battle.nextEnemySpawnAt = 0;
+  clearGroupDungeonRunState();
   clearTwinDrakePendingState();
+  state.battle.pendingEnemyStrike = null;
   state.battle.attachedSpellFx = (state.battle.attachedSpellFx ?? []).filter((entry) => entry.spellId !== "TwinDrakeBlade");
   syncBossPartyMembersToCharacters(party, { applyControlled: true });
   persistCharacterGameLocation({
@@ -21178,6 +21763,7 @@ function bossDropTableForEnemy(enemy = state.battle.enemy) {
   if (isYimoogiEnemy(enemy)) return YIMOOGI_BOSS_DROPS;
   if (isOmaKingSpiritEnemy(enemy)) return OMA_KING_SPIRIT_BOSS_DROPS;
   if (isKingHogEnemy(enemy)) return KING_HOG_BOSS_DROPS;
+  if (isDarkDevilEnemy(enemy)) return DARK_DEVIL_BOSS_DROPS;
   return null;
 }
 
@@ -22279,7 +22865,7 @@ function updatePendingTwinDrakeHits(now) {
     pushBattleLog(`Twin Drake Blade hits ${battle.enemy.name} again for ${damage}.`);
     if (entry.applyStun) tryApplyTwinDrakeStun(battle.enemy, learned, now);
     if (battle.enemy.hp <= 0) {
-      if (groupDungeonSwarmActive()) {
+      if (groupDungeonSwarmSideActive()) {
         maybeKillGroupDungeonSwarmEnemy(battle.enemy, now);
         clearTwinDrakePendingState();
         return;
@@ -22537,7 +23123,7 @@ function canUseHalfMoonAttack(distancePx, mp, learned) {
 
 function halfMoonSplashSwarmEnemies(primarySwarmId) {
   const swarm = state.battle.swarm;
-  if (!swarm || !groupDungeonSwarmActive()) return [];
+  if (!swarm || !groupDungeonSwarmSideActive()) return [];
   const primary = primarySwarmId ? findGroupDungeonSwarmEnemy(primarySwarmId) : null;
   const meleeCol = swarmSnapTileX(groupDungeonSwarmMeleeWorldX());
   const primaryTile = primary ? swarmEnemyTilePosition(primary) : null;
@@ -22650,9 +23236,10 @@ function canUseWizardFireWall(now) {
   return wizardFireWallMeleeReady();
 }
 
-function wizardAttackSpellReady(spell, now) {
-  if (spell?.id !== "FireWall") return true;
-  return canUseWizardFireWall(now);
+function wizardAttackSpellReady(spell, now, member = null) {
+  if (spell?.id === "FireWall") return canUseWizardFireWall(now);
+  if (spell?.impactMode === "bang" && groupDungeonSwarmSideActive()) return canUseGroupDungeonSwarmBangSpell(spell, member);
+  return true;
 }
 
 function canAutoCastTaoistSpell(spell, learned, now) {
@@ -23197,12 +23784,13 @@ function wizardAttack(now) {
   battle.activeWizardSpell = spell.id;
   battle.activeWizardSpellAtlas = atlas;
   battle.activeWizardSpellStartedAt = now;
+  battle.activeWizardSpellCenterTile = bangSpell ? wizardBangCenterTile(null, spell) : null;
   battle.activeTaoSpell = null;
   battle.activeTaoSpellAtlas = null;
   battle.pendingImpact = groundSpell
     ? { at: impactAt, spellId: spell.id, value: damageValue, worldX: battle.enemyX }
     : bangSpell
-      ? { at: impactAt, spellId: spell.id, baseValue, centerTile: wizardBangCenterTile() }
+      ? { at: impactAt, spellId: spell.id, baseValue, centerTile: battle.activeWizardSpellCenterTile }
       : { at: impactAt, spellId: spell.id, damage, hit: hit && damage > 0 };
 
   setPlayerAction("spell", now, true);
@@ -24687,38 +25275,47 @@ function taoistWeaponAttack(now, failedSpell = null) {
   }
 }
 
-function wizardBangCenterTile(enemy = null) {
+function wizardBangCenterTile(enemy = null, spell = null, member = null) {
   const battle = state.battle;
-  if (groupDungeonSwarmActive()) {
+  if (groupDungeonSwarmSideActive()) {
+    const bestCenter = groupDungeonSwarmBestBangCenterTile(spell, member);
+    if (bestCenter) return bestCenter;
     if (enemy?.swarmId) {
       const swarmEnemy = findGroupDungeonSwarmEnemy(enemy.swarmId);
       if (swarmEnemy) return swarmEnemyTilePosition(swarmEnemy);
     }
-    return groupDungeonSwarmFireWallCenterTile();
+    if (groupDungeonSwarmLivingEnemies().length) return groupDungeonSwarmFireWallCenterTile();
   }
   return { worldX: swarmSnapTileX(battle.enemyX), mapRow: 0 };
 }
 
 function enemiesInSpellBangArea(centerTile) {
-  if (groupDungeonSwarmActive()) {
+  if (groupDungeonSwarmSideActive()) {
     const tiles = spellBangAreaTiles(centerTile.worldX, centerTile.mapRow);
-    return (state.battle.swarm?.enemies ?? []).filter((swarmEnemy) => {
+    const swarmEnemies = (state.battle.swarm?.enemies ?? []).filter((swarmEnemy) => {
       if (swarmEnemy.hp <= 0 || swarmEnemy.dying) return false;
       const tile = swarmEnemyReservedTile(swarmEnemy);
       return tiles.some((entry) => entry.worldX === tile.worldX && entry.mapRow === tile.mapRow);
     });
+    if (swarmEnemies.length || groupDungeonSwarmSideActive()) return swarmEnemies;
   }
   const battle = state.battle;
   if (battle.enemy?.hp > 0 && battle.enemyRevealed) return [battle.enemy];
   return [];
 }
 
-function wizardBangTargetCount(centerTile = null) {
-  return enemiesInSpellBangArea(centerTile ?? wizardBangCenterTile()).length;
+function wizardBangTargetCount(centerTile = null, spell = null, member = null) {
+  return enemiesInSpellBangArea(centerTile ?? wizardBangCenterTile(null, spell, member)).length;
 }
 
-function wizardAutoSpellEligible(spell) {
-  if (spell?.id === "IceStorm" && wizardBangTargetCount() < 2) return false;
+function wizardAutoBangMinimumTargets(spell) {
+  return spell?.id === "IceStorm" ? 2 : 1;
+}
+
+function wizardAutoSpellEligible(spell, member = null) {
+  if (spell?.impactMode === "bang") {
+    return wizardBangTargetCount(groupDungeonSwarmBestBangCenterTile(spell, member), spell, member) >= wizardAutoBangMinimumTargets(spell);
+  }
   return true;
 }
 
@@ -24731,37 +25328,47 @@ function applyWizardBangSpellImpact(spell, impact, now, options = {}) {
 
   playSpellStrikeSfx(spell.id, { volume: 0.5, force: true, throttleMs: 0 });
 
-  if (groupDungeonSwarmActive()) {
+  if (groupDungeonSwarmSideActive()) {
     const swarmEnemies = enemiesInSpellBangArea(centerTile);
-    let anyHit = false;
-    for (const swarmEnemy of swarmEnemies) {
-      if (!rollMagicHit(swarmEnemy)) {
-        pushBattleLog(`${spell.label} misses ${swarmEnemy.name}.`);
-        continue;
+    if (swarmEnemies.length) {
+      let anyHit = false;
+      for (const swarmEnemy of swarmEnemies) {
+        if (!rollMagicHit(swarmEnemy)) {
+          pushBattleLog(`${spell.label} misses ${swarmEnemy.name}.`);
+          continue;
+        }
+        const damage = applyWizardMagicDefence(baseValue, swarmEnemy);
+        if (damage <= 0) {
+          addSwarmEnemyCombatText(swarmEnemy, "0", "damage", now);
+          pushBattleLog(`${spell.label} is resisted by ${swarmEnemy.name}.`);
+          continue;
+        }
+        anyHit = true;
+        reduceSwarmEnemyHp(swarmEnemy, damage, now);
+        addSwarmEnemyCombatText(swarmEnemy, damage, "damage", now);
+        const entity = swarmEnemyToBattleEntity(swarmEnemy);
+        strikeGroupDungeonSwarmEnemy(entity, now);
+        playMonsterSfx("flinch", swarmEnemy, sfx);
+        pushBattleLog(`${spell.label} hits ${swarmEnemy.name} for ${damage}.`);
+        maybeKillGroupDungeonSwarmEnemy(entity, now);
       }
-      const damage = applyWizardMagicDefence(baseValue, swarmEnemy);
-      if (damage <= 0) {
-        addSwarmEnemyCombatText(swarmEnemy, "0", "damage", now);
-        pushBattleLog(`${spell.label} is resisted by ${swarmEnemy.name}.`);
-        continue;
+      syncGroupDungeonPrimaryEnemy();
+      if (learned && anyHit) {
+        if (options.partyMember) bossPartyLevelMagicSkill(options.partyMember, spell, learned, now);
+        else levelMagicSkill(spell, learned, now);
+      } else if (!anyHit && swarmEnemies.length) {
+        pushBattleLog(`${spell.label} misses.`);
       }
-      anyHit = true;
-      reduceSwarmEnemyHp(swarmEnemy, damage, now);
-      addSwarmEnemyCombatText(swarmEnemy, damage, "damage", now);
-      const entity = swarmEnemyToBattleEntity(swarmEnemy);
-      strikeGroupDungeonSwarmEnemy(entity, now);
-      playMonsterSfx("flinch", swarmEnemy, sfx);
-      pushBattleLog(`${spell.label} hits ${swarmEnemy.name} for ${damage}.`);
-      maybeKillGroupDungeonSwarmEnemy(entity, now);
+      return;
     }
-    syncGroupDungeonPrimaryEnemy();
-    if (learned && anyHit) {
-      if (options.partyMember) bossPartyLevelMagicSkill(options.partyMember, spell, learned, now);
-      else levelMagicSkill(spell, learned, now);
-    } else if (!anyHit && swarmEnemies.length) {
+    if (groupDungeonSwarmSideActive()) {
+      if (learned) {
+        if (options.partyMember) bossPartyLevelMagicSkill(options.partyMember, spell, learned, now);
+        else levelMagicSkill(spell, learned, now);
+      }
       pushBattleLog(`${spell.label} misses.`);
+      return;
     }
-    return;
   }
 
   const canApply = battle.enemy && battle.enemy.hp > 0 && battle.enemyRevealed;
@@ -24843,7 +25450,7 @@ function createWizardGroundSpellEffect(spell, impact, now, partyCaster = null, p
   const halfWidth = Math.floor(widthTiles / 2);
   const offsets = Array.from({ length: widthTiles }, (_, index) => (index - halfWidth) * LANE_TILE_PX);
   const durationMs = wizardGroundEffectDurationMs(spell, value);
-  const swarmActive = groupDungeonSwarmActive();
+  const swarmActive = groupDungeonSwarmSideActive();
   const swarmCenterTile = swarmActive
     ? (impact.centerTile ?? groupDungeonSwarmBestFireWallCenterTile(spell, partyCaster, now) ?? groupDungeonSwarmFireWallCenterTile())
     : null;
@@ -25114,7 +25721,7 @@ function updateGroundSpellEffects(now) {
   battle.groundSpellEffects = effects.filter((effect) => now <= effect.expiresAt);
   if (battle.groundSpellEffects.length !== effects.length) changed = true;
 
-  const swarmActive = groupDungeonSwarmActive();
+  const swarmActive = groupDungeonSwarmSideActive();
   for (const effect of battle.groundSpellEffects) {
     while (effect.nextTickAt <= now && effect.nextTickAt <= effect.expiresAt) {
       if (swarmActive && effect.tiles?.length) {
@@ -25189,8 +25796,10 @@ function applyGroundSpellTickToSwarmEnemy(effect, swarmEnemy, now) {
   reduceSwarmEnemyHp(swarmEnemy, damage, now);
   const primary = groupDungeonPrimarySwarmEnemy();
   if (primary?.id === swarmEnemy.id && state.battle.enemy) {
-    state.battle.enemy.hp = swarmEnemy.hp;
-    state.battle.enemyX = Math.round(swarmEnemy.worldX);
+    state.enemy.action = swarmEnemy.action;
+    state.enemy.frame = swarmEnemy.frame;
+    state.enemy.oneShot = swarmEnemy.oneShot;
+    state.enemy.lastTick = swarmEnemy.lastTick;
   }
   queueSwarmEnemyStruck(swarmEnemy, now);
   playMonsterSfx("flinch", swarmEnemy);
@@ -25209,6 +25818,7 @@ function enemyAttack(now) {
   if (isEvilCentipedeEnemy(battle.enemy)) return beginEvilCentipedeAttack(now);
   if (isMassBurstEnemy(battle.enemy)) return beginMassBurstAttack(now);
   if (isScalyBeastEnemy(battle.enemy)) return beginScalyBeastAttack(now);
+  if (isDarkDevilEnemy(battle.enemy)) return beginDarkDevilAttack(now);
   if (isKingScorpionEnemy(battle.enemy)) return beginKingScorpionAttack(now);
   if (enemyHasRangedMeleeAttack(battle.enemy)) return beginBoneLordAttack(now);
   const target = enemyAttackTarget();
@@ -26240,6 +26850,7 @@ function canEnemyAttack() {
   if (isEvilCentipedeEnemy(battle.enemy)) return canEvilCentipedeAttack();
   if (isMassBurstEnemy(battle.enemy)) return canMassBurstAttack();
   if (isScalyBeastEnemy(battle.enemy)) return canScalyBeastAttack();
+  if (isDarkDevilEnemy(battle.enemy)) return canDarkDevilAttack();
   if (isKingScorpionEnemy(battle.enemy)) return canKingScorpionAttack();
   if (enemyHasRangedMeleeAttack(battle.enemy)) return canBoneLordAttack();
   return battle.enemyAggro && battle.enemy?.hp > 0 && enemyTargetDistance() <= LANE.enemyRange;
@@ -26436,6 +27047,9 @@ function updateEnemyFrame(now) {
   if (groupDungeonSwarmActive()) {
     updateGroupDungeonSwarmFrames(now);
     return;
+  }
+  if (groupDungeonBossReinforcementsActive()) {
+    updateGroupDungeonSwarmFrames(now);
   }
   const clip = state.enemy.atlas?.actions?.[state.enemy.action];
   if (state.paused || !clip?.frames?.length) return;
@@ -27349,7 +27963,7 @@ function buildStampArenaDrawList(displayFrame) {
     }
   }
 
-  if (state.showEnemies && groupDungeonSwarmActive()) {
+  if (state.showEnemies && groupDungeonSwarmSideActive()) {
     const swarm = state.battle.swarm;
     for (const enemy of swarm?.enemies ?? []) {
       if (enemy.hp <= 0 && !enemy.dying) continue;
@@ -27357,13 +27971,14 @@ function buildStampArenaDrawList(displayFrame) {
       const tile = swarmEnemyTilePosition(enemy);
       const corpse = enemy.dying || enemy.hp <= 0;
       entities.push({
-        zRow: corpse ? spawnRow : tile.mapRow,
+        zRow: corpse ? spawnRow : swarmEnemyTilePosition(enemy).mapRow,
         worldX: tile.worldX,
         kindRank: corpse ? STAMP_ARENA_KIND_RANK.corpse : STAMP_ARENA_KIND_RANK.enemy,
         draw: (ctx) => drawGroupDungeonSwarmEnemyCanvas(ctx, enemy),
       });
     }
-  } else if (state.showEnemies && state.battle.enemy) {
+  }
+  if (state.showEnemies && state.battle.enemy && !groupDungeonSwarmActive()) {
     const visible = state.battle.enemyRevealed || state.enemy.action === "show";
     if (visible) {
       entities.push({
@@ -27638,7 +28253,7 @@ function redThunderZumaLightningFrameIndex(strike, layer, now) {
 }
 
 function drawSwarmEnemyRangeProjectileCanvas(ctx) {
-  if (!groupDungeonSwarmActive()) return;
+  if (!groupDungeonSwarmSideActive()) return;
   for (const enemy of state.battle.swarm?.enemies ?? []) {
     const strike = enemy.pendingStrike;
     if (!strike?.ranged) continue;
@@ -27667,6 +28282,57 @@ function drawSwarmEnemyRangeProjectileCanvas(ctx) {
     const style = projectile.style ?? "targetBurst";
     const slotWidth = projectile.slotWidth ?? atlas.slotWidth;
     const slotHeight = projectile.slotHeight ?? atlas.slotHeight;
+
+    if (style === "travel") {
+      const moveDurationMs = Math.max(1, Number(strike.moveDurationMs) || (strike.at - startedAt));
+      if (now < startedAt || now > vfxUntil) continue;
+      const origin = {
+        x: Number(strike.originX),
+        y: Number(strike.originY),
+      };
+      const end = (isZumaArcherSwarmEnemy(enemy) && strike.target)
+        ? zumaArcherProjectileTargetAnchor(strike.target)
+        : {
+          x: Number.isFinite(Number(strike.targetAnchorX)) ? Number(strike.targetAnchorX) : targetAnchor.x,
+          y: Number.isFinite(Number(strike.targetAnchorY)) ? Number(strike.targetAnchorY) : targetAnchor.y,
+        };
+      if (!Number.isFinite(origin.x) || !Number.isFinite(origin.y)) {
+        const anchor = swarmEnemyScreenAnchor(enemy);
+        const fallback = swarmEnemyRangedProjectileOrigin(enemy, anchor);
+        origin.x = fallback.x;
+        origin.y = fallback.y;
+      }
+      const travelT = Math.min(1, Math.max(0, (now - startedAt) / moveDurationMs));
+      const x = origin.x + (end.x - origin.x) * travelT;
+      const y = origin.y + (end.y - origin.y) * travelT;
+      const useRotation = projectile.rotate !== false;
+      if (useRotation) {
+        const baseFrame = travelProjectileBaseFrame(projectile);
+        if (!baseFrame || baseFrame.empty) continue;
+        const baseAngleDeg = Number(projectile.baseAngleDeg);
+        const baseAngleRad = Number.isFinite(baseAngleDeg)
+          ? (baseAngleDeg * Math.PI) / 180
+          : (97 * Math.PI) / 180;
+        const angleRad = travelProjectileAngleRad(origin.x, origin.y, end.x, end.y, baseAngleRad);
+        // Zuma arrow: pivot on the sprite centre so the body lands on the target, not the tail.
+        const pivot = isZumaArcherSwarmEnemy(enemy) ? "center" : "anchor";
+        drawRotatedAtlasSprite(ctx, sheet, slotWidth, slotHeight, baseFrame, x, y, angleRad, 1, pivot);
+      } else {
+        const meta = travelProjectileFrameMeta(projectile, origin.x, origin.y, end.x, end.y);
+        if (!meta || meta.empty) continue;
+        drawAtlasFrame(
+          ctx,
+          sheet,
+          slotWidth,
+          slotHeight,
+          { ...meta, offsetX: meta.offsetX + x, offsetY: meta.offsetY + y },
+          0,
+          0,
+        );
+      }
+      continue;
+    }
+
     if (style !== "targetBurst") continue;
     const burstDurationMs = Math.max(1, Number(projectile.burstDurationMs) || 300);
     const burstDelayMs = Number(projectile.burstDelayMs);
@@ -27733,6 +28399,7 @@ function enemyActionBlendKey(action) {
   if (action === "walking") return "walkingBlend";
   if (action === "attack1") return "attack1Blend";
   if (action === "attackRange1") return "attackRange1Blend";
+  if (action === "die") return "dieBlend";
   return null;
 }
 
@@ -27740,6 +28407,8 @@ function drawEnemyActionBlendCanvas(ctx, atlas, sheet, anchorX, anchorY, action,
   const blendKey = enemyActionBlendKey(action);
   const blendClip = blendKey ? atlas?.actions?.[blendKey] : null;
   if (!blendClip?.frames?.length) return;
+  // Death blend is a one-shot overlay; clamping to the last frame leaves it stuck on the corpse.
+  if (action === "die" && frame >= blendClip.frames.length) return;
   const frameIndex = Math.max(0, Math.min(frame, blendClip.frames.length - 1));
   const blendMeta = blendClip.frames[frameIndex];
   if (!blendMeta || blendMeta.empty) return;
@@ -27758,7 +28427,7 @@ function enemyProjectileVfxUntil(startedAt, projectile) {
 }
 
 function enemyProjectileBurstAnchor(projectile, strike) {
-  if (projectile?.anchor === "boss" || strike?.kind === "massBurst" || strike?.kind === "scalyStomp") {
+  if (projectile?.anchor === "boss" || strike?.kind === "massBurst" || strike?.kind === "scalyStomp" || strike?.kind === "darkDevilBurst") {
     return combatAnchor("enemy");
   }
   return boneLordProjectileTargetAnchor();
@@ -27767,7 +28436,7 @@ function enemyProjectileBurstAnchor(projectile, strike) {
 function strikeShowsEnemyProjectileVfx(strike = state.battle.pendingEnemyStrike) {
   if (!strike) return false;
   if (strike.kind === "kingScorpionLine") return Boolean(strike.ranged);
-  if (strike.kind === "massBurst" || strike.kind === "scalyStomp") return true;
+  if (strike.kind === "massBurst" || strike.kind === "scalyStomp" || strike.kind === "darkDevilBurst") return true;
   if (!strike.ranged) return false;
   if (isFlamingMutantEnemy(state.battle.enemy) && strike.aoe) return true;
   if (isMinotaurKingEnemy(state.battle.enemy)) return minotaurKingStrikeUsesAoe(strike);
@@ -27822,6 +28491,33 @@ function drawEnemyRangeProjectileCanvas(ctx) {
   const slotWidth = projectile.slotWidth ?? atlas.slotWidth;
   const slotHeight = projectile.slotHeight ?? atlas.slotHeight;
   const style = projectile.style ?? "travel";
+
+  if (strike.kind === "darkDevilBurst") {
+    if (!state.battle.enemy || (state.battle.enemy?.hp ?? 0) <= 0) return;
+    const vfxUntil = Number(strike.vfxUntil) || startedAt + 600;
+    if (now < startedAt || now > vfxUntil) return;
+    const frameIndex = Math.min(
+      projectile.frames.length - 1,
+      Math.floor((now - startedAt) / Math.max(1, projectile.interval ?? 30)),
+    );
+    const meta = projectile.frames[frameIndex] ?? projectile.frames[0];
+    if (!meta || meta.empty) return;
+    const enemyAnchor = combatAnchor("enemy");
+    const frameSlotWidth = projectile.frameSlotWidth ?? slotWidth;
+    const frameSlotHeight = projectile.frameSlotHeight ?? slotHeight;
+    withScreenBlend(ctx, () => {
+      drawAtlasFrame(
+        ctx,
+        sheet,
+        frameSlotWidth,
+        frameSlotHeight,
+        { ...meta, offsetX: meta.offsetX + enemyAnchor.x, offsetY: meta.offsetY + enemyAnchor.y },
+        0,
+        0,
+      );
+    });
+    return;
+  }
 
   if (style === "targetBurst") {
     if (isMinotaurKingEnemy() && !minotaurKingStrikeUsesAoe(strike)) return;
@@ -27955,6 +28651,9 @@ function drawEnemyHealthBar(ctx) {
   if (groupDungeonSwarmActive()) {
     drawGroupDungeonSwarmHealthBars(ctx);
     return;
+  }
+  if (groupDungeonBossReinforcementsActive()) {
+    drawGroupDungeonSwarmHealthBars(ctx);
   }
   if (!state.battle.enemy || state.battle.enemy.hp <= 0) return;
   drawUnitHealthBar(ctx, enemyFrameBounds(), state.battle.enemy.hp, state.battle.enemy.maxHp);
@@ -28222,7 +28921,7 @@ function drawBossPartyMemberSpellFx(ctx, member, now) {
     }
     if (spell.impactMode === "projectile") drawCombatProjectileCanvas(ctx, atlas, t, memberAnchor, enemyAnchor, hitAt);
     if (spell.impactMode === "projectile" && t >= hitAt && t <= hitAt + (spell.impactFlashMs ?? 250)) {
-      drawImpactFlashCanvas(ctx, atlas, t - hitAt, enemyAnchor);
+      drawImpactFlashCanvas(ctx, atlas, t - hitAt, spellEnemyAnchor);
     }
   });
 }
@@ -28274,18 +28973,51 @@ function drawBossPartyMemberCanvas(ctx, member) {
   }
 }
 
-function drawAtlasFrame(ctx, sheet, slotWidth, slotHeight, meta, anchorX, anchorY) {
+function drawAtlasFrame(ctx, sheet, slotWidth, slotHeight, meta, anchorX, anchorY, scale = 1) {
+  const drawScale = Math.max(0.1, Number(scale) || 1);
   ctx.drawImage(
     sheet,
     meta.slot * slotWidth,
     0,
     slotWidth,
     slotHeight,
-    anchorX + meta.offsetX,
-    anchorY + meta.offsetY,
-    slotWidth,
-    slotHeight,
+    anchorX + meta.offsetX * drawScale,
+    anchorY + meta.offsetY * drawScale,
+    slotWidth * drawScale,
+    slotHeight * drawScale,
   );
+}
+
+/**
+ * Draw a compact atlas sprite rotated to an exact screen angle.
+ * pivot "anchor" (default): rotate around the lib offset / tail.
+ * pivot "center": rotate around the sprite centre so (anchorX, anchorY) is the body centre.
+ */
+function drawRotatedAtlasSprite(ctx, sheet, slotWidth, slotHeight, meta, anchorX, anchorY, angleRad, scale = 1, pivot = "anchor") {
+  if (!meta || meta.empty || !sheet) return;
+  const drawScale = Math.max(0.1, Number(scale) || 1);
+  const w = Math.max(1, Math.trunc(Number(meta.w) || slotWidth));
+  const h = Math.max(1, Math.trunc(Number(meta.h) || slotHeight));
+  const ox = Math.trunc(Number(meta.offsetX) || 0);
+  const oy = Math.trunc(Number(meta.offsetY) || 0);
+  const sx = Math.trunc(Number(meta.slot) || 0) * slotWidth;
+  const drawX = pivot === "center" ? -(w * drawScale) / 2 : ox * drawScale;
+  const drawY = pivot === "center" ? -(h * drawScale) / 2 : oy * drawScale;
+  ctx.save();
+  ctx.translate(anchorX, anchorY);
+  ctx.rotate(angleRad);
+  ctx.drawImage(
+    sheet,
+    sx,
+    0,
+    w,
+    h,
+    drawX,
+    drawY,
+    w * drawScale,
+    h * drawScale,
+  );
+  ctx.restore();
 }
 
 function drawSpellFxCanvas(ctx, bodyFrame, bodyFrameCount) {
@@ -28400,9 +29132,10 @@ function drawCombatWizardFxCanvas(ctx) {
   const t = performance.now() - battle.activeWizardSpellStartedAt;
   const playerAnchor = combatAnchor("player");
   const enemyAnchor = combatAnchor("enemy");
-  const fxAnchor = spell.effectAnchor === "enemy" ? enemyAnchor : playerAnchor;
+  const spellEnemyAnchor = wizardCombatSpellEnemyAnchor(spell, enemyAnchor);
+  const fxAnchor = spell.effectAnchor === "enemy" ? spellEnemyAnchor : playerAnchor;
   const buffCast = spell.impactMode === "buff";
-  const projectileTarget = buffCast ? playerAnchor : enemyAnchor;
+  const projectileTarget = buffCast ? playerAnchor : spellEnemyAnchor;
   const hitAt = buffCast
     ? (Number(spell.impactDelayMs) || CRYSTAL_HEAL_APPLY_DELAY_MS)
     : wizardImpactDelay(spell, atlas);
@@ -28416,7 +29149,7 @@ function drawCombatWizardFxCanvas(ctx) {
       const layerT = t - layerDelay;
       const duration = layer.frames.length * layer.interval;
       if (layerT < 0 || layerT > duration) continue;
-      const layerAnchor = wizardSpellFxLayerAnchor(spell, layer, playerAnchor, enemyAnchor);
+      const layerAnchor = wizardSpellFxLayerAnchor(spell, layer, playerAnchor, spellEnemyAnchor);
       const frameIndex = Math.min(layer.frames.length - 1, Math.floor(layerT / layer.interval));
       drawSpellLayerCanvas(ctx, atlas.spellId, layer, frameIndex, layerAnchor.x, layerAnchor.y);
     }
@@ -28466,6 +29199,16 @@ function drawCombatTaoistFxCanvas(ctx) {
 function spellTargetCellAnchorY(anchorY = Math.floor(state.stageHeight * LANE.y)) {
   // Crystal map effects use TargetPoint * CellHeight (cell top), not the foot line we use for sprites.
   return anchorY - LANE_TILE_PX;
+}
+function wizardCombatSpellEnemyAnchor(spell, fallbackAnchor) {
+  if (spell?.impactMode !== "bang") return fallbackAnchor;
+  const centerTile = state.battle.activeWizardSpellCenterTile;
+  if (!centerTile || !Number.isFinite(Number(centerTile.worldX))) return fallbackAnchor;
+  const mapRow = Math.trunc(Number(centerTile.mapRow) || arenaSpawnMapRow());
+  return {
+    x: Math.floor(Number(centerTile.worldX) - state.battle.cameraX),
+    y: swarmMapRowAnchorY(mapRow),
+  };
 }
 
 function wizardSpellFxLayerAnchor(spell, layer, playerAnchor, enemyAnchor) {
@@ -28556,7 +29299,7 @@ function drawGroundSpellEffectsCanvas(ctx) {
       const duration = Math.max(interval, layer.frames.length * interval);
       const age = Math.max(0, now - (Number(effect.createdAt) || now));
       const frameIndex = Math.min(layer.frames.length - 1, Math.floor((age % duration) / interval));
-      if (groupDungeonSwarmActive() && effect.tiles?.length) {
+      if (groupDungeonSwarmSideActive() && effect.tiles?.length) {
         for (const tile of effect.tiles) {
           const x = Math.floor(tile.worldX - state.battle.cameraX);
           if (x < -layer.slotWidth || x > state.stageWidth + layer.slotWidth) continue;
@@ -28737,12 +29480,14 @@ function bossPartyMemberFrameBounds(member) {
     const meta = clip?.frames?.[frameIndex] ?? clip?.frames?.[0];
     if (!atlas || !clip || !meta || meta.empty) continue;
     const width = meta.w || atlas.slotWidth;
+    const height = meta.h || atlas.slotHeight;
     return {
       centerX: anchor.x + meta.offsetX + width / 2,
       topY: anchor.y + meta.offsetY,
+      height,
     };
   }
-  return { centerX: anchor.x, topY: anchor.y - 80 };
+  return { centerX: anchor.x, topY: anchor.y - 80, height: 112 };
 }
 
 function taoistPetFrameBounds() {
@@ -29464,10 +30209,4 @@ function updateCoverage() {
 function title(text) {
   return text.charAt(0).toUpperCase() + text.slice(1);
 }
-
-
-
-
-
-
 

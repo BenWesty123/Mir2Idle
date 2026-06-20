@@ -203,6 +203,93 @@ export function swarmDirectionFromDelta(dxTiles, dLanes) {
   return [2, 3, 4, 5, 6, 7, 0, 1][octant];
 }
 
+/** Crystal MapControl.Direction16 — missile facing index (0–15). */
+export function crystalDirection16(sourceX, sourceY, destX, destY) {
+  const cx = sourceX;
+  const cy = sourceY;
+  const ax = cx;
+  const ay = 0;
+  const bx = destX;
+  let by = destY;
+  const bc = Math.hypot(bx - cx, by - cy);
+  if (bc === 0) return 0;
+  const ac = bc;
+  by -= cy;
+  by += bc;
+  const ab = Math.hypot(bx - ax, by - ay);
+  let cosine = (ac * ac + bc * bc - ab * ab) / (2 * ac * bc);
+  cosine = Math.max(-1, Math.min(1, cosine));
+  let angle = Math.acos(cosine) * (180 / Math.PI);
+  if (destX < cx) angle = 360 - angle;
+  angle += 11.25;
+  if (angle >= 360) angle -= 360;
+  return Math.floor(angle / 22.5) % 16;
+}
+
+/** Pick a travel-projectile atlas frame (supports Crystal direction16 strips). */
+export function travelProjectileFrameMeta(projectile, fromX, fromY, toX, toY) {
+  if (!projectile?.frames?.length) return null;
+  if (projectile.direction16 && projectile.frames.length >= 16) {
+    const dir = crystalDirection16(fromX, fromY, toX, toY);
+    return projectile.frames[dir] ?? projectile.frames[0];
+  }
+  return projectile.frames[0];
+}
+
+/** Screen-space travel angle (radians) for canvas rotation of the base projectile sprite. */
+export function travelProjectileAngleRad(fromX, fromY, toX, toY, baseAngleRad = (97 * Math.PI) / 180) {
+  const dx = toX - fromX;
+  const dy = toY - fromY;
+  if (dx === 0 && dy === 0) return baseAngleRad;
+  return Math.atan2(dy, dx) - baseAngleRad;
+}
+
+export function travelProjectileBaseFrame(projectile) {
+  if (!projectile?.frames?.length) return null;
+  const index = Math.max(0, Math.trunc(Number(projectile.baseFrame) || 0));
+  return projectile.frames[index] ?? projectile.frames[0];
+}
+
+/** Map-tile endpoints for Crystal Missile.Direction16 (equal X/Y cell units, not screen px). */
+export function swarmProjectileTileCoords(fromWorldX, fromMapRow, toWorldX, toMapRow) {
+  return {
+    fromTileX: Math.round(Number(fromWorldX) / GROUP_DUNGEON_SWARM_TILE_PX),
+    fromTileY: Math.trunc(Number(fromMapRow) || 0),
+    toTileX: Math.round(Number(toWorldX) / GROUP_DUNGEON_SWARM_TILE_PX),
+    toTileY: Math.trunc(Number(toMapRow) || 0),
+  };
+}
+
+/** Crystal Missile.Draw: travel in cell space (48px X, 32px Y per tile). */
+export function swarmProjectileTravelPoint(fromAnchor, tileCoords, travelT, torsoLiftPx = 0) {
+  const t = Math.min(1, Math.max(0, Number(travelT) || 0));
+  const dxPx = (tileCoords.toTileX - tileCoords.fromTileX) * GROUP_DUNGEON_SWARM_TILE_PX;
+  const dyPx = (tileCoords.toTileY - tileCoords.fromTileY) * GROUP_DUNGEON_SWARM_CELL_HEIGHT;
+  return {
+    x: fromAnchor.x + dxPx * t,
+    y: fromAnchor.y + dyPx * t + torsoLiftPx * t,
+  };
+}
+
+/** Screen point where a Zuma Archer arrow should leave the bow (uses the live attack frame). */
+export function swarmEnemyRangedProjectileOrigin(enemy, screenAnchor) {
+  const atlas = enemy?.atlas;
+  if (!atlas?.actions || !screenAnchor) return screenAnchor;
+  const clip = atlas.actions[enemy.action]
+    ?? atlas.actions.attack1
+    ?? atlas.actions.standing;
+  const frameIndex = Math.max(0, Math.min(Number(enemy.frame) || 0, (clip?.frames?.length ?? 1) - 1));
+  const meta = clip?.frames?.[frameIndex] ?? clip?.frames?.[0];
+  if (!meta || meta.empty) return screenAnchor;
+  const w = Math.max(1, Number(meta.w) || 80);
+  const h = Math.max(1, Number(meta.h) || 96);
+  // Release point on the west-facing bow within the drawn body bounds (not the foot cell anchor).
+  return {
+    x: screenAnchor.x + Math.trunc(Number(meta.offsetX) || 0) + Math.round(w * 0.14),
+    y: screenAnchor.y + Math.trunc(Number(meta.offsetY) || 0) + Math.round(h * 0.34),
+  };
+}
+
 /**
  * The party occupies the cell one tile west of the melee column on the centre
  * lane, so every cell in the melee column (any lane) is within Crystal's

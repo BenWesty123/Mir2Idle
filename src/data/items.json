@@ -5,7 +5,9 @@
     "selection": "content-audit/phase-1/warrior-item-selection.csv",
     "curatedDrops": "content-audit/phase-1/idle-drop-items.csv",
     "drops": "content-audit/phase-1/drop-candidates-by-zone.csv",
-    "notes": "Generated Phase 1 item layer. Edit the curated drop CSV and selection inputs, then run npm run build:phase1-items."
+    "notes": "Generated Phase 1 item layer. Edit the curated drop CSV and selection inputs, then run npm run build:phase1-items.",
+    "restoredFrom": "dist/itch/src/data/items.json",
+    "note": "Restored packaged item data after generated rebuild dropped manual item additions; Viper Cave 1 drops merged from curated source."
   },
   "items": [
     {
@@ -494,12 +496,14 @@
       "drop": {
         "zones": [
           "zone-prajna-cave-1",
-          "zone-prajna-cave-2"
+          "zone-prajna-cave-2",
+          "zone-viper-cave-2"
         ],
-        "chance": 0.005,
+        "chance": 0.00526,
         "chances": {
           "zone-prajna-cave-1": 0.003,
-          "zone-prajna-cave-2": 0.005
+          "zone-prajna-cave-2": 0.005,
+          "zone-viper-cave-2": 0.00526
         }
       },
       "crystalType": "Necklace"
@@ -771,13 +775,15 @@
         "zones": [
           "zone-bicheon-1",
           "zone-bicheon-2",
-          "zone-bicheon-3"
+          "zone-bicheon-3",
+          "zone-viper-cave-1"
         ],
         "chance": 0.015,
         "chances": {
           "zone-bicheon-1": 0.01,
           "zone-bicheon-2": 0.015,
-          "zone-bicheon-3": 0.01
+          "zone-bicheon-3": 0.01,
+          "zone-viper-cave-1": 0.01
         }
       },
       "crystalType": "Armour"
@@ -1126,6 +1132,72 @@
       "crystalType": "Bracelet"
     },
     {
+      "id": "steel-helmet",
+      "name": "Steel Helmet",
+      "type": "helmet",
+      "slot": "helmet",
+      "class": "any",
+      "source": {
+        "crystalIndex": 601,
+        "name": "SteelHelmet"
+      },
+      "icon": {
+        "library": "Items",
+        "frame": 108,
+        "src": "./public/item-icons/items/frame_000108.png"
+      },
+      "requirements": {
+        "type": "level",
+        "amount": 33,
+        "classMask": 31,
+        "genderMask": 3
+      },
+      "stackable": false,
+      "maxStack": 1,
+      "stats": {
+        "ac": [
+          1,
+          4
+        ],
+        "amc": [
+          1,
+          1
+        ],
+        "dc": [
+          0,
+          0
+        ],
+        "mc": [
+          0,
+          0
+        ],
+        "sc": [
+          0,
+          0
+        ],
+        "hp": 0,
+        "mp": 0,
+        "accuracy": 0,
+        "agility": 0,
+        "luck": 0,
+        "attackSpeed": 0
+      },
+      "shop": {
+        "buy": 18000,
+        "sell": 3600
+      },
+      "crystalType": "Helmet",
+      "drop": {
+        "zones": [
+          "zone-viper-cave-2"
+        ],
+        "chances": {
+          "zone-viper-cave-2": 0.00526
+        },
+        "chance": 0.00526
+      }
+    },
+    {
       "id": "black-iron-helmet",
       "name": "Black Iron Helmet",
       "type": "helmet",
@@ -1180,7 +1252,16 @@
         "buy": 40000,
         "sell": 8000
       },
-      "crystalType": "Helmet"
+      "crystalType": "Helmet",
+      "drop": {
+        "zones": [
+          "zone-viper-cave-2"
+        ],
+        "chances": {
+          "zone-viper-cave-2": 0.00526
+        },
+        "chance": 0.00526
+      }
     },
     {
       "id": "black-iron-ore",
@@ -1301,7 +1382,8 @@
           "zone-bicheon-3",
           "zone-bone-cave-1",
           "zone-bone-cave-2",
-          "zone-bug-cave-1"
+          "zone-bug-cave-1",
+          "zone-viper-cave-1"
         ],
         "chance": 0.0125,
         "chances": {
@@ -1309,7 +1391,8 @@
           "zone-bicheon-3": 0.005,
           "zone-bone-cave-1": 0.00417,
           "zone-bone-cave-2": 0.0125,
-          "zone-bug-cave-1": 0.004
+          "zone-bug-cave-1": 0.004,
+          "zone-viper-cave-1": 0.005
         }
       },
       "crystalType": "Necklace"
@@ -1726,14 +1809,16 @@
           "zone-bicheon-2",
           "zone-bicheon-3",
           "zone-bone-cave-1",
-          "zone-bone-cave-2"
+          "zone-bone-cave-2",
+          "zone-viper-cave-1"
         ],
         "chance": 0.005,
         "chances": {
           "zone-bicheon-2": 0.00333,
           "zone-bicheon-3": 0.005,
           "zone-bone-cave-1": 0.00167,
-          "zone-bone-cave-2": 0.005
+          "zone-bone-cave-2": 0.005,
+          "zone-viper-cave-1": 0.005
         }
       },
       "crystalType": "Ring"
@@ -2576,7 +2661,8 @@
           "zone-bone-cave-1",
           "zone-bone-cave-2",
           "zone-bug-cave-1",
-          "zone-stone-temple-1"
+          "zone-stone-temple-1",
+          "zone-viper-cave-1"
         ],
         "chance": 0.01,
         "chances": {
@@ -2585,7 +2671,8 @@
           "zone-bone-cave-1": 0.00333,
           "zone-bone-cave-2": 0.01,
           "zone-bug-cave-1": 0.006,
-          "zone-stone-temple-1": 0.003
+          "zone-stone-temple-1": 0.003,
+          "zone-viper-cave-1": 0.00667
         }
       },
       "crystalType": "Helmet"
@@ -2789,14 +2876,16 @@
           "zone-bicheon-2",
           "zone-bicheon-3",
           "zone-bone-cave-1",
-          "zone-bone-cave-2"
+          "zone-bone-cave-2",
+          "zone-viper-cave-1"
         ],
         "chance": 0.01667,
         "chances": {
           "zone-bicheon-2": 0.00476,
           "zone-bicheon-3": 0.00714,
           "zone-bone-cave-1": 0.00556,
-          "zone-bone-cave-2": 0.01667
+          "zone-bone-cave-2": 0.01667,
+          "zone-viper-cave-1": 0.01
         }
       },
       "crystalType": "Weapon"
@@ -3448,7 +3537,8 @@
           "zone-bicheon-3",
           "zone-bone-cave-1",
           "zone-bone-cave-2",
-          "zone-bug-cave-1"
+          "zone-bug-cave-1",
+          "zone-viper-cave-1"
         ],
         "chance": 0.01667,
         "chances": {
@@ -3457,7 +3547,8 @@
           "zone-bicheon-3": 0.01667,
           "zone-bone-cave-1": 0.00667,
           "zone-bone-cave-2": 0.01667,
-          "zone-bug-cave-1": 0.004
+          "zone-bug-cave-1": 0.004,
+          "zone-viper-cave-1": 0.01667
         }
       },
       "crystalType": "Ring"
@@ -3611,13 +3702,15 @@
         "zones": [
           "zone-bicheon-1",
           "zone-bicheon-2",
-          "zone-bicheon-3"
+          "zone-bicheon-3",
+          "zone-viper-cave-1"
         ],
         "chance": 0.01574,
         "chances": {
           "zone-bicheon-1": 0.01,
           "zone-bicheon-2": 0.01574,
-          "zone-bicheon-3": 0.01111
+          "zone-bicheon-3": 0.01111,
+          "zone-viper-cave-1": 0.01111
         }
       },
       "crystalType": "Weapon"
@@ -3944,13 +4037,15 @@
       },
       "drop": {
         "zones": [
+          "zone-viper-cave-2",
           "zone-zuma-temple-1",
           "zone-zuma-temple-2"
         ],
-        "chance": 0.005,
+        "chance": 0.00526,
         "chances": {
           "zone-zuma-temple-1": 0.005,
-          "zone-zuma-temple-2": 0.005
+          "zone-zuma-temple-2": 0.005,
+          "zone-viper-cave-2": 0.00526
         }
       },
       "crystalType": "Stone"
@@ -4098,7 +4193,16 @@
         "buy": 20000,
         "sell": 4000
       },
-      "crystalType": "Necklace"
+      "crystalType": "Necklace",
+      "drop": {
+        "zones": [
+          "zone-viper-cave-2"
+        ],
+        "chances": {
+          "zone-viper-cave-2": 0.00526
+        },
+        "chance": 0.00526
+      }
     },
     {
       "id": "disillusiongem",
@@ -4360,13 +4464,15 @@
         "zones": [
           "zone-bone-cave-2",
           "zone-prajna-temple-1",
-          "zone-prajna-temple-2"
+          "zone-prajna-temple-2",
+          "zone-viper-cave-2"
         ],
-        "chance": 0.0022,
+        "chance": 0.00526,
         "chances": {
           "zone-bone-cave-2": 0.0005,
           "zone-prajna-temple-1": 0.0015,
-          "zone-prajna-temple-2": 0.0022
+          "zone-prajna-temple-2": 0.0022,
+          "zone-viper-cave-2": 0.00526
         }
       },
       "crystalType": "Ring"
@@ -4910,14 +5016,16 @@
           "zone-bicheon-2",
           "zone-bicheon-3",
           "zone-bone-cave-1",
-          "zone-bone-cave-2"
+          "zone-bone-cave-2",
+          "zone-viper-cave-1"
         ],
         "chance": 0.0125,
         "chances": {
           "zone-bicheon-2": 0.00333,
           "zone-bicheon-3": 0.005,
           "zone-bone-cave-1": 0.00417,
-          "zone-bone-cave-2": 0.0125
+          "zone-bone-cave-2": 0.0125,
+          "zone-viper-cave-1": 0.005
         }
       },
       "crystalType": "Necklace"
@@ -4985,13 +5093,15 @@
         "zones": [
           "zone-bicheon-1",
           "zone-bicheon-2",
-          "zone-bicheon-3"
+          "zone-bicheon-3",
+          "zone-viper-cave-1"
         ],
         "chance": 0.015,
         "chances": {
           "zone-bicheon-1": 0.01,
           "zone-bicheon-2": 0.015,
-          "zone-bicheon-3": 0.01111
+          "zone-bicheon-3": 0.01111,
+          "zone-viper-cave-1": 0.01111
         }
       },
       "crystalType": "Weapon"
@@ -6602,15 +6712,17 @@
           "zone-bicheon-3",
           "zone-bone-cave-1",
           "zone-bone-cave-2",
-          "zone-bug-cave-2"
+          "zone-bug-cave-2",
+          "zone-viper-cave-1"
         ],
-        "chance": 0.00815,
+        "chance": 0.00909,
         "chances": {
           "zone-bicheon-2": 0.003,
           "zone-bicheon-3": 0.0045,
           "zone-bone-cave-1": 0.00222,
           "zone-bone-cave-2": 0.00815,
-          "zone-bug-cave-2": 0.004
+          "zone-bug-cave-2": 0.004,
+          "zone-viper-cave-1": 0.00909
         }
       },
       "crystalType": "Ring"
@@ -6756,13 +6868,15 @@
         "zones": [
           "zone-bicheon-1",
           "zone-bicheon-2",
-          "zone-bicheon-3"
+          "zone-bicheon-3",
+          "zone-viper-cave-1"
         ],
         "chance": 0.01944,
         "chances": {
           "zone-bicheon-1": 0.0125,
           "zone-bicheon-2": 0.01944,
-          "zone-bicheon-3": 0.01667
+          "zone-bicheon-3": 0.01667,
+          "zone-viper-cave-1": 0.01667
         }
       },
       "crystalType": "Necklace"
@@ -7016,11 +7130,13 @@
       "drop": {
         "zones": [
           "zone-stone-temple-2",
+          "zone-viper-cave-2",
           "zone-wooma-temple-2"
         ],
-        "chance": 0.004,
+        "chance": 0.00526,
         "chances": {
-          "zone-wooma-temple-2": 0.0004
+          "zone-wooma-temple-2": 0.0004,
+          "zone-viper-cave-2": 0.00526
         },
         "enemyChances": {
           "253": {
@@ -7158,7 +7274,16 @@
         "buy": 20000,
         "sell": 4000
       },
-      "crystalType": "Necklace"
+      "crystalType": "Necklace",
+      "drop": {
+        "zones": [
+          "zone-viper-cave-2"
+        ],
+        "chances": {
+          "zone-viper-cave-2": 0.00526
+        },
+        "chance": 0.00526
+      }
     },
     {
       "id": "green-poison",
@@ -7835,14 +7960,16 @@
           "zone-bicheon-2",
           "zone-bicheon-3",
           "zone-bone-cave-1",
-          "zone-bone-cave-2"
+          "zone-bone-cave-2",
+          "zone-viper-cave-1"
         ],
-        "chance": 0.00815,
+        "chance": 0.00909,
         "chances": {
           "zone-bicheon-2": 0.003,
           "zone-bicheon-3": 0.0045,
           "zone-bone-cave-1": 0.00222,
-          "zone-bone-cave-2": 0.00815
+          "zone-bone-cave-2": 0.00815,
+          "zone-viper-cave-1": 0.00909
         }
       },
       "crystalType": "Ring"
@@ -8066,7 +8193,8 @@
           "zone-bone-cave-1",
           "zone-bone-cave-2",
           "zone-bug-cave-1",
-          "zone-stone-temple-1"
+          "zone-stone-temple-1",
+          "zone-viper-cave-1"
         ],
         "chance": 0.0125,
         "chances": {
@@ -8076,7 +8204,8 @@
           "zone-bone-cave-1": 0.00417,
           "zone-bone-cave-2": 0.0125,
           "zone-bug-cave-1": 0.004,
-          "zone-stone-temple-1": 0.004
+          "zone-stone-temple-1": 0.004,
+          "zone-viper-cave-1": 0.00909
         }
       },
       "crystalType": "Ring"
@@ -8488,12 +8617,14 @@
       "drop": {
         "zones": [
           "zone-bicheon-2",
-          "zone-bicheon-3"
+          "zone-bicheon-3",
+          "zone-viper-cave-1"
         ],
         "chance": 0.01667,
         "chances": {
           "zone-bicheon-2": 0.01667,
-          "zone-bicheon-3": 0.0125
+          "zone-bicheon-3": 0.0125,
+          "zone-viper-cave-1": 0.0125
         }
       },
       "crystalType": "Bracelet"
@@ -8638,7 +8769,8 @@
           "zone-bone-cave-1",
           "zone-bone-cave-2",
           "zone-bug-cave-1",
-          "zone-stone-temple-1"
+          "zone-stone-temple-1",
+          "zone-viper-cave-1"
         ],
         "chance": 0.01111,
         "chances": {
@@ -8647,7 +8779,8 @@
           "zone-bone-cave-1": 0.0037,
           "zone-bone-cave-2": 0.01111,
           "zone-bug-cave-1": 0.005,
-          "zone-stone-temple-1": 0.003
+          "zone-stone-temple-1": 0.003,
+          "zone-viper-cave-1": 0.00833
         }
       },
       "crystalType": "Weapon"
@@ -9189,13 +9322,15 @@
         "zones": [
           "zone-bicheon-3",
           "zone-bone-cave-1",
-          "zone-bone-cave-2"
+          "zone-bone-cave-2",
+          "zone-viper-cave-1"
         ],
         "chance": 0.00815,
         "chances": {
           "zone-bicheon-3": 0.0025,
           "zone-bone-cave-1": 0.00222,
-          "zone-bone-cave-2": 0.00815
+          "zone-bone-cave-2": 0.00815,
+          "zone-viper-cave-1": 0.0025
         }
       },
       "crystalType": "Bracelet"
@@ -9553,12 +9688,14 @@
       "drop": {
         "zones": [
           "zone-bicheon-2",
-          "zone-bicheon-3"
+          "zone-bicheon-3",
+          "zone-viper-cave-1"
         ],
         "chance": 0.00333,
         "chances": {
           "zone-bicheon-2": 0.00222,
-          "zone-bicheon-3": 0.00333
+          "zone-bicheon-3": 0.00333,
+          "zone-viper-cave-1": 0.00333
         }
       },
       "crystalType": "Bracelet"
@@ -9621,16 +9758,18 @@
       "drop": {
         "zones": [
           "zone-bone-cave-2",
-          "zone-zuma-temple-1",
           "zone-prajna-temple-1",
-          "zone-prajna-temple-2"
+          "zone-prajna-temple-2",
+          "zone-viper-cave-2",
+          "zone-zuma-temple-1"
         ],
-        "chance": 0.003,
+        "chance": 0.00526,
         "chances": {
           "zone-bone-cave-2": 0.0008,
           "zone-zuma-temple-1": 0.003,
           "zone-prajna-temple-1": 0.0015,
-          "zone-prajna-temple-2": 0.0022
+          "zone-prajna-temple-2": 0.0022,
+          "zone-viper-cave-2": 0.00526
         }
       },
       "crystalType": "Necklace"
@@ -9700,7 +9839,8 @@
           "zone-bicheon-3",
           "zone-bone-cave-1",
           "zone-bone-cave-2",
-          "zone-bug-cave-1"
+          "zone-bug-cave-1",
+          "zone-viper-cave-1"
         ],
         "chance": 0.005,
         "chances": {
@@ -9708,7 +9848,8 @@
           "zone-bicheon-3": 0.00333,
           "zone-bone-cave-1": 0.00167,
           "zone-bone-cave-2": 0.005,
-          "zone-bug-cave-1": 0.003
+          "zone-bug-cave-1": 0.003,
+          "zone-viper-cave-1": 0.00333
         }
       },
       "crystalType": "Armour"
@@ -9848,11 +9989,13 @@
       "drop": {
         "zones": [
           "zone-stone-temple-2",
+          "zone-viper-cave-2",
           "zone-wooma-temple-2"
         ],
-        "chance": 0.004,
+        "chance": 0.00526,
         "chances": {
-          "zone-wooma-temple-2": 0.0004
+          "zone-wooma-temple-2": 0.0004,
+          "zone-viper-cave-2": 0.00526
         },
         "enemyChances": {
           "253": {
@@ -10220,7 +10363,8 @@
           "zone-bone-cave-1",
           "zone-bone-cave-2",
           "zone-bone-cave-kr",
-          "zone-bug-cave-1"
+          "zone-bug-cave-1",
+          "zone-viper-cave-1"
         ],
         "chance": 0.08,
         "chances": {
@@ -10229,7 +10373,8 @@
           "zone-bone-cave-1": 0.00222,
           "zone-bone-cave-2": 0.00667,
           "zone-bone-cave-kr": 0.08,
-          "zone-bug-cave-1": 0.005
+          "zone-bug-cave-1": 0.005,
+          "zone-viper-cave-1": 0.005
         }
       },
       "crystalType": "Helmet"
@@ -10933,13 +11078,15 @@
       },
       "drop": {
         "zones": [
+          "zone-viper-cave-2",
           "zone-zuma-temple-1",
           "zone-zuma-temple-2"
         ],
-        "chance": 0.005,
+        "chance": 0.00526,
         "chances": {
           "zone-zuma-temple-1": 0.005,
-          "zone-zuma-temple-2": 0.005
+          "zone-zuma-temple-2": 0.005,
+          "zone-viper-cave-2": 0.00526
         }
       },
       "crystalType": "Stone"
@@ -11083,7 +11230,8 @@
           "zone-bug-cave-1",
           "zone-bug-cave-2",
           "zone-stone-temple-1",
-          "zone-stone-temple-2"
+          "zone-stone-temple-2",
+          "zone-viper-cave-1"
         ],
         "chance": 0.16,
         "chances": {
@@ -11094,7 +11242,8 @@
           "zone-bug-cave-1": 0.012,
           "zone-bug-cave-2": 0.015,
           "zone-stone-temple-1": 0.016,
-          "zone-stone-temple-2": 0.018
+          "zone-stone-temple-2": 0.018,
+          "zone-viper-cave-1": 0.01
         }
       },
       "crystalType": "Potion"
@@ -11164,7 +11313,8 @@
           "zone-bug-cave-1",
           "zone-bug-cave-2",
           "zone-stone-temple-1",
-          "zone-stone-temple-2"
+          "zone-stone-temple-2",
+          "zone-viper-cave-1"
         ],
         "chance": 0.16,
         "chances": {
@@ -11175,7 +11325,8 @@
           "zone-bug-cave-1": 0.01,
           "zone-bug-cave-2": 0.012,
           "zone-stone-temple-1": 0.016,
-          "zone-stone-temple-2": 0.018
+          "zone-stone-temple-2": 0.018,
+          "zone-viper-cave-1": 0.01
         }
       },
       "crystalType": "Potion"
@@ -11242,6 +11393,7 @@
           "zone-bug-cave-2",
           "zone-stone-temple-1",
           "zone-stone-temple-2",
+          "zone-viper-cave-2",
           "zone-zuma-temple-1",
           "zone-zuma-temple-2"
         ],
@@ -11252,7 +11404,8 @@
           "zone-stone-temple-1": 0.004,
           "zone-stone-temple-2": 0.006,
           "zone-zuma-temple-1": 0.005,
-          "zone-zuma-temple-2": 0.005
+          "zone-zuma-temple-2": 0.005,
+          "zone-viper-cave-2": 0.00526
         },
         "enemyChances": {
           "265": {
@@ -12336,13 +12489,15 @@
         "zones": [
           "zone-dead-mines-kr",
           "zone-prajna-temple-1",
-          "zone-prajna-temple-2"
+          "zone-prajna-temple-2",
+          "zone-viper-cave-2"
         ],
         "chance": 0.006,
         "chances": {
           "zone-dead-mines-kr": 0.006,
           "zone-prajna-temple-1": 0.0015,
-          "zone-prajna-temple-2": 0.0022
+          "zone-prajna-temple-2": 0.0022,
+          "zone-viper-cave-2": 0.00526
         }
       },
       "crystalType": "Necklace"
@@ -12740,13 +12895,15 @@
         "zones": [
           "zone-bone-cave-2",
           "zone-prajna-temple-1",
-          "zone-prajna-temple-2"
+          "zone-prajna-temple-2",
+          "zone-viper-cave-2"
         ],
-        "chance": 0.0038,
+        "chance": 0.00526,
         "chances": {
           "zone-bone-cave-2": 0.001,
           "zone-prajna-temple-1": 0.0025,
-          "zone-prajna-temple-2": 0.0038
+          "zone-prajna-temple-2": 0.0038,
+          "zone-viper-cave-2": 0.00526
         }
       },
       "crystalType": "Ring"
@@ -13378,13 +13535,15 @@
         "zones": [
           "zone-bicheon-1",
           "zone-bicheon-2",
-          "zone-bicheon-3"
+          "zone-bicheon-3",
+          "zone-viper-cave-1"
         ],
         "chance": 0.01667,
         "chances": {
           "zone-bicheon-1": 0.01,
           "zone-bicheon-2": 0.01667,
-          "zone-bicheon-3": 0.0125
+          "zone-bicheon-3": 0.0125,
+          "zone-viper-cave-1": 0.0125
         }
       },
       "crystalType": "Necklace"
@@ -14011,13 +14170,15 @@
         "zones": [
           "zone-bone-cave-2",
           "zone-prajna-temple-1",
-          "zone-prajna-temple-2"
+          "zone-prajna-temple-2",
+          "zone-viper-cave-2"
         ],
-        "chance": 0.0038,
+        "chance": 0.00526,
         "chances": {
           "zone-bone-cave-2": 0.001,
           "zone-prajna-temple-1": 0.0025,
-          "zone-prajna-temple-2": 0.0038
+          "zone-prajna-temple-2": 0.0038,
+          "zone-viper-cave-2": 0.00526
         }
       },
       "crystalType": "Ring"
@@ -14357,13 +14518,15 @@
       },
       "drop": {
         "zones": [
+          "zone-viper-cave-2",
           "zone-zuma-temple-1",
           "zone-zuma-temple-2"
         ],
-        "chance": 0.005,
+        "chance": 0.00526,
         "chances": {
           "zone-zuma-temple-1": 0.005,
-          "zone-zuma-temple-2": 0.005
+          "zone-zuma-temple-2": 0.005,
+          "zone-viper-cave-2": 0.00526
         }
       },
       "crystalType": "Stone"
@@ -14500,11 +14663,13 @@
       "drop": {
         "zones": [
           "zone-stone-temple-2",
+          "zone-viper-cave-2",
           "zone-wooma-temple-2"
         ],
-        "chance": 0.004,
+        "chance": 0.00526,
         "chances": {
-          "zone-wooma-temple-2": 0.0004
+          "zone-wooma-temple-2": 0.0004,
+          "zone-viper-cave-2": 0.00526
         },
         "enemyChances": {
           "253": {
@@ -14843,14 +15008,16 @@
           "zone-bicheon-2",
           "zone-bicheon-3",
           "zone-bone-cave-1",
-          "zone-bone-cave-2"
+          "zone-bone-cave-2",
+          "zone-viper-cave-1"
         ],
         "chance": 0.01,
         "chances": {
           "zone-bicheon-2": 0.00303,
           "zone-bicheon-3": 0.00455,
           "zone-bone-cave-1": 0.00333,
-          "zone-bone-cave-2": 0.01
+          "zone-bone-cave-2": 0.01,
+          "zone-viper-cave-1": 0.00455
         }
       },
       "crystalType": "Weapon"
@@ -14992,13 +15159,15 @@
         "zones": [
           "zone-bicheon-3",
           "zone-bone-cave-1",
-          "zone-bone-cave-2"
+          "zone-bone-cave-2",
+          "zone-viper-cave-1"
         ],
         "chance": 0.00815,
         "chances": {
           "zone-bicheon-3": 0.0025,
           "zone-bone-cave-1": 0.00222,
-          "zone-bone-cave-2": 0.00815
+          "zone-bone-cave-2": 0.00815,
+          "zone-viper-cave-1": 0.0025
         }
       },
       "crystalType": "Bracelet"
@@ -15349,7 +15518,8 @@
           "zone-bug-cave-1",
           "zone-bug-cave-2",
           "zone-stone-temple-1",
-          "zone-stone-temple-2"
+          "zone-stone-temple-2",
+          "zone-viper-cave-1"
         ],
         "chance": 0.08,
         "chances": {
@@ -15360,7 +15530,8 @@
           "zone-bug-cave-1": 0.015,
           "zone-bug-cave-2": 0.01,
           "zone-stone-temple-1": 0.01,
-          "zone-stone-temple-2": 0.01
+          "zone-stone-temple-2": 0.01,
+          "zone-viper-cave-1": 0.01667
         }
       },
       "crystalType": "Potion"
@@ -15430,7 +15601,8 @@
           "zone-bug-cave-1",
           "zone-bug-cave-2",
           "zone-stone-temple-1",
-          "zone-stone-temple-2"
+          "zone-stone-temple-2",
+          "zone-viper-cave-1"
         ],
         "chance": 0.08,
         "chances": {
@@ -15441,7 +15613,8 @@
           "zone-bug-cave-1": 0.012,
           "zone-bug-cave-2": 0.008,
           "zone-stone-temple-1": 0.008,
-          "zone-stone-temple-2": 0.008
+          "zone-stone-temple-2": 0.008,
+          "zone-viper-cave-1": 0.01667
         }
       },
       "crystalType": "Potion"
@@ -16139,7 +16312,16 @@
         "buy": 20000,
         "sell": 4000
       },
-      "crystalType": "Necklace"
+      "crystalType": "Necklace",
+      "drop": {
+        "zones": [
+          "zone-viper-cave-2"
+        ],
+        "chances": {
+          "zone-viper-cave-2": 0.00526
+        },
+        "chance": 0.00526
+      }
     },
     {
       "id": "soul-sabre",
@@ -17124,13 +17306,15 @@
         "zones": [
           "zone-bicheon-2",
           "zone-bicheon-3",
-          "zone-bone-cave-1"
+          "zone-bone-cave-1",
+          "zone-viper-cave-1"
         ],
         "chance": 0.0025,
         "chances": {
           "zone-bicheon-2": 0.00167,
           "zone-bicheon-3": 0.0025,
-          "zone-bone-cave-1": 0.00222
+          "zone-bone-cave-1": 0.00222,
+          "zone-viper-cave-1": 0.0025
         }
       },
       "crystalType": "Bracelet"
@@ -18011,6 +18195,8 @@
           "zone-bug-cave-2",
           "zone-stone-temple-1",
           "zone-stone-temple-2",
+          "zone-viper-cave-1",
+          "zone-viper-cave-2",
           "zone-zuma-temple-1",
           "zone-zuma-temple-2"
         ],
@@ -18027,7 +18213,9 @@
           "zone-stone-temple-1": 0.01,
           "zone-stone-temple-2": 0.012,
           "zone-zuma-temple-1": 0.005,
-          "zone-zuma-temple-2": 0.005
+          "zone-zuma-temple-2": 0.005,
+          "zone-viper-cave-1": 0.005,
+          "zone-viper-cave-2": 0.00526
         }
       },
       "crystalType": "Potion"
@@ -18612,14 +18800,16 @@
           "zone-bicheon-2",
           "zone-bicheon-3",
           "zone-bone-cave-1",
-          "zone-bone-cave-2"
+          "zone-bone-cave-2",
+          "zone-viper-cave-1"
         ],
         "chance": 0.0125,
         "chances": {
           "zone-bicheon-2": 0.00222,
           "zone-bicheon-3": 0.00333,
           "zone-bone-cave-1": 0.00417,
-          "zone-bone-cave-2": 0.0125
+          "zone-bone-cave-2": 0.0125,
+          "zone-viper-cave-1": 0.00333
         }
       },
       "crystalType": "Bracelet"
@@ -19757,13 +19947,15 @@
         "zones": [
           "zone-bicheon-1",
           "zone-bicheon-2",
-          "zone-bicheon-3"
+          "zone-bicheon-3",
+          "zone-viper-cave-1"
         ],
         "chance": 0.02,
         "chances": {
           "zone-bicheon-1": 0.02,
           "zone-bicheon-2": 0.01944,
-          "zone-bicheon-3": 0.01667
+          "zone-bicheon-3": 0.01667,
+          "zone-viper-cave-1": 0.01667
         }
       },
       "crystalType": "Weapon"
@@ -20210,14 +20402,16 @@
           "zone-bicheon-3",
           "zone-bone-cave-1",
           "zone-bone-cave-2",
-          "zone-bug-cave-2"
+          "zone-bug-cave-2",
+          "zone-viper-cave-1"
         ],
         "chance": 0.0125,
         "chances": {
           "zone-bicheon-3": 0.003,
           "zone-bone-cave-1": 0.00417,
           "zone-bone-cave-2": 0.0125,
-          "zone-bug-cave-2": 0.004
+          "zone-bug-cave-2": 0.004,
+          "zone-viper-cave-1": 0.005
         }
       },
       "crystalType": "Necklace"
@@ -20546,7 +20740,7 @@
       "icon": {
         "library": "Items",
         "frame": 425,
-        "src": "./public/item-icons/items/frame_000425.png"
+        "src": "/public/item-icons/items/frame_000425.png"
       },
       "requirements": {
         "type": "none",
@@ -20588,6 +20782,7 @@
         "buy": 1000,
         "sell": 200
       },
+      "crystalType": "Potion",
       "shape": 3,
       "drop": {
         "zones": [
@@ -20600,8 +20795,7 @@
             "zone-zuma-temple-2": 0.015
           }
         }
-      },
-      "crystalType": "Potion"
+      }
     },
     {
       "id": "magic-drug-m",
@@ -20616,7 +20810,7 @@
       "icon": {
         "library": "Items",
         "frame": 423,
-        "src": "./public/item-icons/items/frame_000423.png"
+        "src": "/public/item-icons/items/frame_000423.png"
       },
       "requirements": {
         "type": "none",
@@ -20658,6 +20852,7 @@
         "buy": 1000,
         "sell": 200
       },
+      "crystalType": "Potion",
       "shape": 3,
       "drop": {
         "zones": [
@@ -20670,8 +20865,7 @@
             "zone-zuma-temple-2": 0.015
           }
         }
-      },
-      "crystalType": "Potion"
+      }
     },
     {
       "id": "taoist-drug-m",
@@ -20686,7 +20880,7 @@
       "icon": {
         "library": "Items",
         "frame": 421,
-        "src": "./public/item-icons/items/frame_000421.png"
+        "src": "/public/item-icons/items/frame_000421.png"
       },
       "requirements": {
         "type": "none",
@@ -20728,6 +20922,7 @@
         "buy": 1000,
         "sell": 200
       },
+      "crystalType": "Potion",
       "shape": 3,
       "drop": {
         "zones": [
@@ -20740,28 +20935,27 @@
             "zone-zuma-temple-2": 0.015
           }
         }
-      },
-      "crystalType": "Potion"
+      }
     },
     {
-      "id": "black-dragon-slayer",
-      "name": "Black Dragon Slayer",
-      "type": "weapon",
-      "slot": "weapon",
+      "id": "helmet-of-hero",
+      "name": "Helmet Of Hero",
+      "type": "helmet",
+      "slot": "helmet",
       "class": "any",
       "source": {
-        "crystalIndex": 246,
-        "name": "BlackDragonSlayer"
+        "crystalIndex": 602,
+        "name": "HelmetOfHero"
       },
       "icon": {
         "library": "Items",
-        "frame": 57,
-        "src": "./public/item-icons/items/frame_000057.png"
+        "frame": 105,
+        "src": "./public/item-icons/items/frame_000105.png"
       },
       "requirements": {
         "type": "level",
-        "amount": 34,
-        "classMask": 7,
+        "amount": 37,
+        "classMask": 31,
         "genderMask": 3
       },
       "stackable": false,
@@ -20769,15 +20963,15 @@
       "stats": {
         "ac": [
           0,
-          0
+          6
         ],
         "amc": [
-          0,
-          0
+          1,
+          3
         ],
         "dc": [
-          5,
-          35
+          0,
+          0
         ],
         "mc": [
           0,
@@ -20792,36 +20986,204 @@
         "accuracy": 0,
         "agility": 0,
         "luck": 0,
-        "attackSpeed": -2
+        "attackSpeed": 0
       },
       "shop": {
-        "buy": 65000,
-        "sell": 13000
+        "buy": 24000,
+        "sell": 4800
       },
-      "visual": {
-        "layer": "weapon",
-        "index": 29
-      }
+      "crystalType": "Helmet"
     },
     {
-      "id": "black-dragon-staff",
-      "name": "Black Dragon Staff",
-      "type": "weapon",
-      "slot": "weapon",
+      "id": "great-helmet",
+      "name": "Great Helmet",
+      "type": "helmet",
+      "slot": "helmet",
       "class": "any",
       "source": {
-        "crystalIndex": 260,
-        "name": "BlackDragonStaff"
+        "crystalIndex": 604,
+        "name": "GreatHelmet"
       },
       "icon": {
         "library": "Items",
-        "frame": 58,
-        "src": "./public/item-icons/items/frame_000058.png"
+        "frame": 104,
+        "src": "./public/item-icons/items/frame_000104.png"
       },
       "requirements": {
         "type": "level",
-        "amount": 34,
+        "amount": 40,
         "classMask": 7,
+        "genderMask": 3
+      },
+      "stackable": false,
+      "maxStack": 1,
+      "stats": {
+        "ac": [
+          3,
+          7
+        ],
+        "amc": [
+          2,
+          3
+        ],
+        "dc": [
+          0,
+          0
+        ],
+        "mc": [
+          0,
+          0
+        ],
+        "sc": [
+          0,
+          0
+        ],
+        "hp": 0,
+        "mp": 0,
+        "accuracy": 0,
+        "agility": 0,
+        "luck": 0,
+        "attackSpeed": 0
+      },
+      "shop": {
+        "buy": 40000,
+        "sell": 8000
+      },
+      "crystalType": "Helmet"
+    },
+    {
+      "id": "wisdom-coronet",
+      "name": "Wisdom Coronet",
+      "type": "helmet",
+      "slot": "helmet",
+      "class": "any",
+      "source": {
+        "crystalIndex": 605,
+        "name": "WisdomCoronet"
+      },
+      "icon": {
+        "library": "Items",
+        "frame": 102,
+        "src": "./public/item-icons/items/frame_000102.png"
+      },
+      "requirements": {
+        "type": "level",
+        "amount": 40,
+        "classMask": 7,
+        "genderMask": 3
+      },
+      "stackable": false,
+      "maxStack": 1,
+      "stats": {
+        "ac": [
+          2,
+          3
+        ],
+        "amc": [
+          3,
+          3
+        ],
+        "dc": [
+          0,
+          0
+        ],
+        "mc": [
+          1,
+          2
+        ],
+        "sc": [
+          0,
+          0
+        ],
+        "hp": 0,
+        "mp": 0,
+        "accuracy": 0,
+        "agility": 0,
+        "luck": 0,
+        "attackSpeed": 0
+      },
+      "shop": {
+        "buy": 40000,
+        "sell": 8000
+      },
+      "crystalType": "Helmet"
+    },
+    {
+      "id": "tao-coronet",
+      "name": "Tao Coronet",
+      "type": "helmet",
+      "slot": "helmet",
+      "class": "any",
+      "source": {
+        "crystalIndex": 606,
+        "name": "TaoCoronet"
+      },
+      "icon": {
+        "library": "Items",
+        "frame": 534,
+        "src": "./public/item-icons/items/frame_000534.png"
+      },
+      "requirements": {
+        "type": "level",
+        "amount": 40,
+        "classMask": 7,
+        "genderMask": 3
+      },
+      "stackable": false,
+      "maxStack": 1,
+      "stats": {
+        "ac": [
+          3,
+          4
+        ],
+        "amc": [
+          2,
+          2
+        ],
+        "dc": [
+          0,
+          0
+        ],
+        "mc": [
+          0,
+          0
+        ],
+        "sc": [
+          1,
+          2
+        ],
+        "hp": 0,
+        "mp": 0,
+        "accuracy": 0,
+        "agility": 0,
+        "luck": 0,
+        "attackSpeed": 0
+      },
+      "shop": {
+        "buy": 40000,
+        "sell": 8000
+      },
+      "crystalType": "Helmet"
+    },
+    {
+      "id": "dragon-boots",
+      "name": "Dragon Boots",
+      "type": "boots",
+      "slot": "boots",
+      "class": "any",
+      "source": {
+        "crystalIndex": 624,
+        "name": "DragonBoots"
+      },
+      "icon": {
+        "library": "Items",
+        "frame": 564,
+        "src": "./public/item-icons/items/frame_000564.png"
+      },
+      "requirements": {
+        "type": "level",
+        "amount": 32,
+        "classMask": 31,
         "genderMask": 3
       },
       "stackable": false,
@@ -20836,8 +21198,179 @@
           0
         ],
         "dc": [
-          6,
-          13
+          0,
+          0
+        ],
+        "mc": [
+          0,
+          0
+        ],
+        "sc": [
+          0,
+          0
+        ],
+        "hp": 0,
+        "mp": 0,
+        "accuracy": 0,
+        "agility": 0,
+        "luck": 0,
+        "attackSpeed": 0
+      },
+      "shop": {
+        "buy": 21000,
+        "sell": 4200
+      },
+      "crystalType": "Boots"
+    },
+    {
+      "id": "gold-belt",
+      "name": "Gold Belt",
+      "type": "belt",
+      "slot": "belt",
+      "class": "any",
+      "source": {
+        "crystalIndex": 616,
+        "name": "GoldBelt"
+      },
+      "icon": {
+        "library": "Items",
+        "frame": 554,
+        "src": "./public/item-icons/items/frame_000554.png"
+      },
+      "requirements": {
+        "type": "level",
+        "amount": 31,
+        "classMask": 31,
+        "genderMask": 3
+      },
+      "stackable": false,
+      "maxStack": 1,
+      "stats": {
+        "ac": [
+          1,
+          1
+        ],
+        "amc": [
+          0,
+          2
+        ],
+        "dc": [
+          0,
+          0
+        ],
+        "mc": [
+          0,
+          0
+        ],
+        "sc": [
+          0,
+          0
+        ],
+        "hp": 0,
+        "mp": 0,
+        "accuracy": 0,
+        "agility": 0,
+        "luck": 0,
+        "attackSpeed": 0
+      },
+      "shop": {
+        "buy": 25000,
+        "sell": 5000
+      },
+      "crystalType": "Belt"
+    },
+    {
+      "id": "hero-necklace",
+      "name": "Hero Necklace",
+      "type": "necklace",
+      "slot": "necklace",
+      "class": "any",
+      "source": {
+        "crystalIndex": 562,
+        "name": "HeroNecklace"
+      },
+      "icon": {
+        "library": "Items",
+        "frame": 682,
+        "src": "./public/item-icons/items/frame_000682.png"
+      },
+      "requirements": {
+        "type": "level",
+        "amount": 40,
+        "classMask": 31,
+        "genderMask": 3
+      },
+      "stackable": false,
+      "maxStack": 1,
+      "stats": {
+        "ac": [
+          0,
+          0
+        ],
+        "amc": [
+          0,
+          0
+        ],
+        "dc": [
+          2,
+          6
+        ],
+        "mc": [
+          0,
+          0
+        ],
+        "sc": [
+          0,
+          0
+        ],
+        "hp": 0,
+        "mp": 0,
+        "accuracy": 0,
+        "agility": 0,
+        "luck": 0,
+        "attackSpeed": 0
+      },
+      "shop": {
+        "buy": 15000,
+        "sell": 3000
+      },
+      "crystalType": "Necklace"
+    },
+    {
+      "id": "adamantine-necklace",
+      "name": "Adamantine Necklace",
+      "type": "necklace",
+      "slot": "necklace",
+      "class": "any",
+      "source": {
+        "crystalIndex": 563,
+        "name": "AdamantineNecklace"
+      },
+      "icon": {
+        "library": "Items",
+        "frame": 683,
+        "src": "./public/item-icons/items/frame_000683.png"
+      },
+      "requirements": {
+        "type": "level",
+        "amount": 40,
+        "classMask": 31,
+        "genderMask": 3
+      },
+      "stackable": false,
+      "maxStack": 1,
+      "stats": {
+        "ac": [
+          0,
+          0
+        ],
+        "amc": [
+          0,
+          0
+        ],
+        "dc": [
+          0,
+          0
         ],
         "mc": [
           1,
@@ -20855,33 +21388,30 @@
         "attackSpeed": 0
       },
       "shop": {
-        "buy": 65000,
-        "sell": 13000
+        "buy": 15000,
+        "sell": 3000
       },
-      "visual": {
-        "layer": "weapon",
-        "index": 30
-      }
+      "crystalType": "Necklace"
     },
     {
-      "id": "black-dragon-soul-sabre",
-      "name": "Black Dragon Soul Sabre",
-      "type": "weapon",
-      "slot": "weapon",
+      "id": "requiem-necklace",
+      "name": "Requiem Necklace",
+      "type": "necklace",
+      "slot": "necklace",
       "class": "any",
       "source": {
-        "crystalIndex": 273,
-        "name": "BlackDragonSoulSabre"
+        "crystalIndex": 564,
+        "name": "RequiemNecklace"
       },
       "icon": {
         "library": "Items",
-        "frame": 56,
-        "src": "./public/item-icons/items/frame_000056.png"
+        "frame": 684,
+        "src": "./public/item-icons/items/frame_000684.png"
       },
       "requirements": {
         "type": "level",
-        "amount": 34,
-        "classMask": 7,
+        "amount": 40,
+        "classMask": 31,
         "genderMask": 3
       },
       "stackable": false,
@@ -20896,16 +21426,16 @@
           0
         ],
         "dc": [
-          8,
-          20
+          0,
+          1
         ],
         "mc": [
           0,
           0
         ],
         "sc": [
-          2,
-          4
+          1,
+          7
         ],
         "hp": 0,
         "mp": 0,
@@ -20915,33 +21445,543 @@
         "attackSpeed": 0
       },
       "shop": {
-        "buy": 65000,
-        "sell": 13000
+        "buy": 15000,
+        "sell": 3000
       },
-      "visual": {
-        "layer": "weapon",
-        "index": 31
-      }
+      "crystalType": "Necklace"
     },
     {
-      "id": "book-ice-storm",
-      "name": "Ice Storm",
-      "type": "book",
-      "slot": "book",
-      "class": "wizard",
+      "id": "8-trigram-wheel",
+      "name": "8 Trigram Wheel",
+      "type": "bracelet",
+      "slot": "bracelet",
+      "class": "any",
       "source": {
-        "crystalIndex": 1005,
-        "name": "IceStorm"
+        "crystalIndex": 502,
+        "name": "8TrigramWheel"
       },
       "icon": {
         "library": "Items",
-        "frame": 3641,
-        "src": "./public/item-icons/books/images/frame_003640.png"
+        "frame": 676,
+        "src": "./public/item-icons/items/frame_000676.png"
       },
       "requirements": {
         "type": "level",
         "amount": 35,
-        "classMask": 2,
+        "classMask": 31,
+        "genderMask": 3
+      },
+      "stackable": false,
+      "maxStack": 1,
+      "stats": {
+        "ac": [
+          0,
+          2
+        ],
+        "amc": [
+          0,
+          0
+        ],
+        "dc": [
+          1,
+          3
+        ],
+        "mc": [
+          0,
+          0
+        ],
+        "sc": [
+          0,
+          0
+        ],
+        "hp": 0,
+        "mp": 0,
+        "accuracy": 0,
+        "agility": 0,
+        "luck": 0,
+        "attackSpeed": 0
+      },
+      "shop": {
+        "buy": 25000,
+        "sell": 5000
+      },
+      "crystalType": "Bracelet"
+    },
+    {
+      "id": "hang-ma-wheel",
+      "name": "Hang Ma Wheel",
+      "type": "bracelet",
+      "slot": "bracelet",
+      "class": "any",
+      "source": {
+        "crystalIndex": 503,
+        "name": "HangMaWheel"
+      },
+      "icon": {
+        "library": "Items",
+        "frame": 678,
+        "src": "./public/item-icons/items/frame_000678.png"
+      },
+      "requirements": {
+        "type": "level",
+        "amount": 35,
+        "classMask": 31,
+        "genderMask": 3
+      },
+      "stackable": false,
+      "maxStack": 1,
+      "stats": {
+        "ac": [
+          0,
+          0
+        ],
+        "amc": [
+          0,
+          2
+        ],
+        "dc": [
+          0,
+          0
+        ],
+        "mc": [
+          0,
+          3
+        ],
+        "sc": [
+          0,
+          0
+        ],
+        "hp": 0,
+        "mp": 0,
+        "accuracy": 0,
+        "agility": 0,
+        "luck": 0,
+        "attackSpeed": 0
+      },
+      "shop": {
+        "buy": 25000,
+        "sell": 5000
+      },
+      "crystalType": "Bracelet"
+    },
+    {
+      "id": "bok-ma-wheel",
+      "name": "Bok Ma Wheel",
+      "type": "bracelet",
+      "slot": "bracelet",
+      "class": "any",
+      "source": {
+        "crystalIndex": 504,
+        "name": "BokMaWheel"
+      },
+      "icon": {
+        "library": "Items",
+        "frame": 680,
+        "src": "./public/item-icons/items/frame_000680.png"
+      },
+      "requirements": {
+        "type": "level",
+        "amount": 35,
+        "classMask": 31,
+        "genderMask": 3
+      },
+      "stackable": false,
+      "maxStack": 1,
+      "stats": {
+        "ac": [
+          0,
+          0
+        ],
+        "amc": [
+          0,
+          0
+        ],
+        "dc": [
+          0,
+          1
+        ],
+        "mc": [
+          0,
+          0
+        ],
+        "sc": [
+          1,
+          3
+        ],
+        "hp": 0,
+        "mp": 0,
+        "accuracy": 0,
+        "agility": 0,
+        "luck": 0,
+        "attackSpeed": 0
+      },
+      "shop": {
+        "buy": 25000,
+        "sell": 5000
+      },
+      "crystalType": "Bracelet"
+    },
+    {
+      "id": "baek-ta-glove",
+      "name": "Baek Ta Glove",
+      "type": "bracelet",
+      "slot": "bracelet",
+      "class": "any",
+      "source": {
+        "crystalIndex": 505,
+        "name": "BaekTaGlove"
+      },
+      "icon": {
+        "library": "Items",
+        "frame": 677,
+        "src": "./public/item-icons/items/frame_000677.png"
+      },
+      "requirements": {
+        "type": "level",
+        "amount": 37,
+        "classMask": 31,
+        "genderMask": 3
+      },
+      "stackable": false,
+      "maxStack": 1,
+      "stats": {
+        "ac": [
+          0,
+          2
+        ],
+        "amc": [
+          0,
+          2
+        ],
+        "dc": [
+          0,
+          3
+        ],
+        "mc": [
+          0,
+          0
+        ],
+        "sc": [
+          0,
+          0
+        ],
+        "hp": 0,
+        "mp": 0,
+        "accuracy": 0,
+        "agility": 0,
+        "luck": 0,
+        "attackSpeed": 0
+      },
+      "shop": {
+        "buy": 25000,
+        "sell": 5000
+      },
+      "crystalType": "Bracelet"
+    },
+    {
+      "id": "spirit-reformer",
+      "name": "Spirit Reformer",
+      "type": "bracelet",
+      "slot": "bracelet",
+      "class": "any",
+      "source": {
+        "crystalIndex": 506,
+        "name": "SpiritReformer"
+      },
+      "icon": {
+        "library": "Items",
+        "frame": 679,
+        "src": "./public/item-icons/items/frame_000679.png"
+      },
+      "requirements": {
+        "type": "level",
+        "amount": 37,
+        "classMask": 31,
+        "genderMask": 3
+      },
+      "stackable": false,
+      "maxStack": 1,
+      "stats": {
+        "ac": [
+          0,
+          2
+        ],
+        "amc": [
+          0,
+          0
+        ],
+        "dc": [
+          0,
+          0
+        ],
+        "mc": [
+          0,
+          4
+        ],
+        "sc": [
+          0,
+          0
+        ],
+        "hp": 0,
+        "mp": 0,
+        "accuracy": 0,
+        "agility": 0,
+        "luck": 0,
+        "attackSpeed": 0
+      },
+      "shop": {
+        "buy": 25000,
+        "sell": 5000
+      },
+      "crystalType": "Bracelet"
+    },
+    {
+      "id": "holy-tao-wheel",
+      "name": "Holy Tao Wheel",
+      "type": "bracelet",
+      "slot": "bracelet",
+      "class": "any",
+      "source": {
+        "crystalIndex": 507,
+        "name": "HolyTaoWheel"
+      },
+      "icon": {
+        "library": "Items",
+        "frame": 681,
+        "src": "./public/item-icons/items/frame_000681.png"
+      },
+      "requirements": {
+        "type": "level",
+        "amount": 37,
+        "classMask": 31,
+        "genderMask": 3
+      },
+      "stackable": false,
+      "maxStack": 1,
+      "stats": {
+        "ac": [
+          0,
+          0
+        ],
+        "amc": [
+          0,
+          0
+        ],
+        "dc": [
+          1,
+          1
+        ],
+        "mc": [
+          0,
+          0
+        ],
+        "sc": [
+          1,
+          3
+        ],
+        "hp": 0,
+        "mp": 0,
+        "accuracy": 0,
+        "agility": 0,
+        "luck": 0,
+        "attackSpeed": 0
+      },
+      "shop": {
+        "buy": 25000,
+        "sell": 5000
+      },
+      "crystalType": "Bracelet"
+    },
+    {
+      "id": "noble-ring",
+      "name": "Noble Ring",
+      "type": "ring",
+      "slot": "ring",
+      "class": "any",
+      "source": {
+        "crystalIndex": 434,
+        "name": "NobleRing"
+      },
+      "icon": {
+        "library": "Items",
+        "frame": 673,
+        "src": "./public/item-icons/items/frame_000673.png"
+      },
+      "requirements": {
+        "type": "level",
+        "amount": 37,
+        "classMask": 31,
+        "genderMask": 3
+      },
+      "stackable": false,
+      "maxStack": 1,
+      "stats": {
+        "ac": [
+          0,
+          1
+        ],
+        "amc": [
+          0,
+          0
+        ],
+        "dc": [
+          0,
+          0
+        ],
+        "mc": [
+          0,
+          5
+        ],
+        "sc": [
+          0,
+          0
+        ],
+        "hp": 0,
+        "mp": 0,
+        "accuracy": 0,
+        "agility": 0,
+        "luck": 0,
+        "attackSpeed": 0
+      },
+      "shop": {
+        "buy": 19000,
+        "sell": 3800
+      },
+      "crystalType": "Ring"
+    },
+    {
+      "id": "soul-ring",
+      "name": "Soul Ring",
+      "type": "ring",
+      "slot": "ring",
+      "class": "any",
+      "source": {
+        "crystalIndex": 435,
+        "name": "SoulRing"
+      },
+      "icon": {
+        "library": "Items",
+        "frame": 674,
+        "src": "./public/item-icons/items/frame_000674.png"
+      },
+      "requirements": {
+        "type": "level",
+        "amount": 37,
+        "classMask": 31,
+        "genderMask": 3
+      },
+      "stackable": false,
+      "maxStack": 1,
+      "stats": {
+        "ac": [
+          0,
+          0
+        ],
+        "amc": [
+          0,
+          0
+        ],
+        "dc": [
+          0,
+          3
+        ],
+        "mc": [
+          0,
+          0
+        ],
+        "sc": [
+          1,
+          3
+        ],
+        "hp": 0,
+        "mp": 0,
+        "accuracy": 0,
+        "agility": 0,
+        "luck": 0,
+        "attackSpeed": 0
+      },
+      "shop": {
+        "buy": 19000,
+        "sell": 3800
+      },
+      "crystalType": "Ring"
+    },
+    {
+      "id": "boundless-ring",
+      "name": "Boundless Ring",
+      "type": "ring",
+      "slot": "ring",
+      "class": "any",
+      "source": {
+        "crystalIndex": 430,
+        "name": "BoundlessRing"
+      },
+      "icon": {
+        "library": "Items",
+        "frame": 670,
+        "src": "./public/item-icons/items/frame_000670.png"
+      },
+      "requirements": {
+        "type": "maxDC",
+        "amount": 54,
+        "classMask": 31,
+        "genderMask": 3
+      },
+      "stackable": false,
+      "maxStack": 1,
+      "stats": {
+        "ac": [
+          0,
+          0
+        ],
+        "amc": [
+          0,
+          0
+        ],
+        "dc": [
+          0,
+          8
+        ],
+        "mc": [
+          0,
+          0
+        ],
+        "sc": [
+          0,
+          0
+        ],
+        "hp": 0,
+        "mp": 0,
+        "accuracy": 0,
+        "agility": 0,
+        "luck": 0,
+        "attackSpeed": 0
+      },
+      "shop": {
+        "buy": 28000,
+        "sell": 5600
+      },
+      "crystalType": "Ring"
+    },
+    {
+      "id": "thunder-ring",
+      "name": "Thunder Ring",
+      "type": "ring",
+      "slot": "ring",
+      "class": "any",
+      "source": {
+        "crystalIndex": 431,
+        "name": "ThunderRing"
+      },
+      "icon": {
+        "library": "Items",
+        "frame": 672,
+        "src": "./public/item-icons/items/frame_000672.png"
+      },
+      "requirements": {
+        "type": "maxMC",
+        "amount": 32,
+        "classMask": 31,
         "genderMask": 3
       },
       "stackable": false,
@@ -20961,7 +22001,7 @@
         ],
         "mc": [
           0,
-          0
+          6
         ],
         "sc": [
           0,
@@ -20975,14 +22015,67 @@
         "attackSpeed": 0
       },
       "shop": {
-        "buy": 20000,
-        "sell": 4000
+        "buy": 28000,
+        "sell": 5600
       },
-      "spell": {
-        "id": "IceStorm",
-        "shape": 46
+      "crystalType": "Ring"
+    },
+    {
+      "id": "tae-guk-ring",
+      "name": "Tae Guk Ring",
+      "type": "ring",
+      "slot": "ring",
+      "class": "any",
+      "source": {
+        "crystalIndex": 432,
+        "name": "TaeGukRing"
       },
-      "crystalType": "Book"
+      "icon": {
+        "library": "Items",
+        "frame": 675,
+        "src": "./public/item-icons/items/frame_000675.png"
+      },
+      "requirements": {
+        "type": "maxSC",
+        "amount": 30,
+        "classMask": 31,
+        "genderMask": 3
+      },
+      "stackable": false,
+      "maxStack": 1,
+      "stats": {
+        "ac": [
+          0,
+          0
+        ],
+        "amc": [
+          0,
+          0
+        ],
+        "dc": [
+          0,
+          2
+        ],
+        "mc": [
+          0,
+          0
+        ],
+        "sc": [
+          0,
+          6
+        ],
+        "hp": 0,
+        "mp": 0,
+        "accuracy": 0,
+        "agility": 0,
+        "luck": 0,
+        "attackSpeed": 0
+      },
+      "shop": {
+        "buy": 28000,
+        "sell": 5600
+      },
+      "crystalType": "Ring"
     }
   ]
 }

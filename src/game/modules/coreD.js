@@ -3872,6 +3872,7 @@ function bossDropTableForEnemy(enemy = state.battle.enemy) {
   if (G.isMinotaurKingEnemy(enemy)) return MINOTAUR_KING_BOSS_DROPS;
   if (G.isOmaKingSpiritEnemy(enemy)) return OMA_KING_SPIRIT_BOSS_DROPS;
   if (G.isKingHogEnemy?.(enemy)) return G.KING_HOG_BOSS_DROPS;
+  if (G.isDarkDevilEnemy?.(enemy)) return G.DARK_DEVIL_BOSS_DROPS;
   return null;
 }
 

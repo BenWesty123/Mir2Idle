@@ -9,6 +9,7 @@ const curatedDropCsvPath = path.join(root, "content-audit/phase-1/idle-drop-item
 const crystalItemsPath = path.join(root, "src/data/crystal-items.json");
 const itemsOutputPath = path.join(root, "src/data/items.json");
 const publicIconRoot = path.join(root, "public/item-icons/items");
+const allowItemRemoval = process.argv.includes("--allow-item-removal");
 
 const zoneIds = {
   "Bicheon 1": "zone-bicheon-1",
@@ -35,6 +36,7 @@ const zoneIds = {
   "Prajna Cave 2": "zone-prajna-cave-2",
   "Prajna Temple 1": "zone-prajna-temple-1",
   "Prajna Temple 2": "zone-prajna-temple-2",
+  "Viper Cave 1": "zone-viper-cave-1",
 };
 
 const curatedDropColumns = [
@@ -62,6 +64,7 @@ const curatedDropColumns = [
   ["Prajna Cave 2 chance", "zone-prajna-cave-2"],
   ["Prajna Temple 1 chance", "zone-prajna-temple-1"],
   ["Prajna Temple 2 chance", "zone-prajna-temple-2"],
+  ["Viper Cave 1 chance", "zone-viper-cave-1"],
 ];
 
 const curatedEnemyDropColumns = [
@@ -626,6 +629,34 @@ const output = {
   },
   items,
 };
+
+function existingItemIds() {
+  if (!fs.existsSync(itemsOutputPath)) return new Set();
+  try {
+    const existing = JSON.parse(fs.readFileSync(itemsOutputPath, "utf8"));
+    return new Set((existing.items ?? []).map((item) => item.id).filter(Boolean));
+  } catch (error) {
+    console.warn(`Could not read existing ${path.relative(root, itemsOutputPath)} for removal safety check: ${error.message}`);
+    return new Set();
+  }
+}
+
+const existingIds = existingItemIds();
+const nextIds = new Set(items.map((item) => item.id).filter(Boolean));
+const removedIds = [...existingIds].filter((id) => !nextIds.has(id)).sort();
+if (removedIds.length && !allowItemRemoval) {
+  console.error("");
+  console.error("Refusing to write src/data/items.json because this rebuild would remove existing item IDs.");
+  console.error("Items should never disappear from saves unless removal is intentional.");
+  console.error("");
+  console.error(`Removed item count: ${removedIds.length}`);
+  console.error(removedIds.slice(0, 80).join(", "));
+  if (removedIds.length > 80) console.error(`...and ${removedIds.length - 80} more`);
+  console.error("");
+  console.error("If this is genuinely intended, rerun with --allow-item-removal.");
+  console.error("For drop-only changes, update the existing item data additively instead of rebuilding/removing items.");
+  process.exit(1);
+}
 
 fs.writeFileSync(itemsOutputPath, `${JSON.stringify(output, null, 2)}\n`);
 

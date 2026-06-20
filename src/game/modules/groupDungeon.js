@@ -362,7 +362,8 @@ function swarmEnemyWalkStepProgress(enemy) {
   if (enemy.stepToX == null) return 1;
   const clip = enemy.atlas?.actions?.[enemy.action];
   const count = clip?.frames?.length ?? 1;
-  return Math.min(1, (enemy.frame + 1) / count);
+  if (count <= 1) return 1;
+  return Math.min(1, enemy.frame / (count - 1));
 }
 
 function swarmEnemyWalkDrawOffset(enemy) {

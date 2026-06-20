@@ -1,0 +1,2726 @@
+{
+  "version": 1,
+  "savedAt": 1781892548364,
+  "activeCharacterId": "Warrior",
+  "groupDungeonRun": null,
+  "characters": {
+    "Warrior": {
+      "classId": "Warrior",
+      "game": {
+        "mode": "town",
+        "activeZoneId": null,
+        "kills": 0,
+        "zoneKills": 0,
+        "distance": 0,
+        "playtimeMs": 0,
+        "lastReward": null,
+        "recentLoot": [],
+        "dropPity": {},
+        "bossRespawns": {},
+        "bossKills": {},
+        "progress": {
+          "level": 500,
+          "experience": 0,
+          "gold": 99999999
+        },
+        "starterGearVersion": 1,
+        "miningNextRollAt": 0,
+        "miningSpotId": null,
+        "groupDungeonRun": null
+      },
+      "inventory": {
+        "gold": 99999999,
+        "pagesUnlocked": 2,
+        "maxSlots": 80,
+        "nextInstanceId": 19,
+        "items": [
+          {
+            "id": "item-1",
+            "itemId": "sword-of-war-god",
+            "quantity": 1,
+            "slot": null,
+            "refineLevel": 0,
+            "weaponRefineLevel": 0,
+            "gemCount": 0,
+            "bonusStats": {
+              "dc": [
+                500,
+                500
+              ],
+              "mc": [
+                500,
+                500
+              ],
+              "sc": [
+                500,
+                500
+              ],
+              "ac": [
+                200,
+                200
+              ],
+              "amc": [
+                200,
+                200
+              ],
+              "hp": 50000,
+              "mp": 50000,
+              "accuracy": 100,
+              "agility": 100,
+              "luck": 10,
+              "attackSpeed": 20
+            }
+          },
+          {
+            "id": "item-2",
+            "itemId": "heaven-armour",
+            "quantity": 1,
+            "slot": null,
+            "refineLevel": 0,
+            "weaponRefineLevel": 0,
+            "gemCount": 0,
+            "bonusStats": {
+              "dc": [
+                500,
+                500
+              ],
+              "mc": [
+                500,
+                500
+              ],
+              "sc": [
+                500,
+                500
+              ],
+              "ac": [
+                200,
+                200
+              ],
+              "amc": [
+                200,
+                200
+              ],
+              "hp": 50000,
+              "mp": 50000,
+              "accuracy": 100,
+              "agility": 100,
+              "luck": 10,
+              "attackSpeed": 20
+            }
+          },
+          {
+            "id": "item-3",
+            "itemId": "great-helmet",
+            "quantity": 1,
+            "slot": null,
+            "refineLevel": 0,
+            "weaponRefineLevel": 0,
+            "gemCount": 0,
+            "bonusStats": {
+              "dc": [
+                500,
+                500
+              ],
+              "mc": [
+                500,
+                500
+              ],
+              "sc": [
+                500,
+                500
+              ],
+              "ac": [
+                200,
+                200
+              ],
+              "amc": [
+                200,
+                200
+              ],
+              "hp": 50000,
+              "mp": 50000,
+              "accuracy": 100,
+              "agility": 100,
+              "luck": 10,
+              "attackSpeed": 20
+            }
+          },
+          {
+            "id": "item-4",
+            "itemId": "hero-necklace",
+            "quantity": 1,
+            "slot": null,
+            "refineLevel": 0,
+            "weaponRefineLevel": 0,
+            "gemCount": 0,
+            "bonusStats": {
+              "dc": [
+                500,
+                500
+              ],
+              "mc": [
+                500,
+                500
+              ],
+              "sc": [
+                500,
+                500
+              ],
+              "ac": [
+                200,
+                200
+              ],
+              "amc": [
+                200,
+                200
+              ],
+              "hp": 50000,
+              "mp": 50000,
+              "accuracy": 100,
+              "agility": 100,
+              "luck": 10,
+              "attackSpeed": 20
+            }
+          },
+          {
+            "id": "item-5",
+            "itemId": "8-trigram-wheel",
+            "quantity": 1,
+            "slot": null,
+            "refineLevel": 0,
+            "weaponRefineLevel": 0,
+            "gemCount": 0,
+            "bonusStats": {
+              "dc": [
+                500,
+                500
+              ],
+              "mc": [
+                500,
+                500
+              ],
+              "sc": [
+                500,
+                500
+              ],
+              "ac": [
+                200,
+                200
+              ],
+              "amc": [
+                200,
+                200
+              ],
+              "hp": 50000,
+              "mp": 50000,
+              "accuracy": 100,
+              "agility": 100,
+              "luck": 10,
+              "attackSpeed": 20
+            }
+          },
+          {
+            "id": "item-6",
+            "itemId": "8-trigram-wheel",
+            "quantity": 1,
+            "slot": null,
+            "refineLevel": 0,
+            "weaponRefineLevel": 0,
+            "gemCount": 0,
+            "bonusStats": {
+              "dc": [
+                500,
+                500
+              ],
+              "mc": [
+                500,
+                500
+              ],
+              "sc": [
+                500,
+                500
+              ],
+              "ac": [
+                200,
+                200
+              ],
+              "amc": [
+                200,
+                200
+              ],
+              "hp": 50000,
+              "mp": 50000,
+              "accuracy": 100,
+              "agility": 100,
+              "luck": 10,
+              "attackSpeed": 20
+            }
+          },
+          {
+            "id": "item-7",
+            "itemId": "boundless-ring",
+            "quantity": 1,
+            "slot": null,
+            "refineLevel": 0,
+            "weaponRefineLevel": 0,
+            "gemCount": 0,
+            "bonusStats": {
+              "dc": [
+                500,
+                500
+              ],
+              "mc": [
+                500,
+                500
+              ],
+              "sc": [
+                500,
+                500
+              ],
+              "ac": [
+                200,
+                200
+              ],
+              "amc": [
+                200,
+                200
+              ],
+              "hp": 50000,
+              "mp": 50000,
+              "accuracy": 100,
+              "agility": 100,
+              "luck": 10,
+              "attackSpeed": 20
+            }
+          },
+          {
+            "id": "item-8",
+            "itemId": "oma-spirit-ring",
+            "quantity": 1,
+            "slot": null,
+            "refineLevel": 0,
+            "weaponRefineLevel": 0,
+            "gemCount": 0,
+            "bonusStats": {
+              "dc": [
+                500,
+                500
+              ],
+              "mc": [
+                500,
+                500
+              ],
+              "sc": [
+                500,
+                500
+              ],
+              "ac": [
+                200,
+                200
+              ],
+              "amc": [
+                200,
+                200
+              ],
+              "hp": 50000,
+              "mp": 50000,
+              "accuracy": 100,
+              "agility": 100,
+              "luck": 10,
+              "attackSpeed": 20
+            }
+          },
+          {
+            "id": "item-9",
+            "itemId": "black-iron-belt",
+            "quantity": 1,
+            "slot": null,
+            "refineLevel": 0,
+            "weaponRefineLevel": 0,
+            "gemCount": 0,
+            "bonusStats": {
+              "dc": [
+                500,
+                500
+              ],
+              "mc": [
+                500,
+                500
+              ],
+              "sc": [
+                500,
+                500
+              ],
+              "ac": [
+                200,
+                200
+              ],
+              "amc": [
+                200,
+                200
+              ],
+              "hp": 50000,
+              "mp": 50000,
+              "accuracy": 100,
+              "agility": 100,
+              "luck": 10,
+              "attackSpeed": 20
+            }
+          },
+          {
+            "id": "item-10",
+            "itemId": "dcstone",
+            "quantity": 1,
+            "slot": null,
+            "refineLevel": 0,
+            "weaponRefineLevel": 0,
+            "gemCount": 0,
+            "bonusStats": {
+              "dc": [
+                500,
+                500
+              ],
+              "mc": [
+                500,
+                500
+              ],
+              "sc": [
+                500,
+                500
+              ],
+              "ac": [
+                200,
+                200
+              ],
+              "amc": [
+                200,
+                200
+              ],
+              "hp": 50000,
+              "mp": 50000,
+              "accuracy": 100,
+              "agility": 100,
+              "luck": 10,
+              "attackSpeed": 20
+            }
+          },
+          {
+            "id": "item-11",
+            "itemId": "black-boots",
+            "quantity": 1,
+            "slot": null,
+            "refineLevel": 0,
+            "weaponRefineLevel": 0,
+            "gemCount": 0,
+            "bonusStats": {
+              "dc": [
+                500,
+                500
+              ],
+              "mc": [
+                500,
+                500
+              ],
+              "sc": [
+                500,
+                500
+              ],
+              "ac": [
+                200,
+                200
+              ],
+              "amc": [
+                200,
+                200
+              ],
+              "hp": 50000,
+              "mp": 50000,
+              "accuracy": 100,
+              "agility": 100,
+              "luck": 10,
+              "attackSpeed": 20
+            }
+          },
+          {
+            "id": "item-12",
+            "itemId": "hp-drug-xl",
+            "quantity": 999,
+            "slot": 0,
+            "refineLevel": 0,
+            "weaponRefineLevel": 0,
+            "gemCount": 0,
+            "bonusStats": {}
+          },
+          {
+            "id": "item-13",
+            "itemId": "mp-drug-xl",
+            "quantity": 999,
+            "slot": 1,
+            "refineLevel": 0,
+            "weaponRefineLevel": 0,
+            "gemCount": 0,
+            "bonusStats": {}
+          },
+          {
+            "id": "item-14",
+            "itemId": "impact-drug-m",
+            "quantity": 99,
+            "slot": 2,
+            "refineLevel": 0,
+            "weaponRefineLevel": 0,
+            "gemCount": 0,
+            "bonusStats": {}
+          },
+          {
+            "id": "item-15",
+            "itemId": "magic-drug-m",
+            "quantity": 99,
+            "slot": 3,
+            "refineLevel": 0,
+            "weaponRefineLevel": 0,
+            "gemCount": 0,
+            "bonusStats": {}
+          },
+          {
+            "id": "item-16",
+            "itemId": "taoist-drug-m",
+            "quantity": 99,
+            "slot": 4,
+            "refineLevel": 0,
+            "weaponRefineLevel": 0,
+            "gemCount": 0,
+            "bonusStats": {}
+          },
+          {
+            "id": "item-17",
+            "itemId": "green-poison",
+            "quantity": 99,
+            "slot": 5,
+            "refineLevel": 0,
+            "weaponRefineLevel": 0,
+            "gemCount": 0,
+            "bonusStats": {}
+          },
+          {
+            "id": "item-18",
+            "itemId": "yellow-poison",
+            "quantity": 99,
+            "slot": 6,
+            "refineLevel": 0,
+            "weaponRefineLevel": 0,
+            "gemCount": 0,
+            "bonusStats": {}
+          }
+        ],
+        "equipment": {
+          "weapon": "item-1",
+          "armour": "item-2",
+          "helmet": "item-3",
+          "torch": null,
+          "necklace": "item-4",
+          "braceletL": "item-5",
+          "braceletR": "item-6",
+          "ringL": "item-7",
+          "ringR": "item-8",
+          "amulet": null,
+          "belt": "item-9",
+          "boots": "item-11",
+          "stone": "item-10",
+          "mount": null
+        }
+      },
+      "hotbar": {
+        "slots": [
+          null,
+          null,
+          null,
+          null,
+          null,
+          null
+        ]
+      },
+      "magic": {
+        "learned": {
+          "Fencing": {
+            "spellId": "Fencing",
+            "level": 3,
+            "experience": 999999,
+            "key": null,
+            "autoCast": true,
+            "castReadyAt": 0,
+            "learnedAt": 1781892548363
+          },
+          "Slaying": {
+            "spellId": "Slaying",
+            "level": 3,
+            "experience": 999999,
+            "key": null,
+            "autoCast": true,
+            "castReadyAt": 0,
+            "learnedAt": 1781892548363
+          },
+          "Thrusting": {
+            "spellId": "Thrusting",
+            "level": 3,
+            "experience": 999999,
+            "key": null,
+            "autoCast": true,
+            "castReadyAt": 0,
+            "learnedAt": 1781892548363
+          },
+          "HalfMoon": {
+            "spellId": "HalfMoon",
+            "level": 3,
+            "experience": 999999,
+            "key": null,
+            "autoCast": true,
+            "castReadyAt": 0,
+            "learnedAt": 1781892548363
+          },
+          "TwinDrakeBlade": {
+            "spellId": "TwinDrakeBlade",
+            "level": 3,
+            "experience": 999999,
+            "key": null,
+            "autoCast": true,
+            "castReadyAt": 0,
+            "learnedAt": 1781892548363
+          },
+          "FlamingSword": {
+            "spellId": "FlamingSword",
+            "level": 3,
+            "experience": 999999,
+            "key": null,
+            "autoCast": true,
+            "castReadyAt": 0,
+            "learnedAt": 1781892548363
+          },
+          "LionRoar": {
+            "spellId": "LionRoar",
+            "level": 3,
+            "experience": 999999,
+            "key": null,
+            "autoCast": true,
+            "castReadyAt": 0,
+            "learnedAt": 1781892548363
+          },
+          "BladeAvalanche": {
+            "spellId": "BladeAvalanche",
+            "level": 3,
+            "experience": 999999,
+            "key": null,
+            "autoCast": true,
+            "castReadyAt": 0,
+            "learnedAt": 1781892548363
+          },
+          "ProtectionField": {
+            "spellId": "ProtectionField",
+            "level": 3,
+            "experience": 999999,
+            "key": null,
+            "autoCast": true,
+            "castReadyAt": 0,
+            "learnedAt": 1781892548363
+          },
+          "Rage": {
+            "spellId": "Rage",
+            "level": 3,
+            "experience": 999999,
+            "key": null,
+            "autoCast": true,
+            "castReadyAt": 0,
+            "learnedAt": 1781892548363
+          },
+          "CounterAttack": {
+            "spellId": "CounterAttack",
+            "level": 3,
+            "experience": 999999,
+            "key": null,
+            "autoCast": true,
+            "castReadyAt": 0,
+            "learnedAt": 1781892548363
+          },
+          "SlashingBurst": {
+            "spellId": "SlashingBurst",
+            "level": 3,
+            "experience": 999999,
+            "key": null,
+            "autoCast": true,
+            "castReadyAt": 0,
+            "learnedAt": 1781892548363
+          },
+          "Fury": {
+            "spellId": "Fury",
+            "level": 3,
+            "experience": 999999,
+            "key": null,
+            "autoCast": true,
+            "castReadyAt": 0,
+            "learnedAt": 1781892548363
+          },
+          "ImmortalSkin": {
+            "spellId": "ImmortalSkin",
+            "level": 3,
+            "experience": 999999,
+            "key": null,
+            "autoCast": true,
+            "castReadyAt": 0,
+            "learnedAt": 1781892548363
+          }
+        }
+      },
+      "battle": {
+        "running": false,
+        "paused": false,
+        "playerHp": null,
+        "playerMp": null,
+        "potHealthAmount": 0,
+        "potManaAmount": 0,
+        "healAmount": 0,
+        "statBuffs": [],
+        "petStatBuffs": []
+      }
+    },
+    "Wizard": {
+      "classId": "Wizard",
+      "game": {
+        "mode": "town",
+        "activeZoneId": null,
+        "kills": 0,
+        "zoneKills": 0,
+        "distance": 0,
+        "playtimeMs": 0,
+        "lastReward": null,
+        "recentLoot": [],
+        "dropPity": {},
+        "bossRespawns": {},
+        "bossKills": {},
+        "progress": {
+          "level": 500,
+          "experience": 0,
+          "gold": 99999999
+        },
+        "starterGearVersion": 1,
+        "miningNextRollAt": 0,
+        "miningSpotId": null,
+        "groupDungeonRun": null
+      },
+      "inventory": {
+        "gold": 99999999,
+        "pagesUnlocked": 2,
+        "maxSlots": 80,
+        "nextInstanceId": 19,
+        "items": [
+          {
+            "id": "item-1",
+            "itemId": "blade-of-sorcery",
+            "quantity": 1,
+            "slot": null,
+            "refineLevel": 0,
+            "weaponRefineLevel": 0,
+            "gemCount": 0,
+            "bonusStats": {
+              "dc": [
+                500,
+                500
+              ],
+              "mc": [
+                500,
+                500
+              ],
+              "sc": [
+                500,
+                500
+              ],
+              "ac": [
+                200,
+                200
+              ],
+              "amc": [
+                200,
+                200
+              ],
+              "hp": 50000,
+              "mp": 50000,
+              "accuracy": 100,
+              "agility": 100,
+              "luck": 10,
+              "attackSpeed": 20
+            }
+          },
+          {
+            "id": "item-2",
+            "itemId": "heaven-armour",
+            "quantity": 1,
+            "slot": null,
+            "refineLevel": 0,
+            "weaponRefineLevel": 0,
+            "gemCount": 0,
+            "bonusStats": {
+              "dc": [
+                500,
+                500
+              ],
+              "mc": [
+                500,
+                500
+              ],
+              "sc": [
+                500,
+                500
+              ],
+              "ac": [
+                200,
+                200
+              ],
+              "amc": [
+                200,
+                200
+              ],
+              "hp": 50000,
+              "mp": 50000,
+              "accuracy": 100,
+              "agility": 100,
+              "luck": 10,
+              "attackSpeed": 20
+            }
+          },
+          {
+            "id": "item-3",
+            "itemId": "great-helmet",
+            "quantity": 1,
+            "slot": null,
+            "refineLevel": 0,
+            "weaponRefineLevel": 0,
+            "gemCount": 0,
+            "bonusStats": {
+              "dc": [
+                500,
+                500
+              ],
+              "mc": [
+                500,
+                500
+              ],
+              "sc": [
+                500,
+                500
+              ],
+              "ac": [
+                200,
+                200
+              ],
+              "amc": [
+                200,
+                200
+              ],
+              "hp": 50000,
+              "mp": 50000,
+              "accuracy": 100,
+              "agility": 100,
+              "luck": 10,
+              "attackSpeed": 20
+            }
+          },
+          {
+            "id": "item-4",
+            "itemId": "hero-necklace",
+            "quantity": 1,
+            "slot": null,
+            "refineLevel": 0,
+            "weaponRefineLevel": 0,
+            "gemCount": 0,
+            "bonusStats": {
+              "dc": [
+                500,
+                500
+              ],
+              "mc": [
+                500,
+                500
+              ],
+              "sc": [
+                500,
+                500
+              ],
+              "ac": [
+                200,
+                200
+              ],
+              "amc": [
+                200,
+                200
+              ],
+              "hp": 50000,
+              "mp": 50000,
+              "accuracy": 100,
+              "agility": 100,
+              "luck": 10,
+              "attackSpeed": 20
+            }
+          },
+          {
+            "id": "item-5",
+            "itemId": "8-trigram-wheel",
+            "quantity": 1,
+            "slot": null,
+            "refineLevel": 0,
+            "weaponRefineLevel": 0,
+            "gemCount": 0,
+            "bonusStats": {
+              "dc": [
+                500,
+                500
+              ],
+              "mc": [
+                500,
+                500
+              ],
+              "sc": [
+                500,
+                500
+              ],
+              "ac": [
+                200,
+                200
+              ],
+              "amc": [
+                200,
+                200
+              ],
+              "hp": 50000,
+              "mp": 50000,
+              "accuracy": 100,
+              "agility": 100,
+              "luck": 10,
+              "attackSpeed": 20
+            }
+          },
+          {
+            "id": "item-6",
+            "itemId": "8-trigram-wheel",
+            "quantity": 1,
+            "slot": null,
+            "refineLevel": 0,
+            "weaponRefineLevel": 0,
+            "gemCount": 0,
+            "bonusStats": {
+              "dc": [
+                500,
+                500
+              ],
+              "mc": [
+                500,
+                500
+              ],
+              "sc": [
+                500,
+                500
+              ],
+              "ac": [
+                200,
+                200
+              ],
+              "amc": [
+                200,
+                200
+              ],
+              "hp": 50000,
+              "mp": 50000,
+              "accuracy": 100,
+              "agility": 100,
+              "luck": 10,
+              "attackSpeed": 20
+            }
+          },
+          {
+            "id": "item-7",
+            "itemId": "boundless-ring",
+            "quantity": 1,
+            "slot": null,
+            "refineLevel": 0,
+            "weaponRefineLevel": 0,
+            "gemCount": 0,
+            "bonusStats": {
+              "dc": [
+                500,
+                500
+              ],
+              "mc": [
+                500,
+                500
+              ],
+              "sc": [
+                500,
+                500
+              ],
+              "ac": [
+                200,
+                200
+              ],
+              "amc": [
+                200,
+                200
+              ],
+              "hp": 50000,
+              "mp": 50000,
+              "accuracy": 100,
+              "agility": 100,
+              "luck": 10,
+              "attackSpeed": 20
+            }
+          },
+          {
+            "id": "item-8",
+            "itemId": "oma-spirit-ring",
+            "quantity": 1,
+            "slot": null,
+            "refineLevel": 0,
+            "weaponRefineLevel": 0,
+            "gemCount": 0,
+            "bonusStats": {
+              "dc": [
+                500,
+                500
+              ],
+              "mc": [
+                500,
+                500
+              ],
+              "sc": [
+                500,
+                500
+              ],
+              "ac": [
+                200,
+                200
+              ],
+              "amc": [
+                200,
+                200
+              ],
+              "hp": 50000,
+              "mp": 50000,
+              "accuracy": 100,
+              "agility": 100,
+              "luck": 10,
+              "attackSpeed": 20
+            }
+          },
+          {
+            "id": "item-9",
+            "itemId": "black-iron-belt",
+            "quantity": 1,
+            "slot": null,
+            "refineLevel": 0,
+            "weaponRefineLevel": 0,
+            "gemCount": 0,
+            "bonusStats": {
+              "dc": [
+                500,
+                500
+              ],
+              "mc": [
+                500,
+                500
+              ],
+              "sc": [
+                500,
+                500
+              ],
+              "ac": [
+                200,
+                200
+              ],
+              "amc": [
+                200,
+                200
+              ],
+              "hp": 50000,
+              "mp": 50000,
+              "accuracy": 100,
+              "agility": 100,
+              "luck": 10,
+              "attackSpeed": 20
+            }
+          },
+          {
+            "id": "item-10",
+            "itemId": "dcstone",
+            "quantity": 1,
+            "slot": null,
+            "refineLevel": 0,
+            "weaponRefineLevel": 0,
+            "gemCount": 0,
+            "bonusStats": {
+              "dc": [
+                500,
+                500
+              ],
+              "mc": [
+                500,
+                500
+              ],
+              "sc": [
+                500,
+                500
+              ],
+              "ac": [
+                200,
+                200
+              ],
+              "amc": [
+                200,
+                200
+              ],
+              "hp": 50000,
+              "mp": 50000,
+              "accuracy": 100,
+              "agility": 100,
+              "luck": 10,
+              "attackSpeed": 20
+            }
+          },
+          {
+            "id": "item-11",
+            "itemId": "black-boots",
+            "quantity": 1,
+            "slot": null,
+            "refineLevel": 0,
+            "weaponRefineLevel": 0,
+            "gemCount": 0,
+            "bonusStats": {
+              "dc": [
+                500,
+                500
+              ],
+              "mc": [
+                500,
+                500
+              ],
+              "sc": [
+                500,
+                500
+              ],
+              "ac": [
+                200,
+                200
+              ],
+              "amc": [
+                200,
+                200
+              ],
+              "hp": 50000,
+              "mp": 50000,
+              "accuracy": 100,
+              "agility": 100,
+              "luck": 10,
+              "attackSpeed": 20
+            }
+          },
+          {
+            "id": "item-12",
+            "itemId": "hp-drug-xl",
+            "quantity": 999,
+            "slot": 0,
+            "refineLevel": 0,
+            "weaponRefineLevel": 0,
+            "gemCount": 0,
+            "bonusStats": {}
+          },
+          {
+            "id": "item-13",
+            "itemId": "mp-drug-xl",
+            "quantity": 999,
+            "slot": 1,
+            "refineLevel": 0,
+            "weaponRefineLevel": 0,
+            "gemCount": 0,
+            "bonusStats": {}
+          },
+          {
+            "id": "item-14",
+            "itemId": "impact-drug-m",
+            "quantity": 99,
+            "slot": 2,
+            "refineLevel": 0,
+            "weaponRefineLevel": 0,
+            "gemCount": 0,
+            "bonusStats": {}
+          },
+          {
+            "id": "item-15",
+            "itemId": "magic-drug-m",
+            "quantity": 99,
+            "slot": 3,
+            "refineLevel": 0,
+            "weaponRefineLevel": 0,
+            "gemCount": 0,
+            "bonusStats": {}
+          },
+          {
+            "id": "item-16",
+            "itemId": "taoist-drug-m",
+            "quantity": 99,
+            "slot": 4,
+            "refineLevel": 0,
+            "weaponRefineLevel": 0,
+            "gemCount": 0,
+            "bonusStats": {}
+          },
+          {
+            "id": "item-17",
+            "itemId": "green-poison",
+            "quantity": 99,
+            "slot": 5,
+            "refineLevel": 0,
+            "weaponRefineLevel": 0,
+            "gemCount": 0,
+            "bonusStats": {}
+          },
+          {
+            "id": "item-18",
+            "itemId": "yellow-poison",
+            "quantity": 99,
+            "slot": 6,
+            "refineLevel": 0,
+            "weaponRefineLevel": 0,
+            "gemCount": 0,
+            "bonusStats": {}
+          }
+        ],
+        "equipment": {
+          "weapon": "item-1",
+          "armour": "item-2",
+          "helmet": "item-3",
+          "torch": null,
+          "necklace": "item-4",
+          "braceletL": "item-5",
+          "braceletR": "item-6",
+          "ringL": "item-7",
+          "ringR": "item-8",
+          "amulet": null,
+          "belt": "item-9",
+          "boots": "item-11",
+          "stone": "item-10",
+          "mount": null
+        }
+      },
+      "hotbar": {
+        "slots": [
+          null,
+          null,
+          null,
+          null,
+          null,
+          null
+        ]
+      },
+      "magic": {
+        "learned": {
+          "FireBall": {
+            "spellId": "FireBall",
+            "level": 3,
+            "experience": 999999,
+            "key": null,
+            "autoCast": true,
+            "castReadyAt": 0,
+            "learnedAt": 1781892548364
+          },
+          "GreatFireBall": {
+            "spellId": "GreatFireBall",
+            "level": 3,
+            "experience": 999999,
+            "key": null,
+            "autoCast": true,
+            "castReadyAt": 0,
+            "learnedAt": 1781892548364
+          },
+          "ThunderBolt": {
+            "spellId": "ThunderBolt",
+            "level": 3,
+            "experience": 999999,
+            "key": null,
+            "autoCast": true,
+            "castReadyAt": 0,
+            "learnedAt": 1781892548364
+          },
+          "FireWall": {
+            "spellId": "FireWall",
+            "level": 3,
+            "experience": 999999,
+            "key": null,
+            "autoCast": true,
+            "castReadyAt": 0,
+            "learnedAt": 1781892548364
+          },
+          "FrostCrunch": {
+            "spellId": "FrostCrunch",
+            "level": 3,
+            "experience": 999999,
+            "key": null,
+            "autoCast": true,
+            "castReadyAt": 0,
+            "learnedAt": 1781892548364
+          },
+          "IceStorm": {
+            "spellId": "IceStorm",
+            "level": 3,
+            "experience": 999999,
+            "key": null,
+            "autoCast": true,
+            "castReadyAt": 0,
+            "learnedAt": 1781892548364
+          },
+          "MagicShield": {
+            "spellId": "MagicShield",
+            "level": 3,
+            "experience": 999999,
+            "key": null,
+            "autoCast": true,
+            "castReadyAt": 0,
+            "learnedAt": 1781892548364
+          },
+          "TurnUndead": {
+            "spellId": "TurnUndead",
+            "level": 3,
+            "experience": 999999,
+            "key": null,
+            "autoCast": true,
+            "castReadyAt": 0,
+            "learnedAt": 1781892548364
+          },
+          "Vampirism": {
+            "spellId": "Vampirism",
+            "level": 3,
+            "experience": 999999,
+            "key": null,
+            "autoCast": true,
+            "castReadyAt": 0,
+            "learnedAt": 1781892548364
+          },
+          "FlameDisruptor": {
+            "spellId": "FlameDisruptor",
+            "level": 3,
+            "experience": 999999,
+            "key": null,
+            "autoCast": true,
+            "castReadyAt": 0,
+            "learnedAt": 1781892548364
+          },
+          "Mirroring": {
+            "spellId": "Mirroring",
+            "level": 3,
+            "experience": 999999,
+            "key": null,
+            "autoCast": true,
+            "castReadyAt": 0,
+            "learnedAt": 1781892548364
+          },
+          "MagicBooster": {
+            "spellId": "MagicBooster",
+            "level": 3,
+            "experience": 999999,
+            "key": null,
+            "autoCast": true,
+            "castReadyAt": 0,
+            "learnedAt": 1781892548364
+          },
+          "MeteorStrike": {
+            "spellId": "MeteorStrike",
+            "level": 3,
+            "experience": 999999,
+            "key": null,
+            "autoCast": true,
+            "castReadyAt": 0,
+            "learnedAt": 1781892548364
+          }
+        }
+      },
+      "battle": {
+        "running": false,
+        "paused": false,
+        "playerHp": null,
+        "playerMp": null,
+        "potHealthAmount": 0,
+        "potManaAmount": 0,
+        "healAmount": 0,
+        "statBuffs": [],
+        "petStatBuffs": []
+      }
+    },
+    "Taoist": {
+      "classId": "Taoist",
+      "game": {
+        "mode": "town",
+        "activeZoneId": null,
+        "kills": 0,
+        "zoneKills": 0,
+        "distance": 0,
+        "playtimeMs": 0,
+        "lastReward": null,
+        "recentLoot": [],
+        "dropPity": {},
+        "bossRespawns": {},
+        "bossKills": {},
+        "progress": {
+          "level": 500,
+          "experience": 0,
+          "gold": 99999999
+        },
+        "starterGearVersion": 1,
+        "miningNextRollAt": 0,
+        "miningSpotId": null,
+        "groupDungeonRun": null
+      },
+      "inventory": {
+        "gold": 99999999,
+        "pagesUnlocked": 2,
+        "maxSlots": 80,
+        "nextInstanceId": 19,
+        "items": [
+          {
+            "id": "item-1",
+            "itemId": "heaven-sword",
+            "quantity": 1,
+            "slot": null,
+            "refineLevel": 0,
+            "weaponRefineLevel": 0,
+            "gemCount": 0,
+            "bonusStats": {
+              "dc": [
+                500,
+                500
+              ],
+              "mc": [
+                500,
+                500
+              ],
+              "sc": [
+                500,
+                500
+              ],
+              "ac": [
+                200,
+                200
+              ],
+              "amc": [
+                200,
+                200
+              ],
+              "hp": 50000,
+              "mp": 50000,
+              "accuracy": 100,
+              "agility": 100,
+              "luck": 10,
+              "attackSpeed": 20
+            }
+          },
+          {
+            "id": "item-2",
+            "itemId": "heaven-armour",
+            "quantity": 1,
+            "slot": null,
+            "refineLevel": 0,
+            "weaponRefineLevel": 0,
+            "gemCount": 0,
+            "bonusStats": {
+              "dc": [
+                500,
+                500
+              ],
+              "mc": [
+                500,
+                500
+              ],
+              "sc": [
+                500,
+                500
+              ],
+              "ac": [
+                200,
+                200
+              ],
+              "amc": [
+                200,
+                200
+              ],
+              "hp": 50000,
+              "mp": 50000,
+              "accuracy": 100,
+              "agility": 100,
+              "luck": 10,
+              "attackSpeed": 20
+            }
+          },
+          {
+            "id": "item-3",
+            "itemId": "tao-coronet",
+            "quantity": 1,
+            "slot": null,
+            "refineLevel": 0,
+            "weaponRefineLevel": 0,
+            "gemCount": 0,
+            "bonusStats": {
+              "dc": [
+                500,
+                500
+              ],
+              "mc": [
+                500,
+                500
+              ],
+              "sc": [
+                500,
+                500
+              ],
+              "ac": [
+                200,
+                200
+              ],
+              "amc": [
+                200,
+                200
+              ],
+              "hp": 50000,
+              "mp": 50000,
+              "accuracy": 100,
+              "agility": 100,
+              "luck": 10,
+              "attackSpeed": 20
+            }
+          },
+          {
+            "id": "item-4",
+            "itemId": "hero-necklace",
+            "quantity": 1,
+            "slot": null,
+            "refineLevel": 0,
+            "weaponRefineLevel": 0,
+            "gemCount": 0,
+            "bonusStats": {
+              "dc": [
+                500,
+                500
+              ],
+              "mc": [
+                500,
+                500
+              ],
+              "sc": [
+                500,
+                500
+              ],
+              "ac": [
+                200,
+                200
+              ],
+              "amc": [
+                200,
+                200
+              ],
+              "hp": 50000,
+              "mp": 50000,
+              "accuracy": 100,
+              "agility": 100,
+              "luck": 10,
+              "attackSpeed": 20
+            }
+          },
+          {
+            "id": "item-5",
+            "itemId": "8-trigram-wheel",
+            "quantity": 1,
+            "slot": null,
+            "refineLevel": 0,
+            "weaponRefineLevel": 0,
+            "gemCount": 0,
+            "bonusStats": {
+              "dc": [
+                500,
+                500
+              ],
+              "mc": [
+                500,
+                500
+              ],
+              "sc": [
+                500,
+                500
+              ],
+              "ac": [
+                200,
+                200
+              ],
+              "amc": [
+                200,
+                200
+              ],
+              "hp": 50000,
+              "mp": 50000,
+              "accuracy": 100,
+              "agility": 100,
+              "luck": 10,
+              "attackSpeed": 20
+            }
+          },
+          {
+            "id": "item-6",
+            "itemId": "8-trigram-wheel",
+            "quantity": 1,
+            "slot": null,
+            "refineLevel": 0,
+            "weaponRefineLevel": 0,
+            "gemCount": 0,
+            "bonusStats": {
+              "dc": [
+                500,
+                500
+              ],
+              "mc": [
+                500,
+                500
+              ],
+              "sc": [
+                500,
+                500
+              ],
+              "ac": [
+                200,
+                200
+              ],
+              "amc": [
+                200,
+                200
+              ],
+              "hp": 50000,
+              "mp": 50000,
+              "accuracy": 100,
+              "agility": 100,
+              "luck": 10,
+              "attackSpeed": 20
+            }
+          },
+          {
+            "id": "item-7",
+            "itemId": "boundless-ring",
+            "quantity": 1,
+            "slot": null,
+            "refineLevel": 0,
+            "weaponRefineLevel": 0,
+            "gemCount": 0,
+            "bonusStats": {
+              "dc": [
+                500,
+                500
+              ],
+              "mc": [
+                500,
+                500
+              ],
+              "sc": [
+                500,
+                500
+              ],
+              "ac": [
+                200,
+                200
+              ],
+              "amc": [
+                200,
+                200
+              ],
+              "hp": 50000,
+              "mp": 50000,
+              "accuracy": 100,
+              "agility": 100,
+              "luck": 10,
+              "attackSpeed": 20
+            }
+          },
+          {
+            "id": "item-8",
+            "itemId": "oma-spirit-ring",
+            "quantity": 1,
+            "slot": null,
+            "refineLevel": 0,
+            "weaponRefineLevel": 0,
+            "gemCount": 0,
+            "bonusStats": {
+              "dc": [
+                500,
+                500
+              ],
+              "mc": [
+                500,
+                500
+              ],
+              "sc": [
+                500,
+                500
+              ],
+              "ac": [
+                200,
+                200
+              ],
+              "amc": [
+                200,
+                200
+              ],
+              "hp": 50000,
+              "mp": 50000,
+              "accuracy": 100,
+              "agility": 100,
+              "luck": 10,
+              "attackSpeed": 20
+            }
+          },
+          {
+            "id": "item-9",
+            "itemId": "black-iron-belt",
+            "quantity": 1,
+            "slot": null,
+            "refineLevel": 0,
+            "weaponRefineLevel": 0,
+            "gemCount": 0,
+            "bonusStats": {
+              "dc": [
+                500,
+                500
+              ],
+              "mc": [
+                500,
+                500
+              ],
+              "sc": [
+                500,
+                500
+              ],
+              "ac": [
+                200,
+                200
+              ],
+              "amc": [
+                200,
+                200
+              ],
+              "hp": 50000,
+              "mp": 50000,
+              "accuracy": 100,
+              "agility": 100,
+              "luck": 10,
+              "attackSpeed": 20
+            }
+          },
+          {
+            "id": "item-10",
+            "itemId": "dcstone",
+            "quantity": 1,
+            "slot": null,
+            "refineLevel": 0,
+            "weaponRefineLevel": 0,
+            "gemCount": 0,
+            "bonusStats": {
+              "dc": [
+                500,
+                500
+              ],
+              "mc": [
+                500,
+                500
+              ],
+              "sc": [
+                500,
+                500
+              ],
+              "ac": [
+                200,
+                200
+              ],
+              "amc": [
+                200,
+                200
+              ],
+              "hp": 50000,
+              "mp": 50000,
+              "accuracy": 100,
+              "agility": 100,
+              "luck": 10,
+              "attackSpeed": 20
+            }
+          },
+          {
+            "id": "item-11",
+            "itemId": "black-boots",
+            "quantity": 1,
+            "slot": null,
+            "refineLevel": 0,
+            "weaponRefineLevel": 0,
+            "gemCount": 0,
+            "bonusStats": {
+              "dc": [
+                500,
+                500
+              ],
+              "mc": [
+                500,
+                500
+              ],
+              "sc": [
+                500,
+                500
+              ],
+              "ac": [
+                200,
+                200
+              ],
+              "amc": [
+                200,
+                200
+              ],
+              "hp": 50000,
+              "mp": 50000,
+              "accuracy": 100,
+              "agility": 100,
+              "luck": 10,
+              "attackSpeed": 20
+            }
+          },
+          {
+            "id": "item-12",
+            "itemId": "hp-drug-xl",
+            "quantity": 999,
+            "slot": 0,
+            "refineLevel": 0,
+            "weaponRefineLevel": 0,
+            "gemCount": 0,
+            "bonusStats": {}
+          },
+          {
+            "id": "item-13",
+            "itemId": "mp-drug-xl",
+            "quantity": 999,
+            "slot": 1,
+            "refineLevel": 0,
+            "weaponRefineLevel": 0,
+            "gemCount": 0,
+            "bonusStats": {}
+          },
+          {
+            "id": "item-14",
+            "itemId": "impact-drug-m",
+            "quantity": 99,
+            "slot": 2,
+            "refineLevel": 0,
+            "weaponRefineLevel": 0,
+            "gemCount": 0,
+            "bonusStats": {}
+          },
+          {
+            "id": "item-15",
+            "itemId": "magic-drug-m",
+            "quantity": 99,
+            "slot": 3,
+            "refineLevel": 0,
+            "weaponRefineLevel": 0,
+            "gemCount": 0,
+            "bonusStats": {}
+          },
+          {
+            "id": "item-16",
+            "itemId": "taoist-drug-m",
+            "quantity": 99,
+            "slot": 4,
+            "refineLevel": 0,
+            "weaponRefineLevel": 0,
+            "gemCount": 0,
+            "bonusStats": {}
+          },
+          {
+            "id": "item-17",
+            "itemId": "green-poison",
+            "quantity": 99,
+            "slot": 5,
+            "refineLevel": 0,
+            "weaponRefineLevel": 0,
+            "gemCount": 0,
+            "bonusStats": {}
+          },
+          {
+            "id": "item-18",
+            "itemId": "yellow-poison",
+            "quantity": 99,
+            "slot": 6,
+            "refineLevel": 0,
+            "weaponRefineLevel": 0,
+            "gemCount": 0,
+            "bonusStats": {}
+          }
+        ],
+        "equipment": {
+          "weapon": "item-1",
+          "armour": "item-2",
+          "helmet": "item-3",
+          "torch": null,
+          "necklace": "item-4",
+          "braceletL": "item-5",
+          "braceletR": "item-6",
+          "ringL": "item-7",
+          "ringR": "item-8",
+          "amulet": null,
+          "belt": "item-9",
+          "boots": "item-11",
+          "stone": "item-10",
+          "mount": null
+        }
+      },
+      "hotbar": {
+        "slots": [
+          null,
+          null,
+          null,
+          null,
+          null,
+          null
+        ]
+      },
+      "magic": {
+        "learned": {
+          "Healing": {
+            "spellId": "Healing",
+            "level": 3,
+            "experience": 999999,
+            "key": null,
+            "autoCast": true,
+            "castReadyAt": 0,
+            "learnedAt": 1781892548364
+          },
+          "SpiritSword": {
+            "spellId": "SpiritSword",
+            "level": 3,
+            "experience": 999999,
+            "key": null,
+            "autoCast": true,
+            "castReadyAt": 0,
+            "learnedAt": 1781892548364
+          },
+          "Poisoning": {
+            "spellId": "Poisoning",
+            "level": 3,
+            "experience": 999999,
+            "key": null,
+            "autoCast": true,
+            "castReadyAt": 0,
+            "learnedAt": 1781892548364
+          },
+          "SoulFireBall": {
+            "spellId": "SoulFireBall",
+            "level": 3,
+            "experience": 999999,
+            "key": null,
+            "autoCast": true,
+            "castReadyAt": 0,
+            "learnedAt": 1781892548364
+          },
+          "SummonSkeleton": {
+            "spellId": "SummonSkeleton",
+            "level": 3,
+            "experience": 999999,
+            "key": null,
+            "autoCast": true,
+            "castReadyAt": 0,
+            "learnedAt": 1781892548364
+          },
+          "SoulShield": {
+            "spellId": "SoulShield",
+            "level": 3,
+            "experience": 999999,
+            "key": null,
+            "autoCast": true,
+            "castReadyAt": 0,
+            "learnedAt": 1781892548364
+          },
+          "BlessedArmour": {
+            "spellId": "BlessedArmour",
+            "level": 3,
+            "experience": 999999,
+            "key": null,
+            "autoCast": true,
+            "castReadyAt": 0,
+            "learnedAt": 1781892548364
+          },
+          "MassHealing": {
+            "spellId": "MassHealing",
+            "level": 3,
+            "experience": 999999,
+            "key": null,
+            "autoCast": true,
+            "castReadyAt": 0,
+            "learnedAt": 1781892548364
+          },
+          "UltimateEnhancer": {
+            "spellId": "UltimateEnhancer",
+            "level": 3,
+            "experience": 999999,
+            "key": null,
+            "autoCast": true,
+            "castReadyAt": 0,
+            "learnedAt": 1781892548364
+          },
+          "SummonShinsu": {
+            "spellId": "SummonShinsu",
+            "level": 3,
+            "experience": 999999,
+            "key": null,
+            "autoCast": true,
+            "castReadyAt": 0,
+            "learnedAt": 1781892548364
+          },
+          "SummonHolyDeva": {
+            "spellId": "SummonHolyDeva",
+            "level": 3,
+            "experience": 999999,
+            "key": null,
+            "autoCast": true,
+            "castReadyAt": 0,
+            "learnedAt": 1781892548364
+          },
+          "PetEnhancer": {
+            "spellId": "PetEnhancer",
+            "level": 3,
+            "experience": 999999,
+            "key": null,
+            "autoCast": true,
+            "castReadyAt": 0,
+            "learnedAt": 1781892548364
+          }
+        }
+      },
+      "battle": {
+        "running": false,
+        "paused": false,
+        "playerHp": null,
+        "playerMp": null,
+        "potHealthAmount": 0,
+        "potManaAmount": 0,
+        "healAmount": 0,
+        "statBuffs": [],
+        "petStatBuffs": []
+      }
+    }
+  },
+  "account": {
+    "storage": {
+      "pagesUnlocked": 2,
+      "page2Purchased": true,
+      "maxSlots": 80,
+      "nextInstanceId": 1,
+      "items": []
+    },
+    "upgrades": {
+      "tiers": {}
+    },
+    "rebirthPoints": 0,
+    "bossRespawns": {},
+    "stats": {
+      "rebirthCount": 0,
+      "rebirthPointsGained": 0,
+      "rebirthPointsSpent": 0,
+      "bossKills": {}
+    }
+  },
+  "game": {
+    "mode": "town",
+    "activeZoneId": null,
+    "kills": 0,
+    "zoneKills": 0,
+    "distance": 0,
+    "playtimeMs": 0,
+    "lastReward": null,
+    "recentLoot": [],
+    "dropPity": {},
+    "bossRespawns": {},
+    "bossKills": {},
+    "progress": {
+      "level": 500,
+      "experience": 0,
+      "gold": 99999999
+    },
+    "starterGearVersion": 1,
+    "miningNextRollAt": 0,
+    "miningSpotId": null,
+    "groupDungeonRun": null
+  },
+  "inventory": {
+    "gold": 99999999,
+    "pagesUnlocked": 2,
+    "maxSlots": 80,
+    "nextInstanceId": 19,
+    "items": [
+      {
+        "id": "item-1",
+        "itemId": "sword-of-war-god",
+        "quantity": 1,
+        "slot": null,
+        "refineLevel": 0,
+        "weaponRefineLevel": 0,
+        "gemCount": 0,
+        "bonusStats": {
+          "dc": [
+            500,
+            500
+          ],
+          "mc": [
+            500,
+            500
+          ],
+          "sc": [
+            500,
+            500
+          ],
+          "ac": [
+            200,
+            200
+          ],
+          "amc": [
+            200,
+            200
+          ],
+          "hp": 50000,
+          "mp": 50000,
+          "accuracy": 100,
+          "agility": 100,
+          "luck": 10,
+          "attackSpeed": 20
+        }
+      },
+      {
+        "id": "item-2",
+        "itemId": "heaven-armour",
+        "quantity": 1,
+        "slot": null,
+        "refineLevel": 0,
+        "weaponRefineLevel": 0,
+        "gemCount": 0,
+        "bonusStats": {
+          "dc": [
+            500,
+            500
+          ],
+          "mc": [
+            500,
+            500
+          ],
+          "sc": [
+            500,
+            500
+          ],
+          "ac": [
+            200,
+            200
+          ],
+          "amc": [
+            200,
+            200
+          ],
+          "hp": 50000,
+          "mp": 50000,
+          "accuracy": 100,
+          "agility": 100,
+          "luck": 10,
+          "attackSpeed": 20
+        }
+      },
+      {
+        "id": "item-3",
+        "itemId": "great-helmet",
+        "quantity": 1,
+        "slot": null,
+        "refineLevel": 0,
+        "weaponRefineLevel": 0,
+        "gemCount": 0,
+        "bonusStats": {
+          "dc": [
+            500,
+            500
+          ],
+          "mc": [
+            500,
+            500
+          ],
+          "sc": [
+            500,
+            500
+          ],
+          "ac": [
+            200,
+            200
+          ],
+          "amc": [
+            200,
+            200
+          ],
+          "hp": 50000,
+          "mp": 50000,
+          "accuracy": 100,
+          "agility": 100,
+          "luck": 10,
+          "attackSpeed": 20
+        }
+      },
+      {
+        "id": "item-4",
+        "itemId": "hero-necklace",
+        "quantity": 1,
+        "slot": null,
+        "refineLevel": 0,
+        "weaponRefineLevel": 0,
+        "gemCount": 0,
+        "bonusStats": {
+          "dc": [
+            500,
+            500
+          ],
+          "mc": [
+            500,
+            500
+          ],
+          "sc": [
+            500,
+            500
+          ],
+          "ac": [
+            200,
+            200
+          ],
+          "amc": [
+            200,
+            200
+          ],
+          "hp": 50000,
+          "mp": 50000,
+          "accuracy": 100,
+          "agility": 100,
+          "luck": 10,
+          "attackSpeed": 20
+        }
+      },
+      {
+        "id": "item-5",
+        "itemId": "8-trigram-wheel",
+        "quantity": 1,
+        "slot": null,
+        "refineLevel": 0,
+        "weaponRefineLevel": 0,
+        "gemCount": 0,
+        "bonusStats": {
+          "dc": [
+            500,
+            500
+          ],
+          "mc": [
+            500,
+            500
+          ],
+          "sc": [
+            500,
+            500
+          ],
+          "ac": [
+            200,
+            200
+          ],
+          "amc": [
+            200,
+            200
+          ],
+          "hp": 50000,
+          "mp": 50000,
+          "accuracy": 100,
+          "agility": 100,
+          "luck": 10,
+          "attackSpeed": 20
+        }
+      },
+      {
+        "id": "item-6",
+        "itemId": "8-trigram-wheel",
+        "quantity": 1,
+        "slot": null,
+        "refineLevel": 0,
+        "weaponRefineLevel": 0,
+        "gemCount": 0,
+        "bonusStats": {
+          "dc": [
+            500,
+            500
+          ],
+          "mc": [
+            500,
+            500
+          ],
+          "sc": [
+            500,
+            500
+          ],
+          "ac": [
+            200,
+            200
+          ],
+          "amc": [
+            200,
+            200
+          ],
+          "hp": 50000,
+          "mp": 50000,
+          "accuracy": 100,
+          "agility": 100,
+          "luck": 10,
+          "attackSpeed": 20
+        }
+      },
+      {
+        "id": "item-7",
+        "itemId": "boundless-ring",
+        "quantity": 1,
+        "slot": null,
+        "refineLevel": 0,
+        "weaponRefineLevel": 0,
+        "gemCount": 0,
+        "bonusStats": {
+          "dc": [
+            500,
+            500
+          ],
+          "mc": [
+            500,
+            500
+          ],
+          "sc": [
+            500,
+            500
+          ],
+          "ac": [
+            200,
+            200
+          ],
+          "amc": [
+            200,
+            200
+          ],
+          "hp": 50000,
+          "mp": 50000,
+          "accuracy": 100,
+          "agility": 100,
+          "luck": 10,
+          "attackSpeed": 20
+        }
+      },
+      {
+        "id": "item-8",
+        "itemId": "oma-spirit-ring",
+        "quantity": 1,
+        "slot": null,
+        "refineLevel": 0,
+        "weaponRefineLevel": 0,
+        "gemCount": 0,
+        "bonusStats": {
+          "dc": [
+            500,
+            500
+          ],
+          "mc": [
+            500,
+            500
+          ],
+          "sc": [
+            500,
+            500
+          ],
+          "ac": [
+            200,
+            200
+          ],
+          "amc": [
+            200,
+            200
+          ],
+          "hp": 50000,
+          "mp": 50000,
+          "accuracy": 100,
+          "agility": 100,
+          "luck": 10,
+          "attackSpeed": 20
+        }
+      },
+      {
+        "id": "item-9",
+        "itemId": "black-iron-belt",
+        "quantity": 1,
+        "slot": null,
+        "refineLevel": 0,
+        "weaponRefineLevel": 0,
+        "gemCount": 0,
+        "bonusStats": {
+          "dc": [
+            500,
+            500
+          ],
+          "mc": [
+            500,
+            500
+          ],
+          "sc": [
+            500,
+            500
+          ],
+          "ac": [
+            200,
+            200
+          ],
+          "amc": [
+            200,
+            200
+          ],
+          "hp": 50000,
+          "mp": 50000,
+          "accuracy": 100,
+          "agility": 100,
+          "luck": 10,
+          "attackSpeed": 20
+        }
+      },
+      {
+        "id": "item-10",
+        "itemId": "dcstone",
+        "quantity": 1,
+        "slot": null,
+        "refineLevel": 0,
+        "weaponRefineLevel": 0,
+        "gemCount": 0,
+        "bonusStats": {
+          "dc": [
+            500,
+            500
+          ],
+          "mc": [
+            500,
+            500
+          ],
+          "sc": [
+            500,
+            500
+          ],
+          "ac": [
+            200,
+            200
+          ],
+          "amc": [
+            200,
+            200
+          ],
+          "hp": 50000,
+          "mp": 50000,
+          "accuracy": 100,
+          "agility": 100,
+          "luck": 10,
+          "attackSpeed": 20
+        }
+      },
+      {
+        "id": "item-11",
+        "itemId": "black-boots",
+        "quantity": 1,
+        "slot": null,
+        "refineLevel": 0,
+        "weaponRefineLevel": 0,
+        "gemCount": 0,
+        "bonusStats": {
+          "dc": [
+            500,
+            500
+          ],
+          "mc": [
+            500,
+            500
+          ],
+          "sc": [
+            500,
+            500
+          ],
+          "ac": [
+            200,
+            200
+          ],
+          "amc": [
+            200,
+            200
+          ],
+          "hp": 50000,
+          "mp": 50000,
+          "accuracy": 100,
+          "agility": 100,
+          "luck": 10,
+          "attackSpeed": 20
+        }
+      },
+      {
+        "id": "item-12",
+        "itemId": "hp-drug-xl",
+        "quantity": 999,
+        "slot": 0,
+        "refineLevel": 0,
+        "weaponRefineLevel": 0,
+        "gemCount": 0,
+        "bonusStats": {}
+      },
+      {
+        "id": "item-13",
+        "itemId": "mp-drug-xl",
+        "quantity": 999,
+        "slot": 1,
+        "refineLevel": 0,
+        "weaponRefineLevel": 0,
+        "gemCount": 0,
+        "bonusStats": {}
+      },
+      {
+        "id": "item-14",
+        "itemId": "impact-drug-m",
+        "quantity": 99,
+        "slot": 2,
+        "refineLevel": 0,
+        "weaponRefineLevel": 0,
+        "gemCount": 0,
+        "bonusStats": {}
+      },
+      {
+        "id": "item-15",
+        "itemId": "magic-drug-m",
+        "quantity": 99,
+        "slot": 3,
+        "refineLevel": 0,
+        "weaponRefineLevel": 0,
+        "gemCount": 0,
+        "bonusStats": {}
+      },
+      {
+        "id": "item-16",
+        "itemId": "taoist-drug-m",
+        "quantity": 99,
+        "slot": 4,
+        "refineLevel": 0,
+        "weaponRefineLevel": 0,
+        "gemCount": 0,
+        "bonusStats": {}
+      },
+      {
+        "id": "item-17",
+        "itemId": "green-poison",
+        "quantity": 99,
+        "slot": 5,
+        "refineLevel": 0,
+        "weaponRefineLevel": 0,
+        "gemCount": 0,
+        "bonusStats": {}
+      },
+      {
+        "id": "item-18",
+        "itemId": "yellow-poison",
+        "quantity": 99,
+        "slot": 6,
+        "refineLevel": 0,
+        "weaponRefineLevel": 0,
+        "gemCount": 0,
+        "bonusStats": {}
+      }
+    ],
+    "equipment": {
+      "weapon": "item-1",
+      "armour": "item-2",
+      "helmet": "item-3",
+      "torch": null,
+      "necklace": "item-4",
+      "braceletL": "item-5",
+      "braceletR": "item-6",
+      "ringL": "item-7",
+      "ringR": "item-8",
+      "amulet": null,
+      "belt": "item-9",
+      "boots": "item-11",
+      "stone": "item-10",
+      "mount": null
+    }
+  },
+  "hotbar": {
+    "slots": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ]
+  },
+  "magic": {
+    "learned": {
+      "Fencing": {
+        "spellId": "Fencing",
+        "level": 3,
+        "experience": 999999,
+        "key": null,
+        "autoCast": true,
+        "castReadyAt": 0,
+        "learnedAt": 1781892548363
+      },
+      "Slaying": {
+        "spellId": "Slaying",
+        "level": 3,
+        "experience": 999999,
+        "key": null,
+        "autoCast": true,
+        "castReadyAt": 0,
+        "learnedAt": 1781892548363
+      },
+      "Thrusting": {
+        "spellId": "Thrusting",
+        "level": 3,
+        "experience": 999999,
+        "key": null,
+        "autoCast": true,
+        "castReadyAt": 0,
+        "learnedAt": 1781892548363
+      },
+      "HalfMoon": {
+        "spellId": "HalfMoon",
+        "level": 3,
+        "experience": 999999,
+        "key": null,
+        "autoCast": true,
+        "castReadyAt": 0,
+        "learnedAt": 1781892548363
+      },
+      "TwinDrakeBlade": {
+        "spellId": "TwinDrakeBlade",
+        "level": 3,
+        "experience": 999999,
+        "key": null,
+        "autoCast": true,
+        "castReadyAt": 0,
+        "learnedAt": 1781892548363
+      },
+      "FlamingSword": {
+        "spellId": "FlamingSword",
+        "level": 3,
+        "experience": 999999,
+        "key": null,
+        "autoCast": true,
+        "castReadyAt": 0,
+        "learnedAt": 1781892548363
+      },
+      "LionRoar": {
+        "spellId": "LionRoar",
+        "level": 3,
+        "experience": 999999,
+        "key": null,
+        "autoCast": true,
+        "castReadyAt": 0,
+        "learnedAt": 1781892548363
+      },
+      "BladeAvalanche": {
+        "spellId": "BladeAvalanche",
+        "level": 3,
+        "experience": 999999,
+        "key": null,
+        "autoCast": true,
+        "castReadyAt": 0,
+        "learnedAt": 1781892548363
+      },
+      "ProtectionField": {
+        "spellId": "ProtectionField",
+        "level": 3,
+        "experience": 999999,
+        "key": null,
+        "autoCast": true,
+        "castReadyAt": 0,
+        "learnedAt": 1781892548363
+      },
+      "Rage": {
+        "spellId": "Rage",
+        "level": 3,
+        "experience": 999999,
+        "key": null,
+        "autoCast": true,
+        "castReadyAt": 0,
+        "learnedAt": 1781892548363
+      },
+      "CounterAttack": {
+        "spellId": "CounterAttack",
+        "level": 3,
+        "experience": 999999,
+        "key": null,
+        "autoCast": true,
+        "castReadyAt": 0,
+        "learnedAt": 1781892548363
+      },
+      "SlashingBurst": {
+        "spellId": "SlashingBurst",
+        "level": 3,
+        "experience": 999999,
+        "key": null,
+        "autoCast": true,
+        "castReadyAt": 0,
+        "learnedAt": 1781892548363
+      },
+      "Fury": {
+        "spellId": "Fury",
+        "level": 3,
+        "experience": 999999,
+        "key": null,
+        "autoCast": true,
+        "castReadyAt": 0,
+        "learnedAt": 1781892548363
+      },
+      "ImmortalSkin": {
+        "spellId": "ImmortalSkin",
+        "level": 3,
+        "experience": 999999,
+        "key": null,
+        "autoCast": true,
+        "castReadyAt": 0,
+        "learnedAt": 1781892548363
+      }
+    }
+  },
+  "battle": {
+    "combatClass": "Warrior",
+    "running": false,
+    "paused": false,
+    "playerHp": null,
+    "playerMp": null,
+    "potHealthAmount": 0,
+    "potManaAmount": 0,
+    "healAmount": 0,
+    "statBuffs": [],
+    "petStatBuffs": []
+  },
+  "indexes": {
+    "armour": 0,
+    "hair": 0,
+    "weapon": null
+  },
+  "characterTab": "character",
+  "settings": {
+    "musicSettingsVersion": 2,
+    "musicEnabled": true,
+    "musicVolume": 0.5,
+    "musicMode": "zone",
+    "musicTrackId": "30001",
+    "sfxEnabled": true,
+    "sfxVolume": 0.5,
+    "prototypeStatsEnabled": true,
+    "prototypeStatsNoticeVersion": 1,
+    "prototypeResetNoticeVersion": 0,
+    "prototypeResetNoticeLastSeenAt": 0
+  }
+}
