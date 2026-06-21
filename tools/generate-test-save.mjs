@@ -119,7 +119,7 @@ function buildInventory(classId, gearMap) {
       itemId,
       quantity,
       slot,
-      refineLevel: 0,
+      smithLevel: 0,
       weaponRefineLevel: 0,
       gemCount: 0,
       bonusStats: bonusStats ?? {},

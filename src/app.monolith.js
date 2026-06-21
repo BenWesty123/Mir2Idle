@@ -18,6 +18,8 @@ import {
   addStats,
   addRange,
   sanitizeItemBonusStats,
+  sanitizeSmithBonusStats,
+  SMITH_COMBINE_STAT_CAP,
 } from "./battleData.js";
 import { SPELL_GROUPS, bodyActionForSpell, spellLabel } from "./spellBodyActions.js";
 import { loadAtlas, loadJson, missingActions, sheetUrl } from "./atlas.js";
@@ -93,6 +95,132 @@ import {
   statBuffBonusLabel,
 } from "./buffPotions.js";
 import { BOSS_DROP_TABLE_BY_LABEL } from "./bossDrops.js";
+import { SAVE_VERSION, parseSaveSnapshotText } from "./persistence/saveFormat.js";
+import {
+  DROP_PITY_KILLS,
+  sanitizeAccountStats as sanitizeAccountStatsCore,
+  sanitizeBossKills as sanitizeBossKillsCore,
+  sanitizeBossRespawns as sanitizeBossRespawnsCore,
+  sanitizeDropPity as sanitizeDropPityCore,
+} from "./persistence/sanitizeStats.js";
+import {
+  finiteNumberOrNull,
+  itemUsesEntryDurability as itemUsesEntryDurabilityCore,
+  sanitizeCharacterBattleState as sanitizeCharacterBattleStateCore,
+  sanitizeEntryDurability as sanitizeEntryDurabilityCore,
+  sanitizeHotbarState as sanitizeHotbarStateCore,
+  sanitizeMagicState as sanitizeMagicStateCore,
+  sanitizeWeaponRefineLevel,
+  removeRetiredTestingDefaultMagic,
+  WEAPON_REFINE_MAX,
+} from "./persistence/sanitizeCharacter.js";
+import {
+  DEFAULT_MUSIC_ENABLED,
+  DEFAULT_MUSIC_VOLUME,
+  DEFAULT_PROTOTYPE_STATS_ENABLED,
+  DEFAULT_SFX_ENABLED,
+  DEFAULT_SFX_VOLUME,
+  MUSIC_MODE_PLAYLIST,
+  MUSIC_MODE_TRACK,
+  MUSIC_SETTINGS_VERSION,
+  normalizedMusicMode,
+  normalizedVolume,
+  sanitizeSettingsState,
+} from "./persistence/sanitizeSettings.js";
+import {
+  accountUpgradeMaxTier,
+  LEGACY_REBIRTH_BASE_STAT_UPGRADE_ID,
+  sanitizeAccountUpgradeState as sanitizeAccountUpgradeStateCore,
+} from "./persistence/sanitizeUpgrades.js";
+import { applyExperienceToProgress } from "./core/progress.js";
+import {
+  computeOfflineGroupIncomingDps,
+  computeOfflineGroupMemberDps as computeOfflineGroupMemberDpsCore,
+  computeOfflineGroupPartyDps as computeOfflineGroupPartyDpsCore,
+  computeOfflineIncomingChunkDamage,
+  computeOfflinePetAttackDelayMs as computeOfflinePetAttackDelayMsCore,
+  computeOfflineTravelTimeMs,
+  createOfflineFightEnemy,
+  createOfflineZoneReport,
+  finalizeOfflineZoneReport,
+  incrementReportCount,
+  offlineGroupAverageDamage,
+  offlineGroupHitChance,
+  processOfflineZoneFightCycle,
+  rebaseTransientTimestamp,
+  recordOfflineKillRewards,
+  reportCountText,
+  reportEntriesText,
+  resolveOfflineGroupIncomingChunk,
+  resolvePendingOfflineProgress,
+  rollMiningOreItemId as rollMiningOreItemIdCore,
+  rollMiningOrePurity as rollMiningOrePurityCore,
+  simulateOfflineFightLoop,
+  simulateOfflineGroupKillLoop,
+  simulateOfflineMiningSwings,
+  nextOfflineTaoistSupportSpellId,
+  OFFLINE_TAOIST_PET_SUPPORT_SPELL_ORDER,
+  OFFLINE_TAOIST_SUPPORT_SPELL_ORDER,
+  offlineTaoistQueuedSpellKind,
+  nextOfflineTaoistAutoSummonId,
+  offlineTaoistSummonPetDelayMs,
+  resolveOfflineWizardTurnPhase,
+  OFFLINE_WIZARD_DEFENCE_SPELL_ID,
+} from "./core/offlineProgress.js";
+import {
+  advanceDropPity,
+  buildZoneDropCandidates,
+  rollBossTableDropSelection,
+  rollChanceTable,
+  rollRedThunderZumaDropIds,
+  shouldForceDropPity,
+  weightedDropCandidate,
+} from "./core/drops.js";
+import { splitPartyRewardAmount } from "./core/party.js";
+import {
+  applyIncomingDamageReduction as applyIncomingDamageReductionCore,
+  enemyAttackDefenceType,
+  enemyDamageEvent,
+  incomingAttackDefenceStat,
+  magicAttackHitEvents,
+  magicAttackMissEvents,
+  magicBurnEvents,
+  magicResistEvents,
+  petAttackHitEvents,
+  petAttackMissEvents,
+  petDamageEvent,
+  physicalAttackHitEvents,
+  physicalAttackMissEvents,
+  playerDamageEvent,
+  poisonAppliedEvents,
+  poisonResistedEvents,
+  poisonTickDamageEvents,
+  resolveIncomingEnemyAttack as resolveIncomingEnemyAttackCore,
+  resolveIncomingEnemyRangedAttack as resolveIncomingEnemyRangedAttackCore,
+  resolveMagicAttack,
+  resolvePhysicalAttack,
+  resolveSpellCastWeaponFallback,
+  rollHit,
+  rollMagicHit,
+  scalePhysicalDamageForStun,
+  swarmEnemyDamageEvent,
+  weaponSwingHitEvents,
+  weaponSwingMissEvents,
+} from "./core/combat.js";
+import {
+  normalizeInventoryEntryFields as normalizeInventoryEntryFieldsCore,
+  sanitizeInventoryState as sanitizeInventoryStateCore,
+  sanitizeStorageState as sanitizeStorageStateCore,
+} from "./persistence/sanitizeInventory.js";
+import { sanitizeCharacterGameState as sanitizeCharacterGameStateCore } from "./persistence/sanitizeGame.js";
+import { restoreCharactersFromSnapshot } from "./persistence/restoreCharacter.js";
+import {
+  mergeAccountBossKills,
+  mergeAccountBossRespawns,
+  resolveSavedGroupDungeonRun,
+  restoreAccountFromSnapshot,
+  restoreSaveUiMeta,
+} from "./persistence/restoreAccount.js";
 
 /* ============================================================================
  * NAVIGATION MAP for this file (this IS the entire live game).
@@ -350,7 +478,6 @@ const REBIRTH_BASE_STAT_UPGRADE_IDS = [
   "rebirth-stat-accuracy",
   "rebirth-stat-agility",
 ];
-const LEGACY_REBIRTH_BASE_STAT_UPGRADE_ID = "rebirth-base-stats";
 const ACCOUNT_UPGRADE_PREVIEW_DEFS = [];
 const BOSS_RESPAWN_MINUTES_STANDARD = 30;
 const BOSS_RESPAWN_MINUTES_ELITE = 60;
@@ -583,7 +710,6 @@ const TAOIST_SUMMON_AMULET_COST_BY_SPELL = {
   SummonShinsu: CRYSTAL_SUMMON_SHINSU_AMULET_COST,
 };
 const SAVE_KEY = "lom-idle-v2-save";
-const SAVE_VERSION = 1;
 const STARTER_GEAR_VERSION = 1;
 const SAVE_INTERVAL_MS = 2000;
 const SIMULATION_STEP_MS = 100;
@@ -591,7 +717,6 @@ const MAX_SIMULATION_CATCH_UP_MS = 10 * 60 * 1000;
 const BOSS_PARTY_CATCHUP_MAX_STEPS = 12000;
 const OFFLINE_PROGRESS_CAP_MS = 8 * 60 * 60 * 1000;
 const OFFLINE_PROGRESS_MIN_MS = 30 * 1000;
-const DROP_PITY_KILLS = 8;
 const COMBAT_STANCE_HOLD_MS = 1000;
 // Taoist support/queue polling — must not shorten weapon swing cooldown.
 const TAOIST_COMBAT_POLL_MS = 250;
@@ -702,7 +827,6 @@ const BENEDICTION_CURSE_CHANCE = 5;
 const SMITH_COMBINE_SUCCESS_CHANCES = [0.5, 0.4, 0.3, 0.2, 0.1, 0.05];
 const SMITH_DEFENSIVE_UPGRADE_SLOTS = new Set(["armour", "belt", "boots", "boot", "shoes", "shoe", "helmet"]);
 const SMITH_RANDOM_TRIPLE_STAT = "__random_triple__";
-const WEAPON_REFINE_MAX = 10;
 const ORE_PURITY_UNIT = 1000;
 const ORE_ITEM_IDS = new Set(["gold-ore", "silver-ore", "copper-ore", "black-iron-ore"]);
 const REFINER_ORE_ITEM_ID = "black-iron-ore";
@@ -759,7 +883,6 @@ const MINING_ORE_DROPS = [
 ];
 const AUTO_POTION_THRESHOLD = 0.5;
 const AUTO_POTION_COOLDOWN_MS = 1000;
-const CRYSTAL_MAGIC_RESIST_WEIGHT = 10;
 
 const LANE = {
   playerScreenX: 150,
@@ -1080,16 +1203,6 @@ function offlineGroupAutoUsePotions(member, now, report) {
   return used;
 }
 
-function offlineGroupAverageDamage(attackStat, defenceStat, luck = 0) {
-  const attack = statRange(attackStat);
-  const defence = statRange(defenceStat);
-  const attackAvg = (attack.min + attack.max) / 2;
-  const defenceAvg = (defence.min + defence.max) / 2;
-  const luckBonus = Math.max(0, Math.min(CRYSTAL_MAX_LUCK, Number(luck) || 0)) / Math.max(1, CRYSTAL_MAX_LUCK);
-  const luckyAttack = attackAvg + (attack.max - attackAvg) * luckBonus;
-  return Math.max(1, luckyAttack - defenceAvg);
-}
-
 function offlineGroupAwardKill(zone, enemy, now, report) {
   const party = state.battle.bossParty;
   const recipients = bossPartyAliveRewardMembers(party);
@@ -1134,35 +1247,24 @@ function offlineGroupFrontTarget() {
     .find(Boolean) ?? null;
 }
 
-function offlineGroupHitChance(accuracy, agility) {
-  const acc = Math.max(0, Math.trunc(Number(accuracy) || 0));
-  const agi = Math.max(0, Math.trunc(Number(agility) || 0));
-  return Math.max(0.05, Math.min(0.98, (acc + 1) / (agi + 1)));
-}
-
 function offlineGroupIncomingDps(enemy) {
   const target = offlineGroupFrontTarget();
   if (!target) return 0;
-  const attackers = Math.min(GROUP_DUNGEON_SWARM_LANES.length, GROUP_DUNGEON_WAVE_FIELD_CAP);
-  const damage = offlineGroupAverageDamage(enemyAttackDamageStat(enemy), incomingAttackDefenceStat(target, enemyAttackDefenceType(enemy)), enemy.luck);
-  const hitChance = enemyAttackDefenceType(enemy) === "MAC" ? 0.85 : offlineGroupHitChance(enemy.accuracy, target.agility);
-  return attackers * damage * hitChance * 1000 / Math.max(500, Math.trunc(Number(enemy.attackMs) || 1500));
+  const defenceType = enemyAttackDefenceType(enemy);
+  return computeOfflineGroupIncomingDps({
+    attackers: Math.min(GROUP_DUNGEON_SWARM_LANES.length, GROUP_DUNGEON_WAVE_FIELD_CAP),
+    enemyAttackStat: enemyAttackDamageStat(enemy),
+    enemyLuck: enemy.luck,
+    enemyAttackMs: enemy.attackMs,
+    enemyAccuracy: enemy.accuracy,
+    enemyDefenceType: defenceType,
+    targetDefenceStat: incomingAttackDefenceStat(target, defenceType),
+    targetAgility: target.agility,
+  });
 }
 
 function offlineGroupMemberDps(member, enemy) {
-  const physical = offlineGroupAverageDamage(member.dc, enemy.ac, member.luck) * offlineGroupHitChance(member.accuracy, enemy.agility);
-  const physicalDelay = Math.max(500, attackDelayMs(member.attackSpeed ?? 0));
-  let dps = physical * 1000 / physicalDelay;
-  const magic = member.classId === "Wizard"
-    ? offlineGroupAverageDamage(member.mc, enemy.amc, member.luck) * 1.15
-    : member.classId === "Taoist"
-      ? offlineGroupAverageDamage(member.sc, enemy.amc, member.luck) * 0.85
-      : 0;
-  if (magic > 0 && member.mp > 0) {
-    const castDelay = member.classId === "Wizard" ? 1800 : 2200;
-    dps += magic * offlineGroupHitChance(member.accuracy, enemy.agility) * 1000 / castDelay;
-  }
-  return Math.max(0.1, dps);
+  return computeOfflineGroupMemberDpsCore(member, enemy);
 }
 
 function offlineGroupMemberSnapshot(member) {
@@ -1176,9 +1278,7 @@ function offlineGroupMemberSnapshot(member) {
 }
 
 function offlineGroupPartyDps(enemy) {
-  return (state.battle.bossParty?.members ?? [])
-    .filter((member) => member.alive && member.hp > 0)
-    .reduce((sum, member) => sum + offlineGroupMemberDps(member, enemy), 0);
+  return computeOfflineGroupPartyDpsCore(state.battle.bossParty?.members ?? [], enemy);
 }
 
 function offlineGroupPickEnemy(zone) {
@@ -1195,30 +1295,21 @@ function offlineGroupResourceRatio(member, kind) {
 
 function offlineGroupSimulateKill(zone, template, startedAt, remainingMs, report) {
   const enemy = { ...template, hp: template.maxHp, mp: template.maxMp, poisons: [], debuffs: { slowUntil: 0, frozenUntil: 0 } };
-  const dps = Math.max(0.1, offlineGroupPartyDps(enemy));
-  const estimatedKillMs = Math.max(300, Math.ceil((enemy.maxHp / dps) * 1000));
-  const incomingDps = offlineGroupIncomingDps(enemy);
-  const durationMs = Math.min(remainingMs, estimatedKillMs);
-  let elapsed = 0;
-  while (elapsed < durationMs) {
-    const chunk = Math.min(1000, durationMs - elapsed);
-    const now = startedAt + elapsed + chunk;
-    offlineGroupUpdateMembers(now, report);
-    const target = offlineGroupFrontTarget();
-    if (!target) return { killed: false, partyDied: true, elapsedMs: elapsed, enemy };
-    const damage = Math.max(0, Math.round(incomingDps * (chunk / 1000)));
-    if (damage > 0) {
-      target.hp = Math.max(0, target.hp - damage);
-      if (target.classId === bossPartyLeaderClassId()) report.damageTaken += damage;
-      if (target.hp <= 0) {
-        target.alive = false;
-        target.hp = 0;
-      }
-    }
-    elapsed += chunk;
-    if (!offlineGroupFrontTarget()) return { killed: false, partyDied: true, elapsedMs: elapsed, enemy };
-  }
-  return { killed: durationMs >= estimatedKillMs, partyDied: false, elapsedMs: durationMs, enemy };
+  return simulateOfflineGroupKillLoop({
+    remainingMs,
+    startedAt,
+    enemy,
+    members: state.battle.bossParty?.members ?? [],
+    getFrontTarget: () => offlineGroupFrontTarget(),
+    getIncomingDps: () => offlineGroupIncomingDps(enemy),
+    onTick: (now) => offlineGroupUpdateMembers(now, report),
+    onIncomingDamage: (target, damage) => {
+      const chunk = resolveOfflineGroupIncomingChunk(target.hp, damage);
+      target.hp = chunk.died ? 0 : chunk.nextHp;
+      if (target.classId === bossPartyLeaderClassId()) report.damageTaken += chunk.damage;
+      if (chunk.died) target.alive = false;
+    },
+  });
 }
 
 function offlineGroupUpdateMembers(now, report) {
@@ -1250,34 +1341,6 @@ function sanitizeGroupDungeonOfflineRun(run, fallbackZoneId = state.game.activeZ
     targetThisWave: Math.max(1, Math.trunc(Number(run.targetThisWave) || groupDungeonWaveSpawnCount(run.waveNumber, zone))),
     endless: Boolean(run.endless),
   };
-}
-
-function savedGroupDungeonRunFromCharacters(snapshot, activeZoneId, activeCharacterId) {
-  const topLevel = sanitizeGroupDungeonOfflineRun?.(snapshot?.groupDungeonRun, activeZoneId, activeCharacterId);
-  if (topLevel?.zoneId === activeZoneId) return topLevel;
-
-  const activeCharacter = snapshot?.characters?.[activeCharacterId];
-  const characterRun = sanitizeGroupDungeonOfflineRun?.(activeCharacter?.game?.groupDungeonRun, activeZoneId, activeCharacterId);
-  if (characterRun?.zoneId === activeZoneId) return characterRun;
-
-  const chars = snapshot?.characters && typeof snapshot.characters === "object" ? snapshot.characters : state.characters;
-  const ids = CHARACTER_IDS.filter((classId) => {
-    const character = chars?.[classId];
-    return character?.game?.mode === "zone"
-      && character?.game?.activeZoneId === activeZoneId
-      && character?.battle?.running !== false;
-  });
-  if (!ids.length) return null;
-  const zone = PROTOTYPE_ZONES.find((entry) => entry.id === activeZoneId);
-  return sanitizeGroupDungeonOfflineRun?.({
-    zoneId: activeZoneId,
-    leaderClassId: activeCharacterId,
-    classIds: ids,
-    waveNumber: 1,
-    killedThisWave: 0,
-    targetThisWave: groupDungeonWaveSpawnCount(1, zone),
-    endless: false,
-  }, activeZoneId, activeCharacterId) ?? null;
 }
 
 function simulateBossPartyCatchUp(elapsedMs, startedAt = performance.now()) {
@@ -1766,15 +1829,7 @@ const BACKGROUND_MUSIC_TRACKS = [
   { id: "30007", label: "Map music 30007", src: "./public/audio/music/30007.wav" },
   { id: "30008", label: "Map music 30008", src: "./public/audio/music/30008.wav" },
 ];
-const DEFAULT_MUSIC_VOLUME = 0.35;
-const DEFAULT_MUSIC_ENABLED = true;
-const MUSIC_SETTINGS_VERSION = 2;
-const MUSIC_MODE_PLAYLIST = "playlist";
-const MUSIC_MODE_TRACK = "track";
-const DEFAULT_SFX_ENABLED = true;
-const DEFAULT_SFX_VOLUME = 0.55;
 const SFX_POOL_SIZE = 4;
-const DEFAULT_PROTOTYPE_STATS_ENABLED = true;
 const STATS_NOTICE_VERSION = 1;
 const PROTOTYPE_RESET_NOTICE_VERSION = 1;
 const PROTOTYPE_RESET_NOTICE_INTERVAL_MS = 24 * 60 * 60 * 1000;
@@ -2035,6 +2090,7 @@ let battlePanelSignature = "";
 let gamePanelSignature = "";
 let gamePanelDynamicSignature = "";
 let sceneSignature = "";
+let sceneWindowStack = [];
 let sceneOverlayInteractionUntil = 0;
 const sceneScrollPositions = new Map();
 let combatSkillBarSignature = "";
@@ -2070,6 +2126,7 @@ const root = document.querySelector("#app");
 const query = new URLSearchParams(window.location.search);
 const UI_MODE = query.get("ui") === "lab" ? "lab" : "game";
 const IS_GAME_UI = UI_MODE === "game";
+const TEST_HARNESS = query.get("testHarness") === "1";
 
 document.body.dataset.ui = UI_MODE;
 
@@ -2304,13 +2361,84 @@ async function init() {
   renderZoneEditor();
   renderActionControls();
   bindControls();
+  syncSceneWindowStackFromState();
   syncBackgroundMusic();
   await reloadAtlases();
   await reloadEnemyAtlas();
   saveReady = true;
   saveGameState(true);
   lastSimulationAt = performance.now();
+  installTestHarness();
   requestAnimationFrame(tick);
+}
+
+function installTestHarness() {
+  if (!TEST_HARNESS) return;
+  window.__lomTest = {
+    runOfflineZoneProgress(elapsedMs) {
+      if (state.game.mode !== "zone" || !state.battle.running) {
+        return {
+          error: "not in zone combat",
+          mode: state.game.mode,
+          running: Boolean(state.battle.running),
+        };
+      }
+      const zone = activeZone();
+      if (!zone) return { error: "no active zone" };
+      const limitMs = Math.max(0, Math.trunc(Number(elapsedMs) || 0));
+      let report;
+      suppressSimulationRender = true;
+      try {
+        report = simulateOfflineProgress(zone, {
+          elapsedMs: Math.min(limitMs, OFFLINE_PROGRESS_CAP_MS),
+          capped: limitMs > OFFLINE_PROGRESS_CAP_MS,
+        });
+      } finally {
+        suppressSimulationRender = false;
+      }
+      if (!report) return { error: "no report" };
+      return {
+        kills: report.kills,
+        xp: report.xp,
+        gold: report.gold,
+        elapsedMs: report.elapsedMs,
+        playerHp: state.battle.player?.hp ?? 0,
+        playerDied: Boolean(report.diedAtMs),
+        levels: [...(report.levels ?? [])],
+        damageTaken: report.damageTaken ?? 0,
+      };
+    },
+    runOfflineMiningProgress(elapsedMs) {
+      if (state.game.mode !== "mining") {
+        return { error: "not mining", mode: state.game.mode };
+      }
+      if (state.paused) return { error: "paused" };
+      const limitMs = Math.max(0, Math.trunc(Number(elapsedMs) || 0));
+      let report;
+      suppressSimulationRender = true;
+      try {
+        report = simulateOfflineMining({
+          elapsedMs: Math.min(limitMs, OFFLINE_PROGRESS_CAP_MS),
+          capped: limitMs > OFFLINE_PROGRESS_CAP_MS,
+        });
+      } finally {
+        suppressSimulationRender = false;
+      }
+      if (!report) return { error: "no report" };
+      const drops = {};
+      for (const [label, count] of report.drops ?? []) drops[label] = count;
+      const ignoredDrops = {};
+      for (const [label, count] of report.ignoredDrops ?? []) ignoredDrops[label] = count;
+      return {
+        swings: report.swings,
+        hits: report.hits,
+        elapsedMs: report.elapsedMs,
+        drops,
+        ignoredDrops,
+        inventoryItems: state.inventory.items.length,
+      };
+    },
+  };
 }
 
 async function preloadSpellAtlasSheets(spellId, atlas) {
@@ -2473,36 +2601,6 @@ function saveGameState(force = false) {
   }
 }
 
-function parseSaveSnapshotText(rawText) {
-  const trimmed = String(rawText ?? "").trim();
-  if (!trimmed) {
-    return { ok: false, error: "Paste a save file or choose a JSON file first." };
-  }
-  let snapshot;
-  try {
-    snapshot = JSON.parse(trimmed);
-  } catch {
-    return { ok: false, error: "That text is not valid JSON." };
-  }
-  if (!snapshot || typeof snapshot !== "object") {
-    return { ok: false, error: "Save data must be a JSON object." };
-  }
-  const version = Number(snapshot.version);
-  if (!Number.isFinite(version)) {
-    return { ok: false, error: "Save is missing a version number." };
-  }
-  if (version !== SAVE_VERSION) {
-    return {
-      ok: false,
-      error: `Save version ${version} is not supported (expected ${SAVE_VERSION}).`,
-    };
-  }
-  if (!snapshot.characters || typeof snapshot.characters !== "object") {
-    return { ok: false, error: "Save is missing character data." };
-  }
-  return { ok: true, snapshot };
-}
-
 function saveImportBlockedReason() {
   if (bossPartyOnField()) return "Return to town before importing a save.";
   return null;
@@ -2613,30 +2711,58 @@ function loadSavedGameState() {
   return applySaveSnapshot(snapshot);
 }
 
+function accountRestoreOptions() {
+  return {
+    characterIds: CHARACTER_IDS,
+    sanitizeStorage: sanitizeStorageState,
+    sanitizeUpgrades: sanitizeAccountUpgradeState,
+    sanitizeBossRespawns,
+    sanitizeAccountStats,
+    sanitizeBossKills,
+  };
+}
+
 function applySaveSnapshot(snapshot) {
   if (!snapshot) return false;
 
   state.characters = restoreCharactersState(snapshot);
-  const savedStorageRaw = snapshot.account?.storage ?? snapshot.storage;
-  const hadUnpaidStoragePage2 = Math.trunc(Number(savedStorageRaw?.pagesUnlocked) || 1) >= 2
-    && !savedStorageRaw?.page2Purchased;
-  state.account.storage = sanitizeStorageState(savedStorageRaw);
-  state.account.upgrades = sanitizeAccountUpgradeState(snapshot.account?.upgrades ?? snapshot.upgrades);
-  state.account.rebirthPoints = Math.max(0, Math.trunc(Number(snapshot.account?.rebirthPoints) || 0));
-  state.account.bossRespawns = sanitizeBossRespawns(snapshot.account?.bossRespawns);
-  state.account.stats = sanitizeAccountStats(snapshot.account?.stats);
-  migrateAccountBossRespawns();
-  migrateAccountStats();
-  state.activeCharacterId = normalizeCharacterId(snapshot.activeCharacterId ?? snapshot.battle?.combatClass);
+  const { account, hadUnpaidStoragePage2 } = restoreAccountFromSnapshot(
+    snapshot,
+    state.characters,
+    accountRestoreOptions(),
+  );
+  state.account = account;
+  syncAccountBossKillsToCharacters();
+  syncAccountBossRespawnsToCharacters();
+  const uiMeta = restoreSaveUiMeta(snapshot, {
+    characterTabIds: CHARACTER_TABS.map((tab) => tab.id),
+    normalizeCharacterId,
+  });
+  state.activeCharacterId = uiMeta.activeCharacterId;
   applyCharacterState(state.activeCharacterId, state.characters[state.activeCharacterId]);
   if (hadUnpaidStoragePage2 && state.account.storage.pagesUnlocked === 1) {
     state.storagePage = 0;
     pushBattleLog("Storage page 2 was reset. Unlock it for 1,000,000 gold when you're ready.");
   }
   restoreSettingsState(snapshot);
-  restoreEquipmentVisualIndexes(snapshot);
-  state.characterTab = CHARACTER_TABS.some((tab) => tab.id === snapshot.characterTab) ? snapshot.characterTab : "character";
-  const groupDungeonRun = savedGroupDungeonRunFromCharacters(snapshot, state.game.activeZoneId, state.activeCharacterId);
+  state.indexes.armour = 0;
+  state.indexes.hair = uiMeta.hairIndex;
+  state.indexes.weapon = null;
+  applyEquippedVisualIndexes();
+  state.characterTab = uiMeta.characterTab;
+  const groupDungeonRun = resolveSavedGroupDungeonRun(
+    snapshot,
+    state.game.activeZoneId,
+    state.activeCharacterId,
+    {
+      characterIds: CHARACTER_IDS,
+      sanitizeGroupDungeonRun: (run, zoneId, classId) =>
+        sanitizeGroupDungeonOfflineRun?.(run, zoneId, classId) ?? null,
+      groupDungeonWaveSpawnCount,
+      findZone: (zoneId) => PROTOTYPE_ZONES.find((entry) => entry.id === zoneId),
+      charactersFallback: state.characters,
+    },
+  );
   if (groupDungeonRun?.zoneId === state.game.activeZoneId) {
     state.game.groupDungeonRun = groupDungeonRun;
     state.pendingBossAssistSelection = groupDungeonRun.classIds.filter((classId) => classId !== state.activeCharacterId);
@@ -2779,49 +2905,24 @@ function nextFreeSlotInInventoryState(inventory) {
   return null;
 }
 
+function characterRestoreOptions() {
+  return {
+    characterIds: CHARACTER_IDS,
+    createDefaultCharacter: createDefaultCharacterState,
+    normalizeCharacterId,
+    starterGearVersion: STARTER_GEAR_VERSION,
+    backfillStarterItem: backfillInventoryItem,
+    sanitizeGame: (game, gold, classId) => sanitizeCharacterGameState(game, gold, classId),
+    sanitizeInventory: sanitizeInventoryState,
+    sanitizeHotbar: sanitizeHotbarState,
+    sanitizeMagic: (_classId, magic) => sanitizeMagicState(magic),
+    sanitizeBattle: sanitizeCharacterBattleState,
+    retiredWizardSpells: RETIRED_TEST_DEFAULT_WIZARD_SPELLS,
+  };
+}
+
 function restoreCharactersState(snapshot) {
-  const characters = createDefaultCharacterStates();
-  if (snapshot.characters && typeof snapshot.characters === "object") {
-    for (const classId of CHARACTER_IDS) {
-      characters[classId] = sanitizeCharacterState(snapshot.characters[classId], classId);
-    }
-    return characters;
-  }
-
-  const activeClassId = normalizeCharacterId(snapshot.battle?.combatClass);
-  characters[activeClassId] = legacyCharacterStateFromSnapshot(snapshot, activeClassId);
-  return characters;
-}
-
-function legacyCharacterStateFromSnapshot(snapshot, classId) {
-  const character = createDefaultCharacterState(classId);
-  character.game = sanitizeCharacterGameState(snapshot.game, snapshot.inventory?.gold ?? snapshot.game?.progress?.gold, classId);
-  character.inventory = sanitizeInventoryState(snapshot.inventory, snapshot.hotbar, character.game.progress.gold);
-  character.game.progress.gold = character.inventory.gold;
-  character.hotbar = sanitizeHotbarState(snapshot.hotbar, character.inventory);
-  character.magic = removeRetiredTestingDefaultMagic(classId, sanitizeMagicState(snapshot.magic));
-  character.battle = sanitizeCharacterBattleState(snapshot.battle);
-  backfillStarterGear(character, classId);
-  return character;
-}
-
-function sanitizeCharacterState(savedCharacter, classId) {
-  const character = createDefaultCharacterState(classId);
-  if (!savedCharacter || typeof savedCharacter !== "object") return character;
-  character.game = sanitizeCharacterGameState(savedCharacter.game, savedCharacter.inventory?.gold, classId);
-  character.inventory = sanitizeInventoryState(savedCharacter.inventory, savedCharacter.hotbar, character.game.progress.gold);
-  character.game.progress.gold = character.inventory.gold;
-  character.hotbar = sanitizeHotbarState(savedCharacter.hotbar, character.inventory);
-  character.magic = removeRetiredTestingDefaultMagic(classId, sanitizeMagicState(savedCharacter.magic));
-  character.battle = sanitizeCharacterBattleState(savedCharacter.battle);
-  backfillStarterGear(character, classId);
-  return character;
-}
-
-function backfillStarterGear(character, classId) {
-  if ((Number(character.game?.starterGearVersion) || 0) >= STARTER_GEAR_VERSION) return;
-  if (classId === "Taoist") backfillInventoryItem(character.inventory, "wooden-sword", 1);
-  character.game.starterGearVersion = STARTER_GEAR_VERSION;
+  return restoreCharactersFromSnapshot(snapshot, characterRestoreOptions());
 }
 
 function backfillInventoryItem(inventory, itemId, quantity = 1) {
@@ -2831,50 +2932,27 @@ function backfillInventoryItem(inventory, itemId, quantity = 1) {
 }
 
 function sanitizeCharacterGameState(savedGame, fallbackGold = PLAYER_TEMPLATE.gold, fallbackClassId = state.activeCharacterId) {
-  const zoneExists = PROTOTYPE_ZONES.some((zone) => zone.id === savedGame?.activeZoneId);
-  const miningMode = savedGame?.mode === "mining" && savedGame?.activeZoneId === MINING_ZONE_ID;
-  const zoneMode = savedGame?.mode === "zone" && zoneExists;
-  const game = {
-    mode: miningMode ? "mining" : zoneMode ? "zone" : "town",
-    activeZoneId: miningMode || zoneMode ? savedGame.activeZoneId : null,
-    miningNextRollAt: Math.max(0, Math.trunc(Number(savedGame?.miningNextRollAt) || 0)),
-    miningSpotId: miningSpotById(savedGame?.miningSpotId)?.id ?? null,
-    kills: Math.max(0, Math.trunc(Number(savedGame?.kills) || 0)),
-    zoneKills: Math.max(0, Math.trunc(Number(savedGame?.zoneKills) || 0)),
-    distance: Math.max(0, Math.trunc(Number(savedGame?.distance) || 0)),
-    playtimeMs: Math.max(0, Math.trunc(Number(savedGame?.playtimeMs) || 0)),
-    lastReward: savedGame?.lastReward && typeof savedGame.lastReward === "object" ? savedGame.lastReward : null,
-    recentLoot: Array.isArray(savedGame?.recentLoot) ? savedGame.recentLoot.map(String).slice(0, 6) : [],
-    dropPity: sanitizeDropPity(savedGame?.dropPity),
-    bossRespawns: sanitizeBossRespawns(savedGame?.bossRespawns),
-    bossKills: sanitizeBossKills(savedGame?.bossKills),
-    progress: {
-      level: Math.max(1, Math.trunc(Number(savedGame?.progress?.level) || PLAYER_TEMPLATE.level)),
-      experience: Math.max(0, Math.trunc(Number(savedGame?.progress?.experience) || 0)),
-      gold: Math.max(0, Math.trunc(Number(savedGame?.progress?.gold ?? fallbackGold ?? PLAYER_TEMPLATE.gold) || 0)),
-    },
-    starterGearVersion: Math.max(0, Math.trunc(Number(savedGame?.starterGearVersion) || 0)),
-  };
-  game.groupDungeonRun = sanitizeGroupDungeonOfflineRun?.(savedGame?.groupDungeonRun, game.activeZoneId, fallbackClassId) ?? null;
-  return game;
+  return sanitizeCharacterGameStateCore(savedGame, {
+    fallbackGold,
+    fallbackLevel: PLAYER_TEMPLATE.level,
+    zoneIds: PROTOTYPE_ZONES.map((zone) => zone.id),
+    miningZoneId: MINING_ZONE_ID,
+    resolveMiningSpotId: (spotId) => miningSpotById(spotId)?.id ?? null,
+    sanitizeDropPity,
+    sanitizeBossRespawns,
+    sanitizeBossKills,
+    sanitizeGroupDungeonRun: (run, activeZoneId, classId) =>
+      sanitizeGroupDungeonOfflineRun?.(run, activeZoneId, classId) ?? null,
+    fallbackClassId,
+  });
 }
 
 function sanitizeBossRespawns(respawns = {}) {
-  if (!respawns || typeof respawns !== "object") return {};
-  return Object.fromEntries(
-    Object.entries(respawns)
-      .filter(([zoneId]) => zoneTracksBossRespawn(zoneId))
-      .map(([zoneId, readyAt]) => [zoneId, Math.max(0, Math.trunc(Number(readyAt) || 0))]),
-  );
+  return sanitizeBossRespawnsCore(respawns, zoneTracksBossRespawn);
 }
 
 function sanitizeAccountStats(saved = {}) {
-  return {
-    rebirthCount: Math.max(0, Math.trunc(Number(saved?.rebirthCount) || 0)),
-    rebirthPointsGained: Math.max(0, Math.trunc(Number(saved?.rebirthPointsGained) || 0)),
-    rebirthPointsSpent: Math.max(0, Math.trunc(Number(saved?.rebirthPointsSpent) || 0)),
-    bossKills: sanitizeBossKills(saved?.bossKills),
-  };
+  return sanitizeAccountStatsCore(saved, zoneTracksBossRespawn);
 }
 
 function ensureAccountStats() {
@@ -2898,14 +2976,11 @@ function syncAccountBossKillsToCharacters() {
 
 function migrateAccountStats() {
   ensureAccountStats();
-  const mergedKills = { ...accountBossKills() };
-  for (const classId of CHARACTER_IDS) {
-    const kills = sanitizeBossKills(state.characters[classId]?.game?.bossKills);
-    for (const [zoneId, count] of Object.entries(kills)) {
-      mergedKills[zoneId] = Math.max(mergedKills[zoneId] ?? 0, count);
-    }
-  }
-  state.account.stats.bossKills = mergedKills;
+  state.account.stats.bossKills = mergeAccountBossKills(
+    state.account.stats.bossKills,
+    state.characters,
+    accountRestoreOptions(),
+  );
   syncAccountBossKillsToCharacters();
 }
 
@@ -2957,138 +3032,37 @@ function accountStatsSnapshot() {
 }
 
 function sanitizeBossKills(kills = {}) {
-  if (!kills || typeof kills !== "object") return {};
-  return Object.fromEntries(
-    Object.entries(kills)
-      .filter(([zoneId]) => zoneTracksBossRespawn(zoneId))
-      .map(([zoneId, count]) => [zoneId, Math.max(0, Math.trunc(Number(count) || 0))]),
-  );
+  return sanitizeBossKillsCore(kills, zoneTracksBossRespawn);
 }
 
 function sanitizeInventoryState(savedInventory = {}, savedHotbar = {}, fallbackGold = 0) {
-  const usedIds = new Set();
-  let maxGeneratedId = 0;
-  const items = [];
-
-  for (const savedEntry of Array.isArray(savedInventory.items) ? savedInventory.items : []) {
-    if (!savedEntry?.itemId) continue;
-    const id = typeof savedEntry.id === "string" && savedEntry.id ? savedEntry.id : "";
-    if (!id || usedIds.has(id)) continue;
-    usedIds.add(id);
-    const generatedId = /^item-(\d+)$/.exec(id)?.[1];
-    if (generatedId) maxGeneratedId = Math.max(maxGeneratedId, Number(generatedId));
-    items.push({
-      id,
-      itemId: savedEntry.itemId,
-      quantity: Math.max(1, Math.trunc(Number(savedEntry.quantity) || 1)),
-      slot: Number.isInteger(savedEntry.slot) ? savedEntry.slot : null,
-      ...normalizeInventoryEntryFields(savedEntry),
-    });
-  }
-
-  const savedEquippedIds = new Set(Object.values(savedInventory.equipment ?? {}).filter(Boolean));
-  const savedHotbarIds = new Set((savedHotbar.slots ?? []).filter(Boolean));
-  const savedBagItems = items.filter((entry) => !savedEquippedIds.has(entry.id) && !savedHotbarIds.has(entry.id));
-  const needsSecondPage = savedBagItems.length > INVENTORY_PAGE_SIZE
-    || savedBagItems.some((entry) => Number.isInteger(entry.slot) && entry.slot >= INVENTORY_PAGE_SIZE);
-  const pagesUnlocked = Math.max(
-    Math.max(1, Math.min(inventoryPageCount(), Math.trunc(Number(savedInventory.pagesUnlocked) || 1))),
-    needsSecondPage ? 2 : 1,
-  );
-  const inventory = {
-    gold: Math.max(0, Math.trunc(Number(savedInventory.gold ?? fallbackGold) || 0)),
-    pagesUnlocked,
-    maxSlots: Math.min(INVENTORY_MAX_SLOTS, pagesUnlocked * INVENTORY_PAGE_SIZE),
-    nextInstanceId: Math.max(maxGeneratedId + 1, Math.trunc(Number(savedInventory.nextInstanceId) || 1), 1),
-    items,
-    equipment: Object.fromEntries(EQUIPMENT_SLOTS.map((slot) => [slot.id, null])),
-  };
-
-  const availableEntryIds = new Set(items.map((entry) => entry.id));
-  const equippedIds = new Set();
-  for (const slot of EQUIPMENT_SLOTS) {
-    const entryId = savedInventory.equipment?.[slot.id] ?? null;
-    if (!availableEntryIds.has(entryId) || equippedIds.has(entryId)) continue;
-    inventory.equipment[slot.id] = entryId;
-    equippedIds.add(entryId);
-  }
-  return inventory;
+  return sanitizeInventoryStateCore(savedInventory, savedHotbar, {
+    fallbackGold,
+    equipmentSlotIds: EQUIPMENT_SLOTS.map((slot) => slot.id),
+    pageSize: INVENTORY_PAGE_SIZE,
+    maxSlots: INVENTORY_MAX_SLOTS,
+    maxPages: inventoryPageCount(),
+    normalizeEntryFields: (savedEntry) => normalizeInventoryEntryFields(savedEntry),
+  });
 }
 
 function sanitizeStorageState(savedStorage = {}) {
-  const usedIds = new Set();
-  let maxGeneratedId = 0;
-  const items = [];
-
-  for (const savedEntry of Array.isArray(savedStorage.items) ? savedStorage.items : []) {
-    if (!savedEntry?.itemId) continue;
-    let id = typeof savedEntry.id === "string" && savedEntry.id ? savedEntry.id : "";
-    if (!id || usedIds.has(id)) {
-      maxGeneratedId += 1;
-      id = `storage-item-${maxGeneratedId}`;
-    }
-    usedIds.add(id);
-    const generatedId = /^storage-item-(\d+)$/.exec(id)?.[1];
-    if (generatedId) maxGeneratedId = Math.max(maxGeneratedId, Number(generatedId));
-    items.push({
-      id,
-      itemId: savedEntry.itemId,
-      quantity: Math.max(1, Math.trunc(Number(savedEntry.quantity) || 1)),
-      slot: Number.isInteger(savedEntry.slot) ? savedEntry.slot : null,
-      ...normalizeInventoryEntryFields(savedEntry),
-    });
-  }
-
-  const savedPagesUnlocked = Math.max(
-    1,
-    Math.min(storagePageCount(), Math.trunc(Number(savedStorage.pagesUnlocked) || 1)),
-  );
-  const page2Purchased = Boolean(savedStorage.page2Purchased);
-  let pagesUnlocked = savedPagesUnlocked;
-  if (pagesUnlocked >= 2 && !page2Purchased) {
-    for (const entry of items) {
-      if (Number.isInteger(entry.slot) && entry.slot >= STORAGE_PAGE_SIZE) {
-        entry.slot = null;
-      }
-    }
-    pagesUnlocked = 1;
-  }
-  const storage = {
-    pagesUnlocked,
-    page2Purchased,
-    maxSlots: STORAGE_BASE_SLOTS,
-    nextInstanceId: Math.max(maxGeneratedId + 1, Math.trunc(Number(savedStorage.nextInstanceId) || 1), 1),
-    items,
-  };
+  const storage = sanitizeStorageStateCore(savedStorage, {
+    pageSize: STORAGE_PAGE_SIZE,
+    baseSlots: STORAGE_BASE_SLOTS,
+    maxPages: storagePageCount(),
+    normalizeEntryFields: (savedEntry) => normalizeInventoryEntryFields(savedEntry),
+  });
   syncStorageCapacity(storage);
   ensureStorageSlots(storage);
   return storage;
 }
 
 function sanitizeAccountUpgradeState(savedUpgrades = {}) {
-  const rawPurchased = savedUpgrades?.purchased && typeof savedUpgrades.purchased === "object"
-    ? savedUpgrades.purchased
-    : savedUpgrades;
-  const rawTiers = savedUpgrades?.tiers && typeof savedUpgrades.tiers === "object"
-    ? savedUpgrades.tiers
-    : {};
-  const tiers = {};
-  for (const upgrade of ACCOUNT_UPGRADE_DEFS) {
-    const fromTiers = Math.max(0, Math.trunc(Number(rawTiers?.[upgrade.id]) || 0));
-    const fromPurchased = rawPurchased?.[upgrade.id] ? 1 : 0;
-    const tier = Math.max(fromTiers, fromPurchased);
-    const maxTier = accountUpgradeMaxTier(upgrade);
-    if (tier > 0) {
-      tiers[upgrade.id] = Number.isFinite(maxTier) ? Math.min(tier, maxTier) : tier;
-    }
-  }
-  const legacyStatTier = Math.max(0, Math.trunc(Number(rawTiers?.[LEGACY_REBIRTH_BASE_STAT_UPGRADE_ID]) || 0));
-  if (legacyStatTier > 0) {
-    for (const upgradeId of REBIRTH_BASE_STAT_UPGRADE_IDS) {
-      tiers[upgradeId] = Math.max(tiers[upgradeId] ?? 0, legacyStatTier);
-    }
-  }
-  return { tiers };
+  return sanitizeAccountUpgradeStateCore(savedUpgrades, ACCOUNT_UPGRADE_DEFS, {
+    rebirthBaseStatUpgradeIds: REBIRTH_BASE_STAT_UPGRADE_IDS,
+    legacyStatUpgradeId: LEGACY_REBIRTH_BASE_STAT_UPGRADE_ID,
+  });
 }
 
 function awakeningSoulQuantityInInventory(inventory, itemId = AWAKENING_SOUL_ITEM_ID) {
@@ -3286,50 +3260,20 @@ function performAccountRebirth() {
 }
 
 function sanitizeHotbarState(savedHotbar = {}, inventory = state.inventory) {
-  const availableEntryIds = new Set((inventory.items ?? []).map((entry) => entry.id));
-  const equippedIds = new Set(Object.values(inventory.equipment ?? {}).filter(Boolean));
-  return {
-    slots: Array.from({ length: HOTBAR_SLOT_COUNT }, (_, slot) => {
-      const entryId = savedHotbar?.slots?.[slot] ?? null;
-      return availableEntryIds.has(entryId) && !equippedIds.has(entryId) ? entryId : null;
-    }),
-  };
+  return sanitizeHotbarStateCore(
+    savedHotbar,
+    (inventory.items ?? []).map((entry) => entry.id),
+    Object.values(inventory.equipment ?? {}).filter(Boolean),
+    HOTBAR_SLOT_COUNT,
+  );
 }
 
 function sanitizeMagicState(savedMagic = {}) {
-  const learned = savedMagic?.learned ?? {};
-  return {
-    learned: Object.fromEntries(
-      Object.entries(learned)
-        .filter(([spellId]) => magicSpellById(spellId))
-        .map(([spellId, savedSpell]) => [
-          spellId,
-          {
-            spellId,
-            level: Math.max(0, Math.min(3, Math.trunc(Number(savedSpell.level) || 0))),
-            experience: Math.max(0, Math.trunc(Number(savedSpell.experience) || 0)),
-            key: savedSpell.key ?? null,
-            autoCast: Boolean(savedSpell.autoCast),
-            castReadyAt: 0,
-            learnedAt: Number(savedSpell.learnedAt) || 0,
-          },
-        ]),
-    ),
-  };
+  return sanitizeMagicStateCore(savedMagic, (spellId) => Boolean(magicSpellById(spellId)));
 }
 
 function sanitizeCharacterBattleState(savedBattle = {}) {
-  return {
-    running: savedBattle?.running !== false,
-    paused: savedBattle?.paused === true,
-    playerHp: finiteNumberOrNull(savedBattle?.playerHp),
-    playerMp: finiteNumberOrNull(savedBattle?.playerMp),
-    potHealthAmount: Math.max(0, Math.trunc(Number(savedBattle?.potHealthAmount) || 0)),
-    potManaAmount: Math.max(0, Math.trunc(Number(savedBattle?.potManaAmount) || 0)),
-    healAmount: Math.max(0, Math.trunc(Number(savedBattle?.healAmount) || 0)),
-    statBuffs: sanitizeStatBuffs(savedBattle?.statBuffs),
-    petStatBuffs: sanitizeStatBuffs(savedBattle?.petStatBuffs),
-  };
+  return sanitizeCharacterBattleStateCore(savedBattle);
 }
 
 function applyCharacterState(classId, character = createDefaultCharacterState(classId)) {
@@ -3358,7 +3302,9 @@ function applyCharacterState(classId, character = createDefaultCharacterState(cl
   state.inventory = cloneInventoryState(character.inventory);
   state.hotbar = cloneHotbarState(character.hotbar);
   state.magic = cloneMagicState(character.magic);
-  removeRetiredTestingDefaultMagic(safeClassId, state.magic);
+  removeRetiredTestingDefaultMagic(safeClassId, state.magic, {
+    retiredSpellIds: RETIRED_TEST_DEFAULT_WIZARD_SPELLS,
+  });
   normalizeAutoCastSpellsForClass(safeClassId);
   state.paused = character.battle?.paused === true;
   state.battle.statBuffs = sanitizeStatBuffs(character.battle?.statBuffs);
@@ -3653,149 +3599,10 @@ function magicStateForPersistence(magic) {
   return cloned;
 }
 
-function removeRetiredTestingDefaultMagic(classId, magic) {
-  if (classId !== "Wizard") return magic;
-  if (!magic.learned || typeof magic.learned !== "object") magic.learned = {};
-  for (const spellId of RETIRED_TEST_DEFAULT_WIZARD_SPELLS) {
-    const learned = magic.learned[spellId];
-    if (learned && !learned.learnedAt) delete magic.learned[spellId];
-  }
-  return magic;
-}
-
-function restoreInventoryState(snapshot) {
-  const savedInventory = snapshot.inventory ?? {};
-  const savedItems = Array.isArray(savedInventory.items) ? savedInventory.items : [];
-  const usedIds = new Set();
-  let maxGeneratedId = 0;
-  const items = [];
-
-  for (const savedEntry of savedItems) {
-    if (!savedEntry?.itemId) continue;
-    const id = typeof savedEntry.id === "string" && savedEntry.id ? savedEntry.id : "";
-    if (!id || usedIds.has(id)) continue;
-    usedIds.add(id);
-    const generatedId = /^item-(\d+)$/.exec(id)?.[1];
-    if (generatedId) maxGeneratedId = Math.max(maxGeneratedId, Number(generatedId));
-    items.push({
-      id,
-      itemId: savedEntry.itemId,
-      quantity: Math.max(1, Math.trunc(Number(savedEntry.quantity) || 1)),
-      slot: Number.isInteger(savedEntry.slot) ? savedEntry.slot : null,
-      ...normalizeInventoryEntryFields(savedEntry),
-    });
-  }
-
-  const savedEquippedIds = new Set(Object.values(savedInventory.equipment ?? {}).filter(Boolean));
-  const savedHotbarIds = new Set((snapshot.hotbar?.slots ?? []).filter(Boolean));
-  const savedBagItems = items.filter((entry) => !savedEquippedIds.has(entry.id) && !savedHotbarIds.has(entry.id));
-  const needsSecondPage = savedBagItems.length > INVENTORY_PAGE_SIZE
-    || savedBagItems.some((entry) => Number.isInteger(entry.slot) && entry.slot >= INVENTORY_PAGE_SIZE);
-  const savedPagesUnlocked = Math.max(1, Math.min(inventoryPageCount(), Math.trunc(Number(savedInventory.pagesUnlocked) || 1)));
-  state.inventory.gold = Math.max(0, Math.trunc(Number(savedInventory.gold ?? snapshot.game?.progress?.gold ?? 0) || 0));
-  state.inventory.pagesUnlocked = Math.max(savedPagesUnlocked, needsSecondPage ? 2 : 1);
-  syncInventoryCapacity();
-  state.inventory.items = items;
-  state.inventory.nextInstanceId = Math.max(
-    maxGeneratedId + 1,
-    Math.trunc(Number(savedInventory.nextInstanceId) || 1),
-    1,
-  );
-  state.inventory.equipment = Object.fromEntries(EQUIPMENT_SLOTS.map((slot) => [slot.id, null]));
-
-  const availableEntryIds = new Set(items.map((entry) => entry.id));
-  const equippedIds = new Set();
-  for (const slot of EQUIPMENT_SLOTS) {
-    const entryId = savedInventory.equipment?.[slot.id] ?? null;
-    if (!availableEntryIds.has(entryId) || equippedIds.has(entryId)) continue;
-    state.inventory.equipment[slot.id] = entryId;
-    equippedIds.add(entryId);
-  }
-}
-
-function restoreGameProgress(snapshot) {
-  const savedGame = snapshot.game ?? {};
-  const zoneExists = PROTOTYPE_ZONES.some((zone) => zone.id === savedGame.activeZoneId);
-  const miningMode = savedGame.mode === "mining" && savedGame.activeZoneId === MINING_ZONE_ID;
-  state.game.mode = miningMode ? "mining" : savedGame.mode === "zone" && zoneExists ? "zone" : "town";
-  state.game.activeZoneId = state.game.mode === "town" ? null : savedGame.activeZoneId;
-  state.game.miningNextRollAt = Math.max(0, Math.trunc(Number(savedGame.miningNextRollAt) || 0));
-  state.game.miningSpotId = miningSpotById(savedGame.miningSpotId)?.id ?? null;
-  state.game.kills = Math.max(0, Math.trunc(Number(savedGame.kills) || 0));
-  state.game.zoneKills = Math.max(0, Math.trunc(Number(savedGame.zoneKills) || 0));
-  state.game.distance = Math.max(0, Math.trunc(Number(savedGame.distance) || 0));
-  state.game.playtimeMs = Math.max(0, Math.trunc(Number(savedGame.playtimeMs) || 0));
-  sessionStartedAt = performance.now();
-  state.game.lastReward = savedGame.lastReward && typeof savedGame.lastReward === "object" ? savedGame.lastReward : null;
-  state.game.recentLoot = Array.isArray(savedGame.recentLoot) ? savedGame.recentLoot.map(String).slice(0, 6) : [];
-  state.game.lootToasts = [];
-  state.game.dropPity = sanitizeDropPity(savedGame.dropPity);
-  state.game.bossRespawns = sanitizeBossRespawns(savedGame.bossRespawns);
-  state.game.bossKills = sanitizeBossKills(savedGame.bossKills);
-  state.game.selectedTownNpcId = null;
-  state.game.hoveredTownNpcId = null;
-
-  state.game.progress.level = Math.max(1, Math.trunc(Number(savedGame.progress?.level) || PLAYER_TEMPLATE.level));
-  state.game.progress.experience = Math.max(0, Math.trunc(Number(savedGame.progress?.experience) || 0));
-  normalizeSavedProgress();
-  state.game.progress.gold = state.inventory.gold;
-}
-
-function restoreMagicState(snapshot) {
-  const learned = snapshot.magic?.learned ?? {};
-  state.magic.learned = {};
-  for (const [spellId, savedSpell] of Object.entries(learned)) {
-    const spell = magicSpellById(spellId);
-    if (!spell) continue;
-    state.magic.learned[spellId] = {
-      spellId,
-      level: Math.max(0, Math.min(3, Math.trunc(Number(savedSpell.level) || 0))),
-      experience: Math.max(0, Math.trunc(Number(savedSpell.experience) || 0)),
-      key: savedSpell.key ?? null,
-      autoCast: Boolean(savedSpell.autoCast),
-      castReadyAt: 0,
-      learnedAt: Number(savedSpell.learnedAt) || 0,
-    };
-  }
-}
-
-function restoreHotbarState(snapshot) {
-  const availableEntryIds = new Set(state.inventory.items.map((entry) => entry.id));
-  const equippedIds = new Set(Object.values(state.inventory.equipment).filter(Boolean));
-  state.hotbar.slots = Array.from({ length: HOTBAR_SLOT_COUNT }, (_, slot) => {
-    const entryId = snapshot.hotbar?.slots?.[slot] ?? null;
-    return availableEntryIds.has(entryId) && !equippedIds.has(entryId) ? entryId : null;
-  });
-  ensureInventorySlots();
-}
-
 function restoreSettingsState(snapshot) {
-  const savedSettings = snapshot.settings ?? {};
-  const hasCurrentMusicSettings = Number(savedSettings.musicSettingsVersion) >= MUSIC_SETTINGS_VERSION;
-  state.settings.musicEnabled = hasCurrentMusicSettings && Object.prototype.hasOwnProperty.call(savedSettings, "musicEnabled")
-    ? savedSettings.musicEnabled === true
-    : DEFAULT_MUSIC_ENABLED;
-  state.settings.musicVolume = normalizedVolume(savedSettings.musicVolume ?? DEFAULT_MUSIC_VOLUME);
-  state.settings.musicMode = normalizedMusicMode(savedSettings.musicMode);
-  state.settings.sfxEnabled = Object.prototype.hasOwnProperty.call(savedSettings, "sfxEnabled")
-    ? savedSettings.sfxEnabled === true
-    : DEFAULT_SFX_ENABLED;
-  state.settings.sfxVolume = normalizedVolume(savedSettings.sfxVolume ?? DEFAULT_SFX_VOLUME);
-  state.settings.prototypeStatsEnabled = Object.prototype.hasOwnProperty.call(savedSettings, "prototypeStatsEnabled")
-    ? savedSettings.prototypeStatsEnabled === true
-    : DEFAULT_PROTOTYPE_STATS_ENABLED;
-  state.settings.prototypeStatsNoticeVersion = Math.max(0, Math.trunc(Number(savedSettings.prototypeStatsNoticeVersion) || 0));
-  state.settings.prototypeResetNoticeVersion = Math.max(0, Math.trunc(Number(savedSettings.prototypeResetNoticeVersion) || 0));
-  state.settings.prototypeResetNoticeLastSeenAt = Math.max(0, Math.trunc(Number(savedSettings.prototypeResetNoticeLastSeenAt) || 0));
-  const savedTrackIndex = BACKGROUND_MUSIC_TRACKS.findIndex((track) => track.id === savedSettings.musicTrackId);
+  Object.assign(state.settings, sanitizeSettingsState(snapshot.settings ?? {}));
+  const savedTrackIndex = BACKGROUND_MUSIC_TRACKS.findIndex((track) => track.id === snapshot.settings?.musicTrackId);
   musicTrackIndex = savedTrackIndex >= 0 ? savedTrackIndex : 0;
-}
-
-function restoreEquipmentVisualIndexes(snapshot) {
-  state.indexes.armour = 0;
-  state.indexes.hair = Number.isInteger(snapshot.indexes?.hair) ? snapshot.indexes.hair : 0;
-  state.indexes.weapon = null;
-  applyEquippedVisualIndexes();
 }
 
 function restorePendingSavedPlayerResources() {
@@ -3819,33 +3626,14 @@ function restorePendingSavedPlayerResources() {
 }
 
 function createPendingOfflineProgress(snapshot) {
-  const savedAt = Number(snapshot?.savedAt) || 0;
-  const elapsedMs = Date.now() - savedAt;
-  const activeZoneId = snapshot?.game?.activeZoneId;
-  const zoneExists = PROTOTYPE_ZONES.some((zone) => zone.id === activeZoneId);
-  const savedHp = finiteNumberOrNull(snapshot?.battle?.playerHp);
-  const wasRunning = snapshot?.battle?.running !== false;
-  const wasPaused = snapshot?.battle?.paused === true;
-
-  if (!savedAt || elapsedMs < OFFLINE_PROGRESS_MIN_MS) return null;
-
-  const pending = {
-    elapsedMs: Math.min(elapsedMs, OFFLINE_PROGRESS_CAP_MS),
-    rawElapsedMs: elapsedMs,
-    capped: elapsedMs > OFFLINE_PROGRESS_CAP_MS,
-    savedAt,
-  };
-  const groupDungeonRun = sanitizeGroupDungeonOfflineRun?.(snapshot?.groupDungeonRun, activeZoneId, snapshot?.activeCharacterId ?? snapshot?.battle?.combatClass);
-  if (groupDungeonRun?.zoneId === activeZoneId) pending.groupDungeonRun = groupDungeonRun;
-
-  if (snapshot?.game?.mode === "mining" && activeZoneId === MINING_ZONE_ID && !wasPaused) {
-    return { ...pending, kind: "mining" };
-  }
-
-  if (snapshot?.game?.mode !== "zone" || !zoneExists || !wasRunning || wasPaused) return null;
-  if (savedHp != null && savedHp <= 0) return null;
-
-  return { ...pending, kind: "zone" };
+  return resolvePendingOfflineProgress(snapshot, Date.now(), {
+    zoneIds: PROTOTYPE_ZONES.map((zone) => zone.id),
+    miningZoneId: MINING_ZONE_ID,
+    minMs: OFFLINE_PROGRESS_MIN_MS,
+    capMs: OFFLINE_PROGRESS_CAP_MS,
+    sanitizeGroupDungeonRun: (run, activeZoneId, classId) =>
+      sanitizeGroupDungeonOfflineRun?.(run, activeZoneId, classId) ?? null,
+  });
 }
 
 function applyPendingOfflineProgress() {
@@ -3919,31 +3707,24 @@ function refreshOfflineProgressUi() {
 
 function simulateOfflineMining(pending) {
   const limitMs = Math.max(0, Math.trunc(Number(pending.elapsedMs) || 0));
-  const report = {
-    kind: "mining",
-    elapsedMs: 0,
+  return simulateOfflineMiningSwings(limitMs, {
+    swingCycleMs: MINING_SWING_CYCLE_MS,
+    hitChance: MINING_HIT_CHANCE,
     capped: pending.capped,
-    swings: 0,
-    hits: 0,
-    drops: new Map(),
-    ignoredDrops: new Map(),
-  };
-
-  let simMs = 0;
-  while (simMs + MINING_SWING_CYCLE_MS <= limitMs) {
-    simMs += MINING_SWING_CYCLE_MS;
-    report.swings += 1;
-    if (Math.random() >= MINING_HIT_CHANCE) continue;
-    report.hits += 1;
-    addOfflineMiningOre(
-      report,
-      rollMiningOreItemId(),
-      rollMiningOrePurity(),
-    );
-  }
-
-  report.elapsedMs = simMs;
-  return report;
+    rollOre: () => ({
+      itemId: rollMiningOreItemId(),
+      purity: rollMiningOrePurity(),
+    }),
+    formatOreLabel: (ore) => offlineMiningOreLabel(ore.itemId, ore.purity),
+    tryAddOre: (ore) => {
+      syncInventoryCapacity();
+      ensureInventorySlots();
+      if (inventoryUsedSlots() >= state.inventory.maxSlots) return false;
+      state.inventory.items.push(createOreInventoryEntry(ore.itemId, ore.purity));
+      syncBossPartyControlledInventoryFromState();
+      return true;
+    },
+  });
 }
 
 function offlineMiningOreLabel(itemId, purity) {
@@ -3951,20 +3732,6 @@ function offlineMiningOreLabel(itemId, purity) {
   if (!item) return itemId;
   const purityLabel = purity > 0 ? ` P${purity}` : "";
   return `${item.name}${purityLabel}`;
-}
-
-function addOfflineMiningOre(report, itemId, purity) {
-  syncInventoryCapacity();
-  ensureInventorySlots();
-  const label = offlineMiningOreLabel(itemId, purity);
-  if (inventoryUsedSlots() >= state.inventory.maxSlots) {
-    incrementReportCount(report.ignoredDrops, label);
-    return false;
-  }
-  state.inventory.items.push(createOreInventoryEntry(itemId, purity));
-  syncBossPartyControlledInventoryFromState();
-  incrementReportCount(report.drops, label);
-  return true;
 }
 
 function finalizeOfflineMiningState(report) {
@@ -4064,20 +3831,7 @@ function simulateOfflineTrainingRoomProgress(zone, report, startedAt, limitMs) {
 }
 
 function simulateOfflineProgress(zone, pending) {
-  const report = {
-    elapsedMs: 0,
-    capped: pending.capped,
-    kills: 0,
-    xp: 0,
-    gold: 0,
-    levels: [],
-    drops: new Map(),
-    ignoredDrops: new Map(),
-    potionsUsed: new Map(),
-    damageTaken: 0,
-    diedAtMs: 0,
-    finalEnemy: null,
-  };
+  const report = createOfflineZoneReport(pending);
   const startedAt = performance.now();
   report.simulatedStartedAt = startedAt;
   const limitMs = Math.max(0, Math.trunc(Number(pending.elapsedMs) || 0));
@@ -4094,27 +3848,16 @@ function simulateOfflineProgress(zone, pending) {
   while (report.elapsedMs < limitMs && (state.battle.player?.hp ?? 0) > 0) {
     const template = randomZoneEnemyTemplate(zone);
     const result = simulateOfflineFight(template, startedAt + report.elapsedMs, limitMs - report.elapsedMs, report);
-    report.elapsedMs += result.elapsedMs;
-    report.finalEnemy = result.enemy;
+    const step = processOfflineZoneFightCycle(report, result, limitMs, LANE.respawnDelayMs);
+    if (step.status === "player_died" || step.status === "fight_incomplete") break;
 
-    if (result.playerDied) {
-      report.diedAtMs = report.elapsedMs;
-      break;
-    }
-    if (!result.killed) break;
-
-    report.finalEnemy = null;
     dismissTaoistPet();
     awardOfflineEnemyRewards(zone, template, report);
     state.game.distance += enemySpawnDistance();
-
-    const respawnMs = Math.min(LANE.respawnDelayMs, Math.max(0, limitMs - report.elapsedMs));
-    report.elapsedMs += respawnMs;
     offlineUpdateRecovery(startedAt + report.elapsedMs, report);
   }
 
-  report.elapsedMs = Math.min(report.elapsedMs, limitMs);
-  report.simulatedEndedAt = startedAt + report.elapsedMs;
+  finalizeOfflineZoneReport(report, limitMs, startedAt);
   state.battle.level = state.game.progress.level;
   state.battle.experience = state.game.progress.experience;
   state.battle.gold = state.inventory.gold;
@@ -4265,97 +4008,58 @@ function maxStatBuffRemainingMs(buff) {
   return BUFF_POTION_DURATION_MS;
 }
 
-function rebaseTransientTimestamp(value, simulatedNow, actualNow, maxRemainingMs = Infinity) {
-  const timestamp = Number(value) || 0;
-  if (timestamp <= simulatedNow) return 0;
-  const remaining = timestamp - simulatedNow;
-  const cappedRemaining = Number.isFinite(maxRemainingMs)
-    ? Math.min(remaining, Math.max(0, maxRemainingMs))
-    : remaining;
-  return cappedRemaining > 0 ? actualNow + cappedRemaining : 0;
-}
-
 function simulateOfflineFight(template, startedAt, remainingMs, report) {
-  const enemy = { ...template, hp: template.maxHp, mp: template.maxMp, poisons: [], debuffs: { slowUntil: 0, frozenUntil: 0 } };
-  let elapsedMs = 0;
-  const travelMs = Math.min(offlineTravelTimeMs(), remainingMs);
-  elapsedMs += travelMs;
-  state.battle.enemy = enemy;
-  state.battle.enemyId = enemy.id;
-  state.battle.phase = "engaged";
-  state.battle.enemyAggro = true;
-  state.battle.playerX = 0;
-  state.battle.enemyX = playerAttackRange();
-  dismissTaoistPet();
-  offlineUpdateRecovery(startedAt + elapsedMs, report);
-
-  if ((state.battle.player?.hp ?? 0) <= 0) return { elapsedMs, killed: false, playerDied: true, enemy };
-  if (elapsedMs >= remainingMs) return { elapsedMs, killed: false, playerDied: false, enemy };
-
-  let nextPlayerAttack = 0;
-  let nextEnemyAttack = Math.max(1, Math.trunc(Number(enemy.attackMs) || 2500));
-  let guard = 0;
-
-  while (elapsedMs < remainingMs && enemy.hp > 0 && (state.battle.player?.hp ?? 0) > 0 && guard < 5000) {
-    guard += 1;
-    const pet = state.battle.taoPet?.active ? state.battle.taoPet : null;
-    const nextPetAttack = offlinePetAttackDelayMs(pet, startedAt + elapsedMs);
-    const delta = Math.min(nextPlayerAttack, nextEnemyAttack, nextPetAttack);
-    if (elapsedMs + delta > remainingMs) {
-      elapsedMs = remainingMs;
-      offlineUpdateRecovery(startedAt + elapsedMs, report);
-      return { elapsedMs, killed: false, playerDied: false, enemy };
-    }
-
-    elapsedMs += delta;
-    nextPlayerAttack -= delta;
-    nextEnemyAttack -= delta;
-    const now = startedAt + elapsedMs;
-    offlineUpdateRecovery(now, report);
-    if ((state.battle.player?.hp ?? 0) <= 0) break;
-
-    if (nextPlayerAttack <= 0) {
-      if (offlinePlayerAttack(enemy, now)) {
-        nextPlayerAttack += consumeLastPlayerAttackCooldown(now);
-      }
-    }
-    if (enemy.hp <= 0) break;
-
-    if (state.battle.taoPet?.active && (state.battle.taoPet.nextAttackAt ?? 0) <= now) {
-      updateTaoistPetAttack(now, { offline: true });
-    }
-    if (enemy.hp <= 0) break;
-
-    if (nextEnemyAttack <= 0 && !enemyFrozenActive(enemy, now)) {
-      offlineEnemyAttack(enemy, now, report);
-      nextEnemyAttack += effectiveEnemyAttackMs(enemy, now);
-      offlineUpdateRecovery(now, report);
-    }
-  }
-
-  return {
-    elapsedMs,
-    killed: enemy.hp <= 0,
-    playerDied: (state.battle.player?.hp ?? 0) <= 0,
+  const enemy = createOfflineFightEnemy(template);
+  return simulateOfflineFightLoop({
+    remainingMs,
+    startedAt,
+    travelMs: offlineTravelTimeMs(),
     enemy,
-  };
+    initialNextEnemyAttackMs: enemy.attackMs,
+    getPlayerHp: () => state.battle.player?.hp ?? 0,
+    getPetAttackDelayMs: (simNow) => offlinePetAttackDelayMs(
+      state.battle.taoPet?.active ? state.battle.taoPet : null,
+      simNow,
+    ),
+    isEnemyFrozen: (target, now) => enemyFrozenActive(target, now),
+    onTravelComplete: (simNow) => {
+      state.battle.enemy = enemy;
+      state.battle.enemyId = enemy.id;
+      state.battle.phase = "engaged";
+      state.battle.enemyAggro = true;
+      state.battle.playerX = 0;
+      state.battle.enemyX = playerAttackRange();
+      dismissTaoistPet();
+      offlineUpdateRecovery(simNow, report);
+    },
+    onRecovery: (now) => offlineUpdateRecovery(now, report),
+    onPlayerAttack: (target, now) => offlinePlayerAttack(target, now),
+    onPetAttack: (now) => {
+      if (state.battle.taoPet?.active && (state.battle.taoPet.nextAttackAt ?? 0) <= now) {
+        updateTaoistPetAttack(now, { offline: true });
+      }
+    },
+    onEnemyAttack: (target, now) => offlineEnemyAttack(target, now, report),
+    consumePlayerCooldownMs: (now) => consumeLastPlayerAttackCooldown(now),
+    getNextEnemyAttackMs: (target, now) => effectiveEnemyAttackMs(target, now),
+  });
 }
 
 function offlineTravelTimeMs() {
   const distance = Math.max(0, enemySpawnDistance() - playerAttackRange());
-  const walkDistance = Math.min(distance, TRAVEL_WALK_DISTANCE);
-  const runDistance = Math.max(0, distance - walkDistance);
-  return Math.round((walkDistance / Math.max(1, LANE.playerSpeed) + runDistance / Math.max(1, LANE.runSpeed)) * 1000);
+  return computeOfflineTravelTimeMs(distance, {
+    walkCap: TRAVEL_WALK_DISTANCE,
+    playerSpeed: LANE.playerSpeed,
+    runSpeed: LANE.runSpeed,
+  });
 }
 
 function offlinePetAttackDelayMs(pet, simNow) {
-  if (!pet?.active) return Infinity;
-  const readyIn = Math.max(0, (pet.nextAttackAt ?? 0) - simNow);
-  if (readyIn > 0) return readyIn;
-  if (state.battle.pendingPetAttack) return 1;
-  if (pet.spellId === "SummonShinsu" && !pet.shinsuVisible && pet.action === "show") return 1;
-  if (taoistPetEnemyDistance() > taoistPetAttackRangePx(pet)) return Infinity;
-  return 0;
+  return computeOfflinePetAttackDelayMsCore(pet, simNow, {
+    pendingPetAttack: Boolean(state.battle.pendingPetAttack),
+    shinsuShowPending: pet?.spellId === "SummonShinsu" && !pet?.shinsuVisible && pet?.action === "show",
+    outOfRange: taoistPetEnemyDistance() > taoistPetAttackRangePx(pet),
+  });
 }
 
 function offlineUpdateRecovery(now, report) {
@@ -4397,6 +4101,11 @@ function offlineAutoUsePotions(now, report) {
   }
 }
 
+function applyOfflineEnemyDamage(enemy, damage, now, kind = "physical") {
+  if (damage <= 0) return;
+  applyCombatDamageEvent(enemyDamageEvent(damage, { kind }), now, { enemy });
+}
+
 function offlinePlayerAttack(enemy, now) {
   state.battle.enemy = enemy;
   state.battle.enemyId = enemy.id;
@@ -4425,22 +4134,36 @@ function offlineWarriorAttack(enemy, now) {
 
   if (learned) commitWarriorSpellUse(skill, learned, cost, now);
   battle.lastPlayerAttackCooldownMs = playerWeaponAttackCooldownMs(now, skill);
-  if (!rollHit(battle.player.accuracy, enemy.agility)) {
-    rollSlayingChargeAfterAttack(now);
-    if (!warriorSlayingPending()) maybeAutoWarriorCharge(now);
-    return true;
+  let damage = 0;
+  if (learned) {
+    if (!rollHit(battle.player.accuracy, enemy.agility)) {
+      rollSlayingChargeAfterAttack(now);
+      if (!warriorSlayingPending()) maybeAutoWarriorCharge(now);
+      return true;
+    }
+    damage = rollWarriorMagicDamage(skill, learned, battle.player, enemy);
+  } else {
+    const attack = resolvePhysicalAttack(
+      battle.player.accuracy,
+      enemy.agility,
+      battle.player.dc,
+      enemyPhysicalDefence(enemy),
+      battle.player.luck,
+    );
+    if (!attack.hit) {
+      rollSlayingChargeAfterAttack(now);
+      if (!warriorSlayingPending()) maybeAutoWarriorCharge(now);
+      return true;
+    }
+    damage = attack.damage;
   }
-
-  const damage = learned
-    ? rollWarriorMagicDamage(skill, learned, battle.player, enemy)
-    : rollDamage(battle.player.dc, enemyPhysicalDefence(enemy), battle.player.luck);
-  const scaled = scaleEnemyPhysicalDamage(damage, enemy, now);
+  const scaled = scalePhysicalDamageForStun(damage, enemyStunned(enemy, now));
   if (scaled <= 0) {
     rollSlayingChargeAfterAttack(now);
     if (!warriorSlayingPending()) maybeAutoWarriorCharge(now);
     return true;
   }
-  reduceEnemyHp(enemy, scaled);
+  applyOfflineEnemyDamage(enemy, scaled, now, learned ? "magic" : "physical");
   if (learned) levelWarriorMagic(skill, learned, now);
   levelPassiveWeaponMagic(now);
   rollSlayingChargeAfterAttack(now);
@@ -4453,48 +4176,55 @@ function offlineWarriorAttack(enemy, now) {
 
 function offlineMagicAttack(enemy, now, statKey, multiplier = 1) {
   const player = state.battle.player;
-  if (!rollMagicHit(enemy)) return;
-  const damage = Math.max(0, Math.round(rollDamage(player[statKey] ?? player.dc, enemyMagicalDefence(enemy), player.luck) * multiplier));
-  if (damage <= 0) return;
-  reduceEnemyHp(enemy, damage);
+  const { hit, damage } = resolveMagicAttack(
+    enemy,
+    player[statKey] ?? player.dc,
+    enemyMagicalDefence(enemy),
+    player.luck,
+    multiplier,
+  );
+  if (hit) applyOfflineEnemyDamage(enemy, damage, now, "magic");
 }
 
 function offlineWizardAttack(enemy, now) {
   const battle = state.battle;
-  const magicShield = usableWizardDefenceBuff(now);
-  if (magicShield) {
-    castWizardDefenceBuff(magicShield, now, { offline: true });
-    return;
-  }
   const queued = queuedCombatSpell("Wizard");
-  if (queued?.spell.id === "MagicShield") {
-    const manualShield = usableWizardDefenceBuff(now, { requireAuto: false });
-    if (manualShield) {
-      castWizardDefenceBuff(manualShield, now, { offline: true });
-      return;
-    }
-  }
   const attackSpell = usableWizardAttackSpell(now);
-  if (!attackSpell) {
-    offlineWizardWeaponAttack(enemy, now);
-    return;
-  }
-  const { spell, learned, cost, cooldownWaiting } = attackSpell;
-  if (cooldownWaiting) {
-    offlineWizardWeaponAttack(enemy, now);
-    return;
-  }
-  if ((battle.player?.mp ?? 0) < cost) {
-    offlineWizardWeaponAttack(enemy, now);
-    return;
-  }
+  const phase = resolveOfflineWizardTurnPhase({
+    defenceAuto: Boolean(usableWizardDefenceBuff(now)),
+    defenceQueued: queued?.spell?.id === OFFLINE_WIZARD_DEFENCE_SPELL_ID
+      && Boolean(usableWizardDefenceBuff(now, { requireAuto: false })),
+    hasAttackSpell: Boolean(attackSpell),
+    weaponFallback: attackSpell
+      ? resolveSpellCastWeaponFallback({
+        cooldownWaiting: attackSpell.cooldownWaiting,
+        playerMp: battle.player?.mp ?? 0,
+        spellCost: attackSpell.cost,
+      }) === "weapon"
+      : false,
+  });
 
+  if (phase === "defenceAuto") {
+    castWizardDefenceBuff(usableWizardDefenceBuff(now), now, { offline: true });
+    return;
+  }
+  if (phase === "defenceQueued") {
+    castWizardDefenceBuff(usableWizardDefenceBuff(now, { requireAuto: false }), now, { offline: true });
+    return;
+  }
+  if (phase === "weapon") {
+    offlineWizardWeaponAttack(enemy, now);
+    return;
+  }
+  if (phase !== "cast" || !attackSpell) return;
+
+  const { spell, learned, cost } = attackSpell;
   battle.lastPlayerAttackCooldownMs = wizardCastCooldownMs(spell, learned);
   commitWizardSpellUse(spell, learned, cost, now);
   if (!rollMagicHit(enemy)) return;
   const damage = rollWizardMagicDamage(spell, learned, battle.player, enemy);
   if (damage <= 0) return;
-  reduceEnemyHp(enemy, damage);
+  applyOfflineEnemyDamage(enemy, damage, now, "magic");
   if (spell.id === "FrostCrunch") applyFrostCrunchEffects(enemy, learned, battle.player, now);
   if (learned) levelMagicSkill(spell, learned, now);
 }
@@ -4502,10 +4232,14 @@ function offlineWizardAttack(enemy, now) {
 function offlineWizardWeaponAttack(enemy, now) {
   const battle = state.battle;
   battle.lastPlayerAttackCooldownMs = playerWeaponAttackCooldownMs(now, BASIC_ATTACK_SKILL);
-  if (!rollHit(battle.player.accuracy, enemy.agility)) return;
-  const damage = rollDamage(battle.player.dc, enemyPhysicalDefence(enemy), battle.player.luck);
-  if (damage <= 0) return;
-  reduceEnemyHp(enemy, damage);
+  const { hit, damage } = resolvePhysicalAttack(
+    battle.player.accuracy,
+    enemy.agility,
+    battle.player.dc,
+    enemyPhysicalDefence(enemy),
+    battle.player.luck,
+  );
+  if (hit) applyOfflineEnemyDamage(enemy, damage, now);
 }
 
 function offlineTaoistAttack(enemy, now) {
@@ -4513,43 +4247,49 @@ function offlineTaoistAttack(enemy, now) {
   const queuedRequest = queuedCombatSpell("Taoist");
   const queued = usableQueuedTaoistSpell(now);
   if (queued) {
-    if (queued.spell.id === "SoulFireBall") return offlineTaoistSoulFireBall(enemy, now, queued);
-    if (queued.spell.id === "Healing") return castTaoistHealing(queued, now, { offline: true });
-    if (queued.spell.id === "Poisoning") return castTaoistPoisoning(queued, now, { offline: true });
-    if (queued.spell.id === "SummonSkeleton" || queued.spell.id === "SummonShinsu") {
-      castTaoistSummonPet(queued, now, { offline: true });
-      const delayMs = queued.spell.id === "SummonShinsu"
-        ? CRYSTAL_SUMMON_SHINSU_DELAY_MS
-        : CRYSTAL_SUMMON_SKELETON_DELAY_MS;
-      updatePendingTaoPet(now + delayMs);
-      battle.lastPlayerAttackCooldownMs = spellDelayMs(queued.spell, queued.learned);
-      return;
-    }
-    if (queued.spell.id === "SoulShield" || queued.spell.id === "BlessedArmour") {
-      castTaoistDefenceBuff(queued, now, { offline: true });
-      return;
-    }
-    if (queued.spell.id === "UltimateEnhancer") {
-      castTaoistUltimateEnhancer(queued, now, { offline: true });
-      return;
+    switch (offlineTaoistQueuedSpellKind(queued.spell.id)) {
+      case "soulFireBall":
+        return offlineTaoistSoulFireBall(enemy, now, queued);
+      case "healing":
+        return castTaoistHealing(queued, now, { offline: true });
+      case "poisoning":
+        return castTaoistPoisoning(queued, now, { offline: true });
+      case "summon": {
+        castTaoistSummonPet(queued, now, { offline: true });
+        updatePendingTaoPet(now + offlineTaoistSummonPetDelayMs(queued.spell.id, {
+          skeletonMs: CRYSTAL_SUMMON_SKELETON_DELAY_MS,
+          shinsuMs: CRYSTAL_SUMMON_SHINSU_DELAY_MS,
+        }));
+        battle.lastPlayerAttackCooldownMs = spellDelayMs(queued.spell, queued.learned);
+        return;
+      }
+      case "defenceBuff":
+        return castTaoistDefenceBuff(queued, now, { offline: true });
+      case "ultimateEnhancer":
+        return castTaoistUltimateEnhancer(queued, now, { offline: true });
+      default:
+        break;
     }
   }
   if (queuedRequest) return offlineTaoistWeaponAttack(enemy, now);
 
-  const summon = usableTaoistSummonSkeleton(now);
-  if (summon) {
-    castTaoistSummonPet(summon, now, { offline: true });
-    updatePendingTaoPet(now + CRYSTAL_SUMMON_SKELETON_DELAY_MS);
-    battle.lastPlayerAttackCooldownMs = spellDelayMs(summon.spell, summon.learned);
-    return;
-  }
-
-  const shinsu = usableTaoistSummonShinsu(now);
-  if (shinsu) {
-    castTaoistSummonPet(shinsu, now, { offline: true });
-    updatePendingTaoPet(now + CRYSTAL_SUMMON_SHINSU_DELAY_MS);
-    battle.lastPlayerAttackCooldownMs = spellDelayMs(shinsu.spell, shinsu.learned);
-    return;
+  const autoSummonId = nextOfflineTaoistAutoSummonId({
+    SummonSkeleton: Boolean(usableTaoistSummonSkeleton(now)),
+    SummonShinsu: Boolean(usableTaoistSummonShinsu(now)),
+  });
+  if (autoSummonId) {
+    const summon = autoSummonId === "SummonShinsu"
+      ? usableTaoistSummonShinsu(now)
+      : usableTaoistSummonSkeleton(now);
+    if (summon) {
+      castTaoistSummonPet(summon, now, { offline: true });
+      updatePendingTaoPet(now + offlineTaoistSummonPetDelayMs(autoSummonId, {
+        skeletonMs: CRYSTAL_SUMMON_SKELETON_DELAY_MS,
+        shinsuMs: CRYSTAL_SUMMON_SHINSU_DELAY_MS,
+      }));
+      battle.lastPlayerAttackCooldownMs = spellDelayMs(summon.spell, summon.learned);
+      return;
+    }
   }
 
   if (taoistPetCanTank()) {
@@ -4557,58 +4297,61 @@ function offlineTaoistAttack(enemy, now) {
     return;
   }
   if (enemy.hp <= 0) return;
+  taoistPlayerTankAttackOffline(enemy, now);
+}
 
+function taoistOfflineSupportAvailability(now) {
+  return {
+    Healing: Boolean(usableTaoistHealing(now)),
+    SoulShield: Boolean(usableTaoistDefenceBuff("SoulShield", now)),
+    BlessedArmour: Boolean(usableTaoistDefenceBuff("BlessedArmour", now)),
+    UltimateEnhancer: Boolean(usableTaoistUltimateEnhancer(now)),
+    Poisoning: Boolean(usableTaoistPoisoning(now)),
+    SoulFireBall: Boolean(usableTaoistSoulFireBall(now)),
+  };
+}
+
+function taoistOfflineCastSupportSpell(spellId, enemy, now, soulFireBallOptions = {}) {
+  switch (spellId) {
+    case "Healing":
+      return castTaoistHealing(usableTaoistHealing(now), now, { offline: true });
+    case "SoulShield":
+    case "BlessedArmour":
+      return castTaoistDefenceBuff(usableTaoistDefenceBuff(spellId, now), now, { offline: true });
+    case "UltimateEnhancer":
+      return castTaoistUltimateEnhancer(usableTaoistUltimateEnhancer(now), now, { offline: true });
+    case "Poisoning":
+      return castTaoistPoisoning(usableTaoistPoisoning(now), now, { offline: true });
+    case "SoulFireBall":
+      return offlineTaoistSoulFireBall(enemy, now, usableTaoistSoulFireBall(now), soulFireBallOptions);
+    default:
+      return false;
+  }
+}
+
+function taoistPetSupportAttackOffline(now) {
+  const spellId = nextOfflineTaoistSupportSpellId(
+    taoistOfflineSupportAvailability(now),
+    OFFLINE_TAOIST_PET_SUPPORT_SPELL_ORDER,
+  );
+  if (!spellId) return false;
+  return taoistOfflineCastSupportSpell(spellId, state.battle.enemy, now);
+}
+
+function taoistPlayerTankAttackOffline(enemy, now) {
   const soulFireBall = usableTaoistSoulFireBall(now);
   if (soulFireBall) offlineTaoistSoulFireBall(enemy, now, soulFireBall, { secondary: true });
   if (enemy.hp <= 0) return;
 
-  const healing = usableTaoistHealing(now);
-  if (healing) {
-    castTaoistHealing(healing, now, { offline: true });
-    return;
-  }
-
-  for (const spellId of ["SoulShield", "BlessedArmour"]) {
-    const defenceBuff = usableTaoistDefenceBuff(spellId, now);
-    if (defenceBuff) {
-      castTaoistDefenceBuff(defenceBuff, now, { offline: true });
-      return;
-    }
-  }
-
-  const ultimateEnhancer = usableTaoistUltimateEnhancer(now);
-  if (ultimateEnhancer) {
-    castTaoistUltimateEnhancer(ultimateEnhancer, now, { offline: true });
-    return;
-  }
-
-  const poisoning = usableTaoistPoisoning(now);
-  if (poisoning) {
-    castTaoistPoisoning(poisoning, now, { offline: true });
+  const spellId = nextOfflineTaoistSupportSpellId(
+    taoistOfflineSupportAvailability(now),
+    OFFLINE_TAOIST_SUPPORT_SPELL_ORDER,
+  );
+  if (spellId) {
+    taoistOfflineCastSupportSpell(spellId, enemy, now);
     return;
   }
   offlineTaoistWeaponAttack(enemy, now);
-}
-
-function taoistPetSupportAttackOffline(now) {
-  const healing = usableTaoistHealing(now);
-  if (healing) return castTaoistHealing(healing, now, { offline: true });
-
-  for (const spellId of ["SoulShield", "BlessedArmour"]) {
-    const defenceBuff = usableTaoistDefenceBuff(spellId, now);
-    if (defenceBuff) return castTaoistDefenceBuff(defenceBuff, now, { offline: true });
-  }
-
-  const ultimateEnhancer = usableTaoistUltimateEnhancer(now);
-  if (ultimateEnhancer) return castTaoistUltimateEnhancer(ultimateEnhancer, now, { offline: true });
-
-  const poisoning = usableTaoistPoisoning(now);
-  if (poisoning) return castTaoistPoisoning(poisoning, now, { offline: true });
-
-  const soulFireBall = usableTaoistSoulFireBall(now);
-  if (soulFireBall) return offlineTaoistSoulFireBall(state.battle.enemy, now, soulFireBall);
-
-  return false;
 }
 
 function offlineTaoistSoulFireBall(enemy, now, soulFireBall, options = {}) {
@@ -4620,7 +4363,7 @@ function offlineTaoistSoulFireBall(enemy, now, soulFireBall, options = {}) {
   if (!rollMagicHit(enemy)) return true;
   const damage = rollTaoistMagicDamage(spell, learned, battle.player, enemy);
   if (damage <= 0) return true;
-  reduceEnemyHp(enemy, damage);
+  applyOfflineEnemyDamage(enemy, damage, now, "magic");
   if (learned) levelMagicSkill(spell, learned, now);
   return true;
 }
@@ -4628,10 +4371,14 @@ function offlineTaoistSoulFireBall(enemy, now, soulFireBall, options = {}) {
 function offlineTaoistWeaponAttack(enemy, now) {
   const battle = state.battle;
   battle.lastPlayerAttackCooldownMs = playerWeaponAttackCooldownMs(now, BASIC_ATTACK_SKILL);
-  if (!rollHit(battle.player.accuracy, enemy.agility)) return;
-  const damage = rollDamage(battle.player.dc, enemyPhysicalDefence(enemy), battle.player.luck);
-  if (damage <= 0) return;
-  reduceEnemyHp(enemy, damage);
+  const { hit, damage } = resolvePhysicalAttack(
+    battle.player.accuracy,
+    enemy.agility,
+    battle.player.dc,
+    enemyPhysicalDefence(enemy),
+    battle.player.luck,
+  );
+  if (hit) applyOfflineEnemyDamage(enemy, damage, now);
   levelPassiveWeaponMagic(now);
 }
 
@@ -4644,18 +4391,32 @@ function offlineEnemyAttack(enemy, now, report) {
     const pet = state.battle.taoPet;
     const { hit, damage } = resolveIncomingEnemyAttack(enemy, defenceTargetForIncomingAttack(pet));
     if (!hit) return;
-    pet.hp = Math.max(0, pet.hp - damage);
-    if (pet.hp <= 0) markTaoistPetDead(now, { sound: false });
+    applyCombatDamageEvent(petDamageEvent(damage), now, {
+      target: {
+        kind: "pet",
+        applyDamage: (amount) => {
+          pet.hp = Math.max(0, pet.hp - amount);
+          if (pet.hp <= 0) markTaoistPetDead(now, { sound: false });
+        },
+      },
+    });
     return;
   }
   const { hit, damage } = resolveIncomingEnemyAttack(enemy, defenceTargetForIncomingAttack(player));
   if (!hit) return;
-  player.hp = Math.max(0, player.hp - damage);
-  report.damageTaken += damage;
-  if (player.hp <= 0) {
-    state.battle.running = false;
-    state.battle.phase = "idle";
-  }
+  applyCombatDamageEvent(playerDamageEvent(damage), now, {
+    target: {
+      kind: "player",
+      applyDamage: (amount) => {
+        player.hp = Math.max(0, player.hp - amount);
+        report.damageTaken += amount;
+        if (player.hp <= 0) {
+          state.battle.running = false;
+          state.battle.phase = "idle";
+        }
+      },
+    },
+  });
 }
 
 function awardOfflineEnemyRewards(zone, enemy, report) {
@@ -4680,12 +4441,13 @@ function awardOfflineEnemyRewards(zone, enemy, report) {
   state.battle.gold = state.game.progress.gold;
   state.battle.level = state.game.progress.level;
 
-  report.kills += 1;
-  report.xp += xp;
-  report.gold += gold;
-  report.levels.push(...leveledTo);
-  for (const item of drops.added) incrementReportCount(report.drops, item.name);
-  for (const item of drops.ignored) incrementReportCount(report.ignoredDrops, item.name);
+  recordOfflineKillRewards(report, {
+    xp,
+    gold,
+    levels: leveledTo,
+    addedDropLabels: drops.added.map((item) => item.name),
+    ignoredDropLabels: drops.ignored.map((item) => item.name),
+  });
 }
 
 function finalizeOfflineBattleState(zone, report) {
@@ -4893,14 +4655,6 @@ function ensureMusicAudio() {
 
 function currentMusicTrack() {
   return BACKGROUND_MUSIC_TRACKS[musicTrackIndex] ?? BACKGROUND_MUSIC_TRACKS[0] ?? null;
-}
-
-function normalizedVolume(value) {
-  return Math.max(0, Math.min(1, Number(value) || 0));
-}
-
-function normalizedMusicMode(value) {
-  return value === MUSIC_MODE_TRACK ? MUSIC_MODE_TRACK : MUSIC_MODE_PLAYLIST;
 }
 
 function syncBackgroundMusic() {
@@ -5316,21 +5070,6 @@ function acceptPrototypeResetNotice() {
   renderPrototypeStatsNotice();
 }
 
-function incrementReportCount(map, label, amount = 1) {
-  map.set(label, (map.get(label) ?? 0) + amount);
-}
-
-function reportEntriesText(entries, limit = 3) {
-  return entries
-    .slice(0, limit)
-    .map(([label, count]) => `${label}${count > 1 ? ` x${count}` : ""}`)
-    .join(", ");
-}
-
-function reportCountText(map, limit = 3) {
-  return reportEntriesText([...map.entries()], limit);
-}
-
 function formatDuration(ms) {
   const totalSeconds = Math.max(0, Math.floor(ms / 1000));
   const hours = Math.floor(totalSeconds / 3600);
@@ -5350,29 +5089,12 @@ function formatBossRespawnDelay(minutes) {
   return `${value} minute${value === 1 ? "" : "s"}`;
 }
 
-function normalizeSavedProgress() {
-  let nextLevelXp = xpForNextLevel(state.game.progress.level);
-  while (Number.isFinite(nextLevelXp) && state.game.progress.experience >= nextLevelXp) {
-    state.game.progress.experience -= nextLevelXp;
-    state.game.progress.level += 1;
-    nextLevelXp = xpForNextLevel(state.game.progress.level);
-  }
-}
-
 function sanitizeDropPity(savedPity) {
-  if (!savedPity || typeof savedPity !== "object") return {};
-  return Object.fromEntries(
-    PROTOTYPE_ZONES.map((zone) => [
-      zone.id,
-      Math.max(0, Math.min(DROP_PITY_KILLS, Math.trunc(Number(savedPity[zone.id]) || 0))),
-    ]),
+  return sanitizeDropPityCore(
+    savedPity,
+    PROTOTYPE_ZONES.map((zone) => zone.id),
+    DROP_PITY_KILLS,
   );
-}
-
-function finiteNumberOrNull(value) {
-  if (value == null || value === "") return null;
-  const number = Number(value);
-  return Number.isFinite(number) ? number : null;
 }
 
 function totalPlaytimeMs() {
@@ -6683,15 +6405,11 @@ function updateTrainingRoomBattle(now) {
 }
 
 function rollMiningOreItemId() {
-  const slot = 1 + Math.floor(Math.random() * MINING_TOTAL_SLOTS);
-  for (const drop of MINING_ORE_DROPS) {
-    if (slot >= drop.minSlot && slot <= drop.maxSlot) return drop.itemId;
-  }
-  return "silver-ore";
+  return rollMiningOreItemIdCore(MINING_ORE_DROPS, MINING_TOTAL_SLOTS);
 }
 
 function rollMiningOrePurity() {
-  return 1 + Math.floor(Math.random() * 10);
+  return rollMiningOrePurityCore();
 }
 
 function tryAddMiningOre(itemId, purity) {
@@ -7437,8 +7155,8 @@ function createInventoryEntry(itemId, quantity = 1, options = {}) {
     slot: Number.isInteger(slot) ? slot : null,
     ...normalizeInventoryEntryFields({}, item),
   };
-  if (options.refineLevel != null) {
-    entry.refineLevel = Math.max(0, Math.trunc(Number(options.refineLevel) || 0));
+  if (options.smithLevel != null) {
+    entry.smithLevel = Math.max(0, Math.trunc(Number(options.smithLevel) || 0));
   }
   if (options.weaponRefineLevel != null) {
     entry.weaponRefineLevel = sanitizeWeaponRefineLevel(options.weaponRefineLevel);
@@ -8046,6 +7764,7 @@ function openWeaponRefineScene() {
   state.activeScene = "weaponRefine";
   state.openScenes.inventory = true;
   if (!state.weaponRefine.picker) state.weaponRefine.picker = { kind: "weapon", index: 0 };
+  pushSceneWindow("weaponRefine");
   sceneSignature = "";
   gamePanelSignature = "";
   renderSceneOverlay();
@@ -8291,8 +8010,8 @@ function buyShopItem(itemId, quantity = 1) {
   return true;
 }
 
-function smithCombineBonusStatScore(bonusStats) {
-  const stats = sanitizeItemBonusStats(bonusStats);
+function smithCombineBonusStatScore(smithBonusStats) {
+  const stats = sanitizeSmithBonusStats(smithBonusStats);
   let total = 0;
   for (const key of ["dc", "mc", "sc", "ac", "amc"]) {
     total += Math.abs(stats[key][0]) + Math.abs(stats[key][1]);
@@ -8303,6 +8022,12 @@ function smithCombineBonusStatScore(bonusStats) {
   return total;
 }
 
+/** Item has reached max smith combines (+5 successes) and is no longer eligible. */
+function smithCombineAtCap(entry) {
+  const smithLevel = Math.max(0, Math.trunc(Number(entry?.smithLevel) || 0));
+  return smithLevel >= SMITH_COMBINE_STAT_CAP;
+}
+
 function smithCombineDurabilityScore(entry, item) {
   if (entry?.currentDura == null) return itemDefinitionMaxDura(item);
   return Math.max(0, Math.trunc(Number(entry.currentDura) || 0));
@@ -8311,8 +8036,8 @@ function smithCombineDurabilityScore(entry, item) {
 function smithCombineEntryPriority(entry, item) {
   return [
     sanitizeWeaponRefineLevel(entry?.weaponRefineLevel),
-    Math.max(0, Math.trunc(Number(entry?.refineLevel) || 0)),
-    smithCombineBonusStatScore(entry?.bonusStats),
+    Math.max(0, Math.trunc(Number(entry?.smithLevel) || 0)),
+    smithCombineBonusStatScore(entry?.smithBonusStats),
     isEquippedEntry(entry?.id) ? 1 : 0,
     smithCombineDurabilityScore(entry, item),
   ];
@@ -8344,7 +8069,7 @@ function smithCombineOptions() {
   const groups = new Map();
   for (const entry of inventoryEntries()) {
     const item = itemDefinition(entry.itemId);
-    if (!canSmithCombineItem(item)) continue;
+    if (!canSmithCombineItem(item) || smithCombineAtCap(entry)) continue;
     const entries = groups.get(entry.itemId) ?? [];
     entries.push(entry);
     groups.set(entry.itemId, entries);
@@ -8479,8 +8204,8 @@ function smithStatLabel(key) {
 }
 
 function smithCombineSuccessChance(entry) {
-  const refineLevel = Math.max(0, Math.trunc(Number(entry?.refineLevel) || 0));
-  return SMITH_COMBINE_SUCCESS_CHANCES[Math.min(refineLevel, SMITH_COMBINE_SUCCESS_CHANCES.length - 1)] ?? 0.05;
+  const smithLevel = Math.max(0, Math.trunc(Number(entry?.smithLevel) || 0));
+  return SMITH_COMBINE_SUCCESS_CHANCES[Math.min(smithLevel, SMITH_COMBINE_SUCCESS_CHANCES.length - 1)] ?? 0.05;
 }
 
 function smithChanceText(chance) {
@@ -8534,13 +8259,15 @@ function combineSmithItem(entryId) {
 }
 
 function applySmithStatUpgrade(entry, stat) {
-  entry.bonusStats = sanitizeItemBonusStats(entry.bonusStats);
+  if (smithCombineAtCap(entry)) return false;
+  entry.smithBonusStats = sanitizeSmithBonusStats(entry.smithBonusStats);
   if (stat.range) {
-    entry.bonusStats[stat.key][stat.index] += 1;
+    entry.smithBonusStats[stat.key][stat.index] += 1;
   } else {
-    entry.bonusStats[stat.key] += 1;
+    entry.smithBonusStats[stat.key] += 1;
   }
-  entry.refineLevel = Math.max(0, Math.trunc(Number(entry.refineLevel) || 0)) + 1;
+  entry.smithLevel = Math.max(0, Math.trunc(Number(entry.smithLevel) || 0)) + 1;
+  return true;
 }
 
 function isGemUpgradeItem(item) {
@@ -8574,6 +8301,14 @@ function gemCurrentStatCount(gemDef, entry, item) {
   const bonus = sanitizeItemBonusStats(entry.bonusStats);
   if (stat.range) return Math.trunc(Number(bonus[stat.key]?.[stat.index]) || 0);
   return Math.trunc(Number(bonus[stat.key]) || 0);
+}
+
+function ensureInventoryEntrySmithFields(entry, item = itemDefinition(entry?.itemId)) {
+  if (!entry || !item) return;
+  const normalized = normalizeInventoryEntryFields(entry, item);
+  entry.bonusStats = normalized.bonusStats;
+  entry.smithBonusStats = normalized.smithBonusStats;
+  if (normalized.smithLevel != null) entry.smithLevel = normalized.smithLevel;
 }
 
 function gemUpgradeSuccessChancePercent(gemItem, targetEntry, targetItem) {
@@ -8620,6 +8355,7 @@ function canApplyGemToEntry(gemEntryId, targetEntryId) {
   }
   const gemItem = itemDefinition(gemEntry.itemId);
   const targetItem = itemDefinition(targetEntry.itemId);
+  ensureInventoryEntrySmithFields(targetEntry, targetItem);
   if (!isGemUpgradeItem(gemItem)) return { ok: false, reason: "That item is not a gem or orb." };
   if (!isEquipableItem(targetItem)) return { ok: false, reason: "Gems can only upgrade equipment." };
   if (!validGemForEquipItem(gemItem, targetItem)) {
@@ -8971,13 +8707,6 @@ function accountUpgradeUsesRebirthPoints(upgrade) {
 
 function accountUpgradeTier(upgradeId) {
   return Math.max(0, Math.trunc(Number(state.account.upgrades?.tiers?.[upgradeId]) || 0));
-}
-
-function accountUpgradeMaxTier(upgrade) {
-  if (Array.isArray(upgrade?.rebirthCosts)) return upgrade.rebirthCosts.length;
-  if (Number.isFinite(upgrade?.maxTier)) return Math.max(1, Math.trunc(upgrade.maxTier));
-  if (upgrade?.rebirthCostFn === "linear") return Infinity;
-  return 1;
 }
 
 function accountUpgradeRebirthCost(upgrade) {
@@ -9510,12 +9239,13 @@ function mergeInventoryBagStacksForSort() {
 function inventoryStackMergeKey(entry, item = itemDefinition(entry?.itemId)) {
   return JSON.stringify({
     itemId: entry?.itemId ?? "",
-    refineLevel: Math.max(0, Math.trunc(Number(entry?.refineLevel) || 0)),
+    smithLevel: Math.max(0, Math.trunc(Number(entry?.smithLevel) || 0)),
     weaponRefineLevel: Math.max(0, Math.trunc(Number(entry?.weaponRefineLevel) || 0)),
     gemCount: Math.max(0, Math.trunc(Number(entry?.gemCount) || 0)),
     currentDura: entry?.currentDura ?? null,
     maxDura: entry?.maxDura ?? null,
     bonusStats: sanitizeItemBonusStats(entry?.bonusStats),
+    smithBonusStats: sanitizeSmithBonusStats(entry?.smithBonusStats),
     maxStack: maxItemStack(item),
   });
 }
@@ -9846,6 +9576,7 @@ async function dropInventoryEntryToInventorySlot(entryId, slot, sourceEquipmentS
     }
     entry.slot = targetSlot;
     ensureInventorySlots();
+    syncBossPartyControlledInventoryFromState();
     hotbarSignature = "";
     sceneSignature = "";
     gamePanelSignature = "";
@@ -10110,6 +9841,7 @@ function dropInventoryEntryToHotbarSlot(entryId, slot) {
   }
 
   ensureInventorySlots();
+  syncBossPartyControlledInventoryFromState();
   hotbarSignature = "";
   sceneSignature = "";
   gamePanelSignature = "";
@@ -10147,7 +9879,9 @@ function itemEntryStats(entry, item = itemDefinition(entry?.itemId)) {
     strong: Number(item?.stats?.strong) || 0,
   });
   const bonusStats = sanitizeItemBonusStats(entry?.bonusStats);
+  const smithBonusStats = sanitizeSmithBonusStats(entry?.smithBonusStats);
   addStats(stats, bonusStats);
+  addStats(stats, smithBonusStats);
   return {
     hp: stats.maxHp,
     mp: stats.maxMp,
@@ -10171,7 +9905,7 @@ function itemEntryStats(entry, item = itemDefinition(entry?.itemId)) {
 }
 
 function itemDisplayName(item, entry = null) {
-  const smithLevel = Math.max(0, Math.trunc(Number(entry?.refineLevel) || 0));
+  const smithLevel = Math.max(0, Math.trunc(Number(entry?.smithLevel) || 0));
   const weaponRefineLevel = Math.max(0, Math.trunc(Number(entry?.weaponRefineLevel) || 0));
   const luckLabel = entry && item?.slot === "weapon" ? benedictionLuckLabel(weaponEntryLuck(entry, item)) : "";
   const suffixParts = [];
@@ -10184,10 +9918,6 @@ function itemDisplayName(item, entry = null) {
   }
   const suffix = suffixParts.join(", ");
   return `${item?.name ?? "Item"}${suffix ? ` (${suffix})` : ""}`;
-}
-
-function sanitizeWeaponRefineLevel(value) {
-  return Math.max(0, Math.min(WEAPON_REFINE_MAX, Math.trunc(Number(value) || 0)));
 }
 
 function itemDefinitionMaxDura(item) {
@@ -10203,33 +9933,16 @@ function isPickaxeItem(item) {
 }
 
 function itemUsesEntryDurability(item) {
-  if (!item || isStackableItem(item)) return false;
-  return itemDefinitionMaxDura(item) > 0;
+  return itemUsesEntryDurabilityCore(item, isStackableItem);
 }
 
 function sanitizeEntryDurability(savedEntry, item) {
-  if (!itemUsesEntryDurability(item)) return null;
-  const maxDura = Math.max(1, Math.trunc(Number(savedEntry?.maxDura) || itemDefinitionMaxDura(item)));
-  let currentDura = Math.trunc(Number(savedEntry?.currentDura));
-  if (!Number.isFinite(currentDura)) currentDura = maxDura;
-  currentDura = Math.max(0, Math.min(maxDura, currentDura));
-  return { maxDura, currentDura };
+  return sanitizeEntryDurabilityCore(savedEntry, item, isStackableItem);
 }
 
 function normalizeInventoryEntryFields(savedEntry, item = null) {
   const resolvedItem = item ?? itemDefinition(savedEntry?.itemId);
-  const fields = {
-    refineLevel: Math.max(0, Math.trunc(Number(savedEntry?.refineLevel) || 0)),
-    weaponRefineLevel: sanitizeWeaponRefineLevel(savedEntry?.weaponRefineLevel),
-    gemCount: Math.max(0, Math.trunc(Number(savedEntry?.gemCount) || 0)),
-    bonusStats: sanitizeItemBonusStats(savedEntry?.bonusStats),
-  };
-  const dura = sanitizeEntryDurability(savedEntry, resolvedItem);
-  if (dura) {
-    fields.maxDura = dura.maxDura;
-    fields.currentDura = dura.currentDura;
-  }
-  return fields;
+  return normalizeInventoryEntryFieldsCore(savedEntry, resolvedItem, isStackableItem);
 }
 
 function orePurity(entry, item = null) {
@@ -10556,7 +10269,7 @@ function equippedEntry(slotId) {
 
 function inventoryEntrySignature(entry) {
   const duraPart = entry.currentDura != null ? `:${entry.currentDura}/${entry.maxDura ?? ""}` : "";
-  return `${entry.id}:${entry.itemId}:${entry.quantity}:${entry.slot ?? ""}:${entry.refineLevel ?? 0}:${entry.weaponRefineLevel ?? 0}:${entry.gemCount ?? 0}${duraPart}:${JSON.stringify(sanitizeItemBonusStats(entry.bonusStats))}`;
+  return `${entry.id}:${entry.itemId}:${entry.quantity}:${entry.slot ?? ""}:${entry.smithLevel ?? 0}:${entry.weaponRefineLevel ?? 0}:${entry.gemCount ?? 0}${duraPart}:${JSON.stringify(sanitizeItemBonusStats(entry.bonusStats))}:${JSON.stringify(sanitizeSmithBonusStats(entry.smithBonusStats))}`;
 }
 
 async function useInventoryEntry(entryId) {
@@ -11029,9 +10742,10 @@ function updatePendingPoison(now, options = {}) {
   if (learned) levelMagicSkill(spell, learned, now);
   if (!options.offline && !suppressSimulationRender) {
     playSpellSfx(spell.id, "impact", { volume: 0.5 }) || playSpellSfx(spell.id, "cast", { volume: 0.42 });
-    const label = poisonKind === "green" ? "Green Poison" : "Yellow Poison";
-    addCombatText("enemy", poisonKind === "green" ? "Poison" : "Weaken", poisonKind === "green" ? "poison" : "debuff", now);
-    pushBattleLog(applied ? `${label} affects ${battle.enemy.name}.` : `${battle.enemy.name} resists the weaker ${label}.`);
+    const poisonEvents = applied
+      ? poisonAppliedEvents(spell.label, battle.enemy.name, poisonKind)
+      : poisonResistedEvents(spell.label, battle.enemy.name, poisonKind);
+    applyCombatEvents(poisonEvents, now, { enemy: battle.enemy });
   }
   battlePanelSignature = "";
   combatSkillBarSignature = "";
@@ -11061,7 +10775,7 @@ function updateEnemyPoisons(now, options = {}) {
       if (poison.kind === "green") {
         const damage = Math.max(0, Math.trunc(Number(poison.value) || 0));
         if (damage > 0) {
-          reduceEnemyHp(enemy, damage);
+          applyCombatEvents(poisonTickDamageEvents("green", damage), now, { enemy });
           if (!options.offline && !suppressSimulationRender) addCombatText("enemy", damage, "poison", tickAt);
         }
       }
@@ -11716,10 +11430,86 @@ function initialOpenScenesFromUrl() {
   };
 }
 
+function currentOverlayScenes() {
+  const openScenes = ["characterSelect", "character", "inventory", "upgrades", "gettingStarted", "options"].filter((scene) => state.openScenes[scene]);
+  const npcScene = state.activeScene === "townNpc" || state.activeScene === "storage" || state.activeScene === "bossEntry" || state.activeScene === "weaponRefine"
+    ? state.activeScene
+    : null;
+  return npcScene ? [...openScenes, npcScene] : openScenes;
+}
+
+function isSceneWindowOpen(scene) {
+  if (scene === "character" || scene === "inventory" || scene === "upgrades" || scene === "characterSelect" || scene === "gettingStarted" || scene === "options") {
+    return Boolean(state.openScenes[scene]);
+  }
+  return state.activeScene === scene;
+}
+
+function pushSceneWindow(scene) {
+  if (!scene || !isSceneWindowOpen(scene)) return;
+  sceneWindowStack = sceneWindowStack.filter((entry) => entry !== scene);
+  sceneWindowStack.push(scene);
+}
+
+function removeSceneWindowFromStack(scene) {
+  if (!scene) return;
+  sceneWindowStack = sceneWindowStack.filter((entry) => entry !== scene);
+}
+
+function syncSceneWindowStackFromState() {
+  sceneWindowStack = currentOverlayScenes();
+}
+
+function closeMostRecentSceneWindow() {
+  if (inventoryDragState) {
+    cleanupInventoryCarry();
+    return;
+  }
+  if (state.pendingInventoryDestroyEntryId) {
+    cancelInventoryDestroyConfirm();
+    return;
+  }
+  if (state.pendingStoragePageUnlock !== null && state.pendingStoragePageUnlock !== undefined) {
+    state.pendingStoragePageUnlock = null;
+    sceneSignature = "";
+    renderSceneOverlay();
+    return;
+  }
+  while (sceneWindowStack.length) {
+    const scene = sceneWindowStack.pop();
+    if (!isSceneWindowOpen(scene)) continue;
+    closeScene(scene);
+    return;
+  }
+  const overlay = currentOverlayScenes();
+  if (overlay.length) closeScene(overlay[overlay.length - 1]);
+}
+
+function toggleOpenScene(scene, options = {}) {
+  const { characterTab = null } = options;
+  if (scene === "character" && characterTab) {
+    if (state.openScenes.character && state.characterTab === characterTab) {
+      closeScene("character");
+      return;
+    }
+    state.characterTab = characterTab;
+    openScene("character");
+    return;
+  }
+  if (state.openScenes[scene]) {
+    closeScene(scene);
+    return;
+  }
+  openScene(scene);
+}
+
 function openScene(scene, updateUrl = true) {
   if (!["character", "inventory", "upgrades", "characterSelect", "gettingStarted", "options"].includes(scene)) return;
   state.game.selectedTownNpcId = null;
-  if (state.activeScene === "townNpc" || state.activeScene === "storage" || state.activeScene === "bossEntry" || state.activeScene === "weaponRefine") state.activeScene = null;
+  if (state.activeScene === "townNpc" || state.activeScene === "storage" || state.activeScene === "bossEntry" || state.activeScene === "weaponRefine") {
+    removeSceneWindowFromStack(state.activeScene);
+    state.activeScene = null;
+  }
   if (scene === "characterSelect") {
     state.openScenes.character = false;
     state.openScenes.inventory = false;
@@ -11730,6 +11520,7 @@ function openScene(scene, updateUrl = true) {
     state.openScenes.characterSelect = false;
   }
   state.openScenes[scene] = true;
+  pushSceneWindow(scene);
   playSfx("ui.button", { volume: 0.35, throttleMs: 80 });
   if (updateUrl) setSceneUrl();
   sceneSignature = "";
@@ -11746,10 +11537,12 @@ function closeScene(scene = null, updateUrl = true) {
   if (scene === "character" || scene === "inventory" || scene === "upgrades" || scene === "characterSelect" || scene === "gettingStarted" || scene === "options") {
     state.openScenes[scene] = false;
     if (scene === "inventory") state.pendingInventoryDestroyEntryId = null;
+    removeSceneWindowFromStack(scene);
   } else if (scene === "weaponRefine") {
     restoreAllWeaponRefineStagedEntries();
     state.weaponRefine.picker = { kind: "weapon", index: 0 };
     state.activeScene = state.game.selectedTownNpcId ? "townNpc" : null;
+    removeSceneWindowFromStack(scene);
   } else if (scene === "townNpc" || scene === "storage" || scene === "bossEntry") {
     state.game.selectedTownNpcId = null;
     if (scene === "storage") state.pendingStoragePageUnlock = null;
@@ -11760,6 +11553,7 @@ function closeScene(scene = null, updateUrl = true) {
       state.bossEmpowerSelected = false;
     }
     if (scene === "townNpc") resetWeaponRefineState();
+    removeSceneWindowFromStack(scene);
   } else {
     if (state.activeScene === "weaponRefine" || Object.keys(state.weaponRefine?.stagedEntries ?? {}).length) {
       restoreAllWeaponRefineStagedEntries();
@@ -11776,6 +11570,7 @@ function closeScene(scene = null, updateUrl = true) {
     state.openScenes.gettingStarted = false;
     state.openScenes.options = false;
     state.pendingInventoryDestroyEntryId = null;
+    sceneWindowStack = [];
   }
   if (updateUrl) setSceneUrl();
   sceneSignature = "";
@@ -11813,8 +11608,8 @@ function renderSceneOverlay(options = {}) {
   const bossEntryZoneId = state.activeScene === "bossEntry" ? state.bossEntryZoneId : null;
   const signature = buildSceneOverlaySignature(openScenes, bossEntryZoneId);
   if (signature === sceneSignature) return;
-  if (inventoryDragState) return;
   if (deferUserInteraction && sceneOverlayInteractionActive()) return;
+  prepareInventoryCarryForSceneRender();
   sceneSignature = signature;
 
   const scrollPositions = captureSceneScrollPositions();
@@ -13385,8 +13180,202 @@ function updateInventoryCarryPointer(event) {
   setInventoryDropTarget(inventoryDropTargetAt(event));
 }
 
+function isInventoryWindowOpen() {
+  return Boolean(state.openScenes.inventory);
+}
+
+function isCharacterWindowOpen() {
+  return Boolean(state.openScenes.character);
+}
+
+function isStorageWindowOpen() {
+  return state.activeScene === "storage";
+}
+
+function findStackMergeTarget(sourceEntry, targetEntries) {
+  if (!sourceEntry) return null;
+  return targetEntries.find((target) => stackEntriesCombinable(sourceEntry, target)) ?? null;
+}
+
+function quickStoreInventoryEntry(entryId) {
+  const entry = inventoryEntryById(entryId);
+  if (!entry) return false;
+  ensureStorageSlots();
+  const mergeTarget = findStackMergeTarget(entry, storageEntries());
+  if (mergeTarget) {
+    void storeInventoryEntryInStorage(entryId, mergeTarget.slot, equippedSlotForEntry(entry.id));
+    return true;
+  }
+  const slot = nextFreeStorageSlot();
+  if (slot >= state.account.storage.maxSlots) return false;
+  void storeInventoryEntryInStorage(entryId, slot, equippedSlotForEntry(entry.id));
+  return true;
+}
+
+function quickWithdrawStorageEntry(entryId) {
+  const entry = storageEntryById(entryId);
+  if (!entry) return false;
+  ensureInventorySlots();
+  const mergeTarget = findStackMergeTarget(entry, inventoryEntries());
+  if (mergeTarget) {
+    withdrawStorageEntryToInventorySlot(entryId, mergeTarget.slot);
+    return true;
+  }
+  const slot = nextFreeInventorySlot();
+  if (slot === null || slot >= state.inventory.maxSlots) return false;
+  withdrawStorageEntryToInventorySlot(entryId, slot);
+  return true;
+}
+
+function quickMoveInventoryEntryToHotbar(entryId) {
+  const entry = inventoryEntryById(entryId);
+  const item = entry ? itemDefinition(entry.itemId) : null;
+  if (!entry || !item || !isHotbarItem(item) || isEquippedEntry(entry.id)) return false;
+  if (hotbarSlotForEntry(entry.id) >= 0) return false;
+
+  for (let slot = 0; slot < HOTBAR_SLOT_COUNT; slot++) {
+    const hotbarEntry = hotbarEntryAtSlot(slot);
+    if (!hotbarEntry || !stackEntriesCombinable(entry, hotbarEntry)) continue;
+    mergeEntryIntoStack(entry, hotbarEntry);
+    if (entry.quantity <= 0) {
+      state.inventory.items = state.inventory.items.filter((candidate) => candidate.id !== entry.id);
+    }
+    ensureInventorySlots();
+    syncBossPartyControlledInventoryFromState();
+    renderInventoryStacksChanged({ hotbarChanged: true });
+    return true;
+  }
+
+  for (let slot = 0; slot < HOTBAR_SLOT_COUNT; slot++) {
+    if (state.hotbar.slots[slot]) continue;
+    dropInventoryEntryToHotbarSlot(entryId, slot);
+    return true;
+  }
+  return false;
+}
+
+function quickMoveHotbarEntryToInventory(entryId) {
+  const entry = inventoryEntryById(entryId);
+  if (!entry || hotbarSlotForEntry(entryId) < 0) return false;
+
+  const mergeTarget = findStackMergeTarget(entry, inventoryEntries());
+  if (mergeTarget) {
+    mergeEntryIntoStack(entry, mergeTarget);
+    if (entry.quantity <= 0) {
+      clearHotbarEntry(entry.id);
+      state.inventory.items = state.inventory.items.filter((candidate) => candidate.id !== entry.id);
+    }
+    ensureInventorySlots();
+    syncBossPartyControlledInventoryFromState();
+    renderInventoryStacksChanged({ hotbarChanged: true });
+    return true;
+  }
+
+  const slot = nextFreeInventorySlot();
+  if (slot === null || slot >= state.inventory.maxSlots) return false;
+  dropInventoryEntryToInventorySlot(entryId, slot);
+  return true;
+}
+
+function handleInventoryShiftClick(event, itemElement) {
+  if (!event.shiftKey || inventoryDragState) return false;
+
+  const hotbarItem = itemElement.hasAttribute("data-inventory-entry") && itemElement.closest("[data-hotbar-slot]");
+  const entryId = itemElement.dataset.inventoryEntry ?? itemElement.dataset.storageEntry;
+  if (hotbarItem && entryId) {
+    return quickMoveHotbarEntryToInventory(entryId);
+  }
+
+  const inventoryOpen = isInventoryWindowOpen();
+  const storageOpen = isStorageWindowOpen();
+  const characterOpen = isCharacterWindowOpen();
+  const inventoryItem = itemElement.hasAttribute("data-inventory-entry") && !itemElement.closest("[data-hotbar-slot]");
+  const storageItem = itemElement.hasAttribute("data-storage-entry");
+
+  if (inventoryOpen && storageOpen) {
+    if (inventoryItem) return quickStoreInventoryEntry(entryId);
+    if (storageItem) return quickWithdrawStorageEntry(entryId);
+    return false;
+  }
+
+  if (inventoryOpen && characterOpen && inventoryItem) {
+    void equipInventoryEntry(entryId);
+    return true;
+  }
+
+  if (inventoryOpen && inventoryItem) {
+    return quickMoveInventoryEntryToHotbar(entryId);
+  }
+
+  return false;
+}
+
+function prepareInventoryCarryForSceneRender() {
+  if (!inventoryDragState) return;
+  inventoryDragState.dropTarget?.classList.remove("drag-over", "drag-invalid");
+  inventoryDragState.dropTarget = null;
+  inventoryDragState.source?.classList.remove("dragging");
+  inventoryDragState.source = null;
+}
+
+function trySwitchPageWhileCarrying(event) {
+  const pageButton = event.target.closest("[data-inventory-page]");
+  if (pageButton && root.contains(pageButton)) {
+    const page = Math.max(0, Math.min(inventoryPageCount() - 1, Number(pageButton.dataset.inventoryPage) || 0));
+    if (!inventoryPageUnlocked(page)) {
+      unlockInventoryPage(page);
+    } else if (state.inventoryPage !== page) {
+      state.inventoryPage = page;
+      sceneSignature = "";
+      renderSceneOverlay();
+    }
+    return true;
+  }
+
+  const storagePageButton = event.target.closest("[data-storage-page]");
+  if (storagePageButton && root.contains(storagePageButton)) {
+    const page = Math.max(0, Math.min(storagePageCount() - 1, Number(storagePageButton.dataset.storagePage) || 0));
+    if (!storagePageUnlocked(page)) {
+      state.pendingStoragePageUnlock = page;
+      sceneSignature = "";
+      renderSceneOverlay();
+    } else {
+      state.pendingStoragePageUnlock = null;
+      if (state.storagePage !== page) {
+        state.storagePage = page;
+        sceneSignature = "";
+        renderSceneOverlay();
+      }
+    }
+    return true;
+  }
+
+  const confirmStorageUnlockButton = event.target.closest("[data-confirm-storage-page-unlock]");
+  if (confirmStorageUnlockButton && root.contains(confirmStorageUnlockButton)) {
+    const page = Math.max(0, Math.min(storagePageCount() - 1, Number(confirmStorageUnlockButton.dataset.confirmStoragePageUnlock) || 0));
+    state.pendingStoragePageUnlock = null;
+    unlockStoragePage(page);
+    return true;
+  }
+
+  const cancelStorageUnlockButton = event.target.closest("[data-cancel-storage-page-unlock]");
+  if (cancelStorageUnlockButton && root.contains(cancelStorageUnlockButton)) {
+    state.pendingStoragePageUnlock = null;
+    sceneSignature = "";
+    renderSceneOverlay();
+    return true;
+  }
+
+  return false;
+}
+
 function handleInventoryCarryClick(event) {
   if (inventoryDragState) {
+    if (trySwitchPageWhileCarrying(event)) {
+      event.preventDefault();
+      event.stopImmediatePropagation();
+      return true;
+    }
     finishInventoryClickCarry(event);
     return true;
   }
@@ -13398,6 +13387,13 @@ function handleInventoryCarryClick(event) {
 
   const itemElement = event.target.closest("[data-inventory-entry], [data-storage-entry], [data-refine-board-entry]");
   if (!itemElement || !root.contains(itemElement)) return false;
+
+  if (event.shiftKey) {
+    event.preventDefault();
+    handleInventoryShiftClick(event, itemElement);
+    return true;
+  }
+
   event.preventDefault();
   return beginInventoryClickCarry(event, itemElement);
 }
@@ -13412,7 +13408,15 @@ function finishInventoryClickCarry(event) {
     if (carry.sourceContainer === "weaponRefine" && carry.refineBoardSlot) {
       clearWeaponRefineSlot(carry.refineBoardSlot.kind, carry.refineBoardSlot.index);
     } else if (carry.sourceContainer === "inventory") {
-      void confirmDestroyInventoryEntry(carry.entryId);
+      const gridSlot = gridSlotElementAt(event.clientX, event.clientY, "[data-inventory-slot]", ".crystal-inventory");
+      if (gridSlot && root.contains(gridSlot)) {
+        const targetSlot = Number(gridSlot.dataset.inventorySlot);
+        if (canDropEntryToInventorySlot(carry.entryId, targetSlot, carry.sourceEquipmentSlot).ok) {
+          void dropInventoryEntryToInventorySlot(carry.entryId, targetSlot, carry.sourceEquipmentSlot);
+        }
+      } else {
+        void confirmDestroyInventoryEntry(carry.entryId);
+      }
     }
     return false;
   }
@@ -13465,6 +13469,10 @@ function finishInventoryClickCarry(event) {
       const targetItem = itemDefinition(inventoryEntryById(targetEntryId)?.itemId);
       if (isGemUpgradeItem(sourceItem) && isEquipableItem(targetItem)) {
         applyGemUpgrade(carry.entryId, targetEntryId);
+        return true;
+      }
+      if (isGemUpgradeItem(targetItem) && isEquipableItem(sourceItem)) {
+        applyGemUpgrade(targetEntryId, carry.entryId);
         return true;
       }
       combineInventoryStackEntries(carry.entryId, targetEntryId);
@@ -13634,11 +13642,64 @@ async function destroyInventoryEntry(entryId) {
   return true;
 }
 
+function hotbarSlotElementAt(clientX, clientY) {
+  for (const slot of root.querySelectorAll("[data-hotbar-slot]")) {
+    const rect = slot.getBoundingClientRect();
+    if (clientX >= rect.left && clientX <= rect.right && clientY >= rect.top && clientY <= rect.bottom) {
+      return slot;
+    }
+  }
+  return null;
+}
+
+function gridSlotElementAt(clientX, clientY, slotSelector, containerSelector, gapPadding = 3) {
+  const container = [...root.querySelectorAll(containerSelector)].find((element) => {
+    const bounds = element.getBoundingClientRect();
+    return clientX >= bounds.left && clientX <= bounds.right && clientY >= bounds.top && clientY <= bounds.bottom;
+  });
+  if (!container) return null;
+
+  let nearest = null;
+  let nearestDist = Infinity;
+  for (const slot of container.querySelectorAll(slotSelector)) {
+    const rect = slot.getBoundingClientRect();
+    if (clientX >= rect.left && clientX <= rect.right && clientY >= rect.top && clientY <= rect.bottom) {
+      return slot;
+    }
+    const hitLeft = rect.left - gapPadding;
+    const hitRight = rect.right + gapPadding;
+    const hitTop = rect.top - gapPadding;
+    const hitBottom = rect.bottom + gapPadding;
+    if (clientX < hitLeft || clientX > hitRight || clientY < hitTop || clientY > hitBottom) continue;
+    const centerX = (rect.left + rect.right) / 2;
+    const centerY = (rect.top + rect.bottom) / 2;
+    const dist = (clientX - centerX) ** 2 + (clientY - centerY) ** 2;
+    if (dist < nearestDist) {
+      nearestDist = dist;
+      nearest = slot;
+    }
+  }
+  return nearest;
+}
+
 function inventoryDropTargetAt(event) {
+  const dropSelector = "[data-inventory-entry], [data-storage-entry], [data-inventory-slot], [data-equipment-slot], [data-hotbar-slot], [data-storage-slot], [data-refine-slot]";
+  if (inventoryDragState && inventoryDragState.sourceContainer !== "storage") {
+    const entry = inventoryDragState.sourceContainer === "weaponRefine"
+      ? weaponRefineEntryById(inventoryDragState.entryId)
+      : inventoryEntryById(inventoryDragState.entryId);
+    const item = entry ? itemDefinition(entry.itemId) : null;
+    if (item && isHotbarItem(item)) {
+      const hotbarSlot = hotbarSlotElementAt(event.clientX, event.clientY);
+      if (hotbarSlot) return hotbarSlot;
+    }
+  }
   const target = document.elementFromPoint(event.clientX, event.clientY);
-  const dropTarget = target?.closest?.(
-    "[data-inventory-entry], [data-storage-entry], [data-inventory-slot], [data-equipment-slot], [data-hotbar-slot], [data-storage-slot], [data-refine-slot]",
-  );
+  let dropTarget = target?.closest?.(dropSelector);
+  if (!dropTarget || !root.contains(dropTarget)) {
+    dropTarget = gridSlotElementAt(event.clientX, event.clientY, "[data-inventory-slot]", ".crystal-inventory")
+      ?? gridSlotElementAt(event.clientX, event.clientY, "[data-storage-slot]", ".crystal-storage");
+  }
   return dropTarget && root.contains(dropTarget) ? dropTarget : null;
 }
 
@@ -13675,6 +13736,9 @@ function inventoryDropTargetAccepts(dropTarget) {
     if (!targetEntryId || targetEntryId === inventoryDragState.entryId) return true;
     if (isGemUpgradeItem(sourceItem)) {
       return canApplyGemToEntry(inventoryDragState.entryId, targetEntryId).ok;
+    }
+    if (isGemUpgradeItem(itemDefinition(inventoryEntryById(targetEntryId)?.itemId))) {
+      return canApplyGemToEntry(targetEntryId, inventoryDragState.entryId).ok;
     }
     const targetEntry = inventoryEntryById(targetEntryId);
     return stackEntriesCombinable(sourceEntry, targetEntry);
@@ -13752,15 +13816,16 @@ function inventoryItemHtml(entry) {
 }
 
 function itemTooltipHtml(item, entry = null) {
+  const equipable = isEquipableItem(item);
   return `
     <strong>${escapeHtml(itemDisplayName(item, entry))}</strong>
-    <span>${escapeHtml(title(item.type))}${item.slot ? ` | ${escapeHtml(slotLabel(item.slot))}` : ""}</span>
-    ${entry?.refineLevel ? `<span>Smith: +${Math.max(0, Math.trunc(Number(entry.refineLevel) || 0))}</span>` : ""}
+    ${equipable ? "" : `<span>${escapeHtml(title(item.type))}${item.slot ? ` | ${escapeHtml(slotLabel(item.slot))}` : ""}</span>`}
+    ${entry?.smithLevel ? `<span>Smith: +${Math.max(0, Math.trunc(Number(entry.smithLevel) || 0))}</span>` : ""}
     ${entry?.gemCount ? `<span>Gem upgrades: ${Math.max(0, Math.trunc(Number(entry.gemCount) || 0))}</span>` : ""}
     ${entry?.weaponRefineLevel ? `<span>Refine: +${Math.max(0, Math.trunc(Number(entry.weaponRefineLevel) || 0))} / ${WEAPON_REFINE_MAX}</span>` : ""}
     ${entry && isOreItem(item) ? itemOreTooltipHtml(entry, item) : ""}
     ${entry && itemUsesEntryDurability(item) && !isOreItem(item) ? itemDurabilityTooltipHtml(entry, item) : ""}
-    ${item.source?.name ? `<span>Crystal: ${escapeHtml(item.source.name)} #${item.source.crystalIndex}</span>` : ""}
+    ${!equipable && item.source?.name ? `<span>Crystal: ${escapeHtml(item.source.name)} #${item.source.crystalIndex}</span>` : ""}
     ${item.visual ? `<span>Visual: ${escapeHtml(item.visual.layer)} ${item.visual.index}</span>` : ""}
     ${itemSpellTooltipHtml(item)}
     ${itemRequirementTooltipHtml(item)}
@@ -14001,6 +14066,7 @@ async function requestZoneEntry(zoneId) {
     state.bossEmpowerSelected = false;
     state.bossAssistSelection = [];
     state.activeScene = "bossEntry";
+    pushSceneWindow("bossEntry");
     sceneSignature = "";
     renderSceneOverlay();
     playSfx("ui.button", { volume: 0.35, throttleMs: 80 });
@@ -14494,6 +14560,7 @@ async function advanceGroupDungeonFloor() {
     state.bossEntryZoneId = nextZone.id;
     state.bossEntryFromGroupDungeonAdvance = true;
     state.activeScene = "bossEntry";
+    pushSceneWindow("bossEntry");
     sceneSignature = "";
     renderSceneOverlay();
     playSfx("ui.button", { volume: 0.35, throttleMs: 80 });
@@ -15747,9 +15814,8 @@ function onGroupDungeonSwarmEnemyKilled(swarmEnemy, now = performance.now()) {
   if (swarmEnemy.isBossSwarm) {
     const party = state.battle.bossParty;
     const entity = swarmEnemyToBattleEntity(swarmEnemy);
-    const lootClassId = party?.leaderClassId ?? state.activeCharacterId;
     if (bossDropTableForEnemy(entity)) {
-      awardBossPartyBossKillShare(entity, now, lootClassId);
+      awardBossPartyBossKillShare(entity, now);
     } else {
       const savedEnemy = state.battle.enemy;
       state.battle.enemy = entity;
@@ -15963,39 +16029,8 @@ function beginRedThunderZumaSwarmAttack(swarmEnemy, now) {
 }
 
 const applySwarmEnemyStrikeToTarget = (swarmEnemy, entity, target, now, { ranged = false } = {}) => {
-  const { hit, damage } = ranged
-    ? resolveIncomingEnemyRangedAttack(entity, defenceTargetForIncomingAttack(target))
-    : resolveIncomingEnemyAttack(entity, defenceTargetForIncomingAttack(target));
-  if (!hit) {
-    addCombatText(
-      target.classId === bossPartyControlledClassId() ? "player" : (target === state.battle.bossParty?.pet ? "pet" : "enemy"),
-      "Miss",
-      "miss",
-      now,
-    );
-    pushBattleLog(`${swarmEnemy.name} misses ${target.name ?? target.classId}.`);
-    return;
-  }
-  target.hp = Math.max(0, target.hp - damage);
-  if (target === state.battle.bossParty?.pet) {
-    setTaoPetAction("struck", true, now);
-    addCombatText("pet", damage, "enemyDamage", now);
-    if (target.hp <= 0) bossPartyMarkPetDead(now);
-  } else if (target.classId === bossPartyControlledClassId()) {
-    setPlayerAction("struck", now + 250, true);
-    addCombatText("player", damage, "enemyDamage", now);
-    playSfx("player.flinch", bossPartySfxParams(target, 0.45, 120));
-  } else {
-    target.visualAction = "struck";
-    target.visualFrame = 0;
-    target.visualOneShot = true;
-    target.visualLastTick = now;
-    addCombatText("enemy", damage, "enemyDamage", now);
-    playSfx("player.flinch", bossPartySfxParams(target, 0.45, 120));
-  }
-  pushBattleLog(`${swarmEnemy.name} hits ${target.name ?? target.classId} for ${damage}.`);
-  if (target !== state.battle.bossParty?.pet && target.hp <= 0) bossPartyMarkMemberDead(target, now);
-}
+  applyBossPartyIncomingStrike(swarmEnemy.name, target, entity, now, { ranged });
+};
 
 const beginZumaArcherSwarmAttack = createZumaArcherSwarmAttack({
   swarmEnemyToBattleEntity,
@@ -16062,29 +16097,7 @@ function groupDungeonSwarmEnemyAttack(swarmEnemy, now) {
   setSwarmEnemyAction(swarmEnemy, attackAction, true, now);
   syncPrimarySwarmVisual(swarmEnemy, attackAction, now);
   playMonsterSfx("attack", swarmEnemy);
-  const { hit, damage } = resolveIncomingEnemyAttack(swarmEnemy, defenceTargetForIncomingAttack(target));
-  if (!hit) {
-    addCombatText(target.classId === bossPartyControlledClassId() ? "player" : "enemy", "Miss", "miss", now);
-    pushBattleLog(`${swarmEnemy.name} misses ${target.name}.`);
-    return true;
-  }
-  target.hp = Math.max(0, target.hp - damage);
-  if (target === state.battle.bossParty.pet) {
-    setTaoPetAction("struck", true, now);
-    if (target.hp <= 0) bossPartyMarkPetDead(now);
-  } else if (target.classId === bossPartyControlledClassId()) {
-    setPlayerAction("struck", now + 250, true);
-    addCombatText("player", damage, "enemyDamage", now);
-    playSfx("player.flinch", bossPartySfxParams(target, 0.45, 120));
-  } else {
-    target.visualAction = "struck";
-    target.visualFrame = 0;
-    target.visualOneShot = true;
-    target.visualLastTick = now;
-    playSfx("player.flinch", bossPartySfxParams(target, 0.45, 120));
-  }
-  pushBattleLog(`${swarmEnemy.name} hits ${target.name} for ${damage}.`);
-  if (target !== state.battle.bossParty.pet && target.hp <= 0) bossPartyMarkMemberDead(target, now);
+  applyBossPartyIncomingStrike(swarmEnemy.name, target, swarmEnemy, now);
   return true;
 }
 
@@ -16187,14 +16200,11 @@ function accountBossRespawns() {
 }
 
 function migrateAccountBossRespawns() {
-  const merged = { ...accountBossRespawns() };
-  for (const classId of CHARACTER_IDS) {
-    const respawns = sanitizeBossRespawns(state.characters[classId]?.game?.bossRespawns);
-    for (const [zoneId, readyAt] of Object.entries(respawns)) {
-      if (readyAt > (merged[zoneId] ?? 0)) merged[zoneId] = readyAt;
-    }
-  }
-  state.account.bossRespawns = merged;
+  state.account.bossRespawns = mergeAccountBossRespawns(
+    state.account.bossRespawns,
+    state.characters,
+    accountRestoreOptions(),
+  );
   syncAccountBossRespawnsToCharacters();
 }
 
@@ -17204,12 +17214,34 @@ function bindControls() {
     state.openScenes = initialOpenScenesFromUrl();
     sceneSignature = "";
     gamePanelSignature = "";
+    syncSceneWindowStackFromState();
     renderSceneOverlay();
     renderGamePanel();
   });
   window.addEventListener("keydown", (event) => {
     if (event.altKey || event.ctrlKey || event.metaKey || event.shiftKey) return;
     if (event.target instanceof HTMLInputElement || event.target instanceof HTMLTextAreaElement || event.target instanceof HTMLSelectElement) return;
+    const key = event.key.toLowerCase();
+    if (key === "escape") {
+      event.preventDefault();
+      closeMostRecentSceneWindow();
+      return;
+    }
+    if (key === "c") {
+      event.preventDefault();
+      toggleOpenScene("character", { characterTab: "character" });
+      return;
+    }
+    if (key === "i") {
+      event.preventDefault();
+      toggleOpenScene("inventory");
+      return;
+    }
+    if (key === "s") {
+      event.preventDefault();
+      toggleOpenScene("character", { characterTab: "skill" });
+      return;
+    }
     if (!/^[1-6]$/.test(event.key)) return;
     event.preventDefault();
     useHotbarSlot(Number(event.key) - 1);
@@ -17284,6 +17316,7 @@ function openTownNpc(npcId) {
   if (npc?.role === "Teleport") state.teleportBrowseRegionId = null;
   state.activeScene = npc?.role === "Storage" ? "storage" : state.game.selectedTownNpcId ? "townNpc" : null;
   if (npc?.role === "Storage") state.openScenes.inventory = true;
+  if (state.activeScene) pushSceneWindow(state.activeScene);
   if (state.game.selectedTownNpcId) playSfx("ui.npc", { volume: 0.46, throttleMs: 120 });
   sceneSignature = "";
   gamePanelSignature = "";
@@ -17294,8 +17327,10 @@ function openTownNpc(npcId) {
 
 function closeTownNpc() {
   if (!state.game.selectedTownNpcId) return;
+  const closingScene = state.activeScene;
   state.game.selectedTownNpcId = null;
   if (state.activeScene === "townNpc" || state.activeScene === "storage" || state.activeScene === "weaponRefine") state.activeScene = null;
+  if (closingScene) removeSceneWindowFromStack(closingScene);
   resetWeaponRefineState();
   sceneSignature = "";
   gamePanelSignature = "";
@@ -18933,7 +18968,7 @@ function bossPartyAttackEnemy(member, label, rollDamageFn, kind, now, onHit, ski
     pushBattleLog(`${member.classId} ${label.toLowerCase()} misses ${enemy.name}.`);
     return true;
   }
-  reduceEnemyHp(enemy, damage);
+  applyCombatDamageEvent(enemyDamageEvent(damage), now, { enemy });
   syncBattleEnemyHpToSwarm();
   strikeGroupDungeonSwarmEnemy(enemy, now);
   playMonsterSfx("flinch", enemy, bossPartySfxParams(member, 0.42, 80));
@@ -19420,7 +19455,9 @@ function syncBossPartyMemberAutoCastFromState(classId = state.battle.combatClass
 function loadBossPartyMemberMagicIntoState(member) {
   if (!member?.magic) return;
   state.magic = cloneMagicState(member.magic);
-  removeRetiredTestingDefaultMagic(member.classId, state.magic);
+  removeRetiredTestingDefaultMagic(member.classId, state.magic, {
+    retiredSpellIds: RETIRED_TEST_DEFAULT_WIZARD_SPELLS,
+  });
   normalizeAutoCastSpellsForClass(member.classId);
 }
 
@@ -19532,7 +19569,7 @@ function updateBossPartyEffects(now) {
       guard += 1;
       effect.nextTickAt += 2000;
       const damage = applyWizardMagicDefence(effect.value, enemy);
-      reduceEnemyHp(enemy, damage);
+      applyCombatDamageEvent(enemyDamageEvent(damage, { kind: "magic" }), now, { enemy });
       syncBattleEnemyHpToSwarm();
       bossPartyShowEnemyDamage(effect.casterClassId, damage, now);
       pushBattleLog(`${effect.spellId} burns ${enemy.name} for ${damage}.`);
@@ -19786,15 +19823,14 @@ function updateBossPartyImpacts(now) {
     if (!canApply) continue;
     if (!impact.hit || impact.damage <= 0) {
       bossPartyShowEnemyMiss(impact.casterClassId, now);
-      pushBattleLog(`${impact.label} misses ${enemy.name}.`);
+      applyCombatEvents(magicAttackMissEvents(impact.label, enemy.name), now);
       continue;
     }
-    reduceEnemyHp(enemy, impact.damage);
     syncBattleEnemyHpToSwarm();
     strikeGroupDungeonSwarmEnemy(enemy, now);
     playMonsterSfx("flinch", enemy, bossPartySfxParamsForClass(impact.casterClassId, 0.42, 80));
     bossPartyShowEnemyDamage(impact.casterClassId, impact.damage, now);
-    pushBattleLog(`${impact.label} hits ${enemy.name} for ${impact.damage}.`);
+    applyCombatEvents(magicAttackHitEvents(impact.label, enemy.name, impact.damage), now, { enemy });
     maybeKillGroupDungeonSwarmEnemy(enemy, now);
     const caster = state.battle.bossParty?.members.find((m) => m.classId === impact.casterClassId);
     const spell = combatAttackSpell(impact.spellId);
@@ -20035,29 +20071,7 @@ function beginDarkDevilAttack(now) {
     if (!target) return false;
     setEnemyAction("attack1", true, now);
     playMonsterSfx("attack", enemy);
-    const { hit, damage } = resolveIncomingEnemyAttack(enemy, defenceTargetForIncomingAttack(target));
-    if (!hit) {
-      addCombatText(target.classId === bossPartyControlledClassId() ? "player" : "enemy", "Miss", "miss", now);
-      pushBattleLog(`${enemy.name} misses ${target.name}.`);
-      return true;
-    }
-    target.hp = Math.max(0, target.hp - damage);
-    if (target === state.battle.bossParty.pet) {
-      setTaoPetAction("struck", true, now);
-      if (target.hp <= 0) bossPartyMarkPetDead(now);
-    } else if (target.classId === bossPartyControlledClassId()) {
-      setPlayerAction("struck", now + 250, true);
-      addCombatText("player", damage, "enemyDamage", now);
-      playSfx("player.flinch", bossPartySfxParams(target, 0.45, 120));
-    } else {
-      target.visualAction = "struck";
-      target.visualFrame = 0;
-      target.visualOneShot = true;
-      target.visualLastTick = now;
-      playSfx("player.flinch", bossPartySfxParams(target, 0.45, 120));
-    }
-    pushBattleLog(`${enemy.name} hits ${target.name} for ${damage}.`);
-    if (target !== state.battle.bossParty.pet && target.hp <= 0) bossPartyMarkMemberDead(target, now);
+    applyBossPartyIncomingStrike(enemy.name, target, enemy, now, { magicShield: true });
     return true;
   }
 
@@ -20365,75 +20379,14 @@ function kingScorpionAttackEnemy(ranged) {
   };
 }
 
-function applyKingScorpionLineDamage(targetRef, hit, damage, now) {
-  const enemy = state.battle.enemy;
-  const logName = targetRef.logName ?? targetRef.entity?.name ?? targetRef.entity?.classId ?? "Target";
-  if (!hit) {
-    if (targetRef.kind === "member" && targetRef.entity?.classId === bossPartyControlledClassId()) {
-      addCombatText("player", "Miss", "miss", now);
-    } else if (targetRef.kind === "player") {
-      addCombatText("player", "Miss", "miss", now);
-    } else if (targetRef.kind === "pet") {
-      addCombatText("pet", "Miss", "miss", now);
-    } else {
-      addCombatText("enemy", "Miss", "miss", now);
-    }
-    pushBattleLog(`${enemy.name} misses ${logName}.`);
-    return;
-  }
-
-  const entity = targetRef.entity;
-  entity.hp = Math.max(0, entity.hp - damage);
-  if (targetRef.kind === "pet") {
-    setTaoPetAction("struck", true, now);
-    addCombatText("pet", damage, "enemyDamage", now);
-    if (entity.hp <= 0) {
-      if (bossPartyActiveFight()) bossPartyMarkPetDead(now);
-      else markTaoistPetDead(now);
-    }
-  } else if (targetRef.kind === "member") {
-    if (entity.classId === bossPartyControlledClassId()) {
-      setPlayerAction("struck", now + 250, true);
-      maybeNotifyMagicShieldStruck(null, now);
-      addCombatText("player", damage, "enemyDamage", now);
-    } else {
-      entity.visualAction = "struck";
-      entity.visualFrame = 0;
-      entity.visualOneShot = true;
-      entity.visualLastTick = now;
-      notifyWizardMagicShieldStruckOnHit(entity, now);
-      addCombatText("enemy", damage, "enemyDamage", now);
-    }
-    playSfx("player.flinch", bossPartySfxParams(entity, 0.45, 120));
-    if (entity.hp <= 0) bossPartyMarkMemberDead(entity, now);
-  } else {
-    maybeNotifyMagicShieldStruck(null, now);
-    setPlayerAction("struck", now + 250, true);
-    addCombatText("player", damage, "enemyDamage", now);
-    playSfx("player.flinch", { volume: 0.45, throttleMs: 120, force: true });
-    if (entity.hp <= 0) {
-      if (bossPartyActiveFight()) bossPartyMarkMemberDead(entity, now);
-      else {
-        finishBattle(now);
-        setPlayerAction("die", now);
-        playSfx("player.death", { volume: 0.58 });
-        pushBattleLog(`${state.battle.combatClass} falls.`);
-      }
-    }
-  }
-  pushBattleLog(`${enemy.name} hits ${logName} for ${damage}.`);
-}
-
 function resolveKingScorpionLineHit(hit, ranged, now) {
   const enemy = state.battle.enemy;
   if (!enemy || enemy.hp <= 0 || !state.battle.enemyRevealed || !hit?.entity || (hit.entity.hp ?? 0) <= 0) return;
-  const attackEnemy = kingScorpionAttackEnemy(ranged);
-  const { hit: didHit, damage } = resolveIncomingEnemyAttack(
-    attackEnemy,
-    defenceTargetForIncomingAttack(hit.entity),
-    ranged ? { ranged: true } : {},
-  );
-  applyKingScorpionLineDamage(hit, didHit, damage, now);
+  applyStrikeTargetIncoming(enemy.name, kingScorpionAttackEnemy(ranged), hit, now, {
+    ranged,
+    magicShield: true,
+    resolveOptions: ranged ? { ranged: true } : {},
+  });
 }
 
 function beginKingScorpionAttack(now) {
@@ -20585,63 +20538,25 @@ function applyFlamingMutantParalysis(enemy, combatant, now) {
 }
 
 function resolveSplashStrikeTarget(enemy, target, now, offsetIndex = 0, options = {}) {
-  const defenceType = options.defenceType || enemy.attackDefenceType || "ACAgility";
-  const attackEnemy = { ...enemy, attackDefenceType: defenceType };
-  const { hit, damage } = resolveIncomingEnemyAttack(
-    attackEnemy,
-    target.stats ?? defenceTargetForIncomingAttack(target.entity),
-    options.ranged ? { ranged: true, aoe: true, massBurst: options.massBurst } : { aoe: true, massBurst: options.massBurst },
-  );
-  const offsetX = offsetIndex * 14;
-  if (!hit) {
-    addCombatantPoisonText(target.kind, target.entity, "Miss", "miss", now, offsetX);
-    pushBattleLog(`${enemy.name} misses ${target.logName}.`);
-    return;
-  }
-  target.entity.hp = Math.max(0, target.entity.hp - damage);
-  if (target.kind === "pet") {
-    setTaoPetAction("struck", true, now);
-    addCombatantPoisonText(target.kind, target.entity, damage, "enemyDamage", now, offsetX);
-    if (target.entity.hp <= 0) {
-      if (bossPartyActiveFight()) bossPartyMarkPetDead(now);
-      else markTaoistPetDead(now);
-    }
-  } else if (target.kind === "member") {
-    if (target.entity.classId === bossPartyControlledClassId()) {
-      setPlayerAction("struck", now + 250, true);
-      maybeNotifyMagicShieldStruck(null, now);
-      addCombatText("player", damage, "enemyDamage", now, offsetX);
-      playSfx("player.flinch", { volume: 0.45, throttleMs: 120, force: true });
-    } else {
-      target.entity.visualAction = "struck";
-      target.entity.visualFrame = 0;
-      target.entity.visualOneShot = true;
-      target.entity.visualLastTick = now;
-      notifyWizardMagicShieldStruckOnHit(target.entity, now);
-      addCombatText("enemy", damage, "enemyDamage", now, offsetX);
-      playSfx("player.flinch", bossPartySfxParams(target.entity, 0.45, 120));
-    }
-    if (target.entity.hp <= 0) bossPartyMarkMemberDead(target.entity, now);
-  } else {
-    setPlayerAction("struck", now + 250, true);
-    maybeNotifyMagicShieldStruck(null, now);
-    addCombatText("player", damage, "enemyDamage", now, offsetX);
-    playSfx("player.flinch", { volume: 0.45, throttleMs: 120, force: true });
-    if (target.entity.hp <= 0) {
-      if (bossPartyActiveFight()) bossPartyMarkMemberDead(target.entity, now);
-      else {
-        finishBattle(now);
-        setPlayerAction("die", now);
-        playSfx("player.death", { volume: 0.58 });
-        pushBattleLog(`${state.battle.combatClass} falls.`);
+  applyStrikeTargetIncoming(enemy.name, enemy, target, now, {
+    offsetX: offsetIndex * 14,
+    magicShield: true,
+    ranged: Boolean(options.ranged),
+    defenceType: options.defenceType || enemy.attackDefenceType || "ACAgility",
+    resolveOptions: {
+      ranged: Boolean(options.ranged),
+      aoe: true,
+      massBurst: options.massBurst,
+    },
+    onHit: options.paralysis
+      ? ({ entity, now: impactNow, targetRef }) => {
+        if (applyScalyBeastParalysis(enemy, entity, impactNow)) {
+          pushBattleLog(`${targetRef.logName} is paralyzed.`);
+          addCombatantPoisonText(targetRef.kind, entity, "Paralysis", "poison", impactNow, offsetIndex * 14);
+        }
       }
-    }
-  }
-  pushBattleLog(`${enemy.name} hits ${target.logName} for ${damage}.`);
-  if (options.paralysis && applyScalyBeastParalysis(enemy, target.entity, now)) {
-    pushBattleLog(`${target.logName} is paralyzed.`);
-    addCombatantPoisonText(target.kind, target.entity, "Paralysis", "poison", now, offsetX);
-  }
+      : undefined,
+  });
 }
 
 
@@ -21045,32 +20960,7 @@ function resolveBoneLordBossPartyMelee(now) {
   if (bossPartyTargetEnemyDistance(target) > BOSS_PARTY_BOSS_REACH) return false;
   setEnemyAction("attack1", true, now);
   playMonsterSfx("attack");
-  const { hit, damage } = resolveIncomingEnemyAttack(enemy, defenceTargetForIncomingAttack(target));
-  if (!hit) {
-    addCombatText(target.classId === bossPartyControlledClassId() ? "player" : "enemy", "Miss", "miss", now);
-    pushBattleLog(`${enemy.name} misses ${target.name}.`);
-    return true;
-  }
-  target.hp = Math.max(0, target.hp - damage);
-  if (target === state.battle.bossParty.pet) {
-    setTaoPetAction("struck", true, now);
-    if (target.hp <= 0) bossPartyMarkPetDead(now);
-  } else {
-    if (target.classId === bossPartyControlledClassId()) {
-      setPlayerAction("struck", now + 250, true);
-      maybeNotifyMagicShieldStruck(null, now);
-      addCombatText("player", damage, "enemyDamage", now);
-    } else {
-      target.visualAction = "struck";
-      target.visualFrame = 0;
-      target.visualOneShot = true;
-      target.visualLastTick = now;
-      notifyWizardMagicShieldStruckOnHit(target, now);
-    }
-    playSfx("player.flinch", bossPartySfxParams(target, 0.45, 120));
-  }
-  pushBattleLog(`${enemy.name} hits ${target.name} for ${damage}.`);
-  if (target !== state.battle.bossParty.pet && target.hp <= 0) bossPartyMarkMemberDead(target, now);
+  applyBossPartyIncomingStrike(enemy.name, target, enemy, now, { magicShield: true });
   return true;
 }
 
@@ -21083,19 +20973,11 @@ function resolveBoneLordSoloMelee(now) {
   playMonsterSfx("attack");
   const { hit, damage } = resolveIncomingEnemyAttack(enemy, target);
   if (!hit) {
-    addCombatText(target.anchor, "Miss", "miss", now);
-    pushBattleLog(`${enemy.name} misses ${target.name}.`);
+    applyIncomingTargetMiss(enemy.name, target, now);
     return true;
   }
-  target.applyDamage(damage, now);
-  addCombatText(target.anchor, damage, "enemyDamage", now);
-  pushBattleLog(`${enemy.name} hits ${target.name} for ${damage}.`);
-  if (target.kind === "player" && battle.player.hp <= 0) {
-    finishBattle(now);
-    setPlayerAction("die", now);
-    playSfx("player.death", { volume: 0.58 });
-    pushBattleLog(`${battle.combatClass} falls.`);
-  }
+  applyIncomingTargetHit(enemy.name, target, damage, now);
+  maybeFinishBattleAfterPlayerHit(target, now);
   return true;
 }
 
@@ -21143,20 +21025,14 @@ function resolveMinotaurKingSoloAoeStrike(enemy, now) {
     const { hit, damage } = resolveIncomingEnemyRangedAttack(enemy, target, { aoe: true });
     if (!hit) {
       if (!primaryLogged) {
-        addCombatText(target.anchor, "Miss", "miss", now);
-        pushBattleLog(`${enemy.name} misses ${target.name}.`);
+        applyIncomingTargetMiss(enemy.name, target, now);
         primaryLogged = true;
       }
       continue;
     }
-    target.applyDamage(damage, now);
-    addCombatText(target.anchor, damage, "enemyDamage", now);
-    pushBattleLog(`${enemy.name} hits ${target.name} for ${damage}.`);
+    applyIncomingTargetHit(enemy.name, target, damage, now);
     if (target.kind === "player" && battle.player.hp <= 0) {
-      finishBattle(now);
-      setPlayerAction("die", now);
-      playSfx("player.death", { volume: 0.58 });
-      pushBattleLog(`${battle.combatClass} falls.`);
+      maybeFinishBattleAfterPlayerHit(target, now);
       break;
     }
   }
@@ -21175,43 +21051,23 @@ function resolveBoneLordRangedStrike(now) {
       ? minotaurKingSplashTargets(primaryTarget, enemy)
       : [primaryTarget];
     for (const target of splashTargets) {
-      const { hit, damage } = resolveIncomingEnemyRangedAttack(
-        enemy,
-        defenceTargetForIncomingAttack(target),
-        { aoe: useAoe, ranged: true },
-      );
-      if (!hit) {
-        if (target === primaryTarget) {
-          addCombatText(target.classId === bossPartyControlledClassId() ? "player" : "enemy", "Miss", "miss", now);
-          pushBattleLog(`${enemy.name} misses ${target.name}.`);
-        }
-        continue;
-      }
-      target.hp = Math.max(0, target.hp - damage);
-      if (target === state.battle.bossParty.pet) {
-        setTaoPetAction("struck", true, now);
-        addCombatText("pet", damage, "enemyDamage", now);
-        if (target.hp <= 0) bossPartyMarkPetDead(now);
-      } else if (target.classId === bossPartyControlledClassId()) {
-        setPlayerAction("struck", now + 250, true);
-        maybeNotifyMagicShieldStruck(null, now);
-        addCombatText("player", damage, "enemyDamage", now);
-        playSfx("player.flinch", { volume: 0.45, throttleMs: 120, force: true });
-      } else {
-        target.visualAction = "struck";
-        target.visualFrame = 0;
-        target.visualOneShot = true;
-        target.visualLastTick = now;
-        notifyWizardMagicShieldStruckOnHit(target, now);
-        addCombatText("enemy", damage, "enemyDamage", now);
-        playSfx("player.flinch", bossPartySfxParams(target, 0.45, 120));
-      }
-      pushBattleLog(`${enemy.name} hits ${target.logName ?? target.name} for ${damage}.`);
-      if (target !== state.battle.bossParty.pet && target.hp <= 0) bossPartyMarkMemberDead(target, now);
-      if (isFlamingMutantEnemy(enemy) && useAoe && applyFlamingMutantParalysis(enemy, target, now)) {
-        pushBattleLog(`${target.name} is paralyzed.`);
-        addCombatText(target.classId === bossPartyControlledClassId() ? "player" : "enemy", "Paralysis", "poison", now);
-      }
+      applyBossPartyIncomingStrike(enemy.name, target, enemy, now, {
+        ranged: true,
+        magicShield: true,
+        aoe: useAoe,
+        logMiss: target === primaryTarget,
+        onHit: ({ partyEntity, now: impactNow }) => {
+          if (isFlamingMutantEnemy(enemy) && useAoe && applyFlamingMutantParalysis(enemy, partyEntity, impactNow)) {
+            pushBattleLog(`${partyEntity.name} is paralyzed.`);
+            addCombatText(
+              partyEntity.classId === bossPartyControlledClassId() ? "player" : "enemy",
+              "Paralysis",
+              "poison",
+              impactNow,
+            );
+          }
+        },
+      });
     }
     return;
   }
@@ -21224,71 +21080,24 @@ function resolveBoneLordRangedStrike(now) {
   }
   const { hit, damage } = resolveIncomingEnemyRangedAttack(enemy, target, { ranged: true });
   if (!hit) {
-    addCombatText(target.anchor, "Miss", "miss", now);
-    pushBattleLog(`${enemy.name} misses ${target.name}.`);
+    applyIncomingTargetMiss(enemy.name, target, now);
     return;
   }
-  target.applyDamage(damage, now);
-  addCombatText(target.anchor, damage, "enemyDamage", now);
-  pushBattleLog(`${enemy.name} hits ${target.name} for ${damage}.`);
-  if (target.kind === "player" && state.battle.player.hp <= 0) {
-    finishBattle(now);
-    setPlayerAction("die", now);
-    playSfx("player.death", { volume: 0.58 });
-    pushBattleLog(`${state.battle.combatClass} falls.`);
-  }
+  applyIncomingTargetHit(enemy.name, target, damage, now);
+  maybeFinishBattleAfterPlayerHit(target, now);
 }
 
 function resolveEvilCentipedeStrikeTarget(enemy, target, now, offsetIndex = 0) {
-  const { hit, damage } = resolveIncomingEnemyAttack(enemy, target.stats);
-  const offsetX = offsetIndex * 14;
-  if (!hit) {
-    addCombatantPoisonText(target.kind, target.entity, "Miss", "miss", now, offsetX);
-    pushBattleLog(`${enemy.name} misses ${target.logName}.`);
-    return;
-  }
-
-  target.entity.hp = Math.max(0, target.entity.hp - damage);
-  if (target.kind === "pet") {
-    setTaoPetAction("struck", true, now);
-    addCombatantPoisonText(target.kind, target.entity, damage, "enemyDamage", now, offsetX);
-    if (target.entity.hp <= 0) {
-      if (bossPartyActiveFight()) bossPartyMarkPetDead(now);
-      else markTaoistPetDead(now);
-    }
-  } else if (target.kind === "member") {
-    if (target.entity.classId === bossPartyControlledClassId()) {
-      setPlayerAction("struck", now + 250, true);
-      maybeNotifyMagicShieldStruck(null, now);
-      addCombatText("player", damage, "enemyDamage", now, offsetX);
-      playSfx("player.flinch", { volume: 0.45, throttleMs: 120, force: true });
-    } else {
-      target.entity.visualAction = "struck";
-      target.entity.visualFrame = 0;
-      target.entity.visualOneShot = true;
-      target.entity.visualLastTick = now;
-      notifyWizardMagicShieldStruckOnHit(target.entity, now);
-      addCombatText("enemy", damage, "enemyDamage", now, offsetX);
-      playSfx("player.flinch", bossPartySfxParams(target.entity, 0.45, 120));
-    }
-    if (target.entity.hp <= 0) bossPartyMarkMemberDead(target.entity, now);
-  } else {
-    setPlayerAction("struck", now + 250, true);
-    maybeNotifyMagicShieldStruck(null, now);
-    addCombatText("player", damage, "enemyDamage", now, offsetX);
-    playSfx("player.flinch", { volume: 0.45, throttleMs: 120, force: true });
-    if (target.entity.hp <= 0) {
-      finishBattle(now);
-      setPlayerAction("die", now);
-      playSfx("player.death", { volume: 0.58 });
-      pushBattleLog(`${state.battle.combatClass} falls.`);
-    }
-  }
-  pushBattleLog(`${enemy.name} hits ${target.logName} for ${damage}.`);
-  if (applyEvilCentipedePoisons(enemy, target.entity, now)) {
-    pushBattleLog(`${target.logName} is poisoned.`);
-    addCombatantPoisonText(target.kind, target.entity, "Poison", "poison", now, offsetX);
-  }
+  applyStrikeTargetIncoming(enemy.name, enemy, target, now, {
+    offsetX: offsetIndex * 14,
+    magicShield: true,
+    onHit: ({ entity, now: impactNow, targetRef }) => {
+      if (applyEvilCentipedePoisons(enemy, entity, impactNow)) {
+        pushBattleLog(`${targetRef.logName} is poisoned.`);
+        addCombatantPoisonText(targetRef.kind, entity, "Poison", "poison", impactNow, offsetIndex * 14);
+      }
+    },
+  });
 }
 
 function updatePendingEnemyStrike(now) {
@@ -21419,32 +21228,7 @@ function bossPartyEnemyAttack(now) {
   if (bossPartyTargetEnemyDistance(target) > BOSS_PARTY_BOSS_REACH) return false;
   setEnemyAction("attack1", true, now);
   playMonsterSfx("attack");
-  const { hit, damage } = resolveIncomingEnemyAttack(enemy, defenceTargetForIncomingAttack(target));
-  if (!hit) {
-    addCombatText(target.classId === bossPartyControlledClassId() ? "player" : "enemy", "Miss", "miss", now);
-    pushBattleLog(`${enemy.name} misses ${target.name}.`);
-    return true;
-  }
-  target.hp = Math.max(0, target.hp - damage);
-  if (target === state.battle.bossParty.pet) {
-    setTaoPetAction("struck", true, now);
-    if (target.hp <= 0) bossPartyMarkPetDead(now);
-  } else {
-    if (target.classId === bossPartyControlledClassId()) {
-      setPlayerAction("struck", now + 250, true);
-      maybeNotifyMagicShieldStruck(null, now);
-      addCombatText("player", damage, "enemyDamage", now);
-    } else {
-      target.visualAction = "struck";
-      target.visualFrame = 0;
-      target.visualOneShot = true;
-      target.visualLastTick = now;
-      notifyWizardMagicShieldStruckOnHit(target, now);
-    }
-    playSfx("player.flinch", bossPartySfxParams(target, 0.45, 120));
-  }
-  pushBattleLog(`${enemy.name} hits ${target.name} for ${damage}.`);
-  if (target !== state.battle.bossParty.pet && target.hp <= 0) bossPartyMarkMemberDead(target, now);
+  applyBossPartyIncomingStrike(enemy.name, target, enemy, now, { magicShield: true });
   return true;
 }
 
@@ -21540,6 +21324,13 @@ function bossPartyLeaderMember(party = state.battle.bossParty) {
 
 function bossPartyControlledClassId() {
   return bossPartyLeaderClassId();
+}
+
+function bossPartyBossLootClassId(party = state.battle.bossParty) {
+  const controlledId = normalizeCharacterId(bossPartyControlledClassId(party));
+  const alive = bossPartyAliveRewardMembers(party);
+  if (alive.some((member) => member.classId === controlledId)) return controlledId;
+  return alive[0]?.classId ?? controlledId;
 }
 
 function bossPartyControlledMember(party = state.battle.bossParty) {
@@ -21731,8 +21522,7 @@ function finishBossPartyEnemy(now) {
   party.active = false;
   party.finishedAt = now;
   if (bossDropTableForEnemy(enemy)) {
-    const lootClassId = party.leaderClassId ?? state.activeCharacterId;
-    awardBossPartyBossKillShare(enemy, now, lootClassId);
+    awardBossPartyBossKillShare(enemy, now);
   } else {
     awardBossPartyKillShare(now, { enemy });
   }
@@ -21837,29 +21627,15 @@ function bossDropTableForEnemy(enemy = state.battle.enemy) {
 function rollBossTableDrops(dropTable, awardItem) {
   const added = [];
   const ignored = [];
-  if (!dropTable) return { added, ignored };
-
-  const oilCount = Math.max(0, Math.trunc(Number(dropTable.benedictionOils ?? 1)));
+  const { oilCount, itemIds } = rollBossTableDropSelection(dropTable);
   const oil = itemDefinition(BENEDICTION_OIL_ITEM_ID);
   if (oil && oilCount > 0) {
     for (let i = 0; i < oilCount; i += 1) awardItem(oil, added, ignored);
   }
-
-  let poolDropped = false;
-  for (const entry of dropTable.items) {
-    if (Math.random() >= entry.chance) continue;
-    const item = itemDefinition(entry.id);
-    if (!item) continue;
-    awardItem(item, added, ignored);
-    poolDropped = true;
-  }
-
-  if (!poolDropped && dropTable.items.length) {
-    const entry = dropTable.items[Math.floor(Math.random() * dropTable.items.length)];
-    const item = itemDefinition(entry.id);
+  for (const itemId of itemIds) {
+    const item = itemDefinition(itemId);
     if (item) awardItem(item, added, ignored);
   }
-
   return { added, ignored };
 }
 
@@ -21883,11 +21659,6 @@ function rollBossSoloDrops(enemy = state.battle.enemy) {
 
 function bossPartyAliveRewardMembers(party = state.battle.bossParty) {
   return (party?.members ?? []).filter((member) => member.alive && member.hp > 0);
-}
-
-function splitPartyRewardAmount(total, memberCount) {
-  const count = Math.max(1, Math.trunc(Number(memberCount) || 0));
-  return Math.max(0, Math.floor(Math.max(0, Math.trunc(Number(total) || 0)) / count));
 }
 
 function applyBossPartyMemberKillReward(member, {
@@ -21921,7 +21692,7 @@ function applyBossPartyMemberKillReward(member, {
     for (const item of drops.added) pushBattleLog(`${member.classId} found ${item.name}.`);
     for (const item of drops.ignored) pushBattleLog(`${member.classId} had no room for ${item.name}.`);
   }
-  if (member.classId === bossPartyControlledClassId()) {
+  if (member.classId === bossPartyControlledClassId() || includeItems) {
     if (xp > 0) addLootNotice(`+${xp} XP`, "level");
     if (gold > 0) addLootNotice(`+${gold} gold`, "gold");
     for (const item of drops.added) addLootNotice(`Found ${item.name}`, "item");
@@ -21952,13 +21723,14 @@ function awardBossPartyKillShare(now = performance.now(), options = {}) {
   }
 }
 
-function awardBossPartyBossKillShare(enemy, now = performance.now(), lootClassId) {
+function awardBossPartyBossKillShare(enemy, now = performance.now()) {
   const party = state.battle.bossParty;
   const dropTable = bossDropTableForEnemy(enemy);
   if (!party || !enemy || !dropTable) return;
 
   const recipients = bossPartyAliveRewardMembers(party);
   if (!recipients.length) return;
+  const lootClassId = bossPartyBossLootClassId(party);
   const shareCount = recipients.length;
   const xpPerShare = splitPartyRewardAmount(enemy.experience ?? 0, shareCount);
   const goldPerShare = splitPartyRewardAmount(dropTable.gold, shareCount);
@@ -21980,14 +21752,11 @@ function awardBossPartyBossKillShare(enemy, now = performance.now(), lootClassId
 }
 
 function applyBossPartyExperienceReward(member, xp, now) {
-  const levels = [];
-  member.game.progress.experience += xp;
-  let nextLevelXp = xpForNextLevel(member.game.progress.level);
-  while (Number.isFinite(nextLevelXp) && member.game.progress.experience >= nextLevelXp) {
-    member.game.progress.experience -= nextLevelXp;
-    member.game.progress.level += 1;
-    member.level = member.game.progress.level;
-    levels.push(member.level);
+  const { progress, levels } = applyExperienceToProgress(member.game.progress, xp);
+  member.game.progress.level = progress.level;
+  member.game.progress.experience = progress.experience;
+  for (const level of levels) {
+    member.level = level;
     const stats = characterSnapshotTotalStats(member.classId, {
       inventory: member.inventory,
       magic: member.magic,
@@ -21995,8 +21764,7 @@ function applyBossPartyExperienceReward(member, xp, now) {
       battle: {},
     });
     Object.assign(member, stats, { hp: stats.maxHp, mp: stats.maxMp });
-    nextLevelXp = xpForNextLevel(member.game.progress.level);
-    if (member.classId === bossPartyControlledClassId()) triggerLevelUpFx(now, member.level);
+    if (member.classId === bossPartyControlledClassId()) triggerLevelUpFx(now, level);
   }
   return levels;
 }
@@ -22005,9 +21773,8 @@ function rollBossPartyZoneDrops(member, zone, enemy) {
   const added = [];
   const ignored = [];
   const candidates = zoneDropCandidates(zone, enemy);
-  for (const { item, chance } of candidates) {
-    if (Math.random() >= chance) continue;
-    addBossPartyZoneDropItem(member, item, added, ignored);
+  for (const candidate of rollChanceTable(candidates)) {
+    addBossPartyZoneDropItem(member, candidate.item, added, ignored);
   }
   updateBossPartyDropPity(member, zone, candidates, added, ignored);
   return { added, ignored };
@@ -22015,13 +21782,14 @@ function rollBossPartyZoneDrops(member, zone, enemy) {
 
 function updateBossPartyDropPity(member, zone, candidates, added, ignored) {
   if (!zone || !candidates.length) return;
-  if (added.length || ignored.length) {
+  const receivedDrop = added.length > 0 || ignored.length > 0;
+  if (receivedDrop) {
     member.game.dropPity[zone.id] = 0;
     return;
   }
-  const dryKills = Math.max(0, Math.trunc(Number(member.game.dropPity[zone.id]) || 0)) + 1;
+  const dryKills = advanceDropPity(member.game.dropPity[zone.id], false);
   member.game.dropPity[zone.id] = dryKills;
-  if (dryKills < DROP_PITY_KILLS) return;
+  if (!shouldForceDropPity(dryKills, DROP_PITY_KILLS)) return;
   const forced = weightedDropCandidate(candidates);
   if (!forced) return;
   addBossPartyZoneDropItem(member, forced.item, added, ignored);
@@ -22620,8 +22388,7 @@ function enemyStunned(enemy, now = performance.now()) {
 }
 
 function scaleEnemyPhysicalDamage(damage, enemy, now = performance.now()) {
-  const scaled = Math.trunc(Math.max(0, Number(damage) || 0) * (enemyStunned(enemy, now) ? 1.5 : 1));
-  return Math.max(0, scaled);
+  return scalePhysicalDamageForStun(damage, enemyStunned(enemy, now));
 }
 
 function tryApplyTwinDrakeStun(enemy, learned, now = performance.now()) {
@@ -22923,7 +22690,7 @@ function updatePendingTwinDrakeHits(now) {
     }
     const damage = scaleEnemyPhysicalDamage(entry.rawDamage, battle.enemy, now);
     if (damage <= 0) continue;
-    reduceEnemyHp(battle.enemy, damage);
+    applyCombatDamageEvent(enemyDamageEvent(damage), now, { enemy: battle.enemy });
     syncBattleEnemyHpToSwarm();
     strikeGroupDungeonSwarmEnemy(battle.enemy, now);
     playMonsterSfx("flinch");
@@ -23012,20 +22779,18 @@ function chargedTwinDrakeAttack(now) {
 function warriorApplyPhysicalHit(skill, learned, damage, now) {
   const battle = state.battle;
   const enemy = battle.enemy;
+  const attackerLabel = skill.id === "None" ? "Warrior" : skill.label;
   const scaled = scaleEnemyPhysicalDamage(damage, enemy, now);
   if (scaled <= 0) {
-    addCombatText("enemy", "Miss", "miss", now);
-    pushBattleLog(`${skill.id === "None" ? "Warrior" : skill.label} misses ${enemy.name}.`);
+    applyCombatEvents(physicalAttackMissEvents(attackerLabel, enemy.name), now, { enemy });
     rollSlayingChargeAfterAttack(now);
     return false;
   }
-  reduceEnemyHp(enemy, scaled);
   setEnemyAction("struck", true, now);
   playMonsterSfx("flinch");
   if (skill.id === "TwinDrakeBlade" || skill.id === "FlamingSword" || skill.id === "None") playWeaponHitSfx();
   else if (!playSpellSfx(skill.id, "impact", { volume: 0.48 })) playWeaponHitSfx();
-  addCombatText("enemy", scaled, "damage", now);
-  pushBattleLog(`${skill.id === "None" ? "Warrior" : skill.label} hits ${enemy.name} for ${scaled}.`);
+  applyCombatEvents(physicalAttackHitEvents(attackerLabel, enemy.name, scaled), now, { enemy });
   if (enemy.hp > 0) applyCrystalFreezingAttackProc(battle.player, enemy, now);
   if (learned) levelWarriorMagic(skill, learned, now);
   levelPassiveWeaponMagic(now);
@@ -23068,17 +22833,33 @@ function warriorAttack(now) {
 
   if (learned) commitWarriorSpellUse(skill, learned, cost, now);
   battle.lastPlayerAttackCooldownMs = playerWeaponAttackCooldownMs(now, skill);
-  if (!rollHit(battle.player.accuracy, battle.enemy.agility)) {
-    addCombatText("enemy", "Miss", "miss", now);
-    pushBattleLog(`${skill.id === "None" ? "Warrior" : skill.label} misses ${battle.enemy.name}.`);
-    rollSlayingChargeAfterAttack(now);
-    return true;
-  }
-  const damage = learned
-    ? (isHalfMoonAttackSkill(skill)
+  const attackerLabel = skill.id === "None" ? "Warrior" : skill.label;
+
+  let damage = 0;
+  if (learned) {
+    if (!rollHit(battle.player.accuracy, battle.enemy.agility)) {
+      applyCombatEvents(physicalAttackMissEvents(attackerLabel, battle.enemy.name), now, { enemy: battle.enemy });
+      rollSlayingChargeAfterAttack(now);
+      return true;
+    }
+    damage = isHalfMoonAttackSkill(skill)
       ? rollDamage(battle.player.dc, enemyPhysicalDefence(battle.enemy), battle.player.luck)
-      : rollWarriorMagicDamage(skill, learned, battle.player, battle.enemy))
-    : rollDamage(battle.player.dc, enemyPhysicalDefence(battle.enemy), battle.player.luck);
+      : rollWarriorMagicDamage(skill, learned, battle.player, battle.enemy);
+  } else {
+    const swing = resolvePhysicalAttack(
+      battle.player.accuracy,
+      battle.enemy.agility,
+      battle.player.dc,
+      enemyPhysicalDefence(battle.enemy),
+      battle.player.luck,
+    );
+    if (!swing.hit) {
+      applyCombatEvents(physicalAttackMissEvents(attackerLabel, battle.enemy.name), now, { enemy: battle.enemy });
+      rollSlayingChargeAfterAttack(now);
+      return true;
+    }
+    damage = swing.damage;
+  }
   if (!warriorApplyPhysicalHit(skill, learned, damage, now)) return true;
   if (skill.id === "TwinDrakeBlade" && charged && battle.enemy?.hp > 0) {
     queueTwinDrakeSecondHit({ classId: battle.combatClass }, learned, damage, now);
@@ -23224,7 +23005,7 @@ function bossPartyHalfMoonSplash(member, skill, learned, primaryEnemy, now) {
       pushBattleLog(`${member.classId} Half Moon misses ${swarmEnemy.name}.`);
       continue;
     }
-    reduceSwarmEnemyHp(swarmEnemy, damage, now);
+    applyCombatDamageEvent(swarmEnemyDamageEvent(swarmEnemy.id, damage), now, { swarmEnemy });
     addSwarmEnemyCombatText(swarmEnemy, damage, "damage", now);
     strikeGroupDungeonSwarmEnemy(entity, now);
     playMonsterSfx("flinch", swarmEnemy, bossPartySfxParams(member, 0.42, 80));
@@ -23757,11 +23538,6 @@ function applyEnemyPoison(enemy, poison, now = performance.now()) {
   return true;
 }
 
-function rollMagicHit(enemy) {
-  const magicResist = Math.max(0, Math.min(CRYSTAL_MAGIC_RESIST_WEIGHT, Number(enemy?.magicResist) || 0));
-  return magicResist <= 0 || randomInt(0, CRYSTAL_MAGIC_RESIST_WEIGHT - 1) >= magicResist;
-}
-
 function crystalMagicMultiplier(skill, learned) {
   return (Number(skill.multiplierBase) || 1) + (Number(learned?.level) || 0) * (Number(skill.multiplierBonus) || 0);
 }
@@ -23862,12 +23638,12 @@ function wizardAttack(now) {
   }
   const { spell, learned, cost, cooldownWaiting } = attackSpell;
   const atlas = state.wizardSpellAtlases[spell.id] ?? null;
-  if (cooldownWaiting) {
-    wizardWeaponAttack(now);
-    return;
-  }
-  if ((battle.player?.mp ?? 0) < cost) {
-    wizardWeaponAttack(now, spell);
+  if (resolveSpellCastWeaponFallback({
+    cooldownWaiting,
+    playerMp: battle.player?.mp ?? 0,
+    spellCost: cost,
+  }) === "weapon") {
+    wizardWeaponAttack(now, (battle.player?.mp ?? 0) < cost ? spell : null);
     return;
   }
 
@@ -23926,24 +23702,21 @@ function wizardWeaponAttack(now, failedSpell = null) {
     addCombatText("player", "No MP", "mana", now);
   }
 
-  if (!rollHit(battle.player.accuracy, battle.enemy.agility)) {
-    addCombatText("enemy", "Miss", "miss", now);
-    pushBattleLog(`Wizard swings ${weaponName} at ${battle.enemy.name} but misses.`);
+  const swing = resolvePhysicalAttack(
+    battle.player.accuracy,
+    battle.enemy.agility,
+    battle.player.dc,
+    enemyPhysicalDefence(battle.enemy),
+    battle.player.luck,
+  );
+  if (!swing.hit || swing.damage <= 0) {
+    applyCombatEvents(weaponSwingMissEvents("Wizard", weaponName, battle.enemy.name), now, { enemy: battle.enemy });
     return;
   }
-
-  const damage = rollDamage(battle.player.dc, enemyPhysicalDefence(battle.enemy), battle.player.luck);
-  if (damage <= 0) {
-    addCombatText("enemy", "Miss", "miss", now);
-    pushBattleLog(`Wizard swings ${weaponName} at ${battle.enemy.name} but misses.`);
-    return;
-  }
-  reduceEnemyHp(battle.enemy, damage);
   setEnemyAction("struck", true, now);
   playMonsterSfx("flinch");
   playWeaponHitSfx();
-  addCombatText("enemy", damage, "damage", now);
-  pushBattleLog(`Wizard hits ${battle.enemy.name} with ${weaponName} for ${damage}.`);
+  applyCombatEvents(weaponSwingHitEvents("Wizard", weaponName, battle.enemy.name, swing.damage), now, { enemy: battle.enemy });
   if (battle.enemy.hp > 0) applyCrystalFreezingAttackProc(battle.player, battle.enemy, now);
 
   if (battle.enemy.hp <= 0) {
@@ -24903,17 +24676,10 @@ function rollTaoistPetAttackResult(pet, enemy) {
 function applyTaoistPetAttackResult(pet, enemy, result, now, options = {}) {
   const offline = Boolean(options.offline);
   const bossParty = Boolean(options.bossParty);
+  const context = { enemy };
   if (!result.hit || result.damage <= 0) {
-    if (!offline) {
-      addCombatText("enemy", "Miss", "miss", now);
-      pushBattleLog(`${pet.name} misses ${enemy.name}.`);
-    }
+    if (!offline) applyCombatEvents(petAttackMissEvents(pet.name, enemy.name), now, context);
     return;
-  }
-  reduceEnemyHp(enemy, result.damage);
-  if (bossParty) {
-    syncBattleEnemyHpToSwarm();
-    strikeGroupDungeonSwarmEnemy(enemy, now);
   }
   if (!offline) {
     setEnemyAction("struck", true, now);
@@ -24921,8 +24687,13 @@ function applyTaoistPetAttackResult(pet, enemy, result, now, options = {}) {
     if (!options.skipHitSfx) {
       playTaoPetSfx("hit", { volume: 0.38, throttleMs: 120, pet });
     }
-    addCombatText("enemy", result.damage, "damage", now);
-    pushBattleLog(`${pet.name} hits ${enemy.name} for ${result.damage}.`);
+    applyCombatEvents(petAttackHitEvents(pet.name, enemy.name, result.damage), now, context);
+  } else {
+    applyCombatDamageEvent(enemyDamageEvent(result.damage), now, context);
+  }
+  if (bossParty) {
+    syncBattleEnemyHpToSwarm();
+    strikeGroupDungeonSwarmEnemy(enemy, now);
   }
   if (enemy.hp <= 0) {
     if (offline) return;
@@ -25350,24 +25121,21 @@ function taoistWeaponAttack(now, failedSpell = null) {
     addCombatText("player", "No MP", "mana", now);
   }
 
-  if (!rollHit(battle.player.accuracy, battle.enemy.agility)) {
-    addCombatText("enemy", "Miss", "miss", now);
-    pushBattleLog(`Taoist swings ${weaponName} at ${battle.enemy.name} but misses.`);
+  const swing = resolvePhysicalAttack(
+    battle.player.accuracy,
+    battle.enemy.agility,
+    battle.player.dc,
+    enemyPhysicalDefence(battle.enemy),
+    battle.player.luck,
+  );
+  if (!swing.hit || swing.damage <= 0) {
+    applyCombatEvents(weaponSwingMissEvents("Taoist", weaponName, battle.enemy.name), now, { enemy: battle.enemy });
     return;
   }
-
-  const damage = rollDamage(battle.player.dc, enemyPhysicalDefence(battle.enemy), battle.player.luck);
-  if (damage <= 0) {
-    addCombatText("enemy", "Miss", "miss", now);
-    pushBattleLog(`Taoist swings ${weaponName} at ${battle.enemy.name} but misses.`);
-    return;
-  }
-  reduceEnemyHp(battle.enemy, damage);
   setEnemyAction("struck", true, now);
   playMonsterSfx("flinch");
   playWeaponHitSfx();
-  addCombatText("enemy", damage, "damage", now);
-  pushBattleLog(`Taoist hits ${battle.enemy.name} with ${weaponName} for ${damage}.`);
+  applyCombatEvents(weaponSwingHitEvents("Taoist", weaponName, battle.enemy.name, swing.damage), now, { enemy: battle.enemy });
   if (battle.enemy.hp > 0) applyCrystalFreezingAttackProc(battle.player, battle.enemy, now);
   levelPassiveWeaponMagic(now);
 
@@ -25438,22 +25206,25 @@ function applyWizardBangSpellImpact(spell, impact, now, options = {}) {
       let anyHit = false;
       for (const swarmEnemy of swarmEnemies) {
         if (!rollMagicHit(swarmEnemy)) {
-          pushBattleLog(`${spell.label} misses ${swarmEnemy.name}.`);
+          applyCombatEvents(magicAttackMissEvents(spell.label, swarmEnemy.name), now);
           continue;
         }
         const damage = applyWizardMagicDefence(baseValue, swarmEnemy);
         if (damage <= 0) {
           addSwarmEnemyCombatText(swarmEnemy, "0", "damage", now);
-          pushBattleLog(`${spell.label} is resisted by ${swarmEnemy.name}.`);
+          applyCombatEvents(magicResistEvents(spell.label, swarmEnemy.name), now);
           continue;
         }
         anyHit = true;
-        reduceSwarmEnemyHp(swarmEnemy, damage, now);
         addSwarmEnemyCombatText(swarmEnemy, damage, "damage", now);
         const entity = swarmEnemyToBattleEntity(swarmEnemy);
         strikeGroupDungeonSwarmEnemy(entity, now);
         playMonsterSfx("flinch", swarmEnemy, sfx);
-        pushBattleLog(`${spell.label} hits ${swarmEnemy.name} for ${damage}.`);
+        applyCombatEvents(
+          magicAttackHitEvents(spell.label, swarmEnemy.name, damage, "enemy", "damage", { swarmId: swarmEnemy.id }),
+          now,
+          { swarmEnemy },
+        );
         maybeKillGroupDungeonSwarmEnemy(entity, now);
       }
       syncGroupDungeonPrimaryEnemy();
@@ -25478,21 +25249,17 @@ function applyWizardBangSpellImpact(spell, impact, now, options = {}) {
   const canApply = battle.enemy && battle.enemy.hp > 0 && battle.enemyRevealed;
   if (!canApply) return;
   if (!rollMagicHit(battle.enemy)) {
-    addCombatText("enemy", "Miss", "miss", now);
-    pushBattleLog(`${spell.label} misses ${battle.enemy.name}.`);
+    applyCombatEvents(magicAttackMissEvents(spell.label, battle.enemy.name), now);
     return;
   }
   const damage = applyWizardMagicDefence(baseValue, battle.enemy);
   if (damage <= 0) {
-    addCombatText("enemy", "0", "damage", now);
-    pushBattleLog(`${spell.label} is resisted by ${battle.enemy.name}.`);
+    applyCombatEvents(magicResistEvents(spell.label, battle.enemy.name), now);
     return;
   }
-  reduceEnemyHp(battle.enemy, damage);
   setEnemyAction("struck", true, now);
   playMonsterSfx("flinch");
-  addCombatText("enemy", damage, "damage", now);
-  pushBattleLog(`${spell.label} hits ${battle.enemy.name} for ${damage}.`);
+  applyCombatEvents(magicAttackHitEvents(spell.label, battle.enemy.name, damage), now, { enemy: battle.enemy });
   if (learned) {
     if (options.partyMember) bossPartyLevelMagicSkill(options.partyMember, spell, learned, now);
     else levelMagicSkill(spell, learned, now);
@@ -25524,15 +25291,12 @@ function updatePendingImpact(now) {
   const canApply = battle.enemy && battle.enemy.hp > 0 && battle.enemyRevealed;
   if (!canApply) return;
   if (!impact.hit) {
-    addCombatText("enemy", "Miss", "miss", now);
-    pushBattleLog(`${spell.label} misses ${battle.enemy.name}.`);
+    applyCombatEvents(magicAttackMissEvents(spell.label, battle.enemy.name), now);
     return;
   }
-  reduceEnemyHp(battle.enemy, impact.damage);
   setEnemyAction("struck", true, now);
   playMonsterSfx("flinch");
-  addCombatText("enemy", impact.damage, "damage", now);
-  pushBattleLog(`${spell.label} hits ${battle.enemy.name} for ${impact.damage}.`);
+  applyCombatEvents(magicAttackHitEvents(spell.label, battle.enemy.name, impact.damage), now, { enemy: battle.enemy });
   const learned = learnedMagic(spell.id);
   if (spell.id === "FrostCrunch" && impact.damage > 0 && learned) {
     applyFrostCrunchEffects(battle.enemy, learned, battle.player, now);
@@ -25712,16 +25476,9 @@ function applyMapLightningHitToMember(member, damage, now) {
 }
 
 function applyMapLightningHitToSoloPlayer(damage, now) {
-  const battle = state.battle;
   const target = enemyAttackTarget();
-  target.applyDamage(damage, now);
-  addCombatText(target.anchor, damage, "enemyDamage", now);
-  if (target.kind === "player" && battle.player.hp <= 0) {
-    finishBattle(now);
-    setPlayerAction("die", now);
-    playSfx("player.death", { volume: 0.58 });
-    pushBattleLog(`${battle.combatClass} falls.`);
-  }
+  applyIncomingTargetHit("Lightning", target, damage, now);
+  maybeFinishBattleAfterPlayerHit(target, now);
 }
 
 function applyMapLightningStrikeHit(effect, now) {
@@ -25866,17 +25623,14 @@ function applyGroundSpellTick(effect, now) {
   const spell = wizardCombatSpell(effect.spellId);
   const damage = applyWizardMagicDefence(effect.value, battle.enemy);
   if (damage <= 0) {
-    addCombatText("enemy", "0", "damage", now);
-    pushBattleLog(`${spell.label} is resisted by ${battle.enemy.name}.`);
+    applyCombatEvents(magicResistEvents(spell.label, battle.enemy.name), now);
     return;
   }
 
-  reduceEnemyHp(battle.enemy, damage);
   setEnemyAction("struck", true, now);
   playMonsterSfx("flinch");
   playSpellSfx(spell.id, "impact", { volume: 0.42, throttleMs: 160 }) || playSpellSfx(spell.id, "cast", { volume: 0.38, throttleMs: 160 });
-  addCombatText("enemy", damage, "damage", now);
-  pushBattleLog(`${spell.label} burns ${battle.enemy.name} for ${damage}.`);
+  applyCombatEvents(magicBurnEvents(spell.label, battle.enemy.name, damage), now, { enemy: battle.enemy });
 
   if (battle.enemy.hp <= 0) {
     setEnemyAction("die", false, now);
@@ -25893,11 +25647,10 @@ function applyGroundSpellTickToSwarmEnemy(effect, swarmEnemy, now) {
   const damage = applyWizardMagicDefence(effect.value, swarmEnemy);
   if (damage <= 0) {
     addSwarmEnemyCombatText(swarmEnemy, "0", "damage", now);
-    pushBattleLog(`${spell.label} is resisted by ${swarmEnemy.name}.`);
+    applyCombatEvents(magicResistEvents(spell.label, swarmEnemy.name), now);
     return;
   }
 
-  reduceSwarmEnemyHp(swarmEnemy, damage, now);
   const primary = groupDungeonPrimarySwarmEnemy();
   if (primary?.id === swarmEnemy.id && state.battle.enemy) {
     state.enemy.action = swarmEnemy.action;
@@ -25909,7 +25662,11 @@ function applyGroundSpellTickToSwarmEnemy(effect, swarmEnemy, now) {
   playMonsterSfx("flinch", swarmEnemy);
   playSpellSfx(spell.id, "impact", { volume: 0.42, throttleMs: 160 }) || playSpellSfx(spell.id, "cast", { volume: 0.38, throttleMs: 160 });
   addSwarmEnemyCombatText(swarmEnemy, damage, "damage", now);
-  pushBattleLog(`${spell.label} burns ${swarmEnemy.name} for ${damage}.`);
+  applyCombatEvents(
+    magicBurnEvents(spell.label, swarmEnemy.name, damage, "enemy", { swarmId: swarmEnemy.id }),
+    now,
+    { swarmEnemy },
+  );
 
   if (swarmEnemy.hp <= 0) {
     maybeKillGroupDungeonSwarmEnemy(swarmEnemyToBattleEntity(swarmEnemy), now);
@@ -25930,20 +25687,11 @@ function enemyAttack(now) {
   playMonsterSfx("attack");
   const { hit, damage } = resolveIncomingEnemyAttack(battle.enemy, target);
   if (!hit) {
-    addCombatText(target.anchor, "Miss", "miss", now);
-    pushBattleLog(`${battle.enemy.name} misses ${target.name}.`);
+    applyCombatEvents(physicalAttackMissEvents(battle.enemy.name, target.name, target.anchor), now, { target });
     return true;
   }
-  target.applyDamage(damage, now);
-  addCombatText(target.anchor, damage, "enemyDamage", now);
-  pushBattleLog(`${battle.enemy.name} hits ${target.name} for ${damage}.`);
-
-  if (target.kind === "player" && battle.player.hp <= 0) {
-    finishBattle(now);
-    setPlayerAction("die", now);
-    playSfx("player.death", { volume: 0.58 });
-    pushBattleLog(`${battle.combatClass} falls.`);
-  }
+  applyIncomingTargetHit(battle.enemy.name, target, damage, now);
+  maybeFinishBattleAfterPlayerHit(target, now);
   return true;
 }
 
@@ -25986,22 +25734,197 @@ function enemyAttackTarget() {
 
 // Crystal MapObject.GetArmour (ACAgility / MACAgility): miss when
 // Random.Next(defenderAgility + 1) > attackerAccuracy.
-function rollHit(accuracy, agility) {
-  const acc = Math.max(0, Math.trunc(Number(accuracy) || 0));
-  const agi = Math.max(0, Math.trunc(Number(agility) || 0));
-  return randomInt(0, agi) <= acc;
+function applyCombatDamageEvent(event, now = performance.now(), context = {}) {
+  const amount = Math.max(0, Math.trunc(Number(event.amount) || 0));
+  if (amount <= 0) return;
+  if (event.target === "enemy") {
+    const enemy = context.enemy ?? state.battle.enemy;
+    reduceEnemyHp(enemy, amount);
+    return;
+  }
+  if (event.target === "swarmEnemy") {
+    const swarmEnemy = context.swarmEnemy
+      ?? (event.swarmId ? findGroupDungeonSwarmEnemy(event.swarmId) : null);
+    if (swarmEnemy) reduceSwarmEnemyHp(swarmEnemy, amount, now);
+    return;
+  }
+  if (event.target === "player" || event.target === "pet" || event.target === "partyMember") {
+    context.target?.applyDamage?.(amount, now);
+  }
 }
 
-function resolvePhysicalAttack(attackerAccuracy, defenderAgility, attackStat, defenceStat, luck = 0) {
-  if (!rollHit(attackerAccuracy, defenderAgility)) return { hit: false, damage: 0 };
-  const damage = rollDamage(attackStat, defenceStat, luck);
-  return { hit: damage > 0, damage };
+function bossPartyIncomingStrikeTarget(partyEntity, now, options = {}) {
+  const { magicShield = false, displayName } = options;
+  const name = displayName ?? partyEntity.name ?? partyEntity.classId ?? "Party member";
+  if (partyEntity === state.battle.bossParty?.pet) {
+    return {
+      kind: "pet",
+      name,
+      anchor: "pet",
+      applyDamage: (amount, impactNow) => {
+        partyEntity.hp = Math.max(0, partyEntity.hp - amount);
+        setTaoPetAction("struck", true, impactNow);
+        if (partyEntity.hp <= 0) bossPartyMarkPetDead(impactNow);
+      },
+    };
+  }
+  if (partyEntity.classId === bossPartyControlledClassId()) {
+    return {
+      kind: "player",
+      name,
+      anchor: "player",
+      applyDamage: (amount, impactNow) => {
+        partyEntity.hp = Math.max(0, partyEntity.hp - amount);
+        if (magicShield) maybeNotifyMagicShieldStruck(null, impactNow);
+        setPlayerAction("struck", impactNow + 250, true);
+        playSfx("player.flinch", bossPartySfxParams(partyEntity, 0.45, 120));
+      },
+      onAfterHit: (impactNow) => {
+        if (partyEntity.hp <= 0) bossPartyMarkMemberDead(partyEntity, impactNow);
+      },
+    };
+  }
+  return {
+    kind: "partyMember",
+    name,
+    anchor: "enemy",
+    applyDamage: (amount, impactNow) => {
+      partyEntity.hp = Math.max(0, partyEntity.hp - amount);
+      if (magicShield) notifyWizardMagicShieldStruckOnHit(partyEntity, impactNow);
+      partyEntity.visualAction = "struck";
+      partyEntity.visualFrame = 0;
+      partyEntity.visualOneShot = true;
+      partyEntity.visualLastTick = impactNow;
+      playSfx("player.flinch", bossPartySfxParams(partyEntity, 0.45, 120));
+    },
+    onAfterHit: (impactNow) => {
+      if (partyEntity.hp <= 0) bossPartyMarkMemberDead(partyEntity, impactNow);
+    },
+  };
 }
 
-function enemyAttackDefenceType(enemy) {
-  if (enemy?.attackDefenceType === "MAC") return "MAC";
-  if (enemy?.attackDefenceType === "MACAgility") return "MACAgility";
-  return "ACAgility";
+function strikeTargetRefToIncoming(targetRef, now, options = {}) {
+  const entity = targetRef.entity;
+  if (targetRef.kind === "pet") {
+    return {
+      kind: "pet",
+      name: targetRef.logName ?? entity.name ?? "Pet",
+      anchor: "pet",
+      applyDamage: (amount, impactNow) => {
+        entity.hp = Math.max(0, entity.hp - amount);
+        setTaoPetAction("struck", true, impactNow);
+        if (entity.hp <= 0) {
+          if (bossPartyActiveFight()) bossPartyMarkPetDead(impactNow);
+          else markTaoistPetDead(impactNow);
+        }
+      },
+    };
+  }
+  if (targetRef.kind === "member") {
+    return bossPartyIncomingStrikeTarget(entity, now, {
+      magicShield: options.magicShield,
+      displayName: targetRef.logName,
+    });
+  }
+  return {
+    kind: "player",
+    name: targetRef.logName ?? state.battle.combatClass,
+    anchor: "player",
+    applyDamage: (amount, impactNow) => {
+      entity.hp = Math.max(0, entity.hp - amount);
+      if (options.magicShield) maybeNotifyMagicShieldStruck(null, impactNow);
+      setPlayerAction("struck", impactNow + 250, true);
+      playSfx("player.flinch", { volume: 0.45, throttleMs: 120, force: true });
+    },
+    onAfterHit: (impactNow) => {
+      if (entity.hp <= 0) {
+        finishBattle(impactNow);
+        setPlayerAction("die", impactNow);
+        playSfx("player.death", { volume: 0.58 });
+        pushBattleLog(`${state.battle.combatClass} falls.`);
+      }
+    },
+  };
+}
+
+function applyBossPartyIncomingStrike(attackerName, partyEntity, attackerEntity, now, options = {}) {
+  const { ranged = false, magicShield = false, logMiss = true, onHit, ...resolveExtras } = options;
+  const incoming = bossPartyIncomingStrikeTarget(partyEntity, now, { magicShield });
+  const defence = defenceTargetForIncomingAttack(partyEntity);
+  const resolveOpts = { now, ...resolveExtras };
+  const { hit, damage } = ranged
+    ? resolveIncomingEnemyRangedAttack(attackerEntity, defence, resolveOpts)
+    : resolveIncomingEnemyAttack(attackerEntity, defence, resolveOpts);
+  if (!hit) {
+    if (logMiss) applyIncomingTargetMiss(attackerName, incoming, now);
+    return false;
+  }
+  applyIncomingTargetHit(attackerName, incoming, damage, now);
+  incoming.onAfterHit?.(now);
+  onHit?.({ partyEntity, damage, now });
+  return true;
+}
+
+function applyStrikeTargetIncoming(attackerName, attackerEntity, targetRef, now, options = {}) {
+  const defence = targetRef.stats ?? defenceTargetForIncomingAttack(targetRef.entity);
+  const attackEntity = options.defenceType
+    ? { ...attackerEntity, attackDefenceType: options.defenceType }
+    : attackerEntity;
+  const resolveOpts = { now, ...(options.resolveOptions ?? {}) };
+  const { hit, damage } = options.ranged
+    ? resolveIncomingEnemyRangedAttack(attackEntity, defence, resolveOpts)
+    : resolveIncomingEnemyAttack(attackEntity, defence, resolveOpts);
+  const incoming = strikeTargetRefToIncoming(targetRef, now, options);
+  const presentation = { offsetX: options.offsetX ?? 0 };
+  if (!hit) {
+    applyIncomingTargetMiss(attackerName, incoming, now, presentation);
+    return false;
+  }
+  applyIncomingTargetHit(attackerName, incoming, damage, now, presentation);
+  incoming.onAfterHit?.(now);
+  options.onHit?.({ entity: targetRef.entity, damage, now, targetRef });
+  return true;
+}
+
+function applyIncomingTargetHit(attackerName, target, damage, now, { offsetX = 0 } = {}) {
+  const events = physicalAttackHitEvents(
+    attackerName,
+    target.name,
+    damage,
+    target.anchor,
+    "enemyDamage",
+    { damageTarget: target.kind },
+  );
+  if (offsetX) {
+    for (const event of events) {
+      if (event.type === "combatText") event.offsetX = offsetX;
+    }
+  }
+  applyCombatEvents(events, now, { target });
+}
+
+function applyIncomingTargetMiss(attackerName, target, now, { offsetX = 0 } = {}) {
+  const events = physicalAttackMissEvents(attackerName, target.name, target.anchor);
+  if (offsetX && events[0]?.type === "combatText") events[0].offsetX = offsetX;
+  applyCombatEvents(events, now, { target });
+}
+
+function maybeFinishBattleAfterPlayerHit(target, now) {
+  if (target.kind === "player" && state.battle.player.hp <= 0) {
+    finishBattle(now);
+    setPlayerAction("die", now);
+    playSfx("player.death", { volume: 0.58 });
+    pushBattleLog(`${state.battle.combatClass} falls.`);
+  }
+}
+
+function applyCombatEvents(events, now = performance.now(), context = {}) {
+  for (const event of events) {
+    if (event.type === "log") pushBattleLog(event.text);
+    else if (event.type === "combatText") {
+      addCombatText(event.anchor, event.text, event.kind, now, event.offsetX ?? 0);
+    } else if (event.type === "damage") applyCombatDamageEvent(event, now, context);
+  }
 }
 
 function enemyAttackDefenceGuidance(enemy) {
@@ -26022,19 +25945,6 @@ function enemyAttackDefenceGuidance(enemy) {
   return parts.join(" · ");
 }
 
-function incomingAttackDefenceStat(target, defenceType) {
-  if (defenceType === "MACAgility" || defenceType === "MAC") return target.amc ?? target.ac;
-  return target.ac;
-}
-
-// Crystal monster swings vs players/pets: ACAgility (physical AC) or, for
-// FlamingWooma/WoomaTaurus, MACAgility (magic-resist roll + agility dodge + MAC).
-// Evil Centipede uses MAC (magic-resist roll + MAC, no agility dodge).
-function resolveIncomingEnemyRangedAttack(enemy, target, options = {}) {
-  const rangedType = enemy?.rangedAttackDefenceType || enemy?.attackDefenceType || "MAC";
-  return resolveIncomingEnemyAttack({ ...enemy, attackDefenceType: rangedType }, target, { ...options, ranged: true });
-}
-
 function incomingDamageReductionPercent(target, now = performance.now()) {
   const buffEntity = target?.__buffEntity ?? target;
   const classId = buffEntity?.classId
@@ -26046,26 +25956,23 @@ function incomingDamageReductionPercent(target, now = performance.now()) {
 }
 
 function applyIncomingDamageReduction(damage, target, now = performance.now()) {
-  const percent = incomingDamageReductionPercent(target, now);
-  if (percent <= 0) return damage;
-  return Math.max(0, Math.trunc(damage - (damage * percent) / 100));
+  return applyIncomingDamageReductionCore(damage, incomingDamageReductionPercent(target, now));
 }
 
 function resolveIncomingEnemyAttack(enemy, target, options = {}) {
-  const defenceType = enemyAttackDefenceType(enemy);
-  if ((defenceType === "MACAgility" || defenceType === "MAC") && !rollMagicHit({ magicResist: target.magicResist ?? 0 })) {
-    return { hit: false, damage: 0 };
-  }
-  if (defenceType !== "MAC" && !rollHit(enemy.accuracy, target.agility)) return { hit: false, damage: 0 };
-  const damage = applyIncomingDamageReduction(
-    rollDamage(
-      enemyAttackDamageStat(enemy, options),
-      incomingAttackDefenceStat(target, defenceType),
-      enemy.luck,
-    ),
-    target,
-  );
-  return { hit: damage > 0, damage };
+  return resolveIncomingEnemyAttackCore(enemy, target, {
+    ...options,
+    attackStat: enemyAttackDamageStat(enemy, options),
+    damageReductionPercent: incomingDamageReductionPercent(target, options.now ?? performance.now()),
+  });
+}
+
+function resolveIncomingEnemyRangedAttack(enemy, target, options = {}) {
+  return resolveIncomingEnemyRangedAttackCore(enemy, target, {
+    ...options,
+    attackStat: enemyAttackDamageStat(enemy, { ...options, ranged: true }),
+    damageReductionPercent: incomingDamageReductionPercent(target, options.now ?? performance.now()),
+  });
 }
 
 function addCombatText(anchor, text, kind = "damage", now = performance.now(), offsetX = 0) {
@@ -26214,17 +26121,13 @@ function awardEnemyRewards() {
 }
 
 function applyExperienceReward(xp) {
-  const levels = [];
-  state.game.progress.experience += xp;
-  let nextLevelXp = xpForNextLevel(state.game.progress.level);
-  while (Number.isFinite(nextLevelXp) && state.game.progress.experience >= nextLevelXp) {
-    state.game.progress.experience -= nextLevelXp;
-    state.game.progress.level += 1;
-    levels.push(state.game.progress.level);
+  const { progress, levels } = applyExperienceToProgress(state.game.progress, xp);
+  state.game.progress.level = progress.level;
+  state.game.progress.experience = progress.experience;
+  for (const level of levels) {
     restoreBattlePlayerResources();
-    triggerLevelUpFx(performance.now(), state.game.progress.level);
+    triggerLevelUpFx(performance.now(), level);
     sceneSignature = "";
-    nextLevelXp = xpForNextLevel(state.game.progress.level);
   }
   if (levels.length) void submitPrototypeStats("level-up");
   return levels;
@@ -26274,27 +26177,17 @@ function addLootNotice(text, kind = "item") {
 function rollRedThunderZumaDrops() {
   const added = [];
   const ignored = [];
-
-  const guaranteedId = ZUMA_THUNDER_GUARANTEED_DROP_IDS[
-    Math.floor(Math.random() * ZUMA_THUNDER_GUARANTEED_DROP_IDS.length)
-  ];
-  const guaranteed = itemDefinition(guaranteedId);
-  if (guaranteed) addZoneDropItem(guaranteed, added, ignored);
-
-  for (const itemId of RED_THUNDER_ZUMA_BONUS_WEAPON_IDS) {
-    if (Math.random() >= RED_THUNDER_ZUMA_BONUS_WEAPON_CHANCE) continue;
+  const itemIds = rollRedThunderZumaDropIds({
+    guaranteedIds: ZUMA_THUNDER_GUARANTEED_DROP_IDS,
+    bonusWeaponIds: RED_THUNDER_ZUMA_BONUS_WEAPON_IDS,
+    bonusWeaponChance: RED_THUNDER_ZUMA_BONUS_WEAPON_CHANCE,
+    zumaWeaponIds: RED_THUNDER_ZUMA_ZUMA_WEAPON_IDS,
+    zumaWeaponChance: RED_THUNDER_ZUMA_ZUMA_WEAPON_CHANCE,
+  });
+  for (const itemId of itemIds) {
     const item = itemDefinition(itemId);
     if (item) addZoneDropItem(item, added, ignored);
   }
-
-  if (Math.random() < RED_THUNDER_ZUMA_ZUMA_WEAPON_CHANCE) {
-    const zumaId = RED_THUNDER_ZUMA_ZUMA_WEAPON_IDS[
-      Math.floor(Math.random() * RED_THUNDER_ZUMA_ZUMA_WEAPON_IDS.length)
-    ];
-    const zumaWeapon = itemDefinition(zumaId);
-    if (zumaWeapon) addZoneDropItem(zumaWeapon, added, ignored);
-  }
-
   return { added, ignored };
 }
 
@@ -26303,60 +26196,31 @@ function rollZoneDrops(zone, enemy = state.battle.enemy) {
   const ignored = [];
   if (!zone) return { added, ignored };
   const candidates = zoneDropCandidates(zone, enemy);
-  for (const { item, chance } of candidates) {
-    if (Math.random() >= chance) continue;
-    addZoneDropItem(item, added, ignored);
+  for (const candidate of rollChanceTable(candidates)) {
+    addZoneDropItem(candidate.item, added, ignored);
   }
   updateDropPity(zone, candidates, added, ignored);
   return { added, ignored };
 }
 
 function zoneDropCandidates(zone, enemy = null) {
-  return state.itemData.items
-    .filter((item) => item.drop?.zones?.includes(zone.id))
-    .map((item) => {
-      const zoneChance = item.drop?.chances?.[zone.id];
-      const enemyChance = item.drop?.enemyChances?.[String(enemy?.id)]?.[zone.id];
-      return {
-        item,
-        chance: Math.max(
-          0,
-          Math.min(
-            1,
-            Math.max(Number(zoneChance ?? item.drop?.chance) || 0, Number(enemyChance) || 0),
-          ),
-        ),
-      };
-    });
+  return buildZoneDropCandidates(state.itemData.items, zone.id, enemy?.id);
 }
 
 function updateDropPity(zone, candidates, added, ignored) {
   if (!zone || candidates.length === 0) return;
-  if (added.length || ignored.length) {
+  const receivedDrop = added.length > 0 || ignored.length > 0;
+  if (receivedDrop) {
     state.game.dropPity[zone.id] = 0;
     return;
   }
-
-  const dryKills = Math.max(0, Math.trunc(Number(state.game.dropPity[zone.id]) || 0)) + 1;
+  const dryKills = advanceDropPity(state.game.dropPity[zone.id], false);
   state.game.dropPity[zone.id] = dryKills;
-  if (dryKills < DROP_PITY_KILLS) return;
-
+  if (!shouldForceDropPity(dryKills, DROP_PITY_KILLS)) return;
   const forced = weightedDropCandidate(candidates);
   if (!forced) return;
   addZoneDropItem(forced.item, added, ignored);
   state.game.dropPity[zone.id] = 0;
-}
-
-function weightedDropCandidate(candidates) {
-  const weighted = candidates.filter((candidate) => candidate.chance > 0);
-  if (!weighted.length) return candidates[Math.floor(Math.random() * candidates.length)] ?? null;
-  const total = weighted.reduce((sum, candidate) => sum + candidate.chance, 0);
-  let roll = Math.random() * total;
-  for (const candidate of weighted) {
-    roll -= candidate.chance;
-    if (roll <= 0) return candidate;
-  }
-  return weighted.at(-1) ?? null;
 }
 
 function addZoneDropItem(item, added, ignored) {
@@ -26610,6 +26474,7 @@ function normalizeHotbarSlots() {
 }
 
 function renderHotbar() {
+  if (inventoryDragState) return;
   normalizeHotbarSlots();
   const signature = JSON.stringify({
     autoPotionSlots: autoPotionSlotLimit(),

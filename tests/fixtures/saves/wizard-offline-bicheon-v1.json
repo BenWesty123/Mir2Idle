@@ -1,0 +1,140 @@
+{
+  "version": 1,
+  "savedAt": 0,
+  "activeCharacterId": "Wizard",
+  "characters": {
+    "Warrior": {
+      "classId": "Warrior",
+      "game": {
+        "mode": "town",
+        "activeZoneId": null,
+        "kills": 0,
+        "zoneKills": 0,
+        "distance": 0,
+        "playtimeMs": 0,
+        "progress": { "level": 1, "experience": 0, "gold": 0 },
+        "dropPity": {},
+        "bossKills": {},
+        "bossRespawns": {},
+        "recentLoot": []
+      },
+      "inventory": {
+        "gold": 0,
+        "pagesUnlocked": 1,
+        "maxSlots": 40,
+        "nextInstanceId": 1,
+        "items": [],
+        "equipment": {}
+      },
+      "hotbar": { "slots": [null, null, null, null, null, null] },
+      "magic": { "learned": {} },
+      "battle": { "running": false, "paused": false }
+    },
+    "Wizard": {
+      "classId": "Wizard",
+      "game": {
+        "mode": "zone",
+        "activeZoneId": "zone-bicheon-1",
+        "kills": 38,
+        "zoneKills": 38,
+        "distance": 900,
+        "playtimeMs": 540000,
+        "progress": { "level": 12, "experience": 80, "gold": 650 },
+        "dropPity": {},
+        "bossKills": {},
+        "bossRespawns": {},
+        "recentLoot": []
+      },
+      "inventory": {
+        "gold": 650,
+        "pagesUnlocked": 1,
+        "maxSlots": 40,
+        "nextInstanceId": 3,
+        "items": [
+          { "id": "item-1", "itemId": "wooden-sword", "quantity": 1, "slot": 0 }
+        ],
+        "equipment": {
+          "weapon": "item-1",
+          "armour": null,
+          "helmet": null,
+          "torch": null,
+          "necklace": null,
+          "braceletL": null,
+          "braceletR": null,
+          "ringL": null,
+          "ringR": null,
+          "amulet": null,
+          "belt": null,
+          "boots": null,
+          "stone": null,
+          "mount": null
+        }
+      },
+      "hotbar": { "slots": [null, null, null, null, null, null] },
+      "magic": {
+        "learned": {
+          "FireBall": {
+            "spellId": "FireBall",
+            "level": 1,
+            "experience": 0,
+            "key": null,
+            "autoCast": true,
+            "castReadyAt": 0,
+            "learnedAt": 1
+          }
+        }
+      },
+      "battle": {
+        "running": true,
+        "paused": false,
+        "playerHp": 120,
+        "playerMp": 200
+      }
+    },
+    "Taoist": {
+      "classId": "Taoist",
+      "game": {
+        "mode": "town",
+        "activeZoneId": null,
+        "kills": 0,
+        "zoneKills": 0,
+        "distance": 0,
+        "playtimeMs": 0,
+        "progress": { "level": 1, "experience": 0, "gold": 0 },
+        "dropPity": {},
+        "bossKills": {},
+        "bossRespawns": {},
+        "recentLoot": []
+      },
+      "inventory": {
+        "gold": 0,
+        "pagesUnlocked": 1,
+        "maxSlots": 40,
+        "nextInstanceId": 1,
+        "items": [],
+        "equipment": {}
+      },
+      "hotbar": { "slots": [null, null, null, null, null, null] },
+      "magic": { "learned": {} },
+      "battle": { "running": false, "paused": false }
+    }
+  },
+  "account": {
+    "storage": { "pagesUnlocked": 1, "page2Purchased": false, "maxSlots": 80, "nextInstanceId": 1, "items": [] },
+    "upgrades": { "tiers": {} },
+    "rebirthPoints": 0,
+    "bossRespawns": {},
+    "stats": {
+      "rebirthCount": 0,
+      "rebirthPointsGained": 0,
+      "rebirthPointsSpent": 0,
+      "bossKills": {}
+    }
+  },
+  "settings": {
+    "musicEnabled": false,
+    "musicVolume": 0,
+    "sfxEnabled": false,
+    "sfxVolume": 0
+  }
+}

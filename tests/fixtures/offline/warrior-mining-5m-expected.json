@@ -1,0 +1,24 @@
+{
+  "swings": 187,
+  "hits": 16,
+  "elapsedMs": 299200,
+  "drops": {
+    "Silver Ore P9": 1,
+    "Black Iron Ore P7": 1,
+    "Black Iron Ore P10": 1,
+    "Copper Ore P8": 2,
+    "Silver Ore P3": 1,
+    "Black Iron Ore P2": 1,
+    "Black Iron Ore P3": 1,
+    "Gold Ore P1": 1,
+    "Gold Ore P10": 1,
+    "Copper Ore P7": 1,
+    "Gold Ore P6": 1,
+    "Silver Ore P1": 1,
+    "Copper Ore P1": 1,
+    "Copper Ore P10": 1,
+    "Gold Ore P4": 1
+  },
+  "ignoredDrops": {},
+  "inventoryItems": 18
+}

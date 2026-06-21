@@ -9,8 +9,9 @@ There is NO `src/game/` split anymore. It was a dead duplicate that the browser 
 
 ## Run and verify
 - Dev server: `npm run dev` (PowerShell: `npm.cmd run dev`), then open http://localhost:4177
-- ALWAYS run before claiming a change is done: `npm run check` (lint + syntax-check the live monolith + unit tests). It must pass.
+- ALWAYS run before claiming a change is done: `npm run check` (lint + syntax-check the live monolith + unit tests + offline Playwright fixtures). It must pass.
 - For `app.monolith.js` changes, also run `npm run smoke` (with `npm run dev` running): it boots the game in headless Chromium and fails on any console/page error - the only automated catch for runtime regressions, which `check` cannot see.
+- Offline regression pins: `npm run fixture:offline` (warrior/wizard/taoist Bicheon zone + warrior mining 5m saves; `RECORD=1` to refresh expected JSON). Group dungeons have no offline simulation.
 
 ## Releasing to itch.io
 - Release with ONE command: `npm run release:itch` (PowerShell: `npm.cmd run release:itch`). It audits assets, builds the package, and then **boots the actual packaged build in a headless browser** (`verify:itch:build`). If that boot check is RED, the release no longer matches the tested dev build - **do NOT upload**; fix it first.

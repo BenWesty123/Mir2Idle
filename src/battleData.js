@@ -246,6 +246,9 @@ export function addRange(target, source) {
   target[1] += Number(source[1]) || 0;
 }
 
+/** Max successful smith duplicate combines (+5). Gems/orbs use bonusStats separately. */
+export const SMITH_COMBINE_STAT_CAP = 5;
+
 export function sanitizeItemBonusStats(stats) {
   const bonusStats = {};
   for (const key of ["dc", "mc", "sc", "ac", "amc"]) {
@@ -262,4 +265,9 @@ export function sanitizeItemBonusStats(stats) {
     bonusStats[key] = Math.trunc(Number(stats?.[key]) || 0);
   }
   return bonusStats;
+}
+
+/** Smith-combine bonuses only (same shape as bonusStats). */
+export function sanitizeSmithBonusStats(stats) {
+  return sanitizeItemBonusStats(stats);
 }

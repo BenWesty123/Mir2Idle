@@ -1,0 +1,68 @@
+{
+  "version": 1,
+  "savedAt": 1710000000000,
+  "activeCharacterId": "Warrior",
+  "characters": {
+    "Warrior": {
+      "classId": "Warrior",
+      "game": {
+        "mode": "town",
+        "activeZoneId": null,
+        "kills": 12,
+        "zoneKills": 5,
+        "distance": 0,
+        "playtimeMs": 60000,
+        "progress": { "level": 3, "experience": 40, "gold": 500 },
+        "dropPity": { "zone-bicheon-1": 99, "not-a-zone": 4 },
+        "bossKills": { "zone-wooma-temple-kr": 2, "fake-zone": 9 },
+        "bossRespawns": { "zone-wooma-temple-kr": 1710001000000, "fake-zone": 1 }
+      },
+      "inventory": {
+        "gold": 500,
+        "pagesUnlocked": 1,
+        "maxSlots": 40,
+        "nextInstanceId": 2,
+        "items": [
+          { "id": "item-1", "itemId": "wooden-sword", "quantity": 1, "slot": 0 }
+        ],
+        "equipment": {
+          "weapon": null,
+          "armour": null,
+          "helmet": null,
+          "torch": null,
+          "necklace": null,
+          "braceletL": null,
+          "braceletR": null,
+          "ringL": null,
+          "ringR": null,
+          "amulet": null,
+          "belt": null,
+          "boots": null,
+          "stone": null,
+          "mount": null
+        }
+      },
+      "hotbar": { "slots": [null, null, null, null, null, null] },
+      "magic": { "learned": {} },
+      "battle": { "running": false, "paused": false }
+    }
+  },
+  "account": {
+    "storage": { "pagesUnlocked": 1, "page2Purchased": false, "maxSlots": 80, "nextInstanceId": 1, "items": [] },
+    "upgrades": { "tiers": {} },
+    "rebirthPoints": 0,
+    "bossRespawns": {},
+    "stats": {
+      "rebirthCount": 1,
+      "rebirthPointsGained": 5,
+      "rebirthPointsSpent": 2,
+      "bossKills": { "zone-bug-cave-kr": 1, "ignored-zone": 3 }
+    }
+  },
+  "settings": {
+    "musicEnabled": true,
+    "musicVolume": 0.5,
+    "sfxEnabled": true,
+    "sfxVolume": 0.55
+  }
+}

@@ -20,6 +20,426 @@ Use this format:
 - ...
 ```
 
+## 2026-06-20 - Auto (Cursor) - Wizard offline turn phase in core
+
+### Changed
+- `src/core/offlineProgress.js` — `resolveOfflineWizardTurnPhase`, `OFFLINE_WIZARD_DEFENCE_SPELL_ID`.
+- `offlineWizardAttack` delegates turn priority (Magic Shield → cast vs weapon fallback) to core.
+- Unit tests (164 total); wizard offline fixture unchanged (21 kills, dies ~227s).
+
+### Checked
+- `npm run check` green (4 offline fixtures).
+- `npm run smoke` green.
+
+### Suggested Next Step
+- Warrior learned-skill hits via combat event seam, or dead group-dungeon offline sim cleanup.
+
+## 2026-06-20 - Auto (Cursor) - Taoist offline queued spell + auto-summon priority
+
+### Changed
+- `src/core/offlineProgress.js` — `offlineTaoistQueuedSpellKind`, auto-summon order/helpers,
+  `offlineTaoistSummonPetDelayMs`.
+- `offlineTaoistAttack` uses core dispatch for queued spells and skeleton-before-shinsu autocast.
+- Unit tests (162 total); taoist offline fixture unchanged.
+
+### Checked
+- `npm run check` green (4 offline fixtures).
+- `npm run smoke` green.
+
+### Suggested Next Step
+- Wizard offline spell selection in core, or warrior learned-skill hits via combat event seam.
+
+## 2026-06-20 - Auto (Cursor) - Revert group-dungeon offline fixture (not a product feature)
+
+### Changed
+- Removed `party-bdd1` profile, save, expected JSON, test harness method, and
+  `fixture:offline-group` script. Group dungeons intentionally have no offline sim
+  (`applyOfflineProgress` shows notice and returns).
+- `AGENTS.md` notes group dungeons are excluded from offline fixture coverage.
+
+### Checked
+- `npm run check` green (4 offline fixtures: zone ×3 + mining).
+
+### Suggested Next Step
+- Continue core extraction (combat seam, Taoist offline turn logic) for solo zone/mining paths only.
+
+## 2026-06-20 - Auto (Cursor) - BDD group-dungeon offline browser fixture [REVERTED]
+
+### Changed
+- Added then reverted — see entry above. Do not re-add without explicit product decision.
+
+## 2026-06-20 - Auto (Cursor) - Taoist offline player-tank spell priority
+
+### Changed
+- `src/core/offlineProgress.js` — split `OFFLINE_TAOIST_SUPPORT_SPELL_ORDER` (player-tank main
+  action) from `OFFLINE_TAOIST_PET_SUPPORT_SPELL_ORDER` (appends SoulFireBall).
+- Monolith: shared `taoistOfflineCastSupportSpell` + `taoistPlayerTankAttackOffline` (secondary
+  SoulFireBall, then support order, then weapon); pet-support path reuses the same cast helper.
+- Unit tests for both spell orders (158 tests total).
+
+### Checked
+- `npm run check` green (taoist offline fixture unchanged: 35 kills / survives 5m).
+- `npm run smoke` green.
+
+### Suggested Next Step
+- Extract Taoist queued/summon offline branches, or add group-dungeon offline browser fixture.
+
+## 2026-06-20 - Auto (Cursor) - Live warrior basic swing via core resolver
+
+### Changed
+- `warriorAttack` basic weapon path (`!learned`) now uses `resolvePhysicalAttack` instead of
+  inline `rollHit` + `rollDamage`, matching offline warrior, wizard, and taoist weapon fallbacks.
+
+### Checked
+- `npm run check` green (156 unit tests + 4 offline fixtures).
+- `npm run smoke` green.
+
+### Suggested Next Step
+- Extract full Taoist offline turn tree to core, or add group-dungeon offline browser fixture.
+
+## 2026-06-20 - Auto (Cursor) - Mining offline fixture + Taoist pet-support spell order
+
+### Changed
+- Fixed broken `computeOfflineIncomingChunkDamage` in `src/core/offlineProgress.js` (orphaned body from prior edit).
+- `src/core/offlineProgress.js` — `OFFLINE_TAOIST_PET_SUPPORT_SPELL_ORDER`, `nextOfflineTaoistSupportSpellId`.
+- `taoistPetSupportAttackOffline` in monolith delegates spell pick to core helper.
+- Warrior mining offline browser fixture: save, profile, expected JSON (187 swings, 16 hits, seed `0x810adcee`).
+- `npm run fixture:offline-mining`; `fixture:offline` + `npm run check` include mining profile.
+- Unit tests for Taoist support spell order (156 tests total).
+
+### Checked
+- `npm run check` green (4 offline fixtures: warrior/wizard/taoist zone + warrior mining).
+- `npm run smoke` green.
+
+### Suggested Next Step
+- Extract full Taoist offline turn tree to core, or add group-dungeon offline browser fixture.
+
+## 2026-06-20 - Auto (Cursor) - Spell cast fallback + live weapon swing core resolver
+
+### Changed
+- `src/core/combat.js` — `resolveSpellCastWeaponFallback` (cooldown/MP → weapon vs cast).
+- Live + offline wizard attack paths share the fallback helper.
+- Live `wizardWeaponAttack` / `taoistWeaponAttack` use `resolvePhysicalAttack`.
+- Tests: spell fallback cases (155 unit tests total).
+
+### Checked
+- `npm run check` green (includes offline fixtures).
+
+### Suggested Next Step
+- Extract Taoist offline turn priority to core, or add mining offline browser fixture.
+
+## 2026-06-20 - Auto (Cursor) - Taoist offline browser fixture
+
+### Changed
+- `tests/fixtures/saves/taoist-offline-bicheon-v1.json` — level-20 Taoist, SoulFireBall autocast,
+  80 taoist-amulets, Bicheon 1 zone combat.
+- `taoist-bicheon` profile + expected JSON (35 kills, survives 5m, seed `0x710adcee`).
+- `npm run fixture:offline` now runs all three classes.
+
+### Checked
+- `npm run check` green (152 unit tests + warrior/wizard/taoist offline fixtures).
+
+### Suggested Next Step
+- Extract wizard/taoist offline spell-selection helpers to core, or migrate live
+  `reduceEnemyHp` paths to the outbound damage event seam.
+
+## 2026-06-20 - Auto (Cursor) - Offline fixtures wired into check + wizard profile
+
+### Changed
+- Replaced `tools/offline-warrior-fixture.mjs` with profile-driven `tools/offline-zone-fixture.mjs`.
+- `tests/fixtures/offline/profiles.json` — warrior + wizard Bicheon 5m profiles.
+- Wizard save/fixture: FireBall autocast, 21 kills then death at ~227s (seed `0x510adcee`).
+- `npm run fixture:offline` runs both; `npm run check` now includes offline fixtures.
+
+### Checked
+- `npm run check` green (152 unit tests + warrior/wizard offline fixtures).
+
+### Suggested Next Step
+- Taoist offline fixture, or extract wizard/taoist offline spell-selection decision tree.
+
+## 2026-06-20 - Auto (Cursor) - Warrior offline browser fixture
+
+### Changed
+- `tests/fixtures/saves/warrior-offline-bicheon-v1.json` — level-12 warrior in Bicheon 1 zone combat.
+- `tests/fixtures/offline/warrior-bicheon-5m-expected.json` — pinned 5-minute offline report
+  (26 kills, 378 xp, seed `0x10adbeef`).
+- `?testHarness=1` exposes `window.__lomTest.runOfflineZoneProgress` for Playwright.
+- `tools/offline-warrior-fixture.mjs` + `npm run fixture:offline-warrior` (starts dev server if needed;
+  set `RECORD=1` to refresh expected values).
+
+### Checked
+- `npm run fixture:offline-warrior`, `npm run check`, and `npm run smoke` green.
+
+### Suggested Next Step
+- Wire `fixture:offline-warrior` into CI/check, or extract wizard/taoist offline spell selection.
+
+## 2026-06-20 - Auto (Cursor) - Offline outbound damage via combat event seam
+
+### Changed
+- `src/core/combat.js` — `resolveMagicAttack`, `scalePhysicalDamageForStun`.
+- Monolith offline player attacks (warrior/wizard/taoist weapon + magic paths) use core
+  resolvers and apply damage through `applyOfflineEnemyDamage` → `applyCombatDamageEvent`.
+- Live `scaleEnemyPhysicalDamage` delegates stun scaling to core.
+
+### Checked
+- `npm run check` and `npm run smoke` green.
+
+### Suggested Next Step
+- Browser fixture pinning warrior offline DPS from a fixed save, or extract spell-selection
+  logic from offline wizard/taoist attack orchestration.
+
+## 2026-06-20 - Auto (Cursor) - Offline group-dungeon kill loop extraction
+
+### Changed
+- `src/core/offlineProgress.js` — group incoming/party DPS helpers,
+  `resolveOfflineGroupIncomingChunk`, `estimateOfflineGroupKillDurationMs`,
+  and pure `simulateOfflineGroupKillLoop` with monolith damage callbacks.
+- Monolith `offlineGroupSimulateKill` delegates to core; incoming chunk damage
+  applied via `resolveOfflineGroupIncomingChunk` instead of inline HP math.
+- Tests: group DPS + kill-loop characterization cases.
+
+### Checked
+- `npm run check` and `npm run smoke` green.
+
+### Suggested Next Step
+- Extract offline player attack resolution or add browser fixture pinning warrior
+  offline DPS from a fixed save.
+
+## 2026-06-20 - Auto (Cursor) - Offline fight tick loop extraction
+
+### Changed
+- `src/core/offlineProgress.js` — `computeOfflineFightTravelMs`, `advanceOfflineFightTick`,
+  `createOfflineFightEnemy`, `buildOfflineFightResult`, and pure `simulateOfflineFightLoop`
+  (callbacks for travel, attacks, recovery).
+- Monolith `simulateOfflineFight` delegates to core loop; stateful combat stays in shell
+  callbacks.
+- Tests: fight loop characterization cases (142 tests total).
+
+### Checked
+- `npm run check` and `npm run smoke` green.
+
+### Suggested Next Step
+- Extract offline warrior/wizard attack resolution or add browser fixture pinning full
+  offline DPS for a fixed warrior save.
+
+## 2026-06-20 - Auto (Cursor) - Offline zone loop characterization
+
+### Changed
+- `src/core/offlineProgress.js` — zone report factory, respawn/fight tick math,
+  `processOfflineZoneFightCycle`, `simulateOfflineZoneProgressLoop` (pure loop with
+  injectable fights), and `computeOfflinePetAttackDelayMs`.
+- Monolith `simulateOfflineProgress` delegates outer loop to core; fight tick delta
+  and pet attack delay use core helpers.
+- Tests: offline zone characterization fixture + 7 new unit cases (136 tests total).
+
+### Checked
+- `npm run check` and `npm run smoke` green.
+
+### Suggested Next Step
+- Extract `simulateOfflineFight` inner tick loop or add browser fixture test that
+  pins full warrior offline DPS against a fixed save.
+
+## 2026-06-20 - Auto (Cursor) - Boss-party exotic strikes + offline group math
+
+### Changed
+- Extended boss-party incoming strike helpers: magic-shield hooks, `applyStrikeTargetIncoming`
+  for AOE/splash/line targets, combat-text `offsetX` on events.
+- Wired boss melee/ranged paths through events: dark devil, bone lord, generic
+  `bossPartyEnemyAttack`, evil centipede, mass burst/splash, king scorpion line.
+- `src/core/offlineProgress.js` — extracted `offlineGroupHitChance`,
+  `offlineGroupAverageDamage`, `computeOfflineIncomingChunkDamage`.
+- Tests: offline group math cases (129 tests total).
+
+### Checked
+- `npm run check` and `npm run smoke` green.
+
+### Suggested Next Step
+- Add full offline zone characterization fixture test; extract solo `simulateOfflineFight`
+  tick loop once pinned.
+
+## 2026-06-20 - Auto (Cursor) - Boss-party swarm incoming events + offline kill report
+
+### Changed
+- `src/core/combat.js` — added `partyMemberDamageEvent`; physical hit events can target
+  player, pet, or party member.
+- Monolith: `bossPartyIncomingStrikeTarget` + `applyBossPartyIncomingStrike` shared helper;
+  `applySwarmEnemyStrikeToTarget` and generic swarm melee use combat events instead of
+  inline HP/log/combat-text mutation.
+- `src/core/offlineProgress.js` — `recordOfflineKillRewards` for pure report aggregation;
+  `awardOfflineEnemyRewards` delegates report counters to core.
+- Tests: party-member damage + offline kill report cases (126 tests total).
+
+### Checked
+- `npm run check` and `npm run smoke` green.
+
+### Suggested Next Step
+- Wire remaining boss-party solo strike paths through `applyBossPartyIncomingStrike`;
+  add offline zone characterization test before touching `simulateOfflineFight`.
+
+## 2026-06-20 - Auto (Cursor) - Incoming enemy attack core + offline event seam
+
+### Changed
+- `src/core/combat.js` — extracted `enemyAttackDefenceType`, `incomingAttackDefenceStat`,
+  `applyIncomingDamageReduction`, `resolveIncomingEnemyAttack`, and
+  `resolveIncomingEnemyRangedAttack` (injectable RNG + damage-reduction percent).
+- Monolith delegates incoming attack resolution to core; `offlineEnemyAttack` applies
+  player/pet damage via `applyCombatDamageEvent` instead of inline HP mutation.
+- Tests: 7 new cases in `combat.test.mjs` (125 tests total).
+
+### Checked
+- `npm run check` and `npm run smoke` green.
+
+### Suggested Next Step
+- Wire boss-party swarm incoming strikes through combat events; add offline zone
+  characterization test before extracting `simulateOfflineFight`.
+
+## 2026-06-20 - Auto (Cursor) - Phase 3 offline mining pure logic
+
+### Changed
+- `src/core/offlineProgress.js` — added `rebaseTransientTimestamp`, report count/text
+  helpers, `rollMiningOreItemId` / `rollMiningOrePurity`, pure
+  `simulateOfflineMiningSwings` (inventory via callback), and
+  `computeOfflineTravelTimeMs`.
+- Monolith `simulateOfflineMining` delegates to core swing sim; ore rolls and travel
+  time are thin wrappers; removed duplicate local report helpers.
+- Tests: 5 new cases in `offlineProgress.test.mjs` (118 tests total).
+
+### Checked
+- `npm run check` and `npm run smoke` green.
+
+### Suggested Next Step
+- Extract offline zone combat report helpers or `offlineTravelTimeMs` math; or wire
+  boss-party incoming damage through combat events.
+
+## 2026-06-20 - Auto (Cursor) - Game state + wizard/taoist combat events
+
+### Changed
+- `src/persistence/sanitizeGame.js` — `sanitizeCharacterGameState` (mode/zone/mining/progress).
+- Extended `src/core/combat.js`: `rollMagicHit`, weapon-swing events, magic resist/burn
+  events; wizard/taoist weapon attacks + wizard spell impacts use `applyCombatEvents`.
+- Tests: `persistenceGame.test.mjs`; expanded `combat.test.mjs` (90 tests total).
+
+### Checked
+- `npm run check` and `npm run smoke` green.
+
+### Suggested Next Step
+- Add `{ type: "damage", ... }` state events (not just presentation); extend to taoist
+  poison/soul fire and boss-party swarm paths.
+
+## 2026-06-20 - Auto (Cursor) - Inventory persistence + combat event spike
+
+### Changed
+- Phase 1 persistence: `src/persistence/sanitizeInventory.js` — inventory/storage
+  load normalization + entry field normalization.
+- Phase 2 spike: `src/core/combat.js` — `rollHit`, `resolvePhysicalAttack`, and
+  presentation event builders for physical miss/hit.
+- Monolith: `applyCombatEvents()` applies log/combatText events; warrior physical
+  hits/misses and basic enemy melee use the event path.
+- Tests: `persistenceInventory.test.mjs`, `combat.test.mjs` (83 tests total).
+
+### Checked
+- `npm run check` and `npm run smoke` green.
+
+### Suggested Next Step
+- Extend combat events to wizard/taoist attacks and damage application events;
+  or extract `sanitizeCharacterGameState` / game progress restore.
+
+## 2026-06-20 - Auto (Cursor) - Phase 1 persistence sanitizers
+
+### Changed
+- Continued Phase 1: extracted more save-load sanitizers into `src/persistence/`:
+  - `sanitizeCharacter.js` — hotbar, magic, battle, weapon refine, entry durability
+  - `sanitizeSettings.js` — settings normalization + `normalizedVolume` / `normalizedMusicMode`
+  - `sanitizeUpgrades.js` — account upgrade tiers + legacy rebirth stat migration
+- Monolith imports these modules; shell still applies results to `state`.
+- Tests: `persistenceCharacter.test.mjs`, `persistenceSettings.test.mjs`,
+  `persistenceUpgrades.test.mjs`.
+
+### Checked
+- `npm run check` — 75 tests pass.
+- `npm run smoke` — clean boot, no console errors.
+
+### Suggested Next Step
+- Phase 2: combat event seam, or extract inventory/storage sanitizers next.
+
+## 2026-06-20 - Auto (Cursor) - Phase 1 drop/party core
+
+### Changed
+- Phase 1: extracted pure drop-roll and party reward helpers into `src/core/`:
+  - `src/core/drops.js` — boss table rolls, zone candidate building, pity math,
+    weighted pity pick, Red Thunder Zuma id selection
+  - `src/core/party.js` — `splitPartyRewardAmount`
+- Monolith delegates drop selection to core; inventory awarding stays in shell.
+- `applyBossPartyExperienceReward` now uses `applyExperienceToProgress`.
+- Tests: `tests/drops.test.mjs`, `tests/party.test.mjs`.
+
+### Checked
+- `npm run check` — 60 tests pass.
+- `npm run smoke` — clean boot, no console errors.
+
+### Suggested Next Step
+- Continue Phase 1: more persistence sanitizers, or start Phase 2 event seam in combat.
+
+## 2026-06-20 - Auto (Cursor) - Phase 0 safety net
+
+### Changed
+- Phase 0 of `docs/core-migration-plan.md`: extracted first pure persistence/core
+  slices and wired the live monolith to import them:
+  - `src/persistence/saveFormat.js` — `SAVE_VERSION`, `parseSaveSnapshotText`
+  - `src/persistence/sanitizeStats.js` — boss-kill/respawn/account/drop-pity sanitizers
+  - `src/core/progress.js` — `applyExperienceToProgress` (XP leveling loop)
+- Monolith delegates to those modules; `applyExperienceReward` uses the core helper.
+- Added characterization tests: `tests/saveFormat.test.mjs`,
+  `tests/persistenceSanitize.test.mjs`, `tests/offlineProgress.test.mjs`, plus
+  `tests/fixtures/saves/minimal-v1.json`.
+- `npm run check` syntax-checks the new modules.
+
+### Checked
+- `npm run check` — 51 tests pass (was 40).
+- `npm run smoke` — clean boot, no console errors.
+
+### Notes / Risks
+- Full `simulateOfflineProgress` still lives in the monolith (needs `state` + zone
+  context); offline tests currently pin the pure XP slice. Broader offline
+  characterization comes in Phase 3 when that logic moves into `src/core/`.
+
+### Suggested Next Step
+- Phase 1: move more pure helpers from the monolith into `src/core/` (drop rolls,
+  attack-timing math not already in `battleData`).
+
+## 2026-06-20 - Claude (Cursor)
+
+### Changed
+- Trainer room fixes: removed the `toggle`-skill early return so Half Moon /
+  Thrusting level at the academy; reworked `trainingRoomCastGapMs` to pace by
+  attack speed (Fury no longer freezes the rotation for ~10 min) and skip
+  recasting Fury while its buff is active.
+- Item icons: ship a single committed atlas (`public/item-icons/items-atlas.*`)
+  instead of ~260 individual PNGs to stay under itch's 1000-file limit.
+  `itemIconHtml` crops the exact w x h frame at (sx,sy) into a span sized to the
+  fitted icon (no max(w,h) square -> no neighbour bleed); pixel-rounded offsets.
+  Packager excludes the individual frames and ships the atlas; boot-check updated.
+- Released `dist/lom-idle-v2-itch-20260620-183806.zip` (827 files, copy-only).
+- Decision doc: added `docs/core-migration-plan.md` - agreed to evolve in place
+  (extract a pure `src/core/`), NOT rewrite. Builds on `season-play-architecture.md`.
+
+### Checked
+- `npm run check` green; `npm run smoke` clean; `npm run release:itch` boot-verify
+  green. Screenshotted dev + packaged build: correct Bicheon town, centered icons,
+  no console errors.
+
+### Notes / Risks
+- Earlier in the session I broke the release by changing behavior at package time
+  (mapstamp trimming dropped the town stamp; a 32px square icon crop bled
+  neighbours). Root lesson: packaging must stay copy-only; never subset mapstamps.
+- The headless sim seam already exists (`runSimulationStep` vs `render`,
+  `suppressSimulationRender`, `simulateOfflineProgress`) - this is why in-place
+  core extraction is feasible rather than a rewrite.
+
+### Suggested Next Step
+- Phase 0 of `docs/core-migration-plan.md`: add characterization tests (save
+  round-trip/migration + deterministic offline progress) before moving any code.
+
 ## 2026-06-16 - Codex
 
 ### Changed
@@ -416,3 +836,116 @@ Use this format:
 
 ### Suggested Next Step
 - Treat the hardening project as done. Future work should stay inside the monolith using the guardrails; only extract a piece if it is genuinely self-contained and pure (like the data modules), never a tangled "system".
+
+## 2026-06-20 - Cursor - core migration: combat damage state events
+
+### Changed
+- Extended `src/core/combat.js` with `{ type: "damage", ... }` state events (`enemyDamageEvent`, `swarmEnemyDamageEvent`, pet/poison builders). Hit/burn/weapon-swing builders prepend damage events when `amount > 0`; `skipDamage` option keeps enemy→player hits presentation-only.
+- Monolith: `applyCombatEvents` now applies damage via `applyCombatDamageEvent` (enemy HP + swarm enemy HP). Removed duplicate `reduceEnemyHp` / `reduceSwarmEnemyHp` from live combat paths (warrior/wizard/taoist attacks, bang/ground ticks, boss-party impacts, pet attacks, poison ticks, twin-drake/half-moon splash). Offline simulation still calls `reduceEnemyHp` directly.
+- Wired Taoist poison apply/resist presentation through `poisonAppliedEvents` / `poisonResistedEvents`; green poison ticks use `poisonTickDamageEvents`.
+- Updated `tests/combat.test.mjs` (93 tests total).
+
+### Checked
+- `npm.cmd run check` green (93/93 tests, oxlint, syntax-check).
+- `npm.cmd run smoke` green (`errors: []`).
+
+### Notes / Risks
+- Player/pet damage from enemy melee still uses `target.applyDamage()` directly; only enemy-target damage goes through the event seam for now.
+- Session uncommitted per request.
+
+### Suggested Next Step
+- Continue core migration: player/pet damage events, or next persistence slice (`restoreGameProgress`, etc.) per `docs/core-migration-plan.md`.
+
+## 2026-06-20 - Cursor - persistence: normalize saved XP + remove dead restore helpers
+
+### Changed
+- Added `normalizeSavedProgress()` to `src/core/progress.js` (reuses `applyExperienceToProgress` with 0 XP grant).
+- `sanitizeCharacterGameState` now normalizes overflow experience on load so corrupt/edited saves level correctly.
+- Removed ~105 lines of dead legacy restore helpers from `app.monolith.js` (`restoreInventoryState`, `restoreGameProgress`, `restoreMagicState`, `restoreHotbarState`, monolith `normalizeSavedProgress`) — load path already uses per-character `sanitize*` via `restoreCharactersState`.
+- Tests: `offlineProgress.test.mjs`, `persistenceGame.test.mjs`.
+
+### Checked
+- `npm.cmd run check` green (95/95 tests).
+- `npm.cmd run smoke` green.
+
+### Notes / Risks
+- XP overflow normalization now runs for all character slots on load, not only the legacy single-character restore path (behavior improvement for edited saves).
+
+### Suggested Next Step
+- Extract `restoreCharacterSnapshot` (consolidate `sanitizeCharacterState` / legacy snapshot path into `src/persistence/`), or continue combat event seam (player/pet incoming damage).
+
+## 2026-06-20 - Cursor - persistence: restoreCharacter snapshot orchestration
+
+### Changed
+- Added `src/persistence/restoreCharacter.js`: `restoreCharacterSnapshot`, `restoreLegacyCharacterSnapshot`, `restoreCharactersFromSnapshot`, `backfillStarterGear`.
+- Moved `removeRetiredTestingDefaultMagic` to `sanitizeCharacter.js`.
+- Monolith `restoreCharactersState` delegates to `restoreCharactersFromSnapshot`; removed duplicate `sanitizeCharacterState`, `legacyCharacterStateFromSnapshot`, `backfillStarterGear`, and local `removeRetiredTestingDefaultMagic`.
+- Tests: `tests/persistenceRestoreCharacter.test.mjs` (multi-character fixture + legacy flat snapshot).
+
+### Checked
+- `npm.cmd run check` green (99/99 tests).
+- `npm.cmd run smoke` green.
+
+### Suggested Next Step
+- Continue persistence (`applySaveSnapshot` account slice) or combat event seam (player/pet incoming damage).
+
+## 2026-06-20 - Cursor - persistence: restoreAccount snapshot slice
+
+### Changed
+- Added `src/persistence/restoreAccount.js`: account restore, boss-kill/respawn merge across characters, unpaid storage-page detection, group-dungeon run resolution, save UI meta (active class, tab, hair index).
+- `applySaveSnapshot` delegates account restore + migrations to `restoreAccountFromSnapshot`; `migrateAccountStats` / `migrateAccountBossRespawns` reuse shared merge helpers.
+- Removed dead `savedGroupDungeonRunFromCharacters` and `restoreEquipmentVisualIndexes`.
+- Tests: `tests/persistenceRestoreAccount.test.mjs`.
+
+### Checked
+- `npm.cmd run check` green (105/105 tests).
+- `npm.cmd run smoke` green.
+
+### Suggested Next Step
+- Combat event seam (player/pet incoming damage) or offline progress through core (Phase 3).
+
+## 2026-06-20 - Cursor - combat: player/pet incoming damage events
+
+### Changed
+- Added `playerDamageEvent` / `petDamageEvent` to `src/core/combat.js`; `physicalAttackHitEvents` accepts `{ damageTarget: "player" | "pet" }`.
+- `applyCombatDamageEvent` applies player/pet damage via `context.target.applyDamage` (preserves flinch, magic shield, pet death side-effects).
+- Monolith helpers `applyIncomingTargetHit/Miss`, `maybeFinishBattleAfterPlayerHit`; wired for basic melee, bone lord, minotaur AOE, map lightning solo hits.
+- Tests updated in `tests/combat.test.mjs`.
+
+### Checked
+- `npm.cmd run check` green (106/106 tests).
+- `npm.cmd run smoke` green.
+
+### Notes / Risks
+- Boss-party incoming damage and special boss patterns (centipede, mass burst, etc.) still use direct HP mutation — deferred.
+
+### Suggested Next Step
+- Phase 3 kickoff: extract `createPendingOfflineProgress` eligibility to core, or wire remaining boss-party incoming hits through the event seam.
+
+## 2026-06-20 - Cursor - Phase 3: offline progress eligibility in core
+
+### Changed
+- Added `src/core/offlineProgress.js`: `computeOfflineElapsedMs`, `buildOfflineProgressTiming`, `resolvePendingOfflineProgress` (pure snapshot + clock eligibility for mining/zone offline progress).
+- Monolith `createPendingOfflineProgress` delegates to core with zone/min/cap/group-dungeon injectors.
+- Tests: 7 new cases in `tests/offlineProgress.test.mjs`.
+
+### Checked
+- `npm.cmd run check` green (113/113 tests).
+- `npm.cmd run smoke` green.
+
+### Suggested Next Step
+- Continue Phase 3: extract offline simulation report math, or wire boss-party incoming damage through combat events.
+
+## 2026-06-20 - Cursor - Phase 3: offline progress eligibility in core
+
+### Changed
+- Added `src/core/offlineProgress.js`: `computeOfflineElapsedMs`, `buildOfflineProgressTiming`, `resolvePendingOfflineProgress` (pure snapshot + clock eligibility for mining/zone offline progress).
+- Monolith `createPendingOfflineProgress` delegates to core with zone/min/cap/group-dungeon injectors.
+- Tests: 7 new cases in `tests/offlineProgress.test.mjs`.
+
+### Checked
+- `npm.cmd run check` green (113/113 tests).
+- `npm.cmd run smoke` green.
+
+### Suggested Next Step
+- Continue Phase 3: extract offline simulation report math, or wire boss-party incoming damage through combat events.

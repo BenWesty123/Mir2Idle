@@ -1,0 +1,30 @@
+{
+  "warrior-bicheon": {
+    "kind": "zone",
+    "savePath": "tests/fixtures/saves/warrior-offline-bicheon-v1.json",
+    "expectedPath": "tests/fixtures/offline/warrior-bicheon-5m-expected.json",
+    "elapsedMs": 300000,
+    "seed": 279822063
+  },
+  "wizard-bicheon": {
+    "kind": "zone",
+    "savePath": "tests/fixtures/saves/wizard-offline-bicheon-v1.json",
+    "expectedPath": "tests/fixtures/offline/wizard-bicheon-5m-expected.json",
+    "elapsedMs": 300000,
+    "seed": 1360600814
+  },
+  "taoist-bicheon": {
+    "kind": "zone",
+    "savePath": "tests/fixtures/saves/taoist-offline-bicheon-v1.json",
+    "expectedPath": "tests/fixtures/offline/taoist-bicheon-5m-expected.json",
+    "elapsedMs": 300000,
+    "seed": 1896818926
+  },
+  "warrior-mining": {
+    "kind": "mining",
+    "savePath": "tests/fixtures/saves/warrior-offline-mining-v1.json",
+    "expectedPath": "tests/fixtures/offline/warrior-mining-5m-expected.json",
+    "elapsedMs": 300000,
+    "seed": 2164268782
+  }
+}

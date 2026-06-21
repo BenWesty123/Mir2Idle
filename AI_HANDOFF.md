@@ -11,7 +11,7 @@ src/app.js          ->  import "./app.monolith.js"
 src/app.monolith.js ->  imports the sibling data/logic modules in src/
 ```
 
-There is no `src/game/` directory. A modular `src/game/` split was attempted by an earlier AI, but it was never wired into the running app, drifted out of sync, and even contained a syntax error - so edits made to it never reached the browser. It was deleted in June 2026. **Do not recreate or "re-split" into `src/game/`.** (A proper, tested re-split is planned later as its own effort; until then the monolith is canonical.)
+There is no `src/game/` directory. A modular `src/game/` split was attempted by an earlier AI, but it was never wired into the running app, drifted out of sync, and even contained a syntax error - so edits made to it never reached the browser. It was deleted in June 2026. **Do not recreate or "re-split" into `src/game/`.** Instead, follow the incremental in-place extraction plan in `docs/core-migration-plan.md` (pure `src/core/` + `src/persistence/`, one tested slice at a time).
 
 Rule of thumb: if a file is not reachable from `src/app.js`, editing it does nothing. Always confirm reachability before claiming a change works.
 
@@ -35,6 +35,9 @@ LOM Idle V2 is a browser-based idle prototype inspired by the Crystal/Mir2 files
 - `src/warriorMagic.js`, `src/spellBodyActions.js` - spell/skill definitions and helpers.
 - `src/phase1Data.js` - zones, mining spots, monster/progression data.
 - `src/playerActions.js`, `src/groupDungeonSwarm.js`, `src/zumaArcherSwarm.js`, `src/buffPotions.js`, `src/atlas.js` - supporting data/logic imported by the monolith.
+- `src/core/` - pure simulation helpers extracted incrementally from the monolith (see `docs/core-migration-plan.md`). Includes `progress.js`, `offlineProgress.js`, `drops.js`, `party.js`, `combat.js` (hit rolls + combat events).
+- `src/persistence/` - save parsing and stat sanitizers extracted from the monolith. Includes `saveFormat.js`, `sanitizeStats.js`, `sanitizeCharacter.js`, `sanitizeSettings.js`, `sanitizeUpgrades.js`, `sanitizeInventory.js`, `sanitizeGame.js`, `restoreCharacter.js`, `restoreAccount.js`.
+- `docs/core-migration-plan.md` - phased plan for in-place core extraction (Phase 0–5); companion to `docs/season-play-architecture.md`.
 - `public/` - runtime assets (sprites, atlases, audio). Large; gitignored/cursorignored.
 - `tools/` - build/audit/export/release tools and the dev server (`tools/server.mjs`).
 - `tests/` - `node --test` unit tests, run by `npm run check`.
