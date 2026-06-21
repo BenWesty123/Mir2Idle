@@ -597,6 +597,7 @@ const BOSS_PARTY_DAMAGE_TEXT_OFFSET = 40; // px the assist members' damage numbe
 const BOSS_PARTY_CAMERA_LERP_MS = 280; // ease camera back after a front-liner finishes stepping up
 const LEVEL_UP_FX_ID = "LevelUp";
 const HEALING_RESTORE_FX_ID = "HealingRestore"; // Magic.Lib frame 370 -- the heal-lands-on-target effect (Crystal)
+const REVIVE_FX_ID = "Revive"; // Magic2.Lib frame 1220 -- town/object revive burst (Crystal)
 const MAP_LIGHTNING_FX_ID = "MapLightning";
 const MAP_LIGHTNING_MIN_INTERVAL_MS = 1000;
 const MAP_LIGHTNING_MAX_INTERVAL_MS = 5000;
@@ -714,6 +715,16 @@ const STARTER_GEAR_VERSION = 1;
 const SAVE_INTERVAL_MS = 2000;
 const SIMULATION_STEP_MS = 100;
 const MAX_SIMULATION_CATCH_UP_MS = 10 * 60 * 1000;
+// iOS Safari (incl. iPadOS, which masquerades as Mac) janks on a full 60fps
+// canvas redraw. The simulation still steps every rAF for timing accuracy;
+// we only throttle how often we repaint. Other platforms stay uncapped.
+const IS_IOS = (() => {
+  if (typeof navigator === "undefined") return false;
+  const ua = navigator.userAgent || "";
+  if (/iP(hone|od|ad)/.test(ua)) return true;
+  return navigator.platform === "MacIntel" && (navigator.maxTouchPoints || 0) > 1;
+})();
+const RENDER_MIN_INTERVAL_MS = IS_IOS ? 33 : 0;
 const BOSS_PARTY_CATCHUP_MAX_STEPS = 12000;
 const OFFLINE_PROGRESS_CAP_MS = 8 * 60 * 60 * 1000;
 const OFFLINE_PROGRESS_MIN_MS = 30 * 1000;
@@ -1018,6 +1029,8 @@ const DEFAULT_TELEPORT_REGION_ID = TELEPORT_REGIONS[0].id;
 const TOWN_VISUALS = {
   mapStamp: "bicheon-wall-center",
   backdrop: "field",
+  // Crystal 0.map pavement (tiles ~900-904) uses WalkGround, not WalkLawn.
+  footstepSurface: "ground",
   mapStampOffsetY: 0,
   mapStampBottomPadding: 8,
   mapStampViewUpTiles: 0,
@@ -1614,6 +1627,29 @@ const TOWN_NPCS = [
   },
 ];
 
+const TOWN_IDLE_NPC_IDS = ["trader", "storage"];
+const TOWN_IDLE_OFFSET_X_TILES = -5;
+const TOWN_IDLE_LEFT_OFFSET_Y_TILES = -2;
+const TOWN_IDLE_TELEPORT_FX_ID = "Teleport";
+const TOWN_IDLE_RUN_ENTRY_OFFSET_X = LANE_TILE_PX * 4;
+const TOWN_IDLE_AWAY_MS = 15000;
+const TOWN_IDLE_PERIODIC_COOLDOWN_MS = 180000;
+const TOWN_IDLE_RAMP_STEP_CHANCE = 0.1;
+const TOWN_IDLE_STEP_RAMP_INTERVAL_MS = 10000;
+const TOWN_IDLE_STEP_RAMP_MAX_MS = 140000;
+const TOWN_IDLE_RUN_RAMP_INTERVAL_MS = 15000;
+const TOWN_IDLE_RUN_RAMP_MAX_MS = 150000;
+const TOWN_IDLE_STEP_FORWARD_X = LANE_TILE_PX;
+const TOWN_IDLE_STEP_PAUSE_MS = 1000;
+const TOWN_IDLE_STEP_AWAY_MS = 60000;
+const TOWN_IDLE_RETURN_EVENT_CHANCE = 0.05;
+const TOWN_IDLE_RETURN_MISSING_MS = 3000;
+const TOWN_IDLE_RETURN_DEAD_MS = 3000;
+const TOWN_IDLE_GUEST_BEHIND_TILES = 2;
+const TOWN_IDLE_GUEST_ENTER_DELAY_MS = 3000;
+const TOWN_IDLE_GUEST_EVENT_CHANCE = 0.05;
+const TOWN_IDLE_GUEST_POST_ATTACK_MS = 3000;
+
 const ALCHEMIST_STOCK_IDS = [
   "hp-drug-small",
   "mp-drug-small",
@@ -1927,6 +1963,14 @@ const state = {
   storagePage: 0,
   pendingStoragePageUnlock: null,
   upgradeCategory: "combat",
+  townPartyIdleMembers: [],
+  townPartyIdleEvent: null,
+  townPartyIdleStepEvent: null,
+  townPartyIdleReturnEvent: null,
+  townGuestVisitorEvent: null,
+  townGuestVisitorMember: null,
+  townIdleTeleportAtlas: null,
+  townIdleReviveAtlas: null,
   game: {
     mode: "town",
     activeZoneId: null,
@@ -2098,6 +2142,7 @@ let playerHudSignature = "";
 let hotbarSignature = "";
 let partySwitchBarSignature = "";
 let lastSimulationAt = performance.now();
+let lastRenderAt = 0;
 let suppressSimulationRender = false;
 let musicAudio = null;
 let musicTrackIndex = 0;
@@ -2113,6 +2158,7 @@ let townMapCache = { canvas: null, key: "" };
 let lastStageShellSize = { w: 0, h: 0, mode: "", scale: 0 };
 let lastStageDisplaySize = { w: 0, h: 0 };
 let inventoryDragState = null;
+let townPartyIdleSignature = "";
 let saveReady = false;
 let lastSaveAt = 0;
 let pendingSavedPlayerResources = null;
@@ -2333,7 +2379,11 @@ async function init() {
   state.taoPetAtlas = state.taoPetAtlases[CRYSTAL_SUMMON_SKELETON_PET_INDEX] ?? null;
   state.levelUpAtlas = await loadJson(`./public/spellfx/${LEVEL_UP_FX_ID}/atlas.json`).catch(() => null);
   state.healingRestoreAtlas = await loadJson(`./public/spellfx/${HEALING_RESTORE_FX_ID}/atlas.json`).catch(() => null);
+  state.townIdleTeleportAtlas = await loadJson(`./public/spellfx/${TOWN_IDLE_TELEPORT_FX_ID}/atlas.json`).catch(() => null);
+  state.townIdleReviveAtlas = await loadJson(`./public/spellfx/${REVIVE_FX_ID}/atlas.json`).catch(() => null);
   state.mapLightningAtlas = await loadJson(`./public/spellfx/${MAP_LIGHTNING_FX_ID}/atlas.json`).catch(() => null);
+  if (state.townIdleTeleportAtlas) await preloadSpellAtlasSheets(TOWN_IDLE_TELEPORT_FX_ID, state.townIdleTeleportAtlas);
+  if (state.townIdleReviveAtlas) await preloadSpellAtlasSheets(REVIVE_FX_ID, state.townIdleReviveAtlas);
   if (state.mapLightningAtlas) await preloadSpellAtlasSheets(MAP_LIGHTNING_FX_ID, state.mapLightningAtlas);
   state.townNpcAtlases = await loadTownNpcAtlases();
   state.characterStateItems = {
@@ -3320,6 +3370,7 @@ function applyCharacterState(classId, character = createDefaultCharacterState(cl
   ensureInventorySlots();
   state.game.progress.gold = state.inventory.gold;
   applyEquippedVisualIndexes();
+  syncTownPartyIdleMembers();
 }
 
 function captureActiveCharacterState() {
@@ -10997,6 +11048,7 @@ async function applyEquipmentChanges() {
   playerHudSignature = "";
   combatSkillBarSignature = "";
   await reloadAtlases({ refreshLayers: changedVisualLayers });
+  if (state.game.mode === "town") syncTownPartyIdleMembers();
   saveGameState(true);
   renderSceneOverlay();
   renderGamePanel();
@@ -14177,16 +14229,26 @@ function returnToTown() {
   state.battle.cameraX = state.battle.playerX - playerScreenX();
   state.battle.enemyX = state.battle.playerX + enemySpawnDistance();
   playSfx("ui.teleport", { volume: 0.48, throttleMs: 300 });
+  state.townPartyIdleEvent = null;
+  state.townPartyIdleStepEvent = null;
+  state.townPartyIdleReturnEvent = null;
+  state.townGuestVisitorEvent = null;
+  state.townGuestVisitorMember = null;
   applyEquippedVisualIndexes();
   queueVisualAtlasReload(["weapon"]);
   setPlayerAction("standing", performance.now());
   setEnemyLocomotion("standing", performance.now());
   pushBattleLog("Returned to town.");
   applyCharacterState(state.activeCharacterId, state.characters[state.activeCharacterId]);
+  state.game.mode = "town";
+  state.game.activeZoneId = null;
   renderMapControls();
   gamePanelSignature = "";
   battlePanelSignature = "";
   render();
+  syncTownPartyIdleMembers();
+  beginTownPartyIdleReturnEvent(performance.now());
+  scheduleTownGuestVisitorOnEnter(performance.now());
 }
 
 function activeZone() {
@@ -15951,6 +16013,37 @@ function bossPartyMemberTorsoAnchor(member) {
   return { x: anchorX, y: Math.round(anchorY - 40) };
 }
 
+/** Head aim point for speech bubbles / labels above party sprites. */
+function bossPartyMemberHeadAnchor(member, anchorOverride = null) {
+  const anchorX = anchorOverride
+    ? Math.round(anchorOverride.x)
+    : Math.round((Number(member?.worldX ?? state.battle.playerX)) - state.battle.cameraX);
+  const anchorY = anchorOverride
+    ? Math.round(anchorOverride.y)
+    : Math.floor(state.stageHeight * LANE.y);
+  const action = member?.visualAction ?? (member?.alive !== false ? "stance" : "die");
+  const headLayers = ["armour", "hair", "weapon"];
+  for (const layer of headLayers) {
+    const index = member?.visualIndexes?.[layer];
+    if (index == null || index === "") continue;
+    const atlas = member?.visualAtlases?.[layer]
+      ?? (member?.classId === bossPartyControlledClassId() ? state.atlases[layer] : null);
+    if (!atlas) continue;
+    const clip = atlas.actions?.[action] ?? atlas.actions?.stance ?? atlas.actions?.standing;
+    const frameIndex = Math.max(0, Math.min(Number(member?.visualFrame) || 0, (clip?.frames?.length ?? 1) - 1));
+    const meta = clip?.frames?.[frameIndex] ?? clip?.frames?.[0];
+    if (!clip || !meta || meta.empty) continue;
+    const width = Number(meta.w) || atlas.slotWidth || 0;
+    const offsetX = Number(meta.offsetX) || 0;
+    const offsetY = Number(meta.offsetY) || 0;
+    return {
+      x: Math.round(anchorX + offsetX + width / 2),
+      y: Math.round(anchorY + offsetY - 6),
+    };
+  }
+  return { x: anchorX, y: Math.round(anchorY - 58) };
+}
+
 /** Zuma Archer travel arrow aim point — torso center, not feet. */
 function zumaArcherProjectileTargetAnchor(target) {
   const party = state.battle.bossParty;
@@ -17443,7 +17536,10 @@ function tick(now) {
   catchUpSimulation(now);
   lastSimulationAt = now;
   const shouldRender = runSimulationStep(now, { autoSave: true });
-  if (shouldRender) render();
+  if (shouldRender && now - lastRenderAt >= RENDER_MIN_INTERVAL_MS) {
+    lastRenderAt = now;
+    render();
+  }
   requestAnimationFrame(tick);
 }
 
@@ -17514,10 +17610,12 @@ function runSimulationStep(now, options = {}) {
   const clip = currentClip();
   if (!state.paused && clip && !stepTesting && !continuousWalkTesting && !state.stepTest.complete) {
     updateFrame(now, clip);
+    if (state.game.mode === "town") updateTownPartyIdleVisualFrames(now);
     return true;
   } else {
     state.lastTick = now;
-    return Boolean(state.spellAtlas || state.levelUpEffects.length || stepTesting || continuousWalkTesting || recoveryChanged);
+    if (state.game.mode === "town") updateTownPartyIdleVisualFrames(now);
+    return Boolean(state.spellAtlas || state.levelUpEffects.length || stepTesting || continuousWalkTesting || recoveryChanged || state.game.mode === "town");
   }
 }
 
@@ -26831,6 +26929,7 @@ function enemyTargetDistance() {
 }
 
 function movementSurfaceSfxKey() {
+  if (state.game.mode === "town") return TOWN_VISUALS.footstepSurface ?? "ground";
   return currentBackdropKind() === "cave" ? "cave" : "field";
 }
 
@@ -26854,6 +26953,32 @@ function maybePlayPlayerFootstep(previousFrame, nextFrame, action = state.action
   if (!played && surface === "cave" && moveType === "walk") {
     playSfx("footstep.cave.walk.left", { volume: 0.24, throttleMs: 160 });
   }
+}
+
+function maybePlayTownPartyIdleRunFootstep(previousFrame, nextFrame) {
+  if (previousFrame === nextFrame) return;
+  const side = footstepSideForFrame(nextFrame);
+  if (!side) return;
+  const surface = movementSurfaceSfxKey();
+  playSfx(`footstep.${surface}.run.${side}`, {
+    volume: 0.32,
+    throttleMs: 110,
+  });
+}
+
+function maybePlayTownPartyIdleWalkFootstep(previousFrame, nextFrame) {
+  if (previousFrame === nextFrame) return;
+  const side = footstepSideForFrame(nextFrame);
+  if (!side) return;
+  const surface = movementSurfaceSfxKey();
+  playSfx(`footstep.${surface}.walk.${side}`, {
+    volume: 0.28,
+    throttleMs: 160,
+  });
+}
+
+function townPartyIdleMemberIsOnScreen(runX = 0) {
+  return runX >= 0;
 }
 
 function maybePlayEnemyFootstep(previousFrame, nextFrame, action = state.enemy.action) {
@@ -27213,21 +27338,23 @@ function render() {
   renderPlayerResourceHud();
   renderHotbar();
 
-  const srcFrame = sourceFrameFor(state.action, displayFrame);
-  const spec = PLAYER_ACTIONS[state.action];
-  const spellText = state.spell === "None" ? "" : ` | skill ${spellLabel(state.spell)}`;
-  const phaseText = state.syncBodyToSpell && state.spell !== "None" ? ` | cast gap ${state.castCooldownMs}ms` : "";
-  els.readout.textContent = `${spec.label}${spellText}${phaseText} | frame ${state.frame + 1}/${frameCount} | Crystal source frame ${srcFrame} | ${perfReadout()}`;
-  els.frameMeta.innerHTML = `
-    <dt>Action</dt><dd>${state.action}</dd>
-    <dt>Skill</dt><dd>${spellLabel(state.spell)}</dd>
-    <dt>Mapped</dt><dd>${bodyActionForSpell(state.spell)}</dd>
-    <dt>Start</dt><dd>${spec.start}</dd>
-    <dt>Count</dt><dd>${spec.count}</dd>
-    <dt>Skip</dt><dd>${spec.skip}</dd>
-    <dt>Direction</dt><dd>2 / east</dd>
-    <dt>Formula</dt><dd>start + (count + skip) * direction + frame</dd>
-  `;
+  if (!IS_GAME_UI && els.readout && els.frameMeta) {
+    const srcFrame = sourceFrameFor(state.action, displayFrame);
+    const spec = PLAYER_ACTIONS[state.action];
+    const spellText = state.spell === "None" ? "" : ` | skill ${spellLabel(state.spell)}`;
+    const phaseText = state.syncBodyToSpell && state.spell !== "None" ? ` | cast gap ${state.castCooldownMs}ms` : "";
+    els.readout.textContent = `${spec.label}${spellText}${phaseText} | frame ${state.frame + 1}/${frameCount} | Crystal source frame ${srcFrame} | ${perfReadout()}`;
+    els.frameMeta.innerHTML = `
+      <dt>Action</dt><dd>${state.action}</dd>
+      <dt>Skill</dt><dd>${spellLabel(state.spell)}</dd>
+      <dt>Mapped</dt><dd>${bodyActionForSpell(state.spell)}</dd>
+      <dt>Start</dt><dd>${spec.start}</dd>
+      <dt>Count</dt><dd>${spec.count}</dd>
+      <dt>Skip</dt><dd>${spec.skip}</dd>
+      <dt>Direction</dt><dd>2 / east</dd>
+      <dt>Formula</dt><dd>start + (count + skip) * direction + frame</dd>
+    `;
+  }
   renderGamePanel();
   renderBattlePanel();
   renderSceneOverlay({ deferUserInteraction: true });
@@ -27401,9 +27528,1026 @@ function ensureStageCanvas() {
 
 function drawTownCanvas(ctx, displayFrame) {
   drawTownMapCanvas(ctx);
+  drawTownPartyIdleMembers(ctx);
   drawTownNpcs(ctx);
+  drawTownGuestVisitor(ctx);
   drawPlayerCanvas(ctx, displayFrame);
   drawTownNameplates(ctx);
+}
+
+function townPartyIdleAnchor(index) {
+  const npcId = TOWN_IDLE_NPC_IDS[index % TOWN_IDLE_NPC_IDS.length];
+  const npc = TOWN_NPCS.find((entry) => entry.id === npcId);
+  if (!npc) return combatAnchor("player");
+  const bounds = townNpcBounds(npc);
+  const yOffsetTiles = index === 0 ? TOWN_IDLE_LEFT_OFFSET_Y_TILES : 0;
+  return {
+    x: bounds.centerX + TOWN_IDLE_OFFSET_X_TILES * LANE_TILE_PX,
+    y: bounds.top - 8 + yOffsetTiles * LANE_TILE_PX,
+  };
+}
+
+function townPartyIdleVisualSignature() {
+  const parts = [state.activeCharacterId, state.stageWidth, state.stageHeight];
+  for (const classId of CHARACTER_IDS) {
+    if (classId === state.activeCharacterId) continue;
+    const character = state.characters[classId];
+    if (!character) continue;
+    parts.push(classId);
+    parts.push(JSON.stringify(character.inventory?.equipment ?? {}));
+    for (const entry of character.inventory?.entries ?? []) {
+      if (Object.values(character.inventory?.equipment ?? {}).includes(entry.id)) {
+        parts.push(inventoryEntrySignature(entry));
+      }
+    }
+  }
+  return parts.join("|");
+}
+
+function syncTownPartyIdleMembers() {
+  if (state.game.mode !== "town") {
+    state.townPartyIdleMembers = [];
+    townPartyIdleSignature = "";
+    state.townPartyIdleEvent = null;
+    state.townPartyIdleStepEvent = null;
+    state.townPartyIdleReturnEvent = null;
+    state.townGuestVisitorEvent = null;
+    state.townGuestVisitorMember = null;
+    return;
+  }
+  const signature = townPartyIdleVisualSignature();
+  if (signature === townPartyIdleSignature && state.townPartyIdleMembers.length) {
+    for (const [index, member] of state.townPartyIdleMembers.entries()) {
+      const anchor = townPartyIdleAnchor(index);
+      member.townAnchorX = anchor.x;
+      member.townAnchorY = anchor.y;
+    }
+    townPartyIdleActivateReturnEventIfPending(performance.now());
+    townPartyIdleSyncReturnEventMemberVisuals(performance.now());
+    return;
+  }
+  townPartyIdleSignature = signature;
+  state.townPartyIdleEvent = null;
+  state.townPartyIdleStepEvent = null;
+  const savedReturnEvent = townPartyIdleReturnEventKeep(state.townPartyIdleReturnEvent);
+  state.townPartyIdleReturnEvent = savedReturnEvent;
+  const now = performance.now();
+  state.townPartyIdleMembers = CHARACTER_IDS
+    .filter((classId) => classId !== state.activeCharacterId && state.characters[classId])
+    .map((classId, index) => {
+      const member = bossPartyMemberFromCharacter(classId, state.characters[classId], now);
+      member.visualAction = "standing";
+      member.visualFrame = 0;
+      member.visualLastTick = now;
+      member.visualOneShot = false;
+      member.visualIndexes = bossPartyMemberVisualIndexes(member);
+      member.visualAtlases = {};
+      const anchor = townPartyIdleAnchor(index);
+      member.townAnchorX = anchor.x;
+      member.townAnchorY = anchor.y;
+      return member;
+    });
+  townPartyIdleSyncReturnEventMemberVisuals(now);
+  void preloadTownPartyIdleVisuals();
+}
+
+async function preloadTownPartyIdleVisuals() {
+  await Promise.all((state.townPartyIdleMembers ?? []).map((member) => preloadBossPartyMemberVisualAtlases(member)));
+  render();
+}
+
+function townPartyIdleRightmostMember(members = state.townPartyIdleMembers) {
+  return [...(members ?? [])].sort((a, b) => (b.townAnchorX ?? 0) - (a.townAnchorX ?? 0))[0] ?? null;
+}
+
+function townPartyIdleTopMember(members = state.townPartyIdleMembers) {
+  return [...(members ?? [])].sort((a, b) => {
+    const yDiff = (a.townAnchorY ?? 0) - (b.townAnchorY ?? 0);
+    if (yDiff !== 0) return yDiff;
+    return (a.townAnchorX ?? 0) - (b.townAnchorX ?? 0);
+  })[0] ?? null;
+}
+
+function townPartyIdleEventMember() {
+  const classId = state.townPartyIdleEvent?.memberClassId;
+  if (!classId) return null;
+  return state.townPartyIdleMembers?.find((member) => member.classId === classId) ?? null;
+}
+
+function townPartyIdleStepEventMember() {
+  const classId = state.townPartyIdleStepEvent?.memberClassId;
+  if (!classId) return null;
+  return state.townPartyIdleMembers?.find((member) => member.classId === classId) ?? null;
+}
+
+function townPartyIdleReturnEventMember() {
+  const classId = state.townPartyIdleReturnEvent?.memberClassId;
+  if (!classId) return null;
+  return state.townPartyIdleMembers?.find((member) => member.classId === classId) ?? null;
+}
+
+function townPartyIdleMemberActionDurationMs(member, action) {
+  const clip = bossPartyMemberVisualClip(member, action);
+  if (!clip?.frames?.length) return 400;
+  return clip.frames.length * Math.max(1, clip.interval);
+}
+
+function townPartyIdleReviveDurationMs(member) {
+  const layer = state.townIdleReviveAtlas?.layers?.[0];
+  const fxDuration = layer?.frames?.length
+    ? layer.frames.length * Math.max(1, Number(layer.interval) || 100)
+    : 0;
+  return Math.max(townPartyIdleMemberActionDurationMs(member, "revive"), fxDuration, 400);
+}
+
+function townPartyIdleReturnEventKeep(event) {
+  if (!event?.phase || event.phase === "done") return null;
+  return event;
+}
+
+function beginTownPartyIdleReturnEvent(now = performance.now()) {
+  if (state.game.mode !== "town") return;
+  if (Math.random() >= TOWN_IDLE_RETURN_EVENT_CHANCE) return;
+  const members = state.townPartyIdleMembers ?? [];
+  if (!members.length) return;
+  const pick = members[randomInt(0, members.length - 1)];
+  if (!pick) return;
+  state.townPartyIdleReturnEvent = {
+    phase: "missing",
+    memberClassId: pick.classId,
+    startedAt: now,
+  };
+  pick.alive = true;
+  pick.visualAction = "standing";
+  pick.visualFrame = 0;
+  pick.visualOneShot = false;
+  pick.visualLastTick = now;
+}
+
+function townPartyIdleSyncReturnEventMemberVisuals(now = performance.now()) {
+  const event = state.townPartyIdleReturnEvent;
+  const member = townPartyIdleReturnEventMember();
+  if (!event || !member) return;
+  if (event.phase === "missing") {
+    member.alive = true;
+    member.visualAction = "standing";
+    member.visualFrame = 0;
+    member.visualOneShot = false;
+    member.visualLastTick = now;
+    return;
+  }
+  if (event.phase === "teleportFx") {
+    member.alive = false;
+    member.visualAction = "die";
+    member.visualOneShot = true;
+    member.visualLastTick = now;
+    return;
+  }
+  if (event.phase === "dead") {
+    townPartyIdleReturnHoldDead(member);
+    return;
+  }
+  if (event.phase === "revive") {
+    member.alive = true;
+    member.visualAction = "revive";
+    member.visualOneShot = true;
+    member.visualLastTick = now;
+  }
+}
+
+function queueTownPartyIdleReturnEvent(now = performance.now()) {
+  beginTownPartyIdleReturnEvent(now);
+}
+
+function townPartyIdleActivateReturnEventIfPending(now = performance.now()) {
+  const event = state.townPartyIdleReturnEvent;
+  if (!event || event.phase !== "pending") return;
+  const members = state.townPartyIdleMembers ?? [];
+  if (!members.length) {
+    state.townPartyIdleReturnEvent = null;
+    return;
+  }
+  const pick = members[randomInt(0, members.length - 1)];
+  if (!pick) {
+    state.townPartyIdleReturnEvent = null;
+    return;
+  }
+  event.memberClassId = pick.classId;
+  event.phase = "missing";
+  event.startedAt = now;
+  pick.alive = true;
+  pick.visualAction = "standing";
+  pick.visualFrame = 0;
+  pick.visualOneShot = false;
+  pick.visualLastTick = now;
+}
+
+function townPartyIdleReturnBeginDeath(member, now) {
+  member.alive = false;
+  member.visualAction = "die";
+  member.visualFrame = 0;
+  member.visualOneShot = true;
+  member.visualLastTick = now;
+  playSfx("player.death", { volume: 0.52, throttleMs: 200 });
+}
+
+function townPartyIdleReturnHoldDead(member) {
+  const clip = bossPartyMemberVisualClip(member, "die");
+  member.alive = false;
+  member.visualAction = "die";
+  member.visualFrame = Math.max(0, (clip?.frames?.length ?? 1) - 1);
+  member.visualOneShot = true;
+}
+
+function townPartyIdleReturnBeginRevive(member, now) {
+  member.alive = true;
+  member.visualAction = "revive";
+  member.visualFrame = 0;
+  member.visualOneShot = true;
+  member.visualLastTick = now;
+  playSfx("player.revive", { volume: 0.58, throttleMs: 200 });
+}
+
+function updateTownPartyIdleReturnEvent(now) {
+  const event = state.townPartyIdleReturnEvent;
+  if (!event || event.phase === "pending" || event.phase === "done") return;
+  const member = townPartyIdleReturnEventMember();
+  if (!member) {
+    state.townPartyIdleReturnEvent = null;
+    return;
+  }
+
+  if (event.phase === "missing") {
+    if (now - event.startedAt < TOWN_IDLE_RETURN_MISSING_MS) return;
+    event.phase = "teleportFx";
+    event.startedAt = now;
+    playSfx("ui.teleport", { volume: 0.38, throttleMs: 200 });
+    townPartyIdleReturnBeginDeath(member, now);
+    return;
+  }
+
+  if (event.phase === "teleportFx") {
+    updateBossPartyMemberVisualFrame(member, now);
+    if (now - event.startedAt < townIdleTeleportFxDurationMs()) return;
+    townPartyIdleReturnHoldDead(member);
+    event.phase = "dead";
+    event.startedAt = now;
+    return;
+  }
+
+  if (event.phase === "dead") {
+    if (now - event.startedAt < TOWN_IDLE_RETURN_DEAD_MS) return;
+    event.phase = "revive";
+    event.startedAt = now;
+    townPartyIdleReturnBeginRevive(member, now);
+    return;
+  }
+
+  if (event.phase === "revive") {
+    updateBossPartyMemberVisualFrame(member, now);
+    if (now - event.startedAt < townPartyIdleReviveDurationMs(member)) return;
+    member.alive = true;
+    member.visualAction = "standing";
+    member.visualFrame = 0;
+    member.visualOneShot = false;
+    member.visualLastTick = now;
+    state.townPartyIdleReturnEvent = null;
+  }
+}
+
+function townPartyIdleStepOffsetPx(event) {
+  const tiles = Number(event?.walkOffsetTiles) || 0;
+  return { x: TOWN_IDLE_STEP_FORWARD_X * tiles, y: 0 };
+}
+
+function townPartyIdleRampStepIndex(elapsedMs, intervalMs, maxElapsedMs) {
+  if (elapsedMs < intervalMs) return 0;
+  return Math.floor(Math.min(elapsedMs, maxElapsedMs) / intervalMs);
+}
+
+function townPartyIdleRampTriggerChance(stepIndex) {
+  return Math.min(1, stepIndex * TOWN_IDLE_RAMP_STEP_CHANCE);
+}
+
+function townPartyIdleTryRampTrigger(event, now, intervalMs, maxElapsedMs) {
+  if (event.phase !== "idle") return false;
+  if (event.cooldownUntil && now < event.cooldownUntil) return false;
+  if (event.cooldownUntil && now >= event.cooldownUntil) {
+    event.cooldownUntil = 0;
+    event.rampStartedAt = now;
+    event.lastRampStep = 0;
+  }
+  if (!event.rampStartedAt) {
+    event.rampStartedAt = now;
+    event.lastRampStep = 0;
+  }
+  const elapsed = now - event.rampStartedAt;
+  const stepIndex = townPartyIdleRampStepIndex(elapsed, intervalMs, maxElapsedMs);
+  if (stepIndex <= event.lastRampStep) return false;
+  event.lastRampStep = stepIndex;
+  return Math.random() < townPartyIdleRampTriggerChance(stepIndex);
+}
+
+function townPartyIdleBeginRunEventCooldown(event, now) {
+  event.phase = "idle";
+  event.memberClassId = null;
+  event.startedAt = 0;
+  event.runX = 0;
+  event.lastStepAt = 0;
+  event.cooldownUntil = now + TOWN_IDLE_PERIODIC_COOLDOWN_MS;
+  event.rampStartedAt = 0;
+  event.lastRampStep = 0;
+}
+
+function townPartyIdleBeginStepEventCooldown(event, now) {
+  event.phase = "idle";
+  event.memberClassId = null;
+  event.startedAt = 0;
+  event.walkOffsetTiles = 0;
+  event.walkFromTiles = 0;
+  event.walkToTiles = 0;
+  event.cooldownUntil = now + TOWN_IDLE_PERIODIC_COOLDOWN_MS;
+  event.rampStartedAt = 0;
+  event.lastRampStep = 0;
+}
+
+function ensureTownPartyIdleEventState(now = performance.now()) {
+  if (!state.townPartyIdleEvent) {
+    state.townPartyIdleEvent = {
+      phase: "idle",
+      memberClassId: null,
+      startedAt: 0,
+      runX: 0,
+      lastStepAt: 0,
+      rampStartedAt: now,
+      lastRampStep: 0,
+      cooldownUntil: 0,
+    };
+  }
+  return state.townPartyIdleEvent;
+}
+
+function townIdleTeleportFxDurationMs() {
+  const layer = state.townIdleTeleportAtlas?.layers?.[0];
+  if (!layer?.frames?.length) return 600;
+  return layer.frames.length * Math.max(1, Number(layer.interval) || 60);
+}
+
+function townPartyIdleRunSpeedPxPerMs() {
+  const cycleMs = PLAYER_ACTIONS.running.count * PLAYER_ACTIONS.running.interval;
+  return movementCycleDistance("running") / Math.max(1, cycleMs);
+}
+
+function updateTownPartyIdleEvent(now) {
+  const members = state.townPartyIdleMembers ?? [];
+  if (!members.length) return;
+  const event = ensureTownPartyIdleEventState(now);
+  const member = townPartyIdleEventMember();
+
+  if (event.phase === "idle") {
+    if (!townPartyIdleTryRampTrigger(event, now, TOWN_IDLE_RUN_RAMP_INTERVAL_MS, TOWN_IDLE_RUN_RAMP_MAX_MS)) return;
+    const target = townPartyIdleRightmostMember(members);
+    if (!target) return;
+    event.memberClassId = target.classId;
+    event.phase = "teleportFx";
+    event.startedAt = now;
+    playSfx("ui.teleport", { volume: 0.38, throttleMs: 200 });
+    return;
+  }
+
+  if (event.phase === "teleportFx") {
+    if (now - event.startedAt < townIdleTeleportFxDurationMs()) return;
+    event.phase = "away";
+    event.startedAt = now;
+    return;
+  }
+
+  if (event.phase === "away") {
+    if (now - event.startedAt < TOWN_IDLE_AWAY_MS) return;
+    event.phase = "runningIn";
+    event.startedAt = now;
+    event.lastStepAt = now;
+    event.runX = -TOWN_IDLE_RUN_ENTRY_OFFSET_X;
+    if (member) {
+      member.visualAction = "running";
+      member.visualFrame = 0;
+      member.visualLastTick = now;
+      member.visualOneShot = false;
+    }
+    return;
+  }
+
+  if (event.phase === "runningIn") {
+    if (!member) {
+      townPartyIdleBeginRunEventCooldown(event, now);
+      return;
+    }
+    const homeX = member.townAnchorX ?? 0;
+    const stepAt = event.lastStepAt || now;
+    const dt = Math.max(0, now - stepAt);
+    event.lastStepAt = now;
+    event.runX = Math.min(homeX, (event.runX ?? -TOWN_IDLE_RUN_ENTRY_OFFSET_X) + townPartyIdleRunSpeedPxPerMs() * dt);
+    member.visualAction = "running";
+    const previousFrame = member.visualFrame ?? 0;
+    updateBossPartyMemberVisualFrame(member, now);
+    if (townPartyIdleMemberIsOnScreen(event.runX)) {
+      maybePlayTownPartyIdleRunFootstep(previousFrame, member.visualFrame ?? 0);
+    }
+    if (event.runX >= homeX) {
+      member.visualAction = "standing";
+      member.visualFrame = 0;
+      member.visualLastTick = now;
+      townPartyIdleBeginRunEventCooldown(event, now);
+    }
+  }
+}
+
+function ensureTownPartyIdleStepEventState(now = performance.now()) {
+  if (!state.townPartyIdleStepEvent) {
+    state.townPartyIdleStepEvent = {
+      phase: "idle",
+      memberClassId: null,
+      startedAt: 0,
+      walkOffsetTiles: 0,
+      walkFromTiles: 0,
+      walkToTiles: 0,
+      rampStartedAt: now,
+      lastRampStep: 0,
+      cooldownUntil: 0,
+    };
+  }
+  return state.townPartyIdleStepEvent;
+}
+
+function beginTownPartyIdleStepWalk(event, member, now, fromTiles, toTiles) {
+  event.startedAt = now;
+  event.walkFromTiles = fromTiles;
+  event.walkToTiles = toTiles;
+  event.walkOffsetTiles = fromTiles;
+  if (member) {
+    member.visualAction = "walking";
+    member.visualFrame = 0;
+    member.visualLastTick = now;
+    member.visualOneShot = false;
+  }
+}
+
+function updateTownPartyIdleStepWalk(event, member, now) {
+  const duration = WALK_CYCLE_MS;
+  const progress = Math.min(1, Math.max(0, (now - event.startedAt) / duration));
+  event.walkOffsetTiles = event.walkFromTiles + (event.walkToTiles - event.walkFromTiles) * progress;
+  if (!member) return progress >= 1;
+  member.visualAction = progress >= 1 ? "standing" : "walking";
+  const previousFrame = member.visualFrame ?? 0;
+  updateBossPartyMemberVisualFrame(member, now);
+  if (progress < 1) maybePlayTownPartyIdleWalkFootstep(previousFrame, member.visualFrame ?? 0);
+  if (progress >= 1) {
+    member.visualAction = "standing";
+    member.visualFrame = 0;
+    member.visualLastTick = now;
+  }
+  return progress >= 1;
+}
+
+function updateTownPartyIdleStepEvent(now) {
+  const members = state.townPartyIdleMembers ?? [];
+  if (!members.length) return;
+  const event = ensureTownPartyIdleStepEventState(now);
+  const member = townPartyIdleStepEventMember();
+
+  if (event.phase === "idle") {
+    if (!townPartyIdleTryRampTrigger(event, now, TOWN_IDLE_STEP_RAMP_INTERVAL_MS, TOWN_IDLE_STEP_RAMP_MAX_MS)) return;
+    const target = townPartyIdleTopMember(members);
+    if (!target) return;
+    event.memberClassId = target.classId;
+    event.phase = "walk1";
+    beginTownPartyIdleStepWalk(event, target, now, 0, 1);
+    return;
+  }
+
+  if (event.phase === "walk1") {
+    if (!member) {
+      townPartyIdleBeginStepEventCooldown(event, now);
+      return;
+    }
+    if (!updateTownPartyIdleStepWalk(event, member, now)) return;
+    event.phase = "wait1";
+    event.startedAt = now;
+    return;
+  }
+
+  if (event.phase === "wait1") {
+    if (now - event.startedAt < TOWN_IDLE_STEP_PAUSE_MS) return;
+    event.phase = "walk2";
+    beginTownPartyIdleStepWalk(event, member, now, 1, 2);
+    return;
+  }
+
+  if (event.phase === "walk2") {
+    if (!member) {
+      townPartyIdleBeginStepEventCooldown(event, now);
+      return;
+    }
+    if (!updateTownPartyIdleStepWalk(event, member, now)) return;
+    event.phase = "wait2";
+    event.startedAt = now;
+    return;
+  }
+
+  if (event.phase === "wait2") {
+    if (now - event.startedAt < TOWN_IDLE_STEP_PAUSE_MS) return;
+    event.phase = "teleportFx";
+    event.startedAt = now;
+    playSfx("ui.teleport", { volume: 0.38, throttleMs: 200 });
+    return;
+  }
+
+  if (event.phase === "teleportFx") {
+    if (now - event.startedAt < townIdleTeleportFxDurationMs()) return;
+    event.phase = "away";
+    event.startedAt = now;
+    return;
+  }
+
+  if (event.phase === "away") {
+    if (now - event.startedAt < TOWN_IDLE_STEP_AWAY_MS) return;
+    event.phase = "returnFx";
+    event.startedAt = now;
+    event.walkOffsetTiles = 0;
+    playSfx("ui.teleport", { volume: 0.38, throttleMs: 200 });
+    return;
+  }
+
+  if (event.phase === "returnFx") {
+    if (member) {
+      member.visualAction = "standing";
+      member.visualFrame = 0;
+      member.visualLastTick = now;
+    }
+    if (now - event.startedAt < townIdleTeleportFxDurationMs()) return;
+    townPartyIdleBeginStepEventCooldown(event, now);
+  }
+}
+
+function townGuestClassMaskMet(classMask, classId) {
+  const mask = Number(classMask) || 31;
+  const classBits = { Warrior: 1, Wizard: 2, Taoist: 4 };
+  return Boolean(mask & (classBits[classId] ?? 1));
+}
+
+function townGuestRandomClassId() {
+  const classes = CHARACTER_IDS.filter((classId) => {
+    const entry = CHARACTER_SELECT_CLASSES.find((candidate) => candidate.id === classId);
+    const combat = COMBAT_CLASSES.find((candidate) => candidate.id === classId);
+    return entry && !entry.disabled && combat && !combat.disabled;
+  });
+  if (!classes.length) return "Warrior";
+  return classes[randomInt(0, classes.length - 1)];
+}
+
+function townGuestRandomEquipItem(classId, layer) {
+  const items = (state.itemData?.items ?? []).filter((item) => {
+    if (item?.visual?.layer !== layer || item.visual?.index == null) return false;
+    if (!compatibleEquipmentSlots(item).length) return false;
+    if (!townGuestClassMaskMet(item?.requirements?.classMask, classId)) return false;
+    return state.catalogue?.layers?.[layer]?.indexes?.includes(item.visual.index);
+  });
+  if (!items.length) return null;
+  return items[randomInt(0, items.length - 1)];
+}
+
+function createTownGuestVisitorCharacter(classId) {
+  const character = createDefaultCharacterState(classId);
+  const weaponItem = townGuestRandomEquipItem(classId, "weapon");
+  const armourItem = townGuestRandomEquipItem(classId, "armour");
+  character.inventory.equipment = Object.fromEntries(EQUIPMENT_SLOTS.map((slot) => [slot.id, null]));
+  character.inventory.items = [];
+  character.inventory.nextInstanceId = 1;
+  const addEquipped = (item) => {
+    if (!item) return;
+    const slotId = compatibleEquipmentSlots(item)[0];
+    if (!slotId) return;
+    const entry = {
+      id: `guest-${character.inventory.nextInstanceId}`,
+      itemId: item.id,
+      quantity: 1,
+      slot: null,
+      ...normalizeInventoryEntryFields({}, item),
+    };
+    character.inventory.nextInstanceId += 1;
+    character.inventory.items.push(entry);
+    character.inventory.equipment[slotId] = entry.id;
+  };
+  addEquipped(weaponItem);
+  addEquipped(armourItem);
+  return character;
+}
+
+function createTownGuestVisitorMember(classId, now = performance.now()) {
+  const character = createTownGuestVisitorCharacter(classId);
+  const member = bossPartyMemberFromCharacter(classId, character, now);
+  member.name = "Visitor";
+  member.visualAction = "standing";
+  member.visualFrame = 0;
+  member.visualLastTick = now;
+  member.visualOneShot = false;
+  member.visualIndexes = bossPartyMemberVisualIndexes(member);
+  member.visualAtlases = {};
+  return member;
+}
+
+function townGuestVisitorPlayerAnchor() {
+  return combatAnchor("player");
+}
+
+function townGuestVisitorStopX() {
+  return townGuestVisitorPlayerAnchor().x - TOWN_IDLE_GUEST_BEHIND_TILES * LANE_TILE_PX;
+}
+
+function townGuestVisitorDrawAnchor() {
+  const event = state.townGuestVisitorEvent;
+  const stopX = townGuestVisitorStopX();
+  const y = Math.round(townGuestVisitorPlayerAnchor().y);
+  if (event?.phase === "runningIn") {
+    return {
+      x: Math.round(event.runX ?? -TOWN_IDLE_RUN_ENTRY_OFFSET_X),
+      y,
+    };
+  }
+  return { x: Math.round(stopX), y };
+}
+
+async function preloadTownGuestVisitorMember(member) {
+  member.visualIndexes = bossPartyMemberVisualIndexes(member);
+  member.visualAtlases = {};
+  await preloadBossPartyMemberVisualAtlases(member);
+  render();
+}
+
+function townGuestVisitorChatText(member) {
+  const lines = ["n00b", "come 1v1 me nerd..."];
+  const playerWeapon = equippedItem("weapon")?.name?.trim();
+  if (playerWeapon) lines.push(`Nice ${playerWeapon}!`);
+  const guestWeapon = bossPartyMemberEquippedVisualItem(member, "weapon")?.name?.trim();
+  const guestArmour = bossPartyMemberEquippedVisualItem(member, "armour")?.name?.trim();
+  const guestGearName = guestWeapon && guestArmour
+    ? (randomInt(0, 1) === 0 ? guestWeapon : guestArmour)
+    : (guestWeapon || guestArmour);
+  if (guestGearName) lines.push(`Check out my ${guestGearName}!`);
+  return lines[randomInt(0, lines.length - 1)];
+}
+
+function scheduleTownGuestVisitorOnEnter(now = performance.now()) {
+  if (state.game.mode !== "town") return;
+  state.townGuestVisitorMember = null;
+  state.townGuestVisitorEvent = {
+    phase: "idle",
+    memberClassId: null,
+    startedAt: 0,
+    runX: 0,
+    lastStepAt: 0,
+    nextEventAt: now + TOWN_IDLE_GUEST_ENTER_DELAY_MS,
+    skipped: Math.random() >= TOWN_IDLE_GUEST_EVENT_CHANCE,
+  };
+}
+
+function finishTownGuestVisitorEvent() {
+  state.townGuestVisitorEvent = null;
+  state.townGuestVisitorMember = null;
+}
+
+function beginTownGuestVisitorRun(event, member, now) {
+  event.phase = "runningIn";
+  event.startedAt = now;
+  event.lastStepAt = now;
+  event.runX = -TOWN_IDLE_RUN_ENTRY_OFFSET_X;
+  if (member) {
+    member.visualAction = "running";
+    member.visualFrame = 0;
+    member.visualLastTick = now;
+    member.visualOneShot = false;
+  }
+}
+
+function updateTownGuestVisitorEvent(now) {
+  if (state.game.mode !== "town") return;
+  const event = state.townGuestVisitorEvent;
+  if (!event) return;
+  const member = state.townGuestVisitorMember;
+
+  if (event.phase === "idle") {
+    if (event.skipped) return;
+    if (now < event.nextEventAt) return;
+    const classId = townGuestRandomClassId();
+    const guest = createTownGuestVisitorMember(classId, now);
+    state.townGuestVisitorMember = guest;
+    event.memberClassId = classId;
+    void preloadTownGuestVisitorMember(guest);
+    beginTownGuestVisitorRun(event, guest, now);
+    return;
+  }
+
+  if (event.phase === "runningIn") {
+    if (!member) {
+      finishTownGuestVisitorEvent();
+      return;
+    }
+    const stopX = townGuestVisitorStopX();
+    const stepAt = event.lastStepAt || now;
+    const dt = Math.max(0, now - stepAt);
+    event.lastStepAt = now;
+    event.runX = Math.min(stopX, (event.runX ?? -TOWN_IDLE_RUN_ENTRY_OFFSET_X) + townPartyIdleRunSpeedPxPerMs() * dt);
+    member.visualAction = "running";
+    const previousFrame = member.visualFrame ?? 0;
+    updateBossPartyMemberVisualFrame(member, now);
+    if (townPartyIdleMemberIsOnScreen(event.runX)) {
+      maybePlayTownPartyIdleRunFootstep(previousFrame, member.visualFrame ?? 0);
+    }
+    if (event.runX >= stopX) {
+      member.visualAction = "attack1";
+      member.visualFrame = 0;
+      member.visualLastTick = now;
+      member.visualOneShot = true;
+      event.phase = "attacking";
+      event.startedAt = now;
+      playWeaponSwingSfx({
+        ...bossPartySfxParams(member, 0.52, 90),
+        family: bossPartyWeaponSfxFamily(member, "swing"),
+      });
+    }
+    return;
+  }
+
+  if (event.phase === "attacking") {
+    if (!member) {
+      finishTownGuestVisitorEvent();
+      return;
+    }
+    member.visualAction = "attack1";
+    updateBossPartyMemberVisualFrame(member, now);
+    if (now - event.startedAt < townPartyIdleMemberActionDurationMs(member, "attack1")) return;
+    member.visualAction = "standing";
+    member.visualFrame = 0;
+    member.visualLastTick = now;
+    member.visualOneShot = false;
+    event.chatText = townGuestVisitorChatText(member);
+    event.phase = "waitAfterAttack";
+    event.startedAt = now;
+    return;
+  }
+
+  if (event.phase === "waitAfterAttack") {
+    if (!member) {
+      finishTownGuestVisitorEvent();
+      return;
+    }
+    member.visualAction = "standing";
+    updateBossPartyMemberVisualFrame(member, now);
+    if (now - event.startedAt < TOWN_IDLE_GUEST_POST_ATTACK_MS) return;
+    event.phase = "teleportFx";
+    event.startedAt = now;
+    playSfx("ui.teleport", { volume: 0.38, throttleMs: 200 });
+    return;
+  }
+
+  if (event.phase === "teleportFx") {
+    if (now - event.startedAt < townIdleTeleportFxDurationMs()) return;
+    finishTownGuestVisitorEvent();
+  }
+}
+
+function shouldDrawTownGuestVisitor() {
+  const event = state.townGuestVisitorEvent;
+  if (!event || event.phase === "idle" || !state.townGuestVisitorMember) return false;
+  if (event.phase === "teleportFx") return false;
+  if (event.phase === "runningIn" && (event.runX ?? 0) < 0) return false;
+  return true;
+}
+
+function drawTownGuestVisitorChatBubble(ctx, headAnchor, text = "n00b") {
+  ctx.save();
+  ctx.textAlign = "center";
+  ctx.textBaseline = "middle";
+  ctx.font = "700 12px Segoe UI, system-ui, sans-serif";
+  const width = Math.max(56, Math.ceil(ctx.measureText(text).width + 18));
+  const height = 22;
+  const x = Math.round(headAnchor.x);
+  const bubbleBottom = Math.round(headAnchor.y);
+  const bubbleTop = bubbleBottom - height;
+  const left = Math.round(x - width / 2);
+
+  ctx.fillStyle = "rgba(255, 255, 255, 0.94)";
+  ctx.strokeStyle = "rgba(30, 30, 28, 0.85)";
+  ctx.lineWidth = 1.5;
+  if (typeof ctx.roundRect === "function") {
+    ctx.beginPath();
+    ctx.roundRect(left, bubbleTop, width, height, 6);
+    ctx.fill();
+    ctx.stroke();
+  } else {
+    ctx.fillRect(left, bubbleTop, width, height);
+    ctx.strokeRect(left + 0.5, bubbleTop + 0.5, width - 1, height - 1);
+  }
+
+  ctx.beginPath();
+  ctx.moveTo(x - 5, bubbleBottom - 0.5);
+  ctx.lineTo(x, bubbleBottom + 7);
+  ctx.lineTo(x + 5, bubbleBottom - 0.5);
+  ctx.closePath();
+  ctx.fillStyle = "rgba(255, 255, 255, 0.94)";
+  ctx.fill();
+  ctx.strokeStyle = "rgba(30, 30, 28, 0.85)";
+  ctx.stroke();
+
+  ctx.fillStyle = "#1a1a18";
+  ctx.fillText(text, x, bubbleTop + height / 2);
+  ctx.restore();
+}
+
+function drawTownGuestVisitor(ctx) {
+  if (!shouldDrawTownGuestVisitor()) return;
+  const member = state.townGuestVisitorMember;
+  const event = state.townGuestVisitorEvent;
+  const anchor = townGuestVisitorDrawAnchor();
+  ctx.save();
+  ctx.fillStyle = "rgba(0, 0, 0, 0.24)";
+  ctx.beginPath();
+  ctx.ellipse(anchor.x, anchor.y - 4, 16, 5, 0, 0, Math.PI * 2);
+  ctx.fill();
+  ctx.restore();
+  drawBossPartyMemberCanvas(ctx, member, anchor);
+  if (event?.phase === "waitAfterAttack") {
+    drawTownGuestVisitorChatBubble(ctx, bossPartyMemberHeadAnchor(member, anchor), event.chatText ?? "n00b");
+  }
+}
+
+function updateTownPartyIdleVisualFrames(now) {
+  if (state.game.mode !== "town" || state.paused) return;
+  syncTownPartyIdleMembers();
+  updateTownPartyIdleEvent(now);
+  updateTownPartyIdleStepEvent(now);
+  updateTownPartyIdleReturnEvent(now);
+  updateTownGuestVisitorEvent(now);
+  const runEvent = state.townPartyIdleEvent;
+  const stepEvent = state.townPartyIdleStepEvent;
+  const returnEvent = state.townPartyIdleReturnEvent;
+  for (const member of state.townPartyIdleMembers ?? []) {
+    if (runEvent?.memberClassId === member.classId && runEvent.phase === "runningIn") continue;
+    if (stepEvent?.memberClassId === member.classId && (stepEvent.phase === "walk1" || stepEvent.phase === "walk2")) continue;
+    if (returnEvent?.memberClassId === member.classId && returnEvent.phase !== "done" && returnEvent.phase !== "pending") {
+      if (returnEvent.phase === "missing") continue;
+      if (returnEvent.phase !== "dead") updateBossPartyMemberVisualFrame(member, now);
+      continue;
+    }
+    member.alive = true;
+    member.visualAction = "standing";
+    updateBossPartyMemberVisualFrame(member, now);
+  }
+}
+
+function townPartyIdleMemberDrawAnchor(member) {
+  const runEvent = state.townPartyIdleEvent;
+  if (runEvent?.memberClassId === member.classId && runEvent.phase === "runningIn") {
+    return {
+      x: Math.round(runEvent.runX ?? member.townAnchorX ?? 0),
+      y: Math.round(member.townAnchorY ?? 0),
+    };
+  }
+  const stepEvent = state.townPartyIdleStepEvent;
+  if (stepEvent?.memberClassId === member.classId && stepEvent.phase !== "away") {
+    const offset = townPartyIdleStepOffsetPx(stepEvent);
+    return {
+      x: Math.round((member.townAnchorX ?? 0) + offset.x),
+      y: Math.round((member.townAnchorY ?? 0) + offset.y),
+    };
+  }
+  return {
+    x: Math.round(member.townAnchorX ?? 0),
+    y: Math.round(member.townAnchorY ?? 0),
+  };
+}
+
+function shouldDrawTownPartyIdleMember(member) {
+  const runEvent = state.townPartyIdleEvent;
+  if (runEvent?.memberClassId === member.classId) {
+    return runEvent.phase === "teleportFx" || runEvent.phase === "runningIn";
+  }
+  const stepEvent = state.townPartyIdleStepEvent;
+  if (stepEvent?.memberClassId === member.classId) {
+    return stepEvent.phase !== "away";
+  }
+  const returnEvent = state.townPartyIdleReturnEvent;
+  if (returnEvent?.memberClassId === member.classId) {
+    return returnEvent.phase !== "missing" && returnEvent.phase !== "pending";
+  }
+  return true;
+}
+
+function drawTownPartyIdleTeleportFx(ctx, anchorX, anchorY, startedAt, now = performance.now()) {
+  const atlas = state.townIdleTeleportAtlas;
+  if (!atlas?.layers?.length) return;
+  withScreenBlend(ctx, () => {
+    for (const layer of atlas.layers) {
+      const frameIndex = spellFxLayerFrameIndex(layer, startedAt, now);
+      if (frameIndex < 0) continue;
+      drawSpellLayerCanvas(ctx, atlas.spellId, layer, frameIndex, anchorX, anchorY);
+    }
+  });
+}
+
+function drawTownPartyIdleReviveFx(ctx, anchorX, anchorY, startedAt, now = performance.now()) {
+  const atlas = state.townIdleReviveAtlas;
+  if (!atlas?.layers?.length) return;
+  withScreenBlend(ctx, () => {
+    for (const layer of atlas.layers) {
+      const frameIndex = spellFxLayerFrameIndex(layer, startedAt, now);
+      if (frameIndex < 0) continue;
+      drawSpellLayerCanvas(ctx, atlas.spellId, layer, frameIndex, anchorX, anchorY);
+    }
+  });
+}
+
+function drawTownIdleTeleportFx(ctx) {
+  const now = performance.now();
+  const runEvent = state.townPartyIdleEvent;
+  if (runEvent?.phase === "teleportFx") {
+    const member = townPartyIdleEventMember();
+    if (member) {
+      drawTownPartyIdleTeleportFx(
+        ctx,
+        Math.round(member.townAnchorX ?? 0),
+        Math.round(member.townAnchorY ?? 0),
+        runEvent.startedAt,
+        now,
+      );
+    }
+  }
+  const stepEvent = state.townPartyIdleStepEvent;
+  if (stepEvent?.phase === "teleportFx" || stepEvent?.phase === "returnFx") {
+    const member = townPartyIdleStepEventMember();
+    if (member) {
+      const offset = stepEvent.phase === "returnFx"
+        ? { x: 0, y: 0 }
+        : townPartyIdleStepOffsetPx(stepEvent);
+      drawTownPartyIdleTeleportFx(
+        ctx,
+        Math.round((member.townAnchorX ?? 0) + offset.x),
+        Math.round((member.townAnchorY ?? 0) + offset.y),
+        stepEvent.startedAt,
+        now,
+      );
+    }
+  }
+  const returnEvent = state.townPartyIdleReturnEvent;
+  if (returnEvent?.phase === "teleportFx") {
+    const member = townPartyIdleReturnEventMember();
+    if (member) {
+      drawTownPartyIdleTeleportFx(
+        ctx,
+        Math.round(member.townAnchorX ?? 0),
+        Math.round(member.townAnchorY ?? 0),
+        returnEvent.startedAt,
+        now,
+      );
+    }
+  }
+  if (returnEvent?.phase === "revive") {
+    const member = townPartyIdleReturnEventMember();
+    if (member) {
+      drawTownPartyIdleReviveFx(
+        ctx,
+        Math.round(member.townAnchorX ?? 0),
+        Math.round(member.townAnchorY ?? 0),
+        returnEvent.startedAt,
+        now,
+      );
+    }
+  }
+  const guestEvent = state.townGuestVisitorEvent;
+  if (guestEvent?.phase === "teleportFx" && state.townGuestVisitorMember) {
+    const anchor = townGuestVisitorDrawAnchor();
+    drawTownPartyIdleTeleportFx(ctx, anchor.x, anchor.y, guestEvent.startedAt, now);
+  }
+}
+
+function drawTownPartyIdleMembers(ctx) {
+  const members = state.townPartyIdleMembers ?? [];
+  if (!members.length) return;
+  for (const member of [...members].sort((a, b) => townPartyIdleMemberDrawAnchor(a).x - townPartyIdleMemberDrawAnchor(b).x)) {
+    if (shouldDrawTownPartyIdleMember(member)) drawTownPartyIdleMemberCanvas(ctx, member);
+  }
+  drawTownIdleTeleportFx(ctx);
+}
+
+function drawTownPartyIdleMemberCanvas(ctx, member) {
+  const anchor = townPartyIdleMemberDrawAnchor(member);
+  ctx.save();
+  ctx.fillStyle = "rgba(0, 0, 0, 0.24)";
+  ctx.beginPath();
+  ctx.ellipse(anchor.x, anchor.y - 4, 16, 5, 0, 0, Math.PI * 2);
+  ctx.fill();
+  ctx.restore();
+  drawBossPartyMemberCanvas(ctx, member, anchor);
 }
 
 function invalidateStampBackgroundCache() {
@@ -28897,10 +30041,14 @@ function drawBossPartyHealFxCanvas(ctx) {
   }
 }
 
-function drawBossPartyMemberCanvas(ctx, member) {
+function drawBossPartyMemberCanvas(ctx, member, anchorOverride = null) {
   const action = member.visualAction ?? (member.alive ? "stance" : "die");
-  const anchorX = Math.round((member.worldX ?? state.battle.playerX) - state.battle.cameraX);
-  const anchorY = Math.floor(state.stageHeight * LANE.y);
+  const anchorX = anchorOverride
+    ? Math.round(anchorOverride.x)
+    : Math.round((member.worldX ?? state.battle.playerX) - state.battle.cameraX);
+  const anchorY = anchorOverride
+    ? Math.round(anchorOverride.y)
+    : Math.floor(state.stageHeight * LANE.y);
   for (const layer of layerNames()) {
     const index = member.visualIndexes?.[layer];
     if (index == null || index === "") continue;

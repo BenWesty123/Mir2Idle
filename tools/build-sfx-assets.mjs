@@ -12,6 +12,10 @@ const groups = [
     id: "movement",
     label: "Footsteps",
     entries: [
+      sound("footstep.ground.walk.left", "Ground walk left", 10001),
+      sound("footstep.ground.walk.right", "Ground walk right", 10002),
+      sound("footstep.ground.run.left", "Ground run left", 10003),
+      sound("footstep.ground.run.right", "Ground run right", 10004),
       sound("footstep.field.walk.left", "Field walk left", 10009),
       sound("footstep.field.walk.right", "Field walk right", 10010),
       sound("footstep.field.run.left", "Field run left", 10011),
@@ -110,6 +114,7 @@ const groups = [
     entries: [
       sound("player.flinch", "Male flinch", 10138),
       sound("player.death", "Male death", 10144),
+      sound("player.revive", "Revive", 20791),
     ],
   },
   {

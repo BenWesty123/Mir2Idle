@@ -20,6 +20,36 @@ Use this format:
 - ...
 ```
 
+## 2026-06-21 - Auto (Cursor) - iOS lag mitigation (render loop)
+
+### Changed
+- `src/app.monolith.js` `render()`: gated the per-frame debug readout writes
+  (`els.readout.textContent` + `els.frameMeta.innerHTML`) behind `!IS_GAME_UI`.
+  Those are lab-only diagnostics but were rebuilding 8 `<dt>/<dd>` nodes via
+  `innerHTML` ~60x/sec in the shipped game UI, which iOS Safari janks on.
+- `src/app.monolith.js` `tick()`: added an iOS-only render-rate cap. New
+  `IS_IOS` detection (covers iPadOS-masquerading-as-Mac via maxTouchPoints) and
+  `RENDER_MIN_INTERVAL_MS` (33ms / ~30fps on iOS, 0 = uncapped elsewhere). The
+  simulation still runs every rAF for timing accuracy (`updateFrame` is
+  delta-based), so only repaint frequency is reduced. Non-iOS behaviour is
+  byte-for-byte unchanged (`now - lastRenderAt >= 0` is always true).
+
+### Checked
+- `npm run check`: pass (167 tests, lint, syntax, offline fixtures unchanged).
+- `npm run smoke`: pass, zero console/page errors.
+- No canvas `filter`/`shadowBlur` exist (already iOS-safe); canvas renders at
+  logical resolution + CSS-scales (no retina blow-up).
+
+### Notes / Risks
+- Could not profile a real iOS device from here; fixes target the two highest-
+  probability costs found by reading the render path. 30fps on iOS is a visible
+  smoothness change but acceptable for an idle game; tune `RENDER_MIN_INTERVAL_MS`
+  (e.g. 25ms = 40fps) if it feels too low.
+
+### Suggested Next Step
+- If a tester confirms improvement, consider also throttling per-frame sim work
+  on iOS, or making the cap adaptive based on measured `state.perf.drawMs`.
+
 ## 2026-06-20 - Auto (Cursor) - Wizard offline turn phase in core
 
 ### Changed

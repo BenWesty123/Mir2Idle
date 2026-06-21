@@ -19,6 +19,7 @@ export const TAOIST_DEFENCE_BUFF_IMPACT_FX = {
 };
 export const LEVEL_UP_FX_ID = "LevelUp";
 export const HEALING_RESTORE_FX_ID = "HealingRestore";
+export const REVIVE_FX_ID = "Revive";
 export const MAP_LIGHTNING_FX_ID = "MapLightning";
 
 const NESTED_ATLAS_SHEET_KEYS = ["projectile", "impact", "ground", "cast", "charge"];
@@ -32,6 +33,7 @@ export function packagedSpellfxSpellIds() {
       ...Object.values(TAOIST_DEFENCE_BUFF_IMPACT_FX),
       LEVEL_UP_FX_ID,
       HEALING_RESTORE_FX_ID,
+      REVIVE_FX_ID,
       MAP_LIGHTNING_FX_ID,
     ]),
   ];
