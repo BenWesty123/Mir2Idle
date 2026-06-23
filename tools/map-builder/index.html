@@ -1,0 +1,98 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Crystal Map Builder</title>
+    <link rel="stylesheet" href="./styles.css" />
+  </head>
+  <body>
+    <header>
+      <h1>Crystal Map Builder</h1>
+      <p class="sub">Open Crystal .map files, inspect layers, paint tiles, export edits. Local tool — reads your Crystal Data/Map folders via tools/map-builder/paths.json.</p>
+      <div class="toolbar">
+        <select id="mapSelect" aria-label="Map file"></select>
+        <button type="button" id="loadMapBtn" class="primary">Load map</button>
+        <button type="button" id="saveMapBtn">Export .map</button>
+        <label class="inline">Zoom <input id="zoomRange" type="range" min="0.35" max="4" step="0.05" value="1" /><output id="zoomValue">1.00x</output></label>
+        <span id="status"></span>
+      </div>
+    </header>
+    <div class="layout">
+      <aside>
+        <section class="panel">
+          <h2>Tools</h2>
+          <div class="row">
+            <button type="button" id="toolPaint" class="primary">Paint</button>
+            <button type="button" id="toolPick">Eyedropper</button>
+            <button type="button" id="toolRegion">Region box</button>
+          </div>
+          <label class="inline">Paint layer
+            <select id="paintLayer">
+              <option value="back">Back (floor)</option>
+              <option value="middle">Middle</option>
+              <option value="front">Front (objects)</option>
+            </select>
+          </label>
+          <p class="hint">Region box: drag a rectangle to export tile frames + game snippets. Back tiles snap to 2x2 anchors (even coords). Alt+drag or right-drag to pan. Wheel to zoom.</p>
+        </section>
+        <section class="panel layer-toggles">
+          <h2>Visible layers</h2>
+          <label><input type="checkbox" id="layerBack" checked /> Back</label>
+          <label><input type="checkbox" id="layerMiddle" checked /> Middle</label>
+          <label><input type="checkbox" id="layerFront" checked /> Front</label>
+        </section>
+        <section class="panel">
+          <h2>Brush</h2>
+          <label class="inline">Back frame <input id="brushBack" type="number" min="0" step="1" value="3450" /></label>
+          <label class="inline">Middle frame <input id="brushMiddle" type="number" min="0" step="1" value="0" /></label>
+          <label class="inline">Front frame <input id="brushFront" type="number" min="0" step="1" value="0" /></label>
+          <label class="inline">Front slot <input id="brushFrontSlot" type="number" min="0" step="1" value="13" /></label>
+        </section>
+        <section class="panel">
+          <h2>Tile palette</h2>
+          <label class="inline">Lib slot
+            <select id="paletteSlot">
+              <option value="0">0 - Tiles</option>
+              <option value="1">1 - SmTiles</option>
+              <option value="2">2 - Objects</option>
+              <option value="13" selected>13 - Objects12</option>
+            </select>
+          </label>
+          <label class="inline">Start <input id="paletteStart" type="number" value="3448" /></label>
+          <label class="inline">Count <input id="paletteCount" type="number" value="40" min="1" max="200" /></label>
+          <button type="button" id="loadPaletteBtn">Load range</button>
+          <div id="palette"></div>
+        </section>
+      </aside>
+      <main>
+        <canvas id="viewport"></canvas>
+        <div id="hud">Load a map to begin</div>
+      </main>
+      <aside class="right">
+        <section class="panel">
+          <h2>Cell inspector</h2>
+          <div id="inspector" class="inspector">Hover a cell</div>
+        </section>
+                <section class="panel">
+          <h2>Region export</h2>
+          <p class="hint">Drag a box with Region tool, then Shift+click unwanted cells to omit them from JSON/snippets.</p>
+          <div id="regionSummary" class="inspector">No region selected</div>
+          <div class="row">
+            <button type="button" id="copyRegionJson">Copy JSON</button>
+            <button type="button" id="copyRegionSnippets">Copy snippets</button>
+            <button type="button" id="downloadRegionJson">Download JSON</button>
+            <button type="button" id="clearRegionBtn">Clear</button>
+          </div>
+          <pre id="regionSnippets" class="snippet">Select a region…</pre>
+        </section><section class="panel">
+          <h2>Notes</h2>
+          <p class="hint">Exports go to tile-review/map-builder-exports/ with a timestamp. Originals are never overwritten.</p>
+          <p class="hint">Front slot 13 = Objects12.Lib (hell cavern walls). Slot 0 = Tiles.Lib (floor).</p>
+        </section>
+      </aside>
+    </div>
+    <script type="module" src="./app.js"></script>
+  </body>
+</html>
+

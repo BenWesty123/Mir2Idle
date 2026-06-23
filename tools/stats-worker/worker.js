@@ -124,6 +124,76 @@ function normalizeStatRange(value) {
   return [intValue(value[0]), intValue(value[1])];
 }
 
+const EQUIPMENT_SLOT_IDS = new Set([
+  "weapon", "armour", "helmet", "torch", "necklace", "braceletL",
+  "braceletR", "ringL", "ringR", "amulet", "belt", "boots",
+]);
+
+function itemIdValue(value) {
+  if (typeof value !== "string") return null;
+  const cleaned = value.trim().replace(/[^a-z0-9_-]/gi, "").slice(0, 64);
+  return cleaned || null;
+}
+
+const BONUS_STAT_RANGE_KEYS = ["dc", "mc", "sc", "ac", "amc"];
+const BONUS_STAT_SCALAR_KEYS = [
+  "hp", "mp", "accuracy", "agility", "luck", "attackSpeed",
+  "poisonAttack", "freezing", "magicResist", "poisonResist",
+  "healthRecovery", "poisonRecovery", "strong",
+];
+
+function signedIntValue(value, max = 99999) {
+  const number = Math.trunc(Number(value));
+  if (!Number.isFinite(number)) return 0;
+  return Math.max(-max, Math.min(max, number));
+}
+
+function normalizeBonusStatsPayload(value) {
+  const source = parseJsonObject(value);
+  const output = {};
+  for (const key of BONUS_STAT_RANGE_KEYS) {
+    const range = Array.isArray(source[key]) ? source[key] : [0, 0];
+    output[key] = [signedIntValue(range[0]), signedIntValue(range[1])];
+  }
+  for (const key of BONUS_STAT_SCALAR_KEYS) {
+    output[key] = signedIntValue(source[key]);
+  }
+  return output;
+}
+
+function normalizeEquipmentPayload(value) {
+  const source = parseJsonObject(value);
+  const output = {};
+  for (const [slotId, entry] of Object.entries(source)) {
+    if (!EQUIPMENT_SLOT_IDS.has(slotId)) continue;
+    const itemId = itemIdValue(entry?.itemId ?? entry);
+    if (!itemId) continue;
+    output[slotId] = {
+      itemId,
+      smithLevel: intValue(entry?.smithLevel, 0, 99),
+      weaponRefineLevel: intValue(entry?.weaponRefineLevel, 0, 99),
+      gemCount: intValue(entry?.gemCount, 0, 99),
+      bonusStats: normalizeBonusStatsPayload(entry?.bonusStats),
+      smithBonusStats: normalizeBonusStatsPayload(entry?.smithBonusStats),
+    };
+  }
+  return output;
+}
+
+function normalizeSkillsPayload(value) {
+  const source = parseJsonObject(value);
+  const output = {};
+  let count = 0;
+  for (const [spellId, level] of Object.entries(source)) {
+    if (count >= 64) break;
+    const key = itemIdValue(spellId);
+    if (!key) continue;
+    output[key] = intValue(level, 0, 99);
+    count += 1;
+  }
+  return output;
+}
+
 function normalizeCharacterStatsPayload(payload) {
   const characterClass = characterClassValue(payload?.characterClass ?? payload?.classId ?? payload?.class);
   if (!characterClass) return null;
@@ -137,6 +207,8 @@ function normalizeCharacterStatsPayload(payload) {
     gold: intValue(payload?.gold),
     playtimeMs: intValue(payload?.playtimeMs, 0, 365 * 24 * 60 * 60 * 1000),
     activeZoneId: textValue(payload?.activeZoneId, 80),
+    equipment: normalizeEquipmentPayload(payload?.equipment),
+    skills: normalizeSkillsPayload(payload?.skills),
     stats: {
       hp: intValue(stats.hp),
       maxHp: intValue(stats.maxHp),
@@ -275,6 +347,8 @@ function formatLeaderboardCharacters(characterLevels, characterStats) {
         kills: intValue(summary?.kills),
         gold: intValue(summary?.gold),
         stats: summary?.stats ?? null,
+        equipment: normalizeEquipmentPayload(summary?.equipment),
+        skills: normalizeSkillsPayload(summary?.skills),
       };
     })
     .sort((left, right) => right.level - left.level || left.characterClass.localeCompare(right.characterClass));

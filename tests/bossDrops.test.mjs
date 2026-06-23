@@ -17,6 +17,8 @@ const EXPECTED_LABELS = [
   "Yimoogi",
   "Oma King Spirit",
   "King Hog",
+  "Dream Devourer",
+  "Dark Devourer",
   "Dark Devil",
 ];
 

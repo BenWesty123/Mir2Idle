@@ -13,7 +13,8 @@ param(
   [int]$FocusMapX = 59,
   [int]$FocusMapY = 98,
   [int]$CellWidth = 48,
-  [int]$CellHeight = 32
+  [int]$CellHeight = 32,
+  [int[]]$FloorFillFrames = @(3051, 3052, 3053, 3054, 3055)
 )
 
 if ([string]::IsNullOrWhiteSpace($SheetFile)) {
@@ -277,8 +278,6 @@ function Test-CellHasWall($map, [int]$x, [int]$y) {
   return -not (Test-FloorSized $image.Bitmap)
 }
 
-$PRAJNA_FLOOR_FRAMES = @(3051, 3052, 3053, 3054, 3055)
-
 for ($y = $CropY; $y -lt ($CropY + $CropHCells); $y++) {
   for ($x = $CropX; $x -lt ($CropX + $CropWCells); $x++) {
     if (($x -band 1) -ne 0 -or ($y -band 1) -ne 0) { continue }
@@ -301,7 +300,7 @@ for ($y = $CropY; $y -lt ($CropY + $CropHCells); $y++) {
     if (Test-CellHasWall $map $x $y) { continue }
     $tileX = [Math]::Floor(($x - $CropX) / 2)
     $tileY = [Math]::Floor(($y - $CropY) / 2)
-    $frame = $PRAJNA_FLOOR_FRAMES[($tileX + $tileY) % $PRAJNA_FLOOR_FRAMES.Length]
+    $frame = $FloorFillFrames[($tileX + $tileY) % $FloorFillFrames.Length]
     $drawX = ($x - $CropX) * $CellWidth
     $drawY = ($y - $CropY) * $CellHeight
     Add-Layer 0 $frame $x $y $drawX $drawY $true "fill"

@@ -13,6 +13,7 @@ function Get-MonsterLibActionFrames {
     0  = "standing"
     1  = "walking"
     9  = "attack1"
+    14 = "attackRange1"
   }
   $fs = [System.IO.File]::OpenRead($LibraryPath)
   $br = New-Object System.IO.BinaryReader($fs)
@@ -161,6 +162,8 @@ $directionalActions = @(
   @{ name = "attackSouthWest"; base = "attack1"; direction = 5 }
   @{ name = "standingNorthWest"; base = "standing"; direction = 7 }
   @{ name = "standingSouthWest"; base = "standing"; direction = 5 }
+  @{ name = "attackRangeNorthWest"; base = "attackRange1"; direction = 7 }
+  @{ name = "attackRangeSouthWest"; base = "attackRange1"; direction = 5 }
 )
 
 $utf8NoBom = New-Object System.Text.UTF8Encoding($false)
@@ -187,6 +190,29 @@ foreach ($index in $Indexes) {
   $newFrames = New-Object System.Collections.Generic.List[object]
   $lib = [SwarmMonsterLib]::new((Resolve-Path $library))
   try {
+    $primaryDirection = [int]$atlas.direction
+    if (-not ($atlas.actions.PSObject.Properties.Name -contains "attackRange1")) {
+      $rangeSpec = $libActions["attackRange1"]
+      if ($null -ne $rangeSpec) {
+        for ($i = 0; $i -lt $rangeSpec.count; $i++) {
+          $srcFrame = if ($rangeSpec.reverse) {
+            $rangeSpec.start - $i
+          } else {
+            $rangeSpec.start + ($primaryDirection * $rangeSpec.offset) + $i
+          }
+          $image = $lib.ReadImage($srcFrame)
+          $newFrames.Add([pscustomobject]@{
+            action = "attackRange1"
+            interval = $rangeSpec.interval
+            slot = $nextSlot
+            srcFrame = $srcFrame
+            image = $image
+          }) | Out-Null
+          $nextSlot += 1
+        }
+      }
+    }
+
     foreach ($entry in $directionalActions) {
       if ($atlas.actions.PSObject.Properties.Name -contains $entry.name) { continue }
       $spec = $libActions[$entry.base]
@@ -249,9 +275,9 @@ foreach ($index in $Indexes) {
   foreach ($prop in $atlas.actions.PSObject.Properties) {
     $actions[$prop.Name] = $prop.Value
   }
-  foreach ($entry in $directionalActions) {
-    if ($actions.Contains($entry.name)) { continue }
-    $frames = @($newFrames | Where-Object { $_.action -eq $entry.name })
+  foreach ($actionName in ($newFrames | ForEach-Object { $_.action } | Select-Object -Unique)) {
+    if ($actions.Contains($actionName)) { continue }
+    $frames = @($newFrames | Where-Object { $_.action -eq $actionName })
     if ($frames.Count -eq 0) { continue }
     $jsonFrames = @()
     foreach ($frame in $frames) {
@@ -277,7 +303,7 @@ foreach ($index in $Indexes) {
         $frame.image.Dispose()
       }
     }
-    $actions[$entry.name] = [ordered]@{
+    $actions[$actionName] = [ordered]@{
       interval = $frames[0].interval
       frames = $jsonFrames
     }

@@ -173,6 +173,21 @@
       "description": "Minotaur King boss room — D2079 center"
     },
     {
+      "id": "zone-red-cavern-1",
+      "label": "Red Cavern 1",
+      "description": "Wasteland red cavern entrance"
+    },
+    {
+      "id": "zone-red-cavern-2",
+      "label": "Red Cavern 2",
+      "description": "Deeper red cavern — devourers"
+    },
+    {
+      "id": "zone-red-cavern-kr",
+      "label": "Red Cavern KR",
+      "description": "Dream and Dark Devourer — dual boss room (RCK 63, 85)"
+    },
+    {
       "id": "zone-bdd-1",
       "label": "Black Dragon Dungeon 1F",
       "description": "Evil Tongs and Evil Snake — Crystal BDD floor mobs (EvilTongs20 / EvilSnake20)"
@@ -231,11 +246,6 @@
       "id": "zone-bdd-13",
       "label": "Dark Devil Palace",
       "description": "Crystal Dark Devil Palace (D2013) — Dark Devil final BDD boss"
-    },
-    {
-      "id": "zone-manectric-king-kr",
-      "label": "Ice Hell KR",
-      "description": "Manectric King boss room — Crystal IceHellTemple_KR (HELL206)"
     },
     {
       "id": "zone-flame-queen-kr",

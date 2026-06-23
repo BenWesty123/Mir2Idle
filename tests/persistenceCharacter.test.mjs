@@ -73,6 +73,7 @@ test("sanitizeCharacterBattleState: normalizes battle snapshot fields", () => {
     playerHp: "42",
     playerMp: "",
     potHealthAmount: 3.7,
+    vampAmount: 4.9,
     statBuffs: [],
   });
   assert.equal(result.running, false);
@@ -80,6 +81,7 @@ test("sanitizeCharacterBattleState: normalizes battle snapshot fields", () => {
   assert.equal(result.playerHp, 42);
   assert.equal(result.playerMp, null);
   assert.equal(result.potHealthAmount, 3);
+  assert.equal(result.vampAmount, 4);
 });
 
 test("itemUsesEntryDurability", () => {

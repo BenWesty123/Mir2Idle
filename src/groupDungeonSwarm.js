@@ -307,6 +307,14 @@ export function swarmAttackActionForLane(lane) {
   return "attack1";
 }
 
+/** Ranged attack clip uses the same lane-facing set when directional range clips exist. */
+export function swarmRangeAttackActionForLane(lane) {
+  const clamped = swarmClampLane(lane);
+  if (clamped < 0) return "attackRangeSouthWest";
+  if (clamped > 0) return "attackRangeNorthWest";
+  return "attackRange1";
+}
+
 /** Idle between attacks: Crystal keeps Target.Direction while in ProcessTarget range. */
 export function swarmStanceActionForLane(lane) {
   const clamped = swarmClampLane(lane);
@@ -368,6 +376,9 @@ const SWARM_DIRECTION_FALLBACKS = {
   walkSouthWest: "walking",
   attackNorthWest: "attack1",
   attackSouthWest: "attack1",
+  attackRange1: "attack1",
+  attackRangeNorthWest: "attackRange1",
+  attackRangeSouthWest: "attackRange1",
   attackRange2: "attack1",
   standingNorthWest: "standing",
   standingSouthWest: "standing",

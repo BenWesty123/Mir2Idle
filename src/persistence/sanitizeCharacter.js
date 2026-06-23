@@ -111,6 +111,7 @@ export function sanitizeCharacterBattleState(savedBattle = {}) {
     potHealthAmount: Math.max(0, Math.trunc(Number(savedBattle?.potHealthAmount) || 0)),
     potManaAmount: Math.max(0, Math.trunc(Number(savedBattle?.potManaAmount) || 0)),
     healAmount: Math.max(0, Math.trunc(Number(savedBattle?.healAmount) || 0)),
+    vampAmount: Math.max(0, Math.trunc(Number(savedBattle?.vampAmount) || 0)),
     statBuffs: sanitizeStatBuffs(savedBattle?.statBuffs),
     petStatBuffs: sanitizeStatBuffs(savedBattle?.petStatBuffs),
   };

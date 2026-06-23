@@ -51,6 +51,30 @@ export const BUFF_POTION_DEFS = {
     minBonus: 0,
     maxBonus: 5,
   },
+  "impact-drug-l": {
+    kind: "impact",
+    label: "Impact",
+    stat: "dc",
+    classes: ["Warrior"],
+    minBonus: 0,
+    maxBonus: 9,
+  },
+  "magic-drug-l": {
+    kind: "magic",
+    label: "Magic",
+    stat: "mc",
+    classes: ["Wizard"],
+    minBonus: 0,
+    maxBonus: 7,
+  },
+  "taoist-drug-l": {
+    kind: "taoist",
+    label: "Taoist",
+    stat: "sc",
+    classes: ["Taoist"],
+    minBonus: 0,
+    maxBonus: 7,
+  },
 };
 
 export function buffPotionDefForItem(item) {

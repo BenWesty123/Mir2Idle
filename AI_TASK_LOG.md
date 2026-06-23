@@ -1,5 +1,202 @@
 # AI Task Log - LOM Idle V2
 
+## 2026-06-22 - Auto (Cursor) - Red Cavern KR at Crystal hub (50, 55)
+
+### Changed
+- Built `red-cavern-kr-center` map stamp from RCK.map focus (50, 55).
+- Added `zone-red-cavern-kr` (Dream/Dark Devourer, arena at 50/55) + Wasteland teleport entry + boss room def.
+- Spot picker mockup: `tile-review/red-cavern-kr-spot-picker/`.
+
+### Checked
+- `npm run check` + `npm run smoke`.
+
+---
+
+## 2026-06-22 - Auto (Cursor) - Red Cavern lane decorations (picker #1–14 subset)
+
+### Changed
+- Built prop catalog + decoration sheet from picker **#1, #2, #5, #8, #9, #10, #11, #12, #13, #14** → `public/mapobjects/red-cavern-catalog.png`.
+- Added `tools/build-red-cavern-decoration-sheet.ps1`.
+- Wired `RED_CAVERN_DECORATIONS` in `phase1Data.js` (1488px corridor loop, row pool like BDD/Prajna Cave).
+
+### Checked
+- `npm run check` + `npm run smoke`.
+
+---
+
+## 2026-06-22 - Auto (Cursor) - Wall column exclusion: walls + decorations
+
+### Changed
+- `build-crystal-wall-column-strip.ps1`: excluded cells now suppress tall wall sprites whose vertical span overlaps an excluded row (not just the anchor cell), skip 2×2 back tiles when any quadrant is excluded, and skip floor/middle/front floor slices that overlap exclusions.
+- Rebuilt `red-cavern-corridor-edge.png` with the same 154-cell region JSON.
+- Bumped `MAP_STAMP_ASSET_VERSION` to `20260622-red-cavern-corridor-exclude`.
+
+### Checked
+- `npm run check` + `npm run smoke`.
+
+---
+
+## 2026-06-22 - Auto (Cursor) - Red Cavern corridor region (R01 cols 21–51)
+
+### Changed
+- Saved curated map-builder export to `tools/tile-review/red-cavern-r01-corridor-region.json` (31 columns, lane Y 34, **154 excluded cells**).
+- Updated `build-red-cavern-corridor-edge.ps1` to read bounds / lane / exclusions from region JSON.
+- Rebuilt `red-cavern-wall-columns.png` (1488px) and `red-cavern-corridor-edge.png` (3000px repeat). `yOffsetFromBase` unchanged at **-508**.
+
+### Checked
+- `npm run check` + `npm run smoke`.
+
+---
+
+## 2026-06-21 - Auto (Cursor) - Red Cavern looping corridor wall (R01)
+
+### Changed
+- Built R01 map columns 192–213 as wall strip; padded to **3000px** repeat canvas (`red-cavern-corridor-edge.png`).
+- Added `red-cavern-corridor` cave edge set; Red Cavern zones use `edgeSet` for scrolling background walls.
+- Tools: `build-crystal-wall-column-strip` (direct), `build-red-cavern-corridor-edge.ps1`.
+
+### Checked
+- `npm run check`.
+
+---
+
+## 2026-06-21 - Auto (Cursor) - Red Cavern floors 1–2 (Wasteland solo dungeon)
+
+### Changed
+- Added enemy templates **441–446** (Ghastly Leecher, Manworms, Cyano Ghast, Dream/Dark Devourer) with Crystal stats; gold-only zone rewards, no item drops yet.
+- Added zones `zone-red-cavern-1` / `zone-red-cavern-2` and **Wasteland** teleport region (2 zones).
+- Built `red-cavern` map tile set from Crystal R01/R02 walkable tiles (Tiles.Lib 3850–3854); exported monster atlases 152–155, 159, 163; SFX entries in `build-sfx-assets.mjs`.
+
+### Checked
+- `npm run check` + `npm run smoke`.
+
+---
+
+## 2026-06-21 - Auto (Cursor) - Remove Wasteland hell zones (keep mobs for group dungeon)
+
+### Changed
+- Removed solo zones: Hell Cavern 1/2, Ice Hell 1/2 + KR, Fire Hell 1/2 + KR (`zone-manectric-king-kr`, `zone-fire-hell-kr`).
+- Removed Wasteland teleport region, hell cavern edge sets, and hell zone visuals from `phase1Data.js` / `app.monolith.js` / `zones.json`.
+- **Kept** enemy templates **418–440**, monster atlases, SFX, and build tools for a future group-dungeon implementation.
+
+### Checked
+- `npm run check` + `npm run smoke`.
+
+---
+
+## 2026-06-21 - Auto (Cursor) - Hell Cavern HC2 visuals + mob SFX/attack FX
+
+### Changed
+- Reverted HC2 lava/overpass decorations — **HC2 now matches HC1** (`tileAnchor2x2`, `groundTopRows: 0`, empty decorations). Removed hell-overpass-lava assets/script.
+- `tools/build-sfx-assets.mjs` — SFX for Hell Cavern mobs (215–220, demons 226/227 via Crystal image 225 sounds).
+- `tools/append-hell-cavern-attack-blend.ps1` — Crystal-accurate `attack1Blend` overlays on atlases 215–220 (slash/cast FX during attack1).
+- Rebuilt `public/audio/sfx/` and updated hell monster PNG/JSON atlases; bumped `MONSTER_ASSET_VERSION`.
+
+### Checked
+- `npm run check` green.
+
+---
+
+## 2026-06-21 - Auto (Cursor) - Hell Overpass lava pools (hell03, undo hell01)
+
+### Changed
+- **Undid hell01 lava work** — HC1 has no lava decorations again.
+- Rebuilt lava from **hell03.map** region (72,120)–(83,127): **Tiles.Lib back frames 16870–16893** (24 tiles, 2×2 anchor checkerboard), not Objects12 front props.
+- Added `tools/build-hell-overpass-lava-pool.ps1` + `tools/data/hell03-lava-pool-region.json`.
+- Removed `tools/build-hell-cavern-lava-pool.ps1`, `tools/data/hell01-lava-pool-region.json`, `public/mapobjects/hell-cavern-lava.png`.
+- `public/mapobjects/hell-overpass-lava.png` (580×260) + `hell-overpass-lava` set in `index.json`.
+- `src/phase1Data.js` — `HELL_OVERPASS_LAVA_DECORATIONS` on **HC2 only** (`decorationSet: hell-overpass-lava`).
+
+### Checked
+- `npm run check` green.
+
+---
+
+## 2026-06-21 - Auto (Cursor) - Hell Cavern lava pool (correct hell01 region)
+
+### Changed
+- Rebuilt `public/mapobjects/hell-cavern-lava.png` from hell01 map region (123,56)–(132,65): Objects12 frames **4954–5092** (64 floor-front lava tiles), not catalog #77/#5135 picks.
+- Added `tools/build-hell-cavern-lava-pool.ps1` + `tools/data/hell01-lava-pool-region.json`.
+- `src/phase1Data.js` — single 488×392 pool decoration, repeat every 560px.
+- `src/app.monolith.js` — decoration set lookup no longer falls back to `hell-cavern-catalog` wall props; decorations draw even if floor sheet still loading.
+
+### Checked
+- `npm run check` green.
+
+---
+
+## 2026-06-21 - Auto (Cursor) - Hell Cavern lava pool decorations
+
+### Changed
+- Built `public/mapobjects/hell-cavern-lava.png` from Crystal prop catalog #77 #110 #114 #143 #78 (Objects12 lava pools/tiles on hell01/hell02).
+- `src/phase1Data.js` — `HELL_CAVERN_LAVA_DECORATIONS` on both HC1/HC2 zones (`decorationSet: hell-cavern-lava`).
+
+### Checked
+- `npm run check` green.
+
+---
+
+## 2026-06-21 - Auto (Cursor) - Hell Cavern scrolling tiles (fix mapStampOnly)
+
+### Changed
+- Replaced static `mapStampOnly` Hell Cavern visuals with scrolling floor tiles + wall decorations (same pattern as Viper/Prajna solo floors).
+- `tools/build-hell-cavern-1-tiles.ps1`, `build-hell-cavern-2-tiles.ps1` — Tiles.Lib 3450–3454 / 3600–3604 → `public/maptiles/hell-cavern-*.png`.
+- `tools/build-hell-cavern-prop-catalog.ps1`, `build-hell-cavern-decoration-sheet.ps1` — wall props from hell01/hell02 maps → `public/mapobjects/hell-cavern-catalog.png`.
+- `src/phase1Data.js` — `HELL_CAVERN_*_VISUALS` use `mapSet`, `tilePattern`, `decorationSet`, scrolling `decorations`.
+
+### Checked
+- `npm run check` green.
+- `npm run smoke` green.
+
+---
+
+## 2026-06-21 - Auto (Cursor) - Hell Cavern Crystal map stamps (superseded)
+
+### Changed
+- `tools/build-hell-cavern-1-stamp.ps1`, `tools/build-hell-cavern-2-stamp.ps1` — export HELL01/HELL02 farm pockets from Crystal maps.
+- `tools/build-bdd-1f-stamp.ps1` — optional `-FloorFillFrames` for non-Prajna floor art.
+- `public/mapstamps/hell-cavern-1-center-stamp.png`, `hell-cavern-2-center-stamp.png`, `index.json` — stamps kept for potential boss/KR rooms; **not** used for solo farm floors.
+
+### Note
+- Solo zones now use scrolling tiles (see entry above). Stamps were wrong for moving characters.
+
+---
+
+## 2026-06-21 - Auto (Cursor) - Hell Cavern AC/AMC class-parity tune
+
+### Changed
+- `src/phase1Data.js` — Hell Cavern mobs (424–432): raised AC (+6–16) to slow warrior physical kills; cut AMC (~12–18, Cave Witch 63→18) so wizard/tao magic lands harder.
+
+### Checked
+- `npm run check` green.
+
+---
+
+## 2026-06-21 - Auto (Cursor) - Solo combat queued enemy flinch (Crystal ActionFeed)
+
+### Changed
+- `src/app.monolith.js` — Solo zone combat now queues enemy flinch (`pendingEnemyStruck`) and consumes it after the enemy attack pass, matching group-dungeon swarm behavior. Warrior/wizard/tao/pet/spell hits call `queueEnemyStruck` instead of immediate `setEnemyAction("struck")`.
+
+### Checked
+- `npm run check` green (167 tests + offline fixtures).
+- `npm run smoke` green.
+
+---
+
+## 2026-06-21 - Auto (Cursor) - Wasteland hell dungeons (floors + monsters, no drops)
+
+### Changed
+- `src/phase1Data.js` — 23 new enemy templates (418–440: Hell Cavern, Ice Hell, Fire Hell); 7 new zones (`zone-hell-cavern-1/2`, `zone-ice-hell-1/2`, `zone-fire-hell-1/2/kr`); reuses `zone-manectric-king-kr` for Ice Hell KR.
+- `src/app.monolith.js` — Wasteland teleport region; Hell Lord boss room def; monster atlas cache-bust.
+- `src/data/zones.json` — metadata for new zones.
+- `public/monsters/monster/{215-247,233}.png/json` — exported Crystal hell mob atlases. Hell Bombs reuse demon/bolt sprites until Mon903–905 libs exist.
+
+### Checked
+- `npm run check` green (167 tests + offline fixtures).
+- `npm run smoke` green.
+
+---
+
 Every AI/developer should add a short dated entry here after doing meaningful work.
 
 Use this format:
@@ -19,6 +216,57 @@ Use this format:
 ### Suggested Next Step
 - ...
 ```
+
+## 2026-06-21 - Auto (Cursor) - View other players' characters from leaderboard
+
+### Changed
+- `src/app.monolith.js`:
+  - `prototypeStatsCharacterSummary`: now submits per-character `equipment`
+    (slot -> `{ itemId, smithLevel }`, read from each character's own
+    `inventory.equipment` / `inventory.items`) and `skills` (learned spell id ->
+    level from `magic.learned`). New helpers `prototypeStatsCharacterEquipment`
+    and `prototypeStatsCharacterSkills`.
+  - Added a new in-game overlay scene `"leaderboard"` (top-bar "Leaderboard"
+    button). Registered it across the scene plumbing (`initialOpenScenesFromUrl`,
+    `currentOverlayScenes`, `isSceneWindowOpen`, `openScene`/`closeScene`,
+    `renderSceneOverlay` list, `sceneClassName`, `sceneTitle`, `sceneBodyHtml`,
+    `state.openScenes`, and the static topbar template).
+  - Leaderboard fetches `GET {base}/leaderboard?scope=accounts&limit=100`
+    (base derived from `state.prototypeStats.endpoint` minus `/stats`), caches
+    for 60s, and lists ranked players. Clicking a row opens a read-only
+    character page rendered from the row's own `characters` data (paper doll +
+    equipment slots reuse `crystalPaperDollLayerHtml`/`itemIconHtml`; stats +
+    learned skills shown alongside), with a per-class switcher and a
+    "self-reported snapshot" caveat. New `state.leaderboard` UI state.
+- `src/styles.css`: leaderboard list/row/detail and foreign paper-doll window
+  styles (`.leaderboard-*`, `.leaderboard-character-window`).
+- `tools/stats-worker/worker.js`: `normalizeCharacterStatsPayload` now sanitizes
+  and stores `equipment` (slot whitelist + item-id/`smithLevel` clamps) and
+  `skills` (id -> clamped level) inside the existing `character_stats` JSON;
+  `formatLeaderboardCharacters` carries them back out. No schema change.
+- `tools/stats-worker/README.md`: documented the new per-character fields.
+
+### Checked
+- `npm run check` (lint + node --check incl. worker.js + 167 unit tests +
+  offline fixtures): PASS.
+- `npm run smoke` (headless boot against running dev server): PASS, 0 console
+  errors.
+
+### Notes / Risks
+- Foreign character data is self-reported Solo Play data (per
+  `docs/season-play-architecture.md`); the detail view is labelled as a
+  snapshot, not authoritative.
+- Deliberately did NOT add a `GET /player/:id` endpoint or expose the raw
+  anonymous `player_id`: that would let anyone overwrite another player's row
+  (submissions only need the id). Detail renders from cached `/leaderboard` row
+  data keyed by index instead.
+- Degrades gracefully: old worker builds / rows without `equipment`/`skills`
+  render an empty paper doll + "No skills learned". Worker must be redeployed
+  (`npx wrangler deploy`) and clients must resubmit before real gear/skills show.
+
+### Suggested Next Step
+- Redeploy the stats Worker so new submissions persist equipment/skills, then
+  verify a populated foreign character page in dev.
 
 ## 2026-06-21 - Auto (Cursor) - iOS lag mitigation (render loop)
 
@@ -965,6 +1213,46 @@ Use this format:
 
 ### Suggested Next Step
 - Continue Phase 3: extract offline simulation report math, or wire boss-party incoming damage through combat events.
+
+## 2026-06-22 - Codex - Wizard Turn Undead
+
+### Changed
+- Added `TurnUndead` to active Wizard combat spells, spell FX packaging, and the Crystal-style target-mode impact path.
+- Implemented Crystal-inspired Turn Undead success logic: undead-only, level-gated, then chance based on spell level plus caster/target level difference.
+- Wired solo and boss-party Wizard combat so successful casts instantly kill the eligible target through existing reward/death paths; failed casts show resist/miss feedback.
+- Wired offline Wizard zone simulation to use the same special Turn Undead kill roll instead of treating it as MC damage.
+- Added `book-turn-undead` from Crystal item 1003, level 32 Wizard requirement, Bone Lord boss drop at 10%.
+- Added Turn Undead to the item generator mappings, curated drop CSV, and SFX build mapping (`spell.TurnUndead.cast` / M44-0).
+
+### Checked
+- `npm.cmd run build:sfx` green; regenerated SFX manifest/files and kept existing missing-SFX list unchanged except new Turn Undead present.
+- `npm.cmd run check` green (167/167 tests plus itch source verification and offline fixtures).
+
+### Suggested Next Step
+- Test a learned Turn Undead Wizard in Prajna/undead content and decide if boss undead targets need an explicit design-only immunity flag.
+
+## 2026-06-22 - Codex - Wizard Vampirism
+
+- Added Vampirism to the Wizard combat spell set, spell FX manifest, and SFX build mappings using Crystal shape 45 (`spell.Vampirism.cast` M45-1 and `spell.Vampirism.impact` M45-2).
+- Corrected Vampirism spell FX to Crystal client frames: target drain Magic2 1060-1079 and delayed caster return Magic2 1090-1099.
+- Matched Crystal's core mechanics: MC-vs-AMC target damage after the spell delay, then queued HP return equal to `damageDealt * (spellLevel + 1) * 0.25`, ticking back in 10 HP chunks after 1s and then every 500ms.
+- Wired solo combat, offline zone simulation, boss-party/group combat impacts, save/load recovery state, and player HUD pending-heal display to preserve the Vampirism recovery pool.
+- Added `book-vampirism` from Crystal item 1004, level 33 Wizard requirement, Bone Lord boss drop at 10%.
+- Bumped live cache strings to `20260622-vampirism`.
+- Verification: `npm.cmd run build:sfx` and `npm.cmd run verify:itch:source` passed; targeted `node --check` passed for changed JS/MJS files. Full `npm.cmd run check` currently reaches tests successfully but stops at the existing `warrior-bicheon` offline fixture mismatch (`xp: expected 378, got 375`), which appears unrelated to Vampirism.
+
+## 2026-06-23 - Codex - Turn Undead target FX
+
+- Fixed Turn Undead spell FX placement: the Wizard metadata now anchors the target spell to the enemy, and the TurnUndead atlas layer is explicitly `anchor: "enemy"` with matching extraction config.
+- Bumped live cache strings to `20260623-turn-undead-target-fx`.
+- Verification: `npm.cmd run verify:itch:source`, `node --check src/app.js`, and `node --check src/app.monolith.js` passed.
+
+## 2026-06-23 - Codex - Turn Undead Crystal FX correction
+
+- Corrected the Turn Undead animation to match Crystal client `PlayerObject.cs`: caster effect uses `Magic` frames 3920-3929 on the Wizard, then target effect uses `Magic` frames 3930-3944 on the enemy object after 600ms.
+- Added `enemyObject` spell FX anchoring so object-attached effects do not inherit the target-cell/top-of-tile placement used by map-target spells like Thunderbolt.
+- Updated `tools/extract-spellfx-east-native.json`, regenerated `public/spellfx/TurnUndead/l0.png` and `l1.png`, and bumped live cache strings to `20260623-turn-undead-crystal-fx`.
+- Verification: `npm.cmd run verify:itch:source`, `node --check src/app.js`, and `node --check src/app.monolith.js` passed.
 
 ## 2026-06-20 - Cursor - Phase 3: offline progress eligibility in core
 

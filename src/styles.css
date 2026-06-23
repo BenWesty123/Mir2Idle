@@ -2373,9 +2373,42 @@ dd {
   gap: 8px;
 }
 
+.upgrade-section-tabs {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 6px;
+}
+
+.upgrade-section-tabs button {
+  display: grid;
+  gap: 2px;
+  border: 1px solid var(--line);
+  background: #17130e;
+  color: var(--muted);
+  padding: 8px 10px;
+  text-align: left;
+}
+
+.upgrade-section-tabs button.active {
+  border-color: rgba(214, 177, 93, 0.55);
+  background: rgba(60, 42, 20, 0.72);
+  color: #f0d69a;
+}
+
+.upgrade-section-tabs button span {
+  font-size: 13px;
+  color: inherit;
+}
+
+.upgrade-section-tabs button small {
+  color: inherit;
+  opacity: 0.82;
+  font-size: 11px;
+}
+
 .upgrade-category-tabs {
   display: grid;
-  grid-template-columns: repeat(4, minmax(0, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(0, 1fr));
   gap: 6px;
 }
 
@@ -4568,4 +4601,160 @@ body[data-ui="game"] .game-activity-panel {
 .group-dungeon-wave-actions {
   display: grid;
   gap: 8px;
+}
+
+.leaderboard-window {
+  width: min(640px, calc(100vw - 32px));
+}
+
+.leaderboard-body {
+  display: grid;
+  gap: 10px;
+}
+
+.leaderboard-toolbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.leaderboard-subtitle,
+.leaderboard-detail-name {
+  color: #ffd36a;
+  font-size: 12px;
+  text-shadow: 1px 1px 0 #000;
+}
+
+.leaderboard-refresh,
+.leaderboard-back {
+  padding: 4px 10px;
+  font-size: 11px;
+}
+
+.leaderboard-note {
+  color: #d8c7a0;
+  font-size: 12px;
+  text-shadow: 1px 1px 0 #000;
+}
+
+.leaderboard-snapshot {
+  font-size: 11px;
+  color: #b9a679;
+  font-style: italic;
+}
+
+.leaderboard-list {
+  display: grid;
+  gap: 4px;
+  max-height: min(60vh, 440px);
+  overflow-y: auto;
+  padding-right: 4px;
+}
+
+.leaderboard-row {
+  display: grid;
+  grid-template-columns: 44px minmax(96px, 1.2fr) 1fr 1.2fr 1fr;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 8px;
+  text-align: left;
+  color: #f0dfbb;
+  font-size: 11px;
+  text-shadow: 1px 1px 0 #000;
+  background: rgba(31, 24, 15, 0.55);
+  border: 1px solid rgba(71, 54, 31, 0.55);
+  cursor: pointer;
+}
+
+.leaderboard-row:hover,
+.leaderboard-row:focus-visible {
+  background: rgba(54, 41, 23, 0.75);
+  outline: 0;
+}
+
+.leaderboard-rank {
+  color: #ffd36a;
+  font-weight: 700;
+}
+
+.leaderboard-player {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.leaderboard-cell {
+  color: #ffe0a0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.leaderboard-class-tabs {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.leaderboard-class-tab {
+  padding: 4px 10px;
+  font-size: 11px;
+}
+
+.leaderboard-class-tab.active {
+  background: rgba(54, 41, 23, 0.9);
+  border-color: rgba(241, 208, 149, 0.55);
+  color: #ffe0a0;
+}
+
+.leaderboard-character {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 14px;
+  align-items: flex-start;
+}
+
+.leaderboard-character-window {
+  position: relative;
+  flex: 0 0 264px;
+  width: 264px;
+  height: 380px;
+  background:
+    url("../public/ui/character/background.png") center / 264px 380px no-repeat,
+    #15110d;
+}
+
+.leaderboard-stats,
+.leaderboard-skills {
+  flex: 1 1 160px;
+  min-width: 150px;
+  display: grid;
+  align-content: start;
+  gap: 3px;
+}
+
+.leaderboard-stats-heading {
+  color: #ffd36a;
+  font-size: 11px;
+  font-weight: 700;
+  text-shadow: 1px 1px 0 #000;
+}
+
+.leaderboard-stats-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  padding: 2px 4px;
+  color: #f0dfbb;
+  font-size: 11px;
+  line-height: 14px;
+  text-shadow: 1px 1px 0 #000;
+  border-bottom: 1px solid rgba(71, 54, 31, 0.35);
+}
+
+.leaderboard-stats-value {
+  color: #ffe0a0;
+  text-align: right;
 }

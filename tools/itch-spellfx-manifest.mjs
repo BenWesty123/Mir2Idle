@@ -2,7 +2,7 @@ import fs from "node:fs";
 import path from "node:path";
 import { WARRIOR_COMBAT_SKILLS } from "../src/warriorMagic.js";
 
-export const WIZARD_COMBAT_SPELL_IDS = ["FireBall", "GreatFireBall", "ThunderBolt", "FireWall", "FrostCrunch", "IceStorm", "MagicShield"];
+export const WIZARD_COMBAT_SPELL_IDS = ["FireBall", "GreatFireBall", "ThunderBolt", "TurnUndead", "Vampirism", "FireWall", "FrostCrunch", "IceStorm", "MagicShield"];
 export const TAOIST_COMBAT_SPELL_IDS = [
   "Healing",
   "Poisoning",
@@ -21,6 +21,7 @@ export const LEVEL_UP_FX_ID = "LevelUp";
 export const HEALING_RESTORE_FX_ID = "HealingRestore";
 export const REVIVE_FX_ID = "Revive";
 export const MAP_LIGHTNING_FX_ID = "MapLightning";
+export const TOWN_IDLE_TELEPORT_FX_ID = "Teleport";
 
 const NESTED_ATLAS_SHEET_KEYS = ["projectile", "impact", "ground", "cast", "charge"];
 
@@ -35,6 +36,7 @@ export function packagedSpellfxSpellIds() {
       HEALING_RESTORE_FX_ID,
       REVIVE_FX_ID,
       MAP_LIGHTNING_FX_ID,
+      TOWN_IDLE_TELEPORT_FX_ID,
     ]),
   ];
 }

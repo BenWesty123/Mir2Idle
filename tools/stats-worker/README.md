@@ -21,7 +21,7 @@ Each account leaderboard row now includes:
 
 - `combinedCharacterLevels`: sum of Warrior + Wizard + Taoist levels
 - `awakeningSoulsHeld`: total Awakening Souls held account-wide
-- `characters`: per-class summary array for display
+- `characters`: per-class summary array for display (each entry includes `equipment` as a slot-to-`{ itemId, smithLevel }` map and `skills` as a learned-spell-id-to-level map, used to render other players' character pages in-game)
 - `characterLevels`: raw class-to-level map
 - `characterStats`: raw per-class stat summaries
 - `bossKills`: per-boss counts keyed by zone id, e.g. `{ "zone-wooma-temple-kr": 12, "zone-bug-cave-kr": 3 }`

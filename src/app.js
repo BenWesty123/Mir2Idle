@@ -8,6 +8,6 @@
  * sends "Cache-Control: no-store", so the browser always re-fetches and the
  * value here is irrelevant.
  */
-import "./app.monolith.js?v=20260620-freezing-boss-scaling";
+import "./app.monolith.js?v=20260623-turn-undead-crystal-fx";
 
 

@@ -53,6 +53,7 @@ import {
   resolveSwarmEnemyAction,
   spellBangAreaTiles,
   swarmAttackActionForLane,
+  swarmRangeAttackActionForLane,
   swarmEnemyEngagedStanceAction,
   swarmEnemyInAttackRange,
   swarmEnemyReservedTile,
@@ -286,16 +287,32 @@ const REBIRTH_ENABLED = false;
 const HOTBAR_SLOT_COUNT = 6;
 const BASE_AUTOCAST_SLOTS = 1;
 const BASE_AUTO_POTION_SLOTS = 2;
-const ACCOUNT_UPGRADE_CATEGORIES = [
-  { id: "combat", label: "Combat", summary: "Automation and combat control." },
-  { id: "utility", label: "Utility", summary: "Potion handling and quality of life." },
-  { id: "rebirth", label: "Rebirth", summary: "Rebirth converts Awakening Souls into Rebirth Points for permanent buffs." },
-  { id: "bosses", label: "Bosses", summary: "Future boss-fight features." },
+const ACCOUNT_UPGRADE_SECTIONS = [
+  {
+    id: "normal",
+    label: "Normal Upgrades",
+    summary: "Permanent unlocks paid with boss drops and materials.",
+    categories: [
+      { id: "combat", label: "Combat", summary: "Automation and combat control." },
+      { id: "utility", label: "Utility", summary: "Potion handling and quality of life." },
+    ],
+  },
+  {
+    id: "rebirth",
+    label: "Rebirth Upgrades",
+    summary: "Spend Rebirth Points on permanent account buffs.",
+    categories: [
+      { id: "stats", label: "Stats", summary: "Base stat and luck bonuses." },
+      { id: "utility", label: "Utility", summary: "XP gain and Awakening Soul conversion." },
+      { id: "bosses", label: "Bosses", summary: "Boss-fight features." },
+    ],
+  },
 ];
 const ACCOUNT_UPGRADE_DEFS = [
   {
     id: "autocast-slot-2",
     label: "Second Autocast Slot",
+    section: "normal",
     category: "combat",
     cost: 0,
     itemCosts: [{ itemId: "large-bone", quantity: 1 }],
@@ -307,6 +324,7 @@ const ACCOUNT_UPGRADE_DEFS = [
   {
     id: "autocast-slot-3",
     label: "Third Autocast Slot",
+    section: "normal",
     category: "combat",
     cost: 0,
     itemCosts: [{ itemId: "zuma-relic", quantity: 1 }],
@@ -318,6 +336,7 @@ const ACCOUNT_UPGRADE_DEFS = [
   {
     id: "auto-potion-slot-3",
     label: "Third Auto Potion Slot",
+    section: "normal",
     category: "utility",
     cost: 0,
     itemCosts: [{ itemId: "ghoul-heart", quantity: 1 }],
@@ -329,6 +348,7 @@ const ACCOUNT_UPGRADE_DEFS = [
   {
     id: "auto-potion-slot-4",
     label: "Fourth Auto Potion Slot",
+    section: "normal",
     category: "utility",
     cost: 0,
     itemCosts: [{ itemId: "wooma-heart", quantity: 1 }],
@@ -340,7 +360,8 @@ const ACCOUNT_UPGRADE_DEFS = [
   {
     id: "rebirth-soul-yield",
     label: "Soul Resonance",
-    category: "rebirth",
+    section: "rebirth",
+    category: "utility",
     currency: "rebirthPoints",
     effect: "rebirthPointMultiplierBonus",
     value: 1,
@@ -351,7 +372,8 @@ const ACCOUNT_UPGRADE_DEFS = [
   {
     id: "rebirth-xp",
     label: "XP Blessing",
-    category: "rebirth",
+    section: "rebirth",
+    category: "utility",
     currency: "rebirthPoints",
     effect: "xpBonusPercent",
     value: 10,
@@ -362,7 +384,8 @@ const ACCOUNT_UPGRADE_DEFS = [
   {
     id: "rebirth-stat-dc",
     label: "Base DC +1",
-    category: "rebirth",
+    section: "rebirth",
+    category: "stats",
     currency: "rebirthPoints",
     effect: "baseStatBonus",
     stat: "dc",
@@ -374,7 +397,8 @@ const ACCOUNT_UPGRADE_DEFS = [
   {
     id: "rebirth-stat-mc",
     label: "Base MC +1",
-    category: "rebirth",
+    section: "rebirth",
+    category: "stats",
     currency: "rebirthPoints",
     effect: "baseStatBonus",
     stat: "mc",
@@ -386,7 +410,8 @@ const ACCOUNT_UPGRADE_DEFS = [
   {
     id: "rebirth-stat-sc",
     label: "Base SC +1",
-    category: "rebirth",
+    section: "rebirth",
+    category: "stats",
     currency: "rebirthPoints",
     effect: "baseStatBonus",
     stat: "sc",
@@ -398,7 +423,8 @@ const ACCOUNT_UPGRADE_DEFS = [
   {
     id: "rebirth-stat-ac",
     label: "Base AC +1",
-    category: "rebirth",
+    section: "rebirth",
+    category: "stats",
     currency: "rebirthPoints",
     effect: "baseStatBonus",
     stat: "ac",
@@ -410,7 +436,8 @@ const ACCOUNT_UPGRADE_DEFS = [
   {
     id: "rebirth-stat-amc",
     label: "Base AMC +1",
-    category: "rebirth",
+    section: "rebirth",
+    category: "stats",
     currency: "rebirthPoints",
     effect: "baseStatBonus",
     stat: "amc",
@@ -422,7 +449,8 @@ const ACCOUNT_UPGRADE_DEFS = [
   {
     id: "rebirth-stat-accuracy",
     label: "Base Accuracy +1",
-    category: "rebirth",
+    section: "rebirth",
+    category: "stats",
     currency: "rebirthPoints",
     effect: "baseStatBonus",
     stat: "accuracy",
@@ -434,7 +462,8 @@ const ACCOUNT_UPGRADE_DEFS = [
   {
     id: "rebirth-stat-agility",
     label: "Base Agility +1",
-    category: "rebirth",
+    section: "rebirth",
+    category: "stats",
     currency: "rebirthPoints",
     effect: "baseStatBonus",
     stat: "agility",
@@ -446,7 +475,8 @@ const ACCOUNT_UPGRADE_DEFS = [
   {
     id: "rebirth-luck",
     label: "Fortune's Favor",
-    category: "rebirth",
+    section: "rebirth",
+    category: "stats",
     currency: "rebirthPoints",
     effect: "baseLuck",
     value: 1,
@@ -457,6 +487,7 @@ const ACCOUNT_UPGRADE_DEFS = [
   {
     id: "boss-empowerment",
     label: "Boss Empowerment",
+    section: "rebirth",
     category: "bosses",
     currency: "rebirthPoints",
     effect: "bossEmpowerment",
@@ -531,11 +562,11 @@ const BOSS_ROOM_DEFS = {
     empowerLabel: "Empower Minotaur King for better drops",
     empowerRequirement: "Boss Empowerment is not available yet.",
   },
-  "zone-manectric-king-kr": {
-    bossName: "Manectric King",
-    respawnMinutes: BOSS_RESPAWN_MINUTES_ELITE,
+  "zone-red-cavern-kr": {
+    bossName: "Dream and Dark Devourer",
+    respawnMinutes: BOSS_RESPAWN_MINUTES_STANDARD,
     unlockHint: "Select saved characters to call into the fight.",
-    empowerLabel: "Empower Manectric King for better drops",
+    empowerLabel: "Empower the Devourers for better drops",
     empowerRequirement: "Boss Empowerment is not available yet.",
   },
   "zone-flame-queen-kr": {
@@ -617,6 +648,8 @@ const TAOIST_DEFENCE_BUFF_IMPACT_FX = {
 const CRYSTAL_POT_DELAY_MS = 200;
 const CRYSTAL_HEAL_DELAY_MS = 600;
 const CRYSTAL_HEAL_APPLY_DELAY_MS = 500;
+const CRYSTAL_VAMP_FIRST_DELAY_MS = 1000;
+const CRYSTAL_VAMP_DELAY_MS = 500;
 const CRYSTAL_TWIN_DRAKE_SECOND_HIT_DELAY_MS = 400;
 const CRYSTAL_TWIN_DRAKE_CHARGE_FX_MS = 500;
 const CRYSTAL_MAGIC_SHIELD_STRUCK_MS = 600;
@@ -789,6 +822,8 @@ const SCALY_BEAST_ENEMY_ID = 296;
 const OMA_KING_SPIRIT_ENEMY_ID = 291;
 const KING_HOG_ENEMY_ID = 316;
 const DARK_DEVIL_ENEMY_ID = 319;
+const DREAM_DEVOURER_ENEMY_ID = 445;
+const DARK_DEVOURER_ENEMY_ID = 446;
 const MINOTAUR_KING_AOE_EVERY_N_ATTACKS = 5;
 const MASS_BURST_IMPACT_MS = 750;
 const MASS_BURST_COOLDOWN_MIN_MS = 2000;
@@ -948,6 +983,16 @@ const CAVE_EDGE_SETS = {
       scrollRatio: 1,
     },
   },
+  "red-cavern-corridor": {
+    skipTopGroundRows: 1,
+    overlay: {
+      src: "./public/mapedges/red-cavern-wall-columns.png",
+      columnCount: 31,
+      columnWidth: 48,
+      yOffsetFromBase: -508,
+      scrollRatio: 1,
+    },
+  },
 };
 
 const PROTOTYPE_ZONES = PHASE1_ZONES;
@@ -1023,6 +1068,15 @@ const TELEPORT_REGIONS = [
       "zone-bdd-1",
     ],
   },
+  {
+    id: "wasteland",
+    label: "Wasteland",
+    zoneIds: [
+      "zone-red-cavern-1",
+      "zone-red-cavern-2",
+      "zone-red-cavern-kr",
+    ],
+  },
 ];
 const DEFAULT_TELEPORT_REGION_ID = TELEPORT_REGIONS[0].id;
 
@@ -1039,8 +1093,8 @@ const TOWN_VISUALS = {
   stageMaxHeight: 480,
 };
 
-const MAP_STAMP_ASSET_VERSION = "20260619-bdd-dark-devil-27-34";
-const MONSTER_ASSET_VERSION = "20260620-minotaur-361-from-lib094";
+const MAP_STAMP_ASSET_VERSION = "20260622-red-cavern-kr-6385";
+const MONSTER_ASSET_VERSION = "20260622-red-cavern-swarm-dirs";
 const COMBAT_LOG_SUMMARY_PREFIX = "Combat:";
 
 // --- Restored offline group-dungeon simulator (recovered from src/game split) ---
@@ -1775,6 +1829,16 @@ const WIZARD_COMBAT_SPELL_META = {
     impactMode: "target",
     impactDelayMs: 500,
   },
+  TurnUndead: {
+    effectAnchor: "player",
+    impactMode: "target",
+    impactDelayMs: 600,
+  },
+  Vampirism: {
+    effectAnchor: "player",
+    impactMode: "target",
+    impactDelayMs: 500,
+  },
   FireWall: {
     effectAnchor: "player",
     impactMode: "ground",
@@ -1800,7 +1864,7 @@ const WIZARD_COMBAT_SPELL_META = {
     impactDelayMs: CRYSTAL_HEAL_APPLY_DELAY_MS,
   },
 };
-const WIZARD_COMBAT_SPELLS = ["FireBall", "GreatFireBall", "ThunderBolt", "FireWall", "FrostCrunch", "IceStorm", "MagicShield"]
+const WIZARD_COMBAT_SPELLS = ["FireBall", "GreatFireBall", "ThunderBolt", "TurnUndead", "Vampirism", "FireWall", "FrostCrunch", "IceStorm", "MagicShield"]
   .map((spellId) => {
     const spell = CRYSTAL_WIZARD_SPELLS.find((entry) => entry.id === spellId);
     return spell ? { ...spell, ...WIZARD_COMBAT_SPELL_META[spellId] } : null;
@@ -1959,9 +2023,19 @@ const state = {
   teleportBrowseRegionId: null,
   openScenes: initialOpenScenesFromUrl(),
   characterTab: "character",
+  leaderboard: {
+    status: "idle",
+    rows: [],
+    error: "",
+    fetchedAt: 0,
+    selectedIndex: null,
+    detailClass: null,
+    foreignEntries: {},
+  },
   inventoryPage: 0,
   storagePage: 0,
   pendingStoragePageUnlock: null,
+  upgradeSection: "normal",
   upgradeCategory: "combat",
   townPartyIdleMembers: [],
   townPartyIdleEvent: null,
@@ -2071,6 +2145,7 @@ const state = {
     pendingImpact: null,
     pendingPetAttack: null,
     pendingEnemyStrike: null,
+    pendingEnemyStruck: false,
     pendingHeal: null,
     pendingPoison: null,
     pendingDefenceBuff: null,
@@ -2107,6 +2182,8 @@ const state = {
     potTickAt: 0,
     healAmount: 0,
     healTickAt: 0,
+    vampAmount: 0,
+    vampTickAt: 0,
     statBuffs: [],
     autoPotionReadyAt: { hp: 0, mp: 0 },
     floatingTexts: [],
@@ -2259,6 +2336,7 @@ function gameShellHtml() {
         <button type="button" data-open-scene="upgrades">Upgrades</button>
         <button type="button" data-open-scene="characterSelect">Characters</button>
         <button type="button" data-open-scene="gettingStarted">Guide</button>
+        <button type="button" data-open-scene="leaderboard">Social</button>
         <button type="button" data-open-scene="options">Options</button>
       </nav>
       <div class="status" id="status">Loading atlases...</div>
@@ -2689,6 +2767,7 @@ function clearTransientBattleForSaveImport() {
   dismissTaoistPet();
   state.battle.pendingImpact = null;
   state.battle.pendingEnemyStrike = null;
+  state.battle.pendingEnemyStruck = false;
   state.battle.pendingHeal = null;
   state.battle.pendingPoison = null;
   state.battle.pendingPetAttack = null;
@@ -2906,6 +2985,7 @@ function createDefaultCharacterState(classId) {
       potHealthAmount: 0,
       potManaAmount: 0,
       healAmount: 0,
+      vampAmount: 0,
       statBuffs: [],
       petStatBuffs: [],
     },
@@ -3365,6 +3445,7 @@ function applyCharacterState(classId, character = createDefaultCharacterState(cl
     potHealthAmount: Math.max(0, Math.trunc(Number(character.battle?.potHealthAmount) || 0)),
     potManaAmount: Math.max(0, Math.trunc(Number(character.battle?.potManaAmount) || 0)),
     healAmount: Math.max(0, Math.trunc(Number(character.battle?.healAmount) || 0)),
+    vampAmount: Math.max(0, Math.trunc(Number(character.battle?.vampAmount) || 0)),
   };
   syncInventoryCapacity();
   ensureInventorySlots();
@@ -3521,6 +3602,7 @@ function serializeCurrentCharacterState() {
       potHealthAmount: state.battle.potHealthAmount ?? pendingSavedPlayerResources?.potHealthAmount ?? 0,
       potManaAmount: state.battle.potManaAmount ?? pendingSavedPlayerResources?.potManaAmount ?? 0,
       healAmount: state.battle.healAmount ?? pendingSavedPlayerResources?.healAmount ?? 0,
+      vampAmount: state.battle.vampAmount ?? pendingSavedPlayerResources?.vampAmount ?? 0,
       statBuffs: pruneStatBuffs(state.battle.statBuffs ?? []),
       petStatBuffs: pruneStatBuffs(state.battle.petStatBuffs ?? []),
     },
@@ -3672,6 +3754,10 @@ function restorePendingSavedPlayerResources() {
   state.battle.healAmount = Math.max(0, Math.trunc(Number(pendingSavedPlayerResources.healAmount) || 0));
   state.battle.healTickAt = state.battle.healAmount > 0
     ? performance.now() + CRYSTAL_HEAL_DELAY_MS
+    : 0;
+  state.battle.vampAmount = Math.max(0, Math.trunc(Number(pendingSavedPlayerResources.vampAmount) || 0));
+  state.battle.vampTickAt = state.battle.vampAmount > 0
+    ? performance.now() + CRYSTAL_VAMP_DELAY_MS
     : 0;
   pendingSavedPlayerResources = null;
 }
@@ -3946,6 +4032,7 @@ function rebaseOfflineTransientTimers(simulatedNow, actualNow = performance.now(
   state.battle.furyUntil = rebaseTransientTimestamp(state.battle.furyUntil, simulatedNow, actualNow, 120000);
   state.battle.potTickAt = rebaseTransientTimestamp(state.battle.potTickAt, simulatedNow, actualNow, CRYSTAL_POT_DELAY_MS);
   state.battle.healTickAt = rebaseTransientTimestamp(state.battle.healTickAt, simulatedNow, actualNow, CRYSTAL_HEAL_DELAY_MS);
+  state.battle.vampTickAt = rebaseTransientTimestamp(state.battle.vampTickAt, simulatedNow, actualNow, CRYSTAL_VAMP_DELAY_MS);
   if (state.battle.pendingHeal) {
     state.battle.pendingHeal.at = rebaseTransientTimestamp(
       state.battle.pendingHeal.at,
@@ -4121,6 +4208,7 @@ function offlineUpdateRecovery(now, report) {
   updatePendingPetAttack(now, { offline: true });
   updatePendingTaoPet(now);
   updateHealingRegen(now);
+  updateVampirismRegen(now);
   updateEnemyPoisons(now, { offline: true });
   updatePotionRegen(now);
   offlineAutoUsePotions(now, report);
@@ -4133,6 +4221,7 @@ function offlineUpdateRecovery(now, report) {
   updatePendingPetAttack(now, { offline: true });
   updatePendingTaoPet(now);
   updateHealingRegen(now);
+  updateVampirismRegen(now);
   updateEnemyPoisons(now, { offline: true });
   updatePotionRegen(now);
 }
@@ -4272,11 +4361,20 @@ function offlineWizardAttack(enemy, now) {
   const { spell, learned, cost } = attackSpell;
   battle.lastPlayerAttackCooldownMs = wizardCastCooldownMs(spell, learned);
   commitWizardSpellUse(spell, learned, cost, now);
+  if (spell.id === "TurnUndead") {
+    const result = rollTurnUndeadResult(spell, learned, battle.player, enemy);
+    if (result.success) {
+      applyOfflineEnemyDamage(enemy, Math.max(1, Math.trunc(Number(enemy.hp) || 1)), now, "magic");
+      if (learned) levelMagicSkill(spell, learned, now);
+    }
+    return;
+  }
   if (!rollMagicHit(enemy)) return;
   const damage = rollWizardMagicDamage(spell, learned, battle.player, enemy);
   if (damage <= 0) return;
   applyOfflineEnemyDamage(enemy, damage, now, "magic");
   if (spell.id === "FrostCrunch") applyFrostCrunchEffects(enemy, learned, battle.player, now);
+  if (spell.id === "Vampirism" && learned) queueVampirismRestore(vampirismRestoreAmount(damage, learned), now);
   if (learned) levelMagicSkill(spell, learned, now);
 }
 
@@ -4948,6 +5046,39 @@ function prototypeStatsCharacterSummaries() {
     .filter(Boolean);
 }
 
+function prototypeStatsCharacterEquipment(character) {
+  const equipment = {};
+  const slotMap = character?.inventory?.equipment;
+  const items = character?.inventory?.items;
+  if (!slotMap || !Array.isArray(items)) return equipment;
+  for (const slot of EQUIPMENT_SLOTS) {
+    const entryId = slotMap[slot.id];
+    if (!entryId) continue;
+    const entry = items.find((candidate) => candidate.id === entryId);
+    if (!entry?.itemId) continue;
+    equipment[slot.id] = {
+      itemId: entry.itemId,
+      smithLevel: Math.max(0, prototypeStatsInt(entry.smithLevel)),
+      weaponRefineLevel: Math.max(0, prototypeStatsInt(entry.weaponRefineLevel)),
+      gemCount: Math.max(0, prototypeStatsInt(entry.gemCount)),
+      bonusStats: sanitizeItemBonusStats(entry.bonusStats),
+      smithBonusStats: sanitizeSmithBonusStats(entry.smithBonusStats),
+    };
+  }
+  return equipment;
+}
+
+function prototypeStatsCharacterSkills(character) {
+  const skills = {};
+  const learned = character?.magic?.learned;
+  if (!learned || typeof learned !== "object") return skills;
+  for (const [spellId, info] of Object.entries(learned)) {
+    if (!spellId) continue;
+    skills[spellId] = Math.max(0, prototypeStatsInt(info?.level));
+  }
+  return skills;
+}
+
 function prototypeStatsCharacterSummary(classId, character) {
   const game = character?.game;
   const progress = game?.progress;
@@ -4962,6 +5093,8 @@ function prototypeStatsCharacterSummary(classId, character) {
     gold: prototypeStatsInt(progress.gold ?? character.inventory?.gold),
     activeZoneId: game.activeZoneId ?? null,
     playtimeMs: prototypeStatsInt(game.playtimeMs),
+    equipment: prototypeStatsCharacterEquipment(character),
+    skills: prototypeStatsCharacterSkills(character),
     stats: {
       hp: prototypeStatsInt(stats.hp),
       maxHp: prototypeStatsInt(stats.maxHp),
@@ -5752,6 +5885,8 @@ function resetBattle(enemyId = state.battle.enemyId) {
   state.battle.potTickAt = 0;
   state.battle.healAmount = 0;
   state.battle.healTickAt = 0;
+  state.battle.vampAmount = 0;
+  state.battle.vampTickAt = 0;
   state.battle.autoPotionReadyAt = { hp: 0, mp: 0 };
   state.battle.level = state.game.progress.level;
   state.battle.experience = state.game.progress.experience;
@@ -5841,6 +5976,8 @@ function resetBattleForRoomOnly(zone = activeZone()) {
   state.battle.potTickAt = 0;
   state.battle.healAmount = 0;
   state.battle.healTickAt = 0;
+  state.battle.vampAmount = 0;
+  state.battle.vampTickAt = 0;
   state.battle.autoPotionReadyAt = { hp: 0, mp: 0 };
   state.battle.level = state.game.progress.level;
   state.battle.experience = state.game.progress.experience;
@@ -6651,6 +6788,8 @@ function syncBossPartyControlledRecoveryFromState(member = bossPartyLeaderMember
   member.potTickAt = state.battle.potTickAt ?? 0;
   member.healAmount = Math.max(0, Math.trunc(Number(state.battle.healAmount) || 0));
   member.healTickAt = state.battle.healTickAt ?? 0;
+  member.vampAmount = Math.max(0, Math.trunc(Number(state.battle.vampAmount) || 0));
+  member.vampTickAt = state.battle.vampTickAt ?? 0;
   member.autoPotionReadyAt = {
     hp: state.battle.autoPotionReadyAt?.hp ?? 0,
     mp: state.battle.autoPotionReadyAt?.mp ?? 0,
@@ -6664,6 +6803,8 @@ function syncBossPartyControlledRecoveryToState(member = bossPartyLeaderMember()
   state.battle.potTickAt = member.potTickAt ?? 0;
   state.battle.healAmount = Math.max(0, Math.trunc(Number(member.healAmount) || 0));
   state.battle.healTickAt = member.healTickAt ?? 0;
+  state.battle.vampAmount = Math.max(0, Math.trunc(Number(member.vampAmount) || 0));
+  state.battle.vampTickAt = member.vampTickAt ?? 0;
   state.battle.autoPotionReadyAt = {
     hp: member.autoPotionReadyAt?.hp ?? 0,
     mp: member.autoPotionReadyAt?.mp ?? 0,
@@ -7040,24 +7181,78 @@ function allAccountUpgradeDefs() {
   return [...ACCOUNT_UPGRADE_DEFS, ...ACCOUNT_UPGRADE_PREVIEW_DEFS];
 }
 
-function normalizeUpgradeCategory(categoryId) {
-  return ACCOUNT_UPGRADE_CATEGORIES.some((category) => category.id === categoryId)
-    ? categoryId
-    : ACCOUNT_UPGRADE_CATEGORIES[0].id;
+function upgradeSectionCategories(sectionId) {
+  const section = ACCOUNT_UPGRADE_SECTIONS.find((entry) => entry.id === sectionId);
+  return section?.categories ?? [];
+}
+
+function normalizeUpgradeSection(sectionId) {
+  return ACCOUNT_UPGRADE_SECTIONS.some((entry) => entry.id === sectionId)
+    ? sectionId
+    : ACCOUNT_UPGRADE_SECTIONS[0].id;
+}
+
+function normalizeUpgradeCategory(categoryId, sectionId = state.upgradeSection) {
+  const legacyCategory = String(categoryId ?? "");
+  if (legacyCategory === "rebirth") {
+    state.upgradeSection = "rebirth";
+    return "stats";
+  }
+  const section = normalizeUpgradeSection(sectionId);
+  const categories = upgradeSectionCategories(section);
+  if (legacyCategory === "bosses" && section !== "rebirth") {
+    state.upgradeSection = "rebirth";
+    return categories.some((entry) => entry.id === "bosses") ? "bosses" : categories[0]?.id ?? "stats";
+  }
+  if (categories.some((entry) => entry.id === legacyCategory)) return legacyCategory;
+  return categories[0]?.id ?? "combat";
+}
+
+function syncUpgradeNavigation() {
+  state.upgradeSection = normalizeUpgradeSection(state.upgradeSection);
+  state.upgradeCategory = normalizeUpgradeCategory(state.upgradeCategory, state.upgradeSection);
+}
+
+function activeUpgradeSection() {
+  syncUpgradeNavigation();
+  return ACCOUNT_UPGRADE_SECTIONS.find((entry) => entry.id === state.upgradeSection)
+    ?? ACCOUNT_UPGRADE_SECTIONS[0];
 }
 
 function activeUpgradeCategory() {
-  return ACCOUNT_UPGRADE_CATEGORIES.find((category) => category.id === normalizeUpgradeCategory(state.upgradeCategory))
-    ?? ACCOUNT_UPGRADE_CATEGORIES[0];
+  const section = activeUpgradeSection();
+  return upgradeSectionCategories(section.id).find((entry) => entry.id === state.upgradeCategory)
+    ?? upgradeSectionCategories(section.id)[0];
 }
 
-function accountUpgradesForCategory(categoryId) {
-  return allAccountUpgradeDefs().filter((upgrade) => upgrade.category === categoryId);
+function accountUpgradeSection(upgrade) {
+  if (upgrade?.section) return upgrade.section;
+  if (upgrade?.currency === "rebirthPoints" || upgrade?.category === "bosses") return "rebirth";
+  return "normal";
 }
 
-function categoryUpgradeCountText(categoryId) {
-  const upgrades = accountUpgradesForCategory(categoryId);
+function accountUpgradesForSectionCategory(sectionId, categoryId) {
+  return allAccountUpgradeDefs().filter((upgrade) => (
+    accountUpgradeSection(upgrade) === sectionId && upgrade.category === categoryId
+  ));
+}
+
+function categoryUpgradeCountText(sectionId, categoryId) {
+  const upgrades = accountUpgradesForSectionCategory(sectionId, categoryId);
   const real = upgrades.filter((upgrade) => !upgrade.planned);
+  if (!real.length) return "Planned";
+  const totalTiers = real.reduce((sum, upgrade) => sum + accountUpgradeTier(upgrade.id), 0);
+  if (real.some((upgrade) => !Number.isFinite(accountUpgradeMaxTier(upgrade)))) {
+    return totalTiers > 0 ? `${totalTiers} bought` : "0 bought";
+  }
+  const maxed = real.filter((upgrade) => accountUpgradeIsMaxed(upgrade)).length;
+  return `${maxed}/${real.length}`;
+}
+
+function sectionUpgradeCountText(sectionId) {
+  const categories = upgradeSectionCategories(sectionId);
+  const real = categories.flatMap((category) => accountUpgradesForSectionCategory(sectionId, category.id))
+    .filter((upgrade) => !upgrade.planned);
   if (!real.length) return "Planned";
   const totalTiers = real.reduce((sum, upgrade) => sum + accountUpgradeTier(upgrade.id), 0);
   if (real.some((upgrade) => !Number.isFinite(accountUpgradeMaxTier(upgrade)))) {
@@ -10924,6 +11119,74 @@ function updateHealingRegen(now) {
   return changed;
 }
 
+function vampirismRestoreAmount(damage, learned) {
+  const value = Math.max(0, Math.trunc(Number(damage) || 0));
+  const level = Math.max(0, Math.min(3, Math.trunc(Number(learned?.level) || 0)));
+  return Math.max(0, Math.trunc(value * (level + 1) * 0.25));
+}
+
+function queueVampirismRestore(amount, now = performance.now()) {
+  const value = Math.max(0, Math.trunc(Number(amount) || 0));
+  if (value <= 0 || !state.battle.player || state.battle.player.hp <= 0) return false;
+  state.battle.vampAmount = Math.min(65535, (state.battle.vampAmount ?? 0) + value);
+  if (!state.battle.vampTickAt) state.battle.vampTickAt = now + CRYSTAL_VAMP_FIRST_DELAY_MS;
+  if (bossPartyActiveFight()) {
+    const member = bossPartyControlledMember();
+    if (member) {
+      member.vampAmount = state.battle.vampAmount;
+      member.vampTickAt = state.battle.vampTickAt;
+    }
+  }
+  return true;
+}
+
+function updateVampirismRegen(now) {
+  const player = state.battle.player;
+  const battle = state.battle;
+  if (!player || player.hp <= 0) return false;
+
+  let changed = false;
+  if (player.hp >= player.maxHp && battle.vampAmount > 0) {
+    battle.vampAmount = 0;
+    changed = true;
+  }
+
+  if ((battle.vampAmount ?? 0) <= 0) {
+    battle.vampTickAt = 0;
+    return changed;
+  }
+
+  if (!battle.vampTickAt) {
+    battle.vampTickAt = now + CRYSTAL_VAMP_DELAY_MS;
+    return changed;
+  }
+
+  let steps = 0;
+  while (now >= battle.vampTickAt && steps < 20 && battle.vampAmount > 0 && player.hp > 0) {
+    const tickAt = battle.vampTickAt;
+    battle.vampTickAt += CRYSTAL_VAMP_DELAY_MS;
+    steps += 1;
+    const amount = Math.min(10, battle.vampAmount);
+    battle.vampAmount -= amount;
+    const before = player.hp;
+    player.hp = Math.min(player.maxHp, player.hp + amount);
+    const applied = player.hp - before;
+    if (applied > 0 && !suppressSimulationRender) addCombatText("player", `+${applied} HP`, "heal", tickAt);
+    if (player.hp >= player.maxHp) battle.vampAmount = 0;
+    changed = true;
+  }
+
+  if (steps >= 20 && battle.vampAmount > 0) battle.vampTickAt = now + CRYSTAL_VAMP_DELAY_MS;
+  if (battle.vampAmount <= 0) battle.vampTickAt = 0;
+  if (changed) {
+    playerHudSignature = "";
+    battlePanelSignature = "";
+    combatSkillBarSignature = "";
+    sceneSignature = "";
+  }
+  return changed;
+}
+
 function updateTaoistPetHealingRegen(now) {
   const pet = state.battle.taoPet;
   if (!pet?.active || pet.hp <= 0) return false;
@@ -11410,6 +11673,7 @@ function sceneButtonsHtml() {
       <button data-open-scene="upgrades" class="${state.openScenes.upgrades ? "active" : ""}">Upgrades</button>
       <button data-open-scene="characterSelect" class="${state.openScenes.characterSelect ? "active" : ""}">Characters</button>
       <button data-open-scene="gettingStarted" class="${state.openScenes.gettingStarted ? "active" : ""}">Guide</button>
+      <button data-open-scene="leaderboard" class="${state.openScenes.leaderboard ? "active" : ""}">Social</button>
       <button data-open-scene="options" class="${state.openScenes.options ? "active" : ""}">Options</button>
     </div>
   `;
@@ -11460,12 +11724,32 @@ function bindSceneButtons(rootEl) {
   rootEl.querySelectorAll("[data-attempt-weapon-refine]").forEach((button) => {
     button.addEventListener("click", () => attemptWeaponRefine());
   });
-  rootEl.querySelectorAll("[data-upgrade-category]").forEach((button) => {
+  rootEl.querySelectorAll("[data-upgrade-section]").forEach((button) => {
     button.addEventListener("click", () => {
-      state.upgradeCategory = normalizeUpgradeCategory(button.dataset.upgradeCategory);
+      state.upgradeSection = normalizeUpgradeSection(button.dataset.upgradeSection);
+      state.upgradeCategory = normalizeUpgradeCategory(state.upgradeCategory, state.upgradeSection);
       sceneSignature = "";
       renderSceneOverlay();
     });
+  });
+  rootEl.querySelectorAll("[data-upgrade-category]").forEach((button) => {
+    button.addEventListener("click", () => {
+      state.upgradeCategory = normalizeUpgradeCategory(button.dataset.upgradeCategory, state.upgradeSection);
+      sceneSignature = "";
+      renderSceneOverlay();
+    });
+  });
+  rootEl.querySelectorAll("[data-leaderboard-refresh]").forEach((button) => {
+    button.addEventListener("click", () => void ensureLeaderboardData(true));
+  });
+  rootEl.querySelectorAll("[data-leaderboard-player]").forEach((button) => {
+    button.addEventListener("click", () => openLeaderboardPlayer(Number(button.dataset.leaderboardPlayer)));
+  });
+  rootEl.querySelectorAll("[data-leaderboard-back]").forEach((button) => {
+    button.addEventListener("click", () => closeLeaderboardPlayer());
+  });
+  rootEl.querySelectorAll("[data-leaderboard-class]").forEach((button) => {
+    button.addEventListener("click", () => selectLeaderboardClass(button.dataset.leaderboardClass));
   });
 }
 
@@ -11479,11 +11763,12 @@ function initialOpenScenesFromUrl() {
     characterSelect: scenes.has("characterSelect") || scenes.has("characters"),
     gettingStarted: scenes.has("gettingStarted") || scenes.has("guide"),
     options: scenes.has("options"),
+    leaderboard: scenes.has("leaderboard"),
   };
 }
 
 function currentOverlayScenes() {
-  const openScenes = ["characterSelect", "character", "inventory", "upgrades", "gettingStarted", "options"].filter((scene) => state.openScenes[scene]);
+  const openScenes = ["characterSelect", "character", "inventory", "upgrades", "gettingStarted", "options", "leaderboard"].filter((scene) => state.openScenes[scene]);
   const npcScene = state.activeScene === "townNpc" || state.activeScene === "storage" || state.activeScene === "bossEntry" || state.activeScene === "weaponRefine"
     ? state.activeScene
     : null;
@@ -11491,7 +11776,7 @@ function currentOverlayScenes() {
 }
 
 function isSceneWindowOpen(scene) {
-  if (scene === "character" || scene === "inventory" || scene === "upgrades" || scene === "characterSelect" || scene === "gettingStarted" || scene === "options") {
+  if (scene === "character" || scene === "inventory" || scene === "upgrades" || scene === "characterSelect" || scene === "gettingStarted" || scene === "options" || scene === "leaderboard") {
     return Boolean(state.openScenes[scene]);
   }
   return state.activeScene === scene;
@@ -11556,7 +11841,7 @@ function toggleOpenScene(scene, options = {}) {
 }
 
 function openScene(scene, updateUrl = true) {
-  if (!["character", "inventory", "upgrades", "characterSelect", "gettingStarted", "options"].includes(scene)) return;
+  if (!["character", "inventory", "upgrades", "characterSelect", "gettingStarted", "options", "leaderboard"].includes(scene)) return;
   state.game.selectedTownNpcId = null;
   if (state.activeScene === "townNpc" || state.activeScene === "storage" || state.activeScene === "bossEntry" || state.activeScene === "weaponRefine") {
     removeSceneWindowFromStack(state.activeScene);
@@ -11568,10 +11853,12 @@ function openScene(scene, updateUrl = true) {
     state.openScenes.upgrades = false;
     state.openScenes.gettingStarted = false;
     state.openScenes.options = false;
+    state.openScenes.leaderboard = false;
   } else {
     state.openScenes.characterSelect = false;
   }
   state.openScenes[scene] = true;
+  if (scene === "leaderboard") void ensureLeaderboardData();
   pushSceneWindow(scene);
   playSfx("ui.button", { volume: 0.35, throttleMs: 80 });
   if (updateUrl) setSceneUrl();
@@ -11586,7 +11873,7 @@ function closeScene(scene = null, updateUrl = true) {
     updateUrl = scene;
     scene = null;
   }
-  if (scene === "character" || scene === "inventory" || scene === "upgrades" || scene === "characterSelect" || scene === "gettingStarted" || scene === "options") {
+  if (scene === "character" || scene === "inventory" || scene === "upgrades" || scene === "characterSelect" || scene === "gettingStarted" || scene === "options" || scene === "leaderboard") {
     state.openScenes[scene] = false;
     if (scene === "inventory") state.pendingInventoryDestroyEntryId = null;
     removeSceneWindowFromStack(scene);
@@ -11621,6 +11908,7 @@ function closeScene(scene = null, updateUrl = true) {
     state.openScenes.characterSelect = false;
     state.openScenes.gettingStarted = false;
     state.openScenes.options = false;
+    state.openScenes.leaderboard = false;
     state.pendingInventoryDestroyEntryId = null;
     sceneWindowStack = [];
   }
@@ -11643,7 +11931,7 @@ function setSceneUrl() {
 
 function renderSceneOverlay(options = {}) {
   const deferUserInteraction = Boolean(options.deferUserInteraction);
-  const openScenes = ["characterSelect", "character", "inventory", "upgrades", "gettingStarted", "options"].filter((scene) => state.openScenes[scene]);
+  const openScenes = ["characterSelect", "character", "inventory", "upgrades", "gettingStarted", "options", "leaderboard"].filter((scene) => state.openScenes[scene]);
   const npcScene = state.activeScene === "townNpc" || state.activeScene === "storage" || state.activeScene === "bossEntry" || state.activeScene === "weaponRefine"
     ? state.activeScene
     : null;
@@ -11687,6 +11975,7 @@ function buildSceneOverlaySignature(openScenes, bossEntryZoneId) {
     pendingStoragePageUnlock: state.pendingStoragePageUnlock,
     pendingInventoryDestroyEntryId: state.pendingInventoryDestroyEntryId,
     storagePage2Purchased: state.account.storage.page2Purchased,
+    upgradeSection: state.upgradeSection,
     upgradeCategory: state.upgradeCategory,
     bossEntryZoneId: state.bossEntryZoneId,
     bossEntryFromGroupDungeonAdvance: state.bossEntryFromGroupDungeonAdvance,
@@ -11811,6 +12100,7 @@ function sceneClassName(scene) {
   if (scene === "upgrades") return "scene-window upgrades-window";
   if (scene === "gettingStarted") return "scene-window getting-started-window";
   if (scene === "options") return "scene-window options-window";
+  if (scene === "leaderboard") return "scene-window leaderboard-window";
   return "scene-window";
 }
 
@@ -11823,6 +12113,7 @@ function sceneTitle(scene) {
   if (scene === "upgrades") return "Upgrades";
   if (scene === "gettingStarted") return "Getting Started";
   if (scene === "options") return "Options";
+  if (scene === "leaderboard") return "Social";
   if (scene === "bossEntry") {
     const zone = bossEntryZone();
     if (groupDungeonZone(zone)) return zone?.label ?? "Group Dungeon";
@@ -11839,6 +12130,7 @@ function sceneBodyHtml(scene) {
   if (scene === "upgrades") return upgradesSceneHtml();
   if (scene === "gettingStarted") return gettingStartedSceneHtml();
   if (scene === "options") return optionsSceneHtml();
+  if (scene === "leaderboard") return leaderboardSceneHtml();
   if (scene === "bossEntry") return bossEntrySceneHtml();
   if (scene === "weaponRefine") return weaponRefineSceneHtml();
   if (scene === "townNpc") return townNpcSceneHtml();
@@ -11907,7 +12199,7 @@ function partyAssistPickerHtml() {
 }
 
 function groupDungeonBossSwarmEntrySummary(zone, config) {
-  const base = zone?.groupDungeonBossSwarmConfig ?? {};
+  const base = zone?.bossSwarmConfig ?? zone?.groupDungeonBossSwarmConfig ?? {};
   if (Array.isArray(base.spawnQueue) && base.spawnQueue.length) {
     const parts = base.spawnQueue.map((entry) => {
       const count = Math.max(1, Math.trunc(Number(entry.count) || 1));
@@ -11919,7 +12211,11 @@ function groupDungeonBossSwarmEntrySummary(zone, config) {
       }
       return `${count}× ${name} after ${delaySec}s`;
     });
-    if (config.spawnAllAtOnce) return `${parts.join(", ")} — all emerge at once from the east.`;
+    if (config.spawnAllAtOnce) {
+      return zone?.bossSwarm
+        ? `${parts.join(" and ")} — both emerge together.`
+        : `${parts.join(", ")} — all emerge at once from the east.`;
+    }
     return `${parts.join("; ")} — advancing from the east.`;
   }
   const boss = ENEMY_TEMPLATES.find((enemy) => zone.enemyIds.includes(enemy.id));
@@ -11930,12 +12226,12 @@ function groupDungeonBossSwarmEntrySummary(zone, config) {
 function groupDungeonBossSwarmEntrySceneHtml(zone) {
   const config = groupDungeonBossSwarmConfig(zone);
   const selected = selectedBossAssistIds();
-  const nextZone = groupDungeonNextFloorZone(zone);
+  const nextZone = groupDungeonZone(zone) ? groupDungeonNextFloorZone(zone) : null;
   const bossName = groupDungeonBossSwarmLabel(zone);
   const remainingMs = groupDungeonBossRespawnRemainingMs(zone);
   const respawning = remainingMs > 0;
   const respawnMinutes = groupDungeonBossRespawnMinutes(zone);
-  const base = zone?.groupDungeonBossSwarmConfig ?? {};
+  const base = zone?.bossSwarmConfig ?? zone?.groupDungeonBossSwarmConfig ?? {};
   const spawnSchedule = config.spawnAllAtOnce
     ? `${config.totalSpawns} total · all at once`
     : Array.isArray(base.spawnQueue) && base.spawnQueue.some((entry) => (entry.spawnDelayMs || 0) > 0)
@@ -11965,7 +12261,10 @@ function groupDungeonBossSwarmEntrySceneHtml(zone) {
         <strong class="boss-entry-respawn-boss">${escapeHtml(bossName)}</strong>
         <span class="boss-entry-respawn-label">Respawns in</span>
         <strong class="boss-entry-respawn-countdown">${escapeHtml(formatDuration(remainingMs))}</strong>
-        <p class="boss-entry-note muted">The bosses will not appear until then. You can still enter the room and wait, or advance to the next floor from there.</p>
+        <p class="boss-entry-note muted">${groupDungeonZone(zone)
+          ? "The bosses will not appear until then. You can still enter the room and wait, or advance to the next floor from there."
+          : "The devourers will not appear until then. You can still enter the room and wait."
+        }</p>
       </div>
     `
     : respawnMinutes > 0
@@ -12213,6 +12512,7 @@ function bossEntrySceneHtml() {
   const zone = bossEntryZone();
   if (!zone) return `<p class="battle-state">Entry unavailable.</p>`;
   if (groupDungeonZone(zone)) return groupDungeonEntrySceneHtml(zone);
+  if (groupDungeonBossSwarmZone(zone)) return groupDungeonBossSwarmEntrySceneHtml(zone);
   const def = bossRoomDef(zone?.id);
   if (!def) return `<p class="battle-state">Boss room unavailable.</p>`;
   const boss = ENEMY_TEMPLATES.find((enemy) => zone.enemyIds.includes(enemy.id));
@@ -12275,10 +12575,11 @@ function upgradesSceneHtml() {
   const rebirthPoints = accountRebirthPoints();
   const rebirthMultiplier = rebirthPointMultiplier();
   const rebirthReady = canPerformRebirth();
-  state.upgradeCategory = normalizeUpgradeCategory(state.upgradeCategory);
+  syncUpgradeNavigation();
+  const section = activeUpgradeSection();
   const category = activeUpgradeCategory();
-  const upgrades = accountUpgradesForCategory(category.id);
-  const rebirthPanel = category.id === "rebirth" ? `
+  const upgrades = accountUpgradesForSectionCategory(section.id, category.id);
+  const rebirthPanel = section.id === "rebirth" ? `
       <div class="upgrade-rebirth-panel">
         <div class="upgrade-rebirth-balance">
           <span>Awakening Souls</span>
@@ -12340,15 +12641,27 @@ function upgradesSceneHtml() {
         </div>
       </div>
       ${rebirthPanel}
+      <div class="upgrade-section-tabs" role="tablist" aria-label="Upgrade sections">
+        ${ACCOUNT_UPGRADE_SECTIONS.map((entry) => `
+          <button
+            type="button"
+            class="${entry.id === section.id ? "active" : ""}"
+            data-upgrade-section="${escapeHtml(entry.id)}"
+          >
+            <span>${escapeHtml(entry.label)}</span>
+            <small>${escapeHtml(sectionUpgradeCountText(entry.id))}</small>
+          </button>
+        `).join("")}
+      </div>
       <div class="upgrade-category-tabs" role="tablist" aria-label="Upgrade categories">
-        ${ACCOUNT_UPGRADE_CATEGORIES.map((entry) => `
+        ${upgradeSectionCategories(section.id).map((entry) => `
           <button
             type="button"
             class="${entry.id === category.id ? "active" : ""}"
             data-upgrade-category="${escapeHtml(entry.id)}"
           >
             <span>${escapeHtml(entry.label)}</span>
-            <small>${escapeHtml(categoryUpgradeCountText(entry.id))}</small>
+            <small>${escapeHtml(categoryUpgradeCountText(section.id, entry.id))}</small>
           </button>
         `).join("")}
       </div>
@@ -12870,6 +13183,304 @@ function characterStatusValue(key, stats) {
     luck: String(stats.luck),
   };
   return values[key] ?? "";
+}
+
+const LEADERBOARD_CACHE_MS = 60000;
+
+function leaderboardApiBase() {
+  const endpoint = String(state.prototypeStats?.endpoint ?? "").trim();
+  if (!endpoint) return "";
+  return endpoint.replace(/\/stats\/?$/i, "").replace(/\/$/, "");
+}
+
+function leaderboardAvailable() {
+  return Boolean(leaderboardApiBase());
+}
+
+async function ensureLeaderboardData(force = false) {
+  const base = leaderboardApiBase();
+  if (!base) {
+    state.leaderboard.status = "unconfigured";
+    refreshLeaderboardScene();
+    return;
+  }
+  const lb = state.leaderboard;
+  if (!force && lb.status === "ready" && performance.now() - lb.fetchedAt < LEADERBOARD_CACHE_MS) return;
+  if (lb.status === "loading") return;
+  lb.status = "loading";
+  lb.error = "";
+  refreshLeaderboardScene();
+  try {
+    const response = await fetch(`${base}/leaderboard?scope=accounts&limit=100`, {
+      method: "GET",
+      headers: { Accept: "application/json" },
+    });
+    if (!response.ok) throw new Error(`HTTP ${response.status}`);
+    const data = await response.json();
+    lb.rows = Array.isArray(data?.rows) ? data.rows : [];
+    lb.status = "ready";
+    lb.fetchedAt = performance.now();
+  } catch (err) {
+    lb.status = "error";
+    lb.error = "Could not load the leaderboard. Check your connection and try again.";
+  }
+  refreshLeaderboardScene();
+}
+
+function refreshLeaderboardScene() {
+  if (!state.openScenes.leaderboard) return;
+  sceneSignature = "";
+  renderSceneOverlay();
+}
+
+function openLeaderboardPlayer(index) {
+  const lb = state.leaderboard;
+  const row = lb.rows?.[index];
+  if (!row) return;
+  lb.selectedIndex = index;
+  const characters = leaderboardRowCharacters(row);
+  lb.detailClass = characters[0]?.characterClass ?? null;
+  playSfx("ui.button", { volume: 0.3, throttleMs: 80 });
+  refreshLeaderboardScene();
+}
+
+function closeLeaderboardPlayer() {
+  state.leaderboard.selectedIndex = null;
+  state.leaderboard.detailClass = null;
+  playSfx("ui.button", { volume: 0.3, throttleMs: 80 });
+  refreshLeaderboardScene();
+}
+
+function selectLeaderboardClass(classId) {
+  state.leaderboard.detailClass = normalizeCharacterId(classId);
+  refreshLeaderboardScene();
+}
+
+function leaderboardRowCharacters(row) {
+  const characters = Array.isArray(row?.characters) ? row.characters : [];
+  return characters
+    .map((entry) => ({
+      ...entry,
+      characterClass: normalizeCharacterId(entry?.characterClass),
+    }))
+    .sort((left, right) => CHARACTER_IDS.indexOf(left.characterClass) - CHARACTER_IDS.indexOf(right.characterClass));
+}
+
+function leaderboardSceneHtml() {
+  if (state.leaderboard.selectedIndex != null) return leaderboardDetailHtml();
+  return leaderboardListHtml();
+}
+
+function leaderboardListHtml() {
+  const lb = state.leaderboard;
+  let body = "";
+  if (lb.status === "unconfigured") {
+    body = `<p class="leaderboard-note">The leaderboard is not configured in this build.</p>`;
+  } else if (lb.status === "loading" && !lb.rows.length) {
+    body = `<p class="leaderboard-note">Loading leaderboard...</p>`;
+  } else if (lb.status === "error") {
+    body = `<p class="leaderboard-note">${escapeHtml(lb.error)}</p>`;
+  } else if (!lb.rows.length) {
+    body = `<p class="leaderboard-note">No ranked players yet.</p>`;
+  } else {
+    body = `
+      <div class="leaderboard-list" data-preserve-scroll="leaderboard-list">
+        ${lb.rows.map((row, index) => leaderboardRowHtml(row, index)).join("")}
+      </div>
+    `;
+  }
+  return `
+    <div class="leaderboard-body">
+      <div class="leaderboard-toolbar">
+        <span class="leaderboard-subtitle">Ranked by combined character levels</span>
+        <button type="button" class="leaderboard-refresh" data-leaderboard-refresh ${lb.status === "loading" ? "disabled" : ""}>Refresh</button>
+      </div>
+      ${body}
+    </div>
+  `;
+}
+
+function leaderboardRowHtml(row, index) {
+  const combined = Math.max(0, Math.trunc(Number(row?.combinedCharacterLevels) || 0));
+  const souls = Math.max(0, Math.trunc(Number(row?.awakeningSoulsHeld) || 0));
+  const topChar = leaderboardRowCharacters(row)[0];
+  const topLabel = topChar ? `${escapeHtml(topChar.characterClass)} Lv ${Math.max(1, Math.trunc(Number(topChar.level) || 1))}` : "";
+  return `
+    <button type="button" class="leaderboard-row" data-leaderboard-player="${index}">
+      <span class="leaderboard-rank">#${Math.max(1, Math.trunc(Number(row?.rank) || index + 1))}</span>
+      <span class="leaderboard-player">${escapeHtml(row?.player ?? "Player")}</span>
+      <span class="leaderboard-cell">Levels ${combined}</span>
+      <span class="leaderboard-cell">${topLabel}</span>
+      <span class="leaderboard-cell">Souls ${souls}</span>
+    </button>
+  `;
+}
+
+function leaderboardDetailHtml() {
+  const lb = state.leaderboard;
+  const row = lb.rows?.[lb.selectedIndex];
+  if (!row) {
+    return `
+      <div class="leaderboard-body">
+        <button type="button" class="leaderboard-back" data-leaderboard-back>Back to list</button>
+        <p class="leaderboard-note">That player is no longer available.</p>
+      </div>
+    `;
+  }
+  const characters = leaderboardRowCharacters(row);
+  const activeClass = normalizeCharacterId(lb.detailClass ?? characters[0]?.characterClass);
+  const view = characters.find((entry) => entry.characterClass === activeClass) ?? characters[0] ?? null;
+  const lastSeen = leaderboardLastSeenLabel(row?.lastSeen);
+  const classTabs = characters.map((entry) => `
+    <button type="button" class="leaderboard-class-tab ${entry.characterClass === activeClass ? "active" : ""}" data-leaderboard-class="${escapeHtml(entry.characterClass)}">
+      ${escapeHtml(entry.characterClass)} Lv ${Math.max(1, Math.trunc(Number(entry.level) || 1))}
+    </button>
+  `).join("");
+  return `
+    <div class="leaderboard-body leaderboard-detail">
+      <div class="leaderboard-toolbar">
+        <button type="button" class="leaderboard-back" data-leaderboard-back>Back to list</button>
+        <span class="leaderboard-detail-name">${escapeHtml(row?.player ?? "Player")}</span>
+      </div>
+      <p class="leaderboard-note leaderboard-snapshot">Self-reported snapshot${lastSeen ? ` - as of ${escapeHtml(lastSeen)}` : ""}.</p>
+      <div class="leaderboard-class-tabs">${classTabs}</div>
+      ${view ? foreignCharacterPageHtml(view) : `<p class="leaderboard-note">No character data for this player.</p>`}
+    </div>
+  `;
+}
+
+function leaderboardLastSeenLabel(value) {
+  if (!value) return "";
+  const date = new Date(value);
+  if (Number.isNaN(date.getTime())) return "";
+  return date.toLocaleDateString(undefined, { year: "numeric", month: "short", day: "numeric" });
+}
+
+function foreignCharacterPageHtml(view) {
+  state.leaderboard.foreignEntries = {};
+  return `
+    <div class="leaderboard-character">
+      <div class="crystal-character-window leaderboard-character-window">
+        <div class="crystal-character-panel"></div>
+        ${foreignPaperDollHtml(view)}
+        ${EQUIPMENT_SLOTS.map((slot) => foreignEquipmentSlotHtml(slot, view)).join("")}
+      </div>
+      ${foreignCharacterStatsHtml(view)}
+      ${foreignCharacterSkillsHtml(view)}
+    </div>
+  `;
+}
+
+function foreignEquippedItem(view, slotId) {
+  const itemId = view?.equipment?.[slotId]?.itemId;
+  return itemId ? itemDefinition(itemId) : null;
+}
+
+// Builds a synthetic inventory-entry from another player's submitted equipment so
+// the normal item tooltip (with smith/refine/bonus buffs) can render it. Registered
+// in state.leaderboard.foreignEntries so showItemTooltip can resolve it by id.
+function foreignRegisterEntry(view, slotId) {
+  const raw = view?.equipment?.[slotId];
+  if (!raw?.itemId) return null;
+  const entryId = `lb:${normalizeCharacterId(view?.characterClass)}:${slotId}`;
+  const entry = {
+    id: entryId,
+    itemId: raw.itemId,
+    quantity: 1,
+    smithLevel: Math.max(0, Math.trunc(Number(raw.smithLevel) || 0)),
+    weaponRefineLevel: Math.max(0, Math.trunc(Number(raw.weaponRefineLevel) || 0)),
+    gemCount: Math.max(0, Math.trunc(Number(raw.gemCount) || 0)),
+    bonusStats: sanitizeItemBonusStats(raw.bonusStats),
+    smithBonusStats: sanitizeSmithBonusStats(raw.smithBonusStats),
+  };
+  if (!state.leaderboard.foreignEntries) state.leaderboard.foreignEntries = {};
+  state.leaderboard.foreignEntries[entryId] = entry;
+  return entry;
+}
+
+function foreignPaperDollHtml(view) {
+  const armourItem = foreignEquippedItem(view, "armour");
+  const weaponItem = foreignEquippedItem(view, "weapon");
+  const helmetItem = foreignEquippedItem(view, "helmet");
+  const layers = [
+    armourItem ? crystalPaperDollLayerHtml(armourItem, "armour") : "",
+    weaponItem ? crystalPaperDollLayerHtml(weaponItem, "weapon") : "",
+    helmetItem ? crystalPaperDollLayerHtml(helmetItem, "helmet") : crystalPaperDollFrameHtml(CHARACTER_PAPER_DOLL_FRAMES.hair, "Hair"),
+  ].filter(Boolean);
+  return `<div class="crystal-paper-doll" aria-hidden="true">${layers.join("")}</div>`;
+}
+
+function foreignEquipmentSlotHtml(slot, view) {
+  const item = foreignEquippedItem(view, slot.id);
+  const entry = item ? foreignRegisterEntry(view, slot.id) : null;
+  const position = CRYSTAL_EQUIPMENT_SLOT_POSITIONS[slot.id] ?? { x: 0, y: 0 };
+  const content = item
+    ? `<div class="crystal-equipment-item has-tooltip" data-tooltip-item="${escapeHtml(item.id)}" ${entry ? `data-tooltip-entry="${escapeHtml(entry.id)}"` : ""} title="${escapeHtml(itemDisplayName(item, entry))}">${itemIconHtml(item)}</div>`
+    : "";
+  return `
+    <div
+      class="crystal-equipment-slot ${item ? "has-tooltip" : ""}"
+      ${item ? `data-tooltip-item="${escapeHtml(item.id)}"` : ""}
+      ${entry ? `data-tooltip-entry="${escapeHtml(entry.id)}"` : ""}
+      title="${escapeHtml(slot.label)}"
+      style="left:${8 + position.x}px; top:${90 + position.y}px;"
+    >
+      ${content}
+    </div>
+  `;
+}
+
+function foreignCharacterStatsHtml(view) {
+  const stats = view?.stats ?? {};
+  const rows = [
+    ["Level", String(Math.max(1, Math.trunc(Number(view?.level) || 1)))],
+    ["HP", `${Math.trunc(Number(stats.maxHp) || 0)}`],
+    ["MP", `${Math.trunc(Number(stats.maxMp) || 0)}`],
+    ["AC", formatStatRange(stats.ac)],
+    ["AMC", formatStatRange(stats.amc)],
+    ["DC", formatStatRange(stats.dc)],
+    ["MC", formatStatRange(stats.mc)],
+    ["SC", formatStatRange(stats.sc)],
+    ["Accuracy", `+${Math.trunc(Number(stats.accuracy) || 0)}`],
+    ["Agility", `+${Math.trunc(Number(stats.agility) || 0)}`],
+    ["Luck", String(Math.trunc(Number(stats.luck) || 0))],
+  ];
+  return `
+    <div class="leaderboard-stats">
+      <div class="leaderboard-stats-heading">Stats</div>
+      ${rows.map(([label, value]) => `
+        <div class="leaderboard-stats-row">
+          <span class="leaderboard-stats-label">${escapeHtml(label)}</span>
+          <span class="leaderboard-stats-value">${escapeHtml(value)}</span>
+        </div>
+      `).join("")}
+    </div>
+  `;
+}
+
+function foreignCharacterSkillsHtml(view) {
+  const learned = view?.skills && typeof view.skills === "object" ? view.skills : {};
+  const spells = characterSkillSpells(view?.characterClass);
+  const learnedSpells = spells.filter((spell) => Object.prototype.hasOwnProperty.call(learned, spell.id));
+  if (!learnedSpells.length) {
+    return `
+      <div class="leaderboard-skills">
+        <div class="leaderboard-stats-heading">Skills</div>
+        <p class="leaderboard-note">No skills learned.</p>
+      </div>
+    `;
+  }
+  return `
+    <div class="leaderboard-skills">
+      <div class="leaderboard-stats-heading">Skills</div>
+      ${learnedSpells.map((spell) => `
+        <div class="leaderboard-stats-row">
+          <span class="leaderboard-stats-label">${escapeHtml(spell.label ?? spell.id)}</span>
+          <span class="leaderboard-stats-value">Lv ${Math.max(0, Math.trunc(Number(learned[spell.id]) || 0))}</span>
+        </div>
+      `).join("")}
+    </div>
+  `;
 }
 
 function equippedItem(slotId) {
@@ -14268,7 +14879,7 @@ function groupDungeonBossZone(zone = activeZone()) {
 }
 
 function groupDungeonBossSwarmZone(zone = activeZone()) {
-  return Boolean(zone?.groupDungeon && zone?.groupDungeonBossSwarm);
+  return Boolean(zone?.bossSwarm || (zone?.groupDungeon && zone?.groupDungeonBossSwarm));
 }
 
 function groupDungeonBossSwarmState() {
@@ -14334,7 +14945,7 @@ function resolveBossSwarmSpawnMapRow(planEntry, arenaSpawnRow, fallbackIndex = 0
 }
 
 function groupDungeonBossSwarmConfig(zone = activeZone()) {
-  const base = zone?.groupDungeonBossSwarmConfig ?? {};
+  const base = zone?.bossSwarmConfig ?? zone?.groupDungeonBossSwarmConfig ?? {};
   const rawInterval = Math.trunc(Number(base.spawnIntervalMs));
   const spawnIntervalMs = Math.max(1000, Number.isFinite(rawInterval) ? rawInterval : 10000);
   const rawFirstDelay = base.firstSpawnDelayMs ?? base.spawnIntervalMs ?? spawnIntervalMs;
@@ -14364,7 +14975,7 @@ function groupDungeonBossSwarmSignature() {
 }
 
 function groupDungeonBossSwarmLabel(zone = groupDungeonWaveZone()) {
-  const base = zone?.groupDungeonBossSwarmConfig ?? {};
+  const base = zone?.bossSwarmConfig ?? zone?.groupDungeonBossSwarmConfig ?? {};
   if (Array.isArray(base.spawnQueue) && base.spawnQueue.length) {
     const names = base.spawnQueue
       .map((entry) => ENEMY_TEMPLATES.find((template) => template.id === Math.trunc(Number(entry.templateId)))?.name)
@@ -14432,6 +15043,9 @@ function spawnGroupDungeonBossSwarmEnemy(now = performance.now()) {
     mapRow: resolveBossSwarmSpawnMapRow(planEntry, arenaSpawnRow, bossSwarm.spawned),
   });
   enemy.isBossSwarm = true;
+  if (isDarkDevourerSwarmEnemy(enemy)) {
+    enemy._darkDevilRangeReadyAt = now;
+  }
   while (swarmTileOccupied(enemy.worldX, enemy.mapRow, swarm.enemies, enemy.id)) {
     enemy.worldX += LANE_TILE_PX;
   }
@@ -14498,7 +15112,7 @@ function finishGroupDungeonBossSwarmEncounter(now = performance.now()) {
   if (!bossSwarm || bossSwarm.complete || !party?.active) return;
   bossSwarm.complete = true;
   const zone = activeZone();
-  const nextZone = groupDungeonNextFloorZone(zone);
+  const nextZone = groupDungeonZone(zone) ? groupDungeonNextFloorZone(zone) : null;
   const bossLabel = groupDungeonBossSwarmLabel(zone);
   const respawnMinutes = groupDungeonBossRespawnMinutes(zone);
   if (respawnMinutes > 0) {
@@ -14506,9 +15120,11 @@ function finishGroupDungeonBossSwarmEncounter(now = performance.now()) {
     pushBattleLog(`${bossLabel} will respawn in ${formatBossRespawnDelay(respawnMinutes)}.`);
   }
   pushBattleLog(`All ${bossLabel} defeated.`);
-  pushBattleLog(nextZone
-    ? `Advance to ${nextZone.label} when you are ready.`
-    : "Dungeon complete — return to town when you are ready.");
+  if (nextZone) {
+    pushBattleLog(`Advance to ${nextZone.label} when you are ready.`);
+  } else if (bossRoomDef(zone?.id)) {
+    pushBattleLog("Return to town when you are ready.");
+  }
   markGroupDungeonWaveUiDirty();
   gamePanelSignature = "";
   gamePanelDynamicSignature = "";
@@ -14637,8 +15253,11 @@ async function advanceGroupDungeonFloor() {
 
 
 function groupDungeonSwarmActive() {
-  return groupDungeonZone()
-    && Boolean(state.battle.bossParty?.active && state.battle.swarm && !state.battle.swarm.bossReinforcements);
+  if (!state.battle.bossParty?.active || !state.battle.swarm || state.battle.swarm.bossReinforcements) {
+    return false;
+  }
+  const zone = groupDungeonWaveZone();
+  return groupDungeonZone(zone) || groupDungeonBossSwarmZone(zone);
 }
 
 function groupDungeonBossReinforcementsZone(zone = activeZone()) {
@@ -15599,7 +16218,25 @@ function swarmEnemyWalkInProgress(enemy) {
 }
 
 // Crystal ActionFeed: the flinch queues behind movement and attacks; it is
-// consumed by the end-of-tick pass in updateGroupDungeonBossPartyBattle.
+// consumed by the end-of-tick pass in updateBattle / updateGroupDungeonBossPartyBattle.
+function queueEnemyStruck(now) {
+  const enemy = state.battle.enemy;
+  if (!enemy || enemy.hp <= 0) return;
+  state.battle.pendingEnemyStruck = true;
+}
+
+function tryConsumeEnemyPendingStruck(now) {
+  const battle = state.battle;
+  const enemy = battle.enemy;
+  if (!battle.pendingEnemyStruck || !enemy || enemy.hp <= 0) return false;
+  if (state.enemy.action === "walking") return false;
+  if (state.enemy.oneShot && state.enemy.action !== "standing") return false;
+  if (state.enemy.action === "struck") return false;
+  battle.pendingEnemyStruck = false;
+  setEnemyAction("struck", true, now);
+  return true;
+}
+
 function queueSwarmEnemyStruck(enemy, now) {
   if (!enemy || enemy.dying || enemy.hp <= 0) return;
   enemy.pendingStruck = true;
@@ -15617,7 +16254,7 @@ function tryConsumeSwarmEnemyPendingStruck(enemy, now) {
 
 function strikeGroupDungeonSwarmEnemy(enemy, now) {
   if (!groupDungeonSwarmSideActive() || !enemy?.swarmId) {
-    setEnemyAction("struck", true, now);
+    queueEnemyStruck(now);
     return;
   }
   const swarmEnemy = findGroupDungeonSwarmEnemy(enemy.swarmId);
@@ -16174,12 +16811,69 @@ function updateSwarmEnemyPendingStrikes(now) {
   }
 }
 
+function scheduleDarkDevourerSwarmRangeCooldown(swarmEnemy, entity, now = performance.now()) {
+  const minMs = Math.max(0, Math.trunc(Number(entity.darkDevilRangeCooldownMinMs) || 1500));
+  const maxMs = Math.max(minMs, Math.trunc(Number(entity.darkDevilRangeCooldownMaxMs) || 4000));
+  swarmEnemy._darkDevilRangeReadyAt = now + minMs + Math.floor(Math.random() * (maxMs - minMs + 1));
+}
+
+function darkDevourerSwarmRangeReady(swarmEnemy, now = performance.now()) {
+  return now >= (Number(swarmEnemy?._darkDevilRangeReadyAt) || 0);
+}
+
+function beginDarkDevourerSwarmAttack(swarmEnemy, now) {
+  if (!swarmEnemy || swarmEnemy.hp <= 0 || swarmEnemy.pendingStrike) return false;
+  if (!state.battle.enemyRevealed) return false;
+  const entity = swarmEnemyToBattleEntity(swarmEnemy);
+  const tile = swarmEnemyTilePosition(swarmEnemy);
+  const partyRow = arenaSpawnMapRow();
+  const meleeTiles = Math.max(1, Math.trunc(Number(entity.darkDevilMeleeRangeTiles) || 1));
+  const tank = bossPartyFrontTarget();
+  if (tank) {
+    const dist = swarmRangeTilesBetween(tile.worldX, tile.mapRow, tank.worldX, partyRow);
+    if (dist <= meleeTiles) {
+      const lane = swarmLaneFromMapRow(tile.mapRow, partyRow);
+      const attackAction = swarmAttackActionForLane(lane);
+      setSwarmEnemyAction(swarmEnemy, attackAction, true, now);
+      syncPrimarySwarmVisual(swarmEnemy, attackAction, now);
+      playMonsterSfx("attack", swarmEnemy);
+      applySwarmEnemyStrikeToTarget(swarmEnemy, entity, tank, now, { ranged: false });
+      swarmEnemy.nextAttackAt = now + effectiveEnemyAttackMs(swarmEnemy, now);
+      return true;
+    }
+  }
+  if (!darkDevourerSwarmRangeReady(swarmEnemy, now)) return false;
+  const rangeTiles = Math.max(2, Math.trunc(Number(entity.attackRangeTiles) || 4));
+  const target = bossPartyRandomRangedTargetInSwarmRange(tile, partyRow, rangeTiles) ?? tank;
+  if (!target) return false;
+  scheduleDarkDevourerSwarmRangeCooldown(swarmEnemy, entity, now);
+  const impactDelay = Math.max(100, Math.trunc(Number(entity.attackImpactDelayMs) || 500));
+  const lane = swarmLaneFromMapRow(tile.mapRow, partyRow);
+  const attackAction = swarmEnemy.atlas?.actions?.attackRange1
+    ? swarmRangeAttackActionForLane(lane)
+    : swarmAttackActionForLane(lane);
+  setSwarmEnemyAction(swarmEnemy, attackAction, true, now);
+  syncPrimarySwarmVisual(swarmEnemy, attackAction, now);
+  playMonsterSfx(enemyAttackSfxKind(entity, true), swarmEnemy);
+  swarmEnemy.pendingStrike = {
+    at: now + impactDelay,
+    ranged: true,
+    target,
+    resolved: false,
+  };
+  swarmEnemy.nextAttackAt = now + effectiveEnemyAttackMs(swarmEnemy, now);
+  return true;
+}
+
 function groupDungeonSwarmEnemyAttack(swarmEnemy, now) {
   if (isRedThunderZumaSwarmEnemy(swarmEnemy)) {
     return beginRedThunderZumaSwarmAttack(swarmEnemy, now);
   }
   if (isZumaArcherSwarmEnemy(swarmEnemy)) {
     return beginZumaArcherSwarmAttack(swarmEnemy, now);
+  }
+  if (isDarkDevourerSwarmEnemy(swarmEnemy)) {
+    return beginDarkDevourerSwarmAttack(swarmEnemy, now);
   }
   const target = bossPartyFrontTarget();
   if (!swarmEnemy || !target || swarmEnemy.hp <= 0 || !state.battle.enemyRevealed) return false;
@@ -16205,7 +16899,9 @@ function runGroupDungeonSwarmAttackPass(now) {
     if (swarmEnemy.oneShot && swarmEnemy.action !== "standing") continue;
     if (now < (swarmEnemy.nextAttackAt ?? 0)) continue;
     if (groupDungeonSwarmEnemyAttack(swarmEnemy, now)) {
-      if (!isRedThunderZumaSwarmEnemy(swarmEnemy) && !isZumaArcherSwarmEnemy(swarmEnemy)) {
+      if (!isRedThunderZumaSwarmEnemy(swarmEnemy)
+        && !isZumaArcherSwarmEnemy(swarmEnemy)
+        && !isDarkDevourerSwarmEnemy(swarmEnemy)) {
         swarmEnemy.nextAttackAt = now + effectiveEnemyAttackMs(swarmEnemy, now);
       }
     }
@@ -16313,6 +17009,9 @@ function syncAccountBossRespawnsToCharacters() {
 
 function groupDungeonBossRespawnMinutes(zone = activeZone()) {
   if (!zone || (!groupDungeonBossZone(zone) && !groupDungeonBossSwarmZone(zone))) return 0;
+  if (zone.bossSwarm && bossRoomDef(zone.id)) {
+    return Math.max(0, Math.trunc(Number(bossRoomDef(zone.id).respawnMinutes) || 0));
+  }
   return Math.max(0, Math.trunc(Number(zone?.groupDungeonBossRespawnMinutes) || 0));
 }
 
@@ -17441,7 +18140,9 @@ function setHoveredTownNpc(npcId) {
 function showItemTooltip(itemId, event, entryId = null) {
   const item = itemDefinition(itemId);
   if (!item) return;
-  const entry = entryId ? itemEntryById(entryId) : null;
+  const entry = entryId
+    ? (itemEntryById(entryId) ?? (entryId.startsWith("lb:") ? state.leaderboard.foreignEntries?.[entryId] ?? null : null))
+    : null;
   els.itemTooltip.innerHTML = itemTooltipHtml(item, entry);
   els.itemTooltip.hidden = false;
   positionItemTooltip(event);
@@ -17588,6 +18289,7 @@ function runSimulationStep(now, options = {}) {
     if (!bossPartyActiveFight()) {
       recoveryChanged = updatePendingHeal(now) || recoveryChanged;
       recoveryChanged = updateHealingRegen(now) || recoveryChanged;
+      recoveryChanged = updateVampirismRegen(now) || recoveryChanged;
       recoveryChanged = updatePotionRegen(now) || recoveryChanged;
     }
     recoveryChanged = updateStatBuffs(now) || recoveryChanged;
@@ -18387,6 +19089,8 @@ function bossPartyMemberFromCharacter(classId, character = createDefaultCharacte
     potTickAt: 0,
     healAmount: Math.max(0, Math.trunc(Number(character.battle?.healAmount) || 0)),
     healTickAt: 0,
+    vampAmount: Math.max(0, Math.trunc(Number(character.battle?.vampAmount) || 0)),
+    vampTickAt: 0,
     furyUntil: 0,
     furyBonus: 0,
     flamingSwordReady: false,
@@ -18535,6 +19239,7 @@ function updateGroupDungeonBossWaitingRoom(now) {
   for (const member of party.members) {
     updateBossPartyMemberPotionRegen(member, now);
     updateBossPartyMemberHealRegen(member, now);
+    updateBossPartyMemberVampirismRegen(member, now);
     bossPartyAutoUsePotions(member, now);
   }
   if (party.pet) updateBossPartyMemberHealRegen(party.pet, now);
@@ -18561,6 +19266,7 @@ function updateBossPartyBattle(now) {
   for (const member of party.members) {
     updateBossPartyMemberPotionRegen(member, now);
     updateBossPartyMemberHealRegen(member, now);
+    updateBossPartyMemberVampirismRegen(member, now);
     bossPartyAutoUsePotions(member, now);
   }
   if (party.pet) updateBossPartyMemberHealRegen(party.pet, now);
@@ -18884,6 +19590,7 @@ function bossPartyWizardAction(member, now) {
   const queuedSpell = queuedWizard?.spell
     && queuedWizard.spell.id !== "MagicShield"
     && !(queuedWizard.spell.id === "FireWall" && !bossPartyFireWallHasUsefulTarget(queuedWizard.spell, member, now))
+    && !(queuedWizard.spell.id === "TurnUndead" && !turnUndeadCanTarget(enemy, member))
     ? queuedWizard.spell
     : null;
   if (queuedWizard && !queuedSpell) return bossPartyWeaponAttack(member, now);
@@ -18891,6 +19598,7 @@ function bossPartyWizardAction(member, now) {
     const learned = bossPartyLearned(member, candidate.id);
     if (!canWizardCastSpell(candidate, learned, now, member)) return false;
     if (candidate.id === "FireWall") return bossPartyFireWallHasUsefulTarget(candidate, member, now);
+    if (candidate.id === "TurnUndead") return turnUndeadCanTarget(enemy, member);
     if (!wizardAutoSpellEligible(candidate, member)) return false;
     return true;
   });
@@ -18903,6 +19611,7 @@ function bossPartyWizardAction(member, now) {
   const bangCenterTile = spell.impactMode === "bang" ? wizardBangCenterTile(enemy, spell, member) : null;
   bossPartyControlledVisual(member, spell, spell.bodyAction ?? "spell", now, { centerTile: bangCenterTile });
   if (spell.impactMode !== "target") bossPartyCastSfx(member, spell.id, 0.5, 120);
+  if (spell.id === "Vampirism") bossPartyCastSfx(member, spell.id, 0.5, 120);
 
   if (spell.id === "FireWall") {
     const value = rollWizardMagicValue(spell, learned, member);
@@ -18932,6 +19641,19 @@ function bossPartyWizardAction(member, now) {
     return true;
   }
   if (spell.impactMode === "buff") return true;
+
+  if (spell.id === "TurnUndead") {
+    partyBossImpacts().push({
+      at: now + wizardImpactDelay(spell, state.wizardSpellAtlases[spell.id] ?? null),
+      spellId: spell.id,
+      label: spell.label,
+      turnUndead: true,
+      result: rollTurnUndeadResult(spell, learned, member, enemy),
+      casterClassId: member.classId,
+    });
+    pushBattleLog(`${member.classId} casts ${spell.label}.`);
+    return true;
+  }
 
   if (spell.impactMode === "projectile") playSpellSfx(spell.id, "fly", bossPartySfxParams(member, 0.38, 120));
   bossPartyQueueImpact(member, spell, spell.label, state.wizardSpellAtlases[spell.id] ?? null, now, () => (
@@ -19522,6 +20244,8 @@ function bossPartyActiveFight() {
 function resetBossPartySoloRecoveryState() {
   state.battle.healAmount = 0;
   state.battle.healTickAt = 0;
+  state.battle.vampAmount = 0;
+  state.battle.vampTickAt = 0;
   state.battle.potHealthAmount = 0;
   state.battle.potManaAmount = 0;
   state.battle.potTickAt = 0;
@@ -19893,6 +20617,30 @@ function bossPartyQueueImpact(member, spell, label, atlas, now, rollDamageFn) {
   });
 }
 
+function applyBossPartyTurnUndeadImpact(impact, now) {
+  const enemy = state.battle.enemy;
+  const caster = state.battle.bossParty?.members.find((member) => member.classId === impact.casterClassId);
+  const spell = combatAttackSpell(impact.spellId);
+  const learned = caster ? bossPartyLearned(caster, impact.spellId) : null;
+  if (!enemy || enemy.hp <= 0 || !state.battle.enemyRevealed || !spell || !caster) return;
+  const result = impact.result ?? rollTurnUndeadResult(spell, learned, caster, enemy);
+  if (!result.success) {
+    bossPartyShowEnemyMiss(impact.casterClassId, now);
+    applyCombatEvents(magicResistEvents(impact.label, enemy.name), now);
+    return;
+  }
+
+  const damage = Math.max(1, Math.trunc(Number(enemy.hp) || 1));
+  syncBattleEnemyHpToSwarm();
+  strikeGroupDungeonSwarmEnemy(enemy, now);
+  playMonsterSfx("flinch", enemy, bossPartySfxParamsForClass(impact.casterClassId, 0.42, 80));
+  addCombatText("enemy", "Turned", "damage", now, bossPartyDamageTextOffset(impact.casterClassId));
+  applyCombatDamageEvent(enemyDamageEvent(damage, { kind: "magic" }), now, { enemy });
+  pushBattleLog(`${impact.label} destroys ${enemy.name}.`);
+  maybeKillGroupDungeonSwarmEnemy(enemy, now);
+  if (learned) bossPartyLevelMagicSkill(caster, spell, learned, now);
+}
+
 function updateBossPartyImpacts(now) {
   const enemy = state.battle.enemy;
   const impacts = partyBossImpacts();
@@ -19919,6 +20667,10 @@ function updateBossPartyImpacts(now) {
     bossPartySpellStrikeSfx(impact.spellId, impact.casterClassId);
     const canApply = enemy && enemy.hp > 0 && state.battle.enemyRevealed;
     if (!canApply) continue;
+    if (impact.turnUndead) {
+      applyBossPartyTurnUndeadImpact(impact, now);
+      continue;
+    }
     if (!impact.hit || impact.damage <= 0) {
       bossPartyShowEnemyMiss(impact.casterClassId, now);
       applyCombatEvents(magicAttackMissEvents(impact.label, enemy.name), now);
@@ -19928,15 +20680,18 @@ function updateBossPartyImpacts(now) {
     strikeGroupDungeonSwarmEnemy(enemy, now);
     playMonsterSfx("flinch", enemy, bossPartySfxParamsForClass(impact.casterClassId, 0.42, 80));
     bossPartyShowEnemyDamage(impact.casterClassId, impact.damage, now);
-    applyCombatEvents(magicAttackHitEvents(impact.label, enemy.name, impact.damage), now, { enemy });
-    maybeKillGroupDungeonSwarmEnemy(enemy, now);
-    const caster = state.battle.bossParty?.members.find((m) => m.classId === impact.casterClassId);
-    const spell = combatAttackSpell(impact.spellId);
-    const learned = caster ? bossPartyLearned(caster, impact.spellId) : null;
-    if (impact.spellId === "FrostCrunch" && impact.damage > 0 && caster && learned) {
-      applyFrostCrunchEffects(enemy, learned, caster, now);
-    }
-    if (caster && spell && learned) bossPartyLevelMagicSkill(caster, spell, learned, now);
+  applyCombatEvents(magicAttackHitEvents(impact.label, enemy.name, impact.damage), now, { enemy });
+  maybeKillGroupDungeonSwarmEnemy(enemy, now);
+  const caster = state.battle.bossParty?.members.find((m) => m.classId === impact.casterClassId);
+  const spell = combatAttackSpell(impact.spellId);
+  const learned = caster ? bossPartyLearned(caster, impact.spellId) : null;
+  if (impact.spellId === "FrostCrunch" && impact.damage > 0 && caster && learned) {
+    applyFrostCrunchEffects(enemy, learned, caster, now);
+  }
+  if (impact.spellId === "Vampirism" && impact.damage > 0 && caster && learned) {
+    queueBossPartyVampirismRestore(caster, vampirismRestoreAmount(impact.damage, learned), now);
+  }
+  if (caster && spell && learned) bossPartyLevelMagicSkill(caster, spell, learned, now);
   }
   state.battle.bossParty.impacts = remaining;
 }
@@ -20051,6 +20806,23 @@ function isDarkDevilEnemy(enemy = state.battle.enemy) {
   return enemy?.attackMode === "darkDevil"
     || enemy?.id === DARK_DEVIL_ENEMY_ID
     || enemy?.crystalName === "DarkDevil";
+}
+
+function isDreamDevourerEnemy(enemy = state.battle.enemy) {
+  return enemy?.id === DREAM_DEVOURER_ENEMY_ID || enemy?.crystalName === "DreamDevourer";
+}
+
+function isDarkDevourerEnemy(enemy = state.battle.enemy) {
+  return enemy?.attackMode === "darkDevourer"
+    || enemy?.id === DARK_DEVOURER_ENEMY_ID
+    || enemy?.crystalName === "DarkDevourer";
+}
+
+function isDarkDevourerSwarmEnemy(swarmEnemy) {
+  if (!swarmEnemy) return false;
+  if (swarmEnemy.attackMode === "darkDevourer" || swarmEnemy.crystalName === "DarkDevourer") return true;
+  const templateId = Math.trunc(Number(swarmEnemy.templateId ?? swarmEnemy.id));
+  return templateId === DARK_DEVOURER_ENEMY_ID;
 }
 
 function darkDevilBurstTargets(enemy = state.battle.enemy) {
@@ -21718,6 +22490,8 @@ function bossDropTableForEnemy(enemy = state.battle.enemy) {
   if (isYimoogiEnemy(enemy)) return BOSS_DROP_TABLE_BY_LABEL["Yimoogi"];
   if (isOmaKingSpiritEnemy(enemy)) return BOSS_DROP_TABLE_BY_LABEL["Oma King Spirit"];
   if (isKingHogEnemy(enemy)) return BOSS_DROP_TABLE_BY_LABEL["King Hog"];
+  if (isDreamDevourerEnemy(enemy)) return BOSS_DROP_TABLE_BY_LABEL["Dream Devourer"];
+  if (isDarkDevourerEnemy(enemy)) return BOSS_DROP_TABLE_BY_LABEL["Dark Devourer"];
   if (isDarkDevilEnemy(enemy)) return BOSS_DROP_TABLE_BY_LABEL["Dark Devil"];
   return null;
 }
@@ -22180,6 +22954,58 @@ function updateBossPartyMemberHealRegen(member, now) {
   return changed;
 }
 
+function queueBossPartyVampirismRestore(member, amount, now = performance.now()) {
+  const value = Math.max(0, Math.trunc(Number(amount) || 0));
+  if (value <= 0 || !member || member.hp <= 0) return false;
+  member.vampAmount = Math.min(65535, (member.vampAmount ?? 0) + value);
+  if (!member.vampTickAt) member.vampTickAt = now + CRYSTAL_VAMP_FIRST_DELAY_MS;
+  if (member.classId === bossPartyControlledClassId()) {
+    state.battle.vampAmount = member.vampAmount;
+    state.battle.vampTickAt = member.vampTickAt;
+  }
+  return true;
+}
+
+function updateBossPartyMemberVampirismRegen(member, now) {
+  if (!member || member.hp <= 0) return false;
+
+  let changed = false;
+  if (member.hp >= member.maxHp && member.vampAmount > 0) {
+    member.vampAmount = 0;
+    member.vampTickAt = 0;
+    return true;
+  }
+
+  if ((member.vampAmount ?? 0) <= 0) {
+    member.vampTickAt = 0;
+    return changed;
+  }
+
+  if (!member.vampTickAt) {
+    member.vampTickAt = now + CRYSTAL_VAMP_DELAY_MS;
+    return changed;
+  }
+
+  let steps = 0;
+  while (now >= member.vampTickAt && steps < 20 && member.vampAmount > 0 && member.hp > 0) {
+    const tickAt = member.vampTickAt;
+    member.vampTickAt += CRYSTAL_VAMP_DELAY_MS;
+    steps += 1;
+    const amount = Math.min(10, member.vampAmount);
+    member.vampAmount -= amount;
+    const before = member.hp;
+    member.hp = Math.min(member.maxHp, member.hp + amount);
+    const applied = member.hp - before;
+    if (applied > 0) addBossPartyMemberCombatText(member, `+${applied} HP`, "heal", tickAt);
+    if (member.hp >= member.maxHp) member.vampAmount = 0;
+    changed = true;
+  }
+
+  if (steps >= 20 && member.vampAmount > 0) member.vampTickAt = now + CRYSTAL_VAMP_DELAY_MS;
+  if (member.vampAmount <= 0) member.vampTickAt = 0;
+  return changed;
+}
+
 function bossPartyPoisonCandidate(member, enemy, now) {
   const entries = bossPartyCarriedInventoryEntries(member).filter((entry) => isPoisonItem(itemDefinition(entry.itemId)));
   const green = entries.find((entry) => poisonItemKind(itemDefinition(entry.itemId)) === "green") ?? null;
@@ -22232,6 +23058,7 @@ function syncBossPartyMembersToCharacters(party, options = {}) {
       potHealthAmount: Math.max(0, member.potHealthAmount ?? 0),
       potManaAmount: Math.max(0, member.potManaAmount ?? 0),
       healAmount: Math.max(0, member.healAmount ?? 0),
+      vampAmount: Math.max(0, member.vampAmount ?? 0),
     };
     state.characters[member.classId] = character;
   }
@@ -22310,6 +23137,9 @@ function updateBattle(now) {
   if (canEnemyAttack() && now >= battle.nextEnemyAttackAt && enemyAttack(now)) {
     battle.nextEnemyAttackAt = now + effectiveEnemyAttackMs(battle.enemy, now);
   }
+
+  // Crystal ActionFeed ordering: flinches play only after movement and attacks resolve.
+  tryConsumeEnemyPendingStruck(now);
 }
 
 function updateLaneMotion(now) {
@@ -22884,7 +23714,7 @@ function warriorApplyPhysicalHit(skill, learned, damage, now) {
     rollSlayingChargeAfterAttack(now);
     return false;
   }
-  setEnemyAction("struck", true, now);
+  queueEnemyStruck(now);
   playMonsterSfx("flinch");
   if (skill.id === "TwinDrakeBlade" || skill.id === "FlamingSword" || skill.id === "None") playWeaponHitSfx();
   else if (!playSpellSfx(skill.id, "impact", { volume: 0.48 })) playWeaponHitSfx();
@@ -23161,6 +23991,7 @@ function canUseWizardSpell(spell, learned, now, options = {}) {
   if (options.requireAuto && !learned.autoCast) return false;
   if ((learned.castReadyAt ?? 0) > now) return false;
   if (spell.id === "FireWall" && !canUseWizardFireWall(now)) return false;
+  if (options.requireAuto && spell.id === "TurnUndead" && !turnUndeadCanTarget(state.battle.enemy, state.battle.player)) return false;
   return (state.battle.player?.mp ?? 0) >= spellMpCost(spell, learned);
 }
 
@@ -23186,6 +24017,7 @@ function canUseWizardFireWall(now) {
 
 function wizardAttackSpellReady(spell, now, member = null) {
   if (spell?.id === "FireWall") return canUseWizardFireWall(now);
+  if (spell?.id === "TurnUndead") return turnUndeadCanTarget(state.battle.enemy, member ?? state.battle.player);
   if (spell?.impactMode === "bang" && groupDungeonSwarmSideActive()) return canUseGroupDungeonSwarmBangSpell(spell, member);
   return true;
 }
@@ -23211,7 +24043,7 @@ function warriorAutoPriority(skill) {
 }
 
 function wizardAutoPriority(spell) {
-  const order = ["MagicShield", "FireWall", "IceStorm", "GreatFireBall", "FrostCrunch", "FireBall", "ThunderBolt"];
+  const order = ["MagicShield", "TurnUndead", "FireWall", "IceStorm", "Vampirism", "GreatFireBall", "FrostCrunch", "FireBall", "ThunderBolt"];
   const index = order.indexOf(spell?.id);
   return index === -1 ? order.length : index;
 }
@@ -23400,6 +24232,41 @@ function rollWizardMagicDamage(spell, learned, player, enemy) {
   const boosted = rollWizardMagicValue(spell, learned, player);
   const adjusted = spell?.id === "ThunderBolt" && enemy?.undead ? Math.trunc(boosted * 1.5) : boosted;
   return applyWizardMagicDefence(adjusted, enemy);
+}
+
+function turnUndeadCasterLevel(caster = null) {
+  return Math.max(1, Math.trunc(Number(caster?.level) || playerCombatLevel()));
+}
+
+function turnUndeadTargetLevel(enemy = null) {
+  return Math.max(1, Math.trunc(Number(enemy?.level) || 1));
+}
+
+function turnUndeadCanTarget(enemy = null, caster = null) {
+  return Boolean(enemy && enemy.hp > 0 && enemy.undead && turnUndeadCasterLevel(caster) > turnUndeadTargetLevel(enemy));
+}
+
+function rollTurnUndeadResult(spell, learned, caster, enemy) {
+  if (!enemy || enemy.hp <= 0) return { eligible: false, success: false, reason: "missing" };
+  if (!enemy.undead) return { eligible: false, success: false, reason: "living" };
+  const casterLevel = turnUndeadCasterLevel(caster);
+  const targetLevel = turnUndeadTargetLevel(enemy);
+
+  // Crystal: Random.Next(2) + Level - 1 <= target.Level fails the level gate.
+  if (randomInt(0, 1) + casterLevel - 1 <= targetLevel) {
+    return { eligible: true, success: false, reason: "level", casterLevel, targetLevel };
+  }
+
+  const spellLevel = Math.max(0, Math.min(3, Math.trunc(Number(learned?.level) || 0)));
+  const chance = Math.max(0, Math.min(100, ((spellLevel + 1) << 3) + (casterLevel - targetLevel + 15)));
+  return {
+    eligible: true,
+    success: randomInt(0, 99) < chance,
+    reason: "roll",
+    casterLevel,
+    targetLevel,
+    chance,
+  };
 }
 
 function rollWizardMagicValue(spell, learned, player) {
@@ -23749,10 +24616,14 @@ function wizardAttack(now) {
   commitWizardSpellUse(spell, learned, cost, now);
   const groundSpell = spell.impactMode === "ground";
   const bangSpell = spell.impactMode === "bang";
-  const hit = groundSpell || bangSpell || rollMagicHit(battle.enemy);
+  const turnUndeadSpell = spell.id === "TurnUndead";
+  const hit = groundSpell || bangSpell || turnUndeadSpell || rollMagicHit(battle.enemy);
   const damageValue = groundSpell ? rollWizardMagicValue(spell, learned, battle.player) : 0;
   const baseValue = bangSpell ? rollWizardMagicValue(spell, learned, battle.player) : 0;
-  const damage = !groundSpell && !bangSpell && hit ? rollWizardMagicDamage(spell, learned, battle.player, battle.enemy) : 0;
+  const turnUndeadResult = turnUndeadSpell ? rollTurnUndeadResult(spell, learned, battle.player, battle.enemy) : null;
+  const damage = !groundSpell && !bangSpell && !turnUndeadSpell && hit
+    ? rollWizardMagicDamage(spell, learned, battle.player, battle.enemy)
+    : 0;
   const impactAt = now + wizardImpactDelay(spell, atlas);
 
   battle.activeSkill = "None";
@@ -23767,10 +24638,13 @@ function wizardAttack(now) {
     ? { at: impactAt, spellId: spell.id, value: damageValue, worldX: battle.enemyX }
     : bangSpell
       ? { at: impactAt, spellId: spell.id, baseValue, centerTile: battle.activeWizardSpellCenterTile }
-      : { at: impactAt, spellId: spell.id, damage, hit: hit && damage > 0 };
+      : turnUndeadSpell
+        ? { at: impactAt, spellId: spell.id, turnUndead: true, result: turnUndeadResult }
+        : { at: impactAt, spellId: spell.id, damage, hit: hit && damage > 0 };
 
   setPlayerAction("spell", now, true);
   if (spell.impactMode !== "target") playSpellSfx(spell.id, "cast");
+  if (spell.id === "Vampirism") playSpellSfx(spell.id, "cast");
   if (spell.impactMode === "projectile") playSpellSfx(spell.id, "fly", { volume: 0.38, throttleMs: 120 });
   pushBattleLog(`Wizard casts ${spell.label}.`);
 }
@@ -23811,7 +24685,7 @@ function wizardWeaponAttack(now, failedSpell = null) {
     applyCombatEvents(weaponSwingMissEvents("Wizard", weaponName, battle.enemy.name), now, { enemy: battle.enemy });
     return;
   }
-  setEnemyAction("struck", true, now);
+  queueEnemyStruck(now);
   playMonsterSfx("flinch");
   playWeaponHitSfx();
   applyCombatEvents(weaponSwingHitEvents("Wizard", weaponName, battle.enemy.name, swing.damage), now, { enemy: battle.enemy });
@@ -24780,7 +25654,7 @@ function applyTaoistPetAttackResult(pet, enemy, result, now, options = {}) {
     return;
   }
   if (!offline) {
-    setEnemyAction("struck", true, now);
+    queueEnemyStruck(now);
     playMonsterSfx("flinch");
     if (!options.skipHitSfx) {
       playTaoPetSfx("hit", { volume: 0.38, throttleMs: 120, pet });
@@ -25230,7 +26104,7 @@ function taoistWeaponAttack(now, failedSpell = null) {
     applyCombatEvents(weaponSwingMissEvents("Taoist", weaponName, battle.enemy.name), now, { enemy: battle.enemy });
     return;
   }
-  setEnemyAction("struck", true, now);
+  queueEnemyStruck(now);
   playMonsterSfx("flinch");
   playWeaponHitSfx();
   applyCombatEvents(weaponSwingHitEvents("Taoist", weaponName, battle.enemy.name, swing.damage), now, { enemy: battle.enemy });
@@ -25355,7 +26229,7 @@ function applyWizardBangSpellImpact(spell, impact, now, options = {}) {
     applyCombatEvents(magicResistEvents(spell.label, battle.enemy.name), now);
     return;
   }
-  setEnemyAction("struck", true, now);
+  queueEnemyStruck(now);
   playMonsterSfx("flinch");
   applyCombatEvents(magicAttackHitEvents(spell.label, battle.enemy.name, damage), now, { enemy: battle.enemy });
   if (learned) {
@@ -25367,6 +26241,34 @@ function applyWizardBangSpellImpact(spell, impact, now, options = {}) {
     setEnemyAction("die", false, now);
     playMonsterSfx("death");
     pushBattleLog(`${battle.enemy.name} is defeated.`);
+  }
+}
+
+function applyTurnUndeadImpact(spell, impact, now, options = {}) {
+  const battle = state.battle;
+  const enemy = options.enemy ?? battle.enemy;
+  if (!enemy || enemy.hp <= 0 || !battle.enemyRevealed) return;
+  const result = impact.result ?? rollTurnUndeadResult(spell, options.learned ?? learnedMagic(spell.id), options.caster ?? battle.player, enemy);
+  if (!result.success) {
+    applyCombatEvents(magicResistEvents(spell.label, enemy.name), now);
+    return;
+  }
+
+  const damage = Math.max(1, Math.trunc(Number(enemy.hp) || 1));
+  queueEnemyStruck(now);
+  addCombatText("enemy", "Turned", "damage", now);
+  applyCombatDamageEvent(enemyDamageEvent(damage, { kind: "magic" }), now, { enemy });
+  pushBattleLog(`${spell.label} destroys ${enemy.name}.`);
+  const learned = options.learned ?? learnedMagic(spell.id);
+  if (learned) {
+    if (options.partyMember) bossPartyLevelMagicSkill(options.partyMember, spell, learned, now);
+    else levelMagicSkill(spell, learned, now);
+  }
+  if (enemy.hp <= 0) {
+    finishEnemy(now);
+    setEnemyAction("die", false, now);
+    playMonsterSfx("death");
+    pushBattleLog(`${enemy.name} is defeated.`);
   }
 }
 
@@ -25388,16 +26290,23 @@ function updatePendingImpact(now) {
   playSpellStrikeSfx(spell.id, { volume: 0.5, force: true, throttleMs: 0 });
   const canApply = battle.enemy && battle.enemy.hp > 0 && battle.enemyRevealed;
   if (!canApply) return;
+  if (impact.turnUndead) {
+    applyTurnUndeadImpact(spell, impact, now);
+    return;
+  }
   if (!impact.hit) {
     applyCombatEvents(magicAttackMissEvents(spell.label, battle.enemy.name), now);
     return;
   }
-  setEnemyAction("struck", true, now);
+  queueEnemyStruck(now);
   playMonsterSfx("flinch");
   applyCombatEvents(magicAttackHitEvents(spell.label, battle.enemy.name, impact.damage), now, { enemy: battle.enemy });
   const learned = learnedMagic(spell.id);
   if (spell.id === "FrostCrunch" && impact.damage > 0 && learned) {
     applyFrostCrunchEffects(battle.enemy, learned, battle.player, now);
+  }
+  if (spell.id === "Vampirism" && impact.damage > 0 && learned) {
+    queueVampirismRestore(vampirismRestoreAmount(impact.damage, learned), now);
   }
   if (learned) levelMagicSkill(spell, learned, now);
 
@@ -25725,7 +26634,7 @@ function applyGroundSpellTick(effect, now) {
     return;
   }
 
-  setEnemyAction("struck", true, now);
+  queueEnemyStruck(now);
   playMonsterSfx("flinch");
   playSpellSfx(spell.id, "impact", { volume: 0.42, throttleMs: 160 }) || playSpellSfx(spell.id, "cast", { volume: 0.38, throttleMs: 160 });
   applyCombatEvents(magicBurnEvents(spell.label, battle.enemy.name, damage), now, { enemy: battle.enemy });
@@ -26143,6 +27052,7 @@ function finishEnemy(now) {
   battle.enemyAggro = false;
   battle.pendingImpact = null;
   battle.pendingEnemyStrike = null;
+  battle.pendingEnemyStruck = false;
   battle.pendingHeal = null;
   battle.pendingPoison = null;
   clearTwinDrakePendingState();
@@ -26372,6 +27282,7 @@ function spawnNextEnemy(now) {
   battle.activeTaoSpellAtlas = null;
   battle.pendingImpact = null;
   battle.pendingEnemyStrike = null;
+  battle.pendingEnemyStruck = false;
   battle.pendingPoison = null;
   clearTwinDrakePendingState();
   battle.attachedSpellFx = (battle.attachedSpellFx ?? []).filter((entry) => entry.spellId !== "TwinDrakeBlade");
@@ -27377,7 +28288,7 @@ function renderPlayerResourceHud() {
 
   const hpPotions = potionInventoryCount("hp");
   const mpPotions = potionInventoryCount("mp");
-  const pendingHp = (state.battle.potHealthAmount ?? 0) + (state.battle.healAmount ?? 0);
+  const pendingHp = (state.battle.potHealthAmount ?? 0) + (state.battle.healAmount ?? 0) + (state.battle.vampAmount ?? 0);
   const pendingMp = state.battle.potManaAmount ?? 0;
   const now = performance.now();
   const activeBuffs = pruneStatBuffs(state.battle.statBuffs ?? [], now).map((buff) => ({
@@ -28830,7 +29741,6 @@ function drawMapCanvas(ctx) {
   }
   const sheet = cachedImage(`./public/maptiles/${set.sheet}`);
   drawBackdropGradient(ctx);
-  if (!sheet) return;
 
   const edgeGroundRowOffset = currentZoneEdgeSet()?.skipTopGroundRows ?? 0;
   const groundRows = currentZoneGroundRows();
@@ -28846,7 +29756,7 @@ function drawMapCanvas(ctx) {
   drawCaveEdgeStrip(ctx, scrollCameraX, baseY, "top");
 
   const tileAnchor2x2 = currentZoneTileAnchor2x2();
-  if (tileAnchor2x2) {
+  if (sheet && tileAnchor2x2) {
     // Crystal back tiles use 32px row step; lane row math uses 28px — convert by pixel coverage.
     const lastLaneRow = rows - 1;
     const firstAnchorRow = Math.floor((firstGroundRow * MAP_LANE_ROW_STEP) / MAP_TILE_ANCHOR_ROW_STEP);
@@ -28866,7 +29776,7 @@ function drawMapCanvas(ctx) {
         drawMapTile(ctx, sheet, set, slot, x, y);
       }
     }
-  } else {
+  } else if (sheet) {
     for (let row = firstGroundRow; row < rows; row++) {
       for (let col = -5; col < cols; col++) {
         const worldColumn = col + tileColumn;
@@ -28877,6 +29787,7 @@ function drawMapCanvas(ctx) {
     }
   }
 
+  drawCaveEdgeStrip(ctx, scrollCameraX, baseY, "overlay");
   drawZoneMapStamp(ctx);
   drawZoneDecorations(ctx, scrollCameraX, baseY);
 }
@@ -28931,6 +29842,161 @@ function drawMapTile(ctx, sheet, set, slot, x, y, alpha = 1) {
     sourceH,
   );
   ctx.restore();
+}
+
+function currentZoneFloorDecorations() {
+  const zone = activeZone();
+  const draft = zoneVisualDraft(zone);
+  if (state.game.mode === "zone" && draft && Object.hasOwn(draft, "floorDecorations")) {
+    return Array.isArray(draft.floorDecorations) ? draft.floorDecorations : [];
+  }
+  if (state.game.mode === "zone" && zone && Object.hasOwn(zone, "floorDecorations")) {
+    return Array.isArray(zone.floorDecorations) ? zone.floorDecorations : [];
+  }
+  return [];
+}
+
+function drawZoneFloorDecorations(ctx, scrollCameraX, baseY) {
+  const items = currentZoneFloorDecorations();
+  if (!items.length) return;
+
+  const loopItems = [];
+  for (const decor of items) {
+    if (!decor?.sheet) continue;
+    if (Array.isArray(decor.slots) && decor.slots.length && Number(decor.loopLength) > 0) {
+      loopItems.push(decor);
+      continue;
+    }
+
+    const sheet = cachedImage(`./public/maptiles/${decor.sheet}`);
+    if (!sheet) continue;
+    const w = Math.trunc(Number(decor.width) || sheet.naturalWidth || sheet.width || 0);
+    const h = Math.trunc(Number(decor.height) || sheet.naturalHeight || sheet.height || 0);
+    if (!(w > 0 && h > 0)) continue;
+
+    const repeatEvery = decor.repeatEvery ?? 0;
+    const startX = repeatEvery > 0
+      ? decor.worldX - Math.ceil((decor.worldX - scrollCameraX) / repeatEvery) * repeatEvery
+      : decor.worldX;
+    const copies = repeatEvery > 0 ? Math.ceil(state.stageWidth / repeatEvery) + 3 : 1;
+    for (let copy = 0; copy < copies; copy += 1) {
+      const worldX = startX + copy * (repeatEvery || 0);
+      const screenX = Math.floor(worldX - scrollCameraX);
+      if (screenX + w < -48 || screenX > state.stageWidth + 48) continue;
+      const row = typeof decor.row === "number" ? decor.row : decorationSpawnRow(decor, worldX);
+      const y = Math.floor(baseY + row * MAP_LANE_ROW_STEP - 58);
+      ctx.drawImage(sheet, 0, 0, w, h, screenX, y, w, h);
+    }
+  }
+
+  if (!loopItems.length) return;
+
+  const groups = new Map();
+  for (const decor of loopItems) {
+    const key = typeof decor.loopGroup === "string" && decor.loopGroup
+      ? decor.loopGroup
+      : `__solo:${decor.id ?? ""}`;
+    if (!groups.has(key)) groups.set(key, []);
+    groups.get(key).push(decor);
+  }
+
+  for (const [groupKey, groupDecors] of groups) {
+    const loopLength = Math.max(1, Math.trunc(Number(groupDecors[0]?.loopLength) || 1488));
+    const startLoop = Math.floor(scrollCameraX / loopLength) - 1;
+    const endLoop = Math.ceil((scrollCameraX + state.stageWidth) / loopLength) + 1;
+    const sharedGroup = !groupKey.startsWith("__solo:");
+    for (let loopIndex = startLoop; loopIndex <= endLoop; loopIndex += 1) {
+      if (sharedGroup) {
+        if (!loopFloorDecorGroupSpawns(groupDecors[0], groupKey, loopIndex)) continue;
+        const decor = groupDecors[
+          positiveModulo(loopFloorDecorGroupSeed(groupDecors[0], groupKey, loopIndex, 1), groupDecors.length)
+        ];
+        if (decor) drawLoopFloorDecorInstance(ctx, scrollCameraX, baseY, loopIndex, decor, true);
+      } else {
+        drawLoopFloorDecorInstance(ctx, scrollCameraX, baseY, loopIndex, groupDecors[0]);
+      }
+    }
+  }
+}
+
+function loopFloorDecorSeed(decor, loopIndex, salt = 0) {
+  const seed = Math.trunc(Number(decor.seed) || 0);
+  let hash = seed ^ (loopIndex * 2654435761) ^ (salt * 2246822519);
+  const id = String(decor.id ?? "");
+  for (let i = 0; i < id.length; i += 1) {
+    hash = Math.imul(hash ^ id.charCodeAt(i), 0x9e3779b1);
+  }
+  hash = Math.imul(hash ^ (hash >>> 16), 0x85ebca6b);
+  hash = Math.imul(hash ^ (hash >>> 13), 0xc2b2ae35);
+  hash ^= hash >>> 16;
+  return hash >>> 0;
+}
+
+function loopFloorDecorGroupSeed(decor, groupKey, loopIndex, salt = 0) {
+  let hash = loopFloorDecorSeed(decor, loopIndex, salt);
+  for (let i = 0; i < groupKey.length; i += 1) {
+    hash = ((hash << 5) - hash + groupKey.charCodeAt(i)) | 0;
+  }
+  return hash >>> 0;
+}
+
+function loopFloorDecorSpawns(decor, loopIndex) {
+  const denom = Math.max(1, Math.trunc(Number(decor.spawnDenominator) || 1));
+  const numerRaw = decor.spawnNumerator;
+  const numer = Math.max(0, Math.trunc(numerRaw == null ? 1 : Number(numerRaw)));
+  if (numer <= 0) return false;
+  if (numer >= denom) return true;
+  return positiveModulo(loopFloorDecorSeed(decor, loopIndex, 0), denom) < numer;
+}
+
+function loopFloorDecorGroupSpawns(decor, groupKey, loopIndex) {
+  const denom = Math.max(1, Math.trunc(Number(decor.spawnDenominator) || 1));
+  const numerRaw = decor.spawnNumerator;
+  const numer = Math.max(0, Math.trunc(numerRaw == null ? 1 : Number(numerRaw)));
+  if (numer <= 0) return false;
+  if (numer >= denom) return true;
+  return positiveModulo(loopFloorDecorGroupSeed(decor, groupKey, loopIndex, 0), denom) < numer;
+}
+
+function loopFloorDecorEligibleSlots(decor, loopLength) {
+  const slots = Array.isArray(decor?.slots) ? decor.slots : [];
+  const zone = decor?.loopXZone;
+  if (!zone) return slots;
+  const x0 = Math.trunc(Number(zone.loopX0) || 0);
+  const x1 = Math.trunc(zone.loopX1 == null ? loopLength : Number(zone.loopX1));
+  return slots.filter((slot) => {
+    const loopX = positiveModulo(Math.trunc(Number(slot.loopX) || 0), loopLength);
+    return loopX >= x0 && loopX < x1;
+  });
+}
+
+function loopFloorDecorPickSlot(decor, loopIndex) {
+  const loopLength = Math.max(1, Math.trunc(Number(decor.loopLength) || 1488));
+  const slots = loopFloorDecorEligibleSlots(decor, loopLength);
+  if (!slots.length) return null;
+  return slots[positiveModulo(loopFloorDecorSeed(decor, loopIndex, 1), slots.length)];
+}
+
+function drawLoopFloorDecorInstance(ctx, scrollCameraX, baseY, loopIndex, decor, skipSpawnCheck = false) {
+  if (!decor?.sheet) return;
+  if (!skipSpawnCheck && !loopFloorDecorSpawns(decor, loopIndex)) return;
+  const sheet = cachedImage(`./public/maptiles/${decor.sheet}`);
+  if (!sheet) return;
+  const w = Math.trunc(Number(decor.width) || sheet.naturalWidth || sheet.width || 0);
+  const h = Math.trunc(Number(decor.height) || sheet.naturalHeight || sheet.height || 0);
+  if (!(w > 0 && h > 0)) return;
+  const loopLength = Math.max(1, Math.trunc(Number(decor.loopLength)));
+  const slot = loopFloorDecorPickSlot(decor, loopIndex);
+  if (!slot) return;
+  const loopX = positiveModulo(Math.trunc(Number(slot.loopX) || 0), loopLength);
+  const worldX = loopIndex * loopLength + loopX;
+  const screenX = Math.floor(worldX - scrollCameraX);
+  if (screenX + w < -48 || screenX > state.stageWidth + 48) return;
+  const row = typeof slot.row === "number"
+    ? slot.row
+    : (typeof decor.row === "number" ? decor.row : decorationSpawnRow(decor, worldX));
+  const y = Math.floor(baseY + row * MAP_LANE_ROW_STEP - 58 + Math.trunc(Number(slot.yOffset) || 0));
+  ctx.drawImage(sheet, 0, 0, w, h, screenX, y, w, h);
 }
 
 function arenaSpawnMapRow(zone = activeZone()) {
@@ -29194,15 +30260,23 @@ function mapStampAnchor(stamp) {
 }
 
 function drawZoneDecorations(ctx, scrollCameraX, baseY) {
+  drawZoneFloorDecorations(ctx, scrollCameraX, baseY);
+
   const set = currentMapObjectSet();
   const decorations = currentZoneDecorations();
+  const loopConfig = currentZoneDecorationLoop();
   if (set?.objects?.length && decorations.length) {
     const sheet = cachedImage(`./public/mapobjects/${set.sheet}`);
     if (sheet) {
+      if (loopConfig) {
+        drawLoopLaneDecorations(ctx, scrollCameraX, baseY, sheet, set, loopConfig, decorations);
+      }
       for (const decoration of decorations) {
         if (!Array.isArray(decoration.slots) || !decoration.slots.length) continue;
 
         const repeatEvery = decoration.repeatEvery ?? 0;
+        if (!(repeatEvery > 0) && typeof decoration.worldX !== "number") continue;
+
         const startX = repeatEvery > 0
           ? decoration.worldX - Math.ceil((decoration.worldX - scrollCameraX) / repeatEvery) * repeatEvery
           : decoration.worldX;
@@ -29224,6 +30298,79 @@ function drawZoneDecorations(ctx, scrollCameraX, baseY) {
   }
 
   drawZoneObjectPattern(ctx, scrollCameraX, baseY);
+}
+
+function loopLaneDecorEligiblePool(pool, loopX, loopLength) {
+  return pool.filter((decoration) => {
+    const zone = decoration.loopXZone;
+    if (!zone) return true;
+    const x0 = Math.trunc(Number(zone.loopX0) || 0);
+    const x1 = Math.trunc(zone.loopX1 == null ? loopLength : Number(zone.loopX1));
+    return loopX >= x0 && loopX < x1;
+  });
+}
+
+function loopLaneDecorPicksForLoop(loopConfig, pool, loopIndex) {
+  const loopLength = Math.max(1, Math.trunc(Number(loopConfig?.loopLength) || 1488));
+  const positions = Array.isArray(loopConfig?.positions) ? loopConfig.positions : [];
+  const spawnCount = Math.min(
+    positions.length,
+    Math.max(0, Math.trunc(Number(loopConfig?.perLoop)) || 0),
+  );
+  if (!spawnCount || !pool.length) return [];
+  const decorSeed = {
+    seed: Math.trunc(Number(loopConfig.seed) || 0),
+    id: "decoration-loop",
+  };
+  const usedIds = new Set();
+  const picks = [];
+  for (let index = 0; index < spawnCount; index += 1) {
+    const position = positions[index];
+    if (!position) continue;
+    const loopX = positiveModulo(Math.trunc(Number(position.loopX) || 0), loopLength);
+    const eligible = loopLaneDecorEligiblePool(
+      pool.filter((decoration) => !usedIds.has(decoration.id)),
+      loopX,
+      loopLength,
+    );
+    if (!eligible.length) continue;
+    const slot = positiveModulo(loopFloorDecorSeed(decorSeed, loopIndex, index + 11), eligible.length);
+    const decoration = eligible[slot];
+    usedIds.add(decoration.id);
+    picks.push({ decoration, index });
+  }
+  return picks;
+}
+
+function drawLoopLaneDecorations(ctx, scrollCameraX, baseY, sheet, set, loopConfig, pool) {
+  const loopLength = Math.max(1, Math.trunc(Number(loopConfig.loopLength) || 1488));
+  const positions = Array.isArray(loopConfig.positions) ? loopConfig.positions : [];
+  if (!positions.length || !pool.length) return;
+
+  const startLoop = Math.floor(scrollCameraX / loopLength) - 1;
+  const endLoop = Math.ceil((scrollCameraX + state.stageWidth) / loopLength) + 1;
+  for (let loopIndex = startLoop; loopIndex <= endLoop; loopIndex += 1) {
+    const picks = loopLaneDecorPicksForLoop(loopConfig, pool, loopIndex);
+    for (const pick of picks) {
+      const decoration = pick.decoration;
+      if (!Array.isArray(decoration?.slots) || !decoration.slots.length) continue;
+      const position = positions[pick.index];
+      if (!position) continue;
+      const loopX = positiveModulo(Math.trunc(Number(position.loopX) || 0), loopLength);
+      const worldX = loopIndex * loopLength + loopX;
+      const screenX = Math.floor(worldX - scrollCameraX);
+      const decorWidth = decoration.slots.reduce((max, slotIndex) => {
+        const object = set.objects[positiveModulo(slotIndex, set.objects.length)];
+        return Math.max(max, Number(object?.w) || set.slotWidth);
+      }, set.slotWidth);
+      if (screenX < -decorWidth - 48 || screenX > state.stageWidth + 48) continue;
+      const row = typeof position.row === "number"
+        ? position.row
+        : loopLaneDecorationSpawnRow(decoration, worldX, loopConfig);
+      const y = Math.floor(baseY + row * 28 - set.slotHeight + 28);
+      drawObjectPair(ctx, sheet, set, decoration.slots, screenX, y);
+    }
+  }
 }
 
 function drawZoneObjectPattern(ctx, scrollCameraX, baseY) {
@@ -29303,7 +30450,50 @@ function drawCaveEdgeStrip(ctx, scrollCameraX, baseY, edgeName) {
     : state.stageHeight;
 
   if (clipBottom <= clipTop) return;
+  if (edge.columnCount && edge.columnWidth) {
+    drawRepeatingCaveEdgeColumns(ctx, edge, scrollCameraX, y, clipTop, clipBottom);
+    return;
+  }
   drawRepeatingCaveEdge(ctx, edge, scrollCameraX, y, clipTop, clipBottom);
+}
+
+function drawRepeatingCaveEdgeColumns(ctx, edge, scrollCameraX, y, clipTop = 0, clipBottom = state.stageHeight) {
+  if (!edge?.src) return false;
+  const image = cachedImage(edge.src);
+  if (!image) return false;
+
+  const colW = Math.max(1, Number(edge.columnWidth) || 48);
+  const colCount = Math.max(1, Math.trunc(Number(edge.columnCount) || 1));
+  const height = image.naturalHeight || image.height;
+  if (!height) return false;
+  const cropTopPx = Math.max(0, Math.min(height - 1, Math.trunc(Number(edge.cropTopPx) || 0)));
+  const drawHeight = height - cropTopPx;
+
+  const scroll = Math.floor(positiveModulo(scrollCameraX * (edge.scrollRatio ?? 1), colW));
+  const worldColumn = Math.floor((scrollCameraX * (edge.scrollRatio ?? 1)) / colW);
+  const cols = Math.ceil(state.stageWidth / colW) + 10;
+
+  ctx.save();
+  ctx.beginPath();
+  ctx.rect(0, clipTop, state.stageWidth, clipBottom - clipTop);
+  ctx.clip();
+  for (let col = -5; col < cols; col++) {
+    const patternCol = positiveModulo(col + worldColumn, colCount);
+    const screenX = Math.round(col * colW - scroll);
+    ctx.drawImage(
+      image,
+      patternCol * colW,
+      cropTopPx,
+      colW,
+      drawHeight,
+      screenX,
+      y,
+      colW,
+      drawHeight,
+    );
+  }
+  ctx.restore();
+  return true;
 }
 
 function drawRepeatingCaveEdge(ctx, edge, scrollCameraX, y, clipTop = 0, clipBottom = state.stageHeight) {
@@ -30344,6 +31534,7 @@ function wizardBangSpellAnchorFromCenter(centerTile, fallbackAnchor) {
 
 function wizardSpellFxLayerAnchor(spell, layer, playerAnchor, enemyAnchor) {
   if (layer.anchor === "player") return playerAnchor;
+  if (layer.anchor === "enemyObject") return enemyAnchor;
   if (layer.anchor === "enemy") {
     if (spell?.impactMode === "bang" || spell?.impactMode === "target") {
       return { x: enemyAnchor.x, y: spellTargetCellAnchorY(enemyAnchor.y) };
@@ -31044,6 +32235,22 @@ function decorationSpawnRow(decoration, worldX) {
   return rows[positiveModulo(seed, rows.length)];
 }
 
+function loopLaneDecorationSpawnRow(decoration, worldX, loopConfig) {
+  const loopLength = Math.max(1, Math.trunc(Number(loopConfig?.loopLength) || 1488));
+  const loopX = positiveModulo(Math.trunc(worldX), loopLength);
+  const zones = Array.isArray(loopConfig?.rowZones) ? loopConfig.rowZones : [];
+  for (const zone of zones) {
+    const x0 = Math.trunc(Number(zone.loopX0) || 0);
+    const x1 = Math.trunc(zone.loopX1 == null ? loopLength : Number(zone.loopX1));
+    if (loopX < x0 || loopX >= x1) continue;
+    const rows = Array.isArray(zone.rows) && zone.rows.length ? zone.rows : [];
+    if (!rows.length) continue;
+    const seed = Math.trunc(worldX) + hashDecorationSeed(String(decoration?.id ?? ""));
+    return rows[positiveModulo(seed, rows.length)];
+  }
+  return decorationSpawnRow(decoration, worldX);
+}
+
 function clonePattern(pattern) {
   return pattern.map((row) => [...row]);
 }
@@ -31126,6 +32333,14 @@ function currentZoneDecorationRows() {
     return Array.isArray(zone.decorationRows) ? zone.decorationRows : [];
   }
   return [];
+}
+
+function currentZoneDecorationLoop() {
+  const zone = activeZone();
+  const draft = zoneVisualDraft(zone);
+  if (state.game.mode === "zone" && draft?.decorationLoop) return draft.decorationLoop;
+  if (state.game.mode === "zone" && zone?.decorationLoop) return zone.decorationLoop;
+  return null;
 }
 
 function currentZoneGroundRows() {
@@ -31223,10 +32438,23 @@ function createZoneBuilderDraft(zone) {
     groundBottomRows: zone.groundBottomRows ?? 0,
     decorationSet: zone.decorationSet ?? ZONE_DECORATION_SET,
     decorationRows: Array.isArray(zone.decorationRows) ? [...zone.decorationRows] : zone.decorationRows,
+    decorationLoop: zone.decorationLoop
+      ? {
+          ...zone.decorationLoop,
+          positions: (zone.decorationLoop.positions ?? []).map((entry) => ({ ...entry })),
+          rowZones: (zone.decorationLoop.rowZones ?? []).map((entry) => ({
+            ...entry,
+            rows: Array.isArray(entry.rows) ? [...entry.rows] : entry.rows,
+          })),
+        }
+      : null,
     objectSet: zone.objectSet ?? null,
     objectPattern,
     tilePattern: clonePattern(Array.isArray(zone.tilePattern) && zone.tilePattern.length ? zone.tilePattern : DEFAULT_ZONE_PATTERN),
     tileAnchor2x2: zone.tileAnchor2x2 === true,
+    floorDecorations: Array.isArray(zone.floorDecorations)
+      ? zone.floorDecorations.map((entry) => ({ ...entry }))
+      : [],
     decorations: cloneDecorations(hasZoneDecorations ? zone.decorations : state.zoneDecorations),
   };
 }
@@ -31237,7 +32465,13 @@ function currentMapObjectSet() {
   const decorationSetId = state.game.mode === "zone"
     ? draft?.decorationSet ?? zone?.decorationSet ?? ZONE_DECORATION_SET
     : ZONE_DECORATION_SET;
-  return state.mapObjectIndex.sets.find((set) => set.id === decorationSetId) ?? state.mapObjectIndex.sets[0];
+  const match = state.mapObjectIndex.sets.find((set) => set.id === decorationSetId);
+  if (match) return match;
+  // Never fall back to an arbitrary set when the zone decoration set is missing.
+  if (decorationSetId === ZONE_DECORATION_SET) {
+    return state.mapObjectIndex.sets[0] ?? null;
+  }
+  return null;
 }
 
 function mapObjectSetById(objectSetId) {

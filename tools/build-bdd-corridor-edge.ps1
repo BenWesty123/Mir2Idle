@@ -3,6 +3,9 @@ param(
   [string]$MapPath = "C:/Users/bb-we/Documents/Crystal-master/Next/NextClient/Map/D2001.map",
   [string]$OutputPng = "../public/mapedges/bdd-corridor-edge.png",
   [string]$ReviewRoot = "../tile-review/bdd-corridor-edge",
+  [string]$ReviewImageName = "bdd-corridor-edge.png",
+  [string]$ReviewTitle = "Corridor Edge",
+  [string]$ReviewBlurb = "",
   [int]$CropX = 234,
   [int]$CropY = 201,
   [int]$CropWCells = 28,
@@ -329,7 +332,7 @@ finally {
 $lanePixelY = (($LaneMapY - $CropY) + 1) * $CellHeight
 $reviewDir = Join-Path $PSScriptRoot $ReviewRoot
 New-Item -ItemType Directory -Force -Path $reviewDir | Out-Null
-Copy-Item -LiteralPath (Join-Path $PSScriptRoot $OutputPng) -Destination (Join-Path $reviewDir "bdd-corridor-edge.png") -Force
+Copy-Item -LiteralPath (Join-Path $PSScriptRoot $OutputPng) -Destination (Join-Path $reviewDir $ReviewImageName) -Force
 
 $meta = [ordered]@{
   mapPath = $MapPath
@@ -342,15 +345,20 @@ $meta = [ordered]@{
   laneMapY = $LaneMapY
   lanePixelY = $lanePixelY
   repeatEveryPx = $bitmapW
+  suggestedYOffsetFromBase = -($lanePixelY + 28)
+  suggestedClipBottomOffsetFromBase = -30
 }
 $meta | ConvertTo-Json | Set-Content -LiteralPath (Join-Path $reviewDir "meta.json") -Encoding UTF8
+
+$mapName = Split-Path $MapPath -Leaf
+$blurb = if ($ReviewBlurb) { $ReviewBlurb } else { "From Crystal <code>$mapName</code> cells x=$CropX-$endX, y=$CropY-$endY. Open lane at map y=$LaneMapY is transparent so scrolling floor shows through. Wall cells = front-layer sprites taller/wider than 48×32 floor tiles." }
 
 $html = @"
 <!doctype html>
 <html>
   <head>
     <meta charset="utf-8" />
-    <title>BDD Corridor Edge</title>
+    <title>$ReviewTitle</title>
     <style>
       body { margin: 0; background: #111; color: #eee; font: 14px Segoe UI, sans-serif; padding: 16px; }
       img { image-rendering: pixelated; background: repeating-conic-gradient(#2a2620 0% 25%, #1a1814 0% 50%) 50% / 16px 16px; max-width: 100%; }
@@ -359,15 +367,15 @@ $html = @"
     </style>
   </head>
   <body>
-    <h1>BDD corridor edge strip</h1>
-    <p>From Crystal D2001 cells x=$CropX-$endX, y=$CropY-$endY. Open lane at map y=$LaneMapY is transparent so scrolling floor shows through.</p>
-    <p class="row">Repeat width: <code>$bitmapW px</code> · Lane baseline in image: <code>$lanePixelY px</code> from top</p>
-    <img src="bdd-corridor-edge.png" alt="BDD corridor edge" />
+    <h1>$ReviewTitle</h1>
+    <p>$blurb</p>
+    <p class="row">Repeat width: <code>$bitmapW px</code> · Lane baseline in image: <code>$lanePixelY px</code> from top · Suggested <code>yOffsetFromBase</code>: <code>$($meta.suggestedYOffsetFromBase)</code></p>
+    <img src="$ReviewImageName" alt="$ReviewTitle" />
     <p class="row">Tiled preview (3x):</p>
     <div style="display:flex; overflow:hidden; width:min(100%, $($bitmapW * 3)px);">
-      <img src="bdd-corridor-edge.png" style="width:${bitmapW}px" />
-      <img src="bdd-corridor-edge.png" style="width:${bitmapW}px" />
-      <img src="bdd-corridor-edge.png" style="width:${bitmapW}px" />
+      <img src="$ReviewImageName" style="width:${bitmapW}px" />
+      <img src="$ReviewImageName" style="width:${bitmapW}px" />
+      <img src="$ReviewImageName" style="width:${bitmapW}px" />
     </div>
   </body>
 </html>
