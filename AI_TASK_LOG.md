@@ -1,6 +1,109 @@
 # AI Task Log - LOM Idle V2
 
-## 2026-06-22 - Auto (Cursor) - Red Cavern KR at Crystal hub (50, 55)
+## 2026-06-26 - Auto (Cursor) - Summon Holy Deva spell (Taoist)
+
+### Changed
+- `src/app.monolith.js` — wired **Summon Holy Deva** (level 38): 2 amulets, 1500ms summon delay, follower pet behind Tao (not front-line tank), ranged thunder vs enemy MAC, 6-tile attack range, boss party + offline + training room.
+- `public/monsters/monster/117.json` + `.png` — Holy Deva pet atlas (Crystal index 117).
+- `public/spellfx/SummonHolyDeva/` — cast FX (Crystal Magic 1500).
+- `src/core/offlineProgress.js`, `tests/offlineProgress.test.mjs` — auto-summon order + delay.
+- `tools/build-sfx-assets.mjs`, `tools/itch-spellfx-manifest.mjs`, `tools/package-itch.mjs`, `tools/extract-spellfx-east-native.json`, `tools/export-monster-atlases.ps1` — SFX, packaging, ranged-attack action mapping (lib action 14).
+
+### Verified
+- Unit tests (173/173), `npm run smoke`, `verify:itch:source`. Full `npm run check` still stops on pre-existing `warrior-bicheon` offline fixture mismatch.
+
+---
+
+## 2026-06-26 - Auto (Cursor) - Gem Merchant NPC
+
+### Changed
+- `src/app.monolith.js` — Gem Merchant town NPC (rebirth unlock), random/matching gem→orb conversions, efficiency cost tiers.
+- `src/bossDrops.js` — export `BOSS_GEM_ITEM_IDS` / `BOSS_ORB_ITEM_IDS` for orb pool reuse.
+- `src/styles.css` — gem merchant dialog panel styles.
+
+### Verified
+- `node --check src/app.monolith.js`, unit tests (173/173), `npm run smoke`. Full `npm run check` still stops on pre-existing `warrior-bicheon` offline fixture mismatch.
+
+---
+
+## 2026-06-26 - Auto (Cursor) - Flame Disruptor spell (Wizard)
+
+### Changed
+- `src/app.monolith.js` — wired **Flame Disruptor** into wizard combat as a level-38 single-target fire spell (column FX on enemy, Crystal target impact).
+- `tools/itch-spellfx-manifest.mjs`, `tools/build-sfx-assets.mjs` — packaging + cast SFX (shape 47).
+
+### Verified
+- `node --check src/app.monolith.js`, `npm run build:sfx`, `npm run smoke`.
+
+---
+
+## 2026-06-26 - Auto (Cursor) - Mass Healing spell (Taoist)
+
+### Changed
+- `src/app.monolith.js` — wired **Mass Healing** into Taoist combat: party-wide heal (player + pet + boss party), amulet cost, cast/impact FX delay like Soul Shield/Blessed Armour, auto-cast when 2+ allies need healing, offline + boss party + training room support.
+- `src/core/offlineProgress.js` — offline support spell order + queued spell kind for MassHealing.
+- `src/data/items.json` — added `book-mass-healing` (level 31 Taoist spell book).
+- `tools/build-phase1-items.mjs`, `tools/build-sfx-assets.mjs`, `tools/itch-spellfx-manifest.mjs` — Mass Healing item/SFX/spellfx packaging hooks.
+- `tests/offlineProgress.test.mjs` — updated offline spell order/kind tests.
+
+### Verified
+- `node --check src/app.monolith.js`, offline unit tests, `npm run smoke`.
+
+---
+
+## 2026-06-21 - Auto (Cursor) - Hell GD floor 2 at HELL02 (248, 251)
+
+### Changed
+- `zone-hell-gd-2` — wave floor 2 (2 waves, heavier Hell Bolt + Witch Doctor: 3 each in 20-entry pool vs 1 each on F1).
+- `HELL_GD_2_ROOM_VISUALS` + `tools/build-hell-gd-2-stamp.ps1` — map stamp at Crystal HELL02 (248, 251).
+- `tools/build-hell-cavern-2-spot-picker.ps1` — HELL02 coordinate mockup for spot selection.
+- Bumped `MAP_STAMP_ASSET_VERSION` for `hell-gd-2-center`.
+
+---
+
+
+### Changed
+- Removed generic `hell-cavern-catalog` scrolling props (were picked from whole HELL01/02, not corridor at 146,56).
+- Added `tools/build-hell-cavern-gd1-corridor.ps1` — Red Cavern-style wall strip: map cols 128–164, lane Y 56, floor pattern + walk-lane excludes.
+- Rebuilt `hell-cavern-1-wall-columns.png` (37 columns); `columnCount: 37` in edge set.
+
+---
+
+## 2026-06-21 - Auto (Cursor) - Hell group dungeon floor 1 at (146, 56)
+
+### Changed
+- `zone-hell-gd-1` — Hell group dungeon floor 1 (2 waves, trash 424–430) at Crystal HELL01 (146, 56).
+- Restored `HELL_CAVERN_1_*` scrolling visuals + `hell-cavern-1-edge` wall columns in `app.monolith.js`.
+- Rebuilt `public/mapedges/hell-cavern-1-wall-columns.png` for lane Y 56, columns 134–165.
+- Wasteland teleporter lists `zone-hell-gd-1`.
+
+---
+
+## 2026-06-21 - Auto (Cursor) - Hell Cavern 1F group dungeon spot picker
+
+### Changed
+- Added `tools/build-hell-cavern-1-spot-picker.ps1` — full HELL01 overview + 12 preset crop previews for `zone-hell-gd-1` party stand.
+- Generated mockup: `tile-review/hell-cavern-1-spot-picker/` (recommended default: farm corridor pocket 24, 45).
+
+### Suggested Next Step
+- User picks spot → wire `zone-hell-gd-1` with `arenaSpawnMap` / scrolling HC1 visuals.
+
+---
+
+## 2026-06-24 - Auto (Cursor) - Hell boss lab atlas fixes
+
+### Changed
+- Hell Keeper: `stationaryBoss: true`, `moveMs: 0` (Crystal stationary); attack blend confirmed on atlas 218.
+- Hell Lord: appended standard walking frames to atlas 247 (`tools/append-monster-walking.ps1`).
+- Flame Queen: fixed `attackRange1` frame mapping in `build-extended-boss-combat-atlases.ps1` (720–725, non-directional); rebuilt atlas 242.
+- Rebuilt extended boss atlases 200/229/242/345; runtime fallbacks when walk/range clips are missing drawable frames.
+- Bumped `MONSTER_ASSET_VERSION`.
+
+### Checked
+- `npm run smoke`.
+
+---
+
 
 ### Changed
 - Built `red-cavern-kr-center` map stamp from RCK.map focus (50, 55).
@@ -1253,6 +1356,53 @@ Use this format:
 - Added `enemyObject` spell FX anchoring so object-attached effects do not inherit the target-cell/top-of-tile placement used by map-target spells like Thunderbolt.
 - Updated `tools/extract-spellfx-east-native.json`, regenerated `public/spellfx/TurnUndead/l0.png` and `l1.png`, and bumped live cache strings to `20260623-turn-undead-crystal-fx`.
 - Verification: `npm.cmd run verify:itch:source`, `node --check src/app.js`, and `node --check src/app.monolith.js` passed.
+
+## 2026-06-23 - Codex - Upgrades panel UX pass
+
+- Reworked the Upgrades scene into a clearer account-progression layout: top hero, compact account stat strip, left section/category navigation, active category summary, and stronger ready/locked/maxed upgrade cards.
+- Added tier labels, progress bars for finite upgrades, clearer requirement blocks, status chips, and short letter badges per upgrade type.
+- Restyled the rebirth panel so Awakening Souls / Rebirth Points read as balances and the rebirth action sits with the explanatory copy.
+- Bumped cache strings to `20260623-upgrades-ux`.
+- Verification: `node --check src/app.js`, `node --check src/app.monolith.js`, `npm.cmd run verify:itch:source`, and `npm.cmd run smoke` passed. Full `npm.cmd run check` still stops on the pre-existing `warrior-bicheon` offline fixture mismatch (`xp: expected 378, got 375`).
+
+## 2026-06-26 - Codex - item discovery Codex
+
+- Added account-wide item Codex state to saves/restores and a new `Codex` game window with category tabs for all item types.
+- Codex entries stay hidden until the item drops; discovered entries reveal the item icon, default stats, requirement, and every recorded drop source/count.
+- Wired discovery recording through mining, zone drops, forced pity drops, solo boss drops, boss-party drops, and special Red Thunder Zuma boss drops. Full-bag drops still count as discovered because the item did roll for the player.
+- Bumped cache strings to `20260626-item-codex`.
+- Verification: `node --check src/app.js`, `node --check src/app.monolith.js`, `node --check src/persistence/restoreAccount.js`, `npm.cmd run smoke`, and `npm.cmd run verify:itch:source` passed. Full `npm.cmd run check` still stops on the existing `warrior-bicheon` offline fixture mismatch (`xp: expected 378, got 375`).
+
+## 2026-06-26 - Codex - Codex hide unfound toggle
+
+- Added a Codex summary-bar toggle to hide/show undiscovered item placeholders.
+- When enabled, each Codex category lists only discovered items and shows an empty-state message if none have been found yet.
+- Bumped cache strings to `20260626-codex-hide-unfound`.
+- Verification: `node --check src/app.js`, `node --check src/app.monolith.js`, `node tools/smoke-game.mjs "http://localhost:4177/?scene=codex&v=20260626-codex-hide-unfound"`, and `npm.cmd run verify:itch:source` passed.
+
+## 2026-06-26 - Codex - Codex list/detail layout
+
+- Reworked the Codex from large per-item cards into a compact selectable item list plus a right-side detail panel.
+- Item rows show icon/name/type/requirement/source count when discovered, or a minimal undiscovered placeholder while locked.
+- The detail panel now owns the full stat list and full drop-source list, so high-stat items and items with many sources no longer overflow small cards.
+- Bumped cache strings to `20260626-codex-list-detail`.
+- Verification: `node --check src/app.js`, `node --check src/app.monolith.js`, `node tools/smoke-game.mjs "http://localhost:4177/?scene=codex&v=20260626-codex-list-detail"`, targeted Playwright DOM check, and `npm.cmd run verify:itch:source` passed.
+
+## 2026-06-26 - Codex - rebirth keeps Codex
+
+- Made `performAccountRebirth()` explicitly clone and restore `state.account.codex` across the rebirth reset path.
+- Updated rebirth UI copy/confirmation text so players are told the permanent item Codex is kept.
+- Bumped cache strings to `20260626-rebirth-keeps-codex`.
+- Verification: `node --check src/app.js`, `node --check src/app.monolith.js`, `node tools/smoke-game.mjs "http://localhost:4177/?scene=upgrades&v=20260626-rebirth-keeps-codex"`, and `npm.cmd run verify:itch:source` passed.
+
+## 2026-06-26 - Codex - achievements window
+
+- Added permanent account achievement state to save/restore and rebirth preservation.
+- Added an `Achievements` window/top-bar button with an account-wide unlock cost of 10 Awakening Souls.
+- Added first achievement: `Reach level 7`; once achievements are enabled, reaching level 7 unlocks it once, shows `Achievement Unlocked: Reach level 7`, and awards 10,000 gold to the active character.
+- Rebirth copy now says Codex, achievements, and rebirth upgrades are kept.
+- Bumped cache strings to `20260626-achievements`.
+- Verification: `node --check src/app.js`, `node --check src/app.monolith.js`, `node --check src/persistence/restoreAccount.js`, `node tools/smoke-game.mjs "http://localhost:4177/?scene=achievements&v=20260626-achievements"`, targeted Playwright DOM check, and `npm.cmd run verify:itch:source` passed.
 
 ## 2026-06-20 - Cursor - Phase 3: offline progress eligibility in core
 

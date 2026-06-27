@@ -13,11 +13,13 @@ function Get-MonsterLibActionFrames {
     0  = "standing"
     1  = "walking"
     9  = "attack1"
+    14 = "attack1"
     18 = "struck"
     21 = "die"
     22 = "dead"
     24 = "show"
     25 = "hide"
+    27 = "show"
     28 = "revive"
   }
 

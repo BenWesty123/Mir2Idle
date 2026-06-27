@@ -90,10 +90,12 @@ const PACKAGE_TOWN_NPC_SPRITES = [
   "refiner",
   "teleport-stone",
   "teleporter",
+  "gem-merchant",
 ];
 
 const SUMMON_SKELETON_PET_MONSTER_INDEX = 78;
 const SUMMON_SHINSU_PET_MONSTER_INDICES = [79, 80];
+const SUMMON_HOLY_DEVA_PET_MONSTER_INDEX = 117;
 
 /** Map-object sets referenced by shipped zones / default town decor. */
 const PACKAGE_MAP_OBJECT_SET_IDS = [
@@ -165,6 +167,7 @@ function buildUsedMonsterIndices() {
   );
   indices.add(SUMMON_SKELETON_PET_MONSTER_INDEX);
   for (const index of SUMMON_SHINSU_PET_MONSTER_INDICES) indices.add(index);
+  indices.add(SUMMON_HOLY_DEVA_PET_MONSTER_INDEX);
   return indices;
 }
 

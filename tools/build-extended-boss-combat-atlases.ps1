@@ -86,9 +86,10 @@ $bossConfigs = @(
     projectileInterval = 100
     burstDurationMs = 1000
     burstDelayMs = 150
+    # 242.Lib stores range frames at 720-725 (non-directional); offset*direction lands on empty slots.
     attackRange1Start = 720
     attackRange1Count = 6
-    attackRange1Offset = 9
+    attackRange1Fixed = $true
   },
   [ordered]@{
     name = "FlamingMutant"
@@ -131,6 +132,7 @@ $utf8NoBom = New-Object System.Text.UTF8Encoding($false)
 
 function Resolve-SrcFrame($spec, [int]$i) {
   if ($spec.reverse) { return $spec.start - $i }
+  if ($spec.fixed) { return $spec.start + $i }
   if ($spec.directional) { return $spec.start + ($Direction * $spec.offset) + $i }
   return $spec.start + ($Direction * $spec.offset) + $i
 }
@@ -145,9 +147,10 @@ foreach ($config in $bossConfigs) {
     $actions.attackRange1 = @{
       start = $config.attackRange1Start
       count = $config.attackRange1Count
-      offset = $config.attackRange1Offset
+      offset = if ($config.attackRange1Offset) { $config.attackRange1Offset } else { 0 }
       interval = 100
-      directional = $true
+      fixed = [bool]$config.attackRange1Fixed
+      directional = -not [bool]$config.attackRange1Fixed
     }
   }
 

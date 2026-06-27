@@ -20,6 +20,7 @@ const EXPECTED_LABELS = [
   "Dream Devourer",
   "Dark Devourer",
   "Dark Devil",
+  "Hell Keeper",
 ];
 
 function loadKnownItemIds() {

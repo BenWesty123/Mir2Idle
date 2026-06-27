@@ -56,6 +56,8 @@ export function mergeAccountBossRespawns(accountBossRespawns, characters, option
  * @param {(upgrades: unknown) => object} options.sanitizeUpgrades
  * @param {(respawns: unknown) => Record<string, number>} options.sanitizeBossRespawns
  * @param {(stats: unknown) => object} options.sanitizeAccountStats
+ * @param {(codex: unknown) => object} [options.sanitizeCodex]
+ * @param {(achievements: unknown) => object} [options.sanitizeAchievements]
  * @param {string[]} options.characterIds
  * @param {(kills: unknown) => Record<string, number>} options.sanitizeBossKills
  */
@@ -73,6 +75,12 @@ export function restoreAccountFromSnapshot(snapshot, characters, options) {
       options,
     ),
     stats: options.sanitizeAccountStats(snapshot.account?.stats),
+    codex: typeof options.sanitizeCodex === "function"
+      ? options.sanitizeCodex(snapshot.account?.codex)
+      : { items: {} },
+    achievements: typeof options.sanitizeAchievements === "function"
+      ? options.sanitizeAchievements(snapshot.account?.achievements)
+      : { enabled: false, unlocked: {} },
   };
 
   account.stats = {

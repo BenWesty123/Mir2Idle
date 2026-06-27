@@ -180,12 +180,27 @@
     {
       "id": "zone-red-cavern-2",
       "label": "Red Cavern 2",
-      "description": "Deeper red cavern — devourers"
+      "description": "Deeper red cavern"
     },
     {
       "id": "zone-red-cavern-kr",
       "label": "Red Cavern KR",
-      "description": "Dream and Dark Devourer — dual boss room (RCK 63, 85)"
+      "description": "Dream and Dark Devourer — emerge together"
+    },
+    {
+      "id": "zone-hell-gd-1",
+      "label": "Hell Cavern — Floor 1",
+      "description": "Hell group dungeon — Demon, Slasher, Pirate, Cannibal trash; Hell Bolt and Witch Doctor rare"
+    },
+    {
+      "id": "zone-hell-gd-2",
+      "label": "Hell Cavern — Floor 2",
+      "description": "Hell group dungeon — heavier Hell Bolt and Witch Doctor mix (Crystal HELL02)"
+    },
+    {
+      "id": "zone-hell-gd-3",
+      "label": "Hell Cavern — Floor 3",
+      "description": "Hell Keeper boss room — Crystal HELL03 (party stand west of boss spawn)"
     },
     {
       "id": "zone-bdd-1",
@@ -281,6 +296,31 @@
       "id": "zone-lab-white-boar",
       "label": "Lab: White Boar",
       "description": "Decoded NewMobsMagic Mon6 test fight"
+    },
+    {
+      "id": "zone-lab-witch-doctor",
+      "label": "Lab: Witch Doctor",
+      "description": "Hell Cavern boss test room"
+    },
+    {
+      "id": "zone-lab-hell-keeper",
+      "label": "Lab: Hell Keeper",
+      "description": "Hell Cavern boss test room"
+    },
+    {
+      "id": "zone-lab-cave-witch",
+      "label": "Lab: Cave Witch",
+      "description": "Hell Cavern boss test room"
+    },
+    {
+      "id": "zone-lab-manectric-king",
+      "label": "Lab: Manectric King",
+      "description": "Ice Hell boss test room"
+    },
+    {
+      "id": "zone-lab-hell-lord",
+      "label": "Lab: Hell Lord",
+      "description": "Fire Hell boss test room"
     },
     {
       "id": "zone-bichon-mine",

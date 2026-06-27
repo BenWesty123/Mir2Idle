@@ -2,7 +2,12 @@ import test from "node:test";
 import assert from "node:assert/strict";
 import {
   advanceDropPity,
+  adjustedDropChance,
+  applyDropChanceBonus,
+  applyDropChanceBonusToBossTable,
+  bossDropTableHasItem,
   buildZoneDropCandidates,
+  rollBonusBossDropItem,
   rollBossTableDropSelection,
   rollChanceTable,
   rollRedThunderZumaDropIds,
@@ -38,6 +43,44 @@ test("rollChanceTable: independent chance checks", () => {
   const candidates = [{ item: { id: "x" }, chance: 0.5 }, { item: { id: "y" }, chance: 0.5 }];
   const hits = rollChanceTable(candidates, () => 0.1);
   assert.equal(hits.length, 2);
+});
+
+test("adjustedDropChance: additive percentage points with 100% cap", () => {
+  assert.equal(adjustedDropChance(0.15, 1), 0.16);
+  assert.equal(adjustedDropChance(0.005, 1), 0.015);
+  assert.equal(adjustedDropChance(0.15, 0.5), 0.155);
+  assert.equal(adjustedDropChance(0.99, 2), 1);
+  assert.equal(adjustedDropChance(1.2, 1), 1);
+});
+
+test("applyDropChanceBonus: boosts zone candidates", () => {
+  const candidates = [{ item: { id: "x" }, chance: 0.02 }];
+  const boosted = applyDropChanceBonus(candidates, 0.5);
+  assert.equal(boosted[0].chance, 0.025);
+  assert.equal(applyDropChanceBonus(candidates, 0), candidates);
+});
+
+test("applyDropChanceBonusToBossTable: boosts boss item chances only", () => {
+  const table = {
+    benedictionOils: 2,
+    items: [{ id: "awakening-soul", chance: 0.1 }],
+  };
+  const boosted = applyDropChanceBonusToBossTable(table, 0.5);
+  assert.equal(boosted.benedictionOils, 2);
+  assert.equal(boosted.items[0].chance, 0.105);
+});
+
+test("rollBonusBossDropItem: extra soul roll only on eligible boss tables", () => {
+  const table = { items: [{ id: "awakening-soul", chance: 0.1 }] };
+  assert.equal(bossDropTableHasItem(table, "awakening-soul"), true);
+  assert.equal(bossDropTableHasItem({ items: [{ id: "wooma-heart", chance: 0.1 }] }, "awakening-soul"), false);
+  assert.equal(rollBonusBossDropItem(table, "awakening-soul", 0), false);
+  assert.equal(rollBonusBossDropItem(table, "awakening-soul", 10, () => 0.05), true);
+  assert.equal(rollBonusBossDropItem(table, "awakening-soul", 10, () => 0.15), false);
+  assert.equal(rollBonusBossDropItem(table, "awakening-soul", 60, () => 0.45), true);
+  assert.equal(rollBonusBossDropItem(table, "awakening-soul", 60, () => 0.65), false);
+  assert.equal(rollBonusBossDropItem(table, "awakening-soul", 100, () => 0.99), true);
+  assert.equal(rollBonusBossDropItem(table, "awakening-soul", 110, () => 0.99), true);
 });
 
 test("buildZoneDropCandidates: zone and enemy-specific chances", () => {

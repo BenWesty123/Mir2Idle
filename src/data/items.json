@@ -145,13 +145,15 @@
       "drop": {
         "zones": [
           "zone-bdd-2",
-          "zone-bdd-4"
+          "zone-bdd-4",
+          "zone-hell-gd-3"
         ],
         "chances": {
           "zone-bdd-2": 0.025,
-          "zone-bdd-4": 0.025
+          "zone-bdd-4": 0.025,
+          "zone-hell-gd-3": 0.1
         },
-        "chance": 0.05
+        "chance": 0.1
       }
     },
     {
@@ -357,11 +359,13 @@
       "drop": {
         "zones": [
           "zone-bdd-2",
-          "zone-bdd-4"
+          "zone-bdd-4",
+          "zone-hell-gd-3"
         ],
         "chances": {
           "zone-bdd-2": 0.025,
-          "zone-bdd-4": 0.025
+          "zone-bdd-4": 0.025,
+          "zone-hell-gd-3": 0.05
         },
         "chance": 0.05
       }
@@ -825,11 +829,13 @@
       "drop": {
         "zones": [
           "zone-bdd-2",
-          "zone-bdd-4"
+          "zone-bdd-4",
+          "zone-hell-gd-3"
         ],
         "chances": {
           "zone-bdd-2": 0.025,
-          "zone-bdd-4": 0.025
+          "zone-bdd-4": 0.025,
+          "zone-hell-gd-3": 0.05
         },
         "chance": 0.05
       }
@@ -1098,10 +1104,10 @@
           0
         ],
         "sc": [
-          2,
-          7
+          3,
+          11
         ],
-        "hp": 15,
+        "hp": 45,
         "mp": 0,
         "accuracy": 1,
         "agility": 0,
@@ -1116,7 +1122,16 @@
         "layer": "weapon",
         "index": 53
       },
-      "crystalType": "Weapon"
+      "crystalType": "Weapon",
+      "drop": {
+        "zones": [
+          "zone-hell-gd-3"
+        ],
+        "chances": {
+          "zone-hell-gd-3": 0.05
+        },
+        "chance": 0.05
+      }
     },
     {
       "id": "benediction-oil",
@@ -1237,28 +1252,12 @@
       "drop": {
         "zones": [
           "zone-bdd-2",
-          "zone-bdd-4",
-          "zone-dead-mines-kr",
-          "zone-stone-temple-2",
-          "zone-wooma-temple-2"
+          "zone-bdd-4"
         ],
         "chance": 0.1,
         "chances": {
-          "zone-wooma-temple-2": 0.0012,
-          "zone-dead-mines-kr": 0.0222,
           "zone-bdd-2": 0.01,
           "zone-bdd-4": 0.01
-        },
-        "enemyChances": {
-          "118": {
-            "zone-dead-mines-kr": 0.0222
-          },
-          "253": {
-            "zone-wooma-temple-2": 0.006
-          },
-          "265": {
-            "zone-stone-temple-2": 0.005
-          }
         }
       },
       "crystalType": "Boots"
@@ -1562,7 +1561,16 @@
         "layer": "armour",
         "index": 30
       },
-      "crystalType": "Armour"
+      "crystalType": "Armour",
+      "drop": {
+        "zones": [
+          "zone-hell-gd-3"
+        ],
+        "chances": {
+          "zone-hell-gd-3": 0.005
+        },
+        "chance": 0.005
+      }
     },
     {
       "id": "black-dragon-armor-m-2",
@@ -1623,7 +1631,16 @@
         "layer": "armour",
         "index": 30
       },
-      "crystalType": "Armour"
+      "crystalType": "Armour",
+      "drop": {
+        "zones": [
+          "zone-hell-gd-3"
+        ],
+        "chances": {
+          "zone-hell-gd-3": 0.005
+        },
+        "chance": 0.005
+      }
     },
     {
       "id": "black-dragon-armor-m-3",
@@ -1684,7 +1701,16 @@
         "layer": "armour",
         "index": 30
       },
-      "crystalType": "Armour"
+      "crystalType": "Armour",
+      "drop": {
+        "zones": [
+          "zone-hell-gd-3"
+        ],
+        "chances": {
+          "zone-hell-gd-3": 0.005
+        },
+        "chance": 0.005
+      }
     },
     {
       "id": "black-dragon-slayer",
@@ -2314,10 +2340,10 @@
       "stats": {
         "ac": [
           8,
-          23
+          25
         ],
         "amc": [
-          3,
+          4,
           8
         ],
         "dc": [
@@ -2375,10 +2401,10 @@
       "stats": {
         "ac": [
           8,
-          23
+          25
         ],
         "amc": [
-          3,
+          4,
           8
         ],
         "dc": [
@@ -2443,8 +2469,8 @@
           0
         ],
         "dc": [
-          3,
-          48
+          7,
+          60
         ],
         "mc": [
           0,
@@ -2469,7 +2495,16 @@
         "layer": "weapon",
         "index": 51
       },
-      "crystalType": "Weapon"
+      "crystalType": "Weapon",
+      "drop": {
+        "zones": [
+          "zone-hell-gd-3"
+        ],
+        "chances": {
+          "zone-hell-gd-3": 0.01
+        },
+        "chance": 0.01
+      }
     },
     {
       "id": "blade-of-sorcery",
@@ -2530,7 +2565,16 @@
         "layer": "weapon",
         "index": 33
       },
-      "crystalType": "Weapon"
+      "crystalType": "Weapon",
+      "drop": {
+        "zones": [
+          "zone-hell-gd-3"
+        ],
+        "chances": {
+          "zone-hell-gd-3": 0.1
+        },
+        "chance": 0.1
+      }
     },
     {
       "id": "blades-of-darkness",
@@ -2842,7 +2886,16 @@
         "layer": "armour",
         "index": 15
       },
-      "crystalType": "Armour"
+      "crystalType": "Armour",
+      "drop": {
+        "zones": [
+          "zone-hell-gd-3"
+        ],
+        "chances": {
+          "zone-hell-gd-3": 0.025
+        },
+        "chance": 0.025
+      }
     },
     {
       "id": "blue-dark-armour-f",
@@ -3244,9 +3297,13 @@
       },
       "crystalType": "Bracelet",
       "drop": {
-        "zones": [],
-        "chances": {},
-        "chance": 0.05
+        "zones": [
+          "zone-hell-gd-3"
+        ],
+        "chances": {
+          "zone-hell-gd-3": 0.1
+        },
+        "chance": 0.1
       }
     },
     {
@@ -5117,6 +5174,67 @@
       "crystalType": "Book"
     },
     {
+      "id": "book-mass-healing",
+      "name": "Mass Healing",
+      "type": "book",
+      "slot": "book",
+      "class": "taoist",
+      "source": {
+        "crystalIndex": 1029,
+        "name": "MassHealing"
+      },
+      "icon": {
+        "library": "Items",
+        "frame": 3642,
+        "src": "./public/item-icons/books/images/frame_003640.png"
+      },
+      "requirements": {
+        "type": "level",
+        "amount": 31,
+        "classMask": 4,
+        "genderMask": 3
+      },
+      "stackable": false,
+      "maxStack": 1,
+      "stats": {
+        "ac": [
+          0,
+          0
+        ],
+        "amc": [
+          0,
+          0
+        ],
+        "dc": [
+          0,
+          0
+        ],
+        "mc": [
+          0,
+          0
+        ],
+        "sc": [
+          0,
+          0
+        ],
+        "hp": 0,
+        "mp": 0,
+        "accuracy": 0,
+        "agility": 0,
+        "luck": 0,
+        "attackSpeed": 0
+      },
+      "shop": {
+        "buy": 20000,
+        "sell": 4000
+      },
+      "spell": {
+        "id": "MassHealing",
+        "shape": 75
+      },
+      "crystalType": "Book"
+    },
+    {
       "id": "book-meteor-strike",
       "name": "Meteor Strike",
       "type": "book",
@@ -6775,76 +6893,6 @@
       "crystalType": "Book"
     },
     {
-      "id": "book-vampirism",
-      "name": "Vampirism",
-      "type": "book",
-      "slot": "book",
-      "class": "wizard",
-      "source": {
-        "crystalIndex": 1004,
-        "name": "Vampirism"
-      },
-      "icon": {
-        "library": "Items",
-        "frame": 3641,
-        "src": "./public/item-icons/books/images/frame_003640.png"
-      },
-      "requirements": {
-        "type": "level",
-        "amount": 33,
-        "classMask": 2,
-        "genderMask": 3
-      },
-      "stackable": false,
-      "maxStack": 1,
-      "stats": {
-        "ac": [
-          0,
-          0
-        ],
-        "amc": [
-          0,
-          0
-        ],
-        "dc": [
-          0,
-          0
-        ],
-        "mc": [
-          0,
-          0
-        ],
-        "sc": [
-          0,
-          0
-        ],
-        "hp": 0,
-        "mp": 0,
-        "accuracy": 0,
-        "agility": 0,
-        "luck": 0,
-        "attackSpeed": 0
-      },
-      "shop": {
-        "buy": 25000,
-        "sell": 5000
-      },
-      "spell": {
-        "id": "Vampirism",
-        "shape": 45
-      },
-      "crystalType": "Book",
-      "drop": {
-        "zones": [
-          "zone-red-cavern-2"
-        ],
-        "chances": {
-          "zone-red-cavern-2": 0.002
-        },
-        "chance": 0.002
-      }
-    },
-    {
       "id": "book-twin-drake-blade",
       "name": "Twin Drake Blade",
       "type": "book",
@@ -6967,6 +7015,76 @@
       "crystalType": "Book"
     },
     {
+      "id": "book-vampirism",
+      "name": "Vampirism",
+      "type": "book",
+      "slot": "book",
+      "class": "wizard",
+      "source": {
+        "crystalIndex": 1004,
+        "name": "Vampirism"
+      },
+      "icon": {
+        "library": "Items",
+        "frame": 3641,
+        "src": "./public/item-icons/books/images/frame_003640.png"
+      },
+      "requirements": {
+        "type": "level",
+        "amount": 33,
+        "classMask": 2,
+        "genderMask": 3
+      },
+      "stackable": false,
+      "maxStack": 1,
+      "stats": {
+        "ac": [
+          0,
+          0
+        ],
+        "amc": [
+          0,
+          0
+        ],
+        "dc": [
+          0,
+          0
+        ],
+        "mc": [
+          0,
+          0
+        ],
+        "sc": [
+          0,
+          0
+        ],
+        "hp": 0,
+        "mp": 0,
+        "accuracy": 0,
+        "agility": 0,
+        "luck": 0,
+        "attackSpeed": 0
+      },
+      "shop": {
+        "buy": 25000,
+        "sell": 5000
+      },
+      "spell": {
+        "id": "Vampirism",
+        "shape": 45
+      },
+      "crystalType": "Book",
+      "drop": {
+        "zones": [
+          "zone-red-cavern-2"
+        ],
+        "chances": {
+          "zone-red-cavern-2": 0.002
+        },
+        "chance": 0.002
+      }
+    },
+    {
       "id": "boundless-ring",
       "name": "Boundless Ring",
       "type": "ring",
@@ -7025,13 +7143,15 @@
       "drop": {
         "zones": [
           "zone-bdd-2",
-          "zone-bdd-4"
+          "zone-bdd-4",
+          "zone-hell-gd-3"
         ],
         "chances": {
           "zone-bdd-2": 0.025,
-          "zone-bdd-4": 0.025
+          "zone-bdd-4": 0.025,
+          "zone-hell-gd-3": 0.05
         },
-        "chance": 0.025
+        "chance": 0.05
       }
     },
     {
@@ -8127,8 +8247,8 @@
           0
         ],
         "dc": [
-          5,
-          44
+          8,
+          56
         ],
         "mc": [
           0,
@@ -8153,7 +8273,16 @@
         "layer": "weapon",
         "index": 35
       },
-      "crystalType": "Weapon"
+      "crystalType": "Weapon",
+      "drop": {
+        "zones": [
+          "zone-hell-gd-3"
+        ],
+        "chances": {
+          "zone-hell-gd-3": 0.05
+        },
+        "chance": 0.05
+      }
     },
     {
       "id": "chain-belt",
@@ -8362,7 +8491,6 @@
       },
       "drop": {
         "zones": [
-          "zone-bone-cave-2",
           "zone-bug-cave-1",
           "zone-bug-cave-2",
           "zone-insect-cave-1",
@@ -8374,7 +8502,6 @@
         ],
         "chance": 0.006,
         "chances": {
-          "zone-bone-cave-2": 0.002,
           "zone-insect-cave-1": 0.0015,
           "zone-insect-cave-2": 0.006,
           "zone-bug-cave-1": 0.003,
@@ -8442,7 +8569,16 @@
         "buy": 10000,
         "sell": 2000
       },
-      "crystalType": "Ring"
+      "crystalType": "Ring",
+      "drop": {
+        "zones": [
+          "zone-hell-gd-3"
+        ],
+        "chances": {
+          "zone-hell-gd-3": 0.05
+        },
+        "chance": 0.05
+      }
     },
     {
       "id": "conqueror-spear",
@@ -8481,14 +8617,14 @@
           15
         ],
         "mc": [
-          4,
-          10
+          5,
+          14
         ],
         "sc": [
           0,
           0
         ],
-        "hp": 20,
+        "hp": 60,
         "mp": 0,
         "accuracy": 0,
         "agility": 0,
@@ -8503,7 +8639,16 @@
         "layer": "weapon",
         "index": 54
       },
-      "crystalType": "Weapon"
+      "crystalType": "Weapon",
+      "drop": {
+        "zones": [
+          "zone-hell-gd-3"
+        ],
+        "chances": {
+          "zone-hell-gd-3": 0.05
+        },
+        "chance": 0.05
+      }
     },
     {
       "id": "convex-lens",
@@ -8782,7 +8927,6 @@
       },
       "drop": {
         "zones": [
-          "zone-bone-cave-2",
           "zone-bug-cave-2",
           "zone-insect-cave-1",
           "zone-insect-cave-2",
@@ -8796,7 +8940,6 @@
         ],
         "chance": 0.005,
         "chances": {
-          "zone-bone-cave-2": 0.0015,
           "zone-insect-cave-1": 0.0008,
           "zone-insect-cave-2": 0.005,
           "zone-bug-cave-2": 0.0008,
@@ -8841,10 +8984,10 @@
       "stats": {
         "ac": [
           6,
-          18
+          19
         ],
         "amc": [
-          3,
+          5,
           9
         ],
         "dc": [
@@ -8902,10 +9045,10 @@
       "stats": {
         "ac": [
           6,
-          18
+          19
         ],
         "amc": [
-          3,
+          5,
           9
         ],
         "dc": [
@@ -8992,7 +9135,78 @@
         "buy": 45000,
         "sell": 9000
       },
-      "crystalType": "Ring"
+      "crystalType": "Ring",
+      "drop": {
+        "zones": [
+          "zone-hell-gd-3"
+        ],
+        "chances": {
+          "zone-hell-gd-3": 0.025
+        },
+        "chance": 0.025
+      }
+    },
+    {
+      "id": "crystal-armour",
+      "name": "Crystal Armour",
+      "type": "armour",
+      "slot": "armour",
+      "class": "any",
+      "source": {
+        "crystalIndex": 373,
+        "name": "CrystalArmour(M)"
+      },
+      "icon": {
+        "library": "Items",
+        "frame": 597,
+        "src": "./public/item-icons/items/frame_000597.png"
+      },
+      "requirements": {
+        "type": "level",
+        "amount": 20,
+        "classMask": 31,
+        "genderMask": 3
+      },
+      "stackable": false,
+      "maxStack": 1,
+      "stats": {
+        "ac": [
+          7,
+          13
+        ],
+        "amc": [
+          3,
+          10
+        ],
+        "dc": [
+          0,
+          1
+        ],
+        "mc": [
+          1,
+          2
+        ],
+        "sc": [
+          1,
+          2
+        ],
+        "hp": 0,
+        "mp": 0,
+        "accuracy": 0,
+        "agility": 0,
+        "luck": 0,
+        "attackSpeed": 0,
+        "xpBonusPercent": 20
+      },
+      "shop": {
+        "buy": 20000,
+        "sell": 4000
+      },
+      "visual": {
+        "layer": "armour",
+        "index": 12
+      },
+      "crystalType": "Armour"
     },
     {
       "id": "cuspid-necklace",
@@ -9049,7 +9263,16 @@
         "buy": 25000,
         "sell": 5000
       },
-      "crystalType": "Necklace"
+      "crystalType": "Necklace",
+      "drop": {
+        "zones": [
+          "zone-hell-gd-3"
+        ],
+        "chances": {
+          "zone-hell-gd-3": 0.025
+        },
+        "chance": 0.025
+      }
     },
     {
       "id": "dagger",
@@ -9613,7 +9836,16 @@
         "buy": 12000,
         "sell": 2400
       },
-      "crystalType": "Necklace"
+      "crystalType": "Necklace",
+      "drop": {
+        "zones": [
+          "zone-hell-gd-3"
+        ],
+        "chances": {
+          "zone-hell-gd-3": 0.05
+        },
+        "chance": 0.05
+      }
     },
     {
       "id": "demonic-bells",
@@ -9870,8 +10102,8 @@
           0
         ],
         "sc": [
-          3,
-          8
+          4,
+          12
         ],
         "hp": 0,
         "mp": 0,
@@ -9888,7 +10120,16 @@
         "layer": "weapon",
         "index": 37
       },
-      "crystalType": "Weapon"
+      "crystalType": "Weapon",
+      "drop": {
+        "zones": [
+          "zone-hell-gd-3"
+        ],
+        "chances": {
+          "zone-hell-gd-3": 0.05
+        },
+        "chance": 0.05
+      }
     },
     {
       "id": "dragon-boots",
@@ -9945,7 +10186,16 @@
         "buy": 21000,
         "sell": 4200
       },
-      "crystalType": "Boots"
+      "crystalType": "Boots",
+      "drop": {
+        "zones": [
+          "zone-hell-gd-3"
+        ],
+        "chances": {
+          "zone-hell-gd-3": 0.15
+        },
+        "chance": 0.15
+      }
     },
     {
       "id": "dragon-bracelet",
@@ -10072,7 +10322,6 @@
       },
       "drop": {
         "zones": [
-          "zone-bone-cave-2",
           "zone-prajna-temple-1",
           "zone-prajna-temple-2",
           "zone-red-cavern-1",
@@ -10081,7 +10330,6 @@
         ],
         "chance": 0.00526,
         "chances": {
-          "zone-bone-cave-2": 0.0005,
           "zone-prajna-temple-1": 0.0015,
           "zone-prajna-temple-2": 0.0022,
           "zone-viper-cave-2": 0.00526,
@@ -10150,7 +10398,16 @@
         "layer": "armour",
         "index": 7
       },
-      "crystalType": "Armour"
+      "crystalType": "Armour",
+      "drop": {
+        "zones": [
+          "zone-hell-gd-3"
+        ],
+        "chances": {
+          "zone-hell-gd-3": 0.15
+        },
+        "chance": 0.15
+      }
     },
     {
       "id": "dragon-robe-f",
@@ -10272,7 +10529,16 @@
         "layer": "weapon",
         "index": 29
       },
-      "crystalType": "Weapon"
+      "crystalType": "Weapon",
+      "drop": {
+        "zones": [
+          "zone-hell-gd-3"
+        ],
+        "chances": {
+          "zone-hell-gd-3": 0.15
+        },
+        "chance": 0.15
+      }
     },
     {
       "id": "dragon-staff",
@@ -10333,7 +10599,16 @@
         "layer": "weapon",
         "index": 30
       },
-      "crystalType": "Weapon"
+      "crystalType": "Weapon",
+      "drop": {
+        "zones": [
+          "zone-hell-gd-3"
+        ],
+        "chances": {
+          "zone-hell-gd-3": 0.15
+        },
+        "chance": 0.15
+      }
     },
     {
       "id": "dragon-sword",
@@ -10478,7 +10753,16 @@
         "buy": 70000,
         "sell": 14000
       },
-      "crystalType": "Bracelet"
+      "crystalType": "Bracelet",
+      "drop": {
+        "zones": [
+          "zone-hell-gd-3"
+        ],
+        "chances": {
+          "zone-hell-gd-3": 0.025
+        },
+        "chance": 0.025
+      }
     },
     {
       "id": "durabilitygem",
@@ -11243,7 +11527,16 @@
         "buy": 70000,
         "sell": 14000
       },
-      "crystalType": "Bracelet"
+      "crystalType": "Bracelet",
+      "drop": {
+        "zones": [
+          "zone-hell-gd-3"
+        ],
+        "chances": {
+          "zone-hell-gd-3": 0.025
+        },
+        "chance": 0.025
+      }
     },
     {
       "id": "evilslayergem",
@@ -11518,8 +11811,8 @@
           0
         ],
         "sc": [
-          3,
-          9
+          5,
+          13
         ],
         "hp": 0,
         "mp": 0,
@@ -11536,7 +11829,16 @@
         "layer": "weapon",
         "index": 40
       },
-      "crystalType": "Weapon"
+      "crystalType": "Weapon",
+      "drop": {
+        "zones": [
+          "zone-hell-gd-3"
+        ],
+        "chances": {
+          "zone-hell-gd-3": 0.01
+        },
+        "chance": 0.01
+      }
     },
     {
       "id": "fiend-bow",
@@ -12081,7 +12383,16 @@
         "buy": 45000,
         "sell": 9000
       },
-      "crystalType": "Ring"
+      "crystalType": "Ring",
+      "drop": {
+        "zones": [
+          "zone-hell-gd-3"
+        ],
+        "chances": {
+          "zone-hell-gd-3": 0.025
+        },
+        "chance": 0.025
+      }
     },
     {
       "id": "five-string-bracelet",
@@ -12528,8 +12839,8 @@
           0
         ],
         "dc": [
-          3,
-          42
+          5,
+          54
         ],
         "mc": [
           0,
@@ -12540,7 +12851,7 @@
           0
         ],
         "hp": 0,
-        "mp": 20,
+        "mp": 60,
         "accuracy": 0,
         "agility": 0,
         "luck": 0,
@@ -12554,7 +12865,16 @@
         "layer": "weapon",
         "index": 52
       },
-      "crystalType": "Weapon"
+      "crystalType": "Weapon",
+      "drop": {
+        "zones": [
+          "zone-hell-gd-3"
+        ],
+        "chances": {
+          "zone-hell-gd-3": 0.05
+        },
+        "chance": 0.05
+      }
     },
     {
       "id": "gale-necklace",
@@ -12613,16 +12933,12 @@
       },
       "drop": {
         "zones": [
-          "zone-dead-mines-1",
-          "zone-dead-mines-2",
           "zone-dead-mines-kr",
           "zone-prajna-temple-1",
           "zone-prajna-temple-2"
         ],
         "chance": 0.004,
         "chances": {
-          "zone-dead-mines-1": 0.0005,
-          "zone-dead-mines-2": 0.001,
           "zone-dead-mines-kr": 0.004,
           "zone-prajna-temple-1": 0.0025,
           "zone-prajna-temple-2": 0.0038
@@ -12687,13 +13003,11 @@
       },
       "drop": {
         "zones": [
-          "zone-bone-cave-2",
           "zone-prajna-temple-1",
           "zone-prajna-temple-2"
         ],
         "chance": 0.0035,
         "chances": {
-          "zone-bone-cave-2": 0.0035,
           "zone-prajna-temple-1": 0.0008,
           "zone-prajna-temple-2": 0.0012
         }
@@ -12956,9 +13270,13 @@
       },
       "crystalType": "Belt",
       "drop": {
-        "zones": [],
-        "chances": {},
-        "chance": 0.1
+        "zones": [
+          "zone-hell-gd-3"
+        ],
+        "chances": {
+          "zone-hell-gd-3": 0.15
+        },
+        "chance": 0.15
       }
     },
     {
@@ -13995,11 +14313,13 @@
       "drop": {
         "zones": [
           "zone-bdd-2",
-          "zone-bdd-4"
+          "zone-bdd-4",
+          "zone-hell-gd-3"
         ],
         "chances": {
           "zone-bdd-2": 0.01,
-          "zone-bdd-4": 0.01
+          "zone-bdd-4": 0.01,
+          "zone-hell-gd-3": 0.05
         },
         "chance": 0.05
       }
@@ -14133,7 +14453,16 @@
         "layer": "armour",
         "index": 14
       },
-      "crystalType": "Armour"
+      "crystalType": "Armour",
+      "drop": {
+        "zones": [
+          "zone-hell-gd-3"
+        ],
+        "chances": {
+          "zone-hell-gd-3": 0.025
+        },
+        "chance": 0.025
+      }
     },
     {
       "id": "green-dark-armour-f",
@@ -14317,13 +14646,15 @@
       "drop": {
         "zones": [
           "zone-bdd-2",
-          "zone-bdd-4"
+          "zone-bdd-4",
+          "zone-hell-gd-3"
         ],
         "chances": {
           "zone-bdd-2": 0.025,
-          "zone-bdd-4": 0.025
+          "zone-bdd-4": 0.025,
+          "zone-hell-gd-3": 0.1
         },
-        "chance": 0.05
+        "chance": 0.1
       }
     },
     {
@@ -14779,7 +15110,16 @@
         "layer": "weapon",
         "index": 34
       },
-      "crystalType": "Weapon"
+      "crystalType": "Weapon",
+      "drop": {
+        "zones": [
+          "zone-hell-gd-3"
+        ],
+        "chances": {
+          "zone-hell-gd-3": 0.1
+        },
+        "chance": 0.1
+      }
     },
     {
       "id": "heavy-armour",
@@ -15173,13 +15513,15 @@
       "drop": {
         "zones": [
           "zone-bdd-2",
-          "zone-bdd-4"
+          "zone-bdd-4",
+          "zone-hell-gd-3"
         ],
         "chances": {
           "zone-bdd-2": 0.01,
-          "zone-bdd-4": 0.01
+          "zone-bdd-4": 0.01,
+          "zone-hell-gd-3": 0.1
         },
-        "chance": 0.05
+        "chance": 0.1
       }
     },
     {
@@ -15241,11 +15583,13 @@
       "drop": {
         "zones": [
           "zone-bdd-2",
-          "zone-bdd-4"
+          "zone-bdd-4",
+          "zone-hell-gd-3"
         ],
         "chances": {
           "zone-bdd-2": 0.025,
-          "zone-bdd-4": 0.025
+          "zone-bdd-4": 0.025,
+          "zone-hell-gd-3": 0.05
         },
         "chance": 0.05
       }
@@ -15361,8 +15705,8 @@
           17
         ],
         "mc": [
-          3,
-          11
+          4,
+          15
         ],
         "sc": [
           0,
@@ -15383,7 +15727,16 @@
         "layer": "weapon",
         "index": 36
       },
-      "crystalType": "Weapon"
+      "crystalType": "Weapon",
+      "drop": {
+        "zones": [
+          "zone-hell-gd-3"
+        ],
+        "chances": {
+          "zone-hell-gd-3": 0.05
+        },
+        "chance": 0.05
+      }
     },
     {
       "id": "holy-tao-wheel",
@@ -15442,8 +15795,12 @@
       },
       "crystalType": "Bracelet",
       "drop": {
-        "zones": [],
-        "chances": {},
+        "zones": [
+          "zone-hell-gd-3"
+        ],
+        "chances": {
+          "zone-hell-gd-3": 0.05
+        },
         "chance": 0.05
       }
     },
@@ -16444,7 +16801,16 @@
         "sell": 200
       },
       "crystalType": "Potion",
-      "shape": 3
+      "shape": 3,
+      "drop": {
+        "zones": [
+          "zone-hell-gd-3"
+        ],
+        "chances": {
+          "zone-hell-gd-3": 0.15
+        },
+        "chance": 0.15
+      }
     },
     {
       "id": "impact-drug-m",
@@ -17412,7 +17778,16 @@
         "buy": 12000,
         "sell": 2400
       },
-      "crystalType": "Necklace"
+      "crystalType": "Necklace",
+      "drop": {
+        "zones": [
+          "zone-hell-gd-3"
+        ],
+        "chances": {
+          "zone-hell-gd-3": 0.05
+        },
+        "chance": 0.05
+      }
     },
     {
       "id": "lantern-necklace",
@@ -17749,20 +18124,13 @@
         "zones": [
           "zone-bdd-2",
           "zone-bdd-4",
-          "zone-dead-mines-1",
-          "zone-dead-mines-2"
+          "zone-dead-mines-kr"
         ],
         "chance": 0.025,
         "chances": {
-          "zone-dead-mines-1": 0.003,
-          "zone-dead-mines-2": 0.004,
           "zone-bdd-2": 0.025,
-          "zone-bdd-4": 0.025
-        },
-        "enemyChances": {
-          "118": {
-            "zone-dead-mines-kr": 0.0667
-          }
+          "zone-bdd-4": 0.025,
+          "zone-dead-mines-kr": 0.025
         }
       },
       "crystalType": "Boots"
@@ -18078,11 +18446,11 @@
       "stats": {
         "ac": [
           5,
-          16
+          15
         ],
         "amc": [
-          4,
-          9
+          6,
+          10
         ],
         "dc": [
           0,
@@ -18139,11 +18507,11 @@
       "stats": {
         "ac": [
           5,
-          16
+          15
         ],
         "amc": [
-          4,
-          9
+          6,
+          10
         ],
         "dc": [
           0,
@@ -18461,7 +18829,16 @@
         "sell": 200
       },
       "crystalType": "Potion",
-      "shape": 3
+      "shape": 3,
+      "drop": {
+        "zones": [
+          "zone-hell-gd-3"
+        ],
+        "chances": {
+          "zone-hell-gd-3": 0.15
+        },
+        "chance": 0.15
+      }
     },
     {
       "id": "magic-drug-m",
@@ -21284,11 +21661,13 @@
       "drop": {
         "zones": [
           "zone-bdd-2",
-          "zone-bdd-4"
+          "zone-bdd-4",
+          "zone-hell-gd-3"
         ],
         "chances": {
           "zone-bdd-2": 0.05,
-          "zone-bdd-4": 0.05
+          "zone-bdd-4": 0.05,
+          "zone-hell-gd-3": 0.05
         },
         "chance": 0.05
       }
@@ -21575,12 +21954,12 @@
       "maxStack": 1,
       "stats": {
         "ac": [
-          6,
-          20
+          12,
+          33
         ],
         "amc": [
-          2,
-          10
+          7,
+          13
         ],
         "dc": [
           0,
@@ -21594,8 +21973,8 @@
           0,
           0
         ],
-        "hp": 10,
-        "mp": 10,
+        "hp": 120,
+        "mp": 30,
         "accuracy": 0,
         "agility": 0,
         "luck": 0,
@@ -21636,12 +22015,12 @@
       "maxStack": 1,
       "stats": {
         "ac": [
-          6,
-          20
+          12,
+          33
         ],
         "amc": [
-          2,
-          10
+          7,
+          13
         ],
         "dc": [
           0,
@@ -21655,8 +22034,8 @@
           0,
           0
         ],
-        "hp": 10,
-        "mp": 10,
+        "hp": 120,
+        "mp": 30,
         "accuracy": 0,
         "agility": 0,
         "luck": 0,
@@ -21697,12 +22076,12 @@
       "maxStack": 1,
       "stats": {
         "ac": [
-          6,
-          20
+          12,
+          33
         ],
         "amc": [
-          2,
-          10
+          7,
+          13
         ],
         "dc": [
           0,
@@ -21716,8 +22095,8 @@
           0,
           0
         ],
-        "hp": 10,
-        "mp": 10,
+        "hp": 120,
+        "mp": 30,
         "accuracy": 0,
         "agility": 0,
         "luck": 0,
@@ -21758,12 +22137,12 @@
       "maxStack": 1,
       "stats": {
         "ac": [
-          6,
-          20
+          12,
+          33
         ],
         "amc": [
-          2,
-          10
+          7,
+          13
         ],
         "dc": [
           0,
@@ -21777,8 +22156,8 @@
           0,
           0
         ],
-        "hp": 10,
-        "mp": 10,
+        "hp": 120,
+        "mp": 30,
         "accuracy": 0,
         "agility": 0,
         "luck": 0,
@@ -21819,12 +22198,12 @@
       "maxStack": 1,
       "stats": {
         "ac": [
-          6,
-          20
+          12,
+          33
         ],
         "amc": [
-          2,
-          10
+          7,
+          13
         ],
         "dc": [
           0,
@@ -21838,8 +22217,8 @@
           0,
           0
         ],
-        "hp": 10,
-        "mp": 10,
+        "hp": 120,
+        "mp": 30,
         "accuracy": 0,
         "agility": 0,
         "luck": 0,
@@ -21880,12 +22259,12 @@
       "maxStack": 1,
       "stats": {
         "ac": [
-          6,
-          20
+          12,
+          33
         ],
         "amc": [
-          2,
-          10
+          7,
+          13
         ],
         "dc": [
           0,
@@ -21899,8 +22278,8 @@
           0,
           0
         ],
-        "hp": 10,
-        "mp": 10,
+        "hp": 120,
+        "mp": 30,
         "accuracy": 0,
         "agility": 0,
         "luck": 0,
@@ -21941,12 +22320,12 @@
       "maxStack": 1,
       "stats": {
         "ac": [
-          6,
-          20
+          12,
+          33
         ],
         "amc": [
-          2,
-          10
+          7,
+          13
         ],
         "dc": [
           0,
@@ -21960,8 +22339,8 @@
           0,
           0
         ],
-        "hp": 10,
-        "mp": 10,
+        "hp": 120,
+        "mp": 30,
         "accuracy": 0,
         "agility": 0,
         "luck": 0,
@@ -22034,8 +22413,12 @@
       },
       "crystalType": "Ring",
       "drop": {
-        "zones": [],
-        "chances": {},
+        "zones": [
+          "zone-hell-gd-3"
+        ],
+        "chances": {
+          "zone-hell-gd-3": 0.05
+        },
         "chance": 0.05
       }
     },
@@ -22631,7 +23014,6 @@
       },
       "drop": {
         "zones": [
-          "zone-bone-cave-2",
           "zone-prajna-temple-1",
           "zone-prajna-temple-2",
           "zone-red-cavern-1",
@@ -22640,7 +23022,6 @@
         ],
         "chance": 0.00526,
         "chances": {
-          "zone-bone-cave-2": 0.001,
           "zone-prajna-temple-1": 0.0025,
           "zone-prajna-temple-2": 0.0038,
           "zone-viper-cave-2": 0.00526,
@@ -22705,7 +23086,16 @@
         "buy": 45000,
         "sell": 9000
       },
-      "crystalType": "Ring"
+      "crystalType": "Ring",
+      "drop": {
+        "zones": [
+          "zone-hell-gd-3"
+        ],
+        "chances": {
+          "zone-hell-gd-3": 0.025
+        },
+        "chance": 0.025
+      }
     },
     {
       "id": "poison-ring",
@@ -23047,13 +23437,15 @@
       },
       "drop": {
         "zones": [
+          "zone-hell-gd-3",
           "zone-prajna-temple-1",
           "zone-prajna-temple-2"
         ],
-        "chance": 0.0012,
+        "chance": 0.05,
         "chances": {
           "zone-prajna-temple-1": 0.0008,
-          "zone-prajna-temple-2": 0.0012
+          "zone-prajna-temple-2": 0.0012,
+          "zone-hell-gd-3": 0.05
         }
       },
       "crystalType": "Ring"
@@ -23729,7 +24121,16 @@
         "buy": 25000,
         "sell": 5000
       },
-      "crystalType": "Necklace"
+      "crystalType": "Necklace",
+      "drop": {
+        "zones": [
+          "zone-hell-gd-3"
+        ],
+        "chances": {
+          "zone-hell-gd-3": 0.025
+        },
+        "chance": 0.025
+      }
     },
     {
       "id": "purifier-sword",
@@ -24434,7 +24835,16 @@
         "layer": "armour",
         "index": 13
       },
-      "crystalType": "Armour"
+      "crystalType": "Armour",
+      "drop": {
+        "zones": [
+          "zone-hell-gd-3"
+        ],
+        "chances": {
+          "zone-hell-gd-3": 0.01
+        },
+        "chance": 0.01
+      }
     },
     {
       "id": "red-dark-armour-f",
@@ -24552,7 +24962,16 @@
         "buy": 10000,
         "sell": 2000
       },
-      "crystalType": "Ring"
+      "crystalType": "Ring",
+      "drop": {
+        "zones": [
+          "zone-hell-gd-3"
+        ],
+        "chances": {
+          "zone-hell-gd-3": 0.05
+        },
+        "chance": 0.05
+      }
     },
     {
       "id": "red-moon-sword",
@@ -24743,11 +25162,13 @@
       "drop": {
         "zones": [
           "zone-bdd-2",
-          "zone-bdd-4"
+          "zone-bdd-4",
+          "zone-hell-gd-3"
         ],
         "chances": {
           "zone-bdd-2": 0.025,
-          "zone-bdd-4": 0.025
+          "zone-bdd-4": 0.025,
+          "zone-hell-gd-3": 0.05
         },
         "chance": 0.05
       }
@@ -24990,7 +25411,16 @@
         "buy": 40000,
         "sell": 8000
       },
-      "crystalType": "Helmet"
+      "crystalType": "Helmet",
+      "drop": {
+        "zones": [
+          "zone-hell-gd-3"
+        ],
+        "chances": {
+          "zone-hell-gd-3": 0.05
+        },
+        "chance": 0.05
+      }
     },
     {
       "id": "ruby-ring",
@@ -25049,7 +25479,6 @@
       },
       "drop": {
         "zones": [
-          "zone-bone-cave-2",
           "zone-prajna-temple-1",
           "zone-prajna-temple-2",
           "zone-red-cavern-1",
@@ -25058,7 +25487,6 @@
         ],
         "chance": 0.00526,
         "chances": {
-          "zone-bone-cave-2": 0.001,
           "zone-prajna-temple-1": 0.0025,
           "zone-prajna-temple-2": 0.0038,
           "zone-viper-cave-2": 0.00526,
@@ -25123,7 +25551,16 @@
         "buy": 70000,
         "sell": 14000
       },
-      "crystalType": "Bracelet"
+      "crystalType": "Bracelet",
+      "drop": {
+        "zones": [
+          "zone-hell-gd-3"
+        ],
+        "chances": {
+          "zone-hell-gd-3": 0.025
+        },
+        "chance": 0.025
+      }
     },
     {
       "id": "scimitar",
@@ -26148,22 +26585,12 @@
       "drop": {
         "zones": [
           "zone-wooma-temple-1",
-          "zone-wooma-temple-2",
-          "zone-dead-mines-kr"
+          "zone-wooma-temple-2"
         ],
         "chance": 0.001,
         "chances": {
           "zone-wooma-temple-1": 0.0008,
-          "zone-wooma-temple-2": 0.001,
-          "zone-dead-mines-kr": 0.05
-        },
-        "enemyChances": {
-          "118": {
-            "zone-dead-mines-kr": 0.05
-          },
-          "253": {
-            "zone-wooma-temple-2": 0.00033
-          }
+          "zone-wooma-temple-2": 0.001
         }
       },
       "crystalType": "Boots"
@@ -27079,7 +27506,16 @@
         "buy": 25000,
         "sell": 5000
       },
-      "crystalType": "Necklace"
+      "crystalType": "Necklace",
+      "drop": {
+        "zones": [
+          "zone-hell-gd-3"
+        ],
+        "chances": {
+          "zone-hell-gd-3": 0.025
+        },
+        "chance": 0.025
+      }
     },
     {
       "id": "soul-armour",
@@ -27360,11 +27796,13 @@
       "drop": {
         "zones": [
           "zone-bdd-2",
-          "zone-bdd-4"
+          "zone-bdd-4",
+          "zone-hell-gd-3"
         ],
         "chances": {
           "zone-bdd-2": 0.05,
-          "zone-bdd-4": 0.05
+          "zone-bdd-4": 0.05,
+          "zone-hell-gd-3": 0.05
         },
         "chance": 0.05
       }
@@ -27428,7 +27866,16 @@
         "layer": "weapon",
         "index": 31
       },
-      "crystalType": "Weapon"
+      "crystalType": "Weapon",
+      "drop": {
+        "zones": [
+          "zone-hell-gd-3"
+        ],
+        "chances": {
+          "zone-hell-gd-3": 0.15
+        },
+        "chance": 0.15
+      }
     },
     {
       "id": "soul-spring-bracelet",
@@ -28289,11 +28736,13 @@
       "drop": {
         "zones": [
           "zone-bdd-2",
-          "zone-bdd-4"
+          "zone-bdd-4",
+          "zone-hell-gd-3"
         ],
         "chances": {
           "zone-bdd-2": 0.025,
-          "zone-bdd-4": 0.025
+          "zone-bdd-4": 0.025,
+          "zone-hell-gd-3": 0.05
         },
         "chance": 0.05
       }
@@ -28393,8 +28842,8 @@
           21
         ],
         "mc": [
-          2,
-          12
+          5,
+          16
         ],
         "sc": [
           0,
@@ -28415,7 +28864,16 @@
         "layer": "weapon",
         "index": 39
       },
-      "crystalType": "Weapon"
+      "crystalType": "Weapon",
+      "drop": {
+        "zones": [
+          "zone-hell-gd-3"
+        ],
+        "chances": {
+          "zone-hell-gd-3": 0.01
+        },
+        "chance": 0.01
+      }
     },
     {
       "id": "steel-armour",
@@ -28476,7 +28934,16 @@
         "layer": "armour",
         "index": 6
       },
-      "crystalType": "Armour"
+      "crystalType": "Armour",
+      "drop": {
+        "zones": [
+          "zone-hell-gd-3"
+        ],
+        "chances": {
+          "zone-hell-gd-3": 0.15
+        },
+        "chance": 0.15
+      }
     },
     {
       "id": "steel-armour-f",
@@ -28937,7 +29404,16 @@
         "buy": 20000,
         "sell": 4000
       },
-      "crystalType": "Bracelet"
+      "crystalType": "Bracelet",
+      "drop": {
+        "zones": [
+          "zone-hell-gd-3"
+        ],
+        "chances": {
+          "zone-hell-gd-3": 0.1
+        },
+        "chance": 0.1
+      }
     },
     {
       "id": "steel-glove",
@@ -30090,7 +30566,16 @@
         "layer": "weapon",
         "index": 32
       },
-      "crystalType": "Weapon"
+      "crystalType": "Weapon",
+      "drop": {
+        "zones": [
+          "zone-hell-gd-3"
+        ],
+        "chances": {
+          "zone-hell-gd-3": 0.1
+        },
+        "chance": 0.1
+      }
     },
     {
       "id": "tae-guk-ring",
@@ -30151,13 +30636,15 @@
       "drop": {
         "zones": [
           "zone-bdd-2",
-          "zone-bdd-4"
+          "zone-bdd-4",
+          "zone-hell-gd-3"
         ],
         "chances": {
           "zone-bdd-2": 0.025,
-          "zone-bdd-4": 0.025
+          "zone-bdd-4": 0.025,
+          "zone-hell-gd-3": 0.05
         },
-        "chance": 0.025
+        "chance": 0.05
       }
     },
     {
@@ -30341,11 +30828,13 @@
       "drop": {
         "zones": [
           "zone-bdd-2",
-          "zone-bdd-4"
+          "zone-bdd-4",
+          "zone-hell-gd-3"
         ],
         "chances": {
           "zone-bdd-2": 0.01,
-          "zone-bdd-4": 0.01
+          "zone-bdd-4": 0.01,
+          "zone-hell-gd-3": 0.05
         },
         "chance": 0.05
       }
@@ -30681,7 +31170,16 @@
         "sell": 200
       },
       "crystalType": "Potion",
-      "shape": 3
+      "shape": 3,
+      "drop": {
+        "zones": [
+          "zone-hell-gd-3"
+        ],
+        "chances": {
+          "zone-hell-gd-3": 0.15
+        },
+        "chance": 0.15
+      }
     },
     {
       "id": "taoist-drug-m",
@@ -30849,11 +31347,11 @@
       "stats": {
         "ac": [
           10,
-          28
+          31
         ],
         "amc": [
-          0,
-          5
+          5,
+          10
         ],
         "dc": [
           1,
@@ -30910,12 +31408,12 @@
       "maxStack": 1,
       "stats": {
         "ac": [
-          3,
-          12
+          6,
+          19
         ],
         "amc": [
-          6,
-          9
+          8,
+          13
         ],
         "dc": [
           0,
@@ -30972,12 +31470,12 @@
       "maxStack": 1,
       "stats": {
         "ac": [
-          4,
-          14
+          8,
+          24
         ],
         "amc": [
-          5,
-          8
+          6,
+          11
         ],
         "dc": [
           0,
@@ -31035,11 +31533,11 @@
       "stats": {
         "ac": [
           10,
-          28
+          31
         ],
         "amc": [
-          0,
-          5
+          5,
+          10
         ],
         "dc": [
           1,
@@ -31096,12 +31594,12 @@
       "maxStack": 1,
       "stats": {
         "ac": [
-          3,
-          12
+          6,
+          19
         ],
         "amc": [
-          6,
-          9
+          8,
+          13
         ],
         "dc": [
           0,
@@ -31158,12 +31656,12 @@
       "maxStack": 1,
       "stats": {
         "ac": [
-          4,
-          14
+          8,
+          24
         ],
         "amc": [
-          5,
-          8
+          6,
+          11
         ],
         "dc": [
           0,
@@ -31450,13 +31948,15 @@
       "drop": {
         "zones": [
           "zone-bdd-2",
-          "zone-bdd-4"
+          "zone-bdd-4",
+          "zone-hell-gd-3"
         ],
         "chances": {
           "zone-bdd-2": 0.025,
-          "zone-bdd-4": 0.025
+          "zone-bdd-4": 0.025,
+          "zone-hell-gd-3": 0.05
         },
-        "chance": 0.025
+        "chance": 0.05
       }
     },
     {
@@ -31586,7 +32086,16 @@
         "layer": "armour",
         "index": 8
       },
-      "crystalType": "Armour"
+      "crystalType": "Armour",
+      "drop": {
+        "zones": [
+          "zone-hell-gd-3"
+        ],
+        "chances": {
+          "zone-hell-gd-3": 0.15
+        },
+        "chance": 0.15
+      }
     },
     {
       "id": "titan-armour-f",
@@ -31928,7 +32437,16 @@
         "buy": 12000,
         "sell": 2400
       },
-      "crystalType": "Necklace"
+      "crystalType": "Necklace",
+      "drop": {
+        "zones": [
+          "zone-hell-gd-3"
+        ],
+        "chances": {
+          "zone-hell-gd-3": 0.05
+        },
+        "chance": 0.05
+      }
     },
     {
       "id": "violet-ring",
@@ -32321,11 +32839,13 @@
       "drop": {
         "zones": [
           "zone-bdd-2",
-          "zone-bdd-4"
+          "zone-bdd-4",
+          "zone-hell-gd-3"
         ],
         "chances": {
           "zone-bdd-2": 0.01,
-          "zone-bdd-4": 0.01
+          "zone-bdd-4": 0.01,
+          "zone-hell-gd-3": 0.05
         },
         "chance": 0.05
       }

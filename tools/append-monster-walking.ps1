@@ -1,7 +1,12 @@
 param(
   [string]$DataRoot = "C:\Users\bb-we\Documents\Crystal-master\Next\NextClient\Data",
   [string]$MonsterRoot = "$PSScriptRoot\..\public\monsters\monster",
-  [int]$Direction = 6
+  [int[]]$Indexes = @(247),
+  [int]$Direction = 6,
+  [int]$WalkStart = 32,
+  [int]$WalkCount = 6,
+  [int]$WalkOffset = 6,
+  [int]$WalkInterval = 200
 )
 
 $ErrorActionPreference = "Stop"
@@ -65,29 +70,18 @@ public sealed class PhaseMonsterImage : IDisposable {
 "@
 }
 
-# Crystal MonsterObject.DrawBlend formulas for direction 6 (south-west lane).
-$configs = @(
-  @{
-    Index = 215
-    Label = "Hell Slasher"
-    # Attack1 blend only on frame indices 2-5: (304 + FrameIndex + Direction * 4) - 2
-    SrcFrames = @($null, $null, (304 + 2 + ($Direction * 4) - 2), (304 + 3 + ($Direction * 4) - 2), (304 + 4 + ($Direction * 4) - 2), (304 + 5 + ($Direction * 4) - 2))
-  },
-  @{
-    Index = 217
-    Label = "Hell Cannibal"
-    SrcFrames = @(304, 305, 306, 307, 308, 309)
-  },
-  @{
-    Index = 218
-    Label = "Hell Keeper"
-    # Keeper uses Attack2 blend at 40 + FrameIndex; attack1 has 8 frames in our atlas.
-    SrcFrames = @(40, 41, 42, 43, 44, 45, 46, 47)
-  }
-)
+$utf8NoBom = New-Object System.Text.UTF8Encoding($false)
 
-function Append-AttackBlend($config) {
-  $index = [int]$config.Index
+function Test-WalkingPresent($atlas) {
+  $frames = $atlas.actions.walking.frames
+  if (-not $frames) { return $false }
+  foreach ($frame in $frames) {
+    if (-not $frame.empty -and [int]$frame.w -gt 0) { return $true }
+  }
+  return $false
+}
+
+function Append-Walking($index) {
   $atlasPath = Join-Path $MonsterRoot "$index.json"
   $pngPath = Join-Path $MonsterRoot "$index.png"
   if (-not (Test-Path -LiteralPath $atlasPath)) { throw "Missing atlas: $atlasPath" }
@@ -97,19 +91,9 @@ function Append-AttackBlend($config) {
   if (-not (Test-Path -LiteralPath $library)) { throw "Missing lib: $library" }
 
   $atlas = Get-Content -LiteralPath $atlasPath -Raw | ConvertFrom-Json
-  if ($atlas.actions.attack1Blend) {
-    Write-Host "Skip $($config.Label) ($index): attack1Blend already present"
+  if (Test-WalkingPresent $atlas) {
+    Write-Host "Skip $index : walking already present"
     return
-  }
-
-  $attackCount = @($atlas.actions.attack1.frames).Count
-  if ($attackCount -le 0) { throw "$index has no attack1 frames" }
-
-  $srcFrames = @($config.SrcFrames)
-  if ($srcFrames.Count -lt $attackCount) {
-    $srcFrames = $srcFrames + (@($null) * ($attackCount - $srcFrames.Count))
-  } elseif ($srcFrames.Count -gt $attackCount) {
-    $srcFrames = $srcFrames[0..($attackCount - 1)]
   }
 
   $slotWidth = [int]$atlas.slotWidth
@@ -121,29 +105,17 @@ function Append-AttackBlend($config) {
     }
   }
 
-  $blendFrames = @()
+  $walkFrames = @()
   $lib = [PhaseMonsterLib]::new((Resolve-Path $library))
   try {
-    for ($i = 0; $i -lt $attackCount; $i++) {
-      $src = $srcFrames[$i]
-      if ($null -eq $src) {
-        $blendFrames += [ordered]@{
-          slot = $existingSlots + $i
-          srcFrame = -1
-          w = 0
-          h = 0
-          offsetX = 0
-          offsetY = 0
-          empty = $true
-        }
-        continue
-      }
-      $image = $lib.ReadImage([int]$src)
+    for ($i = 0; $i -lt $WalkCount; $i++) {
+      $srcFrame = $WalkStart + ($Direction * $WalkOffset) + $i
+      $image = $lib.ReadImage($srcFrame)
       if ($null -eq $image) {
-        Write-Warning "$($config.Label) missing blend frame $src (attack frame $i)"
-        $blendFrames += [ordered]@{
+        Write-Warning "$index missing walk frame $srcFrame"
+        $walkFrames += [ordered]@{
           slot = $existingSlots + $i
-          srcFrame = [int]$src
+          srcFrame = $srcFrame
           w = 0
           h = 0
           offsetX = 0
@@ -152,9 +124,11 @@ function Append-AttackBlend($config) {
         }
         continue
       }
-      $blendFrames += [ordered]@{
+      $slotWidth = [Math]::Max($slotWidth, $image.Bitmap.Width)
+      $slotHeight = [Math]::Max($slotHeight, $image.Bitmap.Height)
+      $walkFrames += [ordered]@{
         slot = $existingSlots + $i
-        srcFrame = [int]$src
+        srcFrame = $srcFrame
         w = $image.Bitmap.Width
         h = $image.Bitmap.Height
         offsetX = $image.OffsetX
@@ -167,9 +141,9 @@ function Append-AttackBlend($config) {
     $lib.Dispose()
   }
 
-  if (-not ($blendFrames | Where-Object { -not $_.empty })) {
-    Write-Warning "Skip $($config.Label) ($index): no drawable blend frames"
-    foreach ($frame in $blendFrames) { if ($frame.image) { $frame.image.Dispose() } }
+  if (-not ($walkFrames | Where-Object { -not $_.empty })) {
+    Write-Warning "Skip $index : no drawable walk frames"
+    foreach ($frame in $walkFrames) { if ($frame.image) { $frame.image.Dispose() } }
     return
   }
 
@@ -177,13 +151,13 @@ function Append-AttackBlend($config) {
   $existingCopy = [System.Drawing.Bitmap]::new($existingSheet)
   $existingSheet.Dispose()
   try {
-    $newWidth = $slotWidth * ($existingSlots + $attackCount)
+    $newWidth = $slotWidth * ($existingSlots + $WalkCount)
     $sheet = [System.Drawing.Bitmap]::new($newWidth, $slotHeight, [System.Drawing.Imaging.PixelFormat]::Format32bppArgb)
     $graphics = [System.Drawing.Graphics]::FromImage($sheet)
     try {
       $graphics.Clear([System.Drawing.Color]::Transparent)
       $graphics.DrawImage($existingCopy, 0, 0, $existingCopy.Width, $existingCopy.Height)
-      foreach ($frame in $blendFrames) {
+      foreach ($frame in $walkFrames) {
         if ($null -eq $frame.image) { continue }
         $graphics.DrawImage($frame.image.Bitmap, [int]$frame.slot * $slotWidth, 0, $frame.image.Bitmap.Width, $frame.image.Bitmap.Height)
       }
@@ -200,10 +174,10 @@ function Append-AttackBlend($config) {
     $existingCopy.Dispose()
   }
 
-  $jsonBlendFrames = @()
-  foreach ($frame in $blendFrames) {
+  $jsonWalkFrames = @()
+  foreach ($frame in $walkFrames) {
     if ($frame.empty) {
-      $jsonBlendFrames += [ordered]@{
+      $jsonWalkFrames += [ordered]@{
         slot = $frame.slot
         srcFrame = $frame.srcFrame
         w = 0
@@ -213,7 +187,7 @@ function Append-AttackBlend($config) {
         empty = $true
       }
     } else {
-      $jsonBlendFrames += [ordered]@{
+      $jsonWalkFrames += [ordered]@{
         slot = $frame.slot
         srcFrame = $frame.srcFrame
         w = $frame.w
@@ -229,9 +203,9 @@ function Append-AttackBlend($config) {
   foreach ($prop in $atlas.actions.PSObject.Properties) {
     $actions[$prop.Name] = $prop.Value
   }
-  $actions.attack1Blend = [ordered]@{
-    interval = $atlas.actions.attack1.interval
-    frames = @($jsonBlendFrames)
+  $actions.walking = [ordered]@{
+    interval = $WalkInterval
+    frames = @($jsonWalkFrames)
   }
 
   $output = [ordered]@{
@@ -244,11 +218,10 @@ function Append-AttackBlend($config) {
   }
   if ($atlas.projectile) { $output.projectile = $atlas.projectile }
 
-  $utf8NoBom = New-Object System.Text.UTF8Encoding($false)
   [System.IO.File]::WriteAllText($atlasPath, ($output | ConvertTo-Json -Depth 20 -Compress), $utf8NoBom)
-  Write-Host "Updated $($config.Label) ($index): attack1Blend ($attackCount frames)"
+  Write-Host "Updated $index : walking ($WalkCount frames)"
 }
 
-foreach ($config in $configs) {
-  Append-AttackBlend $config
+foreach ($index in $Indexes) {
+  Append-Walking $index
 }

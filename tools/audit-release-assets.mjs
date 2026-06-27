@@ -68,7 +68,7 @@ for (const item of items.filter((entry) => ["weapon", "armour", "helmet"].includ
 for (const relativePath of findMissingPublicFiles(root, buildUsedSpellfxFiles(root))) {
   issues.push({ category: "spellfx", id: relativePath, detail: "missing packaged spellfx asset" });
 }
-for (const spellId of ["MapLightning"]) {
+for (const spellId of ["MapLightning", "MapHellFire"]) {
   const atlas = loadSpellfxAtlas(root, spellId);
   if (!atlas) {
     issues.push({ category: "spellfx", id: spellId, detail: "missing atlas.json" });

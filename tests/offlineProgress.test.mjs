@@ -199,6 +199,8 @@ test("rollMiningOreItemId / rollMiningOrePurity with injected rng", () => {
   assert.equal(rollMiningOreItemId(drops, 100, () => 0.49), "gold-ore");
   assert.equal(rollMiningOreItemId(drops, 100, () => 0.99), "silver-ore");
   assert.equal(rollMiningOrePurity(() => 0), 1);
+  assert.equal(rollMiningOrePurity(() => 0, 10, 5), 5);
+  assert.equal(rollMiningOrePurity(() => 0.999, 10, 5), 10);
 });
 
 test("simulateOfflineMiningSwings: deterministic hits and inventory full", () => {
@@ -554,6 +556,7 @@ test("nextOfflineTaoistSupportSpellId: respects custom order", () => {
 test("OFFLINE_TAOIST_SUPPORT_SPELL_ORDER: player-tank support priority", () => {
   assert.deepEqual(OFFLINE_TAOIST_SUPPORT_SPELL_ORDER, [
     "Healing",
+    "MassHealing",
     "SoulShield",
     "BlessedArmour",
     "UltimateEnhancer",
@@ -589,8 +592,10 @@ test("offlineTaoistQueuedSpellKind: maps queued spells to handler kinds", () => 
   assert.equal(offlineTaoistQueuedSpellKind("SoulFireBall"), "soulFireBall");
   assert.equal(offlineTaoistQueuedSpellKind("SummonSkeleton"), "summon");
   assert.equal(offlineTaoistQueuedSpellKind("SummonShinsu"), "summon");
+  assert.equal(offlineTaoistQueuedSpellKind("SummonHolyDeva"), "summon");
   assert.equal(offlineTaoistQueuedSpellKind("SoulShield"), "defenceBuff");
   assert.equal(offlineTaoistQueuedSpellKind("BlessedArmour"), "defenceBuff");
+  assert.equal(offlineTaoistQueuedSpellKind("MassHealing"), "massHeal");
   assert.equal(offlineTaoistQueuedSpellKind("Unknown"), null);
 });
 
@@ -606,14 +611,15 @@ test("nextOfflineTaoistAutoSummonId: skeleton before shinsu", () => {
   assert.equal(nextOfflineTaoistAutoSummonId({}), null);
 });
 
-test("OFFLINE_TAOIST_AUTO_SUMMON_ORDER: skeleton then shinsu", () => {
-  assert.deepEqual(OFFLINE_TAOIST_AUTO_SUMMON_ORDER, ["SummonSkeleton", "SummonShinsu"]);
+test("OFFLINE_TAOIST_AUTO_SUMMON_ORDER: skeleton then shinsu then holy deva", () => {
+  assert.deepEqual(OFFLINE_TAOIST_AUTO_SUMMON_ORDER, ["SummonSkeleton", "SummonShinsu", "SummonHolyDeva"]);
 });
 
-test("offlineTaoistSummonPetDelayMs: picks skeleton vs shinsu delay", () => {
-  const delays = { skeletonMs: 1000, shinsuMs: 2000 };
+test("offlineTaoistSummonPetDelayMs: picks skeleton vs shinsu vs holy deva delay", () => {
+  const delays = { skeletonMs: 1000, shinsuMs: 2000, holyDevaMs: 1500 };
   assert.equal(offlineTaoistSummonPetDelayMs("SummonSkeleton", delays), 1000);
   assert.equal(offlineTaoistSummonPetDelayMs("SummonShinsu", delays), 2000);
+  assert.equal(offlineTaoistSummonPetDelayMs("SummonHolyDeva", delays), 1500);
   assert.equal(offlineTaoistSummonPetDelayMs("SoulFireBall", delays), 1000);
 });
 

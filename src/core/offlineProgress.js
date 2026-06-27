@@ -156,10 +156,13 @@ export function rollMiningOreItemId(oreDrops, totalSlots, rng = Math.random, fal
 /**
  * @param {() => number} [rng]
  * @param {number} [maxPurity=10]
+ * @param {number} [minPurity=1]
  */
-export function rollMiningOrePurity(rng = Math.random, maxPurity = 10) {
+export function rollMiningOrePurity(rng = Math.random, maxPurity = 10, minPurity = 1) {
   const cap = Math.max(1, Math.trunc(Number(maxPurity) || 10));
-  return 1 + Math.floor(rng() * cap);
+  const min = Math.max(1, Math.min(cap, Math.trunc(Number(minPurity) || 1)));
+  const span = cap - min + 1;
+  return min + Math.floor(rng() * span);
 }
 
 /**
@@ -281,6 +284,7 @@ export function offlineGroupAverageDamage(attackStat, defenceStat, luck = 0) {
 /** Support buffs/heals before weapon when Taoist is player-tanking offline. */
 export const OFFLINE_TAOIST_SUPPORT_SPELL_ORDER = [
   "Healing",
+  "MassHealing",
   "SoulShield",
   "BlessedArmour",
   "UltimateEnhancer",
@@ -305,7 +309,7 @@ export function nextOfflineTaoistSupportSpellId(availability, order = OFFLINE_TA
  * Maps a queued Taoist combat spell to its offline handler kind.
  *
  * @param {string | null | undefined} spellId
- * @returns {"soulFireBall" | "healing" | "poisoning" | "summon" | "defenceBuff" | "ultimateEnhancer" | null}
+ * @returns {"soulFireBall" | "healing" | "massHeal" | "poisoning" | "summon" | "defenceBuff" | "ultimateEnhancer" | null}
  */
 export function offlineTaoistQueuedSpellKind(spellId) {
   switch (spellId) {
@@ -313,10 +317,13 @@ export function offlineTaoistQueuedSpellKind(spellId) {
       return "soulFireBall";
     case "Healing":
       return "healing";
+    case "MassHealing":
+      return "massHeal";
     case "Poisoning":
       return "poisoning";
     case "SummonSkeleton":
     case "SummonShinsu":
+    case "SummonHolyDeva":
       return "summon";
     case "SoulShield":
     case "BlessedArmour":
@@ -328,8 +335,8 @@ export function offlineTaoistQueuedSpellKind(spellId) {
   }
 }
 
-/** Autocast summon priority during offline catch-up (skeleton before shinsu). */
-export const OFFLINE_TAOIST_AUTO_SUMMON_ORDER = ["SummonSkeleton", "SummonShinsu"];
+/** Autocast summon priority during offline catch-up (skeleton before shinsu before holy deva). */
+export const OFFLINE_TAOIST_AUTO_SUMMON_ORDER = ["SummonSkeleton", "SummonShinsu", "SummonHolyDeva"];
 
 /**
  * @param {Record<string, boolean>} availability spellId -> usable now
@@ -341,9 +348,10 @@ export function nextOfflineTaoistAutoSummonId(availability, order = OFFLINE_TAOI
 
 /**
  * @param {string} spellId
- * @param {{ skeletonMs: number, shinsuMs: number }} delays
+ * @param {{ skeletonMs: number, shinsuMs: number, holyDevaMs?: number }} delays
  */
 export function offlineTaoistSummonPetDelayMs(spellId, delays) {
+  if (spellId === "SummonHolyDeva") return delays.holyDevaMs ?? delays.skeletonMs;
   if (spellId === "SummonShinsu") return delays.shinsuMs;
   return delays.skeletonMs;
 }

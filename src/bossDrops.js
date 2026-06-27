@@ -60,6 +60,19 @@ const BDD_SCORPION_IWT_PREMIUM_DROPS = [
   { id: "wisdom-coronet", chance: 0.01 },
 ];
 
+const BLACK_DRAGON_ARMOR_MYTHICAL_DROPS = [
+  { id: "black-dragon-armor-m-1", chance: 0.005 },
+  { id: "black-dragon-armor-m-2", chance: 0.005 },
+  { id: "black-dragon-armor-m-3", chance: 0.005 },
+];
+
+function crystalArmourDrops(chance) {
+  return [{ id: "crystal-armour", chance }];
+}
+
+const CRYSTAL_ARMOUR_COMMON_BOSS_DROPS = crystalArmourDrops(0.005);
+const CRYSTAL_ARMOUR_RARE_BOSS_DROPS = crystalArmourDrops(0.01);
+
 const KING_HOG_PREMIUM_DROPS = [
   { id: "8-trigram-wheel", chance: 0.05 },
   { id: "adamantine-necklace", chance: 0.05 },
@@ -97,6 +110,8 @@ const WOMA_TAURUS_BOSS_DROPS = {
     { id: "black-iron-bracelet", chance: 0.2 },
     { id: "book-frost-crunch", chance: 0.2 },
     { id: "book-half-moon", chance: 0.1 },
+    { id: "black-boots", chance: 0.05 },
+    ...CRYSTAL_ARMOUR_COMMON_BOSS_DROPS,
     ...bossGemDrops(0.05),
     ...bossOrbDrops(0.01),
   ],
@@ -159,6 +174,9 @@ const EVIL_SNAKE_BOSS_DROPS = {
     { id: "expel-ring", chance: 0.2 },
     { id: "spell-bracelet", chance: 0.2 },
     { id: "black-iron-bracelet", chance: 0.2 },
+    { id: "black-boots", chance: 0.05 },
+    ...CRYSTAL_ARMOUR_COMMON_BOSS_DROPS,
+    ...BLACK_DRAGON_ARMOR_MYTHICAL_DROPS,
     ...bossGemDrops(0.05),
     ...bossOrbDrops(0.01),
   ],
@@ -204,6 +222,8 @@ const ZUMA_TAURUS_BOSS_DROPS = {
     { id: "dragon-slayer", chance: 0.025 },
     { id: "dragon-staff", chance: 0.025 },
     { id: "soul-sabre", chance: 0.025 },
+    ...CRYSTAL_ARMOUR_COMMON_BOSS_DROPS,
+    ...BLACK_DRAGON_ARMOR_MYTHICAL_DROPS,
     ...bossGemDrops(0.05),
     ...bossOrbDrops(0.01),
   ],
@@ -292,6 +312,7 @@ const EVIL_CENTIPEDE_BOSS_DROPS = {
     { id: "dragon-slayer", chance: 0.025 },
     { id: "dragon-staff", chance: 0.025 },
     { id: "soul-sabre", chance: 0.025 },
+    ...CRYSTAL_ARMOUR_COMMON_BOSS_DROPS,
     ...bossGemDrops(0.05),
     ...bossOrbDrops(0.01),
   ],
@@ -338,6 +359,8 @@ const BONE_LORD_BOSS_DROPS = {
     { id: "dragon-slayer", chance: 0.025 },
     { id: "dragon-staff", chance: 0.025 },
     { id: "soul-sabre", chance: 0.025 },
+    ...CRYSTAL_ARMOUR_COMMON_BOSS_DROPS,
+    ...BLACK_DRAGON_ARMOR_MYTHICAL_DROPS,
     ...bossGemDrops(0.05),
     ...bossOrbDrops(0.01),
   ],
@@ -392,6 +415,7 @@ const OMA_KING_SPIRIT_BOSS_DROPS = {
   gold: 35000,
   benedictionOils: 2,
   items: [
+    { id: "book-flame-disruptor", chance: 0.1 },
     { id: "awakening-soul", chance: 0.5 },
     { id: "oma-spirit-ring", chance: 0.2 },
     { id: "oma-king-robe", chance: 0.03 },
@@ -439,6 +463,7 @@ const OMA_KING_SPIRIT_BOSS_DROPS = {
     { id: "impact-drug-m", chance: 0.12 },
     { id: "magic-drug-m", chance: 0.12 },
     { id: "taoist-drug-m", chance: 0.12 },
+    ...CRYSTAL_ARMOUR_RARE_BOSS_DROPS,
     ...bossGemDrops(0.05),
     ...bossOrbDrops(0.01),
   ],
@@ -446,6 +471,7 @@ const OMA_KING_SPIRIT_BOSS_DROPS = {
 const MINOTAUR_KING_BOSS_DROPS = {
   gold: 25000,
   items: [
+    { id: "book-mass-healing", chance: 0.1 },
     { id: "awakening-soul", chance: 0.22 },
     { id: "sword-of-war-god", chance: 0.01 },
     { id: "blade-of-sorcery", chance: 0.01 },
@@ -483,6 +509,8 @@ const MINOTAUR_KING_BOSS_DROPS = {
     { id: "impact-drug-m", chance: 0.12 },
     { id: "magic-drug-m", chance: 0.12 },
     { id: "taoist-drug-m", chance: 0.12 },
+    ...CRYSTAL_ARMOUR_COMMON_BOSS_DROPS,
+    ...BLACK_DRAGON_ARMOR_MYTHICAL_DROPS,
     ...bossGemDrops(0.05),
     ...bossOrbDrops(0.01),
   ],
@@ -568,6 +596,7 @@ const YIMOOGI_BOSS_DROPS = {
     { id: "magic-drug-s", chance: 1 / 60 },
     { id: "impact-drug-s", chance: 1 / 60 },
     { id: "taoist-drug-s", chance: 1 / 60 },
+    ...CRYSTAL_ARMOUR_RARE_BOSS_DROPS,
     ...bossGemDrops(0.06),
     ...bossOrbDrops(0.012),
   ],
@@ -622,6 +651,7 @@ const KING_HOG_BOSS_DROPS = {
     { id: "impact-drug-m", chance: 0.12 },
     { id: "magic-drug-m", chance: 0.12 },
     { id: "taoist-drug-m", chance: 0.12 },
+    ...CRYSTAL_ARMOUR_RARE_BOSS_DROPS,
     ...KING_HOG_PREMIUM_DROPS,
     ...bossGemDrops(0.1),
     ...bossOrbDrops(0.02),
@@ -727,9 +757,19 @@ const DARK_DEVIL_BOSS_DROPS = {
     { id: "impact-drug-m", chance: 0.15 },
     { id: "magic-drug-m", chance: 0.15 },
     { id: "taoist-drug-m", chance: 0.15 },
+    ...CRYSTAL_ARMOUR_RARE_BOSS_DROPS,
     ...KING_HOG_PREMIUM_DROPS,
     ...bossGemDrops(0.12),
     ...bossOrbDrops(0.025),
+  ],
+};
+const HELL_KEEPER_BOSS_DROPS = {
+  gold: 28000,
+  benedictionOils: 2,
+  items: [
+    { id: "awakening-soul", chance: 1 },
+    ...bossGemDrops(0.05),
+    ...bossOrbDrops(0.01),
   ],
 };
 const BOSS_DROP_TABLE_BY_LABEL = {
@@ -748,6 +788,7 @@ const BOSS_DROP_TABLE_BY_LABEL = {
   "Dream Devourer": RED_CAVERN_DEVOURER_BOSS_DROPS,
   "Dark Devourer": RED_CAVERN_DEVOURER_BOSS_DROPS,
   "Dark Devil": DARK_DEVIL_BOSS_DROPS,
+  "Hell Keeper": HELL_KEEPER_BOSS_DROPS,
 };
 
 export function clampChance(value) {
@@ -784,4 +825,8 @@ export function validateBossDropTables(tables, knownItemIds = null) {
   return problems;
 }
 
-export { BOSS_DROP_TABLE_BY_LABEL };
+export {
+  BOSS_DROP_TABLE_BY_LABEL,
+  BOSS_GEM_ITEM_IDS,
+  BOSS_ORB_ITEM_IDS,
+};

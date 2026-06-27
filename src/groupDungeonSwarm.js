@@ -101,6 +101,17 @@ export function swarmSnapTileX(worldX) {
   return Math.round(Number(worldX) / GROUP_DUNGEON_SWARM_TILE_PX) * GROUP_DUNGEON_SWARM_TILE_PX;
 }
 
+export function swarmIsAttackAction(action) {
+  return action === "attack1"
+    || action === "attack2"
+    || action === "attackNorthWest"
+    || action === "attackSouthWest"
+    || action === "attackRange1"
+    || action === "attackRangeNorthWest"
+    || action === "attackRangeSouthWest"
+    || action === "attackRange2";
+}
+
 /** One Crystal cell east of the snapped front-liner — monsters stop on this column. */
 export function swarmMeleeColumnWorldX(frontWorldX) {
   return swarmSnapTileX(frontWorldX) + GROUP_DUNGEON_SWARM_TILE_PX;

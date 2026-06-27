@@ -4,6 +4,85 @@
  */
 
 /**
+ * @param {number} baseChance
+ * @param {number} bonusPercentPoints additive percentage points (e.g. 0.5 = +0.5%)
+ * @returns {number}
+ */
+export function adjustedDropChance(baseChance, bonusPercentPoints = 0) {
+  const base = Math.max(0, Number(baseChance) || 0);
+  const bonus = Math.max(0, Number(bonusPercentPoints) || 0) / 100;
+  return Number(Math.min(1, base + bonus).toFixed(5));
+}
+
+/**
+ * @param {{ item: object, chance: number }[]} candidates
+ * @param {number} bonusPercentPoints
+ * @returns {{ item: object, chance: number }[]}
+ */
+export function applyDropChanceBonus(candidates, bonusPercentPoints = 0) {
+  const bonus = Math.max(0, Number(bonusPercentPoints) || 0);
+  if (!bonus || !candidates?.length) return candidates ?? [];
+  return candidates.map((candidate) => ({
+    ...candidate,
+    chance: adjustedDropChance(candidate.chance, bonus),
+  }));
+}
+
+/**
+ * @param {{ benedictionOils?: number, items?: { id: string, chance: number }[] } | null | undefined} dropTable
+ * @param {number} bonusPercentPoints
+ * @returns {{ benedictionOils?: number, items?: { id: string, chance: number }[] } | null | undefined}
+ */
+export function applyDropChanceBonusToBossTable(dropTable, bonusPercentPoints = 0) {
+  const bonus = Math.max(0, Number(bonusPercentPoints) || 0);
+  if (!dropTable || !bonus) return dropTable;
+  const items = Array.isArray(dropTable.items) ? dropTable.items : [];
+  if (!items.length) return dropTable;
+  return {
+    ...dropTable,
+    items: items.map((entry) => ({
+      ...entry,
+      chance: adjustedDropChance(entry.chance, bonus),
+    })),
+  };
+}
+
+/**
+ * @param {{ items?: { id: string }[] } | null | undefined} dropTable
+ * @param {string} itemId
+ * @returns {boolean}
+ */
+export function bossDropTableHasItem(dropTable, itemId) {
+  return Array.isArray(dropTable?.items)
+    && dropTable.items.some((entry) => entry?.id === itemId);
+}
+
+/**
+ * Independent bonus roll for an extra boss drop (e.g. Awakening Soul).
+ * @param {{ items?: { id: string }[] } | null | undefined} dropTable
+ * @param {string} itemId
+ * @param {number} bonusChancePercent
+ * @param {() => number} [rng]
+ * @param {number} [maxChancePercent=100]
+ * @returns {boolean}
+ */
+export function rollBonusBossDropItem(
+  dropTable,
+  itemId,
+  bonusChancePercent,
+  rng = Math.random,
+  maxChancePercent = 100,
+) {
+  if (!bossDropTableHasItem(dropTable, itemId)) return false;
+  const chance = Math.min(
+    Math.max(0, Number(maxChancePercent) || 0) / 100,
+    Math.max(0, Number(bonusChancePercent) || 0) / 100,
+  );
+  if (chance <= 0) return false;
+  return rng() < chance;
+}
+
+/**
  * @param {{ benedictionOils?: number, items?: { id: string, chance: number }[] } | null | undefined} dropTable
  * @param {() => number} [rng]
  * @returns {{ oilCount: number, itemIds: string[] }}

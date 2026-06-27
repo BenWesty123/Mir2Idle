@@ -390,6 +390,17 @@
       ]
     },
     {
+      "id": "SummonHolyDeva",
+      "layers": [
+        {
+          "file": "Magic",
+          "start": 1500,
+          "count": 10,
+          "totalDurationMs": 600
+        }
+      ]
+    },
+    {
       "id": "UltimateEnhancer",
       "layers": [
         {
