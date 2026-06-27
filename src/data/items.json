@@ -2634,7 +2634,7 @@
       "crystalType": "Weapon",
       "visual": {
         "layer": "weapon",
-        "index": 104
+        "index": 4
       }
     },
     {
@@ -2695,7 +2695,7 @@
       "crystalType": "Weapon",
       "visual": {
         "layer": "weapon",
-        "index": 107
+        "index": 7
       }
     },
     {
@@ -7212,7 +7212,7 @@
       "crystalType": "Weapon",
       "visual": {
         "layer": "weapon",
-        "index": 211
+        "index": 11
       }
     },
     {
@@ -11898,7 +11898,7 @@
       "crystalType": "Weapon",
       "visual": {
         "layer": "weapon",
-        "index": 208
+        "index": 8
       }
     },
     {
@@ -12659,7 +12659,7 @@
       "crystalType": "Weapon",
       "visual": {
         "layer": "weapon",
-        "index": 105
+        "index": 5
       }
     },
     {
@@ -18417,7 +18417,7 @@
       "crystalType": "Weapon",
       "visual": {
         "layer": "weapon",
-        "index": 209
+        "index": 9
       }
     },
     {
@@ -19609,7 +19609,7 @@
       "crystalType": "Weapon",
       "visual": {
         "layer": "weapon",
-        "index": 210
+        "index": 10
       }
     },
     {
@@ -25353,7 +25353,7 @@
       "crystalType": "Weapon",
       "visual": {
         "layer": "weapon",
-        "index": 106
+        "index": 6
       }
     },
     {

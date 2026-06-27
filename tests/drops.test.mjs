@@ -11,6 +11,7 @@ import {
   rollBossTableDropSelection,
   rollChanceTable,
   rollRedThunderZumaDropIds,
+  scaleBossDropTableChances,
   shouldForceDropPity,
   weightedDropCandidate,
 } from "../src/core/drops.js";
@@ -68,6 +69,18 @@ test("applyDropChanceBonusToBossTable: boosts boss item chances only", () => {
   const boosted = applyDropChanceBonusToBossTable(table, 0.5);
   assert.equal(boosted.benedictionOils, 2);
   assert.equal(boosted.items[0].chance, 0.105);
+});
+
+test("scaleBossDropTableChances: doubles item chances capped at 100%", () => {
+  const table = {
+    benedictionOils: 1,
+    items: [{ id: "a", chance: 0.1 }, { id: "b", chance: 0.6 }],
+  };
+  const scaled = scaleBossDropTableChances(table, 2);
+  assert.equal(scaled.benedictionOils, 1);
+  assert.equal(scaled.items[0].chance, 0.2);
+  assert.equal(scaled.items[1].chance, 1);
+  assert.equal(scaleBossDropTableChances(table, 1), table);
 });
 
 test("rollBonusBossDropItem: extra soul roll only on eligible boss tables", () => {

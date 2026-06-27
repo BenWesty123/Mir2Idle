@@ -1,5 +1,52 @@
 # AI Task Log - LOM Idle V2
 
+## 2026-06-27 - Auto (Cursor) - Taller NPC dialogue boxes
+
+### Changed
+- `src/styles.css` — NPC dialog window height 244→317px (+30%), content panel 154→200px; background still stretches via `100% 100%`; refiner panel keeps `height: auto` after the base panel rule.
+
+### Verified
+- CSS-only change.
+
+---
+
+## 2026-06-27 - Auto (Cursor) - Crystal armour paper doll + weapon visual indices
+
+### Changed
+- `public/ui/character/stateitem-597.png`, `stateitems.json`, `stateitems-atlas.*` — exported Crystal Armour paper-doll frame 597 from Stateitem.Lib and rebuilt atlas.
+- `src/data/items.json` — fixed eight Assassin/Archer shop weapons using raw Crystal Shape (104–211) as sprite index; mapped to lib indices 4–11 per Crystal client rules.
+- `tools/lib/item-from-crystal.mjs` — added `weaponVisualIndex()` so future Crystal weapon imports map Shape correctly.
+
+### Verified
+- `node tools/audit-release-assets.mjs` (0 issues). Unit tests pass; offline warrior fixture drift pre-existing.
+
+---
+
+## 2026-06-27 - Auto (Cursor) - Inventory junk/saved marks
+
+### Changed
+- `src/persistence/sanitizeInventory.js` — per-entry `inventoryMark` (`null` | `"junk"` | `"saved"`) persisted on load/save.
+- `src/app.monolith.js` — Space on hovered bag item cycles neutral → junk → saved; red ✕ / green 🔒 overlays; saved items excluded from sell list and smith combine; junk fodder first at smith; Trader James "Sell all junk" bulk sell.
+- `src/styles.css` — mark overlays and trader action button layout.
+- `tests/persistenceInventory.test.mjs` — mark sanitize tests.
+
+### Verified
+- `npm run smoke` (pass). Unit tests pass; offline warrior fixture drift pre-existing (kills 28 vs expected 26).
+
+---
+
+## 2026-06-26 - Auto (Cursor) - Mass Healing FX and AOE targeting fix
+
+### Changed
+- `public/spellfx/MassHealing/` — added Crystal overhead impact layer (Magic 1800, 500ms delay) via `tools/export-mass-healing-spellfx.ps1`.
+- `src/app.monolith.js` — Mass Healing now casts on the Tao only: cast swirl (1790) on caster, AOE burst overhead at Tao on impact; heal applies to all injured allies after delay (not per-ally HealingRestore FX). Boss party uses same pending delay path as solo.
+- `tools/extract-spellfx-east-native.json` — documented impact layer for MassHealing.
+
+### Verified
+- `npm run verify:itch:source`, `npm run smoke`.
+
+---
+
 ## 2026-06-26 - Auto (Cursor) - Summon Holy Deva spell (Taoist)
 
 ### Changed
@@ -1404,6 +1451,83 @@ Use this format:
 - Bumped cache strings to `20260626-achievements`.
 - Verification: `node --check src/app.js`, `node --check src/app.monolith.js`, `node --check src/persistence/restoreAccount.js`, `node tools/smoke-game.mjs "http://localhost:4177/?scene=achievements&v=20260626-achievements"`, targeted Playwright DOM check, and `npm.cmd run verify:itch:source` passed.
 
+## 2026-06-27 - Codex - achievements unlock moved to rebirth
+
+- Moved the 10 Awakening Soul Achievements unlock control from the Achievements window into the rebirth section of Upgrades.
+- Hid Achievements navigation until the permanent account unlock is purchased, including guards against opening the locked window through a scene URL.
+- Simplified the unlocked Achievements window so it only presents permanent progress and achievement entries.
+- Bumped cache strings to `20260627-achievements-rebirth-unlock`.
+- Verification: syntax checks, browser checks for locked navigation/direct URL/rebirth placement/layout fit, smoke test, and `npm.cmd run verify:itch:source` passed with no browser console errors.
+
+## 2026-06-27 - Codex - temporary achievements test access
+
+- Added a single temporary `ACHIEVEMENTS_TEST_ACCESS` flag so the Achievements button, tracking, and rewards can be tested without purchasing the rebirth unlock.
+- Kept the real account purchase flag untouched; the rebirth page labels this state as `Test Access`, so disabling the temporary flag restores the intended 10-soul unlock flow.
+- Bumped cache strings to `20260627-achievements-test-access`.
+
+## 2026-06-27 - Codex - click to claim achievement rewards
+
+- Achievement completion now records an unclaimed reward instead of granting it immediately.
+- Claimable achievements show `Reward Ready`; clicking the achievement grants its reward once to the character that originally achieved it, then changes the row to `Claimed`.
+- Existing rewards previously recorded as claimed remain claimed, avoiding duplicate migration rewards.
+- Bumped cache strings to `20260627-achievement-claim`.
+- Verification: syntax checks and smoke test passed. Browser testing confirmed level 7 awarded no immediate gold, clicking granted exactly 10,000 gold, a second claim was unavailable, and the claimed state persisted after refresh with no console errors.
+
+## 2026-06-27 - Codex - retroactive achievement detection
+
+- Added achievement eligibility checks after loading/offline progress and whenever the Achievements window opens.
+- Existing characters already beyond an achievement requirement now change from `Active` to `Reward Ready` instead of waiting for another level-up event.
+- Bumped cache strings to `20260627-achievement-retroactive`.
+
+## 2026-06-27 - Codex - solo Evil Snake achievement
+
+- Added `Solo kill Evil Snake`, earned by defeating the Stone Tomb KR Evil Snake with exactly one participating character.
+- Summoned pets do not disqualify the attempt; selecting any additional player character does, even if that character dies during the fight.
+- Added a claimable 50,000 gold reward for the character that completed the solo kill.
+- The weaker Evil Snake used in Black Dragon Dungeon cannot trigger this achievement.
+- Bumped cache strings to `20260627-solo-evil-snake-achievement`.
+- Verification: syntax checks, smoke test, and `npm.cmd run verify:itch:source` passed.
+
+## 2026-06-27 - Codex - Achievement reward row layout
+
+### Changed
+- Reset inherited button sizing on reward-ready achievement rows so their full content determines row height.
+- Top-aligned achievement row content to keep claimable and nonclaimable entries visually consistent.
+- Bumped cache strings to `20260627-achievement-row-layout`.
+
+### Checked
+- `node --check src/app.js`, `node --check src/app.monolith.js`, the achievement-scene smoke test, and `npm.cmd run verify:itch:source` passed.
+
+## 2026-06-27 - Codex - Consistent achievement row elements
+
+### Changed
+- Claimable achievements now use the same article row structure as every other achievement instead of switching to a browser button element.
+- Preserved whole-row claiming with mouse, Enter, and Space controls.
+- Bumped cache strings to `20260627-achievement-row-elements`.
+
+### Checked
+- Syntax checks, the achievement-scene smoke test, and `npm.cmd run verify:itch:source` passed.
+
+## 2026-06-27 - Codex - Preserve achievement claim position
+
+### Changed
+- Registered the independently scrolling achievement list with the existing scene scroll-preservation system.
+- Claiming a reward now rebuilds the list at its previous scroll position instead of returning to the first achievement.
+- Bumped cache strings to `20260627-achievement-scroll`.
+
+### Checked
+- Syntax checks, the achievement-scene smoke test, and `npm.cmd run verify:itch:source` passed.
+
+## 2026-06-27 - Codex - achievement milestones and boss rewards
+
+- Added level achievements for levels 22, 33, 40, 43, and 45 with the requested gold and permanent XP rewards.
+- Added boss achievements for Zuma Taurus, Evil Centipede, Bone Lord, Minotaur King, Oma King Spirit, and Yimoogi with the requested Awakening Soul rewards.
+- Claimed achievement XP bonuses are account-wide, stack together, use the shared live/offline XP multiplier, and persist through rebirth with achievement state.
+- Non-solo boss achievements accept any party size and retroactively recognize recorded boss kills. The Evil Snake solo achievement still requires a newly observed one-character victory because old saves do not retain party composition.
+- Awakening Soul rewards are placed in the earning character's inventory; a full bag leaves the reward unclaimed and retryable.
+- Bumped cache strings to `20260627-achievement-milestones`.
+- Verification: syntax checks, smoke test, and `npm.cmd run verify:itch:source` passed.
+
 ## 2026-06-20 - Cursor - Phase 3: offline progress eligibility in core
 
 ### Changed
@@ -1417,3 +1541,18 @@ Use this format:
 
 ### Suggested Next Step
 - Continue Phase 3: extract offline simulation report math, or wire boss-party incoming damage through combat events.
+
+## 2026-06-26 - Cursor - Boss empowerment Phase 1 (unlock + gold gate)
+
+### Changed
+- Enabled rebirth upgrade `boss-empowerment` at **10 Rebirth Points** (removed `planned` lock).
+- Boss entry empower toggle now charges **100,000 gold** on Fight confirm (not on toggle); gold is spent even on death.
+- Sets `state.battle.bossEmpowered` for the fight; boss entry UI shows cost, gold balance, and disables Fight when broke.
+- Updated all boss room locked-hint copy to point at the rebirth upgrade.
+
+### Checked
+- `npm.cmd run smoke` green.
+- Unit tests 173/173 pass; offline warrior fixture pin failed pre-existing (`xp: expected 378, got 375`).
+
+### Suggested Next Step
+- Phase 2: Wooma Taurus empowered stat scaling + separate empowered drop table in `bossDrops.js`.

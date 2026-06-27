@@ -48,6 +48,26 @@ export function applyDropChanceBonusToBossTable(dropTable, bonusPercentPoints = 
 }
 
 /**
+ * Multiplies each boss-table item chance (e.g. empowered fights at 2×).
+ * @param {{ benedictionOils?: number, items?: { id: string, chance: number }[] } | null | undefined} dropTable
+ * @param {number} multiplier
+ * @returns {{ benedictionOils?: number, items?: { id: string, chance: number }[] } | null | undefined}
+ */
+export function scaleBossDropTableChances(dropTable, multiplier = 1) {
+  const scale = Number(multiplier) || 1;
+  if (!dropTable || scale <= 0 || scale === 1) return dropTable;
+  const items = Array.isArray(dropTable.items) ? dropTable.items : [];
+  if (!items.length) return dropTable;
+  return {
+    ...dropTable,
+    items: items.map((entry) => ({
+      ...entry,
+      chance: Number(Math.min(1, Math.max(0, (Number(entry.chance) || 0) * scale)).toFixed(5)),
+    })),
+  };
+}
+
+/**
  * @param {{ items?: { id: string }[] } | null | undefined} dropTable
  * @param {string} itemId
  * @returns {boolean}

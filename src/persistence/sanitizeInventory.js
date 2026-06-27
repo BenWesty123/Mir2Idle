@@ -2,6 +2,7 @@ import {
   sanitizeItemBonusStats,
   sanitizeSmithBonusStats,
 } from "../battleData.js";
+import { sanitizeEmpowerSpellBonuses } from "../core/empoweredItems.js";
 import { sanitizeEntryDurability, sanitizeWeaponRefineLevel } from "./sanitizeCharacter.js";
 
 const SMITH_RANGE_KEYS = ["dc", "mc", "sc", "ac", "amc"];
@@ -10,6 +11,12 @@ const SMITH_SCALAR_KEYS = [
   "poisonAttack", "freezing", "magicResist", "poisonResist",
   "healthRecovery", "poisonRecovery", "strong",
 ];
+
+/** @param {unknown} mark */
+export function sanitizeInventoryMark(mark) {
+  if (mark === "junk" || mark === "saved") return mark;
+  return null;
+}
 
 /**
  * Successful smith-combine count. Accepts legacy `refineLevel` from old saves.
@@ -94,8 +101,13 @@ export function normalizeInventoryEntryFields(savedEntry, item, isStackable) {
     smithLevel: sanitizeSmithLevel(savedEntry),
     weaponRefineLevel: sanitizeWeaponRefineLevel(savedEntry?.weaponRefineLevel),
     gemCount: Math.max(0, Math.trunc(Number(savedEntry?.gemCount) || 0)),
+    empowered: Boolean(savedEntry?.empowered),
+    empowerTier: Math.max(0, Math.min(4, Math.trunc(Number(savedEntry?.empowerTier) || 0))),
     bonusStats,
     smithBonusStats,
+    empowerBonusStats: sanitizeItemBonusStats(savedEntry?.empowerBonusStats),
+    empowerSpellBonuses: sanitizeEmpowerSpellBonuses(savedEntry?.empowerSpellBonuses),
+    inventoryMark: sanitizeInventoryMark(savedEntry?.inventoryMark),
   };
   const dura = sanitizeEntryDurability(savedEntry, item, isStackable);
   if (dura) {

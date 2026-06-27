@@ -17,6 +17,7 @@ import {
   addStats,
   addRange,
   sanitizeItemBonusStats,
+  adjustedKillGold,
 } from "../src/battleData.js";
 
 test("crystalExperienceForLevel: known values and clamping", () => {
@@ -158,6 +159,15 @@ test("addStats accumulates ranges and scalar fields", () => {
   assert.deepEqual(base.mc, [3, 3]);
 });
 
+test("adjustedKillGold applies multiplicative bonus to monster kill gold", () => {
+  assert.equal(adjustedKillGold(0, 100), 0);
+  assert.equal(adjustedKillGold(10, 0), 10);
+  assert.equal(adjustedKillGold(10, 10), 11);
+  assert.equal(adjustedKillGold(100, 50), 150);
+  assert.equal(adjustedKillGold(100, 500), 600);
+  assert.equal(adjustedKillGold(3, 10), 3);
+});
+
 test("sanitizeItemBonusStats coerces to a complete, truncated stat shape", () => {
   const result = sanitizeItemBonusStats({ dc: ["3.9", 5.7], hp: "12.8", bogus: 1 });
   assert.deepEqual(result.dc, [3, 5]);
@@ -166,9 +176,10 @@ test("sanitizeItemBonusStats coerces to a complete, truncated stat shape", () =>
   for (const key of ["dc", "mc", "sc", "ac", "amc"]) {
     assert.ok(Array.isArray(result[key]) && result[key].length === 2);
   }
-  for (const key of ["mp", "accuracy", "agility", "luck", "attackSpeed", "poisonAttack", "freezing", "magicResist", "poisonResist", "healthRecovery", "poisonRecovery", "strong"]) {
+  for (const key of ["mp", "accuracy", "agility", "luck", "attackSpeed", "poisonAttack", "freezing", "magicResist", "poisonResist", "healthRecovery", "poisonRecovery", "strong", "xpBonusPercent", "goldBonusPercent", "bonusAwakeningSoulChancePercent", "dropChanceBonusPercent"]) {
     assert.equal(typeof result[key], "number");
   }
+  assert.equal(sanitizeItemBonusStats({ dropChanceBonusPercent: 0.75 }).dropChanceBonusPercent, 0.75);
   // unknown keys are dropped; garbage input yields a zeroed shape
   assert.equal(result.bogus, undefined);
   const empty = sanitizeItemBonusStats(undefined);

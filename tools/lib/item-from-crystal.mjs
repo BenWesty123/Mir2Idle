@@ -122,6 +122,14 @@ export function isAssassinOrArcherGear(requiredClass) {
   return (mask & 8) !== 0 || (mask & 16) !== 0;
 }
 
+/** Map Crystal weapon Shape to exported sprite-set lib index (CWeapon / AWeapon / ARWeapon). */
+export function weaponVisualIndex(shape) {
+  const n = Number(shape) || 0;
+  if (n >= 200) return n - 200;
+  if (n >= 100) return n - 100;
+  return n;
+}
+
 export function weaponOrArmourFromCrystal(crystal, root, publicIconRoot = path.join(root, "public/item-icons/items")) {
   const frame = Number(crystal.icon?.frame) || 0;
   if (frame) copyItemIcon(root, frame, publicIconRoot);
@@ -147,7 +155,10 @@ export function weaponOrArmourFromCrystal(crystal, root, publicIconRoot = path.j
       buy: Number(crystal.price) || 0,
       sell: Math.max(1, Math.floor((Number(crystal.price) || 0) / 5)),
     },
-    visual: { layer: slot, index: Number(crystal.shape) || 0 },
+    visual: {
+      layer: slot,
+      index: slot === "weapon" ? weaponVisualIndex(crystal.shape) : Number(crystal.shape) || 0,
+    },
     crystalType: crystal.type,
   };
 

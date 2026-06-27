@@ -220,6 +220,10 @@ export function cloneStats(stats) {
     healthRecovery: stats.healthRecovery ?? 0,
     poisonRecovery: stats.poisonRecovery ?? 0,
     strong: stats.strong ?? 0,
+    xpBonusPercent: stats.xpBonusPercent ?? 0,
+    goldBonusPercent: stats.goldBonusPercent ?? 0,
+    dropChanceBonusPercent: stats.dropChanceBonusPercent ?? 0,
+    bonusAwakeningSoulChancePercent: stats.bonusAwakeningSoulChancePercent ?? 0,
   };
 }
 
@@ -238,6 +242,10 @@ export function addStats(target, source) {
   target.healthRecovery += Number(source.healthRecovery) || 0;
   target.poisonRecovery += Number(source.poisonRecovery) || 0;
   target.strong += Number(source.strong) || 0;
+  target.xpBonusPercent += Number(source.xpBonusPercent) || 0;
+  target.goldBonusPercent += Number(source.goldBonusPercent) || 0;
+  target.dropChanceBonusPercent += Number(source.dropChanceBonusPercent) || 0;
+  target.bonusAwakeningSoulChancePercent += Number(source.bonusAwakeningSoulChancePercent) || 0;
 }
 
 export function addRange(target, source) {
@@ -248,6 +256,10 @@ export function addRange(target, source) {
 
 /** Max successful smith duplicate combines (+5). Gems/orbs use bonusStats separately. */
 export const SMITH_COMBINE_STAT_CAP = 5;
+
+function sanitizeBonusPercentPoints(value) {
+  return Number(Math.max(0, Number(value) || 0).toFixed(4));
+}
 
 export function sanitizeItemBonusStats(stats) {
   const bonusStats = {};
@@ -261,13 +273,27 @@ export function sanitizeItemBonusStats(stats) {
   for (const key of ["hp", "mp", "accuracy", "agility", "luck", "attackSpeed"]) {
     bonusStats[key] = Math.trunc(Number(stats?.[key]) || 0);
   }
-  for (const key of ["poisonAttack", "freezing", "magicResist", "poisonResist", "healthRecovery", "poisonRecovery", "strong"]) {
+  for (const key of ["poisonAttack", "freezing", "magicResist", "poisonResist", "healthRecovery", "poisonRecovery", "strong", "xpBonusPercent", "goldBonusPercent", "bonusAwakeningSoulChancePercent"]) {
     bonusStats[key] = Math.trunc(Number(stats?.[key]) || 0);
   }
+  bonusStats.dropChanceBonusPercent = sanitizeBonusPercentPoints(stats?.dropChanceBonusPercent);
   return bonusStats;
 }
 
 /** Smith-combine bonuses only (same shape as bonusStats). */
 export function sanitizeSmithBonusStats(stats) {
   return sanitizeItemBonusStats(stats);
+}
+
+/**
+ * Applies a multiplicative gold bonus from monster kills (e.g. +10% => 1.1×).
+ * @param {number} baseGold
+ * @param {number} bonusPercent additive percent increase (500 => 6× gold)
+ * @returns {number}
+ */
+export function adjustedKillGold(baseGold, bonusPercent = 0) {
+  const base = Math.max(0, Math.trunc(Number(baseGold) || 0));
+  if (base <= 0) return 0;
+  const rate = 1 + Math.max(0, Number(bonusPercent) || 0) / 100;
+  return Math.max(1, Math.round(base * rate));
 }

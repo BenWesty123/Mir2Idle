@@ -374,7 +374,16 @@
           "file": "Magic2",
           "start": 130,
           "count": 6,
-          "totalDurationMs": 600
+          "totalDurationMs": 600,
+          "anchor": "player"
+        },
+        {
+          "file": "Magic2",
+          "start": 140,
+          "count": 10,
+          "totalDurationMs": 600,
+          "anchor": "enemy",
+          "delayMs": 500
         }
       ]
     },
@@ -530,6 +539,14 @@
           "start": 1790,
           "count": 10,
           "totalDurationMs": 600
+        },
+        {
+          "file": "Magic",
+          "start": 1800,
+          "count": 10,
+          "totalDurationMs": 1000,
+          "anchor": "player",
+          "delayMs": 500
         }
       ]
     },

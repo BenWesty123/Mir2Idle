@@ -4411,7 +4411,7 @@ export const PHASE1_ZONES = [
   },
   {
     id: "zone-hell-gd-1",
-    label: "Hell Cavern — Floor 1",
+    label: "Hell Cavern",
     description: "Hell group dungeon — Demon, Slasher, Pirate, Cannibal trash; Hell Bolt and Witch Doctor rare (Crystal HELL01 east corridor)",
     groupDungeon: "hell",
     groupDungeonFloor: 1,

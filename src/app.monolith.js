@@ -20,6 +20,7 @@ import {
   sanitizeItemBonusStats,
   sanitizeSmithBonusStats,
   SMITH_COMBINE_STAT_CAP,
+  adjustedKillGold,
 } from "./battleData.js";
 import { SPELL_GROUPS, bodyActionForSpell, spellLabel } from "./spellBodyActions.js";
 import { loadAtlas, loadJson, missingActions, sheetUrl } from "./atlas.js";
@@ -181,9 +182,23 @@ import {
   rollBossTableDropSelection,
   rollChanceTable,
   rollRedThunderZumaDropIds,
+  scaleBossDropTableChances,
   shouldForceDropPity,
   weightedDropCandidate,
 } from "./core/drops.js";
+import {
+  BOSS_EMPOWER_ITEM_CHANCE,
+  applyEquippedSpellDamageBonus,
+  applyEquippedSpellCooldownReductionMs,
+  applyEquippedSpellHealingBonus,
+  applyEquippedSpellMpCostReduction,
+  empowerItemBonusLines,
+  empoweredItemStarSuffix,
+  empoweredStatLabel,
+  empowerSpellBonusTooltipRows,
+  rollEmpoweredItemDrop,
+  sanitizeEmpowerSpellBonuses,
+} from "./core/empoweredItems.js";
 import { splitPartyRewardAmount } from "./core/party.js";
 import {
   applyIncomingDamageReduction as applyIncomingDamageReductionCore,
@@ -303,6 +318,7 @@ const CODEX_CATEGORY_DEFS = [
   { id: "other", label: "Other" },
 ];
 const ACHIEVEMENT_UNLOCK_SOUL_COST = 10;
+const ACHIEVEMENTS_TEST_ACCESS = false;
 const ACHIEVEMENT_DEFS = [
   {
     id: "reach-level-7",
@@ -311,6 +327,24 @@ const ACHIEVEMENT_DEFS = [
     trigger: { type: "level", level: 7 },
     reward: { gold: 10000 },
   },
+  {
+    id: "solo-kill-evil-snake",
+    label: "Solo kill Evil Snake",
+    summary: "Defeat Evil Snake in Stone Tomb KR using only one character.",
+    trigger: { type: "bossKill", zoneId: "zone-stone-temple-kr", solo: true },
+    reward: { gold: 50000 },
+  },
+  { id: "reach-level-22", label: "Reach level 22", summary: "Reach level 22 on any character.", trigger: { type: "level", level: 22 }, reward: { gold: 20000 } },
+  { id: "reach-level-33", label: "Reach level 33", summary: "Reach level 33 on any character.", trigger: { type: "level", level: 33 }, reward: { gold: 30000 } },
+  { id: "reach-level-40", label: "Reach level 40", summary: "Reach level 40 on any character.", trigger: { type: "level", level: 40 }, reward: { gold: 50000 } },
+  { id: "reach-level-43", label: "Reach level 43", summary: "Reach level 43 on any character.", trigger: { type: "level", level: 43 }, reward: { xpBonusPercent: 1 } },
+  { id: "reach-level-45", label: "Reach level 45", summary: "Reach level 45 on any character.", trigger: { type: "level", level: 45 }, reward: { xpBonusPercent: 1 } },
+  { id: "kill-zuma-taurus", label: "Kill Zuma Taurus", summary: "Defeat Zuma Taurus in Zuma Temple KR.", trigger: { type: "bossKill", zoneId: "zone-zuma-temple-kr" }, reward: { itemId: "awakening-soul", quantity: 2 } },
+  { id: "kill-evil-centipede", label: "Kill Evil Centipede", summary: "Defeat Evil Centipede in Bug Cave KR.", trigger: { type: "bossKill", zoneId: "zone-bug-cave-kr" }, reward: { itemId: "awakening-soul", quantity: 1 } },
+  { id: "kill-bone-lord", label: "Kill Bone Lord", summary: "Defeat Bone Lord in Prajna Cave KR.", trigger: { type: "bossKill", zoneId: "zone-prajna-cave-kr" }, reward: { itemId: "awakening-soul", quantity: 1 } },
+  { id: "kill-minotaur-king", label: "Kill Minotaur King", summary: "Defeat Minotaur King in Prajna Temple KR.", trigger: { type: "bossKill", zoneId: "zone-prajna-temple-kr" }, reward: { itemId: "awakening-soul", quantity: 2 } },
+  { id: "kill-oma-king-spirit", label: "Kill Oma King Spirit", summary: "Defeat Oma King Spirit in Kings Tomb.", trigger: { type: "bossKill", zoneId: "zone-kings-tomb" }, reward: { itemId: "awakening-soul", quantity: 5 } },
+  { id: "kill-yimoogi", label: "Kill Yimoogi", summary: "Defeat Yimoogi in Viper Cave KR.", trigger: { type: "bossKill", zoneId: "zone-viper-cave-kr" }, reward: { itemId: "awakening-soul", quantity: 5 } },
 ];
 const HOTBAR_SLOT_COUNT = 6;
 const BASE_AUTOCAST_SLOTS = 1;
@@ -408,6 +442,18 @@ const ACCOUNT_UPGRADE_DEFS = [
     value: 10,
     rebirthCostFn: "linear",
     summary: "Increases XP gained by 10% per purchase.",
+  },
+  {
+    id: "rebirth-gold",
+    label: "Gold Blessing",
+    section: "rebirth",
+    category: "utility",
+    currency: "rebirthPoints",
+    effect: "goldBonusPercent",
+    value: 10,
+    maxTier: 50,
+    rebirthCostFn: "linear",
+    summary: "Increases gold from monster kills by 10% per purchase (max 500% at 50 tiers).",
   },
   {
     id: "rebirth-drop-chance",
@@ -619,12 +665,8 @@ const ACCOUNT_UPGRADE_DEFS = [
     currency: "rebirthPoints",
     effect: "bossEmpowerment",
     value: 1,
-    rebirthCosts: [1],
-    planned: true,
-    progressText: "Locked",
-    requirementText: "Not available yet",
-    sourceHint: "Coming in a future update",
-    summary: "Unlock empowered boss fights for improved drops.",
+    rebirthCosts: [10],
+    summary: "Unlock empowered boss fights. Each attempt costs 100,000 gold for improved drops.",
   },
 ];
 const REBIRTH_BASE_STAT_UPGRADE_IDS = [
@@ -639,90 +681,110 @@ const REBIRTH_BASE_STAT_UPGRADE_IDS = [
 const ACCOUNT_UPGRADE_PREVIEW_DEFS = [];
 const BOSS_RESPAWN_MINUTES_STANDARD = 30;
 const BOSS_RESPAWN_MINUTES_ELITE = 60;
+const BOSS_EMPOWER_GOLD_COST = 100_000;
+const BOSS_EMPOWER_DROP_RATE_MULTIPLIER = 2;
+/** Set false before release — skips the rebirth upgrade gate for local testing. */
+const BOSS_EMPOWER_SKIP_REBIRTH_UNLOCK = false;
+/** Set null before release — overrides equippable empower roll chance (default 10%). */
+const BOSS_EMPOWER_ITEM_CHANCE_DEV = null;
+const BOSS_EMPOWER_UNLOCK_HINT = "Unlock Boss Empowerment (10 Rebirth Points) in Rebirth upgrades.";
+/** Boss rooms where empowered fights are implemented (others show Coming soon). */
+const BOSS_EMPOWER_AVAILABLE_ZONE_IDS = new Set([
+  "zone-wooma-temple-kr",
+  "zone-stone-temple-kr",
+]);
+/** Per-boss empowered fight tuning (shared combat modifiers; expand boss list in supportsEmpoweredBossCombat). */
+const EMPOWERED_BOSS_HP_MULTIPLIER = 2;
+const EMPOWERED_BOSS_DAMAGE_MULTIPLIER = 1.5;
+const EMPOWERED_BOSS_ENRAGE = {
+  enrageHpStages: [0.7, 0.4, 0.15],
+  enrageDurationMs: 8000,
+  enrageAttackMs: 600,
+};
 const BOSS_ROOM_DEFS = {
   "zone-wooma-temple-kr": {
     bossName: "Wooma Taurus",
     respawnMinutes: BOSS_RESPAWN_MINUTES_STANDARD,
     unlockHint: "Select saved characters to call into the fight.",
     empowerLabel: "Empower Wooma Taurus for better drops",
-    empowerRequirement: "Boss Empowerment is not available yet.",
+    empowerRequirement: BOSS_EMPOWER_UNLOCK_HINT,
   },
   "zone-bug-cave-kr": {
     bossName: "Evil Centipede",
     respawnMinutes: BOSS_RESPAWN_MINUTES_ELITE,
     unlockHint: "Select saved characters to call into the fight.",
     empowerLabel: "Empower Evil Centipede for better drops",
-    empowerRequirement: "Boss Empowerment is not available yet.",
+    empowerRequirement: BOSS_EMPOWER_UNLOCK_HINT,
   },
   "zone-stone-temple-kr": {
     bossName: "Evil Snake",
     respawnMinutes: BOSS_RESPAWN_MINUTES_STANDARD,
     unlockHint: "Select saved characters to call into the fight.",
     empowerLabel: "Empower Evil Snake for better drops",
-    empowerRequirement: "Boss Empowerment is not available yet.",
+    empowerRequirement: BOSS_EMPOWER_UNLOCK_HINT,
   },
   "zone-zuma-temple-kr": {
     bossName: "Zuma Taurus",
     respawnMinutes: BOSS_RESPAWN_MINUTES_ELITE,
     unlockHint: "Select saved characters to call into the fight.",
     empowerLabel: "Empower Zuma Taurus for better drops",
-    empowerRequirement: "Boss Empowerment is not available yet.",
+    empowerRequirement: BOSS_EMPOWER_UNLOCK_HINT,
   },
   "zone-viper-cave-kr": {
     bossName: "Yimoogi",
     respawnMinutes: BOSS_RESPAWN_MINUTES_ELITE,
     unlockHint: "Select saved characters to call into the fight.",
     empowerLabel: "Empower Yimoogi for better drops",
-    empowerRequirement: "Boss Empowerment is not available yet.",
+    empowerRequirement: BOSS_EMPOWER_UNLOCK_HINT,
   },
   "zone-prajna-cave-kr": {
     bossName: "Bone Lord",
     respawnMinutes: BOSS_RESPAWN_MINUTES_ELITE,
     unlockHint: "Select saved characters to call into the fight.",
     empowerLabel: "Empower Bone Lord for better drops",
-    empowerRequirement: "Boss Empowerment is not available yet.",
+    empowerRequirement: BOSS_EMPOWER_UNLOCK_HINT,
   },
   "zone-prajna-temple-kr": {
     bossName: "Minotaur King",
     respawnMinutes: BOSS_RESPAWN_MINUTES_ELITE,
     unlockHint: "Select saved characters to call into the fight.",
     empowerLabel: "Empower Minotaur King for better drops",
-    empowerRequirement: "Boss Empowerment is not available yet.",
+    empowerRequirement: BOSS_EMPOWER_UNLOCK_HINT,
   },
   "zone-red-cavern-kr": {
     bossName: "Dream and Dark Devourer",
     respawnMinutes: BOSS_RESPAWN_MINUTES_STANDARD,
     unlockHint: "Select saved characters to call into the fight.",
     empowerLabel: "Empower the Devourers for better drops",
-    empowerRequirement: "Boss Empowerment is not available yet.",
+    empowerRequirement: BOSS_EMPOWER_UNLOCK_HINT,
   },
   "zone-flame-queen-kr": {
     bossName: "Flame Queen",
     respawnMinutes: BOSS_RESPAWN_MINUTES_ELITE,
     unlockHint: "Select saved characters to call into the fight.",
     empowerLabel: "Empower Flame Queen for better drops",
-    empowerRequirement: "Boss Empowerment is not available yet.",
+    empowerRequirement: BOSS_EMPOWER_UNLOCK_HINT,
   },
   "zone-flaming-mutant-kr": {
     bossName: "Flaming Mutant",
     respawnMinutes: BOSS_RESPAWN_MINUTES_ELITE,
     unlockHint: "Select saved characters to call into the fight.",
     empowerLabel: "Empower Flaming Mutant for better drops",
-    empowerRequirement: "Boss Empowerment is not available yet.",
+    empowerRequirement: BOSS_EMPOWER_UNLOCK_HINT,
   },
   "zone-scaly-beast-kr": {
     bossName: "Scaly Beast",
     respawnMinutes: BOSS_RESPAWN_MINUTES_ELITE,
     unlockHint: "Select saved characters to call into the fight.",
     empowerLabel: "Empower Scaly Beast for better drops",
-    empowerRequirement: "Boss Empowerment is not available yet.",
+    empowerRequirement: BOSS_EMPOWER_UNLOCK_HINT,
   },
   "zone-kings-tomb": {
     bossName: "Oma King Spirit",
     respawnMinutes: 120,
     unlockHint: "Select saved characters to call into the fight.",
     empowerLabel: "Empower Oma King Spirit for better drops",
-    empowerRequirement: "Boss Empowerment is not available yet.",
+    empowerRequirement: BOSS_EMPOWER_UNLOCK_HINT,
   },
 };
 const BOSS_ASSIST_OPTIONS = [
@@ -916,6 +978,7 @@ const BOSS_PARTY_CATCHUP_MAX_STEPS = 12000;
 const OFFLINE_PROGRESS_CAP_MS = 8 * 60 * 60 * 1000;
 const OFFLINE_PROGRESS_MIN_MS = 30 * 1000;
 const COMBAT_STANCE_HOLD_MS = 1000;
+let lastCombatEquipmentLockAt = 0;
 // Taoist support/queue polling — must not shorten weapon swing cooldown.
 const TAOIST_COMBAT_POLL_MS = 250;
 const BENEDICTION_OIL_ITEM_ID = "benediction-oil";
@@ -1233,26 +1296,6 @@ const TELEPORT_REGIONS = [
       "zone-red-cavern-2",
       "zone-red-cavern-kr",
       "zone-hell-gd-1",
-      "zone-hell-gd-2",
-      "zone-hell-gd-3",
-    ],
-  },
-  {
-    id: "extended-boss-lab",
-    label: "Extended Boss Lab",
-    zoneIds: [
-      "zone-lab-stone-colossus",
-      "zone-lab-overseer",
-      "zone-lab-halberd-lord",
-      "zone-lab-white-boar",
-      "zone-lab-witch-doctor",
-      "zone-lab-hell-keeper",
-      "zone-lab-cave-witch",
-      "zone-lab-manectric-king",
-      "zone-lab-hell-lord",
-      "zone-flame-queen-kr",
-      "zone-flaming-mutant-kr",
-      "zone-scaly-beast-kr",
     ],
   },
 ];
@@ -1468,7 +1511,8 @@ function offlineGroupAwardKill(zone, enemy, now, report) {
   const goldPerShare = splitPartyRewardAmount(totalGold, shareCount);
   for (const member of recipients) {
     const xp = adjustedKillExperience(xpPerShare, member.game.progress.level, enemy.level ?? 0, member.inventory);
-    offlineGroupApplyMemberReward(member, xp, goldPerShare, enemy, now);
+    const gold = adjustedKillGold(goldPerShare, totalGoldBonusPercent(member.inventory));
+    offlineGroupApplyMemberReward(member, xp, gold, enemy, now);
   }
 }
 
@@ -1917,6 +1961,10 @@ const ALCHEMIST_STOCK_IDS = [
   "taoist-amulet",
 ];
 
+function alchemistShopBuyPrice(item, quantity = 1) {
+  return itemBuyValue(item, quantity);
+}
+
 const COMBAT_CLASSES = [
   { id: "Warrior", label: "Warrior" },
   { id: "Wizard", label: "Wizard" },
@@ -2058,9 +2106,10 @@ const WIZARD_COMBAT_SPELL_META = {
     impactDelayMs: 500,
   },
   FlameDisruptor: {
-    effectAnchor: "enemy",
+    effectAnchor: "player",
     impactMode: "target",
     impactDelayMs: 500,
+    targetFxAnchor: "feet",
   },
   MagicShield: {
     effectAnchor: "player",
@@ -2235,6 +2284,7 @@ const state = {
   bossEntryFromGroupDungeonAdvance: false,
   bossAssistSelection: [],
   bossEmpowerSelected: false,
+  pendingBossEmpowered: false,
   pendingBossAssistSelection: [],
   teleportRegionId: DEFAULT_TELEPORT_REGION_ID,
   teleportBrowseRegionId: null,
@@ -2374,11 +2424,13 @@ const state = {
     pendingUltimateEnhancer: null,
     healFx: [],
     defenceBuffFx: [],
+    massHealFx: [],
     pendingTaoPet: null,
     petStatBuffs: [],
     taoPet: null,
     taoPetDiedThisFight: false,
     bossParty: null,
+    bossEmpowered: false,
     lockedArenaWorldX: null,
     lockedCameraX: null,
     groundSpellEffects: [],
@@ -2442,6 +2494,7 @@ const sceneScrollPositions = new Map();
 let combatSkillBarSignature = "";
 let playerHudSignature = "";
 let hotbarSignature = "";
+let hoveredTooltipEntryId = null;
 let partySwitchBarSignature = "";
 let lastSimulationAt = performance.now();
 let lastRenderAt = 0;
@@ -2560,7 +2613,7 @@ function gameShellHtml() {
         <button type="button" data-open-scene="character">Character</button>
         <button type="button" data-open-scene="inventory">Inventory</button>
         <button type="button" data-open-scene="codex">Codex</button>
-        <button type="button" data-open-scene="achievements">Achievements</button>
+        <button type="button" data-open-scene="achievements" data-achievements-nav hidden>Achievements</button>
         <button type="button" data-open-scene="upgrades">Upgrades</button>
         <button type="button" data-open-scene="characterSelect">Characters</button>
         <button type="button" data-open-scene="gettingStarted">Guide</button>
@@ -2708,6 +2761,7 @@ async function init() {
   }
   resetBattleForCurrentMode(loadedSave);
   applyPendingOfflineProgress();
+  checkAchievementsForCurrentCharacter();
 
   renderLayerControls();
   renderEnemyControls();
@@ -3550,6 +3604,10 @@ function ensureAccountAchievements() {
 }
 
 function achievementsEnabled() {
+  return ACHIEVEMENTS_TEST_ACCESS || ensureAccountAchievements().enabled === true;
+}
+
+function achievementsPurchased() {
   return ensureAccountAchievements().enabled === true;
 }
 
@@ -3573,6 +3631,7 @@ function unlockAchievementsFeature() {
   sceneSignature = "";
   gamePanelSignature = "";
   battlePanelSignature = "";
+  syncAchievementsNavigation();
   renderSceneOverlay();
   renderGamePanel();
   renderBattlePanel();
@@ -3581,25 +3640,136 @@ function unlockAchievementsFeature() {
   return true;
 }
 
-function unlockAchievement(def) {
+function unlockAchievement(def, options = {}) {
   if (!def || achievementUnlocked(def.id)) return false;
+  const characterId = normalizeCharacterId(options.characterId ?? state.activeCharacterId);
   const achievements = ensureAccountAchievements();
   achievements.unlocked[def.id] = {
     id: def.id,
     unlockedAt: Date.now(),
-    characterId: state.activeCharacterId,
-    rewardClaimed: true,
+    characterId,
+    rewardClaimed: false,
   };
-  const gold = Math.max(0, Math.trunc(Number(def.reward?.gold) || 0));
-  if (gold > 0) {
-    state.inventory.gold += gold;
-    state.game.progress.gold = state.inventory.gold;
-    state.battle.gold = state.inventory.gold;
-  }
   addLootNotice(`Achievement Unlocked: ${def.label}`, "level");
-  if (gold > 0) addLootNotice(`+${gold.toLocaleString()} gold`, "gold");
-  pushBattleLog(`Achievement Unlocked: ${def.label}${gold > 0 ? ` (+${gold.toLocaleString()} gold)` : ""}.`);
+  pushBattleLog(`Achievement Unlocked: ${def.label}. Claim its reward from Achievements.`);
   playSfx("level.up", { volume: 0.65, throttleMs: 500 });
+  sceneSignature = "";
+  gamePanelSignature = "";
+  battlePanelSignature = "";
+  playerHudSignature = "";
+  renderSceneOverlay();
+  renderGamePanel();
+  renderBattlePanel();
+  renderPlayerResourceHud();
+  saveGameState(true);
+  return true;
+}
+
+function achievementRewardLabel(def) {
+  const gold = Math.max(0, Math.trunc(Number(def?.reward?.gold) || 0));
+  if (gold > 0) return `${gold.toLocaleString()} gold`;
+  const xpBonus = Math.max(0, Number(def?.reward?.xpBonusPercent) || 0);
+  if (xpBonus > 0) return `Permanent +${xpBonus}% XP`;
+  const quantity = Math.max(0, Math.trunc(Number(def?.reward?.quantity) || 0));
+  const item = itemDefinition(def?.reward?.itemId);
+  if (item && quantity > 0) return `${quantity} ${item.name}${quantity === 1 ? "" : "s"}`;
+  return "No reward";
+}
+
+function inventoryStateCapacityForItem(inventory, item) {
+  if (!inventory || !item) return 0;
+  syncInventoryCapacity(inventory);
+  const maxStack = maxItemStack(item);
+  const partialSpace = isStackableItem(item)
+    ? (inventory.items ?? [])
+      .filter((entry) => entry.itemId === item.id)
+      .reduce((sum, entry) => sum + Math.max(0, maxStack - Math.max(1, Math.trunc(Number(entry.quantity) || 1))), 0)
+    : 0;
+  const usedSlots = new Set((inventory.items ?? [])
+    .map((entry) => entry.slot)
+    .filter((slot) => Number.isInteger(slot) && slot >= 0 && slot < inventory.maxSlots)).size;
+  const freeSlots = Math.max(0, inventory.maxSlots - usedSlots);
+  return partialSpace + freeSlots * (isStackableItem(item) ? maxStack : 1);
+}
+
+function addItemQuantityToInventoryState(inventory, itemId, quantity) {
+  const item = itemDefinition(itemId);
+  if (!inventory || !item) return 0;
+  let remaining = Math.max(0, Math.trunc(Number(quantity) || 0));
+  let added = 0;
+  const maxStack = maxItemStack(item);
+  while (remaining > 0) {
+    if (isStackableItem(item)) {
+      const existing = (inventory.items ?? []).find((entry) => entry.itemId === itemId && entry.quantity < maxStack);
+      if (existing) {
+        const amount = Math.min(remaining, maxStack - existing.quantity);
+        existing.quantity += amount;
+        remaining -= amount;
+        added += amount;
+        continue;
+      }
+    }
+    const slot = nextFreeSlotInInventoryState(inventory);
+    if (!Number.isInteger(slot)) break;
+    const amount = isStackableItem(item) ? Math.min(remaining, maxStack) : 1;
+    inventory.items.push({
+      id: `item-${inventory.nextInstanceId}`,
+      itemId,
+      quantity: amount,
+      slot,
+      ...normalizeInventoryEntryFields({}, item),
+    });
+    inventory.nextInstanceId += 1;
+    remaining -= amount;
+    added += amount;
+  }
+  return added;
+}
+
+function claimAchievementReward(achievementId) {
+  const def = ACHIEVEMENT_DEFS.find((entry) => entry.id === achievementId);
+  const achievements = ensureAccountAchievements();
+  const record = achievements.unlocked?.[achievementId];
+  if (!def || !record || record.rewardClaimed === true) return false;
+
+  const characterId = normalizeCharacterId(record.characterId);
+  const gold = Math.max(0, Math.trunc(Number(def.reward?.gold) || 0));
+  const itemId = String(def.reward?.itemId ?? "");
+  const itemQuantity = Math.max(0, Math.trunc(Number(def.reward?.quantity) || 0));
+  captureActiveCharacterState();
+  const character = state.characters[characterId];
+  if (!character) return false;
+  const targetInventory = characterId === state.activeCharacterId ? state.inventory : character.inventory;
+
+  if (itemId && itemQuantity > 0) {
+    const item = itemDefinition(itemId);
+    if (!item || inventoryStateCapacityForItem(targetInventory, item) < itemQuantity) {
+      pushBattleLog(`Need inventory space on ${characterId} to claim ${def.label}.`);
+      addLootNotice(`${characterId} inventory full`, "full");
+      battlePanelSignature = "";
+      renderBattlePanel();
+      return false;
+    }
+    if (addItemQuantityToInventoryState(targetInventory, itemId, itemQuantity) !== itemQuantity) return false;
+  }
+
+  if (gold > 0) {
+    targetInventory.gold = Math.max(0, Math.trunc(Number(targetInventory.gold) || 0)) + gold;
+    character.inventory.gold = targetInventory.gold;
+    character.game.progress.gold = targetInventory.gold;
+    if (characterId === state.activeCharacterId) {
+      state.inventory.gold = targetInventory.gold;
+      state.game.progress.gold = targetInventory.gold;
+      state.battle.gold = targetInventory.gold;
+    }
+  }
+  record.rewardClaimed = true;
+  addLootNotice(`Achievement Reward: ${def.label}`, "level");
+  if (gold > 0) addLootNotice(`+${gold.toLocaleString()} gold for ${characterId}`, "gold");
+  if (itemId && itemQuantity > 0) addLootNotice(`+${achievementRewardLabel(def)} for ${characterId}`, "item");
+  if (Number(def.reward?.xpBonusPercent) > 0) addLootNotice(achievementRewardLabel(def), "level");
+  pushBattleLog(`Claimed ${def.label}: ${achievementRewardLabel(def)} for ${characterId}.`);
+  playSfx("ui.gold", { volume: 0.6, throttleMs: 120 });
   sceneSignature = "";
   gamePanelSignature = "";
   battlePanelSignature = "";
@@ -3614,11 +3784,43 @@ function unlockAchievement(def) {
 
 function checkAchievementsForCurrentCharacter() {
   if (!achievementsEnabled()) return;
+  checkLevelAchievements(state.game.progress.level, state.activeCharacterId);
   for (const def of ACHIEVEMENT_DEFS) {
     if (achievementUnlocked(def.id)) continue;
-    const targetLevel = Math.max(1, Math.trunc(Number(def.trigger?.level) || 1));
-    if (def.trigger?.type === "level" && state.game.progress.level >= targetLevel) unlockAchievement(def);
+    if (def.trigger?.type === "bossKill" && !def.trigger.solo && bossKillCount(def.trigger.zoneId) > 0) unlockAchievement(def);
   }
+}
+
+function checkLevelAchievements(level, characterId = state.activeCharacterId) {
+  if (!achievementsEnabled()) return false;
+  const reachedLevel = Math.max(1, Math.trunc(Number(level) || 1));
+  let unlocked = false;
+  for (const def of ACHIEVEMENT_DEFS) {
+    if (achievementUnlocked(def.id) || def.trigger?.type !== "level") continue;
+    const targetLevel = Math.max(1, Math.trunc(Number(def.trigger.level) || 1));
+    if (reachedLevel < targetLevel) continue;
+    unlocked = unlockAchievement(def, { characterId }) || unlocked;
+  }
+  return unlocked;
+}
+
+function checkBossKillAchievements(zoneId, participantClassIds = []) {
+  if (!achievementsEnabled()) return false;
+  const participants = [...new Set(
+    participantClassIds
+      .map((classId) => normalizeCharacterId(classId))
+      .filter(Boolean),
+  )];
+  if (!participants.length) return false;
+  let unlocked = false;
+  for (const def of ACHIEVEMENT_DEFS) {
+    if (achievementUnlocked(def.id)) continue;
+    if (def.trigger?.type !== "bossKill" || def.trigger.zoneId !== zoneId) continue;
+    if (def.trigger.solo && participants.length !== 1) continue;
+    const characterId = def.trigger.solo ? participants[0] : state.activeCharacterId;
+    unlocked = unlockAchievement(def, { characterId }) || unlocked;
+  }
+  return unlocked;
 }
 
 function deductItemQuantityFromInventoryState(inventory, itemId, quantity) {
@@ -5075,7 +5277,10 @@ function offlineEnemyAttack(enemy, now, report) {
 function awardOfflineEnemyRewards(zone, enemy, report) {
   const reward = zone?.rewards ?? { gold: [1, 2] };
   const xp = adjustedKillExperience(enemy?.experience ?? 0, state.game.progress.level, enemy?.level ?? 0);
-  const gold = randomInt(reward.gold[0], reward.gold[1]);
+  const gold = adjustedKillGold(
+    randomInt(reward.gold[0], reward.gold[1]),
+    totalGoldBonusPercent(),
+  );
   const drops = isRedThunderZumaEnemy(enemy)
     ? rollRedThunderZumaDrops()
     : rollZoneDrops(zone, enemy);
@@ -5098,7 +5303,7 @@ function awardOfflineEnemyRewards(zone, enemy, report) {
     xp,
     gold,
     levels: leveledTo,
-    addedDropLabels: drops.added.map((item) => item.name),
+    addedDropLabels: drops.added.map((drop) => dropResultLabel(drop)),
     ignoredDropLabels: drops.ignored.map((item) => item.name),
   });
 }
@@ -5887,6 +6092,7 @@ function resetRuntimeGameState() {
   state.bossEntryFromGroupDungeonAdvance = false;
   state.bossAssistSelection = [];
   state.bossEmpowerSelected = false;
+  state.pendingBossEmpowered = false;
   state.pendingBossAssistSelection = [];
   state.openScenes = initialOpenScenesFromUrl();
   pendingSavedPlayerResources = null;
@@ -6302,6 +6508,7 @@ function clearTransientCombatBuffs() {
   state.battle.statBuffs = [];
   state.battle.petStatBuffs = [];
   state.battle.defenceBuffFx = [];
+  state.battle.massHealFx = [];
   state.battle.attachedSpellFx = (state.battle.attachedSpellFx ?? []).filter(
     (entry) => entry.spellId !== "MagicShield",
   );
@@ -6368,6 +6575,7 @@ function resetBattle(enemyId = state.battle.enemyId) {
   state.battle.wizardSpellLockUntil = 0;
   dismissTaoistPet();
   state.battle.bossParty = null;
+  state.battle.bossEmpowered = false;
   state.battle.swarm = null;
   state.battle.lockedArenaWorldX = null;
   state.battle.lockedCameraX = null;
@@ -6461,6 +6669,7 @@ function resetBattleForRoomOnly(zone = activeZone()) {
   state.battle.wizardSpellLockUntil = 0;
   dismissTaoistPet();
   state.battle.bossParty = null;
+  state.battle.bossEmpowered = false;
   state.battle.swarm = null;
   state.battle.lockedArenaWorldX = null;
   state.battle.lockedCameraX = null;
@@ -6539,6 +6748,7 @@ function startBattle() {
   stopOneStepTest();
   state.continuousWalk = false;
   state.battle.running = true;
+  resetCombatEquipmentLock();
   const now = performance.now();
   state.battle.phase = "advance";
   state.battle.lastMotionAt = now;
@@ -6589,6 +6799,7 @@ function stopBattle() {
   state.battle.pendingPoison = null;
   dismissTaoistPet();
   state.battle.bossParty = null;
+  resetCombatEquipmentLock();
   clearGroupDungeonRunState();
   state.battle.groundSpellEffects = [];
   pushBattleLog("Adventure paused.");
@@ -6995,11 +7206,10 @@ function trainingRoomCastTaoist(spell, learned, cost, now) {
   }
 
   if (spell.id === "MassHealing") {
-    const entry = amuletCandidate(0);
-    const item = entry ? itemDefinition(entry.itemId) : null;
-    if (!entry || !isTaoistAmuletItem(item) || !consumeOneInventoryUnit(entry.id)) return false;
     trainingRoomSpendMp(spell, learned, cost);
-    applyTaoistMassHealEffect(spell, learned, battle.player, now);
+    levelMagicSkill(spell, learned, now);
+    const applied = applyTaoistMassHealEffect(spell, learned, battle.player, now, { levelSkill: false });
+    if (applied) showTaoistMassHealTexts(spell, applied, now);
     trainingRoomPlayCastVisual(spell, now);
     playSpellSfx(spell.id, "cast");
     return true;
@@ -7063,7 +7273,7 @@ function trainingRoomCastTaoist(spell, learned, cost, now) {
 
 function trainingRoomTryCast(spell, learned, now) {
   if (!spell || !learned) return false;
-  const cost = spellMpCost(spell, learned);
+  const cost = effectiveSpellMpCost(spell, learned);
   if ((state.battle.player?.mp ?? 0) < cost) return false;
 
   const classId = state.battle.combatClass;
@@ -7098,6 +7308,7 @@ function updateTrainingRoomBattle(now) {
 
   updateWarriorChargeExpiry(now);
   updateDefenceBuffFx(now);
+  updateMassHealFx(now);
   updateAttachedSpellFx(now);
   updateGroundSpellEffects(now);
   updateLaneMotion(now);
@@ -7547,6 +7758,7 @@ function accountUpgradeEffectLabel(upgrade) {
   if (upgrade?.effect === "autocastSlots") return "Autocast slots";
   if (upgrade?.effect === "autoPotionSlots") return "Auto potion slots";
   if (upgrade?.effect === "xpBonusPercent") return "XP gained";
+  if (upgrade?.effect === "goldBonusPercent") return "Monster kill gold";
   if (upgrade?.effect === "dropChanceBonusPercent") return "All drop chances";
   if (upgrade?.effect === "poisonAmuletStackMultiplier") return "Poison & amulet stack size";
   if (upgrade?.effect === "skillExperienceGainMaxBonus") return "Skill practice XP per cast";
@@ -7582,6 +7794,12 @@ function accountUpgradeProgressText(upgrade) {
     const current = tier * step;
     if (accountUpgradeIsMaxed(upgrade)) return `+${current}%`;
     return `+${current}% -> +${current + step}%`;
+  }
+  if (upgrade?.effect === "goldBonusPercent") {
+    const current = tier * step;
+    const maxPercent = step * accountUpgradeMaxTier(upgrade);
+    if (accountUpgradeIsMaxed(upgrade)) return `+${current}%`;
+    return `+${current}% -> +${Math.min(current + step, maxPercent)}%`;
   }
   if (upgrade?.effect === "dropChanceBonusPercent") {
     const stepValue = Math.max(0, Number(upgrade?.value) || 0);
@@ -7873,7 +8091,7 @@ function sectionUpgradeCountText(sectionId) {
   return `${maxed}/${real.length}`;
 }
 
-function addInventoryItem(itemId, quantity = 1) {
+function addInventoryItem(itemId, quantity = 1, options = {}) {
   syncInventoryCapacity();
   const item = itemDefinition(itemId);
   if (!item) return [];
@@ -7901,7 +8119,8 @@ function addInventoryItem(itemId, quantity = 1) {
     }
 
     if (inventoryUsedSlots() >= state.inventory.maxSlots) break;
-    const entry = createInventoryEntry(itemId, 1);
+    const entry = createInventoryEntry(itemId, 1, options.entryOptions ?? {});
+    if (options.empowerDrop) applyEmpoweredDropRoll(entry, item);
     state.inventory.items.push(entry);
     added.push(entry);
     remaining -= 1;
@@ -8021,6 +8240,16 @@ function createInventoryEntry(itemId, quantity = 1, options = {}) {
   if (options.bonusStats) {
     entry.bonusStats = sanitizeItemBonusStats(options.bonusStats);
   }
+  if (options.empowered) entry.empowered = true;
+  if (options.empowerTier != null) {
+    entry.empowerTier = Math.max(0, Math.min(4, Math.trunc(Number(options.empowerTier) || 0)));
+  }
+  if (options.empowerBonusStats) {
+    entry.empowerBonusStats = sanitizeItemBonusStats(options.empowerBonusStats);
+  }
+  if (options.empowerSpellBonuses) {
+    entry.empowerSpellBonuses = sanitizeEmpowerSpellBonuses(options.empowerSpellBonuses);
+  }
   const dura = sanitizeEntryDurability(options, item);
   if (dura) {
     entry.maxDura = dura.maxDura;
@@ -8072,7 +8301,7 @@ function consumeOneInventoryUnit(entryId) {
 function sellInventoryEntry(entryId) {
   const entry = inventoryEntryById(entryId);
   const item = entry ? itemDefinition(entry.itemId) : null;
-  if (!entry || !item || isEquippedEntry(entry.id) || isHotbarEntry(entry.id)) return false;
+  if (!entry || !item || isEquippedEntry(entry.id) || isHotbarEntry(entry.id) || isInventoryEntrySaved(entry)) return false;
 
   const quantity = Math.max(1, Number(entry.quantity) || 1);
   const value = itemSellValue(item, quantity);
@@ -8097,6 +8326,65 @@ function sellInventoryEntry(entryId) {
 function isJunkOreItem(item) {
   return Boolean(item) && isOreItem(item) && item.id !== REFINER_ORE_ITEM_ID;
 }
+
+function isInventoryEntrySaved(entry) {
+  return entry?.inventoryMark === "saved";
+}
+
+function isInventoryEntryJunk(entry) {
+  return entry?.inventoryMark === "junk";
+}
+
+function canMarkInventoryEntry(entry) {
+  return Boolean(entry?.id && inventoryEntryById(entry.id) && !isEquippedEntry(entry.id) && !isHotbarEntry(entry.id));
+}
+
+function cycleInventoryMark(entry) {
+  if (!canMarkInventoryEntry(entry)) return false;
+  const mark = entry.inventoryMark ?? null;
+  entry.inventoryMark = mark === null ? "junk" : mark === "junk" ? "saved" : null;
+  syncBossPartyControlledInventoryFromState();
+  playSfx("item.move", { volume: 0.32, throttleMs: 60 });
+  gamePanelSignature = "";
+  sceneSignature = "";
+  battlePanelSignature = "";
+  saveGameState(true);
+  renderSceneOverlay();
+  renderGamePanel();
+  renderBattlePanel();
+  return true;
+}
+
+function inventoryMarkOverlayHtml(entry) {
+  if (isInventoryEntryJunk(entry)) {
+    return `<span class="inventory-mark inventory-mark-junk" aria-label="Junk">✕</span>`;
+  }
+  if (isInventoryEntrySaved(entry)) {
+    return `<span class="inventory-mark inventory-mark-saved" aria-label="Saved">🔒</span>`;
+  }
+  return "";
+}
+
+function inventoryMarkClass(entry) {
+  if (isInventoryEntryJunk(entry)) return " mark-junk";
+  if (isInventoryEntrySaved(entry)) return " mark-saved";
+  return "";
+}
+
+function itemTooltipMarkHtml(entry) {
+  if (!canMarkInventoryEntry(entry)) return "";
+  const label = isInventoryEntryJunk(entry) ? "Junk" : isInventoryEntrySaved(entry) ? "Saved" : "Neutral";
+  return `<span>Mark: ${label} (Space to cycle)</span>`;
+}
+
+const HELP_TOOLTIP_HTML = {
+  "inventory-marks": `
+    <strong>Marking items</strong>
+    <span>Hover a bag item and press <strong>Space</strong> to mark it junk (✕). Junk items can be sold with Sell all junk.</span>
+    <span>Press <strong>Space</strong> again to mark it saved (🔒). Saved copies are kept when smithing two of the same item and cannot be sold manually.</span>
+    <span>Press <strong>Space</strong> once more to clear the mark.</span>
+  `,
+};
 
 function weaponRefineStagedRecord(entryId) {
   return state.weaponRefine?.stagedEntries?.[entryId] ?? null;
@@ -8766,6 +9054,72 @@ function junkOreSellPreview() {
   return { count, gold };
 }
 
+function junkMarkedInventoryEntries() {
+  ensureInventorySlots();
+  return inventoryEntries()
+    .map((entry) => ({ entry, item: itemDefinition(entry.itemId) }))
+    .filter(({ entry, item }) => isInventoryEntryJunk(entry)
+      && !isEquippedEntry(entry.id)
+      && !isHotbarEntry(entry.id)
+      && item
+      && itemSellValue(item, Math.max(1, Number(entry.quantity) || 1)) > 0);
+}
+
+function junkMarkedSellPreview() {
+  const rows = junkMarkedInventoryEntries();
+  const count = rows.reduce((sum, { entry }) => sum + Math.max(1, Number(entry.quantity) || 1), 0);
+  const gold = rows.reduce((sum, { entry, item }) => {
+    const quantity = Math.max(1, Number(entry.quantity) || 1);
+    return sum + itemSellValue(item, quantity);
+  }, 0);
+  return { count, gold };
+}
+
+function sellAllJunkMarkedInventory() {
+  const rows = junkMarkedInventoryEntries();
+  if (!rows.length) {
+    pushBattleLog("No junk-marked items to sell.");
+    battlePanelSignature = "";
+    renderBattlePanel();
+    return false;
+  }
+
+  let soldCount = 0;
+  let totalGold = 0;
+  for (const { entry, item } of rows) {
+    const quantity = Math.max(1, Number(entry.quantity) || 1);
+    const value = itemSellValue(item, quantity);
+    if (value <= 0) continue;
+    if (!removeInventoryEntry(entry.id, quantity)) continue;
+    soldCount += quantity;
+    totalGold += value;
+  }
+
+  if (soldCount <= 0) {
+    pushBattleLog("No junk-marked items to sell.");
+    battlePanelSignature = "";
+    renderBattlePanel();
+    return false;
+  }
+
+  state.inventory.gold += totalGold;
+  state.game.progress.gold = state.inventory.gold;
+  state.battle.gold = state.game.progress.gold;
+  syncBossPartyControlledInventoryFromState();
+  playSfx("ui.gold", { volume: 0.55, throttleMs: 80 });
+  pushBattleLog(`Sold ${soldCount} junk-marked item${soldCount === 1 ? "" : "s"} for ${totalGold} gold.`);
+  hideItemTooltip();
+  sceneSignature = "";
+  gamePanelSignature = "";
+  battlePanelSignature = "";
+  hotbarSignature = "";
+  renderSceneOverlay();
+  renderGamePanel();
+  renderBattlePanel();
+  renderHotbar();
+  return true;
+}
+
 function sellAllJunkOre() {
   const rows = junkOreInventoryEntries();
   if (!rows.length) {
@@ -8849,12 +9203,13 @@ function buyShopItem(itemId, quantity = 1) {
     return false;
   }
 
-  const value = itemBuyValue(item, addedQuantity);
+  const value = alchemistShopBuyPrice(item, addedQuantity);
   state.inventory.gold -= value;
   state.game.progress.gold = state.inventory.gold;
   state.battle.gold = state.game.progress.gold;
   playSfx("ui.gold", { volume: 0.55, throttleMs: 80 });
-  pushBattleLog(`Bought ${addedQuantity > 1 ? `${addedQuantity}x ` : ""}${item.name} for ${value} gold.`);
+  const boughtName = item.name;
+  pushBattleLog(`Bought ${addedQuantity > 1 ? `${addedQuantity}x ` : ""}${boughtName} for ${value} gold.`);
   hideItemTooltip();
   sceneSignature = "";
   gamePanelSignature = "";
@@ -8892,6 +9247,7 @@ function smithCombineDurabilityScore(entry, item) {
 
 function smithCombineEntryPriority(entry, item) {
   return [
+    isInventoryEntrySaved(entry) ? 2 : isInventoryEntryJunk(entry) ? 0 : 1,
     sanitizeWeaponRefineLevel(entry?.weaponRefineLevel),
     Math.max(0, Math.trunc(Number(entry?.smithLevel) || 0)),
     smithCombineBonusStatScore(entry?.smithBonusStats),
@@ -8911,11 +9267,21 @@ function compareSmithCombineEntries(a, b, item) {
 
 function resolveSmithCombinePair(entries, item) {
   const sortedEntries = [...entries].sort((a, b) => compareSmithCombineEntries(a, b, item));
-  return {
-    target: sortedEntries[0],
-    material: sortedEntries[sortedEntries.length - 1],
-    sortedEntries,
-  };
+  const savedEntries = sortedEntries.filter(isInventoryEntrySaved);
+  const materialPool = sortedEntries.filter((entry) => !isInventoryEntrySaved(entry));
+  if (entries.length < 2 || materialPool.length === 0) {
+    return { target: null, material: null, sortedEntries };
+  }
+
+  const target = savedEntries.length > 0 ? savedEntries[0] : sortedEntries[0];
+  const materialCandidates = materialPool.filter((entry) => entry.id !== target.id);
+  const material = materialCandidates.length > 0
+    ? materialCandidates[materialCandidates.length - 1]
+    : materialPool[materialPool.length - 1];
+  if (!target || !material || target.id === material.id) {
+    return { target: null, material: null, sortedEntries };
+  }
+  return { target, material, sortedEntries };
 }
 
 function smithCombineWouldConsumeBetterItem(target, material, item) {
@@ -9078,7 +9444,7 @@ function combineSmithItem(entryId) {
     return false;
   }
 
-  if (smithCombineWouldConsumeBetterItem(option.target, option.material, option.item)) {
+  if (!isInventoryEntrySaved(option.target) && smithCombineWouldConsumeBetterItem(option.target, option.material, option.item)) {
     pushBattleLog("Combine blocked: the selected item is not the best copy to keep.");
     battlePanelSignature = "";
     renderBattlePanel();
@@ -9136,8 +9502,7 @@ function isGemKindItem(item) {
 }
 
 function gemMerchantUnlocked() {
-  // Testing: merchant always visible. Restore: return accountUpgradePurchased("rebirth-gem-merchant");
-  return true;
+  return accountUpgradePurchased("rebirth-gem-merchant");
 }
 
 function gemMerchantEfficiencyTier() {
@@ -9742,7 +10107,7 @@ function queuedCombatSpell(classId = state.battle.combatClass) {
   return {
     spell,
     learned,
-    cost: spellMpCost(spell, learned),
+    cost: effectiveSpellMpCost(spell, learned),
     queued: true,
   };
 }
@@ -9791,6 +10156,14 @@ function rebirthDropChanceBonusPercent() {
   const upgrade = accountUpgradeById("rebirth-drop-chance");
   const step = Math.max(0, Number(upgrade?.value) || 0);
   const tier = Math.min(accountUpgradeMaxTier(upgrade), accountUpgradeTier("rebirth-drop-chance"));
+  if (tier <= 0 || step <= 0) return 0;
+  return tier * step;
+}
+
+function rebirthGoldBonusPercent() {
+  const upgrade = accountUpgradeById("rebirth-gold");
+  const step = Math.max(0, Number(upgrade?.value) || 0);
+  const tier = Math.min(accountUpgradeMaxTier(upgrade), accountUpgradeTier("rebirth-gold"));
   if (tier <= 0 || step <= 0) return 0;
   return tier * step;
 }
@@ -9874,19 +10247,46 @@ function rebirthPointMultiplier() {
   return 1 + accountUpgradeValue("rebirthPointMultiplierBonus");
 }
 
-function rebirthExperienceRate() {
-  return 1 + accountUpgradeValue("xpBonusPercent") / 100;
+function achievementExperienceBonusPercent() {
+  const unlocked = state.account?.achievements?.unlocked ?? {};
+  return ACHIEVEMENT_DEFS.reduce((total, def) => {
+    if (unlocked[def.id]?.rewardClaimed !== true) return total;
+    return total + Math.max(0, Number(def.reward?.xpBonusPercent) || 0);
+  }, 0);
 }
 
-function equippedXpBonusPercent(inventory = state.inventory) {
+function rebirthExperienceRate() {
+  return 1 + (accountUpgradeValue("xpBonusPercent") + achievementExperienceBonusPercent()) / 100;
+}
+
+function equippedBonusFromStats(inventory = state.inventory, statKey) {
   let total = 0;
   for (const slot of EQUIPMENT_SLOTS) {
     const entryId = inventory?.equipment?.[slot.id] ?? null;
     const entry = entryId ? inventory.items?.find((candidate) => candidate.id === entryId) : null;
-    const item = entry ? itemDefinition(entry.itemId) : null;
-    total += Number(item?.stats?.xpBonusPercent) || 0;
+    if (!entry) continue;
+    total += Number(itemEntryStats(entry)[statKey]) || 0;
   }
   return total;
+}
+
+function equippedXpBonusPercent(inventory = state.inventory) {
+  return equippedBonusFromStats(inventory, "xpBonusPercent");
+}
+
+function totalGoldBonusPercent(inventory = state.inventory) {
+  return rebirthGoldBonusPercent() + equippedBonusFromStats(inventory, "goldBonusPercent");
+}
+
+function totalDropChanceBonusPercent(inventory = state.inventory) {
+  return rebirthDropChanceBonusPercent() + equippedBonusFromStats(inventory, "dropChanceBonusPercent");
+}
+
+function totalBonusAwakeningSoulChancePercent(inventory = state.inventory) {
+  return Math.min(
+    100,
+    rebirthBonusAwakeningSoulChancePercent() + equippedBonusFromStats(inventory, "bonusAwakeningSoulChancePercent"),
+  );
 }
 
 function equipmentExperienceRate(inventory = state.inventory) {
@@ -9935,7 +10335,35 @@ function applyRebirthUpgradeStats(stats) {
 }
 
 function bossEmpowermentUnlocked() {
+  if (BOSS_EMPOWER_SKIP_REBIRTH_UNLOCK) return true;
   return accountUpgradeTier("boss-empowerment") >= 1;
+}
+
+function bossEmpowerAvailableForZone(zoneId) {
+  return BOSS_EMPOWER_AVAILABLE_ZONE_IDS.has(zoneId);
+}
+
+function bossEmpowerGoldCost() {
+  return BOSS_EMPOWER_GOLD_COST;
+}
+
+function bossEmpowerFightSelected(zoneId = state.bossEntryZoneId ?? state.game.activeZoneId) {
+  if (!zoneId || !bossEmpowerAvailableForZone(zoneId)) return false;
+  return bossEmpowermentUnlocked() && Boolean(state.bossEmpowerSelected);
+}
+
+function canAffordBossEmpowerFight() {
+  return Math.max(0, Number(state.inventory.gold) || 0) >= bossEmpowerGoldCost();
+}
+
+function chargeBossEmpowerGold() {
+  const cost = bossEmpowerGoldCost();
+  const owned = Math.max(0, Number(state.inventory.gold) || 0);
+  if (owned < cost) return false;
+  state.inventory.gold -= cost;
+  state.game.progress.gold = state.inventory.gold;
+  state.battle.gold = state.inventory.gold;
+  return true;
 }
 
 function maxAccountUpgradeValue(effect) {
@@ -10214,7 +10642,7 @@ function tryWarriorChargeSkill(spellId, now = performance.now()) {
   if (!skill || !learned) return false;
   if (warriorChargeReady(spellId)) return false;
   if (!canUseWarriorSkill(skill, learned, now, { requireAuto: false })) return false;
-  castWarriorCharge(skill, learned, spellMpCost(skill, learned), now);
+  castWarriorCharge(skill, learned, effectiveSpellMpCost(skill, learned), now);
   return true;
 }
 
@@ -10229,7 +10657,7 @@ function maybeAutoWarriorCharge(now, options = {}) {
     if (!skill || !learned) continue;
     if (!offline && !learned.autoCast) continue;
     if (!canUseWarriorSkill(skill, learned, now, { requireAuto: !offline && Boolean(learned.autoCast) })) continue;
-    castWarriorCharge(skill, learned, spellMpCost(skill, learned), now);
+    castWarriorCharge(skill, learned, effectiveSpellMpCost(skill, learned), now);
     return true;
   }
   return false;
@@ -10671,6 +11099,35 @@ function rejectInventoryMove(message) {
   renderSceneOverlay();
 }
 
+function combatEquipmentLockContextActive() {
+  if (state.game.mode !== "zone") return false;
+  if (bossPartyActiveFight()) return true;
+  return Boolean(state.battle.running);
+}
+
+function resetCombatEquipmentLock() {
+  lastCombatEquipmentLockAt = 0;
+}
+
+function recordCombatEquipmentLockActivity(now = performance.now()) {
+  if (!combatEquipmentLockContextActive()) return;
+  lastCombatEquipmentLockAt = now;
+}
+
+function isCombatEquipmentChangeBlocked(now = performance.now()) {
+  if (!combatEquipmentLockContextActive()) return false;
+  if (lastCombatEquipmentLockAt <= 0) return false;
+  return (now - lastCombatEquipmentLockAt) < COMBAT_STANCE_HOLD_MS;
+}
+
+function rejectCombatEquipmentChange(now = performance.now()) {
+  if (!isCombatEquipmentChangeBlocked(now)) return false;
+  addLootNotice("Cannot equipt items while in combat", "full");
+  sceneSignature = "";
+  renderSceneOverlay();
+  return true;
+}
+
 function canEquipEntryToSlot(entryId, slotId) {
   const entry = inventoryEntryById(entryId);
   const item = entry ? itemDefinition(entry.itemId) : null;
@@ -10747,6 +11204,7 @@ async function dropInventoryEntryToInventorySlot(entryId, slot, sourceEquipmentS
     moveInventoryEntryToSlot(entryId, slot);
     return;
   }
+  if (rejectCombatEquipmentChange()) return;
 
   const targetSlot = Math.max(0, Math.min(state.inventory.maxSlots - 1, Number(slot)));
   const targetOccupant = inventoryEntryAtSlot(targetSlot);
@@ -10857,6 +11315,8 @@ async function storeInventoryEntryInStorage(entryId, slot, sourceEquipmentSlot =
   const equipmentChanged = Boolean(actualEquipmentSlot);
   const hotbarChanged = sourceHotbarSlot >= 0;
 
+  if (actualEquipmentSlot && rejectCombatEquipmentChange()) return false;
+
   if (actualEquipmentSlot) state.inventory.equipment[actualEquipmentSlot] = null;
   if (hotbarChanged) state.hotbar.slots[sourceHotbarSlot] = null;
   state.inventory.items = state.inventory.items.filter((candidate) => candidate.id !== entry.id);
@@ -10929,6 +11389,7 @@ function withdrawStorageEntryToInventorySlot(entryId, slot) {
 
 async function equipStorageEntryToSlot(entryId, slotId) {
   ensureStorageSlots();
+  if (rejectCombatEquipmentChange()) return false;
   const check = canEquipStorageEntryToSlot(entryId, slotId);
   if (!check.ok) {
     rejectInventoryMove(check.reason);
@@ -11032,11 +11493,16 @@ function itemEntryStats(entry, item = itemDefinition(entry?.itemId)) {
     poisonRecovery: Number(item?.stats?.poisonRecovery) || 0,
     strong: Number(item?.stats?.strong) || 0,
     xpBonusPercent: Number(item?.stats?.xpBonusPercent) || 0,
+    goldBonusPercent: Number(item?.stats?.goldBonusPercent) || 0,
+    dropChanceBonusPercent: Number(item?.stats?.dropChanceBonusPercent) || 0,
+    bonusAwakeningSoulChancePercent: Number(item?.stats?.bonusAwakeningSoulChancePercent) || 0,
   });
   const bonusStats = sanitizeItemBonusStats(entry?.bonusStats);
   const smithBonusStats = sanitizeSmithBonusStats(entry?.smithBonusStats);
+  const empowerBonusStats = sanitizeItemBonusStats(entry?.empowerBonusStats);
   addStats(stats, bonusStats);
   addStats(stats, smithBonusStats);
+  addStats(stats, empowerBonusStats);
   return {
     hp: stats.maxHp,
     mp: stats.maxMp,
@@ -11057,6 +11523,9 @@ function itemEntryStats(entry, item = itemDefinition(entry?.itemId)) {
     poisonRecovery: stats.poisonRecovery,
     strong: stats.strong,
     xpBonusPercent: stats.xpBonusPercent,
+    goldBonusPercent: stats.goldBonusPercent,
+    dropChanceBonusPercent: stats.dropChanceBonusPercent,
+    bonusAwakeningSoulChancePercent: stats.bonusAwakeningSoulChancePercent,
   };
 }
 
@@ -11064,6 +11533,7 @@ function itemDisplayName(item, entry = null) {
   const smithLevel = Math.max(0, Math.trunc(Number(entry?.smithLevel) || 0));
   const weaponRefineLevel = Math.max(0, Math.trunc(Number(entry?.weaponRefineLevel) || 0));
   const luckLabel = entry && item?.slot === "weapon" ? benedictionLuckLabel(weaponEntryLuck(entry, item)) : "";
+  const stars = empoweredItemStarSuffix(entry);
   const suffixParts = [];
   if (smithLevel > 0) suffixParts.push(`+${smithLevel}`);
   if (weaponRefineLevel > 0) suffixParts.push(`Ref +${weaponRefineLevel}`);
@@ -11073,7 +11543,23 @@ function itemDisplayName(item, entry = null) {
     if (purity > 0) suffixParts.push(`P${purity}`);
   }
   const suffix = suffixParts.join(", ");
-  return `${item?.name ?? "Item"}${suffix ? ` (${suffix})` : ""}`;
+  return `${item?.name ?? "Item"}${stars}${suffix ? ` (${suffix})` : ""}`;
+}
+
+function createDropResult(item, entry = null) {
+  return { item, entry };
+}
+
+function dropResultItem(drop) {
+  return drop?.item ?? drop;
+}
+
+function dropResultEntry(drop) {
+  return drop?.entry ?? null;
+}
+
+function dropResultLabel(drop) {
+  return itemDisplayName(dropResultItem(drop), dropResultEntry(drop));
 }
 
 function itemDefinitionMaxDura(item) {
@@ -11141,9 +11627,76 @@ function isBenedictionOilItem(item) {
   return Boolean(item) && (item.scroll?.kind === "benediction" || item.id === BENEDICTION_OIL_ITEM_ID);
 }
 
+function applyEmpoweredDropRoll(entry, item) {
+  if (!state.battle.bossEmpowered || !entry || !item || isStackableItem(item) || !isEquipableItem(item)) return false;
+  const roll = rollEmpoweredItemDrop(item, Math.random, empoweredBossDropRollOptions());
+  if (!roll) return false;
+  entry.empowered = true;
+  entry.empowerTier = roll.empowerTier;
+  entry.empowerBonusStats = roll.empowerBonusStats;
+  entry.empowerSpellBonuses = roll.empowerSpellBonuses;
+  return true;
+}
+
+function empoweredBossDropRollOptions() {
+  const baseChance = BOSS_EMPOWER_ITEM_CHANCE_DEV ?? BOSS_EMPOWER_ITEM_CHANCE;
+  return {
+    itemChance: baseChance + accountUpgradeValue("empowerDropChance"),
+    // tierWeights: future rebirth upgrade can bias higher tiers via accountUpgradeValue
+  };
+}
+
 function isWoomaTaurusEnemy(enemy) {
   if (!enemy) return false;
   return enemy.id === WOMA_TAURUS_ENEMY_ID || enemy.crystalName === "WoomaTaurus";
+}
+
+function supportsEmpoweredBossCombat(enemy) {
+  return isWoomaTaurusEnemy(enemy) || isEvilSnakeEnemy(enemy);
+}
+
+function scaleEnemyDamageRange(range, multiplier) {
+  if (!Array.isArray(range) || multiplier <= 0) return range;
+  return [
+    Math.round((Number(range[0]) || 0) * multiplier),
+    Math.round((Number(range[1]) || 0) * multiplier),
+  ];
+}
+
+function empoweredBossPreviewMaxHp(enemy, empowerSelected = state.bossEmpowerSelected) {
+  const base = Math.max(0, Math.trunc(Number(enemy?.maxHp) || 0));
+  if (!enemy || !empowerSelected || !bossEmpowermentUnlocked()) return base || null;
+  if (supportsEmpoweredBossCombat(enemy)) {
+    return Math.max(1, Math.round(base * EMPOWERED_BOSS_HP_MULTIPLIER));
+  }
+  return base || null;
+}
+
+function applyEmpoweredBossCombatModifiers(enemy) {
+  const hpMult = EMPOWERED_BOSS_HP_MULTIPLIER;
+  const dmgMult = EMPOWERED_BOSS_DAMAGE_MULTIPLIER;
+  enemy.maxHp = Math.max(1, Math.round((Number(enemy.maxHp) || 0) * hpMult));
+  enemy.hp = enemy.maxHp;
+  enemy.dc = scaleEnemyDamageRange(enemy.dc, dmgMult);
+  enemy.mc = scaleEnemyDamageRange(enemy.mc, dmgMult);
+  enemy.sc = scaleEnemyDamageRange(enemy.sc, dmgMult);
+  if (Array.isArray(enemy.meleeDc)) enemy.meleeDc = scaleEnemyDamageRange(enemy.meleeDc, dmgMult);
+  if (Array.isArray(enemy.rangedDc)) enemy.rangedDc = scaleEnemyDamageRange(enemy.rangedDc, dmgMult);
+  Object.assign(enemy, EMPOWERED_BOSS_ENRAGE);
+  enemy.bossEmpowered = true;
+}
+
+function empoweredBossCombatLogLine(enemy) {
+  return `${enemy.name} is empowered — ${EMPOWERED_BOSS_HP_MULTIPLIER}× HP and ${EMPOWERED_BOSS_DAMAGE_MULTIPLIER}× damage, enrages at 70%, 40%, and 15% HP.`;
+}
+
+function applyEmpoweredBossFightModifiers(enemy = state.battle.enemy) {
+  if (!enemy || !state.battle.bossEmpowered) return false;
+  if (supportsEmpoweredBossCombat(enemy)) {
+    applyEmpoweredBossCombatModifiers(enemy);
+    return true;
+  }
+  return false;
 }
 
 function isIncarnatedWoomaTaurusEnemy(enemy) {
@@ -11431,7 +11984,7 @@ function equippedEntry(slotId) {
 
 function inventoryEntrySignature(entry) {
   const duraPart = entry.currentDura != null ? `:${entry.currentDura}/${entry.maxDura ?? ""}` : "";
-  return `${entry.id}:${entry.itemId}:${entry.quantity}:${entry.slot ?? ""}:${entry.smithLevel ?? 0}:${entry.weaponRefineLevel ?? 0}:${entry.gemCount ?? 0}${duraPart}:${JSON.stringify(sanitizeItemBonusStats(entry.bonusStats))}:${JSON.stringify(sanitizeSmithBonusStats(entry.smithBonusStats))}`;
+  return `${entry.id}:${entry.itemId}:${entry.quantity}:${entry.slot ?? ""}:${entry.smithLevel ?? 0}:${entry.weaponRefineLevel ?? 0}:${entry.gemCount ?? 0}:${entry.empowered ? 1 : 0}:${entry.empowerTier ?? 0}${duraPart}:${JSON.stringify(sanitizeItemBonusStats(entry.bonusStats))}:${JSON.stringify(sanitizeSmithBonusStats(entry.smithBonusStats))}:${JSON.stringify(sanitizeItemBonusStats(entry.empowerBonusStats))}:${JSON.stringify(sanitizeEmpowerSpellBonuses(entry.empowerSpellBonuses))}`;
 }
 
 async function useInventoryEntry(entryId) {
@@ -11875,7 +12428,9 @@ function updatePendingHeal(now) {
   if (learned) levelMagicSkill(spell, learned, now);
   if (!suppressSimulationRender) {
     playSpellSfx(spell.id, "impact", { volume: 0.46 }) || playSpellSfx(spell.id, "cast", { volume: 0.42 });
-    addCombatText(target, `+${amount} queued`, "heal", now);
+    const healEntity = target === "pet" ? battle.taoPet : battle.player;
+    showEntityQueuedHealText(healEntity, amount, now);
+    queueEntityHealRestoreFx(healEntity, spell, now, { startAt: now });
     pushBattleLog(`${spell.label} starts restoring ${amount} HP to ${target === "pet" ? targetStats.name : battle.combatClass}.`);
   }
   playerHudSignature = "";
@@ -11912,6 +12467,9 @@ function updatePendingPoison(now, options = {}) {
       ? poisonAppliedEvents(spell.label, battle.enemy.name, poisonKind)
       : poisonResistedEvents(spell.label, battle.enemy.name, poisonKind);
     applyCombatEvents(poisonEvents, now, { enemy: battle.enemy });
+  }
+  if (isQueuedCombatSpell("Poisoning") && !poisonCandidateForEnemy(battle.enemy, now)) {
+    clearQueuedCombatSpell("Poisoning");
   }
   battlePanelSignature = "";
   combatSkillBarSignature = "";
@@ -12174,6 +12732,7 @@ async function equipInventoryEntry(entryId) {
 
 async function equipInventoryEntryToSlot(entryId, slotId) {
   ensureInventorySlots();
+  if (rejectCombatEquipmentChange()) return;
   const check = canEquipEntryToSlot(entryId, slotId);
   if (!check.ok) {
     rejectInventoryMove(check.reason);
@@ -12216,6 +12775,7 @@ async function equipInventoryEntryToSlot(entryId, slotId) {
 async function unequipSlot(slotId) {
   const entryId = state.inventory.equipment[slotId];
   if (!entryId) return;
+  if (rejectCombatEquipmentChange()) return;
   if (inventoryUsedSlots() >= state.inventory.maxSlots) {
     pushBattleLog("Cannot unequip: inventory is full.");
     sceneSignature = "";
@@ -12352,6 +12912,7 @@ function updateEnemyActionButtons() {
 }
 
 function renderGamePanel() {
+  syncAchievementsNavigation();
   if (IS_GAME_UI) {
     renderGameUiPanel();
     return;
@@ -12623,7 +13184,7 @@ function sceneButtonsHtml() {
       <button data-open-scene="character" class="${state.openScenes.character ? "active" : ""}">Character</button>
       <button data-open-scene="inventory" class="${state.openScenes.inventory ? "active" : ""}">Inventory</button>
       <button data-open-scene="codex" class="${state.openScenes.codex ? "active" : ""}">Codex</button>
-      <button data-open-scene="achievements" class="${state.openScenes.achievements ? "active" : ""}">Achievements</button>
+      ${achievementsEnabled() ? `<button data-open-scene="achievements" data-achievements-nav class="${state.openScenes.achievements ? "active" : ""}">Achievements</button>` : ""}
       <button data-open-scene="upgrades" class="${state.openScenes.upgrades ? "active" : ""}">Upgrades</button>
       <button data-open-scene="characterSelect" class="${state.openScenes.characterSelect ? "active" : ""}">Characters</button>
       <button data-open-scene="gettingStarted" class="${state.openScenes.gettingStarted ? "active" : ""}">Guide</button>
@@ -12631,6 +13192,14 @@ function sceneButtonsHtml() {
       <button data-open-scene="options" class="${state.openScenes.options ? "active" : ""}">Options</button>
     </div>
   `;
+}
+
+function syncAchievementsNavigation() {
+  const enabled = achievementsEnabled();
+  if (!enabled) state.openScenes.achievements = false;
+  document.querySelectorAll("[data-achievements-nav]").forEach((button) => {
+    button.hidden = !enabled;
+  });
 }
 
 function bindSceneButtons(rootEl) {
@@ -12663,6 +13232,9 @@ function bindSceneButtons(rootEl) {
   });
   rootEl.querySelectorAll("[data-sell-all-junk-ore]").forEach((button) => {
     button.addEventListener("click", () => sellAllJunkOre());
+  });
+  rootEl.querySelectorAll("[data-sell-all-junk-marked]").forEach((button) => {
+    button.addEventListener("click", () => sellAllJunkMarkedInventory());
   });
   rootEl.querySelectorAll("[data-open-weapon-refine]").forEach((button) => {
     button.addEventListener("click", () => openWeaponRefineScene());
@@ -12717,6 +13289,15 @@ function bindSceneButtons(rootEl) {
   });
   rootEl.querySelectorAll("[data-unlock-achievements]").forEach((button) => {
     button.addEventListener("click", () => unlockAchievementsFeature());
+  });
+  rootEl.querySelectorAll("[data-claim-achievement]").forEach((row) => {
+    const claim = () => claimAchievementReward(row.dataset.claimAchievement);
+    row.addEventListener("click", claim);
+    row.addEventListener("keydown", (event) => {
+      if (event.key !== "Enter" && event.key !== " ") return;
+      event.preventDefault();
+      claim();
+    });
   });
   rootEl.querySelectorAll("[data-leaderboard-refresh]").forEach((button) => {
     button.addEventListener("click", () => void ensureLeaderboardData(true));
@@ -12823,6 +13404,7 @@ function toggleOpenScene(scene, options = {}) {
 
 function openScene(scene, updateUrl = true) {
   if (!["character", "inventory", "codex", "achievements", "upgrades", "characterSelect", "gettingStarted", "options", "leaderboard"].includes(scene)) return;
+  if (scene === "achievements" && !achievementsEnabled()) return;
   state.game.selectedTownNpcId = null;
   if (state.activeScene === "townNpc" || state.activeScene === "storage" || state.activeScene === "bossEntry" || state.activeScene === "weaponRefine") {
     removeSceneWindowFromStack(state.activeScene);
@@ -12841,6 +13423,7 @@ function openScene(scene, updateUrl = true) {
     state.openScenes.characterSelect = false;
   }
   state.openScenes[scene] = true;
+  if (scene === "achievements") checkAchievementsForCurrentCharacter();
   if (scene === "leaderboard") void ensureLeaderboardData();
   pushSceneWindow(scene);
   playSfx("ui.button", { volume: 0.35, throttleMs: 80 });
@@ -12918,6 +13501,7 @@ function setSceneUrl() {
 
 function renderSceneOverlay(options = {}) {
   const deferUserInteraction = Boolean(options.deferUserInteraction);
+  if (!achievementsEnabled()) state.openScenes.achievements = false;
   const openScenes = ["characterSelect", "character", "inventory", "codex", "achievements", "upgrades", "gettingStarted", "options", "leaderboard"].filter((scene) => state.openScenes[scene]);
   const npcScene = state.activeScene === "townNpc" || state.activeScene === "storage" || state.activeScene === "bossEntry" || state.activeScene === "weaponRefine"
     ? state.activeScene
@@ -13335,9 +13919,11 @@ function codexHiddenDetailPanelHtml(item) {
 }
 
 function achievementsSceneHtml() {
-  const achievements = ensureAccountAchievements();
-  const enabled = achievements.enabled === true;
   const unlockedCount = ACHIEVEMENT_DEFS.filter((def) => achievementUnlocked(def.id)).length;
+  const rewardsReady = ACHIEVEMENT_DEFS.filter((def) => {
+    const record = ensureAccountAchievements().unlocked?.[def.id];
+    return Boolean(record) && record.rewardClaimed !== true;
+  }).length;
   return `
     <section class="achievements-panel">
       <div class="achievements-summary">
@@ -13345,21 +13931,10 @@ function achievementsSceneHtml() {
           <p class="eyebrow">Permanent Progress</p>
           <strong>${unlockedCount}/${ACHIEVEMENT_DEFS.length} unlocked</strong>
         </div>
-        <span>${enabled ? "Achievements are active forever." : `Unlock with ${ACHIEVEMENT_UNLOCK_SOUL_COST} Awakening Souls.`}</span>
+        <span>${rewardsReady > 0 ? `${rewardsReady} reward${rewardsReady === 1 ? "" : "s"} ready to claim.` : "Progress is permanent across rebirth."}</span>
       </div>
-      ${enabled ? "" : `
-        <div class="achievements-unlock">
-          <div>
-            <strong>Unlock Achievements</strong>
-            <span>Costs ${ACHIEVEMENT_UNLOCK_SOUL_COST} Awakening Souls account-wide. Achievements and unlocked rewards persist through rebirth.</span>
-          </div>
-          <button type="button" class="primary" data-unlock-achievements ${accountAwakenedSoulCount() >= ACHIEVEMENT_UNLOCK_SOUL_COST ? "" : "disabled"}>
-            Unlock
-          </button>
-        </div>
-      `}
-      <div class="achievements-list">
-        ${ACHIEVEMENT_DEFS.map((def) => achievementRowHtml(def, enabled)).join("")}
+      <div class="achievements-list" data-preserve-scroll="achievements-list">
+        ${ACHIEVEMENT_DEFS.map((def) => achievementRowHtml(def, true)).join("")}
       </div>
     </section>
   `;
@@ -13368,19 +13943,29 @@ function achievementsSceneHtml() {
 function achievementRowHtml(def, enabled) {
   const unlocked = achievementUnlocked(def.id);
   const record = ensureAccountAchievements().unlocked?.[def.id] ?? null;
+  const rewardClaimed = record?.rewardClaimed === true;
+  const claimable = unlocked && !rewardClaimed;
   const targetLevel = Math.max(1, Math.trunc(Number(def.trigger?.level) || 1));
-  const rewardGold = Math.max(0, Math.trunc(Number(def.reward?.gold) || 0));
+  const rewardLabel = achievementRewardLabel(def);
+  const progressText = def.trigger?.type === "level"
+    ? `Current level: ${state.game.progress.level}/${targetLevel}`
+    : "Not yet achieved.";
   return `
-    <article class="achievement-row ${unlocked ? "unlocked" : enabled ? "available" : "locked"}">
-      <div class="achievement-badge">${unlocked ? "✓" : enabled ? "!" : "?"}</div>
+    <article ${claimable ? `role="button" tabindex="0" data-claim-achievement="${escapeHtml(def.id)}"` : ""} class="achievement-row ${claimable ? "claimable" : unlocked ? "unlocked claimed" : enabled ? "available" : "locked"}">
+      <div class="achievement-badge">${claimable ? "!" : unlocked ? "✓" : enabled ? "!" : "?"}</div>
       <div class="achievement-main">
         <div class="achievement-title">
           <strong>${escapeHtml(def.label)}</strong>
-          <span>${unlocked ? "Unlocked" : enabled ? "Active" : "Locked"}</span>
+          <span>${claimable ? "Reward Ready" : unlocked ? "Claimed" : enabled ? "Active" : "Locked"}</span>
         </div>
         <p>${escapeHtml(def.summary)}</p>
-        <small>Reward: ${rewardGold.toLocaleString()} gold to the character that unlocks it.</small>
-        ${unlocked ? `<small>Unlocked by ${escapeHtml(record?.characterId ?? "Unknown")}.</small>` : `<small>Current level: ${state.game.progress.level}/${targetLevel}</small>`}
+        <small>Reward: ${escapeHtml(rewardLabel)}.</small>
+        ${claimable
+          ? `<small>Achieved by ${escapeHtml(record?.characterId ?? "Unknown")}. Click to claim.</small>`
+          : unlocked
+            ? `<small>Claimed for ${escapeHtml(record?.characterId ?? "Unknown")}.</small>`
+            : `<small>${escapeHtml(progressText)}</small>`
+        }
       </div>
     </article>
   `;
@@ -13414,6 +13999,8 @@ function toggleBossAssistSelection(classId) {
 
 function toggleBossEmpowerSelection() {
   if (!bossEmpowermentUnlocked()) return false;
+  const zoneId = state.bossEntryZoneId ?? bossEntryZone()?.id;
+  if (!bossEmpowerAvailableForZone(zoneId)) return false;
   state.bossEmpowerSelected = !state.bossEmpowerSelected;
   sceneSignature = "";
   renderSceneOverlay();
@@ -13768,9 +14355,30 @@ function bossEntrySceneHtml() {
   const remainingMs = bossRespawnRemainingMs(zone.id);
   const respawning = remainingMs > 0;
   const selected = selectedBossAssistIds();
-  const canFight = !respawning;
+  const empowerAvailable = bossEmpowerAvailableForZone(zone.id);
   const empowerUnlocked = bossEmpowermentUnlocked();
-  const empowerSelected = Boolean(state.bossEmpowerSelected);
+  const empowerSelected = empowerAvailable && Boolean(state.bossEmpowerSelected);
+  const empowerCost = bossEmpowerGoldCost();
+  const goldOwned = Math.max(0, Number(state.inventory.gold) || 0);
+  const empowerNeedsGold = empowerSelected && empowerUnlocked;
+  const empowerGoldMet = goldOwned >= empowerCost;
+  const canFight = !respawning && (!empowerNeedsGold || empowerGoldMet);
+  const empowerNote = !empowerAvailable
+    ? "Empowered fights for this boss are coming soon."
+    : empowerUnlocked
+    ? (empowerSelected
+      ? `Empowered fight costs ${empowerCost.toLocaleString()} gold when you enter (spent even if you die). You have ${goldOwned.toLocaleString()} gold.${empowerGoldMet ? "" : " Not enough gold to fight empowered."}`
+      : "Toggle empowered mode before fighting for improved drops.")
+    : escapeHtml(def.empowerRequirement);
+  const empowerButtonHtml = empowerAvailable
+    ? `<button type="button" class="boss-empower-button${empowerSelected ? " selected" : ""}" ${empowerUnlocked ? "data-toggle-boss-empower" : "disabled"}>
+        <span>${escapeHtml(def.empowerLabel)}</span>
+        <strong>${empowerUnlocked ? (empowerSelected ? "Enabled" : "Disabled") : "Locked"}</strong>
+      </button>`
+    : `<button type="button" class="boss-empower-button" disabled>
+        <span>${escapeHtml(def.empowerLabel)}</span>
+        <strong>Coming soon</strong>
+      </button>`;
   return `
     <section class="boss-entry-panel">
       <p class="boss-warning">
@@ -13785,18 +14393,12 @@ function bossEntrySceneHtml() {
       <dl class="boss-entry-stats">
         <dt>Boss</dt><dd>${escapeHtml(def.bossName)}</dd>
         <dt>Party</dt><dd>${1 + selected.size}</dd>
-        <dt>HP</dt><dd>${boss?.maxHp ?? "-"}</dd>
+        <dt>HP</dt><dd>${empoweredBossPreviewMaxHp(boss) ?? boss?.maxHp ?? "-"}</dd>
         <dt>Defend with</dt><dd>${escapeHtml(enemyAttackDefenceGuidance(boss))}</dd>
       </dl>
       ${partyAssistPickerHtml()}
-      <button type="button" class="boss-empower-button${empowerSelected ? " selected" : ""}" ${empowerUnlocked ? "data-toggle-boss-empower" : "disabled"}>
-        <span>${escapeHtml(def.empowerLabel)}</span>
-        <strong>${empowerUnlocked ? (empowerSelected ? "Enabled" : "Disabled") : "Locked"}</strong>
-      </button>
-      <p class="boss-entry-note">${empowerUnlocked
-        ? "Toggle empowered mode before fighting for improved drops."
-        : escapeHtml(def.empowerRequirement)
-      }</p>
+      ${empowerButtonHtml}
+      <p class="boss-entry-note">${empowerNote}</p>
       <footer class="boss-entry-footer">
         <button
           type="button"
@@ -13807,7 +14409,7 @@ function bossEntrySceneHtml() {
         >
           ${respawning
             ? `<span>Respawns in</span><strong class="boss-entry-respawn-countdown">${escapeHtml(formatDuration(remainingMs))}</strong>`
-            : `Fight ${escapeHtml(def.bossName)}`
+            : `Fight ${escapeHtml(def.bossName)}${empowerNeedsGold && empowerGoldMet ? " (Empowered)" : ""}`
           }
         </button>
       </footer>
@@ -13820,6 +14422,8 @@ function upgradesSceneHtml() {
   const rebirthPoints = accountRebirthPoints();
   const rebirthMultiplier = rebirthPointMultiplier();
   const rebirthReady = canPerformRebirth();
+  const achievementsActive = achievementsEnabled();
+  const achievementsPermanent = achievementsPurchased();
   syncUpgradeNavigation();
   const section = activeUpgradeSection();
   const category = activeUpgradeCategory();
@@ -13852,6 +14456,23 @@ function upgradesSceneHtml() {
               : "Collect at least 1 Awakening Soul account-wide before rebirthing."
             }
           </span>
+        </div>
+        <div class="upgrade-achievements-feature ${achievementsActive ? "unlocked" : "locked"}">
+          <div>
+            <strong>Achievements</strong>
+            <span>${achievementsPermanent
+              ? "Unlocked permanently. Track account achievements and earn their rewards."
+              : achievementsActive
+                ? "Temporary testing access is active. No Awakening Souls have been spent."
+              : `Unlock the Achievements window permanently for ${ACHIEVEMENT_UNLOCK_SOUL_COST} Awakening Souls.`
+            }</span>
+          </div>
+          ${achievementsPermanent
+            ? `<span class="upgrade-feature-status">Unlocked</span>`
+            : achievementsActive
+              ? `<span class="upgrade-feature-status">Test Access</span>`
+            : `<button type="button" class="primary" data-unlock-achievements ${awakenedSouls >= ACHIEVEMENT_UNLOCK_SOUL_COST ? "" : "disabled"}>Unlock - ${ACHIEVEMENT_UNLOCK_SOUL_COST} Souls</button>`
+          }
         </div>
         </div>
       </div>
@@ -13958,6 +14579,7 @@ function accountUpgradeIconText(upgrade) {
   if (upgrade?.effect === "autocastSlots") return "A";
   if (upgrade?.effect === "autoPotionSlots") return "P";
   if (upgrade?.effect === "xpBonusPercent") return "XP";
+  if (upgrade?.effect === "goldBonusPercent") return "G+";
   if (upgrade?.effect === "dropChanceBonusPercent") return "DR";
   if (upgrade?.effect === "poisonAmuletStackMultiplier") return "ST";
   if (upgrade?.effect === "skillExperienceGainMaxBonus") return "SK";
@@ -14380,7 +15002,7 @@ function crystalSkillRowHtml(spell, learned) {
   const nextNeed = spellExperienceTarget(spell, level);
   const nextLevel = spellLevelRequirement(spell, level);
   const progress = !isLearned ? "Unlearned" : level >= 3 ? "Mastered" : `${learned?.experience ?? 0}/${nextNeed}`;
-  const mp = spellMpCost(spell, learned);
+  const mp = effectiveSpellMpCost(spell, learned);
   const cooldown = spellDelayMs(spell, learned);
   const controlLabel = spell.toggle ? "toggle" : "auto cast";
   const combatClass = combatAutoCastClassForSpell(spell.id);
@@ -14934,7 +15556,7 @@ function crystalInventoryItemHtml(entry, item) {
   const locked = !requirement.ok && (isEquipableItem(item) || isBookItem(item));
   return `
     <div
-      class="crystal-inventory-item has-tooltip ${equipped ? "equipped" : ""} ${locked ? "locked" : ""}"
+      class="crystal-inventory-item has-tooltip ${equipped ? "equipped" : ""} ${locked ? "locked" : ""}${inventoryMarkClass(entry)}"
       data-tooltip-item="${item.id}"
       data-tooltip-entry="${entry.id}"
       data-inventory-entry="${entry.id}"
@@ -14943,6 +15565,7 @@ function crystalInventoryItemHtml(entry, item) {
     >
       ${itemIconHtml(item)}
       ${stack}
+      ${inventoryMarkOverlayHtml(entry)}
     </div>
   `;
 }
@@ -15645,6 +16268,7 @@ function inventoryDropTargetAccepts(dropTarget) {
   const sourceItem = sourceEntry ? itemDefinition(sourceEntry.itemId) : null;
   const equipmentSlot = dropTarget.closest("[data-equipment-slot]");
   if (equipmentSlot && root.contains(equipmentSlot)) {
+    if (isCombatEquipmentChangeBlocked()) return false;
     if (isGemUpgradeItem(sourceItem) && inventoryDragState.sourceContainer === "inventory") {
       const slotEntry = equippedEntry(equipmentSlot.dataset.equipmentSlot);
       return Boolean(slotEntry && canApplyGemToEntry(inventoryDragState.entryId, slotEntry.id).ok);
@@ -15677,6 +16301,11 @@ function inventoryDropTargetAccepts(dropTarget) {
   }
   const storageSlot = dropTarget.closest("[data-storage-slot]");
   if (storageSlot && root.contains(storageSlot)) {
+    if (inventoryDragState.sourceContainer !== "storage") {
+      const equippedSourceSlot = inventoryDragState.sourceEquipmentSlot
+        || equippedSlotForEntry(inventoryDragState.entryId);
+      if (equippedSourceSlot && isCombatEquipmentChangeBlocked()) return false;
+    }
     return canDropEntryToStorageSlot(
       inventoryDragState.entryId,
       Number(storageSlot.dataset.storageSlot),
@@ -15687,6 +16316,11 @@ function inventoryDropTargetAccepts(dropTarget) {
   const inventorySlot = dropTarget.closest("[data-inventory-slot]");
   if (inventorySlot && root.contains(inventorySlot)) {
     if (inventoryDragState.sourceContainer === "weaponRefine") return true;
+    if (inventoryDragState.sourceContainer !== "storage") {
+      const equippedSourceSlot = inventoryDragState.sourceEquipmentSlot
+        || equippedSlotForEntry(inventoryDragState.entryId);
+      if (equippedSourceSlot && isCombatEquipmentChangeBlocked()) return false;
+    }
     if (inventoryDragState.sourceContainer === "storage") {
       return canWithdrawStorageEntryToInventorySlot(inventoryDragState.entryId, Number(inventorySlot.dataset.inventorySlot)).ok;
     }
@@ -15729,9 +16363,10 @@ function inventoryItemHtml(entry) {
     ? `<button data-use-entry="${entry.id}">Use</button>`
     : "";
   return `
-    <div class="inventory-item has-tooltip ${equipped ? "equipped" : ""} ${locked ? "locked" : ""}" data-tooltip-item="${item.id}" data-tooltip-entry="${entry.id}">
+    <div class="inventory-item has-tooltip ${equipped ? "equipped" : ""} ${locked ? "locked" : ""}${inventoryMarkClass(entry)}" data-tooltip-item="${item.id}" data-tooltip-entry="${entry.id}">
       ${itemIconHtml(item, 28)}
       ${stack}
+      ${inventoryMarkOverlayHtml(entry)}
       <strong>${escapeHtml(itemDisplayName(item, entry))}</strong>
       <span>${requirement.ok ? tag : requirement.reason}</span>
       ${command}
@@ -15754,8 +16389,9 @@ function itemTooltipHtml(item, entry = null) {
     ${itemSpellTooltipHtml(item)}
     ${itemRequirementTooltipHtml(item)}
     ${isGemUpgradeItem(item) ? itemGemTooltipHtml(item) : ""}
-    ${isBookItem(item) ? "" : isBenedictionOilItem(item) ? itemBenedictionTooltipHtml(item, entry) : isPotionItem(item) ? itemPotionTooltipHtml(item) : isPoisonItem(item) ? itemPoisonTooltipHtml(item) : isTaoistAmuletItem(item) ? itemAmuletTooltipHtml(item) : itemStatsTooltipHtml(itemEntryStats(entry, item))}
+    ${isBookItem(item) ? "" : isBenedictionOilItem(item) ? itemBenedictionTooltipHtml(item, entry) : isPotionItem(item) ? itemPotionTooltipHtml(item) : isPoisonItem(item) ? itemPoisonTooltipHtml(item) : isTaoistAmuletItem(item) ? itemAmuletTooltipHtml(item) : itemEquipmentStatsTooltipHtml(entry, item)}
     ${item.stackable ? `<span>Stack: ${maxItemStack(item)}</span>` : ""}
+    ${entry ? itemTooltipMarkHtml(entry) : ""}
   `;
 }
 
@@ -15854,8 +16490,36 @@ function itemAmuletTooltipHtml() {
   return `<span>Used by Taoist spells such as Soul Fire Ball.</span>`;
 }
 
-function itemStatsTooltipHtml(stats) {
-  const lines = [];
+function itemStatsTooltipRow(label, value, className = "") {
+  const cls = className ? ` class="${className}"` : "";
+  return `<dt${cls}>${escapeHtml(label)}</dt><dd${cls}>${escapeHtml(String(value))}</dd>`;
+}
+
+function empowerBonusAffectsRangeStat(empowerBonus, key) {
+  const range = empowerBonus?.[key];
+  return Array.isArray(range) && ((Number(range[0]) || 0) !== 0 || (Number(range[1]) || 0) !== 0);
+}
+
+function empowerBonusAffectsScalarStat(empowerBonus, key) {
+  return (Number(empowerBonus?.[key]) || 0) !== 0;
+}
+
+function formatItemBonusPercentValue(key, value) {
+  if (key === "dropChanceBonusPercent") {
+    const rounded = Number(Number(value).toFixed(2));
+    return `${value > 0 ? "+" : ""}${rounded}%`;
+  }
+  if (key === "xpBonusPercent" || key === "goldBonusPercent" || key === "bonusAwakeningSoulChancePercent") {
+    return `${value > 0 ? "+" : ""}${value}%`;
+  }
+  return value > 0 ? `+${value}` : value;
+}
+
+function itemEquipmentStatsTooltipHtml(entry, item) {
+  const stats = itemEntryStats(entry, item);
+  const empowerBonus = sanitizeItemBonusStats(entry?.empowerBonusStats);
+  const rows = [];
+
   for (const [key, label] of [
     ["dc", "DC"],
     ["mc", "MC"],
@@ -15863,7 +16527,55 @@ function itemStatsTooltipHtml(stats) {
     ["ac", "AC"],
     ["amc", "AMC"],
   ]) {
-    if (hasRangeValue(stats?.[key])) lines.push(`<dt>${label}</dt><dd>${formatStatRange(stats[key])}</dd>`);
+    if (!hasRangeValue(stats?.[key])) continue;
+    const empowered = empowerBonusAffectsRangeStat(empowerBonus, key);
+    rows.push(itemStatsTooltipRow(empoweredStatLabel(label, empowered), formatStatRange(stats[key]), empowered ? "empower-stat" : ""));
+  }
+
+  for (const [key, label] of [
+    ["hp", "HP"],
+    ["mp", "MP"],
+    ["accuracy", "Acc"],
+    ["agility", "Agi"],
+    ["luck", "Luck"],
+    ["attackSpeed", "A Speed"],
+    ["poisonAttack", "Poison"],
+    ["freezing", "Freezing"],
+    ["magicResist", "Magic Resist"],
+    ["poisonResist", "Poison Resist"],
+    ["healthRecovery", "HP Recovery"],
+    ["poisonRecovery", "Poison Recovery"],
+    ["strong", "Strong"],
+    ["xpBonusPercent", "XP Bonus"],
+    ["goldBonusPercent", "Gold Bonus"],
+    ["dropChanceBonusPercent", "Drop Chance"],
+    ["bonusAwakeningSoulChancePercent", "Soul Drop Chance"],
+  ]) {
+    const value = Number(stats?.[key]) || 0;
+    if (value === 0) continue;
+    const formatted = formatItemBonusPercentValue(key, value);
+    const empowered = empowerBonusAffectsScalarStat(empowerBonus, key);
+    rows.push(itemStatsTooltipRow(empoweredStatLabel(label, empowered), formatted, empowered ? "empower-stat" : ""));
+  }
+
+  for (const spellRow of empowerSpellBonusTooltipRows(entry?.empowerSpellBonuses)) {
+    rows.push(itemStatsTooltipRow(empoweredStatLabel(spellRow.label, true), spellRow.value, "empower-spell-stat"));
+  }
+
+  if (!rows.length) return `<p>No stat bonus</p>`;
+  return `<dl>${rows.join("")}</dl>`;
+}
+
+function itemStatsTooltipHtml(stats) {
+  const rows = [];
+  for (const [key, label] of [
+    ["dc", "DC"],
+    ["mc", "MC"],
+    ["sc", "SC"],
+    ["ac", "AC"],
+    ["amc", "AMC"],
+  ]) {
+    if (hasRangeValue(stats?.[key])) rows.push(itemStatsTooltipRow(label, formatStatRange(stats[key])));
   }
   for (const [key, label] of [
     ["hp", "HP"],
@@ -15880,15 +16592,17 @@ function itemStatsTooltipHtml(stats) {
     ["poisonRecovery", "Poison Recovery"],
     ["strong", "Strong"],
     ["xpBonusPercent", "XP Bonus"],
+    ["goldBonusPercent", "Gold Bonus"],
+    ["dropChanceBonusPercent", "Drop Chance"],
+    ["bonusAwakeningSoulChancePercent", "Soul Drop Chance"],
   ]) {
     const value = Number(stats?.[key]) || 0;
     if (value !== 0) {
-      const formatted = key === "xpBonusPercent" ? `${value > 0 ? "+" : ""}${value}%` : (value > 0 ? `+${value}` : value);
-      lines.push(`<dt>${label}</dt><dd>${formatted}</dd>`);
+      rows.push(itemStatsTooltipRow(label, formatItemBonusPercentValue(key, value)));
     }
   }
-  if (!lines.length) return `<p>No stat bonus</p>`;
-  return `<dl>${lines.join("")}</dl>`;
+  if (!rows.length) return `<p>No stat bonus</p>`;
+  return `<dl>${rows.join("")}</dl>`;
 }
 
 function hasRangeValue(stat) {
@@ -16031,6 +16745,23 @@ async function confirmBossZoneEntry(zoneId) {
     await enterZone(zone.id);
     return;
   }
+  if (isBossRoom && bossEmpowerFightSelected(zoneId)) {
+    if (!canAffordBossEmpowerFight()) {
+      sceneSignature = "";
+      renderSceneOverlay();
+      playSfx("ui.button", { volume: 0.25, throttleMs: 120 });
+      return;
+    }
+    if (!chargeBossEmpowerGold()) {
+      sceneSignature = "";
+      renderSceneOverlay();
+      return;
+    }
+    state.pendingBossEmpowered = true;
+    gamePanelSignature = "";
+  } else {
+    state.pendingBossEmpowered = false;
+  }
   captureActiveCharacterState();
   state.pendingBossAssistSelection = [...selectedBossAssistIds()];
   state.bossEntryZoneId = null;
@@ -16068,7 +16799,18 @@ async function enterZone(zoneId, options = {}) {
   } else {
     state.game.groupDungeonRun = null;
   }
+  state.battle.bossEmpowered = Boolean(state.pendingBossEmpowered);
+  state.pendingBossEmpowered = false;
+  if (state.battle.bossEmpowered && state.battle.enemy) {
+    applyEmpoweredBossFightModifiers(state.battle.enemy);
+  }
   state.battle.log = [`Teleported to ${zone.label}.`];
+  if (state.battle.bossEmpowered) {
+    state.battle.log.push(`Empowered fight — paid ${bossEmpowerGoldCost().toLocaleString()} gold for improved drops.`);
+    if (supportsEmpoweredBossCombat(state.battle.enemy)) {
+      state.battle.log.push(empoweredBossCombatLogLine(state.battle.enemy));
+    }
+  }
   captureActiveCharacterState();
   playSfx("ui.teleport", { volume: 0.55, throttleMs: 300 });
   await reloadEnemyAtlas();
@@ -16097,6 +16839,7 @@ function returnToTown() {
   state.battle.pendingPoison = null;
   dismissTaoistPet();
   state.battle.bossParty = null;
+  state.battle.bossEmpowered = false;
   state.battle.groundSpellEffects = [];
   if (state.battle.enemy) state.battle.enemy.poisons = [];
   state.battle.nextPlayerAttackAt = 0;
@@ -17430,8 +18173,8 @@ function maybeTriggerEnemyEnrage(enemy, now = performance.now()) {
     enemy._enrageStagesTriggered = triggered;
     if (isDarkDevilEnemy(enemy)) {
       enemy._darkDevilRangeReadyAt = now;
-      pushBattleLog(`${enemy.name} enters a rage!`);
     }
+    pushBattleLog(`${enemy.name} enters a rage!`);
   }
 }
 
@@ -18439,12 +19182,14 @@ function updateGroupDungeonBossPartyBattle(now) {
   syncBossPartyControlledRecoveryToState();
   updateEnemyPoisons(now);
   updateBossPartyPendingPoison(now);
+  updatePendingMassHeal(now);
   updateGroundSpellEffects(now);
   updateMapEnvironmentalHazards(now);
   updateBossPartyEffects(now);
   updateBossPartyImpacts(now);
   updateBossPartyHealFx(now);
   updateDefenceBuffFx(now);
+  updateMassHealFx(now);
   updatePendingTwinDrakeHits(now);
   updateAttachedSpellFx(now);
   updatePendingEnemyStrike(now);
@@ -18629,6 +19374,10 @@ function townNpcSceneHtml() {
 }
 
 function traderNpcSceneHtml(npc) {
+  const junk = junkMarkedSellPreview();
+  const sellAllLabel = junk.count > 0
+    ? `Sell all junk (${junk.count.toLocaleString()} · ${junk.gold.toLocaleString()}g)`
+    : "Sell all junk";
   const rows = sellableInventoryEntries()
     .map(({ entry, item }) => traderSellRowHtml(entry, item))
     .join("");
@@ -18637,6 +19386,11 @@ function traderNpcSceneHtml(npc) {
       <div class="npc-shop-summary">
         <span>Your gold</span>
         <strong>${state.inventory.gold}g</strong>
+      </div>
+      <div class="trader-actions">
+        <div class="trader-action-button-wrap" data-help-tooltip="inventory-marks">
+          <button type="button" class="trader-action-button"${junk.count > 0 ? "" : " disabled"} data-sell-all-junk-marked>${escapeHtml(sellAllLabel)}</button>
+        </div>
       </div>
       <div class="npc-shop-list trader-sell-list" data-preserve-scroll="npc-trader-sell">
         ${rows || `<span class="trader-empty">No bag items to sell.</span>`}
@@ -18649,7 +19403,7 @@ function sellableInventoryEntries() {
   ensureInventorySlots();
   return inventoryEntries()
     .map((entry) => ({ entry, item: itemDefinition(entry.itemId) }))
-    .filter(({ item }) => item && itemSellValue(item) > 0);
+    .filter(({ entry, item }) => item && itemSellValue(item) > 0 && !isInventoryEntrySaved(entry));
 }
 
 function traderSellRowHtml(entry, item) {
@@ -18692,7 +19446,7 @@ function alchemistNpcSceneHtml(npc) {
 }
 
 function shopBuyRowHtml(item) {
-  const price = itemBuyValue(item);
+  const price = alchemistShopBuyPrice(item);
   const owned = state.inventory.items
     .filter((entry) => entry.itemId === item.id)
     .reduce((sum, entry) => sum + Math.max(1, Math.floor(Number(entry.quantity) || 1)), 0);
@@ -18703,12 +19457,14 @@ function shopBuyRowHtml(item) {
   const stackButton = isStackableItem(item)
     ? `<button type="button" data-buy-stack="${escapeHtml(item.id)}" ${disabled} title="Buy up to ${stackQuantity}">x${stackQuantity}</button>`
     : "";
+  const displayName = item.name;
+  const metaText = shopItemMetaText(item);
   return `
     <div class="npc-shop-row shop-buy-row ${canBuy ? "" : "locked"}" data-tooltip-item="${escapeHtml(item.id)}">
       ${itemIconHtml(item, 28)}
       <span class="npc-shop-item">
-        <strong>${escapeHtml(item.name)}</strong>
-        <span>${escapeHtml(shopItemMetaText(item))}${owned ? ` | Have ${owned}` : ""}</span>
+        <strong>${escapeHtml(displayName)}</strong>
+        <span>${escapeHtml(metaText)}${owned ? ` | Have ${owned}` : ""}</span>
       </span>
       <span class="npc-shop-price">${price}g</span>
       <span class="npc-shop-actions ${isStackableItem(item) ? "stackable" : ""}">
@@ -18727,7 +19483,7 @@ function smithNpcSceneHtml(npc) {
   const rows = smithCombineOptions().map(smithCombineRowHtml).join("");
   return `
     <section class="npc-panel crystal-npc-text npc-shop-panel smith-panel">
-      <p>Combine two matching equipment items. The weaker copy is consumed. The best copy is kept (Ref level, smith +, stats, durability). Success adds +1 to the kept item's strongest stat.</p>
+      <p>Combine two matching equipment items. The weaker copy is consumed. Saved items are always kept when paired with a non-saved copy; junk-marked copies are consumed first. Success adds +1 to the kept item's strongest stat.</p>
       <div class="npc-shop-summary">
         <span>Success chance</span>
         <strong>By + level / gem type</strong>
@@ -18965,7 +19721,7 @@ function gemMerchantNpcSceneHtml(npc) {
           ${itemIconHtml(gemItem, 28)}
           <span class="npc-shop-item">
             <strong>${escapeHtml(gemItem?.name ?? gemId)}</strong>
-            <span>${quantity} owned → ${escapeHtml(orbItem?.name ?? orbId)}</span>
+            <span>×${quantity} → ${escapeHtml(orbItem?.name ?? orbId)}</span>
           </span>
           <span class="npc-shop-price">${sameCost} gems</span>
           <button type="button" data-gem-merchant-same="${escapeHtml(gemId)}">Convert</button>
@@ -18974,23 +19730,22 @@ function gemMerchantNpcSceneHtml(npc) {
     })
     .join("");
   return `
-    <section class="npc-panel crystal-npc-text gem-merchant-panel">
-      <span>${escapeHtml(npc.panel)} Orbs are safe — failed upgrades never destroy the item.</span>
+    <section class="npc-panel crystal-npc-text npc-shop-panel gem-merchant-panel">
       <button
         type="button"
-        class="trainer-enter-button gem-merchant-random-button"
+        class="gem-merchant-random-row"
         data-gem-merchant-random
         ${canRandom ? "" : "disabled"}
       >
-        <strong>Random Orb</strong>
-        <span>I will convert ${randomCost} random gems into one Orb. (${gemCount} gems in bag)</span>
+        <span class="npc-shop-item">
+          <strong>Random Orb</strong>
+          <span>${randomCost} random gems → 1 orb · ${gemCount} in bag</span>
+        </span>
+        <span class="npc-shop-price">${randomCost} gems</span>
+        <span class="gem-merchant-random-action">Convert</span>
       </button>
-      <div class="gem-merchant-same-section">
-        <strong>Matching Orb</strong>
-        <span>I will convert ${sameCost} of the same gem into the relative Orb.</span>
-        <div class="npc-shop-list gem-merchant-same-list" data-preserve-scroll="npc-gem-merchant-same">
-          ${sameRows || `<span class="gem-merchant-empty">No gem stacks large enough for a matching conversion.</span>`}
-        </div>
+      <div class="npc-shop-list gem-merchant-same-list" data-preserve-scroll="npc-gem-merchant-same">
+        ${sameRows || `<span class="gem-merchant-empty">No gem stacks large enough for a matching conversion.</span>`}
       </div>
     </section>
   `;
@@ -19565,6 +20320,11 @@ function bindControls() {
     dropInventoryEntryToInventorySlot(entry.id, freeSlot);
   });
   root.addEventListener("pointerover", (event) => {
+    const helpTarget = event.target.closest("[data-help-tooltip]");
+    if (helpTarget && root.contains(helpTarget)) {
+      showHelpTooltip(helpTarget.dataset.helpTooltip, event);
+      return;
+    }
     const tooltipTarget = event.target.closest("[data-tooltip-item]");
     if (!tooltipTarget || !root.contains(tooltipTarget)) return;
     showItemTooltip(tooltipTarget.dataset.tooltipItem, event, tooltipTarget.dataset.tooltipEntry ?? null);
@@ -19573,7 +20333,7 @@ function bindControls() {
     if (!els.itemTooltip.hidden) positionItemTooltip(event);
   });
   root.addEventListener("pointerout", (event) => {
-    const tooltipTarget = event.target.closest("[data-tooltip-item]");
+    const tooltipTarget = event.target.closest("[data-tooltip-item], [data-help-tooltip]");
     if (!tooltipTarget || !root.contains(tooltipTarget)) return;
     if (tooltipTarget.contains(event.relatedTarget)) return;
     hideItemTooltip();
@@ -19608,6 +20368,14 @@ function bindControls() {
     if (key === "s") {
       event.preventDefault();
       toggleOpenScene("character", { characterTab: "skill" });
+      return;
+    }
+    if (key === " " || event.code === "Space") {
+      if (!hoveredTooltipEntryId) return;
+      const entry = inventoryEntryById(hoveredTooltipEntryId);
+      if (!entry || !canMarkInventoryEntry(entry)) return;
+      event.preventDefault();
+      cycleInventoryMark(entry);
       return;
     }
     if (!/^[1-6]$/.test(event.key)) return;
@@ -19713,18 +20481,29 @@ function setHoveredTownNpc(npcId) {
   render();
 }
 
+function showHelpTooltip(key, event) {
+  const html = HELP_TOOLTIP_HTML[key];
+  if (!html) return;
+  hoveredTooltipEntryId = null;
+  els.itemTooltip.innerHTML = html;
+  els.itemTooltip.hidden = false;
+  positionItemTooltip(event);
+}
+
 function showItemTooltip(itemId, event, entryId = null) {
   const item = itemDefinition(itemId);
   if (!item) return;
   const entry = entryId
     ? (itemEntryById(entryId) ?? (entryId.startsWith("lb:") ? state.leaderboard.foreignEntries?.[entryId] ?? null : null))
     : null;
+  hoveredTooltipEntryId = entry && canMarkInventoryEntry(entry) ? entryId : null;
   els.itemTooltip.innerHTML = itemTooltipHtml(item, entry);
   els.itemTooltip.hidden = false;
   positionItemTooltip(event);
 }
 
 function hideItemTooltip() {
+  hoveredTooltipEntryId = null;
   els.itemTooltip.hidden = true;
   els.itemTooltip.innerHTML = "";
 }
@@ -20842,6 +21621,8 @@ function updateGroupDungeonBossWaitingRoom(now) {
   updateBossPartyEffects(now);
   updateBossPartyHealFx(now);
   updateDefenceBuffFx(now);
+  updateMassHealFx(now);
+  updatePendingMassHeal(now);
   spawnGroupDungeonBossEnemy(now);
   return true;
 }
@@ -20868,12 +21649,14 @@ function updateBossPartyBattle(now) {
   syncBossPartyControlledRecoveryToState();
   updateEnemyPoisons(now);
   updateBossPartyPendingPoison(now);
+  updatePendingMassHeal(now);
   updateGroundSpellEffects(now);
   updateMapEnvironmentalHazards(now);
   updateBossPartyEffects(now);
   updateBossPartyImpacts(now);
   updateBossPartyHealFx(now);
   updateDefenceBuffFx(now);
+  updateMassHealFx(now);
   updatePendingTwinDrakeHits(now);
   updateAttachedSpellFx(now);
   updatePendingEnemyStrike(now);
@@ -20929,7 +21712,7 @@ function bossPartyMemberAction(member, now) {
 }
 
 function bossPartyChargeWarriorSkill(member, skill, learned, now) {
-  const cost = spellMpCost(skill, learned);
+  const cost = effectiveSpellMpCost(skill, learned, member.inventory);
   member.mp -= cost;
   bossPartySetWarriorSpellCastReadyAt(member, skill, learned, now);
   if (skill.id === "FlamingSword") {
@@ -20984,8 +21767,8 @@ function bossPartyWarriorAction(member, now) {
   const autoSkills = bossPartyAutoSpells(member);
   const fury = autoSkills.find((skill) => skill.id === "Fury");
   const furyLearned = bossPartyLearned(member, "Fury");
-  if (fury && furyLearned && now >= (furyLearned.castReadyAt ?? 0) && now >= (member.furyUntil ?? 0) && member.mp >= spellMpCost(fury, furyLearned)) {
-    member.mp -= spellMpCost(fury, furyLearned);
+  if (fury && furyLearned && now >= (furyLearned.castReadyAt ?? 0) && now >= (member.furyUntil ?? 0) && member.mp >= effectiveSpellMpCost(fury, furyLearned, member.inventory)) {
+    member.mp -= effectiveSpellMpCost(fury, furyLearned, member.inventory);
     furyLearned.castReadyAt = now + spellDelayMs(fury, furyLearned);
     member.furyUntil = now + 60000 + (Number(furyLearned.level) || 0) * 10000;
     member.furyBonus = 4;
@@ -21010,7 +21793,7 @@ function bossPartyWarriorAction(member, now) {
   const halfMoonLearned = bossPartyLearned(member, "HalfMoon");
   const useHalfMoon = Boolean(halfMoon && halfMoonLearned
     && !useThrusting
-    && canUseHalfMoonAttack(distance, member.mp ?? 0, halfMoonLearned));
+    && canUseHalfMoonAttack(distance, member.mp ?? 0, halfMoonLearned, member.inventory));
   let attackSkill = null;
   let learned = null;
   let cost = 0;
@@ -21049,7 +21832,7 @@ function bossPartyWarriorAction(member, now) {
         const skillLearned = bossPartyLearned(member, skill.id);
         return !skill.buff && !skill.toggle
           && !bossPartySpellOnCooldown(member, skill, skillLearned, now)
-          && member.mp >= spellMpCost(skill, skillLearned);
+          && member.mp >= effectiveSpellMpCost(skill, skillLearned, member.inventory);
       });
   }
   if (!usingSlaying) {
@@ -21068,10 +21851,10 @@ function bossPartyWarriorAction(member, now) {
     } else if (member.twinDrakeReady) {
       const twinDrake = warriorSpellById("TwinDrakeBlade");
       const twinDrakeLearned = bossPartyLearned(member, "TwinDrakeBlade");
-      if (twinDrake && twinDrakeLearned && member.mp >= spellMpCost(twinDrake, twinDrakeLearned)) {
+      if (twinDrake && twinDrakeLearned && member.mp >= effectiveSpellMpCost(twinDrake, twinDrakeLearned, member.inventory)) {
         attackSkill = twinDrake;
         learned = twinDrakeLearned;
-        cost = spellMpCost(twinDrake, twinDrakeLearned);
+        cost = effectiveSpellMpCost(twinDrake, twinDrakeLearned, member.inventory);
         usingTwinDrake = true;
       } else {
         clearTwinDrakeChargeState(member);
@@ -21084,7 +21867,7 @@ function bossPartyWarriorAction(member, now) {
   } else if (!learned && attackSkill) {
     learned = bossPartyLearned(member, attackSkill.id);
   }
-  if (!cost && attackSkill && learned) cost = spellMpCost(attackSkill, learned);
+  if (!cost && attackSkill && learned) cost = effectiveSpellMpCost(attackSkill, learned, member.inventory);
   if (usingSlaying) {
     clearWarriorSlayingReady(member);
   } else if (usingFlamingSword) {
@@ -21114,7 +21897,7 @@ function bossPartyWarriorAction(member, now) {
     twinDrakeRawDamage = usingHalfMoon
       ? rollDamage(effectiveCombatStats(member).dc, enemyPhysicalDefence(enemy), member.luck)
       : learned
-        ? rollWarriorMagicDamage(attackSkill, learned, member, enemy)
+        ? rollWarriorMagicDamage(attackSkill, learned, member, enemy, member.inventory)
         : rollDamage(effectiveCombatStats(member).dc, enemyPhysicalDefence(enemy), member.luck);
     return twinDrakeRawDamage;
   }, "physical", now, () => {
@@ -21199,7 +21982,7 @@ function bossPartyWizardAction(member, now) {
   });
   if (!spell) return bossPartyWeaponAttack(member, now);
   const learned = bossPartyLearned(member, spell.id);
-  const cost = spellMpCost(spell, learned);
+  const cost = effectiveSpellMpCost(spell, learned, member.inventory);
   member.mp -= cost;
   applyWizardCastCooldown(spell, learned, now, member);
   clearQueuedCombatSpell(spell.id);
@@ -21209,7 +21992,7 @@ function bossPartyWizardAction(member, now) {
   if (spell.id === "Vampirism") bossPartyCastSfx(member, spell.id, 0.5, 120);
 
   if (spell.id === "FireWall") {
-    const value = rollWizardMagicValue(spell, learned, member);
+    const value = rollWizardMagicValue(spell, learned, member, member.inventory);
     const centerTile = groupDungeonSwarmSideActive()
       ? groupDungeonSwarmBestFireWallCenterTile(spell, member, now)
       : null;
@@ -21219,7 +22002,7 @@ function bossPartyWizardAction(member, now) {
     return true;
   }
   if (spell.impactMode === "bang") {
-    const baseValue = rollWizardMagicValue(spell, learned, member);
+    const baseValue = rollWizardMagicValue(spell, learned, member, member.inventory);
     const centerTile = bangCenterTile ?? wizardBangCenterTile(enemy, spell, member);
     state.battle.activeWizardSpellCenterTile = centerTile;
     member.fxCenterTile = centerTile;
@@ -21252,7 +22035,7 @@ function bossPartyWizardAction(member, now) {
 
   if (spell.impactMode === "projectile") playSpellSfx(spell.id, "fly", bossPartySfxParams(member, 0.38, 120));
   bossPartyQueueImpact(member, spell, spell.label, state.wizardSpellAtlases[spell.id] ?? null, now, () => (
-    rollWizardMagicDamage(spell, learned, member, enemy)
+    rollWizardMagicDamage(spell, learned, member, enemy, member.inventory)
   ));
   return true;
 }
@@ -21270,8 +22053,8 @@ function bossPartyTaoistAction(member, now) {
   const healTarget = healing ? bossPartyHealTarget() : null;
   if (healTarget && bossPartyCanCast(member, healing, now)) {
     const learned = bossPartyLearned(member, healing.id);
-    const amount = rollTaoistHealingAmount(healing, learned, member);
-    member.mp -= spellMpCost(healing, learned);
+    const amount = rollTaoistHealingAmount(healing, learned, member, member.inventory);
+    member.mp -= effectiveSpellMpCost(healing, learned, member.inventory);
     learned.castReadyAt = now + spellDelayMs(healing, learned);
     member.nextActionAt = now + spellDelayMs(healing, learned);
     healTarget.healAmount = Math.min(65535, (healTarget.healAmount ?? 0) + amount);
@@ -21295,7 +22078,7 @@ function bossPartyTaoistAction(member, now) {
     const amuletCost = taoistSummonAmuletCost(summon.id);
     if (bossPartyAmuletInventoryCount(member) >= amuletCost && bossPartyConsumeAmuletInventoryUnits(member, amuletCost)) {
       const learned = bossPartyLearned(member, summon.id);
-      member.mp -= spellMpCost(summon, learned);
+      member.mp -= effectiveSpellMpCost(summon, learned, member.inventory);
       learned.castReadyAt = now + spellDelayMs(summon, learned);
       member.nextActionAt = now + spellDelayMs(summon, learned);
       state.battle.bossParty.pet = createTaoistSummonPet(summon.id, Math.max(0, Number(learned.level) || 0), now);
@@ -21316,7 +22099,7 @@ function bossPartyTaoistAction(member, now) {
     const amuletCost = taoistSummonAmuletCost(shinsu.id);
     if (bossPartyAmuletInventoryCount(member) >= amuletCost && bossPartyConsumeAmuletInventoryUnits(member, amuletCost)) {
       const learned = bossPartyLearned(member, shinsu.id);
-      member.mp -= spellMpCost(shinsu, learned);
+      member.mp -= effectiveSpellMpCost(shinsu, learned, member.inventory);
       learned.castReadyAt = now + spellDelayMs(shinsu, learned);
       member.nextActionAt = now + spellDelayMs(shinsu, learned);
       state.battle.bossParty.pet = createTaoistSummonPet(shinsu.id, Math.max(0, Number(learned.level) || 0), now);
@@ -21337,7 +22120,7 @@ function bossPartyTaoistAction(member, now) {
     const amuletCost = taoistSummonAmuletCost(holyDeva.id);
     if (bossPartyAmuletInventoryCount(member) >= amuletCost && bossPartyConsumeAmuletInventoryUnits(member, amuletCost)) {
       const learned = bossPartyLearned(member, holyDeva.id);
-      member.mp -= spellMpCost(holyDeva, learned);
+      member.mp -= effectiveSpellMpCost(holyDeva, learned, member.inventory);
       learned.castReadyAt = now + spellDelayMs(holyDeva, learned);
       member.nextActionAt = now + spellDelayMs(holyDeva, learned);
       state.battle.bossParty.pet = createTaoistSummonPet(holyDeva.id, Math.max(0, Number(learned.level) || 0), now);
@@ -21367,7 +22150,7 @@ function bossPartyTaoistAction(member, now) {
     const item = entry ? itemDefinition(entry.itemId) : null;
     if (entry && item && bossPartyConsumeOneInventoryUnit(member, entry.id)) {
       const learned = bossPartyLearned(member, poison.id);
-      member.mp -= spellMpCost(poison, learned);
+      member.mp -= effectiveSpellMpCost(poison, learned, member.inventory);
       learned.castReadyAt = now + spellDelayMs(poison, learned);
       member.nextActionAt = now + spellDelayMs(poison, learned);
       bossPartyQueuePoisonApply(member, poison, learned, item, now);
@@ -21380,14 +22163,14 @@ function bossPartyTaoistAction(member, now) {
     const amulet = bossPartyAmuletCandidate(member);
     if (amulet && bossPartyConsumeOneInventoryUnit(member, amulet.id)) {
       const learned = bossPartyLearned(member, soulFireBall.id);
-      member.mp -= spellMpCost(soulFireBall, learned);
+      member.mp -= effectiveSpellMpCost(soulFireBall, learned, member.inventory);
       learned.castReadyAt = now + spellDelayMs(soulFireBall, learned);
       member.nextActionAt = now + spellDelayMs(soulFireBall, learned);
       bossPartyControlledVisual(member, soulFireBall, soulFireBall.bodyAction ?? "spell", now);
       bossPartyCastSfx(member, soulFireBall.id, 0.38, 160);
       playSpellSfx(soulFireBall.id, "fly", bossPartySfxParams(member, 0.38, 120));
       bossPartyQueueImpact(member, soulFireBall, soulFireBall.label, state.taoistSpellAtlases[soulFireBall.id] ?? null, now, () => (
-        rollTaoistMagicDamage(soulFireBall, learned, member, state.battle.enemy)
+        rollTaoistMagicDamage(soulFireBall, learned, member, state.battle.enemy, member.inventory)
       ));
       return true;
     }
@@ -21472,7 +22255,7 @@ function bossPartyCanCast(member, spell, now) {
   if (!spell || !learned || spell.passive) return false;
   if (member.classId === "Wizard") return canWizardCastSpell(spell, learned, now, member);
   if ((learned.castReadyAt ?? 0) > now) return false;
-  return member.mp >= spellMpCost(spell, learned);
+  return member.mp >= effectiveSpellMpCost(spell, learned, member.inventory);
 }
 
 function bossPartyCanUseWarriorSkill(member, skill, learned, now, options = {}) {
@@ -21494,7 +22277,7 @@ function bossPartyCanUseWarriorSkill(member, skill, learned, now, options = {}) 
   if (!skill.buff && !chargeCast && distance > bossPartyMemberReach(member)) return false;
   if (skill.id === "Fury" && now < (member.furyUntil ?? 0)) return false;
   if (bossPartySpellOnCooldown(member, skill, learned, now)) return false;
-  return member.mp >= spellMpCost(skill, learned);
+  return member.mp >= effectiveSpellMpCost(skill, learned, member.inventory);
 }
 
 function bossPartyCanUseTaoistSpell(member, spell, learned, now, options = {}) {
@@ -21504,7 +22287,7 @@ function bossPartyCanUseTaoistSpell(member, spell, learned, now, options = {}) {
     if (!bossPartyAutoSpells(member).some((autoSpell) => autoSpell.id === spell.id)) return false;
   }
   if ((learned.castReadyAt ?? 0) > now) return false;
-  return member.mp >= spellMpCost(spell, learned);
+  return member.mp >= effectiveSpellMpCost(spell, learned, member.inventory);
 }
 
 function bossPartyCanUseWizardSpell(member, spell, learned, now, options = {}) {
@@ -21515,7 +22298,7 @@ function bossPartyCanUseWizardSpell(member, spell, learned, now, options = {}) {
   }
   if (!canWizardCastSpell(spell, learned, now, member)) return false;
   if (spell.id === "FireWall" && bossPartyGroundEffectActive("FireWall", now)) return false;
-  return member.mp >= spellMpCost(spell, learned);
+  return member.mp >= effectiveSpellMpCost(spell, learned, member.inventory);
 }
 
 function bossPartyUsableTaoistHealing(member, now, options = {}) {
@@ -21525,7 +22308,7 @@ function bossPartyUsableTaoistHealing(member, now, options = {}) {
   if (!bossPartyCanUseTaoistSpell(member, spell, learned, now, { requireAuto: !manual })) return null;
   const target = bossPartyHealTarget(manual);
   if (!target) return null;
-  return { spell, learned, cost: spellMpCost(spell, learned), target };
+  return { spell, learned, cost: effectiveSpellMpCost(spell, learned, member.inventory), target };
 }
 
 function bossPartyUsableTaoistMassHealing(member, now, options = {}) {
@@ -21536,41 +22319,27 @@ function bossPartyUsableTaoistMassHealing(member, now, options = {}) {
   const injured = taoistMassHealInjuredTargets(now, options);
   if (!injured.length) return null;
   if (!manual && injured.length < 2) return null;
-  const amulet = bossPartyAmuletCandidate(member);
-  const item = amulet ? itemDefinition(amulet.itemId) : null;
-  if (!amulet || !isTaoistAmuletItem(item)) return null;
-  return {
-    spell,
-    learned,
-    cost: spellMpCost(spell, learned),
-    entry: amulet,
-    item,
-  };
+  return { spell, learned, cost: effectiveSpellMpCost(spell, learned, member.inventory) };
 }
 
 function bossPartyCastMassHealing(member, castBundle, now) {
-  if (!bossPartyConsumeOneInventoryUnit(member, castBundle.entry.id)) return false;
   member.mp -= castBundle.cost;
   castBundle.learned.castReadyAt = now + spellDelayMs(castBundle.spell, castBundle.learned);
   member.nextActionAt = now + spellDelayMs(castBundle.spell, castBundle.learned);
   clearQueuedCombatSpell(castBundle.spell.id);
-  const applied = applyTaoistMassHealEffect(
-    castBundle.spell,
-    castBundle.learned,
-    member,
-    now,
-    { requireAuto: false, levelSkill: false },
-  );
-  if (!applied?.results?.length) return false;
-  bossPartyLevelMagicSkill(member, castBundle.spell, castBundle.learned, now);
-  bossPartyControlledVisual(member, castBundle.spell, castBundle.spell.bodyAction ?? "spell", now);
-  bossPartyCastSfx(member, castBundle.spell.id, 0.38, 160);
-  showTaoistMassHealTexts(applied, now);
-  queueMassHealImpactFx(castBundle.spell, applied, now, {
+  state.battle.pendingMassHeal = {
+    at: now + (Number(castBundle.spell.impactDelayMs) || CRYSTAL_HEAL_APPLY_DELAY_MS),
+    spellId: castBundle.spell.id,
+    learned: castBundle.learned,
+    caster: member,
+    options: { requireAuto: false, levelSkill: false },
     soundPlayed: member.classId !== bossPartyControlledClassId(),
     casterClassId: member.classId,
-  });
-  pushBattleLog(`${member.classId} casts ${castBundle.spell.label} (${formatTaoistMassHealAppliedLog(castBundle.spell, applied)}).`);
+  };
+  bossPartyControlledVisual(member, castBundle.spell, castBundle.spell.bodyAction ?? "spell", now);
+  queueMassHealImpactFx(now, { worldX: member.worldX, memberClassId: member.classId });
+  bossPartyCastSfx(member, castBundle.spell.id, 0.38, 160);
+  pushBattleLog(`${member.classId} casts ${castBundle.spell.label}.`);
   return true;
 }
 
@@ -21588,7 +22357,7 @@ function bossPartyUsableTaoistPoisoning(member, now, options = {}) {
   return {
     spell,
     learned,
-    cost: spellMpCost(spell, learned),
+    cost: effectiveSpellMpCost(spell, learned, member.inventory),
     entry,
     item,
     kind: poisonItemKind(item),
@@ -21608,7 +22377,7 @@ function bossPartyUsableTaoistSoulFireBall(member, now, options = {}) {
   return {
     spell,
     learned,
-    cost: spellMpCost(spell, learned),
+    cost: effectiveSpellMpCost(spell, learned, member.inventory),
     entry: amulet,
     item,
   };
@@ -21628,7 +22397,7 @@ function bossPartyUsableTaoistUltimateEnhancer(member, now, options = {}) {
   return {
     spell,
     learned,
-    cost: spellMpCost(spell, learned),
+    cost: effectiveSpellMpCost(spell, learned, member.inventory),
     entry: amulet,
     item,
     targets,
@@ -21699,7 +22468,7 @@ function bossPartyUsableTaoistDefenceBuff(member, spellId, now, options = {}) {
   return {
     spell,
     learned,
-    cost: spellMpCost(spell, learned),
+    cost: effectiveSpellMpCost(spell, learned, member.inventory),
     entry: amulet,
     item,
   };
@@ -21738,7 +22507,7 @@ function bossPartyUsableWizardDefenceBuff(member, now, options = {}) {
   const manual = options.requireAuto === false;
   if (!spell || !learned || !bossPartyCanUseWizardSpell(member, spell, learned, now, { requireAuto: !manual })) return null;
   if (!manual && !needsDefenceBuff("MagicShield", now, { playerBuffs: bossPartyMemberPlayerBuffs(member) })) return null;
-  return { spell, learned, cost: spellMpCost(spell, learned) };
+  return { spell, learned, cost: effectiveSpellMpCost(spell, learned, member.inventory) };
 }
 
 function bossPartyUsableQueuedWizardDefenceBuff(member, now) {
@@ -21795,7 +22564,7 @@ function bossPartyUsableTaoistSummonSpell(member, spellId, now, options = {}) {
   return {
     spell,
     learned,
-    cost: spellMpCost(spell, learned),
+    cost: effectiveSpellMpCost(spell, learned, member.inventory),
     entry: amulet,
     item,
     amuletCost,
@@ -21835,7 +22604,7 @@ function bossPartyCastQueuedTaoistSpell(member, queued, now) {
   if (!queued?.spell) return false;
   if (queued.spell.id === "Healing") {
     const learned = queued.learned;
-    const amount = rollTaoistHealingAmount(queued.spell, learned, member);
+    const amount = rollTaoistHealingAmount(queued.spell, learned, member, member.inventory);
     member.mp -= queued.cost;
     learned.castReadyAt = now + spellDelayMs(queued.spell, learned);
     member.nextActionAt = now + spellDelayMs(queued.spell, learned);
@@ -21854,7 +22623,6 @@ function bossPartyCastQueuedTaoistSpell(member, queued, now) {
     member.mp -= queued.cost;
     queued.learned.castReadyAt = now + spellDelayMs(queued.spell, queued.learned);
     member.nextActionAt = now + spellDelayMs(queued.spell, queued.learned);
-    clearQueuedCombatSpell(queued.spell.id);
     bossPartyQueuePoisonApply(member, queued.spell, queued.learned, queued.item, now);
     return true;
   }
@@ -21868,7 +22636,7 @@ function bossPartyCastQueuedTaoistSpell(member, queued, now) {
     bossPartyCastSfx(member, queued.spell.id, 0.38, 160);
     playSpellSfx(queued.spell.id, "fly", bossPartySfxParams(member, 0.38, 120));
     bossPartyQueueImpact(member, queued.spell, queued.spell.label, state.taoistSpellAtlases[queued.spell.id] ?? null, now, () => (
-      rollTaoistMagicDamage(queued.spell, queued.learned, member, state.battle.enemy)
+      rollTaoistMagicDamage(queued.spell, queued.learned, member, state.battle.enemy, member.inventory)
     ));
     return true;
   }
@@ -22360,6 +23128,40 @@ function queueCombatHealRestoreFx(target, spell, now, options = {}) {
   }
 }
 
+function healRestoreFxTarget(entity) {
+  if (!entity) return null;
+  if (entity === state.battle.player) {
+    return { worldX: state.battle.playerX, name: state.battle.combatClass };
+  }
+  if (entity === state.battle.taoPet || entity === state.battle.bossParty?.pet) {
+    return { worldX: resolvedTaoPetWorldX(entity), name: entity.name ?? "pet" };
+  }
+  if (entity.classId && Number.isFinite(Number(entity.worldX))) return entity;
+  return null;
+}
+
+function showEntityQueuedHealText(entity, amount, now = performance.now()) {
+  const value = Math.max(0, Math.trunc(Number(amount) || 0));
+  if (value <= 0 || !entity || suppressSimulationRender) return;
+  const text = `+${value} queued`;
+  if (state.battle.bossParty?.active) {
+    addBossPartyMemberCombatText(entity, text, "heal", now);
+    return;
+  }
+  const targetEntry = ultimateEnhancerTargetEntry(entity);
+  addCombatText(targetEntry?.anchor ?? "player", text, "heal", now);
+}
+
+function queueEntityHealRestoreFx(entity, spell, now, options = {}) {
+  const target = healRestoreFxTarget(entity);
+  if (!target || !spell?.id) return;
+  queueCombatHealRestoreFx(target, spell, now, {
+    casterClassId: options.casterClassId ?? null,
+    startAt: options.startAt ?? now + (Number(spell.impactDelayMs) || CRYSTAL_HEAL_APPLY_DELAY_MS),
+    soundPlayed: Boolean(options.soundPlayed),
+  });
+}
+
 function bossPartyHealFxAtlasDurationMs(atlas) {
   if (!atlas?.layers?.length) return 800;
   return Math.max(0, ...atlas.layers.map((layer) => (layer.delayMs ?? 0) + layer.frames.length * layer.interval));
@@ -22482,6 +23284,77 @@ function updateDefenceBuffFx(now) {
   state.battle.defenceBuffFx = remaining;
 }
 
+function massHealFxList() {
+  if (!Array.isArray(state.battle.massHealFx)) state.battle.massHealFx = [];
+  return state.battle.massHealFx;
+}
+
+function massHealImpactLayer() {
+  return state.taoistSpellAtlases?.MassHealing?.layers?.[1] ?? null;
+}
+
+function massHealImpactFxDurationMs() {
+  const layer = massHealImpactLayer();
+  if (!layer?.frames?.length) return 1000;
+  return layer.frames.length * (Number(layer.interval) || 100);
+}
+
+function queueMassHealImpactFx(now, options = {}) {
+  if (suppressSimulationRender || !massHealImpactLayer()) return;
+  const impactDelay = Number(TAOIST_COMBAT_SPELL_META.MassHealing?.impactDelayMs) || CRYSTAL_HEAL_APPLY_DELAY_MS;
+  const fx = massHealFxList();
+  fx.push({
+    startAt: now + impactDelay,
+    worldX: options.worldX ?? state.battle.playerX,
+    memberClassId: options.memberClassId ?? null,
+  });
+  state.battle.massHealFx = fx.slice(-4);
+}
+
+function massHealImpactAnchor(entry) {
+  const laneY = Math.floor(state.stageHeight * LANE.y);
+  if (entry.memberClassId && state.battle.bossParty?.active) {
+    const member = state.battle.bossParty.members?.find((candidate) => candidate.classId === entry.memberClassId);
+    if (member) {
+      return {
+        x: Math.floor((Number(member.worldX) || 0) - state.battle.cameraX),
+        y: spellTargetCellAnchorY(laneY),
+      };
+    }
+  }
+  if (entry.worldX != null) {
+    return {
+      x: Math.floor(entry.worldX - state.battle.cameraX),
+      y: spellTargetCellAnchorY(laneY),
+    };
+  }
+  const playerAnchor = combatAnchor("player");
+  return { x: playerAnchor.x, y: spellTargetCellAnchorY(playerAnchor.y) };
+}
+
+function updateMassHealFx(now) {
+  const fx = massHealFxList();
+  if (!fx.length) return;
+  const duration = massHealImpactFxDurationMs();
+  state.battle.massHealFx = fx.filter((entry) => now < entry.startAt || now - entry.startAt <= duration);
+}
+
+function drawMassHealImpactFxCanvas(ctx) {
+  const layer = massHealImpactLayer();
+  if (!layer?.frames?.length) return;
+  const atlas = state.taoistSpellAtlases.MassHealing;
+  const now = performance.now();
+  for (const entry of massHealFxList()) {
+    const t = now - entry.startAt;
+    if (t < 0 || t > massHealImpactFxDurationMs()) continue;
+    const { x, y } = massHealImpactAnchor(entry);
+    const frameIndex = Math.min(layer.frames.length - 1, Math.floor(t / layer.interval));
+    withScreenBlend(ctx, () => {
+      drawSpellLayerCanvas(ctx, atlas.spellId, layer, frameIndex, x, y);
+    });
+  }
+}
+
 // Mirrors solo `castTaoistPoisoning` + `updatePendingPoison`: cast SFX on use,
 // impact SFX when the poison actually lands on the boss after the Crystal delay.
 function bossPartyQueuePoisonApply(member, poison, learned, item, now) {
@@ -22528,6 +23401,9 @@ function updateBossPartyPendingPoison(now) {
   const label = poisonKind === "green" ? "Green Poison" : "Yellow Poison";
   addCombatText("enemy", poisonKind === "green" ? "Poison" : "Weaken", poisonKind === "green" ? "poison" : "debuff", now);
   pushBattleLog(applied ? `${label} affects ${enemy.name}.` : `${enemy.name} resists the weaker ${label}.`);
+  if (isQueuedCombatSpell("Poisoning") && member && !bossPartyPoisonCandidate(member, enemy, now)) {
+    clearQueuedCombatSpell("Poisoning");
+  }
 }
 
 // Projectile/targeted spells (Wizard nukes, SoulFireBall) land their damage when
@@ -23688,6 +24564,7 @@ function updateEntityPoisons(entity, targetKind, now, options = {}) {
       const damage = Math.max(0, Math.trunc(Number(poison.value) || 0));
       if (damage > 0) {
         entity.hp = Math.max(0, entity.hp - damage);
+        recordCombatEquipmentLockActivity(tickAt);
         changed = true;
         if (!options.offline) addCombatantPoisonText(targetKind, entity, damage, "poison", tickAt);
       }
@@ -24043,6 +24920,11 @@ function bossPartyEnemyAttack(now) {
   return true;
 }
 
+function bossPartyTaoistMemberInventory() {
+  const member = state.battle.bossParty?.members?.find((row) => row.classId === "Taoist");
+  return member?.inventory ?? state.inventory;
+}
+
 function bossPartyPetAttack(now) {
   const pet = state.battle.bossParty?.pet;
   const enemy = state.battle.enemy;
@@ -24056,7 +24938,7 @@ function bossPartyPetAttack(now) {
   }
   pet.nextAttackAt = now + Math.max(400, Math.trunc(Number(pet.attackMs) || 1200));
   revealTaoistShinsuPet(pet);
-  const result = rollTaoistPetAttackResult(pet, enemy);
+  const result = rollTaoistPetAttackResult(pet, enemy, bossPartyTaoistMemberInventory());
   setTaoPetAction("attack1", true, now);
 
   if (pet.spellId === "SummonShinsu") {
@@ -24379,6 +25261,7 @@ function finishBossPartyEnemy(now) {
     )}.`);
     pushBattleLog("Return To Town when you are ready.");
   }
+  checkBossKillAchievements(party.zoneId, bossPartyMemberClassIds(party));
   addLootNotice(`${enemy.name} defeated`, "boss");
   gamePanelSignature = "";
   gamePanelDynamicSignature = "";
@@ -24443,10 +25326,14 @@ function bossDropTableForEnemy(enemy = state.battle.enemy) {
   return null;
 }
 
-function rollBossTableDrops(dropTable, awardItem) {
+function rollBossTableDrops(dropTable, awardItem, inventory = state.inventory) {
   const added = [];
   const ignored = [];
-  const adjustedTable = applyDropChanceBonusToBossTable(dropTable, rebirthDropChanceBonusPercent());
+  let table = dropTable;
+  if (state.battle.bossEmpowered) {
+    table = scaleBossDropTableChances(table, BOSS_EMPOWER_DROP_RATE_MULTIPLIER);
+  }
+  const adjustedTable = applyDropChanceBonusToBossTable(table, totalDropChanceBonusPercent(inventory));
   const { oilCount, itemIds } = rollBossTableDropSelection(adjustedTable);
   const oil = itemDefinition(BENEDICTION_OIL_ITEM_ID);
   if (oil && oilCount > 0) {
@@ -24456,7 +25343,7 @@ function rollBossTableDrops(dropTable, awardItem) {
     const item = itemDefinition(itemId);
     if (item) awardItem(item, added, ignored);
   }
-  if (rollBonusBossDropItem(dropTable, AWAKENING_SOUL_ITEM_ID, rebirthBonusAwakeningSoulChancePercent())) {
+  if (rollBonusBossDropItem(dropTable, AWAKENING_SOUL_ITEM_ID, totalBonusAwakeningSoulChancePercent(inventory))) {
     const soul = itemDefinition(AWAKENING_SOUL_ITEM_ID);
     if (soul) awardItem(soul, added, ignored);
   }
@@ -24471,7 +25358,7 @@ function rollBossPartyDrops(member, enemy = state.battle.enemy) {
   const source = codexDropSource({ zone: activeZone(), enemy, kind: "boss" });
   return rollBossTableDrops(dropTable, (item, added, ignored) => {
     addBossPartyZoneDropItem(member, item, added, ignored, source);
-  });
+  }, member.inventory);
 }
 
 function rollBossSoloDrops(enemy = state.battle.enemy) {
@@ -24506,22 +25393,22 @@ function applyBossPartyMemberKillReward(member, {
   member.game.recentLoot = [
     `+${gold} gold`,
     ...leveledTo.map((level) => `Level ${level}`),
-    ...drops.added.map((item) => `Found ${item.name}`),
+    ...drops.added.map((drop) => `Found ${dropResultLabel(drop)}`),
     ...drops.ignored.map((item) => `No room for ${item.name}`),
     ...member.game.recentLoot,
   ].slice(0, 6);
   pushBattleLog(`${member.classId} gained ${xp} XP and ${gold} gold.`);
   if (includeItems) {
-    for (const item of drops.added) pushBattleLog(`${member.classId} received ${item.name}.`);
+    for (const drop of drops.added) pushBattleLog(`${member.classId} received ${dropResultLabel(drop)}.`);
     for (const item of drops.ignored) pushBattleLog(`${member.classId} had no room for ${item.name}.`);
   } else {
-    for (const item of drops.added) pushBattleLog(`${member.classId} found ${item.name}.`);
+    for (const drop of drops.added) pushBattleLog(`${member.classId} found ${dropResultLabel(drop)}.`);
     for (const item of drops.ignored) pushBattleLog(`${member.classId} had no room for ${item.name}.`);
   }
   if (member.classId === bossPartyControlledClassId() || includeItems) {
     if (xp > 0) addLootNotice(`+${xp} XP`, "level");
     if (gold > 0) addLootNotice(`+${gold} gold`, "gold");
-    for (const item of drops.added) addLootNotice(`Found ${item.name}`, "item");
+    for (const drop of drops.added) addLootNotice(`Found ${dropResultLabel(drop)}`, "item");
     for (const item of drops.ignored) addLootNotice(`Inventory full: ${item.name}`, "full");
     for (const level of leveledTo) addLootNotice(`Level ${level}`, "level");
   }
@@ -24544,8 +25431,9 @@ function awardBossPartyKillShare(now = performance.now(), options = {}) {
 
   for (const member of recipients) {
     const xp = adjustedKillExperience(xpPerShare, member.game.progress.level, enemy.level ?? 0, member.inventory);
+    const gold = adjustedKillGold(goldPerShare, totalGoldBonusPercent(member.inventory));
     const drops = rollBossPartyZoneDrops(member, zone, enemy);
-    applyBossPartyMemberKillReward(member, { xp, gold: goldPerShare, drops, now, zoneId: zone.id });
+    applyBossPartyMemberKillReward(member, { xp, gold, drops, now, zoneId: zone.id });
   }
 }
 
@@ -24564,11 +25452,12 @@ function awardBossPartyBossKillShare(enemy, now = performance.now()) {
 
   for (const member of recipients) {
     const xp = adjustedKillExperience(xpPerShare, member.game.progress.level, enemy.level ?? 0, member.inventory);
+    const gold = adjustedKillGold(goldPerShare, totalGoldBonusPercent(member.inventory));
     const includeItems = member.classId === lootClassId;
     const drops = includeItems ? rollBossPartyDrops(member, enemy) : { added: [], ignored: [] };
     applyBossPartyMemberKillReward(member, {
       xp,
-      gold: goldPerShare,
+      gold,
       drops,
       now,
       includeItems,
@@ -24592,13 +25481,14 @@ function applyBossPartyExperienceReward(member, xp, now) {
     Object.assign(member, stats, { hp: stats.maxHp, mp: stats.maxMp });
     if (member.classId === bossPartyControlledClassId()) triggerLevelUpFx(now, level);
   }
+  if (levels.length) checkLevelAchievements(member.game.progress.level, member.classId);
   return levels;
 }
 
 function rollBossPartyZoneDrops(member, zone, enemy) {
   const added = [];
   const ignored = [];
-  const candidates = zoneDropCandidates(zone, enemy);
+  const candidates = zoneDropCandidates(zone, enemy, member.inventory);
   const source = codexDropSource({ zone, enemy, kind: "zone" });
   for (const candidate of rollChanceTable(candidates)) {
     addBossPartyZoneDropItem(member, candidate.item, added, ignored, source);
@@ -24637,10 +25527,11 @@ function addBossPartyZoneDropItem(member, item, added, ignored, source = codexDr
     return false;
   }
   const before = bossPartyInventoryItemQuantity(member, item.id);
-  const entries = bossPartyAddInventoryItem(member, item.id, 1);
+  const empowerDrop = Boolean(state.battle.bossEmpowered);
+  const entries = bossPartyAddInventoryItem(member, item.id, 1, { empowerDrop });
   const after = bossPartyInventoryItemQuantity(member, item.id);
   if (entries.length && after > before) {
-    added.push(item);
+    added.push(createDropResult(item, entries[0] ?? null));
     return true;
   }
   ignored.push(item);
@@ -24691,7 +25582,7 @@ function ensureBossPartyInventorySlots(member) {
   }
 }
 
-function bossPartyAddInventoryItem(member, itemId, quantity = 1) {
+function bossPartyAddInventoryItem(member, itemId, quantity = 1, options = {}) {
   syncBossPartyInventoryCapacityFromState(member?.classId);
   ensureBossPartyInventorySlots(member);
   const item = itemDefinition(itemId);
@@ -24719,6 +25610,7 @@ function bossPartyAddInventoryItem(member, itemId, quantity = 1) {
     }
     if (bossPartyInventoryUsedSlots(member) >= member.inventory.maxSlots) break;
     const entry = bossPartyCreateInventoryEntry(member, itemId, 1);
+    if (options.empowerDrop) applyEmpoweredDropRoll(entry, item);
     member.inventory.items.push(entry);
     added.push(entry);
     remaining -= 1;
@@ -25069,6 +25961,7 @@ function updateBattle(now) {
   updatePendingMassHeal(now);
   updatePendingUltimateEnhancer(now);
   updateDefenceBuffFx(now);
+  updateMassHealFx(now);
   updateBossPartyHealFx(now);
   updatePendingTwinDrakeHits(now);
   updateAttachedSpellFx(now);
@@ -25240,17 +26133,17 @@ function twinDrakeAutoCastActive(learned) {
   return Boolean(learned?.autoCast);
 }
 
-function setWarriorSpellCastReadyAt(skill, learned, now) {
+function setWarriorSpellCastReadyAt(skill, learned, now, inventory = state.inventory) {
   if (skill?.id === "TwinDrakeBlade" && twinDrakeAutoCastActive(learned)) {
     learned.castReadyAt = 0;
     return;
   }
-  learned.castReadyAt = now + spellDelayMs(skill, learned);
+  learned.castReadyAt = now + applyEquippedSpellCooldownReductionMs(skill?.id, spellDelayMs(skill, learned), inventory);
 }
 
 function bossPartySetWarriorSpellCastReadyAt(member, skill, learned, now) {
   if (!member || !skill || !learned) return;
-  setWarriorSpellCastReadyAt(skill, learned, now);
+  setWarriorSpellCastReadyAt(skill, learned, now, inventoryForCombatant(member));
   if (member.classId !== bossPartyControlledClassId()) return;
   const liveLearned = state.magic.learned?.[skill.id];
   if (liveLearned) liveLearned.castReadyAt = learned.castReadyAt;
@@ -25782,7 +26675,7 @@ function usableWarriorAttackSkill(now) {
     return { skill: BASIC_ATTACK_SKILL, learned: null, cost: 0 };
   }
   const { skill, learned } = candidates[0];
-  return { skill, learned, cost: spellMpCost(skill, learned) };
+  return { skill, learned, cost: effectiveSpellMpCost(skill, learned) };
 }
 
 function queuedWarriorAttackSkill(now) {
@@ -25809,7 +26702,7 @@ function usableWizardAttackSpell(now) {
     .filter((spell) => spell.impactMode !== "buff")
     .map((spell) => {
     const learned = learnedMagic(spell.id);
-    const cost = spellMpCost(spell, learned);
+    const cost = effectiveSpellMpCost(spell, learned);
     return {
       spell,
       learned,
@@ -25859,10 +26752,10 @@ function isHalfMoonAttackSkill(skill) {
   return skill?.id === "HalfMoon";
 }
 
-function canUseHalfMoonAttack(distancePx, mp, learned) {
+function canUseHalfMoonAttack(distancePx, mp, learned, inventory = state.inventory) {
   const skill = warriorSpellById("HalfMoon");
   if (!skill || !learned) return false;
-  return distancePx <= LANE.warriorRange && mp >= spellMpCost(skill, learned);
+  return distancePx <= LANE.warriorRange && mp >= effectiveSpellMpCost(skill, learned, inventory);
 }
 
 function halfMoonSplashSwarmEnemies(primarySwarmId) {
@@ -25891,7 +26784,7 @@ function bossPartyHalfMoonSplash(member, skill, learned, primaryEnemy, now) {
     }
     const entity = swarmEnemyToBattleEntity(swarmEnemy);
     const damage = scaleEnemyPhysicalDamage(
-      rollWarriorMagicDamage(skill, learned, member, entity),
+      rollWarriorMagicDamage(skill, learned, member, entity, member.inventory),
       entity,
       now,
     );
@@ -25946,7 +26839,7 @@ function canUseWarriorSkill(skill, learned, now, options = {}) {
   if (!skill.buff && !chargeCast && enemyDistance() > LANE.warriorRange) return false;
   if (skill.id === "Fury" && now < (state.battle.furyUntil ?? 0)) return false;
   if (warriorSpellCastOnCooldown(skill, learned, now)) return false;
-  return (state.battle.player?.mp ?? 0) >= spellMpCost(skill, learned);
+  return (state.battle.player?.mp ?? 0) >= effectiveSpellMpCost(skill, learned);
 }
 
 function canAutoCastWizardSpell(spell, learned, now) {
@@ -25959,7 +26852,7 @@ function canUseWizardSpell(spell, learned, now, options = {}) {
   if ((learned.castReadyAt ?? 0) > now) return false;
   if (spell.id === "FireWall" && !canUseWizardFireWall(now)) return false;
   if (options.requireAuto && spell.id === "TurnUndead" && !turnUndeadCanTarget(state.battle.enemy, state.battle.player)) return false;
-  return (state.battle.player?.mp ?? 0) >= spellMpCost(spell, learned);
+  return (state.battle.player?.mp ?? 0) >= effectiveSpellMpCost(spell, learned);
 }
 
 function wizardFireWallRequiresMeleeRange() {
@@ -26000,7 +26893,7 @@ function canUseTaoistSpell(spell, learned, now, options = {}) {
     if (!autoTaoistCombatSpells().some((autoSpell) => autoSpell.id === spell.id)) return false;
   }
   if ((learned.castReadyAt ?? 0) > now) return false;
-  return (state.battle.player?.mp ?? 0) >= spellMpCost(spell, learned);
+  return (state.battle.player?.mp ?? 0) >= effectiveSpellMpCost(spell, learned);
 }
 
 function warriorAutoPriority(skill) {
@@ -26105,7 +26998,7 @@ function canWizardCastSpell(spell, learned, now, member = null) {
   if (wizardCastLocked(now, member)) return false;
   if ((learned.castReadyAt ?? 0) > now) return false;
   const mp = member?.mp ?? state.battle.player?.mp ?? 0;
-  return mp >= spellMpCost(spell, learned);
+  return mp >= effectiveSpellMpCost(spell, learned);
 }
 
 function commitWizardSpellUse(spell, learned, cost, now) {
@@ -26120,7 +27013,10 @@ function commitWizardSpellUse(spell, learned, cost, now) {
 function commitTaoistSpellUse(spell, learned, cost, now) {
   state.battle.player.mp = Math.max(0, state.battle.player.mp - cost);
   if (learned) learned.castReadyAt = now + spellDelayMs(spell, learned);
-  clearQueuedCombatSpell(spell.id);
+  // Manual Poisoning stays queued until green and yellow are both applied (or unavailable).
+  if (!(spell.id === "Poisoning" && isQueuedCombatSpell("Poisoning"))) {
+    clearQueuedCombatSpell(spell.id);
+  }
   sceneSignature = "";
   battlePanelSignature = "";
   combatSkillBarSignature = "";
@@ -26188,15 +27084,16 @@ function warriorSlayingPending(member = null) {
   return Boolean(controlled?.classId === "Warrior" && controlled.slayingReady);
 }
 
-function rollWarriorMagicDamage(skill, learned, player, enemy) {
+function rollWarriorMagicDamage(skill, learned, player, enemy, inventory = state.inventory) {
   const attack = rollStat(player.dc, player.luck);
   const boosted = Math.trunc((attack + crystalMagicPower(skill, learned)) * crystalMagicMultiplier(skill, learned));
+  const withEmpower = applyEquippedSpellDamageBonus(skill?.id, boosted, inventory);
   const defence = rollStat(enemyPhysicalDefence(enemy));
-  return Math.max(0, boosted - defence);
+  return Math.max(0, withEmpower - defence);
 }
 
-function rollWizardMagicDamage(spell, learned, player, enemy) {
-  const boosted = rollWizardMagicValue(spell, learned, player);
+function rollWizardMagicDamage(spell, learned, player, enemy, inventory = state.inventory) {
+  const boosted = rollWizardMagicValue(spell, learned, player, inventory);
   const adjusted = spell?.id === "ThunderBolt" && enemy?.undead ? Math.trunc(boosted * 1.5) : boosted;
   return applyWizardMagicDefence(adjusted, enemy);
 }
@@ -26236,19 +27133,30 @@ function rollTurnUndeadResult(spell, learned, caster, enemy) {
   };
 }
 
-function rollWizardMagicValue(spell, learned, player) {
-  return crystalMagicDamageBeforeDefence(spell, learned, combatantForMagicRoll(player));
+function rollWizardMagicValue(spell, learned, player, inventory = state.inventory) {
+  const base = crystalMagicDamageBeforeDefence(spell, learned, combatantForMagicRoll(player));
+  return applyEquippedSpellDamageBonus(spell?.id, base, inventory);
 }
 
-function rollTaoistHealingAmount(spell, learned, player) {
+function effectiveSpellMpCost(spell, learned, inventory = state.inventory) {
+  return applyEquippedSpellMpCostReduction(spell?.id, spellMpCost(spell, learned), inventory);
+}
+
+function rollTaoistHealingAmount(spell, learned, player, inventory = state.inventory) {
   const attack = rollStat(player.sc, player.luck);
   const boosted = Math.trunc(((attack * 2) + crystalMagicPower(spell, learned)) * crystalMagicMultiplier(spell, learned));
   const level = Math.max(1, Math.trunc(Number(player?.level ?? state.game.progress.level) || 1));
-  return Math.max(1, boosted + level);
+  const base = Math.max(1, boosted + level);
+  return applyEquippedSpellHealingBonus(spell?.id, base, inventory);
 }
 
-function rollTaoistMagicDamage(spell, learned, player, enemy) {
-  return applyWizardMagicDefence(rollTaoistMagicValue(spell, learned, player), enemy);
+function rollTaoistMagicDamage(spell, learned, player, enemy, inventory = state.inventory) {
+  const boosted = applyEquippedSpellDamageBonus(
+    spell?.id,
+    rollTaoistMagicValue(spell, learned, player),
+    inventory,
+  );
+  return applyWizardMagicDefence(boosted, enemy);
 }
 
 function rollTaoistMagicValue(spell, learned, player) {
@@ -27143,6 +28051,10 @@ function needsTaoistMassHealing(now = performance.now(), options = {}) {
   return taoistMassHealInjuredTargets(now, options).length > 0;
 }
 
+function inventoryForCombatant(caster) {
+  return caster?.inventory ?? state.inventory;
+}
+
 function queueEntityHealingRestore(entity, amount, now = performance.now()) {
   const value = Math.max(0, Math.trunc(Number(amount) || 0));
   if (value <= 0 || !entity || entity.hp <= 0) return false;
@@ -27158,7 +28070,7 @@ function applyTaoistMassHealEffect(spell, learned, caster, now, options = {}) {
   const results = [];
   for (const { entity, name } of taoistMassHealInjuredTargets(now, options)) {
     if (!entity || entity.hp <= 0 || entity.hp >= entity.maxHp) continue;
-    const amount = rollTaoistHealingAmount(spell, learned, casterEntity);
+    const amount = rollTaoistHealingAmount(spell, learned, casterEntity, inventoryForCombatant(caster));
     if (!queueEntityHealingRestore(entity, amount, now)) continue;
     results.push({ entity, name, amount });
   }
@@ -27175,65 +28087,59 @@ function formatTaoistMassHealAppliedLog(spell, applied) {
   return parts.length ? parts.join(", ") : `${spell?.label ?? "Mass Healing"} applied`;
 }
 
-function showTaoistMassHealTexts(applied, now = performance.now()) {
+function showTaoistMassHealTexts(spell, applied, now = performance.now(), options = {}) {
   if (!applied?.results?.length || suppressSimulationRender) return;
+  let soundPlayed = Boolean(options.soundPlayed);
   for (const entry of applied.results) {
     if (!entry.entity || entry.entity.hp <= 0) continue;
-    const text = `+${entry.amount} queued`;
-    if (state.battle.bossParty?.active) {
-      if (entry.entity === state.battle.bossParty?.pet || entry.entity?.classId) {
-        addBossPartyMemberCombatText(entry.entity, text, "heal", now);
-      }
-      continue;
-    }
-    const anchor = entry.entity === state.battle.taoPet
-      ? "pet"
-      : (entry.entity === state.battle.player ? "player" : entry.entity?.classId ?? "player");
-    addCombatText(anchor, text, "heal", now);
-  }
-}
-
-function massHealImpactFxOptions(entity) {
-  if (!entity) return { anchor: "player" };
-  if (entity === state.battle.bossParty?.pet || entity === state.battle.taoPet) {
-    return { anchor: "pet", petFx: true, target: entity };
-  }
-  if (entity.classId && state.battle.bossParty?.active) {
-    return { memberClassId: entity.classId, target: entity };
-  }
-  return { anchor: "player", target: entity };
-}
-
-function queueMassHealImpactFx(spell, applied, now = performance.now(), options = {}) {
-  if (!spell?.id || suppressSimulationRender) return;
-  let soundPlayed = Boolean(options.soundPlayed);
-  for (const entry of applied?.results ?? []) {
-    if (!entry.entity || entry.entity.hp <= 0) continue;
-    const impactOptions = massHealImpactFxOptions(entry.entity);
-    queueCombatHealRestoreFx(entry.entity, spell, now, {
-      ...impactOptions,
-      soundPlayed,
+    showEntityQueuedHealText(entry.entity, entry.amount, now);
+    queueEntityHealRestoreFx(entry.entity, spell, now, {
       casterClassId: options.casterClassId ?? null,
+      startAt: now,
+      soundPlayed,
     });
     soundPlayed = true;
   }
 }
 
+function massHealCastAnchorEntity(options = {}) {
+  if (options.casterClassId && state.battle.bossParty?.active) {
+    return state.battle.bossParty.members?.find((member) => member.classId === options.casterClassId) ?? state.battle.player;
+  }
+  return state.battle.player;
+}
+
+function playMassHealImpactSfx(spell, options = {}) {
+  if (!spell?.id || options.soundPlayed) return;
+  playSpellSfx(spell.id, "impact", { volume: 0.46, throttleMs: 160 });
+}
+
 function updatePendingMassHeal(now, options = {}) {
   const battle = state.battle;
   const pending = battle.pendingMassHeal;
-  if (!pending || now < pending.at || !battle.player || battle.player.hp <= 0) return false;
+  if (!pending || now < pending.at) return false;
+  if (battle.bossParty?.active) {
+    if (!battle.bossParty.members?.some((member) => member.alive && member.hp > 0)) return false;
+  } else if (!battle.player || battle.player.hp <= 0) {
+    return false;
+  }
   battle.pendingMassHeal = null;
   const spell = taoistCombatSpell(pending.spellId);
-  const learned = learnedMagic(spell?.id);
+  const learned = pending.learned ?? learnedMagic(spell?.id);
   if (!spell || !learned) return false;
-  const applied = applyTaoistMassHealEffect(spell, learned, battle.player, now);
+  const caster = pending.caster ?? massHealCastAnchorEntity(pending);
+  const applied = applyTaoistMassHealEffect(spell, learned, caster, now, pending.options);
   if (!applied) return false;
+  if (pending.casterClassId && state.battle.bossParty?.active) {
+    const member = state.battle.bossParty.members?.find((candidate) => candidate.classId === pending.casterClassId);
+    if (member) bossPartyLevelMagicSkill(member, spell, learned, now);
+  }
   if (!options.offline && !suppressSimulationRender) {
-    battle.activeTaoSpell = null;
-    battle.activeTaoSpellAtlas = null;
-    showTaoistMassHealTexts(applied, now);
-    queueMassHealImpactFx(spell, applied, now);
+    showTaoistMassHealTexts(spell, applied, now, {
+      casterClassId: pending.casterClassId ?? null,
+      soundPlayed: pending.soundPlayed,
+    });
+    playMassHealImpactSfx(spell, { soundPlayed: pending.soundPlayed });
     pushBattleLog(`${spell.label} restores allies (${formatTaoistMassHealAppliedLog(spell, applied)}).`);
   }
   playerHudSignature = "";
@@ -27244,9 +28150,8 @@ function updatePendingMassHeal(now, options = {}) {
 
 function castTaoistMassHealing(castBundle, now, options = {}) {
   const battle = state.battle;
-  const { spell, learned, cost, entry, item } = castBundle;
+  const { spell, learned, cost } = castBundle;
   if (battle.pendingMassHeal) return false;
-  if (!consumeOneInventoryUnit(entry.id)) return false;
   battle.lastPlayerAttackCooldownMs = spellDelayMs(spell, learned);
   commitTaoistSpellUse(spell, learned, cost, now);
 
@@ -27258,6 +28163,8 @@ function castTaoistMassHealing(castBundle, now, options = {}) {
   battle.pendingMassHeal = {
     at: now + (Number(spell.impactDelayMs) || CRYSTAL_HEAL_APPLY_DELAY_MS),
     spellId: spell.id,
+    learned,
+    caster: battle.player,
   };
 
   const atlas = state.taoistSpellAtlases[spell.id] ?? null;
@@ -27269,9 +28176,10 @@ function castTaoistMassHealing(castBundle, now, options = {}) {
   battle.activeTaoSpellAtlas = atlas;
   battle.activeTaoSpellStartedAt = now;
   battle.pendingPoison = null;
+  queueMassHealImpactFx(now, { worldX: battle.playerX });
   setPlayerAction(spell.bodyAction ?? "spell", now, true);
   playSpellSfx(spell.id, "cast");
-  pushBattleLog(`Taoist casts ${spell.label} with ${item.name}.`);
+  pushBattleLog(`Taoist casts ${spell.label}.`);
   return true;
 }
 
@@ -27283,10 +28191,7 @@ function usableTaoistMassHealing(now, options = {}) {
   const injured = taoistMassHealInjuredTargets(now, options);
   if (!injured.length) return null;
   if (!manual && injured.length < 2) return null;
-  const entry = amuletCandidate(0);
-  const item = entry ? itemDefinition(entry.itemId) : null;
-  if (!entry || !isTaoistAmuletItem(item)) return null;
-  return { spell, learned, cost: spellMpCost(spell, learned), entry, item };
+  return { spell, learned, cost: effectiveSpellMpCost(spell, learned) };
 }
 
 function castTaoistUltimateEnhancer(castBundle, now, options = {}) {
@@ -27337,7 +28242,7 @@ function usableTaoistUltimateEnhancer(now, options = {}) {
   return {
     spell,
     learned,
-    cost: spellMpCost(spell, learned),
+    cost: effectiveSpellMpCost(spell, learned),
     entry,
     item,
     targets,
@@ -27395,7 +28300,7 @@ function usableWizardDefenceBuff(now, options = {}) {
   if (!spell || !learned || !canUseWizardSpell(spell, learned, now, { requireAuto: !manual })) return null;
   if (state.battle.pendingDefenceBuff?.spellId === "MagicShield") return null;
   if (!manual && !needsDefenceBuff("MagicShield", now)) return null;
-  return { spell, learned, cost: spellMpCost(spell, learned) };
+  return { spell, learned, cost: effectiveSpellMpCost(spell, learned) };
 }
 
 function usableQueuedWizardDefenceBuff(now) {
@@ -27486,7 +28391,7 @@ function usableTaoistDefenceBuff(spellId, now, options = {}) {
   const entry = amuletCandidate(0);
   const item = entry ? itemDefinition(entry.itemId) : null;
   if (!entry || !isTaoistAmuletItem(item)) return null;
-  return { spell, learned, cost: spellMpCost(spell, learned), entry, item };
+  return { spell, learned, cost: effectiveSpellMpCost(spell, learned), entry, item };
 }
 
 function maybeCastTaoistDefenceBuffs(now) {
@@ -27504,13 +28409,14 @@ function usableTaoistHealing(now, options = {}) {
   const spell = taoistCombatSpell("Healing");
   const learned = learnedMagic(spell.id);
   const manual = options.requireAuto === false;
+  if (state.battle.pendingMassHeal) return null;
   if (!canUseTaoistSpell(spell, learned, now, { requireAuto: !manual })) return null;
   const pet = taoistPetCanBeHealed() ? state.battle.taoPet : null;
   if (pet && (manual || pet.hp / Math.max(1, pet.maxHp) < AUTO_POTION_THRESHOLD)) {
     const pendingAmount = Math.max(0, Number(pet.healAmount) || 0)
       + (state.battle.pendingHeal?.target === "pet" ? Math.max(0, Number(state.battle.pendingHeal?.amount) || 0) : 0);
     if (pendingAmount < pet.maxHp - pet.hp) {
-      return { spell, learned, cost: spellMpCost(spell, learned), target: "pet" };
+      return { spell, learned, cost: effectiveSpellMpCost(spell, learned), target: "pet" };
     }
   }
   const player = state.battle.player;
@@ -27519,7 +28425,7 @@ function usableTaoistHealing(now, options = {}) {
   const pendingAmount = Math.max(0, Number(state.battle.healAmount) || 0)
     + (state.battle.pendingHeal?.target === "pet" ? 0 : Math.max(0, Number(state.battle.pendingHeal?.amount) || 0));
   if (pendingAmount >= player.maxHp - player.hp) return null;
-  return { spell, learned, cost: spellMpCost(spell, learned), target: "player" };
+  return { spell, learned, cost: effectiveSpellMpCost(spell, learned), target: "player" };
 }
 
 function usableTaoistPoisoning(now, options = {}) {
@@ -27536,7 +28442,7 @@ function usableTaoistPoisoning(now, options = {}) {
   return {
     spell,
     learned,
-    cost: spellMpCost(spell, learned),
+    cost: effectiveSpellMpCost(spell, learned),
     entry,
     item,
     kind: poisonItemKind(item),
@@ -27556,7 +28462,7 @@ function usableTaoistSoulFireBall(now, options = {}) {
   return {
     spell,
     learned,
-    cost: spellMpCost(spell, learned),
+    cost: effectiveSpellMpCost(spell, learned),
     entry,
     item,
   };
@@ -27579,7 +28485,7 @@ function usableTaoistSummonSpell(spellId, now, options = {}) {
   return {
     spell,
     learned,
-    cost: spellMpCost(spell, learned),
+    cost: effectiveSpellMpCost(spell, learned),
     entry,
     item,
     amuletCost,
@@ -27860,13 +28766,14 @@ function taoistShinsuAttackImpactMs() {
   return CRYSTAL_SHINSU_ATTACK_IMPACT_FRAME * interval;
 }
 
-function rollTaoistPetAttackResult(pet, enemy) {
+function rollTaoistPetAttackResult(pet, enemy, inventory = state.inventory) {
   if (!rollHit(pet.accuracy, enemy.agility)) return { hit: false, damage: 0 };
   const attackStat = effectiveCombatStats(pet).dc;
   const defence = pet.spellId === "SummonHolyDeva"
     ? enemyMagicalDefence(enemy)
     : enemyPhysicalDefence(enemy);
-  const damage = rollDamage(attackStat, defence, pet.luck);
+  const rawDamage = rollDamage(attackStat, defence, pet.luck);
+  const damage = applyEquippedSpellDamageBonus(pet?.spellId, rawDamage, inventory);
   return { hit: damage > 0, damage };
 }
 
@@ -28724,7 +29631,10 @@ function mapLightningStrikeHitsTarget(effect, target) {
 
 function applyMapLightningHitToMember(member, damage, now) {
   if (!member || member.hp <= 0) return;
-  if (damage > 0) member.hp = Math.max(0, member.hp - damage);
+  if (damage > 0) {
+    member.hp = Math.max(0, member.hp - damage);
+    recordCombatEquipmentLockActivity(now);
+  }
   const offsetX = bossPartyDamageTextOffset(member.classId);
   if (member.classId === bossPartyControlledClassId()) {
     setPlayerAction("struck", now + 250, true);
@@ -29167,6 +30077,7 @@ function enemyAttackTarget() {
 function applyCombatDamageEvent(event, now = performance.now(), context = {}) {
   const amount = Math.max(0, Math.trunc(Number(event.amount) || 0));
   if (amount <= 0) return;
+  recordCombatEquipmentLockActivity(now);
   if (event.target === "enemy") {
     const enemy = context.enemy ?? state.battle.enemy;
     reduceEnemyHp(enemy, amount);
@@ -29440,6 +30351,7 @@ function addSwarmEnemyCombatText(swarmEnemy, text, kind = "damage", now = perfor
 function finishBattle(now) {
   state.battle.running = false;
   state.battle.phase = "idle";
+  resetCombatEquipmentLock();
   state.battle.nextPlayerAttackAt = 0;
   state.battle.nextEnemyAttackAt = 0;
   state.battle.pendingImpact = null;
@@ -29450,6 +30362,7 @@ function finishBattle(now) {
   state.battle.pendingMassHeal = null;
   state.battle.pendingUltimateEnhancer = null;
   state.battle.defenceBuffFx = [];
+  state.battle.massHealFx = [];
   state.battle.healFx = [];
   state.battle.flamingSwordReady = false;
   state.battle.flamingSwordReadyAt = 0;
@@ -29519,9 +30432,12 @@ function awardEnemyRewards() {
   const enemy = state.battle.enemy;
   const xp = adjustedKillExperience(enemy?.experience ?? 0, state.game.progress.level, enemy?.level ?? 0);
   const bossDrops = bossDropTableForEnemy(enemy);
-  const gold = bossDrops
-    ? bossDrops.gold
-    : randomInt(reward.gold[0], reward.gold[1]);
+  const gold = adjustedKillGold(
+    bossDrops
+      ? bossDrops.gold
+      : randomInt(reward.gold[0], reward.gold[1]),
+    totalGoldBonusPercent(),
+  );
   const drops = bossDrops
     ? rollBossSoloDrops(enemy)
     : isRedThunderZumaEnemy(enemy)
@@ -29542,17 +30458,17 @@ function awardEnemyRewards() {
   if (gold > 0) playSfx("ui.gold", { volume: 0.34, throttleMs: 250 });
   pushBattleLog(`Gained ${xp} XP and ${gold} gold.`);
   if (leveledTo.length) pushBattleLog(`Level up: ${leveledTo.at(-1)}.`);
-  for (const item of drops.added) pushBattleLog(`Received ${item.name}.`);
+  for (const drop of drops.added) pushBattleLog(`Received ${dropResultLabel(drop)}.`);
   for (const item of drops.ignored) pushBattleLog(`No room for ${item.name}.`);
   addLootNotice(`+${gold} gold`, "gold");
   for (const level of leveledTo) addLootNotice(`Level ${level}`, "level");
-  for (const item of drops.added) addLootNotice(`Found ${item.name}`, "item");
+  for (const drop of drops.added) addLootNotice(`Found ${dropResultLabel(drop)}`, "item");
   for (const item of drops.ignored) addLootNotice(`Inventory full: ${item.name}`, "full");
   if (drops.added.length || drops.ignored.length || gold > 0) {
     state.game.recentLoot = [
       `+${gold} gold`,
       ...leveledTo.map((level) => `Level ${level}`),
-      ...drops.added.map((item) => `Found ${item.name}`),
+      ...drops.added.map((drop) => `Found ${dropResultLabel(drop)}`),
       ...drops.ignored.map((item) => `No room for ${item.name}`),
       ...state.game.recentLoot,
     ].slice(0, 6);
@@ -29618,7 +30534,7 @@ function rollRedThunderZumaDrops() {
   const added = [];
   const ignored = [];
   const source = codexDropSource({ zone: activeZone(), enemy: state.battle.enemy, kind: "boss" });
-  const dropBonus = rebirthDropChanceBonusPercent();
+  const dropBonus = totalDropChanceBonusPercent();
   const itemIds = rollRedThunderZumaDropIds({
     guaranteedIds: ZUMA_THUNDER_GUARANTEED_DROP_IDS,
     bonusWeaponIds: RED_THUNDER_ZUMA_BONUS_WEAPON_IDS,
@@ -29646,10 +30562,10 @@ function rollZoneDrops(zone, enemy = state.battle.enemy) {
   return { added, ignored };
 }
 
-function zoneDropCandidates(zone, enemy = null) {
+function zoneDropCandidates(zone, enemy = null, inventory = state.inventory) {
   return applyDropChanceBonus(
     buildZoneDropCandidates(state.itemData.items, zone.id, enemy?.id),
-    rebirthDropChanceBonusPercent(),
+    totalDropChanceBonusPercent(inventory),
   );
 }
 
@@ -29677,10 +30593,11 @@ function addZoneDropItem(item, added, ignored, source = codexDropSource()) {
     return false;
   }
   const before = state.inventory.items.reduce((sum, entry) => sum + (entry.itemId === item.id ? entry.quantity : 0), 0);
-  const addedEntries = addInventoryItem(item.id, 1);
+  const empowerDrop = Boolean(state.battle.bossEmpowered);
+  const addedEntries = addInventoryItem(item.id, 1, { empowerDrop });
   const after = state.inventory.items.reduce((sum, entry) => sum + (entry.itemId === item.id ? entry.quantity : 0), 0);
   if (addedEntries.length && after > before) {
-    added.push(item);
+    added.push(createDropResult(item, addedEntries[0] ?? null));
     return true;
   }
   ignored.push(item);
@@ -29871,7 +30788,7 @@ function renderCombatSkillBar(now = performance.now()) {
 function combatSkillButtonHtml(skill, learned, now) {
   const remainingMs = skill.toggle ? 0 : Math.max(0, (learned?.castReadyAt ?? 0) - now);
   const remainingSeconds = Math.ceil(remainingMs / 1000);
-  const mpCost = spellMpCost(skill, learned);
+  const mpCost = effectiveSpellMpCost(skill, learned);
   const enoughMp = (state.battle.player?.mp ?? 0) >= mpCost;
   const hasPoison = skill.id !== "Poisoning" || poisonInventoryCount() > 0;
   const needsAmulet = skill.id === "SoulFireBall" || skill.id === "SummonSkeleton" || skill.id === "SummonShinsu" || skill.id === "SummonHolyDeva";
@@ -30877,6 +31794,7 @@ function renderCanvasStage(displayFrame, frameCount) {
   drawCombatWizardFxCanvas(ctx);
   drawCombatTaoistFxCanvas(ctx);
   drawDefenceBuffFxCanvas(ctx);
+  drawMassHealImpactFxCanvas(ctx);
   if (state.battle.bossParty?.active || state.battle.bossParty?.finished) {
     drawBossPartySpellFxCanvas(ctx);
   }
@@ -33691,7 +34609,9 @@ function drawBossPartyMemberSpellFx(ctx, member, now) {
       const layerT = t - layerDelay;
       const duration = layer.frames.length * layer.interval;
       if (layerT < 0 || layerT > duration) continue;
-      const layerAnchor = wizardSpellFxLayerAnchor(spell, layer, memberAnchor, enemyAnchor);
+      const layerAnchor = member.classId === "Taoist"
+        ? taoistSpellFxLayerAnchor(spell, layer, memberAnchor, enemyAnchor)
+        : wizardSpellFxLayerAnchor(spell, layer, memberAnchor, enemyAnchor);
       const frameIndex = Math.min(layer.frames.length - 1, Math.floor(layerT / layer.interval));
       drawSpellLayerCanvas(ctx, atlas.spellId, layer, frameIndex, layerAnchor.x, layerAnchor.y);
     }
@@ -34024,7 +34944,7 @@ function drawCombatTaoistFxCanvas(ctx) {
       const layerT = t - layerDelay;
       const duration = layer.frames.length * layer.interval;
       if (layerT < 0 || layerT > duration) continue;
-      const layerAnchor = layer.anchor === "enemy" ? enemyAnchor : layer.anchor === "player" ? playerAnchor : fxAnchor;
+      const layerAnchor = taoistSpellFxLayerAnchor(spell, layer, playerAnchor, enemyAnchor);
       const frameIndex = Math.min(layer.frames.length - 1, Math.floor(layerT / layer.interval));
       drawSpellLayerCanvas(ctx, atlas.spellId, layer, frameIndex, layerAnchor.x, layerAnchor.y);
     }
@@ -34035,6 +34955,20 @@ function drawCombatTaoistFxCanvas(ctx) {
       drawImpactFlashCanvas(ctx, atlas, t - hitAt, enemyAnchor);
     }
   });
+}
+
+function taoistSpellFxLayerAnchor(spell, layer, playerAnchor, enemyAnchor) {
+  if (layer.anchor === "enemy") {
+    return { x: enemyAnchor.x, y: spellTargetCellAnchorY(enemyAnchor.y) };
+  }
+  if (layer.anchor === "player") {
+    const overhead = spell?.impactMode === "massHeal" && (Number(layer.delayMs) || 0) > 0;
+    return {
+      x: playerAnchor.x,
+      y: overhead ? spellTargetCellAnchorY(playerAnchor.y) : playerAnchor.y,
+    };
+  }
+  return spell?.effectAnchor === "enemy" ? enemyAnchor : playerAnchor;
 }
 
 function spellTargetCellAnchorY(anchorY = Math.floor(state.stageHeight * LANE.y)) {
@@ -34055,12 +34989,17 @@ function wizardBangSpellAnchorFromCenter(centerTile, fallbackAnchor) {
   };
 }
 
+function wizardTargetFxAnchorY(spell, enemyAnchor) {
+  if (spell?.targetFxAnchor === "feet") return enemyAnchor.y;
+  return spellTargetCellAnchorY(enemyAnchor.y);
+}
+
 function wizardSpellFxLayerAnchor(spell, layer, playerAnchor, enemyAnchor) {
   if (layer.anchor === "player") return playerAnchor;
   if (layer.anchor === "enemyObject") return enemyAnchor;
   if (layer.anchor === "enemy") {
     if (spell?.impactMode === "bang" || spell?.impactMode === "target") {
-      return { x: enemyAnchor.x, y: spellTargetCellAnchorY(enemyAnchor.y) };
+      return { x: enemyAnchor.x, y: wizardTargetFxAnchorY(spell, enemyAnchor) };
     }
     return enemyAnchor;
   }
@@ -34276,14 +35215,16 @@ function drawLootNotices(ctx) {
   ctx.save();
   ctx.textAlign = "center";
   ctx.textBaseline = "middle";
-  ctx.font = "700 12px Segoe UI, system-ui, sans-serif";
   const x = Math.round(state.stageWidth / 2);
   notices.slice(-4).forEach((entry, index) => {
     const age = now - entry.createdAt;
     const t = Math.max(0, Math.min(1, age / duration));
     const alpha = t < 0.78 ? 1 : Math.max(0, 1 - (t - 0.78) / 0.22);
-    const y = 28 + index * 22 - Math.min(10, t * 10);
-    const textWidth = Math.min(260, Math.max(92, ctx.measureText(entry.text).width + 24));
+    const y = (entry.kind === "full" ? 78 : 28) + index * 22 - Math.min(10, t * 10);
+    ctx.font = entry.kind === "full"
+      ? "700 14px Segoe UI, system-ui, sans-serif"
+      : "700 12px Segoe UI, system-ui, sans-serif";
+    const textWidth = Math.min(320, Math.max(92, ctx.measureText(entry.text).width + 24));
     ctx.globalAlpha = alpha;
     ctx.fillStyle = "rgba(9, 9, 7, 0.76)";
     ctx.fillRect(Math.round(x - textWidth / 2), Math.round(y - 10), textWidth, 20);

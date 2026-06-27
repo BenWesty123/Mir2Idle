@@ -8,6 +8,6 @@
  * sends "Cache-Control: no-store", so the browser always re-fetches and the
  * value here is irrelevant.
  */
-import "./app.monolith.js?v=20260626-achievements";
+import "./app.monolith.js?v=20260627-achievement-scroll";
 
 

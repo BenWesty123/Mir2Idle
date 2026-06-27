@@ -3,12 +3,27 @@ import assert from "node:assert/strict";
 import { sanitizeItemBonusStats, sanitizeSmithBonusStats } from "../src/battleData.js";
 import {
   normalizeInventoryEntryFields,
+  sanitizeInventoryMark,
   sanitizeInventoryState,
   sanitizeStorageState,
 } from "../src/persistence/sanitizeInventory.js";
 
 const equipmentSlotIds = ["weapon", "armour", "helmet"];
 const stackable = (item) => item?.stackable === true;
+
+test("sanitizeInventoryMark: accepts junk and saved only", () => {
+  assert.equal(sanitizeInventoryMark("junk"), "junk");
+  assert.equal(sanitizeInventoryMark("saved"), "saved");
+  assert.equal(sanitizeInventoryMark("neutral"), null);
+  assert.equal(sanitizeInventoryMark(null), null);
+});
+
+test("normalizeInventoryEntryFields: preserves inventory mark", () => {
+  const item = { id: "sword", stackable: false };
+  assert.equal(normalizeInventoryEntryFields({ inventoryMark: "junk" }, item, stackable).inventoryMark, "junk");
+  assert.equal(normalizeInventoryEntryFields({ inventoryMark: "saved" }, item, stackable).inventoryMark, "saved");
+  assert.equal(normalizeInventoryEntryFields({ inventoryMark: "bogus" }, item, stackable).inventoryMark, null);
+});
 
 test("normalizeInventoryEntryFields: bonus stats and durability", () => {
   const item = { id: "sword", durability: 100, stackable: false };
