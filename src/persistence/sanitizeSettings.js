@@ -44,5 +44,7 @@ export function sanitizeSettingsState(savedSettings = {}) {
     prototypeStatsNoticeVersion: Math.max(0, Math.trunc(Number(savedSettings.prototypeStatsNoticeVersion) || 0)),
     prototypeResetNoticeVersion: Math.max(0, Math.trunc(Number(savedSettings.prototypeResetNoticeVersion) || 0)),
     prototypeResetNoticeLastSeenAt: Math.max(0, Math.trunc(Number(savedSettings.prototypeResetNoticeLastSeenAt) || 0)),
+    cloudBackupNoticeVersion: Math.max(0, Math.trunc(Number(savedSettings.cloudBackupNoticeVersion) || 0)),
+    cloudBackupNoticeLastSeenAt: Math.max(0, Math.trunc(Number(savedSettings.cloudBackupNoticeLastSeenAt) || 0)),
   };
 }

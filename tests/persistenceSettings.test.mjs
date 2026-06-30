@@ -39,6 +39,8 @@ test("sanitizeSettingsState: honors explicit flags at current version", () => {
     sfxVolume: 0.2,
     prototypeStatsEnabled: false,
     prototypeStatsNoticeVersion: 2,
+    cloudBackupNoticeVersion: 1,
+    cloudBackupNoticeLastSeenAt: 123456,
   });
   assert.equal(result.musicEnabled, false);
   assert.equal(result.musicVolume, 0.8);
@@ -47,4 +49,6 @@ test("sanitizeSettingsState: honors explicit flags at current version", () => {
   assert.equal(result.sfxVolume, 0.2);
   assert.equal(result.prototypeStatsEnabled, false);
   assert.equal(result.prototypeStatsNoticeVersion, 2);
+  assert.equal(result.cloudBackupNoticeVersion, 1);
+  assert.equal(result.cloudBackupNoticeLastSeenAt, 123456);
 });

@@ -2,18 +2,24 @@ import fs from "node:fs";
 import path from "node:path";
 import { WARRIOR_COMBAT_SKILLS } from "../src/warriorMagic.js";
 
-export const WIZARD_COMBAT_SPELL_IDS = ["FireBall", "GreatFireBall", "ThunderBolt", "TurnUndead", "Vampirism", "FireWall", "FrostCrunch", "IceStorm", "FlameDisruptor", "MagicShield"];
+export const WIZARD_COMBAT_SPELL_IDS = ["FireBall", "GreatFireBall", "ThunderBolt", "TurnUndead", "Vampirism", "FireWall", "FrostCrunch", "IceStorm", "FlameField", "FlameDisruptor", "MagicShield", "Blizzard", "MeteorStrike"];
 export const TAOIST_COMBAT_SPELL_IDS = [
   "Healing",
   "Poisoning",
+  "PoisonCloud",
+  "Curse",
+  "Plague",
   "SoulFireBall",
   "SummonSkeleton",
   "SummonShinsu",
   "SummonHolyDeva",
   "SoulShield",
   "BlessedArmour",
+  "EnergyShield",
+  "HealingCircle",
   "MassHealing",
   "UltimateEnhancer",
+  "PetEnhancer",
 ];
 export const TAOIST_DEFENCE_BUFF_IMPACT_FX = {
   SoulShield: "SoulShieldImpact",
@@ -26,7 +32,7 @@ export const MAP_LIGHTNING_FX_ID = "MapLightning";
 export const MAP_HELL_FIRE_FX_ID = "MapHellFire";
 export const TOWN_IDLE_TELEPORT_FX_ID = "Teleport";
 
-const NESTED_ATLAS_SHEET_KEYS = ["projectile", "impact", "ground", "cast", "charge"];
+const NESTED_ATLAS_SHEET_KEYS = ["projectile", "impact", "ground", "storm", "cast", "charge"];
 
 export function packagedSpellfxSpellIds() {
   return [

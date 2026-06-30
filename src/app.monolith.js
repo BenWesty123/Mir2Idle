@@ -9,6 +9,7 @@ import {
   crystalExperienceForLevel,
   crystalPlayerBaseStats,
   CRYSTAL_MAX_LUCK,
+  BENEDICTION_MAX_WEAPON_LUCK,
   formatStatRange,
   randomInt,
   rollDamage,
@@ -53,6 +54,8 @@ import {
   fireWallCrossTiles,
   resolveSwarmEnemyAction,
   spellBangAreaTiles,
+  spellGroundAreaTiles,
+  spellStormAreaTiles,
   swarmAttackActionForLane,
   swarmRangeAttackActionForLane,
   swarmEnemyEngagedStanceAction,
@@ -63,6 +66,7 @@ import {
   swarmLaneMapRow,
   swarmMeleeColumnWorldX,
   swarmPickWalkStep,
+  swarmPickCenterLaneStep,
   swarmSnapTileX,
   swarmTileOccupied,
   travelProjectileAngleRad,
@@ -99,6 +103,15 @@ import {
 } from "./buffPotions.js";
 import { BOSS_DROP_TABLE_BY_LABEL, BOSS_ORB_ITEM_IDS } from "./bossDrops.js";
 import { SAVE_VERSION, parseSaveSnapshotText } from "./persistence/saveFormat.js";
+import {
+  CLOUD_LAST_SAVED_AT_STORAGE_KEY,
+  CLOUD_RECOVERY_CODE_STORAGE_KEY,
+  CLOUD_SAVE_INTERVAL_MS,
+  cloudRestoreEndpoint,
+  cloudSaveEndpointFromConfig,
+  createRecoveryCode,
+  normalizeRecoveryCode,
+} from "./core/cloudSave.js";
 import {
   DROP_PITY_KILLS,
   sanitizeAccountStats as sanitizeAccountStatsCore,
@@ -199,7 +212,20 @@ import {
   rollEmpoweredItemDrop,
   sanitizeEmpowerSpellBonuses,
 } from "./core/empoweredItems.js";
+import { ITEM_INTEGRITY_RULES_VERSION } from "./core/itemIntegrityVersion.js";
+import {
+  WIZARD_MIRROR_REACTION_DELAY_MS,
+  WIZARD_MIRROR_UPKEEP_INTERVAL_MS,
+  advanceWizardMirrorFollow,
+  pickWizardMirrorAttackSpell,
+  resolveWizardMirrorUpkeep,
+  wizardMirrorCastSfxPhase,
+  wizardMirrorDurationMs,
+  wizardMirrorTargetInRange,
+} from "./core/wizardMirror.js";
+import { crystalHolyDevaStats } from "./core/taoistPets.js";
 import { splitPartyRewardAmount } from "./core/party.js";
+import { socialEquipmentEntry } from "./core/socialEquipment.js";
 import {
   applyIncomingDamageReduction as applyIncomingDamageReductionCore,
   enemyAttackDefenceType,
@@ -854,6 +880,10 @@ const CRYSTAL_MAGIC_SHIELD_STRUCK_MS = 600;
 const CRYSTAL_MAGIC_SHIELD_CAST_LAYER_END = 1;
 const CRYSTAL_MAGIC_SHIELD_LOOP_LAYER = 1;
 const CRYSTAL_MAGIC_SHIELD_STRUCK_LAYER = 2;
+const ENERGY_SHIELD_BUFF_KIND = "energyShield";
+const CRYSTAL_ENERGY_SHIELD_CAST_MS = 600;
+const CRYSTAL_ENERGY_SHIELD_CAST_LAYER_END = 1;
+const CRYSTAL_ENERGY_SHIELD_LOOP_LAYER = 1;
 const WARRIOR_CHARGE_SKILL_IDS = new Set(["FlamingSword", "TwinDrakeBlade"]);
 const WARRIOR_AUTO_CHARGE_ORDER = ["FlamingSword", "TwinDrakeBlade"];
 const CRYSTAL_POISON_APPLY_DELAY_MS = 500;
@@ -942,6 +972,9 @@ const CRYSTAL_SUMMON_HOLY_DEVA_PET_INDEX = 117;
 const CRYSTAL_SUMMON_HOLY_DEVA_AMULET_COST = 2;
 const CRYSTAL_SUMMON_HOLY_DEVA_ATTACK_RANGE_PX = LANE_TILE_PX * 6;
 const CRYSTAL_HOLY_DEVA_ATTACK_IMPACT_MS = 500;
+const CRYSTAL_HOLY_DEVA_ATTACK_FX_MS = 300;
+const CRYSTAL_HOLY_DEVA_FOLLOW_REACTION_MS = 500;
+const HOLY_DEVA_FOLLOW_GAP = LANE_TILE_PX;
 const CRYSTAL_SUMMON_HOLY_DEVA_PET_STATS = {
   name: "Holy Deva",
   level: 30,
@@ -959,6 +992,20 @@ const TAOIST_SUMMON_AMULET_COST_BY_SPELL = {
   SummonShinsu: CRYSTAL_SUMMON_SHINSU_AMULET_COST,
   SummonHolyDeva: CRYSTAL_SUMMON_HOLY_DEVA_AMULET_COST,
 };
+const POISON_CLOUD_AMULET_COST = 5;
+const POISON_CLOUD_GREEN_POISON_COST = 5;
+const POISON_CLOUD_GREEN_POISON_TICKS = 12;
+const POISON_CLOUD_TICK_MS = 1000;
+const HEALING_CIRCLE_TICK_MS = 400;
+const HEALING_CIRCLE_HEAL_PER_TICK = 25;
+const HEALING_CIRCLE_IMPACT_DELAY_MS = 1700;
+// Midway between foot-line anchor (too low) and full frame lift (too high): ~76px above feet.
+const POISON_CLOUD_GROUND_ANCHOR_OFFSET_FROM_FOOT_PX = 76;
+const PLAGUE_AMULET_COST = 1;
+const CURSE_AMULET_COST = 1;
+const CURSE_GROUND_AREA_RADIUS = 3;
+/** Ground fields that envelope targets (drawn above monster sprites, not underfoot). */
+const GROUND_SPELL_ABOVE_ENTITY_IDS = new Set(["PoisonCloud"]);
 const SAVE_KEY = "lom-idle-v2-save";
 const STARTER_GEAR_VERSION = 1;
 const SAVE_INTERVAL_MS = 2000;
@@ -1088,7 +1135,6 @@ const SKILL_BOOK_BOSS_DROP_BY_ITEM_ID = Object.fromEntries(
       .map((entry) => [entry.id, label])
   )),
 );
-const BENEDICTION_MAX_WEAPON_LUCK = 7;
 const BENEDICTION_CURSE_CHANCE = 5;
 const SMITH_COMBINE_SUCCESS_CHANCES = [0.5, 0.4, 0.3, 0.2, 0.1, 0.05];
 const SMITH_DEFENSIVE_UPGRADE_SLOTS = new Set(["armour", "belt", "boots", "boot", "shoes", "shoe", "helmet"]);
@@ -1165,7 +1211,16 @@ const LANE = {
   enemyRange: 48,
 };
 const THRUSTING_RANGE = LANE_TILE_PX * 2 + 4;
+const SLASHING_BURST_MAX_CAST_TILES = 6;
+const SLASHING_BURST_MAX_CAST_RANGE_PX = LANE_TILE_PX * SLASHING_BURST_MAX_CAST_TILES;
+const SLASHING_BURST_DASH_ANIM_MS = 280;
+const SLASHING_BURST_LEAP_BASE_MS = 160;
+const SLASHING_BURST_LEAP_MS_PER_TILE = 18;
+const BLADE_AVALANCHE_DEPTH_TILES = 3;
+const BLADE_AVALANCHE_MAX_RANGE_PX = LANE_TILE_PX * BLADE_AVALANCHE_DEPTH_TILES;
 const TAOIST_PET_SUMMON_MIN_GAP = 16;
+const WIZARD_MIRROR_FOLLOW_GAP = LANE_TILE_PX;
+const CRYSTAL_MIRRORING_SUMMON_DELAY_MS = 600;
 const TAOIST_PET_ENEMY_GAP = LANE.enemyRange - 4;
 const TAOIST_VISIBLE_RANGE_MARGIN = 72;
 const TAOIST_SOUL_FIRE_BALL_LANE_RANGE = LANE_TILE_PX * 6;
@@ -1315,7 +1370,7 @@ const TOWN_VISUALS = {
 };
 
 const MAP_STAMP_ASSET_VERSION = "20260625-hell-gd-3-22388";
-const MONSTER_ASSET_VERSION = "20260626-hell-keeper-cast";
+const MONSTER_ASSET_VERSION = "20260628-zt-attack-fx";
 const HELL_BOLT_MONSTER_INDEX = 219;
 const HELL_BOLT_TEMPLATE_ID = 429;
 const WITCH_DOCTOR_MONSTER_INDEX = 220;
@@ -1844,6 +1899,17 @@ const TOWN_NPCS = [
     height: 76,
   },
   {
+    id: "test-bookstore",
+    label: "Scroll Merchant",
+    role: "BookStore",
+    sprite: "teleporter",
+    x: 0.15,
+    y: 0.55,
+    width: 84,
+    height: 88,
+    panel: "Dev testing — every spell book for 1 gold.",
+  },
+  {
     id: "gem-merchant",
     label: "Gem Merchant",
     role: "GemMerchant",
@@ -1922,6 +1988,20 @@ const TOWN_NPCS = [
     height: 88,
     panel: "Enter the Bichon academy training room.",
   },
+  {
+    id: "message-board",
+    label: "Town Noticeboard",
+    role: "MessageBoard",
+    sprite: "message-board",
+    x: 0.84,
+    y: 0.55,
+    xOffsetTiles: -1,
+    yOffsetTiles: 3,
+    width: 140,
+    height: 136,
+    drawShadow: false,
+    panel: "Read messages left by other players.",
+  },
 ];
 
 const TOWN_IDLE_NPC_IDS = ["trader", "storage"];
@@ -1961,8 +2041,79 @@ const ALCHEMIST_STOCK_IDS = [
   "taoist-amulet",
 ];
 
+const BOOKSTORE_UNIT_PRICE = 1;
+const BOOKSTORE_STOCK_IDS = [
+  "book-binding-shot",
+  "book-blade-avalanche",
+  "book-blessed-armour",
+  "book-blizzard",
+  "book-cripple-shot",
+  "book-cross-half-moon",
+  "book-curse",
+  "book-energy-shield",
+  "book-dark-body",
+  "book-fencing",
+  "book-fireball",
+  "book-firewall",
+  "book-flame-disruptor",
+  "book-flame-field",
+  "book-flaming-sword",
+  "book-frost-crunch",
+  "book-fury",
+  "book-great-fireball",
+  "book-half-moon",
+  "book-healing",
+  "book-healing-circle",
+  "book-hemorrhage",
+  "book-ice-storm",
+  "book-immortal-skin",
+  "book-lion-roar",
+  "book-magic-booster",
+  "book-magic-shield",
+  "book-mass-healing",
+  "book-meteor-strike",
+  "book-mirroring",
+  "book-moon-light",
+  "book-mp-eater",
+  "book-pet-enhancer",
+  "book-plague",
+  "book-poison-cloud",
+  "book-poison-shot",
+  "book-poison-sword",
+  "book-poisoning",
+  "book-protection-field",
+  "book-rage",
+  "book-reincarnation",
+  "book-slaying",
+  "book-soul-fireball",
+  "book-soul-shield",
+  "book-spirit-sword",
+  "book-summon-holy-deva",
+  "book-summon-shinsu",
+  "book-summon-skeleton",
+  "book-summon-toad",
+  "book-swift-feet",
+  "book-thrusting",
+  "book-thunderbolt",
+  "book-trap",
+  "book-turn-undead",
+  "book-twin-drake-blade",
+  "book-ultimate-enhancer",
+  "book-vampirism",
+];
+
+function npcShopUnitPrice(item) {
+  const npc = selectedTownNpc();
+  if (npc?.role === "BookStore") return BOOKSTORE_UNIT_PRICE;
+  return itemBuyValue(item, 1);
+}
+
+function npcShopBuyPrice(item, quantity = 1) {
+  return npcShopUnitPrice(item) * Math.max(1, Number(quantity) || 1);
+}
+
 function alchemistShopBuyPrice(item, quantity = 1) {
-  return itemBuyValue(item, quantity);
+  return npcShopBuyPrice(item, quantity);
 }
 
 const COMBAT_CLASSES = [
@@ -2075,6 +2226,7 @@ const WIZARD_COMBAT_SPELL_META = {
     effectAnchor: "player",
     impactMode: "target",
     impactDelayMs: 500,
+    targetFxAnchor: "feet",
   },
   TurnUndead: {
     effectAnchor: "player",
@@ -2105,6 +2257,14 @@ const WIZARD_COMBAT_SPELL_META = {
     impactMode: "bang",
     impactDelayMs: 500,
   },
+  FlameField: {
+    effectAnchor: "player",
+    impactMode: "bang",
+    impactDelayMs: 500,
+    targetFxAnchor: "feet",
+    // Crystal FlameField art is centered on the caster cell; tune Y between head (cell-top) and ground.
+    impactFxAnchorOffsetY: 8,
+  },
   FlameDisruptor: {
     effectAnchor: "player",
     impactMode: "target",
@@ -2116,8 +2276,38 @@ const WIZARD_COMBAT_SPELL_META = {
     impactMode: "buff",
     impactDelayMs: CRYSTAL_HEAL_APPLY_DELAY_MS,
   },
+  Mirroring: {
+    effectAnchor: "player",
+    impactMode: "summon",
+    impactDelayMs: CRYSTAL_MIRRORING_SUMMON_DELAY_MS,
+  },
+  MagicBooster: {
+    effectAnchor: "player",
+    impactMode: "buff",
+    impactDelayMs: 500,
+  },
+  Blizzard: {
+    effectAnchor: "player",
+    impactMode: "ground",
+    impactDelayMs: 500,
+    groundChannel: true,
+    groundAreaRadius: 2,
+    groundFixedDurationMs: 3000,
+    groundTickMs: 440,
+    groundTickStartDelayMs: 800,
+  },
+  MeteorStrike: {
+    effectAnchor: "player",
+    impactMode: "ground",
+    impactDelayMs: 500,
+    groundChannel: true,
+    groundAreaRadius: 2,
+    groundFixedDurationMs: 3000,
+    groundTickMs: 440,
+    groundTickStartDelayMs: 800,
+  },
 };
-const WIZARD_COMBAT_SPELLS = ["FireBall", "GreatFireBall", "ThunderBolt", "TurnUndead", "Vampirism", "FireWall", "FrostCrunch", "IceStorm", "FlameDisruptor", "MagicShield"]
+const WIZARD_COMBAT_SPELLS = ["FireBall", "GreatFireBall", "ThunderBolt", "TurnUndead", "Vampirism", "FireWall", "FrostCrunch", "IceStorm", "FlameField", "FlameDisruptor", "MagicShield", "Mirroring", "MagicBooster", "Blizzard", "MeteorStrike"]
   .map((spellId) => {
     const spell = CRYSTAL_WIZARD_SPELLS.find((entry) => entry.id === spellId);
     return spell ? { ...spell, ...WIZARD_COMBAT_SPELL_META[spellId] } : null;
@@ -2134,6 +2324,30 @@ const TAOIST_COMBAT_SPELL_META = {
     effectAnchor: "player",
     impactMode: "poison",
     impactDelayMs: CRYSTAL_POISON_APPLY_DELAY_MS,
+  },
+  PoisonCloud: {
+    effectAnchor: "player",
+    impactMode: "ground",
+    impactDelayMs: 500,
+    groundAreaRadius: 1,
+    groundFixedDurationMs: 6000,
+    groundTickMs: POISON_CLOUD_TICK_MS,
+    groundTickRoll: true,
+    groundPoisonTicks: POISON_CLOUD_GREEN_POISON_TICKS,
+  },
+  Plague: {
+    effectAnchor: "player",
+    impactMode: "plague",
+    impactDelayMs: 500,
+    impactFlashMs: 1200,
+    bangTargeted: true,
+  },
+  Curse: {
+    effectAnchor: "player",
+    impactMode: "curse",
+    impactDelayMs: 500,
+    impactFlashMs: 2000,
+    bangTargeted: true,
   },
   SoulFireBall: {
     effectAnchor: "player",
@@ -2165,18 +2379,38 @@ const TAOIST_COMBAT_SPELL_META = {
     impactMode: "buff",
     impactDelayMs: CRYSTAL_HEAL_APPLY_DELAY_MS,
   },
+  EnergyShield: {
+    effectAnchor: "player",
+    impactMode: "buff",
+    impactDelayMs: CRYSTAL_HEAL_APPLY_DELAY_MS,
+  },
   MassHealing: {
     effectAnchor: "player",
     impactMode: "massHeal",
     impactDelayMs: CRYSTAL_HEAL_APPLY_DELAY_MS,
+  },
+  HealingCircle: {
+    effectAnchor: "player",
+    impactMode: "ground",
+    impactDelayMs: HEALING_CIRCLE_IMPACT_DELAY_MS,
+    groundAreaRadius: 1,
+    groundDurationBaseMs: 10000,
+    groundDurationPerPowerMs: 5000,
+    groundTickMs: HEALING_CIRCLE_TICK_MS,
+    groundHealOnly: true,
   },
   UltimateEnhancer: {
     effectAnchor: "player",
     impactMode: "buff",
     impactDelayMs: CRYSTAL_HEAL_APPLY_DELAY_MS,
   },
+  PetEnhancer: {
+    effectAnchor: "player",
+    impactMode: "buff",
+    impactDelayMs: CRYSTAL_HEAL_APPLY_DELAY_MS,
+  },
 };
-const TAOIST_COMBAT_SPELLS = ["Healing", "Poisoning", "SoulFireBall", "SummonSkeleton", "SummonShinsu", "SummonHolyDeva", "SoulShield", "BlessedArmour", "MassHealing", "UltimateEnhancer"]
+const TAOIST_COMBAT_SPELLS = ["Healing", "Poisoning", "PoisonCloud", "Curse", "Plague", "SoulFireBall", "SummonSkeleton", "SummonShinsu", "SummonHolyDeva", "SoulShield", "BlessedArmour", "EnergyShield", "MassHealing", "HealingCircle", "UltimateEnhancer", "PetEnhancer"]
   .map((spellId) => {
     const spell = CRYSTAL_TAOIST_SPELLS.find((entry) => entry.id === spellId);
     return spell ? { ...spell, ...TAOIST_COMBAT_SPELL_META[spellId] } : null;
@@ -2196,6 +2430,8 @@ const SFX_POOL_SIZE = 4;
 const STATS_NOTICE_VERSION = 1;
 const PROTOTYPE_RESET_NOTICE_VERSION = 1;
 const PROTOTYPE_RESET_NOTICE_INTERVAL_MS = 24 * 60 * 60 * 1000;
+const CLOUD_BACKUP_NOTICE_VERSION = 1;
+const CLOUD_BACKUP_NOTICE_INTERVAL_MS = 24 * 60 * 60 * 1000;
 const STATS_CONFIG_URL = "./public/stats/config.json";
 const STATS_PLAYER_ID_KEY = "lom-idle-v2-anonymous-player-id";
 const STATS_SUBMIT_INTERVAL_MS = 60 * 1000;
@@ -2253,6 +2489,8 @@ const state = {
     prototypeStatsNoticeVersion: 0,
     prototypeResetNoticeVersion: 0,
     prototypeResetNoticeLastSeenAt: 0,
+    cloudBackupNoticeVersion: 0,
+    cloudBackupNoticeLastSeenAt: 0,
   },
   prototypeStats: {
     playerId: "",
@@ -2263,6 +2501,27 @@ const state = {
     lastSubmittedAt: 0,
     lastPayloadHash: "",
     statusText: "",
+  },
+  messageBoard: {
+    status: "idle",
+    messages: [],
+    error: "",
+    posting: false,
+    draft: "",
+    lastLoadedAt: 0,
+  },
+  cloudSave: {
+    recoveryCode: "",
+    endpoint: "",
+    configured: false,
+    saving: false,
+    restoring: false,
+    lastSavedAt: 0,
+    lastAttemptAt: 0,
+    restoreCodeInput: "",
+    pendingRestore: null,
+    statusText: "",
+    noticeCopied: false,
   },
   itemData: { items: [] },
   mapTileIndex: { sets: [] },
@@ -2410,6 +2669,7 @@ const state = {
     activeWizardSpellAtlas: null,
     activeWizardSpellStartedAt: 0,
     activeWizardSpellCenterTile: null,
+    activeSpellImpactAnchor: null,
     activeTaoSpell: null,
     activeTaoSpellAtlas: null,
     activeTaoSpellStartedAt: 0,
@@ -2420,20 +2680,25 @@ const state = {
     pendingHeal: null,
     pendingPoison: null,
     pendingDefenceBuff: null,
+    pendingWizardBuff: null,
     pendingMassHeal: null,
     pendingUltimateEnhancer: null,
+    pendingPetEnhancer: null,
     healFx: [],
     defenceBuffFx: [],
     massHealFx: [],
     pendingTaoPet: null,
+    pendingWizardMirror: null,
     petStatBuffs: [],
     taoPet: null,
     taoPetDiedThisFight: false,
+    wizardMirror: null,
     bossParty: null,
     bossEmpowered: false,
     lockedArenaWorldX: null,
     lockedCameraX: null,
     groundSpellEffects: [],
+    wizardStormChannelUntil: 0,
     mapLightningEffects: [],
     nextMapLightningAt: 0,
     mapHellFireEffects: [],
@@ -2453,6 +2718,8 @@ const state = {
     twinDrakeChargeFxStartedAt: 0,
     twinDrakeChargeFxUntil: 0,
     pendingTwinDrakeHits: [],
+    pendingSlashingBurst: null,
+    slashingBurstDash: null,
     attachedSpellFx: [],
     potHealthAmount: 0,
     potManaAmount: 0,
@@ -2712,6 +2979,8 @@ async function init() {
   state.mapStampIndex = await loadJson(`./public/mapstamps/index.json?v=${MAP_STAMP_ASSET_VERSION}`).catch(() => ({ stamps: [] }));
   state.sfxManifest = await loadJson("./public/audio/sfx/manifest.json").catch(() => ({ byKey: {}, groups: [] }));
   state.prototypeStats.playerId = loadPrototypeStatsPlayerId();
+  state.cloudSave.recoveryCode = loadOrCreateCloudRecoveryCode();
+  state.cloudSave.lastSavedAt = loadCloudSavedAt();
   await loadPrototypeStatsConfig();
   state.mapSet = state.mapTileIndex.sets.find((set) => set.id === state.mapSet)?.id ?? state.mapTileIndex.sets[0]?.id ?? state.mapSet;
   state.warriorSkillAtlases = await loadWarriorSkillAtlases();
@@ -2731,6 +3000,7 @@ async function init() {
         CRYSTAL_SUMMON_SKELETON_PET_INDEX,
         CRYSTAL_SUMMON_SHINSU_PET_INDEX,
         CRYSTAL_SUMMON_SHINSU_VISIBLE_PET_INDEX,
+        CRYSTAL_SUMMON_HOLY_DEVA_PET_INDEX,
       ].map(async (index) => [
         index,
         await loadJson(`./public/monsters/monster/${index}.json`).catch(() => null),
@@ -2782,6 +3052,7 @@ async function init() {
   await reloadEnemyAtlas();
   saveReady = true;
   saveGameState(true);
+  state.cloudSave.lastAttemptAt = performance.now();
   lastSimulationAt = performance.now();
   installTestHarness();
   requestAnimationFrame(tick);
@@ -2790,6 +3061,19 @@ async function init() {
 function installTestHarness() {
   if (!TEST_HARNESS) return;
   window.__lomTest = {
+    inspectInventory() {
+      const zone = activeZone();
+      const enemy = state.battle.enemy;
+      return {
+        itemCount: state.inventory.items.length,
+        itemIds: state.inventory.items.map((entry) => entry.itemId),
+        itemDataCount: state.itemData?.items?.length ?? 0,
+        zoneId: zone?.id ?? null,
+        dropCandidates: zone ? zoneDropCandidates(zone, enemy).length : 0,
+        mode: state.game.mode,
+        running: Boolean(state.battle.running),
+      };
+    },
     runOfflineZoneProgress(elapsedMs) {
       if (state.game.mode !== "zone" || !state.battle.running) {
         return {
@@ -2860,10 +3144,20 @@ function installTestHarness() {
 }
 
 async function preloadSpellAtlasSheets(spellId, atlas) {
-  if (!atlas?.layers?.length) return;
-  const sheets = [...new Set(atlas.layers.map((layer) => layer.sheet).filter(Boolean))];
+  if (!atlas) return;
+  const sheets = new Set();
+  for (const layer of atlas.layers ?? []) {
+    if (layer.sheet) sheets.add(layer.sheet);
+  }
+  for (const key of ["projectile", "impact", "ground", "storm", "cast", "charge"]) {
+    if (atlas[key]?.sheet) sheets.add(atlas[key].sheet);
+  }
+  for (const sheet of atlas.sheets ?? []) {
+    if (sheet) sheets.add(sheet);
+  }
+  if (atlas.sheet) sheets.add(atlas.sheet);
   await Promise.all(
-    sheets.map((sheet) => loadCachedImage(`./public/spellfx/${spellId}/${sheet}`).catch(() => null)),
+    [...sheets].map((sheet) => loadCachedImage(`./public/spellfx/${spellId}/${sheet}`).catch(() => null)),
   );
 }
 
@@ -2886,7 +3180,9 @@ async function loadCombatSpellAtlases(spells) {
       await loadJson(`./public/spellfx/${spell.id}/atlas.json`).catch(() => null),
     ]),
   );
-  return Object.fromEntries(entries.filter(([, atlas]) => atlas));
+  const atlases = Object.fromEntries(entries.filter(([, atlas]) => atlas));
+  await Promise.all(Object.entries(atlases).map(([spellId, atlas]) => preloadSpellAtlasSheets(spellId, atlas)));
+  return atlases;
 }
 
 async function loadTownNpcAtlases() {
@@ -3005,6 +3301,8 @@ function createSaveSnapshot() {
       prototypeStatsNoticeVersion: Math.max(0, Math.trunc(Number(state.settings.prototypeStatsNoticeVersion) || 0)),
       prototypeResetNoticeVersion: Math.max(0, Math.trunc(Number(state.settings.prototypeResetNoticeVersion) || 0)),
       prototypeResetNoticeLastSeenAt: Math.max(0, Math.trunc(Number(state.settings.prototypeResetNoticeLastSeenAt) || 0)),
+      cloudBackupNoticeVersion: Math.max(0, Math.trunc(Number(state.settings.cloudBackupNoticeVersion) || 0)),
+      cloudBackupNoticeLastSeenAt: Math.max(0, Math.trunc(Number(state.settings.cloudBackupNoticeLastSeenAt) || 0)),
     },
   };
 }
@@ -3056,7 +3354,7 @@ function clearTransientBattleForSaveImport() {
   stopOneStepTest();
   state.continuousWalk = false;
   state.battle.bossParty = null;
-  dismissTaoistPet();
+  dismissBattleCompanions();
   state.battle.pendingImpact = null;
   state.battle.pendingEnemyStrike = null;
   state.battle.pendingEnemyStruck = false;
@@ -3064,31 +3362,22 @@ function clearTransientBattleForSaveImport() {
   state.battle.pendingPoison = null;
   state.battle.pendingPetAttack = null;
   state.battle.pendingTwinDrakeHits = [];
+  clearSlashingBurstPendingState();
   state.battle.groundSpellEffects = [];
   state.battle.attachedSpellFx = [];
   clearTwinDrakePendingState();
 }
 
-async function importGameSaveFromText(rawText) {
+async function replaceCurrentGameWithSnapshot(snapshot, successMessage) {
   const blockReason = saveImportBlockedReason();
   if (blockReason) {
     window.alert(blockReason);
     return false;
   }
 
-  const parsed = parseSaveSnapshotText(rawText);
-  if (!parsed.ok) {
-    window.alert(parsed.error);
-    return false;
-  }
-
-  if (!window.confirm("Import this save? Progress on this device will be replaced.")) {
-    return false;
-  }
-
   saveReady = false;
   clearTransientBattleForSaveImport();
-  if (!applySaveSnapshot(parsed.snapshot)) {
+  if (!applySaveSnapshot(snapshot)) {
     saveReady = true;
     window.alert("Could not apply that save.");
     return false;
@@ -3111,9 +3400,29 @@ async function importGameSaveFromText(rawText) {
   renderHotbar();
   render();
   closeScene("options");
-  pushBattleLog("Save imported.");
+  pushBattleLog(successMessage);
   playSfx("ui.teleport", { volume: 0.42, throttleMs: 300 });
   return true;
+}
+
+async function importGameSaveFromText(rawText) {
+  const blockReason = saveImportBlockedReason();
+  if (blockReason) {
+    window.alert(blockReason);
+    return false;
+  }
+
+  const parsed = parseSaveSnapshotText(rawText);
+  if (!parsed.ok) {
+    window.alert(parsed.error);
+    return false;
+  }
+
+  if (!window.confirm("Import this save? Progress on this device will be replaced.")) {
+    return false;
+  }
+
+  return replaceCurrentGameWithSnapshot(parsed.snapshot, "Save imported.");
 }
 
 function loadSavedGameState() {
@@ -4615,7 +4924,7 @@ function simulateOfflineTrainingRoomProgress(zone, report, startedAt, limitMs) {
   state.battle.enemyAggro = true;
   state.battle.playerX = 0;
   state.battle.enemyX = playerAttackRange();
-  dismissTaoistPet();
+  dismissBattleCompanions();
 
   let elapsedMs = 0;
   let nextCastAt = Math.max(0, (state.battle.trainingRoomNextCastAt ?? 0) - startedAt);
@@ -4761,7 +5070,35 @@ function rebaseOfflineTransientTimers(simulatedNow, actualNow = performance.now(
       state.battle.pendingTaoPet.at,
       simulatedNow,
       actualNow,
-      CRYSTAL_SUMMON_SKELETON_DELAY_MS,
+      taoistSummonPetDelayMs(state.battle.pendingTaoPet.spellId),
+    );
+  }
+  if (state.battle.pendingWizardMirror) {
+    state.battle.pendingWizardMirror.at = rebaseTransientTimestamp(
+      state.battle.pendingWizardMirror.at,
+      simulatedNow,
+      actualNow,
+      CRYSTAL_MIRRORING_SUMMON_DELAY_MS,
+    );
+  }
+  if (state.battle.wizardMirror?.active) {
+    state.battle.wizardMirror.expiresAt = rebaseTransientTimestamp(
+      state.battle.wizardMirror.expiresAt,
+      simulatedNow,
+      actualNow,
+      wizardMirrorDurationMs(state.battle.wizardMirror.spellLevel),
+    );
+    state.battle.wizardMirror.nextActionAt = rebaseTransientTimestamp(
+      state.battle.wizardMirror.nextActionAt,
+      simulatedNow,
+      actualNow,
+      5000,
+    );
+    state.battle.wizardMirror.nextUpkeepAt = rebaseTransientTimestamp(
+      state.battle.wizardMirror.nextUpkeepAt,
+      simulatedNow,
+      actualNow,
+      WIZARD_MIRROR_UPKEEP_INTERVAL_MS,
     );
   }
   if (state.battle.pendingPetAttack) {
@@ -4769,7 +5106,7 @@ function rebaseOfflineTransientTimers(simulatedNow, actualNow = performance.now(
       state.battle.pendingPetAttack.at,
       simulatedNow,
       actualNow,
-      taoistShinsuAttackImpactMs(),
+      taoistPetAttackImpactMs(state.battle.taoPet ?? state.battle.bossParty?.pet),
     );
   }
   if (state.battle.pendingDefenceBuff) {
@@ -4780,9 +5117,25 @@ function rebaseOfflineTransientTimers(simulatedNow, actualNow = performance.now(
       CRYSTAL_HEAL_APPLY_DELAY_MS,
     );
   }
+  if (state.battle.pendingWizardBuff) {
+    state.battle.pendingWizardBuff.at = rebaseTransientTimestamp(
+      state.battle.pendingWizardBuff.at,
+      simulatedNow,
+      actualNow,
+      500,
+    );
+  }
   if (state.battle.pendingMassHeal) {
     state.battle.pendingMassHeal.at = rebaseTransientTimestamp(
       state.battle.pendingMassHeal.at,
+      simulatedNow,
+      actualNow,
+      CRYSTAL_HEAL_APPLY_DELAY_MS,
+    );
+  }
+  if (state.battle.pendingPetEnhancer) {
+    state.battle.pendingPetEnhancer.at = rebaseTransientTimestamp(
+      state.battle.pendingPetEnhancer.at,
       simulatedNow,
       actualNow,
       CRYSTAL_HEAL_APPLY_DELAY_MS,
@@ -4898,11 +5251,15 @@ function offlinePetAttackDelayMs(pet, simNow) {
 function offlineUpdateRecovery(now, report) {
   updatePendingHeal(now);
   updatePendingDefenceBuff(now, { offline: true });
+  updatePendingWizardBuff(now, { offline: true });
   updatePendingMassHeal(now, { offline: true });
   updatePendingUltimateEnhancer(now, { offline: true });
+  updatePendingPetEnhancer(now, { offline: true });
   updatePendingPoison(now, { offline: true });
   updatePendingPetAttack(now, { offline: true });
   updatePendingTaoPet(now);
+  updatePendingWizardMirror(now);
+  updateWizardMirror(now, { offline: true });
   updateHealingRegen(now);
   updateVampirismRegen(now);
   updateEnemyPoisons(now, { offline: true });
@@ -4913,13 +5270,17 @@ function offlineUpdateRecovery(now, report) {
   offlineAutoUsePotions(now, report);
   updatePendingHeal(now);
   updatePendingDefenceBuff(now, { offline: true });
+  updatePendingWizardBuff(now, { offline: true });
   updatePendingMassHeal(now, { offline: true });
   updatePendingUltimateEnhancer(now, { offline: true });
+  updatePendingPetEnhancer(now, { offline: true });
   updatePendingPoison(now, { offline: true });
   updatePendingTwinDrakeHits(now);
   updateAttachedSpellFx(now);
   updatePendingPetAttack(now, { offline: true });
   updatePendingTaoPet(now);
+  updatePendingWizardMirror(now);
+  updateWizardMirror(now, { offline: true });
   updateHealingRegen(now);
   updateVampirismRegen(now);
   updateEnemyPoisons(now, { offline: true });
@@ -4972,6 +5333,33 @@ function offlineWarriorAttack(enemy, now) {
     return true;
   }
 
+  if (isBladeAvalancheSkill(skill)) {
+    if (learned) commitWarriorSpellUse(skill, learned, cost, now);
+    battle.lastPlayerAttackCooldownMs = playerWeaponAttackCooldownMs(now, skill);
+    if (learned && rollHit(battle.player.accuracy, enemy.agility)) {
+      const depthIndex = bladeAvalancheDepthIndexFromDistance(enemyDistance());
+      if (depthIndex != null) {
+        const damage = rollBladeAvalancheDamage(
+          skill,
+          learned,
+          battle.player,
+          enemy,
+          state.inventory,
+          bladeAvalancheDepthDamageScale(depthIndex),
+        );
+        const scaled = scalePhysicalDamageForStun(damage, enemyStunned(enemy, now));
+        if (scaled > 0) {
+          applyOfflineEnemyDamage(enemy, scaled, now, "magic");
+          if (learned) levelWarriorMagic(skill, learned, now);
+        }
+      }
+    }
+    levelPassiveWeaponMagic(now);
+    rollSlayingChargeAfterAttack(now);
+    if (!warriorSlayingPending()) maybeAutoWarriorCharge(now, { offline: true });
+    return true;
+  }
+
   if (learned) commitWarriorSpellUse(skill, learned, cost, now);
   battle.lastPlayerAttackCooldownMs = playerWeaponAttackCooldownMs(now, skill);
   let damage = 0;
@@ -4983,12 +5371,13 @@ function offlineWarriorAttack(enemy, now) {
     }
     damage = rollWarriorMagicDamage(skill, learned, battle.player, enemy);
   } else {
+    const stats = effectiveCombatStats(battle.player);
     const attack = resolvePhysicalAttack(
       battle.player.accuracy,
       enemy.agility,
-      battle.player.dc,
+      stats.dc,
       enemyPhysicalDefence(enemy),
-      battle.player.luck,
+      stats.luck,
     );
     if (!attack.hit) {
       rollSlayingChargeAfterAttack(now);
@@ -5029,6 +5418,21 @@ function offlineMagicAttack(enemy, now, statKey, multiplier = 1) {
 function offlineWizardAttack(enemy, now) {
   const battle = state.battle;
   const queued = queuedCombatSpell("Wizard");
+  if (queued?.spell?.id === "Mirroring") {
+    const mirrorCast = usableWizardMirroring(now, { requireAuto: false, ignorePhase: true });
+    if (mirrorCast) {
+      castWizardMirroring(mirrorCast, now, { offline: true });
+      battle.lastPlayerAttackCooldownMs = wizardCastCooldownMs(mirrorCast.spell, mirrorCast.learned);
+      return;
+    }
+  } else if (!queued) {
+    const mirrorCast = usableWizardMirroring(now);
+    if (mirrorCast) {
+      castWizardMirroring(mirrorCast, now, { offline: true });
+      battle.lastPlayerAttackCooldownMs = wizardCastCooldownMs(mirrorCast.spell, mirrorCast.learned);
+      return;
+    }
+  }
   const attackSpell = usableWizardAttackSpell(now);
   const phase = resolveOfflineWizardTurnPhase({
     defenceAuto: Boolean(usableWizardDefenceBuff(now)),
@@ -5059,7 +5463,7 @@ function offlineWizardAttack(enemy, now) {
   if (phase !== "cast" || !attackSpell) return;
 
   const { spell, learned, cost } = attackSpell;
-  battle.lastPlayerAttackCooldownMs = wizardCastCooldownMs(spell, learned);
+  battle.lastPlayerAttackCooldownMs = wizardSpellActionLockMs(spell, learned);
   commitWizardSpellUse(spell, learned, cost, now);
   if (spell.id === "TurnUndead") {
     const result = rollTurnUndeadResult(spell, learned, battle.player, enemy);
@@ -5103,6 +5507,12 @@ function offlineTaoistAttack(enemy, now) {
         return castTaoistHealing(queued, now, { offline: true });
       case "poisoning":
         return castTaoistPoisoning(queued, now, { offline: true });
+      case "poisonCloud":
+        return castTaoistPoisonCloud(queued, now, { offline: true });
+      case "plague":
+        return castTaoistPlague(queued, now, { offline: true });
+      case "curse":
+        return castTaoistCurse(queued, now, { offline: true });
       case "summon": {
         castTaoistSummonPet(queued, now, { offline: true });
         updatePendingTaoPet(now + offlineTaoistSummonPetDelayMs(queued.spell.id, {
@@ -5115,10 +5525,16 @@ function offlineTaoistAttack(enemy, now) {
       }
       case "defenceBuff":
         return castTaoistDefenceBuff(queued, now, { offline: true });
+      case "energyShield":
+        return castTaoistEnergyShield(queued, now, { offline: true });
       case "massHeal":
         return castTaoistMassHealing(queued, now, { offline: true });
+      case "healingCircle":
+        return castTaoistHealingCircle(queued, now, { offline: true });
       case "ultimateEnhancer":
         return castTaoistUltimateEnhancer(queued, now, { offline: true });
+      case "petEnhancer":
+        return castTaoistPetEnhancer(queued, now, { offline: true });
       default:
         break;
     }
@@ -5156,10 +5572,16 @@ function taoistOfflineSupportAvailability(now) {
   return {
     Healing: Boolean(usableTaoistHealing(now)),
     MassHealing: Boolean(usableTaoistMassHealing(now)),
+    HealingCircle: Boolean(usableTaoistHealingCircle(now)),
     SoulShield: Boolean(usableTaoistDefenceBuff("SoulShield", now)),
     BlessedArmour: Boolean(usableTaoistDefenceBuff("BlessedArmour", now)),
+    EnergyShield: Boolean(usableTaoistEnergyShield(now)),
     UltimateEnhancer: Boolean(usableTaoistUltimateEnhancer(now)),
+    PetEnhancer: Boolean(usableTaoistPetEnhancer(now)),
     Poisoning: Boolean(usableTaoistPoisoning(now)),
+    PoisonCloud: Boolean(usableTaoistPoisonCloud(now)),
+    Plague: Boolean(usableTaoistPlague(now)),
+    Curse: Boolean(usableTaoistCurse(now)),
     SoulFireBall: Boolean(usableTaoistSoulFireBall(now)),
   };
 }
@@ -5170,13 +5592,24 @@ function taoistOfflineCastSupportSpell(spellId, enemy, now, soulFireBallOptions 
       return castTaoistHealing(usableTaoistHealing(now), now, { offline: true });
     case "MassHealing":
       return castTaoistMassHealing(usableTaoistMassHealing(now), now, { offline: true });
+    case "HealingCircle":
+      return castTaoistHealingCircle(usableTaoistHealingCircle(now), now, { offline: true });
     case "SoulShield":
     case "BlessedArmour":
-      return castTaoistDefenceBuff(usableTaoistDefenceBuff(spellId, now), now, { offline: true });
+    case "EnergyShield":
+      return castTaoistEnergyShield(usableTaoistEnergyShield(now), now, { offline: true });
     case "UltimateEnhancer":
       return castTaoistUltimateEnhancer(usableTaoistUltimateEnhancer(now), now, { offline: true });
+    case "PetEnhancer":
+      return castTaoistPetEnhancer(usableTaoistPetEnhancer(now), now, { offline: true });
     case "Poisoning":
       return castTaoistPoisoning(usableTaoistPoisoning(now), now, { offline: true });
+    case "PoisonCloud":
+      return castTaoistPoisonCloud(usableTaoistPoisonCloud(now), now, { offline: true });
+    case "Plague":
+      return castTaoistPlague(usableTaoistPlague(now), now, { offline: true });
+    case "Curse":
+      return castTaoistCurse(usableTaoistCurse(now), now, { offline: true });
     case "SoulFireBall":
       return offlineTaoistSoulFireBall(enemy, now, usableTaoistSoulFireBall(now), soulFireBallOptions);
     default:
@@ -5328,7 +5761,7 @@ function finalizeOfflineBattleState(zone, report) {
   state.battle.pendingPoison = null;
 
   if (player.hp <= 0 || report.diedAtMs) {
-    dismissTaoistPet();
+    dismissBattleCompanions();
     player.hp = 0;
     state.battle.phase = "idle";
     state.battle.nextPlayerAttackAt = 0;
@@ -5340,7 +5773,7 @@ function finalizeOfflineBattleState(zone, report) {
   const enemy = report.finalEnemy?.hp > 0
     ? report.finalEnemy
     : { ...randomZoneEnemyTemplate(zone), hp: undefined, mp: undefined };
-  if (!(report.finalEnemy?.hp > 0)) dismissTaoistPet();
+  if (!(report.finalEnemy?.hp > 0)) dismissBattleCompanions();
   enemy.hp = enemy.hp ?? enemy.maxHp;
   enemy.mp = enemy.mp ?? enemy.maxMp;
   enemy.poisons = Array.isArray(enemy.poisons) ? enemy.poisons : [];
@@ -5681,6 +6114,13 @@ function prototypeResetNoticeRequired(now = Date.now()) {
     || now - lastSeenAt >= PROTOTYPE_RESET_NOTICE_INTERVAL_MS;
 }
 
+function cloudBackupNoticeRequired(now = Date.now()) {
+  const seenVersion = Math.max(0, Math.trunc(Number(state.settings.cloudBackupNoticeVersion) || 0));
+  const lastSeenAt = Math.max(0, Math.trunc(Number(state.settings.cloudBackupNoticeLastSeenAt) || 0));
+  return seenVersion < CLOUD_BACKUP_NOTICE_VERSION
+    || now - lastSeenAt >= CLOUD_BACKUP_NOTICE_INTERVAL_MS;
+}
+
 function prototypeStatsCanSubmit() {
   return Boolean(
     state.settings.prototypeStatsEnabled
@@ -5690,6 +6130,195 @@ function prototypeStatsCanSubmit() {
   );
 }
 
+function loadOrCreateCloudRecoveryCode() {
+  try {
+    const existing = normalizeRecoveryCode(localStorage.getItem(CLOUD_RECOVERY_CODE_STORAGE_KEY));
+    if (existing) return existing;
+    const generated = createRecoveryCode();
+    localStorage.setItem(CLOUD_RECOVERY_CODE_STORAGE_KEY, generated);
+    return generated;
+  } catch (err) {
+    console.warn("Unable to persist cloud recovery code", err);
+    return createRecoveryCode();
+  }
+}
+
+function loadCloudSavedAt() {
+  try {
+    return Math.max(0, Math.trunc(Number(localStorage.getItem(CLOUD_LAST_SAVED_AT_STORAGE_KEY)) || 0));
+  } catch {
+    return 0;
+  }
+}
+
+function storeCloudSavedAt(timestamp) {
+  const savedAt = Math.max(0, Math.trunc(Number(timestamp) || 0));
+  state.cloudSave.lastSavedAt = savedAt;
+  try {
+    if (savedAt > 0) localStorage.setItem(CLOUD_LAST_SAVED_AT_STORAGE_KEY, String(savedAt));
+    else localStorage.removeItem(CLOUD_LAST_SAVED_AT_STORAGE_KEY);
+  } catch {
+    // The in-memory timestamp still gives useful status for this session.
+  }
+}
+
+function storeCloudRecoveryCode(code) {
+  const normalized = normalizeRecoveryCode(code);
+  if (!normalized) return false;
+  state.cloudSave.recoveryCode = normalized;
+  try {
+    localStorage.setItem(CLOUD_RECOVERY_CODE_STORAGE_KEY, normalized);
+  } catch {
+    // The code remains usable for this session and visible for manual copying.
+  }
+  return true;
+}
+
+function rotateCloudRecoveryCode() {
+  storeCloudRecoveryCode(createRecoveryCode());
+  storeCloudSavedAt(0);
+  state.cloudSave.lastAttemptAt = performance.now();
+  state.cloudSave.restoreCodeInput = "";
+  state.cloudSave.pendingRestore = null;
+  state.cloudSave.statusText = "A new recovery code was created for this fresh save.";
+}
+
+function setCloudSaveStatus(message) {
+  state.cloudSave.statusText = String(message ?? "");
+  sceneSignature = "";
+  if (state.openScenes.options) renderSceneOverlay();
+}
+
+function formatCloudSaveTime(timestamp) {
+  const value = Math.max(0, Math.trunc(Number(timestamp) || 0));
+  if (!value) return "Not backed up yet";
+  return new Date(value).toLocaleString();
+}
+
+function parseCloudServerTime(value) {
+  const text = String(value ?? "").trim();
+  if (!text) return 0;
+  const normalized = /^\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}$/.test(text)
+    ? `${text.replace(" ", "T")}Z`
+    : text;
+  const timestamp = Date.parse(normalized);
+  return Number.isFinite(timestamp) ? timestamp : 0;
+}
+
+async function uploadCloudSave(reason = "manual") {
+  if (!saveReady || !state.cloudSave.configured || !state.cloudSave.endpoint) {
+    setCloudSaveStatus("Cloud saves are not available right now. Your local save is unaffected.");
+    return false;
+  }
+  if (state.cloudSave.saving) return false;
+
+  state.cloudSave.saving = true;
+  state.cloudSave.lastAttemptAt = performance.now();
+  setCloudSaveStatus(reason === "manual" ? "Saving to the cloud..." : "Automatic cloud save in progress...");
+  try {
+    const snapshot = createSaveSnapshot();
+    const response = await fetch(state.cloudSave.endpoint, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ recoveryCode: state.cloudSave.recoveryCode, save: snapshot }),
+    });
+    const body = await response.json().catch(() => ({}));
+    if (!response.ok) throw new Error(body.error || `HTTP ${response.status}`);
+    storeCloudSavedAt(parseCloudServerTime(body.savedAt) || Date.now());
+    setCloudSaveStatus("Cloud save updated.");
+    return true;
+  } catch (err) {
+    console.warn("Unable to upload cloud save", err);
+    setCloudSaveStatus(`Cloud save failed: ${err.message || "please try again"}. Your local save is safe.`);
+    return false;
+  } finally {
+    state.cloudSave.saving = false;
+    sceneSignature = "";
+    if (state.openScenes.options) renderSceneOverlay();
+  }
+}
+
+function maybeUploadCloudSave(now) {
+  if (!saveReady || !state.cloudSave.configured || state.cloudSave.saving || state.cloudSave.restoring) return;
+  if (now - state.cloudSave.lastAttemptAt < CLOUD_SAVE_INTERVAL_MS) return;
+  void uploadCloudSave("interval");
+}
+
+async function findCloudSaveForRestore(code) {
+  const normalized = normalizeRecoveryCode(code);
+  state.cloudSave.restoreCodeInput = normalized || String(code ?? "").trim().toUpperCase();
+  if (!normalized) {
+    setCloudSaveStatus("Enter a complete recovery code in the format MIR-XXXX-XXXX-XXXX-XXXX.");
+    return false;
+  }
+  if (!state.cloudSave.configured || !cloudRestoreEndpoint(state.cloudSave.endpoint)) {
+    setCloudSaveStatus("Cloud saves are not available right now.");
+    return false;
+  }
+  if (state.cloudSave.restoring) return false;
+
+  state.cloudSave.restoring = true;
+  setCloudSaveStatus("Looking for that cloud save...");
+  try {
+    const response = await fetch(cloudRestoreEndpoint(state.cloudSave.endpoint), {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ recoveryCode: normalized }),
+    });
+    const body = await response.json().catch(() => ({}));
+    if (!response.ok) throw new Error(body.error || `HTTP ${response.status}`);
+    const parsed = parseSaveSnapshotText(JSON.stringify(body.save));
+    if (!parsed.ok) throw new Error(parsed.error);
+    state.cloudSave.pendingRestore = {
+      recoveryCode: normalized,
+      savedAt: parseCloudServerTime(body.savedAt),
+      snapshot: parsed.snapshot,
+    };
+    setCloudSaveStatus("Backup found. Confirm below to replace this browser's progress.");
+    return true;
+  } catch (err) {
+    console.warn("Unable to restore cloud save", err);
+    state.cloudSave.pendingRestore = null;
+    setCloudSaveStatus(err.message || "Cloud save lookup failed.");
+    return false;
+  } finally {
+    state.cloudSave.restoring = false;
+    sceneSignature = "";
+    if (state.openScenes.options) renderSceneOverlay();
+  }
+}
+
+async function confirmCloudSaveRestore() {
+  const pending = state.cloudSave.pendingRestore;
+  if (!pending) return false;
+  const restored = await replaceCurrentGameWithSnapshot(pending.snapshot, "Cloud save restored.");
+  if (!restored) return false;
+  storeCloudRecoveryCode(pending.recoveryCode);
+  storeCloudSavedAt(pending.savedAt || Date.now());
+  state.cloudSave.pendingRestore = null;
+  state.cloudSave.restoreCodeInput = "";
+  state.cloudSave.lastAttemptAt = performance.now();
+  state.cloudSave.statusText = "Cloud save restored. Automatic backups will continue with this recovery code.";
+  return true;
+}
+
+function cancelCloudSaveRestore() {
+  state.cloudSave.pendingRestore = null;
+  setCloudSaveStatus("Cloud restore cancelled.");
+}
+
+async function copyCloudRecoveryCode() {
+  const input = root.querySelector("[data-cloud-recovery-code]");
+  try {
+    await navigator.clipboard.writeText(state.cloudSave.recoveryCode);
+    setCloudSaveStatus("Recovery code copied.");
+  } catch {
+    input?.focus();
+    input?.select();
+    setCloudSaveStatus("Recovery code selected. Press Ctrl+C to copy it.");
+  }
+}
+
 async function loadPrototypeStatsConfig() {
   const config = await loadJson(STATS_CONFIG_URL).catch(() => ({}));
   const endpoint = typeof config.endpoint === "string" ? config.endpoint.trim() : "";
@@ -5697,6 +6326,8 @@ async function loadPrototypeStatsConfig() {
   state.prototypeStats.endpoint = endpoint;
   state.prototypeStats.panelUrl = panelUrl;
   state.prototypeStats.configured = Boolean(endpoint) && config.enabled !== false;
+  state.cloudSave.endpoint = cloudSaveEndpointFromConfig(config, endpoint);
+  state.cloudSave.configured = Boolean(state.cloudSave.endpoint);
   state.prototypeStats.statusText = state.prototypeStats.configured
     ? (panelUrl ? "Anonymous progress stats ready. Leaderboard panel available." : "Anonymous progress stats ready.")
     : "Stats endpoint not configured yet.";
@@ -5764,12 +6395,17 @@ function prototypeStatsCharacterEquipment(character) {
     const entry = items.find((candidate) => candidate.id === entryId);
     if (!entry?.itemId) continue;
     equipment[slot.id] = {
+      instanceId: entry.id,
       itemId: entry.itemId,
       smithLevel: Math.max(0, prototypeStatsInt(entry.smithLevel)),
       weaponRefineLevel: Math.max(0, prototypeStatsInt(entry.weaponRefineLevel)),
       gemCount: Math.max(0, prototypeStatsInt(entry.gemCount)),
+      empowered: Boolean(entry.empowered),
+      empowerTier: Math.max(0, prototypeStatsInt(entry.empowerTier)),
       bonusStats: sanitizeItemBonusStats(entry.bonusStats),
       smithBonusStats: sanitizeSmithBonusStats(entry.smithBonusStats),
+      empowerBonusStats: sanitizeItemBonusStats(entry.empowerBonusStats),
+      empowerSpellBonuses: sanitizeEmpowerSpellBonuses(entry.empowerSpellBonuses),
     };
   }
   return equipment;
@@ -5827,6 +6463,7 @@ function prototypeStatsSnapshot() {
   return {
     game: "lom-idle-v2",
     saveVersion: SAVE_VERSION,
+    integrityRulesVersion: ITEM_INTEGRITY_RULES_VERSION,
     playerId: state.prototypeStats.playerId,
     activeCharacterId: state.activeCharacterId,
     account,
@@ -5882,6 +6519,10 @@ async function submitPrototypeStats(reason = "manual", now = performance.now()) 
 function renderPrototypeStatsNotice() {
   if (!els.prototypeStatsNotice) return;
   if (!prototypeStatsNoticeRequired()) {
+    if (cloudBackupNoticeRequired()) {
+      renderCloudBackupNotice();
+      return;
+    }
     if (prototypeResetNoticeRequired()) {
       renderPrototypeResetNotice();
       return;
@@ -5907,6 +6548,38 @@ function renderPrototypeStatsNotice() {
       <div class="prototype-stats-notice-actions">
         <button type="button" data-disable-prototype-stats>Turn Off</button>
         <button type="button" class="primary" data-accept-prototype-stats>Continue</button>
+      </div>
+    </div>
+  `;
+}
+
+function renderCloudBackupNotice() {
+  if (!els.prototypeStatsNotice) return;
+  els.prototypeStatsNotice.classList.remove("prototype-reset-notice-overlay");
+  els.prototypeStatsNotice.hidden = false;
+  els.prototypeStatsNotice.innerHTML = `
+    <div class="prototype-stats-notice-window cloud-backup-notice-window" role="dialog" aria-modal="true" aria-labelledby="cloudBackupNoticeTitle">
+      <p class="cloud-backup-notice-eyebrow">SAVE PROTECTION</p>
+      <h2 id="cloudBackupNoticeTitle">Keep Your Recovery Code Safe</h2>
+      <p>
+        Your game is backed up automatically while you play. If this browser loses its local save, this code is the only way to recover your cloud backup.
+      </p>
+      <p>
+        Save it somewhere outside the game, such as a note, password manager, or screenshot.
+      </p>
+      <label class="cloud-backup-notice-code">
+        <span>Your recovery code</span>
+        <input type="text" readonly value="${escapeHtml(state.cloudSave.recoveryCode)}" data-cloud-backup-notice-code />
+      </label>
+      <p class="cloud-backup-code-warning"><strong>Keep this code private.</strong> Anyone with it can download and overwrite your cloud backup. Sharing it may cause conflicting saves or lost progress.</p>
+      <div class="cloud-backup-notice-restore">
+        <strong>How to recover your save</strong>
+        <p>Open <b>Options</b>, go to <b>Cloud Save</b>, enter this code under <b>Restore using another recovery code</b>, then select <b>Find Backup</b> and <b>Restore Backup</b>.</p>
+      </div>
+      <p class="cloud-backup-notice-hint">Your code is always available under Options &gt; Cloud Save.</p>
+      <div class="prototype-stats-notice-actions cloud-backup-notice-actions">
+        <button type="button" data-copy-cloud-backup-notice>${state.cloudSave.noticeCopied ? "Copied" : "Copy Code"}</button>
+        <button type="button" class="primary" data-accept-cloud-backup-notice>I've Saved It</button>
       </div>
     </div>
   `;
@@ -5961,6 +6634,26 @@ function acceptPrototypeResetNotice() {
   renderPrototypeStatsNotice();
 }
 
+async function copyCloudBackupNoticeCode() {
+  const input = root.querySelector("[data-cloud-backup-notice-code]");
+  try {
+    await navigator.clipboard.writeText(state.cloudSave.recoveryCode);
+  } catch {
+    input?.focus();
+    input?.select();
+  }
+  state.cloudSave.noticeCopied = true;
+  renderPrototypeStatsNotice();
+}
+
+function acceptCloudBackupNotice() {
+  state.settings.cloudBackupNoticeVersion = CLOUD_BACKUP_NOTICE_VERSION;
+  state.settings.cloudBackupNoticeLastSeenAt = Date.now();
+  state.cloudSave.noticeCopied = false;
+  saveGameState(true);
+  renderPrototypeStatsNotice();
+}
+
 function formatDuration(ms) {
   const totalSeconds = Math.max(0, Math.floor(ms / 1000));
   const hours = Math.floor(totalSeconds / 3600);
@@ -6004,6 +6697,7 @@ async function resetSavedGame() {
   } catch (err) {
     console.warn("Unable to clear game save", err);
   }
+  rotateCloudRecoveryCode();
 
   saveReady = false;
   resetRuntimeGameState();
@@ -6080,6 +6774,8 @@ function resetRuntimeGameState() {
   state.settings.prototypeStatsNoticeVersion = 0;
   state.settings.prototypeResetNoticeVersion = 0;
   state.settings.prototypeResetNoticeLastSeenAt = 0;
+  state.settings.cloudBackupNoticeVersion = 0;
+  state.settings.cloudBackupNoticeLastSeenAt = 0;
   musicTrackIndex = 0;
   syncBackgroundMusic();
   state.battle.combatClass = "Warrior";
@@ -6513,8 +7209,10 @@ function clearTransientCombatBuffs() {
     (entry) => entry.spellId !== "MagicShield",
   );
   state.battle.pendingDefenceBuff = null;
+  state.battle.pendingWizardBuff = null;
   state.battle.pendingMassHeal = null;
   state.battle.pendingUltimateEnhancer = null;
+  state.battle.pendingPetEnhancer = null;
   applyEquippedStatsToBattlePlayer();
   playerHudSignature = "";
   battlePanelSignature = "";
@@ -6573,7 +7271,7 @@ function resetBattle(enemyId = state.battle.enemyId) {
   state.battle.pendingHeal = null;
   state.battle.pendingPoison = null;
   state.battle.wizardSpellLockUntil = 0;
-  dismissTaoistPet();
+  dismissBattleCompanions();
   state.battle.bossParty = null;
   state.battle.bossEmpowered = false;
   state.battle.swarm = null;
@@ -6597,6 +7295,7 @@ function resetBattle(enemyId = state.battle.enemyId) {
   state.battle.twinDrakeChargeFxStartedAt = 0;
   state.battle.twinDrakeChargeFxUntil = 0;
   state.battle.pendingTwinDrakeHits = [];
+  clearSlashingBurstPendingState();
   state.battle.attachedSpellFx = [];
   state.battle.potHealthAmount = 0;
   state.battle.potManaAmount = 0;
@@ -6667,7 +7366,7 @@ function resetBattleForRoomOnly(zone = activeZone()) {
   state.battle.pendingHeal = null;
   state.battle.pendingPoison = null;
   state.battle.wizardSpellLockUntil = 0;
-  dismissTaoistPet();
+  dismissBattleCompanions();
   state.battle.bossParty = null;
   state.battle.bossEmpowered = false;
   state.battle.swarm = null;
@@ -6691,6 +7390,7 @@ function resetBattleForRoomOnly(zone = activeZone()) {
   state.battle.twinDrakeChargeFxStartedAt = 0;
   state.battle.twinDrakeChargeFxUntil = 0;
   state.battle.pendingTwinDrakeHits = [];
+  clearSlashingBurstPendingState();
   state.battle.attachedSpellFx = [];
   state.battle.potHealthAmount = 0;
   state.battle.potManaAmount = 0;
@@ -6762,7 +7462,7 @@ function startBattle() {
   state.battle.pendingEnemyStrike = null;
   state.battle.pendingHeal = null;
   state.battle.pendingPoison = null;
-  dismissTaoistPet();
+  dismissBattleCompanions();
   if ((bossDef || groupDungeonZone(zone)) && beginBossPartyFight(zone.id, now)) return;
   if (applyFixedArenaEnemySpawn(now)) {
     initMapLightningSchedule(now);
@@ -6797,7 +7497,7 @@ function stopBattle() {
   state.battle.pendingEnemyStrike = null;
   state.battle.pendingHeal = null;
   state.battle.pendingPoison = null;
-  dismissTaoistPet();
+  dismissBattleCompanions();
   state.battle.bossParty = null;
   resetCombatEquipmentLock();
   clearGroupDungeonRunState();
@@ -6833,7 +7533,7 @@ function startContinuousMovement(action) {
   state.battle.pendingEnemyStrike = null;
   state.battle.pendingHeal = null;
   state.battle.pendingPoison = null;
-  dismissTaoistPet();
+  dismissBattleCompanions();
   setPlayerAction(action, now);
   const cycleDistance = movementCycleDistance(action);
   pushBattleLog(`Deterministic ${PLAYER_ACTIONS[action].label.toLowerCase()} test started: one cycle equals ${cycleDistance}px.`);
@@ -6851,7 +7551,7 @@ function stopContinuousWalk() {
   state.battle.pendingEnemyStrike = null;
   state.battle.pendingHeal = null;
   state.battle.pendingPoison = null;
-  dismissTaoistPet();
+  dismissBattleCompanions();
   state.battle.groundSpellEffects = [];
   setPlayerAction("standing", performance.now());
   pushBattleLog(`Deterministic ${PLAYER_ACTIONS[state.continuousMoveAction].label.toLowerCase()} test stopped.`);
@@ -6933,10 +7633,13 @@ const ACTIVITY_LOG_ROUTINE_ATTACK_SPELLS = [
   "ThunderBolt",
   "Ice Storm",
   "IceStorm",
+  "Flame Field",
+  "FlameField",
   "FireWall",
   "Firewall",
   "Soul Fire Ball",
   "SoulFireBall",
+  "Blizzard",
   "Meteor Strike",
   "MeteorStrike",
   "Flame Disruptor",
@@ -6971,7 +7674,7 @@ function isRoutineDamageActivityLine(line) {
 
 function isRoutineAttackCastActivityLine(line) {
   if (!/\bcasts?\b/i.test(line)) return false;
-  if (/\b(?:Poison|Healing|MassHealing|Mass Healing|SoulShield|BlessedArmour|UltimateEnhancer|MagicShield|MagicBooster|Mirroring|Summon|Skeleton|Shinsu|Holy Deva|Fury)\b/i.test(line)) {
+  if (/\b(?:Poison|Healing|MassHealing|Mass Healing|SoulShield|BlessedArmour|UltimateEnhancer|PetEnhancer|MagicShield|MagicBooster|Mirroring|Summon|Skeleton|Shinsu|Holy Deva|Fury|Protection Field|ProtectionField|Immortal Skin|ImmortalSkin)\b/i.test(line)) {
     return false;
   }
   return ACTIVITY_LOG_ROUTINE_ATTACK_SPELLS.some((spell) => line.includes(spell));
@@ -7048,10 +7751,12 @@ function trainingRoomPlayCastVisual(spell, now) {
   const battle = state.battle;
   battle.pendingImpact = null;
   battle.pendingDefenceBuff = null;
+  battle.pendingWizardBuff = null;
   battle.pendingMassHeal = null;
   battle.pendingHeal = null;
   battle.pendingPoison = null;
   battle.pendingUltimateEnhancer = null;
+  battle.pendingPetEnhancer = null;
   battle.pendingPetAttack = null;
   battle.pendingTaoPet = null;
   battle.activeWizardSpell = null;
@@ -7067,6 +7772,7 @@ function trainingRoomPlayCastVisual(spell, now) {
     battle.activeSkillAtlas = state.warriorSkillAtlases[spell.id] ?? null;
     battle.activeSkillStartedAt = now;
     setPlayerAction(bodyAction, now, true);
+    if (spell.id === "BladeAvalanche") queueBladeAvalancheLaneFx(now, battle.playerX);
     return;
   }
   if (battle.combatClass === "Wizard") {
@@ -7136,15 +7842,18 @@ function trainingRoomCastWarrior(spell, learned, cost, now) {
   }
 
   if (spell.buff) {
-    if (spell.id !== "Fury") return false;
-    if (now < (battle.furyUntil ?? 0)) return false;
-    trainingRoomSpendMp(spell, learned, cost);
-    battle.furyUntil = now + 60000 + (Number(learned?.level) || 0) * 10000;
-    battle.furyBonus = 4;
-    levelWarriorMagic(spell, learned, now);
-    trainingRoomPlayCastVisual(spell, now);
-    playWarriorSpellSwingSfx(spell, { volume: 0.5 });
-    return true;
+    if (spell.id === "Fury" || spell.id === "Rage" || spell.id === "ProtectionField" || spell.id === "ImmortalSkin") {
+      if (spell.id === "Fury" && hasActiveFuryBuff(battle.player, now)) return false;
+      if (spell.id === "Rage" && hasActiveRageBuff(battle.player, now)) return false;
+      if (spell.id === "ProtectionField" && hasActiveProtectionFieldBuff(battle.player, now)) return false;
+      if (spell.id === "ImmortalSkin" && hasActiveImmortalSkinBuff(battle.player, now)) return false;
+      trainingRoomSpendMp(spell, learned, cost);
+      applyWarriorCombatBuffToEntity(battle.player, spell, learned, now);
+      trainingRoomPlayCastVisual(spell, now);
+      playWarriorSpellSwingSfx(spell, { volume: 0.5 });
+      return true;
+    }
+    return false;
   }
 
   trainingRoomSpendMp(spell, learned, cost);
@@ -7163,6 +7872,25 @@ function trainingRoomCastWizard(spell, learned, cost, now) {
     trainingRoomSpendMp(spell, learned, cost);
     const applied = applyDefenceBuffEffect(spell, learned, battle.player, now);
     startMagicShieldLoopFx({ expiresAt: now + applied.durationMs, now });
+    trainingRoomPlayCastVisual(spell, now);
+    playSpellSfx(spell.id, "cast");
+    return true;
+  }
+
+  if (spell.id === "MagicBooster") {
+    trainingRoomSpendMp(spell, learned, cost);
+    applyMagicBoosterEffect(spell, learned, battle.player, now);
+    levelMagicSkill(spell, learned, now);
+    trainingRoomPlayCastVisual(spell, now);
+    playSpellSfx(spell.id, "cast");
+    return true;
+  }
+
+  if (spell.id === "Mirroring") {
+    if (battle.wizardMirror?.active) dismissWizardMirror();
+    trainingRoomSpendMp(spell, learned, cost);
+    levelMagicSkill(spell, learned, now);
+    battle.wizardMirror = createWizardMirror(learned.level, now);
     trainingRoomPlayCastVisual(spell, now);
     playSpellSfx(spell.id, "cast");
     return true;
@@ -7205,6 +7933,14 @@ function trainingRoomCastTaoist(spell, learned, cost, now) {
     return true;
   }
 
+  if (spell.id === "EnergyShield") {
+    trainingRoomSpendMp(spell, learned, cost);
+    applyEnergyShieldEffect(spell, learned, battle.player, battle.player, now);
+    trainingRoomPlayCastVisual(spell, now);
+    playSpellSfx(spell.id, "cast");
+    return true;
+  }
+
   if (spell.id === "MassHealing") {
     trainingRoomSpendMp(spell, learned, cost);
     levelMagicSkill(spell, learned, now);
@@ -7212,6 +7948,21 @@ function trainingRoomCastTaoist(spell, learned, cost, now) {
     if (applied) showTaoistMassHealTexts(spell, applied, now);
     trainingRoomPlayCastVisual(spell, now);
     playSpellSfx(spell.id, "cast");
+    return true;
+  }
+
+  if (spell.id === "HealingCircle") {
+    trainingRoomSpendMp(spell, learned, cost);
+    levelMagicSkill(spell, learned, now);
+    trainingRoomPlayCastVisual(spell, now);
+    playSpellSfx(spell.id, "cast");
+    const skillLevel = Math.max(0, Math.min(3, Math.trunc(Number(learned?.level) || 0)));
+    const centerTile = healingCircleCenterTile();
+    createWizardGroundSpellEffect(spell, {
+      value: skillLevel,
+      worldX: centerTile.worldX,
+      centerTile,
+    }, now);
     return true;
   }
 
@@ -7225,6 +7976,18 @@ function trainingRoomCastTaoist(spell, learned, cost, now) {
     applyUltimateEnhancerToTargets(spell, learned, battle.player, targets, now);
     trainingRoomPlayCastVisual(spell, now);
     playSpellSfx(spell.id, "cast");
+    return true;
+  }
+
+  if (spell.id === "PetEnhancer") {
+    const pet = activeTaoistPet(now);
+    if (!pet) return false;
+    trainingRoomSpendMp(spell, learned, cost);
+    const applied = applyPetEnhancerToPet(spell, learned, battle.player, pet, now);
+    if (!applied) return false;
+    trainingRoomPlayCastVisual(spell, now);
+    playSpellSfx(spell.id, "cast");
+    queuePetEnhancerImpactFx(spell, now, { soundPlayed: true });
     return true;
   }
 
@@ -7250,6 +8013,43 @@ function trainingRoomCastTaoist(spell, learned, cost, now) {
     if (!entry || !isPoisonItem(item) || !consumeOneInventoryUnit(entry.id)) return false;
     trainingRoomSpendMp(spell, learned, cost);
     levelMagicSkill(spell, learned, now);
+    trainingRoomPlayCastVisual(spell, now);
+    playSpellSfx(spell.id, "cast");
+    return true;
+  }
+
+  if (spell.id === "PoisonCloud") {
+    if (amuletInventoryCount() < POISON_CLOUD_AMULET_COST || poisonInventoryCount("green") < POISON_CLOUD_GREEN_POISON_COST) return false;
+    if (!consumeAmuletInventoryUnits(POISON_CLOUD_AMULET_COST) || !consumeGreenPoisonUnits(POISON_CLOUD_GREEN_POISON_COST)) return false;
+    trainingRoomSpendMp(spell, learned, cost);
+    levelMagicSkill(spell, learned, now);
+    trainingRoomPlayCastVisual(spell, now);
+    playSpellSfx(spell.id, "cast");
+    return true;
+  }
+
+  if (spell.id === "Plague") {
+    if (amuletInventoryCount() < PLAGUE_AMULET_COST) return false;
+    const poisonCandidate = plaguePoisonCandidateForCast();
+    if (!consumePlagueCastSupplies(poisonCandidate)) return false;
+    trainingRoomSpendMp(spell, learned, cost);
+    levelMagicSkill(spell, learned, now);
+    trainingRoomPlayCastVisual(spell, now);
+    playSpellSfx(spell.id, "cast");
+    setEnemyAction("struck", true, now);
+    playMonsterSfx("flinch");
+    return true;
+  }
+
+  if (spell.id === "Curse") {
+    if (amuletInventoryCount() < CURSE_AMULET_COST) return false;
+    if (!consumeAmuletInventoryUnits(CURSE_AMULET_COST)) return false;
+    trainingRoomSpendMp(spell, learned, cost);
+    if (rollCurseCastProceeds(learned?.level)) {
+      const durationMs = curseDurationMs(spell, learned, state.battle.player);
+      applyCurseToEnemy(state.battle.enemy, durationMs, curseOffenceReductionPercent(learned?.level), now);
+      levelMagicSkill(spell, learned, now);
+    }
     trainingRoomPlayCastVisual(spell, now);
     playSpellSfx(spell.id, "cast");
     return true;
@@ -7310,6 +8110,8 @@ function updateTrainingRoomBattle(now) {
   updateDefenceBuffFx(now);
   updateMassHealFx(now);
   updateAttachedSpellFx(now);
+  updatePendingWizardMirror(now);
+  updateWizardMirror(now);
   updateGroundSpellEffects(now);
   updateLaneMotion(now);
 
@@ -9168,7 +9970,7 @@ function sellAllJunkOre() {
 function buyShopItem(itemId, quantity = 1) {
   const item = itemDefinition(itemId);
   const requestedQuantity = Math.max(1, Math.floor(Number(quantity) || 1));
-  const unitPrice = itemBuyValue(item, 1);
+  const unitPrice = npcShopUnitPrice(item);
   if (!item || unitPrice <= 0) return false;
 
   const affordableQuantity = Math.floor(state.inventory.gold / unitPrice);
@@ -9203,7 +10005,7 @@ function buyShopItem(itemId, quantity = 1) {
     return false;
   }
 
-  const value = alchemistShopBuyPrice(item, addedQuantity);
+  const value = npcShopBuyPrice(item, addedQuantity);
   state.inventory.gold -= value;
   state.game.progress.gold = state.inventory.gold;
   state.battle.gold = state.game.progress.gold;
@@ -11961,6 +12763,52 @@ function consumeAmuletInventoryUnits(count, shape = 0) {
   return true;
 }
 
+function consumeGreenPoisonUnits(count) {
+  const needed = Math.max(1, Math.trunc(Number(count) || 1));
+  if (poisonInventoryCount("green") < needed) return false;
+  for (let i = 0; i < needed; i += 1) {
+    const entry = poisonInventoryEntries("green")[0];
+    if (!entry || !consumeOneInventoryUnit(entry.id)) return false;
+  }
+  return true;
+}
+
+function bossPartyConsumeGreenPoisonUnits(member, count) {
+  const needed = Math.max(1, Math.trunc(Number(count) || 1));
+  for (let i = 0; i < needed; i += 1) {
+    const entry = bossPartyCarriedInventoryEntries(member).find((candidate) => {
+      const item = itemDefinition(candidate.itemId);
+      return isPoisonItem(item) && poisonItemKind(item) === "green";
+    });
+    if (!entry || !bossPartyConsumeOneInventoryUnit(member, entry.id)) return false;
+  }
+  return true;
+}
+
+function bossPartyPlaguePoisonCandidate(member) {
+  const green = bossPartyCarriedInventoryEntries(member).find((entry) => {
+    const item = itemDefinition(entry.itemId);
+    return isPoisonItem(item) && poisonItemKind(item) === "green";
+  });
+  if (green) return { entry: green, kind: "green", item: itemDefinition(green.itemId) };
+  const yellow = bossPartyCarriedInventoryEntries(member).find((entry) => {
+    const item = itemDefinition(entry.itemId);
+    return isPoisonItem(item) && poisonItemKind(item) === "yellow";
+  });
+  if (yellow) return { entry: yellow, kind: "yellow", item: itemDefinition(yellow.itemId) };
+  return null;
+}
+
+function bossPartyConsumePlagueCastSupplies(member, poisonCandidate) {
+  if (!bossPartyConsumeAmuletInventoryUnits(member, PLAGUE_AMULET_COST)) return false;
+  if (poisonCandidate?.entry && !bossPartyConsumeOneInventoryUnit(member, poisonCandidate.entry.id)) return false;
+  return true;
+}
+
+function combatGroundEffectActive(spellId, now) {
+  return bossPartyGroundEffectActive(spellId, now);
+}
+
 function bossPartyConsumeAmuletInventoryUnits(member, count, shape = 0) {
   const needed = Math.max(1, Math.trunc(Number(count) || 1));
   for (let i = 0; i < needed; i += 1) {
@@ -13569,6 +14417,14 @@ function buildSceneOverlaySignature(openScenes, bossEntryZoneId) {
     autoPotionSlotLimit: autoPotionSlotLimit(),
     settings: state.settings,
   };
+  if (state.game.selectedTownNpcId === "message-board") {
+    payload.messageBoard = {
+      status: state.messageBoard.status,
+      messages: state.messageBoard.messages,
+      error: state.messageBoard.error,
+      posting: state.messageBoard.posting,
+    };
+  }
   if (openScenes.includes("options")) {
     payload.musicTrackIndex = musicTrackIndex;
     payload.musicStatusText = musicStatusText;
@@ -14672,6 +15528,15 @@ function optionsSceneHtml() {
   const musicMode = normalizedMusicMode(state.settings.musicMode);
   const statsReady = state.prototypeStats.configured;
   const statsEnabled = statsReady && state.settings.prototypeStatsEnabled;
+  const cloudSaveReady = state.cloudSave.configured;
+  const cloudSaveIntervalMinutes = Math.round(CLOUD_SAVE_INTERVAL_MS / 60_000);
+  const pendingCloudRestore = state.cloudSave.pendingRestore;
+  const pendingCloudLevels = pendingCloudRestore
+    ? CHARACTER_IDS.map((classId) => {
+        const level = Math.max(1, Math.trunc(Number(pendingCloudRestore.snapshot?.characters?.[classId]?.game?.progress?.level) || 1));
+        return `${classId} ${level}`;
+      }).join(" | ")
+    : "";
   return `
     <section class="options-panel">
       <div class="options-row">
@@ -14702,6 +15567,58 @@ function optionsSceneHtml() {
         : ""}
       ${state.prototypeStats.statusText ? `<p class="options-note">${escapeHtml(state.prototypeStats.statusText)}</p>` : ""}
       ${state.prototypeStats.panelUrl ? `<p class="options-note"><a href="${escapeHtml(state.prototypeStats.panelUrl)}" target="_blank" rel="noopener noreferrer">Open Stats Leaderboard</a></p>` : ""}
+      <section class="options-cloud-save" aria-label="Cloud save recovery">
+        <div class="options-save-transfer-header">
+          <div>
+            <strong>Cloud Save</strong>
+            <span>${cloudSaveReady
+              ? `Automatically backed up every ${cloudSaveIntervalMinutes} minutes while the game is open.`
+              : "Cloud backup service is not configured. Local saving still works."}</span>
+          </div>
+          <button type="button" data-cloud-save-now ${cloudSaveReady && !state.cloudSave.saving ? "" : "disabled"}>
+            ${state.cloudSave.saving ? "Saving..." : "Save Now"}
+          </button>
+        </div>
+        <label class="options-recovery-code">
+          <span>Your Recovery Code</span>
+          <span class="options-recovery-code-control">
+            <input type="text" readonly value="${escapeHtml(state.cloudSave.recoveryCode)}" data-cloud-recovery-code />
+            <button type="button" data-copy-cloud-code>Copy</button>
+          </span>
+        </label>
+        <p class="options-cloud-code-warning"><strong>Do not share this code.</strong> Anyone with it can download and overwrite this cloud backup, which may cause conflicting saves or lost progress.</p>
+        <p class="options-cloud-saved-at">Last cloud save: <strong>${escapeHtml(formatCloudSaveTime(state.cloudSave.lastSavedAt))}</strong></p>
+        <div class="options-cloud-restore">
+          <label for="cloudRestoreCode">Restore using another recovery code</label>
+          <div>
+            <input
+              id="cloudRestoreCode"
+              type="text"
+              value="${escapeHtml(state.cloudSave.restoreCodeInput)}"
+              placeholder="MIR-XXXX-XXXX-XXXX-XXXX"
+              autocomplete="off"
+              spellcheck="false"
+              data-cloud-restore-code
+            />
+            <button type="button" data-find-cloud-save ${cloudSaveReady && !state.cloudSave.restoring ? "" : "disabled"}>
+              ${state.cloudSave.restoring ? "Looking..." : "Find Backup"}
+            </button>
+          </div>
+        </div>
+        ${pendingCloudRestore ? `
+          <div class="options-cloud-confirm" role="status">
+            <strong>Backup found</strong>
+            <span>${escapeHtml(pendingCloudLevels)}</span>
+            <span>Saved ${escapeHtml(formatCloudSaveTime(pendingCloudRestore.savedAt))}</span>
+            <p>This will replace the progress currently stored in this browser.</p>
+            <div>
+              <button type="button" class="primary" data-confirm-cloud-restore>Restore Backup</button>
+              <button type="button" data-cancel-cloud-restore>Cancel</button>
+            </div>
+          </div>
+        ` : ""}
+        ${state.cloudSave.statusText ? `<p class="options-cloud-status" data-cloud-status>${escapeHtml(state.cloudSave.statusText)}</p>` : ""}
+      </section>
       <div class="options-row">
         <div>
           <strong>Music</strong>
@@ -15069,11 +15986,166 @@ function characterStatusValue(key, stats) {
 }
 
 const LEADERBOARD_CACHE_MS = 60000;
+const TOWN_MESSAGE_CACHE_MS = 30000;
+const TOWN_MESSAGE_MAX_LENGTH = 250;
 
 function leaderboardApiBase() {
   const endpoint = String(state.prototypeStats?.endpoint ?? "").trim();
   if (!endpoint) return "";
   return endpoint.replace(/\/stats\/?$/i, "").replace(/\/$/, "");
+}
+
+function townMessageBoardOpen() {
+  return state.activeScene === "townNpc" && state.game.selectedTownNpcId === "message-board";
+}
+
+function refreshTownMessageBoard() {
+  if (!townMessageBoardOpen()) return;
+  const activeDraft = root.querySelector("[data-town-message-draft]");
+  const restoreDraftFocus = activeDraft instanceof HTMLTextAreaElement && document.activeElement === activeDraft;
+  const selectionStart = restoreDraftFocus ? activeDraft.selectionStart : null;
+  const selectionEnd = restoreDraftFocus ? activeDraft.selectionEnd : null;
+  sceneSignature = "";
+  renderSceneOverlay();
+  if (restoreDraftFocus) {
+    const nextDraft = root.querySelector("[data-town-message-draft]");
+    nextDraft?.focus({ preventScroll: true });
+    nextDraft?.setSelectionRange(selectionStart, selectionEnd);
+  }
+}
+
+async function ensureTownMessages(force = false) {
+  const board = state.messageBoard;
+  const base = leaderboardApiBase();
+  if (!base) {
+    board.status = "error";
+    board.error = "The public noticeboard is not configured yet.";
+    refreshTownMessageBoard();
+    return;
+  }
+  if (!force && board.status === "ready" && Date.now() - board.lastLoadedAt < TOWN_MESSAGE_CACHE_MS) return;
+  if (board.status === "loading") return;
+  board.status = "loading";
+  board.error = "";
+  refreshTownMessageBoard();
+  try {
+    const response = await fetch(`${base}/town-messages?limit=30`, {
+      method: "GET",
+      headers: { Accept: "application/json" },
+    });
+    if (!response.ok) throw new Error(`HTTP ${response.status}`);
+    const data = await response.json();
+    board.messages = Array.isArray(data?.messages) ? data.messages : [];
+    board.status = "ready";
+    board.lastLoadedAt = Date.now();
+  } catch (error) {
+    console.warn("Unable to load town noticeboard", error);
+    board.status = "error";
+    board.error = "The noticeboard could not be reached. Please try again.";
+  }
+  refreshTownMessageBoard();
+}
+
+async function postTownMessage() {
+  const board = state.messageBoard;
+  if (board.posting) return;
+  const input = root.querySelector("[data-town-message-draft]");
+  const body = String(input?.value ?? board.draft ?? "").trim().slice(0, TOWN_MESSAGE_MAX_LENGTH);
+  board.draft = body;
+  if (!body) {
+    board.error = "Write a message first.";
+    refreshTownMessageBoard();
+    return;
+  }
+  const base = leaderboardApiBase();
+  if (!base || !state.prototypeStats.playerId) {
+    board.error = "The public noticeboard is not configured yet.";
+    refreshTownMessageBoard();
+    return;
+  }
+  board.posting = true;
+  board.error = "";
+  refreshTownMessageBoard();
+  try {
+    const response = await fetch(`${base}/town-messages`, {
+      method: "POST",
+      headers: { "content-type": "application/json", Accept: "application/json" },
+      body: JSON.stringify({
+        playerId: state.prototypeStats.playerId,
+        characterClass: state.activeCharacterId,
+        characterLevel: state.game.progress.level,
+        body,
+      }),
+    });
+    const data = await response.json().catch(() => ({}));
+    if (!response.ok) throw new Error(data?.error || `HTTP ${response.status}`);
+    board.draft = "";
+    board.messages = data?.message
+      ? [data.message, ...board.messages.filter((message) => message.id !== data.message.id)]
+      : board.messages;
+    board.status = "ready";
+    board.lastLoadedAt = Date.now();
+  } catch (error) {
+    board.error = error?.message || "The message could not be posted.";
+  } finally {
+    board.posting = false;
+    refreshTownMessageBoard();
+  }
+}
+
+function townMessageTimeLabel(createdAt) {
+  if (!createdAt) return "";
+  const source = String(createdAt);
+  const timestamp = Date.parse(source.includes("T") ? source : `${source.replace(" ", "T")}Z`);
+  if (!Number.isFinite(timestamp)) return "";
+  const elapsedSeconds = Math.max(0, Math.floor((Date.now() - timestamp) / 1000));
+  if (elapsedSeconds < 60) return "Just now";
+  if (elapsedSeconds < 3600) return `${Math.floor(elapsedSeconds / 60)}m ago`;
+  if (elapsedSeconds < 86400) return `${Math.floor(elapsedSeconds / 3600)}h ago`;
+  return new Date(timestamp).toLocaleDateString();
+}
+
+function townMessageBoardSceneHtml() {
+  const board = state.messageBoard;
+  const loading = board.status === "loading";
+  const rows = board.messages.map((message) => `
+    <article class="town-message-row">
+      <header>
+        <strong>${escapeHtml(message.player ?? "Player ????????")}</strong>
+        <span>${escapeHtml(message.characterClass ?? "Adventurer")} · Lv ${Math.max(1, Math.trunc(Number(message.characterLevel) || 1))}</span>
+        <time>${escapeHtml(townMessageTimeLabel(message.createdAt))}</time>
+      </header>
+      <p>${escapeHtml(message.body ?? "")}</p>
+    </article>
+  `).join("");
+  return `
+    <section class="npc-panel crystal-npc-text town-message-board-panel">
+      <div class="town-message-board-toolbar">
+        <span>Messages remain for 14 days.</span>
+        <button type="button" data-refresh-town-messages ${loading ? "disabled" : ""}>Refresh</button>
+      </div>
+      <div class="town-message-list" data-preserve-scroll="town-message-list">
+        ${loading && !board.messages.length
+          ? `<p class="town-message-state">Reading the noticeboard...</p>`
+          : rows || `<p class="town-message-state">No messages have been posted yet.</p>`}
+      </div>
+      <div class="town-message-compose">
+        <textarea
+          maxlength="${TOWN_MESSAGE_MAX_LENGTH}"
+          rows="3"
+          placeholder="Leave a message for other players..."
+          data-town-message-draft
+        >${escapeHtml(board.draft)}</textarea>
+        <div>
+          <span class="town-message-error">${escapeHtml(board.error)}</span>
+          <span data-town-message-count>${board.draft.length}/${TOWN_MESSAGE_MAX_LENGTH}</span>
+          <button type="button" class="primary" data-post-town-message ${board.posting ? "disabled" : ""}>
+            ${board.posting ? "Posting..." : "Post Message"}
+          </button>
+        </div>
+      </div>
+    </section>
+  `;
 }
 
 function leaderboardAvailable() {
@@ -15266,16 +16338,8 @@ function foreignRegisterEntry(view, slotId) {
   const raw = view?.equipment?.[slotId];
   if (!raw?.itemId) return null;
   const entryId = `lb:${normalizeCharacterId(view?.characterClass)}:${slotId}`;
-  const entry = {
-    id: entryId,
-    itemId: raw.itemId,
-    quantity: 1,
-    smithLevel: Math.max(0, Math.trunc(Number(raw.smithLevel) || 0)),
-    weaponRefineLevel: Math.max(0, Math.trunc(Number(raw.weaponRefineLevel) || 0)),
-    gemCount: Math.max(0, Math.trunc(Number(raw.gemCount) || 0)),
-    bonusStats: sanitizeItemBonusStats(raw.bonusStats),
-    smithBonusStats: sanitizeSmithBonusStats(raw.smithBonusStats),
-  };
+  const entry = socialEquipmentEntry(raw, entryId);
+  if (!entry) return null;
   if (!state.leaderboard.foreignEntries) state.leaderboard.foreignEntries = {};
   state.leaderboard.foreignEntries[entryId] = entry;
   return entry;
@@ -16837,7 +17901,7 @@ function returnToTown() {
   state.battle.pendingEnemyStrike = null;
   state.battle.pendingHeal = null;
   state.battle.pendingPoison = null;
-  dismissTaoistPet();
+  dismissBattleCompanions();
   state.battle.bossParty = null;
   state.battle.bossEmpowered = false;
   state.battle.groundSpellEffects = [];
@@ -18366,6 +19430,24 @@ function swarmGroundSpellAnchorY(mapRow) {
   return swarmMapRowAnchorY(mapRow) + GROUP_DUNGEON_SWARM_CELL_HEIGHT;
 }
 
+function poisonCloudGroundAnchorY(centerTile) {
+  const footY = groupDungeonSwarmSideActive()
+    ? swarmGroundSpellAnchorY(centerTile.mapRow)
+    : arenaLaneYPx() + Math.trunc(Number(activeZone()?.arenaEnemyOffsetY) || 0);
+  return footY - POISON_CLOUD_GROUND_ANCHOR_OFFSET_FROM_FOOT_PX;
+}
+
+function healingCircleCenterTile(caster = null) {
+  const worldX = caster?.worldX != null
+    ? swarmSnapTileX(caster.worldX)
+    : swarmSnapTileX(state.battle.playerX);
+  return { worldX, mapRow: 0 };
+}
+
+function healingCircleGroundAnchorY() {
+  return arenaLaneYPx();
+}
+
 // Crystal client: logical cell is at destination; OffSetMove draws back toward the previous tile center.
 function swarmEnemyWalkStepProgress(enemy) {
   if (enemy.stepToX == null) return 1;
@@ -18450,6 +19532,7 @@ function updateGroupDungeonSwarmMovement(now) {
   if (!swarm) return;
   const meleeCol = swarmSnapTileX(groupDungeonSwarmMeleeWorldX());
   const arenaSpawnRow = arenaSpawnMapRow();
+  const splitLaneCenterStep = swarmPickCenterLaneStep(swarm.enemies, meleeCol, arenaSpawnRow);
 
   for (const enemy of swarm.enemies) {
     if (enemy.hp <= 0 || enemy.dying) {
@@ -18466,6 +19549,20 @@ function updateGroupDungeonSwarmMovement(now) {
     if (enemy.stepToX != null) continue;
 
     if (enemy.oneShot && enemy.action !== "standing") continue;
+
+    if (splitLaneCenterStep?.enemyId === enemy.id && now >= (enemy.nextMoveAt ?? 0)) {
+      const tile = swarmEnemyTilePosition(enemy);
+      beginSwarmEnemyTileStep(
+        enemy,
+        splitLaneCenterStep.action,
+        tile.worldX,
+        tile.mapRow,
+        splitLaneCenterStep.toX,
+        splitLaneCenterStep.toMapRow,
+        now,
+      );
+      continue;
+    }
 
     if (enemy.stationaryBoss) {
       const stance = isHellKeeperSwarmEnemy(enemy)
@@ -19194,6 +20291,9 @@ function updateGroupDungeonBossPartyBattle(now) {
   updateAttachedSpellFx(now);
   updatePendingEnemyStrike(now);
   updatePendingPetAttack(now);
+  updatePendingTaoPet(now);
+  updatePendingWizardMirror(now);
+  updateWizardMirror(now);
   updateCombatantPoisons(now);
   if (bossPartyAllMembersDead()) {
     finishBossPartyDefeat(now);
@@ -19358,10 +20458,12 @@ function townNpcSceneHtml() {
   if (npc.role === "Trainer") return trainerNpcSceneHtml(npc);
   if (npc.role === "Trader") return traderNpcSceneHtml(npc);
   if (npc.role === "Shop") return alchemistNpcSceneHtml(npc);
+  if (npc.role === "BookStore") return bookstoreNpcSceneHtml(npc);
   if (npc.role === "Smith") return smithNpcSceneHtml(npc);
   if (npc.role === "Refiner") return refinerNpcSceneHtml(npc);
   if (npc.role === "GemMerchant") return gemMerchantNpcSceneHtml(npc);
   if (npc.role === "Storage") return storageSceneHtml();
+  if (npc.role === "MessageBoard") return townMessageBoardSceneHtml();
   return `
     <section class="npc-panel">
       <strong>${escapeHtml(npc.label)}</strong>
@@ -19445,8 +20547,27 @@ function alchemistNpcSceneHtml(npc) {
   `;
 }
 
+function bookstoreNpcSceneHtml(npc) {
+  const rows = BOOKSTORE_STOCK_IDS.map((itemId) => itemDefinition(itemId))
+    .filter(Boolean)
+    .map(shopBuyRowHtml)
+    .join("");
+  return `
+    <section class="npc-panel crystal-npc-text npc-shop-panel bookstore-panel">
+      <p>${escapeHtml(npc.panel ?? "Spell books for testing.")}</p>
+      <div class="npc-shop-summary">
+        <span>Your gold</span>
+        <strong>${state.inventory.gold}g</strong>
+      </div>
+      <div class="npc-shop-list" data-preserve-scroll="npc-bookstore-buy">
+        ${rows || `<span class="trader-empty">No spell books loaded.</span>`}
+      </div>
+    </section>
+  `;
+}
+
 function shopBuyRowHtml(item) {
-  const price = alchemistShopBuyPrice(item);
+  const price = npcShopBuyPrice(item);
   const owned = state.inventory.items
     .filter((entry) => entry.itemId === item.id)
     .reduce((sum, entry) => sum + Math.max(1, Math.floor(Number(entry.quantity) || 1)), 0);
@@ -20020,6 +21141,32 @@ function bindControls() {
       void importGameSaveFromText(textarea?.value ?? "");
       return;
     }
+    const copyCloudCodeButton = event.target.closest("[data-copy-cloud-code]");
+    if (copyCloudCodeButton && root.contains(copyCloudCodeButton)) {
+      void copyCloudRecoveryCode();
+      return;
+    }
+    const cloudSaveNowButton = event.target.closest("[data-cloud-save-now]");
+    if (cloudSaveNowButton && root.contains(cloudSaveNowButton)) {
+      void uploadCloudSave("manual");
+      return;
+    }
+    const findCloudSaveButton = event.target.closest("[data-find-cloud-save]");
+    if (findCloudSaveButton && root.contains(findCloudSaveButton)) {
+      const input = root.querySelector("[data-cloud-restore-code]");
+      void findCloudSaveForRestore(input?.value ?? "");
+      return;
+    }
+    const confirmCloudRestoreButton = event.target.closest("[data-confirm-cloud-restore]");
+    if (confirmCloudRestoreButton && root.contains(confirmCloudRestoreButton)) {
+      void confirmCloudSaveRestore();
+      return;
+    }
+    const cancelCloudRestoreButton = event.target.closest("[data-cancel-cloud-restore]");
+    if (cancelCloudRestoreButton && root.contains(cancelCloudRestoreButton)) {
+      cancelCloudSaveRestore();
+      return;
+    }
     const resetSaveButton = event.target.closest("[data-reset-save]");
     if (resetSaveButton && root.contains(resetSaveButton)) {
       resetSavedGame();
@@ -20071,6 +21218,16 @@ function bindControls() {
       acceptPrototypeResetNotice();
       return;
     }
+    const copyCloudBackupNoticeButton = event.target.closest("[data-copy-cloud-backup-notice]");
+    if (copyCloudBackupNoticeButton && root.contains(copyCloudBackupNoticeButton)) {
+      void copyCloudBackupNoticeCode();
+      return;
+    }
+    const acceptCloudBackupNoticeButton = event.target.closest("[data-accept-cloud-backup-notice]");
+    if (acceptCloudBackupNoticeButton && root.contains(acceptCloudBackupNoticeButton)) {
+      acceptCloudBackupNotice();
+      return;
+    }
     const disablePrototypeStatsButton = event.target.closest("[data-disable-prototype-stats]");
     if (disablePrototypeStatsButton && root.contains(disablePrototypeStatsButton)) {
       disablePrototypeStatsFromNotice();
@@ -20079,6 +21236,16 @@ function bindControls() {
     const closeButton = event.target.closest("[data-close-scene]");
     if (closeButton && root.contains(closeButton)) {
       closeScene(closeButton.dataset.closeScene || null);
+      return;
+    }
+    const refreshTownMessagesButton = event.target.closest("[data-refresh-town-messages]");
+    if (refreshTownMessagesButton && root.contains(refreshTownMessagesButton)) {
+      void ensureTownMessages(true);
+      return;
+    }
+    const postTownMessageButton = event.target.closest("[data-post-town-message]");
+    if (postTownMessageButton && root.contains(postTownMessageButton)) {
+      void postTownMessage();
       return;
     }
     const bossAssistButton = event.target.closest("[data-boss-assist]");
@@ -20209,6 +21376,18 @@ function bindControls() {
     }
   });
   root.addEventListener("input", (event) => {
+    const townMessageInput = event.target.closest("[data-town-message-draft]");
+    if (townMessageInput && root.contains(townMessageInput)) {
+      state.messageBoard.draft = townMessageInput.value.slice(0, TOWN_MESSAGE_MAX_LENGTH);
+      const count = root.querySelector("[data-town-message-count]");
+      if (count) count.textContent = `${state.messageBoard.draft.length}/${TOWN_MESSAGE_MAX_LENGTH}`;
+      return;
+    }
+    const cloudRestoreInput = event.target.closest("[data-cloud-restore-code]");
+    if (cloudRestoreInput && root.contains(cloudRestoreInput)) {
+      state.cloudSave.restoreCodeInput = cloudRestoreInput.value;
+      return;
+    }
     const volumeInput = event.target.closest("[data-music-volume]");
     if (volumeInput && root.contains(volumeInput)) {
       setMusicVolume(Number(volumeInput.value) / 100);
@@ -20349,6 +21528,7 @@ function bindControls() {
   window.addEventListener("keydown", (event) => {
     if (event.altKey || event.ctrlKey || event.metaKey || event.shiftKey) return;
     if (event.target instanceof HTMLInputElement || event.target instanceof HTMLTextAreaElement || event.target instanceof HTMLSelectElement) return;
+    if (townMessageBoardOpen()) return;
     const key = event.key.toLowerCase();
     if (key === "escape") {
       event.preventDefault();
@@ -20459,6 +21639,7 @@ function openTownNpc(npcId) {
   renderSceneOverlay();
   renderGamePanel();
   render();
+  if (npc?.role === "MessageBoard") void ensureTownMessages();
 }
 
 function closeTownNpc() {
@@ -20638,6 +21819,7 @@ function runSimulationStep(now, options = {}) {
   if (options.autoSave) {
     maybeAutoSave(now);
     maybeSubmitPrototypeStats(now);
+    maybeUploadCloudSave(now);
   }
   let recoveryChanged = false;
   if (!state.paused) {
@@ -21208,8 +22390,12 @@ function bossPartyPetWorldXFor(pet) {
 function bossPartyHolyDevaPetWorldX(pet) {
   const party = state.battle.bossParty;
   const taoist = party?.members?.find((member) => member.classId === "Taoist" && member.alive && member.hp > 0);
+  const wizard = party?.members?.find((member) => member.classId === "Wizard" && member.alive && member.hp > 0);
+  if (taoist && wizard) {
+    return Math.round(((Number(taoist.worldX) || 0) + (Number(wizard.worldX) || 0)) / 2);
+  }
   const anchorX = Number(taoist?.worldX ?? party?.members?.find((member) => member.alive && member.hp > 0)?.worldX ?? state.battle.playerX) || 0;
-  return Math.round(anchorX - TAOIST_PET_SUMMON_MIN_GAP);
+  return Math.round(anchorX - HOLY_DEVA_FOLLOW_GAP);
 }
 
 function resolvedTaoPetWorldX(pet = state.battle.taoPet) {
@@ -21661,6 +22847,9 @@ function updateBossPartyBattle(now) {
   updateAttachedSpellFx(now);
   updatePendingEnemyStrike(now);
   updatePendingPetAttack(now);
+  updatePendingTaoPet(now);
+  updatePendingWizardMirror(now);
+  updateWizardMirror(now);
   updateCombatantPoisons(now);
   updateWarriorChargeExpiry(now);
   if (enemy.hp <= 0) {
@@ -21750,57 +22939,58 @@ function bossPartyWarriorAction(member, now) {
   const queuedWarrior = bossPartyQueuedWarriorSkill(member, now);
 
   if (queuedWarrior && !queuedWarrior.queuedWaiting && queuedWarrior.skill.buff) {
-    const { skill, learned, cost } = queuedWarrior;
-    member.mp -= cost;
-    learned.castReadyAt = now + spellDelayMs(skill, learned);
-    member.furyUntil = now + 60000 + (Number(learned.level) || 0) * 10000;
-    member.furyBonus = 4;
-    member.nextActionAt = now + CRYSTAL_PLAYER_ACTION_LOCK_MS;
-    clearQueuedCombatSpell(skill.id);
-    bossPartyControlledVisual(member, skill, "spell", now);
-    bossPartyCastSfx(member, skill.id, 0.42, 160);
-    bossPartyLevelMagicSkill(member, skill, learned, now);
-    pushBattleLog(`${member.classId} casts ${skill.label}.`);
-    return true;
+    return bossPartyCastWarriorBuff(member, queuedWarrior.skill, queuedWarrior.learned, queuedWarrior.cost, now, { manual: true });
   }
 
   const autoSkills = bossPartyAutoSpells(member);
   const fury = autoSkills.find((skill) => skill.id === "Fury");
   const furyLearned = bossPartyLearned(member, "Fury");
-  if (fury && furyLearned && now >= (furyLearned.castReadyAt ?? 0) && now >= (member.furyUntil ?? 0) && member.mp >= effectiveSpellMpCost(fury, furyLearned, member.inventory)) {
-    member.mp -= effectiveSpellMpCost(fury, furyLearned, member.inventory);
-    furyLearned.castReadyAt = now + spellDelayMs(fury, furyLearned);
-    member.furyUntil = now + 60000 + (Number(furyLearned.level) || 0) * 10000;
-    member.furyBonus = 4;
-    member.nextActionAt = now + CRYSTAL_PLAYER_ACTION_LOCK_MS;
-    bossPartyControlledVisual(member, fury, "spell", now);
-    bossPartyCastSfx(member, fury.id, 0.42, 160);
-    bossPartyLevelMagicSkill(member, fury, furyLearned, now);
-    pushBattleLog(`${member.classId} casts ${fury.label}.`);
-    return true;
+  if (fury && furyLearned && now >= (furyLearned.castReadyAt ?? 0) && !hasActiveFuryBuff(member, now) && member.mp >= effectiveSpellMpCost(fury, furyLearned, member.inventory)) {
+    return bossPartyCastWarriorBuff(member, fury, furyLearned, effectiveSpellMpCost(fury, furyLearned, member.inventory), now);
+  }
+
+  const rage = autoSkills.find((skill) => skill.id === "Rage");
+  const rageLearned = bossPartyLearned(member, "Rage");
+  if (rage && rageLearned && now >= (rageLearned.castReadyAt ?? 0) && !hasActiveRageBuff(member, now) && member.mp >= effectiveSpellMpCost(rage, rageLearned, member.inventory)) {
+    return bossPartyCastWarriorBuff(member, rage, rageLearned, effectiveSpellMpCost(rage, rageLearned, member.inventory), now);
+  }
+
+  const protectionField = autoSkills.find((skill) => skill.id === "ProtectionField");
+  const protectionFieldLearned = bossPartyLearned(member, "ProtectionField");
+  if (protectionField && protectionFieldLearned && now >= (protectionFieldLearned.castReadyAt ?? 0)
+    && !hasActiveProtectionFieldBuff(member, now)
+    && member.mp >= effectiveSpellMpCost(protectionField, protectionFieldLearned, member.inventory)) {
+    return bossPartyCastWarriorBuff(member, protectionField, protectionFieldLearned, effectiveSpellMpCost(protectionField, protectionFieldLearned, member.inventory), now);
+  }
+
+  const immortalSkin = autoSkills.find((skill) => skill.id === "ImmortalSkin");
+  const immortalSkinLearned = bossPartyLearned(member, "ImmortalSkin");
+  if (immortalSkin && immortalSkinLearned && now >= (immortalSkinLearned.castReadyAt ?? 0)
+    && !hasActiveImmortalSkinBuff(member, now)
+    && member.mp >= effectiveSpellMpCost(immortalSkin, immortalSkinLearned, member.inventory)) {
+    return bossPartyCastWarriorBuff(member, immortalSkin, immortalSkinLearned, effectiveSpellMpCost(immortalSkin, immortalSkinLearned, member.inventory), now);
   }
 
   // Out of reach (boss still closing the gap, or a pet is tanking and the
   // Warrior lacks Thrusting): hold position rather than swinging at air.
-  if (!bossPartyCanWeaponReach(member)) return bossPartyWait(member, now);
+  if (!bossPartyCanWeaponReach(member) && !bladeAvalancheActionReachable(member, now)) {
+    return bossPartyWait(member, now);
+  }
 
   const distance = bossPartyMemberEnemyDistance(member);
   const thrusting = autoSkills.find((skill) => skill.id === "Thrusting");
   const thrustingLearned = bossPartyLearned(member, "Thrusting");
   const useThrusting = Boolean(thrusting && thrustingLearned
     && distance > BOSS_PARTY_WARRIOR_REACH && distance <= BOSS_PARTY_THRUSTING_REACH);
-  const halfMoon = autoSkills.find((skill) => skill.id === "HalfMoon");
-  const halfMoonLearned = bossPartyLearned(member, "HalfMoon");
-  const useHalfMoon = Boolean(halfMoon && halfMoonLearned
-    && !useThrusting
-    && canUseHalfMoonAttack(distance, member.mp ?? 0, halfMoonLearned, member.inventory));
+  const sweepAttack = !useThrusting ? resolveActiveSweepAttack(member, now) : null;
+  const useSweepAttack = Boolean(sweepAttack);
   let attackSkill = null;
   let learned = null;
   let cost = 0;
   let usingFlamingSword = false;
   let usingTwinDrake = false;
   let usingSlaying = false;
-  let usingHalfMoon = false;
+  let usingSweepAttack = false;
 
   if (warriorSlayingPending(member) && bossPartyLearned(member, "Slaying")) {
     attackSkill = warriorSpellById("Slaying");
@@ -21816,7 +23006,13 @@ function bossPartyWarriorAction(member, now) {
       learned = null;
       cost = 0;
     }
-    if (attackSkill.id === "HalfMoon" && !useHalfMoon) {
+    if (isSweepAttackSkill(attackSkill) && !useSweepAttack) {
+      attackSkill = null;
+      learned = null;
+      cost = 0;
+    }
+    if (isBladeAvalancheSkill(attackSkill)
+      && !bossPartyCanUseWarriorSkill(member, attackSkill, learned, now, { requireAuto: false })) {
       attackSkill = null;
       learned = null;
       cost = 0;
@@ -21825,14 +23021,18 @@ function bossPartyWarriorAction(member, now) {
   if (!attackSkill && !usingSlaying) {
     attackSkill = useThrusting
       ? thrusting
-      : useHalfMoon
-        ? halfMoon
+      : useSweepAttack
+        ? sweepAttack.skill
         : autoSkills.find((skill) => {
         if (isWarriorChargeSkill(skill) && !warriorMemberChargeReady(member, skill.id)) return false;
         const skillLearned = bossPartyLearned(member, skill.id);
-        return !skill.buff && !skill.toggle
-          && !bossPartySpellOnCooldown(member, skill, skillLearned, now)
-          && member.mp >= effectiveSpellMpCost(skill, skillLearned, member.inventory);
+        if (skill.buff || skill.toggle
+          || bossPartySpellOnCooldown(member, skill, skillLearned, now)
+          || member.mp < effectiveSpellMpCost(skill, skillLearned, member.inventory)) return false;
+        if (isBladeAvalancheSkill(skill)) {
+          return bossPartyCanUseWarriorSkill(member, skill, skillLearned, now, { requireAuto: true });
+        }
+        return true;
       });
   }
   if (!usingSlaying) {
@@ -21868,6 +23068,29 @@ function bossPartyWarriorAction(member, now) {
     learned = bossPartyLearned(member, attackSkill.id);
   }
   if (!cost && attackSkill && learned) cost = effectiveSpellMpCost(attackSkill, learned, member.inventory);
+  if (isBladeAvalancheSkill(attackSkill) && learned && !usingSlaying) {
+    member.mp -= cost;
+    bossPartySetWarriorSpellCastReadyAt(member, attackSkill, learned, now);
+    if (queuedWarrior?.queued && attackSkill.id === queuedWarrior.skill.id) clearQueuedCombatSpell(attackSkill.id);
+    member.nextActionAt = now + attackDelayMs(bossPartyEffectiveAttackSpeed(member, now), member.level);
+    bossPartyControlledVisual(member, attackSkill, attackSkill.bodyAction, now);
+    queueBladeAvalancheLaneFx(now, member.worldX ?? state.battle.playerX, member.classId);
+    playWarriorSpellSwingSfx(attackSkill, bossPartySfxParams(member, 0.58, 90));
+    const trained = executeBladeAvalancheStrike({
+      skill: attackSkill,
+      learned,
+      player: member,
+      inventory: member.inventory,
+      now,
+      attackerLabel: member.classId,
+      member,
+    });
+    if (trained) bossPartyLevelMagicSkill(member, attackSkill, learned, now);
+    bossPartyLevelPassiveWeaponMagic(member, now);
+    bossPartyRollSlayingCharge(member, now);
+    if (!warriorSlayingPending(member)) bossPartyMaybeAutoChargeWarriorSkill(member, now);
+    return true;
+  }
   if (usingSlaying) {
     clearWarriorSlayingReady(member);
   } else if (usingFlamingSword) {
@@ -21883,7 +23106,7 @@ function bossPartyWarriorAction(member, now) {
     member.mp -= cost;
     if (!attackSkill.toggle) bossPartySetWarriorSpellCastReadyAt(member, attackSkill, learned, now);
   }
-  usingHalfMoon = isHalfMoonAttackSkill(attackSkill);
+  usingSweepAttack = isSweepAttackSkill(attackSkill);
   if (queuedWarrior?.queued && attackSkill && learned && attackSkill.id === queuedWarrior.skill.id) {
     clearQueuedCombatSpell(attackSkill.id);
   }
@@ -21894,8 +23117,8 @@ function bossPartyWarriorAction(member, now) {
   bossPartyWarriorSwingSfx(member, learned ? attackSkill : null);
   let twinDrakeRawDamage = 0;
   bossPartyAttackEnemy(member, learned ? attackSkill.label : "Attack", () => {
-    twinDrakeRawDamage = usingHalfMoon
-      ? rollDamage(effectiveCombatStats(member).dc, enemyPhysicalDefence(enemy), member.luck)
+    twinDrakeRawDamage = usingSweepAttack
+      ? rollSweepPrimaryDamage(attackSkill, learned, member, enemy, member.inventory)
       : learned
         ? rollWarriorMagicDamage(attackSkill, learned, member, enemy, member.inventory)
         : rollDamage(effectiveCombatStats(member).dc, enemyPhysicalDefence(enemy), member.luck);
@@ -21904,7 +23127,7 @@ function bossPartyWarriorAction(member, now) {
     if (learned) bossPartyLevelMagicSkill(member, attackSkill, learned, now);
     bossPartyLevelPassiveWeaponMagic(member, now);
     if (usingTwinDrake && enemy.hp > 0) queueTwinDrakeSecondHit(member, learned, twinDrakeRawDamage, now);
-    if (usingHalfMoon && learned) bossPartyHalfMoonSplash(member, attackSkill, learned, enemy, now);
+    if (usingSweepAttack && learned) bossPartySweepSplash(member, attackSkill, learned, enemy, now);
   }, learned ? attackSkill : null);
   bossPartyRollSlayingCharge(member, now);
   if (!warriorSlayingPending(member)) bossPartyMaybeAutoChargeWarriorSkill(member, now);
@@ -21958,16 +23181,28 @@ function bossPartyQueuedWizardSpell(member, now) {
 
 function bossPartyWizardAction(member, now) {
   const enemy = state.battle.enemy;
+  const queuedMirror = bossPartyUsableQueuedWizardMirroring(member, now);
+  if (queuedMirror && bossPartyCastWizardMirroring(member, queuedMirror, now)) return true;
+  const mirroring = bossPartyUsableWizardMirroring(member, now);
+  if (mirroring && bossPartyCastWizardMirroring(member, mirroring, now)) return true;
   const queuedDefence = bossPartyUsableQueuedWizardDefenceBuff(member, now);
   if (queuedDefence && bossPartyCastWizardDefenceBuff(member, queuedDefence, now)) return true;
   const magicShield = bossPartyUsableWizardDefenceBuff(member, now);
   if (magicShield && bossPartyCastWizardDefenceBuff(member, magicShield, now)) return true;
+  const queuedBooster = bossPartyUsableQueuedWizardMagicBooster(member, now);
+  if (queuedBooster && bossPartyCastWizardMagicBooster(member, queuedBooster, now)) return true;
+  const magicBooster = bossPartyUsableWizardMagicBooster(member, now);
+  if (magicBooster && bossPartyCastWizardMagicBooster(member, magicBooster, now)) return true;
   const spells = bossPartyWizardAttackSpells(member);
   const queuedWizard = bossPartyQueuedWizardSpell(member, now);
-  if (queuedWizard?.cooldownWaiting) return bossPartyWeaponAttack(member, now);
+  if (queuedWizard?.cooldownWaiting) {
+    if (wizardStormChannelActive(now, member)) return false;
+    return bossPartyWeaponAttack(member, now);
+  }
   const queuedSpell = queuedWizard?.spell
-    && queuedWizard.spell.id !== "MagicShield"
+    && isWizardAttackSpell(queuedWizard.spell)
     && !(queuedWizard.spell.id === "FireWall" && !bossPartyFireWallHasUsefulTarget(queuedWizard.spell, member, now))
+    && !(queuedWizard.spell.groundChannel && !bossPartyStormFieldHasUsefulTarget(queuedWizard.spell, member, now))
     && !(queuedWizard.spell.id === "TurnUndead" && !turnUndeadCanTarget(enemy, member))
     ? queuedWizard.spell
     : null;
@@ -21976,11 +23211,15 @@ function bossPartyWizardAction(member, now) {
     const learned = bossPartyLearned(member, candidate.id);
     if (!canWizardCastSpell(candidate, learned, now, member)) return false;
     if (candidate.id === "FireWall") return bossPartyFireWallHasUsefulTarget(candidate, member, now);
+    if (candidate.groundChannel) return bossPartyStormFieldHasUsefulTarget(candidate, member, now);
     if (candidate.id === "TurnUndead") return turnUndeadCanTarget(enemy, member);
     if (!wizardAutoSpellEligible(candidate, member)) return false;
     return true;
   });
-  if (!spell) return bossPartyWeaponAttack(member, now);
+  if (!spell) {
+    if (wizardStormChannelActive(now, member)) return false;
+    return bossPartyWeaponAttack(member, now);
+  }
   const learned = bossPartyLearned(member, spell.id);
   const cost = effectiveSpellMpCost(spell, learned, member.inventory);
   member.mp -= cost;
@@ -22001,6 +23240,24 @@ function bossPartyWizardAction(member, now) {
     pushBattleLog(`${member.classId} casts ${spell.label}${centerTile ? " into the swarm" : ` under ${enemy.name}`}.`);
     return true;
   }
+  if (spell.groundChannel) {
+    const value = rollWizardMagicValue(spell, learned, member, member.inventory);
+    const centerTile = wizardStormCenterTile(enemy, member);
+    const impactAt = now + wizardImpactDelay(spell, state.wizardSpellAtlases[spell.id] ?? null);
+    beginWizardStormChannel(impactAt + wizardStormFieldDurationMs(spell), member);
+    member.fxCenterTile = centerTile;
+    partyBossImpacts().push({
+      at: impactAt,
+      spellId: spell.id,
+      stormGround: true,
+      value,
+      centerTile,
+      worldX: state.battle.enemyX,
+      casterClassId: member.classId,
+    });
+    pushBattleLog(`${member.classId} casts ${spell.label}.`);
+    return true;
+  }
   if (spell.impactMode === "bang") {
     const baseValue = rollWizardMagicValue(spell, learned, member, member.inventory);
     const centerTile = bangCenterTile ?? wizardBangCenterTile(enemy, spell, member);
@@ -22018,7 +23275,7 @@ function bossPartyWizardAction(member, now) {
     pushBattleLog(`${member.classId} casts ${spell.label}.`);
     return true;
   }
-  if (spell.impactMode === "buff") return true;
+  if (spell.impactMode === "buff" || spell.impactMode === "summon") return true;
 
   if (spell.id === "TurnUndead") {
     partyBossImpacts().push({
@@ -22073,6 +23330,29 @@ function bossPartyTaoistAction(member, now) {
     if (massHealBundle && bossPartyCastMassHealing(member, massHealBundle, now)) return true;
   }
 
+  const healingCircleBundle = bossPartyUsableTaoistHealingCircle(member, now);
+  if (healingCircleBundle) {
+    const { spell, learned } = healingCircleBundle;
+    const skillLevel = Math.max(0, Math.min(3, Math.trunc(Number(learned?.level) || 0)));
+    member.mp -= healingCircleBundle.cost;
+    learned.castReadyAt = now + spellDelayMs(spell, learned);
+    member.nextActionAt = now + spellDelayMs(spell, learned);
+    bossPartyControlledVisual(member, spell, spell.bodyAction ?? "spell", now);
+    bossPartyCastSfx(member, spell.id, 0.38, 160);
+    const centerTile = healingCircleCenterTile(member);
+    partyBossImpacts().push({
+      at: now + wizardImpactDelay(spell, state.taoistSpellAtlases[spell.id] ?? null),
+      spellId: spell.id,
+      stormGround: true,
+      value: skillLevel,
+      centerTile,
+      worldX: centerTile.worldX,
+      casterClassId: member.classId,
+    });
+    pushBattleLog(`${member.classId} casts ${spell.label}.`);
+    return true;
+  }
+
   const summon = spells.find((spell) => spell.id === "SummonSkeleton");
   if (summon && !bossPartyActivePet() && !state.battle.bossParty.petDiedThisFight && bossPartyCanCast(member, summon, now)) {
     const amuletCost = taoistSummonAmuletCost(summon.id);
@@ -22116,22 +23396,24 @@ function bossPartyTaoistAction(member, now) {
   }
 
   const holyDeva = spells.find((spell) => spell.id === "SummonHolyDeva");
-  if (holyDeva && !bossPartyActivePet() && !state.battle.bossParty.petDiedThisFight && bossPartyCanCast(member, holyDeva, now)) {
+  if (holyDeva && !bossPartyActivePet() && !state.battle.pendingTaoPet && !state.battle.bossParty.petDiedThisFight && bossPartyCanCast(member, holyDeva, now)) {
     const amuletCost = taoistSummonAmuletCost(holyDeva.id);
     if (bossPartyAmuletInventoryCount(member) >= amuletCost && bossPartyConsumeAmuletInventoryUnits(member, amuletCost)) {
       const learned = bossPartyLearned(member, holyDeva.id);
       member.mp -= effectiveSpellMpCost(holyDeva, learned, member.inventory);
       learned.castReadyAt = now + spellDelayMs(holyDeva, learned);
       member.nextActionAt = now + spellDelayMs(holyDeva, learned);
-      state.battle.bossParty.pet = createTaoistSummonPet(holyDeva.id, Math.max(0, Number(learned.level) || 0), now);
-      state.battle.bossParty.pet.name = `${member.classId}'s ${state.battle.bossParty.pet.name}`;
-      state.battle.taoPet = state.battle.bossParty.pet;
-      state.taoPetAtlas = taoPetAtlasFor(state.battle.taoPet);
+      state.battle.pendingTaoPet = {
+        at: now + CRYSTAL_SUMMON_HOLY_DEVA_DELAY_MS,
+        spellId: holyDeva.id,
+        spellLevel: Math.max(0, Number(learned.level) || 0),
+        ownerClassId: member.classId,
+        bossParty: true,
+      };
       bossPartyControlledVisual(member, holyDeva, holyDeva.bodyAction ?? "spell", now);
       bossPartyCastSfx(member, holyDeva.id, 0.38, 160);
       bossPartyLevelMagicSkill(member, holyDeva, learned, now);
-      playTaoPetAppearSfx({ volume: bossPartySfxVolume(member, 0.4, 0.18), throttleMs: 250, pet: state.battle.taoPet });
-      pushBattleLog(`${member.classId} summons ${state.battle.bossParty.pet.name}.`);
+      pushBattleLog(`${member.classId} casts ${holyDeva.label}.`);
       return true;
     }
   }
@@ -22141,8 +23423,14 @@ function bossPartyTaoistAction(member, now) {
     if (defenceBuff && bossPartyCastDefenceBuff(member, defenceBuff, now)) return true;
   }
 
+  const energyShield = bossPartyUsableTaoistEnergyShield(member, now);
+  if (energyShield && bossPartyCastEnergyShield(member, energyShield, now)) return true;
+
   const ultimateEnhancer = bossPartyUsableTaoistUltimateEnhancer(member, now);
   if (ultimateEnhancer && bossPartyCastUltimateEnhancer(member, ultimateEnhancer, now)) return true;
+
+  const petEnhancer = bossPartyUsableTaoistPetEnhancer(member, now);
+  if (petEnhancer && bossPartyCastPetEnhancer(member, petEnhancer, now)) return true;
 
   const poison = spells.find((spell) => spell.id === "Poisoning");
   if (poison && !state.battle.bossParty.pendingPoison && bossPartyCanCast(member, poison, now)) {
@@ -22154,6 +23442,89 @@ function bossPartyTaoistAction(member, now) {
       learned.castReadyAt = now + spellDelayMs(poison, learned);
       member.nextActionAt = now + spellDelayMs(poison, learned);
       bossPartyQueuePoisonApply(member, poison, learned, item, now);
+      return true;
+    }
+  }
+
+  const poisonCloud = spells.find((spell) => spell.id === "PoisonCloud");
+  if (poisonCloud && bossPartyCanCast(member, poisonCloud, now) && !bossPartyGroundEffectActive("PoisonCloud", now)) {
+    if (bossPartyAmuletInventoryCount(member) >= POISON_CLOUD_AMULET_COST
+      && bossPartyGreenPoisonInventoryCount(member) >= POISON_CLOUD_GREEN_POISON_COST
+      && bossPartyConsumeAmuletInventoryUnits(member, POISON_CLOUD_AMULET_COST)
+      && bossPartyConsumeGreenPoisonUnits(member, POISON_CLOUD_GREEN_POISON_COST)) {
+      const learned = bossPartyLearned(member, poisonCloud.id);
+      member.mp -= effectiveSpellMpCost(poisonCloud, learned, member.inventory);
+      learned.castReadyAt = now + spellDelayMs(poisonCloud, learned);
+      member.nextActionAt = now + spellDelayMs(poisonCloud, learned);
+      bossPartyControlledVisual(member, poisonCloud, poisonCloud.bodyAction ?? "spell", now);
+      bossPartyCastSfx(member, poisonCloud.id, 0.38, 160);
+      const centerTile = wizardStormCenterTile(state.battle.enemy, member);
+      partyBossImpacts().push({
+        at: now + wizardImpactDelay(poisonCloud, state.taoistSpellAtlases[poisonCloud.id] ?? null),
+        spellId: poisonCloud.id,
+        stormGround: true,
+        value: 0,
+        centerTile,
+        worldX: state.battle.enemyX,
+        casterClassId: member.classId,
+      });
+      pushBattleLog(`${member.classId} casts ${poisonCloud.label}.`);
+      return true;
+    }
+  }
+
+  const curse = spells.find((spell) => spell.id === "Curse");
+  if (curse && bossPartyCanCast(member, curse, now)) {
+    const enemy = state.battle.enemy;
+    if (enemy?.hp > 0 && bossPartyConsumeAmuletInventoryUnits(member, CURSE_AMULET_COST)) {
+      const learned = bossPartyLearned(member, curse.id);
+      member.mp -= effectiveSpellMpCost(curse, learned, member.inventory, member);
+      learned.castReadyAt = now + spellDelayMs(curse, learned);
+      member.nextActionAt = now + spellDelayMs(curse, learned);
+      const centerTile = wizardBangCenterTile(state.battle.enemy, curse, member);
+      bossPartyControlledVisual(member, curse, curse.bodyAction ?? "spell", now, { centerTile });
+      bossPartyCastSfx(member, curse.id, 0.38, 160);
+      if (rollCurseCastProceeds(learned?.level)) {
+        playSpellSfx(curse.id, "fly", bossPartySfxParams(member, 0.38, 120));
+        partyBossImpacts().push({
+          at: now + wizardImpactDelay(curse, state.taoistSpellAtlases[curse.id] ?? null),
+          spellId: curse.id,
+          curse: true,
+          centerTile,
+          durationMs: curseDurationMs(curse, learned, member),
+          reductionPercent: curseOffenceReductionPercent(learned?.level),
+          casterClassId: member.classId,
+        });
+      } else {
+        pushBattleLog(`${curse.label} fizzled.`);
+      }
+      pushBattleLog(`${member.classId} casts ${curse.label}.`);
+      return true;
+    }
+  }
+
+  const plague = spells.find((spell) => spell.id === "Plague");
+  if (plague && bossPartyCanCast(member, plague, now)) {
+    const poisonCandidate = bossPartyPlaguePoisonCandidate(member);
+    if (bossPartyConsumePlagueCastSupplies(member, poisonCandidate)) {
+      const learned = bossPartyLearned(member, plague.id);
+      member.mp -= effectiveSpellMpCost(plague, learned, member.inventory, member);
+      learned.castReadyAt = now + spellDelayMs(plague, learned);
+      member.nextActionAt = now + spellDelayMs(plague, learned);
+      const centerTile = wizardBangCenterTile(state.battle.enemy, plague, member);
+      bossPartyControlledVisual(member, plague, plague.bodyAction ?? "spell", now, { centerTile });
+      bossPartyCastSfx(member, plague.id, 0.38, 160);
+      playSpellSfx(plague.id, "fly", bossPartySfxParams(member, 0.38, 120));
+      partyBossImpacts().push({
+        at: now + wizardImpactDelay(plague, state.taoistSpellAtlases[plague.id] ?? null),
+        spellId: plague.id,
+        plague: true,
+        centerTile,
+        powerValue: rollTaoistMagicValue(plague, learned, member),
+        heldPoisonKind: poisonCandidate?.kind ?? null,
+        casterClassId: member.classId,
+      });
+      pushBattleLog(`${member.classId} casts ${plague.label}.`);
       return true;
     }
   }
@@ -22227,12 +23598,16 @@ function bossPartyControlledVisual(member, skill, bodyAction, now, options = {})
   member.visualOneShot = true;
   member.visualLastTick = now;
   member.fxCenterTile = options.centerTile ?? null;
+  if (member.classId === bossPartyControlledClassId()) {
+    if (options.centerTile) setActiveSpellImpactAnchor({ centerTile: options.centerTile });
+    else if (options.impactWorldX != null) setActiveSpellImpactAnchor({ worldX: options.impactWorldX });
+  }
   // Track per-member spell FX so assist members render their own overlays at their
   // position. The controlled member is drawn via the battle.active* path.
   if (member.classId === "Wizard" || member.classId === "Taoist") {
     member.fxSpellId = skill?.id ?? null;
     member.fxStartedAt = now;
-  } else if (member.classId === "Warrior" && skill?.id && skill.id !== BASIC_ATTACK_SKILL.id) {
+  } else if (member.classId === "Warrior" && skill?.id && skill.id !== BASIC_ATTACK_SKILL.id && skill.id !== "BladeAvalanche") {
     member.fxSpellId = skill.id;
     member.fxStartedAt = now;
   }
@@ -22267,15 +23642,27 @@ function bossPartyCanUseWarriorSkill(member, skill, learned, now, options = {}) 
     if (skill.id === "Thrusting") {
       return distance > BOSS_PARTY_WARRIOR_REACH && distance <= BOSS_PARTY_THRUSTING_REACH;
     }
-    if (skill.id === "HalfMoon") {
-      const learned = bossPartyLearned(member, skill.id);
-      return canUseHalfMoonAttack(distance, member.mp ?? 0, learned);
+    if (isSweepAttackSkill(skill)) {
+      return canUseSweepAttack(distance, member.mp ?? 0, skill, learned, member.inventory);
     }
     return false;
   }
   const chargeCast = isWarriorChargeSkill(skill) && !warriorMemberChargeReady(member, skill.id);
-  if (!skill.buff && !chargeCast && distance > bossPartyMemberReach(member)) return false;
-  if (skill.id === "Fury" && now < (member.furyUntil ?? 0)) return false;
+  if (!skill.buff && !chargeCast) {
+    if (isBladeAvalancheSkill(skill)) {
+      if (groupDungeonSwarmSideActive()) {
+        if (!bladeAvalancheSwarmTargetEntries().length) return false;
+      } else if (distance > BLADE_AVALANCHE_MAX_RANGE_PX) {
+        return false;
+      }
+    } else if (distance > bossPartyMemberReach(member)) {
+      return false;
+    }
+  }
+  if (skill.id === "Fury" && hasActiveFuryBuff(member, now)) return false;
+  if (skill.id === "Rage" && hasActiveRageBuff(member, now)) return false;
+  if (skill.id === "ProtectionField" && hasActiveProtectionFieldBuff(member, now)) return false;
+  if (skill.id === "ImmortalSkin" && hasActiveImmortalSkinBuff(member, now)) return false;
   if (bossPartySpellOnCooldown(member, skill, learned, now)) return false;
   return member.mp >= effectiveSpellMpCost(skill, learned, member.inventory);
 }
@@ -22298,7 +23685,9 @@ function bossPartyCanUseWizardSpell(member, spell, learned, now, options = {}) {
   }
   if (!canWizardCastSpell(spell, learned, now, member)) return false;
   if (spell.id === "FireWall" && bossPartyGroundEffectActive("FireWall", now)) return false;
-  return member.mp >= effectiveSpellMpCost(spell, learned, member.inventory);
+  if (spell.id === "Mirroring" && wizardMirrorActive()) return false;
+  if (spell.id === "MagicBooster" && hasActiveMagicBoosterBuff(member, now)) return false;
+  return member.mp >= effectiveSpellMpCost(spell, learned, member.inventory, member);
 }
 
 function bossPartyUsableTaoistHealing(member, now, options = {}) {
@@ -22361,6 +23750,97 @@ function bossPartyUsableTaoistPoisoning(member, now, options = {}) {
     entry,
     item,
     kind: poisonItemKind(item),
+  };
+}
+
+function bossPartyUsableTaoistPoisonCloud(member, now, options = {}) {
+  const spell = taoistCombatSpell("PoisonCloud");
+  const learned = bossPartyLearned(member, spell.id);
+  if (!bossPartyCanUseTaoistSpell(member, spell, learned, now, { requireAuto: options.requireAuto !== false })) return null;
+  if (bossPartyGroundEffectActive("PoisonCloud", now)) return null;
+  const enemy = state.battle.enemy;
+  if (!enemy || enemy.hp <= 0) return null;
+  if (!options.ignoreRange && bossPartyMemberEnemyDistance(member) > crystalSpellRangePx(spell)) return null;
+  if (bossPartyAmuletInventoryCount(member) < POISON_CLOUD_AMULET_COST) return null;
+  if (bossPartyGreenPoisonInventoryCount(member) < POISON_CLOUD_GREEN_POISON_COST) return null;
+  const amulet = bossPartyAmuletCandidate(member);
+  const poison = bossPartyPoisonCandidate(member, enemy, now) ?? bossPartyCarriedInventoryEntries(member).find((entry) => {
+    const item = itemDefinition(entry.itemId);
+    return isPoisonItem(item) && poisonItemKind(item) === "green";
+  });
+  const amuletItem = amulet ? itemDefinition(amulet.itemId) : null;
+  const poisonItem = poison ? itemDefinition(poison.itemId) : null;
+  if (!amulet || !isTaoistAmuletItem(amuletItem) || !poison || !isPoisonItem(poisonItem)) return null;
+  return {
+    spell,
+    learned,
+    cost: effectiveSpellMpCost(spell, learned, member.inventory),
+    amulet,
+    poison,
+    amuletItem,
+    poisonItem,
+  };
+}
+
+function bossPartyUsableTaoistHealingCircle(member, now, options = {}) {
+  const spell = taoistCombatSpell("HealingCircle");
+  const learned = bossPartyLearned(member, spell.id);
+  if (!bossPartyCanUseTaoistSpell(member, spell, learned, now, { requireAuto: options.requireAuto !== false })) return null;
+  if (bossPartyGroundEffectActive("HealingCircle", now)) return null;
+  if (!taoistMassHealInjuredTargets(now, options).length) return null;
+  if (member.hp <= 0) return null;
+  return {
+    spell,
+    learned,
+    cost: effectiveSpellMpCost(spell, learned, member.inventory),
+  };
+}
+
+function bossPartyUsableTaoistCurse(member, now, options = {}) {
+  const spell = taoistCombatSpell("Curse");
+  const learned = bossPartyLearned(member, spell.id);
+  if (!bossPartyCanUseTaoistSpell(member, spell, learned, now, { requireAuto: options.requireAuto !== false })) return null;
+  const enemy = state.battle.enemy;
+  if (!enemy || enemy.hp <= 0) return null;
+  if (!options.ignoreRange && bossPartyMemberEnemyDistance(member) > crystalSpellRangePx(spell)) return null;
+  if (groupDungeonSwarmSideActive()) {
+    const center = wizardBangCenterTile(enemy, spell, member);
+    if (!groupDungeonSwarmBangInRange(center, spell, member)) return null;
+  }
+  const amulet = bossPartyAmuletCandidate(member);
+  const amuletItem = amulet ? itemDefinition(amulet.itemId) : null;
+  if (!amulet || !isTaoistAmuletItem(amuletItem)) return null;
+  return {
+    spell,
+    learned,
+    cost: effectiveSpellMpCost(spell, learned, member.inventory, member),
+    amulet,
+    amuletItem,
+  };
+}
+
+function bossPartyUsableTaoistPlague(member, now, options = {}) {
+  const spell = taoistCombatSpell("Plague");
+  const learned = bossPartyLearned(member, spell.id);
+  if (!bossPartyCanUseTaoistSpell(member, spell, learned, now, { requireAuto: options.requireAuto !== false })) return null;
+  const enemy = state.battle.enemy;
+  if (!enemy || enemy.hp <= 0) return null;
+  if (!options.ignoreRange && bossPartyMemberEnemyDistance(member) > crystalSpellRangePx(spell)) return null;
+  if (groupDungeonSwarmSideActive()) {
+    const center = wizardBangCenterTile(enemy, spell, member);
+    if (!groupDungeonSwarmBangInRange(center, spell, member)) return null;
+  }
+  const amulet = bossPartyAmuletCandidate(member);
+  const amuletItem = amulet ? itemDefinition(amulet.itemId) : null;
+  if (!amulet || !isTaoistAmuletItem(amuletItem)) return null;
+  const poisonCandidate = bossPartyPlaguePoisonCandidate(member);
+  return {
+    spell,
+    learned,
+    cost: effectiveSpellMpCost(spell, learned, member.inventory, member),
+    amulet,
+    amuletItem,
+    poisonCandidate,
   };
 }
 
@@ -22432,6 +23912,47 @@ function bossPartyCastUltimateEnhancer(member, castBundle, now) {
   return true;
 }
 
+function bossPartyUsableTaoistPetEnhancer(member, now, options = {}) {
+  const spell = taoistCombatSpell("PetEnhancer");
+  const learned = bossPartyLearned(member, spell?.id);
+  const manual = options.requireAuto === false;
+  if (!spell || !learned || !bossPartyCanUseTaoistSpell(member, spell, learned, now, { requireAuto: !manual })) return null;
+  const pet = state.battle.bossParty?.pet;
+  if (!pet?.active || pet.hp <= 0) return null;
+  if (!manual && hasPetEnhancerBuff(pet, now)) return null;
+  return {
+    spell,
+    learned,
+    cost: effectiveSpellMpCost(spell, learned, member.inventory),
+    pet,
+  };
+}
+
+function bossPartyCastPetEnhancer(member, castBundle, now) {
+  const pet = state.battle.bossParty?.pet;
+  if (!pet?.active || pet.hp <= 0) return false;
+  member.mp -= castBundle.cost;
+  castBundle.learned.castReadyAt = now + spellDelayMs(castBundle.spell, castBundle.learned);
+  member.nextActionAt = now + spellDelayMs(castBundle.spell, castBundle.learned);
+  clearQueuedCombatSpell(castBundle.spell.id);
+  const applied = applyPetEnhancerToPet(
+    castBundle.spell,
+    castBundle.learned,
+    member,
+    pet,
+    now,
+    { levelSkill: false },
+  );
+  if (!applied) return false;
+  bossPartyLevelMagicSkill(member, castBundle.spell, castBundle.learned, now);
+  bossPartyControlledVisual(member, castBundle.spell, castBundle.spell.bodyAction ?? "spell", now);
+  bossPartyCastSfx(member, castBundle.spell.id, 0.38, 160);
+  showPetEnhancerBuffText(applied, now);
+  queuePetEnhancerImpactFx(castBundle.spell, now, { soundPlayed: true });
+  pushBattleLog(formatPetEnhancerAppliedLog(castBundle.spell, pet.name ?? "pet", applied, applied.durationMs));
+  return true;
+}
+
 function resolveBossPartyMember(member) {
   if (!member?.classId || !state.battle.bossParty?.active) return member;
   return state.battle.bossParty.members?.find((entry) => entry.classId === member.classId) ?? member;
@@ -22453,7 +23974,7 @@ function bossPartyMemberPlayerBuffs(member) {
 }
 
 function bossPartyWizardAttackSpells(member) {
-  return bossPartyAutoSpells(member).filter((spell) => spell.impactMode !== "buff");
+  return bossPartyAutoSpells(member).filter((spell) => isWizardAttackSpell(spell));
 }
 
 function bossPartyUsableTaoistDefenceBuff(member, spellId, now, options = {}) {
@@ -22472,6 +23993,53 @@ function bossPartyUsableTaoistDefenceBuff(member, spellId, now, options = {}) {
     entry: amulet,
     item,
   };
+}
+
+function bossPartyUsableTaoistEnergyShield(member, now, options = {}) {
+  const spell = taoistCombatSpell("EnergyShield");
+  const learned = bossPartyLearned(member, spell?.id);
+  const manual = options.requireAuto === false;
+  if (!spell || !learned || !bossPartyCanUseTaoistSpell(member, spell, learned, now, { requireAuto: !manual })) return null;
+  let targetEntry = options.target ? ultimateEnhancerTargetEntry(options.target) : null;
+  if (!targetEntry && manual) {
+    targetEntry = energyShieldAutoTarget(now) ?? energyShieldPlayerTargets(now)[0] ?? null;
+  } else if (!targetEntry) {
+    targetEntry = energyShieldAutoTarget(now);
+  }
+  if (!targetEntry?.entity || targetEntry.entity.hp <= 0) return null;
+  if (!manual && hasActiveEnergyShieldOnList(entityStatBuffList(targetEntry.entity), now)) return null;
+  return {
+    spell,
+    learned,
+    cost: effectiveSpellMpCost(spell, learned, member.inventory),
+    target: targetEntry.entity,
+    targetName: targetEntry.name,
+  };
+}
+
+function bossPartyCastEnergyShield(member, castBundle, now) {
+  const partyMember = resolveBossPartyMember(member);
+  if (!partyMember || !castBundle?.target) return false;
+  partyMember.mp -= castBundle.cost;
+  castBundle.learned.castReadyAt = now + spellDelayMs(castBundle.spell, castBundle.learned);
+  partyMember.nextActionAt = now + spellDelayMs(castBundle.spell, castBundle.learned);
+  clearQueuedCombatSpell(castBundle.spell.id);
+  const applied = applyEnergyShieldEffect(
+    castBundle.spell,
+    castBundle.learned,
+    partyMember,
+    castBundle.target,
+    now,
+    { levelSkill: false },
+  );
+  if (!applied) return false;
+  bossPartyLevelMagicSkill(partyMember, castBundle.spell, castBundle.learned, now);
+  bossPartyControlledVisual(partyMember, castBundle.spell, castBundle.spell.bodyAction ?? "spell", now);
+  bossPartyCastSfx(partyMember, castBundle.spell.id, 0.38, 160);
+  playSpellSfx(castBundle.spell.id, "impact", bossPartySfxParams(partyMember, 0.42, 120));
+  showEnergyShieldText(applied, now);
+  pushBattleLog(`${partyMember.classId} casts ${castBundle.spell.label} on ${castBundle.targetName ?? "ally"} (${formatEnergyShieldApplied(applied.hpGain, applied.procPercent)}, ${formatBuffRemaining(applied.durationMs)}).`);
+  return true;
 }
 
 function bossPartyCastDefenceBuff(member, castBundle, now) {
@@ -22507,13 +24075,97 @@ function bossPartyUsableWizardDefenceBuff(member, now, options = {}) {
   const manual = options.requireAuto === false;
   if (!spell || !learned || !bossPartyCanUseWizardSpell(member, spell, learned, now, { requireAuto: !manual })) return null;
   if (!manual && !needsDefenceBuff("MagicShield", now, { playerBuffs: bossPartyMemberPlayerBuffs(member) })) return null;
-  return { spell, learned, cost: effectiveSpellMpCost(spell, learned, member.inventory) };
+  return { spell, learned, cost: effectiveSpellMpCost(spell, learned, member.inventory, member) };
 }
 
 function bossPartyUsableQueuedWizardDefenceBuff(member, now) {
   const queued = queuedCombatSpell("Wizard");
   if (!queued || member.classId !== bossPartyControlledClassId() || queued.spell.id !== "MagicShield") return null;
   return bossPartyUsableWizardDefenceBuff(member, now, { requireAuto: false });
+}
+
+function bossPartyUsableWizardMagicBooster(member, now, options = {}) {
+  const spell = wizardCombatSpell("MagicBooster");
+  const learned = bossPartyLearned(member, spell?.id);
+  const manual = options.requireAuto === false;
+  if (!spell || !learned || !bossPartyCanUseWizardSpell(member, spell, learned, now, { requireAuto: !manual })) return null;
+  if (hasActiveMagicBoosterBuff(member, now)) return null;
+  if (!manual && !needsMagicBooster(now, { playerBuffs: bossPartyMemberPlayerBuffs(member) })) return null;
+  return { spell, learned, cost: effectiveSpellMpCost(spell, learned, member.inventory, member) };
+}
+
+function bossPartyUsableQueuedWizardMagicBooster(member, now) {
+  const queued = queuedCombatSpell("Wizard");
+  if (!queued || member.classId !== bossPartyControlledClassId() || queued.spell.id !== "MagicBooster") return null;
+  return bossPartyUsableWizardMagicBooster(member, now, { requireAuto: false });
+}
+
+function bossPartyCastWizardMagicBooster(member, castBundle, now) {
+  const partyMember = resolveBossPartyMember(member);
+  if (!partyMember) return false;
+  partyMember.mp -= castBundle.cost;
+  applyWizardCastCooldown(castBundle.spell, castBundle.learned, now, partyMember);
+  clearQueuedCombatSpell(castBundle.spell.id);
+  const applied = applyMagicBoosterEffect(
+    castBundle.spell,
+    castBundle.learned,
+    partyMember,
+    now,
+    { member: partyMember, levelSkill: false },
+  );
+  bossPartyLevelMagicSkill(partyMember, castBundle.spell, castBundle.learned, now);
+  bossPartyControlledVisual(partyMember, castBundle.spell, castBundle.spell.bodyAction ?? "spell", now);
+  bossPartyCastSfx(partyMember, castBundle.spell.id, 0.38, 160);
+  if (partyMember.classId === bossPartyControlledClassId()) {
+    state.battle.activeWizardSpell = castBundle.spell.id;
+    state.battle.activeWizardSpellAtlas = state.wizardSpellAtlases[castBundle.spell.id] ?? null;
+    state.battle.activeWizardSpellStartedAt = now;
+  }
+  const bonusText = formatMagicBoosterApplied(applied);
+  pushBattleLog(`${partyMember.classId} casts ${castBundle.spell.label} (${bonusText}, ${formatBuffRemaining(applied.durationMs)}).`);
+  return true;
+}
+
+function bossPartyUsableWizardMirroring(member, now, options = {}) {
+  if (member?.classId !== "Wizard") return null;
+  const spell = wizardCombatSpell("Mirroring");
+  const learned = bossPartyLearned(member, spell?.id);
+  const manual = options.requireAuto === false;
+  if (!spell || !learned || !bossPartyCanUseWizardSpell(member, spell, learned, now, { requireAuto: !manual })) return null;
+  if (wizardMirrorActive()) return null;
+  const enemy = state.battle.enemy;
+  if (!enemy || enemy.hp <= 0) return null;
+  return { spell, learned, cost: effectiveSpellMpCost(spell, learned, member.inventory, member) };
+}
+
+function bossPartyUsableQueuedWizardMirroring(member, now) {
+  const queued = queuedCombatSpell("Wizard");
+  if (!queued || member.classId !== bossPartyControlledClassId() || queued.spell.id !== "Mirroring") return null;
+  return bossPartyUsableWizardMirroring(member, now, { requireAuto: false });
+}
+
+function bossPartyCastWizardMirroring(member, castBundle, now) {
+  const partyMember = resolveBossPartyMember(member);
+  if (!partyMember || wizardMirrorActive()) return false;
+  const { spell, learned, cost } = castBundle;
+  partyMember.mp -= cost;
+  applyWizardCastCooldown(spell, learned, now, partyMember);
+  clearQueuedCombatSpell(spell.id);
+  bossPartyLevelMagicSkill(partyMember, spell, learned, now);
+  state.battle.pendingWizardMirror = {
+    at: now + (Number(spell.impactDelayMs) || CRYSTAL_MIRRORING_SUMMON_DELAY_MS),
+    spellLevel: Math.max(0, Math.trunc(Number(learned?.level) || 0)),
+    ownerClassId: partyMember.classId,
+  };
+  bossPartyControlledVisual(partyMember, spell, spell.bodyAction ?? "spell", now);
+  bossPartyCastSfx(partyMember, spell.id, 0.38, 160);
+  if (partyMember.classId === bossPartyControlledClassId()) {
+    state.battle.activeWizardSpell = spell.id;
+    state.battle.activeWizardSpellAtlas = state.wizardSpellAtlases[spell.id] ?? null;
+    state.battle.activeWizardSpellStartedAt = now;
+  }
+  pushBattleLog(`${partyMember.classId} casts ${spell.label}.`);
+  return true;
 }
 
 function bossPartyCastWizardDefenceBuff(member, castBundle, now) {
@@ -22588,14 +24240,20 @@ function bossPartyUsableQueuedTaoistSpell(member, now) {
   if (!queued || member.classId !== bossPartyControlledClassId()) return null;
   if (queued.spell.id === "Healing") return bossPartyUsableTaoistHealing(member, now, { requireAuto: false });
   if (queued.spell.id === "Poisoning") return bossPartyUsableTaoistPoisoning(member, now, { requireAuto: false });
+  if (queued.spell.id === "PoisonCloud") return bossPartyUsableTaoistPoisonCloud(member, now, { requireAuto: false });
+  if (queued.spell.id === "HealingCircle") return bossPartyUsableTaoistHealingCircle(member, now, { requireAuto: false });
+  if (queued.spell.id === "Plague") return bossPartyUsableTaoistPlague(member, now, { requireAuto: false });
+  if (queued.spell.id === "Curse") return bossPartyUsableTaoistCurse(member, now, { requireAuto: false });
   if (queued.spell.id === "SoulFireBall") return bossPartyUsableTaoistSoulFireBall(member, now, { requireAuto: false });
   if (queued.spell.id === "SummonSkeleton") return bossPartyUsableTaoistSummonSkeleton(member, now, { requireAuto: false });
   if (queued.spell.id === "SummonShinsu") return bossPartyUsableTaoistSummonShinsu(member, now, { requireAuto: false });
   if (queued.spell.id === "SummonHolyDeva") return bossPartyUsableTaoistSummonHolyDeva(member, now, { requireAuto: false });
   if (queued.spell.id === "SoulShield") return bossPartyUsableTaoistDefenceBuff(member, "SoulShield", now, { requireAuto: false });
   if (queued.spell.id === "BlessedArmour") return bossPartyUsableTaoistDefenceBuff(member, "BlessedArmour", now, { requireAuto: false });
+  if (queued.spell.id === "EnergyShield") return bossPartyUsableTaoistEnergyShield(member, now, { requireAuto: false });
   if (queued.spell.id === "MassHealing") return bossPartyUsableTaoistMassHealing(member, now, { requireAuto: false });
   if (queued.spell.id === "UltimateEnhancer") return bossPartyUsableTaoistUltimateEnhancer(member, now, { requireAuto: false });
+  if (queued.spell.id === "PetEnhancer") return bossPartyUsableTaoistPetEnhancer(member, now, { requireAuto: false });
   clearQueuedCombatSpell(queued.spell.id);
   return null;
 }
@@ -22626,6 +24284,97 @@ function bossPartyCastQueuedTaoistSpell(member, queued, now) {
     bossPartyQueuePoisonApply(member, queued.spell, queued.learned, queued.item, now);
     return true;
   }
+  if (queued.spell.id === "PoisonCloud") {
+    if (!bossPartyConsumeAmuletInventoryUnits(member, POISON_CLOUD_AMULET_COST)
+      || !bossPartyConsumeGreenPoisonUnits(member, POISON_CLOUD_GREEN_POISON_COST)) return false;
+    member.mp -= queued.cost;
+    queued.learned.castReadyAt = now + spellDelayMs(queued.spell, queued.learned);
+    member.nextActionAt = now + spellDelayMs(queued.spell, queued.learned);
+    clearQueuedCombatSpell(queued.spell.id);
+    bossPartyControlledVisual(member, queued.spell, queued.spell.bodyAction ?? "spell", now);
+    bossPartyCastSfx(member, queued.spell.id, 0.38, 160);
+    const centerTile = wizardStormCenterTile(state.battle.enemy, member);
+    partyBossImpacts().push({
+      at: now + wizardImpactDelay(queued.spell, state.taoistSpellAtlases[queued.spell.id] ?? null),
+      spellId: queued.spell.id,
+      stormGround: true,
+      value: 0,
+      centerTile,
+      worldX: state.battle.enemyX,
+      casterClassId: member.classId,
+    });
+    pushBattleLog(`${member.classId} casts ${queued.spell.label}.`);
+    return true;
+  }
+  if (queued.spell.id === "HealingCircle") {
+    member.mp -= queued.cost;
+    queued.learned.castReadyAt = now + spellDelayMs(queued.spell, queued.learned);
+    member.nextActionAt = now + spellDelayMs(queued.spell, queued.learned);
+    clearQueuedCombatSpell(queued.spell.id);
+    bossPartyControlledVisual(member, queued.spell, queued.spell.bodyAction ?? "spell", now);
+    bossPartyCastSfx(member, queued.spell.id, 0.38, 160);
+    const skillLevel = Math.max(0, Math.min(3, Math.trunc(Number(queued.learned?.level) || 0)));
+    const centerTile = healingCircleCenterTile(member);
+    partyBossImpacts().push({
+      at: now + wizardImpactDelay(queued.spell, state.taoistSpellAtlases[queued.spell.id] ?? null),
+      spellId: queued.spell.id,
+      stormGround: true,
+      value: skillLevel,
+      centerTile,
+      worldX: centerTile.worldX,
+      casterClassId: member.classId,
+    });
+    pushBattleLog(`${member.classId} casts ${queued.spell.label}.`);
+    return true;
+  }
+  if (queued.spell.id === "Plague") {
+    if (!bossPartyConsumePlagueCastSupplies(member, queued.poisonCandidate)) return false;
+    member.mp -= queued.cost;
+    queued.learned.castReadyAt = now + spellDelayMs(queued.spell, queued.learned);
+    member.nextActionAt = now + spellDelayMs(queued.spell, queued.learned);
+    clearQueuedCombatSpell(queued.spell.id);
+    const centerTile = wizardBangCenterTile(state.battle.enemy, queued.spell, member);
+    bossPartyControlledVisual(member, queued.spell, queued.spell.bodyAction ?? "spell", now, { centerTile });
+    bossPartyCastSfx(member, queued.spell.id, 0.38, 160);
+    playSpellSfx(queued.spell.id, "fly", bossPartySfxParams(member, 0.38, 120));
+    partyBossImpacts().push({
+      at: now + wizardImpactDelay(queued.spell, state.taoistSpellAtlases[queued.spell.id] ?? null),
+      spellId: queued.spell.id,
+      plague: true,
+      centerTile,
+      powerValue: rollTaoistMagicValue(queued.spell, queued.learned, member),
+      heldPoisonKind: queued.poisonCandidate?.kind ?? null,
+      casterClassId: member.classId,
+    });
+    pushBattleLog(`${member.classId} casts ${queued.spell.label}.`);
+    return true;
+  }
+  if (queued.spell.id === "Curse") {
+    if (!bossPartyConsumeAmuletInventoryUnits(member, CURSE_AMULET_COST)) return false;
+    member.mp -= queued.cost;
+    queued.learned.castReadyAt = now + spellDelayMs(queued.spell, queued.learned);
+    member.nextActionAt = now + spellDelayMs(queued.spell, queued.learned);
+    clearQueuedCombatSpell(queued.spell.id);
+    const centerTile = wizardBangCenterTile(state.battle.enemy, queued.spell, member);
+    bossPartyControlledVisual(member, queued.spell, queued.spell.bodyAction ?? "spell", now, { centerTile });
+    bossPartyCastSfx(member, queued.spell.id, 0.38, 160);
+    if (rollCurseCastProceeds(queued.learned?.level)) {
+      playSpellSfx(queued.spell.id, "fly", bossPartySfxParams(member, 0.38, 120));
+      partyBossImpacts().push({
+        at: now + wizardImpactDelay(queued.spell, state.taoistSpellAtlases[queued.spell.id] ?? null),
+        spellId: queued.spell.id,
+        curse: true,
+        centerTile,
+        durationMs: curseDurationMs(queued.spell, queued.learned, member),
+        reductionPercent: curseOffenceReductionPercent(queued.learned?.level),
+        casterClassId: member.classId,
+      });
+    } else {
+      pushBattleLog(`${queued.spell.label} fizzled.`);
+    }
+    pushBattleLog(`${member.classId} casts ${queued.spell.label}.`);
+    return true;
+  }
   if (queued.spell.id === "SoulFireBall") {
     if (!bossPartyConsumeOneInventoryUnit(member, queued.entry.id)) return false;
     member.mp -= queued.cost;
@@ -22647,29 +24396,50 @@ function bossPartyCastQueuedTaoistSpell(member, queued, now) {
     queued.learned.castReadyAt = now + spellDelayMs(queued.spell, queued.learned);
     member.nextActionAt = now + spellDelayMs(queued.spell, queued.learned);
     clearQueuedCombatSpell(queued.spell.id);
-    state.battle.bossParty.pet = createTaoistSummonPet(
-      queued.spell.id,
-      Math.max(0, Number(queued.learned.level) || 0),
-      now,
-    );
-    state.battle.bossParty.pet.name = `${member.classId}'s ${state.battle.bossParty.pet.name}`;
-    state.battle.taoPet = state.battle.bossParty.pet;
-    state.taoPetAtlas = taoPetAtlasFor(state.battle.taoPet);
+    const delayedHolyDeva = queued.spell.id === "SummonHolyDeva";
+    if (delayedHolyDeva) {
+      state.battle.pendingTaoPet = {
+        at: now + CRYSTAL_SUMMON_HOLY_DEVA_DELAY_MS,
+        spellId: queued.spell.id,
+        spellLevel: Math.max(0, Number(queued.learned.level) || 0),
+        ownerClassId: member.classId,
+        bossParty: true,
+      };
+    } else {
+      state.battle.bossParty.pet = createTaoistSummonPet(
+        queued.spell.id,
+        Math.max(0, Number(queued.learned.level) || 0),
+        now,
+      );
+      state.battle.bossParty.pet.name = `${member.classId}'s ${state.battle.bossParty.pet.name}`;
+      state.battle.taoPet = state.battle.bossParty.pet;
+      state.taoPetAtlas = taoPetAtlasFor(state.battle.taoPet);
+    }
     bossPartyControlledVisual(member, queued.spell, queued.spell.bodyAction ?? "spell", now);
     bossPartyCastSfx(member, queued.spell.id, 0.38, 160);
     bossPartyLevelMagicSkill(member, queued.spell, queued.learned, now);
-    playTaoPetAppearSfx({ volume: bossPartySfxVolume(member, 0.4, 0.18), throttleMs: 250, pet: state.battle.taoPet });
-    pushBattleLog(`${member.classId} summons ${state.battle.bossParty.pet.name}.`);
+    if (delayedHolyDeva) {
+      pushBattleLog(`${member.classId} casts ${queued.spell.label}.`);
+    } else {
+      playTaoPetAppearSfx({ volume: bossPartySfxVolume(member, 0.4, 0.18), throttleMs: 250, pet: state.battle.taoPet });
+      pushBattleLog(`${member.classId} summons ${state.battle.bossParty.pet.name}.`);
+    }
     return true;
   }
   if (queued.spell.id === "SoulShield" || queued.spell.id === "BlessedArmour") {
     return bossPartyCastDefenceBuff(member, queued, now);
+  }
+  if (queued.spell.id === "EnergyShield") {
+    return bossPartyCastEnergyShield(member, queued, now);
   }
   if (queued.spell.id === "MassHealing") {
     return bossPartyCastMassHealing(member, queued, now);
   }
   if (queued.spell.id === "UltimateEnhancer") {
     return bossPartyCastUltimateEnhancer(member, queued, now);
+  }
+  if (queued.spell.id === "PetEnhancer") {
+    return bossPartyCastPetEnhancer(member, queued, now);
   }
   return false;
 }
@@ -23058,6 +24828,15 @@ function bossPartyFireWallHasUsefulTarget(spell, member, now) {
   return !bossPartyGroundEffectActive("FireWall", now);
 }
 
+function bossPartyStormFieldHasUsefulTarget(spell, member, now) {
+  if (wizardStormChannelActive(now, member) || wizardStormFieldActive(now)) return false;
+  if (groupDungeonSwarmSideActive()) {
+    const center = wizardStormCenterTile(state.battle.enemy, member);
+    return wizardStormTargetCount(center) >= 1;
+  }
+  return (state.battle.enemy?.hp ?? 0) > 0 && state.battle.enemyRevealed;
+}
+
 function updateBossPartyEffects(now) {
   const enemy = state.battle.enemy;
   const effects = partyBossEffects();
@@ -23200,6 +24979,9 @@ function defenceBuffFxList() {
 function defenceBuffImpactAtlas(spellId) {
   if (spellId === "UltimateEnhancer") {
     return state.taoistSpellAtlases?.UltimateEnhancer ?? null;
+  }
+  if (spellId === "PetEnhancer") {
+    return state.taoistSpellAtlases?.PetEnhancer ?? null;
   }
   return state.taoistDefenceBuffImpactAtlases?.[spellId] ?? null;
 }
@@ -23421,6 +25203,7 @@ function bossPartyQueueImpact(member, spell, label, atlas, now, rollDamageFn) {
     label,
     damage,
     hit: hit && damage > 0,
+    worldX: state.battle.enemyX,
     casterClassId: member.classId,
   });
 }
@@ -23473,7 +25256,49 @@ function updateBossPartyImpacts(now) {
       }
       continue;
     }
+    if (impact.plague) {
+      const caster = state.battle.bossParty?.members.find((m) => m.classId === impact.casterClassId);
+      const spell = combatAttackSpell(impact.spellId);
+      const learned = caster ? bossPartyLearned(caster, impact.spellId) : null;
+      if (spell) {
+        queueSpellImpactFx(spell.id, impact, now);
+        applyPlagueSpellImpact(spell, impact, now, {
+          learned,
+          partyMember: caster,
+          sfx: bossPartySfxParamsForClass(impact.casterClassId, 0.42, 80),
+        });
+      }
+      continue;
+    }
+    if (impact.curse) {
+      const caster = state.battle.bossParty?.members.find((m) => m.classId === impact.casterClassId);
+      const spell = combatAttackSpell(impact.spellId);
+      const learned = caster ? bossPartyLearned(caster, impact.spellId) : null;
+      if (spell) {
+        queueSpellImpactFx(spell.id, impact, now);
+        applyCurseSpellImpact(spell, impact, now, {
+          learned,
+          partyMember: caster,
+          sfx: bossPartySfxParamsForClass(impact.casterClassId, 0.42, 80),
+        });
+      }
+      continue;
+    }
+    if (impact.stormGround) {
+      const caster = state.battle.bossParty?.members.find((m) => m.classId === impact.casterClassId);
+      const spell = combatAttackSpell(impact.spellId);
+      const learned = caster ? bossPartyLearned(caster, impact.spellId) : null;
+      if (spell) {
+        createWizardGroundSpellEffect(spell, {
+          value: impact.value,
+          worldX: impact.worldX,
+          centerTile: impact.centerTile,
+        }, now, caster, learned);
+      }
+      continue;
+    }
     bossPartySpellStrikeSfx(impact.spellId, impact.casterClassId);
+    queueSpellImpactFx(impact.spellId, impact, now);
     const canApply = enemy && enemy.hp > 0 && state.battle.enemyRevealed;
     if (!canApply) continue;
     if (impact.turnUndead) {
@@ -23501,7 +25326,7 @@ function updateBossPartyImpacts(now) {
   if (impact.spellId === "Vampirism" && impact.damage > 0 && caster && learned) {
     queueBossPartyVampirismRestore(caster, vampirismRestoreAmount(impact.damage, learned), now);
   }
-  if (caster && spell && learned) bossPartyLevelMagicSkill(caster, spell, learned, now);
+  if (!impact.fromMirror && caster && spell && learned) bossPartyLevelMagicSkill(caster, spell, learned, now);
   }
   state.battle.bossParty.impacts = remaining;
 }
@@ -23853,23 +25678,24 @@ function minotaurKingStrikeUsesAoe(strike = state.battle.pendingEnemyStrike) {
 }
 
 function enemyAttackDamageStat(enemy = state.battle.enemy, options = {}) {
-  if (options.magicAttack) return enemy.mc;
+  const now = options.now ?? performance.now();
+  if (options.magicAttack) return effectiveEnemyOffenceStat(enemy, enemy.mc, now);
   if ((options.aoe || options.massBurst) && statRange(enemy?.mc)[1] > 0) {
     if (isMinotaurKingEnemy(enemy) || isMassBurstEnemy(enemy) || isFlamingMutantEnemy(enemy)) {
-      return enemy.mc;
+      return effectiveEnemyOffenceStat(enemy, enemy.mc, now);
     }
   }
   if (options.ranged && isKingScorpionEnemy(enemy) && statRange(enemy?.mc)[1] > 0) {
-    return enemy.mc;
+    return effectiveEnemyOffenceStat(enemy, enemy.mc, now);
   }
   if (options.ranged && isFlamingMutantEnemy(enemy) && statRange(enemy?.mc)[1] > 0) {
-    return enemy.mc;
+    return effectiveEnemyOffenceStat(enemy, enemy.mc, now);
   }
   if (isIncarnatedRedThunderZumaEnemy(enemy)) {
-    if (options.ranged && enemy.rangedDc) return enemy.rangedDc;
-    if (enemy.meleeDc) return enemy.meleeDc;
+    if (options.ranged && enemy.rangedDc) return effectiveEnemyOffenceStat(enemy, enemy.rangedDc, now);
+    if (enemy.meleeDc) return effectiveEnemyOffenceStat(enemy, enemy.meleeDc, now);
   }
-  return enemy.dc;
+  return effectiveEnemyOffenceStat(enemy, enemy.dc, now);
 }
 
 function minotaurKingSplashTargets(primaryTarget, enemy = state.battle.enemy) {
@@ -24941,14 +26767,20 @@ function bossPartyPetAttack(now) {
   const result = rollTaoistPetAttackResult(pet, enemy, bossPartyTaoistMemberInventory());
   setTaoPetAction("attack1", true, now);
 
-  if (pet.spellId === "SummonShinsu") {
-    playTaoPetSfx("attack", { volume: 0.34, throttleMs: 250 });
+  if (pet.spellId === "SummonShinsu" || pet.spellId === "SummonHolyDeva") {
+    if (pet.spellId === "SummonShinsu") {
+      playTaoPetSfx("attack", { volume: 0.34, throttleMs: 250 });
+    }
+    const target = taoistPetAttackTargetPosition(enemy);
     state.battle.pendingPetAttack = {
-      at: now + taoistShinsuAttackImpactMs(),
+      at: now + taoistPetAttackImpactMs(pet),
+      spellId: pet.spellId,
       hit: result.hit,
       damage: result.damage,
       offline: false,
       bossParty: true,
+      targetWorldX: target.worldX,
+      targetMapRow: target.mapRow,
     };
     return true;
   }
@@ -25386,6 +27218,11 @@ function applyBossPartyMemberKillReward(member, {
   const leveledTo = applyBossPartyExperienceReward(member, xp, now);
   member.inventory.gold += gold;
   member.game.progress.gold = member.inventory.gold;
+  if (member.classId === bossPartyControlledClassId()) {
+    state.inventory.gold = member.inventory.gold;
+    state.game.progress.gold = member.inventory.gold;
+    state.battle.gold = member.inventory.gold;
+  }
   member.game.kills += 1;
   member.game.zoneKills += 1;
   if (includeItems && zoneId) member.game.dropPity[zoneId] = 0;
@@ -25887,11 +27724,27 @@ function bossPartyAmuletInventoryCount(member, shape = 0) {
     .reduce((sum, entry) => sum + Math.max(1, Math.floor(Number(entry.quantity) || 1)), 0);
 }
 
+function bossPartyGreenPoisonInventoryCount(member) {
+  return bossPartyCarriedInventoryEntries(member)
+    .filter((entry) => {
+      const item = itemDefinition(entry.itemId);
+      return isPoisonItem(item) && poisonItemKind(item) === "green";
+    })
+    .reduce((sum, entry) => sum + Math.max(1, Math.floor(Number(entry.quantity) || 1)), 0);
+}
+
 function syncBossPartyMembersToCharacters(party, options = {}) {
   if (!party?.members?.length) return;
   const leaderClassId = bossPartyLeaderClassId(party);
   if (normalizeCharacterId(state.activeCharacterId) === leaderClassId) {
+    const leaderMember = party.members.find((candidate) => candidate.classId === leaderClassId);
+    const savedGold = Math.max(0, Number(leaderMember?.inventory?.gold ?? leaderMember?.game?.progress?.gold) || 0);
     syncBossPartyControlledMemberFromState(leaderClassId);
+    const leaderAfter = party.members.find((candidate) => candidate.classId === leaderClassId);
+    if (leaderAfter) {
+      leaderAfter.inventory.gold = Math.max(savedGold, Number(leaderAfter.inventory.gold) || 0);
+      leaderAfter.game.progress.gold = leaderAfter.inventory.gold;
+    }
   }
   for (const member of party.members) {
     const character = state.characters[member.classId] ?? createDefaultCharacterState(member.classId);
@@ -25955,28 +27808,39 @@ function updateBattle(now) {
 
   updatePendingEnemyStrike(now);
   updatePendingImpact(now);
+  updatePendingSlashingBurst(now);
   updatePendingPetAttack(now);
   updatePendingPoison(now);
   updatePendingDefenceBuff(now);
+  updatePendingWizardBuff(now);
   updatePendingMassHeal(now);
   updatePendingUltimateEnhancer(now);
+  updatePendingPetEnhancer(now);
   updateDefenceBuffFx(now);
   updateMassHealFx(now);
   updateBossPartyHealFx(now);
   updatePendingTwinDrakeHits(now);
   updateAttachedSpellFx(now);
   updatePendingTaoPet(now);
+  updatePendingWizardMirror(now);
+  updateWizardMirror(now);
   updateLaneMotion(now);
   updateGroundSpellEffects(now);
   updateMapEnvironmentalHazards(now);
   updateCombatantPoisons(now);
   updateEnemyPoisons(now);
+  updateWarriorChargeExpiry(now);
+  if (battle.combatClass === "Wizard" && battle.enemyRevealed && battle.enemy?.hp > 0) {
+    if (maybeCastWizardMirroring(now)) return;
+    if (maybeCastWizardDefenceBuff(now)) return;
+    if (maybeCastWizardMagicBooster(now)) return;
+  }
   if (battle.enemy.hp <= 0 || battle.phase !== "engaged") return;
 
-  updateWarriorChargeExpiry(now);
-  if (maybeCastWizardDefenceBuff(now)) return;
   if (maybeCastTaoistDefenceBuffs(now)) return;
+  if (maybeCastTaoistEnergyShield(now)) return;
   if (maybeCastTaoistUltimateEnhancer(now)) return;
+  if (maybeCastTaoistPetEnhancer(now)) return;
   if (maybeCastTaoistSummonSkeleton(now)) return;
 
   if (battle.combatClass === "Taoist" && taoistPetCanTank() && now >= battle.nextPlayerAttackAt) {
@@ -25993,6 +27857,8 @@ function updateBattle(now) {
   if (battle.enemy.hp <= 0 || battle.phase !== "engaged") return;
   if (maybeAutoWarriorCharge(now)) return;
   maybeCastTaoistSoulFireBall(now);
+  maybeCastTaoistPlague(now);
+  maybeCastTaoistCurse(now);
   updateTaoistPetAttack(now);
   if (battle.enemy.hp <= 0 || battle.phase !== "engaged") return;
 
@@ -26032,7 +27898,7 @@ function updateLaneMotion(now) {
   }
 
   const distance = enemyDistance();
-  const playerRange = playerAttackRange();
+  const playerRange = playerAttackRange(now);
   const engageRange = playerEngageRange(now);
   if (battle.enemy.hp > 0 && distance <= engageRange) {
     if (battle.phase !== "engaged") ensureMapStampArenaLock();
@@ -26040,14 +27906,26 @@ function updateLaneMotion(now) {
   }
 
   if (battle.phase === "advance") {
-    advancePlayerTravel(now, dt);
+    const maxCast = slashingBurstMaxCastRangePx(now);
+    const holdSlashingBurstCast = warriorSlashingBurstLeapDesired(now)
+      && distance <= maxCast
+      && distance > LANE.warriorRange;
+    if (holdSlashingBurstCast) {
+      if (battle.phase !== "engaged") ensureMapStampArenaLock();
+      battle.phase = "engaged";
+      setPlayerLocomotion("stance", now);
+    } else {
+      advancePlayerTravel(now, dt);
+    }
     setEnemyLocomotion("standing", now);
   } else if (battle.phase === "engaged") {
     if (taoistPetCanTank() && !isPlayerOneShotAction()) {
       setPlayerLocomotion("stance", now);
-    } else if (distance > playerRange && !isPlayerOneShotAction() && !wizardHoldsCombatPosition()) {
+    } else if (distance > warriorApproachRangePx(now) && !isPlayerOneShotAction() && !wizardHoldsCombatPosition() && !slashingBurstCastBusy(now)) {
       battle.playerX += LANE.playerSpeed * dt;
       setPlayerLocomotion("walking", now);
+    } else if (battle.slashingBurstDash) {
+      setPlayerLocomotion("running", now);
     } else if (!isPlayerOneShotAction()) {
       setPlayerLocomotion("stance", now);
     }
@@ -26064,6 +27942,7 @@ function updateLaneMotion(now) {
       && battle.enemyAggro
       && targetDistance > LANE.enemyRange
       && !isEnemyOneShotAction()
+      && !slashingBurstCastBusy(now)
     ) {
       const speed = enemyAdvanceSpeed(battle.enemy, LANE.enemySpeed, now);
       if (speed > 0) {
@@ -26082,7 +27961,8 @@ function updateLaneMotion(now) {
     }
   }
 
-  syncTaoistFollowerPetPosition();
+  syncTaoistFollowerPetPosition(now);
+  updateSlashingBurstDash(now);
   syncBattleCamera();
   if (state.game.mode === "zone") {
     state.game.distance = Math.max(state.game.distance, Math.max(0, battle.playerX));
@@ -26093,8 +27973,8 @@ function advancePlayerTravel(now, dt) {
   const action = travelAction(now);
   const speed = action === "running" ? LANE.runSpeed : LANE.playerSpeed;
   state.battle.playerX += speed * dt;
-  syncTaoistFollowerPetPosition();
   setPlayerLocomotion(action, now);
+  syncTaoistFollowerPetPosition(now);
 }
 
 function travelAction(now) {
@@ -26106,6 +27986,7 @@ function travelAction(now) {
 
 function playerAttack(now) {
   state.battle.enemyAggro = true;
+  if (state.battle.combatClass === "Wizard" && wizardStormChannelActive(now)) return false;
   if (state.battle.combatClass === "Wizard") {
     wizardAttack(now);
     return true;
@@ -26203,6 +28084,7 @@ function playTwinDrakeBladeSfx(options = {}) {
 function playWarriorSpellSwingSfx(skill, options = {}) {
   if (!skill || skill.id === BASIC_ATTACK_SKILL.id) return false;
   if (skill.id === "TwinDrakeBlade") return playTwinDrakeBladeSfx(options);
+  if (skill.id === "Fury") return playSpellSfx("Fury", "cast", options);
   return playSpellSfx(skill.id, "attack", options) || playSpellSfx(skill.id, "cast", options);
 }
 
@@ -26226,6 +28108,14 @@ function warriorChargeFxDurationMs(spellId) {
 }
 
 function attachedSpellFxAnchor(entry) {
+  if (entry?.worldX != null && Number.isFinite(Number(entry.worldX))) {
+    return {
+      x: Math.floor(Number(entry.worldX) - state.battle.cameraX),
+      y: entry.mapRow != null
+        ? Math.floor(swarmMapRowAnchorY(entry.mapRow))
+        : Math.floor(arenaLaneYPx()),
+    };
+  }
   if (entry?.memberClassId) {
     const party = state.battle.bossParty;
     const member = party?.members?.find((candidate) => candidate.classId === entry.memberClassId);
@@ -26235,6 +28125,9 @@ function attachedSpellFxAnchor(entry) {
         y: Math.floor(state.stageHeight * LANE.y),
       };
     }
+  }
+  if (entry?.petFx || entry?.anchor === "pet") {
+    return combatAnchor("pet");
   }
   return combatAnchor("player");
 }
@@ -26252,12 +28145,93 @@ function queueAttachedSpellFx(spellId, options = {}) {
     {
       spellId,
       memberClassId: options.memberClassId ?? null,
+      worldX: options.worldX ?? null,
+      mapRow: options.mapRow ?? null,
       startedAt: now,
       expiresAt: now + durationMs,
       layerStart,
       layerEnd,
+      layerDelayMs: options.layerDelayMs ?? null,
+      frameIntervalMs: options.frameIntervalMs ?? null,
     },
   ].slice(-12);
+}
+
+function spellImpactFxAnchorFromImpact(impact) {
+  const centerTile = impact?.centerTile;
+  if (centerTile && Number.isFinite(Number(centerTile.worldX))) {
+    return {
+      worldX: Number(centerTile.worldX),
+      mapRow: Math.trunc(Number(centerTile.mapRow) || 0),
+    };
+  }
+  const battle = state.battle;
+  return {
+    worldX: Number.isFinite(Number(impact?.worldX)) ? Number(impact.worldX) : battle.enemyX,
+    mapRow: Math.trunc(Number(impact?.mapRow) || 0),
+  };
+}
+
+function spellImpactFxEnemyFootY() {
+  return Math.floor(arenaLaneYPx() + Math.trunc(Number(activeZone()?.arenaEnemyOffsetY) || 0));
+}
+
+function spellImpactFxScreenAnchorFromImpact(impact, fallbackAnchor = combatAnchor("enemy")) {
+  const anchor = spellImpactFxAnchorFromImpact(impact);
+  return {
+    x: Math.floor(Number(anchor.worldX) - state.battle.cameraX),
+    y: anchor.mapRow
+      ? Math.floor(swarmMapRowAnchorY(anchor.mapRow))
+      : Math.floor(Number(fallbackAnchor?.y) || spellImpactFxEnemyFootY()),
+  };
+}
+
+function spellImpactFxScreenAnchor(entry) {
+  return spellImpactFxScreenAnchorFromImpact(entry, { y: spellImpactFxEnemyFootY() });
+}
+
+function combatSpellImpactDrawSource(spellId) {
+  const battle = state.battle;
+  if (battle.pendingImpact?.spellId === spellId) return battle.pendingImpact;
+  if ((battle.activeTaoSpell === spellId || battle.activeWizardSpell === spellId) && battle.activeSpellImpactAnchor) {
+    return battle.activeSpellImpactAnchor;
+  }
+  return null;
+}
+
+function setActiveSpellImpactAnchor(impact) {
+  state.battle.activeSpellImpactAnchor = spellImpactFxAnchorFromImpact(impact);
+}
+
+function queueSpellImpactFx(spellId, impact, now = performance.now()) {
+  const spell = combatAttackSpell(spellId);
+  const atlas = state.taoistSpellAtlases[spellId] ?? state.wizardSpellAtlases[spellId];
+  if (!spell || !spellDrawsImpactVisual(spell, atlas)) return;
+  const anchor = spellImpactFxAnchorFromImpact(impact);
+  const durationMs = spellImpactVisualDurationMs(spell, atlas);
+  state.battle.attachedSpellFx = [
+    ...(state.battle.attachedSpellFx ?? []),
+    {
+      spellId,
+      impactFx: true,
+      worldX: anchor.worldX,
+      mapRow: anchor.mapRow,
+      startedAt: now,
+      expiresAt: now + durationMs,
+    },
+  ].slice(-12);
+}
+
+function attachedSpellFxFrameIndex(layer, entry, now = performance.now()) {
+  if (entry.layerDelayMs == null && entry.frameIntervalMs == null) {
+    return spellFxLayerFrameIndex(layer, entry.startedAt, now);
+  }
+  const interval = Math.max(1, Number(entry.frameIntervalMs ?? layer.interval) || 1);
+  const delayMs = Math.max(0, Number(entry.layerDelayMs ?? layer.delayMs) || 0);
+  const frameCount = Math.max(1, layer.frames?.length ?? 1);
+  const elapsed = now - entry.startedAt - delayMs;
+  if (elapsed < 0 || elapsed >= frameCount * interval) return -1;
+  return Math.min(frameCount - 1, Math.floor(elapsed / interval));
 }
 
 function twinDrakeChargeFxDurationMs() {
@@ -26314,6 +28288,44 @@ function queueWarriorChargeFx(spellId, memberClassId, now) {
     layerStart: 0,
     layerEnd: 1,
     durationMs: warriorChargeFxDurationMs(spellId),
+  });
+}
+
+function queueSlashingBurstLaneFx(now, worldX) {
+  const layers = warriorSkillFxLayers("SlashingBurst");
+  const battle = state.battle;
+  battle.attachedSpellFx = (battle.attachedSpellFx ?? []).filter((entry) => entry.spellId !== "SlashingBurst");
+  queueAttachedSpellFx("SlashingBurst", {
+    now,
+    worldX,
+    layerStart: 0,
+    layerEnd: Math.max(1, layers.length),
+    durationMs: slashingBurstLaneFxDurationMs(),
+  });
+}
+
+function bladeAvalancheLaneFxDurationMs() {
+  const fxMs = combatSpellVisualDurationMs(state.warriorSkillAtlases?.BladeAvalanche);
+  return Math.max(1, fxMs || 1500);
+}
+
+function bladeAvalancheLaneFxActive(now = performance.now()) {
+  return (state.battle.attachedSpellFx ?? []).some(
+    (entry) => entry.spellId === "BladeAvalanche" && now >= entry.startedAt && now <= entry.expiresAt,
+  );
+}
+
+function queueBladeAvalancheLaneFx(now, worldX, memberClassId = null) {
+  const layers = warriorSkillFxLayers("BladeAvalanche");
+  const battle = state.battle;
+  battle.attachedSpellFx = (battle.attachedSpellFx ?? []).filter((entry) => entry.spellId !== "BladeAvalanche");
+  queueAttachedSpellFx("BladeAvalanche", {
+    now,
+    worldX,
+    memberClassId,
+    layerStart: 0,
+    layerEnd: Math.max(1, layers.length),
+    durationMs: bladeAvalancheLaneFxDurationMs(),
   });
 }
 
@@ -26414,10 +28426,18 @@ function magicShieldLoopStartedAt(entry, now = performance.now()) {
 function updateAttachedSpellFx(now) {
   const battle = state.battle;
   const effects = battle.attachedSpellFx ?? [];
+  if (battle.activeTaoSpell === "EnergyShield" && now >= (battle.activeTaoSpellStartedAt ?? 0) + CRYSTAL_ENERGY_SHIELD_CAST_MS) {
+    battle.activeTaoSpell = null;
+    battle.activeTaoSpellAtlas = null;
+  }
   if (!effects.length) return;
   battle.attachedSpellFx = effects.filter((entry) => {
     if (now >= entry.expiresAt) return false;
     if (entry.spellId === "MagicShield" && !magicShieldFxActive(entry.memberClassId ?? null, now)) return false;
+    if (entry.spellId === "EnergyShield") {
+      const key = { memberClassId: entry.memberClassId ?? null, petFx: Boolean(entry.petFx) };
+      if (!energyShieldFxActive(key, now)) return false;
+    }
     return true;
   });
 }
@@ -26429,6 +28449,11 @@ function notifyWizardMagicShieldStruckOnHit(target, now = performance.now()) {
 
 function clearTwinDrakePendingState() {
   state.battle.pendingTwinDrakeHits = [];
+}
+
+function clearSlashingBurstPendingState() {
+  state.battle.pendingSlashingBurst = null;
+  state.battle.slashingBurstDash = null;
 }
 
 function queueTwinDrakeSecondHit(source, learned, rawDamage, now) {
@@ -26614,6 +28639,50 @@ function warriorAttack(now) {
   battle.activeTaoSpellAtlas = null;
   battle.pendingImpact = null;
   battle.pendingEnemyStrike = null;
+
+  if (isSlashingBurstSkill(skill) && slashingBurstDashEnabled() && !slashingBurstInCastRange(enemyDistance(), now)) {
+    return false;
+  }
+
+  const useDelayedSlashingBurst = slashingBurstNeedsDelayedLaneCast(skill, now);
+  if (useDelayedSlashingBurst) {
+    if (learned) commitWarriorSpellUse(skill, learned, cost, now);
+    battle.lastPlayerAttackCooldownMs = playerWeaponAttackCooldownMs(now, skill);
+    playWarriorSpellSwingSfx(skill, { volume: 0.5 });
+    const castWorldX = battle.playerX;
+    queueSlashingBurstLaneFx(now, castWorldX);
+    const castDistance = enemyDistance();
+    const dashPx = slashingBurstDashPxFromDistance(castDistance);
+    const dashDurationMs = slashingBurstLaneLeapMs(dashPx);
+    battle.pendingSlashingBurst = {
+      at: now + dashDurationMs,
+      skillId: skill.id,
+      dashPx,
+    };
+    applySlashingBurstDash(now, dashPx, dashDurationMs);
+    return true;
+  }
+
+  if (isBladeAvalancheSkill(skill)) {
+    setPlayerAction(skill.bodyAction ?? "attack3", now, true);
+    playWarriorSpellSwingSfx(skill, { volume: 0.5 });
+    queueBladeAvalancheLaneFx(now, battle.playerX);
+    if (learned) commitWarriorSpellUse(skill, learned, cost, now);
+    battle.lastPlayerAttackCooldownMs = playerWeaponAttackCooldownMs(now, skill);
+    const trained = executeBladeAvalancheStrike({
+      skill,
+      learned,
+      player: battle.player,
+      inventory: state.inventory,
+      now,
+      attackerLabel: skill.label,
+    });
+    if (learned && trained) levelWarriorMagic(skill, learned, now);
+    levelPassiveWeaponMagic(now);
+    rollSlayingChargeAfterAttack(now);
+    return true;
+  }
+
   setPlayerAction(skill.bodyAction, now, true);
   if (skill.id === "None") playWeaponSwingSfx();
   else playWarriorSpellSwingSfx(skill, { volume: 0.5 });
@@ -26629,16 +28698,17 @@ function warriorAttack(now) {
       rollSlayingChargeAfterAttack(now);
       return true;
     }
-    damage = isHalfMoonAttackSkill(skill)
-      ? rollDamage(battle.player.dc, enemyPhysicalDefence(battle.enemy), battle.player.luck)
+    damage = isSweepAttackSkill(skill)
+      ? rollSweepPrimaryDamage(skill, learned, battle.player, battle.enemy)
       : rollWarriorMagicDamage(skill, learned, battle.player, battle.enemy);
   } else {
+    const stats = effectiveCombatStats(battle.player);
     const swing = resolvePhysicalAttack(
       battle.player.accuracy,
       battle.enemy.agility,
-      battle.player.dc,
+      stats.dc,
       enemyPhysicalDefence(battle.enemy),
-      battle.player.luck,
+      stats.luck,
     );
     if (!swing.hit) {
       applyCombatEvents(physicalAttackMissEvents(attackerLabel, battle.enemy.name), now, { enemy: battle.enemy });
@@ -26664,9 +28734,22 @@ function usableWarriorAttackSkill(now) {
   const queued = queuedWarriorAttackSkill(now);
   if (queued) return queued;
 
+  if (slashingBurstDashEnabled() && warriorSlashingBurstLeapDesired(now) && warriorSlashingBurstDashIntent(now)) {
+    const skill = warriorSpellById("SlashingBurst");
+    const learned = learnedMagic("SlashingBurst");
+    if (skill && learned) {
+      const manual = queuedCombatSpell("Warrior")?.spell?.id === "SlashingBurst";
+      const usable = manual
+        ? canUseWarriorSkill(skill, learned, now, { requireAuto: false })
+        : canUseWarriorSkill(skill, learned, now, { requireAuto: true });
+      if (usable) return { skill, learned, cost: effectiveSpellMpCost(skill, learned) };
+    }
+  }
+
   const candidates = autoWarriorCombatSkills()
     .map((skill) => ({ skill, learned: learnedMagic(skill.id) }))
     .filter(({ skill, learned }) => {
+      if (warriorSlashingBurstLeapDesired(now) && skill.id === "Thrusting") return false;
       if (isWarriorChargeSkill(skill) && !warriorChargeReady(skill.id)) return false;
       return canAutoCastWarriorSkill(skill, learned, now);
     })
@@ -26699,7 +28782,7 @@ function usableWizardAttackSpell(now) {
   }
 
   const options = activeWizardAutoSpells()
-    .filter((spell) => spell.impactMode !== "buff")
+    .filter((spell) => isWizardAttackSpell(spell))
     .map((spell) => {
     const learned = learnedMagic(spell.id);
     const cost = effectiveSpellMpCost(spell, learned);
@@ -26720,7 +28803,7 @@ function usableWizardAttackSpell(now) {
 
 function queuedWizardAttackSpell(now) {
   const queued = queuedCombatSpell("Wizard");
-  if (!queued) return null;
+  if (!queued || !isWizardAttackSpell(queued.spell)) return null;
   const { spell, learned, cost } = queued;
   return {
     spell,
@@ -26744,18 +28827,64 @@ function thrustingEnabled() {
 }
 
 function halfMoonEnabled(member = null) {
-  const spells = member ? bossPartyAutoSpells(member) : autoWarriorCombatSkills();
-  return spells.some((skill) => skill.id === "HalfMoon");
+  return sweepAttackEnabled(member);
 }
 
-function isHalfMoonAttackSkill(skill) {
-  return skill?.id === "HalfMoon";
+const SWEEP_ATTACK_SKILL_IDS = new Set(["HalfMoon", "CrossHalfMoon"]);
+const SWEEP_ATTACK_SKILL_PRIORITY = ["CrossHalfMoon", "HalfMoon"];
+
+function isSweepAttackSkill(skill) {
+  return SWEEP_ATTACK_SKILL_IDS.has(skill?.id);
+}
+
+function sweepAttackEnabled(member = null) {
+  const spells = member ? bossPartyAutoSpells(member) : autoWarriorCombatSkills();
+  return SWEEP_ATTACK_SKILL_PRIORITY.some((id) => spells.some((skill) => skill.id === id));
+}
+
+function resolveActiveSweepAttack(member = null, now = performance.now()) {
+  const spells = member ? bossPartyAutoSpells(member) : autoWarriorCombatSkills();
+  const learnedFor = member
+    ? (skillId) => bossPartyLearned(member, skillId)
+    : (skillId) => learnedMagic(skillId);
+  const distance = member ? bossPartyMemberEnemyDistance(member) : enemyDistance();
+  const mp = member ? (member.mp ?? 0) : (state.battle.player?.mp ?? 0);
+  const inventory = member?.inventory ?? state.inventory;
+  for (const skillId of SWEEP_ATTACK_SKILL_PRIORITY) {
+    const skill = spells.find((entry) => entry.id === skillId);
+    if (!skill) continue;
+    const learned = learnedFor(skillId);
+    if (!canUseSweepAttack(distance, mp, skill, learned, inventory)) continue;
+    return { skill, learned };
+  }
+  return null;
+}
+
+function crossHalfMoonOverridesHalfMoon(now = performance.now()) {
+  const cross = warriorSpellById("CrossHalfMoon");
+  const crossLearned = learnedMagic("CrossHalfMoon");
+  if (!cross || !crossLearned) return false;
+  if (!autoWarriorCombatSkills().some((skill) => skill.id === "CrossHalfMoon")) return false;
+  return canUseSweepAttack(
+    enemyDistance(),
+    state.battle.player?.mp ?? 0,
+    cross,
+    crossLearned,
+  );
+}
+
+function canUseSweepAttack(distancePx, mp, skill, learned, inventory = state.inventory) {
+  if (!skill || !learned || !isSweepAttackSkill(skill)) return false;
+  return distancePx <= LANE.warriorRange && mp >= effectiveSpellMpCost(skill, learned, inventory);
 }
 
 function canUseHalfMoonAttack(distancePx, mp, learned, inventory = state.inventory) {
-  const skill = warriorSpellById("HalfMoon");
-  if (!skill || !learned) return false;
-  return distancePx <= LANE.warriorRange && mp >= effectiveSpellMpCost(skill, learned, inventory);
+  return canUseSweepAttack(distancePx, mp, warriorSpellById("HalfMoon"), learned, inventory);
+}
+
+function rollSweepPrimaryDamage(skill, learned, player, enemy, inventory = state.inventory) {
+  const stats = effectiveCombatStats(player);
+  return rollDamage(stats.dc, enemyPhysicalDefence(enemy), stats.luck);
 }
 
 function halfMoonSplashSwarmEnemies(primarySwarmId) {
@@ -26774,12 +28903,13 @@ function halfMoonSplashSwarmEnemies(primarySwarmId) {
   });
 }
 
-function bossPartyHalfMoonSplash(member, skill, learned, primaryEnemy, now) {
+function bossPartySweepSplash(member, skill, learned, primaryEnemy, now) {
   const splashTargets = halfMoonSplashSwarmEnemies(primaryEnemy?.swarmId);
   if (!splashTargets.length) return;
+  const label = skill?.label ?? "Half Moon";
   for (const swarmEnemy of splashTargets) {
     if (!rollHit(member.accuracy, swarmEnemy.agility)) {
-      pushBattleLog(`${member.classId} Half Moon misses ${swarmEnemy.name}.`);
+      pushBattleLog(`${member.classId} ${label} misses ${swarmEnemy.name}.`);
       continue;
     }
     const entity = swarmEnemyToBattleEntity(swarmEnemy);
@@ -26789,7 +28919,7 @@ function bossPartyHalfMoonSplash(member, skill, learned, primaryEnemy, now) {
       now,
     );
     if (damage <= 0) {
-      pushBattleLog(`${member.classId} Half Moon misses ${swarmEnemy.name}.`);
+      pushBattleLog(`${member.classId} ${label} misses ${swarmEnemy.name}.`);
       continue;
     }
     recordBossCombatDamage(member.classId, skill.id, damage);
@@ -26797,10 +28927,180 @@ function bossPartyHalfMoonSplash(member, skill, learned, primaryEnemy, now) {
     addSwarmEnemyCombatText(swarmEnemy, damage, "damage", now);
     strikeGroupDungeonSwarmEnemy(entity, now);
     playMonsterSfx("flinch", swarmEnemy, bossPartySfxParams(member, 0.42, 80));
-    pushBattleLog(`${member.classId} Half Moon hits ${swarmEnemy.name} for ${damage}.`);
+    pushBattleLog(`${member.classId} ${label} hits ${swarmEnemy.name} for ${damage}.`);
     maybeKillGroupDungeonSwarmEnemy(entity, now);
   }
   syncGroupDungeonPrimaryEnemy();
+}
+
+function isBladeAvalancheSkill(skill) {
+  return skill?.id === "BladeAvalanche";
+}
+
+function bladeAvalancheInRange(distancePx) {
+  return distancePx > 0 && distancePx <= BLADE_AVALANCHE_MAX_RANGE_PX;
+}
+
+function bladeAvalancheDepthIndexFromDistance(distancePx) {
+  if (!bladeAvalancheInRange(distancePx)) return null;
+  const tiles = Math.max(1, Math.min(BLADE_AVALANCHE_DEPTH_TILES, Math.round(distancePx / LANE_TILE_PX)));
+  return tiles - 1;
+}
+
+function bladeAvalancheDepthDamageScale(depthIndex) {
+  return depthIndex >= BLADE_AVALANCHE_DEPTH_TILES - 1 ? 0.6 : 1;
+}
+
+function bladeAvalancheSwarmAreaTiles() {
+  const meleeCol = swarmSnapTileX(groupDungeonSwarmMeleeWorldX());
+  const baseRow = arenaSpawnMapRow();
+  const tiles = [];
+  for (const lane of GROUP_DUNGEON_SWARM_LANES) {
+    const mapRow = swarmLaneMapRow(lane, baseRow);
+    for (let depth = 0; depth < BLADE_AVALANCHE_DEPTH_TILES; depth += 1) {
+      tiles.push({
+        worldX: meleeCol + depth * GROUP_DUNGEON_SWARM_TILE_PX,
+        mapRow,
+        depthScale: depth === BLADE_AVALANCHE_DEPTH_TILES - 1 ? 0.6 : 1,
+      });
+    }
+  }
+  return tiles;
+}
+
+function bladeAvalancheSwarmTargetEntries() {
+  const swarm = state.battle.swarm;
+  if (!swarm || !groupDungeonSwarmSideActive()) return [];
+  const areaTiles = bladeAvalancheSwarmAreaTiles();
+  const entries = [];
+  for (const enemy of swarm.enemies) {
+    if (enemy.hp <= 0 || enemy.dying) continue;
+    const tile = swarmEnemyReservedTile(enemy);
+    const match = areaTiles.find((entry) => entry.worldX === tile.worldX && entry.mapRow === tile.mapRow);
+    if (!match) continue;
+    entries.push({ swarmEnemy: enemy, depthScale: match.depthScale });
+  }
+  return entries;
+}
+
+function bladeAvalancheActionReachable(member, now) {
+  const skill = warriorSpellById("BladeAvalanche");
+  const learned = bossPartyLearned(member, "BladeAvalanche");
+  if (!skill || !learned) return false;
+  const queued = bossPartyQueuedWarriorSkill(member, now);
+  const wants = (queued?.queued && !queued.queuedWaiting && queued.skill.id === "BladeAvalanche")
+    || bossPartyAutoSpells(member).some((entry) => entry.id === "BladeAvalanche");
+  if (!wants) return false;
+  return bossPartyCanUseWarriorSkill(member, skill, learned, now, { requireAuto: false });
+}
+
+function rollBladeAvalancheDamage(skill, learned, player, enemy, inventory = state.inventory, depthScale = 1) {
+  const combatant = combatantForMagicRoll(player);
+  const attack = rollStat(combatant.dc, combatant.luck);
+  const boosted = Math.trunc((attack + crystalMagicPower(skill, learned)) * crystalMagicMultiplier(skill, learned));
+  const withEmpower = applyEquippedSpellDamageBonus(skill?.id, boosted, inventory);
+  const scaled = Math.trunc(withEmpower * depthScale);
+  return applyWizardMagicDefence(scaled, enemy);
+}
+
+function applyBladeAvalanchePrimaryHit(skill, learned, player, inventory, enemy, depthScale, now) {
+  const attackerLabel = skill.label;
+  if (!rollHit(player.accuracy, enemy.agility)) {
+    applyCombatEvents(physicalAttackMissEvents(attackerLabel, enemy.name), now, { enemy });
+    return false;
+  }
+  const damage = scaleEnemyPhysicalDamage(
+    rollBladeAvalancheDamage(skill, learned, player, enemy, inventory, depthScale),
+    enemy,
+    now,
+  );
+  if (damage <= 0) {
+    applyCombatEvents(physicalAttackMissEvents(attackerLabel, enemy.name), now, { enemy });
+    return false;
+  }
+  queueEnemyStruck(now);
+  playMonsterSfx("flinch");
+  playSpellSfx(skill.id, "impact", { volume: 0.48 }) || playWeaponHitSfx();
+  applyCombatEvents(physicalAttackHitEvents(attackerLabel, enemy.name, damage), now, { enemy });
+  if (enemy.hp > 0) applyCrystalFreezingAttackProc(player, enemy, now);
+  if (enemy.hp <= 0) {
+    finishEnemy(now);
+    setEnemyAction("die", false, now);
+    playMonsterSfx("death");
+    pushBattleLog(`${enemy.name} is defeated.`);
+  }
+  return true;
+}
+
+function applyBladeAvalancheSwarmHit(skill, learned, player, inventory, swarmEnemy, depthScale, now, attackerLabel, member = null) {
+  if (!rollHit(player.accuracy, swarmEnemy.agility)) {
+    pushBattleLog(`${attackerLabel} ${skill.label} misses ${swarmEnemy.name}.`);
+    return false;
+  }
+  const entity = swarmEnemyToBattleEntity(swarmEnemy);
+  const damage = scaleEnemyPhysicalDamage(
+    rollBladeAvalancheDamage(skill, learned, player, entity, inventory, depthScale),
+    entity,
+    now,
+  );
+  if (damage <= 0) {
+    pushBattleLog(`${attackerLabel} ${skill.label} misses ${swarmEnemy.name}.`);
+    return false;
+  }
+  if (member) recordBossCombatDamage(member.classId, skill.id, damage);
+  applyCombatDamageEvent(swarmEnemyDamageEvent(swarmEnemy.id, damage), now, { swarmEnemy });
+  addSwarmEnemyCombatText(swarmEnemy, damage, "damage", now);
+  strikeGroupDungeonSwarmEnemy(entity, now);
+  playMonsterSfx("flinch", swarmEnemy, member ? bossPartySfxParams(member, 0.42, 80) : undefined);
+  playSpellSfx(skill.id, "impact", { volume: 0.48 }) || playWeaponHitSfx();
+  pushBattleLog(`${attackerLabel} ${skill.label} hits ${swarmEnemy.name} for ${damage}.`);
+  maybeKillGroupDungeonSwarmEnemy(entity, now);
+  return true;
+}
+
+function executeBladeAvalancheStrike({ skill, learned, player, inventory, now, attackerLabel, member = null }) {
+  if (groupDungeonSwarmSideActive()) {
+    let trained = false;
+    for (const entry of bladeAvalancheSwarmTargetEntries()) {
+      if (applyBladeAvalancheSwarmHit(
+        skill,
+        learned,
+        player,
+        inventory,
+        entry.swarmEnemy,
+        entry.depthScale,
+        now,
+        attackerLabel,
+        member,
+      )) {
+        trained = true;
+      }
+    }
+    syncGroupDungeonPrimaryEnemy();
+    return trained;
+  }
+  const enemy = state.battle.enemy;
+  if (!enemy?.hp || !state.battle.enemyRevealed) return false;
+  const distance = member ? bossPartyMemberEnemyDistance(member) : enemyDistance();
+  const depthIndex = bladeAvalancheDepthIndexFromDistance(distance);
+  if (depthIndex == null) return false;
+  return applyBladeAvalanchePrimaryHit(
+    skill,
+    learned,
+    player,
+    inventory,
+    enemy,
+    bladeAvalancheDepthDamageScale(depthIndex),
+    now,
+  );
+}
+
+function warriorBladeAvalancheSelected(now = performance.now()) {
+  const queued = queuedCombatSpell("Warrior");
+  if (queued?.spell?.id === "BladeAvalanche") return true;
+  const learned = learnedMagic("BladeAvalanche");
+  if (learned?.autoCast) return true;
+  return autoWarriorCombatSkills().some((entry) => entry.id === "BladeAvalanche");
 }
 
 function isThrustingAttackWindow() {
@@ -26820,24 +29120,184 @@ function autoTaoistCombatSpells() {
   return normalizeAutoCastSpellsForClass("Taoist");
 }
 
+function slashingBurstNeedsDelayedLaneCast(skill, now = performance.now()) {
+  if (!isSlashingBurstSkill(skill)) return false;
+  if (!slashingBurstDashEnabled()) return false;
+  return enemyDistance() > LANE.warriorRange;
+}
+
+function warriorSlashingBurstSkillReady(skill, learned, now = performance.now()) {
+  if (!skill || !learned) return false;
+  if (slashingBurstCastBusy(now)) return false;
+  if (warriorSpellCastOnCooldown(skill, learned, now)) return false;
+  return (state.battle.player?.mp ?? 0) >= effectiveSpellMpCost(skill, learned);
+}
+
+function warriorSlashingBurstSelected(now = performance.now()) {
+  const queued = queuedCombatSpell("Warrior");
+  if (queued?.spell?.id === "SlashingBurst") return true;
+  const learned = learnedMagic("SlashingBurst");
+  if (learned?.autoCast) return true;
+  return autoWarriorCombatSkills().some((skill) => skill.id === "SlashingBurst");
+}
+
+function warriorSlashingBurstLeapDesired(now = performance.now()) {
+  if (state.battle.combatClass !== "Warrior") return false;
+  if (!slashingBurstLaneEnabled()) return false;
+  if (enemyDistance() <= LANE.warriorRange) return false;
+  const skill = warriorSpellById("SlashingBurst");
+  const learned = learnedMagic("SlashingBurst");
+  if (!warriorSlashingBurstSkillReady(skill, learned, now)) return false;
+  return warriorSlashingBurstSelected(now);
+}
+
+function warriorSlashingBurstDashIntent(now = performance.now()) {
+  return warriorSlashingBurstLeapDesired(now)
+    && slashingBurstInCastRange(enemyDistance(), now);
+}
+
+function warriorApproachRangePx(now = performance.now()) {
+  if (warriorSlashingBurstLeapDesired(now)) return slashingBurstMaxCastRangePx(now);
+  return playerAttackRange(now);
+}
+
+function slashingBurstCastBusy(now = performance.now()) {
+  const battle = state.battle;
+  if (battle.pendingSlashingBurst && now < battle.pendingSlashingBurst.at) return true;
+  return Boolean(battle.slashingBurstDash);
+}
+
+function isSlashingBurstSkill(skill) {
+  return skill?.id === "SlashingBurst";
+}
+
+function slashingBurstLaneEnabled() {
+  if (bossPartyActiveFight()) return false;
+  if (isRoomOnlyZone()) return false;
+  if (isTrainingRoomCombat()) return false;
+  return state.game.mode === "zone";
+}
+
+function slashingBurstDashEnabled() {
+  return slashingBurstLaneEnabled() && state.battle.phase === "engaged";
+}
+
+function slashingBurstMaxCastRangePx(now = performance.now()) {
+  return SLASHING_BURST_MAX_CAST_RANGE_PX;
+}
+
+function slashingBurstDashPxFromDistance(distance = enemyDistance()) {
+  if (distance <= LANE.warriorRange) return 0;
+  return distance - LANE.warriorRange;
+}
+
+function slashingBurstDashAnimMs(dashPx) {
+  const tiles = Math.max(1, dashPx / LANE_TILE_PX);
+  return Math.round(SLASHING_BURST_DASH_ANIM_MS + (tiles - 1) * 18);
+}
+
+function slashingBurstLaneFxDurationMs() {
+  const fxMs = combatSpellVisualDurationMs(state.warriorSkillAtlases?.SlashingBurst);
+  return Math.max(1, fxMs || SLASHING_BURST_DASH_ANIM_MS);
+}
+
+function slashingBurstLaneLeapMs(dashPx) {
+  const tiles = Math.max(1, dashPx / LANE_TILE_PX);
+  return Math.round(SLASHING_BURST_LEAP_BASE_MS + (tiles - 1) * SLASHING_BURST_LEAP_MS_PER_TILE);
+}
+
+function slashingBurstInCastRange(distance = enemyDistance(), now = performance.now()) {
+  return distance > LANE.warriorRange && distance <= slashingBurstMaxCastRangePx(now);
+}
+
+function applySlashingBurstDash(now = performance.now(), dashPx = null, durationMs = null) {
+  if (!slashingBurstDashEnabled()) return 0;
+  const battle = state.battle;
+  const dash = dashPx != null && Number.isFinite(Number(dashPx))
+    ? Math.max(0, Math.trunc(Number(dashPx)))
+    : slashingBurstDashPxFromDistance(enemyDistance());
+  if (dash <= 0) return 0;
+  const fromX = battle.playerX;
+  battle.slashingBurstDash = {
+    fromX,
+    toX: fromX + dash,
+    startAt: now,
+    durationMs: durationMs ?? slashingBurstDashAnimMs(dash),
+  };
+  setPlayerLocomotion("running", now);
+  return dash;
+}
+
+function updateSlashingBurstDash(now = performance.now()) {
+  const dash = state.battle.slashingBurstDash;
+  if (!dash) return;
+  const duration = Math.max(1, Math.trunc(Number(dash.durationMs) || SLASHING_BURST_DASH_ANIM_MS));
+  const progress = Math.min(1, (now - dash.startAt) / duration);
+  state.battle.playerX = dash.fromX + (dash.toX - dash.fromX) * progress;
+  if (progress >= 1) {
+    state.battle.slashingBurstDash = null;
+    if (state.game.mode === "zone") {
+      state.game.distance = Math.max(state.game.distance, Math.max(0, state.battle.playerX));
+    }
+  }
+}
+
+function updatePendingSlashingBurst(now = performance.now()) {
+  const battle = state.battle;
+  const pending = battle.pendingSlashingBurst;
+  if (!pending || now < pending.at) return;
+  battle.pendingSlashingBurst = null;
+  const skill = warriorSpellById(pending.skillId);
+  const learned = learnedMagic(pending.skillId);
+  const enemy = battle.enemy;
+  if (!skill || !learned || !enemy?.hp || !battle.enemyRevealed) return;
+
+  const attackerLabel = skill.label;
+  if (!rollHit(battle.player.accuracy, enemy.agility)) {
+    applyCombatEvents(physicalAttackMissEvents(attackerLabel, enemy.name), now, { enemy });
+    rollSlayingChargeAfterAttack(now);
+    return;
+  }
+  const damage = rollWarriorMagicDamage(skill, learned, battle.player, enemy);
+  warriorApplyPhysicalHit(skill, learned, damage, now);
+}
+
 function canAutoCastWarriorSkill(skill, learned, now) {
   return canUseWarriorSkill(skill, learned, now, { requireAuto: true });
 }
 
 function canUseWarriorSkill(skill, learned, now, options = {}) {
   if (!skill || !learned || skill.passive) return false;
+  if (slashingBurstCastBusy(now)) return false;
   if (options.requireAuto && !learned.autoCast) return false;
   if (isWarriorChargeSkill(skill) && warriorChargeReady(skill.id)) return false;
   if (skill.toggle) {
     if (skill.id === "Thrusting") return isThrustingAttackWindow();
-    if (skill.id === "HalfMoon") {
-      return canUseHalfMoonAttack(enemyDistance(), state.battle.player?.mp ?? 0, learned);
+    if (isSweepAttackSkill(skill)) {
+      if (!canUseSweepAttack(enemyDistance(), state.battle.player?.mp ?? 0, skill, learned)) return false;
+      if (skill.id === "HalfMoon" && crossHalfMoonOverridesHalfMoon(now)) return false;
+      return true;
     }
     return false;
   }
   const chargeCast = isWarriorChargeSkill(skill) && !warriorChargeReady(skill.id);
-  if (!skill.buff && !chargeCast && enemyDistance() > LANE.warriorRange) return false;
-  if (skill.id === "Fury" && now < (state.battle.furyUntil ?? 0)) return false;
+  if (!skill.buff && !chargeCast) {
+    if (isBladeAvalancheSkill(skill)) {
+      if (groupDungeonSwarmSideActive()) {
+        if (!bladeAvalancheSwarmTargetEntries().length) return false;
+      } else if (!options.ignoreDistance && !bladeAvalancheInRange(enemyDistance())) {
+        return false;
+      }
+    } else if (isSlashingBurstSkill(skill) && slashingBurstDashEnabled()) {
+      if (!options.ignoreDistance && !slashingBurstInCastRange(enemyDistance(), now)) return false;
+    } else if (!options.ignoreDistance && enemyDistance() > LANE.warriorRange) {
+      return false;
+    }
+  }
+  if (skill.id === "Fury" && hasActiveFuryBuff(state.battle.player, now)) return false;
+  if (skill.id === "Rage" && hasActiveRageBuff(state.battle.player, now)) return false;
+  if (skill.id === "ProtectionField" && hasActiveProtectionFieldBuff(state.battle.player, now)) return false;
+  if (skill.id === "ImmortalSkin" && hasActiveImmortalSkinBuff(state.battle.player, now)) return false;
   if (warriorSpellCastOnCooldown(skill, learned, now)) return false;
   return (state.battle.player?.mp ?? 0) >= effectiveSpellMpCost(skill, learned);
 }
@@ -26851,8 +29311,10 @@ function canUseWizardSpell(spell, learned, now, options = {}) {
   if (options.requireAuto && !learned.autoCast) return false;
   if ((learned.castReadyAt ?? 0) > now) return false;
   if (spell.id === "FireWall" && !canUseWizardFireWall(now)) return false;
+  if (spell.id === "Mirroring" && wizardMirrorActive()) return false;
+  if (spell.id === "MagicBooster" && hasActiveMagicBoosterBuff(state.battle.player, now)) return false;
   if (options.requireAuto && spell.id === "TurnUndead" && !turnUndeadCanTarget(state.battle.enemy, state.battle.player)) return false;
-  return (state.battle.player?.mp ?? 0) >= effectiveSpellMpCost(spell, learned);
+  return (state.battle.player?.mp ?? 0) >= effectiveSpellMpCost(spell, learned, state.inventory, state.battle.player);
 }
 
 function wizardFireWallRequiresMeleeRange() {
@@ -26876,6 +29338,9 @@ function canUseWizardFireWall(now) {
 }
 
 function wizardAttackSpellReady(spell, now, member = null) {
+  if (spell?.groundChannel) {
+    return !wizardStormChannelActive(now, member) && !wizardStormFieldActive(now);
+  }
   if (spell?.id === "FireWall") return canUseWizardFireWall(now);
   if (spell?.id === "TurnUndead") return turnUndeadCanTarget(state.battle.enemy, member ?? state.battle.player);
   if (spell?.impactMode === "bang" && groupDungeonSwarmSideActive()) return canUseGroupDungeonSwarmBangSpell(spell, member);
@@ -26897,19 +29362,19 @@ function canUseTaoistSpell(spell, learned, now, options = {}) {
 }
 
 function warriorAutoPriority(skill) {
-  const order = ["Fury", "FlamingSword", "TwinDrakeBlade", "Thrusting", "HalfMoon"];
+  const order = ["Fury", "Rage", "ProtectionField", "ImmortalSkin", "FlamingSword", "TwinDrakeBlade", "BladeAvalanche", "Thrusting", "CrossHalfMoon", "HalfMoon"];
   const index = order.indexOf(skill?.id);
   return index === -1 ? order.length : index;
 }
 
 function wizardAutoPriority(spell) {
-  const order = ["MagicShield", "TurnUndead", "FireWall", "IceStorm", "FlameDisruptor", "Vampirism", "GreatFireBall", "FrostCrunch", "FireBall", "ThunderBolt"];
+  const order = ["MagicShield", "MagicBooster", "Mirroring", "TurnUndead", "MeteorStrike", "Blizzard", "FireWall", "IceStorm", "FlameField", "FlameDisruptor", "Vampirism", "GreatFireBall", "FrostCrunch", "FireBall", "ThunderBolt"];
   const index = order.indexOf(spell?.id);
   return index === -1 ? order.length : index;
 }
 
 function taoistAutoPriority(spell) {
-  const order = ["Healing", "MassHealing", "SoulShield", "BlessedArmour", "UltimateEnhancer", "SummonSkeleton", "SummonShinsu", "SummonHolyDeva", "Poisoning", "SoulFireBall"];
+  const order = ["Healing", "MassHealing", "HealingCircle", "SoulShield", "BlessedArmour", "UltimateEnhancer", "SummonSkeleton", "SummonShinsu", "SummonHolyDeva", "PetEnhancer", "Poisoning", "Curse", "PoisonCloud", "Plague", "SoulFireBall"];
   const index = order.indexOf(spell?.id);
   return index === -1 ? order.length : index;
 }
@@ -26946,7 +29411,7 @@ function commitWarriorSpellUse(skill, learned, cost, now) {
     return;
   }
   if (skill.toggle) {
-    if (skill.id === "HalfMoon") {
+    if (isSweepAttackSkill(skill)) {
       state.battle.player.mp = Math.max(0, state.battle.player.mp - cost);
     }
     clearQueuedCombatSpell(skill.id);
@@ -26963,19 +29428,32 @@ function wizardCastCooldownMs(spell, learned) {
   return crystalSpellCastCooldownMs(spell, learned);
 }
 
+/** Per-spell recharge (castReadyAt). Channeled storms use a short global lock — channel timing handles the field. */
+function wizardSpellActionLockMs(spell, learned) {
+  if (spell?.groundChannel) {
+    return Math.max(
+      CRYSTAL_SPELL_GLOBAL_LOCK_MS,
+      Math.trunc(Number(spell.castGlobalLockMs) || 0),
+    );
+  }
+  return wizardCastCooldownMs(spell, learned);
+}
+
 function applyWizardCastCooldown(spell, learned, now, member = null) {
   const cooldown = wizardCastCooldownMs(spell, learned);
+  const actionLock = wizardSpellActionLockMs(spell, learned);
   if (learned) learned.castReadyAt = now + cooldown;
   if (member) {
-    member.wizardSpellLockUntil = now + cooldown;
-    member.nextActionAt = now + cooldown;
+    member.wizardSpellLockUntil = now + actionLock;
+    member.nextActionAt = now + actionLock;
   } else {
-    state.battle.wizardSpellLockUntil = now + cooldown;
+    state.battle.wizardSpellLockUntil = now + actionLock;
   }
   return cooldown;
 }
 
 function wizardCastLocked(now, member = null) {
+  if (wizardStormChannelActive(now, member)) return true;
   if (member) {
     if ((member.wizardSpellLockUntil ?? 0) > now) return true;
     if ((member.nextActionAt ?? 0) > now) return true;
@@ -27085,7 +29563,8 @@ function warriorSlayingPending(member = null) {
 }
 
 function rollWarriorMagicDamage(skill, learned, player, enemy, inventory = state.inventory) {
-  const attack = rollStat(player.dc, player.luck);
+  const combatant = combatantForMagicRoll(player);
+  const attack = rollStat(combatant.dc, combatant.luck);
   const boosted = Math.trunc((attack + crystalMagicPower(skill, learned)) * crystalMagicMultiplier(skill, learned));
   const withEmpower = applyEquippedSpellDamageBonus(skill?.id, boosted, inventory);
   const defence = rollStat(enemyPhysicalDefence(enemy));
@@ -27138,8 +29617,21 @@ function rollWizardMagicValue(spell, learned, player, inventory = state.inventor
   return applyEquippedSpellDamageBonus(spell?.id, base, inventory);
 }
 
-function effectiveSpellMpCost(spell, learned, inventory = state.inventory) {
-  return applyEquippedSpellMpCostReduction(spell?.id, spellMpCost(spell, learned), inventory);
+function effectiveSpellMpCost(spell, learned, inventory = state.inventory, caster = null) {
+  const entity = caster ?? state.battle.player;
+  let cost = spell?.id === "Plague"
+    ? plagueSpellMpCost(entity)
+    : spellMpCost(spell, learned);
+  cost = applyEquippedSpellMpCostReduction(spell?.id, cost, inventory);
+  const penalty = activeMagicBoosterManaPenaltyPercent(entity);
+  if (penalty > 0) cost = Math.trunc(cost * (1 + penalty / 100));
+  return cost;
+}
+
+function plagueSpellMpCost(player) {
+  const stats = combatantForMagicRoll(player);
+  const [minSc, maxSc] = statRange(stats.sc ?? [0, 0]);
+  return Math.max(0, minSc + maxSc);
 }
 
 function rollTaoistHealingAmount(spell, learned, player, inventory = state.inventory) {
@@ -27199,7 +29691,11 @@ function enemyHasPoison(enemy, kind) {
 }
 
 function ensureEnemyDebuffs(enemy) {
-  if (!enemy.debuffs) enemy.debuffs = { slowUntil: 0, frozenUntil: 0 };
+  if (!enemy.debuffs) enemy.debuffs = { slowUntil: 0, frozenUntil: 0, curseUntil: 0, curseRatePercent: 0 };
+  else {
+    if (enemy.debuffs.curseUntil == null) enemy.debuffs.curseUntil = 0;
+    if (enemy.debuffs.curseRatePercent == null) enemy.debuffs.curseRatePercent = 0;
+  }
   return enemy.debuffs;
 }
 
@@ -27209,6 +29705,18 @@ function enemySlowActive(enemy, now = performance.now()) {
 
 function enemyFrozenActive(enemy, now = performance.now()) {
   return (ensureEnemyDebuffs(enemy).frozenUntil ?? 0) > now;
+}
+
+function enemyCurseActive(enemy, now = performance.now()) {
+  return (ensureEnemyDebuffs(enemy).curseUntil ?? 0) > now;
+}
+
+function effectiveEnemyOffenceStat(enemy, stat, now = performance.now()) {
+  const debuffs = ensureEnemyDebuffs(enemy);
+  if ((debuffs.curseUntil ?? 0) <= now) return stat;
+  const rate = Math.max(0, Number(debuffs.curseRatePercent) || 0);
+  if (rate <= 0) return stat;
+  return scaleStatRange(stat, Math.max(0, 1 - rate / 100));
 }
 
 function effectiveEnemyAttackMs(enemy, now = performance.now()) {
@@ -27295,6 +29803,34 @@ function frostCrunchFrozenDurationMs(freezing) {
   return (5 + (stat > 0 ? randomInt(0, stat - 1) : 0)) * 1000;
 }
 
+function rollBlizzardSlowProc() {
+  return randomInt(0, 7) === 0;
+}
+
+function blizzardSlowDurationMs(freezing) {
+  const stat = Math.max(0, Math.trunc(Number(freezing) || 0));
+  return (5 + randomInt(0, stat)) * 1000;
+}
+
+function groundSpellTickPlayer(effect) {
+  if (effect.casterClassId) {
+    const member = state.battle.bossParty?.members?.find((entry) => entry.classId === effect.casterClassId);
+    if (member) return member;
+  }
+  return state.battle.player;
+}
+
+function maybeApplyBlizzardSlowTick(spell, enemy, player, now, options = {}) {
+  if (spell?.id !== "Blizzard" || !enemy || enemy.hp <= 0) return false;
+  if (!rollBlizzardSlowProc()) return false;
+  const durationMs = blizzardSlowDurationMs(playerFreezingStat(player));
+  if (!applyEnemySlow(enemy, durationMs, now)) return false;
+  if (options.swarmEnemy) addSwarmEnemyCombatText(options.swarmEnemy, "Slowed", "frost", now);
+  else addCombatText("enemy", "Slowed", "frost", now);
+  pushBattleLog(`${enemy.name} is slowed by the blizzard.`);
+  return true;
+}
+
 function applyEnemySlow(enemy, durationMs, now = performance.now()) {
   if (!enemy || enemy.hp <= 0 || enemySlowActive(enemy, now)) return false;
   ensureEnemyDebuffs(enemy).slowUntil = now + Math.max(1000, Math.trunc(Number(durationMs) || 0));
@@ -27330,6 +29866,292 @@ function rollTaoistPoisonPower(spell, learned, player) {
   return Math.max(0, Math.trunc((attack + crystalMagicPower(spell, learned)) * crystalMagicMultiplier(spell, learned)));
 }
 
+function poisonCloudGreenPoisonValue(player) {
+  const [minSc, maxSc] = statRange(player?.sc ?? [0, 0]);
+  const poisonAttack = Math.max(0, Math.trunc(Number(player?.poisonAttack) || 0));
+  const bonus = poisonAttack > 0 ? randomInt(0, poisonAttack) : 0;
+  return Math.max(0, Math.floor((minSc + maxSc) / 2) + bonus);
+}
+
+function plaguePoisonCandidateForCast() {
+  const green = poisonInventoryEntries("green")[0] ?? null;
+  if (green) return { entry: green, kind: "green", item: itemDefinition(green.itemId) };
+  const yellow = poisonInventoryEntries("yellow")[0] ?? null;
+  if (yellow) return { entry: yellow, kind: "yellow", item: itemDefinition(yellow.itemId) };
+  return null;
+}
+
+function plagueDurationTicks(level, powerValue) {
+  const skillLevel = Math.max(0, Math.min(3, Math.trunc(Number(level) || 0)));
+  return Math.max(1, (2 * (skillLevel + 1)) + Math.floor(Math.max(0, Math.trunc(Number(powerValue) || 0)) / 10));
+}
+
+function rollPlagueEffectKind(heldPoisonKind) {
+  const chance = randomInt(0, 14);
+  if (chance <= 2) return "slow";
+  if (chance <= 4) return "frozen";
+  if (chance <= 9) return heldPoisonKind;
+  return null;
+}
+
+function plagueBurstDamageValue(player, inventory = state.inventory) {
+  const stats = combatantForMagicRoll(player);
+  const [, maxSc] = statRange(stats.sc ?? [0, 0]);
+  return applyEquippedSpellDamageBonus("Plague", Math.max(0, Math.trunc(maxSc * 2)), inventory);
+}
+
+function applyPlagueEffectToEnemy(enemy, effectKind, level, powerValue, now, options = {}) {
+  if (!enemy || enemy.hp <= 0 || !effectKind) return false;
+  const durationTicks = plagueDurationTicks(level, powerValue);
+  const durationMs = durationTicks * 1000;
+  const skillLevel = Math.max(0, Math.min(3, Math.trunc(Number(level) || 0)));
+  if (effectKind === "slow") {
+    if (!applyEnemySlow(enemy, durationMs, now)) return false;
+    if (!options.offline && !suppressSimulationRender) {
+      if (options.swarmEnemy) addSwarmEnemyCombatText(options.swarmEnemy, "Slowed", "frost", now);
+      else addCombatText("enemy", "Slowed", "frost", now);
+    }
+    return true;
+  }
+  if (effectKind === "frozen") {
+    if (!applyEnemyFrozen(enemy, durationMs, now)) return false;
+    if (!options.offline && !suppressSimulationRender) {
+      if (options.swarmEnemy) addSwarmEnemyCombatText(options.swarmEnemy, "Frozen", "frost", now);
+      else addCombatText("enemy", "Frozen", "frost", now);
+    }
+    return true;
+  }
+  const tickValue = effectKind === "yellow"
+    ? Math.max(1, Math.floor(powerValue / 15) + skillLevel + 1)
+    : Math.max(1, powerValue + (skillLevel + 1) * 2);
+  return applyEnemyPoison(enemy, {
+    kind: effectKind,
+    value: tickValue,
+    ticksRemaining: durationTicks,
+    tickMs: 1000,
+  }, now);
+}
+
+function applyPlagueSpellImpact(spell, impact, now, options = {}) {
+  const battle = state.battle;
+  const centerTile = impact.centerTile ?? wizardBangCenterTile(battle.enemy, spell, options.partyMember);
+  const learned = options.learned ?? learnedMagic(spell.id);
+  const level = Math.max(0, Math.min(3, Math.trunc(Number(learned?.level) || 0)));
+  const powerValue = Math.max(0, Math.trunc(Number(impact.powerValue) || 0));
+  const heldPoisonKind = impact.heldPoisonKind ?? null;
+  const caster = options.partyMember ?? battle.player;
+  const inventory = options.partyMember?.inventory ?? state.inventory;
+  const sfx = options.sfx ?? { volume: 0.42, throttleMs: 80 };
+  const baseDamage = plagueBurstDamageValue(caster, inventory);
+
+  playSpellStrikeSfx(spell.id, { volume: 0.5, force: true, throttleMs: 0 });
+
+  if (groupDungeonSwarmSideActive()) {
+    const swarmEnemies = enemiesInSpellBangArea(centerTile);
+    let trained = false;
+    for (const swarmEnemy of swarmEnemies) {
+      const entity = swarmEnemyToBattleEntity(swarmEnemy);
+      const damage = applyWizardMagicDefence(baseDamage, entity);
+      if (damage > 0) {
+        trained = true;
+        addSwarmEnemyCombatText(swarmEnemy, damage, "damage", now);
+        strikeGroupDungeonSwarmEnemy(entity, now);
+        playMonsterSfx("flinch", swarmEnemy, sfx);
+        applyCombatEvents(
+          magicAttackHitEvents(spell.label, swarmEnemy.name, damage, "enemy", "damage", { swarmId: swarmEnemy.id }),
+          now,
+          { swarmEnemy },
+        );
+        maybeKillGroupDungeonSwarmEnemy(entity, now);
+      } else if (swarmEnemies.length) {
+        addSwarmEnemyCombatText(swarmEnemy, "0", "damage", now);
+      }
+      const effectKind = rollPlagueEffectKind(heldPoisonKind);
+      if (applyPlagueEffectToEnemy(entity, effectKind, level, powerValue, now, { swarmEnemy, offline: options.offline })) {
+        trained = true;
+      }
+    }
+    syncGroupDungeonPrimaryEnemy();
+    if (learned && trained) {
+      if (options.partyMember) bossPartyLevelMagicSkill(options.partyMember, spell, learned, now);
+      else levelMagicSkill(spell, learned, now);
+    } else if (!trained && swarmEnemies.length) {
+      pushBattleLog(`${spell.label} has no effect.`);
+    }
+    return;
+  }
+
+  const canApply = battle.enemy && battle.enemy.hp > 0 && battle.enemyRevealed;
+  if (!canApply) return;
+  let trained = false;
+  const damage = applyWizardMagicDefence(baseDamage, battle.enemy);
+  if (damage > 0) {
+    trained = true;
+    queueEnemyStruck(now);
+    playMonsterSfx("flinch");
+    applyCombatEvents(magicAttackHitEvents(spell.label, battle.enemy.name, damage), now, { enemy: battle.enemy });
+    if (battle.enemy.hp <= 0) {
+      finishEnemy(now);
+      setEnemyAction("die", false, now);
+      playMonsterSfx("death");
+      pushBattleLog(`${battle.enemy.name} is defeated.`);
+    }
+  }
+  const effectKind = rollPlagueEffectKind(heldPoisonKind);
+  if (applyPlagueEffectToEnemy(battle.enemy, effectKind, level, powerValue, now, { offline: options.offline })) {
+    trained = true;
+  }
+  if (learned && trained) {
+    if (options.partyMember) bossPartyLevelMagicSkill(options.partyMember, spell, learned, now);
+    else levelMagicSkill(spell, learned, now);
+  } else if (!trained) {
+    pushBattleLog(`${spell.label} has no effect.`);
+  }
+}
+
+function curseOffenceReductionPercent(level) {
+  const skillLevel = Math.max(0, Math.min(3, Math.trunc(Number(level) || 0)));
+  return 1 + (skillLevel + 1) * 2;
+}
+
+function rollCurseCastProceeds(level) {
+  const skillLevel = Math.max(0, Math.min(3, Math.trunc(Number(level) || 0)));
+  const pool = 10 - (skillLevel + 1) * 2;
+  if (pool <= 0) return true;
+  return randomInt(0, pool - 1) <= 2;
+}
+
+function rollCurseTargetHit() {
+  return randomInt(0, 9) < 4;
+}
+
+function curseDurationMs(spell, learned, player) {
+  const seconds = Math.max(1, rollTaoistMagicValue(spell, learned, player));
+  return seconds * 1000;
+}
+
+function applyCurseToEnemy(enemy, durationMs, reductionPercent, now, options = {}) {
+  if (!enemy || enemy.hp <= 0) return false;
+  if (!rollCurseTargetHit()) return false;
+  const duration = Math.max(1000, Math.trunc(Number(durationMs) || 0));
+  const rate = Math.max(1, Math.trunc(Number(reductionPercent) || 0));
+  applyEnemySlow(enemy, duration, now);
+  const debuffs = ensureEnemyDebuffs(enemy);
+  debuffs.curseUntil = Math.max(Number(debuffs.curseUntil) || 0, now + duration);
+  debuffs.curseRatePercent = rate;
+  if (!options.offline && !suppressSimulationRender) {
+    const text = `Cursed -${rate}%`;
+    if (options.swarmEnemy) addSwarmEnemyCombatText(options.swarmEnemy, text, "frost", now);
+    else addCombatText("enemy", text, "frost", now);
+  }
+  return true;
+}
+
+function applyCurseSpellImpact(spell, impact, now, options = {}) {
+  const battle = state.battle;
+  const centerTile = impact.centerTile ?? wizardBangCenterTile(battle.enemy, spell, options.partyMember);
+  const learned = options.learned ?? learnedMagic(spell.id);
+  const level = Math.max(0, Math.min(3, Math.trunc(Number(learned?.level) || 0)));
+  const caster = options.partyMember ?? battle.player;
+  const durationMs = Math.max(1000, Math.trunc(Number(impact.durationMs) || 0));
+  const reductionPercent = Math.max(1, Math.trunc(Number(impact.reductionPercent) || curseOffenceReductionPercent(level)));
+  const sfx = options.sfx ?? { volume: 0.42, throttleMs: 80 };
+
+  playSpellStrikeSfx(spell.id, { volume: 0.5, force: true, throttleMs: 0 });
+
+  if (groupDungeonSwarmSideActive()) {
+    const swarmEnemies = enemiesInSpellGroundArea(centerTile, CURSE_GROUND_AREA_RADIUS);
+    let trained = false;
+    for (const swarmEnemy of swarmEnemies) {
+      const entity = swarmEnemyToBattleEntity(swarmEnemy);
+      if (applyCurseToEnemy(entity, durationMs, reductionPercent, now, { swarmEnemy, offline: options.offline })) {
+        trained = true;
+        playMonsterSfx("flinch", swarmEnemy, sfx);
+      }
+    }
+    syncGroupDungeonPrimaryEnemy();
+    if (learned && trained) {
+      if (options.partyMember) bossPartyLevelMagicSkill(options.partyMember, spell, learned, now);
+      else levelMagicSkill(spell, learned, now);
+    } else if (!trained && swarmEnemies.length) {
+      pushBattleLog(`${spell.label} has no effect.`);
+    }
+    return;
+  }
+
+  const canApply = battle.enemy && battle.enemy.hp > 0 && battle.enemyRevealed;
+  if (!canApply) return;
+  const trained = applyCurseToEnemy(battle.enemy, durationMs, reductionPercent, now, { offline: options.offline });
+  if (trained) playMonsterSfx("flinch");
+  if (learned && trained) {
+    if (options.partyMember) bossPartyLevelMagicSkill(options.partyMember, spell, learned, now);
+    else levelMagicSkill(spell, learned, now);
+  } else if (!trained) {
+    pushBattleLog(`${spell.label} has no effect.`);
+  }
+}
+
+function maybeApplyPoisonCloudTickPoison(spell, enemy, player, now, options = {}) {
+  if (spell?.id !== "PoisonCloud" || !enemy || enemy.hp <= 0) return false;
+  const tickValue = poisonCloudGreenPoisonValue(player);
+  const applied = applyEnemyPoison(enemy, {
+    kind: "green",
+    value: tickValue,
+    ticksRemaining: POISON_CLOUD_GREEN_POISON_TICKS,
+    tickMs: POISON_CLOUD_TICK_MS,
+  }, now);
+  if (!options.offline && !suppressSimulationRender && applied) {
+    applyCombatEvents(poisonAppliedEvents(spell.label, enemy.name, "green"), now, options.swarmEnemy ? { swarmEnemy: options.swarmEnemy } : { enemy });
+  }
+  return applied;
+}
+
+function needsTaoistHealingCircle(now = performance.now(), options = {}) {
+  return taoistMassHealInjuredTargets(now, options).length > 0;
+}
+
+function healingCircleAllyTargets() {
+  const targets = [];
+  if (state.battle.bossParty?.active) {
+    for (const member of bossPartyAliveMembersOrdered()) {
+      targets.push({ entity: member, name: member.classId });
+    }
+    const pet = bossPartyActivePet();
+    if (pet) targets.push({ entity: pet, name: pet.name ?? "pet" });
+    return targets;
+  }
+  if ((state.battle.player?.hp ?? 0) > 0) targets.push({ entity: state.battle.player, name: "you" });
+  const pet = activeTaoistPet(performance.now());
+  if (pet?.hp > 0) targets.push({ entity: pet, name: pet.name ?? "pet" });
+  return targets;
+}
+
+function healingCircleCanHealEntity(entity) {
+  if (!entity || entity.hp <= 0 || entity.hp >= entity.maxHp) return false;
+  if (entity === state.battle.player) return (state.battle.healAmount ?? 0) <= 0;
+  return (entity.healAmount ?? 0) <= 0;
+}
+
+function applyHealingCircleTickAllies(effect, now, options = {}) {
+  const spell = combatGroundSpell(effect.spellId);
+  if (spell?.id !== "HealingCircle") return false;
+  let healed = false;
+  for (const { entity } of healingCircleAllyTargets()) {
+    if (!healingCircleCanHealEntity(entity)) continue;
+    if (!queueEntityHealingRestore(entity, HEALING_CIRCLE_HEAL_PER_TICK, now)) continue;
+    healed = true;
+    if (!options.offline && !suppressSimulationRender) {
+      showEntityQueuedHealText(entity, HEALING_CIRCLE_HEAL_PER_TICK, now);
+      queueEntityHealRestoreFx(entity, spell, now, {
+        casterClassId: effect.casterClassId ?? null,
+        startAt: now,
+        soundPlayed: true,
+      });
+    }
+  }
+  return healed;
+}
+
 function poisonCandidateForEnemy(enemy, now = performance.now()) {
   const green = poisonInventoryEntries("green")[0] ?? null;
   const yellow = poisonInventoryEntries("yellow")[0] ?? null;
@@ -27360,8 +30182,8 @@ function applyEnemyPoison(enemy, poison, now = performance.now()) {
       ...poison,
       value,
       ticksRemaining,
-      tickMs: CRYSTAL_POISON_TICK_MS,
-      nextTickAt: now + CRYSTAL_POISON_TICK_MS,
+      tickMs: Math.max(1, Math.trunc(Number(poison.tickMs) || CRYSTAL_POISON_TICK_MS)),
+      nextTickAt: now + Math.max(1, Math.trunc(Number(poison.tickMs) || CRYSTAL_POISON_TICK_MS)),
       appliedAt: now,
     });
     return true;
@@ -27371,8 +30193,8 @@ function applyEnemyPoison(enemy, poison, now = performance.now()) {
     ...poison,
     value,
     ticksRemaining,
-    tickMs: CRYSTAL_POISON_TICK_MS,
-    nextTickAt: now + CRYSTAL_POISON_TICK_MS,
+    tickMs: Math.max(1, Math.trunc(Number(poison.tickMs) || CRYSTAL_POISON_TICK_MS)),
+    nextTickAt: now + Math.max(1, Math.trunc(Number(poison.tickMs) || CRYSTAL_POISON_TICK_MS)),
     appliedAt: now,
   });
   return true;
@@ -27417,15 +30239,415 @@ function crystalRound(value) {
 
 function castWarriorBuff(skill, learned, cost, now) {
   commitWarriorSpellUse(skill, learned, cost, now);
-  if (skill.id === "Fury") {
-    state.battle.furyUntil = now + 60000 + (Number(learned?.level) || 0) * 10000;
-    state.battle.furyBonus = 4;
-    levelWarriorMagic(skill, learned, now);
-    pushBattleLog(`Fury increases attack speed for ${Math.round((state.battle.furyUntil - now) / 1000)}s.`);
-    battlePanelSignature = "";
+  if (applyWarriorCombatBuffToEntity(state.battle.player, skill, learned, now)) {
+    playWarriorSpellSwingSfx(skill, { volume: 0.5 });
+  }
+}
+
+const RAGE_BUFF_KIND = "rage";
+const FURY_BUFF_KIND = "fury";
+const PROTECTION_FIELD_BUFF_KIND = "protectionField";
+const IMMORTAL_SKIN_BUFF_KIND = "immortalSkin";
+const MAGIC_BOOSTER_BUFF_KIND = "magicBooster";
+const MAGIC_BOOSTER_DURATION_MS = 60000;
+const FURY_ATTACK_SPEED_BONUS = 4;
+
+function magicBoosterMcBonus(learned) {
+  const level = Math.max(0, Math.min(3, Math.trunc(Number(learned?.level) || 0)));
+  return 6 + level * 6;
+}
+
+function magicBoosterManaPenaltyPercent(learned) {
+  const level = Math.max(0, Math.min(3, Math.trunc(Number(learned?.level) || 0)));
+  return 6 + level;
+}
+
+function hasActiveMagicBoosterBuff(entity, now = performance.now()) {
+  return entityStatBuffList(entity).some(
+    (buff) => buff.kind === MAGIC_BOOSTER_BUFF_KIND && Number(buff.expiresAt) > now,
+  );
+}
+
+function activeMagicBoosterManaPenaltyPercent(entity, now = performance.now()) {
+  const buff = pruneStatBuffs(entityStatBuffList(entity), now).find((entry) => entry.kind === MAGIC_BOOSTER_BUFF_KIND);
+  return Math.max(0, Math.trunc(Number(buff?.manaPenaltyPercent) || 0));
+}
+
+function needsMagicBooster(now = performance.now(), options = {}) {
+  const playerBuffs = options.playerBuffs ?? state.battle.statBuffs;
+  return !playerBuffs.some((buff) => buff.kind === MAGIC_BOOSTER_BUFF_KIND && Number(buff.expiresAt) > now);
+}
+
+function pushMagicBoosterBuff(buffList, spellLabel, mcBonus, manaPenaltyPercent, expiresAt) {
+  const list = Array.isArray(buffList) ? buffList.filter((buff) => buff.kind !== MAGIC_BOOSTER_BUFF_KIND) : [];
+  list.push({
+    kind: MAGIC_BOOSTER_BUFF_KIND,
+    label: spellLabel,
+    stat: "mc",
+    minBonus: mcBonus,
+    maxBonus: mcBonus,
+    manaPenaltyPercent,
+    expiresAt,
+  });
+  return list;
+}
+
+function formatMagicBoosterApplied(applied) {
+  return `+${applied.mcBonus} MC, spell MP +${applied.manaPenaltyPercent}%`;
+}
+
+function applyMagicBoosterEffect(spell, learned, caster, now, options = {}) {
+  const mcBonus = magicBoosterMcBonus(learned);
+  const manaPenaltyPercent = magicBoosterManaPenaltyPercent(learned);
+  const durationMs = MAGIC_BOOSTER_DURATION_MS;
+  const expiresAt = now + durationMs;
+
+  if (options.member) {
+    const buffMember = resolveBossPartyMember(options.member);
+    buffMember.statBuffs = pushMagicBoosterBuff(
+      buffMember.statBuffs ?? [],
+      spell.label,
+      mcBonus,
+      manaPenaltyPercent,
+      expiresAt,
+    );
+    if (buffMember.classId === bossPartyControlledClassId()) {
+      state.battle.statBuffs = [...buffMember.statBuffs];
+      applyEquippedStatsToBattlePlayer();
+    }
+  } else {
+    state.battle.statBuffs = pushMagicBoosterBuff(
+      state.battle.statBuffs,
+      spell.label,
+      mcBonus,
+      manaPenaltyPercent,
+      expiresAt,
+    );
+    applyEquippedStatsToBattlePlayer();
+  }
+
+  if (learned && options.levelSkill !== false) levelMagicSkill(spell, learned, now);
+  return { mcBonus, manaPenaltyPercent, durationMs };
+}
+
+function furyDurationMs(learned) {
+  const level = Math.max(0, Math.min(3, Number(learned?.level) || 0));
+  return 60000 + (level * 10000);
+}
+
+function furyUntilForEntity(entity) {
+  const battleUntil = Number(state.battle.furyUntil) || 0;
+  const entityUntil = Number(entity?.furyUntil) || 0;
+  return Math.max(battleUntil, entityUntil);
+}
+
+function hasActiveFuryBuff(entity, now = performance.now()) {
+  return now < furyUntilForEntity(entity);
+}
+
+function rageDurationMs(learned) {
+  const level = Math.max(0, Math.min(3, Number(learned?.level) || 0));
+  return (18 + (6 * level)) * 1000;
+}
+
+function rageDcBonus(maxDc, learned) {
+  const level = Math.max(0, Math.min(3, Number(learned?.level) || 0));
+  const max = Math.max(0, Math.trunc(Number(maxDc) || 0));
+  return Math.round(max * (0.12 + (0.03 * level)));
+}
+
+function hasActiveRageBuff(entity, now = performance.now()) {
+  return entityStatBuffList(entity).some((buff) => buff.kind === RAGE_BUFF_KIND && Number(buff.expiresAt) > now);
+}
+
+function hasActiveProtectionFieldBuff(entity, now = performance.now()) {
+  return entityStatBuffList(entity).some((buff) => buff.kind === PROTECTION_FIELD_BUFF_KIND && Number(buff.expiresAt) > now);
+}
+
+function hasActiveImmortalSkinBuff(entity, now = performance.now()) {
+  return entityStatBuffList(entity).some((buff) => buff.kind === IMMORTAL_SKIN_BUFF_KIND && Number(buff.expiresAt) > now);
+}
+
+function protectionFieldDurationMs(learned) {
+  const level = Math.max(0, Math.min(3, Number(learned?.level) || 0));
+  return (45 + (15 * level)) * 1000;
+}
+
+function protectionFieldAcBonus(maxAc, learned) {
+  const level = Math.max(0, Math.min(3, Number(learned?.level) || 0));
+  const max = Math.max(0, Math.trunc(Number(maxAc) || 0));
+  return Math.round(max * (0.20 + (0.03 * level)));
+}
+
+function immortalSkinDurationMs(learned) {
+  const level = Math.max(0, Math.min(3, Number(learned?.level) || 0));
+  return (60000 + (level * 1000));
+}
+
+function immortalSkinDefenseBonus(maxStat, learned) {
+  const level = Math.max(0, Math.min(3, Number(learned?.level) || 0));
+  const max = Math.max(0, Math.trunc(Number(maxStat) || 0));
+  return Math.round(max * (0.10 + (0.07 * level)));
+}
+
+function immortalSkinDcPenalty(maxDc, learned) {
+  const level = Math.max(0, Math.min(3, Number(learned?.level) || 0));
+  const max = Math.max(0, Math.trunc(Number(maxDc) || 0));
+  return Math.round(max * (0.05 + (0.01 * level)));
+}
+
+function warriorMaxAcForProtectionField(entity) {
+  const ac = [...statRange(entity?.ac ?? [0, 0])];
+  const buffs = pruneStatBuffs(entityStatBuffList(entity)).filter((buff) => buff.kind !== PROTECTION_FIELD_BUFF_KIND);
+  applyStatBuffsToStats({ ac }, buffs);
+  return ac[1];
+}
+
+function warriorDefenseStatsForImmortalSkin(entity) {
+  const dc = [...statRange(entity?.dc ?? [0, 0])];
+  const ac = [...statRange(entity?.ac ?? [0, 0])];
+  const amc = Array.isArray(entity?.amc) ? [...entity.amc] : [...ac];
+  const buffs = pruneStatBuffs(entityStatBuffList(entity)).filter((buff) => buff.kind !== IMMORTAL_SKIN_BUFF_KIND);
+  applyStatBuffsToStats({ dc, ac, amc }, buffs);
+  return { dcMax: dc[1], acMax: ac[1], amcMax: amc[1] };
+}
+
+function warriorMaxDcForRageBonus(entity) {
+  const dc = [...statRange(entity?.dc ?? [0, 0])];
+  const buffs = pruneStatBuffs(entityStatBuffList(entity)).filter((buff) => buff.kind !== RAGE_BUFF_KIND);
+  applyStatBuffsToStats({ dc }, buffs);
+  return dc[1];
+}
+
+function pushRageBuff(buffList, skill, bonus, expiresAt) {
+  const list = Array.isArray(buffList) ? buffList.filter((buff) => buff.kind !== RAGE_BUFF_KIND) : [];
+  list.push({
+    kind: RAGE_BUFF_KIND,
+    label: skill.label,
+    stat: "dc",
+    minBonus: bonus,
+    maxBonus: bonus,
+    expiresAt,
+  });
+  return list;
+}
+
+function pushFuryBuff(buffList, skillLabel, bonus, expiresAt) {
+  const list = Array.isArray(buffList) ? buffList.filter((buff) => buff.kind !== FURY_BUFF_KIND) : [];
+  list.push({
+    kind: FURY_BUFF_KIND,
+    label: skillLabel,
+    stat: "attackSpeed",
+    minBonus: bonus,
+    maxBonus: bonus,
+    expiresAt,
+  });
+  return list;
+}
+
+function pushProtectionFieldBuff(buffList, skill, bonus, expiresAt) {
+  const list = Array.isArray(buffList) ? buffList.filter((buff) => buff.kind !== PROTECTION_FIELD_BUFF_KIND) : [];
+  list.push({
+    kind: PROTECTION_FIELD_BUFF_KIND,
+    label: skill.label,
+    stat: "ac",
+    minBonus: bonus,
+    maxBonus: bonus,
+    expiresAt,
+  });
+  return list;
+}
+
+function pushImmortalSkinBuffs(buffList, skill, acBonus, amcBonus, dcPenalty, expiresAt) {
+  const list = Array.isArray(buffList) ? buffList.filter((buff) => buff.kind !== IMMORTAL_SKIN_BUFF_KIND) : [];
+  if (acBonus > 0) {
+    list.push({
+      kind: IMMORTAL_SKIN_BUFF_KIND,
+      label: skill.label,
+      stat: "ac",
+      minBonus: acBonus,
+      maxBonus: acBonus,
+      expiresAt,
+    });
+  }
+  if (amcBonus > 0) {
+    list.push({
+      kind: IMMORTAL_SKIN_BUFF_KIND,
+      label: skill.label,
+      stat: "amc",
+      minBonus: amcBonus,
+      maxBonus: amcBonus,
+      expiresAt,
+    });
+  }
+  if (dcPenalty > 0) {
+    list.push({
+      kind: IMMORTAL_SKIN_BUFF_KIND,
+      label: skill.label,
+      stat: "dc",
+      minBonus: 0,
+      maxBonus: -dcPenalty,
+      expiresAt,
+    });
+  }
+  return list;
+}
+
+function syncWarriorBuffStateFromEntity(entity, buffList) {
+  if (entity?.classId === bossPartyControlledClassId()) {
+    state.battle.statBuffs = [...buffList];
+    applyEquippedStatsToBattlePlayer();
     return;
   }
+  if (entity === state.battle.player || !entity?.classId) {
+    state.battle.statBuffs = [...buffList];
+  }
+}
+
+function applyFuryBuffToEntity(entity, learned, now, skillLabel = "Fury") {
+  const durationMs = furyDurationMs(learned);
+  const until = now + durationMs;
+  const bonus = FURY_ATTACK_SPEED_BONUS;
+  if (entity?.classId) {
+    entity.furyUntil = until;
+    entity.furyBonus = bonus;
+    if (entity.classId === bossPartyControlledClassId()) {
+      state.battle.furyUntil = until;
+      state.battle.furyBonus = bonus;
+    }
+  } else {
+    state.battle.furyUntil = until;
+    state.battle.furyBonus = bonus;
+  }
+  const nextBuffs = pushFuryBuff(entityStatBuffList(entity), skillLabel, bonus, until);
+  setEntityStatBuffList(entity, nextBuffs);
+  syncWarriorBuffStateFromEntity(entity, nextBuffs);
+  const bonusText = statBuffBonusLabel({ stat: "attackSpeed", minBonus: bonus, maxBonus: bonus });
+  pushBattleLog(`${skillLabel} adds ${bonusText} for ${formatBuffRemaining(durationMs)}.`);
+  if (!entity?.classId || entity.classId === bossPartyControlledClassId()) {
+    addCombatText("player", `${skillLabel} ${bonusText}`, "buff", now);
+  }
+  battlePanelSignature = "";
+  playerHudSignature = "";
+  renderPlayerResourceHud();
+  return true;
+}
+
+function applyRageBuffEffect(skill, learned, entity, now) {
+  const bonus = rageDcBonus(warriorMaxDcForRageBonus(entity), learned);
+  if (bonus <= 0) {
+    pushBattleLog(`${skill.label} had no effect.`);
+    return false;
+  }
+  const durationMs = rageDurationMs(learned);
+  const nextBuffs = pushRageBuff(entityStatBuffList(entity), skill, bonus, now + durationMs);
+  setEntityStatBuffList(entity, nextBuffs);
+  syncWarriorBuffStateFromEntity(entity, nextBuffs);
+  const bonusText = statBuffBonusLabel({ stat: "dc", minBonus: bonus, maxBonus: bonus });
+  pushBattleLog(`${skill.label} adds ${bonusText} for ${formatBuffRemaining(durationMs)}.`);
+  if (!entity?.classId || entity.classId === bossPartyControlledClassId()) {
+    addCombatText("player", `${skill.label} ${bonusText}`, "buff", now);
+  }
+  battlePanelSignature = "";
+  playerHudSignature = "";
+  renderPlayerResourceHud();
+  return true;
+}
+
+function applyProtectionFieldBuffEffect(skill, learned, entity, now) {
+  const bonus = protectionFieldAcBonus(warriorMaxAcForProtectionField(entity), learned);
+  if (bonus <= 0) {
+    pushBattleLog(`${skill.label} had no effect.`);
+    return false;
+  }
+  const durationMs = protectionFieldDurationMs(learned);
+  const nextBuffs = pushProtectionFieldBuff(entityStatBuffList(entity), skill, bonus, now + durationMs);
+  setEntityStatBuffList(entity, nextBuffs);
+  syncWarriorBuffStateFromEntity(entity, nextBuffs);
+  applyEquippedStatsToBattlePlayer();
+  const bonusText = statBuffBonusLabel({ stat: "ac", minBonus: bonus, maxBonus: bonus });
+  pushBattleLog(`${skill.label} adds ${bonusText} for ${formatBuffRemaining(durationMs)}.`);
+  if (!entity?.classId || entity.classId === bossPartyControlledClassId()) {
+    addCombatText("player", `${skill.label} ${bonusText}`, "buff", now);
+  }
+  battlePanelSignature = "";
+  playerHudSignature = "";
+  renderPlayerResourceHud();
+  return true;
+}
+
+function applyImmortalSkinBuffEffect(skill, learned, entity, now) {
+  const { dcMax, acMax, amcMax } = warriorDefenseStatsForImmortalSkin(entity);
+  const acBonus = immortalSkinDefenseBonus(acMax, learned);
+  const amcBonus = immortalSkinDefenseBonus(amcMax, learned);
+  const dcPenalty = immortalSkinDcPenalty(dcMax, learned);
+  if (acBonus <= 0 && amcBonus <= 0 && dcPenalty <= 0) {
+    pushBattleLog(`${skill.label} had no effect.`);
+    return false;
+  }
+  const durationMs = immortalSkinDurationMs(learned);
+  const nextBuffs = pushImmortalSkinBuffs(entityStatBuffList(entity), skill, acBonus, amcBonus, dcPenalty, now + durationMs);
+  setEntityStatBuffList(entity, nextBuffs);
+  syncWarriorBuffStateFromEntity(entity, nextBuffs);
+  applyEquippedStatsToBattlePlayer();
+  const parts = [];
+  if (acBonus > 0) parts.push(statBuffBonusLabel({ stat: "ac", minBonus: acBonus, maxBonus: acBonus }));
+  if (amcBonus > 0) parts.push(statBuffBonusLabel({ stat: "amc", minBonus: amcBonus, maxBonus: amcBonus }));
+  if (dcPenalty > 0) parts.push(statBuffBonusLabel({ stat: "dc", minBonus: 0, maxBonus: -dcPenalty }));
+  const bonusText = parts.join(", ");
+  pushBattleLog(`${skill.label} adds ${bonusText} for ${formatBuffRemaining(durationMs)}.`);
+  if (!entity?.classId || entity.classId === bossPartyControlledClassId()) {
+    addCombatText("player", `${skill.label} ${bonusText}`, "buff", now);
+  }
+  battlePanelSignature = "";
+  playerHudSignature = "";
+  renderPlayerResourceHud();
+  return true;
+}
+
+function applyWarriorCombatBuffToEntity(entity, skill, learned, now) {
+  if (!skill || !learned) return false;
+  if (skill.id === "Fury") {
+    if (hasActiveFuryBuff(entity, now)) return false;
+    levelWarriorMagicForEntity(entity, skill, learned, now);
+    return applyFuryBuffToEntity(entity, learned, now, skill.label);
+  }
+  if (skill.id === "Rage") {
+    if (hasActiveRageBuff(entity, now)) return false;
+    levelWarriorMagicForEntity(entity, skill, learned, now);
+    return applyRageBuffEffect(skill, learned, entity, now);
+  }
+  if (skill.id === "ProtectionField") {
+    if (hasActiveProtectionFieldBuff(entity, now)) return false;
+    levelWarriorMagicForEntity(entity, skill, learned, now);
+    return applyProtectionFieldBuffEffect(skill, learned, entity, now);
+  }
+  if (skill.id === "ImmortalSkin") {
+    if (hasActiveImmortalSkinBuff(entity, now)) return false;
+    levelWarriorMagicForEntity(entity, skill, learned, now);
+    return applyImmortalSkinBuffEffect(skill, learned, entity, now);
+  }
   pushBattleLog(`${skill.label} is not wired into combat yet.`);
+  return false;
+}
+
+function levelWarriorMagicForEntity(entity, spell, learned, now) {
+  if (entity?.classId) return bossPartyLevelMagicSkill(entity, spell, learned, now);
+  return levelWarriorMagic(spell, learned, now);
+}
+
+function bossPartyCastWarriorBuff(member, skill, learned, cost, now, options = {}) {
+  if (!member || !skill?.buff || !learned) return false;
+  if (!bossPartyCanUseWarriorSkill(member, skill, learned, now, { requireAuto: !options.manual })) return false;
+  member.mp -= cost;
+  learned.castReadyAt = now + spellDelayMs(skill, learned);
+  if (!applyWarriorCombatBuffToEntity(member, skill, learned, now)) return false;
+  member.nextActionAt = now + CRYSTAL_PLAYER_ACTION_LOCK_MS;
+  if (options.manual) clearQueuedCombatSpell(skill.id);
+  bossPartyControlledVisual(member, skill, skill.bodyAction ?? "spell", now);
+  bossPartyCastSfx(member, skill.id, 0.42, 160);
+  pushBattleLog(`${member.classId} casts ${skill.label}.`);
+  return true;
 }
 
 function levelPassiveWeaponMagic(now) {
@@ -27476,9 +30698,19 @@ function levelMagicSkill(spell, learned, now = performance.now()) {
 }
 
 function wizardAttack(now) {
+  if (wizardStormChannelActive(now)) return;
+  const queued = queuedCombatSpell("Wizard");
+  if (queued?.spell?.id === "Mirroring") {
+    const mirrorCast = usableQueuedWizardMirroring(now);
+    if (mirrorCast && castWizardMirroring(mirrorCast, now)) return;
+    wizardWeaponAttack(now);
+    return;
+  }
   const battle = state.battle;
   const queuedDefence = usableQueuedWizardDefenceBuff(now);
   if (queuedDefence && castWizardDefenceBuff(queuedDefence, now)) return;
+  const queuedBooster = usableQueuedWizardMagicBooster(now);
+  if (queuedBooster && castWizardMagicBooster(queuedBooster, now)) return;
   const attackSpell = usableWizardAttackSpell(now);
   if (!attackSpell) {
     wizardWeaponAttack(now);
@@ -27495,7 +30727,7 @@ function wizardAttack(now) {
     return;
   }
 
-  battle.lastPlayerAttackCooldownMs = wizardCastCooldownMs(spell, learned);
+  battle.lastPlayerAttackCooldownMs = wizardSpellActionLockMs(spell, learned);
   commitWizardSpellUse(spell, learned, cost, now);
   const groundSpell = spell.impactMode === "ground";
   const bangSpell = spell.impactMode === "bang";
@@ -27508,22 +30740,39 @@ function wizardAttack(now) {
     ? rollWizardMagicDamage(spell, learned, battle.player, battle.enemy)
     : 0;
   const impactAt = now + wizardImpactDelay(spell, atlas);
+  if (groundSpell && spell.groundChannel) {
+    beginWizardStormChannel(impactAt + wizardStormFieldDurationMs(spell));
+  }
 
   battle.activeSkill = "None";
   battle.activeSkillAtlas = null;
   battle.activeWizardSpell = spell.id;
   battle.activeWizardSpellAtlas = atlas;
   battle.activeWizardSpellStartedAt = now;
-  battle.activeWizardSpellCenterTile = bangSpell ? wizardBangCenterTile(null, spell) : null;
+  battle.activeWizardSpellCenterTile = bangSpell
+    ? wizardBangCenterTile(null, spell)
+    : (groundSpell && spell.groundChannel ? wizardStormCenterTile(null, null) : null);
   battle.activeTaoSpell = null;
   battle.activeTaoSpellAtlas = null;
   battle.pendingImpact = groundSpell
-    ? { at: impactAt, spellId: spell.id, value: damageValue, worldX: battle.enemyX }
+    ? {
+      at: impactAt,
+      spellId: spell.id,
+      value: damageValue,
+      worldX: battle.enemyX,
+      centerTile: spell.groundChannel ? battle.activeWizardSpellCenterTile : null,
+    }
     : bangSpell
       ? { at: impactAt, spellId: spell.id, baseValue, centerTile: battle.activeWizardSpellCenterTile }
       : turnUndeadSpell
         ? { at: impactAt, spellId: spell.id, turnUndead: true, result: turnUndeadResult }
-        : { at: impactAt, spellId: spell.id, damage, hit: hit && damage > 0 };
+        : { at: impactAt, spellId: spell.id, damage, hit: hit && damage > 0, worldX: battle.enemyX };
+
+  if (spell.impactMode === "projectile") {
+    setActiveSpellImpactAnchor({ worldX: battle.enemyX });
+  } else if (bangSpell) {
+    setActiveSpellImpactAnchor({ centerTile: battle.activeWizardSpellCenterTile });
+  }
 
   setPlayerAction("spell", now, true);
   if (spell.impactMode !== "target") playSpellSfx(spell.id, "cast");
@@ -27616,6 +30865,7 @@ function formatDefenceBuffApplied(spell, bonus, reductionPercent = 0) {
 
 function combatDefenceBuffSpell(spellId) {
   if (spellId === "MagicShield") return wizardCombatSpell(spellId);
+  if (spellId === "EnergyShield") return taoistCombatSpell(spellId);
   return taoistCombatSpell(spellId);
 }
 
@@ -27637,6 +30887,202 @@ function rollTaoistDefenceBuffDurationMs(learned, caster) {
   const sc = rollStat(caster?.sc ?? [0, 0], caster?.luck ?? 0);
   const skillLevel = Math.max(0, Math.min(3, Math.trunc(Number(learned?.level) || 0)));
   return Math.max(1000, (sc * 4 + (skillLevel + 1) * 50) * 1000);
+}
+
+function rollEnergyShieldDurationMs(learned) {
+  const skillLevel = Math.max(0, Math.min(3, Math.trunc(Number(learned?.level) || 0)));
+  return Math.max(1000, (30 + 50 * skillLevel) * 1000);
+}
+
+function rollEnergyShieldHpGain(learned, caster) {
+  const skillLevel = Math.max(0, Math.min(3, Math.trunc(Number(learned?.level) || 0)));
+  const sc = rollStat(caster?.sc ?? [0, 0], caster?.luck ?? 0);
+  return Math.max(1, Math.round(sc / 4 * (skillLevel + 1)));
+}
+
+function rollEnergyShieldProcPercent(learned, caster) {
+  const skillLevel = Math.max(0, Math.min(3, Math.trunc(Number(learned?.level) || 0)));
+  const luck = caster?.luck ?? 0;
+  const divisor = Math.max(2, 10 - (luck / 3 + skillLevel + 1));
+  return Math.max(1, Math.min(100, Math.round((1 / divisor) * 100)));
+}
+
+function hasActiveEnergyShieldOnList(buffList, now = performance.now()) {
+  return hasActiveDefenceBuffOnList(buffList, ENERGY_SHIELD_BUFF_KIND, now);
+}
+
+function energyShieldPlayerTargets(now = performance.now()) {
+  const targets = [];
+  if (state.battle.bossParty?.active) {
+    for (const classId of BOSS_PARTY_ORDER) {
+      const member = state.battle.bossParty.members?.find((entry) => entry.classId === classId && entry.alive && entry.hp > 0);
+      const entry = member ? ultimateEnhancerTargetEntry(member) : null;
+      if (entry) targets.push(entry);
+    }
+    return targets;
+  }
+  const player = state.battle.player;
+  if (player?.hp > 0) {
+    const entry = ultimateEnhancerTargetEntry(player);
+    if (entry) targets.push(entry);
+  }
+  return targets;
+}
+
+function energyShieldAutoTarget(now = performance.now()) {
+  for (const entry of energyShieldPlayerTargets(now)) {
+    if (entry.entity && !hasActiveEnergyShieldOnList(entityStatBuffList(entry.entity), now)) {
+      return entry;
+    }
+  }
+  return null;
+}
+
+function needsEnergyShield(now = performance.now()) {
+  return Boolean(energyShieldAutoTarget(now));
+}
+
+function pushEnergyShieldBuff(buffList, spell, hpGain, procPercent, expiresAt) {
+  const list = Array.isArray(buffList)
+    ? buffList.filter((buff) => buff.kind !== ENERGY_SHIELD_BUFF_KIND)
+    : [];
+  list.push({
+    kind: ENERGY_SHIELD_BUFF_KIND,
+    label: spell.label,
+    stat: "energyShield",
+    hpGain,
+    procPercent,
+    expiresAt,
+  });
+  return list;
+}
+
+function formatEnergyShieldApplied(hpGain, procPercent) {
+  return `${procPercent}% chance to gain ${hpGain} HP when attacked`;
+}
+
+function formatEnergyShieldAppliedLog(spell, applied, durationMs) {
+  const targetName = applied?.name ?? "target";
+  return `${targetName} (${formatEnergyShieldApplied(applied.hpGain, applied.procPercent)}, ${formatBuffRemaining(durationMs)})`;
+}
+
+function showEnergyShieldText(applied, now = performance.now()) {
+  if (!applied?.entity || applied.entity.hp <= 0 || suppressSimulationRender) return;
+  const text = formatEnergyShieldApplied(applied.hpGain, applied.procPercent);
+  if (state.battle.bossParty?.active && applied.entity?.classId) {
+    addBossPartyMemberCombatText(applied.entity, text, "buff", now);
+    return;
+  }
+  addCombatText("player", text, "buff", now);
+}
+
+function applyEnergyShieldEffect(spell, learned, caster, target, now, options = {}) {
+  if (!target || target.hp <= 0) return null;
+  const hpGain = rollEnergyShieldHpGain(learned, caster);
+  const procPercent = rollEnergyShieldProcPercent(learned, caster);
+  const durationMs = rollEnergyShieldDurationMs(learned);
+  const expiresAt = now + durationMs;
+  const nextBuffs = pushEnergyShieldBuff(entityStatBuffList(target), spell, hpGain, procPercent, expiresAt);
+  setEntityStatBuffList(target, nextBuffs);
+  if (target?.classId === bossPartyControlledClassId()) {
+    state.battle.statBuffs = [...(target.statBuffs ?? nextBuffs)];
+    applyEquippedStatsToBattlePlayer();
+  } else if (target === state.battle.player) {
+    applyEquippedStatsToBattlePlayer();
+  }
+  if (learned && options.levelSkill !== false) levelMagicSkill(spell, learned, now);
+  const name = ultimateEnhancerTargetEntry(target)?.name ?? state.battle.combatClass;
+  if (!options.offline && !suppressSimulationRender) {
+    startEnergyShieldLoopFx({ entity: target, expiresAt, now });
+  }
+  return { hpGain, procPercent, durationMs, entity: target, name };
+}
+
+function energyShieldFxKeyForEntity(entity) {
+  if (!entity) return { memberClassId: null, petFx: false };
+  if (entity?.classId && state.battle.bossParty?.active) {
+    return { memberClassId: entity.classId, petFx: false };
+  }
+  return { memberClassId: null, petFx: false };
+}
+
+function energyShieldFxEntityFromKey(key) {
+  if (key?.memberClassId) {
+    return state.battle.bossParty?.members?.find((member) => member.classId === key.memberClassId) ?? state.battle.player;
+  }
+  return state.battle.player;
+}
+
+function energyShieldFxActive(key, now = performance.now()) {
+  const entity = energyShieldFxEntityFromKey(key);
+  if (!entity) return false;
+  return hasActiveEnergyShieldOnList(entityStatBuffList(entity), now);
+}
+
+function startEnergyShieldLoopFx(options = {}) {
+  const now = options.now ?? performance.now();
+  const key = options.fxKey ?? energyShieldFxKeyForEntity(options.entity);
+  const expiresAt = Number(options.expiresAt);
+  if (!Number.isFinite(expiresAt) || expiresAt <= now) return;
+  const others = (state.battle.attachedSpellFx ?? []).filter(
+    (entry) => entry.spellId !== "EnergyShield"
+      || Boolean(entry.petFx) !== Boolean(key.petFx)
+      || (entry.memberClassId ?? null) !== (key.memberClassId ?? null),
+  );
+  state.battle.attachedSpellFx = [
+    ...others,
+    {
+      spellId: "EnergyShield",
+      memberClassId: key.memberClassId ?? null,
+      petFx: Boolean(key.petFx),
+      startedAt: now,
+      loopStartedAt: now,
+      expiresAt,
+    },
+  ].slice(-12);
+}
+
+function energyShieldEntityFromCombatTarget(target) {
+  if (target?.buffEntity) return target.buffEntity;
+  if (target?.__buffEntity) return target.__buffEntity;
+  if (target?.kind === "partyMember" && target?.classId) {
+    return state.battle.bossParty?.members?.find((member) => member.classId === target.classId) ?? null;
+  }
+  if (target?.kind === "player") return state.battle.player;
+  return state.battle.player;
+}
+
+function energyShieldHealTextAnchor(entity) {
+  if (entity?.classId && state.battle.bossParty?.active && entity.classId !== bossPartyControlledClassId()) {
+    return "enemy";
+  }
+  return "player";
+}
+
+function tryEnergyShieldProcOnHit(target, damage, now = performance.now()) {
+  const amount = Math.max(0, Math.trunc(Number(damage) || 0));
+  if (amount <= 0) return;
+  const entity = energyShieldEntityFromCombatTarget(target);
+  if (!entity || entity.hp <= 0) return;
+  const buffs = pruneStatBuffs(entityStatBuffList(entity), now);
+  const shield = buffs.find((buff) => buff.kind === ENERGY_SHIELD_BUFF_KIND && buff.stat === "energyShield");
+  if (!shield) return;
+  const procPercent = Math.max(1, Math.min(100, Math.trunc(Number(shield.procPercent) || 0)));
+  if (Math.random() * 100 >= procPercent) return;
+  const hpGain = Math.max(1, Math.trunc(Number(shield.hpGain) || 0));
+  const before = entity.hp;
+  entity.hp = Math.min(entity.maxHp, entity.hp + hpGain);
+  const healed = entity.hp - before;
+  if (healed <= 0) return;
+  if (entity?.classId === bossPartyControlledClassId()) bossPartySyncControlledPlayerRef();
+  if (!suppressSimulationRender) {
+    addCombatText(energyShieldHealTextAnchor(entity), `+${healed}`, "heal", now);
+    playSpellSfx("EnergyShield", "impact", { volume: 0.42, throttleMs: 120 });
+  }
+  playerHudSignature = "";
+  battlePanelSignature = "";
+  combatSkillBarSignature = "";
+  refreshCharacterStatsOverlay();
 }
 
 function hasActiveDefenceBuffOnList(buffList, kind, now = performance.now()) {
@@ -28257,6 +31703,175 @@ function maybeCastTaoistUltimateEnhancer(now) {
   return Boolean(castBundle && castTaoistUltimateEnhancer(castBundle, now));
 }
 
+const PET_ENHANCER_BUFF_KIND = "petEnhancer";
+
+function activeTaoistPet(now = performance.now()) {
+  if (state.battle.bossParty?.active) {
+    const pet = state.battle.bossParty.pet;
+    return pet?.active && pet.hp > 0 ? pet : null;
+  }
+  const pet = state.battle.taoPet;
+  return pet?.active && pet.hp > 0 ? pet : null;
+}
+
+function petEnhancerLevel(pet) {
+  return Math.max(0, Math.trunc(Number(pet?.maxPetLevel) || Number(pet?.level) || 0));
+}
+
+function rollPetEnhancerBonuses(pet) {
+  const level = petEnhancerLevel(pet);
+  const acInc = 4 + level;
+  return { dcInc: 2 + level * 2, acInc, amcInc: acInc, level };
+}
+
+function hasPetEnhancerBuff(entity, now = performance.now()) {
+  return hasActiveDefenceBuffOnList(entityStatBuffList(entity), PET_ENHANCER_BUFF_KIND, now);
+}
+
+function petEnhancerNeedsCast(now = performance.now()) {
+  const pet = activeTaoistPet(now);
+  return Boolean(pet && !hasPetEnhancerBuff(pet, now));
+}
+
+function pushPetEnhancerBuff(buffList, spell, dcInc, acInc, amcInc, expiresAt) {
+  const list = Array.isArray(buffList)
+    ? buffList.filter((buff) => buff.kind !== PET_ENHANCER_BUFF_KIND)
+    : [];
+  list.push({
+    kind: PET_ENHANCER_BUFF_KIND,
+    label: spell.label,
+    stat: "dc",
+    minBonus: dcInc,
+    maxBonus: dcInc,
+    expiresAt,
+  });
+  list.push({
+    kind: PET_ENHANCER_BUFF_KIND,
+    label: spell.label,
+    stat: "ac",
+    minBonus: acInc,
+    maxBonus: acInc,
+    expiresAt,
+  });
+  list.push({
+    kind: PET_ENHANCER_BUFF_KIND,
+    label: spell.label,
+    stat: "amc",
+    minBonus: amcInc,
+    maxBonus: amcInc,
+    expiresAt,
+  });
+  return list;
+}
+
+function applyPetEnhancerToPet(spell, learned, caster, pet, now, options = {}) {
+  if (!spell || !learned || !pet || pet.hp <= 0) return null;
+  const { dcInc, acInc, amcInc } = rollPetEnhancerBonuses(pet);
+  const durationMs = rollTaoistDefenceBuffDurationMs(learned, caster);
+  const expiresAt = now + durationMs;
+  const nextBuffs = pushPetEnhancerBuff(entityStatBuffList(pet), spell, dcInc, acInc, amcInc, expiresAt);
+  setEntityStatBuffList(pet, nextBuffs);
+  if (learned && options.levelSkill !== false) levelMagicSkill(spell, learned, now);
+  return { pet, dcInc, acInc, amcInc, durationMs };
+}
+
+function formatPetEnhancerAppliedLog(spell, petName, applied, durationMs) {
+  return `Taoist casts ${spell.label} on ${petName} (+${applied.dcInc} DC, +${applied.acInc} AC, +${applied.amcInc} MAC, ${formatBuffRemaining(durationMs)}).`;
+}
+
+function showPetEnhancerBuffText(applied, now = performance.now()) {
+  if (!applied || suppressSimulationRender) return;
+  const text = `+${applied.dcInc} DC, +${applied.acInc} AC, +${applied.amcInc} MAC`;
+  if (state.battle.bossParty?.active) {
+    addBossPartyMemberCombatText(applied.pet, text, "buff", now);
+    return;
+  }
+  addCombatText("pet", text, "buff", now);
+}
+
+function queuePetEnhancerImpactFx(spell, now = performance.now(), options = {}) {
+  if (!spell?.id || !defenceBuffImpactAtlas(spell.id) || suppressSimulationRender) return;
+  queueDefenceBuffImpactFx(spell, "pet", now, {
+    petFx: true,
+    soundPlayed: Boolean(options.soundPlayed),
+  });
+}
+
+function updatePendingPetEnhancer(now, options = {}) {
+  const battle = state.battle;
+  const pending = battle.pendingPetEnhancer;
+  if (!pending || now < pending.at || !battle.player || battle.player.hp <= 0) return false;
+  battle.pendingPetEnhancer = null;
+  const spell = taoistCombatSpell(pending.spellId);
+  const learned = learnedMagic(spell?.id);
+  const pet = activeTaoistPet(now);
+  if (!spell || !learned || !pet) return false;
+  const applied = applyPetEnhancerToPet(spell, learned, battle.player, pet, now);
+  if (!applied) return false;
+  if (!options.offline && !suppressSimulationRender) {
+    battle.activeTaoSpell = null;
+    battle.activeTaoSpellAtlas = null;
+    showPetEnhancerBuffText(applied, now);
+    queuePetEnhancerImpactFx(spell, now, { soundPlayed: true });
+    pushBattleLog(formatPetEnhancerAppliedLog(spell, applied.pet.name ?? "pet", applied, applied.durationMs));
+  }
+  playerHudSignature = "";
+  battlePanelSignature = "";
+  combatSkillBarSignature = "";
+  return true;
+}
+
+function castTaoistPetEnhancer(castBundle, now, options = {}) {
+  const battle = state.battle;
+  const { spell, learned, cost, pet } = castBundle;
+  if (battle.pendingPetEnhancer) return false;
+  battle.lastPlayerAttackCooldownMs = spellDelayMs(spell, learned);
+  commitTaoistSpellUse(spell, learned, cost, now);
+
+  if (options.offline) {
+    applyPetEnhancerToPet(spell, learned, battle.player, pet, now);
+    return true;
+  }
+
+  battle.pendingPetEnhancer = {
+    at: now + (Number(spell.impactDelayMs) || CRYSTAL_HEAL_APPLY_DELAY_MS),
+    spellId: spell.id,
+  };
+
+  const atlas = state.taoistSpellAtlases[spell.id] ?? null;
+  battle.activeSkill = "None";
+  battle.activeSkillAtlas = null;
+  battle.activeWizardSpell = null;
+  battle.activeWizardSpellAtlas = null;
+  battle.activeTaoSpell = spell.id;
+  battle.activeTaoSpellAtlas = atlas;
+  battle.activeTaoSpellStartedAt = now;
+  battle.pendingPoison = null;
+  setPlayerAction(spell.bodyAction ?? "spell", now, true);
+  playSpellSfx(spell.id, "cast");
+  pushBattleLog(`Taoist casts ${spell.label} on ${pet.name ?? "pet"}.`);
+  return true;
+}
+
+function usableTaoistPetEnhancer(now, options = {}) {
+  const spell = taoistCombatSpell("PetEnhancer");
+  const learned = learnedMagic(spell?.id);
+  const manual = options.requireAuto === false;
+  if (!spell || !learned || !canUseTaoistSpell(spell, learned, now, { requireAuto: !manual })) return null;
+  const pet = activeTaoistPet(now);
+  if (!pet) return null;
+  if (!manual && !petEnhancerNeedsCast(now)) return null;
+  return { spell, learned, cost: effectiveSpellMpCost(spell, learned), pet };
+}
+
+function maybeCastTaoistPetEnhancer(now) {
+  const battle = state.battle;
+  if (battle.combatClass !== "Taoist" || battle.phase !== "engaged") return false;
+  if (queuedCombatSpell("Taoist")) return false;
+  const castBundle = usableTaoistPetEnhancer(now);
+  return Boolean(castBundle && castTaoistPetEnhancer(castBundle, now));
+}
+
 function updatePendingDefenceBuff(now, options = {}) {
   const battle = state.battle;
   const pending = battle.pendingDefenceBuff;
@@ -28265,9 +31880,11 @@ function updatePendingDefenceBuff(now, options = {}) {
   const spell = combatDefenceBuffSpell(pending.spellId);
   const learned = learnedMagic(spell?.id);
   if (!spell || !learned) return false;
-  const applied = applyDefenceBuffEffect(spell, learned, battle.player, now);
+  const applied = spell.id === "MagicShield"
+    ? applyDefenceBuffEffect(spell, learned, battle.player, now)
+    : applyTaoistDefenceBuffEffect(spell, learned, battle.player, now);
   if (!applied) return false;
-  const { bonus, durationMs, reductionPercent, results } = applied;
+  const { bonus, durationMs, reductionPercent } = applied;
   if (!options.offline && !suppressSimulationRender) {
     if (spell.id === "MagicShield") {
       startMagicShieldLoopFx({ expiresAt: now + durationMs, now });
@@ -28311,7 +31928,7 @@ function usableQueuedWizardDefenceBuff(now) {
 
 function maybeCastWizardDefenceBuff(now) {
   const battle = state.battle;
-  if (battle.combatClass !== "Wizard" || battle.phase !== "engaged") return false;
+  if (battle.combatClass !== "Wizard" || !wizardSupportCombatReady(battle)) return false;
   if (queuedCombatSpell("Wizard")?.spell.id === "MagicShield") return false;
   const castBundle = usableWizardDefenceBuff(now);
   return Boolean(castBundle && castWizardDefenceBuff(castBundle, now));
@@ -28321,6 +31938,7 @@ function castWizardDefenceBuff(castBundle, now, options = {}) {
   const battle = state.battle;
   const { spell, learned, cost } = castBundle;
   if (battle.pendingDefenceBuff && battle.pendingDefenceBuff.spellId !== spell.id) return false;
+  if (battle.pendingWizardBuff) return false;
   battle.lastPlayerAttackCooldownMs = wizardCastCooldownMs(spell, learned);
   commitWizardSpellUse(spell, learned, cost, now);
 
@@ -28331,6 +31949,93 @@ function castWizardDefenceBuff(castBundle, now, options = {}) {
 
   battle.pendingDefenceBuff = {
     at: now + (Number(spell.impactDelayMs) || CRYSTAL_HEAL_APPLY_DELAY_MS),
+    spellId: spell.id,
+  };
+
+  const atlas = state.wizardSpellAtlases[spell.id] ?? null;
+  battle.activeSkill = "None";
+  battle.activeSkillAtlas = null;
+  battle.activeWizardSpell = spell.id;
+  battle.activeWizardSpellAtlas = atlas;
+  battle.activeWizardSpellStartedAt = now;
+  battle.activeTaoSpell = null;
+  battle.activeTaoSpellAtlas = null;
+  battle.pendingImpact = null;
+  setPlayerAction(spell.bodyAction ?? "spell", now, true);
+  playSpellSfx(spell.id, "cast");
+  pushBattleLog(`Wizard casts ${spell.label}.`);
+  return true;
+}
+
+function updatePendingWizardBuff(now, options = {}) {
+  const battle = state.battle;
+  const pending = battle.pendingWizardBuff;
+  if (!pending || now < pending.at) return false;
+  battle.pendingWizardBuff = null;
+  const spell = wizardCombatSpell(pending.spellId);
+  const learned = learnedMagic(spell?.id);
+  if (!spell || !learned || !battle.player || battle.player.hp <= 0) return false;
+  const applied = applyMagicBoosterEffect(spell, learned, battle.player, now);
+  if (!applied) return false;
+  if (!options.offline && !suppressSimulationRender) {
+    const bonusText = formatMagicBoosterApplied(applied);
+    addCombatText("player", bonusText, "buff", now);
+    pushBattleLog(`${spell.label} (${bonusText}, ${formatBuffRemaining(applied.durationMs)}).`);
+  }
+  battle.activeWizardSpell = null;
+  battle.activeWizardSpellAtlas = null;
+  playerHudSignature = "";
+  battlePanelSignature = "";
+  combatSkillBarSignature = "";
+  refreshCharacterStatsOverlay();
+  return true;
+}
+
+function usableWizardMagicBooster(now, options = {}) {
+  const spell = wizardCombatSpell("MagicBooster");
+  const learned = learnedMagic(spell?.id);
+  const manual = options.requireAuto === false;
+  if (!spell || !learned || !canUseWizardSpell(spell, learned, now, { requireAuto: !manual })) return null;
+  if (state.battle.pendingWizardBuff?.spellId === "MagicBooster") return null;
+  if (!manual && !needsMagicBooster(now)) return null;
+  const battle = state.battle;
+  if (battle.combatClass !== "Wizard" || !battle.player || battle.player.hp <= 0) return null;
+  if (options.ignorePhase) {
+    if (!battle.enemyRevealed || !battle.enemy?.hp) return null;
+  } else if (!wizardSupportCombatReady(battle)) {
+    return null;
+  }
+  return { spell, learned, cost: effectiveSpellMpCost(spell, learned, state.inventory, battle.player) };
+}
+
+function usableQueuedWizardMagicBooster(now) {
+  const queued = queuedCombatSpell("Wizard");
+  if (!queued || queued.spell.id !== "MagicBooster") return null;
+  return usableWizardMagicBooster(now, { requireAuto: false, ignorePhase: true });
+}
+
+function maybeCastWizardMagicBooster(now) {
+  const battle = state.battle;
+  if (battle.combatClass !== "Wizard" || !wizardSupportCombatReady(battle)) return false;
+  if (queuedCombatSpell("Wizard")?.spell.id === "MagicBooster") return false;
+  const castBundle = usableWizardMagicBooster(now);
+  return Boolean(castBundle && castWizardMagicBooster(castBundle, now));
+}
+
+function castWizardMagicBooster(castBundle, now, options = {}) {
+  const battle = state.battle;
+  const { spell, learned, cost } = castBundle;
+  if (battle.pendingWizardBuff || battle.pendingDefenceBuff) return false;
+  battle.lastPlayerAttackCooldownMs = wizardCastCooldownMs(spell, learned);
+  commitWizardSpellUse(spell, learned, cost, now);
+
+  if (options.offline) {
+    applyMagicBoosterEffect(spell, learned, battle.player, now);
+    return true;
+  }
+
+  battle.pendingWizardBuff = {
+    at: now + (Number(spell.impactDelayMs) || 500),
     spellId: spell.id,
   };
 
@@ -28394,6 +32099,62 @@ function usableTaoistDefenceBuff(spellId, now, options = {}) {
   return { spell, learned, cost: effectiveSpellMpCost(spell, learned), entry, item };
 }
 
+function usableTaoistEnergyShield(now, options = {}) {
+  const spell = taoistCombatSpell("EnergyShield");
+  const learned = learnedMagic(spell?.id);
+  const manual = options.requireAuto === false;
+  if (!spell || !learned || !canUseTaoistSpell(spell, learned, now, { requireAuto: !manual })) return null;
+  let targetEntry = options.target ? ultimateEnhancerTargetEntry(options.target) : null;
+  if (!targetEntry && manual) {
+    targetEntry = energyShieldAutoTarget(now) ?? energyShieldPlayerTargets(now)[0] ?? null;
+  } else if (!targetEntry) {
+    targetEntry = energyShieldAutoTarget(now);
+  }
+  if (!targetEntry?.entity || targetEntry.entity.hp <= 0) return null;
+  if (!manual && hasActiveEnergyShieldOnList(entityStatBuffList(targetEntry.entity), now)) return null;
+  return {
+    spell,
+    learned,
+    cost: effectiveSpellMpCost(spell, learned),
+    target: targetEntry.entity,
+    targetName: targetEntry.name,
+  };
+}
+
+function castTaoistEnergyShield(castBundle, now, options = {}) {
+  const battle = state.battle;
+  const { spell, learned, cost, target, targetName } = castBundle;
+  if (!target) return false;
+  battle.lastPlayerAttackCooldownMs = spellDelayMs(spell, learned);
+  commitTaoistSpellUse(spell, learned, cost, now);
+  const applied = applyEnergyShieldEffect(spell, learned, battle.player, target, now, { offline: options.offline });
+  if (!applied) return false;
+  if (options.offline || suppressSimulationRender) return true;
+  const atlas = state.taoistSpellAtlases[spell.id] ?? null;
+  battle.activeSkill = "None";
+  battle.activeSkillAtlas = null;
+  battle.activeWizardSpell = null;
+  battle.activeWizardSpellAtlas = null;
+  battle.activeTaoSpell = spell.id;
+  battle.activeTaoSpellAtlas = atlas;
+  battle.activeTaoSpellStartedAt = now;
+  battle.pendingPoison = null;
+  setPlayerAction(spell.bodyAction ?? "spell", now, true);
+  playSpellSfx(spell.id, "cast");
+  playSpellSfx(spell.id, "impact", { volume: 0.42, throttleMs: 120 });
+  showEnergyShieldText(applied, now);
+  pushBattleLog(`Taoist casts ${spell.label} on ${targetName ?? "ally"} (${formatEnergyShieldApplied(applied.hpGain, applied.procPercent)}, ${formatBuffRemaining(applied.durationMs)}).`);
+  return true;
+}
+
+function maybeCastTaoistEnergyShield(now) {
+  const battle = state.battle;
+  if (battle.combatClass !== "Taoist" || battle.phase !== "engaged") return false;
+  if (queuedCombatSpell("Taoist")) return false;
+  const castBundle = usableTaoistEnergyShield(now);
+  return Boolean(castBundle && castTaoistEnergyShield(castBundle, now));
+}
+
 function maybeCastTaoistDefenceBuffs(now) {
   const battle = state.battle;
   if (battle.combatClass !== "Taoist" || battle.phase !== "engaged") return false;
@@ -28447,6 +32208,304 @@ function usableTaoistPoisoning(now, options = {}) {
     item,
     kind: poisonItemKind(item),
   };
+}
+
+function usableTaoistPoisonCloud(now, options = {}) {
+  const spell = taoistCombatSpell("PoisonCloud");
+  const learned = learnedMagic(spell.id);
+  if (!canUseTaoistSpell(spell, learned, now, { requireAuto: options.requireAuto !== false })) return null;
+  if (combatGroundEffectActive("PoisonCloud", now)) return null;
+  if (state.battle.pendingImpact?.spellId === "PoisonCloud") return null;
+  const enemy = state.battle.enemy;
+  if (!enemy || enemy.hp <= 0) return null;
+  if (!options.ignoreRange && enemyDistance() > crystalSpellRangePx(spell)) return null;
+  if (amuletInventoryCount() < POISON_CLOUD_AMULET_COST) return null;
+  if (poisonInventoryCount("green") < POISON_CLOUD_GREEN_POISON_COST) return null;
+  const amuletEntry = amuletCandidate(0);
+  const poisonEntry = poisonInventoryEntries("green")[0] ?? null;
+  const amuletItem = amuletEntry ? itemDefinition(amuletEntry.itemId) : null;
+  const poisonItem = poisonEntry ? itemDefinition(poisonEntry.itemId) : null;
+  if (!amuletEntry || !isTaoistAmuletItem(amuletItem) || !poisonEntry || !isPoisonItem(poisonItem)) return null;
+  return {
+    spell,
+    learned,
+    cost: effectiveSpellMpCost(spell, learned),
+    amuletEntry,
+    poisonEntry,
+    amuletItem,
+    poisonItem,
+  };
+}
+
+function castTaoistPoisonCloud(poisonCloud, now, options = {}) {
+  const battle = state.battle;
+  const { spell, learned, cost, amuletItem, poisonItem } = poisonCloud;
+  if (!consumeAmuletInventoryUnits(POISON_CLOUD_AMULET_COST) || !consumeGreenPoisonUnits(POISON_CLOUD_GREEN_POISON_COST)) return false;
+  const atlas = state.taoistSpellAtlases[spell.id] ?? null;
+  const impactAt = now + wizardImpactDelay(spell, atlas);
+  battle.lastPlayerAttackCooldownMs = spellDelayMs(spell, learned);
+  commitTaoistSpellUse(spell, learned, cost, now);
+
+  if (options.offline) {
+    const enemy = battle.enemy;
+    const tickCount = Math.max(1, Math.floor(
+      Math.trunc(Number(spell.groundFixedDurationMs) || 6000)
+      / Math.max(1, Math.trunc(Number(spell.groundTickMs) || POISON_CLOUD_TICK_MS)),
+    ));
+    for (let i = 0; i < tickCount && enemy?.hp > 0; i += 1) {
+      const damage = rollTaoistMagicDamage(spell, learned, battle.player, enemy);
+      if (damage > 0) applyOfflineEnemyDamage(enemy, damage, now, "magic");
+      maybeApplyPoisonCloudTickPoison(spell, enemy, battle.player, now, { offline: true });
+    }
+    if (learned) levelMagicSkill(spell, learned, now);
+    return true;
+  }
+
+  battle.activeSkill = "None";
+  battle.activeSkillAtlas = null;
+  battle.activeWizardSpell = null;
+  battle.activeWizardSpellAtlas = null;
+  battle.activeTaoSpell = spell.id;
+  battle.activeTaoSpellAtlas = atlas;
+  battle.activeTaoSpellStartedAt = now;
+  battle.pendingHeal = null;
+  battle.pendingPoison = null;
+  battle.pendingImpact = {
+    at: impactAt,
+    spellId: spell.id,
+    value: 0,
+    worldX: battle.enemyX,
+    centerTile: wizardStormCenterTile(null, null),
+  };
+  setPlayerAction(spell.bodyAction ?? "spell", now, true);
+  playSpellSfx(spell.id, "cast");
+  pushBattleLog(`Taoist casts ${spell.label} with ${POISON_CLOUD_AMULET_COST} ${amuletItem.name}s and ${POISON_CLOUD_GREEN_POISON_COST} ${poisonItem.name}.`);
+  return true;
+}
+
+function usableTaoistHealingCircle(now, options = {}) {
+  const spell = taoistCombatSpell("HealingCircle");
+  const learned = learnedMagic(spell.id);
+  const manual = options.requireAuto === false;
+  if (!canUseTaoistSpell(spell, learned, now, { requireAuto: !manual })) return null;
+  if (combatGroundEffectActive("HealingCircle", now)) return null;
+  if (state.battle.pendingImpact?.spellId === "HealingCircle") return null;
+  if (!needsTaoistHealingCircle(now, options)) return null;
+  if ((state.battle.player?.hp ?? 0) <= 0) return null;
+  return {
+    spell,
+    learned,
+    cost: effectiveSpellMpCost(spell, learned),
+  };
+}
+
+function castTaoistHealingCircle(castBundle, now, options = {}) {
+  const battle = state.battle;
+  const { spell, learned, cost } = castBundle;
+  const skillLevel = Math.max(0, Math.min(3, Math.trunc(Number(learned?.level) || 0)));
+  const centerTile = healingCircleCenterTile();
+  const atlas = state.taoistSpellAtlases[spell.id] ?? null;
+  const impactAt = now + wizardImpactDelay(spell, atlas);
+  battle.lastPlayerAttackCooldownMs = spellDelayMs(spell, learned);
+  commitTaoistSpellUse(spell, learned, cost, now);
+
+  if (options.offline) {
+    const durationMs = 10000 + 5000 * skillLevel;
+    const tickCount = Math.max(1, Math.floor(durationMs / HEALING_CIRCLE_TICK_MS));
+    for (let i = 0; i < tickCount; i += 1) {
+      applyHealingCircleTickAllies({ spellId: spell.id, casterClassId: null }, now, { offline: true });
+    }
+    if (learned) levelMagicSkill(spell, learned, now);
+    return true;
+  }
+
+  battle.activeSkill = "None";
+  battle.activeSkillAtlas = null;
+  battle.activeWizardSpell = null;
+  battle.activeWizardSpellAtlas = null;
+  battle.activeTaoSpell = spell.id;
+  battle.activeTaoSpellAtlas = atlas;
+  battle.activeTaoSpellStartedAt = now;
+  battle.pendingHeal = null;
+  battle.pendingPoison = null;
+  battle.pendingImpact = {
+    at: impactAt,
+    spellId: spell.id,
+    value: skillLevel,
+    worldX: centerTile.worldX,
+    centerTile,
+  };
+  setPlayerAction(spell.bodyAction ?? "spell", now, true);
+  playSpellSfx(spell.id, "cast");
+  pushBattleLog(`Taoist casts ${spell.label}.`);
+  return true;
+}
+
+function consumePlagueCastSupplies(poisonCandidate) {
+  if (!consumeAmuletInventoryUnits(PLAGUE_AMULET_COST)) return false;
+  if (poisonCandidate?.entry && !consumeOneInventoryUnit(poisonCandidate.entry.id)) return false;
+  return true;
+}
+
+function usableTaoistCurse(now, options = {}) {
+  const spell = taoistCombatSpell("Curse");
+  const learned = learnedMagic(spell.id);
+  if (!canUseTaoistSpell(spell, learned, now, { requireAuto: options.requireAuto !== false })) return null;
+  if (state.battle.pendingImpact?.spellId === "Curse") return null;
+  const enemy = state.battle.enemy;
+  if (!enemy || enemy.hp <= 0) return null;
+  if (!options.ignoreRange && enemyDistance() > crystalSpellRangePx(spell)) return null;
+  if (groupDungeonSwarmSideActive()) {
+    const center = wizardBangCenterTile(enemy, spell);
+    if (!groupDungeonSwarmBangInRange(center, spell)) return null;
+  }
+  const amuletEntry = amuletCandidate(0);
+  const amuletItem = amuletEntry ? itemDefinition(amuletEntry.itemId) : null;
+  if (!amuletEntry || !isTaoistAmuletItem(amuletItem)) return null;
+  return {
+    spell,
+    learned,
+    cost: effectiveSpellMpCost(spell, learned),
+    amuletEntry,
+    amuletItem,
+  };
+}
+
+function castTaoistCurse(queued, now, options = {}) {
+  const battle = state.battle;
+  const { spell, learned, cost, amuletItem } = queued;
+  const secondary = Boolean(options.secondary);
+  if (!consumeAmuletInventoryUnits(CURSE_AMULET_COST)) return false;
+  const reductionPercent = curseOffenceReductionPercent(learned?.level);
+  const durationMs = curseDurationMs(spell, learned, battle.player);
+  const atlas = state.taoistSpellAtlases[spell.id] ?? null;
+  const impactAt = now + wizardImpactDelay(spell, atlas);
+  const proceed = rollCurseCastProceeds(learned?.level);
+
+  if (!secondary) battle.lastPlayerAttackCooldownMs = spellDelayMs(spell, learned);
+  commitTaoistSpellUse(spell, learned, cost, now);
+
+  if (!secondary || !isPlayerOneShotAction()) setPlayerAction(spell.bodyAction ?? "spell", now, true);
+  playSpellSfx(spell.id, "cast");
+
+  if (!proceed) {
+    if (!secondary) pushBattleLog(`${spell.label} fizzled.`);
+    return true;
+  }
+
+  if (options.offline) {
+    applyCurseSpellImpact(spell, {
+      centerTile: wizardBangCenterTile(battle.enemy, spell),
+      durationMs,
+      reductionPercent,
+    }, now, { learned, offline: true });
+    return true;
+  }
+
+  battle.activeWizardSpell = null;
+  battle.activeWizardSpellAtlas = null;
+  const centerTile = wizardBangCenterTile(battle.enemy, spell);
+  battle.activeTaoSpell = spell.id;
+  battle.activeTaoSpellAtlas = atlas;
+  battle.activeTaoSpellStartedAt = now;
+  setActiveSpellImpactAnchor({ centerTile });
+  battle.pendingImpact = {
+    at: impactAt,
+    spellId: spell.id,
+    centerTile,
+    durationMs,
+    reductionPercent,
+  };
+  if (!secondary) {
+    battle.activeSkill = "None";
+    battle.activeSkillAtlas = null;
+    battle.pendingHeal = null;
+    battle.pendingPoison = null;
+  }
+
+  playSpellSfx(spell.id, "fly", { volume: 0.38, throttleMs: 120 });
+  if (!secondary) pushBattleLog(`Taoist casts ${spell.label} with ${amuletItem.name}.`);
+  return true;
+}
+
+function usableTaoistPlague(now, options = {}) {
+  const spell = taoistCombatSpell("Plague");
+  const learned = learnedMagic(spell.id);
+  if (!canUseTaoistSpell(spell, learned, now, { requireAuto: options.requireAuto !== false })) return null;
+  if (state.battle.pendingImpact?.spellId === "Plague") return null;
+  const enemy = state.battle.enemy;
+  if (!enemy || enemy.hp <= 0) return null;
+  if (!options.ignoreRange && enemyDistance() > crystalSpellRangePx(spell)) return null;
+  if (groupDungeonSwarmSideActive()) {
+    const center = wizardBangCenterTile(enemy, spell);
+    if (!groupDungeonSwarmBangInRange(center, spell)) return null;
+  }
+  const amuletEntry = amuletCandidate(0);
+  const amuletItem = amuletEntry ? itemDefinition(amuletEntry.itemId) : null;
+  if (!amuletEntry || !isTaoistAmuletItem(amuletItem)) return null;
+  const poisonCandidate = plaguePoisonCandidateForCast();
+  return {
+    spell,
+    learned,
+    cost: effectiveSpellMpCost(spell, learned),
+    amuletEntry,
+    amuletItem,
+    poisonCandidate,
+  };
+}
+
+function castTaoistPlague(plague, now, options = {}) {
+  const battle = state.battle;
+  const { spell, learned, cost, amuletItem, poisonCandidate } = plague;
+  const secondary = Boolean(options.secondary);
+  if (!consumePlagueCastSupplies(poisonCandidate)) return false;
+  const powerValue = rollTaoistMagicValue(spell, learned, battle.player);
+  const heldPoisonKind = poisonCandidate?.kind ?? null;
+  const atlas = state.taoistSpellAtlases[spell.id] ?? null;
+  const impactAt = now + wizardImpactDelay(spell, atlas);
+
+  if (!secondary) battle.lastPlayerAttackCooldownMs = spellDelayMs(spell, learned);
+  commitTaoistSpellUse(spell, learned, cost, now);
+
+  if (options.offline) {
+    applyPlagueSpellImpact(spell, {
+      centerTile: wizardBangCenterTile(battle.enemy, spell),
+      powerValue,
+      heldPoisonKind,
+    }, now, { learned, offline: true });
+    return true;
+  }
+
+  battle.activeWizardSpell = null;
+  battle.activeWizardSpellAtlas = null;
+  const centerTile = wizardBangCenterTile(battle.enemy, spell);
+  battle.activeTaoSpell = spell.id;
+  battle.activeTaoSpellAtlas = atlas;
+  battle.activeTaoSpellStartedAt = now;
+  setActiveSpellImpactAnchor({ centerTile });
+  battle.pendingImpact = {
+    at: impactAt,
+    spellId: spell.id,
+    centerTile,
+    powerValue,
+    heldPoisonKind,
+  };
+  if (!secondary) {
+    battle.activeSkill = "None";
+    battle.activeSkillAtlas = null;
+    battle.pendingHeal = null;
+    battle.pendingPoison = null;
+  }
+
+  if (!secondary || !isPlayerOneShotAction()) setPlayerAction(spell.bodyAction ?? "spell", now, true);
+  playSpellSfx(spell.id, "cast");
+  playSpellSfx(spell.id, "fly", { volume: 0.38, throttleMs: 120 });
+  if (!secondary) {
+    const supplyParts = [amuletItem.name];
+    if (poisonCandidate?.item) supplyParts.push(poisonCandidate.item.name);
+    pushBattleLog(`Taoist casts ${spell.label} with ${supplyParts.join(" and ")}.`);
+  }
+  return true;
 }
 
 function usableTaoistSoulFireBall(now, options = {}) {
@@ -28524,14 +32583,20 @@ function usableQueuedTaoistSpell(now) {
   if (!queued) return null;
   if (queued.spell.id === "Healing") return usableTaoistHealing(now, { requireAuto: false });
   if (queued.spell.id === "Poisoning") return usableTaoistPoisoning(now, { requireAuto: false });
+  if (queued.spell.id === "PoisonCloud") return usableTaoistPoisonCloud(now, { requireAuto: false });
+  if (queued.spell.id === "HealingCircle") return usableTaoistHealingCircle(now, { requireAuto: false });
+  if (queued.spell.id === "Curse") return usableTaoistCurse(now, { requireAuto: false });
+  if (queued.spell.id === "Plague") return usableTaoistPlague(now, { requireAuto: false });
   if (queued.spell.id === "SoulFireBall") return usableTaoistSoulFireBall(now, { requireAuto: false });
   if (queued.spell.id === "SummonSkeleton") return usableTaoistSummonSkeleton(now, { requireAuto: false });
   if (queued.spell.id === "SummonShinsu") return usableTaoistSummonShinsu(now, { requireAuto: false });
   if (queued.spell.id === "SummonHolyDeva") return usableTaoistSummonHolyDeva(now, { requireAuto: false });
   if (queued.spell.id === "SoulShield") return usableTaoistDefenceBuff("SoulShield", now, { requireAuto: false });
   if (queued.spell.id === "BlessedArmour") return usableTaoistDefenceBuff("BlessedArmour", now, { requireAuto: false });
+  if (queued.spell.id === "EnergyShield") return usableTaoistEnergyShield(now, { requireAuto: false });
   if (queued.spell.id === "MassHealing") return usableTaoistMassHealing(now, { requireAuto: false });
   if (queued.spell.id === "UltimateEnhancer") return usableTaoistUltimateEnhancer(now, { requireAuto: false });
+  if (queued.spell.id === "PetEnhancer") return usableTaoistPetEnhancer(now, { requireAuto: false });
   clearQueuedCombatSpell(queued.spell.id);
   return null;
 }
@@ -28540,11 +32605,19 @@ function castQueuedTaoistSpell(queued, now) {
   if (!queued?.spell) return false;
   if (queued.spell.id === "Healing") return castTaoistHealing(queued, now);
   if (queued.spell.id === "Poisoning") return castTaoistPoisoning(queued, now);
+  if (queued.spell.id === "PoisonCloud") return castTaoistPoisonCloud(queued, now);
+  if (queued.spell.id === "HealingCircle") return castTaoistHealingCircle(queued, now);
+  if (queued.spell.id === "Curse") return castTaoistCurse(queued, now);
+  if (queued.spell.id === "Plague") return castTaoistPlague(queued, now);
   if (queued.spell.id === "SoulFireBall") return castTaoistSoulFireBall(queued, now);
   if (queued.spell.id === "SummonSkeleton" || queued.spell.id === "SummonShinsu" || queued.spell.id === "SummonHolyDeva") return castTaoistSummonPet(queued, now);
-  if (queued.spell.id === "SoulShield" || queued.spell.id === "BlessedArmour") return castTaoistDefenceBuff(queued, now);
+  if (queued.spell.id === "SoulShield" || queued.spell.id === "BlessedArmour") {
+    return castTaoistDefenceBuff(queued, now);
+  }
+  if (queued.spell.id === "EnergyShield") return castTaoistEnergyShield(queued, now);
   if (queued.spell.id === "MassHealing") return castTaoistMassHealing(queued, now);
   if (queued.spell.id === "UltimateEnhancer") return castTaoistUltimateEnhancer(queued, now);
+  if (queued.spell.id === "PetEnhancer") return castTaoistPetEnhancer(queued, now);
   return false;
 }
 
@@ -28589,6 +32662,21 @@ function updatePendingTaoPet(now) {
   const pending = battle.pendingTaoPet;
   if (!pending || now < pending.at) return false;
   battle.pendingTaoPet = null;
+  if (pending.bossParty) {
+    const party = battle.bossParty;
+    const owner = party?.members?.find(
+      (member) => member.classId === pending.ownerClassId && member.alive && member.hp > 0,
+    );
+    if (!party?.active || !owner || !battle.enemy || battle.enemy.hp <= 0 || bossPartyActivePet()) return true;
+    party.pet = createTaoistSummonPet(pending.spellId, pending.spellLevel, now);
+    party.pet.name = `${owner.classId}'s ${party.pet.name}`;
+    battle.taoPet = party.pet;
+    state.taoPetAtlas = taoPetAtlasFor(battle.taoPet);
+    playTaoPetAppearSfx({ volume: bossPartySfxVolume(owner, 0.4, 0.18), throttleMs: 250, pet: battle.taoPet });
+    pushBattleLog(`${party.pet.name} joins the fight.`);
+    battlePanelSignature = "";
+    return true;
+  }
   if (battle.combatClass !== "Taoist" || !battle.enemy || battle.enemy.hp <= 0 || !battle.running) return true;
   battle.taoPet = createTaoistSummonPet(pending.spellId, pending.spellLevel, now);
   state.taoPetAtlas = taoPetAtlasFor(battle.taoPet);
@@ -28679,10 +32767,9 @@ function createTaoistShinsuPet(spellLevel, now = performance.now()) {
 }
 
 function createTaoistHolyDevaPet(spellLevel, now = performance.now()) {
-  const level = Math.max(0, Math.min(3, Math.trunc(Number(spellLevel) || 0)));
-  const maxPetLevel = 1 + level * 2;
   const stats = CRYSTAL_SUMMON_HOLY_DEVA_PET_STATS;
-  const attackMs = Math.max(400, Math.trunc(stats.attackMs - maxPetLevel * 70));
+  const progression = crystalHolyDevaStats(stats, spellLevel, LANE_TILE_PX);
+  const ownerWorldX = Number(state.battle.playerX) || 0;
   const pet = {
     active: true,
     dead: false,
@@ -28690,17 +32777,18 @@ function createTaoistHolyDevaPet(spellLevel, now = performance.now()) {
     name: stats.name,
     monsterIndex: CRYSTAL_SUMMON_HOLY_DEVA_PET_INDEX,
     worldX: 0,
-    level,
-    maxPetLevel,
-    maxHp: stats.maxHp + level * 100,
-    hp: stats.maxHp + level * 100,
-    dc: [stats.dc[0] + level, stats.dc[1] + level],
-    ac: [...stats.ac],
-    amc: [...stats.amc],
+    level: progression.level,
+    maxPetLevel: progression.maxPetLevel,
+    maxHp: progression.maxHp,
+    hp: progression.maxHp,
+    dc: progression.dc,
+    ac: progression.ac,
+    amc: progression.amc,
     accuracy: stats.accuracy,
     agility: stats.agility,
     luck: stats.luck,
-    attackMs,
+    attackMs: progression.attackMs,
+    moveSpeed: progression.moveSpeed,
     nextAttackAt: now + 1000,
     healAmount: 0,
     healTickAt: 0,
@@ -28710,6 +32798,12 @@ function createTaoistHolyDevaPet(spellLevel, now = performance.now()) {
     lastTick: now,
     poisons: [],
     statBuffs: [],
+    lastOwnerWorldX: ownerWorldX,
+    ownerWasMoving: false,
+    followAfter: now,
+    lastMoveAt: now,
+    moving: false,
+    followPending: false,
   };
   return placeTaoistCombatPet(pet);
 }
@@ -28720,13 +32814,56 @@ function taoistPetIsFollower(pet = state.battle.taoPet) {
 
 function taoistPetFollowWorldX(pet = state.battle.taoPet) {
   if (bossPartyOnField()) return bossPartyHolyDevaPetWorldX(pet);
-  return Math.round((Number(state.battle.playerX) || 0) - TAOIST_PET_SUMMON_MIN_GAP);
+  return Math.round((Number(state.battle.playerX) || 0) - HOLY_DEVA_FOLLOW_GAP);
 }
 
-function syncTaoistFollowerPetPosition() {
+function syncTaoistFollowerPetPosition(now = performance.now()) {
   const pet = state.battle.taoPet ?? state.battle.bossParty?.pet;
   if (!pet?.active || (pet.hp ?? 0) <= 0 || !taoistPetIsFollower(pet)) return;
-  pet.worldX = taoistPetFollowWorldX(pet);
+  const desiredWorldX = taoistPetFollowWorldX(pet);
+  if (bossPartyOnField()) {
+    pet.worldX = desiredWorldX;
+    pet.lastOwnerWorldX = desiredWorldX + HOLY_DEVA_FOLLOW_GAP;
+    pet.ownerWasMoving = false;
+    pet.followAfter = now;
+    pet.lastMoveAt = now;
+    pet.moving = false;
+    pet.followPending = false;
+    return;
+  }
+
+  const ownerWorldX = Number(state.battle.playerX) || 0;
+  const previousOwnerWorldX = Number(pet.lastOwnerWorldX);
+  const ownerMoved = Number.isFinite(previousOwnerWorldX) && Math.abs(ownerWorldX - previousOwnerWorldX) > 0.1;
+  if (ownerMoved && !pet.ownerWasMoving) {
+    pet.followAfter = now + CRYSTAL_HOLY_DEVA_FOLLOW_REACTION_MS;
+  }
+  pet.lastOwnerWorldX = ownerWorldX;
+  pet.ownerWasMoving = ownerMoved;
+
+  const result = advanceWizardMirrorFollow({
+    worldX: pet.worldX,
+    desiredWorldX,
+    now,
+    lastMoveAt: pet.lastMoveAt,
+    followAfter: pet.followAfter,
+    movementBlocked: pet.oneShot || Boolean(state.battle.pendingPetAttack),
+    ownerRunning: false,
+    walkSpeed: pet.moveSpeed,
+    runSpeed: pet.moveSpeed,
+  });
+  pet.worldX = result.worldX;
+  pet.lastMoveAt = result.lastMoveAt;
+  pet.moving = result.moving;
+  pet.followPending = Math.abs(desiredWorldX - result.worldX) > 1;
+  if (!pet.oneShot) {
+    const action = result.moving ? "walking" : "standing";
+    if (pet.action !== action) {
+      pet.action = action;
+      pet.frame = 0;
+      pet.lastTick = now;
+    }
+  }
 }
 
 function taoistSummonPetDelayMs(spellId) {
@@ -28764,6 +32901,20 @@ function taoistShinsuAttackImpactMs() {
   const atlas = state.taoPetAtlases?.[CRYSTAL_SUMMON_SHINSU_VISIBLE_PET_INDEX];
   const interval = Math.max(1, Math.trunc(Number(atlas?.actions?.attack1?.interval) || 100));
   return CRYSTAL_SHINSU_ATTACK_IMPACT_FRAME * interval;
+}
+
+function taoistPetAttackImpactMs(pet) {
+  if (pet?.spellId === "SummonHolyDeva") return CRYSTAL_HOLY_DEVA_ATTACK_IMPACT_MS;
+  if (pet?.spellId === "SummonShinsu") return taoistShinsuAttackImpactMs();
+  return 0;
+}
+
+function taoistPetAttackTargetPosition(enemy) {
+  if (groupDungeonSwarmSideActive() && enemy?.swarmId) {
+    const tile = swarmEnemyTilePosition(enemy);
+    return { worldX: tile.worldX, mapRow: tile.mapRow };
+  }
+  return { worldX: Number(state.battle.enemyX) || 0, mapRow: null };
 }
 
 function rollTaoistPetAttackResult(pet, enemy, inventory = state.inventory) {
@@ -28822,6 +32973,7 @@ function updatePendingPetAttack(now, options = {}) {
   const enemy = battle.enemy;
   if (!pet?.active || !enemy || enemy.hp <= 0) return true;
   const offline = Boolean(options.offline || impact.offline);
+  if (!offline && impact.spellId === "SummonHolyDeva") queueHolyDevaImpactFx(impact, now);
   if (!offline) playTaoPetSfx("hit", { volume: 0.38, throttleMs: 120, pet });
   applyTaoistPetAttackResult(pet, enemy, impact, now, {
     offline,
@@ -28829,6 +32981,25 @@ function updatePendingPetAttack(now, options = {}) {
     skipHitSfx: true,
   });
   return true;
+}
+
+function queueHolyDevaImpactFx(impact, now) {
+  const atlas = state.wizardSpellAtlases?.ThunderBolt;
+  const layerIndex = atlas?.layers?.findIndex(
+    (layer) => layer.library === "Magic2" && Number(layer.baseIndex) === 10,
+  ) ?? -1;
+  if (layerIndex < 0) return;
+  const frameCount = Math.max(1, atlas.layers[layerIndex].frames?.length ?? 1);
+  queueAttachedSpellFx("ThunderBolt", {
+    now,
+    worldX: impact.targetWorldX ?? state.battle.enemyX,
+    mapRow: impact.targetMapRow,
+    layerStart: layerIndex,
+    layerEnd: layerIndex + 1,
+    durationMs: CRYSTAL_HOLY_DEVA_ATTACK_FX_MS,
+    layerDelayMs: 0,
+    frameIntervalMs: CRYSTAL_HOLY_DEVA_ATTACK_FX_MS / frameCount,
+  });
 }
 
 function taoPetAtlasFor(pet) {
@@ -28856,6 +33027,491 @@ function dismissTaoistPet(options = {}) {
   state.battle.taoPet = null;
   state.battle.petStatBuffs = [];
   if (options.clearDeathLock !== false) state.battle.taoPetDiedThisFight = false;
+}
+
+function dismissWizardMirror(options = {}) {
+  state.battle.pendingWizardMirror = null;
+  const mirror = state.battle.wizardMirror;
+  if (mirror) {
+    mirror.pendingImpact = null;
+    mirror.pendingDefenceBuff = null;
+    mirror.fxSpellId = null;
+  }
+  state.battle.wizardMirror = null;
+  if (options.log) pushBattleLog(options.message ?? "Your mirror fades.");
+}
+
+function dismissBattleCompanions(options = {}) {
+  dismissTaoistPet(options);
+  dismissWizardMirror(options);
+}
+
+function wizardMirrorFollowWorldX() {
+  if (bossPartyOnField()) {
+    const mirror = state.battle.wizardMirror;
+    const pending = state.battle.pendingWizardMirror;
+    const ownerClassId = mirror?.ownerClassId ?? pending?.ownerClassId ?? "Wizard";
+    const owner = bossPartyMemberByClassId(ownerClassId) ?? bossPartyMemberByClassId("Wizard");
+    const anchorX = Number(owner?.worldX) || Number(state.battle.playerX) || 0;
+    return Math.round(anchorX - WIZARD_MIRROR_FOLLOW_GAP);
+  }
+  return Math.round((Number(state.battle.playerX) || 0) - WIZARD_MIRROR_FOLLOW_GAP);
+}
+
+function wizardMirrorWorldX(mirror = state.battle.wizardMirror) {
+  if (!mirror?.active) return wizardMirrorFollowWorldX();
+  return Math.round(Number(mirror.worldX) || wizardMirrorFollowWorldX());
+}
+
+function wizardMirrorActive() {
+  const battle = state.battle;
+  return Boolean(battle.wizardMirror?.active || battle.pendingWizardMirror);
+}
+
+function createWizardMirror(spellLevel, now = performance.now(), options = {}) {
+  const worldX = wizardMirrorFollowWorldX();
+  return {
+    active: true,
+    spellId: "Mirroring",
+    spellLevel: Math.max(0, Math.min(3, Math.trunc(Number(spellLevel) || 0))),
+    classId: "Wizard",
+    ownerClassId: options.ownerClassId ?? null,
+    worldX,
+    lastOwnerWorldX: worldX + WIZARD_MIRROR_FOLLOW_GAP,
+    ownerWasMoving: false,
+    followAfter: now,
+    lastMoveAt: now,
+    moving: false,
+    followPending: false,
+    followRunning: false,
+    followAction: "stance",
+    expiresAt: now + wizardMirrorDurationMs(spellLevel),
+    nextActionAt: now + 800,
+    nextUpkeepAt: now + WIZARD_MIRROR_UPKEEP_INTERVAL_MS,
+    pendingImpact: null,
+    pendingDefenceBuff: null,
+    statBuffs: [],
+    magicShieldLoopStartedAt: 0,
+    fxSpellId: null,
+    fxStartedAt: 0,
+    visualAction: "stance",
+    visualFrame: 0,
+    visualOneShot: false,
+    visualLastTick: now,
+    visualUntil: 0,
+  };
+}
+
+function wizardMirrorOwner(mirror = state.battle.wizardMirror) {
+  if (bossPartyOnField()) {
+    return bossPartyMemberByClassId(mirror?.ownerClassId ?? "Wizard");
+  }
+  if (state.battle.combatClass === "Wizard") return state.battle.player;
+  return null;
+}
+
+function wizardMirrorOwnerLearned(owner, spellId) {
+  if (!owner) return null;
+  if (bossPartyOnField() && owner.classId === "Wizard") return bossPartyLearned(owner, spellId);
+  if (owner === state.battle.player) return learnedMagic(spellId);
+  return null;
+}
+
+function wizardMirrorOwnerInventory(owner) {
+  if (bossPartyOnField() && owner?.classId === "Wizard") return owner.inventory ?? state.inventory;
+  return state.inventory;
+}
+
+function wizardMirrorSpellUnlocked(owner, spellId) {
+  return Boolean(wizardMirrorOwnerLearned(owner, spellId));
+}
+
+function wizardMirrorCombatOriginWorldX(mirror = state.battle.wizardMirror) {
+  const owner = wizardMirrorOwner(mirror);
+  return Number(owner?.worldX ?? state.battle.playerX) || 0;
+}
+
+function updateWizardMirrorFollow(mirror, owner, now) {
+  const ownerX = Number(owner?.worldX ?? state.battle.playerX) || 0;
+  const desiredWorldX = ownerX - WIZARD_MIRROR_FOLLOW_GAP;
+  if (bossPartyOnField()) {
+    mirror.worldX = desiredWorldX;
+    mirror.lastOwnerWorldX = ownerX;
+    mirror.ownerWasMoving = false;
+    mirror.followAfter = now;
+    mirror.lastMoveAt = now;
+    mirror.moving = false;
+    mirror.followPending = false;
+    mirror.followAction = "stance";
+    return false;
+  }
+
+  const previousOwnerX = Number(mirror.lastOwnerWorldX);
+  const ownerMoved = Number.isFinite(previousOwnerX) && Math.abs(ownerX - previousOwnerX) > 0.1;
+  if (ownerMoved && !mirror.ownerWasMoving) {
+    mirror.followAfter = now + WIZARD_MIRROR_REACTION_DELAY_MS;
+  }
+  if (ownerMoved) mirror.followRunning = state.action === "running";
+  mirror.lastOwnerWorldX = ownerX;
+  mirror.ownerWasMoving = ownerMoved;
+
+  const result = advanceWizardMirrorFollow({
+    worldX: mirror.worldX,
+    desiredWorldX,
+    now,
+    lastMoveAt: mirror.lastMoveAt,
+    followAfter: mirror.followAfter,
+    movementBlocked: mirror.visualOneShot,
+    ownerRunning: mirror.followRunning,
+    walkSpeed: LANE.playerSpeed,
+    runSpeed: LANE.runSpeed,
+  });
+  mirror.worldX = result.worldX;
+  mirror.lastMoveAt = result.lastMoveAt;
+  mirror.moving = result.moving;
+  mirror.followPending = Math.abs(desiredWorldX - result.worldX) > 1;
+  mirror.followAction = result.action;
+  return result.moving;
+}
+
+function wizardMirrorPickAttackSpell(owner, enemy) {
+  const spellId = pickWizardMirrorAttackSpell({
+    enemyUndead: Boolean(enemy?.undead),
+    flameDisruptorLearned: wizardMirrorSpellUnlocked(owner, "FlameDisruptor"),
+  });
+  return wizardCombatSpell(spellId);
+}
+
+function wizardMirrorAttackLearned(owner, spellId) {
+  const learned = wizardMirrorOwnerLearned(owner, spellId);
+  if (learned) return learned;
+  // Crystal's HumanWizard always casts a level-three Thunder Bolt. Keep that
+  // innate fallback even when a deliberately unusual save has not learned it.
+  return spellId === "ThunderBolt" ? { level: 3, castReadyAt: 0 } : null;
+}
+
+function syncWizardMirrorOwnerMp(owner, mp) {
+  if (!owner) return;
+  owner.mp = Math.max(0, Number(mp) || 0);
+  if (bossPartyOnField() && owner.classId === bossPartyControlledClassId()) {
+    state.battle.player.mp = owner.mp;
+  }
+  playerHudSignature = "";
+  battlePanelSignature = "";
+}
+
+function updateWizardMirrorUpkeep(mirror, owner, now) {
+  const upkeep = resolveWizardMirrorUpkeep({
+    ownerMp: owner?.mp,
+    nextUpkeepAt: mirror.nextUpkeepAt,
+    now,
+  });
+  mirror.nextUpkeepAt = upkeep.nextUpkeepAt;
+  if (upkeep.ticks > 0) syncWizardMirrorOwnerMp(owner, upkeep.ownerMp);
+  if (!upkeep.exhausted) return true;
+  dismissWizardMirror({ log: true, message: "Your mirror fades as your MP runs out." });
+  battlePanelSignature = "";
+  return false;
+}
+
+function wizardMirrorBeginCastVisual(mirror, spellId, now, untilAt = now + 600) {
+  const spell = wizardCombatSpell(spellId);
+  const atlas = state.wizardSpellAtlases[spellId] ?? null;
+  const impactAt = spell && atlas ? now + wizardImpactDelay(spell, atlas) : untilAt;
+  const layerEnd = Math.max(0, ...(atlas?.layers ?? []).map(
+    (layer) => (layer.delayMs ?? 0) + layer.frames.length * layer.interval,
+  ));
+  const effectEnd = spell?.impactMode === "projectile"
+    ? (impactAt - now) + (spell.impactFlashMs ?? 250)
+    : layerEnd;
+  mirror.fxSpellId = spellId;
+  mirror.fxStartedAt = now;
+  mirror.fxUntil = now + Math.max(600, layerEnd, effectEnd);
+  mirror.visualAction = "spell";
+  mirror.visualFrame = 0;
+  mirror.visualOneShot = true;
+  mirror.visualLastTick = now;
+  mirror.visualUntil = Math.max(now + 600, Number(untilAt) || 0);
+}
+
+function updateWizardMirrorVisual(mirror, now) {
+  if (mirror.fxSpellId && now >= (mirror.fxUntil ?? 0)) mirror.fxSpellId = null;
+  if (mirror.visualOneShot && now >= (mirror.visualUntil ?? 0)) {
+    mirror.visualAction = "stance";
+    mirror.visualFrame = 0;
+    mirror.visualOneShot = false;
+    mirror.visualLastTick = now;
+    mirror.visualUntil = 0;
+  }
+  if (!mirror.visualOneShot) {
+    const desiredAction = bossPartyOnField()
+      ? "stance"
+      : mirror.moving
+        ? mirror.followAction
+        : state.battle.running ? "stance" : "standing";
+    if (mirror.visualAction !== desiredAction) {
+      mirror.visualAction = desiredAction;
+      mirror.visualFrame = 0;
+      mirror.visualLastTick = now;
+    }
+  }
+
+  const action = PLAYER_ACTIONS[mirror.visualAction] ?? PLAYER_ACTIONS.stance;
+  const frameCount = Math.max(1, Number(action?.count) || 1);
+  const interval = Math.max(1, Number(action?.interval) || 100);
+  const elapsed = Math.max(0, now - (mirror.visualLastTick ?? now));
+  if (elapsed < interval) return;
+  const steps = Math.floor(elapsed / interval);
+  mirror.visualFrame = mirror.visualOneShot
+    ? Math.min(frameCount - 1, (mirror.visualFrame ?? 0) + steps)
+    : ((mirror.visualFrame ?? 0) + steps) % frameCount;
+  mirror.visualLastTick = (mirror.visualLastTick ?? now) + steps * interval;
+}
+
+function wizardMirrorMirrorSfx(spellId, kind = "cast") {
+  playSpellSfx(spellId, kind, { volume: 0.28, throttleMs: 220 });
+}
+
+function updatePendingMirrorDefenceBuff(now, options = {}) {
+  const mirror = state.battle.wizardMirror;
+  const pending = mirror?.pendingDefenceBuff;
+  if (!pending || now < pending.at) return false;
+  mirror.pendingDefenceBuff = null;
+  const owner = wizardMirrorOwner(mirror);
+  const spell = wizardCombatSpell(pending.spellId);
+  const learned = wizardMirrorOwnerLearned(owner, pending.spellId);
+  if (!owner || !spell || !learned || (owner.hp ?? 0) <= 0) return true;
+  const bonus = rollDefenceBuffBonus(owner.level ?? state.game.progress.level);
+  const durationMs = rollWizardDefenceBuffDurationMs(learned, owner);
+  const expiresAt = now + durationMs;
+  mirror.statBuffs = pushDefenceBuff(mirror.statBuffs, spell, bonus, expiresAt, learned);
+  mirror.magicShieldLoopStartedAt = now;
+  if (!options.offline && !suppressSimulationRender) {
+    pushBattleLog(`Your mirror casts ${spell.label}.`);
+  }
+  return true;
+}
+
+function applyWizardMirrorSpellImpact(mirror, impact, now) {
+  const spell = combatAttackSpell(impact.spellId);
+  const enemy = state.battle.enemy;
+  const owner = wizardMirrorOwner(mirror);
+  if (!spell || !enemy || enemy.hp <= 0 || !state.battle.enemyRevealed) return;
+  playSpellStrikeSfx(spell.id, { volume: 0.34, throttleMs: 200 });
+  if (!impact.hit || impact.damage <= 0) {
+    if (bossPartyOnField()) {
+      bossPartyShowEnemyMiss(owner?.classId ?? "Wizard", now);
+    }
+    applyCombatEvents(magicAttackMissEvents(spell.label, enemy.name), now);
+    return;
+  }
+  if (bossPartyOnField()) {
+    syncBattleEnemyHpToSwarm();
+    strikeGroupDungeonSwarmEnemy(enemy, now);
+    playMonsterSfx("flinch", enemy, bossPartySfxParamsForClass(owner?.classId ?? "Wizard", 0.34, 120));
+    bossPartyShowEnemyDamage(owner?.classId ?? "Wizard", impact.damage, now);
+    recordBossCombatDamage(owner?.classId ?? "Wizard", impact.spellId, impact.damage);
+    applyCombatEvents(magicAttackHitEvents(spell.label, enemy.name, impact.damage), now, { enemy });
+    maybeKillGroupDungeonSwarmEnemy(enemy, now);
+    return;
+  }
+  queueEnemyStruck(now);
+  playMonsterSfx("flinch");
+  applyCombatEvents(magicAttackHitEvents(spell.label, enemy.name, impact.damage), now, { enemy: enemy });
+  if (enemy.hp <= 0) {
+    finishEnemy(now);
+    setEnemyAction("die", false, now);
+    playMonsterSfx("death");
+    pushBattleLog(`${enemy.name} is defeated.`);
+  }
+}
+
+function updatePendingMirrorImpact(now, options = {}) {
+  const mirror = state.battle.wizardMirror;
+  const pending = mirror?.pendingImpact;
+  if (!pending || now < pending.at) return false;
+  mirror.pendingImpact = null;
+  applyWizardMirrorSpellImpact(mirror, pending, now);
+  return true;
+}
+
+function wizardMirrorTryMagicShield(mirror, owner, now, options = {}) {
+  if (!wizardMirrorSpellUnlocked(owner, "MagicShield")) return false;
+  const spell = wizardCombatSpell("MagicShield");
+  const learned = wizardMirrorOwnerLearned(owner, "MagicShield");
+  if (!spell || !learned) return false;
+  if (!needsDefenceBuff("MagicShield", now, { playerBuffs: mirror.statBuffs })) return false;
+  mirror.pendingDefenceBuff = {
+    at: now + (Number(spell.impactDelayMs) || CRYSTAL_HEAL_APPLY_DELAY_MS),
+    spellId: spell.id,
+  };
+  wizardMirrorBeginCastVisual(mirror, spell.id, now, mirror.pendingDefenceBuff.at);
+  mirror.nextActionAt = now + wizardCastCooldownMs(spell, learned);
+  if (!options.offline && !suppressSimulationRender) wizardMirrorMirrorSfx(spell.id, "cast");
+  return true;
+}
+
+function wizardMirrorTryAttack(mirror, owner, now, options = {}) {
+  const enemy = state.battle.enemy;
+  if (!enemy || enemy.hp <= 0) return false;
+  if (!options.offline && !state.battle.enemyRevealed) return false;
+  const spell = wizardMirrorPickAttackSpell(owner, enemy);
+  const learned = wizardMirrorAttackLearned(owner, spell?.id);
+  if (!spell || !learned) return false;
+  if (!wizardMirrorTargetInRange(wizardMirrorCombatOriginWorldX(mirror), state.battle.enemyX, LANE_TILE_PX)) return false;
+  const atlas = state.wizardSpellAtlases[spell.id] ?? null;
+  const hit = rollMagicHit(enemy);
+  const damage = hit
+    ? rollWizardMagicDamage(spell, learned, owner, enemy, wizardMirrorOwnerInventory(owner))
+    : 0;
+  const impactAt = now + wizardImpactDelay(spell, atlas);
+  const impact = {
+    at: impactAt,
+    spellId: spell.id,
+    damage,
+    hit: hit && damage > 0,
+  };
+  if (bossPartyOnField()) {
+    partyBossImpacts().push({
+      at: impact.at,
+      spellId: spell.id,
+      label: spell.label,
+      damage: impact.damage,
+      hit: impact.hit,
+      casterClassId: owner.classId,
+      fromMirror: true,
+    });
+  } else if (options.offline) {
+    applyWizardMirrorSpellImpact(mirror, impact, now);
+  } else {
+    mirror.pendingImpact = impact;
+  }
+  wizardMirrorBeginCastVisual(mirror, spell.id, now, impactAt);
+  mirror.nextActionAt = now + wizardCastCooldownMs(spell, learned);
+  const castSfxPhase = wizardMirrorCastSfxPhase(spell.impactMode);
+  if (!options.offline && !suppressSimulationRender && castSfxPhase) {
+    wizardMirrorMirrorSfx(spell.id, castSfxPhase);
+  }
+  return true;
+}
+
+function wizardMirrorCombatTick(now, options = {}) {
+  const mirror = state.battle.wizardMirror;
+  if (!mirror?.active) return false;
+  updatePendingMirrorImpact(now, options);
+  updatePendingMirrorDefenceBuff(now, options);
+  if (mirror.pendingImpact || mirror.pendingDefenceBuff) return false;
+  if (mirror.moving || mirror.followPending) return false;
+  if (now < (mirror.nextActionAt ?? 0)) return false;
+  const owner = wizardMirrorOwner(mirror);
+  if (!owner || (owner.hp ?? 0) <= 0) return false;
+  const enemy = state.battle.enemy;
+  if (!enemy || enemy.hp <= 0) return false;
+  if (!options.offline && !state.battle.enemyRevealed) return false;
+  if (wizardMirrorTryMagicShield(mirror, owner, now, options)) return true;
+  return wizardMirrorTryAttack(mirror, owner, now, options);
+}
+
+function usableWizardMirroring(now, options = {}) {
+  const spell = wizardCombatSpell("Mirroring");
+  const learned = learnedMagic(spell?.id);
+  const manual = options.requireAuto === false;
+  if (bossPartyOnField()) return null;
+  if (!spell || !learned || !canUseWizardSpell(spell, learned, now, { requireAuto: !manual })) return null;
+  if (wizardMirrorActive()) return null;
+  const battle = state.battle;
+  if (battle.combatClass !== "Wizard" || !battle.player || battle.player.hp <= 0) return null;
+  if (options.ignorePhase) {
+    if (!battle.enemyRevealed || !battle.enemy?.hp) return null;
+  } else if (!wizardSupportCombatReady(battle)) {
+    return null;
+  }
+  return { spell, learned, cost: effectiveSpellMpCost(spell, learned) };
+}
+
+function usableQueuedWizardMirroring(now) {
+  const queued = queuedCombatSpell("Wizard");
+  if (!queued || queued.spell.id !== "Mirroring") return null;
+  return usableWizardMirroring(now, { requireAuto: false, ignorePhase: true });
+}
+
+function castWizardMirroring(castBundle, now, options = {}) {
+  const battle = state.battle;
+  const { spell, learned, cost } = castBundle;
+  if (wizardMirrorActive()) return false;
+  battle.lastPlayerAttackCooldownMs = wizardCastCooldownMs(spell, learned);
+  commitWizardSpellUse(spell, learned, cost, now);
+  levelMagicSkill(spell, learned, now);
+
+  if (options.offline) {
+    battle.wizardMirror = createWizardMirror(learned.level, now);
+    return true;
+  }
+
+  battle.pendingWizardMirror = {
+    at: now + (Number(spell.impactDelayMs) || CRYSTAL_MIRRORING_SUMMON_DELAY_MS),
+    spellLevel: Math.max(0, Math.trunc(Number(learned?.level) || 0)),
+  };
+
+  const atlas = state.wizardSpellAtlases[spell.id] ?? null;
+  battle.activeSkill = "None";
+  battle.activeSkillAtlas = null;
+  battle.activeWizardSpell = spell.id;
+  battle.activeWizardSpellAtlas = atlas;
+  battle.activeWizardSpellStartedAt = now;
+  battle.activeTaoSpell = null;
+  battle.activeTaoSpellAtlas = null;
+  battle.pendingImpact = null;
+  setPlayerAction(spell.bodyAction ?? "spell", now, true);
+  playSpellSfx(spell.id, "cast");
+  pushBattleLog(`Wizard casts ${spell.label}.`);
+  return true;
+}
+
+function updatePendingWizardMirror(now) {
+  const battle = state.battle;
+  const pending = battle.pendingWizardMirror;
+  if (!pending || now < pending.at) return false;
+  battle.pendingWizardMirror = null;
+  if (bossPartyOnField()) {
+    const owner = bossPartyMemberByClassId(pending.ownerClassId ?? "Wizard");
+    if (!battle.running || !owner?.alive || owner.hp <= 0) return true;
+  } else if (battle.combatClass !== "Wizard" || !battle.running || (battle.player?.hp ?? 0) <= 0) {
+    return true;
+  }
+  battle.wizardMirror = createWizardMirror(pending.spellLevel, now, { ownerClassId: pending.ownerClassId ?? null });
+  pushBattleLog("A mirror clone appears behind you.");
+  battlePanelSignature = "";
+  return true;
+}
+
+function updateWizardMirror(now, options = {}) {
+  const mirror = state.battle.wizardMirror;
+  if (!mirror?.active) return false;
+  const owner = wizardMirrorOwner(mirror);
+  if (!owner || (owner.hp ?? 0) <= 0) {
+    dismissWizardMirror({ log: true });
+    battlePanelSignature = "";
+    return true;
+  }
+  if (now >= mirror.expiresAt) {
+    dismissWizardMirror({ log: true });
+    battlePanelSignature = "";
+    return true;
+  }
+  if (!updateWizardMirrorUpkeep(mirror, owner, now)) return true;
+  updateWizardMirrorFollow(mirror, owner, now);
+  updateWizardMirrorVisual(mirror, now);
+  wizardMirrorCombatTick(now, options);
+  return false;
+}
+
+function maybeCastWizardMirroring(now) {
+  const battle = state.battle;
+  if (battle.combatClass !== "Wizard" || !wizardSupportCombatReady(battle)) return false;
+  if (queuedCombatSpell("Wizard")) return false;
+  const castBundle = usableWizardMirroring(now);
+  return Boolean(castBundle && castWizardMirroring(castBundle, now));
 }
 
 function taoistPetCanTank() {
@@ -28919,16 +33575,34 @@ function taoistPetSupportAttack(now) {
   const massHealing = usableTaoistMassHealing(now);
   if (massHealing) return castTaoistMassHealing(massHealing, now);
 
+  const healingCircle = usableTaoistHealingCircle(now);
+  if (healingCircle) return castTaoistHealingCircle(healingCircle, now);
+
   for (const spellId of ["SoulShield", "BlessedArmour"]) {
     const defenceBuff = usableTaoistDefenceBuff(spellId, now);
     if (defenceBuff) return castTaoistDefenceBuff(defenceBuff, now);
   }
 
+  const energyShield = usableTaoistEnergyShield(now);
+  if (energyShield) return castTaoistEnergyShield(energyShield, now);
+
   const ultimateEnhancer = usableTaoistUltimateEnhancer(now);
   if (ultimateEnhancer) return castTaoistUltimateEnhancer(ultimateEnhancer, now);
 
+  const petEnhancer = usableTaoistPetEnhancer(now);
+  if (petEnhancer) return castTaoistPetEnhancer(petEnhancer, now);
+
   const poisoning = usableTaoistPoisoning(now);
   if (poisoning) return castTaoistPoisoning(poisoning, now);
+
+  const poisonCloud = usableTaoistPoisonCloud(now);
+  if (poisonCloud) return castTaoistPoisonCloud(poisonCloud, now);
+
+  const curse = usableTaoistCurse(now);
+  if (curse) return castTaoistCurse(curse, now);
+
+  const plague = usableTaoistPlague(now);
+  if (plague) return castTaoistPlague(plague, now);
 
   const soulFireBall = usableTaoistSoulFireBall(now);
   if (soulFireBall) return castTaoistSoulFireBall(soulFireBall, now);
@@ -28963,12 +33637,24 @@ function taoistAttack(now) {
     return;
   }
 
+  const healingCircle = usableTaoistHealingCircle(now);
+  if (healingCircle) {
+    castTaoistHealingCircle(healingCircle, now);
+    return;
+  }
+
   for (const spellId of ["SoulShield", "BlessedArmour"]) {
     const defenceBuff = usableTaoistDefenceBuff(spellId, now);
     if (defenceBuff) {
       castTaoistDefenceBuff(defenceBuff, now);
       return;
     }
+  }
+
+  const energyShield = usableTaoistEnergyShield(now);
+  if (energyShield) {
+    castTaoistEnergyShield(energyShield, now);
+    return;
   }
 
   const ultimateEnhancer = usableTaoistUltimateEnhancer(now);
@@ -28995,9 +33681,33 @@ function taoistAttack(now) {
     return;
   }
 
+  const petEnhancer = usableTaoistPetEnhancer(now);
+  if (petEnhancer) {
+    castTaoistPetEnhancer(petEnhancer, now);
+    return;
+  }
+
   const poisoning = usableTaoistPoisoning(now);
   if (poisoning) {
     castTaoistPoisoning(poisoning, now);
+    return;
+  }
+
+  const poisonCloud = usableTaoistPoisonCloud(now);
+  if (poisonCloud) {
+    castTaoistPoisonCloud(poisonCloud, now);
+    return;
+  }
+
+  const curse = usableTaoistCurse(now);
+  if (curse) {
+    castTaoistCurse(curse, now);
+    return;
+  }
+
+  const plague = usableTaoistPlague(now);
+  if (plague) {
+    castTaoistPlague(plague, now);
     return;
   }
 
@@ -29079,22 +33789,46 @@ function maybeCastTaoistSoulFireBall(now) {
   return castTaoistSoulFireBall(soulFireBall, now, { secondary: true });
 }
 
-function activeTaoistSpellVisualBlocksSecondary(now) {
+function maybeCastTaoistPlague(now) {
   const battle = state.battle;
-  if (!battle.activeTaoSpell || battle.activeTaoSpell === "SoulFireBall") return false;
-  if (battle.pendingHeal || battle.pendingPoison || battle.pendingTaoPet || battle.pendingDefenceBuff || battle.pendingMassHeal || battle.pendingUltimateEnhancer) return true;
-  const elapsed = now - (battle.activeTaoSpellStartedAt || 0);
-  return elapsed >= 0 && elapsed < combatSpellVisualDurationMs(battle.activeTaoSpellAtlas);
+  if (battle.combatClass !== "Taoist" || battle.phase !== "engaged") return false;
+  if (battle.pendingImpact?.spellId === "Plague") return false;
+  if (activeTaoistSpellVisualBlocksSecondary(now)) return false;
+  const plague = usableTaoistPlague(now);
+  if (!plague) return false;
+  if (battle.activeTaoSpellStartedAt === now && battle.activeTaoSpell !== "Plague") return false;
+  return castTaoistPlague(plague, now, { secondary: true });
 }
 
-function combatSpellVisualDurationMs(atlas) {
+function maybeCastTaoistCurse(now) {
+  const battle = state.battle;
+  if (battle.combatClass !== "Taoist" || battle.phase !== "engaged") return false;
+  if (battle.pendingImpact?.spellId === "Curse") return false;
+  if (activeTaoistSpellVisualBlocksSecondary(now)) return false;
+  const curse = usableTaoistCurse(now);
+  if (!curse) return false;
+  if (battle.activeTaoSpellStartedAt === now && battle.activeTaoSpell !== "Curse") return false;
+  return castTaoistCurse(curse, now, { secondary: true });
+}
+
+function activeTaoistSpellVisualBlocksSecondary(now) {
+  const battle = state.battle;
+  if (!battle.activeTaoSpell || battle.activeTaoSpell === "SoulFireBall" || battle.activeTaoSpell === "Plague" || battle.activeTaoSpell === "Curse") return false;
+  if (battle.pendingHeal || battle.pendingPoison || battle.pendingTaoPet || battle.pendingDefenceBuff || battle.pendingMassHeal || battle.pendingUltimateEnhancer || battle.pendingPetEnhancer) return true;
+  const elapsed = now - (battle.activeTaoSpellStartedAt || 0);
+  return elapsed >= 0 && elapsed < combatSpellVisualDurationMs(battle.activeTaoSpellAtlas, taoistCombatSpell(battle.activeTaoSpell));
+}
+
+function combatSpellVisualDurationMs(atlas, spell = null) {
   const layerDurations = (atlas?.layers ?? []).map((layer) => (
     (Number(layer.delayMs) || 0) + Math.max(0, (layer.frames?.length ?? 0) * (Number(layer.interval) || 0))
   ));
   if (atlas?.projectile) {
     layerDurations.push((Number(atlas.projectile.delayMs) || 0) + (Number(atlas.projectile.moveDurationMs) || 0));
   }
-  if (atlas?.impact) {
+  if (spell && spellShowsProjectileVisual(spell, atlas)) {
+    layerDurations.push(wizardImpactDelay(spell, atlas) + spellImpactVisualDurationMs(spell, atlas));
+  } else if (atlas?.impact) {
     layerDurations.push((Number(atlas.impact.delayMs) || 0) + Math.max(0, (atlas.impact.frames?.length ?? 0) * (Number(atlas.impact.interval) || 0)));
   }
   return Math.max(0, ...layerDurations);
@@ -29117,7 +33851,8 @@ function castTaoistSoulFireBall(soulFireBall, now, options = {}) {
   battle.activeTaoSpell = spell.id;
   battle.activeTaoSpellAtlas = atlas;
   battle.activeTaoSpellStartedAt = now;
-  battle.pendingImpact = { at: impactAt, spellId: spell.id, damage, hit: hit && damage > 0 };
+  setActiveSpellImpactAnchor({ worldX: battle.enemyX });
+  battle.pendingImpact = { at: impactAt, spellId: spell.id, damage, hit: hit && damage > 0, worldX: battle.enemyX };
   if (!secondary) {
     battle.activeSkill = "None";
     battle.activeSkillAtlas = null;
@@ -29138,6 +33873,7 @@ function updateTaoistPetAttack(now, options = {}) {
   if (battle.combatClass !== "Taoist" || !pet?.active || !battle.enemy || battle.enemy.hp <= 0) return false;
   if (combatantParalyzed(pet)) return false;
   if (battle.pendingPetAttack) return false;
+  if (taoistPetIsFollower(pet) && (pet.moving || pet.followPending)) return false;
   if (now < (pet.nextAttackAt ?? 0)) return false;
   if (pet.spellId === "SummonShinsu" && !pet.shinsuVisible && pet.action === "show") {
     if (!options.offline) return false;
@@ -29147,7 +33883,7 @@ function updateTaoistPetAttack(now, options = {}) {
     pet.oneShot = false;
   }
   if (taoistPetEnemyDistance() > taoistPetAttackRangePx(pet)) {
-    if (!options.offline) setTaoPetAction("standing", false, now);
+    if (!options.offline && !taoistPetIsFollower(pet)) setTaoPetAction("standing", false, now);
     return false;
   }
   pet.nextAttackAt = now + Math.max(400, Math.trunc(Number(pet.attackMs) || 1200));
@@ -29167,26 +33903,20 @@ function taoistPetAttack(now, options = {}) {
     setTaoPetAction("attack1", true, now);
   }
 
-  if (pet.spellId === "SummonShinsu") {
-    if (!options.offline) playTaoPetSfx("attack", { volume: 0.36, throttleMs: 250 });
+  if (pet.spellId === "SummonShinsu" || pet.spellId === "SummonHolyDeva") {
+    if (!options.offline && pet.spellId === "SummonShinsu") {
+      playTaoPetSfx("attack", { volume: 0.36, throttleMs: 250 });
+    }
+    const target = taoistPetAttackTargetPosition(enemy);
     battle.pendingPetAttack = {
-      at: now + taoistShinsuAttackImpactMs(),
+      at: now + taoistPetAttackImpactMs(pet),
+      spellId: pet.spellId,
       hit: result.hit,
       damage: result.damage,
       offline: Boolean(options.offline),
       bossParty: false,
-    };
-    return true;
-  }
-
-  if (pet.spellId === "SummonHolyDeva") {
-    if (!options.offline) playTaoPetSfx("attack", { volume: 0.36, throttleMs: 250 });
-    battle.pendingPetAttack = {
-      at: now + CRYSTAL_HOLY_DEVA_ATTACK_IMPACT_MS,
-      hit: result.hit,
-      damage: result.damage,
-      offline: Boolean(options.offline),
-      bossParty: false,
+      targetWorldX: target.worldX,
+      targetMapRow: target.mapRow,
     };
     return true;
   }
@@ -29286,11 +34016,76 @@ function taoistWeaponAttack(now, failedSpell = null) {
   }
 }
 
+function wizardStormFieldDurationMs(spell) {
+  if (spell?.groundFixedDurationMs != null) {
+    return Math.max(0, Math.trunc(Number(spell.groundFixedDurationMs) || 0));
+  }
+  return wizardGroundEffectDurationMs(spell, 0);
+}
+
+function wizardStormChannelActive(now, member = null) {
+  if (member) return (member.wizardStormChannelUntil ?? 0) > now;
+  return (state.battle.wizardStormChannelUntil ?? 0) > now;
+}
+
+function beginWizardStormChannel(until, member = null) {
+  const endAt = Math.max(0, Math.trunc(Number(until) || 0));
+  if (member) member.wizardStormChannelUntil = endAt;
+  else state.battle.wizardStormChannelUntil = endAt;
+}
+
+function clearWizardStormChannel(member = null) {
+  if (member) member.wizardStormChannelUntil = 0;
+  else {
+    state.battle.wizardStormChannelUntil = 0;
+    for (const partyMember of state.battle.bossParty?.members ?? []) {
+      partyMember.wizardStormChannelUntil = 0;
+    }
+  }
+}
+
+function wizardStormFieldActive(now, spellId = null) {
+  return (state.battle.groundSpellEffects ?? []).some((effect) => {
+    if (now >= effect.expiresAt) return false;
+    if (spellId && effect.spellId !== spellId) return false;
+    return Boolean(wizardCombatSpell(effect.spellId)?.groundChannel);
+  });
+}
+
+function wizardStormTargetCount(centerTile) {
+  if (!centerTile) return 0;
+  const tiles = spellStormAreaTiles(centerTile.worldX, centerTile.mapRow);
+  if (groupDungeonSwarmSideActive()) {
+    return (state.battle.swarm?.enemies ?? []).filter((swarmEnemy) => {
+      if (swarmEnemy.hp <= 0 || swarmEnemy.dying) return false;
+      const tile = swarmEnemyReservedTile(swarmEnemy);
+      return tiles.some((entry) => entry.worldX === tile.worldX && entry.mapRow === tile.mapRow);
+    }).length;
+  }
+  return (state.battle.enemy?.hp ?? 0) > 0 ? 1 : 0;
+}
+
+function wizardStormCenterTile(enemy = null, member = null) {
+  const battle = state.battle;
+  if (groupDungeonSwarmSideActive()) {
+    const best = groupDungeonSwarmBestBangCenterTile(null, member);
+    if (best) return best;
+    if (enemy?.swarmId) {
+      const swarmEnemy = findGroupDungeonSwarmEnemy(enemy.swarmId);
+      if (swarmEnemy) return swarmEnemyTilePosition(swarmEnemy);
+    }
+    if (groupDungeonSwarmLivingEnemies().length) return groupDungeonSwarmFireWallCenterTile();
+  }
+  return { worldX: swarmSnapTileX(battle.enemyX), mapRow: 0 };
+}
+
 function wizardBangCenterTile(enemy = null, spell = null, member = null) {
   const battle = state.battle;
   if (groupDungeonSwarmSideActive()) {
-    const bestCenter = groupDungeonSwarmBestBangCenterTile(spell, member);
-    if (bestCenter) return bestCenter;
+    if (!spell?.bangTargeted) {
+      const bestCenter = groupDungeonSwarmBestBangCenterTile(spell, member);
+      if (bestCenter) return bestCenter;
+    }
     if (enemy?.swarmId) {
       const swarmEnemy = findGroupDungeonSwarmEnemy(enemy.swarmId);
       if (swarmEnemy) return swarmEnemyTilePosition(swarmEnemy);
@@ -29309,6 +34104,20 @@ function enemiesInSpellBangArea(centerTile) {
       return tiles.some((entry) => entry.worldX === tile.worldX && entry.mapRow === tile.mapRow);
     });
     if (swarmEnemies.length || groupDungeonSwarmSideActive()) return swarmEnemies;
+  }
+  const battle = state.battle;
+  if (battle.enemy?.hp > 0 && battle.enemyRevealed) return [battle.enemy];
+  return [];
+}
+
+function enemiesInSpellGroundArea(centerTile, radius = 2) {
+  if (groupDungeonSwarmSideActive()) {
+    const tiles = spellGroundAreaTiles(centerTile.worldX, centerTile.mapRow, radius);
+    return (state.battle.swarm?.enemies ?? []).filter((swarmEnemy) => {
+      if (swarmEnemy.hp <= 0 || swarmEnemy.dying) return false;
+      const tile = swarmEnemyReservedTile(swarmEnemy);
+      return tiles.some((entry) => entry.worldX === tile.worldX && entry.mapRow === tile.mapRow);
+    });
   }
   const battle = state.battle;
   if (battle.enemy?.hp > 0 && battle.enemyRevealed) return [battle.enemy];
@@ -29450,11 +34259,22 @@ function updatePendingImpact(now) {
     applyWizardBangSpellImpact(spell, impact, now);
     return;
   }
+  if (spell.impactMode === "plague") {
+    queueSpellImpactFx(spell.id, impact, now);
+    applyPlagueSpellImpact(spell, impact, now);
+    return;
+  }
+  if (spell.impactMode === "curse") {
+    queueSpellImpactFx(spell.id, impact, now);
+    applyCurseSpellImpact(spell, impact, now);
+    return;
+  }
   if (spell.impactMode === "ground") {
     createWizardGroundSpellEffect(spell, impact, now);
     return;
   }
   playSpellStrikeSfx(spell.id, { volume: 0.5, force: true, throttleMs: 0 });
+  queueSpellImpactFx(spell.id, impact, now);
   const canApply = battle.enemy && battle.enemy.hp > 0 && battle.enemyRevealed;
   if (!canApply) return;
   if (impact.turnUndead) {
@@ -29487,34 +34307,82 @@ function updatePendingImpact(now) {
 
 function createWizardGroundSpellEffect(spell, impact, now, partyCaster = null, partyLearned = null) {
   const battle = state.battle;
-  const value = Math.max(0, Math.trunc(Number(impact.value) || 0));
-  const widthTiles = Math.max(1, Math.trunc(Number(spell.groundWidthTiles) || 1));
-  const halfWidth = Math.floor(widthTiles / 2);
-  const offsets = Array.from({ length: widthTiles }, (_, index) => (index - halfWidth) * LANE_TILE_PX);
-  const durationMs = wizardGroundEffectDurationMs(spell, value);
+  const durationPower = Math.max(0, Math.trunc(Number(impact.durationLevel ?? impact.value) || 0));
+  const value = impact.damageValue != null
+    ? Math.max(0, Math.trunc(Number(impact.damageValue) || 0))
+    : Math.max(0, Math.trunc(Number(impact.value) || 0));
   const swarmActive = groupDungeonSwarmSideActive();
-  const swarmCenterTile = swarmActive
-    ? (impact.centerTile ?? groupDungeonSwarmBestFireWallCenterTile(spell, partyCaster, now) ?? groupDungeonSwarmFireWallCenterTile())
-    : null;
+  const channelStorm = Boolean(spell.groundChannel);
+  const areaField = spell.groundAreaRadius != null;
+  let centerTile = null;
+  let offsets = [];
+  let tiles = null;
+  if (channelStorm || areaField) {
+    centerTile = impact.centerTile ?? (spell.groundHealOnly
+      ? healingCircleCenterTile(partyCaster)
+      : wizardStormCenterTile(null, partyCaster));
+    const radius = channelStorm ? 2 : Math.max(0, Math.trunc(Number(spell.groundAreaRadius) || 0));
+    tiles = spellGroundAreaTiles(centerTile.worldX, centerTile.mapRow, radius);
+  } else {
+    const widthTiles = Math.max(1, Math.trunc(Number(spell.groundWidthTiles) || 1));
+    const halfWidth = Math.floor(widthTiles / 2);
+    offsets = Array.from({ length: widthTiles }, (_, index) => (index - halfWidth) * LANE_TILE_PX);
+    if (swarmActive) {
+      centerTile = impact.centerTile ?? groupDungeonSwarmBestFireWallCenterTile(spell, partyCaster, now) ?? groupDungeonSwarmFireWallCenterTile();
+      tiles = fireWallCrossTiles(centerTile.worldX, centerTile.mapRow);
+      offsets = [];
+    }
+  }
+  const durationMs = channelStorm
+    ? wizardStormFieldDurationMs(spell)
+    : areaField && spell.groundFixedDurationMs != null
+      ? wizardStormFieldDurationMs(spell)
+      : wizardGroundEffectDurationMs(spell, durationPower);
+  const tickStartDelayMs = Math.max(0, Math.trunc(Number(spell.groundTickStartDelayMs) || 0));
   const effect = {
     id: `${spell.id}-${now}-${Math.random()}`,
     spellId: spell.id,
     casterClassId: partyCaster?.classId ?? null,
-    worldX: swarmActive ? swarmCenterTile.worldX : (Number(impact.worldX) || battle.enemyX),
-    offsets: swarmActive ? [] : offsets,
-    tiles: swarmActive ? fireWallCrossTiles(swarmCenterTile.worldX, swarmCenterTile.mapRow) : null,
+    worldX: channelStorm || areaField ? centerTile.worldX : (swarmActive ? centerTile.worldX : (Number(impact.worldX) || battle.enemyX)),
+    stormCenter: channelStorm ? centerTile : null,
+    fieldCenter: areaField && !channelStorm ? centerTile : null,
+    offsets: swarmActive && !channelStorm && !areaField ? [] : offsets,
+    tiles: swarmActive || channelStorm || areaField ? tiles : null,
     value,
     createdAt: now,
     expiresAt: now + durationMs,
-    nextTickAt: now,
+    nextTickAt: now + tickStartDelayMs,
     tickMs: Math.max(250, Math.trunc(Number(spell.groundTickMs) || 2000)),
   };
   battle.groundSpellEffects = [...(battle.groundSpellEffects ?? []), effect].slice(-8);
+  if (spell.groundChannel) {
+    beginWizardStormChannel(now + durationMs, partyCaster);
+  }
   const sfx = partyCaster
     ? bossPartySfxParams(partyCaster, 0.48, 0)
     : { volume: 0.48, throttleMs: 80 };
-  playSpellSfx(spell.id, "impact", sfx) || playSpellSfx(spell.id, "cast", sfx);
-  pushBattleLog(`${spell.label} burns on the ground.`);
+  if (spell.id === "MeteorStrike") {
+    playMeteorStrikeFieldSfx(sfx);
+  } else if (spell.id === "Blizzard") {
+    playBlizzardFieldSfx(sfx);
+  } else if (spell.id === "PoisonCloud") {
+    playSpellSfx(spell.id, "cast", sfx);
+  } else if (spell.id === "HealingCircle") {
+    playSpellSfx(spell.id, "impact", sfx) || playSpellSfx(spell.id, "cast", sfx);
+  } else {
+    playSpellSfx(spell.id, "impact", sfx) || playSpellSfx(spell.id, "cast", sfx);
+  }
+  if (channelStorm) {
+    pushBattleLog(spell.id === "Blizzard"
+      ? `${spell.label} envelops the target in ice.`
+      : `${spell.label} rains meteors on the target.`);
+  } else if (areaField && spell.id === "PoisonCloud") {
+    pushBattleLog(`${spell.label} spreads toxic mist on the target.`);
+  } else if (areaField && spell.id === "HealingCircle") {
+    pushBattleLog(`${spell.label} settles beneath the Taoist.`);
+  } else {
+    pushBattleLog(`${spell.label} burns on the ground.`);
+  }
   if (partyCaster && partyLearned) {
     bossPartyLevelMagicSkill(partyCaster, spell, partyLearned, now);
   } else {
@@ -29525,6 +34393,9 @@ function createWizardGroundSpellEffect(spell, impact, now, partyCaster = null, p
 }
 
 function wizardGroundEffectDurationMs(spell, value) {
+  if (spell?.groundFixedDurationMs != null) {
+    return Math.max(0, Math.trunc(Number(spell.groundFixedDurationMs) || 0));
+  }
   const base = Math.max(0, Math.trunc(Number(spell.groundDurationBaseMs) || 10000));
   const perPower = Math.max(0, Math.trunc(Number(spell.groundDurationPerPowerMs) || 500));
   return base + Math.max(0, Math.trunc(Number(value) || 0)) * perPower;
@@ -29914,15 +34785,26 @@ function mapHellFireFrameIndex(effect, layer, now) {
 function updateGroundSpellEffects(now) {
   const battle = state.battle;
   const effects = Array.isArray(battle.groundSpellEffects) ? battle.groundSpellEffects : [];
-  if (!effects.length) return false;
+  if (!effects.length) {
+    if (!wizardStormFieldActive(now)) clearWizardStormChannel();
+    return false;
+  }
 
   let changed = false;
   battle.groundSpellEffects = effects.filter((effect) => now <= effect.expiresAt);
   if (battle.groundSpellEffects.length !== effects.length) changed = true;
+  if (!wizardStormFieldActive(now)) clearWizardStormChannel();
 
   const swarmActive = groupDungeonSwarmSideActive();
   for (const effect of battle.groundSpellEffects) {
+    const spell = combatGroundSpell(effect.spellId);
     while (effect.nextTickAt <= now && effect.nextTickAt <= effect.expiresAt) {
+      if (spell?.groundHealOnly) {
+        applyHealingCircleTickAllies(effect, effect.nextTickAt);
+        changed = true;
+        effect.nextTickAt += effect.tickMs;
+        continue;
+      }
       if (swarmActive && effect.tiles?.length) {
         const swarmEnemies = battle.swarm?.enemies ?? [];
         for (const swarmEnemy of swarmEnemies) {
@@ -29950,67 +34832,121 @@ function groundSpellEffectHitsSwarmEnemy(effect, swarmEnemy) {
 }
 
 function groundSpellEffectHitsEnemy(effect) {
+  const spell = combatGroundSpell(effect.spellId);
+  if (spell?.groundHealOnly) return false;
   const battle = state.battle;
   if (!battle.enemy || battle.enemy.hp <= 0) return false;
+  // Solo / single-boss: targeted area fields always hit the current enemy.
+  if ((effect.fieldCenter || effect.stormCenter) && !groupDungeonSwarmSideActive()) return true;
+  if (effect.tiles?.length) {
+    const mapRow = Math.trunc(Number(effect.fieldCenter?.mapRow ?? effect.stormCenter?.mapRow) || 0);
+    const tile = { worldX: swarmSnapTileX(battle.enemyX), mapRow };
+    return effect.tiles.some(
+      (entry) => entry.worldX === tile.worldX && entry.mapRow === tile.mapRow,
+    );
+  }
   const hitRadius = LANE_TILE_PX * 0.55;
   return (effect.offsets ?? [0]).some((offset) => Math.abs(battle.enemyX - (effect.worldX + offset)) <= hitRadius);
 }
 
+function groundSpellTickValue(effect, spell) {
+  if (spell?.groundTickRoll) {
+    const player = groundSpellTickPlayer(effect);
+    let learned = null;
+    let inventory = state.inventory;
+    if (effect.casterClassId) {
+      const member = state.battle.bossParty?.members?.find((entry) => entry.classId === effect.casterClassId);
+      if (member) {
+        learned = bossPartyLearned(member, spell.id);
+        inventory = member.inventory ?? state.inventory;
+      }
+    } else {
+      learned = learnedMagic(spell.id);
+    }
+    return applyEquippedSpellDamageBonus(spell.id, rollTaoistMagicValue(spell, learned, player), inventory);
+  }
+  if (!spell?.groundChannel) return Math.max(0, Math.trunc(Number(effect.value) || 0));
+  let learned = null;
+  let player = state.battle.player;
+  let inventory = state.inventory;
+  if (effect.casterClassId) {
+    const member = state.battle.bossParty?.members?.find((entry) => entry.classId === effect.casterClassId);
+    if (member) {
+      learned = bossPartyLearned(member, spell.id);
+      player = member;
+      inventory = member.inventory ?? state.inventory;
+    }
+  } else {
+    learned = learnedMagic(spell.id);
+  }
+  return rollWizardMagicValue(spell, learned, player, inventory);
+}
+
 function applyGroundSpellTick(effect, now) {
   const battle = state.battle;
-  const spell = wizardCombatSpell(effect.spellId);
-  const damage = applyWizardMagicDefence(effect.value, battle.enemy);
+  const spell = combatGroundSpell(effect.spellId);
+  const player = groundSpellTickPlayer(effect);
+  const damage = applyWizardMagicDefence(groundSpellTickValue(effect, spell), battle.enemy);
   if (damage <= 0) {
     applyCombatEvents(magicResistEvents(spell.label, battle.enemy.name), now);
-    return;
-  }
+  } else {
+    queueEnemyStruck(now);
+    playMonsterSfx("flinch");
+    if (!spell?.groundChannel) {
+      playSpellSfx(spell.id, "impact", { volume: 0.42, throttleMs: 160 }) || playSpellSfx(spell.id, "cast", { volume: 0.38, throttleMs: 160 });
+    }
+    if (effect.casterClassId) recordBossCombatDamage(effect.casterClassId, effect.spellId, damage);
+    applyCombatEvents(magicBurnEvents(spell.label, battle.enemy.name, damage), now, { enemy: battle.enemy });
 
-  queueEnemyStruck(now);
-  playMonsterSfx("flinch");
-  playSpellSfx(spell.id, "impact", { volume: 0.42, throttleMs: 160 }) || playSpellSfx(spell.id, "cast", { volume: 0.38, throttleMs: 160 });
-  if (effect.casterClassId) recordBossCombatDamage(effect.casterClassId, effect.spellId, damage);
-  applyCombatEvents(magicBurnEvents(spell.label, battle.enemy.name, damage), now, { enemy: battle.enemy });
-
-  if (battle.enemy.hp <= 0) {
-    setEnemyAction("die", false, now);
-    playMonsterSfx("death");
-    if (!battle.bossParty?.active) {
-      finishEnemy(now);
-      pushBattleLog(`${battle.enemy.name} is defeated.`);
+    if (battle.enemy.hp <= 0) {
+      setEnemyAction("die", false, now);
+      playMonsterSfx("death");
+      if (!battle.bossParty?.active) {
+        finishEnemy(now);
+        pushBattleLog(`${battle.enemy.name} is defeated.`);
+      }
+      return;
     }
   }
+  maybeApplyBlizzardSlowTick(spell, battle.enemy, player, now);
+  if (damage > 0) maybeApplyPoisonCloudTickPoison(spell, battle.enemy, player, now);
 }
 
 function applyGroundSpellTickToSwarmEnemy(effect, swarmEnemy, now) {
-  const spell = wizardCombatSpell(effect.spellId);
-  const damage = applyWizardMagicDefence(effect.value, swarmEnemy);
+  const spell = combatGroundSpell(effect.spellId);
+  const player = groundSpellTickPlayer(effect);
+  const damage = applyWizardMagicDefence(groundSpellTickValue(effect, spell), swarmEnemy);
   if (damage <= 0) {
     addSwarmEnemyCombatText(swarmEnemy, "0", "damage", now);
     applyCombatEvents(magicResistEvents(spell.label, swarmEnemy.name), now);
-    return;
-  }
+  } else {
+    const primary = groupDungeonPrimarySwarmEnemy();
+    if (primary?.id === swarmEnemy.id && state.battle.enemy) {
+      state.enemy.action = swarmEnemy.action;
+      state.enemy.frame = swarmEnemy.frame;
+      state.enemy.oneShot = swarmEnemy.oneShot;
+      state.enemy.lastTick = swarmEnemy.lastTick;
+    }
+    queueSwarmEnemyStruck(swarmEnemy, now);
+    playMonsterSfx("flinch", swarmEnemy);
+    if (!spell?.groundChannel) {
+      playSpellSfx(spell.id, "impact", { volume: 0.42, throttleMs: 160 }) || playSpellSfx(spell.id, "cast", { volume: 0.38, throttleMs: 160 });
+    }
+    if (effect.casterClassId) recordBossCombatDamage(effect.casterClassId, effect.spellId, damage);
+    addSwarmEnemyCombatText(swarmEnemy, damage, "damage", now);
+    applyCombatEvents(
+      magicBurnEvents(spell.label, swarmEnemy.name, damage, "enemy", { swarmId: swarmEnemy.id }),
+      now,
+      { swarmEnemy },
+    );
 
-  const primary = groupDungeonPrimarySwarmEnemy();
-  if (primary?.id === swarmEnemy.id && state.battle.enemy) {
-    state.enemy.action = swarmEnemy.action;
-    state.enemy.frame = swarmEnemy.frame;
-    state.enemy.oneShot = swarmEnemy.oneShot;
-    state.enemy.lastTick = swarmEnemy.lastTick;
+    if (swarmEnemy.hp <= 0) {
+      maybeKillGroupDungeonSwarmEnemy(swarmEnemyToBattleEntity(swarmEnemy), now);
+      return;
+    }
   }
-  queueSwarmEnemyStruck(swarmEnemy, now);
-  playMonsterSfx("flinch", swarmEnemy);
-  playSpellSfx(spell.id, "impact", { volume: 0.42, throttleMs: 160 }) || playSpellSfx(spell.id, "cast", { volume: 0.38, throttleMs: 160 });
-  if (effect.casterClassId) recordBossCombatDamage(effect.casterClassId, effect.spellId, damage);
-  addSwarmEnemyCombatText(swarmEnemy, damage, "damage", now);
-  applyCombatEvents(
-    magicBurnEvents(spell.label, swarmEnemy.name, damage, "enemy", { swarmId: swarmEnemy.id }),
-    now,
-    { swarmEnemy },
-  );
-
-  if (swarmEnemy.hp <= 0) {
-    maybeKillGroupDungeonSwarmEnemy(swarmEnemyToBattleEntity(swarmEnemy), now);
-  }
+  maybeApplyBlizzardSlowTick(spell, swarmEnemy, player, now, { swarmEnemy });
+  if (damage > 0) maybeApplyPoisonCloudTickPoison(spell, swarmEnemy, player, now, { swarmEnemy });
 }
 
 function enemyAttack(now) {
@@ -30091,6 +35027,7 @@ function applyCombatDamageEvent(event, now = performance.now(), context = {}) {
   }
   if (event.target === "player" || event.target === "pet" || event.target === "partyMember") {
     context.target?.applyDamage?.(amount, now);
+    tryEnergyShieldProcOnHit(context.target, amount, now);
   }
 }
 
@@ -30359,8 +35296,10 @@ function finishBattle(now) {
   state.battle.pendingHeal = null;
   state.battle.pendingPoison = null;
   state.battle.pendingDefenceBuff = null;
+  state.battle.pendingWizardBuff = null;
   state.battle.pendingMassHeal = null;
   state.battle.pendingUltimateEnhancer = null;
+  state.battle.pendingPetEnhancer = null;
   state.battle.defenceBuffFx = [];
   state.battle.massHealFx = [];
   state.battle.healFx = [];
@@ -30372,8 +35311,9 @@ function finishBattle(now) {
   state.battle.twinDrakeChargeFxStartedAt = 0;
   state.battle.twinDrakeChargeFxUntil = 0;
   state.battle.pendingTwinDrakeHits = [];
+  clearSlashingBurstPendingState();
   state.battle.attachedSpellFx = [];
-  dismissTaoistPet();
+  dismissBattleCompanions();
   state.battle.groundSpellEffects = [];
   state.battle.mapLightningEffects = [];
   state.battle.nextMapLightningAt = 0;
@@ -30791,7 +35731,11 @@ function combatSkillButtonHtml(skill, learned, now) {
   const mpCost = effectiveSpellMpCost(skill, learned);
   const enoughMp = (state.battle.player?.mp ?? 0) >= mpCost;
   const hasPoison = skill.id !== "Poisoning" || poisonInventoryCount() > 0;
-  const needsAmulet = skill.id === "SoulFireBall" || skill.id === "SummonSkeleton" || skill.id === "SummonShinsu" || skill.id === "SummonHolyDeva";
+  const hasPoisonCloudSupplies = skill.id !== "PoisonCloud"
+    || (amuletInventoryCount() >= POISON_CLOUD_AMULET_COST && poisonInventoryCount("green") >= POISON_CLOUD_GREEN_POISON_COST);
+  const hasPlagueSupplies = skill.id !== "Plague" || amuletInventoryCount() >= PLAGUE_AMULET_COST;
+  const hasCurseSupplies = skill.id !== "Curse" || amuletInventoryCount() >= CURSE_AMULET_COST;
+  const needsAmulet = skill.id === "SoulFireBall" || skill.id === "Plague" || skill.id === "Curse" || skill.id === "SummonSkeleton" || skill.id === "SummonShinsu" || skill.id === "SummonHolyDeva";
   const amuletCost = taoistSummonAmuletCost(skill.id);
   const hasAmulet = !needsAmulet || amuletInventoryCount() >= (skill.id === "SoulFireBall" ? 1 : amuletCost);
   const auto = Boolean(learned?.autoCast);
@@ -30805,6 +35749,12 @@ function combatSkillButtonHtml(skill, learned, now) {
   const autoLabel = auto ? "On" : autoLimitReached ? "Max" : "Off";
   const consumableText = skill.id === "Poisoning"
     ? ` | Green ${poisonInventoryCount("green")} Yellow ${poisonInventoryCount("yellow")}`
+    : skill.id === "PoisonCloud"
+    ? ` | Amulets ${amuletInventoryCount()} (need ${POISON_CLOUD_AMULET_COST}) Green ${poisonInventoryCount("green")} (need ${POISON_CLOUD_GREEN_POISON_COST})`
+    : skill.id === "Plague"
+    ? ` | Amulets ${amuletInventoryCount()} (need ${PLAGUE_AMULET_COST}) Green ${poisonInventoryCount("green")} Yellow ${poisonInventoryCount("yellow")}`
+    : skill.id === "Curse"
+    ? ` | Amulets ${amuletInventoryCount()} (need ${CURSE_AMULET_COST})`
     : needsAmulet
     ? ` | Amulets ${amuletInventoryCount()}${amuletCost > 1 ? ` (need ${amuletCost})` : ""}`
     : "";
@@ -30825,7 +35775,7 @@ function combatSkillButtonHtml(skill, learned, now) {
   return `
     <div class="combat-skill-control ${auto ? "active" : ""} ${queued || chargeReady ? "queued" : ""}">
       <button
-        class="combat-skill-button ${auto ? "active" : ""} ${queued || chargeReady ? "queued" : ""} ${chargeReady ? "charged" : ""} ${remainingMs > 0 ? "cooling" : ""} ${!enoughMp || !hasPoison || !hasAmulet ? "no-mp" : ""}"
+        class="combat-skill-button ${auto ? "active" : ""} ${queued || chargeReady ? "queued" : ""} ${chargeReady ? "charged" : ""} ${remainingMs > 0 ? "cooling" : ""} ${!enoughMp || !hasPoison || !hasPoisonCloudSupplies || !hasPlagueSupplies || !hasCurseSupplies || !hasAmulet ? "no-mp" : ""}"
         type="button"
         data-cast-combat-skill="${escapeHtml(skill.id)}"
         title="${escapeHtml(castTitle)}"
@@ -30910,8 +35860,28 @@ function wizardCombatSpell(spellId) {
   return WIZARD_COMBAT_SPELLS.find((spell) => spell.id === spellId) ?? WIZARD_COMBAT_SPELLS[0];
 }
 
+function isWizardSupportSpell(spell) {
+  if (!spell) return false;
+  if (spell.impactMode === "buff" || spell.impactMode === "summon") return true;
+  return spell.id === "MagicShield" || spell.id === "Mirroring" || spell.id === "MagicBooster";
+}
+
+function isWizardAttackSpell(spell) {
+  return Boolean(spell && !isWizardSupportSpell(spell));
+}
+
 function taoistCombatSpell(spellId) {
   return TAOIST_COMBAT_SPELLS.find((spell) => spell.id === spellId) ?? TAOIST_COMBAT_SPELLS[0];
+}
+
+function combatGroundSpell(spellId) {
+  return WIZARD_COMBAT_SPELLS.find((spell) => spell.id === spellId)
+    ?? TAOIST_COMBAT_SPELLS.find((spell) => spell.id === spellId)
+    ?? null;
+}
+
+function combatGroundSpellAtlas(spellId) {
+  return state.wizardSpellAtlases[spellId] ?? state.taoistSpellAtlases[spellId] ?? null;
 }
 
 function combatAttackSpell(spellId) {
@@ -30920,14 +35890,46 @@ function combatAttackSpell(spellId) {
     ?? null;
 }
 
-function wizardImpactDelay(spell, atlas) {
-  if (spell.impactMode === "projectile") {
+function wizardImpactDelay(spell, atlas, options = {}) {
+  if (spell.impactMode === "projectile" || spell.impactMode === "plague" || spell.impactMode === "curse") {
+    const playerAnchor = options.playerAnchor ?? combatAnchor("player");
+    const enemyAnchor = options.enemyAnchor ?? combatAnchor("enemy");
     if (atlas?.projectile) {
-      return Math.max((atlas.projectile.delayMs ?? 0) + 120, crystalProjectileImpactDelayMs());
+      return combatProjectileImpactDelayMs(atlas, playerAnchor, enemyAnchor);
     }
     return crystalProjectileImpactDelayMs();
   }
   return spell.impactDelayMs ?? 450;
+}
+
+// Crystal missiles step one tile every 50ms; idle combat uses a slightly slower constant rate.
+const COMBAT_PROJECTILE_SPEED_PX_PER_MS = LANE_TILE_PX / 70;
+const COMBAT_PROJECTILE_TRAVEL_MIN_MS = 150;
+const COMBAT_PROJECTILE_TRAVEL_MAX_MS = 1200;
+
+function combatProjectileEndpoints(playerAnchor, enemyAnchor, projectile) {
+  const startOffsetX = Number(projectile?.startOffsetX) || 0;
+  const startOffsetY = Number(projectile?.startOffsetY) || 0;
+  const endOffsetY = Number(projectile?.endOffsetY) || 0;
+  return {
+    startX: playerAnchor.x + startOffsetX,
+    startY: playerAnchor.y + startOffsetY,
+    targetX: enemyAnchor.x,
+    targetY: enemyAnchor.y + endOffsetY,
+  };
+}
+
+function combatProjectileTravelDurationMs(fromX, fromY, toX, toY) {
+  const distance = Math.hypot(toX - fromX, toY - fromY);
+  if (distance <= 0) return COMBAT_PROJECTILE_TRAVEL_MIN_MS;
+  const travelMs = Math.round(distance / COMBAT_PROJECTILE_SPEED_PX_PER_MS);
+  return Math.max(COMBAT_PROJECTILE_TRAVEL_MIN_MS, Math.min(COMBAT_PROJECTILE_TRAVEL_MAX_MS, travelMs));
+}
+
+function combatProjectileImpactDelayMs(atlas, playerAnchor = combatAnchor("player"), enemyAnchor = combatAnchor("enemy")) {
+  const delayMs = Number(atlas?.projectile?.delayMs) || 0;
+  const { startX, startY, targetX, targetY } = combatProjectileEndpoints(playerAnchor, enemyAnchor, atlas?.projectile);
+  return delayMs + combatProjectileTravelDurationMs(startX, startY, targetX, targetY);
 }
 
 function crystalProjectileImpactDelayMs() {
@@ -31073,19 +36075,91 @@ function enemyDistance() {
 function playerAttackRange(now = performance.now()) {
   if (state.battle.combatClass === "Wizard") return wizardAttackRange(now);
   if (state.battle.combatClass === "Taoist") return taoistAttackRange(now);
+  const thrustingReach = thrustingEnabled() ? THRUSTING_RANGE : LANE.warriorRange;
   const queuedWarriorSkill = queuedCombatSpell("Warrior")?.spell;
-  if (queuedWarriorSkill?.id === "Thrusting") return THRUSTING_RANGE;
-  return thrustingEnabled() ? THRUSTING_RANGE : LANE.warriorRange;
+  if (queuedWarriorSkill?.id === "BladeAvalanche" && warriorBladeAvalancheSelected()) {
+    return BLADE_AVALANCHE_MAX_RANGE_PX;
+  }
+  if (queuedWarriorSkill?.id === "SlashingBurst" && slashingBurstLaneEnabled()) {
+    if (enemyDistance() > LANE.warriorRange) return slashingBurstMaxCastRangePx(now);
+  }
+  if (queuedWarriorSkill?.id === "Thrusting") {
+    if (warriorSlashingBurstLeapDesired(now)) {
+      return Math.max(THRUSTING_RANGE, slashingBurstMaxCastRangePx(now));
+    }
+    return THRUSTING_RANGE;
+  }
+  if (warriorSlashingBurstLeapDesired(now)) {
+    return Math.max(thrustingReach, slashingBurstMaxCastRangePx(now));
+  }
+  if (warriorBladeAvalancheSelected(now) && canUseWarriorSkill(
+    warriorSpellById("BladeAvalanche"),
+    learnedMagic("BladeAvalanche"),
+    now,
+    { requireAuto: true },
+  )) {
+    return BLADE_AVALANCHE_MAX_RANGE_PX;
+  }
+  return thrustingReach;
+}
+
+function wizardMaxCombatSpellRangePx() {
+  let max = Math.max(LANE.wizardRange, LANE.aggroRange);
+  for (const spell of WIZARD_COMBAT_SPELLS) {
+    if (isWizardSupportSpell(spell)) continue;
+    max = Math.max(max, crystalSpellRangePx(spell));
+  }
+  return max;
+}
+
+function wizardSupportSpellEngageRangePx() {
+  return wizardMaxCombatSpellRangePx();
+}
+
+function wizardSupportCombatReady(battle = state.battle) {
+  if (!battle.enemyRevealed || !battle.enemy?.hp) return false;
+  if (battle.phase === "engaged") return true;
+  return enemyDistance() <= wizardSupportSpellEngageRangePx();
+}
+
+function wizardSpellEngageRange(now = performance.now()) {
+  const queued = queuedCombatSpell("Wizard")?.spell;
+  if (queued?.id === "Mirroring" && usableWizardMirroring(now, { requireAuto: false, ignorePhase: true })) {
+    return wizardSupportSpellEngageRangePx();
+  }
+  if (queued?.id === "MagicShield" && usableWizardDefenceBuff(now, { requireAuto: false })) {
+    return wizardSupportSpellEngageRangePx();
+  }
+  if (queued?.id === "MagicBooster" && usableWizardMagicBooster(now, { requireAuto: false, ignorePhase: true })) {
+    return wizardSupportSpellEngageRangePx();
+  }
+  if (usableWizardMirroring(now, { ignorePhase: true })) return wizardSupportSpellEngageRangePx();
+  if (usableWizardDefenceBuff(now)) return wizardSupportSpellEngageRangePx();
+  if (usableWizardMagicBooster(now, { ignorePhase: true })) return wizardSupportSpellEngageRangePx();
+  return 0;
 }
 
 function playerEngageRange(now = performance.now()) {
   if (state.battle.combatClass === "Taoist") {
     return Math.max(LANE.aggroRange, playerAttackRange(now), taoistSpellEngageRange(now));
   }
+  if (state.battle.combatClass === "Wizard") {
+    return Math.max(LANE.aggroRange, playerAttackRange(now), wizardSpellEngageRange(now));
+  }
   return Math.max(LANE.aggroRange, playerAttackRange(now));
 }
 
 function wizardAttackRange(now = performance.now()) {
+  const queued = queuedCombatSpell("Wizard")?.spell;
+  if (queued?.id === "Mirroring" && usableWizardMirroring(now, { requireAuto: false, ignorePhase: true })) {
+    return wizardSupportSpellEngageRangePx();
+  }
+  if (queued?.id === "MagicShield" && usableWizardDefenceBuff(now, { requireAuto: false })) {
+    return wizardSupportSpellEngageRangePx();
+  }
+  if (queued?.id === "MagicBooster" && usableWizardMagicBooster(now, { requireAuto: false, ignorePhase: true })) {
+    return wizardSupportSpellEngageRangePx();
+  }
   const attackSpell = usableWizardAttackSpell(now);
   if (!attackSpell) return LANE.warriorRange;
   const { spell, cost, cooldownWaiting } = attackSpell;
@@ -31190,8 +36264,28 @@ function characterAttackSpeedLabel(now = performance.now()) {
 
 function canPlayerAttack() {
   const battle = state.battle;
+  const now = performance.now();
+  if (slashingBurstCastBusy(now)) return false;
   if (battle.combatClass === "Taoist" && taoistPetCanTank()) return false;
-  return battle.phase === "engaged" && battle.enemyRevealed && battle.enemy?.hp > 0 && enemyDistance() <= playerAttackRange();
+  if (!battle.enemyRevealed || !battle.enemy?.hp) return false;
+  const queuedWizard = queuedCombatSpell("Wizard")?.spell;
+  if (queuedWizard?.id === "Mirroring" && usableQueuedWizardMirroring(now)) {
+    return wizardSupportCombatReady(battle);
+  }
+  if (queuedWizard?.id === "MagicShield" && usableQueuedWizardDefenceBuff(now)) {
+    return wizardSupportCombatReady(battle);
+  }
+  if (queuedWizard?.id === "MagicBooster" && usableQueuedWizardMagicBooster(now)) {
+    return wizardSupportCombatReady(battle);
+  }
+  if (battle.phase !== "engaged") return false;
+  const distance = enemyDistance();
+  if (warriorSlashingBurstLeapDesired(now)) {
+    if (distance > slashingBurstMaxCastRangePx(now)) return false;
+    if (distance > LANE.warriorRange) return warriorSlashingBurstDashIntent(now);
+  }
+  if (distance <= playerAttackRange(now)) return true;
+  return false;
 }
 
 function canEnemyAttack() {
@@ -31773,15 +36867,18 @@ function renderCanvasStage(displayFrame, frameCount) {
     drawZoneMapStampForeground(ctx);
     if (bossPartyOnField()) {
       drawBossPartyLivingMembers(ctx);
+      drawWizardMirrorCanvas(ctx, displayFrame);
       drawTaoistPetCanvas(ctx);
     } else {
       drawTaoistPetCanvas(ctx);
+      drawWizardMirrorCanvas(ctx, displayFrame);
       drawPlayerCanvas(ctx, displayFrame);
     }
   } else {
     drawMapLightningEffectsCanvas(ctx);
     drawMapHellFireEffectsCanvas(ctx);
   }
+  drawGroundSpellEffectsCanvas(ctx, { aboveEntities: true });
   drawEnemyRangeProjectileCanvas(ctx);
   drawSwarmEnemyRangeProjectileCanvas(ctx);
   drawEnemyHealthBar(ctx);
@@ -31792,6 +36889,7 @@ function renderCanvasStage(displayFrame, frameCount) {
   drawTwinDrakeReadyFxCanvas(ctx);
   drawCombatSkillFxCanvas(ctx);
   drawCombatWizardFxCanvas(ctx);
+  drawWizardMirrorSpellFxCanvas(ctx);
   drawCombatTaoistFxCanvas(ctx);
   drawDefenceBuffFxCanvas(ctx);
   drawMassHealImpactFxCanvas(ctx);
@@ -32982,10 +38080,12 @@ function drawTownNpcs(ctx) {
     const bounds = townNpcBounds(npc);
     const selected = npc.id === state.game.selectedTownNpcId;
     ctx.save();
-    ctx.fillStyle = selected ? "rgba(216, 176, 92, 0.34)" : "rgba(0, 0, 0, 0.24)";
-    ctx.beginPath();
-    ctx.ellipse(bounds.centerX, bounds.bottomY - 4, bounds.width * 0.55, 9, 0, 0, Math.PI * 2);
-    ctx.fill();
+    if (npc.drawShadow !== false) {
+      ctx.fillStyle = selected ? "rgba(216, 176, 92, 0.34)" : "rgba(0, 0, 0, 0.24)";
+      ctx.beginPath();
+      ctx.ellipse(bounds.centerX, bounds.bottomY - 4, bounds.width * 0.55, 9, 0, 0, Math.PI * 2);
+      ctx.fill();
+    }
     if (!drawTownNpcSprite(ctx, npc, bounds)) {
       drawTownNpcPlaceholder(ctx, bounds, selected);
     }
@@ -33068,7 +38168,7 @@ function townNpcAt(x, y) {
 }
 
 function townNpcBounds(npc) {
-  const npcOffsetX = (Number(TOWN_VISUALS.npcOffsetXTiles) || 0) * LANE_TILE_PX;
+  const npcOffsetX = ((Number(TOWN_VISUALS.npcOffsetXTiles) || 0) + (Number(npc.xOffsetTiles) || 0)) * LANE_TILE_PX;
   const npcOffsetY = (Number(npc.yOffsetTiles) || 0) * LANE_TILE_PX;
   const centerX = Math.round(state.stageWidth * npc.x + npcOffsetX);
   const bottomY = Math.round(state.stageHeight * npc.y + npcOffsetY + townViewOffsetYPx());
@@ -33505,7 +38605,25 @@ function buildStampArenaDrawList(displayFrame) {
         draw: (ctx) => drawBossPartyMemberCanvas(ctx, member),
       });
     }
+    const mirror = state.battle.wizardMirror;
+    if (mirror?.active) {
+      entities.push({
+        zRow: spawnRow,
+        worldX: wizardMirrorWorldX(mirror),
+        kindRank: STAMP_ARENA_KIND_RANK.pet,
+        draw: (ctx) => drawWizardMirrorCanvas(ctx, displayFrame),
+      });
+    }
   } else if (state.battle.player && state.showEnemies) {
+    const mirror = state.battle.wizardMirror;
+    if (mirror?.active && state.battle.combatClass === "Wizard") {
+      entities.push({
+        zRow: spawnRow,
+        worldX: wizardMirrorWorldX(mirror),
+        kindRank: STAMP_ARENA_KIND_RANK.pet,
+        draw: (ctx) => drawWizardMirrorCanvas(ctx, displayFrame),
+      });
+    }
     entities.push({
       zRow: spawnRow,
       worldX: Number(state.battle.playerX) || 0,
@@ -34506,6 +39624,91 @@ function drawPlayerCanvas(ctx, displayFrame) {
   }
 }
 
+function wizardMirrorAnchor() {
+  return {
+    x: Math.round(wizardMirrorWorldX() - state.battle.cameraX),
+    y: Math.round(state.stageHeight * LANE.y),
+  };
+}
+
+function wizardMirrorVisualState() {
+  const mirror = state.battle.wizardMirror;
+  return {
+    action: mirror?.visualAction ?? "stance",
+    frame: Math.max(0, Math.trunc(Number(mirror?.visualFrame) || 0)),
+  };
+}
+
+function bossPartyMirrorVisualAction(mirror) {
+  return mirror?.visualAction === "spell" ? "spell" : "stance";
+}
+
+function drawWizardMirrorCanvas(ctx) {
+  const mirror = state.battle.wizardMirror;
+  if (!state.showEnemies || !mirror?.active) return;
+
+  if (bossPartyOnField()) {
+    const owner = bossPartyMemberByClassId(mirror.ownerClassId ?? "Wizard");
+    if (!owner) return;
+    const { x: anchorX, y: anchorY } = wizardMirrorAnchor();
+    const action = bossPartyMirrorVisualAction(mirror);
+    ctx.save();
+    ctx.globalAlpha = 0.88;
+    for (const layer of layerNames()) {
+      const index = owner.visualIndexes?.[layer];
+      if (index == null || index === "") continue;
+      const atlas = owner.visualAtlases?.[layer] ?? (owner.classId === bossPartyControlledClassId() ? state.atlases[layer] : null);
+      const clip = atlas?.actions?.[action] ?? atlas?.actions?.stance ?? atlas?.actions?.standing;
+      const frameIndex = Math.max(0, Math.min(mirror.visualFrame ?? 0, (clip?.frames?.length ?? 1) - 1));
+      const meta = clip?.frames?.[frameIndex] ?? clip?.frames?.[0];
+      if (!atlas || !clip || !meta || meta.empty) continue;
+      const sheet = cachedImage(sheetUrl(state.spriteSet, layer, index));
+      if (!sheet) continue;
+      drawAtlasFrame(ctx, sheet, atlas.slotWidth, atlas.slotHeight, meta, anchorX, anchorY);
+    }
+    ctx.restore();
+    return;
+  }
+
+  if (state.battle.combatClass !== "Wizard") return;
+  const { action, frame } = wizardMirrorVisualState();
+  const { x: anchorX, y: anchorY } = wizardMirrorAnchor();
+  ctx.save();
+  ctx.globalAlpha = 0.88;
+  for (const layer of layerNames()) {
+    const atlas = state.atlases[layer];
+    const index = state.indexes[layer];
+    const clip = atlas?.actions?.[action];
+    const meta = clip?.frames?.[frame] ?? clip?.frames?.[0];
+    if (!atlas || !clip || !meta || meta.empty) continue;
+    const sheet = cachedImage(sheetUrl(state.spriteSet, layer, index));
+    if (!sheet) continue;
+    drawAtlasFrame(ctx, sheet, atlas.slotWidth, atlas.slotHeight, meta, anchorX, anchorY);
+  }
+  ctx.restore();
+}
+
+function drawWizardMirrorSpellFxCanvas(ctx) {
+  const mirror = state.battle.wizardMirror;
+  if (!mirror?.active) return;
+  const now = performance.now();
+  if (mirror.fxSpellId) drawBossPartyMemberSpellFx(ctx, mirror, now);
+  drawWizardMirrorMagicShieldLoopFxCanvas(ctx, mirror, now);
+}
+
+function drawWizardMirrorMagicShieldLoopFxCanvas(ctx, mirror, now) {
+  if (!hasActiveDefenceBuffOnList(mirror.statBuffs, "magicShield", now)) return;
+  const atlas = state.wizardSpellAtlases?.MagicShield;
+  const loopLayer = atlas?.layers?.[CRYSTAL_MAGIC_SHIELD_LOOP_LAYER];
+  if (!loopLayer) return;
+  const frameIndex = spellFxLoopFrameIndex(loopLayer, mirror.magicShieldLoopStartedAt ?? now, now);
+  if (frameIndex < 0) return;
+  const { x: anchorX, y: anchorY } = wizardMirrorAnchor();
+  withScreenBlend(ctx, () => {
+    drawSpellLayerCanvas(ctx, atlas.spellId, loopLayer, frameIndex, anchorX, anchorY);
+  });
+}
+
 function drawBossPartyCharacters(ctx) {
   drawBossPartyDeadMembers(ctx);
   drawBossPartyLivingMembers(ctx);
@@ -34557,6 +39760,7 @@ function drawBossPartyMemberSpellFx(ctx, member, now) {
   if (member.classId === "Warrior") {
     const atlas = state.warriorSkillAtlases[spellId];
     const skill = warriorCombatSkill(spellId);
+    if (spellId === "BladeAvalanche" && bladeAvalancheLaneFxActive(now)) return;
     if (!atlas?.layers?.length || !member.visualOneShot) {
       if (!member.visualOneShot) member.fxSpellId = null;
       return;
@@ -34588,13 +39792,6 @@ function drawBossPartyMemberSpellFx(ctx, member, now) {
     : member.classId === "Taoist" ? taoistCombatSpell(spellId) : null;
   if (!atlas || !spell) return;
   const t = now - (member.fxStartedAt ?? 0);
-  const hitAt = wizardImpactDelay(spell, atlas);
-  const layerEnd = Math.max(0, ...atlas.layers.map((layer) => (layer.delayMs ?? 0) + layer.frames.length * layer.interval));
-  const total = Math.max(layerEnd, spell.impactMode === "projectile" ? hitAt + (spell.impactFlashMs ?? 250) : 0);
-  if (t < 0 || t > total) {
-    member.fxSpellId = null;
-    return;
-  }
   const memberAnchor = {
     x: Math.floor((member.worldX ?? state.battle.playerX) - state.battle.cameraX),
     y: Math.floor(state.stageHeight * LANE.y),
@@ -34602,6 +39799,16 @@ function drawBossPartyMemberSpellFx(ctx, member, now) {
   const enemyAnchor = spell?.impactMode === "bang"
     ? wizardBangSpellAnchorFromCenter(member.fxCenterTile, combatAnchor("enemy"))
     : combatAnchor("enemy");
+  const hitAt = wizardImpactDelay(spell, atlas, { playerAnchor: memberAnchor, enemyAnchor });
+  const layerEnd = Math.max(0, ...atlas.layers.map((layer) => (layer.delayMs ?? 0) + layer.frames.length * layer.interval));
+  const total = Math.max(
+    layerEnd,
+    spellShowsProjectileVisual(spell, atlas) ? hitAt + spellImpactVisualDurationMs(spell, atlas) : 0,
+  );
+  if (t < 0 || t > total) {
+    member.fxSpellId = null;
+    return;
+  }
   const fxAnchor = spell.effectAnchor === "enemy" ? enemyAnchor : memberAnchor;
   withScreenBlend(ctx, () => {
     for (const layer of atlas.layers) {
@@ -34615,9 +39822,15 @@ function drawBossPartyMemberSpellFx(ctx, member, now) {
       const frameIndex = Math.min(layer.frames.length - 1, Math.floor(layerT / layer.interval));
       drawSpellLayerCanvas(ctx, atlas.spellId, layer, frameIndex, layerAnchor.x, layerAnchor.y);
     }
-    if (spell.impactMode === "projectile") drawCombatProjectileCanvas(ctx, atlas, t, memberAnchor, enemyAnchor, hitAt);
-    if (spell.impactMode === "projectile" && t >= hitAt && t <= hitAt + (spell.impactFlashMs ?? 250)) {
-      drawImpactFlashCanvas(ctx, atlas, t - hitAt, enemyAnchor);
+    if (spellShowsProjectileVisual(spell, atlas)) drawCombatProjectileCanvas(ctx, atlas, t, memberAnchor, enemyAnchor, hitAt);
+    if (spellDrawsImpactVisual(spell, atlas) && t >= hitAt && t <= hitAt + spellImpactVisualDurationMs(spell, atlas)) {
+      const impactSource = member.fxCenterTile
+        ? { centerTile: member.fxCenterTile }
+        : null;
+      const impactAnchor = impactSource
+        ? spellImpactFxScreenAnchorFromImpact(impactSource, enemyAnchor)
+        : enemyAnchor;
+      drawImpactFlashCanvas(ctx, atlas, t - hitAt, impactAnchor);
     }
   });
 }
@@ -34828,9 +40041,27 @@ function drawAttachedSpellFxCanvas(ctx) {
   const now = performance.now();
   withScreenBlend(ctx, () => {
     for (const entry of effects) {
-      if (now < entry.startedAt || now > entry.expiresAt) continue;
+      if (now > entry.expiresAt) continue;
+      if (entry.impactFx) {
+        const atlas = state.taoistSpellAtlases[entry.spellId] ?? state.wizardSpellAtlases[entry.spellId];
+        const layer = atlas?.impact;
+        if (!layer?.frames?.length) continue;
+        const { x, y } = spellImpactFxScreenAnchor(entry);
+        const anchorY = layer.anchor === "enemy" ? spellTargetCellAnchorY(y) : y;
+        const elapsed = Math.max(0, now - entry.startedAt);
+        const frameIndex = Math.min(
+          layer.frames.length - 1,
+          Math.floor(elapsed / Math.max(1, Number(layer.interval) || 1)),
+        );
+        drawSpellLayerCanvas(ctx, atlas.spellId, layer, frameIndex, x, anchorY);
+        continue;
+      }
       if (entry.spellId === "MagicShield") {
         drawMagicShieldLoopFxCanvas(ctx, entry, now);
+        continue;
+      }
+      if (entry.spellId === "EnergyShield") {
+        drawEnergyShieldLoopFxCanvas(ctx, entry, now);
         continue;
       }
       const atlas = state.warriorSkillAtlases[entry.spellId] ?? state.wizardSpellAtlases[entry.spellId] ?? state.taoistSpellAtlases[entry.spellId];
@@ -34839,7 +40070,7 @@ function drawAttachedSpellFxCanvas(ctx) {
       if (!layers.length) continue;
       const { x: anchorX, y: anchorY } = attachedSpellFxAnchor(entry);
       for (const layer of layers) {
-        const frameIndex = spellFxLayerFrameIndex(layer, entry.startedAt, now);
+        const frameIndex = attachedSpellFxFrameIndex(layer, entry, now);
         if (frameIndex < 0) continue;
         drawSpellLayerCanvas(ctx, atlas.spellId, layer, frameIndex, anchorX, anchorY);
       }
@@ -34866,14 +40097,28 @@ function drawMagicShieldLoopFxCanvas(ctx, entry, now) {
   drawSpellLayerCanvas(ctx, atlas.spellId, loopLayer, frameIndex, anchorX, anchorY);
 }
 
+function drawEnergyShieldLoopFxCanvas(ctx, entry, now) {
+  const atlas = state.taoistSpellAtlases?.EnergyShield;
+  if (!atlas?.layers?.length) return;
+  const { x: anchorX, y: anchorY } = attachedSpellFxAnchor(entry);
+  const loopLayer = atlas.layers[CRYSTAL_ENERGY_SHIELD_LOOP_LAYER];
+  if (!loopLayer) return;
+  const frameIndex = spellFxLoopFrameIndex(loopLayer, entry.loopStartedAt ?? entry.startedAt, now);
+  if (frameIndex < 0) return;
+  drawSpellLayerCanvas(ctx, atlas.spellId, loopLayer, frameIndex, anchorX, anchorY);
+}
+
 function drawCombatSkillFxCanvas(ctx) {
   const battle = state.battle;
   const atlas = battle.activeSkillAtlas;
-  if (!atlas || !state.playerOneShot || battle.activeSkill === "None") return;
+  const now = performance.now();
+  if (!atlas || battle.activeSkill === "None") return;
+  if (battle.activeSkill === "SlashingBurst" && slashingBurstCastBusy()) return;
+  if (battle.activeSkill === "BladeAvalanche" && bladeAvalancheLaneFxActive(now)) return;
+  if (!state.playerOneShot) return;
   if (state.action !== warriorCombatSkill(battle.activeSkill).bodyAction) return;
   const { x: anchorX, y: anchorY } = combatAnchor("player");
   const layers = warriorSkillFxLayers(battle.activeSkill, "swing");
-  const now = performance.now();
   const startedAt = battle.activeSkillStartedAt ?? now;
 
   withScreenBlend(ctx, () => {
@@ -34899,7 +40144,7 @@ function drawCombatWizardFxCanvas(ctx) {
   const projectileTarget = buffCast ? playerAnchor : spellEnemyAnchor;
   const hitAt = buffCast
     ? (Number(spell.impactDelayMs) || CRYSTAL_HEAL_APPLY_DELAY_MS)
-    : wizardImpactDelay(spell, atlas);
+    : wizardImpactDelay(spell, atlas, { playerAnchor, enemyAnchor: projectileTarget });
 
   withScreenBlend(ctx, () => {
     const castLayers = battle.activeWizardSpell === "MagicShield"
@@ -34914,11 +40159,15 @@ function drawCombatWizardFxCanvas(ctx) {
       const frameIndex = Math.min(layer.frames.length - 1, Math.floor(layerT / layer.interval));
       drawSpellLayerCanvas(ctx, atlas.spellId, layer, frameIndex, layerAnchor.x, layerAnchor.y);
     }
-    if (spell.impactMode === "projectile" || (buffCast && atlas.projectile)) {
+    if (spellShowsProjectileVisual(spell, atlas) || (buffCast && atlas.projectile)) {
       drawCombatProjectileCanvas(ctx, atlas, t, playerAnchor, projectileTarget, hitAt);
     }
-    if (spell.impactMode === "projectile" && t >= hitAt && t <= hitAt + (spell.impactFlashMs ?? 250)) {
-      drawImpactFlashCanvas(ctx, atlas, t - hitAt, enemyAnchor);
+    if (spellDrawsImpactVisual(spell, atlas) && t >= hitAt && t <= hitAt + spellImpactVisualDurationMs(spell, atlas)) {
+      const impactSource = combatSpellImpactDrawSource(spell.id);
+      const impactAnchor = impactSource
+        ? spellImpactFxScreenAnchorFromImpact(impactSource, spellEnemyAnchor)
+        : spellEnemyAnchor;
+      drawImpactFlashCanvas(ctx, atlas, t - hitAt, impactAnchor);
     }
   });
 }
@@ -34936,10 +40185,13 @@ function drawCombatTaoistFxCanvas(ctx) {
   const projectileTarget = buffCast ? playerAnchor : enemyAnchor;
   const hitAt = buffCast
     ? (Number(spell.impactDelayMs) || CRYSTAL_HEAL_APPLY_DELAY_MS)
-    : wizardImpactDelay(spell, atlas);
+    : wizardImpactDelay(spell, atlas, { playerAnchor, enemyAnchor: projectileTarget });
 
   withScreenBlend(ctx, () => {
-    for (const layer of atlas.layers) {
+    const castLayers = battle.activeTaoSpell === "EnergyShield"
+      ? (atlas.layers ?? []).slice(0, CRYSTAL_ENERGY_SHIELD_CAST_LAYER_END)
+      : atlas.layers;
+    for (const layer of castLayers) {
       const layerDelay = layer.delayMs ?? 0;
       const layerT = t - layerDelay;
       const duration = layer.frames.length * layer.interval;
@@ -34948,11 +40200,15 @@ function drawCombatTaoistFxCanvas(ctx) {
       const frameIndex = Math.min(layer.frames.length - 1, Math.floor(layerT / layer.interval));
       drawSpellLayerCanvas(ctx, atlas.spellId, layer, frameIndex, layerAnchor.x, layerAnchor.y);
     }
-    if (spell.impactMode === "projectile" || (buffCast && atlas.projectile)) {
+    if (spellShowsProjectileVisual(spell, atlas) || (buffCast && atlas.projectile)) {
       drawCombatProjectileCanvas(ctx, atlas, t, playerAnchor, projectileTarget, hitAt);
     }
-    if (spell.impactMode === "projectile" && t >= hitAt && t <= hitAt + (spell.impactFlashMs ?? 250)) {
-      drawImpactFlashCanvas(ctx, atlas, t - hitAt, enemyAnchor);
+    if (spellDrawsImpactVisual(spell, atlas) && t >= hitAt && t <= hitAt + spellImpactVisualDurationMs(spell, atlas)) {
+      const impactSource = combatSpellImpactDrawSource(spell.id);
+      const impactAnchor = impactSource
+        ? spellImpactFxScreenAnchorFromImpact(impactSource, enemyAnchor)
+        : enemyAnchor;
+      drawImpactFlashCanvas(ctx, atlas, t - hitAt, impactAnchor);
     }
   });
 }
@@ -34999,7 +40255,10 @@ function wizardSpellFxLayerAnchor(spell, layer, playerAnchor, enemyAnchor) {
   if (layer.anchor === "enemyObject") return enemyAnchor;
   if (layer.anchor === "enemy") {
     if (spell?.impactMode === "bang" || spell?.impactMode === "target") {
-      return { x: enemyAnchor.x, y: wizardTargetFxAnchorY(spell, enemyAnchor) };
+      const y = wizardTargetFxAnchorY(spell, enemyAnchor)
+        + (Number(spell.impactFxAnchorOffsetY) || 0)
+        + (Number(layer.anchorOffsetY) || 0);
+      return { x: enemyAnchor.x, y };
     }
     return enemyAnchor;
   }
@@ -35030,6 +40289,11 @@ function defenceBuffImpactAnchor(entry) {
   const laneY = Math.floor(state.stageHeight * LANE.y);
   if (entry.spellId === "UltimateEnhancer") {
     return ultimateEnhancerImpactAnchor(entry);
+  }
+  if (entry.spellId === "PetEnhancer") {
+    const pet = state.battle.bossParty?.pet ?? state.battle.taoPet;
+    const worldX = resolvedTaoPetWorldX(pet);
+    return { x: Math.floor(worldX - state.battle.cameraX), y: Math.floor(state.stageHeight * LANE.y) };
   }
   if (entry.anchor === "pet") {
     const petAnchor = taoistPetAnchor();
@@ -35067,27 +40331,81 @@ function drawDefenceBuffFxCanvas(ctx) {
   }
 }
 
-function drawGroundSpellEffectsCanvas(ctx) {
+function drawGroundSpellEffectsCanvas(ctx, options = {}) {
+  const aboveEntities = Boolean(options.aboveEntities);
   const now = performance.now();
-  const effects = (state.battle.groundSpellEffects ?? []).filter((effect) => now <= effect.expiresAt);
-  if (effects.length !== (state.battle.groundSpellEffects ?? []).length) state.battle.groundSpellEffects = effects;
+  if (!aboveEntities) {
+    const surviving = (state.battle.groundSpellEffects ?? []).filter((effect) => now <= effect.expiresAt);
+    if (surviving.length !== (state.battle.groundSpellEffects ?? []).length) {
+      state.battle.groundSpellEffects = surviving;
+    }
+  }
+  const effects = (state.battle.groundSpellEffects ?? []).filter((effect) => {
+    if (now > effect.expiresAt) return false;
+    return GROUND_SPELL_ABOVE_ENTITY_IDS.has(effect.spellId) === aboveEntities;
+  });
   if (!effects.length) return;
 
   const groundY = Math.floor(state.stageHeight * LANE.y);
   withScreenBlend(ctx, () => {
     for (const effect of effects) {
-      const atlas = state.wizardSpellAtlases[effect.spellId];
+      const atlas = combatGroundSpellAtlas(effect.spellId);
+      const groundSpell = combatGroundSpell(effect.spellId);
+      if (effect.stormCenter && groundSpell?.groundChannel) {
+        const x = wizardStormFieldScreenX(effect.stormCenter);
+        const { meteorY, scorchY } = crystalMeteorStrikeFieldAnchors(effect.stormCenter);
+        const age = Math.max(0, now - (Number(effect.createdAt) || now));
+        // Crystal SpellObject body (1610): drawn with cell objects, north of overlay anchor.
+        const meteorLayer = wizardGroundFxLayer(atlas);
+        if (meteorLayer?.frames?.length) {
+          const meteorInterval = Math.max(1, Math.trunc(Number(meteorLayer.interval) || 100));
+          const meteorIndex = Math.min(
+            meteorLayer.frames.length - 1,
+            Math.floor(age / meteorInterval),
+          );
+          drawSpellLayerCanvas(ctx, atlas.spellId, meteorLayer, meteorIndex, x, meteorY);
+        }
+        // Crystal MapControl Effect (1600): cell top, drawn on top of body.
+        const scorchLayer = wizardStormRainFxLayer(atlas);
+        if (scorchLayer?.frames?.length) {
+          const scorchInterval = Math.max(1, Math.trunc(Number(scorchLayer.interval) || 80));
+          const scorchCycleMs = scorchInterval * scorchLayer.frames.length;
+          const scorchAge = age % scorchCycleMs;
+          const scorchIndex = Math.min(
+            scorchLayer.frames.length - 1,
+            Math.floor(scorchAge / scorchInterval),
+          );
+          drawSpellLayerCanvas(ctx, atlas.spellId, scorchLayer, scorchIndex, x, scorchY);
+        }
+        continue;
+      }
       const layer = wizardGroundFxLayer(atlas);
       if (!layer?.frames?.length) continue;
       const interval = Math.max(1, Math.trunc(Number(layer.interval) || 83));
       const duration = Math.max(interval, layer.frames.length * interval);
       const age = Math.max(0, now - (Number(effect.createdAt) || now));
       const frameIndex = Math.min(layer.frames.length - 1, Math.floor((age % duration) / interval));
-      if (groupDungeonSwarmSideActive() && effect.tiles?.length) {
+      // Crystal PoisonCloud: one ObjectSpell at CastLocation (center), not per damage cell.
+      if (effect.fieldCenter) {
+        const x = Math.floor(effect.fieldCenter.worldX - state.battle.cameraX);
+        if (x >= -layer.slotWidth && x <= state.stageWidth + layer.slotWidth) {
+          const y = effect.spellId === "HealingCircle"
+            ? healingCircleGroundAnchorY()
+            : effect.spellId === "PoisonCloud"
+            ? poisonCloudGroundAnchorY(effect.fieldCenter)
+            : spellTargetCellAnchorY(groupDungeonSwarmSideActive()
+              ? swarmGroundSpellAnchorY(effect.fieldCenter.mapRow)
+              : arenaLaneYPx() + Math.trunc(Number(activeZone()?.arenaEnemyOffsetY) || 0));
+          drawSpellLayerCanvas(ctx, effect.spellId, layer, frameIndex, x, y);
+        }
+      } else if (effect.tiles?.length) {
         for (const tile of effect.tiles) {
           const x = Math.floor(tile.worldX - state.battle.cameraX);
           if (x < -layer.slotWidth || x > state.stageWidth + layer.slotWidth) continue;
-          drawSpellLayerCanvas(ctx, effect.spellId, layer, frameIndex, x, swarmGroundSpellAnchorY(tile.mapRow));
+          const y = groupDungeonSwarmSideActive()
+            ? swarmGroundSpellAnchorY(tile.mapRow)
+            : groundY;
+          drawSpellLayerCanvas(ctx, effect.spellId, layer, frameIndex, x, y);
         }
       } else {
         for (const offset of effect.offsets ?? [0]) {
@@ -35142,6 +40460,47 @@ function drawMapLightningEffectsCanvas(ctx) {
 function wizardGroundFxLayer(atlas) {
   if (!atlas) return null;
   return atlas.ground ?? atlas.layers?.find((layer) => layer.sheet === "ground.png" || Number(layer.baseIndex) === 1630) ?? null;
+}
+
+function wizardStormRainFxLayer(atlas) {
+  if (!atlas) return null;
+  return atlas.storm ?? null;
+}
+
+function wizardStormFieldScreenX(centerTile) {
+  if (groupDungeonSwarmSideActive()) {
+    return Math.floor(centerTile.worldX - state.battle.cameraX);
+  }
+  return enemyVisualAnchor().x;
+}
+
+function wizardStormFootAnchorY(centerTile) {
+  const mapRow = Math.trunc(Number(centerTile?.mapRow) || 0);
+  if (groupDungeonSwarmSideActive() || mapRow !== 0) return swarmGroundSpellAnchorY(mapRow);
+  // Solo: Crystal cell base (foot + CellHeight) so cell top lands on the enemy foot line.
+  const footY = arenaLaneYPx() + Math.trunc(Number(activeZone()?.arenaEnemyOffsetY) || 0);
+  return footY + GROUP_DUNGEON_SWARM_CELL_HEIGHT;
+}
+
+/** Crystal MapControl.CellHeight — map cell top above the foot line in side view. */
+function crystalMapCellTopY(footY) {
+  return footY - GROUP_DUNGEON_SWARM_CELL_HEIGHT;
+}
+
+/** Crystal MeteorStrike field anchors: 1600 @ cell top, 1610 @ (tileY − 20) × CellHeight. */
+function crystalMeteorStrikeFieldAnchors(centerTile) {
+  const tileTopY = crystalMapCellTopY(wizardStormFootAnchorY(centerTile));
+  const bodyNorthPx = 20 * GROUP_DUNGEON_SWARM_CELL_HEIGHT;
+  return { scorchY: tileTopY, meteorY: tileTopY - bodyNorthPx };
+}
+
+function playMeteorStrikeFieldSfx(options = {}) {
+  playSpellSfx("MeteorStrike", "impact", options);
+  playSfx("spell.MeteorStrike.impact2", options);
+}
+
+function playBlizzardFieldSfx(options = {}) {
+  playSpellSfx("Blizzard", "impact", options);
 }
 
 function drawLevelUpFxCanvas(ctx) {
@@ -35329,32 +40688,70 @@ function drawProjectileCanvas(ctx, atlas, t, anchorX, anchorY) {
 
 function drawCombatProjectileCanvas(ctx, atlas, t, playerAnchor, enemyAnchor, impactAt = null) {
   const p = atlas.projectile;
-  const moveDurationMs = Math.max(1, (Number(impactAt) || ((p?.delayMs ?? 0) + (p?.moveDurationMs ?? 0))) - (p?.delayMs ?? 0));
-  if (!p || t < p.delayMs || t > p.delayMs + moveDurationMs) return;
+  if (!p || t < p.delayMs) return;
+  const { startX, startY, targetX, targetY } = combatProjectileEndpoints(playerAnchor, enemyAnchor, p);
+  const moveDurationMs = Math.max(1, combatProjectileTravelDurationMs(startX, startY, targetX, targetY));
+  if (t > p.delayMs + moveDurationMs) return;
   const travelT = Math.min(1, (t - p.delayMs) / moveDurationMs);
   const frameIndex = Math.min(p.frames.length - 1, Math.floor((t - p.delayMs) / p.interval) % p.frames.length);
   const meta = p.frames[frameIndex] ?? p.frames[0];
   if (!meta || meta.empty) return;
-  // Crystal missiles interpolate map-cell draw locations; the frame offsets carry the visual height.
-  const startX = playerAnchor.x;
-  const startY = playerAnchor.y;
-  const targetX = enemyAnchor.x;
-  const targetY = enemyAnchor.y;
   const x = startX + (targetX - startX) * travelT;
   const y = startY + (targetY - startY) * travelT;
+  if (p.rotate) {
+    const sheet = cachedImage(`./public/spellfx/${atlas.spellId}/${p.sheet}`);
+    if (!sheet) return;
+    const baseAngleDeg = Number(p.baseAngleDeg);
+    const baseAngleRad = Number.isFinite(baseAngleDeg)
+      ? (baseAngleDeg * Math.PI) / 180
+      : (-90 * Math.PI) / 180;
+    const angleRad = travelProjectileAngleRad(startX, startY, targetX, targetY, baseAngleRad);
+    drawRotatedAtlasSprite(ctx, sheet, p.slotWidth, p.slotHeight, meta, x, y, angleRad, 1, "anchor");
+    return;
+  }
   drawSpellFrameCanvas(ctx, atlas.spellId, p.sheet, p.slotWidth, p.slotHeight, { ...meta, offsetX: meta.offsetX + x, offsetY: meta.offsetY + y }, 0, 0);
+}
+
+function spellShowsProjectileVisual(spell, atlas) {
+  return spell?.impactMode === "projectile"
+    || spell?.impactMode === "plague"
+    || spell?.impactMode === "curse"
+    || (spell?.impactMode === "ground" && atlas?.projectile);
+}
+
+function spellImpactVisualDurationMs(spell, atlas) {
+  const impact = atlas?.impact;
+  if (impact?.frames?.length) {
+    return (Number(impact.delayMs) || 0) + impact.frames.length * (Number(impact.interval) || 0);
+  }
+  return Math.max(0, Math.trunc(Number(spell?.impactFlashMs) || 250));
+}
+
+function spellDrawsImpactVisual(spell, atlas) {
+  return spell?.impactMode === "projectile"
+    || spell?.impactMode === "plague"
+    || spell?.impactMode === "curse"
+    || Boolean(atlas?.impact);
 }
 
 function drawImpactFlashCanvas(ctx, atlas, t, enemyAnchor) {
   const layer = atlas.impact ?? atlas.layers[0];
   if (!layer?.frames?.length) return;
   const frameIndex = Math.min(layer.frames.length - 1, Math.floor(t / layer.interval));
-  drawSpellLayerCanvas(ctx, atlas.spellId, layer, frameIndex, enemyAnchor.x, enemyAnchor.y);
+  const anchorY = layer.anchor === "enemy" ? spellTargetCellAnchorY(enemyAnchor.y) : enemyAnchor.y;
+  drawSpellLayerCanvas(ctx, atlas.spellId, layer, frameIndex, enemyAnchor.x, anchorY);
 }
 
 function drawSpellLayerCanvas(ctx, spellId, layer, frameIndex, anchorX, anchorY) {
   const meta = layer.frames[frameIndex] ?? layer.frames[0];
   if (!meta || meta.empty) return;
+  const sheet = cachedImage(`./public/spellfx/${spellId}/${layer.sheet}`);
+  if (!sheet) return;
+  // Crystal MLibrary.Draw(offSet: true): anchor at cell top, then per-frame mi.X/mi.Y and actual w/h.
+  if (meta.w != null && meta.h != null) {
+    drawAtlasFrameMeta(ctx, sheet, layer.slotWidth, meta, anchorX, anchorY);
+    return;
+  }
   drawSpellFrameCanvas(ctx, spellId, layer.sheet, layer.slotWidth, layer.slotHeight, meta, anchorX, anchorY);
 }
 

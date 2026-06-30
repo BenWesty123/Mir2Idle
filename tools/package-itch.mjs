@@ -31,8 +31,12 @@ const sourceFiles = [
   "src/battleData.js",
   "src/bossDrops.js",
   "src/buffPotions.js",
+  "src/core/bossRespawn.js",
+  "src/core/cloudSave.js",
   "src/core/combat.js",
   "src/core/drops.js",
+  "src/core/empoweredItems.js",
+  "src/core/itemIntegrityVersion.js",
   "src/core/offlineProgress.js",
   "src/core/party.js",
   "src/core/progress.js",
@@ -91,6 +95,7 @@ const PACKAGE_TOWN_NPC_SPRITES = [
   "teleport-stone",
   "teleporter",
   "gem-merchant",
+  "message-board",
 ];
 
 const SUMMON_SKELETON_PET_MONSTER_INDEX = 78;
@@ -244,6 +249,7 @@ function buildUsedCommonSpriteFiles() {
 
 function shouldExcludePublic(relativePath) {
   if ([...publicExcludes].some((exclude) => relativePath === exclude || relativePath.startsWith(`${exclude}/`))) return true;
+  if (relativePath.endsWith(".bak")) return true;
   if (/^ui\/character\/stateitem-\d+\.png$/.test(relativePath)) return true;
   // Ship the committed item-icon atlas (items-atlas.png/json), NOT the ~260
   // individual frame PNGs — keeps the package under itch.io's 1,000-file limit.
@@ -290,6 +296,39 @@ function trimMaptileIndex() {
   const wanted = buildUsedMaptileSetIds();
   index.sets = (index.sets ?? []).filter((set) => wanted.has(set.id));
   fs.writeFileSync(indexPath, `${JSON.stringify(index, null, 2)}\n`);
+}
+
+function bundlePackagedAtlasManifests() {
+  const atlases = {};
+  const candidates = [
+    path.join(packageRoot, "public/sprite-sets/common"),
+    path.join(packageRoot, "public/monsters/monster"),
+  ];
+
+  for (const directory of candidates) {
+    if (!fs.existsSync(directory)) continue;
+    for (const file of collectPackageFiles(directory)) {
+      if (path.extname(file.fullPath).toLowerCase() !== ".json") continue;
+      const relativePath = path.relative(packageRoot, file.fullPath).replace(/\\/g, "/");
+      if (!/^(?:public\/sprite-sets\/common\/(?:armour|hair|weapon)\/\d+|public\/monsters\/monster\/\d+)\.json$/.test(relativePath)) {
+        continue;
+      }
+      atlases[relativePath] = readJsonFile(file.fullPath);
+      fs.rmSync(file.fullPath);
+    }
+  }
+
+  const bundlePath = path.join(packageRoot, "public/atlas-manifests.json");
+  fs.writeFileSync(bundlePath, JSON.stringify({ version: 1, atlases }));
+  const indexPath = path.join(packageRoot, "index.html");
+  const indexHtml = fs.readFileSync(indexPath, "utf8");
+  if (!indexHtml.includes('name="lom-atlas-bundle"')) {
+    fs.writeFileSync(
+      indexPath,
+      indexHtml.replace("</head>", '    <meta name="lom-atlas-bundle" content="./public/atlas-manifests.json" />\n  </head>'),
+    );
+  }
+  console.log(`Bundled ${Object.keys(atlases).length} sprite atlas manifests into one file.`);
 }
 
 function cleanOutput() {
@@ -506,6 +545,7 @@ function validateZipEntryPaths(zipPath) {
 cleanOutput();
 for (const file of sourceFiles) copyFile(file);
 copyDirectory(path.join(root, "public"), path.join(packageRoot, "public"));
+bundlePackagedAtlasManifests();
 trimMaptileIndex();
 patchCacheBusting();
 

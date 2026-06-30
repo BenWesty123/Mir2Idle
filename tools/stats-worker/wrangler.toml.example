@@ -1,9 +1,10 @@
 name = "lom-idle-v2-stats"
 main = "worker.js"
-compatibility_date = "2026-05-24"
+compatibility_date = "2026-06-27"
 
 [vars]
 ALLOWED_ORIGIN = "*"
+INTEGRITY_ENFORCE_AFTER = "2026-07-04T00:00:00Z"
 
 [[d1_databases]]
 binding = "DB"

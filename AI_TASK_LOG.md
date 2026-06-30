@@ -1,5 +1,223 @@
 # AI Task Log - LOM Idle V2
 
+## 2026-06-27 - Cursor - Poison Cloud (Taoist ground field)
+
+### Changed
+- Added **Poison Cloud** Taoist combat spell (Crystal stats: L43/45/48, 30+5×level MP, 18s cooldown, shape 83).
+- Ground field: 3×3 area, 6s duration, 1s MAC damage ticks + green poison (12 ticks @ 1s, value from avg SC + poison attack).
+- Consumables: **5 amulets + 5 green poison** per cast; blocked while an active cloud is on the field.
+- Wired solo combat, pet-support, boss party, training room, offline catch-up, skill bar, and queued casts.
+- Generalized ground effects: `spellGroundAreaTiles`, Tao atlas drawing, per-tick Tao damage roll.
+- Assets: `public/spellfx/PoisonCloud/` (Magic 1160 projectile + Magic2 1650 field), `M83-0` cast SFX, itch manifest + build-phase1 book mapping.
+
+### Checked
+- `npm run build:sfx`, unit tests (283 pass), `verify:itch:source` (116 spell FX), `npm run smoke`.
+- Offline warrior fixture XP mismatch (375 vs 378) pre-existing.
+
+## 2026-06-27 - Cursor - Pet Enhancer SFX fix (monster sound collision)
+
+### Changed
+- Pet Enhancer was playing **Violet Kek Tal** monster sounds: spell id 85 fell back to `085-*.wav` when `M85-0.wav` is missing from Crystal's Next pack.
+- `tools/build-sfx-assets.mjs`: spell filename lookup no longer falls back to `###-#` monster files; Pet Enhancer cast now uses **`M77-0.wav`** (Ultimate Enhancer — closest shipped Enhancer spell sound; `M85-0` absent).
+- Removed incorrect `spell.PetEnhancer.impact` (Crystal plays one instant cast sound only).
+- Combat/training/boss-party paths skip a second SFX on buff apply (`soundPlayed: true` on impact FX queue).
+
+### Checked
+- `npm run build:sfx`, `npm run check`, `npm run smoke`.
+
+## 2026-06-27 - Cursor - Meteor Strike FX Crystal anchor port
+
+### Changed
+- Meteor field FX uses Crystal anchors: **1600 scorch** at map cell top (`footY − 32`), **1610 body** at `(tileY − 20) × 32` north (`−640px`), per-frame lib offsets via `drawAtlasFrameMeta`, **1610 under 1600** draw order. Removed manual `meteorFxNorthOffsetPx` / `scorchFxSouthOffsetPx` tuning.
+
+### Checked
+- `node --check src/app.monolith.js`
+
+## 2026-06-27 - Cursor - Meteor Strike FX reset (Crystal draw model)
+
+### Changed
+- Removed ad-hoc rain lift / split anchor hacks; Meteor field FX now uses Crystal anchors only: rain (`1600`) at **map cell top**, scorch body (`1610`) at **cell top − 20px** (`AnimationOffset`).
+- `drawSpellLayerCanvas` now uses per-frame **w/h + offsetX/offsetY** (Crystal `MLibrary.Draw(offSet: true)`) instead of stretching full slot rectangles — this was distorting both rain and ground art.
+
+### Checked
+- `node --check src/app.monolith.js`
+
+## 2026-06-27 - Cursor - Meteor Strike FX/SFX (Crystal-accurate)
+
+### Changed
+- Re-exported **Meteor Strike** spellfx from Crystal `Magic2`: player cast (1590×10), field rain overlay (1600×10, 800ms loop), ground scorch body (1610×30, 100ms/frame).
+- Ground draw uses `ground` + `storm` atlas layers at target tile (−20px Crystal offset), not the cast swirl.
+- SFX: cast `52-0` on wind-up; field spawn plays both `52-1` and `52-2` (no per-tick spell sounds).
+
+### Checked
+- `npm run build:sfx`, `verify:itch:source` (108 spellfx files).
+
+## 2026-06-27 - Cursor - Meteor Strike combat (Crystal channel field)
+
+### Changed
+- **Meteor Strike** wizard spell: Crystal stats (5×5 ground field, 3s duration, 440ms ticks, 800ms first tick, channel lock), **15s cooldown** (`autoCooldownMs: 15000`), per-tick MC damage rolls, autocast priority, empowered damage roll, cast SFX (`M52-0`), itch spellfx manifest entry, storm-center ground FX.
+
+### Checked
+- `npm run check` (275 unit tests pass; offline warrior fixture xp pin still drifts 375 vs 378 — pre-existing).
+- `npm run smoke` OK with dev server.
+
+## 2026-06-28 - Cursor - Flame Field combat (Ice Storm targeting)
+
+### Changed
+- **Flame Field** wizard spell: Crystal stats (shape 49, MC burst, 2500ms cast lock), `impactMode: "bang"` so damage lands on the enemy tile like Ice Storm (not centered on the wizard).
+- Autocast priority, empowered-item damage roll, SFX cast (`M49-0`), spellfx atlas split (short player cast + enemy impact burst).
+
+### Checked
+- `node --check` on monolith/warriorMagic OK; `npm run build:sfx` OK (impact clip missing in Crystal pack — falls back to cast).
+
+## 2026-06-28 - Cursor - Wizard buff spell SFX rebuilt
+
+### Changed
+- Ran `npm run build:sfx` so **Magic Booster** (`M51-0.wav`) and **Mirroring** (`M48-0.wav`) cast clips land in `public/audio/sfx/manifest.json`.
+- Added **Magic Shield** cast (`spell.MagicShield.cast`, Crystal spell 43) to `tools/build-sfx-assets.mjs` — it was never registered.
+
+### Checked
+- Manifest keys resolve: `spell.MagicBooster.cast`, `spell.Mirroring.cast`, `spell.MagicShield.cast`.
+
+## 2026-06-28 - Codex - Group-dungeon directional monster animations
+
+### Changed
+- Re-exported missing Crystal north, south, north-west, and south-west walk/attack/stance clips for monster atlases 33, 38, 45, 49, and 68.
+- Bumped the monster asset cache to `20260628-swarm-directions` so browsers stop serving older west-only atlases.
+- Added a coverage test requiring every moving group-dungeon wave, boss-swarm, and reinforcement monster to ship all directional clips.
+
+### Checked
+- Audited 30 group-dungeon swarm templates; no moving monster is missing a required directional action.
+- Verified every rebuilt directional frame lies inside its PNG and is non-transparent, then visually compared west, north, south, and diagonal walk/attack frames for all five rebuilt monsters.
+- Five focused swarm tests, scoped lint, syntax checks, and release asset audit passed.
+- Itch packaging and asset audit passed (870 files, no missing assets), but the final packaged boot check is blocked by an unrelated concurrent Mirroring spell reference to missing `public/spellfx/Mirroring/atlas.json`. The generated ZIP is not marked release-ready.
+
+## 2026-06-28 - Cursor - Warrior Fury wired to Crystal
+
+### Changed
+- **Fury** buff: Crystal +4 attack speed for `60 + 10×level` seconds; recast via `spellDelayMs` (10–4 min by level).
+- Unified `hasActiveFuryBuff` / `furyDurationMs` across solo, boss party, training room, and autocast (top warrior priority).
+- Combat log + floating text on cast; updated spell description in `warriorMagic.js`.
+- SFX: `spell.Fury.cast` (Crystal spell 16).
+- Boss party Rage autocast skips recast while buff is active.
+
+### Checked
+- `npm run build:sfx` OK (Crystal `016-0.wav` not in local SFX pack — entry listed as missing like other gaps).
+- `npm run check`: 264/265 pass (pre-existing `empoweredItems` tier-weight test).
+
+## 2026-06-28 - Cursor - Warrior Rage wired to Crystal
+
+### Changed
+- **Rage** buff: Crystal DC boost `(12% + 3%×level) × max DC` on min/max DC for `18 + 6×level` seconds via stat buffs.
+- Solo, boss party, training room, autocast (after Fury); fixed boss queued buff handler for non-Fury skills.
+- Warrior damage rolls use effective DC so Rage applies to attacks.
+- SFX: `spell.Rage.cast` (Crystal spell 13).
+
+### Checked
+- `node --check src/app.monolith.js` OK; `npm run build:sfx` OK.
+
+## 2026-06-28 - Codex - Swarm centre-lane closer
+
+### Changed
+- Added a focused group-dungeon formation rule for the final enemies: a lone side-lane survivor moves to the empty centre, and a final north/south pair sends one enemy into the centre directly in front of the tank.
+- The rule does not affect normal formations, approaching enemies, or stationary bosses.
+- Bumped client cache strings to `20260628-swarm-final-centre` before the later directional-asset cache bump.
+
+### Checked
+- Added four focused formation tests; all passed.
+- Syntax, scoped lint, diff checks, and the game smoke test passed.
+
+## 2026-06-28 - Codex - Daily cloud backup-code reminder
+
+### Changed
+- Added a centred in-game reminder that displays the account recovery code and urges players to store it outside the browser.
+- Added Copy Code feedback, an acknowledgement action, and a persistent 24-hour reminder interval shared across characters.
+- Added explicit recovery instructions using the exact Options > Cloud Save field and button labels.
+- Added prominent privacy warnings in both the daily reminder and Options: sharing the code permits cloud download/overwrite and can cause conflicting saves or lost progress.
+- The code remains available under Options > Cloud Save.
+- Bumped client cache strings to `20260628-private-recovery-code`.
+
+### Checked
+- Settings persistence and cloud-save helper tests passed (7/7); smoke test and source Itch verification passed.
+- Browser checks passed for Copy, dismissal, reload suppression, and a 560x720 viewport with no modal overflow.
+- Packaging created `dist/lom-idle-v2-itch-20260628-101327.zip`, but final package audit is currently blocked by an unrelated missing referenced SFX file: `audio/sfx/files/20110-M11-0.wav`. Do not upload this ZIP until that separate asset issue is resolved and the audit is rerun.
+
+## 2026-06-28 - Codex - Cross Half Moon warrior skill
+
+### Changed
+- Restored **Cross Half Moon** (`CrossHalfMoon`) as a warrior toggle skill with Crystal stats (Lv 38–42, 6 MP/swing, 0.4× multiplier vs Half Moon’s 0.3×).
+- Solo/boss-party primary hit uses the same melee swing as Half Moon; Cross Half Moon scales ~33% higher via the Crystal multiplier ratio. Group-dungeon splash still uses `rollWarriorMagicDamage` (Cross Half Moon hits harder on secondary targets too).
+- Cross Half Moon wins over Half Moon when both toggles are on autocast; spell FX/SFX/book item already existed.
+
+### Checked
+- `npm run check` syntax + warriorMagic tests pass; sole failure remains unrelated empower-reference test.
+
+## 2026-06-28 - Codex - Benediction Luck integrity fix
+
+### Changed
+- Added Benediction as an explicit legal weapon-upgrade source in generated integrity rules.
+- Legal weapon Luck now spans Crystal's cursed `-10` through blessed `+7`; values outside that range remain review violations.
+- Excluded Benediction Luck from gem-use and weapon-refinement accounting, preventing it from either causing a false gem warning or hiding an invalid refinement total.
+- Bumped integrity rules to `2026-06-28.1` and client cache strings to `20260628-benediction-integrity`.
+
+### Checked
+- Added regression coverage for blessed Luck, cursed Luck, out-of-range Luck, non-weapon negative bonuses, and refinement accounting.
+- Integrity and Worker tests passed (17/17); release asset audit, Itch verification, package audit, and packaged-browser boot verification passed.
+- Full suite passed 260/261. The sole failure remains the unrelated pre-existing empower-reference expectation (`20` actual versus `10` expected).
+
+### Deploy
+- Deployed Worker version `63a162bb-f82c-45d7-85fe-fda7961b0e3d`.
+- Cleared six live review rows whose only violations were this Benediction false positive, then removed the obsolete Luck evidence from eight mixed rows while preserving their other violations.
+- Verified upload ZIP: `dist/lom-idle-v2-itch-20260628-065300.zip` (863 entries). This client ZIP still needs to be uploaded to Itch.
+
+## 2026-06-27 - Codex - Recovery-code cloud saves
+
+### Changed
+- Added a permanent, human-readable recovery code in Options with Copy, Save Now, Find Backup, inline restore confirmation, and last-cloud-save status.
+- Local saves remain primary. The game uploads the full existing versioned account snapshot every 10 minutes while open; no email, password, or separate account model was added.
+- Full local reset rotates to a new recovery code, preventing a fresh blank game from overwriting the previous code's backup.
+- Added bounded `POST /cloud-save` and `POST /cloud-save/restore` Worker routes plus the additive `cloud_saves` D1 table.
+- Reused the existing import/restore pipeline for cloud recovery, so characters, storage, upgrades, codex, achievements, settings, and offline progress follow the same migration rules as file imports.
+- Made the package-only atlas bundle explicitly opt-in, removing a harmless but noisy development 404 discovered by the smoke test.
+- Bumped client cache strings to `20260627-cloud-recovery`.
+
+### Checked
+- Cloud helper/API tests passed, including malformed tokens, invalid snapshots, unknown codes, upload, and restore.
+- A real local D1 upload/restore round trip passed with a full game save.
+- Live Worker upload/restore and the Options Save Now flow passed; both disposable test rows were removed afterward (`cloud_save_count = 0`).
+- Smoke test, source verification, Itch archive verification, asset audit, and real-browser packaged-build verification passed.
+- Full suite: 256/257 passed. The sole failure is the pre-existing empower reference assertion that expects a 10% item chance while current game data returns 20%.
+
+### Deploy
+- Live D1 backup: `C:\Users\bb-we\Documents\LOM Idle Backup\stats-backups\leaderboard-before-cloud-save-20260627.sql`.
+- Applied `migrate-cloud-saves.sql` and deployed Worker version `e7e6709c-d9d3-420a-88fc-eb5d123ea373`.
+- Verified upload ZIP: `dist/lom-idle-v2-itch-20260627-194342.zip` (863 entries). This client ZIP still needs to be uploaded to Itch.
+
+## 2026-06-27 - Codex - Review-first leaderboard item integrity
+
+### Changed
+- Added a generated, versioned legality catalogue covering 384 equippable items, their slots, smith/refine caps, compatible gem/orb bounds, and legal empowerment rolls.
+- Expanded anonymous stat submissions with complete equipped-item smith, refine, gem, empowerment, and spell-empower components.
+- Added Worker-side equipment validation. Impossible items, outdated/missing rule versions, and over-cap levels are flagged for review but remain visible publicly.
+- Added D1 integrity state, evidence fingerprints, review timestamps, and an approval fingerprint so accepted false positives do not immediately reappear.
+- Added the token-protected `/integrity` review page with Keep Visible, Remove From Social, and Restore To Social actions.
+- Public Social results exclude only accounts explicitly marked `excluded` by the administrator.
+- Added an integrity-version grace period through `2026-07-04T00:00:00Z`; older clients remain legacy during rollout while current-version submissions are validated immediately.
+- Added `migrate-integrity-review.sql`, admin-secret/deployment instructions, rule regeneration/check scripts, and 13 targeted integrity tests.
+- Bumped game cache strings to `20260627-item-integrity-review`.
+
+### Checked
+- Item-rule freshness check, syntax checks, lint, 13 targeted integrity tests, game smoke test, Itch source verification, Wrangler dry-run, and live endpoint checks passed.
+- Full `npm.cmd test` ran 247 tests: 246 passed; the unrelated pre-existing empower reference assertion still expects a 10% item chance while current game data returns 20%.
+
+### Deploy
+- Backed up the live D1 database to `C:\Users\bb-we\Documents\LOM Idle Backup\stats-backups\leaderboard-before-integrity-20260627.sql`.
+- Applied the live D1 migration, created `ADMIN_TOKEN`, and deployed Worker version `b2787b23-bf34-4cde-a9b5-0b4dcc8c0b4d`.
+- Verified public leaderboard, protected review API, and `/integrity`; cleared rollout-only legacy flags and confirmed the pending review queue returned to zero.
+- Packaged the matching Itch client as `dist/lom-idle-v2-itch-20260627-143801.zip`; it still needs to be uploaded to Itch so player submissions include integrity rules version `2026-06-27.1` before grace ends.
+- Consolidated 200 player/monster atlas JSON files into a package-only manifest, reducing the release from 1,063 to 860 files without dropping sprite images, sounds, or atlas data.
+- Itch asset audit, spell-FX verification, and real-browser packaged-build verification all passed. The verified ZIP is 189,316,625 bytes (about 180.55 MiB).
+
 ## 2026-06-27 - Auto (Cursor) - Taller NPC dialogue boxes
 
 ### Changed
@@ -1556,3 +1774,105 @@ Use this format:
 
 ### Suggested Next Step
 - Phase 2: Wooma Taurus empowered stat scaling + separate empowered drop table in `bossDrops.js`.
+
+## 2026-06-30 - Codex - Noticeboard Social identifiers
+
+### Changed
+- Town noticeboard messages now show the same shortened public Social identifier used by the leaderboard (`Player XXXXXXXX`) instead of using the character class as the author.
+- Character class and level remain as secondary message context.
+- The Worker still withholds the raw player ID from the public response.
+- Deployed Worker version `e29fd49b-35bf-4a51-9042-348f8956ea77`.
+
+### Checked
+- Worker and game syntax checks passed.
+- Noticeboard tests passed (3/3), including public-label and raw-ID privacy coverage.
+- `npm.cmd run lint` passed with one pre-existing map-builder warning.
+- `npm.cmd run smoke` passed.
+- Live POST returned the expected public label; the temporary verification message was removed from D1.
+
+## 2026-06-30 - Codex - Restored overwritten noticeboard client
+
+### Cause
+- A later version of `src/app.monolith.js` no longer contained any noticeboard client code or the `message-board` entry in `TOWN_NPCS`; the Worker endpoint, official sprite assets, and CSS were still present.
+- This was a client-file overwrite/regression, not a server or rendering failure.
+
+### Restored
+- Restored the official town noticeboard NPC, message state, API loading/posting, Crystal panel rendering, refresh/post controls, draft focus handling, and noticeboard-wide hotkey suppression.
+- Message authors continue to use the public Social identifier (`Player XXXXXXXX`) with class and level as secondary context.
+- Added support for NPCs that deliberately suppress the generic ellipse shadow, as the board asset requires.
+
+### Checked
+- `node --check src/app.monolith.js`, `npm.cmd run lint`, and `npm.cmd run smoke` passed (one pre-existing map-builder lint warning remains).
+- Browser verification confirmed the board is visible and clickable in town, and existing live messages load with Social identifiers.
+
+## 2026-06-30 - Codex - Private message moderation
+
+### Added
+- Added private message moderation page at `/messages` (also available at `/moderation`).
+- Reuses the existing Worker `ADMIN_TOKEN` used by the integrity review page.
+- Added Live, Removed, and All views with reversible **Delete Message** and **Restore Message** actions.
+- Deleting sets the message status to `removed`, immediately excluding it from the public board without destroying recovery data.
+- Restoring an expired message renews its public lifetime for 14 days.
+
+### Checked
+- Worker/panel syntax, lint, public noticeboard tests, and moderation authorization/action tests passed (8/8 targeted tests).
+- Wrangler dry run passed; deployed Worker version `8118781f-ade5-4c23-bf74-1f5d61b0c7ed` with `--keep-vars`.
+- Live `/messages` returned 200 and the unauthenticated admin API returned 401. No existing messages were modified during verification.
+
+## 2026-06-30 - Codex - Social empowered item tooltips
+
+### Fixed
+- Social character equipment tooltips now preserve `empowered`, `empowerTier`, empowered stat rolls, and empowered spell bonuses when reconstructing another player's equipment entry.
+- Added `src/core/socialEquipment.js` as the tested conversion boundary instead of duplicating a partial equipment shape inside the UI.
+- The Worker already stored and returned these fields, so no server deployment or player resubmission is required.
+
+### Checked
+- Added two regression tests covering empowered stats/spell bonuses and malformed-value sanitization.
+- Syntax checks, targeted tests (2/2), lint, and `npm.cmd run smoke` passed; the existing map-builder lint warning remains.
+
+## 2026-06-30 - Codex - Manual Social exclusion
+
+### Added
+- Integrity Review now has a **Manual Social Removal** control above the review queue.
+- Accepts either the visible `Player XXXXXXXX` Social label or a full player ID.
+- Short labels must resolve to exactly one account; ambiguous prefixes are refused and return the matching full IDs.
+- Successful removals persist as `excluded`, switch the page to the Removed tab, and remain reversible through **Restore To Social**.
+
+### Checked
+- Integrity tests passed (11/11), including exact ID, unique public-label, ambiguous-label, authorization, and public filtering cases.
+- Wrangler dry run passed; deployed Worker version `71d62e75-fe06-4cec-85f6-6dc8467953d4` with `--keep-vars`.
+- Live `/integrity` contains the manual control and the unauthenticated action endpoint returns 401. No player was removed during verification.
+
+## 2026-06-27 - Taoist - Energy Shield spell
+
+### Added
+- Taoist **Energy Shield** (Crystal spell 84): party amulet buff with proc-heal on hit, not AC/MAC.
+- Duration `(30 + 50 × skill level)` seconds; heal `round(SC/4 × (level+1))`; proc chance from Crystal luck/skill formula.
+- Cast/loop FX from Magic2 1890/1900 atlases; SFX M84-0 cast + M84-1 bless.
+- Wired through solo combat, boss party, offline support order, training room, skill bar queue, and attached loop FX on player/pet/party members.
+
+### Data
+- `book-energy-shield` item added to `src/data/items.json` (level 48 requirement).
+
+### Checked
+- `npm.cmd run check` — 294 unit tests pass (pre-existing offline warrior XP fixture mismatch remains).
+- `npm.cmd run smoke` — clean boot, no console errors.
+
+### Crystal-faithful retune (2026-06-27)
+- Single friendly **player** target only (no party-wide, no pets); Crystal server does not consume amulet.
+- Instant apply on cast (not pending Soul Shield delay); proc-heal tooltip text matches Crystal buff dialog.
+
+## 2026-06-27 - Taoist - Healing Circle spell
+
+### Added
+- Taoist **Healing Circle** (Crystal spell 86): ground AOE heal under the Taoist (not an attack).
+- Impact delay 1700ms; duration `(10 + 5 × skill level)` seconds; ticks every 400ms for +25 HP to injured allies/pet/party.
+- Cast/ground FX from Magic3 620/630 atlases; SFX M86-0 cast + M86-1 field.
+- Wired through solo combat, boss party, offline, training room, skill bar queue, and support autocast after Mass Healing.
+
+### Data
+- `book-healing-circle` item in `src/data/items.json` (level 39 requirement).
+
+### Checked
+- `npm.cmd run check` — unit tests pass (pre-existing offline warrior XP fixture mismatch may remain).
+- `npm.cmd run smoke` — clean boot expected after monolith changes.

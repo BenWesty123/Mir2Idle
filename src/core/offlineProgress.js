@@ -287,8 +287,14 @@ export const OFFLINE_TAOIST_SUPPORT_SPELL_ORDER = [
   "MassHealing",
   "SoulShield",
   "BlessedArmour",
+  "EnergyShield",
+  "HealingCircle",
   "UltimateEnhancer",
+  "PetEnhancer",
   "Poisoning",
+  "PoisonCloud",
+  "Curse",
+  "Plague",
 ];
 
 /** Pet-tank path tries support spells first, then SoulFireBall. */
@@ -309,7 +315,7 @@ export function nextOfflineTaoistSupportSpellId(availability, order = OFFLINE_TA
  * Maps a queued Taoist combat spell to its offline handler kind.
  *
  * @param {string | null | undefined} spellId
- * @returns {"soulFireBall" | "healing" | "massHeal" | "poisoning" | "summon" | "defenceBuff" | "ultimateEnhancer" | null}
+ * @returns {"soulFireBall" | "healing" | "massHeal" | "healingCircle" | "poisoning" | "poisonCloud" | "summon" | "defenceBuff" | "energyShield" | "ultimateEnhancer" | "petEnhancer" | null}
  */
 export function offlineTaoistQueuedSpellKind(spellId) {
   switch (spellId) {
@@ -319,8 +325,16 @@ export function offlineTaoistQueuedSpellKind(spellId) {
       return "healing";
     case "MassHealing":
       return "massHeal";
+    case "HealingCircle":
+      return "healingCircle";
     case "Poisoning":
       return "poisoning";
+    case "PoisonCloud":
+      return "poisonCloud";
+    case "Plague":
+      return "plague";
+    case "Curse":
+      return "curse";
     case "SummonSkeleton":
     case "SummonShinsu":
     case "SummonHolyDeva":
@@ -328,8 +342,12 @@ export function offlineTaoistQueuedSpellKind(spellId) {
     case "SoulShield":
     case "BlessedArmour":
       return "defenceBuff";
+    case "EnergyShield":
+      return "energyShield";
     case "UltimateEnhancer":
       return "ultimateEnhancer";
+    case "PetEnhancer":
+      return "petEnhancer";
     default:
       return null;
   }

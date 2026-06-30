@@ -46,6 +46,29 @@ function Shift-SheetXFrames($frames, [int]$delta) {
   return $out
 }
 
+function Shift-FxFramesAfterBodyGrow($frames, [int]$slotWidth, [int]$fxShift) {
+  if ($fxShift -eq 0 -or -not $frames) { return @($frames) }
+  $out = @()
+  foreach ($frame in $frames) {
+    if ($null -eq $frame) { continue }
+    $copy = [ordered]@{}
+    $hasSheetX = $false
+    foreach ($prop in $frame.PSObject.Properties) {
+      if ($prop.Name -eq "sheetX" -and $null -ne $prop.Value) {
+        $copy.sheetX = [int]$prop.Value + $fxShift
+        $hasSheetX = $true
+      } elseif ($prop.Name -ne "slot") {
+        $copy[$prop.Name] = $prop.Value
+      }
+    }
+    if (-not $hasSheetX -and $null -ne $frame.slot) {
+      $copy.sheetX = ([int]$frame.slot * $slotWidth) + $fxShift
+    }
+    $out += $copy
+  }
+  return $out
+}
+
 function Get-MonsterLibActionFrames {
   param([string]$LibraryPath)
   $actionNames = @{
@@ -283,7 +306,14 @@ foreach ($index in $Indexes) {
     $blend = $actions.attack1Blend
     $actions.attack1Blend = [ordered]@{
       interval = $blend.interval
-      frames = @(Shift-SheetXFrames $blend.frames $fxShift)
+      frames = @(Shift-FxFramesAfterBodyGrow $blend.frames $slotWidth $fxShift)
+    }
+  }
+  if ($actions.Contains("attackRange1Blend") -and $fxShift -gt 0) {
+    $blend = $actions.attackRange1Blend
+    $actions.attackRange1Blend = [ordered]@{
+      interval = $blend.interval
+      frames = @(Shift-FxFramesAfterBodyGrow $blend.frames $slotWidth $fxShift)
     }
   }
 

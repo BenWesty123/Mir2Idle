@@ -53,8 +53,16 @@ const groups = [
       spellSound("spell.Slaying.attack", "Slaying attack (male)", 2, 0),
       spellSound("spell.Thrusting.attack", "Thrusting attack", 3, 0),
       spellSound("spell.HalfMoon.attack", "Half Moon attack", 4, 0),
+      spellSound("spell.CrossHalfMoon.attack", "Cross Half Moon attack", 10, 0),
       spellSound("spell.TwinDrakeBlade.cast", "Twin Drake Blade cast", 6, 0),
       spellSound("spell.FlamingSword.attack", "Flaming Sword attack", 8, 1),
+      spellSound("spell.BladeAvalanche.attack", "Blade Avalanche attack", 11, 0),
+      spellSound("spell.ProtectionField.cast", "Protection Field cast", 12, 0),
+      spellSound("spell.Rage.cast", "Rage cast", 13, 0),
+      // Crystal spell 16 (Fury) has no M16-0.wav in the client pack; reuse Lion Roar (spell 9).
+      spellSound("spell.Fury.cast", "Fury cast (Lion Roar)", 9, 0),
+      spellSound("spell.ImmortalSkin.cast", "Immortal Skin cast", 17, 0),
+      spellSound("spell.SlashingBurst.attack", "Slashing Burst attack", 15, 0),
     ],
   },
   {
@@ -75,10 +83,22 @@ const groups = [
       spellSound("spell.FrostCrunch.cast", "Frost Crunch cast", 41, 0),
       spellSound("spell.FrostCrunch.fly", "Frost Crunch travel", 41, 1),
       spellSound("spell.FrostCrunch.impact", "Frost Crunch impact", 41, 2),
+      spellSound("spell.MagicShield.cast", "Magic Shield cast", 43, 0),
       spellSound("spell.TurnUndead.cast", "Turn Undead cast", 44, 0),
       spellSound("spell.Vampirism.cast", "Vampirism cast", 45, 1),
       spellSound("spell.Vampirism.impact", "Vampirism restore", 45, 2),
+      spellSound("spell.IceStorm.cast", "Ice Storm cast", 46, 0),
+      spellSound("spell.IceStorm.impact", "Ice Storm impact", 46, 1),
       spellSound("spell.FlameDisruptor.cast", "Flame Disruptor cast", 47, 0),
+      spellSound("spell.Mirroring.cast", "Mirroring cast", 48, 0),
+      spellSound("spell.FlameField.cast", "Flame Field cast", 49, 0),
+      spellSound("spell.FlameField.impact", "Flame Field impact", 49, 1),
+      spellSound("spell.Blizzard.cast", "Blizzard cast", 50, 0),
+      spellSound("spell.Blizzard.impact", "Blizzard field start", 50, 1),
+      spellSound("spell.MagicBooster.cast", "Magic Booster cast", 51, 0),
+      spellSound("spell.MeteorStrike.cast", "Meteor Strike cast", 52, 0),
+      spellSound("spell.MeteorStrike.impact", "Meteor Strike field start", 52, 1),
+      spellSound("spell.MeteorStrike.impact2", "Meteor Strike field rumble", 52, 2),
     ],
   },
   {
@@ -89,6 +109,12 @@ const groups = [
       spellSound("spell.Healing.impact", "Healing restore", 61, 1),
       spellSound("spell.Poisoning.cast", "Poisoning cast", 63, 0),
       spellSound("spell.Poisoning.impact", "Poisoning impact", 63, 1),
+      spellSound("spell.PoisonCloud.cast", "Poison Cloud cast", 83, 0),
+      spellSound("spell.Curse.cast", "Curse cast", 81, 0),
+      spellSound("spell.Curse.fly", "Curse travel", 81, 0),
+      spellSound("spell.Curse.impact", "Curse impact", 81, 0),
+      spellSound("spell.Plague.fly", "Plague travel", 81, 0),
+      spellSound("spell.Plague.impact", "Plague impact", 82, 3),
       spellSound("spell.SoulFireBall.cast", "Soul Fire Ball cast", 64, 0),
       spellSound("spell.SoulFireBall.fly", "Soul Fire Ball travel", 64, 1),
       spellSound("spell.SoulFireBall.impact", "Soul Fire Ball impact", 64, 2),
@@ -99,8 +125,15 @@ const groups = [
       spellSound("spell.SoulShield.impact", "Soul Shield bless", 69, 1),
       spellSound("spell.BlessedArmour.cast", "Blessed Armour cast", 71, 0),
       spellSound("spell.BlessedArmour.impact", "Blessed Armour bless", 71, 1),
+      spellSound("spell.EnergyShield.cast", "Energy Shield cast", 84, 0),
+      spellSound("spell.EnergyShield.impact", "Energy Shield bless", 84, 1),
+      spellSound("spell.HealingCircle.cast", "Healing Circle cast", 86, 0),
+      spellSound("spell.HealingCircle.impact", "Healing Circle field", 86, 1),
       spellSound("spell.MassHealing.cast", "Mass Healing cast", 75, 0),
       spellSound("spell.MassHealing.impact", "Mass Healing restore", 75, 1),
+      // Crystal requests M85-0 (spell 85) but that file is absent from the Next pack;
+      // 085-*.wav are Violet Kek Tal monster sounds — never use those for spells.
+      sound("spell.PetEnhancer.cast", "Pet Enhancer cast (M77-0; M85-0 missing)", 20770),
       sound("pet.skeleton.summon", "Bone Familiar appear", 785),
       sound("pet.skeleton.attack", "Bone Familiar attack", 781),
       sound("pet.skeleton.hit", "Bone Familiar hit", 784),
@@ -115,7 +148,9 @@ const groups = [
       sound("pet.shinsu.death", "Shinsu death", 803),
       sound("pet.holydeva.summon", "Holy Deva appear", 1175),
       sound("pet.holydeva.attack", "Holy Deva thunder windup", 1170),
-      sound("pet.holydeva.hit", "Holy Deva thunder hit", 1170),
+      // Crystal requests 117-6 for the target strike, but that WAV is absent
+      // from the supplied client. Its ThunderBolt clip is the closest native fallback.
+      spellSound("pet.holydeva.hit", "Holy Deva thunder hit (ThunderBolt fallback)", 36, 0),
       sound("pet.holydeva.flinch", "Holy Deva flinch", 1172),
       sound("pet.holydeva.death", "Holy Deva death", 1173),
     ],
@@ -302,10 +337,9 @@ function fallbackFilenames(id) {
   if (id > 20000) {
     const spellId = Math.floor((id - 20000) / 10);
     const variant = id % 10;
-    return [
-      `M${spellId}-${variant}.wav`,
-      `${String(spellId).padStart(3, "0")}-${variant}.wav`,
-    ];
+    // Spell indices use M-prefix files only. The ###-# fallback matches monster
+    // image sounds (e.g. spell 85 → 085-0 is Violet Kek Tal, not Pet Enhancer).
+    return [`M${spellId}-${variant}.wav`];
   }
   return [`${String(Math.floor(id / 10)).padStart(3, "0")}-${id % 10}.wav`];
 }
@@ -318,6 +352,45 @@ function soundFilenames(id, soundList) {
 
 function safeFileName(name) {
   return name.replace(/[^a-z0-9._-]+/gi, "-");
+}
+
+// Lion Roar wind-up before the impact; trim at build time (runtime seek is unreliable in browsers).
+const FURY_CAST_SFX_TRIM_START_SEC = 0.4;
+
+function trimWavFromSec(sourceBuffer, startSec) {
+  if (sourceBuffer.length < 44 || sourceBuffer.toString("ascii", 0, 4) !== "RIFF") {
+    return sourceBuffer;
+  }
+  const numChannels = sourceBuffer.readUInt16LE(22);
+  const sampleRate = sourceBuffer.readUInt32LE(24);
+  const bitsPerSample = sourceBuffer.readUInt16LE(34);
+  const blockAlign = numChannels * (bitsPerSample / 8);
+  const dataOffset = 44;
+  const startByte = dataOffset + Math.floor(Math.max(0, startSec) * sampleRate) * blockAlign;
+  if (startByte >= sourceBuffer.length - 44) {
+    return sourceBuffer.subarray(0, dataOffset);
+  }
+  const pcm = sourceBuffer.subarray(startByte);
+  const out = Buffer.alloc(44 + pcm.length);
+  sourceBuffer.copy(out, 0, 0, 44);
+  out.writeUInt32LE(36 + pcm.length, 4);
+  out.writeUInt32LE(pcm.length, 40);
+  pcm.copy(out, 44);
+  return out;
+}
+
+async function writeSoundEntry(sourcePath, destUrl, entry, copiedMeta) {
+  if (entry.key === "spell.Fury.cast") {
+    const trimmed = trimWavFromSec(await readFile(sourcePath), FURY_CAST_SFX_TRIM_START_SEC);
+    await writeFile(destUrl, trimmed);
+    return {
+      ...copiedMeta,
+      trimStartSec: FURY_CAST_SFX_TRIM_START_SEC,
+      sourceFile: `${copiedMeta.sourceFile} (trim @ ${FURY_CAST_SFX_TRIM_START_SEC}s)`,
+    };
+  }
+  await copyFile(sourcePath, destUrl);
+  return copiedMeta;
 }
 
 function reviewHtml(manifest) {
@@ -392,11 +465,13 @@ for (const group of groups) {
     let copied = null;
     for (const sourceFile of soundFilenames(entry.id, soundList)) {
       const sourcePath = join(crystalSoundRoot, sourceFile);
-      const destName = safeFileName(`${entry.id}-${basename(sourceFile)}`);
+      const destName = entry.key === "spell.Fury.cast"
+        ? safeFileName("20160-fury-cast.wav")
+        : safeFileName(`${entry.id}-${basename(sourceFile)}`);
       const destUrl = new URL(`files/${destName}`, outputRoot);
       try {
-        await copyFile(sourcePath, destUrl);
-        copied = { sourceFile, destName };
+        const copiedMeta = await writeSoundEntry(sourcePath, destUrl, entry, { sourceFile, destName });
+        copied = copiedMeta;
         break;
       } catch {
         // Try the next filename convention.
@@ -411,6 +486,7 @@ for (const group of groups) {
       group: group.id,
       sourceFile: copied.sourceFile,
       src: `./public/audio/sfx/files/${copied.destName}`,
+      ...(copied.trimStartSec != null ? { trimStartSec: copied.trimStartSec } : {}),
     };
   }
 }

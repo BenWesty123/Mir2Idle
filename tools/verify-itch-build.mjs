@@ -18,6 +18,10 @@ import { PHASE1_ENEMY_TEMPLATES } from "../src/phase1Data.js";
 
 const root = path.resolve(import.meta.dirname, "..");
 const packageRoot = path.join(root, "dist/itch");
+const atlasBundlePath = path.join(packageRoot, "public/atlas-manifests.json");
+const bundledAtlasEntries = fs.existsSync(atlasBundlePath)
+  ? new Set(Object.keys(JSON.parse(fs.readFileSync(atlasBundlePath, "utf8")).atlases ?? {}))
+  : new Set();
 
 const MIME = {
   ".html": "text/html; charset=utf-8",
@@ -69,7 +73,7 @@ function startServer() {
 // Derived directly from the game data (not from the packager's own "used" set),
 // so it catches a sprite that was left out of the copied subset (the "Minotaur
 // renders as a torch" class of bug).
-const SUMMON_PET_INDICES = [78, 79, 80];
+const SUMMON_PET_INDICES = [78, 79, 80, 117];
 const monsterIndices = new Set(
   PHASE1_ENEMY_TEMPLATES
     .map((enemy) => enemy?.monsterIndex)
@@ -82,7 +86,7 @@ const missingMonsters = [];
 for (const index of monsterIndices) {
   for (const ext of ["json", "png"]) {
     const rel = `public/monsters/monster/${index}.${ext}`;
-    if (!fs.existsSync(path.join(packageRoot, rel))) missingMonsters.push(rel);
+    if (!fs.existsSync(path.join(packageRoot, rel)) && !bundledAtlasEntries.has(rel)) missingMonsters.push(rel);
   }
 }
 

@@ -190,6 +190,8 @@ function Write-JsonFile {
 }
 
 foreach ($index in $Indexes) {
+  # Holy Deva is a player follower in LOM Idle, so it must face east toward enemies.
+  $frameDirection = if ($index -eq 117) { 2 } else { $Direction }
   $library = Join-Path $DataRoot ("Monster\{0:D3}.Lib" -f $index)
   if (-not (Test-Path -LiteralPath $library)) {
     throw "Monster library not found: $library"
@@ -214,7 +216,7 @@ foreach ($index in $Indexes) {
         $srcFrame = if ($spec.reverse) {
           $spec.start - $i
         } else {
-          $spec.start + ($Direction * $spec.offset) + $i
+          $spec.start + ($frameDirection * $spec.offset) + $i
         }
         $image = $lib.ReadImage($srcFrame)
         if ($image -ne $null) {
@@ -228,6 +230,44 @@ foreach ($index in $Indexes) {
           image = $image
         }) | Out-Null
         $slot += 1
+      }
+    }
+
+    $holyDevaOverlaySpecs = [ordered]@{}
+    if ($index -eq 117) {
+      # Crystal draws a second native layer over monster 117's body. Keeping it
+      # in the same atlas lets canvas reproduce the complete Holy Deva model.
+      $holyDevaOverlaySpecs = [ordered]@{
+        show = @{ start = 418; count = 10; offset = 0; skipFirst = 5; takeCount = 5 }
+        standing = @{ start = 226; count = 4; offset = 4; skipFirst = 0; takeCount = 4 }
+        walking = @{ start = 258; count = 6; offset = 6; skipFirst = 0; takeCount = 6 }
+        attack1 = @{ start = 306; count = 6; offset = 6; skipFirst = 0; takeCount = 6 }
+        struck = @{ start = 354; count = 2; offset = 2; skipFirst = 0; takeCount = 2 }
+        die = @{ start = 370; count = 9; offset = 6; skipFirst = 0; takeCount = 7 }
+      }
+      foreach ($overlay in $holyDevaOverlaySpecs.GetEnumerator()) {
+        $spec = $overlay.Value
+        for ($i = 0; $i -lt $spec.count; $i++) {
+          $relative = $i - $spec.skipFirst
+          $inRange = $relative -ge 0 -and $relative -lt $spec.takeCount
+          $srcFrame = if ($inRange) {
+            $spec.start + ($frameDirection * $spec.offset) + $relative
+          } else {
+            -1
+          }
+          $image = if ($srcFrame -ge 0) { $lib.ReadImage($srcFrame) } else { $null }
+          if ($image -ne $null) {
+            $slotWidth = [Math]::Max($slotWidth, $image.Bitmap.Width)
+            $slotHeight = [Math]::Max($slotHeight, $image.Bitmap.Height)
+          }
+          $frames.Add([pscustomobject]@{
+            action = "overlay:$($overlay.Key)"
+            slot = $slot
+            srcFrame = $srcFrame
+            image = $image
+          }) | Out-Null
+          $slot += 1
+        }
       }
     }
 
@@ -277,14 +317,46 @@ foreach ($index in $Indexes) {
       }
     }
 
+    $jsonOverlays = [ordered]@{}
+    foreach ($overlay in $holyDevaOverlaySpecs.GetEnumerator()) {
+      $overlayFrames = @()
+      foreach ($frame in $frames | Where-Object { $_.action -eq "overlay:$($overlay.Key)" }) {
+        if ($frame.image -eq $null) {
+          $overlayFrames += [ordered]@{
+            slot = $frame.slot
+            srcFrame = $frame.srcFrame
+            w = 0
+            h = 0
+            offsetX = 0
+            offsetY = 0
+            empty = $true
+          }
+        } else {
+          $overlayFrames += [ordered]@{
+            slot = $frame.slot
+            srcFrame = $frame.srcFrame
+            w = $frame.image.Bitmap.Width
+            h = $frame.image.Bitmap.Height
+            offsetX = $frame.image.OffsetX
+            offsetY = $frame.image.OffsetY
+          }
+        }
+      }
+      $jsonOverlays[$overlay.Key] = [ordered]@{
+        interval = if ($actions.Contains($overlay.Key)) { $actions[$overlay.Key].interval } else { 100 }
+        frames = @($overlayFrames)
+      }
+    }
+
     $atlas = [ordered]@{
       layer = "monster"
       index = $index
-      direction = $Direction
+      direction = $frameDirection
       slotWidth = $slotWidth
       slotHeight = $slotHeight
       actions = $jsonActions
     }
+    if ($jsonOverlays.Count -gt 0) { $atlas["overlays"] = $jsonOverlays }
     Write-JsonFile -Path (Join-Path $monsterOut "$index.json") -Json ($atlas | ConvertTo-Json -Depth 20 -Compress)
   }
   finally {

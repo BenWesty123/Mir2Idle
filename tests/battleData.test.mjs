@@ -10,6 +10,7 @@ import {
   formatStatRange,
   rollStat,
   rollDamage,
+  ATTACK_SPEED_MS_PER_POINT,
   attackDelayMs,
   twinDrakeAttackDelayMs,
   randomInt,
@@ -84,15 +85,18 @@ test("rollDamage: never negative and bounded by attack max", () => {
 });
 
 test("attackDelayMs: 550ms floor and 370ms level-bonus cap", () => {
+  assert.equal(ATTACK_SPEED_MS_PER_POINT, 40);
   assert.equal(attackDelayMs(0, 0), 1400);
-  assert.equal(attackDelayMs(20, 0), 550); // would be 200, floored to 550
+  assert.equal(attackDelayMs(22, 0), 550);
+  assert.equal(attackDelayMs(8, 40), 710);
+  assert.equal(attackDelayMs(12, 40), 550);
   assert.equal(attackDelayMs(0, 100), 1030); // level bonus 370
   assert.equal(attackDelayMs(0, 1000), 1030); // level bonus capped at 370
 });
 
 test("twinDrakeAttackDelayMs: base minus 120, floored at 300", () => {
   assert.equal(twinDrakeAttackDelayMs(0, 0), 1280);
-  assert.equal(twinDrakeAttackDelayMs(20, 0), 430);
+  assert.equal(twinDrakeAttackDelayMs(22, 0), 430);
 });
 
 test("crystalPlayerBaseStats: shape and Warrior level-1 vitals", () => {

@@ -75,6 +75,37 @@ test("formatBuffRemaining", () => {
 test("statBuffBonusLabel", () => {
   assert.equal(statBuffBonusLabel({ stat: "dc", minBonus: 0, maxBonus: 5 }), "+5 DC");
   assert.equal(statBuffBonusLabel({ stat: "amc", minBonus: 0, maxBonus: 3 }), "+3 MAC");
+  assert.equal(statBuffBonusLabel({ stat: "attackSpeed", minBonus: 4, maxBonus: 4 }), "+4 AS");
   assert.equal(statBuffBonusLabel({ stat: "dc", minBonus: 2, maxBonus: 5 }), "+2-5 DC");
   assert.equal(statBuffBonusLabel({ stat: "damageReduction", reductionPercent: 30 }), "30% DR");
+});
+
+test("sanitizeStatBuffs keeps Fury attack-speed buffs", () => {
+  const now = 1_000_000;
+  const buffs = sanitizeStatBuffs([{
+    kind: "fury",
+    label: "Fury",
+    stat: "attackSpeed",
+    minBonus: 4,
+    maxBonus: 4,
+    expiresAt: now + 60_000,
+  }], now);
+  assert.equal(buffs.length, 1);
+  assert.equal(buffs[0].stat, "attackSpeed");
+  assert.equal(buffs[0].minBonus, 4);
+});
+
+test("sanitizeStatBuffs keeps Immortal Skin max-DC penalty", () => {
+  const now = 1_000_000;
+  const buffs = sanitizeStatBuffs([{
+    kind: "immortalSkin",
+    label: "Immortal Skin",
+    stat: "dc",
+    minBonus: 0,
+    maxBonus: -8,
+    expiresAt: now + 60_000,
+  }], now);
+  assert.equal(buffs.length, 1);
+  assert.equal(buffs[0].maxBonus, -8);
+  assert.equal(statBuffBonusLabel(buffs[0]), "-8 DC");
 });

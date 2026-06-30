@@ -631,7 +631,7 @@ test("empowerRollDescriptionsForItem: wizard weapon includes spell rolls", () =>
 
 test("empowerReferenceCatalog: exposes weapon classes and tier weights", () => {
   const catalog = empowerReferenceCatalog();
-  assert.equal(catalog.itemChancePercent, 10);
+  assert.equal(catalog.itemChancePercent, 20);
   assert.equal(catalog.tierWeights.length, 4);
   assert.ok(Array.isArray(catalog.weaponRules) && catalog.weaponRules.length >= 4);
   assert.equal(catalog.weaponClasses.length, 4);

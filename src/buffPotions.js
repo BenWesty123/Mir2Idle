@@ -106,19 +106,48 @@ export function sanitizeStatBuffs(saved = [], now = performance.now()) {
           expiresAt,
         };
       }
+      if (entry?.stat === "energyShield") {
+        const hpGain = Math.max(1, Math.trunc(Number(entry?.hpGain) || 0));
+        const procPercent = Math.max(1, Math.min(100, Math.trunc(Number(entry?.procPercent) || 0)));
+        return {
+          kind,
+          label: String(entry?.label ?? kind),
+          stat: "energyShield",
+          hpGain,
+          procPercent,
+          expiresAt,
+        };
+      }
       const stat = entry?.stat === "dc" || entry?.stat === "mc" || entry?.stat === "sc"
-        || entry?.stat === "ac" || entry?.stat === "amc"
+        || entry?.stat === "ac" || entry?.stat === "amc" || entry?.stat === "attackSpeed"
         ? entry.stat
         : null;
       if (!stat) return null;
-      return {
+      const minBonus = Math.trunc(Number(entry?.minBonus) || 0);
+      const maxBonus = Math.trunc(Number(entry?.maxBonus) || 0);
+      if (maxBonus < 0 || minBonus < 0) {
+        return {
+          kind,
+          label: String(entry?.label ?? kind),
+          stat,
+          minBonus,
+          maxBonus,
+          expiresAt,
+        };
+      }
+      if (maxBonus <= 0 && minBonus <= 0) return null;
+      const preserved = {
         kind,
         label: String(entry?.label ?? kind),
         stat,
-        minBonus: Math.max(0, Math.trunc(Number(entry?.minBonus) || 0)),
-        maxBonus: Math.max(0, Math.trunc(Number(entry?.maxBonus) || 0)),
+        minBonus: Math.max(0, minBonus),
+        maxBonus: Math.max(0, maxBonus),
         expiresAt,
       };
+      if (Number.isFinite(Number(entry?.manaPenaltyPercent))) {
+        preserved.manaPenaltyPercent = Math.max(0, Math.trunc(Number(entry.manaPenaltyPercent)));
+      }
+      return preserved;
     })
     .filter(Boolean);
 }
@@ -155,9 +184,16 @@ export function statBuffBonusLabel(buff) {
   }
   const min = buff.minBonus;
   const max = buff.maxBonus;
-  const tag = buff.stat === "amc" ? "MAC" : buff.stat.toUpperCase();
-  if (min > 0 && max > 0 && min !== max) return `+${min}-${max} ${tag}`;
-  if (max > 0) return `+${max} ${tag}`;
-  if (min > 0) return `+${min} ${tag}`;
-  return tag;
+  const tag = buff.stat === "amc" ? "MAC" : buff.stat === "attackSpeed" ? "AS" : buff.stat.toUpperCase();
+  let text = tag;
+  if (min < 0 && max < 0 && min === max) text = `${min} ${tag}`;
+  else if (max < 0) text = `${max} ${tag}`;
+  else if (min < 0) text = `${min} ${tag}`;
+  else if (min > 0 && max > 0 && min !== max) text = `+${min}-${max} ${tag}`;
+  else if (max > 0) text = `+${max} ${tag}`;
+  else if (min > 0) text = `+${min} ${tag}`;
+  if (buff?.manaPenaltyPercent > 0 && buff?.stat === "mc") {
+    return `${text}, spell MP +${buff.manaPenaltyPercent}%`;
+  }
+  return text;
 }

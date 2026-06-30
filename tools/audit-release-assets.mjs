@@ -101,7 +101,7 @@ for (const enemy of PHASE1_ENEMY_TEMPLATES) {
     }
   }
 }
-for (const index of [78, 79, 80]) {
+for (const index of [78, 79, 80, 117]) {
   for (const ext of ["json", "png"]) {
     const rel = `monsters/monster/${index}.${ext}`;
     if (!fs.existsSync(publicPath(rel))) {

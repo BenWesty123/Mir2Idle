@@ -1,0 +1,1 @@
+export const ITEM_INTEGRITY_RULES_VERSION = "2026-06-28.1";

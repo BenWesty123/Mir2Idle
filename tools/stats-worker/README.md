@@ -4,6 +4,66 @@ This is a small anonymous leaderboard backend for the itch prototype. It stores 
 
 The game posts an account summary plus per-character summaries. The Worker stores one account row per generated player ID and keeps per-character levels/stats JSON on that row. The default `/leaderboard` response ranks account rows by combined character levels, then Awakening Souls held.
 
+## Recovery-code cloud saves
+
+The game keeps local saves as its primary storage and uploads one latest backup every ten minutes while open. Each browser receives a visible recovery code in Options. No account, email address, or password is required.
+
+Cloud-save routes:
+
+```text
+POST /cloud-save
+POST /cloud-save/restore
+```
+
+Both routes accept JSON bodies, so recovery codes are not placed in URLs. Before deploying the cloud-save Worker changes to an existing database, run:
+
+```powershell
+npx wrangler d1 execute lom-idle-v2-stats --file .\migrate-cloud-saves.sql --remote
+npx wrangler deploy --keep-vars
+```
+
+The Options page supports copying the current code, saving immediately, finding a backup by code, and confirming restoration. A full local reset generates a new recovery code so the new blank game does not overwrite the previous backup.
+
+## Integrity review
+
+The Worker validates equipped item enhancement components against a generated, versioned ruleset. Suspicious submissions are marked `flagged` but remain visible on the public Social leaderboard until an administrator explicitly removes them.
+
+`INTEGRITY_ENFORCE_AFTER` provides a client-update grace period. Before that timestamp, submissions without the current rules version remain `legacy`; current-version submissions are still fully validated. After the timestamp, missing or outdated versions also enter review.
+
+The private review page is available at:
+
+```text
+/integrity
+```
+
+The page also supports manual Social removal using either the visible `Player XXXXXXXX` label or the full player ID. A shortened label is accepted only when it matches exactly one account; ambiguous prefixes are refused and return the matching full IDs.
+
+Protect its API with a Worker secret. Run this from `tools/stats-worker` and enter a long, unique token when prompted:
+
+```powershell
+npx wrangler secret put ADMIN_TOKEN
+```
+
+The token is requested by the review page and retained only in that browser tab's session storage. The review page supports:
+
+- **Keep Visible**: approves the current violation fingerprint so the same report does not immediately reappear.
+- **Remove From Social**: changes the account to `excluded`; public leaderboard queries then hide it.
+- **Restore To Social**: clears the exclusion and returns the account to public results.
+
+Before deploying this feature to an existing D1 database, run:
+
+```powershell
+npx wrangler d1 execute lom-idle-v2-stats --file .\migrate-integrity-review.sql --remote
+npx wrangler secret put ADMIN_TOKEN
+npx wrangler deploy
+```
+
+Regenerate item rules after changing item definitions, gem/orb rules, refinement caps, smith caps, or empowerment tables:
+
+```powershell
+npm run integrity:rules
+```
+
 Useful leaderboard URLs:
 
 ```text
@@ -33,9 +93,20 @@ If you already deployed the Worker before account ranking fields were added, run
 npx wrangler d1 execute lom-idle-v2-stats --file .\migrate-boss-kills.sql --remote
 npx wrangler d1 execute lom-idle-v2-stats --file .\migrate-account-stats.sql --remote
 npx wrangler d1 execute lom-idle-v2-stats --file .\migrate-ranking-stats.sql --remote
+npx wrangler d1 execute lom-idle-v2-stats --file .\migrate-town-messages.sql --remote
 ```
 
 Then redeploy the Worker so `/stats` stores account ranking fields and `/leaderboard` returns them.
+
+The town noticeboard uses `GET /town-messages` and `POST /town-messages`. Messages are plain text, expire after 14 days, and each anonymous player identity can post once per minute.
+
+Moderate public messages at:
+
+```text
+/messages
+```
+
+The moderation page uses the same `ADMIN_TOKEN` secret as `/integrity`. **Delete Message** immediately hides a post from players but keeps it in the Removed tab for recovery. **Restore Message** makes it public again; restoring an expired message renews it for 14 days.
 
 To wipe bad or legacy leaderboard data and start fresh:
 
@@ -51,7 +122,7 @@ To remove existing rows with impossible character levels (any class above level 
 npx wrangler d1 execute lom-idle-v2-stats --file .\purge-cheater-levels.sql --remote
 ```
 
-The Worker also rejects new `/stats` submissions above that cap and hides them from `/leaderboard` responses. Redeploy after updating `worker.js` so the live API enforces the rule.
+The Worker now flags submissions above that cap for private review. They remain visible until an administrator chooses **Remove From Social** on `/integrity`.
 
 ## Deploy Outline
 
@@ -77,6 +148,7 @@ Example config:
 {
   "enabled": true,
   "endpoint": "https://your-worker.your-subdomain.workers.dev/stats",
+  "cloudSaveEndpoint": "https://your-worker.your-subdomain.workers.dev/cloud-save",
   "panel": "https://your-worker.your-subdomain.workers.dev/panel"
 }
 ```

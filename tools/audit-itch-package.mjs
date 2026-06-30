@@ -44,6 +44,15 @@ function walk(directory, relativeRoot = "") {
 
 const packaged = new Set(walk(packageRoot));
 const source = new Set(walk(path.join(root, "public")));
+const packagedAtlasBundlePath = path.join(packageRoot, "atlas-manifests.json");
+const packagedAtlasEntries = fs.existsSync(packagedAtlasBundlePath)
+  ? new Set(
+      Object.keys(readJsonFile(packagedAtlasBundlePath).atlases ?? {}).map((entry) =>
+        entry.replace(/^public\//, ""),
+      ),
+    )
+  : new Set();
+const packageHas = (entry) => packaged.has(entry) || packagedAtlasEntries.has(entry);
 
 const usedSprites = new Set(["sprite-sets/common/layers.json"]);
 const addSprite = (layer, index) => {
@@ -67,7 +76,7 @@ const usedMagic = new Set(
     .map((spell) => `magic-icons/images/frame_${String(Number(spell.icon) * 2).padStart(6, "0")}.png`),
 );
 
-const packagedItemAtlas = packaged.has("item-icons/items-atlas.png");
+const packagedItemAtlas = packageHas("item-icons/items-atlas.png");
 const usedItems = new Set();
 if (packagedItemAtlas) {
   usedItems.add("item-icons/items-atlas.png");
@@ -87,7 +96,7 @@ const usedMonsters = new Set(
     .map((index) => Math.trunc(Number(index))),
 );
 usedMonsters.add(78);
-for (const index of [79, 80]) usedMonsters.add(index);
+for (const index of [79, 80, 117]) usedMonsters.add(index);
 
 const usedStateitems = new Set([
   "ui/character/stateitems.json",
@@ -130,7 +139,7 @@ const checks = [
 
 let hasMissing = false;
 for (const [label, paths] of checks) {
-  const missing = paths.filter((entry) => !packaged.has(entry));
+  const missing = paths.filter((entry) => !packageHas(entry));
   console.log(`${label}: ${paths.length} required, ${missing.length} missing`);
   if (missing.length) {
     hasMissing = true;
@@ -147,7 +156,7 @@ const excludedButHarmless = [
   "item-icons/books/index.html",
   "item-icons/books/tiles.json",
 ];
-const missingFromSource = [...source].filter((entry) => !packaged.has(entry));
+const missingFromSource = [...source].filter((entry) => !packageHas(entry));
 const grouped = Object.groupBy(missingFromSource, (entry) => entry.split("/").slice(0, 2).join("/"));
 console.log("\nExcluded from package (by category):");
 for (const [category, files] of Object.entries(grouped).sort((a, b) => b[1].length - a[1].length)) {

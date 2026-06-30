@@ -3832,67 +3832,6 @@
       }
     },
     {
-      "id": "book-counter-attack",
-      "name": "Counter Attack",
-      "type": "book",
-      "slot": "book",
-      "class": "warrior",
-      "source": {
-        "crystalIndex": 986,
-        "name": "CounterAttack"
-      },
-      "icon": {
-        "library": "Items",
-        "frame": 3640,
-        "src": "./public/item-icons/books/images/frame_003640.png"
-      },
-      "requirements": {
-        "type": "level",
-        "amount": 47,
-        "classMask": 1,
-        "genderMask": 3
-      },
-      "stackable": false,
-      "maxStack": 1,
-      "stats": {
-        "ac": [
-          0,
-          0
-        ],
-        "amc": [
-          0,
-          0
-        ],
-        "dc": [
-          0,
-          0
-        ],
-        "mc": [
-          0,
-          0
-        ],
-        "sc": [
-          0,
-          0
-        ],
-        "hp": 0,
-        "mp": 0,
-        "accuracy": 0,
-        "agility": 0,
-        "luck": 0,
-        "attackSpeed": 0
-      },
-      "shop": {
-        "buy": 80000,
-        "sell": 16000
-      },
-      "crystalType": "Book",
-      "spell": {
-        "id": "CounterAttack",
-        "shape": 14
-      }
-    },
-    {
       "id": "book-cripple-shot",
       "name": "Cripple Shot",
       "type": "book",
@@ -4135,6 +4074,76 @@
         "id": "DarkBody",
         "shape": 103
       }
+    },
+    {
+      "id": "book-energy-shield",
+      "name": "Energy Shield",
+      "type": "book",
+      "slot": "book",
+      "class": "taoist",
+      "source": {
+        "crystalIndex": 1026,
+        "name": "EnergyShield"
+      },
+      "icon": {
+        "library": "Items",
+        "frame": 3642,
+        "src": "./public/item-icons/books/images/frame_003640.png"
+      },
+      "requirements": {
+        "type": "level",
+        "amount": 48,
+        "classMask": 4,
+        "genderMask": 3
+      },
+      "stackable": false,
+      "maxStack": 1,
+      "stats": {
+        "ac": [
+          0,
+          0
+        ],
+        "amc": [
+          0,
+          0
+        ],
+        "dc": [
+          0,
+          0
+        ],
+        "mc": [
+          0,
+          0
+        ],
+        "sc": [
+          0,
+          0
+        ],
+        "hp": 0,
+        "mp": 0,
+        "accuracy": 0,
+        "agility": 0,
+        "luck": 0,
+        "attackSpeed": 0
+      },
+      "shop": {
+        "buy": 15000,
+        "sell": 3000
+      },
+      "spell": {
+        "id": "EnergyShield",
+        "shape": 84
+      },
+      "drop": {
+        "zones": [
+          "zone-bug-cave-2"
+        ],
+        "chance": 0.005,
+        "chances": {
+          "zone-bug-cave-2": 0.005
+        }
+      },
+      "crystalType": "Book"
     },
     {
       "id": "book-fencing",
@@ -4860,6 +4869,67 @@
       "crystalType": "Book"
     },
     {
+      "id": "book-healing-circle",
+      "name": "Healing Circle",
+      "type": "book",
+      "slot": "book",
+      "class": "taoist",
+      "source": {
+        "crystalIndex": 1030,
+        "name": "HealingCircle"
+      },
+      "icon": {
+        "library": "Items",
+        "frame": 3642,
+        "src": "./public/item-icons/books/images/frame_003640.png"
+      },
+      "requirements": {
+        "type": "level",
+        "amount": 39,
+        "classMask": 4,
+        "genderMask": 3
+      },
+      "stackable": false,
+      "maxStack": 1,
+      "stats": {
+        "ac": [
+          0,
+          0
+        ],
+        "amc": [
+          0,
+          0
+        ],
+        "dc": [
+          0,
+          0
+        ],
+        "mc": [
+          0,
+          0
+        ],
+        "sc": [
+          0,
+          0
+        ],
+        "hp": 0,
+        "mp": 0,
+        "accuracy": 0,
+        "agility": 0,
+        "luck": 0,
+        "attackSpeed": 0
+      },
+      "shop": {
+        "buy": 12000,
+        "sell": 2400
+      },
+      "spell": {
+        "id": "HealingCircle",
+        "shape": 86
+      },
+      "crystalType": "Book"
+    },
+    {
       "id": "book-hemorrhage",
       "name": "Hemorrhage",
       "type": "book",
@@ -4980,6 +5050,67 @@
         "shape": 46
       },
       "crystalType": "Book"
+    },
+    {
+      "id": "book-immortal-skin",
+      "name": "Immortal Skin",
+      "type": "book",
+      "slot": "book",
+      "class": "warrior",
+      "source": {
+        "crystalIndex": 989,
+        "name": "ImmortalSkin"
+      },
+      "icon": {
+        "library": "Items",
+        "frame": 3640,
+        "src": "./public/item-icons/books/images/frame_003640.png"
+      },
+      "requirements": {
+        "type": "level",
+        "amount": 60,
+        "classMask": 1,
+        "genderMask": 3
+      },
+      "stackable": false,
+      "maxStack": 1,
+      "stats": {
+        "ac": [
+          0,
+          0
+        ],
+        "amc": [
+          0,
+          0
+        ],
+        "dc": [
+          0,
+          0
+        ],
+        "mc": [
+          0,
+          0
+        ],
+        "sc": [
+          0,
+          0
+        ],
+        "hp": 0,
+        "mp": 0,
+        "accuracy": 0,
+        "agility": 0,
+        "luck": 0,
+        "attackSpeed": 0
+      },
+      "shop": {
+        "buy": 120000,
+        "sell": 24000
+      },
+      "crystalType": "Book",
+      "spell": {
+        "id": "ImmortalSkin",
+        "shape": 17
+      }
     },
     {
       "id": "book-lion-roar",
@@ -33112,7 +33243,7 @@
       },
       "shop": {
         "buy": 2500,
-        "sell": 500
+        "sell": 10000
       },
       "drop": {
         "zones": [

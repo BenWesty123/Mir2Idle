@@ -559,8 +559,14 @@ test("OFFLINE_TAOIST_SUPPORT_SPELL_ORDER: player-tank support priority", () => {
     "MassHealing",
     "SoulShield",
     "BlessedArmour",
+    "EnergyShield",
+    "HealingCircle",
     "UltimateEnhancer",
+    "PetEnhancer",
     "Poisoning",
+    "PoisonCloud",
+    "Curse",
+    "Plague",
   ]);
 });
 
@@ -595,7 +601,13 @@ test("offlineTaoistQueuedSpellKind: maps queued spells to handler kinds", () => 
   assert.equal(offlineTaoistQueuedSpellKind("SummonHolyDeva"), "summon");
   assert.equal(offlineTaoistQueuedSpellKind("SoulShield"), "defenceBuff");
   assert.equal(offlineTaoistQueuedSpellKind("BlessedArmour"), "defenceBuff");
+  assert.equal(offlineTaoistQueuedSpellKind("EnergyShield"), "energyShield");
+  assert.equal(offlineTaoistQueuedSpellKind("HealingCircle"), "healingCircle");
   assert.equal(offlineTaoistQueuedSpellKind("MassHealing"), "massHeal");
+  assert.equal(offlineTaoistQueuedSpellKind("PetEnhancer"), "petEnhancer");
+  assert.equal(offlineTaoistQueuedSpellKind("PoisonCloud"), "poisonCloud");
+  assert.equal(offlineTaoistQueuedSpellKind("Plague"), "plague");
+  assert.equal(offlineTaoistQueuedSpellKind("Curse"), "curse");
   assert.equal(offlineTaoistQueuedSpellKind("Unknown"), null);
 });
 

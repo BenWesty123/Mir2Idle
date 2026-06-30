@@ -50,6 +50,7 @@ const PROTOTYPE_EXP_REQUIREMENT_SCALE = 0.25;
 
 export const CRYSTAL_MAX_LEVEL = 500;
 export const CRYSTAL_MAX_LUCK = 10;
+export const BENEDICTION_MAX_WEAPON_LUCK = 7;
 
 export const PLAYER_TEMPLATE = {
   name: "Warrior",
@@ -175,12 +176,15 @@ export function formatStatRange(stat) {
 // Crystal HumanObject: ActionTime += 550 after a normal melee swing.
 export const CRYSTAL_PLAYER_ACTION_LOCK_MS = 550;
 
+/** Crystal uses 60; tuned to 40 so stacked gear AS does not hit the swing floor as early. */
+export const ATTACK_SPEED_MS_PER_POINT = 40;
+
 export function attackDelayMs(attackSpeed, level = 0) {
   const speed = Math.trunc(Number(attackSpeed) || 0);
   const levelBonus = Math.min(370, Math.max(0, Number(level) || 0) * 14);
   return Math.max(
     CRYSTAL_PLAYER_ACTION_LOCK_MS,
-    Math.round(1400 - (speed * 60 + levelBonus)),
+    Math.round(1400 - (speed * ATTACK_SPEED_MS_PER_POINT + levelBonus)),
   );
 }
 

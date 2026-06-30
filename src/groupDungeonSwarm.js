@@ -159,6 +159,29 @@ export function spellBangAreaTiles(centerWorldX, centerMapRow) {
   return tiles;
 }
 
+/** Crystal ground fields: square centered on the target cell (radius 1 = 3×3, 2 = 5×5). */
+export function spellGroundAreaTiles(centerWorldX, centerMapRow, radius = 2) {
+  const cx = swarmSnapTileX(centerWorldX);
+  const row = Math.trunc(Number(centerMapRow) || 0);
+  const step = GROUP_DUNGEON_SWARM_MAP_ROW_STEP;
+  const r = Math.max(0, Math.trunc(Number(radius) || 0));
+  const tiles = [];
+  for (let dLane = -r; dLane <= r; dLane += 1) {
+    for (let dX = -r; dX <= r; dX += 1) {
+      tiles.push({
+        worldX: cx + dX * GROUP_DUNGEON_SWARM_TILE_PX,
+        mapRow: row + dLane * step,
+      });
+    }
+  }
+  return tiles;
+}
+
+/** Crystal Blizzard / MeteorStrike: 5×5 square centered on the target cell. */
+export function spellStormAreaTiles(centerWorldX, centerMapRow) {
+  return spellGroundAreaTiles(centerWorldX, centerMapRow, 2);
+}
+
 /** Crystal FireWall: center cell plus four orthogonal neighbours. */
 export function fireWallCrossTiles(centerWorldX, centerMapRow) {
   const cx = swarmSnapTileX(centerWorldX);
@@ -338,6 +361,46 @@ export function swarmEnemyEngagedStanceAction(enemy, meleeCol, arenaSpawnRow) {
   if (!swarmEnemyInAttackRange(enemy, meleeCol)) return "standing";
   const lane = swarmLaneFromMapRow(swarmEnemyTilePosition(enemy).mapRow, arenaSpawnRow);
   return swarmStanceActionForLane(lane);
+}
+
+/**
+ * Move the final side-lane enemy into the empty centre melee cell. This covers
+ * either one lone survivor or a final pair split north/south, allowing the
+ * party's primary melee attack to finish the encounter. The lower id makes a
+ * two-enemy choice stable across frames.
+ */
+export function swarmPickCenterLaneStep(enemies, meleeCol, arenaSpawnRow) {
+  const alive = (enemies ?? []).filter((enemy) => enemy.hp > 0 && !enemy.dying);
+  if (alive.length < 1 || alive.length > 2) return null;
+
+  const targetX = swarmSnapTileX(meleeCol);
+  const targetRow = swarmLaneMapRow(0, arenaSpawnRow);
+  const split = alive
+    .map((enemy) => ({
+      enemy,
+      tile: swarmEnemyTilePosition(enemy),
+      lane: swarmLaneFromMapRow(swarmEnemyTilePosition(enemy).mapRow, arenaSpawnRow),
+    }))
+    .filter(({ enemy, tile, lane }) => (
+      !enemy.stationaryBoss
+      && enemy.stepToX == null
+      && tile.worldX === targetX
+      && (lane === -1 || lane === 1)
+    ));
+  const loneSideEnemy = alive.length === 1 && split.length === 1;
+  const splitSideEnemies = alive.length === 2
+    && split.length === 2
+    && new Set(split.map((entry) => entry.lane)).size === 2;
+  if (!loneSideEnemy && !splitSideEnemies) return null;
+  if (swarmTileOccupied(targetX, targetRow, alive, null)) return null;
+
+  const chosen = split.sort((a, b) => Number(a.enemy.id) - Number(b.enemy.id))[0];
+  return {
+    enemyId: chosen.enemy.id,
+    toX: targetX,
+    toMapRow: targetRow,
+    action: chosen.lane < 0 ? "walkSouth" : "walkNorth",
+  };
 }
 
 /**

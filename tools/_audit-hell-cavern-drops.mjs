@@ -59,7 +59,6 @@ const idOverrides = {
   Hemorrhage: "book-hemorrhage",
   Plague: "book-plague",
   MagicBooster: "book-magic-booster",
-  CounterAttack: "book-counter-attack",
   Trap: "book-trap",
   HealthStone: "healthstone",
   "HealthStone(L)": "healthstone",

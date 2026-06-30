@@ -448,8 +448,16 @@
         {
           "file": "Magic2",
           "start": 910,
-          "count": 23,
-          "totalDurationMs": 1800
+          "count": 3,
+          "totalDurationMs": 234
+        },
+        {
+          "file": "Magic2",
+          "start": 913,
+          "count": 20,
+          "totalDurationMs": 1560,
+          "anchor": "enemy",
+          "delayMs": 500
         }
       ]
     },
@@ -762,24 +770,6 @@
       ]
     },
     {
-      "id": "CounterAttack",
-      "layers": [
-        {
-          "file": "Magic",
-          "start": 3480,
-          "count": 10,
-          "directionMul": 10,
-          "totalDurationMs": 1000
-        },
-        {
-          "file": "Magic3",
-          "start": 140,
-          "count": 2,
-          "totalDurationMs": 200
-        }
-      ]
-    },
-    {
       "id": "CrescentSlash",
       "layers": [
         {
@@ -812,6 +802,54 @@
           "totalDurationMs": 600
         }
       ]
+    },
+    {
+      "id": "PoisonCloud",
+      "layers": [],
+      "projectile": {
+        "file": "Magic",
+        "baseIndex": 1160,
+        "frameCount": 3,
+        "skip": 0,
+        "facing8": 2,
+        "interval": 30,
+        "moveDurationMs": 400,
+        "delayMs": 0,
+        "startOffsetX": 8,
+        "startOffsetY": -42,
+        "endOffsetX": 40,
+        "endOffsetY": -42
+      },
+      "ground": {
+        "file": "Magic2",
+        "start": 1650,
+        "count": 20,
+        "interval": 120
+      }
+    },
+    {
+      "id": "Plague",
+      "layers": [],
+      "projectile": {
+        "file": "Magic",
+        "baseIndex": 1160,
+        "frameCount": 3,
+        "skip": 0,
+        "facing8": 2,
+        "interval": 30,
+        "moveDurationMs": 400,
+        "delayMs": 0,
+        "startOffsetX": 8,
+        "startOffsetY": -42,
+        "endOffsetX": 40,
+        "endOffsetY": -42
+      },
+      "impact": {
+        "file": "Magic3",
+        "start": 110,
+        "count": 10,
+        "interval": 120
+      }
     },
     {
       "id": "MeteorStrike",

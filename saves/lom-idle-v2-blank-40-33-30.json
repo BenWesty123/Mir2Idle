@@ -1,0 +1,445 @@
+{
+  "version": 1,
+  "savedAt": 1782575380779,
+  "activeCharacterId": "Warrior",
+  "groupDungeonRun": null,
+  "characters": {
+    "Warrior": {
+      "classId": "Warrior",
+      "game": {
+        "mode": "town",
+        "activeZoneId": null,
+        "kills": 0,
+        "zoneKills": 0,
+        "distance": 0,
+        "playtimeMs": 0,
+        "lastReward": null,
+        "recentLoot": [],
+        "dropPity": {},
+        "bossRespawns": {},
+        "bossKills": {},
+        "progress": {
+          "level": 40,
+          "experience": 0,
+          "gold": 0
+        },
+        "starterGearVersion": 1,
+        "miningNextRollAt": 0,
+        "miningSpotId": null,
+        "groupDungeonRun": null
+      },
+      "inventory": {
+        "gold": 0,
+        "pagesUnlocked": 1,
+        "maxSlots": 40,
+        "nextInstanceId": 5,
+        "items": [
+          {
+            "id": "item-1",
+            "itemId": "wooden-sword",
+            "quantity": 1,
+            "slot": 0
+          },
+          {
+            "id": "item-2",
+            "itemId": "base-dress",
+            "quantity": 1,
+            "slot": 1
+          },
+          {
+            "id": "item-3",
+            "itemId": "hp-drug-small",
+            "quantity": 5,
+            "slot": 2
+          },
+          {
+            "id": "item-4",
+            "itemId": "mp-drug-small",
+            "quantity": 5,
+            "slot": 3
+          }
+        ],
+        "equipment": {
+          "weapon": null,
+          "armour": null,
+          "helmet": null,
+          "torch": null,
+          "necklace": null,
+          "braceletL": null,
+          "braceletR": null,
+          "ringL": null,
+          "ringR": null,
+          "amulet": null,
+          "belt": null,
+          "boots": null,
+          "stone": null,
+          "mount": null
+        }
+      },
+      "hotbar": {
+        "slots": [
+          null,
+          null,
+          null,
+          null,
+          null,
+          null
+        ]
+      },
+      "magic": {
+        "learned": {}
+      },
+      "battle": {
+        "running": false,
+        "paused": false,
+        "playerHp": null,
+        "playerMp": null,
+        "potHealthAmount": 0,
+        "potManaAmount": 0,
+        "healAmount": 0,
+        "statBuffs": [],
+        "petStatBuffs": []
+      }
+    },
+    "Wizard": {
+      "classId": "Wizard",
+      "game": {
+        "mode": "town",
+        "activeZoneId": null,
+        "kills": 0,
+        "zoneKills": 0,
+        "distance": 0,
+        "playtimeMs": 0,
+        "lastReward": null,
+        "recentLoot": [],
+        "dropPity": {},
+        "bossRespawns": {},
+        "bossKills": {},
+        "progress": {
+          "level": 30,
+          "experience": 0,
+          "gold": 0
+        },
+        "starterGearVersion": 1,
+        "miningNextRollAt": 0,
+        "miningSpotId": null,
+        "groupDungeonRun": null
+      },
+      "inventory": {
+        "gold": 0,
+        "pagesUnlocked": 1,
+        "maxSlots": 40,
+        "nextInstanceId": 5,
+        "items": [
+          {
+            "id": "item-1",
+            "itemId": "wooden-sword",
+            "quantity": 1,
+            "slot": 0
+          },
+          {
+            "id": "item-2",
+            "itemId": "base-dress",
+            "quantity": 1,
+            "slot": 1
+          },
+          {
+            "id": "item-3",
+            "itemId": "hp-drug-small",
+            "quantity": 5,
+            "slot": 2
+          },
+          {
+            "id": "item-4",
+            "itemId": "mp-drug-small",
+            "quantity": 5,
+            "slot": 3
+          }
+        ],
+        "equipment": {
+          "weapon": null,
+          "armour": null,
+          "helmet": null,
+          "torch": null,
+          "necklace": null,
+          "braceletL": null,
+          "braceletR": null,
+          "ringL": null,
+          "ringR": null,
+          "amulet": null,
+          "belt": null,
+          "boots": null,
+          "stone": null,
+          "mount": null
+        }
+      },
+      "hotbar": {
+        "slots": [
+          null,
+          null,
+          null,
+          null,
+          null,
+          null
+        ]
+      },
+      "magic": {
+        "learned": {}
+      },
+      "battle": {
+        "running": false,
+        "paused": false,
+        "playerHp": null,
+        "playerMp": null,
+        "potHealthAmount": 0,
+        "potManaAmount": 0,
+        "healAmount": 0,
+        "statBuffs": [],
+        "petStatBuffs": []
+      }
+    },
+    "Taoist": {
+      "classId": "Taoist",
+      "game": {
+        "mode": "town",
+        "activeZoneId": null,
+        "kills": 0,
+        "zoneKills": 0,
+        "distance": 0,
+        "playtimeMs": 0,
+        "lastReward": null,
+        "recentLoot": [],
+        "dropPity": {},
+        "bossRespawns": {},
+        "bossKills": {},
+        "progress": {
+          "level": 33,
+          "experience": 0,
+          "gold": 0
+        },
+        "starterGearVersion": 1,
+        "miningNextRollAt": 0,
+        "miningSpotId": null,
+        "groupDungeonRun": null
+      },
+      "inventory": {
+        "gold": 0,
+        "pagesUnlocked": 1,
+        "maxSlots": 40,
+        "nextInstanceId": 5,
+        "items": [
+          {
+            "id": "item-1",
+            "itemId": "wooden-sword",
+            "quantity": 1,
+            "slot": 0
+          },
+          {
+            "id": "item-2",
+            "itemId": "base-dress",
+            "quantity": 1,
+            "slot": 1
+          },
+          {
+            "id": "item-3",
+            "itemId": "hp-drug-small",
+            "quantity": 5,
+            "slot": 2
+          },
+          {
+            "id": "item-4",
+            "itemId": "mp-drug-small",
+            "quantity": 5,
+            "slot": 3
+          }
+        ],
+        "equipment": {
+          "weapon": null,
+          "armour": null,
+          "helmet": null,
+          "torch": null,
+          "necklace": null,
+          "braceletL": null,
+          "braceletR": null,
+          "ringL": null,
+          "ringR": null,
+          "amulet": null,
+          "belt": null,
+          "boots": null,
+          "stone": null,
+          "mount": null
+        }
+      },
+      "hotbar": {
+        "slots": [
+          null,
+          null,
+          null,
+          null,
+          null,
+          null
+        ]
+      },
+      "magic": {
+        "learned": {}
+      },
+      "battle": {
+        "running": false,
+        "paused": false,
+        "playerHp": null,
+        "playerMp": null,
+        "potHealthAmount": 0,
+        "potManaAmount": 0,
+        "healAmount": 0,
+        "statBuffs": [],
+        "petStatBuffs": []
+      }
+    }
+  },
+  "account": {
+    "storage": {
+      "pagesUnlocked": 1,
+      "page2Purchased": false,
+      "maxSlots": 80,
+      "nextInstanceId": 2,
+      "items": [
+        {
+          "id": "storage-item-1",
+          "itemId": "awakening-soul",
+          "quantity": 20,
+          "slot": 0
+        }
+      ]
+    },
+    "upgrades": {
+      "tiers": {
+        "autocast-slot-2": 1,
+        "autocast-slot-3": 1,
+        "auto-potion-slot-3": 1,
+        "auto-potion-slot-4": 1
+      }
+    },
+    "rebirthPoints": 0,
+    "bossRespawns": {},
+    "stats": {
+      "rebirthCount": 0,
+      "rebirthPointsGained": 0,
+      "rebirthPointsSpent": 0,
+      "bossKills": {}
+    }
+  },
+  "game": {
+    "mode": "town",
+    "activeZoneId": null,
+    "kills": 0,
+    "zoneKills": 0,
+    "distance": 0,
+    "playtimeMs": 0,
+    "lastReward": null,
+    "recentLoot": [],
+    "dropPity": {},
+    "bossRespawns": {},
+    "bossKills": {},
+    "progress": {
+      "level": 40,
+      "experience": 0,
+      "gold": 0
+    },
+    "starterGearVersion": 1,
+    "miningNextRollAt": 0,
+    "miningSpotId": null,
+    "groupDungeonRun": null
+  },
+  "inventory": {
+    "gold": 0,
+    "pagesUnlocked": 1,
+    "maxSlots": 40,
+    "nextInstanceId": 5,
+    "items": [
+      {
+        "id": "item-1",
+        "itemId": "wooden-sword",
+        "quantity": 1,
+        "slot": 0
+      },
+      {
+        "id": "item-2",
+        "itemId": "base-dress",
+        "quantity": 1,
+        "slot": 1
+      },
+      {
+        "id": "item-3",
+        "itemId": "hp-drug-small",
+        "quantity": 5,
+        "slot": 2
+      },
+      {
+        "id": "item-4",
+        "itemId": "mp-drug-small",
+        "quantity": 5,
+        "slot": 3
+      }
+    ],
+    "equipment": {
+      "weapon": null,
+      "armour": null,
+      "helmet": null,
+      "torch": null,
+      "necklace": null,
+      "braceletL": null,
+      "braceletR": null,
+      "ringL": null,
+      "ringR": null,
+      "amulet": null,
+      "belt": null,
+      "boots": null,
+      "stone": null,
+      "mount": null
+    }
+  },
+  "hotbar": {
+    "slots": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ]
+  },
+  "magic": {
+    "learned": {}
+  },
+  "battle": {
+    "combatClass": "Warrior",
+    "running": false,
+    "paused": false,
+    "playerHp": null,
+    "playerMp": null,
+    "potHealthAmount": 0,
+    "potManaAmount": 0,
+    "healAmount": 0,
+    "statBuffs": [],
+    "petStatBuffs": []
+  },
+  "indexes": {
+    "armour": 0,
+    "hair": 0,
+    "weapon": null
+  },
+  "characterTab": "character",
+  "settings": {
+    "musicSettingsVersion": 2,
+    "musicEnabled": true,
+    "musicVolume": 0.5,
+    "musicMode": "zone",
+    "musicTrackId": "30001",
+    "sfxEnabled": true,
+    "sfxVolume": 0.5,
+    "prototypeStatsEnabled": true,
+    "prototypeStatsNoticeVersion": 1,
+    "prototypeResetNoticeVersion": 0,
+    "prototypeResetNoticeLastSeenAt": 0
+  }
+}
