@@ -63,3 +63,62 @@ ON town_messages (status, expires_at, id DESC);
 
 CREATE INDEX IF NOT EXISTS town_messages_player_time_idx
 ON town_messages (player_id, created_at DESC);
+
+CREATE TABLE IF NOT EXISTS telemetry_sessions (
+  session_id TEXT PRIMARY KEY,
+  player_id TEXT NOT NULL,
+  first_seen TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  last_seen TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  foreground_ms INTEGER NOT NULL DEFAULT 0,
+  background_ms INTEGER NOT NULL DEFAULT 0,
+  combat_ms INTEGER NOT NULL DEFAULT 0,
+  idle_ms INTEGER NOT NULL DEFAULT 0,
+  total_ms INTEGER NOT NULL DEFAULT 0,
+  heartbeats INTEGER NOT NULL DEFAULT 0
+);
+
+CREATE INDEX IF NOT EXISTS telemetry_sessions_last_seen_idx
+ON telemetry_sessions (last_seen DESC);
+
+CREATE INDEX IF NOT EXISTS telemetry_sessions_player_idx
+ON telemetry_sessions (player_id, last_seen DESC);
+
+-- Server-authoritative token balances. Keyed to the player's recovery code
+-- (the portable cloud-save account key). Balances are ONLY credited by the
+-- Stripe webhook after a verified payment and decremented by spend endpoints.
+CREATE TABLE IF NOT EXISTS token_accounts (
+  recovery_code TEXT PRIMARY KEY,
+  balance INTEGER NOT NULL DEFAULT 0,
+  created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  updated_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP
+);
+
+-- Append-only audit trail of every credit (purchase) and spend.
+CREATE TABLE IF NOT EXISTS token_ledger (
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  recovery_code TEXT NOT NULL,
+  delta INTEGER NOT NULL,
+  reason TEXT NOT NULL,
+  ref TEXT,
+  created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE INDEX IF NOT EXISTS token_ledger_account_idx
+ON token_ledger (recovery_code, id DESC);
+
+-- Idempotency guard: each Stripe event id is processed at most once so
+-- webhook retries never double-credit.
+CREATE TABLE IF NOT EXISTS stripe_events (
+  event_id TEXT PRIMARY KEY,
+  created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP
+);
+
+-- Server-authoritative record of one-off token unlocks the player owns
+-- (e.g. a 3rd inventory page per character, a 3rd storage page). This is the
+-- source of truth so unlocks survive save resets, rebirth, and device changes.
+CREATE TABLE IF NOT EXISTS account_unlocks (
+  recovery_code TEXT NOT NULL,
+  unlock_key TEXT NOT NULL,
+  created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  PRIMARY KEY (recovery_code, unlock_key)
+);

@@ -24,6 +24,29 @@ export function normalizedMusicMode(value) {
 }
 
 /**
+ * @param {unknown} value
+ * @returns {{ x: number, y: number } | null}
+ */
+export function sanitizeSceneWindowPosition(value) {
+  if (!value || typeof value !== "object") return null;
+  const x = Number(value.x);
+  const y = Number(value.y);
+  if (!Number.isFinite(x) || !Number.isFinite(y)) return null;
+  return { x: Math.round(x), y: Math.round(y) };
+}
+
+/**
+ * @param {unknown} saved
+ */
+export function sanitizeSceneWindowPositions(saved) {
+  const positions = saved && typeof saved === "object" ? saved : {};
+  return {
+    character: sanitizeSceneWindowPosition(positions.character),
+    inventory: sanitizeSceneWindowPosition(positions.inventory),
+  };
+}
+
+/**
  * @param {object | null | undefined} savedSettings
  */
 export function sanitizeSettingsState(savedSettings = {}) {
@@ -46,5 +69,8 @@ export function sanitizeSettingsState(savedSettings = {}) {
     prototypeResetNoticeLastSeenAt: Math.max(0, Math.trunc(Number(savedSettings.prototypeResetNoticeLastSeenAt) || 0)),
     cloudBackupNoticeVersion: Math.max(0, Math.trunc(Number(savedSettings.cloudBackupNoticeVersion) || 0)),
     cloudBackupNoticeLastSeenAt: Math.max(0, Math.trunc(Number(savedSettings.cloudBackupNoticeLastSeenAt) || 0)),
+    demoLiveSiteBannerLastSeenAt: Math.max(0, Math.trunc(Number(savedSettings.demoLiveSiteBannerLastSeenAt) || 0)),
+    unfairSkillPurgeVersion: Math.max(0, Math.trunc(Number(savedSettings.unfairSkillPurgeVersion) || 0)),
+    sceneWindowPositions: sanitizeSceneWindowPositions(savedSettings.sceneWindowPositions),
   };
 }

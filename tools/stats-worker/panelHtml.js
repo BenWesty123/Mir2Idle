@@ -96,6 +96,42 @@ export const PANEL_HTML = `<!DOCTYPE html>
       color: var(--muted);
       text-align: center;
     }
+    .metrics {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+      gap: 12px;
+      margin: 0 0 22px;
+    }
+    .metric-card {
+      background: var(--panel);
+      border: 1px solid var(--line);
+      border-radius: 6px;
+      padding: 12px 14px;
+    }
+    .metric-card .value {
+      font-size: 24px;
+      color: var(--accent);
+      font-variant-numeric: tabular-nums;
+    }
+    .metric-card .label {
+      font-size: 12px;
+      color: var(--muted);
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+      margin-top: 2px;
+    }
+    .metric-card .sub-value {
+      font-size: 12px;
+      color: var(--muted);
+      margin-top: 6px;
+    }
+    .section-title {
+      font-size: 14px;
+      color: var(--accent);
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      margin: 0 0 10px;
+    }
     @media (max-width: 720px) {
       table, thead, tbody, th, td, tr { display: block; }
       thead { display: none; }
@@ -120,6 +156,10 @@ export const PANEL_HTML = `<!DOCTYPE html>
   <main>
     <h1>LOM Idle V2 Stats</h1>
     <p class="sub">Players ranked by combined character levels, then Awakening Souls held.</p>
+    <p class="section-title">Live Activity</p>
+    <p class="status" id="metricsStatus">Loading activity...</p>
+    <div class="metrics" id="metrics"></div>
+    <p class="section-title">Leaderboard</p>
     <div class="toolbar">
       <button type="button" id="refresh">Refresh</button>
       <select id="limit">
@@ -194,8 +234,52 @@ export const PANEL_HTML = `<!DOCTYPE html>
       }
     }
 
-    refreshBtn.addEventListener("click", loadLeaderboard);
+    const metricsEl = document.getElementById("metrics");
+    const metricsStatusEl = document.getElementById("metricsStatus");
+
+    function metricCard(value, label, sub) {
+      return '<div class="metric-card">'
+        + '<div class="value">' + escapeHtml(value) + '</div>'
+        + '<div class="label">' + escapeHtml(label) + '</div>'
+        + (sub ? '<div class="sub-value">' + escapeHtml(sub) + '</div>' : '')
+        + '</div>';
+    }
+
+    function splitPercent(a, b) {
+      const total = Number(a) + Number(b);
+      if (!total) return "0% / 0%";
+      const pa = Math.round((Number(a) / total) * 100);
+      return pa + "% / " + (100 - pa) + "%";
+    }
+
+    async function loadMetrics() {
+      metricsStatusEl.textContent = "Loading activity...";
+      try {
+        const response = await fetch("/metrics", { cache: "no-store" });
+        if (!response.ok) throw new Error("HTTP " + response.status);
+        const m = await response.json();
+        const day = m.last24h || {};
+        const all = m.allTime || {};
+        metricsEl.innerHTML = [
+          metricCard(m.onlineNow ?? 0, "Playing now", "last 5 min"),
+          metricCard(m.dau ?? 0, "Players today", "last 24h"),
+          metricCard(m.wau ?? 0, "Players this week", "last 7 days"),
+          metricCard(m.totalPlayers ?? 0, "Players all-time", (m.totalSessions ?? 0) + " sessions"),
+          metricCard((day.avgSessionMinutes ?? 0) + "m", "Avg session (24h)", (day.sessions ?? 0) + " sessions"),
+          metricCard(splitPercent(day.foregroundHours, day.backgroundHours), "Foreground / background", (day.foregroundHours ?? 0) + "h / " + (day.backgroundHours ?? 0) + "h (24h)"),
+          metricCard(splitPercent(day.combatHours, day.idleHours), "Active / idle play", (day.combatHours ?? 0) + "h / " + (day.idleHours ?? 0) + "h (24h)"),
+          metricCard((all.totalHours ?? 0) + "h", "Total play all-time", (all.combatHours ?? 0) + "h active / " + (all.idleHours ?? 0) + "h idle"),
+        ].join("");
+        metricsStatusEl.textContent = "Updated " + new Date().toLocaleString() + ".";
+      } catch (error) {
+        metricsStatusEl.textContent = "Unable to load activity.";
+        metricsEl.innerHTML = '<div class="empty">' + escapeHtml(error?.message || "Unknown error") + '</div>';
+      }
+    }
+
+    refreshBtn.addEventListener("click", () => { loadMetrics(); loadLeaderboard(); });
     limitEl.addEventListener("change", loadLeaderboard);
+    loadMetrics();
     loadLeaderboard();
   </script>
 </body>

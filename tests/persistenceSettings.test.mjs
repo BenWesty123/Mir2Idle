@@ -8,6 +8,8 @@ import {
   MUSIC_SETTINGS_VERSION,
   normalizedMusicMode,
   normalizedVolume,
+  sanitizeSceneWindowPosition,
+  sanitizeSceneWindowPositions,
   sanitizeSettingsState,
 } from "../src/persistence/sanitizeSettings.js";
 
@@ -51,4 +53,37 @@ test("sanitizeSettingsState: honors explicit flags at current version", () => {
   assert.equal(result.prototypeStatsNoticeVersion, 2);
   assert.equal(result.cloudBackupNoticeVersion, 1);
   assert.equal(result.cloudBackupNoticeLastSeenAt, 123456);
+});
+
+test("sanitizeSceneWindowPosition", () => {
+  assert.deepEqual(sanitizeSceneWindowPosition({ x: 120.6, y: 80.2 }), { x: 121, y: 80 });
+  assert.equal(sanitizeSceneWindowPosition(null), null);
+  assert.equal(sanitizeSceneWindowPosition({ x: "bad", y: 1 }), null);
+});
+
+test("sanitizeSceneWindowPositions", () => {
+  assert.deepEqual(sanitizeSceneWindowPositions({
+    character: { x: 10, y: 20 },
+    inventory: { x: "nope", y: 5 },
+  }), {
+    character: { x: 10, y: 20 },
+    inventory: null,
+  });
+  assert.deepEqual(sanitizeSceneWindowPositions(undefined), {
+    character: null,
+    inventory: null,
+  });
+});
+
+test("sanitizeSettingsState: includes scene window positions", () => {
+  const result = sanitizeSettingsState({
+    sceneWindowPositions: {
+      character: { x: 40, y: 50 },
+      inventory: { x: 300, y: 120 },
+    },
+  });
+  assert.deepEqual(result.sceneWindowPositions, {
+    character: { x: 40, y: 50 },
+    inventory: { x: 300, y: 120 },
+  });
 });

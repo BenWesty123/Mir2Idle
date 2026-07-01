@@ -5,8 +5,24 @@ compatibility_date = "2026-06-27"
 [vars]
 ALLOWED_ORIGIN = "*"
 INTEGRITY_ENFORCE_AFTER = "2026-07-04T00:00:00Z"
+# Base URL of the live site; used to build Stripe Checkout success/cancel
+# redirect URLs (falls back to https://www.lom2idle.com when unset).
+SITE_URL = "https://www.lom2idle.com"
 
 [[d1_databases]]
 binding = "DB"
 database_name = "lom-idle-v2-stats"
 database_id = "replace-with-your-d1-database-id"
+
+# Token shop (Stripe) secrets - set these with `wrangler secret put`, NEVER in
+# this file or [vars] (they must not be committed):
+#   wrangler secret put STRIPE_SECRET_KEY       # sk_test_... then sk_live_...
+#   wrangler secret put STRIPE_WEBHOOK_SECRET   # whsec_... from the webhook endpoint
+#
+# Stripe dashboard setup:
+#   1. Create the webhook endpoint -> https://<your-worker-host>/shop/stripe-webhook
+#   2. Subscribe it to the `checkout.session.completed` event.
+#   3. Copy that endpoint's signing secret into STRIPE_WEBHOOK_SECRET.
+#
+# After deploying, apply the new token tables:
+#   wrangler d1 execute lom-idle-v2-stats --file tools/stats-worker/schema.sql

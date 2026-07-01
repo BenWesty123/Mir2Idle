@@ -1,0 +1,30 @@
+# Cloudflare Pages header rules.
+#
+# Code must ALWAYS be revalidated. Only the index.html -> app.js -> app.monolith.js
+# chain carries a ?v= cache-bust; the ~30 sibling modules imported by the monolith
+# (playerActions.js, battleData.js, phase1Data.js, ...) do NOT. Without this, a
+# normal refresh after a deploy serves a fresh monolith alongside stale 4-hour
+# cached siblings -> module mismatch -> black screen (only a hard refresh fixed it).
+#
+# "no-cache" = store but revalidate before use, so unchanged files still return a
+# cheap 304. Large binary art under /public keeps its normal long cache (it is not
+# matched here), so this does not slow asset loading.
+
+/
+  Cache-Control: no-cache
+
+/index.html
+  Cache-Control: no-cache
+
+/terms.html
+  Cache-Control: no-cache
+
+/refund.html
+  Cache-Control: no-cache
+
+/src/*
+  Cache-Control: no-cache
+
+# Big binary art rarely changes; keep it cached but revalidating daily.
+/public/*
+  Cache-Control: public, max-age=86400, must-revalidate

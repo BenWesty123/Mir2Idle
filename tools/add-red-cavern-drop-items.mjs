@@ -43,27 +43,16 @@ const idOverrides = {
   ImmortalSkin: "book-immortal-skin",
   Reincarnation: "book-reincarnation",
   PoisonCloud: "book-poison-cloud",
-  PoisonSword: "book-poison-sword",
-  MoonLight: "book-moon-light",
   FlameDisruptor: "book-flame-disruptor",
   Mirroring: "book-mirroring",
-  MPEater: "book-mp-eater",
   MeteorStrike: "book-meteor-strike",
-  DarkBody: "book-dark-body",
   Rage: "book-rage",
   Blizzard: "book-blizzard",
   FlameField: "book-flame-field",
   Curse: "book-curse",
-  Hemorrhage: "book-hemorrhage",
   Plague: "book-plague",
   MagicBooster: "book-magic-booster",
   LionRoar: "book-lion-roar",
-  Trap: "book-trap",
-  SwiftFeet: "book-swift-feet",
-  BindingShot: "book-binding-shot",
-  SummonToad: "book-summon-toad",
-  PoisonShot: "book-poison-shot",
-  CrippleShot: "book-cripple-shot",
 };
 
 const nameOverrides = {
@@ -122,27 +111,16 @@ const spellIds = new Map([
   ["ImmortalSkin", "ImmortalSkin"],
   ["Reincarnation", "Reincarnation"],
   ["PoisonCloud", "PoisonCloud"],
-  ["PoisonSword", "PoisonSword"],
-  ["MoonLight", "MoonLight"],
   ["FlameDisruptor", "FlameDisruptor"],
   ["Mirroring", "Mirroring"],
-  ["MPEater", "MPEater"],
   ["MeteorStrike", "MeteorStrike"],
-  ["DarkBody", "DarkBody"],
   ["Rage", "Rage"],
   ["Blizzard", "Blizzard"],
   ["FlameField", "FlameField"],
   ["Curse", "Curse"],
-  ["Hemorrhage", "Hemorrhage"],
   ["Plague", "Plague"],
   ["MagicBooster", "MagicBooster"],
   ["LionRoar", "LionRoar"],
-  ["Trap", "Trap"],
-  ["SwiftFeet", "SwiftFeet"],
-  ["BindingShot", "BindingShot"],
-  ["SummonToad", "SummonToad"],
-  ["PoisonShot", "PoisonShot"],
-  ["CrippleShot", "CrippleShot"],
 ]);
 
 function parseDropNames(filePath) {
@@ -239,6 +217,10 @@ function bookIconSrc(frame) {
 }
 
 function itemFromCrystal(item) {
+  if (item.type === "Book") {
+    const mask = Number(item.requiredClass) || 0;
+    if ((mask & 8) !== 0 || (mask & 16) !== 0) return null;
+  }
   const frame = Number(item.icon?.frame) || 0;
   if (item.type !== "Book" && frame) copyItemIcon(root, frame, publicIconRoot);
 
@@ -316,6 +298,7 @@ for (const name of [...dropNames].sort()) {
   }
   if (existingCrystalNames.has(crystal.name)) continue;
   const def = itemFromCrystal(crystal);
+  if (!def) continue;
   if (existingIds.has(def.id)) continue;
   itemsDoc.items.push(def);
   existingIds.add(def.id);

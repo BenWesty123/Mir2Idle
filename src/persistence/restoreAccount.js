@@ -81,6 +81,9 @@ export function restoreAccountFromSnapshot(snapshot, characters, options) {
     achievements: typeof options.sanitizeAchievements === "function"
       ? options.sanitizeAchievements(snapshot.account?.achievements)
       : { enabled: false, unlocked: {} },
+    ownedUnlocks: typeof options.sanitizeOwnedUnlocks === "function"
+      ? options.sanitizeOwnedUnlocks(snapshot.account?.ownedUnlocks)
+      : {},
   };
 
   account.stats = {

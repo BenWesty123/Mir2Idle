@@ -25,6 +25,9 @@ const buildVersion = new Date()
 
 const sourceFiles = [
   "index.html",
+  "terms.html",
+  "refund.html",
+  "_headers",
   "src/app.js",
   "src/app.monolith.js",
   "src/atlas.js",
@@ -40,6 +43,9 @@ const sourceFiles = [
   "src/core/offlineProgress.js",
   "src/core/party.js",
   "src/core/progress.js",
+  "src/core/socialEquipment.js",
+  "src/core/taoistPets.js",
+  "src/core/wizardMirror.js",
   "src/groupDungeonSwarm.js",
   "src/persistence/restoreAccount.js",
   "src/persistence/restoreCharacter.js",
@@ -399,6 +405,24 @@ function patchCacheBusting() {
   }
 }
 
+function patchPackagedStatsConfig() {
+  const configPath = path.join(packageRoot, "public/stats/config.json");
+  let config = {};
+  if (fs.existsSync(configPath)) {
+    try {
+      config = JSON.parse(fs.readFileSync(configPath, "utf8"));
+    } catch {
+      config = {};
+    }
+  }
+  config.demoLiveSiteBanner = {
+    enabled: true,
+    url: "https://www.lom2idle.com",
+  };
+  fs.mkdirSync(path.dirname(configPath), { recursive: true });
+  fs.writeFileSync(configPath, `${JSON.stringify(config, null, 2)}\n`);
+}
+
 function measureBuild() {
   const files = [];
   const walk = (directory) => {
@@ -548,6 +572,7 @@ copyDirectory(path.join(root, "public"), path.join(packageRoot, "public"));
 bundlePackagedAtlasManifests();
 trimMaptileIndex();
 patchCacheBusting();
+patchPackagedStatsConfig();
 
 validateModuleClosure();
 const metrics = measureBuild();

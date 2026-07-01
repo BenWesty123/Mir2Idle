@@ -120,6 +120,7 @@ const INCARNATED_WT_BOSS_DROPS = {
   gold: 20000,
   items: [
     { id: "awakening-soul", chance: 0.2 },
+    { id: "book-cross-half-moon", chance: 0.03 },
     { id: "dragon-slayer", chance: 1 / 10 },
     { id: "dragon-staff", chance: 1 / 10 },
     { id: "soul-sabre", chance: 1 / 10 },
@@ -234,6 +235,8 @@ const INCARNATED_ZT_BOSS_DROPS = {
     { id: "zuma-relic", chance: 0.1 },
     { id: "awakening-soul", chance: 0.2 },
     { id: "book-twin-drake-blade", chance: 0.1 },
+    { id: "book-protection-field", chance: 0.1 },
+    { id: "book-mirroring", chance: 0.1 },
     { id: "zuma-judgement-mace", chance: 1 / 10 },
     { id: "zuma-war-mage-staff", chance: 1 / 10 },
     { id: "zuma-soul-spring-wand", chance: 1 / 10 },
@@ -520,6 +523,7 @@ const YIMOOGI_BOSS_DROPS = {
   benedictionOils: 1,
   items: [
     { id: "awakening-soul", chance: 0.35 },
+    { id: "book-summon-holy-deva", chance: 0.1 },
     { id: "judgement-mace", chance: 0.1 },
     { id: "war-mage-staff", chance: 0.1 },
     { id: "soul-spring-wand", chance: 0.1 },
@@ -606,6 +610,8 @@ const KING_HOG_BOSS_DROPS = {
   benedictionOils: 2,
   items: [
     { id: "awakening-soul", chance: 0.75 },
+    { id: "book-blade-avalanche", chance: 0.1 },
+    { id: "book-healing-circle", chance: 0.1 },
     { id: "oma-spirit-ring", chance: 0.2 },
     { id: "heaven-sword", chance: 0.005 },
     { id: "heaven-armour", chance: 0.005 },
@@ -712,6 +718,8 @@ const DARK_DEVIL_BOSS_DROPS = {
   benedictionOils: 3,
   items: [
     { id: "awakening-soul", chance: 0.85 },
+    { id: "book-flame-field", chance: 0.1 },
+    { id: "book-curse", chance: 0.1 },
     { id: "oma-spirit-ring", chance: 0.25 },
     { id: "heaven-sword", chance: 0.008 },
     { id: "heaven-armour", chance: 0.008 },

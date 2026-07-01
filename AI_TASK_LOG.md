@@ -1,5 +1,144 @@
 # AI Task Log - LOM Idle V2
 
+## 2026-07-01 - UI - Fullscreen toggle
+
+### Changed
+- Added a fixed bottom-right fullscreen icon button in the game shell.
+- Toggle uses the Fullscreen API with webkit fallbacks; hidden when unsupported.
+- Icon swaps between enter/exit states; Esc exits via native `fullscreenchange` sync.
+
+### Checked
+- `npm run check` lint/syntax/unit tests passed; offline warrior fixture pre-existing xp drift unrelated.
+
+## 2026-07-01 - Codex - Roomier town noticeboard
+
+### Changed
+- New noticeboard messages are limited to 100 characters in both the client and Worker validation.
+- Combined the message policy, token balance, and refresh action into one compact toolbar.
+- Reduced the composer from three text rows to two and tightened its footer without shrinking its text or controls.
+- Reserved the recovered space for the scrollable message list and slightly reduced row padding while preserving readable message spacing.
+
+### Checked
+- Browser verification measured a 118px message list and a 50px composer inside the existing Crystal dialog.
+- Pasted text is visibly clamped to 100 characters and reports `100/100`.
+- Worker noticeboard tests passed (5/5), including the new server-side length regression test; syntax and targeted lint checks passed.
+
+## 2026-07-01 - Cursor - Token page unlocks (3rd inventory + storage page)
+
+First token *sink*: players spend 250 tokens for extra pages. Inventory pages are **per-character** (unlock key `inv-page-3:<class>`), storage is **account-wide** (`storage-page-3`). Both are server-authoritative and permanent (survive rebirth).
+
+### Server (`tools/stats-worker/`)
+- New table `account_unlocks (recovery_code, unlock_key, PRIMARY KEY(...))` in `schema.sql` - the source of truth for owned unlocks.
+- `worker.js`: `PAGE_UNLOCK_TOKEN_COST = 250`, server-owned `PAGE_UNLOCK_KEYS` set. New routes:
+  - `POST /shop/unlock-page {recoveryCode, unlockKey}` - reserves the unlock (`INSERT OR IGNORE`; idempotent, never double-charges), then atomically charges 250 with a `balance >= cost` guard; on failure it releases the reservation and returns `402 INSUFFICIENT_TOKENS`; writes a `spend:unlock` ledger row.
+  - `GET /shop/unlocks?recoveryCode=` - returns the owned keys + balance so the client can reconcile.
+- `tests/statsWorkerShop.test.mjs`: added charge / idempotent / insufficient / unknown-key / unlocks-GET cases (all green).
+
+### Client (`src/app.monolith.js`)
+- Raised caps to 3 pages: `INVENTORY_MAX_SLOTS = PAGE_SIZE*3`, `STORAGE_MAX_SLOTS = PAGE_SIZE*3`.
+- Added independent unlock flags: inventory `tokenPageUnlocked` (gold page derived = `pagesUnlocked - token >= 2`), storage `tokenPageUnlocked` alongside existing `page2Purchased`; `pagesUnlocked` is derived so a paid page can never be lost. Threaded through defaults, `cloneInventoryState`/`cloneStorageState`, and `persistence/sanitizeInventory.js` (unpaid pages are stripped by usable-slot count).
+- **Pack-to-front tabs**: `inventoryPageDescriptors()` / `storagePageDescriptors()` order tabs as base -> unlocked extras -> locked purchase tabs (token before gold). So buying the token page while the gold page is still locked makes the token page tab 2 and pushes the locked gold page to tab 3 (per request).
+- Unlock flows: gold pages unlock immediately (`unlockInventoryGoldPage` / `unlockStorageGoldPage`); token pages open a confirm dialog then `purchasePageUnlock()` hits the worker, applies the flag, `saveGameState(true)`. `tokenUnlockConfirmHtml()` shows the live balance and disables Buy until affordable.
+- Server reconciliation: `state.account.ownedUnlocks` (persisted + `sanitizeOwnedUnlocks`) mirrors the server; `applyOwnedUnlocks()` re-applies flags after boot (`fetchAccountUnlocks()`) and after `performAccountRebirth()` so paid pages persist through rebirth.
+- CSS: storage `page-3` position + text style for the token/locked storage tabs (page 3 has no bespoke art).
+
+### Checked
+- `npm run check`: 318 unit tests + lint + syntax pass. `npm run smoke`: boots clean. Headless drive of the Inventory window confirmed tabs render `[base, "250 Tok" (token), "100,000g" (gold)]` and the token tab opens the confirm dialog with the balance + affordability gate. Only the pre-existing `warrior-bicheon` fixture 404/XP pin still red (unrelated).
+
+### NOT yet deployed
+- Requires: apply `account_unlocks` to prod D1 (`npx wrangler d1 execute <db> --remote --file tools/stats-worker/schema.sql`), redeploy the worker, then repackage + Pages-deploy the site. Held pending go-ahead.
+
+## 2026-07-01 - Cursor - Cash Shop 3 token tiers
+
+### Changed
+- Replaced the single `tokens-100` (£1/100) pack with three tiers, server-owned in `TOKEN_PACKS` (`tools/stats-worker/worker.js`): `tokens-600` = 600 tokens / £5 (500p), `tokens-1300` = 1,300 / £10 (1000p), `tokens-3000` = 3,000 / £20 (2000p). Client never sends prices/amounts.
+- Client (`src/app.monolith.js`): replaced `TOKEN_PACK_LABEL` with a `TOKEN_PACKS` display list (id/tokens/price) mirroring the worker ids; `cashShopSceneHtml()` now renders one row per tier, each Buy button carries `data-pack-id`; the click handler passes that id into `startTokenCheckout(packId)`. While a checkout is opening, all three buttons disable.
+- Updated `tests/statsWorkerShop.test.mjs` create-checkout success test to `tokens-600` (asserts `unit_amount=500`, `metadata[tokens]=600`).
+
+### Deployed
+- Worker `lom-idle-v2-stats` redeployed (version `e324b3c5`) so the new pack ids resolve. Site repackaged (`20260701-132001`) and Pages-deployed to `lom2idle`.
+
+### Checked
+- `npm run check`: all 313 unit tests + lint + syntax pass. (Offline `warrior-bicheon` XP pin `375` vs `378` still fails - pre-existing, unrelated to tokens.)
+
+## 2026-07-01 - Cursor - Cash Shop window + legal pages
+
+### Changed
+- **Moved the token purchase out of the Message Board into a dedicated `Cash Shop` window** opened from the top menu. The board now only shows the balance (`Tokens: N`) plus a hint pointing to the Cash Shop; the Buy button lives in the shop.
+- Registered a new `cashShop` scene across the scene system (`openScene`/`closeScene`/`currentOverlayScenes`/`isSceneWindowOpen`/`renderSceneOverlay`/`sceneBodyHtml`/`sceneClassName`/`sceneTitle`/`initialOpenScenesFromUrl`, URL alias `?scene=cashShop|shop`). `cashShopSceneHtml()` shows balance, the `100 tokens (£1)` pack + Buy button, error surface, and links to the legal pages.
+- Host-gated with `cashShopEnabled()` (= `!messageBoardDisabled()`), synced onto the top-bar button via `syncCashShopNavigation()` (mirrors achievements). Shown on live site + localhost, hidden on the itch demo.
+- Opening the shop calls `fetchTokenBalance(true)`; `refreshTokenScenes()` re-renders whichever token-aware window (board and/or shop) is open on balance/status change.
+- **Added standalone legal pages `terms.html` + `refund.html`** (self-contained, dark-themed) at site root, linked from the Cash Shop note and cross-linked to each other. Refund policy covers immediate-delivery digital goods (UK CCR cooling-off waiver), non-delivery/duplicate/technical-fault refunds, and a `support@lom2idle.com` contact. Added both to `tools/package-itch.mjs` `sourceFiles` so they ship (they hold no `?v=` tokens, so the HTML cache-bust pass is a safe no-op).
+- Note: `.cursorignore` blocks the editor from writing `**/*.html`, so the pages were generated via a one-off Node script (removed after).
+
+### Checked
+- `npm run check` (313 unit tests pass), `npm run smoke` on `?board=1` and `?board=1&scene=cashShop` (no console/page errors).
+- Offline warrior fixture XP mismatch (375 vs 378) confirmed pre-existing.
+
+## 2026-07-01 - Codex - Holy Deva swarm lightning target
+
+### Fixed
+- Holy Deva lightning in group-dungeon swarm combat now resolves the real swarm monster from the battle enemy's `swarmId` before calculating the impact tile.
+- The lightweight battle-enemy record does not contain `worldX` or `mapRow`; passing it directly into the swarm tile helper previously converted both missing coordinates to zero and placed the lightning near the player/camera origin.
+- Solo and non-swarm combat retain the existing current-enemy-position fallback.
+
+### Checked
+- Added a regression test for real swarm coordinates and the non-swarm fallback.
+- All 313 unit tests passed, syntax checks passed, and `npm.cmd run smoke` booted without console errors.
+- The full `npm.cmd run check` still reaches the pre-existing offline Warrior fixture mismatch (`375` XP actual versus `378` expected).
+
+## 2026-07-01 - Cursor - Token shop MVP (Stripe + server-authoritative tokens)
+
+### Changed
+- **Server-authoritative token economy.** The client can never mint or set a balance: balances live in D1, are credited **only** by a Stripe-signed webhook after real payment, and are spent via server endpoints that atomically decrement. Tokens are keyed to the player's existing recovery code (no new login).
+- Schema (`tools/stats-worker/schema.sql`): new `token_accounts` (authoritative balance), `token_ledger` (audit trail of every credit/spend), `stripe_events` (webhook idempotency).
+- Worker (`tools/stats-worker/worker.js`):
+  - Server-owned constants `TOKEN_PACKS` (`tokens-100` = 100 tokens / £1) and `MESSAGE_TOKEN_COST = 50` (client never sends amounts/prices).
+  - `POST /shop/create-checkout` `{recoveryCode, packId}` -> creates a Stripe Checkout session (form-encoded, `mode=payment`, inline gbp `price_data`, metadata carries `recovery_code`/`tokens`) and returns `{url}`.
+  - `POST /shop/stripe-webhook` -> raw-body HMAC-SHA256 verify (Web Crypto, 5-min tolerance, timing-safe) using `STRIPE_WEBHOOK_SECRET`; on `checkout.session.completed`+`paid`, `INSERT OR IGNORE stripe_events` for idempotency then atomic `DB.batch` credit + ledger row.
+  - `GET /shop/balance?recoveryCode=` -> `{balance}` (`no-store`).
+  - `handleTownMessagesPost` now requires `recoveryCode` and charges 50 tokens via a single conditional `UPDATE ... WHERE balance >= 50` (SQLite serializes writes, so no double-spend/negative), returning `402 INSUFFICIENT_TOKENS` when short, plus a `-50 spend` ledger row and the new balance.
+- Client (`src/app.monolith.js`):
+  - `state.tokens {balance,status,error,buying}`; `fetchTokenBalance()`, `startTokenCheckout()`, and `maybeHandleShopReturn()` (handles `?shop=success|cancel` on boot: toast + balance refresh + strip param).
+  - Message board panel shows `Tokens: N`, a `Buy 100 tokens (£1)` button (`data-buy-tokens`), and a `Post (50 tokens)` button; `postTownMessage()` sends `recoveryCode` and refreshes balance (surfaces 402 inline).
+  - Replaced the hard `DEMO_MESSAGE_BOARD_DISABLED` flag with `messageBoardDisabled()` — board is **enabled on the live site + localhost, disabled on the itch demo** (`?board=1/0` override).
+- Config (`tools/stats-worker/wrangler.toml.example`): documented `SITE_URL` var and the `STRIPE_SECRET_KEY` / `STRIPE_WEBHOOK_SECRET` secrets + Stripe dashboard/webhook + D1 migration steps.
+
+### Deploy / setup steps (outside code)
+1. Stripe: create account, add a webhook endpoint -> `https://<worker-host>/shop/stripe-webhook` subscribed to `checkout.session.completed`; copy its signing secret.
+2. `wrangler secret put STRIPE_SECRET_KEY` (sk_test_ then sk_live_) and `wrangler secret put STRIPE_WEBHOOK_SECRET`; set `SITE_URL` var.
+3. Apply the new tables: `wrangler d1 execute lom-idle-v2-stats --file tools/stats-worker/schema.sql`, then deploy the worker.
+4. Test end-to-end with a Stripe test card, then swap to live keys. (Terms/Refund legal pages are a required follow-up before going live.)
+
+### Checked
+- `npm run check` (312 unit tests pass, incl. new `tests/statsWorkerShop.test.mjs`: webhook credit + idempotency, bad-sig reject, spend/insufficient, checkout validation, and updated `statsWorkerTownMessages.test.mjs`), `npm run smoke` (no console/page errors).
+- Offline warrior fixture XP mismatch (375 vs 378) confirmed pre-existing.
+
+## 2026-07-01 - Cursor - In-app "update available" bar for long-lived tabs
+
+### Changed
+- Added a dismissible top bar (`#updateAvailableBar`) that appears when a newer deployed build is detected, with a **Reload** button + dismiss (×). Reaches tabs left open for hours that never revalidate `index.html` on their own.
+- `startUpdateVersionCheck()` (fired from `init`) polls every 5 min and on tab re-focus (`visibilitychange`): fetches `index.html` with `cache: "no-store"`, parses the `app.js?v=` stamp, and compares it to the stamp this tab booted with (`loadedBuildVersion()` reads the entry `<script>`).
+- No effect in dev (stamp matches) or when a build has no `?v=`; fetch failures are swallowed so smoke stays clean. Dismiss suppresses only the current detected version; a later build re-shows it.
+- Styling mirrors the demo bar with a green accent (`src/styles.css`).
+- Note: existing behaviour already auto-updates on any normal reload/tab-reopen (Pages serves `index.html` as `max-age=0, must-revalidate` and the packager re-stamps `?v=`), so a hard refresh was never required; this only closes the idle-tab gap.
+
+### Checked
+- `npm run check` (303 unit tests pass), `npm run smoke` (bar present, no console/page errors), `npm run release:itch` (boot check green, build `20260701-104632`).
+- Offline warrior fixture XP mismatch (375 vs 378) confirmed pre-existing.
+
+## 2026-07-01 - Cursor - One-time purge of exploited bookstore skills/books
+
+### Changed
+- Added a versioned save migration (`UNFAIR_SKILL_PURGE_VERSION = 1`) that strips the 19 high-level (lvl 36-60) skills obtainable only via the removed test-bookstore exploit, plus their unused `book-*` items.
+- Purged spell IDs: LionRoar, Reincarnation, BladeAvalanche, CrossHalfMoon, SummonHolyDeva, HealingCircle, ProtectionField, Curse, Mirroring, FlameField, Plague, PoisonCloud, Blizzard, Rage, Fury, PetEnhancer, MagicBooster, MeteorStrike, ImmortalSkin (matching `book-*` items removed from every character inventory + account storage).
+- Runs inside `applySaveSnapshot` (covers initial load, cloud restore, and file import) over every character's `magic.learned`/inventory and account storage; stamps `settings.unfairSkillPurgeVersion` so it runs exactly once per save and never punishes future legit learners.
+- Persisted the new flag through the settings default, `createSaveSnapshot`, and `sanitizeSettingsState` (`src/persistence/sanitizeSettings.js`).
+
+### Checked
+- `npm run check` (303 unit tests pass), `npm run smoke` (no console/page errors).
+- Offline warrior fixture XP mismatch (375 vs 378) confirmed pre-existing (reproduces with my changes stashed).
+
 ## 2026-06-27 - Cursor - Poison Cloud (Taoist ground field)
 
 ### Changed
@@ -1842,6 +1981,16 @@ Use this format:
 - Integrity tests passed (11/11), including exact ID, unique public-label, ambiguous-label, authorization, and public filtering cases.
 - Wrangler dry run passed; deployed Worker version `71d62e75-fe06-4cec-85f6-6dc8467953d4` with `--keep-vars`.
 - Live `/integrity` contains the manual control and the unauthenticated action endpoint returns 401. No player was removed during verification.
+
+## 2026-07-01 - Codex - Demo noticeboard disabled
+
+### Changed
+- The town noticeboard remains visible in the demo but now shows a static notice directing players to `www.lom2idle.com` and confirming that demo saves can be imported without progress loss.
+- The URL is clickable and opens safely in a new tab.
+- Added `DEMO_MESSAGE_BOARD_DISABLED` so the interactive implementation remains intact for the full version while the demo no longer fetches messages on open.
+
+### Checked
+- Syntax, lint, and `npm.cmd run smoke` passed; the existing map-builder lint warning remains.
 
 ## 2026-06-27 - Taoist - Energy Shield spell
 

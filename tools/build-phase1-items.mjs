@@ -450,6 +450,10 @@ function curatedDropChancesById() {
 }
 
 function itemDefinition(item, dropsByName, curatedDropsById) {
+  if (item.type === "Book") {
+    const mask = Number(item.requiredClass) || 0;
+    if ((mask & 8) !== 0 || (mask & 16) !== 0) return null;
+  }
   const frame = Number(item.icon?.frame) || 0;
   if (item.type !== "Book") copyIcon(frame);
   const poisonShape = item.name === "GreenPoison" ? 1 : item.name === "RedPoison" ? 2 : 0;
@@ -642,7 +646,7 @@ const extraNames = [
 ];
 
 const extraItems = extraNames.map((name) => crystalByName.get(name)).filter(Boolean);
-const items = uniqueById([...curatedItems, ...extraItems].map((item) => itemDefinition(item, dropsByName, curatedDropsById)));
+const items = uniqueById([...curatedItems, ...extraItems].map((item) => itemDefinition(item, dropsByName, curatedDropsById)).filter(Boolean));
 
 const output = {
   schemaVersion: 2,

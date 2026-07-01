@@ -164,13 +164,17 @@ export function sanitizeInventoryState(savedInventory = {}, savedHotbar = {}, co
   const savedBagItems = items.filter((entry) => !savedEquippedIds.has(entry.id) && !savedHotbarIds.has(entry.id));
   const needsSecondPage = savedBagItems.length > pageSize
     || savedBagItems.some((entry) => Number.isInteger(entry.slot) && entry.slot >= pageSize);
-  const pagesUnlocked = Math.max(
+  // The 250-token page is an independent unlock that always counts as one usable page.
+  const tokenPageUnlocked = Boolean(savedInventory.tokenPageUnlocked);
+  const pagesUnlocked = Math.min(maxPages, Math.max(
     Math.max(1, Math.min(maxPages, Math.trunc(Number(savedInventory.pagesUnlocked) || 1))),
     needsSecondPage ? 2 : 1,
-  );
+    1 + (tokenPageUnlocked ? 1 : 0),
+  ));
   const inventory = {
     gold: Math.max(0, Math.trunc(Number(savedInventory.gold ?? fallbackGold) || 0)),
     pagesUnlocked,
+    tokenPageUnlocked,
     maxSlots: Math.min(maxSlots, pagesUnlocked * pageSize),
     nextInstanceId: Math.max(maxGeneratedId + 1, Math.trunc(Number(savedInventory.nextInstanceId) || 1), 1),
     items,
@@ -228,24 +232,26 @@ export function sanitizeStorageState(savedStorage = {}, config) {
     });
   }
 
-  const savedPagesUnlocked = Math.max(
-    1,
-    Math.min(maxPages, Math.trunc(Number(savedStorage.pagesUnlocked) || 1)),
-  );
+  // Storage pages are derived from two independent unlock flags: the gold page
+  // (page2Purchased) and the 250-token page. Any item sitting on a page the
+  // account does not own is knocked loose so it cannot be accessed for free.
   const page2Purchased = Boolean(savedStorage.page2Purchased);
-  let pagesUnlocked = savedPagesUnlocked;
-  if (pagesUnlocked >= 2 && !page2Purchased) {
-    for (const entry of items) {
-      if (Number.isInteger(entry.slot) && entry.slot >= pageSize) {
-        entry.slot = null;
-      }
+  const tokenPageUnlocked = Boolean(savedStorage.tokenPageUnlocked);
+  const pagesUnlocked = Math.min(
+    maxPages,
+    1 + (page2Purchased ? 1 : 0) + (tokenPageUnlocked ? 1 : 0),
+  );
+  const usableSlots = pagesUnlocked * pageSize;
+  for (const entry of items) {
+    if (Number.isInteger(entry.slot) && entry.slot >= usableSlots) {
+      entry.slot = null;
     }
-    pagesUnlocked = 1;
   }
 
   return {
     pagesUnlocked,
     page2Purchased,
+    tokenPageUnlocked,
     maxSlots: baseSlots,
     nextInstanceId: Math.max(maxGeneratedId + 1, Math.trunc(Number(savedStorage.nextInstanceId) || 1), 1),
     items,

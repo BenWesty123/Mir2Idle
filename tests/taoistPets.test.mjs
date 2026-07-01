@@ -4,6 +4,7 @@ import test from "node:test";
 
 import {
   crystalHolyDevaStats,
+  resolveTaoistPetTargetCoordinates,
   resolveTaoistPetTargetWorldX,
   shouldKeepHolyDevaBetweenSoloFights,
 } from "../src/core/taoistPets.js";
@@ -93,4 +94,18 @@ test("Holy Deva target position does not coerce a missing enemy coordinate to th
   assert.equal(resolveTaoistPetTargetWorldX(null, 240), 240);
   assert.equal(resolveTaoistPetTargetWorldX(undefined, 240), 240);
   assert.equal(resolveTaoistPetTargetWorldX(384, 240), 384);
+});
+
+test("Holy Deva resolves group-dungeon lightning against the real swarm monster", () => {
+  assert.deepEqual(resolveTaoistPetTargetCoordinates({
+    worldX: 432,
+    mapRow: 27,
+  }, 240), {
+    worldX: 432,
+    mapRow: 27,
+  });
+  assert.deepEqual(resolveTaoistPetTargetCoordinates(null, 240), {
+    worldX: 240,
+    mapRow: null,
+  });
 });

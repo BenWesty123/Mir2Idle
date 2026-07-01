@@ -38,3 +38,13 @@ export function resolveTaoistPetTargetWorldX(enemyWorldX, battleEnemyX) {
   }
   return Number.isFinite(Number(battleEnemyX)) ? Number(battleEnemyX) : 0;
 }
+
+export function resolveTaoistPetTargetCoordinates(swarmEnemy, battleEnemyX) {
+  const mapRow = swarmEnemy?.mapRow != null && Number.isFinite(Number(swarmEnemy.mapRow))
+    ? Math.trunc(Number(swarmEnemy.mapRow))
+    : null;
+  return {
+    worldX: resolveTaoistPetTargetWorldX(swarmEnemy?.worldX, battleEnemyX),
+    mapRow,
+  };
+}

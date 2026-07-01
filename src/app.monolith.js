@@ -223,7 +223,10 @@ import {
   wizardMirrorDurationMs,
   wizardMirrorTargetInRange,
 } from "./core/wizardMirror.js";
-import { crystalHolyDevaStats } from "./core/taoistPets.js";
+import {
+  crystalHolyDevaStats,
+  resolveTaoistPetTargetCoordinates,
+} from "./core/taoistPets.js";
 import { splitPartyRewardAmount } from "./core/party.js";
 import { socialEquipmentEntry } from "./core/socialEquipment.js";
 import {
@@ -323,14 +326,22 @@ const RUN_SPEED = Math.round((LANE_TILE_PX * 2) / (RUN_CYCLE_MS / 1000));
 const TRAVEL_WALK_DISTANCE = LANE_TILE_PX * 2;
 const INVENTORY_PAGE_SIZE = 40;
 const INVENTORY_BASE_SLOTS = INVENTORY_PAGE_SIZE;
-const INVENTORY_MAX_SLOTS = INVENTORY_PAGE_SIZE * 2;
+const INVENTORY_MAX_SLOTS = INVENTORY_PAGE_SIZE * 3;
 const INVENTORY_PAGE_2_UNLOCK_COST = 100000;
 const STORAGE_PAGE_SIZE = 80;
 const STORAGE_BASE_SLOTS = STORAGE_PAGE_SIZE;
-const STORAGE_MAX_SLOTS = STORAGE_PAGE_SIZE * 2;
+const STORAGE_MAX_SLOTS = STORAGE_PAGE_SIZE * 3;
 const STORAGE_PAGE_2_UNLOCK_COST = 1000000;
 const STORAGE_SLOT_COUNT = STORAGE_MAX_SLOTS;
 const STORAGE_COLUMNS = 10;
+// Extra pages beyond the gold-bought page are one-off token purchases,
+// recorded server-side (see /shop/unlock-page). Keys match PAGE_UNLOCK_KEYS in
+// tools/stats-worker/worker.js. Inventory is per-character; storage is account-wide.
+const PAGE_UNLOCK_TOKEN_COST = 250;
+function inventoryPageUnlockKey(classId = state.activeCharacterId) {
+  return `inv-page-3:${String(normalizeCharacterId(classId)).toLowerCase()}`;
+}
+const STORAGE_PAGE_UNLOCK_KEY = "storage-page-3";
 const REBIRTH_ENABLED = true;
 const CODEX_CATEGORY_DEFS = [
   { id: "all", label: "All" },
@@ -1899,17 +1910,6 @@ const TOWN_NPCS = [
     height: 76,
   },
   {
-    id: "test-bookstore",
-    label: "Scroll Merchant",
-    role: "BookStore",
-    sprite: "teleporter",
-    x: 0.15,
-    y: 0.55,
-    width: 84,
-    height: 88,
-    panel: "Dev testing — every spell book for 1 gold.",
-  },
-  {
     id: "gem-merchant",
     label: "Gem Merchant",
     role: "GemMerchant",
@@ -2041,70 +2041,7 @@ const ALCHEMIST_STOCK_IDS = [
   "taoist-amulet",
 ];
 
-const BOOKSTORE_UNIT_PRICE = 1;
-const BOOKSTORE_STOCK_IDS = [
-  "book-binding-shot",
-  "book-blade-avalanche",
-  "book-blessed-armour",
-  "book-blizzard",
-  "book-cripple-shot",
-  "book-cross-half-moon",
-  "book-curse",
-  "book-energy-shield",
-  "book-dark-body",
-  "book-fencing",
-  "book-fireball",
-  "book-firewall",
-  "book-flame-disruptor",
-  "book-flame-field",
-  "book-flaming-sword",
-  "book-frost-crunch",
-  "book-fury",
-  "book-great-fireball",
-  "book-half-moon",
-  "book-healing",
-  "book-healing-circle",
-  "book-hemorrhage",
-  "book-ice-storm",
-  "book-immortal-skin",
-  "book-lion-roar",
-  "book-magic-booster",
-  "book-magic-shield",
-  "book-mass-healing",
-  "book-meteor-strike",
-  "book-mirroring",
-  "book-moon-light",
-  "book-mp-eater",
-  "book-pet-enhancer",
-  "book-plague",
-  "book-poison-cloud",
-  "book-poison-shot",
-  "book-poison-sword",
-  "book-poisoning",
-  "book-protection-field",
-  "book-rage",
-  "book-reincarnation",
-  "book-slaying",
-  "book-soul-fireball",
-  "book-soul-shield",
-  "book-spirit-sword",
-  "book-summon-holy-deva",
-  "book-summon-shinsu",
-  "book-summon-skeleton",
-  "book-summon-toad",
-  "book-swift-feet",
-  "book-thrusting",
-  "book-thunderbolt",
-  "book-trap",
-  "book-turn-undead",
-  "book-twin-drake-blade",
-  "book-ultimate-enhancer",
-  "book-vampirism",
-];
-
 function npcShopUnitPrice(item) {
-  const npc = selectedTownNpc();
-  if (npc?.role === "BookStore") return BOOKSTORE_UNIT_PRICE;
   return itemBuyValue(item, 1);
 }
 
@@ -2432,7 +2369,15 @@ const PROTOTYPE_RESET_NOTICE_VERSION = 1;
 const PROTOTYPE_RESET_NOTICE_INTERVAL_MS = 24 * 60 * 60 * 1000;
 const CLOUD_BACKUP_NOTICE_VERSION = 1;
 const CLOUD_BACKUP_NOTICE_INTERVAL_MS = 24 * 60 * 60 * 1000;
+const DEMO_LIVE_SITE_BANNER_INTERVAL_MS = 24 * 60 * 60 * 1000;
+const DEFAULT_DEMO_LIVE_SITE_URL = "https://www.lom2idle.com";
+const LIVE_SITE_HOSTS = new Set([
+  "lom2idle.com",
+  "www.lom2idle.com",
+  "lom2idle.pages.dev",
+]);
 const STATS_CONFIG_URL = "./public/stats/config.json";
+const DEMO_IMPORT_PENDING_KEY = "lom-idle-v2-demo-import-pending";
 const STATS_PLAYER_ID_KEY = "lom-idle-v2-anonymous-player-id";
 const STATS_SUBMIT_INTERVAL_MS = 60 * 1000;
 
@@ -2468,6 +2413,7 @@ const state = {
     storage: {
       pagesUnlocked: 1,
       page2Purchased: false,
+      tokenPageUnlocked: false,
       maxSlots: STORAGE_BASE_SLOTS,
       nextInstanceId: 1,
       items: [],
@@ -2478,6 +2424,7 @@ const state = {
     stats: createDefaultAccountStats(),
     codex: createDefaultAccountCodexState(),
     achievements: createDefaultAccountAchievementState(),
+    ownedUnlocks: {},
   },
   settings: {
     musicEnabled: DEFAULT_MUSIC_ENABLED,
@@ -2491,6 +2438,16 @@ const state = {
     prototypeResetNoticeLastSeenAt: 0,
     cloudBackupNoticeVersion: 0,
     cloudBackupNoticeLastSeenAt: 0,
+    demoLiveSiteBannerLastSeenAt: 0,
+    unfairSkillPurgeVersion: 0,
+    sceneWindowPositions: {
+      character: null,
+      inventory: null,
+    },
+  },
+  demoLiveSiteBanner: {
+    enabled: null,
+    url: DEFAULT_DEMO_LIVE_SITE_URL,
   },
   prototypeStats: {
     playerId: "",
@@ -2509,6 +2466,15 @@ const state = {
     posting: false,
     draft: "",
     lastLoadedAt: 0,
+  },
+  tokens: {
+    balance: 0,
+    status: "idle",
+    error: "",
+    buying: false,
+  },
+  demoImport: {
+    active: false,
   },
   cloudSave: {
     recoveryCode: "",
@@ -2560,7 +2526,8 @@ const state = {
   },
   inventoryPage: 0,
   storagePage: 0,
-  pendingStoragePageUnlock: null,
+  pendingStorageUnlock: null,
+  pendingInventoryTokenUnlock: false,
   pendingRebirthConfirm: false,
   upgradeSection: "normal",
   upgradeCategory: "combat",
@@ -2756,6 +2723,8 @@ let gamePanelSignature = "";
 let gamePanelDynamicSignature = "";
 let sceneSignature = "";
 let sceneWindowStack = [];
+const DRAGGABLE_SCENE_WINDOWS = new Set(["character", "inventory"]);
+let sceneWindowDragState = null;
 let sceneOverlayInteractionUntil = 0;
 const sceneScrollPositions = new Map();
 let combatSkillBarSignature = "";
@@ -2871,6 +2840,8 @@ function labShellHtml() {
 function gameShellHtml() {
   return `
   <main class="game-shell">
+    <div id="demoLiveSiteBar" class="demo-live-site-bar" hidden></div>
+    <div id="updateAvailableBar" class="update-available-bar" hidden></div>
     <header class="game-topbar">
       <div class="game-brand">
         <p class="eyebrow">LOM Idle V2</p>
@@ -2885,6 +2856,7 @@ function gameShellHtml() {
         <button type="button" data-open-scene="characterSelect">Characters</button>
         <button type="button" data-open-scene="gettingStarted">Guide</button>
         <button type="button" data-open-scene="leaderboard">Social</button>
+        <button type="button" data-open-scene="cashShop" data-cash-shop-nav hidden>Cash Shop</button>
         <button type="button" data-open-scene="options">Options</button>
       </nav>
       <div class="status" id="status">Loading atlases...</div>
@@ -2914,7 +2886,26 @@ function gameShellHtml() {
     <section id="offlineReport" class="offline-report-overlay" hidden></section>
     <section id="damageReport" class="damage-report-overlay" hidden></section>
     <section id="prototypeStatsNotice" class="prototype-stats-notice-overlay" hidden></section>
+    <section id="demoLiveSiteBanner" class="prototype-stats-notice-overlay demo-live-site-banner-overlay" hidden aria-live="polite"></section>
+    <section id="demoImportWindow" class="prototype-stats-notice-overlay demo-import-overlay" hidden></section>
     <aside id="itemTooltip" class="item-tooltip floating" hidden></aside>
+    <button
+      type="button"
+      id="fullscreenToggle"
+      class="fullscreen-toggle"
+      data-toggle-fullscreen
+      aria-label="Enter fullscreen"
+      title="Fullscreen"
+      aria-pressed="false"
+      hidden
+    >
+      <svg class="fullscreen-toggle-icon fullscreen-toggle-icon-enter" viewBox="0 0 16 16" aria-hidden="true">
+        <path fill="none" stroke="currentColor" stroke-width="1.5" d="M2 6V2h4M14 6V2h-4M2 10v4h4M14 10v4h-4" />
+      </svg>
+      <svg class="fullscreen-toggle-icon fullscreen-toggle-icon-exit" viewBox="0 0 16 16" aria-hidden="true">
+        <path fill="none" stroke="currentColor" stroke-width="1.5" d="M6 2v4H2M10 2v4h4M6 14v-4H2M10 14v-4h4" />
+      </svg>
+    </button>
 
     <div class="dev-only" hidden>
       <div id="layerControls"></div>
@@ -2957,6 +2948,11 @@ const els = {
   offlineReport: document.querySelector("#offlineReport"),
   damageReport: document.querySelector("#damageReport"),
   prototypeStatsNotice: document.querySelector("#prototypeStatsNotice"),
+  demoLiveSiteBanner: document.querySelector("#demoLiveSiteBanner"),
+  demoLiveSiteBar: document.querySelector("#demoLiveSiteBar"),
+  updateAvailableBar: document.querySelector("#updateAvailableBar"),
+  demoImportWindow: document.querySelector("#demoImportWindow"),
+  fullscreenToggle: document.querySelector("#fullscreenToggle"),
   itemTooltip: document.querySelector("#itemTooltip"),
   scale: document.querySelector("#scale"),
   smooth: document.querySelector("#smooth"),
@@ -3032,6 +3028,7 @@ async function init() {
   resetBattleForCurrentMode(loadedSave);
   applyPendingOfflineProgress();
   checkAchievementsForCurrentCharacter();
+  maybeActivateDemoImport();
 
   renderLayerControls();
   renderEnemyControls();
@@ -3041,10 +3038,15 @@ async function init() {
   renderSceneOverlay();
   renderOfflineReport();
   renderPrototypeStatsNotice();
+  renderDemoLiveSiteBanner();
+  renderDemoLiveSiteBar();
+  renderUpdateAvailableBar();
+  renderDemoImportWindow();
   renderCombatSkillBar();
   renderZoneEditor();
   renderActionControls();
   bindControls();
+  syncFullscreenToggle();
   bindBossDamageReportControls();
   syncSceneWindowStackFromState();
   syncBackgroundMusic();
@@ -3267,6 +3269,7 @@ function createSaveSnapshot() {
       stats: sanitizeAccountStats(state.account.stats),
       codex: cloneAccountCodexState(state.account.codex),
       achievements: cloneAccountAchievementState(state.account.achievements),
+      ownedUnlocks: sanitizeOwnedUnlocks(state.account.ownedUnlocks),
     },
     game: {
       ...activeCharacter.game,
@@ -3303,6 +3306,12 @@ function createSaveSnapshot() {
       prototypeResetNoticeLastSeenAt: Math.max(0, Math.trunc(Number(state.settings.prototypeResetNoticeLastSeenAt) || 0)),
       cloudBackupNoticeVersion: Math.max(0, Math.trunc(Number(state.settings.cloudBackupNoticeVersion) || 0)),
       cloudBackupNoticeLastSeenAt: Math.max(0, Math.trunc(Number(state.settings.cloudBackupNoticeLastSeenAt) || 0)),
+      demoLiveSiteBannerLastSeenAt: Math.max(0, Math.trunc(Number(state.settings.demoLiveSiteBannerLastSeenAt) || 0)),
+      unfairSkillPurgeVersion: Math.max(0, Math.trunc(Number(state.settings.unfairSkillPurgeVersion) || 0)),
+      sceneWindowPositions: {
+        character: state.settings.sceneWindowPositions?.character ?? null,
+        inventory: state.settings.sceneWindowPositions?.inventory ?? null,
+      },
     },
   };
 }
@@ -3450,8 +3459,92 @@ function accountRestoreOptions() {
     sanitizeAccountStats,
     sanitizeCodex: sanitizeAccountCodexState,
     sanitizeAchievements: sanitizeAccountAchievementState,
+    sanitizeOwnedUnlocks,
     sanitizeBossKills,
   };
+}
+
+// One-time purge of skills/books obtained via the old test bookstore exploit.
+// These high-level books (lvl 36-60) could not have been earned legitimately in
+// the exploit window, so any save that predates this migration has them stripped
+// exactly once. Bump UNFAIR_SKILL_PURGE_VERSION only to re-run a future purge.
+const UNFAIR_SKILL_PURGE_VERSION = 1;
+const UNFAIR_PURGE_SPELL_IDS = new Set([
+  "LionRoar",
+  "Reincarnation",
+  "BladeAvalanche",
+  "CrossHalfMoon",
+  "SummonHolyDeva",
+  "HealingCircle",
+  "ProtectionField",
+  "Curse",
+  "Mirroring",
+  "FlameField",
+  "Plague",
+  "PoisonCloud",
+  "Blizzard",
+  "Rage",
+  "Fury",
+  "PetEnhancer",
+  "MagicBooster",
+  "MeteorStrike",
+  "ImmortalSkin",
+]);
+const UNFAIR_PURGE_BOOK_ITEM_IDS = new Set([
+  "book-lion-roar",
+  "book-reincarnation",
+  "book-blade-avalanche",
+  "book-cross-half-moon",
+  "book-summon-holy-deva",
+  "book-healing-circle",
+  "book-protection-field",
+  "book-curse",
+  "book-mirroring",
+  "book-flame-field",
+  "book-plague",
+  "book-poison-cloud",
+  "book-blizzard",
+  "book-rage",
+  "book-fury",
+  "book-pet-enhancer",
+  "book-magic-booster",
+  "book-meteor-strike",
+  "book-immortal-skin",
+]);
+
+function purgeUnfairBooksFromContainer(container) {
+  if (!container || !Array.isArray(container.items)) return false;
+  const before = container.items.length;
+  container.items = container.items.filter((entry) => !UNFAIR_PURGE_BOOK_ITEM_IDS.has(entry?.itemId));
+  return container.items.length !== before;
+}
+
+function purgeUnfairSkillsFromCharacter(character) {
+  let changed = false;
+  const learned = character?.magic?.learned;
+  if (learned && typeof learned === "object") {
+    for (const spellId of Object.keys(learned)) {
+      if (UNFAIR_PURGE_SPELL_IDS.has(spellId)) {
+        delete learned[spellId];
+        changed = true;
+      }
+    }
+  }
+  if (purgeUnfairBooksFromContainer(character?.inventory)) changed = true;
+  return changed;
+}
+
+// Runs against the already-restored state.characters + state.account.storage.
+// Returns true when the migration executed (so the caller stamps the version),
+// regardless of whether anything was actually removed.
+function maybePurgeUnfairSkills(snapshot) {
+  const seenVersion = Math.max(0, Math.trunc(Number(snapshot?.settings?.unfairSkillPurgeVersion) || 0));
+  if (seenVersion >= UNFAIR_SKILL_PURGE_VERSION) return false;
+  for (const character of Object.values(state.characters ?? {})) {
+    purgeUnfairSkillsFromCharacter(character);
+  }
+  purgeUnfairBooksFromContainer(state.account?.storage);
+  return true;
 }
 
 function applySaveSnapshot(snapshot) {
@@ -3464,6 +3557,7 @@ function applySaveSnapshot(snapshot) {
     accountRestoreOptions(),
   );
   state.account = account;
+  const ranUnfairSkillPurge = maybePurgeUnfairSkills(snapshot);
   syncAccountBossKillsToCharacters();
   syncAccountBossRespawnsToCharacters();
   const uiMeta = restoreSaveUiMeta(snapshot, {
@@ -3472,11 +3566,15 @@ function applySaveSnapshot(snapshot) {
   });
   state.activeCharacterId = uiMeta.activeCharacterId;
   applyCharacterState(state.activeCharacterId, state.characters[state.activeCharacterId]);
+  applyOwnedUnlocks();
   if (hadUnpaidStoragePage2 && state.account.storage.pagesUnlocked === 1) {
     state.storagePage = 0;
     pushBattleLog("Storage page 2 was reset. Unlock it for 1,000,000 gold when you're ready.");
   }
   restoreSettingsState(snapshot);
+  if (ranUnfairSkillPurge) {
+    state.settings.unfairSkillPurgeVersion = UNFAIR_SKILL_PURGE_VERSION;
+  }
   state.indexes.armour = 0;
   state.indexes.hair = uiMeta.hairIndex;
   state.indexes.weapon = null;
@@ -3804,6 +3902,22 @@ function sanitizeStorageState(savedStorage = {}) {
   return storage;
 }
 
+// Keeps only recognised one-off unlock keys (the account-wide storage page and
+// each character's inventory page). Server reconciliation is the real authority.
+function sanitizeOwnedUnlocks(owned) {
+  const valid = new Set([
+    STORAGE_PAGE_UNLOCK_KEY,
+    ...CHARACTER_IDS.map((classId) => inventoryPageUnlockKey(classId)),
+  ]);
+  const result = {};
+  if (owned && typeof owned === "object") {
+    for (const [key, value] of Object.entries(owned)) {
+      if (value && valid.has(key)) result[key] = true;
+    }
+  }
+  return result;
+}
+
 function sanitizeAccountUpgradeState(savedUpgrades = {}) {
   return sanitizeAccountUpgradeStateCore(savedUpgrades, ACCOUNT_UPGRADE_DEFS, {
     rebirthBaseStatUpgradeIds: REBIRTH_BASE_STAT_UPGRADE_IDS,
@@ -3941,6 +4055,7 @@ function unlockAchievementsFeature() {
   gamePanelSignature = "";
   battlePanelSignature = "";
   syncAchievementsNavigation();
+  syncCashShopNavigation();
   renderSceneOverlay();
   renderGamePanel();
   renderBattlePanel();
@@ -4291,6 +4406,8 @@ function performAccountRebirth() {
   state.paused = false;
   state.bossEmpowerSelected = false;
   applyCharacterState(state.activeCharacterId, state.characters[state.activeCharacterId]);
+  // Token-bought pages are permanent and must survive rebirth.
+  applyOwnedUnlocks();
   normalizeAutoCastSpellsForClass(state.battle.combatClass);
   resetBattleForCurrentMode(false);
   pushBattleLog(`Rebirth complete. All characters reset to level 1 with starter gear.${pointsGained > 0 ? ` ${soulsConverted} Awakening Soul${soulsConverted === 1 ? "" : "s"} converted into ${pointsGained} Rebirth Point${pointsGained === 1 ? "" : "s"}.` : ""}`);
@@ -4630,6 +4747,7 @@ function cloneInventoryState(inventory) {
   const cloned = {
     gold: Math.max(0, Math.trunc(Number(inventory?.gold) || 0)),
     pagesUnlocked: Math.max(1, Math.min(inventoryPageCount(), Math.trunc(Number(inventory?.pagesUnlocked) || 1))),
+    tokenPageUnlocked: Boolean(inventory?.tokenPageUnlocked),
     maxSlots: INVENTORY_BASE_SLOTS,
     nextInstanceId: Math.max(1, Math.trunc(Number(inventory?.nextInstanceId) || 1)),
     items: (inventory?.items ?? []).map((entry) => ({
@@ -4667,6 +4785,7 @@ function cloneStorageState(storage) {
   const cloned = {
     pagesUnlocked: Math.max(1, Math.min(storagePageCount(), Math.trunc(Number(storage?.pagesUnlocked) || 1))),
     page2Purchased: Boolean(storage?.page2Purchased),
+    tokenPageUnlocked: Boolean(storage?.tokenPageUnlocked),
     maxSlots: STORAGE_BASE_SLOTS,
     nextInstanceId: Math.max(1, Math.trunc(Number(storage?.nextInstanceId) || 1)),
     items: (storage?.items ?? []).map((entry) => ({
@@ -4677,13 +4796,17 @@ function cloneStorageState(storage) {
       ...normalizeInventoryEntryFields(entry),
     })),
   };
-  if (cloned.pagesUnlocked >= 2 && !cloned.page2Purchased) {
-    for (const entry of cloned.items) {
-      if (Number.isInteger(entry.slot) && entry.slot >= STORAGE_PAGE_SIZE) {
-        entry.slot = null;
-      }
+  // Knock loose any item on a page the account does not own (derive usable
+  // pages from the two independent unlock flags).
+  const usablePages = Math.min(
+    storagePageCount(),
+    1 + (cloned.page2Purchased ? 1 : 0) + (cloned.tokenPageUnlocked ? 1 : 0),
+  );
+  const usableSlots = usablePages * STORAGE_PAGE_SIZE;
+  for (const entry of cloned.items) {
+    if (Number.isInteger(entry.slot) && entry.slot >= usableSlots) {
+      entry.slot = null;
     }
-    cloned.pagesUnlocked = 1;
   }
   syncStorageCapacity(cloned);
   ensureStorageSlots(cloned);
@@ -6108,6 +6231,10 @@ function prototypeStatsNoticeRequired() {
 }
 
 function prototypeResetNoticeRequired(now = Date.now()) {
+  // The itch/demo build is frozen, so progress can't be reset by future
+  // updates there. Suppress the reset warning on any demo host (same gating
+  // as the live-site banner); it still shows on the live site.
+  if (demoLiveSiteBannerConfig()) return false;
   const seenVersion = Math.max(0, Math.trunc(Number(state.settings.prototypeResetNoticeVersion) || 0));
   const lastSeenAt = Math.max(0, Math.trunc(Number(state.settings.prototypeResetNoticeLastSeenAt) || 0));
   return seenVersion < PROTOTYPE_RESET_NOTICE_VERSION
@@ -6119,6 +6246,100 @@ function cloudBackupNoticeRequired(now = Date.now()) {
   const lastSeenAt = Math.max(0, Math.trunc(Number(state.settings.cloudBackupNoticeLastSeenAt) || 0));
   return seenVersion < CLOUD_BACKUP_NOTICE_VERSION
     || now - lastSeenAt >= CLOUD_BACKUP_NOTICE_INTERVAL_MS;
+}
+
+function normalizeDemoLiveSiteUrl(value) {
+  const text = typeof value === "string" ? value.trim() : "";
+  if (!text) return DEFAULT_DEMO_LIVE_SITE_URL;
+  try {
+    const url = new URL(text);
+    if (url.protocol !== "https:" && url.protocol !== "http:") return "";
+    return url.href.replace(/\/$/, "");
+  } catch {
+    return "";
+  }
+}
+
+function isLiveSiteHost(hostname = location.hostname) {
+  return LIVE_SITE_HOSTS.has(String(hostname ?? "").toLowerCase());
+}
+
+function fullscreenSupported() {
+  const rootEl = document.documentElement;
+  if (document.fullscreenEnabled && rootEl.requestFullscreen) return true;
+  return Boolean(document.webkitFullscreenEnabled && rootEl.webkitRequestFullscreen);
+}
+
+function isAppFullscreen() {
+  return Boolean(document.fullscreenElement ?? document.webkitFullscreenElement);
+}
+
+function syncFullscreenToggle() {
+  const button = els.fullscreenToggle;
+  if (!button) return;
+  const supported = fullscreenSupported();
+  button.hidden = !supported;
+  if (!supported) return;
+  const active = isAppFullscreen();
+  button.setAttribute("aria-pressed", active ? "true" : "false");
+  button.setAttribute("aria-label", active ? "Exit fullscreen" : "Enter fullscreen");
+  button.title = active ? "Exit fullscreen" : "Fullscreen";
+}
+
+async function toggleAppFullscreen() {
+  if (!fullscreenSupported()) return;
+  try {
+    if (isAppFullscreen()) {
+      if (document.exitFullscreen) await document.exitFullscreen();
+      else document.webkitExitFullscreen?.();
+    } else {
+      const rootEl = document.documentElement;
+      if (rootEl.requestFullscreen) await rootEl.requestFullscreen();
+      else rootEl.webkitRequestFullscreen?.();
+    }
+  } catch {
+    // Browser may reject fullscreen outside a direct user gesture.
+  }
+  syncFullscreenToggle();
+}
+
+function demoLiveSiteLinkUrl(url) {
+  try {
+    const target = new URL(url);
+    target.searchParams.set("from", "demo");
+    return target.href;
+  } catch {
+    return url;
+  }
+}
+
+function isDemoEmbedHost(hostname = location.hostname) {
+  const host = String(hostname ?? "").toLowerCase();
+  if (!host) return false;
+  if (isLiveSiteHost(host)) return false;
+  if (host === "localhost" || host === "127.0.0.1") return true;
+  return host.endsWith(".itch.io")
+    || host.endsWith(".itch.zone")
+    || host.includes(".itch.")
+    || host.endsWith(".itch.games");
+}
+
+function demoLiveSiteBannerConfig() {
+  const banner = state.demoLiveSiteBanner ?? {};
+  const query = new URLSearchParams(location.search);
+  const url = normalizeDemoLiveSiteUrl(banner.url || DEFAULT_DEMO_LIVE_SITE_URL);
+  if (!url) return null;
+  if (query.get("demoBanner") === "0") return null;
+  if (query.get("demoBanner") === "1") return { url };
+  if (banner.enabled === false || isLiveSiteHost()) return null;
+  if (banner.enabled === true || isDemoEmbedHost()) return { url };
+  return null;
+}
+
+function demoLiveSiteBannerRequired(now = Date.now()) {
+  if (!demoLiveSiteBannerConfig()) return false;
+  const lastSeenAt = Math.max(0, Math.trunc(Number(state.settings.demoLiveSiteBannerLastSeenAt) || 0));
+  return now - lastSeenAt >= DEMO_LIVE_SITE_BANNER_INTERVAL_MS;
 }
 
 function prototypeStatsCanSubmit() {
@@ -6307,12 +6528,50 @@ function cancelCloudSaveRestore() {
   setCloudSaveStatus("Cloud restore cancelled.");
 }
 
+async function copyTextToClipboard(text, fallbackInput = null) {
+  const value = String(text ?? "");
+  if (!value) return false;
+  try {
+    if (navigator.clipboard?.writeText) {
+      await navigator.clipboard.writeText(value);
+      return true;
+    }
+  } catch {
+    // Async Clipboard API is often blocked inside cross-origin iframes
+    // (e.g. the itch.io embed); fall through to the legacy execCommand path.
+  }
+  try {
+    if (fallbackInput && typeof fallbackInput.select === "function") {
+      fallbackInput.focus();
+      fallbackInput.select();
+      fallbackInput.setSelectionRange?.(0, value.length);
+      if (document.execCommand("copy")) return true;
+    }
+    const scratch = document.createElement("textarea");
+    scratch.value = value;
+    scratch.setAttribute("readonly", "");
+    scratch.style.position = "fixed";
+    scratch.style.top = "-1000px";
+    scratch.style.opacity = "0";
+    document.body.appendChild(scratch);
+    scratch.focus();
+    scratch.select();
+    scratch.setSelectionRange(0, value.length);
+    const copied = document.execCommand("copy");
+    document.body.removeChild(scratch);
+    if (copied) return true;
+  } catch {
+    // ignore and report failure below
+  }
+  return false;
+}
+
 async function copyCloudRecoveryCode() {
   const input = root.querySelector("[data-cloud-recovery-code]");
-  try {
-    await navigator.clipboard.writeText(state.cloudSave.recoveryCode);
+  const copied = await copyTextToClipboard(state.cloudSave.recoveryCode, input);
+  if (copied) {
     setCloudSaveStatus("Recovery code copied.");
-  } catch {
+  } else {
     input?.focus();
     input?.select();
     setCloudSaveStatus("Recovery code selected. Press Ctrl+C to copy it.");
@@ -6323,11 +6582,22 @@ async function loadPrototypeStatsConfig() {
   const config = await loadJson(STATS_CONFIG_URL).catch(() => ({}));
   const endpoint = typeof config.endpoint === "string" ? config.endpoint.trim() : "";
   const panelUrl = typeof config.panel === "string" ? config.panel.trim() : "";
+  const bannerConfig = config.demoLiveSiteBanner && typeof config.demoLiveSiteBanner === "object"
+    ? config.demoLiveSiteBanner
+    : {};
   state.prototypeStats.endpoint = endpoint;
   state.prototypeStats.panelUrl = panelUrl;
   state.prototypeStats.configured = Boolean(endpoint) && config.enabled !== false;
   state.cloudSave.endpoint = cloudSaveEndpointFromConfig(config, endpoint);
   state.cloudSave.configured = Boolean(state.cloudSave.endpoint);
+  state.demoLiveSiteBanner.enabled = bannerConfig.enabled === true
+    ? true
+    : bannerConfig.enabled === false
+      ? false
+      : null;
+  state.demoLiveSiteBanner.url = normalizeDemoLiveSiteUrl(
+    typeof bannerConfig.url === "string" ? bannerConfig.url : DEFAULT_DEMO_LIVE_SITE_URL,
+  ) || DEFAULT_DEMO_LIVE_SITE_URL;
   state.prototypeStats.statusText = state.prototypeStats.configured
     ? (panelUrl ? "Anonymous progress stats ready. Leaderboard panel available." : "Anonymous progress stats ready.")
     : "Stats endpoint not configured yet.";
@@ -6369,6 +6639,113 @@ function flushPrototypeStats(reason = "session-end") {
     state.prototypeStats.lastSubmittedAt = performance.now();
   }
   return sent;
+}
+
+const TELEMETRY_HEARTBEAT_INTERVAL_MS = 45 * 1000;
+const TELEMETRY_MAX_TICK_MS = 5 * 60 * 1000;
+const telemetry = {
+  started: false,
+  sessionId: "",
+  lastTickAt: 0,
+  lastSendAt: 0,
+  deltas: { foregroundMs: 0, backgroundMs: 0, combatMs: 0, idleMs: 0, totalMs: 0 },
+};
+
+function telemetryResetDeltas() {
+  telemetry.deltas = { foregroundMs: 0, backgroundMs: 0, combatMs: 0, idleMs: 0, totalMs: 0 };
+}
+
+function telemetryEndpoint() {
+  const base = leaderboardApiBase();
+  return base ? `${base}/telemetry` : "";
+}
+
+function telemetryEnabled() {
+  // Reuse the same anonymous opt-in as prototype stats.
+  return prototypeStatsCanSubmit() && Boolean(telemetryEndpoint());
+}
+
+function ensureTelemetrySession() {
+  if (telemetry.sessionId) return;
+  try {
+    telemetry.sessionId = crypto.randomUUID();
+  } catch {
+    telemetry.sessionId = `s-${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 10)}`;
+  }
+  telemetry.lastTickAt = Date.now();
+}
+
+function telemetryIsActiveGameplay() {
+  const mode = state.game?.mode;
+  if (mode === "mining") return true;
+  if (mode === "zone") return Boolean(state.battle?.running);
+  return false;
+}
+
+function accumulateTelemetry(now = Date.now()) {
+  if (!telemetryEnabled()) {
+    telemetry.lastTickAt = now;
+    telemetryResetDeltas();
+    return;
+  }
+  ensureTelemetrySession();
+  if (!telemetry.lastTickAt) {
+    telemetry.lastTickAt = now;
+    return;
+  }
+  const elapsed = Math.min(TELEMETRY_MAX_TICK_MS, Math.max(0, now - telemetry.lastTickAt));
+  telemetry.lastTickAt = now;
+  if (!elapsed) return;
+  const foreground = typeof document === "undefined" || document.visibilityState === "visible";
+  if (foreground) telemetry.deltas.foregroundMs += elapsed;
+  else telemetry.deltas.backgroundMs += elapsed;
+  if (telemetryIsActiveGameplay()) telemetry.deltas.combatMs += elapsed;
+  else telemetry.deltas.idleMs += elapsed;
+  telemetry.deltas.totalMs += elapsed;
+}
+
+function sendTelemetry(useBeacon = false, now = Date.now()) {
+  if (!telemetryEnabled()) return;
+  ensureTelemetrySession();
+  accumulateTelemetry(now);
+  if (telemetry.deltas.totalMs <= 0) return;
+  const endpoint = telemetryEndpoint();
+  const payload = JSON.stringify({
+    playerId: state.prototypeStats.playerId,
+    sessionId: telemetry.sessionId,
+    ...telemetry.deltas,
+    submittedAt: new Date().toISOString(),
+  });
+  telemetryResetDeltas();
+  telemetry.lastSendAt = now;
+  try {
+    if (useBeacon && navigator.sendBeacon) {
+      navigator.sendBeacon(endpoint, new Blob([payload], { type: "application/json" }));
+      return;
+    }
+    void fetch(endpoint, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: payload,
+      keepalive: true,
+    }).catch(() => {});
+  } catch {
+    // Telemetry is best-effort; never disrupt play.
+  }
+}
+
+function maybeSendTelemetry(now = Date.now()) {
+  if (!telemetryEnabled()) return;
+  accumulateTelemetry(now);
+  if (now - telemetry.lastSendAt >= TELEMETRY_HEARTBEAT_INTERVAL_MS) sendTelemetry(false, now);
+}
+
+function startTelemetryHeartbeat() {
+  if (telemetry.started) return;
+  telemetry.started = true;
+  telemetry.lastTickAt = Date.now();
+  setInterval(() => accumulateTelemetry(), 1000);
+  setInterval(() => maybeSendTelemetry(), TELEMETRY_HEARTBEAT_INTERVAL_MS);
 }
 
 function prototypeStatsInt(value, fallback = 0) {
@@ -6518,6 +6895,12 @@ async function submitPrototypeStats(reason = "manual", now = performance.now()) 
 
 function renderPrototypeStatsNotice() {
   if (!els.prototypeStatsNotice) return;
+  if (state.demoImport?.active) {
+    els.prototypeStatsNotice.classList.remove("prototype-reset-notice-overlay");
+    els.prototypeStatsNotice.hidden = true;
+    els.prototypeStatsNotice.innerHTML = "";
+    return;
+  }
   if (!prototypeStatsNoticeRequired()) {
     if (cloudBackupNoticeRequired()) {
       renderCloudBackupNotice();
@@ -6551,6 +6934,240 @@ function renderPrototypeStatsNotice() {
       </div>
     </div>
   `;
+}
+
+function renderDemoLiveSiteBanner() {
+  if (!els.demoLiveSiteBanner) return;
+  const banner = demoLiveSiteBannerConfig();
+  if (!banner || !demoLiveSiteBannerRequired()) {
+    els.demoLiveSiteBanner.hidden = true;
+    els.demoLiveSiteBanner.innerHTML = "";
+    return;
+  }
+
+  const linkLabel = banner.url.replace(/^https?:\/\//i, "");
+  els.demoLiveSiteBanner.hidden = false;
+  els.demoLiveSiteBanner.innerHTML = `
+    <div class="prototype-stats-notice-window demo-live-site-banner-window" role="status" aria-labelledby="demoLiveSiteBannerTitle">
+      <div class="demo-live-site-banner-head">
+        <p class="cloud-backup-notice-eyebrow">DEMO VERSION</p>
+        <h2 id="demoLiveSiteBannerTitle">Play the Live Version</h2>
+      </div>
+      <p class="demo-live-site-banner-body">
+        Development has moved on from this demo build.
+        <a href="${escapeHtml(demoLiveSiteLinkUrl(banner.url))}" target="_blank" rel="noopener noreferrer">Visit ${escapeHtml(linkLabel)}</a>
+        for the full game. You can import your save without losing progress — use your recovery code under Options &gt; Cloud Save.
+      </p>
+      <div class="demo-live-site-banner-foot">
+        <p class="prototype-reset-notice-note">Thanks for playing. This reminder appears at most once per day.</p>
+        <div class="prototype-stats-notice-actions demo-live-site-banner-actions">
+          <a class="demo-live-site-banner-link" href="${escapeHtml(demoLiveSiteLinkUrl(banner.url))}" target="_blank" rel="noopener noreferrer">Open Live Site</a>
+          <button type="button" class="primary" data-dismiss-demo-live-site-banner>Got it</button>
+        </div>
+      </div>
+    </div>
+  `;
+}
+
+function dismissDemoLiveSiteBanner() {
+  state.settings.demoLiveSiteBannerLastSeenAt = Date.now();
+  saveGameState(true);
+  renderDemoLiveSiteBanner();
+}
+
+let demoLiveSiteBarDismissed = false;
+
+function renderDemoLiveSiteBar() {
+  if (!els.demoLiveSiteBar) return;
+  const banner = demoLiveSiteBannerConfig();
+  if (!banner || demoLiveSiteBarDismissed) {
+    els.demoLiveSiteBar.hidden = true;
+    els.demoLiveSiteBar.innerHTML = "";
+    return;
+  }
+
+  const linkLabel = banner.url.replace(/^https?:\/\//i, "");
+  els.demoLiveSiteBar.hidden = false;
+  els.demoLiveSiteBar.innerHTML = `
+    <span class="demo-live-site-bar-text">
+      Play the live version:
+      <a href="${escapeHtml(demoLiveSiteLinkUrl(banner.url))}" target="_blank" rel="noopener noreferrer">${escapeHtml(linkLabel)}</a>
+    </span>
+    <button type="button" class="demo-live-site-bar-close" data-dismiss-demo-live-site-bar aria-label="Dismiss live version bar">&times;</button>
+  `;
+}
+
+function dismissDemoLiveSiteBar() {
+  demoLiveSiteBarDismissed = true;
+  renderDemoLiveSiteBar();
+}
+
+// How often a long-lived tab re-checks the deployed build stamp. Short-lived
+// tabs pick up new builds on their own via index.html revalidation + ?v= busting;
+// this only exists to nudge tabs that stay open for hours.
+const UPDATE_CHECK_INTERVAL_MS = 5 * 60 * 1000;
+let updateCheckStarted = false;
+let updateAvailableVersion = null;
+let updateBarDismissedVersion = null;
+
+function parseBuildVersionFromText(text) {
+  const match = String(text ?? "").match(/app\.js\?v=([^"'&\s]+)/);
+  return match ? match[1] : null;
+}
+
+// The build stamp this tab is actually running, read from the entry <script>.
+function loadedBuildVersion() {
+  const script = document.querySelector('script[type="module"][src*="app.js"]');
+  return parseBuildVersionFromText(script?.getAttribute("src") ?? "");
+}
+
+async function fetchDeployedBuildVersion() {
+  try {
+    const res = await fetch(`./index.html?_=${Date.now()}`, { cache: "no-store" });
+    if (!res.ok) return null;
+    return parseBuildVersionFromText(await res.text());
+  } catch {
+    return null;
+  }
+}
+
+function renderUpdateAvailableBar() {
+  if (!els.updateAvailableBar) return;
+  const loaded = loadedBuildVersion();
+  const show = Boolean(updateAvailableVersion)
+    && Boolean(loaded)
+    && updateAvailableVersion !== loaded
+    && updateAvailableVersion !== updateBarDismissedVersion;
+  if (!show) {
+    els.updateAvailableBar.hidden = true;
+    els.updateAvailableBar.innerHTML = "";
+    return;
+  }
+  els.updateAvailableBar.hidden = false;
+  els.updateAvailableBar.innerHTML = `
+    <span class="update-available-bar-text">A new version is available.</span>
+    <button type="button" class="update-available-bar-reload" data-update-reload>Reload</button>
+    <button type="button" class="update-available-bar-close" data-dismiss-update-bar aria-label="Dismiss update notice">&times;</button>
+  `;
+}
+
+function dismissUpdateAvailableBar() {
+  updateBarDismissedVersion = updateAvailableVersion;
+  renderUpdateAvailableBar();
+}
+
+async function checkForNewBuildVersion() {
+  const loaded = loadedBuildVersion();
+  if (!loaded) return;
+  const deployed = await fetchDeployedBuildVersion();
+  if (!deployed || deployed === loaded) return;
+  if (deployed === updateAvailableVersion) return;
+  updateAvailableVersion = deployed;
+  renderUpdateAvailableBar();
+}
+
+function startUpdateVersionCheck() {
+  if (updateCheckStarted) return;
+  if (!loadedBuildVersion()) return;
+  updateCheckStarted = true;
+  setInterval(() => { void checkForNewBuildVersion(); }, UPDATE_CHECK_INTERVAL_MS);
+  document.addEventListener("visibilitychange", () => {
+    if (document.visibilityState === "visible") void checkForNewBuildVersion();
+  });
+}
+
+function maybeActivateDemoImport() {
+  let fromDemo = false;
+  try {
+    fromDemo = new URLSearchParams(location.search).get("from") === "demo";
+  } catch {
+    fromDemo = false;
+  }
+  let pending = false;
+  try {
+    if (fromDemo) localStorage.setItem(DEMO_IMPORT_PENDING_KEY, "1");
+    pending = localStorage.getItem(DEMO_IMPORT_PENDING_KEY) === "1";
+  } catch {
+    pending = fromDemo;
+  }
+  // Only greet on the destination (live) site, never on the frozen demo build
+  // itself. An explicit ?from=demo also forces it on for local testing.
+  state.demoImport.active = pending && (fromDemo || !isDemoEmbedHost());
+}
+
+function renderDemoImportWindow() {
+  if (!els.demoImportWindow) return;
+  if (!state.demoImport?.active) {
+    els.demoImportWindow.hidden = true;
+    els.demoImportWindow.innerHTML = "";
+    return;
+  }
+
+  const cloudReady = state.cloudSave.configured && Boolean(cloudRestoreEndpoint(state.cloudSave.endpoint));
+  const pending = state.cloudSave.pendingRestore;
+  const status = state.cloudSave.statusText ? escapeHtml(state.cloudSave.statusText) : "";
+  els.demoImportWindow.hidden = false;
+  els.demoImportWindow.innerHTML = `
+    <div class="prototype-stats-notice-window demo-import-window" role="dialog" aria-modal="true" aria-labelledby="demoImportTitle">
+      <p class="cloud-backup-notice-eyebrow">WELCOME</p>
+      <h2 id="demoImportTitle">Coming here from the demo?</h2>
+      <p>Bring your progress across: paste your recovery code, or import your save file. If you're new and want to start fresh, click the button at the bottom.</p>
+      ${cloudReady ? `
+      <div class="demo-import-section">
+        <label class="demo-import-field" for="demoImportCode">Recovery code</label>
+        <div class="demo-import-row">
+          <input id="demoImportCode" type="text" value="${escapeHtml(state.cloudSave.restoreCodeInput || "")}" placeholder="MIR-XXXX-XXXX-XXXX-XXXX" autocomplete="off" spellcheck="false" data-demo-import-code />
+          <button type="button" data-demo-import-find ${state.cloudSave.restoring ? "disabled" : ""}>${state.cloudSave.restoring ? "Looking..." : "Find Backup"}</button>
+        </div>
+      </div>` : `
+      <p class="demo-import-note">Cloud restore is unavailable right now — use your save file below.</p>`}
+      ${pending ? `
+      <div class="demo-import-confirm" role="status">
+        <strong>Backup found.</strong>
+        <span>This replaces the progress currently in this browser.</span>
+        <div class="demo-import-row">
+          <button type="button" class="primary" data-demo-import-confirm>Restore &amp; Continue</button>
+          <button type="button" data-demo-import-cancel>Cancel</button>
+        </div>
+      </div>` : ""}
+      <div class="demo-import-section">
+        <div class="demo-import-file-head">
+          <span>Save file</span>
+          <label class="options-save-transfer-file">
+            <input type="file" accept=".json,application/json" data-demo-import-file hidden />
+            <span>Choose File</span>
+          </label>
+        </div>
+        <textarea data-demo-import-text spellcheck="false" placeholder="...or paste your save JSON here"></textarea>
+        <button type="button" data-demo-import-submit>Import Save File</button>
+      </div>
+      ${status ? `<p class="demo-import-status">${status}</p>` : ""}
+      <div class="demo-import-foot">
+        <button type="button" data-demo-import-dismiss>Start fresh instead</button>
+      </div>
+    </div>
+  `;
+}
+
+function closeDemoImportWindow() {
+  state.demoImport.active = false;
+  try {
+    localStorage.removeItem(DEMO_IMPORT_PENDING_KEY);
+  } catch {
+    // ignore storage failures
+  }
+  try {
+    const url = new URL(location.href);
+    if (url.searchParams.has("from")) {
+      url.searchParams.delete("from");
+      const search = url.searchParams.toString();
+      history.replaceState(null, "", `${url.pathname}${search ? `?${search}` : ""}${url.hash}`);
+    }
+  } catch {
+    // ignore history failures
+  }
+  renderDemoImportWindow();
+  renderPrototypeStatsNotice();
 }
 
 function renderCloudBackupNotice() {
@@ -6636,12 +7253,7 @@ function acceptPrototypeResetNotice() {
 
 async function copyCloudBackupNoticeCode() {
   const input = root.querySelector("[data-cloud-backup-notice-code]");
-  try {
-    await navigator.clipboard.writeText(state.cloudSave.recoveryCode);
-  } catch {
-    input?.focus();
-    input?.select();
-  }
+  await copyTextToClipboard(state.cloudSave.recoveryCode, input);
   state.cloudSave.noticeCopied = true;
   renderPrototypeStatsNotice();
 }
@@ -6728,7 +7340,8 @@ function resetRuntimeGameState() {
   state.paused = false;
   state.inventoryPage = 0;
   state.storagePage = 0;
-  state.pendingStoragePageUnlock = null;
+  state.pendingStorageUnlock = null;
+  state.pendingInventoryTokenUnlock = false;
   state.characters = createDefaultCharacterStates();
   state.account.storage = createDefaultStorageState();
   state.account.upgrades = createDefaultAccountUpgradeState();
@@ -8254,11 +8867,43 @@ function inventoryPageCount() {
 
 function syncInventoryCapacity(inventory = state.inventory) {
   if (!inventory) return;
-  inventory.pagesUnlocked = Math.max(1, Math.min(inventoryPageCount(), Math.trunc(Number(inventory.pagesUnlocked) || 1)));
-  inventory.maxSlots = Math.min(INVENTORY_MAX_SLOTS, inventory.pagesUnlocked * INVENTORY_PAGE_SIZE);
-  if (inventory === state.inventory && state.inventoryPage >= inventoryPageCount()) {
-    state.inventoryPage = inventoryPageCount() - 1;
+  // A token-bought page can never be lost; it is the minimum usable page count.
+  const minPages = 1 + (inventory.tokenPageUnlocked ? 1 : 0);
+  const pages = Math.max(minPages, Math.min(inventoryPageCount(), Math.trunc(Number(inventory.pagesUnlocked) || 1)));
+  inventory.pagesUnlocked = pages;
+  inventory.maxSlots = Math.min(INVENTORY_MAX_SLOTS, pages * INVENTORY_PAGE_SIZE);
+  if (inventory === state.inventory && state.inventoryPage >= pages) {
+    state.inventoryPage = pages - 1;
   }
+}
+
+// The 100k-gold page is "owned" when usable pages exceed the base page plus any
+// token page. Token and gold pages are independent; unlocked pages pack to the
+// front so there is never a locked tab wedged between usable ones.
+function inventoryGoldPageUnlocked(inventory = state.inventory) {
+  if (!inventory) return false;
+  return (Math.trunc(Number(inventory.pagesUnlocked) || 1) - (inventory.tokenPageUnlocked ? 1 : 0)) >= 2;
+}
+
+// Ordered tab descriptors: base page, then unlocked extras (token before gold),
+// then locked purchase tabs (token before gold).
+function inventoryPageDescriptors() {
+  syncInventoryCapacity();
+  const token = Boolean(state.inventory.tokenPageUnlocked);
+  const gold = inventoryGoldPageUnlocked();
+  const extras = [
+    { type: "token", unlocked: token },
+    { type: "gold", unlocked: gold },
+  ];
+  const tabs = [{ type: "base", unlocked: true }];
+  for (const extra of extras) if (extra.unlocked) tabs.push({ type: extra.type, unlocked: true });
+  for (const extra of extras) if (!extra.unlocked) tabs.push({ type: extra.type, unlocked: false });
+  return tabs.slice(0, inventoryPageCount()).map((tab, index) => ({ ...tab, index }));
+}
+
+function inventoryPageIndexForType(type) {
+  const found = inventoryPageDescriptors().find((tab) => tab.unlocked && tab.type === type);
+  return found ? found.index : Math.max(0, state.inventory.pagesUnlocked - 1);
 }
 
 function syncBossPartyInventoryCapacityFromState(classId = state.activeCharacterId) {
@@ -8356,22 +9001,13 @@ function inventoryPageUnlocked(page) {
   return page >= 0 && page < state.inventory.pagesUnlocked;
 }
 
-function inventoryPageUnlockCost(page) {
-  return page === 1 ? INVENTORY_PAGE_2_UNLOCK_COST : Infinity;
-}
-
-function unlockInventoryPage(page) {
+// Buys the 100,000-gold inventory page (whichever locked "gold" tab is showing).
+function unlockInventoryGoldPage() {
   syncInventoryCapacity();
-  if (inventoryPageUnlocked(page)) {
-    state.inventoryPage = page;
-    sceneSignature = "";
-    renderSceneOverlay();
-    return true;
-  }
-  if (page !== state.inventory.pagesUnlocked || page >= inventoryPageCount()) return false;
-  const cost = inventoryPageUnlockCost(page);
+  if (inventoryGoldPageUnlocked() || state.inventory.pagesUnlocked >= inventoryPageCount()) return false;
+  const cost = INVENTORY_PAGE_2_UNLOCK_COST;
   if (state.inventory.gold < cost) {
-    pushBattleLog(`Need ${cost.toLocaleString()} gold to unlock Items ${page + 1}.`);
+    pushBattleLog(`Need ${cost.toLocaleString()} gold to unlock another inventory page.`);
     battlePanelSignature = "";
     renderBattlePanel();
     return false;
@@ -8379,12 +9015,12 @@ function unlockInventoryPage(page) {
   state.inventory.gold -= cost;
   state.game.progress.gold = state.inventory.gold;
   state.battle.gold = state.inventory.gold;
-  state.inventory.pagesUnlocked = page + 1;
+  state.inventory.pagesUnlocked += 1;
   syncInventoryCapacity();
   ensureInventorySlots();
   syncBossPartyInventoryCapacityFromState();
-  state.inventoryPage = page;
-  pushBattleLog(`Unlocked Items ${page + 1}.`);
+  state.inventoryPage = inventoryPageIndexForType("gold");
+  pushBattleLog("Unlocked another inventory page.");
   playSfx("ui.gold", { volume: 0.55, throttleMs: 80 });
   sceneSignature = "";
   gamePanelSignature = "";
@@ -8393,6 +9029,28 @@ function unlockInventoryPage(page) {
   renderGamePanel();
   renderBattlePanel();
   return true;
+}
+
+// Buys the 250-token inventory page for the active character (server-authoritative).
+function confirmInventoryTokenPageUnlock() {
+  state.pendingInventoryTokenUnlock = false;
+  const classId = normalizeCharacterId(state.activeCharacterId);
+  purchasePageUnlock(inventoryPageUnlockKey(classId), () => {
+    state.inventory.tokenPageUnlocked = true;
+    const stored = state.characters?.[classId]?.inventory;
+    if (stored) stored.tokenPageUnlocked = true;
+    syncInventoryCapacity();
+    ensureInventorySlots();
+    syncBossPartyInventoryCapacityFromState();
+    state.inventoryPage = inventoryPageIndexForType("token");
+    pushBattleLog("Unlocked a new inventory page with tokens.");
+    playSfx("ui.gold", { volume: 0.55, throttleMs: 80 });
+    gamePanelSignature = "";
+    battlePanelSignature = "";
+    renderGamePanel();
+    renderBattlePanel();
+    saveGameState(true);
+  });
 }
 
 function storagePageCount() {
@@ -8401,10 +9059,16 @@ function storagePageCount() {
 
 function syncStorageCapacity(storage = state.account.storage) {
   if (!storage) return;
-  storage.pagesUnlocked = Math.max(1, Math.min(storagePageCount(), Math.trunc(Number(storage.pagesUnlocked) || 1)));
-  storage.maxSlots = Math.min(STORAGE_MAX_SLOTS, storage.pagesUnlocked * STORAGE_PAGE_SIZE);
-  if (storage === state.account.storage && state.storagePage >= storagePageCount()) {
-    state.storagePage = storagePageCount() - 1;
+  // Storage pages are fully derived from the two independent unlock flags:
+  // the 1,000,000-gold page (page2Purchased) and the 250-token page.
+  const pages = Math.max(1, Math.min(
+    storagePageCount(),
+    1 + (storage.page2Purchased ? 1 : 0) + (storage.tokenPageUnlocked ? 1 : 0),
+  ));
+  storage.pagesUnlocked = pages;
+  storage.maxSlots = Math.min(STORAGE_MAX_SLOTS, pages * STORAGE_PAGE_SIZE);
+  if (storage === state.account.storage && state.storagePage >= pages) {
+    state.storagePage = pages - 1;
   }
 }
 
@@ -8413,22 +9077,34 @@ function storagePageUnlocked(page) {
   return page >= 0 && page < state.account.storage.pagesUnlocked;
 }
 
-function storagePageUnlockCost(page) {
-  return page === 1 ? STORAGE_PAGE_2_UNLOCK_COST : Infinity;
+// Ordered storage tab descriptors, mirroring inventory: base page, unlocked
+// extras (token before gold), then locked purchase tabs (token before gold).
+function storagePageDescriptors() {
+  syncStorageCapacity();
+  const token = Boolean(state.account.storage.tokenPageUnlocked);
+  const gold = Boolean(state.account.storage.page2Purchased);
+  const extras = [
+    { type: "token", unlocked: token },
+    { type: "gold", unlocked: gold },
+  ];
+  const tabs = [{ type: "base", unlocked: true }];
+  for (const extra of extras) if (extra.unlocked) tabs.push({ type: extra.type, unlocked: true });
+  for (const extra of extras) if (!extra.unlocked) tabs.push({ type: extra.type, unlocked: false });
+  return tabs.slice(0, storagePageCount()).map((tab, index) => ({ ...tab, index }));
 }
 
-function unlockStoragePage(page) {
+function storagePageIndexForType(type) {
+  const found = storagePageDescriptors().find((tab) => tab.unlocked && tab.type === type);
+  return found ? found.index : Math.max(0, state.account.storage.pagesUnlocked - 1);
+}
+
+// Buys the 1,000,000-gold storage page.
+function unlockStorageGoldPage() {
   syncStorageCapacity();
-  if (storagePageUnlocked(page)) {
-    state.storagePage = page;
-    sceneSignature = "";
-    renderSceneOverlay();
-    return true;
-  }
-  if (page !== state.account.storage.pagesUnlocked || page >= storagePageCount()) return false;
-  const cost = storagePageUnlockCost(page);
+  if (state.account.storage.page2Purchased || state.account.storage.pagesUnlocked >= storagePageCount()) return false;
+  const cost = STORAGE_PAGE_2_UNLOCK_COST;
   if (state.inventory.gold < cost) {
-    pushBattleLog(`Need ${cost.toLocaleString()} gold to unlock Storage ${page + 1}.`);
+    pushBattleLog(`Need ${cost.toLocaleString()} gold to unlock another storage page.`);
     battlePanelSignature = "";
     renderBattlePanel();
     return false;
@@ -8436,13 +9112,12 @@ function unlockStoragePage(page) {
   state.inventory.gold -= cost;
   state.game.progress.gold = state.inventory.gold;
   state.battle.gold = state.inventory.gold;
-  state.account.storage.pagesUnlocked = page + 1;
-  if (page === 1) state.account.storage.page2Purchased = true;
+  state.account.storage.page2Purchased = true;
   syncStorageCapacity();
   ensureStorageSlots();
   syncBossPartyInventoryCapacityFromState();
-  state.storagePage = page;
-  pushBattleLog(`Unlocked Storage ${page + 1}.`);
+  state.storagePage = storagePageIndexForType("gold");
+  pushBattleLog("Unlocked another storage page.");
   playSfx("ui.gold", { volume: 0.55, throttleMs: 80 });
   sceneSignature = "";
   gamePanelSignature = "";
@@ -8451,6 +9126,85 @@ function unlockStoragePage(page) {
   renderGamePanel();
   renderBattlePanel();
   return true;
+}
+
+// Buys the 250-token storage page (account-wide, server-authoritative).
+function confirmStorageTokenPageUnlock() {
+  state.pendingStorageUnlock = null;
+  purchasePageUnlock(STORAGE_PAGE_UNLOCK_KEY, () => {
+    state.account.storage.tokenPageUnlocked = true;
+    syncStorageCapacity();
+    ensureStorageSlots();
+    syncBossPartyInventoryCapacityFromState();
+    state.storagePage = storagePageIndexForType("token");
+    pushBattleLog("Unlocked a new storage page with tokens.");
+    playSfx("ui.gold", { volume: 0.55, throttleMs: 80 });
+    gamePanelSignature = "";
+    battlePanelSignature = "";
+    renderGamePanel();
+    renderBattlePanel();
+    saveGameState(true);
+  });
+}
+
+// A locked inventory tab was clicked: gold unlocks immediately (as before),
+// token opens a confirm dialog and refreshes the live balance.
+function triggerInventoryPageUnlock(type) {
+  if (type === "gold") {
+    unlockInventoryGoldPage();
+    return;
+  }
+  state.pendingInventoryTokenUnlock = true;
+  state.tokens.error = "";
+  void fetchTokenBalance(true);
+  sceneSignature = "";
+  renderSceneOverlay();
+}
+
+// A locked storage tab was clicked: both gold and token show a confirm dialog.
+function triggerStoragePageUnlock(type) {
+  state.pendingStorageUnlock = type === "token" ? "token" : "gold";
+  if (type === "token") {
+    state.tokens.error = "";
+    void fetchTokenBalance(true);
+  }
+  sceneSignature = "";
+  renderSceneOverlay();
+}
+
+// Shared confirm/cancel routing for the inventory + storage page unlock dialogs.
+function handlePageUnlockConfirmClick(event) {
+  const invConfirm = event.target.closest("[data-confirm-inventory-token-unlock]");
+  if (invConfirm && root.contains(invConfirm)) {
+    confirmInventoryTokenPageUnlock();
+    return true;
+  }
+  const invCancel = event.target.closest("[data-cancel-inventory-token-unlock]");
+  if (invCancel && root.contains(invCancel)) {
+    state.pendingInventoryTokenUnlock = false;
+    sceneSignature = "";
+    renderSceneOverlay();
+    return true;
+  }
+  const storageGold = event.target.closest("[data-confirm-storage-gold-unlock]");
+  if (storageGold && root.contains(storageGold)) {
+    state.pendingStorageUnlock = null;
+    unlockStorageGoldPage();
+    return true;
+  }
+  const storageToken = event.target.closest("[data-confirm-storage-token-unlock]");
+  if (storageToken && root.contains(storageToken)) {
+    confirmStorageTokenPageUnlock();
+    return true;
+  }
+  const storageCancel = event.target.closest("[data-cancel-storage-page-unlock]");
+  if (storageCancel && root.contains(storageCancel)) {
+    state.pendingStorageUnlock = null;
+    sceneSignature = "";
+    renderSceneOverlay();
+    return true;
+  }
+  return false;
 }
 
 function buyAccountUpgrade(upgradeId) {
@@ -13761,6 +14515,7 @@ function updateEnemyActionButtons() {
 
 function renderGamePanel() {
   syncAchievementsNavigation();
+  syncCashShopNavigation();
   if (IS_GAME_UI) {
     renderGameUiPanel();
     return;
@@ -14037,6 +14792,7 @@ function sceneButtonsHtml() {
       <button data-open-scene="characterSelect" class="${state.openScenes.characterSelect ? "active" : ""}">Characters</button>
       <button data-open-scene="gettingStarted" class="${state.openScenes.gettingStarted ? "active" : ""}">Guide</button>
       <button data-open-scene="leaderboard" class="${state.openScenes.leaderboard ? "active" : ""}">Social</button>
+      ${cashShopEnabled() ? `<button data-open-scene="cashShop" data-cash-shop-nav class="${state.openScenes.cashShop ? "active" : ""}">Cash Shop</button>` : ""}
       <button data-open-scene="options" class="${state.openScenes.options ? "active" : ""}">Options</button>
     </div>
   `;
@@ -14046,6 +14802,21 @@ function syncAchievementsNavigation() {
   const enabled = achievementsEnabled();
   if (!enabled) state.openScenes.achievements = false;
   document.querySelectorAll("[data-achievements-nav]").forEach((button) => {
+    button.hidden = !enabled;
+  });
+}
+
+// The cash shop (real-money tokens) is only offered where purchases work -
+// the live site + localhost, matching the message board. It stays hidden on
+// the itch demo, which never sells tokens.
+function cashShopEnabled() {
+  return !messageBoardDisabled();
+}
+
+function syncCashShopNavigation() {
+  const enabled = cashShopEnabled();
+  if (!enabled) state.openScenes.cashShop = false;
+  document.querySelectorAll("[data-cash-shop-nav]").forEach((button) => {
     button.hidden = !enabled;
   });
 }
@@ -14174,11 +14945,12 @@ function initialOpenScenesFromUrl() {
     gettingStarted: scenes.has("gettingStarted") || scenes.has("guide"),
     options: scenes.has("options"),
     leaderboard: scenes.has("leaderboard"),
+    cashShop: scenes.has("cashShop") || scenes.has("shop"),
   };
 }
 
 function currentOverlayScenes() {
-  const openScenes = ["characterSelect", "character", "inventory", "codex", "achievements", "upgrades", "gettingStarted", "options", "leaderboard"].filter((scene) => state.openScenes[scene]);
+  const openScenes = ["characterSelect", "character", "inventory", "codex", "achievements", "upgrades", "gettingStarted", "options", "leaderboard", "cashShop"].filter((scene) => state.openScenes[scene]);
   const npcScene = state.activeScene === "townNpc" || state.activeScene === "storage" || state.activeScene === "bossEntry" || state.activeScene === "weaponRefine"
     ? state.activeScene
     : null;
@@ -14186,7 +14958,7 @@ function currentOverlayScenes() {
 }
 
 function isSceneWindowOpen(scene) {
-  if (scene === "character" || scene === "inventory" || scene === "codex" || scene === "achievements" || scene === "upgrades" || scene === "characterSelect" || scene === "gettingStarted" || scene === "options" || scene === "leaderboard") {
+  if (scene === "character" || scene === "inventory" || scene === "codex" || scene === "achievements" || scene === "upgrades" || scene === "characterSelect" || scene === "gettingStarted" || scene === "options" || scene === "leaderboard" || scene === "cashShop") {
     return Boolean(state.openScenes[scene]);
   }
   return state.activeScene === scene;
@@ -14216,8 +14988,9 @@ function closeMostRecentSceneWindow() {
     cancelInventoryDestroyConfirm();
     return;
   }
-  if (state.pendingStoragePageUnlock !== null && state.pendingStoragePageUnlock !== undefined) {
-    state.pendingStoragePageUnlock = null;
+  if (state.pendingStorageUnlock || state.pendingInventoryTokenUnlock) {
+    state.pendingStorageUnlock = null;
+    state.pendingInventoryTokenUnlock = false;
     sceneSignature = "";
     renderSceneOverlay();
     return;
@@ -14251,7 +15024,7 @@ function toggleOpenScene(scene, options = {}) {
 }
 
 function openScene(scene, updateUrl = true) {
-  if (!["character", "inventory", "codex", "achievements", "upgrades", "characterSelect", "gettingStarted", "options", "leaderboard"].includes(scene)) return;
+  if (!["character", "inventory", "codex", "achievements", "upgrades", "characterSelect", "gettingStarted", "options", "leaderboard", "cashShop"].includes(scene)) return;
   if (scene === "achievements" && !achievementsEnabled()) return;
   state.game.selectedTownNpcId = null;
   if (state.activeScene === "townNpc" || state.activeScene === "storage" || state.activeScene === "bossEntry" || state.activeScene === "weaponRefine") {
@@ -14267,12 +15040,14 @@ function openScene(scene, updateUrl = true) {
     state.openScenes.gettingStarted = false;
     state.openScenes.options = false;
     state.openScenes.leaderboard = false;
+    state.openScenes.cashShop = false;
   } else {
     state.openScenes.characterSelect = false;
   }
   state.openScenes[scene] = true;
   if (scene === "achievements") checkAchievementsForCurrentCharacter();
   if (scene === "leaderboard") void ensureLeaderboardData();
+  if (scene === "cashShop") void fetchTokenBalance(true);
   pushSceneWindow(scene);
   playSfx("ui.button", { volume: 0.35, throttleMs: 80 });
   if (updateUrl) setSceneUrl();
@@ -14287,7 +15062,7 @@ function closeScene(scene = null, updateUrl = true) {
     updateUrl = scene;
     scene = null;
   }
-  if (scene === "character" || scene === "inventory" || scene === "codex" || scene === "achievements" || scene === "upgrades" || scene === "characterSelect" || scene === "gettingStarted" || scene === "options" || scene === "leaderboard") {
+  if (scene === "character" || scene === "inventory" || scene === "codex" || scene === "achievements" || scene === "upgrades" || scene === "characterSelect" || scene === "gettingStarted" || scene === "options" || scene === "leaderboard" || scene === "cashShop") {
     state.openScenes[scene] = false;
     if (scene === "inventory") state.pendingInventoryDestroyEntryId = null;
     if (scene === "upgrades") state.pendingRebirthConfirm = false;
@@ -14299,7 +15074,7 @@ function closeScene(scene = null, updateUrl = true) {
     removeSceneWindowFromStack(scene);
   } else if (scene === "townNpc" || scene === "storage" || scene === "bossEntry") {
     state.game.selectedTownNpcId = null;
-    if (scene === "storage") state.pendingStoragePageUnlock = null;
+    if (scene === "storage") state.pendingStorageUnlock = null;
     if (state.activeScene === "townNpc" || state.activeScene === "storage" || state.activeScene === "bossEntry" || state.activeScene === "weaponRefine") state.activeScene = null;
     if (scene === "bossEntry") {
       state.bossEntryZoneId = null;
@@ -14326,6 +15101,7 @@ function closeScene(scene = null, updateUrl = true) {
     state.openScenes.gettingStarted = false;
     state.openScenes.options = false;
     state.openScenes.leaderboard = false;
+    state.openScenes.cashShop = false;
     state.pendingInventoryDestroyEntryId = null;
     state.pendingRebirthConfirm = false;
     sceneWindowStack = [];
@@ -14350,7 +15126,7 @@ function setSceneUrl() {
 function renderSceneOverlay(options = {}) {
   const deferUserInteraction = Boolean(options.deferUserInteraction);
   if (!achievementsEnabled()) state.openScenes.achievements = false;
-  const openScenes = ["characterSelect", "character", "inventory", "codex", "achievements", "upgrades", "gettingStarted", "options", "leaderboard"].filter((scene) => state.openScenes[scene]);
+  const openScenes = ["characterSelect", "character", "inventory", "codex", "achievements", "upgrades", "gettingStarted", "options", "leaderboard", "cashShop"].filter((scene) => state.openScenes[scene]);
   const npcScene = state.activeScene === "townNpc" || state.activeScene === "storage" || state.activeScene === "bossEntry" || state.activeScene === "weaponRefine"
     ? state.activeScene
     : null;
@@ -14382,8 +15158,132 @@ function renderSceneOverlay(options = {}) {
     ${rebirthConfirmHtmlContent}
   `;
   bindSceneButtons(els.sceneOverlay);
+  bindDraggableSceneWindows(els.sceneOverlay);
+  applySceneWindowPositions(els.sceneOverlay);
   bindSceneScrollPreservation(els.sceneOverlay);
   restoreSceneScrollPositions(scrollPositions);
+}
+
+function sceneWindowPosition(scene) {
+  return state.settings.sceneWindowPositions?.[scene] ?? null;
+}
+
+function setSceneWindowPosition(scene, x, y) {
+  if (!DRAGGABLE_SCENE_WINDOWS.has(scene)) return;
+  if (!state.settings.sceneWindowPositions) {
+    state.settings.sceneWindowPositions = { character: null, inventory: null };
+  }
+  state.settings.sceneWindowPositions[scene] = { x: Math.round(x), y: Math.round(y) };
+}
+
+function clampSceneWindowPosition(x, y, element) {
+  const rect = element.getBoundingClientRect();
+  const pad = 8;
+  const maxX = Math.max(pad, window.innerWidth - rect.width - pad);
+  const maxY = Math.max(pad, window.innerHeight - rect.height - pad);
+  return {
+    x: Math.max(pad, Math.min(x, maxX)),
+    y: Math.max(pad, Math.min(y, maxY)),
+  };
+}
+
+function applySceneWindowPosition(element, scene) {
+  const pos = sceneWindowPosition(scene);
+  if (!pos || !element) return false;
+  element.style.position = "fixed";
+  element.style.left = `${pos.x}px`;
+  element.style.top = `${pos.y}px`;
+  element.style.margin = "0";
+  element.style.zIndex = "21";
+  element.dataset.sceneWindowPositioned = "1";
+  return true;
+}
+
+function applySceneWindowPositions(rootEl) {
+  if (!rootEl) return;
+  for (const scene of DRAGGABLE_SCENE_WINDOWS) {
+    const element = rootEl.querySelector(`[data-scene-window="${scene}"]`);
+    if (!element) continue;
+    if (sceneWindowPosition(scene)) {
+      applySceneWindowPosition(element, scene);
+    } else {
+      delete element.dataset.sceneWindowPositioned;
+      element.style.position = "";
+      element.style.left = "";
+      element.style.top = "";
+      element.style.margin = "";
+      element.style.zIndex = "";
+    }
+  }
+}
+
+function beginSceneWindowDrag(event, scene, windowEl, handleEl) {
+  if (event.button !== 0 || inventoryDragState) return;
+  event.preventDefault();
+  noteSceneOverlayInteraction(60000);
+  const rect = windowEl.getBoundingClientRect();
+  const saved = sceneWindowPosition(scene);
+  const startX = saved?.x ?? rect.left;
+  const startY = saved?.y ?? rect.top;
+  if (!saved) {
+    setSceneWindowPosition(scene, startX, startY);
+    applySceneWindowPosition(windowEl, scene);
+  }
+  sceneWindowDragState = {
+    scene,
+    windowEl,
+    handleEl,
+    pointerId: event.pointerId,
+    offsetX: event.clientX - startX,
+    offsetY: event.clientY - startY,
+  };
+  windowEl.classList.add("scene-window-dragging");
+  document.body.classList.add("scene-window-drag-active");
+  windowEl.style.zIndex = "22";
+  handleEl.setPointerCapture(event.pointerId);
+  handleEl.addEventListener("pointermove", handleSceneWindowDragMove);
+  handleEl.addEventListener("pointerup", handleSceneWindowDragEnd);
+  handleEl.addEventListener("pointercancel", handleSceneWindowDragEnd);
+}
+
+function handleSceneWindowDragMove(event) {
+  if (!sceneWindowDragState || event.pointerId !== sceneWindowDragState.pointerId) return;
+  const { scene, windowEl, offsetX, offsetY } = sceneWindowDragState;
+  const clamped = clampSceneWindowPosition(event.clientX - offsetX, event.clientY - offsetY, windowEl);
+  windowEl.style.left = `${clamped.x}px`;
+  windowEl.style.top = `${clamped.y}px`;
+  setSceneWindowPosition(scene, clamped.x, clamped.y);
+}
+
+function handleSceneWindowDragEnd(event) {
+  if (!sceneWindowDragState || event.pointerId !== sceneWindowDragState.pointerId) return;
+  const { windowEl, handleEl, pointerId } = sceneWindowDragState;
+  handleEl.removeEventListener("pointermove", handleSceneWindowDragMove);
+  handleEl.removeEventListener("pointerup", handleSceneWindowDragEnd);
+  handleEl.removeEventListener("pointercancel", handleSceneWindowDragEnd);
+  windowEl.classList.remove("scene-window-dragging");
+  document.body.classList.remove("scene-window-drag-active");
+  try {
+    handleEl.releasePointerCapture(pointerId);
+  } catch {
+    // Ignore stale capture errors after interrupted drags.
+  }
+  sceneWindowDragState = null;
+  noteSceneOverlayInteraction(700);
+  saveGameState(true);
+}
+
+function bindDraggableSceneWindows(rootEl) {
+  if (!rootEl) return;
+  for (const scene of DRAGGABLE_SCENE_WINDOWS) {
+    const windowEl = rootEl.querySelector(`[data-scene-window="${scene}"]`);
+    const handle = windowEl?.querySelector(".scene-window-drag-handle");
+    if (!windowEl || !handle) continue;
+    handle.addEventListener("pointerdown", (event) => {
+      if (event.button !== 0 || inventoryDragState) return;
+      beginSceneWindowDrag(event, scene, windowEl, handle);
+    });
+  }
 }
 
 function buildSceneOverlaySignature(openScenes, bossEntryZoneId) {
@@ -14396,10 +15296,15 @@ function buildSceneOverlaySignature(openScenes, bossEntryZoneId) {
     codexHideUnfound: state.codexHideUnfound,
     codexSelectedItemId: state.codexSelectedItemId,
     storagePage: state.storagePage,
-    pendingStoragePageUnlock: state.pendingStoragePageUnlock,
+    pendingStorageUnlock: state.pendingStorageUnlock,
+    pendingInventoryTokenUnlock: state.pendingInventoryTokenUnlock,
+    inventoryTokenPageUnlocked: state.inventory.tokenPageUnlocked,
+    inventoryPagesUnlocked: state.inventory.pagesUnlocked,
     pendingInventoryDestroyEntryId: state.pendingInventoryDestroyEntryId,
     pendingRebirthConfirm: state.pendingRebirthConfirm,
     storagePage2Purchased: state.account.storage.page2Purchased,
+    storageTokenPageUnlocked: state.account.storage.tokenPageUnlocked,
+    tokens: { balance: state.tokens.balance, buying: state.tokens.buying, error: state.tokens.error },
     upgradeSection: state.upgradeSection,
     upgradeCategory: state.upgradeCategory,
     bossEntryZoneId: state.bossEntryZoneId,
@@ -14519,8 +15424,12 @@ function restoreSceneScrollPositions(positions) {
 }
 
 function sceneWindowHtml(scene) {
+  const dragHandle = DRAGGABLE_SCENE_WINDOWS.has(scene)
+    ? `<div class="scene-window-drag-handle" aria-hidden="true"></div>`
+    : "";
   return `
     <div class="${sceneClassName(scene)}" data-scene-window="${scene}" data-preserve-scroll="scene-${scene}">
+      ${dragHandle}
       <header class="scene-header">
         <div>
           <p class="eyebrow">Town Menu</p>
@@ -14547,6 +15456,7 @@ function sceneClassName(scene) {
   if (scene === "gettingStarted") return "scene-window getting-started-window";
   if (scene === "options") return "scene-window options-window";
   if (scene === "leaderboard") return "scene-window leaderboard-window";
+  if (scene === "cashShop") return "scene-window cash-shop-window";
   return "scene-window";
 }
 
@@ -14562,6 +15472,7 @@ function sceneTitle(scene) {
   if (scene === "gettingStarted") return "Getting Started";
   if (scene === "options") return "Options";
   if (scene === "leaderboard") return "Social";
+  if (scene === "cashShop") return "Cash Shop";
   if (scene === "bossEntry") {
     const zone = bossEntryZone();
     if (groupDungeonZone(zone)) return zone?.label ?? "Group Dungeon";
@@ -14581,6 +15492,7 @@ function sceneBodyHtml(scene) {
   if (scene === "gettingStarted") return gettingStartedSceneHtml();
   if (scene === "options") return optionsSceneHtml();
   if (scene === "leaderboard") return leaderboardSceneHtml();
+  if (scene === "cashShop") return cashShopSceneHtml();
   if (scene === "bossEntry") return bossEntrySceneHtml();
   if (scene === "weaponRefine") return weaponRefineSceneHtml();
   if (scene === "townNpc") return townNpcSceneHtml();
@@ -15987,12 +16899,263 @@ function characterStatusValue(key, stats) {
 
 const LEADERBOARD_CACHE_MS = 60000;
 const TOWN_MESSAGE_CACHE_MS = 30000;
-const TOWN_MESSAGE_MAX_LENGTH = 250;
+const TOWN_MESSAGE_MAX_LENGTH = 100;
+const MESSAGE_TOKEN_COST = 50;
+// Display only. The worker is the source of truth for tokens/price; these ids
+// must match the keys in TOKEN_PACKS in tools/stats-worker/worker.js.
+const TOKEN_PACKS = [
+  { id: "tokens-600", tokens: 600, price: "\u00a35" },
+  { id: "tokens-1300", tokens: 1300, price: "\u00a310" },
+  { id: "tokens-3000", tokens: 3000, price: "\u00a320" },
+];
+const TOKEN_PACK_ID = TOKEN_PACKS[0].id;
+
+// The message board (and its token spend) is a live-site feature. It stays
+// disabled on the itch demo, but is enabled on the live site and on localhost
+// for development. `?board=1`/`?board=0` force it on/off for testing.
+function messageBoardDisabled() {
+  const query = new URLSearchParams(location.search);
+  if (query.get("board") === "1") return false;
+  if (query.get("board") === "0") return true;
+  const host = String(location.hostname ?? "").toLowerCase();
+  if (isLiveSiteHost(host)) return false;
+  if (host === "localhost" || host === "127.0.0.1") return false;
+  return true;
+}
 
 function leaderboardApiBase() {
   const endpoint = String(state.prototypeStats?.endpoint ?? "").trim();
   if (!endpoint) return "";
   return endpoint.replace(/\/stats\/?$/i, "").replace(/\/$/, "");
+}
+
+// Re-render whichever token-aware windows are open (message board and/or the
+// Cash Shop) so a balance/status change is reflected immediately.
+function refreshTokenScenes() {
+  if (townMessageBoardOpen()) refreshTownMessageBoard();
+  // The cash shop and the inventory/storage token-unlock dialogs all show the
+  // live balance, so re-render whichever of them is open.
+  if (state.openScenes?.cashShop || state.openScenes?.inventory || state.openScenes?.storage) {
+    sceneSignature = "";
+    renderSceneOverlay();
+  }
+}
+
+async function fetchTokenBalance(force = false) {
+  const base = leaderboardApiBase();
+  const recoveryCode = state.cloudSave?.recoveryCode ?? "";
+  if (!base || !recoveryCode) return;
+  if (!force && state.tokens.status === "loading") return;
+  state.tokens.status = "loading";
+  refreshTokenScenes();
+  try {
+    const response = await fetch(`${base}/shop/balance?recoveryCode=${encodeURIComponent(recoveryCode)}`, {
+      method: "GET",
+      headers: { Accept: "application/json" },
+    });
+    const data = await response.json().catch(() => ({}));
+    if (!response.ok) throw new Error(data?.error || `HTTP ${response.status}`);
+    state.tokens.balance = Math.max(0, Math.trunc(Number(data?.balance) || 0));
+    state.tokens.status = "ready";
+    state.tokens.error = "";
+  } catch (error) {
+    console.warn("Unable to load token balance", error);
+    state.tokens.status = "error";
+  }
+  refreshTokenScenes();
+}
+
+async function startTokenCheckout(packId = TOKEN_PACK_ID) {
+  if (state.tokens.buying) return;
+  const base = leaderboardApiBase();
+  const recoveryCode = state.cloudSave?.recoveryCode ?? "";
+  if (!base || !recoveryCode) {
+    state.tokens.error = "The token shop is not configured yet.";
+    refreshTokenScenes();
+    return;
+  }
+  state.tokens.buying = true;
+  state.tokens.error = "";
+  refreshTokenScenes();
+  try {
+    const response = await fetch(`${base}/shop/create-checkout`, {
+      method: "POST",
+      headers: { "content-type": "application/json", Accept: "application/json" },
+      body: JSON.stringify({ recoveryCode, packId }),
+    });
+    const data = await response.json().catch(() => ({}));
+    if (!response.ok || !data?.url) throw new Error(data?.error || `HTTP ${response.status}`);
+    window.location.href = data.url;
+  } catch (error) {
+    state.tokens.buying = false;
+    state.tokens.error = error?.message || "Could not start checkout.";
+    refreshTokenScenes();
+  }
+}
+
+function markUnlockOwned(unlockKey) {
+  if (!state.account.ownedUnlocks || typeof state.account.ownedUnlocks !== "object") {
+    state.account.ownedUnlocks = {};
+  }
+  state.account.ownedUnlocks[unlockKey] = true;
+}
+
+// Spends PAGE_UNLOCK_TOKEN_COST tokens on a server-recorded one-off unlock.
+// The worker is authoritative: it charges (or reports "already owned") and
+// returns the new balance. onSuccess applies the unlock to local state.
+async function purchasePageUnlock(unlockKey, onSuccess) {
+  if (state.tokens.buying) return;
+  const base = leaderboardApiBase();
+  const recoveryCode = state.cloudSave?.recoveryCode ?? "";
+  if (!base || !recoveryCode) {
+    state.tokens.error = "The token shop is not configured yet.";
+    refreshTokenScenes();
+    return;
+  }
+  state.tokens.buying = true;
+  state.tokens.error = "";
+  refreshTokenScenes();
+  try {
+    const response = await fetch(`${base}/shop/unlock-page`, {
+      method: "POST",
+      headers: { "content-type": "application/json", Accept: "application/json" },
+      body: JSON.stringify({ recoveryCode, unlockKey }),
+    });
+    const data = await response.json().catch(() => ({}));
+    if (Number.isFinite(Number(data?.balance))) {
+      state.tokens.balance = Math.max(0, Math.trunc(Number(data.balance)));
+    }
+    if (response.status === 402 || data?.code === "INSUFFICIENT_TOKENS") {
+      state.tokens.error = "Not enough tokens. Open the Cash Shop to buy more.";
+      return;
+    }
+    if (!response.ok || !data?.ok) throw new Error(data?.error || `HTTP ${response.status}`);
+    markUnlockOwned(unlockKey);
+    state.tokens.status = "ready";
+    onSuccess?.();
+  } catch (error) {
+    state.tokens.error = error?.message || "Could not complete the purchase.";
+  } finally {
+    state.tokens.buying = false;
+    refreshTokenScenes();
+  }
+}
+
+// Applies the account's server-owned unlocks to live state. Called after boot
+// (once the server list is fetched) and after rebirth (which rebuilds state),
+// so paid pages are never lost.
+function applyOwnedUnlocks() {
+  const owned = state.account.ownedUnlocks && typeof state.account.ownedUnlocks === "object"
+    ? state.account.ownedUnlocks
+    : {};
+  if (owned[STORAGE_PAGE_UNLOCK_KEY]) {
+    state.account.storage.tokenPageUnlocked = true;
+    syncStorageCapacity();
+    ensureStorageSlots();
+  }
+  for (const classId of CHARACTER_IDS) {
+    if (!owned[inventoryPageUnlockKey(classId)]) continue;
+    const stored = state.characters?.[classId]?.inventory;
+    if (stored) stored.tokenPageUnlocked = true;
+    if (normalizeCharacterId(state.activeCharacterId) === normalizeCharacterId(classId)) {
+      state.inventory.tokenPageUnlocked = true;
+    }
+  }
+  syncInventoryCapacity();
+  ensureInventorySlots();
+  syncBossPartyInventoryCapacityFromState();
+}
+
+// Fetches the account's owned unlocks + balance from the server (source of
+// truth) and applies them. Safe to call when the shop is not configured.
+async function fetchAccountUnlocks() {
+  const base = leaderboardApiBase();
+  const recoveryCode = state.cloudSave?.recoveryCode ?? "";
+  if (!base || !recoveryCode) return;
+  try {
+    const response = await fetch(`${base}/shop/unlocks?recoveryCode=${encodeURIComponent(recoveryCode)}`, {
+      method: "GET",
+      headers: { Accept: "application/json" },
+    });
+    const data = await response.json().catch(() => ({}));
+    if (!response.ok || !data?.ok) return;
+    if (Number.isFinite(Number(data?.balance))) {
+      state.tokens.balance = Math.max(0, Math.trunc(Number(data.balance)));
+      state.tokens.status = "ready";
+    }
+    if (Array.isArray(data.unlocks)) {
+      for (const key of data.unlocks) markUnlockOwned(String(key));
+      applyOwnedUnlocks();
+      saveGameState();
+      refreshTokenScenes();
+    }
+  } catch (error) {
+    console.warn("Unable to load account unlocks", error);
+  }
+}
+
+function cashShopSceneHtml() {
+  const tokens = state.tokens;
+  const balanceLabel = tokens.status === "loading" && !Number.isFinite(Number(tokens.balance))
+    ? "..."
+    : `${Math.max(0, Math.trunc(Number(tokens.balance) || 0))}`;
+  const errorHtml = tokens.error
+    ? `<p class="cash-shop-error">${escapeHtml(tokens.error)}</p>`
+    : "";
+  const packsHtml = TOKEN_PACKS.map((pack) => `
+      <div class="cash-shop-pack">
+        <div class="cash-shop-pack-info">
+          <strong>${pack.tokens.toLocaleString()} tokens</strong>
+          <small>${escapeHtml(pack.price)} - one-off purchase via secure Stripe checkout.</small>
+        </div>
+        <button type="button" class="primary" data-buy-tokens data-pack-id="${escapeHtml(pack.id)}" ${tokens.buying ? "disabled" : ""}>
+          ${tokens.buying ? "Opening checkout..." : `Buy ${escapeHtml(pack.price)}`}
+        </button>
+      </div>
+  `).join("");
+  return `
+    <section class="cash-shop-panel">
+      <div class="cash-shop-balance">
+        <span>Your balance</span>
+        <strong>${balanceLabel} tokens</strong>
+      </div>
+      <p class="cash-shop-intro">
+        Tokens are stored on your account (tied to your recovery code) and can be
+        spent in-game - for example, posting on the Message Board.
+      </p>
+      ${packsHtml}
+      ${errorHtml}
+      <p class="cash-shop-note">Payments are handled by Stripe. We never see your card details.</p>
+      <p class="cash-shop-legal">
+        By buying tokens you agree to our
+        <a href="./terms.html" target="_blank" rel="noopener noreferrer">Terms of Service</a>
+        and <a href="./refund.html" target="_blank" rel="noopener noreferrer">Refund Policy</a>.
+      </p>
+    </section>
+  `;
+}
+
+// On return from Stripe's hosted checkout the player lands back on the site
+// with ?shop=success|cancel. Surface a note, refresh the (server) balance, and
+// strip the param so a reload doesn't repeat the toast.
+function maybeHandleShopReturn() {
+  const query = new URLSearchParams(location.search);
+  const shop = query.get("shop");
+  if (!shop) return;
+  if (shop === "success") {
+    pushBattleLog("Payment complete - your tokens have been added.");
+    void fetchTokenBalance(true);
+  } else if (shop === "cancel") {
+    pushBattleLog("Token purchase cancelled - no charge was made.");
+  }
+  query.delete("shop");
+  const nextSearch = query.toString();
+  const nextUrl = `${location.pathname}${nextSearch ? `?${nextSearch}` : ""}${location.hash}`;
+  try {
+    window.history.replaceState({}, "", nextUrl);
+  } catch {
+    // replaceState can throw in sandboxed embeds; ignore.
+  }
 }
 
 function townMessageBoardOpen() {
@@ -16072,19 +17235,32 @@ async function postTownMessage() {
       headers: { "content-type": "application/json", Accept: "application/json" },
       body: JSON.stringify({
         playerId: state.prototypeStats.playerId,
+        recoveryCode: state.cloudSave?.recoveryCode ?? "",
         characterClass: state.activeCharacterId,
         characterLevel: state.game.progress.level,
         body,
       }),
     });
     const data = await response.json().catch(() => ({}));
-    if (!response.ok) throw new Error(data?.error || `HTTP ${response.status}`);
+    if (!response.ok) {
+      if (response.status === 402 || data?.code === "INSUFFICIENT_TOKENS") {
+        state.tokens.status = "ready";
+        throw new Error(`Not enough tokens - posting costs ${MESSAGE_TOKEN_COST}. Buy more below.`);
+      }
+      throw new Error(data?.error || `HTTP ${response.status}`);
+    }
     board.draft = "";
     board.messages = data?.message
       ? [data.message, ...board.messages.filter((message) => message.id !== data.message.id)]
       : board.messages;
     board.status = "ready";
     board.lastLoadedAt = Date.now();
+    if (Number.isFinite(Number(data?.balance))) {
+      state.tokens.balance = Math.max(0, Math.trunc(Number(data.balance)));
+      state.tokens.status = "ready";
+    } else {
+      void fetchTokenBalance(true);
+    }
   } catch (error) {
     board.error = error?.message || "The message could not be posted.";
   } finally {
@@ -16106,8 +17282,19 @@ function townMessageTimeLabel(createdAt) {
 }
 
 function townMessageBoardSceneHtml() {
+  if (messageBoardDisabled()) {
+    return `
+      <section class="npc-panel crystal-npc-text town-message-board-disabled">
+        <p>Messaging Board disabled on this demo version. Please head to <a href="https://www.lom2idle.com" target="_blank" rel="noopener noreferrer">www.lom2idle.com</a> for the full version of the game. You can import your save from the demo version to the full version without any loss of progress.</p>
+      </section>
+    `;
+  }
   const board = state.messageBoard;
+  const tokens = state.tokens;
   const loading = board.status === "loading";
+  const balanceLabel = tokens.status === "loading" && tokens.status !== "ready"
+    ? "..."
+    : `${Math.max(0, Math.trunc(Number(tokens.balance) || 0))}`;
   const rows = board.messages.map((message) => `
     <article class="town-message-row">
       <header>
@@ -16121,7 +17308,8 @@ function townMessageBoardSceneHtml() {
   return `
     <section class="npc-panel crystal-npc-text town-message-board-panel">
       <div class="town-message-board-toolbar">
-        <span>Messages remain for 14 days.</span>
+        <span class="town-message-board-summary">14-day posts · ${MESSAGE_TOKEN_COST} tokens each</span>
+        <span class="town-message-token-balance">Tokens: <strong>${balanceLabel}</strong></span>
         <button type="button" data-refresh-town-messages ${loading ? "disabled" : ""}>Refresh</button>
       </div>
       <div class="town-message-list" data-preserve-scroll="town-message-list">
@@ -16132,7 +17320,7 @@ function townMessageBoardSceneHtml() {
       <div class="town-message-compose">
         <textarea
           maxlength="${TOWN_MESSAGE_MAX_LENGTH}"
-          rows="3"
+          rows="2"
           placeholder="Leave a message for other players..."
           data-town-message-draft
         >${escapeHtml(board.draft)}</textarea>
@@ -16140,7 +17328,7 @@ function townMessageBoardSceneHtml() {
           <span class="town-message-error">${escapeHtml(board.error)}</span>
           <span data-town-message-count>${board.draft.length}/${TOWN_MESSAGE_MAX_LENGTH}</span>
           <button type="button" class="primary" data-post-town-message ${board.posting ? "disabled" : ""}>
-            ${board.posting ? "Posting..." : "Post Message"}
+            ${board.posting ? "Posting..." : `Post (${MESSAGE_TOKEN_COST} tokens)`}
           </button>
         </div>
       </div>
@@ -16472,13 +17660,13 @@ function crystalEquipmentItemHtml(entry, item, slotId) {
 
 function inventorySceneHtml() {
   ensureInventorySlots();
-  const pageCount = inventoryPageCount();
   if (!inventoryPageUnlocked(state.inventoryPage)) state.inventoryPage = 0;
   const pageStart = state.inventoryPage * INVENTORY_PAGE_SIZE;
   const visibleSlots = Math.min(INVENTORY_PAGE_SIZE, state.inventory.maxSlots - pageStart);
   return `
     <section class="crystal-inventory" aria-label="Inventory">
-      ${inventoryPageTabsHtml(pageCount)}
+      ${inventoryPageTabsHtml()}
+      ${inventoryPageUnlockConfirmHtml()}
       <span class="crystal-inventory-gold">${state.inventory.gold}</span>
       <button type="button" class="crystal-inventory-sort" data-sort-inventory title="Sort inventory">Sort</button>
       <span class="crystal-inventory-weight">${inventoryUsedSlots()}/${state.inventory.maxSlots}</span>
@@ -16489,14 +17677,13 @@ function inventorySceneHtml() {
 
 function storageSceneHtml() {
   ensureStorageSlots();
-  const pageCount = storagePageCount();
   if (!storagePageUnlocked(state.storagePage)) state.storagePage = 0;
   const pageStart = state.storagePage * STORAGE_PAGE_SIZE;
   const visibleSlots = Math.min(STORAGE_PAGE_SIZE, state.account.storage.maxSlots - pageStart);
   return `
     <section class="crystal-storage" aria-label="Storage">
       <span class="crystal-storage-title" aria-hidden="true"></span>
-      ${storagePageTabsHtml(pageCount)}
+      ${storagePageTabsHtml()}
       ${storagePageUnlockConfirmHtml()}
       <span class="crystal-storage-count">${storageUsedSlots()}/${state.account.storage.maxSlots}</span>
       ${Array.from({ length: visibleSlots }, (_, index) => crystalStorageSlotHtml(pageStart + index, index)).join("")}
@@ -16534,19 +17721,30 @@ function crystalStorageItemHtml(entry, item) {
   `;
 }
 
-function inventoryPageTabsHtml(pageCount = inventoryPageCount()) {
-  return Array.from({ length: pageCount }, (_, page) => {
-    const active = page === state.inventoryPage ? " active" : "";
-    const secondary = page > 0 ? " secondary" : "";
-    const locked = inventoryPageUnlocked(page) ? "" : " locked";
-    const left = page === 0 ? 6 : 76 + (page - 1) * 70;
-    const label = page === 0 ? "" : inventoryPageUnlocked(page) ? `ITEMS ${page + 1}` : `${inventoryPageUnlockCost(page).toLocaleString()}g`;
-    const title = inventoryPageUnlocked(page) ? `Items ${page + 1}` : `Unlock Items ${page + 1} for ${inventoryPageUnlockCost(page).toLocaleString()} gold`;
+function inventoryPageTabsHtml() {
+  return inventoryPageDescriptors().map((tab) => {
+    const active = tab.index === state.inventoryPage ? " active" : "";
+    const secondary = tab.index > 0 ? " secondary" : "";
+    const locked = tab.unlocked ? "" : " locked";
+    const left = tab.index === 0 ? 6 : 76 + (tab.index - 1) * 70;
+    let label = "";
+    let title = `Items ${tab.index + 1}`;
+    let actionAttr = tab.unlocked ? ` data-inventory-page="${tab.index}"` : "";
+    if (tab.index > 0 && tab.unlocked) {
+      label = `ITEMS ${tab.index + 1}`;
+    } else if (!tab.unlocked && tab.type === "token") {
+      label = `${PAGE_UNLOCK_TOKEN_COST} Tok`;
+      title = `Unlock a new inventory page for ${PAGE_UNLOCK_TOKEN_COST} tokens`;
+      actionAttr = ` data-unlock-inventory="token"`;
+    } else if (!tab.unlocked) {
+      label = `${INVENTORY_PAGE_2_UNLOCK_COST.toLocaleString()}g`;
+      title = `Unlock a new inventory page for ${INVENTORY_PAGE_2_UNLOCK_COST.toLocaleString()} gold`;
+      actionAttr = ` data-unlock-inventory="gold"`;
+    }
     return `
       <button
         class="crystal-inventory-tab${active}${secondary}${locked}"
-        type="button"
-        data-inventory-page="${page}"
+        type="button"${actionAttr}
         style="left:${left}px;"
         title="${title}"
       >${label}</button>
@@ -16554,50 +17752,101 @@ function inventoryPageTabsHtml(pageCount = inventoryPageCount()) {
   }).join("");
 }
 
-function storagePageTabsHtml(pageCount = storagePageCount()) {
-  return Array.from({ length: pageCount }, (_, page) => {
-    const pageClass = page === 0 ? "page-1" : "page-2";
-    const active = page === state.storagePage ? " active" : "";
-    const locked = storagePageUnlocked(page) ? "" : " locked";
-    const title = storagePageUnlocked(page)
-      ? `Storage ${page + 1}`
-      : `Unlock Storage ${page + 1} for ${storagePageUnlockCost(page).toLocaleString()} gold`;
+function storagePageTabsHtml() {
+  return storagePageDescriptors().map((tab) => {
+    const pageClass = `page-${tab.index + 1}`;
+    const active = tab.index === state.storagePage ? " active" : "";
+    const locked = tab.unlocked ? "" : " locked";
+    let title = `Storage ${tab.index + 1}`;
+    let label = "";
+    let actionAttr = tab.unlocked ? ` data-storage-page="${tab.index}"` : "";
+    if (tab.index > 0 && tab.unlocked) {
+      label = String(tab.index + 1);
+    } else if (!tab.unlocked && tab.type === "token") {
+      title = `Unlock a new storage page for ${PAGE_UNLOCK_TOKEN_COST} tokens`;
+      label = `${PAGE_UNLOCK_TOKEN_COST} Tok`;
+      actionAttr = ` data-unlock-storage="token"`;
+    } else if (!tab.unlocked) {
+      title = `Unlock a new storage page for ${STORAGE_PAGE_2_UNLOCK_COST.toLocaleString()} gold`;
+      label = `${STORAGE_PAGE_2_UNLOCK_COST.toLocaleString()}g`;
+      actionAttr = ` data-unlock-storage="gold"`;
+    }
     return `
       <button
         class="crystal-storage-page ${pageClass}${active}${locked}"
-        type="button"
-        data-storage-page="${page}"
+        type="button"${actionAttr}
         title="${title}"
         aria-label="${title}"
-      ></button>
+      >${label}</button>
     `;
   }).join("");
 }
 
-function storagePageUnlockConfirmHtml() {
-  const page = state.pendingStoragePageUnlock;
-  if (page === null || !Number.isInteger(page) || storagePageUnlocked(page)) {
-    return "";
-  }
-  const cost = storagePageUnlockCost(page);
-  const canAfford = state.inventory.gold >= cost;
+// Shared confirm dialog for a real-money token page unlock. Shows the live
+// balance and blocks the buy button until the player can afford it.
+function tokenUnlockConfirmHtml({ text, confirmAttr, cancelAttr }) {
+  const balance = Math.max(0, Math.trunc(Number(state.tokens.balance) || 0));
+  const buying = Boolean(state.tokens.buying);
+  const canAfford = balance >= PAGE_UNLOCK_TOKEN_COST;
+  const errorHtml = state.tokens.error
+    ? `<p class="crystal-storage-unlock-note">${escapeHtml(state.tokens.error)}</p>`
+    : "";
   return `
-    <div class="crystal-storage-unlock-confirm" role="dialog" aria-label="Confirm storage unlock">
-      <p class="crystal-storage-unlock-text">
-        Unlock Storage ${page + 1} for <strong>${cost.toLocaleString()}</strong> gold?
-      </p>
+    <div class="crystal-storage-unlock-confirm" role="dialog" aria-label="Confirm token unlock">
+      <p class="crystal-storage-unlock-text">${text}</p>
+      <p class="crystal-storage-unlock-note">You have ${balance.toLocaleString()} tokens.</p>
       <div class="crystal-storage-unlock-actions">
-        <button
-          type="button"
-          class="crystal-storage-unlock-confirm-btn"
-          data-confirm-storage-page-unlock="${page}"
-          ${canAfford ? "" : "disabled"}
-        >Unlock</button>
-        <button type="button" class="crystal-storage-unlock-cancel-btn" data-cancel-storage-page-unlock>Cancel</button>
+        <button type="button" class="crystal-storage-unlock-confirm-btn" ${confirmAttr} ${buying || !canAfford ? "disabled" : ""}>${buying ? "..." : "Buy"}</button>
+        <button type="button" class="crystal-storage-unlock-cancel-btn" ${cancelAttr}>Cancel</button>
       </div>
-      ${canAfford ? "" : `<p class="crystal-storage-unlock-note">Need ${cost.toLocaleString()} gold (you have ${state.inventory.gold.toLocaleString()}).</p>`}
+      ${canAfford ? "" : `<p class="crystal-storage-unlock-note">Need ${PAGE_UNLOCK_TOKEN_COST} tokens - open the Cash Shop to buy more.</p>`}
+      ${errorHtml}
     </div>
   `;
+}
+
+function inventoryPageUnlockConfirmHtml() {
+  if (!state.pendingInventoryTokenUnlock || state.inventory.tokenPageUnlocked) return "";
+  return tokenUnlockConfirmHtml({
+    text: `Unlock a new inventory page for <strong>${PAGE_UNLOCK_TOKEN_COST}</strong> tokens?`,
+    confirmAttr: "data-confirm-inventory-token-unlock",
+    cancelAttr: "data-cancel-inventory-token-unlock",
+  });
+}
+
+function storagePageUnlockConfirmHtml() {
+  const kind = state.pendingStorageUnlock;
+  if (kind === "gold") {
+    if (state.account.storage.page2Purchased) return "";
+    const cost = STORAGE_PAGE_2_UNLOCK_COST;
+    const canAfford = state.inventory.gold >= cost;
+    return `
+      <div class="crystal-storage-unlock-confirm" role="dialog" aria-label="Confirm storage unlock">
+        <p class="crystal-storage-unlock-text">
+          Unlock a new storage page for <strong>${cost.toLocaleString()}</strong> gold?
+        </p>
+        <div class="crystal-storage-unlock-actions">
+          <button
+            type="button"
+            class="crystal-storage-unlock-confirm-btn"
+            data-confirm-storage-gold-unlock
+            ${canAfford ? "" : "disabled"}
+          >Unlock</button>
+          <button type="button" class="crystal-storage-unlock-cancel-btn" data-cancel-storage-page-unlock>Cancel</button>
+        </div>
+        ${canAfford ? "" : `<p class="crystal-storage-unlock-note">Need ${cost.toLocaleString()} gold (you have ${state.inventory.gold.toLocaleString()}).</p>`}
+      </div>
+    `;
+  }
+  if (kind === "token") {
+    if (state.account.storage.tokenPageUnlocked) return "";
+    return tokenUnlockConfirmHtml({
+      text: `Unlock a new storage page for <strong>${PAGE_UNLOCK_TOKEN_COST}</strong> tokens?`,
+      confirmAttr: "data-confirm-storage-token-unlock",
+      cancelAttr: "data-cancel-storage-page-unlock",
+    });
+  }
+  return "";
 }
 
 function crystalInventorySlotHtml(slot, displaySlot = slot) {
@@ -16930,12 +18179,16 @@ function prepareInventoryCarryForSceneRender() {
 }
 
 function trySwitchPageWhileCarrying(event) {
+  const invUnlock = event.target.closest("[data-unlock-inventory]");
+  if (invUnlock && root.contains(invUnlock)) {
+    triggerInventoryPageUnlock(invUnlock.dataset.unlockInventory);
+    return true;
+  }
+
   const pageButton = event.target.closest("[data-inventory-page]");
   if (pageButton && root.contains(pageButton)) {
     const page = Math.max(0, Math.min(inventoryPageCount() - 1, Number(pageButton.dataset.inventoryPage) || 0));
-    if (!inventoryPageUnlocked(page)) {
-      unlockInventoryPage(page);
-    } else if (state.inventoryPage !== page) {
+    if (inventoryPageUnlocked(page) && state.inventoryPage !== page) {
       state.inventoryPage = page;
       sceneSignature = "";
       renderSceneOverlay();
@@ -16943,15 +18196,17 @@ function trySwitchPageWhileCarrying(event) {
     return true;
   }
 
+  const storageUnlock = event.target.closest("[data-unlock-storage]");
+  if (storageUnlock && root.contains(storageUnlock)) {
+    triggerStoragePageUnlock(storageUnlock.dataset.unlockStorage);
+    return true;
+  }
+
   const storagePageButton = event.target.closest("[data-storage-page]");
   if (storagePageButton && root.contains(storagePageButton)) {
     const page = Math.max(0, Math.min(storagePageCount() - 1, Number(storagePageButton.dataset.storagePage) || 0));
-    if (!storagePageUnlocked(page)) {
-      state.pendingStoragePageUnlock = page;
-      sceneSignature = "";
-      renderSceneOverlay();
-    } else {
-      state.pendingStoragePageUnlock = null;
+    if (storagePageUnlocked(page)) {
+      state.pendingStorageUnlock = null;
       if (state.storagePage !== page) {
         state.storagePage = page;
         sceneSignature = "";
@@ -16961,21 +18216,7 @@ function trySwitchPageWhileCarrying(event) {
     return true;
   }
 
-  const confirmStorageUnlockButton = event.target.closest("[data-confirm-storage-page-unlock]");
-  if (confirmStorageUnlockButton && root.contains(confirmStorageUnlockButton)) {
-    const page = Math.max(0, Math.min(storagePageCount() - 1, Number(confirmStorageUnlockButton.dataset.confirmStoragePageUnlock) || 0));
-    state.pendingStoragePageUnlock = null;
-    unlockStoragePage(page);
-    return true;
-  }
-
-  const cancelStorageUnlockButton = event.target.closest("[data-cancel-storage-page-unlock]");
-  if (cancelStorageUnlockButton && root.contains(cancelStorageUnlockButton)) {
-    state.pendingStoragePageUnlock = null;
-    sceneSignature = "";
-    renderSceneOverlay();
-    return true;
-  }
+  if (handlePageUnlockConfirmClick(event)) return true;
 
   return false;
 }
@@ -20458,7 +21699,6 @@ function townNpcSceneHtml() {
   if (npc.role === "Trainer") return trainerNpcSceneHtml(npc);
   if (npc.role === "Trader") return traderNpcSceneHtml(npc);
   if (npc.role === "Shop") return alchemistNpcSceneHtml(npc);
-  if (npc.role === "BookStore") return bookstoreNpcSceneHtml(npc);
   if (npc.role === "Smith") return smithNpcSceneHtml(npc);
   if (npc.role === "Refiner") return refinerNpcSceneHtml(npc);
   if (npc.role === "GemMerchant") return gemMerchantNpcSceneHtml(npc);
@@ -20542,25 +21782,6 @@ function alchemistNpcSceneHtml(npc) {
       </div>
       <div class="npc-shop-list" data-preserve-scroll="npc-alchemist-buy">
         ${rows || `<span class="trader-empty">No potion stock loaded.</span>`}
-      </div>
-    </section>
-  `;
-}
-
-function bookstoreNpcSceneHtml(npc) {
-  const rows = BOOKSTORE_STOCK_IDS.map((itemId) => itemDefinition(itemId))
-    .filter(Boolean)
-    .map(shopBuyRowHtml)
-    .join("");
-  return `
-    <section class="npc-panel crystal-npc-text npc-shop-panel bookstore-panel">
-      <p>${escapeHtml(npc.panel ?? "Spell books for testing.")}</p>
-      <div class="npc-shop-summary">
-        <span>Your gold</span>
-        <strong>${state.inventory.gold}g</strong>
-      </div>
-      <div class="npc-shop-list" data-preserve-scroll="npc-bookstore-buy">
-        ${rows || `<span class="trader-empty">No spell books loaded.</span>`}
       </div>
     </section>
   `;
@@ -21167,9 +22388,52 @@ function bindControls() {
       cancelCloudSaveRestore();
       return;
     }
+    const demoImportFindButton = event.target.closest("[data-demo-import-find]");
+    if (demoImportFindButton && root.contains(demoImportFindButton)) {
+      const input = root.querySelector("[data-demo-import-code]");
+      void (async () => {
+        await findCloudSaveForRestore(input?.value ?? "");
+        renderDemoImportWindow();
+      })();
+      return;
+    }
+    const demoImportConfirmButton = event.target.closest("[data-demo-import-confirm]");
+    if (demoImportConfirmButton && root.contains(demoImportConfirmButton)) {
+      void (async () => {
+        const ok = await confirmCloudSaveRestore();
+        if (ok) closeDemoImportWindow();
+        else renderDemoImportWindow();
+      })();
+      return;
+    }
+    const demoImportCancelButton = event.target.closest("[data-demo-import-cancel]");
+    if (demoImportCancelButton && root.contains(demoImportCancelButton)) {
+      cancelCloudSaveRestore();
+      renderDemoImportWindow();
+      return;
+    }
+    const demoImportSubmitButton = event.target.closest("[data-demo-import-submit]");
+    if (demoImportSubmitButton && root.contains(demoImportSubmitButton)) {
+      const textarea = root.querySelector("[data-demo-import-text]");
+      void (async () => {
+        const ok = await importGameSaveFromText(textarea?.value ?? "");
+        if (ok) closeDemoImportWindow();
+      })();
+      return;
+    }
+    const demoImportDismissButton = event.target.closest("[data-demo-import-dismiss]");
+    if (demoImportDismissButton && root.contains(demoImportDismissButton)) {
+      closeDemoImportWindow();
+      return;
+    }
     const resetSaveButton = event.target.closest("[data-reset-save]");
     if (resetSaveButton && root.contains(resetSaveButton)) {
       resetSavedGame();
+      return;
+    }
+    const fullscreenToggleButton = event.target.closest("[data-toggle-fullscreen]");
+    if (fullscreenToggleButton && root.contains(fullscreenToggleButton)) {
+      void toggleAppFullscreen();
       return;
     }
     const musicToggleButton = event.target.closest("[data-toggle-music]");
@@ -21228,6 +22492,26 @@ function bindControls() {
       acceptCloudBackupNotice();
       return;
     }
+    const dismissDemoLiveSiteBannerButton = event.target.closest("[data-dismiss-demo-live-site-banner]");
+    if (dismissDemoLiveSiteBannerButton && root.contains(dismissDemoLiveSiteBannerButton)) {
+      dismissDemoLiveSiteBanner();
+      return;
+    }
+    const dismissDemoLiveSiteBarButton = event.target.closest("[data-dismiss-demo-live-site-bar]");
+    if (dismissDemoLiveSiteBarButton && root.contains(dismissDemoLiveSiteBarButton)) {
+      dismissDemoLiveSiteBar();
+      return;
+    }
+    const updateReloadButton = event.target.closest("[data-update-reload]");
+    if (updateReloadButton && root.contains(updateReloadButton)) {
+      location.reload();
+      return;
+    }
+    const dismissUpdateBarButton = event.target.closest("[data-dismiss-update-bar]");
+    if (dismissUpdateBarButton && root.contains(dismissUpdateBarButton)) {
+      dismissUpdateAvailableBar();
+      return;
+    }
     const disablePrototypeStatsButton = event.target.closest("[data-disable-prototype-stats]");
     if (disablePrototypeStatsButton && root.contains(disablePrototypeStatsButton)) {
       disablePrototypeStatsFromNotice();
@@ -21246,6 +22530,11 @@ function bindControls() {
     const postTownMessageButton = event.target.closest("[data-post-town-message]");
     if (postTownMessageButton && root.contains(postTownMessageButton)) {
       void postTownMessage();
+      return;
+    }
+    const buyTokensButton = event.target.closest("[data-buy-tokens]");
+    if (buyTokensButton && root.contains(buyTokensButton)) {
+      void startTokenCheckout(buyTokensButton.dataset.packId || TOKEN_PACK_ID);
       return;
     }
     const bossAssistButton = event.target.closest("[data-boss-assist]");
@@ -21379,6 +22668,9 @@ function bindControls() {
     const townMessageInput = event.target.closest("[data-town-message-draft]");
     if (townMessageInput && root.contains(townMessageInput)) {
       state.messageBoard.draft = townMessageInput.value.slice(0, TOWN_MESSAGE_MAX_LENGTH);
+      if (townMessageInput.value !== state.messageBoard.draft) {
+        townMessageInput.value = state.messageBoard.draft;
+      }
       const count = root.querySelector("[data-town-message-count]");
       if (count) count.textContent = `${state.messageBoard.draft.length}/${TOWN_MESSAGE_MAX_LENGTH}`;
       return;
@@ -21414,19 +22706,43 @@ function bindControls() {
     };
     reader.readAsText(file);
   });
+  root.addEventListener("change", (event) => {
+    const demoImportFileInput = event.target.closest("[data-demo-import-file]");
+    if (!demoImportFileInput || !root.contains(demoImportFileInput)) return;
+    const file = demoImportFileInput.files?.[0];
+    demoImportFileInput.value = "";
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = () => {
+      const textarea = root.querySelector("[data-demo-import-text]");
+      if (textarea) textarea.value = String(reader.result ?? "");
+    };
+    reader.onerror = () => {
+      window.alert("Could not read that file.");
+    };
+    reader.readAsText(file);
+  });
   window.addEventListener("pointerdown", () => {
     if (state.settings.musicEnabled) syncBackgroundMusic();
   }, { once: true });
   window.addEventListener("pagehide", () => {
     saveGameState(true);
     flushPrototypeStats("session-end");
+    sendTelemetry(true);
   });
   document.addEventListener("visibilitychange", () => {
     if (document.visibilityState === "hidden") {
       saveGameState(true);
       flushPrototypeStats("hidden");
+      sendTelemetry(true);
     }
   });
+  document.addEventListener("fullscreenchange", syncFullscreenToggle);
+  document.addEventListener("webkitfullscreenchange", syncFullscreenToggle);
+  startTelemetryHeartbeat();
+  startUpdateVersionCheck();
+  maybeHandleShopReturn();
+  void fetchAccountUnlocks();
   root.addEventListener("dblclick", (event) => {
     const inventoryItem = event.target.closest("[data-inventory-entry]");
     if (!inventoryItem || !root.contains(inventoryItem)) return;
@@ -21445,42 +22761,31 @@ function bindControls() {
     renderSceneOverlay();
   });
   root.addEventListener("click", (event) => {
+    const invUnlock = event.target.closest("[data-unlock-inventory]");
+    if (invUnlock && root.contains(invUnlock)) {
+      triggerInventoryPageUnlock(invUnlock.dataset.unlockInventory);
+      return;
+    }
     const pageButton = event.target.closest("[data-inventory-page]");
     if (!pageButton || !root.contains(pageButton)) return;
     const page = Math.max(0, Math.min(inventoryPageCount() - 1, Number(pageButton.dataset.inventoryPage) || 0));
-    if (!inventoryPageUnlocked(page)) {
-      unlockInventoryPage(page);
-      return;
-    }
+    if (!inventoryPageUnlocked(page)) return;
     state.inventoryPage = page;
     sceneSignature = "";
     renderSceneOverlay();
   });
   root.addEventListener("click", (event) => {
-    const confirmStorageUnlockButton = event.target.closest("[data-confirm-storage-page-unlock]");
-    if (confirmStorageUnlockButton && root.contains(confirmStorageUnlockButton)) {
-      const page = Math.max(0, Math.min(storagePageCount() - 1, Number(confirmStorageUnlockButton.dataset.confirmStoragePageUnlock) || 0));
-      state.pendingStoragePageUnlock = null;
-      unlockStoragePage(page);
-      return;
-    }
-    const cancelStorageUnlockButton = event.target.closest("[data-cancel-storage-page-unlock]");
-    if (cancelStorageUnlockButton && root.contains(cancelStorageUnlockButton)) {
-      state.pendingStoragePageUnlock = null;
-      sceneSignature = "";
-      renderSceneOverlay();
+    if (handlePageUnlockConfirmClick(event)) return;
+    const storageUnlock = event.target.closest("[data-unlock-storage]");
+    if (storageUnlock && root.contains(storageUnlock)) {
+      triggerStoragePageUnlock(storageUnlock.dataset.unlockStorage);
       return;
     }
     const storagePageButton = event.target.closest("[data-storage-page]");
     if (!storagePageButton || !root.contains(storagePageButton)) return;
     const page = Math.max(0, Math.min(storagePageCount() - 1, Number(storagePageButton.dataset.storagePage) || 0));
-    if (!storagePageUnlocked(page)) {
-      state.pendingStoragePageUnlock = page;
-      sceneSignature = "";
-      renderSceneOverlay();
-      return;
-    }
-    state.pendingStoragePageUnlock = null;
+    if (!storagePageUnlocked(page)) return;
+    state.pendingStorageUnlock = null;
     state.storagePage = page;
     sceneSignature = "";
     renderSceneOverlay();
@@ -21639,7 +22944,10 @@ function openTownNpc(npcId) {
   renderSceneOverlay();
   renderGamePanel();
   render();
-  if (npc?.role === "MessageBoard") void ensureTownMessages();
+  if (npc?.role === "MessageBoard" && !messageBoardDisabled()) {
+    void ensureTownMessages();
+    void fetchTokenBalance();
+  }
 }
 
 function closeTownNpc() {
@@ -32911,10 +34219,14 @@ function taoistPetAttackImpactMs(pet) {
 
 function taoistPetAttackTargetPosition(enemy) {
   if (groupDungeonSwarmSideActive() && enemy?.swarmId) {
-    const tile = swarmEnemyTilePosition(enemy);
-    return { worldX: tile.worldX, mapRow: tile.mapRow };
+    const swarmEnemy = findGroupDungeonSwarmEnemy(enemy.swarmId);
+    if (swarmEnemy) {
+      const target = resolveTaoistPetTargetCoordinates(swarmEnemy, state.battle.enemyX);
+      const tile = swarmEnemyTilePosition(target);
+      return { worldX: tile.worldX, mapRow: tile.mapRow };
+    }
   }
-  return { worldX: Number(state.battle.enemyX) || 0, mapRow: null };
+  return resolveTaoistPetTargetCoordinates(null, state.battle.enemyX);
 }
 
 function rollTaoistPetAttackResult(pet, enemy, inventory = state.inventory) {
@@ -35650,16 +36962,28 @@ function availableWarriorCombatSkills() {
   ];
 }
 
+function compareCombatSpellsByLearnLevel(a, b) {
+  const levelDiff = (Number(a?.level1) || 0) - (Number(b?.level1) || 0);
+  if (levelDiff !== 0) return levelDiff;
+  return String(a?.id ?? "").localeCompare(String(b?.id ?? ""));
+}
+
 function learnedActiveWarriorSkills() {
-  return WARRIOR_COMBAT_SKILLS.filter((skill) => skill.id !== BASIC_ATTACK_SKILL.id && !skill.passive && learnedMagic(skill.id));
+  return WARRIOR_COMBAT_SKILLS
+    .filter((skill) => skill.id !== BASIC_ATTACK_SKILL.id && !skill.passive && learnedMagic(skill.id))
+    .sort(compareCombatSpellsByLearnLevel);
 }
 
 function learnedActiveWizardSkills() {
-  return WIZARD_COMBAT_SPELLS.filter((spell) => learnedMagic(spell.id));
+  return WIZARD_COMBAT_SPELLS
+    .filter((spell) => learnedMagic(spell.id))
+    .sort(compareCombatSpellsByLearnLevel);
 }
 
 function learnedActiveTaoistSkills() {
-  return TAOIST_COMBAT_SPELLS.filter((spell) => learnedMagic(spell.id));
+  return TAOIST_COMBAT_SPELLS
+    .filter((spell) => learnedMagic(spell.id))
+    .sort(compareCombatSpellsByLearnLevel);
 }
 
 function warriorAutoSummaryText() {
