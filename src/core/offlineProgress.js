@@ -283,12 +283,12 @@ export function offlineGroupAverageDamage(attackStat, defenceStat, luck = 0) {
 
 /** Support buffs/heals before weapon when Taoist is player-tanking offline. */
 export const OFFLINE_TAOIST_SUPPORT_SPELL_ORDER = [
-  "Healing",
   "MassHealing",
+  "Healing",
+  "HealingCircle",
   "SoulShield",
   "BlessedArmour",
   "EnergyShield",
-  "HealingCircle",
   "UltimateEnhancer",
   "PetEnhancer",
   "Poisoning",

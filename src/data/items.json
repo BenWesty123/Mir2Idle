@@ -371,6 +371,64 @@
       }
     },
     {
+      "id": "adamantine-ore",
+      "name": "Adamantine Ore",
+      "type": "ore",
+      "slot": "material",
+      "class": "any",
+      "source": {
+        "crystalIndex": 833,
+        "name": "AdamintineOre"
+      },
+      "icon": {
+        "library": "Items",
+        "frame": 283,
+        "src": "./public/item-icons/items/frame_000283.png"
+      },
+      "requirements": {
+        "type": "none",
+        "amount": 0,
+        "classMask": 31,
+        "genderMask": 3
+      },
+      "stackable": false,
+      "maxStack": 1,
+      "durability": 10000,
+      "stats": {
+        "ac": [
+          0,
+          0
+        ],
+        "amc": [
+          0,
+          0
+        ],
+        "dc": [
+          0,
+          0
+        ],
+        "mc": [
+          0,
+          0
+        ],
+        "sc": [
+          0,
+          0
+        ],
+        "hp": 0,
+        "mp": 0,
+        "accuracy": 0,
+        "agility": 0,
+        "luck": 0,
+        "attackSpeed": 0
+      },
+      "shop": {
+        "buy": 50000,
+        "sell": 10000
+      },
+      "crystalType": "Ore"
+    },
+    {
       "id": "agilitygem",
       "name": "Agility  Gem",
       "type": "gem",
@@ -12053,6 +12111,60 @@
       "crystalType": "Ring"
     },
     {
+      "id": "focus-prism",
+      "name": "Focus Prism",
+      "type": "material",
+      "slot": "material",
+      "class": "any",
+      "source": {
+        "crystalIndex": 1170,
+        "name": "Translucent"
+      },
+      "icon": {
+        "library": "Items",
+        "frame": 1170,
+        "src": "./public/item-icons/items/frame_001170.png"
+      },
+      "requirements": {
+        "type": "none",
+        "amount": 0,
+        "classMask": 31,
+        "genderMask": 3
+      },
+      "stackable": true,
+      "maxStack": 64,
+      "durability": 10000,
+      "stats": {
+        "ac": [
+          0,
+          0
+        ],
+        "amc": [
+          0,
+          0
+        ],
+        "dc": [
+          0,
+          0
+        ],
+        "mc": [
+          0,
+          0
+        ],
+        "sc": [
+          0,
+          0
+        ],
+        "hp": 0,
+        "mp": 0,
+        "accuracy": 0,
+        "agility": 0,
+        "luck": 0,
+        "attackSpeed": 0
+      },
+      "crystalType": "CraftingMaterial"
+    },
+    {
       "id": "freezing-blades",
       "name": "Freezing Blades",
       "type": "weapon",
@@ -14236,6 +14348,59 @@
         "index": 8
       },
       "crystalType": "Weapon"
+    },
+    {
+      "id": "havoc-crystal",
+      "name": "Havoc Crystal",
+      "type": "material",
+      "slot": "material",
+      "class": "any",
+      "source": {
+        "crystalIndex": 1173,
+        "name": "HavocCrystal"
+      },
+      "icon": {
+        "library": "Items",
+        "frame": 1173,
+        "src": "./public/item-icons/items/frame_001173.png"
+      },
+      "requirements": {
+        "type": "none",
+        "amount": 0,
+        "classMask": 31,
+        "genderMask": 3
+      },
+      "stackable": true,
+      "maxStack": 64,
+      "stats": {
+        "ac": [
+          0,
+          0
+        ],
+        "amc": [
+          0,
+          0
+        ],
+        "dc": [
+          0,
+          0
+        ],
+        "mc": [
+          0,
+          0
+        ],
+        "sc": [
+          0,
+          0
+        ],
+        "hp": 0,
+        "mp": 0,
+        "accuracy": 0,
+        "agility": 0,
+        "luck": 0,
+        "attackSpeed": 0
+      },
+      "crystalType": "CraftingMaterial"
     },
     {
       "id": "health-stone",
@@ -18721,6 +18886,63 @@
       "crystalType": "Weapon"
     },
     {
+      "type": "stone",
+      "slot": "stone",
+      "class": "any",
+      "requirements": {
+        "type": "none",
+        "amount": 0,
+        "classMask": 31,
+        "genderMask": 3
+      },
+      "stackable": false,
+      "maxStack": 1,
+      "shop": {
+        "buy": 50000,
+        "sell": 10000
+      },
+      "crystalType": "Stone",
+      "id": "magic-stone",
+      "name": "Magic Stone",
+      "source": {
+        "crystalIndex": 636,
+        "name": "MagicStone"
+      },
+      "icon": {
+        "library": "Items",
+        "frame": 584,
+        "src": "./public/item-icons/items/frame_000584.png"
+      },
+      "stats": {
+        "ac": [
+          0,
+          0
+        ],
+        "amc": [
+          0,
+          0
+        ],
+        "dc": [
+          0,
+          0
+        ],
+        "mc": [
+          0,
+          0
+        ],
+        "sc": [
+          0,
+          0
+        ],
+        "hp": 0,
+        "mp": 55,
+        "accuracy": 0,
+        "agility": 0,
+        "luck": 0,
+        "attackSpeed": 0
+      }
+    },
+    {
       "id": "magic-stone-m",
       "name": "Magic Stone (M)",
       "type": "stone",
@@ -19203,6 +19425,63 @@
         }
       },
       "crystalType": "Weapon"
+    },
+    {
+      "type": "stone",
+      "slot": "stone",
+      "class": "any",
+      "requirements": {
+        "type": "none",
+        "amount": 0,
+        "classMask": 31,
+        "genderMask": 3
+      },
+      "stackable": false,
+      "maxStack": 1,
+      "shop": {
+        "buy": 50000,
+        "sell": 10000
+      },
+      "crystalType": "Stone",
+      "id": "mcstone",
+      "name": "MCStone",
+      "source": {
+        "crystalIndex": 651,
+        "name": "MCStone"
+      },
+      "icon": {
+        "library": "Items",
+        "frame": 624,
+        "src": "./public/item-icons/items/frame_000624.png"
+      },
+      "stats": {
+        "ac": [
+          0,
+          0
+        ],
+        "amc": [
+          0,
+          0
+        ],
+        "dc": [
+          0,
+          0
+        ],
+        "mc": [
+          0,
+          6
+        ],
+        "sc": [
+          0,
+          0
+        ],
+        "hp": 0,
+        "mp": 0,
+        "accuracy": 0,
+        "agility": 0,
+        "luck": 0,
+        "attackSpeed": 0
+      }
     },
     {
       "id": "mcstone-l",
@@ -25084,6 +25363,63 @@
         }
       },
       "crystalType": "Weapon"
+    },
+    {
+      "type": "stone",
+      "slot": "stone",
+      "class": "any",
+      "requirements": {
+        "type": "none",
+        "amount": 0,
+        "classMask": 31,
+        "genderMask": 3
+      },
+      "stackable": false,
+      "maxStack": 1,
+      "shop": {
+        "buy": 50000,
+        "sell": 10000
+      },
+      "crystalType": "Stone",
+      "id": "scstone",
+      "name": "SCStone",
+      "source": {
+        "crystalIndex": 656,
+        "name": "SCStone"
+      },
+      "icon": {
+        "library": "Items",
+        "frame": 619,
+        "src": "./public/item-icons/items/frame_000619.png"
+      },
+      "stats": {
+        "ac": [
+          0,
+          0
+        ],
+        "amc": [
+          0,
+          0
+        ],
+        "dc": [
+          0,
+          0
+        ],
+        "mc": [
+          0,
+          0
+        ],
+        "sc": [
+          0,
+          6
+        ],
+        "hp": 0,
+        "mp": 0,
+        "accuracy": 0,
+        "agility": 0,
+        "luck": 0,
+        "attackSpeed": 0
+      }
     },
     {
       "id": "scstone-l",

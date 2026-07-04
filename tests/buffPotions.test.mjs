@@ -2,8 +2,10 @@ import test from "node:test";
 import assert from "node:assert/strict";
 import {
   BUFF_POTION_DURATION_MS,
+  BUFF_POTION_KINDS,
   buffPotionDefForItem,
   isBuffPotionItem,
+  isBuffPotionKind,
   sanitizeStatBuffs,
   pruneStatBuffs,
   applyStatBuffsToStats,
@@ -23,6 +25,16 @@ test("buffPotionDefForItem / isBuffPotionItem", () => {
   assert.equal(buffPotionDefForItem(null), null);
   assert.equal(isBuffPotionItem({ id: "magic-drug-m" }), true);
   assert.equal(isBuffPotionItem({ id: "sword" }), false);
+});
+
+test("isBuffPotionKind covers Impact / Magic / Taoist drugs only", () => {
+  assert.equal(isBuffPotionKind("impact"), true);
+  assert.equal(isBuffPotionKind("magic"), true);
+  assert.equal(isBuffPotionKind("taoist"), true);
+  assert.equal(isBuffPotionKind("magicBooster"), false);
+  assert.equal(isBuffPotionKind("magicShield"), false);
+  assert.equal(isBuffPotionKind("rage"), false);
+  assert.deepEqual([...BUFF_POTION_KINDS].sort(), ["impact", "magic", "taoist"]);
 });
 
 test("applyStatBuffsToStats adds bonuses to [min,max] stat pairs only", () => {

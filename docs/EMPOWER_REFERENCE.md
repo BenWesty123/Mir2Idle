@@ -3,7 +3,7 @@
 > **Private dev sheet** — not shipped to players. Regenerate after table changes:
 > `npm run empower:ref`
 
-Last generated: 2026-06-27
+Last generated: 2026-07-02
 
 ## System overview
 
@@ -20,7 +20,7 @@ Last generated: 2026-06-27
 - Warrior and Universal weapons roll DC empower plus Acc, A Speed, Freezing, and Poison.
 - Warrior weapons also roll warrior skill damage and Flaming Sword cooldown empowers.
 - Wizard and Universal weapons roll MC empower; MC weapons also roll wizard spell damage and mana cost empowers.
-- Tao and Universal weapons roll SC empower; SC weapons also roll tao spell healing, damage, and pet damage empowers.
+- Tao and Universal weapons roll SC empower; SC weapons also roll tao spell healing, damage, and pet damage / health / damage-taken empowers.
 - All weapons may roll gold drop, bonus XP, item drop chance, and Awakening Soul drop chance empowers.
 - Luck — all weapon classes.
 
@@ -34,14 +34,32 @@ Base DC only — no MC or SC.
 - +1–2 Freezing
 - +1–2 Poison
 - +1–2 Luck
-- +5–25% Gold drop
-- +1–5% Bonus XP
-- +0%–2% Item drop chance
-- +5–25% Awakening Soul drop chance
 - Increase Slaying damage by 5–35%
 - Increase Flaming Sword damage by 5–25%
 - Reduce Flaming Sword cooldown by 1–5 seconds
 - Increase Twin Drake Blade damage by 5–25%
+- Reduce mana cost of Twin Drake Blade by 10–40%
+- Increase Blade Avalanche damage by 5–25%
+- Reduce mana cost of Blade Avalanche by 10–40%
+- Increase Slashing Burst damage by 5–25%
+- Reduce mana cost of Slashing Burst by 10–40%
+- Increase Slaying crit chance by 5–25%
+- Increase Slaying crit damage by 10–50%
+- Increase Flaming Sword crit chance by 5–25%
+- Increase Flaming Sword crit damage by 10–50%
+- Increase Twin Drake Blade crit chance by 5–25%
+- Increase Twin Drake Blade crit damage by 10–50%
+- Increase Blade Avalanche crit chance by 5–25%
+- Increase Blade Avalanche crit damage by 10–50%
+- Increase Slashing Burst crit chance by 5–25%
+- Increase Slashing Burst crit damage by 10–50%
+- +5–25% Gold drop
+- +1–5% Bonus XP
+- +0%–2% Item drop chance
+- +5–25% Awakening Soul drop chance
+- +1–20% Crit Rate
+- +5–30% Crit Damage
+- +5–40% Skill leveling
 
 ### Wizard weapon
 
@@ -49,16 +67,50 @@ Base DC + MC — no SC.
 
 - +1–3 MC
 - +1–2 Luck
-- +5–25% Gold drop
-- +1–5% Bonus XP
-- +0%–2% Item drop chance
-- +5–25% Awakening Soul drop chance
 - Increase Flame Disruptor damage by 10–35%
 - Increase Fire Wall damage by 5–25%
 - Increase Thunder Bolt damage by 10–35%
 - Increase Ice Storm damage by 5–25%
+- Increase Flame Field damage by 5–25%
+- Increase Meteor Strike damage by 5–25%
+- Increase Blizzard damage by 5–25%
+- Increase Fire Ball damage by 10–35%
+- Increase Great Fire Ball damage by 10–35%
+- Increase Frost Crunch damage by 5–25%
 - Reduce mana cost of Flame Disruptor by 10–40%
 - Reduce mana cost of Fire Wall by 10–40%
+- Reduce mana cost of Thunder Bolt by 10–40%
+- Reduce mana cost of Ice Storm by 10–40%
+- Reduce mana cost of Flame Field by 10–40%
+- Reduce mana cost of Meteor Strike by 10–40%
+- Reduce mana cost of Blizzard by 10–40%
+- Increase Flame Disruptor crit chance by 5–25%
+- Increase Flame Disruptor crit damage by 10–50%
+- Increase Fire Wall crit chance by 5–25%
+- Increase Fire Wall crit damage by 10–50%
+- Increase Thunder Bolt crit chance by 5–25%
+- Increase Thunder Bolt crit damage by 10–50%
+- Increase Ice Storm crit chance by 5–25%
+- Increase Ice Storm crit damage by 10–50%
+- Increase Flame Field crit chance by 5–25%
+- Increase Flame Field crit damage by 10–50%
+- Increase Meteor Strike crit chance by 5–25%
+- Increase Meteor Strike crit damage by 10–50%
+- Increase Blizzard crit chance by 5–25%
+- Increase Blizzard crit damage by 10–50%
+- Increase Fire Ball crit chance by 5–25%
+- Increase Fire Ball crit damage by 10–50%
+- Increase Great Fire Ball crit chance by 5–25%
+- Increase Great Fire Ball crit damage by 10–50%
+- Increase Frost Crunch crit chance by 5–25%
+- Increase Frost Crunch crit damage by 10–50%
+- +5–25% Gold drop
+- +1–5% Bonus XP
+- +0%–2% Item drop chance
+- +5–25% Awakening Soul drop chance
+- +1–20% Crit Rate
+- +5–30% Crit Damage
+- +5–40% Skill leveling
 
 ### Tao weapon
 
@@ -66,15 +118,27 @@ Base DC + SC — no MC.
 
 - +1–3 SC
 - +1–2 Luck
-- +5–25% Gold drop
-- +1–5% Bonus XP
-- +0%–2% Item drop chance
-- +5–25% Awakening Soul drop chance
 - Increase Healing healing by 5–25%
 - Increase Mass Healing healing by 5–25%
 - Increase Soul Fire Ball damage by 10–35%
 - Increase Skeleton damage by 10–50%
+- Increase Skeleton health by 10–50%
+- Reduce Skeleton damage taken by 5–20%
 - Increase Shinsu damage by 10–50%
+- Increase Shinsu health by 10–50%
+- Reduce Shinsu damage taken by 5–20%
+- Increase Holy Deva damage by 10–50%
+- Increase Holy Deva health by 10–50%
+- Reduce Holy Deva damage taken by 5–20%
+- Increase Soul Fire Ball crit chance by 5–25%
+- Increase Soul Fire Ball crit damage by 10–50%
+- +5–25% Gold drop
+- +1–5% Bonus XP
+- +0%–2% Item drop chance
+- +5–25% Awakening Soul drop chance
+- +1–20% Crit Rate
+- +5–30% Crit Damage
+- +5–40% Skill leveling
 
 ### Universal weapon
 
@@ -88,21 +152,64 @@ Base DC + MC + SC.
 - +1–2 Freezing
 - +1–2 Poison
 - +1–2 Luck
-- +5–25% Gold drop
-- +1–5% Bonus XP
-- +0%–2% Item drop chance
-- +5–25% Awakening Soul drop chance
 - Increase Flame Disruptor damage by 10–35%
 - Increase Fire Wall damage by 5–25%
 - Increase Thunder Bolt damage by 10–35%
 - Increase Ice Storm damage by 5–25%
+- Increase Flame Field damage by 5–25%
+- Increase Meteor Strike damage by 5–25%
+- Increase Blizzard damage by 5–25%
+- Increase Fire Ball damage by 10–35%
+- Increase Great Fire Ball damage by 10–35%
+- Increase Frost Crunch damage by 5–25%
 - Reduce mana cost of Flame Disruptor by 10–40%
 - Reduce mana cost of Fire Wall by 10–40%
+- Reduce mana cost of Thunder Bolt by 10–40%
+- Reduce mana cost of Ice Storm by 10–40%
+- Reduce mana cost of Flame Field by 10–40%
+- Reduce mana cost of Meteor Strike by 10–40%
+- Reduce mana cost of Blizzard by 10–40%
+- Increase Flame Disruptor crit chance by 5–25%
+- Increase Flame Disruptor crit damage by 10–50%
+- Increase Fire Wall crit chance by 5–25%
+- Increase Fire Wall crit damage by 10–50%
+- Increase Thunder Bolt crit chance by 5–25%
+- Increase Thunder Bolt crit damage by 10–50%
+- Increase Ice Storm crit chance by 5–25%
+- Increase Ice Storm crit damage by 10–50%
+- Increase Flame Field crit chance by 5–25%
+- Increase Flame Field crit damage by 10–50%
+- Increase Meteor Strike crit chance by 5–25%
+- Increase Meteor Strike crit damage by 10–50%
+- Increase Blizzard crit chance by 5–25%
+- Increase Blizzard crit damage by 10–50%
+- Increase Fire Ball crit chance by 5–25%
+- Increase Fire Ball crit damage by 10–50%
+- Increase Great Fire Ball crit chance by 5–25%
+- Increase Great Fire Ball crit damage by 10–50%
+- Increase Frost Crunch crit chance by 5–25%
+- Increase Frost Crunch crit damage by 10–50%
 - Increase Healing healing by 5–25%
 - Increase Mass Healing healing by 5–25%
 - Increase Soul Fire Ball damage by 10–35%
 - Increase Skeleton damage by 10–50%
+- Increase Skeleton health by 10–50%
+- Reduce Skeleton damage taken by 5–20%
 - Increase Shinsu damage by 10–50%
+- Increase Shinsu health by 10–50%
+- Reduce Shinsu damage taken by 5–20%
+- Increase Holy Deva damage by 10–50%
+- Increase Holy Deva health by 10–50%
+- Reduce Holy Deva damage taken by 5–20%
+- Increase Soul Fire Ball crit chance by 5–25%
+- Increase Soul Fire Ball crit damage by 10–50%
+- +5–25% Gold drop
+- +1–5% Bonus XP
+- +0%–2% Item drop chance
+- +5–25% Awakening Soul drop chance
+- +1–20% Crit Rate
+- +5–30% Crit Damage
+- +5–40% Skill leveling
 
 ## Spell-specific empowers
 
@@ -125,6 +232,10 @@ Slots: `armour`, `dress`
 - +10–100 MP (step 10)
 - +1–3 Agi
 - +5–20% Bonus XP
+- −3–12% Damage taken
+- +1–14% Crit Rate
+- +5–20% Crit Damage
+- +5–30% Skill leveling
 
 ### Helmet
 
@@ -137,6 +248,10 @@ Slots: `helmet`
 - +1–2 SC
 - +10–20 HP (step 10)
 - +10–20 MP (step 10)
+- −2–6% Damage taken
+- +1–10% Crit Rate
+- +5–15% Crit Damage
+- +5–20% Skill leveling
 
 ### Bracelet
 
@@ -151,10 +266,14 @@ Slots: `bracelet`
 - +1 Magic Resist
 - +1–3 Agi
 - +1–3 Acc
+- −1–4% Damage taken
+- +1–6% Crit Rate
+- +5–15% Crit Damage
+- +2–12% Skill leveling
 
-### Ring
+### Ring / Necklace
 
-Slots: `ring`
+Slots: `ring`, `necklace`
 
 - +1–6 DC
 - +1–4 MC
@@ -164,6 +283,10 @@ Slots: `ring`
 - +1–2 Poison
 - +1–3 AC
 - +1–3 AMC
+- −1–4% Damage taken
+- +1–6% Crit Rate
+- +5–15% Crit Damage
+- +2–12% Skill leveling
 
 ### Belt / Boots
 
@@ -180,6 +303,10 @@ Slots: `belt`, `boots`
 - +1 Magic Resist
 - +10–30 HP (step 10)
 - +10–30 MP (step 10)
+- −1–5% Damage taken
+- +1–6% Crit Rate
+- +5–10% Crit Damage
+- +2–10% Skill leveling
 
 ### Stone
 
@@ -190,12 +317,10 @@ Slots: `stone`
 - +1–3 MC
 - +1–2 AC
 - +1–2 AMC
-
-### Other
-
-Slots: `necklace`
-
-Legacy level-scaled rolls from each item's base stats (no fixed table yet).
+- −1–2% Damage taken
+- +1–14% Crit Rate
+- +5–20% Crit Damage
+- +5–30% Skill leveling
 
 ## Per-item candidate pools
 
@@ -212,7 +337,81 @@ Grouped by slot. Weapons show their class and actual roll pool from `empowerCand
 - +10–100 HP (step 10)
 - +10–100 MP (step 10)
 - +1–3 Agi
+- Increase Slaying damage by 5–20%
+- Increase Flaming Sword damage by 5–15%
+- Reduce Flaming Sword cooldown by 1–3 seconds
+- Increase Twin Drake Blade damage by 5–15%
+- Reduce mana cost of Twin Drake Blade by 5–20%
+- Increase Blade Avalanche damage by 5–15%
+- Reduce mana cost of Blade Avalanche by 5–20%
+- Increase Slashing Burst damage by 5–15%
+- Reduce mana cost of Slashing Burst by 5–20%
+- Increase Flame Disruptor damage by 5–20%
+- Increase Fire Wall damage by 5–15%
+- Increase Thunder Bolt damage by 5–20%
+- Increase Ice Storm damage by 5–15%
+- Increase Flame Field damage by 5–15%
+- Increase Meteor Strike damage by 5–15%
+- Increase Blizzard damage by 5–15%
+- Increase Fire Ball damage by 5–20%
+- Increase Great Fire Ball damage by 5–20%
+- Increase Frost Crunch damage by 5–15%
+- Reduce mana cost of Flame Disruptor by 5–20%
+- Reduce mana cost of Fire Wall by 5–20%
+- Reduce mana cost of Thunder Bolt by 5–20%
+- Reduce mana cost of Ice Storm by 5–20%
+- Reduce mana cost of Flame Field by 5–20%
+- Reduce mana cost of Meteor Strike by 5–20%
+- Reduce mana cost of Blizzard by 5–20%
+- Increase Healing healing by 5–15%
+- Increase Mass Healing healing by 5–15%
+- Increase Soul Fire Ball damage by 5–20%
+- Increase Skeleton damage by 5–25%
+- Increase Skeleton health by 5–25%
+- Reduce Skeleton damage taken by 5–10%
+- Increase Shinsu damage by 5–25%
+- Increase Shinsu health by 5–25%
+- Reduce Shinsu damage taken by 5–10%
+- Increase Holy Deva damage by 5–25%
+- Increase Holy Deva health by 5–25%
+- Reduce Holy Deva damage taken by 5–10%
+- Increase Slaying crit chance by 2–12%
+- Increase Slaying crit damage by 5–25%
+- Increase Flaming Sword crit chance by 2–12%
+- Increase Flaming Sword crit damage by 5–25%
+- Increase Twin Drake Blade crit chance by 2–12%
+- Increase Twin Drake Blade crit damage by 5–25%
+- Increase Blade Avalanche crit chance by 2–12%
+- Increase Blade Avalanche crit damage by 5–25%
+- Increase Slashing Burst crit chance by 2–12%
+- Increase Slashing Burst crit damage by 5–25%
+- Increase Flame Disruptor crit chance by 2–12%
+- Increase Flame Disruptor crit damage by 5–25%
+- Increase Fire Wall crit chance by 2–12%
+- Increase Fire Wall crit damage by 5–25%
+- Increase Thunder Bolt crit chance by 2–12%
+- Increase Thunder Bolt crit damage by 5–25%
+- Increase Ice Storm crit chance by 2–12%
+- Increase Ice Storm crit damage by 5–25%
+- Increase Flame Field crit chance by 2–12%
+- Increase Flame Field crit damage by 5–25%
+- Increase Meteor Strike crit chance by 2–12%
+- Increase Meteor Strike crit damage by 5–25%
+- Increase Blizzard crit chance by 2–12%
+- Increase Blizzard crit damage by 5–25%
+- Increase Fire Ball crit chance by 2–12%
+- Increase Fire Ball crit damage by 5–25%
+- Increase Great Fire Ball crit chance by 2–12%
+- Increase Great Fire Ball crit damage by 5–25%
+- Increase Frost Crunch crit chance by 2–12%
+- Increase Frost Crunch crit damage by 5–25%
+- Increase Soul Fire Ball crit chance by 2–12%
+- Increase Soul Fire Ball crit damage by 5–25%
 - +5–20% Bonus XP
+- −3–12% Damage taken
+- +1–14% Crit Rate
+- +5–20% Crit Damage
+- +5–30% Skill leveling
 
 **Light Armour** (`light-armour`)
 - +1–5 AC
@@ -223,7 +422,81 @@ Grouped by slot. Weapons show their class and actual roll pool from `empowerCand
 - +10–100 HP (step 10)
 - +10–100 MP (step 10)
 - +1–3 Agi
+- Increase Slaying damage by 5–20%
+- Increase Flaming Sword damage by 5–15%
+- Reduce Flaming Sword cooldown by 1–3 seconds
+- Increase Twin Drake Blade damage by 5–15%
+- Reduce mana cost of Twin Drake Blade by 5–20%
+- Increase Blade Avalanche damage by 5–15%
+- Reduce mana cost of Blade Avalanche by 5–20%
+- Increase Slashing Burst damage by 5–15%
+- Reduce mana cost of Slashing Burst by 5–20%
+- Increase Flame Disruptor damage by 5–20%
+- Increase Fire Wall damage by 5–15%
+- Increase Thunder Bolt damage by 5–20%
+- Increase Ice Storm damage by 5–15%
+- Increase Flame Field damage by 5–15%
+- Increase Meteor Strike damage by 5–15%
+- Increase Blizzard damage by 5–15%
+- Increase Fire Ball damage by 5–20%
+- Increase Great Fire Ball damage by 5–20%
+- Increase Frost Crunch damage by 5–15%
+- Reduce mana cost of Flame Disruptor by 5–20%
+- Reduce mana cost of Fire Wall by 5–20%
+- Reduce mana cost of Thunder Bolt by 5–20%
+- Reduce mana cost of Ice Storm by 5–20%
+- Reduce mana cost of Flame Field by 5–20%
+- Reduce mana cost of Meteor Strike by 5–20%
+- Reduce mana cost of Blizzard by 5–20%
+- Increase Healing healing by 5–15%
+- Increase Mass Healing healing by 5–15%
+- Increase Soul Fire Ball damage by 5–20%
+- Increase Skeleton damage by 5–25%
+- Increase Skeleton health by 5–25%
+- Reduce Skeleton damage taken by 5–10%
+- Increase Shinsu damage by 5–25%
+- Increase Shinsu health by 5–25%
+- Reduce Shinsu damage taken by 5–10%
+- Increase Holy Deva damage by 5–25%
+- Increase Holy Deva health by 5–25%
+- Reduce Holy Deva damage taken by 5–10%
+- Increase Slaying crit chance by 2–12%
+- Increase Slaying crit damage by 5–25%
+- Increase Flaming Sword crit chance by 2–12%
+- Increase Flaming Sword crit damage by 5–25%
+- Increase Twin Drake Blade crit chance by 2–12%
+- Increase Twin Drake Blade crit damage by 5–25%
+- Increase Blade Avalanche crit chance by 2–12%
+- Increase Blade Avalanche crit damage by 5–25%
+- Increase Slashing Burst crit chance by 2–12%
+- Increase Slashing Burst crit damage by 5–25%
+- Increase Flame Disruptor crit chance by 2–12%
+- Increase Flame Disruptor crit damage by 5–25%
+- Increase Fire Wall crit chance by 2–12%
+- Increase Fire Wall crit damage by 5–25%
+- Increase Thunder Bolt crit chance by 2–12%
+- Increase Thunder Bolt crit damage by 5–25%
+- Increase Ice Storm crit chance by 2–12%
+- Increase Ice Storm crit damage by 5–25%
+- Increase Flame Field crit chance by 2–12%
+- Increase Flame Field crit damage by 5–25%
+- Increase Meteor Strike crit chance by 2–12%
+- Increase Meteor Strike crit damage by 5–25%
+- Increase Blizzard crit chance by 2–12%
+- Increase Blizzard crit damage by 5–25%
+- Increase Fire Ball crit chance by 2–12%
+- Increase Fire Ball crit damage by 5–25%
+- Increase Great Fire Ball crit chance by 2–12%
+- Increase Great Fire Ball crit damage by 5–25%
+- Increase Frost Crunch crit chance by 2–12%
+- Increase Frost Crunch crit damage by 5–25%
+- Increase Soul Fire Ball crit chance by 2–12%
+- Increase Soul Fire Ball crit damage by 5–25%
 - +5–20% Bonus XP
+- −3–12% Damage taken
+- +1–14% Crit Rate
+- +5–20% Crit Damage
+- +5–30% Skill leveling
 
 **Solid Armour** (`solid-armour`)
 - +1–5 AC
@@ -234,7 +507,81 @@ Grouped by slot. Weapons show their class and actual roll pool from `empowerCand
 - +10–100 HP (step 10)
 - +10–100 MP (step 10)
 - +1–3 Agi
+- Increase Slaying damage by 5–20%
+- Increase Flaming Sword damage by 5–15%
+- Reduce Flaming Sword cooldown by 1–3 seconds
+- Increase Twin Drake Blade damage by 5–15%
+- Reduce mana cost of Twin Drake Blade by 5–20%
+- Increase Blade Avalanche damage by 5–15%
+- Reduce mana cost of Blade Avalanche by 5–20%
+- Increase Slashing Burst damage by 5–15%
+- Reduce mana cost of Slashing Burst by 5–20%
+- Increase Flame Disruptor damage by 5–20%
+- Increase Fire Wall damage by 5–15%
+- Increase Thunder Bolt damage by 5–20%
+- Increase Ice Storm damage by 5–15%
+- Increase Flame Field damage by 5–15%
+- Increase Meteor Strike damage by 5–15%
+- Increase Blizzard damage by 5–15%
+- Increase Fire Ball damage by 5–20%
+- Increase Great Fire Ball damage by 5–20%
+- Increase Frost Crunch damage by 5–15%
+- Reduce mana cost of Flame Disruptor by 5–20%
+- Reduce mana cost of Fire Wall by 5–20%
+- Reduce mana cost of Thunder Bolt by 5–20%
+- Reduce mana cost of Ice Storm by 5–20%
+- Reduce mana cost of Flame Field by 5–20%
+- Reduce mana cost of Meteor Strike by 5–20%
+- Reduce mana cost of Blizzard by 5–20%
+- Increase Healing healing by 5–15%
+- Increase Mass Healing healing by 5–15%
+- Increase Soul Fire Ball damage by 5–20%
+- Increase Skeleton damage by 5–25%
+- Increase Skeleton health by 5–25%
+- Reduce Skeleton damage taken by 5–10%
+- Increase Shinsu damage by 5–25%
+- Increase Shinsu health by 5–25%
+- Reduce Shinsu damage taken by 5–10%
+- Increase Holy Deva damage by 5–25%
+- Increase Holy Deva health by 5–25%
+- Reduce Holy Deva damage taken by 5–10%
+- Increase Slaying crit chance by 2–12%
+- Increase Slaying crit damage by 5–25%
+- Increase Flaming Sword crit chance by 2–12%
+- Increase Flaming Sword crit damage by 5–25%
+- Increase Twin Drake Blade crit chance by 2–12%
+- Increase Twin Drake Blade crit damage by 5–25%
+- Increase Blade Avalanche crit chance by 2–12%
+- Increase Blade Avalanche crit damage by 5–25%
+- Increase Slashing Burst crit chance by 2–12%
+- Increase Slashing Burst crit damage by 5–25%
+- Increase Flame Disruptor crit chance by 2–12%
+- Increase Flame Disruptor crit damage by 5–25%
+- Increase Fire Wall crit chance by 2–12%
+- Increase Fire Wall crit damage by 5–25%
+- Increase Thunder Bolt crit chance by 2–12%
+- Increase Thunder Bolt crit damage by 5–25%
+- Increase Ice Storm crit chance by 2–12%
+- Increase Ice Storm crit damage by 5–25%
+- Increase Flame Field crit chance by 2–12%
+- Increase Flame Field crit damage by 5–25%
+- Increase Meteor Strike crit chance by 2–12%
+- Increase Meteor Strike crit damage by 5–25%
+- Increase Blizzard crit chance by 2–12%
+- Increase Blizzard crit damage by 5–25%
+- Increase Fire Ball crit chance by 2–12%
+- Increase Fire Ball crit damage by 5–25%
+- Increase Great Fire Ball crit chance by 2–12%
+- Increase Great Fire Ball crit damage by 5–25%
+- Increase Frost Crunch crit chance by 2–12%
+- Increase Frost Crunch crit damage by 5–25%
+- Increase Soul Fire Ball crit chance by 2–12%
+- Increase Soul Fire Ball crit damage by 5–25%
 - +5–20% Bonus XP
+- −3–12% Damage taken
+- +1–14% Crit Rate
+- +5–20% Crit Damage
+- +5–30% Skill leveling
 
 **Bone Robe** (`bone-robe`)
 - +1–5 AC
@@ -245,7 +592,81 @@ Grouped by slot. Weapons show their class and actual roll pool from `empowerCand
 - +10–100 HP (step 10)
 - +10–100 MP (step 10)
 - +1–3 Agi
+- Increase Slaying damage by 5–20%
+- Increase Flaming Sword damage by 5–15%
+- Reduce Flaming Sword cooldown by 1–3 seconds
+- Increase Twin Drake Blade damage by 5–15%
+- Reduce mana cost of Twin Drake Blade by 5–20%
+- Increase Blade Avalanche damage by 5–15%
+- Reduce mana cost of Blade Avalanche by 5–20%
+- Increase Slashing Burst damage by 5–15%
+- Reduce mana cost of Slashing Burst by 5–20%
+- Increase Flame Disruptor damage by 5–20%
+- Increase Fire Wall damage by 5–15%
+- Increase Thunder Bolt damage by 5–20%
+- Increase Ice Storm damage by 5–15%
+- Increase Flame Field damage by 5–15%
+- Increase Meteor Strike damage by 5–15%
+- Increase Blizzard damage by 5–15%
+- Increase Fire Ball damage by 5–20%
+- Increase Great Fire Ball damage by 5–20%
+- Increase Frost Crunch damage by 5–15%
+- Reduce mana cost of Flame Disruptor by 5–20%
+- Reduce mana cost of Fire Wall by 5–20%
+- Reduce mana cost of Thunder Bolt by 5–20%
+- Reduce mana cost of Ice Storm by 5–20%
+- Reduce mana cost of Flame Field by 5–20%
+- Reduce mana cost of Meteor Strike by 5–20%
+- Reduce mana cost of Blizzard by 5–20%
+- Increase Healing healing by 5–15%
+- Increase Mass Healing healing by 5–15%
+- Increase Soul Fire Ball damage by 5–20%
+- Increase Skeleton damage by 5–25%
+- Increase Skeleton health by 5–25%
+- Reduce Skeleton damage taken by 5–10%
+- Increase Shinsu damage by 5–25%
+- Increase Shinsu health by 5–25%
+- Reduce Shinsu damage taken by 5–10%
+- Increase Holy Deva damage by 5–25%
+- Increase Holy Deva health by 5–25%
+- Reduce Holy Deva damage taken by 5–10%
+- Increase Slaying crit chance by 2–12%
+- Increase Slaying crit damage by 5–25%
+- Increase Flaming Sword crit chance by 2–12%
+- Increase Flaming Sword crit damage by 5–25%
+- Increase Twin Drake Blade crit chance by 2–12%
+- Increase Twin Drake Blade crit damage by 5–25%
+- Increase Blade Avalanche crit chance by 2–12%
+- Increase Blade Avalanche crit damage by 5–25%
+- Increase Slashing Burst crit chance by 2–12%
+- Increase Slashing Burst crit damage by 5–25%
+- Increase Flame Disruptor crit chance by 2–12%
+- Increase Flame Disruptor crit damage by 5–25%
+- Increase Fire Wall crit chance by 2–12%
+- Increase Fire Wall crit damage by 5–25%
+- Increase Thunder Bolt crit chance by 2–12%
+- Increase Thunder Bolt crit damage by 5–25%
+- Increase Ice Storm crit chance by 2–12%
+- Increase Ice Storm crit damage by 5–25%
+- Increase Flame Field crit chance by 2–12%
+- Increase Flame Field crit damage by 5–25%
+- Increase Meteor Strike crit chance by 2–12%
+- Increase Meteor Strike crit damage by 5–25%
+- Increase Blizzard crit chance by 2–12%
+- Increase Blizzard crit damage by 5–25%
+- Increase Fire Ball crit chance by 2–12%
+- Increase Fire Ball crit damage by 5–25%
+- Increase Great Fire Ball crit chance by 2–12%
+- Increase Great Fire Ball crit damage by 5–25%
+- Increase Frost Crunch crit chance by 2–12%
+- Increase Frost Crunch crit damage by 5–25%
+- Increase Soul Fire Ball crit chance by 2–12%
+- Increase Soul Fire Ball crit damage by 5–25%
 - +5–20% Bonus XP
+- −3–12% Damage taken
+- +1–14% Crit Rate
+- +5–20% Crit Damage
+- +5–30% Skill leveling
 
 **Medium Armour** (`medium-armour`)
 - +1–5 AC
@@ -256,7 +677,81 @@ Grouped by slot. Weapons show their class and actual roll pool from `empowerCand
 - +10–100 HP (step 10)
 - +10–100 MP (step 10)
 - +1–3 Agi
+- Increase Slaying damage by 5–20%
+- Increase Flaming Sword damage by 5–15%
+- Reduce Flaming Sword cooldown by 1–3 seconds
+- Increase Twin Drake Blade damage by 5–15%
+- Reduce mana cost of Twin Drake Blade by 5–20%
+- Increase Blade Avalanche damage by 5–15%
+- Reduce mana cost of Blade Avalanche by 5–20%
+- Increase Slashing Burst damage by 5–15%
+- Reduce mana cost of Slashing Burst by 5–20%
+- Increase Flame Disruptor damage by 5–20%
+- Increase Fire Wall damage by 5–15%
+- Increase Thunder Bolt damage by 5–20%
+- Increase Ice Storm damage by 5–15%
+- Increase Flame Field damage by 5–15%
+- Increase Meteor Strike damage by 5–15%
+- Increase Blizzard damage by 5–15%
+- Increase Fire Ball damage by 5–20%
+- Increase Great Fire Ball damage by 5–20%
+- Increase Frost Crunch damage by 5–15%
+- Reduce mana cost of Flame Disruptor by 5–20%
+- Reduce mana cost of Fire Wall by 5–20%
+- Reduce mana cost of Thunder Bolt by 5–20%
+- Reduce mana cost of Ice Storm by 5–20%
+- Reduce mana cost of Flame Field by 5–20%
+- Reduce mana cost of Meteor Strike by 5–20%
+- Reduce mana cost of Blizzard by 5–20%
+- Increase Healing healing by 5–15%
+- Increase Mass Healing healing by 5–15%
+- Increase Soul Fire Ball damage by 5–20%
+- Increase Skeleton damage by 5–25%
+- Increase Skeleton health by 5–25%
+- Reduce Skeleton damage taken by 5–10%
+- Increase Shinsu damage by 5–25%
+- Increase Shinsu health by 5–25%
+- Reduce Shinsu damage taken by 5–10%
+- Increase Holy Deva damage by 5–25%
+- Increase Holy Deva health by 5–25%
+- Reduce Holy Deva damage taken by 5–10%
+- Increase Slaying crit chance by 2–12%
+- Increase Slaying crit damage by 5–25%
+- Increase Flaming Sword crit chance by 2–12%
+- Increase Flaming Sword crit damage by 5–25%
+- Increase Twin Drake Blade crit chance by 2–12%
+- Increase Twin Drake Blade crit damage by 5–25%
+- Increase Blade Avalanche crit chance by 2–12%
+- Increase Blade Avalanche crit damage by 5–25%
+- Increase Slashing Burst crit chance by 2–12%
+- Increase Slashing Burst crit damage by 5–25%
+- Increase Flame Disruptor crit chance by 2–12%
+- Increase Flame Disruptor crit damage by 5–25%
+- Increase Fire Wall crit chance by 2–12%
+- Increase Fire Wall crit damage by 5–25%
+- Increase Thunder Bolt crit chance by 2–12%
+- Increase Thunder Bolt crit damage by 5–25%
+- Increase Ice Storm crit chance by 2–12%
+- Increase Ice Storm crit damage by 5–25%
+- Increase Flame Field crit chance by 2–12%
+- Increase Flame Field crit damage by 5–25%
+- Increase Meteor Strike crit chance by 2–12%
+- Increase Meteor Strike crit damage by 5–25%
+- Increase Blizzard crit chance by 2–12%
+- Increase Blizzard crit damage by 5–25%
+- Increase Fire Ball crit chance by 2–12%
+- Increase Fire Ball crit damage by 5–25%
+- Increase Great Fire Ball crit chance by 2–12%
+- Increase Great Fire Ball crit damage by 5–25%
+- Increase Frost Crunch crit chance by 2–12%
+- Increase Frost Crunch crit damage by 5–25%
+- Increase Soul Fire Ball crit chance by 2–12%
+- Increase Soul Fire Ball crit damage by 5–25%
 - +5–20% Bonus XP
+- −3–12% Damage taken
+- +1–14% Crit Rate
+- +5–20% Crit Damage
+- +5–30% Skill leveling
 
 **Crystal Armour** (`crystal-armour`)
 - +1–5 AC
@@ -267,73 +762,301 @@ Grouped by slot. Weapons show their class and actual roll pool from `empowerCand
 - +10–100 HP (step 10)
 - +10–100 MP (step 10)
 - +1–3 Agi
+- Increase Slaying damage by 5–20%
+- Increase Flaming Sword damage by 5–15%
+- Reduce Flaming Sword cooldown by 1–3 seconds
+- Increase Twin Drake Blade damage by 5–15%
+- Reduce mana cost of Twin Drake Blade by 5–20%
+- Increase Blade Avalanche damage by 5–15%
+- Reduce mana cost of Blade Avalanche by 5–20%
+- Increase Slashing Burst damage by 5–15%
+- Reduce mana cost of Slashing Burst by 5–20%
+- Increase Flame Disruptor damage by 5–20%
+- Increase Fire Wall damage by 5–15%
+- Increase Thunder Bolt damage by 5–20%
+- Increase Ice Storm damage by 5–15%
+- Increase Flame Field damage by 5–15%
+- Increase Meteor Strike damage by 5–15%
+- Increase Blizzard damage by 5–15%
+- Increase Fire Ball damage by 5–20%
+- Increase Great Fire Ball damage by 5–20%
+- Increase Frost Crunch damage by 5–15%
+- Reduce mana cost of Flame Disruptor by 5–20%
+- Reduce mana cost of Fire Wall by 5–20%
+- Reduce mana cost of Thunder Bolt by 5–20%
+- Reduce mana cost of Ice Storm by 5–20%
+- Reduce mana cost of Flame Field by 5–20%
+- Reduce mana cost of Meteor Strike by 5–20%
+- Reduce mana cost of Blizzard by 5–20%
+- Increase Healing healing by 5–15%
+- Increase Mass Healing healing by 5–15%
+- Increase Soul Fire Ball damage by 5–20%
+- Increase Skeleton damage by 5–25%
+- Increase Skeleton health by 5–25%
+- Reduce Skeleton damage taken by 5–10%
+- Increase Shinsu damage by 5–25%
+- Increase Shinsu health by 5–25%
+- Reduce Shinsu damage taken by 5–10%
+- Increase Holy Deva damage by 5–25%
+- Increase Holy Deva health by 5–25%
+- Reduce Holy Deva damage taken by 5–10%
+- Increase Slaying crit chance by 2–12%
+- Increase Slaying crit damage by 5–25%
+- Increase Flaming Sword crit chance by 2–12%
+- Increase Flaming Sword crit damage by 5–25%
+- Increase Twin Drake Blade crit chance by 2–12%
+- Increase Twin Drake Blade crit damage by 5–25%
+- Increase Blade Avalanche crit chance by 2–12%
+- Increase Blade Avalanche crit damage by 5–25%
+- Increase Slashing Burst crit chance by 2–12%
+- Increase Slashing Burst crit damage by 5–25%
+- Increase Flame Disruptor crit chance by 2–12%
+- Increase Flame Disruptor crit damage by 5–25%
+- Increase Fire Wall crit chance by 2–12%
+- Increase Fire Wall crit damage by 5–25%
+- Increase Thunder Bolt crit chance by 2–12%
+- Increase Thunder Bolt crit damage by 5–25%
+- Increase Ice Storm crit chance by 2–12%
+- Increase Ice Storm crit damage by 5–25%
+- Increase Flame Field crit chance by 2–12%
+- Increase Flame Field crit damage by 5–25%
+- Increase Meteor Strike crit chance by 2–12%
+- Increase Meteor Strike crit damage by 5–25%
+- Increase Blizzard crit chance by 2–12%
+- Increase Blizzard crit damage by 5–25%
+- Increase Fire Ball crit chance by 2–12%
+- Increase Fire Ball crit damage by 5–25%
+- Increase Great Fire Ball crit chance by 2–12%
+- Increase Great Fire Ball crit damage by 5–25%
+- Increase Frost Crunch crit chance by 2–12%
+- Increase Frost Crunch crit damage by 5–25%
+- Increase Soul Fire Ball crit chance by 2–12%
+- Increase Soul Fire Ball crit damage by 5–25%
 - +5–20% Bonus XP
+- −3–12% Damage taken
+- +1–14% Crit Rate
+- +5–20% Crit Damage
+- +5–30% Skill leveling
 
 **Mir Armour (F)1** (`mir-armour-f-1`)
 - +1–5 AC
 - +1–5 AMC
 - +1–5 DC
-- +1–3 MC
-- +1–3 SC
 - +10–100 HP (step 10)
 - +10–100 MP (step 10)
 - +1–3 Agi
+- Increase Slaying damage by 5–20%
+- Increase Flaming Sword damage by 5–15%
+- Reduce Flaming Sword cooldown by 1–3 seconds
+- Increase Twin Drake Blade damage by 5–15%
+- Reduce mana cost of Twin Drake Blade by 5–20%
+- Increase Blade Avalanche damage by 5–15%
+- Reduce mana cost of Blade Avalanche by 5–20%
+- Increase Slashing Burst damage by 5–15%
+- Reduce mana cost of Slashing Burst by 5–20%
+- Increase Slaying crit chance by 2–12%
+- Increase Slaying crit damage by 5–25%
+- Increase Flaming Sword crit chance by 2–12%
+- Increase Flaming Sword crit damage by 5–25%
+- Increase Twin Drake Blade crit chance by 2–12%
+- Increase Twin Drake Blade crit damage by 5–25%
+- Increase Blade Avalanche crit chance by 2–12%
+- Increase Blade Avalanche crit damage by 5–25%
+- Increase Slashing Burst crit chance by 2–12%
+- Increase Slashing Burst crit damage by 5–25%
 - +5–20% Bonus XP
+- −3–12% Damage taken
+- +1–14% Crit Rate
+- +5–20% Crit Damage
+- +5–30% Skill leveling
 
 **Mir Armour (F)2** (`mir-armour-f-2`)
 - +1–5 AC
 - +1–5 AMC
-- +1–5 DC
 - +1–3 MC
-- +1–3 SC
 - +10–100 HP (step 10)
 - +10–100 MP (step 10)
 - +1–3 Agi
+- Increase Flame Disruptor damage by 5–20%
+- Increase Fire Wall damage by 5–15%
+- Increase Thunder Bolt damage by 5–20%
+- Increase Ice Storm damage by 5–15%
+- Increase Flame Field damage by 5–15%
+- Increase Meteor Strike damage by 5–15%
+- Increase Blizzard damage by 5–15%
+- Increase Fire Ball damage by 5–20%
+- Increase Great Fire Ball damage by 5–20%
+- Increase Frost Crunch damage by 5–15%
+- Reduce mana cost of Flame Disruptor by 5–20%
+- Reduce mana cost of Fire Wall by 5–20%
+- Reduce mana cost of Thunder Bolt by 5–20%
+- Reduce mana cost of Ice Storm by 5–20%
+- Reduce mana cost of Flame Field by 5–20%
+- Reduce mana cost of Meteor Strike by 5–20%
+- Reduce mana cost of Blizzard by 5–20%
+- Increase Flame Disruptor crit chance by 2–12%
+- Increase Flame Disruptor crit damage by 5–25%
+- Increase Fire Wall crit chance by 2–12%
+- Increase Fire Wall crit damage by 5–25%
+- Increase Thunder Bolt crit chance by 2–12%
+- Increase Thunder Bolt crit damage by 5–25%
+- Increase Ice Storm crit chance by 2–12%
+- Increase Ice Storm crit damage by 5–25%
+- Increase Flame Field crit chance by 2–12%
+- Increase Flame Field crit damage by 5–25%
+- Increase Meteor Strike crit chance by 2–12%
+- Increase Meteor Strike crit damage by 5–25%
+- Increase Blizzard crit chance by 2–12%
+- Increase Blizzard crit damage by 5–25%
+- Increase Fire Ball crit chance by 2–12%
+- Increase Fire Ball crit damage by 5–25%
+- Increase Great Fire Ball crit chance by 2–12%
+- Increase Great Fire Ball crit damage by 5–25%
+- Increase Frost Crunch crit chance by 2–12%
+- Increase Frost Crunch crit damage by 5–25%
 - +5–20% Bonus XP
+- −3–12% Damage taken
+- +1–14% Crit Rate
+- +5–20% Crit Damage
+- +5–30% Skill leveling
 
 **Mir Armour (F)3** (`mir-armour-f-3`)
 - +1–5 AC
 - +1–5 AMC
 - +1–5 DC
-- +1–3 MC
 - +1–3 SC
 - +10–100 HP (step 10)
 - +10–100 MP (step 10)
 - +1–3 Agi
+- Increase Healing healing by 5–15%
+- Increase Mass Healing healing by 5–15%
+- Increase Soul Fire Ball damage by 5–20%
+- Increase Skeleton damage by 5–25%
+- Increase Skeleton health by 5–25%
+- Reduce Skeleton damage taken by 5–10%
+- Increase Shinsu damage by 5–25%
+- Increase Shinsu health by 5–25%
+- Reduce Shinsu damage taken by 5–10%
+- Increase Holy Deva damage by 5–25%
+- Increase Holy Deva health by 5–25%
+- Reduce Holy Deva damage taken by 5–10%
+- Increase Soul Fire Ball crit chance by 2–12%
+- Increase Soul Fire Ball crit damage by 5–25%
 - +5–20% Bonus XP
+- −3–12% Damage taken
+- +1–14% Crit Rate
+- +5–20% Crit Damage
+- +5–30% Skill leveling
 
 **Mir Armour (M)1** (`mir-armour-m-1`)
 - +1–5 AC
 - +1–5 AMC
 - +1–5 DC
-- +1–3 MC
-- +1–3 SC
 - +10–100 HP (step 10)
 - +10–100 MP (step 10)
 - +1–3 Agi
+- Increase Slaying damage by 5–20%
+- Increase Flaming Sword damage by 5–15%
+- Reduce Flaming Sword cooldown by 1–3 seconds
+- Increase Twin Drake Blade damage by 5–15%
+- Reduce mana cost of Twin Drake Blade by 5–20%
+- Increase Blade Avalanche damage by 5–15%
+- Reduce mana cost of Blade Avalanche by 5–20%
+- Increase Slashing Burst damage by 5–15%
+- Reduce mana cost of Slashing Burst by 5–20%
+- Increase Slaying crit chance by 2–12%
+- Increase Slaying crit damage by 5–25%
+- Increase Flaming Sword crit chance by 2–12%
+- Increase Flaming Sword crit damage by 5–25%
+- Increase Twin Drake Blade crit chance by 2–12%
+- Increase Twin Drake Blade crit damage by 5–25%
+- Increase Blade Avalanche crit chance by 2–12%
+- Increase Blade Avalanche crit damage by 5–25%
+- Increase Slashing Burst crit chance by 2–12%
+- Increase Slashing Burst crit damage by 5–25%
 - +5–20% Bonus XP
+- −3–12% Damage taken
+- +1–14% Crit Rate
+- +5–20% Crit Damage
+- +5–30% Skill leveling
 
 **Mir Armour (M)2** (`mir-armour-m-2`)
 - +1–5 AC
 - +1–5 AMC
-- +1–5 DC
 - +1–3 MC
-- +1–3 SC
 - +10–100 HP (step 10)
 - +10–100 MP (step 10)
 - +1–3 Agi
+- Increase Flame Disruptor damage by 5–20%
+- Increase Fire Wall damage by 5–15%
+- Increase Thunder Bolt damage by 5–20%
+- Increase Ice Storm damage by 5–15%
+- Increase Flame Field damage by 5–15%
+- Increase Meteor Strike damage by 5–15%
+- Increase Blizzard damage by 5–15%
+- Increase Fire Ball damage by 5–20%
+- Increase Great Fire Ball damage by 5–20%
+- Increase Frost Crunch damage by 5–15%
+- Reduce mana cost of Flame Disruptor by 5–20%
+- Reduce mana cost of Fire Wall by 5–20%
+- Reduce mana cost of Thunder Bolt by 5–20%
+- Reduce mana cost of Ice Storm by 5–20%
+- Reduce mana cost of Flame Field by 5–20%
+- Reduce mana cost of Meteor Strike by 5–20%
+- Reduce mana cost of Blizzard by 5–20%
+- Increase Flame Disruptor crit chance by 2–12%
+- Increase Flame Disruptor crit damage by 5–25%
+- Increase Fire Wall crit chance by 2–12%
+- Increase Fire Wall crit damage by 5–25%
+- Increase Thunder Bolt crit chance by 2–12%
+- Increase Thunder Bolt crit damage by 5–25%
+- Increase Ice Storm crit chance by 2–12%
+- Increase Ice Storm crit damage by 5–25%
+- Increase Flame Field crit chance by 2–12%
+- Increase Flame Field crit damage by 5–25%
+- Increase Meteor Strike crit chance by 2–12%
+- Increase Meteor Strike crit damage by 5–25%
+- Increase Blizzard crit chance by 2–12%
+- Increase Blizzard crit damage by 5–25%
+- Increase Fire Ball crit chance by 2–12%
+- Increase Fire Ball crit damage by 5–25%
+- Increase Great Fire Ball crit chance by 2–12%
+- Increase Great Fire Ball crit damage by 5–25%
+- Increase Frost Crunch crit chance by 2–12%
+- Increase Frost Crunch crit damage by 5–25%
 - +5–20% Bonus XP
+- −3–12% Damage taken
+- +1–14% Crit Rate
+- +5–20% Crit Damage
+- +5–30% Skill leveling
 
 **Mir Armour (M)3** (`mir-armour-m-3`)
 - +1–5 AC
 - +1–5 AMC
 - +1–5 DC
-- +1–3 MC
 - +1–3 SC
 - +10–100 HP (step 10)
 - +10–100 MP (step 10)
 - +1–3 Agi
+- Increase Healing healing by 5–15%
+- Increase Mass Healing healing by 5–15%
+- Increase Soul Fire Ball damage by 5–20%
+- Increase Skeleton damage by 5–25%
+- Increase Skeleton health by 5–25%
+- Reduce Skeleton damage taken by 5–10%
+- Increase Shinsu damage by 5–25%
+- Increase Shinsu health by 5–25%
+- Reduce Shinsu damage taken by 5–10%
+- Increase Holy Deva damage by 5–25%
+- Increase Holy Deva health by 5–25%
+- Reduce Holy Deva damage taken by 5–10%
+- Increase Soul Fire Ball crit chance by 2–12%
+- Increase Soul Fire Ball crit damage by 5–25%
 - +5–20% Bonus XP
+- −3–12% Damage taken
+- +1–14% Crit Rate
+- +5–20% Crit Damage
+- +5–30% Skill leveling
 
 **Heavy Armour** (`heavy-armour`)
 - +1–5 AC
@@ -344,7 +1067,81 @@ Grouped by slot. Weapons show their class and actual roll pool from `empowerCand
 - +10–100 HP (step 10)
 - +10–100 MP (step 10)
 - +1–3 Agi
+- Increase Slaying damage by 5–20%
+- Increase Flaming Sword damage by 5–15%
+- Reduce Flaming Sword cooldown by 1–3 seconds
+- Increase Twin Drake Blade damage by 5–15%
+- Reduce mana cost of Twin Drake Blade by 5–20%
+- Increase Blade Avalanche damage by 5–15%
+- Reduce mana cost of Blade Avalanche by 5–20%
+- Increase Slashing Burst damage by 5–15%
+- Reduce mana cost of Slashing Burst by 5–20%
+- Increase Flame Disruptor damage by 5–20%
+- Increase Fire Wall damage by 5–15%
+- Increase Thunder Bolt damage by 5–20%
+- Increase Ice Storm damage by 5–15%
+- Increase Flame Field damage by 5–15%
+- Increase Meteor Strike damage by 5–15%
+- Increase Blizzard damage by 5–15%
+- Increase Fire Ball damage by 5–20%
+- Increase Great Fire Ball damage by 5–20%
+- Increase Frost Crunch damage by 5–15%
+- Reduce mana cost of Flame Disruptor by 5–20%
+- Reduce mana cost of Fire Wall by 5–20%
+- Reduce mana cost of Thunder Bolt by 5–20%
+- Reduce mana cost of Ice Storm by 5–20%
+- Reduce mana cost of Flame Field by 5–20%
+- Reduce mana cost of Meteor Strike by 5–20%
+- Reduce mana cost of Blizzard by 5–20%
+- Increase Healing healing by 5–15%
+- Increase Mass Healing healing by 5–15%
+- Increase Soul Fire Ball damage by 5–20%
+- Increase Skeleton damage by 5–25%
+- Increase Skeleton health by 5–25%
+- Reduce Skeleton damage taken by 5–10%
+- Increase Shinsu damage by 5–25%
+- Increase Shinsu health by 5–25%
+- Reduce Shinsu damage taken by 5–10%
+- Increase Holy Deva damage by 5–25%
+- Increase Holy Deva health by 5–25%
+- Reduce Holy Deva damage taken by 5–10%
+- Increase Slaying crit chance by 2–12%
+- Increase Slaying crit damage by 5–25%
+- Increase Flaming Sword crit chance by 2–12%
+- Increase Flaming Sword crit damage by 5–25%
+- Increase Twin Drake Blade crit chance by 2–12%
+- Increase Twin Drake Blade crit damage by 5–25%
+- Increase Blade Avalanche crit chance by 2–12%
+- Increase Blade Avalanche crit damage by 5–25%
+- Increase Slashing Burst crit chance by 2–12%
+- Increase Slashing Burst crit damage by 5–25%
+- Increase Flame Disruptor crit chance by 2–12%
+- Increase Flame Disruptor crit damage by 5–25%
+- Increase Fire Wall crit chance by 2–12%
+- Increase Fire Wall crit damage by 5–25%
+- Increase Thunder Bolt crit chance by 2–12%
+- Increase Thunder Bolt crit damage by 5–25%
+- Increase Ice Storm crit chance by 2–12%
+- Increase Ice Storm crit damage by 5–25%
+- Increase Flame Field crit chance by 2–12%
+- Increase Flame Field crit damage by 5–25%
+- Increase Meteor Strike crit chance by 2–12%
+- Increase Meteor Strike crit damage by 5–25%
+- Increase Blizzard crit chance by 2–12%
+- Increase Blizzard crit damage by 5–25%
+- Increase Fire Ball crit chance by 2–12%
+- Increase Fire Ball crit damage by 5–25%
+- Increase Great Fire Ball crit chance by 2–12%
+- Increase Great Fire Ball crit damage by 5–25%
+- Increase Frost Crunch crit chance by 2–12%
+- Increase Frost Crunch crit damage by 5–25%
+- Increase Soul Fire Ball crit chance by 2–12%
+- Increase Soul Fire Ball crit damage by 5–25%
 - +5–20% Bonus XP
+- −3–12% Damage taken
+- +1–14% Crit Rate
+- +5–20% Crit Damage
+- +5–30% Skill leveling
 
 **Heavy Armour (F)** (`heavy-armour-f`)
 - +1–5 AC
@@ -355,95 +1152,393 @@ Grouped by slot. Weapons show their class and actual roll pool from `empowerCand
 - +10–100 HP (step 10)
 - +10–100 MP (step 10)
 - +1–3 Agi
+- Increase Slaying damage by 5–20%
+- Increase Flaming Sword damage by 5–15%
+- Reduce Flaming Sword cooldown by 1–3 seconds
+- Increase Twin Drake Blade damage by 5–15%
+- Reduce mana cost of Twin Drake Blade by 5–20%
+- Increase Blade Avalanche damage by 5–15%
+- Reduce mana cost of Blade Avalanche by 5–20%
+- Increase Slashing Burst damage by 5–15%
+- Reduce mana cost of Slashing Burst by 5–20%
+- Increase Flame Disruptor damage by 5–20%
+- Increase Fire Wall damage by 5–15%
+- Increase Thunder Bolt damage by 5–20%
+- Increase Ice Storm damage by 5–15%
+- Increase Flame Field damage by 5–15%
+- Increase Meteor Strike damage by 5–15%
+- Increase Blizzard damage by 5–15%
+- Increase Fire Ball damage by 5–20%
+- Increase Great Fire Ball damage by 5–20%
+- Increase Frost Crunch damage by 5–15%
+- Reduce mana cost of Flame Disruptor by 5–20%
+- Reduce mana cost of Fire Wall by 5–20%
+- Reduce mana cost of Thunder Bolt by 5–20%
+- Reduce mana cost of Ice Storm by 5–20%
+- Reduce mana cost of Flame Field by 5–20%
+- Reduce mana cost of Meteor Strike by 5–20%
+- Reduce mana cost of Blizzard by 5–20%
+- Increase Healing healing by 5–15%
+- Increase Mass Healing healing by 5–15%
+- Increase Soul Fire Ball damage by 5–20%
+- Increase Skeleton damage by 5–25%
+- Increase Skeleton health by 5–25%
+- Reduce Skeleton damage taken by 5–10%
+- Increase Shinsu damage by 5–25%
+- Increase Shinsu health by 5–25%
+- Reduce Shinsu damage taken by 5–10%
+- Increase Holy Deva damage by 5–25%
+- Increase Holy Deva health by 5–25%
+- Reduce Holy Deva damage taken by 5–10%
+- Increase Slaying crit chance by 2–12%
+- Increase Slaying crit damage by 5–25%
+- Increase Flaming Sword crit chance by 2–12%
+- Increase Flaming Sword crit damage by 5–25%
+- Increase Twin Drake Blade crit chance by 2–12%
+- Increase Twin Drake Blade crit damage by 5–25%
+- Increase Blade Avalanche crit chance by 2–12%
+- Increase Blade Avalanche crit damage by 5–25%
+- Increase Slashing Burst crit chance by 2–12%
+- Increase Slashing Burst crit damage by 5–25%
+- Increase Flame Disruptor crit chance by 2–12%
+- Increase Flame Disruptor crit damage by 5–25%
+- Increase Fire Wall crit chance by 2–12%
+- Increase Fire Wall crit damage by 5–25%
+- Increase Thunder Bolt crit chance by 2–12%
+- Increase Thunder Bolt crit damage by 5–25%
+- Increase Ice Storm crit chance by 2–12%
+- Increase Ice Storm crit damage by 5–25%
+- Increase Flame Field crit chance by 2–12%
+- Increase Flame Field crit damage by 5–25%
+- Increase Meteor Strike crit chance by 2–12%
+- Increase Meteor Strike crit damage by 5–25%
+- Increase Blizzard crit chance by 2–12%
+- Increase Blizzard crit damage by 5–25%
+- Increase Fire Ball crit chance by 2–12%
+- Increase Fire Ball crit damage by 5–25%
+- Increase Great Fire Ball crit chance by 2–12%
+- Increase Great Fire Ball crit damage by 5–25%
+- Increase Frost Crunch crit chance by 2–12%
+- Increase Frost Crunch crit damage by 5–25%
+- Increase Soul Fire Ball crit chance by 2–12%
+- Increase Soul Fire Ball crit damage by 5–25%
 - +5–20% Bonus XP
+- −3–12% Damage taken
+- +1–14% Crit Rate
+- +5–20% Crit Damage
+- +5–30% Skill leveling
 
 **Magic Robe** (`magic-robe`)
 - +1–5 AC
 - +1–5 AMC
-- +1–5 DC
 - +1–3 MC
-- +1–3 SC
 - +10–100 HP (step 10)
 - +10–100 MP (step 10)
 - +1–3 Agi
+- Increase Flame Disruptor damage by 5–20%
+- Increase Fire Wall damage by 5–15%
+- Increase Thunder Bolt damage by 5–20%
+- Increase Ice Storm damage by 5–15%
+- Increase Flame Field damage by 5–15%
+- Increase Meteor Strike damage by 5–15%
+- Increase Blizzard damage by 5–15%
+- Increase Fire Ball damage by 5–20%
+- Increase Great Fire Ball damage by 5–20%
+- Increase Frost Crunch damage by 5–15%
+- Reduce mana cost of Flame Disruptor by 5–20%
+- Reduce mana cost of Fire Wall by 5–20%
+- Reduce mana cost of Thunder Bolt by 5–20%
+- Reduce mana cost of Ice Storm by 5–20%
+- Reduce mana cost of Flame Field by 5–20%
+- Reduce mana cost of Meteor Strike by 5–20%
+- Reduce mana cost of Blizzard by 5–20%
+- Increase Flame Disruptor crit chance by 2–12%
+- Increase Flame Disruptor crit damage by 5–25%
+- Increase Fire Wall crit chance by 2–12%
+- Increase Fire Wall crit damage by 5–25%
+- Increase Thunder Bolt crit chance by 2–12%
+- Increase Thunder Bolt crit damage by 5–25%
+- Increase Ice Storm crit chance by 2–12%
+- Increase Ice Storm crit damage by 5–25%
+- Increase Flame Field crit chance by 2–12%
+- Increase Flame Field crit damage by 5–25%
+- Increase Meteor Strike crit chance by 2–12%
+- Increase Meteor Strike crit damage by 5–25%
+- Increase Blizzard crit chance by 2–12%
+- Increase Blizzard crit damage by 5–25%
+- Increase Fire Ball crit chance by 2–12%
+- Increase Fire Ball crit damage by 5–25%
+- Increase Great Fire Ball crit chance by 2–12%
+- Increase Great Fire Ball crit damage by 5–25%
+- Increase Frost Crunch crit chance by 2–12%
+- Increase Frost Crunch crit damage by 5–25%
 - +5–20% Bonus XP
+- −3–12% Damage taken
+- +1–14% Crit Rate
+- +5–20% Crit Damage
+- +5–30% Skill leveling
 
 **Magic Robe (F)** (`magic-robe-f`)
 - +1–5 AC
 - +1–5 AMC
-- +1–5 DC
 - +1–3 MC
-- +1–3 SC
 - +10–100 HP (step 10)
 - +10–100 MP (step 10)
 - +1–3 Agi
+- Increase Flame Disruptor damage by 5–20%
+- Increase Fire Wall damage by 5–15%
+- Increase Thunder Bolt damage by 5–20%
+- Increase Ice Storm damage by 5–15%
+- Increase Flame Field damage by 5–15%
+- Increase Meteor Strike damage by 5–15%
+- Increase Blizzard damage by 5–15%
+- Increase Fire Ball damage by 5–20%
+- Increase Great Fire Ball damage by 5–20%
+- Increase Frost Crunch damage by 5–15%
+- Reduce mana cost of Flame Disruptor by 5–20%
+- Reduce mana cost of Fire Wall by 5–20%
+- Reduce mana cost of Thunder Bolt by 5–20%
+- Reduce mana cost of Ice Storm by 5–20%
+- Reduce mana cost of Flame Field by 5–20%
+- Reduce mana cost of Meteor Strike by 5–20%
+- Reduce mana cost of Blizzard by 5–20%
+- Increase Flame Disruptor crit chance by 2–12%
+- Increase Flame Disruptor crit damage by 5–25%
+- Increase Fire Wall crit chance by 2–12%
+- Increase Fire Wall crit damage by 5–25%
+- Increase Thunder Bolt crit chance by 2–12%
+- Increase Thunder Bolt crit damage by 5–25%
+- Increase Ice Storm crit chance by 2–12%
+- Increase Ice Storm crit damage by 5–25%
+- Increase Flame Field crit chance by 2–12%
+- Increase Flame Field crit damage by 5–25%
+- Increase Meteor Strike crit chance by 2–12%
+- Increase Meteor Strike crit damage by 5–25%
+- Increase Blizzard crit chance by 2–12%
+- Increase Blizzard crit damage by 5–25%
+- Increase Fire Ball crit chance by 2–12%
+- Increase Fire Ball crit damage by 5–25%
+- Increase Great Fire Ball crit chance by 2–12%
+- Increase Great Fire Ball crit damage by 5–25%
+- Increase Frost Crunch crit chance by 2–12%
+- Increase Frost Crunch crit damage by 5–25%
 - +5–20% Bonus XP
+- −3–12% Damage taken
+- +1–14% Crit Rate
+- +5–20% Crit Damage
+- +5–30% Skill leveling
 
 **Soul Armour** (`soul-armour`)
 - +1–5 AC
 - +1–5 AMC
 - +1–5 DC
-- +1–3 MC
 - +1–3 SC
 - +10–100 HP (step 10)
 - +10–100 MP (step 10)
 - +1–3 Agi
+- Increase Healing healing by 5–15%
+- Increase Mass Healing healing by 5–15%
+- Increase Soul Fire Ball damage by 5–20%
+- Increase Skeleton damage by 5–25%
+- Increase Skeleton health by 5–25%
+- Reduce Skeleton damage taken by 5–10%
+- Increase Shinsu damage by 5–25%
+- Increase Shinsu health by 5–25%
+- Reduce Shinsu damage taken by 5–10%
+- Increase Holy Deva damage by 5–25%
+- Increase Holy Deva health by 5–25%
+- Reduce Holy Deva damage taken by 5–10%
+- Increase Soul Fire Ball crit chance by 2–12%
+- Increase Soul Fire Ball crit damage by 5–25%
 - +5–20% Bonus XP
+- −3–12% Damage taken
+- +1–14% Crit Rate
+- +5–20% Crit Damage
+- +5–30% Skill leveling
 
 **Soul Armour (F)** (`soul-armour-f`)
 - +1–5 AC
 - +1–5 AMC
 - +1–5 DC
-- +1–3 MC
 - +1–3 SC
 - +10–100 HP (step 10)
 - +10–100 MP (step 10)
 - +1–3 Agi
+- Increase Healing healing by 5–15%
+- Increase Mass Healing healing by 5–15%
+- Increase Soul Fire Ball damage by 5–20%
+- Increase Skeleton damage by 5–25%
+- Increase Skeleton health by 5–25%
+- Reduce Skeleton damage taken by 5–10%
+- Increase Shinsu damage by 5–25%
+- Increase Shinsu health by 5–25%
+- Reduce Shinsu damage taken by 5–10%
+- Increase Holy Deva damage by 5–25%
+- Increase Holy Deva health by 5–25%
+- Reduce Holy Deva damage taken by 5–10%
+- Increase Soul Fire Ball crit chance by 2–12%
+- Increase Soul Fire Ball crit damage by 5–25%
 - +5–20% Bonus XP
+- −3–12% Damage taken
+- +1–14% Crit Rate
+- +5–20% Crit Damage
+- +5–30% Skill leveling
 
 **Fire Magic Robe (F)** (`fire-magic-robe-f`)
 - +1–5 AC
 - +1–5 AMC
-- +1–5 DC
 - +1–3 MC
-- +1–3 SC
 - +10–100 HP (step 10)
 - +10–100 MP (step 10)
 - +1–3 Agi
+- Increase Flame Disruptor damage by 5–20%
+- Increase Fire Wall damage by 5–15%
+- Increase Thunder Bolt damage by 5–20%
+- Increase Ice Storm damage by 5–15%
+- Increase Flame Field damage by 5–15%
+- Increase Meteor Strike damage by 5–15%
+- Increase Blizzard damage by 5–15%
+- Increase Fire Ball damage by 5–20%
+- Increase Great Fire Ball damage by 5–20%
+- Increase Frost Crunch damage by 5–15%
+- Reduce mana cost of Flame Disruptor by 5–20%
+- Reduce mana cost of Fire Wall by 5–20%
+- Reduce mana cost of Thunder Bolt by 5–20%
+- Reduce mana cost of Ice Storm by 5–20%
+- Reduce mana cost of Flame Field by 5–20%
+- Reduce mana cost of Meteor Strike by 5–20%
+- Reduce mana cost of Blizzard by 5–20%
+- Increase Flame Disruptor crit chance by 2–12%
+- Increase Flame Disruptor crit damage by 5–25%
+- Increase Fire Wall crit chance by 2–12%
+- Increase Fire Wall crit damage by 5–25%
+- Increase Thunder Bolt crit chance by 2–12%
+- Increase Thunder Bolt crit damage by 5–25%
+- Increase Ice Storm crit chance by 2–12%
+- Increase Ice Storm crit damage by 5–25%
+- Increase Flame Field crit chance by 2–12%
+- Increase Flame Field crit damage by 5–25%
+- Increase Meteor Strike crit chance by 2–12%
+- Increase Meteor Strike crit damage by 5–25%
+- Increase Blizzard crit chance by 2–12%
+- Increase Blizzard crit damage by 5–25%
+- Increase Fire Ball crit chance by 2–12%
+- Increase Fire Ball crit damage by 5–25%
+- Increase Great Fire Ball crit chance by 2–12%
+- Increase Great Fire Ball crit damage by 5–25%
+- Increase Frost Crunch crit chance by 2–12%
+- Increase Frost Crunch crit damage by 5–25%
 - +5–20% Bonus XP
+- −3–12% Damage taken
+- +1–14% Crit Rate
+- +5–20% Crit Damage
+- +5–30% Skill leveling
 
 **Fire Magic Robe (M)** (`fire-magic-robe`)
 - +1–5 AC
 - +1–5 AMC
-- +1–5 DC
 - +1–3 MC
-- +1–3 SC
 - +10–100 HP (step 10)
 - +10–100 MP (step 10)
 - +1–3 Agi
+- Increase Flame Disruptor damage by 5–20%
+- Increase Fire Wall damage by 5–15%
+- Increase Thunder Bolt damage by 5–20%
+- Increase Ice Storm damage by 5–15%
+- Increase Flame Field damage by 5–15%
+- Increase Meteor Strike damage by 5–15%
+- Increase Blizzard damage by 5–15%
+- Increase Fire Ball damage by 5–20%
+- Increase Great Fire Ball damage by 5–20%
+- Increase Frost Crunch damage by 5–15%
+- Reduce mana cost of Flame Disruptor by 5–20%
+- Reduce mana cost of Fire Wall by 5–20%
+- Reduce mana cost of Thunder Bolt by 5–20%
+- Reduce mana cost of Ice Storm by 5–20%
+- Reduce mana cost of Flame Field by 5–20%
+- Reduce mana cost of Meteor Strike by 5–20%
+- Reduce mana cost of Blizzard by 5–20%
+- Increase Flame Disruptor crit chance by 2–12%
+- Increase Flame Disruptor crit damage by 5–25%
+- Increase Fire Wall crit chance by 2–12%
+- Increase Fire Wall crit damage by 5–25%
+- Increase Thunder Bolt crit chance by 2–12%
+- Increase Thunder Bolt crit damage by 5–25%
+- Increase Ice Storm crit chance by 2–12%
+- Increase Ice Storm crit damage by 5–25%
+- Increase Flame Field crit chance by 2–12%
+- Increase Flame Field crit damage by 5–25%
+- Increase Meteor Strike crit chance by 2–12%
+- Increase Meteor Strike crit damage by 5–25%
+- Increase Blizzard crit chance by 2–12%
+- Increase Blizzard crit damage by 5–25%
+- Increase Fire Ball crit chance by 2–12%
+- Increase Fire Ball crit damage by 5–25%
+- Increase Great Fire Ball crit chance by 2–12%
+- Increase Great Fire Ball crit damage by 5–25%
+- Increase Frost Crunch crit chance by 2–12%
+- Increase Frost Crunch crit damage by 5–25%
 - +5–20% Bonus XP
+- −3–12% Damage taken
+- +1–14% Crit Rate
+- +5–20% Crit Damage
+- +5–30% Skill leveling
 
 **Tao Armour** (`tao-armour`)
 - +1–5 AC
 - +1–5 AMC
 - +1–5 DC
-- +1–3 MC
 - +1–3 SC
 - +10–100 HP (step 10)
 - +10–100 MP (step 10)
 - +1–3 Agi
+- Increase Healing healing by 5–15%
+- Increase Mass Healing healing by 5–15%
+- Increase Soul Fire Ball damage by 5–20%
+- Increase Skeleton damage by 5–25%
+- Increase Skeleton health by 5–25%
+- Reduce Skeleton damage taken by 5–10%
+- Increase Shinsu damage by 5–25%
+- Increase Shinsu health by 5–25%
+- Reduce Shinsu damage taken by 5–10%
+- Increase Holy Deva damage by 5–25%
+- Increase Holy Deva health by 5–25%
+- Reduce Holy Deva damage taken by 5–10%
+- Increase Soul Fire Ball crit chance by 2–12%
+- Increase Soul Fire Ball crit damage by 5–25%
 - +5–20% Bonus XP
+- −3–12% Damage taken
+- +1–14% Crit Rate
+- +5–20% Crit Damage
+- +5–30% Skill leveling
 
 **Tao Armour (F)** (`tao-armour-f`)
 - +1–5 AC
 - +1–5 AMC
 - +1–5 DC
-- +1–3 MC
 - +1–3 SC
 - +10–100 HP (step 10)
 - +10–100 MP (step 10)
 - +1–3 Agi
+- Increase Healing healing by 5–15%
+- Increase Mass Healing healing by 5–15%
+- Increase Soul Fire Ball damage by 5–20%
+- Increase Skeleton damage by 5–25%
+- Increase Skeleton health by 5–25%
+- Reduce Skeleton damage taken by 5–10%
+- Increase Shinsu damage by 5–25%
+- Increase Shinsu health by 5–25%
+- Reduce Shinsu damage taken by 5–10%
+- Increase Holy Deva damage by 5–25%
+- Increase Holy Deva health by 5–25%
+- Reduce Holy Deva damage taken by 5–10%
+- Increase Soul Fire Ball crit chance by 2–12%
+- Increase Soul Fire Ball crit damage by 5–25%
 - +5–20% Bonus XP
+- −3–12% Damage taken
+- +1–14% Crit Rate
+- +5–20% Crit Damage
+- +5–30% Skill leveling
 
 **Thick Armour (F)** (`thick-armour-f`)
 - +1–5 AC
@@ -454,7 +1549,81 @@ Grouped by slot. Weapons show their class and actual roll pool from `empowerCand
 - +10–100 HP (step 10)
 - +10–100 MP (step 10)
 - +1–3 Agi
+- Increase Slaying damage by 5–20%
+- Increase Flaming Sword damage by 5–15%
+- Reduce Flaming Sword cooldown by 1–3 seconds
+- Increase Twin Drake Blade damage by 5–15%
+- Reduce mana cost of Twin Drake Blade by 5–20%
+- Increase Blade Avalanche damage by 5–15%
+- Reduce mana cost of Blade Avalanche by 5–20%
+- Increase Slashing Burst damage by 5–15%
+- Reduce mana cost of Slashing Burst by 5–20%
+- Increase Flame Disruptor damage by 5–20%
+- Increase Fire Wall damage by 5–15%
+- Increase Thunder Bolt damage by 5–20%
+- Increase Ice Storm damage by 5–15%
+- Increase Flame Field damage by 5–15%
+- Increase Meteor Strike damage by 5–15%
+- Increase Blizzard damage by 5–15%
+- Increase Fire Ball damage by 5–20%
+- Increase Great Fire Ball damage by 5–20%
+- Increase Frost Crunch damage by 5–15%
+- Reduce mana cost of Flame Disruptor by 5–20%
+- Reduce mana cost of Fire Wall by 5–20%
+- Reduce mana cost of Thunder Bolt by 5–20%
+- Reduce mana cost of Ice Storm by 5–20%
+- Reduce mana cost of Flame Field by 5–20%
+- Reduce mana cost of Meteor Strike by 5–20%
+- Reduce mana cost of Blizzard by 5–20%
+- Increase Healing healing by 5–15%
+- Increase Mass Healing healing by 5–15%
+- Increase Soul Fire Ball damage by 5–20%
+- Increase Skeleton damage by 5–25%
+- Increase Skeleton health by 5–25%
+- Reduce Skeleton damage taken by 5–10%
+- Increase Shinsu damage by 5–25%
+- Increase Shinsu health by 5–25%
+- Reduce Shinsu damage taken by 5–10%
+- Increase Holy Deva damage by 5–25%
+- Increase Holy Deva health by 5–25%
+- Reduce Holy Deva damage taken by 5–10%
+- Increase Slaying crit chance by 2–12%
+- Increase Slaying crit damage by 5–25%
+- Increase Flaming Sword crit chance by 2–12%
+- Increase Flaming Sword crit damage by 5–25%
+- Increase Twin Drake Blade crit chance by 2–12%
+- Increase Twin Drake Blade crit damage by 5–25%
+- Increase Blade Avalanche crit chance by 2–12%
+- Increase Blade Avalanche crit damage by 5–25%
+- Increase Slashing Burst crit chance by 2–12%
+- Increase Slashing Burst crit damage by 5–25%
+- Increase Flame Disruptor crit chance by 2–12%
+- Increase Flame Disruptor crit damage by 5–25%
+- Increase Fire Wall crit chance by 2–12%
+- Increase Fire Wall crit damage by 5–25%
+- Increase Thunder Bolt crit chance by 2–12%
+- Increase Thunder Bolt crit damage by 5–25%
+- Increase Ice Storm crit chance by 2–12%
+- Increase Ice Storm crit damage by 5–25%
+- Increase Flame Field crit chance by 2–12%
+- Increase Flame Field crit damage by 5–25%
+- Increase Meteor Strike crit chance by 2–12%
+- Increase Meteor Strike crit damage by 5–25%
+- Increase Blizzard crit chance by 2–12%
+- Increase Blizzard crit damage by 5–25%
+- Increase Fire Ball crit chance by 2–12%
+- Increase Fire Ball crit damage by 5–25%
+- Increase Great Fire Ball crit chance by 2–12%
+- Increase Great Fire Ball crit damage by 5–25%
+- Increase Frost Crunch crit chance by 2–12%
+- Increase Frost Crunch crit damage by 5–25%
+- Increase Soul Fire Ball crit chance by 2–12%
+- Increase Soul Fire Ball crit damage by 5–25%
 - +5–20% Bonus XP
+- −3–12% Damage taken
+- +1–14% Crit Rate
+- +5–20% Crit Damage
+- +5–30% Skill leveling
 
 **Thick Armour (M)** (`thick-armour`)
 - +1–5 AC
@@ -465,7 +1634,81 @@ Grouped by slot. Weapons show their class and actual roll pool from `empowerCand
 - +10–100 HP (step 10)
 - +10–100 MP (step 10)
 - +1–3 Agi
+- Increase Slaying damage by 5–20%
+- Increase Flaming Sword damage by 5–15%
+- Reduce Flaming Sword cooldown by 1–3 seconds
+- Increase Twin Drake Blade damage by 5–15%
+- Reduce mana cost of Twin Drake Blade by 5–20%
+- Increase Blade Avalanche damage by 5–15%
+- Reduce mana cost of Blade Avalanche by 5–20%
+- Increase Slashing Burst damage by 5–15%
+- Reduce mana cost of Slashing Burst by 5–20%
+- Increase Flame Disruptor damage by 5–20%
+- Increase Fire Wall damage by 5–15%
+- Increase Thunder Bolt damage by 5–20%
+- Increase Ice Storm damage by 5–15%
+- Increase Flame Field damage by 5–15%
+- Increase Meteor Strike damage by 5–15%
+- Increase Blizzard damage by 5–15%
+- Increase Fire Ball damage by 5–20%
+- Increase Great Fire Ball damage by 5–20%
+- Increase Frost Crunch damage by 5–15%
+- Reduce mana cost of Flame Disruptor by 5–20%
+- Reduce mana cost of Fire Wall by 5–20%
+- Reduce mana cost of Thunder Bolt by 5–20%
+- Reduce mana cost of Ice Storm by 5–20%
+- Reduce mana cost of Flame Field by 5–20%
+- Reduce mana cost of Meteor Strike by 5–20%
+- Reduce mana cost of Blizzard by 5–20%
+- Increase Healing healing by 5–15%
+- Increase Mass Healing healing by 5–15%
+- Increase Soul Fire Ball damage by 5–20%
+- Increase Skeleton damage by 5–25%
+- Increase Skeleton health by 5–25%
+- Reduce Skeleton damage taken by 5–10%
+- Increase Shinsu damage by 5–25%
+- Increase Shinsu health by 5–25%
+- Reduce Shinsu damage taken by 5–10%
+- Increase Holy Deva damage by 5–25%
+- Increase Holy Deva health by 5–25%
+- Reduce Holy Deva damage taken by 5–10%
+- Increase Slaying crit chance by 2–12%
+- Increase Slaying crit damage by 5–25%
+- Increase Flaming Sword crit chance by 2–12%
+- Increase Flaming Sword crit damage by 5–25%
+- Increase Twin Drake Blade crit chance by 2–12%
+- Increase Twin Drake Blade crit damage by 5–25%
+- Increase Blade Avalanche crit chance by 2–12%
+- Increase Blade Avalanche crit damage by 5–25%
+- Increase Slashing Burst crit chance by 2–12%
+- Increase Slashing Burst crit damage by 5–25%
+- Increase Flame Disruptor crit chance by 2–12%
+- Increase Flame Disruptor crit damage by 5–25%
+- Increase Fire Wall crit chance by 2–12%
+- Increase Fire Wall crit damage by 5–25%
+- Increase Thunder Bolt crit chance by 2–12%
+- Increase Thunder Bolt crit damage by 5–25%
+- Increase Ice Storm crit chance by 2–12%
+- Increase Ice Storm crit damage by 5–25%
+- Increase Flame Field crit chance by 2–12%
+- Increase Flame Field crit damage by 5–25%
+- Increase Meteor Strike crit chance by 2–12%
+- Increase Meteor Strike crit damage by 5–25%
+- Increase Blizzard crit chance by 2–12%
+- Increase Blizzard crit damage by 5–25%
+- Increase Fire Ball crit chance by 2–12%
+- Increase Fire Ball crit damage by 5–25%
+- Increase Great Fire Ball crit chance by 2–12%
+- Increase Great Fire Ball crit damage by 5–25%
+- Increase Frost Crunch crit chance by 2–12%
+- Increase Frost Crunch crit damage by 5–25%
+- Increase Soul Fire Ball crit chance by 2–12%
+- Increase Soul Fire Ball crit damage by 5–25%
 - +5–20% Bonus XP
+- −3–12% Damage taken
+- +1–14% Crit Rate
+- +5–20% Crit Damage
+- +5–30% Skill leveling
 
 **Fine Iron Armour (F)** (`fine-iron-armour-f`)
 - +1–5 AC
@@ -476,7 +1719,81 @@ Grouped by slot. Weapons show their class and actual roll pool from `empowerCand
 - +10–100 HP (step 10)
 - +10–100 MP (step 10)
 - +1–3 Agi
+- Increase Slaying damage by 5–20%
+- Increase Flaming Sword damage by 5–15%
+- Reduce Flaming Sword cooldown by 1–3 seconds
+- Increase Twin Drake Blade damage by 5–15%
+- Reduce mana cost of Twin Drake Blade by 5–20%
+- Increase Blade Avalanche damage by 5–15%
+- Reduce mana cost of Blade Avalanche by 5–20%
+- Increase Slashing Burst damage by 5–15%
+- Reduce mana cost of Slashing Burst by 5–20%
+- Increase Flame Disruptor damage by 5–20%
+- Increase Fire Wall damage by 5–15%
+- Increase Thunder Bolt damage by 5–20%
+- Increase Ice Storm damage by 5–15%
+- Increase Flame Field damage by 5–15%
+- Increase Meteor Strike damage by 5–15%
+- Increase Blizzard damage by 5–15%
+- Increase Fire Ball damage by 5–20%
+- Increase Great Fire Ball damage by 5–20%
+- Increase Frost Crunch damage by 5–15%
+- Reduce mana cost of Flame Disruptor by 5–20%
+- Reduce mana cost of Fire Wall by 5–20%
+- Reduce mana cost of Thunder Bolt by 5–20%
+- Reduce mana cost of Ice Storm by 5–20%
+- Reduce mana cost of Flame Field by 5–20%
+- Reduce mana cost of Meteor Strike by 5–20%
+- Reduce mana cost of Blizzard by 5–20%
+- Increase Healing healing by 5–15%
+- Increase Mass Healing healing by 5–15%
+- Increase Soul Fire Ball damage by 5–20%
+- Increase Skeleton damage by 5–25%
+- Increase Skeleton health by 5–25%
+- Reduce Skeleton damage taken by 5–10%
+- Increase Shinsu damage by 5–25%
+- Increase Shinsu health by 5–25%
+- Reduce Shinsu damage taken by 5–10%
+- Increase Holy Deva damage by 5–25%
+- Increase Holy Deva health by 5–25%
+- Reduce Holy Deva damage taken by 5–10%
+- Increase Slaying crit chance by 2–12%
+- Increase Slaying crit damage by 5–25%
+- Increase Flaming Sword crit chance by 2–12%
+- Increase Flaming Sword crit damage by 5–25%
+- Increase Twin Drake Blade crit chance by 2–12%
+- Increase Twin Drake Blade crit damage by 5–25%
+- Increase Blade Avalanche crit chance by 2–12%
+- Increase Blade Avalanche crit damage by 5–25%
+- Increase Slashing Burst crit chance by 2–12%
+- Increase Slashing Burst crit damage by 5–25%
+- Increase Flame Disruptor crit chance by 2–12%
+- Increase Flame Disruptor crit damage by 5–25%
+- Increase Fire Wall crit chance by 2–12%
+- Increase Fire Wall crit damage by 5–25%
+- Increase Thunder Bolt crit chance by 2–12%
+- Increase Thunder Bolt crit damage by 5–25%
+- Increase Ice Storm crit chance by 2–12%
+- Increase Ice Storm crit damage by 5–25%
+- Increase Flame Field crit chance by 2–12%
+- Increase Flame Field crit damage by 5–25%
+- Increase Meteor Strike crit chance by 2–12%
+- Increase Meteor Strike crit damage by 5–25%
+- Increase Blizzard crit chance by 2–12%
+- Increase Blizzard crit damage by 5–25%
+- Increase Fire Ball crit chance by 2–12%
+- Increase Fire Ball crit damage by 5–25%
+- Increase Great Fire Ball crit chance by 2–12%
+- Increase Great Fire Ball crit damage by 5–25%
+- Increase Frost Crunch crit chance by 2–12%
+- Increase Frost Crunch crit damage by 5–25%
+- Increase Soul Fire Ball crit chance by 2–12%
+- Increase Soul Fire Ball crit damage by 5–25%
 - +5–20% Bonus XP
+- −3–12% Damage taken
+- +1–14% Crit Rate
+- +5–20% Crit Damage
+- +5–30% Skill leveling
 
 **Fine Iron Armour (M)** (`fine-iron-armour`)
 - +1–5 AC
@@ -487,29 +1804,181 @@ Grouped by slot. Weapons show their class and actual roll pool from `empowerCand
 - +10–100 HP (step 10)
 - +10–100 MP (step 10)
 - +1–3 Agi
+- Increase Slaying damage by 5–20%
+- Increase Flaming Sword damage by 5–15%
+- Reduce Flaming Sword cooldown by 1–3 seconds
+- Increase Twin Drake Blade damage by 5–15%
+- Reduce mana cost of Twin Drake Blade by 5–20%
+- Increase Blade Avalanche damage by 5–15%
+- Reduce mana cost of Blade Avalanche by 5–20%
+- Increase Slashing Burst damage by 5–15%
+- Reduce mana cost of Slashing Burst by 5–20%
+- Increase Flame Disruptor damage by 5–20%
+- Increase Fire Wall damage by 5–15%
+- Increase Thunder Bolt damage by 5–20%
+- Increase Ice Storm damage by 5–15%
+- Increase Flame Field damage by 5–15%
+- Increase Meteor Strike damage by 5–15%
+- Increase Blizzard damage by 5–15%
+- Increase Fire Ball damage by 5–20%
+- Increase Great Fire Ball damage by 5–20%
+- Increase Frost Crunch damage by 5–15%
+- Reduce mana cost of Flame Disruptor by 5–20%
+- Reduce mana cost of Fire Wall by 5–20%
+- Reduce mana cost of Thunder Bolt by 5–20%
+- Reduce mana cost of Ice Storm by 5–20%
+- Reduce mana cost of Flame Field by 5–20%
+- Reduce mana cost of Meteor Strike by 5–20%
+- Reduce mana cost of Blizzard by 5–20%
+- Increase Healing healing by 5–15%
+- Increase Mass Healing healing by 5–15%
+- Increase Soul Fire Ball damage by 5–20%
+- Increase Skeleton damage by 5–25%
+- Increase Skeleton health by 5–25%
+- Reduce Skeleton damage taken by 5–10%
+- Increase Shinsu damage by 5–25%
+- Increase Shinsu health by 5–25%
+- Reduce Shinsu damage taken by 5–10%
+- Increase Holy Deva damage by 5–25%
+- Increase Holy Deva health by 5–25%
+- Reduce Holy Deva damage taken by 5–10%
+- Increase Slaying crit chance by 2–12%
+- Increase Slaying crit damage by 5–25%
+- Increase Flaming Sword crit chance by 2–12%
+- Increase Flaming Sword crit damage by 5–25%
+- Increase Twin Drake Blade crit chance by 2–12%
+- Increase Twin Drake Blade crit damage by 5–25%
+- Increase Blade Avalanche crit chance by 2–12%
+- Increase Blade Avalanche crit damage by 5–25%
+- Increase Slashing Burst crit chance by 2–12%
+- Increase Slashing Burst crit damage by 5–25%
+- Increase Flame Disruptor crit chance by 2–12%
+- Increase Flame Disruptor crit damage by 5–25%
+- Increase Fire Wall crit chance by 2–12%
+- Increase Fire Wall crit damage by 5–25%
+- Increase Thunder Bolt crit chance by 2–12%
+- Increase Thunder Bolt crit damage by 5–25%
+- Increase Ice Storm crit chance by 2–12%
+- Increase Ice Storm crit damage by 5–25%
+- Increase Flame Field crit chance by 2–12%
+- Increase Flame Field crit damage by 5–25%
+- Increase Meteor Strike crit chance by 2–12%
+- Increase Meteor Strike crit damage by 5–25%
+- Increase Blizzard crit chance by 2–12%
+- Increase Blizzard crit damage by 5–25%
+- Increase Fire Ball crit chance by 2–12%
+- Increase Fire Ball crit damage by 5–25%
+- Increase Great Fire Ball crit chance by 2–12%
+- Increase Great Fire Ball crit damage by 5–25%
+- Increase Frost Crunch crit chance by 2–12%
+- Increase Frost Crunch crit damage by 5–25%
+- Increase Soul Fire Ball crit chance by 2–12%
+- Increase Soul Fire Ball crit damage by 5–25%
 - +5–20% Bonus XP
+- −3–12% Damage taken
+- +1–14% Crit Rate
+- +5–20% Crit Damage
+- +5–30% Skill leveling
 
 **Fire Robe (F)** (`fire-robe-f`)
 - +1–5 AC
 - +1–5 AMC
-- +1–5 DC
 - +1–3 MC
-- +1–3 SC
 - +10–100 HP (step 10)
 - +10–100 MP (step 10)
 - +1–3 Agi
+- Increase Flame Disruptor damage by 5–20%
+- Increase Fire Wall damage by 5–15%
+- Increase Thunder Bolt damage by 5–20%
+- Increase Ice Storm damage by 5–15%
+- Increase Flame Field damage by 5–15%
+- Increase Meteor Strike damage by 5–15%
+- Increase Blizzard damage by 5–15%
+- Increase Fire Ball damage by 5–20%
+- Increase Great Fire Ball damage by 5–20%
+- Increase Frost Crunch damage by 5–15%
+- Reduce mana cost of Flame Disruptor by 5–20%
+- Reduce mana cost of Fire Wall by 5–20%
+- Reduce mana cost of Thunder Bolt by 5–20%
+- Reduce mana cost of Ice Storm by 5–20%
+- Reduce mana cost of Flame Field by 5–20%
+- Reduce mana cost of Meteor Strike by 5–20%
+- Reduce mana cost of Blizzard by 5–20%
+- Increase Flame Disruptor crit chance by 2–12%
+- Increase Flame Disruptor crit damage by 5–25%
+- Increase Fire Wall crit chance by 2–12%
+- Increase Fire Wall crit damage by 5–25%
+- Increase Thunder Bolt crit chance by 2–12%
+- Increase Thunder Bolt crit damage by 5–25%
+- Increase Ice Storm crit chance by 2–12%
+- Increase Ice Storm crit damage by 5–25%
+- Increase Flame Field crit chance by 2–12%
+- Increase Flame Field crit damage by 5–25%
+- Increase Meteor Strike crit chance by 2–12%
+- Increase Meteor Strike crit damage by 5–25%
+- Increase Blizzard crit chance by 2–12%
+- Increase Blizzard crit damage by 5–25%
+- Increase Fire Ball crit chance by 2–12%
+- Increase Fire Ball crit damage by 5–25%
+- Increase Great Fire Ball crit chance by 2–12%
+- Increase Great Fire Ball crit damage by 5–25%
+- Increase Frost Crunch crit chance by 2–12%
+- Increase Frost Crunch crit damage by 5–25%
 - +5–20% Bonus XP
+- −3–12% Damage taken
+- +1–14% Crit Rate
+- +5–20% Crit Damage
+- +5–30% Skill leveling
 
 **Fire Robe (M)** (`fire-robe`)
 - +1–5 AC
 - +1–5 AMC
-- +1–5 DC
 - +1–3 MC
-- +1–3 SC
 - +10–100 HP (step 10)
 - +10–100 MP (step 10)
 - +1–3 Agi
+- Increase Flame Disruptor damage by 5–20%
+- Increase Fire Wall damage by 5–15%
+- Increase Thunder Bolt damage by 5–20%
+- Increase Ice Storm damage by 5–15%
+- Increase Flame Field damage by 5–15%
+- Increase Meteor Strike damage by 5–15%
+- Increase Blizzard damage by 5–15%
+- Increase Fire Ball damage by 5–20%
+- Increase Great Fire Ball damage by 5–20%
+- Increase Frost Crunch damage by 5–15%
+- Reduce mana cost of Flame Disruptor by 5–20%
+- Reduce mana cost of Fire Wall by 5–20%
+- Reduce mana cost of Thunder Bolt by 5–20%
+- Reduce mana cost of Ice Storm by 5–20%
+- Reduce mana cost of Flame Field by 5–20%
+- Reduce mana cost of Meteor Strike by 5–20%
+- Reduce mana cost of Blizzard by 5–20%
+- Increase Flame Disruptor crit chance by 2–12%
+- Increase Flame Disruptor crit damage by 5–25%
+- Increase Fire Wall crit chance by 2–12%
+- Increase Fire Wall crit damage by 5–25%
+- Increase Thunder Bolt crit chance by 2–12%
+- Increase Thunder Bolt crit damage by 5–25%
+- Increase Ice Storm crit chance by 2–12%
+- Increase Ice Storm crit damage by 5–25%
+- Increase Flame Field crit chance by 2–12%
+- Increase Flame Field crit damage by 5–25%
+- Increase Meteor Strike crit chance by 2–12%
+- Increase Meteor Strike crit damage by 5–25%
+- Increase Blizzard crit chance by 2–12%
+- Increase Blizzard crit damage by 5–25%
+- Increase Fire Ball crit chance by 2–12%
+- Increase Fire Ball crit damage by 5–25%
+- Increase Great Fire Ball crit chance by 2–12%
+- Increase Great Fire Ball crit damage by 5–25%
+- Increase Frost Crunch crit chance by 2–12%
+- Increase Frost Crunch crit damage by 5–25%
 - +5–20% Bonus XP
+- −3–12% Damage taken
+- +1–14% Crit Rate
+- +5–20% Crit Damage
+- +5–30% Skill leveling
 
 **Iron Armour** (`iron-armour`)
 - +1–5 AC
@@ -520,7 +1989,81 @@ Grouped by slot. Weapons show their class and actual roll pool from `empowerCand
 - +10–100 HP (step 10)
 - +10–100 MP (step 10)
 - +1–3 Agi
+- Increase Slaying damage by 5–20%
+- Increase Flaming Sword damage by 5–15%
+- Reduce Flaming Sword cooldown by 1–3 seconds
+- Increase Twin Drake Blade damage by 5–15%
+- Reduce mana cost of Twin Drake Blade by 5–20%
+- Increase Blade Avalanche damage by 5–15%
+- Reduce mana cost of Blade Avalanche by 5–20%
+- Increase Slashing Burst damage by 5–15%
+- Reduce mana cost of Slashing Burst by 5–20%
+- Increase Flame Disruptor damage by 5–20%
+- Increase Fire Wall damage by 5–15%
+- Increase Thunder Bolt damage by 5–20%
+- Increase Ice Storm damage by 5–15%
+- Increase Flame Field damage by 5–15%
+- Increase Meteor Strike damage by 5–15%
+- Increase Blizzard damage by 5–15%
+- Increase Fire Ball damage by 5–20%
+- Increase Great Fire Ball damage by 5–20%
+- Increase Frost Crunch damage by 5–15%
+- Reduce mana cost of Flame Disruptor by 5–20%
+- Reduce mana cost of Fire Wall by 5–20%
+- Reduce mana cost of Thunder Bolt by 5–20%
+- Reduce mana cost of Ice Storm by 5–20%
+- Reduce mana cost of Flame Field by 5–20%
+- Reduce mana cost of Meteor Strike by 5–20%
+- Reduce mana cost of Blizzard by 5–20%
+- Increase Healing healing by 5–15%
+- Increase Mass Healing healing by 5–15%
+- Increase Soul Fire Ball damage by 5–20%
+- Increase Skeleton damage by 5–25%
+- Increase Skeleton health by 5–25%
+- Reduce Skeleton damage taken by 5–10%
+- Increase Shinsu damage by 5–25%
+- Increase Shinsu health by 5–25%
+- Reduce Shinsu damage taken by 5–10%
+- Increase Holy Deva damage by 5–25%
+- Increase Holy Deva health by 5–25%
+- Reduce Holy Deva damage taken by 5–10%
+- Increase Slaying crit chance by 2–12%
+- Increase Slaying crit damage by 5–25%
+- Increase Flaming Sword crit chance by 2–12%
+- Increase Flaming Sword crit damage by 5–25%
+- Increase Twin Drake Blade crit chance by 2–12%
+- Increase Twin Drake Blade crit damage by 5–25%
+- Increase Blade Avalanche crit chance by 2–12%
+- Increase Blade Avalanche crit damage by 5–25%
+- Increase Slashing Burst crit chance by 2–12%
+- Increase Slashing Burst crit damage by 5–25%
+- Increase Flame Disruptor crit chance by 2–12%
+- Increase Flame Disruptor crit damage by 5–25%
+- Increase Fire Wall crit chance by 2–12%
+- Increase Fire Wall crit damage by 5–25%
+- Increase Thunder Bolt crit chance by 2–12%
+- Increase Thunder Bolt crit damage by 5–25%
+- Increase Ice Storm crit chance by 2–12%
+- Increase Ice Storm crit damage by 5–25%
+- Increase Flame Field crit chance by 2–12%
+- Increase Flame Field crit damage by 5–25%
+- Increase Meteor Strike crit chance by 2–12%
+- Increase Meteor Strike crit damage by 5–25%
+- Increase Blizzard crit chance by 2–12%
+- Increase Blizzard crit damage by 5–25%
+- Increase Fire Ball crit chance by 2–12%
+- Increase Fire Ball crit damage by 5–25%
+- Increase Great Fire Ball crit chance by 2–12%
+- Increase Great Fire Ball crit damage by 5–25%
+- Increase Frost Crunch crit chance by 2–12%
+- Increase Frost Crunch crit damage by 5–25%
+- Increase Soul Fire Ball crit chance by 2–12%
+- Increase Soul Fire Ball crit damage by 5–25%
 - +5–20% Bonus XP
+- −3–12% Damage taken
+- +1–14% Crit Rate
+- +5–20% Crit Damage
+- +5–30% Skill leveling
 
 **Iron Armour (F)** (`iron-armour-f`)
 - +1–5 AC
@@ -531,73 +2074,293 @@ Grouped by slot. Weapons show their class and actual roll pool from `empowerCand
 - +10–100 HP (step 10)
 - +10–100 MP (step 10)
 - +1–3 Agi
+- Increase Slaying damage by 5–20%
+- Increase Flaming Sword damage by 5–15%
+- Reduce Flaming Sword cooldown by 1–3 seconds
+- Increase Twin Drake Blade damage by 5–15%
+- Reduce mana cost of Twin Drake Blade by 5–20%
+- Increase Blade Avalanche damage by 5–15%
+- Reduce mana cost of Blade Avalanche by 5–20%
+- Increase Slashing Burst damage by 5–15%
+- Reduce mana cost of Slashing Burst by 5–20%
+- Increase Flame Disruptor damage by 5–20%
+- Increase Fire Wall damage by 5–15%
+- Increase Thunder Bolt damage by 5–20%
+- Increase Ice Storm damage by 5–15%
+- Increase Flame Field damage by 5–15%
+- Increase Meteor Strike damage by 5–15%
+- Increase Blizzard damage by 5–15%
+- Increase Fire Ball damage by 5–20%
+- Increase Great Fire Ball damage by 5–20%
+- Increase Frost Crunch damage by 5–15%
+- Reduce mana cost of Flame Disruptor by 5–20%
+- Reduce mana cost of Fire Wall by 5–20%
+- Reduce mana cost of Thunder Bolt by 5–20%
+- Reduce mana cost of Ice Storm by 5–20%
+- Reduce mana cost of Flame Field by 5–20%
+- Reduce mana cost of Meteor Strike by 5–20%
+- Reduce mana cost of Blizzard by 5–20%
+- Increase Healing healing by 5–15%
+- Increase Mass Healing healing by 5–15%
+- Increase Soul Fire Ball damage by 5–20%
+- Increase Skeleton damage by 5–25%
+- Increase Skeleton health by 5–25%
+- Reduce Skeleton damage taken by 5–10%
+- Increase Shinsu damage by 5–25%
+- Increase Shinsu health by 5–25%
+- Reduce Shinsu damage taken by 5–10%
+- Increase Holy Deva damage by 5–25%
+- Increase Holy Deva health by 5–25%
+- Reduce Holy Deva damage taken by 5–10%
+- Increase Slaying crit chance by 2–12%
+- Increase Slaying crit damage by 5–25%
+- Increase Flaming Sword crit chance by 2–12%
+- Increase Flaming Sword crit damage by 5–25%
+- Increase Twin Drake Blade crit chance by 2–12%
+- Increase Twin Drake Blade crit damage by 5–25%
+- Increase Blade Avalanche crit chance by 2–12%
+- Increase Blade Avalanche crit damage by 5–25%
+- Increase Slashing Burst crit chance by 2–12%
+- Increase Slashing Burst crit damage by 5–25%
+- Increase Flame Disruptor crit chance by 2–12%
+- Increase Flame Disruptor crit damage by 5–25%
+- Increase Fire Wall crit chance by 2–12%
+- Increase Fire Wall crit damage by 5–25%
+- Increase Thunder Bolt crit chance by 2–12%
+- Increase Thunder Bolt crit damage by 5–25%
+- Increase Ice Storm crit chance by 2–12%
+- Increase Ice Storm crit damage by 5–25%
+- Increase Flame Field crit chance by 2–12%
+- Increase Flame Field crit damage by 5–25%
+- Increase Meteor Strike crit chance by 2–12%
+- Increase Meteor Strike crit damage by 5–25%
+- Increase Blizzard crit chance by 2–12%
+- Increase Blizzard crit damage by 5–25%
+- Increase Fire Ball crit chance by 2–12%
+- Increase Fire Ball crit damage by 5–25%
+- Increase Great Fire Ball crit chance by 2–12%
+- Increase Great Fire Ball crit damage by 5–25%
+- Increase Frost Crunch crit chance by 2–12%
+- Increase Frost Crunch crit damage by 5–25%
+- Increase Soul Fire Ball crit chance by 2–12%
+- Increase Soul Fire Ball crit damage by 5–25%
 - +5–20% Bonus XP
+- −3–12% Damage taken
+- +1–14% Crit Rate
+- +5–20% Crit Damage
+- +5–30% Skill leveling
 
 **Pearl Armour** (`pearl-armour`)
 - +1–5 AC
 - +1–5 AMC
 - +1–5 DC
-- +1–3 MC
 - +1–3 SC
 - +10–100 HP (step 10)
 - +10–100 MP (step 10)
 - +1–3 Agi
+- Increase Healing healing by 5–15%
+- Increase Mass Healing healing by 5–15%
+- Increase Soul Fire Ball damage by 5–20%
+- Increase Skeleton damage by 5–25%
+- Increase Skeleton health by 5–25%
+- Reduce Skeleton damage taken by 5–10%
+- Increase Shinsu damage by 5–25%
+- Increase Shinsu health by 5–25%
+- Reduce Shinsu damage taken by 5–10%
+- Increase Holy Deva damage by 5–25%
+- Increase Holy Deva health by 5–25%
+- Reduce Holy Deva damage taken by 5–10%
+- Increase Soul Fire Ball crit chance by 2–12%
+- Increase Soul Fire Ball crit damage by 5–25%
 - +5–20% Bonus XP
+- −3–12% Damage taken
+- +1–14% Crit Rate
+- +5–20% Crit Damage
+- +5–30% Skill leveling
 
 **Pearl Armour (F)** (`pearl-armour-f`)
 - +1–5 AC
 - +1–5 AMC
 - +1–5 DC
-- +1–3 MC
 - +1–3 SC
 - +10–100 HP (step 10)
 - +10–100 MP (step 10)
 - +1–3 Agi
+- Increase Healing healing by 5–15%
+- Increase Mass Healing healing by 5–15%
+- Increase Soul Fire Ball damage by 5–20%
+- Increase Skeleton damage by 5–25%
+- Increase Skeleton health by 5–25%
+- Reduce Skeleton damage taken by 5–10%
+- Increase Shinsu damage by 5–25%
+- Increase Shinsu health by 5–25%
+- Reduce Shinsu damage taken by 5–10%
+- Increase Holy Deva damage by 5–25%
+- Increase Holy Deva health by 5–25%
+- Reduce Holy Deva damage taken by 5–10%
+- Increase Soul Fire Ball crit chance by 2–12%
+- Increase Soul Fire Ball crit damage by 5–25%
 - +5–20% Bonus XP
+- −3–12% Damage taken
+- +1–14% Crit Rate
+- +5–20% Crit Damage
+- +5–30% Skill leveling
 
 **Witch Robe (F)** (`witch-robe-f`)
 - +1–5 AC
 - +1–5 AMC
-- +1–5 DC
 - +1–3 MC
-- +1–3 SC
 - +10–100 HP (step 10)
 - +10–100 MP (step 10)
 - +1–3 Agi
+- Increase Flame Disruptor damage by 5–20%
+- Increase Fire Wall damage by 5–15%
+- Increase Thunder Bolt damage by 5–20%
+- Increase Ice Storm damage by 5–15%
+- Increase Flame Field damage by 5–15%
+- Increase Meteor Strike damage by 5–15%
+- Increase Blizzard damage by 5–15%
+- Increase Fire Ball damage by 5–20%
+- Increase Great Fire Ball damage by 5–20%
+- Increase Frost Crunch damage by 5–15%
+- Reduce mana cost of Flame Disruptor by 5–20%
+- Reduce mana cost of Fire Wall by 5–20%
+- Reduce mana cost of Thunder Bolt by 5–20%
+- Reduce mana cost of Ice Storm by 5–20%
+- Reduce mana cost of Flame Field by 5–20%
+- Reduce mana cost of Meteor Strike by 5–20%
+- Reduce mana cost of Blizzard by 5–20%
+- Increase Flame Disruptor crit chance by 2–12%
+- Increase Flame Disruptor crit damage by 5–25%
+- Increase Fire Wall crit chance by 2–12%
+- Increase Fire Wall crit damage by 5–25%
+- Increase Thunder Bolt crit chance by 2–12%
+- Increase Thunder Bolt crit damage by 5–25%
+- Increase Ice Storm crit chance by 2–12%
+- Increase Ice Storm crit damage by 5–25%
+- Increase Flame Field crit chance by 2–12%
+- Increase Flame Field crit damage by 5–25%
+- Increase Meteor Strike crit chance by 2–12%
+- Increase Meteor Strike crit damage by 5–25%
+- Increase Blizzard crit chance by 2–12%
+- Increase Blizzard crit damage by 5–25%
+- Increase Fire Ball crit chance by 2–12%
+- Increase Fire Ball crit damage by 5–25%
+- Increase Great Fire Ball crit chance by 2–12%
+- Increase Great Fire Ball crit damage by 5–25%
+- Increase Frost Crunch crit chance by 2–12%
+- Increase Frost Crunch crit damage by 5–25%
 - +5–20% Bonus XP
+- −3–12% Damage taken
+- +1–14% Crit Rate
+- +5–20% Crit Damage
+- +5–30% Skill leveling
 
 **Wizard Robe** (`wizard-robe`)
 - +1–5 AC
 - +1–5 AMC
-- +1–5 DC
 - +1–3 MC
-- +1–3 SC
 - +10–100 HP (step 10)
 - +10–100 MP (step 10)
 - +1–3 Agi
+- Increase Flame Disruptor damage by 5–20%
+- Increase Fire Wall damage by 5–15%
+- Increase Thunder Bolt damage by 5–20%
+- Increase Ice Storm damage by 5–15%
+- Increase Flame Field damage by 5–15%
+- Increase Meteor Strike damage by 5–15%
+- Increase Blizzard damage by 5–15%
+- Increase Fire Ball damage by 5–20%
+- Increase Great Fire Ball damage by 5–20%
+- Increase Frost Crunch damage by 5–15%
+- Reduce mana cost of Flame Disruptor by 5–20%
+- Reduce mana cost of Fire Wall by 5–20%
+- Reduce mana cost of Thunder Bolt by 5–20%
+- Reduce mana cost of Ice Storm by 5–20%
+- Reduce mana cost of Flame Field by 5–20%
+- Reduce mana cost of Meteor Strike by 5–20%
+- Reduce mana cost of Blizzard by 5–20%
+- Increase Flame Disruptor crit chance by 2–12%
+- Increase Flame Disruptor crit damage by 5–25%
+- Increase Fire Wall crit chance by 2–12%
+- Increase Fire Wall crit damage by 5–25%
+- Increase Thunder Bolt crit chance by 2–12%
+- Increase Thunder Bolt crit damage by 5–25%
+- Increase Ice Storm crit chance by 2–12%
+- Increase Ice Storm crit damage by 5–25%
+- Increase Flame Field crit chance by 2–12%
+- Increase Flame Field crit damage by 5–25%
+- Increase Meteor Strike crit chance by 2–12%
+- Increase Meteor Strike crit damage by 5–25%
+- Increase Blizzard crit chance by 2–12%
+- Increase Blizzard crit damage by 5–25%
+- Increase Fire Ball crit chance by 2–12%
+- Increase Fire Ball crit damage by 5–25%
+- Increase Great Fire Ball crit chance by 2–12%
+- Increase Great Fire Ball crit damage by 5–25%
+- Increase Frost Crunch crit chance by 2–12%
+- Increase Frost Crunch crit damage by 5–25%
 - +5–20% Bonus XP
+- −3–12% Damage taken
+- +1–14% Crit Rate
+- +5–20% Crit Damage
+- +5–30% Skill leveling
 
 **Ying Yang Robe (F)** (`ying-yang-robe-f`)
 - +1–5 AC
 - +1–5 AMC
 - +1–5 DC
-- +1–3 MC
 - +1–3 SC
 - +10–100 HP (step 10)
 - +10–100 MP (step 10)
 - +1–3 Agi
+- Increase Healing healing by 5–15%
+- Increase Mass Healing healing by 5–15%
+- Increase Soul Fire Ball damage by 5–20%
+- Increase Skeleton damage by 5–25%
+- Increase Skeleton health by 5–25%
+- Reduce Skeleton damage taken by 5–10%
+- Increase Shinsu damage by 5–25%
+- Increase Shinsu health by 5–25%
+- Reduce Shinsu damage taken by 5–10%
+- Increase Holy Deva damage by 5–25%
+- Increase Holy Deva health by 5–25%
+- Reduce Holy Deva damage taken by 5–10%
+- Increase Soul Fire Ball crit chance by 2–12%
+- Increase Soul Fire Ball crit damage by 5–25%
 - +5–20% Bonus XP
+- −3–12% Damage taken
+- +1–14% Crit Rate
+- +5–20% Crit Damage
+- +5–30% Skill leveling
 
 **Ying Yang Robe (M)** (`ying-yang-robe`)
 - +1–5 AC
 - +1–5 AMC
 - +1–5 DC
-- +1–3 MC
 - +1–3 SC
 - +10–100 HP (step 10)
 - +10–100 MP (step 10)
 - +1–3 Agi
+- Increase Healing healing by 5–15%
+- Increase Mass Healing healing by 5–15%
+- Increase Soul Fire Ball damage by 5–20%
+- Increase Skeleton damage by 5–25%
+- Increase Skeleton health by 5–25%
+- Reduce Skeleton damage taken by 5–10%
+- Increase Shinsu damage by 5–25%
+- Increase Shinsu health by 5–25%
+- Reduce Shinsu damage taken by 5–10%
+- Increase Holy Deva damage by 5–25%
+- Increase Holy Deva health by 5–25%
+- Reduce Holy Deva damage taken by 5–10%
+- Increase Soul Fire Ball crit chance by 2–12%
+- Increase Soul Fire Ball crit damage by 5–25%
 - +5–20% Bonus XP
+- −3–12% Damage taken
+- +1–14% Crit Rate
+- +5–20% Crit Damage
+- +5–30% Skill leveling
 
 **Black Dragon Armor (F)1** (`black-dragon-armor-f-1`)
 - +1–5 AC
@@ -608,29 +2371,159 @@ Grouped by slot. Weapons show their class and actual roll pool from `empowerCand
 - +10–100 HP (step 10)
 - +10–100 MP (step 10)
 - +1–3 Agi
+- Increase Slaying damage by 5–20%
+- Increase Flaming Sword damage by 5–15%
+- Reduce Flaming Sword cooldown by 1–3 seconds
+- Increase Twin Drake Blade damage by 5–15%
+- Reduce mana cost of Twin Drake Blade by 5–20%
+- Increase Blade Avalanche damage by 5–15%
+- Reduce mana cost of Blade Avalanche by 5–20%
+- Increase Slashing Burst damage by 5–15%
+- Reduce mana cost of Slashing Burst by 5–20%
+- Increase Flame Disruptor damage by 5–20%
+- Increase Fire Wall damage by 5–15%
+- Increase Thunder Bolt damage by 5–20%
+- Increase Ice Storm damage by 5–15%
+- Increase Flame Field damage by 5–15%
+- Increase Meteor Strike damage by 5–15%
+- Increase Blizzard damage by 5–15%
+- Increase Fire Ball damage by 5–20%
+- Increase Great Fire Ball damage by 5–20%
+- Increase Frost Crunch damage by 5–15%
+- Reduce mana cost of Flame Disruptor by 5–20%
+- Reduce mana cost of Fire Wall by 5–20%
+- Reduce mana cost of Thunder Bolt by 5–20%
+- Reduce mana cost of Ice Storm by 5–20%
+- Reduce mana cost of Flame Field by 5–20%
+- Reduce mana cost of Meteor Strike by 5–20%
+- Reduce mana cost of Blizzard by 5–20%
+- Increase Healing healing by 5–15%
+- Increase Mass Healing healing by 5–15%
+- Increase Soul Fire Ball damage by 5–20%
+- Increase Skeleton damage by 5–25%
+- Increase Skeleton health by 5–25%
+- Reduce Skeleton damage taken by 5–10%
+- Increase Shinsu damage by 5–25%
+- Increase Shinsu health by 5–25%
+- Reduce Shinsu damage taken by 5–10%
+- Increase Holy Deva damage by 5–25%
+- Increase Holy Deva health by 5–25%
+- Reduce Holy Deva damage taken by 5–10%
+- Increase Slaying crit chance by 2–12%
+- Increase Slaying crit damage by 5–25%
+- Increase Flaming Sword crit chance by 2–12%
+- Increase Flaming Sword crit damage by 5–25%
+- Increase Twin Drake Blade crit chance by 2–12%
+- Increase Twin Drake Blade crit damage by 5–25%
+- Increase Blade Avalanche crit chance by 2–12%
+- Increase Blade Avalanche crit damage by 5–25%
+- Increase Slashing Burst crit chance by 2–12%
+- Increase Slashing Burst crit damage by 5–25%
+- Increase Flame Disruptor crit chance by 2–12%
+- Increase Flame Disruptor crit damage by 5–25%
+- Increase Fire Wall crit chance by 2–12%
+- Increase Fire Wall crit damage by 5–25%
+- Increase Thunder Bolt crit chance by 2–12%
+- Increase Thunder Bolt crit damage by 5–25%
+- Increase Ice Storm crit chance by 2–12%
+- Increase Ice Storm crit damage by 5–25%
+- Increase Flame Field crit chance by 2–12%
+- Increase Flame Field crit damage by 5–25%
+- Increase Meteor Strike crit chance by 2–12%
+- Increase Meteor Strike crit damage by 5–25%
+- Increase Blizzard crit chance by 2–12%
+- Increase Blizzard crit damage by 5–25%
+- Increase Fire Ball crit chance by 2–12%
+- Increase Fire Ball crit damage by 5–25%
+- Increase Great Fire Ball crit chance by 2–12%
+- Increase Great Fire Ball crit damage by 5–25%
+- Increase Frost Crunch crit chance by 2–12%
+- Increase Frost Crunch crit damage by 5–25%
+- Increase Soul Fire Ball crit chance by 2–12%
+- Increase Soul Fire Ball crit damage by 5–25%
 - +5–20% Bonus XP
+- −3–12% Damage taken
+- +1–14% Crit Rate
+- +5–20% Crit Damage
+- +5–30% Skill leveling
 
 **Black Dragon Armor (F)2** (`black-dragon-armor-f-2`)
 - +1–5 AC
 - +1–5 AMC
-- +1–5 DC
 - +1–3 MC
-- +1–3 SC
 - +10–100 HP (step 10)
 - +10–100 MP (step 10)
 - +1–3 Agi
+- Increase Flame Disruptor damage by 5–20%
+- Increase Fire Wall damage by 5–15%
+- Increase Thunder Bolt damage by 5–20%
+- Increase Ice Storm damage by 5–15%
+- Increase Flame Field damage by 5–15%
+- Increase Meteor Strike damage by 5–15%
+- Increase Blizzard damage by 5–15%
+- Increase Fire Ball damage by 5–20%
+- Increase Great Fire Ball damage by 5–20%
+- Increase Frost Crunch damage by 5–15%
+- Reduce mana cost of Flame Disruptor by 5–20%
+- Reduce mana cost of Fire Wall by 5–20%
+- Reduce mana cost of Thunder Bolt by 5–20%
+- Reduce mana cost of Ice Storm by 5–20%
+- Reduce mana cost of Flame Field by 5–20%
+- Reduce mana cost of Meteor Strike by 5–20%
+- Reduce mana cost of Blizzard by 5–20%
+- Increase Flame Disruptor crit chance by 2–12%
+- Increase Flame Disruptor crit damage by 5–25%
+- Increase Fire Wall crit chance by 2–12%
+- Increase Fire Wall crit damage by 5–25%
+- Increase Thunder Bolt crit chance by 2–12%
+- Increase Thunder Bolt crit damage by 5–25%
+- Increase Ice Storm crit chance by 2–12%
+- Increase Ice Storm crit damage by 5–25%
+- Increase Flame Field crit chance by 2–12%
+- Increase Flame Field crit damage by 5–25%
+- Increase Meteor Strike crit chance by 2–12%
+- Increase Meteor Strike crit damage by 5–25%
+- Increase Blizzard crit chance by 2–12%
+- Increase Blizzard crit damage by 5–25%
+- Increase Fire Ball crit chance by 2–12%
+- Increase Fire Ball crit damage by 5–25%
+- Increase Great Fire Ball crit chance by 2–12%
+- Increase Great Fire Ball crit damage by 5–25%
+- Increase Frost Crunch crit chance by 2–12%
+- Increase Frost Crunch crit damage by 5–25%
 - +5–20% Bonus XP
+- −3–12% Damage taken
+- +1–14% Crit Rate
+- +5–20% Crit Damage
+- +5–30% Skill leveling
 
 **Black Dragon Armor (F)3** (`black-dragon-armor-f-3`)
 - +1–5 AC
 - +1–5 AMC
 - +1–5 DC
-- +1–3 MC
 - +1–3 SC
 - +10–100 HP (step 10)
 - +10–100 MP (step 10)
 - +1–3 Agi
+- Increase Healing healing by 5–15%
+- Increase Mass Healing healing by 5–15%
+- Increase Soul Fire Ball damage by 5–20%
+- Increase Skeleton damage by 5–25%
+- Increase Skeleton health by 5–25%
+- Reduce Skeleton damage taken by 5–10%
+- Increase Shinsu damage by 5–25%
+- Increase Shinsu health by 5–25%
+- Reduce Shinsu damage taken by 5–10%
+- Increase Holy Deva damage by 5–25%
+- Increase Holy Deva health by 5–25%
+- Reduce Holy Deva damage taken by 5–10%
+- Increase Soul Fire Ball crit chance by 2–12%
+- Increase Soul Fire Ball crit damage by 5–25%
 - +5–20% Bonus XP
+- −3–12% Damage taken
+- +1–14% Crit Rate
+- +5–20% Crit Damage
+- +5–30% Skill leveling
 
 **Black Dragon Armor (M)1** (`black-dragon-armor-m-1`)
 - +1–5 AC
@@ -641,51 +2534,259 @@ Grouped by slot. Weapons show their class and actual roll pool from `empowerCand
 - +10–100 HP (step 10)
 - +10–100 MP (step 10)
 - +1–3 Agi
+- Increase Slaying damage by 5–20%
+- Increase Flaming Sword damage by 5–15%
+- Reduce Flaming Sword cooldown by 1–3 seconds
+- Increase Twin Drake Blade damage by 5–15%
+- Reduce mana cost of Twin Drake Blade by 5–20%
+- Increase Blade Avalanche damage by 5–15%
+- Reduce mana cost of Blade Avalanche by 5–20%
+- Increase Slashing Burst damage by 5–15%
+- Reduce mana cost of Slashing Burst by 5–20%
+- Increase Flame Disruptor damage by 5–20%
+- Increase Fire Wall damage by 5–15%
+- Increase Thunder Bolt damage by 5–20%
+- Increase Ice Storm damage by 5–15%
+- Increase Flame Field damage by 5–15%
+- Increase Meteor Strike damage by 5–15%
+- Increase Blizzard damage by 5–15%
+- Increase Fire Ball damage by 5–20%
+- Increase Great Fire Ball damage by 5–20%
+- Increase Frost Crunch damage by 5–15%
+- Reduce mana cost of Flame Disruptor by 5–20%
+- Reduce mana cost of Fire Wall by 5–20%
+- Reduce mana cost of Thunder Bolt by 5–20%
+- Reduce mana cost of Ice Storm by 5–20%
+- Reduce mana cost of Flame Field by 5–20%
+- Reduce mana cost of Meteor Strike by 5–20%
+- Reduce mana cost of Blizzard by 5–20%
+- Increase Healing healing by 5–15%
+- Increase Mass Healing healing by 5–15%
+- Increase Soul Fire Ball damage by 5–20%
+- Increase Skeleton damage by 5–25%
+- Increase Skeleton health by 5–25%
+- Reduce Skeleton damage taken by 5–10%
+- Increase Shinsu damage by 5–25%
+- Increase Shinsu health by 5–25%
+- Reduce Shinsu damage taken by 5–10%
+- Increase Holy Deva damage by 5–25%
+- Increase Holy Deva health by 5–25%
+- Reduce Holy Deva damage taken by 5–10%
+- Increase Slaying crit chance by 2–12%
+- Increase Slaying crit damage by 5–25%
+- Increase Flaming Sword crit chance by 2–12%
+- Increase Flaming Sword crit damage by 5–25%
+- Increase Twin Drake Blade crit chance by 2–12%
+- Increase Twin Drake Blade crit damage by 5–25%
+- Increase Blade Avalanche crit chance by 2–12%
+- Increase Blade Avalanche crit damage by 5–25%
+- Increase Slashing Burst crit chance by 2–12%
+- Increase Slashing Burst crit damage by 5–25%
+- Increase Flame Disruptor crit chance by 2–12%
+- Increase Flame Disruptor crit damage by 5–25%
+- Increase Fire Wall crit chance by 2–12%
+- Increase Fire Wall crit damage by 5–25%
+- Increase Thunder Bolt crit chance by 2–12%
+- Increase Thunder Bolt crit damage by 5–25%
+- Increase Ice Storm crit chance by 2–12%
+- Increase Ice Storm crit damage by 5–25%
+- Increase Flame Field crit chance by 2–12%
+- Increase Flame Field crit damage by 5–25%
+- Increase Meteor Strike crit chance by 2–12%
+- Increase Meteor Strike crit damage by 5–25%
+- Increase Blizzard crit chance by 2–12%
+- Increase Blizzard crit damage by 5–25%
+- Increase Fire Ball crit chance by 2–12%
+- Increase Fire Ball crit damage by 5–25%
+- Increase Great Fire Ball crit chance by 2–12%
+- Increase Great Fire Ball crit damage by 5–25%
+- Increase Frost Crunch crit chance by 2–12%
+- Increase Frost Crunch crit damage by 5–25%
+- Increase Soul Fire Ball crit chance by 2–12%
+- Increase Soul Fire Ball crit damage by 5–25%
 - +5–20% Bonus XP
+- −3–12% Damage taken
+- +1–14% Crit Rate
+- +5–20% Crit Damage
+- +5–30% Skill leveling
 
 **Black Dragon Armor (M)2** (`black-dragon-armor-m-2`)
 - +1–5 AC
 - +1–5 AMC
-- +1–5 DC
 - +1–3 MC
-- +1–3 SC
 - +10–100 HP (step 10)
 - +10–100 MP (step 10)
 - +1–3 Agi
+- Increase Flame Disruptor damage by 5–20%
+- Increase Fire Wall damage by 5–15%
+- Increase Thunder Bolt damage by 5–20%
+- Increase Ice Storm damage by 5–15%
+- Increase Flame Field damage by 5–15%
+- Increase Meteor Strike damage by 5–15%
+- Increase Blizzard damage by 5–15%
+- Increase Fire Ball damage by 5–20%
+- Increase Great Fire Ball damage by 5–20%
+- Increase Frost Crunch damage by 5–15%
+- Reduce mana cost of Flame Disruptor by 5–20%
+- Reduce mana cost of Fire Wall by 5–20%
+- Reduce mana cost of Thunder Bolt by 5–20%
+- Reduce mana cost of Ice Storm by 5–20%
+- Reduce mana cost of Flame Field by 5–20%
+- Reduce mana cost of Meteor Strike by 5–20%
+- Reduce mana cost of Blizzard by 5–20%
+- Increase Flame Disruptor crit chance by 2–12%
+- Increase Flame Disruptor crit damage by 5–25%
+- Increase Fire Wall crit chance by 2–12%
+- Increase Fire Wall crit damage by 5–25%
+- Increase Thunder Bolt crit chance by 2–12%
+- Increase Thunder Bolt crit damage by 5–25%
+- Increase Ice Storm crit chance by 2–12%
+- Increase Ice Storm crit damage by 5–25%
+- Increase Flame Field crit chance by 2–12%
+- Increase Flame Field crit damage by 5–25%
+- Increase Meteor Strike crit chance by 2–12%
+- Increase Meteor Strike crit damage by 5–25%
+- Increase Blizzard crit chance by 2–12%
+- Increase Blizzard crit damage by 5–25%
+- Increase Fire Ball crit chance by 2–12%
+- Increase Fire Ball crit damage by 5–25%
+- Increase Great Fire Ball crit chance by 2–12%
+- Increase Great Fire Ball crit damage by 5–25%
+- Increase Frost Crunch crit chance by 2–12%
+- Increase Frost Crunch crit damage by 5–25%
 - +5–20% Bonus XP
+- −3–12% Damage taken
+- +1–14% Crit Rate
+- +5–20% Crit Damage
+- +5–30% Skill leveling
 
 **Black Dragon Armor (M)3** (`black-dragon-armor-m-3`)
 - +1–5 AC
 - +1–5 AMC
 - +1–5 DC
-- +1–3 MC
 - +1–3 SC
 - +10–100 HP (step 10)
 - +10–100 MP (step 10)
 - +1–3 Agi
+- Increase Healing healing by 5–15%
+- Increase Mass Healing healing by 5–15%
+- Increase Soul Fire Ball damage by 5–20%
+- Increase Skeleton damage by 5–25%
+- Increase Skeleton health by 5–25%
+- Reduce Skeleton damage taken by 5–10%
+- Increase Shinsu damage by 5–25%
+- Increase Shinsu health by 5–25%
+- Reduce Shinsu damage taken by 5–10%
+- Increase Holy Deva damage by 5–25%
+- Increase Holy Deva health by 5–25%
+- Reduce Holy Deva damage taken by 5–10%
+- Increase Soul Fire Ball crit chance by 2–12%
+- Increase Soul Fire Ball crit damage by 5–25%
 - +5–20% Bonus XP
+- −3–12% Damage taken
+- +1–14% Crit Rate
+- +5–20% Crit Damage
+- +5–30% Skill leveling
 
 **Dragon Robe** (`dragon-robe`)
 - +1–5 AC
 - +1–5 AMC
-- +1–5 DC
 - +1–3 MC
-- +1–3 SC
 - +10–100 HP (step 10)
 - +10–100 MP (step 10)
 - +1–3 Agi
+- Increase Flame Disruptor damage by 5–20%
+- Increase Fire Wall damage by 5–15%
+- Increase Thunder Bolt damage by 5–20%
+- Increase Ice Storm damage by 5–15%
+- Increase Flame Field damage by 5–15%
+- Increase Meteor Strike damage by 5–15%
+- Increase Blizzard damage by 5–15%
+- Increase Fire Ball damage by 5–20%
+- Increase Great Fire Ball damage by 5–20%
+- Increase Frost Crunch damage by 5–15%
+- Reduce mana cost of Flame Disruptor by 5–20%
+- Reduce mana cost of Fire Wall by 5–20%
+- Reduce mana cost of Thunder Bolt by 5–20%
+- Reduce mana cost of Ice Storm by 5–20%
+- Reduce mana cost of Flame Field by 5–20%
+- Reduce mana cost of Meteor Strike by 5–20%
+- Reduce mana cost of Blizzard by 5–20%
+- Increase Flame Disruptor crit chance by 2–12%
+- Increase Flame Disruptor crit damage by 5–25%
+- Increase Fire Wall crit chance by 2–12%
+- Increase Fire Wall crit damage by 5–25%
+- Increase Thunder Bolt crit chance by 2–12%
+- Increase Thunder Bolt crit damage by 5–25%
+- Increase Ice Storm crit chance by 2–12%
+- Increase Ice Storm crit damage by 5–25%
+- Increase Flame Field crit chance by 2–12%
+- Increase Flame Field crit damage by 5–25%
+- Increase Meteor Strike crit chance by 2–12%
+- Increase Meteor Strike crit damage by 5–25%
+- Increase Blizzard crit chance by 2–12%
+- Increase Blizzard crit damage by 5–25%
+- Increase Fire Ball crit chance by 2–12%
+- Increase Fire Ball crit damage by 5–25%
+- Increase Great Fire Ball crit chance by 2–12%
+- Increase Great Fire Ball crit damage by 5–25%
+- Increase Frost Crunch crit chance by 2–12%
+- Increase Frost Crunch crit damage by 5–25%
 - +5–20% Bonus XP
+- −3–12% Damage taken
+- +1–14% Crit Rate
+- +5–20% Crit Damage
+- +5–30% Skill leveling
 
 **Dragon Robe (F)** (`dragon-robe-f`)
 - +1–5 AC
 - +1–5 AMC
-- +1–5 DC
 - +1–3 MC
-- +1–3 SC
 - +10–100 HP (step 10)
 - +10–100 MP (step 10)
 - +1–3 Agi
+- Increase Flame Disruptor damage by 5–20%
+- Increase Fire Wall damage by 5–15%
+- Increase Thunder Bolt damage by 5–20%
+- Increase Ice Storm damage by 5–15%
+- Increase Flame Field damage by 5–15%
+- Increase Meteor Strike damage by 5–15%
+- Increase Blizzard damage by 5–15%
+- Increase Fire Ball damage by 5–20%
+- Increase Great Fire Ball damage by 5–20%
+- Increase Frost Crunch damage by 5–15%
+- Reduce mana cost of Flame Disruptor by 5–20%
+- Reduce mana cost of Fire Wall by 5–20%
+- Reduce mana cost of Thunder Bolt by 5–20%
+- Reduce mana cost of Ice Storm by 5–20%
+- Reduce mana cost of Flame Field by 5–20%
+- Reduce mana cost of Meteor Strike by 5–20%
+- Reduce mana cost of Blizzard by 5–20%
+- Increase Flame Disruptor crit chance by 2–12%
+- Increase Flame Disruptor crit damage by 5–25%
+- Increase Fire Wall crit chance by 2–12%
+- Increase Fire Wall crit damage by 5–25%
+- Increase Thunder Bolt crit chance by 2–12%
+- Increase Thunder Bolt crit damage by 5–25%
+- Increase Ice Storm crit chance by 2–12%
+- Increase Ice Storm crit damage by 5–25%
+- Increase Flame Field crit chance by 2–12%
+- Increase Flame Field crit damage by 5–25%
+- Increase Meteor Strike crit chance by 2–12%
+- Increase Meteor Strike crit damage by 5–25%
+- Increase Blizzard crit chance by 2–12%
+- Increase Blizzard crit damage by 5–25%
+- Increase Fire Ball crit chance by 2–12%
+- Increase Fire Ball crit damage by 5–25%
+- Increase Great Fire Ball crit chance by 2–12%
+- Increase Great Fire Ball crit damage by 5–25%
+- Increase Frost Crunch crit chance by 2–12%
+- Increase Frost Crunch crit damage by 5–25%
 - +5–20% Bonus XP
+- −3–12% Damage taken
+- +1–14% Crit Rate
+- +5–20% Crit Damage
+- +5–30% Skill leveling
 
 **Heaven Armour** (`heaven-armour`)
 - +1–5 AC
@@ -696,7 +2797,81 @@ Grouped by slot. Weapons show their class and actual roll pool from `empowerCand
 - +10–100 HP (step 10)
 - +10–100 MP (step 10)
 - +1–3 Agi
+- Increase Slaying damage by 5–20%
+- Increase Flaming Sword damage by 5–15%
+- Reduce Flaming Sword cooldown by 1–3 seconds
+- Increase Twin Drake Blade damage by 5–15%
+- Reduce mana cost of Twin Drake Blade by 5–20%
+- Increase Blade Avalanche damage by 5–15%
+- Reduce mana cost of Blade Avalanche by 5–20%
+- Increase Slashing Burst damage by 5–15%
+- Reduce mana cost of Slashing Burst by 5–20%
+- Increase Flame Disruptor damage by 5–20%
+- Increase Fire Wall damage by 5–15%
+- Increase Thunder Bolt damage by 5–20%
+- Increase Ice Storm damage by 5–15%
+- Increase Flame Field damage by 5–15%
+- Increase Meteor Strike damage by 5–15%
+- Increase Blizzard damage by 5–15%
+- Increase Fire Ball damage by 5–20%
+- Increase Great Fire Ball damage by 5–20%
+- Increase Frost Crunch damage by 5–15%
+- Reduce mana cost of Flame Disruptor by 5–20%
+- Reduce mana cost of Fire Wall by 5–20%
+- Reduce mana cost of Thunder Bolt by 5–20%
+- Reduce mana cost of Ice Storm by 5–20%
+- Reduce mana cost of Flame Field by 5–20%
+- Reduce mana cost of Meteor Strike by 5–20%
+- Reduce mana cost of Blizzard by 5–20%
+- Increase Healing healing by 5–15%
+- Increase Mass Healing healing by 5–15%
+- Increase Soul Fire Ball damage by 5–20%
+- Increase Skeleton damage by 5–25%
+- Increase Skeleton health by 5–25%
+- Reduce Skeleton damage taken by 5–10%
+- Increase Shinsu damage by 5–25%
+- Increase Shinsu health by 5–25%
+- Reduce Shinsu damage taken by 5–10%
+- Increase Holy Deva damage by 5–25%
+- Increase Holy Deva health by 5–25%
+- Reduce Holy Deva damage taken by 5–10%
+- Increase Slaying crit chance by 2–12%
+- Increase Slaying crit damage by 5–25%
+- Increase Flaming Sword crit chance by 2–12%
+- Increase Flaming Sword crit damage by 5–25%
+- Increase Twin Drake Blade crit chance by 2–12%
+- Increase Twin Drake Blade crit damage by 5–25%
+- Increase Blade Avalanche crit chance by 2–12%
+- Increase Blade Avalanche crit damage by 5–25%
+- Increase Slashing Burst crit chance by 2–12%
+- Increase Slashing Burst crit damage by 5–25%
+- Increase Flame Disruptor crit chance by 2–12%
+- Increase Flame Disruptor crit damage by 5–25%
+- Increase Fire Wall crit chance by 2–12%
+- Increase Fire Wall crit damage by 5–25%
+- Increase Thunder Bolt crit chance by 2–12%
+- Increase Thunder Bolt crit damage by 5–25%
+- Increase Ice Storm crit chance by 2–12%
+- Increase Ice Storm crit damage by 5–25%
+- Increase Flame Field crit chance by 2–12%
+- Increase Flame Field crit damage by 5–25%
+- Increase Meteor Strike crit chance by 2–12%
+- Increase Meteor Strike crit damage by 5–25%
+- Increase Blizzard crit chance by 2–12%
+- Increase Blizzard crit damage by 5–25%
+- Increase Fire Ball crit chance by 2–12%
+- Increase Fire Ball crit damage by 5–25%
+- Increase Great Fire Ball crit chance by 2–12%
+- Increase Great Fire Ball crit damage by 5–25%
+- Increase Frost Crunch crit chance by 2–12%
+- Increase Frost Crunch crit damage by 5–25%
+- Increase Soul Fire Ball crit chance by 2–12%
+- Increase Soul Fire Ball crit damage by 5–25%
 - +5–20% Bonus XP
+- −3–12% Damage taken
+- +1–14% Crit Rate
+- +5–20% Crit Damage
+- +5–30% Skill leveling
 
 **Royal Armour (F)** (`royal-armour-f`)
 - +1–5 AC
@@ -707,7 +2882,81 @@ Grouped by slot. Weapons show their class and actual roll pool from `empowerCand
 - +10–100 HP (step 10)
 - +10–100 MP (step 10)
 - +1–3 Agi
+- Increase Slaying damage by 5–20%
+- Increase Flaming Sword damage by 5–15%
+- Reduce Flaming Sword cooldown by 1–3 seconds
+- Increase Twin Drake Blade damage by 5–15%
+- Reduce mana cost of Twin Drake Blade by 5–20%
+- Increase Blade Avalanche damage by 5–15%
+- Reduce mana cost of Blade Avalanche by 5–20%
+- Increase Slashing Burst damage by 5–15%
+- Reduce mana cost of Slashing Burst by 5–20%
+- Increase Flame Disruptor damage by 5–20%
+- Increase Fire Wall damage by 5–15%
+- Increase Thunder Bolt damage by 5–20%
+- Increase Ice Storm damage by 5–15%
+- Increase Flame Field damage by 5–15%
+- Increase Meteor Strike damage by 5–15%
+- Increase Blizzard damage by 5–15%
+- Increase Fire Ball damage by 5–20%
+- Increase Great Fire Ball damage by 5–20%
+- Increase Frost Crunch damage by 5–15%
+- Reduce mana cost of Flame Disruptor by 5–20%
+- Reduce mana cost of Fire Wall by 5–20%
+- Reduce mana cost of Thunder Bolt by 5–20%
+- Reduce mana cost of Ice Storm by 5–20%
+- Reduce mana cost of Flame Field by 5–20%
+- Reduce mana cost of Meteor Strike by 5–20%
+- Reduce mana cost of Blizzard by 5–20%
+- Increase Healing healing by 5–15%
+- Increase Mass Healing healing by 5–15%
+- Increase Soul Fire Ball damage by 5–20%
+- Increase Skeleton damage by 5–25%
+- Increase Skeleton health by 5–25%
+- Reduce Skeleton damage taken by 5–10%
+- Increase Shinsu damage by 5–25%
+- Increase Shinsu health by 5–25%
+- Reduce Shinsu damage taken by 5–10%
+- Increase Holy Deva damage by 5–25%
+- Increase Holy Deva health by 5–25%
+- Reduce Holy Deva damage taken by 5–10%
+- Increase Slaying crit chance by 2–12%
+- Increase Slaying crit damage by 5–25%
+- Increase Flaming Sword crit chance by 2–12%
+- Increase Flaming Sword crit damage by 5–25%
+- Increase Twin Drake Blade crit chance by 2–12%
+- Increase Twin Drake Blade crit damage by 5–25%
+- Increase Blade Avalanche crit chance by 2–12%
+- Increase Blade Avalanche crit damage by 5–25%
+- Increase Slashing Burst crit chance by 2–12%
+- Increase Slashing Burst crit damage by 5–25%
+- Increase Flame Disruptor crit chance by 2–12%
+- Increase Flame Disruptor crit damage by 5–25%
+- Increase Fire Wall crit chance by 2–12%
+- Increase Fire Wall crit damage by 5–25%
+- Increase Thunder Bolt crit chance by 2–12%
+- Increase Thunder Bolt crit damage by 5–25%
+- Increase Ice Storm crit chance by 2–12%
+- Increase Ice Storm crit damage by 5–25%
+- Increase Flame Field crit chance by 2–12%
+- Increase Flame Field crit damage by 5–25%
+- Increase Meteor Strike crit chance by 2–12%
+- Increase Meteor Strike crit damage by 5–25%
+- Increase Blizzard crit chance by 2–12%
+- Increase Blizzard crit damage by 5–25%
+- Increase Fire Ball crit chance by 2–12%
+- Increase Fire Ball crit damage by 5–25%
+- Increase Great Fire Ball crit chance by 2–12%
+- Increase Great Fire Ball crit damage by 5–25%
+- Increase Frost Crunch crit chance by 2–12%
+- Increase Frost Crunch crit damage by 5–25%
+- Increase Soul Fire Ball crit chance by 2–12%
+- Increase Soul Fire Ball crit damage by 5–25%
 - +5–20% Bonus XP
+- −3–12% Damage taken
+- +1–14% Crit Rate
+- +5–20% Crit Damage
+- +5–30% Skill leveling
 
 **Royal Armour (M)** (`royal-armour`)
 - +1–5 AC
@@ -718,7 +2967,81 @@ Grouped by slot. Weapons show their class and actual roll pool from `empowerCand
 - +10–100 HP (step 10)
 - +10–100 MP (step 10)
 - +1–3 Agi
+- Increase Slaying damage by 5–20%
+- Increase Flaming Sword damage by 5–15%
+- Reduce Flaming Sword cooldown by 1–3 seconds
+- Increase Twin Drake Blade damage by 5–15%
+- Reduce mana cost of Twin Drake Blade by 5–20%
+- Increase Blade Avalanche damage by 5–15%
+- Reduce mana cost of Blade Avalanche by 5–20%
+- Increase Slashing Burst damage by 5–15%
+- Reduce mana cost of Slashing Burst by 5–20%
+- Increase Flame Disruptor damage by 5–20%
+- Increase Fire Wall damage by 5–15%
+- Increase Thunder Bolt damage by 5–20%
+- Increase Ice Storm damage by 5–15%
+- Increase Flame Field damage by 5–15%
+- Increase Meteor Strike damage by 5–15%
+- Increase Blizzard damage by 5–15%
+- Increase Fire Ball damage by 5–20%
+- Increase Great Fire Ball damage by 5–20%
+- Increase Frost Crunch damage by 5–15%
+- Reduce mana cost of Flame Disruptor by 5–20%
+- Reduce mana cost of Fire Wall by 5–20%
+- Reduce mana cost of Thunder Bolt by 5–20%
+- Reduce mana cost of Ice Storm by 5–20%
+- Reduce mana cost of Flame Field by 5–20%
+- Reduce mana cost of Meteor Strike by 5–20%
+- Reduce mana cost of Blizzard by 5–20%
+- Increase Healing healing by 5–15%
+- Increase Mass Healing healing by 5–15%
+- Increase Soul Fire Ball damage by 5–20%
+- Increase Skeleton damage by 5–25%
+- Increase Skeleton health by 5–25%
+- Reduce Skeleton damage taken by 5–10%
+- Increase Shinsu damage by 5–25%
+- Increase Shinsu health by 5–25%
+- Reduce Shinsu damage taken by 5–10%
+- Increase Holy Deva damage by 5–25%
+- Increase Holy Deva health by 5–25%
+- Reduce Holy Deva damage taken by 5–10%
+- Increase Slaying crit chance by 2–12%
+- Increase Slaying crit damage by 5–25%
+- Increase Flaming Sword crit chance by 2–12%
+- Increase Flaming Sword crit damage by 5–25%
+- Increase Twin Drake Blade crit chance by 2–12%
+- Increase Twin Drake Blade crit damage by 5–25%
+- Increase Blade Avalanche crit chance by 2–12%
+- Increase Blade Avalanche crit damage by 5–25%
+- Increase Slashing Burst crit chance by 2–12%
+- Increase Slashing Burst crit damage by 5–25%
+- Increase Flame Disruptor crit chance by 2–12%
+- Increase Flame Disruptor crit damage by 5–25%
+- Increase Fire Wall crit chance by 2–12%
+- Increase Fire Wall crit damage by 5–25%
+- Increase Thunder Bolt crit chance by 2–12%
+- Increase Thunder Bolt crit damage by 5–25%
+- Increase Ice Storm crit chance by 2–12%
+- Increase Ice Storm crit damage by 5–25%
+- Increase Flame Field crit chance by 2–12%
+- Increase Flame Field crit damage by 5–25%
+- Increase Meteor Strike crit chance by 2–12%
+- Increase Meteor Strike crit damage by 5–25%
+- Increase Blizzard crit chance by 2–12%
+- Increase Blizzard crit damage by 5–25%
+- Increase Fire Ball crit chance by 2–12%
+- Increase Fire Ball crit damage by 5–25%
+- Increase Great Fire Ball crit chance by 2–12%
+- Increase Great Fire Ball crit damage by 5–25%
+- Increase Frost Crunch crit chance by 2–12%
+- Increase Frost Crunch crit damage by 5–25%
+- Increase Soul Fire Ball crit chance by 2–12%
+- Increase Soul Fire Ball crit damage by 5–25%
 - +5–20% Bonus XP
+- −3–12% Damage taken
+- +1–14% Crit Rate
+- +5–20% Crit Damage
+- +5–30% Skill leveling
 
 **Steel Armour** (`steel-armour`)
 - +1–5 AC
@@ -729,7 +3052,81 @@ Grouped by slot. Weapons show their class and actual roll pool from `empowerCand
 - +10–100 HP (step 10)
 - +10–100 MP (step 10)
 - +1–3 Agi
+- Increase Slaying damage by 5–20%
+- Increase Flaming Sword damage by 5–15%
+- Reduce Flaming Sword cooldown by 1–3 seconds
+- Increase Twin Drake Blade damage by 5–15%
+- Reduce mana cost of Twin Drake Blade by 5–20%
+- Increase Blade Avalanche damage by 5–15%
+- Reduce mana cost of Blade Avalanche by 5–20%
+- Increase Slashing Burst damage by 5–15%
+- Reduce mana cost of Slashing Burst by 5–20%
+- Increase Flame Disruptor damage by 5–20%
+- Increase Fire Wall damage by 5–15%
+- Increase Thunder Bolt damage by 5–20%
+- Increase Ice Storm damage by 5–15%
+- Increase Flame Field damage by 5–15%
+- Increase Meteor Strike damage by 5–15%
+- Increase Blizzard damage by 5–15%
+- Increase Fire Ball damage by 5–20%
+- Increase Great Fire Ball damage by 5–20%
+- Increase Frost Crunch damage by 5–15%
+- Reduce mana cost of Flame Disruptor by 5–20%
+- Reduce mana cost of Fire Wall by 5–20%
+- Reduce mana cost of Thunder Bolt by 5–20%
+- Reduce mana cost of Ice Storm by 5–20%
+- Reduce mana cost of Flame Field by 5–20%
+- Reduce mana cost of Meteor Strike by 5–20%
+- Reduce mana cost of Blizzard by 5–20%
+- Increase Healing healing by 5–15%
+- Increase Mass Healing healing by 5–15%
+- Increase Soul Fire Ball damage by 5–20%
+- Increase Skeleton damage by 5–25%
+- Increase Skeleton health by 5–25%
+- Reduce Skeleton damage taken by 5–10%
+- Increase Shinsu damage by 5–25%
+- Increase Shinsu health by 5–25%
+- Reduce Shinsu damage taken by 5–10%
+- Increase Holy Deva damage by 5–25%
+- Increase Holy Deva health by 5–25%
+- Reduce Holy Deva damage taken by 5–10%
+- Increase Slaying crit chance by 2–12%
+- Increase Slaying crit damage by 5–25%
+- Increase Flaming Sword crit chance by 2–12%
+- Increase Flaming Sword crit damage by 5–25%
+- Increase Twin Drake Blade crit chance by 2–12%
+- Increase Twin Drake Blade crit damage by 5–25%
+- Increase Blade Avalanche crit chance by 2–12%
+- Increase Blade Avalanche crit damage by 5–25%
+- Increase Slashing Burst crit chance by 2–12%
+- Increase Slashing Burst crit damage by 5–25%
+- Increase Flame Disruptor crit chance by 2–12%
+- Increase Flame Disruptor crit damage by 5–25%
+- Increase Fire Wall crit chance by 2–12%
+- Increase Fire Wall crit damage by 5–25%
+- Increase Thunder Bolt crit chance by 2–12%
+- Increase Thunder Bolt crit damage by 5–25%
+- Increase Ice Storm crit chance by 2–12%
+- Increase Ice Storm crit damage by 5–25%
+- Increase Flame Field crit chance by 2–12%
+- Increase Flame Field crit damage by 5–25%
+- Increase Meteor Strike crit chance by 2–12%
+- Increase Meteor Strike crit damage by 5–25%
+- Increase Blizzard crit chance by 2–12%
+- Increase Blizzard crit damage by 5–25%
+- Increase Fire Ball crit chance by 2–12%
+- Increase Fire Ball crit damage by 5–25%
+- Increase Great Fire Ball crit chance by 2–12%
+- Increase Great Fire Ball crit damage by 5–25%
+- Increase Frost Crunch crit chance by 2–12%
+- Increase Frost Crunch crit damage by 5–25%
+- Increase Soul Fire Ball crit chance by 2–12%
+- Increase Soul Fire Ball crit damage by 5–25%
 - +5–20% Bonus XP
+- −3–12% Damage taken
+- +1–14% Crit Rate
+- +5–20% Crit Damage
+- +5–30% Skill leveling
 
 **Steel Armour (F)** (`steel-armour-f`)
 - +1–5 AC
@@ -740,51 +3137,237 @@ Grouped by slot. Weapons show their class and actual roll pool from `empowerCand
 - +10–100 HP (step 10)
 - +10–100 MP (step 10)
 - +1–3 Agi
+- Increase Slaying damage by 5–20%
+- Increase Flaming Sword damage by 5–15%
+- Reduce Flaming Sword cooldown by 1–3 seconds
+- Increase Twin Drake Blade damage by 5–15%
+- Reduce mana cost of Twin Drake Blade by 5–20%
+- Increase Blade Avalanche damage by 5–15%
+- Reduce mana cost of Blade Avalanche by 5–20%
+- Increase Slashing Burst damage by 5–15%
+- Reduce mana cost of Slashing Burst by 5–20%
+- Increase Flame Disruptor damage by 5–20%
+- Increase Fire Wall damage by 5–15%
+- Increase Thunder Bolt damage by 5–20%
+- Increase Ice Storm damage by 5–15%
+- Increase Flame Field damage by 5–15%
+- Increase Meteor Strike damage by 5–15%
+- Increase Blizzard damage by 5–15%
+- Increase Fire Ball damage by 5–20%
+- Increase Great Fire Ball damage by 5–20%
+- Increase Frost Crunch damage by 5–15%
+- Reduce mana cost of Flame Disruptor by 5–20%
+- Reduce mana cost of Fire Wall by 5–20%
+- Reduce mana cost of Thunder Bolt by 5–20%
+- Reduce mana cost of Ice Storm by 5–20%
+- Reduce mana cost of Flame Field by 5–20%
+- Reduce mana cost of Meteor Strike by 5–20%
+- Reduce mana cost of Blizzard by 5–20%
+- Increase Healing healing by 5–15%
+- Increase Mass Healing healing by 5–15%
+- Increase Soul Fire Ball damage by 5–20%
+- Increase Skeleton damage by 5–25%
+- Increase Skeleton health by 5–25%
+- Reduce Skeleton damage taken by 5–10%
+- Increase Shinsu damage by 5–25%
+- Increase Shinsu health by 5–25%
+- Reduce Shinsu damage taken by 5–10%
+- Increase Holy Deva damage by 5–25%
+- Increase Holy Deva health by 5–25%
+- Reduce Holy Deva damage taken by 5–10%
+- Increase Slaying crit chance by 2–12%
+- Increase Slaying crit damage by 5–25%
+- Increase Flaming Sword crit chance by 2–12%
+- Increase Flaming Sword crit damage by 5–25%
+- Increase Twin Drake Blade crit chance by 2–12%
+- Increase Twin Drake Blade crit damage by 5–25%
+- Increase Blade Avalanche crit chance by 2–12%
+- Increase Blade Avalanche crit damage by 5–25%
+- Increase Slashing Burst crit chance by 2–12%
+- Increase Slashing Burst crit damage by 5–25%
+- Increase Flame Disruptor crit chance by 2–12%
+- Increase Flame Disruptor crit damage by 5–25%
+- Increase Fire Wall crit chance by 2–12%
+- Increase Fire Wall crit damage by 5–25%
+- Increase Thunder Bolt crit chance by 2–12%
+- Increase Thunder Bolt crit damage by 5–25%
+- Increase Ice Storm crit chance by 2–12%
+- Increase Ice Storm crit damage by 5–25%
+- Increase Flame Field crit chance by 2–12%
+- Increase Flame Field crit damage by 5–25%
+- Increase Meteor Strike crit chance by 2–12%
+- Increase Meteor Strike crit damage by 5–25%
+- Increase Blizzard crit chance by 2–12%
+- Increase Blizzard crit damage by 5–25%
+- Increase Fire Ball crit chance by 2–12%
+- Increase Fire Ball crit damage by 5–25%
+- Increase Great Fire Ball crit chance by 2–12%
+- Increase Great Fire Ball crit damage by 5–25%
+- Increase Frost Crunch crit chance by 2–12%
+- Increase Frost Crunch crit damage by 5–25%
+- Increase Soul Fire Ball crit chance by 2–12%
+- Increase Soul Fire Ball crit damage by 5–25%
 - +5–20% Bonus XP
+- −3–12% Damage taken
+- +1–14% Crit Rate
+- +5–20% Crit Damage
+- +5–30% Skill leveling
 
 **Studded Armour (F)** (`studded-armour-f`)
 - +1–5 AC
 - +1–5 AMC
-- +1–5 DC
 - +1–3 MC
-- +1–3 SC
 - +10–100 HP (step 10)
 - +10–100 MP (step 10)
 - +1–3 Agi
+- Increase Flame Disruptor damage by 5–20%
+- Increase Fire Wall damage by 5–15%
+- Increase Thunder Bolt damage by 5–20%
+- Increase Ice Storm damage by 5–15%
+- Increase Flame Field damage by 5–15%
+- Increase Meteor Strike damage by 5–15%
+- Increase Blizzard damage by 5–15%
+- Increase Fire Ball damage by 5–20%
+- Increase Great Fire Ball damage by 5–20%
+- Increase Frost Crunch damage by 5–15%
+- Reduce mana cost of Flame Disruptor by 5–20%
+- Reduce mana cost of Fire Wall by 5–20%
+- Reduce mana cost of Thunder Bolt by 5–20%
+- Reduce mana cost of Ice Storm by 5–20%
+- Reduce mana cost of Flame Field by 5–20%
+- Reduce mana cost of Meteor Strike by 5–20%
+- Reduce mana cost of Blizzard by 5–20%
+- Increase Flame Disruptor crit chance by 2–12%
+- Increase Flame Disruptor crit damage by 5–25%
+- Increase Fire Wall crit chance by 2–12%
+- Increase Fire Wall crit damage by 5–25%
+- Increase Thunder Bolt crit chance by 2–12%
+- Increase Thunder Bolt crit damage by 5–25%
+- Increase Ice Storm crit chance by 2–12%
+- Increase Ice Storm crit damage by 5–25%
+- Increase Flame Field crit chance by 2–12%
+- Increase Flame Field crit damage by 5–25%
+- Increase Meteor Strike crit chance by 2–12%
+- Increase Meteor Strike crit damage by 5–25%
+- Increase Blizzard crit chance by 2–12%
+- Increase Blizzard crit damage by 5–25%
+- Increase Fire Ball crit chance by 2–12%
+- Increase Fire Ball crit damage by 5–25%
+- Increase Great Fire Ball crit chance by 2–12%
+- Increase Great Fire Ball crit damage by 5–25%
+- Increase Frost Crunch crit chance by 2–12%
+- Increase Frost Crunch crit damage by 5–25%
 - +5–20% Bonus XP
+- −3–12% Damage taken
+- +1–14% Crit Rate
+- +5–20% Crit Damage
+- +5–30% Skill leveling
 
 **Studded Armour (M)** (`studded-armour`)
 - +1–5 AC
 - +1–5 AMC
-- +1–5 DC
 - +1–3 MC
-- +1–3 SC
 - +10–100 HP (step 10)
 - +10–100 MP (step 10)
 - +1–3 Agi
+- Increase Flame Disruptor damage by 5–20%
+- Increase Fire Wall damage by 5–15%
+- Increase Thunder Bolt damage by 5–20%
+- Increase Ice Storm damage by 5–15%
+- Increase Flame Field damage by 5–15%
+- Increase Meteor Strike damage by 5–15%
+- Increase Blizzard damage by 5–15%
+- Increase Fire Ball damage by 5–20%
+- Increase Great Fire Ball damage by 5–20%
+- Increase Frost Crunch damage by 5–15%
+- Reduce mana cost of Flame Disruptor by 5–20%
+- Reduce mana cost of Fire Wall by 5–20%
+- Reduce mana cost of Thunder Bolt by 5–20%
+- Reduce mana cost of Ice Storm by 5–20%
+- Reduce mana cost of Flame Field by 5–20%
+- Reduce mana cost of Meteor Strike by 5–20%
+- Reduce mana cost of Blizzard by 5–20%
+- Increase Flame Disruptor crit chance by 2–12%
+- Increase Flame Disruptor crit damage by 5–25%
+- Increase Fire Wall crit chance by 2–12%
+- Increase Fire Wall crit damage by 5–25%
+- Increase Thunder Bolt crit chance by 2–12%
+- Increase Thunder Bolt crit damage by 5–25%
+- Increase Ice Storm crit chance by 2–12%
+- Increase Ice Storm crit damage by 5–25%
+- Increase Flame Field crit chance by 2–12%
+- Increase Flame Field crit damage by 5–25%
+- Increase Meteor Strike crit chance by 2–12%
+- Increase Meteor Strike crit damage by 5–25%
+- Increase Blizzard crit chance by 2–12%
+- Increase Blizzard crit damage by 5–25%
+- Increase Fire Ball crit chance by 2–12%
+- Increase Fire Ball crit damage by 5–25%
+- Increase Great Fire Ball crit chance by 2–12%
+- Increase Great Fire Ball crit damage by 5–25%
+- Increase Frost Crunch crit chance by 2–12%
+- Increase Frost Crunch crit damage by 5–25%
 - +5–20% Bonus XP
+- −3–12% Damage taken
+- +1–14% Crit Rate
+- +5–20% Crit Damage
+- +5–30% Skill leveling
 
 **Titan Armour** (`titan-armour`)
 - +1–5 AC
 - +1–5 AMC
 - +1–5 DC
-- +1–3 MC
 - +1–3 SC
 - +10–100 HP (step 10)
 - +10–100 MP (step 10)
 - +1–3 Agi
+- Increase Healing healing by 5–15%
+- Increase Mass Healing healing by 5–15%
+- Increase Soul Fire Ball damage by 5–20%
+- Increase Skeleton damage by 5–25%
+- Increase Skeleton health by 5–25%
+- Reduce Skeleton damage taken by 5–10%
+- Increase Shinsu damage by 5–25%
+- Increase Shinsu health by 5–25%
+- Reduce Shinsu damage taken by 5–10%
+- Increase Holy Deva damage by 5–25%
+- Increase Holy Deva health by 5–25%
+- Reduce Holy Deva damage taken by 5–10%
+- Increase Soul Fire Ball crit chance by 2–12%
+- Increase Soul Fire Ball crit damage by 5–25%
 - +5–20% Bonus XP
+- −3–12% Damage taken
+- +1–14% Crit Rate
+- +5–20% Crit Damage
+- +5–30% Skill leveling
 
 **Titan Armour (F)** (`titan-armour-f`)
 - +1–5 AC
 - +1–5 AMC
 - +1–5 DC
-- +1–3 MC
 - +1–3 SC
 - +10–100 HP (step 10)
 - +10–100 MP (step 10)
 - +1–3 Agi
+- Increase Healing healing by 5–15%
+- Increase Mass Healing healing by 5–15%
+- Increase Soul Fire Ball damage by 5–20%
+- Increase Skeleton damage by 5–25%
+- Increase Skeleton health by 5–25%
+- Reduce Skeleton damage taken by 5–10%
+- Increase Shinsu damage by 5–25%
+- Increase Shinsu health by 5–25%
+- Reduce Shinsu damage taken by 5–10%
+- Increase Holy Deva damage by 5–25%
+- Increase Holy Deva health by 5–25%
+- Reduce Holy Deva damage taken by 5–10%
+- Increase Soul Fire Ball crit chance by 2–12%
+- Increase Soul Fire Ball crit damage by 5–25%
 - +5–20% Bonus XP
+- −3–12% Damage taken
+- +1–14% Crit Rate
+- +5–20% Crit Damage
+- +5–30% Skill leveling
 
 **Blue Dark Armour (F)** (`blue-dark-armour-f`)
 - +1–5 AC
@@ -795,7 +3378,81 @@ Grouped by slot. Weapons show their class and actual roll pool from `empowerCand
 - +10–100 HP (step 10)
 - +10–100 MP (step 10)
 - +1–3 Agi
+- Increase Slaying damage by 5–20%
+- Increase Flaming Sword damage by 5–15%
+- Reduce Flaming Sword cooldown by 1–3 seconds
+- Increase Twin Drake Blade damage by 5–15%
+- Reduce mana cost of Twin Drake Blade by 5–20%
+- Increase Blade Avalanche damage by 5–15%
+- Reduce mana cost of Blade Avalanche by 5–20%
+- Increase Slashing Burst damage by 5–15%
+- Reduce mana cost of Slashing Burst by 5–20%
+- Increase Flame Disruptor damage by 5–20%
+- Increase Fire Wall damage by 5–15%
+- Increase Thunder Bolt damage by 5–20%
+- Increase Ice Storm damage by 5–15%
+- Increase Flame Field damage by 5–15%
+- Increase Meteor Strike damage by 5–15%
+- Increase Blizzard damage by 5–15%
+- Increase Fire Ball damage by 5–20%
+- Increase Great Fire Ball damage by 5–20%
+- Increase Frost Crunch damage by 5–15%
+- Reduce mana cost of Flame Disruptor by 5–20%
+- Reduce mana cost of Fire Wall by 5–20%
+- Reduce mana cost of Thunder Bolt by 5–20%
+- Reduce mana cost of Ice Storm by 5–20%
+- Reduce mana cost of Flame Field by 5–20%
+- Reduce mana cost of Meteor Strike by 5–20%
+- Reduce mana cost of Blizzard by 5–20%
+- Increase Healing healing by 5–15%
+- Increase Mass Healing healing by 5–15%
+- Increase Soul Fire Ball damage by 5–20%
+- Increase Skeleton damage by 5–25%
+- Increase Skeleton health by 5–25%
+- Reduce Skeleton damage taken by 5–10%
+- Increase Shinsu damage by 5–25%
+- Increase Shinsu health by 5–25%
+- Reduce Shinsu damage taken by 5–10%
+- Increase Holy Deva damage by 5–25%
+- Increase Holy Deva health by 5–25%
+- Reduce Holy Deva damage taken by 5–10%
+- Increase Slaying crit chance by 2–12%
+- Increase Slaying crit damage by 5–25%
+- Increase Flaming Sword crit chance by 2–12%
+- Increase Flaming Sword crit damage by 5–25%
+- Increase Twin Drake Blade crit chance by 2–12%
+- Increase Twin Drake Blade crit damage by 5–25%
+- Increase Blade Avalanche crit chance by 2–12%
+- Increase Blade Avalanche crit damage by 5–25%
+- Increase Slashing Burst crit chance by 2–12%
+- Increase Slashing Burst crit damage by 5–25%
+- Increase Flame Disruptor crit chance by 2–12%
+- Increase Flame Disruptor crit damage by 5–25%
+- Increase Fire Wall crit chance by 2–12%
+- Increase Fire Wall crit damage by 5–25%
+- Increase Thunder Bolt crit chance by 2–12%
+- Increase Thunder Bolt crit damage by 5–25%
+- Increase Ice Storm crit chance by 2–12%
+- Increase Ice Storm crit damage by 5–25%
+- Increase Flame Field crit chance by 2–12%
+- Increase Flame Field crit damage by 5–25%
+- Increase Meteor Strike crit chance by 2–12%
+- Increase Meteor Strike crit damage by 5–25%
+- Increase Blizzard crit chance by 2–12%
+- Increase Blizzard crit damage by 5–25%
+- Increase Fire Ball crit chance by 2–12%
+- Increase Fire Ball crit damage by 5–25%
+- Increase Great Fire Ball crit chance by 2–12%
+- Increase Great Fire Ball crit damage by 5–25%
+- Increase Frost Crunch crit chance by 2–12%
+- Increase Frost Crunch crit damage by 5–25%
+- Increase Soul Fire Ball crit chance by 2–12%
+- Increase Soul Fire Ball crit damage by 5–25%
 - +5–20% Bonus XP
+- −3–12% Damage taken
+- +1–14% Crit Rate
+- +5–20% Crit Damage
+- +5–30% Skill leveling
 
 **Blue Dark Armour (M)** (`blue-dark-armour`)
 - +1–5 AC
@@ -806,7 +3463,81 @@ Grouped by slot. Weapons show their class and actual roll pool from `empowerCand
 - +10–100 HP (step 10)
 - +10–100 MP (step 10)
 - +1–3 Agi
+- Increase Slaying damage by 5–20%
+- Increase Flaming Sword damage by 5–15%
+- Reduce Flaming Sword cooldown by 1–3 seconds
+- Increase Twin Drake Blade damage by 5–15%
+- Reduce mana cost of Twin Drake Blade by 5–20%
+- Increase Blade Avalanche damage by 5–15%
+- Reduce mana cost of Blade Avalanche by 5–20%
+- Increase Slashing Burst damage by 5–15%
+- Reduce mana cost of Slashing Burst by 5–20%
+- Increase Flame Disruptor damage by 5–20%
+- Increase Fire Wall damage by 5–15%
+- Increase Thunder Bolt damage by 5–20%
+- Increase Ice Storm damage by 5–15%
+- Increase Flame Field damage by 5–15%
+- Increase Meteor Strike damage by 5–15%
+- Increase Blizzard damage by 5–15%
+- Increase Fire Ball damage by 5–20%
+- Increase Great Fire Ball damage by 5–20%
+- Increase Frost Crunch damage by 5–15%
+- Reduce mana cost of Flame Disruptor by 5–20%
+- Reduce mana cost of Fire Wall by 5–20%
+- Reduce mana cost of Thunder Bolt by 5–20%
+- Reduce mana cost of Ice Storm by 5–20%
+- Reduce mana cost of Flame Field by 5–20%
+- Reduce mana cost of Meteor Strike by 5–20%
+- Reduce mana cost of Blizzard by 5–20%
+- Increase Healing healing by 5–15%
+- Increase Mass Healing healing by 5–15%
+- Increase Soul Fire Ball damage by 5–20%
+- Increase Skeleton damage by 5–25%
+- Increase Skeleton health by 5–25%
+- Reduce Skeleton damage taken by 5–10%
+- Increase Shinsu damage by 5–25%
+- Increase Shinsu health by 5–25%
+- Reduce Shinsu damage taken by 5–10%
+- Increase Holy Deva damage by 5–25%
+- Increase Holy Deva health by 5–25%
+- Reduce Holy Deva damage taken by 5–10%
+- Increase Slaying crit chance by 2–12%
+- Increase Slaying crit damage by 5–25%
+- Increase Flaming Sword crit chance by 2–12%
+- Increase Flaming Sword crit damage by 5–25%
+- Increase Twin Drake Blade crit chance by 2–12%
+- Increase Twin Drake Blade crit damage by 5–25%
+- Increase Blade Avalanche crit chance by 2–12%
+- Increase Blade Avalanche crit damage by 5–25%
+- Increase Slashing Burst crit chance by 2–12%
+- Increase Slashing Burst crit damage by 5–25%
+- Increase Flame Disruptor crit chance by 2–12%
+- Increase Flame Disruptor crit damage by 5–25%
+- Increase Fire Wall crit chance by 2–12%
+- Increase Fire Wall crit damage by 5–25%
+- Increase Thunder Bolt crit chance by 2–12%
+- Increase Thunder Bolt crit damage by 5–25%
+- Increase Ice Storm crit chance by 2–12%
+- Increase Ice Storm crit damage by 5–25%
+- Increase Flame Field crit chance by 2–12%
+- Increase Flame Field crit damage by 5–25%
+- Increase Meteor Strike crit chance by 2–12%
+- Increase Meteor Strike crit damage by 5–25%
+- Increase Blizzard crit chance by 2–12%
+- Increase Blizzard crit damage by 5–25%
+- Increase Fire Ball crit chance by 2–12%
+- Increase Fire Ball crit damage by 5–25%
+- Increase Great Fire Ball crit chance by 2–12%
+- Increase Great Fire Ball crit damage by 5–25%
+- Increase Frost Crunch crit chance by 2–12%
+- Increase Frost Crunch crit damage by 5–25%
+- Increase Soul Fire Ball crit chance by 2–12%
+- Increase Soul Fire Ball crit damage by 5–25%
 - +5–20% Bonus XP
+- −3–12% Damage taken
+- +1–14% Crit Rate
+- +5–20% Crit Damage
+- +5–30% Skill leveling
 
 **Green Dark Armour (F)** (`green-dark-armour-f`)
 - +1–5 AC
@@ -817,7 +3548,81 @@ Grouped by slot. Weapons show their class and actual roll pool from `empowerCand
 - +10–100 HP (step 10)
 - +10–100 MP (step 10)
 - +1–3 Agi
+- Increase Slaying damage by 5–20%
+- Increase Flaming Sword damage by 5–15%
+- Reduce Flaming Sword cooldown by 1–3 seconds
+- Increase Twin Drake Blade damage by 5–15%
+- Reduce mana cost of Twin Drake Blade by 5–20%
+- Increase Blade Avalanche damage by 5–15%
+- Reduce mana cost of Blade Avalanche by 5–20%
+- Increase Slashing Burst damage by 5–15%
+- Reduce mana cost of Slashing Burst by 5–20%
+- Increase Flame Disruptor damage by 5–20%
+- Increase Fire Wall damage by 5–15%
+- Increase Thunder Bolt damage by 5–20%
+- Increase Ice Storm damage by 5–15%
+- Increase Flame Field damage by 5–15%
+- Increase Meteor Strike damage by 5–15%
+- Increase Blizzard damage by 5–15%
+- Increase Fire Ball damage by 5–20%
+- Increase Great Fire Ball damage by 5–20%
+- Increase Frost Crunch damage by 5–15%
+- Reduce mana cost of Flame Disruptor by 5–20%
+- Reduce mana cost of Fire Wall by 5–20%
+- Reduce mana cost of Thunder Bolt by 5–20%
+- Reduce mana cost of Ice Storm by 5–20%
+- Reduce mana cost of Flame Field by 5–20%
+- Reduce mana cost of Meteor Strike by 5–20%
+- Reduce mana cost of Blizzard by 5–20%
+- Increase Healing healing by 5–15%
+- Increase Mass Healing healing by 5–15%
+- Increase Soul Fire Ball damage by 5–20%
+- Increase Skeleton damage by 5–25%
+- Increase Skeleton health by 5–25%
+- Reduce Skeleton damage taken by 5–10%
+- Increase Shinsu damage by 5–25%
+- Increase Shinsu health by 5–25%
+- Reduce Shinsu damage taken by 5–10%
+- Increase Holy Deva damage by 5–25%
+- Increase Holy Deva health by 5–25%
+- Reduce Holy Deva damage taken by 5–10%
+- Increase Slaying crit chance by 2–12%
+- Increase Slaying crit damage by 5–25%
+- Increase Flaming Sword crit chance by 2–12%
+- Increase Flaming Sword crit damage by 5–25%
+- Increase Twin Drake Blade crit chance by 2–12%
+- Increase Twin Drake Blade crit damage by 5–25%
+- Increase Blade Avalanche crit chance by 2–12%
+- Increase Blade Avalanche crit damage by 5–25%
+- Increase Slashing Burst crit chance by 2–12%
+- Increase Slashing Burst crit damage by 5–25%
+- Increase Flame Disruptor crit chance by 2–12%
+- Increase Flame Disruptor crit damage by 5–25%
+- Increase Fire Wall crit chance by 2–12%
+- Increase Fire Wall crit damage by 5–25%
+- Increase Thunder Bolt crit chance by 2–12%
+- Increase Thunder Bolt crit damage by 5–25%
+- Increase Ice Storm crit chance by 2–12%
+- Increase Ice Storm crit damage by 5–25%
+- Increase Flame Field crit chance by 2–12%
+- Increase Flame Field crit damage by 5–25%
+- Increase Meteor Strike crit chance by 2–12%
+- Increase Meteor Strike crit damage by 5–25%
+- Increase Blizzard crit chance by 2–12%
+- Increase Blizzard crit damage by 5–25%
+- Increase Fire Ball crit chance by 2–12%
+- Increase Fire Ball crit damage by 5–25%
+- Increase Great Fire Ball crit chance by 2–12%
+- Increase Great Fire Ball crit damage by 5–25%
+- Increase Frost Crunch crit chance by 2–12%
+- Increase Frost Crunch crit damage by 5–25%
+- Increase Soul Fire Ball crit chance by 2–12%
+- Increase Soul Fire Ball crit damage by 5–25%
 - +5–20% Bonus XP
+- −3–12% Damage taken
+- +1–14% Crit Rate
+- +5–20% Crit Damage
+- +5–30% Skill leveling
 
 **Green Dark Armour (M)** (`green-dark-armour`)
 - +1–5 AC
@@ -828,7 +3633,81 @@ Grouped by slot. Weapons show their class and actual roll pool from `empowerCand
 - +10–100 HP (step 10)
 - +10–100 MP (step 10)
 - +1–3 Agi
+- Increase Slaying damage by 5–20%
+- Increase Flaming Sword damage by 5–15%
+- Reduce Flaming Sword cooldown by 1–3 seconds
+- Increase Twin Drake Blade damage by 5–15%
+- Reduce mana cost of Twin Drake Blade by 5–20%
+- Increase Blade Avalanche damage by 5–15%
+- Reduce mana cost of Blade Avalanche by 5–20%
+- Increase Slashing Burst damage by 5–15%
+- Reduce mana cost of Slashing Burst by 5–20%
+- Increase Flame Disruptor damage by 5–20%
+- Increase Fire Wall damage by 5–15%
+- Increase Thunder Bolt damage by 5–20%
+- Increase Ice Storm damage by 5–15%
+- Increase Flame Field damage by 5–15%
+- Increase Meteor Strike damage by 5–15%
+- Increase Blizzard damage by 5–15%
+- Increase Fire Ball damage by 5–20%
+- Increase Great Fire Ball damage by 5–20%
+- Increase Frost Crunch damage by 5–15%
+- Reduce mana cost of Flame Disruptor by 5–20%
+- Reduce mana cost of Fire Wall by 5–20%
+- Reduce mana cost of Thunder Bolt by 5–20%
+- Reduce mana cost of Ice Storm by 5–20%
+- Reduce mana cost of Flame Field by 5–20%
+- Reduce mana cost of Meteor Strike by 5–20%
+- Reduce mana cost of Blizzard by 5–20%
+- Increase Healing healing by 5–15%
+- Increase Mass Healing healing by 5–15%
+- Increase Soul Fire Ball damage by 5–20%
+- Increase Skeleton damage by 5–25%
+- Increase Skeleton health by 5–25%
+- Reduce Skeleton damage taken by 5–10%
+- Increase Shinsu damage by 5–25%
+- Increase Shinsu health by 5–25%
+- Reduce Shinsu damage taken by 5–10%
+- Increase Holy Deva damage by 5–25%
+- Increase Holy Deva health by 5–25%
+- Reduce Holy Deva damage taken by 5–10%
+- Increase Slaying crit chance by 2–12%
+- Increase Slaying crit damage by 5–25%
+- Increase Flaming Sword crit chance by 2–12%
+- Increase Flaming Sword crit damage by 5–25%
+- Increase Twin Drake Blade crit chance by 2–12%
+- Increase Twin Drake Blade crit damage by 5–25%
+- Increase Blade Avalanche crit chance by 2–12%
+- Increase Blade Avalanche crit damage by 5–25%
+- Increase Slashing Burst crit chance by 2–12%
+- Increase Slashing Burst crit damage by 5–25%
+- Increase Flame Disruptor crit chance by 2–12%
+- Increase Flame Disruptor crit damage by 5–25%
+- Increase Fire Wall crit chance by 2–12%
+- Increase Fire Wall crit damage by 5–25%
+- Increase Thunder Bolt crit chance by 2–12%
+- Increase Thunder Bolt crit damage by 5–25%
+- Increase Ice Storm crit chance by 2–12%
+- Increase Ice Storm crit damage by 5–25%
+- Increase Flame Field crit chance by 2–12%
+- Increase Flame Field crit damage by 5–25%
+- Increase Meteor Strike crit chance by 2–12%
+- Increase Meteor Strike crit damage by 5–25%
+- Increase Blizzard crit chance by 2–12%
+- Increase Blizzard crit damage by 5–25%
+- Increase Fire Ball crit chance by 2–12%
+- Increase Fire Ball crit damage by 5–25%
+- Increase Great Fire Ball crit chance by 2–12%
+- Increase Great Fire Ball crit damage by 5–25%
+- Increase Frost Crunch crit chance by 2–12%
+- Increase Frost Crunch crit damage by 5–25%
+- Increase Soul Fire Ball crit chance by 2–12%
+- Increase Soul Fire Ball crit damage by 5–25%
 - +5–20% Bonus XP
+- −3–12% Damage taken
+- +1–14% Crit Rate
+- +5–20% Crit Damage
+- +5–30% Skill leveling
 
 **Red Dark Armour (F)** (`red-dark-armour-f`)
 - +1–5 AC
@@ -839,7 +3718,81 @@ Grouped by slot. Weapons show their class and actual roll pool from `empowerCand
 - +10–100 HP (step 10)
 - +10–100 MP (step 10)
 - +1–3 Agi
+- Increase Slaying damage by 5–20%
+- Increase Flaming Sword damage by 5–15%
+- Reduce Flaming Sword cooldown by 1–3 seconds
+- Increase Twin Drake Blade damage by 5–15%
+- Reduce mana cost of Twin Drake Blade by 5–20%
+- Increase Blade Avalanche damage by 5–15%
+- Reduce mana cost of Blade Avalanche by 5–20%
+- Increase Slashing Burst damage by 5–15%
+- Reduce mana cost of Slashing Burst by 5–20%
+- Increase Flame Disruptor damage by 5–20%
+- Increase Fire Wall damage by 5–15%
+- Increase Thunder Bolt damage by 5–20%
+- Increase Ice Storm damage by 5–15%
+- Increase Flame Field damage by 5–15%
+- Increase Meteor Strike damage by 5–15%
+- Increase Blizzard damage by 5–15%
+- Increase Fire Ball damage by 5–20%
+- Increase Great Fire Ball damage by 5–20%
+- Increase Frost Crunch damage by 5–15%
+- Reduce mana cost of Flame Disruptor by 5–20%
+- Reduce mana cost of Fire Wall by 5–20%
+- Reduce mana cost of Thunder Bolt by 5–20%
+- Reduce mana cost of Ice Storm by 5–20%
+- Reduce mana cost of Flame Field by 5–20%
+- Reduce mana cost of Meteor Strike by 5–20%
+- Reduce mana cost of Blizzard by 5–20%
+- Increase Healing healing by 5–15%
+- Increase Mass Healing healing by 5–15%
+- Increase Soul Fire Ball damage by 5–20%
+- Increase Skeleton damage by 5–25%
+- Increase Skeleton health by 5–25%
+- Reduce Skeleton damage taken by 5–10%
+- Increase Shinsu damage by 5–25%
+- Increase Shinsu health by 5–25%
+- Reduce Shinsu damage taken by 5–10%
+- Increase Holy Deva damage by 5–25%
+- Increase Holy Deva health by 5–25%
+- Reduce Holy Deva damage taken by 5–10%
+- Increase Slaying crit chance by 2–12%
+- Increase Slaying crit damage by 5–25%
+- Increase Flaming Sword crit chance by 2–12%
+- Increase Flaming Sword crit damage by 5–25%
+- Increase Twin Drake Blade crit chance by 2–12%
+- Increase Twin Drake Blade crit damage by 5–25%
+- Increase Blade Avalanche crit chance by 2–12%
+- Increase Blade Avalanche crit damage by 5–25%
+- Increase Slashing Burst crit chance by 2–12%
+- Increase Slashing Burst crit damage by 5–25%
+- Increase Flame Disruptor crit chance by 2–12%
+- Increase Flame Disruptor crit damage by 5–25%
+- Increase Fire Wall crit chance by 2–12%
+- Increase Fire Wall crit damage by 5–25%
+- Increase Thunder Bolt crit chance by 2–12%
+- Increase Thunder Bolt crit damage by 5–25%
+- Increase Ice Storm crit chance by 2–12%
+- Increase Ice Storm crit damage by 5–25%
+- Increase Flame Field crit chance by 2–12%
+- Increase Flame Field crit damage by 5–25%
+- Increase Meteor Strike crit chance by 2–12%
+- Increase Meteor Strike crit damage by 5–25%
+- Increase Blizzard crit chance by 2–12%
+- Increase Blizzard crit damage by 5–25%
+- Increase Fire Ball crit chance by 2–12%
+- Increase Fire Ball crit damage by 5–25%
+- Increase Great Fire Ball crit chance by 2–12%
+- Increase Great Fire Ball crit damage by 5–25%
+- Increase Frost Crunch crit chance by 2–12%
+- Increase Frost Crunch crit damage by 5–25%
+- Increase Soul Fire Ball crit chance by 2–12%
+- Increase Soul Fire Ball crit damage by 5–25%
 - +5–20% Bonus XP
+- −3–12% Damage taken
+- +1–14% Crit Rate
+- +5–20% Crit Damage
+- +5–30% Skill leveling
 
 **Red Dark Armour (M)** (`red-dark-armour`)
 - +1–5 AC
@@ -850,73 +3803,301 @@ Grouped by slot. Weapons show their class and actual roll pool from `empowerCand
 - +10–100 HP (step 10)
 - +10–100 MP (step 10)
 - +1–3 Agi
+- Increase Slaying damage by 5–20%
+- Increase Flaming Sword damage by 5–15%
+- Reduce Flaming Sword cooldown by 1–3 seconds
+- Increase Twin Drake Blade damage by 5–15%
+- Reduce mana cost of Twin Drake Blade by 5–20%
+- Increase Blade Avalanche damage by 5–15%
+- Reduce mana cost of Blade Avalanche by 5–20%
+- Increase Slashing Burst damage by 5–15%
+- Reduce mana cost of Slashing Burst by 5–20%
+- Increase Flame Disruptor damage by 5–20%
+- Increase Fire Wall damage by 5–15%
+- Increase Thunder Bolt damage by 5–20%
+- Increase Ice Storm damage by 5–15%
+- Increase Flame Field damage by 5–15%
+- Increase Meteor Strike damage by 5–15%
+- Increase Blizzard damage by 5–15%
+- Increase Fire Ball damage by 5–20%
+- Increase Great Fire Ball damage by 5–20%
+- Increase Frost Crunch damage by 5–15%
+- Reduce mana cost of Flame Disruptor by 5–20%
+- Reduce mana cost of Fire Wall by 5–20%
+- Reduce mana cost of Thunder Bolt by 5–20%
+- Reduce mana cost of Ice Storm by 5–20%
+- Reduce mana cost of Flame Field by 5–20%
+- Reduce mana cost of Meteor Strike by 5–20%
+- Reduce mana cost of Blizzard by 5–20%
+- Increase Healing healing by 5–15%
+- Increase Mass Healing healing by 5–15%
+- Increase Soul Fire Ball damage by 5–20%
+- Increase Skeleton damage by 5–25%
+- Increase Skeleton health by 5–25%
+- Reduce Skeleton damage taken by 5–10%
+- Increase Shinsu damage by 5–25%
+- Increase Shinsu health by 5–25%
+- Reduce Shinsu damage taken by 5–10%
+- Increase Holy Deva damage by 5–25%
+- Increase Holy Deva health by 5–25%
+- Reduce Holy Deva damage taken by 5–10%
+- Increase Slaying crit chance by 2–12%
+- Increase Slaying crit damage by 5–25%
+- Increase Flaming Sword crit chance by 2–12%
+- Increase Flaming Sword crit damage by 5–25%
+- Increase Twin Drake Blade crit chance by 2–12%
+- Increase Twin Drake Blade crit damage by 5–25%
+- Increase Blade Avalanche crit chance by 2–12%
+- Increase Blade Avalanche crit damage by 5–25%
+- Increase Slashing Burst crit chance by 2–12%
+- Increase Slashing Burst crit damage by 5–25%
+- Increase Flame Disruptor crit chance by 2–12%
+- Increase Flame Disruptor crit damage by 5–25%
+- Increase Fire Wall crit chance by 2–12%
+- Increase Fire Wall crit damage by 5–25%
+- Increase Thunder Bolt crit chance by 2–12%
+- Increase Thunder Bolt crit damage by 5–25%
+- Increase Ice Storm crit chance by 2–12%
+- Increase Ice Storm crit damage by 5–25%
+- Increase Flame Field crit chance by 2–12%
+- Increase Flame Field crit damage by 5–25%
+- Increase Meteor Strike crit chance by 2–12%
+- Increase Meteor Strike crit damage by 5–25%
+- Increase Blizzard crit chance by 2–12%
+- Increase Blizzard crit damage by 5–25%
+- Increase Fire Ball crit chance by 2–12%
+- Increase Fire Ball crit damage by 5–25%
+- Increase Great Fire Ball crit chance by 2–12%
+- Increase Great Fire Ball crit damage by 5–25%
+- Increase Frost Crunch crit chance by 2–12%
+- Increase Frost Crunch crit damage by 5–25%
+- Increase Soul Fire Ball crit chance by 2–12%
+- Increase Soul Fire Ball crit damage by 5–25%
 - +5–20% Bonus XP
+- −3–12% Damage taken
+- +1–14% Crit Rate
+- +5–20% Crit Damage
+- +5–30% Skill leveling
 
 **Black Tiger Armour (F)** (`black-tiger-armour-f`)
 - +1–5 AC
 - +1–5 AMC
 - +1–5 DC
-- +1–3 MC
-- +1–3 SC
 - +10–100 HP (step 10)
 - +10–100 MP (step 10)
 - +1–3 Agi
+- Increase Slaying damage by 5–20%
+- Increase Flaming Sword damage by 5–15%
+- Reduce Flaming Sword cooldown by 1–3 seconds
+- Increase Twin Drake Blade damage by 5–15%
+- Reduce mana cost of Twin Drake Blade by 5–20%
+- Increase Blade Avalanche damage by 5–15%
+- Reduce mana cost of Blade Avalanche by 5–20%
+- Increase Slashing Burst damage by 5–15%
+- Reduce mana cost of Slashing Burst by 5–20%
+- Increase Slaying crit chance by 2–12%
+- Increase Slaying crit damage by 5–25%
+- Increase Flaming Sword crit chance by 2–12%
+- Increase Flaming Sword crit damage by 5–25%
+- Increase Twin Drake Blade crit chance by 2–12%
+- Increase Twin Drake Blade crit damage by 5–25%
+- Increase Blade Avalanche crit chance by 2–12%
+- Increase Blade Avalanche crit damage by 5–25%
+- Increase Slashing Burst crit chance by 2–12%
+- Increase Slashing Burst crit damage by 5–25%
 - +5–20% Bonus XP
+- −3–12% Damage taken
+- +1–14% Crit Rate
+- +5–20% Crit Damage
+- +5–30% Skill leveling
 
 **Black Tiger Armour (M)** (`black-tiger-armour`)
 - +1–5 AC
 - +1–5 AMC
 - +1–5 DC
-- +1–3 MC
-- +1–3 SC
 - +10–100 HP (step 10)
 - +10–100 MP (step 10)
 - +1–3 Agi
+- Increase Slaying damage by 5–20%
+- Increase Flaming Sword damage by 5–15%
+- Reduce Flaming Sword cooldown by 1–3 seconds
+- Increase Twin Drake Blade damage by 5–15%
+- Reduce mana cost of Twin Drake Blade by 5–20%
+- Increase Blade Avalanche damage by 5–15%
+- Reduce mana cost of Blade Avalanche by 5–20%
+- Increase Slashing Burst damage by 5–15%
+- Reduce mana cost of Slashing Burst by 5–20%
+- Increase Slaying crit chance by 2–12%
+- Increase Slaying crit damage by 5–25%
+- Increase Flaming Sword crit chance by 2–12%
+- Increase Flaming Sword crit damage by 5–25%
+- Increase Twin Drake Blade crit chance by 2–12%
+- Increase Twin Drake Blade crit damage by 5–25%
+- Increase Blade Avalanche crit chance by 2–12%
+- Increase Blade Avalanche crit damage by 5–25%
+- Increase Slashing Burst crit chance by 2–12%
+- Increase Slashing Burst crit damage by 5–25%
 - +5–20% Bonus XP
+- −3–12% Damage taken
+- +1–14% Crit Rate
+- +5–20% Crit Damage
+- +5–30% Skill leveling
 
 **Crane Armour (F)** (`crane-armour-f`)
 - +1–5 AC
 - +1–5 AMC
 - +1–5 DC
-- +1–3 MC
 - +1–3 SC
 - +10–100 HP (step 10)
 - +10–100 MP (step 10)
 - +1–3 Agi
+- Increase Healing healing by 5–15%
+- Increase Mass Healing healing by 5–15%
+- Increase Soul Fire Ball damage by 5–20%
+- Increase Skeleton damage by 5–25%
+- Increase Skeleton health by 5–25%
+- Reduce Skeleton damage taken by 5–10%
+- Increase Shinsu damage by 5–25%
+- Increase Shinsu health by 5–25%
+- Reduce Shinsu damage taken by 5–10%
+- Increase Holy Deva damage by 5–25%
+- Increase Holy Deva health by 5–25%
+- Reduce Holy Deva damage taken by 5–10%
+- Increase Soul Fire Ball crit chance by 2–12%
+- Increase Soul Fire Ball crit damage by 5–25%
 - +5–20% Bonus XP
+- −3–12% Damage taken
+- +1–14% Crit Rate
+- +5–20% Crit Damage
+- +5–30% Skill leveling
 
 **Crane Armour (M)** (`crane-armour`)
 - +1–5 AC
 - +1–5 AMC
 - +1–5 DC
-- +1–3 MC
 - +1–3 SC
 - +10–100 HP (step 10)
 - +10–100 MP (step 10)
 - +1–3 Agi
+- Increase Healing healing by 5–15%
+- Increase Mass Healing healing by 5–15%
+- Increase Soul Fire Ball damage by 5–20%
+- Increase Skeleton damage by 5–25%
+- Increase Skeleton health by 5–25%
+- Reduce Skeleton damage taken by 5–10%
+- Increase Shinsu damage by 5–25%
+- Increase Shinsu health by 5–25%
+- Reduce Shinsu damage taken by 5–10%
+- Increase Holy Deva damage by 5–25%
+- Increase Holy Deva health by 5–25%
+- Reduce Holy Deva damage taken by 5–10%
+- Increase Soul Fire Ball crit chance by 2–12%
+- Increase Soul Fire Ball crit damage by 5–25%
 - +5–20% Bonus XP
+- −3–12% Damage taken
+- +1–14% Crit Rate
+- +5–20% Crit Damage
+- +5–30% Skill leveling
 
 **Lotus Armour (F)** (`lotus-armour-f`)
 - +1–5 AC
 - +1–5 AMC
-- +1–5 DC
 - +1–3 MC
-- +1–3 SC
 - +10–100 HP (step 10)
 - +10–100 MP (step 10)
 - +1–3 Agi
+- Increase Flame Disruptor damage by 5–20%
+- Increase Fire Wall damage by 5–15%
+- Increase Thunder Bolt damage by 5–20%
+- Increase Ice Storm damage by 5–15%
+- Increase Flame Field damage by 5–15%
+- Increase Meteor Strike damage by 5–15%
+- Increase Blizzard damage by 5–15%
+- Increase Fire Ball damage by 5–20%
+- Increase Great Fire Ball damage by 5–20%
+- Increase Frost Crunch damage by 5–15%
+- Reduce mana cost of Flame Disruptor by 5–20%
+- Reduce mana cost of Fire Wall by 5–20%
+- Reduce mana cost of Thunder Bolt by 5–20%
+- Reduce mana cost of Ice Storm by 5–20%
+- Reduce mana cost of Flame Field by 5–20%
+- Reduce mana cost of Meteor Strike by 5–20%
+- Reduce mana cost of Blizzard by 5–20%
+- Increase Flame Disruptor crit chance by 2–12%
+- Increase Flame Disruptor crit damage by 5–25%
+- Increase Fire Wall crit chance by 2–12%
+- Increase Fire Wall crit damage by 5–25%
+- Increase Thunder Bolt crit chance by 2–12%
+- Increase Thunder Bolt crit damage by 5–25%
+- Increase Ice Storm crit chance by 2–12%
+- Increase Ice Storm crit damage by 5–25%
+- Increase Flame Field crit chance by 2–12%
+- Increase Flame Field crit damage by 5–25%
+- Increase Meteor Strike crit chance by 2–12%
+- Increase Meteor Strike crit damage by 5–25%
+- Increase Blizzard crit chance by 2–12%
+- Increase Blizzard crit damage by 5–25%
+- Increase Fire Ball crit chance by 2–12%
+- Increase Fire Ball crit damage by 5–25%
+- Increase Great Fire Ball crit chance by 2–12%
+- Increase Great Fire Ball crit damage by 5–25%
+- Increase Frost Crunch crit chance by 2–12%
+- Increase Frost Crunch crit damage by 5–25%
 - +5–20% Bonus XP
+- −3–12% Damage taken
+- +1–14% Crit Rate
+- +5–20% Crit Damage
+- +5–30% Skill leveling
 
 **Lotus Armour (M)** (`lotus-armour`)
 - +1–5 AC
 - +1–5 AMC
-- +1–5 DC
 - +1–3 MC
-- +1–3 SC
 - +10–100 HP (step 10)
 - +10–100 MP (step 10)
 - +1–3 Agi
+- Increase Flame Disruptor damage by 5–20%
+- Increase Fire Wall damage by 5–15%
+- Increase Thunder Bolt damage by 5–20%
+- Increase Ice Storm damage by 5–15%
+- Increase Flame Field damage by 5–15%
+- Increase Meteor Strike damage by 5–15%
+- Increase Blizzard damage by 5–15%
+- Increase Fire Ball damage by 5–20%
+- Increase Great Fire Ball damage by 5–20%
+- Increase Frost Crunch damage by 5–15%
+- Reduce mana cost of Flame Disruptor by 5–20%
+- Reduce mana cost of Fire Wall by 5–20%
+- Reduce mana cost of Thunder Bolt by 5–20%
+- Reduce mana cost of Ice Storm by 5–20%
+- Reduce mana cost of Flame Field by 5–20%
+- Reduce mana cost of Meteor Strike by 5–20%
+- Reduce mana cost of Blizzard by 5–20%
+- Increase Flame Disruptor crit chance by 2–12%
+- Increase Flame Disruptor crit damage by 5–25%
+- Increase Fire Wall crit chance by 2–12%
+- Increase Fire Wall crit damage by 5–25%
+- Increase Thunder Bolt crit chance by 2–12%
+- Increase Thunder Bolt crit damage by 5–25%
+- Increase Ice Storm crit chance by 2–12%
+- Increase Ice Storm crit damage by 5–25%
+- Increase Flame Field crit chance by 2–12%
+- Increase Flame Field crit damage by 5–25%
+- Increase Meteor Strike crit chance by 2–12%
+- Increase Meteor Strike crit damage by 5–25%
+- Increase Blizzard crit chance by 2–12%
+- Increase Blizzard crit damage by 5–25%
+- Increase Fire Ball crit chance by 2–12%
+- Increase Fire Ball crit damage by 5–25%
+- Increase Great Fire Ball crit chance by 2–12%
+- Increase Great Fire Ball crit damage by 5–25%
+- Increase Frost Crunch crit chance by 2–12%
+- Increase Frost Crunch crit damage by 5–25%
 - +5–20% Bonus XP
+- −3–12% Damage taken
+- +1–14% Crit Rate
+- +5–20% Crit Damage
+- +5–30% Skill leveling
 
 **Oma King Robe** (`oma-king-robe`)
 - +1–5 AC
@@ -927,7 +4108,81 @@ Grouped by slot. Weapons show their class and actual roll pool from `empowerCand
 - +10–100 HP (step 10)
 - +10–100 MP (step 10)
 - +1–3 Agi
+- Increase Slaying damage by 5–20%
+- Increase Flaming Sword damage by 5–15%
+- Reduce Flaming Sword cooldown by 1–3 seconds
+- Increase Twin Drake Blade damage by 5–15%
+- Reduce mana cost of Twin Drake Blade by 5–20%
+- Increase Blade Avalanche damage by 5–15%
+- Reduce mana cost of Blade Avalanche by 5–20%
+- Increase Slashing Burst damage by 5–15%
+- Reduce mana cost of Slashing Burst by 5–20%
+- Increase Flame Disruptor damage by 5–20%
+- Increase Fire Wall damage by 5–15%
+- Increase Thunder Bolt damage by 5–20%
+- Increase Ice Storm damage by 5–15%
+- Increase Flame Field damage by 5–15%
+- Increase Meteor Strike damage by 5–15%
+- Increase Blizzard damage by 5–15%
+- Increase Fire Ball damage by 5–20%
+- Increase Great Fire Ball damage by 5–20%
+- Increase Frost Crunch damage by 5–15%
+- Reduce mana cost of Flame Disruptor by 5–20%
+- Reduce mana cost of Fire Wall by 5–20%
+- Reduce mana cost of Thunder Bolt by 5–20%
+- Reduce mana cost of Ice Storm by 5–20%
+- Reduce mana cost of Flame Field by 5–20%
+- Reduce mana cost of Meteor Strike by 5–20%
+- Reduce mana cost of Blizzard by 5–20%
+- Increase Healing healing by 5–15%
+- Increase Mass Healing healing by 5–15%
+- Increase Soul Fire Ball damage by 5–20%
+- Increase Skeleton damage by 5–25%
+- Increase Skeleton health by 5–25%
+- Reduce Skeleton damage taken by 5–10%
+- Increase Shinsu damage by 5–25%
+- Increase Shinsu health by 5–25%
+- Reduce Shinsu damage taken by 5–10%
+- Increase Holy Deva damage by 5–25%
+- Increase Holy Deva health by 5–25%
+- Reduce Holy Deva damage taken by 5–10%
+- Increase Slaying crit chance by 2–12%
+- Increase Slaying crit damage by 5–25%
+- Increase Flaming Sword crit chance by 2–12%
+- Increase Flaming Sword crit damage by 5–25%
+- Increase Twin Drake Blade crit chance by 2–12%
+- Increase Twin Drake Blade crit damage by 5–25%
+- Increase Blade Avalanche crit chance by 2–12%
+- Increase Blade Avalanche crit damage by 5–25%
+- Increase Slashing Burst crit chance by 2–12%
+- Increase Slashing Burst crit damage by 5–25%
+- Increase Flame Disruptor crit chance by 2–12%
+- Increase Flame Disruptor crit damage by 5–25%
+- Increase Fire Wall crit chance by 2–12%
+- Increase Fire Wall crit damage by 5–25%
+- Increase Thunder Bolt crit chance by 2–12%
+- Increase Thunder Bolt crit damage by 5–25%
+- Increase Ice Storm crit chance by 2–12%
+- Increase Ice Storm crit damage by 5–25%
+- Increase Flame Field crit chance by 2–12%
+- Increase Flame Field crit damage by 5–25%
+- Increase Meteor Strike crit chance by 2–12%
+- Increase Meteor Strike crit damage by 5–25%
+- Increase Blizzard crit chance by 2–12%
+- Increase Blizzard crit damage by 5–25%
+- Increase Fire Ball crit chance by 2–12%
+- Increase Fire Ball crit damage by 5–25%
+- Increase Great Fire Ball crit chance by 2–12%
+- Increase Great Fire Ball crit damage by 5–25%
+- Increase Frost Crunch crit chance by 2–12%
+- Increase Frost Crunch crit damage by 5–25%
+- Increase Soul Fire Ball crit chance by 2–12%
+- Increase Soul Fire Ball crit damage by 5–25%
 - +5–20% Bonus XP
+- −3–12% Damage taken
+- +1–14% Crit Rate
+- +5–20% Crit Damage
+- +5–30% Skill leveling
 
 **Oma King Robe (F)1** (`oma-king-robe-f-1`)
 - +1–5 AC
@@ -938,7 +4193,81 @@ Grouped by slot. Weapons show their class and actual roll pool from `empowerCand
 - +10–100 HP (step 10)
 - +10–100 MP (step 10)
 - +1–3 Agi
+- Increase Slaying damage by 5–20%
+- Increase Flaming Sword damage by 5–15%
+- Reduce Flaming Sword cooldown by 1–3 seconds
+- Increase Twin Drake Blade damage by 5–15%
+- Reduce mana cost of Twin Drake Blade by 5–20%
+- Increase Blade Avalanche damage by 5–15%
+- Reduce mana cost of Blade Avalanche by 5–20%
+- Increase Slashing Burst damage by 5–15%
+- Reduce mana cost of Slashing Burst by 5–20%
+- Increase Flame Disruptor damage by 5–20%
+- Increase Fire Wall damage by 5–15%
+- Increase Thunder Bolt damage by 5–20%
+- Increase Ice Storm damage by 5–15%
+- Increase Flame Field damage by 5–15%
+- Increase Meteor Strike damage by 5–15%
+- Increase Blizzard damage by 5–15%
+- Increase Fire Ball damage by 5–20%
+- Increase Great Fire Ball damage by 5–20%
+- Increase Frost Crunch damage by 5–15%
+- Reduce mana cost of Flame Disruptor by 5–20%
+- Reduce mana cost of Fire Wall by 5–20%
+- Reduce mana cost of Thunder Bolt by 5–20%
+- Reduce mana cost of Ice Storm by 5–20%
+- Reduce mana cost of Flame Field by 5–20%
+- Reduce mana cost of Meteor Strike by 5–20%
+- Reduce mana cost of Blizzard by 5–20%
+- Increase Healing healing by 5–15%
+- Increase Mass Healing healing by 5–15%
+- Increase Soul Fire Ball damage by 5–20%
+- Increase Skeleton damage by 5–25%
+- Increase Skeleton health by 5–25%
+- Reduce Skeleton damage taken by 5–10%
+- Increase Shinsu damage by 5–25%
+- Increase Shinsu health by 5–25%
+- Reduce Shinsu damage taken by 5–10%
+- Increase Holy Deva damage by 5–25%
+- Increase Holy Deva health by 5–25%
+- Reduce Holy Deva damage taken by 5–10%
+- Increase Slaying crit chance by 2–12%
+- Increase Slaying crit damage by 5–25%
+- Increase Flaming Sword crit chance by 2–12%
+- Increase Flaming Sword crit damage by 5–25%
+- Increase Twin Drake Blade crit chance by 2–12%
+- Increase Twin Drake Blade crit damage by 5–25%
+- Increase Blade Avalanche crit chance by 2–12%
+- Increase Blade Avalanche crit damage by 5–25%
+- Increase Slashing Burst crit chance by 2–12%
+- Increase Slashing Burst crit damage by 5–25%
+- Increase Flame Disruptor crit chance by 2–12%
+- Increase Flame Disruptor crit damage by 5–25%
+- Increase Fire Wall crit chance by 2–12%
+- Increase Fire Wall crit damage by 5–25%
+- Increase Thunder Bolt crit chance by 2–12%
+- Increase Thunder Bolt crit damage by 5–25%
+- Increase Ice Storm crit chance by 2–12%
+- Increase Ice Storm crit damage by 5–25%
+- Increase Flame Field crit chance by 2–12%
+- Increase Flame Field crit damage by 5–25%
+- Increase Meteor Strike crit chance by 2–12%
+- Increase Meteor Strike crit damage by 5–25%
+- Increase Blizzard crit chance by 2–12%
+- Increase Blizzard crit damage by 5–25%
+- Increase Fire Ball crit chance by 2–12%
+- Increase Fire Ball crit damage by 5–25%
+- Increase Great Fire Ball crit chance by 2–12%
+- Increase Great Fire Ball crit damage by 5–25%
+- Increase Frost Crunch crit chance by 2–12%
+- Increase Frost Crunch crit damage by 5–25%
+- Increase Soul Fire Ball crit chance by 2–12%
+- Increase Soul Fire Ball crit damage by 5–25%
 - +5–20% Bonus XP
+- −3–12% Damage taken
+- +1–14% Crit Rate
+- +5–20% Crit Damage
+- +5–30% Skill leveling
 
 **Oma King Robe (F)2** (`oma-king-robe-f-2`)
 - +1–5 AC
@@ -949,7 +4278,81 @@ Grouped by slot. Weapons show their class and actual roll pool from `empowerCand
 - +10–100 HP (step 10)
 - +10–100 MP (step 10)
 - +1–3 Agi
+- Increase Slaying damage by 5–20%
+- Increase Flaming Sword damage by 5–15%
+- Reduce Flaming Sword cooldown by 1–3 seconds
+- Increase Twin Drake Blade damage by 5–15%
+- Reduce mana cost of Twin Drake Blade by 5–20%
+- Increase Blade Avalanche damage by 5–15%
+- Reduce mana cost of Blade Avalanche by 5–20%
+- Increase Slashing Burst damage by 5–15%
+- Reduce mana cost of Slashing Burst by 5–20%
+- Increase Flame Disruptor damage by 5–20%
+- Increase Fire Wall damage by 5–15%
+- Increase Thunder Bolt damage by 5–20%
+- Increase Ice Storm damage by 5–15%
+- Increase Flame Field damage by 5–15%
+- Increase Meteor Strike damage by 5–15%
+- Increase Blizzard damage by 5–15%
+- Increase Fire Ball damage by 5–20%
+- Increase Great Fire Ball damage by 5–20%
+- Increase Frost Crunch damage by 5–15%
+- Reduce mana cost of Flame Disruptor by 5–20%
+- Reduce mana cost of Fire Wall by 5–20%
+- Reduce mana cost of Thunder Bolt by 5–20%
+- Reduce mana cost of Ice Storm by 5–20%
+- Reduce mana cost of Flame Field by 5–20%
+- Reduce mana cost of Meteor Strike by 5–20%
+- Reduce mana cost of Blizzard by 5–20%
+- Increase Healing healing by 5–15%
+- Increase Mass Healing healing by 5–15%
+- Increase Soul Fire Ball damage by 5–20%
+- Increase Skeleton damage by 5–25%
+- Increase Skeleton health by 5–25%
+- Reduce Skeleton damage taken by 5–10%
+- Increase Shinsu damage by 5–25%
+- Increase Shinsu health by 5–25%
+- Reduce Shinsu damage taken by 5–10%
+- Increase Holy Deva damage by 5–25%
+- Increase Holy Deva health by 5–25%
+- Reduce Holy Deva damage taken by 5–10%
+- Increase Slaying crit chance by 2–12%
+- Increase Slaying crit damage by 5–25%
+- Increase Flaming Sword crit chance by 2–12%
+- Increase Flaming Sword crit damage by 5–25%
+- Increase Twin Drake Blade crit chance by 2–12%
+- Increase Twin Drake Blade crit damage by 5–25%
+- Increase Blade Avalanche crit chance by 2–12%
+- Increase Blade Avalanche crit damage by 5–25%
+- Increase Slashing Burst crit chance by 2–12%
+- Increase Slashing Burst crit damage by 5–25%
+- Increase Flame Disruptor crit chance by 2–12%
+- Increase Flame Disruptor crit damage by 5–25%
+- Increase Fire Wall crit chance by 2–12%
+- Increase Fire Wall crit damage by 5–25%
+- Increase Thunder Bolt crit chance by 2–12%
+- Increase Thunder Bolt crit damage by 5–25%
+- Increase Ice Storm crit chance by 2–12%
+- Increase Ice Storm crit damage by 5–25%
+- Increase Flame Field crit chance by 2–12%
+- Increase Flame Field crit damage by 5–25%
+- Increase Meteor Strike crit chance by 2–12%
+- Increase Meteor Strike crit damage by 5–25%
+- Increase Blizzard crit chance by 2–12%
+- Increase Blizzard crit damage by 5–25%
+- Increase Fire Ball crit chance by 2–12%
+- Increase Fire Ball crit damage by 5–25%
+- Increase Great Fire Ball crit chance by 2–12%
+- Increase Great Fire Ball crit damage by 5–25%
+- Increase Frost Crunch crit chance by 2–12%
+- Increase Frost Crunch crit damage by 5–25%
+- Increase Soul Fire Ball crit chance by 2–12%
+- Increase Soul Fire Ball crit damage by 5–25%
 - +5–20% Bonus XP
+- −3–12% Damage taken
+- +1–14% Crit Rate
+- +5–20% Crit Damage
+- +5–30% Skill leveling
 
 **Oma King Robe (F)3** (`oma-king-robe-f-3`)
 - +1–5 AC
@@ -960,7 +4363,81 @@ Grouped by slot. Weapons show their class and actual roll pool from `empowerCand
 - +10–100 HP (step 10)
 - +10–100 MP (step 10)
 - +1–3 Agi
+- Increase Slaying damage by 5–20%
+- Increase Flaming Sword damage by 5–15%
+- Reduce Flaming Sword cooldown by 1–3 seconds
+- Increase Twin Drake Blade damage by 5–15%
+- Reduce mana cost of Twin Drake Blade by 5–20%
+- Increase Blade Avalanche damage by 5–15%
+- Reduce mana cost of Blade Avalanche by 5–20%
+- Increase Slashing Burst damage by 5–15%
+- Reduce mana cost of Slashing Burst by 5–20%
+- Increase Flame Disruptor damage by 5–20%
+- Increase Fire Wall damage by 5–15%
+- Increase Thunder Bolt damage by 5–20%
+- Increase Ice Storm damage by 5–15%
+- Increase Flame Field damage by 5–15%
+- Increase Meteor Strike damage by 5–15%
+- Increase Blizzard damage by 5–15%
+- Increase Fire Ball damage by 5–20%
+- Increase Great Fire Ball damage by 5–20%
+- Increase Frost Crunch damage by 5–15%
+- Reduce mana cost of Flame Disruptor by 5–20%
+- Reduce mana cost of Fire Wall by 5–20%
+- Reduce mana cost of Thunder Bolt by 5–20%
+- Reduce mana cost of Ice Storm by 5–20%
+- Reduce mana cost of Flame Field by 5–20%
+- Reduce mana cost of Meteor Strike by 5–20%
+- Reduce mana cost of Blizzard by 5–20%
+- Increase Healing healing by 5–15%
+- Increase Mass Healing healing by 5–15%
+- Increase Soul Fire Ball damage by 5–20%
+- Increase Skeleton damage by 5–25%
+- Increase Skeleton health by 5–25%
+- Reduce Skeleton damage taken by 5–10%
+- Increase Shinsu damage by 5–25%
+- Increase Shinsu health by 5–25%
+- Reduce Shinsu damage taken by 5–10%
+- Increase Holy Deva damage by 5–25%
+- Increase Holy Deva health by 5–25%
+- Reduce Holy Deva damage taken by 5–10%
+- Increase Slaying crit chance by 2–12%
+- Increase Slaying crit damage by 5–25%
+- Increase Flaming Sword crit chance by 2–12%
+- Increase Flaming Sword crit damage by 5–25%
+- Increase Twin Drake Blade crit chance by 2–12%
+- Increase Twin Drake Blade crit damage by 5–25%
+- Increase Blade Avalanche crit chance by 2–12%
+- Increase Blade Avalanche crit damage by 5–25%
+- Increase Slashing Burst crit chance by 2–12%
+- Increase Slashing Burst crit damage by 5–25%
+- Increase Flame Disruptor crit chance by 2–12%
+- Increase Flame Disruptor crit damage by 5–25%
+- Increase Fire Wall crit chance by 2–12%
+- Increase Fire Wall crit damage by 5–25%
+- Increase Thunder Bolt crit chance by 2–12%
+- Increase Thunder Bolt crit damage by 5–25%
+- Increase Ice Storm crit chance by 2–12%
+- Increase Ice Storm crit damage by 5–25%
+- Increase Flame Field crit chance by 2–12%
+- Increase Flame Field crit damage by 5–25%
+- Increase Meteor Strike crit chance by 2–12%
+- Increase Meteor Strike crit damage by 5–25%
+- Increase Blizzard crit chance by 2–12%
+- Increase Blizzard crit damage by 5–25%
+- Increase Fire Ball crit chance by 2–12%
+- Increase Fire Ball crit damage by 5–25%
+- Increase Great Fire Ball crit chance by 2–12%
+- Increase Great Fire Ball crit damage by 5–25%
+- Increase Frost Crunch crit chance by 2–12%
+- Increase Frost Crunch crit damage by 5–25%
+- Increase Soul Fire Ball crit chance by 2–12%
+- Increase Soul Fire Ball crit damage by 5–25%
 - +5–20% Bonus XP
+- −3–12% Damage taken
+- +1–14% Crit Rate
+- +5–20% Crit Damage
+- +5–30% Skill leveling
 
 **Oma King Robe (M)1** (`oma-king-robe-m-1`)
 - +1–5 AC
@@ -971,7 +4448,81 @@ Grouped by slot. Weapons show their class and actual roll pool from `empowerCand
 - +10–100 HP (step 10)
 - +10–100 MP (step 10)
 - +1–3 Agi
+- Increase Slaying damage by 5–20%
+- Increase Flaming Sword damage by 5–15%
+- Reduce Flaming Sword cooldown by 1–3 seconds
+- Increase Twin Drake Blade damage by 5–15%
+- Reduce mana cost of Twin Drake Blade by 5–20%
+- Increase Blade Avalanche damage by 5–15%
+- Reduce mana cost of Blade Avalanche by 5–20%
+- Increase Slashing Burst damage by 5–15%
+- Reduce mana cost of Slashing Burst by 5–20%
+- Increase Flame Disruptor damage by 5–20%
+- Increase Fire Wall damage by 5–15%
+- Increase Thunder Bolt damage by 5–20%
+- Increase Ice Storm damage by 5–15%
+- Increase Flame Field damage by 5–15%
+- Increase Meteor Strike damage by 5–15%
+- Increase Blizzard damage by 5–15%
+- Increase Fire Ball damage by 5–20%
+- Increase Great Fire Ball damage by 5–20%
+- Increase Frost Crunch damage by 5–15%
+- Reduce mana cost of Flame Disruptor by 5–20%
+- Reduce mana cost of Fire Wall by 5–20%
+- Reduce mana cost of Thunder Bolt by 5–20%
+- Reduce mana cost of Ice Storm by 5–20%
+- Reduce mana cost of Flame Field by 5–20%
+- Reduce mana cost of Meteor Strike by 5–20%
+- Reduce mana cost of Blizzard by 5–20%
+- Increase Healing healing by 5–15%
+- Increase Mass Healing healing by 5–15%
+- Increase Soul Fire Ball damage by 5–20%
+- Increase Skeleton damage by 5–25%
+- Increase Skeleton health by 5–25%
+- Reduce Skeleton damage taken by 5–10%
+- Increase Shinsu damage by 5–25%
+- Increase Shinsu health by 5–25%
+- Reduce Shinsu damage taken by 5–10%
+- Increase Holy Deva damage by 5–25%
+- Increase Holy Deva health by 5–25%
+- Reduce Holy Deva damage taken by 5–10%
+- Increase Slaying crit chance by 2–12%
+- Increase Slaying crit damage by 5–25%
+- Increase Flaming Sword crit chance by 2–12%
+- Increase Flaming Sword crit damage by 5–25%
+- Increase Twin Drake Blade crit chance by 2–12%
+- Increase Twin Drake Blade crit damage by 5–25%
+- Increase Blade Avalanche crit chance by 2–12%
+- Increase Blade Avalanche crit damage by 5–25%
+- Increase Slashing Burst crit chance by 2–12%
+- Increase Slashing Burst crit damage by 5–25%
+- Increase Flame Disruptor crit chance by 2–12%
+- Increase Flame Disruptor crit damage by 5–25%
+- Increase Fire Wall crit chance by 2–12%
+- Increase Fire Wall crit damage by 5–25%
+- Increase Thunder Bolt crit chance by 2–12%
+- Increase Thunder Bolt crit damage by 5–25%
+- Increase Ice Storm crit chance by 2–12%
+- Increase Ice Storm crit damage by 5–25%
+- Increase Flame Field crit chance by 2–12%
+- Increase Flame Field crit damage by 5–25%
+- Increase Meteor Strike crit chance by 2–12%
+- Increase Meteor Strike crit damage by 5–25%
+- Increase Blizzard crit chance by 2–12%
+- Increase Blizzard crit damage by 5–25%
+- Increase Fire Ball crit chance by 2–12%
+- Increase Fire Ball crit damage by 5–25%
+- Increase Great Fire Ball crit chance by 2–12%
+- Increase Great Fire Ball crit damage by 5–25%
+- Increase Frost Crunch crit chance by 2–12%
+- Increase Frost Crunch crit damage by 5–25%
+- Increase Soul Fire Ball crit chance by 2–12%
+- Increase Soul Fire Ball crit damage by 5–25%
 - +5–20% Bonus XP
+- −3–12% Damage taken
+- +1–14% Crit Rate
+- +5–20% Crit Damage
+- +5–30% Skill leveling
 
 **Oma King Robe (M)2** (`oma-king-robe-m-2`)
 - +1–5 AC
@@ -982,7 +4533,81 @@ Grouped by slot. Weapons show their class and actual roll pool from `empowerCand
 - +10–100 HP (step 10)
 - +10–100 MP (step 10)
 - +1–3 Agi
+- Increase Slaying damage by 5–20%
+- Increase Flaming Sword damage by 5–15%
+- Reduce Flaming Sword cooldown by 1–3 seconds
+- Increase Twin Drake Blade damage by 5–15%
+- Reduce mana cost of Twin Drake Blade by 5–20%
+- Increase Blade Avalanche damage by 5–15%
+- Reduce mana cost of Blade Avalanche by 5–20%
+- Increase Slashing Burst damage by 5–15%
+- Reduce mana cost of Slashing Burst by 5–20%
+- Increase Flame Disruptor damage by 5–20%
+- Increase Fire Wall damage by 5–15%
+- Increase Thunder Bolt damage by 5–20%
+- Increase Ice Storm damage by 5–15%
+- Increase Flame Field damage by 5–15%
+- Increase Meteor Strike damage by 5–15%
+- Increase Blizzard damage by 5–15%
+- Increase Fire Ball damage by 5–20%
+- Increase Great Fire Ball damage by 5–20%
+- Increase Frost Crunch damage by 5–15%
+- Reduce mana cost of Flame Disruptor by 5–20%
+- Reduce mana cost of Fire Wall by 5–20%
+- Reduce mana cost of Thunder Bolt by 5–20%
+- Reduce mana cost of Ice Storm by 5–20%
+- Reduce mana cost of Flame Field by 5–20%
+- Reduce mana cost of Meteor Strike by 5–20%
+- Reduce mana cost of Blizzard by 5–20%
+- Increase Healing healing by 5–15%
+- Increase Mass Healing healing by 5–15%
+- Increase Soul Fire Ball damage by 5–20%
+- Increase Skeleton damage by 5–25%
+- Increase Skeleton health by 5–25%
+- Reduce Skeleton damage taken by 5–10%
+- Increase Shinsu damage by 5–25%
+- Increase Shinsu health by 5–25%
+- Reduce Shinsu damage taken by 5–10%
+- Increase Holy Deva damage by 5–25%
+- Increase Holy Deva health by 5–25%
+- Reduce Holy Deva damage taken by 5–10%
+- Increase Slaying crit chance by 2–12%
+- Increase Slaying crit damage by 5–25%
+- Increase Flaming Sword crit chance by 2–12%
+- Increase Flaming Sword crit damage by 5–25%
+- Increase Twin Drake Blade crit chance by 2–12%
+- Increase Twin Drake Blade crit damage by 5–25%
+- Increase Blade Avalanche crit chance by 2–12%
+- Increase Blade Avalanche crit damage by 5–25%
+- Increase Slashing Burst crit chance by 2–12%
+- Increase Slashing Burst crit damage by 5–25%
+- Increase Flame Disruptor crit chance by 2–12%
+- Increase Flame Disruptor crit damage by 5–25%
+- Increase Fire Wall crit chance by 2–12%
+- Increase Fire Wall crit damage by 5–25%
+- Increase Thunder Bolt crit chance by 2–12%
+- Increase Thunder Bolt crit damage by 5–25%
+- Increase Ice Storm crit chance by 2–12%
+- Increase Ice Storm crit damage by 5–25%
+- Increase Flame Field crit chance by 2–12%
+- Increase Flame Field crit damage by 5–25%
+- Increase Meteor Strike crit chance by 2–12%
+- Increase Meteor Strike crit damage by 5–25%
+- Increase Blizzard crit chance by 2–12%
+- Increase Blizzard crit damage by 5–25%
+- Increase Fire Ball crit chance by 2–12%
+- Increase Fire Ball crit damage by 5–25%
+- Increase Great Fire Ball crit chance by 2–12%
+- Increase Great Fire Ball crit damage by 5–25%
+- Increase Frost Crunch crit chance by 2–12%
+- Increase Frost Crunch crit damage by 5–25%
+- Increase Soul Fire Ball crit chance by 2–12%
+- Increase Soul Fire Ball crit damage by 5–25%
 - +5–20% Bonus XP
+- −3–12% Damage taken
+- +1–14% Crit Rate
+- +5–20% Crit Damage
+- +5–30% Skill leveling
 
 **Oma King Robe (M)3** (`oma-king-robe-m-3`)
 - +1–5 AC
@@ -993,139 +4618,521 @@ Grouped by slot. Weapons show their class and actual roll pool from `empowerCand
 - +10–100 HP (step 10)
 - +10–100 MP (step 10)
 - +1–3 Agi
+- Increase Slaying damage by 5–20%
+- Increase Flaming Sword damage by 5–15%
+- Reduce Flaming Sword cooldown by 1–3 seconds
+- Increase Twin Drake Blade damage by 5–15%
+- Reduce mana cost of Twin Drake Blade by 5–20%
+- Increase Blade Avalanche damage by 5–15%
+- Reduce mana cost of Blade Avalanche by 5–20%
+- Increase Slashing Burst damage by 5–15%
+- Reduce mana cost of Slashing Burst by 5–20%
+- Increase Flame Disruptor damage by 5–20%
+- Increase Fire Wall damage by 5–15%
+- Increase Thunder Bolt damage by 5–20%
+- Increase Ice Storm damage by 5–15%
+- Increase Flame Field damage by 5–15%
+- Increase Meteor Strike damage by 5–15%
+- Increase Blizzard damage by 5–15%
+- Increase Fire Ball damage by 5–20%
+- Increase Great Fire Ball damage by 5–20%
+- Increase Frost Crunch damage by 5–15%
+- Reduce mana cost of Flame Disruptor by 5–20%
+- Reduce mana cost of Fire Wall by 5–20%
+- Reduce mana cost of Thunder Bolt by 5–20%
+- Reduce mana cost of Ice Storm by 5–20%
+- Reduce mana cost of Flame Field by 5–20%
+- Reduce mana cost of Meteor Strike by 5–20%
+- Reduce mana cost of Blizzard by 5–20%
+- Increase Healing healing by 5–15%
+- Increase Mass Healing healing by 5–15%
+- Increase Soul Fire Ball damage by 5–20%
+- Increase Skeleton damage by 5–25%
+- Increase Skeleton health by 5–25%
+- Reduce Skeleton damage taken by 5–10%
+- Increase Shinsu damage by 5–25%
+- Increase Shinsu health by 5–25%
+- Reduce Shinsu damage taken by 5–10%
+- Increase Holy Deva damage by 5–25%
+- Increase Holy Deva health by 5–25%
+- Reduce Holy Deva damage taken by 5–10%
+- Increase Slaying crit chance by 2–12%
+- Increase Slaying crit damage by 5–25%
+- Increase Flaming Sword crit chance by 2–12%
+- Increase Flaming Sword crit damage by 5–25%
+- Increase Twin Drake Blade crit chance by 2–12%
+- Increase Twin Drake Blade crit damage by 5–25%
+- Increase Blade Avalanche crit chance by 2–12%
+- Increase Blade Avalanche crit damage by 5–25%
+- Increase Slashing Burst crit chance by 2–12%
+- Increase Slashing Burst crit damage by 5–25%
+- Increase Flame Disruptor crit chance by 2–12%
+- Increase Flame Disruptor crit damage by 5–25%
+- Increase Fire Wall crit chance by 2–12%
+- Increase Fire Wall crit damage by 5–25%
+- Increase Thunder Bolt crit chance by 2–12%
+- Increase Thunder Bolt crit damage by 5–25%
+- Increase Ice Storm crit chance by 2–12%
+- Increase Ice Storm crit damage by 5–25%
+- Increase Flame Field crit chance by 2–12%
+- Increase Flame Field crit damage by 5–25%
+- Increase Meteor Strike crit chance by 2–12%
+- Increase Meteor Strike crit damage by 5–25%
+- Increase Blizzard crit chance by 2–12%
+- Increase Blizzard crit damage by 5–25%
+- Increase Fire Ball crit chance by 2–12%
+- Increase Fire Ball crit damage by 5–25%
+- Increase Great Fire Ball crit chance by 2–12%
+- Increase Great Fire Ball crit damage by 5–25%
+- Increase Frost Crunch crit chance by 2–12%
+- Increase Frost Crunch crit damage by 5–25%
+- Increase Soul Fire Ball crit chance by 2–12%
+- Increase Soul Fire Ball crit damage by 5–25%
 - +5–20% Bonus XP
+- −3–12% Damage taken
+- +1–14% Crit Rate
+- +5–20% Crit Damage
+- +5–30% Skill leveling
 
 **Tarragon Armour (F)1** (`tarragon-armour-f-1`)
 - +1–5 AC
 - +1–5 AMC
 - +1–5 DC
-- +1–3 MC
-- +1–3 SC
 - +10–100 HP (step 10)
 - +10–100 MP (step 10)
 - +1–3 Agi
+- Increase Slaying damage by 5–20%
+- Increase Flaming Sword damage by 5–15%
+- Reduce Flaming Sword cooldown by 1–3 seconds
+- Increase Twin Drake Blade damage by 5–15%
+- Reduce mana cost of Twin Drake Blade by 5–20%
+- Increase Blade Avalanche damage by 5–15%
+- Reduce mana cost of Blade Avalanche by 5–20%
+- Increase Slashing Burst damage by 5–15%
+- Reduce mana cost of Slashing Burst by 5–20%
+- Increase Slaying crit chance by 2–12%
+- Increase Slaying crit damage by 5–25%
+- Increase Flaming Sword crit chance by 2–12%
+- Increase Flaming Sword crit damage by 5–25%
+- Increase Twin Drake Blade crit chance by 2–12%
+- Increase Twin Drake Blade crit damage by 5–25%
+- Increase Blade Avalanche crit chance by 2–12%
+- Increase Blade Avalanche crit damage by 5–25%
+- Increase Slashing Burst crit chance by 2–12%
+- Increase Slashing Burst crit damage by 5–25%
 - +5–20% Bonus XP
+- −3–12% Damage taken
+- +1–14% Crit Rate
+- +5–20% Crit Damage
+- +5–30% Skill leveling
 
 **Tarragon Armour (F)2** (`tarragon-armour-f-2`)
 - +1–5 AC
 - +1–5 AMC
-- +1–5 DC
 - +1–3 MC
-- +1–3 SC
 - +10–100 HP (step 10)
 - +10–100 MP (step 10)
 - +1–3 Agi
+- Increase Flame Disruptor damage by 5–20%
+- Increase Fire Wall damage by 5–15%
+- Increase Thunder Bolt damage by 5–20%
+- Increase Ice Storm damage by 5–15%
+- Increase Flame Field damage by 5–15%
+- Increase Meteor Strike damage by 5–15%
+- Increase Blizzard damage by 5–15%
+- Increase Fire Ball damage by 5–20%
+- Increase Great Fire Ball damage by 5–20%
+- Increase Frost Crunch damage by 5–15%
+- Reduce mana cost of Flame Disruptor by 5–20%
+- Reduce mana cost of Fire Wall by 5–20%
+- Reduce mana cost of Thunder Bolt by 5–20%
+- Reduce mana cost of Ice Storm by 5–20%
+- Reduce mana cost of Flame Field by 5–20%
+- Reduce mana cost of Meteor Strike by 5–20%
+- Reduce mana cost of Blizzard by 5–20%
+- Increase Flame Disruptor crit chance by 2–12%
+- Increase Flame Disruptor crit damage by 5–25%
+- Increase Fire Wall crit chance by 2–12%
+- Increase Fire Wall crit damage by 5–25%
+- Increase Thunder Bolt crit chance by 2–12%
+- Increase Thunder Bolt crit damage by 5–25%
+- Increase Ice Storm crit chance by 2–12%
+- Increase Ice Storm crit damage by 5–25%
+- Increase Flame Field crit chance by 2–12%
+- Increase Flame Field crit damage by 5–25%
+- Increase Meteor Strike crit chance by 2–12%
+- Increase Meteor Strike crit damage by 5–25%
+- Increase Blizzard crit chance by 2–12%
+- Increase Blizzard crit damage by 5–25%
+- Increase Fire Ball crit chance by 2–12%
+- Increase Fire Ball crit damage by 5–25%
+- Increase Great Fire Ball crit chance by 2–12%
+- Increase Great Fire Ball crit damage by 5–25%
+- Increase Frost Crunch crit chance by 2–12%
+- Increase Frost Crunch crit damage by 5–25%
 - +5–20% Bonus XP
+- −3–12% Damage taken
+- +1–14% Crit Rate
+- +5–20% Crit Damage
+- +5–30% Skill leveling
 
 **Tarragon Armour (F)3** (`tarragon-armour-f-3`)
 - +1–5 AC
 - +1–5 AMC
 - +1–5 DC
-- +1–3 MC
 - +1–3 SC
 - +10–100 HP (step 10)
 - +10–100 MP (step 10)
 - +1–3 Agi
+- Increase Healing healing by 5–15%
+- Increase Mass Healing healing by 5–15%
+- Increase Soul Fire Ball damage by 5–20%
+- Increase Skeleton damage by 5–25%
+- Increase Skeleton health by 5–25%
+- Reduce Skeleton damage taken by 5–10%
+- Increase Shinsu damage by 5–25%
+- Increase Shinsu health by 5–25%
+- Reduce Shinsu damage taken by 5–10%
+- Increase Holy Deva damage by 5–25%
+- Increase Holy Deva health by 5–25%
+- Reduce Holy Deva damage taken by 5–10%
+- Increase Soul Fire Ball crit chance by 2–12%
+- Increase Soul Fire Ball crit damage by 5–25%
 - +5–20% Bonus XP
+- −3–12% Damage taken
+- +1–14% Crit Rate
+- +5–20% Crit Damage
+- +5–30% Skill leveling
 
 **Tarragon Armour (M)1** (`tarragon-armour-m-1`)
 - +1–5 AC
 - +1–5 AMC
 - +1–5 DC
-- +1–3 MC
-- +1–3 SC
 - +10–100 HP (step 10)
 - +10–100 MP (step 10)
 - +1–3 Agi
+- Increase Slaying damage by 5–20%
+- Increase Flaming Sword damage by 5–15%
+- Reduce Flaming Sword cooldown by 1–3 seconds
+- Increase Twin Drake Blade damage by 5–15%
+- Reduce mana cost of Twin Drake Blade by 5–20%
+- Increase Blade Avalanche damage by 5–15%
+- Reduce mana cost of Blade Avalanche by 5–20%
+- Increase Slashing Burst damage by 5–15%
+- Reduce mana cost of Slashing Burst by 5–20%
+- Increase Slaying crit chance by 2–12%
+- Increase Slaying crit damage by 5–25%
+- Increase Flaming Sword crit chance by 2–12%
+- Increase Flaming Sword crit damage by 5–25%
+- Increase Twin Drake Blade crit chance by 2–12%
+- Increase Twin Drake Blade crit damage by 5–25%
+- Increase Blade Avalanche crit chance by 2–12%
+- Increase Blade Avalanche crit damage by 5–25%
+- Increase Slashing Burst crit chance by 2–12%
+- Increase Slashing Burst crit damage by 5–25%
 - +5–20% Bonus XP
+- −3–12% Damage taken
+- +1–14% Crit Rate
+- +5–20% Crit Damage
+- +5–30% Skill leveling
 
 **Tarragon Armour (M)2** (`tarragon-armour-m-2`)
 - +1–5 AC
 - +1–5 AMC
-- +1–5 DC
 - +1–3 MC
-- +1–3 SC
 - +10–100 HP (step 10)
 - +10–100 MP (step 10)
 - +1–3 Agi
+- Increase Flame Disruptor damage by 5–20%
+- Increase Fire Wall damage by 5–15%
+- Increase Thunder Bolt damage by 5–20%
+- Increase Ice Storm damage by 5–15%
+- Increase Flame Field damage by 5–15%
+- Increase Meteor Strike damage by 5–15%
+- Increase Blizzard damage by 5–15%
+- Increase Fire Ball damage by 5–20%
+- Increase Great Fire Ball damage by 5–20%
+- Increase Frost Crunch damage by 5–15%
+- Reduce mana cost of Flame Disruptor by 5–20%
+- Reduce mana cost of Fire Wall by 5–20%
+- Reduce mana cost of Thunder Bolt by 5–20%
+- Reduce mana cost of Ice Storm by 5–20%
+- Reduce mana cost of Flame Field by 5–20%
+- Reduce mana cost of Meteor Strike by 5–20%
+- Reduce mana cost of Blizzard by 5–20%
+- Increase Flame Disruptor crit chance by 2–12%
+- Increase Flame Disruptor crit damage by 5–25%
+- Increase Fire Wall crit chance by 2–12%
+- Increase Fire Wall crit damage by 5–25%
+- Increase Thunder Bolt crit chance by 2–12%
+- Increase Thunder Bolt crit damage by 5–25%
+- Increase Ice Storm crit chance by 2–12%
+- Increase Ice Storm crit damage by 5–25%
+- Increase Flame Field crit chance by 2–12%
+- Increase Flame Field crit damage by 5–25%
+- Increase Meteor Strike crit chance by 2–12%
+- Increase Meteor Strike crit damage by 5–25%
+- Increase Blizzard crit chance by 2–12%
+- Increase Blizzard crit damage by 5–25%
+- Increase Fire Ball crit chance by 2–12%
+- Increase Fire Ball crit damage by 5–25%
+- Increase Great Fire Ball crit chance by 2–12%
+- Increase Great Fire Ball crit damage by 5–25%
+- Increase Frost Crunch crit chance by 2–12%
+- Increase Frost Crunch crit damage by 5–25%
 - +5–20% Bonus XP
+- −3–12% Damage taken
+- +1–14% Crit Rate
+- +5–20% Crit Damage
+- +5–30% Skill leveling
 
 **Tarragon Armour (M)3** (`tarragon-armour-m-3`)
 - +1–5 AC
 - +1–5 AMC
 - +1–5 DC
-- +1–3 MC
 - +1–3 SC
 - +10–100 HP (step 10)
 - +10–100 MP (step 10)
 - +1–3 Agi
+- Increase Healing healing by 5–15%
+- Increase Mass Healing healing by 5–15%
+- Increase Soul Fire Ball damage by 5–20%
+- Increase Skeleton damage by 5–25%
+- Increase Skeleton health by 5–25%
+- Reduce Skeleton damage taken by 5–10%
+- Increase Shinsu damage by 5–25%
+- Increase Shinsu health by 5–25%
+- Reduce Shinsu damage taken by 5–10%
+- Increase Holy Deva damage by 5–25%
+- Increase Holy Deva health by 5–25%
+- Reduce Holy Deva damage taken by 5–10%
+- Increase Soul Fire Ball crit chance by 2–12%
+- Increase Soul Fire Ball crit damage by 5–25%
 - +5–20% Bonus XP
+- −3–12% Damage taken
+- +1–14% Crit Rate
+- +5–20% Crit Damage
+- +5–30% Skill leveling
 
 **Raiders Armour (F)1** (`raiders-armour-f-1`)
 - +1–5 AC
 - +1–5 AMC
 - +1–5 DC
-- +1–3 MC
-- +1–3 SC
 - +10–100 HP (step 10)
 - +10–100 MP (step 10)
 - +1–3 Agi
+- Increase Slaying damage by 5–20%
+- Increase Flaming Sword damage by 5–15%
+- Reduce Flaming Sword cooldown by 1–3 seconds
+- Increase Twin Drake Blade damage by 5–15%
+- Reduce mana cost of Twin Drake Blade by 5–20%
+- Increase Blade Avalanche damage by 5–15%
+- Reduce mana cost of Blade Avalanche by 5–20%
+- Increase Slashing Burst damage by 5–15%
+- Reduce mana cost of Slashing Burst by 5–20%
+- Increase Slaying crit chance by 2–12%
+- Increase Slaying crit damage by 5–25%
+- Increase Flaming Sword crit chance by 2–12%
+- Increase Flaming Sword crit damage by 5–25%
+- Increase Twin Drake Blade crit chance by 2–12%
+- Increase Twin Drake Blade crit damage by 5–25%
+- Increase Blade Avalanche crit chance by 2–12%
+- Increase Blade Avalanche crit damage by 5–25%
+- Increase Slashing Burst crit chance by 2–12%
+- Increase Slashing Burst crit damage by 5–25%
 - +5–20% Bonus XP
+- −3–12% Damage taken
+- +1–14% Crit Rate
+- +5–20% Crit Damage
+- +5–30% Skill leveling
 
 **Raiders Armour (F)2** (`raiders-armour-f-2`)
 - +1–5 AC
 - +1–5 AMC
-- +1–5 DC
 - +1–3 MC
-- +1–3 SC
 - +10–100 HP (step 10)
 - +10–100 MP (step 10)
 - +1–3 Agi
+- Increase Flame Disruptor damage by 5–20%
+- Increase Fire Wall damage by 5–15%
+- Increase Thunder Bolt damage by 5–20%
+- Increase Ice Storm damage by 5–15%
+- Increase Flame Field damage by 5–15%
+- Increase Meteor Strike damage by 5–15%
+- Increase Blizzard damage by 5–15%
+- Increase Fire Ball damage by 5–20%
+- Increase Great Fire Ball damage by 5–20%
+- Increase Frost Crunch damage by 5–15%
+- Reduce mana cost of Flame Disruptor by 5–20%
+- Reduce mana cost of Fire Wall by 5–20%
+- Reduce mana cost of Thunder Bolt by 5–20%
+- Reduce mana cost of Ice Storm by 5–20%
+- Reduce mana cost of Flame Field by 5–20%
+- Reduce mana cost of Meteor Strike by 5–20%
+- Reduce mana cost of Blizzard by 5–20%
+- Increase Flame Disruptor crit chance by 2–12%
+- Increase Flame Disruptor crit damage by 5–25%
+- Increase Fire Wall crit chance by 2–12%
+- Increase Fire Wall crit damage by 5–25%
+- Increase Thunder Bolt crit chance by 2–12%
+- Increase Thunder Bolt crit damage by 5–25%
+- Increase Ice Storm crit chance by 2–12%
+- Increase Ice Storm crit damage by 5–25%
+- Increase Flame Field crit chance by 2–12%
+- Increase Flame Field crit damage by 5–25%
+- Increase Meteor Strike crit chance by 2–12%
+- Increase Meteor Strike crit damage by 5–25%
+- Increase Blizzard crit chance by 2–12%
+- Increase Blizzard crit damage by 5–25%
+- Increase Fire Ball crit chance by 2–12%
+- Increase Fire Ball crit damage by 5–25%
+- Increase Great Fire Ball crit chance by 2–12%
+- Increase Great Fire Ball crit damage by 5–25%
+- Increase Frost Crunch crit chance by 2–12%
+- Increase Frost Crunch crit damage by 5–25%
 - +5–20% Bonus XP
+- −3–12% Damage taken
+- +1–14% Crit Rate
+- +5–20% Crit Damage
+- +5–30% Skill leveling
 
 **Raiders Armour (F)3** (`raiders-armour-f-3`)
 - +1–5 AC
 - +1–5 AMC
 - +1–5 DC
-- +1–3 MC
 - +1–3 SC
 - +10–100 HP (step 10)
 - +10–100 MP (step 10)
 - +1–3 Agi
+- Increase Healing healing by 5–15%
+- Increase Mass Healing healing by 5–15%
+- Increase Soul Fire Ball damage by 5–20%
+- Increase Skeleton damage by 5–25%
+- Increase Skeleton health by 5–25%
+- Reduce Skeleton damage taken by 5–10%
+- Increase Shinsu damage by 5–25%
+- Increase Shinsu health by 5–25%
+- Reduce Shinsu damage taken by 5–10%
+- Increase Holy Deva damage by 5–25%
+- Increase Holy Deva health by 5–25%
+- Reduce Holy Deva damage taken by 5–10%
+- Increase Soul Fire Ball crit chance by 2–12%
+- Increase Soul Fire Ball crit damage by 5–25%
 - +5–20% Bonus XP
+- −3–12% Damage taken
+- +1–14% Crit Rate
+- +5–20% Crit Damage
+- +5–30% Skill leveling
 
 **Raiders Armour (M)1** (`raiders-armour-m-1`)
 - +1–5 AC
 - +1–5 AMC
 - +1–5 DC
-- +1–3 MC
-- +1–3 SC
 - +10–100 HP (step 10)
 - +10–100 MP (step 10)
 - +1–3 Agi
+- Increase Slaying damage by 5–20%
+- Increase Flaming Sword damage by 5–15%
+- Reduce Flaming Sword cooldown by 1–3 seconds
+- Increase Twin Drake Blade damage by 5–15%
+- Reduce mana cost of Twin Drake Blade by 5–20%
+- Increase Blade Avalanche damage by 5–15%
+- Reduce mana cost of Blade Avalanche by 5–20%
+- Increase Slashing Burst damage by 5–15%
+- Reduce mana cost of Slashing Burst by 5–20%
+- Increase Slaying crit chance by 2–12%
+- Increase Slaying crit damage by 5–25%
+- Increase Flaming Sword crit chance by 2–12%
+- Increase Flaming Sword crit damage by 5–25%
+- Increase Twin Drake Blade crit chance by 2–12%
+- Increase Twin Drake Blade crit damage by 5–25%
+- Increase Blade Avalanche crit chance by 2–12%
+- Increase Blade Avalanche crit damage by 5–25%
+- Increase Slashing Burst crit chance by 2–12%
+- Increase Slashing Burst crit damage by 5–25%
 - +5–20% Bonus XP
+- −3–12% Damage taken
+- +1–14% Crit Rate
+- +5–20% Crit Damage
+- +5–30% Skill leveling
 
 **Raiders Armour (M)2** (`raiders-armour-m-2`)
 - +1–5 AC
 - +1–5 AMC
-- +1–5 DC
 - +1–3 MC
-- +1–3 SC
 - +10–100 HP (step 10)
 - +10–100 MP (step 10)
 - +1–3 Agi
+- Increase Flame Disruptor damage by 5–20%
+- Increase Fire Wall damage by 5–15%
+- Increase Thunder Bolt damage by 5–20%
+- Increase Ice Storm damage by 5–15%
+- Increase Flame Field damage by 5–15%
+- Increase Meteor Strike damage by 5–15%
+- Increase Blizzard damage by 5–15%
+- Increase Fire Ball damage by 5–20%
+- Increase Great Fire Ball damage by 5–20%
+- Increase Frost Crunch damage by 5–15%
+- Reduce mana cost of Flame Disruptor by 5–20%
+- Reduce mana cost of Fire Wall by 5–20%
+- Reduce mana cost of Thunder Bolt by 5–20%
+- Reduce mana cost of Ice Storm by 5–20%
+- Reduce mana cost of Flame Field by 5–20%
+- Reduce mana cost of Meteor Strike by 5–20%
+- Reduce mana cost of Blizzard by 5–20%
+- Increase Flame Disruptor crit chance by 2–12%
+- Increase Flame Disruptor crit damage by 5–25%
+- Increase Fire Wall crit chance by 2–12%
+- Increase Fire Wall crit damage by 5–25%
+- Increase Thunder Bolt crit chance by 2–12%
+- Increase Thunder Bolt crit damage by 5–25%
+- Increase Ice Storm crit chance by 2–12%
+- Increase Ice Storm crit damage by 5–25%
+- Increase Flame Field crit chance by 2–12%
+- Increase Flame Field crit damage by 5–25%
+- Increase Meteor Strike crit chance by 2–12%
+- Increase Meteor Strike crit damage by 5–25%
+- Increase Blizzard crit chance by 2–12%
+- Increase Blizzard crit damage by 5–25%
+- Increase Fire Ball crit chance by 2–12%
+- Increase Fire Ball crit damage by 5–25%
+- Increase Great Fire Ball crit chance by 2–12%
+- Increase Great Fire Ball crit damage by 5–25%
+- Increase Frost Crunch crit chance by 2–12%
+- Increase Frost Crunch crit damage by 5–25%
 - +5–20% Bonus XP
+- −3–12% Damage taken
+- +1–14% Crit Rate
+- +5–20% Crit Damage
+- +5–30% Skill leveling
 
 **Raiders Armour (M)3** (`raiders-armour-m-3`)
 - +1–5 AC
 - +1–5 AMC
 - +1–5 DC
-- +1–3 MC
 - +1–3 SC
 - +10–100 HP (step 10)
 - +10–100 MP (step 10)
 - +1–3 Agi
+- Increase Healing healing by 5–15%
+- Increase Mass Healing healing by 5–15%
+- Increase Soul Fire Ball damage by 5–20%
+- Increase Skeleton damage by 5–25%
+- Increase Skeleton health by 5–25%
+- Reduce Skeleton damage taken by 5–10%
+- Increase Shinsu damage by 5–25%
+- Increase Shinsu health by 5–25%
+- Reduce Shinsu damage taken by 5–10%
+- Increase Holy Deva damage by 5–25%
+- Increase Holy Deva health by 5–25%
+- Reduce Holy Deva damage taken by 5–10%
+- Increase Soul Fire Ball crit chance by 2–12%
+- Increase Soul Fire Ball crit damage by 5–25%
 - +5–20% Bonus XP
+- −3–12% Damage taken
+- +1–14% Crit Rate
+- +5–20% Crit Damage
+- +5–30% Skill leveling
 
 **Gonryunyongdrama (?) (F)1** (`gonryunyongdrama-f-1`)
 - +1–5 AC
@@ -1136,7 +5143,81 @@ Grouped by slot. Weapons show their class and actual roll pool from `empowerCand
 - +10–100 HP (step 10)
 - +10–100 MP (step 10)
 - +1–3 Agi
+- Increase Slaying damage by 5–20%
+- Increase Flaming Sword damage by 5–15%
+- Reduce Flaming Sword cooldown by 1–3 seconds
+- Increase Twin Drake Blade damage by 5–15%
+- Reduce mana cost of Twin Drake Blade by 5–20%
+- Increase Blade Avalanche damage by 5–15%
+- Reduce mana cost of Blade Avalanche by 5–20%
+- Increase Slashing Burst damage by 5–15%
+- Reduce mana cost of Slashing Burst by 5–20%
+- Increase Flame Disruptor damage by 5–20%
+- Increase Fire Wall damage by 5–15%
+- Increase Thunder Bolt damage by 5–20%
+- Increase Ice Storm damage by 5–15%
+- Increase Flame Field damage by 5–15%
+- Increase Meteor Strike damage by 5–15%
+- Increase Blizzard damage by 5–15%
+- Increase Fire Ball damage by 5–20%
+- Increase Great Fire Ball damage by 5–20%
+- Increase Frost Crunch damage by 5–15%
+- Reduce mana cost of Flame Disruptor by 5–20%
+- Reduce mana cost of Fire Wall by 5–20%
+- Reduce mana cost of Thunder Bolt by 5–20%
+- Reduce mana cost of Ice Storm by 5–20%
+- Reduce mana cost of Flame Field by 5–20%
+- Reduce mana cost of Meteor Strike by 5–20%
+- Reduce mana cost of Blizzard by 5–20%
+- Increase Healing healing by 5–15%
+- Increase Mass Healing healing by 5–15%
+- Increase Soul Fire Ball damage by 5–20%
+- Increase Skeleton damage by 5–25%
+- Increase Skeleton health by 5–25%
+- Reduce Skeleton damage taken by 5–10%
+- Increase Shinsu damage by 5–25%
+- Increase Shinsu health by 5–25%
+- Reduce Shinsu damage taken by 5–10%
+- Increase Holy Deva damage by 5–25%
+- Increase Holy Deva health by 5–25%
+- Reduce Holy Deva damage taken by 5–10%
+- Increase Slaying crit chance by 2–12%
+- Increase Slaying crit damage by 5–25%
+- Increase Flaming Sword crit chance by 2–12%
+- Increase Flaming Sword crit damage by 5–25%
+- Increase Twin Drake Blade crit chance by 2–12%
+- Increase Twin Drake Blade crit damage by 5–25%
+- Increase Blade Avalanche crit chance by 2–12%
+- Increase Blade Avalanche crit damage by 5–25%
+- Increase Slashing Burst crit chance by 2–12%
+- Increase Slashing Burst crit damage by 5–25%
+- Increase Flame Disruptor crit chance by 2–12%
+- Increase Flame Disruptor crit damage by 5–25%
+- Increase Fire Wall crit chance by 2–12%
+- Increase Fire Wall crit damage by 5–25%
+- Increase Thunder Bolt crit chance by 2–12%
+- Increase Thunder Bolt crit damage by 5–25%
+- Increase Ice Storm crit chance by 2–12%
+- Increase Ice Storm crit damage by 5–25%
+- Increase Flame Field crit chance by 2–12%
+- Increase Flame Field crit damage by 5–25%
+- Increase Meteor Strike crit chance by 2–12%
+- Increase Meteor Strike crit damage by 5–25%
+- Increase Blizzard crit chance by 2–12%
+- Increase Blizzard crit damage by 5–25%
+- Increase Fire Ball crit chance by 2–12%
+- Increase Fire Ball crit damage by 5–25%
+- Increase Great Fire Ball crit chance by 2–12%
+- Increase Great Fire Ball crit damage by 5–25%
+- Increase Frost Crunch crit chance by 2–12%
+- Increase Frost Crunch crit damage by 5–25%
+- Increase Soul Fire Ball crit chance by 2–12%
+- Increase Soul Fire Ball crit damage by 5–25%
 - +5–20% Bonus XP
+- −3–12% Damage taken
+- +1–14% Crit Rate
+- +5–20% Crit Damage
+- +5–30% Skill leveling
 
 **Gonryunyongdrama (?) (F)2** (`gonryunyongdrama-f-2`)
 - +1–5 AC
@@ -1147,7 +5228,81 @@ Grouped by slot. Weapons show their class and actual roll pool from `empowerCand
 - +10–100 HP (step 10)
 - +10–100 MP (step 10)
 - +1–3 Agi
+- Increase Slaying damage by 5–20%
+- Increase Flaming Sword damage by 5–15%
+- Reduce Flaming Sword cooldown by 1–3 seconds
+- Increase Twin Drake Blade damage by 5–15%
+- Reduce mana cost of Twin Drake Blade by 5–20%
+- Increase Blade Avalanche damage by 5–15%
+- Reduce mana cost of Blade Avalanche by 5–20%
+- Increase Slashing Burst damage by 5–15%
+- Reduce mana cost of Slashing Burst by 5–20%
+- Increase Flame Disruptor damage by 5–20%
+- Increase Fire Wall damage by 5–15%
+- Increase Thunder Bolt damage by 5–20%
+- Increase Ice Storm damage by 5–15%
+- Increase Flame Field damage by 5–15%
+- Increase Meteor Strike damage by 5–15%
+- Increase Blizzard damage by 5–15%
+- Increase Fire Ball damage by 5–20%
+- Increase Great Fire Ball damage by 5–20%
+- Increase Frost Crunch damage by 5–15%
+- Reduce mana cost of Flame Disruptor by 5–20%
+- Reduce mana cost of Fire Wall by 5–20%
+- Reduce mana cost of Thunder Bolt by 5–20%
+- Reduce mana cost of Ice Storm by 5–20%
+- Reduce mana cost of Flame Field by 5–20%
+- Reduce mana cost of Meteor Strike by 5–20%
+- Reduce mana cost of Blizzard by 5–20%
+- Increase Healing healing by 5–15%
+- Increase Mass Healing healing by 5–15%
+- Increase Soul Fire Ball damage by 5–20%
+- Increase Skeleton damage by 5–25%
+- Increase Skeleton health by 5–25%
+- Reduce Skeleton damage taken by 5–10%
+- Increase Shinsu damage by 5–25%
+- Increase Shinsu health by 5–25%
+- Reduce Shinsu damage taken by 5–10%
+- Increase Holy Deva damage by 5–25%
+- Increase Holy Deva health by 5–25%
+- Reduce Holy Deva damage taken by 5–10%
+- Increase Slaying crit chance by 2–12%
+- Increase Slaying crit damage by 5–25%
+- Increase Flaming Sword crit chance by 2–12%
+- Increase Flaming Sword crit damage by 5–25%
+- Increase Twin Drake Blade crit chance by 2–12%
+- Increase Twin Drake Blade crit damage by 5–25%
+- Increase Blade Avalanche crit chance by 2–12%
+- Increase Blade Avalanche crit damage by 5–25%
+- Increase Slashing Burst crit chance by 2–12%
+- Increase Slashing Burst crit damage by 5–25%
+- Increase Flame Disruptor crit chance by 2–12%
+- Increase Flame Disruptor crit damage by 5–25%
+- Increase Fire Wall crit chance by 2–12%
+- Increase Fire Wall crit damage by 5–25%
+- Increase Thunder Bolt crit chance by 2–12%
+- Increase Thunder Bolt crit damage by 5–25%
+- Increase Ice Storm crit chance by 2–12%
+- Increase Ice Storm crit damage by 5–25%
+- Increase Flame Field crit chance by 2–12%
+- Increase Flame Field crit damage by 5–25%
+- Increase Meteor Strike crit chance by 2–12%
+- Increase Meteor Strike crit damage by 5–25%
+- Increase Blizzard crit chance by 2–12%
+- Increase Blizzard crit damage by 5–25%
+- Increase Fire Ball crit chance by 2–12%
+- Increase Fire Ball crit damage by 5–25%
+- Increase Great Fire Ball crit chance by 2–12%
+- Increase Great Fire Ball crit damage by 5–25%
+- Increase Frost Crunch crit chance by 2–12%
+- Increase Frost Crunch crit damage by 5–25%
+- Increase Soul Fire Ball crit chance by 2–12%
+- Increase Soul Fire Ball crit damage by 5–25%
 - +5–20% Bonus XP
+- −3–12% Damage taken
+- +1–14% Crit Rate
+- +5–20% Crit Damage
+- +5–30% Skill leveling
 
 **Gonryunyongdrama (?) (F)3** (`gonryunyongdrama-f-3`)
 - +1–5 AC
@@ -1158,7 +5313,81 @@ Grouped by slot. Weapons show their class and actual roll pool from `empowerCand
 - +10–100 HP (step 10)
 - +10–100 MP (step 10)
 - +1–3 Agi
+- Increase Slaying damage by 5–20%
+- Increase Flaming Sword damage by 5–15%
+- Reduce Flaming Sword cooldown by 1–3 seconds
+- Increase Twin Drake Blade damage by 5–15%
+- Reduce mana cost of Twin Drake Blade by 5–20%
+- Increase Blade Avalanche damage by 5–15%
+- Reduce mana cost of Blade Avalanche by 5–20%
+- Increase Slashing Burst damage by 5–15%
+- Reduce mana cost of Slashing Burst by 5–20%
+- Increase Flame Disruptor damage by 5–20%
+- Increase Fire Wall damage by 5–15%
+- Increase Thunder Bolt damage by 5–20%
+- Increase Ice Storm damage by 5–15%
+- Increase Flame Field damage by 5–15%
+- Increase Meteor Strike damage by 5–15%
+- Increase Blizzard damage by 5–15%
+- Increase Fire Ball damage by 5–20%
+- Increase Great Fire Ball damage by 5–20%
+- Increase Frost Crunch damage by 5–15%
+- Reduce mana cost of Flame Disruptor by 5–20%
+- Reduce mana cost of Fire Wall by 5–20%
+- Reduce mana cost of Thunder Bolt by 5–20%
+- Reduce mana cost of Ice Storm by 5–20%
+- Reduce mana cost of Flame Field by 5–20%
+- Reduce mana cost of Meteor Strike by 5–20%
+- Reduce mana cost of Blizzard by 5–20%
+- Increase Healing healing by 5–15%
+- Increase Mass Healing healing by 5–15%
+- Increase Soul Fire Ball damage by 5–20%
+- Increase Skeleton damage by 5–25%
+- Increase Skeleton health by 5–25%
+- Reduce Skeleton damage taken by 5–10%
+- Increase Shinsu damage by 5–25%
+- Increase Shinsu health by 5–25%
+- Reduce Shinsu damage taken by 5–10%
+- Increase Holy Deva damage by 5–25%
+- Increase Holy Deva health by 5–25%
+- Reduce Holy Deva damage taken by 5–10%
+- Increase Slaying crit chance by 2–12%
+- Increase Slaying crit damage by 5–25%
+- Increase Flaming Sword crit chance by 2–12%
+- Increase Flaming Sword crit damage by 5–25%
+- Increase Twin Drake Blade crit chance by 2–12%
+- Increase Twin Drake Blade crit damage by 5–25%
+- Increase Blade Avalanche crit chance by 2–12%
+- Increase Blade Avalanche crit damage by 5–25%
+- Increase Slashing Burst crit chance by 2–12%
+- Increase Slashing Burst crit damage by 5–25%
+- Increase Flame Disruptor crit chance by 2–12%
+- Increase Flame Disruptor crit damage by 5–25%
+- Increase Fire Wall crit chance by 2–12%
+- Increase Fire Wall crit damage by 5–25%
+- Increase Thunder Bolt crit chance by 2–12%
+- Increase Thunder Bolt crit damage by 5–25%
+- Increase Ice Storm crit chance by 2–12%
+- Increase Ice Storm crit damage by 5–25%
+- Increase Flame Field crit chance by 2–12%
+- Increase Flame Field crit damage by 5–25%
+- Increase Meteor Strike crit chance by 2–12%
+- Increase Meteor Strike crit damage by 5–25%
+- Increase Blizzard crit chance by 2–12%
+- Increase Blizzard crit damage by 5–25%
+- Increase Fire Ball crit chance by 2–12%
+- Increase Fire Ball crit damage by 5–25%
+- Increase Great Fire Ball crit chance by 2–12%
+- Increase Great Fire Ball crit damage by 5–25%
+- Increase Frost Crunch crit chance by 2–12%
+- Increase Frost Crunch crit damage by 5–25%
+- Increase Soul Fire Ball crit chance by 2–12%
+- Increase Soul Fire Ball crit damage by 5–25%
 - +5–20% Bonus XP
+- −3–12% Damage taken
+- +1–14% Crit Rate
+- +5–20% Crit Damage
+- +5–30% Skill leveling
 
 **Gonryunyongdrama (?) (M)1** (`gonryunyongdrama-m-1`)
 - +1–5 AC
@@ -1169,18 +5398,113 @@ Grouped by slot. Weapons show their class and actual roll pool from `empowerCand
 - +10–100 HP (step 10)
 - +10–100 MP (step 10)
 - +1–3 Agi
+- Increase Slaying damage by 5–20%
+- Increase Flaming Sword damage by 5–15%
+- Reduce Flaming Sword cooldown by 1–3 seconds
+- Increase Twin Drake Blade damage by 5–15%
+- Reduce mana cost of Twin Drake Blade by 5–20%
+- Increase Blade Avalanche damage by 5–15%
+- Reduce mana cost of Blade Avalanche by 5–20%
+- Increase Slashing Burst damage by 5–15%
+- Reduce mana cost of Slashing Burst by 5–20%
+- Increase Flame Disruptor damage by 5–20%
+- Increase Fire Wall damage by 5–15%
+- Increase Thunder Bolt damage by 5–20%
+- Increase Ice Storm damage by 5–15%
+- Increase Flame Field damage by 5–15%
+- Increase Meteor Strike damage by 5–15%
+- Increase Blizzard damage by 5–15%
+- Increase Fire Ball damage by 5–20%
+- Increase Great Fire Ball damage by 5–20%
+- Increase Frost Crunch damage by 5–15%
+- Reduce mana cost of Flame Disruptor by 5–20%
+- Reduce mana cost of Fire Wall by 5–20%
+- Reduce mana cost of Thunder Bolt by 5–20%
+- Reduce mana cost of Ice Storm by 5–20%
+- Reduce mana cost of Flame Field by 5–20%
+- Reduce mana cost of Meteor Strike by 5–20%
+- Reduce mana cost of Blizzard by 5–20%
+- Increase Healing healing by 5–15%
+- Increase Mass Healing healing by 5–15%
+- Increase Soul Fire Ball damage by 5–20%
+- Increase Skeleton damage by 5–25%
+- Increase Skeleton health by 5–25%
+- Reduce Skeleton damage taken by 5–10%
+- Increase Shinsu damage by 5–25%
+- Increase Shinsu health by 5–25%
+- Reduce Shinsu damage taken by 5–10%
+- Increase Holy Deva damage by 5–25%
+- Increase Holy Deva health by 5–25%
+- Reduce Holy Deva damage taken by 5–10%
+- Increase Slaying crit chance by 2–12%
+- Increase Slaying crit damage by 5–25%
+- Increase Flaming Sword crit chance by 2–12%
+- Increase Flaming Sword crit damage by 5–25%
+- Increase Twin Drake Blade crit chance by 2–12%
+- Increase Twin Drake Blade crit damage by 5–25%
+- Increase Blade Avalanche crit chance by 2–12%
+- Increase Blade Avalanche crit damage by 5–25%
+- Increase Slashing Burst crit chance by 2–12%
+- Increase Slashing Burst crit damage by 5–25%
+- Increase Flame Disruptor crit chance by 2–12%
+- Increase Flame Disruptor crit damage by 5–25%
+- Increase Fire Wall crit chance by 2–12%
+- Increase Fire Wall crit damage by 5–25%
+- Increase Thunder Bolt crit chance by 2–12%
+- Increase Thunder Bolt crit damage by 5–25%
+- Increase Ice Storm crit chance by 2–12%
+- Increase Ice Storm crit damage by 5–25%
+- Increase Flame Field crit chance by 2–12%
+- Increase Flame Field crit damage by 5–25%
+- Increase Meteor Strike crit chance by 2–12%
+- Increase Meteor Strike crit damage by 5–25%
+- Increase Blizzard crit chance by 2–12%
+- Increase Blizzard crit damage by 5–25%
+- Increase Fire Ball crit chance by 2–12%
+- Increase Fire Ball crit damage by 5–25%
+- Increase Great Fire Ball crit chance by 2–12%
+- Increase Great Fire Ball crit damage by 5–25%
+- Increase Frost Crunch crit chance by 2–12%
+- Increase Frost Crunch crit damage by 5–25%
+- Increase Soul Fire Ball crit chance by 2–12%
+- Increase Soul Fire Ball crit damage by 5–25%
 - +5–20% Bonus XP
+- −3–12% Damage taken
+- +1–14% Crit Rate
+- +5–20% Crit Damage
+- +5–30% Skill leveling
 
 **Gonryunyongdrama (?) (M)2** (`gonryunyongdrama-m-2`)
 - +1–5 AC
 - +1–5 AMC
 - +1–5 DC
-- +1–3 MC
-- +1–3 SC
 - +10–100 HP (step 10)
 - +10–100 MP (step 10)
 - +1–3 Agi
+- Increase Slaying damage by 5–20%
+- Increase Flaming Sword damage by 5–15%
+- Reduce Flaming Sword cooldown by 1–3 seconds
+- Increase Twin Drake Blade damage by 5–15%
+- Reduce mana cost of Twin Drake Blade by 5–20%
+- Increase Blade Avalanche damage by 5–15%
+- Reduce mana cost of Blade Avalanche by 5–20%
+- Increase Slashing Burst damage by 5–15%
+- Reduce mana cost of Slashing Burst by 5–20%
+- Increase Slaying crit chance by 2–12%
+- Increase Slaying crit damage by 5–25%
+- Increase Flaming Sword crit chance by 2–12%
+- Increase Flaming Sword crit damage by 5–25%
+- Increase Twin Drake Blade crit chance by 2–12%
+- Increase Twin Drake Blade crit damage by 5–25%
+- Increase Blade Avalanche crit chance by 2–12%
+- Increase Blade Avalanche crit damage by 5–25%
+- Increase Slashing Burst crit chance by 2–12%
+- Increase Slashing Burst crit damage by 5–25%
 - +5–20% Bonus XP
+- −3–12% Damage taken
+- +1–14% Crit Rate
+- +5–20% Crit Damage
+- +5–30% Skill leveling
 
 **Gonryunyongdrama (?) (M)3** (`gonryunyongdrama-m-3`)
 - +1–5 AC
@@ -1191,7 +5515,81 @@ Grouped by slot. Weapons show their class and actual roll pool from `empowerCand
 - +10–100 HP (step 10)
 - +10–100 MP (step 10)
 - +1–3 Agi
+- Increase Slaying damage by 5–20%
+- Increase Flaming Sword damage by 5–15%
+- Reduce Flaming Sword cooldown by 1–3 seconds
+- Increase Twin Drake Blade damage by 5–15%
+- Reduce mana cost of Twin Drake Blade by 5–20%
+- Increase Blade Avalanche damage by 5–15%
+- Reduce mana cost of Blade Avalanche by 5–20%
+- Increase Slashing Burst damage by 5–15%
+- Reduce mana cost of Slashing Burst by 5–20%
+- Increase Flame Disruptor damage by 5–20%
+- Increase Fire Wall damage by 5–15%
+- Increase Thunder Bolt damage by 5–20%
+- Increase Ice Storm damage by 5–15%
+- Increase Flame Field damage by 5–15%
+- Increase Meteor Strike damage by 5–15%
+- Increase Blizzard damage by 5–15%
+- Increase Fire Ball damage by 5–20%
+- Increase Great Fire Ball damage by 5–20%
+- Increase Frost Crunch damage by 5–15%
+- Reduce mana cost of Flame Disruptor by 5–20%
+- Reduce mana cost of Fire Wall by 5–20%
+- Reduce mana cost of Thunder Bolt by 5–20%
+- Reduce mana cost of Ice Storm by 5–20%
+- Reduce mana cost of Flame Field by 5–20%
+- Reduce mana cost of Meteor Strike by 5–20%
+- Reduce mana cost of Blizzard by 5–20%
+- Increase Healing healing by 5–15%
+- Increase Mass Healing healing by 5–15%
+- Increase Soul Fire Ball damage by 5–20%
+- Increase Skeleton damage by 5–25%
+- Increase Skeleton health by 5–25%
+- Reduce Skeleton damage taken by 5–10%
+- Increase Shinsu damage by 5–25%
+- Increase Shinsu health by 5–25%
+- Reduce Shinsu damage taken by 5–10%
+- Increase Holy Deva damage by 5–25%
+- Increase Holy Deva health by 5–25%
+- Reduce Holy Deva damage taken by 5–10%
+- Increase Slaying crit chance by 2–12%
+- Increase Slaying crit damage by 5–25%
+- Increase Flaming Sword crit chance by 2–12%
+- Increase Flaming Sword crit damage by 5–25%
+- Increase Twin Drake Blade crit chance by 2–12%
+- Increase Twin Drake Blade crit damage by 5–25%
+- Increase Blade Avalanche crit chance by 2–12%
+- Increase Blade Avalanche crit damage by 5–25%
+- Increase Slashing Burst crit chance by 2–12%
+- Increase Slashing Burst crit damage by 5–25%
+- Increase Flame Disruptor crit chance by 2–12%
+- Increase Flame Disruptor crit damage by 5–25%
+- Increase Fire Wall crit chance by 2–12%
+- Increase Fire Wall crit damage by 5–25%
+- Increase Thunder Bolt crit chance by 2–12%
+- Increase Thunder Bolt crit damage by 5–25%
+- Increase Ice Storm crit chance by 2–12%
+- Increase Ice Storm crit damage by 5–25%
+- Increase Flame Field crit chance by 2–12%
+- Increase Flame Field crit damage by 5–25%
+- Increase Meteor Strike crit chance by 2–12%
+- Increase Meteor Strike crit damage by 5–25%
+- Increase Blizzard crit chance by 2–12%
+- Increase Blizzard crit damage by 5–25%
+- Increase Fire Ball crit chance by 2–12%
+- Increase Fire Ball crit damage by 5–25%
+- Increase Great Fire Ball crit chance by 2–12%
+- Increase Great Fire Ball crit damage by 5–25%
+- Increase Frost Crunch crit chance by 2–12%
+- Increase Frost Crunch crit damage by 5–25%
+- Increase Soul Fire Ball crit chance by 2–12%
+- Increase Soul Fire Ball crit damage by 5–25%
 - +5–20% Bonus XP
+- −3–12% Damage taken
+- +1–14% Crit Rate
+- +5–20% Crit Damage
+- +5–30% Skill leveling
 
 ### Belt / Boots
 
@@ -1207,6 +5605,80 @@ Grouped by slot. Weapons show their class and actual roll pool from `empowerCand
 - +1 Magic Resist
 - +10–30 HP (step 10)
 - +10–30 MP (step 10)
+- Increase Slaying damage by 5–10%
+- Increase Flaming Sword damage by 5–10%
+- Reduce Flaming Sword cooldown by 1–2 seconds
+- Increase Twin Drake Blade damage by 5–10%
+- Reduce mana cost of Twin Drake Blade by 5–15%
+- Increase Blade Avalanche damage by 5–10%
+- Reduce mana cost of Blade Avalanche by 5–15%
+- Increase Slashing Burst damage by 5–10%
+- Reduce mana cost of Slashing Burst by 5–15%
+- Increase Flame Disruptor damage by 5–10%
+- Increase Fire Wall damage by 5–10%
+- Increase Thunder Bolt damage by 5–10%
+- Increase Ice Storm damage by 5–10%
+- Increase Flame Field damage by 5–10%
+- Increase Meteor Strike damage by 5–10%
+- Increase Blizzard damage by 5–10%
+- Increase Fire Ball damage by 5–10%
+- Increase Great Fire Ball damage by 5–10%
+- Increase Frost Crunch damage by 5–10%
+- Reduce mana cost of Flame Disruptor by 5–15%
+- Reduce mana cost of Fire Wall by 5–15%
+- Reduce mana cost of Thunder Bolt by 5–15%
+- Reduce mana cost of Ice Storm by 5–15%
+- Reduce mana cost of Flame Field by 5–15%
+- Reduce mana cost of Meteor Strike by 5–15%
+- Reduce mana cost of Blizzard by 5–15%
+- Increase Healing healing by 5–10%
+- Increase Mass Healing healing by 5–10%
+- Increase Soul Fire Ball damage by 5–10%
+- Increase Skeleton damage by 5–20%
+- Increase Skeleton health by 5–20%
+- Reduce Skeleton damage taken by 5%
+- Increase Shinsu damage by 5–20%
+- Increase Shinsu health by 5–20%
+- Reduce Shinsu damage taken by 5%
+- Increase Holy Deva damage by 5–20%
+- Increase Holy Deva health by 5–20%
+- Reduce Holy Deva damage taken by 5%
+- Increase Slaying crit chance by 1–8%
+- Increase Slaying crit damage by 5–15%
+- Increase Flaming Sword crit chance by 1–8%
+- Increase Flaming Sword crit damage by 5–15%
+- Increase Twin Drake Blade crit chance by 1–8%
+- Increase Twin Drake Blade crit damage by 5–15%
+- Increase Blade Avalanche crit chance by 1–8%
+- Increase Blade Avalanche crit damage by 5–15%
+- Increase Slashing Burst crit chance by 1–8%
+- Increase Slashing Burst crit damage by 5–15%
+- Increase Flame Disruptor crit chance by 1–8%
+- Increase Flame Disruptor crit damage by 5–15%
+- Increase Fire Wall crit chance by 1–8%
+- Increase Fire Wall crit damage by 5–15%
+- Increase Thunder Bolt crit chance by 1–8%
+- Increase Thunder Bolt crit damage by 5–15%
+- Increase Ice Storm crit chance by 1–8%
+- Increase Ice Storm crit damage by 5–15%
+- Increase Flame Field crit chance by 1–8%
+- Increase Flame Field crit damage by 5–15%
+- Increase Meteor Strike crit chance by 1–8%
+- Increase Meteor Strike crit damage by 5–15%
+- Increase Blizzard crit chance by 1–8%
+- Increase Blizzard crit damage by 5–15%
+- Increase Fire Ball crit chance by 1–8%
+- Increase Fire Ball crit damage by 5–15%
+- Increase Great Fire Ball crit chance by 1–8%
+- Increase Great Fire Ball crit damage by 5–15%
+- Increase Frost Crunch crit chance by 1–8%
+- Increase Frost Crunch crit damage by 5–15%
+- Increase Soul Fire Ball crit chance by 1–8%
+- Increase Soul Fire Ball crit damage by 5–15%
+- −1–5% Damage taken
+- +1–6% Crit Rate
+- +5–10% Crit Damage
+- +2–10% Skill leveling
 
 **Strong Leather Belt** (`strong-leather-belt`)
 - +1–3 AC
@@ -1220,6 +5692,80 @@ Grouped by slot. Weapons show their class and actual roll pool from `empowerCand
 - +1 Magic Resist
 - +10–30 HP (step 10)
 - +10–30 MP (step 10)
+- Increase Slaying damage by 5–10%
+- Increase Flaming Sword damage by 5–10%
+- Reduce Flaming Sword cooldown by 1–2 seconds
+- Increase Twin Drake Blade damage by 5–10%
+- Reduce mana cost of Twin Drake Blade by 5–15%
+- Increase Blade Avalanche damage by 5–10%
+- Reduce mana cost of Blade Avalanche by 5–15%
+- Increase Slashing Burst damage by 5–10%
+- Reduce mana cost of Slashing Burst by 5–15%
+- Increase Flame Disruptor damage by 5–10%
+- Increase Fire Wall damage by 5–10%
+- Increase Thunder Bolt damage by 5–10%
+- Increase Ice Storm damage by 5–10%
+- Increase Flame Field damage by 5–10%
+- Increase Meteor Strike damage by 5–10%
+- Increase Blizzard damage by 5–10%
+- Increase Fire Ball damage by 5–10%
+- Increase Great Fire Ball damage by 5–10%
+- Increase Frost Crunch damage by 5–10%
+- Reduce mana cost of Flame Disruptor by 5–15%
+- Reduce mana cost of Fire Wall by 5–15%
+- Reduce mana cost of Thunder Bolt by 5–15%
+- Reduce mana cost of Ice Storm by 5–15%
+- Reduce mana cost of Flame Field by 5–15%
+- Reduce mana cost of Meteor Strike by 5–15%
+- Reduce mana cost of Blizzard by 5–15%
+- Increase Healing healing by 5–10%
+- Increase Mass Healing healing by 5–10%
+- Increase Soul Fire Ball damage by 5–10%
+- Increase Skeleton damage by 5–20%
+- Increase Skeleton health by 5–20%
+- Reduce Skeleton damage taken by 5%
+- Increase Shinsu damage by 5–20%
+- Increase Shinsu health by 5–20%
+- Reduce Shinsu damage taken by 5%
+- Increase Holy Deva damage by 5–20%
+- Increase Holy Deva health by 5–20%
+- Reduce Holy Deva damage taken by 5%
+- Increase Slaying crit chance by 1–8%
+- Increase Slaying crit damage by 5–15%
+- Increase Flaming Sword crit chance by 1–8%
+- Increase Flaming Sword crit damage by 5–15%
+- Increase Twin Drake Blade crit chance by 1–8%
+- Increase Twin Drake Blade crit damage by 5–15%
+- Increase Blade Avalanche crit chance by 1–8%
+- Increase Blade Avalanche crit damage by 5–15%
+- Increase Slashing Burst crit chance by 1–8%
+- Increase Slashing Burst crit damage by 5–15%
+- Increase Flame Disruptor crit chance by 1–8%
+- Increase Flame Disruptor crit damage by 5–15%
+- Increase Fire Wall crit chance by 1–8%
+- Increase Fire Wall crit damage by 5–15%
+- Increase Thunder Bolt crit chance by 1–8%
+- Increase Thunder Bolt crit damage by 5–15%
+- Increase Ice Storm crit chance by 1–8%
+- Increase Ice Storm crit damage by 5–15%
+- Increase Flame Field crit chance by 1–8%
+- Increase Flame Field crit damage by 5–15%
+- Increase Meteor Strike crit chance by 1–8%
+- Increase Meteor Strike crit damage by 5–15%
+- Increase Blizzard crit chance by 1–8%
+- Increase Blizzard crit damage by 5–15%
+- Increase Fire Ball crit chance by 1–8%
+- Increase Fire Ball crit damage by 5–15%
+- Increase Great Fire Ball crit chance by 1–8%
+- Increase Great Fire Ball crit damage by 5–15%
+- Increase Frost Crunch crit chance by 1–8%
+- Increase Frost Crunch crit damage by 5–15%
+- Increase Soul Fire Ball crit chance by 1–8%
+- Increase Soul Fire Ball crit damage by 5–15%
+- −1–5% Damage taken
+- +1–6% Crit Rate
+- +5–10% Crit Damage
+- +2–10% Skill leveling
 
 **Chain Belt** (`chain-belt`)
 - +1–3 AC
@@ -1233,6 +5779,80 @@ Grouped by slot. Weapons show their class and actual roll pool from `empowerCand
 - +1 Magic Resist
 - +10–30 HP (step 10)
 - +10–30 MP (step 10)
+- Increase Slaying damage by 5–10%
+- Increase Flaming Sword damage by 5–10%
+- Reduce Flaming Sword cooldown by 1–2 seconds
+- Increase Twin Drake Blade damage by 5–10%
+- Reduce mana cost of Twin Drake Blade by 5–15%
+- Increase Blade Avalanche damage by 5–10%
+- Reduce mana cost of Blade Avalanche by 5–15%
+- Increase Slashing Burst damage by 5–10%
+- Reduce mana cost of Slashing Burst by 5–15%
+- Increase Flame Disruptor damage by 5–10%
+- Increase Fire Wall damage by 5–10%
+- Increase Thunder Bolt damage by 5–10%
+- Increase Ice Storm damage by 5–10%
+- Increase Flame Field damage by 5–10%
+- Increase Meteor Strike damage by 5–10%
+- Increase Blizzard damage by 5–10%
+- Increase Fire Ball damage by 5–10%
+- Increase Great Fire Ball damage by 5–10%
+- Increase Frost Crunch damage by 5–10%
+- Reduce mana cost of Flame Disruptor by 5–15%
+- Reduce mana cost of Fire Wall by 5–15%
+- Reduce mana cost of Thunder Bolt by 5–15%
+- Reduce mana cost of Ice Storm by 5–15%
+- Reduce mana cost of Flame Field by 5–15%
+- Reduce mana cost of Meteor Strike by 5–15%
+- Reduce mana cost of Blizzard by 5–15%
+- Increase Healing healing by 5–10%
+- Increase Mass Healing healing by 5–10%
+- Increase Soul Fire Ball damage by 5–10%
+- Increase Skeleton damage by 5–20%
+- Increase Skeleton health by 5–20%
+- Reduce Skeleton damage taken by 5%
+- Increase Shinsu damage by 5–20%
+- Increase Shinsu health by 5–20%
+- Reduce Shinsu damage taken by 5%
+- Increase Holy Deva damage by 5–20%
+- Increase Holy Deva health by 5–20%
+- Reduce Holy Deva damage taken by 5%
+- Increase Slaying crit chance by 1–8%
+- Increase Slaying crit damage by 5–15%
+- Increase Flaming Sword crit chance by 1–8%
+- Increase Flaming Sword crit damage by 5–15%
+- Increase Twin Drake Blade crit chance by 1–8%
+- Increase Twin Drake Blade crit damage by 5–15%
+- Increase Blade Avalanche crit chance by 1–8%
+- Increase Blade Avalanche crit damage by 5–15%
+- Increase Slashing Burst crit chance by 1–8%
+- Increase Slashing Burst crit damage by 5–15%
+- Increase Flame Disruptor crit chance by 1–8%
+- Increase Flame Disruptor crit damage by 5–15%
+- Increase Fire Wall crit chance by 1–8%
+- Increase Fire Wall crit damage by 5–15%
+- Increase Thunder Bolt crit chance by 1–8%
+- Increase Thunder Bolt crit damage by 5–15%
+- Increase Ice Storm crit chance by 1–8%
+- Increase Ice Storm crit damage by 5–15%
+- Increase Flame Field crit chance by 1–8%
+- Increase Flame Field crit damage by 5–15%
+- Increase Meteor Strike crit chance by 1–8%
+- Increase Meteor Strike crit damage by 5–15%
+- Increase Blizzard crit chance by 1–8%
+- Increase Blizzard crit damage by 5–15%
+- Increase Fire Ball crit chance by 1–8%
+- Increase Fire Ball crit damage by 5–15%
+- Increase Great Fire Ball crit chance by 1–8%
+- Increase Great Fire Ball crit damage by 5–15%
+- Increase Frost Crunch crit chance by 1–8%
+- Increase Frost Crunch crit damage by 5–15%
+- Increase Soul Fire Ball crit chance by 1–8%
+- Increase Soul Fire Ball crit damage by 5–15%
+- −1–5% Damage taken
+- +1–6% Crit Rate
+- +5–10% Crit Damage
+- +2–10% Skill leveling
 
 **Steel Buckle** (`steel-buckle`)
 - +1–3 AC
@@ -1246,6 +5866,80 @@ Grouped by slot. Weapons show their class and actual roll pool from `empowerCand
 - +1 Magic Resist
 - +10–30 HP (step 10)
 - +10–30 MP (step 10)
+- Increase Slaying damage by 5–10%
+- Increase Flaming Sword damage by 5–10%
+- Reduce Flaming Sword cooldown by 1–2 seconds
+- Increase Twin Drake Blade damage by 5–10%
+- Reduce mana cost of Twin Drake Blade by 5–15%
+- Increase Blade Avalanche damage by 5–10%
+- Reduce mana cost of Blade Avalanche by 5–15%
+- Increase Slashing Burst damage by 5–10%
+- Reduce mana cost of Slashing Burst by 5–15%
+- Increase Flame Disruptor damage by 5–10%
+- Increase Fire Wall damage by 5–10%
+- Increase Thunder Bolt damage by 5–10%
+- Increase Ice Storm damage by 5–10%
+- Increase Flame Field damage by 5–10%
+- Increase Meteor Strike damage by 5–10%
+- Increase Blizzard damage by 5–10%
+- Increase Fire Ball damage by 5–10%
+- Increase Great Fire Ball damage by 5–10%
+- Increase Frost Crunch damage by 5–10%
+- Reduce mana cost of Flame Disruptor by 5–15%
+- Reduce mana cost of Fire Wall by 5–15%
+- Reduce mana cost of Thunder Bolt by 5–15%
+- Reduce mana cost of Ice Storm by 5–15%
+- Reduce mana cost of Flame Field by 5–15%
+- Reduce mana cost of Meteor Strike by 5–15%
+- Reduce mana cost of Blizzard by 5–15%
+- Increase Healing healing by 5–10%
+- Increase Mass Healing healing by 5–10%
+- Increase Soul Fire Ball damage by 5–10%
+- Increase Skeleton damage by 5–20%
+- Increase Skeleton health by 5–20%
+- Reduce Skeleton damage taken by 5%
+- Increase Shinsu damage by 5–20%
+- Increase Shinsu health by 5–20%
+- Reduce Shinsu damage taken by 5%
+- Increase Holy Deva damage by 5–20%
+- Increase Holy Deva health by 5–20%
+- Reduce Holy Deva damage taken by 5%
+- Increase Slaying crit chance by 1–8%
+- Increase Slaying crit damage by 5–15%
+- Increase Flaming Sword crit chance by 1–8%
+- Increase Flaming Sword crit damage by 5–15%
+- Increase Twin Drake Blade crit chance by 1–8%
+- Increase Twin Drake Blade crit damage by 5–15%
+- Increase Blade Avalanche crit chance by 1–8%
+- Increase Blade Avalanche crit damage by 5–15%
+- Increase Slashing Burst crit chance by 1–8%
+- Increase Slashing Burst crit damage by 5–15%
+- Increase Flame Disruptor crit chance by 1–8%
+- Increase Flame Disruptor crit damage by 5–15%
+- Increase Fire Wall crit chance by 1–8%
+- Increase Fire Wall crit damage by 5–15%
+- Increase Thunder Bolt crit chance by 1–8%
+- Increase Thunder Bolt crit damage by 5–15%
+- Increase Ice Storm crit chance by 1–8%
+- Increase Ice Storm crit damage by 5–15%
+- Increase Flame Field crit chance by 1–8%
+- Increase Flame Field crit damage by 5–15%
+- Increase Meteor Strike crit chance by 1–8%
+- Increase Meteor Strike crit damage by 5–15%
+- Increase Blizzard crit chance by 1–8%
+- Increase Blizzard crit damage by 5–15%
+- Increase Fire Ball crit chance by 1–8%
+- Increase Fire Ball crit damage by 5–15%
+- Increase Great Fire Ball crit chance by 1–8%
+- Increase Great Fire Ball crit damage by 5–15%
+- Increase Frost Crunch crit chance by 1–8%
+- Increase Frost Crunch crit damage by 5–15%
+- Increase Soul Fire Ball crit chance by 1–8%
+- Increase Soul Fire Ball crit damage by 5–15%
+- −1–5% Damage taken
+- +1–6% Crit Rate
+- +5–10% Crit Damage
+- +2–10% Skill leveling
 
 **Bronze Strap** (`bronze-strap`)
 - +1–3 AC
@@ -1259,6 +5953,80 @@ Grouped by slot. Weapons show their class and actual roll pool from `empowerCand
 - +1 Magic Resist
 - +10–30 HP (step 10)
 - +10–30 MP (step 10)
+- Increase Slaying damage by 5–10%
+- Increase Flaming Sword damage by 5–10%
+- Reduce Flaming Sword cooldown by 1–2 seconds
+- Increase Twin Drake Blade damage by 5–10%
+- Reduce mana cost of Twin Drake Blade by 5–15%
+- Increase Blade Avalanche damage by 5–10%
+- Reduce mana cost of Blade Avalanche by 5–15%
+- Increase Slashing Burst damage by 5–10%
+- Reduce mana cost of Slashing Burst by 5–15%
+- Increase Flame Disruptor damage by 5–10%
+- Increase Fire Wall damage by 5–10%
+- Increase Thunder Bolt damage by 5–10%
+- Increase Ice Storm damage by 5–10%
+- Increase Flame Field damage by 5–10%
+- Increase Meteor Strike damage by 5–10%
+- Increase Blizzard damage by 5–10%
+- Increase Fire Ball damage by 5–10%
+- Increase Great Fire Ball damage by 5–10%
+- Increase Frost Crunch damage by 5–10%
+- Reduce mana cost of Flame Disruptor by 5–15%
+- Reduce mana cost of Fire Wall by 5–15%
+- Reduce mana cost of Thunder Bolt by 5–15%
+- Reduce mana cost of Ice Storm by 5–15%
+- Reduce mana cost of Flame Field by 5–15%
+- Reduce mana cost of Meteor Strike by 5–15%
+- Reduce mana cost of Blizzard by 5–15%
+- Increase Healing healing by 5–10%
+- Increase Mass Healing healing by 5–10%
+- Increase Soul Fire Ball damage by 5–10%
+- Increase Skeleton damage by 5–20%
+- Increase Skeleton health by 5–20%
+- Reduce Skeleton damage taken by 5%
+- Increase Shinsu damage by 5–20%
+- Increase Shinsu health by 5–20%
+- Reduce Shinsu damage taken by 5%
+- Increase Holy Deva damage by 5–20%
+- Increase Holy Deva health by 5–20%
+- Reduce Holy Deva damage taken by 5%
+- Increase Slaying crit chance by 1–8%
+- Increase Slaying crit damage by 5–15%
+- Increase Flaming Sword crit chance by 1–8%
+- Increase Flaming Sword crit damage by 5–15%
+- Increase Twin Drake Blade crit chance by 1–8%
+- Increase Twin Drake Blade crit damage by 5–15%
+- Increase Blade Avalanche crit chance by 1–8%
+- Increase Blade Avalanche crit damage by 5–15%
+- Increase Slashing Burst crit chance by 1–8%
+- Increase Slashing Burst crit damage by 5–15%
+- Increase Flame Disruptor crit chance by 1–8%
+- Increase Flame Disruptor crit damage by 5–15%
+- Increase Fire Wall crit chance by 1–8%
+- Increase Fire Wall crit damage by 5–15%
+- Increase Thunder Bolt crit chance by 1–8%
+- Increase Thunder Bolt crit damage by 5–15%
+- Increase Ice Storm crit chance by 1–8%
+- Increase Ice Storm crit damage by 5–15%
+- Increase Flame Field crit chance by 1–8%
+- Increase Flame Field crit damage by 5–15%
+- Increase Meteor Strike crit chance by 1–8%
+- Increase Meteor Strike crit damage by 5–15%
+- Increase Blizzard crit chance by 1–8%
+- Increase Blizzard crit damage by 5–15%
+- Increase Fire Ball crit chance by 1–8%
+- Increase Fire Ball crit damage by 5–15%
+- Increase Great Fire Ball crit chance by 1–8%
+- Increase Great Fire Ball crit damage by 5–15%
+- Increase Frost Crunch crit chance by 1–8%
+- Increase Frost Crunch crit damage by 5–15%
+- Increase Soul Fire Ball crit chance by 1–8%
+- Increase Soul Fire Ball crit damage by 5–15%
+- −1–5% Damage taken
+- +1–6% Crit Rate
+- +5–10% Crit Damage
+- +2–10% Skill leveling
 
 **Black Iron Belt** (`black-iron-belt`)
 - +1–3 AC
@@ -1272,6 +6040,80 @@ Grouped by slot. Weapons show their class and actual roll pool from `empowerCand
 - +1 Magic Resist
 - +10–30 HP (step 10)
 - +10–30 MP (step 10)
+- Increase Slaying damage by 5–10%
+- Increase Flaming Sword damage by 5–10%
+- Reduce Flaming Sword cooldown by 1–2 seconds
+- Increase Twin Drake Blade damage by 5–10%
+- Reduce mana cost of Twin Drake Blade by 5–15%
+- Increase Blade Avalanche damage by 5–10%
+- Reduce mana cost of Blade Avalanche by 5–15%
+- Increase Slashing Burst damage by 5–10%
+- Reduce mana cost of Slashing Burst by 5–15%
+- Increase Flame Disruptor damage by 5–10%
+- Increase Fire Wall damage by 5–10%
+- Increase Thunder Bolt damage by 5–10%
+- Increase Ice Storm damage by 5–10%
+- Increase Flame Field damage by 5–10%
+- Increase Meteor Strike damage by 5–10%
+- Increase Blizzard damage by 5–10%
+- Increase Fire Ball damage by 5–10%
+- Increase Great Fire Ball damage by 5–10%
+- Increase Frost Crunch damage by 5–10%
+- Reduce mana cost of Flame Disruptor by 5–15%
+- Reduce mana cost of Fire Wall by 5–15%
+- Reduce mana cost of Thunder Bolt by 5–15%
+- Reduce mana cost of Ice Storm by 5–15%
+- Reduce mana cost of Flame Field by 5–15%
+- Reduce mana cost of Meteor Strike by 5–15%
+- Reduce mana cost of Blizzard by 5–15%
+- Increase Healing healing by 5–10%
+- Increase Mass Healing healing by 5–10%
+- Increase Soul Fire Ball damage by 5–10%
+- Increase Skeleton damage by 5–20%
+- Increase Skeleton health by 5–20%
+- Reduce Skeleton damage taken by 5%
+- Increase Shinsu damage by 5–20%
+- Increase Shinsu health by 5–20%
+- Reduce Shinsu damage taken by 5%
+- Increase Holy Deva damage by 5–20%
+- Increase Holy Deva health by 5–20%
+- Reduce Holy Deva damage taken by 5%
+- Increase Slaying crit chance by 1–8%
+- Increase Slaying crit damage by 5–15%
+- Increase Flaming Sword crit chance by 1–8%
+- Increase Flaming Sword crit damage by 5–15%
+- Increase Twin Drake Blade crit chance by 1–8%
+- Increase Twin Drake Blade crit damage by 5–15%
+- Increase Blade Avalanche crit chance by 1–8%
+- Increase Blade Avalanche crit damage by 5–15%
+- Increase Slashing Burst crit chance by 1–8%
+- Increase Slashing Burst crit damage by 5–15%
+- Increase Flame Disruptor crit chance by 1–8%
+- Increase Flame Disruptor crit damage by 5–15%
+- Increase Fire Wall crit chance by 1–8%
+- Increase Fire Wall crit damage by 5–15%
+- Increase Thunder Bolt crit chance by 1–8%
+- Increase Thunder Bolt crit damage by 5–15%
+- Increase Ice Storm crit chance by 1–8%
+- Increase Ice Storm crit damage by 5–15%
+- Increase Flame Field crit chance by 1–8%
+- Increase Flame Field crit damage by 5–15%
+- Increase Meteor Strike crit chance by 1–8%
+- Increase Meteor Strike crit damage by 5–15%
+- Increase Blizzard crit chance by 1–8%
+- Increase Blizzard crit damage by 5–15%
+- Increase Fire Ball crit chance by 1–8%
+- Increase Fire Ball crit damage by 5–15%
+- Increase Great Fire Ball crit chance by 1–8%
+- Increase Great Fire Ball crit damage by 5–15%
+- Increase Frost Crunch crit chance by 1–8%
+- Increase Frost Crunch crit damage by 5–15%
+- Increase Soul Fire Ball crit chance by 1–8%
+- Increase Soul Fire Ball crit damage by 5–15%
+- −1–5% Damage taken
+- +1–6% Crit Rate
+- +5–10% Crit Damage
+- +2–10% Skill leveling
 
 **Steel Belt** (`steel-belt`)
 - +1–3 AC
@@ -1285,6 +6127,80 @@ Grouped by slot. Weapons show their class and actual roll pool from `empowerCand
 - +1 Magic Resist
 - +10–30 HP (step 10)
 - +10–30 MP (step 10)
+- Increase Slaying damage by 5–10%
+- Increase Flaming Sword damage by 5–10%
+- Reduce Flaming Sword cooldown by 1–2 seconds
+- Increase Twin Drake Blade damage by 5–10%
+- Reduce mana cost of Twin Drake Blade by 5–15%
+- Increase Blade Avalanche damage by 5–10%
+- Reduce mana cost of Blade Avalanche by 5–15%
+- Increase Slashing Burst damage by 5–10%
+- Reduce mana cost of Slashing Burst by 5–15%
+- Increase Flame Disruptor damage by 5–10%
+- Increase Fire Wall damage by 5–10%
+- Increase Thunder Bolt damage by 5–10%
+- Increase Ice Storm damage by 5–10%
+- Increase Flame Field damage by 5–10%
+- Increase Meteor Strike damage by 5–10%
+- Increase Blizzard damage by 5–10%
+- Increase Fire Ball damage by 5–10%
+- Increase Great Fire Ball damage by 5–10%
+- Increase Frost Crunch damage by 5–10%
+- Reduce mana cost of Flame Disruptor by 5–15%
+- Reduce mana cost of Fire Wall by 5–15%
+- Reduce mana cost of Thunder Bolt by 5–15%
+- Reduce mana cost of Ice Storm by 5–15%
+- Reduce mana cost of Flame Field by 5–15%
+- Reduce mana cost of Meteor Strike by 5–15%
+- Reduce mana cost of Blizzard by 5–15%
+- Increase Healing healing by 5–10%
+- Increase Mass Healing healing by 5–10%
+- Increase Soul Fire Ball damage by 5–10%
+- Increase Skeleton damage by 5–20%
+- Increase Skeleton health by 5–20%
+- Reduce Skeleton damage taken by 5%
+- Increase Shinsu damage by 5–20%
+- Increase Shinsu health by 5–20%
+- Reduce Shinsu damage taken by 5%
+- Increase Holy Deva damage by 5–20%
+- Increase Holy Deva health by 5–20%
+- Reduce Holy Deva damage taken by 5%
+- Increase Slaying crit chance by 1–8%
+- Increase Slaying crit damage by 5–15%
+- Increase Flaming Sword crit chance by 1–8%
+- Increase Flaming Sword crit damage by 5–15%
+- Increase Twin Drake Blade crit chance by 1–8%
+- Increase Twin Drake Blade crit damage by 5–15%
+- Increase Blade Avalanche crit chance by 1–8%
+- Increase Blade Avalanche crit damage by 5–15%
+- Increase Slashing Burst crit chance by 1–8%
+- Increase Slashing Burst crit damage by 5–15%
+- Increase Flame Disruptor crit chance by 1–8%
+- Increase Flame Disruptor crit damage by 5–15%
+- Increase Fire Wall crit chance by 1–8%
+- Increase Fire Wall crit damage by 5–15%
+- Increase Thunder Bolt crit chance by 1–8%
+- Increase Thunder Bolt crit damage by 5–15%
+- Increase Ice Storm crit chance by 1–8%
+- Increase Ice Storm crit damage by 5–15%
+- Increase Flame Field crit chance by 1–8%
+- Increase Flame Field crit damage by 5–15%
+- Increase Meteor Strike crit chance by 1–8%
+- Increase Meteor Strike crit damage by 5–15%
+- Increase Blizzard crit chance by 1–8%
+- Increase Blizzard crit damage by 5–15%
+- Increase Fire Ball crit chance by 1–8%
+- Increase Fire Ball crit damage by 5–15%
+- Increase Great Fire Ball crit chance by 1–8%
+- Increase Great Fire Ball crit damage by 5–15%
+- Increase Frost Crunch crit chance by 1–8%
+- Increase Frost Crunch crit damage by 5–15%
+- Increase Soul Fire Ball crit chance by 1–8%
+- Increase Soul Fire Ball crit damage by 5–15%
+- −1–5% Damage taken
+- +1–6% Crit Rate
+- +5–10% Crit Damage
+- +2–10% Skill leveling
 
 **Gold Belt** (`gold-belt`)
 - +1–3 AC
@@ -1298,6 +6214,80 @@ Grouped by slot. Weapons show their class and actual roll pool from `empowerCand
 - +1 Magic Resist
 - +10–30 HP (step 10)
 - +10–30 MP (step 10)
+- Increase Slaying damage by 5–10%
+- Increase Flaming Sword damage by 5–10%
+- Reduce Flaming Sword cooldown by 1–2 seconds
+- Increase Twin Drake Blade damage by 5–10%
+- Reduce mana cost of Twin Drake Blade by 5–15%
+- Increase Blade Avalanche damage by 5–10%
+- Reduce mana cost of Blade Avalanche by 5–15%
+- Increase Slashing Burst damage by 5–10%
+- Reduce mana cost of Slashing Burst by 5–15%
+- Increase Flame Disruptor damage by 5–10%
+- Increase Fire Wall damage by 5–10%
+- Increase Thunder Bolt damage by 5–10%
+- Increase Ice Storm damage by 5–10%
+- Increase Flame Field damage by 5–10%
+- Increase Meteor Strike damage by 5–10%
+- Increase Blizzard damage by 5–10%
+- Increase Fire Ball damage by 5–10%
+- Increase Great Fire Ball damage by 5–10%
+- Increase Frost Crunch damage by 5–10%
+- Reduce mana cost of Flame Disruptor by 5–15%
+- Reduce mana cost of Fire Wall by 5–15%
+- Reduce mana cost of Thunder Bolt by 5–15%
+- Reduce mana cost of Ice Storm by 5–15%
+- Reduce mana cost of Flame Field by 5–15%
+- Reduce mana cost of Meteor Strike by 5–15%
+- Reduce mana cost of Blizzard by 5–15%
+- Increase Healing healing by 5–10%
+- Increase Mass Healing healing by 5–10%
+- Increase Soul Fire Ball damage by 5–10%
+- Increase Skeleton damage by 5–20%
+- Increase Skeleton health by 5–20%
+- Reduce Skeleton damage taken by 5%
+- Increase Shinsu damage by 5–20%
+- Increase Shinsu health by 5–20%
+- Reduce Shinsu damage taken by 5%
+- Increase Holy Deva damage by 5–20%
+- Increase Holy Deva health by 5–20%
+- Reduce Holy Deva damage taken by 5%
+- Increase Slaying crit chance by 1–8%
+- Increase Slaying crit damage by 5–15%
+- Increase Flaming Sword crit chance by 1–8%
+- Increase Flaming Sword crit damage by 5–15%
+- Increase Twin Drake Blade crit chance by 1–8%
+- Increase Twin Drake Blade crit damage by 5–15%
+- Increase Blade Avalanche crit chance by 1–8%
+- Increase Blade Avalanche crit damage by 5–15%
+- Increase Slashing Burst crit chance by 1–8%
+- Increase Slashing Burst crit damage by 5–15%
+- Increase Flame Disruptor crit chance by 1–8%
+- Increase Flame Disruptor crit damage by 5–15%
+- Increase Fire Wall crit chance by 1–8%
+- Increase Fire Wall crit damage by 5–15%
+- Increase Thunder Bolt crit chance by 1–8%
+- Increase Thunder Bolt crit damage by 5–15%
+- Increase Ice Storm crit chance by 1–8%
+- Increase Ice Storm crit damage by 5–15%
+- Increase Flame Field crit chance by 1–8%
+- Increase Flame Field crit damage by 5–15%
+- Increase Meteor Strike crit chance by 1–8%
+- Increase Meteor Strike crit damage by 5–15%
+- Increase Blizzard crit chance by 1–8%
+- Increase Blizzard crit damage by 5–15%
+- Increase Fire Ball crit chance by 1–8%
+- Increase Fire Ball crit damage by 5–15%
+- Increase Great Fire Ball crit chance by 1–8%
+- Increase Great Fire Ball crit damage by 5–15%
+- Increase Frost Crunch crit chance by 1–8%
+- Increase Frost Crunch crit damage by 5–15%
+- Increase Soul Fire Ball crit chance by 1–8%
+- Increase Soul Fire Ball crit damage by 5–15%
+- −1–5% Damage taken
+- +1–6% Crit Rate
+- +5–10% Crit Damage
+- +2–10% Skill leveling
 
 **Low Shoes** (`low-shoes`)
 - +1–3 AC
@@ -1311,6 +6301,80 @@ Grouped by slot. Weapons show their class and actual roll pool from `empowerCand
 - +1 Magic Resist
 - +10–30 HP (step 10)
 - +10–30 MP (step 10)
+- Increase Slaying damage by 5–10%
+- Increase Flaming Sword damage by 5–10%
+- Reduce Flaming Sword cooldown by 1–2 seconds
+- Increase Twin Drake Blade damage by 5–10%
+- Reduce mana cost of Twin Drake Blade by 5–15%
+- Increase Blade Avalanche damage by 5–10%
+- Reduce mana cost of Blade Avalanche by 5–15%
+- Increase Slashing Burst damage by 5–10%
+- Reduce mana cost of Slashing Burst by 5–15%
+- Increase Flame Disruptor damage by 5–10%
+- Increase Fire Wall damage by 5–10%
+- Increase Thunder Bolt damage by 5–10%
+- Increase Ice Storm damage by 5–10%
+- Increase Flame Field damage by 5–10%
+- Increase Meteor Strike damage by 5–10%
+- Increase Blizzard damage by 5–10%
+- Increase Fire Ball damage by 5–10%
+- Increase Great Fire Ball damage by 5–10%
+- Increase Frost Crunch damage by 5–10%
+- Reduce mana cost of Flame Disruptor by 5–15%
+- Reduce mana cost of Fire Wall by 5–15%
+- Reduce mana cost of Thunder Bolt by 5–15%
+- Reduce mana cost of Ice Storm by 5–15%
+- Reduce mana cost of Flame Field by 5–15%
+- Reduce mana cost of Meteor Strike by 5–15%
+- Reduce mana cost of Blizzard by 5–15%
+- Increase Healing healing by 5–10%
+- Increase Mass Healing healing by 5–10%
+- Increase Soul Fire Ball damage by 5–10%
+- Increase Skeleton damage by 5–20%
+- Increase Skeleton health by 5–20%
+- Reduce Skeleton damage taken by 5%
+- Increase Shinsu damage by 5–20%
+- Increase Shinsu health by 5–20%
+- Reduce Shinsu damage taken by 5%
+- Increase Holy Deva damage by 5–20%
+- Increase Holy Deva health by 5–20%
+- Reduce Holy Deva damage taken by 5%
+- Increase Slaying crit chance by 1–8%
+- Increase Slaying crit damage by 5–15%
+- Increase Flaming Sword crit chance by 1–8%
+- Increase Flaming Sword crit damage by 5–15%
+- Increase Twin Drake Blade crit chance by 1–8%
+- Increase Twin Drake Blade crit damage by 5–15%
+- Increase Blade Avalanche crit chance by 1–8%
+- Increase Blade Avalanche crit damage by 5–15%
+- Increase Slashing Burst crit chance by 1–8%
+- Increase Slashing Burst crit damage by 5–15%
+- Increase Flame Disruptor crit chance by 1–8%
+- Increase Flame Disruptor crit damage by 5–15%
+- Increase Fire Wall crit chance by 1–8%
+- Increase Fire Wall crit damage by 5–15%
+- Increase Thunder Bolt crit chance by 1–8%
+- Increase Thunder Bolt crit damage by 5–15%
+- Increase Ice Storm crit chance by 1–8%
+- Increase Ice Storm crit damage by 5–15%
+- Increase Flame Field crit chance by 1–8%
+- Increase Flame Field crit damage by 5–15%
+- Increase Meteor Strike crit chance by 1–8%
+- Increase Meteor Strike crit damage by 5–15%
+- Increase Blizzard crit chance by 1–8%
+- Increase Blizzard crit damage by 5–15%
+- Increase Fire Ball crit chance by 1–8%
+- Increase Fire Ball crit damage by 5–15%
+- Increase Great Fire Ball crit chance by 1–8%
+- Increase Great Fire Ball crit damage by 5–15%
+- Increase Frost Crunch crit chance by 1–8%
+- Increase Frost Crunch crit damage by 5–15%
+- Increase Soul Fire Ball crit chance by 1–8%
+- Increase Soul Fire Ball crit damage by 5–15%
+- −1–5% Damage taken
+- +1–6% Crit Rate
+- +5–10% Crit Damage
+- +2–10% Skill leveling
 
 **Leather Boots** (`leather-boots`)
 - +1–3 AC
@@ -1324,6 +6388,80 @@ Grouped by slot. Weapons show their class and actual roll pool from `empowerCand
 - +1 Magic Resist
 - +10–30 HP (step 10)
 - +10–30 MP (step 10)
+- Increase Slaying damage by 5–10%
+- Increase Flaming Sword damage by 5–10%
+- Reduce Flaming Sword cooldown by 1–2 seconds
+- Increase Twin Drake Blade damage by 5–10%
+- Reduce mana cost of Twin Drake Blade by 5–15%
+- Increase Blade Avalanche damage by 5–10%
+- Reduce mana cost of Blade Avalanche by 5–15%
+- Increase Slashing Burst damage by 5–10%
+- Reduce mana cost of Slashing Burst by 5–15%
+- Increase Flame Disruptor damage by 5–10%
+- Increase Fire Wall damage by 5–10%
+- Increase Thunder Bolt damage by 5–10%
+- Increase Ice Storm damage by 5–10%
+- Increase Flame Field damage by 5–10%
+- Increase Meteor Strike damage by 5–10%
+- Increase Blizzard damage by 5–10%
+- Increase Fire Ball damage by 5–10%
+- Increase Great Fire Ball damage by 5–10%
+- Increase Frost Crunch damage by 5–10%
+- Reduce mana cost of Flame Disruptor by 5–15%
+- Reduce mana cost of Fire Wall by 5–15%
+- Reduce mana cost of Thunder Bolt by 5–15%
+- Reduce mana cost of Ice Storm by 5–15%
+- Reduce mana cost of Flame Field by 5–15%
+- Reduce mana cost of Meteor Strike by 5–15%
+- Reduce mana cost of Blizzard by 5–15%
+- Increase Healing healing by 5–10%
+- Increase Mass Healing healing by 5–10%
+- Increase Soul Fire Ball damage by 5–10%
+- Increase Skeleton damage by 5–20%
+- Increase Skeleton health by 5–20%
+- Reduce Skeleton damage taken by 5%
+- Increase Shinsu damage by 5–20%
+- Increase Shinsu health by 5–20%
+- Reduce Shinsu damage taken by 5%
+- Increase Holy Deva damage by 5–20%
+- Increase Holy Deva health by 5–20%
+- Reduce Holy Deva damage taken by 5%
+- Increase Slaying crit chance by 1–8%
+- Increase Slaying crit damage by 5–15%
+- Increase Flaming Sword crit chance by 1–8%
+- Increase Flaming Sword crit damage by 5–15%
+- Increase Twin Drake Blade crit chance by 1–8%
+- Increase Twin Drake Blade crit damage by 5–15%
+- Increase Blade Avalanche crit chance by 1–8%
+- Increase Blade Avalanche crit damage by 5–15%
+- Increase Slashing Burst crit chance by 1–8%
+- Increase Slashing Burst crit damage by 5–15%
+- Increase Flame Disruptor crit chance by 1–8%
+- Increase Flame Disruptor crit damage by 5–15%
+- Increase Fire Wall crit chance by 1–8%
+- Increase Fire Wall crit damage by 5–15%
+- Increase Thunder Bolt crit chance by 1–8%
+- Increase Thunder Bolt crit damage by 5–15%
+- Increase Ice Storm crit chance by 1–8%
+- Increase Ice Storm crit damage by 5–15%
+- Increase Flame Field crit chance by 1–8%
+- Increase Flame Field crit damage by 5–15%
+- Increase Meteor Strike crit chance by 1–8%
+- Increase Meteor Strike crit damage by 5–15%
+- Increase Blizzard crit chance by 1–8%
+- Increase Blizzard crit damage by 5–15%
+- Increase Fire Ball crit chance by 1–8%
+- Increase Fire Ball crit damage by 5–15%
+- Increase Great Fire Ball crit chance by 1–8%
+- Increase Great Fire Ball crit damage by 5–15%
+- Increase Frost Crunch crit chance by 1–8%
+- Increase Frost Crunch crit damage by 5–15%
+- Increase Soul Fire Ball crit chance by 1–8%
+- Increase Soul Fire Ball crit damage by 5–15%
+- −1–5% Damage taken
+- +1–6% Crit Rate
+- +5–10% Crit Damage
+- +2–10% Skill leveling
 
 **Silk Boots** (`silk-boots`)
 - +1–3 AC
@@ -1337,6 +6475,80 @@ Grouped by slot. Weapons show their class and actual roll pool from `empowerCand
 - +1 Magic Resist
 - +10–30 HP (step 10)
 - +10–30 MP (step 10)
+- Increase Slaying damage by 5–10%
+- Increase Flaming Sword damage by 5–10%
+- Reduce Flaming Sword cooldown by 1–2 seconds
+- Increase Twin Drake Blade damage by 5–10%
+- Reduce mana cost of Twin Drake Blade by 5–15%
+- Increase Blade Avalanche damage by 5–10%
+- Reduce mana cost of Blade Avalanche by 5–15%
+- Increase Slashing Burst damage by 5–10%
+- Reduce mana cost of Slashing Burst by 5–15%
+- Increase Flame Disruptor damage by 5–10%
+- Increase Fire Wall damage by 5–10%
+- Increase Thunder Bolt damage by 5–10%
+- Increase Ice Storm damage by 5–10%
+- Increase Flame Field damage by 5–10%
+- Increase Meteor Strike damage by 5–10%
+- Increase Blizzard damage by 5–10%
+- Increase Fire Ball damage by 5–10%
+- Increase Great Fire Ball damage by 5–10%
+- Increase Frost Crunch damage by 5–10%
+- Reduce mana cost of Flame Disruptor by 5–15%
+- Reduce mana cost of Fire Wall by 5–15%
+- Reduce mana cost of Thunder Bolt by 5–15%
+- Reduce mana cost of Ice Storm by 5–15%
+- Reduce mana cost of Flame Field by 5–15%
+- Reduce mana cost of Meteor Strike by 5–15%
+- Reduce mana cost of Blizzard by 5–15%
+- Increase Healing healing by 5–10%
+- Increase Mass Healing healing by 5–10%
+- Increase Soul Fire Ball damage by 5–10%
+- Increase Skeleton damage by 5–20%
+- Increase Skeleton health by 5–20%
+- Reduce Skeleton damage taken by 5%
+- Increase Shinsu damage by 5–20%
+- Increase Shinsu health by 5–20%
+- Reduce Shinsu damage taken by 5%
+- Increase Holy Deva damage by 5–20%
+- Increase Holy Deva health by 5–20%
+- Reduce Holy Deva damage taken by 5%
+- Increase Slaying crit chance by 1–8%
+- Increase Slaying crit damage by 5–15%
+- Increase Flaming Sword crit chance by 1–8%
+- Increase Flaming Sword crit damage by 5–15%
+- Increase Twin Drake Blade crit chance by 1–8%
+- Increase Twin Drake Blade crit damage by 5–15%
+- Increase Blade Avalanche crit chance by 1–8%
+- Increase Blade Avalanche crit damage by 5–15%
+- Increase Slashing Burst crit chance by 1–8%
+- Increase Slashing Burst crit damage by 5–15%
+- Increase Flame Disruptor crit chance by 1–8%
+- Increase Flame Disruptor crit damage by 5–15%
+- Increase Fire Wall crit chance by 1–8%
+- Increase Fire Wall crit damage by 5–15%
+- Increase Thunder Bolt crit chance by 1–8%
+- Increase Thunder Bolt crit damage by 5–15%
+- Increase Ice Storm crit chance by 1–8%
+- Increase Ice Storm crit damage by 5–15%
+- Increase Flame Field crit chance by 1–8%
+- Increase Flame Field crit damage by 5–15%
+- Increase Meteor Strike crit chance by 1–8%
+- Increase Meteor Strike crit damage by 5–15%
+- Increase Blizzard crit chance by 1–8%
+- Increase Blizzard crit damage by 5–15%
+- Increase Fire Ball crit chance by 1–8%
+- Increase Fire Ball crit damage by 5–15%
+- Increase Great Fire Ball crit chance by 1–8%
+- Increase Great Fire Ball crit damage by 5–15%
+- Increase Frost Crunch crit chance by 1–8%
+- Increase Frost Crunch crit damage by 5–15%
+- Increase Soul Fire Ball crit chance by 1–8%
+- Increase Soul Fire Ball crit damage by 5–15%
+- −1–5% Damage taken
+- +1–6% Crit Rate
+- +5–10% Crit Damage
+- +2–10% Skill leveling
 
 **Black Boots** (`black-boots`)
 - +1–3 AC
@@ -1350,6 +6562,80 @@ Grouped by slot. Weapons show their class and actual roll pool from `empowerCand
 - +1 Magic Resist
 - +10–30 HP (step 10)
 - +10–30 MP (step 10)
+- Increase Slaying damage by 5–10%
+- Increase Flaming Sword damage by 5–10%
+- Reduce Flaming Sword cooldown by 1–2 seconds
+- Increase Twin Drake Blade damage by 5–10%
+- Reduce mana cost of Twin Drake Blade by 5–15%
+- Increase Blade Avalanche damage by 5–10%
+- Reduce mana cost of Blade Avalanche by 5–15%
+- Increase Slashing Burst damage by 5–10%
+- Reduce mana cost of Slashing Burst by 5–15%
+- Increase Flame Disruptor damage by 5–10%
+- Increase Fire Wall damage by 5–10%
+- Increase Thunder Bolt damage by 5–10%
+- Increase Ice Storm damage by 5–10%
+- Increase Flame Field damage by 5–10%
+- Increase Meteor Strike damage by 5–10%
+- Increase Blizzard damage by 5–10%
+- Increase Fire Ball damage by 5–10%
+- Increase Great Fire Ball damage by 5–10%
+- Increase Frost Crunch damage by 5–10%
+- Reduce mana cost of Flame Disruptor by 5–15%
+- Reduce mana cost of Fire Wall by 5–15%
+- Reduce mana cost of Thunder Bolt by 5–15%
+- Reduce mana cost of Ice Storm by 5–15%
+- Reduce mana cost of Flame Field by 5–15%
+- Reduce mana cost of Meteor Strike by 5–15%
+- Reduce mana cost of Blizzard by 5–15%
+- Increase Healing healing by 5–10%
+- Increase Mass Healing healing by 5–10%
+- Increase Soul Fire Ball damage by 5–10%
+- Increase Skeleton damage by 5–20%
+- Increase Skeleton health by 5–20%
+- Reduce Skeleton damage taken by 5%
+- Increase Shinsu damage by 5–20%
+- Increase Shinsu health by 5–20%
+- Reduce Shinsu damage taken by 5%
+- Increase Holy Deva damage by 5–20%
+- Increase Holy Deva health by 5–20%
+- Reduce Holy Deva damage taken by 5%
+- Increase Slaying crit chance by 1–8%
+- Increase Slaying crit damage by 5–15%
+- Increase Flaming Sword crit chance by 1–8%
+- Increase Flaming Sword crit damage by 5–15%
+- Increase Twin Drake Blade crit chance by 1–8%
+- Increase Twin Drake Blade crit damage by 5–15%
+- Increase Blade Avalanche crit chance by 1–8%
+- Increase Blade Avalanche crit damage by 5–15%
+- Increase Slashing Burst crit chance by 1–8%
+- Increase Slashing Burst crit damage by 5–15%
+- Increase Flame Disruptor crit chance by 1–8%
+- Increase Flame Disruptor crit damage by 5–15%
+- Increase Fire Wall crit chance by 1–8%
+- Increase Fire Wall crit damage by 5–15%
+- Increase Thunder Bolt crit chance by 1–8%
+- Increase Thunder Bolt crit damage by 5–15%
+- Increase Ice Storm crit chance by 1–8%
+- Increase Ice Storm crit damage by 5–15%
+- Increase Flame Field crit chance by 1–8%
+- Increase Flame Field crit damage by 5–15%
+- Increase Meteor Strike crit chance by 1–8%
+- Increase Meteor Strike crit damage by 5–15%
+- Increase Blizzard crit chance by 1–8%
+- Increase Blizzard crit damage by 5–15%
+- Increase Fire Ball crit chance by 1–8%
+- Increase Fire Ball crit damage by 5–15%
+- Increase Great Fire Ball crit chance by 1–8%
+- Increase Great Fire Ball crit damage by 5–15%
+- Increase Frost Crunch crit chance by 1–8%
+- Increase Frost Crunch crit damage by 5–15%
+- Increase Soul Fire Ball crit chance by 1–8%
+- Increase Soul Fire Ball crit damage by 5–15%
+- −1–5% Damage taken
+- +1–6% Crit Rate
+- +5–10% Crit Damage
+- +2–10% Skill leveling
 
 **Dragon Boots** (`dragon-boots`)
 - +1–3 AC
@@ -1363,6 +6649,80 @@ Grouped by slot. Weapons show their class and actual roll pool from `empowerCand
 - +1 Magic Resist
 - +10–30 HP (step 10)
 - +10–30 MP (step 10)
+- Increase Slaying damage by 5–10%
+- Increase Flaming Sword damage by 5–10%
+- Reduce Flaming Sword cooldown by 1–2 seconds
+- Increase Twin Drake Blade damage by 5–10%
+- Reduce mana cost of Twin Drake Blade by 5–15%
+- Increase Blade Avalanche damage by 5–10%
+- Reduce mana cost of Blade Avalanche by 5–15%
+- Increase Slashing Burst damage by 5–10%
+- Reduce mana cost of Slashing Burst by 5–15%
+- Increase Flame Disruptor damage by 5–10%
+- Increase Fire Wall damage by 5–10%
+- Increase Thunder Bolt damage by 5–10%
+- Increase Ice Storm damage by 5–10%
+- Increase Flame Field damage by 5–10%
+- Increase Meteor Strike damage by 5–10%
+- Increase Blizzard damage by 5–10%
+- Increase Fire Ball damage by 5–10%
+- Increase Great Fire Ball damage by 5–10%
+- Increase Frost Crunch damage by 5–10%
+- Reduce mana cost of Flame Disruptor by 5–15%
+- Reduce mana cost of Fire Wall by 5–15%
+- Reduce mana cost of Thunder Bolt by 5–15%
+- Reduce mana cost of Ice Storm by 5–15%
+- Reduce mana cost of Flame Field by 5–15%
+- Reduce mana cost of Meteor Strike by 5–15%
+- Reduce mana cost of Blizzard by 5–15%
+- Increase Healing healing by 5–10%
+- Increase Mass Healing healing by 5–10%
+- Increase Soul Fire Ball damage by 5–10%
+- Increase Skeleton damage by 5–20%
+- Increase Skeleton health by 5–20%
+- Reduce Skeleton damage taken by 5%
+- Increase Shinsu damage by 5–20%
+- Increase Shinsu health by 5–20%
+- Reduce Shinsu damage taken by 5%
+- Increase Holy Deva damage by 5–20%
+- Increase Holy Deva health by 5–20%
+- Reduce Holy Deva damage taken by 5%
+- Increase Slaying crit chance by 1–8%
+- Increase Slaying crit damage by 5–15%
+- Increase Flaming Sword crit chance by 1–8%
+- Increase Flaming Sword crit damage by 5–15%
+- Increase Twin Drake Blade crit chance by 1–8%
+- Increase Twin Drake Blade crit damage by 5–15%
+- Increase Blade Avalanche crit chance by 1–8%
+- Increase Blade Avalanche crit damage by 5–15%
+- Increase Slashing Burst crit chance by 1–8%
+- Increase Slashing Burst crit damage by 5–15%
+- Increase Flame Disruptor crit chance by 1–8%
+- Increase Flame Disruptor crit damage by 5–15%
+- Increase Fire Wall crit chance by 1–8%
+- Increase Fire Wall crit damage by 5–15%
+- Increase Thunder Bolt crit chance by 1–8%
+- Increase Thunder Bolt crit damage by 5–15%
+- Increase Ice Storm crit chance by 1–8%
+- Increase Ice Storm crit damage by 5–15%
+- Increase Flame Field crit chance by 1–8%
+- Increase Flame Field crit damage by 5–15%
+- Increase Meteor Strike crit chance by 1–8%
+- Increase Meteor Strike crit damage by 5–15%
+- Increase Blizzard crit chance by 1–8%
+- Increase Blizzard crit damage by 5–15%
+- Increase Fire Ball crit chance by 1–8%
+- Increase Fire Ball crit damage by 5–15%
+- Increase Great Fire Ball crit chance by 1–8%
+- Increase Great Fire Ball crit damage by 5–15%
+- Increase Frost Crunch crit chance by 1–8%
+- Increase Frost Crunch crit damage by 5–15%
+- Increase Soul Fire Ball crit chance by 1–8%
+- Increase Soul Fire Ball crit damage by 5–15%
+- −1–5% Damage taken
+- +1–6% Crit Rate
+- +5–10% Crit Damage
+- +2–10% Skill leveling
 
 ### Bracelet
 
@@ -1371,55 +6731,170 @@ Grouped by slot. Weapons show their class and actual roll pool from `empowerCand
 - +1–2 AMC
 - +1–4 DC
 - +1–3 SC
-- +1–3 MC
 - +1 Poison Resist
 - +1 Magic Resist
 - +1–3 Agi
 - +1–3 Acc
+- Increase Healing healing by 5–10%
+- Increase Mass Healing healing by 5–10%
+- Increase Soul Fire Ball damage by 5–10%
+- Increase Skeleton damage by 5–20%
+- Increase Skeleton health by 5–20%
+- Reduce Skeleton damage taken by 5%
+- Increase Shinsu damage by 5–20%
+- Increase Shinsu health by 5–20%
+- Reduce Shinsu damage taken by 5%
+- Increase Holy Deva damage by 5–20%
+- Increase Holy Deva health by 5–20%
+- Reduce Holy Deva damage taken by 5%
+- Increase Soul Fire Ball crit chance by 1–8%
+- Increase Soul Fire Ball crit damage by 5–15%
+- −1–4% Damage taken
+- +1–6% Crit Rate
+- +5–15% Crit Damage
+- +2–12% Skill leveling
 
 **Dragon Bracelet** (`dragon-bracelet`)
 - +1–2 AC
 - +1–2 AMC
-- +1–4 DC
-- +1–3 SC
 - +1–3 MC
 - +1 Poison Resist
 - +1 Magic Resist
 - +1–3 Agi
 - +1–3 Acc
+- Increase Flame Disruptor damage by 5–10%
+- Increase Fire Wall damage by 5–10%
+- Increase Thunder Bolt damage by 5–10%
+- Increase Ice Storm damage by 5–10%
+- Increase Flame Field damage by 5–10%
+- Increase Meteor Strike damage by 5–10%
+- Increase Blizzard damage by 5–10%
+- Increase Fire Ball damage by 5–10%
+- Increase Great Fire Ball damage by 5–10%
+- Increase Frost Crunch damage by 5–10%
+- Reduce mana cost of Flame Disruptor by 5–15%
+- Reduce mana cost of Fire Wall by 5–15%
+- Reduce mana cost of Thunder Bolt by 5–15%
+- Reduce mana cost of Ice Storm by 5–15%
+- Reduce mana cost of Flame Field by 5–15%
+- Reduce mana cost of Meteor Strike by 5–15%
+- Reduce mana cost of Blizzard by 5–15%
+- Increase Flame Disruptor crit chance by 1–8%
+- Increase Flame Disruptor crit damage by 5–15%
+- Increase Fire Wall crit chance by 1–8%
+- Increase Fire Wall crit damage by 5–15%
+- Increase Thunder Bolt crit chance by 1–8%
+- Increase Thunder Bolt crit damage by 5–15%
+- Increase Ice Storm crit chance by 1–8%
+- Increase Ice Storm crit damage by 5–15%
+- Increase Flame Field crit chance by 1–8%
+- Increase Flame Field crit damage by 5–15%
+- Increase Meteor Strike crit chance by 1–8%
+- Increase Meteor Strike crit damage by 5–15%
+- Increase Blizzard crit chance by 1–8%
+- Increase Blizzard crit damage by 5–15%
+- Increase Fire Ball crit chance by 1–8%
+- Increase Fire Ball crit damage by 5–15%
+- Increase Great Fire Ball crit chance by 1–8%
+- Increase Great Fire Ball crit damage by 5–15%
+- Increase Frost Crunch crit chance by 1–8%
+- Increase Frost Crunch crit damage by 5–15%
+- −1–4% Damage taken
+- +1–6% Crit Rate
+- +5–15% Crit Damage
+- +2–12% Skill leveling
 
 **Knight Bracelet** (`knight-bracelet`)
 - +1–2 AC
 - +1–2 AMC
 - +1–4 DC
-- +1–3 SC
-- +1–3 MC
 - +1 Poison Resist
 - +1 Magic Resist
 - +1–3 Agi
 - +1–3 Acc
+- Increase Slaying damage by 5–10%
+- Increase Flaming Sword damage by 5–10%
+- Reduce Flaming Sword cooldown by 1–2 seconds
+- Increase Twin Drake Blade damage by 5–10%
+- Reduce mana cost of Twin Drake Blade by 5–15%
+- Increase Blade Avalanche damage by 5–10%
+- Reduce mana cost of Blade Avalanche by 5–15%
+- Increase Slashing Burst damage by 5–10%
+- Reduce mana cost of Slashing Burst by 5–15%
+- Increase Slaying crit chance by 1–8%
+- Increase Slaying crit damage by 5–15%
+- Increase Flaming Sword crit chance by 1–8%
+- Increase Flaming Sword crit damage by 5–15%
+- Increase Twin Drake Blade crit chance by 1–8%
+- Increase Twin Drake Blade crit damage by 5–15%
+- Increase Blade Avalanche crit chance by 1–8%
+- Increase Blade Avalanche crit damage by 5–15%
+- Increase Slashing Burst crit chance by 1–8%
+- Increase Slashing Burst crit damage by 5–15%
+- −1–4% Damage taken
+- +1–6% Crit Rate
+- +5–15% Crit Damage
+- +2–12% Skill leveling
 
 **Soul Spring Bracelet** (`soul-spring-bracelet`)
 - +1–2 AC
 - +1–2 AMC
 - +1–4 DC
 - +1–3 SC
-- +1–3 MC
 - +1 Poison Resist
 - +1 Magic Resist
 - +1–3 Agi
 - +1–3 Acc
+- Increase Healing healing by 5–10%
+- Increase Mass Healing healing by 5–10%
+- Increase Soul Fire Ball damage by 5–10%
+- Increase Skeleton damage by 5–20%
+- Increase Skeleton health by 5–20%
+- Reduce Skeleton damage taken by 5%
+- Increase Shinsu damage by 5–20%
+- Increase Shinsu health by 5–20%
+- Reduce Shinsu damage taken by 5%
+- Increase Holy Deva damage by 5–20%
+- Increase Holy Deva health by 5–20%
+- Reduce Holy Deva damage taken by 5%
+- Increase Soul Fire Ball crit chance by 1–8%
+- Increase Soul Fire Ball crit damage by 5–15%
+- −1–4% Damage taken
+- +1–6% Crit Rate
+- +5–15% Crit Damage
+- +2–12% Skill leveling
 
 **Strain Bracelet** (`strain-bracelet`)
 - +1–2 AC
 - +1–2 AMC
 - +1–4 DC
-- +1–3 SC
-- +1–3 MC
 - +1 Poison Resist
 - +1 Magic Resist
 - +1–3 Agi
 - +1–3 Acc
+- Increase Slaying damage by 5–10%
+- Increase Flaming Sword damage by 5–10%
+- Reduce Flaming Sword cooldown by 1–2 seconds
+- Increase Twin Drake Blade damage by 5–10%
+- Reduce mana cost of Twin Drake Blade by 5–15%
+- Increase Blade Avalanche damage by 5–10%
+- Reduce mana cost of Blade Avalanche by 5–15%
+- Increase Slashing Burst damage by 5–10%
+- Reduce mana cost of Slashing Burst by 5–15%
+- Increase Slaying crit chance by 1–8%
+- Increase Slaying crit damage by 5–15%
+- Increase Flaming Sword crit chance by 1–8%
+- Increase Flaming Sword crit damage by 5–15%
+- Increase Twin Drake Blade crit chance by 1–8%
+- Increase Twin Drake Blade crit damage by 5–15%
+- Increase Blade Avalanche crit chance by 1–8%
+- Increase Blade Avalanche crit damage by 5–15%
+- Increase Slashing Burst crit chance by 1–8%
+- Increase Slashing Burst crit damage by 5–15%
+- −1–4% Damage taken
+- +1–6% Crit Rate
+- +5–15% Crit Damage
+- +2–12% Skill leveling
 
 **Iron Bracelet** (`iron-bracelet`)
 - +1–2 AC
@@ -1431,17 +6906,112 @@ Grouped by slot. Weapons show their class and actual roll pool from `empowerCand
 - +1 Magic Resist
 - +1–3 Agi
 - +1–3 Acc
+- Increase Slaying damage by 5–10%
+- Increase Flaming Sword damage by 5–10%
+- Reduce Flaming Sword cooldown by 1–2 seconds
+- Increase Twin Drake Blade damage by 5–10%
+- Reduce mana cost of Twin Drake Blade by 5–15%
+- Increase Blade Avalanche damage by 5–10%
+- Reduce mana cost of Blade Avalanche by 5–15%
+- Increase Slashing Burst damage by 5–10%
+- Reduce mana cost of Slashing Burst by 5–15%
+- Increase Flame Disruptor damage by 5–10%
+- Increase Fire Wall damage by 5–10%
+- Increase Thunder Bolt damage by 5–10%
+- Increase Ice Storm damage by 5–10%
+- Increase Flame Field damage by 5–10%
+- Increase Meteor Strike damage by 5–10%
+- Increase Blizzard damage by 5–10%
+- Increase Fire Ball damage by 5–10%
+- Increase Great Fire Ball damage by 5–10%
+- Increase Frost Crunch damage by 5–10%
+- Reduce mana cost of Flame Disruptor by 5–15%
+- Reduce mana cost of Fire Wall by 5–15%
+- Reduce mana cost of Thunder Bolt by 5–15%
+- Reduce mana cost of Ice Storm by 5–15%
+- Reduce mana cost of Flame Field by 5–15%
+- Reduce mana cost of Meteor Strike by 5–15%
+- Reduce mana cost of Blizzard by 5–15%
+- Increase Healing healing by 5–10%
+- Increase Mass Healing healing by 5–10%
+- Increase Soul Fire Ball damage by 5–10%
+- Increase Skeleton damage by 5–20%
+- Increase Skeleton health by 5–20%
+- Reduce Skeleton damage taken by 5%
+- Increase Shinsu damage by 5–20%
+- Increase Shinsu health by 5–20%
+- Reduce Shinsu damage taken by 5%
+- Increase Holy Deva damage by 5–20%
+- Increase Holy Deva health by 5–20%
+- Reduce Holy Deva damage taken by 5%
+- Increase Slaying crit chance by 1–8%
+- Increase Slaying crit damage by 5–15%
+- Increase Flaming Sword crit chance by 1–8%
+- Increase Flaming Sword crit damage by 5–15%
+- Increase Twin Drake Blade crit chance by 1–8%
+- Increase Twin Drake Blade crit damage by 5–15%
+- Increase Blade Avalanche crit chance by 1–8%
+- Increase Blade Avalanche crit damage by 5–15%
+- Increase Slashing Burst crit chance by 1–8%
+- Increase Slashing Burst crit damage by 5–15%
+- Increase Flame Disruptor crit chance by 1–8%
+- Increase Flame Disruptor crit damage by 5–15%
+- Increase Fire Wall crit chance by 1–8%
+- Increase Fire Wall crit damage by 5–15%
+- Increase Thunder Bolt crit chance by 1–8%
+- Increase Thunder Bolt crit damage by 5–15%
+- Increase Ice Storm crit chance by 1–8%
+- Increase Ice Storm crit damage by 5–15%
+- Increase Flame Field crit chance by 1–8%
+- Increase Flame Field crit damage by 5–15%
+- Increase Meteor Strike crit chance by 1–8%
+- Increase Meteor Strike crit damage by 5–15%
+- Increase Blizzard crit chance by 1–8%
+- Increase Blizzard crit damage by 5–15%
+- Increase Fire Ball crit chance by 1–8%
+- Increase Fire Ball crit damage by 5–15%
+- Increase Great Fire Ball crit chance by 1–8%
+- Increase Great Fire Ball crit damage by 5–15%
+- Increase Frost Crunch crit chance by 1–8%
+- Increase Frost Crunch crit damage by 5–15%
+- Increase Soul Fire Ball crit chance by 1–8%
+- Increase Soul Fire Ball crit damage by 5–15%
+- −1–4% Damage taken
+- +1–6% Crit Rate
+- +5–15% Crit Damage
+- +2–12% Skill leveling
 
 **Worn Iron Bracelet** (`worn-iron-bracelet`)
 - +1–2 AC
 - +1–2 AMC
 - +1–4 DC
-- +1–3 SC
-- +1–3 MC
 - +1 Poison Resist
 - +1 Magic Resist
 - +1–3 Agi
 - +1–3 Acc
+- Increase Slaying damage by 5–10%
+- Increase Flaming Sword damage by 5–10%
+- Reduce Flaming Sword cooldown by 1–2 seconds
+- Increase Twin Drake Blade damage by 5–10%
+- Reduce mana cost of Twin Drake Blade by 5–15%
+- Increase Blade Avalanche damage by 5–10%
+- Reduce mana cost of Blade Avalanche by 5–15%
+- Increase Slashing Burst damage by 5–10%
+- Reduce mana cost of Slashing Burst by 5–15%
+- Increase Slaying crit chance by 1–8%
+- Increase Slaying crit damage by 5–15%
+- Increase Flaming Sword crit chance by 1–8%
+- Increase Flaming Sword crit damage by 5–15%
+- Increase Twin Drake Blade crit chance by 1–8%
+- Increase Twin Drake Blade crit damage by 5–15%
+- Increase Blade Avalanche crit chance by 1–8%
+- Increase Blade Avalanche crit damage by 5–15%
+- Increase Slashing Burst crit chance by 1–8%
+- Increase Slashing Burst crit damage by 5–15%
+- −1–4% Damage taken
+- +1–6% Crit Rate
+- +5–15% Crit Damage
+- +2–12% Skill leveling
 
 **Thin Bracelet** (`thin-bracelet`)
 - +1–2 AC
@@ -1453,6 +7023,80 @@ Grouped by slot. Weapons show their class and actual roll pool from `empowerCand
 - +1 Magic Resist
 - +1–3 Agi
 - +1–3 Acc
+- Increase Slaying damage by 5–10%
+- Increase Flaming Sword damage by 5–10%
+- Reduce Flaming Sword cooldown by 1–2 seconds
+- Increase Twin Drake Blade damage by 5–10%
+- Reduce mana cost of Twin Drake Blade by 5–15%
+- Increase Blade Avalanche damage by 5–10%
+- Reduce mana cost of Blade Avalanche by 5–15%
+- Increase Slashing Burst damage by 5–10%
+- Reduce mana cost of Slashing Burst by 5–15%
+- Increase Flame Disruptor damage by 5–10%
+- Increase Fire Wall damage by 5–10%
+- Increase Thunder Bolt damage by 5–10%
+- Increase Ice Storm damage by 5–10%
+- Increase Flame Field damage by 5–10%
+- Increase Meteor Strike damage by 5–10%
+- Increase Blizzard damage by 5–10%
+- Increase Fire Ball damage by 5–10%
+- Increase Great Fire Ball damage by 5–10%
+- Increase Frost Crunch damage by 5–10%
+- Reduce mana cost of Flame Disruptor by 5–15%
+- Reduce mana cost of Fire Wall by 5–15%
+- Reduce mana cost of Thunder Bolt by 5–15%
+- Reduce mana cost of Ice Storm by 5–15%
+- Reduce mana cost of Flame Field by 5–15%
+- Reduce mana cost of Meteor Strike by 5–15%
+- Reduce mana cost of Blizzard by 5–15%
+- Increase Healing healing by 5–10%
+- Increase Mass Healing healing by 5–10%
+- Increase Soul Fire Ball damage by 5–10%
+- Increase Skeleton damage by 5–20%
+- Increase Skeleton health by 5–20%
+- Reduce Skeleton damage taken by 5%
+- Increase Shinsu damage by 5–20%
+- Increase Shinsu health by 5–20%
+- Reduce Shinsu damage taken by 5%
+- Increase Holy Deva damage by 5–20%
+- Increase Holy Deva health by 5–20%
+- Reduce Holy Deva damage taken by 5%
+- Increase Slaying crit chance by 1–8%
+- Increase Slaying crit damage by 5–15%
+- Increase Flaming Sword crit chance by 1–8%
+- Increase Flaming Sword crit damage by 5–15%
+- Increase Twin Drake Blade crit chance by 1–8%
+- Increase Twin Drake Blade crit damage by 5–15%
+- Increase Blade Avalanche crit chance by 1–8%
+- Increase Blade Avalanche crit damage by 5–15%
+- Increase Slashing Burst crit chance by 1–8%
+- Increase Slashing Burst crit damage by 5–15%
+- Increase Flame Disruptor crit chance by 1–8%
+- Increase Flame Disruptor crit damage by 5–15%
+- Increase Fire Wall crit chance by 1–8%
+- Increase Fire Wall crit damage by 5–15%
+- Increase Thunder Bolt crit chance by 1–8%
+- Increase Thunder Bolt crit damage by 5–15%
+- Increase Ice Storm crit chance by 1–8%
+- Increase Ice Storm crit damage by 5–15%
+- Increase Flame Field crit chance by 1–8%
+- Increase Flame Field crit damage by 5–15%
+- Increase Meteor Strike crit chance by 1–8%
+- Increase Meteor Strike crit damage by 5–15%
+- Increase Blizzard crit chance by 1–8%
+- Increase Blizzard crit damage by 5–15%
+- Increase Fire Ball crit chance by 1–8%
+- Increase Fire Ball crit damage by 5–15%
+- Increase Great Fire Ball crit chance by 1–8%
+- Increase Great Fire Ball crit damage by 5–15%
+- Increase Frost Crunch crit chance by 1–8%
+- Increase Frost Crunch crit damage by 5–15%
+- Increase Soul Fire Ball crit chance by 1–8%
+- Increase Soul Fire Ball crit damage by 5–15%
+- −1–4% Damage taken
+- +1–6% Crit Rate
+- +5–15% Crit Damage
+- +2–12% Skill leveling
 
 **Leather Glove** (`leather-glove`)
 - +1–2 AC
@@ -1464,6 +7108,80 @@ Grouped by slot. Weapons show their class and actual roll pool from `empowerCand
 - +1 Magic Resist
 - +1–3 Agi
 - +1–3 Acc
+- Increase Slaying damage by 5–10%
+- Increase Flaming Sword damage by 5–10%
+- Reduce Flaming Sword cooldown by 1–2 seconds
+- Increase Twin Drake Blade damage by 5–10%
+- Reduce mana cost of Twin Drake Blade by 5–15%
+- Increase Blade Avalanche damage by 5–10%
+- Reduce mana cost of Blade Avalanche by 5–15%
+- Increase Slashing Burst damage by 5–10%
+- Reduce mana cost of Slashing Burst by 5–15%
+- Increase Flame Disruptor damage by 5–10%
+- Increase Fire Wall damage by 5–10%
+- Increase Thunder Bolt damage by 5–10%
+- Increase Ice Storm damage by 5–10%
+- Increase Flame Field damage by 5–10%
+- Increase Meteor Strike damage by 5–10%
+- Increase Blizzard damage by 5–10%
+- Increase Fire Ball damage by 5–10%
+- Increase Great Fire Ball damage by 5–10%
+- Increase Frost Crunch damage by 5–10%
+- Reduce mana cost of Flame Disruptor by 5–15%
+- Reduce mana cost of Fire Wall by 5–15%
+- Reduce mana cost of Thunder Bolt by 5–15%
+- Reduce mana cost of Ice Storm by 5–15%
+- Reduce mana cost of Flame Field by 5–15%
+- Reduce mana cost of Meteor Strike by 5–15%
+- Reduce mana cost of Blizzard by 5–15%
+- Increase Healing healing by 5–10%
+- Increase Mass Healing healing by 5–10%
+- Increase Soul Fire Ball damage by 5–10%
+- Increase Skeleton damage by 5–20%
+- Increase Skeleton health by 5–20%
+- Reduce Skeleton damage taken by 5%
+- Increase Shinsu damage by 5–20%
+- Increase Shinsu health by 5–20%
+- Reduce Shinsu damage taken by 5%
+- Increase Holy Deva damage by 5–20%
+- Increase Holy Deva health by 5–20%
+- Reduce Holy Deva damage taken by 5%
+- Increase Slaying crit chance by 1–8%
+- Increase Slaying crit damage by 5–15%
+- Increase Flaming Sword crit chance by 1–8%
+- Increase Flaming Sword crit damage by 5–15%
+- Increase Twin Drake Blade crit chance by 1–8%
+- Increase Twin Drake Blade crit damage by 5–15%
+- Increase Blade Avalanche crit chance by 1–8%
+- Increase Blade Avalanche crit damage by 5–15%
+- Increase Slashing Burst crit chance by 1–8%
+- Increase Slashing Burst crit damage by 5–15%
+- Increase Flame Disruptor crit chance by 1–8%
+- Increase Flame Disruptor crit damage by 5–15%
+- Increase Fire Wall crit chance by 1–8%
+- Increase Fire Wall crit damage by 5–15%
+- Increase Thunder Bolt crit chance by 1–8%
+- Increase Thunder Bolt crit damage by 5–15%
+- Increase Ice Storm crit chance by 1–8%
+- Increase Ice Storm crit damage by 5–15%
+- Increase Flame Field crit chance by 1–8%
+- Increase Flame Field crit damage by 5–15%
+- Increase Meteor Strike crit chance by 1–8%
+- Increase Meteor Strike crit damage by 5–15%
+- Increase Blizzard crit chance by 1–8%
+- Increase Blizzard crit damage by 5–15%
+- Increase Fire Ball crit chance by 1–8%
+- Increase Fire Ball crit damage by 5–15%
+- Increase Great Fire Ball crit chance by 1–8%
+- Increase Great Fire Ball crit damage by 5–15%
+- Increase Frost Crunch crit chance by 1–8%
+- Increase Frost Crunch crit damage by 5–15%
+- Increase Soul Fire Ball crit chance by 1–8%
+- Increase Soul Fire Ball crit damage by 5–15%
+- −1–4% Damage taken
+- +1–6% Crit Rate
+- +5–15% Crit Damage
+- +2–12% Skill leveling
 
 **Silver Bracelet** (`silver-bracelet`)
 - +1–2 AC
@@ -1475,6 +7193,80 @@ Grouped by slot. Weapons show their class and actual roll pool from `empowerCand
 - +1 Magic Resist
 - +1–3 Agi
 - +1–3 Acc
+- Increase Slaying damage by 5–10%
+- Increase Flaming Sword damage by 5–10%
+- Reduce Flaming Sword cooldown by 1–2 seconds
+- Increase Twin Drake Blade damage by 5–10%
+- Reduce mana cost of Twin Drake Blade by 5–15%
+- Increase Blade Avalanche damage by 5–10%
+- Reduce mana cost of Blade Avalanche by 5–15%
+- Increase Slashing Burst damage by 5–10%
+- Reduce mana cost of Slashing Burst by 5–15%
+- Increase Flame Disruptor damage by 5–10%
+- Increase Fire Wall damage by 5–10%
+- Increase Thunder Bolt damage by 5–10%
+- Increase Ice Storm damage by 5–10%
+- Increase Flame Field damage by 5–10%
+- Increase Meteor Strike damage by 5–10%
+- Increase Blizzard damage by 5–10%
+- Increase Fire Ball damage by 5–10%
+- Increase Great Fire Ball damage by 5–10%
+- Increase Frost Crunch damage by 5–10%
+- Reduce mana cost of Flame Disruptor by 5–15%
+- Reduce mana cost of Fire Wall by 5–15%
+- Reduce mana cost of Thunder Bolt by 5–15%
+- Reduce mana cost of Ice Storm by 5–15%
+- Reduce mana cost of Flame Field by 5–15%
+- Reduce mana cost of Meteor Strike by 5–15%
+- Reduce mana cost of Blizzard by 5–15%
+- Increase Healing healing by 5–10%
+- Increase Mass Healing healing by 5–10%
+- Increase Soul Fire Ball damage by 5–10%
+- Increase Skeleton damage by 5–20%
+- Increase Skeleton health by 5–20%
+- Reduce Skeleton damage taken by 5%
+- Increase Shinsu damage by 5–20%
+- Increase Shinsu health by 5–20%
+- Reduce Shinsu damage taken by 5%
+- Increase Holy Deva damage by 5–20%
+- Increase Holy Deva health by 5–20%
+- Reduce Holy Deva damage taken by 5%
+- Increase Slaying crit chance by 1–8%
+- Increase Slaying crit damage by 5–15%
+- Increase Flaming Sword crit chance by 1–8%
+- Increase Flaming Sword crit damage by 5–15%
+- Increase Twin Drake Blade crit chance by 1–8%
+- Increase Twin Drake Blade crit damage by 5–15%
+- Increase Blade Avalanche crit chance by 1–8%
+- Increase Blade Avalanche crit damage by 5–15%
+- Increase Slashing Burst crit chance by 1–8%
+- Increase Slashing Burst crit damage by 5–15%
+- Increase Flame Disruptor crit chance by 1–8%
+- Increase Flame Disruptor crit damage by 5–15%
+- Increase Fire Wall crit chance by 1–8%
+- Increase Fire Wall crit damage by 5–15%
+- Increase Thunder Bolt crit chance by 1–8%
+- Increase Thunder Bolt crit damage by 5–15%
+- Increase Ice Storm crit chance by 1–8%
+- Increase Ice Storm crit damage by 5–15%
+- Increase Flame Field crit chance by 1–8%
+- Increase Flame Field crit damage by 5–15%
+- Increase Meteor Strike crit chance by 1–8%
+- Increase Meteor Strike crit damage by 5–15%
+- Increase Blizzard crit chance by 1–8%
+- Increase Blizzard crit damage by 5–15%
+- Increase Fire Ball crit chance by 1–8%
+- Increase Fire Ball crit damage by 5–15%
+- Increase Great Fire Ball crit chance by 1–8%
+- Increase Great Fire Ball crit damage by 5–15%
+- Increase Frost Crunch crit chance by 1–8%
+- Increase Frost Crunch crit damage by 5–15%
+- Increase Soul Fire Ball crit chance by 1–8%
+- Increase Soul Fire Ball crit damage by 5–15%
+- −1–4% Damage taken
+- +1–6% Crit Rate
+- +5–15% Crit Damage
+- +2–12% Skill leveling
 
 **Steel Bangle** (`steel-bangle`)
 - +1–2 AC
@@ -1486,6 +7278,80 @@ Grouped by slot. Weapons show their class and actual roll pool from `empowerCand
 - +1 Magic Resist
 - +1–3 Agi
 - +1–3 Acc
+- Increase Slaying damage by 5–10%
+- Increase Flaming Sword damage by 5–10%
+- Reduce Flaming Sword cooldown by 1–2 seconds
+- Increase Twin Drake Blade damage by 5–10%
+- Reduce mana cost of Twin Drake Blade by 5–15%
+- Increase Blade Avalanche damage by 5–10%
+- Reduce mana cost of Blade Avalanche by 5–15%
+- Increase Slashing Burst damage by 5–10%
+- Reduce mana cost of Slashing Burst by 5–15%
+- Increase Flame Disruptor damage by 5–10%
+- Increase Fire Wall damage by 5–10%
+- Increase Thunder Bolt damage by 5–10%
+- Increase Ice Storm damage by 5–10%
+- Increase Flame Field damage by 5–10%
+- Increase Meteor Strike damage by 5–10%
+- Increase Blizzard damage by 5–10%
+- Increase Fire Ball damage by 5–10%
+- Increase Great Fire Ball damage by 5–10%
+- Increase Frost Crunch damage by 5–10%
+- Reduce mana cost of Flame Disruptor by 5–15%
+- Reduce mana cost of Fire Wall by 5–15%
+- Reduce mana cost of Thunder Bolt by 5–15%
+- Reduce mana cost of Ice Storm by 5–15%
+- Reduce mana cost of Flame Field by 5–15%
+- Reduce mana cost of Meteor Strike by 5–15%
+- Reduce mana cost of Blizzard by 5–15%
+- Increase Healing healing by 5–10%
+- Increase Mass Healing healing by 5–10%
+- Increase Soul Fire Ball damage by 5–10%
+- Increase Skeleton damage by 5–20%
+- Increase Skeleton health by 5–20%
+- Reduce Skeleton damage taken by 5%
+- Increase Shinsu damage by 5–20%
+- Increase Shinsu health by 5–20%
+- Reduce Shinsu damage taken by 5%
+- Increase Holy Deva damage by 5–20%
+- Increase Holy Deva health by 5–20%
+- Reduce Holy Deva damage taken by 5%
+- Increase Slaying crit chance by 1–8%
+- Increase Slaying crit damage by 5–15%
+- Increase Flaming Sword crit chance by 1–8%
+- Increase Flaming Sword crit damage by 5–15%
+- Increase Twin Drake Blade crit chance by 1–8%
+- Increase Twin Drake Blade crit damage by 5–15%
+- Increase Blade Avalanche crit chance by 1–8%
+- Increase Blade Avalanche crit damage by 5–15%
+- Increase Slashing Burst crit chance by 1–8%
+- Increase Slashing Burst crit damage by 5–15%
+- Increase Flame Disruptor crit chance by 1–8%
+- Increase Flame Disruptor crit damage by 5–15%
+- Increase Fire Wall crit chance by 1–8%
+- Increase Fire Wall crit damage by 5–15%
+- Increase Thunder Bolt crit chance by 1–8%
+- Increase Thunder Bolt crit damage by 5–15%
+- Increase Ice Storm crit chance by 1–8%
+- Increase Ice Storm crit damage by 5–15%
+- Increase Flame Field crit chance by 1–8%
+- Increase Flame Field crit damage by 5–15%
+- Increase Meteor Strike crit chance by 1–8%
+- Increase Meteor Strike crit damage by 5–15%
+- Increase Blizzard crit chance by 1–8%
+- Increase Blizzard crit damage by 5–15%
+- Increase Fire Ball crit chance by 1–8%
+- Increase Fire Ball crit damage by 5–15%
+- Increase Great Fire Ball crit chance by 1–8%
+- Increase Great Fire Ball crit damage by 5–15%
+- Increase Frost Crunch crit chance by 1–8%
+- Increase Frost Crunch crit damage by 5–15%
+- Increase Soul Fire Ball crit chance by 1–8%
+- Increase Soul Fire Ball crit damage by 5–15%
+- −1–4% Damage taken
+- +1–6% Crit Rate
+- +5–15% Crit Damage
+- +2–12% Skill leveling
 
 **Steel Bracelet** (`steel-bracelet`)
 - +1–2 AC
@@ -1497,61 +7363,254 @@ Grouped by slot. Weapons show their class and actual roll pool from `empowerCand
 - +1 Magic Resist
 - +1–3 Agi
 - +1–3 Acc
+- Increase Slaying damage by 5–10%
+- Increase Flaming Sword damage by 5–10%
+- Reduce Flaming Sword cooldown by 1–2 seconds
+- Increase Twin Drake Blade damage by 5–10%
+- Reduce mana cost of Twin Drake Blade by 5–15%
+- Increase Blade Avalanche damage by 5–10%
+- Reduce mana cost of Blade Avalanche by 5–15%
+- Increase Slashing Burst damage by 5–10%
+- Reduce mana cost of Slashing Burst by 5–15%
+- Increase Flame Disruptor damage by 5–10%
+- Increase Fire Wall damage by 5–10%
+- Increase Thunder Bolt damage by 5–10%
+- Increase Ice Storm damage by 5–10%
+- Increase Flame Field damage by 5–10%
+- Increase Meteor Strike damage by 5–10%
+- Increase Blizzard damage by 5–10%
+- Increase Fire Ball damage by 5–10%
+- Increase Great Fire Ball damage by 5–10%
+- Increase Frost Crunch damage by 5–10%
+- Reduce mana cost of Flame Disruptor by 5–15%
+- Reduce mana cost of Fire Wall by 5–15%
+- Reduce mana cost of Thunder Bolt by 5–15%
+- Reduce mana cost of Ice Storm by 5–15%
+- Reduce mana cost of Flame Field by 5–15%
+- Reduce mana cost of Meteor Strike by 5–15%
+- Reduce mana cost of Blizzard by 5–15%
+- Increase Healing healing by 5–10%
+- Increase Mass Healing healing by 5–10%
+- Increase Soul Fire Ball damage by 5–10%
+- Increase Skeleton damage by 5–20%
+- Increase Skeleton health by 5–20%
+- Reduce Skeleton damage taken by 5%
+- Increase Shinsu damage by 5–20%
+- Increase Shinsu health by 5–20%
+- Reduce Shinsu damage taken by 5%
+- Increase Holy Deva damage by 5–20%
+- Increase Holy Deva health by 5–20%
+- Reduce Holy Deva damage taken by 5%
+- Increase Slaying crit chance by 1–8%
+- Increase Slaying crit damage by 5–15%
+- Increase Flaming Sword crit chance by 1–8%
+- Increase Flaming Sword crit damage by 5–15%
+- Increase Twin Drake Blade crit chance by 1–8%
+- Increase Twin Drake Blade crit damage by 5–15%
+- Increase Blade Avalanche crit chance by 1–8%
+- Increase Blade Avalanche crit damage by 5–15%
+- Increase Slashing Burst crit chance by 1–8%
+- Increase Slashing Burst crit damage by 5–15%
+- Increase Flame Disruptor crit chance by 1–8%
+- Increase Flame Disruptor crit damage by 5–15%
+- Increase Fire Wall crit chance by 1–8%
+- Increase Fire Wall crit damage by 5–15%
+- Increase Thunder Bolt crit chance by 1–8%
+- Increase Thunder Bolt crit damage by 5–15%
+- Increase Ice Storm crit chance by 1–8%
+- Increase Ice Storm crit damage by 5–15%
+- Increase Flame Field crit chance by 1–8%
+- Increase Flame Field crit damage by 5–15%
+- Increase Meteor Strike crit chance by 1–8%
+- Increase Meteor Strike crit damage by 5–15%
+- Increase Blizzard crit chance by 1–8%
+- Increase Blizzard crit damage by 5–15%
+- Increase Fire Ball crit chance by 1–8%
+- Increase Fire Ball crit damage by 5–15%
+- Increase Great Fire Ball crit chance by 1–8%
+- Increase Great Fire Ball crit damage by 5–15%
+- Increase Frost Crunch crit chance by 1–8%
+- Increase Frost Crunch crit damage by 5–15%
+- Increase Soul Fire Ball crit chance by 1–8%
+- Increase Soul Fire Ball crit damage by 5–15%
+- −1–4% Damage taken
+- +1–6% Crit Rate
+- +5–15% Crit Damage
+- +2–12% Skill leveling
 
 **Large Bracelet** (`large-bracelet`)
 - +1–2 AC
 - +1–2 AMC
 - +1–4 DC
-- +1–3 SC
-- +1–3 MC
 - +1 Poison Resist
 - +1 Magic Resist
 - +1–3 Agi
 - +1–3 Acc
+- Increase Slaying damage by 5–10%
+- Increase Flaming Sword damage by 5–10%
+- Reduce Flaming Sword cooldown by 1–2 seconds
+- Increase Twin Drake Blade damage by 5–10%
+- Reduce mana cost of Twin Drake Blade by 5–15%
+- Increase Blade Avalanche damage by 5–10%
+- Reduce mana cost of Blade Avalanche by 5–15%
+- Increase Slashing Burst damage by 5–10%
+- Reduce mana cost of Slashing Burst by 5–15%
+- Increase Slaying crit chance by 1–8%
+- Increase Slaying crit damage by 5–15%
+- Increase Flaming Sword crit chance by 1–8%
+- Increase Flaming Sword crit damage by 5–15%
+- Increase Twin Drake Blade crit chance by 1–8%
+- Increase Twin Drake Blade crit damage by 5–15%
+- Increase Blade Avalanche crit chance by 1–8%
+- Increase Blade Avalanche crit damage by 5–15%
+- Increase Slashing Burst crit chance by 1–8%
+- Increase Slashing Burst crit damage by 5–15%
+- −1–4% Damage taken
+- +1–6% Crit Rate
+- +5–15% Crit Damage
+- +2–12% Skill leveling
 
 **Mundane Glove** (`mundane-glove`)
 - +1–2 AC
 - +1–2 AMC
 - +1–4 DC
-- +1–3 SC
-- +1–3 MC
 - +1 Poison Resist
 - +1 Magic Resist
 - +1–3 Agi
 - +1–3 Acc
+- Increase Slaying damage by 5–10%
+- Increase Flaming Sword damage by 5–10%
+- Reduce Flaming Sword cooldown by 1–2 seconds
+- Increase Twin Drake Blade damage by 5–10%
+- Reduce mana cost of Twin Drake Blade by 5–15%
+- Increase Blade Avalanche damage by 5–10%
+- Reduce mana cost of Blade Avalanche by 5–15%
+- Increase Slashing Burst damage by 5–10%
+- Reduce mana cost of Slashing Burst by 5–15%
+- Increase Slaying crit chance by 1–8%
+- Increase Slaying crit damage by 5–15%
+- Increase Flaming Sword crit chance by 1–8%
+- Increase Flaming Sword crit damage by 5–15%
+- Increase Twin Drake Blade crit chance by 1–8%
+- Increase Twin Drake Blade crit damage by 5–15%
+- Increase Blade Avalanche crit chance by 1–8%
+- Increase Blade Avalanche crit damage by 5–15%
+- Increase Slashing Burst crit chance by 1–8%
+- Increase Slashing Burst crit damage by 5–15%
+- −1–4% Damage taken
+- +1–6% Crit Rate
+- +5–15% Crit Damage
+- +2–12% Skill leveling
 
 **Nok Chi Wheel** (`nok-chi-wheel`)
 - +1–2 AC
 - +1–2 AMC
-- +1–4 DC
-- +1–3 SC
 - +1–3 MC
 - +1 Poison Resist
 - +1 Magic Resist
 - +1–3 Agi
 - +1–3 Acc
+- Increase Flame Disruptor damage by 5–10%
+- Increase Fire Wall damage by 5–10%
+- Increase Thunder Bolt damage by 5–10%
+- Increase Ice Storm damage by 5–10%
+- Increase Flame Field damage by 5–10%
+- Increase Meteor Strike damage by 5–10%
+- Increase Blizzard damage by 5–10%
+- Increase Fire Ball damage by 5–10%
+- Increase Great Fire Ball damage by 5–10%
+- Increase Frost Crunch damage by 5–10%
+- Reduce mana cost of Flame Disruptor by 5–15%
+- Reduce mana cost of Fire Wall by 5–15%
+- Reduce mana cost of Thunder Bolt by 5–15%
+- Reduce mana cost of Ice Storm by 5–15%
+- Reduce mana cost of Flame Field by 5–15%
+- Reduce mana cost of Meteor Strike by 5–15%
+- Reduce mana cost of Blizzard by 5–15%
+- Increase Flame Disruptor crit chance by 1–8%
+- Increase Flame Disruptor crit damage by 5–15%
+- Increase Fire Wall crit chance by 1–8%
+- Increase Fire Wall crit damage by 5–15%
+- Increase Thunder Bolt crit chance by 1–8%
+- Increase Thunder Bolt crit damage by 5–15%
+- Increase Ice Storm crit chance by 1–8%
+- Increase Ice Storm crit damage by 5–15%
+- Increase Flame Field crit chance by 1–8%
+- Increase Flame Field crit damage by 5–15%
+- Increase Meteor Strike crit chance by 1–8%
+- Increase Meteor Strike crit damage by 5–15%
+- Increase Blizzard crit chance by 1–8%
+- Increase Blizzard crit damage by 5–15%
+- Increase Fire Ball crit chance by 1–8%
+- Increase Fire Ball crit damage by 5–15%
+- Increase Great Fire Ball crit chance by 1–8%
+- Increase Great Fire Ball crit damage by 5–15%
+- Increase Frost Crunch crit chance by 1–8%
+- Increase Frost Crunch crit damage by 5–15%
+- −1–4% Damage taken
+- +1–6% Crit Rate
+- +5–15% Crit Damage
+- +2–12% Skill leveling
 
 **Tao Protect Bracelet** (`tao-protect-bracelet`)
 - +1–2 AC
 - +1–2 AMC
 - +1–4 DC
 - +1–3 SC
-- +1–3 MC
 - +1 Poison Resist
 - +1 Magic Resist
 - +1–3 Agi
 - +1–3 Acc
+- Increase Healing healing by 5–10%
+- Increase Mass Healing healing by 5–10%
+- Increase Soul Fire Ball damage by 5–10%
+- Increase Skeleton damage by 5–20%
+- Increase Skeleton health by 5–20%
+- Reduce Skeleton damage taken by 5%
+- Increase Shinsu damage by 5–20%
+- Increase Shinsu health by 5–20%
+- Reduce Shinsu damage taken by 5%
+- Increase Holy Deva damage by 5–20%
+- Increase Holy Deva health by 5–20%
+- Reduce Holy Deva damage taken by 5%
+- Increase Soul Fire Ball crit chance by 1–8%
+- Increase Soul Fire Ball crit damage by 5–15%
+- −1–4% Damage taken
+- +1–6% Crit Rate
+- +5–15% Crit Damage
+- +2–12% Skill leveling
 
 **Spirit Bracelet** (`spirit-bracelet`)
 - +1–2 AC
 - +1–2 AMC
 - +1–4 DC
-- +1–3 SC
-- +1–3 MC
 - +1 Poison Resist
 - +1 Magic Resist
 - +1–3 Agi
 - +1–3 Acc
+- Increase Slaying damage by 5–10%
+- Increase Flaming Sword damage by 5–10%
+- Reduce Flaming Sword cooldown by 1–2 seconds
+- Increase Twin Drake Blade damage by 5–10%
+- Reduce mana cost of Twin Drake Blade by 5–15%
+- Increase Blade Avalanche damage by 5–10%
+- Reduce mana cost of Blade Avalanche by 5–15%
+- Increase Slashing Burst damage by 5–10%
+- Reduce mana cost of Slashing Burst by 5–15%
+- Increase Slaying crit chance by 1–8%
+- Increase Slaying crit damage by 5–15%
+- Increase Flaming Sword crit chance by 1–8%
+- Increase Flaming Sword crit damage by 5–15%
+- Increase Twin Drake Blade crit chance by 1–8%
+- Increase Twin Drake Blade crit damage by 5–15%
+- Increase Blade Avalanche crit chance by 1–8%
+- Increase Blade Avalanche crit damage by 5–15%
+- Increase Slashing Burst crit chance by 1–8%
+- Increase Slashing Burst crit damage by 5–15%
+- −1–4% Damage taken
+- +1–6% Crit Rate
+- +5–15% Crit Damage
+- +2–12% Skill leveling
 
 **Sharp Bracelet** (`sharp-bracelet`)
 - +1–2 AC
@@ -1563,6 +7622,80 @@ Grouped by slot. Weapons show their class and actual roll pool from `empowerCand
 - +1 Magic Resist
 - +1–3 Agi
 - +1–3 Acc
+- Increase Slaying damage by 5–10%
+- Increase Flaming Sword damage by 5–10%
+- Reduce Flaming Sword cooldown by 1–2 seconds
+- Increase Twin Drake Blade damage by 5–10%
+- Reduce mana cost of Twin Drake Blade by 5–15%
+- Increase Blade Avalanche damage by 5–10%
+- Reduce mana cost of Blade Avalanche by 5–15%
+- Increase Slashing Burst damage by 5–10%
+- Reduce mana cost of Slashing Burst by 5–15%
+- Increase Flame Disruptor damage by 5–10%
+- Increase Fire Wall damage by 5–10%
+- Increase Thunder Bolt damage by 5–10%
+- Increase Ice Storm damage by 5–10%
+- Increase Flame Field damage by 5–10%
+- Increase Meteor Strike damage by 5–10%
+- Increase Blizzard damage by 5–10%
+- Increase Fire Ball damage by 5–10%
+- Increase Great Fire Ball damage by 5–10%
+- Increase Frost Crunch damage by 5–10%
+- Reduce mana cost of Flame Disruptor by 5–15%
+- Reduce mana cost of Fire Wall by 5–15%
+- Reduce mana cost of Thunder Bolt by 5–15%
+- Reduce mana cost of Ice Storm by 5–15%
+- Reduce mana cost of Flame Field by 5–15%
+- Reduce mana cost of Meteor Strike by 5–15%
+- Reduce mana cost of Blizzard by 5–15%
+- Increase Healing healing by 5–10%
+- Increase Mass Healing healing by 5–10%
+- Increase Soul Fire Ball damage by 5–10%
+- Increase Skeleton damage by 5–20%
+- Increase Skeleton health by 5–20%
+- Reduce Skeleton damage taken by 5%
+- Increase Shinsu damage by 5–20%
+- Increase Shinsu health by 5–20%
+- Reduce Shinsu damage taken by 5%
+- Increase Holy Deva damage by 5–20%
+- Increase Holy Deva health by 5–20%
+- Reduce Holy Deva damage taken by 5%
+- Increase Slaying crit chance by 1–8%
+- Increase Slaying crit damage by 5–15%
+- Increase Flaming Sword crit chance by 1–8%
+- Increase Flaming Sword crit damage by 5–15%
+- Increase Twin Drake Blade crit chance by 1–8%
+- Increase Twin Drake Blade crit damage by 5–15%
+- Increase Blade Avalanche crit chance by 1–8%
+- Increase Blade Avalanche crit damage by 5–15%
+- Increase Slashing Burst crit chance by 1–8%
+- Increase Slashing Burst crit damage by 5–15%
+- Increase Flame Disruptor crit chance by 1–8%
+- Increase Flame Disruptor crit damage by 5–15%
+- Increase Fire Wall crit chance by 1–8%
+- Increase Fire Wall crit damage by 5–15%
+- Increase Thunder Bolt crit chance by 1–8%
+- Increase Thunder Bolt crit damage by 5–15%
+- Increase Ice Storm crit chance by 1–8%
+- Increase Ice Storm crit damage by 5–15%
+- Increase Flame Field crit chance by 1–8%
+- Increase Flame Field crit damage by 5–15%
+- Increase Meteor Strike crit chance by 1–8%
+- Increase Meteor Strike crit damage by 5–15%
+- Increase Blizzard crit chance by 1–8%
+- Increase Blizzard crit damage by 5–15%
+- Increase Fire Ball crit chance by 1–8%
+- Increase Fire Ball crit damage by 5–15%
+- Increase Great Fire Ball crit chance by 1–8%
+- Increase Great Fire Ball crit damage by 5–15%
+- Increase Frost Crunch crit chance by 1–8%
+- Increase Frost Crunch crit damage by 5–15%
+- Increase Soul Fire Ball crit chance by 1–8%
+- Increase Soul Fire Ball crit damage by 5–15%
+- −1–4% Damage taken
+- +1–6% Crit Rate
+- +5–15% Crit Damage
+- +2–12% Skill leveling
 
 **Hard Glove** (`hard-glove`)
 - +1–2 AC
@@ -1574,6 +7707,80 @@ Grouped by slot. Weapons show their class and actual roll pool from `empowerCand
 - +1 Magic Resist
 - +1–3 Agi
 - +1–3 Acc
+- Increase Slaying damage by 5–10%
+- Increase Flaming Sword damage by 5–10%
+- Reduce Flaming Sword cooldown by 1–2 seconds
+- Increase Twin Drake Blade damage by 5–10%
+- Reduce mana cost of Twin Drake Blade by 5–15%
+- Increase Blade Avalanche damage by 5–10%
+- Reduce mana cost of Blade Avalanche by 5–15%
+- Increase Slashing Burst damage by 5–10%
+- Reduce mana cost of Slashing Burst by 5–15%
+- Increase Flame Disruptor damage by 5–10%
+- Increase Fire Wall damage by 5–10%
+- Increase Thunder Bolt damage by 5–10%
+- Increase Ice Storm damage by 5–10%
+- Increase Flame Field damage by 5–10%
+- Increase Meteor Strike damage by 5–10%
+- Increase Blizzard damage by 5–10%
+- Increase Fire Ball damage by 5–10%
+- Increase Great Fire Ball damage by 5–10%
+- Increase Frost Crunch damage by 5–10%
+- Reduce mana cost of Flame Disruptor by 5–15%
+- Reduce mana cost of Fire Wall by 5–15%
+- Reduce mana cost of Thunder Bolt by 5–15%
+- Reduce mana cost of Ice Storm by 5–15%
+- Reduce mana cost of Flame Field by 5–15%
+- Reduce mana cost of Meteor Strike by 5–15%
+- Reduce mana cost of Blizzard by 5–15%
+- Increase Healing healing by 5–10%
+- Increase Mass Healing healing by 5–10%
+- Increase Soul Fire Ball damage by 5–10%
+- Increase Skeleton damage by 5–20%
+- Increase Skeleton health by 5–20%
+- Reduce Skeleton damage taken by 5%
+- Increase Shinsu damage by 5–20%
+- Increase Shinsu health by 5–20%
+- Reduce Shinsu damage taken by 5%
+- Increase Holy Deva damage by 5–20%
+- Increase Holy Deva health by 5–20%
+- Reduce Holy Deva damage taken by 5%
+- Increase Slaying crit chance by 1–8%
+- Increase Slaying crit damage by 5–15%
+- Increase Flaming Sword crit chance by 1–8%
+- Increase Flaming Sword crit damage by 5–15%
+- Increase Twin Drake Blade crit chance by 1–8%
+- Increase Twin Drake Blade crit damage by 5–15%
+- Increase Blade Avalanche crit chance by 1–8%
+- Increase Blade Avalanche crit damage by 5–15%
+- Increase Slashing Burst crit chance by 1–8%
+- Increase Slashing Burst crit damage by 5–15%
+- Increase Flame Disruptor crit chance by 1–8%
+- Increase Flame Disruptor crit damage by 5–15%
+- Increase Fire Wall crit chance by 1–8%
+- Increase Fire Wall crit damage by 5–15%
+- Increase Thunder Bolt crit chance by 1–8%
+- Increase Thunder Bolt crit damage by 5–15%
+- Increase Ice Storm crit chance by 1–8%
+- Increase Ice Storm crit damage by 5–15%
+- Increase Flame Field crit chance by 1–8%
+- Increase Flame Field crit damage by 5–15%
+- Increase Meteor Strike crit chance by 1–8%
+- Increase Meteor Strike crit damage by 5–15%
+- Increase Blizzard crit chance by 1–8%
+- Increase Blizzard crit damage by 5–15%
+- Increase Fire Ball crit chance by 1–8%
+- Increase Fire Ball crit damage by 5–15%
+- Increase Great Fire Ball crit chance by 1–8%
+- Increase Great Fire Ball crit damage by 5–15%
+- Increase Frost Crunch crit chance by 1–8%
+- Increase Frost Crunch crit damage by 5–15%
+- Increase Soul Fire Ball crit chance by 1–8%
+- Increase Soul Fire Ball crit damage by 5–15%
+- −1–4% Damage taken
+- +1–6% Crit Rate
+- +5–15% Crit Damage
+- +2–12% Skill leveling
 
 **Magic Bracelet** (`magic-bracelet`)
 - +1–2 AC
@@ -1585,17 +7792,130 @@ Grouped by slot. Weapons show their class and actual roll pool from `empowerCand
 - +1 Magic Resist
 - +1–3 Agi
 - +1–3 Acc
+- Increase Slaying damage by 5–10%
+- Increase Flaming Sword damage by 5–10%
+- Reduce Flaming Sword cooldown by 1–2 seconds
+- Increase Twin Drake Blade damage by 5–10%
+- Reduce mana cost of Twin Drake Blade by 5–15%
+- Increase Blade Avalanche damage by 5–10%
+- Reduce mana cost of Blade Avalanche by 5–15%
+- Increase Slashing Burst damage by 5–10%
+- Reduce mana cost of Slashing Burst by 5–15%
+- Increase Flame Disruptor damage by 5–10%
+- Increase Fire Wall damage by 5–10%
+- Increase Thunder Bolt damage by 5–10%
+- Increase Ice Storm damage by 5–10%
+- Increase Flame Field damage by 5–10%
+- Increase Meteor Strike damage by 5–10%
+- Increase Blizzard damage by 5–10%
+- Increase Fire Ball damage by 5–10%
+- Increase Great Fire Ball damage by 5–10%
+- Increase Frost Crunch damage by 5–10%
+- Reduce mana cost of Flame Disruptor by 5–15%
+- Reduce mana cost of Fire Wall by 5–15%
+- Reduce mana cost of Thunder Bolt by 5–15%
+- Reduce mana cost of Ice Storm by 5–15%
+- Reduce mana cost of Flame Field by 5–15%
+- Reduce mana cost of Meteor Strike by 5–15%
+- Reduce mana cost of Blizzard by 5–15%
+- Increase Healing healing by 5–10%
+- Increase Mass Healing healing by 5–10%
+- Increase Soul Fire Ball damage by 5–10%
+- Increase Skeleton damage by 5–20%
+- Increase Skeleton health by 5–20%
+- Reduce Skeleton damage taken by 5%
+- Increase Shinsu damage by 5–20%
+- Increase Shinsu health by 5–20%
+- Reduce Shinsu damage taken by 5%
+- Increase Holy Deva damage by 5–20%
+- Increase Holy Deva health by 5–20%
+- Reduce Holy Deva damage taken by 5%
+- Increase Slaying crit chance by 1–8%
+- Increase Slaying crit damage by 5–15%
+- Increase Flaming Sword crit chance by 1–8%
+- Increase Flaming Sword crit damage by 5–15%
+- Increase Twin Drake Blade crit chance by 1–8%
+- Increase Twin Drake Blade crit damage by 5–15%
+- Increase Blade Avalanche crit chance by 1–8%
+- Increase Blade Avalanche crit damage by 5–15%
+- Increase Slashing Burst crit chance by 1–8%
+- Increase Slashing Burst crit damage by 5–15%
+- Increase Flame Disruptor crit chance by 1–8%
+- Increase Flame Disruptor crit damage by 5–15%
+- Increase Fire Wall crit chance by 1–8%
+- Increase Fire Wall crit damage by 5–15%
+- Increase Thunder Bolt crit chance by 1–8%
+- Increase Thunder Bolt crit damage by 5–15%
+- Increase Ice Storm crit chance by 1–8%
+- Increase Ice Storm crit damage by 5–15%
+- Increase Flame Field crit chance by 1–8%
+- Increase Flame Field crit damage by 5–15%
+- Increase Meteor Strike crit chance by 1–8%
+- Increase Meteor Strike crit damage by 5–15%
+- Increase Blizzard crit chance by 1–8%
+- Increase Blizzard crit damage by 5–15%
+- Increase Fire Ball crit chance by 1–8%
+- Increase Fire Ball crit damage by 5–15%
+- Increase Great Fire Ball crit chance by 1–8%
+- Increase Great Fire Ball crit damage by 5–15%
+- Increase Frost Crunch crit chance by 1–8%
+- Increase Frost Crunch crit damage by 5–15%
+- Increase Soul Fire Ball crit chance by 1–8%
+- Increase Soul Fire Ball crit damage by 5–15%
+- −1–4% Damage taken
+- +1–6% Crit Rate
+- +5–15% Crit Damage
+- +2–12% Skill leveling
 
 **Ebony Bracelet** (`ebony-bracelet`)
 - +1–2 AC
 - +1–2 AMC
-- +1–4 DC
-- +1–3 SC
 - +1–3 MC
 - +1 Poison Resist
 - +1 Magic Resist
 - +1–3 Agi
 - +1–3 Acc
+- Increase Flame Disruptor damage by 5–10%
+- Increase Fire Wall damage by 5–10%
+- Increase Thunder Bolt damage by 5–10%
+- Increase Ice Storm damage by 5–10%
+- Increase Flame Field damage by 5–10%
+- Increase Meteor Strike damage by 5–10%
+- Increase Blizzard damage by 5–10%
+- Increase Fire Ball damage by 5–10%
+- Increase Great Fire Ball damage by 5–10%
+- Increase Frost Crunch damage by 5–10%
+- Reduce mana cost of Flame Disruptor by 5–15%
+- Reduce mana cost of Fire Wall by 5–15%
+- Reduce mana cost of Thunder Bolt by 5–15%
+- Reduce mana cost of Ice Storm by 5–15%
+- Reduce mana cost of Flame Field by 5–15%
+- Reduce mana cost of Meteor Strike by 5–15%
+- Reduce mana cost of Blizzard by 5–15%
+- Increase Flame Disruptor crit chance by 1–8%
+- Increase Flame Disruptor crit damage by 5–15%
+- Increase Fire Wall crit chance by 1–8%
+- Increase Fire Wall crit damage by 5–15%
+- Increase Thunder Bolt crit chance by 1–8%
+- Increase Thunder Bolt crit damage by 5–15%
+- Increase Ice Storm crit chance by 1–8%
+- Increase Ice Storm crit damage by 5–15%
+- Increase Flame Field crit chance by 1–8%
+- Increase Flame Field crit damage by 5–15%
+- Increase Meteor Strike crit chance by 1–8%
+- Increase Meteor Strike crit damage by 5–15%
+- Increase Blizzard crit chance by 1–8%
+- Increase Blizzard crit damage by 5–15%
+- Increase Fire Ball crit chance by 1–8%
+- Increase Fire Ball crit damage by 5–15%
+- Increase Great Fire Ball crit chance by 1–8%
+- Increase Great Fire Ball crit damage by 5–15%
+- Increase Frost Crunch crit chance by 1–8%
+- Increase Frost Crunch crit damage by 5–15%
+- −1–4% Damage taken
+- +1–6% Crit Rate
+- +5–15% Crit Damage
+- +2–12% Skill leveling
 
 **Evade Bracelet** (`evade-bracelet`)
 - +1–2 AC
@@ -1607,61 +7927,228 @@ Grouped by slot. Weapons show their class and actual roll pool from `empowerCand
 - +1 Magic Resist
 - +1–3 Agi
 - +1–3 Acc
+- Increase Slaying damage by 5–10%
+- Increase Flaming Sword damage by 5–10%
+- Reduce Flaming Sword cooldown by 1–2 seconds
+- Increase Twin Drake Blade damage by 5–10%
+- Reduce mana cost of Twin Drake Blade by 5–15%
+- Increase Blade Avalanche damage by 5–10%
+- Reduce mana cost of Blade Avalanche by 5–15%
+- Increase Slashing Burst damage by 5–10%
+- Reduce mana cost of Slashing Burst by 5–15%
+- Increase Flame Disruptor damage by 5–10%
+- Increase Fire Wall damage by 5–10%
+- Increase Thunder Bolt damage by 5–10%
+- Increase Ice Storm damage by 5–10%
+- Increase Flame Field damage by 5–10%
+- Increase Meteor Strike damage by 5–10%
+- Increase Blizzard damage by 5–10%
+- Increase Fire Ball damage by 5–10%
+- Increase Great Fire Ball damage by 5–10%
+- Increase Frost Crunch damage by 5–10%
+- Reduce mana cost of Flame Disruptor by 5–15%
+- Reduce mana cost of Fire Wall by 5–15%
+- Reduce mana cost of Thunder Bolt by 5–15%
+- Reduce mana cost of Ice Storm by 5–15%
+- Reduce mana cost of Flame Field by 5–15%
+- Reduce mana cost of Meteor Strike by 5–15%
+- Reduce mana cost of Blizzard by 5–15%
+- Increase Healing healing by 5–10%
+- Increase Mass Healing healing by 5–10%
+- Increase Soul Fire Ball damage by 5–10%
+- Increase Skeleton damage by 5–20%
+- Increase Skeleton health by 5–20%
+- Reduce Skeleton damage taken by 5%
+- Increase Shinsu damage by 5–20%
+- Increase Shinsu health by 5–20%
+- Reduce Shinsu damage taken by 5%
+- Increase Holy Deva damage by 5–20%
+- Increase Holy Deva health by 5–20%
+- Reduce Holy Deva damage taken by 5%
+- Increase Slaying crit chance by 1–8%
+- Increase Slaying crit damage by 5–15%
+- Increase Flaming Sword crit chance by 1–8%
+- Increase Flaming Sword crit damage by 5–15%
+- Increase Twin Drake Blade crit chance by 1–8%
+- Increase Twin Drake Blade crit damage by 5–15%
+- Increase Blade Avalanche crit chance by 1–8%
+- Increase Blade Avalanche crit damage by 5–15%
+- Increase Slashing Burst crit chance by 1–8%
+- Increase Slashing Burst crit damage by 5–15%
+- Increase Flame Disruptor crit chance by 1–8%
+- Increase Flame Disruptor crit damage by 5–15%
+- Increase Fire Wall crit chance by 1–8%
+- Increase Fire Wall crit damage by 5–15%
+- Increase Thunder Bolt crit chance by 1–8%
+- Increase Thunder Bolt crit damage by 5–15%
+- Increase Ice Storm crit chance by 1–8%
+- Increase Ice Storm crit damage by 5–15%
+- Increase Flame Field crit chance by 1–8%
+- Increase Flame Field crit damage by 5–15%
+- Increase Meteor Strike crit chance by 1–8%
+- Increase Meteor Strike crit damage by 5–15%
+- Increase Blizzard crit chance by 1–8%
+- Increase Blizzard crit damage by 5–15%
+- Increase Fire Ball crit chance by 1–8%
+- Increase Fire Ball crit damage by 5–15%
+- Increase Great Fire Ball crit chance by 1–8%
+- Increase Great Fire Ball crit damage by 5–15%
+- Increase Frost Crunch crit chance by 1–8%
+- Increase Frost Crunch crit damage by 5–15%
+- Increase Soul Fire Ball crit chance by 1–8%
+- Increase Soul Fire Ball crit damage by 5–15%
+- −1–4% Damage taken
+- +1–6% Crit Rate
+- +5–15% Crit Damage
+- +2–12% Skill leveling
 
 **Monk Bangle** (`monk-bangle`)
 - +1–2 AC
 - +1–2 AMC
 - +1–4 DC
 - +1–3 SC
-- +1–3 MC
 - +1 Poison Resist
 - +1 Magic Resist
 - +1–3 Agi
 - +1–3 Acc
+- Increase Healing healing by 5–10%
+- Increase Mass Healing healing by 5–10%
+- Increase Soul Fire Ball damage by 5–10%
+- Increase Skeleton damage by 5–20%
+- Increase Skeleton health by 5–20%
+- Reduce Skeleton damage taken by 5%
+- Increase Shinsu damage by 5–20%
+- Increase Shinsu health by 5–20%
+- Reduce Shinsu damage taken by 5%
+- Increase Holy Deva damage by 5–20%
+- Increase Holy Deva health by 5–20%
+- Reduce Holy Deva damage taken by 5%
+- Increase Soul Fire Ball crit chance by 1–8%
+- Increase Soul Fire Ball crit damage by 5–15%
+- −1–4% Damage taken
+- +1–6% Crit Rate
+- +5–15% Crit Damage
+- +2–12% Skill leveling
 
 **Monk Bracelet** (`monk-bracelet`)
 - +1–2 AC
 - +1–2 AMC
 - +1–4 DC
 - +1–3 SC
-- +1–3 MC
 - +1 Poison Resist
 - +1 Magic Resist
 - +1–3 Agi
 - +1–3 Acc
+- Increase Healing healing by 5–10%
+- Increase Mass Healing healing by 5–10%
+- Increase Soul Fire Ball damage by 5–10%
+- Increase Skeleton damage by 5–20%
+- Increase Skeleton health by 5–20%
+- Reduce Skeleton damage taken by 5%
+- Increase Shinsu damage by 5–20%
+- Increase Shinsu health by 5–20%
+- Reduce Shinsu damage taken by 5%
+- Increase Holy Deva damage by 5–20%
+- Increase Holy Deva health by 5–20%
+- Reduce Holy Deva damage taken by 5%
+- Increase Soul Fire Ball crit chance by 1–8%
+- Increase Soul Fire Ball crit damage by 5–15%
+- −1–4% Damage taken
+- +1–6% Crit Rate
+- +5–15% Crit Damage
+- +2–12% Skill leveling
 
 **Death Gauntlet** (`death-gauntlet`)
 - +1–2 AC
 - +1–2 AMC
 - +1–4 DC
-- +1–3 SC
-- +1–3 MC
 - +1 Poison Resist
 - +1 Magic Resist
 - +1–3 Agi
 - +1–3 Acc
+- Increase Slaying damage by 5–10%
+- Increase Flaming Sword damage by 5–10%
+- Reduce Flaming Sword cooldown by 1–2 seconds
+- Increase Twin Drake Blade damage by 5–10%
+- Reduce mana cost of Twin Drake Blade by 5–15%
+- Increase Blade Avalanche damage by 5–10%
+- Reduce mana cost of Blade Avalanche by 5–15%
+- Increase Slashing Burst damage by 5–10%
+- Reduce mana cost of Slashing Burst by 5–15%
+- Increase Slaying crit chance by 1–8%
+- Increase Slaying crit damage by 5–15%
+- Increase Flaming Sword crit chance by 1–8%
+- Increase Flaming Sword crit damage by 5–15%
+- Increase Twin Drake Blade crit chance by 1–8%
+- Increase Twin Drake Blade crit damage by 5–15%
+- Increase Blade Avalanche crit chance by 1–8%
+- Increase Blade Avalanche crit damage by 5–15%
+- Increase Slashing Burst crit chance by 1–8%
+- Increase Slashing Burst crit damage by 5–15%
+- −1–4% Damage taken
+- +1–6% Crit Rate
+- +5–15% Crit Damage
+- +2–12% Skill leveling
 
 **Gold Bracelet** (`gold-bracelet`)
 - +1–2 AC
 - +1–2 AMC
 - +1–4 DC
-- +1–3 SC
-- +1–3 MC
 - +1 Poison Resist
 - +1 Magic Resist
 - +1–3 Agi
 - +1–3 Acc
+- Increase Slaying damage by 5–10%
+- Increase Flaming Sword damage by 5–10%
+- Reduce Flaming Sword cooldown by 1–2 seconds
+- Increase Twin Drake Blade damage by 5–10%
+- Reduce mana cost of Twin Drake Blade by 5–15%
+- Increase Blade Avalanche damage by 5–10%
+- Reduce mana cost of Blade Avalanche by 5–15%
+- Increase Slashing Burst damage by 5–10%
+- Reduce mana cost of Slashing Burst by 5–15%
+- Increase Slaying crit chance by 1–8%
+- Increase Slaying crit damage by 5–15%
+- Increase Flaming Sword crit chance by 1–8%
+- Increase Flaming Sword crit damage by 5–15%
+- Increase Twin Drake Blade crit chance by 1–8%
+- Increase Twin Drake Blade crit damage by 5–15%
+- Increase Blade Avalanche crit chance by 1–8%
+- Increase Blade Avalanche crit damage by 5–15%
+- Increase Slashing Burst crit chance by 1–8%
+- Increase Slashing Burst crit damage by 5–15%
+- −1–4% Damage taken
+- +1–6% Crit Rate
+- +5–15% Crit Damage
+- +2–12% Skill leveling
 
 **Nephrite Bracelet** (`nephrite-bracelet`)
 - +1–2 AC
 - +1–2 AMC
 - +1–4 DC
 - +1–3 SC
-- +1–3 MC
 - +1 Poison Resist
 - +1 Magic Resist
 - +1–3 Agi
 - +1–3 Acc
+- Increase Healing healing by 5–10%
+- Increase Mass Healing healing by 5–10%
+- Increase Soul Fire Ball damage by 5–10%
+- Increase Skeleton damage by 5–20%
+- Increase Skeleton health by 5–20%
+- Reduce Skeleton damage taken by 5%
+- Increase Shinsu damage by 5–20%
+- Increase Shinsu health by 5–20%
+- Reduce Shinsu damage taken by 5%
+- Increase Holy Deva damage by 5–20%
+- Increase Holy Deva health by 5–20%
+- Reduce Holy Deva damage taken by 5%
+- Increase Soul Fire Ball crit chance by 1–8%
+- Increase Soul Fire Ball crit damage by 5–15%
+- −1–4% Damage taken
+- +1–6% Crit Rate
+- +5–15% Crit Damage
+- +2–12% Skill leveling
 
 **Bug Bracelet** (`bug-bracelet`)
 - +1–2 AC
@@ -1673,6 +8160,80 @@ Grouped by slot. Weapons show their class and actual roll pool from `empowerCand
 - +1 Magic Resist
 - +1–3 Agi
 - +1–3 Acc
+- Increase Slaying damage by 5–10%
+- Increase Flaming Sword damage by 5–10%
+- Reduce Flaming Sword cooldown by 1–2 seconds
+- Increase Twin Drake Blade damage by 5–10%
+- Reduce mana cost of Twin Drake Blade by 5–15%
+- Increase Blade Avalanche damage by 5–10%
+- Reduce mana cost of Blade Avalanche by 5–15%
+- Increase Slashing Burst damage by 5–10%
+- Reduce mana cost of Slashing Burst by 5–15%
+- Increase Flame Disruptor damage by 5–10%
+- Increase Fire Wall damage by 5–10%
+- Increase Thunder Bolt damage by 5–10%
+- Increase Ice Storm damage by 5–10%
+- Increase Flame Field damage by 5–10%
+- Increase Meteor Strike damage by 5–10%
+- Increase Blizzard damage by 5–10%
+- Increase Fire Ball damage by 5–10%
+- Increase Great Fire Ball damage by 5–10%
+- Increase Frost Crunch damage by 5–10%
+- Reduce mana cost of Flame Disruptor by 5–15%
+- Reduce mana cost of Fire Wall by 5–15%
+- Reduce mana cost of Thunder Bolt by 5–15%
+- Reduce mana cost of Ice Storm by 5–15%
+- Reduce mana cost of Flame Field by 5–15%
+- Reduce mana cost of Meteor Strike by 5–15%
+- Reduce mana cost of Blizzard by 5–15%
+- Increase Healing healing by 5–10%
+- Increase Mass Healing healing by 5–10%
+- Increase Soul Fire Ball damage by 5–10%
+- Increase Skeleton damage by 5–20%
+- Increase Skeleton health by 5–20%
+- Reduce Skeleton damage taken by 5%
+- Increase Shinsu damage by 5–20%
+- Increase Shinsu health by 5–20%
+- Reduce Shinsu damage taken by 5%
+- Increase Holy Deva damage by 5–20%
+- Increase Holy Deva health by 5–20%
+- Reduce Holy Deva damage taken by 5%
+- Increase Slaying crit chance by 1–8%
+- Increase Slaying crit damage by 5–15%
+- Increase Flaming Sword crit chance by 1–8%
+- Increase Flaming Sword crit damage by 5–15%
+- Increase Twin Drake Blade crit chance by 1–8%
+- Increase Twin Drake Blade crit damage by 5–15%
+- Increase Blade Avalanche crit chance by 1–8%
+- Increase Blade Avalanche crit damage by 5–15%
+- Increase Slashing Burst crit chance by 1–8%
+- Increase Slashing Burst crit damage by 5–15%
+- Increase Flame Disruptor crit chance by 1–8%
+- Increase Flame Disruptor crit damage by 5–15%
+- Increase Fire Wall crit chance by 1–8%
+- Increase Fire Wall crit damage by 5–15%
+- Increase Thunder Bolt crit chance by 1–8%
+- Increase Thunder Bolt crit damage by 5–15%
+- Increase Ice Storm crit chance by 1–8%
+- Increase Ice Storm crit damage by 5–15%
+- Increase Flame Field crit chance by 1–8%
+- Increase Flame Field crit damage by 5–15%
+- Increase Meteor Strike crit chance by 1–8%
+- Increase Meteor Strike crit damage by 5–15%
+- Increase Blizzard crit chance by 1–8%
+- Increase Blizzard crit damage by 5–15%
+- Increase Fire Ball crit chance by 1–8%
+- Increase Fire Ball crit damage by 5–15%
+- Increase Great Fire Ball crit chance by 1–8%
+- Increase Great Fire Ball crit damage by 5–15%
+- Increase Frost Crunch crit chance by 1–8%
+- Increase Frost Crunch crit damage by 5–15%
+- Increase Soul Fire Ball crit chance by 1–8%
+- Increase Soul Fire Ball crit damage by 5–15%
+- −1–4% Damage taken
+- +1–6% Crit Rate
+- +5–15% Crit Damage
+- +2–12% Skill leveling
 
 **Bronze Glove** (`bronze-glove`)
 - +1–2 AC
@@ -1684,17 +8245,130 @@ Grouped by slot. Weapons show their class and actual roll pool from `empowerCand
 - +1 Magic Resist
 - +1–3 Agi
 - +1–3 Acc
+- Increase Slaying damage by 5–10%
+- Increase Flaming Sword damage by 5–10%
+- Reduce Flaming Sword cooldown by 1–2 seconds
+- Increase Twin Drake Blade damage by 5–10%
+- Reduce mana cost of Twin Drake Blade by 5–15%
+- Increase Blade Avalanche damage by 5–10%
+- Reduce mana cost of Blade Avalanche by 5–15%
+- Increase Slashing Burst damage by 5–10%
+- Reduce mana cost of Slashing Burst by 5–15%
+- Increase Flame Disruptor damage by 5–10%
+- Increase Fire Wall damage by 5–10%
+- Increase Thunder Bolt damage by 5–10%
+- Increase Ice Storm damage by 5–10%
+- Increase Flame Field damage by 5–10%
+- Increase Meteor Strike damage by 5–10%
+- Increase Blizzard damage by 5–10%
+- Increase Fire Ball damage by 5–10%
+- Increase Great Fire Ball damage by 5–10%
+- Increase Frost Crunch damage by 5–10%
+- Reduce mana cost of Flame Disruptor by 5–15%
+- Reduce mana cost of Fire Wall by 5–15%
+- Reduce mana cost of Thunder Bolt by 5–15%
+- Reduce mana cost of Ice Storm by 5–15%
+- Reduce mana cost of Flame Field by 5–15%
+- Reduce mana cost of Meteor Strike by 5–15%
+- Reduce mana cost of Blizzard by 5–15%
+- Increase Healing healing by 5–10%
+- Increase Mass Healing healing by 5–10%
+- Increase Soul Fire Ball damage by 5–10%
+- Increase Skeleton damage by 5–20%
+- Increase Skeleton health by 5–20%
+- Reduce Skeleton damage taken by 5%
+- Increase Shinsu damage by 5–20%
+- Increase Shinsu health by 5–20%
+- Reduce Shinsu damage taken by 5%
+- Increase Holy Deva damage by 5–20%
+- Increase Holy Deva health by 5–20%
+- Reduce Holy Deva damage taken by 5%
+- Increase Slaying crit chance by 1–8%
+- Increase Slaying crit damage by 5–15%
+- Increase Flaming Sword crit chance by 1–8%
+- Increase Flaming Sword crit damage by 5–15%
+- Increase Twin Drake Blade crit chance by 1–8%
+- Increase Twin Drake Blade crit damage by 5–15%
+- Increase Blade Avalanche crit chance by 1–8%
+- Increase Blade Avalanche crit damage by 5–15%
+- Increase Slashing Burst crit chance by 1–8%
+- Increase Slashing Burst crit damage by 5–15%
+- Increase Flame Disruptor crit chance by 1–8%
+- Increase Flame Disruptor crit damage by 5–15%
+- Increase Fire Wall crit chance by 1–8%
+- Increase Fire Wall crit damage by 5–15%
+- Increase Thunder Bolt crit chance by 1–8%
+- Increase Thunder Bolt crit damage by 5–15%
+- Increase Ice Storm crit chance by 1–8%
+- Increase Ice Storm crit damage by 5–15%
+- Increase Flame Field crit chance by 1–8%
+- Increase Flame Field crit damage by 5–15%
+- Increase Meteor Strike crit chance by 1–8%
+- Increase Meteor Strike crit damage by 5–15%
+- Increase Blizzard crit chance by 1–8%
+- Increase Blizzard crit damage by 5–15%
+- Increase Fire Ball crit chance by 1–8%
+- Increase Fire Ball crit damage by 5–15%
+- Increase Great Fire Ball crit chance by 1–8%
+- Increase Great Fire Ball crit damage by 5–15%
+- Increase Frost Crunch crit chance by 1–8%
+- Increase Frost Crunch crit damage by 5–15%
+- Increase Soul Fire Ball crit chance by 1–8%
+- Increase Soul Fire Ball crit damage by 5–15%
+- −1–4% Damage taken
+- +1–6% Crit Rate
+- +5–15% Crit Damage
+- +2–12% Skill leveling
 
 **Spell Bracelet** (`spell-bracelet`)
 - +1–2 AC
 - +1–2 AMC
-- +1–4 DC
-- +1–3 SC
 - +1–3 MC
 - +1 Poison Resist
 - +1 Magic Resist
 - +1–3 Agi
 - +1–3 Acc
+- Increase Flame Disruptor damage by 5–10%
+- Increase Fire Wall damage by 5–10%
+- Increase Thunder Bolt damage by 5–10%
+- Increase Ice Storm damage by 5–10%
+- Increase Flame Field damage by 5–10%
+- Increase Meteor Strike damage by 5–10%
+- Increase Blizzard damage by 5–10%
+- Increase Fire Ball damage by 5–10%
+- Increase Great Fire Ball damage by 5–10%
+- Increase Frost Crunch damage by 5–10%
+- Reduce mana cost of Flame Disruptor by 5–15%
+- Reduce mana cost of Fire Wall by 5–15%
+- Reduce mana cost of Thunder Bolt by 5–15%
+- Reduce mana cost of Ice Storm by 5–15%
+- Reduce mana cost of Flame Field by 5–15%
+- Reduce mana cost of Meteor Strike by 5–15%
+- Reduce mana cost of Blizzard by 5–15%
+- Increase Flame Disruptor crit chance by 1–8%
+- Increase Flame Disruptor crit damage by 5–15%
+- Increase Fire Wall crit chance by 1–8%
+- Increase Fire Wall crit damage by 5–15%
+- Increase Thunder Bolt crit chance by 1–8%
+- Increase Thunder Bolt crit damage by 5–15%
+- Increase Ice Storm crit chance by 1–8%
+- Increase Ice Storm crit damage by 5–15%
+- Increase Flame Field crit chance by 1–8%
+- Increase Flame Field crit damage by 5–15%
+- Increase Meteor Strike crit chance by 1–8%
+- Increase Meteor Strike crit damage by 5–15%
+- Increase Blizzard crit chance by 1–8%
+- Increase Blizzard crit damage by 5–15%
+- Increase Fire Ball crit chance by 1–8%
+- Increase Fire Ball crit damage by 5–15%
+- Increase Great Fire Ball crit chance by 1–8%
+- Increase Great Fire Ball crit damage by 5–15%
+- Increase Frost Crunch crit chance by 1–8%
+- Increase Frost Crunch crit damage by 5–15%
+- −1–4% Damage taken
+- +1–6% Crit Rate
+- +5–15% Crit Damage
+- +2–12% Skill leveling
 
 **Black Iron Bracelet** (`black-iron-bracelet`)
 - +1–2 AC
@@ -1706,6 +8380,80 @@ Grouped by slot. Weapons show their class and actual roll pool from `empowerCand
 - +1 Magic Resist
 - +1–3 Agi
 - +1–3 Acc
+- Increase Slaying damage by 5–10%
+- Increase Flaming Sword damage by 5–10%
+- Reduce Flaming Sword cooldown by 1–2 seconds
+- Increase Twin Drake Blade damage by 5–10%
+- Reduce mana cost of Twin Drake Blade by 5–15%
+- Increase Blade Avalanche damage by 5–10%
+- Reduce mana cost of Blade Avalanche by 5–15%
+- Increase Slashing Burst damage by 5–10%
+- Reduce mana cost of Slashing Burst by 5–15%
+- Increase Flame Disruptor damage by 5–10%
+- Increase Fire Wall damage by 5–10%
+- Increase Thunder Bolt damage by 5–10%
+- Increase Ice Storm damage by 5–10%
+- Increase Flame Field damage by 5–10%
+- Increase Meteor Strike damage by 5–10%
+- Increase Blizzard damage by 5–10%
+- Increase Fire Ball damage by 5–10%
+- Increase Great Fire Ball damage by 5–10%
+- Increase Frost Crunch damage by 5–10%
+- Reduce mana cost of Flame Disruptor by 5–15%
+- Reduce mana cost of Fire Wall by 5–15%
+- Reduce mana cost of Thunder Bolt by 5–15%
+- Reduce mana cost of Ice Storm by 5–15%
+- Reduce mana cost of Flame Field by 5–15%
+- Reduce mana cost of Meteor Strike by 5–15%
+- Reduce mana cost of Blizzard by 5–15%
+- Increase Healing healing by 5–10%
+- Increase Mass Healing healing by 5–10%
+- Increase Soul Fire Ball damage by 5–10%
+- Increase Skeleton damage by 5–20%
+- Increase Skeleton health by 5–20%
+- Reduce Skeleton damage taken by 5%
+- Increase Shinsu damage by 5–20%
+- Increase Shinsu health by 5–20%
+- Reduce Shinsu damage taken by 5%
+- Increase Holy Deva damage by 5–20%
+- Increase Holy Deva health by 5–20%
+- Reduce Holy Deva damage taken by 5%
+- Increase Slaying crit chance by 1–8%
+- Increase Slaying crit damage by 5–15%
+- Increase Flaming Sword crit chance by 1–8%
+- Increase Flaming Sword crit damage by 5–15%
+- Increase Twin Drake Blade crit chance by 1–8%
+- Increase Twin Drake Blade crit damage by 5–15%
+- Increase Blade Avalanche crit chance by 1–8%
+- Increase Blade Avalanche crit damage by 5–15%
+- Increase Slashing Burst crit chance by 1–8%
+- Increase Slashing Burst crit damage by 5–15%
+- Increase Flame Disruptor crit chance by 1–8%
+- Increase Flame Disruptor crit damage by 5–15%
+- Increase Fire Wall crit chance by 1–8%
+- Increase Fire Wall crit damage by 5–15%
+- Increase Thunder Bolt crit chance by 1–8%
+- Increase Thunder Bolt crit damage by 5–15%
+- Increase Ice Storm crit chance by 1–8%
+- Increase Ice Storm crit damage by 5–15%
+- Increase Flame Field crit chance by 1–8%
+- Increase Flame Field crit damage by 5–15%
+- Increase Meteor Strike crit chance by 1–8%
+- Increase Meteor Strike crit damage by 5–15%
+- Increase Blizzard crit chance by 1–8%
+- Increase Blizzard crit damage by 5–15%
+- Increase Fire Ball crit chance by 1–8%
+- Increase Fire Ball crit damage by 5–15%
+- Increase Great Fire Ball crit chance by 1–8%
+- Increase Great Fire Ball crit damage by 5–15%
+- Increase Frost Crunch crit chance by 1–8%
+- Increase Frost Crunch crit damage by 5–15%
+- Increase Soul Fire Ball crit chance by 1–8%
+- Increase Soul Fire Ball crit damage by 5–15%
+- −1–4% Damage taken
+- +1–6% Crit Rate
+- +5–15% Crit Damage
+- +2–12% Skill leveling
 
 **Steel Glove** (`steel-glove`)
 - +1–2 AC
@@ -1717,171 +8465,652 @@ Grouped by slot. Weapons show their class and actual roll pool from `empowerCand
 - +1 Magic Resist
 - +1–3 Agi
 - +1–3 Acc
+- Increase Slaying damage by 5–10%
+- Increase Flaming Sword damage by 5–10%
+- Reduce Flaming Sword cooldown by 1–2 seconds
+- Increase Twin Drake Blade damage by 5–10%
+- Reduce mana cost of Twin Drake Blade by 5–15%
+- Increase Blade Avalanche damage by 5–10%
+- Reduce mana cost of Blade Avalanche by 5–15%
+- Increase Slashing Burst damage by 5–10%
+- Reduce mana cost of Slashing Burst by 5–15%
+- Increase Flame Disruptor damage by 5–10%
+- Increase Fire Wall damage by 5–10%
+- Increase Thunder Bolt damage by 5–10%
+- Increase Ice Storm damage by 5–10%
+- Increase Flame Field damage by 5–10%
+- Increase Meteor Strike damage by 5–10%
+- Increase Blizzard damage by 5–10%
+- Increase Fire Ball damage by 5–10%
+- Increase Great Fire Ball damage by 5–10%
+- Increase Frost Crunch damage by 5–10%
+- Reduce mana cost of Flame Disruptor by 5–15%
+- Reduce mana cost of Fire Wall by 5–15%
+- Reduce mana cost of Thunder Bolt by 5–15%
+- Reduce mana cost of Ice Storm by 5–15%
+- Reduce mana cost of Flame Field by 5–15%
+- Reduce mana cost of Meteor Strike by 5–15%
+- Reduce mana cost of Blizzard by 5–15%
+- Increase Healing healing by 5–10%
+- Increase Mass Healing healing by 5–10%
+- Increase Soul Fire Ball damage by 5–10%
+- Increase Skeleton damage by 5–20%
+- Increase Skeleton health by 5–20%
+- Reduce Skeleton damage taken by 5%
+- Increase Shinsu damage by 5–20%
+- Increase Shinsu health by 5–20%
+- Reduce Shinsu damage taken by 5%
+- Increase Holy Deva damage by 5–20%
+- Increase Holy Deva health by 5–20%
+- Reduce Holy Deva damage taken by 5%
+- Increase Slaying crit chance by 1–8%
+- Increase Slaying crit damage by 5–15%
+- Increase Flaming Sword crit chance by 1–8%
+- Increase Flaming Sword crit damage by 5–15%
+- Increase Twin Drake Blade crit chance by 1–8%
+- Increase Twin Drake Blade crit damage by 5–15%
+- Increase Blade Avalanche crit chance by 1–8%
+- Increase Blade Avalanche crit damage by 5–15%
+- Increase Slashing Burst crit chance by 1–8%
+- Increase Slashing Burst crit damage by 5–15%
+- Increase Flame Disruptor crit chance by 1–8%
+- Increase Flame Disruptor crit damage by 5–15%
+- Increase Fire Wall crit chance by 1–8%
+- Increase Fire Wall crit damage by 5–15%
+- Increase Thunder Bolt crit chance by 1–8%
+- Increase Thunder Bolt crit damage by 5–15%
+- Increase Ice Storm crit chance by 1–8%
+- Increase Ice Storm crit damage by 5–15%
+- Increase Flame Field crit chance by 1–8%
+- Increase Flame Field crit damage by 5–15%
+- Increase Meteor Strike crit chance by 1–8%
+- Increase Meteor Strike crit damage by 5–15%
+- Increase Blizzard crit chance by 1–8%
+- Increase Blizzard crit damage by 5–15%
+- Increase Fire Ball crit chance by 1–8%
+- Increase Fire Ball crit damage by 5–15%
+- Increase Great Fire Ball crit chance by 1–8%
+- Increase Great Fire Ball crit damage by 5–15%
+- Increase Frost Crunch crit chance by 1–8%
+- Increase Frost Crunch crit damage by 5–15%
+- Increase Soul Fire Ball crit chance by 1–8%
+- Increase Soul Fire Ball crit damage by 5–15%
+- −1–4% Damage taken
+- +1–6% Crit Rate
+- +5–15% Crit Damage
+- +2–12% Skill leveling
 
 **Bracer Of Magic** (`bracer-of-magic`)
 - +1–2 AC
 - +1–2 AMC
-- +1–4 DC
-- +1–3 SC
 - +1–3 MC
 - +1 Poison Resist
 - +1 Magic Resist
 - +1–3 Agi
 - +1–3 Acc
+- Increase Flame Disruptor damage by 5–10%
+- Increase Fire Wall damage by 5–10%
+- Increase Thunder Bolt damage by 5–10%
+- Increase Ice Storm damage by 5–10%
+- Increase Flame Field damage by 5–10%
+- Increase Meteor Strike damage by 5–10%
+- Increase Blizzard damage by 5–10%
+- Increase Fire Ball damage by 5–10%
+- Increase Great Fire Ball damage by 5–10%
+- Increase Frost Crunch damage by 5–10%
+- Reduce mana cost of Flame Disruptor by 5–15%
+- Reduce mana cost of Fire Wall by 5–15%
+- Reduce mana cost of Thunder Bolt by 5–15%
+- Reduce mana cost of Ice Storm by 5–15%
+- Reduce mana cost of Flame Field by 5–15%
+- Reduce mana cost of Meteor Strike by 5–15%
+- Reduce mana cost of Blizzard by 5–15%
+- Increase Flame Disruptor crit chance by 1–8%
+- Increase Flame Disruptor crit damage by 5–15%
+- Increase Fire Wall crit chance by 1–8%
+- Increase Fire Wall crit damage by 5–15%
+- Increase Thunder Bolt crit chance by 1–8%
+- Increase Thunder Bolt crit damage by 5–15%
+- Increase Ice Storm crit chance by 1–8%
+- Increase Ice Storm crit damage by 5–15%
+- Increase Flame Field crit chance by 1–8%
+- Increase Flame Field crit damage by 5–15%
+- Increase Meteor Strike crit chance by 1–8%
+- Increase Meteor Strike crit damage by 5–15%
+- Increase Blizzard crit chance by 1–8%
+- Increase Blizzard crit damage by 5–15%
+- Increase Fire Ball crit chance by 1–8%
+- Increase Fire Ball crit damage by 5–15%
+- Increase Great Fire Ball crit chance by 1–8%
+- Increase Great Fire Ball crit damage by 5–15%
+- Increase Frost Crunch crit chance by 1–8%
+- Increase Frost Crunch crit damage by 5–15%
+- −1–4% Damage taken
+- +1–6% Crit Rate
+- +5–15% Crit Damage
+- +2–12% Skill leveling
 
 **Hwan Devil Bracelet** (`hwan-devil-bracelet`)
 - +1–2 AC
 - +1–2 AMC
-- +1–4 DC
-- +1–3 SC
 - +1–3 MC
 - +1 Poison Resist
 - +1 Magic Resist
 - +1–3 Agi
 - +1–3 Acc
+- Increase Flame Disruptor damage by 5–10%
+- Increase Fire Wall damage by 5–10%
+- Increase Thunder Bolt damage by 5–10%
+- Increase Ice Storm damage by 5–10%
+- Increase Flame Field damage by 5–10%
+- Increase Meteor Strike damage by 5–10%
+- Increase Blizzard damage by 5–10%
+- Increase Fire Ball damage by 5–10%
+- Increase Great Fire Ball damage by 5–10%
+- Increase Frost Crunch damage by 5–10%
+- Reduce mana cost of Flame Disruptor by 5–15%
+- Reduce mana cost of Fire Wall by 5–15%
+- Reduce mana cost of Thunder Bolt by 5–15%
+- Reduce mana cost of Ice Storm by 5–15%
+- Reduce mana cost of Flame Field by 5–15%
+- Reduce mana cost of Meteor Strike by 5–15%
+- Reduce mana cost of Blizzard by 5–15%
+- Increase Flame Disruptor crit chance by 1–8%
+- Increase Flame Disruptor crit damage by 5–15%
+- Increase Fire Wall crit chance by 1–8%
+- Increase Fire Wall crit damage by 5–15%
+- Increase Thunder Bolt crit chance by 1–8%
+- Increase Thunder Bolt crit damage by 5–15%
+- Increase Ice Storm crit chance by 1–8%
+- Increase Ice Storm crit damage by 5–15%
+- Increase Flame Field crit chance by 1–8%
+- Increase Flame Field crit damage by 5–15%
+- Increase Meteor Strike crit chance by 1–8%
+- Increase Meteor Strike crit damage by 5–15%
+- Increase Blizzard crit chance by 1–8%
+- Increase Blizzard crit damage by 5–15%
+- Increase Fire Ball crit chance by 1–8%
+- Increase Fire Ball crit damage by 5–15%
+- Increase Great Fire Ball crit chance by 1–8%
+- Increase Great Fire Ball crit damage by 5–15%
+- Increase Frost Crunch crit chance by 1–8%
+- Increase Frost Crunch crit damage by 5–15%
+- −1–4% Damage taken
+- +1–6% Crit Rate
+- +5–15% Crit Damage
+- +2–12% Skill leveling
 
 **Smash Wheel** (`smash-wheel`)
 - +1–2 AC
 - +1–2 AMC
 - +1–4 DC
-- +1–3 SC
-- +1–3 MC
 - +1 Poison Resist
 - +1 Magic Resist
 - +1–3 Agi
 - +1–3 Acc
+- Increase Slaying damage by 5–10%
+- Increase Flaming Sword damage by 5–10%
+- Reduce Flaming Sword cooldown by 1–2 seconds
+- Increase Twin Drake Blade damage by 5–10%
+- Reduce mana cost of Twin Drake Blade by 5–15%
+- Increase Blade Avalanche damage by 5–10%
+- Reduce mana cost of Blade Avalanche by 5–15%
+- Increase Slashing Burst damage by 5–10%
+- Reduce mana cost of Slashing Burst by 5–15%
+- Increase Slaying crit chance by 1–8%
+- Increase Slaying crit damage by 5–15%
+- Increase Flaming Sword crit chance by 1–8%
+- Increase Flaming Sword crit damage by 5–15%
+- Increase Twin Drake Blade crit chance by 1–8%
+- Increase Twin Drake Blade crit damage by 5–15%
+- Increase Blade Avalanche crit chance by 1–8%
+- Increase Blade Avalanche crit damage by 5–15%
+- Increase Slashing Burst crit chance by 1–8%
+- Increase Slashing Burst crit damage by 5–15%
+- −1–4% Damage taken
+- +1–6% Crit Rate
+- +5–15% Crit Damage
+- +2–12% Skill leveling
 
 **Tao Power Bracelet** (`tao-power-bracelet`)
 - +1–2 AC
 - +1–2 AMC
 - +1–4 DC
 - +1–3 SC
-- +1–3 MC
 - +1 Poison Resist
 - +1 Magic Resist
 - +1–3 Agi
 - +1–3 Acc
+- Increase Healing healing by 5–10%
+- Increase Mass Healing healing by 5–10%
+- Increase Soul Fire Ball damage by 5–10%
+- Increase Skeleton damage by 5–20%
+- Increase Skeleton health by 5–20%
+- Reduce Skeleton damage taken by 5%
+- Increase Shinsu damage by 5–20%
+- Increase Shinsu health by 5–20%
+- Reduce Shinsu damage taken by 5%
+- Increase Holy Deva damage by 5–20%
+- Increase Holy Deva health by 5–20%
+- Reduce Holy Deva damage taken by 5%
+- Increase Soul Fire Ball crit chance by 1–8%
+- Increase Soul Fire Ball crit damage by 5–15%
+- −1–4% Damage taken
+- +1–6% Crit Rate
+- +5–15% Crit Damage
+- +2–12% Skill leveling
 
 **Five String Bracelet** (`five-string-bracelet`)
 - +1–2 AC
 - +1–2 AMC
-- +1–4 DC
-- +1–3 SC
 - +1–3 MC
 - +1 Poison Resist
 - +1 Magic Resist
 - +1–3 Agi
 - +1–3 Acc
+- Increase Flame Disruptor damage by 5–10%
+- Increase Fire Wall damage by 5–10%
+- Increase Thunder Bolt damage by 5–10%
+- Increase Ice Storm damage by 5–10%
+- Increase Flame Field damage by 5–10%
+- Increase Meteor Strike damage by 5–10%
+- Increase Blizzard damage by 5–10%
+- Increase Fire Ball damage by 5–10%
+- Increase Great Fire Ball damage by 5–10%
+- Increase Frost Crunch damage by 5–10%
+- Reduce mana cost of Flame Disruptor by 5–15%
+- Reduce mana cost of Fire Wall by 5–15%
+- Reduce mana cost of Thunder Bolt by 5–15%
+- Reduce mana cost of Ice Storm by 5–15%
+- Reduce mana cost of Flame Field by 5–15%
+- Reduce mana cost of Meteor Strike by 5–15%
+- Reduce mana cost of Blizzard by 5–15%
+- Increase Flame Disruptor crit chance by 1–8%
+- Increase Flame Disruptor crit damage by 5–15%
+- Increase Fire Wall crit chance by 1–8%
+- Increase Fire Wall crit damage by 5–15%
+- Increase Thunder Bolt crit chance by 1–8%
+- Increase Thunder Bolt crit damage by 5–15%
+- Increase Ice Storm crit chance by 1–8%
+- Increase Ice Storm crit damage by 5–15%
+- Increase Flame Field crit chance by 1–8%
+- Increase Flame Field crit damage by 5–15%
+- Increase Meteor Strike crit chance by 1–8%
+- Increase Meteor Strike crit damage by 5–15%
+- Increase Blizzard crit chance by 1–8%
+- Increase Blizzard crit damage by 5–15%
+- Increase Fire Ball crit chance by 1–8%
+- Increase Fire Ball crit damage by 5–15%
+- Increase Great Fire Ball crit chance by 1–8%
+- Increase Great Fire Ball crit damage by 5–15%
+- Increase Frost Crunch crit chance by 1–8%
+- Increase Frost Crunch crit damage by 5–15%
+- −1–4% Damage taken
+- +1–6% Crit Rate
+- +5–15% Crit Damage
+- +2–12% Skill leveling
 
 **8 Trigram Wheel** (`8-trigram-wheel`)
 - +1–2 AC
 - +1–2 AMC
 - +1–4 DC
-- +1–3 SC
-- +1–3 MC
 - +1 Poison Resist
 - +1 Magic Resist
 - +1–3 Agi
 - +1–3 Acc
+- Increase Slaying damage by 5–10%
+- Increase Flaming Sword damage by 5–10%
+- Reduce Flaming Sword cooldown by 1–2 seconds
+- Increase Twin Drake Blade damage by 5–10%
+- Reduce mana cost of Twin Drake Blade by 5–15%
+- Increase Blade Avalanche damage by 5–10%
+- Reduce mana cost of Blade Avalanche by 5–15%
+- Increase Slashing Burst damage by 5–10%
+- Reduce mana cost of Slashing Burst by 5–15%
+- Increase Slaying crit chance by 1–8%
+- Increase Slaying crit damage by 5–15%
+- Increase Flaming Sword crit chance by 1–8%
+- Increase Flaming Sword crit damage by 5–15%
+- Increase Twin Drake Blade crit chance by 1–8%
+- Increase Twin Drake Blade crit damage by 5–15%
+- Increase Blade Avalanche crit chance by 1–8%
+- Increase Blade Avalanche crit damage by 5–15%
+- Increase Slashing Burst crit chance by 1–8%
+- Increase Slashing Burst crit damage by 5–15%
+- −1–4% Damage taken
+- +1–6% Crit Rate
+- +5–15% Crit Damage
+- +2–12% Skill leveling
 
 **Bok Ma Wheel** (`bok-ma-wheel`)
 - +1–2 AC
 - +1–2 AMC
 - +1–4 DC
 - +1–3 SC
-- +1–3 MC
 - +1 Poison Resist
 - +1 Magic Resist
 - +1–3 Agi
 - +1–3 Acc
+- Increase Healing healing by 5–10%
+- Increase Mass Healing healing by 5–10%
+- Increase Soul Fire Ball damage by 5–10%
+- Increase Skeleton damage by 5–20%
+- Increase Skeleton health by 5–20%
+- Reduce Skeleton damage taken by 5%
+- Increase Shinsu damage by 5–20%
+- Increase Shinsu health by 5–20%
+- Reduce Shinsu damage taken by 5%
+- Increase Holy Deva damage by 5–20%
+- Increase Holy Deva health by 5–20%
+- Reduce Holy Deva damage taken by 5%
+- Increase Soul Fire Ball crit chance by 1–8%
+- Increase Soul Fire Ball crit damage by 5–15%
+- −1–4% Damage taken
+- +1–6% Crit Rate
+- +5–15% Crit Damage
+- +2–12% Skill leveling
 
 **Hang Ma Wheel** (`hang-ma-wheel`)
 - +1–2 AC
 - +1–2 AMC
-- +1–4 DC
-- +1–3 SC
 - +1–3 MC
 - +1 Poison Resist
 - +1 Magic Resist
 - +1–3 Agi
 - +1–3 Acc
+- Increase Flame Disruptor damage by 5–10%
+- Increase Fire Wall damage by 5–10%
+- Increase Thunder Bolt damage by 5–10%
+- Increase Ice Storm damage by 5–10%
+- Increase Flame Field damage by 5–10%
+- Increase Meteor Strike damage by 5–10%
+- Increase Blizzard damage by 5–10%
+- Increase Fire Ball damage by 5–10%
+- Increase Great Fire Ball damage by 5–10%
+- Increase Frost Crunch damage by 5–10%
+- Reduce mana cost of Flame Disruptor by 5–15%
+- Reduce mana cost of Fire Wall by 5–15%
+- Reduce mana cost of Thunder Bolt by 5–15%
+- Reduce mana cost of Ice Storm by 5–15%
+- Reduce mana cost of Flame Field by 5–15%
+- Reduce mana cost of Meteor Strike by 5–15%
+- Reduce mana cost of Blizzard by 5–15%
+- Increase Flame Disruptor crit chance by 1–8%
+- Increase Flame Disruptor crit damage by 5–15%
+- Increase Fire Wall crit chance by 1–8%
+- Increase Fire Wall crit damage by 5–15%
+- Increase Thunder Bolt crit chance by 1–8%
+- Increase Thunder Bolt crit damage by 5–15%
+- Increase Ice Storm crit chance by 1–8%
+- Increase Ice Storm crit damage by 5–15%
+- Increase Flame Field crit chance by 1–8%
+- Increase Flame Field crit damage by 5–15%
+- Increase Meteor Strike crit chance by 1–8%
+- Increase Meteor Strike crit damage by 5–15%
+- Increase Blizzard crit chance by 1–8%
+- Increase Blizzard crit damage by 5–15%
+- Increase Fire Ball crit chance by 1–8%
+- Increase Fire Ball crit damage by 5–15%
+- Increase Great Fire Ball crit chance by 1–8%
+- Increase Great Fire Ball crit damage by 5–15%
+- Increase Frost Crunch crit chance by 1–8%
+- Increase Frost Crunch crit damage by 5–15%
+- −1–4% Damage taken
+- +1–6% Crit Rate
+- +5–15% Crit Damage
+- +2–12% Skill leveling
 
 **Steel Gauntlet** (`steel-gauntlet`)
 - +1–2 AC
 - +1–2 AMC
 - +1–4 DC
-- +1–3 SC
-- +1–3 MC
 - +1 Poison Resist
 - +1 Magic Resist
 - +1–3 Agi
 - +1–3 Acc
+- Increase Slaying damage by 5–10%
+- Increase Flaming Sword damage by 5–10%
+- Reduce Flaming Sword cooldown by 1–2 seconds
+- Increase Twin Drake Blade damage by 5–10%
+- Reduce mana cost of Twin Drake Blade by 5–15%
+- Increase Blade Avalanche damage by 5–10%
+- Reduce mana cost of Blade Avalanche by 5–15%
+- Increase Slashing Burst damage by 5–10%
+- Reduce mana cost of Slashing Burst by 5–15%
+- Increase Slaying crit chance by 1–8%
+- Increase Slaying crit damage by 5–15%
+- Increase Flaming Sword crit chance by 1–8%
+- Increase Flaming Sword crit damage by 5–15%
+- Increase Twin Drake Blade crit chance by 1–8%
+- Increase Twin Drake Blade crit damage by 5–15%
+- Increase Blade Avalanche crit chance by 1–8%
+- Increase Blade Avalanche crit damage by 5–15%
+- Increase Slashing Burst crit chance by 1–8%
+- Increase Slashing Burst crit damage by 5–15%
+- −1–4% Damage taken
+- +1–6% Crit Rate
+- +5–15% Crit Damage
+- +2–12% Skill leveling
 
 **Baek Ta Glove** (`baek-ta-glove`)
 - +1–2 AC
 - +1–2 AMC
 - +1–4 DC
-- +1–3 SC
-- +1–3 MC
 - +1 Poison Resist
 - +1 Magic Resist
 - +1–3 Agi
 - +1–3 Acc
+- Increase Slaying damage by 5–10%
+- Increase Flaming Sword damage by 5–10%
+- Reduce Flaming Sword cooldown by 1–2 seconds
+- Increase Twin Drake Blade damage by 5–10%
+- Reduce mana cost of Twin Drake Blade by 5–15%
+- Increase Blade Avalanche damage by 5–10%
+- Reduce mana cost of Blade Avalanche by 5–15%
+- Increase Slashing Burst damage by 5–10%
+- Reduce mana cost of Slashing Burst by 5–15%
+- Increase Slaying crit chance by 1–8%
+- Increase Slaying crit damage by 5–15%
+- Increase Flaming Sword crit chance by 1–8%
+- Increase Flaming Sword crit damage by 5–15%
+- Increase Twin Drake Blade crit chance by 1–8%
+- Increase Twin Drake Blade crit damage by 5–15%
+- Increase Blade Avalanche crit chance by 1–8%
+- Increase Blade Avalanche crit damage by 5–15%
+- Increase Slashing Burst crit chance by 1–8%
+- Increase Slashing Burst crit damage by 5–15%
+- −1–4% Damage taken
+- +1–6% Crit Rate
+- +5–15% Crit Damage
+- +2–12% Skill leveling
 
 **Holy Tao Wheel** (`holy-tao-wheel`)
 - +1–2 AC
 - +1–2 AMC
 - +1–4 DC
 - +1–3 SC
-- +1–3 MC
 - +1 Poison Resist
 - +1 Magic Resist
 - +1–3 Agi
 - +1–3 Acc
+- Increase Healing healing by 5–10%
+- Increase Mass Healing healing by 5–10%
+- Increase Soul Fire Ball damage by 5–10%
+- Increase Skeleton damage by 5–20%
+- Increase Skeleton health by 5–20%
+- Reduce Skeleton damage taken by 5%
+- Increase Shinsu damage by 5–20%
+- Increase Shinsu health by 5–20%
+- Reduce Shinsu damage taken by 5%
+- Increase Holy Deva damage by 5–20%
+- Increase Holy Deva health by 5–20%
+- Reduce Holy Deva damage taken by 5%
+- Increase Soul Fire Ball crit chance by 1–8%
+- Increase Soul Fire Ball crit damage by 5–15%
+- −1–4% Damage taken
+- +1–6% Crit Rate
+- +5–15% Crit Damage
+- +2–12% Skill leveling
 
 **Spirit Reformer** (`spirit-reformer`)
 - +1–2 AC
 - +1–2 AMC
-- +1–4 DC
-- +1–3 SC
 - +1–3 MC
 - +1 Poison Resist
 - +1 Magic Resist
 - +1–3 Agi
 - +1–3 Acc
+- Increase Flame Disruptor damage by 5–10%
+- Increase Fire Wall damage by 5–10%
+- Increase Thunder Bolt damage by 5–10%
+- Increase Ice Storm damage by 5–10%
+- Increase Flame Field damage by 5–10%
+- Increase Meteor Strike damage by 5–10%
+- Increase Blizzard damage by 5–10%
+- Increase Fire Ball damage by 5–10%
+- Increase Great Fire Ball damage by 5–10%
+- Increase Frost Crunch damage by 5–10%
+- Reduce mana cost of Flame Disruptor by 5–15%
+- Reduce mana cost of Fire Wall by 5–15%
+- Reduce mana cost of Thunder Bolt by 5–15%
+- Reduce mana cost of Ice Storm by 5–15%
+- Reduce mana cost of Flame Field by 5–15%
+- Reduce mana cost of Meteor Strike by 5–15%
+- Reduce mana cost of Blizzard by 5–15%
+- Increase Flame Disruptor crit chance by 1–8%
+- Increase Flame Disruptor crit damage by 5–15%
+- Increase Fire Wall crit chance by 1–8%
+- Increase Fire Wall crit damage by 5–15%
+- Increase Thunder Bolt crit chance by 1–8%
+- Increase Thunder Bolt crit damage by 5–15%
+- Increase Ice Storm crit chance by 1–8%
+- Increase Ice Storm crit damage by 5–15%
+- Increase Flame Field crit chance by 1–8%
+- Increase Flame Field crit damage by 5–15%
+- Increase Meteor Strike crit chance by 1–8%
+- Increase Meteor Strike crit damage by 5–15%
+- Increase Blizzard crit chance by 1–8%
+- Increase Blizzard crit damage by 5–15%
+- Increase Fire Ball crit chance by 1–8%
+- Increase Fire Ball crit damage by 5–15%
+- Increase Great Fire Ball crit chance by 1–8%
+- Increase Great Fire Ball crit damage by 5–15%
+- Increase Frost Crunch crit chance by 1–8%
+- Increase Frost Crunch crit damage by 5–15%
+- −1–4% Damage taken
+- +1–6% Crit Rate
+- +5–15% Crit Damage
+- +2–12% Skill leveling
 
 **Dual Titan Amulet** (`dual-titan-amulet`)
 - +1–2 AC
 - +1–2 AMC
 - +1–4 DC
-- +1–3 SC
-- +1–3 MC
 - +1 Poison Resist
 - +1 Magic Resist
 - +1–3 Agi
 - +1–3 Acc
+- Increase Slaying damage by 5–10%
+- Increase Flaming Sword damage by 5–10%
+- Reduce Flaming Sword cooldown by 1–2 seconds
+- Increase Twin Drake Blade damage by 5–10%
+- Reduce mana cost of Twin Drake Blade by 5–15%
+- Increase Blade Avalanche damage by 5–10%
+- Reduce mana cost of Blade Avalanche by 5–15%
+- Increase Slashing Burst damage by 5–10%
+- Reduce mana cost of Slashing Burst by 5–15%
+- Increase Slaying crit chance by 1–8%
+- Increase Slaying crit damage by 5–15%
+- Increase Flaming Sword crit chance by 1–8%
+- Increase Flaming Sword crit damage by 5–15%
+- Increase Twin Drake Blade crit chance by 1–8%
+- Increase Twin Drake Blade crit damage by 5–15%
+- Increase Blade Avalanche crit chance by 1–8%
+- Increase Blade Avalanche crit damage by 5–15%
+- Increase Slashing Burst crit chance by 1–8%
+- Increase Slashing Burst crit damage by 5–15%
+- −1–4% Damage taken
+- +1–6% Crit Rate
+- +5–15% Crit Damage
+- +2–12% Skill leveling
 
 **Evil Whisp Amulet** (`evil-whisp-amulet`)
 - +1–2 AC
 - +1–2 AMC
-- +1–4 DC
-- +1–3 SC
 - +1–3 MC
 - +1 Poison Resist
 - +1 Magic Resist
 - +1–3 Agi
 - +1–3 Acc
+- Increase Flame Disruptor damage by 5–10%
+- Increase Fire Wall damage by 5–10%
+- Increase Thunder Bolt damage by 5–10%
+- Increase Ice Storm damage by 5–10%
+- Increase Flame Field damage by 5–10%
+- Increase Meteor Strike damage by 5–10%
+- Increase Blizzard damage by 5–10%
+- Increase Fire Ball damage by 5–10%
+- Increase Great Fire Ball damage by 5–10%
+- Increase Frost Crunch damage by 5–10%
+- Reduce mana cost of Flame Disruptor by 5–15%
+- Reduce mana cost of Fire Wall by 5–15%
+- Reduce mana cost of Thunder Bolt by 5–15%
+- Reduce mana cost of Ice Storm by 5–15%
+- Reduce mana cost of Flame Field by 5–15%
+- Reduce mana cost of Meteor Strike by 5–15%
+- Reduce mana cost of Blizzard by 5–15%
+- Increase Flame Disruptor crit chance by 1–8%
+- Increase Flame Disruptor crit damage by 5–15%
+- Increase Fire Wall crit chance by 1–8%
+- Increase Fire Wall crit damage by 5–15%
+- Increase Thunder Bolt crit chance by 1–8%
+- Increase Thunder Bolt crit damage by 5–15%
+- Increase Ice Storm crit chance by 1–8%
+- Increase Ice Storm crit damage by 5–15%
+- Increase Flame Field crit chance by 1–8%
+- Increase Flame Field crit damage by 5–15%
+- Increase Meteor Strike crit chance by 1–8%
+- Increase Meteor Strike crit damage by 5–15%
+- Increase Blizzard crit chance by 1–8%
+- Increase Blizzard crit damage by 5–15%
+- Increase Fire Ball crit chance by 1–8%
+- Increase Fire Ball crit damage by 5–15%
+- Increase Great Fire Ball crit chance by 1–8%
+- Increase Great Fire Ball crit damage by 5–15%
+- Increase Frost Crunch crit chance by 1–8%
+- Increase Frost Crunch crit damage by 5–15%
+- −1–4% Damage taken
+- +1–6% Crit Rate
+- +5–15% Crit Damage
+- +2–12% Skill leveling
 
 **Sacred Angel Amulet** (`sacred-angel-amulet`)
 - +1–2 AC
 - +1–2 AMC
 - +1–4 DC
 - +1–3 SC
-- +1–3 MC
 - +1 Poison Resist
 - +1 Magic Resist
 - +1–3 Agi
 - +1–3 Acc
+- Increase Healing healing by 5–10%
+- Increase Mass Healing healing by 5–10%
+- Increase Soul Fire Ball damage by 5–10%
+- Increase Skeleton damage by 5–20%
+- Increase Skeleton health by 5–20%
+- Reduce Skeleton damage taken by 5%
+- Increase Shinsu damage by 5–20%
+- Increase Shinsu health by 5–20%
+- Reduce Shinsu damage taken by 5%
+- Increase Holy Deva damage by 5–20%
+- Increase Holy Deva health by 5–20%
+- Reduce Holy Deva damage taken by 5%
+- Increase Soul Fire Ball crit chance by 1–8%
+- Increase Soul Fire Ball crit damage by 5–15%
+- −1–4% Damage taken
+- +1–6% Crit Rate
+- +5–15% Crit Damage
+- +2–12% Skill leveling
 
 ### Helmet
 
@@ -1893,6 +9122,80 @@ Grouped by slot. Weapons show their class and actual roll pool from `empowerCand
 - +1–2 SC
 - +10–20 HP (step 10)
 - +10–20 MP (step 10)
+- Increase Slaying damage by 5–20%
+- Increase Flaming Sword damage by 5–15%
+- Reduce Flaming Sword cooldown by 1–3 seconds
+- Increase Twin Drake Blade damage by 5–15%
+- Reduce mana cost of Twin Drake Blade by 5–20%
+- Increase Blade Avalanche damage by 5–15%
+- Reduce mana cost of Blade Avalanche by 5–20%
+- Increase Slashing Burst damage by 5–15%
+- Reduce mana cost of Slashing Burst by 5–20%
+- Increase Flame Disruptor damage by 5–20%
+- Increase Fire Wall damage by 5–15%
+- Increase Thunder Bolt damage by 5–20%
+- Increase Ice Storm damage by 5–15%
+- Increase Flame Field damage by 5–15%
+- Increase Meteor Strike damage by 5–15%
+- Increase Blizzard damage by 5–15%
+- Increase Fire Ball damage by 5–20%
+- Increase Great Fire Ball damage by 5–20%
+- Increase Frost Crunch damage by 5–15%
+- Reduce mana cost of Flame Disruptor by 5–20%
+- Reduce mana cost of Fire Wall by 5–20%
+- Reduce mana cost of Thunder Bolt by 5–20%
+- Reduce mana cost of Ice Storm by 5–20%
+- Reduce mana cost of Flame Field by 5–20%
+- Reduce mana cost of Meteor Strike by 5–20%
+- Reduce mana cost of Blizzard by 5–20%
+- Increase Healing healing by 5–15%
+- Increase Mass Healing healing by 5–15%
+- Increase Soul Fire Ball damage by 5–20%
+- Increase Skeleton damage by 5–25%
+- Increase Skeleton health by 5–25%
+- Reduce Skeleton damage taken by 5–10%
+- Increase Shinsu damage by 5–25%
+- Increase Shinsu health by 5–25%
+- Reduce Shinsu damage taken by 5–10%
+- Increase Holy Deva damage by 5–25%
+- Increase Holy Deva health by 5–25%
+- Reduce Holy Deva damage taken by 5–10%
+- Increase Slaying crit chance by 2–12%
+- Increase Slaying crit damage by 5–25%
+- Increase Flaming Sword crit chance by 2–12%
+- Increase Flaming Sword crit damage by 5–25%
+- Increase Twin Drake Blade crit chance by 2–12%
+- Increase Twin Drake Blade crit damage by 5–25%
+- Increase Blade Avalanche crit chance by 2–12%
+- Increase Blade Avalanche crit damage by 5–25%
+- Increase Slashing Burst crit chance by 2–12%
+- Increase Slashing Burst crit damage by 5–25%
+- Increase Flame Disruptor crit chance by 2–12%
+- Increase Flame Disruptor crit damage by 5–25%
+- Increase Fire Wall crit chance by 2–12%
+- Increase Fire Wall crit damage by 5–25%
+- Increase Thunder Bolt crit chance by 2–12%
+- Increase Thunder Bolt crit damage by 5–25%
+- Increase Ice Storm crit chance by 2–12%
+- Increase Ice Storm crit damage by 5–25%
+- Increase Flame Field crit chance by 2–12%
+- Increase Flame Field crit damage by 5–25%
+- Increase Meteor Strike crit chance by 2–12%
+- Increase Meteor Strike crit damage by 5–25%
+- Increase Blizzard crit chance by 2–12%
+- Increase Blizzard crit damage by 5–25%
+- Increase Fire Ball crit chance by 2–12%
+- Increase Fire Ball crit damage by 5–25%
+- Increase Great Fire Ball crit chance by 2–12%
+- Increase Great Fire Ball crit damage by 5–25%
+- Increase Frost Crunch crit chance by 2–12%
+- Increase Frost Crunch crit damage by 5–25%
+- Increase Soul Fire Ball crit chance by 2–12%
+- Increase Soul Fire Ball crit damage by 5–25%
+- −2–6% Damage taken
+- +1–10% Crit Rate
+- +5–15% Crit Damage
+- +5–20% Skill leveling
 
 **Skeleton Helmet** (`skeleton-helmet`)
 - +1–3 AC
@@ -1902,6 +9205,80 @@ Grouped by slot. Weapons show their class and actual roll pool from `empowerCand
 - +1–2 SC
 - +10–20 HP (step 10)
 - +10–20 MP (step 10)
+- Increase Slaying damage by 5–20%
+- Increase Flaming Sword damage by 5–15%
+- Reduce Flaming Sword cooldown by 1–3 seconds
+- Increase Twin Drake Blade damage by 5–15%
+- Reduce mana cost of Twin Drake Blade by 5–20%
+- Increase Blade Avalanche damage by 5–15%
+- Reduce mana cost of Blade Avalanche by 5–20%
+- Increase Slashing Burst damage by 5–15%
+- Reduce mana cost of Slashing Burst by 5–20%
+- Increase Flame Disruptor damage by 5–20%
+- Increase Fire Wall damage by 5–15%
+- Increase Thunder Bolt damage by 5–20%
+- Increase Ice Storm damage by 5–15%
+- Increase Flame Field damage by 5–15%
+- Increase Meteor Strike damage by 5–15%
+- Increase Blizzard damage by 5–15%
+- Increase Fire Ball damage by 5–20%
+- Increase Great Fire Ball damage by 5–20%
+- Increase Frost Crunch damage by 5–15%
+- Reduce mana cost of Flame Disruptor by 5–20%
+- Reduce mana cost of Fire Wall by 5–20%
+- Reduce mana cost of Thunder Bolt by 5–20%
+- Reduce mana cost of Ice Storm by 5–20%
+- Reduce mana cost of Flame Field by 5–20%
+- Reduce mana cost of Meteor Strike by 5–20%
+- Reduce mana cost of Blizzard by 5–20%
+- Increase Healing healing by 5–15%
+- Increase Mass Healing healing by 5–15%
+- Increase Soul Fire Ball damage by 5–20%
+- Increase Skeleton damage by 5–25%
+- Increase Skeleton health by 5–25%
+- Reduce Skeleton damage taken by 5–10%
+- Increase Shinsu damage by 5–25%
+- Increase Shinsu health by 5–25%
+- Reduce Shinsu damage taken by 5–10%
+- Increase Holy Deva damage by 5–25%
+- Increase Holy Deva health by 5–25%
+- Reduce Holy Deva damage taken by 5–10%
+- Increase Slaying crit chance by 2–12%
+- Increase Slaying crit damage by 5–25%
+- Increase Flaming Sword crit chance by 2–12%
+- Increase Flaming Sword crit damage by 5–25%
+- Increase Twin Drake Blade crit chance by 2–12%
+- Increase Twin Drake Blade crit damage by 5–25%
+- Increase Blade Avalanche crit chance by 2–12%
+- Increase Blade Avalanche crit damage by 5–25%
+- Increase Slashing Burst crit chance by 2–12%
+- Increase Slashing Burst crit damage by 5–25%
+- Increase Flame Disruptor crit chance by 2–12%
+- Increase Flame Disruptor crit damage by 5–25%
+- Increase Fire Wall crit chance by 2–12%
+- Increase Fire Wall crit damage by 5–25%
+- Increase Thunder Bolt crit chance by 2–12%
+- Increase Thunder Bolt crit damage by 5–25%
+- Increase Ice Storm crit chance by 2–12%
+- Increase Ice Storm crit damage by 5–25%
+- Increase Flame Field crit chance by 2–12%
+- Increase Flame Field crit damage by 5–25%
+- Increase Meteor Strike crit chance by 2–12%
+- Increase Meteor Strike crit damage by 5–25%
+- Increase Blizzard crit chance by 2–12%
+- Increase Blizzard crit damage by 5–25%
+- Increase Fire Ball crit chance by 2–12%
+- Increase Fire Ball crit damage by 5–25%
+- Increase Great Fire Ball crit chance by 2–12%
+- Increase Great Fire Ball crit damage by 5–25%
+- Increase Frost Crunch crit chance by 2–12%
+- Increase Frost Crunch crit damage by 5–25%
+- Increase Soul Fire Ball crit chance by 2–12%
+- Increase Soul Fire Ball crit damage by 5–25%
+- −2–6% Damage taken
+- +1–10% Crit Rate
+- +5–15% Crit Damage
+- +5–20% Skill leveling
 
 **Bronze Helmet** (`bronze-helmet`)
 - +1–3 AC
@@ -1911,6 +9288,80 @@ Grouped by slot. Weapons show their class and actual roll pool from `empowerCand
 - +1–2 SC
 - +10–20 HP (step 10)
 - +10–20 MP (step 10)
+- Increase Slaying damage by 5–20%
+- Increase Flaming Sword damage by 5–15%
+- Reduce Flaming Sword cooldown by 1–3 seconds
+- Increase Twin Drake Blade damage by 5–15%
+- Reduce mana cost of Twin Drake Blade by 5–20%
+- Increase Blade Avalanche damage by 5–15%
+- Reduce mana cost of Blade Avalanche by 5–20%
+- Increase Slashing Burst damage by 5–15%
+- Reduce mana cost of Slashing Burst by 5–20%
+- Increase Flame Disruptor damage by 5–20%
+- Increase Fire Wall damage by 5–15%
+- Increase Thunder Bolt damage by 5–20%
+- Increase Ice Storm damage by 5–15%
+- Increase Flame Field damage by 5–15%
+- Increase Meteor Strike damage by 5–15%
+- Increase Blizzard damage by 5–15%
+- Increase Fire Ball damage by 5–20%
+- Increase Great Fire Ball damage by 5–20%
+- Increase Frost Crunch damage by 5–15%
+- Reduce mana cost of Flame Disruptor by 5–20%
+- Reduce mana cost of Fire Wall by 5–20%
+- Reduce mana cost of Thunder Bolt by 5–20%
+- Reduce mana cost of Ice Storm by 5–20%
+- Reduce mana cost of Flame Field by 5–20%
+- Reduce mana cost of Meteor Strike by 5–20%
+- Reduce mana cost of Blizzard by 5–20%
+- Increase Healing healing by 5–15%
+- Increase Mass Healing healing by 5–15%
+- Increase Soul Fire Ball damage by 5–20%
+- Increase Skeleton damage by 5–25%
+- Increase Skeleton health by 5–25%
+- Reduce Skeleton damage taken by 5–10%
+- Increase Shinsu damage by 5–25%
+- Increase Shinsu health by 5–25%
+- Reduce Shinsu damage taken by 5–10%
+- Increase Holy Deva damage by 5–25%
+- Increase Holy Deva health by 5–25%
+- Reduce Holy Deva damage taken by 5–10%
+- Increase Slaying crit chance by 2–12%
+- Increase Slaying crit damage by 5–25%
+- Increase Flaming Sword crit chance by 2–12%
+- Increase Flaming Sword crit damage by 5–25%
+- Increase Twin Drake Blade crit chance by 2–12%
+- Increase Twin Drake Blade crit damage by 5–25%
+- Increase Blade Avalanche crit chance by 2–12%
+- Increase Blade Avalanche crit damage by 5–25%
+- Increase Slashing Burst crit chance by 2–12%
+- Increase Slashing Burst crit damage by 5–25%
+- Increase Flame Disruptor crit chance by 2–12%
+- Increase Flame Disruptor crit damage by 5–25%
+- Increase Fire Wall crit chance by 2–12%
+- Increase Fire Wall crit damage by 5–25%
+- Increase Thunder Bolt crit chance by 2–12%
+- Increase Thunder Bolt crit damage by 5–25%
+- Increase Ice Storm crit chance by 2–12%
+- Increase Ice Storm crit damage by 5–25%
+- Increase Flame Field crit chance by 2–12%
+- Increase Flame Field crit damage by 5–25%
+- Increase Meteor Strike crit chance by 2–12%
+- Increase Meteor Strike crit damage by 5–25%
+- Increase Blizzard crit chance by 2–12%
+- Increase Blizzard crit damage by 5–25%
+- Increase Fire Ball crit chance by 2–12%
+- Increase Fire Ball crit damage by 5–25%
+- Increase Great Fire Ball crit chance by 2–12%
+- Increase Great Fire Ball crit damage by 5–25%
+- Increase Frost Crunch crit chance by 2–12%
+- Increase Frost Crunch crit damage by 5–25%
+- Increase Soul Fire Ball crit chance by 2–12%
+- Increase Soul Fire Ball crit damage by 5–25%
+- −2–6% Damage taken
+- +1–10% Crit Rate
+- +5–15% Crit Damage
+- +5–20% Skill leveling
 
 **Superior Bronze Helmet** (`superior-bronze-helmet`)
 - +1–3 AC
@@ -1920,6 +9371,80 @@ Grouped by slot. Weapons show their class and actual roll pool from `empowerCand
 - +1–2 SC
 - +10–20 HP (step 10)
 - +10–20 MP (step 10)
+- Increase Slaying damage by 5–20%
+- Increase Flaming Sword damage by 5–15%
+- Reduce Flaming Sword cooldown by 1–3 seconds
+- Increase Twin Drake Blade damage by 5–15%
+- Reduce mana cost of Twin Drake Blade by 5–20%
+- Increase Blade Avalanche damage by 5–15%
+- Reduce mana cost of Blade Avalanche by 5–20%
+- Increase Slashing Burst damage by 5–15%
+- Reduce mana cost of Slashing Burst by 5–20%
+- Increase Flame Disruptor damage by 5–20%
+- Increase Fire Wall damage by 5–15%
+- Increase Thunder Bolt damage by 5–20%
+- Increase Ice Storm damage by 5–15%
+- Increase Flame Field damage by 5–15%
+- Increase Meteor Strike damage by 5–15%
+- Increase Blizzard damage by 5–15%
+- Increase Fire Ball damage by 5–20%
+- Increase Great Fire Ball damage by 5–20%
+- Increase Frost Crunch damage by 5–15%
+- Reduce mana cost of Flame Disruptor by 5–20%
+- Reduce mana cost of Fire Wall by 5–20%
+- Reduce mana cost of Thunder Bolt by 5–20%
+- Reduce mana cost of Ice Storm by 5–20%
+- Reduce mana cost of Flame Field by 5–20%
+- Reduce mana cost of Meteor Strike by 5–20%
+- Reduce mana cost of Blizzard by 5–20%
+- Increase Healing healing by 5–15%
+- Increase Mass Healing healing by 5–15%
+- Increase Soul Fire Ball damage by 5–20%
+- Increase Skeleton damage by 5–25%
+- Increase Skeleton health by 5–25%
+- Reduce Skeleton damage taken by 5–10%
+- Increase Shinsu damage by 5–25%
+- Increase Shinsu health by 5–25%
+- Reduce Shinsu damage taken by 5–10%
+- Increase Holy Deva damage by 5–25%
+- Increase Holy Deva health by 5–25%
+- Reduce Holy Deva damage taken by 5–10%
+- Increase Slaying crit chance by 2–12%
+- Increase Slaying crit damage by 5–25%
+- Increase Flaming Sword crit chance by 2–12%
+- Increase Flaming Sword crit damage by 5–25%
+- Increase Twin Drake Blade crit chance by 2–12%
+- Increase Twin Drake Blade crit damage by 5–25%
+- Increase Blade Avalanche crit chance by 2–12%
+- Increase Blade Avalanche crit damage by 5–25%
+- Increase Slashing Burst crit chance by 2–12%
+- Increase Slashing Burst crit damage by 5–25%
+- Increase Flame Disruptor crit chance by 2–12%
+- Increase Flame Disruptor crit damage by 5–25%
+- Increase Fire Wall crit chance by 2–12%
+- Increase Fire Wall crit damage by 5–25%
+- Increase Thunder Bolt crit chance by 2–12%
+- Increase Thunder Bolt crit damage by 5–25%
+- Increase Ice Storm crit chance by 2–12%
+- Increase Ice Storm crit damage by 5–25%
+- Increase Flame Field crit chance by 2–12%
+- Increase Flame Field crit damage by 5–25%
+- Increase Meteor Strike crit chance by 2–12%
+- Increase Meteor Strike crit damage by 5–25%
+- Increase Blizzard crit chance by 2–12%
+- Increase Blizzard crit damage by 5–25%
+- Increase Fire Ball crit chance by 2–12%
+- Increase Fire Ball crit damage by 5–25%
+- Increase Great Fire Ball crit chance by 2–12%
+- Increase Great Fire Ball crit damage by 5–25%
+- Increase Frost Crunch crit chance by 2–12%
+- Increase Frost Crunch crit damage by 5–25%
+- Increase Soul Fire Ball crit chance by 2–12%
+- Increase Soul Fire Ball crit damage by 5–25%
+- −2–6% Damage taken
+- +1–10% Crit Rate
+- +5–15% Crit Damage
+- +5–20% Skill leveling
 
 **Bone Hood** (`bone-hood`)
 - +1–3 AC
@@ -1929,6 +9454,80 @@ Grouped by slot. Weapons show their class and actual roll pool from `empowerCand
 - +1–2 SC
 - +10–20 HP (step 10)
 - +10–20 MP (step 10)
+- Increase Slaying damage by 5–20%
+- Increase Flaming Sword damage by 5–15%
+- Reduce Flaming Sword cooldown by 1–3 seconds
+- Increase Twin Drake Blade damage by 5–15%
+- Reduce mana cost of Twin Drake Blade by 5–20%
+- Increase Blade Avalanche damage by 5–15%
+- Reduce mana cost of Blade Avalanche by 5–20%
+- Increase Slashing Burst damage by 5–15%
+- Reduce mana cost of Slashing Burst by 5–20%
+- Increase Flame Disruptor damage by 5–20%
+- Increase Fire Wall damage by 5–15%
+- Increase Thunder Bolt damage by 5–20%
+- Increase Ice Storm damage by 5–15%
+- Increase Flame Field damage by 5–15%
+- Increase Meteor Strike damage by 5–15%
+- Increase Blizzard damage by 5–15%
+- Increase Fire Ball damage by 5–20%
+- Increase Great Fire Ball damage by 5–20%
+- Increase Frost Crunch damage by 5–15%
+- Reduce mana cost of Flame Disruptor by 5–20%
+- Reduce mana cost of Fire Wall by 5–20%
+- Reduce mana cost of Thunder Bolt by 5–20%
+- Reduce mana cost of Ice Storm by 5–20%
+- Reduce mana cost of Flame Field by 5–20%
+- Reduce mana cost of Meteor Strike by 5–20%
+- Reduce mana cost of Blizzard by 5–20%
+- Increase Healing healing by 5–15%
+- Increase Mass Healing healing by 5–15%
+- Increase Soul Fire Ball damage by 5–20%
+- Increase Skeleton damage by 5–25%
+- Increase Skeleton health by 5–25%
+- Reduce Skeleton damage taken by 5–10%
+- Increase Shinsu damage by 5–25%
+- Increase Shinsu health by 5–25%
+- Reduce Shinsu damage taken by 5–10%
+- Increase Holy Deva damage by 5–25%
+- Increase Holy Deva health by 5–25%
+- Reduce Holy Deva damage taken by 5–10%
+- Increase Slaying crit chance by 2–12%
+- Increase Slaying crit damage by 5–25%
+- Increase Flaming Sword crit chance by 2–12%
+- Increase Flaming Sword crit damage by 5–25%
+- Increase Twin Drake Blade crit chance by 2–12%
+- Increase Twin Drake Blade crit damage by 5–25%
+- Increase Blade Avalanche crit chance by 2–12%
+- Increase Blade Avalanche crit damage by 5–25%
+- Increase Slashing Burst crit chance by 2–12%
+- Increase Slashing Burst crit damage by 5–25%
+- Increase Flame Disruptor crit chance by 2–12%
+- Increase Flame Disruptor crit damage by 5–25%
+- Increase Fire Wall crit chance by 2–12%
+- Increase Fire Wall crit damage by 5–25%
+- Increase Thunder Bolt crit chance by 2–12%
+- Increase Thunder Bolt crit damage by 5–25%
+- Increase Ice Storm crit chance by 2–12%
+- Increase Ice Storm crit damage by 5–25%
+- Increase Flame Field crit chance by 2–12%
+- Increase Flame Field crit damage by 5–25%
+- Increase Meteor Strike crit chance by 2–12%
+- Increase Meteor Strike crit damage by 5–25%
+- Increase Blizzard crit chance by 2–12%
+- Increase Blizzard crit damage by 5–25%
+- Increase Fire Ball crit chance by 2–12%
+- Increase Fire Ball crit damage by 5–25%
+- Increase Great Fire Ball crit chance by 2–12%
+- Increase Great Fire Ball crit damage by 5–25%
+- Increase Frost Crunch crit chance by 2–12%
+- Increase Frost Crunch crit damage by 5–25%
+- Increase Soul Fire Ball crit chance by 2–12%
+- Increase Soul Fire Ball crit damage by 5–25%
+- −2–6% Damage taken
+- +1–10% Crit Rate
+- +5–15% Crit Damage
+- +5–20% Skill leveling
 
 **Magic Helmet** (`magic-helmet`)
 - +1–3 AC
@@ -1938,6 +9537,80 @@ Grouped by slot. Weapons show their class and actual roll pool from `empowerCand
 - +1–2 SC
 - +10–20 HP (step 10)
 - +10–20 MP (step 10)
+- Increase Slaying damage by 5–20%
+- Increase Flaming Sword damage by 5–15%
+- Reduce Flaming Sword cooldown by 1–3 seconds
+- Increase Twin Drake Blade damage by 5–15%
+- Reduce mana cost of Twin Drake Blade by 5–20%
+- Increase Blade Avalanche damage by 5–15%
+- Reduce mana cost of Blade Avalanche by 5–20%
+- Increase Slashing Burst damage by 5–15%
+- Reduce mana cost of Slashing Burst by 5–20%
+- Increase Flame Disruptor damage by 5–20%
+- Increase Fire Wall damage by 5–15%
+- Increase Thunder Bolt damage by 5–20%
+- Increase Ice Storm damage by 5–15%
+- Increase Flame Field damage by 5–15%
+- Increase Meteor Strike damage by 5–15%
+- Increase Blizzard damage by 5–15%
+- Increase Fire Ball damage by 5–20%
+- Increase Great Fire Ball damage by 5–20%
+- Increase Frost Crunch damage by 5–15%
+- Reduce mana cost of Flame Disruptor by 5–20%
+- Reduce mana cost of Fire Wall by 5–20%
+- Reduce mana cost of Thunder Bolt by 5–20%
+- Reduce mana cost of Ice Storm by 5–20%
+- Reduce mana cost of Flame Field by 5–20%
+- Reduce mana cost of Meteor Strike by 5–20%
+- Reduce mana cost of Blizzard by 5–20%
+- Increase Healing healing by 5–15%
+- Increase Mass Healing healing by 5–15%
+- Increase Soul Fire Ball damage by 5–20%
+- Increase Skeleton damage by 5–25%
+- Increase Skeleton health by 5–25%
+- Reduce Skeleton damage taken by 5–10%
+- Increase Shinsu damage by 5–25%
+- Increase Shinsu health by 5–25%
+- Reduce Shinsu damage taken by 5–10%
+- Increase Holy Deva damage by 5–25%
+- Increase Holy Deva health by 5–25%
+- Reduce Holy Deva damage taken by 5–10%
+- Increase Slaying crit chance by 2–12%
+- Increase Slaying crit damage by 5–25%
+- Increase Flaming Sword crit chance by 2–12%
+- Increase Flaming Sword crit damage by 5–25%
+- Increase Twin Drake Blade crit chance by 2–12%
+- Increase Twin Drake Blade crit damage by 5–25%
+- Increase Blade Avalanche crit chance by 2–12%
+- Increase Blade Avalanche crit damage by 5–25%
+- Increase Slashing Burst crit chance by 2–12%
+- Increase Slashing Burst crit damage by 5–25%
+- Increase Flame Disruptor crit chance by 2–12%
+- Increase Flame Disruptor crit damage by 5–25%
+- Increase Fire Wall crit chance by 2–12%
+- Increase Fire Wall crit damage by 5–25%
+- Increase Thunder Bolt crit chance by 2–12%
+- Increase Thunder Bolt crit damage by 5–25%
+- Increase Ice Storm crit chance by 2–12%
+- Increase Ice Storm crit damage by 5–25%
+- Increase Flame Field crit chance by 2–12%
+- Increase Flame Field crit damage by 5–25%
+- Increase Meteor Strike crit chance by 2–12%
+- Increase Meteor Strike crit damage by 5–25%
+- Increase Blizzard crit chance by 2–12%
+- Increase Blizzard crit damage by 5–25%
+- Increase Fire Ball crit chance by 2–12%
+- Increase Fire Ball crit damage by 5–25%
+- Increase Great Fire Ball crit chance by 2–12%
+- Increase Great Fire Ball crit damage by 5–25%
+- Increase Frost Crunch crit chance by 2–12%
+- Increase Frost Crunch crit damage by 5–25%
+- Increase Soul Fire Ball crit chance by 2–12%
+- Increase Soul Fire Ball crit damage by 5–25%
+- −2–6% Damage taken
+- +1–10% Crit Rate
+- +5–15% Crit Damage
+- +5–20% Skill leveling
 
 **Superior Magic Helmet** (`superior-magic-helmet`)
 - +1–3 AC
@@ -1947,6 +9620,80 @@ Grouped by slot. Weapons show their class and actual roll pool from `empowerCand
 - +1–2 SC
 - +10–20 HP (step 10)
 - +10–20 MP (step 10)
+- Increase Slaying damage by 5–20%
+- Increase Flaming Sword damage by 5–15%
+- Reduce Flaming Sword cooldown by 1–3 seconds
+- Increase Twin Drake Blade damage by 5–15%
+- Reduce mana cost of Twin Drake Blade by 5–20%
+- Increase Blade Avalanche damage by 5–15%
+- Reduce mana cost of Blade Avalanche by 5–20%
+- Increase Slashing Burst damage by 5–15%
+- Reduce mana cost of Slashing Burst by 5–20%
+- Increase Flame Disruptor damage by 5–20%
+- Increase Fire Wall damage by 5–15%
+- Increase Thunder Bolt damage by 5–20%
+- Increase Ice Storm damage by 5–15%
+- Increase Flame Field damage by 5–15%
+- Increase Meteor Strike damage by 5–15%
+- Increase Blizzard damage by 5–15%
+- Increase Fire Ball damage by 5–20%
+- Increase Great Fire Ball damage by 5–20%
+- Increase Frost Crunch damage by 5–15%
+- Reduce mana cost of Flame Disruptor by 5–20%
+- Reduce mana cost of Fire Wall by 5–20%
+- Reduce mana cost of Thunder Bolt by 5–20%
+- Reduce mana cost of Ice Storm by 5–20%
+- Reduce mana cost of Flame Field by 5–20%
+- Reduce mana cost of Meteor Strike by 5–20%
+- Reduce mana cost of Blizzard by 5–20%
+- Increase Healing healing by 5–15%
+- Increase Mass Healing healing by 5–15%
+- Increase Soul Fire Ball damage by 5–20%
+- Increase Skeleton damage by 5–25%
+- Increase Skeleton health by 5–25%
+- Reduce Skeleton damage taken by 5–10%
+- Increase Shinsu damage by 5–25%
+- Increase Shinsu health by 5–25%
+- Reduce Shinsu damage taken by 5–10%
+- Increase Holy Deva damage by 5–25%
+- Increase Holy Deva health by 5–25%
+- Reduce Holy Deva damage taken by 5–10%
+- Increase Slaying crit chance by 2–12%
+- Increase Slaying crit damage by 5–25%
+- Increase Flaming Sword crit chance by 2–12%
+- Increase Flaming Sword crit damage by 5–25%
+- Increase Twin Drake Blade crit chance by 2–12%
+- Increase Twin Drake Blade crit damage by 5–25%
+- Increase Blade Avalanche crit chance by 2–12%
+- Increase Blade Avalanche crit damage by 5–25%
+- Increase Slashing Burst crit chance by 2–12%
+- Increase Slashing Burst crit damage by 5–25%
+- Increase Flame Disruptor crit chance by 2–12%
+- Increase Flame Disruptor crit damage by 5–25%
+- Increase Fire Wall crit chance by 2–12%
+- Increase Fire Wall crit damage by 5–25%
+- Increase Thunder Bolt crit chance by 2–12%
+- Increase Thunder Bolt crit damage by 5–25%
+- Increase Ice Storm crit chance by 2–12%
+- Increase Ice Storm crit damage by 5–25%
+- Increase Flame Field crit chance by 2–12%
+- Increase Flame Field crit damage by 5–25%
+- Increase Meteor Strike crit chance by 2–12%
+- Increase Meteor Strike crit damage by 5–25%
+- Increase Blizzard crit chance by 2–12%
+- Increase Blizzard crit damage by 5–25%
+- Increase Fire Ball crit chance by 2–12%
+- Increase Fire Ball crit damage by 5–25%
+- Increase Great Fire Ball crit chance by 2–12%
+- Increase Great Fire Ball crit damage by 5–25%
+- Increase Frost Crunch crit chance by 2–12%
+- Increase Frost Crunch crit damage by 5–25%
+- Increase Soul Fire Ball crit chance by 2–12%
+- Increase Soul Fire Ball crit damage by 5–25%
+- −2–6% Damage taken
+- +1–10% Crit Rate
+- +5–15% Crit Damage
+- +5–20% Skill leveling
 
 **Brass Helmet** (`brass-helmet`)
 - +1–3 AC
@@ -1956,6 +9703,80 @@ Grouped by slot. Weapons show their class and actual roll pool from `empowerCand
 - +1–2 SC
 - +10–20 HP (step 10)
 - +10–20 MP (step 10)
+- Increase Slaying damage by 5–20%
+- Increase Flaming Sword damage by 5–15%
+- Reduce Flaming Sword cooldown by 1–3 seconds
+- Increase Twin Drake Blade damage by 5–15%
+- Reduce mana cost of Twin Drake Blade by 5–20%
+- Increase Blade Avalanche damage by 5–15%
+- Reduce mana cost of Blade Avalanche by 5–20%
+- Increase Slashing Burst damage by 5–15%
+- Reduce mana cost of Slashing Burst by 5–20%
+- Increase Flame Disruptor damage by 5–20%
+- Increase Fire Wall damage by 5–15%
+- Increase Thunder Bolt damage by 5–20%
+- Increase Ice Storm damage by 5–15%
+- Increase Flame Field damage by 5–15%
+- Increase Meteor Strike damage by 5–15%
+- Increase Blizzard damage by 5–15%
+- Increase Fire Ball damage by 5–20%
+- Increase Great Fire Ball damage by 5–20%
+- Increase Frost Crunch damage by 5–15%
+- Reduce mana cost of Flame Disruptor by 5–20%
+- Reduce mana cost of Fire Wall by 5–20%
+- Reduce mana cost of Thunder Bolt by 5–20%
+- Reduce mana cost of Ice Storm by 5–20%
+- Reduce mana cost of Flame Field by 5–20%
+- Reduce mana cost of Meteor Strike by 5–20%
+- Reduce mana cost of Blizzard by 5–20%
+- Increase Healing healing by 5–15%
+- Increase Mass Healing healing by 5–15%
+- Increase Soul Fire Ball damage by 5–20%
+- Increase Skeleton damage by 5–25%
+- Increase Skeleton health by 5–25%
+- Reduce Skeleton damage taken by 5–10%
+- Increase Shinsu damage by 5–25%
+- Increase Shinsu health by 5–25%
+- Reduce Shinsu damage taken by 5–10%
+- Increase Holy Deva damage by 5–25%
+- Increase Holy Deva health by 5–25%
+- Reduce Holy Deva damage taken by 5–10%
+- Increase Slaying crit chance by 2–12%
+- Increase Slaying crit damage by 5–25%
+- Increase Flaming Sword crit chance by 2–12%
+- Increase Flaming Sword crit damage by 5–25%
+- Increase Twin Drake Blade crit chance by 2–12%
+- Increase Twin Drake Blade crit damage by 5–25%
+- Increase Blade Avalanche crit chance by 2–12%
+- Increase Blade Avalanche crit damage by 5–25%
+- Increase Slashing Burst crit chance by 2–12%
+- Increase Slashing Burst crit damage by 5–25%
+- Increase Flame Disruptor crit chance by 2–12%
+- Increase Flame Disruptor crit damage by 5–25%
+- Increase Fire Wall crit chance by 2–12%
+- Increase Fire Wall crit damage by 5–25%
+- Increase Thunder Bolt crit chance by 2–12%
+- Increase Thunder Bolt crit damage by 5–25%
+- Increase Ice Storm crit chance by 2–12%
+- Increase Ice Storm crit damage by 5–25%
+- Increase Flame Field crit chance by 2–12%
+- Increase Flame Field crit damage by 5–25%
+- Increase Meteor Strike crit chance by 2–12%
+- Increase Meteor Strike crit damage by 5–25%
+- Increase Blizzard crit chance by 2–12%
+- Increase Blizzard crit damage by 5–25%
+- Increase Fire Ball crit chance by 2–12%
+- Increase Fire Ball crit damage by 5–25%
+- Increase Great Fire Ball crit chance by 2–12%
+- Increase Great Fire Ball crit damage by 5–25%
+- Increase Frost Crunch crit chance by 2–12%
+- Increase Frost Crunch crit damage by 5–25%
+- Increase Soul Fire Ball crit chance by 2–12%
+- Increase Soul Fire Ball crit damage by 5–25%
+- −2–6% Damage taken
+- +1–10% Crit Rate
+- +5–15% Crit Damage
+- +5–20% Skill leveling
 
 **Shaman Helmet** (`shaman-helmet`)
 - +1–3 AC
@@ -1965,6 +9786,80 @@ Grouped by slot. Weapons show their class and actual roll pool from `empowerCand
 - +1–2 SC
 - +10–20 HP (step 10)
 - +10–20 MP (step 10)
+- Increase Slaying damage by 5–20%
+- Increase Flaming Sword damage by 5–15%
+- Reduce Flaming Sword cooldown by 1–3 seconds
+- Increase Twin Drake Blade damage by 5–15%
+- Reduce mana cost of Twin Drake Blade by 5–20%
+- Increase Blade Avalanche damage by 5–15%
+- Reduce mana cost of Blade Avalanche by 5–20%
+- Increase Slashing Burst damage by 5–15%
+- Reduce mana cost of Slashing Burst by 5–20%
+- Increase Flame Disruptor damage by 5–20%
+- Increase Fire Wall damage by 5–15%
+- Increase Thunder Bolt damage by 5–20%
+- Increase Ice Storm damage by 5–15%
+- Increase Flame Field damage by 5–15%
+- Increase Meteor Strike damage by 5–15%
+- Increase Blizzard damage by 5–15%
+- Increase Fire Ball damage by 5–20%
+- Increase Great Fire Ball damage by 5–20%
+- Increase Frost Crunch damage by 5–15%
+- Reduce mana cost of Flame Disruptor by 5–20%
+- Reduce mana cost of Fire Wall by 5–20%
+- Reduce mana cost of Thunder Bolt by 5–20%
+- Reduce mana cost of Ice Storm by 5–20%
+- Reduce mana cost of Flame Field by 5–20%
+- Reduce mana cost of Meteor Strike by 5–20%
+- Reduce mana cost of Blizzard by 5–20%
+- Increase Healing healing by 5–15%
+- Increase Mass Healing healing by 5–15%
+- Increase Soul Fire Ball damage by 5–20%
+- Increase Skeleton damage by 5–25%
+- Increase Skeleton health by 5–25%
+- Reduce Skeleton damage taken by 5–10%
+- Increase Shinsu damage by 5–25%
+- Increase Shinsu health by 5–25%
+- Reduce Shinsu damage taken by 5–10%
+- Increase Holy Deva damage by 5–25%
+- Increase Holy Deva health by 5–25%
+- Reduce Holy Deva damage taken by 5–10%
+- Increase Slaying crit chance by 2–12%
+- Increase Slaying crit damage by 5–25%
+- Increase Flaming Sword crit chance by 2–12%
+- Increase Flaming Sword crit damage by 5–25%
+- Increase Twin Drake Blade crit chance by 2–12%
+- Increase Twin Drake Blade crit damage by 5–25%
+- Increase Blade Avalanche crit chance by 2–12%
+- Increase Blade Avalanche crit damage by 5–25%
+- Increase Slashing Burst crit chance by 2–12%
+- Increase Slashing Burst crit damage by 5–25%
+- Increase Flame Disruptor crit chance by 2–12%
+- Increase Flame Disruptor crit damage by 5–25%
+- Increase Fire Wall crit chance by 2–12%
+- Increase Fire Wall crit damage by 5–25%
+- Increase Thunder Bolt crit chance by 2–12%
+- Increase Thunder Bolt crit damage by 5–25%
+- Increase Ice Storm crit chance by 2–12%
+- Increase Ice Storm crit damage by 5–25%
+- Increase Flame Field crit chance by 2–12%
+- Increase Flame Field crit damage by 5–25%
+- Increase Meteor Strike crit chance by 2–12%
+- Increase Meteor Strike crit damage by 5–25%
+- Increase Blizzard crit chance by 2–12%
+- Increase Blizzard crit damage by 5–25%
+- Increase Fire Ball crit chance by 2–12%
+- Increase Fire Ball crit damage by 5–25%
+- Increase Great Fire Ball crit chance by 2–12%
+- Increase Great Fire Ball crit damage by 5–25%
+- Increase Frost Crunch crit chance by 2–12%
+- Increase Frost Crunch crit damage by 5–25%
+- Increase Soul Fire Ball crit chance by 2–12%
+- Increase Soul Fire Ball crit damage by 5–25%
+- −2–6% Damage taken
+- +1–10% Crit Rate
+- +5–15% Crit Damage
+- +5–20% Skill leveling
 
 **Steel Helmet** (`steel-helmet`)
 - +1–3 AC
@@ -1974,6 +9869,80 @@ Grouped by slot. Weapons show their class and actual roll pool from `empowerCand
 - +1–2 SC
 - +10–20 HP (step 10)
 - +10–20 MP (step 10)
+- Increase Slaying damage by 5–20%
+- Increase Flaming Sword damage by 5–15%
+- Reduce Flaming Sword cooldown by 1–3 seconds
+- Increase Twin Drake Blade damage by 5–15%
+- Reduce mana cost of Twin Drake Blade by 5–20%
+- Increase Blade Avalanche damage by 5–15%
+- Reduce mana cost of Blade Avalanche by 5–20%
+- Increase Slashing Burst damage by 5–15%
+- Reduce mana cost of Slashing Burst by 5–20%
+- Increase Flame Disruptor damage by 5–20%
+- Increase Fire Wall damage by 5–15%
+- Increase Thunder Bolt damage by 5–20%
+- Increase Ice Storm damage by 5–15%
+- Increase Flame Field damage by 5–15%
+- Increase Meteor Strike damage by 5–15%
+- Increase Blizzard damage by 5–15%
+- Increase Fire Ball damage by 5–20%
+- Increase Great Fire Ball damage by 5–20%
+- Increase Frost Crunch damage by 5–15%
+- Reduce mana cost of Flame Disruptor by 5–20%
+- Reduce mana cost of Fire Wall by 5–20%
+- Reduce mana cost of Thunder Bolt by 5–20%
+- Reduce mana cost of Ice Storm by 5–20%
+- Reduce mana cost of Flame Field by 5–20%
+- Reduce mana cost of Meteor Strike by 5–20%
+- Reduce mana cost of Blizzard by 5–20%
+- Increase Healing healing by 5–15%
+- Increase Mass Healing healing by 5–15%
+- Increase Soul Fire Ball damage by 5–20%
+- Increase Skeleton damage by 5–25%
+- Increase Skeleton health by 5–25%
+- Reduce Skeleton damage taken by 5–10%
+- Increase Shinsu damage by 5–25%
+- Increase Shinsu health by 5–25%
+- Reduce Shinsu damage taken by 5–10%
+- Increase Holy Deva damage by 5–25%
+- Increase Holy Deva health by 5–25%
+- Reduce Holy Deva damage taken by 5–10%
+- Increase Slaying crit chance by 2–12%
+- Increase Slaying crit damage by 5–25%
+- Increase Flaming Sword crit chance by 2–12%
+- Increase Flaming Sword crit damage by 5–25%
+- Increase Twin Drake Blade crit chance by 2–12%
+- Increase Twin Drake Blade crit damage by 5–25%
+- Increase Blade Avalanche crit chance by 2–12%
+- Increase Blade Avalanche crit damage by 5–25%
+- Increase Slashing Burst crit chance by 2–12%
+- Increase Slashing Burst crit damage by 5–25%
+- Increase Flame Disruptor crit chance by 2–12%
+- Increase Flame Disruptor crit damage by 5–25%
+- Increase Fire Wall crit chance by 2–12%
+- Increase Fire Wall crit damage by 5–25%
+- Increase Thunder Bolt crit chance by 2–12%
+- Increase Thunder Bolt crit damage by 5–25%
+- Increase Ice Storm crit chance by 2–12%
+- Increase Ice Storm crit damage by 5–25%
+- Increase Flame Field crit chance by 2–12%
+- Increase Flame Field crit damage by 5–25%
+- Increase Meteor Strike crit chance by 2–12%
+- Increase Meteor Strike crit damage by 5–25%
+- Increase Blizzard crit chance by 2–12%
+- Increase Blizzard crit damage by 5–25%
+- Increase Fire Ball crit chance by 2–12%
+- Increase Fire Ball crit damage by 5–25%
+- Increase Great Fire Ball crit chance by 2–12%
+- Increase Great Fire Ball crit damage by 5–25%
+- Increase Frost Crunch crit chance by 2–12%
+- Increase Frost Crunch crit damage by 5–25%
+- Increase Soul Fire Ball crit chance by 2–12%
+- Increase Soul Fire Ball crit damage by 5–25%
+- −2–6% Damage taken
+- +1–10% Crit Rate
+- +5–15% Crit Damage
+- +5–20% Skill leveling
 
 **Helmet Of Hero** (`helmet-of-hero`)
 - +1–3 AC
@@ -1983,6 +9952,80 @@ Grouped by slot. Weapons show their class and actual roll pool from `empowerCand
 - +1–2 SC
 - +10–20 HP (step 10)
 - +10–20 MP (step 10)
+- Increase Slaying damage by 5–20%
+- Increase Flaming Sword damage by 5–15%
+- Reduce Flaming Sword cooldown by 1–3 seconds
+- Increase Twin Drake Blade damage by 5–15%
+- Reduce mana cost of Twin Drake Blade by 5–20%
+- Increase Blade Avalanche damage by 5–15%
+- Reduce mana cost of Blade Avalanche by 5–20%
+- Increase Slashing Burst damage by 5–15%
+- Reduce mana cost of Slashing Burst by 5–20%
+- Increase Flame Disruptor damage by 5–20%
+- Increase Fire Wall damage by 5–15%
+- Increase Thunder Bolt damage by 5–20%
+- Increase Ice Storm damage by 5–15%
+- Increase Flame Field damage by 5–15%
+- Increase Meteor Strike damage by 5–15%
+- Increase Blizzard damage by 5–15%
+- Increase Fire Ball damage by 5–20%
+- Increase Great Fire Ball damage by 5–20%
+- Increase Frost Crunch damage by 5–15%
+- Reduce mana cost of Flame Disruptor by 5–20%
+- Reduce mana cost of Fire Wall by 5–20%
+- Reduce mana cost of Thunder Bolt by 5–20%
+- Reduce mana cost of Ice Storm by 5–20%
+- Reduce mana cost of Flame Field by 5–20%
+- Reduce mana cost of Meteor Strike by 5–20%
+- Reduce mana cost of Blizzard by 5–20%
+- Increase Healing healing by 5–15%
+- Increase Mass Healing healing by 5–15%
+- Increase Soul Fire Ball damage by 5–20%
+- Increase Skeleton damage by 5–25%
+- Increase Skeleton health by 5–25%
+- Reduce Skeleton damage taken by 5–10%
+- Increase Shinsu damage by 5–25%
+- Increase Shinsu health by 5–25%
+- Reduce Shinsu damage taken by 5–10%
+- Increase Holy Deva damage by 5–25%
+- Increase Holy Deva health by 5–25%
+- Reduce Holy Deva damage taken by 5–10%
+- Increase Slaying crit chance by 2–12%
+- Increase Slaying crit damage by 5–25%
+- Increase Flaming Sword crit chance by 2–12%
+- Increase Flaming Sword crit damage by 5–25%
+- Increase Twin Drake Blade crit chance by 2–12%
+- Increase Twin Drake Blade crit damage by 5–25%
+- Increase Blade Avalanche crit chance by 2–12%
+- Increase Blade Avalanche crit damage by 5–25%
+- Increase Slashing Burst crit chance by 2–12%
+- Increase Slashing Burst crit damage by 5–25%
+- Increase Flame Disruptor crit chance by 2–12%
+- Increase Flame Disruptor crit damage by 5–25%
+- Increase Fire Wall crit chance by 2–12%
+- Increase Fire Wall crit damage by 5–25%
+- Increase Thunder Bolt crit chance by 2–12%
+- Increase Thunder Bolt crit damage by 5–25%
+- Increase Ice Storm crit chance by 2–12%
+- Increase Ice Storm crit damage by 5–25%
+- Increase Flame Field crit chance by 2–12%
+- Increase Flame Field crit damage by 5–25%
+- Increase Meteor Strike crit chance by 2–12%
+- Increase Meteor Strike crit damage by 5–25%
+- Increase Blizzard crit chance by 2–12%
+- Increase Blizzard crit damage by 5–25%
+- Increase Fire Ball crit chance by 2–12%
+- Increase Fire Ball crit damage by 5–25%
+- Increase Great Fire Ball crit chance by 2–12%
+- Increase Great Fire Ball crit damage by 5–25%
+- Increase Frost Crunch crit chance by 2–12%
+- Increase Frost Crunch crit damage by 5–25%
+- Increase Soul Fire Ball crit chance by 2–12%
+- Increase Soul Fire Ball crit damage by 5–25%
+- −2–6% Damage taken
+- +1–10% Crit Rate
+- +5–15% Crit Damage
+- +5–20% Skill leveling
 
 **Great Helmet** (`great-helmet`)
 - +1–3 AC
@@ -1992,6 +10035,80 @@ Grouped by slot. Weapons show their class and actual roll pool from `empowerCand
 - +1–2 SC
 - +10–20 HP (step 10)
 - +10–20 MP (step 10)
+- Increase Slaying damage by 5–20%
+- Increase Flaming Sword damage by 5–15%
+- Reduce Flaming Sword cooldown by 1–3 seconds
+- Increase Twin Drake Blade damage by 5–15%
+- Reduce mana cost of Twin Drake Blade by 5–20%
+- Increase Blade Avalanche damage by 5–15%
+- Reduce mana cost of Blade Avalanche by 5–20%
+- Increase Slashing Burst damage by 5–15%
+- Reduce mana cost of Slashing Burst by 5–20%
+- Increase Flame Disruptor damage by 5–20%
+- Increase Fire Wall damage by 5–15%
+- Increase Thunder Bolt damage by 5–20%
+- Increase Ice Storm damage by 5–15%
+- Increase Flame Field damage by 5–15%
+- Increase Meteor Strike damage by 5–15%
+- Increase Blizzard damage by 5–15%
+- Increase Fire Ball damage by 5–20%
+- Increase Great Fire Ball damage by 5–20%
+- Increase Frost Crunch damage by 5–15%
+- Reduce mana cost of Flame Disruptor by 5–20%
+- Reduce mana cost of Fire Wall by 5–20%
+- Reduce mana cost of Thunder Bolt by 5–20%
+- Reduce mana cost of Ice Storm by 5–20%
+- Reduce mana cost of Flame Field by 5–20%
+- Reduce mana cost of Meteor Strike by 5–20%
+- Reduce mana cost of Blizzard by 5–20%
+- Increase Healing healing by 5–15%
+- Increase Mass Healing healing by 5–15%
+- Increase Soul Fire Ball damage by 5–20%
+- Increase Skeleton damage by 5–25%
+- Increase Skeleton health by 5–25%
+- Reduce Skeleton damage taken by 5–10%
+- Increase Shinsu damage by 5–25%
+- Increase Shinsu health by 5–25%
+- Reduce Shinsu damage taken by 5–10%
+- Increase Holy Deva damage by 5–25%
+- Increase Holy Deva health by 5–25%
+- Reduce Holy Deva damage taken by 5–10%
+- Increase Slaying crit chance by 2–12%
+- Increase Slaying crit damage by 5–25%
+- Increase Flaming Sword crit chance by 2–12%
+- Increase Flaming Sword crit damage by 5–25%
+- Increase Twin Drake Blade crit chance by 2–12%
+- Increase Twin Drake Blade crit damage by 5–25%
+- Increase Blade Avalanche crit chance by 2–12%
+- Increase Blade Avalanche crit damage by 5–25%
+- Increase Slashing Burst crit chance by 2–12%
+- Increase Slashing Burst crit damage by 5–25%
+- Increase Flame Disruptor crit chance by 2–12%
+- Increase Flame Disruptor crit damage by 5–25%
+- Increase Fire Wall crit chance by 2–12%
+- Increase Fire Wall crit damage by 5–25%
+- Increase Thunder Bolt crit chance by 2–12%
+- Increase Thunder Bolt crit damage by 5–25%
+- Increase Ice Storm crit chance by 2–12%
+- Increase Ice Storm crit damage by 5–25%
+- Increase Flame Field crit chance by 2–12%
+- Increase Flame Field crit damage by 5–25%
+- Increase Meteor Strike crit chance by 2–12%
+- Increase Meteor Strike crit damage by 5–25%
+- Increase Blizzard crit chance by 2–12%
+- Increase Blizzard crit damage by 5–25%
+- Increase Fire Ball crit chance by 2–12%
+- Increase Fire Ball crit damage by 5–25%
+- Increase Great Fire Ball crit chance by 2–12%
+- Increase Great Fire Ball crit damage by 5–25%
+- Increase Frost Crunch crit chance by 2–12%
+- Increase Frost Crunch crit damage by 5–25%
+- Increase Soul Fire Ball crit chance by 2–12%
+- Increase Soul Fire Ball crit damage by 5–25%
+- −2–6% Damage taken
+- +1–10% Crit Rate
+- +5–15% Crit Damage
+- +5–20% Skill leveling
 
 **Royal Helmet** (`royal-helmet`)
 - +1–3 AC
@@ -2001,24 +10118,154 @@ Grouped by slot. Weapons show their class and actual roll pool from `empowerCand
 - +1–2 SC
 - +10–20 HP (step 10)
 - +10–20 MP (step 10)
+- Increase Slaying damage by 5–20%
+- Increase Flaming Sword damage by 5–15%
+- Reduce Flaming Sword cooldown by 1–3 seconds
+- Increase Twin Drake Blade damage by 5–15%
+- Reduce mana cost of Twin Drake Blade by 5–20%
+- Increase Blade Avalanche damage by 5–15%
+- Reduce mana cost of Blade Avalanche by 5–20%
+- Increase Slashing Burst damage by 5–15%
+- Reduce mana cost of Slashing Burst by 5–20%
+- Increase Flame Disruptor damage by 5–20%
+- Increase Fire Wall damage by 5–15%
+- Increase Thunder Bolt damage by 5–20%
+- Increase Ice Storm damage by 5–15%
+- Increase Flame Field damage by 5–15%
+- Increase Meteor Strike damage by 5–15%
+- Increase Blizzard damage by 5–15%
+- Increase Fire Ball damage by 5–20%
+- Increase Great Fire Ball damage by 5–20%
+- Increase Frost Crunch damage by 5–15%
+- Reduce mana cost of Flame Disruptor by 5–20%
+- Reduce mana cost of Fire Wall by 5–20%
+- Reduce mana cost of Thunder Bolt by 5–20%
+- Reduce mana cost of Ice Storm by 5–20%
+- Reduce mana cost of Flame Field by 5–20%
+- Reduce mana cost of Meteor Strike by 5–20%
+- Reduce mana cost of Blizzard by 5–20%
+- Increase Healing healing by 5–15%
+- Increase Mass Healing healing by 5–15%
+- Increase Soul Fire Ball damage by 5–20%
+- Increase Skeleton damage by 5–25%
+- Increase Skeleton health by 5–25%
+- Reduce Skeleton damage taken by 5–10%
+- Increase Shinsu damage by 5–25%
+- Increase Shinsu health by 5–25%
+- Reduce Shinsu damage taken by 5–10%
+- Increase Holy Deva damage by 5–25%
+- Increase Holy Deva health by 5–25%
+- Reduce Holy Deva damage taken by 5–10%
+- Increase Slaying crit chance by 2–12%
+- Increase Slaying crit damage by 5–25%
+- Increase Flaming Sword crit chance by 2–12%
+- Increase Flaming Sword crit damage by 5–25%
+- Increase Twin Drake Blade crit chance by 2–12%
+- Increase Twin Drake Blade crit damage by 5–25%
+- Increase Blade Avalanche crit chance by 2–12%
+- Increase Blade Avalanche crit damage by 5–25%
+- Increase Slashing Burst crit chance by 2–12%
+- Increase Slashing Burst crit damage by 5–25%
+- Increase Flame Disruptor crit chance by 2–12%
+- Increase Flame Disruptor crit damage by 5–25%
+- Increase Fire Wall crit chance by 2–12%
+- Increase Fire Wall crit damage by 5–25%
+- Increase Thunder Bolt crit chance by 2–12%
+- Increase Thunder Bolt crit damage by 5–25%
+- Increase Ice Storm crit chance by 2–12%
+- Increase Ice Storm crit damage by 5–25%
+- Increase Flame Field crit chance by 2–12%
+- Increase Flame Field crit damage by 5–25%
+- Increase Meteor Strike crit chance by 2–12%
+- Increase Meteor Strike crit damage by 5–25%
+- Increase Blizzard crit chance by 2–12%
+- Increase Blizzard crit damage by 5–25%
+- Increase Fire Ball crit chance by 2–12%
+- Increase Fire Ball crit damage by 5–25%
+- Increase Great Fire Ball crit chance by 2–12%
+- Increase Great Fire Ball crit damage by 5–25%
+- Increase Frost Crunch crit chance by 2–12%
+- Increase Frost Crunch crit damage by 5–25%
+- Increase Soul Fire Ball crit chance by 2–12%
+- Increase Soul Fire Ball crit damage by 5–25%
+- −2–6% Damage taken
+- +1–10% Crit Rate
+- +5–15% Crit Damage
+- +5–20% Skill leveling
 
 **Tao Coronet** (`tao-coronet`)
 - +1–3 AC
 - +1–3 AMC
 - +1–3 DC
-- +1–2 MC
 - +1–2 SC
 - +10–20 HP (step 10)
 - +10–20 MP (step 10)
+- Increase Healing healing by 5–15%
+- Increase Mass Healing healing by 5–15%
+- Increase Soul Fire Ball damage by 5–20%
+- Increase Skeleton damage by 5–25%
+- Increase Skeleton health by 5–25%
+- Reduce Skeleton damage taken by 5–10%
+- Increase Shinsu damage by 5–25%
+- Increase Shinsu health by 5–25%
+- Reduce Shinsu damage taken by 5–10%
+- Increase Holy Deva damage by 5–25%
+- Increase Holy Deva health by 5–25%
+- Reduce Holy Deva damage taken by 5–10%
+- Increase Soul Fire Ball crit chance by 2–12%
+- Increase Soul Fire Ball crit damage by 5–25%
+- −2–6% Damage taken
+- +1–10% Crit Rate
+- +5–15% Crit Damage
+- +5–20% Skill leveling
 
 **Wisdom Coronet** (`wisdom-coronet`)
 - +1–3 AC
 - +1–3 AMC
-- +1–3 DC
 - +1–2 MC
-- +1–2 SC
 - +10–20 HP (step 10)
 - +10–20 MP (step 10)
+- Increase Flame Disruptor damage by 5–20%
+- Increase Fire Wall damage by 5–15%
+- Increase Thunder Bolt damage by 5–20%
+- Increase Ice Storm damage by 5–15%
+- Increase Flame Field damage by 5–15%
+- Increase Meteor Strike damage by 5–15%
+- Increase Blizzard damage by 5–15%
+- Increase Fire Ball damage by 5–20%
+- Increase Great Fire Ball damage by 5–20%
+- Increase Frost Crunch damage by 5–15%
+- Reduce mana cost of Flame Disruptor by 5–20%
+- Reduce mana cost of Fire Wall by 5–20%
+- Reduce mana cost of Thunder Bolt by 5–20%
+- Reduce mana cost of Ice Storm by 5–20%
+- Reduce mana cost of Flame Field by 5–20%
+- Reduce mana cost of Meteor Strike by 5–20%
+- Reduce mana cost of Blizzard by 5–20%
+- Increase Flame Disruptor crit chance by 2–12%
+- Increase Flame Disruptor crit damage by 5–25%
+- Increase Fire Wall crit chance by 2–12%
+- Increase Fire Wall crit damage by 5–25%
+- Increase Thunder Bolt crit chance by 2–12%
+- Increase Thunder Bolt crit damage by 5–25%
+- Increase Ice Storm crit chance by 2–12%
+- Increase Ice Storm crit damage by 5–25%
+- Increase Flame Field crit chance by 2–12%
+- Increase Flame Field crit damage by 5–25%
+- Increase Meteor Strike crit chance by 2–12%
+- Increase Meteor Strike crit damage by 5–25%
+- Increase Blizzard crit chance by 2–12%
+- Increase Blizzard crit damage by 5–25%
+- Increase Fire Ball crit chance by 2–12%
+- Increase Fire Ball crit damage by 5–25%
+- Increase Great Fire Ball crit chance by 2–12%
+- Increase Great Fire Ball crit damage by 5–25%
+- Increase Frost Crunch crit chance by 2–12%
+- Increase Frost Crunch crit damage by 5–25%
+- −2–6% Damage taken
+- +1–10% Crit Rate
+- +5–15% Crit Damage
+- +5–20% Skill leveling
 
 ### material
 
@@ -2052,482 +10299,2990 @@ Grouped by slot. Weapons show their class and actual roll pool from `empowerCand
 **Zuma Relic** (`zuma-relic`)
 - +AC
 
-### Other
+### Ring / Necklace
 
-**Amethyst Necklace** (`amethyst-necklace`) (legacy)
-- +DC
-- +DC
+**Amethyst Necklace** (`amethyst-necklace`)
+- +1–6 DC
+- +1–2 A Speed
+- +1–2 Freezing
+- +1–2 Poison
+- +1–3 AC
+- +1–3 AMC
+- Increase Slaying damage by 5–10%
+- Increase Flaming Sword damage by 5–10%
+- Reduce Flaming Sword cooldown by 1–2 seconds
+- Increase Twin Drake Blade damage by 5–10%
+- Reduce mana cost of Twin Drake Blade by 5–15%
+- Increase Blade Avalanche damage by 5–10%
+- Reduce mana cost of Blade Avalanche by 5–15%
+- Increase Slashing Burst damage by 5–10%
+- Reduce mana cost of Slashing Burst by 5–15%
+- Increase Slaying crit chance by 1–8%
+- Increase Slaying crit damage by 5–15%
+- Increase Flaming Sword crit chance by 1–8%
+- Increase Flaming Sword crit damage by 5–15%
+- Increase Twin Drake Blade crit chance by 1–8%
+- Increase Twin Drake Blade crit damage by 5–15%
+- Increase Blade Avalanche crit chance by 1–8%
+- Increase Blade Avalanche crit damage by 5–15%
+- Increase Slashing Burst crit chance by 1–8%
+- Increase Slashing Burst crit damage by 5–15%
+- −1–4% Damage taken
+- +1–6% Crit Rate
+- +5–15% Crit Damage
+- +2–12% Skill leveling
 
-**Blue Thunder Necklace** (`blue-thunder-necklace`) (legacy)
-- +MC
-- +MC
+**Blue Thunder Necklace** (`blue-thunder-necklace`)
+- +1–4 MC
+- +1–2 A Speed
+- +1–2 Freezing
+- +1–2 Poison
+- +1–3 AC
+- +1–3 AMC
+- Increase Flame Disruptor damage by 5–10%
+- Increase Fire Wall damage by 5–10%
+- Increase Thunder Bolt damage by 5–10%
+- Increase Ice Storm damage by 5–10%
+- Increase Flame Field damage by 5–10%
+- Increase Meteor Strike damage by 5–10%
+- Increase Blizzard damage by 5–10%
+- Increase Fire Ball damage by 5–10%
+- Increase Great Fire Ball damage by 5–10%
+- Increase Frost Crunch damage by 5–10%
+- Reduce mana cost of Flame Disruptor by 5–15%
+- Reduce mana cost of Fire Wall by 5–15%
+- Reduce mana cost of Thunder Bolt by 5–15%
+- Reduce mana cost of Ice Storm by 5–15%
+- Reduce mana cost of Flame Field by 5–15%
+- Reduce mana cost of Meteor Strike by 5–15%
+- Reduce mana cost of Blizzard by 5–15%
+- Increase Flame Disruptor crit chance by 1–8%
+- Increase Flame Disruptor crit damage by 5–15%
+- Increase Fire Wall crit chance by 1–8%
+- Increase Fire Wall crit damage by 5–15%
+- Increase Thunder Bolt crit chance by 1–8%
+- Increase Thunder Bolt crit damage by 5–15%
+- Increase Ice Storm crit chance by 1–8%
+- Increase Ice Storm crit damage by 5–15%
+- Increase Flame Field crit chance by 1–8%
+- Increase Flame Field crit damage by 5–15%
+- Increase Meteor Strike crit chance by 1–8%
+- Increase Meteor Strike crit damage by 5–15%
+- Increase Blizzard crit chance by 1–8%
+- Increase Blizzard crit damage by 5–15%
+- Increase Fire Ball crit chance by 1–8%
+- Increase Fire Ball crit damage by 5–15%
+- Increase Great Fire Ball crit chance by 1–8%
+- Increase Great Fire Ball crit damage by 5–15%
+- Increase Frost Crunch crit chance by 1–8%
+- Increase Frost Crunch crit damage by 5–15%
+- −1–4% Damage taken
+- +1–6% Crit Rate
+- +5–15% Crit Damage
+- +2–12% Skill leveling
 
-**Demon Mask** (`demon-mask`) (legacy)
-- +DC
-- +DC
+**Demon Mask** (`demon-mask`)
+- +1–6 DC
+- +1–2 A Speed
+- +1–2 Freezing
+- +1–2 Poison
+- +1–3 AC
+- +1–3 AMC
+- Increase Slaying damage by 5–10%
+- Increase Flaming Sword damage by 5–10%
+- Reduce Flaming Sword cooldown by 1–2 seconds
+- Increase Twin Drake Blade damage by 5–10%
+- Reduce mana cost of Twin Drake Blade by 5–15%
+- Increase Blade Avalanche damage by 5–10%
+- Reduce mana cost of Blade Avalanche by 5–15%
+- Increase Slashing Burst damage by 5–10%
+- Reduce mana cost of Slashing Burst by 5–15%
+- Increase Slaying crit chance by 1–8%
+- Increase Slaying crit damage by 5–15%
+- Increase Flaming Sword crit chance by 1–8%
+- Increase Flaming Sword crit damage by 5–15%
+- Increase Twin Drake Blade crit chance by 1–8%
+- Increase Twin Drake Blade crit damage by 5–15%
+- Increase Blade Avalanche crit chance by 1–8%
+- Increase Blade Avalanche crit damage by 5–15%
+- Increase Slashing Burst crit chance by 1–8%
+- Increase Slashing Burst crit damage by 5–15%
+- −1–4% Damage taken
+- +1–6% Crit Rate
+- +5–15% Crit Damage
+- +2–12% Skill leveling
 
-**Demonic Bells** (`demonic-bells`) (legacy)
-- +MC
+**Demonic Bells** (`demonic-bells`)
+- +1–4 MC
+- +1–2 A Speed
+- +1–2 Freezing
+- +1–2 Poison
+- +1–3 AC
+- +1–3 AMC
+- Increase Flame Disruptor damage by 5–10%
+- Increase Fire Wall damage by 5–10%
+- Increase Thunder Bolt damage by 5–10%
+- Increase Ice Storm damage by 5–10%
+- Increase Flame Field damage by 5–10%
+- Increase Meteor Strike damage by 5–10%
+- Increase Blizzard damage by 5–10%
+- Increase Fire Ball damage by 5–10%
+- Increase Great Fire Ball damage by 5–10%
+- Increase Frost Crunch damage by 5–10%
+- Reduce mana cost of Flame Disruptor by 5–15%
+- Reduce mana cost of Fire Wall by 5–15%
+- Reduce mana cost of Thunder Bolt by 5–15%
+- Reduce mana cost of Ice Storm by 5–15%
+- Reduce mana cost of Flame Field by 5–15%
+- Reduce mana cost of Meteor Strike by 5–15%
+- Reduce mana cost of Blizzard by 5–15%
+- Increase Flame Disruptor crit chance by 1–8%
+- Increase Flame Disruptor crit damage by 5–15%
+- Increase Fire Wall crit chance by 1–8%
+- Increase Fire Wall crit damage by 5–15%
+- Increase Thunder Bolt crit chance by 1–8%
+- Increase Thunder Bolt crit damage by 5–15%
+- Increase Ice Storm crit chance by 1–8%
+- Increase Ice Storm crit damage by 5–15%
+- Increase Flame Field crit chance by 1–8%
+- Increase Flame Field crit damage by 5–15%
+- Increase Meteor Strike crit chance by 1–8%
+- Increase Meteor Strike crit damage by 5–15%
+- Increase Blizzard crit chance by 1–8%
+- Increase Blizzard crit damage by 5–15%
+- Increase Fire Ball crit chance by 1–8%
+- Increase Fire Ball crit damage by 5–15%
+- Increase Great Fire Ball crit chance by 1–8%
+- Increase Great Fire Ball crit damage by 5–15%
+- Increase Frost Crunch crit chance by 1–8%
+- Increase Frost Crunch crit damage by 5–15%
+- −1–4% Damage taken
+- +1–6% Crit Rate
+- +5–15% Crit Damage
+- +2–12% Skill leveling
 
-**Elusion Necklace** (`elusion-necklace`) (legacy)
-- +Agi
+**Elusion Necklace** (`elusion-necklace`)
+- +1–6 DC
+- +1–4 MC
+- +1–4 SC
+- +1–2 A Speed
+- +1–2 Freezing
+- +1–2 Poison
+- +1–3 AC
+- +1–3 AMC
+- Increase Slaying damage by 5–10%
+- Increase Flaming Sword damage by 5–10%
+- Reduce Flaming Sword cooldown by 1–2 seconds
+- Increase Twin Drake Blade damage by 5–10%
+- Reduce mana cost of Twin Drake Blade by 5–15%
+- Increase Blade Avalanche damage by 5–10%
+- Reduce mana cost of Blade Avalanche by 5–15%
+- Increase Slashing Burst damage by 5–10%
+- Reduce mana cost of Slashing Burst by 5–15%
+- Increase Flame Disruptor damage by 5–10%
+- Increase Fire Wall damage by 5–10%
+- Increase Thunder Bolt damage by 5–10%
+- Increase Ice Storm damage by 5–10%
+- Increase Flame Field damage by 5–10%
+- Increase Meteor Strike damage by 5–10%
+- Increase Blizzard damage by 5–10%
+- Increase Fire Ball damage by 5–10%
+- Increase Great Fire Ball damage by 5–10%
+- Increase Frost Crunch damage by 5–10%
+- Reduce mana cost of Flame Disruptor by 5–15%
+- Reduce mana cost of Fire Wall by 5–15%
+- Reduce mana cost of Thunder Bolt by 5–15%
+- Reduce mana cost of Ice Storm by 5–15%
+- Reduce mana cost of Flame Field by 5–15%
+- Reduce mana cost of Meteor Strike by 5–15%
+- Reduce mana cost of Blizzard by 5–15%
+- Increase Healing healing by 5–10%
+- Increase Mass Healing healing by 5–10%
+- Increase Soul Fire Ball damage by 5–10%
+- Increase Skeleton damage by 5–20%
+- Increase Skeleton health by 5–20%
+- Reduce Skeleton damage taken by 5%
+- Increase Shinsu damage by 5–20%
+- Increase Shinsu health by 5–20%
+- Reduce Shinsu damage taken by 5%
+- Increase Holy Deva damage by 5–20%
+- Increase Holy Deva health by 5–20%
+- Reduce Holy Deva damage taken by 5%
+- Increase Slaying crit chance by 1–8%
+- Increase Slaying crit damage by 5–15%
+- Increase Flaming Sword crit chance by 1–8%
+- Increase Flaming Sword crit damage by 5–15%
+- Increase Twin Drake Blade crit chance by 1–8%
+- Increase Twin Drake Blade crit damage by 5–15%
+- Increase Blade Avalanche crit chance by 1–8%
+- Increase Blade Avalanche crit damage by 5–15%
+- Increase Slashing Burst crit chance by 1–8%
+- Increase Slashing Burst crit damage by 5–15%
+- Increase Flame Disruptor crit chance by 1–8%
+- Increase Flame Disruptor crit damage by 5–15%
+- Increase Fire Wall crit chance by 1–8%
+- Increase Fire Wall crit damage by 5–15%
+- Increase Thunder Bolt crit chance by 1–8%
+- Increase Thunder Bolt crit damage by 5–15%
+- Increase Ice Storm crit chance by 1–8%
+- Increase Ice Storm crit damage by 5–15%
+- Increase Flame Field crit chance by 1–8%
+- Increase Flame Field crit damage by 5–15%
+- Increase Meteor Strike crit chance by 1–8%
+- Increase Meteor Strike crit damage by 5–15%
+- Increase Blizzard crit chance by 1–8%
+- Increase Blizzard crit damage by 5–15%
+- Increase Fire Ball crit chance by 1–8%
+- Increase Fire Ball crit damage by 5–15%
+- Increase Great Fire Ball crit chance by 1–8%
+- Increase Great Fire Ball crit damage by 5–15%
+- Increase Frost Crunch crit chance by 1–8%
+- Increase Frost Crunch crit damage by 5–15%
+- Increase Soul Fire Ball crit chance by 1–8%
+- Increase Soul Fire Ball crit damage by 5–15%
+- −1–4% Damage taken
+- +1–6% Crit Rate
+- +5–15% Crit Damage
+- +2–12% Skill leveling
 
-**Green Bead** (`green-bead`) (legacy)
-- +DC
-- +DC
+**Green Bead** (`green-bead`)
+- +1–6 DC
+- +1–2 A Speed
+- +1–2 Freezing
+- +1–2 Poison
+- +1–3 AC
+- +1–3 AMC
+- Increase Slaying damage by 5–10%
+- Increase Flaming Sword damage by 5–10%
+- Reduce Flaming Sword cooldown by 1–2 seconds
+- Increase Twin Drake Blade damage by 5–10%
+- Reduce mana cost of Twin Drake Blade by 5–15%
+- Increase Blade Avalanche damage by 5–10%
+- Reduce mana cost of Blade Avalanche by 5–15%
+- Increase Slashing Burst damage by 5–10%
+- Reduce mana cost of Slashing Burst by 5–15%
+- Increase Slaying crit chance by 1–8%
+- Increase Slaying crit damage by 5–15%
+- Increase Flaming Sword crit chance by 1–8%
+- Increase Flaming Sword crit damage by 5–15%
+- Increase Twin Drake Blade crit chance by 1–8%
+- Increase Twin Drake Blade crit damage by 5–15%
+- Increase Blade Avalanche crit chance by 1–8%
+- Increase Blade Avalanche crit damage by 5–15%
+- Increase Slashing Burst crit chance by 1–8%
+- Increase Slashing Burst crit damage by 5–15%
+- −1–4% Damage taken
+- +1–6% Crit Rate
+- +5–15% Crit Damage
+- +2–12% Skill leveling
 
-**Kunroon Tear** (`kunroon-tear`) (legacy)
-- +DC
-- +DC
-- +SC
-- +SC
+**Kunroon Tear** (`kunroon-tear`)
+- +1–6 DC
+- +1–4 SC
+- +1–2 A Speed
+- +1–2 Freezing
+- +1–2 Poison
+- +1–3 AC
+- +1–3 AMC
+- Increase Healing healing by 5–10%
+- Increase Mass Healing healing by 5–10%
+- Increase Soul Fire Ball damage by 5–10%
+- Increase Skeleton damage by 5–20%
+- Increase Skeleton health by 5–20%
+- Reduce Skeleton damage taken by 5%
+- Increase Shinsu damage by 5–20%
+- Increase Shinsu health by 5–20%
+- Reduce Shinsu damage taken by 5%
+- Increase Holy Deva damage by 5–20%
+- Increase Holy Deva health by 5–20%
+- Reduce Holy Deva damage taken by 5%
+- Increase Soul Fire Ball crit chance by 1–8%
+- Increase Soul Fire Ball crit damage by 5–15%
+- −1–4% Damage taken
+- +1–6% Crit Rate
+- +5–15% Crit Damage
+- +2–12% Skill leveling
 
-**Life Necklace** (`life-necklace`) (legacy)
-- +MC
-- +MC
+**Life Necklace** (`life-necklace`)
+- +1–4 MC
+- +1–2 A Speed
+- +1–2 Freezing
+- +1–2 Poison
+- +1–3 AC
+- +1–3 AMC
+- Increase Flame Disruptor damage by 5–10%
+- Increase Fire Wall damage by 5–10%
+- Increase Thunder Bolt damage by 5–10%
+- Increase Ice Storm damage by 5–10%
+- Increase Flame Field damage by 5–10%
+- Increase Meteor Strike damage by 5–10%
+- Increase Blizzard damage by 5–10%
+- Increase Fire Ball damage by 5–10%
+- Increase Great Fire Ball damage by 5–10%
+- Increase Frost Crunch damage by 5–10%
+- Reduce mana cost of Flame Disruptor by 5–15%
+- Reduce mana cost of Fire Wall by 5–15%
+- Reduce mana cost of Thunder Bolt by 5–15%
+- Reduce mana cost of Ice Storm by 5–15%
+- Reduce mana cost of Flame Field by 5–15%
+- Reduce mana cost of Meteor Strike by 5–15%
+- Reduce mana cost of Blizzard by 5–15%
+- Increase Flame Disruptor crit chance by 1–8%
+- Increase Flame Disruptor crit damage by 5–15%
+- Increase Fire Wall crit chance by 1–8%
+- Increase Fire Wall crit damage by 5–15%
+- Increase Thunder Bolt crit chance by 1–8%
+- Increase Thunder Bolt crit damage by 5–15%
+- Increase Ice Storm crit chance by 1–8%
+- Increase Ice Storm crit damage by 5–15%
+- Increase Flame Field crit chance by 1–8%
+- Increase Flame Field crit damage by 5–15%
+- Increase Meteor Strike crit chance by 1–8%
+- Increase Meteor Strike crit damage by 5–15%
+- Increase Blizzard crit chance by 1–8%
+- Increase Blizzard crit damage by 5–15%
+- Increase Fire Ball crit chance by 1–8%
+- Increase Fire Ball crit damage by 5–15%
+- Increase Great Fire Ball crit chance by 1–8%
+- Increase Great Fire Ball crit damage by 5–15%
+- Increase Frost Crunch crit chance by 1–8%
+- Increase Frost Crunch crit damage by 5–15%
+- −1–4% Damage taken
+- +1–6% Crit Rate
+- +5–15% Crit Damage
+- +2–12% Skill leveling
 
-**Pearl Necklace** (`pearl-necklace`) (legacy)
-- +SC
-- +SC
+**Pearl Necklace** (`pearl-necklace`)
+- +1–6 DC
+- +1–4 SC
+- +1–2 A Speed
+- +1–2 Freezing
+- +1–2 Poison
+- +1–3 AC
+- +1–3 AMC
+- Increase Healing healing by 5–10%
+- Increase Mass Healing healing by 5–10%
+- Increase Soul Fire Ball damage by 5–10%
+- Increase Skeleton damage by 5–20%
+- Increase Skeleton health by 5–20%
+- Reduce Skeleton damage taken by 5%
+- Increase Shinsu damage by 5–20%
+- Increase Shinsu health by 5–20%
+- Reduce Shinsu damage taken by 5%
+- Increase Holy Deva damage by 5–20%
+- Increase Holy Deva health by 5–20%
+- Reduce Holy Deva damage taken by 5%
+- Increase Soul Fire Ball crit chance by 1–8%
+- Increase Soul Fire Ball crit damage by 5–15%
+- −1–4% Damage taken
+- +1–6% Crit Rate
+- +5–15% Crit Damage
+- +2–12% Skill leveling
 
-**Platinum Necklace** (`platinum-necklace`) (legacy)
-- +MC
+**Platinum Necklace** (`platinum-necklace`)
+- +1–4 MC
+- +1–2 A Speed
+- +1–2 Freezing
+- +1–2 Poison
+- +1–3 AC
+- +1–3 AMC
+- Increase Flame Disruptor damage by 5–10%
+- Increase Fire Wall damage by 5–10%
+- Increase Thunder Bolt damage by 5–10%
+- Increase Ice Storm damage by 5–10%
+- Increase Flame Field damage by 5–10%
+- Increase Meteor Strike damage by 5–10%
+- Increase Blizzard damage by 5–10%
+- Increase Fire Ball damage by 5–10%
+- Increase Great Fire Ball damage by 5–10%
+- Increase Frost Crunch damage by 5–10%
+- Reduce mana cost of Flame Disruptor by 5–15%
+- Reduce mana cost of Fire Wall by 5–15%
+- Reduce mana cost of Thunder Bolt by 5–15%
+- Reduce mana cost of Ice Storm by 5–15%
+- Reduce mana cost of Flame Field by 5–15%
+- Reduce mana cost of Meteor Strike by 5–15%
+- Reduce mana cost of Blizzard by 5–15%
+- Increase Flame Disruptor crit chance by 1–8%
+- Increase Flame Disruptor crit damage by 5–15%
+- Increase Fire Wall crit chance by 1–8%
+- Increase Fire Wall crit damage by 5–15%
+- Increase Thunder Bolt crit chance by 1–8%
+- Increase Thunder Bolt crit damage by 5–15%
+- Increase Ice Storm crit chance by 1–8%
+- Increase Ice Storm crit damage by 5–15%
+- Increase Flame Field crit chance by 1–8%
+- Increase Flame Field crit damage by 5–15%
+- Increase Meteor Strike crit chance by 1–8%
+- Increase Meteor Strike crit damage by 5–15%
+- Increase Blizzard crit chance by 1–8%
+- Increase Blizzard crit damage by 5–15%
+- Increase Fire Ball crit chance by 1–8%
+- Increase Fire Ball crit damage by 5–15%
+- Increase Great Fire Ball crit chance by 1–8%
+- Increase Great Fire Ball crit damage by 5–15%
+- Increase Frost Crunch crit chance by 1–8%
+- Increase Frost Crunch crit damage by 5–15%
+- −1–4% Damage taken
+- +1–6% Crit Rate
+- +5–15% Crit Damage
+- +2–12% Skill leveling
 
-**Soul Necklace** (`soul-necklace`) (legacy)
-- +SC
-- +SC
+**Soul Necklace** (`soul-necklace`)
+- +1–6 DC
+- +1–4 SC
+- +1–2 A Speed
+- +1–2 Freezing
+- +1–2 Poison
+- +1–3 AC
+- +1–3 AMC
+- Increase Healing healing by 5–10%
+- Increase Mass Healing healing by 5–10%
+- Increase Soul Fire Ball damage by 5–10%
+- Increase Skeleton damage by 5–20%
+- Increase Skeleton health by 5–20%
+- Reduce Skeleton damage taken by 5%
+- Increase Shinsu damage by 5–20%
+- Increase Shinsu health by 5–20%
+- Reduce Shinsu damage taken by 5%
+- Increase Holy Deva damage by 5–20%
+- Increase Holy Deva health by 5–20%
+- Reduce Holy Deva damage taken by 5%
+- Increase Soul Fire Ball crit chance by 1–8%
+- Increase Soul Fire Ball crit damage by 5–15%
+- −1–4% Damage taken
+- +1–6% Crit Rate
+- +5–15% Crit Damage
+- +2–12% Skill leveling
 
-**Spirit Power Necklace** (`spirit-power-necklace`) (legacy)
-- +SC
-- +SC
+**Spirit Power Necklace** (`spirit-power-necklace`)
+- +1–6 DC
+- +1–4 SC
+- +1–2 A Speed
+- +1–2 Freezing
+- +1–2 Poison
+- +1–3 AC
+- +1–3 AMC
+- Increase Healing healing by 5–10%
+- Increase Mass Healing healing by 5–10%
+- Increase Soul Fire Ball damage by 5–10%
+- Increase Skeleton damage by 5–20%
+- Increase Skeleton health by 5–20%
+- Reduce Skeleton damage taken by 5%
+- Increase Shinsu damage by 5–20%
+- Increase Shinsu health by 5–20%
+- Reduce Shinsu damage taken by 5%
+- Increase Holy Deva damage by 5–20%
+- Increase Holy Deva health by 5–20%
+- Reduce Holy Deva damage taken by 5%
+- Increase Soul Fire Ball crit chance by 1–8%
+- Increase Soul Fire Ball crit damage by 5–15%
+- −1–4% Damage taken
+- +1–6% Crit Rate
+- +5–15% Crit Damage
+- +2–12% Skill leveling
 
-**Tiger Necklace** (`tiger-necklace`) (legacy)
-- +SC
+**Tiger Necklace** (`tiger-necklace`)
+- +1–6 DC
+- +1–4 SC
+- +1–2 A Speed
+- +1–2 Freezing
+- +1–2 Poison
+- +1–3 AC
+- +1–3 AMC
+- Increase Healing healing by 5–10%
+- Increase Mass Healing healing by 5–10%
+- Increase Soul Fire Ball damage by 5–10%
+- Increase Skeleton damage by 5–20%
+- Increase Skeleton health by 5–20%
+- Reduce Skeleton damage taken by 5%
+- Increase Shinsu damage by 5–20%
+- Increase Shinsu health by 5–20%
+- Reduce Shinsu damage taken by 5%
+- Increase Holy Deva damage by 5–20%
+- Increase Holy Deva health by 5–20%
+- Reduce Holy Deva damage taken by 5%
+- Increase Soul Fire Ball crit chance by 1–8%
+- Increase Soul Fire Ball crit damage by 5–15%
+- −1–4% Damage taken
+- +1–6% Crit Rate
+- +5–15% Crit Damage
+- +2–12% Skill leveling
 
-**Violet Orb** (`violet-orb`) (legacy)
-- +MC
-- +MC
+**Violet Orb** (`violet-orb`)
+- +1–4 MC
+- +1–2 A Speed
+- +1–2 Freezing
+- +1–2 Poison
+- +1–3 AC
+- +1–3 AMC
+- Increase Flame Disruptor damage by 5–10%
+- Increase Fire Wall damage by 5–10%
+- Increase Thunder Bolt damage by 5–10%
+- Increase Ice Storm damage by 5–10%
+- Increase Flame Field damage by 5–10%
+- Increase Meteor Strike damage by 5–10%
+- Increase Blizzard damage by 5–10%
+- Increase Fire Ball damage by 5–10%
+- Increase Great Fire Ball damage by 5–10%
+- Increase Frost Crunch damage by 5–10%
+- Reduce mana cost of Flame Disruptor by 5–15%
+- Reduce mana cost of Fire Wall by 5–15%
+- Reduce mana cost of Thunder Bolt by 5–15%
+- Reduce mana cost of Ice Storm by 5–15%
+- Reduce mana cost of Flame Field by 5–15%
+- Reduce mana cost of Meteor Strike by 5–15%
+- Reduce mana cost of Blizzard by 5–15%
+- Increase Flame Disruptor crit chance by 1–8%
+- Increase Flame Disruptor crit damage by 5–15%
+- Increase Fire Wall crit chance by 1–8%
+- Increase Fire Wall crit damage by 5–15%
+- Increase Thunder Bolt crit chance by 1–8%
+- Increase Thunder Bolt crit damage by 5–15%
+- Increase Ice Storm crit chance by 1–8%
+- Increase Ice Storm crit damage by 5–15%
+- Increase Flame Field crit chance by 1–8%
+- Increase Flame Field crit damage by 5–15%
+- Increase Meteor Strike crit chance by 1–8%
+- Increase Meteor Strike crit damage by 5–15%
+- Increase Blizzard crit chance by 1–8%
+- Increase Blizzard crit damage by 5–15%
+- Increase Fire Ball crit chance by 1–8%
+- Increase Fire Ball crit damage by 5–15%
+- Increase Great Fire Ball crit chance by 1–8%
+- Increase Great Fire Ball crit damage by 5–15%
+- Increase Frost Crunch crit chance by 1–8%
+- Increase Frost Crunch crit damage by 5–15%
+- −1–4% Damage taken
+- +1–6% Crit Rate
+- +5–15% Crit Damage
+- +2–12% Skill leveling
 
-**Gold Necklace** (`gold-necklace`) (legacy)
-- +Agi
+**Gold Necklace** (`gold-necklace`)
+- +1–6 DC
+- +1–4 MC
+- +1–4 SC
+- +1–2 A Speed
+- +1–2 Freezing
+- +1–2 Poison
+- +1–3 AC
+- +1–3 AMC
+- Increase Slaying damage by 5–10%
+- Increase Flaming Sword damage by 5–10%
+- Reduce Flaming Sword cooldown by 1–2 seconds
+- Increase Twin Drake Blade damage by 5–10%
+- Reduce mana cost of Twin Drake Blade by 5–15%
+- Increase Blade Avalanche damage by 5–10%
+- Reduce mana cost of Blade Avalanche by 5–15%
+- Increase Slashing Burst damage by 5–10%
+- Reduce mana cost of Slashing Burst by 5–15%
+- Increase Flame Disruptor damage by 5–10%
+- Increase Fire Wall damage by 5–10%
+- Increase Thunder Bolt damage by 5–10%
+- Increase Ice Storm damage by 5–10%
+- Increase Flame Field damage by 5–10%
+- Increase Meteor Strike damage by 5–10%
+- Increase Blizzard damage by 5–10%
+- Increase Fire Ball damage by 5–10%
+- Increase Great Fire Ball damage by 5–10%
+- Increase Frost Crunch damage by 5–10%
+- Reduce mana cost of Flame Disruptor by 5–15%
+- Reduce mana cost of Fire Wall by 5–15%
+- Reduce mana cost of Thunder Bolt by 5–15%
+- Reduce mana cost of Ice Storm by 5–15%
+- Reduce mana cost of Flame Field by 5–15%
+- Reduce mana cost of Meteor Strike by 5–15%
+- Reduce mana cost of Blizzard by 5–15%
+- Increase Healing healing by 5–10%
+- Increase Mass Healing healing by 5–10%
+- Increase Soul Fire Ball damage by 5–10%
+- Increase Skeleton damage by 5–20%
+- Increase Skeleton health by 5–20%
+- Reduce Skeleton damage taken by 5%
+- Increase Shinsu damage by 5–20%
+- Increase Shinsu health by 5–20%
+- Reduce Shinsu damage taken by 5%
+- Increase Holy Deva damage by 5–20%
+- Increase Holy Deva health by 5–20%
+- Reduce Holy Deva damage taken by 5%
+- Increase Slaying crit chance by 1–8%
+- Increase Slaying crit damage by 5–15%
+- Increase Flaming Sword crit chance by 1–8%
+- Increase Flaming Sword crit damage by 5–15%
+- Increase Twin Drake Blade crit chance by 1–8%
+- Increase Twin Drake Blade crit damage by 5–15%
+- Increase Blade Avalanche crit chance by 1–8%
+- Increase Blade Avalanche crit damage by 5–15%
+- Increase Slashing Burst crit chance by 1–8%
+- Increase Slashing Burst crit damage by 5–15%
+- Increase Flame Disruptor crit chance by 1–8%
+- Increase Flame Disruptor crit damage by 5–15%
+- Increase Fire Wall crit chance by 1–8%
+- Increase Fire Wall crit damage by 5–15%
+- Increase Thunder Bolt crit chance by 1–8%
+- Increase Thunder Bolt crit damage by 5–15%
+- Increase Ice Storm crit chance by 1–8%
+- Increase Ice Storm crit damage by 5–15%
+- Increase Flame Field crit chance by 1–8%
+- Increase Flame Field crit damage by 5–15%
+- Increase Meteor Strike crit chance by 1–8%
+- Increase Meteor Strike crit damage by 5–15%
+- Increase Blizzard crit chance by 1–8%
+- Increase Blizzard crit damage by 5–15%
+- Increase Fire Ball crit chance by 1–8%
+- Increase Fire Ball crit damage by 5–15%
+- Increase Great Fire Ball crit chance by 1–8%
+- Increase Great Fire Ball crit damage by 5–15%
+- Increase Frost Crunch crit chance by 1–8%
+- Increase Frost Crunch crit damage by 5–15%
+- Increase Soul Fire Ball crit chance by 1–8%
+- Increase Soul Fire Ball crit damage by 5–15%
+- −1–4% Damage taken
+- +1–6% Crit Rate
+- +5–15% Crit Damage
+- +2–12% Skill leveling
 
-**Golden Pendant** (`golden-pendant`) (legacy)
-- +Agi
+**Golden Pendant** (`golden-pendant`)
+- +1–6 DC
+- +1–4 MC
+- +1–4 SC
+- +1–2 A Speed
+- +1–2 Freezing
+- +1–2 Poison
+- +1–3 AC
+- +1–3 AMC
+- Increase Slaying damage by 5–10%
+- Increase Flaming Sword damage by 5–10%
+- Reduce Flaming Sword cooldown by 1–2 seconds
+- Increase Twin Drake Blade damage by 5–10%
+- Reduce mana cost of Twin Drake Blade by 5–15%
+- Increase Blade Avalanche damage by 5–10%
+- Reduce mana cost of Blade Avalanche by 5–15%
+- Increase Slashing Burst damage by 5–10%
+- Reduce mana cost of Slashing Burst by 5–15%
+- Increase Flame Disruptor damage by 5–10%
+- Increase Fire Wall damage by 5–10%
+- Increase Thunder Bolt damage by 5–10%
+- Increase Ice Storm damage by 5–10%
+- Increase Flame Field damage by 5–10%
+- Increase Meteor Strike damage by 5–10%
+- Increase Blizzard damage by 5–10%
+- Increase Fire Ball damage by 5–10%
+- Increase Great Fire Ball damage by 5–10%
+- Increase Frost Crunch damage by 5–10%
+- Reduce mana cost of Flame Disruptor by 5–15%
+- Reduce mana cost of Fire Wall by 5–15%
+- Reduce mana cost of Thunder Bolt by 5–15%
+- Reduce mana cost of Ice Storm by 5–15%
+- Reduce mana cost of Flame Field by 5–15%
+- Reduce mana cost of Meteor Strike by 5–15%
+- Reduce mana cost of Blizzard by 5–15%
+- Increase Healing healing by 5–10%
+- Increase Mass Healing healing by 5–10%
+- Increase Soul Fire Ball damage by 5–10%
+- Increase Skeleton damage by 5–20%
+- Increase Skeleton health by 5–20%
+- Reduce Skeleton damage taken by 5%
+- Increase Shinsu damage by 5–20%
+- Increase Shinsu health by 5–20%
+- Reduce Shinsu damage taken by 5%
+- Increase Holy Deva damage by 5–20%
+- Increase Holy Deva health by 5–20%
+- Reduce Holy Deva damage taken by 5%
+- Increase Slaying crit chance by 1–8%
+- Increase Slaying crit damage by 5–15%
+- Increase Flaming Sword crit chance by 1–8%
+- Increase Flaming Sword crit damage by 5–15%
+- Increase Twin Drake Blade crit chance by 1–8%
+- Increase Twin Drake Blade crit damage by 5–15%
+- Increase Blade Avalanche crit chance by 1–8%
+- Increase Blade Avalanche crit damage by 5–15%
+- Increase Slashing Burst crit chance by 1–8%
+- Increase Slashing Burst crit damage by 5–15%
+- Increase Flame Disruptor crit chance by 1–8%
+- Increase Flame Disruptor crit damage by 5–15%
+- Increase Fire Wall crit chance by 1–8%
+- Increase Fire Wall crit damage by 5–15%
+- Increase Thunder Bolt crit chance by 1–8%
+- Increase Thunder Bolt crit damage by 5–15%
+- Increase Ice Storm crit chance by 1–8%
+- Increase Ice Storm crit damage by 5–15%
+- Increase Flame Field crit chance by 1–8%
+- Increase Flame Field crit damage by 5–15%
+- Increase Meteor Strike crit chance by 1–8%
+- Increase Meteor Strike crit damage by 5–15%
+- Increase Blizzard crit chance by 1–8%
+- Increase Blizzard crit damage by 5–15%
+- Increase Fire Ball crit chance by 1–8%
+- Increase Fire Ball crit damage by 5–15%
+- Increase Great Fire Ball crit chance by 1–8%
+- Increase Great Fire Ball crit damage by 5–15%
+- Increase Frost Crunch crit chance by 1–8%
+- Increase Frost Crunch crit damage by 5–15%
+- Increase Soul Fire Ball crit chance by 1–8%
+- Increase Soul Fire Ball crit damage by 5–15%
+- −1–4% Damage taken
+- +1–6% Crit Rate
+- +5–15% Crit Damage
+- +2–12% Skill leveling
 
-**Precision Necklace** (`precision-necklace`) (legacy)
-- +Acc
+**Precision Necklace** (`precision-necklace`)
+- +1–6 DC
+- +1–4 MC
+- +1–4 SC
+- +1–2 A Speed
+- +1–2 Freezing
+- +1–2 Poison
+- +1–3 AC
+- +1–3 AMC
+- Increase Slaying damage by 5–10%
+- Increase Flaming Sword damage by 5–10%
+- Reduce Flaming Sword cooldown by 1–2 seconds
+- Increase Twin Drake Blade damage by 5–10%
+- Reduce mana cost of Twin Drake Blade by 5–15%
+- Increase Blade Avalanche damage by 5–10%
+- Reduce mana cost of Blade Avalanche by 5–15%
+- Increase Slashing Burst damage by 5–10%
+- Reduce mana cost of Slashing Burst by 5–15%
+- Increase Flame Disruptor damage by 5–10%
+- Increase Fire Wall damage by 5–10%
+- Increase Thunder Bolt damage by 5–10%
+- Increase Ice Storm damage by 5–10%
+- Increase Flame Field damage by 5–10%
+- Increase Meteor Strike damage by 5–10%
+- Increase Blizzard damage by 5–10%
+- Increase Fire Ball damage by 5–10%
+- Increase Great Fire Ball damage by 5–10%
+- Increase Frost Crunch damage by 5–10%
+- Reduce mana cost of Flame Disruptor by 5–15%
+- Reduce mana cost of Fire Wall by 5–15%
+- Reduce mana cost of Thunder Bolt by 5–15%
+- Reduce mana cost of Ice Storm by 5–15%
+- Reduce mana cost of Flame Field by 5–15%
+- Reduce mana cost of Meteor Strike by 5–15%
+- Reduce mana cost of Blizzard by 5–15%
+- Increase Healing healing by 5–10%
+- Increase Mass Healing healing by 5–10%
+- Increase Soul Fire Ball damage by 5–10%
+- Increase Skeleton damage by 5–20%
+- Increase Skeleton health by 5–20%
+- Reduce Skeleton damage taken by 5%
+- Increase Shinsu damage by 5–20%
+- Increase Shinsu health by 5–20%
+- Reduce Shinsu damage taken by 5%
+- Increase Holy Deva damage by 5–20%
+- Increase Holy Deva health by 5–20%
+- Reduce Holy Deva damage taken by 5%
+- Increase Slaying crit chance by 1–8%
+- Increase Slaying crit damage by 5–15%
+- Increase Flaming Sword crit chance by 1–8%
+- Increase Flaming Sword crit damage by 5–15%
+- Increase Twin Drake Blade crit chance by 1–8%
+- Increase Twin Drake Blade crit damage by 5–15%
+- Increase Blade Avalanche crit chance by 1–8%
+- Increase Blade Avalanche crit damage by 5–15%
+- Increase Slashing Burst crit chance by 1–8%
+- Increase Slashing Burst crit damage by 5–15%
+- Increase Flame Disruptor crit chance by 1–8%
+- Increase Flame Disruptor crit damage by 5–15%
+- Increase Fire Wall crit chance by 1–8%
+- Increase Fire Wall crit damage by 5–15%
+- Increase Thunder Bolt crit chance by 1–8%
+- Increase Thunder Bolt crit damage by 5–15%
+- Increase Ice Storm crit chance by 1–8%
+- Increase Ice Storm crit damage by 5–15%
+- Increase Flame Field crit chance by 1–8%
+- Increase Flame Field crit damage by 5–15%
+- Increase Meteor Strike crit chance by 1–8%
+- Increase Meteor Strike crit damage by 5–15%
+- Increase Blizzard crit chance by 1–8%
+- Increase Blizzard crit damage by 5–15%
+- Increase Fire Ball crit chance by 1–8%
+- Increase Fire Ball crit damage by 5–15%
+- Increase Great Fire Ball crit chance by 1–8%
+- Increase Great Fire Ball crit damage by 5–15%
+- Increase Frost Crunch crit chance by 1–8%
+- Increase Frost Crunch crit damage by 5–15%
+- Increase Soul Fire Ball crit chance by 1–8%
+- Increase Soul Fire Ball crit damage by 5–15%
+- −1–4% Damage taken
+- +1–6% Crit Rate
+- +5–15% Crit Damage
+- +2–12% Skill leveling
 
-**Precision Pendant** (`precision-pendant`) (legacy)
-- +DC
+**Precision Pendant** (`precision-pendant`)
+- +1–6 DC
+- +1–2 A Speed
+- +1–2 Freezing
+- +1–2 Poison
+- +1–3 AC
+- +1–3 AMC
+- Increase Slaying damage by 5–10%
+- Increase Flaming Sword damage by 5–10%
+- Reduce Flaming Sword cooldown by 1–2 seconds
+- Increase Twin Drake Blade damage by 5–10%
+- Reduce mana cost of Twin Drake Blade by 5–15%
+- Increase Blade Avalanche damage by 5–10%
+- Reduce mana cost of Blade Avalanche by 5–15%
+- Increase Slashing Burst damage by 5–10%
+- Reduce mana cost of Slashing Burst by 5–15%
+- Increase Slaying crit chance by 1–8%
+- Increase Slaying crit damage by 5–15%
+- Increase Flaming Sword crit chance by 1–8%
+- Increase Flaming Sword crit damage by 5–15%
+- Increase Twin Drake Blade crit chance by 1–8%
+- Increase Twin Drake Blade crit damage by 5–15%
+- Increase Blade Avalanche crit chance by 1–8%
+- Increase Blade Avalanche crit damage by 5–15%
+- Increase Slashing Burst crit chance by 1–8%
+- Increase Slashing Burst crit damage by 5–15%
+- −1–4% Damage taken
+- +1–6% Crit Rate
+- +5–15% Crit Damage
+- +2–12% Skill leveling
 
-**Black Crystal Pendant** (`black-crystal-pendant`) (legacy)
-- +DC
-- +DC
+**Black Crystal Pendant** (`black-crystal-pendant`)
+- +1–6 DC
+- +1–2 A Speed
+- +1–2 Freezing
+- +1–2 Poison
+- +1–3 AC
+- +1–3 AMC
+- Increase Slaying damage by 5–10%
+- Increase Flaming Sword damage by 5–10%
+- Reduce Flaming Sword cooldown by 1–2 seconds
+- Increase Twin Drake Blade damage by 5–10%
+- Reduce mana cost of Twin Drake Blade by 5–15%
+- Increase Blade Avalanche damage by 5–10%
+- Reduce mana cost of Blade Avalanche by 5–15%
+- Increase Slashing Burst damage by 5–10%
+- Reduce mana cost of Slashing Burst by 5–15%
+- Increase Slaying crit chance by 1–8%
+- Increase Slaying crit damage by 5–15%
+- Increase Flaming Sword crit chance by 1–8%
+- Increase Flaming Sword crit damage by 5–15%
+- Increase Twin Drake Blade crit chance by 1–8%
+- Increase Twin Drake Blade crit damage by 5–15%
+- Increase Blade Avalanche crit chance by 1–8%
+- Increase Blade Avalanche crit damage by 5–15%
+- Increase Slashing Burst crit chance by 1–8%
+- Increase Slashing Burst crit damage by 5–15%
+- −1–4% Damage taken
+- +1–6% Crit Rate
+- +5–15% Crit Damage
+- +2–12% Skill leveling
 
-**Black Necklace** (`black-necklace`) (legacy)
-- +DC
+**Black Necklace** (`black-necklace`)
+- +1–6 DC
+- +1–2 A Speed
+- +1–2 Freezing
+- +1–2 Poison
+- +1–3 AC
+- +1–3 AMC
+- Increase Slaying damage by 5–10%
+- Increase Flaming Sword damage by 5–10%
+- Reduce Flaming Sword cooldown by 1–2 seconds
+- Increase Twin Drake Blade damage by 5–10%
+- Reduce mana cost of Twin Drake Blade by 5–15%
+- Increase Blade Avalanche damage by 5–10%
+- Reduce mana cost of Blade Avalanche by 5–15%
+- Increase Slashing Burst damage by 5–10%
+- Reduce mana cost of Slashing Burst by 5–15%
+- Increase Slaying crit chance by 1–8%
+- Increase Slaying crit damage by 5–15%
+- Increase Flaming Sword crit chance by 1–8%
+- Increase Flaming Sword crit damage by 5–15%
+- Increase Twin Drake Blade crit chance by 1–8%
+- Increase Twin Drake Blade crit damage by 5–15%
+- Increase Blade Avalanche crit chance by 1–8%
+- Increase Blade Avalanche crit damage by 5–15%
+- Increase Slashing Burst crit chance by 1–8%
+- Increase Slashing Burst crit damage by 5–15%
+- −1–4% Damage taken
+- +1–6% Crit Rate
+- +5–15% Crit Damage
+- +2–12% Skill leveling
 
-**Ebony Necklace** (`ebony-necklace`) (legacy)
-- +MC
+**Ebony Necklace** (`ebony-necklace`)
+- +1–4 MC
+- +1–2 A Speed
+- +1–2 Freezing
+- +1–2 Poison
+- +1–3 AC
+- +1–3 AMC
+- Increase Flame Disruptor damage by 5–10%
+- Increase Fire Wall damage by 5–10%
+- Increase Thunder Bolt damage by 5–10%
+- Increase Ice Storm damage by 5–10%
+- Increase Flame Field damage by 5–10%
+- Increase Meteor Strike damage by 5–10%
+- Increase Blizzard damage by 5–10%
+- Increase Fire Ball damage by 5–10%
+- Increase Great Fire Ball damage by 5–10%
+- Increase Frost Crunch damage by 5–10%
+- Reduce mana cost of Flame Disruptor by 5–15%
+- Reduce mana cost of Fire Wall by 5–15%
+- Reduce mana cost of Thunder Bolt by 5–15%
+- Reduce mana cost of Ice Storm by 5–15%
+- Reduce mana cost of Flame Field by 5–15%
+- Reduce mana cost of Meteor Strike by 5–15%
+- Reduce mana cost of Blizzard by 5–15%
+- Increase Flame Disruptor crit chance by 1–8%
+- Increase Flame Disruptor crit damage by 5–15%
+- Increase Fire Wall crit chance by 1–8%
+- Increase Fire Wall crit damage by 5–15%
+- Increase Thunder Bolt crit chance by 1–8%
+- Increase Thunder Bolt crit damage by 5–15%
+- Increase Ice Storm crit chance by 1–8%
+- Increase Ice Storm crit damage by 5–15%
+- Increase Flame Field crit chance by 1–8%
+- Increase Flame Field crit damage by 5–15%
+- Increase Meteor Strike crit chance by 1–8%
+- Increase Meteor Strike crit damage by 5–15%
+- Increase Blizzard crit chance by 1–8%
+- Increase Blizzard crit damage by 5–15%
+- Increase Fire Ball crit chance by 1–8%
+- Increase Fire Ball crit damage by 5–15%
+- Increase Great Fire Ball crit chance by 1–8%
+- Increase Great Fire Ball crit damage by 5–15%
+- Increase Frost Crunch crit chance by 1–8%
+- Increase Frost Crunch crit damage by 5–15%
+- −1–4% Damage taken
+- +1–6% Crit Rate
+- +5–15% Crit Damage
+- +2–12% Skill leveling
 
-**Yellow Crystal Pendant** (`yellow-crystal-pendant`) (legacy)
-- +SC
-- +SC
+**Yellow Crystal Pendant** (`yellow-crystal-pendant`)
+- +1–6 DC
+- +1–4 SC
+- +1–2 A Speed
+- +1–2 Freezing
+- +1–2 Poison
+- +1–3 AC
+- +1–3 AMC
+- Increase Healing healing by 5–10%
+- Increase Mass Healing healing by 5–10%
+- Increase Soul Fire Ball damage by 5–10%
+- Increase Skeleton damage by 5–20%
+- Increase Skeleton health by 5–20%
+- Reduce Skeleton damage taken by 5%
+- Increase Shinsu damage by 5–20%
+- Increase Shinsu health by 5–20%
+- Reduce Shinsu damage taken by 5%
+- Increase Holy Deva damage by 5–20%
+- Increase Holy Deva health by 5–20%
+- Reduce Holy Deva damage taken by 5%
+- Increase Soul Fire Ball crit chance by 1–8%
+- Increase Soul Fire Ball crit damage by 5–15%
+- −1–4% Damage taken
+- +1–6% Crit Rate
+- +5–15% Crit Damage
+- +2–12% Skill leveling
 
-**Yellow Necklace** (`yellow-necklace`) (legacy)
-- +SC
+**Yellow Necklace** (`yellow-necklace`)
+- +1–6 DC
+- +1–4 SC
+- +1–2 A Speed
+- +1–2 Freezing
+- +1–2 Poison
+- +1–3 AC
+- +1–3 AMC
+- Increase Healing healing by 5–10%
+- Increase Mass Healing healing by 5–10%
+- Increase Soul Fire Ball damage by 5–10%
+- Increase Skeleton damage by 5–20%
+- Increase Skeleton health by 5–20%
+- Reduce Skeleton damage taken by 5%
+- Increase Shinsu damage by 5–20%
+- Increase Shinsu health by 5–20%
+- Reduce Shinsu damage taken by 5%
+- Increase Holy Deva damage by 5–20%
+- Increase Holy Deva health by 5–20%
+- Reduce Holy Deva damage taken by 5%
+- Increase Soul Fire Ball crit chance by 1–8%
+- Increase Soul Fire Ball crit damage by 5–15%
+- −1–4% Damage taken
+- +1–6% Crit Rate
+- +5–15% Crit Damage
+- +2–12% Skill leveling
 
-**Jade Necklace** (`jade-necklace`) (legacy)
-- +SC
-- +SC
+**Jade Necklace** (`jade-necklace`)
+- +1–6 DC
+- +1–4 SC
+- +1–2 A Speed
+- +1–2 Freezing
+- +1–2 Poison
+- +1–3 AC
+- +1–3 AMC
+- Increase Healing healing by 5–10%
+- Increase Mass Healing healing by 5–10%
+- Increase Soul Fire Ball damage by 5–10%
+- Increase Skeleton damage by 5–20%
+- Increase Skeleton health by 5–20%
+- Reduce Skeleton damage taken by 5%
+- Increase Shinsu damage by 5–20%
+- Increase Shinsu health by 5–20%
+- Reduce Shinsu damage taken by 5%
+- Increase Holy Deva damage by 5–20%
+- Increase Holy Deva health by 5–20%
+- Reduce Holy Deva damage taken by 5%
+- Increase Soul Fire Ball crit chance by 1–8%
+- Increase Soul Fire Ball crit damage by 5–15%
+- −1–4% Damage taken
+- +1–6% Crit Rate
+- +5–15% Crit Damage
+- +2–12% Skill leveling
 
-**Spirit Necklace** (`spirit-necklace`) (legacy)
-- +SC
+**Spirit Necklace** (`spirit-necklace`)
+- +1–6 DC
+- +1–4 SC
+- +1–2 A Speed
+- +1–2 Freezing
+- +1–2 Poison
+- +1–3 AC
+- +1–3 AMC
+- Increase Healing healing by 5–10%
+- Increase Mass Healing healing by 5–10%
+- Increase Soul Fire Ball damage by 5–10%
+- Increase Skeleton damage by 5–20%
+- Increase Skeleton health by 5–20%
+- Reduce Skeleton damage taken by 5%
+- Increase Shinsu damage by 5–20%
+- Increase Shinsu health by 5–20%
+- Reduce Shinsu damage taken by 5%
+- Increase Holy Deva damage by 5–20%
+- Increase Holy Deva health by 5–20%
+- Reduce Holy Deva damage taken by 5%
+- Increase Soul Fire Ball crit chance by 1–8%
+- Increase Soul Fire Ball crit damage by 5–15%
+- −1–4% Damage taken
+- +1–6% Crit Rate
+- +5–15% Crit Damage
+- +2–12% Skill leveling
 
-**Skill Necklace** (`skill-necklace`) (legacy)
-- +HP
-- +Acc
+**Skill Necklace** (`skill-necklace`)
+- +1–6 DC
+- +1–4 MC
+- +1–4 SC
+- +1–2 A Speed
+- +1–2 Freezing
+- +1–2 Poison
+- +1–3 AC
+- +1–3 AMC
+- Increase Slaying damage by 5–10%
+- Increase Flaming Sword damage by 5–10%
+- Reduce Flaming Sword cooldown by 1–2 seconds
+- Increase Twin Drake Blade damage by 5–10%
+- Reduce mana cost of Twin Drake Blade by 5–15%
+- Increase Blade Avalanche damage by 5–10%
+- Reduce mana cost of Blade Avalanche by 5–15%
+- Increase Slashing Burst damage by 5–10%
+- Reduce mana cost of Slashing Burst by 5–15%
+- Increase Flame Disruptor damage by 5–10%
+- Increase Fire Wall damage by 5–10%
+- Increase Thunder Bolt damage by 5–10%
+- Increase Ice Storm damage by 5–10%
+- Increase Flame Field damage by 5–10%
+- Increase Meteor Strike damage by 5–10%
+- Increase Blizzard damage by 5–10%
+- Increase Fire Ball damage by 5–10%
+- Increase Great Fire Ball damage by 5–10%
+- Increase Frost Crunch damage by 5–10%
+- Reduce mana cost of Flame Disruptor by 5–15%
+- Reduce mana cost of Fire Wall by 5–15%
+- Reduce mana cost of Thunder Bolt by 5–15%
+- Reduce mana cost of Ice Storm by 5–15%
+- Reduce mana cost of Flame Field by 5–15%
+- Reduce mana cost of Meteor Strike by 5–15%
+- Reduce mana cost of Blizzard by 5–15%
+- Increase Healing healing by 5–10%
+- Increase Mass Healing healing by 5–10%
+- Increase Soul Fire Ball damage by 5–10%
+- Increase Skeleton damage by 5–20%
+- Increase Skeleton health by 5–20%
+- Reduce Skeleton damage taken by 5%
+- Increase Shinsu damage by 5–20%
+- Increase Shinsu health by 5–20%
+- Reduce Shinsu damage taken by 5%
+- Increase Holy Deva damage by 5–20%
+- Increase Holy Deva health by 5–20%
+- Reduce Holy Deva damage taken by 5%
+- Increase Slaying crit chance by 1–8%
+- Increase Slaying crit damage by 5–15%
+- Increase Flaming Sword crit chance by 1–8%
+- Increase Flaming Sword crit damage by 5–15%
+- Increase Twin Drake Blade crit chance by 1–8%
+- Increase Twin Drake Blade crit damage by 5–15%
+- Increase Blade Avalanche crit chance by 1–8%
+- Increase Blade Avalanche crit damage by 5–15%
+- Increase Slashing Burst crit chance by 1–8%
+- Increase Slashing Burst crit damage by 5–15%
+- Increase Flame Disruptor crit chance by 1–8%
+- Increase Flame Disruptor crit damage by 5–15%
+- Increase Fire Wall crit chance by 1–8%
+- Increase Fire Wall crit damage by 5–15%
+- Increase Thunder Bolt crit chance by 1–8%
+- Increase Thunder Bolt crit damage by 5–15%
+- Increase Ice Storm crit chance by 1–8%
+- Increase Ice Storm crit damage by 5–15%
+- Increase Flame Field crit chance by 1–8%
+- Increase Flame Field crit damage by 5–15%
+- Increase Meteor Strike crit chance by 1–8%
+- Increase Meteor Strike crit damage by 5–15%
+- Increase Blizzard crit chance by 1–8%
+- Increase Blizzard crit damage by 5–15%
+- Increase Fire Ball crit chance by 1–8%
+- Increase Fire Ball crit damage by 5–15%
+- Increase Great Fire Ball crit chance by 1–8%
+- Increase Great Fire Ball crit damage by 5–15%
+- Increase Frost Crunch crit chance by 1–8%
+- Increase Frost Crunch crit damage by 5–15%
+- Increase Soul Fire Ball crit chance by 1–8%
+- Increase Soul Fire Ball crit damage by 5–15%
+- −1–4% Damage taken
+- +1–6% Crit Rate
+- +5–15% Crit Damage
+- +2–12% Skill leveling
 
-**Amber Necklace** (`amber-necklace`) (legacy)
-- +MC
+**Amber Necklace** (`amber-necklace`)
+- +1–4 MC
+- +1–2 A Speed
+- +1–2 Freezing
+- +1–2 Poison
+- +1–3 AC
+- +1–3 AMC
+- Increase Flame Disruptor damage by 5–10%
+- Increase Fire Wall damage by 5–10%
+- Increase Thunder Bolt damage by 5–10%
+- Increase Ice Storm damage by 5–10%
+- Increase Flame Field damage by 5–10%
+- Increase Meteor Strike damage by 5–10%
+- Increase Blizzard damage by 5–10%
+- Increase Fire Ball damage by 5–10%
+- Increase Great Fire Ball damage by 5–10%
+- Increase Frost Crunch damage by 5–10%
+- Reduce mana cost of Flame Disruptor by 5–15%
+- Reduce mana cost of Fire Wall by 5–15%
+- Reduce mana cost of Thunder Bolt by 5–15%
+- Reduce mana cost of Ice Storm by 5–15%
+- Reduce mana cost of Flame Field by 5–15%
+- Reduce mana cost of Meteor Strike by 5–15%
+- Reduce mana cost of Blizzard by 5–15%
+- Increase Flame Disruptor crit chance by 1–8%
+- Increase Flame Disruptor crit damage by 5–15%
+- Increase Fire Wall crit chance by 1–8%
+- Increase Fire Wall crit damage by 5–15%
+- Increase Thunder Bolt crit chance by 1–8%
+- Increase Thunder Bolt crit damage by 5–15%
+- Increase Ice Storm crit chance by 1–8%
+- Increase Ice Storm crit damage by 5–15%
+- Increase Flame Field crit chance by 1–8%
+- Increase Flame Field crit damage by 5–15%
+- Increase Meteor Strike crit chance by 1–8%
+- Increase Meteor Strike crit damage by 5–15%
+- Increase Blizzard crit chance by 1–8%
+- Increase Blizzard crit damage by 5–15%
+- Increase Fire Ball crit chance by 1–8%
+- Increase Fire Ball crit damage by 5–15%
+- Increase Great Fire Ball crit chance by 1–8%
+- Increase Great Fire Ball crit damage by 5–15%
+- Increase Frost Crunch crit chance by 1–8%
+- Increase Frost Crunch crit damage by 5–15%
+- −1–4% Damage taken
+- +1–6% Crit Rate
+- +5–15% Crit Damage
+- +2–12% Skill leveling
 
-**Naga Necklace** (`naga-necklace`) (legacy)
-- +DC
+**Naga Necklace** (`naga-necklace`)
+- +1–6 DC
+- +1–2 A Speed
+- +1–2 Freezing
+- +1–2 Poison
+- +1–3 AC
+- +1–3 AMC
+- Increase Slaying damage by 5–10%
+- Increase Flaming Sword damage by 5–10%
+- Reduce Flaming Sword cooldown by 1–2 seconds
+- Increase Twin Drake Blade damage by 5–10%
+- Reduce mana cost of Twin Drake Blade by 5–15%
+- Increase Blade Avalanche damage by 5–10%
+- Reduce mana cost of Blade Avalanche by 5–15%
+- Increase Slashing Burst damage by 5–10%
+- Reduce mana cost of Slashing Burst by 5–15%
+- Increase Slaying crit chance by 1–8%
+- Increase Slaying crit damage by 5–15%
+- Increase Flaming Sword crit chance by 1–8%
+- Increase Flaming Sword crit damage by 5–15%
+- Increase Twin Drake Blade crit chance by 1–8%
+- Increase Twin Drake Blade crit damage by 5–15%
+- Increase Blade Avalanche crit chance by 1–8%
+- Increase Blade Avalanche crit damage by 5–15%
+- Increase Slashing Burst crit chance by 1–8%
+- Increase Slashing Burst crit damage by 5–15%
+- −1–4% Damage taken
+- +1–6% Crit Rate
+- +5–15% Crit Damage
+- +2–12% Skill leveling
 
-**Phoenix Bead** (`phoenix-bead`) (legacy)
-- +SC
-- +SC
+**Phoenix Bead** (`phoenix-bead`)
+- +1–6 DC
+- +1–4 SC
+- +1–2 A Speed
+- +1–2 Freezing
+- +1–2 Poison
+- +1–3 AC
+- +1–3 AMC
+- Increase Healing healing by 5–10%
+- Increase Mass Healing healing by 5–10%
+- Increase Soul Fire Ball damage by 5–10%
+- Increase Skeleton damage by 5–20%
+- Increase Skeleton health by 5–20%
+- Reduce Skeleton damage taken by 5%
+- Increase Shinsu damage by 5–20%
+- Increase Shinsu health by 5–20%
+- Reduce Shinsu damage taken by 5%
+- Increase Holy Deva damage by 5–20%
+- Increase Holy Deva health by 5–20%
+- Reduce Holy Deva damage taken by 5%
+- Increase Soul Fire Ball crit chance by 1–8%
+- Increase Soul Fire Ball crit damage by 5–15%
+- −1–4% Damage taken
+- +1–6% Crit Rate
+- +5–15% Crit Damage
+- +2–12% Skill leveling
 
-**Worn Bead of Phoenix** (`worn-bead-of-phoenix`) (legacy)
-- +SC
-- +SC
+**Worn Bead of Phoenix** (`worn-bead-of-phoenix`)
+- +1–6 DC
+- +1–4 SC
+- +1–2 A Speed
+- +1–2 Freezing
+- +1–2 Poison
+- +1–3 AC
+- +1–3 AMC
+- Increase Healing healing by 5–10%
+- Increase Mass Healing healing by 5–10%
+- Increase Soul Fire Ball damage by 5–10%
+- Increase Skeleton damage by 5–20%
+- Increase Skeleton health by 5–20%
+- Reduce Skeleton damage taken by 5%
+- Increase Shinsu damage by 5–20%
+- Increase Shinsu health by 5–20%
+- Reduce Shinsu damage taken by 5%
+- Increase Holy Deva damage by 5–20%
+- Increase Holy Deva health by 5–20%
+- Reduce Holy Deva damage taken by 5%
+- Increase Soul Fire Ball crit chance by 1–8%
+- Increase Soul Fire Ball crit damage by 5–15%
+- −1–4% Damage taken
+- +1–6% Crit Rate
+- +5–15% Crit Damage
+- +2–12% Skill leveling
 
-**Lantern Necklace** (`lantern-necklace`) (legacy)
-- +DC
+**Lantern Necklace** (`lantern-necklace`)
+- +1–6 DC
+- +1–2 A Speed
+- +1–2 Freezing
+- +1–2 Poison
+- +1–3 AC
+- +1–3 AMC
+- Increase Slaying damage by 5–10%
+- Increase Flaming Sword damage by 5–10%
+- Reduce Flaming Sword cooldown by 1–2 seconds
+- Increase Twin Drake Blade damage by 5–10%
+- Reduce mana cost of Twin Drake Blade by 5–15%
+- Increase Blade Avalanche damage by 5–10%
+- Reduce mana cost of Blade Avalanche by 5–15%
+- Increase Slashing Burst damage by 5–10%
+- Reduce mana cost of Slashing Burst by 5–15%
+- Increase Slaying crit chance by 1–8%
+- Increase Slaying crit damage by 5–15%
+- Increase Flaming Sword crit chance by 1–8%
+- Increase Flaming Sword crit damage by 5–15%
+- Increase Twin Drake Blade crit chance by 1–8%
+- Increase Twin Drake Blade crit damage by 5–15%
+- Increase Blade Avalanche crit chance by 1–8%
+- Increase Blade Avalanche crit damage by 5–15%
+- Increase Slashing Burst crit chance by 1–8%
+- Increase Slashing Burst crit damage by 5–15%
+- −1–4% Damage taken
+- +1–6% Crit Rate
+- +5–15% Crit Damage
+- +2–12% Skill leveling
 
-**Gale Necklace** (`gale-necklace`) (legacy)
-- +DC
-- +A Speed
+**Gale Necklace** (`gale-necklace`)
+- +1–6 DC
+- +1–2 A Speed
+- +1–2 Freezing
+- +1–2 Poison
+- +1–3 AC
+- +1–3 AMC
+- Increase Slaying damage by 5–10%
+- Increase Flaming Sword damage by 5–10%
+- Reduce Flaming Sword cooldown by 1–2 seconds
+- Increase Twin Drake Blade damage by 5–10%
+- Reduce mana cost of Twin Drake Blade by 5–15%
+- Increase Blade Avalanche damage by 5–10%
+- Reduce mana cost of Blade Avalanche by 5–15%
+- Increase Slashing Burst damage by 5–10%
+- Reduce mana cost of Slashing Burst by 5–15%
+- Increase Slaying crit chance by 1–8%
+- Increase Slaying crit damage by 5–15%
+- Increase Flaming Sword crit chance by 1–8%
+- Increase Flaming Sword crit damage by 5–15%
+- Increase Twin Drake Blade crit chance by 1–8%
+- Increase Twin Drake Blade crit damage by 5–15%
+- Increase Blade Avalanche crit chance by 1–8%
+- Increase Blade Avalanche crit damage by 5–15%
+- Increase Slashing Burst crit chance by 1–8%
+- Increase Slashing Burst crit damage by 5–15%
+- −1–4% Damage taken
+- +1–6% Crit Rate
+- +5–15% Crit Damage
+- +2–12% Skill leveling
 
-**Blue Crystal Necklace** (`blue-crystal-necklace`) (legacy)
-- +MC
-- +MC
+**Blue Crystal Necklace** (`blue-crystal-necklace`)
+- +1–4 MC
+- +1–2 A Speed
+- +1–2 Freezing
+- +1–2 Poison
+- +1–3 AC
+- +1–3 AMC
+- Increase Flame Disruptor damage by 5–10%
+- Increase Fire Wall damage by 5–10%
+- Increase Thunder Bolt damage by 5–10%
+- Increase Ice Storm damage by 5–10%
+- Increase Flame Field damage by 5–10%
+- Increase Meteor Strike damage by 5–10%
+- Increase Blizzard damage by 5–10%
+- Increase Fire Ball damage by 5–10%
+- Increase Great Fire Ball damage by 5–10%
+- Increase Frost Crunch damage by 5–10%
+- Reduce mana cost of Flame Disruptor by 5–15%
+- Reduce mana cost of Fire Wall by 5–15%
+- Reduce mana cost of Thunder Bolt by 5–15%
+- Reduce mana cost of Ice Storm by 5–15%
+- Reduce mana cost of Flame Field by 5–15%
+- Reduce mana cost of Meteor Strike by 5–15%
+- Reduce mana cost of Blizzard by 5–15%
+- Increase Flame Disruptor crit chance by 1–8%
+- Increase Flame Disruptor crit damage by 5–15%
+- Increase Fire Wall crit chance by 1–8%
+- Increase Fire Wall crit damage by 5–15%
+- Increase Thunder Bolt crit chance by 1–8%
+- Increase Thunder Bolt crit damage by 5–15%
+- Increase Ice Storm crit chance by 1–8%
+- Increase Ice Storm crit damage by 5–15%
+- Increase Flame Field crit chance by 1–8%
+- Increase Flame Field crit damage by 5–15%
+- Increase Meteor Strike crit chance by 1–8%
+- Increase Meteor Strike crit damage by 5–15%
+- Increase Blizzard crit chance by 1–8%
+- Increase Blizzard crit damage by 5–15%
+- Increase Fire Ball crit chance by 1–8%
+- Increase Fire Ball crit damage by 5–15%
+- Increase Great Fire Ball crit chance by 1–8%
+- Increase Great Fire Ball crit damage by 5–15%
+- Increase Frost Crunch crit chance by 1–8%
+- Increase Frost Crunch crit damage by 5–15%
+- −1–4% Damage taken
+- +1–6% Crit Rate
+- +5–15% Crit Damage
+- +2–12% Skill leveling
 
-**Warrior Necklace** (`warrior-necklace`) (legacy)
-- +DC
-- +DC
+**Warrior Necklace** (`warrior-necklace`)
+- +1–6 DC
+- +1–2 A Speed
+- +1–2 Freezing
+- +1–2 Poison
+- +1–3 AC
+- +1–3 AMC
+- Increase Slaying damage by 5–10%
+- Increase Flaming Sword damage by 5–10%
+- Reduce Flaming Sword cooldown by 1–2 seconds
+- Increase Twin Drake Blade damage by 5–10%
+- Reduce mana cost of Twin Drake Blade by 5–15%
+- Increase Blade Avalanche damage by 5–10%
+- Reduce mana cost of Blade Avalanche by 5–15%
+- Increase Slashing Burst damage by 5–10%
+- Reduce mana cost of Slashing Burst by 5–15%
+- Increase Slaying crit chance by 1–8%
+- Increase Slaying crit damage by 5–15%
+- Increase Flaming Sword crit chance by 1–8%
+- Increase Flaming Sword crit damage by 5–15%
+- Increase Twin Drake Blade crit chance by 1–8%
+- Increase Twin Drake Blade crit damage by 5–15%
+- Increase Blade Avalanche crit chance by 1–8%
+- Increase Blade Avalanche crit damage by 5–15%
+- Increase Slashing Burst crit chance by 1–8%
+- Increase Slashing Burst crit damage by 5–15%
+- −1–4% Damage taken
+- +1–6% Crit Rate
+- +5–15% Crit Damage
+- +2–12% Skill leveling
 
-**Blue Jade Necklace** (`blue-jade-necklace`) (legacy)
-- +DC
-- +DC
+**Blue Jade Necklace** (`blue-jade-necklace`)
+- +1–6 DC
+- +1–2 A Speed
+- +1–2 Freezing
+- +1–2 Poison
+- +1–3 AC
+- +1–3 AMC
+- Increase Slaying damage by 5–10%
+- Increase Flaming Sword damage by 5–10%
+- Reduce Flaming Sword cooldown by 1–2 seconds
+- Increase Twin Drake Blade damage by 5–10%
+- Reduce mana cost of Twin Drake Blade by 5–15%
+- Increase Blade Avalanche damage by 5–10%
+- Reduce mana cost of Blade Avalanche by 5–15%
+- Increase Slashing Burst damage by 5–10%
+- Reduce mana cost of Slashing Burst by 5–15%
+- Increase Slaying crit chance by 1–8%
+- Increase Slaying crit damage by 5–15%
+- Increase Flaming Sword crit chance by 1–8%
+- Increase Flaming Sword crit damage by 5–15%
+- Increase Twin Drake Blade crit chance by 1–8%
+- Increase Twin Drake Blade crit damage by 5–15%
+- Increase Blade Avalanche crit chance by 1–8%
+- Increase Blade Avalanche crit damage by 5–15%
+- Increase Slashing Burst crit chance by 1–8%
+- Increase Slashing Burst crit damage by 5–15%
+- −1–4% Damage taken
+- +1–6% Crit Rate
+- +5–15% Crit Damage
+- +2–12% Skill leveling
 
-**Nephrite Necklace** (`nephrite-necklace`) (legacy)
-- +SC
-- +SC
+**Nephrite Necklace** (`nephrite-necklace`)
+- +1–6 DC
+- +1–4 SC
+- +1–2 A Speed
+- +1–2 Freezing
+- +1–2 Poison
+- +1–3 AC
+- +1–3 AMC
+- Increase Healing healing by 5–10%
+- Increase Mass Healing healing by 5–10%
+- Increase Soul Fire Ball damage by 5–10%
+- Increase Skeleton damage by 5–20%
+- Increase Skeleton health by 5–20%
+- Reduce Skeleton damage taken by 5%
+- Increase Shinsu damage by 5–20%
+- Increase Shinsu health by 5–20%
+- Reduce Shinsu damage taken by 5%
+- Increase Holy Deva damage by 5–20%
+- Increase Holy Deva health by 5–20%
+- Reduce Holy Deva damage taken by 5%
+- Increase Soul Fire Ball crit chance by 1–8%
+- Increase Soul Fire Ball crit damage by 5–15%
+- −1–4% Damage taken
+- +1–6% Crit Rate
+- +5–15% Crit Damage
+- +2–12% Skill leveling
 
-**Bamboo Pipe** (`bamboo-pipe`) (legacy)
-- +SC
-- +SC
+**Bamboo Pipe** (`bamboo-pipe`)
+- +1–6 DC
+- +1–4 SC
+- +1–2 A Speed
+- +1–2 Freezing
+- +1–2 Poison
+- +1–3 AC
+- +1–3 AMC
+- Increase Healing healing by 5–10%
+- Increase Mass Healing healing by 5–10%
+- Increase Soul Fire Ball damage by 5–10%
+- Increase Skeleton damage by 5–20%
+- Increase Skeleton health by 5–20%
+- Reduce Skeleton damage taken by 5%
+- Increase Shinsu damage by 5–20%
+- Increase Shinsu health by 5–20%
+- Reduce Shinsu damage taken by 5%
+- Increase Holy Deva damage by 5–20%
+- Increase Holy Deva health by 5–20%
+- Reduce Holy Deva damage taken by 5%
+- Increase Soul Fire Ball crit chance by 1–8%
+- Increase Soul Fire Ball crit damage by 5–15%
+- −1–4% Damage taken
+- +1–6% Crit Rate
+- +5–15% Crit Damage
+- +2–12% Skill leveling
 
-**Claw Necklace** (`claw-necklace`) (legacy)
-- +DC
+**Claw Necklace** (`claw-necklace`)
+- +1–6 DC
+- +1–2 A Speed
+- +1–2 Freezing
+- +1–2 Poison
+- +1–3 AC
+- +1–3 AMC
+- Increase Slaying damage by 5–10%
+- Increase Flaming Sword damage by 5–10%
+- Reduce Flaming Sword cooldown by 1–2 seconds
+- Increase Twin Drake Blade damage by 5–10%
+- Reduce mana cost of Twin Drake Blade by 5–15%
+- Increase Blade Avalanche damage by 5–10%
+- Reduce mana cost of Blade Avalanche by 5–15%
+- Increase Slashing Burst damage by 5–10%
+- Reduce mana cost of Slashing Burst by 5–15%
+- Increase Slaying crit chance by 1–8%
+- Increase Slaying crit damage by 5–15%
+- Increase Flaming Sword crit chance by 1–8%
+- Increase Flaming Sword crit damage by 5–15%
+- Increase Twin Drake Blade crit chance by 1–8%
+- Increase Twin Drake Blade crit damage by 5–15%
+- Increase Blade Avalanche crit chance by 1–8%
+- Increase Blade Avalanche crit damage by 5–15%
+- Increase Slashing Burst crit chance by 1–8%
+- Increase Slashing Burst crit damage by 5–15%
+- −1–4% Damage taken
+- +1–6% Crit Rate
+- +5–15% Crit Damage
+- +2–12% Skill leveling
 
-**Convex Lens** (`convex-lens`) (legacy)
-- +MC
-- +MC
+**Convex Lens** (`convex-lens`)
+- +1–4 MC
+- +1–2 A Speed
+- +1–2 Freezing
+- +1–2 Poison
+- +1–3 AC
+- +1–3 AMC
+- Increase Flame Disruptor damage by 5–10%
+- Increase Fire Wall damage by 5–10%
+- Increase Thunder Bolt damage by 5–10%
+- Increase Ice Storm damage by 5–10%
+- Increase Flame Field damage by 5–10%
+- Increase Meteor Strike damage by 5–10%
+- Increase Blizzard damage by 5–10%
+- Increase Fire Ball damage by 5–10%
+- Increase Great Fire Ball damage by 5–10%
+- Increase Frost Crunch damage by 5–10%
+- Reduce mana cost of Flame Disruptor by 5–15%
+- Reduce mana cost of Fire Wall by 5–15%
+- Reduce mana cost of Thunder Bolt by 5–15%
+- Reduce mana cost of Ice Storm by 5–15%
+- Reduce mana cost of Flame Field by 5–15%
+- Reduce mana cost of Meteor Strike by 5–15%
+- Reduce mana cost of Blizzard by 5–15%
+- Increase Flame Disruptor crit chance by 1–8%
+- Increase Flame Disruptor crit damage by 5–15%
+- Increase Fire Wall crit chance by 1–8%
+- Increase Fire Wall crit damage by 5–15%
+- Increase Thunder Bolt crit chance by 1–8%
+- Increase Thunder Bolt crit damage by 5–15%
+- Increase Ice Storm crit chance by 1–8%
+- Increase Ice Storm crit damage by 5–15%
+- Increase Flame Field crit chance by 1–8%
+- Increase Flame Field crit damage by 5–15%
+- Increase Meteor Strike crit chance by 1–8%
+- Increase Meteor Strike crit damage by 5–15%
+- Increase Blizzard crit chance by 1–8%
+- Increase Blizzard crit damage by 5–15%
+- Increase Fire Ball crit chance by 1–8%
+- Increase Fire Ball crit damage by 5–15%
+- Increase Great Fire Ball crit chance by 1–8%
+- Increase Great Fire Ball crit damage by 5–15%
+- Increase Frost Crunch crit chance by 1–8%
+- Increase Frost Crunch crit damage by 5–15%
+- −1–4% Damage taken
+- +1–6% Crit Rate
+- +5–15% Crit Damage
+- +2–12% Skill leveling
 
-**Strong Bamboo Flute** (`strong-bamboo-flute`) (legacy)
-- +SC
+**Strong Bamboo Flute** (`strong-bamboo-flute`)
+- +1–6 DC
+- +1–4 SC
+- +1–2 A Speed
+- +1–2 Freezing
+- +1–2 Poison
+- +1–3 AC
+- +1–3 AMC
+- Increase Healing healing by 5–10%
+- Increase Mass Healing healing by 5–10%
+- Increase Soul Fire Ball damage by 5–10%
+- Increase Skeleton damage by 5–20%
+- Increase Skeleton health by 5–20%
+- Reduce Skeleton damage taken by 5%
+- Increase Shinsu damage by 5–20%
+- Increase Shinsu health by 5–20%
+- Reduce Shinsu damage taken by 5%
+- Increase Holy Deva damage by 5–20%
+- Increase Holy Deva health by 5–20%
+- Reduce Holy Deva damage taken by 5%
+- Increase Soul Fire Ball crit chance by 1–8%
+- Increase Soul Fire Ball crit damage by 5–15%
+- −1–4% Damage taken
+- +1–6% Crit Rate
+- +5–15% Crit Damage
+- +2–12% Skill leveling
 
-**Five String Necklace** (`five-string-necklace`) (legacy)
-- +MC
-- +MC
+**Five String Necklace** (`five-string-necklace`)
+- +1–4 MC
+- +1–2 A Speed
+- +1–2 Freezing
+- +1–2 Poison
+- +1–3 AC
+- +1–3 AMC
+- Increase Flame Disruptor damage by 5–10%
+- Increase Fire Wall damage by 5–10%
+- Increase Thunder Bolt damage by 5–10%
+- Increase Ice Storm damage by 5–10%
+- Increase Flame Field damage by 5–10%
+- Increase Meteor Strike damage by 5–10%
+- Increase Blizzard damage by 5–10%
+- Increase Fire Ball damage by 5–10%
+- Increase Great Fire Ball damage by 5–10%
+- Increase Frost Crunch damage by 5–10%
+- Reduce mana cost of Flame Disruptor by 5–15%
+- Reduce mana cost of Fire Wall by 5–15%
+- Reduce mana cost of Thunder Bolt by 5–15%
+- Reduce mana cost of Ice Storm by 5–15%
+- Reduce mana cost of Flame Field by 5–15%
+- Reduce mana cost of Meteor Strike by 5–15%
+- Reduce mana cost of Blizzard by 5–15%
+- Increase Flame Disruptor crit chance by 1–8%
+- Increase Flame Disruptor crit damage by 5–15%
+- Increase Fire Wall crit chance by 1–8%
+- Increase Fire Wall crit damage by 5–15%
+- Increase Thunder Bolt crit chance by 1–8%
+- Increase Thunder Bolt crit damage by 5–15%
+- Increase Ice Storm crit chance by 1–8%
+- Increase Ice Storm crit damage by 5–15%
+- Increase Flame Field crit chance by 1–8%
+- Increase Flame Field crit damage by 5–15%
+- Increase Meteor Strike crit chance by 1–8%
+- Increase Meteor Strike crit damage by 5–15%
+- Increase Blizzard crit chance by 1–8%
+- Increase Blizzard crit damage by 5–15%
+- Increase Fire Ball crit chance by 1–8%
+- Increase Fire Ball crit damage by 5–15%
+- Increase Great Fire Ball crit chance by 1–8%
+- Increase Great Fire Ball crit damage by 5–15%
+- Increase Frost Crunch crit chance by 1–8%
+- Increase Frost Crunch crit damage by 5–15%
+- −1–4% Damage taken
+- +1–6% Crit Rate
+- +5–15% Crit Damage
+- +2–12% Skill leveling
 
-**Hwan Devil Necklace** (`hwan-devil-necklace`) (legacy)
-- +MC
-- +MC
+**Hwan Devil Necklace** (`hwan-devil-necklace`)
+- +1–4 MC
+- +1–2 A Speed
+- +1–2 Freezing
+- +1–2 Poison
+- +1–3 AC
+- +1–3 AMC
+- Increase Flame Disruptor damage by 5–10%
+- Increase Fire Wall damage by 5–10%
+- Increase Thunder Bolt damage by 5–10%
+- Increase Ice Storm damage by 5–10%
+- Increase Flame Field damage by 5–10%
+- Increase Meteor Strike damage by 5–10%
+- Increase Blizzard damage by 5–10%
+- Increase Fire Ball damage by 5–10%
+- Increase Great Fire Ball damage by 5–10%
+- Increase Frost Crunch damage by 5–10%
+- Reduce mana cost of Flame Disruptor by 5–15%
+- Reduce mana cost of Fire Wall by 5–15%
+- Reduce mana cost of Thunder Bolt by 5–15%
+- Reduce mana cost of Ice Storm by 5–15%
+- Reduce mana cost of Flame Field by 5–15%
+- Reduce mana cost of Meteor Strike by 5–15%
+- Reduce mana cost of Blizzard by 5–15%
+- Increase Flame Disruptor crit chance by 1–8%
+- Increase Flame Disruptor crit damage by 5–15%
+- Increase Fire Wall crit chance by 1–8%
+- Increase Fire Wall crit damage by 5–15%
+- Increase Thunder Bolt crit chance by 1–8%
+- Increase Thunder Bolt crit damage by 5–15%
+- Increase Ice Storm crit chance by 1–8%
+- Increase Ice Storm crit damage by 5–15%
+- Increase Flame Field crit chance by 1–8%
+- Increase Flame Field crit damage by 5–15%
+- Increase Meteor Strike crit chance by 1–8%
+- Increase Meteor Strike crit damage by 5–15%
+- Increase Blizzard crit chance by 1–8%
+- Increase Blizzard crit damage by 5–15%
+- Increase Fire Ball crit chance by 1–8%
+- Increase Fire Ball crit damage by 5–15%
+- Increase Great Fire Ball crit chance by 1–8%
+- Increase Great Fire Ball crit damage by 5–15%
+- Increase Frost Crunch crit chance by 1–8%
+- Increase Frost Crunch crit damage by 5–15%
+- −1–4% Damage taken
+- +1–6% Crit Rate
+- +5–15% Crit Damage
+- +2–12% Skill leveling
 
-**Smash Pendulum** (`smash-pendulum`) (legacy)
-- +DC
+**Smash Pendulum** (`smash-pendulum`)
+- +1–6 DC
+- +1–2 A Speed
+- +1–2 Freezing
+- +1–2 Poison
+- +1–3 AC
+- +1–3 AMC
+- Increase Slaying damage by 5–10%
+- Increase Flaming Sword damage by 5–10%
+- Reduce Flaming Sword cooldown by 1–2 seconds
+- Increase Twin Drake Blade damage by 5–10%
+- Reduce mana cost of Twin Drake Blade by 5–15%
+- Increase Blade Avalanche damage by 5–10%
+- Reduce mana cost of Blade Avalanche by 5–15%
+- Increase Slashing Burst damage by 5–10%
+- Reduce mana cost of Slashing Burst by 5–15%
+- Increase Slaying crit chance by 1–8%
+- Increase Slaying crit damage by 5–15%
+- Increase Flaming Sword crit chance by 1–8%
+- Increase Flaming Sword crit damage by 5–15%
+- Increase Twin Drake Blade crit chance by 1–8%
+- Increase Twin Drake Blade crit damage by 5–15%
+- Increase Blade Avalanche crit chance by 1–8%
+- Increase Blade Avalanche crit damage by 5–15%
+- Increase Slashing Burst crit chance by 1–8%
+- Increase Slashing Burst crit damage by 5–15%
+- −1–4% Damage taken
+- +1–6% Crit Rate
+- +5–15% Crit Damage
+- +2–12% Skill leveling
 
-**Adamantine Necklace** (`adamantine-necklace`) (legacy)
-- +MC
-- +MC
+**Adamantine Necklace** (`adamantine-necklace`)
+- +1–4 MC
+- +1–2 A Speed
+- +1–2 Freezing
+- +1–2 Poison
+- +1–3 AC
+- +1–3 AMC
+- Increase Flame Disruptor damage by 5–10%
+- Increase Fire Wall damage by 5–10%
+- Increase Thunder Bolt damage by 5–10%
+- Increase Ice Storm damage by 5–10%
+- Increase Flame Field damage by 5–10%
+- Increase Meteor Strike damage by 5–10%
+- Increase Blizzard damage by 5–10%
+- Increase Fire Ball damage by 5–10%
+- Increase Great Fire Ball damage by 5–10%
+- Increase Frost Crunch damage by 5–10%
+- Reduce mana cost of Flame Disruptor by 5–15%
+- Reduce mana cost of Fire Wall by 5–15%
+- Reduce mana cost of Thunder Bolt by 5–15%
+- Reduce mana cost of Ice Storm by 5–15%
+- Reduce mana cost of Flame Field by 5–15%
+- Reduce mana cost of Meteor Strike by 5–15%
+- Reduce mana cost of Blizzard by 5–15%
+- Increase Flame Disruptor crit chance by 1–8%
+- Increase Flame Disruptor crit damage by 5–15%
+- Increase Fire Wall crit chance by 1–8%
+- Increase Fire Wall crit damage by 5–15%
+- Increase Thunder Bolt crit chance by 1–8%
+- Increase Thunder Bolt crit damage by 5–15%
+- Increase Ice Storm crit chance by 1–8%
+- Increase Ice Storm crit damage by 5–15%
+- Increase Flame Field crit chance by 1–8%
+- Increase Flame Field crit damage by 5–15%
+- Increase Meteor Strike crit chance by 1–8%
+- Increase Meteor Strike crit damage by 5–15%
+- Increase Blizzard crit chance by 1–8%
+- Increase Blizzard crit damage by 5–15%
+- Increase Fire Ball crit chance by 1–8%
+- Increase Fire Ball crit damage by 5–15%
+- Increase Great Fire Ball crit chance by 1–8%
+- Increase Great Fire Ball crit damage by 5–15%
+- Increase Frost Crunch crit chance by 1–8%
+- Increase Frost Crunch crit damage by 5–15%
+- −1–4% Damage taken
+- +1–6% Crit Rate
+- +5–15% Crit Damage
+- +2–12% Skill leveling
 
-**Hero Necklace** (`hero-necklace`) (legacy)
-- +DC
-- +DC
+**Hero Necklace** (`hero-necklace`)
+- +1–6 DC
+- +1–2 A Speed
+- +1–2 Freezing
+- +1–2 Poison
+- +1–3 AC
+- +1–3 AMC
+- Increase Slaying damage by 5–10%
+- Increase Flaming Sword damage by 5–10%
+- Reduce Flaming Sword cooldown by 1–2 seconds
+- Increase Twin Drake Blade damage by 5–10%
+- Reduce mana cost of Twin Drake Blade by 5–15%
+- Increase Blade Avalanche damage by 5–10%
+- Reduce mana cost of Blade Avalanche by 5–15%
+- Increase Slashing Burst damage by 5–10%
+- Reduce mana cost of Slashing Burst by 5–15%
+- Increase Slaying crit chance by 1–8%
+- Increase Slaying crit damage by 5–15%
+- Increase Flaming Sword crit chance by 1–8%
+- Increase Flaming Sword crit damage by 5–15%
+- Increase Twin Drake Blade crit chance by 1–8%
+- Increase Twin Drake Blade crit damage by 5–15%
+- Increase Blade Avalanche crit chance by 1–8%
+- Increase Blade Avalanche crit damage by 5–15%
+- Increase Slashing Burst crit chance by 1–8%
+- Increase Slashing Burst crit damage by 5–15%
+- −1–4% Damage taken
+- +1–6% Crit Rate
+- +5–15% Crit Damage
+- +2–12% Skill leveling
 
-**Requiem Necklace** (`requiem-necklace`) (legacy)
-- +DC
-- +SC
-- +SC
+**Requiem Necklace** (`requiem-necklace`)
+- +1–6 DC
+- +1–4 SC
+- +1–2 A Speed
+- +1–2 Freezing
+- +1–2 Poison
+- +1–3 AC
+- +1–3 AMC
+- Increase Healing healing by 5–10%
+- Increase Mass Healing healing by 5–10%
+- Increase Soul Fire Ball damage by 5–10%
+- Increase Skeleton damage by 5–20%
+- Increase Skeleton health by 5–20%
+- Reduce Skeleton damage taken by 5%
+- Increase Shinsu damage by 5–20%
+- Increase Shinsu health by 5–20%
+- Reduce Shinsu damage taken by 5%
+- Increase Holy Deva damage by 5–20%
+- Increase Holy Deva health by 5–20%
+- Reduce Holy Deva damage taken by 5%
+- Increase Soul Fire Ball crit chance by 1–8%
+- Increase Soul Fire Ball crit damage by 5–15%
+- −1–4% Damage taken
+- +1–6% Crit Rate
+- +5–15% Crit Damage
+- +2–12% Skill leveling
 
-**Cuspid Necklace** (`cuspid-necklace`) (legacy)
-- +DC
-- +DC
+**Cuspid Necklace** (`cuspid-necklace`)
+- +1–6 DC
+- +1–2 A Speed
+- +1–2 Freezing
+- +1–2 Poison
+- +1–3 AC
+- +1–3 AMC
+- Increase Slaying damage by 5–10%
+- Increase Flaming Sword damage by 5–10%
+- Reduce Flaming Sword cooldown by 1–2 seconds
+- Increase Twin Drake Blade damage by 5–10%
+- Reduce mana cost of Twin Drake Blade by 5–15%
+- Increase Blade Avalanche damage by 5–10%
+- Reduce mana cost of Blade Avalanche by 5–15%
+- Increase Slashing Burst damage by 5–10%
+- Reduce mana cost of Slashing Burst by 5–15%
+- Increase Slaying crit chance by 1–8%
+- Increase Slaying crit damage by 5–15%
+- Increase Flaming Sword crit chance by 1–8%
+- Increase Flaming Sword crit damage by 5–15%
+- Increase Twin Drake Blade crit chance by 1–8%
+- Increase Twin Drake Blade crit damage by 5–15%
+- Increase Blade Avalanche crit chance by 1–8%
+- Increase Blade Avalanche crit damage by 5–15%
+- Increase Slashing Burst crit chance by 1–8%
+- Increase Slashing Burst crit damage by 5–15%
+- −1–4% Damage taken
+- +1–6% Crit Rate
+- +5–15% Crit Damage
+- +2–12% Skill leveling
 
-**Purified Mirror** (`purified-mirror`) (legacy)
-- +DC
-- +DC
-- +SC
-- +SC
+**Purified Mirror** (`purified-mirror`)
+- +1–6 DC
+- +1–4 SC
+- +1–2 A Speed
+- +1–2 Freezing
+- +1–2 Poison
+- +1–3 AC
+- +1–3 AMC
+- Increase Healing healing by 5–10%
+- Increase Mass Healing healing by 5–10%
+- Increase Soul Fire Ball damage by 5–10%
+- Increase Skeleton damage by 5–20%
+- Increase Skeleton health by 5–20%
+- Reduce Skeleton damage taken by 5%
+- Increase Shinsu damage by 5–20%
+- Increase Shinsu health by 5–20%
+- Reduce Shinsu damage taken by 5%
+- Increase Holy Deva damage by 5–20%
+- Increase Holy Deva health by 5–20%
+- Reduce Holy Deva damage taken by 5%
+- Increase Soul Fire Ball crit chance by 1–8%
+- Increase Soul Fire Ball crit damage by 5–15%
+- −1–4% Damage taken
+- +1–6% Crit Rate
+- +5–15% Crit Damage
+- +2–12% Skill leveling
 
-**Sorcery Anchor** (`sorcery-anchor`) (legacy)
-- +MC
-- +MC
-
-### Ring
+**Sorcery Anchor** (`sorcery-anchor`)
+- +1–4 MC
+- +1–2 A Speed
+- +1–2 Freezing
+- +1–2 Poison
+- +1–3 AC
+- +1–3 AMC
+- Increase Flame Disruptor damage by 5–10%
+- Increase Fire Wall damage by 5–10%
+- Increase Thunder Bolt damage by 5–10%
+- Increase Ice Storm damage by 5–10%
+- Increase Flame Field damage by 5–10%
+- Increase Meteor Strike damage by 5–10%
+- Increase Blizzard damage by 5–10%
+- Increase Fire Ball damage by 5–10%
+- Increase Great Fire Ball damage by 5–10%
+- Increase Frost Crunch damage by 5–10%
+- Reduce mana cost of Flame Disruptor by 5–15%
+- Reduce mana cost of Fire Wall by 5–15%
+- Reduce mana cost of Thunder Bolt by 5–15%
+- Reduce mana cost of Ice Storm by 5–15%
+- Reduce mana cost of Flame Field by 5–15%
+- Reduce mana cost of Meteor Strike by 5–15%
+- Reduce mana cost of Blizzard by 5–15%
+- Increase Flame Disruptor crit chance by 1–8%
+- Increase Flame Disruptor crit damage by 5–15%
+- Increase Fire Wall crit chance by 1–8%
+- Increase Fire Wall crit damage by 5–15%
+- Increase Thunder Bolt crit chance by 1–8%
+- Increase Thunder Bolt crit damage by 5–15%
+- Increase Ice Storm crit chance by 1–8%
+- Increase Ice Storm crit damage by 5–15%
+- Increase Flame Field crit chance by 1–8%
+- Increase Flame Field crit damage by 5–15%
+- Increase Meteor Strike crit chance by 1–8%
+- Increase Meteor Strike crit damage by 5–15%
+- Increase Blizzard crit chance by 1–8%
+- Increase Blizzard crit damage by 5–15%
+- Increase Fire Ball crit chance by 1–8%
+- Increase Fire Ball crit damage by 5–15%
+- Increase Great Fire Ball crit chance by 1–8%
+- Increase Great Fire Ball crit damage by 5–15%
+- Increase Frost Crunch crit chance by 1–8%
+- Increase Frost Crunch crit damage by 5–15%
+- −1–4% Damage taken
+- +1–6% Crit Rate
+- +5–15% Crit Damage
+- +2–12% Skill leveling
 
 **Boundless Ring** (`boundless-ring`)
 - +1–6 DC
-- +1–4 MC
-- +1–4 SC
 - +1–2 A Speed
 - +1–2 Freezing
 - +1–2 Poison
 - +1–3 AC
 - +1–3 AMC
+- Increase Slaying damage by 5–10%
+- Increase Flaming Sword damage by 5–10%
+- Reduce Flaming Sword cooldown by 1–2 seconds
+- Increase Twin Drake Blade damage by 5–10%
+- Reduce mana cost of Twin Drake Blade by 5–15%
+- Increase Blade Avalanche damage by 5–10%
+- Reduce mana cost of Blade Avalanche by 5–15%
+- Increase Slashing Burst damage by 5–10%
+- Reduce mana cost of Slashing Burst by 5–15%
+- Increase Slaying crit chance by 1–8%
+- Increase Slaying crit damage by 5–15%
+- Increase Flaming Sword crit chance by 1–8%
+- Increase Flaming Sword crit damage by 5–15%
+- Increase Twin Drake Blade crit chance by 1–8%
+- Increase Twin Drake Blade crit damage by 5–15%
+- Increase Blade Avalanche crit chance by 1–8%
+- Increase Blade Avalanche crit damage by 5–15%
+- Increase Slashing Burst crit chance by 1–8%
+- Increase Slashing Burst crit damage by 5–15%
+- −1–4% Damage taken
+- +1–6% Crit Rate
+- +5–15% Crit Damage
+- +2–12% Skill leveling
 
 **Cloud Ring** (`cloud-ring`)
-- +1–6 DC
 - +1–4 MC
-- +1–4 SC
 - +1–2 A Speed
 - +1–2 Freezing
 - +1–2 Poison
 - +1–3 AC
 - +1–3 AMC
+- Increase Flame Disruptor damage by 5–10%
+- Increase Fire Wall damage by 5–10%
+- Increase Thunder Bolt damage by 5–10%
+- Increase Ice Storm damage by 5–10%
+- Increase Flame Field damage by 5–10%
+- Increase Meteor Strike damage by 5–10%
+- Increase Blizzard damage by 5–10%
+- Increase Fire Ball damage by 5–10%
+- Increase Great Fire Ball damage by 5–10%
+- Increase Frost Crunch damage by 5–10%
+- Reduce mana cost of Flame Disruptor by 5–15%
+- Reduce mana cost of Fire Wall by 5–15%
+- Reduce mana cost of Thunder Bolt by 5–15%
+- Reduce mana cost of Ice Storm by 5–15%
+- Reduce mana cost of Flame Field by 5–15%
+- Reduce mana cost of Meteor Strike by 5–15%
+- Reduce mana cost of Blizzard by 5–15%
+- Increase Flame Disruptor crit chance by 1–8%
+- Increase Flame Disruptor crit damage by 5–15%
+- Increase Fire Wall crit chance by 1–8%
+- Increase Fire Wall crit damage by 5–15%
+- Increase Thunder Bolt crit chance by 1–8%
+- Increase Thunder Bolt crit damage by 5–15%
+- Increase Ice Storm crit chance by 1–8%
+- Increase Ice Storm crit damage by 5–15%
+- Increase Flame Field crit chance by 1–8%
+- Increase Flame Field crit damage by 5–15%
+- Increase Meteor Strike crit chance by 1–8%
+- Increase Meteor Strike crit damage by 5–15%
+- Increase Blizzard crit chance by 1–8%
+- Increase Blizzard crit damage by 5–15%
+- Increase Fire Ball crit chance by 1–8%
+- Increase Fire Ball crit damage by 5–15%
+- Increase Great Fire Ball crit chance by 1–8%
+- Increase Great Fire Ball crit damage by 5–15%
+- Increase Frost Crunch crit chance by 1–8%
+- Increase Frost Crunch crit damage by 5–15%
+- −1–4% Damage taken
+- +1–6% Crit Rate
+- +5–15% Crit Damage
+- +2–12% Skill leveling
 
 **Dragon Ring** (`dragon-ring`)
 - +1–6 DC
-- +1–4 MC
-- +1–4 SC
 - +1–2 A Speed
 - +1–2 Freezing
 - +1–2 Poison
 - +1–3 AC
 - +1–3 AMC
+- Increase Slaying damage by 5–10%
+- Increase Flaming Sword damage by 5–10%
+- Reduce Flaming Sword cooldown by 1–2 seconds
+- Increase Twin Drake Blade damage by 5–10%
+- Reduce mana cost of Twin Drake Blade by 5–15%
+- Increase Blade Avalanche damage by 5–10%
+- Reduce mana cost of Blade Avalanche by 5–15%
+- Increase Slashing Burst damage by 5–10%
+- Reduce mana cost of Slashing Burst by 5–15%
+- Increase Slaying crit chance by 1–8%
+- Increase Slaying crit damage by 5–15%
+- Increase Flaming Sword crit chance by 1–8%
+- Increase Flaming Sword crit damage by 5–15%
+- Increase Twin Drake Blade crit chance by 1–8%
+- Increase Twin Drake Blade crit damage by 5–15%
+- Increase Blade Avalanche crit chance by 1–8%
+- Increase Blade Avalanche crit damage by 5–15%
+- Increase Slashing Burst crit chance by 1–8%
+- Increase Slashing Burst crit damage by 5–15%
+- −1–4% Damage taken
+- +1–6% Crit Rate
+- +5–15% Crit Damage
+- +2–12% Skill leveling
 
 **Evil Slayer Ring** (`evil-slayer-ring`)
-- +1–6 DC
 - +1–4 MC
-- +1–4 SC
 - +1–2 A Speed
 - +1–2 Freezing
 - +1–2 Poison
 - +1–3 AC
 - +1–3 AMC
+- Increase Flame Disruptor damage by 5–10%
+- Increase Fire Wall damage by 5–10%
+- Increase Thunder Bolt damage by 5–10%
+- Increase Ice Storm damage by 5–10%
+- Increase Flame Field damage by 5–10%
+- Increase Meteor Strike damage by 5–10%
+- Increase Blizzard damage by 5–10%
+- Increase Fire Ball damage by 5–10%
+- Increase Great Fire Ball damage by 5–10%
+- Increase Frost Crunch damage by 5–10%
+- Reduce mana cost of Flame Disruptor by 5–15%
+- Reduce mana cost of Fire Wall by 5–15%
+- Reduce mana cost of Thunder Bolt by 5–15%
+- Reduce mana cost of Ice Storm by 5–15%
+- Reduce mana cost of Flame Field by 5–15%
+- Reduce mana cost of Meteor Strike by 5–15%
+- Reduce mana cost of Blizzard by 5–15%
+- Increase Flame Disruptor crit chance by 1–8%
+- Increase Flame Disruptor crit damage by 5–15%
+- Increase Fire Wall crit chance by 1–8%
+- Increase Fire Wall crit damage by 5–15%
+- Increase Thunder Bolt crit chance by 1–8%
+- Increase Thunder Bolt crit damage by 5–15%
+- Increase Ice Storm crit chance by 1–8%
+- Increase Ice Storm crit damage by 5–15%
+- Increase Flame Field crit chance by 1–8%
+- Increase Flame Field crit damage by 5–15%
+- Increase Meteor Strike crit chance by 1–8%
+- Increase Meteor Strike crit damage by 5–15%
+- Increase Blizzard crit chance by 1–8%
+- Increase Blizzard crit damage by 5–15%
+- Increase Fire Ball crit chance by 1–8%
+- Increase Fire Ball crit damage by 5–15%
+- Increase Great Fire Ball crit chance by 1–8%
+- Increase Great Fire Ball crit damage by 5–15%
+- Increase Frost Crunch crit chance by 1–8%
+- Increase Frost Crunch crit damage by 5–15%
+- −1–4% Damage taken
+- +1–6% Crit Rate
+- +5–15% Crit Damage
+- +2–12% Skill leveling
 
 **Iron Ring** (`iron-ring`)
-- +1–6 DC
 - +1–4 MC
-- +1–4 SC
 - +1–2 A Speed
 - +1–2 Freezing
 - +1–2 Poison
 - +1–3 AC
 - +1–3 AMC
+- Increase Flame Disruptor damage by 5–10%
+- Increase Fire Wall damage by 5–10%
+- Increase Thunder Bolt damage by 5–10%
+- Increase Ice Storm damage by 5–10%
+- Increase Flame Field damage by 5–10%
+- Increase Meteor Strike damage by 5–10%
+- Increase Blizzard damage by 5–10%
+- Increase Fire Ball damage by 5–10%
+- Increase Great Fire Ball damage by 5–10%
+- Increase Frost Crunch damage by 5–10%
+- Reduce mana cost of Flame Disruptor by 5–15%
+- Reduce mana cost of Fire Wall by 5–15%
+- Reduce mana cost of Thunder Bolt by 5–15%
+- Reduce mana cost of Ice Storm by 5–15%
+- Reduce mana cost of Flame Field by 5–15%
+- Reduce mana cost of Meteor Strike by 5–15%
+- Reduce mana cost of Blizzard by 5–15%
+- Increase Flame Disruptor crit chance by 1–8%
+- Increase Flame Disruptor crit damage by 5–15%
+- Increase Fire Wall crit chance by 1–8%
+- Increase Fire Wall crit damage by 5–15%
+- Increase Thunder Bolt crit chance by 1–8%
+- Increase Thunder Bolt crit damage by 5–15%
+- Increase Ice Storm crit chance by 1–8%
+- Increase Ice Storm crit damage by 5–15%
+- Increase Flame Field crit chance by 1–8%
+- Increase Flame Field crit damage by 5–15%
+- Increase Meteor Strike crit chance by 1–8%
+- Increase Meteor Strike crit damage by 5–15%
+- Increase Blizzard crit chance by 1–8%
+- Increase Blizzard crit damage by 5–15%
+- Increase Fire Ball crit chance by 1–8%
+- Increase Fire Ball crit damage by 5–15%
+- Increase Great Fire Ball crit chance by 1–8%
+- Increase Great Fire Ball crit damage by 5–15%
+- Increase Frost Crunch crit chance by 1–8%
+- Increase Frost Crunch crit damage by 5–15%
+- −1–4% Damage taken
+- +1–6% Crit Rate
+- +5–15% Crit Damage
+- +2–12% Skill leveling
 
 **Jade Snow Ring** (`jade-snow-ring`)
 - +1–6 DC
-- +1–4 MC
 - +1–4 SC
 - +1–2 A Speed
 - +1–2 Freezing
 - +1–2 Poison
 - +1–3 AC
 - +1–3 AMC
+- Increase Healing healing by 5–10%
+- Increase Mass Healing healing by 5–10%
+- Increase Soul Fire Ball damage by 5–10%
+- Increase Skeleton damage by 5–20%
+- Increase Skeleton health by 5–20%
+- Reduce Skeleton damage taken by 5%
+- Increase Shinsu damage by 5–20%
+- Increase Shinsu health by 5–20%
+- Reduce Shinsu damage taken by 5%
+- Increase Holy Deva damage by 5–20%
+- Increase Holy Deva health by 5–20%
+- Reduce Holy Deva damage taken by 5%
+- Increase Soul Fire Ball crit chance by 1–8%
+- Increase Soul Fire Ball crit damage by 5–15%
+- −1–4% Damage taken
+- +1–6% Crit Rate
+- +5–15% Crit Damage
+- +2–12% Skill leveling
 
 **Platinum Ring** (`platinum-ring`)
 - +1–6 DC
-- +1–4 MC
 - +1–4 SC
 - +1–2 A Speed
 - +1–2 Freezing
 - +1–2 Poison
 - +1–3 AC
 - +1–3 AMC
+- Increase Healing healing by 5–10%
+- Increase Mass Healing healing by 5–10%
+- Increase Soul Fire Ball damage by 5–10%
+- Increase Skeleton damage by 5–20%
+- Increase Skeleton health by 5–20%
+- Reduce Skeleton damage taken by 5%
+- Increase Shinsu damage by 5–20%
+- Increase Shinsu health by 5–20%
+- Reduce Shinsu damage taken by 5%
+- Increase Holy Deva damage by 5–20%
+- Increase Holy Deva health by 5–20%
+- Reduce Holy Deva damage taken by 5%
+- Increase Soul Fire Ball crit chance by 1–8%
+- Increase Soul Fire Ball crit damage by 5–15%
+- −1–4% Damage taken
+- +1–6% Crit Rate
+- +5–15% Crit Damage
+- +2–12% Skill leveling
 
 **Poison Ring** (`poison-ring`)
 - +1–6 DC
-- +1–4 MC
 - +1–4 SC
 - +1–2 A Speed
 - +1–2 Freezing
 - +1–2 Poison
 - +1–3 AC
 - +1–3 AMC
+- Increase Healing healing by 5–10%
+- Increase Mass Healing healing by 5–10%
+- Increase Soul Fire Ball damage by 5–10%
+- Increase Skeleton damage by 5–20%
+- Increase Skeleton health by 5–20%
+- Reduce Skeleton damage taken by 5%
+- Increase Shinsu damage by 5–20%
+- Increase Shinsu health by 5–20%
+- Reduce Shinsu damage taken by 5%
+- Increase Holy Deva damage by 5–20%
+- Increase Holy Deva health by 5–20%
+- Reduce Holy Deva damage taken by 5%
+- Increase Soul Fire Ball crit chance by 1–8%
+- Increase Soul Fire Ball crit damage by 5–15%
+- −1–4% Damage taken
+- +1–6% Crit Rate
+- +5–15% Crit Damage
+- +2–12% Skill leveling
 
 **Power Ring** (`power-ring`)
 - +1–6 DC
-- +1–4 MC
-- +1–4 SC
 - +1–2 A Speed
 - +1–2 Freezing
 - +1–2 Poison
 - +1–3 AC
 - +1–3 AMC
+- Increase Slaying damage by 5–10%
+- Increase Flaming Sword damage by 5–10%
+- Reduce Flaming Sword cooldown by 1–2 seconds
+- Increase Twin Drake Blade damage by 5–10%
+- Reduce mana cost of Twin Drake Blade by 5–15%
+- Increase Blade Avalanche damage by 5–10%
+- Reduce mana cost of Blade Avalanche by 5–15%
+- Increase Slashing Burst damage by 5–10%
+- Reduce mana cost of Slashing Burst by 5–15%
+- Increase Slaying crit chance by 1–8%
+- Increase Slaying crit damage by 5–15%
+- Increase Flaming Sword crit chance by 1–8%
+- Increase Flaming Sword crit damage by 5–15%
+- Increase Twin Drake Blade crit chance by 1–8%
+- Increase Twin Drake Blade crit damage by 5–15%
+- Increase Blade Avalanche crit chance by 1–8%
+- Increase Blade Avalanche crit damage by 5–15%
+- Increase Slashing Burst crit chance by 1–8%
+- Increase Slashing Burst crit damage by 5–15%
+- −1–4% Damage taken
+- +1–6% Crit Rate
+- +5–15% Crit Damage
+- +2–12% Skill leveling
 
 **Red Demon Ring** (`red-demon-ring`)
 - +1–6 DC
-- +1–4 MC
-- +1–4 SC
 - +1–2 A Speed
 - +1–2 Freezing
 - +1–2 Poison
 - +1–3 AC
 - +1–3 AMC
+- Increase Slaying damage by 5–10%
+- Increase Flaming Sword damage by 5–10%
+- Reduce Flaming Sword cooldown by 1–2 seconds
+- Increase Twin Drake Blade damage by 5–10%
+- Reduce mana cost of Twin Drake Blade by 5–15%
+- Increase Blade Avalanche damage by 5–10%
+- Reduce mana cost of Blade Avalanche by 5–15%
+- Increase Slashing Burst damage by 5–10%
+- Reduce mana cost of Slashing Burst by 5–15%
+- Increase Slaying crit chance by 1–8%
+- Increase Slaying crit damage by 5–15%
+- Increase Flaming Sword crit chance by 1–8%
+- Increase Flaming Sword crit damage by 5–15%
+- Increase Twin Drake Blade crit chance by 1–8%
+- Increase Twin Drake Blade crit damage by 5–15%
+- Increase Blade Avalanche crit chance by 1–8%
+- Increase Blade Avalanche crit damage by 5–15%
+- Increase Slashing Burst crit chance by 1–8%
+- Increase Slashing Burst crit damage by 5–15%
+- −1–4% Damage taken
+- +1–6% Crit Rate
+- +5–15% Crit Damage
+- +2–12% Skill leveling
 
 **Ruby Ring** (`ruby-ring`)
-- +1–6 DC
 - +1–4 MC
-- +1–4 SC
 - +1–2 A Speed
 - +1–2 Freezing
 - +1–2 Poison
 - +1–3 AC
 - +1–3 AMC
+- Increase Flame Disruptor damage by 5–10%
+- Increase Fire Wall damage by 5–10%
+- Increase Thunder Bolt damage by 5–10%
+- Increase Ice Storm damage by 5–10%
+- Increase Flame Field damage by 5–10%
+- Increase Meteor Strike damage by 5–10%
+- Increase Blizzard damage by 5–10%
+- Increase Fire Ball damage by 5–10%
+- Increase Great Fire Ball damage by 5–10%
+- Increase Frost Crunch damage by 5–10%
+- Reduce mana cost of Flame Disruptor by 5–15%
+- Reduce mana cost of Fire Wall by 5–15%
+- Reduce mana cost of Thunder Bolt by 5–15%
+- Reduce mana cost of Ice Storm by 5–15%
+- Reduce mana cost of Flame Field by 5–15%
+- Reduce mana cost of Meteor Strike by 5–15%
+- Reduce mana cost of Blizzard by 5–15%
+- Increase Flame Disruptor crit chance by 1–8%
+- Increase Flame Disruptor crit damage by 5–15%
+- Increase Fire Wall crit chance by 1–8%
+- Increase Fire Wall crit damage by 5–15%
+- Increase Thunder Bolt crit chance by 1–8%
+- Increase Thunder Bolt crit damage by 5–15%
+- Increase Ice Storm crit chance by 1–8%
+- Increase Ice Storm crit damage by 5–15%
+- Increase Flame Field crit chance by 1–8%
+- Increase Flame Field crit damage by 5–15%
+- Increase Meteor Strike crit chance by 1–8%
+- Increase Meteor Strike crit damage by 5–15%
+- Increase Blizzard crit chance by 1–8%
+- Increase Blizzard crit damage by 5–15%
+- Increase Fire Ball crit chance by 1–8%
+- Increase Fire Ball crit damage by 5–15%
+- Increase Great Fire Ball crit chance by 1–8%
+- Increase Great Fire Ball crit damage by 5–15%
+- Increase Frost Crunch crit chance by 1–8%
+- Increase Frost Crunch crit damage by 5–15%
+- −1–4% Damage taken
+- +1–6% Crit Rate
+- +5–15% Crit Damage
+- +2–12% Skill leveling
 
 **Skeleton Ring** (`skeleton-ring`)
 - +1–6 DC
-- +1–4 MC
-- +1–4 SC
 - +1–2 A Speed
 - +1–2 Freezing
 - +1–2 Poison
 - +1–3 AC
 - +1–3 AMC
+- Increase Slaying damage by 5–10%
+- Increase Flaming Sword damage by 5–10%
+- Reduce Flaming Sword cooldown by 1–2 seconds
+- Increase Twin Drake Blade damage by 5–10%
+- Reduce mana cost of Twin Drake Blade by 5–15%
+- Increase Blade Avalanche damage by 5–10%
+- Reduce mana cost of Blade Avalanche by 5–15%
+- Increase Slashing Burst damage by 5–10%
+- Reduce mana cost of Slashing Burst by 5–15%
+- Increase Slaying crit chance by 1–8%
+- Increase Slaying crit damage by 5–15%
+- Increase Flaming Sword crit chance by 1–8%
+- Increase Flaming Sword crit damage by 5–15%
+- Increase Twin Drake Blade crit chance by 1–8%
+- Increase Twin Drake Blade crit damage by 5–15%
+- Increase Blade Avalanche crit chance by 1–8%
+- Increase Blade Avalanche crit damage by 5–15%
+- Increase Slashing Burst crit chance by 1–8%
+- Increase Slashing Burst crit damage by 5–15%
+- −1–4% Damage taken
+- +1–6% Crit Rate
+- +5–15% Crit Damage
+- +2–12% Skill leveling
 
 **Tae Guk Ring** (`tae-guk-ring`)
 - +1–6 DC
-- +1–4 MC
 - +1–4 SC
 - +1–2 A Speed
 - +1–2 Freezing
 - +1–2 Poison
 - +1–3 AC
 - +1–3 AMC
+- Increase Healing healing by 5–10%
+- Increase Mass Healing healing by 5–10%
+- Increase Soul Fire Ball damage by 5–10%
+- Increase Skeleton damage by 5–20%
+- Increase Skeleton health by 5–20%
+- Reduce Skeleton damage taken by 5%
+- Increase Shinsu damage by 5–20%
+- Increase Shinsu health by 5–20%
+- Reduce Shinsu damage taken by 5%
+- Increase Holy Deva damage by 5–20%
+- Increase Holy Deva health by 5–20%
+- Reduce Holy Deva damage taken by 5%
+- Increase Soul Fire Ball crit chance by 1–8%
+- Increase Soul Fire Ball crit damage by 5–15%
+- −1–4% Damage taken
+- +1–6% Crit Rate
+- +5–15% Crit Damage
+- +2–12% Skill leveling
 
 **Thunder Ring** (`thunder-ring`)
-- +1–6 DC
 - +1–4 MC
-- +1–4 SC
 - +1–2 A Speed
 - +1–2 Freezing
 - +1–2 Poison
 - +1–3 AC
 - +1–3 AMC
+- Increase Flame Disruptor damage by 5–10%
+- Increase Fire Wall damage by 5–10%
+- Increase Thunder Bolt damage by 5–10%
+- Increase Ice Storm damage by 5–10%
+- Increase Flame Field damage by 5–10%
+- Increase Meteor Strike damage by 5–10%
+- Increase Blizzard damage by 5–10%
+- Increase Fire Ball damage by 5–10%
+- Increase Great Fire Ball damage by 5–10%
+- Increase Frost Crunch damage by 5–10%
+- Reduce mana cost of Flame Disruptor by 5–15%
+- Reduce mana cost of Fire Wall by 5–15%
+- Reduce mana cost of Thunder Bolt by 5–15%
+- Reduce mana cost of Ice Storm by 5–15%
+- Reduce mana cost of Flame Field by 5–15%
+- Reduce mana cost of Meteor Strike by 5–15%
+- Reduce mana cost of Blizzard by 5–15%
+- Increase Flame Disruptor crit chance by 1–8%
+- Increase Flame Disruptor crit damage by 5–15%
+- Increase Fire Wall crit chance by 1–8%
+- Increase Fire Wall crit damage by 5–15%
+- Increase Thunder Bolt crit chance by 1–8%
+- Increase Thunder Bolt crit damage by 5–15%
+- Increase Ice Storm crit chance by 1–8%
+- Increase Ice Storm crit damage by 5–15%
+- Increase Flame Field crit chance by 1–8%
+- Increase Flame Field crit damage by 5–15%
+- Increase Meteor Strike crit chance by 1–8%
+- Increase Meteor Strike crit damage by 5–15%
+- Increase Blizzard crit chance by 1–8%
+- Increase Blizzard crit damage by 5–15%
+- Increase Fire Ball crit chance by 1–8%
+- Increase Fire Ball crit damage by 5–15%
+- Increase Great Fire Ball crit chance by 1–8%
+- Increase Great Fire Ball crit damage by 5–15%
+- Increase Frost Crunch crit chance by 1–8%
+- Increase Frost Crunch crit damage by 5–15%
+- −1–4% Damage taken
+- +1–6% Crit Rate
+- +5–15% Crit Damage
+- +2–12% Skill leveling
 
 **Titan Ring** (`titan-ring`)
 - +1–6 DC
-- +1–4 MC
 - +1–4 SC
 - +1–2 A Speed
 - +1–2 Freezing
 - +1–2 Poison
 - +1–3 AC
 - +1–3 AMC
+- Increase Healing healing by 5–10%
+- Increase Mass Healing healing by 5–10%
+- Increase Soul Fire Ball damage by 5–10%
+- Increase Skeleton damage by 5–20%
+- Increase Skeleton health by 5–20%
+- Reduce Skeleton damage taken by 5%
+- Increase Shinsu damage by 5–20%
+- Increase Shinsu health by 5–20%
+- Reduce Shinsu damage taken by 5%
+- Increase Holy Deva damage by 5–20%
+- Increase Holy Deva health by 5–20%
+- Reduce Holy Deva damage taken by 5%
+- Increase Soul Fire Ball crit chance by 1–8%
+- Increase Soul Fire Ball crit damage by 5–15%
+- −1–4% Damage taken
+- +1–6% Crit Rate
+- +5–15% Crit Damage
+- +2–12% Skill leveling
 
 **Violet Ring** (`violet-ring`)
-- +1–6 DC
 - +1–4 MC
-- +1–4 SC
 - +1–2 A Speed
 - +1–2 Freezing
 - +1–2 Poison
 - +1–3 AC
 - +1–3 AMC
+- Increase Flame Disruptor damage by 5–10%
+- Increase Fire Wall damage by 5–10%
+- Increase Thunder Bolt damage by 5–10%
+- Increase Ice Storm damage by 5–10%
+- Increase Flame Field damage by 5–10%
+- Increase Meteor Strike damage by 5–10%
+- Increase Blizzard damage by 5–10%
+- Increase Fire Ball damage by 5–10%
+- Increase Great Fire Ball damage by 5–10%
+- Increase Frost Crunch damage by 5–10%
+- Reduce mana cost of Flame Disruptor by 5–15%
+- Reduce mana cost of Fire Wall by 5–15%
+- Reduce mana cost of Thunder Bolt by 5–15%
+- Reduce mana cost of Ice Storm by 5–15%
+- Reduce mana cost of Flame Field by 5–15%
+- Reduce mana cost of Meteor Strike by 5–15%
+- Reduce mana cost of Blizzard by 5–15%
+- Increase Flame Disruptor crit chance by 1–8%
+- Increase Flame Disruptor crit damage by 5–15%
+- Increase Fire Wall crit chance by 1–8%
+- Increase Fire Wall crit damage by 5–15%
+- Increase Thunder Bolt crit chance by 1–8%
+- Increase Thunder Bolt crit damage by 5–15%
+- Increase Ice Storm crit chance by 1–8%
+- Increase Ice Storm crit damage by 5–15%
+- Increase Flame Field crit chance by 1–8%
+- Increase Flame Field crit damage by 5–15%
+- Increase Meteor Strike crit chance by 1–8%
+- Increase Meteor Strike crit damage by 5–15%
+- Increase Blizzard crit chance by 1–8%
+- Increase Blizzard crit damage by 5–15%
+- Increase Fire Ball crit chance by 1–8%
+- Increase Fire Ball crit damage by 5–15%
+- Increase Great Fire Ball crit chance by 1–8%
+- Increase Great Fire Ball crit damage by 5–15%
+- Increase Frost Crunch crit chance by 1–8%
+- Increase Frost Crunch crit damage by 5–15%
+- −1–4% Damage taken
+- +1–6% Crit Rate
+- +5–15% Crit Damage
+- +2–12% Skill leveling
 
 **White Jade Ring** (`white-jade-ring`)
 - +1–6 DC
-- +1–4 MC
 - +1–4 SC
 - +1–2 A Speed
 - +1–2 Freezing
 - +1–2 Poison
 - +1–3 AC
 - +1–3 AMC
+- Increase Healing healing by 5–10%
+- Increase Mass Healing healing by 5–10%
+- Increase Soul Fire Ball damage by 5–10%
+- Increase Skeleton damage by 5–20%
+- Increase Skeleton health by 5–20%
+- Reduce Skeleton damage taken by 5%
+- Increase Shinsu damage by 5–20%
+- Increase Shinsu health by 5–20%
+- Reduce Shinsu damage taken by 5%
+- Increase Holy Deva damage by 5–20%
+- Increase Holy Deva health by 5–20%
+- Reduce Holy Deva damage taken by 5%
+- Increase Soul Fire Ball crit chance by 1–8%
+- Increase Soul Fire Ball crit damage by 5–15%
+- −1–4% Damage taken
+- +1–6% Crit Rate
+- +5–15% Crit Damage
+- +2–12% Skill leveling
 
 **Copper Ring** (`copper-ring`)
 - +1–6 DC
-- +1–4 MC
-- +1–4 SC
 - +1–2 A Speed
 - +1–2 Freezing
 - +1–2 Poison
 - +1–3 AC
 - +1–3 AMC
+- Increase Slaying damage by 5–10%
+- Increase Flaming Sword damage by 5–10%
+- Reduce Flaming Sword cooldown by 1–2 seconds
+- Increase Twin Drake Blade damage by 5–10%
+- Reduce mana cost of Twin Drake Blade by 5–15%
+- Increase Blade Avalanche damage by 5–10%
+- Reduce mana cost of Blade Avalanche by 5–15%
+- Increase Slashing Burst damage by 5–10%
+- Reduce mana cost of Slashing Burst by 5–15%
+- Increase Slaying crit chance by 1–8%
+- Increase Slaying crit damage by 5–15%
+- Increase Flaming Sword crit chance by 1–8%
+- Increase Flaming Sword crit damage by 5–15%
+- Increase Twin Drake Blade crit chance by 1–8%
+- Increase Twin Drake Blade crit damage by 5–15%
+- Increase Blade Avalanche crit chance by 1–8%
+- Increase Blade Avalanche crit damage by 5–15%
+- Increase Slashing Burst crit chance by 1–8%
+- Increase Slashing Burst crit damage by 5–15%
+- −1–4% Damage taken
+- +1–6% Crit Rate
+- +5–15% Crit Damage
+- +2–12% Skill leveling
 
 **Old Copper Ring** (`old-copper-ring`)
 - +1–6 DC
-- +1–4 MC
-- +1–4 SC
 - +1–2 A Speed
 - +1–2 Freezing
 - +1–2 Poison
 - +1–3 AC
 - +1–3 AMC
+- Increase Slaying damage by 5–10%
+- Increase Flaming Sword damage by 5–10%
+- Reduce Flaming Sword cooldown by 1–2 seconds
+- Increase Twin Drake Blade damage by 5–10%
+- Reduce mana cost of Twin Drake Blade by 5–15%
+- Increase Blade Avalanche damage by 5–10%
+- Reduce mana cost of Blade Avalanche by 5–15%
+- Increase Slashing Burst damage by 5–10%
+- Reduce mana cost of Slashing Burst by 5–15%
+- Increase Slaying crit chance by 1–8%
+- Increase Slaying crit damage by 5–15%
+- Increase Flaming Sword crit chance by 1–8%
+- Increase Flaming Sword crit damage by 5–15%
+- Increase Twin Drake Blade crit chance by 1–8%
+- Increase Twin Drake Blade crit damage by 5–15%
+- Increase Blade Avalanche crit chance by 1–8%
+- Increase Blade Avalanche crit damage by 5–15%
+- Increase Slashing Burst crit chance by 1–8%
+- Increase Slashing Burst crit damage by 5–15%
+- −1–4% Damage taken
+- +1–6% Crit Rate
+- +5–15% Crit Damage
+- +2–12% Skill leveling
 
 **Glass Ring** (`glass-ring`)
 - +1–6 DC
-- +1–4 MC
 - +1–4 SC
 - +1–2 A Speed
 - +1–2 Freezing
 - +1–2 Poison
 - +1–3 AC
 - +1–3 AMC
+- Increase Healing healing by 5–10%
+- Increase Mass Healing healing by 5–10%
+- Increase Soul Fire Ball damage by 5–10%
+- Increase Skeleton damage by 5–20%
+- Increase Skeleton health by 5–20%
+- Reduce Skeleton damage taken by 5%
+- Increase Shinsu damage by 5–20%
+- Increase Shinsu health by 5–20%
+- Reduce Shinsu damage taken by 5%
+- Increase Holy Deva damage by 5–20%
+- Increase Holy Deva health by 5–20%
+- Reduce Holy Deva damage taken by 5%
+- Increase Soul Fire Ball crit chance by 1–8%
+- Increase Soul Fire Ball crit damage by 5–15%
+- −1–4% Damage taken
+- +1–6% Crit Rate
+- +5–15% Crit Damage
+- +2–12% Skill leveling
 
 **Hexagonal Ring** (`hexagonal-ring`)
-- +1–6 DC
 - +1–4 MC
-- +1–4 SC
 - +1–2 A Speed
 - +1–2 Freezing
 - +1–2 Poison
 - +1–3 AC
 - +1–3 AMC
+- Increase Flame Disruptor damage by 5–10%
+- Increase Fire Wall damage by 5–10%
+- Increase Thunder Bolt damage by 5–10%
+- Increase Ice Storm damage by 5–10%
+- Increase Flame Field damage by 5–10%
+- Increase Meteor Strike damage by 5–10%
+- Increase Blizzard damage by 5–10%
+- Increase Fire Ball damage by 5–10%
+- Increase Great Fire Ball damage by 5–10%
+- Increase Frost Crunch damage by 5–10%
+- Reduce mana cost of Flame Disruptor by 5–15%
+- Reduce mana cost of Fire Wall by 5–15%
+- Reduce mana cost of Thunder Bolt by 5–15%
+- Reduce mana cost of Ice Storm by 5–15%
+- Reduce mana cost of Flame Field by 5–15%
+- Reduce mana cost of Meteor Strike by 5–15%
+- Reduce mana cost of Blizzard by 5–15%
+- Increase Flame Disruptor crit chance by 1–8%
+- Increase Flame Disruptor crit damage by 5–15%
+- Increase Fire Wall crit chance by 1–8%
+- Increase Fire Wall crit damage by 5–15%
+- Increase Thunder Bolt crit chance by 1–8%
+- Increase Thunder Bolt crit damage by 5–15%
+- Increase Ice Storm crit chance by 1–8%
+- Increase Ice Storm crit damage by 5–15%
+- Increase Flame Field crit chance by 1–8%
+- Increase Flame Field crit damage by 5–15%
+- Increase Meteor Strike crit chance by 1–8%
+- Increase Meteor Strike crit damage by 5–15%
+- Increase Blizzard crit chance by 1–8%
+- Increase Blizzard crit damage by 5–15%
+- Increase Fire Ball crit chance by 1–8%
+- Increase Fire Ball crit damage by 5–15%
+- Increase Great Fire Ball crit chance by 1–8%
+- Increase Great Fire Ball crit damage by 5–15%
+- Increase Frost Crunch crit chance by 1–8%
+- Increase Frost Crunch crit damage by 5–15%
+- −1–4% Damage taken
+- +1–6% Crit Rate
+- +5–15% Crit Damage
+- +2–12% Skill leveling
 
 **Horn Ring** (`horn-ring`)
 - +1–6 DC
-- +1–4 MC
-- +1–4 SC
 - +1–2 A Speed
 - +1–2 Freezing
 - +1–2 Poison
 - +1–3 AC
 - +1–3 AMC
+- Increase Slaying damage by 5–10%
+- Increase Flaming Sword damage by 5–10%
+- Reduce Flaming Sword cooldown by 1–2 seconds
+- Increase Twin Drake Blade damage by 5–10%
+- Reduce mana cost of Twin Drake Blade by 5–15%
+- Increase Blade Avalanche damage by 5–10%
+- Reduce mana cost of Blade Avalanche by 5–15%
+- Increase Slashing Burst damage by 5–10%
+- Reduce mana cost of Slashing Burst by 5–15%
+- Increase Slaying crit chance by 1–8%
+- Increase Slaying crit damage by 5–15%
+- Increase Flaming Sword crit chance by 1–8%
+- Increase Flaming Sword crit damage by 5–15%
+- Increase Twin Drake Blade crit chance by 1–8%
+- Increase Twin Drake Blade crit damage by 5–15%
+- Increase Blade Avalanche crit chance by 1–8%
+- Increase Blade Avalanche crit damage by 5–15%
+- Increase Slashing Burst crit chance by 1–8%
+- Increase Slashing Burst crit damage by 5–15%
+- −1–4% Damage taken
+- +1–6% Crit Rate
+- +5–15% Crit Damage
+- +2–12% Skill leveling
 
 **Mundane Ring** (`mundane-ring`)
 - +1–6 DC
-- +1–4 MC
-- +1–4 SC
 - +1–2 A Speed
 - +1–2 Freezing
 - +1–2 Poison
 - +1–3 AC
 - +1–3 AMC
+- Increase Slaying damage by 5–10%
+- Increase Flaming Sword damage by 5–10%
+- Reduce Flaming Sword cooldown by 1–2 seconds
+- Increase Twin Drake Blade damage by 5–10%
+- Reduce mana cost of Twin Drake Blade by 5–15%
+- Increase Blade Avalanche damage by 5–10%
+- Reduce mana cost of Blade Avalanche by 5–15%
+- Increase Slashing Burst damage by 5–10%
+- Reduce mana cost of Slashing Burst by 5–15%
+- Increase Slaying crit chance by 1–8%
+- Increase Slaying crit damage by 5–15%
+- Increase Flaming Sword crit chance by 1–8%
+- Increase Flaming Sword crit damage by 5–15%
+- Increase Twin Drake Blade crit chance by 1–8%
+- Increase Twin Drake Blade crit damage by 5–15%
+- Increase Blade Avalanche crit chance by 1–8%
+- Increase Blade Avalanche crit damage by 5–15%
+- Increase Slashing Burst crit chance by 1–8%
+- Increase Slashing Burst crit damage by 5–15%
+- −1–4% Damage taken
+- +1–6% Crit Rate
+- +5–15% Crit Damage
+- +2–12% Skill leveling
 
 **Nok Chi Ring** (`nok-chi-ring`)
-- +1–6 DC
 - +1–4 MC
-- +1–4 SC
 - +1–2 A Speed
 - +1–2 Freezing
 - +1–2 Poison
 - +1–3 AC
 - +1–3 AMC
+- Increase Flame Disruptor damage by 5–10%
+- Increase Fire Wall damage by 5–10%
+- Increase Thunder Bolt damage by 5–10%
+- Increase Ice Storm damage by 5–10%
+- Increase Flame Field damage by 5–10%
+- Increase Meteor Strike damage by 5–10%
+- Increase Blizzard damage by 5–10%
+- Increase Fire Ball damage by 5–10%
+- Increase Great Fire Ball damage by 5–10%
+- Increase Frost Crunch damage by 5–10%
+- Reduce mana cost of Flame Disruptor by 5–15%
+- Reduce mana cost of Fire Wall by 5–15%
+- Reduce mana cost of Thunder Bolt by 5–15%
+- Reduce mana cost of Ice Storm by 5–15%
+- Reduce mana cost of Flame Field by 5–15%
+- Reduce mana cost of Meteor Strike by 5–15%
+- Reduce mana cost of Blizzard by 5–15%
+- Increase Flame Disruptor crit chance by 1–8%
+- Increase Flame Disruptor crit damage by 5–15%
+- Increase Fire Wall crit chance by 1–8%
+- Increase Fire Wall crit damage by 5–15%
+- Increase Thunder Bolt crit chance by 1–8%
+- Increase Thunder Bolt crit damage by 5–15%
+- Increase Ice Storm crit chance by 1–8%
+- Increase Ice Storm crit damage by 5–15%
+- Increase Flame Field crit chance by 1–8%
+- Increase Flame Field crit damage by 5–15%
+- Increase Meteor Strike crit chance by 1–8%
+- Increase Meteor Strike crit damage by 5–15%
+- Increase Blizzard crit chance by 1–8%
+- Increase Blizzard crit damage by 5–15%
+- Increase Fire Ball crit chance by 1–8%
+- Increase Fire Ball crit damage by 5–15%
+- Increase Great Fire Ball crit chance by 1–8%
+- Increase Great Fire Ball crit damage by 5–15%
+- Increase Frost Crunch crit chance by 1–8%
+- Increase Frost Crunch crit damage by 5–15%
+- −1–4% Damage taken
+- +1–6% Crit Rate
+- +5–15% Crit Damage
+- +2–12% Skill leveling
 
 **Tao Protect Ring** (`tao-protect-ring`)
 - +1–6 DC
-- +1–4 MC
 - +1–4 SC
 - +1–2 A Speed
 - +1–2 Freezing
 - +1–2 Poison
 - +1–3 AC
 - +1–3 AMC
+- Increase Healing healing by 5–10%
+- Increase Mass Healing healing by 5–10%
+- Increase Soul Fire Ball damage by 5–10%
+- Increase Skeleton damage by 5–20%
+- Increase Skeleton health by 5–20%
+- Reduce Skeleton damage taken by 5%
+- Increase Shinsu damage by 5–20%
+- Increase Shinsu health by 5–20%
+- Reduce Shinsu damage taken by 5%
+- Increase Holy Deva damage by 5–20%
+- Increase Holy Deva health by 5–20%
+- Reduce Holy Deva damage taken by 5%
+- Increase Soul Fire Ball crit chance by 1–8%
+- Increase Soul Fire Ball crit damage by 5–15%
+- −1–4% Damage taken
+- +1–6% Crit Rate
+- +5–15% Crit Damage
+- +2–12% Skill leveling
 
 **Spirit Ring** (`spirit-ring`)
-- +1–6 DC
 - +1–4 MC
-- +1–4 SC
 - +1–2 A Speed
 - +1–2 Freezing
 - +1–2 Poison
 - +1–3 AC
 - +1–3 AMC
+- Increase Flame Disruptor damage by 5–10%
+- Increase Fire Wall damage by 5–10%
+- Increase Thunder Bolt damage by 5–10%
+- Increase Ice Storm damage by 5–10%
+- Increase Flame Field damage by 5–10%
+- Increase Meteor Strike damage by 5–10%
+- Increase Blizzard damage by 5–10%
+- Increase Fire Ball damage by 5–10%
+- Increase Great Fire Ball damage by 5–10%
+- Increase Frost Crunch damage by 5–10%
+- Reduce mana cost of Flame Disruptor by 5–15%
+- Reduce mana cost of Fire Wall by 5–15%
+- Reduce mana cost of Thunder Bolt by 5–15%
+- Reduce mana cost of Ice Storm by 5–15%
+- Reduce mana cost of Flame Field by 5–15%
+- Reduce mana cost of Meteor Strike by 5–15%
+- Reduce mana cost of Blizzard by 5–15%
+- Increase Flame Disruptor crit chance by 1–8%
+- Increase Flame Disruptor crit damage by 5–15%
+- Increase Fire Wall crit chance by 1–8%
+- Increase Fire Wall crit damage by 5–15%
+- Increase Thunder Bolt crit chance by 1–8%
+- Increase Thunder Bolt crit damage by 5–15%
+- Increase Ice Storm crit chance by 1–8%
+- Increase Ice Storm crit damage by 5–15%
+- Increase Flame Field crit chance by 1–8%
+- Increase Flame Field crit damage by 5–15%
+- Increase Meteor Strike crit chance by 1–8%
+- Increase Meteor Strike crit damage by 5–15%
+- Increase Blizzard crit chance by 1–8%
+- Increase Blizzard crit damage by 5–15%
+- Increase Fire Ball crit chance by 1–8%
+- Increase Fire Ball crit damage by 5–15%
+- Increase Great Fire Ball crit chance by 1–8%
+- Increase Great Fire Ball crit damage by 5–15%
+- Increase Frost Crunch crit chance by 1–8%
+- Increase Frost Crunch crit damage by 5–15%
+- −1–4% Damage taken
+- +1–6% Crit Rate
+- +5–15% Crit Damage
+- +2–12% Skill leveling
 
 **Blue Ring** (`blue-ring`)
 - +1–6 DC
-- +1–4 MC
-- +1–4 SC
 - +1–2 A Speed
 - +1–2 Freezing
 - +1–2 Poison
 - +1–3 AC
 - +1–3 AMC
+- Increase Slaying damage by 5–10%
+- Increase Flaming Sword damage by 5–10%
+- Reduce Flaming Sword cooldown by 1–2 seconds
+- Increase Twin Drake Blade damage by 5–10%
+- Reduce mana cost of Twin Drake Blade by 5–15%
+- Increase Blade Avalanche damage by 5–10%
+- Reduce mana cost of Blade Avalanche by 5–15%
+- Increase Slashing Burst damage by 5–10%
+- Reduce mana cost of Slashing Burst by 5–15%
+- Increase Slaying crit chance by 1–8%
+- Increase Slaying crit damage by 5–15%
+- Increase Flaming Sword crit chance by 1–8%
+- Increase Flaming Sword crit damage by 5–15%
+- Increase Twin Drake Blade crit chance by 1–8%
+- Increase Twin Drake Blade crit damage by 5–15%
+- Increase Blade Avalanche crit chance by 1–8%
+- Increase Blade Avalanche crit damage by 5–15%
+- Increase Slashing Burst crit chance by 1–8%
+- Increase Slashing Burst crit damage by 5–15%
+- −1–4% Damage taken
+- +1–6% Crit Rate
+- +5–15% Crit Damage
+- +2–12% Skill leveling
 
 **Gale Ring** (`gale-ring`)
 - +1–6 DC
-- +1–4 MC
-- +1–4 SC
 - +1–2 A Speed
 - +1–2 Freezing
 - +1–2 Poison
 - +1–3 AC
 - +1–3 AMC
+- Increase Slaying damage by 5–10%
+- Increase Flaming Sword damage by 5–10%
+- Reduce Flaming Sword cooldown by 1–2 seconds
+- Increase Twin Drake Blade damage by 5–10%
+- Reduce mana cost of Twin Drake Blade by 5–15%
+- Increase Blade Avalanche damage by 5–10%
+- Reduce mana cost of Blade Avalanche by 5–15%
+- Increase Slashing Burst damage by 5–10%
+- Reduce mana cost of Slashing Burst by 5–15%
+- Increase Slaying crit chance by 1–8%
+- Increase Slaying crit damage by 5–15%
+- Increase Flaming Sword crit chance by 1–8%
+- Increase Flaming Sword crit damage by 5–15%
+- Increase Twin Drake Blade crit chance by 1–8%
+- Increase Twin Drake Blade crit damage by 5–15%
+- Increase Blade Avalanche crit chance by 1–8%
+- Increase Blade Avalanche crit damage by 5–15%
+- Increase Slashing Burst crit chance by 1–8%
+- Increase Slashing Burst crit damage by 5–15%
+- −1–4% Damage taken
+- +1–6% Crit Rate
+- +5–15% Crit Damage
+- +2–12% Skill leveling
 
 **Paralysis Ring** (`paralysis-ring`)
 - +1–6 DC
-- +1–4 MC
-- +1–4 SC
 - +1–2 A Speed
 - +1–2 Freezing
 - +1–2 Poison
 - +1–3 AC
 - +1–3 AMC
+- Increase Slaying damage by 5–10%
+- Increase Flaming Sword damage by 5–10%
+- Reduce Flaming Sword cooldown by 1–2 seconds
+- Increase Twin Drake Blade damage by 5–10%
+- Reduce mana cost of Twin Drake Blade by 5–15%
+- Increase Blade Avalanche damage by 5–10%
+- Reduce mana cost of Blade Avalanche by 5–15%
+- Increase Slashing Burst damage by 5–10%
+- Reduce mana cost of Slashing Burst by 5–15%
+- Increase Slaying crit chance by 1–8%
+- Increase Slaying crit damage by 5–15%
+- Increase Flaming Sword crit chance by 1–8%
+- Increase Flaming Sword crit damage by 5–15%
+- Increase Twin Drake Blade crit chance by 1–8%
+- Increase Twin Drake Blade crit damage by 5–15%
+- Increase Blade Avalanche crit chance by 1–8%
+- Increase Blade Avalanche crit damage by 5–15%
+- Increase Slashing Burst crit chance by 1–8%
+- Increase Slashing Burst crit damage by 5–15%
+- −1–4% Damage taken
+- +1–6% Crit Rate
+- +5–15% Crit Damage
+- +2–12% Skill leveling
 
 **Protection Ring** (`protection-ring`)
 - +1–6 DC
@@ -2538,26 +13293,138 @@ Grouped by slot. Weapons show their class and actual roll pool from `empowerCand
 - +1–2 Poison
 - +1–3 AC
 - +1–3 AMC
+- Increase Slaying damage by 5–10%
+- Increase Flaming Sword damage by 5–10%
+- Reduce Flaming Sword cooldown by 1–2 seconds
+- Increase Twin Drake Blade damage by 5–10%
+- Reduce mana cost of Twin Drake Blade by 5–15%
+- Increase Blade Avalanche damage by 5–10%
+- Reduce mana cost of Blade Avalanche by 5–15%
+- Increase Slashing Burst damage by 5–10%
+- Reduce mana cost of Slashing Burst by 5–15%
+- Increase Flame Disruptor damage by 5–10%
+- Increase Fire Wall damage by 5–10%
+- Increase Thunder Bolt damage by 5–10%
+- Increase Ice Storm damage by 5–10%
+- Increase Flame Field damage by 5–10%
+- Increase Meteor Strike damage by 5–10%
+- Increase Blizzard damage by 5–10%
+- Increase Fire Ball damage by 5–10%
+- Increase Great Fire Ball damage by 5–10%
+- Increase Frost Crunch damage by 5–10%
+- Reduce mana cost of Flame Disruptor by 5–15%
+- Reduce mana cost of Fire Wall by 5–15%
+- Reduce mana cost of Thunder Bolt by 5–15%
+- Reduce mana cost of Ice Storm by 5–15%
+- Reduce mana cost of Flame Field by 5–15%
+- Reduce mana cost of Meteor Strike by 5–15%
+- Reduce mana cost of Blizzard by 5–15%
+- Increase Healing healing by 5–10%
+- Increase Mass Healing healing by 5–10%
+- Increase Soul Fire Ball damage by 5–10%
+- Increase Skeleton damage by 5–20%
+- Increase Skeleton health by 5–20%
+- Reduce Skeleton damage taken by 5%
+- Increase Shinsu damage by 5–20%
+- Increase Shinsu health by 5–20%
+- Reduce Shinsu damage taken by 5%
+- Increase Holy Deva damage by 5–20%
+- Increase Holy Deva health by 5–20%
+- Reduce Holy Deva damage taken by 5%
+- Increase Slaying crit chance by 1–8%
+- Increase Slaying crit damage by 5–15%
+- Increase Flaming Sword crit chance by 1–8%
+- Increase Flaming Sword crit damage by 5–15%
+- Increase Twin Drake Blade crit chance by 1–8%
+- Increase Twin Drake Blade crit damage by 5–15%
+- Increase Blade Avalanche crit chance by 1–8%
+- Increase Blade Avalanche crit damage by 5–15%
+- Increase Slashing Burst crit chance by 1–8%
+- Increase Slashing Burst crit damage by 5–15%
+- Increase Flame Disruptor crit chance by 1–8%
+- Increase Flame Disruptor crit damage by 5–15%
+- Increase Fire Wall crit chance by 1–8%
+- Increase Fire Wall crit damage by 5–15%
+- Increase Thunder Bolt crit chance by 1–8%
+- Increase Thunder Bolt crit damage by 5–15%
+- Increase Ice Storm crit chance by 1–8%
+- Increase Ice Storm crit damage by 5–15%
+- Increase Flame Field crit chance by 1–8%
+- Increase Flame Field crit damage by 5–15%
+- Increase Meteor Strike crit chance by 1–8%
+- Increase Meteor Strike crit damage by 5–15%
+- Increase Blizzard crit chance by 1–8%
+- Increase Blizzard crit damage by 5–15%
+- Increase Fire Ball crit chance by 1–8%
+- Increase Fire Ball crit damage by 5–15%
+- Increase Great Fire Ball crit chance by 1–8%
+- Increase Great Fire Ball crit damage by 5–15%
+- Increase Frost Crunch crit chance by 1–8%
+- Increase Frost Crunch crit damage by 5–15%
+- Increase Soul Fire Ball crit chance by 1–8%
+- Increase Soul Fire Ball crit damage by 5–15%
+- −1–4% Damage taken
+- +1–6% Crit Rate
+- +5–15% Crit Damage
+- +2–12% Skill leveling
 
 **Recovery Ring** (`recovery-ring`)
 - +1–6 DC
-- +1–4 MC
 - +1–4 SC
 - +1–2 A Speed
 - +1–2 Freezing
 - +1–2 Poison
 - +1–3 AC
 - +1–3 AMC
+- Increase Healing healing by 5–10%
+- Increase Mass Healing healing by 5–10%
+- Increase Soul Fire Ball damage by 5–10%
+- Increase Skeleton damage by 5–20%
+- Increase Skeleton health by 5–20%
+- Reduce Skeleton damage taken by 5%
+- Increase Shinsu damage by 5–20%
+- Increase Shinsu health by 5–20%
+- Reduce Shinsu damage taken by 5%
+- Increase Holy Deva damage by 5–20%
+- Increase Holy Deva health by 5–20%
+- Reduce Holy Deva damage taken by 5%
+- Increase Soul Fire Ball crit chance by 1–8%
+- Increase Soul Fire Ball crit damage by 5–15%
+- −1–4% Damage taken
+- +1–6% Crit Rate
+- +5–15% Crit Damage
+- +2–12% Skill leveling
 
 **Black Ring** (`black-ring`)
 - +1–6 DC
-- +1–4 MC
-- +1–4 SC
 - +1–2 A Speed
 - +1–2 Freezing
 - +1–2 Poison
 - +1–3 AC
 - +1–3 AMC
+- Increase Slaying damage by 5–10%
+- Increase Flaming Sword damage by 5–10%
+- Reduce Flaming Sword cooldown by 1–2 seconds
+- Increase Twin Drake Blade damage by 5–10%
+- Reduce mana cost of Twin Drake Blade by 5–15%
+- Increase Blade Avalanche damage by 5–10%
+- Reduce mana cost of Blade Avalanche by 5–15%
+- Increase Slashing Burst damage by 5–10%
+- Reduce mana cost of Slashing Burst by 5–15%
+- Increase Slaying crit chance by 1–8%
+- Increase Slaying crit damage by 5–15%
+- Increase Flaming Sword crit chance by 1–8%
+- Increase Flaming Sword crit damage by 5–15%
+- Increase Twin Drake Blade crit chance by 1–8%
+- Increase Twin Drake Blade crit damage by 5–15%
+- Increase Blade Avalanche crit chance by 1–8%
+- Increase Blade Avalanche crit damage by 5–15%
+- Increase Slashing Burst crit chance by 1–8%
+- Increase Slashing Burst crit damage by 5–15%
+- −1–4% Damage taken
+- +1–6% Crit Rate
+- +5–15% Crit Damage
+- +2–12% Skill leveling
 
 **Gold Ring** (`gold-ring`)
 - +1–6 DC
@@ -2568,56 +13435,259 @@ Grouped by slot. Weapons show their class and actual roll pool from `empowerCand
 - +1–2 Poison
 - +1–3 AC
 - +1–3 AMC
+- Increase Slaying damage by 5–10%
+- Increase Flaming Sword damage by 5–10%
+- Reduce Flaming Sword cooldown by 1–2 seconds
+- Increase Twin Drake Blade damage by 5–10%
+- Reduce mana cost of Twin Drake Blade by 5–15%
+- Increase Blade Avalanche damage by 5–10%
+- Reduce mana cost of Blade Avalanche by 5–15%
+- Increase Slashing Burst damage by 5–10%
+- Reduce mana cost of Slashing Burst by 5–15%
+- Increase Flame Disruptor damage by 5–10%
+- Increase Fire Wall damage by 5–10%
+- Increase Thunder Bolt damage by 5–10%
+- Increase Ice Storm damage by 5–10%
+- Increase Flame Field damage by 5–10%
+- Increase Meteor Strike damage by 5–10%
+- Increase Blizzard damage by 5–10%
+- Increase Fire Ball damage by 5–10%
+- Increase Great Fire Ball damage by 5–10%
+- Increase Frost Crunch damage by 5–10%
+- Reduce mana cost of Flame Disruptor by 5–15%
+- Reduce mana cost of Fire Wall by 5–15%
+- Reduce mana cost of Thunder Bolt by 5–15%
+- Reduce mana cost of Ice Storm by 5–15%
+- Reduce mana cost of Flame Field by 5–15%
+- Reduce mana cost of Meteor Strike by 5–15%
+- Reduce mana cost of Blizzard by 5–15%
+- Increase Healing healing by 5–10%
+- Increase Mass Healing healing by 5–10%
+- Increase Soul Fire Ball damage by 5–10%
+- Increase Skeleton damage by 5–20%
+- Increase Skeleton health by 5–20%
+- Reduce Skeleton damage taken by 5%
+- Increase Shinsu damage by 5–20%
+- Increase Shinsu health by 5–20%
+- Reduce Shinsu damage taken by 5%
+- Increase Holy Deva damage by 5–20%
+- Increase Holy Deva health by 5–20%
+- Reduce Holy Deva damage taken by 5%
+- Increase Slaying crit chance by 1–8%
+- Increase Slaying crit damage by 5–15%
+- Increase Flaming Sword crit chance by 1–8%
+- Increase Flaming Sword crit damage by 5–15%
+- Increase Twin Drake Blade crit chance by 1–8%
+- Increase Twin Drake Blade crit damage by 5–15%
+- Increase Blade Avalanche crit chance by 1–8%
+- Increase Blade Avalanche crit damage by 5–15%
+- Increase Slashing Burst crit chance by 1–8%
+- Increase Slashing Burst crit damage by 5–15%
+- Increase Flame Disruptor crit chance by 1–8%
+- Increase Flame Disruptor crit damage by 5–15%
+- Increase Fire Wall crit chance by 1–8%
+- Increase Fire Wall crit damage by 5–15%
+- Increase Thunder Bolt crit chance by 1–8%
+- Increase Thunder Bolt crit damage by 5–15%
+- Increase Ice Storm crit chance by 1–8%
+- Increase Ice Storm crit damage by 5–15%
+- Increase Flame Field crit chance by 1–8%
+- Increase Flame Field crit damage by 5–15%
+- Increase Meteor Strike crit chance by 1–8%
+- Increase Meteor Strike crit damage by 5–15%
+- Increase Blizzard crit chance by 1–8%
+- Increase Blizzard crit damage by 5–15%
+- Increase Fire Ball crit chance by 1–8%
+- Increase Fire Ball crit damage by 5–15%
+- Increase Great Fire Ball crit chance by 1–8%
+- Increase Great Fire Ball crit damage by 5–15%
+- Increase Frost Crunch crit chance by 1–8%
+- Increase Frost Crunch crit damage by 5–15%
+- Increase Soul Fire Ball crit chance by 1–8%
+- Increase Soul Fire Ball crit damage by 5–15%
+- −1–4% Damage taken
+- +1–6% Crit Rate
+- +5–15% Crit Damage
+- +2–12% Skill leveling
 
 **Pearl Ring** (`pearl-ring`)
 - +1–6 DC
-- +1–4 MC
 - +1–4 SC
 - +1–2 A Speed
 - +1–2 Freezing
 - +1–2 Poison
 - +1–3 AC
 - +1–3 AMC
+- Increase Healing healing by 5–10%
+- Increase Mass Healing healing by 5–10%
+- Increase Soul Fire Ball damage by 5–10%
+- Increase Skeleton damage by 5–20%
+- Increase Skeleton health by 5–20%
+- Reduce Skeleton damage taken by 5%
+- Increase Shinsu damage by 5–20%
+- Increase Shinsu health by 5–20%
+- Reduce Shinsu damage taken by 5%
+- Increase Holy Deva damage by 5–20%
+- Increase Holy Deva health by 5–20%
+- Reduce Holy Deva damage taken by 5%
+- Increase Soul Fire Ball crit chance by 1–8%
+- Increase Soul Fire Ball crit damage by 5–15%
+- −1–4% Damage taken
+- +1–6% Crit Rate
+- +5–15% Crit Damage
+- +2–12% Skill leveling
 
 **Serpent Eye Ring** (`serpent-eye-ring`)
-- +1–6 DC
 - +1–4 MC
-- +1–4 SC
 - +1–2 A Speed
 - +1–2 Freezing
 - +1–2 Poison
 - +1–3 AC
 - +1–3 AMC
+- Increase Flame Disruptor damage by 5–10%
+- Increase Fire Wall damage by 5–10%
+- Increase Thunder Bolt damage by 5–10%
+- Increase Ice Storm damage by 5–10%
+- Increase Flame Field damage by 5–10%
+- Increase Meteor Strike damage by 5–10%
+- Increase Blizzard damage by 5–10%
+- Increase Fire Ball damage by 5–10%
+- Increase Great Fire Ball damage by 5–10%
+- Increase Frost Crunch damage by 5–10%
+- Reduce mana cost of Flame Disruptor by 5–15%
+- Reduce mana cost of Fire Wall by 5–15%
+- Reduce mana cost of Thunder Bolt by 5–15%
+- Reduce mana cost of Ice Storm by 5–15%
+- Reduce mana cost of Flame Field by 5–15%
+- Reduce mana cost of Meteor Strike by 5–15%
+- Reduce mana cost of Blizzard by 5–15%
+- Increase Flame Disruptor crit chance by 1–8%
+- Increase Flame Disruptor crit damage by 5–15%
+- Increase Fire Wall crit chance by 1–8%
+- Increase Fire Wall crit damage by 5–15%
+- Increase Thunder Bolt crit chance by 1–8%
+- Increase Thunder Bolt crit damage by 5–15%
+- Increase Ice Storm crit chance by 1–8%
+- Increase Ice Storm crit damage by 5–15%
+- Increase Flame Field crit chance by 1–8%
+- Increase Flame Field crit damage by 5–15%
+- Increase Meteor Strike crit chance by 1–8%
+- Increase Meteor Strike crit damage by 5–15%
+- Increase Blizzard crit chance by 1–8%
+- Increase Blizzard crit damage by 5–15%
+- Increase Fire Ball crit chance by 1–8%
+- Increase Fire Ball crit damage by 5–15%
+- Increase Great Fire Ball crit chance by 1–8%
+- Increase Great Fire Ball crit damage by 5–15%
+- Increase Frost Crunch crit chance by 1–8%
+- Increase Frost Crunch crit damage by 5–15%
+- −1–4% Damage taken
+- +1–6% Crit Rate
+- +5–15% Crit Damage
+- +2–12% Skill leveling
 
 **Charm Ring** (`charm-ring`)
-- +1–6 DC
 - +1–4 MC
-- +1–4 SC
 - +1–2 A Speed
 - +1–2 Freezing
 - +1–2 Poison
 - +1–3 AC
 - +1–3 AMC
+- Increase Flame Disruptor damage by 5–10%
+- Increase Fire Wall damage by 5–10%
+- Increase Thunder Bolt damage by 5–10%
+- Increase Ice Storm damage by 5–10%
+- Increase Flame Field damage by 5–10%
+- Increase Meteor Strike damage by 5–10%
+- Increase Blizzard damage by 5–10%
+- Increase Fire Ball damage by 5–10%
+- Increase Great Fire Ball damage by 5–10%
+- Increase Frost Crunch damage by 5–10%
+- Reduce mana cost of Flame Disruptor by 5–15%
+- Reduce mana cost of Fire Wall by 5–15%
+- Reduce mana cost of Thunder Bolt by 5–15%
+- Reduce mana cost of Ice Storm by 5–15%
+- Reduce mana cost of Flame Field by 5–15%
+- Reduce mana cost of Meteor Strike by 5–15%
+- Reduce mana cost of Blizzard by 5–15%
+- Increase Flame Disruptor crit chance by 1–8%
+- Increase Flame Disruptor crit damage by 5–15%
+- Increase Fire Wall crit chance by 1–8%
+- Increase Fire Wall crit damage by 5–15%
+- Increase Thunder Bolt crit chance by 1–8%
+- Increase Thunder Bolt crit damage by 5–15%
+- Increase Ice Storm crit chance by 1–8%
+- Increase Ice Storm crit damage by 5–15%
+- Increase Flame Field crit chance by 1–8%
+- Increase Flame Field crit damage by 5–15%
+- Increase Meteor Strike crit chance by 1–8%
+- Increase Meteor Strike crit damage by 5–15%
+- Increase Blizzard crit chance by 1–8%
+- Increase Blizzard crit damage by 5–15%
+- Increase Fire Ball crit chance by 1–8%
+- Increase Fire Ball crit damage by 5–15%
+- Increase Great Fire Ball crit chance by 1–8%
+- Increase Great Fire Ball crit damage by 5–15%
+- Increase Frost Crunch crit chance by 1–8%
+- Increase Frost Crunch crit damage by 5–15%
+- −1–4% Damage taken
+- +1–6% Crit Rate
+- +5–15% Crit Damage
+- +2–12% Skill leveling
 
 **Moral Ring** (`moral-ring`)
 - +1–6 DC
-- +1–4 MC
 - +1–4 SC
 - +1–2 A Speed
 - +1–2 Freezing
 - +1–2 Poison
 - +1–3 AC
 - +1–3 AMC
+- Increase Healing healing by 5–10%
+- Increase Mass Healing healing by 5–10%
+- Increase Soul Fire Ball damage by 5–10%
+- Increase Skeleton damage by 5–20%
+- Increase Skeleton health by 5–20%
+- Reduce Skeleton damage taken by 5%
+- Increase Shinsu damage by 5–20%
+- Increase Shinsu health by 5–20%
+- Reduce Shinsu damage taken by 5%
+- Increase Holy Deva damage by 5–20%
+- Increase Holy Deva health by 5–20%
+- Reduce Holy Deva damage taken by 5%
+- Increase Soul Fire Ball crit chance by 1–8%
+- Increase Soul Fire Ball crit damage by 5–15%
+- −1–4% Damage taken
+- +1–6% Crit Rate
+- +5–15% Crit Damage
+- +2–12% Skill leveling
 
 **Nephrite Ring** (`nephrite-ring`)
 - +1–6 DC
-- +1–4 MC
 - +1–4 SC
 - +1–2 A Speed
 - +1–2 Freezing
 - +1–2 Poison
 - +1–3 AC
 - +1–3 AMC
+- Increase Healing healing by 5–10%
+- Increase Mass Healing healing by 5–10%
+- Increase Soul Fire Ball damage by 5–10%
+- Increase Skeleton damage by 5–20%
+- Increase Skeleton health by 5–20%
+- Reduce Skeleton damage taken by 5%
+- Increase Shinsu damage by 5–20%
+- Increase Shinsu health by 5–20%
+- Reduce Shinsu damage taken by 5%
+- Increase Holy Deva damage by 5–20%
+- Increase Holy Deva health by 5–20%
+- Reduce Holy Deva damage taken by 5%
+- Increase Soul Fire Ball crit chance by 1–8%
+- Increase Soul Fire Ball crit damage by 5–15%
+- −1–4% Damage taken
+- +1–6% Crit Rate
+- +5–15% Crit Damage
+- +2–12% Skill leveling
 
 **Bug Ring** (`bug-ring`)
 - +1–6 DC
@@ -2628,16 +13698,111 @@ Grouped by slot. Weapons show their class and actual roll pool from `empowerCand
 - +1–2 Poison
 - +1–3 AC
 - +1–3 AMC
+- Increase Slaying damage by 5–10%
+- Increase Flaming Sword damage by 5–10%
+- Reduce Flaming Sword cooldown by 1–2 seconds
+- Increase Twin Drake Blade damage by 5–10%
+- Reduce mana cost of Twin Drake Blade by 5–15%
+- Increase Blade Avalanche damage by 5–10%
+- Reduce mana cost of Blade Avalanche by 5–15%
+- Increase Slashing Burst damage by 5–10%
+- Reduce mana cost of Slashing Burst by 5–15%
+- Increase Flame Disruptor damage by 5–10%
+- Increase Fire Wall damage by 5–10%
+- Increase Thunder Bolt damage by 5–10%
+- Increase Ice Storm damage by 5–10%
+- Increase Flame Field damage by 5–10%
+- Increase Meteor Strike damage by 5–10%
+- Increase Blizzard damage by 5–10%
+- Increase Fire Ball damage by 5–10%
+- Increase Great Fire Ball damage by 5–10%
+- Increase Frost Crunch damage by 5–10%
+- Reduce mana cost of Flame Disruptor by 5–15%
+- Reduce mana cost of Fire Wall by 5–15%
+- Reduce mana cost of Thunder Bolt by 5–15%
+- Reduce mana cost of Ice Storm by 5–15%
+- Reduce mana cost of Flame Field by 5–15%
+- Reduce mana cost of Meteor Strike by 5–15%
+- Reduce mana cost of Blizzard by 5–15%
+- Increase Healing healing by 5–10%
+- Increase Mass Healing healing by 5–10%
+- Increase Soul Fire Ball damage by 5–10%
+- Increase Skeleton damage by 5–20%
+- Increase Skeleton health by 5–20%
+- Reduce Skeleton damage taken by 5%
+- Increase Shinsu damage by 5–20%
+- Increase Shinsu health by 5–20%
+- Reduce Shinsu damage taken by 5%
+- Increase Holy Deva damage by 5–20%
+- Increase Holy Deva health by 5–20%
+- Reduce Holy Deva damage taken by 5%
+- Increase Slaying crit chance by 1–8%
+- Increase Slaying crit damage by 5–15%
+- Increase Flaming Sword crit chance by 1–8%
+- Increase Flaming Sword crit damage by 5–15%
+- Increase Twin Drake Blade crit chance by 1–8%
+- Increase Twin Drake Blade crit damage by 5–15%
+- Increase Blade Avalanche crit chance by 1–8%
+- Increase Blade Avalanche crit damage by 5–15%
+- Increase Slashing Burst crit chance by 1–8%
+- Increase Slashing Burst crit damage by 5–15%
+- Increase Flame Disruptor crit chance by 1–8%
+- Increase Flame Disruptor crit damage by 5–15%
+- Increase Fire Wall crit chance by 1–8%
+- Increase Fire Wall crit damage by 5–15%
+- Increase Thunder Bolt crit chance by 1–8%
+- Increase Thunder Bolt crit damage by 5–15%
+- Increase Ice Storm crit chance by 1–8%
+- Increase Ice Storm crit damage by 5–15%
+- Increase Flame Field crit chance by 1–8%
+- Increase Flame Field crit damage by 5–15%
+- Increase Meteor Strike crit chance by 1–8%
+- Increase Meteor Strike crit damage by 5–15%
+- Increase Blizzard crit chance by 1–8%
+- Increase Blizzard crit damage by 5–15%
+- Increase Fire Ball crit chance by 1–8%
+- Increase Fire Ball crit damage by 5–15%
+- Increase Great Fire Ball crit chance by 1–8%
+- Increase Great Fire Ball crit damage by 5–15%
+- Increase Frost Crunch crit chance by 1–8%
+- Increase Frost Crunch crit damage by 5–15%
+- Increase Soul Fire Ball crit chance by 1–8%
+- Increase Soul Fire Ball crit damage by 5–15%
+- −1–4% Damage taken
+- +1–6% Crit Rate
+- +5–15% Crit Damage
+- +2–12% Skill leveling
 
 **Coral Ring** (`coral-ring`)
 - +1–6 DC
-- +1–4 MC
-- +1–4 SC
 - +1–2 A Speed
 - +1–2 Freezing
 - +1–2 Poison
 - +1–3 AC
 - +1–3 AMC
+- Increase Slaying damage by 5–10%
+- Increase Flaming Sword damage by 5–10%
+- Reduce Flaming Sword cooldown by 1–2 seconds
+- Increase Twin Drake Blade damage by 5–10%
+- Reduce mana cost of Twin Drake Blade by 5–15%
+- Increase Blade Avalanche damage by 5–10%
+- Reduce mana cost of Blade Avalanche by 5–15%
+- Increase Slashing Burst damage by 5–10%
+- Reduce mana cost of Slashing Burst by 5–15%
+- Increase Slaying crit chance by 1–8%
+- Increase Slaying crit damage by 5–15%
+- Increase Flaming Sword crit chance by 1–8%
+- Increase Flaming Sword crit damage by 5–15%
+- Increase Twin Drake Blade crit chance by 1–8%
+- Increase Twin Drake Blade crit damage by 5–15%
+- Increase Blade Avalanche crit chance by 1–8%
+- Increase Blade Avalanche crit damage by 5–15%
+- Increase Slashing Burst crit chance by 1–8%
+- Increase Slashing Burst crit damage by 5–15%
+- −1–4% Damage taken
+- +1–6% Crit Rate
+- +5–15% Crit Damage
+- +2–12% Skill leveling
 
 **Expel Ring** (`expel-ring`)
 - +1–6 DC
@@ -2648,135 +13813,542 @@ Grouped by slot. Weapons show their class and actual roll pool from `empowerCand
 - +1–2 Poison
 - +1–3 AC
 - +1–3 AMC
+- Increase Slaying damage by 5–10%
+- Increase Flaming Sword damage by 5–10%
+- Reduce Flaming Sword cooldown by 1–2 seconds
+- Increase Twin Drake Blade damage by 5–10%
+- Reduce mana cost of Twin Drake Blade by 5–15%
+- Increase Blade Avalanche damage by 5–10%
+- Reduce mana cost of Blade Avalanche by 5–15%
+- Increase Slashing Burst damage by 5–10%
+- Reduce mana cost of Slashing Burst by 5–15%
+- Increase Flame Disruptor damage by 5–10%
+- Increase Fire Wall damage by 5–10%
+- Increase Thunder Bolt damage by 5–10%
+- Increase Ice Storm damage by 5–10%
+- Increase Flame Field damage by 5–10%
+- Increase Meteor Strike damage by 5–10%
+- Increase Blizzard damage by 5–10%
+- Increase Fire Ball damage by 5–10%
+- Increase Great Fire Ball damage by 5–10%
+- Increase Frost Crunch damage by 5–10%
+- Reduce mana cost of Flame Disruptor by 5–15%
+- Reduce mana cost of Fire Wall by 5–15%
+- Reduce mana cost of Thunder Bolt by 5–15%
+- Reduce mana cost of Ice Storm by 5–15%
+- Reduce mana cost of Flame Field by 5–15%
+- Reduce mana cost of Meteor Strike by 5–15%
+- Reduce mana cost of Blizzard by 5–15%
+- Increase Healing healing by 5–10%
+- Increase Mass Healing healing by 5–10%
+- Increase Soul Fire Ball damage by 5–10%
+- Increase Skeleton damage by 5–20%
+- Increase Skeleton health by 5–20%
+- Reduce Skeleton damage taken by 5%
+- Increase Shinsu damage by 5–20%
+- Increase Shinsu health by 5–20%
+- Reduce Shinsu damage taken by 5%
+- Increase Holy Deva damage by 5–20%
+- Increase Holy Deva health by 5–20%
+- Reduce Holy Deva damage taken by 5%
+- Increase Slaying crit chance by 1–8%
+- Increase Slaying crit damage by 5–15%
+- Increase Flaming Sword crit chance by 1–8%
+- Increase Flaming Sword crit damage by 5–15%
+- Increase Twin Drake Blade crit chance by 1–8%
+- Increase Twin Drake Blade crit damage by 5–15%
+- Increase Blade Avalanche crit chance by 1–8%
+- Increase Blade Avalanche crit damage by 5–15%
+- Increase Slashing Burst crit chance by 1–8%
+- Increase Slashing Burst crit damage by 5–15%
+- Increase Flame Disruptor crit chance by 1–8%
+- Increase Flame Disruptor crit damage by 5–15%
+- Increase Fire Wall crit chance by 1–8%
+- Increase Fire Wall crit damage by 5–15%
+- Increase Thunder Bolt crit chance by 1–8%
+- Increase Thunder Bolt crit damage by 5–15%
+- Increase Ice Storm crit chance by 1–8%
+- Increase Ice Storm crit damage by 5–15%
+- Increase Flame Field crit chance by 1–8%
+- Increase Flame Field crit damage by 5–15%
+- Increase Meteor Strike crit chance by 1–8%
+- Increase Meteor Strike crit damage by 5–15%
+- Increase Blizzard crit chance by 1–8%
+- Increase Blizzard crit damage by 5–15%
+- Increase Fire Ball crit chance by 1–8%
+- Increase Fire Ball crit damage by 5–15%
+- Increase Great Fire Ball crit chance by 1–8%
+- Increase Great Fire Ball crit damage by 5–15%
+- Increase Frost Crunch crit chance by 1–8%
+- Increase Frost Crunch crit damage by 5–15%
+- Increase Soul Fire Ball crit chance by 1–8%
+- Increase Soul Fire Ball crit damage by 5–15%
+- −1–4% Damage taken
+- +1–6% Crit Rate
+- +5–15% Crit Damage
+- +2–12% Skill leveling
 
 **Twin Gold Ring** (`twin-gold-ring`)
 - +1–6 DC
-- +1–4 MC
-- +1–4 SC
 - +1–2 A Speed
 - +1–2 Freezing
 - +1–2 Poison
 - +1–3 AC
 - +1–3 AMC
+- Increase Slaying damage by 5–10%
+- Increase Flaming Sword damage by 5–10%
+- Reduce Flaming Sword cooldown by 1–2 seconds
+- Increase Twin Drake Blade damage by 5–10%
+- Reduce mana cost of Twin Drake Blade by 5–15%
+- Increase Blade Avalanche damage by 5–10%
+- Reduce mana cost of Blade Avalanche by 5–15%
+- Increase Slashing Burst damage by 5–10%
+- Reduce mana cost of Slashing Burst by 5–15%
+- Increase Slaying crit chance by 1–8%
+- Increase Slaying crit damage by 5–15%
+- Increase Flaming Sword crit chance by 1–8%
+- Increase Flaming Sword crit damage by 5–15%
+- Increase Twin Drake Blade crit chance by 1–8%
+- Increase Twin Drake Blade crit damage by 5–15%
+- Increase Blade Avalanche crit chance by 1–8%
+- Increase Blade Avalanche crit damage by 5–15%
+- Increase Slashing Burst crit chance by 1–8%
+- Increase Slashing Burst crit damage by 5–15%
+- −1–4% Damage taken
+- +1–6% Crit Rate
+- +5–15% Crit Damage
+- +2–12% Skill leveling
 
 **Hwan Devil Ring** (`hwan-devil-ring`)
-- +1–6 DC
 - +1–4 MC
-- +1–4 SC
 - +1–2 A Speed
 - +1–2 Freezing
 - +1–2 Poison
 - +1–3 AC
 - +1–3 AMC
+- Increase Flame Disruptor damage by 5–10%
+- Increase Fire Wall damage by 5–10%
+- Increase Thunder Bolt damage by 5–10%
+- Increase Ice Storm damage by 5–10%
+- Increase Flame Field damage by 5–10%
+- Increase Meteor Strike damage by 5–10%
+- Increase Blizzard damage by 5–10%
+- Increase Fire Ball damage by 5–10%
+- Increase Great Fire Ball damage by 5–10%
+- Increase Frost Crunch damage by 5–10%
+- Reduce mana cost of Flame Disruptor by 5–15%
+- Reduce mana cost of Fire Wall by 5–15%
+- Reduce mana cost of Thunder Bolt by 5–15%
+- Reduce mana cost of Ice Storm by 5–15%
+- Reduce mana cost of Flame Field by 5–15%
+- Reduce mana cost of Meteor Strike by 5–15%
+- Reduce mana cost of Blizzard by 5–15%
+- Increase Flame Disruptor crit chance by 1–8%
+- Increase Flame Disruptor crit damage by 5–15%
+- Increase Fire Wall crit chance by 1–8%
+- Increase Fire Wall crit damage by 5–15%
+- Increase Thunder Bolt crit chance by 1–8%
+- Increase Thunder Bolt crit damage by 5–15%
+- Increase Ice Storm crit chance by 1–8%
+- Increase Ice Storm crit damage by 5–15%
+- Increase Flame Field crit chance by 1–8%
+- Increase Flame Field crit damage by 5–15%
+- Increase Meteor Strike crit chance by 1–8%
+- Increase Meteor Strike crit damage by 5–15%
+- Increase Blizzard crit chance by 1–8%
+- Increase Blizzard crit damage by 5–15%
+- Increase Fire Ball crit chance by 1–8%
+- Increase Fire Ball crit damage by 5–15%
+- Increase Great Fire Ball crit chance by 1–8%
+- Increase Great Fire Ball crit damage by 5–15%
+- Increase Frost Crunch crit chance by 1–8%
+- Increase Frost Crunch crit damage by 5–15%
+- −1–4% Damage taken
+- +1–6% Crit Rate
+- +5–15% Crit Damage
+- +2–12% Skill leveling
 
 **Purity Ring** (`purity-ring`)
 - +1–6 DC
-- +1–4 MC
 - +1–4 SC
 - +1–2 A Speed
 - +1–2 Freezing
 - +1–2 Poison
 - +1–3 AC
 - +1–3 AMC
+- Increase Healing healing by 5–10%
+- Increase Mass Healing healing by 5–10%
+- Increase Soul Fire Ball damage by 5–10%
+- Increase Skeleton damage by 5–20%
+- Increase Skeleton health by 5–20%
+- Reduce Skeleton damage taken by 5%
+- Increase Shinsu damage by 5–20%
+- Increase Shinsu health by 5–20%
+- Reduce Shinsu damage taken by 5%
+- Increase Holy Deva damage by 5–20%
+- Increase Holy Deva health by 5–20%
+- Reduce Holy Deva damage taken by 5%
+- Increase Soul Fire Ball crit chance by 1–8%
+- Increase Soul Fire Ball crit damage by 5–15%
+- −1–4% Damage taken
+- +1–6% Crit Rate
+- +5–15% Crit Damage
+- +2–12% Skill leveling
 
 **Red Orchid Ring** (`red-orchid-ring`)
 - +1–6 DC
-- +1–4 MC
-- +1–4 SC
 - +1–2 A Speed
 - +1–2 Freezing
 - +1–2 Poison
 - +1–3 AC
 - +1–3 AMC
+- Increase Slaying damage by 5–10%
+- Increase Flaming Sword damage by 5–10%
+- Reduce Flaming Sword cooldown by 1–2 seconds
+- Increase Twin Drake Blade damage by 5–10%
+- Reduce mana cost of Twin Drake Blade by 5–15%
+- Increase Blade Avalanche damage by 5–10%
+- Reduce mana cost of Blade Avalanche by 5–15%
+- Increase Slashing Burst damage by 5–10%
+- Reduce mana cost of Slashing Burst by 5–15%
+- Increase Slaying crit chance by 1–8%
+- Increase Slaying crit damage by 5–15%
+- Increase Flaming Sword crit chance by 1–8%
+- Increase Flaming Sword crit damage by 5–15%
+- Increase Twin Drake Blade crit chance by 1–8%
+- Increase Twin Drake Blade crit damage by 5–15%
+- Increase Blade Avalanche crit chance by 1–8%
+- Increase Blade Avalanche crit damage by 5–15%
+- Increase Slashing Burst crit chance by 1–8%
+- Increase Slashing Burst crit damage by 5–15%
+- −1–4% Damage taken
+- +1–6% Crit Rate
+- +5–15% Crit Damage
+- +2–12% Skill leveling
 
 **Smash Ring** (`smash-ring`)
 - +1–6 DC
-- +1–4 MC
-- +1–4 SC
 - +1–2 A Speed
 - +1–2 Freezing
 - +1–2 Poison
 - +1–3 AC
 - +1–3 AMC
+- Increase Slaying damage by 5–10%
+- Increase Flaming Sword damage by 5–10%
+- Reduce Flaming Sword cooldown by 1–2 seconds
+- Increase Twin Drake Blade damage by 5–10%
+- Reduce mana cost of Twin Drake Blade by 5–15%
+- Increase Blade Avalanche damage by 5–10%
+- Reduce mana cost of Blade Avalanche by 5–15%
+- Increase Slashing Burst damage by 5–10%
+- Reduce mana cost of Slashing Burst by 5–15%
+- Increase Slaying crit chance by 1–8%
+- Increase Slaying crit damage by 5–15%
+- Increase Flaming Sword crit chance by 1–8%
+- Increase Flaming Sword crit damage by 5–15%
+- Increase Twin Drake Blade crit chance by 1–8%
+- Increase Twin Drake Blade crit damage by 5–15%
+- Increase Blade Avalanche crit chance by 1–8%
+- Increase Blade Avalanche crit damage by 5–15%
+- Increase Slashing Burst crit chance by 1–8%
+- Increase Slashing Burst crit damage by 5–15%
+- −1–4% Damage taken
+- +1–6% Crit Rate
+- +5–15% Crit Damage
+- +2–12% Skill leveling
 
 **Five String Ring** (`five-string-ring`)
-- +1–6 DC
 - +1–4 MC
-- +1–4 SC
 - +1–2 A Speed
 - +1–2 Freezing
 - +1–2 Poison
 - +1–3 AC
 - +1–3 AMC
+- Increase Flame Disruptor damage by 5–10%
+- Increase Fire Wall damage by 5–10%
+- Increase Thunder Bolt damage by 5–10%
+- Increase Ice Storm damage by 5–10%
+- Increase Flame Field damage by 5–10%
+- Increase Meteor Strike damage by 5–10%
+- Increase Blizzard damage by 5–10%
+- Increase Fire Ball damage by 5–10%
+- Increase Great Fire Ball damage by 5–10%
+- Increase Frost Crunch damage by 5–10%
+- Reduce mana cost of Flame Disruptor by 5–15%
+- Reduce mana cost of Fire Wall by 5–15%
+- Reduce mana cost of Thunder Bolt by 5–15%
+- Reduce mana cost of Ice Storm by 5–15%
+- Reduce mana cost of Flame Field by 5–15%
+- Reduce mana cost of Meteor Strike by 5–15%
+- Reduce mana cost of Blizzard by 5–15%
+- Increase Flame Disruptor crit chance by 1–8%
+- Increase Flame Disruptor crit damage by 5–15%
+- Increase Fire Wall crit chance by 1–8%
+- Increase Fire Wall crit damage by 5–15%
+- Increase Thunder Bolt crit chance by 1–8%
+- Increase Thunder Bolt crit damage by 5–15%
+- Increase Ice Storm crit chance by 1–8%
+- Increase Ice Storm crit damage by 5–15%
+- Increase Flame Field crit chance by 1–8%
+- Increase Flame Field crit damage by 5–15%
+- Increase Meteor Strike crit chance by 1–8%
+- Increase Meteor Strike crit damage by 5–15%
+- Increase Blizzard crit chance by 1–8%
+- Increase Blizzard crit damage by 5–15%
+- Increase Fire Ball crit chance by 1–8%
+- Increase Fire Ball crit damage by 5–15%
+- Increase Great Fire Ball crit chance by 1–8%
+- Increase Great Fire Ball crit damage by 5–15%
+- Increase Frost Crunch crit chance by 1–8%
+- Increase Frost Crunch crit damage by 5–15%
+- −1–4% Damage taken
+- +1–6% Crit Rate
+- +5–15% Crit Damage
+- +2–12% Skill leveling
 
 **Noble Ring** (`noble-ring`)
-- +1–6 DC
 - +1–4 MC
-- +1–4 SC
 - +1–2 A Speed
 - +1–2 Freezing
 - +1–2 Poison
 - +1–3 AC
 - +1–3 AMC
+- Increase Flame Disruptor damage by 5–10%
+- Increase Fire Wall damage by 5–10%
+- Increase Thunder Bolt damage by 5–10%
+- Increase Ice Storm damage by 5–10%
+- Increase Flame Field damage by 5–10%
+- Increase Meteor Strike damage by 5–10%
+- Increase Blizzard damage by 5–10%
+- Increase Fire Ball damage by 5–10%
+- Increase Great Fire Ball damage by 5–10%
+- Increase Frost Crunch damage by 5–10%
+- Reduce mana cost of Flame Disruptor by 5–15%
+- Reduce mana cost of Fire Wall by 5–15%
+- Reduce mana cost of Thunder Bolt by 5–15%
+- Reduce mana cost of Ice Storm by 5–15%
+- Reduce mana cost of Flame Field by 5–15%
+- Reduce mana cost of Meteor Strike by 5–15%
+- Reduce mana cost of Blizzard by 5–15%
+- Increase Flame Disruptor crit chance by 1–8%
+- Increase Flame Disruptor crit damage by 5–15%
+- Increase Fire Wall crit chance by 1–8%
+- Increase Fire Wall crit damage by 5–15%
+- Increase Thunder Bolt crit chance by 1–8%
+- Increase Thunder Bolt crit damage by 5–15%
+- Increase Ice Storm crit chance by 1–8%
+- Increase Ice Storm crit damage by 5–15%
+- Increase Flame Field crit chance by 1–8%
+- Increase Flame Field crit damage by 5–15%
+- Increase Meteor Strike crit chance by 1–8%
+- Increase Meteor Strike crit damage by 5–15%
+- Increase Blizzard crit chance by 1–8%
+- Increase Blizzard crit damage by 5–15%
+- Increase Fire Ball crit chance by 1–8%
+- Increase Fire Ball crit damage by 5–15%
+- Increase Great Fire Ball crit chance by 1–8%
+- Increase Great Fire Ball crit damage by 5–15%
+- Increase Frost Crunch crit chance by 1–8%
+- Increase Frost Crunch crit damage by 5–15%
+- −1–4% Damage taken
+- +1–6% Crit Rate
+- +5–15% Crit Damage
+- +2–12% Skill leveling
 
 **Oma Spirit Ring** (`oma-spirit-ring`)
 - +1–6 DC
-- +1–4 MC
-- +1–4 SC
 - +1–2 A Speed
 - +1–2 Freezing
 - +1–2 Poison
 - +1–3 AC
 - +1–3 AMC
+- Increase Slaying damage by 5–10%
+- Increase Flaming Sword damage by 5–10%
+- Reduce Flaming Sword cooldown by 1–2 seconds
+- Increase Twin Drake Blade damage by 5–10%
+- Reduce mana cost of Twin Drake Blade by 5–15%
+- Increase Blade Avalanche damage by 5–10%
+- Reduce mana cost of Blade Avalanche by 5–15%
+- Increase Slashing Burst damage by 5–10%
+- Reduce mana cost of Slashing Burst by 5–15%
+- Increase Slaying crit chance by 1–8%
+- Increase Slaying crit damage by 5–15%
+- Increase Flaming Sword crit chance by 1–8%
+- Increase Flaming Sword crit damage by 5–15%
+- Increase Twin Drake Blade crit chance by 1–8%
+- Increase Twin Drake Blade crit damage by 5–15%
+- Increase Blade Avalanche crit chance by 1–8%
+- Increase Blade Avalanche crit damage by 5–15%
+- Increase Slashing Burst crit chance by 1–8%
+- Increase Slashing Burst crit damage by 5–15%
+- −1–4% Damage taken
+- +1–6% Crit Rate
+- +5–15% Crit Damage
+- +2–12% Skill leveling
 
 **Soul Ring** (`soul-ring`)
 - +1–6 DC
-- +1–4 MC
 - +1–4 SC
 - +1–2 A Speed
 - +1–2 Freezing
 - +1–2 Poison
 - +1–3 AC
 - +1–3 AMC
+- Increase Healing healing by 5–10%
+- Increase Mass Healing healing by 5–10%
+- Increase Soul Fire Ball damage by 5–10%
+- Increase Skeleton damage by 5–20%
+- Increase Skeleton health by 5–20%
+- Reduce Skeleton damage taken by 5%
+- Increase Shinsu damage by 5–20%
+- Increase Shinsu health by 5–20%
+- Reduce Shinsu damage taken by 5%
+- Increase Holy Deva damage by 5–20%
+- Increase Holy Deva health by 5–20%
+- Reduce Holy Deva damage taken by 5%
+- Increase Soul Fire Ball crit chance by 1–8%
+- Increase Soul Fire Ball crit damage by 5–15%
+- −1–4% Damage taken
+- +1–6% Crit Rate
+- +5–15% Crit Damage
+- +2–12% Skill leveling
 
 **Crimson Ruby Ring** (`crimson-ruby-ring`)
-- +1–6 DC
 - +1–4 MC
-- +1–4 SC
 - +1–2 A Speed
 - +1–2 Freezing
 - +1–2 Poison
 - +1–3 AC
 - +1–3 AMC
+- Increase Flame Disruptor damage by 5–10%
+- Increase Fire Wall damage by 5–10%
+- Increase Thunder Bolt damage by 5–10%
+- Increase Ice Storm damage by 5–10%
+- Increase Flame Field damage by 5–10%
+- Increase Meteor Strike damage by 5–10%
+- Increase Blizzard damage by 5–10%
+- Increase Fire Ball damage by 5–10%
+- Increase Great Fire Ball damage by 5–10%
+- Increase Frost Crunch damage by 5–10%
+- Reduce mana cost of Flame Disruptor by 5–15%
+- Reduce mana cost of Fire Wall by 5–15%
+- Reduce mana cost of Thunder Bolt by 5–15%
+- Reduce mana cost of Ice Storm by 5–15%
+- Reduce mana cost of Flame Field by 5–15%
+- Reduce mana cost of Meteor Strike by 5–15%
+- Reduce mana cost of Blizzard by 5–15%
+- Increase Flame Disruptor crit chance by 1–8%
+- Increase Flame Disruptor crit damage by 5–15%
+- Increase Fire Wall crit chance by 1–8%
+- Increase Fire Wall crit damage by 5–15%
+- Increase Thunder Bolt crit chance by 1–8%
+- Increase Thunder Bolt crit damage by 5–15%
+- Increase Ice Storm crit chance by 1–8%
+- Increase Ice Storm crit damage by 5–15%
+- Increase Flame Field crit chance by 1–8%
+- Increase Flame Field crit damage by 5–15%
+- Increase Meteor Strike crit chance by 1–8%
+- Increase Meteor Strike crit damage by 5–15%
+- Increase Blizzard crit chance by 1–8%
+- Increase Blizzard crit damage by 5–15%
+- Increase Fire Ball crit chance by 1–8%
+- Increase Fire Ball crit damage by 5–15%
+- Increase Great Fire Ball crit chance by 1–8%
+- Increase Great Fire Ball crit damage by 5–15%
+- Increase Frost Crunch crit chance by 1–8%
+- Increase Frost Crunch crit damage by 5–15%
+- −1–4% Damage taken
+- +1–6% Crit Rate
+- +5–15% Crit Damage
+- +2–12% Skill leveling
 
 **Five Element Ring** (`five-element-ring`)
 - +1–6 DC
-- +1–4 MC
 - +1–4 SC
 - +1–2 A Speed
 - +1–2 Freezing
 - +1–2 Poison
 - +1–3 AC
 - +1–3 AMC
+- Increase Healing healing by 5–10%
+- Increase Mass Healing healing by 5–10%
+- Increase Soul Fire Ball damage by 5–10%
+- Increase Skeleton damage by 5–20%
+- Increase Skeleton health by 5–20%
+- Reduce Skeleton damage taken by 5%
+- Increase Shinsu damage by 5–20%
+- Increase Shinsu health by 5–20%
+- Reduce Shinsu damage taken by 5%
+- Increase Holy Deva damage by 5–20%
+- Increase Holy Deva health by 5–20%
+- Reduce Holy Deva damage taken by 5%
+- Increase Soul Fire Ball crit chance by 1–8%
+- Increase Soul Fire Ball crit damage by 5–15%
+- −1–4% Damage taken
+- +1–6% Crit Rate
+- +5–15% Crit Damage
+- +2–12% Skill leveling
 
 **Pledge Ring** (`pledge-ring`)
 - +1–6 DC
-- +1–4 MC
-- +1–4 SC
 - +1–2 A Speed
 - +1–2 Freezing
 - +1–2 Poison
 - +1–3 AC
 - +1–3 AMC
+- Increase Slaying damage by 5–10%
+- Increase Flaming Sword damage by 5–10%
+- Reduce Flaming Sword cooldown by 1–2 seconds
+- Increase Twin Drake Blade damage by 5–10%
+- Reduce mana cost of Twin Drake Blade by 5–15%
+- Increase Blade Avalanche damage by 5–10%
+- Reduce mana cost of Blade Avalanche by 5–15%
+- Increase Slashing Burst damage by 5–10%
+- Reduce mana cost of Slashing Burst by 5–15%
+- Increase Slaying crit chance by 1–8%
+- Increase Slaying crit damage by 5–15%
+- Increase Flaming Sword crit chance by 1–8%
+- Increase Flaming Sword crit damage by 5–15%
+- Increase Twin Drake Blade crit chance by 1–8%
+- Increase Twin Drake Blade crit damage by 5–15%
+- Increase Blade Avalanche crit chance by 1–8%
+- Increase Blade Avalanche crit damage by 5–15%
+- Increase Slashing Burst crit chance by 1–8%
+- Increase Slashing Burst crit damage by 5–15%
+- −1–4% Damage taken
+- +1–6% Crit Rate
+- +5–15% Crit Damage
+- +2–12% Skill leveling
 
 ### Stone
 
 **DCStone** (`dcstone`)
 - +1–3 DC
-- +1–3 SC
-- +1–3 MC
 - +1–2 AC
 - +1–2 AMC
+- Increase Slaying damage by 5–10%
+- Increase Flaming Sword damage by 5–10%
+- Reduce Flaming Sword cooldown by 1–2 seconds
+- Increase Twin Drake Blade damage by 5–10%
+- Reduce mana cost of Twin Drake Blade by 5–15%
+- Increase Blade Avalanche damage by 5–10%
+- Reduce mana cost of Blade Avalanche by 5–15%
+- Increase Slashing Burst damage by 5–10%
+- Reduce mana cost of Slashing Burst by 5–15%
+- Increase Slaying crit chance by 1–8%
+- Increase Slaying crit damage by 5–15%
+- Increase Flaming Sword crit chance by 1–8%
+- Increase Flaming Sword crit damage by 5–15%
+- Increase Twin Drake Blade crit chance by 1–8%
+- Increase Twin Drake Blade crit damage by 5–15%
+- Increase Blade Avalanche crit chance by 1–8%
+- Increase Blade Avalanche crit damage by 5–15%
+- Increase Slashing Burst crit chance by 1–8%
+- Increase Slashing Burst crit damage by 5–15%
+- −1–2% Damage taken
+- +1–14% Crit Rate
+- +5–20% Crit Damage
+- +5–30% Skill leveling
 
 **Health Stone** (`health-stone`)
 - +1–3 DC
@@ -2784,6 +14356,207 @@ Grouped by slot. Weapons show their class and actual roll pool from `empowerCand
 - +1–3 MC
 - +1–2 AC
 - +1–2 AMC
+- Increase Slaying damage by 5–10%
+- Increase Flaming Sword damage by 5–10%
+- Reduce Flaming Sword cooldown by 1–2 seconds
+- Increase Twin Drake Blade damage by 5–10%
+- Reduce mana cost of Twin Drake Blade by 5–15%
+- Increase Blade Avalanche damage by 5–10%
+- Reduce mana cost of Blade Avalanche by 5–15%
+- Increase Slashing Burst damage by 5–10%
+- Reduce mana cost of Slashing Burst by 5–15%
+- Increase Flame Disruptor damage by 5–10%
+- Increase Fire Wall damage by 5–10%
+- Increase Thunder Bolt damage by 5–10%
+- Increase Ice Storm damage by 5–10%
+- Increase Flame Field damage by 5–10%
+- Increase Meteor Strike damage by 5–10%
+- Increase Blizzard damage by 5–10%
+- Increase Fire Ball damage by 5–10%
+- Increase Great Fire Ball damage by 5–10%
+- Increase Frost Crunch damage by 5–10%
+- Reduce mana cost of Flame Disruptor by 5–15%
+- Reduce mana cost of Fire Wall by 5–15%
+- Reduce mana cost of Thunder Bolt by 5–15%
+- Reduce mana cost of Ice Storm by 5–15%
+- Reduce mana cost of Flame Field by 5–15%
+- Reduce mana cost of Meteor Strike by 5–15%
+- Reduce mana cost of Blizzard by 5–15%
+- Increase Healing healing by 5–10%
+- Increase Mass Healing healing by 5–10%
+- Increase Soul Fire Ball damage by 5–10%
+- Increase Skeleton damage by 5–20%
+- Increase Skeleton health by 5–20%
+- Reduce Skeleton damage taken by 5%
+- Increase Shinsu damage by 5–20%
+- Increase Shinsu health by 5–20%
+- Reduce Shinsu damage taken by 5%
+- Increase Holy Deva damage by 5–20%
+- Increase Holy Deva health by 5–20%
+- Reduce Holy Deva damage taken by 5%
+- Increase Slaying crit chance by 1–8%
+- Increase Slaying crit damage by 5–15%
+- Increase Flaming Sword crit chance by 1–8%
+- Increase Flaming Sword crit damage by 5–15%
+- Increase Twin Drake Blade crit chance by 1–8%
+- Increase Twin Drake Blade crit damage by 5–15%
+- Increase Blade Avalanche crit chance by 1–8%
+- Increase Blade Avalanche crit damage by 5–15%
+- Increase Slashing Burst crit chance by 1–8%
+- Increase Slashing Burst crit damage by 5–15%
+- Increase Flame Disruptor crit chance by 1–8%
+- Increase Flame Disruptor crit damage by 5–15%
+- Increase Fire Wall crit chance by 1–8%
+- Increase Fire Wall crit damage by 5–15%
+- Increase Thunder Bolt crit chance by 1–8%
+- Increase Thunder Bolt crit damage by 5–15%
+- Increase Ice Storm crit chance by 1–8%
+- Increase Ice Storm crit damage by 5–15%
+- Increase Flame Field crit chance by 1–8%
+- Increase Flame Field crit damage by 5–15%
+- Increase Meteor Strike crit chance by 1–8%
+- Increase Meteor Strike crit damage by 5–15%
+- Increase Blizzard crit chance by 1–8%
+- Increase Blizzard crit damage by 5–15%
+- Increase Fire Ball crit chance by 1–8%
+- Increase Fire Ball crit damage by 5–15%
+- Increase Great Fire Ball crit chance by 1–8%
+- Increase Great Fire Ball crit damage by 5–15%
+- Increase Frost Crunch crit chance by 1–8%
+- Increase Frost Crunch crit damage by 5–15%
+- Increase Soul Fire Ball crit chance by 1–8%
+- Increase Soul Fire Ball crit damage by 5–15%
+- −1–2% Damage taken
+- +1–14% Crit Rate
+- +5–20% Crit Damage
+- +5–30% Skill leveling
+
+**Magic Stone** (`magic-stone`)
+- +1–3 DC
+- +1–3 SC
+- +1–3 MC
+- +1–2 AC
+- +1–2 AMC
+- Increase Slaying damage by 5–10%
+- Increase Flaming Sword damage by 5–10%
+- Reduce Flaming Sword cooldown by 1–2 seconds
+- Increase Twin Drake Blade damage by 5–10%
+- Reduce mana cost of Twin Drake Blade by 5–15%
+- Increase Blade Avalanche damage by 5–10%
+- Reduce mana cost of Blade Avalanche by 5–15%
+- Increase Slashing Burst damage by 5–10%
+- Reduce mana cost of Slashing Burst by 5–15%
+- Increase Flame Disruptor damage by 5–10%
+- Increase Fire Wall damage by 5–10%
+- Increase Thunder Bolt damage by 5–10%
+- Increase Ice Storm damage by 5–10%
+- Increase Flame Field damage by 5–10%
+- Increase Meteor Strike damage by 5–10%
+- Increase Blizzard damage by 5–10%
+- Increase Fire Ball damage by 5–10%
+- Increase Great Fire Ball damage by 5–10%
+- Increase Frost Crunch damage by 5–10%
+- Reduce mana cost of Flame Disruptor by 5–15%
+- Reduce mana cost of Fire Wall by 5–15%
+- Reduce mana cost of Thunder Bolt by 5–15%
+- Reduce mana cost of Ice Storm by 5–15%
+- Reduce mana cost of Flame Field by 5–15%
+- Reduce mana cost of Meteor Strike by 5–15%
+- Reduce mana cost of Blizzard by 5–15%
+- Increase Healing healing by 5–10%
+- Increase Mass Healing healing by 5–10%
+- Increase Soul Fire Ball damage by 5–10%
+- Increase Skeleton damage by 5–20%
+- Increase Skeleton health by 5–20%
+- Reduce Skeleton damage taken by 5%
+- Increase Shinsu damage by 5–20%
+- Increase Shinsu health by 5–20%
+- Reduce Shinsu damage taken by 5%
+- Increase Holy Deva damage by 5–20%
+- Increase Holy Deva health by 5–20%
+- Reduce Holy Deva damage taken by 5%
+- Increase Slaying crit chance by 1–8%
+- Increase Slaying crit damage by 5–15%
+- Increase Flaming Sword crit chance by 1–8%
+- Increase Flaming Sword crit damage by 5–15%
+- Increase Twin Drake Blade crit chance by 1–8%
+- Increase Twin Drake Blade crit damage by 5–15%
+- Increase Blade Avalanche crit chance by 1–8%
+- Increase Blade Avalanche crit damage by 5–15%
+- Increase Slashing Burst crit chance by 1–8%
+- Increase Slashing Burst crit damage by 5–15%
+- Increase Flame Disruptor crit chance by 1–8%
+- Increase Flame Disruptor crit damage by 5–15%
+- Increase Fire Wall crit chance by 1–8%
+- Increase Fire Wall crit damage by 5–15%
+- Increase Thunder Bolt crit chance by 1–8%
+- Increase Thunder Bolt crit damage by 5–15%
+- Increase Ice Storm crit chance by 1–8%
+- Increase Ice Storm crit damage by 5–15%
+- Increase Flame Field crit chance by 1–8%
+- Increase Flame Field crit damage by 5–15%
+- Increase Meteor Strike crit chance by 1–8%
+- Increase Meteor Strike crit damage by 5–15%
+- Increase Blizzard crit chance by 1–8%
+- Increase Blizzard crit damage by 5–15%
+- Increase Fire Ball crit chance by 1–8%
+- Increase Fire Ball crit damage by 5–15%
+- Increase Great Fire Ball crit chance by 1–8%
+- Increase Great Fire Ball crit damage by 5–15%
+- Increase Frost Crunch crit chance by 1–8%
+- Increase Frost Crunch crit damage by 5–15%
+- Increase Soul Fire Ball crit chance by 1–8%
+- Increase Soul Fire Ball crit damage by 5–15%
+- −1–2% Damage taken
+- +1–14% Crit Rate
+- +5–20% Crit Damage
+- +5–30% Skill leveling
+
+**MCStone** (`mcstone`)
+- +1–3 MC
+- +1–2 AC
+- +1–2 AMC
+- Increase Flame Disruptor damage by 5–10%
+- Increase Fire Wall damage by 5–10%
+- Increase Thunder Bolt damage by 5–10%
+- Increase Ice Storm damage by 5–10%
+- Increase Flame Field damage by 5–10%
+- Increase Meteor Strike damage by 5–10%
+- Increase Blizzard damage by 5–10%
+- Increase Fire Ball damage by 5–10%
+- Increase Great Fire Ball damage by 5–10%
+- Increase Frost Crunch damage by 5–10%
+- Reduce mana cost of Flame Disruptor by 5–15%
+- Reduce mana cost of Fire Wall by 5–15%
+- Reduce mana cost of Thunder Bolt by 5–15%
+- Reduce mana cost of Ice Storm by 5–15%
+- Reduce mana cost of Flame Field by 5–15%
+- Reduce mana cost of Meteor Strike by 5–15%
+- Reduce mana cost of Blizzard by 5–15%
+- Increase Flame Disruptor crit chance by 1–8%
+- Increase Flame Disruptor crit damage by 5–15%
+- Increase Fire Wall crit chance by 1–8%
+- Increase Fire Wall crit damage by 5–15%
+- Increase Thunder Bolt crit chance by 1–8%
+- Increase Thunder Bolt crit damage by 5–15%
+- Increase Ice Storm crit chance by 1–8%
+- Increase Ice Storm crit damage by 5–15%
+- Increase Flame Field crit chance by 1–8%
+- Increase Flame Field crit damage by 5–15%
+- Increase Meteor Strike crit chance by 1–8%
+- Increase Meteor Strike crit damage by 5–15%
+- Increase Blizzard crit chance by 1–8%
+- Increase Blizzard crit damage by 5–15%
+- Increase Fire Ball crit chance by 1–8%
+- Increase Fire Ball crit damage by 5–15%
+- Increase Great Fire Ball crit chance by 1–8%
+- Increase Great Fire Ball crit damage by 5–15%
+- Increase Frost Crunch crit chance by 1–8%
+- Increase Frost Crunch crit damage by 5–15%
+- −1–2% Damage taken
+- +1–14% Crit Rate
+- +5–20% Crit Damage
+- +5–30% Skill leveling
 
 **Power Stone** (`power-stone`)
 - +1–3 DC
@@ -2791,6 +14564,104 @@ Grouped by slot. Weapons show their class and actual roll pool from `empowerCand
 - +1–3 MC
 - +1–2 AC
 - +1–2 AMC
+- Increase Slaying damage by 5–10%
+- Increase Flaming Sword damage by 5–10%
+- Reduce Flaming Sword cooldown by 1–2 seconds
+- Increase Twin Drake Blade damage by 5–10%
+- Reduce mana cost of Twin Drake Blade by 5–15%
+- Increase Blade Avalanche damage by 5–10%
+- Reduce mana cost of Blade Avalanche by 5–15%
+- Increase Slashing Burst damage by 5–10%
+- Reduce mana cost of Slashing Burst by 5–15%
+- Increase Flame Disruptor damage by 5–10%
+- Increase Fire Wall damage by 5–10%
+- Increase Thunder Bolt damage by 5–10%
+- Increase Ice Storm damage by 5–10%
+- Increase Flame Field damage by 5–10%
+- Increase Meteor Strike damage by 5–10%
+- Increase Blizzard damage by 5–10%
+- Increase Fire Ball damage by 5–10%
+- Increase Great Fire Ball damage by 5–10%
+- Increase Frost Crunch damage by 5–10%
+- Reduce mana cost of Flame Disruptor by 5–15%
+- Reduce mana cost of Fire Wall by 5–15%
+- Reduce mana cost of Thunder Bolt by 5–15%
+- Reduce mana cost of Ice Storm by 5–15%
+- Reduce mana cost of Flame Field by 5–15%
+- Reduce mana cost of Meteor Strike by 5–15%
+- Reduce mana cost of Blizzard by 5–15%
+- Increase Healing healing by 5–10%
+- Increase Mass Healing healing by 5–10%
+- Increase Soul Fire Ball damage by 5–10%
+- Increase Skeleton damage by 5–20%
+- Increase Skeleton health by 5–20%
+- Reduce Skeleton damage taken by 5%
+- Increase Shinsu damage by 5–20%
+- Increase Shinsu health by 5–20%
+- Reduce Shinsu damage taken by 5%
+- Increase Holy Deva damage by 5–20%
+- Increase Holy Deva health by 5–20%
+- Reduce Holy Deva damage taken by 5%
+- Increase Slaying crit chance by 1–8%
+- Increase Slaying crit damage by 5–15%
+- Increase Flaming Sword crit chance by 1–8%
+- Increase Flaming Sword crit damage by 5–15%
+- Increase Twin Drake Blade crit chance by 1–8%
+- Increase Twin Drake Blade crit damage by 5–15%
+- Increase Blade Avalanche crit chance by 1–8%
+- Increase Blade Avalanche crit damage by 5–15%
+- Increase Slashing Burst crit chance by 1–8%
+- Increase Slashing Burst crit damage by 5–15%
+- Increase Flame Disruptor crit chance by 1–8%
+- Increase Flame Disruptor crit damage by 5–15%
+- Increase Fire Wall crit chance by 1–8%
+- Increase Fire Wall crit damage by 5–15%
+- Increase Thunder Bolt crit chance by 1–8%
+- Increase Thunder Bolt crit damage by 5–15%
+- Increase Ice Storm crit chance by 1–8%
+- Increase Ice Storm crit damage by 5–15%
+- Increase Flame Field crit chance by 1–8%
+- Increase Flame Field crit damage by 5–15%
+- Increase Meteor Strike crit chance by 1–8%
+- Increase Meteor Strike crit damage by 5–15%
+- Increase Blizzard crit chance by 1–8%
+- Increase Blizzard crit damage by 5–15%
+- Increase Fire Ball crit chance by 1–8%
+- Increase Fire Ball crit damage by 5–15%
+- Increase Great Fire Ball crit chance by 1–8%
+- Increase Great Fire Ball crit damage by 5–15%
+- Increase Frost Crunch crit chance by 1–8%
+- Increase Frost Crunch crit damage by 5–15%
+- Increase Soul Fire Ball crit chance by 1–8%
+- Increase Soul Fire Ball crit damage by 5–15%
+- −1–2% Damage taken
+- +1–14% Crit Rate
+- +5–20% Crit Damage
+- +5–30% Skill leveling
+
+**SCStone** (`scstone`)
+- +1–3 DC
+- +1–3 SC
+- +1–2 AC
+- +1–2 AMC
+- Increase Healing healing by 5–10%
+- Increase Mass Healing healing by 5–10%
+- Increase Soul Fire Ball damage by 5–10%
+- Increase Skeleton damage by 5–20%
+- Increase Skeleton health by 5–20%
+- Reduce Skeleton damage taken by 5%
+- Increase Shinsu damage by 5–20%
+- Increase Shinsu health by 5–20%
+- Reduce Shinsu damage taken by 5%
+- Increase Holy Deva damage by 5–20%
+- Increase Holy Deva health by 5–20%
+- Reduce Holy Deva damage taken by 5%
+- Increase Soul Fire Ball crit chance by 1–8%
+- Increase Soul Fire Ball crit damage by 5–15%
+- −1–2% Damage taken
+- +1–14% Crit Rate
+- +5–20% Crit Damage
+- +5–30% Skill leveling
 
 **Health Stone (S)** (`health-stone-s`)
 - +1–3 DC
@@ -2798,6 +14669,80 @@ Grouped by slot. Weapons show their class and actual roll pool from `empowerCand
 - +1–3 MC
 - +1–2 AC
 - +1–2 AMC
+- Increase Slaying damage by 5–10%
+- Increase Flaming Sword damage by 5–10%
+- Reduce Flaming Sword cooldown by 1–2 seconds
+- Increase Twin Drake Blade damage by 5–10%
+- Reduce mana cost of Twin Drake Blade by 5–15%
+- Increase Blade Avalanche damage by 5–10%
+- Reduce mana cost of Blade Avalanche by 5–15%
+- Increase Slashing Burst damage by 5–10%
+- Reduce mana cost of Slashing Burst by 5–15%
+- Increase Flame Disruptor damage by 5–10%
+- Increase Fire Wall damage by 5–10%
+- Increase Thunder Bolt damage by 5–10%
+- Increase Ice Storm damage by 5–10%
+- Increase Flame Field damage by 5–10%
+- Increase Meteor Strike damage by 5–10%
+- Increase Blizzard damage by 5–10%
+- Increase Fire Ball damage by 5–10%
+- Increase Great Fire Ball damage by 5–10%
+- Increase Frost Crunch damage by 5–10%
+- Reduce mana cost of Flame Disruptor by 5–15%
+- Reduce mana cost of Fire Wall by 5–15%
+- Reduce mana cost of Thunder Bolt by 5–15%
+- Reduce mana cost of Ice Storm by 5–15%
+- Reduce mana cost of Flame Field by 5–15%
+- Reduce mana cost of Meteor Strike by 5–15%
+- Reduce mana cost of Blizzard by 5–15%
+- Increase Healing healing by 5–10%
+- Increase Mass Healing healing by 5–10%
+- Increase Soul Fire Ball damage by 5–10%
+- Increase Skeleton damage by 5–20%
+- Increase Skeleton health by 5–20%
+- Reduce Skeleton damage taken by 5%
+- Increase Shinsu damage by 5–20%
+- Increase Shinsu health by 5–20%
+- Reduce Shinsu damage taken by 5%
+- Increase Holy Deva damage by 5–20%
+- Increase Holy Deva health by 5–20%
+- Reduce Holy Deva damage taken by 5%
+- Increase Slaying crit chance by 1–8%
+- Increase Slaying crit damage by 5–15%
+- Increase Flaming Sword crit chance by 1–8%
+- Increase Flaming Sword crit damage by 5–15%
+- Increase Twin Drake Blade crit chance by 1–8%
+- Increase Twin Drake Blade crit damage by 5–15%
+- Increase Blade Avalanche crit chance by 1–8%
+- Increase Blade Avalanche crit damage by 5–15%
+- Increase Slashing Burst crit chance by 1–8%
+- Increase Slashing Burst crit damage by 5–15%
+- Increase Flame Disruptor crit chance by 1–8%
+- Increase Flame Disruptor crit damage by 5–15%
+- Increase Fire Wall crit chance by 1–8%
+- Increase Fire Wall crit damage by 5–15%
+- Increase Thunder Bolt crit chance by 1–8%
+- Increase Thunder Bolt crit damage by 5–15%
+- Increase Ice Storm crit chance by 1–8%
+- Increase Ice Storm crit damage by 5–15%
+- Increase Flame Field crit chance by 1–8%
+- Increase Flame Field crit damage by 5–15%
+- Increase Meteor Strike crit chance by 1–8%
+- Increase Meteor Strike crit damage by 5–15%
+- Increase Blizzard crit chance by 1–8%
+- Increase Blizzard crit damage by 5–15%
+- Increase Fire Ball crit chance by 1–8%
+- Increase Fire Ball crit damage by 5–15%
+- Increase Great Fire Ball crit chance by 1–8%
+- Increase Great Fire Ball crit damage by 5–15%
+- Increase Frost Crunch crit chance by 1–8%
+- Increase Frost Crunch crit damage by 5–15%
+- Increase Soul Fire Ball crit chance by 1–8%
+- Increase Soul Fire Ball crit damage by 5–15%
+- −1–2% Damage taken
+- +1–14% Crit Rate
+- +5–20% Crit Damage
+- +5–30% Skill leveling
 
 **Magic Stone (S)** (`magic-stone-s`)
 - +1–3 DC
@@ -2805,6 +14750,80 @@ Grouped by slot. Weapons show their class and actual roll pool from `empowerCand
 - +1–3 MC
 - +1–2 AC
 - +1–2 AMC
+- Increase Slaying damage by 5–10%
+- Increase Flaming Sword damage by 5–10%
+- Reduce Flaming Sword cooldown by 1–2 seconds
+- Increase Twin Drake Blade damage by 5–10%
+- Reduce mana cost of Twin Drake Blade by 5–15%
+- Increase Blade Avalanche damage by 5–10%
+- Reduce mana cost of Blade Avalanche by 5–15%
+- Increase Slashing Burst damage by 5–10%
+- Reduce mana cost of Slashing Burst by 5–15%
+- Increase Flame Disruptor damage by 5–10%
+- Increase Fire Wall damage by 5–10%
+- Increase Thunder Bolt damage by 5–10%
+- Increase Ice Storm damage by 5–10%
+- Increase Flame Field damage by 5–10%
+- Increase Meteor Strike damage by 5–10%
+- Increase Blizzard damage by 5–10%
+- Increase Fire Ball damage by 5–10%
+- Increase Great Fire Ball damage by 5–10%
+- Increase Frost Crunch damage by 5–10%
+- Reduce mana cost of Flame Disruptor by 5–15%
+- Reduce mana cost of Fire Wall by 5–15%
+- Reduce mana cost of Thunder Bolt by 5–15%
+- Reduce mana cost of Ice Storm by 5–15%
+- Reduce mana cost of Flame Field by 5–15%
+- Reduce mana cost of Meteor Strike by 5–15%
+- Reduce mana cost of Blizzard by 5–15%
+- Increase Healing healing by 5–10%
+- Increase Mass Healing healing by 5–10%
+- Increase Soul Fire Ball damage by 5–10%
+- Increase Skeleton damage by 5–20%
+- Increase Skeleton health by 5–20%
+- Reduce Skeleton damage taken by 5%
+- Increase Shinsu damage by 5–20%
+- Increase Shinsu health by 5–20%
+- Reduce Shinsu damage taken by 5%
+- Increase Holy Deva damage by 5–20%
+- Increase Holy Deva health by 5–20%
+- Reduce Holy Deva damage taken by 5%
+- Increase Slaying crit chance by 1–8%
+- Increase Slaying crit damage by 5–15%
+- Increase Flaming Sword crit chance by 1–8%
+- Increase Flaming Sword crit damage by 5–15%
+- Increase Twin Drake Blade crit chance by 1–8%
+- Increase Twin Drake Blade crit damage by 5–15%
+- Increase Blade Avalanche crit chance by 1–8%
+- Increase Blade Avalanche crit damage by 5–15%
+- Increase Slashing Burst crit chance by 1–8%
+- Increase Slashing Burst crit damage by 5–15%
+- Increase Flame Disruptor crit chance by 1–8%
+- Increase Flame Disruptor crit damage by 5–15%
+- Increase Fire Wall crit chance by 1–8%
+- Increase Fire Wall crit damage by 5–15%
+- Increase Thunder Bolt crit chance by 1–8%
+- Increase Thunder Bolt crit damage by 5–15%
+- Increase Ice Storm crit chance by 1–8%
+- Increase Ice Storm crit damage by 5–15%
+- Increase Flame Field crit chance by 1–8%
+- Increase Flame Field crit damage by 5–15%
+- Increase Meteor Strike crit chance by 1–8%
+- Increase Meteor Strike crit damage by 5–15%
+- Increase Blizzard crit chance by 1–8%
+- Increase Blizzard crit damage by 5–15%
+- Increase Fire Ball crit chance by 1–8%
+- Increase Fire Ball crit damage by 5–15%
+- Increase Great Fire Ball crit chance by 1–8%
+- Increase Great Fire Ball crit damage by 5–15%
+- Increase Frost Crunch crit chance by 1–8%
+- Increase Frost Crunch crit damage by 5–15%
+- Increase Soul Fire Ball crit chance by 1–8%
+- Increase Soul Fire Ball crit damage by 5–15%
+- −1–2% Damage taken
+- +1–14% Crit Rate
+- +5–20% Crit Damage
+- +5–30% Skill leveling
 
 **Power Stone (S)** (`power-stone-s`)
 - +1–3 DC
@@ -2812,27 +14831,178 @@ Grouped by slot. Weapons show their class and actual roll pool from `empowerCand
 - +1–3 MC
 - +1–2 AC
 - +1–2 AMC
+- Increase Slaying damage by 5–10%
+- Increase Flaming Sword damage by 5–10%
+- Reduce Flaming Sword cooldown by 1–2 seconds
+- Increase Twin Drake Blade damage by 5–10%
+- Reduce mana cost of Twin Drake Blade by 5–15%
+- Increase Blade Avalanche damage by 5–10%
+- Reduce mana cost of Blade Avalanche by 5–15%
+- Increase Slashing Burst damage by 5–10%
+- Reduce mana cost of Slashing Burst by 5–15%
+- Increase Flame Disruptor damage by 5–10%
+- Increase Fire Wall damage by 5–10%
+- Increase Thunder Bolt damage by 5–10%
+- Increase Ice Storm damage by 5–10%
+- Increase Flame Field damage by 5–10%
+- Increase Meteor Strike damage by 5–10%
+- Increase Blizzard damage by 5–10%
+- Increase Fire Ball damage by 5–10%
+- Increase Great Fire Ball damage by 5–10%
+- Increase Frost Crunch damage by 5–10%
+- Reduce mana cost of Flame Disruptor by 5–15%
+- Reduce mana cost of Fire Wall by 5–15%
+- Reduce mana cost of Thunder Bolt by 5–15%
+- Reduce mana cost of Ice Storm by 5–15%
+- Reduce mana cost of Flame Field by 5–15%
+- Reduce mana cost of Meteor Strike by 5–15%
+- Reduce mana cost of Blizzard by 5–15%
+- Increase Healing healing by 5–10%
+- Increase Mass Healing healing by 5–10%
+- Increase Soul Fire Ball damage by 5–10%
+- Increase Skeleton damage by 5–20%
+- Increase Skeleton health by 5–20%
+- Reduce Skeleton damage taken by 5%
+- Increase Shinsu damage by 5–20%
+- Increase Shinsu health by 5–20%
+- Reduce Shinsu damage taken by 5%
+- Increase Holy Deva damage by 5–20%
+- Increase Holy Deva health by 5–20%
+- Reduce Holy Deva damage taken by 5%
+- Increase Slaying crit chance by 1–8%
+- Increase Slaying crit damage by 5–15%
+- Increase Flaming Sword crit chance by 1–8%
+- Increase Flaming Sword crit damage by 5–15%
+- Increase Twin Drake Blade crit chance by 1–8%
+- Increase Twin Drake Blade crit damage by 5–15%
+- Increase Blade Avalanche crit chance by 1–8%
+- Increase Blade Avalanche crit damage by 5–15%
+- Increase Slashing Burst crit chance by 1–8%
+- Increase Slashing Burst crit damage by 5–15%
+- Increase Flame Disruptor crit chance by 1–8%
+- Increase Flame Disruptor crit damage by 5–15%
+- Increase Fire Wall crit chance by 1–8%
+- Increase Fire Wall crit damage by 5–15%
+- Increase Thunder Bolt crit chance by 1–8%
+- Increase Thunder Bolt crit damage by 5–15%
+- Increase Ice Storm crit chance by 1–8%
+- Increase Ice Storm crit damage by 5–15%
+- Increase Flame Field crit chance by 1–8%
+- Increase Flame Field crit damage by 5–15%
+- Increase Meteor Strike crit chance by 1–8%
+- Increase Meteor Strike crit damage by 5–15%
+- Increase Blizzard crit chance by 1–8%
+- Increase Blizzard crit damage by 5–15%
+- Increase Fire Ball crit chance by 1–8%
+- Increase Fire Ball crit damage by 5–15%
+- Increase Great Fire Ball crit chance by 1–8%
+- Increase Great Fire Ball crit damage by 5–15%
+- Increase Frost Crunch crit chance by 1–8%
+- Increase Frost Crunch crit damage by 5–15%
+- Increase Soul Fire Ball crit chance by 1–8%
+- Increase Soul Fire Ball crit damage by 5–15%
+- −1–2% Damage taken
+- +1–14% Crit Rate
+- +5–20% Crit Damage
+- +5–30% Skill leveling
 
 **DCStone (S)** (`dcstone-s`)
 - +1–3 DC
-- +1–3 SC
-- +1–3 MC
 - +1–2 AC
 - +1–2 AMC
+- Increase Slaying damage by 5–10%
+- Increase Flaming Sword damage by 5–10%
+- Reduce Flaming Sword cooldown by 1–2 seconds
+- Increase Twin Drake Blade damage by 5–10%
+- Reduce mana cost of Twin Drake Blade by 5–15%
+- Increase Blade Avalanche damage by 5–10%
+- Reduce mana cost of Blade Avalanche by 5–15%
+- Increase Slashing Burst damage by 5–10%
+- Reduce mana cost of Slashing Burst by 5–15%
+- Increase Slaying crit chance by 1–8%
+- Increase Slaying crit damage by 5–15%
+- Increase Flaming Sword crit chance by 1–8%
+- Increase Flaming Sword crit damage by 5–15%
+- Increase Twin Drake Blade crit chance by 1–8%
+- Increase Twin Drake Blade crit damage by 5–15%
+- Increase Blade Avalanche crit chance by 1–8%
+- Increase Blade Avalanche crit damage by 5–15%
+- Increase Slashing Burst crit chance by 1–8%
+- Increase Slashing Burst crit damage by 5–15%
+- −1–2% Damage taken
+- +1–14% Crit Rate
+- +5–20% Crit Damage
+- +5–30% Skill leveling
 
 **MCStone (S)** (`mcstone-s`)
-- +1–3 DC
-- +1–3 SC
 - +1–3 MC
 - +1–2 AC
 - +1–2 AMC
+- Increase Flame Disruptor damage by 5–10%
+- Increase Fire Wall damage by 5–10%
+- Increase Thunder Bolt damage by 5–10%
+- Increase Ice Storm damage by 5–10%
+- Increase Flame Field damage by 5–10%
+- Increase Meteor Strike damage by 5–10%
+- Increase Blizzard damage by 5–10%
+- Increase Fire Ball damage by 5–10%
+- Increase Great Fire Ball damage by 5–10%
+- Increase Frost Crunch damage by 5–10%
+- Reduce mana cost of Flame Disruptor by 5–15%
+- Reduce mana cost of Fire Wall by 5–15%
+- Reduce mana cost of Thunder Bolt by 5–15%
+- Reduce mana cost of Ice Storm by 5–15%
+- Reduce mana cost of Flame Field by 5–15%
+- Reduce mana cost of Meteor Strike by 5–15%
+- Reduce mana cost of Blizzard by 5–15%
+- Increase Flame Disruptor crit chance by 1–8%
+- Increase Flame Disruptor crit damage by 5–15%
+- Increase Fire Wall crit chance by 1–8%
+- Increase Fire Wall crit damage by 5–15%
+- Increase Thunder Bolt crit chance by 1–8%
+- Increase Thunder Bolt crit damage by 5–15%
+- Increase Ice Storm crit chance by 1–8%
+- Increase Ice Storm crit damage by 5–15%
+- Increase Flame Field crit chance by 1–8%
+- Increase Flame Field crit damage by 5–15%
+- Increase Meteor Strike crit chance by 1–8%
+- Increase Meteor Strike crit damage by 5–15%
+- Increase Blizzard crit chance by 1–8%
+- Increase Blizzard crit damage by 5–15%
+- Increase Fire Ball crit chance by 1–8%
+- Increase Fire Ball crit damage by 5–15%
+- Increase Great Fire Ball crit chance by 1–8%
+- Increase Great Fire Ball crit damage by 5–15%
+- Increase Frost Crunch crit chance by 1–8%
+- Increase Frost Crunch crit damage by 5–15%
+- −1–2% Damage taken
+- +1–14% Crit Rate
+- +5–20% Crit Damage
+- +5–30% Skill leveling
 
 **SCStone (S)** (`scstone-s`)
 - +1–3 DC
 - +1–3 SC
-- +1–3 MC
 - +1–2 AC
 - +1–2 AMC
+- Increase Healing healing by 5–10%
+- Increase Mass Healing healing by 5–10%
+- Increase Soul Fire Ball damage by 5–10%
+- Increase Skeleton damage by 5–20%
+- Increase Skeleton health by 5–20%
+- Reduce Skeleton damage taken by 5%
+- Increase Shinsu damage by 5–20%
+- Increase Shinsu health by 5–20%
+- Reduce Shinsu damage taken by 5%
+- Increase Holy Deva damage by 5–20%
+- Increase Holy Deva health by 5–20%
+- Reduce Holy Deva damage taken by 5%
+- Increase Soul Fire Ball crit chance by 1–8%
+- Increase Soul Fire Ball crit damage by 5–15%
+- −1–2% Damage taken
+- +1–14% Crit Rate
+- +5–20% Crit Damage
+- +5–30% Skill leveling
 
 **Health Stone (M)** (`health-stone-m`)
 - +1–3 DC
@@ -2840,6 +15010,80 @@ Grouped by slot. Weapons show their class and actual roll pool from `empowerCand
 - +1–3 MC
 - +1–2 AC
 - +1–2 AMC
+- Increase Slaying damage by 5–10%
+- Increase Flaming Sword damage by 5–10%
+- Reduce Flaming Sword cooldown by 1–2 seconds
+- Increase Twin Drake Blade damage by 5–10%
+- Reduce mana cost of Twin Drake Blade by 5–15%
+- Increase Blade Avalanche damage by 5–10%
+- Reduce mana cost of Blade Avalanche by 5–15%
+- Increase Slashing Burst damage by 5–10%
+- Reduce mana cost of Slashing Burst by 5–15%
+- Increase Flame Disruptor damage by 5–10%
+- Increase Fire Wall damage by 5–10%
+- Increase Thunder Bolt damage by 5–10%
+- Increase Ice Storm damage by 5–10%
+- Increase Flame Field damage by 5–10%
+- Increase Meteor Strike damage by 5–10%
+- Increase Blizzard damage by 5–10%
+- Increase Fire Ball damage by 5–10%
+- Increase Great Fire Ball damage by 5–10%
+- Increase Frost Crunch damage by 5–10%
+- Reduce mana cost of Flame Disruptor by 5–15%
+- Reduce mana cost of Fire Wall by 5–15%
+- Reduce mana cost of Thunder Bolt by 5–15%
+- Reduce mana cost of Ice Storm by 5–15%
+- Reduce mana cost of Flame Field by 5–15%
+- Reduce mana cost of Meteor Strike by 5–15%
+- Reduce mana cost of Blizzard by 5–15%
+- Increase Healing healing by 5–10%
+- Increase Mass Healing healing by 5–10%
+- Increase Soul Fire Ball damage by 5–10%
+- Increase Skeleton damage by 5–20%
+- Increase Skeleton health by 5–20%
+- Reduce Skeleton damage taken by 5%
+- Increase Shinsu damage by 5–20%
+- Increase Shinsu health by 5–20%
+- Reduce Shinsu damage taken by 5%
+- Increase Holy Deva damage by 5–20%
+- Increase Holy Deva health by 5–20%
+- Reduce Holy Deva damage taken by 5%
+- Increase Slaying crit chance by 1–8%
+- Increase Slaying crit damage by 5–15%
+- Increase Flaming Sword crit chance by 1–8%
+- Increase Flaming Sword crit damage by 5–15%
+- Increase Twin Drake Blade crit chance by 1–8%
+- Increase Twin Drake Blade crit damage by 5–15%
+- Increase Blade Avalanche crit chance by 1–8%
+- Increase Blade Avalanche crit damage by 5–15%
+- Increase Slashing Burst crit chance by 1–8%
+- Increase Slashing Burst crit damage by 5–15%
+- Increase Flame Disruptor crit chance by 1–8%
+- Increase Flame Disruptor crit damage by 5–15%
+- Increase Fire Wall crit chance by 1–8%
+- Increase Fire Wall crit damage by 5–15%
+- Increase Thunder Bolt crit chance by 1–8%
+- Increase Thunder Bolt crit damage by 5–15%
+- Increase Ice Storm crit chance by 1–8%
+- Increase Ice Storm crit damage by 5–15%
+- Increase Flame Field crit chance by 1–8%
+- Increase Flame Field crit damage by 5–15%
+- Increase Meteor Strike crit chance by 1–8%
+- Increase Meteor Strike crit damage by 5–15%
+- Increase Blizzard crit chance by 1–8%
+- Increase Blizzard crit damage by 5–15%
+- Increase Fire Ball crit chance by 1–8%
+- Increase Fire Ball crit damage by 5–15%
+- Increase Great Fire Ball crit chance by 1–8%
+- Increase Great Fire Ball crit damage by 5–15%
+- Increase Frost Crunch crit chance by 1–8%
+- Increase Frost Crunch crit damage by 5–15%
+- Increase Soul Fire Ball crit chance by 1–8%
+- Increase Soul Fire Ball crit damage by 5–15%
+- −1–2% Damage taken
+- +1–14% Crit Rate
+- +5–20% Crit Damage
+- +5–30% Skill leveling
 
 **Magic Stone (M)** (`magic-stone-m`)
 - +1–3 DC
@@ -2847,6 +15091,80 @@ Grouped by slot. Weapons show their class and actual roll pool from `empowerCand
 - +1–3 MC
 - +1–2 AC
 - +1–2 AMC
+- Increase Slaying damage by 5–10%
+- Increase Flaming Sword damage by 5–10%
+- Reduce Flaming Sword cooldown by 1–2 seconds
+- Increase Twin Drake Blade damage by 5–10%
+- Reduce mana cost of Twin Drake Blade by 5–15%
+- Increase Blade Avalanche damage by 5–10%
+- Reduce mana cost of Blade Avalanche by 5–15%
+- Increase Slashing Burst damage by 5–10%
+- Reduce mana cost of Slashing Burst by 5–15%
+- Increase Flame Disruptor damage by 5–10%
+- Increase Fire Wall damage by 5–10%
+- Increase Thunder Bolt damage by 5–10%
+- Increase Ice Storm damage by 5–10%
+- Increase Flame Field damage by 5–10%
+- Increase Meteor Strike damage by 5–10%
+- Increase Blizzard damage by 5–10%
+- Increase Fire Ball damage by 5–10%
+- Increase Great Fire Ball damage by 5–10%
+- Increase Frost Crunch damage by 5–10%
+- Reduce mana cost of Flame Disruptor by 5–15%
+- Reduce mana cost of Fire Wall by 5–15%
+- Reduce mana cost of Thunder Bolt by 5–15%
+- Reduce mana cost of Ice Storm by 5–15%
+- Reduce mana cost of Flame Field by 5–15%
+- Reduce mana cost of Meteor Strike by 5–15%
+- Reduce mana cost of Blizzard by 5–15%
+- Increase Healing healing by 5–10%
+- Increase Mass Healing healing by 5–10%
+- Increase Soul Fire Ball damage by 5–10%
+- Increase Skeleton damage by 5–20%
+- Increase Skeleton health by 5–20%
+- Reduce Skeleton damage taken by 5%
+- Increase Shinsu damage by 5–20%
+- Increase Shinsu health by 5–20%
+- Reduce Shinsu damage taken by 5%
+- Increase Holy Deva damage by 5–20%
+- Increase Holy Deva health by 5–20%
+- Reduce Holy Deva damage taken by 5%
+- Increase Slaying crit chance by 1–8%
+- Increase Slaying crit damage by 5–15%
+- Increase Flaming Sword crit chance by 1–8%
+- Increase Flaming Sword crit damage by 5–15%
+- Increase Twin Drake Blade crit chance by 1–8%
+- Increase Twin Drake Blade crit damage by 5–15%
+- Increase Blade Avalanche crit chance by 1–8%
+- Increase Blade Avalanche crit damage by 5–15%
+- Increase Slashing Burst crit chance by 1–8%
+- Increase Slashing Burst crit damage by 5–15%
+- Increase Flame Disruptor crit chance by 1–8%
+- Increase Flame Disruptor crit damage by 5–15%
+- Increase Fire Wall crit chance by 1–8%
+- Increase Fire Wall crit damage by 5–15%
+- Increase Thunder Bolt crit chance by 1–8%
+- Increase Thunder Bolt crit damage by 5–15%
+- Increase Ice Storm crit chance by 1–8%
+- Increase Ice Storm crit damage by 5–15%
+- Increase Flame Field crit chance by 1–8%
+- Increase Flame Field crit damage by 5–15%
+- Increase Meteor Strike crit chance by 1–8%
+- Increase Meteor Strike crit damage by 5–15%
+- Increase Blizzard crit chance by 1–8%
+- Increase Blizzard crit damage by 5–15%
+- Increase Fire Ball crit chance by 1–8%
+- Increase Fire Ball crit damage by 5–15%
+- Increase Great Fire Ball crit chance by 1–8%
+- Increase Great Fire Ball crit damage by 5–15%
+- Increase Frost Crunch crit chance by 1–8%
+- Increase Frost Crunch crit damage by 5–15%
+- Increase Soul Fire Ball crit chance by 1–8%
+- Increase Soul Fire Ball crit damage by 5–15%
+- −1–2% Damage taken
+- +1–14% Crit Rate
+- +5–20% Crit Damage
+- +5–30% Skill leveling
 
 **Power Stone (M)** (`power-stone-m`)
 - +1–3 DC
@@ -2854,85 +15172,424 @@ Grouped by slot. Weapons show their class and actual roll pool from `empowerCand
 - +1–3 MC
 - +1–2 AC
 - +1–2 AMC
+- Increase Slaying damage by 5–10%
+- Increase Flaming Sword damage by 5–10%
+- Reduce Flaming Sword cooldown by 1–2 seconds
+- Increase Twin Drake Blade damage by 5–10%
+- Reduce mana cost of Twin Drake Blade by 5–15%
+- Increase Blade Avalanche damage by 5–10%
+- Reduce mana cost of Blade Avalanche by 5–15%
+- Increase Slashing Burst damage by 5–10%
+- Reduce mana cost of Slashing Burst by 5–15%
+- Increase Flame Disruptor damage by 5–10%
+- Increase Fire Wall damage by 5–10%
+- Increase Thunder Bolt damage by 5–10%
+- Increase Ice Storm damage by 5–10%
+- Increase Flame Field damage by 5–10%
+- Increase Meteor Strike damage by 5–10%
+- Increase Blizzard damage by 5–10%
+- Increase Fire Ball damage by 5–10%
+- Increase Great Fire Ball damage by 5–10%
+- Increase Frost Crunch damage by 5–10%
+- Reduce mana cost of Flame Disruptor by 5–15%
+- Reduce mana cost of Fire Wall by 5–15%
+- Reduce mana cost of Thunder Bolt by 5–15%
+- Reduce mana cost of Ice Storm by 5–15%
+- Reduce mana cost of Flame Field by 5–15%
+- Reduce mana cost of Meteor Strike by 5–15%
+- Reduce mana cost of Blizzard by 5–15%
+- Increase Healing healing by 5–10%
+- Increase Mass Healing healing by 5–10%
+- Increase Soul Fire Ball damage by 5–10%
+- Increase Skeleton damage by 5–20%
+- Increase Skeleton health by 5–20%
+- Reduce Skeleton damage taken by 5%
+- Increase Shinsu damage by 5–20%
+- Increase Shinsu health by 5–20%
+- Reduce Shinsu damage taken by 5%
+- Increase Holy Deva damage by 5–20%
+- Increase Holy Deva health by 5–20%
+- Reduce Holy Deva damage taken by 5%
+- Increase Slaying crit chance by 1–8%
+- Increase Slaying crit damage by 5–15%
+- Increase Flaming Sword crit chance by 1–8%
+- Increase Flaming Sword crit damage by 5–15%
+- Increase Twin Drake Blade crit chance by 1–8%
+- Increase Twin Drake Blade crit damage by 5–15%
+- Increase Blade Avalanche crit chance by 1–8%
+- Increase Blade Avalanche crit damage by 5–15%
+- Increase Slashing Burst crit chance by 1–8%
+- Increase Slashing Burst crit damage by 5–15%
+- Increase Flame Disruptor crit chance by 1–8%
+- Increase Flame Disruptor crit damage by 5–15%
+- Increase Fire Wall crit chance by 1–8%
+- Increase Fire Wall crit damage by 5–15%
+- Increase Thunder Bolt crit chance by 1–8%
+- Increase Thunder Bolt crit damage by 5–15%
+- Increase Ice Storm crit chance by 1–8%
+- Increase Ice Storm crit damage by 5–15%
+- Increase Flame Field crit chance by 1–8%
+- Increase Flame Field crit damage by 5–15%
+- Increase Meteor Strike crit chance by 1–8%
+- Increase Meteor Strike crit damage by 5–15%
+- Increase Blizzard crit chance by 1–8%
+- Increase Blizzard crit damage by 5–15%
+- Increase Fire Ball crit chance by 1–8%
+- Increase Fire Ball crit damage by 5–15%
+- Increase Great Fire Ball crit chance by 1–8%
+- Increase Great Fire Ball crit damage by 5–15%
+- Increase Frost Crunch crit chance by 1–8%
+- Increase Frost Crunch crit damage by 5–15%
+- Increase Soul Fire Ball crit chance by 1–8%
+- Increase Soul Fire Ball crit damage by 5–15%
+- −1–2% Damage taken
+- +1–14% Crit Rate
+- +5–20% Crit Damage
+- +5–30% Skill leveling
 
 **DCStone (M)** (`dcstone-m`)
 - +1–3 DC
-- +1–3 SC
-- +1–3 MC
 - +1–2 AC
 - +1–2 AMC
+- Increase Slaying damage by 5–10%
+- Increase Flaming Sword damage by 5–10%
+- Reduce Flaming Sword cooldown by 1–2 seconds
+- Increase Twin Drake Blade damage by 5–10%
+- Reduce mana cost of Twin Drake Blade by 5–15%
+- Increase Blade Avalanche damage by 5–10%
+- Reduce mana cost of Blade Avalanche by 5–15%
+- Increase Slashing Burst damage by 5–10%
+- Reduce mana cost of Slashing Burst by 5–15%
+- Increase Slaying crit chance by 1–8%
+- Increase Slaying crit damage by 5–15%
+- Increase Flaming Sword crit chance by 1–8%
+- Increase Flaming Sword crit damage by 5–15%
+- Increase Twin Drake Blade crit chance by 1–8%
+- Increase Twin Drake Blade crit damage by 5–15%
+- Increase Blade Avalanche crit chance by 1–8%
+- Increase Blade Avalanche crit damage by 5–15%
+- Increase Slashing Burst crit chance by 1–8%
+- Increase Slashing Burst crit damage by 5–15%
+- −1–2% Damage taken
+- +1–14% Crit Rate
+- +5–20% Crit Damage
+- +5–30% Skill leveling
 
 **MCStone (M)** (`mcstone-m`)
-- +1–3 DC
-- +1–3 SC
 - +1–3 MC
 - +1–2 AC
 - +1–2 AMC
+- Increase Flame Disruptor damage by 5–10%
+- Increase Fire Wall damage by 5–10%
+- Increase Thunder Bolt damage by 5–10%
+- Increase Ice Storm damage by 5–10%
+- Increase Flame Field damage by 5–10%
+- Increase Meteor Strike damage by 5–10%
+- Increase Blizzard damage by 5–10%
+- Increase Fire Ball damage by 5–10%
+- Increase Great Fire Ball damage by 5–10%
+- Increase Frost Crunch damage by 5–10%
+- Reduce mana cost of Flame Disruptor by 5–15%
+- Reduce mana cost of Fire Wall by 5–15%
+- Reduce mana cost of Thunder Bolt by 5–15%
+- Reduce mana cost of Ice Storm by 5–15%
+- Reduce mana cost of Flame Field by 5–15%
+- Reduce mana cost of Meteor Strike by 5–15%
+- Reduce mana cost of Blizzard by 5–15%
+- Increase Flame Disruptor crit chance by 1–8%
+- Increase Flame Disruptor crit damage by 5–15%
+- Increase Fire Wall crit chance by 1–8%
+- Increase Fire Wall crit damage by 5–15%
+- Increase Thunder Bolt crit chance by 1–8%
+- Increase Thunder Bolt crit damage by 5–15%
+- Increase Ice Storm crit chance by 1–8%
+- Increase Ice Storm crit damage by 5–15%
+- Increase Flame Field crit chance by 1–8%
+- Increase Flame Field crit damage by 5–15%
+- Increase Meteor Strike crit chance by 1–8%
+- Increase Meteor Strike crit damage by 5–15%
+- Increase Blizzard crit chance by 1–8%
+- Increase Blizzard crit damage by 5–15%
+- Increase Fire Ball crit chance by 1–8%
+- Increase Fire Ball crit damage by 5–15%
+- Increase Great Fire Ball crit chance by 1–8%
+- Increase Great Fire Ball crit damage by 5–15%
+- Increase Frost Crunch crit chance by 1–8%
+- Increase Frost Crunch crit damage by 5–15%
+- −1–2% Damage taken
+- +1–14% Crit Rate
+- +5–20% Crit Damage
+- +5–30% Skill leveling
 
 **SCStone (M)** (`scstone-m`)
 - +1–3 DC
 - +1–3 SC
-- +1–3 MC
 - +1–2 AC
 - +1–2 AMC
+- Increase Healing healing by 5–10%
+- Increase Mass Healing healing by 5–10%
+- Increase Soul Fire Ball damage by 5–10%
+- Increase Skeleton damage by 5–20%
+- Increase Skeleton health by 5–20%
+- Reduce Skeleton damage taken by 5%
+- Increase Shinsu damage by 5–20%
+- Increase Shinsu health by 5–20%
+- Reduce Shinsu damage taken by 5%
+- Increase Holy Deva damage by 5–20%
+- Increase Holy Deva health by 5–20%
+- Reduce Holy Deva damage taken by 5%
+- Increase Soul Fire Ball crit chance by 1–8%
+- Increase Soul Fire Ball crit damage by 5–15%
+- −1–2% Damage taken
+- +1–14% Crit Rate
+- +5–20% Crit Damage
+- +5–30% Skill leveling
 
 **DCStone (L)** (`dcstone-l`)
 - +1–3 DC
-- +1–3 SC
-- +1–3 MC
 - +1–2 AC
 - +1–2 AMC
+- Increase Slaying damage by 5–10%
+- Increase Flaming Sword damage by 5–10%
+- Reduce Flaming Sword cooldown by 1–2 seconds
+- Increase Twin Drake Blade damage by 5–10%
+- Reduce mana cost of Twin Drake Blade by 5–15%
+- Increase Blade Avalanche damage by 5–10%
+- Reduce mana cost of Blade Avalanche by 5–15%
+- Increase Slashing Burst damage by 5–10%
+- Reduce mana cost of Slashing Burst by 5–15%
+- Increase Slaying crit chance by 1–8%
+- Increase Slaying crit damage by 5–15%
+- Increase Flaming Sword crit chance by 1–8%
+- Increase Flaming Sword crit damage by 5–15%
+- Increase Twin Drake Blade crit chance by 1–8%
+- Increase Twin Drake Blade crit damage by 5–15%
+- Increase Blade Avalanche crit chance by 1–8%
+- Increase Blade Avalanche crit damage by 5–15%
+- Increase Slashing Burst crit chance by 1–8%
+- Increase Slashing Burst crit damage by 5–15%
+- −1–2% Damage taken
+- +1–14% Crit Rate
+- +5–20% Crit Damage
+- +5–30% Skill leveling
 
 **MCStone (L)** (`mcstone-l`)
-- +1–3 DC
-- +1–3 SC
 - +1–3 MC
 - +1–2 AC
 - +1–2 AMC
+- Increase Flame Disruptor damage by 5–10%
+- Increase Fire Wall damage by 5–10%
+- Increase Thunder Bolt damage by 5–10%
+- Increase Ice Storm damage by 5–10%
+- Increase Flame Field damage by 5–10%
+- Increase Meteor Strike damage by 5–10%
+- Increase Blizzard damage by 5–10%
+- Increase Fire Ball damage by 5–10%
+- Increase Great Fire Ball damage by 5–10%
+- Increase Frost Crunch damage by 5–10%
+- Reduce mana cost of Flame Disruptor by 5–15%
+- Reduce mana cost of Fire Wall by 5–15%
+- Reduce mana cost of Thunder Bolt by 5–15%
+- Reduce mana cost of Ice Storm by 5–15%
+- Reduce mana cost of Flame Field by 5–15%
+- Reduce mana cost of Meteor Strike by 5–15%
+- Reduce mana cost of Blizzard by 5–15%
+- Increase Flame Disruptor crit chance by 1–8%
+- Increase Flame Disruptor crit damage by 5–15%
+- Increase Fire Wall crit chance by 1–8%
+- Increase Fire Wall crit damage by 5–15%
+- Increase Thunder Bolt crit chance by 1–8%
+- Increase Thunder Bolt crit damage by 5–15%
+- Increase Ice Storm crit chance by 1–8%
+- Increase Ice Storm crit damage by 5–15%
+- Increase Flame Field crit chance by 1–8%
+- Increase Flame Field crit damage by 5–15%
+- Increase Meteor Strike crit chance by 1–8%
+- Increase Meteor Strike crit damage by 5–15%
+- Increase Blizzard crit chance by 1–8%
+- Increase Blizzard crit damage by 5–15%
+- Increase Fire Ball crit chance by 1–8%
+- Increase Fire Ball crit damage by 5–15%
+- Increase Great Fire Ball crit chance by 1–8%
+- Increase Great Fire Ball crit damage by 5–15%
+- Increase Frost Crunch crit chance by 1–8%
+- Increase Frost Crunch crit damage by 5–15%
+- −1–2% Damage taken
+- +1–14% Crit Rate
+- +5–20% Crit Damage
+- +5–30% Skill leveling
 
 **SCStone (L)** (`scstone-l`)
 - +1–3 DC
 - +1–3 SC
-- +1–3 MC
 - +1–2 AC
 - +1–2 AMC
+- Increase Healing healing by 5–10%
+- Increase Mass Healing healing by 5–10%
+- Increase Soul Fire Ball damage by 5–10%
+- Increase Skeleton damage by 5–20%
+- Increase Skeleton health by 5–20%
+- Reduce Skeleton damage taken by 5%
+- Increase Shinsu damage by 5–20%
+- Increase Shinsu health by 5–20%
+- Reduce Shinsu damage taken by 5%
+- Increase Holy Deva damage by 5–20%
+- Increase Holy Deva health by 5–20%
+- Reduce Holy Deva damage taken by 5%
+- Increase Soul Fire Ball crit chance by 1–8%
+- Increase Soul Fire Ball crit damage by 5–15%
+- −1–2% Damage taken
+- +1–14% Crit Rate
+- +5–20% Crit Damage
+- +5–30% Skill leveling
 
 **DCStone (XL)** (`dcstone-xl`)
 - +1–3 DC
-- +1–3 SC
-- +1–3 MC
 - +1–2 AC
 - +1–2 AMC
+- Increase Slaying damage by 5–10%
+- Increase Flaming Sword damage by 5–10%
+- Reduce Flaming Sword cooldown by 1–2 seconds
+- Increase Twin Drake Blade damage by 5–10%
+- Reduce mana cost of Twin Drake Blade by 5–15%
+- Increase Blade Avalanche damage by 5–10%
+- Reduce mana cost of Blade Avalanche by 5–15%
+- Increase Slashing Burst damage by 5–10%
+- Reduce mana cost of Slashing Burst by 5–15%
+- Increase Slaying crit chance by 1–8%
+- Increase Slaying crit damage by 5–15%
+- Increase Flaming Sword crit chance by 1–8%
+- Increase Flaming Sword crit damage by 5–15%
+- Increase Twin Drake Blade crit chance by 1–8%
+- Increase Twin Drake Blade crit damage by 5–15%
+- Increase Blade Avalanche crit chance by 1–8%
+- Increase Blade Avalanche crit damage by 5–15%
+- Increase Slashing Burst crit chance by 1–8%
+- Increase Slashing Burst crit damage by 5–15%
+- −1–2% Damage taken
+- +1–14% Crit Rate
+- +5–20% Crit Damage
+- +5–30% Skill leveling
 
 **MCStone (XL)** (`mcstone-xl`)
-- +1–3 DC
-- +1–3 SC
 - +1–3 MC
 - +1–2 AC
 - +1–2 AMC
+- Increase Flame Disruptor damage by 5–10%
+- Increase Fire Wall damage by 5–10%
+- Increase Thunder Bolt damage by 5–10%
+- Increase Ice Storm damage by 5–10%
+- Increase Flame Field damage by 5–10%
+- Increase Meteor Strike damage by 5–10%
+- Increase Blizzard damage by 5–10%
+- Increase Fire Ball damage by 5–10%
+- Increase Great Fire Ball damage by 5–10%
+- Increase Frost Crunch damage by 5–10%
+- Reduce mana cost of Flame Disruptor by 5–15%
+- Reduce mana cost of Fire Wall by 5–15%
+- Reduce mana cost of Thunder Bolt by 5–15%
+- Reduce mana cost of Ice Storm by 5–15%
+- Reduce mana cost of Flame Field by 5–15%
+- Reduce mana cost of Meteor Strike by 5–15%
+- Reduce mana cost of Blizzard by 5–15%
+- Increase Flame Disruptor crit chance by 1–8%
+- Increase Flame Disruptor crit damage by 5–15%
+- Increase Fire Wall crit chance by 1–8%
+- Increase Fire Wall crit damage by 5–15%
+- Increase Thunder Bolt crit chance by 1–8%
+- Increase Thunder Bolt crit damage by 5–15%
+- Increase Ice Storm crit chance by 1–8%
+- Increase Ice Storm crit damage by 5–15%
+- Increase Flame Field crit chance by 1–8%
+- Increase Flame Field crit damage by 5–15%
+- Increase Meteor Strike crit chance by 1–8%
+- Increase Meteor Strike crit damage by 5–15%
+- Increase Blizzard crit chance by 1–8%
+- Increase Blizzard crit damage by 5–15%
+- Increase Fire Ball crit chance by 1–8%
+- Increase Fire Ball crit damage by 5–15%
+- Increase Great Fire Ball crit chance by 1–8%
+- Increase Great Fire Ball crit damage by 5–15%
+- Increase Frost Crunch crit chance by 1–8%
+- Increase Frost Crunch crit damage by 5–15%
+- −1–2% Damage taken
+- +1–14% Crit Rate
+- +5–20% Crit Damage
+- +5–30% Skill leveling
 
 **SCStone (XL)** (`scstone-xl`)
 - +1–3 DC
 - +1–3 SC
-- +1–3 MC
 - +1–2 AC
 - +1–2 AMC
+- Increase Healing healing by 5–10%
+- Increase Mass Healing healing by 5–10%
+- Increase Soul Fire Ball damage by 5–10%
+- Increase Skeleton damage by 5–20%
+- Increase Skeleton health by 5–20%
+- Reduce Skeleton damage taken by 5%
+- Increase Shinsu damage by 5–20%
+- Increase Shinsu health by 5–20%
+- Reduce Shinsu damage taken by 5%
+- Increase Holy Deva damage by 5–20%
+- Increase Holy Deva health by 5–20%
+- Reduce Holy Deva damage taken by 5%
+- Increase Soul Fire Ball crit chance by 1–8%
+- Increase Soul Fire Ball crit damage by 5–15%
+- −1–2% Damage taken
+- +1–14% Crit Rate
+- +5–20% Crit Damage
+- +5–30% Skill leveling
 
 ### Weapon
 
 **Blood Stealer Sword** (`blood-stealer-sword`) (Wizard weapon)
 - +1–3 MC
 - +1–2 Luck
-- +5–25% Gold drop
-- +1–5% Bonus XP
-- +0%–2% Item drop chance
-- +5–25% Awakening Soul drop chance
 - Increase Flame Disruptor damage by 10–35%
 - Increase Fire Wall damage by 5–25%
 - Increase Thunder Bolt damage by 10–35%
 - Increase Ice Storm damage by 5–25%
+- Increase Flame Field damage by 5–25%
+- Increase Meteor Strike damage by 5–25%
+- Increase Blizzard damage by 5–25%
+- Increase Fire Ball damage by 10–35%
+- Increase Great Fire Ball damage by 10–35%
+- Increase Frost Crunch damage by 5–25%
 - Reduce mana cost of Flame Disruptor by 10–40%
 - Reduce mana cost of Fire Wall by 10–40%
+- Reduce mana cost of Thunder Bolt by 10–40%
+- Reduce mana cost of Ice Storm by 10–40%
+- Reduce mana cost of Flame Field by 10–40%
+- Reduce mana cost of Meteor Strike by 10–40%
+- Reduce mana cost of Blizzard by 10–40%
+- Increase Flame Disruptor crit chance by 5–25%
+- Increase Flame Disruptor crit damage by 10–50%
+- Increase Fire Wall crit chance by 5–25%
+- Increase Fire Wall crit damage by 10–50%
+- Increase Thunder Bolt crit chance by 5–25%
+- Increase Thunder Bolt crit damage by 10–50%
+- Increase Ice Storm crit chance by 5–25%
+- Increase Ice Storm crit damage by 10–50%
+- Increase Flame Field crit chance by 5–25%
+- Increase Flame Field crit damage by 10–50%
+- Increase Meteor Strike crit chance by 5–25%
+- Increase Meteor Strike crit damage by 10–50%
+- Increase Blizzard crit chance by 5–25%
+- Increase Blizzard crit damage by 10–50%
+- Increase Fire Ball crit chance by 5–25%
+- Increase Fire Ball crit damage by 10–50%
+- Increase Great Fire Ball crit chance by 5–25%
+- Increase Great Fire Ball crit damage by 10–50%
+- Increase Frost Crunch crit chance by 5–25%
+- Increase Frost Crunch crit damage by 10–50%
+- +5–25% Gold drop
+- +1–5% Bonus XP
+- +0%–2% Item drop chance
+- +5–25% Awakening Soul drop chance
+- +1–20% Crit Rate
+- +5–30% Crit Damage
+- +5–40% Skill leveling
 
 **Wooden Sword** (`wooden-sword`) (Warrior weapon)
 - +1–5 DC
@@ -2941,14 +15598,32 @@ Grouped by slot. Weapons show their class and actual roll pool from `empowerCand
 - +1–2 Freezing
 - +1–2 Poison
 - +1–2 Luck
-- +5–25% Gold drop
-- +1–5% Bonus XP
-- +0%–2% Item drop chance
-- +5–25% Awakening Soul drop chance
 - Increase Slaying damage by 5–35%
 - Increase Flaming Sword damage by 5–25%
 - Reduce Flaming Sword cooldown by 1–5 seconds
 - Increase Twin Drake Blade damage by 5–25%
+- Reduce mana cost of Twin Drake Blade by 10–40%
+- Increase Blade Avalanche damage by 5–25%
+- Reduce mana cost of Blade Avalanche by 10–40%
+- Increase Slashing Burst damage by 5–25%
+- Reduce mana cost of Slashing Burst by 10–40%
+- Increase Slaying crit chance by 5–25%
+- Increase Slaying crit damage by 10–50%
+- Increase Flaming Sword crit chance by 5–25%
+- Increase Flaming Sword crit damage by 10–50%
+- Increase Twin Drake Blade crit chance by 5–25%
+- Increase Twin Drake Blade crit damage by 10–50%
+- Increase Blade Avalanche crit chance by 5–25%
+- Increase Blade Avalanche crit damage by 10–50%
+- Increase Slashing Burst crit chance by 5–25%
+- Increase Slashing Burst crit damage by 10–50%
+- +5–25% Gold drop
+- +1–5% Bonus XP
+- +0%–2% Item drop chance
+- +5–25% Awakening Soul drop chance
+- +1–20% Crit Rate
+- +5–30% Crit Damage
+- +5–40% Skill leveling
 
 **Dagger** (`dagger`) (Warrior weapon)
 - +1–5 DC
@@ -2957,14 +15632,32 @@ Grouped by slot. Weapons show their class and actual roll pool from `empowerCand
 - +1–2 Freezing
 - +1–2 Poison
 - +1–2 Luck
-- +5–25% Gold drop
-- +1–5% Bonus XP
-- +0%–2% Item drop chance
-- +5–25% Awakening Soul drop chance
 - Increase Slaying damage by 5–35%
 - Increase Flaming Sword damage by 5–25%
 - Reduce Flaming Sword cooldown by 1–5 seconds
 - Increase Twin Drake Blade damage by 5–25%
+- Reduce mana cost of Twin Drake Blade by 10–40%
+- Increase Blade Avalanche damage by 5–25%
+- Reduce mana cost of Blade Avalanche by 10–40%
+- Increase Slashing Burst damage by 5–25%
+- Reduce mana cost of Slashing Burst by 10–40%
+- Increase Slaying crit chance by 5–25%
+- Increase Slaying crit damage by 10–50%
+- Increase Flaming Sword crit chance by 5–25%
+- Increase Flaming Sword crit damage by 10–50%
+- Increase Twin Drake Blade crit chance by 5–25%
+- Increase Twin Drake Blade crit damage by 10–50%
+- Increase Blade Avalanche crit chance by 5–25%
+- Increase Blade Avalanche crit damage by 10–50%
+- Increase Slashing Burst crit chance by 5–25%
+- Increase Slashing Burst crit damage by 10–50%
+- +5–25% Gold drop
+- +1–5% Bonus XP
+- +0%–2% Item drop chance
+- +5–25% Awakening Soul drop chance
+- +1–20% Crit Rate
+- +5–30% Crit Damage
+- +5–40% Skill leveling
 
 **Sharp Dagger** (`sharp-dagger`) (Warrior weapon)
 - +1–5 DC
@@ -2973,28 +15666,80 @@ Grouped by slot. Weapons show their class and actual roll pool from `empowerCand
 - +1–2 Freezing
 - +1–2 Poison
 - +1–2 Luck
-- +5–25% Gold drop
-- +1–5% Bonus XP
-- +0%–2% Item drop chance
-- +5–25% Awakening Soul drop chance
 - Increase Slaying damage by 5–35%
 - Increase Flaming Sword damage by 5–25%
 - Reduce Flaming Sword cooldown by 1–5 seconds
 - Increase Twin Drake Blade damage by 5–25%
-
-**Ebony Sword** (`ebony-sword`) (Wizard weapon)
-- +1–3 MC
-- +1–2 Luck
+- Reduce mana cost of Twin Drake Blade by 10–40%
+- Increase Blade Avalanche damage by 5–25%
+- Reduce mana cost of Blade Avalanche by 10–40%
+- Increase Slashing Burst damage by 5–25%
+- Reduce mana cost of Slashing Burst by 10–40%
+- Increase Slaying crit chance by 5–25%
+- Increase Slaying crit damage by 10–50%
+- Increase Flaming Sword crit chance by 5–25%
+- Increase Flaming Sword crit damage by 10–50%
+- Increase Twin Drake Blade crit chance by 5–25%
+- Increase Twin Drake Blade crit damage by 10–50%
+- Increase Blade Avalanche crit chance by 5–25%
+- Increase Blade Avalanche crit damage by 10–50%
+- Increase Slashing Burst crit chance by 5–25%
+- Increase Slashing Burst crit damage by 10–50%
 - +5–25% Gold drop
 - +1–5% Bonus XP
 - +0%–2% Item drop chance
 - +5–25% Awakening Soul drop chance
+- +1–20% Crit Rate
+- +5–30% Crit Damage
+- +5–40% Skill leveling
+
+**Ebony Sword** (`ebony-sword`) (Wizard weapon)
+- +1–3 MC
+- +1–2 Luck
 - Increase Flame Disruptor damage by 10–35%
 - Increase Fire Wall damage by 5–25%
 - Increase Thunder Bolt damage by 10–35%
 - Increase Ice Storm damage by 5–25%
+- Increase Flame Field damage by 5–25%
+- Increase Meteor Strike damage by 5–25%
+- Increase Blizzard damage by 5–25%
+- Increase Fire Ball damage by 10–35%
+- Increase Great Fire Ball damage by 10–35%
+- Increase Frost Crunch damage by 5–25%
 - Reduce mana cost of Flame Disruptor by 10–40%
 - Reduce mana cost of Fire Wall by 10–40%
+- Reduce mana cost of Thunder Bolt by 10–40%
+- Reduce mana cost of Ice Storm by 10–40%
+- Reduce mana cost of Flame Field by 10–40%
+- Reduce mana cost of Meteor Strike by 10–40%
+- Reduce mana cost of Blizzard by 10–40%
+- Increase Flame Disruptor crit chance by 5–25%
+- Increase Flame Disruptor crit damage by 10–50%
+- Increase Fire Wall crit chance by 5–25%
+- Increase Fire Wall crit damage by 10–50%
+- Increase Thunder Bolt crit chance by 5–25%
+- Increase Thunder Bolt crit damage by 10–50%
+- Increase Ice Storm crit chance by 5–25%
+- Increase Ice Storm crit damage by 10–50%
+- Increase Flame Field crit chance by 5–25%
+- Increase Flame Field crit damage by 10–50%
+- Increase Meteor Strike crit chance by 5–25%
+- Increase Meteor Strike crit damage by 10–50%
+- Increase Blizzard crit chance by 5–25%
+- Increase Blizzard crit damage by 10–50%
+- Increase Fire Ball crit chance by 5–25%
+- Increase Fire Ball crit damage by 10–50%
+- Increase Great Fire Ball crit chance by 5–25%
+- Increase Great Fire Ball crit damage by 10–50%
+- Increase Frost Crunch crit chance by 5–25%
+- Increase Frost Crunch crit damage by 10–50%
+- +5–25% Gold drop
+- +1–5% Bonus XP
+- +0%–2% Item drop chance
+- +5–25% Awakening Soul drop chance
+- +1–20% Crit Rate
+- +5–30% Crit Damage
+- +5–40% Skill leveling
 
 **Bronze Sword** (`bronze-sword`) (Warrior weapon)
 - +1–5 DC
@@ -3003,14 +15748,32 @@ Grouped by slot. Weapons show their class and actual roll pool from `empowerCand
 - +1–2 Freezing
 - +1–2 Poison
 - +1–2 Luck
-- +5–25% Gold drop
-- +1–5% Bonus XP
-- +0%–2% Item drop chance
-- +5–25% Awakening Soul drop chance
 - Increase Slaying damage by 5–35%
 - Increase Flaming Sword damage by 5–25%
 - Reduce Flaming Sword cooldown by 1–5 seconds
 - Increase Twin Drake Blade damage by 5–25%
+- Reduce mana cost of Twin Drake Blade by 10–40%
+- Increase Blade Avalanche damage by 5–25%
+- Reduce mana cost of Blade Avalanche by 10–40%
+- Increase Slashing Burst damage by 5–25%
+- Reduce mana cost of Slashing Burst by 10–40%
+- Increase Slaying crit chance by 5–25%
+- Increase Slaying crit damage by 10–50%
+- Increase Flaming Sword crit chance by 5–25%
+- Increase Flaming Sword crit damage by 10–50%
+- Increase Twin Drake Blade crit chance by 5–25%
+- Increase Twin Drake Blade crit damage by 10–50%
+- Increase Blade Avalanche crit chance by 5–25%
+- Increase Blade Avalanche crit damage by 10–50%
+- Increase Slashing Burst crit chance by 5–25%
+- Increase Slashing Burst crit damage by 10–50%
+- +5–25% Gold drop
+- +1–5% Bonus XP
+- +0%–2% Item drop chance
+- +5–25% Awakening Soul drop chance
+- +1–20% Crit Rate
+- +5–30% Crit Damage
+- +5–40% Skill leveling
 
 **Bronze Warrior Sword** (`bronze-warrior-sword`) (Warrior weapon)
 - +1–5 DC
@@ -3019,14 +15782,32 @@ Grouped by slot. Weapons show their class and actual roll pool from `empowerCand
 - +1–2 Freezing
 - +1–2 Poison
 - +1–2 Luck
-- +5–25% Gold drop
-- +1–5% Bonus XP
-- +0%–2% Item drop chance
-- +5–25% Awakening Soul drop chance
 - Increase Slaying damage by 5–35%
 - Increase Flaming Sword damage by 5–25%
 - Reduce Flaming Sword cooldown by 1–5 seconds
 - Increase Twin Drake Blade damage by 5–25%
+- Reduce mana cost of Twin Drake Blade by 10–40%
+- Increase Blade Avalanche damage by 5–25%
+- Reduce mana cost of Blade Avalanche by 10–40%
+- Increase Slashing Burst damage by 5–25%
+- Reduce mana cost of Slashing Burst by 10–40%
+- Increase Slaying crit chance by 5–25%
+- Increase Slaying crit damage by 10–50%
+- Increase Flaming Sword crit chance by 5–25%
+- Increase Flaming Sword crit damage by 10–50%
+- Increase Twin Drake Blade crit chance by 5–25%
+- Increase Twin Drake Blade crit damage by 10–50%
+- Increase Blade Avalanche crit chance by 5–25%
+- Increase Blade Avalanche crit damage by 10–50%
+- Increase Slashing Burst crit chance by 5–25%
+- Increase Slashing Burst crit damage by 10–50%
+- +5–25% Gold drop
+- +1–5% Bonus XP
+- +0%–2% Item drop chance
+- +5–25% Awakening Soul drop chance
+- +1–20% Crit Rate
+- +5–30% Crit Damage
+- +5–40% Skill leveling
 
 **Bronze Short Sword** (`bronze-short-sword`) (Warrior weapon)
 - +1–5 DC
@@ -3035,14 +15816,32 @@ Grouped by slot. Weapons show their class and actual roll pool from `empowerCand
 - +1–2 Freezing
 - +1–2 Poison
 - +1–2 Luck
-- +5–25% Gold drop
-- +1–5% Bonus XP
-- +0%–2% Item drop chance
-- +5–25% Awakening Soul drop chance
 - Increase Slaying damage by 5–35%
 - Increase Flaming Sword damage by 5–25%
 - Reduce Flaming Sword cooldown by 1–5 seconds
 - Increase Twin Drake Blade damage by 5–25%
+- Reduce mana cost of Twin Drake Blade by 10–40%
+- Increase Blade Avalanche damage by 5–25%
+- Reduce mana cost of Blade Avalanche by 10–40%
+- Increase Slashing Burst damage by 5–25%
+- Reduce mana cost of Slashing Burst by 10–40%
+- Increase Slaying crit chance by 5–25%
+- Increase Slaying crit damage by 10–50%
+- Increase Flaming Sword crit chance by 5–25%
+- Increase Flaming Sword crit damage by 10–50%
+- Increase Twin Drake Blade crit chance by 5–25%
+- Increase Twin Drake Blade crit damage by 10–50%
+- Increase Blade Avalanche crit chance by 5–25%
+- Increase Blade Avalanche crit damage by 10–50%
+- Increase Slashing Burst crit chance by 5–25%
+- Increase Slashing Burst crit damage by 10–50%
+- +5–25% Gold drop
+- +1–5% Bonus XP
+- +0%–2% Item drop chance
+- +5–25% Awakening Soul drop chance
+- +1–20% Crit Rate
+- +5–30% Crit Damage
+- +5–40% Skill leveling
 
 **Short Sword** (`short-sword`) (Warrior weapon)
 - +1–5 DC
@@ -3051,14 +15850,32 @@ Grouped by slot. Weapons show their class and actual roll pool from `empowerCand
 - +1–2 Freezing
 - +1–2 Poison
 - +1–2 Luck
-- +5–25% Gold drop
-- +1–5% Bonus XP
-- +0%–2% Item drop chance
-- +5–25% Awakening Soul drop chance
 - Increase Slaying damage by 5–35%
 - Increase Flaming Sword damage by 5–25%
 - Reduce Flaming Sword cooldown by 1–5 seconds
 - Increase Twin Drake Blade damage by 5–25%
+- Reduce mana cost of Twin Drake Blade by 10–40%
+- Increase Blade Avalanche damage by 5–25%
+- Reduce mana cost of Blade Avalanche by 10–40%
+- Increase Slashing Burst damage by 5–25%
+- Reduce mana cost of Slashing Burst by 10–40%
+- Increase Slaying crit chance by 5–25%
+- Increase Slaying crit damage by 10–50%
+- Increase Flaming Sword crit chance by 5–25%
+- Increase Flaming Sword crit damage by 10–50%
+- Increase Twin Drake Blade crit chance by 5–25%
+- Increase Twin Drake Blade crit damage by 10–50%
+- Increase Blade Avalanche crit chance by 5–25%
+- Increase Blade Avalanche crit damage by 10–50%
+- Increase Slashing Burst crit chance by 5–25%
+- Increase Slashing Burst crit damage by 10–50%
+- +5–25% Gold drop
+- +1–5% Bonus XP
+- +0%–2% Item drop chance
+- +5–25% Awakening Soul drop chance
+- +1–20% Crit Rate
+- +5–30% Crit Damage
+- +5–40% Skill leveling
 
 **Broken Sword** (`broken-sword`) (Warrior weapon)
 - +1–5 DC
@@ -3067,14 +15884,32 @@ Grouped by slot. Weapons show their class and actual roll pool from `empowerCand
 - +1–2 Freezing
 - +1–2 Poison
 - +1–2 Luck
-- +5–25% Gold drop
-- +1–5% Bonus XP
-- +0%–2% Item drop chance
-- +5–25% Awakening Soul drop chance
 - Increase Slaying damage by 5–35%
 - Increase Flaming Sword damage by 5–25%
 - Reduce Flaming Sword cooldown by 1–5 seconds
 - Increase Twin Drake Blade damage by 5–25%
+- Reduce mana cost of Twin Drake Blade by 10–40%
+- Increase Blade Avalanche damage by 5–25%
+- Reduce mana cost of Blade Avalanche by 10–40%
+- Increase Slashing Burst damage by 5–25%
+- Reduce mana cost of Slashing Burst by 10–40%
+- Increase Slaying crit chance by 5–25%
+- Increase Slaying crit damage by 10–50%
+- Increase Flaming Sword crit chance by 5–25%
+- Increase Flaming Sword crit damage by 10–50%
+- Increase Twin Drake Blade crit chance by 5–25%
+- Increase Twin Drake Blade crit damage by 10–50%
+- Increase Blade Avalanche crit chance by 5–25%
+- Increase Blade Avalanche crit damage by 10–50%
+- Increase Slashing Burst crit chance by 5–25%
+- Increase Slashing Burst crit damage by 10–50%
+- +5–25% Gold drop
+- +1–5% Bonus XP
+- +0%–2% Item drop chance
+- +5–25% Awakening Soul drop chance
+- +1–20% Crit Rate
+- +5–30% Crit Damage
+- +5–40% Skill leveling
 
 **Iron Sword** (`iron-sword`) (Warrior weapon)
 - +1–5 DC
@@ -3083,14 +15918,32 @@ Grouped by slot. Weapons show their class and actual roll pool from `empowerCand
 - +1–2 Freezing
 - +1–2 Poison
 - +1–2 Luck
-- +5–25% Gold drop
-- +1–5% Bonus XP
-- +0%–2% Item drop chance
-- +5–25% Awakening Soul drop chance
 - Increase Slaying damage by 5–35%
 - Increase Flaming Sword damage by 5–25%
 - Reduce Flaming Sword cooldown by 1–5 seconds
 - Increase Twin Drake Blade damage by 5–25%
+- Reduce mana cost of Twin Drake Blade by 10–40%
+- Increase Blade Avalanche damage by 5–25%
+- Reduce mana cost of Blade Avalanche by 10–40%
+- Increase Slashing Burst damage by 5–25%
+- Reduce mana cost of Slashing Burst by 10–40%
+- Increase Slaying crit chance by 5–25%
+- Increase Slaying crit damage by 10–50%
+- Increase Flaming Sword crit chance by 5–25%
+- Increase Flaming Sword crit damage by 10–50%
+- Increase Twin Drake Blade crit chance by 5–25%
+- Increase Twin Drake Blade crit damage by 10–50%
+- Increase Blade Avalanche crit chance by 5–25%
+- Increase Blade Avalanche crit damage by 10–50%
+- Increase Slashing Burst crit chance by 5–25%
+- Increase Slashing Burst crit damage by 10–50%
+- +5–25% Gold drop
+- +1–5% Bonus XP
+- +0%–2% Item drop chance
+- +5–25% Awakening Soul drop chance
+- +1–20% Crit Rate
+- +5–30% Crit Damage
+- +5–40% Skill leveling
 
 **Bone Decapitator** (`bone-decapitator`) (Universal weapon)
 - +1–5 DC
@@ -3101,21 +15954,64 @@ Grouped by slot. Weapons show their class and actual roll pool from `empowerCand
 - +1–2 Freezing
 - +1–2 Poison
 - +1–2 Luck
-- +5–25% Gold drop
-- +1–5% Bonus XP
-- +0%–2% Item drop chance
-- +5–25% Awakening Soul drop chance
 - Increase Flame Disruptor damage by 10–35%
 - Increase Fire Wall damage by 5–25%
 - Increase Thunder Bolt damage by 10–35%
 - Increase Ice Storm damage by 5–25%
+- Increase Flame Field damage by 5–25%
+- Increase Meteor Strike damage by 5–25%
+- Increase Blizzard damage by 5–25%
+- Increase Fire Ball damage by 10–35%
+- Increase Great Fire Ball damage by 10–35%
+- Increase Frost Crunch damage by 5–25%
 - Reduce mana cost of Flame Disruptor by 10–40%
 - Reduce mana cost of Fire Wall by 10–40%
+- Reduce mana cost of Thunder Bolt by 10–40%
+- Reduce mana cost of Ice Storm by 10–40%
+- Reduce mana cost of Flame Field by 10–40%
+- Reduce mana cost of Meteor Strike by 10–40%
+- Reduce mana cost of Blizzard by 10–40%
+- Increase Flame Disruptor crit chance by 5–25%
+- Increase Flame Disruptor crit damage by 10–50%
+- Increase Fire Wall crit chance by 5–25%
+- Increase Fire Wall crit damage by 10–50%
+- Increase Thunder Bolt crit chance by 5–25%
+- Increase Thunder Bolt crit damage by 10–50%
+- Increase Ice Storm crit chance by 5–25%
+- Increase Ice Storm crit damage by 10–50%
+- Increase Flame Field crit chance by 5–25%
+- Increase Flame Field crit damage by 10–50%
+- Increase Meteor Strike crit chance by 5–25%
+- Increase Meteor Strike crit damage by 10–50%
+- Increase Blizzard crit chance by 5–25%
+- Increase Blizzard crit damage by 10–50%
+- Increase Fire Ball crit chance by 5–25%
+- Increase Fire Ball crit damage by 10–50%
+- Increase Great Fire Ball crit chance by 5–25%
+- Increase Great Fire Ball crit damage by 10–50%
+- Increase Frost Crunch crit chance by 5–25%
+- Increase Frost Crunch crit damage by 10–50%
 - Increase Healing healing by 5–25%
 - Increase Mass Healing healing by 5–25%
 - Increase Soul Fire Ball damage by 10–35%
 - Increase Skeleton damage by 10–50%
+- Increase Skeleton health by 10–50%
+- Reduce Skeleton damage taken by 5–20%
 - Increase Shinsu damage by 10–50%
+- Increase Shinsu health by 10–50%
+- Reduce Shinsu damage taken by 5–20%
+- Increase Holy Deva damage by 10–50%
+- Increase Holy Deva health by 10–50%
+- Reduce Holy Deva damage taken by 5–20%
+- Increase Soul Fire Ball crit chance by 5–25%
+- Increase Soul Fire Ball crit damage by 10–50%
+- +5–25% Gold drop
+- +1–5% Bonus XP
+- +0%–2% Item drop chance
+- +5–25% Awakening Soul drop chance
+- +1–20% Crit Rate
+- +5–30% Crit Damage
+- +5–40% Skill leveling
 
 **Pickaxe** (`pickaxe`) (Warrior weapon)
 - +1–5 DC
@@ -3124,14 +16020,32 @@ Grouped by slot. Weapons show their class and actual roll pool from `empowerCand
 - +1–2 Freezing
 - +1–2 Poison
 - +1–2 Luck
-- +5–25% Gold drop
-- +1–5% Bonus XP
-- +0%–2% Item drop chance
-- +5–25% Awakening Soul drop chance
 - Increase Slaying damage by 5–35%
 - Increase Flaming Sword damage by 5–25%
 - Reduce Flaming Sword cooldown by 1–5 seconds
 - Increase Twin Drake Blade damage by 5–25%
+- Reduce mana cost of Twin Drake Blade by 10–40%
+- Increase Blade Avalanche damage by 5–25%
+- Reduce mana cost of Blade Avalanche by 10–40%
+- Increase Slashing Burst damage by 5–25%
+- Reduce mana cost of Slashing Burst by 10–40%
+- Increase Slaying crit chance by 5–25%
+- Increase Slaying crit damage by 10–50%
+- Increase Flaming Sword crit chance by 5–25%
+- Increase Flaming Sword crit damage by 10–50%
+- Increase Twin Drake Blade crit chance by 5–25%
+- Increase Twin Drake Blade crit damage by 10–50%
+- Increase Blade Avalanche crit chance by 5–25%
+- Increase Blade Avalanche crit damage by 10–50%
+- Increase Slashing Burst crit chance by 5–25%
+- Increase Slashing Burst crit damage by 10–50%
+- +5–25% Gold drop
+- +1–5% Bonus XP
+- +0%–2% Item drop chance
+- +5–25% Awakening Soul drop chance
+- +1–20% Crit Rate
+- +5–30% Crit Damage
+- +5–40% Skill leveling
 
 **Bronze Axe** (`bronze-axe`) (Warrior weapon)
 - +1–5 DC
@@ -3140,14 +16054,32 @@ Grouped by slot. Weapons show their class and actual roll pool from `empowerCand
 - +1–2 Freezing
 - +1–2 Poison
 - +1–2 Luck
-- +5–25% Gold drop
-- +1–5% Bonus XP
-- +0%–2% Item drop chance
-- +5–25% Awakening Soul drop chance
 - Increase Slaying damage by 5–35%
 - Increase Flaming Sword damage by 5–25%
 - Reduce Flaming Sword cooldown by 1–5 seconds
 - Increase Twin Drake Blade damage by 5–25%
+- Reduce mana cost of Twin Drake Blade by 10–40%
+- Increase Blade Avalanche damage by 5–25%
+- Reduce mana cost of Blade Avalanche by 10–40%
+- Increase Slashing Burst damage by 5–25%
+- Reduce mana cost of Slashing Burst by 10–40%
+- Increase Slaying crit chance by 5–25%
+- Increase Slaying crit damage by 10–50%
+- Increase Flaming Sword crit chance by 5–25%
+- Increase Flaming Sword crit damage by 10–50%
+- Increase Twin Drake Blade crit chance by 5–25%
+- Increase Twin Drake Blade crit damage by 10–50%
+- Increase Blade Avalanche crit chance by 5–25%
+- Increase Blade Avalanche crit damage by 10–50%
+- Increase Slashing Burst crit chance by 5–25%
+- Increase Slashing Burst crit damage by 10–50%
+- +5–25% Gold drop
+- +1–5% Bonus XP
+- +0%–2% Item drop chance
+- +5–25% Awakening Soul drop chance
+- +1–20% Crit Rate
+- +5–30% Crit Damage
+- +5–40% Skill leveling
 
 **Solid Bronze Axe** (`solid-bronze-axe`) (Warrior weapon)
 - +1–5 DC
@@ -3156,14 +16088,32 @@ Grouped by slot. Weapons show their class and actual roll pool from `empowerCand
 - +1–2 Freezing
 - +1–2 Poison
 - +1–2 Luck
-- +5–25% Gold drop
-- +1–5% Bonus XP
-- +0%–2% Item drop chance
-- +5–25% Awakening Soul drop chance
 - Increase Slaying damage by 5–35%
 - Increase Flaming Sword damage by 5–25%
 - Reduce Flaming Sword cooldown by 1–5 seconds
 - Increase Twin Drake Blade damage by 5–25%
+- Reduce mana cost of Twin Drake Blade by 10–40%
+- Increase Blade Avalanche damage by 5–25%
+- Reduce mana cost of Blade Avalanche by 10–40%
+- Increase Slashing Burst damage by 5–25%
+- Reduce mana cost of Slashing Burst by 10–40%
+- Increase Slaying crit chance by 5–25%
+- Increase Slaying crit damage by 10–50%
+- Increase Flaming Sword crit chance by 5–25%
+- Increase Flaming Sword crit damage by 10–50%
+- Increase Twin Drake Blade crit chance by 5–25%
+- Increase Twin Drake Blade crit damage by 10–50%
+- Increase Blade Avalanche crit chance by 5–25%
+- Increase Blade Avalanche crit damage by 10–50%
+- Increase Slashing Burst crit chance by 5–25%
+- Increase Slashing Burst crit damage by 10–50%
+- +5–25% Gold drop
+- +1–5% Bonus XP
+- +0%–2% Item drop chance
+- +5–25% Awakening Soul drop chance
+- +1–20% Crit Rate
+- +5–30% Crit Damage
+- +5–40% Skill leveling
 
 **Hooked Sword** (`hooked-sword`) (Warrior weapon)
 - +1–5 DC
@@ -3172,40 +16122,82 @@ Grouped by slot. Weapons show their class and actual roll pool from `empowerCand
 - +1–2 Freezing
 - +1–2 Poison
 - +1–2 Luck
-- +5–25% Gold drop
-- +1–5% Bonus XP
-- +0%–2% Item drop chance
-- +5–25% Awakening Soul drop chance
 - Increase Slaying damage by 5–35%
 - Increase Flaming Sword damage by 5–25%
 - Reduce Flaming Sword cooldown by 1–5 seconds
 - Increase Twin Drake Blade damage by 5–25%
+- Reduce mana cost of Twin Drake Blade by 10–40%
+- Increase Blade Avalanche damage by 5–25%
+- Reduce mana cost of Blade Avalanche by 10–40%
+- Increase Slashing Burst damage by 5–25%
+- Reduce mana cost of Slashing Burst by 10–40%
+- Increase Slaying crit chance by 5–25%
+- Increase Slaying crit damage by 10–50%
+- Increase Flaming Sword crit chance by 5–25%
+- Increase Flaming Sword crit damage by 10–50%
+- Increase Twin Drake Blade crit chance by 5–25%
+- Increase Twin Drake Blade crit damage by 10–50%
+- Increase Blade Avalanche crit chance by 5–25%
+- Increase Blade Avalanche crit damage by 10–50%
+- Increase Slashing Burst crit chance by 5–25%
+- Increase Slashing Burst crit damage by 10–50%
+- +5–25% Gold drop
+- +1–5% Bonus XP
+- +0%–2% Item drop chance
+- +5–25% Awakening Soul drop chance
+- +1–20% Crit Rate
+- +5–30% Crit Damage
+- +5–40% Skill leveling
 
 **Scimitar** (`scimitar`) (Tao weapon)
 - +1–3 SC
 - +1–2 Luck
-- +5–25% Gold drop
-- +1–5% Bonus XP
-- +0%–2% Item drop chance
-- +5–25% Awakening Soul drop chance
 - Increase Healing healing by 5–25%
 - Increase Mass Healing healing by 5–25%
 - Increase Soul Fire Ball damage by 10–35%
 - Increase Skeleton damage by 10–50%
+- Increase Skeleton health by 10–50%
+- Reduce Skeleton damage taken by 5–20%
 - Increase Shinsu damage by 10–50%
+- Increase Shinsu health by 10–50%
+- Reduce Shinsu damage taken by 5–20%
+- Increase Holy Deva damage by 10–50%
+- Increase Holy Deva health by 10–50%
+- Reduce Holy Deva damage taken by 5–20%
+- Increase Soul Fire Ball crit chance by 5–25%
+- Increase Soul Fire Ball crit damage by 10–50%
+- +5–25% Gold drop
+- +1–5% Bonus XP
+- +0%–2% Item drop chance
+- +5–25% Awakening Soul drop chance
+- +1–20% Crit Rate
+- +5–30% Crit Damage
+- +5–40% Skill leveling
 
 **Sharp Scimitar** (`sharp-scimitar`) (Tao weapon)
 - +1–3 SC
 - +1–2 Luck
-- +5–25% Gold drop
-- +1–5% Bonus XP
-- +0%–2% Item drop chance
-- +5–25% Awakening Soul drop chance
 - Increase Healing healing by 5–25%
 - Increase Mass Healing healing by 5–25%
 - Increase Soul Fire Ball damage by 10–35%
 - Increase Skeleton damage by 10–50%
+- Increase Skeleton health by 10–50%
+- Reduce Skeleton damage taken by 5–20%
 - Increase Shinsu damage by 10–50%
+- Increase Shinsu health by 10–50%
+- Reduce Shinsu damage taken by 5–20%
+- Increase Holy Deva damage by 10–50%
+- Increase Holy Deva health by 10–50%
+- Reduce Holy Deva damage taken by 5–20%
+- Increase Soul Fire Ball crit chance by 5–25%
+- Increase Soul Fire Ball crit damage by 10–50%
+- +5–25% Gold drop
+- +1–5% Bonus XP
+- +0%–2% Item drop chance
+- +5–25% Awakening Soul drop chance
+- +1–20% Crit Rate
+- +5–30% Crit Damage
+- +5–40% Skill leveling
 
 **Sharp Sword** (`sharp-sword`) (Warrior weapon)
 - +1–5 DC
@@ -3214,42 +16206,128 @@ Grouped by slot. Weapons show their class and actual roll pool from `empowerCand
 - +1–2 Freezing
 - +1–2 Poison
 - +1–2 Luck
-- +5–25% Gold drop
-- +1–5% Bonus XP
-- +0%–2% Item drop chance
-- +5–25% Awakening Soul drop chance
 - Increase Slaying damage by 5–35%
 - Increase Flaming Sword damage by 5–25%
 - Reduce Flaming Sword cooldown by 1–5 seconds
 - Increase Twin Drake Blade damage by 5–25%
+- Reduce mana cost of Twin Drake Blade by 10–40%
+- Increase Blade Avalanche damage by 5–25%
+- Reduce mana cost of Blade Avalanche by 10–40%
+- Increase Slashing Burst damage by 5–25%
+- Reduce mana cost of Slashing Burst by 10–40%
+- Increase Slaying crit chance by 5–25%
+- Increase Slaying crit damage by 10–50%
+- Increase Flaming Sword crit chance by 5–25%
+- Increase Flaming Sword crit damage by 10–50%
+- Increase Twin Drake Blade crit chance by 5–25%
+- Increase Twin Drake Blade crit damage by 10–50%
+- Increase Blade Avalanche crit chance by 5–25%
+- Increase Blade Avalanche crit damage by 10–50%
+- Increase Slashing Burst crit chance by 5–25%
+- Increase Slashing Burst crit damage by 10–50%
+- +5–25% Gold drop
+- +1–5% Bonus XP
+- +0%–2% Item drop chance
+- +5–25% Awakening Soul drop chance
+- +1–20% Crit Rate
+- +5–30% Crit Damage
+- +5–40% Skill leveling
 
 **Sharp Trident** (`sharp-trident`) (Wizard weapon)
 - +1–3 MC
 - +1–2 Luck
-- +5–25% Gold drop
-- +1–5% Bonus XP
-- +0%–2% Item drop chance
-- +5–25% Awakening Soul drop chance
 - Increase Flame Disruptor damage by 10–35%
 - Increase Fire Wall damage by 5–25%
 - Increase Thunder Bolt damage by 10–35%
 - Increase Ice Storm damage by 5–25%
+- Increase Flame Field damage by 5–25%
+- Increase Meteor Strike damage by 5–25%
+- Increase Blizzard damage by 5–25%
+- Increase Fire Ball damage by 10–35%
+- Increase Great Fire Ball damage by 10–35%
+- Increase Frost Crunch damage by 5–25%
 - Reduce mana cost of Flame Disruptor by 10–40%
 - Reduce mana cost of Fire Wall by 10–40%
+- Reduce mana cost of Thunder Bolt by 10–40%
+- Reduce mana cost of Ice Storm by 10–40%
+- Reduce mana cost of Flame Field by 10–40%
+- Reduce mana cost of Meteor Strike by 10–40%
+- Reduce mana cost of Blizzard by 10–40%
+- Increase Flame Disruptor crit chance by 5–25%
+- Increase Flame Disruptor crit damage by 10–50%
+- Increase Fire Wall crit chance by 5–25%
+- Increase Fire Wall crit damage by 10–50%
+- Increase Thunder Bolt crit chance by 5–25%
+- Increase Thunder Bolt crit damage by 10–50%
+- Increase Ice Storm crit chance by 5–25%
+- Increase Ice Storm crit damage by 10–50%
+- Increase Flame Field crit chance by 5–25%
+- Increase Flame Field crit damage by 10–50%
+- Increase Meteor Strike crit chance by 5–25%
+- Increase Meteor Strike crit damage by 10–50%
+- Increase Blizzard crit chance by 5–25%
+- Increase Blizzard crit damage by 10–50%
+- Increase Fire Ball crit chance by 5–25%
+- Increase Fire Ball crit damage by 10–50%
+- Increase Great Fire Ball crit chance by 5–25%
+- Increase Great Fire Ball crit damage by 10–50%
+- Increase Frost Crunch crit chance by 5–25%
+- Increase Frost Crunch crit damage by 10–50%
+- +5–25% Gold drop
+- +1–5% Bonus XP
+- +0%–2% Item drop chance
+- +5–25% Awakening Soul drop chance
+- +1–20% Crit Rate
+- +5–30% Crit Damage
+- +5–40% Skill leveling
 
 **Trident** (`trident`) (Wizard weapon)
 - +1–3 MC
 - +1–2 Luck
-- +5–25% Gold drop
-- +1–5% Bonus XP
-- +0%–2% Item drop chance
-- +5–25% Awakening Soul drop chance
 - Increase Flame Disruptor damage by 10–35%
 - Increase Fire Wall damage by 5–25%
 - Increase Thunder Bolt damage by 10–35%
 - Increase Ice Storm damage by 5–25%
+- Increase Flame Field damage by 5–25%
+- Increase Meteor Strike damage by 5–25%
+- Increase Blizzard damage by 5–25%
+- Increase Fire Ball damage by 10–35%
+- Increase Great Fire Ball damage by 10–35%
+- Increase Frost Crunch damage by 5–25%
 - Reduce mana cost of Flame Disruptor by 10–40%
 - Reduce mana cost of Fire Wall by 10–40%
+- Reduce mana cost of Thunder Bolt by 10–40%
+- Reduce mana cost of Ice Storm by 10–40%
+- Reduce mana cost of Flame Field by 10–40%
+- Reduce mana cost of Meteor Strike by 10–40%
+- Reduce mana cost of Blizzard by 10–40%
+- Increase Flame Disruptor crit chance by 5–25%
+- Increase Flame Disruptor crit damage by 10–50%
+- Increase Fire Wall crit chance by 5–25%
+- Increase Fire Wall crit damage by 10–50%
+- Increase Thunder Bolt crit chance by 5–25%
+- Increase Thunder Bolt crit damage by 10–50%
+- Increase Ice Storm crit chance by 5–25%
+- Increase Ice Storm crit damage by 10–50%
+- Increase Flame Field crit chance by 5–25%
+- Increase Flame Field crit damage by 10–50%
+- Increase Meteor Strike crit chance by 5–25%
+- Increase Meteor Strike crit damage by 10–50%
+- Increase Blizzard crit chance by 5–25%
+- Increase Blizzard crit damage by 10–50%
+- Increase Fire Ball crit chance by 5–25%
+- Increase Fire Ball crit damage by 10–50%
+- Increase Great Fire Ball crit chance by 5–25%
+- Increase Great Fire Ball crit damage by 10–50%
+- Increase Frost Crunch crit chance by 5–25%
+- Increase Frost Crunch crit damage by 10–50%
+- +5–25% Gold drop
+- +1–5% Bonus XP
+- +0%–2% Item drop chance
+- +5–25% Awakening Soul drop chance
+- +1–20% Crit Rate
+- +5–30% Crit Damage
+- +5–40% Skill leveling
 
 **Steel Axe** (`steel-axe`) (Warrior weapon)
 - +1–5 DC
@@ -3258,14 +16336,32 @@ Grouped by slot. Weapons show their class and actual roll pool from `empowerCand
 - +1–2 Freezing
 - +1–2 Poison
 - +1–2 Luck
-- +5–25% Gold drop
-- +1–5% Bonus XP
-- +0%–2% Item drop chance
-- +5–25% Awakening Soul drop chance
 - Increase Slaying damage by 5–35%
 - Increase Flaming Sword damage by 5–25%
 - Reduce Flaming Sword cooldown by 1–5 seconds
 - Increase Twin Drake Blade damage by 5–25%
+- Reduce mana cost of Twin Drake Blade by 10–40%
+- Increase Blade Avalanche damage by 5–25%
+- Reduce mana cost of Blade Avalanche by 10–40%
+- Increase Slashing Burst damage by 5–25%
+- Reduce mana cost of Slashing Burst by 10–40%
+- Increase Slaying crit chance by 5–25%
+- Increase Slaying crit damage by 10–50%
+- Increase Flaming Sword crit chance by 5–25%
+- Increase Flaming Sword crit damage by 10–50%
+- Increase Twin Drake Blade crit chance by 5–25%
+- Increase Twin Drake Blade crit damage by 10–50%
+- Increase Blade Avalanche crit chance by 5–25%
+- Increase Blade Avalanche crit damage by 10–50%
+- Increase Slashing Burst crit chance by 5–25%
+- Increase Slashing Burst crit damage by 10–50%
+- +5–25% Gold drop
+- +1–5% Bonus XP
+- +0%–2% Item drop chance
+- +5–25% Awakening Soul drop chance
+- +1–20% Crit Rate
+- +5–30% Crit Damage
+- +5–40% Skill leveling
 
 **Hard Steel Sword** (`hard-steel-sword`)
 - +1–2 Luck
@@ -3273,6 +16369,9 @@ Grouped by slot. Weapons show their class and actual roll pool from `empowerCand
 - +1–5% Bonus XP
 - +0%–2% Item drop chance
 - +5–25% Awakening Soul drop chance
+- +1–20% Crit Rate
+- +5–30% Crit Damage
+- +5–40% Skill leveling
 
 **Steel Sword** (`steel-sword`) (Warrior weapon)
 - +1–5 DC
@@ -3281,54 +16380,130 @@ Grouped by slot. Weapons show their class and actual roll pool from `empowerCand
 - +1–2 Freezing
 - +1–2 Poison
 - +1–2 Luck
-- +5–25% Gold drop
-- +1–5% Bonus XP
-- +0%–2% Item drop chance
-- +5–25% Awakening Soul drop chance
 - Increase Slaying damage by 5–35%
 - Increase Flaming Sword damage by 5–25%
 - Reduce Flaming Sword cooldown by 1–5 seconds
 - Increase Twin Drake Blade damage by 5–25%
+- Reduce mana cost of Twin Drake Blade by 10–40%
+- Increase Blade Avalanche damage by 5–25%
+- Reduce mana cost of Blade Avalanche by 10–40%
+- Increase Slashing Burst damage by 5–25%
+- Reduce mana cost of Slashing Burst by 10–40%
+- Increase Slaying crit chance by 5–25%
+- Increase Slaying crit damage by 10–50%
+- Increase Flaming Sword crit chance by 5–25%
+- Increase Flaming Sword crit damage by 10–50%
+- Increase Twin Drake Blade crit chance by 5–25%
+- Increase Twin Drake Blade crit damage by 10–50%
+- Increase Blade Avalanche crit chance by 5–25%
+- Increase Blade Avalanche crit damage by 10–50%
+- Increase Slashing Burst crit chance by 5–25%
+- Increase Slashing Burst crit damage by 10–50%
+- +5–25% Gold drop
+- +1–5% Bonus XP
+- +0%–2% Item drop chance
+- +5–25% Awakening Soul drop chance
+- +1–20% Crit Rate
+- +5–30% Crit Damage
+- +5–40% Skill leveling
 
 **Hooked Spear** (`hooked-spear`) (Wizard weapon)
 - +1–3 MC
 - +1–2 Luck
-- +5–25% Gold drop
-- +1–5% Bonus XP
-- +0%–2% Item drop chance
-- +5–25% Awakening Soul drop chance
 - Increase Flame Disruptor damage by 10–35%
 - Increase Fire Wall damage by 5–25%
 - Increase Thunder Bolt damage by 10–35%
 - Increase Ice Storm damage by 5–25%
+- Increase Flame Field damage by 5–25%
+- Increase Meteor Strike damage by 5–25%
+- Increase Blizzard damage by 5–25%
+- Increase Fire Ball damage by 10–35%
+- Increase Great Fire Ball damage by 10–35%
+- Increase Frost Crunch damage by 5–25%
 - Reduce mana cost of Flame Disruptor by 10–40%
 - Reduce mana cost of Fire Wall by 10–40%
+- Reduce mana cost of Thunder Bolt by 10–40%
+- Reduce mana cost of Ice Storm by 10–40%
+- Reduce mana cost of Flame Field by 10–40%
+- Reduce mana cost of Meteor Strike by 10–40%
+- Reduce mana cost of Blizzard by 10–40%
+- Increase Flame Disruptor crit chance by 5–25%
+- Increase Flame Disruptor crit damage by 10–50%
+- Increase Fire Wall crit chance by 5–25%
+- Increase Fire Wall crit damage by 10–50%
+- Increase Thunder Bolt crit chance by 5–25%
+- Increase Thunder Bolt crit damage by 10–50%
+- Increase Ice Storm crit chance by 5–25%
+- Increase Ice Storm crit damage by 10–50%
+- Increase Flame Field crit chance by 5–25%
+- Increase Flame Field crit damage by 10–50%
+- Increase Meteor Strike crit chance by 5–25%
+- Increase Meteor Strike crit damage by 10–50%
+- Increase Blizzard crit chance by 5–25%
+- Increase Blizzard crit damage by 10–50%
+- Increase Fire Ball crit chance by 5–25%
+- Increase Fire Ball crit damage by 10–50%
+- Increase Great Fire Ball crit chance by 5–25%
+- Increase Great Fire Ball crit damage by 10–50%
+- Increase Frost Crunch crit chance by 5–25%
+- Increase Frost Crunch crit damage by 10–50%
+- +5–25% Gold drop
+- +1–5% Bonus XP
+- +0%–2% Item drop chance
+- +5–25% Awakening Soul drop chance
+- +1–20% Crit Rate
+- +5–30% Crit Damage
+- +5–40% Skill leveling
 
 **Keen Kriss Sword** (`keen-kriss-sword`) (Tao weapon)
 - +1–3 SC
 - +1–2 Luck
-- +5–25% Gold drop
-- +1–5% Bonus XP
-- +0%–2% Item drop chance
-- +5–25% Awakening Soul drop chance
 - Increase Healing healing by 5–25%
 - Increase Mass Healing healing by 5–25%
 - Increase Soul Fire Ball damage by 10–35%
 - Increase Skeleton damage by 10–50%
+- Increase Skeleton health by 10–50%
+- Reduce Skeleton damage taken by 5–20%
 - Increase Shinsu damage by 10–50%
+- Increase Shinsu health by 10–50%
+- Reduce Shinsu damage taken by 5–20%
+- Increase Holy Deva damage by 10–50%
+- Increase Holy Deva health by 10–50%
+- Reduce Holy Deva damage taken by 5–20%
+- Increase Soul Fire Ball crit chance by 5–25%
+- Increase Soul Fire Ball crit damage by 10–50%
+- +5–25% Gold drop
+- +1–5% Bonus XP
+- +0%–2% Item drop chance
+- +5–25% Awakening Soul drop chance
+- +1–20% Crit Rate
+- +5–30% Crit Damage
+- +5–40% Skill leveling
 
 **Kriss Sword** (`kriss-sword`) (Tao weapon)
 - +1–3 SC
 - +1–2 Luck
-- +5–25% Gold drop
-- +1–5% Bonus XP
-- +0%–2% Item drop chance
-- +5–25% Awakening Soul drop chance
 - Increase Healing healing by 5–25%
 - Increase Mass Healing healing by 5–25%
 - Increase Soul Fire Ball damage by 10–35%
 - Increase Skeleton damage by 10–50%
+- Increase Skeleton health by 10–50%
+- Reduce Skeleton damage taken by 5–20%
 - Increase Shinsu damage by 10–50%
+- Increase Shinsu health by 10–50%
+- Reduce Shinsu damage taken by 5–20%
+- Increase Holy Deva damage by 10–50%
+- Increase Holy Deva health by 10–50%
+- Reduce Holy Deva damage taken by 5–20%
+- Increase Soul Fire Ball crit chance by 5–25%
+- Increase Soul Fire Ball crit damage by 10–50%
+- +5–25% Gold drop
+- +1–5% Bonus XP
+- +0%–2% Item drop chance
+- +5–25% Awakening Soul drop chance
+- +1–20% Crit Rate
+- +5–30% Crit Damage
+- +5–40% Skill leveling
 
 **Martial Sabre** (`martial-sabre`) (Warrior weapon)
 - +1–5 DC
@@ -3337,14 +16512,32 @@ Grouped by slot. Weapons show their class and actual roll pool from `empowerCand
 - +1–2 Freezing
 - +1–2 Poison
 - +1–2 Luck
-- +5–25% Gold drop
-- +1–5% Bonus XP
-- +0%–2% Item drop chance
-- +5–25% Awakening Soul drop chance
 - Increase Slaying damage by 5–35%
 - Increase Flaming Sword damage by 5–25%
 - Reduce Flaming Sword cooldown by 1–5 seconds
 - Increase Twin Drake Blade damage by 5–25%
+- Reduce mana cost of Twin Drake Blade by 10–40%
+- Increase Blade Avalanche damage by 5–25%
+- Reduce mana cost of Blade Avalanche by 10–40%
+- Increase Slashing Burst damage by 5–25%
+- Reduce mana cost of Slashing Burst by 10–40%
+- Increase Slaying crit chance by 5–25%
+- Increase Slaying crit damage by 10–50%
+- Increase Flaming Sword crit chance by 5–25%
+- Increase Flaming Sword crit damage by 10–50%
+- Increase Twin Drake Blade crit chance by 5–25%
+- Increase Twin Drake Blade crit damage by 10–50%
+- Increase Blade Avalanche crit chance by 5–25%
+- Increase Blade Avalanche crit damage by 10–50%
+- Increase Slashing Burst crit chance by 5–25%
+- Increase Slashing Burst crit damage by 10–50%
+- +5–25% Gold drop
+- +1–5% Bonus XP
+- +0%–2% Item drop chance
+- +5–25% Awakening Soul drop chance
+- +1–20% Crit Rate
+- +5–30% Crit Damage
+- +5–40% Skill leveling
 
 **Martial Sword** (`martial-sword`) (Warrior weapon)
 - +1–5 DC
@@ -3353,14 +16546,32 @@ Grouped by slot. Weapons show their class and actual roll pool from `empowerCand
 - +1–2 Freezing
 - +1–2 Poison
 - +1–2 Luck
-- +5–25% Gold drop
-- +1–5% Bonus XP
-- +0%–2% Item drop chance
-- +5–25% Awakening Soul drop chance
 - Increase Slaying damage by 5–35%
 - Increase Flaming Sword damage by 5–25%
 - Reduce Flaming Sword cooldown by 1–5 seconds
 - Increase Twin Drake Blade damage by 5–25%
+- Reduce mana cost of Twin Drake Blade by 10–40%
+- Increase Blade Avalanche damage by 5–25%
+- Reduce mana cost of Blade Avalanche by 10–40%
+- Increase Slashing Burst damage by 5–25%
+- Reduce mana cost of Slashing Burst by 10–40%
+- Increase Slaying crit chance by 5–25%
+- Increase Slaying crit damage by 10–50%
+- Increase Flaming Sword crit chance by 5–25%
+- Increase Flaming Sword crit damage by 10–50%
+- Increase Twin Drake Blade crit chance by 5–25%
+- Increase Twin Drake Blade crit damage by 10–50%
+- Increase Blade Avalanche crit chance by 5–25%
+- Increase Blade Avalanche crit damage by 10–50%
+- Increase Slashing Burst crit chance by 5–25%
+- Increase Slashing Burst crit damage by 10–50%
+- +5–25% Gold drop
+- +1–5% Bonus XP
+- +0%–2% Item drop chance
+- +5–25% Awakening Soul drop chance
+- +1–20% Crit Rate
+- +5–30% Crit Damage
+- +5–40% Skill leveling
 
 **Mir Sword1** (`mir-sword1`) (Warrior weapon)
 - +1–5 DC
@@ -3369,41 +16580,105 @@ Grouped by slot. Weapons show their class and actual roll pool from `empowerCand
 - +1–2 Freezing
 - +1–2 Poison
 - +1–2 Luck
-- +5–25% Gold drop
-- +1–5% Bonus XP
-- +0%–2% Item drop chance
-- +5–25% Awakening Soul drop chance
 - Increase Slaying damage by 5–35%
 - Increase Flaming Sword damage by 5–25%
 - Reduce Flaming Sword cooldown by 1–5 seconds
 - Increase Twin Drake Blade damage by 5–25%
+- Reduce mana cost of Twin Drake Blade by 10–40%
+- Increase Blade Avalanche damage by 5–25%
+- Reduce mana cost of Blade Avalanche by 10–40%
+- Increase Slashing Burst damage by 5–25%
+- Reduce mana cost of Slashing Burst by 10–40%
+- Increase Slaying crit chance by 5–25%
+- Increase Slaying crit damage by 10–50%
+- Increase Flaming Sword crit chance by 5–25%
+- Increase Flaming Sword crit damage by 10–50%
+- Increase Twin Drake Blade crit chance by 5–25%
+- Increase Twin Drake Blade crit damage by 10–50%
+- Increase Blade Avalanche crit chance by 5–25%
+- Increase Blade Avalanche crit damage by 10–50%
+- Increase Slashing Burst crit chance by 5–25%
+- Increase Slashing Burst crit damage by 10–50%
+- +5–25% Gold drop
+- +1–5% Bonus XP
+- +0%–2% Item drop chance
+- +5–25% Awakening Soul drop chance
+- +1–20% Crit Rate
+- +5–30% Crit Damage
+- +5–40% Skill leveling
 
 **Mir Sword2** (`mir-sword2`) (Wizard weapon)
 - +1–3 MC
 - +1–2 Luck
-- +5–25% Gold drop
-- +1–5% Bonus XP
-- +0%–2% Item drop chance
-- +5–25% Awakening Soul drop chance
 - Increase Flame Disruptor damage by 10–35%
 - Increase Fire Wall damage by 5–25%
 - Increase Thunder Bolt damage by 10–35%
 - Increase Ice Storm damage by 5–25%
+- Increase Flame Field damage by 5–25%
+- Increase Meteor Strike damage by 5–25%
+- Increase Blizzard damage by 5–25%
+- Increase Fire Ball damage by 10–35%
+- Increase Great Fire Ball damage by 10–35%
+- Increase Frost Crunch damage by 5–25%
 - Reduce mana cost of Flame Disruptor by 10–40%
 - Reduce mana cost of Fire Wall by 10–40%
-
-**Mir Sword3** (`mir-sword3`) (Tao weapon)
-- +1–3 SC
-- +1–2 Luck
+- Reduce mana cost of Thunder Bolt by 10–40%
+- Reduce mana cost of Ice Storm by 10–40%
+- Reduce mana cost of Flame Field by 10–40%
+- Reduce mana cost of Meteor Strike by 10–40%
+- Reduce mana cost of Blizzard by 10–40%
+- Increase Flame Disruptor crit chance by 5–25%
+- Increase Flame Disruptor crit damage by 10–50%
+- Increase Fire Wall crit chance by 5–25%
+- Increase Fire Wall crit damage by 10–50%
+- Increase Thunder Bolt crit chance by 5–25%
+- Increase Thunder Bolt crit damage by 10–50%
+- Increase Ice Storm crit chance by 5–25%
+- Increase Ice Storm crit damage by 10–50%
+- Increase Flame Field crit chance by 5–25%
+- Increase Flame Field crit damage by 10–50%
+- Increase Meteor Strike crit chance by 5–25%
+- Increase Meteor Strike crit damage by 10–50%
+- Increase Blizzard crit chance by 5–25%
+- Increase Blizzard crit damage by 10–50%
+- Increase Fire Ball crit chance by 5–25%
+- Increase Fire Ball crit damage by 10–50%
+- Increase Great Fire Ball crit chance by 5–25%
+- Increase Great Fire Ball crit damage by 10–50%
+- Increase Frost Crunch crit chance by 5–25%
+- Increase Frost Crunch crit damage by 10–50%
 - +5–25% Gold drop
 - +1–5% Bonus XP
 - +0%–2% Item drop chance
 - +5–25% Awakening Soul drop chance
+- +1–20% Crit Rate
+- +5–30% Crit Damage
+- +5–40% Skill leveling
+
+**Mir Sword3** (`mir-sword3`) (Tao weapon)
+- +1–3 SC
+- +1–2 Luck
 - Increase Healing healing by 5–25%
 - Increase Mass Healing healing by 5–25%
 - Increase Soul Fire Ball damage by 10–35%
 - Increase Skeleton damage by 10–50%
+- Increase Skeleton health by 10–50%
+- Reduce Skeleton damage taken by 5–20%
 - Increase Shinsu damage by 10–50%
+- Increase Shinsu health by 10–50%
+- Reduce Shinsu damage taken by 5–20%
+- Increase Holy Deva damage by 10–50%
+- Increase Holy Deva health by 10–50%
+- Reduce Holy Deva damage taken by 5–20%
+- Increase Soul Fire Ball crit chance by 5–25%
+- Increase Soul Fire Ball crit damage by 10–50%
+- +5–25% Gold drop
+- +1–5% Bonus XP
+- +0%–2% Item drop chance
+- +5–25% Awakening Soul drop chance
+- +1–20% Crit Rate
+- +5–30% Crit Damage
+- +5–40% Skill leveling
 
 **Prince Dagger** (`prince-dagger`) (Warrior weapon)
 - +1–5 DC
@@ -3412,28 +16687,80 @@ Grouped by slot. Weapons show their class and actual roll pool from `empowerCand
 - +1–2 Freezing
 - +1–2 Poison
 - +1–2 Luck
-- +5–25% Gold drop
-- +1–5% Bonus XP
-- +0%–2% Item drop chance
-- +5–25% Awakening Soul drop chance
 - Increase Slaying damage by 5–35%
 - Increase Flaming Sword damage by 5–25%
 - Reduce Flaming Sword cooldown by 1–5 seconds
 - Increase Twin Drake Blade damage by 5–25%
-
-**Spear With Hook** (`spear-with-hook`) (Wizard weapon)
-- +1–3 MC
-- +1–2 Luck
+- Reduce mana cost of Twin Drake Blade by 10–40%
+- Increase Blade Avalanche damage by 5–25%
+- Reduce mana cost of Blade Avalanche by 10–40%
+- Increase Slashing Burst damage by 5–25%
+- Reduce mana cost of Slashing Burst by 10–40%
+- Increase Slaying crit chance by 5–25%
+- Increase Slaying crit damage by 10–50%
+- Increase Flaming Sword crit chance by 5–25%
+- Increase Flaming Sword crit damage by 10–50%
+- Increase Twin Drake Blade crit chance by 5–25%
+- Increase Twin Drake Blade crit damage by 10–50%
+- Increase Blade Avalanche crit chance by 5–25%
+- Increase Blade Avalanche crit damage by 10–50%
+- Increase Slashing Burst crit chance by 5–25%
+- Increase Slashing Burst crit damage by 10–50%
 - +5–25% Gold drop
 - +1–5% Bonus XP
 - +0%–2% Item drop chance
 - +5–25% Awakening Soul drop chance
+- +1–20% Crit Rate
+- +5–30% Crit Damage
+- +5–40% Skill leveling
+
+**Spear With Hook** (`spear-with-hook`) (Wizard weapon)
+- +1–3 MC
+- +1–2 Luck
 - Increase Flame Disruptor damage by 10–35%
 - Increase Fire Wall damage by 5–25%
 - Increase Thunder Bolt damage by 10–35%
 - Increase Ice Storm damage by 5–25%
+- Increase Flame Field damage by 5–25%
+- Increase Meteor Strike damage by 5–25%
+- Increase Blizzard damage by 5–25%
+- Increase Fire Ball damage by 10–35%
+- Increase Great Fire Ball damage by 10–35%
+- Increase Frost Crunch damage by 5–25%
 - Reduce mana cost of Flame Disruptor by 10–40%
 - Reduce mana cost of Fire Wall by 10–40%
+- Reduce mana cost of Thunder Bolt by 10–40%
+- Reduce mana cost of Ice Storm by 10–40%
+- Reduce mana cost of Flame Field by 10–40%
+- Reduce mana cost of Meteor Strike by 10–40%
+- Reduce mana cost of Blizzard by 10–40%
+- Increase Flame Disruptor crit chance by 5–25%
+- Increase Flame Disruptor crit damage by 10–50%
+- Increase Fire Wall crit chance by 5–25%
+- Increase Fire Wall crit damage by 10–50%
+- Increase Thunder Bolt crit chance by 5–25%
+- Increase Thunder Bolt crit damage by 10–50%
+- Increase Ice Storm crit chance by 5–25%
+- Increase Ice Storm crit damage by 10–50%
+- Increase Flame Field crit chance by 5–25%
+- Increase Flame Field crit damage by 10–50%
+- Increase Meteor Strike crit chance by 5–25%
+- Increase Meteor Strike crit damage by 10–50%
+- Increase Blizzard crit chance by 5–25%
+- Increase Blizzard crit damage by 10–50%
+- Increase Fire Ball crit chance by 5–25%
+- Increase Fire Ball crit damage by 10–50%
+- Increase Great Fire Ball crit chance by 5–25%
+- Increase Great Fire Ball crit damage by 10–50%
+- Increase Frost Crunch crit chance by 5–25%
+- Increase Frost Crunch crit damage by 10–50%
+- +5–25% Gold drop
+- +1–5% Bonus XP
+- +0%–2% Item drop chance
+- +5–25% Awakening Soul drop chance
+- +1–20% Crit Rate
+- +5–30% Crit Damage
+- +5–40% Skill leveling
 
 **Spirit Blade1** (`spirit-blade1`) (Warrior weapon)
 - +1–5 DC
@@ -3442,41 +16769,105 @@ Grouped by slot. Weapons show their class and actual roll pool from `empowerCand
 - +1–2 Freezing
 - +1–2 Poison
 - +1–2 Luck
-- +5–25% Gold drop
-- +1–5% Bonus XP
-- +0%–2% Item drop chance
-- +5–25% Awakening Soul drop chance
 - Increase Slaying damage by 5–35%
 - Increase Flaming Sword damage by 5–25%
 - Reduce Flaming Sword cooldown by 1–5 seconds
 - Increase Twin Drake Blade damage by 5–25%
+- Reduce mana cost of Twin Drake Blade by 10–40%
+- Increase Blade Avalanche damage by 5–25%
+- Reduce mana cost of Blade Avalanche by 10–40%
+- Increase Slashing Burst damage by 5–25%
+- Reduce mana cost of Slashing Burst by 10–40%
+- Increase Slaying crit chance by 5–25%
+- Increase Slaying crit damage by 10–50%
+- Increase Flaming Sword crit chance by 5–25%
+- Increase Flaming Sword crit damage by 10–50%
+- Increase Twin Drake Blade crit chance by 5–25%
+- Increase Twin Drake Blade crit damage by 10–50%
+- Increase Blade Avalanche crit chance by 5–25%
+- Increase Blade Avalanche crit damage by 10–50%
+- Increase Slashing Burst crit chance by 5–25%
+- Increase Slashing Burst crit damage by 10–50%
+- +5–25% Gold drop
+- +1–5% Bonus XP
+- +0%–2% Item drop chance
+- +5–25% Awakening Soul drop chance
+- +1–20% Crit Rate
+- +5–30% Crit Damage
+- +5–40% Skill leveling
 
 **Spirit Blade2** (`spirit-blade2`) (Wizard weapon)
 - +1–3 MC
 - +1–2 Luck
-- +5–25% Gold drop
-- +1–5% Bonus XP
-- +0%–2% Item drop chance
-- +5–25% Awakening Soul drop chance
 - Increase Flame Disruptor damage by 10–35%
 - Increase Fire Wall damage by 5–25%
 - Increase Thunder Bolt damage by 10–35%
 - Increase Ice Storm damage by 5–25%
+- Increase Flame Field damage by 5–25%
+- Increase Meteor Strike damage by 5–25%
+- Increase Blizzard damage by 5–25%
+- Increase Fire Ball damage by 10–35%
+- Increase Great Fire Ball damage by 10–35%
+- Increase Frost Crunch damage by 5–25%
 - Reduce mana cost of Flame Disruptor by 10–40%
 - Reduce mana cost of Fire Wall by 10–40%
-
-**Spirit Blade3** (`spirit-blade3`) (Tao weapon)
-- +1–3 SC
-- +1–2 Luck
+- Reduce mana cost of Thunder Bolt by 10–40%
+- Reduce mana cost of Ice Storm by 10–40%
+- Reduce mana cost of Flame Field by 10–40%
+- Reduce mana cost of Meteor Strike by 10–40%
+- Reduce mana cost of Blizzard by 10–40%
+- Increase Flame Disruptor crit chance by 5–25%
+- Increase Flame Disruptor crit damage by 10–50%
+- Increase Fire Wall crit chance by 5–25%
+- Increase Fire Wall crit damage by 10–50%
+- Increase Thunder Bolt crit chance by 5–25%
+- Increase Thunder Bolt crit damage by 10–50%
+- Increase Ice Storm crit chance by 5–25%
+- Increase Ice Storm crit damage by 10–50%
+- Increase Flame Field crit chance by 5–25%
+- Increase Flame Field crit damage by 10–50%
+- Increase Meteor Strike crit chance by 5–25%
+- Increase Meteor Strike crit damage by 10–50%
+- Increase Blizzard crit chance by 5–25%
+- Increase Blizzard crit damage by 10–50%
+- Increase Fire Ball crit chance by 5–25%
+- Increase Fire Ball crit damage by 10–50%
+- Increase Great Fire Ball crit chance by 5–25%
+- Increase Great Fire Ball crit damage by 10–50%
+- Increase Frost Crunch crit chance by 5–25%
+- Increase Frost Crunch crit damage by 10–50%
 - +5–25% Gold drop
 - +1–5% Bonus XP
 - +0%–2% Item drop chance
 - +5–25% Awakening Soul drop chance
+- +1–20% Crit Rate
+- +5–30% Crit Damage
+- +5–40% Skill leveling
+
+**Spirit Blade3** (`spirit-blade3`) (Tao weapon)
+- +1–3 SC
+- +1–2 Luck
 - Increase Healing healing by 5–25%
 - Increase Mass Healing healing by 5–25%
 - Increase Soul Fire Ball damage by 10–35%
 - Increase Skeleton damage by 10–50%
+- Increase Skeleton health by 10–50%
+- Reduce Skeleton damage taken by 5–20%
 - Increase Shinsu damage by 10–50%
+- Increase Shinsu health by 10–50%
+- Reduce Shinsu damage taken by 5–20%
+- Increase Holy Deva damage by 10–50%
+- Increase Holy Deva health by 10–50%
+- Reduce Holy Deva damage taken by 5–20%
+- Increase Soul Fire Ball crit chance by 5–25%
+- Increase Soul Fire Ball crit damage by 10–50%
+- +5–25% Gold drop
+- +1–5% Bonus XP
+- +0%–2% Item drop chance
+- +5–25% Awakening Soul drop chance
+- +1–20% Crit Rate
+- +5–30% Crit Damage
+- +5–40% Skill leveling
 
 **Power Axe** (`power-axe`) (Warrior weapon)
 - +1–5 DC
@@ -3485,14 +16876,32 @@ Grouped by slot. Weapons show their class and actual roll pool from `empowerCand
 - +1–2 Freezing
 - +1–2 Poison
 - +1–2 Luck
-- +5–25% Gold drop
-- +1–5% Bonus XP
-- +0%–2% Item drop chance
-- +5–25% Awakening Soul drop chance
 - Increase Slaying damage by 5–35%
 - Increase Flaming Sword damage by 5–25%
 - Reduce Flaming Sword cooldown by 1–5 seconds
 - Increase Twin Drake Blade damage by 5–25%
+- Reduce mana cost of Twin Drake Blade by 10–40%
+- Increase Blade Avalanche damage by 5–25%
+- Reduce mana cost of Blade Avalanche by 10–40%
+- Increase Slashing Burst damage by 5–25%
+- Reduce mana cost of Slashing Burst by 10–40%
+- Increase Slaying crit chance by 5–25%
+- Increase Slaying crit damage by 10–50%
+- Increase Flaming Sword crit chance by 5–25%
+- Increase Flaming Sword crit damage by 10–50%
+- Increase Twin Drake Blade crit chance by 5–25%
+- Increase Twin Drake Blade crit damage by 10–50%
+- Increase Blade Avalanche crit chance by 5–25%
+- Increase Blade Avalanche crit damage by 10–50%
+- Increase Slashing Burst crit chance by 5–25%
+- Increase Slashing Burst crit damage by 10–50%
+- +5–25% Gold drop
+- +1–5% Bonus XP
+- +0%–2% Item drop chance
+- +5–25% Awakening Soul drop chance
+- +1–20% Crit Rate
+- +5–30% Crit Damage
+- +5–40% Skill leveling
 
 **Purifier Sword** (`purifier-sword`) (Warrior weapon)
 - +1–5 DC
@@ -3501,14 +16910,32 @@ Grouped by slot. Weapons show their class and actual roll pool from `empowerCand
 - +1–2 Freezing
 - +1–2 Poison
 - +1–2 Luck
-- +5–25% Gold drop
-- +1–5% Bonus XP
-- +0%–2% Item drop chance
-- +5–25% Awakening Soul drop chance
 - Increase Slaying damage by 5–35%
 - Increase Flaming Sword damage by 5–25%
 - Reduce Flaming Sword cooldown by 1–5 seconds
 - Increase Twin Drake Blade damage by 5–25%
+- Reduce mana cost of Twin Drake Blade by 10–40%
+- Increase Blade Avalanche damage by 5–25%
+- Reduce mana cost of Blade Avalanche by 10–40%
+- Increase Slashing Burst damage by 5–25%
+- Reduce mana cost of Slashing Burst by 10–40%
+- Increase Slaying crit chance by 5–25%
+- Increase Slaying crit damage by 10–50%
+- Increase Flaming Sword crit chance by 5–25%
+- Increase Flaming Sword crit damage by 10–50%
+- Increase Twin Drake Blade crit chance by 5–25%
+- Increase Twin Drake Blade crit damage by 10–50%
+- Increase Blade Avalanche crit chance by 5–25%
+- Increase Blade Avalanche crit damage by 10–50%
+- Increase Slashing Burst crit chance by 5–25%
+- Increase Slashing Burst crit damage by 10–50%
+- +5–25% Gold drop
+- +1–5% Bonus XP
+- +0%–2% Item drop chance
+- +5–25% Awakening Soul drop chance
+- +1–20% Crit Rate
+- +5–30% Crit Damage
+- +5–40% Skill leveling
 
 **Great Axe** (`great-axe`) (Warrior weapon)
 - +1–5 DC
@@ -3517,55 +16944,153 @@ Grouped by slot. Weapons show their class and actual roll pool from `empowerCand
 - +1–2 Freezing
 - +1–2 Poison
 - +1–2 Luck
-- +5–25% Gold drop
-- +1–5% Bonus XP
-- +0%–2% Item drop chance
-- +5–25% Awakening Soul drop chance
 - Increase Slaying damage by 5–35%
 - Increase Flaming Sword damage by 5–25%
 - Reduce Flaming Sword cooldown by 1–5 seconds
 - Increase Twin Drake Blade damage by 5–25%
+- Reduce mana cost of Twin Drake Blade by 10–40%
+- Increase Blade Avalanche damage by 5–25%
+- Reduce mana cost of Blade Avalanche by 10–40%
+- Increase Slashing Burst damage by 5–25%
+- Reduce mana cost of Slashing Burst by 10–40%
+- Increase Slaying crit chance by 5–25%
+- Increase Slaying crit damage by 10–50%
+- Increase Flaming Sword crit chance by 5–25%
+- Increase Flaming Sword crit damage by 10–50%
+- Increase Twin Drake Blade crit chance by 5–25%
+- Increase Twin Drake Blade crit damage by 10–50%
+- Increase Blade Avalanche crit chance by 5–25%
+- Increase Blade Avalanche crit damage by 10–50%
+- Increase Slashing Burst crit chance by 5–25%
+- Increase Slashing Burst crit damage by 10–50%
+- +5–25% Gold drop
+- +1–5% Bonus XP
+- +0%–2% Item drop chance
+- +5–25% Awakening Soul drop chance
+- +1–20% Crit Rate
+- +5–30% Crit Damage
+- +5–40% Skill leveling
 
 **Mage Staff** (`mage-staff`) (Wizard weapon)
 - +1–3 MC
 - +1–2 Luck
-- +5–25% Gold drop
-- +1–5% Bonus XP
-- +0%–2% Item drop chance
-- +5–25% Awakening Soul drop chance
 - Increase Flame Disruptor damage by 10–35%
 - Increase Fire Wall damage by 5–25%
 - Increase Thunder Bolt damage by 10–35%
 - Increase Ice Storm damage by 5–25%
+- Increase Flame Field damage by 5–25%
+- Increase Meteor Strike damage by 5–25%
+- Increase Blizzard damage by 5–25%
+- Increase Fire Ball damage by 10–35%
+- Increase Great Fire Ball damage by 10–35%
+- Increase Frost Crunch damage by 5–25%
 - Reduce mana cost of Flame Disruptor by 10–40%
 - Reduce mana cost of Fire Wall by 10–40%
+- Reduce mana cost of Thunder Bolt by 10–40%
+- Reduce mana cost of Ice Storm by 10–40%
+- Reduce mana cost of Flame Field by 10–40%
+- Reduce mana cost of Meteor Strike by 10–40%
+- Reduce mana cost of Blizzard by 10–40%
+- Increase Flame Disruptor crit chance by 5–25%
+- Increase Flame Disruptor crit damage by 10–50%
+- Increase Fire Wall crit chance by 5–25%
+- Increase Fire Wall crit damage by 10–50%
+- Increase Thunder Bolt crit chance by 5–25%
+- Increase Thunder Bolt crit damage by 10–50%
+- Increase Ice Storm crit chance by 5–25%
+- Increase Ice Storm crit damage by 10–50%
+- Increase Flame Field crit chance by 5–25%
+- Increase Flame Field crit damage by 10–50%
+- Increase Meteor Strike crit chance by 5–25%
+- Increase Meteor Strike crit damage by 10–50%
+- Increase Blizzard crit chance by 5–25%
+- Increase Blizzard crit damage by 10–50%
+- Increase Fire Ball crit chance by 5–25%
+- Increase Fire Ball crit damage by 10–50%
+- Increase Great Fire Ball crit chance by 5–25%
+- Increase Great Fire Ball crit damage by 10–50%
+- Increase Frost Crunch crit chance by 5–25%
+- Increase Frost Crunch crit damage by 10–50%
+- +5–25% Gold drop
+- +1–5% Bonus XP
+- +0%–2% Item drop chance
+- +5–25% Awakening Soul drop chance
+- +1–20% Crit Rate
+- +5–30% Crit Damage
+- +5–40% Skill leveling
 
 **Serpent Sword** (`serpent-sword`) (Tao weapon)
 - +1–3 SC
 - +1–2 Luck
-- +5–25% Gold drop
-- +1–5% Bonus XP
-- +0%–2% Item drop chance
-- +5–25% Awakening Soul drop chance
 - Increase Healing healing by 5–25%
 - Increase Mass Healing healing by 5–25%
 - Increase Soul Fire Ball damage by 10–35%
 - Increase Skeleton damage by 10–50%
+- Increase Skeleton health by 10–50%
+- Reduce Skeleton damage taken by 5–20%
 - Increase Shinsu damage by 10–50%
-
-**Solid Bronze Staff** (`solid-bronze-staff`) (Wizard weapon)
-- +1–3 MC
-- +1–2 Luck
+- Increase Shinsu health by 10–50%
+- Reduce Shinsu damage taken by 5–20%
+- Increase Holy Deva damage by 10–50%
+- Increase Holy Deva health by 10–50%
+- Reduce Holy Deva damage taken by 5–20%
+- Increase Soul Fire Ball crit chance by 5–25%
+- Increase Soul Fire Ball crit damage by 10–50%
 - +5–25% Gold drop
 - +1–5% Bonus XP
 - +0%–2% Item drop chance
 - +5–25% Awakening Soul drop chance
+- +1–20% Crit Rate
+- +5–30% Crit Damage
+- +5–40% Skill leveling
+
+**Solid Bronze Staff** (`solid-bronze-staff`) (Wizard weapon)
+- +1–3 MC
+- +1–2 Luck
 - Increase Flame Disruptor damage by 10–35%
 - Increase Fire Wall damage by 5–25%
 - Increase Thunder Bolt damage by 10–35%
 - Increase Ice Storm damage by 5–25%
+- Increase Flame Field damage by 5–25%
+- Increase Meteor Strike damage by 5–25%
+- Increase Blizzard damage by 5–25%
+- Increase Fire Ball damage by 10–35%
+- Increase Great Fire Ball damage by 10–35%
+- Increase Frost Crunch damage by 5–25%
 - Reduce mana cost of Flame Disruptor by 10–40%
 - Reduce mana cost of Fire Wall by 10–40%
+- Reduce mana cost of Thunder Bolt by 10–40%
+- Reduce mana cost of Ice Storm by 10–40%
+- Reduce mana cost of Flame Field by 10–40%
+- Reduce mana cost of Meteor Strike by 10–40%
+- Reduce mana cost of Blizzard by 10–40%
+- Increase Flame Disruptor crit chance by 5–25%
+- Increase Flame Disruptor crit damage by 10–50%
+- Increase Fire Wall crit chance by 5–25%
+- Increase Fire Wall crit damage by 10–50%
+- Increase Thunder Bolt crit chance by 5–25%
+- Increase Thunder Bolt crit damage by 10–50%
+- Increase Ice Storm crit chance by 5–25%
+- Increase Ice Storm crit damage by 10–50%
+- Increase Flame Field crit chance by 5–25%
+- Increase Flame Field crit damage by 10–50%
+- Increase Meteor Strike crit chance by 5–25%
+- Increase Meteor Strike crit damage by 10–50%
+- Increase Blizzard crit chance by 5–25%
+- Increase Blizzard crit damage by 10–50%
+- Increase Fire Ball crit chance by 5–25%
+- Increase Fire Ball crit damage by 10–50%
+- Increase Great Fire Ball crit chance by 5–25%
+- Increase Great Fire Ball crit damage by 10–50%
+- Increase Frost Crunch crit chance by 5–25%
+- Increase Frost Crunch crit damage by 10–50%
+- +5–25% Gold drop
+- +1–5% Bonus XP
+- +0%–2% Item drop chance
+- +5–25% Awakening Soul drop chance
+- +1–20% Crit Rate
+- +5–30% Crit Damage
+- +5–40% Skill leveling
 
 **Solid Great Axe** (`solid-great-axe`) (Warrior weapon)
 - +1–5 DC
@@ -3574,27 +17099,57 @@ Grouped by slot. Weapons show their class and actual roll pool from `empowerCand
 - +1–2 Freezing
 - +1–2 Poison
 - +1–2 Luck
-- +5–25% Gold drop
-- +1–5% Bonus XP
-- +0%–2% Item drop chance
-- +5–25% Awakening Soul drop chance
 - Increase Slaying damage by 5–35%
 - Increase Flaming Sword damage by 5–25%
 - Reduce Flaming Sword cooldown by 1–5 seconds
 - Increase Twin Drake Blade damage by 5–25%
-
-**Solid Serpent Sword** (`solid-serpent-sword`) (Tao weapon)
-- +1–3 SC
-- +1–2 Luck
+- Reduce mana cost of Twin Drake Blade by 10–40%
+- Increase Blade Avalanche damage by 5–25%
+- Reduce mana cost of Blade Avalanche by 10–40%
+- Increase Slashing Burst damage by 5–25%
+- Reduce mana cost of Slashing Burst by 10–40%
+- Increase Slaying crit chance by 5–25%
+- Increase Slaying crit damage by 10–50%
+- Increase Flaming Sword crit chance by 5–25%
+- Increase Flaming Sword crit damage by 10–50%
+- Increase Twin Drake Blade crit chance by 5–25%
+- Increase Twin Drake Blade crit damage by 10–50%
+- Increase Blade Avalanche crit chance by 5–25%
+- Increase Blade Avalanche crit damage by 10–50%
+- Increase Slashing Burst crit chance by 5–25%
+- Increase Slashing Burst crit damage by 10–50%
 - +5–25% Gold drop
 - +1–5% Bonus XP
 - +0%–2% Item drop chance
 - +5–25% Awakening Soul drop chance
+- +1–20% Crit Rate
+- +5–30% Crit Damage
+- +5–40% Skill leveling
+
+**Solid Serpent Sword** (`solid-serpent-sword`) (Tao weapon)
+- +1–3 SC
+- +1–2 Luck
 - Increase Healing healing by 5–25%
 - Increase Mass Healing healing by 5–25%
 - Increase Soul Fire Ball damage by 10–35%
 - Increase Skeleton damage by 10–50%
+- Increase Skeleton health by 10–50%
+- Reduce Skeleton damage taken by 5–20%
 - Increase Shinsu damage by 10–50%
+- Increase Shinsu health by 10–50%
+- Reduce Shinsu damage taken by 5–20%
+- Increase Holy Deva damage by 10–50%
+- Increase Holy Deva health by 10–50%
+- Reduce Holy Deva damage taken by 5–20%
+- Increase Soul Fire Ball crit chance by 5–25%
+- Increase Soul Fire Ball crit damage by 10–50%
+- +5–25% Gold drop
+- +1–5% Bonus XP
+- +0%–2% Item drop chance
+- +5–25% Awakening Soul drop chance
+- +1–20% Crit Rate
+- +5–30% Crit Damage
+- +5–40% Skill leveling
 
 **Fire Blood Sword** (`fire-blood-sword`) (Warrior weapon)
 - +1–5 DC
@@ -3603,14 +17158,32 @@ Grouped by slot. Weapons show their class and actual roll pool from `empowerCand
 - +1–2 Freezing
 - +1–2 Poison
 - +1–2 Luck
-- +5–25% Gold drop
-- +1–5% Bonus XP
-- +0%–2% Item drop chance
-- +5–25% Awakening Soul drop chance
 - Increase Slaying damage by 5–35%
 - Increase Flaming Sword damage by 5–25%
 - Reduce Flaming Sword cooldown by 1–5 seconds
 - Increase Twin Drake Blade damage by 5–25%
+- Reduce mana cost of Twin Drake Blade by 10–40%
+- Increase Blade Avalanche damage by 5–25%
+- Reduce mana cost of Blade Avalanche by 10–40%
+- Increase Slashing Burst damage by 5–25%
+- Reduce mana cost of Slashing Burst by 10–40%
+- Increase Slaying crit chance by 5–25%
+- Increase Slaying crit damage by 10–50%
+- Increase Flaming Sword crit chance by 5–25%
+- Increase Flaming Sword crit damage by 10–50%
+- Increase Twin Drake Blade crit chance by 5–25%
+- Increase Twin Drake Blade crit damage by 10–50%
+- Increase Blade Avalanche crit chance by 5–25%
+- Increase Blade Avalanche crit damage by 10–50%
+- Increase Slashing Burst crit chance by 5–25%
+- Increase Slashing Burst crit damage by 10–50%
+- +5–25% Gold drop
+- +1–5% Bonus XP
+- +0%–2% Item drop chance
+- +5–25% Awakening Soul drop chance
+- +1–20% Crit Rate
+- +5–30% Crit Damage
+- +5–40% Skill leveling
 
 **Zuma Judgement Mace** (`zuma-judgement-mace`) (Warrior weapon)
 - +1–5 DC
@@ -3619,41 +17192,105 @@ Grouped by slot. Weapons show their class and actual roll pool from `empowerCand
 - +1–2 Freezing
 - +1–2 Poison
 - +1–2 Luck
-- +5–25% Gold drop
-- +1–5% Bonus XP
-- +0%–2% Item drop chance
-- +5–25% Awakening Soul drop chance
 - Increase Slaying damage by 5–35%
 - Increase Flaming Sword damage by 5–25%
 - Reduce Flaming Sword cooldown by 1–5 seconds
 - Increase Twin Drake Blade damage by 5–25%
+- Reduce mana cost of Twin Drake Blade by 10–40%
+- Increase Blade Avalanche damage by 5–25%
+- Reduce mana cost of Blade Avalanche by 10–40%
+- Increase Slashing Burst damage by 5–25%
+- Reduce mana cost of Slashing Burst by 10–40%
+- Increase Slaying crit chance by 5–25%
+- Increase Slaying crit damage by 10–50%
+- Increase Flaming Sword crit chance by 5–25%
+- Increase Flaming Sword crit damage by 10–50%
+- Increase Twin Drake Blade crit chance by 5–25%
+- Increase Twin Drake Blade crit damage by 10–50%
+- Increase Blade Avalanche crit chance by 5–25%
+- Increase Blade Avalanche crit damage by 10–50%
+- Increase Slashing Burst crit chance by 5–25%
+- Increase Slashing Burst crit damage by 10–50%
+- +5–25% Gold drop
+- +1–5% Bonus XP
+- +0%–2% Item drop chance
+- +5–25% Awakening Soul drop chance
+- +1–20% Crit Rate
+- +5–30% Crit Damage
+- +5–40% Skill leveling
 
 **Zuma Soul Spring Wand** (`zuma-soul-spring-wand`) (Tao weapon)
 - +1–3 SC
 - +1–2 Luck
-- +5–25% Gold drop
-- +1–5% Bonus XP
-- +0%–2% Item drop chance
-- +5–25% Awakening Soul drop chance
 - Increase Healing healing by 5–25%
 - Increase Mass Healing healing by 5–25%
 - Increase Soul Fire Ball damage by 10–35%
 - Increase Skeleton damage by 10–50%
+- Increase Skeleton health by 10–50%
+- Reduce Skeleton damage taken by 5–20%
 - Increase Shinsu damage by 10–50%
-
-**Zuma War Mage Staff** (`zuma-war-mage-staff`) (Wizard weapon)
-- +1–3 MC
-- +1–2 Luck
+- Increase Shinsu health by 10–50%
+- Reduce Shinsu damage taken by 5–20%
+- Increase Holy Deva damage by 10–50%
+- Increase Holy Deva health by 10–50%
+- Reduce Holy Deva damage taken by 5–20%
+- Increase Soul Fire Ball crit chance by 5–25%
+- Increase Soul Fire Ball crit damage by 10–50%
 - +5–25% Gold drop
 - +1–5% Bonus XP
 - +0%–2% Item drop chance
 - +5–25% Awakening Soul drop chance
+- +1–20% Crit Rate
+- +5–30% Crit Damage
+- +5–40% Skill leveling
+
+**Zuma War Mage Staff** (`zuma-war-mage-staff`) (Wizard weapon)
+- +1–3 MC
+- +1–2 Luck
 - Increase Flame Disruptor damage by 10–35%
 - Increase Fire Wall damage by 5–25%
 - Increase Thunder Bolt damage by 10–35%
 - Increase Ice Storm damage by 5–25%
+- Increase Flame Field damage by 5–25%
+- Increase Meteor Strike damage by 5–25%
+- Increase Blizzard damage by 5–25%
+- Increase Fire Ball damage by 10–35%
+- Increase Great Fire Ball damage by 10–35%
+- Increase Frost Crunch damage by 5–25%
 - Reduce mana cost of Flame Disruptor by 10–40%
 - Reduce mana cost of Fire Wall by 10–40%
+- Reduce mana cost of Thunder Bolt by 10–40%
+- Reduce mana cost of Ice Storm by 10–40%
+- Reduce mana cost of Flame Field by 10–40%
+- Reduce mana cost of Meteor Strike by 10–40%
+- Reduce mana cost of Blizzard by 10–40%
+- Increase Flame Disruptor crit chance by 5–25%
+- Increase Flame Disruptor crit damage by 10–50%
+- Increase Fire Wall crit chance by 5–25%
+- Increase Fire Wall crit damage by 10–50%
+- Increase Thunder Bolt crit chance by 5–25%
+- Increase Thunder Bolt crit damage by 10–50%
+- Increase Ice Storm crit chance by 5–25%
+- Increase Ice Storm crit damage by 10–50%
+- Increase Flame Field crit chance by 5–25%
+- Increase Flame Field crit damage by 10–50%
+- Increase Meteor Strike crit chance by 5–25%
+- Increase Meteor Strike crit damage by 10–50%
+- Increase Blizzard crit chance by 5–25%
+- Increase Blizzard crit damage by 10–50%
+- Increase Fire Ball crit chance by 5–25%
+- Increase Fire Ball crit damage by 10–50%
+- Increase Great Fire Ball crit chance by 5–25%
+- Increase Great Fire Ball crit damage by 10–50%
+- Increase Frost Crunch crit chance by 5–25%
+- Increase Frost Crunch crit damage by 10–50%
+- +5–25% Gold drop
+- +1–5% Bonus XP
+- +0%–2% Item drop chance
+- +5–25% Awakening Soul drop chance
+- +1–20% Crit Rate
+- +5–30% Crit Damage
+- +5–40% Skill leveling
 
 **Blades Of Darkness** (`blades-of-darkness`) (Warrior weapon)
 - +1–5 DC
@@ -3662,14 +17299,32 @@ Grouped by slot. Weapons show their class and actual roll pool from `empowerCand
 - +1–2 Freezing
 - +1–2 Poison
 - +1–2 Luck
-- +5–25% Gold drop
-- +1–5% Bonus XP
-- +0%–2% Item drop chance
-- +5–25% Awakening Soul drop chance
 - Increase Slaying damage by 5–35%
 - Increase Flaming Sword damage by 5–25%
 - Reduce Flaming Sword cooldown by 1–5 seconds
 - Increase Twin Drake Blade damage by 5–25%
+- Reduce mana cost of Twin Drake Blade by 10–40%
+- Increase Blade Avalanche damage by 5–25%
+- Reduce mana cost of Blade Avalanche by 10–40%
+- Increase Slashing Burst damage by 5–25%
+- Reduce mana cost of Slashing Burst by 10–40%
+- Increase Slaying crit chance by 5–25%
+- Increase Slaying crit damage by 10–50%
+- Increase Flaming Sword crit chance by 5–25%
+- Increase Flaming Sword crit damage by 10–50%
+- Increase Twin Drake Blade crit chance by 5–25%
+- Increase Twin Drake Blade crit damage by 10–50%
+- Increase Blade Avalanche crit chance by 5–25%
+- Increase Blade Avalanche crit damage by 10–50%
+- Increase Slashing Burst crit chance by 5–25%
+- Increase Slashing Burst crit damage by 10–50%
+- +5–25% Gold drop
+- +1–5% Bonus XP
+- +0%–2% Item drop chance
+- +5–25% Awakening Soul drop chance
+- +1–20% Crit Rate
+- +5–30% Crit Damage
+- +5–40% Skill leveling
 
 **Dragon Sword** (`dragon-sword`) (Warrior weapon)
 - +1–5 DC
@@ -3678,28 +17333,80 @@ Grouped by slot. Weapons show their class and actual roll pool from `empowerCand
 - +1–2 Freezing
 - +1–2 Poison
 - +1–2 Luck
-- +5–25% Gold drop
-- +1–5% Bonus XP
-- +0%–2% Item drop chance
-- +5–25% Awakening Soul drop chance
 - Increase Slaying damage by 5–35%
 - Increase Flaming Sword damage by 5–25%
 - Reduce Flaming Sword cooldown by 1–5 seconds
 - Increase Twin Drake Blade damage by 5–25%
-
-**Fiend Bow** (`fiend-bow`) (Wizard weapon)
-- +1–3 MC
-- +1–2 Luck
+- Reduce mana cost of Twin Drake Blade by 10–40%
+- Increase Blade Avalanche damage by 5–25%
+- Reduce mana cost of Blade Avalanche by 10–40%
+- Increase Slashing Burst damage by 5–25%
+- Reduce mana cost of Slashing Burst by 10–40%
+- Increase Slaying crit chance by 5–25%
+- Increase Slaying crit damage by 10–50%
+- Increase Flaming Sword crit chance by 5–25%
+- Increase Flaming Sword crit damage by 10–50%
+- Increase Twin Drake Blade crit chance by 5–25%
+- Increase Twin Drake Blade crit damage by 10–50%
+- Increase Blade Avalanche crit chance by 5–25%
+- Increase Blade Avalanche crit damage by 10–50%
+- Increase Slashing Burst crit chance by 5–25%
+- Increase Slashing Burst crit damage by 10–50%
 - +5–25% Gold drop
 - +1–5% Bonus XP
 - +0%–2% Item drop chance
 - +5–25% Awakening Soul drop chance
+- +1–20% Crit Rate
+- +5–30% Crit Damage
+- +5–40% Skill leveling
+
+**Fiend Bow** (`fiend-bow`) (Wizard weapon)
+- +1–3 MC
+- +1–2 Luck
 - Increase Flame Disruptor damage by 10–35%
 - Increase Fire Wall damage by 5–25%
 - Increase Thunder Bolt damage by 10–35%
 - Increase Ice Storm damage by 5–25%
+- Increase Flame Field damage by 5–25%
+- Increase Meteor Strike damage by 5–25%
+- Increase Blizzard damage by 5–25%
+- Increase Fire Ball damage by 10–35%
+- Increase Great Fire Ball damage by 10–35%
+- Increase Frost Crunch damage by 5–25%
 - Reduce mana cost of Flame Disruptor by 10–40%
 - Reduce mana cost of Fire Wall by 10–40%
+- Reduce mana cost of Thunder Bolt by 10–40%
+- Reduce mana cost of Ice Storm by 10–40%
+- Reduce mana cost of Flame Field by 10–40%
+- Reduce mana cost of Meteor Strike by 10–40%
+- Reduce mana cost of Blizzard by 10–40%
+- Increase Flame Disruptor crit chance by 5–25%
+- Increase Flame Disruptor crit damage by 10–50%
+- Increase Fire Wall crit chance by 5–25%
+- Increase Fire Wall crit damage by 10–50%
+- Increase Thunder Bolt crit chance by 5–25%
+- Increase Thunder Bolt crit damage by 10–50%
+- Increase Ice Storm crit chance by 5–25%
+- Increase Ice Storm crit damage by 10–50%
+- Increase Flame Field crit chance by 5–25%
+- Increase Flame Field crit damage by 10–50%
+- Increase Meteor Strike crit chance by 5–25%
+- Increase Meteor Strike crit damage by 10–50%
+- Increase Blizzard crit chance by 5–25%
+- Increase Blizzard crit damage by 10–50%
+- Increase Fire Ball crit chance by 5–25%
+- Increase Fire Ball crit damage by 10–50%
+- Increase Great Fire Ball crit chance by 5–25%
+- Increase Great Fire Ball crit damage by 10–50%
+- Increase Frost Crunch crit chance by 5–25%
+- Increase Frost Crunch crit damage by 10–50%
+- +5–25% Gold drop
+- +1–5% Bonus XP
+- +0%–2% Item drop chance
+- +5–25% Awakening Soul drop chance
+- +1–20% Crit Rate
+- +5–30% Crit Damage
+- +5–40% Skill leveling
 
 **Judgement Mace** (`judgement-mace`) (Warrior weapon)
 - +1–5 DC
@@ -3708,41 +17415,105 @@ Grouped by slot. Weapons show their class and actual roll pool from `empowerCand
 - +1–2 Freezing
 - +1–2 Poison
 - +1–2 Luck
-- +5–25% Gold drop
-- +1–5% Bonus XP
-- +0%–2% Item drop chance
-- +5–25% Awakening Soul drop chance
 - Increase Slaying damage by 5–35%
 - Increase Flaming Sword damage by 5–25%
 - Reduce Flaming Sword cooldown by 1–5 seconds
 - Increase Twin Drake Blade damage by 5–25%
+- Reduce mana cost of Twin Drake Blade by 10–40%
+- Increase Blade Avalanche damage by 5–25%
+- Reduce mana cost of Blade Avalanche by 10–40%
+- Increase Slashing Burst damage by 5–25%
+- Reduce mana cost of Slashing Burst by 10–40%
+- Increase Slaying crit chance by 5–25%
+- Increase Slaying crit damage by 10–50%
+- Increase Flaming Sword crit chance by 5–25%
+- Increase Flaming Sword crit damage by 10–50%
+- Increase Twin Drake Blade crit chance by 5–25%
+- Increase Twin Drake Blade crit damage by 10–50%
+- Increase Blade Avalanche crit chance by 5–25%
+- Increase Blade Avalanche crit damage by 10–50%
+- Increase Slashing Burst crit chance by 5–25%
+- Increase Slashing Burst crit damage by 10–50%
+- +5–25% Gold drop
+- +1–5% Bonus XP
+- +0%–2% Item drop chance
+- +5–25% Awakening Soul drop chance
+- +1–20% Crit Rate
+- +5–30% Crit Damage
+- +5–40% Skill leveling
 
 **Soul Spring Wand** (`soul-spring-wand`) (Tao weapon)
 - +1–3 SC
 - +1–2 Luck
-- +5–25% Gold drop
-- +1–5% Bonus XP
-- +0%–2% Item drop chance
-- +5–25% Awakening Soul drop chance
 - Increase Healing healing by 5–25%
 - Increase Mass Healing healing by 5–25%
 - Increase Soul Fire Ball damage by 10–35%
 - Increase Skeleton damage by 10–50%
+- Increase Skeleton health by 10–50%
+- Reduce Skeleton damage taken by 5–20%
 - Increase Shinsu damage by 10–50%
-
-**War Mage Staff** (`war-mage-staff`) (Wizard weapon)
-- +1–3 MC
-- +1–2 Luck
+- Increase Shinsu health by 10–50%
+- Reduce Shinsu damage taken by 5–20%
+- Increase Holy Deva damage by 10–50%
+- Increase Holy Deva health by 10–50%
+- Reduce Holy Deva damage taken by 5–20%
+- Increase Soul Fire Ball crit chance by 5–25%
+- Increase Soul Fire Ball crit damage by 10–50%
 - +5–25% Gold drop
 - +1–5% Bonus XP
 - +0%–2% Item drop chance
 - +5–25% Awakening Soul drop chance
+- +1–20% Crit Rate
+- +5–30% Crit Damage
+- +5–40% Skill leveling
+
+**War Mage Staff** (`war-mage-staff`) (Wizard weapon)
+- +1–3 MC
+- +1–2 Luck
 - Increase Flame Disruptor damage by 10–35%
 - Increase Fire Wall damage by 5–25%
 - Increase Thunder Bolt damage by 10–35%
 - Increase Ice Storm damage by 5–25%
+- Increase Flame Field damage by 5–25%
+- Increase Meteor Strike damage by 5–25%
+- Increase Blizzard damage by 5–25%
+- Increase Fire Ball damage by 10–35%
+- Increase Great Fire Ball damage by 10–35%
+- Increase Frost Crunch damage by 5–25%
 - Reduce mana cost of Flame Disruptor by 10–40%
 - Reduce mana cost of Fire Wall by 10–40%
+- Reduce mana cost of Thunder Bolt by 10–40%
+- Reduce mana cost of Ice Storm by 10–40%
+- Reduce mana cost of Flame Field by 10–40%
+- Reduce mana cost of Meteor Strike by 10–40%
+- Reduce mana cost of Blizzard by 10–40%
+- Increase Flame Disruptor crit chance by 5–25%
+- Increase Flame Disruptor crit damage by 10–50%
+- Increase Fire Wall crit chance by 5–25%
+- Increase Fire Wall crit damage by 10–50%
+- Increase Thunder Bolt crit chance by 5–25%
+- Increase Thunder Bolt crit damage by 10–50%
+- Increase Ice Storm crit chance by 5–25%
+- Increase Ice Storm crit damage by 10–50%
+- Increase Flame Field crit chance by 5–25%
+- Increase Flame Field crit damage by 10–50%
+- Increase Meteor Strike crit chance by 5–25%
+- Increase Meteor Strike crit damage by 10–50%
+- Increase Blizzard crit chance by 5–25%
+- Increase Blizzard crit damage by 10–50%
+- Increase Fire Ball crit chance by 5–25%
+- Increase Fire Ball crit damage by 10–50%
+- Increase Great Fire Ball crit chance by 5–25%
+- Increase Great Fire Ball crit damage by 10–50%
+- Increase Frost Crunch crit chance by 5–25%
+- Increase Frost Crunch crit damage by 10–50%
+- +5–25% Gold drop
+- +1–5% Bonus XP
+- +0%–2% Item drop chance
+- +5–25% Awakening Soul drop chance
+- +1–20% Crit Rate
+- +5–30% Crit Damage
+- +5–40% Skill leveling
 
 **Black Dragon Slayer** (`black-dragon-slayer`) (Warrior weapon)
 - +1–5 DC
@@ -3751,41 +17522,105 @@ Grouped by slot. Weapons show their class and actual roll pool from `empowerCand
 - +1–2 Freezing
 - +1–2 Poison
 - +1–2 Luck
-- +5–25% Gold drop
-- +1–5% Bonus XP
-- +0%–2% Item drop chance
-- +5–25% Awakening Soul drop chance
 - Increase Slaying damage by 5–35%
 - Increase Flaming Sword damage by 5–25%
 - Reduce Flaming Sword cooldown by 1–5 seconds
 - Increase Twin Drake Blade damage by 5–25%
+- Reduce mana cost of Twin Drake Blade by 10–40%
+- Increase Blade Avalanche damage by 5–25%
+- Reduce mana cost of Blade Avalanche by 10–40%
+- Increase Slashing Burst damage by 5–25%
+- Reduce mana cost of Slashing Burst by 10–40%
+- Increase Slaying crit chance by 5–25%
+- Increase Slaying crit damage by 10–50%
+- Increase Flaming Sword crit chance by 5–25%
+- Increase Flaming Sword crit damage by 10–50%
+- Increase Twin Drake Blade crit chance by 5–25%
+- Increase Twin Drake Blade crit damage by 10–50%
+- Increase Blade Avalanche crit chance by 5–25%
+- Increase Blade Avalanche crit damage by 10–50%
+- Increase Slashing Burst crit chance by 5–25%
+- Increase Slashing Burst crit damage by 10–50%
+- +5–25% Gold drop
+- +1–5% Bonus XP
+- +0%–2% Item drop chance
+- +5–25% Awakening Soul drop chance
+- +1–20% Crit Rate
+- +5–30% Crit Damage
+- +5–40% Skill leveling
 
 **Black Dragon Soul Sabre** (`black-dragon-soul-sabre`) (Tao weapon)
 - +1–3 SC
 - +1–2 Luck
-- +5–25% Gold drop
-- +1–5% Bonus XP
-- +0%–2% Item drop chance
-- +5–25% Awakening Soul drop chance
 - Increase Healing healing by 5–25%
 - Increase Mass Healing healing by 5–25%
 - Increase Soul Fire Ball damage by 10–35%
 - Increase Skeleton damage by 10–50%
+- Increase Skeleton health by 10–50%
+- Reduce Skeleton damage taken by 5–20%
 - Increase Shinsu damage by 10–50%
-
-**Black Dragon Staff** (`black-dragon-staff`) (Wizard weapon)
-- +1–3 MC
-- +1–2 Luck
+- Increase Shinsu health by 10–50%
+- Reduce Shinsu damage taken by 5–20%
+- Increase Holy Deva damage by 10–50%
+- Increase Holy Deva health by 10–50%
+- Reduce Holy Deva damage taken by 5–20%
+- Increase Soul Fire Ball crit chance by 5–25%
+- Increase Soul Fire Ball crit damage by 10–50%
 - +5–25% Gold drop
 - +1–5% Bonus XP
 - +0%–2% Item drop chance
 - +5–25% Awakening Soul drop chance
+- +1–20% Crit Rate
+- +5–30% Crit Damage
+- +5–40% Skill leveling
+
+**Black Dragon Staff** (`black-dragon-staff`) (Wizard weapon)
+- +1–3 MC
+- +1–2 Luck
 - Increase Flame Disruptor damage by 10–35%
 - Increase Fire Wall damage by 5–25%
 - Increase Thunder Bolt damage by 10–35%
 - Increase Ice Storm damage by 5–25%
+- Increase Flame Field damage by 5–25%
+- Increase Meteor Strike damage by 5–25%
+- Increase Blizzard damage by 5–25%
+- Increase Fire Ball damage by 10–35%
+- Increase Great Fire Ball damage by 10–35%
+- Increase Frost Crunch damage by 5–25%
 - Reduce mana cost of Flame Disruptor by 10–40%
 - Reduce mana cost of Fire Wall by 10–40%
+- Reduce mana cost of Thunder Bolt by 10–40%
+- Reduce mana cost of Ice Storm by 10–40%
+- Reduce mana cost of Flame Field by 10–40%
+- Reduce mana cost of Meteor Strike by 10–40%
+- Reduce mana cost of Blizzard by 10–40%
+- Increase Flame Disruptor crit chance by 5–25%
+- Increase Flame Disruptor crit damage by 10–50%
+- Increase Fire Wall crit chance by 5–25%
+- Increase Fire Wall crit damage by 10–50%
+- Increase Thunder Bolt crit chance by 5–25%
+- Increase Thunder Bolt crit damage by 10–50%
+- Increase Ice Storm crit chance by 5–25%
+- Increase Ice Storm crit damage by 10–50%
+- Increase Flame Field crit chance by 5–25%
+- Increase Flame Field crit damage by 10–50%
+- Increase Meteor Strike crit chance by 5–25%
+- Increase Meteor Strike crit damage by 10–50%
+- Increase Blizzard crit chance by 5–25%
+- Increase Blizzard crit damage by 10–50%
+- Increase Fire Ball crit chance by 5–25%
+- Increase Fire Ball crit damage by 10–50%
+- Increase Great Fire Ball crit chance by 5–25%
+- Increase Great Fire Ball crit damage by 10–50%
+- Increase Frost Crunch crit chance by 5–25%
+- Increase Frost Crunch crit damage by 10–50%
+- +5–25% Gold drop
+- +1–5% Bonus XP
+- +0%–2% Item drop chance
+- +5–25% Awakening Soul drop chance
+- +1–20% Crit Rate
+- +5–30% Crit Damage
+- +5–40% Skill leveling
 
 **Red Moon Sword** (`red-moon-sword`) (Universal weapon)
 - +1–5 DC
@@ -3796,21 +17631,64 @@ Grouped by slot. Weapons show their class and actual roll pool from `empowerCand
 - +1–2 Freezing
 - +1–2 Poison
 - +1–2 Luck
-- +5–25% Gold drop
-- +1–5% Bonus XP
-- +0%–2% Item drop chance
-- +5–25% Awakening Soul drop chance
 - Increase Flame Disruptor damage by 10–35%
 - Increase Fire Wall damage by 5–25%
 - Increase Thunder Bolt damage by 10–35%
 - Increase Ice Storm damage by 5–25%
+- Increase Flame Field damage by 5–25%
+- Increase Meteor Strike damage by 5–25%
+- Increase Blizzard damage by 5–25%
+- Increase Fire Ball damage by 10–35%
+- Increase Great Fire Ball damage by 10–35%
+- Increase Frost Crunch damage by 5–25%
 - Reduce mana cost of Flame Disruptor by 10–40%
 - Reduce mana cost of Fire Wall by 10–40%
+- Reduce mana cost of Thunder Bolt by 10–40%
+- Reduce mana cost of Ice Storm by 10–40%
+- Reduce mana cost of Flame Field by 10–40%
+- Reduce mana cost of Meteor Strike by 10–40%
+- Reduce mana cost of Blizzard by 10–40%
+- Increase Flame Disruptor crit chance by 5–25%
+- Increase Flame Disruptor crit damage by 10–50%
+- Increase Fire Wall crit chance by 5–25%
+- Increase Fire Wall crit damage by 10–50%
+- Increase Thunder Bolt crit chance by 5–25%
+- Increase Thunder Bolt crit damage by 10–50%
+- Increase Ice Storm crit chance by 5–25%
+- Increase Ice Storm crit damage by 10–50%
+- Increase Flame Field crit chance by 5–25%
+- Increase Flame Field crit damage by 10–50%
+- Increase Meteor Strike crit chance by 5–25%
+- Increase Meteor Strike crit damage by 10–50%
+- Increase Blizzard crit chance by 5–25%
+- Increase Blizzard crit damage by 10–50%
+- Increase Fire Ball crit chance by 5–25%
+- Increase Fire Ball crit damage by 10–50%
+- Increase Great Fire Ball crit chance by 5–25%
+- Increase Great Fire Ball crit damage by 10–50%
+- Increase Frost Crunch crit chance by 5–25%
+- Increase Frost Crunch crit damage by 10–50%
 - Increase Healing healing by 5–25%
 - Increase Mass Healing healing by 5–25%
 - Increase Soul Fire Ball damage by 10–35%
 - Increase Skeleton damage by 10–50%
+- Increase Skeleton health by 10–50%
+- Reduce Skeleton damage taken by 5–20%
 - Increase Shinsu damage by 10–50%
+- Increase Shinsu health by 10–50%
+- Reduce Shinsu damage taken by 5–20%
+- Increase Holy Deva damage by 10–50%
+- Increase Holy Deva health by 10–50%
+- Reduce Holy Deva damage taken by 5–20%
+- Increase Soul Fire Ball crit chance by 5–25%
+- Increase Soul Fire Ball crit damage by 10–50%
+- +5–25% Gold drop
+- +1–5% Bonus XP
+- +0%–2% Item drop chance
+- +5–25% Awakening Soul drop chance
+- +1–20% Crit Rate
+- +5–30% Crit Damage
+- +5–40% Skill leveling
 
 **Freezing Blades** (`freezing-blades`) (Warrior weapon)
 - +1–5 DC
@@ -3819,55 +17697,153 @@ Grouped by slot. Weapons show their class and actual roll pool from `empowerCand
 - +1–2 Freezing
 - +1–2 Poison
 - +1–2 Luck
-- +5–25% Gold drop
-- +1–5% Bonus XP
-- +0%–2% Item drop chance
-- +5–25% Awakening Soul drop chance
 - Increase Slaying damage by 5–35%
 - Increase Flaming Sword damage by 5–25%
 - Reduce Flaming Sword cooldown by 1–5 seconds
 - Increase Twin Drake Blade damage by 5–25%
+- Reduce mana cost of Twin Drake Blade by 10–40%
+- Increase Blade Avalanche damage by 5–25%
+- Reduce mana cost of Blade Avalanche by 10–40%
+- Increase Slashing Burst damage by 5–25%
+- Reduce mana cost of Slashing Burst by 10–40%
+- Increase Slaying crit chance by 5–25%
+- Increase Slaying crit damage by 10–50%
+- Increase Flaming Sword crit chance by 5–25%
+- Increase Flaming Sword crit damage by 10–50%
+- Increase Twin Drake Blade crit chance by 5–25%
+- Increase Twin Drake Blade crit damage by 10–50%
+- Increase Blade Avalanche crit chance by 5–25%
+- Increase Blade Avalanche crit damage by 10–50%
+- Increase Slashing Burst crit chance by 5–25%
+- Increase Slashing Burst crit damage by 10–50%
+- +5–25% Gold drop
+- +1–5% Bonus XP
+- +0%–2% Item drop chance
+- +5–25% Awakening Soul drop chance
+- +1–20% Crit Rate
+- +5–30% Crit Damage
+- +5–40% Skill leveling
 
 **Lithe Bow** (`lithe-bow`) (Wizard weapon)
 - +1–3 MC
 - +1–2 Luck
-- +5–25% Gold drop
-- +1–5% Bonus XP
-- +0%–2% Item drop chance
-- +5–25% Awakening Soul drop chance
 - Increase Flame Disruptor damage by 10–35%
 - Increase Fire Wall damage by 5–25%
 - Increase Thunder Bolt damage by 10–35%
 - Increase Ice Storm damage by 5–25%
+- Increase Flame Field damage by 5–25%
+- Increase Meteor Strike damage by 5–25%
+- Increase Blizzard damage by 5–25%
+- Increase Fire Ball damage by 10–35%
+- Increase Great Fire Ball damage by 10–35%
+- Increase Frost Crunch damage by 5–25%
 - Reduce mana cost of Flame Disruptor by 10–40%
 - Reduce mana cost of Fire Wall by 10–40%
+- Reduce mana cost of Thunder Bolt by 10–40%
+- Reduce mana cost of Ice Storm by 10–40%
+- Reduce mana cost of Flame Field by 10–40%
+- Reduce mana cost of Meteor Strike by 10–40%
+- Reduce mana cost of Blizzard by 10–40%
+- Increase Flame Disruptor crit chance by 5–25%
+- Increase Flame Disruptor crit damage by 10–50%
+- Increase Fire Wall crit chance by 5–25%
+- Increase Fire Wall crit damage by 10–50%
+- Increase Thunder Bolt crit chance by 5–25%
+- Increase Thunder Bolt crit damage by 10–50%
+- Increase Ice Storm crit chance by 5–25%
+- Increase Ice Storm crit damage by 10–50%
+- Increase Flame Field crit chance by 5–25%
+- Increase Flame Field crit damage by 10–50%
+- Increase Meteor Strike crit chance by 5–25%
+- Increase Meteor Strike crit damage by 10–50%
+- Increase Blizzard crit chance by 5–25%
+- Increase Blizzard crit damage by 10–50%
+- Increase Fire Ball crit chance by 5–25%
+- Increase Fire Ball crit damage by 10–50%
+- Increase Great Fire Ball crit chance by 5–25%
+- Increase Great Fire Ball crit damage by 10–50%
+- Increase Frost Crunch crit chance by 5–25%
+- Increase Frost Crunch crit damage by 10–50%
+- +5–25% Gold drop
+- +1–5% Bonus XP
+- +0%–2% Item drop chance
+- +5–25% Awakening Soul drop chance
+- +1–20% Crit Rate
+- +5–30% Crit Damage
+- +5–40% Skill leveling
 
 **Magic Scythe** (`magic-scythe`) (Wizard weapon)
 - +1–3 MC
 - +1–2 Luck
-- +5–25% Gold drop
-- +1–5% Bonus XP
-- +0%–2% Item drop chance
-- +5–25% Awakening Soul drop chance
 - Increase Flame Disruptor damage by 10–35%
 - Increase Fire Wall damage by 5–25%
 - Increase Thunder Bolt damage by 10–35%
 - Increase Ice Storm damage by 5–25%
+- Increase Flame Field damage by 5–25%
+- Increase Meteor Strike damage by 5–25%
+- Increase Blizzard damage by 5–25%
+- Increase Fire Ball damage by 10–35%
+- Increase Great Fire Ball damage by 10–35%
+- Increase Frost Crunch damage by 5–25%
 - Reduce mana cost of Flame Disruptor by 10–40%
 - Reduce mana cost of Fire Wall by 10–40%
-
-**Stone Bamboo Fan** (`stone-bamboo-fan`) (Tao weapon)
-- +1–3 SC
-- +1–2 Luck
+- Reduce mana cost of Thunder Bolt by 10–40%
+- Reduce mana cost of Ice Storm by 10–40%
+- Reduce mana cost of Flame Field by 10–40%
+- Reduce mana cost of Meteor Strike by 10–40%
+- Reduce mana cost of Blizzard by 10–40%
+- Increase Flame Disruptor crit chance by 5–25%
+- Increase Flame Disruptor crit damage by 10–50%
+- Increase Fire Wall crit chance by 5–25%
+- Increase Fire Wall crit damage by 10–50%
+- Increase Thunder Bolt crit chance by 5–25%
+- Increase Thunder Bolt crit damage by 10–50%
+- Increase Ice Storm crit chance by 5–25%
+- Increase Ice Storm crit damage by 10–50%
+- Increase Flame Field crit chance by 5–25%
+- Increase Flame Field crit damage by 10–50%
+- Increase Meteor Strike crit chance by 5–25%
+- Increase Meteor Strike crit damage by 10–50%
+- Increase Blizzard crit chance by 5–25%
+- Increase Blizzard crit damage by 10–50%
+- Increase Fire Ball crit chance by 5–25%
+- Increase Fire Ball crit damage by 10–50%
+- Increase Great Fire Ball crit chance by 5–25%
+- Increase Great Fire Ball crit damage by 10–50%
+- Increase Frost Crunch crit chance by 5–25%
+- Increase Frost Crunch crit damage by 10–50%
 - +5–25% Gold drop
 - +1–5% Bonus XP
 - +0%–2% Item drop chance
 - +5–25% Awakening Soul drop chance
+- +1–20% Crit Rate
+- +5–30% Crit Damage
+- +5–40% Skill leveling
+
+**Stone Bamboo Fan** (`stone-bamboo-fan`) (Tao weapon)
+- +1–3 SC
+- +1–2 Luck
 - Increase Healing healing by 5–25%
 - Increase Mass Healing healing by 5–25%
 - Increase Soul Fire Ball damage by 10–35%
 - Increase Skeleton damage by 10–50%
+- Increase Skeleton health by 10–50%
+- Reduce Skeleton damage taken by 5–20%
 - Increase Shinsu damage by 10–50%
+- Increase Shinsu health by 10–50%
+- Reduce Shinsu damage taken by 5–20%
+- Increase Holy Deva damage by 10–50%
+- Increase Holy Deva health by 10–50%
+- Reduce Holy Deva damage taken by 5–20%
+- Increase Soul Fire Ball crit chance by 5–25%
+- Increase Soul Fire Ball crit damage by 10–50%
+- +5–25% Gold drop
+- +1–5% Bonus XP
+- +0%–2% Item drop chance
+- +5–25% Awakening Soul drop chance
+- +1–20% Crit Rate
+- +5–30% Crit Damage
+- +5–40% Skill leveling
 
 **War Spirit Blade** (`war-spirit-blade`) (Warrior weapon)
 - +1–5 DC
@@ -3876,14 +17852,32 @@ Grouped by slot. Weapons show their class and actual roll pool from `empowerCand
 - +1–2 Freezing
 - +1–2 Poison
 - +1–2 Luck
-- +5–25% Gold drop
-- +1–5% Bonus XP
-- +0%–2% Item drop chance
-- +5–25% Awakening Soul drop chance
 - Increase Slaying damage by 5–35%
 - Increase Flaming Sword damage by 5–25%
 - Reduce Flaming Sword cooldown by 1–5 seconds
 - Increase Twin Drake Blade damage by 5–25%
+- Reduce mana cost of Twin Drake Blade by 10–40%
+- Increase Blade Avalanche damage by 5–25%
+- Reduce mana cost of Blade Avalanche by 10–40%
+- Increase Slashing Burst damage by 5–25%
+- Reduce mana cost of Slashing Burst by 10–40%
+- Increase Slaying crit chance by 5–25%
+- Increase Slaying crit damage by 10–50%
+- Increase Flaming Sword crit chance by 5–25%
+- Increase Flaming Sword crit damage by 10–50%
+- Increase Twin Drake Blade crit chance by 5–25%
+- Increase Twin Drake Blade crit damage by 10–50%
+- Increase Blade Avalanche crit chance by 5–25%
+- Increase Blade Avalanche crit damage by 10–50%
+- Increase Slashing Burst crit chance by 5–25%
+- Increase Slashing Burst crit damage by 10–50%
+- +5–25% Gold drop
+- +1–5% Bonus XP
+- +0%–2% Item drop chance
+- +5–25% Awakening Soul drop chance
+- +1–20% Crit Rate
+- +5–30% Crit Damage
+- +5–40% Skill leveling
 
 **Dragon Slayer** (`dragon-slayer`) (Warrior weapon)
 - +1–5 DC
@@ -3892,42 +17886,128 @@ Grouped by slot. Weapons show their class and actual roll pool from `empowerCand
 - +1–2 Freezing
 - +1–2 Poison
 - +1–2 Luck
-- +5–25% Gold drop
-- +1–5% Bonus XP
-- +0%–2% Item drop chance
-- +5–25% Awakening Soul drop chance
 - Increase Slaying damage by 5–35%
 - Increase Flaming Sword damage by 5–25%
 - Reduce Flaming Sword cooldown by 1–5 seconds
 - Increase Twin Drake Blade damage by 5–25%
+- Reduce mana cost of Twin Drake Blade by 10–40%
+- Increase Blade Avalanche damage by 5–25%
+- Reduce mana cost of Blade Avalanche by 10–40%
+- Increase Slashing Burst damage by 5–25%
+- Reduce mana cost of Slashing Burst by 10–40%
+- Increase Slaying crit chance by 5–25%
+- Increase Slaying crit damage by 10–50%
+- Increase Flaming Sword crit chance by 5–25%
+- Increase Flaming Sword crit damage by 10–50%
+- Increase Twin Drake Blade crit chance by 5–25%
+- Increase Twin Drake Blade crit damage by 10–50%
+- Increase Blade Avalanche crit chance by 5–25%
+- Increase Blade Avalanche crit damage by 10–50%
+- Increase Slashing Burst crit chance by 5–25%
+- Increase Slashing Burst crit damage by 10–50%
+- +5–25% Gold drop
+- +1–5% Bonus XP
+- +0%–2% Item drop chance
+- +5–25% Awakening Soul drop chance
+- +1–20% Crit Rate
+- +5–30% Crit Damage
+- +5–40% Skill leveling
 
 **Dragon Staff** (`dragon-staff`) (Wizard weapon)
 - +1–3 MC
 - +1–2 Luck
-- +5–25% Gold drop
-- +1–5% Bonus XP
-- +0%–2% Item drop chance
-- +5–25% Awakening Soul drop chance
 - Increase Flame Disruptor damage by 10–35%
 - Increase Fire Wall damage by 5–25%
 - Increase Thunder Bolt damage by 10–35%
 - Increase Ice Storm damage by 5–25%
+- Increase Flame Field damage by 5–25%
+- Increase Meteor Strike damage by 5–25%
+- Increase Blizzard damage by 5–25%
+- Increase Fire Ball damage by 10–35%
+- Increase Great Fire Ball damage by 10–35%
+- Increase Frost Crunch damage by 5–25%
 - Reduce mana cost of Flame Disruptor by 10–40%
 - Reduce mana cost of Fire Wall by 10–40%
+- Reduce mana cost of Thunder Bolt by 10–40%
+- Reduce mana cost of Ice Storm by 10–40%
+- Reduce mana cost of Flame Field by 10–40%
+- Reduce mana cost of Meteor Strike by 10–40%
+- Reduce mana cost of Blizzard by 10–40%
+- Increase Flame Disruptor crit chance by 5–25%
+- Increase Flame Disruptor crit damage by 10–50%
+- Increase Fire Wall crit chance by 5–25%
+- Increase Fire Wall crit damage by 10–50%
+- Increase Thunder Bolt crit chance by 5–25%
+- Increase Thunder Bolt crit damage by 10–50%
+- Increase Ice Storm crit chance by 5–25%
+- Increase Ice Storm crit damage by 10–50%
+- Increase Flame Field crit chance by 5–25%
+- Increase Flame Field crit damage by 10–50%
+- Increase Meteor Strike crit chance by 5–25%
+- Increase Meteor Strike crit damage by 10–50%
+- Increase Blizzard crit chance by 5–25%
+- Increase Blizzard crit damage by 10–50%
+- Increase Fire Ball crit chance by 5–25%
+- Increase Fire Ball crit damage by 10–50%
+- Increase Great Fire Ball crit chance by 5–25%
+- Increase Great Fire Ball crit damage by 10–50%
+- Increase Frost Crunch crit chance by 5–25%
+- Increase Frost Crunch crit damage by 10–50%
+- +5–25% Gold drop
+- +1–5% Bonus XP
+- +0%–2% Item drop chance
+- +5–25% Awakening Soul drop chance
+- +1–20% Crit Rate
+- +5–30% Crit Damage
+- +5–40% Skill leveling
 
 **Malefic Bow** (`malefic-bow`) (Wizard weapon)
 - +1–3 MC
 - +1–2 Luck
-- +5–25% Gold drop
-- +1–5% Bonus XP
-- +0%–2% Item drop chance
-- +5–25% Awakening Soul drop chance
 - Increase Flame Disruptor damage by 10–35%
 - Increase Fire Wall damage by 5–25%
 - Increase Thunder Bolt damage by 10–35%
 - Increase Ice Storm damage by 5–25%
+- Increase Flame Field damage by 5–25%
+- Increase Meteor Strike damage by 5–25%
+- Increase Blizzard damage by 5–25%
+- Increase Fire Ball damage by 10–35%
+- Increase Great Fire Ball damage by 10–35%
+- Increase Frost Crunch damage by 5–25%
 - Reduce mana cost of Flame Disruptor by 10–40%
 - Reduce mana cost of Fire Wall by 10–40%
+- Reduce mana cost of Thunder Bolt by 10–40%
+- Reduce mana cost of Ice Storm by 10–40%
+- Reduce mana cost of Flame Field by 10–40%
+- Reduce mana cost of Meteor Strike by 10–40%
+- Reduce mana cost of Blizzard by 10–40%
+- Increase Flame Disruptor crit chance by 5–25%
+- Increase Flame Disruptor crit damage by 10–50%
+- Increase Fire Wall crit chance by 5–25%
+- Increase Fire Wall crit damage by 10–50%
+- Increase Thunder Bolt crit chance by 5–25%
+- Increase Thunder Bolt crit damage by 10–50%
+- Increase Ice Storm crit chance by 5–25%
+- Increase Ice Storm crit damage by 10–50%
+- Increase Flame Field crit chance by 5–25%
+- Increase Flame Field crit damage by 10–50%
+- Increase Meteor Strike crit chance by 5–25%
+- Increase Meteor Strike crit damage by 10–50%
+- Increase Blizzard crit chance by 5–25%
+- Increase Blizzard crit damage by 10–50%
+- Increase Fire Ball crit chance by 5–25%
+- Increase Fire Ball crit damage by 10–50%
+- Increase Great Fire Ball crit chance by 5–25%
+- Increase Great Fire Ball crit damage by 10–50%
+- Increase Frost Crunch crit chance by 5–25%
+- Increase Frost Crunch crit damage by 10–50%
+- +5–25% Gold drop
+- +1–5% Bonus XP
+- +0%–2% Item drop chance
+- +5–25% Awakening Soul drop chance
+- +1–20% Crit Rate
+- +5–30% Crit Damage
+- +5–40% Skill leveling
 
 **Royal Blades** (`royal-blades`) (Warrior weapon)
 - +1–5 DC
@@ -3936,41 +18016,105 @@ Grouped by slot. Weapons show their class and actual roll pool from `empowerCand
 - +1–2 Freezing
 - +1–2 Poison
 - +1–2 Luck
-- +5–25% Gold drop
-- +1–5% Bonus XP
-- +0%–2% Item drop chance
-- +5–25% Awakening Soul drop chance
 - Increase Slaying damage by 5–35%
 - Increase Flaming Sword damage by 5–25%
 - Reduce Flaming Sword cooldown by 1–5 seconds
 - Increase Twin Drake Blade damage by 5–25%
+- Reduce mana cost of Twin Drake Blade by 10–40%
+- Increase Blade Avalanche damage by 5–25%
+- Reduce mana cost of Blade Avalanche by 10–40%
+- Increase Slashing Burst damage by 5–25%
+- Reduce mana cost of Slashing Burst by 10–40%
+- Increase Slaying crit chance by 5–25%
+- Increase Slaying crit damage by 10–50%
+- Increase Flaming Sword crit chance by 5–25%
+- Increase Flaming Sword crit damage by 10–50%
+- Increase Twin Drake Blade crit chance by 5–25%
+- Increase Twin Drake Blade crit damage by 10–50%
+- Increase Blade Avalanche crit chance by 5–25%
+- Increase Blade Avalanche crit damage by 10–50%
+- Increase Slashing Burst crit chance by 5–25%
+- Increase Slashing Burst crit damage by 10–50%
+- +5–25% Gold drop
+- +1–5% Bonus XP
+- +0%–2% Item drop chance
+- +5–25% Awakening Soul drop chance
+- +1–20% Crit Rate
+- +5–30% Crit Damage
+- +5–40% Skill leveling
 
 **Soul Sabre** (`soul-sabre`) (Tao weapon)
 - +1–3 SC
 - +1–2 Luck
-- +5–25% Gold drop
-- +1–5% Bonus XP
-- +0%–2% Item drop chance
-- +5–25% Awakening Soul drop chance
 - Increase Healing healing by 5–25%
 - Increase Mass Healing healing by 5–25%
 - Increase Soul Fire Ball damage by 10–35%
 - Increase Skeleton damage by 10–50%
+- Increase Skeleton health by 10–50%
+- Reduce Skeleton damage taken by 5–20%
 - Increase Shinsu damage by 10–50%
-
-**Blade Of Sorcery** (`blade-of-sorcery`) (Wizard weapon)
-- +1–3 MC
-- +1–2 Luck
+- Increase Shinsu health by 10–50%
+- Reduce Shinsu damage taken by 5–20%
+- Increase Holy Deva damage by 10–50%
+- Increase Holy Deva health by 10–50%
+- Reduce Holy Deva damage taken by 5–20%
+- Increase Soul Fire Ball crit chance by 5–25%
+- Increase Soul Fire Ball crit damage by 10–50%
 - +5–25% Gold drop
 - +1–5% Bonus XP
 - +0%–2% Item drop chance
 - +5–25% Awakening Soul drop chance
+- +1–20% Crit Rate
+- +5–30% Crit Damage
+- +5–40% Skill leveling
+
+**Blade Of Sorcery** (`blade-of-sorcery`) (Wizard weapon)
+- +1–3 MC
+- +1–2 Luck
 - Increase Flame Disruptor damage by 10–35%
 - Increase Fire Wall damage by 5–25%
 - Increase Thunder Bolt damage by 10–35%
 - Increase Ice Storm damage by 5–25%
+- Increase Flame Field damage by 5–25%
+- Increase Meteor Strike damage by 5–25%
+- Increase Blizzard damage by 5–25%
+- Increase Fire Ball damage by 10–35%
+- Increase Great Fire Ball damage by 10–35%
+- Increase Frost Crunch damage by 5–25%
 - Reduce mana cost of Flame Disruptor by 10–40%
 - Reduce mana cost of Fire Wall by 10–40%
+- Reduce mana cost of Thunder Bolt by 10–40%
+- Reduce mana cost of Ice Storm by 10–40%
+- Reduce mana cost of Flame Field by 10–40%
+- Reduce mana cost of Meteor Strike by 10–40%
+- Reduce mana cost of Blizzard by 10–40%
+- Increase Flame Disruptor crit chance by 5–25%
+- Increase Flame Disruptor crit damage by 10–50%
+- Increase Fire Wall crit chance by 5–25%
+- Increase Fire Wall crit damage by 10–50%
+- Increase Thunder Bolt crit chance by 5–25%
+- Increase Thunder Bolt crit damage by 10–50%
+- Increase Ice Storm crit chance by 5–25%
+- Increase Ice Storm crit damage by 10–50%
+- Increase Flame Field crit chance by 5–25%
+- Increase Flame Field crit damage by 10–50%
+- Increase Meteor Strike crit chance by 5–25%
+- Increase Meteor Strike crit damage by 10–50%
+- Increase Blizzard crit chance by 5–25%
+- Increase Blizzard crit damage by 10–50%
+- Increase Fire Ball crit chance by 5–25%
+- Increase Fire Ball crit damage by 10–50%
+- Increase Great Fire Ball crit chance by 5–25%
+- Increase Great Fire Ball crit damage by 10–50%
+- Increase Frost Crunch crit chance by 5–25%
+- Increase Frost Crunch crit damage by 10–50%
+- +5–25% Gold drop
+- +1–5% Bonus XP
+- +0%–2% Item drop chance
+- +5–25% Awakening Soul drop chance
+- +1–20% Crit Rate
+- +5–30% Crit Damage
+- +5–40% Skill leveling
 
 **Blades Of Magi** (`blades-of-magi`) (Warrior weapon)
 - +1–5 DC
@@ -3979,41 +18123,105 @@ Grouped by slot. Weapons show their class and actual roll pool from `empowerCand
 - +1–2 Freezing
 - +1–2 Poison
 - +1–2 Luck
-- +5–25% Gold drop
-- +1–5% Bonus XP
-- +0%–2% Item drop chance
-- +5–25% Awakening Soul drop chance
 - Increase Slaying damage by 5–35%
 - Increase Flaming Sword damage by 5–25%
 - Reduce Flaming Sword cooldown by 1–5 seconds
 - Increase Twin Drake Blade damage by 5–25%
+- Reduce mana cost of Twin Drake Blade by 10–40%
+- Increase Blade Avalanche damage by 5–25%
+- Reduce mana cost of Blade Avalanche by 10–40%
+- Increase Slashing Burst damage by 5–25%
+- Reduce mana cost of Slashing Burst by 10–40%
+- Increase Slaying crit chance by 5–25%
+- Increase Slaying crit damage by 10–50%
+- Increase Flaming Sword crit chance by 5–25%
+- Increase Flaming Sword crit damage by 10–50%
+- Increase Twin Drake Blade crit chance by 5–25%
+- Increase Twin Drake Blade crit damage by 10–50%
+- Increase Blade Avalanche crit chance by 5–25%
+- Increase Blade Avalanche crit damage by 10–50%
+- Increase Slashing Burst crit chance by 5–25%
+- Increase Slashing Burst crit damage by 10–50%
+- +5–25% Gold drop
+- +1–5% Bonus XP
+- +0%–2% Item drop chance
+- +5–25% Awakening Soul drop chance
+- +1–20% Crit Rate
+- +5–30% Crit Damage
+- +5–40% Skill leveling
 
 **Bow Of Force** (`bow-of-force`) (Wizard weapon)
 - +1–3 MC
 - +1–2 Luck
-- +5–25% Gold drop
-- +1–5% Bonus XP
-- +0%–2% Item drop chance
-- +5–25% Awakening Soul drop chance
 - Increase Flame Disruptor damage by 10–35%
 - Increase Fire Wall damage by 5–25%
 - Increase Thunder Bolt damage by 10–35%
 - Increase Ice Storm damage by 5–25%
+- Increase Flame Field damage by 5–25%
+- Increase Meteor Strike damage by 5–25%
+- Increase Blizzard damage by 5–25%
+- Increase Fire Ball damage by 10–35%
+- Increase Great Fire Ball damage by 10–35%
+- Increase Frost Crunch damage by 5–25%
 - Reduce mana cost of Flame Disruptor by 10–40%
 - Reduce mana cost of Fire Wall by 10–40%
-
-**Heaven Sword** (`heaven-sword`) (Tao weapon)
-- +1–3 SC
-- +1–2 Luck
+- Reduce mana cost of Thunder Bolt by 10–40%
+- Reduce mana cost of Ice Storm by 10–40%
+- Reduce mana cost of Flame Field by 10–40%
+- Reduce mana cost of Meteor Strike by 10–40%
+- Reduce mana cost of Blizzard by 10–40%
+- Increase Flame Disruptor crit chance by 5–25%
+- Increase Flame Disruptor crit damage by 10–50%
+- Increase Fire Wall crit chance by 5–25%
+- Increase Fire Wall crit damage by 10–50%
+- Increase Thunder Bolt crit chance by 5–25%
+- Increase Thunder Bolt crit damage by 10–50%
+- Increase Ice Storm crit chance by 5–25%
+- Increase Ice Storm crit damage by 10–50%
+- Increase Flame Field crit chance by 5–25%
+- Increase Flame Field crit damage by 10–50%
+- Increase Meteor Strike crit chance by 5–25%
+- Increase Meteor Strike crit damage by 10–50%
+- Increase Blizzard crit chance by 5–25%
+- Increase Blizzard crit damage by 10–50%
+- Increase Fire Ball crit chance by 5–25%
+- Increase Fire Ball crit damage by 10–50%
+- Increase Great Fire Ball crit chance by 5–25%
+- Increase Great Fire Ball crit damage by 10–50%
+- Increase Frost Crunch crit chance by 5–25%
+- Increase Frost Crunch crit damage by 10–50%
 - +5–25% Gold drop
 - +1–5% Bonus XP
 - +0%–2% Item drop chance
 - +5–25% Awakening Soul drop chance
+- +1–20% Crit Rate
+- +5–30% Crit Damage
+- +5–40% Skill leveling
+
+**Heaven Sword** (`heaven-sword`) (Tao weapon)
+- +1–3 SC
+- +1–2 Luck
 - Increase Healing healing by 5–25%
 - Increase Mass Healing healing by 5–25%
 - Increase Soul Fire Ball damage by 10–35%
 - Increase Skeleton damage by 10–50%
+- Increase Skeleton health by 10–50%
+- Reduce Skeleton damage taken by 5–20%
 - Increase Shinsu damage by 10–50%
+- Increase Shinsu health by 10–50%
+- Reduce Shinsu damage taken by 5–20%
+- Increase Holy Deva damage by 10–50%
+- Increase Holy Deva health by 10–50%
+- Reduce Holy Deva damage taken by 5–20%
+- Increase Soul Fire Ball crit chance by 5–25%
+- Increase Soul Fire Ball crit damage by 10–50%
+- +5–25% Gold drop
+- +1–5% Bonus XP
+- +0%–2% Item drop chance
+- +5–25% Awakening Soul drop chance
+- +1–20% Crit Rate
+- +5–30% Crit Damage
+- +5–40% Skill leveling
 
 **Sword Of War God** (`sword-of-war-god`) (Warrior weapon)
 - +1–5 DC
@@ -4022,27 +18230,57 @@ Grouped by slot. Weapons show their class and actual roll pool from `empowerCand
 - +1–2 Freezing
 - +1–2 Poison
 - +1–2 Luck
-- +5–25% Gold drop
-- +1–5% Bonus XP
-- +0%–2% Item drop chance
-- +5–25% Awakening Soul drop chance
 - Increase Slaying damage by 5–35%
 - Increase Flaming Sword damage by 5–25%
 - Reduce Flaming Sword cooldown by 1–5 seconds
 - Increase Twin Drake Blade damage by 5–25%
-
-**Bastard Sword** (`bastard-sword`) (Tao weapon)
-- +1–3 SC
-- +1–2 Luck
+- Reduce mana cost of Twin Drake Blade by 10–40%
+- Increase Blade Avalanche damage by 5–25%
+- Reduce mana cost of Blade Avalanche by 10–40%
+- Increase Slashing Burst damage by 5–25%
+- Reduce mana cost of Slashing Burst by 10–40%
+- Increase Slaying crit chance by 5–25%
+- Increase Slaying crit damage by 10–50%
+- Increase Flaming Sword crit chance by 5–25%
+- Increase Flaming Sword crit damage by 10–50%
+- Increase Twin Drake Blade crit chance by 5–25%
+- Increase Twin Drake Blade crit damage by 10–50%
+- Increase Blade Avalanche crit chance by 5–25%
+- Increase Blade Avalanche crit damage by 10–50%
+- Increase Slashing Burst crit chance by 5–25%
+- Increase Slashing Burst crit damage by 10–50%
 - +5–25% Gold drop
 - +1–5% Bonus XP
 - +0%–2% Item drop chance
 - +5–25% Awakening Soul drop chance
+- +1–20% Crit Rate
+- +5–30% Crit Damage
+- +5–40% Skill leveling
+
+**Bastard Sword** (`bastard-sword`) (Tao weapon)
+- +1–3 SC
+- +1–2 Luck
 - Increase Healing healing by 5–25%
 - Increase Mass Healing healing by 5–25%
 - Increase Soul Fire Ball damage by 10–35%
 - Increase Skeleton damage by 10–50%
+- Increase Skeleton health by 10–50%
+- Reduce Skeleton damage taken by 5–20%
 - Increase Shinsu damage by 10–50%
+- Increase Shinsu health by 10–50%
+- Reduce Shinsu damage taken by 5–20%
+- Increase Holy Deva damage by 10–50%
+- Increase Holy Deva health by 10–50%
+- Reduce Holy Deva damage taken by 5–20%
+- Increase Soul Fire Ball crit chance by 5–25%
+- Increase Soul Fire Ball crit damage by 10–50%
+- +5–25% Gold drop
+- +1–5% Bonus XP
+- +0%–2% Item drop chance
+- +5–25% Awakening Soul drop chance
+- +1–20% Crit Rate
+- +5–30% Crit Damage
+- +5–40% Skill leveling
 
 **Burst Sword** (`burst-sword`) (Warrior weapon)
 - +1–5 DC
@@ -4051,41 +18289,105 @@ Grouped by slot. Weapons show their class and actual roll pool from `empowerCand
 - +1–2 Freezing
 - +1–2 Poison
 - +1–2 Luck
-- +5–25% Gold drop
-- +1–5% Bonus XP
-- +0%–2% Item drop chance
-- +5–25% Awakening Soul drop chance
 - Increase Slaying damage by 5–35%
 - Increase Flaming Sword damage by 5–25%
 - Reduce Flaming Sword cooldown by 1–5 seconds
 - Increase Twin Drake Blade damage by 5–25%
+- Reduce mana cost of Twin Drake Blade by 10–40%
+- Increase Blade Avalanche damage by 5–25%
+- Reduce mana cost of Blade Avalanche by 10–40%
+- Increase Slashing Burst damage by 5–25%
+- Reduce mana cost of Slashing Burst by 10–40%
+- Increase Slaying crit chance by 5–25%
+- Increase Slaying crit damage by 10–50%
+- Increase Flaming Sword crit chance by 5–25%
+- Increase Flaming Sword crit damage by 10–50%
+- Increase Twin Drake Blade crit chance by 5–25%
+- Increase Twin Drake Blade crit damage by 10–50%
+- Increase Blade Avalanche crit chance by 5–25%
+- Increase Blade Avalanche crit damage by 10–50%
+- Increase Slashing Burst crit chance by 5–25%
+- Increase Slashing Burst crit damage by 10–50%
+- +5–25% Gold drop
+- +1–5% Bonus XP
+- +0%–2% Item drop chance
+- +5–25% Awakening Soul drop chance
+- +1–20% Crit Rate
+- +5–30% Crit Damage
+- +5–40% Skill leveling
 
 **Conqueror Spear** (`conqueror-spear`) (Wizard weapon)
 - +1–3 MC
 - +1–2 Luck
-- +5–25% Gold drop
-- +1–5% Bonus XP
-- +0%–2% Item drop chance
-- +5–25% Awakening Soul drop chance
 - Increase Flame Disruptor damage by 10–35%
 - Increase Fire Wall damage by 5–25%
 - Increase Thunder Bolt damage by 10–35%
 - Increase Ice Storm damage by 5–25%
+- Increase Flame Field damage by 5–25%
+- Increase Meteor Strike damage by 5–25%
+- Increase Blizzard damage by 5–25%
+- Increase Fire Ball damage by 10–35%
+- Increase Great Fire Ball damage by 10–35%
+- Increase Frost Crunch damage by 5–25%
 - Reduce mana cost of Flame Disruptor by 10–40%
 - Reduce mana cost of Fire Wall by 10–40%
-
-**Dragon Blood Sword** (`dragon-blood-sword`) (Tao weapon)
-- +1–3 SC
-- +1–2 Luck
+- Reduce mana cost of Thunder Bolt by 10–40%
+- Reduce mana cost of Ice Storm by 10–40%
+- Reduce mana cost of Flame Field by 10–40%
+- Reduce mana cost of Meteor Strike by 10–40%
+- Reduce mana cost of Blizzard by 10–40%
+- Increase Flame Disruptor crit chance by 5–25%
+- Increase Flame Disruptor crit damage by 10–50%
+- Increase Fire Wall crit chance by 5–25%
+- Increase Fire Wall crit damage by 10–50%
+- Increase Thunder Bolt crit chance by 5–25%
+- Increase Thunder Bolt crit damage by 10–50%
+- Increase Ice Storm crit chance by 5–25%
+- Increase Ice Storm crit damage by 10–50%
+- Increase Flame Field crit chance by 5–25%
+- Increase Flame Field crit damage by 10–50%
+- Increase Meteor Strike crit chance by 5–25%
+- Increase Meteor Strike crit damage by 10–50%
+- Increase Blizzard crit chance by 5–25%
+- Increase Blizzard crit damage by 10–50%
+- Increase Fire Ball crit chance by 5–25%
+- Increase Fire Ball crit damage by 10–50%
+- Increase Great Fire Ball crit chance by 5–25%
+- Increase Great Fire Ball crit damage by 10–50%
+- Increase Frost Crunch crit chance by 5–25%
+- Increase Frost Crunch crit damage by 10–50%
 - +5–25% Gold drop
 - +1–5% Bonus XP
 - +0%–2% Item drop chance
 - +5–25% Awakening Soul drop chance
+- +1–20% Crit Rate
+- +5–30% Crit Damage
+- +5–40% Skill leveling
+
+**Dragon Blood Sword** (`dragon-blood-sword`) (Tao weapon)
+- +1–3 SC
+- +1–2 Luck
 - Increase Healing healing by 5–25%
 - Increase Mass Healing healing by 5–25%
 - Increase Soul Fire Ball damage by 10–35%
 - Increase Skeleton damage by 10–50%
+- Increase Skeleton health by 10–50%
+- Reduce Skeleton damage taken by 5–20%
 - Increase Shinsu damage by 10–50%
+- Increase Shinsu health by 10–50%
+- Reduce Shinsu damage taken by 5–20%
+- Increase Holy Deva damage by 10–50%
+- Increase Holy Deva health by 10–50%
+- Reduce Holy Deva damage taken by 5–20%
+- Increase Soul Fire Ball crit chance by 5–25%
+- Increase Soul Fire Ball crit damage by 10–50%
+- +5–25% Gold drop
+- +1–5% Bonus XP
+- +0%–2% Item drop chance
+- +5–25% Awakening Soul drop chance
+- +1–20% Crit Rate
+- +5–30% Crit Damage
+- +5–40% Skill leveling
 
 **Frozen Sabre** (`frozen-sabre`) (Warrior weapon)
 - +1–5 DC
@@ -4094,28 +18396,80 @@ Grouped by slot. Weapons show their class and actual roll pool from `empowerCand
 - +1–2 Freezing
 - +1–2 Poison
 - +1–2 Luck
-- +5–25% Gold drop
-- +1–5% Bonus XP
-- +0%–2% Item drop chance
-- +5–25% Awakening Soul drop chance
 - Increase Slaying damage by 5–35%
 - Increase Flaming Sword damage by 5–25%
 - Reduce Flaming Sword cooldown by 1–5 seconds
 - Increase Twin Drake Blade damage by 5–25%
-
-**Holy Blood Spear** (`holy-blood-spear`) (Wizard weapon)
-- +1–3 MC
-- +1–2 Luck
+- Reduce mana cost of Twin Drake Blade by 10–40%
+- Increase Blade Avalanche damage by 5–25%
+- Reduce mana cost of Blade Avalanche by 10–40%
+- Increase Slashing Burst damage by 5–25%
+- Reduce mana cost of Slashing Burst by 10–40%
+- Increase Slaying crit chance by 5–25%
+- Increase Slaying crit damage by 10–50%
+- Increase Flaming Sword crit chance by 5–25%
+- Increase Flaming Sword crit damage by 10–50%
+- Increase Twin Drake Blade crit chance by 5–25%
+- Increase Twin Drake Blade crit damage by 10–50%
+- Increase Blade Avalanche crit chance by 5–25%
+- Increase Blade Avalanche crit damage by 10–50%
+- Increase Slashing Burst crit chance by 5–25%
+- Increase Slashing Burst crit damage by 10–50%
 - +5–25% Gold drop
 - +1–5% Bonus XP
 - +0%–2% Item drop chance
 - +5–25% Awakening Soul drop chance
+- +1–20% Crit Rate
+- +5–30% Crit Damage
+- +5–40% Skill leveling
+
+**Holy Blood Spear** (`holy-blood-spear`) (Wizard weapon)
+- +1–3 MC
+- +1–2 Luck
 - Increase Flame Disruptor damage by 10–35%
 - Increase Fire Wall damage by 5–25%
 - Increase Thunder Bolt damage by 10–35%
 - Increase Ice Storm damage by 5–25%
+- Increase Flame Field damage by 5–25%
+- Increase Meteor Strike damage by 5–25%
+- Increase Blizzard damage by 5–25%
+- Increase Fire Ball damage by 10–35%
+- Increase Great Fire Ball damage by 10–35%
+- Increase Frost Crunch damage by 5–25%
 - Reduce mana cost of Flame Disruptor by 10–40%
 - Reduce mana cost of Fire Wall by 10–40%
+- Reduce mana cost of Thunder Bolt by 10–40%
+- Reduce mana cost of Ice Storm by 10–40%
+- Reduce mana cost of Flame Field by 10–40%
+- Reduce mana cost of Meteor Strike by 10–40%
+- Reduce mana cost of Blizzard by 10–40%
+- Increase Flame Disruptor crit chance by 5–25%
+- Increase Flame Disruptor crit damage by 10–50%
+- Increase Fire Wall crit chance by 5–25%
+- Increase Fire Wall crit damage by 10–50%
+- Increase Thunder Bolt crit chance by 5–25%
+- Increase Thunder Bolt crit damage by 10–50%
+- Increase Ice Storm crit chance by 5–25%
+- Increase Ice Storm crit damage by 10–50%
+- Increase Flame Field crit chance by 5–25%
+- Increase Flame Field crit damage by 10–50%
+- Increase Meteor Strike crit chance by 5–25%
+- Increase Meteor Strike crit damage by 10–50%
+- Increase Blizzard crit chance by 5–25%
+- Increase Blizzard crit damage by 10–50%
+- Increase Fire Ball crit chance by 5–25%
+- Increase Fire Ball crit damage by 10–50%
+- Increase Great Fire Ball crit chance by 5–25%
+- Increase Great Fire Ball crit damage by 10–50%
+- Increase Frost Crunch crit chance by 5–25%
+- Increase Frost Crunch crit damage by 10–50%
+- +5–25% Gold drop
+- +1–5% Bonus XP
+- +0%–2% Item drop chance
+- +5–25% Awakening Soul drop chance
+- +1–20% Crit Rate
+- +5–30% Crit Damage
+- +5–40% Skill leveling
 
 **Black Tiger Hammer** (`black-tiger-hammer`) (Warrior weapon)
 - +1–5 DC
@@ -4124,41 +18478,105 @@ Grouped by slot. Weapons show their class and actual roll pool from `empowerCand
 - +1–2 Freezing
 - +1–2 Poison
 - +1–2 Luck
-- +5–25% Gold drop
-- +1–5% Bonus XP
-- +0%–2% Item drop chance
-- +5–25% Awakening Soul drop chance
 - Increase Slaying damage by 5–35%
 - Increase Flaming Sword damage by 5–25%
 - Reduce Flaming Sword cooldown by 1–5 seconds
 - Increase Twin Drake Blade damage by 5–25%
+- Reduce mana cost of Twin Drake Blade by 10–40%
+- Increase Blade Avalanche damage by 5–25%
+- Reduce mana cost of Blade Avalanche by 10–40%
+- Increase Slashing Burst damage by 5–25%
+- Reduce mana cost of Slashing Burst by 10–40%
+- Increase Slaying crit chance by 5–25%
+- Increase Slaying crit damage by 10–50%
+- Increase Flaming Sword crit chance by 5–25%
+- Increase Flaming Sword crit damage by 10–50%
+- Increase Twin Drake Blade crit chance by 5–25%
+- Increase Twin Drake Blade crit damage by 10–50%
+- Increase Blade Avalanche crit chance by 5–25%
+- Increase Blade Avalanche crit damage by 10–50%
+- Increase Slashing Burst crit chance by 5–25%
+- Increase Slashing Burst crit damage by 10–50%
+- +5–25% Gold drop
+- +1–5% Bonus XP
+- +0%–2% Item drop chance
+- +5–25% Awakening Soul drop chance
+- +1–20% Crit Rate
+- +5–30% Crit Damage
+- +5–40% Skill leveling
 
 **Fan Of Crane** (`fan-of-crane`) (Tao weapon)
 - +1–3 SC
 - +1–2 Luck
-- +5–25% Gold drop
-- +1–5% Bonus XP
-- +0%–2% Item drop chance
-- +5–25% Awakening Soul drop chance
 - Increase Healing healing by 5–25%
 - Increase Mass Healing healing by 5–25%
 - Increase Soul Fire Ball damage by 10–35%
 - Increase Skeleton damage by 10–50%
+- Increase Skeleton health by 10–50%
+- Reduce Skeleton damage taken by 5–20%
 - Increase Shinsu damage by 10–50%
-
-**Staff Of Lotus** (`staff-of-lotus`) (Wizard weapon)
-- +1–3 MC
-- +1–2 Luck
+- Increase Shinsu health by 10–50%
+- Reduce Shinsu damage taken by 5–20%
+- Increase Holy Deva damage by 10–50%
+- Increase Holy Deva health by 10–50%
+- Reduce Holy Deva damage taken by 5–20%
+- Increase Soul Fire Ball crit chance by 5–25%
+- Increase Soul Fire Ball crit damage by 10–50%
 - +5–25% Gold drop
 - +1–5% Bonus XP
 - +0%–2% Item drop chance
 - +5–25% Awakening Soul drop chance
+- +1–20% Crit Rate
+- +5–30% Crit Damage
+- +5–40% Skill leveling
+
+**Staff Of Lotus** (`staff-of-lotus`) (Wizard weapon)
+- +1–3 MC
+- +1–2 Luck
 - Increase Flame Disruptor damage by 10–35%
 - Increase Fire Wall damage by 5–25%
 - Increase Thunder Bolt damage by 10–35%
 - Increase Ice Storm damage by 5–25%
+- Increase Flame Field damage by 5–25%
+- Increase Meteor Strike damage by 5–25%
+- Increase Blizzard damage by 5–25%
+- Increase Fire Ball damage by 10–35%
+- Increase Great Fire Ball damage by 10–35%
+- Increase Frost Crunch damage by 5–25%
 - Reduce mana cost of Flame Disruptor by 10–40%
 - Reduce mana cost of Fire Wall by 10–40%
+- Reduce mana cost of Thunder Bolt by 10–40%
+- Reduce mana cost of Ice Storm by 10–40%
+- Reduce mana cost of Flame Field by 10–40%
+- Reduce mana cost of Meteor Strike by 10–40%
+- Reduce mana cost of Blizzard by 10–40%
+- Increase Flame Disruptor crit chance by 5–25%
+- Increase Flame Disruptor crit damage by 10–50%
+- Increase Fire Wall crit chance by 5–25%
+- Increase Fire Wall crit damage by 10–50%
+- Increase Thunder Bolt crit chance by 5–25%
+- Increase Thunder Bolt crit damage by 10–50%
+- Increase Ice Storm crit chance by 5–25%
+- Increase Ice Storm crit damage by 10–50%
+- Increase Flame Field crit chance by 5–25%
+- Increase Flame Field crit damage by 10–50%
+- Increase Meteor Strike crit chance by 5–25%
+- Increase Meteor Strike crit damage by 10–50%
+- Increase Blizzard crit chance by 5–25%
+- Increase Blizzard crit damage by 10–50%
+- Increase Fire Ball crit chance by 5–25%
+- Increase Fire Ball crit damage by 10–50%
+- Increase Great Fire Ball crit chance by 5–25%
+- Increase Great Fire Ball crit damage by 10–50%
+- Increase Frost Crunch crit chance by 5–25%
+- Increase Frost Crunch crit damage by 10–50%
+- +5–25% Gold drop
+- +1–5% Bonus XP
+- +0%–2% Item drop chance
+- +5–25% Awakening Soul drop chance
+- +1–20% Crit Rate
+- +5–30% Crit Damage
+- +5–40% Skill leveling
 
 **Hell Yama Blade1** (`hell-yama-blade1`) (Warrior weapon)
 - +1–5 DC
@@ -4167,41 +18585,105 @@ Grouped by slot. Weapons show their class and actual roll pool from `empowerCand
 - +1–2 Freezing
 - +1–2 Poison
 - +1–2 Luck
-- +5–25% Gold drop
-- +1–5% Bonus XP
-- +0%–2% Item drop chance
-- +5–25% Awakening Soul drop chance
 - Increase Slaying damage by 5–35%
 - Increase Flaming Sword damage by 5–25%
 - Reduce Flaming Sword cooldown by 1–5 seconds
 - Increase Twin Drake Blade damage by 5–25%
+- Reduce mana cost of Twin Drake Blade by 10–40%
+- Increase Blade Avalanche damage by 5–25%
+- Reduce mana cost of Blade Avalanche by 10–40%
+- Increase Slashing Burst damage by 5–25%
+- Reduce mana cost of Slashing Burst by 10–40%
+- Increase Slaying crit chance by 5–25%
+- Increase Slaying crit damage by 10–50%
+- Increase Flaming Sword crit chance by 5–25%
+- Increase Flaming Sword crit damage by 10–50%
+- Increase Twin Drake Blade crit chance by 5–25%
+- Increase Twin Drake Blade crit damage by 10–50%
+- Increase Blade Avalanche crit chance by 5–25%
+- Increase Blade Avalanche crit damage by 10–50%
+- Increase Slashing Burst crit chance by 5–25%
+- Increase Slashing Burst crit damage by 10–50%
+- +5–25% Gold drop
+- +1–5% Bonus XP
+- +0%–2% Item drop chance
+- +5–25% Awakening Soul drop chance
+- +1–20% Crit Rate
+- +5–30% Crit Damage
+- +5–40% Skill leveling
 
 **Hell Yama Blade2** (`hell-yama-blade2`) (Wizard weapon)
 - +1–3 MC
 - +1–2 Luck
-- +5–25% Gold drop
-- +1–5% Bonus XP
-- +0%–2% Item drop chance
-- +5–25% Awakening Soul drop chance
 - Increase Flame Disruptor damage by 10–35%
 - Increase Fire Wall damage by 5–25%
 - Increase Thunder Bolt damage by 10–35%
 - Increase Ice Storm damage by 5–25%
+- Increase Flame Field damage by 5–25%
+- Increase Meteor Strike damage by 5–25%
+- Increase Blizzard damage by 5–25%
+- Increase Fire Ball damage by 10–35%
+- Increase Great Fire Ball damage by 10–35%
+- Increase Frost Crunch damage by 5–25%
 - Reduce mana cost of Flame Disruptor by 10–40%
 - Reduce mana cost of Fire Wall by 10–40%
-
-**Hell Yama Blade3** (`hell-yama-blade3`) (Tao weapon)
-- +1–3 SC
-- +1–2 Luck
+- Reduce mana cost of Thunder Bolt by 10–40%
+- Reduce mana cost of Ice Storm by 10–40%
+- Reduce mana cost of Flame Field by 10–40%
+- Reduce mana cost of Meteor Strike by 10–40%
+- Reduce mana cost of Blizzard by 10–40%
+- Increase Flame Disruptor crit chance by 5–25%
+- Increase Flame Disruptor crit damage by 10–50%
+- Increase Fire Wall crit chance by 5–25%
+- Increase Fire Wall crit damage by 10–50%
+- Increase Thunder Bolt crit chance by 5–25%
+- Increase Thunder Bolt crit damage by 10–50%
+- Increase Ice Storm crit chance by 5–25%
+- Increase Ice Storm crit damage by 10–50%
+- Increase Flame Field crit chance by 5–25%
+- Increase Flame Field crit damage by 10–50%
+- Increase Meteor Strike crit chance by 5–25%
+- Increase Meteor Strike crit damage by 10–50%
+- Increase Blizzard crit chance by 5–25%
+- Increase Blizzard crit damage by 10–50%
+- Increase Fire Ball crit chance by 5–25%
+- Increase Fire Ball crit damage by 10–50%
+- Increase Great Fire Ball crit chance by 5–25%
+- Increase Great Fire Ball crit damage by 10–50%
+- Increase Frost Crunch crit chance by 5–25%
+- Increase Frost Crunch crit damage by 10–50%
 - +5–25% Gold drop
 - +1–5% Bonus XP
 - +0%–2% Item drop chance
 - +5–25% Awakening Soul drop chance
+- +1–20% Crit Rate
+- +5–30% Crit Damage
+- +5–40% Skill leveling
+
+**Hell Yama Blade3** (`hell-yama-blade3`) (Tao weapon)
+- +1–3 SC
+- +1–2 Luck
 - Increase Healing healing by 5–25%
 - Increase Mass Healing healing by 5–25%
 - Increase Soul Fire Ball damage by 10–35%
 - Increase Skeleton damage by 10–50%
+- Increase Skeleton health by 10–50%
+- Reduce Skeleton damage taken by 5–20%
 - Increase Shinsu damage by 10–50%
+- Increase Shinsu health by 10–50%
+- Reduce Shinsu damage taken by 5–20%
+- Increase Holy Deva damage by 10–50%
+- Increase Holy Deva health by 10–50%
+- Reduce Holy Deva damage taken by 5–20%
+- Increase Soul Fire Ball crit chance by 5–25%
+- Increase Soul Fire Ball crit damage by 10–50%
+- +5–25% Gold drop
+- +1–5% Bonus XP
+- +0%–2% Item drop chance
+- +5–25% Awakening Soul drop chance
+- +1–20% Crit Rate
+- +5–30% Crit Damage
+- +5–40% Skill leveling
 
 **Bluish Green Blood Slaughter Pike** (`bluish-green-blood-slaughter-pike`) (Warrior weapon)
 - +1–5 DC
@@ -4210,14 +18692,32 @@ Grouped by slot. Weapons show their class and actual roll pool from `empowerCand
 - +1–2 Freezing
 - +1–2 Poison
 - +1–2 Luck
-- +5–25% Gold drop
-- +1–5% Bonus XP
-- +0%–2% Item drop chance
-- +5–25% Awakening Soul drop chance
 - Increase Slaying damage by 5–35%
 - Increase Flaming Sword damage by 5–25%
 - Reduce Flaming Sword cooldown by 1–5 seconds
 - Increase Twin Drake Blade damage by 5–25%
+- Reduce mana cost of Twin Drake Blade by 10–40%
+- Increase Blade Avalanche damage by 5–25%
+- Reduce mana cost of Blade Avalanche by 10–40%
+- Increase Slashing Burst damage by 5–25%
+- Reduce mana cost of Slashing Burst by 10–40%
+- Increase Slaying crit chance by 5–25%
+- Increase Slaying crit damage by 10–50%
+- Increase Flaming Sword crit chance by 5–25%
+- Increase Flaming Sword crit damage by 10–50%
+- Increase Twin Drake Blade crit chance by 5–25%
+- Increase Twin Drake Blade crit damage by 10–50%
+- Increase Blade Avalanche crit chance by 5–25%
+- Increase Blade Avalanche crit damage by 10–50%
+- Increase Slashing Burst crit chance by 5–25%
+- Increase Slashing Burst crit damage by 10–50%
+- +5–25% Gold drop
+- +1–5% Bonus XP
+- +0%–2% Item drop chance
+- +5–25% Awakening Soul drop chance
+- +1–20% Crit Rate
+- +5–30% Crit Damage
+- +5–40% Skill leveling
 
 **Gon Ryun Holy Light Sword (?)1** (`gon-ryun-holy-light-sword-1`) (Warrior weapon)
 - +1–5 DC
@@ -4226,41 +18726,105 @@ Grouped by slot. Weapons show their class and actual roll pool from `empowerCand
 - +1–2 Freezing
 - +1–2 Poison
 - +1–2 Luck
-- +5–25% Gold drop
-- +1–5% Bonus XP
-- +0%–2% Item drop chance
-- +5–25% Awakening Soul drop chance
 - Increase Slaying damage by 5–35%
 - Increase Flaming Sword damage by 5–25%
 - Reduce Flaming Sword cooldown by 1–5 seconds
 - Increase Twin Drake Blade damage by 5–25%
+- Reduce mana cost of Twin Drake Blade by 10–40%
+- Increase Blade Avalanche damage by 5–25%
+- Reduce mana cost of Blade Avalanche by 10–40%
+- Increase Slashing Burst damage by 5–25%
+- Reduce mana cost of Slashing Burst by 10–40%
+- Increase Slaying crit chance by 5–25%
+- Increase Slaying crit damage by 10–50%
+- Increase Flaming Sword crit chance by 5–25%
+- Increase Flaming Sword crit damage by 10–50%
+- Increase Twin Drake Blade crit chance by 5–25%
+- Increase Twin Drake Blade crit damage by 10–50%
+- Increase Blade Avalanche crit chance by 5–25%
+- Increase Blade Avalanche crit damage by 10–50%
+- Increase Slashing Burst crit chance by 5–25%
+- Increase Slashing Burst crit damage by 10–50%
+- +5–25% Gold drop
+- +1–5% Bonus XP
+- +0%–2% Item drop chance
+- +5–25% Awakening Soul drop chance
+- +1–20% Crit Rate
+- +5–30% Crit Damage
+- +5–40% Skill leveling
 
 **Gon Ryun Holy Light Sword (?)2** (`gon-ryun-holy-light-sword-2`) (Wizard weapon)
 - +1–3 MC
 - +1–2 Luck
-- +5–25% Gold drop
-- +1–5% Bonus XP
-- +0%–2% Item drop chance
-- +5–25% Awakening Soul drop chance
 - Increase Flame Disruptor damage by 10–35%
 - Increase Fire Wall damage by 5–25%
 - Increase Thunder Bolt damage by 10–35%
 - Increase Ice Storm damage by 5–25%
+- Increase Flame Field damage by 5–25%
+- Increase Meteor Strike damage by 5–25%
+- Increase Blizzard damage by 5–25%
+- Increase Fire Ball damage by 10–35%
+- Increase Great Fire Ball damage by 10–35%
+- Increase Frost Crunch damage by 5–25%
 - Reduce mana cost of Flame Disruptor by 10–40%
 - Reduce mana cost of Fire Wall by 10–40%
-
-**Gon Ryun Holy Light Sword (?)3** (`gon-ryun-holy-light-sword-3`) (Tao weapon)
-- +1–3 SC
-- +1–2 Luck
+- Reduce mana cost of Thunder Bolt by 10–40%
+- Reduce mana cost of Ice Storm by 10–40%
+- Reduce mana cost of Flame Field by 10–40%
+- Reduce mana cost of Meteor Strike by 10–40%
+- Reduce mana cost of Blizzard by 10–40%
+- Increase Flame Disruptor crit chance by 5–25%
+- Increase Flame Disruptor crit damage by 10–50%
+- Increase Fire Wall crit chance by 5–25%
+- Increase Fire Wall crit damage by 10–50%
+- Increase Thunder Bolt crit chance by 5–25%
+- Increase Thunder Bolt crit damage by 10–50%
+- Increase Ice Storm crit chance by 5–25%
+- Increase Ice Storm crit damage by 10–50%
+- Increase Flame Field crit chance by 5–25%
+- Increase Flame Field crit damage by 10–50%
+- Increase Meteor Strike crit chance by 5–25%
+- Increase Meteor Strike crit damage by 10–50%
+- Increase Blizzard crit chance by 5–25%
+- Increase Blizzard crit damage by 10–50%
+- Increase Fire Ball crit chance by 5–25%
+- Increase Fire Ball crit damage by 10–50%
+- Increase Great Fire Ball crit chance by 5–25%
+- Increase Great Fire Ball crit damage by 10–50%
+- Increase Frost Crunch crit chance by 5–25%
+- Increase Frost Crunch crit damage by 10–50%
 - +5–25% Gold drop
 - +1–5% Bonus XP
 - +0%–2% Item drop chance
 - +5–25% Awakening Soul drop chance
+- +1–20% Crit Rate
+- +5–30% Crit Damage
+- +5–40% Skill leveling
+
+**Gon Ryun Holy Light Sword (?)3** (`gon-ryun-holy-light-sword-3`) (Tao weapon)
+- +1–3 SC
+- +1–2 Luck
 - Increase Healing healing by 5–25%
 - Increase Mass Healing healing by 5–25%
 - Increase Soul Fire Ball damage by 10–35%
 - Increase Skeleton damage by 10–50%
+- Increase Skeleton health by 10–50%
+- Reduce Skeleton damage taken by 5–20%
 - Increase Shinsu damage by 10–50%
+- Increase Shinsu health by 10–50%
+- Reduce Shinsu damage taken by 5–20%
+- Increase Holy Deva damage by 10–50%
+- Increase Holy Deva health by 10–50%
+- Reduce Holy Deva damage taken by 5–20%
+- Increase Soul Fire Ball crit chance by 5–25%
+- Increase Soul Fire Ball crit damage by 10–50%
+- +5–25% Gold drop
+- +1–5% Bonus XP
+- +0%–2% Item drop chance
+- +5–25% Awakening Soul drop chance
+- +1–20% Crit Rate
+- +5–30% Crit Damage
+- +5–40% Skill leveling
 
 **Barbarian Sword** (`barbarian-sword`) (Warrior weapon)
 - +1–5 DC
@@ -4269,26 +18833,56 @@ Grouped by slot. Weapons show their class and actual roll pool from `empowerCand
 - +1–2 Freezing
 - +1–2 Poison
 - +1–2 Luck
-- +5–25% Gold drop
-- +1–5% Bonus XP
-- +0%–2% Item drop chance
-- +5–25% Awakening Soul drop chance
 - Increase Slaying damage by 5–35%
 - Increase Flaming Sword damage by 5–25%
 - Reduce Flaming Sword cooldown by 1–5 seconds
 - Increase Twin Drake Blade damage by 5–25%
-
-**Bone Carved Fan** (`bone-carved-fan`)
-- +1–2 Luck
+- Reduce mana cost of Twin Drake Blade by 10–40%
+- Increase Blade Avalanche damage by 5–25%
+- Reduce mana cost of Blade Avalanche by 10–40%
+- Increase Slashing Burst damage by 5–25%
+- Reduce mana cost of Slashing Burst by 10–40%
+- Increase Slaying crit chance by 5–25%
+- Increase Slaying crit damage by 10–50%
+- Increase Flaming Sword crit chance by 5–25%
+- Increase Flaming Sword crit damage by 10–50%
+- Increase Twin Drake Blade crit chance by 5–25%
+- Increase Twin Drake Blade crit damage by 10–50%
+- Increase Blade Avalanche crit chance by 5–25%
+- Increase Blade Avalanche crit damage by 10–50%
+- Increase Slashing Burst crit chance by 5–25%
+- Increase Slashing Burst crit damage by 10–50%
 - +5–25% Gold drop
 - +1–5% Bonus XP
 - +0%–2% Item drop chance
 - +5–25% Awakening Soul drop chance
+- +1–20% Crit Rate
+- +5–30% Crit Damage
+- +5–40% Skill leveling
+
+**Bone Carved Fan** (`bone-carved-fan`)
+- +1–2 Luck
 - Increase Healing healing by 5–25%
 - Increase Mass Healing healing by 5–25%
 - Increase Soul Fire Ball damage by 10–35%
 - Increase Skeleton damage by 10–50%
+- Increase Skeleton health by 10–50%
+- Reduce Skeleton damage taken by 5–20%
 - Increase Shinsu damage by 10–50%
+- Increase Shinsu health by 10–50%
+- Reduce Shinsu damage taken by 5–20%
+- Increase Holy Deva damage by 10–50%
+- Increase Holy Deva health by 10–50%
+- Reduce Holy Deva damage taken by 5–20%
+- Increase Soul Fire Ball crit chance by 5–25%
+- Increase Soul Fire Ball crit damage by 10–50%
+- +5–25% Gold drop
+- +1–5% Bonus XP
+- +0%–2% Item drop chance
+- +5–25% Awakening Soul drop chance
+- +1–20% Crit Rate
+- +5–30% Crit Damage
+- +5–40% Skill leveling
 
 **Ice Dragon Sky Knife** (`ice-dragon-sky-knife`) (Warrior weapon)
 - +1–5 DC
@@ -4297,14 +18891,32 @@ Grouped by slot. Weapons show their class and actual roll pool from `empowerCand
 - +1–2 Freezing
 - +1–2 Poison
 - +1–2 Luck
-- +5–25% Gold drop
-- +1–5% Bonus XP
-- +0%–2% Item drop chance
-- +5–25% Awakening Soul drop chance
 - Increase Slaying damage by 5–35%
 - Increase Flaming Sword damage by 5–25%
 - Reduce Flaming Sword cooldown by 1–5 seconds
 - Increase Twin Drake Blade damage by 5–25%
+- Reduce mana cost of Twin Drake Blade by 10–40%
+- Increase Blade Avalanche damage by 5–25%
+- Reduce mana cost of Blade Avalanche by 10–40%
+- Increase Slashing Burst damage by 5–25%
+- Reduce mana cost of Slashing Burst by 10–40%
+- Increase Slaying crit chance by 5–25%
+- Increase Slaying crit damage by 10–50%
+- Increase Flaming Sword crit chance by 5–25%
+- Increase Flaming Sword crit damage by 10–50%
+- Increase Twin Drake Blade crit chance by 5–25%
+- Increase Twin Drake Blade crit damage by 10–50%
+- Increase Blade Avalanche crit chance by 5–25%
+- Increase Blade Avalanche crit damage by 10–50%
+- Increase Slashing Burst crit chance by 5–25%
+- Increase Slashing Burst crit damage by 10–50%
+- +5–25% Gold drop
+- +1–5% Bonus XP
+- +0%–2% Item drop chance
+- +5–25% Awakening Soul drop chance
+- +1–20% Crit Rate
+- +5–30% Crit Damage
+- +5–40% Skill leveling
 
 **Ice Dragon Sky Rod** (`ice-dragon-sky-rod`) (Universal weapon)
 - +1–5 DC
@@ -4315,47 +18927,136 @@ Grouped by slot. Weapons show their class and actual roll pool from `empowerCand
 - +1–2 Freezing
 - +1–2 Poison
 - +1–2 Luck
-- +5–25% Gold drop
-- +1–5% Bonus XP
-- +0%–2% Item drop chance
-- +5–25% Awakening Soul drop chance
 - Increase Flame Disruptor damage by 10–35%
 - Increase Fire Wall damage by 5–25%
 - Increase Thunder Bolt damage by 10–35%
 - Increase Ice Storm damage by 5–25%
+- Increase Flame Field damage by 5–25%
+- Increase Meteor Strike damage by 5–25%
+- Increase Blizzard damage by 5–25%
+- Increase Fire Ball damage by 10–35%
+- Increase Great Fire Ball damage by 10–35%
+- Increase Frost Crunch damage by 5–25%
 - Reduce mana cost of Flame Disruptor by 10–40%
 - Reduce mana cost of Fire Wall by 10–40%
+- Reduce mana cost of Thunder Bolt by 10–40%
+- Reduce mana cost of Ice Storm by 10–40%
+- Reduce mana cost of Flame Field by 10–40%
+- Reduce mana cost of Meteor Strike by 10–40%
+- Reduce mana cost of Blizzard by 10–40%
+- Increase Flame Disruptor crit chance by 5–25%
+- Increase Flame Disruptor crit damage by 10–50%
+- Increase Fire Wall crit chance by 5–25%
+- Increase Fire Wall crit damage by 10–50%
+- Increase Thunder Bolt crit chance by 5–25%
+- Increase Thunder Bolt crit damage by 10–50%
+- Increase Ice Storm crit chance by 5–25%
+- Increase Ice Storm crit damage by 10–50%
+- Increase Flame Field crit chance by 5–25%
+- Increase Flame Field crit damage by 10–50%
+- Increase Meteor Strike crit chance by 5–25%
+- Increase Meteor Strike crit damage by 10–50%
+- Increase Blizzard crit chance by 5–25%
+- Increase Blizzard crit damage by 10–50%
+- Increase Fire Ball crit chance by 5–25%
+- Increase Fire Ball crit damage by 10–50%
+- Increase Great Fire Ball crit chance by 5–25%
+- Increase Great Fire Ball crit damage by 10–50%
+- Increase Frost Crunch crit chance by 5–25%
+- Increase Frost Crunch crit damage by 10–50%
 - Increase Healing healing by 5–25%
 - Increase Mass Healing healing by 5–25%
 - Increase Soul Fire Ball damage by 10–35%
 - Increase Skeleton damage by 10–50%
+- Increase Skeleton health by 10–50%
+- Reduce Skeleton damage taken by 5–20%
 - Increase Shinsu damage by 10–50%
+- Increase Shinsu health by 10–50%
+- Reduce Shinsu damage taken by 5–20%
+- Increase Holy Deva damage by 10–50%
+- Increase Holy Deva health by 10–50%
+- Reduce Holy Deva damage taken by 5–20%
+- Increase Soul Fire Ball crit chance by 5–25%
+- Increase Soul Fire Ball crit damage by 10–50%
+- +5–25% Gold drop
+- +1–5% Bonus XP
+- +0%–2% Item drop chance
+- +5–25% Awakening Soul drop chance
+- +1–20% Crit Rate
+- +5–30% Crit Damage
+- +5–40% Skill leveling
 
 **Ice Dragon Sky Sword** (`ice-dragon-sky-sword`) (Tao weapon)
 - +1–3 SC
 - +1–2 Luck
-- +5–25% Gold drop
-- +1–5% Bonus XP
-- +0%–2% Item drop chance
-- +5–25% Awakening Soul drop chance
 - Increase Healing healing by 5–25%
 - Increase Mass Healing healing by 5–25%
 - Increase Soul Fire Ball damage by 10–35%
 - Increase Skeleton damage by 10–50%
+- Increase Skeleton health by 10–50%
+- Reduce Skeleton damage taken by 5–20%
 - Increase Shinsu damage by 10–50%
-
-**Raw Sword** (`raw-sword`)
-- +1–2 Luck
+- Increase Shinsu health by 10–50%
+- Reduce Shinsu damage taken by 5–20%
+- Increase Holy Deva damage by 10–50%
+- Increase Holy Deva health by 10–50%
+- Reduce Holy Deva damage taken by 5–20%
+- Increase Soul Fire Ball crit chance by 5–25%
+- Increase Soul Fire Ball crit damage by 10–50%
 - +5–25% Gold drop
 - +1–5% Bonus XP
 - +0%–2% Item drop chance
 - +5–25% Awakening Soul drop chance
+- +1–20% Crit Rate
+- +5–30% Crit Damage
+- +5–40% Skill leveling
+
+**Raw Sword** (`raw-sword`)
+- +1–2 Luck
 - Increase Flame Disruptor damage by 10–35%
 - Increase Fire Wall damage by 5–25%
 - Increase Thunder Bolt damage by 10–35%
 - Increase Ice Storm damage by 5–25%
+- Increase Flame Field damage by 5–25%
+- Increase Meteor Strike damage by 5–25%
+- Increase Blizzard damage by 5–25%
+- Increase Fire Ball damage by 10–35%
+- Increase Great Fire Ball damage by 10–35%
+- Increase Frost Crunch damage by 5–25%
 - Reduce mana cost of Flame Disruptor by 10–40%
 - Reduce mana cost of Fire Wall by 10–40%
+- Reduce mana cost of Thunder Bolt by 10–40%
+- Reduce mana cost of Ice Storm by 10–40%
+- Reduce mana cost of Flame Field by 10–40%
+- Reduce mana cost of Meteor Strike by 10–40%
+- Reduce mana cost of Blizzard by 10–40%
+- Increase Flame Disruptor crit chance by 5–25%
+- Increase Flame Disruptor crit damage by 10–50%
+- Increase Fire Wall crit chance by 5–25%
+- Increase Fire Wall crit damage by 10–50%
+- Increase Thunder Bolt crit chance by 5–25%
+- Increase Thunder Bolt crit damage by 10–50%
+- Increase Ice Storm crit chance by 5–25%
+- Increase Ice Storm crit damage by 10–50%
+- Increase Flame Field crit chance by 5–25%
+- Increase Flame Field crit damage by 10–50%
+- Increase Meteor Strike crit chance by 5–25%
+- Increase Meteor Strike crit damage by 10–50%
+- Increase Blizzard crit chance by 5–25%
+- Increase Blizzard crit damage by 10–50%
+- Increase Fire Ball crit chance by 5–25%
+- Increase Fire Ball crit damage by 10–50%
+- Increase Great Fire Ball crit chance by 5–25%
+- Increase Great Fire Ball crit damage by 10–50%
+- Increase Frost Crunch crit chance by 5–25%
+- Increase Frost Crunch crit damage by 10–50%
+- +5–25% Gold drop
+- +1–5% Bonus XP
+- +0%–2% Item drop chance
+- +5–25% Awakening Soul drop chance
+- +1–20% Crit Rate
+- +5–30% Crit Damage
+- +5–40% Skill leveling
 
 ## Still TODO / notes
 

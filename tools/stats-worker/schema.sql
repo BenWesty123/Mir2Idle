@@ -122,3 +122,20 @@ CREATE TABLE IF NOT EXISTS account_unlocks (
   created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
   PRIMARY KEY (recovery_code, unlock_key)
 );
+
+-- Player-chosen public display names (aliases) shown on the Social tab and the
+-- town noticeboard in place of the derived `Player XXXXXXXX` label. Keyed to the
+-- account `player_id`; the owning `recovery_code` is stored so only the account
+-- that first claimed a name can change it. `alias_lower` enforces case-insensitive
+-- uniqueness across all players.
+CREATE TABLE IF NOT EXISTS player_aliases (
+  player_id TEXT PRIMARY KEY,
+  recovery_code TEXT NOT NULL,
+  alias TEXT NOT NULL,
+  alias_lower TEXT NOT NULL,
+  created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  updated_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE UNIQUE INDEX IF NOT EXISTS player_aliases_alias_lower_idx
+ON player_aliases (alias_lower);

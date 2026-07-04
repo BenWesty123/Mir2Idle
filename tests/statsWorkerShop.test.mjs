@@ -298,6 +298,34 @@ test("unlock-page charges 250 tokens and records the unlock", async () => {
   assert.ok(db.unlocks.has(`${VALID_CODE}::inv-page-3:warrior`));
 });
 
+test("unlock-page charges 500 tokens for the teleport ring", async () => {
+  const db = new FakeDb({ balances: { [VALID_CODE]: 550 } });
+  const response = await request("/shop/unlock-page", {
+    method: "POST",
+    headers: { "content-type": "application/json" },
+    body: JSON.stringify({ recoveryCode: VALID_CODE, unlockKey: "teleport-ring" }),
+  }, { DB: db });
+  assert.equal(response.status, 200);
+  const data = await response.json();
+  assert.equal(data.ok, true);
+  assert.equal(data.unlockKey, "teleport-ring");
+  assert.equal(data.balance, 50);
+  assert.equal(db.balances[VALID_CODE], 50);
+  assert.ok(db.unlocks.has(`${VALID_CODE}::teleport-ring`));
+});
+
+test("unlock-page rejects the teleport ring when the balance is below 500", async () => {
+  const db = new FakeDb({ balances: { [VALID_CODE]: 400 } });
+  const response = await request("/shop/unlock-page", {
+    method: "POST",
+    headers: { "content-type": "application/json" },
+    body: JSON.stringify({ recoveryCode: VALID_CODE, unlockKey: "teleport-ring" }),
+  }, { DB: db });
+  assert.equal(response.status, 402);
+  assert.equal(db.balances[VALID_CODE], 400);
+  assert.ok(!db.unlocks.has(`${VALID_CODE}::teleport-ring`));
+});
+
 test("unlock-page is idempotent and never double-charges", async () => {
   const db = new FakeDb({
     balances: { [VALID_CODE]: 300 },

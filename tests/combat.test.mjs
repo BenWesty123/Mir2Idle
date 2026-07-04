@@ -1,7 +1,14 @@
 import test from "node:test";
 import assert from "node:assert/strict";
 import {
+  CRIT_BASE_DAMAGE_PERCENT,
+  CRIT_CHANCE_CAP_PERCENT,
   applyIncomingDamageReduction,
+  applyOutgoingCrit,
+  clampCritChancePercent,
+  critMultiplier,
+  expectedCritMultiplier,
+  rollCrit,
   enemyAttackDefenceType,
   enemyDamageEvent,
   incomingAttackDefenceStat,
@@ -26,6 +33,41 @@ import {
   weaponSwingHitEvents,
   weaponSwingMissEvents,
 } from "../src/core/combat.js";
+
+test("clampCritChancePercent caps at CRIT_CHANCE_CAP_PERCENT", () => {
+  assert.equal(clampCritChancePercent(-10), 0);
+  assert.equal(clampCritChancePercent(30), 30);
+  assert.equal(clampCritChancePercent(200), CRIT_CHANCE_CAP_PERCENT);
+});
+
+test("critMultiplier adds gear crit-damage on top of the base", () => {
+  assert.equal(critMultiplier(0), 1 + CRIT_BASE_DAMAGE_PERCENT / 100);
+  assert.equal(critMultiplier(50), 1 + (CRIT_BASE_DAMAGE_PERCENT + 50) / 100);
+  assert.equal(critMultiplier(-999), 1 + CRIT_BASE_DAMAGE_PERCENT / 100);
+});
+
+test("rollCrit honours chance bounds", () => {
+  assert.equal(rollCrit(0), false);
+  assert.equal(rollCrit(50, () => 1), true); // roll 1 <= 50
+  assert.equal(rollCrit(50, () => 51), false); // roll 51 > 50
+  assert.equal(rollCrit(200, () => 75), true); // clamped to cap 75
+});
+
+test("applyOutgoingCrit scales only on a successful roll", () => {
+  const forcedHit = () => 1;
+  const forcedMiss = () => 100;
+  assert.deepEqual(applyOutgoingCrit(100, 50, 0, forcedMiss), { damage: 100, crit: false });
+  assert.deepEqual(applyOutgoingCrit(100, 50, 0, forcedHit), { damage: 150, crit: true });
+  assert.deepEqual(applyOutgoingCrit(100, 50, 100, forcedHit), { damage: 250, crit: true });
+  // zero/negative damage never crits
+  assert.deepEqual(applyOutgoingCrit(0, 100, 100, forcedHit), { damage: 0, crit: false });
+});
+
+test("expectedCritMultiplier blends chance and crit damage", () => {
+  assert.equal(expectedCritMultiplier(0, 0), 1);
+  assert.equal(expectedCritMultiplier(100, 0), 1 + (critMultiplier(0) - 1) * (CRIT_CHANCE_CAP_PERCENT / 100));
+  assert.equal(expectedCritMultiplier(50, 50), 1 + 0.5 * (critMultiplier(50) - 1));
+});
 
 test("enemyAttackDefenceType", () => {
   assert.equal(enemyAttackDefenceType({ attackDefenceType: "MAC" }), "MAC");

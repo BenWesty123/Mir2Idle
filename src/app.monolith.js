@@ -97,6 +97,7 @@ import {
   buffPotionDefForItem,
   formatBuffRemaining,
   isBuffPotionItem,
+  isBuffPotionKind,
   pruneStatBuffs,
   sanitizeStatBuffs,
   statBuffBonusLabel,
@@ -201,17 +202,50 @@ import {
 } from "./core/drops.js";
 import {
   BOSS_EMPOWER_ITEM_CHANCE,
+  applyEquippedPetHealthBonus,
+  equippedPetDamageReductionPercent,
   applyEquippedSpellDamageBonus,
   applyEquippedSpellCooldownReductionMs,
   applyEquippedSpellHealingBonus,
   applyEquippedSpellMpCostReduction,
+  equippedSpellCritChanceBonusPercent,
+  equippedSpellCritDamageBonusPercent,
   empowerItemBonusLines,
   empoweredItemStarSuffix,
   empoweredStatLabel,
   empowerSpellBonusTooltipRows,
+  empowerSlotChoiceLabels,
+  formatEmpowerRollDescription,
+  formatEmpowerAppliedChangeLabel,
   rollEmpoweredItemDrop,
+  rollEmpowermentReroll,
+  rollEmpowermentRerollAtSlot,
+  swapRandomEmpowermentsBetweenEntries,
+  swapEmpowermentsAtSlotIndices,
   sanitizeEmpowerSpellBonuses,
 } from "./core/empoweredItems.js";
+import {
+  ADAMANTINE_ORE_ITEM_ID,
+  CRAFTING_CUBE_EMPOWER_REROLL_RECIPE_ID,
+  CRAFTING_CUBE_EMPOWER_SWAP_CRYSTAL_COST,
+  CRAFTING_CUBE_EMPOWER_SWAP_RECIPE_ID,
+  CRAFTING_CUBE_FOCUS_PRISM_CRYSTAL_COST,
+  CRAFTING_CUBE_FOCUS_PRISM_RECIPE_ID,
+  CRAFTING_CUBE_RECIPES,
+  craftingCubeAutofillEntryIds,
+  CRAFTING_CUBE_TARGETED_EMPOWER_REROLL_CRYSTAL_COST,
+  CRAFTING_CUBE_TARGETED_EMPOWER_REROLL_RECIPE_ID,
+  CRAFTING_CUBE_TARGETED_EMPOWER_SWAP_PRISM_COST,
+  CRAFTING_CUBE_TARGETED_EMPOWER_SWAP_RECIPE_ID,
+  FOCUS_PRISM_ITEM_ID,
+  HAVOC_CRYSTAL_ITEM_ID,
+  validateCraftingCubeEmpowerReroll,
+  validateCraftingCubeEmpowerSwap,
+  validateCraftingCubeFocusPrismCraft,
+  validateCraftingCubeSalvageEntries,
+  validateCraftingCubeTargetedEmpowerReroll,
+  validateCraftingCubeTargetedEmpowerSwap,
+} from "./core/craftingCube.js";
 import { ITEM_INTEGRITY_RULES_VERSION } from "./core/itemIntegrityVersion.js";
 import {
   WIZARD_MIRROR_REACTION_DELAY_MS,
@@ -226,11 +260,15 @@ import {
 import {
   crystalHolyDevaStats,
   resolveTaoistPetTargetCoordinates,
+  taoistPetLayerBlendModes,
 } from "./core/taoistPets.js";
 import { splitPartyRewardAmount } from "./core/party.js";
 import { socialEquipmentEntry } from "./core/socialEquipment.js";
 import {
+  CRIT_BASE_DAMAGE_PERCENT,
   applyIncomingDamageReduction as applyIncomingDamageReductionCore,
+  applyOutgoingCrit,
+  clampCritChancePercent,
   enemyAttackDefenceType,
   enemyDamageEvent,
   incomingAttackDefenceStat,
@@ -342,6 +380,14 @@ function inventoryPageUnlockKey(classId = state.activeCharacterId) {
   return `inv-page-3:${String(normalizeCharacterId(classId)).toLowerCase()}`;
 }
 const STORAGE_PAGE_UNLOCK_KEY = "storage-page-3";
+// Account-wide Cash Shop unlock: a top-right ring button that opens a boss-room
+// teleport menu. Key + cost mirror UNLOCK_TOKEN_COSTS in tools/stats-worker/worker.js.
+const TELEPORT_RING_UNLOCK_KEY = "teleport-ring";
+const TELEPORT_RING_TOKEN_COST = 500;
+const TELEPORT_RING_ICON_SRC = "./public/ui/teleport-ring.png";
+function teleportRingOwned() {
+  return Boolean(state.account?.ownedUnlocks?.[TELEPORT_RING_UNLOCK_KEY]);
+}
 const REBIRTH_ENABLED = true;
 const CODEX_CATEGORY_DEFS = [
   { id: "all", label: "All" },
@@ -705,6 +751,18 @@ const ACCOUNT_UPGRADE_DEFS = [
     rebirthCosts: [10],
     summary: "Unlock empowered boss fights. Each attempt costs 100,000 gold for improved drops.",
   },
+  {
+    id: "rebirth-empowered-crafting",
+    label: "Empowered Crafting",
+    section: "rebirth",
+    category: "crafting",
+    currency: "rebirthPoints",
+    effect: "empoweredCraftingUnlock",
+    value: 1,
+    maxTier: 1,
+    rebirthCosts: [15],
+    summary: "Unlocks the crafting cube at Blacksmith Bill to salvage, craft, and combine empowered gear.",
+  },
 ];
 const REBIRTH_BASE_STAT_UPGRADE_IDS = [
   "rebirth-stat-dc",
@@ -722,13 +780,20 @@ const BOSS_EMPOWER_GOLD_COST = 100_000;
 const BOSS_EMPOWER_DROP_RATE_MULTIPLIER = 2;
 /** Set false before release — skips the rebirth upgrade gate for local testing. */
 const BOSS_EMPOWER_SKIP_REBIRTH_UNLOCK = false;
+/** Set false before release — skips Empowered Crafting rebirth gate for local testing. */
+const EMPOWERED_CRAFTING_SKIP_REBIRTH_UNLOCK = false;
 /** Set null before release — overrides equippable empower roll chance (default 10%). */
 const BOSS_EMPOWER_ITEM_CHANCE_DEV = null;
 const BOSS_EMPOWER_UNLOCK_HINT = "Unlock Boss Empowerment (10 Rebirth Points) in Rebirth upgrades.";
 /** Boss rooms where empowered fights are implemented (others show Coming soon). */
 const BOSS_EMPOWER_AVAILABLE_ZONE_IDS = new Set([
   "zone-wooma-temple-kr",
+  "zone-bug-cave-kr",
   "zone-stone-temple-kr",
+  "zone-zuma-temple-kr",
+  "zone-prajna-cave-kr",
+  "zone-prajna-temple-kr",
+  "zone-kings-tomb",
 ]);
 /** Per-boss empowered fight tuning (shared combat modifiers; expand boss list in supportsEmpoweredBossCombat). */
 const EMPOWERED_BOSS_HP_MULTIPLIER = 2;
@@ -1151,8 +1216,9 @@ const SMITH_COMBINE_SUCCESS_CHANCES = [0.5, 0.4, 0.3, 0.2, 0.1, 0.05];
 const SMITH_DEFENSIVE_UPGRADE_SLOTS = new Set(["armour", "belt", "boots", "boot", "shoes", "shoe", "helmet"]);
 const SMITH_RANDOM_TRIPLE_STAT = "__random_triple__";
 const ORE_PURITY_UNIT = 1000;
-const ORE_ITEM_IDS = new Set(["gold-ore", "silver-ore", "copper-ore", "black-iron-ore"]);
+const ORE_ITEM_IDS = new Set(["gold-ore", "silver-ore", "copper-ore", "black-iron-ore", "adamantine-ore"]);
 const REFINER_ORE_ITEM_ID = "black-iron-ore";
+const NON_JUNK_ORE_ITEM_IDS = new Set([REFINER_ORE_ITEM_ID, ADAMANTINE_ORE_ITEM_ID]);
 const WEAPON_REFINE_ORE_SLOTS = 5;
 const WEAPON_REFINE_MATERIAL_SLOTS = 5;
 const REFINE_JEWELLERY_SLOTS = new Set(["ring", "bracelet", "necklace", "amulet"]);
@@ -1188,6 +1254,25 @@ function createDefaultWeaponRefineState() {
   };
 }
 
+const CRAFTING_CUBE_SLOT_COUNT = 9;
+const CRAFTING_CUBE_MODES = ["salvage", "craft"];
+
+function createDefaultCraftingCubeState() {
+  return {
+    mode: "craft",
+    recipesOpen: false,
+    selectedRecipeId: CRAFTING_CUBE_RECIPES[0]?.id ?? null,
+    slotEntryIds: Array(CRAFTING_CUBE_SLOT_COUNT).fill(null),
+    stagedEntries: {},
+    feedback: null,
+    feedbackKind: null,
+    lastRerollNotice: null,
+    targetedEmpowerSlotIndex: null,
+    targetedEmpowerSwapSlotA: null,
+    targetedEmpowerSwapSlotB: null,
+  };
+}
+
 const MINING_ZONE_ID = "zone-bichon-mine";
 const MINING_PICKAXE_WEAPON_INDEX = 42;
 // Crystal mine uses attack2/mine frames (6 x 100ms), then Stance until StanceDelay (2500ms).
@@ -1202,7 +1287,8 @@ const MINING_ORE_DROPS = [
   { itemId: "gold-ore", minSlot: 1, maxSlot: 28 },
   { itemId: "silver-ore", minSlot: 29, maxSlot: 57 },
   { itemId: "black-iron-ore", minSlot: 58, maxSlot: 86 },
-  { itemId: "copper-ore", minSlot: 87, maxSlot: 120 },
+  { itemId: "adamantine-ore", minSlot: 87, maxSlot: 89 },
+  { itemId: "copper-ore", minSlot: 90, maxSlot: 120 },
 ];
 const AUTO_POTION_THRESHOLD = 0.5;
 const AUTO_POTION_COOLDOWN_MS = 1000;
@@ -1381,7 +1467,7 @@ const TOWN_VISUALS = {
 };
 
 const MAP_STAMP_ASSET_VERSION = "20260625-hell-gd-3-22388";
-const MONSTER_ASSET_VERSION = "20260628-zt-attack-fx";
+const MONSTER_ASSET_VERSION = "20260703-holy-deva-blend";
 const HELL_BOLT_MONSTER_INDEX = 219;
 const HELL_BOLT_TEMPLATE_ID = 429;
 const WITCH_DOCTOR_MONSTER_INDEX = 220;
@@ -2458,6 +2544,12 @@ const state = {
     lastSubmittedAt: 0,
     lastPayloadHash: "",
     statusText: "",
+    alias: "",
+    aliasInput: "",
+    aliasStatus: "",
+    aliasError: "",
+    aliasSaving: false,
+    aliasLoaded: false,
   },
   messageBoard: {
     status: "idle",
@@ -2505,6 +2597,7 @@ const state = {
   activeScene: null,
   bossDamageReportOpen: false,
   weaponRefine: createDefaultWeaponRefineState(),
+  craftingCube: createDefaultCraftingCubeState(),
   bossEntryZoneId: null,
   bossEntryFromGroupDungeonAdvance: false,
   bossAssistSelection: [],
@@ -2569,6 +2662,8 @@ const state = {
   inventory: {
     gold: PLAYER_TEMPLATE.gold,
     pagesUnlocked: 1,
+    goldPageUnlocked: false,
+    tokenPageUnlocked: false,
     maxSlots: INVENTORY_BASE_SLOTS,
     nextInstanceId: 1,
     items: [],
@@ -2722,6 +2817,7 @@ let battlePanelSignature = "";
 let gamePanelSignature = "";
 let gamePanelDynamicSignature = "";
 let sceneSignature = "";
+let sceneOverlayLiveSignature = "";
 let sceneWindowStack = [];
 const DRAGGABLE_SCENE_WINDOWS = new Set(["character", "inventory"]);
 let sceneWindowDragState = null;
@@ -2867,6 +2963,17 @@ function gameShellHtml() {
         <div class="game-stage-card">
           <div class="stage-shell game-stage-shell">
             <div class="player-resource-hud" id="playerResourceHud" hidden></div>
+            <button
+              type="button"
+              id="teleportRingButton"
+              class="teleport-ring-button"
+              data-open-scene="teleportRing"
+              aria-label="Teleport Ring - warp to boss rooms"
+              title="Teleport Ring"
+              hidden
+            >
+              <img src="./public/ui/teleport-ring.png" alt="" aria-hidden="true" />
+            </button>
             <div class="stage" id="stage">
               <div class="party-switch-bar" id="partySwitchBar" aria-label="Switch party character" hidden></div>
               <div class="crystal-hotbar" id="hotbar" aria-label="Potion hotbar"></div>
@@ -3141,6 +3248,23 @@ function installTestHarness() {
         ignoredDrops,
         inventoryItems: state.inventory.items.length,
       };
+    },
+    grantTeleportRing() {
+      markUnlockOwned(TELEPORT_RING_UNLOCK_KEY);
+      applyOwnedUnlocks();
+      renderGamePanel();
+      return {
+        owned: teleportRingOwned(),
+        buttonHidden: document.getElementById("teleportRingButton")?.hidden ?? null,
+      };
+    },
+    openTeleportRingMenu() {
+      openScene("teleportRing");
+      const buttons = [...document.querySelectorAll("[data-teleport-ring-zone]")];
+      return buttons.map((button) => ({
+        zoneId: button.dataset.teleportRingZone,
+        text: button.textContent.replace(/\s+/g, " ").trim(),
+      }));
     },
   };
 }
@@ -3628,6 +3752,7 @@ function createDefaultStorageState() {
   return {
     pagesUnlocked: 1,
     page2Purchased: false,
+    tokenPageUnlocked: false,
     maxSlots: STORAGE_BASE_SLOTS,
     nextInstanceId: 1,
     items: [],
@@ -3710,6 +3835,8 @@ function createStarterInventoryState(classId) {
   const inventory = {
     gold: PLAYER_TEMPLATE.gold,
     pagesUnlocked: 1,
+    goldPageUnlocked: false,
+    tokenPageUnlocked: false,
     maxSlots: INVENTORY_BASE_SLOTS,
     nextInstanceId: 1,
     items: [],
@@ -3907,6 +4034,7 @@ function sanitizeStorageState(savedStorage = {}) {
 function sanitizeOwnedUnlocks(owned) {
   const valid = new Set([
     STORAGE_PAGE_UNLOCK_KEY,
+    TELEPORT_RING_UNLOCK_KEY,
     ...CHARACTER_IDS.map((classId) => inventoryPageUnlockKey(classId)),
   ]);
   const result = {};
@@ -4703,7 +4831,7 @@ function serializeCurrentCharacterState() {
       miningSpotId: state.game.miningSpotId ?? null,
       groupDungeonRun: state.game.groupDungeonRun ?? null,
     },
-    inventory: cloneInventoryState(state.inventory),
+    inventory: cloneInventoryStateIncludingWeaponRefineStaged(state.inventory),
     hotbar: cloneHotbarState(state.hotbar),
     magic: magicStateForPersistence(state.magic),
     battle: {
@@ -4747,6 +4875,7 @@ function cloneInventoryState(inventory) {
   const cloned = {
     gold: Math.max(0, Math.trunc(Number(inventory?.gold) || 0)),
     pagesUnlocked: Math.max(1, Math.min(inventoryPageCount(), Math.trunc(Number(inventory?.pagesUnlocked) || 1))),
+    goldPageUnlocked: inventoryGoldPageUnlocked(inventory),
     tokenPageUnlocked: Boolean(inventory?.tokenPageUnlocked),
     maxSlots: INVENTORY_BASE_SLOTS,
     nextInstanceId: Math.max(1, Math.trunc(Number(inventory?.nextInstanceId) || 1)),
@@ -4766,6 +4895,18 @@ function cloneInventoryState(inventory) {
 function cloneInventoryStateIncludingWeaponRefineStaged(inventory) {
   const cloned = cloneInventoryState(inventory);
   for (const staged of Object.values(state.weaponRefine?.stagedEntries ?? {})) {
+    if (!staged?.entry || cloned.items.some((entry) => entry.id === staged.entry.id)) continue;
+    cloned.items.push({
+      id: staged.entry.id,
+      itemId: staged.entry.itemId,
+      quantity: Math.max(1, Math.trunc(Number(staged.entry.quantity) || 1)),
+      slot: Number.isInteger(staged.returnSlot) ? staged.returnSlot : (
+        Number.isInteger(staged.entry.slot) ? staged.entry.slot : null
+      ),
+      ...normalizeInventoryEntryFields(staged.entry),
+    });
+  }
+  for (const staged of Object.values(state.craftingCube?.stagedEntries ?? {})) {
     if (!staged?.entry || cloned.items.some((entry) => entry.id === staged.entry.id)) continue;
     cloned.items.push({
       id: staged.entry.id,
@@ -5387,7 +5528,7 @@ function offlineUpdateRecovery(now, report) {
   updateVampirismRegen(now);
   updateEnemyPoisons(now, { offline: true });
   updatePotionRegen(now);
-  if (state.battle.combatClass === "Warrior" && !warriorSlayingPending()) {
+  if (state.battle.combatClass === "Warrior") {
     maybeAutoWarriorCharge(now, { offline: true });
   }
   offlineAutoUsePotions(now, report);
@@ -5479,7 +5620,7 @@ function offlineWarriorAttack(enemy, now) {
     }
     levelPassiveWeaponMagic(now);
     rollSlayingChargeAfterAttack(now);
-    if (!warriorSlayingPending()) maybeAutoWarriorCharge(now, { offline: true });
+    maybeAutoWarriorCharge(now, { offline: true });
     return true;
   }
 
@@ -5489,7 +5630,7 @@ function offlineWarriorAttack(enemy, now) {
   if (learned) {
     if (!rollHit(battle.player.accuracy, enemy.agility)) {
       rollSlayingChargeAfterAttack(now);
-      if (!warriorSlayingPending()) maybeAutoWarriorCharge(now, { offline: true });
+      maybeAutoWarriorCharge(now, { offline: true });
       return true;
     }
     damage = rollWarriorMagicDamage(skill, learned, battle.player, enemy);
@@ -5504,15 +5645,15 @@ function offlineWarriorAttack(enemy, now) {
     );
     if (!attack.hit) {
       rollSlayingChargeAfterAttack(now);
-      if (!warriorSlayingPending()) maybeAutoWarriorCharge(now, { offline: true });
+      maybeAutoWarriorCharge(now, { offline: true });
       return true;
     }
-    damage = attack.damage;
+    damage = applyCritToOutgoingDamage(attack.damage, battle.player);
   }
   const scaled = scalePhysicalDamageForStun(damage, enemyStunned(enemy, now));
   if (scaled <= 0) {
     rollSlayingChargeAfterAttack(now);
-    if (!warriorSlayingPending()) maybeAutoWarriorCharge(now, { offline: true });
+    maybeAutoWarriorCharge(now, { offline: true });
     return true;
   }
   applyOfflineEnemyDamage(enemy, scaled, now, learned ? "magic" : "physical");
@@ -5522,7 +5663,7 @@ function offlineWarriorAttack(enemy, now) {
   if (skill.id === "TwinDrakeBlade" && charged && enemy.hp > 0) {
     queueTwinDrakeSecondHit({ classId: battle.combatClass }, learned, damage, now);
   }
-  if (!warriorSlayingPending()) maybeAutoWarriorCharge(now, { offline: true });
+      maybeAutoWarriorCharge(now, { offline: true });
   return true;
 }
 
@@ -5615,7 +5756,7 @@ function offlineWizardWeaponAttack(enemy, now) {
     enemyPhysicalDefence(enemy),
     battle.player.luck,
   );
-  if (hit) applyOfflineEnemyDamage(enemy, damage, now);
+  if (hit) applyOfflineEnemyDamage(enemy, applyCritToOutgoingDamage(damage, battle.player), now);
 }
 
 function offlineTaoistAttack(enemy, now) {
@@ -5789,7 +5930,7 @@ function offlineTaoistWeaponAttack(enemy, now) {
     enemyPhysicalDefence(enemy),
     battle.player.luck,
   );
-  if (hit) applyOfflineEnemyDamage(enemy, damage, now);
+  if (hit) applyOfflineEnemyDamage(enemy, applyCritToOutgoingDamage(damage, battle.player), now);
   levelPassiveWeaponMagic(now);
 }
 
@@ -5806,7 +5947,7 @@ function offlineEnemyAttack(enemy, now, report) {
       target: {
         kind: "pet",
         applyDamage: (amount) => {
-          pet.hp = Math.max(0, pet.hp - amount);
+          pet.hp = Math.max(0, pet.hp - reduceTaoistPetIncomingDamage(pet, amount));
           if (pet.hp <= 0) markTaoistPetDead(now, { sound: false });
         },
       },
@@ -6223,6 +6364,109 @@ function prototypeStatsPlayerLabel(playerId = state.prototypeStats.playerId) {
   const accountId = String(playerId ?? "").split(":")[0];
   if (!accountId) return "Player ????????";
   return `Player ${accountId.slice(0, 8)}`;
+}
+
+// The name other players see: the chosen alias if set, else the derived label.
+function prototypeStatsDisplayName(playerId = state.prototypeStats.playerId) {
+  const alias = String(state.prototypeStats.alias ?? "").trim();
+  if (alias) return alias;
+  return prototypeStatsPlayerLabel(playerId);
+}
+
+const PLAYER_ALIAS_MIN_LENGTH = 3;
+const PLAYER_ALIAS_MAX_LENGTH = 16;
+const PLAYER_ALIAS_PATTERN = /^[A-Za-z0-9 ._'-]+$/;
+
+function normalizePlayerAliasInput(value) {
+  return String(value ?? "").trim().replace(/\s+/g, " ").slice(0, PLAYER_ALIAS_MAX_LENGTH);
+}
+
+function playerAliasValidationError(alias) {
+  if (alias.length < PLAYER_ALIAS_MIN_LENGTH) return "Name must be at least 3 characters.";
+  if (alias.length > PLAYER_ALIAS_MAX_LENGTH) return "Name must be 16 characters or fewer.";
+  if (!PLAYER_ALIAS_PATTERN.test(alias)) return "Use only letters, numbers, spaces or . _ ' -";
+  if (/^player\b/i.test(alias)) return "Name cannot start with \"Player\".";
+  return "";
+}
+
+function setPlayerAliasStatus(status, error = "") {
+  state.prototypeStats.aliasStatus = status;
+  state.prototypeStats.aliasError = error;
+  if (state.openScenes.options) {
+    sceneSignature = "";
+    renderSceneOverlay();
+  }
+}
+
+async function fetchPlayerAlias() {
+  const stats = state.prototypeStats;
+  if (stats.aliasLoaded) return;
+  const base = leaderboardApiBase();
+  const playerId = String(stats.playerId ?? "").split(":")[0];
+  if (!base || !playerId) return;
+  try {
+    const response = await fetch(`${base}/player/alias?playerId=${encodeURIComponent(playerId)}`, {
+      method: "GET",
+      headers: { Accept: "application/json" },
+    });
+    if (!response.ok) return;
+    const data = await response.json();
+    stats.alias = typeof data?.alias === "string" ? data.alias : "";
+    stats.aliasInput = stats.alias;
+    stats.aliasLoaded = true;
+    if (state.openScenes.options) {
+      sceneSignature = "";
+      renderSceneOverlay();
+    }
+  } catch {
+    // Non-fatal: alias is a cosmetic overlay on the derived label.
+  }
+}
+
+async function submitPlayerAlias() {
+  const stats = state.prototypeStats;
+  if (stats.aliasSaving) return;
+  const base = leaderboardApiBase();
+  const playerId = String(stats.playerId ?? "").split(":")[0];
+  const recoveryCode = state.cloudSave?.recoveryCode ?? "";
+  if (!base || !playerId) {
+    setPlayerAliasStatus("error", "Social features are not available right now.");
+    return;
+  }
+  if (!recoveryCode) {
+    setPlayerAliasStatus("error", "A recovery code is required to claim a name.");
+    return;
+  }
+  const alias = normalizePlayerAliasInput(stats.aliasInput);
+  const validationError = playerAliasValidationError(alias);
+  if (validationError) {
+    setPlayerAliasStatus("error", validationError);
+    return;
+  }
+
+  stats.aliasSaving = true;
+  setPlayerAliasStatus("saving");
+  try {
+    const response = await fetch(`${base}/player/alias`, {
+      method: "POST",
+      headers: { "content-type": "application/json", Accept: "application/json" },
+      body: JSON.stringify({ playerId, recoveryCode, alias }),
+    });
+    const data = await response.json().catch(() => ({}));
+    if (!response.ok) {
+      stats.aliasSaving = false;
+      setPlayerAliasStatus("error", String(data?.error ?? "Could not save that name."));
+      return;
+    }
+    stats.alias = typeof data?.alias === "string" ? data.alias : alias;
+    stats.aliasInput = stats.alias;
+    stats.aliasLoaded = true;
+    stats.aliasSaving = false;
+    setPlayerAliasStatus("saved");
+  } catch {
+    stats.aliasSaving = false;
+    setPlayerAliasStatus("error", "Network error. Please try again.");
+  }
 }
 
 function prototypeStatsNoticeRequired() {
@@ -7814,7 +8058,8 @@ function setEnemyAction(action, oneShot = false, now = performance.now()) {
 }
 
 function clearTransientCombatBuffs() {
-  state.battle.statBuffs = [];
+  // Potion drugs last 5 minutes and should survive zone/boss entry; only spell combat buffs reset.
+  state.battle.statBuffs = pruneStatBuffs(state.battle.statBuffs ?? []).filter((buff) => isBuffPotionKind(buff.kind));
   state.battle.petStatBuffs = [];
   state.battle.defenceBuffFx = [];
   state.battle.massHealFx = [];
@@ -8867,9 +9112,11 @@ function inventoryPageCount() {
 
 function syncInventoryCapacity(inventory = state.inventory) {
   if (!inventory) return;
-  // A token-bought page can never be lost; it is the minimum usable page count.
-  const minPages = 1 + (inventory.tokenPageUnlocked ? 1 : 0);
-  const pages = Math.max(minPages, Math.min(inventoryPageCount(), Math.trunc(Number(inventory.pagesUnlocked) || 1)));
+  // Usable pages are derived purely from the two independent unlock flags, so a
+  // paid page can never be lost or accidentally re-locked.
+  const gold = inventoryGoldPageUnlocked(inventory) ? 1 : 0;
+  const token = inventory.tokenPageUnlocked ? 1 : 0;
+  const pages = Math.max(1, Math.min(inventoryPageCount(), 1 + gold + token));
   inventory.pagesUnlocked = pages;
   inventory.maxSlots = Math.min(INVENTORY_MAX_SLOTS, pages * INVENTORY_PAGE_SIZE);
   if (inventory === state.inventory && state.inventoryPage >= pages) {
@@ -8877,23 +9124,26 @@ function syncInventoryCapacity(inventory = state.inventory) {
   }
 }
 
-// The 100k-gold page is "owned" when usable pages exceed the base page plus any
-// token page. Token and gold pages are independent; unlocked pages pack to the
-// front so there is never a locked tab wedged between usable ones.
+// The 100k-gold page and the 250-token page are tracked as independent flags
+// (mirroring storage's page2Purchased). Legacy saves that only stored a page
+// count are migrated in sanitizeInventoryState.
 function inventoryGoldPageUnlocked(inventory = state.inventory) {
   if (!inventory) return false;
+  if (typeof inventory.goldPageUnlocked === "boolean") return inventory.goldPageUnlocked;
   return (Math.trunc(Number(inventory.pagesUnlocked) || 1) - (inventory.tokenPageUnlocked ? 1 : 0)) >= 2;
 }
 
-// Ordered tab descriptors: base page, then unlocked extras (token before gold),
-// then locked purchase tabs (token before gold).
+// Ordered tab descriptors: base page, then unlocked extras, then locked
+// purchase tabs. Extras are listed gold-first so a still-locked token page is
+// always the LAST tab; once the token page is bought it becomes an unlocked
+// extra and packs to the front.
 function inventoryPageDescriptors() {
   syncInventoryCapacity();
   const token = Boolean(state.inventory.tokenPageUnlocked);
   const gold = inventoryGoldPageUnlocked();
   const extras = [
-    { type: "token", unlocked: token },
     { type: "gold", unlocked: gold },
+    { type: "token", unlocked: token },
   ];
   const tabs = [{ type: "base", unlocked: true }];
   for (const extra of extras) if (extra.unlocked) tabs.push({ type: extra.type, unlocked: true });
@@ -9015,7 +9265,7 @@ function unlockInventoryGoldPage() {
   state.inventory.gold -= cost;
   state.game.progress.gold = state.inventory.gold;
   state.battle.gold = state.inventory.gold;
-  state.inventory.pagesUnlocked += 1;
+  state.inventory.goldPageUnlocked = true;
   syncInventoryCapacity();
   ensureInventorySlots();
   syncBossPartyInventoryCapacityFromState();
@@ -9078,14 +9328,15 @@ function storagePageUnlocked(page) {
 }
 
 // Ordered storage tab descriptors, mirroring inventory: base page, unlocked
-// extras (token before gold), then locked purchase tabs (token before gold).
+// extras, then locked purchase tabs. Gold-first so a still-locked token page is
+// always the LAST tab; a bought token page packs to the front.
 function storagePageDescriptors() {
   syncStorageCapacity();
   const token = Boolean(state.account.storage.tokenPageUnlocked);
   const gold = Boolean(state.account.storage.page2Purchased);
   const extras = [
-    { type: "token", unlocked: token },
     { type: "gold", unlocked: gold },
+    { type: "token", unlocked: token },
   ];
   const tabs = [{ type: "base", unlocked: true }];
   for (const extra of extras) if (extra.unlocked) tabs.push({ type: extra.type, unlocked: true });
@@ -9327,6 +9578,7 @@ function accountUpgradeEffectLabel(upgrade) {
   if (upgrade?.effect === "gemMerchantUnlock") return "Gem Merchant";
   if (upgrade?.effect === "gemMerchantEfficiency") return "Conversion costs";
   if (upgrade?.effect === "bossEmpowerment") return "Boss empowerment";
+  if (upgrade?.effect === "empoweredCraftingUnlock") return "Crafting cube";
   return "Upgrade";
 }
 
@@ -9405,6 +9657,9 @@ function accountUpgradeProgressText(upgrade) {
     return `+${current} -> +${current + step}`;
   }
   if (upgrade?.effect === "bossEmpowerment") {
+    return tier >= 1 ? "Unlocked" : "Locked -> Unlocked";
+  }
+  if (upgrade?.effect === "empoweredCraftingUnlock") {
     return tier >= 1 ? "Unlocked" : "Locked -> Unlocked";
   }
   if (upgrade?.effect === "gemMerchantUnlock") {
@@ -9880,7 +10135,7 @@ function sellInventoryEntry(entryId) {
 }
 
 function isJunkOreItem(item) {
-  return Boolean(item) && isOreItem(item) && item.id !== REFINER_ORE_ITEM_ID;
+  return Boolean(item) && isOreItem(item) && !NON_JUNK_ORE_ITEM_IDS.has(item.id);
 }
 
 function isInventoryEntrySaved(entry) {
@@ -9925,6 +10180,11 @@ function inventoryMarkClass(entry) {
   if (isInventoryEntryJunk(entry)) return " mark-junk";
   if (isInventoryEntrySaved(entry)) return " mark-saved";
   return "";
+}
+
+function inventoryEmpoweredClass(entry) {
+  const tier = Math.max(0, Math.trunc(Number(entry?.empowerTier) || 0));
+  return entry?.empowered && tier > 0 ? " empowered" : "";
 }
 
 function itemTooltipMarkHtml(entry) {
@@ -10466,6 +10726,680 @@ function openWeaponRefineScene() {
   state.openScenes.inventory = true;
   if (!state.weaponRefine.picker) state.weaponRefine.picker = { kind: "weapon", index: 0 };
   pushSceneWindow("weaponRefine");
+  sceneSignature = "";
+  gamePanelSignature = "";
+  renderSceneOverlay();
+  renderGamePanel();
+  playSfx("ui.button", { volume: 0.35, throttleMs: 120 });
+}
+
+function craftingCubeStagedRecord(entryId) {
+  return state.craftingCube?.stagedEntries?.[entryId] ?? null;
+}
+
+function isCraftingCubeStagedEntry(entryId) {
+  return Boolean(craftingCubeStagedRecord(entryId));
+}
+
+function craftingCubeEntryById(entryId) {
+  return craftingCubeStagedRecord(entryId)?.entry ?? inventoryEntryById(entryId);
+}
+
+function stageCraftingCubeEntry(entry) {
+  if (!entry || isCraftingCubeStagedEntry(entry.id)) return true;
+  if (isEquippedEntry(entry.id) || isHotbarEntry(entry.id)) return false;
+  ensureInventorySlots();
+  const index = state.inventory.items.findIndex((candidate) => candidate.id === entry.id);
+  if (index < 0) return false;
+  const returnSlot = Number.isInteger(entry.slot) ? entry.slot : null;
+  const [stagedEntry] = state.inventory.items.splice(index, 1);
+  if (!state.craftingCube.stagedEntries) state.craftingCube.stagedEntries = {};
+  state.craftingCube.stagedEntries[stagedEntry.id] = { entry: stagedEntry, returnSlot };
+  gamePanelSignature = "";
+  return true;
+}
+
+function discardCraftingCubeStagedEntry(entryId) {
+  if (!craftingCubeStagedRecord(entryId)) return false;
+  delete state.craftingCube.stagedEntries[entryId];
+  return true;
+}
+
+function unstageCraftingCubeEntry(entryId, targetSlot = null) {
+  const staged = craftingCubeStagedRecord(entryId);
+  if (!staged) return false;
+  delete state.craftingCube.stagedEntries[entryId];
+  const entry = staged.entry;
+  const preferredSlot = Number.isInteger(targetSlot)
+    ? targetSlot
+    : (Number.isInteger(staged.returnSlot) ? staged.returnSlot : null);
+  entry.slot = preferredSlot;
+  state.inventory.items.push(entry);
+  ensureInventorySlots();
+  gamePanelSignature = "";
+  sceneSignature = "";
+  return true;
+}
+
+function restoreAllCraftingCubeStagedEntries() {
+  const stagedIds = Object.keys(state.craftingCube?.stagedEntries ?? {});
+  for (const entryId of stagedIds) {
+    unstageCraftingCubeEntry(entryId);
+  }
+  if (state.craftingCube) {
+    state.craftingCube.slotEntryIds = Array(CRAFTING_CUBE_SLOT_COUNT).fill(null);
+    state.craftingCube.feedback = null;
+    state.craftingCube.feedbackKind = null;
+    state.craftingCube.lastRerollNotice = null;
+    clearCraftingCubeTargetedSelections();
+  }
+}
+
+function resetCraftingCubeState() {
+  restoreAllCraftingCubeStagedEntries();
+  state.craftingCube = createDefaultCraftingCubeState();
+}
+
+function craftingCubeUsedEntryIds() {
+  return new Set(state.craftingCube?.slotEntryIds?.filter(Boolean) ?? []);
+}
+
+function canPlaceCraftingCubeItem(entry, targetIndex = -1) {
+  if (!entry) return false;
+  if (!isCraftingCubeStagedEntry(entry.id) && (isEquippedEntry(entry.id) || isHotbarEntry(entry.id))) return false;
+  const used = craftingCubeUsedEntryIds();
+  if (used.has(entry.id)) {
+    const slotIndex = state.craftingCube.slotEntryIds.indexOf(entry.id);
+    if (slotIndex < 0 || slotIndex !== targetIndex) return false;
+  }
+  return true;
+}
+
+function craftingCubeSlotEntry(index = 0) {
+  const entryId = state.craftingCube?.slotEntryIds?.[index] ?? null;
+  if (!entryId) return { entry: null, item: null };
+  const entry = craftingCubeEntryById(entryId);
+  return { entry, item: entry ? itemDefinition(entry.itemId) : null };
+}
+
+function clearCraftingCubeTargetedSelections() {
+  if (!state.craftingCube) return;
+  state.craftingCube.targetedEmpowerSlotIndex = null;
+  state.craftingCube.targetedEmpowerSwapSlotA = null;
+  state.craftingCube.targetedEmpowerSwapSlotB = null;
+}
+
+function setCraftingCubeFeedback(message, kind = "error") {
+  if (!state.craftingCube) state.craftingCube = createDefaultCraftingCubeState();
+  state.craftingCube.feedback = message || null;
+  state.craftingCube.feedbackKind = message ? kind : null;
+}
+
+function clearCraftingCubeBoard() {
+  if (!state.craftingCube) return;
+  const stagedIds = Object.keys(state.craftingCube.stagedEntries ?? {});
+  for (const entryId of stagedIds) {
+    unstageCraftingCubeEntry(entryId);
+  }
+  state.craftingCube.slotEntryIds = Array(CRAFTING_CUBE_SLOT_COUNT).fill(null);
+  state.craftingCube.lastRerollNotice = null;
+  clearCraftingCubeTargetedSelections();
+}
+
+function inventoryCraftingAutofillEntries() {
+  return state.inventory.items.filter((entry) => entry
+    && !isEquippedEntry(entry.id)
+    && !isHotbarEntry(entry.id));
+}
+
+function autofillCraftingCubeForRecipe(recipeId) {
+  if (!state.craftingCube) state.craftingCube = createDefaultCraftingCubeState();
+  clearCraftingCubeBoard();
+  const entryIds = craftingCubeAutofillEntryIds(
+    recipeId,
+    inventoryCraftingAutofillEntries(),
+    itemDefinition,
+  );
+  entryIds.forEach((entryId, index) => {
+    assignCraftingCubeSlot(index, entryId, { silent: true });
+  });
+  state.craftingCube.feedback = null;
+  state.craftingCube.feedbackKind = null;
+  gamePanelSignature = "";
+  saveGameState(true);
+}
+
+function clearCraftingCubeSlot(index = 0, { targetSlot = null } = {}) {
+  const slotIndex = Math.max(0, Math.trunc(Number(index) || 0));
+  const entryId = state.craftingCube?.slotEntryIds?.[slotIndex] ?? null;
+  state.craftingCube.slotEntryIds[slotIndex] = null;
+  if (entryId) unstageCraftingCubeEntry(entryId, targetSlot);
+  saveGameState(true);
+  sceneSignature = "";
+  gamePanelSignature = "";
+  renderSceneOverlay();
+  renderGamePanel();
+  playSfx("ui.button", { volume: 0.28, throttleMs: 80 });
+}
+
+function assignCraftingCubeSlot(index, entryId, { fromCube = null, silent = false } = {}) {
+  const slotIndex = Math.max(0, Math.trunc(Number(index) || 0));
+  const entry = craftingCubeEntryById(entryId);
+  if (!entry || !canPlaceCraftingCubeItem(entry, slotIndex)) return false;
+
+  const board = state.craftingCube;
+  if (!isCraftingCubeStagedEntry(entryId) && !stageCraftingCubeEntry(entry)) return false;
+
+  const occupiedEntryId = board.slotEntryIds[slotIndex] ?? null;
+  if (occupiedEntryId && occupiedEntryId !== entryId) {
+    board.slotEntryIds[slotIndex] = null;
+    unstageCraftingCubeEntry(occupiedEntryId);
+  }
+
+  if (fromCube?.index != null) {
+    board.slotEntryIds[fromCube.index] = null;
+  }
+
+  const prevSlot = board.slotEntryIds.indexOf(entryId);
+  if (prevSlot >= 0 && prevSlot !== slotIndex) board.slotEntryIds[prevSlot] = null;
+
+  board.slotEntryIds[slotIndex] = entryId;
+  if (!silent) {
+    board.feedback = null;
+    board.feedbackKind = null;
+    board.lastRerollNotice = null;
+    clearCraftingCubeTargetedSelections();
+    sceneSignature = "";
+    gamePanelSignature = "";
+    renderSceneOverlay();
+    renderGamePanel();
+    playSfx("ui.button", { volume: 0.35, throttleMs: 80 });
+    saveGameState(true);
+  }
+  return true;
+}
+
+function craftingCubeFilledSlotCount() {
+  return state.craftingCube?.slotEntryIds?.filter(Boolean).length ?? 0;
+}
+
+function craftingCubeSalvageEntries() {
+  return (state.craftingCube?.slotEntryIds ?? [])
+    .filter(Boolean)
+    .map((entryId) => craftingCubeEntryById(entryId))
+    .filter(Boolean);
+}
+
+function craftingCubeBoardEntries() {
+  return (state.craftingCube?.slotEntryIds ?? [])
+    .filter(Boolean)
+    .map((entryId) => {
+      const entry = craftingCubeEntryById(entryId);
+      const item = entry ? itemDefinition(entry.itemId) : null;
+      return entry && item ? { entry, item } : null;
+    })
+    .filter(Boolean);
+}
+
+function consumeStagedCraftingCubeEntryQuantity(entryId, quantity = 1) {
+  const entry = craftingCubeEntryById(entryId);
+  if (!entry) return false;
+  const qty = Math.max(1, Math.trunc(Number(entry.quantity) || 1));
+  const take = Math.min(qty, Math.max(1, Math.trunc(Number(quantity) || 1)));
+  if (take >= qty) {
+    const slotIndex = state.craftingCube.slotEntryIds.indexOf(entryId);
+    if (slotIndex >= 0) state.craftingCube.slotEntryIds[slotIndex] = null;
+    discardCraftingCubeStagedEntry(entryId);
+  } else {
+    entry.quantity = qty - take;
+  }
+  return true;
+}
+
+function attemptCraftingCubeSalvage() {
+  if (state.craftingCube?.mode !== "salvage") return false;
+  const validation = validateCraftingCubeSalvageEntries(craftingCubeSalvageEntries());
+  if (!validation.ok) {
+    setCraftingCubeFeedback(validation.error);
+    sceneSignature = "";
+    renderSceneOverlay();
+    playSfx("ui.button", { volume: 0.28, throttleMs: 120 });
+    return false;
+  }
+
+  const entryIds = state.craftingCube.slotEntryIds.filter(Boolean);
+  for (const entryId of entryIds) {
+    discardCraftingCubeStagedEntry(entryId);
+  }
+  state.craftingCube.slotEntryIds = Array(CRAFTING_CUBE_SLOT_COUNT).fill(null);
+  state.craftingCube.feedback = null;
+  state.craftingCube.feedbackKind = null;
+
+  const crystalItem = itemDefinition(HAVOC_CRYSTAL_ITEM_ID);
+  addInventoryItem(HAVOC_CRYSTAL_ITEM_ID, validation.totalCrystals);
+  const crystalName = crystalItem?.name ?? "Havoc Crystal";
+  const itemLabel = entryIds.length === 1 ? "item" : "items";
+  const crystalLabel = validation.totalCrystals === 1 ? crystalName : `${crystalName}s`;
+  pushBattleLog(`Salvaged ${entryIds.length} empowered ${itemLabel} for ${validation.totalCrystals} ${crystalLabel}.`);
+  addLootNotice(`${validation.totalCrystals}× ${crystalName}`, "item");
+
+  hideItemTooltip();
+  sceneSignature = "";
+  gamePanelSignature = "";
+  saveGameState(true);
+  renderSceneOverlay();
+  renderGamePanel();
+  playSfx("item.pickup", { volume: 0.42, throttleMs: 120 });
+  return true;
+}
+
+function attemptCraftingCubeFocusPrismCraft() {
+  if (state.craftingCube?.mode !== "craft") return false;
+  const validation = validateCraftingCubeFocusPrismCraft(craftingCubeBoardEntries());
+  if (!validation.ok) {
+    setCraftingCubeFeedback(validation.error);
+    sceneSignature = "";
+    renderSceneOverlay();
+    playSfx("ui.button", { volume: 0.28, throttleMs: 120 });
+    return false;
+  }
+
+  consumeStagedCraftingCubeEntryQuantity(
+    validation.crystalEntry.id,
+    CRAFTING_CUBE_FOCUS_PRISM_CRYSTAL_COST,
+  );
+  state.craftingCube.feedback = null;
+  state.craftingCube.feedbackKind = null;
+  state.craftingCube.lastRerollNotice = null;
+
+  const prismItem = itemDefinition(FOCUS_PRISM_ITEM_ID);
+  addInventoryItem(FOCUS_PRISM_ITEM_ID, 1);
+  const prismName = prismItem?.name ?? "Focus Prism";
+  pushBattleLog(`Crafted 1 ${prismName} from ${CRAFTING_CUBE_FOCUS_PRISM_CRYSTAL_COST} Havoc Crystals.`);
+  addLootNotice(`1× ${prismName}`, "item");
+
+  hideItemTooltip();
+  sceneSignature = "";
+  gamePanelSignature = "";
+  saveGameState(true);
+  renderSceneOverlay();
+  renderGamePanel();
+  playSfx("item.pickup", { volume: 0.42, throttleMs: 120 });
+  return true;
+}
+
+function setCraftingCubeTargetedEmpowerSlot(slotIndex) {
+  if (!state.craftingCube) state.craftingCube = createDefaultCraftingCubeState();
+  const pick = Math.trunc(Number(slotIndex) || 0);
+  if (state.craftingCube.targetedEmpowerSlotIndex === pick) return;
+  state.craftingCube.targetedEmpowerSlotIndex = pick;
+  state.craftingCube.feedback = null;
+  state.craftingCube.feedbackKind = null;
+  sceneSignature = "";
+  renderSceneOverlay();
+  playSfx("ui.button", { volume: 0.28, throttleMs: 80 });
+}
+
+function setCraftingCubeTargetedEmpowerSwapSlot(side, slotIndex) {
+  if (!state.craftingCube) state.craftingCube = createDefaultCraftingCubeState();
+  const pick = Math.trunc(Number(slotIndex) || 0);
+  const key = String(side ?? "").toLowerCase() === "b" ? "targetedEmpowerSwapSlotB" : "targetedEmpowerSwapSlotA";
+  if (state.craftingCube[key] === pick) return;
+  state.craftingCube[key] = pick;
+  state.craftingCube.feedback = null;
+  state.craftingCube.feedbackKind = null;
+  sceneSignature = "";
+  renderSceneOverlay();
+  playSfx("ui.button", { volume: 0.28, throttleMs: 80 });
+}
+
+function announceCraftingCubeEmpowerReroll(empoweredItem, empoweredEntry, reroll) {
+  const itemName = itemDisplayName(empoweredItem, empoweredEntry);
+  const removedLabel = formatEmpowerAppliedChangeLabel(reroll.removedRoll, reroll.removedAmount);
+  const addedLabel = formatEmpowerAppliedChangeLabel(reroll.newRoll, reroll.appliedAmount);
+  state.craftingCube.lastRerollNotice = { removed: removedLabel, added: addedLabel };
+  clearCraftingCubeTargetedSelections();
+  pushBattleLog(`${itemName}: removed ${removedLabel}. Added ${addedLabel}.`);
+  addLootNotice(`Removed ${removedLabel}`, "item");
+  addLootNotice(`Added ${addedLabel}`, "level");
+}
+
+function announceCraftingCubeEmpowerSwap(swap) {
+  const nameA = itemDisplayName(swap.itemA, swap.entryA);
+  const nameB = itemDisplayName(swap.itemB, swap.entryB);
+  const removedA = formatEmpowerAppliedChangeLabel(swap.rollA, swap.amountA);
+  const addedA = formatEmpowerAppliedChangeLabel(swap.rollB, swap.amountB);
+  const removedB = formatEmpowerAppliedChangeLabel(swap.rollB, swap.amountB);
+  const addedB = formatEmpowerAppliedChangeLabel(swap.rollA, swap.amountA);
+  state.craftingCube.lastRerollNotice = {
+    swap: true,
+    items: [
+      { name: nameA, removed: removedA, added: addedA },
+      { name: nameB, removed: removedB, added: addedB },
+    ],
+  };
+  clearCraftingCubeTargetedSelections();
+  pushBattleLog(`${nameA}: swapped ${removedA} for ${addedA} from ${nameB}.`);
+  pushBattleLog(`${nameB}: swapped ${removedB} for ${addedB} from ${nameA}.`);
+  addLootNotice(`${nameA}: ${removedA} → ${addedA}`, "item");
+  addLootNotice(`${nameB}: ${removedB} → ${addedB}`, "level");
+}
+
+function attemptCraftingCubeEmpowerSwap() {
+  if (state.craftingCube?.mode !== "craft") return false;
+  const validation = validateCraftingCubeEmpowerSwap(craftingCubeBoardEntries());
+  if (!validation.ok) {
+    setCraftingCubeFeedback(validation.error);
+    sceneSignature = "";
+    renderSceneOverlay();
+    playSfx("ui.button", { volume: 0.28, throttleMs: 120 });
+    return false;
+  }
+
+  const swap = swapRandomEmpowermentsBetweenEntries(
+    validation.empoweredEntryA,
+    validation.empoweredItemA,
+    validation.empoweredEntryB,
+    validation.empoweredItemB,
+  );
+  if (!swap.ok) {
+    setCraftingCubeFeedback(swap.error);
+    sceneSignature = "";
+    renderSceneOverlay();
+    playSfx("ui.button", { volume: 0.28, throttleMs: 120 });
+    return false;
+  }
+
+  consumeStagedCraftingCubeEntryQuantity(
+    validation.crystalEntry.id,
+    CRAFTING_CUBE_EMPOWER_SWAP_CRYSTAL_COST,
+  );
+  state.craftingCube.feedback = null;
+  state.craftingCube.feedbackKind = null;
+
+  announceCraftingCubeEmpowerSwap(swap);
+
+  hideItemTooltip();
+  applyEquippedStatsToBattlePlayer();
+  sceneSignature = "";
+  gamePanelSignature = "";
+  saveGameState(true);
+  renderSceneOverlay();
+  renderGamePanel();
+  playSfx("item.equip.weapon", { volume: 0.4, throttleMs: 120 });
+  return true;
+}
+
+function attemptCraftingCubeTargetedEmpowerSwap() {
+  if (state.craftingCube?.mode !== "craft") return false;
+  const validation = validateCraftingCubeTargetedEmpowerSwap(craftingCubeBoardEntries());
+  if (!validation.ok) {
+    setCraftingCubeFeedback(validation.error);
+    sceneSignature = "";
+    renderSceneOverlay();
+    playSfx("ui.button", { volume: 0.28, throttleMs: 120 });
+    return false;
+  }
+
+  const choicesA = empowerSlotChoiceLabels(validation.empoweredEntryA, validation.empoweredItemA);
+  const choicesB = empowerSlotChoiceLabels(validation.empoweredEntryB, validation.empoweredItemB);
+  const slotA = Math.trunc(Number(state.craftingCube?.targetedEmpowerSwapSlotA) || 0);
+  const slotB = Math.trunc(Number(state.craftingCube?.targetedEmpowerSwapSlotB) || 0);
+  if (!choicesA.some((choice) => choice.index === slotA) || !choicesB.some((choice) => choice.index === slotB)) {
+    setCraftingCubeFeedback("Select an empowerment on each item to swap.");
+    sceneSignature = "";
+    renderSceneOverlay();
+    playSfx("ui.button", { volume: 0.28, throttleMs: 120 });
+    return false;
+  }
+
+  const swap = swapEmpowermentsAtSlotIndices(
+    validation.empoweredEntryA,
+    validation.empoweredItemA,
+    slotA,
+    validation.empoweredEntryB,
+    validation.empoweredItemB,
+    slotB,
+  );
+  if (!swap.ok) {
+    setCraftingCubeFeedback(swap.error);
+    sceneSignature = "";
+    renderSceneOverlay();
+    playSfx("ui.button", { volume: 0.28, throttleMs: 120 });
+    return false;
+  }
+
+  consumeStagedCraftingCubeEntryQuantity(
+    validation.focusPrismEntry.id,
+    CRAFTING_CUBE_TARGETED_EMPOWER_SWAP_PRISM_COST,
+  );
+  consumeStagedCraftingCubeEntryQuantity(validation.adamantineEntry.id, 1);
+  state.craftingCube.feedback = null;
+  state.craftingCube.feedbackKind = null;
+
+  announceCraftingCubeEmpowerSwap(swap);
+
+  hideItemTooltip();
+  applyEquippedStatsToBattlePlayer();
+  sceneSignature = "";
+  gamePanelSignature = "";
+  saveGameState(true);
+  renderSceneOverlay();
+  renderGamePanel();
+  playSfx("item.equip.weapon", { volume: 0.4, throttleMs: 120 });
+  return true;
+}
+
+function attemptCraftingCubeEmpowerReroll() {
+  if (state.craftingCube?.mode !== "craft") return false;
+  const validation = validateCraftingCubeEmpowerReroll(craftingCubeBoardEntries());
+  if (!validation.ok) {
+    setCraftingCubeFeedback(validation.error);
+    sceneSignature = "";
+    renderSceneOverlay();
+    playSfx("ui.button", { volume: 0.28, throttleMs: 120 });
+    return false;
+  }
+
+  const reroll = rollEmpowermentReroll(validation.empoweredEntry, validation.empoweredItem);
+  if (!reroll.ok) {
+    setCraftingCubeFeedback(reroll.error);
+    sceneSignature = "";
+    renderSceneOverlay();
+    playSfx("ui.button", { volume: 0.28, throttleMs: 120 });
+    return false;
+  }
+
+  consumeStagedCraftingCubeEntryQuantity(validation.crystalEntry.id, 1);
+  state.craftingCube.feedback = null;
+  state.craftingCube.feedbackKind = null;
+
+  announceCraftingCubeEmpowerReroll(validation.empoweredItem, validation.empoweredEntry, reroll);
+
+  hideItemTooltip();
+  applyEquippedStatsToBattlePlayer();
+  sceneSignature = "";
+  gamePanelSignature = "";
+  saveGameState(true);
+  renderSceneOverlay();
+  renderGamePanel();
+  playSfx("item.equip.weapon", { volume: 0.4, throttleMs: 120 });
+  return true;
+}
+
+function attemptCraftingCubeTargetedEmpowerReroll() {
+  if (state.craftingCube?.mode !== "craft") return false;
+  const validation = validateCraftingCubeTargetedEmpowerReroll(craftingCubeBoardEntries());
+  if (!validation.ok) {
+    setCraftingCubeFeedback(validation.error);
+    sceneSignature = "";
+    renderSceneOverlay();
+    playSfx("ui.button", { volume: 0.28, throttleMs: 120 });
+    return false;
+  }
+
+  const slotChoices = empowerSlotChoiceLabels(validation.empoweredEntry, validation.empoweredItem);
+  const slotIndex = Math.trunc(Number(state.craftingCube?.targetedEmpowerSlotIndex) || 0);
+  if (!slotChoices.some((choice) => choice.index === slotIndex)) {
+    setCraftingCubeFeedback("Select an empowerment to reroll.");
+    sceneSignature = "";
+    renderSceneOverlay();
+    playSfx("ui.button", { volume: 0.28, throttleMs: 120 });
+    return false;
+  }
+
+  const reroll = rollEmpowermentRerollAtSlot(
+    validation.empoweredEntry,
+    validation.empoweredItem,
+    slotIndex,
+  );
+  if (!reroll.ok) {
+    setCraftingCubeFeedback(reroll.error);
+    sceneSignature = "";
+    renderSceneOverlay();
+    playSfx("ui.button", { volume: 0.28, throttleMs: 120 });
+    return false;
+  }
+
+  consumeStagedCraftingCubeEntryQuantity(
+    validation.crystalEntry.id,
+    CRAFTING_CUBE_TARGETED_EMPOWER_REROLL_CRYSTAL_COST,
+  );
+  consumeStagedCraftingCubeEntryQuantity(validation.adamantineEntry.id, 1);
+  state.craftingCube.feedback = null;
+  state.craftingCube.feedbackKind = null;
+
+  announceCraftingCubeEmpowerReroll(validation.empoweredItem, validation.empoweredEntry, reroll);
+
+  hideItemTooltip();
+  applyEquippedStatsToBattlePlayer();
+  sceneSignature = "";
+  gamePanelSignature = "";
+  saveGameState(true);
+  renderSceneOverlay();
+  renderGamePanel();
+  playSfx("item.equip.weapon", { volume: 0.4, throttleMs: 120 });
+  return true;
+}
+
+function craftingCubeRecipeValidation(recipeId, boardEntries = craftingCubeBoardEntries()) {
+  if (recipeId === CRAFTING_CUBE_FOCUS_PRISM_RECIPE_ID) {
+    return validateCraftingCubeFocusPrismCraft(boardEntries);
+  }
+  if (recipeId === CRAFTING_CUBE_EMPOWER_REROLL_RECIPE_ID) {
+    return validateCraftingCubeEmpowerReroll(boardEntries);
+  }
+  if (recipeId === CRAFTING_CUBE_TARGETED_EMPOWER_REROLL_RECIPE_ID) {
+    return validateCraftingCubeTargetedEmpowerReroll(boardEntries);
+  }
+  if (recipeId === CRAFTING_CUBE_EMPOWER_SWAP_RECIPE_ID) {
+    return validateCraftingCubeEmpowerSwap(boardEntries);
+  }
+  if (recipeId === CRAFTING_CUBE_TARGETED_EMPOWER_SWAP_RECIPE_ID) {
+    return validateCraftingCubeTargetedEmpowerSwap(boardEntries);
+  }
+  return { ok: false, error: "Select a recipe." };
+}
+
+function craftingCubeSelectedRecipeDef() {
+  const recipeId = state.craftingCube?.selectedRecipeId;
+  return CRAFTING_CUBE_RECIPES.find((recipe) => recipe.id === recipeId) ?? null;
+}
+
+function canAttemptCraftingCubeCraft() {
+  if (state.craftingCube?.mode !== "craft") return false;
+  const recipeId = state.craftingCube?.selectedRecipeId;
+  if (!recipeId) return false;
+  const validation = craftingCubeRecipeValidation(recipeId);
+  if (!validation.ok) return false;
+  if (recipeId === CRAFTING_CUBE_TARGETED_EMPOWER_REROLL_RECIPE_ID) {
+    const choices = empowerSlotChoiceLabels(validation.empoweredEntry, validation.empoweredItem);
+    const slotIndex = Math.trunc(Number(state.craftingCube?.targetedEmpowerSlotIndex) || 0);
+    return choices.some((choice) => choice.index === slotIndex);
+  }
+  if (recipeId === CRAFTING_CUBE_TARGETED_EMPOWER_SWAP_RECIPE_ID) {
+    const choicesA = empowerSlotChoiceLabels(validation.empoweredEntryA, validation.empoweredItemA);
+    const choicesB = empowerSlotChoiceLabels(validation.empoweredEntryB, validation.empoweredItemB);
+    const slotA = Math.trunc(Number(state.craftingCube?.targetedEmpowerSwapSlotA) || 0);
+    const slotB = Math.trunc(Number(state.craftingCube?.targetedEmpowerSwapSlotB) || 0);
+    return choicesA.some((choice) => choice.index === slotA)
+      && choicesB.some((choice) => choice.index === slotB);
+  }
+  return true;
+}
+
+function attemptCraftingCubeCraft() {
+  const recipeId = state.craftingCube?.selectedRecipeId;
+  if (recipeId === CRAFTING_CUBE_FOCUS_PRISM_RECIPE_ID) return attemptCraftingCubeFocusPrismCraft();
+  if (recipeId === CRAFTING_CUBE_EMPOWER_REROLL_RECIPE_ID) return attemptCraftingCubeEmpowerReroll();
+  if (recipeId === CRAFTING_CUBE_TARGETED_EMPOWER_REROLL_RECIPE_ID) return attemptCraftingCubeTargetedEmpowerReroll();
+  if (recipeId === CRAFTING_CUBE_EMPOWER_SWAP_RECIPE_ID) return attemptCraftingCubeEmpowerSwap();
+  if (recipeId === CRAFTING_CUBE_TARGETED_EMPOWER_SWAP_RECIPE_ID) return attemptCraftingCubeTargetedEmpowerSwap();
+  setCraftingCubeFeedback("Select a recipe from the Recipes panel.");
+  sceneSignature = "";
+  renderSceneOverlay();
+  playSfx("ui.button", { volume: 0.28, throttleMs: 120 });
+  return false;
+}
+
+function setCraftingCubeMode(mode) {
+  const next = String(mode ?? "").toLowerCase();
+  if (!CRAFTING_CUBE_MODES.includes(next)) return;
+  if (!state.craftingCube) state.craftingCube = createDefaultCraftingCubeState();
+  if (state.craftingCube.mode === next) return;
+  state.craftingCube.mode = next;
+  state.craftingCube.feedback = null;
+  state.craftingCube.feedbackKind = null;
+  state.craftingCube.lastRerollNotice = null;
+  clearCraftingCubeTargetedSelections();
+  sceneSignature = "";
+  renderSceneOverlay();
+  playSfx("ui.button", { volume: 0.32, throttleMs: 80 });
+}
+
+function toggleCraftingCubeRecipesPanel() {
+  if (!state.craftingCube) state.craftingCube = createDefaultCraftingCubeState();
+  const next = !state.craftingCube.recipesOpen;
+  state.craftingCube.recipesOpen = next;
+  if (next) {
+    state.craftingCube.mode = "craft";
+    if (!state.craftingCube.selectedRecipeId) {
+      state.craftingCube.selectedRecipeId = CRAFTING_CUBE_RECIPES[0]?.id ?? null;
+    }
+    pushSceneWindow("craftingCubeRecipes");
+  } else {
+    removeSceneWindowFromStack("craftingCubeRecipes");
+  }
+  state.craftingCube.feedback = null;
+  state.craftingCube.feedbackKind = null;
+  sceneSignature = "";
+  renderSceneOverlay();
+  playSfx("ui.button", { volume: 0.32, throttleMs: 80 });
+}
+
+function selectCraftingCubeRecipe(recipeId) {
+  const next = String(recipeId ?? "");
+  if (!CRAFTING_CUBE_RECIPES.some((recipe) => recipe.id === next)) return;
+  if (!state.craftingCube) state.craftingCube = createDefaultCraftingCubeState();
+  state.craftingCube.selectedRecipeId = next;
+  state.craftingCube.mode = "craft";
+  state.craftingCube.feedback = null;
+  state.craftingCube.feedbackKind = null;
+  if (!state.craftingCube.recipesOpen) state.craftingCube.recipesOpen = true;
+  pushSceneWindow("craftingCubeRecipes");
+  autofillCraftingCubeForRecipe(next);
+  sceneSignature = "";
+  renderSceneOverlay();
+  renderGamePanel();
+  playSfx("ui.button", { volume: 0.28, throttleMs: 80 });
+}
+
+function openCraftingCubeScene() {
+  if (state.game.mode !== "town" || !empoweredCraftingUnlocked()) return;
+  state.activeScene = "craftingCube";
+  state.openScenes.inventory = true;
+  if (!state.craftingCube) state.craftingCube = createDefaultCraftingCubeState();
+  pushSceneWindow("craftingCube");
   sceneSignature = "";
   gamePanelSignature = "";
   renderSceneOverlay();
@@ -11617,8 +12551,54 @@ function noteSceneOverlayInteraction(untilMs = 500) {
   sceneOverlayInteractionUntil = Math.max(sceneOverlayInteractionUntil, performance.now() + untilMs);
 }
 
+// Rebuilding the overlay innerHTML drops the focused field (and its caret). These
+// capture/restore the active text field so typing in scene inputs (alias, cloud
+// restore code, etc.) survives the signature-driven re-renders that fire while the
+// character is fighting.
+function captureSceneOverlayFocus() {
+  const active = document.activeElement;
+  if (!active || !els.sceneOverlay?.contains(active)) return null;
+  if (active.tagName !== "INPUT" && active.tagName !== "TEXTAREA") return null;
+  let selector = "";
+  if (active.id) selector = `#${CSS.escape(active.id)}`;
+  else {
+    const dataAttr = [...active.attributes].find((attr) => attr.name.startsWith("data-"));
+    if (dataAttr) selector = `[${dataAttr.name}]`;
+  }
+  if (!selector) return null;
+  let start = null;
+  let end = null;
+  try {
+    start = active.selectionStart;
+    end = active.selectionEnd;
+  } catch {
+    // Some input types don't expose a selection range; focus alone is enough.
+  }
+  return { selector, start, end };
+}
+
+function restoreSceneOverlayFocus(snapshot) {
+  if (!snapshot) return;
+  const element = els.sceneOverlay?.querySelector(snapshot.selector);
+  if (!element) return;
+  element.focus();
+  if (snapshot.start != null && typeof element.setSelectionRange === "function") {
+    try {
+      element.setSelectionRange(snapshot.start, snapshot.end);
+    } catch {
+      // Non-text inputs can't set a selection range; ignore.
+    }
+  }
+}
+
 function sceneOverlayInteractionActive() {
   return performance.now() < sceneOverlayInteractionUntil;
+}
+
+function shouldDeferSceneOverlayRender(liveSignature) {
+  if (sceneWindowDragState || inventoryDragState) return true;
+  if (!sceneOverlayInteractionActive()) return false;
+  return liveSignature === sceneOverlayLiveSignature;
 }
 
 function isWizardCombatSpellId(spellId) {
@@ -11830,6 +12810,10 @@ function equippedXpBonusPercent(inventory = state.inventory) {
   return equippedBonusFromStats(inventory, "xpBonusPercent");
 }
 
+function equippedSkillLevelBonusPercent(inventory = state.inventory) {
+  return equippedBonusFromStats(inventory, "skillLevelBonusPercent");
+}
+
 function totalGoldBonusPercent(inventory = state.inventory) {
   return rebirthGoldBonusPercent() + equippedBonusFromStats(inventory, "goldBonusPercent");
 }
@@ -11893,6 +12877,11 @@ function applyRebirthUpgradeStats(stats) {
 function bossEmpowermentUnlocked() {
   if (BOSS_EMPOWER_SKIP_REBIRTH_UNLOCK) return true;
   return accountUpgradeTier("boss-empowerment") >= 1;
+}
+
+function empoweredCraftingUnlocked() {
+  if (EMPOWERED_CRAFTING_SKIP_REBIRTH_UNLOCK) return true;
+  return accountUpgradePurchased("rebirth-empowered-crafting");
 }
 
 function bossEmpowerAvailableForZone(zoneId) {
@@ -12191,7 +13180,6 @@ function updateWarriorChargeExpiry(now) {
 }
 
 function tryWarriorChargeSkill(spellId, now = performance.now()) {
-  if (warriorSlayingPending()) return false;
   const skill = warriorSpellById(spellId);
   if (!isWarriorChargeSkill(skill)) return false;
   const learned = learnedMagic(spellId);
@@ -12204,7 +13192,6 @@ function tryWarriorChargeSkill(spellId, now = performance.now()) {
 
 function maybeAutoWarriorCharge(now, options = {}) {
   if (state.battle.combatClass !== "Warrior") return false;
-  if (warriorSlayingPending()) return false;
   const offline = Boolean(options.offline);
   for (const spellId of WARRIOR_AUTO_CHARGE_ORDER) {
     if (warriorChargeReady(spellId)) continue;
@@ -12340,6 +13327,30 @@ function sortInventoryEntries() {
   return true;
 }
 
+function sortStorageEntries() {
+  ensureStorageSlots();
+  cleanupInventoryCarry();
+  const before = storageEntries().map(inventoryEntrySignature).join("|");
+  const merged = mergeStorageBagStacksForSort();
+  const sortedEntries = storageEntries().sort(compareInventoryEntriesForSort);
+  sortedEntries.forEach((entry, index) => {
+    entry.slot = index < state.account.storage.maxSlots ? index : null;
+  });
+  ensureStorageSlots();
+  const after = storageEntries().map(inventoryEntrySignature).join("|");
+  if (!merged && before === after) {
+    pushBattleLog("Storage already sorted.");
+  } else {
+    pushBattleLog("Storage sorted.");
+  }
+  sceneSignature = "";
+  hideItemTooltip();
+  playSfx("item.move", { volume: 0.42, throttleMs: 80 });
+  saveGameState(true);
+  renderSceneOverlay();
+  return true;
+}
+
 function mergeInventoryBagStacksForSort() {
   const partialStacks = new Map();
   const removeIds = new Set();
@@ -12369,6 +13380,40 @@ function mergeInventoryBagStacksForSort() {
   }
   if (removeIds.size) {
     state.inventory.items = state.inventory.items.filter((entry) => !removeIds.has(entry.id));
+    changed = true;
+  }
+  return changed;
+}
+
+function mergeStorageBagStacksForSort() {
+  const partialStacks = new Map();
+  const removeIds = new Set();
+  let changed = false;
+  const entries = storageEntries().sort((a, b) => (a.slot ?? 9999) - (b.slot ?? 9999));
+  for (const entry of entries) {
+    const item = itemDefinition(entry.itemId);
+    if (!isStackableItem(item)) continue;
+    const key = inventoryStackMergeKey(entry, item);
+    const maxStack = maxItemStack(item);
+    let target = partialStacks.get(key) ?? null;
+    while (target && target.id !== entry.id && entry.quantity > 0 && target.quantity < maxStack) {
+      const moved = Math.min(maxStack - target.quantity, entry.quantity);
+      if (moved <= 0) break;
+      target.quantity += moved;
+      entry.quantity -= moved;
+      changed = true;
+      if (entry.quantity <= 0) {
+        removeIds.add(entry.id);
+        break;
+      }
+      target = partialStacks.get(key) ?? null;
+      if (target?.quantity >= maxStack) target = null;
+    }
+    if (entry.quantity > 0 && entry.quantity < maxStack) partialStacks.set(key, entry);
+    else if (partialStacks.get(key)?.id === entry.id && entry.quantity >= maxStack) partialStacks.delete(key);
+  }
+  if (removeIds.size) {
+    state.account.storage.items = state.account.storage.items.filter((entry) => !removeIds.has(entry.id));
     changed = true;
   }
   return changed;
@@ -12453,7 +13498,13 @@ function inventoryEntryById(entryId) {
 }
 
 function itemEntryById(entryId) {
-  return inventoryEntryById(entryId) ?? storageEntryById(entryId);
+  const inventory = inventoryEntryById(entryId);
+  if (inventory) return inventory;
+  const storage = storageEntryById(entryId);
+  if (storage) return storage;
+  return weaponRefineStagedRecord(entryId)?.entry
+    ?? craftingCubeStagedRecord(entryId)?.entry
+    ?? null;
 }
 
 function storageEntries() {
@@ -13052,6 +14103,10 @@ function itemEntryStats(entry, item = itemDefinition(entry?.itemId)) {
     goldBonusPercent: Number(item?.stats?.goldBonusPercent) || 0,
     dropChanceBonusPercent: Number(item?.stats?.dropChanceBonusPercent) || 0,
     bonusAwakeningSoulChancePercent: Number(item?.stats?.bonusAwakeningSoulChancePercent) || 0,
+    damageTakenReductionPercent: Number(item?.stats?.damageTakenReductionPercent) || 0,
+    critChancePercent: Number(item?.stats?.critChancePercent) || 0,
+    critDamagePercent: Number(item?.stats?.critDamagePercent) || 0,
+    skillLevelBonusPercent: Number(item?.stats?.skillLevelBonusPercent) || 0,
   });
   const bonusStats = sanitizeItemBonusStats(entry?.bonusStats);
   const smithBonusStats = sanitizeSmithBonusStats(entry?.smithBonusStats);
@@ -13082,6 +14137,10 @@ function itemEntryStats(entry, item = itemDefinition(entry?.itemId)) {
     goldBonusPercent: stats.goldBonusPercent,
     dropChanceBonusPercent: stats.dropChanceBonusPercent,
     bonusAwakeningSoulChancePercent: stats.bonusAwakeningSoulChancePercent,
+    damageTakenReductionPercent: stats.damageTakenReductionPercent,
+    critChancePercent: stats.critChancePercent,
+    critDamagePercent: stats.critDamagePercent,
+    skillLevelBonusPercent: stats.skillLevelBonusPercent,
   };
 }
 
@@ -13208,7 +14267,13 @@ function isWoomaTaurusEnemy(enemy) {
 }
 
 function supportsEmpoweredBossCombat(enemy) {
-  return isWoomaTaurusEnemy(enemy) || isEvilSnakeEnemy(enemy);
+  return isWoomaTaurusEnemy(enemy)
+    || isEvilSnakeEnemy(enemy)
+    || isEvilCentipedeEnemy(enemy)
+    || isZumaTaurusEnemy(enemy)
+    || isBoneLordEnemy(enemy)
+    || isMinotaurKingEnemy(enemy)
+    || isOmaKingSpiritEnemy(enemy);
 }
 
 function scaleEnemyDamageRange(range, multiplier) {
@@ -13228,9 +14293,19 @@ function empoweredBossPreviewMaxHp(enemy, empowerSelected = state.bossEmpowerSel
   return base || null;
 }
 
+function empoweredBossDamageMultiplier(enemy) {
+  if (
+    isZumaTaurusEnemy(enemy)
+    || isBoneLordEnemy(enemy)
+    || isMinotaurKingEnemy(enemy)
+    || isOmaKingSpiritEnemy(enemy)
+  ) return 2;
+  return EMPOWERED_BOSS_DAMAGE_MULTIPLIER;
+}
+
 function applyEmpoweredBossCombatModifiers(enemy) {
   const hpMult = EMPOWERED_BOSS_HP_MULTIPLIER;
-  const dmgMult = EMPOWERED_BOSS_DAMAGE_MULTIPLIER;
+  const dmgMult = empoweredBossDamageMultiplier(enemy);
   enemy.maxHp = Math.max(1, Math.round((Number(enemy.maxHp) || 0) * hpMult));
   enemy.hp = enemy.maxHp;
   enemy.dc = scaleEnemyDamageRange(enemy.dc, dmgMult);
@@ -13243,7 +14318,8 @@ function applyEmpoweredBossCombatModifiers(enemy) {
 }
 
 function empoweredBossCombatLogLine(enemy) {
-  return `${enemy.name} is empowered — ${EMPOWERED_BOSS_HP_MULTIPLIER}× HP and ${EMPOWERED_BOSS_DAMAGE_MULTIPLIER}× damage, enrages at 70%, 40%, and 15% HP.`;
+  const dmgMult = empoweredBossDamageMultiplier(enemy);
+  return `${enemy.name} is empowered — ${EMPOWERED_BOSS_HP_MULTIPLIER}× HP and ${dmgMult}× damage, enrages at 70%, 40%, and 15% HP.`;
 }
 
 function applyEmpoweredBossFightModifiers(enemy = state.battle.enemy) {
@@ -13757,16 +14833,26 @@ function useBuffPotionEntry(entryId, options = {}) {
   }
 
   removeInventoryEntry(entry.id, 1);
-  if (!Array.isArray(state.battle.statBuffs)) state.battle.statBuffs = [];
-  state.battle.statBuffs = state.battle.statBuffs.filter((buff) => buff.kind !== def.kind);
-  state.battle.statBuffs.push({
+  const potionBuff = {
     kind: def.kind,
     label: def.label,
     stat: def.stat,
     minBonus: def.minBonus,
     maxBonus: def.maxBonus,
     expiresAt: now + BUFF_POTION_DURATION_MS,
-  });
+  };
+  if (!Array.isArray(state.battle.statBuffs)) state.battle.statBuffs = [];
+  state.battle.statBuffs = state.battle.statBuffs.filter((buff) => buff.kind !== def.kind);
+  state.battle.statBuffs.push(potionBuff);
+  // Boss-room combat reads member.statBuffs, not state.battle.statBuffs alone.
+  if (bossPartyActiveFight()) {
+    const leader = bossPartyLeaderMember();
+    if (leader) {
+      const memberBuffs = Array.isArray(leader.statBuffs) ? leader.statBuffs : [];
+      leader.statBuffs = memberBuffs.filter((buff) => buff.kind !== def.kind);
+      leader.statBuffs.push({ ...potionBuff });
+    }
+  }
   applyEquippedStatsToBattlePlayer();
 
   const bonusText = statBuffBonusLabel(def);
@@ -13811,7 +14897,20 @@ function updateStatBuffs(now = performance.now()) {
     }
     const leader = bossPartyLeaderMember();
     if (leader?.classId === bossPartyLeaderClassId()) {
-      const leaderBuffs = leader.statBuffs ?? [];
+      // Potions live on state.battle.statBuffs; spell buffs on the member. Merge so neither wipes the other.
+      let leaderBuffs = pruneStatBuffs(leader.statBuffs ?? [], now);
+      for (const potion of pruned.filter((buff) => isBuffPotionKind(buff.kind))) {
+        if (!leaderBuffs.some((buff) => buff.kind === potion.kind && Number(buff.expiresAt) === Number(potion.expiresAt))) {
+          leaderBuffs = leaderBuffs.filter((buff) => buff.kind !== potion.kind);
+          leaderBuffs.push(potion);
+          memberBuffsChanged = true;
+        }
+      }
+      if (leaderBuffs.length !== (leader.statBuffs ?? []).length
+        || leaderBuffs.some((buff, index) => buff !== (leader.statBuffs ?? [])[index])) {
+        leader.statBuffs = leaderBuffs;
+        memberBuffsChanged = true;
+      }
       if (leaderBuffs.length !== pruned.length || leaderBuffs.some((buff, index) => buff !== pruned[index])) {
         pruned = [...leaderBuffs];
         memberBuffsChanged = true;
@@ -14423,7 +15522,10 @@ async function applyEquipmentChanges() {
 
 function applyEquippedStatsToBattlePlayer() {
   const previous = state.battle.player;
-  const stats = characterTotalStats();
+  const bossMember = bossPartyOnField() ? bossPartyLeaderMember() : null;
+  // Boss-party members keep unbuffed base stats; combat applies member.statBuffs via effectiveCombatStats.
+  const useMemberBaseStats = Boolean(bossMember && previous === bossMember);
+  const stats = useMemberBaseStats ? characterEquipmentStats() : characterTotalStats();
   const combatClass = state.battle.combatClass ?? state.activeCharacterId ?? PLAYER_TEMPLATE.class;
   const previousMaxHp = previous?.maxHp ?? stats.maxHp;
   const previousMaxMp = previous?.maxMp ?? stats.maxMp;
@@ -14444,8 +15546,7 @@ function applyEquippedStatsToBattlePlayer() {
     state.battle.player = nextPlayer;
     return;
   }
-  const bossMember = bossPartyOnField() ? bossPartyLeaderMember() : null;
-  if (bossMember && previous === bossMember) {
+  if (useMemberBaseStats) {
     Object.assign(previous, nextPlayer);
     return;
   }
@@ -14516,6 +15617,7 @@ function updateEnemyActionButtons() {
 function renderGamePanel() {
   syncAchievementsNavigation();
   syncCashShopNavigation();
+  syncTeleportRingButton();
   if (IS_GAME_UI) {
     renderGameUiPanel();
     return;
@@ -14821,6 +15923,15 @@ function syncCashShopNavigation() {
   });
 }
 
+// The top-right ring button only exists once the account owns the Teleport Ring
+// unlock. It also disappears if the unlock is unavailable (demo/itch build).
+function syncTeleportRingButton() {
+  const show = teleportRingOwned() && cashShopEnabled() && UI_MODE === "game";
+  const button = document.getElementById("teleportRingButton");
+  if (button) button.hidden = !show;
+  if (!show && state.openScenes?.teleportRing) state.openScenes.teleportRing = false;
+}
+
 function bindSceneButtons(rootEl) {
   rootEl.querySelectorAll("[data-open-scene]").forEach((button) => {
     button.addEventListener("click", () => openScene(button.dataset.openScene));
@@ -14846,6 +15957,15 @@ function bindSceneButtons(rootEl) {
       await requestZoneEntry(button.dataset.enterZone);
     });
   });
+  rootEl.querySelectorAll("[data-teleport-ring-zone]").forEach((button) => {
+    button.addEventListener("click", async () => {
+      // Close the ring menu before opening the boss-entry page so the windows
+      // don't stack on top of each other.
+      state.openScenes.teleportRing = false;
+      removeSceneWindowFromStack("teleportRing");
+      await requestZoneEntry(button.dataset.teleportRingZone);
+    });
+  });
   rootEl.querySelectorAll("[data-head-to-mines]").forEach((button) => {
     button.addEventListener("click", () => enterMiningFromRefiner());
   });
@@ -14857,6 +15977,32 @@ function bindSceneButtons(rootEl) {
   });
   rootEl.querySelectorAll("[data-open-weapon-refine]").forEach((button) => {
     button.addEventListener("click", () => openWeaponRefineScene());
+  });
+  rootEl.querySelectorAll("[data-open-crafting-cube]").forEach((button) => {
+    button.addEventListener("click", () => openCraftingCubeScene());
+  });
+  rootEl.querySelectorAll("[data-crafting-cube-mode]").forEach((button) => {
+    button.addEventListener("click", () => setCraftingCubeMode(button.dataset.craftingCubeMode));
+  });
+  rootEl.querySelectorAll("[data-crafting-cube-recipes-toggle]").forEach((button) => {
+    button.addEventListener("click", () => toggleCraftingCubeRecipesPanel());
+  });
+  rootEl.querySelectorAll("[data-crafting-cube-recipe-select]").forEach((button) => {
+    button.addEventListener("click", () => selectCraftingCubeRecipe(button.dataset.craftingCubeRecipeSelect));
+  });
+  rootEl.querySelectorAll("[data-attempt-crafting-cube-salvage]").forEach((button) => {
+    button.addEventListener("click", () => attemptCraftingCubeSalvage());
+  });
+  rootEl.querySelectorAll("[data-attempt-crafting-cube-craft]").forEach((button) => {
+    button.addEventListener("click", () => attemptCraftingCubeCraft());
+  });
+  rootEl.querySelectorAll("[data-crafting-cube-empower-pick]").forEach((button) => {
+    button.addEventListener("click", () => setCraftingCubeTargetedEmpowerSlot(button.dataset.craftingCubeEmpowerPick));
+  });
+  rootEl.querySelectorAll("[data-crafting-cube-empower-swap-pick]").forEach((button) => {
+    const raw = String(button.dataset.craftingCubeEmpowerSwapPick ?? "");
+    const [side, slotIndex] = raw.split(":");
+    button.addEventListener("click", () => setCraftingCubeTargetedEmpowerSwapSlot(side, slotIndex));
   });
   rootEl.querySelectorAll("[data-refine-slot]").forEach((button) => {
     button.addEventListener("click", () => {
@@ -14946,19 +16092,34 @@ function initialOpenScenesFromUrl() {
     options: scenes.has("options"),
     leaderboard: scenes.has("leaderboard"),
     cashShop: scenes.has("cashShop") || scenes.has("shop"),
+    teleportRing: scenes.has("teleportRing"),
   };
 }
 
+function craftingCubeCompanionScenes() {
+  if (state.activeScene !== "craftingCube" || !state.craftingCube?.recipesOpen) return [];
+  return ["craftingCubeRecipes"];
+}
+
+function npcActiveScene() {
+  if (state.activeScene === "townNpc" || state.activeScene === "storage" || state.activeScene === "bossEntry" || state.activeScene === "weaponRefine" || state.activeScene === "craftingCube") {
+    return state.activeScene;
+  }
+  return null;
+}
+
 function currentOverlayScenes() {
-  const openScenes = ["characterSelect", "character", "inventory", "codex", "achievements", "upgrades", "gettingStarted", "options", "leaderboard", "cashShop"].filter((scene) => state.openScenes[scene]);
-  const npcScene = state.activeScene === "townNpc" || state.activeScene === "storage" || state.activeScene === "bossEntry" || state.activeScene === "weaponRefine"
-    ? state.activeScene
-    : null;
-  return npcScene ? [...openScenes, npcScene] : openScenes;
+  const openScenes = ["characterSelect", "character", "inventory", "codex", "achievements", "upgrades", "gettingStarted", "options", "leaderboard", "cashShop", "teleportRing"].filter((scene) => state.openScenes[scene]);
+  const npcScene = npcActiveScene();
+  const overlayScenes = npcScene ? [...openScenes, npcScene] : openScenes;
+  return [...overlayScenes, ...craftingCubeCompanionScenes()];
 }
 
 function isSceneWindowOpen(scene) {
-  if (scene === "character" || scene === "inventory" || scene === "codex" || scene === "achievements" || scene === "upgrades" || scene === "characterSelect" || scene === "gettingStarted" || scene === "options" || scene === "leaderboard" || scene === "cashShop") {
+  if (scene === "craftingCubeRecipes") {
+    return state.activeScene === "craftingCube" && Boolean(state.craftingCube?.recipesOpen);
+  }
+  if (scene === "character" || scene === "inventory" || scene === "codex" || scene === "achievements" || scene === "upgrades" || scene === "characterSelect" || scene === "gettingStarted" || scene === "options" || scene === "leaderboard" || scene === "cashShop" || scene === "teleportRing") {
     return Boolean(state.openScenes[scene]);
   }
   return state.activeScene === scene;
@@ -15024,10 +16185,11 @@ function toggleOpenScene(scene, options = {}) {
 }
 
 function openScene(scene, updateUrl = true) {
-  if (!["character", "inventory", "codex", "achievements", "upgrades", "characterSelect", "gettingStarted", "options", "leaderboard", "cashShop"].includes(scene)) return;
+  if (!["character", "inventory", "codex", "achievements", "upgrades", "characterSelect", "gettingStarted", "options", "leaderboard", "cashShop", "teleportRing"].includes(scene)) return;
   if (scene === "achievements" && !achievementsEnabled()) return;
+  if (scene === "teleportRing" && !teleportRingOwned()) return;
   state.game.selectedTownNpcId = null;
-  if (state.activeScene === "townNpc" || state.activeScene === "storage" || state.activeScene === "bossEntry" || state.activeScene === "weaponRefine") {
+  if (state.activeScene === "townNpc" || state.activeScene === "storage" || state.activeScene === "bossEntry" || state.activeScene === "weaponRefine" || state.activeScene === "craftingCube") {
     removeSceneWindowFromStack(state.activeScene);
     state.activeScene = null;
   }
@@ -15041,11 +16203,13 @@ function openScene(scene, updateUrl = true) {
     state.openScenes.options = false;
     state.openScenes.leaderboard = false;
     state.openScenes.cashShop = false;
+    state.openScenes.teleportRing = false;
   } else {
     state.openScenes.characterSelect = false;
   }
   state.openScenes[scene] = true;
   if (scene === "achievements") checkAchievementsForCurrentCharacter();
+  if (scene === "options") void fetchPlayerAlias();
   if (scene === "leaderboard") void ensureLeaderboardData();
   if (scene === "cashShop") void fetchTokenBalance(true);
   pushSceneWindow(scene);
@@ -15062,7 +16226,7 @@ function closeScene(scene = null, updateUrl = true) {
     updateUrl = scene;
     scene = null;
   }
-  if (scene === "character" || scene === "inventory" || scene === "codex" || scene === "achievements" || scene === "upgrades" || scene === "characterSelect" || scene === "gettingStarted" || scene === "options" || scene === "leaderboard" || scene === "cashShop") {
+  if (scene === "character" || scene === "inventory" || scene === "codex" || scene === "achievements" || scene === "upgrades" || scene === "characterSelect" || scene === "gettingStarted" || scene === "options" || scene === "leaderboard" || scene === "cashShop" || scene === "teleportRing") {
     state.openScenes[scene] = false;
     if (scene === "inventory") state.pendingInventoryDestroyEntryId = null;
     if (scene === "upgrades") state.pendingRebirthConfirm = false;
@@ -15072,23 +16236,38 @@ function closeScene(scene = null, updateUrl = true) {
     state.weaponRefine.picker = { kind: "weapon", index: 0 };
     state.activeScene = state.game.selectedTownNpcId ? "townNpc" : null;
     removeSceneWindowFromStack(scene);
+  } else if (scene === "craftingCube") {
+    restoreAllCraftingCubeStagedEntries();
+    if (state.craftingCube) state.craftingCube.recipesOpen = false;
+    state.activeScene = state.game.selectedTownNpcId ? "townNpc" : null;
+    removeSceneWindowFromStack(scene);
+    removeSceneWindowFromStack("craftingCubeRecipes");
+  } else if (scene === "craftingCubeRecipes") {
+    if (state.craftingCube) state.craftingCube.recipesOpen = false;
+    removeSceneWindowFromStack(scene);
   } else if (scene === "townNpc" || scene === "storage" || scene === "bossEntry") {
     state.game.selectedTownNpcId = null;
     if (scene === "storage") state.pendingStorageUnlock = null;
-    if (state.activeScene === "townNpc" || state.activeScene === "storage" || state.activeScene === "bossEntry" || state.activeScene === "weaponRefine") state.activeScene = null;
+    if (state.activeScene === "townNpc" || state.activeScene === "storage" || state.activeScene === "bossEntry" || state.activeScene === "weaponRefine" || state.activeScene === "craftingCube") state.activeScene = null;
     if (scene === "bossEntry") {
       state.bossEntryZoneId = null;
       state.bossEntryFromGroupDungeonAdvance = false;
       state.bossEmpowerSelected = false;
     }
-    if (scene === "townNpc") resetWeaponRefineState();
+    if (scene === "townNpc") {
+      resetWeaponRefineState();
+      resetCraftingCubeState();
+    }
     removeSceneWindowFromStack(scene);
   } else {
     if (state.activeScene === "weaponRefine" || Object.keys(state.weaponRefine?.stagedEntries ?? {}).length) {
       restoreAllWeaponRefineStagedEntries();
       state.weaponRefine.picker = { kind: "weapon", index: 0 };
     }
-    if (state.activeScene === "townNpc" || state.activeScene === "storage" || state.activeScene === "weaponRefine") state.game.selectedTownNpcId = null;
+    if (state.activeScene === "craftingCube" || Object.keys(state.craftingCube?.stagedEntries ?? {}).length) {
+      restoreAllCraftingCubeStagedEntries();
+    }
+    if (state.activeScene === "townNpc" || state.activeScene === "storage" || state.activeScene === "weaponRefine" || state.activeScene === "craftingCube") state.game.selectedTownNpcId = null;
     state.bossEntryZoneId = null;
     state.bossEntryFromGroupDungeonAdvance = false;
     state.activeScene = null;
@@ -15126,11 +16305,9 @@ function setSceneUrl() {
 function renderSceneOverlay(options = {}) {
   const deferUserInteraction = Boolean(options.deferUserInteraction);
   if (!achievementsEnabled()) state.openScenes.achievements = false;
-  const openScenes = ["characterSelect", "character", "inventory", "codex", "achievements", "upgrades", "gettingStarted", "options", "leaderboard", "cashShop"].filter((scene) => state.openScenes[scene]);
-  const npcScene = state.activeScene === "townNpc" || state.activeScene === "storage" || state.activeScene === "bossEntry" || state.activeScene === "weaponRefine"
-    ? state.activeScene
-    : null;
-  const overlayScenes = npcScene ? [...openScenes, npcScene] : openScenes;
+  if (state.openScenes.teleportRing && !teleportRingOwned()) state.openScenes.teleportRing = false;
+  const openScenes = ["characterSelect", "character", "inventory", "codex", "achievements", "upgrades", "gettingStarted", "options", "leaderboard", "cashShop", "teleportRing"].filter((scene) => state.openScenes[scene]);
+  const overlayScenes = currentOverlayScenes();
   const destroyConfirmHtml = inventoryDestroyConfirmHtml();
   const rebirthConfirmHtmlContent = rebirthConfirmHtml();
   if (!overlayScenes.length && !destroyConfirmHtml && !rebirthConfirmHtmlContent) {
@@ -15138,17 +16315,21 @@ function renderSceneOverlay(options = {}) {
     els.sceneOverlay.hidden = true;
     els.sceneOverlay.innerHTML = "";
     sceneSignature = "";
+    sceneOverlayLiveSignature = "";
     return;
   }
 
   const bossEntryZoneId = state.activeScene === "bossEntry" ? state.bossEntryZoneId : null;
   const signature = buildSceneOverlaySignature(openScenes, bossEntryZoneId);
+  const liveSignature = buildSceneOverlayLiveSignature(openScenes, bossEntryZoneId);
   if (signature === sceneSignature) return;
-  if (deferUserInteraction && sceneOverlayInteractionActive()) return;
+  if (deferUserInteraction && shouldDeferSceneOverlayRender(liveSignature)) return;
   prepareInventoryCarryForSceneRender();
   sceneSignature = signature;
+  sceneOverlayLiveSignature = liveSignature;
 
   const scrollPositions = captureSceneScrollPositions();
+  const focusSnapshot = captureSceneOverlayFocus();
   els.sceneOverlay.hidden = false;
   els.sceneOverlay.innerHTML = `
     <div class="scene-window-stack">
@@ -15162,6 +16343,7 @@ function renderSceneOverlay(options = {}) {
   applySceneWindowPositions(els.sceneOverlay);
   bindSceneScrollPreservation(els.sceneOverlay);
   restoreSceneScrollPositions(scrollPositions);
+  restoreSceneOverlayFocus(focusSnapshot);
 }
 
 function sceneWindowPosition(scene) {
@@ -15220,7 +16402,6 @@ function applySceneWindowPositions(rootEl) {
 function beginSceneWindowDrag(event, scene, windowEl, handleEl) {
   if (event.button !== 0 || inventoryDragState) return;
   event.preventDefault();
-  noteSceneOverlayInteraction(60000);
   const rect = windowEl.getBoundingClientRect();
   const saved = sceneWindowPosition(scene);
   const startX = saved?.x ?? rect.left;
@@ -15269,7 +16450,6 @@ function handleSceneWindowDragEnd(event) {
     // Ignore stale capture errors after interrupted drags.
   }
   sceneWindowDragState = null;
-  noteSceneOverlayInteraction(700);
   saveGameState(true);
 }
 
@@ -15287,6 +16467,7 @@ function bindDraggableSceneWindows(rootEl) {
 }
 
 function buildSceneOverlaySignature(openScenes, bossEntryZoneId) {
+  const { sceneWindowPositions: _sceneWindowPositions, ...overlaySettings } = state.settings ?? {};
   const payload = {
     scene: state.activeScene,
     openScenes: state.openScenes,
@@ -15316,11 +16497,12 @@ function buildSceneOverlaySignature(openScenes, bossEntryZoneId) {
     teleportBrowseRegionId: state.teleportBrowseRegionId,
     selectedTownNpcId: state.game.selectedTownNpcId,
     weaponRefine: state.weaponRefine,
+    craftingCube: state.craftingCube,
     combatClass: state.battle.combatClass,
     accountUpgrades: state.account.upgrades,
     autoCastSlotLimit: autoCastSlotLimit(),
     autoPotionSlotLimit: autoPotionSlotLimit(),
-    settings: state.settings,
+    settings: overlaySettings,
   };
   if (state.game.selectedTownNpcId === "message-board") {
     payload.messageBoard = {
@@ -15336,6 +16518,11 @@ function buildSceneOverlaySignature(openScenes, bossEntryZoneId) {
   }
   if (bossEntryZoneId) {
     payload.bossEntryRespawnSec = Math.ceil(bossRespawnRemainingMs(bossEntryZoneId) / 1000);
+  }
+  if (openScenes.includes("teleportRing")) {
+    const nowTs = Date.now();
+    payload.teleportRingTimers = teleportRingBossZoneIds()
+      .map((zoneId) => Math.ceil(bossRespawnRemainingMs(zoneId, nowTs) / 1000));
   }
   if (openScenes.includes("character")) {
     payload.level = state.game.progress.level;
@@ -15376,6 +16563,52 @@ function buildSceneOverlaySignature(openScenes, bossEntryZoneId) {
     payload.storagePagesUnlocked = state.account.storage.pagesUnlocked;
     payload.storagePage2Purchased = state.account.storage.page2Purchased;
     payload.storageItems = state.account.storage.items.map(inventoryEntrySignature);
+  }
+  return JSON.stringify(payload);
+}
+
+function buildSceneOverlayLiveSignature(openScenes, bossEntryZoneId) {
+  const payload = {};
+  if (openScenes.includes("character")) {
+    payload.level = state.game.progress.level;
+    payload.experience = state.game.progress.experience;
+    payload.magic = sceneMagicSignature();
+    if (state.characterTab === "character") {
+      payload.equipment = state.inventory.equipment;
+    }
+    if (state.characterTab === "status") {
+      const stats = characterTotalStats();
+      payload.statusStats = {
+        hp: stats.hp,
+        mp: stats.mp,
+        ac: stats.ac,
+        amc: stats.amc,
+        dc: stats.dc,
+        mc: stats.mc,
+        sc: stats.sc,
+      };
+      payload.statBuffs = pruneStatBuffs(state.battle.statBuffs ?? []);
+    }
+  }
+  if (openScenes.includes("inventory") || openScenes.includes("weaponRefine")) {
+    payload.gold = state.inventory.gold;
+    payload.inventoryItems = state.inventory.items.map(inventoryEntrySignature);
+  }
+  if (openScenes.includes("achievements")) {
+    payload.achievements = state.account.achievements;
+    payload.awakeningSouls = accountAwakenedSoulCount();
+    payload.activeLevel = state.game.progress.level;
+  }
+  if (openScenes.includes("storage") || state.activeScene === "storage") {
+    payload.storageItems = state.account.storage.items.map(inventoryEntrySignature);
+  }
+  if (bossEntryZoneId) {
+    payload.bossEntryRespawnSec = Math.ceil(bossRespawnRemainingMs(bossEntryZoneId) / 1000);
+  }
+  if (openScenes.includes("teleportRing")) {
+    const nowTs = Date.now();
+    payload.teleportRingTimers = teleportRingBossZoneIds()
+      .map((zoneId) => Math.ceil(bossRespawnRemainingMs(zoneId, nowTs) / 1000));
   }
   return JSON.stringify(payload);
 }
@@ -15448,6 +16681,8 @@ function sceneClassName(scene) {
   if (scene === "bossEntry") return "scene-window boss-entry-window";
   if (scene === "storage") return "scene-window storage-window";
   if (scene === "weaponRefine") return "scene-window weapon-refine-window";
+  if (scene === "craftingCube") return "scene-window crafting-cube-window";
+  if (scene === "craftingCubeRecipes") return "scene-window crafting-cube-recipes-window";
   if (scene === "inventory") return "scene-window inventory-window";
   if (scene === "codex") return "scene-window codex-window";
   if (scene === "achievements") return "scene-window achievements-window";
@@ -15457,6 +16692,7 @@ function sceneClassName(scene) {
   if (scene === "options") return "scene-window options-window";
   if (scene === "leaderboard") return "scene-window leaderboard-window";
   if (scene === "cashShop") return "scene-window cash-shop-window";
+  if (scene === "teleportRing") return "scene-window teleport-ring-window";
   return "scene-window";
 }
 
@@ -15468,11 +16704,14 @@ function sceneTitle(scene) {
   if (scene === "achievements") return "Achievements";
   if (scene === "storage") return "Storage";
   if (scene === "weaponRefine") return "Weapon Refine";
+  if (scene === "craftingCube") return "Crafting Cube";
+  if (scene === "craftingCubeRecipes") return "Recipes";
   if (scene === "upgrades") return "Upgrades";
   if (scene === "gettingStarted") return "Getting Started";
   if (scene === "options") return "Options";
   if (scene === "leaderboard") return "Social";
   if (scene === "cashShop") return "Cash Shop";
+  if (scene === "teleportRing") return "Teleport Ring";
   if (scene === "bossEntry") {
     const zone = bossEntryZone();
     if (groupDungeonZone(zone)) return zone?.label ?? "Group Dungeon";
@@ -15493,8 +16732,11 @@ function sceneBodyHtml(scene) {
   if (scene === "options") return optionsSceneHtml();
   if (scene === "leaderboard") return leaderboardSceneHtml();
   if (scene === "cashShop") return cashShopSceneHtml();
+  if (scene === "teleportRing") return teleportRingSceneHtml();
   if (scene === "bossEntry") return bossEntrySceneHtml();
   if (scene === "weaponRefine") return weaponRefineSceneHtml();
+  if (scene === "craftingCube") return craftingCubeSceneHtml();
+  if (scene === "craftingCubeRecipes") return craftingCubeRecipesSceneHtml();
   if (scene === "townNpc") return townNpcSceneHtml();
   return "";
 }
@@ -16360,6 +17602,7 @@ function accountUpgradeIconText(upgrade) {
   if (upgrade?.effect === "gemMerchantUnlock") return "GM";
   if (upgrade?.effect === "gemMerchantEfficiency") return "GE";
   if (upgrade?.effect === "bossEmpowerment") return "B";
+  if (upgrade?.effect === "empoweredCraftingUnlock") return "CC";
   if (upgrade?.effect === "baseStatBonus") return String(upgrade?.stat ?? "S").toUpperCase().slice(0, 3);
   return "UP";
 }
@@ -16433,6 +17676,46 @@ function gettingStartedSceneHtml() {
   `;
 }
 
+function playerAliasSectionHtml() {
+  const stats = state.prototypeStats;
+  const displayName = prototypeStatsDisplayName();
+  const defaultLabel = prototypeStatsPlayerLabel();
+  const hasRecovery = Boolean(state.cloudSave?.recoveryCode);
+  const statusText = stats.aliasError
+    ? stats.aliasError
+    : stats.aliasStatus === "saved"
+      ? "Name saved."
+      : "";
+  const statusClass = stats.aliasError ? "options-alias-status error" : "options-alias-status";
+  return `
+    <section class="options-alias" aria-label="Display name">
+      <div class="options-save-transfer-header">
+        <div>
+          <strong>Display Name</strong>
+          <span>Shown on the Social tab and town noticeboard. Default: ${escapeHtml(defaultLabel)}</span>
+        </div>
+      </div>
+      <p class="options-note">Currently shown as: <strong>${escapeHtml(displayName)}</strong></p>
+      <div class="options-alias-control">
+        <input
+          type="text"
+          value="${escapeHtml(stats.aliasInput ?? "")}"
+          maxlength="16"
+          placeholder="Choose a name"
+          autocomplete="off"
+          spellcheck="false"
+          data-player-alias-input
+        />
+        <button type="button" data-submit-player-alias ${stats.aliasSaving || !hasRecovery ? "disabled" : ""}>
+          ${stats.aliasSaving ? "Saving..." : "Save Name"}
+        </button>
+      </div>
+      ${hasRecovery ? "" : `<p class="options-note">A recovery code is required to claim a name.</p>`}
+      ${statusText ? `<p class="${statusClass}">${escapeHtml(statusText)}</p>` : ""}
+    </section>
+  `;
+}
+
 function optionsSceneHtml() {
   const track = currentMusicTrack();
   const volume = Math.round(normalizedVolume(state.settings.musicVolume) * 100);
@@ -16474,9 +17757,7 @@ function optionsSceneHtml() {
           ${statsReady ? (statsEnabled ? "On" : "Off") : "Not Set"}
         </button>
       </div>
-      ${statsReady && state.prototypeStats.playerId
-        ? `<p class="options-note">Leaderboard name: <strong>${escapeHtml(prototypeStatsPlayerLabel())}</strong></p>`
-        : ""}
+      ${statsReady && state.prototypeStats.playerId ? playerAliasSectionHtml() : ""}
       ${state.prototypeStats.statusText ? `<p class="options-note">${escapeHtml(state.prototypeStats.statusText)}</p>` : ""}
       ${state.prototypeStats.panelUrl ? `<p class="options-note"><a href="${escapeHtml(state.prototypeStats.panelUrl)}" target="_blank" rel="noopener noreferrer">Open Stats Leaderboard</a></p>` : ""}
       <section class="options-cloud-save" aria-label="Cloud save recovery">
@@ -16819,10 +18100,11 @@ function crystalCharacterSkillPageHtml() {
 }
 
 function characterSkillSpells(classId = state.battle.combatClass) {
-  if (classId === "Warrior") return CRYSTAL_WARRIOR_SPELLS;
-  if (classId === "Wizard") return CRYSTAL_WIZARD_SPELLS;
-  if (classId === "Taoist") return CRYSTAL_TAOIST_SPELLS;
-  return [];
+  let spells = [];
+  if (classId === "Warrior") spells = CRYSTAL_WARRIOR_SPELLS;
+  else if (classId === "Wizard") spells = CRYSTAL_WIZARD_SPELLS;
+  else if (classId === "Taoist") spells = CRYSTAL_TAOIST_SPELLS;
+  return [...spells].sort(compareCombatSpellsByLearnLevel);
 }
 
 function crystalSkillRowHtml(spell, learned) {
@@ -16887,8 +18169,8 @@ function characterStatusValue(key, stats) {
     dc: formatStatRange(stats.dc),
     mc: formatStatRange(stats.mc),
     sc: formatStatRange(stats.sc),
-    critRate: "0%",
-    critDamage: "0",
+    critRate: `${clampCritChancePercent(stats.critChancePercent)}%`,
+    critDamage: `${100 + CRIT_BASE_DAMAGE_PERCENT + Math.max(0, Math.trunc(Number(stats.critDamagePercent) || 0))}%`,
     attackSpeed: characterAttackSpeedLabel(),
     accuracy: `+${stats.accuracy}`,
     agility: `+${stats.agility}`,
@@ -16939,6 +18221,17 @@ function refreshTokenScenes() {
     sceneSignature = "";
     renderSceneOverlay();
   }
+}
+
+// Cash Shop purchase of the account-wide Teleport Ring (server-authoritative).
+function confirmTeleportRingPurchase() {
+  if (teleportRingOwned() || state.tokens.buying) return;
+  purchasePageUnlock(TELEPORT_RING_UNLOCK_KEY, () => {
+    pushBattleLog("Teleport Ring unlocked - tap the ring at the top-right to warp to boss rooms.");
+    playSfx("ui.gold", { volume: 0.55, throttleMs: 80 });
+    syncTeleportRingButton();
+    saveGameState(true);
+  });
 }
 
 async function fetchTokenBalance(force = false) {
@@ -17064,6 +18357,9 @@ function applyOwnedUnlocks() {
   syncInventoryCapacity();
   ensureInventorySlots();
   syncBossPartyInventoryCapacityFromState();
+  // The Teleport Ring has no derived save state - owning it just shows the
+  // top-right button, so reconcile its visibility here.
+  syncTeleportRingButton();
 }
 
 // Fetches the account's owned unlocks + balance from the server (source of
@@ -17113,6 +18409,27 @@ function cashShopSceneHtml() {
         </button>
       </div>
   `).join("");
+  const balanceValue = Math.max(0, Math.trunc(Number(tokens.balance) || 0));
+  const ringOwned = teleportRingOwned();
+  const ringAffordable = balanceValue >= TELEPORT_RING_TOKEN_COST;
+  const ringButtonHtml = ringOwned
+    ? `<button type="button" class="cash-shop-owned" disabled>Owned</button>`
+    : `<button type="button" class="primary" data-buy-unlock="${TELEPORT_RING_UNLOCK_KEY}" ${tokens.buying || !ringAffordable ? "disabled" : ""}>
+          ${tokens.buying ? "Purchasing..." : `Buy for ${TELEPORT_RING_TOKEN_COST} tokens`}
+        </button>${ringAffordable ? "" : `<small class="cash-shop-need">Need ${TELEPORT_RING_TOKEN_COST} tokens</small>`}`;
+  const spendHtml = `
+      <div class="cash-shop-spend">
+        <h3>Spend tokens</h3>
+        <div class="cash-shop-item">
+          <img class="cash-shop-item-icon" src="${TELEPORT_RING_ICON_SRC}" alt="Teleport Ring" />
+          <div class="cash-shop-item-info">
+            <strong>Teleport Ring</strong>
+            <small>Adds a ring button to your screen that opens a boss-room teleport menu with live respawn timers.</small>
+          </div>
+          <div class="cash-shop-item-buy">${ringButtonHtml}</div>
+        </div>
+      </div>
+  `;
   return `
     <section class="cash-shop-panel">
       <div class="cash-shop-balance">
@@ -17124,6 +18441,7 @@ function cashShopSceneHtml() {
         spent in-game - for example, posting on the Message Board.
       </p>
       ${packsHtml}
+      ${spendHtml}
       ${errorHtml}
       <p class="cash-shop-note">Payments are handled by Stripe. We never see your card details.</p>
       <p class="cash-shop-legal">
@@ -17131,6 +18449,49 @@ function cashShopSceneHtml() {
         <a href="./terms.html" target="_blank" rel="noopener noreferrer">Terms of Service</a>
         and <a href="./refund.html" target="_blank" rel="noopener noreferrer">Refund Policy</a>.
       </p>
+    </section>
+  `;
+}
+
+// Boss rooms the Teleport Ring can reach: standalone boss rooms (BOSS_ROOM_DEFS
+// already excludes group dungeons) that are ALSO reachable via the normal
+// teleport NPC. This keeps test-only/unreleased boss rooms (e.g. Flame Queen,
+// Flaming Mutant, Scaly Beast - not in any TELEPORT_REGIONS) out of the list.
+function teleportRingBossZoneIds() {
+  const reachable = new Set(TELEPORT_REGIONS.flatMap((region) => region.zoneIds ?? []));
+  return Object.keys(BOSS_ROOM_DEFS).filter((zoneId) => reachable.has(zoneId));
+}
+
+// Boss-room teleport menu opened from the top-right Teleport Ring button. Lists
+// each reachable boss room with a live respawn timer; clicking a boss opens its
+// boss-entry page.
+function teleportRingSceneHtml() {
+  const now = Date.now();
+  const rows = teleportRingBossZoneIds().map((zoneId) => {
+    const def = BOSS_ROOM_DEFS[zoneId];
+    const zone = PROTOTYPE_ZONES.find((entry) => entry.id === zoneId);
+    const label = zone?.label ?? def.bossName;
+    const remaining = bossRespawnRemainingMs(zoneId, now);
+    const ready = remaining <= 0;
+    const statusHtml = ready
+      ? `<span class="teleport-ring-status is-ready">Ready</span>`
+      : `<span class="teleport-ring-status is-cooldown">${escapeHtml(formatDuration(remaining))}</span>`;
+    return `
+      <button type="button" class="teleport-ring-boss${ready ? " is-ready" : ""}" data-teleport-ring-zone="${escapeHtml(zoneId)}">
+        <span class="teleport-ring-boss-text">
+          <strong class="teleport-ring-boss-name">${escapeHtml(def.bossName)}</strong>
+          <small class="teleport-ring-boss-zone">${escapeHtml(label)}</small>
+        </span>
+        ${statusHtml}
+      </button>
+    `;
+  }).join("");
+  return `
+    <section class="teleport-ring-panel">
+      <p class="teleport-ring-intro">Warp to any boss room. Timers show when each boss is ready to fight again.</p>
+      <div class="teleport-ring-list" data-preserve-scroll="teleport-ring-list">
+        ${rows}
+      </div>
     </section>
   `;
 }
@@ -17685,6 +19046,7 @@ function storageSceneHtml() {
       <span class="crystal-storage-title" aria-hidden="true"></span>
       ${storagePageTabsHtml()}
       ${storagePageUnlockConfirmHtml()}
+      <button type="button" class="crystal-inventory-sort crystal-storage-sort" data-sort-storage title="Sort storage">Sort</button>
       <span class="crystal-storage-count">${storageUsedSlots()}/${state.account.storage.maxSlots}</span>
       ${Array.from({ length: visibleSlots }, (_, index) => crystalStorageSlotHtml(pageStart + index, index)).join("")}
     </section>
@@ -17708,7 +19070,7 @@ function crystalStorageItemHtml(entry, item) {
   const stack = isStackableItem(item) && entry.quantity > 1 ? `<span class="crystal-item-qty">${entry.quantity}</span>` : "";
   return `
     <div
-      class="crystal-storage-item has-tooltip"
+      class="crystal-storage-item has-tooltip${inventoryEmpoweredClass(entry)}"
       data-tooltip-item="${item.id}"
       data-tooltip-entry="${entry.id}"
       data-storage-entry="${entry.id}"
@@ -17869,7 +19231,7 @@ function crystalInventoryItemHtml(entry, item) {
   const locked = !requirement.ok && (isEquipableItem(item) || isBookItem(item));
   return `
     <div
-      class="crystal-inventory-item has-tooltip ${equipped ? "equipped" : ""} ${locked ? "locked" : ""}${inventoryMarkClass(entry)}"
+      class="crystal-inventory-item has-tooltip ${equipped ? "equipped" : ""} ${locked ? "locked" : ""}${inventoryEmpoweredClass(entry)}${inventoryMarkClass(entry)}"
       data-tooltip-item="${item.id}"
       data-tooltip-entry="${entry.id}"
       data-inventory-entry="${entry.id}"
@@ -17991,19 +19353,27 @@ function equipmentSlotHtml(slot) {
 function beginInventoryClickCarry(event, itemElement) {
   const refineBoardKind = itemElement.dataset.refineBoardKind ?? null;
   const refineBoardIndex = Number(itemElement.dataset.refineBoardIndex);
+  const craftingCubeBoardIndex = itemElement.dataset.craftingCubeBoardIndex != null
+    ? Number(itemElement.dataset.craftingCubeBoardIndex)
+    : null;
   const sourceContainer = refineBoardKind
     ? "weaponRefine"
-    : itemElement.dataset.storageEntry
-      ? "storage"
-      : "inventory";
+    : craftingCubeBoardIndex != null
+      ? "craftingCube"
+      : itemElement.dataset.storageEntry
+        ? "storage"
+        : "inventory";
   const entryId = itemElement.dataset.refineBoardEntry
+    ?? itemElement.dataset.craftingCubeBoardEntry
     ?? itemElement.dataset.storageEntry
     ?? itemElement.dataset.inventoryEntry;
   const entry = sourceContainer === "storage"
     ? storageEntryById(entryId)
     : sourceContainer === "weaponRefine"
       ? weaponRefineEntryById(entryId)
-      : inventoryEntryById(entryId);
+      : sourceContainer === "craftingCube"
+        ? craftingCubeEntryById(entryId)
+        : inventoryEntryById(entryId);
   if (!entry) return false;
   cleanupInventoryCarry();
   const rect = itemElement.getBoundingClientRect();
@@ -18019,6 +19389,9 @@ function beginInventoryClickCarry(event, itemElement) {
     sourceEquipmentSlot: itemElement.dataset.equippedSlot ?? null,
     refineBoardSlot: refineBoardKind
       ? { kind: refineBoardKind, index: Math.max(0, refineBoardIndex) }
+      : null,
+    craftingCubeSlot: craftingCubeBoardIndex != null
+      ? { index: Math.max(0, craftingCubeBoardIndex) }
       : null,
     source: itemElement,
     ghost,
@@ -18050,6 +19423,26 @@ function isCharacterWindowOpen() {
 
 function isStorageWindowOpen() {
   return state.activeScene === "storage";
+}
+
+function isCraftingCubeWindowOpen() {
+  return state.activeScene === "craftingCube";
+}
+
+function nextFreeCraftingCubeSlot() {
+  const slots = state.craftingCube?.slotEntryIds ?? [];
+  for (let index = 0; index < slots.length; index += 1) {
+    if (!slots[index]) return index;
+  }
+  return null;
+}
+
+function quickMoveInventoryEntryToCraftingCube(entryId) {
+  const entry = craftingCubeEntryById(entryId);
+  if (!entry || !canPlaceCraftingCubeItem(entry)) return false;
+  const slotIndex = nextFreeCraftingCubeSlot();
+  if (slotIndex === null) return false;
+  return assignCraftingCubeSlot(slotIndex, entryId);
 }
 
 function findStackMergeTarget(sourceEntry, targetEntries) {
@@ -18158,6 +19551,10 @@ function handleInventoryShiftClick(event, itemElement) {
     return false;
   }
 
+  if (inventoryOpen && isCraftingCubeWindowOpen() && inventoryItem) {
+    return quickMoveInventoryEntryToCraftingCube(entryId);
+  }
+
   if (inventoryOpen && characterOpen && inventoryItem) {
     void equipInventoryEntry(entryId);
     return true;
@@ -18233,11 +19630,11 @@ function handleInventoryCarryClick(event) {
   }
 
   const commandTarget = event.target.closest(
-    "[data-use-entry], [data-equip-entry], [data-sell-entry], [data-buy-item], [data-buy-stack], [data-buy-account-upgrade], [data-smith-combine], [data-cast-combat-skill], [data-toggle-skill-auto], [data-unequip-slot], [data-sort-inventory], [data-confirm-inventory-destroy], [data-confirm-inventory-destroy-suppress], [data-cancel-inventory-destroy]",
+    "[data-use-entry], [data-equip-entry], [data-sell-entry], [data-buy-item], [data-buy-stack], [data-buy-account-upgrade], [data-smith-combine], [data-cast-combat-skill], [data-toggle-skill-auto], [data-unequip-slot], [data-sort-inventory], [data-sort-storage], [data-confirm-inventory-destroy], [data-confirm-inventory-destroy-suppress], [data-cancel-inventory-destroy]",
   );
   if (commandTarget && root.contains(commandTarget)) return false;
 
-  const itemElement = event.target.closest("[data-inventory-entry], [data-storage-entry], [data-refine-board-entry]");
+  const itemElement = event.target.closest("[data-inventory-entry], [data-storage-entry], [data-refine-board-entry], [data-crafting-cube-board-entry]");
   if (!itemElement || !root.contains(itemElement)) return false;
 
   if (event.shiftKey) {
@@ -18259,6 +19656,8 @@ function finishInventoryClickCarry(event) {
   if (!dropTarget) {
     if (carry.sourceContainer === "weaponRefine" && carry.refineBoardSlot) {
       clearWeaponRefineSlot(carry.refineBoardSlot.kind, carry.refineBoardSlot.index);
+    } else if (carry.sourceContainer === "craftingCube" && carry.craftingCubeSlot) {
+      clearCraftingCubeSlot(carry.craftingCubeSlot.index);
     } else if (carry.sourceContainer === "inventory") {
       const gridSlot = gridSlotElementAt(event.clientX, event.clientY, "[data-inventory-slot]", ".crystal-inventory");
       if (gridSlot && root.contains(gridSlot)) {
@@ -18284,6 +19683,19 @@ function finishInventoryClickCarry(event) {
         index,
         carry.entryId,
         { fromRefine: carry.sourceContainer === "weaponRefine" ? carry.refineBoardSlot : null },
+      );
+      return true;
+    }
+  }
+
+  const craftingCubeSlot = dropTarget.closest("[data-crafting-cube-slot]");
+  if (craftingCubeSlot && root.contains(craftingCubeSlot)) {
+    const index = Number(craftingCubeSlot.dataset.craftingCubeSlot) || 0;
+    if (carry.sourceContainer === "inventory" || carry.sourceContainer === "craftingCube") {
+      assignCraftingCubeSlot(
+        index,
+        carry.entryId,
+        { fromCube: carry.sourceContainer === "craftingCube" ? carry.craftingCubeSlot : null },
       );
       return true;
     }
@@ -18366,6 +19778,13 @@ function finishInventoryClickCarry(event) {
       clearWeaponRefineSlot(
         carry.refineBoardSlot.kind,
         carry.refineBoardSlot.index,
+        { targetSlot: Number(inventorySlot.dataset.inventorySlot) },
+      );
+      return true;
+    }
+    if (carry.sourceContainer === "craftingCube" && carry.craftingCubeSlot) {
+      clearCraftingCubeSlot(
+        carry.craftingCubeSlot.index,
         { targetSlot: Number(inventorySlot.dataset.inventorySlot) },
       );
       return true;
@@ -18535,11 +19954,13 @@ function gridSlotElementAt(clientX, clientY, slotSelector, containerSelector, ga
 }
 
 function inventoryDropTargetAt(event) {
-  const dropSelector = "[data-inventory-entry], [data-storage-entry], [data-inventory-slot], [data-equipment-slot], [data-hotbar-slot], [data-storage-slot], [data-refine-slot]";
+  const dropSelector = "[data-inventory-entry], [data-storage-entry], [data-inventory-slot], [data-equipment-slot], [data-hotbar-slot], [data-storage-slot], [data-refine-slot], [data-crafting-cube-slot]";
   if (inventoryDragState && inventoryDragState.sourceContainer !== "storage") {
     const entry = inventoryDragState.sourceContainer === "weaponRefine"
       ? weaponRefineEntryById(inventoryDragState.entryId)
-      : inventoryEntryById(inventoryDragState.entryId);
+      : inventoryDragState.sourceContainer === "craftingCube"
+        ? craftingCubeEntryById(inventoryDragState.entryId)
+        : inventoryEntryById(inventoryDragState.entryId);
     const item = entry ? itemDefinition(entry.itemId) : null;
     if (item && isHotbarItem(item)) {
       const hotbarSlot = hotbarSlotElementAt(event.clientX, event.clientY);
@@ -18621,6 +20042,7 @@ function inventoryDropTargetAccepts(dropTarget) {
   const inventorySlot = dropTarget.closest("[data-inventory-slot]");
   if (inventorySlot && root.contains(inventorySlot)) {
     if (inventoryDragState.sourceContainer === "weaponRefine") return true;
+    if (inventoryDragState.sourceContainer === "craftingCube") return true;
     if (inventoryDragState.sourceContainer !== "storage") {
       const equippedSourceSlot = inventoryDragState.sourceEquipmentSlot
         || equippedSlotForEntry(inventoryDragState.entryId);
@@ -18650,6 +20072,15 @@ function inventoryDropTargetAccepts(dropTarget) {
     const item = entry ? itemDefinition(entry.itemId) : null;
     if (kind === "ore") return canPlaceWeaponRefineOre(entry, item, index);
     return canPlaceWeaponRefineMaterial(entry, item, index);
+  }
+  const craftingCubeSlot = dropTarget.closest("[data-crafting-cube-slot]");
+  if (craftingCubeSlot && root.contains(craftingCubeSlot)) {
+    if (state.activeScene !== "craftingCube") return false;
+    if (inventoryDragState.sourceContainer === "storage") return false;
+    const index = Number(craftingCubeSlot.dataset.craftingCubeSlot) || 0;
+    const entry = craftingCubeEntryById(inventoryDragState.entryId)
+      ?? inventoryEntryById(inventoryDragState.entryId);
+    return canPlaceCraftingCubeItem(entry, index);
   }
   return false;
 }
@@ -18814,7 +20245,11 @@ function formatItemBonusPercentValue(key, value) {
     const rounded = Number(Number(value).toFixed(2));
     return `${value > 0 ? "+" : ""}${rounded}%`;
   }
-  if (key === "xpBonusPercent" || key === "goldBonusPercent" || key === "bonusAwakeningSoulChancePercent") {
+  if (key === "damageTakenReductionPercent") {
+    return `${value > 0 ? "−" : ""}${value}%`;
+  }
+  if (key === "xpBonusPercent" || key === "goldBonusPercent" || key === "bonusAwakeningSoulChancePercent"
+    || key === "critChancePercent" || key === "critDamagePercent" || key === "skillLevelBonusPercent") {
     return `${value > 0 ? "+" : ""}${value}%`;
   }
   return value > 0 ? `+${value}` : value;
@@ -18855,6 +20290,10 @@ function itemEquipmentStatsTooltipHtml(entry, item) {
     ["goldBonusPercent", "Gold Bonus"],
     ["dropChanceBonusPercent", "Drop Chance"],
     ["bonusAwakeningSoulChancePercent", "Soul Drop Chance"],
+    ["damageTakenReductionPercent", "Damage Taken"],
+    ["critChancePercent", "Crit Rate"],
+    ["critDamagePercent", "Crit Damage"],
+    ["skillLevelBonusPercent", "Skill Leveling"],
   ]) {
     const value = Number(stats?.[key]) || 0;
     if (value === 0) continue;
@@ -18900,6 +20339,10 @@ function itemStatsTooltipHtml(stats) {
     ["goldBonusPercent", "Gold Bonus"],
     ["dropChanceBonusPercent", "Drop Chance"],
     ["bonusAwakeningSoulChancePercent", "Soul Drop Chance"],
+    ["damageTakenReductionPercent", "Damage Taken"],
+    ["critChancePercent", "Crit Rate"],
+    ["critDamagePercent", "Crit Damage"],
+    ["skillLevelBonusPercent", "Skill Leveling"],
   ]) {
     const value = Number(stats?.[key]) || 0;
     if (value !== 0) {
@@ -20479,6 +21922,16 @@ function maybeTriggerEnemyEnrage(enemy, now = performance.now()) {
     if (isDarkDevilEnemy(enemy)) {
       enemy._darkDevilRangeReadyAt = now;
     }
+    // Pull the next map-lightning wave forward so Oma King Spirit's enrage is felt
+    // immediately on the AoE bolts, not only after a pre-scheduled long gap.
+    if (isOmaKingSpiritEnemy(enemy) && state.battle) {
+      const factor = mapLightningEnrageIntervalFactor(enemy, now);
+      const enrageMin = Math.max(200, Math.round(MAP_LIGHTNING_MIN_INTERVAL_MS * factor));
+      const nextAt = Number(state.battle.nextMapLightningAt) || 0;
+      if (!nextAt || nextAt > now + enrageMin) {
+        state.battle.nextMapLightningAt = now + enrageMin;
+      }
+    }
     pushBattleLog(`${enemy.name} enters a rage!`);
   }
 }
@@ -21842,11 +23295,15 @@ function refinerNpcSceneHtml(npc) {
   const sellLabel = junk.count > 0
     ? `Sell all junk ore (${junk.count.toLocaleString()} · ${junk.gold.toLocaleString()}g)`
     : "Sell all junk ore";
+  const craftingCubeButton = empoweredCraftingUnlocked()
+    ? `<button type="button" class="refiner-action-button" data-open-crafting-cube>Crafting cube</button>`
+    : "";
   return `
     <section class="npc-panel crystal-npc-text refiner-panel">
       <p>${escapeHtml(npc.panel)} Black iron ore is kept for weapon refining.</p>
       <div class="refiner-actions">
         <button type="button" class="refiner-action-button primary" data-open-weapon-refine>Refine weapon</button>
+        ${craftingCubeButton}
         <button type="button" class="refiner-action-button" data-head-to-mines>Head to the mines</button>
         <button type="button" class="refiner-action-button"${junk.count > 0 ? "" : " disabled"} data-sell-all-junk-ore>${escapeHtml(sellLabel)}</button>
       </div>
@@ -21915,6 +23372,243 @@ function weaponRefineSceneHtml() {
       <div class="weapon-refine-actions">
         <button type="button" class="refiner-action-button primary"${canRefine ? "" : " disabled"} data-attempt-weapon-refine>${costPreview ? `Refine weapon (${costPreview.cost.toLocaleString()}g)` : "Refine weapon"}</button>
       </div>
+    </section>
+  `;
+}
+
+function craftingCubeModeHint(mode) {
+  if (mode === "craft") {
+    const recipe = craftingCubeSelectedRecipeDef();
+    const recipeHint = recipe ? `Selected recipe: ${recipe.label}.` : "Open Recipes to choose a recipe.";
+    return `${recipeHint} Place the ingredients in the cube, then click Craft.`;
+  }
+  return "Drag empowered gear into the cube, then salvage for Havoc Crystals (1 per empowerment tier).";
+}
+
+function craftingCubeRerollNoticeHtml() {
+  const notice = state.craftingCube?.lastRerollNotice;
+  if (notice?.swap && Array.isArray(notice.items) && notice.items.length) {
+    return `
+      <div class="crafting-cube-reroll-notice crafting-cube-swap-notice" role="status" aria-live="polite">
+        ${notice.items.map((row) => `
+          <div class="crafting-cube-swap-row">
+            <strong>${escapeHtml(row.name)}</strong>
+            <span class="crafting-cube-reroll-removed">${escapeHtml(row.removed)} → ${escapeHtml(row.added)}</span>
+          </div>
+        `).join("")}
+      </div>
+    `;
+  }
+  if (!notice?.removed || !notice?.added) return "";
+  return `
+    <div class="crafting-cube-reroll-notice" role="status" aria-live="polite">
+      <span class="crafting-cube-reroll-removed"><strong>Removed:</strong> ${escapeHtml(notice.removed)}</span>
+      <span class="crafting-cube-reroll-added"><strong>Added:</strong> ${escapeHtml(notice.added)}</span>
+    </div>
+  `;
+}
+
+function craftingCubeSlotHtml(index) {
+  const { entry, item } = craftingCubeSlotEntry(index);
+  const slotClass = [
+    "crafting-cube-slot",
+    "crafting-cube-slot-drop",
+    entry ? "filled" : "",
+  ].filter(Boolean).join(" ");
+  const filledContent = entry && item
+    ? `
+      <div
+        class="crafting-cube-slot-item has-tooltip crafting-cube-slot-draggable"
+        data-crafting-cube-board-entry="${escapeHtml(entry.id)}"
+        data-crafting-cube-board-index="${index}"
+        data-tooltip-item="${escapeHtml(item.id)}"
+        data-tooltip-entry="${escapeHtml(entry.id)}"
+        title="${escapeHtml(itemDisplayName(item, entry))}"
+      >
+        ${itemIconHtml(item)}
+        ${isStackableItem(item) ? `<span class="crystal-item-qty">${Math.max(1, Math.trunc(Number(entry.quantity) || 1))}</span>` : ""}
+      </div>
+    `
+    : `<span class="crafting-cube-slot-empty">+</span>`;
+
+  return `
+    <div class="${slotClass}" data-crafting-cube-slot="${index}" aria-label="Cube slot ${index + 1}">
+      ${filledContent}
+    </div>
+  `;
+}
+
+function craftingCubeTargetedChoiceHtml() {
+  if (state.craftingCube?.mode !== "craft") return "";
+  const selectedRecipeId = state.craftingCube?.selectedRecipeId;
+  const boardEntries = craftingCubeBoardEntries();
+
+  if (selectedRecipeId === CRAFTING_CUBE_TARGETED_EMPOWER_REROLL_RECIPE_ID) {
+    const preview = validateCraftingCubeTargetedEmpowerReroll(boardEntries);
+    if (!preview?.ok) return "";
+    const choices = empowerSlotChoiceLabels(preview.empoweredEntry, preview.empoweredItem);
+    if (!choices.length) return "";
+    const selectedSlot = Math.trunc(Number(state.craftingCube?.targetedEmpowerSlotIndex) || 0);
+    return `
+      <div class="crafting-cube-targeted-choices">
+        <p class="crafting-cube-recipe-detail-label">Choose empowerment to reroll</p>
+        <div class="crafting-cube-empower-picks" role="group" aria-label="Choose empowerment to reroll">
+          ${choices.map((choice) => {
+            const active = choice.index === selectedSlot ? " active" : "";
+            return `
+              <button
+                type="button"
+                class="crafting-cube-empower-pick${active}"
+                data-crafting-cube-empower-pick="${choice.index}"
+              >${escapeHtml(choice.label)}</button>
+            `;
+          }).join("")}
+        </div>
+      </div>
+    `;
+  }
+
+  if (selectedRecipeId === CRAFTING_CUBE_TARGETED_EMPOWER_SWAP_RECIPE_ID) {
+    const preview = validateCraftingCubeTargetedEmpowerSwap(boardEntries);
+    if (!preview?.ok) return "";
+    const selectedSwapSlotA = Math.trunc(Number(state.craftingCube?.targetedEmpowerSwapSlotA) || 0);
+    const selectedSwapSlotB = Math.trunc(Number(state.craftingCube?.targetedEmpowerSwapSlotB) || 0);
+    const renderSwapGroup = (side, item, entry, selectedSlot) => {
+      const choices = empowerSlotChoiceLabels(entry, item);
+      if (!choices.length) return "";
+      const itemName = itemDisplayName(item, entry);
+      return `
+        <div class="crafting-cube-targeted-choice-group">
+          <p class="crafting-cube-recipe-detail-label">${escapeHtml(itemName)} — choose empowerment to swap</p>
+          <div class="crafting-cube-empower-picks" role="group" aria-label="Choose empowerment on ${escapeHtml(itemName)}">
+            ${choices.map((choice) => {
+              const active = choice.index === selectedSlot ? " active" : "";
+              return `
+                <button
+                  type="button"
+                  class="crafting-cube-empower-pick${active}"
+                  data-crafting-cube-empower-swap-pick="${side}:${choice.index}"
+                >${escapeHtml(choice.label)}</button>
+              `;
+            }).join("")}
+          </div>
+        </div>
+      `;
+    };
+    return `
+      <div class="crafting-cube-targeted-choices">
+        ${renderSwapGroup("a", preview.empoweredItemA, preview.empoweredEntryA, selectedSwapSlotA)}
+        ${renderSwapGroup("b", preview.empoweredItemB, preview.empoweredEntryB, selectedSwapSlotB)}
+      </div>
+    `;
+  }
+
+  return "";
+}
+
+function craftingCubeRecipesSceneHtml() {
+  const selectedRecipeId = state.craftingCube?.selectedRecipeId;
+  const boardEntries = craftingCubeBoardEntries();
+  const recipeRows = CRAFTING_CUBE_RECIPES.map((recipe) => {
+    const active = recipe.id === selectedRecipeId ? " active" : "";
+    const validation = craftingCubeRecipeValidation(recipe.id, boardEntries);
+    const ready = validation.ok ? " ready" : "";
+    return `
+      <button
+        type="button"
+        class="crafting-cube-recipe-row${active}${ready}"
+        data-crafting-cube-recipe-select="${escapeHtml(recipe.id)}"
+      >
+        <strong>${escapeHtml(recipe.label)}</strong>
+        <span>${escapeHtml(recipe.summary)}</span>
+      </button>
+    `;
+  }).join("");
+  const selectedValidation = selectedRecipeId
+    ? craftingCubeRecipeValidation(selectedRecipeId, boardEntries)
+    : null;
+  const selectedStatusHtml = selectedRecipeId && !selectedValidation?.ok && selectedValidation?.error
+    ? `<p class="crafting-cube-recipe-status">${escapeHtml(selectedValidation.error)}</p>`
+    : "";
+
+  return `
+    <section class="npc-panel crystal-npc-text crafting-cube-recipes-panel">
+      <p class="crafting-cube-recipes-intro">
+        Select a recipe, add ingredients to the cube, then click Craft.
+      </p>
+      <div class="crafting-cube-recipe-list" role="listbox" aria-label="Crafting recipes">
+        ${recipeRows}
+      </div>
+      ${selectedStatusHtml}
+    </section>
+  `;
+}
+
+function craftingCubeSceneHtml() {
+  const mode = CRAFTING_CUBE_MODES.includes(state.craftingCube?.mode)
+    ? state.craftingCube.mode
+    : "craft";
+  const recipesOpen = Boolean(state.craftingCube?.recipesOpen);
+  const salvageTabActive = mode === "salvage" ? " active" : "";
+  const craftTabActive = mode === "craft" ? " active" : "";
+  const recipesTabActive = recipesOpen ? " active" : "";
+  const modeButtons = `
+    <button type="button" class="crafting-cube-mode-button${salvageTabActive}" data-crafting-cube-mode="salvage">Salvage</button>
+    <button type="button" class="crafting-cube-mode-button${craftTabActive}" data-crafting-cube-mode="craft">Craft</button>
+    <button type="button" class="crafting-cube-mode-button${recipesTabActive}" data-crafting-cube-recipes-toggle>Recipes</button>
+  `;
+  const filledCount = craftingCubeFilledSlotCount();
+  const salvagePreview = mode === "salvage" ? validateCraftingCubeSalvageEntries(craftingCubeSalvageEntries()) : null;
+  const canSalvage = mode === "salvage" && filledCount > 0;
+  const canCraft = mode === "craft" && canAttemptCraftingCubeCraft();
+  const feedback = state.craftingCube?.feedback;
+  const feedbackKind = state.craftingCube?.feedbackKind ?? "error";
+  const feedbackHtml = feedback
+    ? `<p class="crafting-cube-feedback crafting-cube-feedback-${escapeHtml(feedbackKind)}">${escapeHtml(feedback)}</p>`
+    : "";
+  const salvageActions = mode === "salvage"
+    ? `
+      <div class="crafting-cube-actions">
+        <button
+          type="button"
+          class="refiner-action-button primary${canSalvage ? "" : " disabled"}"
+          data-attempt-crafting-cube-salvage
+        >${salvagePreview?.ok
+          ? `Salvage (${salvagePreview.totalCrystals} Havoc Crystal${salvagePreview.totalCrystals === 1 ? "" : "s"})`
+          : "Salvage"}</button>
+      </div>
+    `
+    : "";
+  const targetedChoiceHtml = mode === "craft" ? craftingCubeTargetedChoiceHtml() : "";
+  const craftActions = mode === "craft"
+    ? `
+      <div class="crafting-cube-actions">
+        <button
+          type="button"
+          class="refiner-action-button primary${canCraft ? "" : " disabled"}"
+          data-attempt-crafting-cube-craft
+        >Craft</button>
+        ${targetedChoiceHtml}
+      </div>
+    `
+    : "";
+
+  return `
+    <section class="npc-panel crystal-npc-text crafting-cube-panel">
+      <p class="crafting-cube-intro">
+        Place items in the 3×3 cube grid, then choose an action below.
+      </p>
+      <div class="crafting-cube-mode-tabs" role="tablist" aria-label="Crafting cube actions">
+        ${modeButtons}
+      </div>
+      <div class="crafting-cube-board" aria-label="Crafting cube slots">
+        ${Array.from({ length: CRAFTING_CUBE_SLOT_COUNT }, (_, index) => craftingCubeSlotHtml(index)).join("")}
+      </div>
+      ${feedbackHtml}
+      ${craftingCubeRerollNoticeHtml()}
+      <p class="crafting-cube-hint">${escapeHtml(craftingCubeModeHint(mode))}</p>
+      ${salvageActions}
+      ${craftActions}
     </section>
   `;
 }
@@ -22378,6 +24072,13 @@ function bindControls() {
       void findCloudSaveForRestore(input?.value ?? "");
       return;
     }
+    const submitAliasButton = event.target.closest("[data-submit-player-alias]");
+    if (submitAliasButton && root.contains(submitAliasButton)) {
+      const input = root.querySelector("[data-player-alias-input]");
+      if (input) state.prototypeStats.aliasInput = input.value;
+      void submitPlayerAlias();
+      return;
+    }
     const confirmCloudRestoreButton = event.target.closest("[data-confirm-cloud-restore]");
     if (confirmCloudRestoreButton && root.contains(confirmCloudRestoreButton)) {
       void confirmCloudSaveRestore();
@@ -22537,6 +24238,11 @@ function bindControls() {
       void startTokenCheckout(buyTokensButton.dataset.packId || TOKEN_PACK_ID);
       return;
     }
+    const buyUnlockButton = event.target.closest("[data-buy-unlock]");
+    if (buyUnlockButton && root.contains(buyUnlockButton)) {
+      if (buyUnlockButton.dataset.buyUnlock === TELEPORT_RING_UNLOCK_KEY) confirmTeleportRingPurchase();
+      return;
+    }
     const bossAssistButton = event.target.closest("[data-boss-assist]");
     if (bossAssistButton && root.contains(bossAssistButton)) {
       toggleBossAssistSelection(bossAssistButton.dataset.bossAssist);
@@ -22560,6 +24266,11 @@ function bindControls() {
     const sortInventoryButton = event.target.closest("[data-sort-inventory]");
     if (sortInventoryButton && root.contains(sortInventoryButton)) {
       sortInventoryEntries();
+      return;
+    }
+    const sortStorageButton = event.target.closest("[data-sort-storage]");
+    if (sortStorageButton && root.contains(sortStorageButton)) {
+      sortStorageEntries();
       return;
     }
     const confirmInventoryDestroyButton = event.target.closest("[data-confirm-inventory-destroy]");
@@ -22678,6 +24389,15 @@ function bindControls() {
     const cloudRestoreInput = event.target.closest("[data-cloud-restore-code]");
     if (cloudRestoreInput && root.contains(cloudRestoreInput)) {
       state.cloudSave.restoreCodeInput = cloudRestoreInput.value;
+      return;
+    }
+    const aliasInput = event.target.closest("[data-player-alias-input]");
+    if (aliasInput && root.contains(aliasInput)) {
+      state.prototypeStats.aliasInput = aliasInput.value;
+      if (state.prototypeStats.aliasError || state.prototypeStats.aliasStatus === "saved") {
+        state.prototypeStats.aliasError = "";
+        state.prototypeStats.aliasStatus = "";
+      }
       return;
     }
     const volumeInput = event.target.closest("[data-music-volume]");
@@ -22954,9 +24674,10 @@ function closeTownNpc() {
   if (!state.game.selectedTownNpcId) return;
   const closingScene = state.activeScene;
   state.game.selectedTownNpcId = null;
-  if (state.activeScene === "townNpc" || state.activeScene === "storage" || state.activeScene === "weaponRefine") state.activeScene = null;
+  if (state.activeScene === "townNpc" || state.activeScene === "storage" || state.activeScene === "weaponRefine" || state.activeScene === "craftingCube") state.activeScene = null;
   if (closingScene) removeSceneWindowFromStack(closingScene);
   resetWeaponRefineState();
+  resetCraftingCubeState();
   sceneSignature = "";
   gamePanelSignature = "";
   renderSceneOverlay();
@@ -24224,7 +25945,6 @@ function bossPartyChargeWarriorSkill(member, skill, learned, now) {
 }
 
 function bossPartyMaybeAutoChargeWarriorSkill(member, now) {
-  if (warriorSlayingPending(member)) return false;
   for (const spellId of WARRIOR_AUTO_CHARGE_ORDER) {
     if (spellId === "FlamingSword" && member.flamingSwordReady) continue;
     if (spellId === "TwinDrakeBlade" && member.twinDrakeReady) continue;
@@ -24300,7 +26020,36 @@ function bossPartyWarriorAction(member, now) {
   let usingSlaying = false;
   let usingSweepAttack = false;
 
-  if (warriorSlayingPending(member) && bossPartyLearned(member, "Slaying")) {
+  if (member.flamingSwordReady) {
+    const flaming = warriorSpellById("FlamingSword");
+    const flamingLearned = bossPartyLearned(member, "FlamingSword");
+    if (flaming && flamingLearned) {
+      attackSkill = flaming;
+      learned = flamingLearned;
+      cost = 0;
+      usingFlamingSword = true;
+    } else {
+      clearFlamingSwordChargeState(member);
+      if (member.classId === bossPartyControlledClassId()) clearFlamingSwordChargeState(state.battle);
+    }
+  } else if (member.twinDrakeReady) {
+    const twinDrake = warriorSpellById("TwinDrakeBlade");
+    const twinDrakeLearned = bossPartyLearned(member, "TwinDrakeBlade");
+    if (twinDrake && twinDrakeLearned && member.mp >= effectiveSpellMpCost(twinDrake, twinDrakeLearned, member.inventory)) {
+      attackSkill = twinDrake;
+      learned = twinDrakeLearned;
+      cost = effectiveSpellMpCost(twinDrake, twinDrakeLearned, member.inventory);
+      usingTwinDrake = true;
+    } else {
+      clearTwinDrakeChargeState(member);
+      if (member.classId === bossPartyControlledClassId()) clearTwinDrakeChargeState(state.battle);
+    }
+  } else if (useSweepAttack && sweepAttack) {
+    attackSkill = sweepAttack.skill;
+    learned = sweepAttack.learned;
+    cost = effectiveSpellMpCost(sweepAttack.skill, sweepAttack.learned, member.inventory);
+    usingSweepAttack = true;
+  } else if (warriorSlayingPending(member) && bossPartyLearned(member, "Slaying")) {
     attackSkill = warriorSpellById("Slaying");
     learned = bossPartyLearned(member, "Slaying");
     cost = 0;
@@ -24326,7 +26075,7 @@ function bossPartyWarriorAction(member, now) {
       cost = 0;
     }
   }
-  if (!attackSkill && !usingSlaying) {
+  if (!attackSkill) {
     attackSkill = useThrusting
       ? thrusting
       : useSweepAttack
@@ -24342,33 +26091,6 @@ function bossPartyWarriorAction(member, now) {
         }
         return true;
       });
-  }
-  if (!usingSlaying) {
-    if (member.flamingSwordReady) {
-      const flaming = warriorSpellById("FlamingSword");
-      const flamingLearned = bossPartyLearned(member, "FlamingSword");
-      if (flaming && flamingLearned) {
-        attackSkill = flaming;
-        learned = flamingLearned;
-        cost = 0;
-        usingFlamingSword = true;
-      } else {
-        clearFlamingSwordChargeState(member);
-        if (member.classId === bossPartyControlledClassId()) clearFlamingSwordChargeState(state.battle);
-      }
-    } else if (member.twinDrakeReady) {
-      const twinDrake = warriorSpellById("TwinDrakeBlade");
-      const twinDrakeLearned = bossPartyLearned(member, "TwinDrakeBlade");
-      if (twinDrake && twinDrakeLearned && member.mp >= effectiveSpellMpCost(twinDrake, twinDrakeLearned, member.inventory)) {
-        attackSkill = twinDrake;
-        learned = twinDrakeLearned;
-        cost = effectiveSpellMpCost(twinDrake, twinDrakeLearned, member.inventory);
-        usingTwinDrake = true;
-      } else {
-        clearTwinDrakeChargeState(member);
-        if (member.classId === bossPartyControlledClassId()) clearTwinDrakeChargeState(state.battle);
-      }
-    }
   }
   if (!attackSkill && !usingSlaying) {
     if (!learned) learned = null;
@@ -24396,7 +26118,7 @@ function bossPartyWarriorAction(member, now) {
     if (trained) bossPartyLevelMagicSkill(member, attackSkill, learned, now);
     bossPartyLevelPassiveWeaponMagic(member, now);
     bossPartyRollSlayingCharge(member, now);
-    if (!warriorSlayingPending(member)) bossPartyMaybeAutoChargeWarriorSkill(member, now);
+    bossPartyMaybeAutoChargeWarriorSkill(member, now);
     return true;
   }
   if (usingSlaying) {
@@ -24438,7 +26160,7 @@ function bossPartyWarriorAction(member, now) {
     if (usingSweepAttack && learned) bossPartySweepSplash(member, attackSkill, learned, enemy, now);
   }, learned ? attackSkill : null);
   bossPartyRollSlayingCharge(member, now);
-  if (!warriorSlayingPending(member)) bossPartyMaybeAutoChargeWarriorSkill(member, now);
+  bossPartyMaybeAutoChargeWarriorSkill(member, now);
   return true;
 }
 
@@ -24614,6 +26336,13 @@ function bossPartyTaoistAction(member, now) {
   }
 
   const spells = bossPartyAutoSpells(member);
+
+  const massHealing = spells.find((spell) => spell.id === "MassHealing");
+  if (massHealing) {
+    const massHealBundle = bossPartyUsableTaoistMassHealing(member, now);
+    if (massHealBundle && bossPartyCastMassHealing(member, massHealBundle, now)) return true;
+  }
+
   const healing = spells.find((spell) => spell.id === "Healing");
   const healTarget = healing ? bossPartyHealTarget() : null;
   if (healTarget && bossPartyCanCast(member, healing, now)) {
@@ -24629,35 +26358,6 @@ function bossPartyTaoistAction(member, now) {
     bossPartyQueueHealFx(member, healTarget, healing, now);
     bossPartyLevelMagicSkill(member, healing, learned, now);
     pushBattleLog(`${member.classId} casts ${healing.label} on ${healTarget.name}.`);
-    return true;
-  }
-
-  const massHealing = spells.find((spell) => spell.id === "MassHealing");
-  if (massHealing) {
-    const massHealBundle = bossPartyUsableTaoistMassHealing(member, now);
-    if (massHealBundle && bossPartyCastMassHealing(member, massHealBundle, now)) return true;
-  }
-
-  const healingCircleBundle = bossPartyUsableTaoistHealingCircle(member, now);
-  if (healingCircleBundle) {
-    const { spell, learned } = healingCircleBundle;
-    const skillLevel = Math.max(0, Math.min(3, Math.trunc(Number(learned?.level) || 0)));
-    member.mp -= healingCircleBundle.cost;
-    learned.castReadyAt = now + spellDelayMs(spell, learned);
-    member.nextActionAt = now + spellDelayMs(spell, learned);
-    bossPartyControlledVisual(member, spell, spell.bodyAction ?? "spell", now);
-    bossPartyCastSfx(member, spell.id, 0.38, 160);
-    const centerTile = healingCircleCenterTile(member);
-    partyBossImpacts().push({
-      at: now + wizardImpactDelay(spell, state.taoistSpellAtlases[spell.id] ?? null),
-      spellId: spell.id,
-      stormGround: true,
-      value: skillLevel,
-      centerTile,
-      worldX: centerTile.worldX,
-      casterClassId: member.classId,
-    });
-    pushBattleLog(`${member.classId} casts ${spell.label}.`);
     return true;
   }
 
@@ -24724,6 +26424,29 @@ function bossPartyTaoistAction(member, now) {
       pushBattleLog(`${member.classId} casts ${holyDeva.label}.`);
       return true;
     }
+  }
+
+  const healingCircleBundle = bossPartyUsableTaoistHealingCircle(member, now);
+  if (healingCircleBundle) {
+    const { spell, learned } = healingCircleBundle;
+    const skillLevel = Math.max(0, Math.min(3, Math.trunc(Number(learned?.level) || 0)));
+    member.mp -= healingCircleBundle.cost;
+    learned.castReadyAt = now + spellDelayMs(spell, learned);
+    member.nextActionAt = now + spellDelayMs(spell, learned);
+    bossPartyControlledVisual(member, spell, spell.bodyAction ?? "spell", now);
+    bossPartyCastSfx(member, spell.id, 0.38, 160);
+    const centerTile = healingCircleCenterTile(member);
+    partyBossImpacts().push({
+      at: now + wizardImpactDelay(spell, state.taoistSpellAtlases[spell.id] ?? null),
+      spellId: spell.id,
+      stormGround: true,
+      value: skillLevel,
+      centerTile,
+      worldX: centerTile.worldX,
+      casterClassId: member.classId,
+    });
+    pushBattleLog(`${member.classId} casts ${spell.label}.`);
+    return true;
   }
 
   for (const spellId of ["SoulShield", "BlessedArmour"]) {
@@ -25015,7 +26738,6 @@ function bossPartyUsableTaoistMassHealing(member, now, options = {}) {
   if (!spell || !learned || !bossPartyCanUseTaoistSpell(member, spell, learned, now, { requireAuto: !manual })) return null;
   const injured = taoistMassHealInjuredTargets(now, options);
   if (!injured.length) return null;
-  if (!manual && injured.length < 2) return null;
   return { spell, learned, cost: effectiveSpellMpCost(spell, learned, member.inventory) };
 }
 
@@ -25095,7 +26817,8 @@ function bossPartyUsableTaoistHealingCircle(member, now, options = {}) {
   const learned = bossPartyLearned(member, spell.id);
   if (!bossPartyCanUseTaoistSpell(member, spell, learned, now, { requireAuto: options.requireAuto !== false })) return null;
   if (bossPartyGroundEffectActive("HealingCircle", now)) return null;
-  if (!taoistMassHealInjuredTargets(now, options).length) return null;
+  if (options.requireAuto !== false && bossPartyEmergencyHealsReady(member, now, options)) return null;
+  if (!needsTaoistHealingCircle(now, options)) return null;
   if (member.hp <= 0) return null;
   return {
     spell,
@@ -25499,7 +27222,7 @@ function bossPartyCastWizardDefenceBuff(member, castBundle, now) {
   partyMember.fxSpellId = null;
   startMagicShieldLoopFx({
     expiresAt: now + durationMs,
-    memberClassId: partyMember.classId === bossPartyControlledClassId() ? null : partyMember.classId,
+    memberClassId: partyMember.classId,
     now,
   });
   const applied = formatDefenceBuffApplied(castBundle.spell, bonus, reductionPercent);
@@ -26069,7 +27792,7 @@ function bossPartyLevelMagicSkill(member, spell, learned, now) {
   if ((Number(member.game?.progress?.level) || 1) < spellLevelRequirement(spell, learned.level)) return false;
   const need = spellExperienceTarget(spell, learned.level);
   if (!need) return false;
-  learned.experience += rollSkillExperienceGain();
+  learned.experience += skillExperienceGain(member.inventory ?? state.inventory);
   if (learned.experience >= need) {
     learned.level += 1;
     learned.experience = 0;
@@ -27819,7 +29542,7 @@ function resolveMinotaurKingSoloAoeStrike(enemy, now) {
       magicResist: defence.magicResist,
       agility: defence.agility,
       applyDamage: (damage, impactNow) => {
-        pet.hp = Math.max(0, pet.hp - damage);
+        pet.hp = Math.max(0, pet.hp - reduceTaoistPetIncomingDamage(pet, damage));
         setTaoPetAction("struck", true, impactNow);
         if (pet.hp <= 0) markTaoistPetDead(impactNow);
       },
@@ -28269,6 +29992,7 @@ function switchControlledPartyMember(classId) {
   bossPartySyncControlledPlayerRef();
   syncBossPartyControlledRecoveryToState(target);
   normalizeAutoCastSpellsForClass(targetClassId);
+  syncBossPartyMagicShieldFx(now);
 
   // Persist immediately. The state is now fully consistent for the new controlled member, so
   // this snapshot (and any later auto-save) records each character's own data correctly.
@@ -28624,7 +30348,7 @@ function applyBossPartyExperienceReward(member, xp, now) {
       battle: {},
     });
     Object.assign(member, stats, { hp: stats.maxHp, mp: stats.maxMp });
-    if (member.classId === bossPartyControlledClassId()) triggerLevelUpFx(now, level);
+    triggerLevelUpFx(now, level, member.classId);
   }
   if (levels.length) checkLevelAchievements(member.game.progress.level, member.classId);
   return levels;
@@ -29652,11 +31376,8 @@ function queueTwinDrakeSwingFx(memberClassId, now) {
 function magicShieldFxEntity(memberClassId) {
   const party = state.battle.bossParty;
   if (party?.active) {
-    const classId = memberClassId ?? (state.battle.combatClass === "Wizard" ? bossPartyControlledClassId() : null);
-    if (classId) {
-      return party.members?.find((member) => member.classId === classId) ?? null;
-    }
-    return null;
+    if (!memberClassId) return null;
+    return party.members?.find((member) => member.classId === memberClassId) ?? null;
   }
   if (state.battle.combatClass === "Wizard") return state.battle.player;
   return null;
@@ -29666,6 +31387,17 @@ function magicShieldFxActive(memberClassId, now = performance.now()) {
   const entity = magicShieldFxEntity(memberClassId);
   if (!entity) return false;
   return hasActiveDefenceBuffOnList(entityStatBuffList(entity), "magicShield", now);
+}
+
+function syncBossPartyMagicShieldFx(now = performance.now()) {
+  const party = state.battle.bossParty;
+  if (!party?.active) return;
+  for (const member of party.members ?? []) {
+    const buffs = pruneStatBuffs(entityStatBuffList(member), now);
+    const shield = buffs.find((buff) => buff.kind === "magicShield");
+    if (!shield) continue;
+    startMagicShieldLoopFx({ expiresAt: shield.expiresAt, memberClassId: member.classId, now });
+  }
 }
 
 function startMagicShieldLoopFx(options = {}) {
@@ -29709,9 +31441,7 @@ function maybeNotifyMagicShieldStruck(memberClassId, now = performance.now()) {
 
 function magicShieldStruckMemberClassId(target) {
   if (!target || target.classId !== "Wizard") return undefined;
-  if (state.battle.bossParty?.active) {
-    return target.classId === bossPartyControlledClassId() ? null : "Wizard";
-  }
+  if (state.battle.bossParty?.active) return "Wizard";
   return null;
 }
 
@@ -29843,7 +31573,6 @@ function updatePendingTwinDrakeHits(now) {
 }
 
 function castWarriorCharge(skill, learned, cost, now) {
-  if (warriorSlayingPending()) return;
   const battle = state.battle;
   battle.player.mp = Math.max(0, battle.player.mp - cost);
   setWarriorSpellCastReadyAt(skill, learned, now);
@@ -29882,8 +31611,23 @@ function chargedFlamingSwordAttack(now) {
   return { skill, learned, cost: 0, charged: true };
 }
 
+function warriorPendingChargeAttack(now = performance.now(), member = null) {
+  if (member?.classId) {
+    if (member.flamingSwordReady) {
+      const flaming = warriorSpellById("FlamingSword");
+      if (flaming && bossPartyLearned(member, "FlamingSword")) return true;
+    }
+    if (member.twinDrakeReady) {
+      const twinDrake = warriorSpellById("TwinDrakeBlade");
+      const learned = bossPartyLearned(member, "TwinDrakeBlade");
+      if (twinDrake && learned && member.mp >= effectiveSpellMpCost(twinDrake, learned, member.inventory)) return true;
+    }
+    return false;
+  }
+  return Boolean(chargedFlamingSwordAttack(now) || chargedTwinDrakeAttack(now));
+}
+
 function chargedWarriorAttack(now) {
-  if (warriorSlayingPending()) return null;
   return chargedFlamingSwordAttack(now) ?? chargedTwinDrakeAttack(now);
 }
 
@@ -29896,7 +31640,7 @@ function chargedTwinDrakeAttack(now) {
   return { skill, learned, cost: 0, charged: true };
 }
 
-function warriorApplyPhysicalHit(skill, learned, damage, now) {
+function warriorApplyPhysicalHit(skill, learned, damage, now, crit = consumeOutgoingCritFlag()) {
   const battle = state.battle;
   const enemy = battle.enemy;
   const attackerLabel = skill.id === "None" ? "Warrior" : skill.label;
@@ -29910,7 +31654,7 @@ function warriorApplyPhysicalHit(skill, learned, damage, now) {
   playMonsterSfx("flinch");
   if (skill.id === "TwinDrakeBlade" || skill.id === "FlamingSword" || skill.id === "None") playWeaponHitSfx();
   else if (!playSpellSfx(skill.id, "impact", { volume: 0.48 })) playWeaponHitSfx();
-  applyCombatEvents(physicalAttackHitEvents(attackerLabel, enemy.name, scaled), now, { enemy });
+  applyCombatEvents(physicalAttackHitEvents(attackerLabel, enemy.name, scaled, "enemy", critDamageKind(crit)), now, { enemy });
   if (enemy.hp > 0) applyCrystalFreezingAttackProc(battle.player, enemy, now);
   if (learned) levelWarriorMagic(skill, learned, now);
   levelPassiveWeaponMagic(now);
@@ -30023,7 +31767,7 @@ function warriorAttack(now) {
       rollSlayingChargeAfterAttack(now);
       return true;
     }
-    damage = swing.damage;
+    damage = applyCritToOutgoingDamage(swing.damage, battle.player);
   }
   if (!warriorApplyPhysicalHit(skill, learned, damage, now)) return true;
   if (skill.id === "TwinDrakeBlade" && charged && battle.enemy?.hp > 0) {
@@ -30033,11 +31777,14 @@ function warriorAttack(now) {
 }
 
 function usableWarriorAttackSkill(now) {
-  const slaying = chargedSlayingAttack();
-  if (slaying) return slaying;
-
   const charged = chargedWarriorAttack(now);
   if (charged) return charged;
+
+  const sweep = usableWarriorSweepAttack(now);
+  if (sweep) return sweep;
+
+  const slaying = chargedSlayingAttack(now);
+  if (slaying) return slaying;
 
   const queued = queuedWarriorAttackSkill(now);
   if (queued) return queued;
@@ -30122,8 +31869,10 @@ function queuedWizardAttackSpell(now) {
   };
 }
 
-function chargedSlayingAttack() {
+function chargedSlayingAttack(now = performance.now()) {
   if (!warriorSlayingPending()) return null;
+  if (warriorPendingChargeAttack(now)) return null;
+  if (usableWarriorSweepAttack(now)) return null;
   const skill = warriorSpellById("Slaying");
   const learned = learnedMagic("Slaying");
   if (!skill || !learned) return null;
@@ -30168,6 +31917,42 @@ function resolveActiveSweepAttack(member = null, now = performance.now()) {
   return null;
 }
 
+function usableWarriorSweepAttack(now = performance.now(), member = null) {
+  if (member?.classId) {
+    const distance = bossPartyMemberEnemyDistance(member);
+    const autoSkills = bossPartyAutoSpells(member);
+    const thrusting = autoSkills.find((skill) => skill.id === "Thrusting");
+    const thrustingLearned = bossPartyLearned(member, "Thrusting");
+    if (thrusting && thrustingLearned
+      && distance > BOSS_PARTY_WARRIOR_REACH && distance <= BOSS_PARTY_THRUSTING_REACH) {
+      return null;
+    }
+    const sweep = resolveActiveSweepAttack(member, now);
+    if (!sweep) return null;
+    return {
+      skill: sweep.skill,
+      learned: sweep.learned,
+      cost: effectiveSpellMpCost(sweep.skill, sweep.learned, member.inventory),
+    };
+  }
+  const sweep = resolveActiveSweepAttack(null, now);
+  if (!sweep) return null;
+  const blade = autoWarriorCombatSkills().find((skill) => skill.id === "BladeAvalanche");
+  const bladeLearned = learnedMagic("BladeAvalanche");
+  if (blade && bladeLearned && canAutoCastWarriorSkill(blade, bladeLearned, now)) return null;
+  const thrusting = autoWarriorCombatSkills().find((skill) => skill.id === "Thrusting");
+  const thrustingLearned = learnedMagic("Thrusting");
+  if (thrusting && thrustingLearned && canAutoCastWarriorSkill(thrusting, thrustingLearned, now)
+    && isThrustingAttackWindow()) {
+    return null;
+  }
+  return {
+    skill: sweep.skill,
+    learned: sweep.learned,
+    cost: effectiveSpellMpCost(sweep.skill, sweep.learned),
+  };
+}
+
 function crossHalfMoonOverridesHalfMoon(now = performance.now()) {
   const cross = warriorSpellById("CrossHalfMoon");
   const crossLearned = learnedMagic("CrossHalfMoon");
@@ -30192,7 +31977,7 @@ function canUseHalfMoonAttack(distancePx, mp, learned, inventory = state.invento
 
 function rollSweepPrimaryDamage(skill, learned, player, enemy, inventory = state.inventory) {
   const stats = effectiveCombatStats(player);
-  return rollDamage(stats.dc, enemyPhysicalDefence(enemy), stats.luck);
+  return applyCritToOutgoingDamage(rollDamage(stats.dc, enemyPhysicalDefence(enemy), stats.luck), player, skill?.id, inventory);
 }
 
 function halfMoonSplashSwarmEnemies(primarySwarmId) {
@@ -30308,7 +32093,7 @@ function rollBladeAvalancheDamage(skill, learned, player, enemy, inventory = sta
   const boosted = Math.trunc((attack + crystalMagicPower(skill, learned)) * crystalMagicMultiplier(skill, learned));
   const withEmpower = applyEquippedSpellDamageBonus(skill?.id, boosted, inventory);
   const scaled = Math.trunc(withEmpower * depthScale);
-  return applyWizardMagicDefence(scaled, enemy);
+  return applyCritToOutgoingDamage(applyWizardMagicDefence(scaled, enemy), player, skill?.id, inventory);
 }
 
 function applyBladeAvalanchePrimaryHit(skill, learned, player, inventory, enemy, depthScale, now) {
@@ -30317,11 +32102,9 @@ function applyBladeAvalanchePrimaryHit(skill, learned, player, inventory, enemy,
     applyCombatEvents(physicalAttackMissEvents(attackerLabel, enemy.name), now, { enemy });
     return false;
   }
-  const damage = scaleEnemyPhysicalDamage(
-    rollBladeAvalancheDamage(skill, learned, player, enemy, inventory, depthScale),
-    enemy,
-    now,
-  );
+  const rolled = rollBladeAvalancheDamage(skill, learned, player, enemy, inventory, depthScale);
+  const crit = consumeOutgoingCritFlag();
+  const damage = scaleEnemyPhysicalDamage(rolled, enemy, now);
   if (damage <= 0) {
     applyCombatEvents(physicalAttackMissEvents(attackerLabel, enemy.name), now, { enemy });
     return false;
@@ -30329,7 +32112,7 @@ function applyBladeAvalanchePrimaryHit(skill, learned, player, inventory, enemy,
   queueEnemyStruck(now);
   playMonsterSfx("flinch");
   playSpellSfx(skill.id, "impact", { volume: 0.48 }) || playWeaponHitSfx();
-  applyCombatEvents(physicalAttackHitEvents(attackerLabel, enemy.name, damage), now, { enemy });
+  applyCombatEvents(physicalAttackHitEvents(attackerLabel, enemy.name, damage, "enemy", critDamageKind(crit)), now, { enemy });
   if (enemy.hp > 0) applyCrystalFreezingAttackProc(player, enemy, now);
   if (enemy.hp <= 0) {
     finishEnemy(now);
@@ -30682,7 +32465,7 @@ function wizardAutoPriority(spell) {
 }
 
 function taoistAutoPriority(spell) {
-  const order = ["Healing", "MassHealing", "HealingCircle", "SoulShield", "BlessedArmour", "UltimateEnhancer", "SummonSkeleton", "SummonShinsu", "SummonHolyDeva", "PetEnhancer", "Poisoning", "Curse", "PoisonCloud", "Plague", "SoulFireBall"];
+  const order = ["MassHealing", "Healing", "SummonSkeleton", "SummonShinsu", "SummonHolyDeva", "HealingCircle", "SoulShield", "BlessedArmour", "UltimateEnhancer", "PetEnhancer", "Poisoning", "Curse", "PoisonCloud", "Plague", "SoulFireBall"];
   const index = order.indexOf(spell?.id);
   return index === -1 ? order.length : index;
 }
@@ -30870,19 +32653,60 @@ function warriorSlayingPending(member = null) {
   return Boolean(controlled?.classId === "Warrior" && controlled.slayingReady);
 }
 
+// --- Crit (all outgoing player damage) ----------------------------------
+// Crit is rolled per direct hit and applied AFTER defence, so the displayed
+// number is the true post-mitigation damage. Enemies carry no crit stats, so
+// wrapping shared roll functions is safe (their crit chance resolves to 0).
+// `lastOutgoingCritFlag` latches the most recent roll so the synchronous
+// caller (or a deferred impact object) can surface a crit indicator.
+let lastOutgoingCritFlag = false;
+
+function attackerCritChancePercent(attacker) {
+  return clampCritChancePercent(attacker?.critChancePercent);
+}
+
+function attackerCritDamagePercent(attacker) {
+  return Math.max(0, Number(attacker?.critDamagePercent) || 0);
+}
+
+// Optional spellId/inventory add per-spell crit empowers (from equipped gear) on
+// top of the attacker's global crit — so "Flame Disruptor +15% crit chance" only
+// boosts that spell. Physical swing call sites omit spellId and are unaffected.
+function applyCritToOutgoingDamage(damage, attacker, spellId = null, inventory = state.inventory) {
+  let chance = attackerCritChancePercent(attacker);
+  let critDamage = attackerCritDamagePercent(attacker);
+  if (spellId) {
+    chance += equippedSpellCritChanceBonusPercent(spellId, inventory);
+    critDamage += equippedSpellCritDamageBonusPercent(spellId, inventory);
+  }
+  const result = applyOutgoingCrit(damage, chance, critDamage, randomInt);
+  lastOutgoingCritFlag = result.crit;
+  return result.damage;
+}
+
+function consumeOutgoingCritFlag() {
+  const flag = lastOutgoingCritFlag;
+  lastOutgoingCritFlag = false;
+  return flag;
+}
+
+function critDamageKind(crit) {
+  return crit ? "crit" : "damage";
+}
+
 function rollWarriorMagicDamage(skill, learned, player, enemy, inventory = state.inventory) {
   const combatant = combatantForMagicRoll(player);
   const attack = rollStat(combatant.dc, combatant.luck);
   const boosted = Math.trunc((attack + crystalMagicPower(skill, learned)) * crystalMagicMultiplier(skill, learned));
   const withEmpower = applyEquippedSpellDamageBonus(skill?.id, boosted, inventory);
   const defence = rollStat(enemyPhysicalDefence(enemy));
-  return Math.max(0, withEmpower - defence);
+  return applyCritToOutgoingDamage(Math.max(0, withEmpower - defence), player, skill?.id, inventory);
 }
 
 function rollWizardMagicDamage(spell, learned, player, enemy, inventory = state.inventory) {
   const boosted = rollWizardMagicValue(spell, learned, player, inventory);
   const adjusted = spell?.id === "ThunderBolt" && enemy?.undead ? Math.trunc(boosted * 1.5) : boosted;
-  return applyWizardMagicDefence(adjusted, enemy);
+  return applyCritToOutgoingDamage(applyWizardMagicDefence(adjusted, enemy), player, spell?.id, inventory);
 }
 
 function turnUndeadCasterLevel(caster = null) {
@@ -30956,7 +32780,7 @@ function rollTaoistMagicDamage(spell, learned, player, enemy, inventory = state.
     rollTaoistMagicValue(spell, learned, player),
     inventory,
   );
-  return applyWizardMagicDefence(boosted, enemy);
+  return applyCritToOutgoingDamage(applyWizardMagicDefence(boosted, enemy), player, spell?.id, inventory);
 }
 
 function rollTaoistMagicValue(spell, learned, player) {
@@ -31126,6 +32950,14 @@ function groundSpellTickPlayer(effect) {
     if (member) return member;
   }
   return state.battle.player;
+}
+
+function groundSpellTickInventory(effect) {
+  if (effect.casterClassId) {
+    const member = state.battle.bossParty?.members?.find((entry) => entry.classId === effect.casterClassId);
+    if (member) return member.inventory ?? state.inventory;
+  }
+  return state.inventory;
 }
 
 function maybeApplyBlizzardSlowTick(spell, enemy, player, now, options = {}) {
@@ -31415,7 +33247,17 @@ function maybeApplyPoisonCloudTickPoison(spell, enemy, player, now, options = {}
 }
 
 function needsTaoistHealingCircle(now = performance.now(), options = {}) {
-  return taoistMassHealInjuredTargets(now, options).length > 0;
+  return healingCircleAllyTargets().some(({ entity }) => healingCircleCanHealEntity(entity));
+}
+
+function taoistEmergencyHealsReady(now, options = {}) {
+  if (usableTaoistMassHealing(now, options)) return true;
+  return Boolean(usableTaoistHealing(now, options));
+}
+
+function bossPartyEmergencyHealsReady(member, now, options = {}) {
+  if (bossPartyUsableTaoistMassHealing(member, now, options)) return true;
+  return Boolean(bossPartyUsableTaoistHealing(member, now, options));
 }
 
 function healingCircleAllyTargets() {
@@ -31436,8 +33278,7 @@ function healingCircleAllyTargets() {
 
 function healingCircleCanHealEntity(entity) {
   if (!entity || entity.hp <= 0 || entity.hp >= entity.maxHp) return false;
-  if (entity === state.battle.player) return (state.battle.healAmount ?? 0) <= 0;
-  return (entity.healAmount ?? 0) <= 0;
+  return entityQueuedHealAmount(entity) < entity.maxHp - entity.hp;
 }
 
 function applyHealingCircleTickAllies(effect, now, options = {}) {
@@ -31985,13 +33826,23 @@ function rollSkillExperienceGain() {
   return randomInt(1, skillExperienceGainMax());
 }
 
+// Rolls base skill practice XP, then scales it by equipped "Skill leveling" empowers.
+// The multiplier is applied after the roll so it never adds/removes RNG draws (keeps
+// offline simulation deterministic when no such gear is worn).
+function skillExperienceGain(inventory = state.inventory) {
+  const base = rollSkillExperienceGain();
+  const bonus = equippedSkillLevelBonusPercent(inventory);
+  if (!(bonus > 0)) return base;
+  return Math.max(1, Math.round(base * (1 + bonus / 100)));
+}
+
 function levelMagicSkill(spell, learned, now = performance.now()) {
   if (!spell || !learned || learned.level >= 3) return false;
   const requiredLevel = spellLevelRequirement(spell, learned.level);
   if (state.game.progress.level < requiredLevel) return false;
   const need = spellExperienceTarget(spell, learned.level);
   if (!need) return false;
-  learned.experience += rollSkillExperienceGain();
+  learned.experience += skillExperienceGain(state.inventory);
   if (learned.experience >= need) {
     learned.level += 1;
     learned.experience = 0;
@@ -32047,6 +33898,7 @@ function wizardAttack(now) {
   const damage = !groundSpell && !bangSpell && !turnUndeadSpell && hit
     ? rollWizardMagicDamage(spell, learned, battle.player, battle.enemy)
     : 0;
+  const damageCrit = damage > 0 && consumeOutgoingCritFlag();
   const impactAt = now + wizardImpactDelay(spell, atlas);
   if (groundSpell && spell.groundChannel) {
     beginWizardStormChannel(impactAt + wizardStormFieldDurationMs(spell));
@@ -32074,7 +33926,7 @@ function wizardAttack(now) {
       ? { at: impactAt, spellId: spell.id, baseValue, centerTile: battle.activeWizardSpellCenterTile }
       : turnUndeadSpell
         ? { at: impactAt, spellId: spell.id, turnUndead: true, result: turnUndeadResult }
-        : { at: impactAt, spellId: spell.id, damage, hit: hit && damage > 0, worldX: battle.enemyX };
+        : { at: impactAt, spellId: spell.id, damage, hit: hit && damage > 0, crit: damageCrit, worldX: battle.enemyX };
 
   if (spell.impactMode === "projectile") {
     setActiveSpellImpactAnchor({ worldX: battle.enemyX });
@@ -32125,10 +33977,12 @@ function wizardWeaponAttack(now, failedSpell = null) {
     applyCombatEvents(weaponSwingMissEvents("Wizard", weaponName, battle.enemy.name), now, { enemy: battle.enemy });
     return;
   }
+  const swingDamage = applyCritToOutgoingDamage(swing.damage, battle.player);
+  const swingCrit = consumeOutgoingCritFlag();
   queueEnemyStruck(now);
   playMonsterSfx("flinch");
   playWeaponHitSfx();
-  applyCombatEvents(weaponSwingHitEvents("Wizard", weaponName, battle.enemy.name, swing.damage), now, { enemy: battle.enemy });
+  applyCombatEvents(weaponSwingHitEvents("Wizard", weaponName, battle.enemy.name, swingDamage, critDamageKind(swingCrit)), now, { enemy: battle.enemy });
   if (battle.enemy.hp > 0) applyCrystalFreezingAttackProc(battle.player, battle.enemy, now);
 
   if (battle.enemy.hp <= 0) {
@@ -32773,8 +34627,24 @@ function taoistMassHealTargets(now = performance.now()) {
   return ultimateEnhancerTargets(now);
 }
 
+function bossPartyHealTargetEntity(entity) {
+  const party = state.battle.bossParty;
+  if (!party?.active || !entity) return null;
+  if (party.pet && (entity === party.pet || entity === state.battle.taoPet)) return party.pet;
+  let member = party.members?.find((candidate) => candidate === entity) ?? null;
+  if (!member && entity?.classId) {
+    member = party.members?.find((candidate) => candidate.classId === entity.classId) ?? null;
+  }
+  if (!member && entity === state.battle.player) {
+    member = bossPartyControlledMember();
+  }
+  return member;
+}
+
 function entityQueuedHealAmount(entity) {
   if (!entity) return 0;
+  const bossTarget = bossPartyHealTargetEntity(entity);
+  if (bossTarget) return Math.max(0, Number(bossTarget.healAmount) || 0);
   if (entity === state.battle.player) {
     let pending = Math.max(0, Number(state.battle.healAmount) || 0);
     if (state.battle.pendingHeal?.target !== "pet") {
@@ -32812,6 +34682,14 @@ function inventoryForCombatant(caster) {
 function queueEntityHealingRestore(entity, amount, now = performance.now()) {
   const value = Math.max(0, Math.trunc(Number(amount) || 0));
   if (value <= 0 || !entity || entity.hp <= 0) return false;
+  const bossTarget = bossPartyHealTargetEntity(entity);
+  if (bossTarget) {
+    bossTarget.healAmount = Math.min(65535, (bossTarget.healAmount ?? 0) + value);
+    if (!bossTarget.healTickAt) bossTarget.healTickAt = now + CRYSTAL_HEAL_DELAY_MS;
+    if (bossTarget.classId === bossPartyControlledClassId()) syncBossPartyControlledRecoveryToState(bossTarget);
+    return true;
+  }
+  if (state.battle.bossParty?.active) return false;
   if (entity === state.battle.player) return queueHealingRestore(value, now, "player");
   if (entity === state.battle.taoPet) return queueHealingRestore(value, now, "pet");
   entity.healAmount = Math.min(65535, (entity.healAmount ?? 0) + value);
@@ -32944,7 +34822,6 @@ function usableTaoistMassHealing(now, options = {}) {
   if (!spell || !learned || !canUseTaoistSpell(spell, learned, now, { requireAuto: !manual })) return null;
   const injured = taoistMassHealInjuredTargets(now, options);
   if (!injured.length) return null;
-  if (!manual && injured.length < 2) return null;
   return { spell, learned, cost: effectiveSpellMpCost(spell, learned) };
 }
 
@@ -33195,7 +35072,10 @@ function updatePendingDefenceBuff(now, options = {}) {
   const { bonus, durationMs, reductionPercent } = applied;
   if (!options.offline && !suppressSimulationRender) {
     if (spell.id === "MagicShield") {
-      startMagicShieldLoopFx({ expiresAt: now + durationMs, now });
+      const memberClassId = state.battle.bossParty?.active && state.battle.combatClass === "Wizard"
+        ? bossPartyControlledClassId()
+        : null;
+      startMagicShieldLoopFx({ expiresAt: now + durationMs, memberClassId, now });
       battle.activeWizardSpell = null;
       battle.activeWizardSpellAtlas = null;
       const appliedText = formatDefenceBuffApplied(spell, bonus, reductionPercent);
@@ -33598,6 +35478,7 @@ function usableTaoistHealingCircle(now, options = {}) {
   if (!canUseTaoistSpell(spell, learned, now, { requireAuto: !manual })) return null;
   if (combatGroundEffectActive("HealingCircle", now)) return null;
   if (state.battle.pendingImpact?.spellId === "HealingCircle") return null;
+  if (!manual && taoistEmergencyHealsReady(now, options)) return null;
   if (!needsTaoistHealingCircle(now, options)) return null;
   if ((state.battle.player?.hp ?? 0) <= 0) return null;
   return {
@@ -33996,9 +35877,41 @@ function updatePendingTaoPet(now) {
 }
 
 function createTaoistSummonPet(spellId, spellLevel, now = performance.now()) {
-  if (spellId === "SummonHolyDeva") return createTaoistHolyDevaPet(spellLevel, now);
-  if (spellId === "SummonShinsu") return createTaoistShinsuPet(spellLevel, now);
-  return createTaoistSkeletonPet(spellLevel, now);
+  const pet = spellId === "SummonHolyDeva"
+    ? createTaoistHolyDevaPet(spellLevel, now)
+    : spellId === "SummonShinsu"
+      ? createTaoistShinsuPet(spellLevel, now)
+      : createTaoistSkeletonPet(spellLevel, now);
+  return applyTaoistPetEmpowerments(pet);
+}
+
+/**
+ * Apply the owning Taoist's equipped pet empowers (health + damage reduction) to a freshly
+ * created summon. Pet damage empower is applied per-hit; health/DR are baked in at summon time.
+ * @param {object} pet
+ */
+function applyTaoistPetEmpowerments(pet) {
+  if (!pet?.spellId) return pet;
+  const inventory = state.battle.bossParty?.active ? bossPartyTaoistMemberInventory() : state.inventory;
+  const boostedMaxHp = applyEquippedPetHealthBonus(pet.spellId, pet.maxHp, inventory);
+  if (boostedMaxHp > (pet.maxHp || 0)) {
+    pet.maxHp = boostedMaxHp;
+    pet.hp = boostedMaxHp;
+  }
+  pet.damageReductionPercent = equippedPetDamageReductionPercent(pet.spellId, inventory);
+  return pet;
+}
+
+/**
+ * Damage after the pet's equipped damage-reduction empower (Tao pets).
+ * @param {object | null | undefined} pet
+ * @param {number} amount
+ */
+function reduceTaoistPetIncomingDamage(pet, amount) {
+  const dr = Math.max(0, Number(pet?.damageReductionPercent) || 0);
+  const base = Math.max(0, Number(amount) || 0);
+  if (dr <= 0) return base;
+  return Math.max(0, base * (1 - dr / 100));
 }
 
 function createTaoistSkeletonPet(spellLevel, now = performance.now()) {
@@ -34229,15 +36142,23 @@ function taoistPetAttackTargetPosition(enemy) {
   return resolveTaoistPetTargetCoordinates(null, state.battle.enemyX);
 }
 
-function rollTaoistPetAttackResult(pet, enemy, inventory = state.inventory) {
+function rollTaoistPetAttackResult(pet, enemy, inventory = state.inventory, owner = null) {
   if (!rollHit(pet.accuracy, enemy.agility)) return { hit: false, damage: 0 };
   const attackStat = effectiveCombatStats(pet).dc;
   const defence = pet.spellId === "SummonHolyDeva"
     ? enemyMagicalDefence(enemy)
     : enemyPhysicalDefence(enemy);
   const rawDamage = rollDamage(attackStat, defence, pet.luck);
-  const damage = applyEquippedSpellDamageBonus(pet?.spellId, rawDamage, inventory);
-  return { hit: damage > 0, damage };
+  const boosted = applyEquippedSpellDamageBonus(pet?.spellId, rawDamage, inventory);
+  const damage = applyCritToOutgoingDamage(boosted, owner ?? taoistPetCritOwner());
+  return { hit: damage > 0, damage, crit: consumeOutgoingCritFlag() };
+}
+
+function taoistPetCritOwner() {
+  if (state.battle.bossParty?.active) {
+    return state.battle.bossParty.members?.find((row) => row.classId === "Taoist") ?? null;
+  }
+  return state.battle.combatClass === "Taoist" ? state.battle.player : null;
 }
 
 function applyTaoistPetAttackResult(pet, enemy, result, now, options = {}) {
@@ -34255,7 +36176,7 @@ function applyTaoistPetAttackResult(pet, enemy, result, now, options = {}) {
     if (!options.skipHitSfx) {
       playTaoPetSfx("hit", { volume: 0.38, throttleMs: 120, pet });
     }
-    applyCombatEvents(petAttackHitEvents(pet.name, enemy.name, result.damage), now, context);
+    applyCombatEvents(petAttackHitEvents(pet.name, enemy.name, result.damage, critDamageKind(result.crit)), now, context);
   } else {
     applyCombatDamageEvent(enemyDamageEvent(result.damage), now, context);
   }
@@ -34881,11 +36802,11 @@ function taoistPetSupportAttack(now) {
     return false;
   }
 
-  const healing = usableTaoistHealing(now);
-  if (healing) return castTaoistHealing(healing, now);
-
   const massHealing = usableTaoistMassHealing(now);
   if (massHealing) return castTaoistMassHealing(massHealing, now);
+
+  const healing = usableTaoistHealing(now);
+  if (healing) return castTaoistHealing(healing, now);
 
   const healingCircle = usableTaoistHealingCircle(now);
   if (healingCircle) return castTaoistHealingCircle(healingCircle, now);
@@ -34937,15 +36858,33 @@ function taoistAttack(now) {
     return;
   }
 
+  const massHealing = usableTaoistMassHealing(now);
+  if (massHealing) {
+    castTaoistMassHealing(massHealing, now);
+    return;
+  }
+
   const healing = usableTaoistHealing(now);
   if (healing) {
     castTaoistHealing(healing, now);
     return;
   }
 
-  const massHealing = usableTaoistMassHealing(now);
-  if (massHealing) {
-    castTaoistMassHealing(massHealing, now);
+  const summon = usableTaoistSummonSkeleton(now);
+  if (summon) {
+    castTaoistSummonPet(summon, now);
+    return;
+  }
+
+  const shinsu = usableTaoistSummonShinsu(now);
+  if (shinsu) {
+    castTaoistSummonPet(shinsu, now);
+    return;
+  }
+
+  const holyDeva = usableTaoistSummonHolyDeva(now);
+  if (holyDeva) {
+    castTaoistSummonPet(holyDeva, now);
     return;
   }
 
@@ -34972,24 +36911,6 @@ function taoistAttack(now) {
   const ultimateEnhancer = usableTaoistUltimateEnhancer(now);
   if (ultimateEnhancer) {
     castTaoistUltimateEnhancer(ultimateEnhancer, now);
-    return;
-  }
-
-  const summon = usableTaoistSummonSkeleton(now);
-  if (summon) {
-    castTaoistSummonPet(summon, now);
-    return;
-  }
-
-  const shinsu = usableTaoistSummonShinsu(now);
-  if (shinsu) {
-    castTaoistSummonPet(shinsu, now);
-    return;
-  }
-
-  const holyDeva = usableTaoistSummonHolyDeva(now);
-  if (holyDeva) {
-    castTaoistSummonPet(holyDeva, now);
     return;
   }
 
@@ -35154,6 +37075,7 @@ function castTaoistSoulFireBall(soulFireBall, now, options = {}) {
   const atlas = state.taoistSpellAtlases[spell.id] ?? null;
   const hit = rollMagicHit(battle.enemy);
   const damage = hit ? rollTaoistMagicDamage(spell, learned, battle.player, battle.enemy) : 0;
+  const damageCrit = damage > 0 && consumeOutgoingCritFlag();
   const impactAt = now + wizardImpactDelay(spell, atlas);
 
   if (!secondary) battle.lastPlayerAttackCooldownMs = spellDelayMs(spell, learned);
@@ -35164,7 +37086,7 @@ function castTaoistSoulFireBall(soulFireBall, now, options = {}) {
   battle.activeTaoSpellAtlas = atlas;
   battle.activeTaoSpellStartedAt = now;
   setActiveSpellImpactAnchor({ worldX: battle.enemyX });
-  battle.pendingImpact = { at: impactAt, spellId: spell.id, damage, hit: hit && damage > 0, worldX: battle.enemyX };
+  battle.pendingImpact = { at: impactAt, spellId: spell.id, damage, hit: hit && damage > 0, crit: damageCrit, worldX: battle.enemyX };
   if (!secondary) {
     battle.activeSkill = "None";
     battle.activeSkillAtlas = null;
@@ -35313,10 +37235,12 @@ function taoistWeaponAttack(now, failedSpell = null) {
     applyCombatEvents(weaponSwingMissEvents("Taoist", weaponName, battle.enemy.name), now, { enemy: battle.enemy });
     return;
   }
+  const swingDamage = applyCritToOutgoingDamage(swing.damage, battle.player);
+  const swingCrit = consumeOutgoingCritFlag();
   queueEnemyStruck(now);
   playMonsterSfx("flinch");
   playWeaponHitSfx();
-  applyCombatEvents(weaponSwingHitEvents("Taoist", weaponName, battle.enemy.name, swing.damage), now, { enemy: battle.enemy });
+  applyCombatEvents(weaponSwingHitEvents("Taoist", weaponName, battle.enemy.name, swingDamage, critDamageKind(swingCrit)), now, { enemy: battle.enemy });
   if (battle.enemy.hp > 0) applyCrystalFreezingAttackProc(battle.player, battle.enemy, now);
   levelPassiveWeaponMagic(now);
 
@@ -35457,6 +37381,8 @@ function applyWizardBangSpellImpact(spell, impact, now, options = {}) {
   const centerTile = impact.centerTile ?? wizardBangCenterTile();
   const learned = options.learned ?? learnedMagic(spell.id);
   const sfx = options.sfx ?? { volume: 0.42, throttleMs: 80 };
+  const critPlayer = options.partyMember ?? battle.player;
+  const critInventory = options.partyMember?.inventory ?? state.inventory;
 
   playSpellStrikeSfx(spell.id, { volume: 0.5, force: true, throttleMs: 0 });
 
@@ -35469,19 +37395,20 @@ function applyWizardBangSpellImpact(spell, impact, now, options = {}) {
           applyCombatEvents(magicAttackMissEvents(spell.label, swarmEnemy.name), now);
           continue;
         }
-        const damage = applyWizardMagicDefence(baseValue, swarmEnemy);
+        const damage = applyCritToOutgoingDamage(applyWizardMagicDefence(baseValue, swarmEnemy), critPlayer, spell?.id, critInventory);
+        const crit = damage > 0 && consumeOutgoingCritFlag();
         if (damage <= 0) {
           addSwarmEnemyCombatText(swarmEnemy, "0", "damage", now);
           applyCombatEvents(magicResistEvents(spell.label, swarmEnemy.name), now);
           continue;
         }
         anyHit = true;
-        addSwarmEnemyCombatText(swarmEnemy, damage, "damage", now);
+        addSwarmEnemyCombatText(swarmEnemy, damage, critDamageKind(crit), now);
         const entity = swarmEnemyToBattleEntity(swarmEnemy);
         strikeGroupDungeonSwarmEnemy(entity, now);
         playMonsterSfx("flinch", swarmEnemy, sfx);
         applyCombatEvents(
-          magicAttackHitEvents(spell.label, swarmEnemy.name, damage, "enemy", "damage", { swarmId: swarmEnemy.id }),
+          magicAttackHitEvents(spell.label, swarmEnemy.name, damage, "enemy", critDamageKind(crit), { swarmId: swarmEnemy.id }),
           now,
           { swarmEnemy },
         );
@@ -35512,14 +37439,15 @@ function applyWizardBangSpellImpact(spell, impact, now, options = {}) {
     applyCombatEvents(magicAttackMissEvents(spell.label, battle.enemy.name), now);
     return;
   }
-  const damage = applyWizardMagicDefence(baseValue, battle.enemy);
+  const damage = applyCritToOutgoingDamage(applyWizardMagicDefence(baseValue, battle.enemy), critPlayer, spell?.id, critInventory);
+  const crit = damage > 0 && consumeOutgoingCritFlag();
   if (damage <= 0) {
     applyCombatEvents(magicResistEvents(spell.label, battle.enemy.name), now);
     return;
   }
   queueEnemyStruck(now);
   playMonsterSfx("flinch");
-  applyCombatEvents(magicAttackHitEvents(spell.label, battle.enemy.name, damage), now, { enemy: battle.enemy });
+  applyCombatEvents(magicAttackHitEvents(spell.label, battle.enemy.name, damage, "enemy", critDamageKind(crit)), now, { enemy: battle.enemy });
   if (learned) {
     if (options.partyMember) bossPartyLevelMagicSkill(options.partyMember, spell, learned, now);
     else levelMagicSkill(spell, learned, now);
@@ -35599,7 +37527,7 @@ function updatePendingImpact(now) {
   }
   queueEnemyStruck(now);
   playMonsterSfx("flinch");
-  applyCombatEvents(magicAttackHitEvents(spell.label, battle.enemy.name, impact.damage), now, { enemy: battle.enemy });
+  applyCombatEvents(magicAttackHitEvents(spell.label, battle.enemy.name, impact.damage, "enemy", critDamageKind(impact.crit)), now, { enemy: battle.enemy });
   const learned = learnedMagic(spell.id);
   if (spell.id === "FrostCrunch" && impact.damage > 0 && learned) {
     applyFrostCrunchEffects(battle.enemy, learned, battle.player, now);
@@ -35715,13 +37643,30 @@ function wizardGroundEffectDurationMs(spell, value) {
 
 function mapLightningSettings(zone = activeZone()) {
   if (!zone?.mapLightning) return null;
-  const min = Math.max(0, Math.trunc(Number(zone.mapLightningDamageMin ?? zone.mapLightningDamage) || 50));
-  const max = Math.max(min, Math.trunc(Number(zone.mapLightningDamageMax ?? zone.mapLightningDamage) || 150));
+  let min = Math.max(0, Math.trunc(Number(zone.mapLightningDamageMin ?? zone.mapLightningDamage) || 50));
+  let max = Math.max(min, Math.trunc(Number(zone.mapLightningDamageMax ?? zone.mapLightningDamage) || 150));
+  // Kings Tomb lightning is part of Oma King Spirit's kit — scale with empowered damage.
+  const enemy = state.battle?.enemy;
+  if (state.battle?.bossEmpowered && isOmaKingSpiritEnemy(enemy)) {
+    const mult = empoweredBossDamageMultiplier(enemy);
+    min = Math.max(0, Math.round(min * mult));
+    max = Math.max(min, Math.round(max * mult));
+  }
   return { min, max };
 }
 
 function rollMapLightningDamage(settings) {
   return settings.min + Math.floor(Math.random() * (settings.max - settings.min + 1));
+}
+
+// Enrage speeds Oma King Spirit's map lightning the same way it speeds his attacks
+// (enrageAttackMs / attackMs). Only active on empowered fights, which are the only
+// ones that attach enrage stages to him.
+function mapLightningEnrageIntervalFactor(enemy = state.battle?.enemy, now = performance.now()) {
+  if (!isOmaKingSpiritEnemy(enemy) || !enemyEnrageActive(enemy, now)) return 1;
+  const attackMs = Math.max(1, Math.trunc(Number(enemy.attackMs) || 1000));
+  const enrageMs = Math.max(1, Math.trunc(Number(enemy.enrageAttackMs) || attackMs));
+  return Math.min(1, enrageMs / attackMs);
 }
 
 function mapLightningActive() {
@@ -35736,9 +37681,11 @@ function mapLightningActive() {
   return Boolean(battle.enemy && battle.enemy.hp > 0);
 }
 
-function randomMapLightningIntervalMs() {
-  return MAP_LIGHTNING_MIN_INTERVAL_MS
-    + Math.floor(Math.random() * (MAP_LIGHTNING_MAX_INTERVAL_MS - MAP_LIGHTNING_MIN_INTERVAL_MS + 1));
+function randomMapLightningIntervalMs(now = performance.now()) {
+  const factor = mapLightningEnrageIntervalFactor(state.battle?.enemy, now);
+  const min = Math.max(200, Math.round(MAP_LIGHTNING_MIN_INTERVAL_MS * factor));
+  const max = Math.max(min, Math.round(MAP_LIGHTNING_MAX_INTERVAL_MS * factor));
+  return min + Math.floor(Math.random() * (max - min + 1));
 }
 
 function initMapLightningSchedule(now = performance.now()) {
@@ -36198,7 +38145,9 @@ function applyGroundSpellTick(effect, now) {
   const battle = state.battle;
   const spell = combatGroundSpell(effect.spellId);
   const player = groundSpellTickPlayer(effect);
-  const damage = applyWizardMagicDefence(groundSpellTickValue(effect, spell), battle.enemy);
+  const rawDamage = applyWizardMagicDefence(groundSpellTickValue(effect, spell), battle.enemy);
+  const damage = applyCritToOutgoingDamage(rawDamage, player, spell?.id, groundSpellTickInventory(effect));
+  const crit = damage > 0 && consumeOutgoingCritFlag();
   if (damage <= 0) {
     applyCombatEvents(magicResistEvents(spell.label, battle.enemy.name), now);
   } else {
@@ -36208,7 +38157,7 @@ function applyGroundSpellTick(effect, now) {
       playSpellSfx(spell.id, "impact", { volume: 0.42, throttleMs: 160 }) || playSpellSfx(spell.id, "cast", { volume: 0.38, throttleMs: 160 });
     }
     if (effect.casterClassId) recordBossCombatDamage(effect.casterClassId, effect.spellId, damage);
-    applyCombatEvents(magicBurnEvents(spell.label, battle.enemy.name, damage), now, { enemy: battle.enemy });
+    applyCombatEvents(magicBurnEvents(spell.label, battle.enemy.name, damage, "enemy", critDamageKind(crit)), now, { enemy: battle.enemy });
 
     if (battle.enemy.hp <= 0) {
       setEnemyAction("die", false, now);
@@ -36227,7 +38176,9 @@ function applyGroundSpellTick(effect, now) {
 function applyGroundSpellTickToSwarmEnemy(effect, swarmEnemy, now) {
   const spell = combatGroundSpell(effect.spellId);
   const player = groundSpellTickPlayer(effect);
-  const damage = applyWizardMagicDefence(groundSpellTickValue(effect, spell), swarmEnemy);
+  const rawDamage = applyWizardMagicDefence(groundSpellTickValue(effect, spell), swarmEnemy);
+  const damage = applyCritToOutgoingDamage(rawDamage, player, spell?.id, groundSpellTickInventory(effect));
+  const crit = damage > 0 && consumeOutgoingCritFlag();
   if (damage <= 0) {
     addSwarmEnemyCombatText(swarmEnemy, "0", "damage", now);
     applyCombatEvents(magicResistEvents(spell.label, swarmEnemy.name), now);
@@ -36245,9 +38196,9 @@ function applyGroundSpellTickToSwarmEnemy(effect, swarmEnemy, now) {
       playSpellSfx(spell.id, "impact", { volume: 0.42, throttleMs: 160 }) || playSpellSfx(spell.id, "cast", { volume: 0.38, throttleMs: 160 });
     }
     if (effect.casterClassId) recordBossCombatDamage(effect.casterClassId, effect.spellId, damage);
-    addSwarmEnemyCombatText(swarmEnemy, damage, "damage", now);
+    addSwarmEnemyCombatText(swarmEnemy, damage, critDamageKind(crit), now);
     applyCombatEvents(
-      magicBurnEvents(spell.label, swarmEnemy.name, damage, "enemy", { swarmId: swarmEnemy.id }),
+      magicBurnEvents(spell.label, swarmEnemy.name, damage, "enemy", critDamageKind(crit), { swarmId: swarmEnemy.id }),
       now,
       { swarmEnemy },
     );
@@ -36297,7 +38248,7 @@ function enemyAttackTarget() {
       magicResist: defence.magicResist,
       agility: defence.agility,
       applyDamage: (damage, now) => {
-        pet.hp = Math.max(0, pet.hp - damage);
+        pet.hp = Math.max(0, pet.hp - reduceTaoistPetIncomingDamage(pet, damage));
         setTaoPetAction("struck", true, now);
         if (pet.hp <= 0) markTaoistPetDead(now);
       },
@@ -36539,14 +38490,33 @@ function enemyAttackDefenceGuidance(enemy) {
   return parts.join(" · ");
 }
 
+/**
+ * Inventory that owns an incoming-attack target entity, for equipped-empower lookups.
+ * Solo/controlled player -> state.inventory; boss-party members carry their own.
+ * Pets and enemies have no inventory (their reductions are handled separately).
+ */
+function damageReductionInventoryForEntity(entity) {
+  if (!entity) return null;
+  if (entity === state.battle.player) return state.inventory;
+  if (entity?.classId && entity?.inventory) return entity.inventory;
+  return null;
+}
+
 function incomingDamageReductionPercent(target, now = performance.now()) {
   const buffEntity = target?.__buffEntity ?? target;
   const classId = buffEntity?.classId
     ?? (buffEntity === state.battle.player ? state.battle.combatClass : null);
-  if (classId && classId !== "Wizard") return 0;
-  const buffs = pruneStatBuffs(entityStatBuffList(buffEntity), now);
-  const shield = buffs.find((buff) => buff.kind === "magicShield");
-  return Math.max(0, Math.min(100, Math.trunc(Number(shield?.reductionPercent) || 0)));
+  let percent = 0;
+  // Wizard Magic Shield buff (existing behaviour): pet/enemy entities have no classId.
+  if (!classId || classId === "Wizard") {
+    const buffs = pruneStatBuffs(entityStatBuffList(buffEntity), now);
+    const shield = buffs.find((buff) => buff.kind === "magicShield");
+    percent += Math.max(0, Math.trunc(Number(shield?.reductionPercent) || 0));
+  }
+  // Equipped "damage taken −%" empower (all classes) for player-owned entities.
+  const inventory = damageReductionInventoryForEntity(buffEntity);
+  if (inventory) percent += Math.max(0, equippedBonusFromStats(inventory, "damageTakenReductionPercent"));
+  return Math.max(0, Math.min(100, Math.trunc(percent)));
 }
 
 function applyIncomingDamageReduction(damage, target, now = performance.now()) {
@@ -36761,11 +38731,12 @@ function restoreBattlePlayerResources() {
   state.battle.player.mp = stats.maxMp;
 }
 
-function triggerLevelUpFx(now = performance.now(), level = state.game.progress.level) {
+function triggerLevelUpFx(now = performance.now(), level = state.game.progress.level, memberClassId = null) {
   state.levelUpEffects.push({
     id: `${now}-${level}-${Math.random()}`,
     createdAt: now,
     level,
+    memberClassId: memberClassId ?? null,
   });
   state.levelUpEffects = state.levelUpEffects.slice(-3);
   playSfx("level.up", { volume: 0.65, throttleMs: 500 });
@@ -40771,6 +42742,21 @@ function drawEnemyAttackBlendCanvas(ctx, atlas, sheet, anchorX, anchorY) {
   drawEnemyActionBlendCanvas(ctx, atlas, sheet, anchorX, anchorY, "attack1", state.enemy.frame);
 }
 
+function drawMonsterOverlayCanvas(ctx, atlas, sheet, anchorX, anchorY, action, frame) {
+  const overlayClip = atlas?.overlays?.[action];
+  if (!overlayClip?.frames?.length) return;
+  if (action === "die" && frame >= overlayClip.frames.length) return;
+  const frameIndex = Math.max(0, Math.min(frame, overlayClip.frames.length - 1));
+  const overlayMeta = overlayClip.frames[frameIndex];
+  if (!overlayMeta || overlayMeta.empty) return;
+  const drawOverlay = () => {
+    drawAtlasFrameMeta(ctx, sheet, atlas.slotWidth, overlayMeta, anchorX, anchorY);
+  };
+  const blend = taoistPetLayerBlendModes(atlas).overlay;
+  if (blend === "screen") withScreenBlend(ctx, drawOverlay);
+  else drawOverlay();
+}
+
 function drawTaoistPetCanvas(ctx) {
   const pet = state.battle.taoPet;
   if (!state.showEnemies || !pet || (!pet.active && !pet.dead)) return;
@@ -40781,7 +42767,17 @@ function drawTaoistPetCanvas(ctx) {
   const sheet = cachedImage(`./public/monsters/monster/${taoistPetRenderMonsterIndex(pet)}.png`);
   if (!sheet) return;
   const { x: anchorX, y: anchorY } = taoistPetAnchor();
-  drawAtlasFrame(ctx, sheet, atlas.slotWidth, atlas.slotHeight, meta, anchorX, anchorY);
+  if (atlas.overlays) {
+    const drawBase = () => {
+      drawAtlasFrameMeta(ctx, sheet, atlas.slotWidth, meta, anchorX, anchorY);
+    };
+    const blend = taoistPetLayerBlendModes(atlas).base;
+    if (blend === "screen") withScreenBlend(ctx, drawBase);
+    else drawBase();
+    drawMonsterOverlayCanvas(ctx, atlas, sheet, anchorX, anchorY, pet.action, pet.frame);
+  } else {
+    drawAtlasFrame(ctx, sheet, atlas.slotWidth, atlas.slotHeight, meta, anchorX, anchorY);
+  }
   if (pet.spellId === "SummonShinsu" && pet.shinsuVisible && pet.action === "attack1") {
     const breathFrame = pet.frame - CRYSTAL_SHINSU_ATTACK_IMPACT_FRAME;
     if (breathFrame >= 0) {
@@ -41836,10 +43832,12 @@ function drawLevelUpFxCanvas(ctx) {
   if (effects.length !== state.levelUpEffects.length) state.levelUpEffects = effects;
   if (!effects.length) return;
 
-  const anchor = combatAnchor("player");
   withScreenBlend(ctx, () => {
     for (const effect of effects) {
       const age = Math.max(0, now - effect.createdAt);
+      const anchor = effect.memberClassId
+        ? attachedSpellFxAnchor({ memberClassId: effect.memberClassId })
+        : combatAnchor("player");
       for (const layer of atlas.layers) {
         const frameIndex = Math.min(layer.frames.length - 1, Math.floor(age / layer.interval));
         drawSpellLayerCanvas(ctx, atlas.spellId, layer, frameIndex, anchor.x, anchor.y);
@@ -41858,25 +43856,31 @@ function drawFloatingCombatText(ctx) {
   ctx.save();
   ctx.textAlign = "center";
   ctx.textBaseline = "middle";
-  ctx.font = "700 14px Segoe UI, system-ui, sans-serif";
   for (const entry of texts) {
     const age = now - entry.createdAt;
     const t = Math.max(0, Math.min(1, age / duration));
     const x = entry.x;
     const y = entry.y - t * 34;
     const alpha = t < 0.72 ? 1 : Math.max(0, 1 - (t - 0.72) / 0.28);
+    // Crits read bigger and gain a "!" so they stand out from normal hits.
+    const crit = entry.kind === "crit";
+    const text = crit ? `${entry.text}!` : entry.text;
+    ctx.font = crit
+      ? "800 20px Segoe UI, system-ui, sans-serif"
+      : "700 14px Segoe UI, system-ui, sans-serif";
     ctx.globalAlpha = alpha;
-    ctx.lineWidth = 3;
+    ctx.lineWidth = crit ? 4 : 3;
     ctx.strokeStyle = "rgba(0, 0, 0, 0.72)";
     ctx.fillStyle = combatTextColor(entry.kind);
-    ctx.strokeText(entry.text, x, y);
-    ctx.fillText(entry.text, x, y);
+    ctx.strokeText(text, x, y);
+    ctx.fillText(text, x, y);
   }
   ctx.restore();
 }
 
 function combatTextColor(kind) {
   if (kind === "miss") return "#d7d0c3";
+  if (kind === "crit") return "#ff6a2b";
   if (kind === "enemyDamage") return "#ef7f72";
   if (kind === "heal") return "#80e28a";
   if (kind === "mana") return "#7fb7ff";

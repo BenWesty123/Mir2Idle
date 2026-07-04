@@ -1,0 +1,22 @@
+---
+description: How releases are built and deployed for LOM Idle - Cloudflare, never itch, never auto-upload
+alwaysApply: true
+---
+
+# Releasing / deploying LOM Idle
+
+The live game is a Cloudflare Pages site (project `lom2idle`, domain `www.lom2idle.com`). It is NOT distributed on itch.io anymore - the `itch` naming in the tooling is legacy.
+
+## Hard rules
+- **NEVER upload or deploy directly.** Do not run `wrangler pages deploy`, `wrangler deploy`, or any command that pushes to production/remote. The user uploads manually, on purpose, in case something goes wrong.
+- **Do NOT package for itch** unless the user explicitly says "itch". "Release", "the website", "deploy", "ship" all mean the Cloudflare Pages site, not itch.
+- Your job for a release is to **build and verify the package locally**, then tell the user it is ready for them to manually upload to Cloudflare.
+
+## What to do for a release request
+1. Build + verify the package: `npm.cmd run release:itch` (despite the name, this only builds `dist/itch/` locally and boots it headlessly to verify - it does not upload anywhere). If a new source module was added, make sure it is in the `sourceFiles` list in `tools/package-itch.mjs` or the build fails the import-closure check.
+2. Confirm the boot check (`verify:itch:build`) is green. If red, do NOT tell the user it's ready - fix it first.
+3. Report the built folder (`dist/itch`) and zip path, and state clearly it is ready for **manual upload to Cloudflare Pages** by the user. Do not run the deploy yourself.
+
+## Notes
+- The build artifact `dist/itch/` is exactly what gets uploaded to Cloudflare Pages - the folder name is legacy, not a sign it's for itch.
+- Worker / D1 (`tools/stats-worker/`) deploys are separate and also must be left for the user to run manually.

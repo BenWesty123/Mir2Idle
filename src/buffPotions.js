@@ -86,6 +86,15 @@ export function isBuffPotionItem(item) {
   return Boolean(buffPotionDefForItem(item));
 }
 
+/** Impact / Magic / Taoist drug kinds — persist across zone entry (unlike spell buffs). */
+export const BUFF_POTION_KINDS = new Set(
+  Object.values(BUFF_POTION_DEFS).map((def) => def.kind),
+);
+
+export function isBuffPotionKind(kind) {
+  return BUFF_POTION_KINDS.has(kind);
+}
+
 export function sanitizeStatBuffs(saved = [], now = performance.now()) {
   if (!Array.isArray(saved)) return [];
   return saved

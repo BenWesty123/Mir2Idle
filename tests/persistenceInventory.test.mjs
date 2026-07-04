@@ -125,6 +125,49 @@ test("sanitizeInventoryState: unlocks page 2 when bag exceeds page size", () => 
   assert.equal(inventory.maxSlots, 80);
 });
 
+test("sanitizeInventoryState: gold + token flags both count as usable pages", () => {
+  const inventory = sanitizeInventoryState(
+    { items: [], pagesUnlocked: 2, goldPageUnlocked: true, tokenPageUnlocked: true },
+    { slots: [] },
+    { equipmentSlotIds, pageSize: 40, maxSlots: 120, maxPages: 3, normalizeEntryFields: () => ({}) },
+  );
+  assert.equal(inventory.goldPageUnlocked, true);
+  assert.equal(inventory.tokenPageUnlocked, true);
+  assert.equal(inventory.pagesUnlocked, 3);
+  assert.equal(inventory.maxSlots, 120);
+});
+
+test("sanitizeInventoryState: token page alone does not imply the gold page", () => {
+  const inventory = sanitizeInventoryState(
+    { items: [], pagesUnlocked: 1, tokenPageUnlocked: true },
+    { slots: [] },
+    { equipmentSlotIds, pageSize: 40, maxSlots: 120, maxPages: 3, normalizeEntryFields: () => ({}) },
+  );
+  assert.equal(inventory.goldPageUnlocked, false);
+  assert.equal(inventory.tokenPageUnlocked, true);
+  assert.equal(inventory.pagesUnlocked, 2);
+});
+
+test("sanitizeInventoryState: legacy page count migrates to goldPageUnlocked", () => {
+  const inventory = sanitizeInventoryState(
+    { items: [], pagesUnlocked: 2 },
+    { slots: [] },
+    { equipmentSlotIds, pageSize: 40, maxSlots: 120, maxPages: 3, normalizeEntryFields: () => ({}) },
+  );
+  assert.equal(inventory.goldPageUnlocked, true);
+  assert.equal(inventory.tokenPageUnlocked, false);
+  assert.equal(inventory.pagesUnlocked, 2);
+});
+
+test("sanitizeStorageState: gold + token flags open all three pages", () => {
+  const storage = sanitizeStorageState(
+    { pagesUnlocked: 2, page2Purchased: true, tokenPageUnlocked: true, items: [] },
+    { pageSize: 80, baseSlots: 80, maxPages: 3, normalizeEntryFields: () => ({}) },
+  );
+  assert.equal(storage.pagesUnlocked, 3);
+  assert.equal(storage.tokenPageUnlocked, true);
+});
+
 test("sanitizeStorageState: reassigns duplicate ids and strips unpurchased page 2 slots", () => {
   const storage = sanitizeStorageState(
     {

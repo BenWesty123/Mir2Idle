@@ -1,5 +1,6 @@
 import fs from "node:fs";
 import path from "node:path";
+import crypto from "node:crypto";
 import { execSync } from "node:child_process";
 import {
   BASIC_ATTACK_SKILL,
@@ -37,6 +38,7 @@ const sourceFiles = [
   "src/core/bossRespawn.js",
   "src/core/cloudSave.js",
   "src/core/combat.js",
+  "src/core/craftingCube.js",
   "src/core/drops.js",
   "src/core/empoweredItems.js",
   "src/core/itemIntegrityVersion.js",
@@ -405,6 +407,38 @@ function patchCacheBusting() {
   }
 }
 
+// Atlas coordinate maps (fetched no-store, so always fresh) reference a sheet
+// PNG that loads via the normal HTTP cache (max-age). When an atlas is repacked,
+// every icon's coordinates change; a returning browser would pair the fresh JSON
+// with a STALE cached PNG and crop every icon from the wrong place. Stamping the
+// sheet URL with a content hash gives a changed PNG a new URL, so it is always
+// fetched fresh alongside its matching coordinates (old PNGs go unreferenced).
+const ATLAS_SHEET_STAMP_TARGETS = [
+  "public/item-icons/items-atlas.json",
+  "public/ui/character/stateitems-atlas.json",
+];
+
+function stampAtlasSheetCacheBust() {
+  for (const relativePath of ATLAS_SHEET_STAMP_TARGETS) {
+    const jsonPath = path.join(packageRoot, relativePath);
+    if (!fs.existsSync(jsonPath)) continue;
+    const atlas = readJsonFile(jsonPath);
+    const sheet = typeof atlas.sheet === "string" ? atlas.sheet : "";
+    if (!sheet) continue;
+    const cleanSheet = sheet.split("?")[0];
+    const pngPath = path.join(packageRoot, cleanSheet.replace(/^\.\//, ""));
+    if (!fs.existsSync(pngPath)) {
+      throw new Error(
+        `Atlas sheet PNG missing for ${relativePath}: ${cleanSheet}. ` +
+          `Cannot cache-bust the atlas, which risks scrambled icons on deploy.`,
+      );
+    }
+    const hash = crypto.createHash("sha1").update(fs.readFileSync(pngPath)).digest("hex").slice(0, 12);
+    atlas.sheet = `${cleanSheet}?v=${hash}`;
+    fs.writeFileSync(jsonPath, `${JSON.stringify(atlas, null, 2)}\n`);
+  }
+}
+
 function patchPackagedStatsConfig() {
   const configPath = path.join(packageRoot, "public/stats/config.json");
   let config = {};
@@ -572,6 +606,7 @@ copyDirectory(path.join(root, "public"), path.join(packageRoot, "public"));
 bundlePackagedAtlasManifests();
 trimMaptileIndex();
 patchCacheBusting();
+stampAtlasSheetCacheBust();
 patchPackagedStatsConfig();
 
 validateModuleClosure();

@@ -1,5 +1,409 @@
 # AI Task Log - LOM Idle V2
 
+## 2026-07-03 - Stat buff potions in boss rooms
+
+### Bug
+Boss rooms run through `bossParty` members. Combat applies `member.statBuffs` via `effectiveCombatStats`, but Impact/Magic/Taoist drugs only wrote `state.battle.statBuffs`. Entering a boss also called `clearTransientCombatBuffs()`, which wiped potions before the party was built, and `updateStatBuffs` could overwrite battle potions from the leader's list.
+
+### Fix
+- Preserve potion kinds (`impact` / `magic` / `taoist`) across `clearTransientCombatBuffs` so pre-buffing survives zone entry.
+- `useBuffPotionEntry` also pushes the buff onto the controlled party member.
+- `updateStatBuffs` merges battle potions onto the leader instead of letting the leader wipe them.
+- Boss-party `applyEquippedStatsToBattlePlayer` uses unbuffed equipment stats so potions are not double-applied (base stats + `member.statBuffs`).
+
+### Checked
+- `tests/buffPotions.test.mjs` covers `isBuffPotionKind`.
+
+## 2026-07-03 - Codex - Holy Deva black outline
+
+### Fixed
+- Corrected Holy Deva's dual-layer compositing to match Crystal: the main effect layer is screen-blended and the coloured body overlay is drawn normally.
+- The previous renderer had those blend modes reversed, leaving the dark effect layer visible as a black silhouette around the summon.
+- Bumped the monster asset version so browsers refresh the corrected rendering path.
+
+### Checked
+- Added blend-mode regression coverage; all 8 Holy Deva tests pass.
+- Syntax and targeted lint checks pass, and a direct composite preview has no black silhouette.
+- The smoke boot reaches the game successfully; its only reported error is the test sandbox blocking the external stats request.
+
+# AI Task Log - LOM Idle V2
+
+# AI Task Log - LOM Idle V2
+
+## 2026-07-03 - Empower Oma King Spirit (2× damage, 2× HP, enrage on lightning)
+
+### What
+Enabled the boss empowerment option for Oma King Spirit in Kings Tomb, matching the Minotaur King / Bone Lord model: 2× HP, 2× damage, and the shared fury/enrage stages (70% / 40% / 15% HP, 8s, 600ms attack cadence).
+
+### Lightning bolts
+Kings Tomb map lightning is zone environmental damage (50–150), not boss DC, so empower/enrage would not have affected it automatically. Changes:
+- Empowered fights scale lightning damage by the same 2× damage multiplier.
+- While enraged, lightning intervals use the same speed-up ratio as the boss (`enrageAttackMs / attackMs`, i.e. 0.6×).
+- On enrage trigger, the next lightning wave is pulled forward so the rage is felt immediately on the AoE bolts.
+
+### Changes (`src/app.monolith.js`)
+- `BOSS_EMPOWER_AVAILABLE_ZONE_IDS` includes `zone-kings-tomb`.
+- `supportsEmpoweredBossCombat` / `empoweredBossDamageMultiplier` include Oma King Spirit (2×).
+- `mapLightningSettings`, `randomMapLightningIntervalMs`, `mapLightningEnrageIntervalFactor`, and `maybeTriggerEnemyEnrage` wire lightning into empower/enrage.
+
+### Checked
+- `npm run check` (unit tests pass; only the pre-existing warrior-bicheon offline XP 378-vs-375 discrepancy remains) and `npm run smoke` (no errors). Not yet deployed.
+
+## 2026-07-02 - New global empower: Skill leveling +x%
+
+### What
+Added `skillLevelBonusPercent` as a global (bonus-pool) empowerment alongside gold/XP/drops. It multiplies the skill-practice XP gained toward levelling spells/skills (the `learned.experience` gain), not kill XP. A fully maxed set across all worn slots sums to exactly +200%.
+
+### Ranges (per slot max, sums to 200% worn)
+- Weapon 5–40 (step 5), Armour 5–30, Helmet 5–20, Stone 5–30 (step 5)
+- Bracelet 2–12, Ring/Necklace 2–12 (step 2)
+- Belt/Boots 2–10 (step 2)
+- Worn total: 40 + 30 + 20 + 12×2 + 12×3 (2 rings + necklace) + 10×2 + 30 = 200.
+
+### Changes
+- `src/core/empoweredItems.js`: added roll def to all 7 slot tables; added key to `GLOBAL_EMPOWER_KEYS`, `STAT_LABELS` ("Skill leveling"), `formatEmpowerRollDescription`, and `empowerBonusStatLines`.
+- `src/battleData.js`: `cloneStats` / `addStats` / `sanitizeItemBonusStats` carry the new key.
+- `src/app.monolith.js`: `itemEntryStats` surfaces the key; new `equippedSkillLevelBonusPercent()` + `skillExperienceGain(inventory)` helper (applies the multiplier after the roll, so zero-bonus gear stays RNG-neutral for offline sim); `levelMagicSkill` and `bossPartyLevelMagicSkill` now use it; tooltip stat lists show "Skill Leveling".
+- Regenerated `tools/stats-worker/itemRules.generated.js` and `docs/EMPOWER_REFERENCE.md`.
+- Added a unit test asserting the key is global, rolls on every worn slot, and the max sums to 200%.
+
+### Checked
+- `npm run check` (362 tests pass; only the pre-existing warrior-bicheon offline XP 378-vs-375 discrepancy remains) and `npm run smoke` (no errors). Not yet deployed.
+
+## 2026-07-02 - Hotfix: leaderboard 500 from alias lookup exceeding D1 param limit
+
+### Problem
+After the alias deploy, the stats panel leaderboard returned HTTP 500 (worker exception 1101). `aliasMapForPlayerIds` built a single `IN (?, ?, ...)` with one bound parameter per row; the leaderboard returns up to 250 rows, exceeding D1's per-query bound-parameter limit (~100), so the query threw. The town noticeboard (max 50 rows) never hit it.
+
+### Fix (`tools/stats-worker/worker.js`)
+- `aliasMapForPlayerIds` now chunks the id list (`ALIAS_LOOKUP_CHUNK = 90`) and merges results across queries, keeping the bound-parameter count well under the limit regardless of leaderboard size.
+
+### Checked / Deployed
+- Alias + integrity/leaderboard tests pass. Worker redeployed (version `b35dbf36`). Verified live: `GET /leaderboard?scope=accounts&limit=250` -> HTTP 200 (confirmed via `wrangler tail`). Worker-only fix; no site repackage needed.
+
+## 2026-07-02 - Teleport Ring price 350 -> 500 tokens
+
+### Changed
+- Server (source of truth): `UNLOCK_TOKEN_COSTS["teleport-ring"]` 350 -> 500 in `tools/stats-worker/worker.js`.
+- Client display: `TELEPORT_RING_TOKEN_COST` 350 -> 500 in `src/app.monolith.js` (Buy button + "Need N tokens").
+- Tests: updated `tests/statsWorkerShop.test.mjs` teleport-ring charge/reject tests to 500.
+
+### Checked / Deployed
+- `npm run check`: 361 tests pass (pre-existing warrior-bicheon xp drift unrelated).
+- Worker redeployed (version `df0d2c04`). Site repackaged (`20260702-183556`), verified boot, Pages-deployed to `lom2idle` (`a009912a`).
+
+## 2026-07-02 - Fix: scene overlay stole focus from text inputs during combat
+
+### Problem
+Typing in a scene text field (the new alias input, and also the cloud-restore code box) kept losing focus mid-keystroke. `renderSceneOverlay` rebuilds the overlay `innerHTML` whenever its signature changes, and that signature includes state that ticks during play (boss kills/respawn timers, tokens, etc.), so the focused `<input>` was destroyed and recreated repeatedly.
+
+### Fix (`src/app.monolith.js`)
+- Added `captureSceneOverlayFocus()` / `restoreSceneOverlayFocus()`: before the `innerHTML` rebuild, snapshot the focused INPUT/TEXTAREA (by id or its first `data-*` attribute) plus caret selection; after rebinding, re-focus and restore the caret. Applies to all current and future scene text fields. Values already survived (input handlers write to state on each keystroke, and fields render from state).
+
+### Checked
+- `node --check` + `npm run smoke`: clean boot, 0 errors.
+
+## 2026-07-02 - Player aliases (custom display names for Social + noticeboard)
+
+### Requested
+Let players replace the derived `Player XXXXXXXX` label with a chosen alias, set from Options. The Social tab and town noticeboard should show the alias instead of the id string.
+
+### Decisions (confirmed with user)
+- Aliases are **case-insensitively unique** across all players.
+- Setting/renaming is **bound to `playerId` + `recoveryCode`**: the recovery code that first claims a player id is the only one that can rename it.
+- Alias is **resolved at read time**, so renames retroactively update old noticeboard posts.
+- Validation: 3-16 chars, letters/numbers/spaces and `. _ ' -`; internal whitespace collapsed; cannot start with "Player".
+
+### Server (`tools/stats-worker/worker.js`, `schema.sql`, `migrate-player-aliases.sql`)
+- New `player_aliases` table (`player_id` PK, `recovery_code`, `alias`, `alias_lower` UNIQUE, timestamps).
+- `aliasPlayerIdValue` / `normalizePlayerAlias` validators; `ALIAS_*` constants.
+- `resolvePublicLabel(playerId, aliasMap)` prefers alias, falls back to `publicPlayerLabel`. `aliasMapForPlayerIds(env, ids)` batch-fetches aliases (account-id keyed; skips query when empty).
+- `handlePlayerAliasGet` (`GET /player/alias?playerId=`) and `handlePlayerAliasPost` (`POST /player/alias`) with binding (403 `ALIAS_LOCKED`), uniqueness (409 `ALIAS_TAKEN`), validation (400 `ALIAS_INVALID`). Upsert via `ON CONFLICT(player_id)`.
+- `handleLeaderboardGet` + `handleTownMessagesGet`/`Post` now resolve labels through the alias map. `townMessageRow` gained an optional `aliasMap` arg (backward compatible). Router entries added for `/player/alias`.
+
+### Client (`src/app.monolith.js`, `src/styles.css`)
+- `state.prototypeStats` gained `alias`, `aliasInput`, `aliasStatus`, `aliasError`, `aliasSaving`, `aliasLoaded`.
+- `prototypeStatsDisplayName()` (alias or derived label). `fetchPlayerAlias()` (lazy, on Options open) + `submitPlayerAlias()` (client-side validation mirrors server, POSTs). `setPlayerAliasStatus()` re-renders Options.
+- Options: new "Display Name" section (`playerAliasSectionHtml()`) with current name, input (maxlength 16), Save button (disabled without a recovery code) + status line. Event wiring for `[data-submit-player-alias]` / `[data-player-alias-input]`. Social tab + noticeboard already render the server `player` field, so they pick up aliases with no client change.
+- CSS for `.options-alias*`.
+
+### Checked
+- `npm run check`: 361 unit tests pass (7 new alias tests + updated town-message alias test). Only red is the pre-existing warrior-bicheon offline xp drift (375 vs 378), unrelated.
+- `npm run smoke`: boots clean, 0 console/page errors.
+
+### Deploy note
+Requires a D1 migration before the worker redeploy: `npx wrangler d1 execute lom-idle-v2-stats --file .\migrate-player-aliases.sql --remote` then `npx wrangler deploy --keep-vars` (see `tools/stats-worker/README.md`). The website build itself needs no special step beyond the usual package/deploy.
+
+## 2026-07-02 - Fix: AoE ground/bang spells now crit (Fire Wall per-spell crit did nothing)
+
+### Problem
+Per-spell crit empowers (e.g. weapon "+20% crit chance for Fire Wall") could be rolled for every wizard damage spell, but crit was only ever applied on the single-target / projectile path (`rollWizardMagicDamage` + `damageCrit`). Ground and bang AoE spells rolled damage separately (`rollWizardMagicValue`) and never ran the crit roll, so Fire Wall, Meteor Strike, Blizzard, Ice Storm and Flame Field could never crit - their crit empowers were dead rolls.
+
+### Fix (`src/app.monolith.js`, `src/core/combat.js`)
+- Ground/DoT ticks (`applyGroundSpellTick`, `applyGroundSpellTickToSwarmEnemy`) now wrap the post-defence value with `applyCritToOutgoingDamage(raw, player, spell.id, inventory)` and surface the crit via `critDamageKind`. Crit is rolled **per tick** (each Fire Wall/Blizzard/Meteor tick can independently crit), matching the "every hit can crit" model.
+- Bang impacts (`applyWizardBangSpellImpact`, both swarm and single-target branches) apply crit once per target on impact.
+- Added `groundSpellTickInventory(effect)` helper (mirrors `groundSpellTickPlayer`) so boss-party casters use their own gear's per-spell crit empowers.
+- `magicBurnEvents` (combat.js) gained a `damageKind` param (before `damageOptions`) so burn ticks can render as `crit` floating text; both monolith call sites updated.
+
+### Checked
+- `npm run check`: 354 unit tests pass. Only red is the pre-existing warrior-bicheon offline xp drift (375 vs 378), unrelated (warrior physical path, no crit gear -> RNG-neutral).
+- `npm run smoke`: boots clean, 0 console/page errors.
+
+## 2026-07-02 - Cash Shop "Teleport Ring" unlock (350 tokens) + boss-room teleport menu
+
+### Requested
+- New Cash Shop item "Teleport Ring" for 350 tokens.
+- Once owned, a ring button appears top-right of the play screen; clicking it opens a menu of all boss rooms (excluding Group Dungeons) with each boss's respawn timer, and clicking a boss opens its boss-entry (teleport) page.
+
+### Server (`tools/stats-worker/worker.js`)
+- Replaced the single `PAGE_UNLOCK_TOKEN_COST = 250` with a per-key `UNLOCK_TOKEN_COSTS` map (pages 250, `teleport-ring` 350). `PAGE_UNLOCK_KEYS` now derives from the map keys. `handleShopUnlockPost` charges/ledgers the per-key `cost`. No schema change - reuses the existing `account_unlocks` table.
+- Tests (`tests/statsWorkerShop.test.mjs`): added teleport-ring charges 350 + rejects below-350. All 15 shop tests pass.
+
+### Client (`src/app.monolith.js`, `src/styles.css`)
+- Constants: `TELEPORT_RING_UNLOCK_KEY`/`TELEPORT_RING_TOKEN_COST`/`TELEPORT_RING_ICON_SRC` + `teleportRingOwned()`. Added the key to `sanitizeOwnedUnlocks` whitelist so it persists.
+- Cash Shop: new "Spend tokens" section with the Teleport Ring (icon + Buy for 350 / Owned / Need 350). `confirmTeleportRingPurchase()` → `purchasePageUnlock("teleport-ring")`; click wired via `data-buy-unlock`.
+- Top-right stage button `#teleportRingButton` (in `.stage-shell`), shown by `syncTeleportRingButton()` (called from `renderGamePanel` + `applyOwnedUnlocks`), gated on `teleportRingOwned() && cashShopEnabled()`. Opens the new `teleportRing` overlay via `data-open-scene`.
+- New `teleportRing` openScenes overlay registered across the scene plumbing (init/open/close/isOpen/render arrays, `sceneClassName`/`sceneTitle`/`sceneBodyHtml`). `teleportRingSceneHtml()` lists boss rooms via `teleportRingBossZoneIds()` = `BOSS_ROOM_DEFS` (GD-free) intersected with `TELEPORT_REGIONS` zone ids, so test-only/unreleased rooms (Flame Queen, Flaming Mutant, Scaly Beast - not in any teleport region) are excluded and future released bosses appear automatically. Live respawn timers; `data-teleport-ring-zone` handler closes the menu then `requestZoneEntry(zoneId)` (opens the existing boss-entry page). Live countdown via `teleportRingTimers` added to both scene-overlay signatures.
+- Art: shipped the real in-game icon (Items library frame 172) as `public/ui/teleport-ring.png` (calibrated against 3rd Eye Bracelet frame 208). Standalone UI asset - not routed through the item/atlas/drop pipeline; packaging copies all of `public/`.
+
+### Checked
+- `npm run check`: 354 unit tests pass, source-only check passed. Only red is the pre-existing warrior-bicheon offline xp drift (375 vs 378), unrelated.
+- `npm run smoke`: clean boot, no console/page errors.
+- Headless drive (`?testHarness=1` helpers `grantTeleportRing`/`openTeleportRingMenu`): button hidden until owned → shown after grant; menu lists 12 boss rooms with Ready/timer; clicking a boss opens the boss-entry window and closes the ring menu. Screenshots confirmed button + menu + cash-shop item.
+
+### Deploy (NOT done yet)
+- Worker must be redeployed (per-key cost + `teleport-ring` key) or `/shop/unlock-page` returns "Unknown unlock" for the ring.
+- Site must be packaged (`npm run release:itch`) and uploaded for the client UI.
+
+## 2026-07-02 - Non-weapon gear rolls full spell bonus pool; necklaces = ring tier
+
+### Requested
+- Armour + jewellery should roll the FULL bonus pool (class spell empowers + globals), not just spell crit.
+- Necklaces should be the same tier as rings.
+
+### Changes (`src/core/empoweredItems.js`)
+- New `itemNonWeaponSpellEmpowerRollDefs(item)` (replaces crit-only `itemSpellCritEmpowerRollDefs`): non-weapon gear now rolls the full class spell/skill empowers — damage %, mana cost, healing, pet health/DR, cooldown — PLUS per-spell crit. Class-gated by `empowerItemClass` (natural MC→wizard, SC→tao, DC→warrior, neutral→all).
+- Reduced ranges by slot tier via `SPELL_EMPOWER_TIER_FACTOR` (armour 0.5×, accessory 0.35×), snapped to each roll's step (`scaleSpellRollDef`). Weapons keep full ranges through their own tables. Per-spell crit still uses the explicit `SPELL_CRIT_RANGES` tiers.
+- Necklaces now share the **Ring table** (`slotBaseRollDefs`: ring||necklace → RING defs) and accessory spell tier; removed the legacy `other` slot group (folded necklace into a "Ring / Necklace" group). Necklaces are no longer a legacy/dynamic-pool slot.
+- Rebalanced global Crit Rate maxes so all worn slots incl. necklace sum to exactly 100%: bracelet 8→6, ring 8→6 (ring counts ×3 now: 2 rings + necklace), stone 12→14. New sum: weapon20+armour14+helmet10+2×bracelet6+3×ring6+belt6+boots6+stone14 = 100.
+- No monolith change needed: `equipped*` accessors already sum spell bonuses across every equipped slot, so armour/jewellery spell empowers apply in combat automatically.
+
+### Checked
+- 352/352 unit tests pass (updated: 100%-sum test now ×3 ring incl necklace; MC-non-weapon test now expects damage/mana+crit; new tests for full non-weapon spell pool + necklace=ring; repointed the legacy single-stat regression at a table-less slot).
+- Regenerated `itemRules.generated.js`, `docs/EMPOWER_REFERENCE.md`, `tools/empower-reference.html`. Spot-checked: wizard necklace bonus pool == wizard ring bonus pool.
+- Only red in `npm run check` is the pre-existing warrior-bicheon offline xp drift (375 vs 378), unrelated.
+
+### Note
+- Already-dropped items keep their stored bonuses; only new drops use the expanded pools.
+
+## 2026-07-02 - Fix: empowered legacy item showed more stars than empowerments
+
+### Report
+- A 2-star ("★★") Life Necklace displayed only ONE empowered stat (MC).
+
+### Root cause
+- Necklaces are the only slot with no fixed empower table; they use `legacyDynamicCandidateRolls`, which emitted a separate candidate for EACH endpoint of a stat range (`{mc,index:0}` AND `{mc,index:1}`). A single-stat necklace (e.g. MC 3–6) therefore offered two candidates that were both MC, so a tier-2 drop applied two rolls to the same stat → two ★ but one visible empowered stat.
+
+### Fix (`src/core/empoweredItems.js`)
+- `legacyDynamicCandidateRolls` now emits ONE candidate per distinct stat key (range stats empower the max endpoint, index 1 — matching every fixed slot table). Star count can no longer exceed the number of distinct empowered stats for any legacy/dynamic-pool item.
+- Did NOT add a necklace crit/global table: the crit-chance-sums-to-100% design deliberately excludes necklaces (see test "max crit-chance empower on every worn slot sums to exactly 100%"). Adding necklace globals would break that balance.
+
+### Checked
+- 79/79 `empoweredItems.test.mjs` pass, incl. new regression "legacy single-stat necklace: star count never exceeds distinct empowered stats".
+- No lint errors. Item-integrity rules unaffected (empower candidate generation isn't part of them).
+
+### Note
+- Existing already-dropped items keep their stored bonuses (only new drops use the corrected generator).
+
+## 2026-07-02 - Atlas cache-bust fix (deploy scrambled ALL icons)
+
+### Incident
+- Deploying the rebuilt item atlas (348 -> 352 frames) scrambled EVERY item icon on the live site (rolled back).
+- Root cause: `loadJson` fetches `items-atlas.json` with `cache: "no-store"` (always fresh), but the sheet PNG loads as a CSS `background-image` under `/public/*` = `max-age=86400` with NO cache-bust token. A full atlas repack changes every icon's sx/sy, so a returning browser paired the FRESH coordinates with a STALE cached PNG -> every icon cropped from the wrong region. A cold/incognito load was fine, so `verify:itch:build` passed and it wasn't caught pre-deploy.
+
+### Fix (`tools/package-itch.mjs`)
+- Added `stampAtlasSheetCacheBust()` (runs after `patchCacheBusting`): rewrites the `sheet` field in `public/item-icons/items-atlas.json` and `public/ui/character/stateitems-atlas.json` to `...png?v=<sha1(png)[:12]>`. Since the JSON is always fetched fresh, a changed PNG now gets a new URL and is always fetched alongside its matching coordinates; unchanged PNGs keep a stable URL (no needless re-download). Throws if the sheet PNG is missing.
+- Source atlas JSONs stay pristine (un-versioned); dev server is `no-store` so dev never hit this. The stamp is a packaging-only, render-neutral transform, same class as the existing `?v=` cache-bust.
+- Verified: packaged `items-atlas.json` sheet -> `...png?v=ee4e26637c70` (PNG present, 352 frames incl. `frame_000597.png`); stateitems sheet stamped too. Boot check green.
+
+### Note / follow-up
+- Same latent risk exists for monster/sprite sheets referenced by `atlas-manifests.json` if their art is ever repacked; not addressed here (those weren't the outage and rarely change).
+
+## 2026-07-02 - Fix Crystal Armour icon missing in deployed build
+
+### Root cause
+- `crystal-armour` uses `frame_000597.png`, which existed in `public/item-icons/items/` but was **not** in the committed `items-atlas.json`.
+- Dev can still show the icon via the individual PNG fallback; the packaged site ships **only** the atlas (individual `frame_*.png` files are excluded), so missing atlas coords = blank icon.
+
+### Fix
+- Rebuilt item icon atlas (`npm run build:item-atlas`): 348 → 352 frames, now includes `frame_000597.png` (Crystal Armour) plus three stone icons whose source PNGs were also missing from `public/` (`frame_000584/619/624.png` copied from `tile-review` first).
+- Repackaged `dist/itch` (`20260702-085333`); boot verify passed.
+
+### Checked
+- All item icon `src` paths now resolve in `items-atlas.json` (0 missing).
+- `verify:itch:build` green.
+
+## 2026-07-02 - Per-spell crit empowers now roll on armour + jewellery
+
+### Changed (`src/core/empoweredItems.js`)
+- Per-spell crit (chance + damage) previously weapon-only; now also rolls on **non-weapon gear** via new `itemSpellCritEmpowerRollDefs(item)`, folded into `empowerBonusPool`.
+- **Class-gated** by `empowerItemClass(item)`: gear with natural MC → wizard spells, natural SC → tao spells, natural DC → warrior skills, neutral defensive gear (no DC/MC/SC) → all spells. Weapons keep rolling spell crit through the existing weapon path (no duplication).
+- **Lower ranges** than weapons, via `SPELL_CRIT_RANGES`:
+  - Weapon: crit chance 5–25% (step 5), crit damage 10–50% (step 10).
+  - Armour + helmet: crit chance 2–12% (step 2), crit damage 5–25% (step 5).
+  - Jewellery/accessory (ring, bracelet, belt, boots, stone): crit chance 1–8% (step 1), crit damage 5–15% (step 5).
+- Refactored weapon spell-crit lists into exported constants (`WIZARD_/WARRIOR_/TAO_/ALL_CRIT_SPELL_IDS`).
+
+### Notes
+- These are bonus-pool rolls; adding them dilutes each item's other bonus rolls (expected — makes any single spell-crit roll rarer on non-weapons, consistent with "lower").
+- Reference doc's per-item pool section reflects them automatically (derives from `empowerBonusPool`).
+
+### Checked
+- `npm run check`: 349/349 unit tests pass (updated 6 "fixed table" count assertions to key-presence checks; refined the MC-non-weapon test to allow crit but still exclude damage/mana; added an armour+jewellery class-gating/range test). Only red is the pre-existing warrior-bicheon offline xp drift (375 vs 378).
+- Regenerated `itemRules.generated.js`, `docs/EMPOWER_REFERENCE.md`, `tools/empower-reference.html`. No monolith change (accessors already wired).
+
+## 2026-07-02 - Per-spell crit chance / crit damage empowers
+
+### Added (`src/core/empoweredItems.js`)
+- Two new per-spell empower `kind`s: `critChancePercent` and `critDamagePercent`, plumbed through `sanitizeEmpowerSpellBonuses`, `applyEmpowerSpellRoll`, `formatEmpowerRollDescription` ("Increase Flame Disruptor crit chance by 5–25%"), `empowerSpellBonusLines`, and `empowerSpellBonusTooltipRows`.
+- Helper `spellCritEmpowerRollDefs(spellIds)` + tunables `SPELL_CRIT_CHANCE_ROLL` (5–25%, step 5) and `SPELL_CRIT_DAMAGE_ROLL` (10–50%, step 10). Wired into:
+  - Wizard (MC weapon): FlameDisruptor, FireWall, ThunderBolt, IceStorm, FlameField, MeteorStrike, Blizzard, FireBall, GreatFireBall, FrostCrunch.
+  - Warrior (skill weapon): Slaying, FlamingSword, TwinDrakeBlade, BladeAvalanche, SlashingBurst.
+  - Tao (SC weapon): SoulFireBall.
+- Accessors `equippedSpellCritChanceBonusPercent` / `equippedSpellCritDamageBonusPercent` sum the per-spell bonus across equipped items.
+
+### Integration (`src/app.monolith.js`)
+- `applyCritToOutgoingDamage(damage, attacker, spellId?, inventory?)` now adds the per-spell crit chance/damage **on top of** the attacker's global crit when a `spellId` is supplied (physical swings omit it and are unchanged). Chance is still clamped to the 100% cap by `rollCrit`.
+- Passed the spell/skill id through `rollWarriorMagicDamage`, `rollWizardMagicDamage`, `rollTaoistMagicDamage`, `rollBladeAvalancheDamage`, `rollSweepPrimaryDamage`. Deferred wizard projectiles + Tao SFB inherit it (they route through those roll fns before latching `damageCrit`).
+
+### Notes
+- Per-spell crit is a **bonus-pool weapon empower** (only weapons whose class matches the spell). It stacks additively with global crit for that one spell only — exactly the requested "Flame Disruptor +15% crit chance" / "Flaming Sword +50% crit damage".
+- No save migration (empowerSpellBonuses already sanitizes unknown-safe; new keys are additive).
+- Pets intentionally excluded for now (they already use the owner's global crit).
+
+### Checked
+- `npm run check`: 348/348 unit tests pass (new per-spell crit test: rolls exist per class, sanitize/format, accessor summation). Only red is the pre-existing warrior-bicheon offline xp drift (375 vs 378).
+- `npm run smoke`: clean (Warrior/Wizard/Taoist 25/25 actions, 0 errors).
+- Regenerated `itemRules.generated.js`, `docs/EMPOWER_REFERENCE.md`, `tools/empower-reference.html`.
+
+## 2026-07-02 - Crit chance / crit damage empowered item rolls
+
+### Added
+- `critChancePercent` and `critDamagePercent` are now **global** empower rolls (added to `GLOBAL_EMPOWER_KEYS` → drawn from the 30% bonus pool, class-agnostic) in `src/core/empoweredItems.js`. Per-slot roll defs added to every worn table: weapon, armour, helmet, bracelet, ring, belt/boots, stone.
+- Display wiring: `STAT_LABELS` (`Crit Rate` / `Crit Damage`), `formatEmpowerRollDescription` (+X% / +X–Y%), and `empowerBonusStatLines` now render the new keys.
+
+### Design — 100% crit chance = max crit roll on *every* worn slot
+- Per-item **max crit chance**: weapon 20, armour 14, helmet 10, bracelet 8, ring 8, belt 6, boots 6, stone 12.
+- Crit chance rolls **min 1%, increments of 1%** (wide range per slot, e.g. weapon = any 1–20).
+- Worn total (weapon + armour + helmet + 2 bracelets + 2 rings + belt + boots + stone) = **exactly 100%**. Reaching it requires the max crit-chance roll on all 10 items, so 100% is achievable but astronomically hard — matches the intent.
+- `CRIT_CHANCE_CAP_PERCENT` raised 75 → **100** in `src/core/combat.js`.
+- Crit **damage** rolls are additive, **increments of 5%**, no total cap (max-everywhere ≈ +165% → 3.15× crit multiplier).
+
+### Notes
+- Crit stays in the bonus pool only (never base): `empowerBasePool` filters out global keys; `itemGlobalRollDefs` surfaces the new rolls per slot. Necklace/torch/amulet/mount have no fixed table, so they never roll crit (kept out of the 100% math).
+- No save migration needed (empower bonus stats already sanitize the crit keys).
+- Follow-up (requested, not yet built): per-spell crit empowers (e.g. "Flame Disruptor +15% crit chance", "Flaming Sword +50% crit damage") — would extend the spell-empower roll defs / `empowerSpellBonuses` shape.
+
+### Checked
+- `npm run check`: 347/347 unit tests pass (incl. new crit-empower tests: global keys, per-slot presence, worn-max == 100, description formatting). Only red is the **pre-existing** warrior-bicheon offline xp drift (375 vs 378), unrelated to this data-only change.
+- Regenerated `tools/stats-worker/itemRules.generated.js` (`integrity:rules`) and `docs/EMPOWER_REFERENCE.md` + `tools/empower-reference.html` (`empower:ref`).
+
+## 2026-07-02 - Crit chance / crit damage for all outgoing player damage
+
+### Added
+- New stats `critChancePercent` and `critDamagePercent`, plumbed through `cloneStats` / `addStats` / `sanitizeItemBonusStats` (`src/battleData.js`) and `itemEntryStats` (`src/app.monolith.js`), so they aggregate from gear/empower/smith bonuses like any other stat and flow onto `battle.player` automatically.
+- Crit primitives in `src/core/combat.js`: `CRIT_CHANCE_CAP_PERCENT` (75), `CRIT_BASE_DAMAGE_PERCENT` (50 → base crit is 1.5×), `clampCritChancePercent`, `critMultiplier`, `rollCrit`, `applyOutgoingCrit`, `expectedCritMultiplier` (all RNG-injectable + unit-tested).
+
+### Model
+- **After-defence** crit: the post-mitigation damage is rolled once per direct hit, then scaled on a crit. Base crit = 1.5×; gear `critDamagePercent` adds on top (e.g. +100 → 2.5×). Chance hard-capped at 75%.
+- Covered (player + party members, live + offline): warrior physical swings + skills (`rollWarriorMagicDamage`, Blade Avalanche, Half/Cross-Moon sweep), wizard single/projectile/target spells (`rollWizardMagicDamage`), Taoist Soul Fire Ball / direct magic (`rollTaoistMagicDamage`), and Taoist pet melee (`rollTaoistPetAttackResult`, using the **owner's** crit stats). Enemies carry no crit stats, so shared roll functions are safe (chance resolves to 0). AoE ground/DoT fields and bang spells are intentionally excluded for now.
+- Combat feedback: crit hits render a distinct orange `crit` floating-text kind on the main player-facing paths (warrior hits, wizard/tao weapon swings, deferred spell impacts via `impact.crit`, pet hits).
+- UI: paper-doll **Crit Rate** / **Crit Damage** rows now show real totals (rate %, and crit damage as total-% e.g. 150%); item tooltips list Crit Rate / Crit Damage bonuses.
+
+### Notes
+- No save migration needed (crit is derived from equipment).
+- Crit is RNG-neutral at 0 chance (`rollCrit` returns before consuming `randomInt`), so seeded offline fixtures are unaffected.
+- **No item/empower/gem currently grants crit** — the mechanic is fully wired but dormant until a source is added (follow-up decision on roll ranges/weights).
+
+### Checked
+- `npm run check`: 344/344 unit tests pass (incl. new crit tests). Remaining fixture reds (warrior-bicheon xp 375 vs 378, taoist-bicheon kills 38 vs 35) are **pre-existing** — confirmed by re-running the taoist fixture with all crit changes stashed (identical failure). `npm run smoke` clean (25/25 actions per class, 0 errors).
+
+## 2026-07-02 - Boss empowerment: Minotaur King
+
+### Changed
+- Enabled empowered fights for **Minotaur King** (Prajna Temple KR): added `zone-prajna-temple-kr` to `BOSS_EMPOWER_AVAILABLE_ZONE_IDS` and `isMinotaurKingEnemy` to `supportsEmpoweredBossCombat` in `src/app.monolith.js`.
+- **2× damage** on empowerment (melee DC and AoE MC both scaled via `applyEmpoweredBossCombatModifiers`). Shared: 2× HP, enrage at 70% / 40% / 15% HP, 2× drop rates + empowered item rolls.
+
+### Checked
+- `npm run check`: 339/339 tests pass; only red is pre-existing warrior-bicheon offline xp drift (375 vs 378). `npm run smoke` clean (0 errors).
+
+## 2026-07-02 - Boss empowerment: Bone Lord
+
+### Changed
+- Enabled empowered fights for **Bone Lord** (Prajna Cave KR): added `zone-prajna-cave-kr` to `BOSS_EMPOWER_AVAILABLE_ZONE_IDS` and `isBoneLordEnemy` to `supportsEmpoweredBossCombat` in `src/app.monolith.js`.
+- Bone Lord uses **2× damage** on empowerment (with Zuma Taurus) via `empoweredBossDamageMultiplier`; other empowered bosses remain 1.5×. Shared: 2× HP, enrage at 70% / 40% / 15% HP, 2× drop rates + empowered item rolls.
+
+### Checked
+- `npm run check`: 338/339 tests pass (one unrelated offline Taoist support-order failure). `npm run smoke` clean (0 errors).
+
+## 2026-07-02 - Boss empowerment: Zuma Taurus
+
+### Changed
+- Enabled empowered fights for **Zuma Taurus** (Zuma Temple KR): added `zone-zuma-temple-kr` to `BOSS_EMPOWER_AVAILABLE_ZONE_IDS` and `isZumaTaurusEnemy` to `supportsEmpoweredBossCombat` in `src/app.monolith.js`.
+- Same shared modifiers as other empowered bosses: 2× HP, enrage at 70% / 40% / 15% HP, 2× drop rates + empowered item rolls. **Damage is 2×** (other empowered bosses remain 1.5×).
+
+### Checked
+- `npm run check`: 339/339 tests pass; only red is pre-existing warrior-bicheon offline xp drift (375 vs 378). `npm run smoke` clean (0 errors).
+
+## 2026-07-02 - Boss empowerment: Evil Centipede
+
+### Changed
+- Enabled empowered fights for **Evil Centipede** (Bug Cave KR): added `zone-bug-cave-kr` to `BOSS_EMPOWER_AVAILABLE_ZONE_IDS` and `isEvilCentipedeEnemy` to `supportsEmpoweredBossCombat` in `src/app.monolith.js`.
+- Empowered Evil Centipede uses the shared boss modifiers: **2× HP**, **1.5× damage**, and **enrage at 70% / 40% / 15% HP** (8s rage windows, 600ms attack speed while enraged). Drop bonuses unchanged from other empowered bosses (2× drop rates + empowered item roll chance).
+
+### Checked
+- `npm run check`: 339/339 tests pass; only red is pre-existing warrior-bicheon offline xp drift (375 vs 378). `npm run smoke` clean (0 errors).
+
+## 2026-07-01 - Empower system: Phase D wizard/warrior spell empower expansion
+
+### Changed
+- `src/core/empoweredItems.js`: expanded weapon spell/skill empower tables, only where the runtime hook already fires (verified in the monolith):
+  - **Wizard (MC weapon)**: added `damagePercent` for Fire Ball / Great Fire Ball / Frost Crunch (routes through `rollWizardMagicValue` → `applyEquippedSpellDamageBonus`), and `manaCostPercent` for Thunder Bolt / Ice Storm / Flame Field / Meteor Strike / Blizzard (generic `effectiveSpellMpCost` hook). No wizard cooldown empowers - the cooldown hook (`setWarriorSpellCastReadyAt`) is warrior-only.
+  - **Warrior (DC weapon)**: added Twin Drake Blade `manaCostPercent`; Blade Avalanche `damagePercent` (`rollBladeAvalancheDamage`) + `manaCostPercent`; Slashing Burst `damagePercent` (`rollWarriorMagicDamage`) + `manaCostPercent`.
+  - Added `SPELL_EMPOWER_LABELS` for Fire Ball, Great Fire Ball, Frost Crunch, Blade Avalanche, Slashing Burst.
+
+### Checked
+- Verified each hook's call sites: damage (`applyEquippedSpellDamageBonus` in the magic-roll fns), mana (`effectiveSpellMpCost` used by every warrior/wizard/tao cast), cooldown (warrior-only via `setWarriorSpellCastReadyAt`). Skipped effect/duration/sweep empowers (no hook yet).
+- Extended wizard/warrior candidate-roll unit tests; regenerated integrity rules + `docs/EMPOWER_REFERENCE.md`. Full suite 339/339. `npm run check` green except the pre-existing warrior-bicheon offline xp drift (375 vs 378, unrelated). `npm run smoke` clean (0 errors).
+
+## 2026-07-01 - Empower system: global damage-taken + base/bonus pools
+
+### Changed (Phase A - global "damage taken −%")
+- New empower stat `damageTakenReductionPercent` added to the core stat shape (`cloneStats`, `addStats`, `sanitizeItemBonusStats` in `src/battleData.js`) and to `itemEntryStats` aggregation in the monolith. Rolls on armour (−3–12%), helmet (−2–6%), ring/bracelet (−1–4%), belt/boots (−1–5%), stone (−1–2%); never on weapons. Full-BiS stack lands near ~40–50%.
+- Player hook: `incomingDamageReductionPercent` now adds equipped `damageTakenReductionPercent` for the player (all classes) and boss-party members, on top of the existing Wizard Magic Shield, capped at 100%. Displayed in item tooltips as `−X% Damage Taken` and in empower bonus lines.
+
+### Changed (Phase B - 70/30 base/bonus pools + class gating)
+- `src/core/empoweredItems.js`: empowerments now draw from a **base pool (70%)** and a **bonus pool (30%)** via `pickWeightedEmpowerRoll` (`EMPOWER_BASE_POOL_WEIGHT = 0.7`), with fallback to whichever pool has entries.
+- **Base pool** = slot flat stats, with primary DC/MC/SC gated by `empowerItemClass` (natural DC/MC/SC): warrior→DC, tao→DC+SC, wizard→MC, global(none/hybrid)→all. Globals excluded from base.
+- **Bonus pool** = class spell/skill empowers (weapons today) ∪ globals (`GLOBAL_EMPOWER_KEYS`: xp/gold/drop/soul/damage-taken), each using its slot's tuned range.
+- `rollEmpoweredItemDrop` rewritten around the two pools; `empowerCandidateRolls` = base ∪ bonus (legacy dynamic path preserved for necklace).
+
+### Checked
+- Regenerated integrity rules + `docs/EMPOWER_REFERENCE.md`; empower suite grew to 73 tests; full suite 339/339. `npm run check` green except the pre-existing warrior-bicheon offline xp drift (375 vs 378, unrelated). `npm run smoke` clean (0 errors).
+- Note: class gating can flag pre-existing empowered items whose rolls no longer match their class (e.g. an old wizard-armour DC empower). Integrity flags for review; it never drops saves.
+
+## 2026-07-01 - Tao pet empowerments (health + damage reduction)
+
+### Changed
+- Added two Tao-only pet empower kinds to `src/core/empoweredItems.js`: `petHealthPercent` (+% total pet HP) and `petDamageReductionPercent` (−% pet damage taken), alongside the existing pet `damagePercent`. Each Tao summon (Skeleton, Shinsu, Holy Deva) can now roll damage, health, or damage reduction.
+- Extended the SC-weapon spell empower table with pet health (+10–50%) and pet damage-reduction (+5–20%) rolls for all three summons, and added Holy Deva damage parity (+10–50%) plus its label.
+- `sanitizeEmpowerSpellBonuses`, `applyEmpowerSpellRoll`, `formatEmpowerRollDescription`, `empowerSpellBonusLines`, and tooltip rows now handle the new kinds. Added `equippedPetHealthBonusPercent` / `applyEquippedPetHealthBonus` and `equippedPetDamageReductionPercent` / `applyEquippedPetDamageReduction`, with a stacked DR cap (`PET_DAMAGE_REDUCTION_CAP_PERCENT = 75`).
+- Monolith (`src/app.monolith.js`): `createTaoistSummonPet` now applies the owning Taoist's equipped pet empowers at summon time via `applyTaoistPetEmpowerments` (scales `maxHp`/`hp`, stores `damageReductionPercent`). Incoming pet damage is reduced at all three pet-damage sites via `reduceTaoistPetIncomingDamage`.
+
+### Checked
+- Regenerated `tools/stats-worker/itemRules.generated.js` and `docs/EMPOWER_REFERENCE.md`; added unit tests (empoweredItems 66/66; full suite 332/332).
+- `npm run check` passed except the pre-existing warrior-bicheon offline xp drift (375 vs 378, confirmed identical without these changes). `npm run smoke` booted clean (0 console/page errors).
+
 ## 2026-07-01 - UI - Fullscreen toggle
 
 ### Changed
@@ -2025,3 +2429,16 @@ Use this format:
 ### Checked
 - `npm.cmd run check` — unit tests pass (pre-existing offline warrior XP fixture mismatch may remain).
 - `npm.cmd run smoke` — clean boot expected after monolith changes.
+
+## 2026-07-03 - Crafting cube salvage
+
+### Added
+- **Havoc Crystal** material (`havoc-crystal`, Crystal frame 1173) in `src/data/items.json` + icon.
+- Crafting cube **Salvage** mode: drag items into 3×3 grid, salvage all at once for 1 Havoc Crystal per empowerment tier.
+- Rejects non-empowered items with **Can only salvage Empowered Items**; batch salvage up to 9 items.
+- Staging/drag-drop mirrors weapon refine (`stagedEntries`, restore on close).
+- `src/core/craftingCube.js` + `tests/craftingCubeSalvage.test.mjs`.
+
+### Checked
+- `npm.cmd run check` — 365 unit tests pass (pre-existing offline warrior XP fixture mismatch).
+- `npm.cmd run smoke` — clean boot.

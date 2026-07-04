@@ -100,6 +100,28 @@ Then redeploy the Worker so `/stats` stores account ranking fields and `/leaderb
 
 The town noticeboard uses `GET /town-messages` and `POST /town-messages`. Messages are plain text, expire after 14 days, and each anonymous player identity can post once per minute.
 
+## Player aliases (display names)
+
+Players can claim a public display name that replaces the derived `Player XXXXXXXX`
+label on the Social tab and town noticeboard. Aliases are stored in the
+`player_aliases` table, keyed to the account `player_id`, and are case-insensitively
+unique. Only the `recovery_code` that first claimed a `player_id` can rename it.
+Labels are resolved at read time, so changing an alias updates the name shown on
+old noticeboard posts too.
+
+Endpoints:
+
+- `GET /player/alias?playerId=...` returns `{ ok, alias }` (alias is `null` if unset)
+- `POST /player/alias` with `{ playerId, recoveryCode, alias }` claims/renames it
+  (returns 400 invalid, 403 `ALIAS_LOCKED`, 409 `ALIAS_TAKEN`)
+
+Before deploying to an existing D1 database, create the table:
+
+```powershell
+npx wrangler d1 execute lom-idle-v2-stats --file .\migrate-player-aliases.sql --remote
+npx wrangler deploy --keep-vars
+```
+
 Moderate public messages at:
 
 ```text

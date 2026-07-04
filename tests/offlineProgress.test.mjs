@@ -555,12 +555,12 @@ test("nextOfflineTaoistSupportSpellId: respects custom order", () => {
 
 test("OFFLINE_TAOIST_SUPPORT_SPELL_ORDER: player-tank support priority", () => {
   assert.deepEqual(OFFLINE_TAOIST_SUPPORT_SPELL_ORDER, [
-    "Healing",
     "MassHealing",
+    "Healing",
+    "HealingCircle",
     "SoulShield",
     "BlessedArmour",
     "EnergyShield",
-    "HealingCircle",
     "UltimateEnhancer",
     "PetEnhancer",
     "Poisoning",

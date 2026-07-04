@@ -164,16 +164,21 @@ export function sanitizeInventoryState(savedInventory = {}, savedHotbar = {}, co
   const savedBagItems = items.filter((entry) => !savedEquippedIds.has(entry.id) && !savedHotbarIds.has(entry.id));
   const needsSecondPage = savedBagItems.length > pageSize
     || savedBagItems.some((entry) => Number.isInteger(entry.slot) && entry.slot >= pageSize);
-  // The 250-token page is an independent unlock that always counts as one usable page.
+  // The gold page and the 250-token page are independent unlock flags. Legacy
+  // saves only stored a page count, so migrate that into goldPageUnlocked.
   const tokenPageUnlocked = Boolean(savedInventory.tokenPageUnlocked);
-  const pagesUnlocked = Math.min(maxPages, Math.max(
-    Math.max(1, Math.min(maxPages, Math.trunc(Number(savedInventory.pagesUnlocked) || 1))),
-    needsSecondPage ? 2 : 1,
-    1 + (tokenPageUnlocked ? 1 : 0),
-  ));
+  const goldPageUnlocked = (typeof savedInventory.goldPageUnlocked === "boolean"
+    ? savedInventory.goldPageUnlocked
+    : Math.max(1, Math.trunc(Number(savedInventory.pagesUnlocked) || 1)) >= 2)
+    || needsSecondPage;
+  const pagesUnlocked = Math.min(
+    maxPages,
+    1 + (goldPageUnlocked ? 1 : 0) + (tokenPageUnlocked ? 1 : 0),
+  );
   const inventory = {
     gold: Math.max(0, Math.trunc(Number(savedInventory.gold ?? fallbackGold) || 0)),
     pagesUnlocked,
+    goldPageUnlocked,
     tokenPageUnlocked,
     maxSlots: Math.min(maxSlots, pagesUnlocked * pageSize),
     nextInstanceId: Math.max(maxGeneratedId + 1, Math.trunc(Number(savedInventory.nextInstanceId) || 1), 1),

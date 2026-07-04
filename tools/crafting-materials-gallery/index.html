@@ -1,0 +1,2114 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Crystal crafting materials — icon gallery</title>
+  <style>
+    :root {
+      color-scheme: dark;
+      --bg: #12151c;
+      --panel: #1b2130;
+      --border: #2d3648;
+      --text: #e8edf7;
+      --muted: #9aa8c0;
+      --accent: #c9a227;
+      --missing: #8b3a3a;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font: 14px/1.45 system-ui, Segoe UI, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+    }
+    .header {
+      position: sticky;
+      top: 0;
+      z-index: 2;
+      padding: 16px 20px;
+      background: rgba(18, 21, 28, 0.94);
+      border-bottom: 1px solid var(--border);
+      backdrop-filter: blur(8px);
+    }
+    .header h1 { margin: 0 0 6px; font-size: 20px; }
+    .header p { margin: 0 0 12px; color: var(--muted); }
+    .toolbar { display: flex; gap: 10px; flex-wrap: wrap; align-items: center; }
+    .toolbar input {
+      min-width: 240px;
+      padding: 8px 12px;
+      border-radius: 8px;
+      border: 1px solid var(--border);
+      background: var(--panel);
+      color: var(--text);
+    }
+    .stats { color: var(--muted); font-size: 13px; }
+    main { padding: 20px; max-width: 1400px; margin: 0 auto; }
+    .section { margin-bottom: 28px; }
+    .section__title {
+      margin: 0 0 12px;
+      font-size: 16px;
+      color: var(--accent);
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .section__count {
+      font-size: 12px;
+      color: var(--muted);
+      background: var(--panel);
+      border: 1px solid var(--border);
+      border-radius: 999px;
+      padding: 2px 8px;
+    }
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+      gap: 10px;
+    }
+    .card {
+      display: flex;
+      gap: 10px;
+      align-items: flex-start;
+      padding: 10px;
+      background: var(--panel);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      min-height: 72px;
+    }
+    .card--missing, .card--frame0 { border-color: var(--missing); }
+    .card__icon {
+      flex: 0 0 48px;
+      width: 48px;
+      height: 48px;
+      display: grid;
+      place-items: center;
+      background: #0d1017;
+      border-radius: 6px;
+      border: 1px solid #000;
+    }
+    .card__icon img {
+      image-rendering: pixelated;
+      image-rendering: crisp-edges;
+      max-width: 48px;
+      max-height: 48px;
+    }
+    .card__placeholder {
+      color: var(--muted);
+      font-weight: 700;
+      font-size: 18px;
+    }
+    .card__name { margin: 0; font-size: 13px; font-weight: 600; word-break: break-word; }
+    .card__meta { margin: 4px 0 0; font-size: 11px; color: var(--muted); }
+    .card__badge {
+      display: inline-block;
+      margin-top: 6px;
+      font-size: 10px;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+      color: #ffb4b4;
+    }
+    .card.hidden { display: none; }
+    .section.hidden { display: none; }
+  </style>
+</head>
+<body>
+  <header class="header">
+    <h1>Crystal crafting materials</h1>
+    <p>From <code>tools/_tmp-crystal-items-export.json</code> — ores, crafting materials, gems, stones, awakening, quest, food & meat.</p>
+    <div class="toolbar">
+      <input id="filter" type="search" placeholder="Filter by name…" autofocus>
+      <span class="stats">243 items · 225 with icons · 18 missing / frame 0</span>
+    </div>
+  </header>
+  <main id="gallery">
+    <section class="section" data-section="ores">
+    <h2 class="section__title">Ores <span class="section__count">12</span></h2>
+    <div class="grid"><article class="card" data-name="adamintineore" data-type="Ore">
+    <div class="card__icon"><img src="./icons/frame_000283.png" alt="" loading="lazy" width="48" height="48"></div>
+    <div class="card__body">
+      <h3 class="card__name">AdamintineOre</h3>
+      <p class="card__meta">Ore · frame 283</p>
+      
+    </div>
+  </article>
+<article class="card" data-name="amethyst" data-type="Ore">
+    <div class="card__icon"><img src="./icons/frame_000527.png" alt="" loading="lazy" width="48" height="48"></div>
+    <div class="card__body">
+      <h3 class="card__name">Amethyst</h3>
+      <p class="card__meta">Ore · frame 527</p>
+      
+    </div>
+  </article>
+<article class="card" data-name="blackironore" data-type="Ore">
+    <div class="card__icon"><img src="./icons/frame_000284.png" alt="" loading="lazy" width="48" height="48"></div>
+    <div class="card__body">
+      <h3 class="card__name">BlackIronOre</h3>
+      <p class="card__meta">Ore · frame 284</p>
+      
+    </div>
+  </article>
+<article class="card" data-name="copperore" data-type="Ore">
+    <div class="card__icon"><img src="./icons/frame_000286.png" alt="" loading="lazy" width="48" height="48"></div>
+    <div class="card__body">
+      <h3 class="card__name">CopperOre</h3>
+      <p class="card__meta">Ore · frame 286</p>
+      
+    </div>
+  </article>
+<article class="card" data-name="emeraldore" data-type="Ore">
+    <div class="card__icon"><img src="./icons/frame_000287.png" alt="" loading="lazy" width="48" height="48"></div>
+    <div class="card__body">
+      <h3 class="card__name">EmeraldOre</h3>
+      <p class="card__meta">Ore · frame 287</p>
+      
+    </div>
+  </article>
+<article class="card" data-name="goldore" data-type="Ore">
+    <div class="card__icon"><img src="./icons/frame_000280.png" alt="" loading="lazy" width="48" height="48"></div>
+    <div class="card__body">
+      <h3 class="card__name">GoldOre</h3>
+      <p class="card__meta">Ore · frame 280</p>
+      
+    </div>
+  </article>
+<article class="card" data-name="ironore" data-type="Ore">
+    <div class="card__icon"><img src="./icons/frame_000281.png" alt="" loading="lazy" width="48" height="48"></div>
+    <div class="card__body">
+      <h3 class="card__name">IronOre</h3>
+      <p class="card__meta">Ore · frame 281</p>
+      
+    </div>
+  </article>
+<article class="card" data-name="nephrite" data-type="Ore">
+    <div class="card__icon"><img src="./icons/frame_000530.png" alt="" loading="lazy" width="48" height="48"></div>
+    <div class="card__body">
+      <h3 class="card__name">Nephrite</h3>
+      <p class="card__meta">Ore · frame 530</p>
+      
+    </div>
+  </article>
+<article class="card" data-name="olivineore" data-type="Ore">
+    <div class="card__icon"><img src="./icons/frame_000282.png" alt="" loading="lazy" width="48" height="48"></div>
+    <div class="card__body">
+      <h3 class="card__name">OlivineOre</h3>
+      <p class="card__meta">Ore · frame 282</p>
+      
+    </div>
+  </article>
+<article class="card" data-name="platinum" data-type="Ore">
+    <div class="card__icon"><img src="./icons/frame_000529.png" alt="" loading="lazy" width="48" height="48"></div>
+    <div class="card__body">
+      <h3 class="card__name">Platinum</h3>
+      <p class="card__meta">Ore · frame 529</p>
+      
+    </div>
+  </article>
+<article class="card" data-name="ruby" data-type="Ore">
+    <div class="card__icon"><img src="./icons/frame_000528.png" alt="" loading="lazy" width="48" height="48"></div>
+    <div class="card__body">
+      <h3 class="card__name">Ruby</h3>
+      <p class="card__meta">Ore · frame 528</p>
+      
+    </div>
+  </article>
+<article class="card" data-name="silverore" data-type="Ore">
+    <div class="card__icon"><img src="./icons/frame_000285.png" alt="" loading="lazy" width="48" height="48"></div>
+    <div class="card__body">
+      <h3 class="card__name">SilverOre</h3>
+      <p class="card__meta">Ore · frame 285</p>
+      
+    </div>
+  </article></div>
+  </section><section class="section" data-section="crafting — crystals &amp; craft books">
+    <h2 class="section__title">Crafting — Crystals &amp; craft books <span class="section__count">12</span></h2>
+    <div class="grid"><article class="card" data-name="armourbook(acc)" data-type="CraftingMaterial">
+    <div class="card__icon"><img src="./icons/frame_001180.png" alt="" loading="lazy" width="48" height="48"></div>
+    <div class="card__body">
+      <h3 class="card__name">ArmourBook(ACC)</h3>
+      <p class="card__meta">CraftingMaterial · frame 1180</p>
+      
+    </div>
+  </article>
+<article class="card" data-name="armourbook(dc)" data-type="CraftingMaterial">
+    <div class="card__icon"><img src="./icons/frame_001178.png" alt="" loading="lazy" width="48" height="48"></div>
+    <div class="card__body">
+      <h3 class="card__name">ArmourBook(DC)</h3>
+      <p class="card__meta">CraftingMaterial · frame 1178</p>
+      
+    </div>
+  </article>
+<article class="card" data-name="armourbook(mc)" data-type="CraftingMaterial">
+    <div class="card__icon"><img src="./icons/frame_001176.png" alt="" loading="lazy" width="48" height="48"></div>
+    <div class="card__body">
+      <h3 class="card__name">ArmourBook(MC)</h3>
+      <p class="card__meta">CraftingMaterial · frame 1176</p>
+      
+    </div>
+  </article>
+<article class="card" data-name="armourbook(sc)" data-type="CraftingMaterial">
+    <div class="card__icon"><img src="./icons/frame_001177.png" alt="" loading="lazy" width="48" height="48"></div>
+    <div class="card__body">
+      <h3 class="card__name">ArmourBook(SC)</h3>
+      <p class="card__meta">CraftingMaterial · frame 1177</p>
+      
+    </div>
+  </article>
+<article class="card" data-name="armourcasttool" data-type="CraftingMaterial">
+    <div class="card__icon"><img src="./icons/frame_001182.png" alt="" loading="lazy" width="48" height="48"></div>
+    <div class="card__body">
+      <h3 class="card__name">ArmourCastTool</h3>
+      <p class="card__meta">CraftingMaterial · frame 1182</p>
+      
+    </div>
+  </article>
+<article class="card" data-name="bookofmana" data-type="CraftingMaterial">
+    <div class="card__icon"><img src="./icons/frame_001179.png" alt="" loading="lazy" width="48" height="48"></div>
+    <div class="card__body">
+      <h3 class="card__name">BookofMana</h3>
+      <p class="card__meta">CraftingMaterial · frame 1179</p>
+      
+    </div>
+  </article>
+<article class="card" data-name="bookofspirit" data-type="CraftingMaterial">
+    <div class="card__icon"><img src="./icons/frame_001180.png" alt="" loading="lazy" width="48" height="48"></div>
+    <div class="card__body">
+      <h3 class="card__name">BookofSpirit</h3>
+      <p class="card__meta">CraftingMaterial · frame 1180</p>
+      
+    </div>
+  </article>
+<article class="card card--missing" data-name="craftingbook" data-type="CraftingMaterial">
+    <div class="card__icon"><div class="card__placeholder" title="missing">?</div></div>
+    <div class="card__body">
+      <h3 class="card__name">CraftingBook</h3>
+      <p class="card__meta">CraftingMaterial · frame 4292</p>
+      <span class="card__badge">no file</span>
+    </div>
+  </article>
+<article class="card" data-name="havoccrystal" data-type="CraftingMaterial">
+    <div class="card__icon"><img src="./icons/frame_001173.png" alt="" loading="lazy" width="48" height="48"></div>
+    <div class="card__body">
+      <h3 class="card__name">HavocCrystal</h3>
+      <p class="card__meta">CraftingMaterial · frame 1173</p>
+      
+    </div>
+  </article>
+<article class="card" data-name="jadecrystal" data-type="CraftingMaterial">
+    <div class="card__icon"><img src="./icons/frame_000447.png" alt="" loading="lazy" width="48" height="48"></div>
+    <div class="card__body">
+      <h3 class="card__name">JadeCrystal</h3>
+      <p class="card__meta">CraftingMaterial · frame 447</p>
+      
+    </div>
+  </article>
+<article class="card" data-name="rustyarmour" data-type="CraftingMaterial">
+    <div class="card__icon"><img src="./icons/frame_002370.png" alt="" loading="lazy" width="48" height="48"></div>
+    <div class="card__body">
+      <h3 class="card__name">RustyArmour</h3>
+      <p class="card__meta">CraftingMaterial · frame 2370</p>
+      
+    </div>
+  </article>
+<article class="card" data-name="translucent" data-type="CraftingMaterial">
+    <div class="card__icon"><img src="./icons/frame_001170.png" alt="" loading="lazy" width="48" height="48"></div>
+    <div class="card__body">
+      <h3 class="card__name">Translucent</h3>
+      <p class="card__meta">CraftingMaterial · frame 1170</p>
+      
+    </div>
+  </article></div>
+  </section><section class="section" data-section="crafting — stat marbles">
+    <h2 class="section__title">Crafting — Stat marbles <span class="section__count">7</span></h2>
+    <div class="grid"><article class="card" data-name="antidotemarble" data-type="CraftingMaterial">
+    <div class="card__icon"><img src="./icons/frame_000788.png" alt="" loading="lazy" width="48" height="48"></div>
+    <div class="card__body">
+      <h3 class="card__name">AntidoteMarble</h3>
+      <p class="card__meta">CraftingMaterial · frame 788</p>
+      
+    </div>
+  </article>
+<article class="card" data-name="evasionmarble" data-type="CraftingMaterial">
+    <div class="card__icon"><img src="./icons/frame_000789.png" alt="" loading="lazy" width="48" height="48"></div>
+    <div class="card__body">
+      <h3 class="card__name">EvasionMarble</h3>
+      <p class="card__meta">CraftingMaterial · frame 789</p>
+      
+    </div>
+  </article>
+<article class="card" data-name="focusmarble" data-type="CraftingMaterial">
+    <div class="card__icon"><img src="./icons/frame_000786.png" alt="" loading="lazy" width="48" height="48"></div>
+    <div class="card__body">
+      <h3 class="card__name">FocusMarble</h3>
+      <p class="card__meta">CraftingMaterial · frame 786</p>
+      
+    </div>
+  </article>
+<article class="card" data-name="icemarble" data-type="CraftingMaterial">
+    <div class="card__icon"><img src="./icons/frame_000783.png" alt="" loading="lazy" width="48" height="48"></div>
+    <div class="card__body">
+      <h3 class="card__name">IceMarble</h3>
+      <p class="card__meta">CraftingMaterial · frame 783</p>
+      
+    </div>
+  </article>
+<article class="card" data-name="poisonmarble" data-type="CraftingMaterial">
+    <div class="card__icon"><img src="./icons/frame_000784.png" alt="" loading="lazy" width="48" height="48"></div>
+    <div class="card__body">
+      <h3 class="card__name">PoisonMarble</h3>
+      <p class="card__meta">CraftingMaterial · frame 784</p>
+      
+    </div>
+  </article>
+<article class="card" data-name="willmarble" data-type="CraftingMaterial">
+    <div class="card__icon"><img src="./icons/frame_000785.png" alt="" loading="lazy" width="48" height="48"></div>
+    <div class="card__body">
+      <h3 class="card__name">WillMarble</h3>
+      <p class="card__meta">CraftingMaterial · frame 785</p>
+      
+    </div>
+  </article>
+<article class="card" data-name="windmarble" data-type="CraftingMaterial">
+    <div class="card__icon"><img src="./icons/frame_000787.png" alt="" loading="lazy" width="48" height="48"></div>
+    <div class="card__body">
+      <h3 class="card__name">WindMarble</h3>
+      <p class="card__meta">CraftingMaterial · frame 787</p>
+      
+    </div>
+  </article></div>
+  </section><section class="section" data-section="crafting — boss &amp; rare drops">
+    <h2 class="section__title">Crafting — Boss &amp; rare drops <span class="section__count">6</span></h2>
+    <div class="grid"><article class="card" data-name="dragonscale" data-type="CraftingMaterial">
+    <div class="card__icon"><img src="./icons/frame_000822.png" alt="" loading="lazy" width="48" height="48"></div>
+    <div class="card__body">
+      <h3 class="card__name">DragonScale</h3>
+      <p class="card__meta">CraftingMaterial · frame 822</p>
+      
+    </div>
+  </article>
+<article class="card" data-name="redeyeskull" data-type="CraftingMaterial">
+    <div class="card__icon"><img src="./icons/frame_000859.png" alt="" loading="lazy" width="48" height="48"></div>
+    <div class="card__body">
+      <h3 class="card__name">RedEyeSkull</h3>
+      <p class="card__meta">CraftingMaterial · frame 859</p>
+      
+    </div>
+  </article>
+<article class="card" data-name="redmoonchip" data-type="CraftingMaterial">
+    <div class="card__icon"><img src="./icons/frame_000444.png" alt="" loading="lazy" width="48" height="48"></div>
+    <div class="card__body">
+      <h3 class="card__name">RedMoonChip</h3>
+      <p class="card__meta">CraftingMaterial · frame 444</p>
+      
+    </div>
+  </article>
+<article class="card" data-name="skystingeregg" data-type="CraftingMaterial">
+    <div class="card__icon"><img src="./icons/frame_000810.png" alt="" loading="lazy" width="48" height="48"></div>
+    <div class="card__body">
+      <h3 class="card__name">SkyStingerEgg</h3>
+      <p class="card__meta">CraftingMaterial · frame 810</p>
+      
+    </div>
+  </article>
+<article class="card" data-name="woomahorn" data-type="CraftingMaterial">
+    <div class="card__icon"><img src="./icons/frame_000261.png" alt="" loading="lazy" width="48" height="48"></div>
+    <div class="card__body">
+      <h3 class="card__name">WoomaHorn</h3>
+      <p class="card__meta">CraftingMaterial · frame 261</p>
+      
+    </div>
+  </article>
+<article class="card" data-name="zumarelic" data-type="CraftingMaterial">
+    <div class="card__icon"><img src="./icons/frame_000271.png" alt="" loading="lazy" width="48" height="48"></div>
+    <div class="card__body">
+      <h3 class="card__name">ZumaRelic</h3>
+      <p class="card__meta">CraftingMaterial · frame 271</p>
+      
+    </div>
+  </article></div>
+  </section><section class="section" data-section="crafting — monster parts">
+    <h2 class="section__title">Crafting — Monster parts <span class="section__count">19</span></h2>
+    <div class="grid"><article class="card" data-name="bone" data-type="CraftingMaterial">
+    <div class="card__icon"><img src="./icons/frame_000806.png" alt="" loading="lazy" width="48" height="48"></div>
+    <div class="card__body">
+      <h3 class="card__name">Bone</h3>
+      <p class="card__meta">CraftingMaterial · frame 806</p>
+      
+    </div>
+  </article>
+<article class="card" data-name="bronzechestnut" data-type="CraftingMaterial">
+    <div class="card__icon"><img src="./icons/frame_000484.png" alt="" loading="lazy" width="48" height="48"></div>
+    <div class="card__body">
+      <h3 class="card__name">BronzeChestnut</h3>
+      <p class="card__meta">CraftingMaterial · frame 484</p>
+      
+    </div>
+  </article>
+<article class="card" data-name="brownchestnut" data-type="CraftingMaterial">
+    <div class="card__icon"><img src="./icons/frame_000481.png" alt="" loading="lazy" width="48" height="48"></div>
+    <div class="card__body">
+      <h3 class="card__name">BrownChestnut</h3>
+      <p class="card__meta">CraftingMaterial · frame 481</p>
+      
+    </div>
+  </article>
+<article class="card" data-name="bugeye" data-type="CraftingMaterial">
+    <div class="card__icon"><img src="./icons/frame_000809.png" alt="" loading="lazy" width="48" height="48"></div>
+    <div class="card__body">
+      <h3 class="card__name">BugEye</h3>
+      <p class="card__meta">CraftingMaterial · frame 809</p>
+      
+    </div>
+  </article>
+<article class="card" data-name="bugleg" data-type="CraftingMaterial">
+    <div class="card__icon"><img src="./icons/frame_000805.png" alt="" loading="lazy" width="48" height="48"></div>
+    <div class="card__body">
+      <h3 class="card__name">BugLeg</h3>
+      <p class="card__meta">CraftingMaterial · frame 805</p>
+      
+    </div>
+  </article>
+<article class="card" data-name="bugshell" data-type="CraftingMaterial">
+    <div class="card__icon"><img src="./icons/frame_000491.png" alt="" loading="lazy" width="48" height="48"></div>
+    <div class="card__body">
+      <h3 class="card__name">BugShell</h3>
+      <p class="card__meta">CraftingMaterial · frame 491</p>
+      
+    </div>
+  </article>
+<article class="card" data-name="cannibalfruit" data-type="CraftingMaterial">
+    <div class="card__icon"><img src="./icons/frame_000256.png" alt="" loading="lazy" width="48" height="48"></div>
+    <div class="card__body">
+      <h3 class="card__name">CannibalFruit</h3>
+      <p class="card__meta">CraftingMaterial · frame 256</p>
+      
+    </div>
+  </article>
+<article class="card" data-name="canniballeaf" data-type="CraftingMaterial">
+    <div class="card__icon"><img src="./icons/frame_000255.png" alt="" loading="lazy" width="48" height="48"></div>
+    <div class="card__body">
+      <h3 class="card__name">CannibalLeaf</h3>
+      <p class="card__meta">CraftingMaterial · frame 255</p>
+      
+    </div>
+  </article>
+<article class="card card--missing" data-name="cherry" data-type="CraftingMaterial">
+    <div class="card__icon"><div class="card__placeholder" title="missing">?</div></div>
+    <div class="card__body">
+      <h3 class="card__name">Cherry</h3>
+      <p class="card__meta">CraftingMaterial · frame 2903</p>
+      <span class="card__badge">no file</span>
+    </div>
+  </article>
+<article class="card" data-name="ebonyfruit" data-type="CraftingMaterial">
+    <div class="card__icon"><img src="./icons/frame_000812.png" alt="" loading="lazy" width="48" height="48"></div>
+    <div class="card__body">
+      <h3 class="card__name">EbonyFruit</h3>
+      <p class="card__meta">CraftingMaterial · frame 812</p>
+      
+    </div>
+  </article>
+<article class="card" data-name="goldchestnut" data-type="CraftingMaterial">
+    <div class="card__icon"><img src="./icons/frame_000482.png" alt="" loading="lazy" width="48" height="48"></div>
+    <div class="card__body">
+      <h3 class="card__name">GoldChestnut</h3>
+      <p class="card__meta">CraftingMaterial · frame 482</p>
+      
+    </div>
+  </article>
+<article class="card" data-name="largebone" data-type="CraftingMaterial">
+    <div class="card__icon"><img src="./icons/frame_000807.png" alt="" loading="lazy" width="48" height="48"></div>
+    <div class="card__body">
+      <h3 class="card__name">LargeBone</h3>
+      <p class="card__meta">CraftingMaterial · frame 807</p>
+      
+    </div>
+  </article>
+<article class="card" data-name="maggotpill" data-type="CraftingMaterial">
+    <div class="card__icon"><img src="./icons/frame_000252.png" alt="" loading="lazy" width="48" height="48"></div>
+    <div class="card__body">
+      <h3 class="card__name">MaggotPill</h3>
+      <p class="card__meta">CraftingMaterial · frame 252</p>
+      
+    </div>
+  </article>
+<article class="card" data-name="mandible" data-type="CraftingMaterial">
+    <div class="card__icon"><img src="./icons/frame_000808.png" alt="" loading="lazy" width="48" height="48"></div>
+    <div class="card__body">
+      <h3 class="card__name">Mandible</h3>
+      <p class="card__meta">CraftingMaterial · frame 808</p>
+      
+    </div>
+  </article>
+<article class="card" data-name="mushroom" data-type="CraftingMaterial">
+    <div class="card__icon"><img src="./icons/frame_000811.png" alt="" loading="lazy" width="48" height="48"></div>
+    <div class="card__body">
+      <h3 class="card__name">Mushroom</h3>
+      <p class="card__meta">CraftingMaterial · frame 811</p>
+      
+    </div>
+  </article>
+<article class="card" data-name="scorpiontail" data-type="CraftingMaterial">
+    <div class="card__icon"><img src="./icons/frame_000254.png" alt="" loading="lazy" width="48" height="48"></div>
+    <div class="card__body">
+      <h3 class="card__name">ScorpionTail</h3>
+      <p class="card__meta">CraftingMaterial · frame 254</p>
+      
+    </div>
+  </article>
+<article class="card" data-name="silverchestnut" data-type="CraftingMaterial">
+    <div class="card__icon"><img src="./icons/frame_000483.png" alt="" loading="lazy" width="48" height="48"></div>
+    <div class="card__body">
+      <h3 class="card__name">SilverChestnut</h3>
+      <p class="card__meta">CraftingMaterial · frame 483</p>
+      
+    </div>
+  </article>
+<article class="card" data-name="spiderteeth" data-type="CraftingMaterial">
+    <div class="card__icon"><img src="./icons/frame_000253.png" alt="" loading="lazy" width="48" height="48"></div>
+    <div class="card__body">
+      <h3 class="card__name">SpiderTeeth</h3>
+      <p class="card__meta">CraftingMaterial · frame 253</p>
+      
+    </div>
+  </article>
+<article class="card" data-name="spiderweb" data-type="CraftingMaterial">
+    <div class="card__icon"><img src="./icons/frame_000854.png" alt="" loading="lazy" width="48" height="48"></div>
+    <div class="card__body">
+      <h3 class="card__name">SpiderWeb</h3>
+      <p class="card__meta">CraftingMaterial · frame 854</p>
+      
+    </div>
+  </article></div>
+  </section><section class="section" data-section="crafting — thread, rope &amp; wood">
+    <h2 class="section__title">Crafting — Thread, rope &amp; wood <span class="section__count">9</span></h2>
+    <div class="grid"><article class="card" data-name="blackthread" data-type="CraftingMaterial">
+    <div class="card__icon"><img src="./icons/frame_000803.png" alt="" loading="lazy" width="48" height="48"></div>
+    <div class="card__body">
+      <h3 class="card__name">BlackThread</h3>
+      <p class="card__meta">CraftingMaterial · frame 803</p>
+      
+    </div>
+  </article>
+<article class="card card--frame0" data-name="feather" data-type="CraftingMaterial">
+    <div class="card__icon"><div class="card__placeholder" title="frame0">?</div></div>
+    <div class="card__body">
+      <h3 class="card__name">Feather</h3>
+      <p class="card__meta">CraftingMaterial · frame 0</p>
+      <span class="card__badge">frame 0</span>
+    </div>
+  </article>
+<article class="card" data-name="healingletter" data-type="CraftingMaterial">
+    <div class="card__icon"><img src="./icons/frame_000266.png" alt="" loading="lazy" width="48" height="48"></div>
+    <div class="card__body">
+      <h3 class="card__name">HealingLetter</h3>
+      <p class="card__meta">CraftingMaterial · frame 266</p>
+      
+    </div>
+  </article>
+<article class="card" data-name="mossybox" data-type="CraftingMaterial">
+    <div class="card__icon"><img src="./icons/frame_002380.png" alt="" loading="lazy" width="48" height="48"></div>
+    <div class="card__body">
+      <h3 class="card__name">MossyBox</h3>
+      <p class="card__meta">CraftingMaterial · frame 2380</p>
+      
+    </div>
+  </article>
+<article class="card" data-name="redthread" data-type="CraftingMaterial">
+    <div class="card__icon"><img src="./icons/frame_000802.png" alt="" loading="lazy" width="48" height="48"></div>
+    <div class="card__body">
+      <h3 class="card__name">RedThread</h3>
+      <p class="card__meta">CraftingMaterial · frame 802</p>
+      
+    </div>
+  </article>
+<article class="card" data-name="string" data-type="CraftingMaterial">
+    <div class="card__icon"><img src="./icons/frame_000849.png" alt="" loading="lazy" width="48" height="48"></div>
+    <div class="card__body">
+      <h3 class="card__name">String</h3>
+      <p class="card__meta">CraftingMaterial · frame 849</p>
+      
+    </div>
+  </article>
+<article class="card" data-name="strongrope" data-type="CraftingMaterial">
+    <div class="card__icon"><img src="./icons/frame_000849.png" alt="" loading="lazy" width="48" height="48"></div>
+    <div class="card__body">
+      <h3 class="card__name">StrongRope</h3>
+      <p class="card__meta">CraftingMaterial · frame 849</p>
+      
+    </div>
+  </article>
+<article class="card" data-name="timber" data-type="CraftingMaterial">
+    <div class="card__icon"><img src="./icons/frame_000368.png" alt="" loading="lazy" width="48" height="48"></div>
+    <div class="card__body">
+      <h3 class="card__name">Timber</h3>
+      <p class="card__meta">CraftingMaterial · frame 368</p>
+      
+    </div>
+  </article>
+<article class="card" data-name="whitethread" data-type="CraftingMaterial">
+    <div class="card__icon"><img src="./icons/frame_000804.png" alt="" loading="lazy" width="48" height="48"></div>
+    <div class="card__body">
+      <h3 class="card__name">WhiteThread</h3>
+      <p class="card__meta">CraftingMaterial · frame 804</p>
+      
+    </div>
+  </article></div>
+  </section><section class="section" data-section="crafting — leathers (frame 0 in crystal)">
+    <h2 class="section__title">Crafting — Leathers (frame 0 in Crystal) <span class="section__count">8</span></h2>
+    <div class="grid"><article class="card card--frame0" data-name="ancientleather" data-type="CraftingMaterial">
+    <div class="card__icon"><div class="card__placeholder" title="frame0">?</div></div>
+    <div class="card__body">
+      <h3 class="card__name">AncientLeather</h3>
+      <p class="card__meta">CraftingMaterial · frame 0</p>
+      <span class="card__badge">frame 0</span>
+    </div>
+  </article>
+<article class="card card--frame0" data-name="baboonleather" data-type="CraftingMaterial">
+    <div class="card__icon"><div class="card__placeholder" title="frame0">?</div></div>
+    <div class="card__body">
+      <h3 class="card__name">BaboonLeather</h3>
+      <p class="card__meta">CraftingMaterial · frame 0</p>
+      <span class="card__badge">frame 0</span>
+    </div>
+  </article>
+<article class="card card--frame0" data-name="beastleather" data-type="CraftingMaterial">
+    <div class="card__icon"><div class="card__placeholder" title="frame0">?</div></div>
+    <div class="card__body">
+      <h3 class="card__name">BeastLeather</h3>
+      <p class="card__meta">CraftingMaterial · frame 0</p>
+      <span class="card__badge">frame 0</span>
+    </div>
+  </article>
+<article class="card card--frame0" data-name="demonleather" data-type="CraftingMaterial">
+    <div class="card__icon"><div class="card__placeholder" title="frame0">?</div></div>
+    <div class="card__body">
+      <h3 class="card__name">DemonLeather</h3>
+      <p class="card__meta">CraftingMaterial · frame 0</p>
+      <span class="card__badge">frame 0</span>
+    </div>
+  </article>
+<article class="card card--frame0" data-name="lightleather" data-type="CraftingMaterial">
+    <div class="card__icon"><div class="card__placeholder" title="frame0">?</div></div>
+    <div class="card__body">
+      <h3 class="card__name">LightLeather</h3>
+      <p class="card__meta">CraftingMaterial · frame 0</p>
+      <span class="card__badge">frame 0</span>
+    </div>
+  </article>
+<article class="card card--frame0" data-name="mammothleather" data-type="CraftingMaterial">
+    <div class="card__icon"><div class="card__placeholder" title="frame0">?</div></div>
+    <div class="card__body">
+      <h3 class="card__name">MammothLeather</h3>
+      <p class="card__meta">CraftingMaterial · frame 0</p>
+      <span class="card__badge">frame 0</span>
+    </div>
+  </article>
+<article class="card card--frame0" data-name="rhinoleather" data-type="CraftingMaterial">
+    <div class="card__icon"><div class="card__placeholder" title="frame0">?</div></div>
+    <div class="card__body">
+      <h3 class="card__name">RhinoLeather</h3>
+      <p class="card__meta">CraftingMaterial · frame 0</p>
+      <span class="card__badge">frame 0</span>
+    </div>
+  </article>
+<article class="card card--frame0" data-name="undeadleather" data-type="CraftingMaterial">
+    <div class="card__icon"><div class="card__placeholder" title="frame0">?</div></div>
+    <div class="card__body">
+      <h3 class="card__name">UndeadLeather</h3>
+      <p class="card__meta">CraftingMaterial · frame 0</p>
+      <span class="card__badge">frame 0</span>
+    </div>
+  </article></div>
+  </section><section class="section" data-section="crafting — other crafting materials">
+    <h2 class="section__title">Crafting — Other crafting materials <span class="section__count">4</span></h2>
+    <div class="grid"><article class="card" data-name="deerblood" data-type="CraftingMaterial">
+    <div class="card__icon"><img src="./icons/frame_000023.png" alt="" loading="lazy" width="48" height="48"></div>
+    <div class="card__body">
+      <h3 class="card__name">DeerBlood</h3>
+      <p class="card__meta">CraftingMaterial · frame 23</p>
+      
+    </div>
+  </article>
+<article class="card" data-name="deerhorn" data-type="CraftingMaterial">
+    <div class="card__icon"><img src="./icons/frame_000006.png" alt="" loading="lazy" width="48" height="48"></div>
+    <div class="card__body">
+      <h3 class="card__name">DeerHorn</h3>
+      <p class="card__meta">CraftingMaterial · frame 6</p>
+      
+    </div>
+  </article>
+<article class="card" data-name="evilapeheart" data-type="CraftingMaterial">
+    <div class="card__icon"><img src="./icons/frame_000448.png" alt="" loading="lazy" width="48" height="48"></div>
+    <div class="card__body">
+      <h3 class="card__name">EvilApeHeart</h3>
+      <p class="card__meta">CraftingMaterial · frame 448</p>
+      
+    </div>
+  </article>
+<article class="card" data-name="evilapeoil" data-type="CraftingMaterial">
+    <div class="card__icon"><img src="./icons/frame_000446.png" alt="" loading="lazy" width="48" height="48"></div>
+    <div class="card__body">
+      <h3 class="card__name">EvilApeOil</h3>
+      <p class="card__meta">CraftingMaterial · frame 446</p>
+      
+    </div>
+  </article></div>
+  </section><section class="section" data-section="gems &amp; orbs">
+    <h2 class="section__title">Gems &amp; orbs <span class="section__count">31</span></h2>
+    <div class="grid"><article class="card" data-name="accuracygem" data-type="Gem">
+    <div class="card__icon"><img src="./icons/frame_000734.png" alt="" loading="lazy" width="48" height="48"></div>
+    <div class="card__body">
+      <h3 class="card__name">AccuracyGem</h3>
+      <p class="card__meta">Gem · frame 734</p>
+      
+    </div>
+  </article>
+<article class="card" data-name="accuracyorb" data-type="Gem">
+    <div class="card__icon"><img src="./icons/frame_000724.png" alt="" loading="lazy" width="48" height="48"></div>
+    <div class="card__body">
+      <h3 class="card__name">AccuracyOrb</h3>
+      <p class="card__meta">Gem · frame 724</p>
+      
+    </div>
+  </article>
+<article class="card" data-name="agilitygem" data-type="Gem">
+    <div class="card__icon"><img src="./icons/frame_000736.png" alt="" loading="lazy" width="48" height="48"></div>
+    <div class="card__body">
+      <h3 class="card__name">AgilityGem</h3>
+      <p class="card__meta">Gem · frame 736</p>
+      
+    </div>
+  </article>
+<article class="card" data-name="agilityorb" data-type="Gem">
+    <div class="card__icon"><img src="./icons/frame_000726.png" alt="" loading="lazy" width="48" height="48"></div>
+    <div class="card__body">
+      <h3 class="card__name">AgilityOrb</h3>
+      <p class="card__meta">Gem · frame 726</p>
+      
+    </div>
+  </article>
+<article class="card" data-name="bonehammer" data-type="Gem">
+    <div class="card__icon"><img src="./icons/frame_000851.png" alt="" loading="lazy" width="48" height="48"></div>
+    <div class="card__body">
+      <h3 class="card__name">BoneHammer</h3>
+      <p class="card__meta">Gem · frame 851</p>
+      
+    </div>
+  </article>
+<article class="card" data-name="braverygem" data-type="Gem">
+    <div class="card__icon"><img src="./icons/frame_000714.png" alt="" loading="lazy" width="48" height="48"></div>
+    <div class="card__body">
+      <h3 class="card__name">BraveryGem</h3>
+      <p class="card__meta">Gem · frame 714</p>
+      
+    </div>
+  </article>
+<article class="card" data-name="braveryorb" data-type="Gem">
+    <div class="card__icon"><img src="./icons/frame_000704.png" alt="" loading="lazy" width="48" height="48"></div>
+    <div class="card__body">
+      <h3 class="card__name">BraveryOrb</h3>
+      <p class="card__meta">Gem · frame 704</p>
+      
+    </div>
+  </article>
+<article class="card" data-name="disillusiongem" data-type="Gem">
+    <div class="card__icon"><img src="./icons/frame_000730.png" alt="" loading="lazy" width="48" height="48"></div>
+    <div class="card__body">
+      <h3 class="card__name">DisillusionGem</h3>
+      <p class="card__meta">Gem · frame 730</p>
+      
+    </div>
+  </article>
+<article class="card" data-name="disillusionorb" data-type="Gem">
+    <div class="card__icon"><img src="./icons/frame_000720.png" alt="" loading="lazy" width="48" height="48"></div>
+    <div class="card__body">
+      <h3 class="card__name">DisillusionOrb</h3>
+      <p class="card__meta">Gem · frame 720</p>
+      
+    </div>
+  </article>
+<article class="card" data-name="durabilitygem" data-type="Gem">
+    <div class="card__icon"><img src="./icons/frame_000710.png" alt="" loading="lazy" width="48" height="48"></div>
+    <div class="card__body">
+      <h3 class="card__name">DurabilityGem</h3>
+      <p class="card__meta">Gem · frame 710</p>
+      
+    </div>
+  </article>
+<article class="card" data-name="durabilityorb" data-type="Gem">
+    <div class="card__icon"><img src="./icons/frame_000700.png" alt="" loading="lazy" width="48" height="48"></div>
+    <div class="card__body">
+      <h3 class="card__name">DurabilityOrb</h3>
+      <p class="card__meta">Gem · frame 700</p>
+      
+    </div>
+  </article>
+<article class="card" data-name="endurancegem" data-type="Gem">
+    <div class="card__icon"><img src="./icons/frame_000731.png" alt="" loading="lazy" width="48" height="48"></div>
+    <div class="card__body">
+      <h3 class="card__name">EnduranceGem</h3>
+      <p class="card__meta">Gem · frame 731</p>
+      
+    </div>
+  </article>
+<article class="card" data-name="enduranceorb" data-type="Gem">
+    <div class="card__icon"><img src="./icons/frame_000721.png" alt="" loading="lazy" width="48" height="48"></div>
+    <div class="card__body">
+      <h3 class="card__name">EnduranceOrb</h3>
+      <p class="card__meta">Gem · frame 721</p>
+      
+    </div>
+  </article>
+<article class="card" data-name="evilslayergem" data-type="Gem">
+    <div class="card__icon"><img src="./icons/frame_000715.png" alt="" loading="lazy" width="48" height="48"></div>
+    <div class="card__body">
+      <h3 class="card__name">EvilSlayerGem</h3>
+      <p class="card__meta">Gem · frame 715</p>
+      
+    </div>
+  </article>
+<article class="card" data-name="evilslayerorb" data-type="Gem">
+    <div class="card__icon"><img src="./icons/frame_000705.png" alt="" loading="lazy" width="48" height="48"></div>
+    <div class="card__body">
+      <h3 class="card__name">EvilSlayerOrb</h3>
+      <p class="card__meta">Gem · frame 705</p>
+      
+    </div>
+  </article>
+<article class="card" data-name="freezinggem" data-type="Gem">
+    <div class="card__icon"><img src="./icons/frame_000735.png" alt="" loading="lazy" width="48" height="48"></div>
+    <div class="card__body">
+      <h3 class="card__name">FreezingGem</h3>
+      <p class="card__meta">Gem · frame 735</p>
+      
+    </div>
+  </article>
+<article class="card" data-name="freezingorb" data-type="Gem">
+    <div class="card__icon"><img src="./icons/frame_000725.png" alt="" loading="lazy" width="48" height="48"></div>
+    <div class="card__body">
+      <h3 class="card__name">FreezingOrb</h3>
+      <p class="card__meta">Gem · frame 725</p>
+      
+    </div>
+  </article>
+<article class="card" data-name="greaterbonehammer" data-type="Gem">
+    <div class="card__icon"><img src="./icons/frame_000851.png" alt="" loading="lazy" width="48" height="48"></div>
+    <div class="card__body">
+      <h3 class="card__name">GreaterBoneHammer</h3>
+      <p class="card__meta">Gem · frame 851</p>
+      
+    </div>
+  </article>
+<article class="card" data-name="greatersewinggoods" data-type="Gem">
+    <div class="card__icon"><img src="./icons/frame_000850.png" alt="" loading="lazy" width="48" height="48"></div>
+    <div class="card__body">
+      <h3 class="card__name">GreaterSewingGoods</h3>
+      <p class="card__meta">Gem · frame 850</p>
+      
+    </div>
+  </article>
+<article class="card" data-name="hyeoncheon maseok" data-type="Gem">
+    <div class="card__icon"><img src="./icons/frame_001433.png" alt="" loading="lazy" width="48" height="48"></div>
+    <div class="card__body">
+      <h3 class="card__name">Hyeoncheon Maseok</h3>
+      <p class="card__meta">Gem · frame 1433</p>
+      
+    </div>
+  </article>
+<article class="card" data-name="magicgem" data-type="Gem">
+    <div class="card__icon"><img src="./icons/frame_000711.png" alt="" loading="lazy" width="48" height="48"></div>
+    <div class="card__body">
+      <h3 class="card__name">MagicGem</h3>
+      <p class="card__meta">Gem · frame 711</p>
+      
+    </div>
+  </article>
+<article class="card" data-name="magicorb" data-type="Gem">
+    <div class="card__icon"><img src="./icons/frame_000701.png" alt="" loading="lazy" width="48" height="48"></div>
+    <div class="card__body">
+      <h3 class="card__name">MagicOrb</h3>
+      <p class="card__meta">Gem · frame 701</p>
+      
+    </div>
+  </article>
+<article class="card" data-name="poisongem" data-type="Gem">
+    <div class="card__icon"><img src="./icons/frame_000732.png" alt="" loading="lazy" width="48" height="48"></div>
+    <div class="card__body">
+      <h3 class="card__name">PoisonGem</h3>
+      <p class="card__meta">Gem · frame 732</p>
+      
+    </div>
+  </article>
+<article class="card" data-name="poisonorb" data-type="Gem">
+    <div class="card__icon"><img src="./icons/frame_000722.png" alt="" loading="lazy" width="48" height="48"></div>
+    <div class="card__body">
+      <h3 class="card__name">PoisonOrb</h3>
+      <p class="card__meta">Gem · frame 722</p>
+      
+    </div>
+  </article>
+<article class="card" data-name="protectiongem" data-type="Gem">
+    <div class="card__icon"><img src="./icons/frame_000713.png" alt="" loading="lazy" width="48" height="48"></div>
+    <div class="card__body">
+      <h3 class="card__name">ProtectionGem</h3>
+      <p class="card__meta">Gem · frame 713</p>
+      
+    </div>
+  </article>
+<article class="card" data-name="protectionorb" data-type="Gem">
+    <div class="card__icon"><img src="./icons/frame_000703.png" alt="" loading="lazy" width="48" height="48"></div>
+    <div class="card__body">
+      <h3 class="card__name">ProtectionOrb</h3>
+      <p class="card__meta">Gem · frame 703</p>
+      
+    </div>
+  </article>
+<article class="card" data-name="sewinggoods" data-type="Gem">
+    <div class="card__icon"><img src="./icons/frame_000850.png" alt="" loading="lazy" width="48" height="48"></div>
+    <div class="card__body">
+      <h3 class="card__name">SewingGoods</h3>
+      <p class="card__meta">Gem · frame 850</p>
+      
+    </div>
+  </article>
+<article class="card" data-name="soulgem" data-type="Gem">
+    <div class="card__icon"><img src="./icons/frame_000712.png" alt="" loading="lazy" width="48" height="48"></div>
+    <div class="card__body">
+      <h3 class="card__name">SoulGem</h3>
+      <p class="card__meta">Gem · frame 712</p>
+      
+    </div>
+  </article>
+<article class="card" data-name="soulorb" data-type="Gem">
+    <div class="card__icon"><img src="./icons/frame_000702.png" alt="" loading="lazy" width="48" height="48"></div>
+    <div class="card__body">
+      <h3 class="card__name">SoulOrb</h3>
+      <p class="card__meta">Gem · frame 702</p>
+      
+    </div>
+  </article>
+<article class="card" data-name="stormgem" data-type="Gem">
+    <div class="card__icon"><img src="./icons/frame_000733.png" alt="" loading="lazy" width="48" height="48"></div>
+    <div class="card__body">
+      <h3 class="card__name">StormGem</h3>
+      <p class="card__meta">Gem · frame 733</p>
+      
+    </div>
+  </article>
+<article class="card" data-name="stormorb" data-type="Gem">
+    <div class="card__icon"><img src="./icons/frame_000723.png" alt="" loading="lazy" width="48" height="48"></div>
+    <div class="card__body">
+      <h3 class="card__name">StormOrb</h3>
+      <p class="card__meta">Gem · frame 723</p>
+      
+    </div>
+  </article></div>
+  </section><section class="section" data-section="stones">
+    <h2 class="section__title">Stones <span class="section__count">34</span></h2>
+    <div class="grid"><article class="card" data-name="dcstone" data-type="Stone">
+    <div class="card__icon"><img src="./icons/frame_000614.png" alt="" loading="lazy" width="48" height="48"></div>
+    <div class="card__body">
+      <h3 class="card__name">DCStone</h3>
+      <p class="card__meta">Stone · frame 614</p>
+      
+    </div>
+  </article>
+<article class="card" data-name="dcstone(l)" data-type="Stone">
+    <div class="card__icon"><img src="./icons/frame_000612.png" alt="" loading="lazy" width="48" height="48"></div>
+    <div class="card__body">
+      <h3 class="card__name">DCStone(L)</h3>
+      <p class="card__meta">Stone · frame 612</p>
+      
+    </div>
+  </article>
+<article class="card" data-name="dcstone(m)" data-type="Stone">
+    <div class="card__icon"><img src="./icons/frame_000611.png" alt="" loading="lazy" width="48" height="48"></div>
+    <div class="card__body">
+      <h3 class="card__name">DCStone(M)</h3>
+      <p class="card__meta">Stone · frame 611</p>
+      
+    </div>
+  </article>
+<article class="card" data-name="dcstone(s)" data-type="Stone">
+    <div class="card__icon"><img src="./icons/frame_000610.png" alt="" loading="lazy" width="48" height="48"></div>
+    <div class="card__body">
+      <h3 class="card__name">DCStone(S)</h3>
+      <p class="card__meta">Stone · frame 610</p>
+      
+    </div>
+  </article>
+<article class="card" data-name="dcstone(xl)" data-type="Stone">
+    <div class="card__icon"><img src="./icons/frame_000613.png" alt="" loading="lazy" width="48" height="48"></div>
+    <div class="card__body">
+      <h3 class="card__name">DCStone(XL)</h3>
+      <p class="card__meta">Stone · frame 613</p>
+      
+    </div>
+  </article>
+<article class="card" data-name="frozenstone" data-type="Stone">
+    <div class="card__icon"><img src="./icons/frame_001068.png" alt="" loading="lazy" width="48" height="48"></div>
+    <div class="card__body">
+      <h3 class="card__name">FrozenStone</h3>
+      <p class="card__meta">Stone · frame 1068</p>
+      
+    </div>
+  </article>
+<article class="card" data-name="healthstone" data-type="Stone">
+    <div class="card__icon"><img src="./icons/frame_000589.png" alt="" loading="lazy" width="48" height="48"></div>
+    <div class="card__body">
+      <h3 class="card__name">HealthStone</h3>
+      <p class="card__meta">Stone · frame 589</p>
+      
+    </div>
+  </article>
+<article class="card" data-name="healthstone(l)" data-type="Stone">
+    <div class="card__icon"><img src="./icons/frame_000587.png" alt="" loading="lazy" width="48" height="48"></div>
+    <div class="card__body">
+      <h3 class="card__name">HealthStone(L)</h3>
+      <p class="card__meta">Stone · frame 587</p>
+      
+    </div>
+  </article>
+<article class="card" data-name="healthstone(m)" data-type="Stone">
+    <div class="card__icon"><img src="./icons/frame_000586.png" alt="" loading="lazy" width="48" height="48"></div>
+    <div class="card__body">
+      <h3 class="card__name">HealthStone(M)</h3>
+      <p class="card__meta">Stone · frame 586</p>
+      
+    </div>
+  </article>
+<article class="card" data-name="healthstone(s)" data-type="Stone">
+    <div class="card__icon"><img src="./icons/frame_000585.png" alt="" loading="lazy" width="48" height="48"></div>
+    <div class="card__body">
+      <h3 class="card__name">HealthStone(S)</h3>
+      <p class="card__meta">Stone · frame 585</p>
+      
+    </div>
+  </article>
+<article class="card" data-name="healthstone(xl)" data-type="Stone">
+    <div class="card__icon"><img src="./icons/frame_000588.png" alt="" loading="lazy" width="48" height="48"></div>
+    <div class="card__body">
+      <h3 class="card__name">HealthStone(XL)</h3>
+      <p class="card__meta">Stone · frame 588</p>
+      
+    </div>
+  </article>
+<article class="card" data-name="hyeoncheonsuhosteel(?)" data-type="Stone">
+    <div class="card__icon"><img src="./icons/frame_001422.png" alt="" loading="lazy" width="48" height="48"></div>
+    <div class="card__body">
+      <h3 class="card__name">HyeoncheonSuhoSteel(?)</h3>
+      <p class="card__meta">Stone · frame 1420</p>
+      
+    </div>
+  </article>
+<article class="card" data-name="hyeoncheonsuhosteel(?)" data-type="Stone">
+    <div class="card__icon"><img src="./icons/frame_001422.png" alt="" loading="lazy" width="48" height="48"></div>
+    <div class="card__body">
+      <h3 class="card__name">HyeoncheonSuhoSteel(?)</h3>
+      <p class="card__meta">Stone · frame 1421</p>
+      
+    </div>
+  </article>
+<article class="card" data-name="hyeoncheonsuhosteel(?)" data-type="Stone">
+    <div class="card__icon"><img src="./icons/frame_001422.png" alt="" loading="lazy" width="48" height="48"></div>
+    <div class="card__body">
+      <h3 class="card__name">HyeoncheonSuhoSteel(?)</h3>
+      <p class="card__meta">Stone · frame 1422</p>
+      
+    </div>
+  </article>
+<article class="card" data-name="magicstone" data-type="Stone">
+    <div class="card__icon"><img src="./icons/frame_000584.png" alt="" loading="lazy" width="48" height="48"></div>
+    <div class="card__body">
+      <h3 class="card__name">MagicStone</h3>
+      <p class="card__meta">Stone · frame 584</p>
+      
+    </div>
+  </article>
+<article class="card" data-name="magicstone(l)" data-type="Stone">
+    <div class="card__icon"><img src="./icons/frame_000582.png" alt="" loading="lazy" width="48" height="48"></div>
+    <div class="card__body">
+      <h3 class="card__name">MagicStone(L)</h3>
+      <p class="card__meta">Stone · frame 582</p>
+      
+    </div>
+  </article>
+<article class="card" data-name="magicstone(m)" data-type="Stone">
+    <div class="card__icon"><img src="./icons/frame_000581.png" alt="" loading="lazy" width="48" height="48"></div>
+    <div class="card__body">
+      <h3 class="card__name">MagicStone(M)</h3>
+      <p class="card__meta">Stone · frame 581</p>
+      
+    </div>
+  </article>
+<article class="card" data-name="magicstone(s)" data-type="Stone">
+    <div class="card__icon"><img src="./icons/frame_000580.png" alt="" loading="lazy" width="48" height="48"></div>
+    <div class="card__body">
+      <h3 class="card__name">MagicStone(S)</h3>
+      <p class="card__meta">Stone · frame 580</p>
+      
+    </div>
+  </article>
+<article class="card" data-name="magicstone(xl)" data-type="Stone">
+    <div class="card__icon"><img src="./icons/frame_000583.png" alt="" loading="lazy" width="48" height="48"></div>
+    <div class="card__body">
+      <h3 class="card__name">MagicStone(XL)</h3>
+      <p class="card__meta">Stone · frame 583</p>
+      
+    </div>
+  </article>
+<article class="card" data-name="mcstone" data-type="Stone">
+    <div class="card__icon"><img src="./icons/frame_000624.png" alt="" loading="lazy" width="48" height="48"></div>
+    <div class="card__body">
+      <h3 class="card__name">MCStone</h3>
+      <p class="card__meta">Stone · frame 624</p>
+      
+    </div>
+  </article>
+<article class="card" data-name="mcstone(l)" data-type="Stone">
+    <div class="card__icon"><img src="./icons/frame_000622.png" alt="" loading="lazy" width="48" height="48"></div>
+    <div class="card__body">
+      <h3 class="card__name">MCStone(L)</h3>
+      <p class="card__meta">Stone · frame 622</p>
+      
+    </div>
+  </article>
+<article class="card" data-name="mcstone(m)" data-type="Stone">
+    <div class="card__icon"><img src="./icons/frame_000621.png" alt="" loading="lazy" width="48" height="48"></div>
+    <div class="card__body">
+      <h3 class="card__name">MCStone(M)</h3>
+      <p class="card__meta">Stone · frame 621</p>
+      
+    </div>
+  </article>
+<article class="card" data-name="mcstone(s)" data-type="Stone">
+    <div class="card__icon"><img src="./icons/frame_000620.png" alt="" loading="lazy" width="48" height="48"></div>
+    <div class="card__body">
+      <h3 class="card__name">MCStone(S)</h3>
+      <p class="card__meta">Stone · frame 620</p>
+      
+    </div>
+  </article>
+<article class="card" data-name="mcstone(xl)" data-type="Stone">
+    <div class="card__icon"><img src="./icons/frame_000623.png" alt="" loading="lazy" width="48" height="48"></div>
+    <div class="card__body">
+      <h3 class="card__name">MCStone(XL)</h3>
+      <p class="card__meta">Stone · frame 623</p>
+      
+    </div>
+  </article>
+<article class="card" data-name="powerstone" data-type="Stone">
+    <div class="card__icon"><img src="./icons/frame_000579.png" alt="" loading="lazy" width="48" height="48"></div>
+    <div class="card__body">
+      <h3 class="card__name">PowerStone</h3>
+      <p class="card__meta">Stone · frame 579</p>
+      
+    </div>
+  </article>
+<article class="card" data-name="powerstone(l)" data-type="Stone">
+    <div class="card__icon"><img src="./icons/frame_000577.png" alt="" loading="lazy" width="48" height="48"></div>
+    <div class="card__body">
+      <h3 class="card__name">PowerStone(L)</h3>
+      <p class="card__meta">Stone · frame 577</p>
+      
+    </div>
+  </article>
+<article class="card" data-name="powerstone(m)" data-type="Stone">
+    <div class="card__icon"><img src="./icons/frame_000576.png" alt="" loading="lazy" width="48" height="48"></div>
+    <div class="card__body">
+      <h3 class="card__name">PowerStone(M)</h3>
+      <p class="card__meta">Stone · frame 576</p>
+      
+    </div>
+  </article>
+<article class="card" data-name="powerstone(s)" data-type="Stone">
+    <div class="card__icon"><img src="./icons/frame_000575.png" alt="" loading="lazy" width="48" height="48"></div>
+    <div class="card__body">
+      <h3 class="card__name">PowerStone(S)</h3>
+      <p class="card__meta">Stone · frame 575</p>
+      
+    </div>
+  </article>
+<article class="card" data-name="powerstone(xl)" data-type="Stone">
+    <div class="card__icon"><img src="./icons/frame_000578.png" alt="" loading="lazy" width="48" height="48"></div>
+    <div class="card__body">
+      <h3 class="card__name">PowerStone(XL)</h3>
+      <p class="card__meta">Stone · frame 578</p>
+      
+    </div>
+  </article>
+<article class="card" data-name="scstone" data-type="Stone">
+    <div class="card__icon"><img src="./icons/frame_000619.png" alt="" loading="lazy" width="48" height="48"></div>
+    <div class="card__body">
+      <h3 class="card__name">SCStone</h3>
+      <p class="card__meta">Stone · frame 619</p>
+      
+    </div>
+  </article>
+<article class="card" data-name="scstone(l)" data-type="Stone">
+    <div class="card__icon"><img src="./icons/frame_000617.png" alt="" loading="lazy" width="48" height="48"></div>
+    <div class="card__body">
+      <h3 class="card__name">SCStone(L)</h3>
+      <p class="card__meta">Stone · frame 617</p>
+      
+    </div>
+  </article>
+<article class="card" data-name="scstone(m)" data-type="Stone">
+    <div class="card__icon"><img src="./icons/frame_000616.png" alt="" loading="lazy" width="48" height="48"></div>
+    <div class="card__body">
+      <h3 class="card__name">SCStone(M)</h3>
+      <p class="card__meta">Stone · frame 616</p>
+      
+    </div>
+  </article>
+<article class="card" data-name="scstone(s)" data-type="Stone">
+    <div class="card__icon"><img src="./icons/frame_000615.png" alt="" loading="lazy" width="48" height="48"></div>
+    <div class="card__body">
+      <h3 class="card__name">SCStone(S)</h3>
+      <p class="card__meta">Stone · frame 615</p>
+      
+    </div>
+  </article>
+<article class="card" data-name="scstone(xl)" data-type="Stone">
+    <div class="card__icon"><img src="./icons/frame_000618.png" alt="" loading="lazy" width="48" height="48"></div>
+    <div class="card__body">
+      <h3 class="card__name">SCStone(XL)</h3>
+      <p class="card__meta">Stone · frame 618</p>
+      
+    </div>
+  </article></div>
+  </section><section class="section" data-section="awakening souls &amp; glyphs">
+    <h2 class="section__title">Awakening souls &amp; glyphs <span class="section__count">28</span></h2>
+    <div class="grid"><article class="card" data-name="awakeningsoul0" data-type="Awakening">
+    <div class="card__icon"><img src="./icons/frame_003224.png" alt="" loading="lazy" width="48" height="48"></div>
+    <div class="card__body">
+      <h3 class="card__name">AwakeningSoul0</h3>
+      <p class="card__meta">Awakening · frame 3224</p>
+      
+    </div>
+  </article>
+<article class="card" data-name="awakeningsoul1" data-type="Awakening">
+    <div class="card__icon"><img src="./icons/frame_003225.png" alt="" loading="lazy" width="48" height="48"></div>
+    <div class="card__body">
+      <h3 class="card__name">AwakeningSoul1</h3>
+      <p class="card__meta">Awakening · frame 3225</p>
+      
+    </div>
+  </article>
+<article class="card" data-name="awakeningsoul2" data-type="Awakening">
+    <div class="card__icon"><img src="./icons/frame_003226.png" alt="" loading="lazy" width="48" height="48"></div>
+    <div class="card__body">
+      <h3 class="card__name">AwakeningSoul2</h3>
+      <p class="card__meta">Awakening · frame 3226</p>
+      
+    </div>
+  </article>
+<article class="card" data-name="awakeningsoul3" data-type="Awakening">
+    <div class="card__icon"><img src="./icons/frame_003227.png" alt="" loading="lazy" width="48" height="48"></div>
+    <div class="card__body">
+      <h3 class="card__name">AwakeningSoul3</h3>
+      <p class="card__meta">Awakening · frame 3227</p>
+      
+    </div>
+  </article>
+<article class="card" data-name="bodyglyph0" data-type="Awakening">
+    <div class="card__icon"><img src="./icons/frame_003220.png" alt="" loading="lazy" width="48" height="48"></div>
+    <div class="card__body">
+      <h3 class="card__name">BodyGlyph0</h3>
+      <p class="card__meta">Awakening · frame 3220</p>
+      
+    </div>
+  </article>
+<article class="card" data-name="bodyglyph1" data-type="Awakening">
+    <div class="card__icon"><img src="./icons/frame_003221.png" alt="" loading="lazy" width="48" height="48"></div>
+    <div class="card__body">
+      <h3 class="card__name">BodyGlyph1</h3>
+      <p class="card__meta">Awakening · frame 3221</p>
+      
+    </div>
+  </article>
+<article class="card" data-name="bodyglyph2" data-type="Awakening">
+    <div class="card__icon"><img src="./icons/frame_003222.png" alt="" loading="lazy" width="48" height="48"></div>
+    <div class="card__body">
+      <h3 class="card__name">BodyGlyph2</h3>
+      <p class="card__meta">Awakening · frame 3222</p>
+      
+    </div>
+  </article>
+<article class="card" data-name="bodyglyph3" data-type="Awakening">
+    <div class="card__icon"><img src="./icons/frame_003223.png" alt="" loading="lazy" width="48" height="48"></div>
+    <div class="card__body">
+      <h3 class="card__name">BodyGlyph3</h3>
+      <p class="card__meta">Awakening · frame 3223</p>
+      
+    </div>
+  </article>
+<article class="card" data-name="braveryglyph0" data-type="Awakening">
+    <div class="card__icon"><img src="./icons/frame_003200.png" alt="" loading="lazy" width="48" height="48"></div>
+    <div class="card__body">
+      <h3 class="card__name">BraveryGlyph0</h3>
+      <p class="card__meta">Awakening · frame 3200</p>
+      
+    </div>
+  </article>
+<article class="card" data-name="braveryglyph1" data-type="Awakening">
+    <div class="card__icon"><img src="./icons/frame_003201.png" alt="" loading="lazy" width="48" height="48"></div>
+    <div class="card__body">
+      <h3 class="card__name">BraveryGlyph1</h3>
+      <p class="card__meta">Awakening · frame 3201</p>
+      
+    </div>
+  </article>
+<article class="card" data-name="braveryglyph2" data-type="Awakening">
+    <div class="card__icon"><img src="./icons/frame_003202.png" alt="" loading="lazy" width="48" height="48"></div>
+    <div class="card__body">
+      <h3 class="card__name">BraveryGlyph2</h3>
+      <p class="card__meta">Awakening · frame 3202</p>
+      
+    </div>
+  </article>
+<article class="card" data-name="braveryglyph3" data-type="Awakening">
+    <div class="card__icon"><img src="./icons/frame_003203.png" alt="" loading="lazy" width="48" height="48"></div>
+    <div class="card__body">
+      <h3 class="card__name">BraveryGlyph3</h3>
+      <p class="card__meta">Awakening · frame 3203</p>
+      
+    </div>
+  </article>
+<article class="card" data-name="evilslayerglyph0" data-type="Awakening">
+    <div class="card__icon"><img src="./icons/frame_003216.png" alt="" loading="lazy" width="48" height="48"></div>
+    <div class="card__body">
+      <h3 class="card__name">EvilSlayerGlyph0</h3>
+      <p class="card__meta">Awakening · frame 3216</p>
+      
+    </div>
+  </article>
+<article class="card" data-name="evilslayerglyph1" data-type="Awakening">
+    <div class="card__icon"><img src="./icons/frame_003217.png" alt="" loading="lazy" width="48" height="48"></div>
+    <div class="card__body">
+      <h3 class="card__name">EvilSlayerGlyph1</h3>
+      <p class="card__meta">Awakening · frame 3217</p>
+      
+    </div>
+  </article>
+<article class="card" data-name="evilslayerglyph2" data-type="Awakening">
+    <div class="card__icon"><img src="./icons/frame_003218.png" alt="" loading="lazy" width="48" height="48"></div>
+    <div class="card__body">
+      <h3 class="card__name">EvilSlayerGlyph2</h3>
+      <p class="card__meta">Awakening · frame 3218</p>
+      
+    </div>
+  </article>
+<article class="card" data-name="evilslayerglyph3" data-type="Awakening">
+    <div class="card__icon"><img src="./icons/frame_003219.png" alt="" loading="lazy" width="48" height="48"></div>
+    <div class="card__body">
+      <h3 class="card__name">EvilSlayerGlyph3</h3>
+      <p class="card__meta">Awakening · frame 3219</p>
+      
+    </div>
+  </article>
+<article class="card" data-name="magicglyph0" data-type="Awakening">
+    <div class="card__icon"><img src="./icons/frame_003204.png" alt="" loading="lazy" width="48" height="48"></div>
+    <div class="card__body">
+      <h3 class="card__name">MagicGlyph0</h3>
+      <p class="card__meta">Awakening · frame 3204</p>
+      
+    </div>
+  </article>
+<article class="card" data-name="magicglyph1" data-type="Awakening">
+    <div class="card__icon"><img src="./icons/frame_003205.png" alt="" loading="lazy" width="48" height="48"></div>
+    <div class="card__body">
+      <h3 class="card__name">MagicGlyph1</h3>
+      <p class="card__meta">Awakening · frame 3205</p>
+      
+    </div>
+  </article>
+<article class="card" data-name="magicglyph2" data-type="Awakening">
+    <div class="card__icon"><img src="./icons/frame_003206.png" alt="" loading="lazy" width="48" height="48"></div>
+    <div class="card__body">
+      <h3 class="card__name">MagicGlyph2</h3>
+      <p class="card__meta">Awakening · frame 3206</p>
+      
+    </div>
+  </article>
+<article class="card" data-name="magicglyph3" data-type="Awakening">
+    <div class="card__icon"><img src="./icons/frame_003207.png" alt="" loading="lazy" width="48" height="48"></div>
+    <div class="card__body">
+      <h3 class="card__name">MagicGlyph3</h3>
+      <p class="card__meta">Awakening · frame 3207</p>
+      
+    </div>
+  </article>
+<article class="card" data-name="protectionglyph0" data-type="Awakening">
+    <div class="card__icon"><img src="./icons/frame_003212.png" alt="" loading="lazy" width="48" height="48"></div>
+    <div class="card__body">
+      <h3 class="card__name">ProtectionGlyph0</h3>
+      <p class="card__meta">Awakening · frame 3212</p>
+      
+    </div>
+  </article>
+<article class="card" data-name="protectionglyph1" data-type="Awakening">
+    <div class="card__icon"><img src="./icons/frame_003213.png" alt="" loading="lazy" width="48" height="48"></div>
+    <div class="card__body">
+      <h3 class="card__name">ProtectionGlyph1</h3>
+      <p class="card__meta">Awakening · frame 3213</p>
+      
+    </div>
+  </article>
+<article class="card" data-name="protectionglyph2" data-type="Awakening">
+    <div class="card__icon"><img src="./icons/frame_003214.png" alt="" loading="lazy" width="48" height="48"></div>
+    <div class="card__body">
+      <h3 class="card__name">ProtectionGlyph2</h3>
+      <p class="card__meta">Awakening · frame 3214</p>
+      
+    </div>
+  </article>
+<article class="card" data-name="protectionglyph3" data-type="Awakening">
+    <div class="card__icon"><img src="./icons/frame_003215.png" alt="" loading="lazy" width="48" height="48"></div>
+    <div class="card__body">
+      <h3 class="card__name">ProtectionGlyph3</h3>
+      <p class="card__meta">Awakening · frame 3215</p>
+      
+    </div>
+  </article>
+<article class="card" data-name="soulglyph0" data-type="Awakening">
+    <div class="card__icon"><img src="./icons/frame_003208.png" alt="" loading="lazy" width="48" height="48"></div>
+    <div class="card__body">
+      <h3 class="card__name">SoulGlyph0</h3>
+      <p class="card__meta">Awakening · frame 3208</p>
+      
+    </div>
+  </article>
+<article class="card" data-name="soulglyph1" data-type="Awakening">
+    <div class="card__icon"><img src="./icons/frame_003209.png" alt="" loading="lazy" width="48" height="48"></div>
+    <div class="card__body">
+      <h3 class="card__name">SoulGlyph1</h3>
+      <p class="card__meta">Awakening · frame 3209</p>
+      
+    </div>
+  </article>
+<article class="card" data-name="soulglyph2" data-type="Awakening">
+    <div class="card__icon"><img src="./icons/frame_003210.png" alt="" loading="lazy" width="48" height="48"></div>
+    <div class="card__body">
+      <h3 class="card__name">SoulGlyph2</h3>
+      <p class="card__meta">Awakening · frame 3210</p>
+      
+    </div>
+  </article>
+<article class="card" data-name="soulglyph3" data-type="Awakening">
+    <div class="card__icon"><img src="./icons/frame_003211.png" alt="" loading="lazy" width="48" height="48"></div>
+    <div class="card__body">
+      <h3 class="card__name">SoulGlyph3</h3>
+      <p class="card__meta">Awakening · frame 3211</p>
+      
+    </div>
+  </article></div>
+  </section><section class="section" data-section="quest items">
+    <h2 class="section__title">Quest items <span class="section__count">65</span></h2>
+    <div class="grid"><article class="card" data-name="algae" data-type="Quest">
+    <div class="card__icon"><img src="./icons/frame_000870.png" alt="" loading="lazy" width="48" height="48"></div>
+    <div class="card__body">
+      <h3 class="card__name">Algae</h3>
+      <p class="card__meta">Quest · frame 870</p>
+      
+    </div>
+  </article>
+<article class="card" data-name="ancientscyther" data-type="Quest">
+    <div class="card__icon"><img src="./icons/frame_002125.png" alt="" loading="lazy" width="48" height="48"></div>
+    <div class="card__body">
+      <h3 class="card__name">AncientScyther</h3>
+      <p class="card__meta">Quest · frame 2125</p>
+      
+    </div>
+  </article>
+<article class="card" data-name="ancienttree" data-type="Quest">
+    <div class="card__icon"><img src="./icons/frame_001401.png" alt="" loading="lazy" width="48" height="48"></div>
+    <div class="card__body">
+      <h3 class="card__name">AncientTree</h3>
+      <p class="card__meta">Quest · frame 1401</p>
+      
+    </div>
+  </article>
+<article class="card" data-name="antidote" data-type="Quest">
+    <div class="card__icon"><img src="./icons/frame_000023.png" alt="" loading="lazy" width="48" height="48"></div>
+    <div class="card__body">
+      <h3 class="card__name">Antidote</h3>
+      <p class="card__meta">Quest · frame 23</p>
+      
+    </div>
+  </article>
+<article class="card" data-name="batpoison" data-type="Quest">
+    <div class="card__icon"><img src="./icons/frame_000871.png" alt="" loading="lazy" width="48" height="48"></div>
+    <div class="card__body">
+      <h3 class="card__name">BatPoison</h3>
+      <p class="card__meta">Quest · frame 871</p>
+      
+    </div>
+  </article>
+<article class="card" data-name="batteeth" data-type="Quest">
+    <div class="card__icon"><img src="./icons/frame_000253.png" alt="" loading="lazy" width="48" height="48"></div>
+    <div class="card__body">
+      <h3 class="card__name">BatTeeth</h3>
+      <p class="card__meta">Quest · frame 253</p>
+      
+    </div>
+  </article>
+<article class="card" data-name="batwings" data-type="Quest">
+    <div class="card__icon"><img src="./icons/frame_000690.png" alt="" loading="lazy" width="48" height="48"></div>
+    <div class="card__body">
+      <h3 class="card__name">BatWings</h3>
+      <p class="card__meta">Quest · frame 690</p>
+      
+    </div>
+  </article>
+<article class="card" data-name="beefrib" data-type="Quest">
+    <div class="card__icon"><img src="./icons/frame_001095.png" alt="" loading="lazy" width="48" height="48"></div>
+    <div class="card__body">
+      <h3 class="card__name">BeefRib</h3>
+      <p class="card__meta">Quest · frame 1095</p>
+      
+    </div>
+  </article>
+<article class="card" data-name="bichontales(1)" data-type="Quest">
+    <div class="card__icon"><img src="./icons/frame_002120.png" alt="" loading="lazy" width="48" height="48"></div>
+    <div class="card__body">
+      <h3 class="card__name">BichonTales(1)</h3>
+      <p class="card__meta">Quest · frame 2120</p>
+      
+    </div>
+  </article>
+<article class="card" data-name="bichontales(2)" data-type="Quest">
+    <div class="card__icon"><img src="./icons/frame_002120.png" alt="" loading="lazy" width="48" height="48"></div>
+    <div class="card__body">
+      <h3 class="card__name">BichonTales(2)</h3>
+      <p class="card__meta">Quest · frame 2120</p>
+      
+    </div>
+  </article>
+<article class="card" data-name="bichontales(3)" data-type="Quest">
+    <div class="card__icon"><img src="./icons/frame_002120.png" alt="" loading="lazy" width="48" height="48"></div>
+    <div class="card__body">
+      <h3 class="card__name">BichonTales(3)</h3>
+      <p class="card__meta">Quest · frame 2120</p>
+      
+    </div>
+  </article>
+<article class="card" data-name="bloodpill" data-type="Quest">
+    <div class="card__icon"><img src="./icons/frame_000502.png" alt="" loading="lazy" width="48" height="48"></div>
+    <div class="card__body">
+      <h3 class="card__name">BloodPill</h3>
+      <p class="card__meta">Quest · frame 502</p>
+      
+    </div>
+  </article>
+<article class="card" data-name="bluepill" data-type="Quest">
+    <div class="card__icon"><img src="./icons/frame_000503.png" alt="" loading="lazy" width="48" height="48"></div>
+    <div class="card__body">
+      <h3 class="card__name">BluePill</h3>
+      <p class="card__meta">Quest · frame 503</p>
+      
+    </div>
+  </article>
+<article class="card" data-name="blujadependant" data-type="Quest">
+    <div class="card__icon"><img src="./icons/frame_000246.png" alt="" loading="lazy" width="48" height="48"></div>
+    <div class="card__body">
+      <h3 class="card__name">BluJadePendant</h3>
+      <p class="card__meta">Quest · frame 246</p>
+      
+    </div>
+  </article>
+<article class="card card--missing" data-name="boartooth" data-type="Quest">
+    <div class="card__icon"><div class="card__placeholder" title="missing">?</div></div>
+    <div class="card__body">
+      <h3 class="card__name">BoarTooth</h3>
+      <p class="card__meta">Quest · frame 2770</p>
+      <span class="card__badge">no file</span>
+    </div>
+  </article>
+<article class="card" data-name="bugblood" data-type="Quest">
+    <div class="card__icon"><img src="./icons/frame_000023.png" alt="" loading="lazy" width="48" height="48"></div>
+    <div class="card__body">
+      <h3 class="card__name">BugBlood</h3>
+      <p class="card__meta">Quest · frame 23</p>
+      
+    </div>
+  </article>
+<article class="card" data-name="bugspecimen" data-type="Quest">
+    <div class="card__icon"><img src="./icons/frame_000853.png" alt="" loading="lazy" width="48" height="48"></div>
+    <div class="card__body">
+      <h3 class="card__name">BugSpecimen</h3>
+      <p class="card__meta">Quest · frame 853</p>
+      
+    </div>
+  </article>
+<article class="card" data-name="canniballeaves" data-type="Quest">
+    <div class="card__icon"><img src="./icons/frame_000255.png" alt="" loading="lazy" width="48" height="48"></div>
+    <div class="card__body">
+      <h3 class="card__name">CannibalLeaves</h3>
+      <p class="card__meta">Quest · frame 255</p>
+      
+    </div>
+  </article>
+<article class="card card--frame0" data-name="cannibalpoison" data-type="Quest">
+    <div class="card__icon"><div class="card__placeholder" title="frame0">?</div></div>
+    <div class="card__body">
+      <h3 class="card__name">CannibalPoison</h3>
+      <p class="card__meta">Quest · frame 0</p>
+      <span class="card__badge">frame 0</span>
+    </div>
+  </article>
+<article class="card" data-name="cannibalseed" data-type="Quest">
+    <div class="card__icon"><img src="./icons/frame_000256.png" alt="" loading="lazy" width="48" height="48"></div>
+    <div class="card__body">
+      <h3 class="card__name">CannibalSeed</h3>
+      <p class="card__meta">Quest · frame 256</p>
+      
+    </div>
+  </article>
+<article class="card" data-name="cannibalstem" data-type="Quest">
+    <div class="card__icon"><img src="./icons/frame_000934.png" alt="" loading="lazy" width="48" height="48"></div>
+    <div class="card__body">
+      <h3 class="card__name">CannibalStem</h3>
+      <p class="card__meta">Quest · frame 934</p>
+      
+    </div>
+  </article>
+<article class="card" data-name="cannitea" data-type="Quest">
+    <div class="card__icon"><img src="./icons/frame_000018.png" alt="" loading="lazy" width="48" height="48"></div>
+    <div class="card__body">
+      <h3 class="card__name">CanniTea</h3>
+      <p class="card__meta">Quest · frame 18</p>
+      
+    </div>
+  </article>
+<article class="card" data-name="cavereport" data-type="Quest">
+    <div class="card__icon"><img src="./icons/frame_000264.png" alt="" loading="lazy" width="48" height="48"></div>
+    <div class="card__body">
+      <h3 class="card__name">CaveReport</h3>
+      <p class="card__meta">Quest · frame 264</p>
+      
+    </div>
+  </article>
+<article class="card" data-name="charleysword" data-type="Quest">
+    <div class="card__icon"><img src="./icons/frame_000828.png" alt="" loading="lazy" width="48" height="48"></div>
+    <div class="card__body">
+      <h3 class="card__name">CharleySword</h3>
+      <p class="card__meta">Quest · frame 828</p>
+      
+    </div>
+  </article>
+<article class="card" data-name="cleanskull" data-type="Quest">
+    <div class="card__icon"><img src="./icons/frame_000941.png" alt="" loading="lazy" width="48" height="48"></div>
+    <div class="card__body">
+      <h3 class="card__name">CleanSkull</h3>
+      <p class="card__meta">Quest · frame 941</p>
+      
+    </div>
+  </article>
+<article class="card card--frame0" data-name="cookbook" data-type="Quest">
+    <div class="card__icon"><div class="card__placeholder" title="frame0">?</div></div>
+    <div class="card__body">
+      <h3 class="card__name">CookBook</h3>
+      <p class="card__meta">Quest · frame 0</p>
+      <span class="card__badge">frame 0</span>
+    </div>
+  </article>
+<article class="card" data-name="corpsflower" data-type="Quest">
+    <div class="card__icon"><img src="./icons/frame_000490.png" alt="" loading="lazy" width="48" height="48"></div>
+    <div class="card__body">
+      <h3 class="card__name">CorpsFlower</h3>
+      <p class="card__meta">Quest · frame 490</p>
+      
+    </div>
+  </article>
+<article class="card" data-name="deermeat" data-type="Quest">
+    <div class="card__icon"><img src="./icons/frame_000001.png" alt="" loading="lazy" width="48" height="48"></div>
+    <div class="card__body">
+      <h3 class="card__name">DeerMeat</h3>
+      <p class="card__meta">Quest · frame 1</p>
+      
+    </div>
+  </article>
+<article class="card" data-name="ebony(fruit)" data-type="Quest">
+    <div class="card__icon"><img src="./icons/frame_000812.png" alt="" loading="lazy" width="48" height="48"></div>
+    <div class="card__body">
+      <h3 class="card__name">Ebony(Fruit)</h3>
+      <p class="card__meta">Quest · frame 812</p>
+      
+    </div>
+  </article>
+<article class="card" data-name="gatheringglove" data-type="Quest">
+    <div class="card__icon"><img src="./icons/frame_000190.png" alt="" loading="lazy" width="48" height="48"></div>
+    <div class="card__body">
+      <h3 class="card__name">GatheringGlove</h3>
+      <p class="card__meta">Quest · frame 190</p>
+      
+    </div>
+  </article>
+<article class="card" data-name="gatheringtool" data-type="Quest">
+    <div class="card__icon"><img src="./icons/frame_000452.png" alt="" loading="lazy" width="48" height="48"></div>
+    <div class="card__body">
+      <h3 class="card__name">GatheringTool</h3>
+      <p class="card__meta">Quest · frame 452</p>
+      
+    </div>
+  </article>
+<article class="card" data-name="gingertea" data-type="Quest">
+    <div class="card__icon"><img src="./icons/frame_000412.png" alt="" loading="lazy" width="48" height="48"></div>
+    <div class="card__body">
+      <h3 class="card__name">GingerTea</h3>
+      <p class="card__meta">Quest · frame 412</p>
+      
+    </div>
+  </article>
+<article class="card" data-name="greenherb" data-type="Quest">
+    <div class="card__icon"><img src="./icons/frame_000915.png" alt="" loading="lazy" width="48" height="48"></div>
+    <div class="card__body">
+      <h3 class="card__name">GreenHerb</h3>
+      <p class="card__meta">Quest · frame 915</p>
+      
+    </div>
+  </article>
+<article class="card" data-name="heartofdead" data-type="Quest">
+    <div class="card__icon"><img src="./icons/frame_000837.png" alt="" loading="lazy" width="48" height="48"></div>
+    <div class="card__body">
+      <h3 class="card__name">HeartOfDead</h3>
+      <p class="card__meta">Quest · frame 837</p>
+      
+    </div>
+  </article>
+<article class="card" data-name="hiddenscroll" data-type="Quest">
+    <div class="card__icon"><img src="./icons/frame_000264.png" alt="" loading="lazy" width="48" height="48"></div>
+    <div class="card__body">
+      <h3 class="card__name">HiddenScroll</h3>
+      <p class="card__meta">Quest · frame 264</p>
+      
+    </div>
+  </article>
+<article class="card" data-name="jadering" data-type="Quest">
+    <div class="card__icon"><img src="./icons/frame_000771.png" alt="" loading="lazy" width="48" height="48"></div>
+    <div class="card__body">
+      <h3 class="card__name">JadeRing</h3>
+      <p class="card__meta">Quest · frame 771</p>
+      
+    </div>
+  </article>
+<article class="card" data-name="mobblood" data-type="Quest">
+    <div class="card__icon"><img src="./icons/frame_000872.png" alt="" loading="lazy" width="48" height="48"></div>
+    <div class="card__body">
+      <h3 class="card__name">MobBlood</h3>
+      <p class="card__meta">Quest · frame 872</p>
+      
+    </div>
+  </article>
+<article class="card" data-name="oldnecklace" data-type="Quest">
+    <div class="card__icon"><img src="./icons/frame_000234.png" alt="" loading="lazy" width="48" height="48"></div>
+    <div class="card__body">
+      <h3 class="card__name">OldNecklace</h3>
+      <p class="card__meta">Quest · frame 234</p>
+      
+    </div>
+  </article>
+<article class="card" data-name="oldrobe" data-type="Quest">
+    <div class="card__icon"><img src="./icons/frame_000060.png" alt="" loading="lazy" width="48" height="48"></div>
+    <div class="card__body">
+      <h3 class="card__name">OldRobe</h3>
+      <p class="card__meta">Quest · frame 60</p>
+      
+    </div>
+  </article>
+<article class="card" data-name="oliviasring" data-type="Quest">
+    <div class="card__icon"><img src="./icons/frame_000142.png" alt="" loading="lazy" width="48" height="48"></div>
+    <div class="card__body">
+      <h3 class="card__name">OliviasRing</h3>
+      <p class="card__meta">Quest · frame 142</p>
+      
+    </div>
+  </article>
+<article class="card" data-name="omateeth" data-type="Quest">
+    <div class="card__icon"><img src="./icons/frame_000808.png" alt="" loading="lazy" width="48" height="48"></div>
+    <div class="card__body">
+      <h3 class="card__name">OmaTeeth</h3>
+      <p class="card__meta">Quest · frame 808</p>
+      
+    </div>
+  </article>
+<article class="card card--frame0" data-name="pigear" data-type="Quest">
+    <div class="card__icon"><div class="card__placeholder" title="frame0">?</div></div>
+    <div class="card__body">
+      <h3 class="card__name">PigEar</h3>
+      <p class="card__meta">Quest · frame 0</p>
+      <span class="card__badge">frame 0</span>
+    </div>
+  </article>
+<article class="card card--frame0" data-name="pighoof" data-type="Quest">
+    <div class="card__icon"><div class="card__placeholder" title="frame0">?</div></div>
+    <div class="card__body">
+      <h3 class="card__name">PigHoof</h3>
+      <p class="card__meta">Quest · frame 0</p>
+      <span class="card__badge">frame 0</span>
+    </div>
+  </article>
+<article class="card" data-name="poisonsack" data-type="Quest">
+    <div class="card__icon"><img src="./icons/frame_000257.png" alt="" loading="lazy" width="48" height="48"></div>
+    <div class="card__body">
+      <h3 class="card__name">PoisonSack</h3>
+      <p class="card__meta">Quest · frame 257</p>
+      
+    </div>
+  </article>
+<article class="card" data-name="prajnahistory" data-type="Quest">
+    <div class="card__icon"><img src="./icons/frame_002120.png" alt="" loading="lazy" width="48" height="48"></div>
+    <div class="card__body">
+      <h3 class="card__name">PrajnaHistory</h3>
+      <p class="card__meta">Quest · frame 2120</p>
+      
+    </div>
+  </article>
+<article class="card" data-name="rarecopperore" data-type="Quest">
+    <div class="card__icon"><img src="./icons/frame_000282.png" alt="" loading="lazy" width="48" height="48"></div>
+    <div class="card__body">
+      <h3 class="card__name">RareCopperOre</h3>
+      <p class="card__meta">Quest · frame 282</p>
+      
+    </div>
+  </article>
+<article class="card" data-name="reddagger" data-type="Quest">
+    <div class="card__icon"><img src="./icons/frame_000068.png" alt="" loading="lazy" width="48" height="48"></div>
+    <div class="card__body">
+      <h3 class="card__name">RedDagger</h3>
+      <p class="card__meta">Quest · frame 68</p>
+      
+    </div>
+  </article>
+<article class="card" data-name="redsnaketeeth" data-type="Quest">
+    <div class="card__icon"><img src="./icons/frame_000808.png" alt="" loading="lazy" width="48" height="48"></div>
+    <div class="card__body">
+      <h3 class="card__name">RedSnakeTeeth</h3>
+      <p class="card__meta">Quest · frame 808</p>
+      
+    </div>
+  </article>
+<article class="card" data-name="relicrock" data-type="Quest">
+    <div class="card__icon"><img src="./icons/frame_001067.png" alt="" loading="lazy" width="48" height="48"></div>
+    <div class="card__body">
+      <h3 class="card__name">RelicRock</h3>
+      <p class="card__meta">Quest · frame 1067</p>
+      
+    </div>
+  </article>
+<article class="card" data-name="relics" data-type="Quest">
+    <div class="card__icon"><img src="./icons/frame_000271.png" alt="" loading="lazy" width="48" height="48"></div>
+    <div class="card__body">
+      <h3 class="card__name">Relics</h3>
+      <p class="card__meta">Quest · frame 271</p>
+      
+    </div>
+  </article>
+<article class="card" data-name="secretrecipe" data-type="Quest">
+    <div class="card__icon"><img src="./icons/frame_002125.png" alt="" loading="lazy" width="48" height="48"></div>
+    <div class="card__body">
+      <h3 class="card__name">SecretRecipe</h3>
+      <p class="card__meta">Quest · frame 2125</p>
+      
+    </div>
+  </article>
+<article class="card" data-name="skeletonbone" data-type="Quest">
+    <div class="card__icon"><img src="./icons/frame_000807.png" alt="" loading="lazy" width="48" height="48"></div>
+    <div class="card__body">
+      <h3 class="card__name">SkeletonBone</h3>
+      <p class="card__meta">Quest · frame 807</p>
+      
+    </div>
+  </article>
+<article class="card" data-name="skeletonhead" data-type="Quest">
+    <div class="card__icon"><img src="./icons/frame_001078.png" alt="" loading="lazy" width="48" height="48"></div>
+    <div class="card__body">
+      <h3 class="card__name">SkeletonHead</h3>
+      <p class="card__meta">Quest · frame 1078</p>
+      
+    </div>
+  </article>
+<article class="card" data-name="skull" data-type="Quest">
+    <div class="card__icon"><img src="./icons/frame_000941.png" alt="" loading="lazy" width="48" height="48"></div>
+    <div class="card__body">
+      <h3 class="card__name">Skull</h3>
+      <p class="card__meta">Quest · frame 941</p>
+      
+    </div>
+  </article>
+<article class="card" data-name="skysletter" data-type="Quest">
+    <div class="card__icon"><img src="./icons/frame_000855.png" alt="" loading="lazy" width="48" height="48"></div>
+    <div class="card__body">
+      <h3 class="card__name">SkysLetter</h3>
+      <p class="card__meta">Quest · frame 855</p>
+      
+    </div>
+  </article>
+<article class="card" data-name="snakebody" data-type="Quest">
+    <div class="card__icon"><img src="./icons/frame_001400.png" alt="" loading="lazy" width="48" height="48"></div>
+    <div class="card__body">
+      <h3 class="card__name">SnakeBody</h3>
+      <p class="card__meta">Quest · frame 1400</p>
+      
+    </div>
+  </article>
+<article class="card" data-name="spiderleg" data-type="Quest">
+    <div class="card__icon"><img src="./icons/frame_000805.png" alt="" loading="lazy" width="48" height="48"></div>
+    <div class="card__body">
+      <h3 class="card__name">SpiderLeg</h3>
+      <p class="card__meta">Quest · frame 805</p>
+      
+    </div>
+  </article>
+<article class="card" data-name="stolengold" data-type="Quest">
+    <div class="card__icon"><img src="./icons/frame_000115.png" alt="" loading="lazy" width="48" height="48"></div>
+    <div class="card__body">
+      <h3 class="card__name">StolenGold</h3>
+      <p class="card__meta">Quest · frame 115</p>
+      
+    </div>
+  </article>
+<article class="card" data-name="traineering" data-type="Quest">
+    <div class="card__icon"><img src="./icons/frame_000157.png" alt="" loading="lazy" width="48" height="48"></div>
+    <div class="card__body">
+      <h3 class="card__name">TraineeRing</h3>
+      <p class="card__meta">Quest · frame 157</p>
+      
+    </div>
+  </article>
+<article class="card" data-name="traineesuit" data-type="Quest">
+    <div class="card__icon"><img src="./icons/frame_000061.png" alt="" loading="lazy" width="48" height="48"></div>
+    <div class="card__body">
+      <h3 class="card__name">TraineeSuit</h3>
+      <p class="card__meta">Quest · frame 61</p>
+      
+    </div>
+  </article>
+<article class="card" data-name="web" data-type="Quest">
+    <div class="card__icon"><img src="./icons/frame_000854.png" alt="" loading="lazy" width="48" height="48"></div>
+    <div class="card__body">
+      <h3 class="card__name">Web</h3>
+      <p class="card__meta">Quest · frame 854</p>
+      
+    </div>
+  </article>
+<article class="card" data-name="woomashorn" data-type="Quest">
+    <div class="card__icon"><img src="./icons/frame_000261.png" alt="" loading="lazy" width="48" height="48"></div>
+    <div class="card__body">
+      <h3 class="card__name">WoomasHorn</h3>
+      <p class="card__meta">Quest · frame 261</p>
+      
+    </div>
+  </article>
+<article class="card" data-name="wornaxe" data-type="Quest">
+    <div class="card__icon"><img src="./icons/frame_000032.png" alt="" loading="lazy" width="48" height="48"></div>
+    <div class="card__body">
+      <h3 class="card__name">WornAxe</h3>
+      <p class="card__meta">Quest · frame 32</p>
+      
+    </div>
+  </article>
+<article class="card" data-name="zombieeye" data-type="Quest">
+    <div class="card__icon"><img src="./icons/frame_000809.png" alt="" loading="lazy" width="48" height="48"></div>
+    <div class="card__body">
+      <h3 class="card__name">ZombieEye</h3>
+      <p class="card__meta">Quest · frame 809</p>
+      
+    </div>
+  </article>
+<article class="card" data-name="zombiesheart" data-type="Quest">
+    <div class="card__icon"><img src="./icons/frame_000837.png" alt="" loading="lazy" width="48" height="48"></div>
+    <div class="card__body">
+      <h3 class="card__name">ZombiesHeart</h3>
+      <p class="card__meta">Quest · frame 837</p>
+      
+    </div>
+  </article></div>
+  </section><section class="section" data-section="food">
+    <h2 class="section__title">Food <span class="section__count">2</span></h2>
+    <div class="grid"><article class="card" data-name="leanmeat" data-type="Food">
+    <div class="card__icon"><img src="./icons/frame_000001.png" alt="" loading="lazy" width="48" height="48"></div>
+    <div class="card__body">
+      <h3 class="card__name">LeanMeat</h3>
+      <p class="card__meta">Food · frame 1</p>
+      
+    </div>
+  </article>
+<article class="card" data-name="rawmeat" data-type="Food">
+    <div class="card__icon"><img src="./icons/frame_000001.png" alt="" loading="lazy" width="48" height="48"></div>
+    <div class="card__body">
+      <h3 class="card__name">RawMeat</h3>
+      <p class="card__meta">Food · frame 1</p>
+      
+    </div>
+  </article></div>
+  </section><section class="section" data-section="meat">
+    <h2 class="section__title">Meat <span class="section__count">6</span></h2>
+    <div class="grid"><article class="card" data-name="beef" data-type="Meat">
+    <div class="card__icon"><img src="./icons/frame_000001.png" alt="" loading="lazy" width="48" height="48"></div>
+    <div class="card__body">
+      <h3 class="card__name">Beef</h3>
+      <p class="card__meta">Meat · frame 1</p>
+      
+    </div>
+  </article>
+<article class="card" data-name="chicken" data-type="Meat">
+    <div class="card__icon"><img src="./icons/frame_000013.png" alt="" loading="lazy" width="48" height="48"></div>
+    <div class="card__body">
+      <h3 class="card__name">Chicken</h3>
+      <p class="card__meta">Meat · frame 13</p>
+      
+    </div>
+  </article>
+<article class="card" data-name="meat" data-type="Meat">
+    <div class="card__icon"><img src="./icons/frame_000001.png" alt="" loading="lazy" width="48" height="48"></div>
+    <div class="card__body">
+      <h3 class="card__name">Meat</h3>
+      <p class="card__meta">Meat · frame 1</p>
+      
+    </div>
+  </article>
+<article class="card" data-name="mutton" data-type="Meat">
+    <div class="card__icon"><img src="./icons/frame_000001.png" alt="" loading="lazy" width="48" height="48"></div>
+    <div class="card__body">
+      <h3 class="card__name">Mutton</h3>
+      <p class="card__meta">Meat · frame 1</p>
+      
+    </div>
+  </article>
+<article class="card" data-name="pork" data-type="Meat">
+    <div class="card__icon"><img src="./icons/frame_000001.png" alt="" loading="lazy" width="48" height="48"></div>
+    <div class="card__body">
+      <h3 class="card__name">Pork</h3>
+      <p class="card__meta">Meat · frame 1</p>
+      
+    </div>
+  </article>
+<article class="card" data-name="venison" data-type="Meat">
+    <div class="card__icon"><img src="./icons/frame_000005.png" alt="" loading="lazy" width="48" height="48"></div>
+    <div class="card__body">
+      <h3 class="card__name">Venison</h3>
+      <p class="card__meta">Meat · frame 5</p>
+      
+    </div>
+  </article></div>
+  </section>
+  </main>
+  <script>
+    const filter = document.getElementById("filter");
+    filter.addEventListener("input", () => {
+      const q = filter.value.trim().toLowerCase();
+      document.querySelectorAll(".card").forEach((card) => {
+        const name = card.dataset.name || "";
+        card.classList.toggle("hidden", q && !name.includes(q));
+      });
+      document.querySelectorAll(".section").forEach((section) => {
+        const visible = section.querySelectorAll(".card:not(.hidden)").length > 0;
+        section.classList.toggle("hidden", !visible);
+      });
+    });
+  </script>
+</body>
+</html>

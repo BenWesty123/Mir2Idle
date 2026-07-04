@@ -48,3 +48,10 @@ export function resolveTaoistPetTargetCoordinates(swarmEnemy, battleEnemyX) {
     mapRow,
   };
 }
+
+export function taoistPetLayerBlendModes(atlas) {
+  if (atlas?.overlays) {
+    return { base: "screen", overlay: "source-over" };
+  }
+  return { base: "source-over", overlay: null };
+}

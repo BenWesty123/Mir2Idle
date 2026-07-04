@@ -3,6 +3,67 @@ import { randomInt, rollDamage } from "../battleData.js";
 export const CRYSTAL_MAGIC_RESIST_WEIGHT = 10;
 
 /**
+ * Crit chance hard cap. 100% is reachable only by rolling the MAX crit-chance
+ * empower on every empowerable worn slot (weapon 20 + armour 14 + helmet 10 +
+ * 2 bracelets 8 + 2 rings 8 + belt 6 + boots 6 + stone 12 = 100), which is
+ * astronomically unlikely — see the crit roll defs in core/empoweredItems.js.
+ */
+export const CRIT_CHANCE_CAP_PERCENT = 100;
+/** Base crit bonus damage: a crit deals +50% (1.5x) before any gear crit-damage. */
+export const CRIT_BASE_DAMAGE_PERCENT = 50;
+
+/** Clamp a raw crit-chance value (percent points) to [0, cap]. */
+export function clampCritChancePercent(critChancePercent) {
+  return Math.max(0, Math.min(CRIT_CHANCE_CAP_PERCENT, Math.trunc(Number(critChancePercent) || 0)));
+}
+
+/**
+ * Multiplier applied to a hit that crits: 1 + (base + gear)/100.
+ * @param {number} [critDamagePercent=0] additive gear crit-damage percent points
+ */
+export function critMultiplier(critDamagePercent = 0) {
+  const bonus = CRIT_BASE_DAMAGE_PERCENT + Math.max(0, Number(critDamagePercent) || 0);
+  return 1 + bonus / 100;
+}
+
+/**
+ * @param {number} critChancePercent
+ * @param {(min: number, max: number) => number} [randomIntFn]
+ * @returns {boolean}
+ */
+export function rollCrit(critChancePercent, randomIntFn = randomInt) {
+  const chance = clampCritChancePercent(critChancePercent);
+  if (chance <= 0) return false;
+  return randomIntFn(1, 100) <= chance;
+}
+
+/**
+ * Rolls a crit and, on success, scales the (already post-defence) damage.
+ * @param {number} damage post-defence damage
+ * @param {number} [critChancePercent=0]
+ * @param {number} [critDamagePercent=0]
+ * @param {(min: number, max: number) => number} [randomIntFn]
+ * @returns {{ damage: number, crit: boolean }}
+ */
+export function applyOutgoingCrit(damage, critChancePercent = 0, critDamagePercent = 0, randomIntFn = randomInt) {
+  const base = Math.max(0, Math.trunc(Number(damage) || 0));
+  if (base <= 0) return { damage: base, crit: false };
+  if (!rollCrit(critChancePercent, randomIntFn)) return { damage: base, crit: false };
+  const critted = Math.max(base + 1, Math.round(base * critMultiplier(critDamagePercent)));
+  return { damage: critted, crit: true };
+}
+
+/**
+ * Expected damage multiplier from crit (for average/offline projections).
+ * @param {number} [critChancePercent=0]
+ * @param {number} [critDamagePercent=0]
+ */
+export function expectedCritMultiplier(critChancePercent = 0, critDamagePercent = 0) {
+  const chance = clampCritChancePercent(critChancePercent) / 100;
+  return 1 + chance * (critMultiplier(critDamagePercent) - 1);
+}
+
+/**
  * @param {number} amount
  * @param {object} [options]
  * @param {string} [options.kind]
@@ -85,10 +146,10 @@ export function petAttackMissEvents(petName, targetName) {
  * @param {string} targetName
  * @param {number} damage
  */
-export function petAttackHitEvents(petName, targetName, damage) {
+export function petAttackHitEvents(petName, targetName, damage, damageKind = "damage") {
   return [
     enemyDamageEvent(damage, { kind: "physical" }),
-    { type: "combatText", anchor: "enemy", text: damage, kind: "damage" },
+    { type: "combatText", anchor: "enemy", text: damage, kind: damageKind },
     { type: "log", text: `${petName} hits ${targetName} for ${damage}.` },
   ];
 }
@@ -383,10 +444,10 @@ export function weaponSwingMissEvents(classLabel, weaponName, targetName) {
  * @param {string} targetName
  * @param {number} damage
  */
-export function weaponSwingHitEvents(classLabel, weaponName, targetName, damage) {
+export function weaponSwingHitEvents(classLabel, weaponName, targetName, damage, damageKind = "damage") {
   return withEnemyDamage(
     [
-      { type: "combatText", anchor: "enemy", text: damage, kind: "damage" },
+      { type: "combatText", anchor: "enemy", text: damage, kind: damageKind },
       { type: "log", text: `${classLabel} hits ${targetName} with ${weaponName} for ${damage}.` },
     ],
     damage,
@@ -413,10 +474,10 @@ export function magicResistEvents(spellLabel, targetName, targetAnchor = "enemy"
  * @param {string} [targetAnchor="enemy"]
  * @param {object} [damageOptions]
  */
-export function magicBurnEvents(spellLabel, targetName, damage, targetAnchor = "enemy", damageOptions = {}) {
+export function magicBurnEvents(spellLabel, targetName, damage, targetAnchor = "enemy", damageKind = "damage", damageOptions = {}) {
   return withEnemyDamage(
     [
-      { type: "combatText", anchor: targetAnchor, text: damage, kind: "damage" },
+      { type: "combatText", anchor: targetAnchor, text: damage, kind: damageKind },
       { type: "log", text: `${spellLabel} burns ${targetName} for ${damage}.` },
     ],
     damage,

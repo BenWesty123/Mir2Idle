@@ -7,6 +7,7 @@ import {
   resolveTaoistPetTargetCoordinates,
   resolveTaoistPetTargetWorldX,
   shouldKeepHolyDevaBetweenSoloFights,
+  taoistPetLayerBlendModes,
 } from "../src/core/taoistPets.js";
 
 const baseStats = {
@@ -88,6 +89,17 @@ test("Holy Deva runtime assets use east-facing Crystal layers and summon audio",
   assert.equal(atlas.overlays.standing.frames.length, 4);
   assert.equal(atlas.overlays.attack1.frames.length, 6);
   assert.equal(sfx.byKey["pet.holydeva.summon"].sourceFile, "117-5.wav");
+});
+
+test("Holy Deva uses Crystal's blended base and normally drawn colour overlay", () => {
+  assert.deepEqual(taoistPetLayerBlendModes({ overlays: {} }), {
+    base: "screen",
+    overlay: "source-over",
+  });
+  assert.deepEqual(taoistPetLayerBlendModes({}), {
+    base: "source-over",
+    overlay: null,
+  });
 });
 
 test("Holy Deva target position does not coerce a missing enemy coordinate to the player origin", () => {

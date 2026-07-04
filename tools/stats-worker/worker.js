@@ -22,11 +22,20 @@ const BOSS_ZONE_IDS = new Set([
 
 // No legitimate character can exceed this level in the current prototype content.
 const LEADERBOARD_MAX_VALID_LEVEL = 100;
-const MAX_CLOUD_SAVE_REQUEST_BYTES = 900_000;
+// The whole save is stored as a single D1 row value, whose hard ceiling is 2 MB
+// ("Maximum string, BLOB or table row size"). Cap below that with margin for the
+// other small row columns (version, timestamps, recovery code) + JSON wrapper.
+const MAX_CLOUD_SAVE_REQUEST_BYTES = 1_800_000;
 const RECOVERY_CODE_ALPHABET = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789";
 const TOWN_MESSAGE_MAX_LENGTH = 100;
 const TOWN_MESSAGE_POST_COOLDOWN_SECONDS = 60;
 const TOWN_MESSAGE_CLASSES = new Set(["Warrior", "Wizard", "Taoist"]);
+
+// Player-chosen public display name (alias). Letters, numbers, spaces and a small
+// set of punctuation; trimmed with internal runs of whitespace collapsed.
+const ALIAS_MIN_LENGTH = 3;
+const ALIAS_MAX_LENGTH = 16;
+const ALIAS_PATTERN = /^[A-Za-z0-9 ._'-]+$/;
 
 // Server-owned token economy. The client NEVER sends token amounts or prices;
 // these are the only source of truth. `gbpPence` is the charged price.
@@ -36,15 +45,17 @@ const TOKEN_PACKS = {
   "tokens-3000": { tokens: 3000, gbpPence: 2000, label: "3,000 Tokens" },
 };
 const MESSAGE_TOKEN_COST = 50;
-// One-off token unlocks. The set of valid keys is server-owned so the client
-// cannot invent new ones. Inventory pages are per-character; storage is account-wide.
-const PAGE_UNLOCK_TOKEN_COST = 250;
-const PAGE_UNLOCK_KEYS = new Set([
-  "storage-page-3",
-  "inv-page-3:warrior",
-  "inv-page-3:wizard",
-  "inv-page-3:taoist",
-]);
+// One-off token unlocks and their token price. The keys AND costs are server-owned
+// so the client cannot invent unlocks or set its own price. Inventory pages are
+// per-character; storage is account-wide; the Teleport Ring is account-wide.
+const UNLOCK_TOKEN_COSTS = {
+  "storage-page-3": 250,
+  "inv-page-3:warrior": 250,
+  "inv-page-3:wizard": 250,
+  "inv-page-3:taoist": 250,
+  "teleport-ring": 500,
+};
+const PAGE_UNLOCK_KEYS = new Set(Object.keys(UNLOCK_TOKEN_COSTS));
 const STRIPE_SIGNATURE_TOLERANCE_SECONDS = 300;
 const DEFAULT_SITE_URL = "https://www.lom2idle.com";
 
@@ -83,6 +94,27 @@ function textValue(value, maxLength = 80) {
   return trimmed.slice(0, maxLength);
 }
 
+// Account-scoped player id (no character `:suffix`), matching the client's
+// anonymous UUID / `anon-...` / `player-...` shapes used everywhere else.
+function aliasPlayerIdValue(value) {
+  const id = textValue(value, 80);
+  if (!id) return null;
+  if (id.includes(":")) return null;
+  if (!/^[a-z0-9_-]{8,80}$/i.test(id)) return null;
+  return id;
+}
+
+// Returns a clean alias, or null if it fails validation. Collapses internal
+// whitespace and blocks aliases that impersonate the default `Player ...` label.
+function normalizePlayerAlias(value) {
+  if (typeof value !== "string") return null;
+  const trimmed = value.trim().replace(/\s+/g, " ");
+  if (trimmed.length < ALIAS_MIN_LENGTH || trimmed.length > ALIAS_MAX_LENGTH) return null;
+  if (!ALIAS_PATTERN.test(trimmed)) return null;
+  if (/^player\b/i.test(trimmed)) return null;
+  return trimmed;
+}
+
 function townMessageBody(value) {
   if (typeof value !== "string") return "";
   const printable = [...value].filter((character) => {
@@ -95,10 +127,10 @@ function townMessageBody(value) {
     .slice(0, TOWN_MESSAGE_MAX_LENGTH);
 }
 
-function townMessageRow(row) {
+function townMessageRow(row, aliasMap) {
   return {
     id: intValue(row?.id),
-    player: publicPlayerLabel(row?.player_id),
+    player: resolvePublicLabel(row?.player_id, aliasMap),
     characterClass: TOWN_MESSAGE_CLASSES.has(row?.character_class) ? row.character_class : "Adventurer",
     characterLevel: intValue(row?.character_level, 1, LEADERBOARD_MAX_VALID_LEVEL),
     body: String(row?.body ?? ""),
@@ -118,7 +150,9 @@ async function handleTownMessagesGet(request, env, headers) {
     ORDER BY id DESC
     LIMIT ?
   `).bind(limit).all();
-  return json({ messages: (result?.results ?? []).map(townMessageRow) }, 200, {
+  const messages = result?.results ?? [];
+  const aliasMap = await aliasMapForPlayerIds(env, messages.map((row) => row.player_id));
+  return json({ messages: messages.map((row) => townMessageRow(row, aliasMap)) }, 200, {
     ...headers,
     "cache-control": "no-store",
   });
@@ -172,7 +206,8 @@ async function handleTownMessagesPost(request, env, headers) {
   const balanceRow = await env.DB.prepare(
     "SELECT balance FROM token_accounts WHERE recovery_code = ?",
   ).bind(recoveryCode).first();
-  return json({ ok: true, message: townMessageRow(inserted), balance: intValue(balanceRow?.balance) }, 201, {
+  const aliasMap = await aliasMapForPlayerIds(env, [inserted?.player_id ?? playerId]);
+  return json({ ok: true, message: townMessageRow(inserted, aliasMap), balance: intValue(balanceRow?.balance) }, 201, {
     ...headers,
     "cache-control": "no-store",
   });
@@ -727,7 +762,7 @@ async function upsertLeaderboardRow(env, stats, integrity) {
       character_levels = excluded.character_levels,
       character_stats = excluded.character_stats,
       awakening_souls_held = MAX(leaderboard.awakening_souls_held, excluded.awakening_souls_held),
-      combined_character_levels = MAX(leaderboard.combined_character_levels, excluded.combined_character_levels),
+      combined_character_levels = excluded.combined_character_levels,
       last_reason = excluded.last_reason,
       integrity_status = excluded.integrity_status,
       integrity_reason = excluded.integrity_reason,
@@ -794,6 +829,38 @@ async function handleStatsPost(request, env, headers) {
 function publicPlayerLabel(playerId) {
   const accountId = String(playerId ?? "").split(":")[0];
   return `Player ${accountId.slice(0, 8)}`;
+}
+
+// Prefer a player's chosen alias (resolved at read time so name changes apply
+// retroactively to old rows), falling back to the derived `Player XXXXXXXX`.
+function resolvePublicLabel(playerId, aliasMap) {
+  const accountId = String(playerId ?? "").split(":")[0];
+  const alias = aliasMap?.get(accountId);
+  return alias ? String(alias) : publicPlayerLabel(playerId);
+}
+
+// Batch-fetch aliases for a set of (possibly character-suffixed) player ids and
+// return an account-id -> alias map. Skips the query entirely when empty. Chunked
+// so the bound-parameter count stays well under D1's per-query limit even when the
+// leaderboard returns hundreds of rows.
+const ALIAS_LOOKUP_CHUNK = 90;
+async function aliasMapForPlayerIds(env, playerIds) {
+  const unique = [...new Set((playerIds ?? [])
+    .map((id) => String(id ?? "").split(":")[0])
+    .filter(Boolean))];
+  const map = new Map();
+  if (!unique.length || !env?.DB) return map;
+  for (let index = 0; index < unique.length; index += ALIAS_LOOKUP_CHUNK) {
+    const chunk = unique.slice(index, index + ALIAS_LOOKUP_CHUNK);
+    const placeholders = chunk.map(() => "?").join(",");
+    const result = await env.DB.prepare(
+      `SELECT player_id, alias FROM player_aliases WHERE player_id IN (${placeholders})`,
+    ).bind(...chunk).all();
+    for (const row of result?.results ?? []) {
+      if (row?.player_id && row?.alias) map.set(row.player_id, row.alias);
+    }
+  }
+  return map;
 }
 
 function characterClassFromPlayerId(playerId) {
@@ -1213,7 +1280,9 @@ async function handleLeaderboardGet(request, env, headers) {
     results = await leaderboardRows(env, scope, limit);
   }
 
-  const rows = (results.results ?? [])
+  const leaderboardRowsRaw = results.results ?? [];
+  const aliasMap = await aliasMapForPlayerIds(env, leaderboardRowsRaw.map((row) => row.player_id));
+  const rows = leaderboardRowsRaw
     .map((row, index) => {
       const bossKills = parseBossKills(row.boss_kills);
       const characterLevels = parseJsonObject(row.character_levels);
@@ -1221,7 +1290,7 @@ async function handleLeaderboardGet(request, env, headers) {
       const combinedLevels = intValue(row.combined_character_levels) || combinedCharacterLevels(characterLevels);
       return {
         rank: index + 1,
-        player: publicPlayerLabel(row.player_id),
+        player: resolvePublicLabel(row.player_id, aliasMap),
         characterClass: characterClassFromPlayerId(row.player_id),
         level: row.highest_level,
         combinedCharacterLevels: combinedLevels,
@@ -1430,6 +1499,7 @@ async function handleShopUnlockPost(request, env, headers) {
   const unlockKey = textValue(parsed.value?.unlockKey, 60);
   if (!recoveryCode) return json({ error: "Invalid recovery code." }, 400, headers);
   if (!PAGE_UNLOCK_KEYS.has(unlockKey)) return json({ error: "Unknown unlock." }, 400, headers);
+  const cost = UNLOCK_TOKEN_COSTS[unlockKey];
 
   // Reserve the unlock first (idempotent). If the row already existed the player
   // already owns it, so we never charge a second time.
@@ -1452,7 +1522,7 @@ async function handleShopUnlockPost(request, env, headers) {
     UPDATE token_accounts
     SET balance = balance - ?, updated_at = CURRENT_TIMESTAMP
     WHERE recovery_code = ? AND balance >= ?
-  `).bind(PAGE_UNLOCK_TOKEN_COST, recoveryCode, PAGE_UNLOCK_TOKEN_COST).run();
+  `).bind(cost, recoveryCode, cost).run();
   if ((charge?.meta?.changes ?? 0) !== 1) {
     // Could not pay - release the reservation so they can retry after buying tokens.
     await env.DB.prepare(
@@ -1464,12 +1534,77 @@ async function handleShopUnlockPost(request, env, headers) {
   await env.DB.prepare(`
     INSERT INTO token_ledger (recovery_code, delta, reason, ref)
     VALUES (?, ?, 'spend:unlock', ?)
-  `).bind(recoveryCode, -PAGE_UNLOCK_TOKEN_COST, unlockKey).run();
+  `).bind(recoveryCode, -cost, unlockKey).run();
 
   const balanceRow = await env.DB.prepare(
     "SELECT balance FROM token_accounts WHERE recovery_code = ?",
   ).bind(recoveryCode).first();
   return json({ ok: true, unlockKey, balance: intValue(balanceRow?.balance) }, 200, {
+    ...headers,
+    "cache-control": "no-store",
+  });
+}
+
+async function handlePlayerAliasGet(request, env, headers) {
+  if (!env.DB) return json({ error: "Database binding DB is missing." }, 500, headers);
+  const url = new URL(request.url);
+  const playerId = aliasPlayerIdValue(url.searchParams.get("playerId"));
+  if (!playerId) return json({ error: "Invalid player identity." }, 400, headers);
+  const row = await env.DB.prepare(
+    "SELECT alias FROM player_aliases WHERE player_id = ?",
+  ).bind(playerId).first();
+  return json({ ok: true, alias: row?.alias ?? null }, 200, {
+    ...headers,
+    "cache-control": "no-store",
+  });
+}
+
+async function handlePlayerAliasPost(request, env, headers) {
+  if (!env.DB) return json({ error: "Database binding DB is missing." }, 500, headers);
+  const parsed = await boundedJsonBody(request, 2_000);
+  if (!parsed.ok) return json({ error: parsed.error }, parsed.status, headers);
+  const playerId = aliasPlayerIdValue(parsed.value?.playerId);
+  const recoveryCode = normalizeRecoveryCode(parsed.value?.recoveryCode);
+  const alias = normalizePlayerAlias(parsed.value?.alias);
+  if (!playerId) return json({ error: "Invalid player identity." }, 400, headers);
+  if (!recoveryCode) return json({ error: "Invalid recovery code." }, 400, headers);
+  if (!alias) {
+    return json({
+      error: "Alias must be 3-16 characters using letters, numbers, spaces or . _ ' -",
+      code: "ALIAS_INVALID",
+    }, 400, headers);
+  }
+
+  // Binding: only the recovery code that first claimed a player id can rename it.
+  const existing = await env.DB.prepare(
+    "SELECT recovery_code FROM player_aliases WHERE player_id = ?",
+  ).bind(playerId).first();
+  if (existing && existing.recovery_code !== recoveryCode) {
+    return json({ error: "This name is managed by another account.", code: "ALIAS_LOCKED" }, 403, headers);
+  }
+
+  // Case-insensitive uniqueness across every other player.
+  const taken = await env.DB.prepare(
+    "SELECT player_id FROM player_aliases WHERE alias_lower = ? AND player_id <> ?",
+  ).bind(alias.toLowerCase(), playerId).first();
+  if (taken) return json({ error: "That name is already taken.", code: "ALIAS_TAKEN" }, 409, headers);
+
+  try {
+    await env.DB.prepare(`
+      INSERT INTO player_aliases (player_id, recovery_code, alias, alias_lower)
+      VALUES (?, ?, ?, ?)
+      ON CONFLICT(player_id) DO UPDATE SET
+        alias = excluded.alias,
+        alias_lower = excluded.alias_lower,
+        recovery_code = excluded.recovery_code,
+        updated_at = CURRENT_TIMESTAMP
+    `).bind(playerId, recoveryCode, alias, alias.toLowerCase()).run();
+  } catch {
+    // The unique index can still trip under a race; report it as taken.
+    return json({ error: "That name is already taken.", code: "ALIAS_TAKEN" }, 409, headers);
+  }
+
+  return json({ ok: true, alias }, 200, {
     ...headers,
     "cache-control": "no-store",
   });
@@ -1492,6 +1627,8 @@ export default {
     if (url.pathname === "/shop/balance" && request.method === "GET") return handleShopBalanceGet(request, env, headers);
     if (url.pathname === "/shop/unlocks" && request.method === "GET") return handleShopUnlocksGet(request, env, headers);
     if (url.pathname === "/shop/unlock-page" && request.method === "POST") return handleShopUnlockPost(request, env, headers);
+    if (url.pathname === "/player/alias" && request.method === "GET") return handlePlayerAliasGet(request, env, headers);
+    if (url.pathname === "/player/alias" && request.method === "POST") return handlePlayerAliasPost(request, env, headers);
     if (url.pathname === "/town-messages" && request.method === "GET") return handleTownMessagesGet(request, env, headers);
     if (url.pathname === "/town-messages" && request.method === "POST") return handleTownMessagesPost(request, env, headers);
     if (url.pathname === "/admin/town-messages" && request.method === "GET") return handleAdminTownMessagesGet(request, env, headers);

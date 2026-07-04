@@ -39,6 +39,19 @@ function bossOrbDrops(chance = 0.01) {
   return BOSS_ORB_ITEM_IDS.map((id) => ({ id, chance }));
 }
 
+/** Top-tier (Holy) stones — level-0 max-stat Crystal Stone slot items. */
+const BOSS_TOP_TIER_STONE_ITEM_IDS = [
+  "health-stone",
+  "magic-stone",
+  "power-stone",
+  "dcstone",
+  "mcstone",
+  "scstone",
+];
+function bossTopTierStoneDrops(chance = 0.03) {
+  return BOSS_TOP_TIER_STONE_ITEM_IDS.map((id) => ({ id, chance }));
+}
+
 const BDD_SCORPION_IWT_PREMIUM_DROPS = [
   { id: "8-trigram-wheel", chance: 0.025 },
   { id: "adamantine-necklace", chance: 0.025 },
@@ -156,6 +169,7 @@ const INCARNATED_WT_BOSS_DROPS = {
     { id: "dragon-slayer", chance: 0.025 },
     { id: "dragon-staff", chance: 0.025 },
     { id: "soul-sabre", chance: 0.025 },
+    ...bossTopTierStoneDrops(0.03),
     ...BDD_SCORPION_IWT_PREMIUM_DROPS,
     ...bossGemDrops(0.05),
     ...bossOrbDrops(0.01),
@@ -274,6 +288,7 @@ const INCARNATED_ZT_BOSS_DROPS = {
     { id: "soul-sabre", chance: 0.025 },
     { id: "heaven-sword", chance: 0.005 },
     { id: "heaven-armour", chance: 0.005 },
+    ...bossTopTierStoneDrops(0.03),
     ...KING_HOG_PREMIUM_DROPS,
     { id: "oma-spirit-ring", chance: 0.05 },
     ...bossGemDrops(0.05),
@@ -657,6 +672,7 @@ const KING_HOG_BOSS_DROPS = {
     { id: "impact-drug-m", chance: 0.12 },
     { id: "magic-drug-m", chance: 0.12 },
     { id: "taoist-drug-m", chance: 0.12 },
+    ...bossTopTierStoneDrops(0.03),
     ...CRYSTAL_ARMOUR_RARE_BOSS_DROPS,
     ...KING_HOG_PREMIUM_DROPS,
     ...bossGemDrops(0.1),
@@ -709,6 +725,7 @@ const RED_CAVERN_DEVOURER_BOSS_DROPS = {
     { id: "burst-sword", chance: 0.0125 },
     { id: "conqueror-spear", chance: 0.0125 },
     { id: "dragon-blood-sword", chance: 0.0125 },
+    ...bossTopTierStoneDrops(0.03),
     ...bossGemDrops(0.03),
     ...bossOrbDrops(0.01),
   ],
@@ -765,6 +782,7 @@ const DARK_DEVIL_BOSS_DROPS = {
     { id: "impact-drug-m", chance: 0.15 },
     { id: "magic-drug-m", chance: 0.15 },
     { id: "taoist-drug-m", chance: 0.15 },
+    ...bossTopTierStoneDrops(0.03),
     ...CRYSTAL_ARMOUR_RARE_BOSS_DROPS,
     ...KING_HOG_PREMIUM_DROPS,
     ...bossGemDrops(0.12),
@@ -776,6 +794,7 @@ const HELL_KEEPER_BOSS_DROPS = {
   benedictionOils: 2,
   items: [
     { id: "awakening-soul", chance: 1 },
+    ...bossTopTierStoneDrops(0.03),
     ...bossGemDrops(0.05),
     ...bossOrbDrops(0.01),
   ],
