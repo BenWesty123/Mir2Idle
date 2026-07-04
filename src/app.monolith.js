@@ -140,9 +140,12 @@ import {
   MUSIC_MODE_PLAYLIST,
   MUSIC_MODE_TRACK,
   MUSIC_SETTINGS_VERSION,
+  SCENE_WINDOW_EDGE_PAD,
+  clampSceneWindowCoords,
   normalizedMusicMode,
   normalizedVolume,
   sanitizeSettingsState,
+  sceneWindowPositionFitsBounds,
 } from "./persistence/sanitizeSettings.js";
 import {
   accountUpgradeMaxTier,
@@ -233,6 +236,7 @@ import {
   CRAFTING_CUBE_FOCUS_PRISM_RECIPE_ID,
   CRAFTING_CUBE_RECIPES,
   craftingCubeAutofillEntryIds,
+  craftingCubeRecipeGoldCost,
   CRAFTING_CUBE_TARGETED_EMPOWER_REROLL_CRYSTAL_COST,
   CRAFTING_CUBE_TARGETED_EMPOWER_REROLL_RECIPE_ID,
   CRAFTING_CUBE_TARGETED_EMPOWER_SWAP_PRISM_COST,
@@ -3153,6 +3157,7 @@ async function init() {
   renderZoneEditor();
   renderActionControls();
   bindControls();
+  reconcileSceneWindowPositions();
   syncFullscreenToggle();
   bindBossDamageReportControls();
   syncSceneWindowStackFromState();
@@ -10993,6 +10998,28 @@ function attemptCraftingCubeSalvage() {
   return true;
 }
 
+function canAffordCraftingCubeGold(recipeId) {
+  const cost = craftingCubeRecipeGoldCost(recipeId);
+  if (cost <= 0) return true;
+  return (Number(state.inventory?.gold) || 0) >= cost;
+}
+
+function reportCraftingCubeGoldShortfall(recipeId) {
+  const cost = craftingCubeRecipeGoldCost(recipeId);
+  setCraftingCubeFeedback(`Need ${cost.toLocaleString("en-US")} gold to craft this.`);
+  sceneSignature = "";
+  renderSceneOverlay();
+  playSfx("ui.button", { volume: 0.28, throttleMs: 120 });
+}
+
+function spendCraftingCubeGold(recipeId) {
+  const cost = craftingCubeRecipeGoldCost(recipeId);
+  if (cost <= 0) return;
+  state.inventory.gold = Math.max(0, (Number(state.inventory?.gold) || 0) - cost);
+  state.game.progress.gold = state.inventory.gold;
+  state.battle.gold = state.inventory.gold;
+}
+
 function attemptCraftingCubeFocusPrismCraft() {
   if (state.craftingCube?.mode !== "craft") return false;
   const validation = validateCraftingCubeFocusPrismCraft(craftingCubeBoardEntries());
@@ -11004,10 +11031,16 @@ function attemptCraftingCubeFocusPrismCraft() {
     return false;
   }
 
+  if (!canAffordCraftingCubeGold(CRAFTING_CUBE_FOCUS_PRISM_RECIPE_ID)) {
+    reportCraftingCubeGoldShortfall(CRAFTING_CUBE_FOCUS_PRISM_RECIPE_ID);
+    return false;
+  }
+
   consumeStagedCraftingCubeEntryQuantity(
     validation.crystalEntry.id,
     CRAFTING_CUBE_FOCUS_PRISM_CRYSTAL_COST,
   );
+  spendCraftingCubeGold(CRAFTING_CUBE_FOCUS_PRISM_RECIPE_ID);
   state.craftingCube.feedback = null;
   state.craftingCube.feedbackKind = null;
   state.craftingCube.lastRerollNotice = null;
@@ -11096,6 +11129,11 @@ function attemptCraftingCubeEmpowerSwap() {
     return false;
   }
 
+  if (!canAffordCraftingCubeGold(CRAFTING_CUBE_EMPOWER_SWAP_RECIPE_ID)) {
+    reportCraftingCubeGoldShortfall(CRAFTING_CUBE_EMPOWER_SWAP_RECIPE_ID);
+    return false;
+  }
+
   const swap = swapRandomEmpowermentsBetweenEntries(
     validation.empoweredEntryA,
     validation.empoweredItemA,
@@ -11114,6 +11152,7 @@ function attemptCraftingCubeEmpowerSwap() {
     validation.crystalEntry.id,
     CRAFTING_CUBE_EMPOWER_SWAP_CRYSTAL_COST,
   );
+  spendCraftingCubeGold(CRAFTING_CUBE_EMPOWER_SWAP_RECIPE_ID);
   state.craftingCube.feedback = null;
   state.craftingCube.feedbackKind = null;
 
@@ -11153,6 +11192,11 @@ function attemptCraftingCubeTargetedEmpowerSwap() {
     return false;
   }
 
+  if (!canAffordCraftingCubeGold(CRAFTING_CUBE_TARGETED_EMPOWER_SWAP_RECIPE_ID)) {
+    reportCraftingCubeGoldShortfall(CRAFTING_CUBE_TARGETED_EMPOWER_SWAP_RECIPE_ID);
+    return false;
+  }
+
   const swap = swapEmpowermentsAtSlotIndices(
     validation.empoweredEntryA,
     validation.empoweredItemA,
@@ -11174,6 +11218,7 @@ function attemptCraftingCubeTargetedEmpowerSwap() {
     CRAFTING_CUBE_TARGETED_EMPOWER_SWAP_PRISM_COST,
   );
   consumeStagedCraftingCubeEntryQuantity(validation.adamantineEntry.id, 1);
+  spendCraftingCubeGold(CRAFTING_CUBE_TARGETED_EMPOWER_SWAP_RECIPE_ID);
   state.craftingCube.feedback = null;
   state.craftingCube.feedbackKind = null;
 
@@ -11201,6 +11246,11 @@ function attemptCraftingCubeEmpowerReroll() {
     return false;
   }
 
+  if (!canAffordCraftingCubeGold(CRAFTING_CUBE_EMPOWER_REROLL_RECIPE_ID)) {
+    reportCraftingCubeGoldShortfall(CRAFTING_CUBE_EMPOWER_REROLL_RECIPE_ID);
+    return false;
+  }
+
   const reroll = rollEmpowermentReroll(validation.empoweredEntry, validation.empoweredItem);
   if (!reroll.ok) {
     setCraftingCubeFeedback(reroll.error);
@@ -11211,6 +11261,7 @@ function attemptCraftingCubeEmpowerReroll() {
   }
 
   consumeStagedCraftingCubeEntryQuantity(validation.crystalEntry.id, 1);
+  spendCraftingCubeGold(CRAFTING_CUBE_EMPOWER_REROLL_RECIPE_ID);
   state.craftingCube.feedback = null;
   state.craftingCube.feedbackKind = null;
 
@@ -11248,6 +11299,11 @@ function attemptCraftingCubeTargetedEmpowerReroll() {
     return false;
   }
 
+  if (!canAffordCraftingCubeGold(CRAFTING_CUBE_TARGETED_EMPOWER_REROLL_RECIPE_ID)) {
+    reportCraftingCubeGoldShortfall(CRAFTING_CUBE_TARGETED_EMPOWER_REROLL_RECIPE_ID);
+    return false;
+  }
+
   const reroll = rollEmpowermentRerollAtSlot(
     validation.empoweredEntry,
     validation.empoweredItem,
@@ -11266,6 +11322,7 @@ function attemptCraftingCubeTargetedEmpowerReroll() {
     CRAFTING_CUBE_TARGETED_EMPOWER_REROLL_CRYSTAL_COST,
   );
   consumeStagedCraftingCubeEntryQuantity(validation.adamantineEntry.id, 1);
+  spendCraftingCubeGold(CRAFTING_CUBE_TARGETED_EMPOWER_REROLL_RECIPE_ID);
   state.craftingCube.feedback = null;
   state.craftingCube.feedbackKind = null;
 
@@ -16358,20 +16415,45 @@ function setSceneWindowPosition(scene, x, y) {
   state.settings.sceneWindowPositions[scene] = { x: Math.round(x), y: Math.round(y) };
 }
 
+function clearSceneWindowPosition(scene) {
+  if (!DRAGGABLE_SCENE_WINDOWS.has(scene)) return false;
+  if (!state.settings.sceneWindowPositions) return false;
+  if (state.settings.sceneWindowPositions[scene] == null) return false;
+  state.settings.sceneWindowPositions[scene] = null;
+  return true;
+}
+
+function clearSceneWindowPositionStyles(element) {
+  if (!element) return;
+  delete element.dataset.sceneWindowPositioned;
+  element.style.position = "";
+  element.style.left = "";
+  element.style.top = "";
+  element.style.margin = "";
+  element.style.zIndex = "";
+}
+
+function sceneWindowElementSize(element) {
+  if (!element) return { width: 0, height: 0 };
+  const width = element.offsetWidth || element.getBoundingClientRect().width;
+  const height = element.offsetHeight || element.getBoundingClientRect().height;
+  return { width, height };
+}
+
 function clampSceneWindowPosition(x, y, element) {
-  const rect = element.getBoundingClientRect();
-  const pad = 8;
-  const maxX = Math.max(pad, window.innerWidth - rect.width - pad);
-  const maxY = Math.max(pad, window.innerHeight - rect.height - pad);
-  return {
-    x: Math.max(pad, Math.min(x, maxX)),
-    y: Math.max(pad, Math.min(y, maxY)),
-  };
+  const { width, height } = sceneWindowElementSize(element);
+  return clampSceneWindowCoords(x, y, width, height, window.innerWidth, window.innerHeight);
 }
 
 function applySceneWindowPosition(element, scene) {
   const pos = sceneWindowPosition(scene);
   if (!pos || !element) return false;
+  const { width, height } = sceneWindowElementSize(element);
+  if (!sceneWindowPositionFitsBounds(pos.x, pos.y, width, height, window.innerWidth, window.innerHeight)) {
+    clearSceneWindowPosition(scene);
+    clearSceneWindowPositionStyles(element);
+    return false;
+  }
   element.style.position = "fixed";
   element.style.left = `${pos.x}px`;
   element.style.top = `${pos.y}px`;
@@ -16383,20 +16465,43 @@ function applySceneWindowPosition(element, scene) {
 
 function applySceneWindowPositions(rootEl) {
   if (!rootEl) return;
+  let resetAny = false;
   for (const scene of DRAGGABLE_SCENE_WINDOWS) {
     const element = rootEl.querySelector(`[data-scene-window="${scene}"]`);
     if (!element) continue;
-    if (sceneWindowPosition(scene)) {
-      applySceneWindowPosition(element, scene);
-    } else {
-      delete element.dataset.sceneWindowPositioned;
-      element.style.position = "";
-      element.style.left = "";
-      element.style.top = "";
-      element.style.margin = "";
-      element.style.zIndex = "";
+    const pos = sceneWindowPosition(scene);
+    if (!pos) {
+      clearSceneWindowPositionStyles(element);
+      continue;
+    }
+    if (!applySceneWindowPosition(element, scene)) {
+      resetAny = true;
     }
   }
+  if (resetAny) saveGameState(true);
+}
+
+/** Drop saved positions that no longer fit the current viewport (device/size change). */
+function reconcileSceneWindowPositions() {
+  if (els.sceneOverlay && !els.sceneOverlay.hidden) {
+    applySceneWindowPositions(els.sceneOverlay);
+    return;
+  }
+  // Overlay closed: no live element sizes, so only clear positions whose top-left is already off-screen.
+  let resetAny = false;
+  for (const scene of DRAGGABLE_SCENE_WINDOWS) {
+    const pos = sceneWindowPosition(scene);
+    if (!pos) continue;
+    if (
+      pos.x < SCENE_WINDOW_EDGE_PAD
+      || pos.y < SCENE_WINDOW_EDGE_PAD
+      || pos.x >= window.innerWidth - SCENE_WINDOW_EDGE_PAD
+      || pos.y >= window.innerHeight - SCENE_WINDOW_EDGE_PAD
+    ) {
+      if (clearSceneWindowPosition(scene)) resetAny = true;
+    }
+  }
+  if (resetAny) saveGameState(true);
 }
 
 function beginSceneWindowDrag(event, scene, windowEl, handleEl) {
@@ -22015,7 +22120,8 @@ function tryConsumeEnemyPendingStruck(now) {
   const battle = state.battle;
   const enemy = battle.enemy;
   if (!battle.pendingEnemyStruck || !enemy || enemy.hp <= 0) return false;
-  if (state.enemy.action === "walking") return false;
+  // Flinch is allowed to interrupt walking (enemies react to hits while approaching),
+  // but must not cut off attack/other one-shot animations.
   if (state.enemy.oneShot && state.enemy.action !== "standing") return false;
   if (state.enemy.action === "struck") return false;
   battle.pendingEnemyStruck = false;
@@ -24445,6 +24551,9 @@ function bindControls() {
   window.addEventListener("pointerdown", () => {
     if (state.settings.musicEnabled) syncBackgroundMusic();
   }, { once: true });
+  window.addEventListener("resize", () => {
+    reconcileSceneWindowPositions();
+  });
   window.addEventListener("pagehide", () => {
     saveGameState(true);
     flushPrototypeStats("session-end");
@@ -29936,15 +30045,16 @@ function bossPartySyncControlledPlayerRef() {
   syncBossPartyControlledInventoryToState(leaderClassId);
 }
 
-// Live character switching is only offered inside group dungeons (bDD and future group
-// content). Boss/KR rooms intentionally keep a fixed controlled character. Switching stays
-// available after a floor is cleared (the "finished" victory state) so the player can make
-// changes before advancing; it is only disabled once the run is defeated.
+// Live character switching is offered inside all group content: group dungeons (bDD/Hell) and
+// KR boss rooms. A genuine solo run enters with a single member, so the switch bar never
+// appears (nothing to swap to); bringing extra characters is what enables switching. Switching
+// stays available after a floor/boss is cleared (the "finished" victory state) so the player
+// can make changes before advancing; it is only disabled once the run is defeated.
 function bossPartyCanSwitchControl() {
   const party = state.battle.bossParty;
   if (!party || party.defeated) return false;
   if (!party.active && !party.finished) return false;
-  if (!groupDungeonZone(activeZone())) return false;
+  if (!isGroupContentZone(activeZone())) return false;
   return (party.members ?? []).some((member) => member.alive && member.hp > 0);
 }
 
@@ -30049,7 +30159,7 @@ function renderPartySwitchBar() {
   const party = state.battle.bossParty;
   const shouldShow = bossPartyOnField()
     && !party?.defeated
-    && groupDungeonZone(activeZone())
+    && isGroupContentZone(activeZone())
     && (party?.members?.length ?? 0) >= 2;
   if (!shouldShow) {
     if (!els.partySwitchBar.hidden || partySwitchBarSignature) {
@@ -36531,6 +36641,10 @@ function applyWizardMirrorSpellImpact(mirror, impact, now) {
   const owner = wizardMirrorOwner(mirror);
   if (!spell || !enemy || enemy.hp <= 0 || !state.battle.enemyRevealed) return;
   playSpellStrikeSfx(spell.id, { volume: 0.34, throttleMs: 200 });
+  // Fireballs draw impact only via attachedSpellFx (sprite-center aim); other spells use cast FX.
+  if (spellUsesEnemySpriteAim(impact.spellId)) {
+    queueSpellImpactFx(impact.spellId, { ...impact, worldX: state.battle.enemyX }, now);
+  }
   if (!impact.hit || impact.damage <= 0) {
     if (bossPartyOnField()) {
       bossPartyShowEnemyMiss(owner?.classId ?? "Wizard", now);
@@ -39201,10 +39315,74 @@ function wizardImpactDelay(spell, atlas, options = {}) {
 const COMBAT_PROJECTILE_SPEED_PX_PER_MS = LANE_TILE_PX / 70;
 const COMBAT_PROJECTILE_TRAVEL_MIN_MS = 150;
 const COMBAT_PROJECTILE_TRAVEL_MAX_MS = 1200;
+// Fallback when the enemy atlas/frame is missing.
+const COMBAT_SPELL_TARGET_TORSO_OFFSET_Y = -28;
+// Only these spells use sprite-center aim / single impact path; other spells keep legacy FX.
+const ENEMY_SPRITE_AIM_SPELL_IDS = new Set(["FireBall", "GreatFireBall"]);
 
-function combatProjectileEndpoints(playerAnchor, enemyAnchor, projectile) {
+function spellUsesEnemySpriteAim(spellId) {
+  return ENEMY_SPRITE_AIM_SPELL_IDS.has(spellId);
+}
+
+function combatProjectileVisualCenterOffset(projectile) {
+  const frame = projectile?.frames?.find((entry) => entry && !entry.empty) ?? projectile?.frames?.[0];
+  if (!frame) return { x: 0, y: 0 };
+  const width = Number(frame.w) || Number(projectile?.slotWidth) || 0;
+  const height = Number(frame.h) || Number(projectile?.slotHeight) || 0;
+  return {
+    x: (Number(frame.offsetX) || 0) + width / 2,
+    y: (Number(frame.offsetY) || 0) + height / 2,
+  };
+}
+
+/** Midpoint of the live enemy sprite (visible frame bounds), including arena visual offsets. */
+function combatEnemySpriteCenterAnchor(fallbackAnchor = null) {
+  const foot = enemyVisualAnchor();
+  const fallback = fallbackAnchor ?? foot;
+  const atlas = state.enemy?.atlas;
+  const clip = atlas?.actions?.[state.enemy?.action]
+    ?? atlas?.actions?.standing
+    ?? atlas?.actions?.walk
+    ?? atlas?.actions?.stance;
+  const frameIndex = Math.max(0, Math.min(Number(state.enemy?.frame) || 0, (clip?.frames?.length ?? 1) - 1));
+  const meta = clip?.frames?.[frameIndex] ?? clip?.frames?.[0];
+  if (!atlas || !meta || meta.empty) {
+    return {
+      x: Math.round(fallback.x),
+      y: Math.round(fallback.y + COMBAT_SPELL_TARGET_TORSO_OFFSET_Y),
+    };
+  }
+  return torsoAnchorFromFrame(foot.x, foot.y, atlas, meta, foot.y + COMBAT_SPELL_TARGET_TORSO_OFFSET_Y);
+}
+
+/** Place a spell impact layer so its art center lands on targetCenter. */
+function spellImpactLayerDrawAnchor(layer, targetCenter) {
+  const frame = layer?.frames?.find((entry) => entry && !entry.empty) ?? layer?.frames?.[0];
+  if (!frame) return { x: Math.round(targetCenter.x), y: Math.round(targetCenter.y) };
+  const width = Number(frame.w) || Number(layer?.slotWidth) || 0;
+  const height = Number(frame.h) || Number(layer?.slotHeight) || 0;
+  const visualX = (Number(frame.offsetX) || 0) + width / 2;
+  const visualY = (Number(frame.offsetY) || 0) + height / 2;
+  return {
+    x: Math.round(targetCenter.x - visualX),
+    y: Math.round(targetCenter.y - visualY),
+  };
+}
+
+function combatProjectileEndpoints(playerAnchor, enemyAnchor, projectile, spellId = null) {
   const startOffsetX = Number(projectile?.startOffsetX) || 0;
   const startOffsetY = Number(projectile?.startOffsetY) || 0;
+  if (spellUsesEnemySpriteAim(spellId)) {
+    const visual = combatProjectileVisualCenterOffset(projectile);
+    const target = combatEnemySpriteCenterAnchor(enemyAnchor);
+    return {
+      startX: playerAnchor.x + startOffsetX,
+      startY: playerAnchor.y + startOffsetY,
+      // Aim the projectile art's center at the middle of the enemy sprite.
+      targetX: target.x - visual.x,
+      targetY: target.y - visual.y,
+    };
+  }
   const endOffsetY = Number(projectile?.endOffsetY) || 0;
   return {
     startX: playerAnchor.x + startOffsetX,
@@ -39223,7 +39401,12 @@ function combatProjectileTravelDurationMs(fromX, fromY, toX, toY) {
 
 function combatProjectileImpactDelayMs(atlas, playerAnchor = combatAnchor("player"), enemyAnchor = combatAnchor("enemy")) {
   const delayMs = Number(atlas?.projectile?.delayMs) || 0;
-  const { startX, startY, targetX, targetY } = combatProjectileEndpoints(playerAnchor, enemyAnchor, atlas?.projectile);
+  const { startX, startY, targetX, targetY } = combatProjectileEndpoints(
+    playerAnchor,
+    enemyAnchor,
+    atlas?.projectile,
+    atlas?.spellId,
+  );
   return delayMs + combatProjectileTravelDurationMs(startX, startY, targetX, targetY);
 }
 
@@ -43076,6 +43259,8 @@ function drawBossPartySpellFxCanvas(ctx) {
 function drawBossPartyMemberSpellFx(ctx, member, now) {
   const spellId = member.fxSpellId;
   if (!spellId) return;
+  // Controlled member cast/projectile FX is drawn via battle.active* paths.
+  if (member === bossPartyControlledMember()) return;
 
   if (member.classId === "Warrior") {
     const atlas = state.warriorSkillAtlases[spellId];
@@ -43143,7 +43328,13 @@ function drawBossPartyMemberSpellFx(ctx, member, now) {
       drawSpellLayerCanvas(ctx, atlas.spellId, layer, frameIndex, layerAnchor.x, layerAnchor.y);
     }
     if (spellShowsProjectileVisual(spell, atlas)) drawCombatProjectileCanvas(ctx, atlas, t, memberAnchor, enemyAnchor, hitAt);
-    if (spellDrawsImpactVisual(spell, atlas) && t >= hitAt && t <= hitAt + spellImpactVisualDurationMs(spell, atlas)) {
+    // Fireballs use attachedSpellFx only (sprite-center aim); other spells keep legacy cast impact.
+    if (
+      !spellUsesEnemySpriteAim(spell.id)
+      && spellDrawsImpactVisual(spell, atlas)
+      && t >= hitAt
+      && t <= hitAt + spellImpactVisualDurationMs(spell, atlas)
+    ) {
       const impactSource = member.fxCenterTile
         ? { centerTile: member.fxCenterTile }
         : null;
@@ -43366,14 +43557,20 @@ function drawAttachedSpellFxCanvas(ctx) {
         const atlas = state.taoistSpellAtlases[entry.spellId] ?? state.wizardSpellAtlases[entry.spellId];
         const layer = atlas?.impact;
         if (!layer?.frames?.length) continue;
-        const { x, y } = spellImpactFxScreenAnchor(entry);
-        const anchorY = layer.anchor === "enemy" ? spellTargetCellAnchorY(y) : y;
         const elapsed = Math.max(0, now - entry.startedAt);
         const frameIndex = Math.min(
           layer.frames.length - 1,
           Math.floor(elapsed / Math.max(1, Number(layer.interval) || 1)),
         );
-        drawSpellLayerCanvas(ctx, atlas.spellId, layer, frameIndex, x, anchorY);
+        if (spellUsesEnemySpriteAim(entry.spellId)) {
+          const target = combatEnemySpriteCenterAnchor(spellImpactFxScreenAnchor(entry));
+          const drawAnchor = spellImpactLayerDrawAnchor(layer, target);
+          drawSpellLayerCanvas(ctx, atlas.spellId, layer, frameIndex, drawAnchor.x, drawAnchor.y);
+        } else {
+          const { x, y } = spellImpactFxScreenAnchor(entry);
+          const anchorY = layer.anchor === "enemy" ? spellTargetCellAnchorY(y) : y;
+          drawSpellLayerCanvas(ctx, atlas.spellId, layer, frameIndex, x, anchorY);
+        }
         continue;
       }
       if (entry.spellId === "MagicShield") {
@@ -43482,7 +43679,13 @@ function drawCombatWizardFxCanvas(ctx) {
     if (spellShowsProjectileVisual(spell, atlas) || (buffCast && atlas.projectile)) {
       drawCombatProjectileCanvas(ctx, atlas, t, playerAnchor, projectileTarget, hitAt);
     }
-    if (spellDrawsImpactVisual(spell, atlas) && t >= hitAt && t <= hitAt + spellImpactVisualDurationMs(spell, atlas)) {
+    // Fireballs use attachedSpellFx only (sprite-center aim); other spells keep legacy cast impact.
+    if (
+      !spellUsesEnemySpriteAim(spell.id)
+      && spellDrawsImpactVisual(spell, atlas)
+      && t >= hitAt
+      && t <= hitAt + spellImpactVisualDurationMs(spell, atlas)
+    ) {
       const impactSource = combatSpellImpactDrawSource(spell.id);
       const impactAnchor = impactSource
         ? spellImpactFxScreenAnchorFromImpact(impactSource, spellEnemyAnchor)
@@ -43523,7 +43726,13 @@ function drawCombatTaoistFxCanvas(ctx) {
     if (spellShowsProjectileVisual(spell, atlas) || (buffCast && atlas.projectile)) {
       drawCombatProjectileCanvas(ctx, atlas, t, playerAnchor, projectileTarget, hitAt);
     }
-    if (spellDrawsImpactVisual(spell, atlas) && t >= hitAt && t <= hitAt + spellImpactVisualDurationMs(spell, atlas)) {
+    // Fireballs use attachedSpellFx only (sprite-center aim); other spells keep legacy cast impact.
+    if (
+      !spellUsesEnemySpriteAim(spell.id)
+      && spellDrawsImpactVisual(spell, atlas)
+      && t >= hitAt
+      && t <= hitAt + spellImpactVisualDurationMs(spell, atlas)
+    ) {
       const impactSource = combatSpellImpactDrawSource(spell.id);
       const impactAnchor = impactSource
         ? spellImpactFxScreenAnchorFromImpact(impactSource, enemyAnchor)
@@ -44017,7 +44226,7 @@ function drawProjectileCanvas(ctx, atlas, t, anchorX, anchorY) {
 function drawCombatProjectileCanvas(ctx, atlas, t, playerAnchor, enemyAnchor, impactAt = null) {
   const p = atlas.projectile;
   if (!p || t < p.delayMs) return;
-  const { startX, startY, targetX, targetY } = combatProjectileEndpoints(playerAnchor, enemyAnchor, p);
+  const { startX, startY, targetX, targetY } = combatProjectileEndpoints(playerAnchor, enemyAnchor, p, atlas.spellId);
   const moveDurationMs = Math.max(1, combatProjectileTravelDurationMs(startX, startY, targetX, targetY));
   if (t > p.delayMs + moveDurationMs) return;
   const travelT = Math.min(1, (t - p.delayMs) / moveDurationMs);
@@ -44066,6 +44275,11 @@ function drawImpactFlashCanvas(ctx, atlas, t, enemyAnchor) {
   const layer = atlas.impact ?? atlas.layers[0];
   if (!layer?.frames?.length) return;
   const frameIndex = Math.min(layer.frames.length - 1, Math.floor(t / layer.interval));
+  if (spellUsesEnemySpriteAim(atlas.spellId)) {
+    const anchor = spellImpactLayerDrawAnchor(layer, combatEnemySpriteCenterAnchor(enemyAnchor));
+    drawSpellLayerCanvas(ctx, atlas.spellId, layer, frameIndex, anchor.x, anchor.y);
+    return;
+  }
   const anchorY = layer.anchor === "enemy" ? spellTargetCellAnchorY(enemyAnchor.y) : enemyAnchor.y;
   drawSpellLayerCanvas(ctx, atlas.spellId, layer, frameIndex, enemyAnchor.x, anchorY);
 }

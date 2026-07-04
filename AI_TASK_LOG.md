@@ -1,5 +1,38 @@
 # AI Task Log - LOM Idle V2
 
+## 2026-07-04 - Live character switching in KR boss rooms
+
+### Change
+KR boss rooms already build a full `bossParty` roster (active character + assists) and share the group-dungeon combat engine, but mid-fight character switching was intentionally locked to group dungeons only.
+
+Enabled switching for all group content (group dungeons + KR boss rooms, empowered fights included) by broadening the two zone gates from `groupDungeonZone(activeZone())` to `isGroupContentZone(activeZone())`:
+- `bossPartyCanSwitchControl()` (logic gate for `switchControlledPartyMember`).
+- `renderPartySwitchBar()` (UI visibility gate).
+
+The swap machinery (`switchControlledPartyMember` + `syncBossPartyControlled*` flush/load) was already zone-agnostic, so no other changes were needed. Solo boss-kill achievements are unaffected: the switch bar only appears with 2+ party members, and a genuine solo run enters with a single member (nothing to swap to).
+
+## 2026-07-04 - FireBall / GreatFireBall projectile origin and impact
+
+### Bug
+- Projectiles spawned too high (frame offsets put the bright core above the travel point).
+- Travel aimed at enemy feet without compensating for frame offsets, so the ball landed past the enemy.
+- Impact FX drew from the live cast path and again from `queueSpellImpactFx`, so boss rooms showed two explosions.
+
+### Fix
+- FireBall / GreatFireBall `startOffsetY` → `3` (mid-torso spawn); kept in extract config.
+- Sprite-center aim and single impact path are gated to `FireBall` / `GreatFireBall` only (`spellUsesEnemySpriteAim`); all other spells keep legacy projectile end offsets and impact anchors.
+- Controlled boss-party member no longer double-draws cast FX (active path only)..
+
+## 2026-07-04 - Movable windows stay on-screen
+
+### Bug
+Character/inventory window positions are saved in settings. Dragging already clamped to the viewport, but loading a position from a larger screen (or any off-screen save) applied it as-is, so the window could open fully outside the game area with no way to grab it.
+
+### Fix
+- Shared fit/clamp helpers in `sanitizeSettings.js`.
+- Applying a saved position resets it to the default layout when the window would not fully fit the current viewport, and persists the clear.
+- Resize and boot reconcile off-screen saves (coarse top-left check when the overlay is closed; full size check when open).
+
 ## 2026-07-03 - Stat buff potions in boss rooms
 
 ### Bug

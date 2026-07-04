@@ -24,7 +24,7 @@
         "moveDurationMs": 400,
         "delayMs": 320,
         "startOffsetX": 12,
-        "startOffsetY": -48,
+        "startOffsetY": 3,
         "endOffsetX": 110,
         "endOffsetY": -22
       }
@@ -162,7 +162,7 @@
         "moveDurationMs": 420,
         "delayMs": 320,
         "startOffsetX": 10,
-        "startOffsetY": -46,
+        "startOffsetY": 3,
         "endOffsetX": 108,
         "endOffsetY": -24
       }

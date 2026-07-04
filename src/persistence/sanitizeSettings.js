@@ -23,6 +23,9 @@ export function normalizedMusicMode(value) {
   return value === MUSIC_MODE_TRACK ? MUSIC_MODE_TRACK : MUSIC_MODE_PLAYLIST;
 }
 
+/** Padding from the viewport edge for draggable scene windows. */
+export const SCENE_WINDOW_EDGE_PAD = 8;
+
 /**
  * @param {unknown} value
  * @returns {{ x: number, y: number } | null}
@@ -33,6 +36,71 @@ export function sanitizeSceneWindowPosition(value) {
   const y = Number(value.y);
   if (!Number.isFinite(x) || !Number.isFinite(y)) return null;
   return { x: Math.round(x), y: Math.round(y) };
+}
+
+/**
+ * True when the window's top-left keeps the full window inside the viewport (with pad).
+ * Unknown sizes are treated as fitting so callers can measure later.
+ *
+ * @param {number} x
+ * @param {number} y
+ * @param {number} width
+ * @param {number} height
+ * @param {number} viewportWidth
+ * @param {number} viewportHeight
+ * @param {number} [pad]
+ */
+export function sceneWindowPositionFitsBounds(
+  x,
+  y,
+  width,
+  height,
+  viewportWidth,
+  viewportHeight,
+  pad = SCENE_WINDOW_EDGE_PAD,
+) {
+  const px = Math.round(Number(x));
+  const py = Math.round(Number(y));
+  if (!Number.isFinite(px) || !Number.isFinite(py)) return false;
+  const w = Math.max(0, Math.round(Number(width) || 0));
+  const h = Math.max(0, Math.round(Number(height) || 0));
+  const vw = Math.max(0, Math.round(Number(viewportWidth) || 0));
+  const vh = Math.max(0, Math.round(Number(viewportHeight) || 0));
+  if (w <= 0 || h <= 0 || vw <= 0 || vh <= 0) return true;
+  const maxX = Math.max(pad, vw - w - pad);
+  const maxY = Math.max(pad, vh - h - pad);
+  return px >= pad && py >= pad && px <= maxX && py <= maxY;
+}
+
+/**
+ * @param {number} x
+ * @param {number} y
+ * @param {number} width
+ * @param {number} height
+ * @param {number} viewportWidth
+ * @param {number} viewportHeight
+ * @param {number} [pad]
+ * @returns {{ x: number, y: number }}
+ */
+export function clampSceneWindowCoords(
+  x,
+  y,
+  width,
+  height,
+  viewportWidth,
+  viewportHeight,
+  pad = SCENE_WINDOW_EDGE_PAD,
+) {
+  const w = Math.max(0, Math.round(Number(width) || 0));
+  const h = Math.max(0, Math.round(Number(height) || 0));
+  const vw = Math.max(0, Math.round(Number(viewportWidth) || 0));
+  const vh = Math.max(0, Math.round(Number(viewportHeight) || 0));
+  const maxX = Math.max(pad, vw - w - pad);
+  const maxY = Math.max(pad, vh - h - pad);
+  return {
+    x: Math.max(pad, Math.min(Math.round(Number(x) || 0), maxX)),
+    y: Math.max(pad, Math.min(Math.round(Number(y) || 0), maxY)),
+  };
 }
 
 /**

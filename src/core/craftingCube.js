@@ -33,32 +33,51 @@ export const CRAFTING_CUBE_TARGETED_EMPOWER_SWAP_PRISM_COST = 4;
 export const CRAFTING_CUBE_TARGETED_EMPOWER_SWAP_REQUIREMENTS_ERROR =
   "Place two empowered items, four Focus Prisms, and one Adamantine Ore.";
 
+/** Gold charged (in addition to materials) when a recipe is crafted. */
+export const CRAFTING_CUBE_RECIPE_GOLD_COSTS = {
+  [CRAFTING_CUBE_FOCUS_PRISM_RECIPE_ID]: 25000,
+  [CRAFTING_CUBE_EMPOWER_REROLL_RECIPE_ID]: 10000,
+  [CRAFTING_CUBE_TARGETED_EMPOWER_REROLL_RECIPE_ID]: 25000,
+  [CRAFTING_CUBE_EMPOWER_SWAP_RECIPE_ID]: 25000,
+  [CRAFTING_CUBE_TARGETED_EMPOWER_SWAP_RECIPE_ID]: 50000,
+};
+
+/** @param {string} recipeId */
+export function craftingCubeRecipeGoldCost(recipeId) {
+  return Math.max(0, Math.trunc(Number(CRAFTING_CUBE_RECIPE_GOLD_COSTS[recipeId]) || 0));
+}
+
+function goldSummary(recipeId) {
+  const cost = craftingCubeRecipeGoldCost(recipeId);
+  return cost > 0 ? ` + ${cost.toLocaleString("en-US")} gold` : "";
+}
+
 /** @type {{ id: string, label: string, summary: string }[]} */
 export const CRAFTING_CUBE_RECIPES = [
   {
     id: CRAFTING_CUBE_FOCUS_PRISM_RECIPE_ID,
     label: CRAFTING_CUBE_FOCUS_PRISM_LABEL,
-    summary: `${CRAFTING_CUBE_FOCUS_PRISM_CRYSTAL_COST} Havoc Crystals`,
+    summary: `${CRAFTING_CUBE_FOCUS_PRISM_CRYSTAL_COST} Havoc Crystals${goldSummary(CRAFTING_CUBE_FOCUS_PRISM_RECIPE_ID)}`,
   },
   {
     id: CRAFTING_CUBE_EMPOWER_REROLL_RECIPE_ID,
     label: CRAFTING_CUBE_EMPOWER_REROLL_LABEL,
-    summary: "1 empowered item + 1 Havoc Crystal",
+    summary: `1 empowered item + 1 Havoc Crystal${goldSummary(CRAFTING_CUBE_EMPOWER_REROLL_RECIPE_ID)}`,
   },
   {
     id: CRAFTING_CUBE_TARGETED_EMPOWER_REROLL_RECIPE_ID,
     label: CRAFTING_CUBE_TARGETED_EMPOWER_REROLL_LABEL,
-    summary: `1 empowered item + ${CRAFTING_CUBE_TARGETED_EMPOWER_REROLL_CRYSTAL_COST} Havoc Crystals + 1 Adamantine Ore`,
+    summary: `1 empowered item + ${CRAFTING_CUBE_TARGETED_EMPOWER_REROLL_CRYSTAL_COST} Havoc Crystals + 1 Adamantine Ore${goldSummary(CRAFTING_CUBE_TARGETED_EMPOWER_REROLL_RECIPE_ID)}`,
   },
   {
     id: CRAFTING_CUBE_EMPOWER_SWAP_RECIPE_ID,
     label: CRAFTING_CUBE_EMPOWER_SWAP_LABEL,
-    summary: `2 empowered items + ${CRAFTING_CUBE_EMPOWER_SWAP_CRYSTAL_COST} Havoc Crystals`,
+    summary: `2 empowered items + ${CRAFTING_CUBE_EMPOWER_SWAP_CRYSTAL_COST} Havoc Crystals${goldSummary(CRAFTING_CUBE_EMPOWER_SWAP_RECIPE_ID)}`,
   },
   {
     id: CRAFTING_CUBE_TARGETED_EMPOWER_SWAP_RECIPE_ID,
     label: CRAFTING_CUBE_TARGETED_EMPOWER_SWAP_LABEL,
-    summary: `2 empowered items + ${CRAFTING_CUBE_TARGETED_EMPOWER_SWAP_PRISM_COST} Focus Prisms + 1 Adamantine Ore`,
+    summary: `2 empowered items + ${CRAFTING_CUBE_TARGETED_EMPOWER_SWAP_PRISM_COST} Focus Prisms + 1 Adamantine Ore${goldSummary(CRAFTING_CUBE_TARGETED_EMPOWER_SWAP_RECIPE_ID)}`,
   },
 ];
 

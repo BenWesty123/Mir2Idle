@@ -6,11 +6,14 @@ import {
   MUSIC_MODE_PLAYLIST,
   MUSIC_MODE_TRACK,
   MUSIC_SETTINGS_VERSION,
+  SCENE_WINDOW_EDGE_PAD,
+  clampSceneWindowCoords,
   normalizedMusicMode,
   normalizedVolume,
   sanitizeSceneWindowPosition,
   sanitizeSceneWindowPositions,
   sanitizeSettingsState,
+  sceneWindowPositionFitsBounds,
 } from "../src/persistence/sanitizeSettings.js";
 
 test("normalizedVolume clamps to [0, 1]", () => {
@@ -59,6 +62,25 @@ test("sanitizeSceneWindowPosition", () => {
   assert.deepEqual(sanitizeSceneWindowPosition({ x: 120.6, y: 80.2 }), { x: 121, y: 80 });
   assert.equal(sanitizeSceneWindowPosition(null), null);
   assert.equal(sanitizeSceneWindowPosition({ x: "bad", y: 1 }), null);
+});
+
+test("sceneWindowPositionFitsBounds keeps windows fully on-screen", () => {
+  assert.equal(sceneWindowPositionFitsBounds(8, 8, 200, 100, 800, 600), true);
+  assert.equal(sceneWindowPositionFitsBounds(0, 8, 200, 100, 800, 600), false);
+  assert.equal(sceneWindowPositionFitsBounds(700, 8, 200, 100, 800, 600), false);
+  assert.equal(sceneWindowPositionFitsBounds(1800, 900, 200, 100, 800, 600), false);
+  assert.equal(sceneWindowPositionFitsBounds(8, 8, 0, 0, 800, 600), true);
+});
+
+test("clampSceneWindowCoords pins to the padded viewport", () => {
+  assert.deepEqual(clampSceneWindowCoords(-40, -10, 200, 100, 800, 600), {
+    x: SCENE_WINDOW_EDGE_PAD,
+    y: SCENE_WINDOW_EDGE_PAD,
+  });
+  assert.deepEqual(clampSceneWindowCoords(900, 700, 200, 100, 800, 600), {
+    x: 800 - 200 - SCENE_WINDOW_EDGE_PAD,
+    y: 600 - 100 - SCENE_WINDOW_EDGE_PAD,
+  });
 });
 
 test("sanitizeSceneWindowPositions", () => {
