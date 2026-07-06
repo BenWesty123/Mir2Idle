@@ -1,6 +1,9 @@
 import { randomInt, rollDamage } from "../battleData.js";
 
 export const CRYSTAL_MAGIC_RESIST_WEIGHT = 10;
+/** Each magic-resist point grants this resist chance (percent points); cap 10 => 25%. */
+export const CRYSTAL_MAGIC_RESIST_PERCENT_PER_POINT = 2.5;
+const CRYSTAL_MAGIC_RESIST_ROLL_SCALE = 1000;
 
 /**
  * Crit chance hard cap. 100% is reachable only by rolling the MAX crit-chance
@@ -275,7 +278,11 @@ export function rollMagicHit(
 ) {
   const cap = Math.max(1, Math.trunc(Number(resistWeight) || CRYSTAL_MAGIC_RESIST_WEIGHT));
   const magicResist = Math.max(0, Math.min(cap, Number(defender?.magicResist) || 0));
-  return magicResist <= 0 || randomIntFn(0, cap - 1) >= magicResist;
+  if (magicResist <= 0) return true;
+  const resistThreshold = Math.trunc(
+    magicResist * CRYSTAL_MAGIC_RESIST_PERCENT_PER_POINT * (CRYSTAL_MAGIC_RESIST_ROLL_SCALE / 100),
+  );
+  return randomIntFn(0, CRYSTAL_MAGIC_RESIST_ROLL_SCALE - 1) >= resistThreshold;
 }
 
 /**

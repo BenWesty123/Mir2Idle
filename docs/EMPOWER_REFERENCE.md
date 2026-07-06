@@ -3,7 +3,7 @@
 > **Private dev sheet** — not shipped to players. Regenerate after table changes:
 > `npm run empower:ref`
 
-Last generated: 2026-07-02
+Last generated: 2026-07-06
 
 ## System overview
 
@@ -53,10 +53,10 @@ Base DC only — no MC or SC.
 - Increase Blade Avalanche crit damage by 10–50%
 - Increase Slashing Burst crit chance by 5–25%
 - Increase Slashing Burst crit damage by 10–50%
-- +5–25% Gold drop
-- +1–5% Bonus XP
-- +0%–2% Item drop chance
-- +5–25% Awakening Soul drop chance
+- +5–40% Gold drop
+- +5–40% Bonus XP
+- +0%–1% Item drop chance
+- +5–20% Awakening Soul drop chance
 - +1–20% Crit Rate
 - +5–30% Crit Damage
 - +5–40% Skill leveling
@@ -104,10 +104,10 @@ Base DC + MC — no SC.
 - Increase Great Fire Ball crit damage by 10–50%
 - Increase Frost Crunch crit chance by 5–25%
 - Increase Frost Crunch crit damage by 10–50%
-- +5–25% Gold drop
-- +1–5% Bonus XP
-- +0%–2% Item drop chance
-- +5–25% Awakening Soul drop chance
+- +5–40% Gold drop
+- +5–40% Bonus XP
+- +0%–1% Item drop chance
+- +5–20% Awakening Soul drop chance
 - +1–20% Crit Rate
 - +5–30% Crit Damage
 - +5–40% Skill leveling
@@ -132,10 +132,10 @@ Base DC + SC — no MC.
 - Reduce Holy Deva damage taken by 5–20%
 - Increase Soul Fire Ball crit chance by 5–25%
 - Increase Soul Fire Ball crit damage by 10–50%
-- +5–25% Gold drop
-- +1–5% Bonus XP
-- +0%–2% Item drop chance
-- +5–25% Awakening Soul drop chance
+- +5–40% Gold drop
+- +5–40% Bonus XP
+- +0%–1% Item drop chance
+- +5–20% Awakening Soul drop chance
 - +1–20% Crit Rate
 - +5–30% Crit Damage
 - +5–40% Skill leveling
@@ -203,10 +203,10 @@ Base DC + MC + SC.
 - Reduce Holy Deva damage taken by 5–20%
 - Increase Soul Fire Ball crit chance by 5–25%
 - Increase Soul Fire Ball crit damage by 10–50%
-- +5–25% Gold drop
-- +1–5% Bonus XP
-- +0%–2% Item drop chance
-- +5–25% Awakening Soul drop chance
+- +5–40% Gold drop
+- +5–40% Bonus XP
+- +0%–1% Item drop chance
+- +5–20% Awakening Soul drop chance
 - +1–20% Crit Rate
 - +5–30% Crit Damage
 - +5–40% Skill leveling
@@ -231,7 +231,10 @@ Slots: `armour`, `dress`
 - +10–100 HP (step 10)
 - +10–100 MP (step 10)
 - +1–3 Agi
-- +5–20% Bonus XP
+- +5–30% Gold drop
+- +5–30% Bonus XP
+- +0%–1% Item drop chance
+- +5–15% Awakening Soul drop chance
 - −3–12% Damage taken
 - +1–14% Crit Rate
 - +5–20% Crit Damage
@@ -248,6 +251,9 @@ Slots: `helmet`
 - +1–2 SC
 - +10–20 HP (step 10)
 - +10–20 MP (step 10)
+- +5–20% Gold drop
+- +5–20% Bonus XP
+- +5–10% Awakening Soul drop chance
 - −2–6% Damage taken
 - +1–10% Crit Rate
 - +5–15% Crit Damage
@@ -266,6 +272,9 @@ Slots: `bracelet`
 - +1 Magic Resist
 - +1–3 Agi
 - +1–3 Acc
+- +2–12% Gold drop
+- +2–12% Bonus XP
+- +2–6% Awakening Soul drop chance
 - −1–4% Damage taken
 - +1–6% Crit Rate
 - +5–15% Crit Damage
@@ -283,6 +292,9 @@ Slots: `ring`, `necklace`
 - +1–2 Poison
 - +1–3 AC
 - +1–3 AMC
+- +2–12% Gold drop
+- +2–12% Bonus XP
+- +2–6% Awakening Soul drop chance
 - −1–4% Damage taken
 - +1–6% Crit Rate
 - +5–15% Crit Damage
@@ -303,6 +315,9 @@ Slots: `belt`, `boots`
 - +1 Magic Resist
 - +10–30 HP (step 10)
 - +10–30 MP (step 10)
+- +2–10% Gold drop
+- +2–10% Bonus XP
+- +2–5% Awakening Soul drop chance
 - −1–5% Damage taken
 - +1–6% Crit Rate
 - +5–10% Crit Damage
@@ -317,6 +332,10 @@ Slots: `stone`
 - +1–3 MC
 - +1–2 AC
 - +1–2 AMC
+- +5–30% Gold drop
+- +5–30% Bonus XP
+- +0% Item drop chance
+- +5–15% Awakening Soul drop chance
 - −1–2% Damage taken
 - +1–14% Crit Rate
 - +5–20% Crit Damage
@@ -407,7 +426,10 @@ Grouped by slot. Weapons show their class and actual roll pool from `empowerCand
 - Increase Frost Crunch crit damage by 5–25%
 - Increase Soul Fire Ball crit chance by 2–12%
 - Increase Soul Fire Ball crit damage by 5–25%
-- +5–20% Bonus XP
+- +5–30% Gold drop
+- +5–30% Bonus XP
+- +0%–1% Item drop chance
+- +5–15% Awakening Soul drop chance
 - −3–12% Damage taken
 - +1–14% Crit Rate
 - +5–20% Crit Damage
@@ -492,7 +514,10 @@ Grouped by slot. Weapons show their class and actual roll pool from `empowerCand
 - Increase Frost Crunch crit damage by 5–25%
 - Increase Soul Fire Ball crit chance by 2–12%
 - Increase Soul Fire Ball crit damage by 5–25%
-- +5–20% Bonus XP
+- +5–30% Gold drop
+- +5–30% Bonus XP
+- +0%–1% Item drop chance
+- +5–15% Awakening Soul drop chance
 - −3–12% Damage taken
 - +1–14% Crit Rate
 - +5–20% Crit Damage
@@ -577,7 +602,10 @@ Grouped by slot. Weapons show their class and actual roll pool from `empowerCand
 - Increase Frost Crunch crit damage by 5–25%
 - Increase Soul Fire Ball crit chance by 2–12%
 - Increase Soul Fire Ball crit damage by 5–25%
-- +5–20% Bonus XP
+- +5–30% Gold drop
+- +5–30% Bonus XP
+- +0%–1% Item drop chance
+- +5–15% Awakening Soul drop chance
 - −3–12% Damage taken
 - +1–14% Crit Rate
 - +5–20% Crit Damage
@@ -662,7 +690,10 @@ Grouped by slot. Weapons show their class and actual roll pool from `empowerCand
 - Increase Frost Crunch crit damage by 5–25%
 - Increase Soul Fire Ball crit chance by 2–12%
 - Increase Soul Fire Ball crit damage by 5–25%
-- +5–20% Bonus XP
+- +5–30% Gold drop
+- +5–30% Bonus XP
+- +0%–1% Item drop chance
+- +5–15% Awakening Soul drop chance
 - −3–12% Damage taken
 - +1–14% Crit Rate
 - +5–20% Crit Damage
@@ -747,7 +778,10 @@ Grouped by slot. Weapons show their class and actual roll pool from `empowerCand
 - Increase Frost Crunch crit damage by 5–25%
 - Increase Soul Fire Ball crit chance by 2–12%
 - Increase Soul Fire Ball crit damage by 5–25%
-- +5–20% Bonus XP
+- +5–30% Gold drop
+- +5–30% Bonus XP
+- +0%–1% Item drop chance
+- +5–15% Awakening Soul drop chance
 - −3–12% Damage taken
 - +1–14% Crit Rate
 - +5–20% Crit Damage
@@ -832,7 +866,10 @@ Grouped by slot. Weapons show their class and actual roll pool from `empowerCand
 - Increase Frost Crunch crit damage by 5–25%
 - Increase Soul Fire Ball crit chance by 2–12%
 - Increase Soul Fire Ball crit damage by 5–25%
-- +5–20% Bonus XP
+- +5–30% Gold drop
+- +5–30% Bonus XP
+- +0%–1% Item drop chance
+- +5–15% Awakening Soul drop chance
 - −3–12% Damage taken
 - +1–14% Crit Rate
 - +5–20% Crit Damage
@@ -864,7 +901,10 @@ Grouped by slot. Weapons show their class and actual roll pool from `empowerCand
 - Increase Blade Avalanche crit damage by 5–25%
 - Increase Slashing Burst crit chance by 2–12%
 - Increase Slashing Burst crit damage by 5–25%
-- +5–20% Bonus XP
+- +5–30% Gold drop
+- +5–30% Bonus XP
+- +0%–1% Item drop chance
+- +5–15% Awakening Soul drop chance
 - −3–12% Damage taken
 - +1–14% Crit Rate
 - +5–20% Crit Damage
@@ -914,7 +954,10 @@ Grouped by slot. Weapons show their class and actual roll pool from `empowerCand
 - Increase Great Fire Ball crit damage by 5–25%
 - Increase Frost Crunch crit chance by 2–12%
 - Increase Frost Crunch crit damage by 5–25%
-- +5–20% Bonus XP
+- +5–30% Gold drop
+- +5–30% Bonus XP
+- +0%–1% Item drop chance
+- +5–15% Awakening Soul drop chance
 - −3–12% Damage taken
 - +1–14% Crit Rate
 - +5–20% Crit Damage
@@ -942,7 +985,10 @@ Grouped by slot. Weapons show their class and actual roll pool from `empowerCand
 - Reduce Holy Deva damage taken by 5–10%
 - Increase Soul Fire Ball crit chance by 2–12%
 - Increase Soul Fire Ball crit damage by 5–25%
-- +5–20% Bonus XP
+- +5–30% Gold drop
+- +5–30% Bonus XP
+- +0%–1% Item drop chance
+- +5–15% Awakening Soul drop chance
 - −3–12% Damage taken
 - +1–14% Crit Rate
 - +5–20% Crit Damage
@@ -974,7 +1020,10 @@ Grouped by slot. Weapons show their class and actual roll pool from `empowerCand
 - Increase Blade Avalanche crit damage by 5–25%
 - Increase Slashing Burst crit chance by 2–12%
 - Increase Slashing Burst crit damage by 5–25%
-- +5–20% Bonus XP
+- +5–30% Gold drop
+- +5–30% Bonus XP
+- +0%–1% Item drop chance
+- +5–15% Awakening Soul drop chance
 - −3–12% Damage taken
 - +1–14% Crit Rate
 - +5–20% Crit Damage
@@ -1024,7 +1073,10 @@ Grouped by slot. Weapons show their class and actual roll pool from `empowerCand
 - Increase Great Fire Ball crit damage by 5–25%
 - Increase Frost Crunch crit chance by 2–12%
 - Increase Frost Crunch crit damage by 5–25%
-- +5–20% Bonus XP
+- +5–30% Gold drop
+- +5–30% Bonus XP
+- +0%–1% Item drop chance
+- +5–15% Awakening Soul drop chance
 - −3–12% Damage taken
 - +1–14% Crit Rate
 - +5–20% Crit Damage
@@ -1052,7 +1104,10 @@ Grouped by slot. Weapons show their class and actual roll pool from `empowerCand
 - Reduce Holy Deva damage taken by 5–10%
 - Increase Soul Fire Ball crit chance by 2–12%
 - Increase Soul Fire Ball crit damage by 5–25%
-- +5–20% Bonus XP
+- +5–30% Gold drop
+- +5–30% Bonus XP
+- +0%–1% Item drop chance
+- +5–15% Awakening Soul drop chance
 - −3–12% Damage taken
 - +1–14% Crit Rate
 - +5–20% Crit Damage
@@ -1137,7 +1192,10 @@ Grouped by slot. Weapons show their class and actual roll pool from `empowerCand
 - Increase Frost Crunch crit damage by 5–25%
 - Increase Soul Fire Ball crit chance by 2–12%
 - Increase Soul Fire Ball crit damage by 5–25%
-- +5–20% Bonus XP
+- +5–30% Gold drop
+- +5–30% Bonus XP
+- +0%–1% Item drop chance
+- +5–15% Awakening Soul drop chance
 - −3–12% Damage taken
 - +1–14% Crit Rate
 - +5–20% Crit Damage
@@ -1222,7 +1280,10 @@ Grouped by slot. Weapons show their class and actual roll pool from `empowerCand
 - Increase Frost Crunch crit damage by 5–25%
 - Increase Soul Fire Ball crit chance by 2–12%
 - Increase Soul Fire Ball crit damage by 5–25%
-- +5–20% Bonus XP
+- +5–30% Gold drop
+- +5–30% Bonus XP
+- +0%–1% Item drop chance
+- +5–15% Awakening Soul drop chance
 - −3–12% Damage taken
 - +1–14% Crit Rate
 - +5–20% Crit Damage
@@ -1272,7 +1333,10 @@ Grouped by slot. Weapons show their class and actual roll pool from `empowerCand
 - Increase Great Fire Ball crit damage by 5–25%
 - Increase Frost Crunch crit chance by 2–12%
 - Increase Frost Crunch crit damage by 5–25%
-- +5–20% Bonus XP
+- +5–30% Gold drop
+- +5–30% Bonus XP
+- +0%–1% Item drop chance
+- +5–15% Awakening Soul drop chance
 - −3–12% Damage taken
 - +1–14% Crit Rate
 - +5–20% Crit Damage
@@ -1322,7 +1386,10 @@ Grouped by slot. Weapons show their class and actual roll pool from `empowerCand
 - Increase Great Fire Ball crit damage by 5–25%
 - Increase Frost Crunch crit chance by 2–12%
 - Increase Frost Crunch crit damage by 5–25%
-- +5–20% Bonus XP
+- +5–30% Gold drop
+- +5–30% Bonus XP
+- +0%–1% Item drop chance
+- +5–15% Awakening Soul drop chance
 - −3–12% Damage taken
 - +1–14% Crit Rate
 - +5–20% Crit Damage
@@ -1350,7 +1417,10 @@ Grouped by slot. Weapons show their class and actual roll pool from `empowerCand
 - Reduce Holy Deva damage taken by 5–10%
 - Increase Soul Fire Ball crit chance by 2–12%
 - Increase Soul Fire Ball crit damage by 5–25%
-- +5–20% Bonus XP
+- +5–30% Gold drop
+- +5–30% Bonus XP
+- +0%–1% Item drop chance
+- +5–15% Awakening Soul drop chance
 - −3–12% Damage taken
 - +1–14% Crit Rate
 - +5–20% Crit Damage
@@ -1378,7 +1448,10 @@ Grouped by slot. Weapons show their class and actual roll pool from `empowerCand
 - Reduce Holy Deva damage taken by 5–10%
 - Increase Soul Fire Ball crit chance by 2–12%
 - Increase Soul Fire Ball crit damage by 5–25%
-- +5–20% Bonus XP
+- +5–30% Gold drop
+- +5–30% Bonus XP
+- +0%–1% Item drop chance
+- +5–15% Awakening Soul drop chance
 - −3–12% Damage taken
 - +1–14% Crit Rate
 - +5–20% Crit Damage
@@ -1428,7 +1501,10 @@ Grouped by slot. Weapons show their class and actual roll pool from `empowerCand
 - Increase Great Fire Ball crit damage by 5–25%
 - Increase Frost Crunch crit chance by 2–12%
 - Increase Frost Crunch crit damage by 5–25%
-- +5–20% Bonus XP
+- +5–30% Gold drop
+- +5–30% Bonus XP
+- +0%–1% Item drop chance
+- +5–15% Awakening Soul drop chance
 - −3–12% Damage taken
 - +1–14% Crit Rate
 - +5–20% Crit Damage
@@ -1478,7 +1554,10 @@ Grouped by slot. Weapons show their class and actual roll pool from `empowerCand
 - Increase Great Fire Ball crit damage by 5–25%
 - Increase Frost Crunch crit chance by 2–12%
 - Increase Frost Crunch crit damage by 5–25%
-- +5–20% Bonus XP
+- +5–30% Gold drop
+- +5–30% Bonus XP
+- +0%–1% Item drop chance
+- +5–15% Awakening Soul drop chance
 - −3–12% Damage taken
 - +1–14% Crit Rate
 - +5–20% Crit Damage
@@ -1506,7 +1585,10 @@ Grouped by slot. Weapons show their class and actual roll pool from `empowerCand
 - Reduce Holy Deva damage taken by 5–10%
 - Increase Soul Fire Ball crit chance by 2–12%
 - Increase Soul Fire Ball crit damage by 5–25%
-- +5–20% Bonus XP
+- +5–30% Gold drop
+- +5–30% Bonus XP
+- +0%–1% Item drop chance
+- +5–15% Awakening Soul drop chance
 - −3–12% Damage taken
 - +1–14% Crit Rate
 - +5–20% Crit Damage
@@ -1534,7 +1616,10 @@ Grouped by slot. Weapons show their class and actual roll pool from `empowerCand
 - Reduce Holy Deva damage taken by 5–10%
 - Increase Soul Fire Ball crit chance by 2–12%
 - Increase Soul Fire Ball crit damage by 5–25%
-- +5–20% Bonus XP
+- +5–30% Gold drop
+- +5–30% Bonus XP
+- +0%–1% Item drop chance
+- +5–15% Awakening Soul drop chance
 - −3–12% Damage taken
 - +1–14% Crit Rate
 - +5–20% Crit Damage
@@ -1619,7 +1704,10 @@ Grouped by slot. Weapons show their class and actual roll pool from `empowerCand
 - Increase Frost Crunch crit damage by 5–25%
 - Increase Soul Fire Ball crit chance by 2–12%
 - Increase Soul Fire Ball crit damage by 5–25%
-- +5–20% Bonus XP
+- +5–30% Gold drop
+- +5–30% Bonus XP
+- +0%–1% Item drop chance
+- +5–15% Awakening Soul drop chance
 - −3–12% Damage taken
 - +1–14% Crit Rate
 - +5–20% Crit Damage
@@ -1704,7 +1792,10 @@ Grouped by slot. Weapons show their class and actual roll pool from `empowerCand
 - Increase Frost Crunch crit damage by 5–25%
 - Increase Soul Fire Ball crit chance by 2–12%
 - Increase Soul Fire Ball crit damage by 5–25%
-- +5–20% Bonus XP
+- +5–30% Gold drop
+- +5–30% Bonus XP
+- +0%–1% Item drop chance
+- +5–15% Awakening Soul drop chance
 - −3–12% Damage taken
 - +1–14% Crit Rate
 - +5–20% Crit Damage
@@ -1789,7 +1880,10 @@ Grouped by slot. Weapons show their class and actual roll pool from `empowerCand
 - Increase Frost Crunch crit damage by 5–25%
 - Increase Soul Fire Ball crit chance by 2–12%
 - Increase Soul Fire Ball crit damage by 5–25%
-- +5–20% Bonus XP
+- +5–30% Gold drop
+- +5–30% Bonus XP
+- +0%–1% Item drop chance
+- +5–15% Awakening Soul drop chance
 - −3–12% Damage taken
 - +1–14% Crit Rate
 - +5–20% Crit Damage
@@ -1874,7 +1968,10 @@ Grouped by slot. Weapons show their class and actual roll pool from `empowerCand
 - Increase Frost Crunch crit damage by 5–25%
 - Increase Soul Fire Ball crit chance by 2–12%
 - Increase Soul Fire Ball crit damage by 5–25%
-- +5–20% Bonus XP
+- +5–30% Gold drop
+- +5–30% Bonus XP
+- +0%–1% Item drop chance
+- +5–15% Awakening Soul drop chance
 - −3–12% Damage taken
 - +1–14% Crit Rate
 - +5–20% Crit Damage
@@ -1924,7 +2021,10 @@ Grouped by slot. Weapons show their class and actual roll pool from `empowerCand
 - Increase Great Fire Ball crit damage by 5–25%
 - Increase Frost Crunch crit chance by 2–12%
 - Increase Frost Crunch crit damage by 5–25%
-- +5–20% Bonus XP
+- +5–30% Gold drop
+- +5–30% Bonus XP
+- +0%–1% Item drop chance
+- +5–15% Awakening Soul drop chance
 - −3–12% Damage taken
 - +1–14% Crit Rate
 - +5–20% Crit Damage
@@ -1974,7 +2074,10 @@ Grouped by slot. Weapons show their class and actual roll pool from `empowerCand
 - Increase Great Fire Ball crit damage by 5–25%
 - Increase Frost Crunch crit chance by 2–12%
 - Increase Frost Crunch crit damage by 5–25%
-- +5–20% Bonus XP
+- +5–30% Gold drop
+- +5–30% Bonus XP
+- +0%–1% Item drop chance
+- +5–15% Awakening Soul drop chance
 - −3–12% Damage taken
 - +1–14% Crit Rate
 - +5–20% Crit Damage
@@ -2059,7 +2162,10 @@ Grouped by slot. Weapons show their class and actual roll pool from `empowerCand
 - Increase Frost Crunch crit damage by 5–25%
 - Increase Soul Fire Ball crit chance by 2–12%
 - Increase Soul Fire Ball crit damage by 5–25%
-- +5–20% Bonus XP
+- +5–30% Gold drop
+- +5–30% Bonus XP
+- +0%–1% Item drop chance
+- +5–15% Awakening Soul drop chance
 - −3–12% Damage taken
 - +1–14% Crit Rate
 - +5–20% Crit Damage
@@ -2144,7 +2250,10 @@ Grouped by slot. Weapons show their class and actual roll pool from `empowerCand
 - Increase Frost Crunch crit damage by 5–25%
 - Increase Soul Fire Ball crit chance by 2–12%
 - Increase Soul Fire Ball crit damage by 5–25%
-- +5–20% Bonus XP
+- +5–30% Gold drop
+- +5–30% Bonus XP
+- +0%–1% Item drop chance
+- +5–15% Awakening Soul drop chance
 - −3–12% Damage taken
 - +1–14% Crit Rate
 - +5–20% Crit Damage
@@ -2172,7 +2281,10 @@ Grouped by slot. Weapons show their class and actual roll pool from `empowerCand
 - Reduce Holy Deva damage taken by 5–10%
 - Increase Soul Fire Ball crit chance by 2–12%
 - Increase Soul Fire Ball crit damage by 5–25%
-- +5–20% Bonus XP
+- +5–30% Gold drop
+- +5–30% Bonus XP
+- +0%–1% Item drop chance
+- +5–15% Awakening Soul drop chance
 - −3–12% Damage taken
 - +1–14% Crit Rate
 - +5–20% Crit Damage
@@ -2200,7 +2312,10 @@ Grouped by slot. Weapons show their class and actual roll pool from `empowerCand
 - Reduce Holy Deva damage taken by 5–10%
 - Increase Soul Fire Ball crit chance by 2–12%
 - Increase Soul Fire Ball crit damage by 5–25%
-- +5–20% Bonus XP
+- +5–30% Gold drop
+- +5–30% Bonus XP
+- +0%–1% Item drop chance
+- +5–15% Awakening Soul drop chance
 - −3–12% Damage taken
 - +1–14% Crit Rate
 - +5–20% Crit Damage
@@ -2250,7 +2365,10 @@ Grouped by slot. Weapons show their class and actual roll pool from `empowerCand
 - Increase Great Fire Ball crit damage by 5–25%
 - Increase Frost Crunch crit chance by 2–12%
 - Increase Frost Crunch crit damage by 5–25%
-- +5–20% Bonus XP
+- +5–30% Gold drop
+- +5–30% Bonus XP
+- +0%–1% Item drop chance
+- +5–15% Awakening Soul drop chance
 - −3–12% Damage taken
 - +1–14% Crit Rate
 - +5–20% Crit Damage
@@ -2300,7 +2418,10 @@ Grouped by slot. Weapons show their class and actual roll pool from `empowerCand
 - Increase Great Fire Ball crit damage by 5–25%
 - Increase Frost Crunch crit chance by 2–12%
 - Increase Frost Crunch crit damage by 5–25%
-- +5–20% Bonus XP
+- +5–30% Gold drop
+- +5–30% Bonus XP
+- +0%–1% Item drop chance
+- +5–15% Awakening Soul drop chance
 - −3–12% Damage taken
 - +1–14% Crit Rate
 - +5–20% Crit Damage
@@ -2328,7 +2449,10 @@ Grouped by slot. Weapons show their class and actual roll pool from `empowerCand
 - Reduce Holy Deva damage taken by 5–10%
 - Increase Soul Fire Ball crit chance by 2–12%
 - Increase Soul Fire Ball crit damage by 5–25%
-- +5–20% Bonus XP
+- +5–30% Gold drop
+- +5–30% Bonus XP
+- +0%–1% Item drop chance
+- +5–15% Awakening Soul drop chance
 - −3–12% Damage taken
 - +1–14% Crit Rate
 - +5–20% Crit Damage
@@ -2356,7 +2480,10 @@ Grouped by slot. Weapons show their class and actual roll pool from `empowerCand
 - Reduce Holy Deva damage taken by 5–10%
 - Increase Soul Fire Ball crit chance by 2–12%
 - Increase Soul Fire Ball crit damage by 5–25%
-- +5–20% Bonus XP
+- +5–30% Gold drop
+- +5–30% Bonus XP
+- +0%–1% Item drop chance
+- +5–15% Awakening Soul drop chance
 - −3–12% Damage taken
 - +1–14% Crit Rate
 - +5–20% Crit Damage
@@ -2441,7 +2568,10 @@ Grouped by slot. Weapons show their class and actual roll pool from `empowerCand
 - Increase Frost Crunch crit damage by 5–25%
 - Increase Soul Fire Ball crit chance by 2–12%
 - Increase Soul Fire Ball crit damage by 5–25%
-- +5–20% Bonus XP
+- +5–30% Gold drop
+- +5–30% Bonus XP
+- +0%–1% Item drop chance
+- +5–15% Awakening Soul drop chance
 - −3–12% Damage taken
 - +1–14% Crit Rate
 - +5–20% Crit Damage
@@ -2491,7 +2621,10 @@ Grouped by slot. Weapons show their class and actual roll pool from `empowerCand
 - Increase Great Fire Ball crit damage by 5–25%
 - Increase Frost Crunch crit chance by 2–12%
 - Increase Frost Crunch crit damage by 5–25%
-- +5–20% Bonus XP
+- +5–30% Gold drop
+- +5–30% Bonus XP
+- +0%–1% Item drop chance
+- +5–15% Awakening Soul drop chance
 - −3–12% Damage taken
 - +1–14% Crit Rate
 - +5–20% Crit Damage
@@ -2519,7 +2652,10 @@ Grouped by slot. Weapons show their class and actual roll pool from `empowerCand
 - Reduce Holy Deva damage taken by 5–10%
 - Increase Soul Fire Ball crit chance by 2–12%
 - Increase Soul Fire Ball crit damage by 5–25%
-- +5–20% Bonus XP
+- +5–30% Gold drop
+- +5–30% Bonus XP
+- +0%–1% Item drop chance
+- +5–15% Awakening Soul drop chance
 - −3–12% Damage taken
 - +1–14% Crit Rate
 - +5–20% Crit Damage
@@ -2604,7 +2740,10 @@ Grouped by slot. Weapons show their class and actual roll pool from `empowerCand
 - Increase Frost Crunch crit damage by 5–25%
 - Increase Soul Fire Ball crit chance by 2–12%
 - Increase Soul Fire Ball crit damage by 5–25%
-- +5–20% Bonus XP
+- +5–30% Gold drop
+- +5–30% Bonus XP
+- +0%–1% Item drop chance
+- +5–15% Awakening Soul drop chance
 - −3–12% Damage taken
 - +1–14% Crit Rate
 - +5–20% Crit Damage
@@ -2654,7 +2793,10 @@ Grouped by slot. Weapons show their class and actual roll pool from `empowerCand
 - Increase Great Fire Ball crit damage by 5–25%
 - Increase Frost Crunch crit chance by 2–12%
 - Increase Frost Crunch crit damage by 5–25%
-- +5–20% Bonus XP
+- +5–30% Gold drop
+- +5–30% Bonus XP
+- +0%–1% Item drop chance
+- +5–15% Awakening Soul drop chance
 - −3–12% Damage taken
 - +1–14% Crit Rate
 - +5–20% Crit Damage
@@ -2682,7 +2824,10 @@ Grouped by slot. Weapons show their class and actual roll pool from `empowerCand
 - Reduce Holy Deva damage taken by 5–10%
 - Increase Soul Fire Ball crit chance by 2–12%
 - Increase Soul Fire Ball crit damage by 5–25%
-- +5–20% Bonus XP
+- +5–30% Gold drop
+- +5–30% Bonus XP
+- +0%–1% Item drop chance
+- +5–15% Awakening Soul drop chance
 - −3–12% Damage taken
 - +1–14% Crit Rate
 - +5–20% Crit Damage
@@ -2732,7 +2877,10 @@ Grouped by slot. Weapons show their class and actual roll pool from `empowerCand
 - Increase Great Fire Ball crit damage by 5–25%
 - Increase Frost Crunch crit chance by 2–12%
 - Increase Frost Crunch crit damage by 5–25%
-- +5–20% Bonus XP
+- +5–30% Gold drop
+- +5–30% Bonus XP
+- +0%–1% Item drop chance
+- +5–15% Awakening Soul drop chance
 - −3–12% Damage taken
 - +1–14% Crit Rate
 - +5–20% Crit Damage
@@ -2782,7 +2930,10 @@ Grouped by slot. Weapons show their class and actual roll pool from `empowerCand
 - Increase Great Fire Ball crit damage by 5–25%
 - Increase Frost Crunch crit chance by 2–12%
 - Increase Frost Crunch crit damage by 5–25%
-- +5–20% Bonus XP
+- +5–30% Gold drop
+- +5–30% Bonus XP
+- +0%–1% Item drop chance
+- +5–15% Awakening Soul drop chance
 - −3–12% Damage taken
 - +1–14% Crit Rate
 - +5–20% Crit Damage
@@ -2867,7 +3018,10 @@ Grouped by slot. Weapons show their class and actual roll pool from `empowerCand
 - Increase Frost Crunch crit damage by 5–25%
 - Increase Soul Fire Ball crit chance by 2–12%
 - Increase Soul Fire Ball crit damage by 5–25%
-- +5–20% Bonus XP
+- +5–30% Gold drop
+- +5–30% Bonus XP
+- +0%–1% Item drop chance
+- +5–15% Awakening Soul drop chance
 - −3–12% Damage taken
 - +1–14% Crit Rate
 - +5–20% Crit Damage
@@ -2952,7 +3106,10 @@ Grouped by slot. Weapons show their class and actual roll pool from `empowerCand
 - Increase Frost Crunch crit damage by 5–25%
 - Increase Soul Fire Ball crit chance by 2–12%
 - Increase Soul Fire Ball crit damage by 5–25%
-- +5–20% Bonus XP
+- +5–30% Gold drop
+- +5–30% Bonus XP
+- +0%–1% Item drop chance
+- +5–15% Awakening Soul drop chance
 - −3–12% Damage taken
 - +1–14% Crit Rate
 - +5–20% Crit Damage
@@ -3037,7 +3194,10 @@ Grouped by slot. Weapons show their class and actual roll pool from `empowerCand
 - Increase Frost Crunch crit damage by 5–25%
 - Increase Soul Fire Ball crit chance by 2–12%
 - Increase Soul Fire Ball crit damage by 5–25%
-- +5–20% Bonus XP
+- +5–30% Gold drop
+- +5–30% Bonus XP
+- +0%–1% Item drop chance
+- +5–15% Awakening Soul drop chance
 - −3–12% Damage taken
 - +1–14% Crit Rate
 - +5–20% Crit Damage
@@ -3122,7 +3282,10 @@ Grouped by slot. Weapons show their class and actual roll pool from `empowerCand
 - Increase Frost Crunch crit damage by 5–25%
 - Increase Soul Fire Ball crit chance by 2–12%
 - Increase Soul Fire Ball crit damage by 5–25%
-- +5–20% Bonus XP
+- +5–30% Gold drop
+- +5–30% Bonus XP
+- +0%–1% Item drop chance
+- +5–15% Awakening Soul drop chance
 - −3–12% Damage taken
 - +1–14% Crit Rate
 - +5–20% Crit Damage
@@ -3207,7 +3370,10 @@ Grouped by slot. Weapons show their class and actual roll pool from `empowerCand
 - Increase Frost Crunch crit damage by 5–25%
 - Increase Soul Fire Ball crit chance by 2–12%
 - Increase Soul Fire Ball crit damage by 5–25%
-- +5–20% Bonus XP
+- +5–30% Gold drop
+- +5–30% Bonus XP
+- +0%–1% Item drop chance
+- +5–15% Awakening Soul drop chance
 - −3–12% Damage taken
 - +1–14% Crit Rate
 - +5–20% Crit Damage
@@ -3257,7 +3423,10 @@ Grouped by slot. Weapons show their class and actual roll pool from `empowerCand
 - Increase Great Fire Ball crit damage by 5–25%
 - Increase Frost Crunch crit chance by 2–12%
 - Increase Frost Crunch crit damage by 5–25%
-- +5–20% Bonus XP
+- +5–30% Gold drop
+- +5–30% Bonus XP
+- +0%–1% Item drop chance
+- +5–15% Awakening Soul drop chance
 - −3–12% Damage taken
 - +1–14% Crit Rate
 - +5–20% Crit Damage
@@ -3307,7 +3476,10 @@ Grouped by slot. Weapons show their class and actual roll pool from `empowerCand
 - Increase Great Fire Ball crit damage by 5–25%
 - Increase Frost Crunch crit chance by 2–12%
 - Increase Frost Crunch crit damage by 5–25%
-- +5–20% Bonus XP
+- +5–30% Gold drop
+- +5–30% Bonus XP
+- +0%–1% Item drop chance
+- +5–15% Awakening Soul drop chance
 - −3–12% Damage taken
 - +1–14% Crit Rate
 - +5–20% Crit Damage
@@ -3335,7 +3507,10 @@ Grouped by slot. Weapons show their class and actual roll pool from `empowerCand
 - Reduce Holy Deva damage taken by 5–10%
 - Increase Soul Fire Ball crit chance by 2–12%
 - Increase Soul Fire Ball crit damage by 5–25%
-- +5–20% Bonus XP
+- +5–30% Gold drop
+- +5–30% Bonus XP
+- +0%–1% Item drop chance
+- +5–15% Awakening Soul drop chance
 - −3–12% Damage taken
 - +1–14% Crit Rate
 - +5–20% Crit Damage
@@ -3363,7 +3538,10 @@ Grouped by slot. Weapons show their class and actual roll pool from `empowerCand
 - Reduce Holy Deva damage taken by 5–10%
 - Increase Soul Fire Ball crit chance by 2–12%
 - Increase Soul Fire Ball crit damage by 5–25%
-- +5–20% Bonus XP
+- +5–30% Gold drop
+- +5–30% Bonus XP
+- +0%–1% Item drop chance
+- +5–15% Awakening Soul drop chance
 - −3–12% Damage taken
 - +1–14% Crit Rate
 - +5–20% Crit Damage
@@ -3448,7 +3626,10 @@ Grouped by slot. Weapons show their class and actual roll pool from `empowerCand
 - Increase Frost Crunch crit damage by 5–25%
 - Increase Soul Fire Ball crit chance by 2–12%
 - Increase Soul Fire Ball crit damage by 5–25%
-- +5–20% Bonus XP
+- +5–30% Gold drop
+- +5–30% Bonus XP
+- +0%–1% Item drop chance
+- +5–15% Awakening Soul drop chance
 - −3–12% Damage taken
 - +1–14% Crit Rate
 - +5–20% Crit Damage
@@ -3533,7 +3714,10 @@ Grouped by slot. Weapons show their class and actual roll pool from `empowerCand
 - Increase Frost Crunch crit damage by 5–25%
 - Increase Soul Fire Ball crit chance by 2–12%
 - Increase Soul Fire Ball crit damage by 5–25%
-- +5–20% Bonus XP
+- +5–30% Gold drop
+- +5–30% Bonus XP
+- +0%–1% Item drop chance
+- +5–15% Awakening Soul drop chance
 - −3–12% Damage taken
 - +1–14% Crit Rate
 - +5–20% Crit Damage
@@ -3618,7 +3802,10 @@ Grouped by slot. Weapons show their class and actual roll pool from `empowerCand
 - Increase Frost Crunch crit damage by 5–25%
 - Increase Soul Fire Ball crit chance by 2–12%
 - Increase Soul Fire Ball crit damage by 5–25%
-- +5–20% Bonus XP
+- +5–30% Gold drop
+- +5–30% Bonus XP
+- +0%–1% Item drop chance
+- +5–15% Awakening Soul drop chance
 - −3–12% Damage taken
 - +1–14% Crit Rate
 - +5–20% Crit Damage
@@ -3703,7 +3890,10 @@ Grouped by slot. Weapons show their class and actual roll pool from `empowerCand
 - Increase Frost Crunch crit damage by 5–25%
 - Increase Soul Fire Ball crit chance by 2–12%
 - Increase Soul Fire Ball crit damage by 5–25%
-- +5–20% Bonus XP
+- +5–30% Gold drop
+- +5–30% Bonus XP
+- +0%–1% Item drop chance
+- +5–15% Awakening Soul drop chance
 - −3–12% Damage taken
 - +1–14% Crit Rate
 - +5–20% Crit Damage
@@ -3788,7 +3978,10 @@ Grouped by slot. Weapons show their class and actual roll pool from `empowerCand
 - Increase Frost Crunch crit damage by 5–25%
 - Increase Soul Fire Ball crit chance by 2–12%
 - Increase Soul Fire Ball crit damage by 5–25%
-- +5–20% Bonus XP
+- +5–30% Gold drop
+- +5–30% Bonus XP
+- +0%–1% Item drop chance
+- +5–15% Awakening Soul drop chance
 - −3–12% Damage taken
 - +1–14% Crit Rate
 - +5–20% Crit Damage
@@ -3873,7 +4066,10 @@ Grouped by slot. Weapons show their class and actual roll pool from `empowerCand
 - Increase Frost Crunch crit damage by 5–25%
 - Increase Soul Fire Ball crit chance by 2–12%
 - Increase Soul Fire Ball crit damage by 5–25%
-- +5–20% Bonus XP
+- +5–30% Gold drop
+- +5–30% Bonus XP
+- +0%–1% Item drop chance
+- +5–15% Awakening Soul drop chance
 - −3–12% Damage taken
 - +1–14% Crit Rate
 - +5–20% Crit Damage
@@ -3905,7 +4101,10 @@ Grouped by slot. Weapons show their class and actual roll pool from `empowerCand
 - Increase Blade Avalanche crit damage by 5–25%
 - Increase Slashing Burst crit chance by 2–12%
 - Increase Slashing Burst crit damage by 5–25%
-- +5–20% Bonus XP
+- +5–30% Gold drop
+- +5–30% Bonus XP
+- +0%–1% Item drop chance
+- +5–15% Awakening Soul drop chance
 - −3–12% Damage taken
 - +1–14% Crit Rate
 - +5–20% Crit Damage
@@ -3937,7 +4136,10 @@ Grouped by slot. Weapons show their class and actual roll pool from `empowerCand
 - Increase Blade Avalanche crit damage by 5–25%
 - Increase Slashing Burst crit chance by 2–12%
 - Increase Slashing Burst crit damage by 5–25%
-- +5–20% Bonus XP
+- +5–30% Gold drop
+- +5–30% Bonus XP
+- +0%–1% Item drop chance
+- +5–15% Awakening Soul drop chance
 - −3–12% Damage taken
 - +1–14% Crit Rate
 - +5–20% Crit Damage
@@ -3965,7 +4167,10 @@ Grouped by slot. Weapons show their class and actual roll pool from `empowerCand
 - Reduce Holy Deva damage taken by 5–10%
 - Increase Soul Fire Ball crit chance by 2–12%
 - Increase Soul Fire Ball crit damage by 5–25%
-- +5–20% Bonus XP
+- +5–30% Gold drop
+- +5–30% Bonus XP
+- +0%–1% Item drop chance
+- +5–15% Awakening Soul drop chance
 - −3–12% Damage taken
 - +1–14% Crit Rate
 - +5–20% Crit Damage
@@ -3993,7 +4198,10 @@ Grouped by slot. Weapons show their class and actual roll pool from `empowerCand
 - Reduce Holy Deva damage taken by 5–10%
 - Increase Soul Fire Ball crit chance by 2–12%
 - Increase Soul Fire Ball crit damage by 5–25%
-- +5–20% Bonus XP
+- +5–30% Gold drop
+- +5–30% Bonus XP
+- +0%–1% Item drop chance
+- +5–15% Awakening Soul drop chance
 - −3–12% Damage taken
 - +1–14% Crit Rate
 - +5–20% Crit Damage
@@ -4043,7 +4251,10 @@ Grouped by slot. Weapons show their class and actual roll pool from `empowerCand
 - Increase Great Fire Ball crit damage by 5–25%
 - Increase Frost Crunch crit chance by 2–12%
 - Increase Frost Crunch crit damage by 5–25%
-- +5–20% Bonus XP
+- +5–30% Gold drop
+- +5–30% Bonus XP
+- +0%–1% Item drop chance
+- +5–15% Awakening Soul drop chance
 - −3–12% Damage taken
 - +1–14% Crit Rate
 - +5–20% Crit Damage
@@ -4093,7 +4304,10 @@ Grouped by slot. Weapons show their class and actual roll pool from `empowerCand
 - Increase Great Fire Ball crit damage by 5–25%
 - Increase Frost Crunch crit chance by 2–12%
 - Increase Frost Crunch crit damage by 5–25%
-- +5–20% Bonus XP
+- +5–30% Gold drop
+- +5–30% Bonus XP
+- +0%–1% Item drop chance
+- +5–15% Awakening Soul drop chance
 - −3–12% Damage taken
 - +1–14% Crit Rate
 - +5–20% Crit Damage
@@ -4178,7 +4392,10 @@ Grouped by slot. Weapons show their class and actual roll pool from `empowerCand
 - Increase Frost Crunch crit damage by 5–25%
 - Increase Soul Fire Ball crit chance by 2–12%
 - Increase Soul Fire Ball crit damage by 5–25%
-- +5–20% Bonus XP
+- +5–30% Gold drop
+- +5–30% Bonus XP
+- +0%–1% Item drop chance
+- +5–15% Awakening Soul drop chance
 - −3–12% Damage taken
 - +1–14% Crit Rate
 - +5–20% Crit Damage
@@ -4263,7 +4480,10 @@ Grouped by slot. Weapons show their class and actual roll pool from `empowerCand
 - Increase Frost Crunch crit damage by 5–25%
 - Increase Soul Fire Ball crit chance by 2–12%
 - Increase Soul Fire Ball crit damage by 5–25%
-- +5–20% Bonus XP
+- +5–30% Gold drop
+- +5–30% Bonus XP
+- +0%–1% Item drop chance
+- +5–15% Awakening Soul drop chance
 - −3–12% Damage taken
 - +1–14% Crit Rate
 - +5–20% Crit Damage
@@ -4348,7 +4568,10 @@ Grouped by slot. Weapons show their class and actual roll pool from `empowerCand
 - Increase Frost Crunch crit damage by 5–25%
 - Increase Soul Fire Ball crit chance by 2–12%
 - Increase Soul Fire Ball crit damage by 5–25%
-- +5–20% Bonus XP
+- +5–30% Gold drop
+- +5–30% Bonus XP
+- +0%–1% Item drop chance
+- +5–15% Awakening Soul drop chance
 - −3–12% Damage taken
 - +1–14% Crit Rate
 - +5–20% Crit Damage
@@ -4433,7 +4656,10 @@ Grouped by slot. Weapons show their class and actual roll pool from `empowerCand
 - Increase Frost Crunch crit damage by 5–25%
 - Increase Soul Fire Ball crit chance by 2–12%
 - Increase Soul Fire Ball crit damage by 5–25%
-- +5–20% Bonus XP
+- +5–30% Gold drop
+- +5–30% Bonus XP
+- +0%–1% Item drop chance
+- +5–15% Awakening Soul drop chance
 - −3–12% Damage taken
 - +1–14% Crit Rate
 - +5–20% Crit Damage
@@ -4518,7 +4744,10 @@ Grouped by slot. Weapons show their class and actual roll pool from `empowerCand
 - Increase Frost Crunch crit damage by 5–25%
 - Increase Soul Fire Ball crit chance by 2–12%
 - Increase Soul Fire Ball crit damage by 5–25%
-- +5–20% Bonus XP
+- +5–30% Gold drop
+- +5–30% Bonus XP
+- +0%–1% Item drop chance
+- +5–15% Awakening Soul drop chance
 - −3–12% Damage taken
 - +1–14% Crit Rate
 - +5–20% Crit Damage
@@ -4603,7 +4832,10 @@ Grouped by slot. Weapons show their class and actual roll pool from `empowerCand
 - Increase Frost Crunch crit damage by 5–25%
 - Increase Soul Fire Ball crit chance by 2–12%
 - Increase Soul Fire Ball crit damage by 5–25%
-- +5–20% Bonus XP
+- +5–30% Gold drop
+- +5–30% Bonus XP
+- +0%–1% Item drop chance
+- +5–15% Awakening Soul drop chance
 - −3–12% Damage taken
 - +1–14% Crit Rate
 - +5–20% Crit Damage
@@ -4688,7 +4920,10 @@ Grouped by slot. Weapons show their class and actual roll pool from `empowerCand
 - Increase Frost Crunch crit damage by 5–25%
 - Increase Soul Fire Ball crit chance by 2–12%
 - Increase Soul Fire Ball crit damage by 5–25%
-- +5–20% Bonus XP
+- +5–30% Gold drop
+- +5–30% Bonus XP
+- +0%–1% Item drop chance
+- +5–15% Awakening Soul drop chance
 - −3–12% Damage taken
 - +1–14% Crit Rate
 - +5–20% Crit Damage
@@ -4720,7 +4955,10 @@ Grouped by slot. Weapons show their class and actual roll pool from `empowerCand
 - Increase Blade Avalanche crit damage by 5–25%
 - Increase Slashing Burst crit chance by 2–12%
 - Increase Slashing Burst crit damage by 5–25%
-- +5–20% Bonus XP
+- +5–30% Gold drop
+- +5–30% Bonus XP
+- +0%–1% Item drop chance
+- +5–15% Awakening Soul drop chance
 - −3–12% Damage taken
 - +1–14% Crit Rate
 - +5–20% Crit Damage
@@ -4770,7 +5008,10 @@ Grouped by slot. Weapons show their class and actual roll pool from `empowerCand
 - Increase Great Fire Ball crit damage by 5–25%
 - Increase Frost Crunch crit chance by 2–12%
 - Increase Frost Crunch crit damage by 5–25%
-- +5–20% Bonus XP
+- +5–30% Gold drop
+- +5–30% Bonus XP
+- +0%–1% Item drop chance
+- +5–15% Awakening Soul drop chance
 - −3–12% Damage taken
 - +1–14% Crit Rate
 - +5–20% Crit Damage
@@ -4798,7 +5039,10 @@ Grouped by slot. Weapons show their class and actual roll pool from `empowerCand
 - Reduce Holy Deva damage taken by 5–10%
 - Increase Soul Fire Ball crit chance by 2–12%
 - Increase Soul Fire Ball crit damage by 5–25%
-- +5–20% Bonus XP
+- +5–30% Gold drop
+- +5–30% Bonus XP
+- +0%–1% Item drop chance
+- +5–15% Awakening Soul drop chance
 - −3–12% Damage taken
 - +1–14% Crit Rate
 - +5–20% Crit Damage
@@ -4830,7 +5074,10 @@ Grouped by slot. Weapons show their class and actual roll pool from `empowerCand
 - Increase Blade Avalanche crit damage by 5–25%
 - Increase Slashing Burst crit chance by 2–12%
 - Increase Slashing Burst crit damage by 5–25%
-- +5–20% Bonus XP
+- +5–30% Gold drop
+- +5–30% Bonus XP
+- +0%–1% Item drop chance
+- +5–15% Awakening Soul drop chance
 - −3–12% Damage taken
 - +1–14% Crit Rate
 - +5–20% Crit Damage
@@ -4880,7 +5127,10 @@ Grouped by slot. Weapons show their class and actual roll pool from `empowerCand
 - Increase Great Fire Ball crit damage by 5–25%
 - Increase Frost Crunch crit chance by 2–12%
 - Increase Frost Crunch crit damage by 5–25%
-- +5–20% Bonus XP
+- +5–30% Gold drop
+- +5–30% Bonus XP
+- +0%–1% Item drop chance
+- +5–15% Awakening Soul drop chance
 - −3–12% Damage taken
 - +1–14% Crit Rate
 - +5–20% Crit Damage
@@ -4908,7 +5158,10 @@ Grouped by slot. Weapons show their class and actual roll pool from `empowerCand
 - Reduce Holy Deva damage taken by 5–10%
 - Increase Soul Fire Ball crit chance by 2–12%
 - Increase Soul Fire Ball crit damage by 5–25%
-- +5–20% Bonus XP
+- +5–30% Gold drop
+- +5–30% Bonus XP
+- +0%–1% Item drop chance
+- +5–15% Awakening Soul drop chance
 - −3–12% Damage taken
 - +1–14% Crit Rate
 - +5–20% Crit Damage
@@ -4940,7 +5193,10 @@ Grouped by slot. Weapons show their class and actual roll pool from `empowerCand
 - Increase Blade Avalanche crit damage by 5–25%
 - Increase Slashing Burst crit chance by 2–12%
 - Increase Slashing Burst crit damage by 5–25%
-- +5–20% Bonus XP
+- +5–30% Gold drop
+- +5–30% Bonus XP
+- +0%–1% Item drop chance
+- +5–15% Awakening Soul drop chance
 - −3–12% Damage taken
 - +1–14% Crit Rate
 - +5–20% Crit Damage
@@ -4990,7 +5246,10 @@ Grouped by slot. Weapons show their class and actual roll pool from `empowerCand
 - Increase Great Fire Ball crit damage by 5–25%
 - Increase Frost Crunch crit chance by 2–12%
 - Increase Frost Crunch crit damage by 5–25%
-- +5–20% Bonus XP
+- +5–30% Gold drop
+- +5–30% Bonus XP
+- +0%–1% Item drop chance
+- +5–15% Awakening Soul drop chance
 - −3–12% Damage taken
 - +1–14% Crit Rate
 - +5–20% Crit Damage
@@ -5018,7 +5277,10 @@ Grouped by slot. Weapons show their class and actual roll pool from `empowerCand
 - Reduce Holy Deva damage taken by 5–10%
 - Increase Soul Fire Ball crit chance by 2–12%
 - Increase Soul Fire Ball crit damage by 5–25%
-- +5–20% Bonus XP
+- +5–30% Gold drop
+- +5–30% Bonus XP
+- +0%–1% Item drop chance
+- +5–15% Awakening Soul drop chance
 - −3–12% Damage taken
 - +1–14% Crit Rate
 - +5–20% Crit Damage
@@ -5050,7 +5312,10 @@ Grouped by slot. Weapons show their class and actual roll pool from `empowerCand
 - Increase Blade Avalanche crit damage by 5–25%
 - Increase Slashing Burst crit chance by 2–12%
 - Increase Slashing Burst crit damage by 5–25%
-- +5–20% Bonus XP
+- +5–30% Gold drop
+- +5–30% Bonus XP
+- +0%–1% Item drop chance
+- +5–15% Awakening Soul drop chance
 - −3–12% Damage taken
 - +1–14% Crit Rate
 - +5–20% Crit Damage
@@ -5100,7 +5365,10 @@ Grouped by slot. Weapons show their class and actual roll pool from `empowerCand
 - Increase Great Fire Ball crit damage by 5–25%
 - Increase Frost Crunch crit chance by 2–12%
 - Increase Frost Crunch crit damage by 5–25%
-- +5–20% Bonus XP
+- +5–30% Gold drop
+- +5–30% Bonus XP
+- +0%–1% Item drop chance
+- +5–15% Awakening Soul drop chance
 - −3–12% Damage taken
 - +1–14% Crit Rate
 - +5–20% Crit Damage
@@ -5128,7 +5396,10 @@ Grouped by slot. Weapons show their class and actual roll pool from `empowerCand
 - Reduce Holy Deva damage taken by 5–10%
 - Increase Soul Fire Ball crit chance by 2–12%
 - Increase Soul Fire Ball crit damage by 5–25%
-- +5–20% Bonus XP
+- +5–30% Gold drop
+- +5–30% Bonus XP
+- +0%–1% Item drop chance
+- +5–15% Awakening Soul drop chance
 - −3–12% Damage taken
 - +1–14% Crit Rate
 - +5–20% Crit Damage
@@ -5213,7 +5484,10 @@ Grouped by slot. Weapons show their class and actual roll pool from `empowerCand
 - Increase Frost Crunch crit damage by 5–25%
 - Increase Soul Fire Ball crit chance by 2–12%
 - Increase Soul Fire Ball crit damage by 5–25%
-- +5–20% Bonus XP
+- +5–30% Gold drop
+- +5–30% Bonus XP
+- +0%–1% Item drop chance
+- +5–15% Awakening Soul drop chance
 - −3–12% Damage taken
 - +1–14% Crit Rate
 - +5–20% Crit Damage
@@ -5298,7 +5572,10 @@ Grouped by slot. Weapons show their class and actual roll pool from `empowerCand
 - Increase Frost Crunch crit damage by 5–25%
 - Increase Soul Fire Ball crit chance by 2–12%
 - Increase Soul Fire Ball crit damage by 5–25%
-- +5–20% Bonus XP
+- +5–30% Gold drop
+- +5–30% Bonus XP
+- +0%–1% Item drop chance
+- +5–15% Awakening Soul drop chance
 - −3–12% Damage taken
 - +1–14% Crit Rate
 - +5–20% Crit Damage
@@ -5383,7 +5660,10 @@ Grouped by slot. Weapons show their class and actual roll pool from `empowerCand
 - Increase Frost Crunch crit damage by 5–25%
 - Increase Soul Fire Ball crit chance by 2–12%
 - Increase Soul Fire Ball crit damage by 5–25%
-- +5–20% Bonus XP
+- +5–30% Gold drop
+- +5–30% Bonus XP
+- +0%–1% Item drop chance
+- +5–15% Awakening Soul drop chance
 - −3–12% Damage taken
 - +1–14% Crit Rate
 - +5–20% Crit Damage
@@ -5468,7 +5748,10 @@ Grouped by slot. Weapons show their class and actual roll pool from `empowerCand
 - Increase Frost Crunch crit damage by 5–25%
 - Increase Soul Fire Ball crit chance by 2–12%
 - Increase Soul Fire Ball crit damage by 5–25%
-- +5–20% Bonus XP
+- +5–30% Gold drop
+- +5–30% Bonus XP
+- +0%–1% Item drop chance
+- +5–15% Awakening Soul drop chance
 - −3–12% Damage taken
 - +1–14% Crit Rate
 - +5–20% Crit Damage
@@ -5500,7 +5783,10 @@ Grouped by slot. Weapons show their class and actual roll pool from `empowerCand
 - Increase Blade Avalanche crit damage by 5–25%
 - Increase Slashing Burst crit chance by 2–12%
 - Increase Slashing Burst crit damage by 5–25%
-- +5–20% Bonus XP
+- +5–30% Gold drop
+- +5–30% Bonus XP
+- +0%–1% Item drop chance
+- +5–15% Awakening Soul drop chance
 - −3–12% Damage taken
 - +1–14% Crit Rate
 - +5–20% Crit Damage
@@ -5585,7 +5871,10 @@ Grouped by slot. Weapons show their class and actual roll pool from `empowerCand
 - Increase Frost Crunch crit damage by 5–25%
 - Increase Soul Fire Ball crit chance by 2–12%
 - Increase Soul Fire Ball crit damage by 5–25%
-- +5–20% Bonus XP
+- +5–30% Gold drop
+- +5–30% Bonus XP
+- +0%–1% Item drop chance
+- +5–15% Awakening Soul drop chance
 - −3–12% Damage taken
 - +1–14% Crit Rate
 - +5–20% Crit Damage
@@ -5675,6 +5964,9 @@ Grouped by slot. Weapons show their class and actual roll pool from `empowerCand
 - Increase Frost Crunch crit damage by 5–15%
 - Increase Soul Fire Ball crit chance by 1–8%
 - Increase Soul Fire Ball crit damage by 5–15%
+- +2–10% Gold drop
+- +2–10% Bonus XP
+- +2–5% Awakening Soul drop chance
 - −1–5% Damage taken
 - +1–6% Crit Rate
 - +5–10% Crit Damage
@@ -5762,6 +6054,9 @@ Grouped by slot. Weapons show their class and actual roll pool from `empowerCand
 - Increase Frost Crunch crit damage by 5–15%
 - Increase Soul Fire Ball crit chance by 1–8%
 - Increase Soul Fire Ball crit damage by 5–15%
+- +2–10% Gold drop
+- +2–10% Bonus XP
+- +2–5% Awakening Soul drop chance
 - −1–5% Damage taken
 - +1–6% Crit Rate
 - +5–10% Crit Damage
@@ -5849,6 +6144,9 @@ Grouped by slot. Weapons show their class and actual roll pool from `empowerCand
 - Increase Frost Crunch crit damage by 5–15%
 - Increase Soul Fire Ball crit chance by 1–8%
 - Increase Soul Fire Ball crit damage by 5–15%
+- +2–10% Gold drop
+- +2–10% Bonus XP
+- +2–5% Awakening Soul drop chance
 - −1–5% Damage taken
 - +1–6% Crit Rate
 - +5–10% Crit Damage
@@ -5936,6 +6234,9 @@ Grouped by slot. Weapons show their class and actual roll pool from `empowerCand
 - Increase Frost Crunch crit damage by 5–15%
 - Increase Soul Fire Ball crit chance by 1–8%
 - Increase Soul Fire Ball crit damage by 5–15%
+- +2–10% Gold drop
+- +2–10% Bonus XP
+- +2–5% Awakening Soul drop chance
 - −1–5% Damage taken
 - +1–6% Crit Rate
 - +5–10% Crit Damage
@@ -6023,6 +6324,9 @@ Grouped by slot. Weapons show their class and actual roll pool from `empowerCand
 - Increase Frost Crunch crit damage by 5–15%
 - Increase Soul Fire Ball crit chance by 1–8%
 - Increase Soul Fire Ball crit damage by 5–15%
+- +2–10% Gold drop
+- +2–10% Bonus XP
+- +2–5% Awakening Soul drop chance
 - −1–5% Damage taken
 - +1–6% Crit Rate
 - +5–10% Crit Damage
@@ -6110,6 +6414,9 @@ Grouped by slot. Weapons show their class and actual roll pool from `empowerCand
 - Increase Frost Crunch crit damage by 5–15%
 - Increase Soul Fire Ball crit chance by 1–8%
 - Increase Soul Fire Ball crit damage by 5–15%
+- +2–10% Gold drop
+- +2–10% Bonus XP
+- +2–5% Awakening Soul drop chance
 - −1–5% Damage taken
 - +1–6% Crit Rate
 - +5–10% Crit Damage
@@ -6197,6 +6504,9 @@ Grouped by slot. Weapons show their class and actual roll pool from `empowerCand
 - Increase Frost Crunch crit damage by 5–15%
 - Increase Soul Fire Ball crit chance by 1–8%
 - Increase Soul Fire Ball crit damage by 5–15%
+- +2–10% Gold drop
+- +2–10% Bonus XP
+- +2–5% Awakening Soul drop chance
 - −1–5% Damage taken
 - +1–6% Crit Rate
 - +5–10% Crit Damage
@@ -6284,6 +6594,9 @@ Grouped by slot. Weapons show their class and actual roll pool from `empowerCand
 - Increase Frost Crunch crit damage by 5–15%
 - Increase Soul Fire Ball crit chance by 1–8%
 - Increase Soul Fire Ball crit damage by 5–15%
+- +2–10% Gold drop
+- +2–10% Bonus XP
+- +2–5% Awakening Soul drop chance
 - −1–5% Damage taken
 - +1–6% Crit Rate
 - +5–10% Crit Damage
@@ -6371,6 +6684,9 @@ Grouped by slot. Weapons show their class and actual roll pool from `empowerCand
 - Increase Frost Crunch crit damage by 5–15%
 - Increase Soul Fire Ball crit chance by 1–8%
 - Increase Soul Fire Ball crit damage by 5–15%
+- +2–10% Gold drop
+- +2–10% Bonus XP
+- +2–5% Awakening Soul drop chance
 - −1–5% Damage taken
 - +1–6% Crit Rate
 - +5–10% Crit Damage
@@ -6458,6 +6774,9 @@ Grouped by slot. Weapons show their class and actual roll pool from `empowerCand
 - Increase Frost Crunch crit damage by 5–15%
 - Increase Soul Fire Ball crit chance by 1–8%
 - Increase Soul Fire Ball crit damage by 5–15%
+- +2–10% Gold drop
+- +2–10% Bonus XP
+- +2–5% Awakening Soul drop chance
 - −1–5% Damage taken
 - +1–6% Crit Rate
 - +5–10% Crit Damage
@@ -6545,6 +6864,9 @@ Grouped by slot. Weapons show their class and actual roll pool from `empowerCand
 - Increase Frost Crunch crit damage by 5–15%
 - Increase Soul Fire Ball crit chance by 1–8%
 - Increase Soul Fire Ball crit damage by 5–15%
+- +2–10% Gold drop
+- +2–10% Bonus XP
+- +2–5% Awakening Soul drop chance
 - −1–5% Damage taken
 - +1–6% Crit Rate
 - +5–10% Crit Damage
@@ -6632,6 +6954,9 @@ Grouped by slot. Weapons show their class and actual roll pool from `empowerCand
 - Increase Frost Crunch crit damage by 5–15%
 - Increase Soul Fire Ball crit chance by 1–8%
 - Increase Soul Fire Ball crit damage by 5–15%
+- +2–10% Gold drop
+- +2–10% Bonus XP
+- +2–5% Awakening Soul drop chance
 - −1–5% Damage taken
 - +1–6% Crit Rate
 - +5–10% Crit Damage
@@ -6719,6 +7044,9 @@ Grouped by slot. Weapons show their class and actual roll pool from `empowerCand
 - Increase Frost Crunch crit damage by 5–15%
 - Increase Soul Fire Ball crit chance by 1–8%
 - Increase Soul Fire Ball crit damage by 5–15%
+- +2–10% Gold drop
+- +2–10% Bonus XP
+- +2–5% Awakening Soul drop chance
 - −1–5% Damage taken
 - +1–6% Crit Rate
 - +5–10% Crit Damage
@@ -6749,6 +7077,9 @@ Grouped by slot. Weapons show their class and actual roll pool from `empowerCand
 - Reduce Holy Deva damage taken by 5%
 - Increase Soul Fire Ball crit chance by 1–8%
 - Increase Soul Fire Ball crit damage by 5–15%
+- +2–12% Gold drop
+- +2–12% Bonus XP
+- +2–6% Awakening Soul drop chance
 - −1–4% Damage taken
 - +1–6% Crit Rate
 - +5–15% Crit Damage
@@ -6799,6 +7130,9 @@ Grouped by slot. Weapons show their class and actual roll pool from `empowerCand
 - Increase Great Fire Ball crit damage by 5–15%
 - Increase Frost Crunch crit chance by 1–8%
 - Increase Frost Crunch crit damage by 5–15%
+- +2–12% Gold drop
+- +2–12% Bonus XP
+- +2–6% Awakening Soul drop chance
 - −1–4% Damage taken
 - +1–6% Crit Rate
 - +5–15% Crit Damage
@@ -6831,6 +7165,9 @@ Grouped by slot. Weapons show their class and actual roll pool from `empowerCand
 - Increase Blade Avalanche crit damage by 5–15%
 - Increase Slashing Burst crit chance by 1–8%
 - Increase Slashing Burst crit damage by 5–15%
+- +2–12% Gold drop
+- +2–12% Bonus XP
+- +2–6% Awakening Soul drop chance
 - −1–4% Damage taken
 - +1–6% Crit Rate
 - +5–15% Crit Damage
@@ -6859,6 +7196,9 @@ Grouped by slot. Weapons show their class and actual roll pool from `empowerCand
 - Reduce Holy Deva damage taken by 5%
 - Increase Soul Fire Ball crit chance by 1–8%
 - Increase Soul Fire Ball crit damage by 5–15%
+- +2–12% Gold drop
+- +2–12% Bonus XP
+- +2–6% Awakening Soul drop chance
 - −1–4% Damage taken
 - +1–6% Crit Rate
 - +5–15% Crit Damage
@@ -6891,6 +7231,9 @@ Grouped by slot. Weapons show their class and actual roll pool from `empowerCand
 - Increase Blade Avalanche crit damage by 5–15%
 - Increase Slashing Burst crit chance by 1–8%
 - Increase Slashing Burst crit damage by 5–15%
+- +2–12% Gold drop
+- +2–12% Bonus XP
+- +2–6% Awakening Soul drop chance
 - −1–4% Damage taken
 - +1–6% Crit Rate
 - +5–15% Crit Damage
@@ -6976,6 +7319,9 @@ Grouped by slot. Weapons show their class and actual roll pool from `empowerCand
 - Increase Frost Crunch crit damage by 5–15%
 - Increase Soul Fire Ball crit chance by 1–8%
 - Increase Soul Fire Ball crit damage by 5–15%
+- +2–12% Gold drop
+- +2–12% Bonus XP
+- +2–6% Awakening Soul drop chance
 - −1–4% Damage taken
 - +1–6% Crit Rate
 - +5–15% Crit Damage
@@ -7008,6 +7354,9 @@ Grouped by slot. Weapons show their class and actual roll pool from `empowerCand
 - Increase Blade Avalanche crit damage by 5–15%
 - Increase Slashing Burst crit chance by 1–8%
 - Increase Slashing Burst crit damage by 5–15%
+- +2–12% Gold drop
+- +2–12% Bonus XP
+- +2–6% Awakening Soul drop chance
 - −1–4% Damage taken
 - +1–6% Crit Rate
 - +5–15% Crit Damage
@@ -7093,6 +7442,9 @@ Grouped by slot. Weapons show their class and actual roll pool from `empowerCand
 - Increase Frost Crunch crit damage by 5–15%
 - Increase Soul Fire Ball crit chance by 1–8%
 - Increase Soul Fire Ball crit damage by 5–15%
+- +2–12% Gold drop
+- +2–12% Bonus XP
+- +2–6% Awakening Soul drop chance
 - −1–4% Damage taken
 - +1–6% Crit Rate
 - +5–15% Crit Damage
@@ -7178,6 +7530,9 @@ Grouped by slot. Weapons show their class and actual roll pool from `empowerCand
 - Increase Frost Crunch crit damage by 5–15%
 - Increase Soul Fire Ball crit chance by 1–8%
 - Increase Soul Fire Ball crit damage by 5–15%
+- +2–12% Gold drop
+- +2–12% Bonus XP
+- +2–6% Awakening Soul drop chance
 - −1–4% Damage taken
 - +1–6% Crit Rate
 - +5–15% Crit Damage
@@ -7263,6 +7618,9 @@ Grouped by slot. Weapons show their class and actual roll pool from `empowerCand
 - Increase Frost Crunch crit damage by 5–15%
 - Increase Soul Fire Ball crit chance by 1–8%
 - Increase Soul Fire Ball crit damage by 5–15%
+- +2–12% Gold drop
+- +2–12% Bonus XP
+- +2–6% Awakening Soul drop chance
 - −1–4% Damage taken
 - +1–6% Crit Rate
 - +5–15% Crit Damage
@@ -7348,6 +7706,9 @@ Grouped by slot. Weapons show their class and actual roll pool from `empowerCand
 - Increase Frost Crunch crit damage by 5–15%
 - Increase Soul Fire Ball crit chance by 1–8%
 - Increase Soul Fire Ball crit damage by 5–15%
+- +2–12% Gold drop
+- +2–12% Bonus XP
+- +2–6% Awakening Soul drop chance
 - −1–4% Damage taken
 - +1–6% Crit Rate
 - +5–15% Crit Damage
@@ -7433,6 +7794,9 @@ Grouped by slot. Weapons show their class and actual roll pool from `empowerCand
 - Increase Frost Crunch crit damage by 5–15%
 - Increase Soul Fire Ball crit chance by 1–8%
 - Increase Soul Fire Ball crit damage by 5–15%
+- +2–12% Gold drop
+- +2–12% Bonus XP
+- +2–6% Awakening Soul drop chance
 - −1–4% Damage taken
 - +1–6% Crit Rate
 - +5–15% Crit Damage
@@ -7465,6 +7829,9 @@ Grouped by slot. Weapons show their class and actual roll pool from `empowerCand
 - Increase Blade Avalanche crit damage by 5–15%
 - Increase Slashing Burst crit chance by 1–8%
 - Increase Slashing Burst crit damage by 5–15%
+- +2–12% Gold drop
+- +2–12% Bonus XP
+- +2–6% Awakening Soul drop chance
 - −1–4% Damage taken
 - +1–6% Crit Rate
 - +5–15% Crit Damage
@@ -7497,6 +7864,9 @@ Grouped by slot. Weapons show their class and actual roll pool from `empowerCand
 - Increase Blade Avalanche crit damage by 5–15%
 - Increase Slashing Burst crit chance by 1–8%
 - Increase Slashing Burst crit damage by 5–15%
+- +2–12% Gold drop
+- +2–12% Bonus XP
+- +2–6% Awakening Soul drop chance
 - −1–4% Damage taken
 - +1–6% Crit Rate
 - +5–15% Crit Damage
@@ -7547,6 +7917,9 @@ Grouped by slot. Weapons show their class and actual roll pool from `empowerCand
 - Increase Great Fire Ball crit damage by 5–15%
 - Increase Frost Crunch crit chance by 1–8%
 - Increase Frost Crunch crit damage by 5–15%
+- +2–12% Gold drop
+- +2–12% Bonus XP
+- +2–6% Awakening Soul drop chance
 - −1–4% Damage taken
 - +1–6% Crit Rate
 - +5–15% Crit Damage
@@ -7575,6 +7948,9 @@ Grouped by slot. Weapons show their class and actual roll pool from `empowerCand
 - Reduce Holy Deva damage taken by 5%
 - Increase Soul Fire Ball crit chance by 1–8%
 - Increase Soul Fire Ball crit damage by 5–15%
+- +2–12% Gold drop
+- +2–12% Bonus XP
+- +2–6% Awakening Soul drop chance
 - −1–4% Damage taken
 - +1–6% Crit Rate
 - +5–15% Crit Damage
@@ -7607,6 +7983,9 @@ Grouped by slot. Weapons show their class and actual roll pool from `empowerCand
 - Increase Blade Avalanche crit damage by 5–15%
 - Increase Slashing Burst crit chance by 1–8%
 - Increase Slashing Burst crit damage by 5–15%
+- +2–12% Gold drop
+- +2–12% Bonus XP
+- +2–6% Awakening Soul drop chance
 - −1–4% Damage taken
 - +1–6% Crit Rate
 - +5–15% Crit Damage
@@ -7692,6 +8071,9 @@ Grouped by slot. Weapons show their class and actual roll pool from `empowerCand
 - Increase Frost Crunch crit damage by 5–15%
 - Increase Soul Fire Ball crit chance by 1–8%
 - Increase Soul Fire Ball crit damage by 5–15%
+- +2–12% Gold drop
+- +2–12% Bonus XP
+- +2–6% Awakening Soul drop chance
 - −1–4% Damage taken
 - +1–6% Crit Rate
 - +5–15% Crit Damage
@@ -7777,6 +8159,9 @@ Grouped by slot. Weapons show their class and actual roll pool from `empowerCand
 - Increase Frost Crunch crit damage by 5–15%
 - Increase Soul Fire Ball crit chance by 1–8%
 - Increase Soul Fire Ball crit damage by 5–15%
+- +2–12% Gold drop
+- +2–12% Bonus XP
+- +2–6% Awakening Soul drop chance
 - −1–4% Damage taken
 - +1–6% Crit Rate
 - +5–15% Crit Damage
@@ -7862,6 +8247,9 @@ Grouped by slot. Weapons show their class and actual roll pool from `empowerCand
 - Increase Frost Crunch crit damage by 5–15%
 - Increase Soul Fire Ball crit chance by 1–8%
 - Increase Soul Fire Ball crit damage by 5–15%
+- +2–12% Gold drop
+- +2–12% Bonus XP
+- +2–6% Awakening Soul drop chance
 - −1–4% Damage taken
 - +1–6% Crit Rate
 - +5–15% Crit Damage
@@ -7912,6 +8300,9 @@ Grouped by slot. Weapons show their class and actual roll pool from `empowerCand
 - Increase Great Fire Ball crit damage by 5–15%
 - Increase Frost Crunch crit chance by 1–8%
 - Increase Frost Crunch crit damage by 5–15%
+- +2–12% Gold drop
+- +2–12% Bonus XP
+- +2–6% Awakening Soul drop chance
 - −1–4% Damage taken
 - +1–6% Crit Rate
 - +5–15% Crit Damage
@@ -7997,6 +8388,9 @@ Grouped by slot. Weapons show their class and actual roll pool from `empowerCand
 - Increase Frost Crunch crit damage by 5–15%
 - Increase Soul Fire Ball crit chance by 1–8%
 - Increase Soul Fire Ball crit damage by 5–15%
+- +2–12% Gold drop
+- +2–12% Bonus XP
+- +2–6% Awakening Soul drop chance
 - −1–4% Damage taken
 - +1–6% Crit Rate
 - +5–15% Crit Damage
@@ -8025,6 +8419,9 @@ Grouped by slot. Weapons show their class and actual roll pool from `empowerCand
 - Reduce Holy Deva damage taken by 5%
 - Increase Soul Fire Ball crit chance by 1–8%
 - Increase Soul Fire Ball crit damage by 5–15%
+- +2–12% Gold drop
+- +2–12% Bonus XP
+- +2–6% Awakening Soul drop chance
 - −1–4% Damage taken
 - +1–6% Crit Rate
 - +5–15% Crit Damage
@@ -8053,6 +8450,9 @@ Grouped by slot. Weapons show their class and actual roll pool from `empowerCand
 - Reduce Holy Deva damage taken by 5%
 - Increase Soul Fire Ball crit chance by 1–8%
 - Increase Soul Fire Ball crit damage by 5–15%
+- +2–12% Gold drop
+- +2–12% Bonus XP
+- +2–6% Awakening Soul drop chance
 - −1–4% Damage taken
 - +1–6% Crit Rate
 - +5–15% Crit Damage
@@ -8085,6 +8485,9 @@ Grouped by slot. Weapons show their class and actual roll pool from `empowerCand
 - Increase Blade Avalanche crit damage by 5–15%
 - Increase Slashing Burst crit chance by 1–8%
 - Increase Slashing Burst crit damage by 5–15%
+- +2–12% Gold drop
+- +2–12% Bonus XP
+- +2–6% Awakening Soul drop chance
 - −1–4% Damage taken
 - +1–6% Crit Rate
 - +5–15% Crit Damage
@@ -8117,6 +8520,9 @@ Grouped by slot. Weapons show their class and actual roll pool from `empowerCand
 - Increase Blade Avalanche crit damage by 5–15%
 - Increase Slashing Burst crit chance by 1–8%
 - Increase Slashing Burst crit damage by 5–15%
+- +2–12% Gold drop
+- +2–12% Bonus XP
+- +2–6% Awakening Soul drop chance
 - −1–4% Damage taken
 - +1–6% Crit Rate
 - +5–15% Crit Damage
@@ -8145,6 +8551,9 @@ Grouped by slot. Weapons show their class and actual roll pool from `empowerCand
 - Reduce Holy Deva damage taken by 5%
 - Increase Soul Fire Ball crit chance by 1–8%
 - Increase Soul Fire Ball crit damage by 5–15%
+- +2–12% Gold drop
+- +2–12% Bonus XP
+- +2–6% Awakening Soul drop chance
 - −1–4% Damage taken
 - +1–6% Crit Rate
 - +5–15% Crit Damage
@@ -8230,6 +8639,9 @@ Grouped by slot. Weapons show their class and actual roll pool from `empowerCand
 - Increase Frost Crunch crit damage by 5–15%
 - Increase Soul Fire Ball crit chance by 1–8%
 - Increase Soul Fire Ball crit damage by 5–15%
+- +2–12% Gold drop
+- +2–12% Bonus XP
+- +2–6% Awakening Soul drop chance
 - −1–4% Damage taken
 - +1–6% Crit Rate
 - +5–15% Crit Damage
@@ -8315,6 +8727,9 @@ Grouped by slot. Weapons show their class and actual roll pool from `empowerCand
 - Increase Frost Crunch crit damage by 5–15%
 - Increase Soul Fire Ball crit chance by 1–8%
 - Increase Soul Fire Ball crit damage by 5–15%
+- +2–12% Gold drop
+- +2–12% Bonus XP
+- +2–6% Awakening Soul drop chance
 - −1–4% Damage taken
 - +1–6% Crit Rate
 - +5–15% Crit Damage
@@ -8365,6 +8780,9 @@ Grouped by slot. Weapons show their class and actual roll pool from `empowerCand
 - Increase Great Fire Ball crit damage by 5–15%
 - Increase Frost Crunch crit chance by 1–8%
 - Increase Frost Crunch crit damage by 5–15%
+- +2–12% Gold drop
+- +2–12% Bonus XP
+- +2–6% Awakening Soul drop chance
 - −1–4% Damage taken
 - +1–6% Crit Rate
 - +5–15% Crit Damage
@@ -8450,6 +8868,9 @@ Grouped by slot. Weapons show their class and actual roll pool from `empowerCand
 - Increase Frost Crunch crit damage by 5–15%
 - Increase Soul Fire Ball crit chance by 1–8%
 - Increase Soul Fire Ball crit damage by 5–15%
+- +2–12% Gold drop
+- +2–12% Bonus XP
+- +2–6% Awakening Soul drop chance
 - −1–4% Damage taken
 - +1–6% Crit Rate
 - +5–15% Crit Damage
@@ -8535,6 +8956,9 @@ Grouped by slot. Weapons show their class and actual roll pool from `empowerCand
 - Increase Frost Crunch crit damage by 5–15%
 - Increase Soul Fire Ball crit chance by 1–8%
 - Increase Soul Fire Ball crit damage by 5–15%
+- +2–12% Gold drop
+- +2–12% Bonus XP
+- +2–6% Awakening Soul drop chance
 - −1–4% Damage taken
 - +1–6% Crit Rate
 - +5–15% Crit Damage
@@ -8585,6 +9009,9 @@ Grouped by slot. Weapons show their class and actual roll pool from `empowerCand
 - Increase Great Fire Ball crit damage by 5–15%
 - Increase Frost Crunch crit chance by 1–8%
 - Increase Frost Crunch crit damage by 5–15%
+- +2–12% Gold drop
+- +2–12% Bonus XP
+- +2–6% Awakening Soul drop chance
 - −1–4% Damage taken
 - +1–6% Crit Rate
 - +5–15% Crit Damage
@@ -8635,6 +9062,9 @@ Grouped by slot. Weapons show their class and actual roll pool from `empowerCand
 - Increase Great Fire Ball crit damage by 5–15%
 - Increase Frost Crunch crit chance by 1–8%
 - Increase Frost Crunch crit damage by 5–15%
+- +2–12% Gold drop
+- +2–12% Bonus XP
+- +2–6% Awakening Soul drop chance
 - −1–4% Damage taken
 - +1–6% Crit Rate
 - +5–15% Crit Damage
@@ -8667,6 +9097,9 @@ Grouped by slot. Weapons show their class and actual roll pool from `empowerCand
 - Increase Blade Avalanche crit damage by 5–15%
 - Increase Slashing Burst crit chance by 1–8%
 - Increase Slashing Burst crit damage by 5–15%
+- +2–12% Gold drop
+- +2–12% Bonus XP
+- +2–6% Awakening Soul drop chance
 - −1–4% Damage taken
 - +1–6% Crit Rate
 - +5–15% Crit Damage
@@ -8695,6 +9128,9 @@ Grouped by slot. Weapons show their class and actual roll pool from `empowerCand
 - Reduce Holy Deva damage taken by 5%
 - Increase Soul Fire Ball crit chance by 1–8%
 - Increase Soul Fire Ball crit damage by 5–15%
+- +2–12% Gold drop
+- +2–12% Bonus XP
+- +2–6% Awakening Soul drop chance
 - −1–4% Damage taken
 - +1–6% Crit Rate
 - +5–15% Crit Damage
@@ -8745,6 +9181,9 @@ Grouped by slot. Weapons show their class and actual roll pool from `empowerCand
 - Increase Great Fire Ball crit damage by 5–15%
 - Increase Frost Crunch crit chance by 1–8%
 - Increase Frost Crunch crit damage by 5–15%
+- +2–12% Gold drop
+- +2–12% Bonus XP
+- +2–6% Awakening Soul drop chance
 - −1–4% Damage taken
 - +1–6% Crit Rate
 - +5–15% Crit Damage
@@ -8777,6 +9216,9 @@ Grouped by slot. Weapons show their class and actual roll pool from `empowerCand
 - Increase Blade Avalanche crit damage by 5–15%
 - Increase Slashing Burst crit chance by 1–8%
 - Increase Slashing Burst crit damage by 5–15%
+- +2–12% Gold drop
+- +2–12% Bonus XP
+- +2–6% Awakening Soul drop chance
 - −1–4% Damage taken
 - +1–6% Crit Rate
 - +5–15% Crit Damage
@@ -8805,6 +9247,9 @@ Grouped by slot. Weapons show their class and actual roll pool from `empowerCand
 - Reduce Holy Deva damage taken by 5%
 - Increase Soul Fire Ball crit chance by 1–8%
 - Increase Soul Fire Ball crit damage by 5–15%
+- +2–12% Gold drop
+- +2–12% Bonus XP
+- +2–6% Awakening Soul drop chance
 - −1–4% Damage taken
 - +1–6% Crit Rate
 - +5–15% Crit Damage
@@ -8855,6 +9300,9 @@ Grouped by slot. Weapons show their class and actual roll pool from `empowerCand
 - Increase Great Fire Ball crit damage by 5–15%
 - Increase Frost Crunch crit chance by 1–8%
 - Increase Frost Crunch crit damage by 5–15%
+- +2–12% Gold drop
+- +2–12% Bonus XP
+- +2–6% Awakening Soul drop chance
 - −1–4% Damage taken
 - +1–6% Crit Rate
 - +5–15% Crit Damage
@@ -8887,6 +9335,9 @@ Grouped by slot. Weapons show their class and actual roll pool from `empowerCand
 - Increase Blade Avalanche crit damage by 5–15%
 - Increase Slashing Burst crit chance by 1–8%
 - Increase Slashing Burst crit damage by 5–15%
+- +2–12% Gold drop
+- +2–12% Bonus XP
+- +2–6% Awakening Soul drop chance
 - −1–4% Damage taken
 - +1–6% Crit Rate
 - +5–15% Crit Damage
@@ -8919,6 +9370,9 @@ Grouped by slot. Weapons show their class and actual roll pool from `empowerCand
 - Increase Blade Avalanche crit damage by 5–15%
 - Increase Slashing Burst crit chance by 1–8%
 - Increase Slashing Burst crit damage by 5–15%
+- +2–12% Gold drop
+- +2–12% Bonus XP
+- +2–6% Awakening Soul drop chance
 - −1–4% Damage taken
 - +1–6% Crit Rate
 - +5–15% Crit Damage
@@ -8947,6 +9401,9 @@ Grouped by slot. Weapons show their class and actual roll pool from `empowerCand
 - Reduce Holy Deva damage taken by 5%
 - Increase Soul Fire Ball crit chance by 1–8%
 - Increase Soul Fire Ball crit damage by 5–15%
+- +2–12% Gold drop
+- +2–12% Bonus XP
+- +2–6% Awakening Soul drop chance
 - −1–4% Damage taken
 - +1–6% Crit Rate
 - +5–15% Crit Damage
@@ -8997,6 +9454,9 @@ Grouped by slot. Weapons show their class and actual roll pool from `empowerCand
 - Increase Great Fire Ball crit damage by 5–15%
 - Increase Frost Crunch crit chance by 1–8%
 - Increase Frost Crunch crit damage by 5–15%
+- +2–12% Gold drop
+- +2–12% Bonus XP
+- +2–6% Awakening Soul drop chance
 - −1–4% Damage taken
 - +1–6% Crit Rate
 - +5–15% Crit Damage
@@ -9029,6 +9489,9 @@ Grouped by slot. Weapons show their class and actual roll pool from `empowerCand
 - Increase Blade Avalanche crit damage by 5–15%
 - Increase Slashing Burst crit chance by 1–8%
 - Increase Slashing Burst crit damage by 5–15%
+- +2–12% Gold drop
+- +2–12% Bonus XP
+- +2–6% Awakening Soul drop chance
 - −1–4% Damage taken
 - +1–6% Crit Rate
 - +5–15% Crit Damage
@@ -9079,6 +9542,9 @@ Grouped by slot. Weapons show their class and actual roll pool from `empowerCand
 - Increase Great Fire Ball crit damage by 5–15%
 - Increase Frost Crunch crit chance by 1–8%
 - Increase Frost Crunch crit damage by 5–15%
+- +2–12% Gold drop
+- +2–12% Bonus XP
+- +2–6% Awakening Soul drop chance
 - −1–4% Damage taken
 - +1–6% Crit Rate
 - +5–15% Crit Damage
@@ -9107,6 +9573,9 @@ Grouped by slot. Weapons show their class and actual roll pool from `empowerCand
 - Reduce Holy Deva damage taken by 5%
 - Increase Soul Fire Ball crit chance by 1–8%
 - Increase Soul Fire Ball crit damage by 5–15%
+- +2–12% Gold drop
+- +2–12% Bonus XP
+- +2–6% Awakening Soul drop chance
 - −1–4% Damage taken
 - +1–6% Crit Rate
 - +5–15% Crit Damage
@@ -9192,6 +9661,9 @@ Grouped by slot. Weapons show their class and actual roll pool from `empowerCand
 - Increase Frost Crunch crit damage by 5–25%
 - Increase Soul Fire Ball crit chance by 2–12%
 - Increase Soul Fire Ball crit damage by 5–25%
+- +5–20% Gold drop
+- +5–20% Bonus XP
+- +5–10% Awakening Soul drop chance
 - −2–6% Damage taken
 - +1–10% Crit Rate
 - +5–15% Crit Damage
@@ -9275,6 +9747,9 @@ Grouped by slot. Weapons show their class and actual roll pool from `empowerCand
 - Increase Frost Crunch crit damage by 5–25%
 - Increase Soul Fire Ball crit chance by 2–12%
 - Increase Soul Fire Ball crit damage by 5–25%
+- +5–20% Gold drop
+- +5–20% Bonus XP
+- +5–10% Awakening Soul drop chance
 - −2–6% Damage taken
 - +1–10% Crit Rate
 - +5–15% Crit Damage
@@ -9358,6 +9833,9 @@ Grouped by slot. Weapons show their class and actual roll pool from `empowerCand
 - Increase Frost Crunch crit damage by 5–25%
 - Increase Soul Fire Ball crit chance by 2–12%
 - Increase Soul Fire Ball crit damage by 5–25%
+- +5–20% Gold drop
+- +5–20% Bonus XP
+- +5–10% Awakening Soul drop chance
 - −2–6% Damage taken
 - +1–10% Crit Rate
 - +5–15% Crit Damage
@@ -9441,6 +9919,9 @@ Grouped by slot. Weapons show their class and actual roll pool from `empowerCand
 - Increase Frost Crunch crit damage by 5–25%
 - Increase Soul Fire Ball crit chance by 2–12%
 - Increase Soul Fire Ball crit damage by 5–25%
+- +5–20% Gold drop
+- +5–20% Bonus XP
+- +5–10% Awakening Soul drop chance
 - −2–6% Damage taken
 - +1–10% Crit Rate
 - +5–15% Crit Damage
@@ -9524,6 +10005,9 @@ Grouped by slot. Weapons show their class and actual roll pool from `empowerCand
 - Increase Frost Crunch crit damage by 5–25%
 - Increase Soul Fire Ball crit chance by 2–12%
 - Increase Soul Fire Ball crit damage by 5–25%
+- +5–20% Gold drop
+- +5–20% Bonus XP
+- +5–10% Awakening Soul drop chance
 - −2–6% Damage taken
 - +1–10% Crit Rate
 - +5–15% Crit Damage
@@ -9607,6 +10091,9 @@ Grouped by slot. Weapons show their class and actual roll pool from `empowerCand
 - Increase Frost Crunch crit damage by 5–25%
 - Increase Soul Fire Ball crit chance by 2–12%
 - Increase Soul Fire Ball crit damage by 5–25%
+- +5–20% Gold drop
+- +5–20% Bonus XP
+- +5–10% Awakening Soul drop chance
 - −2–6% Damage taken
 - +1–10% Crit Rate
 - +5–15% Crit Damage
@@ -9690,6 +10177,9 @@ Grouped by slot. Weapons show their class and actual roll pool from `empowerCand
 - Increase Frost Crunch crit damage by 5–25%
 - Increase Soul Fire Ball crit chance by 2–12%
 - Increase Soul Fire Ball crit damage by 5–25%
+- +5–20% Gold drop
+- +5–20% Bonus XP
+- +5–10% Awakening Soul drop chance
 - −2–6% Damage taken
 - +1–10% Crit Rate
 - +5–15% Crit Damage
@@ -9773,6 +10263,9 @@ Grouped by slot. Weapons show their class and actual roll pool from `empowerCand
 - Increase Frost Crunch crit damage by 5–25%
 - Increase Soul Fire Ball crit chance by 2–12%
 - Increase Soul Fire Ball crit damage by 5–25%
+- +5–20% Gold drop
+- +5–20% Bonus XP
+- +5–10% Awakening Soul drop chance
 - −2–6% Damage taken
 - +1–10% Crit Rate
 - +5–15% Crit Damage
@@ -9856,6 +10349,9 @@ Grouped by slot. Weapons show their class and actual roll pool from `empowerCand
 - Increase Frost Crunch crit damage by 5–25%
 - Increase Soul Fire Ball crit chance by 2–12%
 - Increase Soul Fire Ball crit damage by 5–25%
+- +5–20% Gold drop
+- +5–20% Bonus XP
+- +5–10% Awakening Soul drop chance
 - −2–6% Damage taken
 - +1–10% Crit Rate
 - +5–15% Crit Damage
@@ -9939,6 +10435,9 @@ Grouped by slot. Weapons show their class and actual roll pool from `empowerCand
 - Increase Frost Crunch crit damage by 5–25%
 - Increase Soul Fire Ball crit chance by 2–12%
 - Increase Soul Fire Ball crit damage by 5–25%
+- +5–20% Gold drop
+- +5–20% Bonus XP
+- +5–10% Awakening Soul drop chance
 - −2–6% Damage taken
 - +1–10% Crit Rate
 - +5–15% Crit Damage
@@ -10022,6 +10521,9 @@ Grouped by slot. Weapons show their class and actual roll pool from `empowerCand
 - Increase Frost Crunch crit damage by 5–25%
 - Increase Soul Fire Ball crit chance by 2–12%
 - Increase Soul Fire Ball crit damage by 5–25%
+- +5–20% Gold drop
+- +5–20% Bonus XP
+- +5–10% Awakening Soul drop chance
 - −2–6% Damage taken
 - +1–10% Crit Rate
 - +5–15% Crit Damage
@@ -10105,6 +10607,9 @@ Grouped by slot. Weapons show their class and actual roll pool from `empowerCand
 - Increase Frost Crunch crit damage by 5–25%
 - Increase Soul Fire Ball crit chance by 2–12%
 - Increase Soul Fire Ball crit damage by 5–25%
+- +5–20% Gold drop
+- +5–20% Bonus XP
+- +5–10% Awakening Soul drop chance
 - −2–6% Damage taken
 - +1–10% Crit Rate
 - +5–15% Crit Damage
@@ -10188,6 +10693,9 @@ Grouped by slot. Weapons show their class and actual roll pool from `empowerCand
 - Increase Frost Crunch crit damage by 5–25%
 - Increase Soul Fire Ball crit chance by 2–12%
 - Increase Soul Fire Ball crit damage by 5–25%
+- +5–20% Gold drop
+- +5–20% Bonus XP
+- +5–10% Awakening Soul drop chance
 - −2–6% Damage taken
 - +1–10% Crit Rate
 - +5–15% Crit Damage
@@ -10214,6 +10722,9 @@ Grouped by slot. Weapons show their class and actual roll pool from `empowerCand
 - Reduce Holy Deva damage taken by 5–10%
 - Increase Soul Fire Ball crit chance by 2–12%
 - Increase Soul Fire Ball crit damage by 5–25%
+- +5–20% Gold drop
+- +5–20% Bonus XP
+- +5–10% Awakening Soul drop chance
 - −2–6% Damage taken
 - +1–10% Crit Rate
 - +5–15% Crit Damage
@@ -10262,12 +10773,18 @@ Grouped by slot. Weapons show their class and actual roll pool from `empowerCand
 - Increase Great Fire Ball crit damage by 5–25%
 - Increase Frost Crunch crit chance by 2–12%
 - Increase Frost Crunch crit damage by 5–25%
+- +5–20% Gold drop
+- +5–20% Bonus XP
+- +5–10% Awakening Soul drop chance
 - −2–6% Damage taken
 - +1–10% Crit Rate
 - +5–15% Crit Damage
 - +5–20% Skill leveling
 
 ### material
+
+**Adamantine Ore** (`adamantine-ore`)
+- +AC
 
 **Awakening Soul** (`awakening-soul`)
 - +AC
@@ -10278,6 +10795,9 @@ Grouped by slot. Weapons show their class and actual roll pool from `empowerCand
 **Copper Ore** (`copper-ore`)
 - +AC
 
+**Focus Prism** (`focus-prism`)
+- +AC
+
 **Ghoul Heart** (`ghoul-heart`)
 - +AC
 
@@ -10285,6 +10805,9 @@ Grouped by slot. Weapons show their class and actual roll pool from `empowerCand
 - +AC
 
 **Gold Ore** (`gold-ore`)
+- +AC
+
+**Havoc Crystal** (`havoc-crystal`)
 - +AC
 
 **Large Bone** (`large-bone`)
@@ -10327,6 +10850,9 @@ Grouped by slot. Weapons show their class and actual roll pool from `empowerCand
 - Increase Blade Avalanche crit damage by 5–15%
 - Increase Slashing Burst crit chance by 1–8%
 - Increase Slashing Burst crit damage by 5–15%
+- +2–12% Gold drop
+- +2–12% Bonus XP
+- +2–6% Awakening Soul drop chance
 - −1–4% Damage taken
 - +1–6% Crit Rate
 - +5–15% Crit Damage
@@ -10376,6 +10902,9 @@ Grouped by slot. Weapons show their class and actual roll pool from `empowerCand
 - Increase Great Fire Ball crit damage by 5–15%
 - Increase Frost Crunch crit chance by 1–8%
 - Increase Frost Crunch crit damage by 5–15%
+- +2–12% Gold drop
+- +2–12% Bonus XP
+- +2–6% Awakening Soul drop chance
 - −1–4% Damage taken
 - +1–6% Crit Rate
 - +5–15% Crit Damage
@@ -10407,6 +10936,9 @@ Grouped by slot. Weapons show their class and actual roll pool from `empowerCand
 - Increase Blade Avalanche crit damage by 5–15%
 - Increase Slashing Burst crit chance by 1–8%
 - Increase Slashing Burst crit damage by 5–15%
+- +2–12% Gold drop
+- +2–12% Bonus XP
+- +2–6% Awakening Soul drop chance
 - −1–4% Damage taken
 - +1–6% Crit Rate
 - +5–15% Crit Damage
@@ -10456,6 +10988,9 @@ Grouped by slot. Weapons show their class and actual roll pool from `empowerCand
 - Increase Great Fire Ball crit damage by 5–15%
 - Increase Frost Crunch crit chance by 1–8%
 - Increase Frost Crunch crit damage by 5–15%
+- +2–12% Gold drop
+- +2–12% Bonus XP
+- +2–6% Awakening Soul drop chance
 - −1–4% Damage taken
 - +1–6% Crit Rate
 - +5–15% Crit Damage
@@ -10540,6 +11075,9 @@ Grouped by slot. Weapons show their class and actual roll pool from `empowerCand
 - Increase Frost Crunch crit damage by 5–15%
 - Increase Soul Fire Ball crit chance by 1–8%
 - Increase Soul Fire Ball crit damage by 5–15%
+- +2–12% Gold drop
+- +2–12% Bonus XP
+- +2–6% Awakening Soul drop chance
 - −1–4% Damage taken
 - +1–6% Crit Rate
 - +5–15% Crit Damage
@@ -10571,6 +11109,9 @@ Grouped by slot. Weapons show their class and actual roll pool from `empowerCand
 - Increase Blade Avalanche crit damage by 5–15%
 - Increase Slashing Burst crit chance by 1–8%
 - Increase Slashing Burst crit damage by 5–15%
+- +2–12% Gold drop
+- +2–12% Bonus XP
+- +2–6% Awakening Soul drop chance
 - −1–4% Damage taken
 - +1–6% Crit Rate
 - +5–15% Crit Damage
@@ -10598,6 +11139,9 @@ Grouped by slot. Weapons show their class and actual roll pool from `empowerCand
 - Reduce Holy Deva damage taken by 5%
 - Increase Soul Fire Ball crit chance by 1–8%
 - Increase Soul Fire Ball crit damage by 5–15%
+- +2–12% Gold drop
+- +2–12% Bonus XP
+- +2–6% Awakening Soul drop chance
 - −1–4% Damage taken
 - +1–6% Crit Rate
 - +5–15% Crit Damage
@@ -10647,6 +11191,9 @@ Grouped by slot. Weapons show their class and actual roll pool from `empowerCand
 - Increase Great Fire Ball crit damage by 5–15%
 - Increase Frost Crunch crit chance by 1–8%
 - Increase Frost Crunch crit damage by 5–15%
+- +2–12% Gold drop
+- +2–12% Bonus XP
+- +2–6% Awakening Soul drop chance
 - −1–4% Damage taken
 - +1–6% Crit Rate
 - +5–15% Crit Damage
@@ -10674,6 +11221,9 @@ Grouped by slot. Weapons show their class and actual roll pool from `empowerCand
 - Reduce Holy Deva damage taken by 5%
 - Increase Soul Fire Ball crit chance by 1–8%
 - Increase Soul Fire Ball crit damage by 5–15%
+- +2–12% Gold drop
+- +2–12% Bonus XP
+- +2–6% Awakening Soul drop chance
 - −1–4% Damage taken
 - +1–6% Crit Rate
 - +5–15% Crit Damage
@@ -10723,6 +11273,9 @@ Grouped by slot. Weapons show their class and actual roll pool from `empowerCand
 - Increase Great Fire Ball crit damage by 5–15%
 - Increase Frost Crunch crit chance by 1–8%
 - Increase Frost Crunch crit damage by 5–15%
+- +2–12% Gold drop
+- +2–12% Bonus XP
+- +2–6% Awakening Soul drop chance
 - −1–4% Damage taken
 - +1–6% Crit Rate
 - +5–15% Crit Damage
@@ -10750,6 +11303,9 @@ Grouped by slot. Weapons show their class and actual roll pool from `empowerCand
 - Reduce Holy Deva damage taken by 5%
 - Increase Soul Fire Ball crit chance by 1–8%
 - Increase Soul Fire Ball crit damage by 5–15%
+- +2–12% Gold drop
+- +2–12% Bonus XP
+- +2–6% Awakening Soul drop chance
 - −1–4% Damage taken
 - +1–6% Crit Rate
 - +5–15% Crit Damage
@@ -10777,6 +11333,9 @@ Grouped by slot. Weapons show their class and actual roll pool from `empowerCand
 - Reduce Holy Deva damage taken by 5%
 - Increase Soul Fire Ball crit chance by 1–8%
 - Increase Soul Fire Ball crit damage by 5–15%
+- +2–12% Gold drop
+- +2–12% Bonus XP
+- +2–6% Awakening Soul drop chance
 - −1–4% Damage taken
 - +1–6% Crit Rate
 - +5–15% Crit Damage
@@ -10804,6 +11363,9 @@ Grouped by slot. Weapons show their class and actual roll pool from `empowerCand
 - Reduce Holy Deva damage taken by 5%
 - Increase Soul Fire Ball crit chance by 1–8%
 - Increase Soul Fire Ball crit damage by 5–15%
+- +2–12% Gold drop
+- +2–12% Bonus XP
+- +2–6% Awakening Soul drop chance
 - −1–4% Damage taken
 - +1–6% Crit Rate
 - +5–15% Crit Damage
@@ -10853,6 +11415,9 @@ Grouped by slot. Weapons show their class and actual roll pool from `empowerCand
 - Increase Great Fire Ball crit damage by 5–15%
 - Increase Frost Crunch crit chance by 1–8%
 - Increase Frost Crunch crit damage by 5–15%
+- +2–12% Gold drop
+- +2–12% Bonus XP
+- +2–6% Awakening Soul drop chance
 - −1–4% Damage taken
 - +1–6% Crit Rate
 - +5–15% Crit Damage
@@ -10937,6 +11502,9 @@ Grouped by slot. Weapons show their class and actual roll pool from `empowerCand
 - Increase Frost Crunch crit damage by 5–15%
 - Increase Soul Fire Ball crit chance by 1–8%
 - Increase Soul Fire Ball crit damage by 5–15%
+- +2–12% Gold drop
+- +2–12% Bonus XP
+- +2–6% Awakening Soul drop chance
 - −1–4% Damage taken
 - +1–6% Crit Rate
 - +5–15% Crit Damage
@@ -11021,6 +11589,9 @@ Grouped by slot. Weapons show their class and actual roll pool from `empowerCand
 - Increase Frost Crunch crit damage by 5–15%
 - Increase Soul Fire Ball crit chance by 1–8%
 - Increase Soul Fire Ball crit damage by 5–15%
+- +2–12% Gold drop
+- +2–12% Bonus XP
+- +2–6% Awakening Soul drop chance
 - −1–4% Damage taken
 - +1–6% Crit Rate
 - +5–15% Crit Damage
@@ -11105,6 +11676,9 @@ Grouped by slot. Weapons show their class and actual roll pool from `empowerCand
 - Increase Frost Crunch crit damage by 5–15%
 - Increase Soul Fire Ball crit chance by 1–8%
 - Increase Soul Fire Ball crit damage by 5–15%
+- +2–12% Gold drop
+- +2–12% Bonus XP
+- +2–6% Awakening Soul drop chance
 - −1–4% Damage taken
 - +1–6% Crit Rate
 - +5–15% Crit Damage
@@ -11136,6 +11710,9 @@ Grouped by slot. Weapons show their class and actual roll pool from `empowerCand
 - Increase Blade Avalanche crit damage by 5–15%
 - Increase Slashing Burst crit chance by 1–8%
 - Increase Slashing Burst crit damage by 5–15%
+- +2–12% Gold drop
+- +2–12% Bonus XP
+- +2–6% Awakening Soul drop chance
 - −1–4% Damage taken
 - +1–6% Crit Rate
 - +5–15% Crit Damage
@@ -11167,6 +11744,9 @@ Grouped by slot. Weapons show their class and actual roll pool from `empowerCand
 - Increase Blade Avalanche crit damage by 5–15%
 - Increase Slashing Burst crit chance by 1–8%
 - Increase Slashing Burst crit damage by 5–15%
+- +2–12% Gold drop
+- +2–12% Bonus XP
+- +2–6% Awakening Soul drop chance
 - −1–4% Damage taken
 - +1–6% Crit Rate
 - +5–15% Crit Damage
@@ -11198,6 +11778,9 @@ Grouped by slot. Weapons show their class and actual roll pool from `empowerCand
 - Increase Blade Avalanche crit damage by 5–15%
 - Increase Slashing Burst crit chance by 1–8%
 - Increase Slashing Burst crit damage by 5–15%
+- +2–12% Gold drop
+- +2–12% Bonus XP
+- +2–6% Awakening Soul drop chance
 - −1–4% Damage taken
 - +1–6% Crit Rate
 - +5–15% Crit Damage
@@ -11247,6 +11830,9 @@ Grouped by slot. Weapons show their class and actual roll pool from `empowerCand
 - Increase Great Fire Ball crit damage by 5–15%
 - Increase Frost Crunch crit chance by 1–8%
 - Increase Frost Crunch crit damage by 5–15%
+- +2–12% Gold drop
+- +2–12% Bonus XP
+- +2–6% Awakening Soul drop chance
 - −1–4% Damage taken
 - +1–6% Crit Rate
 - +5–15% Crit Damage
@@ -11274,6 +11860,9 @@ Grouped by slot. Weapons show their class and actual roll pool from `empowerCand
 - Reduce Holy Deva damage taken by 5%
 - Increase Soul Fire Ball crit chance by 1–8%
 - Increase Soul Fire Ball crit damage by 5–15%
+- +2–12% Gold drop
+- +2–12% Bonus XP
+- +2–6% Awakening Soul drop chance
 - −1–4% Damage taken
 - +1–6% Crit Rate
 - +5–15% Crit Damage
@@ -11301,6 +11890,9 @@ Grouped by slot. Weapons show their class and actual roll pool from `empowerCand
 - Reduce Holy Deva damage taken by 5%
 - Increase Soul Fire Ball crit chance by 1–8%
 - Increase Soul Fire Ball crit damage by 5–15%
+- +2–12% Gold drop
+- +2–12% Bonus XP
+- +2–6% Awakening Soul drop chance
 - −1–4% Damage taken
 - +1–6% Crit Rate
 - +5–15% Crit Damage
@@ -11328,6 +11920,9 @@ Grouped by slot. Weapons show their class and actual roll pool from `empowerCand
 - Reduce Holy Deva damage taken by 5%
 - Increase Soul Fire Ball crit chance by 1–8%
 - Increase Soul Fire Ball crit damage by 5–15%
+- +2–12% Gold drop
+- +2–12% Bonus XP
+- +2–6% Awakening Soul drop chance
 - −1–4% Damage taken
 - +1–6% Crit Rate
 - +5–15% Crit Damage
@@ -11355,6 +11950,9 @@ Grouped by slot. Weapons show their class and actual roll pool from `empowerCand
 - Reduce Holy Deva damage taken by 5%
 - Increase Soul Fire Ball crit chance by 1–8%
 - Increase Soul Fire Ball crit damage by 5–15%
+- +2–12% Gold drop
+- +2–12% Bonus XP
+- +2–6% Awakening Soul drop chance
 - −1–4% Damage taken
 - +1–6% Crit Rate
 - +5–15% Crit Damage
@@ -11439,6 +12037,9 @@ Grouped by slot. Weapons show their class and actual roll pool from `empowerCand
 - Increase Frost Crunch crit damage by 5–15%
 - Increase Soul Fire Ball crit chance by 1–8%
 - Increase Soul Fire Ball crit damage by 5–15%
+- +2–12% Gold drop
+- +2–12% Bonus XP
+- +2–6% Awakening Soul drop chance
 - −1–4% Damage taken
 - +1–6% Crit Rate
 - +5–15% Crit Damage
@@ -11488,6 +12089,9 @@ Grouped by slot. Weapons show their class and actual roll pool from `empowerCand
 - Increase Great Fire Ball crit damage by 5–15%
 - Increase Frost Crunch crit chance by 1–8%
 - Increase Frost Crunch crit damage by 5–15%
+- +2–12% Gold drop
+- +2–12% Bonus XP
+- +2–6% Awakening Soul drop chance
 - −1–4% Damage taken
 - +1–6% Crit Rate
 - +5–15% Crit Damage
@@ -11519,6 +12123,9 @@ Grouped by slot. Weapons show their class and actual roll pool from `empowerCand
 - Increase Blade Avalanche crit damage by 5–15%
 - Increase Slashing Burst crit chance by 1–8%
 - Increase Slashing Burst crit damage by 5–15%
+- +2–12% Gold drop
+- +2–12% Bonus XP
+- +2–6% Awakening Soul drop chance
 - −1–4% Damage taken
 - +1–6% Crit Rate
 - +5–15% Crit Damage
@@ -11546,6 +12153,9 @@ Grouped by slot. Weapons show their class and actual roll pool from `empowerCand
 - Reduce Holy Deva damage taken by 5%
 - Increase Soul Fire Ball crit chance by 1–8%
 - Increase Soul Fire Ball crit damage by 5–15%
+- +2–12% Gold drop
+- +2–12% Bonus XP
+- +2–6% Awakening Soul drop chance
 - −1–4% Damage taken
 - +1–6% Crit Rate
 - +5–15% Crit Damage
@@ -11573,6 +12183,9 @@ Grouped by slot. Weapons show their class and actual roll pool from `empowerCand
 - Reduce Holy Deva damage taken by 5%
 - Increase Soul Fire Ball crit chance by 1–8%
 - Increase Soul Fire Ball crit damage by 5–15%
+- +2–12% Gold drop
+- +2–12% Bonus XP
+- +2–6% Awakening Soul drop chance
 - −1–4% Damage taken
 - +1–6% Crit Rate
 - +5–15% Crit Damage
@@ -11604,6 +12217,9 @@ Grouped by slot. Weapons show their class and actual roll pool from `empowerCand
 - Increase Blade Avalanche crit damage by 5–15%
 - Increase Slashing Burst crit chance by 1–8%
 - Increase Slashing Burst crit damage by 5–15%
+- +2–12% Gold drop
+- +2–12% Bonus XP
+- +2–6% Awakening Soul drop chance
 - −1–4% Damage taken
 - +1–6% Crit Rate
 - +5–15% Crit Damage
@@ -11635,6 +12251,9 @@ Grouped by slot. Weapons show their class and actual roll pool from `empowerCand
 - Increase Blade Avalanche crit damage by 5–15%
 - Increase Slashing Burst crit chance by 1–8%
 - Increase Slashing Burst crit damage by 5–15%
+- +2–12% Gold drop
+- +2–12% Bonus XP
+- +2–6% Awakening Soul drop chance
 - −1–4% Damage taken
 - +1–6% Crit Rate
 - +5–15% Crit Damage
@@ -11684,6 +12303,9 @@ Grouped by slot. Weapons show their class and actual roll pool from `empowerCand
 - Increase Great Fire Ball crit damage by 5–15%
 - Increase Frost Crunch crit chance by 1–8%
 - Increase Frost Crunch crit damage by 5–15%
+- +2–12% Gold drop
+- +2–12% Bonus XP
+- +2–6% Awakening Soul drop chance
 - −1–4% Damage taken
 - +1–6% Crit Rate
 - +5–15% Crit Damage
@@ -11715,6 +12337,9 @@ Grouped by slot. Weapons show their class and actual roll pool from `empowerCand
 - Increase Blade Avalanche crit damage by 5–15%
 - Increase Slashing Burst crit chance by 1–8%
 - Increase Slashing Burst crit damage by 5–15%
+- +2–12% Gold drop
+- +2–12% Bonus XP
+- +2–6% Awakening Soul drop chance
 - −1–4% Damage taken
 - +1–6% Crit Rate
 - +5–15% Crit Damage
@@ -11746,6 +12371,9 @@ Grouped by slot. Weapons show their class and actual roll pool from `empowerCand
 - Increase Blade Avalanche crit damage by 5–15%
 - Increase Slashing Burst crit chance by 1–8%
 - Increase Slashing Burst crit damage by 5–15%
+- +2–12% Gold drop
+- +2–12% Bonus XP
+- +2–6% Awakening Soul drop chance
 - −1–4% Damage taken
 - +1–6% Crit Rate
 - +5–15% Crit Damage
@@ -11773,6 +12401,9 @@ Grouped by slot. Weapons show their class and actual roll pool from `empowerCand
 - Reduce Holy Deva damage taken by 5%
 - Increase Soul Fire Ball crit chance by 1–8%
 - Increase Soul Fire Ball crit damage by 5–15%
+- +2–12% Gold drop
+- +2–12% Bonus XP
+- +2–6% Awakening Soul drop chance
 - −1–4% Damage taken
 - +1–6% Crit Rate
 - +5–15% Crit Damage
@@ -11800,6 +12431,9 @@ Grouped by slot. Weapons show their class and actual roll pool from `empowerCand
 - Reduce Holy Deva damage taken by 5%
 - Increase Soul Fire Ball crit chance by 1–8%
 - Increase Soul Fire Ball crit damage by 5–15%
+- +2–12% Gold drop
+- +2–12% Bonus XP
+- +2–6% Awakening Soul drop chance
 - −1–4% Damage taken
 - +1–6% Crit Rate
 - +5–15% Crit Damage
@@ -11831,6 +12465,9 @@ Grouped by slot. Weapons show their class and actual roll pool from `empowerCand
 - Increase Blade Avalanche crit damage by 5–15%
 - Increase Slashing Burst crit chance by 1–8%
 - Increase Slashing Burst crit damage by 5–15%
+- +2–12% Gold drop
+- +2–12% Bonus XP
+- +2–6% Awakening Soul drop chance
 - −1–4% Damage taken
 - +1–6% Crit Rate
 - +5–15% Crit Damage
@@ -11880,6 +12517,9 @@ Grouped by slot. Weapons show their class and actual roll pool from `empowerCand
 - Increase Great Fire Ball crit damage by 5–15%
 - Increase Frost Crunch crit chance by 1–8%
 - Increase Frost Crunch crit damage by 5–15%
+- +2–12% Gold drop
+- +2–12% Bonus XP
+- +2–6% Awakening Soul drop chance
 - −1–4% Damage taken
 - +1–6% Crit Rate
 - +5–15% Crit Damage
@@ -11907,6 +12547,9 @@ Grouped by slot. Weapons show their class and actual roll pool from `empowerCand
 - Reduce Holy Deva damage taken by 5%
 - Increase Soul Fire Ball crit chance by 1–8%
 - Increase Soul Fire Ball crit damage by 5–15%
+- +2–12% Gold drop
+- +2–12% Bonus XP
+- +2–6% Awakening Soul drop chance
 - −1–4% Damage taken
 - +1–6% Crit Rate
 - +5–15% Crit Damage
@@ -11956,6 +12599,9 @@ Grouped by slot. Weapons show their class and actual roll pool from `empowerCand
 - Increase Great Fire Ball crit damage by 5–15%
 - Increase Frost Crunch crit chance by 1–8%
 - Increase Frost Crunch crit damage by 5–15%
+- +2–12% Gold drop
+- +2–12% Bonus XP
+- +2–6% Awakening Soul drop chance
 - −1–4% Damage taken
 - +1–6% Crit Rate
 - +5–15% Crit Damage
@@ -12005,6 +12651,9 @@ Grouped by slot. Weapons show their class and actual roll pool from `empowerCand
 - Increase Great Fire Ball crit damage by 5–15%
 - Increase Frost Crunch crit chance by 1–8%
 - Increase Frost Crunch crit damage by 5–15%
+- +2–12% Gold drop
+- +2–12% Bonus XP
+- +2–6% Awakening Soul drop chance
 - −1–4% Damage taken
 - +1–6% Crit Rate
 - +5–15% Crit Damage
@@ -12036,6 +12685,9 @@ Grouped by slot. Weapons show their class and actual roll pool from `empowerCand
 - Increase Blade Avalanche crit damage by 5–15%
 - Increase Slashing Burst crit chance by 1–8%
 - Increase Slashing Burst crit damage by 5–15%
+- +2–12% Gold drop
+- +2–12% Bonus XP
+- +2–6% Awakening Soul drop chance
 - −1–4% Damage taken
 - +1–6% Crit Rate
 - +5–15% Crit Damage
@@ -12085,6 +12737,9 @@ Grouped by slot. Weapons show their class and actual roll pool from `empowerCand
 - Increase Great Fire Ball crit damage by 5–15%
 - Increase Frost Crunch crit chance by 1–8%
 - Increase Frost Crunch crit damage by 5–15%
+- +2–12% Gold drop
+- +2–12% Bonus XP
+- +2–6% Awakening Soul drop chance
 - −1–4% Damage taken
 - +1–6% Crit Rate
 - +5–15% Crit Damage
@@ -12116,6 +12771,9 @@ Grouped by slot. Weapons show their class and actual roll pool from `empowerCand
 - Increase Blade Avalanche crit damage by 5–15%
 - Increase Slashing Burst crit chance by 1–8%
 - Increase Slashing Burst crit damage by 5–15%
+- +2–12% Gold drop
+- +2–12% Bonus XP
+- +2–6% Awakening Soul drop chance
 - −1–4% Damage taken
 - +1–6% Crit Rate
 - +5–15% Crit Damage
@@ -12143,6 +12801,9 @@ Grouped by slot. Weapons show their class and actual roll pool from `empowerCand
 - Reduce Holy Deva damage taken by 5%
 - Increase Soul Fire Ball crit chance by 1–8%
 - Increase Soul Fire Ball crit damage by 5–15%
+- +2–12% Gold drop
+- +2–12% Bonus XP
+- +2–6% Awakening Soul drop chance
 - −1–4% Damage taken
 - +1–6% Crit Rate
 - +5–15% Crit Damage
@@ -12174,6 +12835,9 @@ Grouped by slot. Weapons show their class and actual roll pool from `empowerCand
 - Increase Blade Avalanche crit damage by 5–15%
 - Increase Slashing Burst crit chance by 1–8%
 - Increase Slashing Burst crit damage by 5–15%
+- +2–12% Gold drop
+- +2–12% Bonus XP
+- +2–6% Awakening Soul drop chance
 - −1–4% Damage taken
 - +1–6% Crit Rate
 - +5–15% Crit Damage
@@ -12201,6 +12865,9 @@ Grouped by slot. Weapons show their class and actual roll pool from `empowerCand
 - Reduce Holy Deva damage taken by 5%
 - Increase Soul Fire Ball crit chance by 1–8%
 - Increase Soul Fire Ball crit damage by 5–15%
+- +2–12% Gold drop
+- +2–12% Bonus XP
+- +2–6% Awakening Soul drop chance
 - −1–4% Damage taken
 - +1–6% Crit Rate
 - +5–15% Crit Damage
@@ -12250,6 +12917,9 @@ Grouped by slot. Weapons show their class and actual roll pool from `empowerCand
 - Increase Great Fire Ball crit damage by 5–15%
 - Increase Frost Crunch crit chance by 1–8%
 - Increase Frost Crunch crit damage by 5–15%
+- +2–12% Gold drop
+- +2–12% Bonus XP
+- +2–6% Awakening Soul drop chance
 - −1–4% Damage taken
 - +1–6% Crit Rate
 - +5–15% Crit Damage
@@ -12281,6 +12951,9 @@ Grouped by slot. Weapons show their class and actual roll pool from `empowerCand
 - Increase Blade Avalanche crit damage by 5–15%
 - Increase Slashing Burst crit chance by 1–8%
 - Increase Slashing Burst crit damage by 5–15%
+- +2–12% Gold drop
+- +2–12% Bonus XP
+- +2–6% Awakening Soul drop chance
 - −1–4% Damage taken
 - +1–6% Crit Rate
 - +5–15% Crit Damage
@@ -12330,6 +13003,9 @@ Grouped by slot. Weapons show their class and actual roll pool from `empowerCand
 - Increase Great Fire Ball crit damage by 5–15%
 - Increase Frost Crunch crit chance by 1–8%
 - Increase Frost Crunch crit damage by 5–15%
+- +2–12% Gold drop
+- +2–12% Bonus XP
+- +2–6% Awakening Soul drop chance
 - −1–4% Damage taken
 - +1–6% Crit Rate
 - +5–15% Crit Damage
@@ -12361,6 +13037,9 @@ Grouped by slot. Weapons show their class and actual roll pool from `empowerCand
 - Increase Blade Avalanche crit damage by 5–15%
 - Increase Slashing Burst crit chance by 1–8%
 - Increase Slashing Burst crit damage by 5–15%
+- +2–12% Gold drop
+- +2–12% Bonus XP
+- +2–6% Awakening Soul drop chance
 - −1–4% Damage taken
 - +1–6% Crit Rate
 - +5–15% Crit Damage
@@ -12410,6 +13089,9 @@ Grouped by slot. Weapons show their class and actual roll pool from `empowerCand
 - Increase Great Fire Ball crit damage by 5–15%
 - Increase Frost Crunch crit chance by 1–8%
 - Increase Frost Crunch crit damage by 5–15%
+- +2–12% Gold drop
+- +2–12% Bonus XP
+- +2–6% Awakening Soul drop chance
 - −1–4% Damage taken
 - +1–6% Crit Rate
 - +5–15% Crit Damage
@@ -12459,6 +13141,9 @@ Grouped by slot. Weapons show their class and actual roll pool from `empowerCand
 - Increase Great Fire Ball crit damage by 5–15%
 - Increase Frost Crunch crit chance by 1–8%
 - Increase Frost Crunch crit damage by 5–15%
+- +2–12% Gold drop
+- +2–12% Bonus XP
+- +2–6% Awakening Soul drop chance
 - −1–4% Damage taken
 - +1–6% Crit Rate
 - +5–15% Crit Damage
@@ -12486,6 +13171,9 @@ Grouped by slot. Weapons show their class and actual roll pool from `empowerCand
 - Reduce Holy Deva damage taken by 5%
 - Increase Soul Fire Ball crit chance by 1–8%
 - Increase Soul Fire Ball crit damage by 5–15%
+- +2–12% Gold drop
+- +2–12% Bonus XP
+- +2–6% Awakening Soul drop chance
 - −1–4% Damage taken
 - +1–6% Crit Rate
 - +5–15% Crit Damage
@@ -12513,6 +13201,9 @@ Grouped by slot. Weapons show their class and actual roll pool from `empowerCand
 - Reduce Holy Deva damage taken by 5%
 - Increase Soul Fire Ball crit chance by 1–8%
 - Increase Soul Fire Ball crit damage by 5–15%
+- +2–12% Gold drop
+- +2–12% Bonus XP
+- +2–6% Awakening Soul drop chance
 - −1–4% Damage taken
 - +1–6% Crit Rate
 - +5–15% Crit Damage
@@ -12540,6 +13231,9 @@ Grouped by slot. Weapons show their class and actual roll pool from `empowerCand
 - Reduce Holy Deva damage taken by 5%
 - Increase Soul Fire Ball crit chance by 1–8%
 - Increase Soul Fire Ball crit damage by 5–15%
+- +2–12% Gold drop
+- +2–12% Bonus XP
+- +2–6% Awakening Soul drop chance
 - −1–4% Damage taken
 - +1–6% Crit Rate
 - +5–15% Crit Damage
@@ -12571,6 +13265,9 @@ Grouped by slot. Weapons show their class and actual roll pool from `empowerCand
 - Increase Blade Avalanche crit damage by 5–15%
 - Increase Slashing Burst crit chance by 1–8%
 - Increase Slashing Burst crit damage by 5–15%
+- +2–12% Gold drop
+- +2–12% Bonus XP
+- +2–6% Awakening Soul drop chance
 - −1–4% Damage taken
 - +1–6% Crit Rate
 - +5–15% Crit Damage
@@ -12602,6 +13299,9 @@ Grouped by slot. Weapons show their class and actual roll pool from `empowerCand
 - Increase Blade Avalanche crit damage by 5–15%
 - Increase Slashing Burst crit chance by 1–8%
 - Increase Slashing Burst crit damage by 5–15%
+- +2–12% Gold drop
+- +2–12% Bonus XP
+- +2–6% Awakening Soul drop chance
 - −1–4% Damage taken
 - +1–6% Crit Rate
 - +5–15% Crit Damage
@@ -12651,6 +13351,9 @@ Grouped by slot. Weapons show their class and actual roll pool from `empowerCand
 - Increase Great Fire Ball crit damage by 5–15%
 - Increase Frost Crunch crit chance by 1–8%
 - Increase Frost Crunch crit damage by 5–15%
+- +2–12% Gold drop
+- +2–12% Bonus XP
+- +2–6% Awakening Soul drop chance
 - −1–4% Damage taken
 - +1–6% Crit Rate
 - +5–15% Crit Damage
@@ -12682,6 +13385,9 @@ Grouped by slot. Weapons show their class and actual roll pool from `empowerCand
 - Increase Blade Avalanche crit damage by 5–15%
 - Increase Slashing Burst crit chance by 1–8%
 - Increase Slashing Burst crit damage by 5–15%
+- +2–12% Gold drop
+- +2–12% Bonus XP
+- +2–6% Awakening Soul drop chance
 - −1–4% Damage taken
 - +1–6% Crit Rate
 - +5–15% Crit Damage
@@ -12709,6 +13415,9 @@ Grouped by slot. Weapons show their class and actual roll pool from `empowerCand
 - Reduce Holy Deva damage taken by 5%
 - Increase Soul Fire Ball crit chance by 1–8%
 - Increase Soul Fire Ball crit damage by 5–15%
+- +2–12% Gold drop
+- +2–12% Bonus XP
+- +2–6% Awakening Soul drop chance
 - −1–4% Damage taken
 - +1–6% Crit Rate
 - +5–15% Crit Damage
@@ -12758,6 +13467,9 @@ Grouped by slot. Weapons show their class and actual roll pool from `empowerCand
 - Increase Great Fire Ball crit damage by 5–15%
 - Increase Frost Crunch crit chance by 1–8%
 - Increase Frost Crunch crit damage by 5–15%
+- +2–12% Gold drop
+- +2–12% Bonus XP
+- +2–6% Awakening Soul drop chance
 - −1–4% Damage taken
 - +1–6% Crit Rate
 - +5–15% Crit Damage
@@ -12785,6 +13497,9 @@ Grouped by slot. Weapons show their class and actual roll pool from `empowerCand
 - Reduce Holy Deva damage taken by 5%
 - Increase Soul Fire Ball crit chance by 1–8%
 - Increase Soul Fire Ball crit damage by 5–15%
+- +2–12% Gold drop
+- +2–12% Bonus XP
+- +2–6% Awakening Soul drop chance
 - −1–4% Damage taken
 - +1–6% Crit Rate
 - +5–15% Crit Damage
@@ -12834,6 +13549,9 @@ Grouped by slot. Weapons show their class and actual roll pool from `empowerCand
 - Increase Great Fire Ball crit damage by 5–15%
 - Increase Frost Crunch crit chance by 1–8%
 - Increase Frost Crunch crit damage by 5–15%
+- +2–12% Gold drop
+- +2–12% Bonus XP
+- +2–6% Awakening Soul drop chance
 - −1–4% Damage taken
 - +1–6% Crit Rate
 - +5–15% Crit Damage
@@ -12861,6 +13579,9 @@ Grouped by slot. Weapons show their class and actual roll pool from `empowerCand
 - Reduce Holy Deva damage taken by 5%
 - Increase Soul Fire Ball crit chance by 1–8%
 - Increase Soul Fire Ball crit damage by 5–15%
+- +2–12% Gold drop
+- +2–12% Bonus XP
+- +2–6% Awakening Soul drop chance
 - −1–4% Damage taken
 - +1–6% Crit Rate
 - +5–15% Crit Damage
@@ -12892,6 +13613,9 @@ Grouped by slot. Weapons show their class and actual roll pool from `empowerCand
 - Increase Blade Avalanche crit damage by 5–15%
 - Increase Slashing Burst crit chance by 1–8%
 - Increase Slashing Burst crit damage by 5–15%
+- +2–12% Gold drop
+- +2–12% Bonus XP
+- +2–6% Awakening Soul drop chance
 - −1–4% Damage taken
 - +1–6% Crit Rate
 - +5–15% Crit Damage
@@ -12923,6 +13647,9 @@ Grouped by slot. Weapons show their class and actual roll pool from `empowerCand
 - Increase Blade Avalanche crit damage by 5–15%
 - Increase Slashing Burst crit chance by 1–8%
 - Increase Slashing Burst crit damage by 5–15%
+- +2–12% Gold drop
+- +2–12% Bonus XP
+- +2–6% Awakening Soul drop chance
 - −1–4% Damage taken
 - +1–6% Crit Rate
 - +5–15% Crit Damage
@@ -12950,6 +13677,9 @@ Grouped by slot. Weapons show their class and actual roll pool from `empowerCand
 - Reduce Holy Deva damage taken by 5%
 - Increase Soul Fire Ball crit chance by 1–8%
 - Increase Soul Fire Ball crit damage by 5–15%
+- +2–12% Gold drop
+- +2–12% Bonus XP
+- +2–6% Awakening Soul drop chance
 - −1–4% Damage taken
 - +1–6% Crit Rate
 - +5–15% Crit Damage
@@ -12999,6 +13729,9 @@ Grouped by slot. Weapons show their class and actual roll pool from `empowerCand
 - Increase Great Fire Ball crit damage by 5–15%
 - Increase Frost Crunch crit chance by 1–8%
 - Increase Frost Crunch crit damage by 5–15%
+- +2–12% Gold drop
+- +2–12% Bonus XP
+- +2–6% Awakening Soul drop chance
 - −1–4% Damage taken
 - +1–6% Crit Rate
 - +5–15% Crit Damage
@@ -13030,6 +13763,9 @@ Grouped by slot. Weapons show their class and actual roll pool from `empowerCand
 - Increase Blade Avalanche crit damage by 5–15%
 - Increase Slashing Burst crit chance by 1–8%
 - Increase Slashing Burst crit damage by 5–15%
+- +2–12% Gold drop
+- +2–12% Bonus XP
+- +2–6% Awakening Soul drop chance
 - −1–4% Damage taken
 - +1–6% Crit Rate
 - +5–15% Crit Damage
@@ -13061,6 +13797,9 @@ Grouped by slot. Weapons show their class and actual roll pool from `empowerCand
 - Increase Blade Avalanche crit damage by 5–15%
 - Increase Slashing Burst crit chance by 1–8%
 - Increase Slashing Burst crit damage by 5–15%
+- +2–12% Gold drop
+- +2–12% Bonus XP
+- +2–6% Awakening Soul drop chance
 - −1–4% Damage taken
 - +1–6% Crit Rate
 - +5–15% Crit Damage
@@ -13110,6 +13849,9 @@ Grouped by slot. Weapons show their class and actual roll pool from `empowerCand
 - Increase Great Fire Ball crit damage by 5–15%
 - Increase Frost Crunch crit chance by 1–8%
 - Increase Frost Crunch crit damage by 5–15%
+- +2–12% Gold drop
+- +2–12% Bonus XP
+- +2–6% Awakening Soul drop chance
 - −1–4% Damage taken
 - +1–6% Crit Rate
 - +5–15% Crit Damage
@@ -13137,6 +13879,9 @@ Grouped by slot. Weapons show their class and actual roll pool from `empowerCand
 - Reduce Holy Deva damage taken by 5%
 - Increase Soul Fire Ball crit chance by 1–8%
 - Increase Soul Fire Ball crit damage by 5–15%
+- +2–12% Gold drop
+- +2–12% Bonus XP
+- +2–6% Awakening Soul drop chance
 - −1–4% Damage taken
 - +1–6% Crit Rate
 - +5–15% Crit Damage
@@ -13186,6 +13931,9 @@ Grouped by slot. Weapons show their class and actual roll pool from `empowerCand
 - Increase Great Fire Ball crit damage by 5–15%
 - Increase Frost Crunch crit chance by 1–8%
 - Increase Frost Crunch crit damage by 5–15%
+- +2–12% Gold drop
+- +2–12% Bonus XP
+- +2–6% Awakening Soul drop chance
 - −1–4% Damage taken
 - +1–6% Crit Rate
 - +5–15% Crit Damage
@@ -13217,6 +13965,9 @@ Grouped by slot. Weapons show their class and actual roll pool from `empowerCand
 - Increase Blade Avalanche crit damage by 5–15%
 - Increase Slashing Burst crit chance by 1–8%
 - Increase Slashing Burst crit damage by 5–15%
+- +2–12% Gold drop
+- +2–12% Bonus XP
+- +2–6% Awakening Soul drop chance
 - −1–4% Damage taken
 - +1–6% Crit Rate
 - +5–15% Crit Damage
@@ -13248,6 +13999,9 @@ Grouped by slot. Weapons show their class and actual roll pool from `empowerCand
 - Increase Blade Avalanche crit damage by 5–15%
 - Increase Slashing Burst crit chance by 1–8%
 - Increase Slashing Burst crit damage by 5–15%
+- +2–12% Gold drop
+- +2–12% Bonus XP
+- +2–6% Awakening Soul drop chance
 - −1–4% Damage taken
 - +1–6% Crit Rate
 - +5–15% Crit Damage
@@ -13279,6 +14033,9 @@ Grouped by slot. Weapons show their class and actual roll pool from `empowerCand
 - Increase Blade Avalanche crit damage by 5–15%
 - Increase Slashing Burst crit chance by 1–8%
 - Increase Slashing Burst crit damage by 5–15%
+- +2–12% Gold drop
+- +2–12% Bonus XP
+- +2–6% Awakening Soul drop chance
 - −1–4% Damage taken
 - +1–6% Crit Rate
 - +5–15% Crit Damage
@@ -13363,6 +14120,9 @@ Grouped by slot. Weapons show their class and actual roll pool from `empowerCand
 - Increase Frost Crunch crit damage by 5–15%
 - Increase Soul Fire Ball crit chance by 1–8%
 - Increase Soul Fire Ball crit damage by 5–15%
+- +2–12% Gold drop
+- +2–12% Bonus XP
+- +2–6% Awakening Soul drop chance
 - −1–4% Damage taken
 - +1–6% Crit Rate
 - +5–15% Crit Damage
@@ -13390,6 +14150,9 @@ Grouped by slot. Weapons show their class and actual roll pool from `empowerCand
 - Reduce Holy Deva damage taken by 5%
 - Increase Soul Fire Ball crit chance by 1–8%
 - Increase Soul Fire Ball crit damage by 5–15%
+- +2–12% Gold drop
+- +2–12% Bonus XP
+- +2–6% Awakening Soul drop chance
 - −1–4% Damage taken
 - +1–6% Crit Rate
 - +5–15% Crit Damage
@@ -13421,6 +14184,9 @@ Grouped by slot. Weapons show their class and actual roll pool from `empowerCand
 - Increase Blade Avalanche crit damage by 5–15%
 - Increase Slashing Burst crit chance by 1–8%
 - Increase Slashing Burst crit damage by 5–15%
+- +2–12% Gold drop
+- +2–12% Bonus XP
+- +2–6% Awakening Soul drop chance
 - −1–4% Damage taken
 - +1–6% Crit Rate
 - +5–15% Crit Damage
@@ -13505,6 +14271,9 @@ Grouped by slot. Weapons show their class and actual roll pool from `empowerCand
 - Increase Frost Crunch crit damage by 5–15%
 - Increase Soul Fire Ball crit chance by 1–8%
 - Increase Soul Fire Ball crit damage by 5–15%
+- +2–12% Gold drop
+- +2–12% Bonus XP
+- +2–6% Awakening Soul drop chance
 - −1–4% Damage taken
 - +1–6% Crit Rate
 - +5–15% Crit Damage
@@ -13532,6 +14301,9 @@ Grouped by slot. Weapons show their class and actual roll pool from `empowerCand
 - Reduce Holy Deva damage taken by 5%
 - Increase Soul Fire Ball crit chance by 1–8%
 - Increase Soul Fire Ball crit damage by 5–15%
+- +2–12% Gold drop
+- +2–12% Bonus XP
+- +2–6% Awakening Soul drop chance
 - −1–4% Damage taken
 - +1–6% Crit Rate
 - +5–15% Crit Damage
@@ -13581,6 +14353,9 @@ Grouped by slot. Weapons show their class and actual roll pool from `empowerCand
 - Increase Great Fire Ball crit damage by 5–15%
 - Increase Frost Crunch crit chance by 1–8%
 - Increase Frost Crunch crit damage by 5–15%
+- +2–12% Gold drop
+- +2–12% Bonus XP
+- +2–6% Awakening Soul drop chance
 - −1–4% Damage taken
 - +1–6% Crit Rate
 - +5–15% Crit Damage
@@ -13630,6 +14405,9 @@ Grouped by slot. Weapons show their class and actual roll pool from `empowerCand
 - Increase Great Fire Ball crit damage by 5–15%
 - Increase Frost Crunch crit chance by 1–8%
 - Increase Frost Crunch crit damage by 5–15%
+- +2–12% Gold drop
+- +2–12% Bonus XP
+- +2–6% Awakening Soul drop chance
 - −1–4% Damage taken
 - +1–6% Crit Rate
 - +5–15% Crit Damage
@@ -13657,6 +14435,9 @@ Grouped by slot. Weapons show their class and actual roll pool from `empowerCand
 - Reduce Holy Deva damage taken by 5%
 - Increase Soul Fire Ball crit chance by 1–8%
 - Increase Soul Fire Ball crit damage by 5–15%
+- +2–12% Gold drop
+- +2–12% Bonus XP
+- +2–6% Awakening Soul drop chance
 - −1–4% Damage taken
 - +1–6% Crit Rate
 - +5–15% Crit Damage
@@ -13684,6 +14465,9 @@ Grouped by slot. Weapons show their class and actual roll pool from `empowerCand
 - Reduce Holy Deva damage taken by 5%
 - Increase Soul Fire Ball crit chance by 1–8%
 - Increase Soul Fire Ball crit damage by 5–15%
+- +2–12% Gold drop
+- +2–12% Bonus XP
+- +2–6% Awakening Soul drop chance
 - −1–4% Damage taken
 - +1–6% Crit Rate
 - +5–15% Crit Damage
@@ -13768,6 +14552,9 @@ Grouped by slot. Weapons show their class and actual roll pool from `empowerCand
 - Increase Frost Crunch crit damage by 5–15%
 - Increase Soul Fire Ball crit chance by 1–8%
 - Increase Soul Fire Ball crit damage by 5–15%
+- +2–12% Gold drop
+- +2–12% Bonus XP
+- +2–6% Awakening Soul drop chance
 - −1–4% Damage taken
 - +1–6% Crit Rate
 - +5–15% Crit Damage
@@ -13799,6 +14586,9 @@ Grouped by slot. Weapons show their class and actual roll pool from `empowerCand
 - Increase Blade Avalanche crit damage by 5–15%
 - Increase Slashing Burst crit chance by 1–8%
 - Increase Slashing Burst crit damage by 5–15%
+- +2–12% Gold drop
+- +2–12% Bonus XP
+- +2–6% Awakening Soul drop chance
 - −1–4% Damage taken
 - +1–6% Crit Rate
 - +5–15% Crit Damage
@@ -13883,6 +14673,9 @@ Grouped by slot. Weapons show their class and actual roll pool from `empowerCand
 - Increase Frost Crunch crit damage by 5–15%
 - Increase Soul Fire Ball crit chance by 1–8%
 - Increase Soul Fire Ball crit damage by 5–15%
+- +2–12% Gold drop
+- +2–12% Bonus XP
+- +2–6% Awakening Soul drop chance
 - −1–4% Damage taken
 - +1–6% Crit Rate
 - +5–15% Crit Damage
@@ -13914,6 +14707,9 @@ Grouped by slot. Weapons show their class and actual roll pool from `empowerCand
 - Increase Blade Avalanche crit damage by 5–15%
 - Increase Slashing Burst crit chance by 1–8%
 - Increase Slashing Burst crit damage by 5–15%
+- +2–12% Gold drop
+- +2–12% Bonus XP
+- +2–6% Awakening Soul drop chance
 - −1–4% Damage taken
 - +1–6% Crit Rate
 - +5–15% Crit Damage
@@ -13963,6 +14759,9 @@ Grouped by slot. Weapons show their class and actual roll pool from `empowerCand
 - Increase Great Fire Ball crit damage by 5–15%
 - Increase Frost Crunch crit chance by 1–8%
 - Increase Frost Crunch crit damage by 5–15%
+- +2–12% Gold drop
+- +2–12% Bonus XP
+- +2–6% Awakening Soul drop chance
 - −1–4% Damage taken
 - +1–6% Crit Rate
 - +5–15% Crit Damage
@@ -13990,6 +14789,9 @@ Grouped by slot. Weapons show their class and actual roll pool from `empowerCand
 - Reduce Holy Deva damage taken by 5%
 - Increase Soul Fire Ball crit chance by 1–8%
 - Increase Soul Fire Ball crit damage by 5–15%
+- +2–12% Gold drop
+- +2–12% Bonus XP
+- +2–6% Awakening Soul drop chance
 - −1–4% Damage taken
 - +1–6% Crit Rate
 - +5–15% Crit Damage
@@ -14021,6 +14823,9 @@ Grouped by slot. Weapons show their class and actual roll pool from `empowerCand
 - Increase Blade Avalanche crit damage by 5–15%
 - Increase Slashing Burst crit chance by 1–8%
 - Increase Slashing Burst crit damage by 5–15%
+- +2–12% Gold drop
+- +2–12% Bonus XP
+- +2–6% Awakening Soul drop chance
 - −1–4% Damage taken
 - +1–6% Crit Rate
 - +5–15% Crit Damage
@@ -14052,6 +14857,9 @@ Grouped by slot. Weapons show their class and actual roll pool from `empowerCand
 - Increase Blade Avalanche crit damage by 5–15%
 - Increase Slashing Burst crit chance by 1–8%
 - Increase Slashing Burst crit damage by 5–15%
+- +2–12% Gold drop
+- +2–12% Bonus XP
+- +2–6% Awakening Soul drop chance
 - −1–4% Damage taken
 - +1–6% Crit Rate
 - +5–15% Crit Damage
@@ -14101,6 +14909,9 @@ Grouped by slot. Weapons show their class and actual roll pool from `empowerCand
 - Increase Great Fire Ball crit damage by 5–15%
 - Increase Frost Crunch crit chance by 1–8%
 - Increase Frost Crunch crit damage by 5–15%
+- +2–12% Gold drop
+- +2–12% Bonus XP
+- +2–6% Awakening Soul drop chance
 - −1–4% Damage taken
 - +1–6% Crit Rate
 - +5–15% Crit Damage
@@ -14150,6 +14961,9 @@ Grouped by slot. Weapons show their class and actual roll pool from `empowerCand
 - Increase Great Fire Ball crit damage by 5–15%
 - Increase Frost Crunch crit chance by 1–8%
 - Increase Frost Crunch crit damage by 5–15%
+- +2–12% Gold drop
+- +2–12% Bonus XP
+- +2–6% Awakening Soul drop chance
 - −1–4% Damage taken
 - +1–6% Crit Rate
 - +5–15% Crit Damage
@@ -14181,6 +14995,9 @@ Grouped by slot. Weapons show their class and actual roll pool from `empowerCand
 - Increase Blade Avalanche crit damage by 5–15%
 - Increase Slashing Burst crit chance by 1–8%
 - Increase Slashing Burst crit damage by 5–15%
+- +2–12% Gold drop
+- +2–12% Bonus XP
+- +2–6% Awakening Soul drop chance
 - −1–4% Damage taken
 - +1–6% Crit Rate
 - +5–15% Crit Damage
@@ -14208,6 +15025,9 @@ Grouped by slot. Weapons show their class and actual roll pool from `empowerCand
 - Reduce Holy Deva damage taken by 5%
 - Increase Soul Fire Ball crit chance by 1–8%
 - Increase Soul Fire Ball crit damage by 5–15%
+- +2–12% Gold drop
+- +2–12% Bonus XP
+- +2–6% Awakening Soul drop chance
 - −1–4% Damage taken
 - +1–6% Crit Rate
 - +5–15% Crit Damage
@@ -14257,6 +15077,9 @@ Grouped by slot. Weapons show their class and actual roll pool from `empowerCand
 - Increase Great Fire Ball crit damage by 5–15%
 - Increase Frost Crunch crit chance by 1–8%
 - Increase Frost Crunch crit damage by 5–15%
+- +2–12% Gold drop
+- +2–12% Bonus XP
+- +2–6% Awakening Soul drop chance
 - −1–4% Damage taken
 - +1–6% Crit Rate
 - +5–15% Crit Damage
@@ -14284,6 +15107,9 @@ Grouped by slot. Weapons show their class and actual roll pool from `empowerCand
 - Reduce Holy Deva damage taken by 5%
 - Increase Soul Fire Ball crit chance by 1–8%
 - Increase Soul Fire Ball crit damage by 5–15%
+- +2–12% Gold drop
+- +2–12% Bonus XP
+- +2–6% Awakening Soul drop chance
 - −1–4% Damage taken
 - +1–6% Crit Rate
 - +5–15% Crit Damage
@@ -14315,6 +15141,9 @@ Grouped by slot. Weapons show their class and actual roll pool from `empowerCand
 - Increase Blade Avalanche crit damage by 5–15%
 - Increase Slashing Burst crit chance by 1–8%
 - Increase Slashing Burst crit damage by 5–15%
+- +2–12% Gold drop
+- +2–12% Bonus XP
+- +2–6% Awakening Soul drop chance
 - −1–4% Damage taken
 - +1–6% Crit Rate
 - +5–15% Crit Damage
@@ -14345,6 +15174,10 @@ Grouped by slot. Weapons show their class and actual roll pool from `empowerCand
 - Increase Blade Avalanche crit damage by 5–15%
 - Increase Slashing Burst crit chance by 1–8%
 - Increase Slashing Burst crit damage by 5–15%
+- +5–30% Gold drop
+- +5–30% Bonus XP
+- +0% Item drop chance
+- +5–15% Awakening Soul drop chance
 - −1–2% Damage taken
 - +1–14% Crit Rate
 - +5–20% Crit Damage
@@ -14426,6 +15259,10 @@ Grouped by slot. Weapons show their class and actual roll pool from `empowerCand
 - Increase Frost Crunch crit damage by 5–15%
 - Increase Soul Fire Ball crit chance by 1–8%
 - Increase Soul Fire Ball crit damage by 5–15%
+- +5–30% Gold drop
+- +5–30% Bonus XP
+- +0% Item drop chance
+- +5–15% Awakening Soul drop chance
 - −1–2% Damage taken
 - +1–14% Crit Rate
 - +5–20% Crit Damage
@@ -14507,6 +15344,10 @@ Grouped by slot. Weapons show their class and actual roll pool from `empowerCand
 - Increase Frost Crunch crit damage by 5–15%
 - Increase Soul Fire Ball crit chance by 1–8%
 - Increase Soul Fire Ball crit damage by 5–15%
+- +5–30% Gold drop
+- +5–30% Bonus XP
+- +0% Item drop chance
+- +5–15% Awakening Soul drop chance
 - −1–2% Damage taken
 - +1–14% Crit Rate
 - +5–20% Crit Damage
@@ -14553,6 +15394,10 @@ Grouped by slot. Weapons show their class and actual roll pool from `empowerCand
 - Increase Great Fire Ball crit damage by 5–15%
 - Increase Frost Crunch crit chance by 1–8%
 - Increase Frost Crunch crit damage by 5–15%
+- +5–30% Gold drop
+- +5–30% Bonus XP
+- +0% Item drop chance
+- +5–15% Awakening Soul drop chance
 - −1–2% Damage taken
 - +1–14% Crit Rate
 - +5–20% Crit Damage
@@ -14634,6 +15479,10 @@ Grouped by slot. Weapons show their class and actual roll pool from `empowerCand
 - Increase Frost Crunch crit damage by 5–15%
 - Increase Soul Fire Ball crit chance by 1–8%
 - Increase Soul Fire Ball crit damage by 5–15%
+- +5–30% Gold drop
+- +5–30% Bonus XP
+- +0% Item drop chance
+- +5–15% Awakening Soul drop chance
 - −1–2% Damage taken
 - +1–14% Crit Rate
 - +5–20% Crit Damage
@@ -14658,6 +15507,10 @@ Grouped by slot. Weapons show their class and actual roll pool from `empowerCand
 - Reduce Holy Deva damage taken by 5%
 - Increase Soul Fire Ball crit chance by 1–8%
 - Increase Soul Fire Ball crit damage by 5–15%
+- +5–30% Gold drop
+- +5–30% Bonus XP
+- +0% Item drop chance
+- +5–15% Awakening Soul drop chance
 - −1–2% Damage taken
 - +1–14% Crit Rate
 - +5–20% Crit Damage
@@ -14739,6 +15592,10 @@ Grouped by slot. Weapons show their class and actual roll pool from `empowerCand
 - Increase Frost Crunch crit damage by 5–15%
 - Increase Soul Fire Ball crit chance by 1–8%
 - Increase Soul Fire Ball crit damage by 5–15%
+- +5–30% Gold drop
+- +5–30% Bonus XP
+- +0% Item drop chance
+- +5–15% Awakening Soul drop chance
 - −1–2% Damage taken
 - +1–14% Crit Rate
 - +5–20% Crit Damage
@@ -14820,6 +15677,10 @@ Grouped by slot. Weapons show their class and actual roll pool from `empowerCand
 - Increase Frost Crunch crit damage by 5–15%
 - Increase Soul Fire Ball crit chance by 1–8%
 - Increase Soul Fire Ball crit damage by 5–15%
+- +5–30% Gold drop
+- +5–30% Bonus XP
+- +0% Item drop chance
+- +5–15% Awakening Soul drop chance
 - −1–2% Damage taken
 - +1–14% Crit Rate
 - +5–20% Crit Damage
@@ -14901,6 +15762,10 @@ Grouped by slot. Weapons show their class and actual roll pool from `empowerCand
 - Increase Frost Crunch crit damage by 5–15%
 - Increase Soul Fire Ball crit chance by 1–8%
 - Increase Soul Fire Ball crit damage by 5–15%
+- +5–30% Gold drop
+- +5–30% Bonus XP
+- +0% Item drop chance
+- +5–15% Awakening Soul drop chance
 - −1–2% Damage taken
 - +1–14% Crit Rate
 - +5–20% Crit Damage
@@ -14929,6 +15794,10 @@ Grouped by slot. Weapons show their class and actual roll pool from `empowerCand
 - Increase Blade Avalanche crit damage by 5–15%
 - Increase Slashing Burst crit chance by 1–8%
 - Increase Slashing Burst crit damage by 5–15%
+- +5–30% Gold drop
+- +5–30% Bonus XP
+- +0% Item drop chance
+- +5–15% Awakening Soul drop chance
 - −1–2% Damage taken
 - +1–14% Crit Rate
 - +5–20% Crit Damage
@@ -14975,6 +15844,10 @@ Grouped by slot. Weapons show their class and actual roll pool from `empowerCand
 - Increase Great Fire Ball crit damage by 5–15%
 - Increase Frost Crunch crit chance by 1–8%
 - Increase Frost Crunch crit damage by 5–15%
+- +5–30% Gold drop
+- +5–30% Bonus XP
+- +0% Item drop chance
+- +5–15% Awakening Soul drop chance
 - −1–2% Damage taken
 - +1–14% Crit Rate
 - +5–20% Crit Damage
@@ -14999,6 +15872,10 @@ Grouped by slot. Weapons show their class and actual roll pool from `empowerCand
 - Reduce Holy Deva damage taken by 5%
 - Increase Soul Fire Ball crit chance by 1–8%
 - Increase Soul Fire Ball crit damage by 5–15%
+- +5–30% Gold drop
+- +5–30% Bonus XP
+- +0% Item drop chance
+- +5–15% Awakening Soul drop chance
 - −1–2% Damage taken
 - +1–14% Crit Rate
 - +5–20% Crit Damage
@@ -15080,6 +15957,10 @@ Grouped by slot. Weapons show their class and actual roll pool from `empowerCand
 - Increase Frost Crunch crit damage by 5–15%
 - Increase Soul Fire Ball crit chance by 1–8%
 - Increase Soul Fire Ball crit damage by 5–15%
+- +5–30% Gold drop
+- +5–30% Bonus XP
+- +0% Item drop chance
+- +5–15% Awakening Soul drop chance
 - −1–2% Damage taken
 - +1–14% Crit Rate
 - +5–20% Crit Damage
@@ -15161,6 +16042,10 @@ Grouped by slot. Weapons show their class and actual roll pool from `empowerCand
 - Increase Frost Crunch crit damage by 5–15%
 - Increase Soul Fire Ball crit chance by 1–8%
 - Increase Soul Fire Ball crit damage by 5–15%
+- +5–30% Gold drop
+- +5–30% Bonus XP
+- +0% Item drop chance
+- +5–15% Awakening Soul drop chance
 - −1–2% Damage taken
 - +1–14% Crit Rate
 - +5–20% Crit Damage
@@ -15242,6 +16127,10 @@ Grouped by slot. Weapons show their class and actual roll pool from `empowerCand
 - Increase Frost Crunch crit damage by 5–15%
 - Increase Soul Fire Ball crit chance by 1–8%
 - Increase Soul Fire Ball crit damage by 5–15%
+- +5–30% Gold drop
+- +5–30% Bonus XP
+- +0% Item drop chance
+- +5–15% Awakening Soul drop chance
 - −1–2% Damage taken
 - +1–14% Crit Rate
 - +5–20% Crit Damage
@@ -15270,6 +16159,10 @@ Grouped by slot. Weapons show their class and actual roll pool from `empowerCand
 - Increase Blade Avalanche crit damage by 5–15%
 - Increase Slashing Burst crit chance by 1–8%
 - Increase Slashing Burst crit damage by 5–15%
+- +5–30% Gold drop
+- +5–30% Bonus XP
+- +0% Item drop chance
+- +5–15% Awakening Soul drop chance
 - −1–2% Damage taken
 - +1–14% Crit Rate
 - +5–20% Crit Damage
@@ -15316,6 +16209,10 @@ Grouped by slot. Weapons show their class and actual roll pool from `empowerCand
 - Increase Great Fire Ball crit damage by 5–15%
 - Increase Frost Crunch crit chance by 1–8%
 - Increase Frost Crunch crit damage by 5–15%
+- +5–30% Gold drop
+- +5–30% Bonus XP
+- +0% Item drop chance
+- +5–15% Awakening Soul drop chance
 - −1–2% Damage taken
 - +1–14% Crit Rate
 - +5–20% Crit Damage
@@ -15340,6 +16237,10 @@ Grouped by slot. Weapons show their class and actual roll pool from `empowerCand
 - Reduce Holy Deva damage taken by 5%
 - Increase Soul Fire Ball crit chance by 1–8%
 - Increase Soul Fire Ball crit damage by 5–15%
+- +5–30% Gold drop
+- +5–30% Bonus XP
+- +0% Item drop chance
+- +5–15% Awakening Soul drop chance
 - −1–2% Damage taken
 - +1–14% Crit Rate
 - +5–20% Crit Damage
@@ -15368,6 +16269,10 @@ Grouped by slot. Weapons show their class and actual roll pool from `empowerCand
 - Increase Blade Avalanche crit damage by 5–15%
 - Increase Slashing Burst crit chance by 1–8%
 - Increase Slashing Burst crit damage by 5–15%
+- +5–30% Gold drop
+- +5–30% Bonus XP
+- +0% Item drop chance
+- +5–15% Awakening Soul drop chance
 - −1–2% Damage taken
 - +1–14% Crit Rate
 - +5–20% Crit Damage
@@ -15414,6 +16319,10 @@ Grouped by slot. Weapons show their class and actual roll pool from `empowerCand
 - Increase Great Fire Ball crit damage by 5–15%
 - Increase Frost Crunch crit chance by 1–8%
 - Increase Frost Crunch crit damage by 5–15%
+- +5–30% Gold drop
+- +5–30% Bonus XP
+- +0% Item drop chance
+- +5–15% Awakening Soul drop chance
 - −1–2% Damage taken
 - +1–14% Crit Rate
 - +5–20% Crit Damage
@@ -15438,6 +16347,10 @@ Grouped by slot. Weapons show their class and actual roll pool from `empowerCand
 - Reduce Holy Deva damage taken by 5%
 - Increase Soul Fire Ball crit chance by 1–8%
 - Increase Soul Fire Ball crit damage by 5–15%
+- +5–30% Gold drop
+- +5–30% Bonus XP
+- +0% Item drop chance
+- +5–15% Awakening Soul drop chance
 - −1–2% Damage taken
 - +1–14% Crit Rate
 - +5–20% Crit Damage
@@ -15466,6 +16379,10 @@ Grouped by slot. Weapons show their class and actual roll pool from `empowerCand
 - Increase Blade Avalanche crit damage by 5–15%
 - Increase Slashing Burst crit chance by 1–8%
 - Increase Slashing Burst crit damage by 5–15%
+- +5–30% Gold drop
+- +5–30% Bonus XP
+- +0% Item drop chance
+- +5–15% Awakening Soul drop chance
 - −1–2% Damage taken
 - +1–14% Crit Rate
 - +5–20% Crit Damage
@@ -15512,6 +16429,10 @@ Grouped by slot. Weapons show their class and actual roll pool from `empowerCand
 - Increase Great Fire Ball crit damage by 5–15%
 - Increase Frost Crunch crit chance by 1–8%
 - Increase Frost Crunch crit damage by 5–15%
+- +5–30% Gold drop
+- +5–30% Bonus XP
+- +0% Item drop chance
+- +5–15% Awakening Soul drop chance
 - −1–2% Damage taken
 - +1–14% Crit Rate
 - +5–20% Crit Damage
@@ -15536,6 +16457,10 @@ Grouped by slot. Weapons show their class and actual roll pool from `empowerCand
 - Reduce Holy Deva damage taken by 5%
 - Increase Soul Fire Ball crit chance by 1–8%
 - Increase Soul Fire Ball crit damage by 5–15%
+- +5–30% Gold drop
+- +5–30% Bonus XP
+- +0% Item drop chance
+- +5–15% Awakening Soul drop chance
 - −1–2% Damage taken
 - +1–14% Crit Rate
 - +5–20% Crit Damage
@@ -15583,10 +16508,10 @@ Grouped by slot. Weapons show their class and actual roll pool from `empowerCand
 - Increase Great Fire Ball crit damage by 10–50%
 - Increase Frost Crunch crit chance by 5–25%
 - Increase Frost Crunch crit damage by 10–50%
-- +5–25% Gold drop
-- +1–5% Bonus XP
-- +0%–2% Item drop chance
-- +5–25% Awakening Soul drop chance
+- +5–40% Gold drop
+- +5–40% Bonus XP
+- +0%–1% Item drop chance
+- +5–20% Awakening Soul drop chance
 - +1–20% Crit Rate
 - +5–30% Crit Damage
 - +5–40% Skill leveling
@@ -15617,10 +16542,10 @@ Grouped by slot. Weapons show their class and actual roll pool from `empowerCand
 - Increase Blade Avalanche crit damage by 10–50%
 - Increase Slashing Burst crit chance by 5–25%
 - Increase Slashing Burst crit damage by 10–50%
-- +5–25% Gold drop
-- +1–5% Bonus XP
-- +0%–2% Item drop chance
-- +5–25% Awakening Soul drop chance
+- +5–40% Gold drop
+- +5–40% Bonus XP
+- +0%–1% Item drop chance
+- +5–20% Awakening Soul drop chance
 - +1–20% Crit Rate
 - +5–30% Crit Damage
 - +5–40% Skill leveling
@@ -15651,10 +16576,10 @@ Grouped by slot. Weapons show their class and actual roll pool from `empowerCand
 - Increase Blade Avalanche crit damage by 10–50%
 - Increase Slashing Burst crit chance by 5–25%
 - Increase Slashing Burst crit damage by 10–50%
-- +5–25% Gold drop
-- +1–5% Bonus XP
-- +0%–2% Item drop chance
-- +5–25% Awakening Soul drop chance
+- +5–40% Gold drop
+- +5–40% Bonus XP
+- +0%–1% Item drop chance
+- +5–20% Awakening Soul drop chance
 - +1–20% Crit Rate
 - +5–30% Crit Damage
 - +5–40% Skill leveling
@@ -15685,10 +16610,10 @@ Grouped by slot. Weapons show their class and actual roll pool from `empowerCand
 - Increase Blade Avalanche crit damage by 10–50%
 - Increase Slashing Burst crit chance by 5–25%
 - Increase Slashing Burst crit damage by 10–50%
-- +5–25% Gold drop
-- +1–5% Bonus XP
-- +0%–2% Item drop chance
-- +5–25% Awakening Soul drop chance
+- +5–40% Gold drop
+- +5–40% Bonus XP
+- +0%–1% Item drop chance
+- +5–20% Awakening Soul drop chance
 - +1–20% Crit Rate
 - +5–30% Crit Damage
 - +5–40% Skill leveling
@@ -15733,10 +16658,10 @@ Grouped by slot. Weapons show their class and actual roll pool from `empowerCand
 - Increase Great Fire Ball crit damage by 10–50%
 - Increase Frost Crunch crit chance by 5–25%
 - Increase Frost Crunch crit damage by 10–50%
-- +5–25% Gold drop
-- +1–5% Bonus XP
-- +0%–2% Item drop chance
-- +5–25% Awakening Soul drop chance
+- +5–40% Gold drop
+- +5–40% Bonus XP
+- +0%–1% Item drop chance
+- +5–20% Awakening Soul drop chance
 - +1–20% Crit Rate
 - +5–30% Crit Damage
 - +5–40% Skill leveling
@@ -15767,10 +16692,10 @@ Grouped by slot. Weapons show their class and actual roll pool from `empowerCand
 - Increase Blade Avalanche crit damage by 10–50%
 - Increase Slashing Burst crit chance by 5–25%
 - Increase Slashing Burst crit damage by 10–50%
-- +5–25% Gold drop
-- +1–5% Bonus XP
-- +0%–2% Item drop chance
-- +5–25% Awakening Soul drop chance
+- +5–40% Gold drop
+- +5–40% Bonus XP
+- +0%–1% Item drop chance
+- +5–20% Awakening Soul drop chance
 - +1–20% Crit Rate
 - +5–30% Crit Damage
 - +5–40% Skill leveling
@@ -15801,10 +16726,10 @@ Grouped by slot. Weapons show their class and actual roll pool from `empowerCand
 - Increase Blade Avalanche crit damage by 10–50%
 - Increase Slashing Burst crit chance by 5–25%
 - Increase Slashing Burst crit damage by 10–50%
-- +5–25% Gold drop
-- +1–5% Bonus XP
-- +0%–2% Item drop chance
-- +5–25% Awakening Soul drop chance
+- +5–40% Gold drop
+- +5–40% Bonus XP
+- +0%–1% Item drop chance
+- +5–20% Awakening Soul drop chance
 - +1–20% Crit Rate
 - +5–30% Crit Damage
 - +5–40% Skill leveling
@@ -15835,10 +16760,10 @@ Grouped by slot. Weapons show their class and actual roll pool from `empowerCand
 - Increase Blade Avalanche crit damage by 10–50%
 - Increase Slashing Burst crit chance by 5–25%
 - Increase Slashing Burst crit damage by 10–50%
-- +5–25% Gold drop
-- +1–5% Bonus XP
-- +0%–2% Item drop chance
-- +5–25% Awakening Soul drop chance
+- +5–40% Gold drop
+- +5–40% Bonus XP
+- +0%–1% Item drop chance
+- +5–20% Awakening Soul drop chance
 - +1–20% Crit Rate
 - +5–30% Crit Damage
 - +5–40% Skill leveling
@@ -15869,10 +16794,10 @@ Grouped by slot. Weapons show their class and actual roll pool from `empowerCand
 - Increase Blade Avalanche crit damage by 10–50%
 - Increase Slashing Burst crit chance by 5–25%
 - Increase Slashing Burst crit damage by 10–50%
-- +5–25% Gold drop
-- +1–5% Bonus XP
-- +0%–2% Item drop chance
-- +5–25% Awakening Soul drop chance
+- +5–40% Gold drop
+- +5–40% Bonus XP
+- +0%–1% Item drop chance
+- +5–20% Awakening Soul drop chance
 - +1–20% Crit Rate
 - +5–30% Crit Damage
 - +5–40% Skill leveling
@@ -15903,10 +16828,10 @@ Grouped by slot. Weapons show their class and actual roll pool from `empowerCand
 - Increase Blade Avalanche crit damage by 10–50%
 - Increase Slashing Burst crit chance by 5–25%
 - Increase Slashing Burst crit damage by 10–50%
-- +5–25% Gold drop
-- +1–5% Bonus XP
-- +0%–2% Item drop chance
-- +5–25% Awakening Soul drop chance
+- +5–40% Gold drop
+- +5–40% Bonus XP
+- +0%–1% Item drop chance
+- +5–20% Awakening Soul drop chance
 - +1–20% Crit Rate
 - +5–30% Crit Damage
 - +5–40% Skill leveling
@@ -15937,10 +16862,10 @@ Grouped by slot. Weapons show their class and actual roll pool from `empowerCand
 - Increase Blade Avalanche crit damage by 10–50%
 - Increase Slashing Burst crit chance by 5–25%
 - Increase Slashing Burst crit damage by 10–50%
-- +5–25% Gold drop
-- +1–5% Bonus XP
-- +0%–2% Item drop chance
-- +5–25% Awakening Soul drop chance
+- +5–40% Gold drop
+- +5–40% Bonus XP
+- +0%–1% Item drop chance
+- +5–20% Awakening Soul drop chance
 - +1–20% Crit Rate
 - +5–30% Crit Damage
 - +5–40% Skill leveling
@@ -16005,10 +16930,10 @@ Grouped by slot. Weapons show their class and actual roll pool from `empowerCand
 - Reduce Holy Deva damage taken by 5–20%
 - Increase Soul Fire Ball crit chance by 5–25%
 - Increase Soul Fire Ball crit damage by 10–50%
-- +5–25% Gold drop
-- +1–5% Bonus XP
-- +0%–2% Item drop chance
-- +5–25% Awakening Soul drop chance
+- +5–40% Gold drop
+- +5–40% Bonus XP
+- +0%–1% Item drop chance
+- +5–20% Awakening Soul drop chance
 - +1–20% Crit Rate
 - +5–30% Crit Damage
 - +5–40% Skill leveling
@@ -16039,10 +16964,10 @@ Grouped by slot. Weapons show their class and actual roll pool from `empowerCand
 - Increase Blade Avalanche crit damage by 10–50%
 - Increase Slashing Burst crit chance by 5–25%
 - Increase Slashing Burst crit damage by 10–50%
-- +5–25% Gold drop
-- +1–5% Bonus XP
-- +0%–2% Item drop chance
-- +5–25% Awakening Soul drop chance
+- +5–40% Gold drop
+- +5–40% Bonus XP
+- +0%–1% Item drop chance
+- +5–20% Awakening Soul drop chance
 - +1–20% Crit Rate
 - +5–30% Crit Damage
 - +5–40% Skill leveling
@@ -16073,10 +16998,10 @@ Grouped by slot. Weapons show their class and actual roll pool from `empowerCand
 - Increase Blade Avalanche crit damage by 10–50%
 - Increase Slashing Burst crit chance by 5–25%
 - Increase Slashing Burst crit damage by 10–50%
-- +5–25% Gold drop
-- +1–5% Bonus XP
-- +0%–2% Item drop chance
-- +5–25% Awakening Soul drop chance
+- +5–40% Gold drop
+- +5–40% Bonus XP
+- +0%–1% Item drop chance
+- +5–20% Awakening Soul drop chance
 - +1–20% Crit Rate
 - +5–30% Crit Damage
 - +5–40% Skill leveling
@@ -16107,10 +17032,10 @@ Grouped by slot. Weapons show their class and actual roll pool from `empowerCand
 - Increase Blade Avalanche crit damage by 10–50%
 - Increase Slashing Burst crit chance by 5–25%
 - Increase Slashing Burst crit damage by 10–50%
-- +5–25% Gold drop
-- +1–5% Bonus XP
-- +0%–2% Item drop chance
-- +5–25% Awakening Soul drop chance
+- +5–40% Gold drop
+- +5–40% Bonus XP
+- +0%–1% Item drop chance
+- +5–20% Awakening Soul drop chance
 - +1–20% Crit Rate
 - +5–30% Crit Damage
 - +5–40% Skill leveling
@@ -16141,10 +17066,10 @@ Grouped by slot. Weapons show their class and actual roll pool from `empowerCand
 - Increase Blade Avalanche crit damage by 10–50%
 - Increase Slashing Burst crit chance by 5–25%
 - Increase Slashing Burst crit damage by 10–50%
-- +5–25% Gold drop
-- +1–5% Bonus XP
-- +0%–2% Item drop chance
-- +5–25% Awakening Soul drop chance
+- +5–40% Gold drop
+- +5–40% Bonus XP
+- +0%–1% Item drop chance
+- +5–20% Awakening Soul drop chance
 - +1–20% Crit Rate
 - +5–30% Crit Damage
 - +5–40% Skill leveling
@@ -16166,10 +17091,10 @@ Grouped by slot. Weapons show their class and actual roll pool from `empowerCand
 - Reduce Holy Deva damage taken by 5–20%
 - Increase Soul Fire Ball crit chance by 5–25%
 - Increase Soul Fire Ball crit damage by 10–50%
-- +5–25% Gold drop
-- +1–5% Bonus XP
-- +0%–2% Item drop chance
-- +5–25% Awakening Soul drop chance
+- +5–40% Gold drop
+- +5–40% Bonus XP
+- +0%–1% Item drop chance
+- +5–20% Awakening Soul drop chance
 - +1–20% Crit Rate
 - +5–30% Crit Damage
 - +5–40% Skill leveling
@@ -16191,10 +17116,10 @@ Grouped by slot. Weapons show their class and actual roll pool from `empowerCand
 - Reduce Holy Deva damage taken by 5–20%
 - Increase Soul Fire Ball crit chance by 5–25%
 - Increase Soul Fire Ball crit damage by 10–50%
-- +5–25% Gold drop
-- +1–5% Bonus XP
-- +0%–2% Item drop chance
-- +5–25% Awakening Soul drop chance
+- +5–40% Gold drop
+- +5–40% Bonus XP
+- +0%–1% Item drop chance
+- +5–20% Awakening Soul drop chance
 - +1–20% Crit Rate
 - +5–30% Crit Damage
 - +5–40% Skill leveling
@@ -16225,10 +17150,10 @@ Grouped by slot. Weapons show their class and actual roll pool from `empowerCand
 - Increase Blade Avalanche crit damage by 10–50%
 - Increase Slashing Burst crit chance by 5–25%
 - Increase Slashing Burst crit damage by 10–50%
-- +5–25% Gold drop
-- +1–5% Bonus XP
-- +0%–2% Item drop chance
-- +5–25% Awakening Soul drop chance
+- +5–40% Gold drop
+- +5–40% Bonus XP
+- +0%–1% Item drop chance
+- +5–20% Awakening Soul drop chance
 - +1–20% Crit Rate
 - +5–30% Crit Damage
 - +5–40% Skill leveling
@@ -16273,10 +17198,10 @@ Grouped by slot. Weapons show their class and actual roll pool from `empowerCand
 - Increase Great Fire Ball crit damage by 10–50%
 - Increase Frost Crunch crit chance by 5–25%
 - Increase Frost Crunch crit damage by 10–50%
-- +5–25% Gold drop
-- +1–5% Bonus XP
-- +0%–2% Item drop chance
-- +5–25% Awakening Soul drop chance
+- +5–40% Gold drop
+- +5–40% Bonus XP
+- +0%–1% Item drop chance
+- +5–20% Awakening Soul drop chance
 - +1–20% Crit Rate
 - +5–30% Crit Damage
 - +5–40% Skill leveling
@@ -16321,10 +17246,10 @@ Grouped by slot. Weapons show their class and actual roll pool from `empowerCand
 - Increase Great Fire Ball crit damage by 10–50%
 - Increase Frost Crunch crit chance by 5–25%
 - Increase Frost Crunch crit damage by 10–50%
-- +5–25% Gold drop
-- +1–5% Bonus XP
-- +0%–2% Item drop chance
-- +5–25% Awakening Soul drop chance
+- +5–40% Gold drop
+- +5–40% Bonus XP
+- +0%–1% Item drop chance
+- +5–20% Awakening Soul drop chance
 - +1–20% Crit Rate
 - +5–30% Crit Damage
 - +5–40% Skill leveling
@@ -16355,20 +17280,20 @@ Grouped by slot. Weapons show their class and actual roll pool from `empowerCand
 - Increase Blade Avalanche crit damage by 10–50%
 - Increase Slashing Burst crit chance by 5–25%
 - Increase Slashing Burst crit damage by 10–50%
-- +5–25% Gold drop
-- +1–5% Bonus XP
-- +0%–2% Item drop chance
-- +5–25% Awakening Soul drop chance
+- +5–40% Gold drop
+- +5–40% Bonus XP
+- +0%–1% Item drop chance
+- +5–20% Awakening Soul drop chance
 - +1–20% Crit Rate
 - +5–30% Crit Damage
 - +5–40% Skill leveling
 
 **Hard Steel Sword** (`hard-steel-sword`)
 - +1–2 Luck
-- +5–25% Gold drop
-- +1–5% Bonus XP
-- +0%–2% Item drop chance
-- +5–25% Awakening Soul drop chance
+- +5–40% Gold drop
+- +5–40% Bonus XP
+- +0%–1% Item drop chance
+- +5–20% Awakening Soul drop chance
 - +1–20% Crit Rate
 - +5–30% Crit Damage
 - +5–40% Skill leveling
@@ -16399,10 +17324,10 @@ Grouped by slot. Weapons show their class and actual roll pool from `empowerCand
 - Increase Blade Avalanche crit damage by 10–50%
 - Increase Slashing Burst crit chance by 5–25%
 - Increase Slashing Burst crit damage by 10–50%
-- +5–25% Gold drop
-- +1–5% Bonus XP
-- +0%–2% Item drop chance
-- +5–25% Awakening Soul drop chance
+- +5–40% Gold drop
+- +5–40% Bonus XP
+- +0%–1% Item drop chance
+- +5–20% Awakening Soul drop chance
 - +1–20% Crit Rate
 - +5–30% Crit Damage
 - +5–40% Skill leveling
@@ -16447,10 +17372,10 @@ Grouped by slot. Weapons show their class and actual roll pool from `empowerCand
 - Increase Great Fire Ball crit damage by 10–50%
 - Increase Frost Crunch crit chance by 5–25%
 - Increase Frost Crunch crit damage by 10–50%
-- +5–25% Gold drop
-- +1–5% Bonus XP
-- +0%–2% Item drop chance
-- +5–25% Awakening Soul drop chance
+- +5–40% Gold drop
+- +5–40% Bonus XP
+- +0%–1% Item drop chance
+- +5–20% Awakening Soul drop chance
 - +1–20% Crit Rate
 - +5–30% Crit Damage
 - +5–40% Skill leveling
@@ -16472,10 +17397,10 @@ Grouped by slot. Weapons show their class and actual roll pool from `empowerCand
 - Reduce Holy Deva damage taken by 5–20%
 - Increase Soul Fire Ball crit chance by 5–25%
 - Increase Soul Fire Ball crit damage by 10–50%
-- +5–25% Gold drop
-- +1–5% Bonus XP
-- +0%–2% Item drop chance
-- +5–25% Awakening Soul drop chance
+- +5–40% Gold drop
+- +5–40% Bonus XP
+- +0%–1% Item drop chance
+- +5–20% Awakening Soul drop chance
 - +1–20% Crit Rate
 - +5–30% Crit Damage
 - +5–40% Skill leveling
@@ -16497,10 +17422,10 @@ Grouped by slot. Weapons show their class and actual roll pool from `empowerCand
 - Reduce Holy Deva damage taken by 5–20%
 - Increase Soul Fire Ball crit chance by 5–25%
 - Increase Soul Fire Ball crit damage by 10–50%
-- +5–25% Gold drop
-- +1–5% Bonus XP
-- +0%–2% Item drop chance
-- +5–25% Awakening Soul drop chance
+- +5–40% Gold drop
+- +5–40% Bonus XP
+- +0%–1% Item drop chance
+- +5–20% Awakening Soul drop chance
 - +1–20% Crit Rate
 - +5–30% Crit Damage
 - +5–40% Skill leveling
@@ -16531,10 +17456,10 @@ Grouped by slot. Weapons show their class and actual roll pool from `empowerCand
 - Increase Blade Avalanche crit damage by 10–50%
 - Increase Slashing Burst crit chance by 5–25%
 - Increase Slashing Burst crit damage by 10–50%
-- +5–25% Gold drop
-- +1–5% Bonus XP
-- +0%–2% Item drop chance
-- +5–25% Awakening Soul drop chance
+- +5–40% Gold drop
+- +5–40% Bonus XP
+- +0%–1% Item drop chance
+- +5–20% Awakening Soul drop chance
 - +1–20% Crit Rate
 - +5–30% Crit Damage
 - +5–40% Skill leveling
@@ -16565,10 +17490,10 @@ Grouped by slot. Weapons show their class and actual roll pool from `empowerCand
 - Increase Blade Avalanche crit damage by 10–50%
 - Increase Slashing Burst crit chance by 5–25%
 - Increase Slashing Burst crit damage by 10–50%
-- +5–25% Gold drop
-- +1–5% Bonus XP
-- +0%–2% Item drop chance
-- +5–25% Awakening Soul drop chance
+- +5–40% Gold drop
+- +5–40% Bonus XP
+- +0%–1% Item drop chance
+- +5–20% Awakening Soul drop chance
 - +1–20% Crit Rate
 - +5–30% Crit Damage
 - +5–40% Skill leveling
@@ -16599,10 +17524,10 @@ Grouped by slot. Weapons show their class and actual roll pool from `empowerCand
 - Increase Blade Avalanche crit damage by 10–50%
 - Increase Slashing Burst crit chance by 5–25%
 - Increase Slashing Burst crit damage by 10–50%
-- +5–25% Gold drop
-- +1–5% Bonus XP
-- +0%–2% Item drop chance
-- +5–25% Awakening Soul drop chance
+- +5–40% Gold drop
+- +5–40% Bonus XP
+- +0%–1% Item drop chance
+- +5–20% Awakening Soul drop chance
 - +1–20% Crit Rate
 - +5–30% Crit Damage
 - +5–40% Skill leveling
@@ -16647,10 +17572,10 @@ Grouped by slot. Weapons show their class and actual roll pool from `empowerCand
 - Increase Great Fire Ball crit damage by 10–50%
 - Increase Frost Crunch crit chance by 5–25%
 - Increase Frost Crunch crit damage by 10–50%
-- +5–25% Gold drop
-- +1–5% Bonus XP
-- +0%–2% Item drop chance
-- +5–25% Awakening Soul drop chance
+- +5–40% Gold drop
+- +5–40% Bonus XP
+- +0%–1% Item drop chance
+- +5–20% Awakening Soul drop chance
 - +1–20% Crit Rate
 - +5–30% Crit Damage
 - +5–40% Skill leveling
@@ -16672,10 +17597,10 @@ Grouped by slot. Weapons show their class and actual roll pool from `empowerCand
 - Reduce Holy Deva damage taken by 5–20%
 - Increase Soul Fire Ball crit chance by 5–25%
 - Increase Soul Fire Ball crit damage by 10–50%
-- +5–25% Gold drop
-- +1–5% Bonus XP
-- +0%–2% Item drop chance
-- +5–25% Awakening Soul drop chance
+- +5–40% Gold drop
+- +5–40% Bonus XP
+- +0%–1% Item drop chance
+- +5–20% Awakening Soul drop chance
 - +1–20% Crit Rate
 - +5–30% Crit Damage
 - +5–40% Skill leveling
@@ -16706,10 +17631,10 @@ Grouped by slot. Weapons show their class and actual roll pool from `empowerCand
 - Increase Blade Avalanche crit damage by 10–50%
 - Increase Slashing Burst crit chance by 5–25%
 - Increase Slashing Burst crit damage by 10–50%
-- +5–25% Gold drop
-- +1–5% Bonus XP
-- +0%–2% Item drop chance
-- +5–25% Awakening Soul drop chance
+- +5–40% Gold drop
+- +5–40% Bonus XP
+- +0%–1% Item drop chance
+- +5–20% Awakening Soul drop chance
 - +1–20% Crit Rate
 - +5–30% Crit Damage
 - +5–40% Skill leveling
@@ -16754,10 +17679,10 @@ Grouped by slot. Weapons show their class and actual roll pool from `empowerCand
 - Increase Great Fire Ball crit damage by 10–50%
 - Increase Frost Crunch crit chance by 5–25%
 - Increase Frost Crunch crit damage by 10–50%
-- +5–25% Gold drop
-- +1–5% Bonus XP
-- +0%–2% Item drop chance
-- +5–25% Awakening Soul drop chance
+- +5–40% Gold drop
+- +5–40% Bonus XP
+- +0%–1% Item drop chance
+- +5–20% Awakening Soul drop chance
 - +1–20% Crit Rate
 - +5–30% Crit Damage
 - +5–40% Skill leveling
@@ -16788,10 +17713,10 @@ Grouped by slot. Weapons show their class and actual roll pool from `empowerCand
 - Increase Blade Avalanche crit damage by 10–50%
 - Increase Slashing Burst crit chance by 5–25%
 - Increase Slashing Burst crit damage by 10–50%
-- +5–25% Gold drop
-- +1–5% Bonus XP
-- +0%–2% Item drop chance
-- +5–25% Awakening Soul drop chance
+- +5–40% Gold drop
+- +5–40% Bonus XP
+- +0%–1% Item drop chance
+- +5–20% Awakening Soul drop chance
 - +1–20% Crit Rate
 - +5–30% Crit Damage
 - +5–40% Skill leveling
@@ -16836,10 +17761,10 @@ Grouped by slot. Weapons show their class and actual roll pool from `empowerCand
 - Increase Great Fire Ball crit damage by 10–50%
 - Increase Frost Crunch crit chance by 5–25%
 - Increase Frost Crunch crit damage by 10–50%
-- +5–25% Gold drop
-- +1–5% Bonus XP
-- +0%–2% Item drop chance
-- +5–25% Awakening Soul drop chance
+- +5–40% Gold drop
+- +5–40% Bonus XP
+- +0%–1% Item drop chance
+- +5–20% Awakening Soul drop chance
 - +1–20% Crit Rate
 - +5–30% Crit Damage
 - +5–40% Skill leveling
@@ -16861,10 +17786,10 @@ Grouped by slot. Weapons show their class and actual roll pool from `empowerCand
 - Reduce Holy Deva damage taken by 5–20%
 - Increase Soul Fire Ball crit chance by 5–25%
 - Increase Soul Fire Ball crit damage by 10–50%
-- +5–25% Gold drop
-- +1–5% Bonus XP
-- +0%–2% Item drop chance
-- +5–25% Awakening Soul drop chance
+- +5–40% Gold drop
+- +5–40% Bonus XP
+- +0%–1% Item drop chance
+- +5–20% Awakening Soul drop chance
 - +1–20% Crit Rate
 - +5–30% Crit Damage
 - +5–40% Skill leveling
@@ -16895,10 +17820,10 @@ Grouped by slot. Weapons show their class and actual roll pool from `empowerCand
 - Increase Blade Avalanche crit damage by 10–50%
 - Increase Slashing Burst crit chance by 5–25%
 - Increase Slashing Burst crit damage by 10–50%
-- +5–25% Gold drop
-- +1–5% Bonus XP
-- +0%–2% Item drop chance
-- +5–25% Awakening Soul drop chance
+- +5–40% Gold drop
+- +5–40% Bonus XP
+- +0%–1% Item drop chance
+- +5–20% Awakening Soul drop chance
 - +1–20% Crit Rate
 - +5–30% Crit Damage
 - +5–40% Skill leveling
@@ -16929,10 +17854,10 @@ Grouped by slot. Weapons show their class and actual roll pool from `empowerCand
 - Increase Blade Avalanche crit damage by 10–50%
 - Increase Slashing Burst crit chance by 5–25%
 - Increase Slashing Burst crit damage by 10–50%
-- +5–25% Gold drop
-- +1–5% Bonus XP
-- +0%–2% Item drop chance
-- +5–25% Awakening Soul drop chance
+- +5–40% Gold drop
+- +5–40% Bonus XP
+- +0%–1% Item drop chance
+- +5–20% Awakening Soul drop chance
 - +1–20% Crit Rate
 - +5–30% Crit Damage
 - +5–40% Skill leveling
@@ -16963,10 +17888,10 @@ Grouped by slot. Weapons show their class and actual roll pool from `empowerCand
 - Increase Blade Avalanche crit damage by 10–50%
 - Increase Slashing Burst crit chance by 5–25%
 - Increase Slashing Burst crit damage by 10–50%
-- +5–25% Gold drop
-- +1–5% Bonus XP
-- +0%–2% Item drop chance
-- +5–25% Awakening Soul drop chance
+- +5–40% Gold drop
+- +5–40% Bonus XP
+- +0%–1% Item drop chance
+- +5–20% Awakening Soul drop chance
 - +1–20% Crit Rate
 - +5–30% Crit Damage
 - +5–40% Skill leveling
@@ -17011,10 +17936,10 @@ Grouped by slot. Weapons show their class and actual roll pool from `empowerCand
 - Increase Great Fire Ball crit damage by 10–50%
 - Increase Frost Crunch crit chance by 5–25%
 - Increase Frost Crunch crit damage by 10–50%
-- +5–25% Gold drop
-- +1–5% Bonus XP
-- +0%–2% Item drop chance
-- +5–25% Awakening Soul drop chance
+- +5–40% Gold drop
+- +5–40% Bonus XP
+- +0%–1% Item drop chance
+- +5–20% Awakening Soul drop chance
 - +1–20% Crit Rate
 - +5–30% Crit Damage
 - +5–40% Skill leveling
@@ -17036,10 +17961,10 @@ Grouped by slot. Weapons show their class and actual roll pool from `empowerCand
 - Reduce Holy Deva damage taken by 5–20%
 - Increase Soul Fire Ball crit chance by 5–25%
 - Increase Soul Fire Ball crit damage by 10–50%
-- +5–25% Gold drop
-- +1–5% Bonus XP
-- +0%–2% Item drop chance
-- +5–25% Awakening Soul drop chance
+- +5–40% Gold drop
+- +5–40% Bonus XP
+- +0%–1% Item drop chance
+- +5–20% Awakening Soul drop chance
 - +1–20% Crit Rate
 - +5–30% Crit Damage
 - +5–40% Skill leveling
@@ -17084,10 +18009,10 @@ Grouped by slot. Weapons show their class and actual roll pool from `empowerCand
 - Increase Great Fire Ball crit damage by 10–50%
 - Increase Frost Crunch crit chance by 5–25%
 - Increase Frost Crunch crit damage by 10–50%
-- +5–25% Gold drop
-- +1–5% Bonus XP
-- +0%–2% Item drop chance
-- +5–25% Awakening Soul drop chance
+- +5–40% Gold drop
+- +5–40% Bonus XP
+- +0%–1% Item drop chance
+- +5–20% Awakening Soul drop chance
 - +1–20% Crit Rate
 - +5–30% Crit Damage
 - +5–40% Skill leveling
@@ -17118,10 +18043,10 @@ Grouped by slot. Weapons show their class and actual roll pool from `empowerCand
 - Increase Blade Avalanche crit damage by 10–50%
 - Increase Slashing Burst crit chance by 5–25%
 - Increase Slashing Burst crit damage by 10–50%
-- +5–25% Gold drop
-- +1–5% Bonus XP
-- +0%–2% Item drop chance
-- +5–25% Awakening Soul drop chance
+- +5–40% Gold drop
+- +5–40% Bonus XP
+- +0%–1% Item drop chance
+- +5–20% Awakening Soul drop chance
 - +1–20% Crit Rate
 - +5–30% Crit Damage
 - +5–40% Skill leveling
@@ -17143,10 +18068,10 @@ Grouped by slot. Weapons show their class and actual roll pool from `empowerCand
 - Reduce Holy Deva damage taken by 5–20%
 - Increase Soul Fire Ball crit chance by 5–25%
 - Increase Soul Fire Ball crit damage by 10–50%
-- +5–25% Gold drop
-- +1–5% Bonus XP
-- +0%–2% Item drop chance
-- +5–25% Awakening Soul drop chance
+- +5–40% Gold drop
+- +5–40% Bonus XP
+- +0%–1% Item drop chance
+- +5–20% Awakening Soul drop chance
 - +1–20% Crit Rate
 - +5–30% Crit Damage
 - +5–40% Skill leveling
@@ -17177,10 +18102,10 @@ Grouped by slot. Weapons show their class and actual roll pool from `empowerCand
 - Increase Blade Avalanche crit damage by 10–50%
 - Increase Slashing Burst crit chance by 5–25%
 - Increase Slashing Burst crit damage by 10–50%
-- +5–25% Gold drop
-- +1–5% Bonus XP
-- +0%–2% Item drop chance
-- +5–25% Awakening Soul drop chance
+- +5–40% Gold drop
+- +5–40% Bonus XP
+- +0%–1% Item drop chance
+- +5–20% Awakening Soul drop chance
 - +1–20% Crit Rate
 - +5–30% Crit Damage
 - +5–40% Skill leveling
@@ -17211,10 +18136,10 @@ Grouped by slot. Weapons show their class and actual roll pool from `empowerCand
 - Increase Blade Avalanche crit damage by 10–50%
 - Increase Slashing Burst crit chance by 5–25%
 - Increase Slashing Burst crit damage by 10–50%
-- +5–25% Gold drop
-- +1–5% Bonus XP
-- +0%–2% Item drop chance
-- +5–25% Awakening Soul drop chance
+- +5–40% Gold drop
+- +5–40% Bonus XP
+- +0%–1% Item drop chance
+- +5–20% Awakening Soul drop chance
 - +1–20% Crit Rate
 - +5–30% Crit Damage
 - +5–40% Skill leveling
@@ -17236,10 +18161,10 @@ Grouped by slot. Weapons show their class and actual roll pool from `empowerCand
 - Reduce Holy Deva damage taken by 5–20%
 - Increase Soul Fire Ball crit chance by 5–25%
 - Increase Soul Fire Ball crit damage by 10–50%
-- +5–25% Gold drop
-- +1–5% Bonus XP
-- +0%–2% Item drop chance
-- +5–25% Awakening Soul drop chance
+- +5–40% Gold drop
+- +5–40% Bonus XP
+- +0%–1% Item drop chance
+- +5–20% Awakening Soul drop chance
 - +1–20% Crit Rate
 - +5–30% Crit Damage
 - +5–40% Skill leveling
@@ -17284,10 +18209,10 @@ Grouped by slot. Weapons show their class and actual roll pool from `empowerCand
 - Increase Great Fire Ball crit damage by 10–50%
 - Increase Frost Crunch crit chance by 5–25%
 - Increase Frost Crunch crit damage by 10–50%
-- +5–25% Gold drop
-- +1–5% Bonus XP
-- +0%–2% Item drop chance
-- +5–25% Awakening Soul drop chance
+- +5–40% Gold drop
+- +5–40% Bonus XP
+- +0%–1% Item drop chance
+- +5–20% Awakening Soul drop chance
 - +1–20% Crit Rate
 - +5–30% Crit Damage
 - +5–40% Skill leveling
@@ -17318,10 +18243,10 @@ Grouped by slot. Weapons show their class and actual roll pool from `empowerCand
 - Increase Blade Avalanche crit damage by 10–50%
 - Increase Slashing Burst crit chance by 5–25%
 - Increase Slashing Burst crit damage by 10–50%
-- +5–25% Gold drop
-- +1–5% Bonus XP
-- +0%–2% Item drop chance
-- +5–25% Awakening Soul drop chance
+- +5–40% Gold drop
+- +5–40% Bonus XP
+- +0%–1% Item drop chance
+- +5–20% Awakening Soul drop chance
 - +1–20% Crit Rate
 - +5–30% Crit Damage
 - +5–40% Skill leveling
@@ -17352,10 +18277,10 @@ Grouped by slot. Weapons show their class and actual roll pool from `empowerCand
 - Increase Blade Avalanche crit damage by 10–50%
 - Increase Slashing Burst crit chance by 5–25%
 - Increase Slashing Burst crit damage by 10–50%
-- +5–25% Gold drop
-- +1–5% Bonus XP
-- +0%–2% Item drop chance
-- +5–25% Awakening Soul drop chance
+- +5–40% Gold drop
+- +5–40% Bonus XP
+- +0%–1% Item drop chance
+- +5–20% Awakening Soul drop chance
 - +1–20% Crit Rate
 - +5–30% Crit Damage
 - +5–40% Skill leveling
@@ -17400,10 +18325,10 @@ Grouped by slot. Weapons show their class and actual roll pool from `empowerCand
 - Increase Great Fire Ball crit damage by 10–50%
 - Increase Frost Crunch crit chance by 5–25%
 - Increase Frost Crunch crit damage by 10–50%
-- +5–25% Gold drop
-- +1–5% Bonus XP
-- +0%–2% Item drop chance
-- +5–25% Awakening Soul drop chance
+- +5–40% Gold drop
+- +5–40% Bonus XP
+- +0%–1% Item drop chance
+- +5–20% Awakening Soul drop chance
 - +1–20% Crit Rate
 - +5–30% Crit Damage
 - +5–40% Skill leveling
@@ -17434,10 +18359,10 @@ Grouped by slot. Weapons show their class and actual roll pool from `empowerCand
 - Increase Blade Avalanche crit damage by 10–50%
 - Increase Slashing Burst crit chance by 5–25%
 - Increase Slashing Burst crit damage by 10–50%
-- +5–25% Gold drop
-- +1–5% Bonus XP
-- +0%–2% Item drop chance
-- +5–25% Awakening Soul drop chance
+- +5–40% Gold drop
+- +5–40% Bonus XP
+- +0%–1% Item drop chance
+- +5–20% Awakening Soul drop chance
 - +1–20% Crit Rate
 - +5–30% Crit Damage
 - +5–40% Skill leveling
@@ -17459,10 +18384,10 @@ Grouped by slot. Weapons show their class and actual roll pool from `empowerCand
 - Reduce Holy Deva damage taken by 5–20%
 - Increase Soul Fire Ball crit chance by 5–25%
 - Increase Soul Fire Ball crit damage by 10–50%
-- +5–25% Gold drop
-- +1–5% Bonus XP
-- +0%–2% Item drop chance
-- +5–25% Awakening Soul drop chance
+- +5–40% Gold drop
+- +5–40% Bonus XP
+- +0%–1% Item drop chance
+- +5–20% Awakening Soul drop chance
 - +1–20% Crit Rate
 - +5–30% Crit Damage
 - +5–40% Skill leveling
@@ -17507,10 +18432,10 @@ Grouped by slot. Weapons show their class and actual roll pool from `empowerCand
 - Increase Great Fire Ball crit damage by 10–50%
 - Increase Frost Crunch crit chance by 5–25%
 - Increase Frost Crunch crit damage by 10–50%
-- +5–25% Gold drop
-- +1–5% Bonus XP
-- +0%–2% Item drop chance
-- +5–25% Awakening Soul drop chance
+- +5–40% Gold drop
+- +5–40% Bonus XP
+- +0%–1% Item drop chance
+- +5–20% Awakening Soul drop chance
 - +1–20% Crit Rate
 - +5–30% Crit Damage
 - +5–40% Skill leveling
@@ -17541,10 +18466,10 @@ Grouped by slot. Weapons show their class and actual roll pool from `empowerCand
 - Increase Blade Avalanche crit damage by 10–50%
 - Increase Slashing Burst crit chance by 5–25%
 - Increase Slashing Burst crit damage by 10–50%
-- +5–25% Gold drop
-- +1–5% Bonus XP
-- +0%–2% Item drop chance
-- +5–25% Awakening Soul drop chance
+- +5–40% Gold drop
+- +5–40% Bonus XP
+- +0%–1% Item drop chance
+- +5–20% Awakening Soul drop chance
 - +1–20% Crit Rate
 - +5–30% Crit Damage
 - +5–40% Skill leveling
@@ -17566,10 +18491,10 @@ Grouped by slot. Weapons show their class and actual roll pool from `empowerCand
 - Reduce Holy Deva damage taken by 5–20%
 - Increase Soul Fire Ball crit chance by 5–25%
 - Increase Soul Fire Ball crit damage by 10–50%
-- +5–25% Gold drop
-- +1–5% Bonus XP
-- +0%–2% Item drop chance
-- +5–25% Awakening Soul drop chance
+- +5–40% Gold drop
+- +5–40% Bonus XP
+- +0%–1% Item drop chance
+- +5–20% Awakening Soul drop chance
 - +1–20% Crit Rate
 - +5–30% Crit Damage
 - +5–40% Skill leveling
@@ -17614,10 +18539,10 @@ Grouped by slot. Weapons show their class and actual roll pool from `empowerCand
 - Increase Great Fire Ball crit damage by 10–50%
 - Increase Frost Crunch crit chance by 5–25%
 - Increase Frost Crunch crit damage by 10–50%
-- +5–25% Gold drop
-- +1–5% Bonus XP
-- +0%–2% Item drop chance
-- +5–25% Awakening Soul drop chance
+- +5–40% Gold drop
+- +5–40% Bonus XP
+- +0%–1% Item drop chance
+- +5–20% Awakening Soul drop chance
 - +1–20% Crit Rate
 - +5–30% Crit Damage
 - +5–40% Skill leveling
@@ -17682,10 +18607,10 @@ Grouped by slot. Weapons show their class and actual roll pool from `empowerCand
 - Reduce Holy Deva damage taken by 5–20%
 - Increase Soul Fire Ball crit chance by 5–25%
 - Increase Soul Fire Ball crit damage by 10–50%
-- +5–25% Gold drop
-- +1–5% Bonus XP
-- +0%–2% Item drop chance
-- +5–25% Awakening Soul drop chance
+- +5–40% Gold drop
+- +5–40% Bonus XP
+- +0%–1% Item drop chance
+- +5–20% Awakening Soul drop chance
 - +1–20% Crit Rate
 - +5–30% Crit Damage
 - +5–40% Skill leveling
@@ -17716,10 +18641,10 @@ Grouped by slot. Weapons show their class and actual roll pool from `empowerCand
 - Increase Blade Avalanche crit damage by 10–50%
 - Increase Slashing Burst crit chance by 5–25%
 - Increase Slashing Burst crit damage by 10–50%
-- +5–25% Gold drop
-- +1–5% Bonus XP
-- +0%–2% Item drop chance
-- +5–25% Awakening Soul drop chance
+- +5–40% Gold drop
+- +5–40% Bonus XP
+- +0%–1% Item drop chance
+- +5–20% Awakening Soul drop chance
 - +1–20% Crit Rate
 - +5–30% Crit Damage
 - +5–40% Skill leveling
@@ -17764,10 +18689,10 @@ Grouped by slot. Weapons show their class and actual roll pool from `empowerCand
 - Increase Great Fire Ball crit damage by 10–50%
 - Increase Frost Crunch crit chance by 5–25%
 - Increase Frost Crunch crit damage by 10–50%
-- +5–25% Gold drop
-- +1–5% Bonus XP
-- +0%–2% Item drop chance
-- +5–25% Awakening Soul drop chance
+- +5–40% Gold drop
+- +5–40% Bonus XP
+- +0%–1% Item drop chance
+- +5–20% Awakening Soul drop chance
 - +1–20% Crit Rate
 - +5–30% Crit Damage
 - +5–40% Skill leveling
@@ -17812,10 +18737,10 @@ Grouped by slot. Weapons show their class and actual roll pool from `empowerCand
 - Increase Great Fire Ball crit damage by 10–50%
 - Increase Frost Crunch crit chance by 5–25%
 - Increase Frost Crunch crit damage by 10–50%
-- +5–25% Gold drop
-- +1–5% Bonus XP
-- +0%–2% Item drop chance
-- +5–25% Awakening Soul drop chance
+- +5–40% Gold drop
+- +5–40% Bonus XP
+- +0%–1% Item drop chance
+- +5–20% Awakening Soul drop chance
 - +1–20% Crit Rate
 - +5–30% Crit Damage
 - +5–40% Skill leveling
@@ -17837,10 +18762,10 @@ Grouped by slot. Weapons show their class and actual roll pool from `empowerCand
 - Reduce Holy Deva damage taken by 5–20%
 - Increase Soul Fire Ball crit chance by 5–25%
 - Increase Soul Fire Ball crit damage by 10–50%
-- +5–25% Gold drop
-- +1–5% Bonus XP
-- +0%–2% Item drop chance
-- +5–25% Awakening Soul drop chance
+- +5–40% Gold drop
+- +5–40% Bonus XP
+- +0%–1% Item drop chance
+- +5–20% Awakening Soul drop chance
 - +1–20% Crit Rate
 - +5–30% Crit Damage
 - +5–40% Skill leveling
@@ -17871,10 +18796,10 @@ Grouped by slot. Weapons show their class and actual roll pool from `empowerCand
 - Increase Blade Avalanche crit damage by 10–50%
 - Increase Slashing Burst crit chance by 5–25%
 - Increase Slashing Burst crit damage by 10–50%
-- +5–25% Gold drop
-- +1–5% Bonus XP
-- +0%–2% Item drop chance
-- +5–25% Awakening Soul drop chance
+- +5–40% Gold drop
+- +5–40% Bonus XP
+- +0%–1% Item drop chance
+- +5–20% Awakening Soul drop chance
 - +1–20% Crit Rate
 - +5–30% Crit Damage
 - +5–40% Skill leveling
@@ -17905,10 +18830,10 @@ Grouped by slot. Weapons show their class and actual roll pool from `empowerCand
 - Increase Blade Avalanche crit damage by 10–50%
 - Increase Slashing Burst crit chance by 5–25%
 - Increase Slashing Burst crit damage by 10–50%
-- +5–25% Gold drop
-- +1–5% Bonus XP
-- +0%–2% Item drop chance
-- +5–25% Awakening Soul drop chance
+- +5–40% Gold drop
+- +5–40% Bonus XP
+- +0%–1% Item drop chance
+- +5–20% Awakening Soul drop chance
 - +1–20% Crit Rate
 - +5–30% Crit Damage
 - +5–40% Skill leveling
@@ -17953,10 +18878,10 @@ Grouped by slot. Weapons show their class and actual roll pool from `empowerCand
 - Increase Great Fire Ball crit damage by 10–50%
 - Increase Frost Crunch crit chance by 5–25%
 - Increase Frost Crunch crit damage by 10–50%
-- +5–25% Gold drop
-- +1–5% Bonus XP
-- +0%–2% Item drop chance
-- +5–25% Awakening Soul drop chance
+- +5–40% Gold drop
+- +5–40% Bonus XP
+- +0%–1% Item drop chance
+- +5–20% Awakening Soul drop chance
 - +1–20% Crit Rate
 - +5–30% Crit Damage
 - +5–40% Skill leveling
@@ -18001,10 +18926,10 @@ Grouped by slot. Weapons show their class and actual roll pool from `empowerCand
 - Increase Great Fire Ball crit damage by 10–50%
 - Increase Frost Crunch crit chance by 5–25%
 - Increase Frost Crunch crit damage by 10–50%
-- +5–25% Gold drop
-- +1–5% Bonus XP
-- +0%–2% Item drop chance
-- +5–25% Awakening Soul drop chance
+- +5–40% Gold drop
+- +5–40% Bonus XP
+- +0%–1% Item drop chance
+- +5–20% Awakening Soul drop chance
 - +1–20% Crit Rate
 - +5–30% Crit Damage
 - +5–40% Skill leveling
@@ -18035,10 +18960,10 @@ Grouped by slot. Weapons show their class and actual roll pool from `empowerCand
 - Increase Blade Avalanche crit damage by 10–50%
 - Increase Slashing Burst crit chance by 5–25%
 - Increase Slashing Burst crit damage by 10–50%
-- +5–25% Gold drop
-- +1–5% Bonus XP
-- +0%–2% Item drop chance
-- +5–25% Awakening Soul drop chance
+- +5–40% Gold drop
+- +5–40% Bonus XP
+- +0%–1% Item drop chance
+- +5–20% Awakening Soul drop chance
 - +1–20% Crit Rate
 - +5–30% Crit Damage
 - +5–40% Skill leveling
@@ -18060,10 +18985,10 @@ Grouped by slot. Weapons show their class and actual roll pool from `empowerCand
 - Reduce Holy Deva damage taken by 5–20%
 - Increase Soul Fire Ball crit chance by 5–25%
 - Increase Soul Fire Ball crit damage by 10–50%
-- +5–25% Gold drop
-- +1–5% Bonus XP
-- +0%–2% Item drop chance
-- +5–25% Awakening Soul drop chance
+- +5–40% Gold drop
+- +5–40% Bonus XP
+- +0%–1% Item drop chance
+- +5–20% Awakening Soul drop chance
 - +1–20% Crit Rate
 - +5–30% Crit Damage
 - +5–40% Skill leveling
@@ -18108,10 +19033,10 @@ Grouped by slot. Weapons show their class and actual roll pool from `empowerCand
 - Increase Great Fire Ball crit damage by 10–50%
 - Increase Frost Crunch crit chance by 5–25%
 - Increase Frost Crunch crit damage by 10–50%
-- +5–25% Gold drop
-- +1–5% Bonus XP
-- +0%–2% Item drop chance
-- +5–25% Awakening Soul drop chance
+- +5–40% Gold drop
+- +5–40% Bonus XP
+- +0%–1% Item drop chance
+- +5–20% Awakening Soul drop chance
 - +1–20% Crit Rate
 - +5–30% Crit Damage
 - +5–40% Skill leveling
@@ -18142,10 +19067,10 @@ Grouped by slot. Weapons show their class and actual roll pool from `empowerCand
 - Increase Blade Avalanche crit damage by 10–50%
 - Increase Slashing Burst crit chance by 5–25%
 - Increase Slashing Burst crit damage by 10–50%
-- +5–25% Gold drop
-- +1–5% Bonus XP
-- +0%–2% Item drop chance
-- +5–25% Awakening Soul drop chance
+- +5–40% Gold drop
+- +5–40% Bonus XP
+- +0%–1% Item drop chance
+- +5–20% Awakening Soul drop chance
 - +1–20% Crit Rate
 - +5–30% Crit Damage
 - +5–40% Skill leveling
@@ -18190,10 +19115,10 @@ Grouped by slot. Weapons show their class and actual roll pool from `empowerCand
 - Increase Great Fire Ball crit damage by 10–50%
 - Increase Frost Crunch crit chance by 5–25%
 - Increase Frost Crunch crit damage by 10–50%
-- +5–25% Gold drop
-- +1–5% Bonus XP
-- +0%–2% Item drop chance
-- +5–25% Awakening Soul drop chance
+- +5–40% Gold drop
+- +5–40% Bonus XP
+- +0%–1% Item drop chance
+- +5–20% Awakening Soul drop chance
 - +1–20% Crit Rate
 - +5–30% Crit Damage
 - +5–40% Skill leveling
@@ -18215,10 +19140,10 @@ Grouped by slot. Weapons show their class and actual roll pool from `empowerCand
 - Reduce Holy Deva damage taken by 5–20%
 - Increase Soul Fire Ball crit chance by 5–25%
 - Increase Soul Fire Ball crit damage by 10–50%
-- +5–25% Gold drop
-- +1–5% Bonus XP
-- +0%–2% Item drop chance
-- +5–25% Awakening Soul drop chance
+- +5–40% Gold drop
+- +5–40% Bonus XP
+- +0%–1% Item drop chance
+- +5–20% Awakening Soul drop chance
 - +1–20% Crit Rate
 - +5–30% Crit Damage
 - +5–40% Skill leveling
@@ -18249,10 +19174,10 @@ Grouped by slot. Weapons show their class and actual roll pool from `empowerCand
 - Increase Blade Avalanche crit damage by 10–50%
 - Increase Slashing Burst crit chance by 5–25%
 - Increase Slashing Burst crit damage by 10–50%
-- +5–25% Gold drop
-- +1–5% Bonus XP
-- +0%–2% Item drop chance
-- +5–25% Awakening Soul drop chance
+- +5–40% Gold drop
+- +5–40% Bonus XP
+- +0%–1% Item drop chance
+- +5–20% Awakening Soul drop chance
 - +1–20% Crit Rate
 - +5–30% Crit Damage
 - +5–40% Skill leveling
@@ -18274,10 +19199,10 @@ Grouped by slot. Weapons show their class and actual roll pool from `empowerCand
 - Reduce Holy Deva damage taken by 5–20%
 - Increase Soul Fire Ball crit chance by 5–25%
 - Increase Soul Fire Ball crit damage by 10–50%
-- +5–25% Gold drop
-- +1–5% Bonus XP
-- +0%–2% Item drop chance
-- +5–25% Awakening Soul drop chance
+- +5–40% Gold drop
+- +5–40% Bonus XP
+- +0%–1% Item drop chance
+- +5–20% Awakening Soul drop chance
 - +1–20% Crit Rate
 - +5–30% Crit Damage
 - +5–40% Skill leveling
@@ -18308,10 +19233,10 @@ Grouped by slot. Weapons show their class and actual roll pool from `empowerCand
 - Increase Blade Avalanche crit damage by 10–50%
 - Increase Slashing Burst crit chance by 5–25%
 - Increase Slashing Burst crit damage by 10–50%
-- +5–25% Gold drop
-- +1–5% Bonus XP
-- +0%–2% Item drop chance
-- +5–25% Awakening Soul drop chance
+- +5–40% Gold drop
+- +5–40% Bonus XP
+- +0%–1% Item drop chance
+- +5–20% Awakening Soul drop chance
 - +1–20% Crit Rate
 - +5–30% Crit Damage
 - +5–40% Skill leveling
@@ -18356,10 +19281,10 @@ Grouped by slot. Weapons show their class and actual roll pool from `empowerCand
 - Increase Great Fire Ball crit damage by 10–50%
 - Increase Frost Crunch crit chance by 5–25%
 - Increase Frost Crunch crit damage by 10–50%
-- +5–25% Gold drop
-- +1–5% Bonus XP
-- +0%–2% Item drop chance
-- +5–25% Awakening Soul drop chance
+- +5–40% Gold drop
+- +5–40% Bonus XP
+- +0%–1% Item drop chance
+- +5–20% Awakening Soul drop chance
 - +1–20% Crit Rate
 - +5–30% Crit Damage
 - +5–40% Skill leveling
@@ -18381,10 +19306,10 @@ Grouped by slot. Weapons show their class and actual roll pool from `empowerCand
 - Reduce Holy Deva damage taken by 5–20%
 - Increase Soul Fire Ball crit chance by 5–25%
 - Increase Soul Fire Ball crit damage by 10–50%
-- +5–25% Gold drop
-- +1–5% Bonus XP
-- +0%–2% Item drop chance
-- +5–25% Awakening Soul drop chance
+- +5–40% Gold drop
+- +5–40% Bonus XP
+- +0%–1% Item drop chance
+- +5–20% Awakening Soul drop chance
 - +1–20% Crit Rate
 - +5–30% Crit Damage
 - +5–40% Skill leveling
@@ -18415,10 +19340,10 @@ Grouped by slot. Weapons show their class and actual roll pool from `empowerCand
 - Increase Blade Avalanche crit damage by 10–50%
 - Increase Slashing Burst crit chance by 5–25%
 - Increase Slashing Burst crit damage by 10–50%
-- +5–25% Gold drop
-- +1–5% Bonus XP
-- +0%–2% Item drop chance
-- +5–25% Awakening Soul drop chance
+- +5–40% Gold drop
+- +5–40% Bonus XP
+- +0%–1% Item drop chance
+- +5–20% Awakening Soul drop chance
 - +1–20% Crit Rate
 - +5–30% Crit Damage
 - +5–40% Skill leveling
@@ -18463,10 +19388,10 @@ Grouped by slot. Weapons show their class and actual roll pool from `empowerCand
 - Increase Great Fire Ball crit damage by 10–50%
 - Increase Frost Crunch crit chance by 5–25%
 - Increase Frost Crunch crit damage by 10–50%
-- +5–25% Gold drop
-- +1–5% Bonus XP
-- +0%–2% Item drop chance
-- +5–25% Awakening Soul drop chance
+- +5–40% Gold drop
+- +5–40% Bonus XP
+- +0%–1% Item drop chance
+- +5–20% Awakening Soul drop chance
 - +1–20% Crit Rate
 - +5–30% Crit Damage
 - +5–40% Skill leveling
@@ -18497,10 +19422,10 @@ Grouped by slot. Weapons show their class and actual roll pool from `empowerCand
 - Increase Blade Avalanche crit damage by 10–50%
 - Increase Slashing Burst crit chance by 5–25%
 - Increase Slashing Burst crit damage by 10–50%
-- +5–25% Gold drop
-- +1–5% Bonus XP
-- +0%–2% Item drop chance
-- +5–25% Awakening Soul drop chance
+- +5–40% Gold drop
+- +5–40% Bonus XP
+- +0%–1% Item drop chance
+- +5–20% Awakening Soul drop chance
 - +1–20% Crit Rate
 - +5–30% Crit Damage
 - +5–40% Skill leveling
@@ -18522,10 +19447,10 @@ Grouped by slot. Weapons show their class and actual roll pool from `empowerCand
 - Reduce Holy Deva damage taken by 5–20%
 - Increase Soul Fire Ball crit chance by 5–25%
 - Increase Soul Fire Ball crit damage by 10–50%
-- +5–25% Gold drop
-- +1–5% Bonus XP
-- +0%–2% Item drop chance
-- +5–25% Awakening Soul drop chance
+- +5–40% Gold drop
+- +5–40% Bonus XP
+- +0%–1% Item drop chance
+- +5–20% Awakening Soul drop chance
 - +1–20% Crit Rate
 - +5–30% Crit Damage
 - +5–40% Skill leveling
@@ -18570,10 +19495,10 @@ Grouped by slot. Weapons show their class and actual roll pool from `empowerCand
 - Increase Great Fire Ball crit damage by 10–50%
 - Increase Frost Crunch crit chance by 5–25%
 - Increase Frost Crunch crit damage by 10–50%
-- +5–25% Gold drop
-- +1–5% Bonus XP
-- +0%–2% Item drop chance
-- +5–25% Awakening Soul drop chance
+- +5–40% Gold drop
+- +5–40% Bonus XP
+- +0%–1% Item drop chance
+- +5–20% Awakening Soul drop chance
 - +1–20% Crit Rate
 - +5–30% Crit Damage
 - +5–40% Skill leveling
@@ -18604,10 +19529,10 @@ Grouped by slot. Weapons show their class and actual roll pool from `empowerCand
 - Increase Blade Avalanche crit damage by 10–50%
 - Increase Slashing Burst crit chance by 5–25%
 - Increase Slashing Burst crit damage by 10–50%
-- +5–25% Gold drop
-- +1–5% Bonus XP
-- +0%–2% Item drop chance
-- +5–25% Awakening Soul drop chance
+- +5–40% Gold drop
+- +5–40% Bonus XP
+- +0%–1% Item drop chance
+- +5–20% Awakening Soul drop chance
 - +1–20% Crit Rate
 - +5–30% Crit Damage
 - +5–40% Skill leveling
@@ -18652,10 +19577,10 @@ Grouped by slot. Weapons show their class and actual roll pool from `empowerCand
 - Increase Great Fire Ball crit damage by 10–50%
 - Increase Frost Crunch crit chance by 5–25%
 - Increase Frost Crunch crit damage by 10–50%
-- +5–25% Gold drop
-- +1–5% Bonus XP
-- +0%–2% Item drop chance
-- +5–25% Awakening Soul drop chance
+- +5–40% Gold drop
+- +5–40% Bonus XP
+- +0%–1% Item drop chance
+- +5–20% Awakening Soul drop chance
 - +1–20% Crit Rate
 - +5–30% Crit Damage
 - +5–40% Skill leveling
@@ -18677,10 +19602,10 @@ Grouped by slot. Weapons show their class and actual roll pool from `empowerCand
 - Reduce Holy Deva damage taken by 5–20%
 - Increase Soul Fire Ball crit chance by 5–25%
 - Increase Soul Fire Ball crit damage by 10–50%
-- +5–25% Gold drop
-- +1–5% Bonus XP
-- +0%–2% Item drop chance
-- +5–25% Awakening Soul drop chance
+- +5–40% Gold drop
+- +5–40% Bonus XP
+- +0%–1% Item drop chance
+- +5–20% Awakening Soul drop chance
 - +1–20% Crit Rate
 - +5–30% Crit Damage
 - +5–40% Skill leveling
@@ -18711,10 +19636,10 @@ Grouped by slot. Weapons show their class and actual roll pool from `empowerCand
 - Increase Blade Avalanche crit damage by 10–50%
 - Increase Slashing Burst crit chance by 5–25%
 - Increase Slashing Burst crit damage by 10–50%
-- +5–25% Gold drop
-- +1–5% Bonus XP
-- +0%–2% Item drop chance
-- +5–25% Awakening Soul drop chance
+- +5–40% Gold drop
+- +5–40% Bonus XP
+- +0%–1% Item drop chance
+- +5–20% Awakening Soul drop chance
 - +1–20% Crit Rate
 - +5–30% Crit Damage
 - +5–40% Skill leveling
@@ -18745,10 +19670,10 @@ Grouped by slot. Weapons show their class and actual roll pool from `empowerCand
 - Increase Blade Avalanche crit damage by 10–50%
 - Increase Slashing Burst crit chance by 5–25%
 - Increase Slashing Burst crit damage by 10–50%
-- +5–25% Gold drop
-- +1–5% Bonus XP
-- +0%–2% Item drop chance
-- +5–25% Awakening Soul drop chance
+- +5–40% Gold drop
+- +5–40% Bonus XP
+- +0%–1% Item drop chance
+- +5–20% Awakening Soul drop chance
 - +1–20% Crit Rate
 - +5–30% Crit Damage
 - +5–40% Skill leveling
@@ -18793,10 +19718,10 @@ Grouped by slot. Weapons show their class and actual roll pool from `empowerCand
 - Increase Great Fire Ball crit damage by 10–50%
 - Increase Frost Crunch crit chance by 5–25%
 - Increase Frost Crunch crit damage by 10–50%
-- +5–25% Gold drop
-- +1–5% Bonus XP
-- +0%–2% Item drop chance
-- +5–25% Awakening Soul drop chance
+- +5–40% Gold drop
+- +5–40% Bonus XP
+- +0%–1% Item drop chance
+- +5–20% Awakening Soul drop chance
 - +1–20% Crit Rate
 - +5–30% Crit Damage
 - +5–40% Skill leveling
@@ -18818,10 +19743,10 @@ Grouped by slot. Weapons show their class and actual roll pool from `empowerCand
 - Reduce Holy Deva damage taken by 5–20%
 - Increase Soul Fire Ball crit chance by 5–25%
 - Increase Soul Fire Ball crit damage by 10–50%
-- +5–25% Gold drop
-- +1–5% Bonus XP
-- +0%–2% Item drop chance
-- +5–25% Awakening Soul drop chance
+- +5–40% Gold drop
+- +5–40% Bonus XP
+- +0%–1% Item drop chance
+- +5–20% Awakening Soul drop chance
 - +1–20% Crit Rate
 - +5–30% Crit Damage
 - +5–40% Skill leveling
@@ -18852,10 +19777,10 @@ Grouped by slot. Weapons show their class and actual roll pool from `empowerCand
 - Increase Blade Avalanche crit damage by 10–50%
 - Increase Slashing Burst crit chance by 5–25%
 - Increase Slashing Burst crit damage by 10–50%
-- +5–25% Gold drop
-- +1–5% Bonus XP
-- +0%–2% Item drop chance
-- +5–25% Awakening Soul drop chance
+- +5–40% Gold drop
+- +5–40% Bonus XP
+- +0%–1% Item drop chance
+- +5–20% Awakening Soul drop chance
 - +1–20% Crit Rate
 - +5–30% Crit Damage
 - +5–40% Skill leveling
@@ -18876,10 +19801,10 @@ Grouped by slot. Weapons show their class and actual roll pool from `empowerCand
 - Reduce Holy Deva damage taken by 5–20%
 - Increase Soul Fire Ball crit chance by 5–25%
 - Increase Soul Fire Ball crit damage by 10–50%
-- +5–25% Gold drop
-- +1–5% Bonus XP
-- +0%–2% Item drop chance
-- +5–25% Awakening Soul drop chance
+- +5–40% Gold drop
+- +5–40% Bonus XP
+- +0%–1% Item drop chance
+- +5–20% Awakening Soul drop chance
 - +1–20% Crit Rate
 - +5–30% Crit Damage
 - +5–40% Skill leveling
@@ -18910,10 +19835,10 @@ Grouped by slot. Weapons show their class and actual roll pool from `empowerCand
 - Increase Blade Avalanche crit damage by 10–50%
 - Increase Slashing Burst crit chance by 5–25%
 - Increase Slashing Burst crit damage by 10–50%
-- +5–25% Gold drop
-- +1–5% Bonus XP
-- +0%–2% Item drop chance
-- +5–25% Awakening Soul drop chance
+- +5–40% Gold drop
+- +5–40% Bonus XP
+- +0%–1% Item drop chance
+- +5–20% Awakening Soul drop chance
 - +1–20% Crit Rate
 - +5–30% Crit Damage
 - +5–40% Skill leveling
@@ -18978,10 +19903,10 @@ Grouped by slot. Weapons show their class and actual roll pool from `empowerCand
 - Reduce Holy Deva damage taken by 5–20%
 - Increase Soul Fire Ball crit chance by 5–25%
 - Increase Soul Fire Ball crit damage by 10–50%
-- +5–25% Gold drop
-- +1–5% Bonus XP
-- +0%–2% Item drop chance
-- +5–25% Awakening Soul drop chance
+- +5–40% Gold drop
+- +5–40% Bonus XP
+- +0%–1% Item drop chance
+- +5–20% Awakening Soul drop chance
 - +1–20% Crit Rate
 - +5–30% Crit Damage
 - +5–40% Skill leveling
@@ -19003,10 +19928,10 @@ Grouped by slot. Weapons show their class and actual roll pool from `empowerCand
 - Reduce Holy Deva damage taken by 5–20%
 - Increase Soul Fire Ball crit chance by 5–25%
 - Increase Soul Fire Ball crit damage by 10–50%
-- +5–25% Gold drop
-- +1–5% Bonus XP
-- +0%–2% Item drop chance
-- +5–25% Awakening Soul drop chance
+- +5–40% Gold drop
+- +5–40% Bonus XP
+- +0%–1% Item drop chance
+- +5–20% Awakening Soul drop chance
 - +1–20% Crit Rate
 - +5–30% Crit Damage
 - +5–40% Skill leveling
@@ -19050,10 +19975,10 @@ Grouped by slot. Weapons show their class and actual roll pool from `empowerCand
 - Increase Great Fire Ball crit damage by 10–50%
 - Increase Frost Crunch crit chance by 5–25%
 - Increase Frost Crunch crit damage by 10–50%
-- +5–25% Gold drop
-- +1–5% Bonus XP
-- +0%–2% Item drop chance
-- +5–25% Awakening Soul drop chance
+- +5–40% Gold drop
+- +5–40% Bonus XP
+- +0%–1% Item drop chance
+- +5–20% Awakening Soul drop chance
 - +1–20% Crit Rate
 - +5–30% Crit Damage
 - +5–40% Skill leveling

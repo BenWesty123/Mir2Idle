@@ -139,6 +139,12 @@ test("resolveMagicAttack: resist miss returns zero damage", () => {
   assert.deepEqual(result, { hit: false, damage: 0 });
 });
 
+test("resolveMagicAttack: max magic resist can still take hits", () => {
+  const result = resolveMagicAttack({ magicResist: 10 }, [10, 10], [0, 0], 0, 1, () => 999);
+  assert.equal(result.hit, true);
+  assert.equal(result.damage, 10);
+});
+
 test("resolveMagicAttack: hit applies multiplier", () => {
   const result = resolveMagicAttack({ magicResist: 0 }, [10, 10], [0, 0], 0, 1.5, () => 0);
   assert.equal(result.hit, true);
@@ -201,8 +207,18 @@ test("rollMagicHit: always hits when magic resist is zero", () => {
   assert.equal(rollMagicHit({ magicResist: 0 }, () => 999), true);
 });
 
-test("rollMagicHit: deterministic miss with high resist and low roll", () => {
+test("rollMagicHit: low roll resists proportional to magic resist", () => {
   assert.equal(rollMagicHit({ magicResist: 9 }, () => 0), false);
+  assert.equal(rollMagicHit({ magicResist: 1 }, () => 24), false);
+  assert.equal(rollMagicHit({ magicResist: 1 }, () => 25), true);
+});
+
+test("rollMagicHit: cap 10 is 25% resist not full immunity", () => {
+  assert.equal(rollMagicHit({ magicResist: 10 }, () => 0), false);
+  assert.equal(rollMagicHit({ magicResist: 10 }, () => 249), false);
+  assert.equal(rollMagicHit({ magicResist: 10 }, () => 250), true);
+  assert.equal(rollMagicHit({ magicResist: 15 }, () => 0), false);
+  assert.equal(rollMagicHit({ magicResist: 15 }, () => 999), true);
 });
 
 test("weaponSwingMissEvents / weaponSwingHitEvents", () => {

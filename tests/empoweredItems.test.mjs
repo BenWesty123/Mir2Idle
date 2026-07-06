@@ -201,7 +201,7 @@ test("empowerCandidateRolls: armour uses fixed armour stat table", () => {
   const keys = rolls.map((roll) => roll.key);
   for (const def of ARMOUR_EMPOWER_ROLL_DEFS) assert.ok(keys.includes(def.key), def.key);
   assert.deepEqual(rolls.find((roll) => roll.key === "hp"), { key: "hp", range: false, min: 10, max: 100, step: 10 });
-  assert.deepEqual(rolls.find((roll) => roll.key === "xpBonusPercent"), { key: "xpBonusPercent", range: false, min: 5, max: 20, step: 5 });
+  assert.deepEqual(rolls.find((roll) => roll.key === "xpBonusPercent"), { key: "xpBonusPercent", range: false, min: 5, max: 30, step: 5 });
 });
 
 test("empowerCandidateRolls: helmets use fixed helmet stat table", () => {
@@ -478,11 +478,11 @@ test("applyEmpowerRollToStats: belt/boot HP rolls 10-30 in steps of 10", () => {
   assert.equal(applyEmpowerRollToStats(sanitizeItemBonusStats({}), hpRoll, 1, () => 0.5), 20);
 });
 
-test("applyEmpowerRollToStats: armour bonus XP rolls 5-20% in steps of 5", () => {
+test("applyEmpowerRollToStats: armour bonus XP rolls 5-30% in steps of 5", () => {
   const stats = sanitizeItemBonusStats({});
   const xpRoll = ARMOUR_EMPOWER_ROLL_DEFS.find((roll) => roll.key === "xpBonusPercent");
   assert.equal(applyEmpowerRollToStats(stats, xpRoll, 1, () => 0), 5);
-  assert.equal(applyEmpowerRollToStats(sanitizeItemBonusStats({}), xpRoll, 1, () => 0.999), 20);
+  assert.equal(applyEmpowerRollToStats(sanitizeItemBonusStats({}), xpRoll, 1, () => 0.999), 30);
 });
 
 test("empowerBonusStatLines: formats bonus XP as percent", () => {
@@ -490,26 +490,53 @@ test("empowerBonusStatLines: formats bonus XP as percent", () => {
   assert.deepEqual(lines, ["+15% Bonus XP"]);
 });
 
-test("empowerCandidateRolls: all weapons include utility reward empowers", () => {
+const UTILITY_REWARD_KEYS = ["goldBonusPercent", "xpBonusPercent", "bonusAwakeningSoulChancePercent"];
+const ALL_EQUIP_SLOTS = [
+  ["weapon", WEAPON_EMPOWER_ROLL_DEFS],
+  ["armour", ARMOUR_EMPOWER_ROLL_DEFS],
+  ["helmet", HELMET_EMPOWER_ROLL_DEFS],
+  ["bracelet", BRACELET_EMPOWER_ROLL_DEFS],
+  ["ring", RING_EMPOWER_ROLL_DEFS],
+  ["belt", BELT_BOOT_EMPOWER_ROLL_DEFS],
+  ["stone", STONE_EMPOWER_ROLL_DEFS],
+];
+
+test("empowerCandidateRolls: gold, XP, and soul utility rewards on every slot", () => {
   for (const weapon of [WARRIOR_WEAPON, WIZARD_WEAPON, TAO_WEAPON, UNIVERSAL_WEAPON]) {
     const keys = empowerCandidateRolls(weapon).map((roll) => roll.key);
-    assert.ok(keys.includes("goldBonusPercent"));
-    assert.ok(keys.includes("xpBonusPercent"));
+    for (const key of UTILITY_REWARD_KEYS) assert.ok(keys.includes(key), `weapon ${key}`);
     assert.ok(keys.includes("dropChanceBonusPercent"));
-    assert.ok(keys.includes("bonusAwakeningSoulChancePercent"));
+  }
+  for (const [slot, table] of ALL_EQUIP_SLOTS.slice(1)) {
+    for (const key of UTILITY_REWARD_KEYS) {
+      assert.ok(table.some((roll) => roll.key === key), `${slot} table ${key}`);
+      const keys = empowerCandidateRolls({ slot, stats: {} }).map((roll) => roll.key);
+      assert.ok(keys.includes(key), `${slot} candidates ${key}`);
+    }
+  }
+});
+
+test("item drop chance utility only rolls on weapon, armour, and stone", () => {
+  for (const [slot, table] of ALL_EQUIP_SLOTS) {
+    const hasDrop = table.some((roll) => roll.key === "dropChanceBonusPercent");
+    if (slot === "weapon" || slot === "armour" || slot === "stone") {
+      assert.ok(hasDrop, `${slot} should roll item drop chance`);
+    } else {
+      assert.equal(hasDrop, false, `${slot} should not roll item drop chance`);
+    }
   }
 });
 
 test("applyEmpowerRollToStats: weapon utility rolls use bounded tables", () => {
   const stats = sanitizeItemBonusStats({});
   const rng = () => 0;
-  applyEmpowerRollToStats(stats, { key: "goldBonusPercent", range: false, min: 5, max: 25, step: 5 }, 1, rng);
+  applyEmpowerRollToStats(stats, { key: "goldBonusPercent", range: false, min: 5, max: 40, step: 5 }, 1, rng);
   assert.equal(stats.goldBonusPercent, 5);
-  applyEmpowerRollToStats(stats, { key: "xpBonusPercent", range: false, min: 1, max: 5, step: 1 }, 1, rng);
-  assert.equal(stats.xpBonusPercent, 1);
-  applyEmpowerRollToStats(stats, { key: "dropChanceBonusPercent", range: false, min: 0.25, max: 2, step: 0.25 }, 1, rng);
+  applyEmpowerRollToStats(stats, { key: "xpBonusPercent", range: false, min: 5, max: 40, step: 5 }, 1, rng);
+  assert.equal(stats.xpBonusPercent, 5);
+  applyEmpowerRollToStats(stats, { key: "dropChanceBonusPercent", range: false, min: 0.25, max: 1.5, step: 0.25 }, 1, rng);
   assert.equal(stats.dropChanceBonusPercent, 0.25);
-  applyEmpowerRollToStats(stats, { key: "bonusAwakeningSoulChancePercent", range: false, min: 5, max: 25, step: 5 }, 1, rng);
+  applyEmpowerRollToStats(stats, { key: "bonusAwakeningSoulChancePercent", range: false, min: 5, max: 20, step: 5 }, 1, rng);
   assert.equal(stats.bonusAwakeningSoulChancePercent, 5);
 });
 
@@ -577,9 +604,16 @@ test("empowerBasePool: gates primary stats by item class, excludes globals", () 
 
 test("empowerBonusPool: globals only, plus spell rolls on weapons", () => {
   const armourBonus = empowerBonusPool(HEAVY_ARMOUR).map((r) => r.key);
+  assert.ok(armourBonus.includes("goldBonusPercent"));
   assert.ok(armourBonus.includes("xpBonusPercent"));
+  assert.ok(armourBonus.includes("bonusAwakeningSoulChancePercent"));
+  assert.ok(armourBonus.includes("dropChanceBonusPercent"));
   assert.ok(armourBonus.includes("damageTakenReductionPercent"));
   assert.equal(armourBonus.some((k) => k === "ac" || k === "dc"), false);
+
+  const ringBonus = empowerBonusPool({ slot: "ring", stats: { dc: [0, 3] } }).map((r) => r.key);
+  assert.ok(ringBonus.includes("goldBonusPercent"));
+  assert.equal(ringBonus.includes("dropChanceBonusPercent"), false);
 
   const taoWeaponBonus = empowerBonusPool(TAO_WEAPON);
   assert.ok(taoWeaponBonus.some((r) => r.spellId === "Healing"));
@@ -714,6 +748,41 @@ test("skill-leveling empower is global, rolls on every worn slot, sums to ~200%"
     empowerBonusStatLines({ skillLevelBonusPercent: 30 }),
     ["+30% Skill leveling"],
   );
+});
+
+test("utility reward globals: gold and XP max worn set sums to 200%", () => {
+  const wornMax = (key) => {
+    const max = (table) => table.find((r) => r.key === key).max;
+    return max(WEAPON_EMPOWER_ROLL_DEFS)
+      + max(ARMOUR_EMPOWER_ROLL_DEFS)
+      + max(HELMET_EMPOWER_ROLL_DEFS)
+      + max(BRACELET_EMPOWER_ROLL_DEFS) * 2
+      + max(RING_EMPOWER_ROLL_DEFS) * 3
+      + max(BELT_BOOT_EMPOWER_ROLL_DEFS) * 2
+      + max(STONE_EMPOWER_ROLL_DEFS);
+  };
+  assert.equal(wornMax("goldBonusPercent"), 200);
+  assert.equal(wornMax("xpBonusPercent"), 200);
+});
+
+test("utility reward globals: soul max worn set sums to 100%", () => {
+  const max = (table) => table.find((r) => r.key === "bonusAwakeningSoulChancePercent").max;
+  const total = max(WEAPON_EMPOWER_ROLL_DEFS)
+    + max(ARMOUR_EMPOWER_ROLL_DEFS)
+    + max(HELMET_EMPOWER_ROLL_DEFS)
+    + max(BRACELET_EMPOWER_ROLL_DEFS) * 2
+    + max(RING_EMPOWER_ROLL_DEFS) * 3
+    + max(BELT_BOOT_EMPOWER_ROLL_DEFS) * 2
+    + max(STONE_EMPOWER_ROLL_DEFS);
+  assert.equal(total, 100);
+});
+
+test("utility reward globals: item drop max worn set sums to 3% on weapon, armour, stone", () => {
+  const max = (table) => table.find((r) => r.key === "dropChanceBonusPercent").max;
+  const total = max(WEAPON_EMPOWER_ROLL_DEFS)
+    + max(ARMOUR_EMPOWER_ROLL_DEFS)
+    + max(STONE_EMPOWER_ROLL_DEFS);
+  assert.equal(total, 3);
 });
 
 test("formatEmpowerRollDescription: crit rolls render as plus percent", () => {

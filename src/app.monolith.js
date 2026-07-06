@@ -919,7 +919,7 @@ const BOSS_PARTY_THRUSTING_REACH = 100; // Warrior 2-tile Thrusting reach (match
 const BOSS_PARTY_PET_STAND_GAP = 48; // a tanking pet stands this far in front of the Warrior
 const BOSS_PARTY_SHINSU_LINE_SLOT = 1; // party line slot between Warrior (0) and Taoist (2)
 const BOSS_PARTY_ASSIST_SFX_SCALE = 0.6; // assist members' combat SFX volume vs the controlled character
-const BOSS_PARTY_DAMAGE_TEXT_OFFSET = 40; // px the assist members' damage numbers sit left/right of the controlled character's
+const BOSS_PARTY_DAMAGE_TEXT_OFFSET = 54; // px the assist members' damage numbers sit left/right of the controlled character's
 const BOSS_PARTY_CAMERA_LERP_MS = 280; // ease camera back after a front-liner finishes stepping up
 const LEVEL_UP_FX_ID = "LevelUp";
 const HEALING_RESTORE_FX_ID = "HealingRestore"; // Magic.Lib frame 370 -- the heal-lands-on-target effect (Crystal)
@@ -28366,7 +28366,7 @@ function applyBossPartyTurnUndeadImpact(impact, now) {
   syncBattleEnemyHpToSwarm();
   strikeGroupDungeonSwarmEnemy(enemy, now);
   playMonsterSfx("flinch", enemy, bossPartySfxParamsForClass(impact.casterClassId, 0.42, 80));
-  addCombatText("enemy", "Turned", "damage", now, bossPartyDamageTextOffset(impact.casterClassId));
+  addCombatText("enemy", "Turned", bossPartyDamageTextKind(impact.casterClassId), now, bossPartyDamageTextOffset(impact.casterClassId));
   applyCombatDamageEvent(enemyDamageEvent(damage, { kind: "magic" }), now, { enemy });
   pushBattleLog(`${impact.label} destroys ${enemy.name}.`);
   maybeKillGroupDungeonSwarmEnemy(enemy, now);
@@ -30014,9 +30014,18 @@ function bossPartyDamageTextOffset(classId) {
   return 0;
 }
 
+// Controlled character keeps gold ("damage"); each assist class gets its own colour so
+// three party members hammering one target stay readable by who hit, not just left/center/right.
+function bossPartyDamageTextKind(classId) {
+  if (classId === bossPartyControlledClassId()) return "damage";
+  if (classId === "Warrior") return "warriorAssistDamage";
+  if (classId === "Wizard") return "wizardAssistDamage";
+  if (classId === "Taoist") return "taoistAssistDamage";
+  return "damage";
+}
+
 function bossPartyShowEnemyDamage(classId, damage, now = performance.now()) {
-  const controlled = classId === bossPartyControlledClassId();
-  addCombatText("enemy", damage, controlled ? "damage" : "assistDamage", now, bossPartyDamageTextOffset(classId));
+  addCombatText("enemy", damage, bossPartyDamageTextKind(classId), now, bossPartyDamageTextOffset(classId));
 }
 
 function bossPartyShowEnemyMiss(classId, now = performance.now()) {
@@ -30739,7 +30748,7 @@ function addBossPartyMemberCombatText(member, text, kind, now = performance.now(
     text: String(text),
     kind,
     x: bounds.centerX,
-    y: bounds.topY - 16,
+    y: bounds.topY - 16 - floatingTextStackOffsetY(bounds.centerX, now),
     createdAt: now,
   });
   state.battle.floatingTexts = state.battle.floatingTexts.slice(-12);
@@ -38653,15 +38662,34 @@ function resolveIncomingEnemyRangedAttack(enemy, target, options = {}) {
   });
 }
 
+// All floating numbers rise at the same speed, so two spawned near the same spot
+// stay piled on top of each other forever. When several hits land on one target in
+// quick succession (group combat, poison ticks), raise each newcomer above the
+// texts already occupying its column so they read as a vertical stack. Because the
+// rise speed is shared, the initial gap we add here is preserved for the whole life
+// of the text.
+const FLOATING_TEXT_STACK_GAP = 17; // px between stacked numbers sharing a column
+const FLOATING_TEXT_STACK_WINDOW_MS = 650; // only recently spawned texts still crowd the spawn point
+const FLOATING_TEXT_STACK_X_TOLERANCE = 34; // horizontal distance still counted as the same column
+function floatingTextStackOffsetY(x, now) {
+  let stacked = 0;
+  for (const entry of state.battle.floatingTexts) {
+    if (now - entry.createdAt > FLOATING_TEXT_STACK_WINDOW_MS) continue;
+    if (Math.abs((entry.x ?? 0) - x) <= FLOATING_TEXT_STACK_X_TOLERANCE) stacked += 1;
+  }
+  return stacked * FLOATING_TEXT_STACK_GAP;
+}
+
 function addCombatText(anchor, text, kind = "damage", now = performance.now(), offsetX = 0) {
   const bounds = combatTextBounds(anchor);
+  const x = bounds.centerX + offsetX;
   state.battle.floatingTexts.push({
     id: `${now}-${Math.random()}`,
     anchor,
     text: String(text),
     kind,
-    x: bounds.centerX + offsetX,
-    y: bounds.topY - 16,
+    x,
+    y: bounds.topY - 16 - floatingTextStackOffsetY(x, now),
     createdAt: now,
   });
   state.battle.floatingTexts = state.battle.floatingTexts.slice(-12);
@@ -38675,7 +38703,7 @@ function addSwarmEnemyCombatText(swarmEnemy, text, kind = "damage", now = perfor
     text: String(text),
     kind,
     x: bounds.centerX,
-    y: bounds.topY - 16,
+    y: bounds.topY - 16 - floatingTextStackOffsetY(bounds.centerX, now),
     createdAt: now,
   });
   state.battle.floatingTexts = state.battle.floatingTexts.slice(-12);
@@ -44097,7 +44125,9 @@ function combatTextColor(kind) {
   if (kind === "frost") return "#9de8ff";
   if (kind === "debuff") return "#e2c45f";
   if (kind === "buff") return "#f0b35c";
-  if (kind === "assistDamage") return "#c6a0ff";
+  if (kind === "warriorAssistDamage") return "#d4924a";
+  if (kind === "wizardAssistDamage") return "#c6a0ff";
+  if (kind === "taoistAssistDamage") return "#5ec9b0";
   return "#f3d16b";
 }
 

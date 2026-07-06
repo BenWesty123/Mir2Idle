@@ -1,5 +1,41 @@
 # AI Task Log - LOM Idle V2
 
+## 2026-07-06 - Utility reward empowers on all slots (gold/XP/soul/drop)
+
+### What
+Spread gold drop, bonus XP, and soul drop chance to every equippable slot with worn-set caps matching skill leveling tiering. Item drop chance rolls on weapon, armour, and stone only (3% worn max).
+
+### Worn max targets
+- Gold drop & Bonus XP: **200%** (same per-slot maxes as skill leveling)
+- Soul drop chance: **100%** (half of gold/XP per slot)
+- Item drop chance: **3%** (weapon 1.5% + armour 1% + stone 0.5%)
+
+### Changes
+- `src/core/empoweredItems.js`: added/updated `goldBonusPercent`, `xpBonusPercent`, `bonusAwakeningSoulChancePercent`, and `dropChanceBonusPercent` on all slot tables per approved ranges.
+- `tests/empoweredItems.test.mjs`: slot coverage tests, item-drop slot restriction, worn-max sum tests (200/200/100/3).
+- Regenerated `tools/stats-worker/itemRules.generated.js` and `docs/EMPOWER_REFERENCE.md`.
+
+### Checked
+- `npm run check` (404 tests pass; pre-existing warrior-bicheon offline XP fixture drift only). Not yet deployed.
+
+## 2026-07-05 - Floating combat text: vertical stacking so group hits overlap less
+
+### Problem
+In group combat (KR boss rooms + group dungeons) all party members hammer one monster, and every floating damage number spawned at the same height and rose at the same speed. Numbers landing close together stayed piled on top of each other for their whole life, making it hard to read who did what. The only prior mitigation was a fixed 3-column horizontal offset for assist damage (`bossPartyDamageTextOffset`), which still overlapped for rapid hits and wide crit numbers.
+
+### Change (`src/app.monolith.js`)
+- Added `floatingTextStackOffsetY(x, now)` plus `FLOATING_TEXT_STACK_GAP` (17px), `FLOATING_TEXT_STACK_WINDOW_MS` (650ms), `FLOATING_TEXT_STACK_X_TOLERANCE` (34px). When a new number spawns, it counts recent active texts sharing its column and starts raised above them. Since all texts rise at the same rate, the initial gap is preserved for the full animation, so consecutive hits read as a clean vertical stack instead of a pile.
+- Applied the offset in all three spawners: `addCombatText`, `addSwarmEnemyCombatText`, and `addBossPartyMemberCombatText`.
+- Widened `BOSS_PARTY_DAMAGE_TEXT_OFFSET` 40 -> 54px so the controlled/assist columns (still clearly outside the 34px column tolerance) don't horizontally overlap for large crit numbers.
+- Per-class assist damage colours: controlled stays gold; Warrior bronze `#d4924a`, Wizard purple `#c6a0ff`, Taoist teal `#5ec9b0` via `bossPartyDamageTextKind()`.
+
+Verified with `npm run check` (pre-existing unrelated `warrior-bicheon` XP fixture drift only) and `npm run smoke` (clean, no console errors).
+
+## 2026-07-05 - Magic resist: 2.5% per point, 25% cap at 10
+
+### Change
+Reworked `rollMagicHit` in `src/core/combat.js`: each magic-resist point now grants **2.5%** resist chance (combat cap still 10), so MR 10 is **25% resist** instead of full immunity. Updated `tests/combat.test.mjs` with boundary and cap tests.
+
 ## 2026-07-04 - Live character switching in KR boss rooms
 
 ### Change
