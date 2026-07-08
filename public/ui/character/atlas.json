@@ -1,0 +1,378 @@
+{
+    "uiId":  "character",
+    "source":  "Crystal Client CharacterDialog: Libraries.Title frame 504, Libraries.Prguse frame 340, Libraries.Title tab frames 500-503, Libraries.Prguse2 close frames 360-362, Libraries.StateItems equipped item frames, Libraries.Prguse hair frame 441",
+    "layers":  [
+                   {
+                       "sheet":  "background.png",
+                       "interval":  1000,
+                       "slotWidth":  264,
+                       "slotHeight":  380,
+                       "library":  "Title",
+                       "baseIndex":  504,
+                       "anchor":  "enemy",
+                       "delayMs":  0,
+                       "frames":  [
+                                      {
+                                          "slot":  0,
+                                          "srcFrame":  504,
+                                          "w":  264,
+                                          "h":  380,
+                                          "offsetX":  0,
+                                          "offsetY":  0,
+                                          "empty":  false
+                                      }
+                                  ]
+                   },
+                   {
+                       "sheet":  "character-panel.png",
+                       "interval":  1000,
+                       "slotWidth":  248,
+                       "slotHeight":  284,
+                       "library":  "Prguse",
+                       "baseIndex":  340,
+                       "anchor":  "enemy",
+                       "delayMs":  0,
+                       "frames":  [
+                                      {
+                                          "slot":  0,
+                                          "srcFrame":  340,
+                                          "w":  248,
+                                          "h":  284,
+                                          "offsetX":  0,
+                                          "offsetY":  0,
+                                          "empty":  false
+                                      }
+                                  ]
+                   },
+                   {
+                       "sheet":  "tabs.png",
+                       "interval":  250,
+                       "slotWidth":  64,
+                       "slotHeight":  20,
+                       "library":  "Title",
+                       "baseIndex":  500,
+                       "anchor":  "enemy",
+                       "delayMs":  0,
+                       "frames":  [
+                                      {
+                                          "slot":  0,
+                                          "srcFrame":  500,
+                                          "w":  64,
+                                          "h":  20,
+                                          "offsetX":  0,
+                                          "offsetY":  0,
+                                          "empty":  false
+                                      },
+                                      {
+                                          "slot":  1,
+                                          "srcFrame":  501,
+                                          "w":  64,
+                                          "h":  20,
+                                          "offsetX":  0,
+                                          "offsetY":  0,
+                                          "empty":  false
+                                      },
+                                      {
+                                          "slot":  2,
+                                          "srcFrame":  502,
+                                          "w":  64,
+                                          "h":  20,
+                                          "offsetX":  0,
+                                          "offsetY":  0,
+                                          "empty":  false
+                                      },
+                                      {
+                                          "slot":  3,
+                                          "srcFrame":  503,
+                                          "w":  64,
+                                          "h":  20,
+                                          "offsetX":  0,
+                                          "offsetY":  0,
+                                          "empty":  false
+                                      }
+                                  ]
+                   },
+                   {
+                       "sheet":  "close.png",
+                       "interval":  100,
+                       "slotWidth":  24,
+                       "slotHeight":  21,
+                       "library":  "Prguse2",
+                       "baseIndex":  360,
+                       "anchor":  "enemy",
+                       "delayMs":  0,
+                       "frames":  [
+                                      {
+                                          "slot":  0,
+                                          "srcFrame":  360,
+                                          "w":  24,
+                                          "h":  21,
+                                          "offsetX":  0,
+                                          "offsetY":  0,
+                                          "empty":  false
+                                      },
+                                      {
+                                          "slot":  1,
+                                          "srcFrame":  361,
+                                          "w":  24,
+                                          "h":  21,
+                                          "offsetX":  0,
+                                          "offsetY":  0,
+                                          "empty":  false
+                                      },
+                                      {
+                                          "slot":  2,
+                                          "srcFrame":  362,
+                                          "w":  24,
+                                          "h":  21,
+                                          "offsetX":  0,
+                                          "offsetY":  0,
+                                          "empty":  false
+                                      }
+                                  ]
+                   },
+                   {
+                       "sheet":  "class-icons.png",
+                       "interval":  200,
+                       "slotWidth":  32,
+                       "slotHeight":  32,
+                       "library":  "Prguse",
+                       "baseIndex":  100,
+                       "anchor":  "enemy",
+                       "delayMs":  0,
+                       "frames":  [
+                                      {
+                                          "slot":  0,
+                                          "srcFrame":  100,
+                                          "w":  32,
+                                          "h":  32,
+                                          "offsetX":  0,
+                                          "offsetY":  0,
+                                          "empty":  false
+                                      },
+                                      {
+                                          "slot":  1,
+                                          "srcFrame":  101,
+                                          "w":  32,
+                                          "h":  32,
+                                          "offsetX":  0,
+                                          "offsetY":  0,
+                                          "empty":  false
+                                      },
+                                      {
+                                          "slot":  2,
+                                          "srcFrame":  102,
+                                          "w":  32,
+                                          "h":  32,
+                                          "offsetX":  0,
+                                          "offsetY":  0,
+                                          "empty":  false
+                                      },
+                                      {
+                                          "slot":  3,
+                                          "srcFrame":  103,
+                                          "w":  32,
+                                          "h":  32,
+                                          "offsetX":  0,
+                                          "offsetY":  0,
+                                          "empty":  false
+                                      },
+                                      {
+                                          "slot":  4,
+                                          "srcFrame":  104,
+                                          "w":  32,
+                                          "h":  32,
+                                          "offsetX":  0,
+                                          "offsetY":  0,
+                                          "empty":  false
+                                      }
+                                  ]
+                   },
+                   {
+                       "sheet":  "pages.png",
+                       "interval":  333,
+                       "slotWidth":  248,
+                       "slotHeight":  284,
+                       "library":  "Title",
+                       "baseIndex":  506,
+                       "anchor":  "enemy",
+                       "delayMs":  0,
+                       "frames":  [
+                                      {
+                                          "slot":  0,
+                                          "srcFrame":  506,
+                                          "w":  248,
+                                          "h":  284,
+                                          "offsetX":  0,
+                                          "offsetY":  0,
+                                          "empty":  false
+                                      },
+                                      {
+                                          "slot":  1,
+                                          "srcFrame":  507,
+                                          "w":  248,
+                                          "h":  284,
+                                          "offsetX":  0,
+                                          "offsetY":  0,
+                                          "empty":  false
+                                      },
+                                      {
+                                          "slot":  2,
+                                          "srcFrame":  508,
+                                          "w":  248,
+                                          "h":  284,
+                                          "offsetX":  0,
+                                          "offsetY":  0,
+                                          "empty":  false
+                                      }
+                                  ]
+                   },
+                   {
+                       "sheet":  "stateitem-30.png",
+                       "interval":  1000,
+                       "slotWidth":  28,
+                       "slotHeight":  57,
+                       "library":  "Stateitem",
+                       "baseIndex":  30,
+                       "anchor":  "enemy",
+                       "delayMs":  0,
+                       "frames":  [
+                                      {
+                                          "slot":  0,
+                                          "srcFrame":  30,
+                                          "w":  28,
+                                          "h":  57,
+                                          "offsetX":  75,
+                                          "offsetY":  186,
+                                          "empty":  false
+                                      }
+                                  ]
+                   },
+                   {
+                       "sheet":  "stateitem-31.png",
+                       "interval":  1000,
+                       "slotWidth":  32,
+                       "slotHeight":  67,
+                       "library":  "Stateitem",
+                       "baseIndex":  31,
+                       "anchor":  "enemy",
+                       "delayMs":  0,
+                       "frames":  [
+                                      {
+                                          "slot":  0,
+                                          "srcFrame":  31,
+                                          "w":  32,
+                                          "h":  67,
+                                          "offsetX":  73,
+                                          "offsetY":  179,
+                                          "empty":  false
+                                      }
+                                  ]
+                   },
+                   {
+                       "sheet":  "stateitem-36.png",
+                       "interval":  1000,
+                       "slotWidth":  36,
+                       "slotHeight":  74,
+                       "library":  "Stateitem",
+                       "baseIndex":  36,
+                       "anchor":  "enemy",
+                       "delayMs":  0,
+                       "frames":  [
+                                      {
+                                          "slot":  0,
+                                          "srcFrame":  36,
+                                          "w":  36,
+                                          "h":  74,
+                                          "offsetX":  71,
+                                          "offsetY":  172,
+                                          "empty":  false
+                                      }
+                                  ]
+                   },
+                   {
+                       "sheet":  "stateitem-54.png",
+                       "interval":  1000,
+                       "slotWidth":  52,
+                       "slotHeight":  115,
+                       "library":  "Stateitem",
+                       "baseIndex":  54,
+                       "anchor":  "enemy",
+                       "delayMs":  0,
+                       "frames":  [
+                                      {
+                                          "slot":  0,
+                                          "srcFrame":  54,
+                                          "w":  52,
+                                          "h":  115,
+                                          "offsetX":  57,
+                                          "offsetY":  139,
+                                          "empty":  false
+                                      }
+                                  ]
+                   },
+                   {
+                       "sheet":  "stateitem-60.png",
+                       "interval":  1000,
+                       "slotWidth":  80,
+                       "slotHeight":  128,
+                       "library":  "Stateitem",
+                       "baseIndex":  60,
+                       "anchor":  "enemy",
+                       "delayMs":  0,
+                       "frames":  [
+                                      {
+                                          "slot":  0,
+                                          "srcFrame":  60,
+                                          "w":  80,
+                                          "h":  128,
+                                          "offsetX":  92,
+                                          "offsetY":  194,
+                                          "empty":  false
+                                      }
+                                  ]
+                   },
+                   {
+                       "sheet":  "stateitem-110.png",
+                       "interval":  1000,
+                       "slotWidth":  16,
+                       "slotHeight":  20,
+                       "library":  "Stateitem",
+                       "baseIndex":  110,
+                       "anchor":  "enemy",
+                       "delayMs":  0,
+                       "frames":  [
+                                      {
+                                          "slot":  0,
+                                          "srcFrame":  110,
+                                          "w":  16,
+                                          "h":  20,
+                                          "offsetX":  130,
+                                          "offsetY":  172,
+                                          "empty":  false
+                                      }
+                                  ]
+                   },
+                   {
+                       "sheet":  "hair-441.png",
+                       "interval":  1000,
+                       "slotWidth":  16,
+                       "slotHeight":  14,
+                       "library":  "Prguse",
+                       "baseIndex":  441,
+                       "anchor":  "enemy",
+                       "delayMs":  0,
+                       "frames":  [
+                                      {
+                                          "slot":  0,
+                                          "srcFrame":  441,
+                                          "w":  16,
+                                          "h":  14,
+                                          "offsetX":  131,
+                                          "offsetY":  173,
+                                          "empty":  false
+                                      }
+                                  ]
+                   }
+               ]
+}

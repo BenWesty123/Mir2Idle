@@ -1,0 +1,71 @@
+{
+  "spellId": "Slaying",
+  "direction": 2,
+  "blend": "screen",
+  "layers": [
+    {
+      "sheet": "l0.png",
+      "interval": 100,
+      "slotWidth": 100,
+      "slotHeight": 69,
+      "library": "Magic",
+      "baseIndex": 1840,
+      "frames": [
+        {
+          "slot": 0,
+          "srcFrame": 1840,
+          "w": 24,
+          "h": 35,
+          "offsetX": 19,
+          "offsetY": -35,
+          "empty": false
+        },
+        {
+          "slot": 1,
+          "srcFrame": 1841,
+          "w": 60,
+          "h": 69,
+          "offsetX": -41,
+          "offsetY": -76,
+          "empty": false
+        },
+        {
+          "slot": 2,
+          "srcFrame": 1842,
+          "w": 64,
+          "h": 44,
+          "offsetX": -35,
+          "offsetY": -73,
+          "empty": false
+        },
+        {
+          "slot": 3,
+          "srcFrame": 1843,
+          "w": 100,
+          "h": 45,
+          "offsetX": -23,
+          "offsetY": -59,
+          "empty": false
+        },
+        {
+          "slot": 4,
+          "srcFrame": 1844,
+          "w": 72,
+          "h": 53,
+          "offsetX": 52,
+          "offsetY": -45,
+          "empty": false
+        },
+        {
+          "slot": 5,
+          "srcFrame": 1845,
+          "w": 48,
+          "h": 21,
+          "offsetX": 43,
+          "offsetY": -10,
+          "empty": false
+        }
+      ]
+    }
+  ]
+}

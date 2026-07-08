@@ -1,0 +1,87 @@
+{
+    "uiId":  "inventory",
+    "source":  "Crystal Client InventoryDialog: Libraries.Title frame 196, Libraries.Prguse2 close frames 360-362",
+    "layers":  [
+                   {
+                       "sheet":  "background.png",
+                       "interval":  1000,
+                       "slotWidth":  316,
+                       "slotHeight":  236,
+                       "library":  "Title",
+                       "baseIndex":  196,
+                       "anchor":  "player",
+                       "delayMs":  0,
+                       "frames":  [
+                                      {
+                                          "slot":  0,
+                                          "srcFrame":  196,
+                                          "w":  316,
+                                          "h":  236,
+                                          "offsetX":  0,
+                                          "offsetY":  0,
+                                          "empty":  false
+                                      }
+                                  ]
+                   },
+                   {
+                       "sheet":  "close.png",
+                       "interval":  100,
+                       "slotWidth":  24,
+                       "slotHeight":  21,
+                       "library":  "Prguse2",
+                       "baseIndex":  360,
+                       "anchor":  "player",
+                       "delayMs":  0,
+                       "frames":  [
+                                      {
+                                          "slot":  0,
+                                          "srcFrame":  360,
+                                          "w":  24,
+                                          "h":  21,
+                                          "offsetX":  0,
+                                          "offsetY":  0,
+                                          "empty":  false
+                                      },
+                                      {
+                                          "slot":  1,
+                                          "srcFrame":  361,
+                                          "w":  24,
+                                          "h":  21,
+                                          "offsetX":  0,
+                                          "offsetY":  0,
+                                          "empty":  false
+                                      },
+                                      {
+                                          "slot":  2,
+                                          "srcFrame":  362,
+                                          "w":  24,
+                                          "h":  21,
+                                          "offsetX":  0,
+                                          "offsetY":  0,
+                                          "empty":  false
+                                      }
+                                  ]
+                   },
+                   {
+                       "sheet":  "tabs.png",
+                       "interval":  1000,
+                       "slotWidth":  72,
+                       "slotHeight":  24,
+                       "library":  "Title",
+                       "baseIndex":  197,
+                       "anchor":  "player",
+                       "delayMs":  0,
+                       "frames":  [
+                                      {
+                                          "slot":  0,
+                                          "srcFrame":  197,
+                                          "w":  72,
+                                          "h":  24,
+                                          "offsetX":  0,
+                                          "offsetY":  0,
+                                          "empty":  false
+                                      }
+                                  ]
+                   }
+               ]
+}

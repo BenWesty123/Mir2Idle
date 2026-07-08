@@ -1,0 +1,89 @@
+{
+  "spellId": "OneWithNature",
+  "direction": 2,
+  "blend": "screen",
+  "layers": [
+    {
+      "sheet": "l0.png",
+      "interval": 150,
+      "slotWidth": 448,
+      "slotHeight": 284,
+      "library": "Magic3",
+      "baseIndex": 2710,
+      "frames": [
+        {
+          "slot": 0,
+          "srcFrame": 2710,
+          "w": 112,
+          "h": 74,
+          "offsetX": -31,
+          "offsetY": -14,
+          "empty": false
+        },
+        {
+          "slot": 1,
+          "srcFrame": 2711,
+          "w": 404,
+          "h": 266,
+          "offsetX": -172,
+          "offsetY": -107,
+          "empty": false
+        },
+        {
+          "slot": 2,
+          "srcFrame": 2712,
+          "w": 420,
+          "h": 270,
+          "offsetX": -182,
+          "offsetY": -111,
+          "empty": false
+        },
+        {
+          "slot": 3,
+          "srcFrame": 2713,
+          "w": 448,
+          "h": 283,
+          "offsetX": -198,
+          "offsetY": -124,
+          "empty": false
+        },
+        {
+          "slot": 4,
+          "srcFrame": 2714,
+          "w": 448,
+          "h": 284,
+          "offsetX": -200,
+          "offsetY": -125,
+          "empty": false
+        },
+        {
+          "slot": 5,
+          "srcFrame": 2715,
+          "w": 448,
+          "h": 282,
+          "offsetX": -199,
+          "offsetY": -123,
+          "empty": false
+        },
+        {
+          "slot": 6,
+          "srcFrame": 2716,
+          "w": 416,
+          "h": 264,
+          "offsetX": -178,
+          "offsetY": -115,
+          "empty": false
+        },
+        {
+          "slot": 7,
+          "srcFrame": 2717,
+          "w": 352,
+          "h": 221,
+          "offsetX": -150,
+          "offsetY": -98,
+          "empty": false
+        }
+      ]
+    }
+  ]
+}

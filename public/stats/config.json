@@ -1,0 +1,6 @@
+{
+  "enabled": true,
+  "endpoint": "https://lom-idle-v2-stats.benwesty90.workers.dev/stats",
+  "cloudSaveEndpoint": "https://lom-idle-v2-stats.benwesty90.workers.dev/cloud-save",
+  "panel": "https://lom-idle-v2-stats.benwesty90.workers.dev/panel"
+}

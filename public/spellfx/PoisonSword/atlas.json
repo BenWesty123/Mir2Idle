@@ -1,0 +1,107 @@
+{
+  "spellId": "PoisonSword",
+  "direction": 2,
+  "blend": "screen",
+  "layers": [
+    {
+      "sheet": "l0.png",
+      "interval": 110,
+      "slotWidth": 184,
+      "slotHeight": 131,
+      "library": "Magic2",
+      "baseIndex": 2510,
+      "frames": [
+        {
+          "slot": 0,
+          "srcFrame": 2510,
+          "w": 68,
+          "h": 53,
+          "offsetX": -57,
+          "offsetY": -35,
+          "empty": false
+        },
+        {
+          "slot": 1,
+          "srcFrame": 2511,
+          "w": 104,
+          "h": 59,
+          "offsetX": -57,
+          "offsetY": -38,
+          "empty": false
+        },
+        {
+          "slot": 2,
+          "srcFrame": 2512,
+          "w": 156,
+          "h": 74,
+          "offsetX": -61,
+          "offsetY": -50,
+          "empty": false
+        },
+        {
+          "slot": 3,
+          "srcFrame": 2513,
+          "w": 160,
+          "h": 112,
+          "offsetX": -64,
+          "offsetY": -84,
+          "empty": false
+        },
+        {
+          "slot": 4,
+          "srcFrame": 2514,
+          "w": 164,
+          "h": 114,
+          "offsetX": -67,
+          "offsetY": -83,
+          "empty": false
+        },
+        {
+          "slot": 5,
+          "srcFrame": 2515,
+          "w": 172,
+          "h": 120,
+          "offsetX": -71,
+          "offsetY": -86,
+          "empty": false
+        },
+        {
+          "slot": 6,
+          "srcFrame": 2516,
+          "w": 180,
+          "h": 127,
+          "offsetX": -74,
+          "offsetY": -90,
+          "empty": false
+        },
+        {
+          "slot": 7,
+          "srcFrame": 2517,
+          "w": 184,
+          "h": 131,
+          "offsetX": -77,
+          "offsetY": -93,
+          "empty": false
+        },
+        {
+          "slot": 8,
+          "srcFrame": 2518,
+          "w": 96,
+          "h": 131,
+          "offsetX": 11,
+          "offsetY": -95,
+          "empty": false
+        },
+        {
+          "slot": 9,
+          "srcFrame": 2519,
+          "w": 0,
+          "h": 0,
+          "offsetX": 0,
+          "offsetY": 0,
+          "empty": true
+        }
+      ]
+    }
+  ]
+}

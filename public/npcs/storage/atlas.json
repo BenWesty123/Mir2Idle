@@ -1,0 +1,54 @@
+{
+    "npcId":  "storage",
+    "source":  "Crystal MirDB NPC 63: Storage_Jake, image 3, NPC/03.Lib",
+    "layers":  [
+                   {
+                       "sheet":  "standing.png",
+                       "interval":  450,
+                       "slotWidth":  60,
+                       "slotHeight":  76,
+                       "library":  "03",
+                       "baseIndex":  0,
+                       "anchor":  "player",
+                       "delayMs":  0,
+                       "frames":  [
+                                      {
+                                          "slot":  0,
+                                          "srcFrame":  0,
+                                          "w":  60,
+                                          "h":  72,
+                                          "offsetX":  5,
+                                          "offsetY":  -50,
+                                          "empty":  false
+                                      },
+                                      {
+                                          "slot":  1,
+                                          "srcFrame":  1,
+                                          "w":  60,
+                                          "h":  76,
+                                          "offsetX":  5,
+                                          "offsetY":  -51,
+                                          "empty":  false
+                                      },
+                                      {
+                                          "slot":  2,
+                                          "srcFrame":  2,
+                                          "w":  60,
+                                          "h":  76,
+                                          "offsetX":  5,
+                                          "offsetY":  -51,
+                                          "empty":  false
+                                      },
+                                      {
+                                          "slot":  3,
+                                          "srcFrame":  3,
+                                          "w":  60,
+                                          "h":  72,
+                                          "offsetX":  5,
+                                          "offsetY":  -50,
+                                          "empty":  false
+                                      }
+                                  ]
+                   }
+               ]
+}

@@ -1,0 +1,197 @@
+{
+  "spellId": "CrescentSlash",
+  "direction": 2,
+  "blend": "screen",
+  "layers": [
+    {
+      "sheet": "l0.png",
+      "interval": 100,
+      "slotWidth": 536,
+      "slotHeight": 443,
+      "library": "Magic2",
+      "baseIndex": 2660,
+      "frames": [
+        {
+          "slot": 0,
+          "srcFrame": 2660,
+          "w": 304,
+          "h": 259,
+          "offsetX": -118,
+          "offsetY": -131,
+          "empty": false
+        },
+        {
+          "slot": 1,
+          "srcFrame": 2661,
+          "w": 452,
+          "h": 343,
+          "offsetX": -189,
+          "offsetY": -162,
+          "empty": false
+        },
+        {
+          "slot": 2,
+          "srcFrame": 2662,
+          "w": 500,
+          "h": 398,
+          "offsetX": -215,
+          "offsetY": -192,
+          "empty": false
+        },
+        {
+          "slot": 3,
+          "srcFrame": 2663,
+          "w": 532,
+          "h": 439,
+          "offsetX": -230,
+          "offsetY": -208,
+          "empty": false
+        },
+        {
+          "slot": 4,
+          "srcFrame": 2664,
+          "w": 536,
+          "h": 443,
+          "offsetX": -234,
+          "offsetY": -207,
+          "empty": false
+        },
+        {
+          "slot": 5,
+          "srcFrame": 2665,
+          "w": 504,
+          "h": 394,
+          "offsetX": -222,
+          "offsetY": -180,
+          "empty": false
+        },
+        {
+          "slot": 6,
+          "srcFrame": 2666,
+          "w": 488,
+          "h": 363,
+          "offsetX": -207,
+          "offsetY": -187,
+          "empty": false
+        },
+        {
+          "slot": 7,
+          "srcFrame": 2667,
+          "w": 388,
+          "h": 334,
+          "offsetX": -133,
+          "offsetY": -162,
+          "empty": false
+        },
+        {
+          "slot": 8,
+          "srcFrame": 2668,
+          "w": 164,
+          "h": 134,
+          "offsetX": -51,
+          "offsetY": -69,
+          "empty": false
+        },
+        {
+          "slot": 9,
+          "srcFrame": 2669,
+          "w": 248,
+          "h": 236,
+          "offsetX": -31,
+          "offsetY": -118,
+          "empty": false
+        },
+        {
+          "slot": 10,
+          "srcFrame": 2670,
+          "w": 332,
+          "h": 374,
+          "offsetX": -89,
+          "offsetY": -184,
+          "empty": false
+        },
+        {
+          "slot": 11,
+          "srcFrame": 2671,
+          "w": 308,
+          "h": 338,
+          "offsetX": -62,
+          "offsetY": -162,
+          "empty": false
+        },
+        {
+          "slot": 12,
+          "srcFrame": 2672,
+          "w": 260,
+          "h": 297,
+          "offsetX": -8,
+          "offsetY": -145,
+          "empty": false
+        },
+        {
+          "slot": 13,
+          "srcFrame": 2673,
+          "w": 240,
+          "h": 261,
+          "offsetX": 1,
+          "offsetY": -130,
+          "empty": false
+        },
+        {
+          "slot": 14,
+          "srcFrame": 2674,
+          "w": 0,
+          "h": 0,
+          "offsetX": 0,
+          "offsetY": 0,
+          "empty": true
+        },
+        {
+          "slot": 15,
+          "srcFrame": 2675,
+          "w": 0,
+          "h": 0,
+          "offsetX": 0,
+          "offsetY": 0,
+          "empty": true
+        },
+        {
+          "slot": 16,
+          "srcFrame": 2676,
+          "w": 0,
+          "h": 0,
+          "offsetX": 0,
+          "offsetY": 0,
+          "empty": true
+        },
+        {
+          "slot": 17,
+          "srcFrame": 2677,
+          "w": 0,
+          "h": 0,
+          "offsetX": 0,
+          "offsetY": 0,
+          "empty": true
+        },
+        {
+          "slot": 18,
+          "srcFrame": 2678,
+          "w": 0,
+          "h": 0,
+          "offsetX": 0,
+          "offsetY": 0,
+          "empty": true
+        },
+        {
+          "slot": 19,
+          "srcFrame": 2679,
+          "w": 0,
+          "h": 0,
+          "offsetX": 0,
+          "offsetY": 0,
+          "empty": true
+        }
+      ]
+    }
+  ]
+}

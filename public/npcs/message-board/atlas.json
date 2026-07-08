@@ -1,0 +1,19 @@
+{
+  "npcId": "message-board",
+  "source": "Crystal NPC image 45, NPC/45.Lib, DefaultNPC standing frames 0-3",
+  "layers": [
+    {
+      "sheet": "standing.png",
+      "interval": 1000,
+      "slotWidth": 140,
+      "slotHeight": 136,
+      "library": "45",
+      "baseIndex": 0,
+      "anchor": "player",
+      "delayMs": 0,
+      "frames": [
+        { "slot": 0, "srcFrame": 0, "w": 140, "h": 136, "offsetX": -40, "offsetY": -84, "empty": false }
+      ]
+    }
+  ]
+}

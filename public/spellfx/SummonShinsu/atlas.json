@@ -1,0 +1,106 @@
+{
+  "spellId": "SummonShinsu",
+  "direction": 2,
+  "blend": "screen",
+  "layers": [
+    {
+      "sheet": "l0.png",
+      "interval": 60,
+      "slotWidth": 152,
+      "slotHeight": 105,
+      "library": "Magic2",
+      "frames": [
+        {
+          "slot": 0,
+          "srcFrame": 0,
+          "w": 80,
+          "h": 53,
+          "offsetX": -13,
+          "offsetY": -64,
+          "empty": false
+        },
+        {
+          "slot": 1,
+          "srcFrame": 1,
+          "w": 128,
+          "h": 88,
+          "offsetX": -43,
+          "offsetY": -82,
+          "empty": false
+        },
+        {
+          "slot": 2,
+          "srcFrame": 2,
+          "w": 148,
+          "h": 102,
+          "offsetX": -49,
+          "offsetY": -85,
+          "empty": false
+        },
+        {
+          "slot": 3,
+          "srcFrame": 3,
+          "w": 140,
+          "h": 93,
+          "offsetX": -44,
+          "offsetY": -84,
+          "empty": false
+        },
+        {
+          "slot": 4,
+          "srcFrame": 4,
+          "w": 128,
+          "h": 80,
+          "offsetX": -43,
+          "offsetY": -79,
+          "empty": false
+        },
+        {
+          "slot": 5,
+          "srcFrame": 5,
+          "w": 140,
+          "h": 89,
+          "offsetX": -49,
+          "offsetY": -81,
+          "empty": false
+        },
+        {
+          "slot": 6,
+          "srcFrame": 6,
+          "w": 148,
+          "h": 101,
+          "offsetX": -56,
+          "offsetY": -83,
+          "empty": false
+        },
+        {
+          "slot": 7,
+          "srcFrame": 7,
+          "w": 152,
+          "h": 105,
+          "offsetX": -57,
+          "offsetY": -81,
+          "empty": false
+        },
+        {
+          "slot": 8,
+          "srcFrame": 8,
+          "w": 152,
+          "h": 96,
+          "offsetX": -59,
+          "offsetY": -76,
+          "empty": false
+        },
+        {
+          "slot": 9,
+          "srcFrame": 9,
+          "w": 140,
+          "h": 99,
+          "offsetX": -50,
+          "offsetY": -69,
+          "empty": false
+        }
+      ]
+    }
+  ]
+}

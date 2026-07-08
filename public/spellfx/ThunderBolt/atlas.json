@@ -1,0 +1,101 @@
+{
+    "spellId":  "ThunderBolt",
+    "direction":  2,
+    "blend":  "screen",
+    "layers":  [
+                   {
+                       "sheet":  "l0.png",
+                       "interval":  100,
+                       "slotWidth":  48,
+                       "slotHeight":  100,
+                       "library":  "Magic2",
+                       "baseIndex":  20,
+                       "frames":  [
+                                      {
+                                          "slot":  0,
+                                          "srcFrame":  20,
+                                          "w":  40,
+                                          "h":  54,
+                                          "offsetX":  7,
+                                          "offsetY":  -110,
+                                          "empty":  false
+                                      },
+                                      {
+                                          "slot":  1,
+                                          "srcFrame":  21,
+                                          "w":  48,
+                                          "h":  100,
+                                          "offsetX":  0,
+                                          "offsetY":  -155,
+                                          "empty":  false
+                                      },
+                                      {
+                                          "slot":  2,
+                                          "srcFrame":  22,
+                                          "w":  36,
+                                          "h":  81,
+                                          "offsetX":  7,
+                                          "offsetY":  -156,
+                                          "empty":  false
+                                      }
+                                  ]
+                   },
+                   {
+                       "sheet":  "target.png",
+                       "interval":  80,
+                       "slotWidth":  316,
+                       "slotHeight":  997,
+                       "library":  "Magic2",
+                       "baseIndex":  10,
+                       "anchor":  "enemy",
+                       "delayMs":  260,
+                       "frames":  [
+                                      {
+                                          "slot":  0,
+                                          "srcFrame":  10,
+                                          "w":  148,
+                                          "h":  958,
+                                          "offsetX":  -61,
+                                          "offsetY":  -920,
+                                          "empty":  false
+                                      },
+                                      {
+                                          "slot":  1,
+                                          "srcFrame":  11,
+                                          "w":  212,
+                                          "h":  963,
+                                          "offsetX":  -89,
+                                          "offsetY":  -923,
+                                          "empty":  false
+                                      },
+                                      {
+                                          "slot":  2,
+                                          "srcFrame":  12,
+                                          "w":  224,
+                                          "h":  997,
+                                          "offsetX":  -96,
+                                          "offsetY":  -923,
+                                          "empty":  false
+                                      },
+                                      {
+                                          "slot":  3,
+                                          "srcFrame":  13,
+                                          "w":  316,
+                                          "h":  993,
+                                          "offsetX":  -131,
+                                          "offsetY":  -921,
+                                          "empty":  false
+                                      },
+                                      {
+                                          "slot":  4,
+                                          "srcFrame":  14,
+                                          "w":  220,
+                                          "h":  119,
+                                          "offsetX":  -84,
+                                          "offsetY":  -46,
+                                          "empty":  false
+                                      }
+                                  ]
+                   }
+               ]
+}

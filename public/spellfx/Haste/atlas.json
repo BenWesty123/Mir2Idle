@@ -1,0 +1,71 @@
+{
+  "spellId": "Haste",
+  "direction": 2,
+  "blend": "screen",
+  "layers": [
+    {
+      "sheet": "l0.png",
+      "interval": 100,
+      "slotWidth": 124,
+      "slotHeight": 130,
+      "library": "Magic2",
+      "baseIndex": 2160,
+      "frames": [
+        {
+          "slot": 0,
+          "srcFrame": 2160,
+          "w": 124,
+          "h": 130,
+          "offsetX": -27,
+          "offsetY": -82,
+          "empty": false
+        },
+        {
+          "slot": 1,
+          "srcFrame": 2161,
+          "w": 108,
+          "h": 102,
+          "offsetX": -22,
+          "offsetY": -86,
+          "empty": false
+        },
+        {
+          "slot": 2,
+          "srcFrame": 2162,
+          "w": 80,
+          "h": 83,
+          "offsetX": -2,
+          "offsetY": -84,
+          "empty": false
+        },
+        {
+          "slot": 3,
+          "srcFrame": 2163,
+          "w": 44,
+          "h": 47,
+          "offsetX": 7,
+          "offsetY": -62,
+          "empty": false
+        },
+        {
+          "slot": 4,
+          "srcFrame": 2164,
+          "w": 36,
+          "h": 37,
+          "offsetX": 14,
+          "offsetY": -56,
+          "empty": false
+        },
+        {
+          "slot": 5,
+          "srcFrame": 2165,
+          "w": 0,
+          "h": 0,
+          "offsetX": 0,
+          "offsetY": 0,
+          "empty": true
+        }
+      ]
+    }
+  ]
+}

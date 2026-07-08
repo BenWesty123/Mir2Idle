@@ -1,0 +1,173 @@
+{
+  "spellId": "FireWall",
+  "direction": 2,
+  "blend": "screen",
+  "layers": [
+    {
+      "sheet": "l0.png",
+      "interval": 60,
+      "slotWidth": 88,
+      "slotHeight": 81,
+      "library": "Magic",
+      "baseIndex": 1620,
+      "frames": [
+        {
+          "slot": 0,
+          "srcFrame": 1620,
+          "w": 84,
+          "h": 76,
+          "offsetX": -19,
+          "offsetY": -54,
+          "empty": false
+        },
+        {
+          "slot": 1,
+          "srcFrame": 1621,
+          "w": 88,
+          "h": 81,
+          "offsetX": -21,
+          "offsetY": -68,
+          "empty": false
+        },
+        {
+          "slot": 2,
+          "srcFrame": 1622,
+          "w": 88,
+          "h": 80,
+          "offsetX": -21,
+          "offsetY": -74,
+          "empty": false
+        },
+        {
+          "slot": 3,
+          "srcFrame": 1623,
+          "w": 80,
+          "h": 74,
+          "offsetX": -18,
+          "offsetY": -78,
+          "empty": false
+        },
+        {
+          "slot": 4,
+          "srcFrame": 1624,
+          "w": 76,
+          "h": 68,
+          "offsetX": -14,
+          "offsetY": -82,
+          "empty": false
+        },
+        {
+          "slot": 5,
+          "srcFrame": 1625,
+          "w": 68,
+          "h": 63,
+          "offsetX": -11,
+          "offsetY": -83,
+          "empty": false
+        },
+        {
+          "slot": 6,
+          "srcFrame": 1626,
+          "w": 60,
+          "h": 55,
+          "offsetX": -7,
+          "offsetY": -86,
+          "empty": false
+        },
+        {
+          "slot": 7,
+          "srcFrame": 1627,
+          "w": 52,
+          "h": 50,
+          "offsetX": -3,
+          "offsetY": -88,
+          "empty": false
+        },
+        {
+          "slot": 8,
+          "srcFrame": 1628,
+          "w": 48,
+          "h": 44,
+          "offsetX": -1,
+          "offsetY": -90,
+          "empty": false
+        },
+        {
+          "slot": 9,
+          "srcFrame": 1629,
+          "w": 28,
+          "h": 26,
+          "offsetX": 8,
+          "offsetY": -90,
+          "empty": false
+        }
+      ]
+    }
+  ],
+  "ground": {
+    "sheet": "ground.png",
+    "interval": 120,
+    "slotWidth": 72,
+    "slotHeight": 177,
+    "library": "Magic",
+    "baseIndex": 1630,
+    "anchor": "enemy",
+    "delayMs": 0,
+    "frames": [
+      {
+        "slot": 0,
+        "srcFrame": 1630,
+        "w": 48,
+        "h": 133,
+        "offsetX": -1,
+        "offsetY": -112,
+        "empty": false
+      },
+      {
+        "slot": 1,
+        "srcFrame": 1631,
+        "w": 48,
+        "h": 119,
+        "offsetX": -1,
+        "offsetY": -100,
+        "empty": false
+      },
+      {
+        "slot": 2,
+        "srcFrame": 1632,
+        "w": 64,
+        "h": 112,
+        "offsetX": -8,
+        "offsetY": -88,
+        "empty": false
+      },
+      {
+        "slot": 3,
+        "srcFrame": 1633,
+        "w": 72,
+        "h": 120,
+        "offsetX": -17,
+        "offsetY": -96,
+        "empty": false
+      },
+      {
+        "slot": 4,
+        "srcFrame": 1634,
+        "w": 64,
+        "h": 152,
+        "offsetX": -9,
+        "offsetY": -129,
+        "empty": false
+      },
+      {
+        "slot": 5,
+        "srcFrame": 1635,
+        "w": 56,
+        "h": 177,
+        "offsetX": -5,
+        "offsetY": -155,
+        "empty": false
+      }
+    ]
+  }
+}

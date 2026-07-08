@@ -1,0 +1,71 @@
+{
+  "spellId": "Repulsion",
+  "direction": 2,
+  "blend": "screen",
+  "layers": [
+    {
+      "sheet": "l0.png",
+      "interval": 100,
+      "slotWidth": 160,
+      "slotHeight": 110,
+      "library": "Magic",
+      "baseIndex": 900,
+      "frames": [
+        {
+          "slot": 0,
+          "srcFrame": 900,
+          "w": 80,
+          "h": 58,
+          "offsetX": -18,
+          "offsetY": -58,
+          "empty": false
+        },
+        {
+          "slot": 1,
+          "srcFrame": 901,
+          "w": 108,
+          "h": 77,
+          "offsetX": -32,
+          "offsetY": -67,
+          "empty": false
+        },
+        {
+          "slot": 2,
+          "srcFrame": 902,
+          "w": 120,
+          "h": 85,
+          "offsetX": -38,
+          "offsetY": -70,
+          "empty": false
+        },
+        {
+          "slot": 3,
+          "srcFrame": 903,
+          "w": 132,
+          "h": 91,
+          "offsetX": -42,
+          "offsetY": -73,
+          "empty": false
+        },
+        {
+          "slot": 4,
+          "srcFrame": 904,
+          "w": 140,
+          "h": 98,
+          "offsetX": -47,
+          "offsetY": -76,
+          "empty": false
+        },
+        {
+          "slot": 5,
+          "srcFrame": 905,
+          "w": 160,
+          "h": 110,
+          "offsetX": -57,
+          "offsetY": -81,
+          "empty": false
+        }
+      ]
+    }
+  ]
+}

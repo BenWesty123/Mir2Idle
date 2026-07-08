@@ -1,0 +1,185 @@
+{
+    "spellId":  "MagicShield",
+    "direction":  2,
+    "blend":  "screen",
+    "layers":  [
+                   {
+                       "sheet":  "l0.png",
+                       "interval":  60,
+                       "slotWidth":  68,
+                       "slotHeight":  96,
+                       "library":  "Magic",
+                       "baseIndex":  3880,
+                       "frames":  [
+                                      {
+                                          "slot":  0,
+                                          "srcFrame":  3880,
+                                          "w":  32,
+                                          "h":  14,
+                                          "offsetX":  9,
+                                          "offsetY":  -57,
+                                          "empty":  false
+                                      },
+                                      {
+                                          "slot":  1,
+                                          "srcFrame":  3881,
+                                          "w":  40,
+                                          "h":  22,
+                                          "offsetX":  4,
+                                          "offsetY":  -57,
+                                          "empty":  false
+                                      },
+                                      {
+                                          "slot":  2,
+                                          "srcFrame":  3882,
+                                          "w":  48,
+                                          "h":  60,
+                                          "offsetX":  0,
+                                          "offsetY":  -57,
+                                          "empty":  false
+                                      },
+                                      {
+                                          "slot":  3,
+                                          "srcFrame":  3883,
+                                          "w":  64,
+                                          "h":  67,
+                                          "offsetX":  -7,
+                                          "offsetY":  -58,
+                                          "empty":  false
+                                      },
+                                      {
+                                          "slot":  4,
+                                          "srcFrame":  3884,
+                                          "w":  68,
+                                          "h":  74,
+                                          "offsetX":  -9,
+                                          "offsetY":  -62,
+                                          "empty":  false
+                                      },
+                                      {
+                                          "slot":  5,
+                                          "srcFrame":  3885,
+                                          "w":  68,
+                                          "h":  79,
+                                          "offsetX":  -9,
+                                          "offsetY":  -63,
+                                          "empty":  false
+                                      },
+                                      {
+                                          "slot":  6,
+                                          "srcFrame":  3886,
+                                          "w":  68,
+                                          "h":  81,
+                                          "offsetX":  -10,
+                                          "offsetY":  -64,
+                                          "empty":  false
+                                      },
+                                      {
+                                          "slot":  7,
+                                          "srcFrame":  3887,
+                                          "w":  68,
+                                          "h":  85,
+                                          "offsetX":  -10,
+                                          "offsetY":  -64,
+                                          "empty":  false
+                                      },
+                                      {
+                                          "slot":  8,
+                                          "srcFrame":  3888,
+                                          "w":  68,
+                                          "h":  94,
+                                          "offsetX":  -9,
+                                          "offsetY":  -64,
+                                          "empty":  false
+                                      },
+                                      {
+                                          "slot":  9,
+                                          "srcFrame":  3889,
+                                          "w":  68,
+                                          "h":  96,
+                                          "offsetX":  -10,
+                                          "offsetY":  -64,
+                                          "empty":  false
+                                      }
+                                  ]
+                   },
+                   {
+                       "sheet":  "l1.png",
+                       "interval":  200,
+                       "slotWidth":  92,
+                       "slotHeight":  110,
+                       "library":  "Magic",
+                       "baseIndex":  3890,
+                       "anchor":  "player",
+                       "delayMs":  0,
+                       "frames":  [
+                                      {
+                                          "slot":  0,
+                                          "srcFrame":  3890,
+                                          "w":  92,
+                                          "h":  110,
+                                          "offsetX":  -21,
+                                          "offsetY":  -78,
+                                          "empty":  false
+                                      },
+                                      {
+                                          "slot":  1,
+                                          "srcFrame":  3891,
+                                          "w":  92,
+                                          "h":  110,
+                                          "offsetX":  -21,
+                                          "offsetY":  -78,
+                                          "empty":  false
+                                      },
+                                      {
+                                          "slot":  2,
+                                          "srcFrame":  3892,
+                                          "w":  92,
+                                          "h":  110,
+                                          "offsetX":  -21,
+                                          "offsetY":  -78,
+                                          "empty":  false
+                                      }
+                                  ]
+                   },
+                   {
+                       "sheet":  "l2.png",
+                       "interval":  200,
+                       "slotWidth":  92,
+                       "slotHeight":  120,
+                       "library":  "Magic",
+                       "baseIndex":  3900,
+                       "anchor":  "player",
+                       "delayMs":  0,
+                       "frames":  [
+                                      {
+                                          "slot":  0,
+                                          "srcFrame":  3900,
+                                          "w":  88,
+                                          "h":  118,
+                                          "offsetX":  -19,
+                                          "offsetY":  -78,
+                                          "empty":  false
+                                      },
+                                      {
+                                          "slot":  1,
+                                          "srcFrame":  3901,
+                                          "w":  92,
+                                          "h":  120,
+                                          "offsetX":  -21,
+                                          "offsetY":  -81,
+                                          "empty":  false
+                                      },
+                                      {
+                                          "slot":  2,
+                                          "srcFrame":  3902,
+                                          "w":  92,
+                                          "h":  114,
+                                          "offsetX":  -21,
+                                          "offsetY":  -78,
+                                          "empty":  false
+                                      }
+                                  ]
+                   }
+               ]
+}

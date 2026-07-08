@@ -1,0 +1,54 @@
+{
+    "npcId":  "smith",
+    "source":  "Crystal MirDB NPC 46: BichonProvince/BichonWall/Blacksmith1, Merchant_Vincent, image 1, NPC/1.Lib",
+    "layers":  [
+                   {
+                       "sheet":  "standing.png",
+                       "interval":  450,
+                       "slotWidth":  52,
+                       "slotHeight":  68,
+                       "library":  "01",
+                       "baseIndex":  0,
+                       "anchor":  "player",
+                       "delayMs":  0,
+                       "frames":  [
+                                      {
+                                          "slot":  0,
+                                          "srcFrame":  0,
+                                          "w":  52,
+                                          "h":  68,
+                                          "offsetX":  13,
+                                          "offsetY":  -44,
+                                          "empty":  false
+                                      },
+                                      {
+                                          "slot":  1,
+                                          "srcFrame":  1,
+                                          "w":  48,
+                                          "h":  68,
+                                          "offsetX":  13,
+                                          "offsetY":  -45,
+                                          "empty":  false
+                                      },
+                                      {
+                                          "slot":  2,
+                                          "srcFrame":  2,
+                                          "w":  52,
+                                          "h":  68,
+                                          "offsetX":  13,
+                                          "offsetY":  -45,
+                                          "empty":  false
+                                      },
+                                      {
+                                          "slot":  3,
+                                          "srcFrame":  3,
+                                          "w":  52,
+                                          "h":  68,
+                                          "offsetX":  13,
+                                          "offsetY":  -44,
+                                          "empty":  false
+                                      }
+                                  ]
+                   }
+               ]
+}

@@ -1,0 +1,54 @@
+{
+    "npcId":  "trader",
+    "source":  "Crystal MirDB NPC 65: BichonProvince/NaturalCave/WickedTrader, WickedTrader_James, image 9, NPC/09.Lib",
+    "layers":  [
+                   {
+                       "sheet":  "standing.png",
+                       "interval":  450,
+                       "slotWidth":  56,
+                       "slotHeight":  76,
+                       "library":  "09",
+                       "baseIndex":  0,
+                       "anchor":  "player",
+                       "delayMs":  0,
+                       "frames":  [
+                                      {
+                                          "slot":  0,
+                                          "srcFrame":  0,
+                                          "w":  56,
+                                          "h":  76,
+                                          "offsetX":  14,
+                                          "offsetY":  -52,
+                                          "empty":  false
+                                      },
+                                      {
+                                          "slot":  1,
+                                          "srcFrame":  1,
+                                          "w":  56,
+                                          "h":  76,
+                                          "offsetX":  14,
+                                          "offsetY":  -50,
+                                          "empty":  false
+                                      },
+                                      {
+                                          "slot":  2,
+                                          "srcFrame":  2,
+                                          "w":  56,
+                                          "h":  72,
+                                          "offsetX":  14,
+                                          "offsetY":  -49,
+                                          "empty":  false
+                                      },
+                                      {
+                                          "slot":  3,
+                                          "srcFrame":  3,
+                                          "w":  56,
+                                          "h":  76,
+                                          "offsetX":  14,
+                                          "offsetY":  -50,
+                                          "empty":  false
+                                      }
+                                  ]
+                   }
+               ]
+}

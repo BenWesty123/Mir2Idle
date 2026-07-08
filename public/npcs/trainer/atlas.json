@@ -1,0 +1,54 @@
+{
+    "npcId":  "trainer",
+    "source":  "Crystal Trainer monster (crystalIndex 7, image 140, map 0110 dummy) standing frames from Monster/140.Lib",
+    "layers":  [
+                   {
+                       "sheet":  "standing.png",
+                       "interval":  500,
+                       "slotWidth":  120,
+                       "slotHeight":  116,
+                       "library":  "140",
+                       "baseIndex":  0,
+                       "anchor":  "player",
+                       "delayMs":  0,
+                       "frames":  [
+                                      {
+                                          "slot":  0,
+                                          "srcFrame":  24,
+                                          "w":  80,
+                                          "h":  76,
+                                          "offsetX":  -13,
+                                          "offsetY":  -47,
+                                          "empty":  false
+                                      },
+                                      {
+                                          "slot":  1,
+                                          "srcFrame":  25,
+                                          "w":  80,
+                                          "h":  76,
+                                          "offsetX":  -15,
+                                          "offsetY":  -47,
+                                          "empty":  false
+                                      },
+                                      {
+                                          "slot":  2,
+                                          "srcFrame":  26,
+                                          "w":  80,
+                                          "h":  76,
+                                          "offsetX":  -15,
+                                          "offsetY":  -47,
+                                          "empty":  false
+                                      },
+                                      {
+                                          "slot":  3,
+                                          "srcFrame":  27,
+                                          "w":  80,
+                                          "h":  76,
+                                          "offsetX":  -15,
+                                          "offsetY":  -47,
+                                          "empty":  false
+                                      }
+                                  ]
+                   }
+               ]
+}

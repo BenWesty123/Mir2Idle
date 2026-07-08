@@ -1,0 +1,107 @@
+{
+  "spellId": "Healing",
+  "direction": 2,
+  "blend": "screen",
+  "layers": [
+    {
+      "sheet": "l0.png",
+      "interval": 60,
+      "slotWidth": 84,
+      "slotHeight": 142,
+      "library": "Magic",
+      "baseIndex": 200,
+      "frames": [
+        {
+          "slot": 0,
+          "srcFrame": 200,
+          "w": 76,
+          "h": 75,
+          "offsetX": -13,
+          "offsetY": -19,
+          "empty": false
+        },
+        {
+          "slot": 1,
+          "srcFrame": 201,
+          "w": 80,
+          "h": 79,
+          "offsetX": -14,
+          "offsetY": -24,
+          "empty": false
+        },
+        {
+          "slot": 2,
+          "srcFrame": 202,
+          "w": 80,
+          "h": 102,
+          "offsetX": -14,
+          "offsetY": -49,
+          "empty": false
+        },
+        {
+          "slot": 3,
+          "srcFrame": 203,
+          "w": 84,
+          "h": 118,
+          "offsetX": -15,
+          "offsetY": -65,
+          "empty": false
+        },
+        {
+          "slot": 4,
+          "srcFrame": 204,
+          "w": 84,
+          "h": 137,
+          "offsetX": -15,
+          "offsetY": -83,
+          "empty": false
+        },
+        {
+          "slot": 5,
+          "srcFrame": 205,
+          "w": 84,
+          "h": 142,
+          "offsetX": -15,
+          "offsetY": -88,
+          "empty": false
+        },
+        {
+          "slot": 6,
+          "srcFrame": 206,
+          "w": 84,
+          "h": 135,
+          "offsetX": -15,
+          "offsetY": -91,
+          "empty": false
+        },
+        {
+          "slot": 7,
+          "srcFrame": 207,
+          "w": 84,
+          "h": 122,
+          "offsetX": -16,
+          "offsetY": -95,
+          "empty": false
+        },
+        {
+          "slot": 8,
+          "srcFrame": 208,
+          "w": 84,
+          "h": 107,
+          "offsetX": -17,
+          "offsetY": -95,
+          "empty": false
+        },
+        {
+          "slot": 9,
+          "srcFrame": 209,
+          "w": 84,
+          "h": 84,
+          "offsetX": -18,
+          "offsetY": -96,
+          "empty": false
+        }
+      ]
+    }
+  ]
+}

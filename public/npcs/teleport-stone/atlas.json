@@ -1,0 +1,27 @@
+{
+    "npcId":  "teleport-stone",
+    "source":  "Crystal MirDB MysteriousStone: OmaCave/Stone, StoneTemple/Stone, ZumaTemple/Stone, image 79, NPC/79.Lib",
+    "layers":  [
+                   {
+                       "sheet":  "standing.png",
+                       "interval":  1000,
+                       "slotWidth":  80,
+                       "slotHeight":  112,
+                       "library":  "79",
+                       "baseIndex":  0,
+                       "anchor":  "player",
+                       "delayMs":  0,
+                       "frames":  [
+                                      {
+                                          "slot":  0,
+                                          "srcFrame":  0,
+                                          "w":  80,
+                                          "h":  112,
+                                          "offsetX":  -18,
+                                          "offsetY":  -69,
+                                          "empty":  false
+                                      }
+                                  ]
+                   }
+               ]
+}

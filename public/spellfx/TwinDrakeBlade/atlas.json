@@ -1,0 +1,135 @@
+{
+  "spellId": "TwinDrakeBlade",
+  "direction": 2,
+  "blend": "screen",
+  "layers": [
+    {
+      "sheet": "l0.png",
+      "interval": 83,
+      "slotWidth": 152,
+      "slotHeight": 159,
+      "library": "Magic2",
+      "baseIndex": 210,
+      "frames": [
+        {
+          "slot": 0,
+          "srcFrame": 210,
+          "w": 152,
+          "h": 159,
+          "offsetX": -49,
+          "offsetY": -118,
+          "empty": false
+        },
+        {
+          "slot": 1,
+          "srcFrame": 211,
+          "w": 144,
+          "h": 148,
+          "offsetX": -47,
+          "offsetY": -123,
+          "empty": false
+        },
+        {
+          "slot": 2,
+          "srcFrame": 212,
+          "w": 120,
+          "h": 138,
+          "offsetX": -36,
+          "offsetY": -126,
+          "empty": false
+        },
+        {
+          "slot": 3,
+          "srcFrame": 213,
+          "w": 104,
+          "h": 126,
+          "offsetX": -25,
+          "offsetY": -127,
+          "empty": false
+        },
+        {
+          "slot": 4,
+          "srcFrame": 214,
+          "w": 88,
+          "h": 114,
+          "offsetX": -22,
+          "offsetY": -121,
+          "empty": false
+        },
+        {
+          "slot": 5,
+          "srcFrame": 215,
+          "w": 80,
+          "h": 93,
+          "offsetX": -21,
+          "offsetY": -113,
+          "empty": false
+        }
+      ]
+    },
+    {
+      "sheet": "l1.png",
+      "interval": 83,
+      "slotWidth": 132,
+      "slotHeight": 76,
+      "library": "Magic2",
+      "baseIndex": 260,
+      "frames": [
+        {
+          "slot": 0,
+          "srcFrame": 260,
+          "w": 52,
+          "h": 39,
+          "offsetX": 15,
+          "offsetY": -36,
+          "empty": false
+        },
+        {
+          "slot": 1,
+          "srcFrame": 261,
+          "w": 108,
+          "h": 76,
+          "offsetX": -51,
+          "offsetY": -87,
+          "empty": false
+        },
+        {
+          "slot": 2,
+          "srcFrame": 262,
+          "w": 84,
+          "h": 37,
+          "offsetX": -49,
+          "offsetY": -80,
+          "empty": false
+        },
+        {
+          "slot": 3,
+          "srcFrame": 263,
+          "w": 80,
+          "h": 31,
+          "offsetX": -15,
+          "offsetY": -61,
+          "empty": false
+        },
+        {
+          "slot": 4,
+          "srcFrame": 264,
+          "w": 132,
+          "h": 34,
+          "offsetX": -4,
+          "offsetY": -42,
+          "empty": false
+        },
+        {
+          "slot": 5,
+          "srcFrame": 265,
+          "w": 92,
+          "h": 38,
+          "offsetX": 31,
+          "offsetY": -29,
+          "empty": false
+        }
+      ]
+    }
+  ]
+}

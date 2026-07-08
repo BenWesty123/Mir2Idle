@@ -1,0 +1,56 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <title>Zuma Archer Arrow Rotation Debug</title>
+  <style>
+    body { font: 14px/1.45 system-ui, sans-serif; background: #12110f; color: #e8dcc8; margin: 24px; }
+    h1, h2 { margin: 0 0 12px; }
+    p, li { max-width: 920px; }
+    .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); gap: 12px; margin: 16px 0 28px; }
+    .card { border: 1px solid #3b3224; background: #1a1712; padding: 10px; }
+    .card img { image-rendering: pixelated; background:
+      linear-gradient(45deg, #2a2620 25%, transparent 25%) 0 0/16px 16px,
+      linear-gradient(-45deg, #2a2620 25%, transparent 25%) 0 0/16px 16px,
+      linear-gradient(45deg, transparent 75%, #2a2620 75%) 0 0/16px 16px,
+      linear-gradient(-45deg, transparent 75%, #2a2620 75%) 0 0/16px 16px,
+      #1f1b16; }
+    canvas { image-rendering: pixelated; border: 1px solid #3b3224; background: #1f1b16; display: block; margin-top: 8px; }
+    label { display: inline-flex; align-items: center; gap: 8px; margin-right: 16px; }
+    input[type=range] { width: 220px; }
+    code { color: #f0c987; }
+    .row { display: flex; flex-wrap: wrap; gap: 24px; align-items: flex-start; }
+    .muted { color: #a89878; }
+  </style>
+</head>
+<body>
+  <h1>Zuma Archer arrow rotation debug</h1>
+  <p>Monster <code>64</code>, base projectile frame <code>224</code> (Crystal direction 0). Each direction uses stride <code>1</code>.</p>
+  <p class="muted">Measured from frame 224 pixels: the arrow tail sits at the lib anchor (offsetX=12, offsetY=1) and the tip points <strong>down</strong> (~97 deg), not up. The game previously used baseAngleDeg=-90 which is ~180 deg wrong.</p>
+
+  <h2>1. Raw Crystal direction sprites</h2>
+  <div class="grid" id="rawGrid"></div>
+
+  <h2>2. Base frame + canvas rotation (what the game does now)</h2>
+  <div class="row">
+    <div class="card">
+      <strong>Base sprite (dir 0, frame 224)</strong>
+      <img id="baseImg" src="dir00-f224.png" width="96" height="144" alt="base arrow" />
+      <div class="muted">offsetX=12, offsetY=1, 24x36</div>
+    </div>
+    <div class="card">
+      <strong>Rotated preview</strong>
+      <label>baseAngleDeg <input id="baseAngle" type="range" min="-180" max="180" step="1" value="97" /> <span id="baseAngleVal">97</span> deg</label>
+      <label>travel angle <input id="travelAngle" type="range" min="-180" max="180" step="1" value="0" /> <span id="travelAngleVal">0</span> deg</label>
+      <canvas id="rotCanvas" width="240" height="240"></canvas>
+      <div class="muted">rotation applied = travelAngle - baseAngle. Blue line = travel direction.</div>
+    </div>
+  </div>
+
+  <h2>3. Compare rotation vs Crystal dir sprite (16 directions)</h2>
+  <div class="grid" id="compareGrid"></div>
+
+  <script>window.ARROW_DEBUG_FRAMES = [{"dir":0,"srcFrame":224,"file":"dir00-f224.png","w":24,"h":36,"offsetX":12,"offsetY":1},{"dir":1,"srcFrame":225,"file":"dir01-f225.png","w":40,"h":28,"offsetX":4,"offsetY":4},{"dir":2,"srcFrame":226,"file":"dir02-f226.png","w":48,"h":16,"offsetX":-2,"offsetY":8},{"dir":3,"srcFrame":227,"file":"dir03-f227.png","w":52,"h":4,"offsetX":-7,"offsetY":15},{"dir":4,"srcFrame":228,"file":"dir04-f228.png","w":52,"h":16,"offsetX":-4,"offsetY":9},{"dir":5,"srcFrame":229,"file":"dir05-f229.png","w":40,"h":28,"offsetX":1,"offsetY":2},{"dir":6,"srcFrame":230,"file":"dir06-f230.png","w":24,"h":32,"offsetX":12,"offsetY":-2},{"dir":7,"srcFrame":231,"file":"dir07-f231.png","w":4,"h":36,"offsetX":22,"offsetY":-5},{"dir":8,"srcFrame":232,"file":"dir08-f232.png","w":24,"h":36,"offsetX":15,"offsetY":-4},{"dir":9,"srcFrame":233,"file":"dir09-f233.png","w":40,"h":28,"offsetX":9,"offsetY":1},{"dir":10,"srcFrame":234,"file":"dir10-f234.png","w":48,"h":16,"offsetX":3,"offsetY":8},{"dir":11,"srcFrame":235,"file":"dir11-f235.png","w":52,"h":4,"offsetX":2,"offsetY":15},{"dir":12,"srcFrame":236,"file":"dir12-f236.png","w":52,"h":16,"offsetX":1,"offsetY":8},{"dir":13,"srcFrame":237,"file":"dir13-f237.png","w":40,"h":28,"offsetX":7,"offsetY":5},{"dir":14,"srcFrame":238,"file":"dir14-f238.png","w":24,"h":36,"offsetX":14,"offsetY":2},{"dir":15,"srcFrame":239,"file":"dir15-f239.png","w":4,"h":36,"offsetX":21,"offsetY":3}];</script>
+  <script src="app.js"></script>
+</body>
+</html>

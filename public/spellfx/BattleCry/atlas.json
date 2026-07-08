@@ -1,0 +1,197 @@
+{
+  "spellId": "BattleCry",
+  "direction": 2,
+  "blend": "screen",
+  "layers": [
+    {
+      "sheet": "l0.png",
+      "interval": 60,
+      "slotWidth": 324,
+      "slotHeight": 258,
+      "library": "Magic2",
+      "baseIndex": 710,
+      "frames": [
+        {
+          "slot": 0,
+          "srcFrame": 710,
+          "w": 216,
+          "h": 208,
+          "offsetX": -82,
+          "offsetY": -121,
+          "empty": false
+        },
+        {
+          "slot": 1,
+          "srcFrame": 711,
+          "w": 212,
+          "h": 230,
+          "offsetX": -84,
+          "offsetY": -156,
+          "empty": false
+        },
+        {
+          "slot": 2,
+          "srcFrame": 712,
+          "w": 192,
+          "h": 224,
+          "offsetX": -72,
+          "offsetY": -164,
+          "empty": false
+        },
+        {
+          "slot": 3,
+          "srcFrame": 713,
+          "w": 196,
+          "h": 194,
+          "offsetX": -70,
+          "offsetY": -143,
+          "empty": false
+        },
+        {
+          "slot": 4,
+          "srcFrame": 714,
+          "w": 264,
+          "h": 258,
+          "offsetX": -110,
+          "offsetY": -187,
+          "empty": false
+        },
+        {
+          "slot": 5,
+          "srcFrame": 715,
+          "w": 272,
+          "h": 257,
+          "offsetX": -109,
+          "offsetY": -185,
+          "empty": false
+        },
+        {
+          "slot": 6,
+          "srcFrame": 716,
+          "w": 264,
+          "h": 253,
+          "offsetX": -107,
+          "offsetY": -182,
+          "empty": false
+        },
+        {
+          "slot": 7,
+          "srcFrame": 717,
+          "w": 272,
+          "h": 252,
+          "offsetX": -109,
+          "offsetY": -180,
+          "empty": false
+        },
+        {
+          "slot": 8,
+          "srcFrame": 718,
+          "w": 264,
+          "h": 254,
+          "offsetX": -104,
+          "offsetY": -183,
+          "empty": false
+        },
+        {
+          "slot": 9,
+          "srcFrame": 719,
+          "w": 256,
+          "h": 239,
+          "offsetX": -105,
+          "offsetY": -175,
+          "empty": false
+        },
+        {
+          "slot": 10,
+          "srcFrame": 720,
+          "w": 256,
+          "h": 242,
+          "offsetX": -108,
+          "offsetY": -180,
+          "empty": false
+        },
+        {
+          "slot": 11,
+          "srcFrame": 721,
+          "w": 240,
+          "h": 232,
+          "offsetX": -101,
+          "offsetY": -170,
+          "empty": false
+        },
+        {
+          "slot": 12,
+          "srcFrame": 722,
+          "w": 324,
+          "h": 247,
+          "offsetX": -137,
+          "offsetY": -164,
+          "empty": false
+        },
+        {
+          "slot": 13,
+          "srcFrame": 723,
+          "w": 236,
+          "h": 193,
+          "offsetX": -90,
+          "offsetY": -164,
+          "empty": false
+        },
+        {
+          "slot": 14,
+          "srcFrame": 724,
+          "w": 224,
+          "h": 191,
+          "offsetX": -97,
+          "offsetY": -156,
+          "empty": false
+        },
+        {
+          "slot": 15,
+          "srcFrame": 725,
+          "w": 240,
+          "h": 226,
+          "offsetX": -107,
+          "offsetY": -168,
+          "empty": false
+        },
+        {
+          "slot": 16,
+          "srcFrame": 726,
+          "w": 256,
+          "h": 205,
+          "offsetX": -106,
+          "offsetY": -156,
+          "empty": false
+        },
+        {
+          "slot": 17,
+          "srcFrame": 727,
+          "w": 268,
+          "h": 219,
+          "offsetX": -107,
+          "offsetY": -161,
+          "empty": false
+        },
+        {
+          "slot": 18,
+          "srcFrame": 728,
+          "w": 244,
+          "h": 179,
+          "offsetX": -105,
+          "offsetY": -131,
+          "empty": false
+        },
+        {
+          "slot": 19,
+          "srcFrame": 729,
+          "w": 228,
+          "h": 179,
+          "offsetX": -106,
+          "offsetY": -125,
+          "empty": false
+        }
+      ]
+    }
+  ]
+}
