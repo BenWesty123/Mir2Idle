@@ -1,0 +1,89 @@
+{
+  "spellId": "ElementalBarrier",
+  "direction": 2,
+  "blend": "screen",
+  "layers": [
+    {
+      "sheet": "l0.png",
+      "interval": 75,
+      "slotWidth": 132,
+      "slotHeight": 107,
+      "library": "Magic3",
+      "baseIndex": 1880,
+      "frames": [
+        {
+          "slot": 0,
+          "srcFrame": 1880,
+          "w": 76,
+          "h": 81,
+          "offsetX": -13,
+          "offsetY": -59,
+          "empty": false
+        },
+        {
+          "slot": 1,
+          "srcFrame": 1881,
+          "w": 108,
+          "h": 107,
+          "offsetX": -34,
+          "offsetY": -72,
+          "empty": false
+        },
+        {
+          "slot": 2,
+          "srcFrame": 1882,
+          "w": 120,
+          "h": 105,
+          "offsetX": -40,
+          "offsetY": -71,
+          "empty": false
+        },
+        {
+          "slot": 3,
+          "srcFrame": 1883,
+          "w": 128,
+          "h": 104,
+          "offsetX": -43,
+          "offsetY": -70,
+          "empty": false
+        },
+        {
+          "slot": 4,
+          "srcFrame": 1884,
+          "w": 132,
+          "h": 105,
+          "offsetX": -45,
+          "offsetY": -71,
+          "empty": false
+        },
+        {
+          "slot": 5,
+          "srcFrame": 1885,
+          "w": 132,
+          "h": 105,
+          "offsetX": -46,
+          "offsetY": -71,
+          "empty": false
+        },
+        {
+          "slot": 6,
+          "srcFrame": 1886,
+          "w": 132,
+          "h": 104,
+          "offsetX": -45,
+          "offsetY": -70,
+          "empty": false
+        },
+        {
+          "slot": 7,
+          "srcFrame": 1887,
+          "w": 132,
+          "h": 104,
+          "offsetX": -45,
+          "offsetY": -70,
+          "empty": false
+        }
+      ]
+    }
+  ]
+}

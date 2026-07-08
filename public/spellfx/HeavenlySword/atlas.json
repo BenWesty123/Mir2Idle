@@ -1,0 +1,89 @@
+{
+  "spellId": "HeavenlySword",
+  "direction": 2,
+  "blend": "screen",
+  "layers": [
+    {
+      "sheet": "l0.png",
+      "interval": 100,
+      "slotWidth": 268,
+      "slotHeight": 151,
+      "library": "Magic2",
+      "baseIndex": 2250,
+      "frames": [
+        {
+          "slot": 0,
+          "srcFrame": 2250,
+          "w": 0,
+          "h": 0,
+          "offsetX": 0,
+          "offsetY": 0,
+          "empty": true
+        },
+        {
+          "slot": 1,
+          "srcFrame": 2251,
+          "w": 0,
+          "h": 0,
+          "offsetX": 0,
+          "offsetY": 0,
+          "empty": true
+        },
+        {
+          "slot": 2,
+          "srcFrame": 2252,
+          "w": 0,
+          "h": 0,
+          "offsetX": 0,
+          "offsetY": 0,
+          "empty": true
+        },
+        {
+          "slot": 3,
+          "srcFrame": 2253,
+          "w": 268,
+          "h": 137,
+          "offsetX": -47,
+          "offsetY": -81,
+          "empty": false
+        },
+        {
+          "slot": 4,
+          "srcFrame": 2254,
+          "w": 240,
+          "h": 151,
+          "offsetX": 25,
+          "offsetY": -84,
+          "empty": false
+        },
+        {
+          "slot": 5,
+          "srcFrame": 2255,
+          "w": 240,
+          "h": 99,
+          "offsetX": 67,
+          "offsetY": -64,
+          "empty": false
+        },
+        {
+          "slot": 6,
+          "srcFrame": 2256,
+          "w": 208,
+          "h": 87,
+          "offsetX": 110,
+          "offsetY": -51,
+          "empty": false
+        },
+        {
+          "slot": 7,
+          "srcFrame": 2257,
+          "w": 204,
+          "h": 82,
+          "offsetX": 123,
+          "offsetY": -48,
+          "empty": false
+        }
+      ]
+    }
+  ]
+}

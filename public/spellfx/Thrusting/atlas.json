@@ -1,0 +1,71 @@
+{
+  "spellId": "Thrusting",
+  "direction": 2,
+  "blend": "screen",
+  "layers": [
+    {
+      "sheet": "l0.png",
+      "interval": 100,
+      "slotWidth": 108,
+      "slotHeight": 111,
+      "library": "Magic",
+      "baseIndex": 2210,
+      "frames": [
+        {
+          "slot": 0,
+          "srcFrame": 2210,
+          "w": 24,
+          "h": 35,
+          "offsetX": 17,
+          "offsetY": -34,
+          "empty": false
+        },
+        {
+          "slot": 1,
+          "srcFrame": 2211,
+          "w": 60,
+          "h": 69,
+          "offsetX": -43,
+          "offsetY": -75,
+          "empty": false
+        },
+        {
+          "slot": 2,
+          "srcFrame": 2212,
+          "w": 64,
+          "h": 44,
+          "offsetX": -37,
+          "offsetY": -72,
+          "empty": false
+        },
+        {
+          "slot": 3,
+          "srcFrame": 2213,
+          "w": 108,
+          "h": 65,
+          "offsetX": -25,
+          "offsetY": -58,
+          "empty": false
+        },
+        {
+          "slot": 4,
+          "srcFrame": 2214,
+          "w": 104,
+          "h": 72,
+          "offsetX": 22,
+          "offsetY": -54,
+          "empty": false
+        },
+        {
+          "slot": 5,
+          "srcFrame": 2215,
+          "w": 108,
+          "h": 111,
+          "offsetX": 41,
+          "offsetY": -80,
+          "empty": false
+        }
+      ]
+    }
+  ]
+}

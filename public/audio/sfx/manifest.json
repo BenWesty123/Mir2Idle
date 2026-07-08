@@ -1,0 +1,3774 @@
+{
+  "generatedFrom": "C:\\Users\\bb-we\\Documents\\Crystal-master\\Next\\NextClient\\Sound\\SoundList.lst",
+  "missing": [
+    {
+      "key": "footstep.cave.walk.right",
+      "label": "Cave walk right",
+      "id": 10022,
+      "sourceFile": "22.wav or 1002-2.wav"
+    },
+    {
+      "key": "spell.FlameField.impact",
+      "label": "Flame Field impact",
+      "id": 20491,
+      "spellId": 49,
+      "variant": 1,
+      "sourceFile": "M49-1.wav"
+    },
+    {
+      "key": "pet.skeleton.flinch",
+      "label": "Bone Familiar flinch",
+      "id": 782,
+      "sourceFile": "078-2.wav"
+    },
+    {
+      "key": "monster.19.flinch",
+      "label": "Cave Bat flinch",
+      "id": 192,
+      "sourceFile": "019-2.wav"
+    },
+    {
+      "key": "monster.21.flinch",
+      "label": "Scorpion flinch",
+      "id": 212,
+      "sourceFile": "021-2.wav"
+    }
+  ],
+  "groups": [
+    {
+      "id": "movement",
+      "label": "Footsteps",
+      "entries": [
+        "footstep.ground.walk.left",
+        "footstep.ground.walk.right",
+        "footstep.ground.run.left",
+        "footstep.ground.run.right",
+        "footstep.field.walk.left",
+        "footstep.field.walk.right",
+        "footstep.field.run.left",
+        "footstep.field.run.right",
+        "footstep.cave.walk.left",
+        "footstep.cave.run.left",
+        "footstep.cave.run.right"
+      ]
+    },
+    {
+      "id": "weapons",
+      "label": "Weapons",
+      "entries": [
+        "weapon.swing.short",
+        "weapon.swing.wood",
+        "weapon.swing.sword",
+        "weapon.swing.sword2",
+        "weapon.swing.axe",
+        "weapon.swing.club",
+        "weapon.swing.long",
+        "weapon.hit.short",
+        "weapon.hit.wood",
+        "weapon.hit.sword",
+        "weapon.hit.sword2",
+        "weapon.hit.axe",
+        "weapon.hit.club",
+        "mining.hit"
+      ]
+    },
+    {
+      "id": "warrior-spells",
+      "label": "Warrior Spells",
+      "entries": [
+        "spell.Slaying.attack",
+        "spell.Thrusting.attack",
+        "spell.HalfMoon.attack",
+        "spell.CrossHalfMoon.attack",
+        "spell.TwinDrakeBlade.cast",
+        "spell.FlamingSword.attack",
+        "spell.BladeAvalanche.attack",
+        "spell.ProtectionField.cast",
+        "spell.Rage.cast",
+        "spell.Fury.cast",
+        "spell.ImmortalSkin.cast",
+        "spell.SlashingBurst.attack"
+      ]
+    },
+    {
+      "id": "wizard-spells",
+      "label": "Wizard Spells",
+      "entries": [
+        "spell.FireBall.cast",
+        "spell.FireBall.fly",
+        "spell.FireBall.impact",
+        "spell.GreatFireBall.cast",
+        "spell.GreatFireBall.fly",
+        "spell.GreatFireBall.impact",
+        "spell.ElectricShock.cast",
+        "spell.ElectricShock.impact",
+        "spell.ThunderBolt.cast",
+        "spell.FireWall.cast",
+        "spell.FireWall.impact",
+        "spell.FrostCrunch.cast",
+        "spell.FrostCrunch.fly",
+        "spell.FrostCrunch.impact",
+        "spell.MagicShield.cast",
+        "spell.TurnUndead.cast",
+        "spell.Vampirism.cast",
+        "spell.Vampirism.impact",
+        "spell.IceStorm.cast",
+        "spell.IceStorm.impact",
+        "spell.FlameDisruptor.cast",
+        "spell.Mirroring.cast",
+        "spell.FlameField.cast",
+        "spell.Blizzard.cast",
+        "spell.Blizzard.impact",
+        "spell.MagicBooster.cast",
+        "spell.MeteorStrike.cast",
+        "spell.MeteorStrike.impact",
+        "spell.MeteorStrike.impact2"
+      ]
+    },
+    {
+      "id": "taoist-spells",
+      "label": "Taoist Spells",
+      "entries": [
+        "spell.Healing.cast",
+        "spell.Healing.impact",
+        "spell.Poisoning.cast",
+        "spell.Poisoning.impact",
+        "spell.PoisonCloud.cast",
+        "spell.Curse.cast",
+        "spell.Curse.fly",
+        "spell.Curse.impact",
+        "spell.Plague.fly",
+        "spell.Plague.impact",
+        "spell.SoulFireBall.cast",
+        "spell.SoulFireBall.fly",
+        "spell.SoulFireBall.impact",
+        "spell.SummonSkeleton.cast",
+        "spell.SummonShinsu.cast",
+        "spell.SummonHolyDeva.cast",
+        "spell.SoulShield.cast",
+        "spell.SoulShield.impact",
+        "spell.BlessedArmour.cast",
+        "spell.BlessedArmour.impact",
+        "spell.EnergyShield.cast",
+        "spell.EnergyShield.impact",
+        "spell.MassHealing.cast",
+        "spell.MassHealing.impact",
+        "spell.PetEnhancer.cast",
+        "pet.skeleton.summon",
+        "pet.skeleton.attack",
+        "pet.skeleton.hit",
+        "pet.skeleton.death",
+        "pet.shinsu.summon",
+        "pet.shinsu.show",
+        "pet.shinsu.attack",
+        "pet.shinsu.hit",
+        "pet.shinsu.flinch",
+        "pet.shinsu.flinchBuried",
+        "pet.shinsu.death",
+        "pet.holydeva.summon",
+        "pet.holydeva.attack",
+        "pet.holydeva.hit",
+        "pet.holydeva.flinch",
+        "pet.holydeva.death"
+      ]
+    },
+    {
+      "id": "human",
+      "label": "Human Flinch And Death",
+      "entries": [
+        "player.flinch",
+        "player.death",
+        "player.revive"
+      ]
+    },
+    {
+      "id": "monster",
+      "label": "Current Monster Actions",
+      "entries": [
+        "monster.3.attack",
+        "monster.3.flinch",
+        "monster.3.death",
+        "monster.4.attack",
+        "monster.4.flinch",
+        "monster.4.death",
+        "monster.5.attack",
+        "monster.5.flinch",
+        "monster.5.death",
+        "monster.6.attack",
+        "monster.6.flinch",
+        "monster.6.death",
+        "monster.7.attack",
+        "monster.7.flinch",
+        "monster.7.death",
+        "monster.8.attack",
+        "monster.8.flinch",
+        "monster.8.death",
+        "monster.9.attack",
+        "monster.9.flinch",
+        "monster.9.death",
+        "monster.11.attack",
+        "monster.11.flinch",
+        "monster.11.death",
+        "monster.12.attack",
+        "monster.12.flinch",
+        "monster.12.death",
+        "monster.22.attack",
+        "monster.22.flinch",
+        "monster.22.death",
+        "monster.19.attack",
+        "monster.19.death",
+        "monster.20.attack",
+        "monster.20.flinch",
+        "monster.20.death",
+        "monster.21.attack",
+        "monster.21.death",
+        "monster.23.attack",
+        "monster.23.flinch",
+        "monster.23.death",
+        "monster.24.attack",
+        "monster.24.flinch",
+        "monster.24.death",
+        "monster.25.attack",
+        "monster.25.flinch",
+        "monster.25.death",
+        "monster.26.attack",
+        "monster.26.flinch",
+        "monster.26.death",
+        "monster.69.attack",
+        "monster.69.flinch",
+        "monster.69.death",
+        "monster.70.attack",
+        "monster.70.flinch",
+        "monster.70.death",
+        "monster.71.attack",
+        "monster.71.flinch",
+        "monster.71.death",
+        "monster.72.attack",
+        "monster.72.flinch",
+        "monster.72.death",
+        "monster.73.attack",
+        "monster.73.flinch",
+        "monster.73.death",
+        "monster.74.attack",
+        "monster.74.flinch",
+        "monster.74.death",
+        "monster.81.attack",
+        "monster.81.flinch",
+        "monster.81.death",
+        "monster.82.attack",
+        "monster.82.flinch",
+        "monster.82.death",
+        "monster.83.attack",
+        "monster.83.flinch",
+        "monster.83.death",
+        "monster.84.attack",
+        "monster.84.flinch",
+        "monster.84.death",
+        "monster.85.attack",
+        "monster.85.flinch",
+        "monster.85.death",
+        "monster.86.attack",
+        "monster.86.flinch",
+        "monster.86.death",
+        "monster.27.attack",
+        "monster.27.flinch",
+        "monster.27.death",
+        "monster.28.attack",
+        "monster.28.flinch",
+        "monster.28.death",
+        "monster.29.attack",
+        "monster.29.flinch",
+        "monster.29.death",
+        "monster.30.attack",
+        "monster.30.flinch",
+        "monster.30.death",
+        "monster.31.attack",
+        "monster.31.flinch",
+        "monster.31.death",
+        "monster.32.attack",
+        "monster.32.flinch",
+        "monster.32.death",
+        "monster.33.attack",
+        "monster.33.flinch",
+        "monster.33.death",
+        "monster.34.attack",
+        "monster.34.flinch",
+        "monster.34.death",
+        "monster.35.attack",
+        "monster.35.flinch",
+        "monster.35.death",
+        "monster.36.attack",
+        "monster.36.flinch",
+        "monster.36.death",
+        "monster.37.attack",
+        "monster.37.flinch",
+        "monster.37.death",
+        "monster.38.attack",
+        "monster.38.flinch",
+        "monster.38.death",
+        "monster.39.attack",
+        "monster.39.flinch",
+        "monster.39.death",
+        "monster.40.attack",
+        "monster.40.flinch",
+        "monster.40.death",
+        "monster.41.attack",
+        "monster.41.flinch",
+        "monster.41.death",
+        "monster.44.attack",
+        "monster.44.flinch",
+        "monster.44.death",
+        "monster.45.attack",
+        "monster.45.flinch",
+        "monster.45.death",
+        "monster.46.attack",
+        "monster.46.flinch",
+        "monster.46.death",
+        "monster.47.attack",
+        "monster.47.flinch",
+        "monster.47.death",
+        "monster.48.attack",
+        "monster.48.flinch",
+        "monster.48.death",
+        "monster.49.attack",
+        "monster.49.flinch",
+        "monster.49.death",
+        "monster.75.attack",
+        "monster.75.flinch",
+        "monster.75.death",
+        "monster.75.range",
+        "monster.63.attack",
+        "monster.63.flinch",
+        "monster.63.death",
+        "monster.64.attack",
+        "monster.64.flinch",
+        "monster.64.death",
+        "monster.65.attack",
+        "monster.65.flinch",
+        "monster.65.death",
+        "monster.66.attack",
+        "monster.66.flinch",
+        "monster.66.death",
+        "monster.67.attack",
+        "monster.67.flinch",
+        "monster.67.death",
+        "monster.68.attack",
+        "monster.68.flinch",
+        "monster.68.death",
+        "monster.87.attack",
+        "monster.87.flinch",
+        "monster.87.death",
+        "monster.88.attack",
+        "monster.88.flinch",
+        "monster.88.death",
+        "monster.89.attack",
+        "monster.89.flinch",
+        "monster.89.death",
+        "monster.90.attack",
+        "monster.90.flinch",
+        "monster.90.death",
+        "monster.91.attack",
+        "monster.91.flinch",
+        "monster.91.death",
+        "monster.92.attack",
+        "monster.92.flinch",
+        "monster.92.death",
+        "monster.93.attack",
+        "monster.93.flinch",
+        "monster.93.death",
+        "monster.93.range",
+        "monster.77.attack",
+        "monster.77.flinch",
+        "monster.77.death",
+        "monster.77.range",
+        "monster.361.attack",
+        "monster.361.flinch",
+        "monster.361.death",
+        "monster.363.attack",
+        "monster.363.flinch",
+        "monster.363.death",
+        "monster.365.attack",
+        "monster.365.flinch",
+        "monster.365.death",
+        "monster.367.attack",
+        "monster.367.flinch",
+        "monster.367.death",
+        "monster.369.attack",
+        "monster.369.flinch",
+        "monster.369.death",
+        "monster.371.attack",
+        "monster.371.flinch",
+        "monster.371.death",
+        "monster.371.range",
+        "monster.373.attack",
+        "monster.373.flinch",
+        "monster.373.death",
+        "monster.373.range",
+        "monster.375.attack",
+        "monster.375.flinch",
+        "monster.375.death",
+        "monster.375.range",
+        "monster.215.attack",
+        "monster.215.flinch",
+        "monster.215.death",
+        "monster.216.attack",
+        "monster.216.flinch",
+        "monster.216.death",
+        "monster.217.attack",
+        "monster.217.flinch",
+        "monster.217.death",
+        "monster.218.attack",
+        "monster.218.flinch",
+        "monster.218.death",
+        "monster.219.attack",
+        "monster.219.flinch",
+        "monster.219.death",
+        "monster.220.attack",
+        "monster.220.flinch",
+        "monster.220.death",
+        "monster.226.attack",
+        "monster.226.flinch",
+        "monster.226.death",
+        "monster.227.attack",
+        "monster.227.flinch",
+        "monster.227.death",
+        "monster.152.attack",
+        "monster.152.flinch",
+        "monster.152.death",
+        "monster.153.attack",
+        "monster.153.flinch",
+        "monster.153.death",
+        "monster.154.attack",
+        "monster.154.flinch",
+        "monster.154.death",
+        "monster.155.attack",
+        "monster.155.flinch",
+        "monster.155.death",
+        "monster.159.attack",
+        "monster.159.flinch",
+        "monster.159.death",
+        "monster.159.range",
+        "monster.163.attack",
+        "monster.163.flinch",
+        "monster.163.death",
+        "monster.163.range"
+      ]
+    },
+    {
+      "id": "map-hazards",
+      "label": "Map Hazards",
+      "entries": [
+        "map.lightning",
+        "map.fire"
+      ]
+    },
+    {
+      "id": "ui-items",
+      "label": "UI And Items",
+      "entries": [
+        "ui.button",
+        "ui.npc",
+        "ui.gold",
+        "ui.teleport",
+        "item.potion.use",
+        "item.potion.click",
+        "item.equip.weapon",
+        "item.equip.armour",
+        "item.equip.ring",
+        "item.equip.bracelet",
+        "item.equip.necklace",
+        "item.equip.helmet",
+        "item.equip.boots",
+        "item.move",
+        "level.up"
+      ]
+    }
+  ],
+  "byKey": {
+    "footstep.ground.walk.left": {
+      "key": "footstep.ground.walk.left",
+      "label": "Ground walk left",
+      "id": 10001,
+      "group": "movement",
+      "sourceFile": "1.wav",
+      "src": "./public/audio/sfx/files/10001-1.wav"
+    },
+    "footstep.ground.walk.right": {
+      "key": "footstep.ground.walk.right",
+      "label": "Ground walk right",
+      "id": 10002,
+      "group": "movement",
+      "sourceFile": "2.wav",
+      "src": "./public/audio/sfx/files/10002-2.wav"
+    },
+    "footstep.ground.run.left": {
+      "key": "footstep.ground.run.left",
+      "label": "Ground run left",
+      "id": 10003,
+      "group": "movement",
+      "sourceFile": "3.wav",
+      "src": "./public/audio/sfx/files/10003-3.wav"
+    },
+    "footstep.ground.run.right": {
+      "key": "footstep.ground.run.right",
+      "label": "Ground run right",
+      "id": 10004,
+      "group": "movement",
+      "sourceFile": "4.wav",
+      "src": "./public/audio/sfx/files/10004-4.wav"
+    },
+    "footstep.field.walk.left": {
+      "key": "footstep.field.walk.left",
+      "label": "Field walk left",
+      "id": 10009,
+      "group": "movement",
+      "sourceFile": "9.wav",
+      "src": "./public/audio/sfx/files/10009-9.wav"
+    },
+    "footstep.field.walk.right": {
+      "key": "footstep.field.walk.right",
+      "label": "Field walk right",
+      "id": 10010,
+      "group": "movement",
+      "sourceFile": "10.wav",
+      "src": "./public/audio/sfx/files/10010-10.wav"
+    },
+    "footstep.field.run.left": {
+      "key": "footstep.field.run.left",
+      "label": "Field run left",
+      "id": 10011,
+      "group": "movement",
+      "sourceFile": "11.wav",
+      "src": "./public/audio/sfx/files/10011-11.wav"
+    },
+    "footstep.field.run.right": {
+      "key": "footstep.field.run.right",
+      "label": "Field run right",
+      "id": 10012,
+      "group": "movement",
+      "sourceFile": "12.wav",
+      "src": "./public/audio/sfx/files/10012-12.wav"
+    },
+    "footstep.cave.walk.left": {
+      "key": "footstep.cave.walk.left",
+      "label": "Cave walk left",
+      "id": 10021,
+      "group": "movement",
+      "sourceFile": "21.wav",
+      "src": "./public/audio/sfx/files/10021-21.wav"
+    },
+    "footstep.cave.run.left": {
+      "key": "footstep.cave.run.left",
+      "label": "Cave run left",
+      "id": 10023,
+      "group": "movement",
+      "sourceFile": "23.wav",
+      "src": "./public/audio/sfx/files/10023-23.wav"
+    },
+    "footstep.cave.run.right": {
+      "key": "footstep.cave.run.right",
+      "label": "Cave run right",
+      "id": 10024,
+      "group": "movement",
+      "sourceFile": "24.wav",
+      "src": "./public/audio/sfx/files/10024-24.wav"
+    },
+    "weapon.swing.short": {
+      "key": "weapon.swing.short",
+      "label": "Short swing",
+      "id": 10050,
+      "group": "weapons",
+      "sourceFile": "50.wav",
+      "src": "./public/audio/sfx/files/10050-50.wav"
+    },
+    "weapon.swing.wood": {
+      "key": "weapon.swing.wood",
+      "label": "Wooden swing",
+      "id": 10051,
+      "group": "weapons",
+      "sourceFile": "51.wav",
+      "src": "./public/audio/sfx/files/10051-51.wav"
+    },
+    "weapon.swing.sword": {
+      "key": "weapon.swing.sword",
+      "label": "Sword swing",
+      "id": 10052,
+      "group": "weapons",
+      "sourceFile": "52.wav",
+      "src": "./public/audio/sfx/files/10052-52.wav"
+    },
+    "weapon.swing.sword2": {
+      "key": "weapon.swing.sword2",
+      "label": "Heavy sword swing",
+      "id": 10053,
+      "group": "weapons",
+      "sourceFile": "53.wav",
+      "src": "./public/audio/sfx/files/10053-53.wav"
+    },
+    "weapon.swing.axe": {
+      "key": "weapon.swing.axe",
+      "label": "Axe swing",
+      "id": 10054,
+      "group": "weapons",
+      "sourceFile": "54.wav",
+      "src": "./public/audio/sfx/files/10054-54.wav"
+    },
+    "weapon.swing.club": {
+      "key": "weapon.swing.club",
+      "label": "Club swing",
+      "id": 10055,
+      "group": "weapons",
+      "sourceFile": "55.wav",
+      "src": "./public/audio/sfx/files/10055-55.wav"
+    },
+    "weapon.swing.long": {
+      "key": "weapon.swing.long",
+      "label": "Long weapon swing",
+      "id": 10056,
+      "group": "weapons",
+      "sourceFile": "56.wav",
+      "src": "./public/audio/sfx/files/10056-56.wav"
+    },
+    "weapon.hit.short": {
+      "key": "weapon.hit.short",
+      "label": "Short weapon hit",
+      "id": 10060,
+      "group": "weapons",
+      "sourceFile": "60.wav",
+      "src": "./public/audio/sfx/files/10060-60.wav"
+    },
+    "weapon.hit.wood": {
+      "key": "weapon.hit.wood",
+      "label": "Wooden hit",
+      "id": 10061,
+      "group": "weapons",
+      "sourceFile": "61.wav",
+      "src": "./public/audio/sfx/files/10061-61.wav"
+    },
+    "weapon.hit.sword": {
+      "key": "weapon.hit.sword",
+      "label": "Sword hit",
+      "id": 10062,
+      "group": "weapons",
+      "sourceFile": "62.wav",
+      "src": "./public/audio/sfx/files/10062-62.wav"
+    },
+    "weapon.hit.sword2": {
+      "key": "weapon.hit.sword2",
+      "label": "Heavy sword hit",
+      "id": 10063,
+      "group": "weapons",
+      "sourceFile": "63.wav",
+      "src": "./public/audio/sfx/files/10063-63.wav"
+    },
+    "weapon.hit.axe": {
+      "key": "weapon.hit.axe",
+      "label": "Axe hit",
+      "id": 10064,
+      "group": "weapons",
+      "sourceFile": "64.wav",
+      "src": "./public/audio/sfx/files/10064-64.wav"
+    },
+    "weapon.hit.club": {
+      "key": "weapon.hit.club",
+      "label": "Club hit",
+      "id": 10065,
+      "group": "weapons",
+      "sourceFile": "65.wav",
+      "src": "./public/audio/sfx/files/10065-65.wav"
+    },
+    "mining.hit": {
+      "key": "mining.hit",
+      "label": "Mine wall hit",
+      "id": 10091,
+      "group": "weapons",
+      "sourceFile": "91.wav",
+      "src": "./public/audio/sfx/files/10091-91.wav"
+    },
+    "spell.Slaying.attack": {
+      "key": "spell.Slaying.attack",
+      "label": "Slaying attack (male)",
+      "id": 20020,
+      "spellId": 2,
+      "variant": 0,
+      "group": "warrior-spells",
+      "sourceFile": "M2-0.wav",
+      "src": "./public/audio/sfx/files/20020-M2-0.wav"
+    },
+    "spell.Thrusting.attack": {
+      "key": "spell.Thrusting.attack",
+      "label": "Thrusting attack",
+      "id": 20030,
+      "spellId": 3,
+      "variant": 0,
+      "group": "warrior-spells",
+      "sourceFile": "M3-0.wav",
+      "src": "./public/audio/sfx/files/20030-M3-0.wav"
+    },
+    "spell.HalfMoon.attack": {
+      "key": "spell.HalfMoon.attack",
+      "label": "Half Moon attack",
+      "id": 20040,
+      "spellId": 4,
+      "variant": 0,
+      "group": "warrior-spells",
+      "sourceFile": "M4-0.wav",
+      "src": "./public/audio/sfx/files/20040-M4-0.wav"
+    },
+    "spell.CrossHalfMoon.attack": {
+      "key": "spell.CrossHalfMoon.attack",
+      "label": "Cross Half Moon attack",
+      "id": 20100,
+      "spellId": 10,
+      "variant": 0,
+      "group": "warrior-spells",
+      "sourceFile": "M10-0.wav",
+      "src": "./public/audio/sfx/files/20100-M10-0.wav"
+    },
+    "spell.TwinDrakeBlade.cast": {
+      "key": "spell.TwinDrakeBlade.cast",
+      "label": "Twin Drake Blade cast",
+      "id": 20060,
+      "spellId": 6,
+      "variant": 0,
+      "group": "warrior-spells",
+      "sourceFile": "M6-0.wav",
+      "src": "./public/audio/sfx/files/20060-M6-0.wav"
+    },
+    "spell.FlamingSword.attack": {
+      "key": "spell.FlamingSword.attack",
+      "label": "Flaming Sword attack",
+      "id": 20081,
+      "spellId": 8,
+      "variant": 1,
+      "group": "warrior-spells",
+      "sourceFile": "M8-1.wav",
+      "src": "./public/audio/sfx/files/20081-M8-1.wav"
+    },
+    "spell.BladeAvalanche.attack": {
+      "key": "spell.BladeAvalanche.attack",
+      "label": "Blade Avalanche attack",
+      "id": 20110,
+      "spellId": 11,
+      "variant": 0,
+      "group": "warrior-spells",
+      "sourceFile": "M11-0.wav",
+      "src": "./public/audio/sfx/files/20110-M11-0.wav"
+    },
+    "spell.ProtectionField.cast": {
+      "key": "spell.ProtectionField.cast",
+      "label": "Protection Field cast",
+      "id": 20120,
+      "spellId": 12,
+      "variant": 0,
+      "group": "warrior-spells",
+      "sourceFile": "M12-0.wav",
+      "src": "./public/audio/sfx/files/20120-M12-0.wav"
+    },
+    "spell.Rage.cast": {
+      "key": "spell.Rage.cast",
+      "label": "Rage cast",
+      "id": 20130,
+      "spellId": 13,
+      "variant": 0,
+      "group": "warrior-spells",
+      "sourceFile": "M13-0.wav",
+      "src": "./public/audio/sfx/files/20130-M13-0.wav"
+    },
+    "spell.Fury.cast": {
+      "key": "spell.Fury.cast",
+      "label": "Fury cast (Lion Roar)",
+      "id": 20090,
+      "spellId": 9,
+      "variant": 0,
+      "group": "warrior-spells",
+      "sourceFile": "M9-0.wav (trim @ 0.4s)",
+      "src": "./public/audio/sfx/files/20160-fury-cast.wav",
+      "trimStartSec": 0.4
+    },
+    "spell.ImmortalSkin.cast": {
+      "key": "spell.ImmortalSkin.cast",
+      "label": "Immortal Skin cast",
+      "id": 20170,
+      "spellId": 17,
+      "variant": 0,
+      "group": "warrior-spells",
+      "sourceFile": "M17-0.wav",
+      "src": "./public/audio/sfx/files/20170-M17-0.wav"
+    },
+    "spell.SlashingBurst.attack": {
+      "key": "spell.SlashingBurst.attack",
+      "label": "Slashing Burst attack",
+      "id": 20150,
+      "spellId": 15,
+      "variant": 0,
+      "group": "warrior-spells",
+      "sourceFile": "M15-0.wav",
+      "src": "./public/audio/sfx/files/20150-M15-0.wav"
+    },
+    "spell.FireBall.cast": {
+      "key": "spell.FireBall.cast",
+      "label": "Fireball cast",
+      "id": 20310,
+      "spellId": 31,
+      "variant": 0,
+      "group": "wizard-spells",
+      "sourceFile": "M31-0.wav",
+      "src": "./public/audio/sfx/files/20310-M31-0.wav"
+    },
+    "spell.FireBall.fly": {
+      "key": "spell.FireBall.fly",
+      "label": "Fireball travel",
+      "id": 20311,
+      "spellId": 31,
+      "variant": 1,
+      "group": "wizard-spells",
+      "sourceFile": "M31-1.wav",
+      "src": "./public/audio/sfx/files/20311-M31-1.wav"
+    },
+    "spell.FireBall.impact": {
+      "key": "spell.FireBall.impact",
+      "label": "Fireball impact",
+      "id": 20312,
+      "spellId": 31,
+      "variant": 2,
+      "group": "wizard-spells",
+      "sourceFile": "M31-2.wav",
+      "src": "./public/audio/sfx/files/20312-M31-2.wav"
+    },
+    "spell.GreatFireBall.cast": {
+      "key": "spell.GreatFireBall.cast",
+      "label": "Great Fire Ball cast",
+      "id": 20340,
+      "spellId": 34,
+      "variant": 0,
+      "group": "wizard-spells",
+      "sourceFile": "M34-0.wav",
+      "src": "./public/audio/sfx/files/20340-M34-0.wav"
+    },
+    "spell.GreatFireBall.fly": {
+      "key": "spell.GreatFireBall.fly",
+      "label": "Great Fire Ball travel",
+      "id": 20341,
+      "spellId": 34,
+      "variant": 1,
+      "group": "wizard-spells",
+      "sourceFile": "M34-1.wav",
+      "src": "./public/audio/sfx/files/20341-M34-1.wav"
+    },
+    "spell.GreatFireBall.impact": {
+      "key": "spell.GreatFireBall.impact",
+      "label": "Great Fire Ball impact",
+      "id": 20342,
+      "spellId": 34,
+      "variant": 2,
+      "group": "wizard-spells",
+      "sourceFile": "M34-2.wav",
+      "src": "./public/audio/sfx/files/20342-M34-2.wav"
+    },
+    "spell.ElectricShock.cast": {
+      "key": "spell.ElectricShock.cast",
+      "label": "Electric Shock cast",
+      "id": 20330,
+      "spellId": 33,
+      "variant": 0,
+      "group": "wizard-spells",
+      "sourceFile": "M33-0.wav",
+      "src": "./public/audio/sfx/files/20330-M33-0.wav"
+    },
+    "spell.ElectricShock.impact": {
+      "key": "spell.ElectricShock.impact",
+      "label": "Electric Shock impact",
+      "id": 20331,
+      "spellId": 33,
+      "variant": 1,
+      "group": "wizard-spells",
+      "sourceFile": "M33-1.wav",
+      "src": "./public/audio/sfx/files/20331-M33-1.wav"
+    },
+    "spell.ThunderBolt.cast": {
+      "key": "spell.ThunderBolt.cast",
+      "label": "Thunder Bolt",
+      "id": 20360,
+      "spellId": 36,
+      "variant": 0,
+      "group": "wizard-spells",
+      "sourceFile": "M36-0.wav",
+      "src": "./public/audio/sfx/files/20360-M36-0.wav"
+    },
+    "spell.FireWall.cast": {
+      "key": "spell.FireWall.cast",
+      "label": "Fire Wall cast",
+      "id": 20390,
+      "spellId": 39,
+      "variant": 0,
+      "group": "wizard-spells",
+      "sourceFile": "M39-0.wav",
+      "src": "./public/audio/sfx/files/20390-M39-0.wav"
+    },
+    "spell.FireWall.impact": {
+      "key": "spell.FireWall.impact",
+      "label": "Fire Wall placement",
+      "id": 20391,
+      "spellId": 39,
+      "variant": 1,
+      "group": "wizard-spells",
+      "sourceFile": "M39-1.wav",
+      "src": "./public/audio/sfx/files/20391-M39-1.wav"
+    },
+    "spell.FrostCrunch.cast": {
+      "key": "spell.FrostCrunch.cast",
+      "label": "Frost Crunch cast",
+      "id": 20410,
+      "spellId": 41,
+      "variant": 0,
+      "group": "wizard-spells",
+      "sourceFile": "M41-0.wav",
+      "src": "./public/audio/sfx/files/20410-M41-0.wav"
+    },
+    "spell.FrostCrunch.fly": {
+      "key": "spell.FrostCrunch.fly",
+      "label": "Frost Crunch travel",
+      "id": 20411,
+      "spellId": 41,
+      "variant": 1,
+      "group": "wizard-spells",
+      "sourceFile": "M41-1.wav",
+      "src": "./public/audio/sfx/files/20411-M41-1.wav"
+    },
+    "spell.FrostCrunch.impact": {
+      "key": "spell.FrostCrunch.impact",
+      "label": "Frost Crunch impact",
+      "id": 20412,
+      "spellId": 41,
+      "variant": 2,
+      "group": "wizard-spells",
+      "sourceFile": "M41-2.wav",
+      "src": "./public/audio/sfx/files/20412-M41-2.wav"
+    },
+    "spell.MagicShield.cast": {
+      "key": "spell.MagicShield.cast",
+      "label": "Magic Shield cast",
+      "id": 20430,
+      "spellId": 43,
+      "variant": 0,
+      "group": "wizard-spells",
+      "sourceFile": "M43-0.wav",
+      "src": "./public/audio/sfx/files/20430-M43-0.wav"
+    },
+    "spell.TurnUndead.cast": {
+      "key": "spell.TurnUndead.cast",
+      "label": "Turn Undead cast",
+      "id": 20440,
+      "spellId": 44,
+      "variant": 0,
+      "group": "wizard-spells",
+      "sourceFile": "M44-0.wav",
+      "src": "./public/audio/sfx/files/20440-M44-0.wav"
+    },
+    "spell.Vampirism.cast": {
+      "key": "spell.Vampirism.cast",
+      "label": "Vampirism cast",
+      "id": 20451,
+      "spellId": 45,
+      "variant": 1,
+      "group": "wizard-spells",
+      "sourceFile": "M45-1.wav",
+      "src": "./public/audio/sfx/files/20451-M45-1.wav"
+    },
+    "spell.Vampirism.impact": {
+      "key": "spell.Vampirism.impact",
+      "label": "Vampirism restore",
+      "id": 20452,
+      "spellId": 45,
+      "variant": 2,
+      "group": "wizard-spells",
+      "sourceFile": "M45-2.wav",
+      "src": "./public/audio/sfx/files/20452-M45-2.wav"
+    },
+    "spell.IceStorm.cast": {
+      "key": "spell.IceStorm.cast",
+      "label": "Ice Storm cast",
+      "id": 20460,
+      "spellId": 46,
+      "variant": 0,
+      "group": "wizard-spells",
+      "sourceFile": "M46-0.wav",
+      "src": "./public/audio/sfx/files/20460-M46-0.wav"
+    },
+    "spell.IceStorm.impact": {
+      "key": "spell.IceStorm.impact",
+      "label": "Ice Storm impact",
+      "id": 20461,
+      "spellId": 46,
+      "variant": 1,
+      "group": "wizard-spells",
+      "sourceFile": "M46-1.wav",
+      "src": "./public/audio/sfx/files/20461-M46-1.wav"
+    },
+    "spell.FlameDisruptor.cast": {
+      "key": "spell.FlameDisruptor.cast",
+      "label": "Flame Disruptor cast",
+      "id": 20470,
+      "spellId": 47,
+      "variant": 0,
+      "group": "wizard-spells",
+      "sourceFile": "M47-0.wav",
+      "src": "./public/audio/sfx/files/20470-M47-0.wav"
+    },
+    "spell.Mirroring.cast": {
+      "key": "spell.Mirroring.cast",
+      "label": "Mirroring cast",
+      "id": 20480,
+      "spellId": 48,
+      "variant": 0,
+      "group": "wizard-spells",
+      "sourceFile": "M48-0.wav",
+      "src": "./public/audio/sfx/files/20480-M48-0.wav"
+    },
+    "spell.FlameField.cast": {
+      "key": "spell.FlameField.cast",
+      "label": "Flame Field cast",
+      "id": 20490,
+      "spellId": 49,
+      "variant": 0,
+      "group": "wizard-spells",
+      "sourceFile": "M49-0.wav",
+      "src": "./public/audio/sfx/files/20490-M49-0.wav"
+    },
+    "spell.Blizzard.cast": {
+      "key": "spell.Blizzard.cast",
+      "label": "Blizzard cast",
+      "id": 20500,
+      "spellId": 50,
+      "variant": 0,
+      "group": "wizard-spells",
+      "sourceFile": "M50-0.wav",
+      "src": "./public/audio/sfx/files/20500-M50-0.wav"
+    },
+    "spell.Blizzard.impact": {
+      "key": "spell.Blizzard.impact",
+      "label": "Blizzard field start",
+      "id": 20501,
+      "spellId": 50,
+      "variant": 1,
+      "group": "wizard-spells",
+      "sourceFile": "M50-1.wav",
+      "src": "./public/audio/sfx/files/20501-M50-1.wav"
+    },
+    "spell.MagicBooster.cast": {
+      "key": "spell.MagicBooster.cast",
+      "label": "Magic Booster cast",
+      "id": 20510,
+      "spellId": 51,
+      "variant": 0,
+      "group": "wizard-spells",
+      "sourceFile": "M51-0.wav",
+      "src": "./public/audio/sfx/files/20510-M51-0.wav"
+    },
+    "spell.MeteorStrike.cast": {
+      "key": "spell.MeteorStrike.cast",
+      "label": "Meteor Strike cast",
+      "id": 20520,
+      "spellId": 52,
+      "variant": 0,
+      "group": "wizard-spells",
+      "sourceFile": "M52-0.wav",
+      "src": "./public/audio/sfx/files/20520-M52-0.wav"
+    },
+    "spell.MeteorStrike.impact": {
+      "key": "spell.MeteorStrike.impact",
+      "label": "Meteor Strike field start",
+      "id": 20521,
+      "spellId": 52,
+      "variant": 1,
+      "group": "wizard-spells",
+      "sourceFile": "M52-1.wav",
+      "src": "./public/audio/sfx/files/20521-M52-1.wav"
+    },
+    "spell.MeteorStrike.impact2": {
+      "key": "spell.MeteorStrike.impact2",
+      "label": "Meteor Strike field rumble",
+      "id": 20522,
+      "spellId": 52,
+      "variant": 2,
+      "group": "wizard-spells",
+      "sourceFile": "M52-2.wav",
+      "src": "./public/audio/sfx/files/20522-M52-2.wav"
+    },
+    "spell.Healing.cast": {
+      "key": "spell.Healing.cast",
+      "label": "Healing cast",
+      "id": 20610,
+      "spellId": 61,
+      "variant": 0,
+      "group": "taoist-spells",
+      "sourceFile": "M61-0.wav",
+      "src": "./public/audio/sfx/files/20610-M61-0.wav"
+    },
+    "spell.Healing.impact": {
+      "key": "spell.Healing.impact",
+      "label": "Healing restore",
+      "id": 20611,
+      "spellId": 61,
+      "variant": 1,
+      "group": "taoist-spells",
+      "sourceFile": "M61-1.wav",
+      "src": "./public/audio/sfx/files/20611-M61-1.wav"
+    },
+    "spell.Poisoning.cast": {
+      "key": "spell.Poisoning.cast",
+      "label": "Poisoning cast",
+      "id": 20630,
+      "spellId": 63,
+      "variant": 0,
+      "group": "taoist-spells",
+      "sourceFile": "M63-0.wav",
+      "src": "./public/audio/sfx/files/20630-M63-0.wav"
+    },
+    "spell.Poisoning.impact": {
+      "key": "spell.Poisoning.impact",
+      "label": "Poisoning impact",
+      "id": 20631,
+      "spellId": 63,
+      "variant": 1,
+      "group": "taoist-spells",
+      "sourceFile": "M63-1.wav",
+      "src": "./public/audio/sfx/files/20631-M63-1.wav"
+    },
+    "spell.PoisonCloud.cast": {
+      "key": "spell.PoisonCloud.cast",
+      "label": "Poison Cloud cast",
+      "id": 20830,
+      "spellId": 83,
+      "variant": 0,
+      "group": "taoist-spells",
+      "sourceFile": "M83-0.wav",
+      "src": "./public/audio/sfx/files/20830-M83-0.wav"
+    },
+    "spell.Curse.cast": {
+      "key": "spell.Curse.cast",
+      "label": "Curse cast",
+      "id": 20810,
+      "spellId": 81,
+      "variant": 0,
+      "group": "taoist-spells",
+      "sourceFile": "M81-0.wav",
+      "src": "./public/audio/sfx/files/20810-M81-0.wav"
+    },
+    "spell.Curse.fly": {
+      "key": "spell.Curse.fly",
+      "label": "Curse travel",
+      "id": 20810,
+      "spellId": 81,
+      "variant": 0,
+      "group": "taoist-spells",
+      "sourceFile": "M81-0.wav",
+      "src": "./public/audio/sfx/files/20810-M81-0.wav"
+    },
+    "spell.Curse.impact": {
+      "key": "spell.Curse.impact",
+      "label": "Curse impact",
+      "id": 20810,
+      "spellId": 81,
+      "variant": 0,
+      "group": "taoist-spells",
+      "sourceFile": "M81-0.wav",
+      "src": "./public/audio/sfx/files/20810-M81-0.wav"
+    },
+    "spell.Plague.fly": {
+      "key": "spell.Plague.fly",
+      "label": "Plague travel",
+      "id": 20810,
+      "spellId": 81,
+      "variant": 0,
+      "group": "taoist-spells",
+      "sourceFile": "M81-0.wav",
+      "src": "./public/audio/sfx/files/20810-M81-0.wav"
+    },
+    "spell.Plague.impact": {
+      "key": "spell.Plague.impact",
+      "label": "Plague impact",
+      "id": 20823,
+      "spellId": 82,
+      "variant": 3,
+      "group": "taoist-spells",
+      "sourceFile": "M82-3.wav",
+      "src": "./public/audio/sfx/files/20823-M82-3.wav"
+    },
+    "spell.SoulFireBall.cast": {
+      "key": "spell.SoulFireBall.cast",
+      "label": "Soul Fire Ball cast",
+      "id": 20640,
+      "spellId": 64,
+      "variant": 0,
+      "group": "taoist-spells",
+      "sourceFile": "M64-0.wav",
+      "src": "./public/audio/sfx/files/20640-M64-0.wav"
+    },
+    "spell.SoulFireBall.fly": {
+      "key": "spell.SoulFireBall.fly",
+      "label": "Soul Fire Ball travel",
+      "id": 20641,
+      "spellId": 64,
+      "variant": 1,
+      "group": "taoist-spells",
+      "sourceFile": "M64-1.wav",
+      "src": "./public/audio/sfx/files/20641-M64-1.wav"
+    },
+    "spell.SoulFireBall.impact": {
+      "key": "spell.SoulFireBall.impact",
+      "label": "Soul Fire Ball impact",
+      "id": 20642,
+      "spellId": 64,
+      "variant": 2,
+      "group": "taoist-spells",
+      "sourceFile": "M64-2.wav",
+      "src": "./public/audio/sfx/files/20642-M64-2.wav"
+    },
+    "spell.SummonSkeleton.cast": {
+      "key": "spell.SummonSkeleton.cast",
+      "label": "Summon Skeleton cast",
+      "id": 20650,
+      "spellId": 65,
+      "variant": 0,
+      "group": "taoist-spells",
+      "sourceFile": "M65-0.wav",
+      "src": "./public/audio/sfx/files/20650-M65-0.wav"
+    },
+    "spell.SummonShinsu.cast": {
+      "key": "spell.SummonShinsu.cast",
+      "label": "Summon Shinsu cast",
+      "id": 20780,
+      "spellId": 78,
+      "variant": 0,
+      "group": "taoist-spells",
+      "sourceFile": "M78-0.wav",
+      "src": "./public/audio/sfx/files/20780-M78-0.wav"
+    },
+    "spell.SummonHolyDeva.cast": {
+      "key": "spell.SummonHolyDeva.cast",
+      "label": "Summon Holy Deva cast",
+      "id": 20800,
+      "spellId": 80,
+      "variant": 0,
+      "group": "taoist-spells",
+      "sourceFile": "M80-0.wav",
+      "src": "./public/audio/sfx/files/20800-M80-0.wav"
+    },
+    "spell.SoulShield.cast": {
+      "key": "spell.SoulShield.cast",
+      "label": "Soul Shield cast",
+      "id": 20690,
+      "spellId": 69,
+      "variant": 0,
+      "group": "taoist-spells",
+      "sourceFile": "M69-0.wav",
+      "src": "./public/audio/sfx/files/20690-M69-0.wav"
+    },
+    "spell.SoulShield.impact": {
+      "key": "spell.SoulShield.impact",
+      "label": "Soul Shield bless",
+      "id": 20691,
+      "spellId": 69,
+      "variant": 1,
+      "group": "taoist-spells",
+      "sourceFile": "M69-1.wav",
+      "src": "./public/audio/sfx/files/20691-M69-1.wav"
+    },
+    "spell.BlessedArmour.cast": {
+      "key": "spell.BlessedArmour.cast",
+      "label": "Blessed Armour cast",
+      "id": 20710,
+      "spellId": 71,
+      "variant": 0,
+      "group": "taoist-spells",
+      "sourceFile": "M69-0.wav",
+      "src": "./public/audio/sfx/files/20710-M69-0.wav"
+    },
+    "spell.BlessedArmour.impact": {
+      "key": "spell.BlessedArmour.impact",
+      "label": "Blessed Armour bless",
+      "id": 20711,
+      "spellId": 71,
+      "variant": 1,
+      "group": "taoist-spells",
+      "sourceFile": "M71-1.wav",
+      "src": "./public/audio/sfx/files/20711-M71-1.wav"
+    },
+    "spell.EnergyShield.cast": {
+      "key": "spell.EnergyShield.cast",
+      "label": "Energy Shield cast",
+      "id": 20840,
+      "spellId": 84,
+      "variant": 0,
+      "group": "taoist-spells",
+      "sourceFile": "M84-0.wav",
+      "src": "./public/audio/sfx/files/20840-M84-0.wav"
+    },
+    "spell.EnergyShield.impact": {
+      "key": "spell.EnergyShield.impact",
+      "label": "Energy Shield bless",
+      "id": 20841,
+      "spellId": 84,
+      "variant": 1,
+      "group": "taoist-spells",
+      "sourceFile": "M84-1.wav",
+      "src": "./public/audio/sfx/files/20841-M84-1.wav"
+    },
+    "spell.MassHealing.cast": {
+      "key": "spell.MassHealing.cast",
+      "label": "Mass Healing cast",
+      "id": 20750,
+      "spellId": 75,
+      "variant": 0,
+      "group": "taoist-spells",
+      "sourceFile": "M75-0.wav",
+      "src": "./public/audio/sfx/files/20750-M75-0.wav"
+    },
+    "spell.MassHealing.impact": {
+      "key": "spell.MassHealing.impact",
+      "label": "Mass Healing restore",
+      "id": 20751,
+      "spellId": 75,
+      "variant": 1,
+      "group": "taoist-spells",
+      "sourceFile": "M75-1.wav",
+      "src": "./public/audio/sfx/files/20751-M75-1.wav"
+    },
+    "spell.PetEnhancer.cast": {
+      "key": "spell.PetEnhancer.cast",
+      "label": "Pet Enhancer cast (M77-0; M85-0 missing)",
+      "id": 20770,
+      "group": "taoist-spells",
+      "sourceFile": "M77-0.wav",
+      "src": "./public/audio/sfx/files/20770-M77-0.wav"
+    },
+    "pet.skeleton.summon": {
+      "key": "pet.skeleton.summon",
+      "label": "Bone Familiar appear",
+      "id": 785,
+      "group": "taoist-spells",
+      "sourceFile": "078-5.wav",
+      "src": "./public/audio/sfx/files/785-078-5.wav"
+    },
+    "pet.skeleton.attack": {
+      "key": "pet.skeleton.attack",
+      "label": "Bone Familiar attack",
+      "id": 781,
+      "group": "taoist-spells",
+      "sourceFile": "54.wav",
+      "src": "./public/audio/sfx/files/781-54.wav"
+    },
+    "pet.skeleton.hit": {
+      "key": "pet.skeleton.hit",
+      "label": "Bone Familiar hit",
+      "id": 784,
+      "group": "taoist-spells",
+      "sourceFile": "64.wav",
+      "src": "./public/audio/sfx/files/784-64.wav"
+    },
+    "pet.skeleton.death": {
+      "key": "pet.skeleton.death",
+      "label": "Bone Familiar death",
+      "id": 783,
+      "group": "taoist-spells",
+      "sourceFile": "078-3.wav",
+      "src": "./public/audio/sfx/files/783-078-3.wav"
+    },
+    "pet.shinsu.summon": {
+      "key": "pet.shinsu.summon",
+      "label": "Shinsu summon",
+      "id": 795,
+      "group": "taoist-spells",
+      "sourceFile": "079-5.wav",
+      "src": "./public/audio/sfx/files/795-079-5.wav"
+    },
+    "pet.shinsu.show": {
+      "key": "pet.shinsu.show",
+      "label": "Shinsu emerge",
+      "id": 796,
+      "group": "taoist-spells",
+      "sourceFile": "079-6.wav",
+      "src": "./public/audio/sfx/files/796-079-6.wav"
+    },
+    "pet.shinsu.attack": {
+      "key": "pet.shinsu.attack",
+      "label": "Shinsu attack windup",
+      "id": 801,
+      "group": "taoist-spells",
+      "sourceFile": "080-1.wav",
+      "src": "./public/audio/sfx/files/801-080-1.wav"
+    },
+    "pet.shinsu.hit": {
+      "key": "pet.shinsu.hit",
+      "label": "Shinsu fire breath",
+      "id": 804,
+      "group": "taoist-spells",
+      "sourceFile": "080-4.wav",
+      "src": "./public/audio/sfx/files/804-080-4.wav"
+    },
+    "pet.shinsu.flinch": {
+      "key": "pet.shinsu.flinch",
+      "label": "Shinsu flinch",
+      "id": 802,
+      "group": "taoist-spells",
+      "sourceFile": "080-2.wav",
+      "src": "./public/audio/sfx/files/802-080-2.wav"
+    },
+    "pet.shinsu.flinchBuried": {
+      "key": "pet.shinsu.flinchBuried",
+      "label": "Shinsu buried flinch",
+      "id": 792,
+      "group": "taoist-spells",
+      "sourceFile": "079-2.wav",
+      "src": "./public/audio/sfx/files/792-079-2.wav"
+    },
+    "pet.shinsu.death": {
+      "key": "pet.shinsu.death",
+      "label": "Shinsu death",
+      "id": 803,
+      "group": "taoist-spells",
+      "sourceFile": "080-3.wav",
+      "src": "./public/audio/sfx/files/803-080-3.wav"
+    },
+    "pet.holydeva.summon": {
+      "key": "pet.holydeva.summon",
+      "label": "Holy Deva appear",
+      "id": 1175,
+      "group": "taoist-spells",
+      "sourceFile": "117-5.wav",
+      "src": "./public/audio/sfx/files/1175-117-5.wav"
+    },
+    "pet.holydeva.attack": {
+      "key": "pet.holydeva.attack",
+      "label": "Holy Deva thunder windup",
+      "id": 1170,
+      "group": "taoist-spells",
+      "sourceFile": "117-0.wav",
+      "src": "./public/audio/sfx/files/1170-117-0.wav"
+    },
+    "pet.holydeva.hit": {
+      "key": "pet.holydeva.hit",
+      "label": "Holy Deva thunder hit (ThunderBolt fallback)",
+      "id": 20360,
+      "spellId": 36,
+      "variant": 0,
+      "group": "taoist-spells",
+      "sourceFile": "M36-0.wav",
+      "src": "./public/audio/sfx/files/20360-M36-0.wav"
+    },
+    "pet.holydeva.flinch": {
+      "key": "pet.holydeva.flinch",
+      "label": "Holy Deva flinch",
+      "id": 1172,
+      "group": "taoist-spells",
+      "sourceFile": "117-2.wav",
+      "src": "./public/audio/sfx/files/1172-117-2.wav"
+    },
+    "pet.holydeva.death": {
+      "key": "pet.holydeva.death",
+      "label": "Holy Deva death",
+      "id": 1173,
+      "group": "taoist-spells",
+      "sourceFile": "117-3.wav",
+      "src": "./public/audio/sfx/files/1173-117-3.wav"
+    },
+    "player.flinch": {
+      "key": "player.flinch",
+      "label": "Male flinch",
+      "id": 10138,
+      "group": "human",
+      "sourceFile": "138.wav",
+      "src": "./public/audio/sfx/files/10138-138.wav"
+    },
+    "player.death": {
+      "key": "player.death",
+      "label": "Male death",
+      "id": 10144,
+      "group": "human",
+      "sourceFile": "144.wav",
+      "src": "./public/audio/sfx/files/10144-144.wav"
+    },
+    "player.revive": {
+      "key": "player.revive",
+      "label": "Revive",
+      "id": 20791,
+      "group": "human",
+      "sourceFile": "M79-1.wav",
+      "src": "./public/audio/sfx/files/20791-M79-1.wav"
+    },
+    "monster.3.attack": {
+      "key": "monster.3.attack",
+      "label": "Hen attack",
+      "id": 31,
+      "group": "monster",
+      "sourceFile": "003-1.wav",
+      "src": "./public/audio/sfx/files/31-003-1.wav"
+    },
+    "monster.3.flinch": {
+      "key": "monster.3.flinch",
+      "label": "Hen flinch",
+      "id": 32,
+      "group": "monster",
+      "sourceFile": "003-2.wav",
+      "src": "./public/audio/sfx/files/32-003-2.wav"
+    },
+    "monster.3.death": {
+      "key": "monster.3.death",
+      "label": "Hen death",
+      "id": 33,
+      "group": "monster",
+      "sourceFile": "003-3.wav",
+      "src": "./public/audio/sfx/files/33-003-3.wav"
+    },
+    "monster.4.attack": {
+      "key": "monster.4.attack",
+      "label": "Deer attack",
+      "id": 41,
+      "group": "monster",
+      "sourceFile": "004-1.wav",
+      "src": "./public/audio/sfx/files/41-004-1.wav"
+    },
+    "monster.4.flinch": {
+      "key": "monster.4.flinch",
+      "label": "Deer flinch",
+      "id": 42,
+      "group": "monster",
+      "sourceFile": "004-2.wav",
+      "src": "./public/audio/sfx/files/42-004-2.wav"
+    },
+    "monster.4.death": {
+      "key": "monster.4.death",
+      "label": "Deer death",
+      "id": 43,
+      "group": "monster",
+      "sourceFile": "004-3.wav",
+      "src": "./public/audio/sfx/files/43-004-3.wav"
+    },
+    "monster.5.attack": {
+      "key": "monster.5.attack",
+      "label": "Scarecrow attack",
+      "id": 51,
+      "group": "monster",
+      "sourceFile": "005-1.wav",
+      "src": "./public/audio/sfx/files/51-005-1.wav"
+    },
+    "monster.5.flinch": {
+      "key": "monster.5.flinch",
+      "label": "Scarecrow flinch",
+      "id": 52,
+      "group": "monster",
+      "sourceFile": "005-2.wav",
+      "src": "./public/audio/sfx/files/52-005-2.wav"
+    },
+    "monster.5.death": {
+      "key": "monster.5.death",
+      "label": "Scarecrow death",
+      "id": 53,
+      "group": "monster",
+      "sourceFile": "005-3.wav",
+      "src": "./public/audio/sfx/files/53-005-3.wav"
+    },
+    "monster.6.attack": {
+      "key": "monster.6.attack",
+      "label": "Hooking Cat attack",
+      "id": 61,
+      "group": "monster",
+      "sourceFile": "006-1.wav",
+      "src": "./public/audio/sfx/files/61-006-1.wav"
+    },
+    "monster.6.flinch": {
+      "key": "monster.6.flinch",
+      "label": "Hooking Cat flinch",
+      "id": 62,
+      "group": "monster",
+      "sourceFile": "006-2.wav",
+      "src": "./public/audio/sfx/files/62-006-2.wav"
+    },
+    "monster.6.death": {
+      "key": "monster.6.death",
+      "label": "Hooking Cat death",
+      "id": 63,
+      "group": "monster",
+      "sourceFile": "006-3.wav",
+      "src": "./public/audio/sfx/files/63-006-3.wav"
+    },
+    "monster.7.attack": {
+      "key": "monster.7.attack",
+      "label": "Raking Cat attack",
+      "id": 71,
+      "group": "monster",
+      "sourceFile": "007-1.wav",
+      "src": "./public/audio/sfx/files/71-007-1.wav"
+    },
+    "monster.7.flinch": {
+      "key": "monster.7.flinch",
+      "label": "Raking Cat flinch",
+      "id": 72,
+      "group": "monster",
+      "sourceFile": "007-2.wav",
+      "src": "./public/audio/sfx/files/72-007-2.wav"
+    },
+    "monster.7.death": {
+      "key": "monster.7.death",
+      "label": "Raking Cat death",
+      "id": 73,
+      "group": "monster",
+      "sourceFile": "007-3.wav",
+      "src": "./public/audio/sfx/files/73-007-3.wav"
+    },
+    "monster.8.attack": {
+      "key": "monster.8.attack",
+      "label": "Yob attack",
+      "id": 81,
+      "group": "monster",
+      "sourceFile": "008-1.wav",
+      "src": "./public/audio/sfx/files/81-008-1.wav"
+    },
+    "monster.8.flinch": {
+      "key": "monster.8.flinch",
+      "label": "Yob flinch",
+      "id": 82,
+      "group": "monster",
+      "sourceFile": "008-2.wav",
+      "src": "./public/audio/sfx/files/82-008-2.wav"
+    },
+    "monster.8.death": {
+      "key": "monster.8.death",
+      "label": "Yob death",
+      "id": 83,
+      "group": "monster",
+      "sourceFile": "008-3.wav",
+      "src": "./public/audio/sfx/files/83-008-3.wav"
+    },
+    "monster.9.attack": {
+      "key": "monster.9.attack",
+      "label": "Oma attack",
+      "id": 91,
+      "group": "monster",
+      "sourceFile": "009-1.wav",
+      "src": "./public/audio/sfx/files/91-009-1.wav"
+    },
+    "monster.9.flinch": {
+      "key": "monster.9.flinch",
+      "label": "Oma flinch",
+      "id": 92,
+      "group": "monster",
+      "sourceFile": "009-2.wav",
+      "src": "./public/audio/sfx/files/92-009-2.wav"
+    },
+    "monster.9.death": {
+      "key": "monster.9.death",
+      "label": "Oma death",
+      "id": 93,
+      "group": "monster",
+      "sourceFile": "009-3.wav",
+      "src": "./public/audio/sfx/files/93-009-3.wav"
+    },
+    "monster.11.attack": {
+      "key": "monster.11.attack",
+      "label": "Yeti attack",
+      "id": 111,
+      "group": "monster",
+      "sourceFile": "011-1.wav",
+      "src": "./public/audio/sfx/files/111-011-1.wav"
+    },
+    "monster.11.flinch": {
+      "key": "monster.11.flinch",
+      "label": "Yeti flinch",
+      "id": 112,
+      "group": "monster",
+      "sourceFile": "011-2.wav",
+      "src": "./public/audio/sfx/files/112-011-2.wav"
+    },
+    "monster.11.death": {
+      "key": "monster.11.death",
+      "label": "Yeti death",
+      "id": 113,
+      "group": "monster",
+      "sourceFile": "011-3.wav",
+      "src": "./public/audio/sfx/files/113-011-3.wav"
+    },
+    "monster.12.attack": {
+      "key": "monster.12.attack",
+      "label": "Spitting Spider attack",
+      "id": 121,
+      "group": "monster",
+      "sourceFile": "012-1.wav",
+      "src": "./public/audio/sfx/files/121-012-1.wav"
+    },
+    "monster.12.flinch": {
+      "key": "monster.12.flinch",
+      "label": "Spitting Spider flinch",
+      "id": 122,
+      "group": "monster",
+      "sourceFile": "012-2.wav",
+      "src": "./public/audio/sfx/files/122-012-2.wav"
+    },
+    "monster.12.death": {
+      "key": "monster.12.death",
+      "label": "Spitting Spider death",
+      "id": 123,
+      "group": "monster",
+      "sourceFile": "012-3.wav",
+      "src": "./public/audio/sfx/files/123-012-3.wav"
+    },
+    "monster.22.attack": {
+      "key": "monster.22.attack",
+      "label": "Skeleton attack",
+      "id": 221,
+      "group": "monster",
+      "sourceFile": "022-1.wav",
+      "src": "./public/audio/sfx/files/221-022-1.wav"
+    },
+    "monster.22.flinch": {
+      "key": "monster.22.flinch",
+      "label": "Skeleton flinch",
+      "id": 222,
+      "group": "monster",
+      "sourceFile": "022-2.wav",
+      "src": "./public/audio/sfx/files/222-022-2.wav"
+    },
+    "monster.22.death": {
+      "key": "monster.22.death",
+      "label": "Skeleton death",
+      "id": 223,
+      "group": "monster",
+      "sourceFile": "022-3.wav",
+      "src": "./public/audio/sfx/files/223-022-3.wav"
+    },
+    "monster.19.attack": {
+      "key": "monster.19.attack",
+      "label": "Cave Bat attack",
+      "id": 191,
+      "group": "monster",
+      "sourceFile": "019-1.wav",
+      "src": "./public/audio/sfx/files/191-019-1.wav"
+    },
+    "monster.19.death": {
+      "key": "monster.19.death",
+      "label": "Cave Bat death",
+      "id": 193,
+      "group": "monster",
+      "sourceFile": "019-3.wav",
+      "src": "./public/audio/sfx/files/193-019-3.wav"
+    },
+    "monster.20.attack": {
+      "key": "monster.20.attack",
+      "label": "Cave Maggot attack",
+      "id": 201,
+      "group": "monster",
+      "sourceFile": "020-1.wav",
+      "src": "./public/audio/sfx/files/201-020-1.wav"
+    },
+    "monster.20.flinch": {
+      "key": "monster.20.flinch",
+      "label": "Cave Maggot flinch",
+      "id": 202,
+      "group": "monster",
+      "sourceFile": "020-2.wav",
+      "src": "./public/audio/sfx/files/202-020-2.wav"
+    },
+    "monster.20.death": {
+      "key": "monster.20.death",
+      "label": "Cave Maggot death",
+      "id": 203,
+      "group": "monster",
+      "sourceFile": "020-3.wav",
+      "src": "./public/audio/sfx/files/203-020-3.wav"
+    },
+    "monster.21.attack": {
+      "key": "monster.21.attack",
+      "label": "Scorpion attack",
+      "id": 211,
+      "group": "monster",
+      "sourceFile": "021-1.wav",
+      "src": "./public/audio/sfx/files/211-021-1.wav"
+    },
+    "monster.21.death": {
+      "key": "monster.21.death",
+      "label": "Scorpion death",
+      "id": 213,
+      "group": "monster",
+      "sourceFile": "021-3.wav",
+      "src": "./public/audio/sfx/files/213-021-3.wav"
+    },
+    "monster.23.attack": {
+      "key": "monster.23.attack",
+      "label": "Bone Fighter attack",
+      "id": 231,
+      "group": "monster",
+      "sourceFile": "023-1.wav",
+      "src": "./public/audio/sfx/files/231-023-1.wav"
+    },
+    "monster.23.flinch": {
+      "key": "monster.23.flinch",
+      "label": "Bone Fighter flinch",
+      "id": 232,
+      "group": "monster",
+      "sourceFile": "023-2.wav",
+      "src": "./public/audio/sfx/files/232-023-2.wav"
+    },
+    "monster.23.death": {
+      "key": "monster.23.death",
+      "label": "Bone Fighter death",
+      "id": 233,
+      "group": "monster",
+      "sourceFile": "023-3.wav",
+      "src": "./public/audio/sfx/files/233-023-3.wav"
+    },
+    "monster.24.attack": {
+      "key": "monster.24.attack",
+      "label": "Axe Skeleton attack",
+      "id": 241,
+      "group": "monster",
+      "sourceFile": "024-1.wav",
+      "src": "./public/audio/sfx/files/241-024-1.wav"
+    },
+    "monster.24.flinch": {
+      "key": "monster.24.flinch",
+      "label": "Axe Skeleton flinch",
+      "id": 242,
+      "group": "monster",
+      "sourceFile": "024-2.wav",
+      "src": "./public/audio/sfx/files/242-024-2.wav"
+    },
+    "monster.24.death": {
+      "key": "monster.24.death",
+      "label": "Axe Skeleton death",
+      "id": 243,
+      "group": "monster",
+      "sourceFile": "024-3.wav",
+      "src": "./public/audio/sfx/files/243-024-3.wav"
+    },
+    "monster.25.attack": {
+      "key": "monster.25.attack",
+      "label": "Bone Warrior attack",
+      "id": 251,
+      "group": "monster",
+      "sourceFile": "025-1.wav",
+      "src": "./public/audio/sfx/files/251-025-1.wav"
+    },
+    "monster.25.flinch": {
+      "key": "monster.25.flinch",
+      "label": "Bone Warrior flinch",
+      "id": 252,
+      "group": "monster",
+      "sourceFile": "025-2.wav",
+      "src": "./public/audio/sfx/files/252-025-2.wav"
+    },
+    "monster.25.death": {
+      "key": "monster.25.death",
+      "label": "Bone Warrior death",
+      "id": 253,
+      "group": "monster",
+      "sourceFile": "025-3.wav",
+      "src": "./public/audio/sfx/files/253-025-3.wav"
+    },
+    "monster.26.attack": {
+      "key": "monster.26.attack",
+      "label": "Bone Elite attack",
+      "id": 261,
+      "group": "monster",
+      "sourceFile": "026-1.wav",
+      "src": "./public/audio/sfx/files/261-026-1.wav"
+    },
+    "monster.26.flinch": {
+      "key": "monster.26.flinch",
+      "label": "Bone Elite flinch",
+      "id": 262,
+      "group": "monster",
+      "sourceFile": "026-2.wav",
+      "src": "./public/audio/sfx/files/262-026-2.wav"
+    },
+    "monster.26.death": {
+      "key": "monster.26.death",
+      "label": "Bone Elite death",
+      "id": 263,
+      "group": "monster",
+      "sourceFile": "026-3.wav",
+      "src": "./public/audio/sfx/files/263-026-3.wav"
+    },
+    "monster.69.attack": {
+      "key": "monster.69.attack",
+      "label": "Zombie 2 / Priest Zombie attack",
+      "id": 701,
+      "group": "monster",
+      "sourceFile": "070-1.wav",
+      "src": "./public/audio/sfx/files/701-070-1.wav"
+    },
+    "monster.69.flinch": {
+      "key": "monster.69.flinch",
+      "label": "Zombie 2 / Priest Zombie flinch",
+      "id": 692,
+      "group": "monster",
+      "sourceFile": "069-2.wav",
+      "src": "./public/audio/sfx/files/692-069-2.wav"
+    },
+    "monster.69.death": {
+      "key": "monster.69.death",
+      "label": "Zombie 2 / Priest Zombie death",
+      "id": 693,
+      "group": "monster",
+      "sourceFile": "069-3.wav",
+      "src": "./public/audio/sfx/files/693-069-3.wav"
+    },
+    "monster.70.attack": {
+      "key": "monster.70.attack",
+      "label": "Zombie 3 / Cl Zombie attack",
+      "id": 701,
+      "group": "monster",
+      "sourceFile": "070-1.wav",
+      "src": "./public/audio/sfx/files/701-070-1.wav"
+    },
+    "monster.70.flinch": {
+      "key": "monster.70.flinch",
+      "label": "Zombie 3 / Cl Zombie flinch",
+      "id": 702,
+      "group": "monster",
+      "sourceFile": "070-2.wav",
+      "src": "./public/audio/sfx/files/702-070-2.wav"
+    },
+    "monster.70.death": {
+      "key": "monster.70.death",
+      "label": "Zombie 3 / Cl Zombie death",
+      "id": 703,
+      "group": "monster",
+      "sourceFile": "070-3.wav",
+      "src": "./public/audio/sfx/files/703-070-3.wav"
+    },
+    "monster.71.attack": {
+      "key": "monster.71.attack",
+      "label": "Zombie 4 / Nd Zombie attack",
+      "id": 711,
+      "group": "monster",
+      "sourceFile": "071-1.wav",
+      "src": "./public/audio/sfx/files/711-071-1.wav"
+    },
+    "monster.71.flinch": {
+      "key": "monster.71.flinch",
+      "label": "Zombie 4 / Nd Zombie flinch",
+      "id": 712,
+      "group": "monster",
+      "sourceFile": "071-2.wav",
+      "src": "./public/audio/sfx/files/712-071-2.wav"
+    },
+    "monster.71.death": {
+      "key": "monster.71.death",
+      "label": "Zombie 4 / Nd Zombie death",
+      "id": 713,
+      "group": "monster",
+      "sourceFile": "071-3.wav",
+      "src": "./public/audio/sfx/files/713-071-3.wav"
+    },
+    "monster.72.attack": {
+      "key": "monster.72.attack",
+      "label": "Zombie 5 / Crawler Zombie attack",
+      "id": 721,
+      "group": "monster",
+      "sourceFile": "072-1.wav",
+      "src": "./public/audio/sfx/files/721-072-1.wav"
+    },
+    "monster.72.flinch": {
+      "key": "monster.72.flinch",
+      "label": "Zombie 5 / Crawler Zombie flinch",
+      "id": 722,
+      "group": "monster",
+      "sourceFile": "072-2.wav",
+      "src": "./public/audio/sfx/files/722-072-2.wav"
+    },
+    "monster.72.death": {
+      "key": "monster.72.death",
+      "label": "Zombie 5 / Crawler Zombie death",
+      "id": 723,
+      "group": "monster",
+      "sourceFile": "072-3.wav",
+      "src": "./public/audio/sfx/files/723-072-3.wav"
+    },
+    "monster.73.attack": {
+      "key": "monster.73.attack",
+      "label": "Shaman Zombie attack",
+      "id": 731,
+      "group": "monster",
+      "sourceFile": "073-1.wav",
+      "src": "./public/audio/sfx/files/731-073-1.wav"
+    },
+    "monster.73.flinch": {
+      "key": "monster.73.flinch",
+      "label": "Shaman Zombie flinch",
+      "id": 732,
+      "group": "monster",
+      "sourceFile": "073-2.wav",
+      "src": "./public/audio/sfx/files/732-073-2.wav"
+    },
+    "monster.73.death": {
+      "key": "monster.73.death",
+      "label": "Shaman Zombie death",
+      "id": 733,
+      "group": "monster",
+      "sourceFile": "073-3.wav",
+      "src": "./public/audio/sfx/files/733-073-3.wav"
+    },
+    "monster.74.attack": {
+      "key": "monster.74.attack",
+      "label": "Ghoul attack",
+      "id": 741,
+      "group": "monster",
+      "sourceFile": "074-1.wav",
+      "src": "./public/audio/sfx/files/741-074-1.wav"
+    },
+    "monster.74.flinch": {
+      "key": "monster.74.flinch",
+      "label": "Ghoul flinch",
+      "id": 742,
+      "group": "monster",
+      "sourceFile": "074-2.wav",
+      "src": "./public/audio/sfx/files/742-074-2.wav"
+    },
+    "monster.74.death": {
+      "key": "monster.74.death",
+      "label": "Ghoul death",
+      "id": 743,
+      "group": "monster",
+      "sourceFile": "074-3.wav",
+      "src": "./public/audio/sfx/files/743-074-3.wav"
+    },
+    "monster.81.attack": {
+      "key": "monster.81.attack",
+      "label": "Spider Frog attack",
+      "id": 811,
+      "group": "monster",
+      "sourceFile": "081-1.wav",
+      "src": "./public/audio/sfx/files/811-081-1.wav"
+    },
+    "monster.81.flinch": {
+      "key": "monster.81.flinch",
+      "label": "Spider Frog flinch",
+      "id": 812,
+      "group": "monster",
+      "sourceFile": "081-2.wav",
+      "src": "./public/audio/sfx/files/812-081-2.wav"
+    },
+    "monster.81.death": {
+      "key": "monster.81.death",
+      "label": "Spider Frog death",
+      "id": 813,
+      "group": "monster",
+      "sourceFile": "081-3.wav",
+      "src": "./public/audio/sfx/files/813-081-3.wav"
+    },
+    "monster.82.attack": {
+      "key": "monster.82.attack",
+      "label": "Horo Blaster attack",
+      "id": 821,
+      "group": "monster",
+      "sourceFile": "082-1.wav",
+      "src": "./public/audio/sfx/files/821-082-1.wav"
+    },
+    "monster.82.flinch": {
+      "key": "monster.82.flinch",
+      "label": "Horo Blaster flinch",
+      "id": 822,
+      "group": "monster",
+      "sourceFile": "082-2.wav",
+      "src": "./public/audio/sfx/files/822-082-2.wav"
+    },
+    "monster.82.death": {
+      "key": "monster.82.death",
+      "label": "Horo Blaster death",
+      "id": 823,
+      "group": "monster",
+      "sourceFile": "082-3.wav",
+      "src": "./public/audio/sfx/files/823-082-3.wav"
+    },
+    "monster.83.attack": {
+      "key": "monster.83.attack",
+      "label": "Blue Horo Blaster attack",
+      "id": 831,
+      "group": "monster",
+      "sourceFile": "083-1.wav",
+      "src": "./public/audio/sfx/files/831-083-1.wav"
+    },
+    "monster.83.flinch": {
+      "key": "monster.83.flinch",
+      "label": "Blue Horo Blaster flinch",
+      "id": 832,
+      "group": "monster",
+      "sourceFile": "083-2.wav",
+      "src": "./public/audio/sfx/files/832-083-2.wav"
+    },
+    "monster.83.death": {
+      "key": "monster.83.death",
+      "label": "Blue Horo Blaster death",
+      "id": 833,
+      "group": "monster",
+      "sourceFile": "083-3.wav",
+      "src": "./public/audio/sfx/files/833-083-3.wav"
+    },
+    "monster.84.attack": {
+      "key": "monster.84.attack",
+      "label": "Kek Tal attack",
+      "id": 841,
+      "group": "monster",
+      "sourceFile": "084-1.wav",
+      "src": "./public/audio/sfx/files/841-084-1.wav"
+    },
+    "monster.84.flinch": {
+      "key": "monster.84.flinch",
+      "label": "Kek Tal flinch",
+      "id": 842,
+      "group": "monster",
+      "sourceFile": "084-2.wav",
+      "src": "./public/audio/sfx/files/842-084-2.wav"
+    },
+    "monster.84.death": {
+      "key": "monster.84.death",
+      "label": "Kek Tal death",
+      "id": 843,
+      "group": "monster",
+      "sourceFile": "084-3.wav",
+      "src": "./public/audio/sfx/files/843-084-3.wav"
+    },
+    "monster.85.attack": {
+      "key": "monster.85.attack",
+      "label": "Violet Kek Tal attack",
+      "id": 851,
+      "group": "monster",
+      "sourceFile": "085-1.wav",
+      "src": "./public/audio/sfx/files/851-085-1.wav"
+    },
+    "monster.85.flinch": {
+      "key": "monster.85.flinch",
+      "label": "Violet Kek Tal flinch",
+      "id": 852,
+      "group": "monster",
+      "sourceFile": "085-2.wav",
+      "src": "./public/audio/sfx/files/852-085-2.wav"
+    },
+    "monster.85.death": {
+      "key": "monster.85.death",
+      "label": "Violet Kek Tal death",
+      "id": 853,
+      "group": "monster",
+      "sourceFile": "085-3.wav",
+      "src": "./public/audio/sfx/files/853-085-3.wav"
+    },
+    "monster.86.attack": {
+      "key": "monster.86.attack",
+      "label": "Khazard attack",
+      "id": 861,
+      "group": "monster",
+      "sourceFile": "086-1.wav",
+      "src": "./public/audio/sfx/files/861-086-1.wav"
+    },
+    "monster.86.flinch": {
+      "key": "monster.86.flinch",
+      "label": "Khazard flinch",
+      "id": 862,
+      "group": "monster",
+      "sourceFile": "086-2.wav",
+      "src": "./public/audio/sfx/files/862-086-2.wav"
+    },
+    "monster.86.death": {
+      "key": "monster.86.death",
+      "label": "Khazard death",
+      "id": 863,
+      "group": "monster",
+      "sourceFile": "086-3.wav",
+      "src": "./public/audio/sfx/files/863-086-3.wav"
+    },
+    "monster.27.attack": {
+      "key": "monster.27.attack",
+      "label": "Dung attack",
+      "id": 271,
+      "group": "monster",
+      "sourceFile": "027-1.wav",
+      "src": "./public/audio/sfx/files/271-027-1.wav"
+    },
+    "monster.27.flinch": {
+      "key": "monster.27.flinch",
+      "label": "Dung flinch",
+      "id": 272,
+      "group": "monster",
+      "sourceFile": "027-2.wav",
+      "src": "./public/audio/sfx/files/272-027-2.wav"
+    },
+    "monster.27.death": {
+      "key": "monster.27.death",
+      "label": "Dung death",
+      "id": 273,
+      "group": "monster",
+      "sourceFile": "027-3.wav",
+      "src": "./public/audio/sfx/files/273-027-3.wav"
+    },
+    "monster.28.attack": {
+      "key": "monster.28.attack",
+      "label": "Dark attack",
+      "id": 281,
+      "group": "monster",
+      "sourceFile": "028-1.wav",
+      "src": "./public/audio/sfx/files/281-028-1.wav"
+    },
+    "monster.28.flinch": {
+      "key": "monster.28.flinch",
+      "label": "Dark flinch",
+      "id": 282,
+      "group": "monster",
+      "sourceFile": "028-2.wav",
+      "src": "./public/audio/sfx/files/282-028-2.wav"
+    },
+    "monster.28.death": {
+      "key": "monster.28.death",
+      "label": "Dark death",
+      "id": 283,
+      "group": "monster",
+      "sourceFile": "028-3.wav",
+      "src": "./public/audio/sfx/files/283-028-3.wav"
+    },
+    "monster.29.attack": {
+      "key": "monster.29.attack",
+      "label": "Wooma Soldier attack",
+      "id": 291,
+      "group": "monster",
+      "sourceFile": "029-1.wav",
+      "src": "./public/audio/sfx/files/291-029-1.wav"
+    },
+    "monster.29.flinch": {
+      "key": "monster.29.flinch",
+      "label": "Wooma Soldier flinch",
+      "id": 292,
+      "group": "monster",
+      "sourceFile": "029-2.wav",
+      "src": "./public/audio/sfx/files/292-029-2.wav"
+    },
+    "monster.29.death": {
+      "key": "monster.29.death",
+      "label": "Wooma Soldier death",
+      "id": 293,
+      "group": "monster",
+      "sourceFile": "029-3.wav",
+      "src": "./public/audio/sfx/files/293-029-3.wav"
+    },
+    "monster.30.attack": {
+      "key": "monster.30.attack",
+      "label": "Wooma Fighter attack",
+      "id": 301,
+      "group": "monster",
+      "sourceFile": "030-1.wav",
+      "src": "./public/audio/sfx/files/301-030-1.wav"
+    },
+    "monster.30.flinch": {
+      "key": "monster.30.flinch",
+      "label": "Wooma Fighter flinch",
+      "id": 302,
+      "group": "monster",
+      "sourceFile": "030-2.wav",
+      "src": "./public/audio/sfx/files/302-030-2.wav"
+    },
+    "monster.30.death": {
+      "key": "monster.30.death",
+      "label": "Wooma Fighter death",
+      "id": 303,
+      "group": "monster",
+      "sourceFile": "030-3.wav",
+      "src": "./public/audio/sfx/files/303-030-3.wav"
+    },
+    "monster.31.attack": {
+      "key": "monster.31.attack",
+      "label": "Wooma Warrior attack",
+      "id": 311,
+      "group": "monster",
+      "sourceFile": "030-1.wav",
+      "src": "./public/audio/sfx/files/311-030-1.wav"
+    },
+    "monster.31.flinch": {
+      "key": "monster.31.flinch",
+      "label": "Wooma Warrior flinch",
+      "id": 312,
+      "group": "monster",
+      "sourceFile": "030-2.wav",
+      "src": "./public/audio/sfx/files/312-030-2.wav"
+    },
+    "monster.31.death": {
+      "key": "monster.31.death",
+      "label": "Wooma Warrior death",
+      "id": 313,
+      "group": "monster",
+      "sourceFile": "030-3.wav",
+      "src": "./public/audio/sfx/files/313-030-3.wav"
+    },
+    "monster.32.attack": {
+      "key": "monster.32.attack",
+      "label": "Flaming Wooma attack",
+      "id": 321,
+      "group": "monster",
+      "sourceFile": "032-1.wav",
+      "src": "./public/audio/sfx/files/321-032-1.wav"
+    },
+    "monster.32.flinch": {
+      "key": "monster.32.flinch",
+      "label": "Flaming Wooma flinch",
+      "id": 322,
+      "group": "monster",
+      "sourceFile": "032-2.wav",
+      "src": "./public/audio/sfx/files/322-032-2.wav"
+    },
+    "monster.32.death": {
+      "key": "monster.32.death",
+      "label": "Flaming Wooma death",
+      "id": 323,
+      "group": "monster",
+      "sourceFile": "032-3.wav",
+      "src": "./public/audio/sfx/files/323-032-3.wav"
+    },
+    "monster.33.attack": {
+      "key": "monster.33.attack",
+      "label": "Wooma Guardian attack",
+      "id": 331,
+      "group": "monster",
+      "sourceFile": "033-1.wav",
+      "src": "./public/audio/sfx/files/331-033-1.wav"
+    },
+    "monster.33.flinch": {
+      "key": "monster.33.flinch",
+      "label": "Wooma Guardian flinch",
+      "id": 332,
+      "group": "monster",
+      "sourceFile": "033-2.wav",
+      "src": "./public/audio/sfx/files/332-033-2.wav"
+    },
+    "monster.33.death": {
+      "key": "monster.33.death",
+      "label": "Wooma Guardian death",
+      "id": 333,
+      "group": "monster",
+      "sourceFile": "033-3.wav",
+      "src": "./public/audio/sfx/files/333-033-3.wav"
+    },
+    "monster.34.attack": {
+      "key": "monster.34.attack",
+      "label": "Wooma Taurus attack",
+      "id": 341,
+      "group": "monster",
+      "sourceFile": "034-1.wav",
+      "src": "./public/audio/sfx/files/341-034-1.wav"
+    },
+    "monster.34.flinch": {
+      "key": "monster.34.flinch",
+      "label": "Wooma Taurus flinch",
+      "id": 342,
+      "group": "monster",
+      "sourceFile": "034-2.wav",
+      "src": "./public/audio/sfx/files/342-034-2.wav"
+    },
+    "monster.34.death": {
+      "key": "monster.34.death",
+      "label": "Wooma Taurus death",
+      "id": 343,
+      "group": "monster",
+      "sourceFile": "034-3.wav",
+      "src": "./public/audio/sfx/files/343-034-3.wav"
+    },
+    "monster.35.attack": {
+      "key": "monster.35.attack",
+      "label": "Whimpering Bee attack",
+      "id": 351,
+      "group": "monster",
+      "sourceFile": "035-1.wav",
+      "src": "./public/audio/sfx/files/351-035-1.wav"
+    },
+    "monster.35.flinch": {
+      "key": "monster.35.flinch",
+      "label": "Whimpering Bee flinch",
+      "id": 352,
+      "group": "monster",
+      "sourceFile": "035-2.wav",
+      "src": "./public/audio/sfx/files/352-035-2.wav"
+    },
+    "monster.35.death": {
+      "key": "monster.35.death",
+      "label": "Whimpering Bee death",
+      "id": 353,
+      "group": "monster",
+      "sourceFile": "035-3.wav",
+      "src": "./public/audio/sfx/files/353-035-3.wav"
+    },
+    "monster.36.attack": {
+      "key": "monster.36.attack",
+      "label": "Giant Worm attack",
+      "id": 361,
+      "group": "monster",
+      "sourceFile": "036-1.wav",
+      "src": "./public/audio/sfx/files/361-036-1.wav"
+    },
+    "monster.36.flinch": {
+      "key": "monster.36.flinch",
+      "label": "Giant Worm flinch",
+      "id": 362,
+      "group": "monster",
+      "sourceFile": "036-2.wav",
+      "src": "./public/audio/sfx/files/362-036-2.wav"
+    },
+    "monster.36.death": {
+      "key": "monster.36.death",
+      "label": "Giant Worm death",
+      "id": 363,
+      "group": "monster",
+      "sourceFile": "036-3.wav",
+      "src": "./public/audio/sfx/files/363-036-3.wav"
+    },
+    "monster.37.attack": {
+      "key": "monster.37.attack",
+      "label": "Centipede attack",
+      "id": 371,
+      "group": "monster",
+      "sourceFile": "037-1.wav",
+      "src": "./public/audio/sfx/files/371-037-1.wav"
+    },
+    "monster.37.flinch": {
+      "key": "monster.37.flinch",
+      "label": "Centipede flinch",
+      "id": 372,
+      "group": "monster",
+      "sourceFile": "037-2.wav",
+      "src": "./public/audio/sfx/files/372-037-2.wav"
+    },
+    "monster.37.death": {
+      "key": "monster.37.death",
+      "label": "Centipede death",
+      "id": 373,
+      "group": "monster",
+      "sourceFile": "037-3.wav",
+      "src": "./public/audio/sfx/files/373-037-3.wav"
+    },
+    "monster.38.attack": {
+      "key": "monster.38.attack",
+      "label": "Black Maggot attack",
+      "id": 381,
+      "group": "monster",
+      "sourceFile": "038-1.wav",
+      "src": "./public/audio/sfx/files/381-038-1.wav"
+    },
+    "monster.38.flinch": {
+      "key": "monster.38.flinch",
+      "label": "Black Maggot flinch",
+      "id": 382,
+      "group": "monster",
+      "sourceFile": "038-2.wav",
+      "src": "./public/audio/sfx/files/382-038-2.wav"
+    },
+    "monster.38.death": {
+      "key": "monster.38.death",
+      "label": "Black Maggot death",
+      "id": 383,
+      "group": "monster",
+      "sourceFile": "038-3.wav",
+      "src": "./public/audio/sfx/files/383-038-3.wav"
+    },
+    "monster.39.attack": {
+      "key": "monster.39.attack",
+      "label": "Tongs attack",
+      "id": 391,
+      "group": "monster",
+      "sourceFile": "039-1.wav",
+      "src": "./public/audio/sfx/files/391-039-1.wav"
+    },
+    "monster.39.flinch": {
+      "key": "monster.39.flinch",
+      "label": "Tongs flinch",
+      "id": 392,
+      "group": "monster",
+      "sourceFile": "039-2.wav",
+      "src": "./public/audio/sfx/files/392-039-2.wav"
+    },
+    "monster.39.death": {
+      "key": "monster.39.death",
+      "label": "Tongs death",
+      "id": 393,
+      "group": "monster",
+      "sourceFile": "039-3.wav",
+      "src": "./public/audio/sfx/files/393-039-3.wav"
+    },
+    "monster.40.attack": {
+      "key": "monster.40.attack",
+      "label": "Evil Tongs attack",
+      "id": 401,
+      "group": "monster",
+      "sourceFile": "040-1.wav",
+      "src": "./public/audio/sfx/files/401-040-1.wav"
+    },
+    "monster.40.flinch": {
+      "key": "monster.40.flinch",
+      "label": "Evil Tongs flinch",
+      "id": 402,
+      "group": "monster",
+      "sourceFile": "040-2.wav",
+      "src": "./public/audio/sfx/files/402-040-2.wav"
+    },
+    "monster.40.death": {
+      "key": "monster.40.death",
+      "label": "Evil Tongs death",
+      "id": 403,
+      "group": "monster",
+      "sourceFile": "040-3.wav",
+      "src": "./public/audio/sfx/files/403-040-3.wav"
+    },
+    "monster.41.attack": {
+      "key": "monster.41.attack",
+      "label": "Evil Centipede attack",
+      "id": 411,
+      "group": "monster",
+      "sourceFile": "041-1.wav",
+      "src": "./public/audio/sfx/files/411-041-1.wav"
+    },
+    "monster.41.flinch": {
+      "key": "monster.41.flinch",
+      "label": "Evil Centipede flinch",
+      "id": 412,
+      "group": "monster",
+      "sourceFile": "041-2.wav",
+      "src": "./public/audio/sfx/files/412-041-2.wav"
+    },
+    "monster.41.death": {
+      "key": "monster.41.death",
+      "label": "Evil Centipede death",
+      "id": 413,
+      "group": "monster",
+      "sourceFile": "041-3.wav",
+      "src": "./public/audio/sfx/files/413-041-3.wav"
+    },
+    "monster.44.attack": {
+      "key": "monster.44.attack",
+      "label": "Wedge Moth attack",
+      "id": 441,
+      "group": "monster",
+      "sourceFile": "044-1.wav",
+      "src": "./public/audio/sfx/files/441-044-1.wav"
+    },
+    "monster.44.flinch": {
+      "key": "monster.44.flinch",
+      "label": "Wedge Moth flinch",
+      "id": 442,
+      "group": "monster",
+      "sourceFile": "044-2.wav",
+      "src": "./public/audio/sfx/files/442-044-2.wav"
+    },
+    "monster.44.death": {
+      "key": "monster.44.death",
+      "label": "Wedge Moth death",
+      "id": 443,
+      "group": "monster",
+      "sourceFile": "044-3.wav",
+      "src": "./public/audio/sfx/files/443-044-3.wav"
+    },
+    "monster.45.attack": {
+      "key": "monster.45.attack",
+      "label": "Red Boar attack",
+      "id": 451,
+      "group": "monster",
+      "sourceFile": "045-1.wav",
+      "src": "./public/audio/sfx/files/451-045-1.wav"
+    },
+    "monster.45.flinch": {
+      "key": "monster.45.flinch",
+      "label": "Red Boar flinch",
+      "id": 452,
+      "group": "monster",
+      "sourceFile": "045-2.wav",
+      "src": "./public/audio/sfx/files/452-045-2.wav"
+    },
+    "monster.45.death": {
+      "key": "monster.45.death",
+      "label": "Red Boar death",
+      "id": 453,
+      "group": "monster",
+      "sourceFile": "045-3.wav",
+      "src": "./public/audio/sfx/files/453-045-3.wav"
+    },
+    "monster.46.attack": {
+      "key": "monster.46.attack",
+      "label": "Black Boar attack",
+      "id": 461,
+      "group": "monster",
+      "sourceFile": "046-1.wav",
+      "src": "./public/audio/sfx/files/461-046-1.wav"
+    },
+    "monster.46.flinch": {
+      "key": "monster.46.flinch",
+      "label": "Black Boar flinch",
+      "id": 462,
+      "group": "monster",
+      "sourceFile": "046-2.wav",
+      "src": "./public/audio/sfx/files/462-046-2.wav"
+    },
+    "monster.46.death": {
+      "key": "monster.46.death",
+      "label": "Black Boar death",
+      "id": 463,
+      "group": "monster",
+      "sourceFile": "046-3.wav",
+      "src": "./public/audio/sfx/files/463-046-3.wav"
+    },
+    "monster.47.attack": {
+      "key": "monster.47.attack",
+      "label": "Snake Scorpion attack",
+      "id": 471,
+      "group": "monster",
+      "sourceFile": "047-1.wav",
+      "src": "./public/audio/sfx/files/471-047-1.wav"
+    },
+    "monster.47.flinch": {
+      "key": "monster.47.flinch",
+      "label": "Snake Scorpion flinch",
+      "id": 472,
+      "group": "monster",
+      "sourceFile": "047-2.wav",
+      "src": "./public/audio/sfx/files/472-047-2.wav"
+    },
+    "monster.47.death": {
+      "key": "monster.47.death",
+      "label": "Snake Scorpion death",
+      "id": 473,
+      "group": "monster",
+      "sourceFile": "047-3.wav",
+      "src": "./public/audio/sfx/files/473-047-3.wav"
+    },
+    "monster.48.attack": {
+      "key": "monster.48.attack",
+      "label": "White Boar attack",
+      "id": 480,
+      "group": "monster",
+      "sourceFile": "048-0.wav",
+      "src": "./public/audio/sfx/files/480-048-0.wav"
+    },
+    "monster.48.flinch": {
+      "key": "monster.48.flinch",
+      "label": "White Boar flinch",
+      "id": 482,
+      "group": "monster",
+      "sourceFile": "048-2.wav",
+      "src": "./public/audio/sfx/files/482-048-2.wav"
+    },
+    "monster.48.death": {
+      "key": "monster.48.death",
+      "label": "White Boar death",
+      "id": 483,
+      "group": "monster",
+      "sourceFile": "048-3.wav",
+      "src": "./public/audio/sfx/files/483-048-3.wav"
+    },
+    "monster.49.attack": {
+      "key": "monster.49.attack",
+      "label": "Evil Snake attack",
+      "id": 491,
+      "group": "monster",
+      "sourceFile": "047-1.wav",
+      "src": "./public/audio/sfx/files/491-047-1.wav"
+    },
+    "monster.49.flinch": {
+      "key": "monster.49.flinch",
+      "label": "Evil Snake flinch",
+      "id": 492,
+      "group": "monster",
+      "sourceFile": "047-2.wav",
+      "src": "./public/audio/sfx/files/492-047-2.wav"
+    },
+    "monster.49.death": {
+      "key": "monster.49.death",
+      "label": "Evil Snake death",
+      "id": 493,
+      "group": "monster",
+      "sourceFile": "047-3.wav",
+      "src": "./public/audio/sfx/files/493-047-3.wav"
+    },
+    "monster.75.attack": {
+      "key": "monster.75.attack",
+      "label": "King Scorpion attack",
+      "id": 751,
+      "group": "monster",
+      "sourceFile": "075-1.wav",
+      "src": "./public/audio/sfx/files/751-075-1.wav"
+    },
+    "monster.75.flinch": {
+      "key": "monster.75.flinch",
+      "label": "King Scorpion flinch",
+      "id": 752,
+      "group": "monster",
+      "sourceFile": "075-2.wav",
+      "src": "./public/audio/sfx/files/752-075-2.wav"
+    },
+    "monster.75.death": {
+      "key": "monster.75.death",
+      "label": "King Scorpion death",
+      "id": 753,
+      "group": "monster",
+      "sourceFile": "075-3.wav",
+      "src": "./public/audio/sfx/files/753-075-3.wav"
+    },
+    "monster.75.range": {
+      "key": "monster.75.range",
+      "label": "King Scorpion range attack",
+      "id": 755,
+      "group": "monster",
+      "sourceFile": "075-5.wav",
+      "src": "./public/audio/sfx/files/755-075-5.wav"
+    },
+    "monster.63.attack": {
+      "key": "monster.63.attack",
+      "label": "Giant Rat attack",
+      "id": 631,
+      "group": "monster",
+      "sourceFile": "063-1.wav",
+      "src": "./public/audio/sfx/files/631-063-1.wav"
+    },
+    "monster.63.flinch": {
+      "key": "monster.63.flinch",
+      "label": "Giant Rat flinch",
+      "id": 632,
+      "group": "monster",
+      "sourceFile": "063-2.wav",
+      "src": "./public/audio/sfx/files/632-063-2.wav"
+    },
+    "monster.63.death": {
+      "key": "monster.63.death",
+      "label": "Giant Rat death",
+      "id": 633,
+      "group": "monster",
+      "sourceFile": "063-3.wav",
+      "src": "./public/audio/sfx/files/633-063-3.wav"
+    },
+    "monster.64.attack": {
+      "key": "monster.64.attack",
+      "label": "Zuma Archer attack",
+      "id": 641,
+      "group": "monster",
+      "sourceFile": "064-1.wav",
+      "src": "./public/audio/sfx/files/641-064-1.wav"
+    },
+    "monster.64.flinch": {
+      "key": "monster.64.flinch",
+      "label": "Zuma Archer flinch",
+      "id": 642,
+      "group": "monster",
+      "sourceFile": "064-2.wav",
+      "src": "./public/audio/sfx/files/642-064-2.wav"
+    },
+    "monster.64.death": {
+      "key": "monster.64.death",
+      "label": "Zuma Archer death",
+      "id": 643,
+      "group": "monster",
+      "sourceFile": "064-3.wav",
+      "src": "./public/audio/sfx/files/643-064-3.wav"
+    },
+    "monster.65.attack": {
+      "key": "monster.65.attack",
+      "label": "Zuma Statue attack",
+      "id": 651,
+      "group": "monster",
+      "sourceFile": "065-1.wav",
+      "src": "./public/audio/sfx/files/651-065-1.wav"
+    },
+    "monster.65.flinch": {
+      "key": "monster.65.flinch",
+      "label": "Zuma Statue flinch",
+      "id": 652,
+      "group": "monster",
+      "sourceFile": "065-2.wav",
+      "src": "./public/audio/sfx/files/652-065-2.wav"
+    },
+    "monster.65.death": {
+      "key": "monster.65.death",
+      "label": "Zuma Statue death",
+      "id": 653,
+      "group": "monster",
+      "sourceFile": "065-3.wav",
+      "src": "./public/audio/sfx/files/653-065-3.wav"
+    },
+    "monster.66.attack": {
+      "key": "monster.66.attack",
+      "label": "Zuma Guardian attack",
+      "id": 661,
+      "group": "monster",
+      "sourceFile": "066-1.wav",
+      "src": "./public/audio/sfx/files/661-066-1.wav"
+    },
+    "monster.66.flinch": {
+      "key": "monster.66.flinch",
+      "label": "Zuma Guardian flinch",
+      "id": 662,
+      "group": "monster",
+      "sourceFile": "066-2.wav",
+      "src": "./public/audio/sfx/files/662-066-2.wav"
+    },
+    "monster.66.death": {
+      "key": "monster.66.death",
+      "label": "Zuma Guardian death",
+      "id": 663,
+      "group": "monster",
+      "sourceFile": "066-3.wav",
+      "src": "./public/audio/sfx/files/663-066-3.wav"
+    },
+    "monster.67.attack": {
+      "key": "monster.67.attack",
+      "label": "Red Thunder Zuma attack",
+      "id": 671,
+      "group": "monster",
+      "sourceFile": "067-1.wav",
+      "src": "./public/audio/sfx/files/671-067-1.wav"
+    },
+    "monster.67.flinch": {
+      "key": "monster.67.flinch",
+      "label": "Red Thunder Zuma flinch",
+      "id": 672,
+      "group": "monster",
+      "sourceFile": "067-2.wav",
+      "src": "./public/audio/sfx/files/672-067-2.wav"
+    },
+    "monster.67.death": {
+      "key": "monster.67.death",
+      "label": "Red Thunder Zuma death",
+      "id": 673,
+      "group": "monster",
+      "sourceFile": "067-3.wav",
+      "src": "./public/audio/sfx/files/673-067-3.wav"
+    },
+    "monster.68.attack": {
+      "key": "monster.68.attack",
+      "label": "Zuma Taurus attack",
+      "id": 681,
+      "group": "monster",
+      "sourceFile": "068-1.wav",
+      "src": "./public/audio/sfx/files/681-068-1.wav"
+    },
+    "monster.68.flinch": {
+      "key": "monster.68.flinch",
+      "label": "Zuma Taurus flinch",
+      "id": 682,
+      "group": "monster",
+      "sourceFile": "068-2.wav",
+      "src": "./public/audio/sfx/files/682-068-2.wav"
+    },
+    "monster.68.death": {
+      "key": "monster.68.death",
+      "label": "Zuma Taurus death",
+      "id": 683,
+      "group": "monster",
+      "sourceFile": "068-3.wav",
+      "src": "./public/audio/sfx/files/683-068-3.wav"
+    },
+    "monster.87.attack": {
+      "key": "monster.87.attack",
+      "label": "Ronin Ghoul attack",
+      "id": 871,
+      "group": "monster",
+      "sourceFile": "087-1.wav",
+      "src": "./public/audio/sfx/files/871-087-1.wav"
+    },
+    "monster.87.flinch": {
+      "key": "monster.87.flinch",
+      "label": "Ronin Ghoul flinch",
+      "id": 872,
+      "group": "monster",
+      "sourceFile": "087-2.wav",
+      "src": "./public/audio/sfx/files/872-087-2.wav"
+    },
+    "monster.87.death": {
+      "key": "monster.87.death",
+      "label": "Ronin Ghoul death",
+      "id": 873,
+      "group": "monster",
+      "sourceFile": "087-3.wav",
+      "src": "./public/audio/sfx/files/873-087-3.wav"
+    },
+    "monster.88.attack": {
+      "key": "monster.88.attack",
+      "label": "Toxic Ghoul attack",
+      "id": 881,
+      "group": "monster",
+      "sourceFile": "088-1.wav",
+      "src": "./public/audio/sfx/files/881-088-1.wav"
+    },
+    "monster.88.flinch": {
+      "key": "monster.88.flinch",
+      "label": "Toxic Ghoul flinch",
+      "id": 882,
+      "group": "monster",
+      "sourceFile": "088-2.wav",
+      "src": "./public/audio/sfx/files/882-088-2.wav"
+    },
+    "monster.88.death": {
+      "key": "monster.88.death",
+      "label": "Toxic Ghoul death",
+      "id": 883,
+      "group": "monster",
+      "sourceFile": "088-3.wav",
+      "src": "./public/audio/sfx/files/883-088-3.wav"
+    },
+    "monster.89.attack": {
+      "key": "monster.89.attack",
+      "label": "Bone Captain attack",
+      "id": 891,
+      "group": "monster",
+      "sourceFile": "089-1.wav",
+      "src": "./public/audio/sfx/files/891-089-1.wav"
+    },
+    "monster.89.flinch": {
+      "key": "monster.89.flinch",
+      "label": "Bone Captain flinch",
+      "id": 892,
+      "group": "monster",
+      "sourceFile": "089-2.wav",
+      "src": "./public/audio/sfx/files/892-089-2.wav"
+    },
+    "monster.89.death": {
+      "key": "monster.89.death",
+      "label": "Bone Captain death",
+      "id": 893,
+      "group": "monster",
+      "sourceFile": "089-3.wav",
+      "src": "./public/audio/sfx/files/893-089-3.wav"
+    },
+    "monster.90.attack": {
+      "key": "monster.90.attack",
+      "label": "Bone Spearman attack",
+      "id": 901,
+      "group": "monster",
+      "sourceFile": "090-1.wav",
+      "src": "./public/audio/sfx/files/901-090-1.wav"
+    },
+    "monster.90.flinch": {
+      "key": "monster.90.flinch",
+      "label": "Bone Spearman flinch",
+      "id": 902,
+      "group": "monster",
+      "sourceFile": "090-2.wav",
+      "src": "./public/audio/sfx/files/902-090-2.wav"
+    },
+    "monster.90.death": {
+      "key": "monster.90.death",
+      "label": "Bone Spearman death",
+      "id": 903,
+      "group": "monster",
+      "sourceFile": "090-3.wav",
+      "src": "./public/audio/sfx/files/903-090-3.wav"
+    },
+    "monster.91.attack": {
+      "key": "monster.91.attack",
+      "label": "Bone Blademan attack",
+      "id": 911,
+      "group": "monster",
+      "sourceFile": "091-1.wav",
+      "src": "./public/audio/sfx/files/911-091-1.wav"
+    },
+    "monster.91.flinch": {
+      "key": "monster.91.flinch",
+      "label": "Bone Blademan flinch",
+      "id": 912,
+      "group": "monster",
+      "sourceFile": "091-2.wav",
+      "src": "./public/audio/sfx/files/912-091-2.wav"
+    },
+    "monster.91.death": {
+      "key": "monster.91.death",
+      "label": "Bone Blademan death",
+      "id": 913,
+      "group": "monster",
+      "sourceFile": "091-3.wav",
+      "src": "./public/audio/sfx/files/913-091-3.wav"
+    },
+    "monster.92.attack": {
+      "key": "monster.92.attack",
+      "label": "Bone Archer attack",
+      "id": 921,
+      "group": "monster",
+      "sourceFile": "092-1.wav",
+      "src": "./public/audio/sfx/files/921-092-1.wav"
+    },
+    "monster.92.flinch": {
+      "key": "monster.92.flinch",
+      "label": "Bone Archer flinch",
+      "id": 922,
+      "group": "monster",
+      "sourceFile": "092-2.wav",
+      "src": "./public/audio/sfx/files/922-092-2.wav"
+    },
+    "monster.92.death": {
+      "key": "monster.92.death",
+      "label": "Bone Archer death",
+      "id": 923,
+      "group": "monster",
+      "sourceFile": "092-3.wav",
+      "src": "./public/audio/sfx/files/923-092-3.wav"
+    },
+    "monster.93.attack": {
+      "key": "monster.93.attack",
+      "label": "Bone Lord attack",
+      "id": 931,
+      "group": "monster",
+      "sourceFile": "093-1.wav",
+      "src": "./public/audio/sfx/files/931-093-1.wav"
+    },
+    "monster.93.flinch": {
+      "key": "monster.93.flinch",
+      "label": "Bone Lord flinch",
+      "id": 932,
+      "group": "monster",
+      "sourceFile": "093-2.wav",
+      "src": "./public/audio/sfx/files/932-093-2.wav"
+    },
+    "monster.93.death": {
+      "key": "monster.93.death",
+      "label": "Bone Lord death",
+      "id": 933,
+      "group": "monster",
+      "sourceFile": "093-3.wav",
+      "src": "./public/audio/sfx/files/933-093-3.wav"
+    },
+    "monster.93.range": {
+      "key": "monster.93.range",
+      "label": "Bone Lord range attack",
+      "id": 935,
+      "group": "monster",
+      "sourceFile": "093-5.wav",
+      "src": "./public/audio/sfx/files/935-093-5.wav"
+    },
+    "monster.77.attack": {
+      "key": "monster.77.attack",
+      "label": "Dark Devil attack",
+      "id": 771,
+      "group": "monster",
+      "sourceFile": "077-1.wav",
+      "src": "./public/audio/sfx/files/771-077-1.wav"
+    },
+    "monster.77.flinch": {
+      "key": "monster.77.flinch",
+      "label": "Dark Devil flinch",
+      "id": 772,
+      "group": "monster",
+      "sourceFile": "077-2.wav",
+      "src": "./public/audio/sfx/files/772-077-2.wav"
+    },
+    "monster.77.death": {
+      "key": "monster.77.death",
+      "label": "Dark Devil death",
+      "id": 773,
+      "group": "monster",
+      "sourceFile": "077-3.wav",
+      "src": "./public/audio/sfx/files/773-077-3.wav"
+    },
+    "monster.77.range": {
+      "key": "monster.77.range",
+      "label": "Dark Devil range attack",
+      "id": 775,
+      "group": "monster",
+      "sourceFile": "077-5.wav",
+      "src": "./public/audio/sfx/files/775-077-5.wav"
+    },
+    "monster.361.attack": {
+      "key": "monster.361.attack",
+      "label": "Minotaur attack",
+      "id": 941,
+      "group": "monster",
+      "sourceFile": "094-1.wav",
+      "src": "./public/audio/sfx/files/941-094-1.wav"
+    },
+    "monster.361.flinch": {
+      "key": "monster.361.flinch",
+      "label": "Minotaur flinch",
+      "id": 942,
+      "group": "monster",
+      "sourceFile": "094-2.wav",
+      "src": "./public/audio/sfx/files/942-094-2.wav"
+    },
+    "monster.361.death": {
+      "key": "monster.361.death",
+      "label": "Minotaur death",
+      "id": 943,
+      "group": "monster",
+      "sourceFile": "094-3.wav",
+      "src": "./public/audio/sfx/files/943-094-3.wav"
+    },
+    "monster.363.attack": {
+      "key": "monster.363.attack",
+      "label": "Ice Minotaur attack",
+      "id": 951,
+      "group": "monster",
+      "sourceFile": "095-1.wav",
+      "src": "./public/audio/sfx/files/951-095-1.wav"
+    },
+    "monster.363.flinch": {
+      "key": "monster.363.flinch",
+      "label": "Ice Minotaur flinch",
+      "id": 952,
+      "group": "monster",
+      "sourceFile": "095-2.wav",
+      "src": "./public/audio/sfx/files/952-095-2.wav"
+    },
+    "monster.363.death": {
+      "key": "monster.363.death",
+      "label": "Ice Minotaur death",
+      "id": 953,
+      "group": "monster",
+      "sourceFile": "095-3.wav",
+      "src": "./public/audio/sfx/files/953-095-3.wav"
+    },
+    "monster.365.attack": {
+      "key": "monster.365.attack",
+      "label": "Electric Minotaur attack",
+      "id": 961,
+      "group": "monster",
+      "sourceFile": "096-1.wav",
+      "src": "./public/audio/sfx/files/961-096-1.wav"
+    },
+    "monster.365.flinch": {
+      "key": "monster.365.flinch",
+      "label": "Electric Minotaur flinch",
+      "id": 962,
+      "group": "monster",
+      "sourceFile": "096-2.wav",
+      "src": "./public/audio/sfx/files/962-096-2.wav"
+    },
+    "monster.365.death": {
+      "key": "monster.365.death",
+      "label": "Electric Minotaur death",
+      "id": 963,
+      "group": "monster",
+      "sourceFile": "096-3.wav",
+      "src": "./public/audio/sfx/files/963-096-3.wav"
+    },
+    "monster.367.attack": {
+      "key": "monster.367.attack",
+      "label": "Wind Minotaur attack",
+      "id": 971,
+      "group": "monster",
+      "sourceFile": "097-1.wav",
+      "src": "./public/audio/sfx/files/971-097-1.wav"
+    },
+    "monster.367.flinch": {
+      "key": "monster.367.flinch",
+      "label": "Wind Minotaur flinch",
+      "id": 972,
+      "group": "monster",
+      "sourceFile": "097-2.wav",
+      "src": "./public/audio/sfx/files/972-097-2.wav"
+    },
+    "monster.367.death": {
+      "key": "monster.367.death",
+      "label": "Wind Minotaur death",
+      "id": 973,
+      "group": "monster",
+      "sourceFile": "097-3.wav",
+      "src": "./public/audio/sfx/files/973-097-3.wav"
+    },
+    "monster.369.attack": {
+      "key": "monster.369.attack",
+      "label": "Fire Minotaur attack",
+      "id": 981,
+      "group": "monster",
+      "sourceFile": "098-1.wav",
+      "src": "./public/audio/sfx/files/981-098-1.wav"
+    },
+    "monster.369.flinch": {
+      "key": "monster.369.flinch",
+      "label": "Fire Minotaur flinch",
+      "id": 982,
+      "group": "monster",
+      "sourceFile": "098-2.wav",
+      "src": "./public/audio/sfx/files/982-098-2.wav"
+    },
+    "monster.369.death": {
+      "key": "monster.369.death",
+      "label": "Fire Minotaur death",
+      "id": 983,
+      "group": "monster",
+      "sourceFile": "098-3.wav",
+      "src": "./public/audio/sfx/files/983-098-3.wav"
+    },
+    "monster.371.attack": {
+      "key": "monster.371.attack",
+      "label": "Right Guard attack",
+      "id": 991,
+      "group": "monster",
+      "sourceFile": "099-1.wav",
+      "src": "./public/audio/sfx/files/991-099-1.wav"
+    },
+    "monster.371.flinch": {
+      "key": "monster.371.flinch",
+      "label": "Right Guard flinch",
+      "id": 992,
+      "group": "monster",
+      "sourceFile": "099-2.wav",
+      "src": "./public/audio/sfx/files/992-099-2.wav"
+    },
+    "monster.371.death": {
+      "key": "monster.371.death",
+      "label": "Right Guard death",
+      "id": 993,
+      "group": "monster",
+      "sourceFile": "099-3.wav",
+      "src": "./public/audio/sfx/files/993-099-3.wav"
+    },
+    "monster.371.range": {
+      "key": "monster.371.range",
+      "label": "Right Guard range attack",
+      "id": 995,
+      "group": "monster",
+      "sourceFile": "099-5.wav",
+      "src": "./public/audio/sfx/files/995-099-5.wav"
+    },
+    "monster.373.attack": {
+      "key": "monster.373.attack",
+      "label": "Left Guard attack",
+      "id": 1001,
+      "group": "monster",
+      "sourceFile": "100-1.wav",
+      "src": "./public/audio/sfx/files/1001-100-1.wav"
+    },
+    "monster.373.flinch": {
+      "key": "monster.373.flinch",
+      "label": "Left Guard flinch",
+      "id": 1002,
+      "group": "monster",
+      "sourceFile": "100-2.wav",
+      "src": "./public/audio/sfx/files/1002-100-2.wav"
+    },
+    "monster.373.death": {
+      "key": "monster.373.death",
+      "label": "Left Guard death",
+      "id": 1003,
+      "group": "monster",
+      "sourceFile": "100-3.wav",
+      "src": "./public/audio/sfx/files/1003-100-3.wav"
+    },
+    "monster.373.range": {
+      "key": "monster.373.range",
+      "label": "Left Guard range attack",
+      "id": 1005,
+      "group": "monster",
+      "sourceFile": "100-5.wav",
+      "src": "./public/audio/sfx/files/1005-100-5.wav"
+    },
+    "monster.375.attack": {
+      "key": "monster.375.attack",
+      "label": "Minotaur King attack",
+      "id": 1011,
+      "group": "monster",
+      "sourceFile": "101-1.wav",
+      "src": "./public/audio/sfx/files/1011-101-1.wav"
+    },
+    "monster.375.flinch": {
+      "key": "monster.375.flinch",
+      "label": "Minotaur King flinch",
+      "id": 1012,
+      "group": "monster",
+      "sourceFile": "101-2.wav",
+      "src": "./public/audio/sfx/files/1012-101-2.wav"
+    },
+    "monster.375.death": {
+      "key": "monster.375.death",
+      "label": "Minotaur King death",
+      "id": 1013,
+      "group": "monster",
+      "sourceFile": "101-3.wav",
+      "src": "./public/audio/sfx/files/1013-101-3.wav"
+    },
+    "monster.375.range": {
+      "key": "monster.375.range",
+      "label": "Minotaur King range attack",
+      "id": 1015,
+      "group": "monster",
+      "sourceFile": "101-5.wav",
+      "src": "./public/audio/sfx/files/1015-101-5.wav"
+    },
+    "monster.215.attack": {
+      "key": "monster.215.attack",
+      "label": "Hell Slasher attack",
+      "id": 2151,
+      "group": "monster",
+      "sourceFile": "215-1.wav",
+      "src": "./public/audio/sfx/files/2151-215-1.wav"
+    },
+    "monster.215.flinch": {
+      "key": "monster.215.flinch",
+      "label": "Hell Slasher flinch",
+      "id": 2152,
+      "group": "monster",
+      "sourceFile": "215-2.wav",
+      "src": "./public/audio/sfx/files/2152-215-2.wav"
+    },
+    "monster.215.death": {
+      "key": "monster.215.death",
+      "label": "Hell Slasher death",
+      "id": 2153,
+      "group": "monster",
+      "sourceFile": "215-3.wav",
+      "src": "./public/audio/sfx/files/2153-215-3.wav"
+    },
+    "monster.216.attack": {
+      "key": "monster.216.attack",
+      "label": "Hell Pirate attack",
+      "id": 2161,
+      "group": "monster",
+      "sourceFile": "216-1.wav",
+      "src": "./public/audio/sfx/files/2161-216-1.wav"
+    },
+    "monster.216.flinch": {
+      "key": "monster.216.flinch",
+      "label": "Hell Pirate flinch",
+      "id": 2162,
+      "group": "monster",
+      "sourceFile": "216-2.wav",
+      "src": "./public/audio/sfx/files/2162-216-2.wav"
+    },
+    "monster.216.death": {
+      "key": "monster.216.death",
+      "label": "Hell Pirate death",
+      "id": 2163,
+      "group": "monster",
+      "sourceFile": "216-3.wav",
+      "src": "./public/audio/sfx/files/2163-216-3.wav"
+    },
+    "monster.217.attack": {
+      "key": "monster.217.attack",
+      "label": "Hell Cannibal attack",
+      "id": 2171,
+      "group": "monster",
+      "sourceFile": "217-1.wav",
+      "src": "./public/audio/sfx/files/2171-217-1.wav"
+    },
+    "monster.217.flinch": {
+      "key": "monster.217.flinch",
+      "label": "Hell Cannibal flinch",
+      "id": 2172,
+      "group": "monster",
+      "sourceFile": "217-2.wav",
+      "src": "./public/audio/sfx/files/2172-217-2.wav"
+    },
+    "monster.217.death": {
+      "key": "monster.217.death",
+      "label": "Hell Cannibal death",
+      "id": 2173,
+      "group": "monster",
+      "sourceFile": "217-3.wav",
+      "src": "./public/audio/sfx/files/2173-217-3.wav"
+    },
+    "monster.218.attack": {
+      "key": "monster.218.attack",
+      "label": "Hell Keeper attack",
+      "id": 2181,
+      "group": "monster",
+      "sourceFile": "218-1.wav",
+      "src": "./public/audio/sfx/files/2181-218-1.wav"
+    },
+    "monster.218.flinch": {
+      "key": "monster.218.flinch",
+      "label": "Hell Keeper flinch",
+      "id": 2186,
+      "group": "monster",
+      "sourceFile": "218-6.wav",
+      "src": "./public/audio/sfx/files/2186-218-6.wav"
+    },
+    "monster.218.death": {
+      "key": "monster.218.death",
+      "label": "Hell Keeper death",
+      "id": 2183,
+      "group": "monster",
+      "sourceFile": "218-3.wav",
+      "src": "./public/audio/sfx/files/2183-218-3.wav"
+    },
+    "monster.219.attack": {
+      "key": "monster.219.attack",
+      "label": "Hell Bolt attack",
+      "id": 2191,
+      "group": "monster",
+      "sourceFile": "219-1.wav",
+      "src": "./public/audio/sfx/files/2191-219-1.wav"
+    },
+    "monster.219.flinch": {
+      "key": "monster.219.flinch",
+      "label": "Hell Bolt flinch",
+      "id": 2192,
+      "group": "monster",
+      "sourceFile": "219-2.wav",
+      "src": "./public/audio/sfx/files/2192-219-2.wav"
+    },
+    "monster.219.death": {
+      "key": "monster.219.death",
+      "label": "Hell Bolt death",
+      "id": 2193,
+      "group": "monster",
+      "sourceFile": "219-3.wav",
+      "src": "./public/audio/sfx/files/2193-219-3.wav"
+    },
+    "monster.220.attack": {
+      "key": "monster.220.attack",
+      "label": "Witch Doctor attack",
+      "id": 2201,
+      "group": "monster",
+      "sourceFile": "220-1.wav",
+      "src": "./public/audio/sfx/files/2201-220-1.wav"
+    },
+    "monster.220.flinch": {
+      "key": "monster.220.flinch",
+      "label": "Witch Doctor flinch",
+      "id": 2201,
+      "group": "monster",
+      "sourceFile": "220-1.wav",
+      "src": "./public/audio/sfx/files/2201-220-1.wav"
+    },
+    "monster.220.death": {
+      "key": "monster.220.death",
+      "label": "Witch Doctor death",
+      "id": 2203,
+      "group": "monster",
+      "sourceFile": "220-3.wav",
+      "src": "./public/audio/sfx/files/2203-220-3.wav"
+    },
+    "monster.226.attack": {
+      "key": "monster.226.attack",
+      "label": "Demon attack",
+      "id": 2251,
+      "group": "monster",
+      "sourceFile": "225-1.wav",
+      "src": "./public/audio/sfx/files/2251-225-1.wav"
+    },
+    "monster.226.flinch": {
+      "key": "monster.226.flinch",
+      "label": "Demon flinch",
+      "id": 2252,
+      "group": "monster",
+      "sourceFile": "225-2.wav",
+      "src": "./public/audio/sfx/files/2252-225-2.wav"
+    },
+    "monster.226.death": {
+      "key": "monster.226.death",
+      "label": "Demon death",
+      "id": 2253,
+      "group": "monster",
+      "sourceFile": "225-3.wav",
+      "src": "./public/audio/sfx/files/2253-225-3.wav"
+    },
+    "monster.227.attack": {
+      "key": "monster.227.attack",
+      "label": "Demon Warrior attack",
+      "id": 2251,
+      "group": "monster",
+      "sourceFile": "225-1.wav",
+      "src": "./public/audio/sfx/files/2251-225-1.wav"
+    },
+    "monster.227.flinch": {
+      "key": "monster.227.flinch",
+      "label": "Demon Warrior flinch",
+      "id": 2252,
+      "group": "monster",
+      "sourceFile": "225-2.wav",
+      "src": "./public/audio/sfx/files/2252-225-2.wav"
+    },
+    "monster.227.death": {
+      "key": "monster.227.death",
+      "label": "Demon Warrior death",
+      "id": 2253,
+      "group": "monster",
+      "sourceFile": "225-3.wav",
+      "src": "./public/audio/sfx/files/2253-225-3.wav"
+    },
+    "monster.152.attack": {
+      "key": "monster.152.attack",
+      "label": "Ghastly Leecher attack",
+      "id": 1531,
+      "group": "monster",
+      "sourceFile": "153-1.wav",
+      "src": "./public/audio/sfx/files/1531-153-1.wav"
+    },
+    "monster.152.flinch": {
+      "key": "monster.152.flinch",
+      "label": "Ghastly Leecher flinch",
+      "id": 1532,
+      "group": "monster",
+      "sourceFile": "153-2.wav",
+      "src": "./public/audio/sfx/files/1532-153-2.wav"
+    },
+    "monster.152.death": {
+      "key": "monster.152.death",
+      "label": "Ghastly Leecher death",
+      "id": 1533,
+      "group": "monster",
+      "sourceFile": "153-3.wav",
+      "src": "./public/audio/sfx/files/1533-153-3.wav"
+    },
+    "monster.153.attack": {
+      "key": "monster.153.attack",
+      "label": "Cyano Ghast attack",
+      "id": 1531,
+      "group": "monster",
+      "sourceFile": "153-1.wav",
+      "src": "./public/audio/sfx/files/1531-153-1.wav"
+    },
+    "monster.153.flinch": {
+      "key": "monster.153.flinch",
+      "label": "Cyano Ghast flinch",
+      "id": 1532,
+      "group": "monster",
+      "sourceFile": "153-2.wav",
+      "src": "./public/audio/sfx/files/1532-153-2.wav"
+    },
+    "monster.153.death": {
+      "key": "monster.153.death",
+      "label": "Cyano Ghast death",
+      "id": 1533,
+      "group": "monster",
+      "sourceFile": "153-3.wav",
+      "src": "./public/audio/sfx/files/1533-153-3.wav"
+    },
+    "monster.154.attack": {
+      "key": "monster.154.attack",
+      "label": "Mutated Manworm attack",
+      "id": 1541,
+      "group": "monster",
+      "sourceFile": "154-1.wav",
+      "src": "./public/audio/sfx/files/1541-154-1.wav"
+    },
+    "monster.154.flinch": {
+      "key": "monster.154.flinch",
+      "label": "Mutated Manworm flinch",
+      "id": 1542,
+      "group": "monster",
+      "sourceFile": "154-2.wav",
+      "src": "./public/audio/sfx/files/1542-154-2.wav"
+    },
+    "monster.154.death": {
+      "key": "monster.154.death",
+      "label": "Mutated Manworm death",
+      "id": 1543,
+      "group": "monster",
+      "sourceFile": "154-3.wav",
+      "src": "./public/audio/sfx/files/1543-154-3.wav"
+    },
+    "monster.155.attack": {
+      "key": "monster.155.attack",
+      "label": "Crazy Manworm attack",
+      "id": 1551,
+      "group": "monster",
+      "sourceFile": "155-1.wav",
+      "src": "./public/audio/sfx/files/1551-155-1.wav"
+    },
+    "monster.155.flinch": {
+      "key": "monster.155.flinch",
+      "label": "Crazy Manworm flinch",
+      "id": 1552,
+      "group": "monster",
+      "sourceFile": "155-2.wav",
+      "src": "./public/audio/sfx/files/1552-155-2.wav"
+    },
+    "monster.155.death": {
+      "key": "monster.155.death",
+      "label": "Crazy Manworm death",
+      "id": 1553,
+      "group": "monster",
+      "sourceFile": "155-3.wav",
+      "src": "./public/audio/sfx/files/1553-155-3.wav"
+    },
+    "monster.159.attack": {
+      "key": "monster.159.attack",
+      "label": "Dark Devourer attack",
+      "id": 1591,
+      "group": "monster",
+      "sourceFile": "159-1.wav",
+      "src": "./public/audio/sfx/files/1591-159-1.wav"
+    },
+    "monster.159.flinch": {
+      "key": "monster.159.flinch",
+      "label": "Dark Devourer flinch",
+      "id": 1592,
+      "group": "monster",
+      "sourceFile": "159-2.wav",
+      "src": "./public/audio/sfx/files/1592-159-2.wav"
+    },
+    "monster.159.death": {
+      "key": "monster.159.death",
+      "label": "Dark Devourer death",
+      "id": 1593,
+      "group": "monster",
+      "sourceFile": "159-3.wav",
+      "src": "./public/audio/sfx/files/1593-159-3.wav"
+    },
+    "monster.159.range": {
+      "key": "monster.159.range",
+      "label": "Dark Devourer range attack",
+      "id": 1595,
+      "group": "monster",
+      "sourceFile": "159-5.wav",
+      "src": "./public/audio/sfx/files/1595-159-5.wav"
+    },
+    "monster.163.attack": {
+      "key": "monster.163.attack",
+      "label": "Dream Devourer attack",
+      "id": 1631,
+      "group": "monster",
+      "sourceFile": "163-1.wav",
+      "src": "./public/audio/sfx/files/1631-163-1.wav"
+    },
+    "monster.163.flinch": {
+      "key": "monster.163.flinch",
+      "label": "Dream Devourer flinch",
+      "id": 1632,
+      "group": "monster",
+      "sourceFile": "163-2.wav",
+      "src": "./public/audio/sfx/files/1632-163-2.wav"
+    },
+    "monster.163.death": {
+      "key": "monster.163.death",
+      "label": "Dream Devourer death",
+      "id": 1633,
+      "group": "monster",
+      "sourceFile": "163-3.wav",
+      "src": "./public/audio/sfx/files/1633-163-3.wav"
+    },
+    "monster.163.range": {
+      "key": "monster.163.range",
+      "label": "Dream Devourer range attack",
+      "id": 1635,
+      "group": "monster",
+      "sourceFile": "163-5.wav",
+      "src": "./public/audio/sfx/files/1635-163-5.wav"
+    },
+    "map.lightning": {
+      "key": "map.lightning",
+      "label": "Kings Tomb map lightning",
+      "id": 8301,
+      "group": "map-hazards",
+      "sourceFile": "8300-1.wav",
+      "src": "./public/audio/sfx/files/8301-8300-1.wav"
+    },
+    "map.fire": {
+      "key": "map.fire",
+      "label": "Hell Cavern map lava burst",
+      "id": 8302,
+      "group": "map-hazards",
+      "sourceFile": "8300-2.wav",
+      "src": "./public/audio/sfx/files/8302-8300-2.wav"
+    },
+    "ui.button": {
+      "key": "ui.button",
+      "label": "Button",
+      "id": 10103,
+      "group": "ui-items",
+      "sourceFile": "103.wav",
+      "src": "./public/audio/sfx/files/10103-103.wav"
+    },
+    "ui.npc": {
+      "key": "ui.npc",
+      "label": "NPC click",
+      "id": 10103,
+      "group": "ui-items",
+      "sourceFile": "103.wav",
+      "src": "./public/audio/sfx/files/10103-103.wav"
+    },
+    "ui.gold": {
+      "key": "ui.gold",
+      "label": "Gold",
+      "id": 10106,
+      "group": "ui-items",
+      "sourceFile": "106.wav",
+      "src": "./public/audio/sfx/files/10106-106.wav"
+    },
+    "ui.teleport": {
+      "key": "ui.teleport",
+      "label": "Teleport",
+      "id": 10110,
+      "group": "ui-items",
+      "sourceFile": "110.wav",
+      "src": "./public/audio/sfx/files/10110-110.wav"
+    },
+    "item.potion.use": {
+      "key": "item.potion.use",
+      "label": "Use potion",
+      "id": 10107,
+      "group": "ui-items",
+      "sourceFile": "107.wav",
+      "src": "./public/audio/sfx/files/10107-107.wav"
+    },
+    "item.potion.click": {
+      "key": "item.potion.click",
+      "label": "Potion click",
+      "id": 10108,
+      "group": "ui-items",
+      "sourceFile": "108.wav",
+      "src": "./public/audio/sfx/files/10108-108.wav"
+    },
+    "item.equip.weapon": {
+      "key": "item.equip.weapon",
+      "label": "Equip weapon",
+      "id": 10111,
+      "group": "ui-items",
+      "sourceFile": "111.wav",
+      "src": "./public/audio/sfx/files/10111-111.wav"
+    },
+    "item.equip.armour": {
+      "key": "item.equip.armour",
+      "label": "Equip armour",
+      "id": 10112,
+      "group": "ui-items",
+      "sourceFile": "112.wav",
+      "src": "./public/audio/sfx/files/10112-112.wav"
+    },
+    "item.equip.ring": {
+      "key": "item.equip.ring",
+      "label": "Equip ring",
+      "id": 10113,
+      "group": "ui-items",
+      "sourceFile": "113.wav",
+      "src": "./public/audio/sfx/files/10113-113.wav"
+    },
+    "item.equip.bracelet": {
+      "key": "item.equip.bracelet",
+      "label": "Equip bracelet",
+      "id": 10114,
+      "group": "ui-items",
+      "sourceFile": "114.wav",
+      "src": "./public/audio/sfx/files/10114-114.wav"
+    },
+    "item.equip.necklace": {
+      "key": "item.equip.necklace",
+      "label": "Equip necklace",
+      "id": 10115,
+      "group": "ui-items",
+      "sourceFile": "115.wav",
+      "src": "./public/audio/sfx/files/10115-115.wav"
+    },
+    "item.equip.helmet": {
+      "key": "item.equip.helmet",
+      "label": "Equip helmet",
+      "id": 10116,
+      "group": "ui-items",
+      "sourceFile": "116.wav",
+      "src": "./public/audio/sfx/files/10116-116.wav"
+    },
+    "item.equip.boots": {
+      "key": "item.equip.boots",
+      "label": "Equip boots",
+      "id": 10117,
+      "group": "ui-items",
+      "sourceFile": "117.wav",
+      "src": "./public/audio/sfx/files/10117-117.wav"
+    },
+    "item.move": {
+      "key": "item.move",
+      "label": "Move item",
+      "id": 10118,
+      "group": "ui-items",
+      "sourceFile": "118.wav",
+      "src": "./public/audio/sfx/files/10118-118.wav"
+    },
+    "level.up": {
+      "key": "level.up",
+      "label": "Level up",
+      "id": 10156,
+      "group": "ui-items",
+      "sourceFile": "levelup.wav",
+      "src": "./public/audio/sfx/files/10156-levelup.wav"
+    }
+  }
+}

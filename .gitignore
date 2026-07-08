@@ -14,7 +14,6 @@ tools/stats-worker/wrangler.toml
 # Large asset folders — keep local, don't push to GitHub
 new content/
 tile-review/
-public/
 outputs/
 content-audit/
 # Binary media
@@ -29,6 +28,10 @@ content-audit/
 **/*.mp3
 **/*.Lib
 **/*.zip
+# The public/ folder IS committed (game assets, atlases, monster data) so the
+# game, tests, and CI work from a clean clone. Re-include everything under it,
+# overriding the binary-media rules above.
+!public/**
 # Logs
 server.err.log
 server.out.log

@@ -1,0 +1,152 @@
+{
+  "spellId": "SoulShieldImpact",
+  "direction": 2,
+  "blend": "screen",
+  "layers": [
+    {
+      "sheet": "l0.png",
+      "interval": 80,
+      "slotWidth": 336,
+      "slotHeight": 256,
+      "library": "Magic",
+      "baseIndex": 1320,
+      "frames": [
+        {
+          "slot": 0,
+          "srcFrame": 1320,
+          "w": 68,
+          "h": 69,
+          "offsetX": -13,
+          "offsetY": -117,
+          "empty": false
+        },
+        {
+          "slot": 1,
+          "srcFrame": 1321,
+          "w": 92,
+          "h": 101,
+          "offsetX": -18,
+          "offsetY": -118,
+          "empty": false
+        },
+        {
+          "slot": 2,
+          "srcFrame": 1322,
+          "w": 140,
+          "h": 159,
+          "offsetX": -62,
+          "offsetY": -122,
+          "empty": false
+        },
+        {
+          "slot": 3,
+          "srcFrame": 1323,
+          "w": 200,
+          "h": 220,
+          "offsetX": -113,
+          "offsetY": -114,
+          "empty": false
+        },
+        {
+          "slot": 4,
+          "srcFrame": 1324,
+          "w": 312,
+          "h": 248,
+          "offsetX": -131,
+          "offsetY": -110,
+          "empty": false
+        },
+        {
+          "slot": 5,
+          "srcFrame": 1325,
+          "w": 328,
+          "h": 246,
+          "offsetX": -138,
+          "offsetY": -108,
+          "empty": false
+        },
+        {
+          "slot": 6,
+          "srcFrame": 1326,
+          "w": 328,
+          "h": 253,
+          "offsetX": -138,
+          "offsetY": -109,
+          "empty": false
+        },
+        {
+          "slot": 7,
+          "srcFrame": 1327,
+          "w": 328,
+          "h": 253,
+          "offsetX": -135,
+          "offsetY": -108,
+          "empty": false
+        },
+        {
+          "slot": 8,
+          "srcFrame": 1328,
+          "w": 324,
+          "h": 250,
+          "offsetX": -129,
+          "offsetY": -105,
+          "empty": false
+        },
+        {
+          "slot": 9,
+          "srcFrame": 1329,
+          "w": 336,
+          "h": 250,
+          "offsetX": -139,
+          "offsetY": -105,
+          "empty": false
+        },
+        {
+          "slot": 10,
+          "srcFrame": 1330,
+          "w": 328,
+          "h": 254,
+          "offsetX": -137,
+          "offsetY": -109,
+          "empty": false
+        },
+        {
+          "slot": 11,
+          "srcFrame": 1331,
+          "w": 332,
+          "h": 253,
+          "offsetX": -138,
+          "offsetY": -108,
+          "empty": false
+        },
+        {
+          "slot": 12,
+          "srcFrame": 1332,
+          "w": 324,
+          "h": 256,
+          "offsetX": -131,
+          "offsetY": -110,
+          "empty": false
+        },
+        {
+          "slot": 13,
+          "srcFrame": 1333,
+          "w": 328,
+          "h": 253,
+          "offsetX": -135,
+          "offsetY": -108,
+          "empty": false
+        },
+        {
+          "slot": 14,
+          "srcFrame": 1334,
+          "w": 324,
+          "h": 250,
+          "offsetX": -130,
+          "offsetY": -105,
+          "empty": false
+        }
+      ]
+    }
+  ]
+}

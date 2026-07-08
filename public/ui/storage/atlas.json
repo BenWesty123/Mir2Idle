@@ -1,0 +1,123 @@
+{
+    "uiId":  "storage",
+    "source":  "Crystal Client StorageDialog: Libraries.Prguse frame 586, Libraries.Title storage controls, Libraries.Prguse2 close frames 360-362",
+    "layers":  [
+                   {
+                       "sheet":  "background.png",
+                       "library":  "Prguse",
+                       "frame":  586,
+                       "width":  388,
+                       "height":  346,
+                       "offsetX":  0,
+                       "offsetY":  0
+                   },
+                   {
+                       "sheet":  "title.png",
+                       "library":  "Title",
+                       "frame":  0,
+                       "width":  71,
+                       "height":  15,
+                       "offsetX":  0,
+                       "offsetY":  0
+                   },
+                   {
+                       "sheet":  "page-1.png",
+                       "library":  "Title",
+                       "frame":  743,
+                       "width":  72,
+                       "height":  23,
+                       "offsetX":  0,
+                       "offsetY":  0
+                   },
+                   {
+                       "sheet":  "page-1-pressed.png",
+                       "library":  "Title",
+                       "frame":  744,
+                       "width":  72,
+                       "height":  23,
+                       "offsetX":  0,
+                       "offsetY":  0
+                   },
+                   {
+                       "sheet":  "page-2.png",
+                       "library":  "Title",
+                       "frame":  745,
+                       "width":  72,
+                       "height":  23,
+                       "offsetX":  0,
+                       "offsetY":  0
+                   },
+                   {
+                       "sheet":  "page-2-pressed.png",
+                       "library":  "Title",
+                       "frame":  746,
+                       "width":  72,
+                       "height":  23,
+                       "offsetX":  0,
+                       "offsetY":  0
+                   },
+                   {
+                       "sheet":  "rent.png",
+                       "library":  "Title",
+                       "frame":  483,
+                       "width":  48,
+                       "height":  25,
+                       "offsetX":  0,
+                       "offsetY":  0
+                   },
+                   {
+                       "sheet":  "protect.png",
+                       "library":  "Title",
+                       "frame":  113,
+                       "width":  48,
+                       "height":  25,
+                       "offsetX":  0,
+                       "offsetY":  0
+                   },
+                   {
+                       "sheet":  "protect-hover.png",
+                       "library":  "Title",
+                       "frame":  114,
+                       "width":  48,
+                       "height":  25,
+                       "offsetX":  0,
+                       "offsetY":  0
+                   },
+                   {
+                       "sheet":  "protect-pressed.png",
+                       "library":  "Title",
+                       "frame":  115,
+                       "width":  48,
+                       "height":  25,
+                       "offsetX":  0,
+                       "offsetY":  0
+                   },
+                   {
+                       "sheet":  "close.png",
+                       "library":  "Prguse2",
+                       "frame":  360,
+                       "width":  24,
+                       "height":  21,
+                       "offsetX":  0,
+                       "offsetY":  0
+                   },
+                   {
+                       "sheet":  "close-hover.png",
+                       "library":  "Prguse2",
+                       "frame":  361,
+                       "width":  24,
+                       "height":  21,
+                       "offsetX":  0,
+                       "offsetY":  0
+                   },
+                   {
+                       "sheet":  "close-pressed.png",
+                       "library":  "Prguse2",
+                       "frame":  362,
+                       "width":  24,
+                       "height":  21,
+                       "offsetX":  0,
+                       "offsetY":  0
+                   }
+               ]
+}

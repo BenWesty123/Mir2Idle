@@ -1,0 +1,33 @@
+{
+  "uiId": "hotbar",
+  "source": "Crystal Client BeltDialog: Libraries.Prguse frame 1932, item cells at x * 35 + 12, y 3",
+  "layers": [
+    {
+      "sheet": "belt-horizontal.png",
+      "interval": 1000,
+      "slotWidth": 240,
+      "slotHeight": 38,
+      "library": "Prguse",
+      "baseIndex": 1932,
+      "frames": [
+        {
+          "slot": 0,
+          "srcFrame": 1932,
+          "w": 240,
+          "h": 38,
+          "offsetX": 0,
+          "offsetY": 0,
+          "empty": false
+        }
+      ]
+    }
+  ],
+  "slots": [
+    { "slot": 0, "x": 12, "y": 3, "w": 32, "h": 32, "key": "1" },
+    { "slot": 1, "x": 47, "y": 3, "w": 32, "h": 32, "key": "2" },
+    { "slot": 2, "x": 82, "y": 3, "w": 32, "h": 32, "key": "3" },
+    { "slot": 3, "x": 117, "y": 3, "w": 32, "h": 32, "key": "4" },
+    { "slot": 4, "x": 152, "y": 3, "w": 32, "h": 32, "key": "5" },
+    { "slot": 5, "x": 187, "y": 3, "w": 32, "h": 32, "key": "6" }
+  ]
+}

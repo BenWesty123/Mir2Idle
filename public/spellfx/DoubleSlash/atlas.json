@@ -1,0 +1,71 @@
+{
+  "spellId": "DoubleSlash",
+  "direction": 2,
+  "blend": "screen",
+  "layers": [
+    {
+      "sheet": "l0.png",
+      "interval": 100,
+      "slotWidth": 152,
+      "slotHeight": 140,
+      "library": "Magic2",
+      "baseIndex": 2070,
+      "frames": [
+        {
+          "slot": 0,
+          "srcFrame": 2070,
+          "w": 0,
+          "h": 0,
+          "offsetX": 0,
+          "offsetY": 0,
+          "empty": true
+        },
+        {
+          "slot": 1,
+          "srcFrame": 2071,
+          "w": 56,
+          "h": 26,
+          "offsetX": -32,
+          "offsetY": -30,
+          "empty": false
+        },
+        {
+          "slot": 2,
+          "srcFrame": 2072,
+          "w": 104,
+          "h": 40,
+          "offsetX": -23,
+          "offsetY": -49,
+          "empty": false
+        },
+        {
+          "slot": 3,
+          "srcFrame": 2073,
+          "w": 152,
+          "h": 140,
+          "offsetX": -14,
+          "offsetY": -55,
+          "empty": false
+        },
+        {
+          "slot": 4,
+          "srcFrame": 2074,
+          "w": 144,
+          "h": 119,
+          "offsetX": -35,
+          "offsetY": -47,
+          "empty": false
+        },
+        {
+          "slot": 5,
+          "srcFrame": 2075,
+          "w": 0,
+          "h": 0,
+          "offsetX": 0,
+          "offsetY": 0,
+          "empty": true
+        }
+      ]
+    }
+  ]
+}

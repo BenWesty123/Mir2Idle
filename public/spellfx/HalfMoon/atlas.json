@@ -1,0 +1,71 @@
+{
+  "spellId": "HalfMoon",
+  "direction": 2,
+  "blend": "screen",
+  "layers": [
+    {
+      "sheet": "l0.png",
+      "interval": 100,
+      "slotWidth": 204,
+      "slotHeight": 142,
+      "library": "Magic",
+      "baseIndex": 2580,
+      "frames": [
+        {
+          "slot": 0,
+          "srcFrame": 2580,
+          "w": 24,
+          "h": 35,
+          "offsetX": 18,
+          "offsetY": -34,
+          "empty": false
+        },
+        {
+          "slot": 1,
+          "srcFrame": 2581,
+          "w": 60,
+          "h": 69,
+          "offsetX": -42,
+          "offsetY": -75,
+          "empty": false
+        },
+        {
+          "slot": 2,
+          "srcFrame": 2582,
+          "w": 64,
+          "h": 44,
+          "offsetX": -36,
+          "offsetY": -72,
+          "empty": false
+        },
+        {
+          "slot": 3,
+          "srcFrame": 2583,
+          "w": 152,
+          "h": 109,
+          "offsetX": -77,
+          "offsetY": -58,
+          "empty": false
+        },
+        {
+          "slot": 4,
+          "srcFrame": 2584,
+          "w": 168,
+          "h": 92,
+          "offsetX": -48,
+          "offsetY": -54,
+          "empty": false
+        },
+        {
+          "slot": 5,
+          "srcFrame": 2585,
+          "w": 204,
+          "h": 142,
+          "offsetX": -78,
+          "offsetY": -98,
+          "empty": false
+        }
+      ]
+    }
+  ]
+}

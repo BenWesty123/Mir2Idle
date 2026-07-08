@@ -1,0 +1,54 @@
+{
+    "npcId":  "teleporter",
+    "source":  "Crystal MirDB teleport NPCs: Teleport_Jason/Teleport_Harrison/Teleport_Kyle, image 15, NPC/15.Lib",
+    "layers":  [
+                   {
+                       "sheet":  "standing.png",
+                       "interval":  450,
+                       "slotWidth":  84,
+                       "slotHeight":  88,
+                       "library":  "15",
+                       "baseIndex":  0,
+                       "anchor":  "player",
+                       "delayMs":  0,
+                       "frames":  [
+                                      {
+                                          "slot":  0,
+                                          "srcFrame":  0,
+                                          "w":  84,
+                                          "h":  88,
+                                          "offsetX":  6,
+                                          "offsetY":  -48,
+                                          "empty":  false
+                                      },
+                                      {
+                                          "slot":  1,
+                                          "srcFrame":  1,
+                                          "w":  80,
+                                          "h":  88,
+                                          "offsetX":  6,
+                                          "offsetY":  -49,
+                                          "empty":  false
+                                      },
+                                      {
+                                          "slot":  2,
+                                          "srcFrame":  2,
+                                          "w":  80,
+                                          "h":  88,
+                                          "offsetX":  5,
+                                          "offsetY":  -48,
+                                          "empty":  false
+                                      },
+                                      {
+                                          "slot":  3,
+                                          "srcFrame":  3,
+                                          "w":  84,
+                                          "h":  88,
+                                          "offsetX":  6,
+                                          "offsetY":  -48,
+                                          "empty":  false
+                                      }
+                                  ]
+                   }
+               ]
+}

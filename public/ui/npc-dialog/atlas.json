@@ -1,0 +1,27 @@
+{
+    "uiId":  "npc-dialog",
+    "source":  "Crystal Client NPCDialog: Libraries.Prguse frame 995",
+    "layers":  [
+                   {
+                       "sheet":  "background.png",
+                       "interval":  1000,
+                       "slotWidth":  440,
+                       "slotHeight":  224,
+                       "library":  "Prguse",
+                       "baseIndex":  995,
+                       "anchor":  "player",
+                       "delayMs":  0,
+                       "frames":  [
+                                      {
+                                          "slot":  0,
+                                          "srcFrame":  995,
+                                          "w":  440,
+                                          "h":  224,
+                                          "offsetX":  0,
+                                          "offsetY":  0,
+                                          "empty":  false
+                                      }
+                                  ]
+                   }
+               ]
+}

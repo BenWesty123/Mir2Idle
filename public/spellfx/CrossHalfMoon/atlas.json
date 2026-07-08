@@ -1,0 +1,71 @@
+{
+  "spellId": "CrossHalfMoon",
+  "direction": 2,
+  "blend": "screen",
+  "layers": [
+    {
+      "sheet": "l0.png",
+      "interval": 100,
+      "slotWidth": 264,
+      "slotHeight": 185,
+      "library": "Magic2",
+      "baseIndex": 60,
+      "frames": [
+        {
+          "slot": 0,
+          "srcFrame": 60,
+          "w": 64,
+          "h": 68,
+          "offsetX": 4,
+          "offsetY": -48,
+          "empty": false
+        },
+        {
+          "slot": 1,
+          "srcFrame": 61,
+          "w": 156,
+          "h": 121,
+          "offsetX": -86,
+          "offsetY": -102,
+          "empty": false
+        },
+        {
+          "slot": 2,
+          "srcFrame": 62,
+          "w": 120,
+          "h": 146,
+          "offsetX": -57,
+          "offsetY": -91,
+          "empty": false
+        },
+        {
+          "slot": 3,
+          "srcFrame": 63,
+          "w": 208,
+          "h": 124,
+          "offsetX": -50,
+          "offsetY": -80,
+          "empty": false
+        },
+        {
+          "slot": 4,
+          "srcFrame": 64,
+          "w": 264,
+          "h": 185,
+          "offsetX": -53,
+          "offsetY": -111,
+          "empty": false
+        },
+        {
+          "slot": 5,
+          "srcFrame": 65,
+          "w": 128,
+          "h": 62,
+          "offsetX": -4,
+          "offsetY": -44,
+          "empty": false
+        }
+      ]
+    }
+  ]
+}

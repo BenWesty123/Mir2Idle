@@ -1,0 +1,870 @@
+{
+    "30":  {
+               "src":  "./public/ui/character/stateitem-30.png",
+               "x":  75,
+               "y":  186,
+               "w":  28,
+               "h":  57
+           },
+    "31":  {
+               "src":  "./public/ui/character/stateitem-31.png",
+               "x":  73,
+               "y":  179,
+               "w":  32,
+               "h":  67
+           },
+    "32":  {
+               "src":  "./public/ui/character/stateitem-32.png",
+               "x":  65,
+               "y":  185,
+               "w":  44,
+               "h":  63
+           },
+    "33":  {
+               "src":  "./public/ui/character/stateitem-33.png",
+               "x":  71,
+               "y":  163,
+               "w":  36,
+               "h":  84
+           },
+    "34":  {
+               "src":  "./public/ui/character/stateitem-34.png",
+               "x":  59,
+               "y":  149,
+               "w":  48,
+               "h":  100
+           },
+    "35":  {
+               "src":  "./public/ui/character/stateitem-35.png",
+               "x":  84,
+               "y":  200,
+               "w":  20,
+               "h":  44
+           },
+    "36":  {
+               "src":  "./public/ui/character/stateitem-36.png",
+               "x":  71,
+               "y":  172,
+               "w":  36,
+               "h":  74
+           },
+    "37":  {
+               "src":  "./public/ui/character/stateitem-37.png",
+               "x":  61,
+               "y":  148,
+               "w":  48,
+               "h":  101
+           },
+    "38":  {
+               "src":  "./public/ui/character/stateitem-38.png",
+               "x":  63,
+               "y":  154,
+               "w":  44,
+               "h":  89
+           },
+    "39":  {
+               "src":  "./public/ui/character/stateitem-39.png",
+               "x":  56,
+               "y":  154,
+               "w":  76,
+               "h":  144
+           },
+    "40":  {
+               "src":  "./public/ui/character/stateitem-40.png",
+               "x":  54,
+               "y":  175,
+               "w":  56,
+               "h":  77
+           },
+    "41":  {
+               "src":  "./public/ui/character/stateitem-41.png",
+               "x":  53,
+               "y":  159,
+               "w":  60,
+               "h":  101
+           },
+    "42":  {
+               "src":  "./public/ui/character/stateitem-42.png",
+               "x":  69,
+               "y":  173,
+               "w":  56,
+               "h":  118
+           },
+    "43":  {
+               "src":  "./public/ui/character/stateitem-43.png",
+               "x":  73,
+               "y":  161,
+               "w":  40,
+               "h":  94
+           },
+    "44":  {
+               "src":  "./public/ui/character/stateitem-44.png",
+               "x":  70,
+               "y":  161,
+               "w":  36,
+               "h":  88
+           },
+    "45":  {
+               "src":  "./public/ui/character/stateitem-45.png",
+               "x":  62,
+               "y":  153,
+               "w":  48,
+               "h":  93
+           },
+    "46":  {
+               "src":  "./public/ui/character/stateitem-46.png",
+               "x":  75,
+               "y":  158,
+               "w":  36,
+               "h":  89
+           },
+    "47":  {
+               "src":  "./public/ui/character/stateitem-47.png",
+               "x":  65,
+               "y":  153,
+               "w":  44,
+               "h":  96
+           },
+    "48":  {
+               "src":  "./public/ui/character/stateitem-48.png",
+               "x":  59,
+               "y":  146,
+               "w":  52,
+               "h":  103
+           },
+    "49":  {
+               "src":  "./public/ui/character/stateitem-49.png",
+               "x":  62,
+               "y":  144,
+               "w":  72,
+               "h":  170
+           },
+    "50":  {
+               "src":  "./public/ui/character/stateitem-50.png",
+               "x":  50,
+               "y":  179,
+               "w":  76,
+               "h":  108
+           },
+    "51":  {
+               "src":  "./public/ui/character/stateitem-51.png",
+               "x":  84,
+               "y":  199,
+               "w":  20,
+               "h":  44
+           },
+    "52":  {
+               "src":  "./public/ui/character/stateitem-52.png",
+               "x":  66,
+               "y":  160,
+               "w":  64,
+               "h":  153
+           },
+    "53":  {
+               "src":  "./public/ui/character/stateitem-53.png",
+               "x":  62,
+               "y":  136,
+               "w":  44,
+               "h":  112
+           },
+    "54":  {
+               "src":  "./public/ui/character/stateitem-54.png",
+               "x":  57,
+               "y":  139,
+               "w":  52,
+               "h":  115
+           },
+    "55":  {
+               "src":  "./public/ui/character/stateitem-55.png",
+               "x":  68,
+               "y":  135,
+               "w":  44,
+               "h":  145
+           },
+    "56":  {
+               "src":  "./public/ui/character/stateitem-56.png",
+               "x":  76,
+               "y":  137,
+               "w":  32,
+               "h":  117
+           },
+    "57":  {
+               "src":  "./public/ui/character/stateitem-57.png",
+               "x":  53,
+               "y":  132,
+               "w":  52,
+               "h":  116
+           },
+    "58":  {
+               "src":  "./public/ui/character/stateitem-58.png",
+               "x":  56,
+               "y":  151,
+               "w":  64,
+               "h":  161
+           },
+    "59":  {
+               "src":  "./public/ui/character/stateitem-59.png",
+               "x":  58,
+               "y":  152,
+               "w":  68,
+               "h":  168
+           },
+    "60":  {
+               "src":  "./public/ui/character/stateitem-60.png",
+               "x":  92,
+               "y":  194,
+               "w":  80,
+               "h":  128
+           },
+    "61":  {
+               "src":  "./public/ui/character/stateitem-61.png",
+               "x":  92,
+               "y":  193,
+               "w":  84,
+               "h":  130
+           },
+    "62":  {
+               "src":  "./public/ui/character/stateitem-62.png",
+               "x":  91,
+               "y":  188,
+               "w":  84,
+               "h":  140
+           },
+    "63":  {
+               "src":  "./public/ui/character/stateitem-63.png",
+               "x":  92,
+               "y":  191,
+               "w":  80,
+               "h":  133
+           },
+    "64":  {
+               "src":  "./public/ui/character/stateitem-64.png",
+               "x":  92,
+               "y":  195,
+               "w":  84,
+               "h":  129
+           },
+    "66":  {
+               "src":  "./public/ui/character/stateitem-66.png",
+               "x":  59,
+               "y":  132,
+               "w":  52,
+               "h":  124
+           },
+    "67":  {
+               "src":  "./public/ui/character/stateitem-67.png",
+               "x":  63,
+               "y":  184,
+               "w":  48,
+               "h":  64
+           },
+    "68":  {
+               "src":  "./public/ui/character/stateitem-68.png",
+               "x":  80,
+               "y":  191,
+               "w":  28,
+               "h":  55
+           },
+    "69":  {
+               "src":  "./public/ui/character/stateitem-69.png",
+               "x":  63,
+               "y":  131,
+               "w":  48,
+               "h":  147
+           },
+    "70":  {
+               "src":  "./public/ui/character/stateitem-70.png",
+               "x":  66,
+               "y":  153,
+               "w":  60,
+               "h":  159
+           },
+    "71":  {
+               "src":  "./public/ui/character/stateitem-71.png",
+               "x":  67,
+               "y":  185,
+               "w":  44,
+               "h":  81
+           },
+    "72":  {
+               "src":  "./public/ui/character/stateitem-72.png",
+               "x":  51,
+               "y":  131,
+               "w":  68,
+               "h":  131
+           },
+    "73":  {
+               "src":  "./public/ui/character/stateitem-73.png",
+               "x":  53,
+               "y":  131,
+               "w":  60,
+               "h":  123
+           },
+    "74":  {
+               "src":  "./public/ui/character/stateitem-74.png",
+               "x":  52,
+               "y":  131,
+               "w":  60,
+               "h":  124
+           },
+    "75":  {
+               "src":  "./public/ui/character/stateitem-75.png",
+               "x":  59,
+               "y":  99,
+               "w":  60,
+               "h":  173
+           },
+    "76":  {
+               "src":  "./public/ui/character/stateitem-76.png",
+               "x":  60,
+               "y":  101,
+               "w":  44,
+               "h":  159
+           },
+    "77":  {
+               "src":  "./public/ui/character/stateitem-77.png",
+               "x":  46,
+               "y":  99,
+               "w":  84,
+               "h":  232
+           },
+    "82":  {
+               "src":  "./public/ui/character/stateitem-82.png",
+               "x":  93,
+               "y":  189,
+               "w":  80,
+               "h":  133
+           },
+    "83":  {
+               "src":  "./public/ui/character/stateitem-83.png",
+               "x":  93,
+               "y":  189,
+               "w":  84,
+               "h":  133
+           },
+    "84":  {
+               "src":  "./public/ui/character/stateitem-84.png",
+               "x":  93,
+               "y":  191,
+               "w":  84,
+               "h":  130
+           },
+    "87":  {
+               "src":  "./public/ui/character/stateitem-87.png",
+               "x":  90,
+               "y":  178,
+               "w":  84,
+               "h":  146
+           },
+    "100":  {
+                "src":  "./public/ui/character/stateitem-100.png",
+                "x":  130,
+                "y":  155,
+                "w":  16,
+                "h":  40
+            },
+    "102":  {
+                "src":  "./public/ui/character/stateitem-102.png",
+                "x":  127,
+                "y":  164,
+                "w":  24,
+                "h":  32
+            },
+    "103":  {
+                "src":  "./public/ui/character/stateitem-103.png",
+                "x":  116,
+                "y":  168,
+                "w":  44,
+                "h":  24
+            },
+    "104":  {
+                "src":  "./public/ui/character/stateitem-104.png",
+                "x":  127,
+                "y":  165,
+                "w":  24,
+                "h":  28
+            },
+    "105":  {
+                "src":  "./public/ui/character/stateitem-105.png",
+                "x":  127,
+                "y":  172,
+                "w":  24,
+                "h":  14
+            },
+    "106":  {
+                "src":  "./public/ui/character/stateitem-106.png",
+                "x":  129,
+                "y":  171,
+                "w":  20,
+                "h":  26
+            },
+    "107":  {
+                "src":  "./public/ui/character/stateitem-107.png",
+                "x":  129,
+                "y":  166,
+                "w":  20,
+                "h":  23
+            },
+    "108":  {
+                "src":  "./public/ui/character/stateitem-108.png",
+                "x":  129,
+                "y":  167,
+                "w":  20,
+                "h":  23
+            },
+    "344":  {
+                "src":  "./public/ui/character/stateitem-344.png",
+                "x":  129,
+                "y":  174,
+                "w":  16,
+                "h":  22
+            },
+    "534":  {
+                "src":  "./public/ui/character/stateitem-534.png",
+                "x":  127,
+                "y":  165,
+                "w":  24,
+                "h":  22
+            },
+    "590":  {
+                "src":  "./public/ui/character/stateitem-590.png",
+                "x":  91,
+                "y":  175,
+                "w":  88,
+                "h":  153
+            },
+    "591":  {
+                "src":  "./public/ui/character/stateitem-591.png",
+                "x":  85,
+                "y":  194,
+                "w":  100,
+                "h":  129
+            },
+    "592":  {
+                "src":  "./public/ui/character/stateitem-592.png",
+                "x":  91,
+                "y":  194,
+                "w":  92,
+                "h":  127
+            },
+    "595":  {
+                "src":  "./public/ui/character/stateitem-595.png",
+                "x":  90,
+                "y":  180,
+                "w":  84,
+                "h":  145
+            },
+    "596":  {
+                "src":  "./public/ui/character/stateitem-596.png",
+                "x":  92,
+                "y":  184,
+                "w":  84,
+                "h":  140
+            },
+    "600":  {
+                "src":  "./public/ui/character/stateitem-600.png",
+                "x":  93,
+                "y":  164,
+                "w":  88,
+                "h":  158
+            },
+    "601":  {
+                "src":  "./public/ui/character/stateitem-601.png",
+                "x":  93,
+                "y":  190,
+                "w":  88,
+                "h":  132
+            },
+    "602":  {
+                "src":  "./public/ui/character/stateitem-602.png",
+                "x":  93,
+                "y":  190,
+                "w":  84,
+                "h":  132
+            },
+    "605":  {
+                "src":  "./public/ui/character/stateitem-605.png",
+                "x":  94,
+                "y":  178,
+                "w":  80,
+                "h":  145
+            },
+    "606":  {
+                "src":  "./public/ui/character/stateitem-606.png",
+                "x":  94,
+                "y":  189,
+                "w":  80,
+                "h":  133
+            },
+    "740":  {
+                "src":  "./public/ui/character/stateitem-740.png",
+                "x":  93,
+                "y":  194,
+                "w":  84,
+                "h":  128
+            },
+    "742":  {
+                "src":  "./public/ui/character/stateitem-742.png",
+                "x":  70,
+                "y":  163,
+                "w":  40,
+                "h":  85
+            },
+    "743":  {
+                "src":  "./public/ui/character/stateitem-743.png",
+                "x":  129,
+                "y":  170,
+                "w":  20,
+                "h":  25
+            },
+    "828":  {
+                "src":  "./public/ui/character/stateitem-828.png",
+                "x":  52,
+                "y":  129,
+                "w":  60,
+                "h":  124
+            },
+    "960":  {
+                "src":  "./public/ui/character/stateitem-960.png",
+                "x":  91,
+                "y":  170,
+                "w":  84,
+                "h":  155
+            },
+    "961":  {
+                "src":  "./public/ui/character/stateitem-961.png",
+                "x":  91,
+                "y":  170,
+                "w":  84,
+                "h":  155
+            },
+    "962":  {
+                "src":  "./public/ui/character/stateitem-962.png",
+                "x":  91,
+                "y":  170,
+                "w":  84,
+                "h":  155
+            },
+    "970":  {
+                "src":  "./public/ui/character/stateitem-970.png",
+                "x":  94,
+                "y":  175,
+                "w":  80,
+                "h":  148
+            },
+    "971":  {
+                "src":  "./public/ui/character/stateitem-971.png",
+                "x":  94,
+                "y":  175,
+                "w":  80,
+                "h":  148
+            },
+    "972":  {
+                "src":  "./public/ui/character/stateitem-972.png",
+                "x":  94,
+                "y":  175,
+                "w":  80,
+                "h":  148
+            },
+    "1030":  {
+                 "src":  "./public/ui/character/stateitem-1030.png",
+                 "x":  92,
+                 "y":  177,
+                 "w":  88,
+                 "h":  147
+             },
+    "1031":  {
+                 "src":  "./public/ui/character/stateitem-1031.png",
+                 "x":  92,
+                 "y":  177,
+                 "w":  84,
+                 "h":  145
+             },
+    "1032":  {
+                 "src":  "./public/ui/character/stateitem-1032.png",
+                 "x":  92,
+                 "y":  177,
+                 "w":  88,
+                 "h":  145
+             },
+    "1033":  {
+                 "src":  "./public/ui/character/stateitem-1033.png",
+                 "x":  90,
+                 "y":  176,
+                 "w":  84,
+                 "h":  149
+             },
+    "1040":  {
+                 "src":  "./public/ui/character/stateitem-1040.png",
+                 "x":  94,
+                 "y":  175,
+                 "w":  80,
+                 "h":  149
+             },
+    "1041":  {
+                 "src":  "./public/ui/character/stateitem-1041.png",
+                 "x":  94,
+                 "y":  175,
+                 "w":  88,
+                 "h":  148
+             },
+    "1042":  {
+                 "src":  "./public/ui/character/stateitem-1042.png",
+                 "x":  94,
+                 "y":  175,
+                 "w":  84,
+                 "h":  149
+             },
+    "1043":  {
+                 "src":  "./public/ui/character/stateitem-1043.png",
+                 "x":  94,
+                 "y":  172,
+                 "w":  76,
+                 "h":  151
+             },
+    "1150":  {
+                 "src":  "./public/ui/character/stateitem-1150.png",
+                 "x":  46,
+                 "y":  113,
+                 "w":  72,
+                 "h":  165
+             },
+    "1151":  {
+                 "src":  "./public/ui/character/stateitem-1151.png",
+                 "x":  52,
+                 "y":  144,
+                 "w":  76,
+                 "h":  183
+             },
+    "1152":  {
+                 "src":  "./public/ui/character/stateitem-1152.png",
+                 "x":  64,
+                 "y":  186,
+                 "w":  56,
+                 "h":  75
+             },
+    "1153":  {
+                 "src":  "./public/ui/character/stateitem-1153.png",
+                 "x":  42,
+                 "y":  93,
+                 "w":  160,
+                 "h":  190
+             },
+    "1154":  {
+                 "src":  "./public/ui/character/stateitem-1154.png",
+                 "x":  59,
+                 "y":  129,
+                 "w":  52,
+                 "h":  124
+             },
+    "1155":  {
+                 "src":  "./public/ui/character/stateitem-1155.png",
+                 "x":  75,
+                 "y":  138,
+                 "w":  36,
+                 "h":  117
+             },
+    "1156":  {
+                 "src":  "./public/ui/character/stateitem-1156.png",
+                 "x":  39,
+                 "y":  162,
+                 "w":  96,
+                 "h":  85
+             },
+    "2240":  {
+                 "src":  "./public/ui/character/stateitem-2240.png",
+                 "x":  131,
+                 "y":  173,
+                 "w":  16,
+                 "h":  13
+             },
+    "2253":  {
+                 "src":  "./public/ui/character/stateitem-2253.png",
+                 "x":  51,
+                 "y":  137,
+                 "w":  160,
+                 "h":  190
+             },
+    "2254":  {
+                 "src":  "./public/ui/character/stateitem-2254.png",
+                 "x":  51,
+                 "y":  139,
+                 "w":  160,
+                 "h":  190
+             },
+    "2255":  {
+                 "src":  "./public/ui/character/stateitem-2255.png",
+                 "x":  52,
+                 "y":  138,
+                 "w":  160,
+                 "h":  190
+             },
+    "2256":  {
+                 "src":  "./public/ui/character/stateitem-2256.png",
+                 "x":  51,
+                 "y":  137,
+                 "w":  160,
+                 "h":  190
+             },
+    "2272":  {
+                 "src":  "./public/ui/character/stateitem-2272.png",
+                 "x":  46,
+                 "y":  177,
+                 "w":  164,
+                 "h":  148
+             },
+    "2276":  {
+                 "src":  "./public/ui/character/stateitem-2276.png",
+                 "x":  50,
+                 "y":  145,
+                 "w":  160,
+                 "h":  190
+             },
+    "2277":  {
+                 "src":  "./public/ui/character/stateitem-2277.png",
+                 "x":  92,
+                 "y":  167,
+                 "w":  88,
+                 "h":  156
+             },
+    "2282":  {
+                 "src":  "./public/ui/character/stateitem-2282.png",
+                 "x":  94,
+                 "y":  181,
+                 "w":  76,
+                 "h":  142
+             },
+    "2286":  {
+                 "src":  "./public/ui/character/stateitem-2286.png",
+                 "x":  51,
+                 "y":  143,
+                 "w":  160,
+                 "h":  190
+             },
+    "2287":  {
+                 "src":  "./public/ui/character/stateitem-2287.png",
+                 "x":  94,
+                 "y":  164,
+                 "w":  80,
+                 "h":  157
+             },
+    "2440":  {
+                 "src":  "./public/ui/character/stateitem-2440.png",
+                 "x":  19,
+                 "y":  97,
+                 "w":  100,
+                 "h":  171
+             },
+    "3330":  {
+                 "src":  "./public/ui/character/stateitem-3330.png",
+                 "x":  51,
+                 "y":  139,
+                 "w":  52,
+                 "h":  109
+             },
+    "3331":  {
+                 "src":  "./public/ui/character/stateitem-3331.png",
+                 "x":  57,
+                 "y":  143,
+                 "w":  88,
+                 "h":  185
+             },
+    "3332":  {
+                 "src":  "./public/ui/character/stateitem-3332.png",
+                 "x":  69,
+                 "y":  143,
+                 "w":  36,
+                 "h":  116
+             },
+    "3398":  {
+                 "src":  "./public/ui/character/stateitem-3398.png",
+                 "x":  76,
+                 "y":  180,
+                 "w":  48,
+                 "h":  99
+             },
+    "3399":  {
+                 "src":  "./public/ui/character/stateitem-3399.png",
+                 "x":  68,
+                 "y":  181,
+                 "w":  52,
+                 "h":  103
+             },
+    "3400":  {
+                 "src":  "./public/ui/character/stateitem-3400.png",
+                 "x":  70,
+                 "y":  182,
+                 "w":  52,
+                 "h":  100
+             },
+    "3401":  {
+                 "src":  "./public/ui/character/stateitem-3401.png",
+                 "x":  76,
+                 "y":  181,
+                 "w":  48,
+                 "h":  97
+             },
+    "3422":  {
+                 "src":  "./public/ui/character/stateitem-3422.png",
+                 "x":  90,
+                 "y":  179,
+                 "w":  84,
+                 "h":  145
+             },
+    "3432":  {
+                 "src":  "./public/ui/character/stateitem-3432.png",
+                 "x":  94,
+                 "y":  176,
+                 "w":  80,
+                 "h":  147
+             },
+    "3880":  {
+                 "src":  "./public/ui/character/stateitem-3880.png",
+                 "x":  56,
+                 "y":  92,
+                 "w":  60,
+                 "h":  173
+             },
+    "3881":  {
+                 "src":  "./public/ui/character/stateitem-3881.png",
+                 "x":  33,
+                 "y":  109,
+                 "w":  104,
+                 "h":  198
+             },
+    "3882":  {
+                 "src":  "./public/ui/character/stateitem-3882.png",
+                 "x":  73,
+                 "y":  105,
+                 "w":  40,
+                 "h":  145
+             },
+    "5050":  {
+                 "src":  "./public/ui/character/stateitem-5050.png",
+                 "x":  67,
+                 "y":  140,
+                 "w":  144,
+                 "h":  186
+             },
+    "5060":  {
+                 "src":  "./public/ui/character/stateitem-5060.png",
+                 "x":  70,
+                 "y":  139,
+                 "w":  140,
+                 "h":  183
+             },
+    "5131":  {
+                 "src":  "./public/ui/character/stateitem-5131.png",
+                 "x":  44,
+                 "y":  103,
+                 "w":  64,
+                 "h":  146
+             },
+    "597":  {
+                "src":  "./public/ui/character/stateitem-597.png",
+                "x":  79,
+                "y":  177,
+                "w":  124,
+                "h":  144
+            }
+}

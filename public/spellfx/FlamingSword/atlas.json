@@ -1,0 +1,71 @@
+{
+  "spellId": "FlamingSword",
+  "direction": 2,
+  "blend": "screen",
+  "layers": [
+    {
+      "sheet": "l0.png",
+      "interval": 100,
+      "slotWidth": 456,
+      "slotHeight": 263,
+      "library": "Magic",
+      "baseIndex": 3500,
+      "frames": [
+        {
+          "slot": 0,
+          "srcFrame": 3500,
+          "w": 16,
+          "h": 27,
+          "offsetX": 23,
+          "offsetY": -44,
+          "empty": false
+        },
+        {
+          "slot": 1,
+          "srcFrame": 3501,
+          "w": 316,
+          "h": 180,
+          "offsetX": -155,
+          "offsetY": -101,
+          "empty": false
+        },
+        {
+          "slot": 2,
+          "srcFrame": 3502,
+          "w": 456,
+          "h": 263,
+          "offsetX": -115,
+          "offsetY": -111,
+          "empty": false
+        },
+        {
+          "slot": 3,
+          "srcFrame": 3503,
+          "w": 180,
+          "h": 161,
+          "offsetX": -115,
+          "offsetY": -117,
+          "empty": false
+        },
+        {
+          "slot": 4,
+          "srcFrame": 3504,
+          "w": 328,
+          "h": 170,
+          "offsetX": -124,
+          "offsetY": -157,
+          "empty": false
+        },
+        {
+          "slot": 5,
+          "srcFrame": 3505,
+          "w": 432,
+          "h": 255,
+          "offsetX": -155,
+          "offsetY": -201,
+          "empty": false
+        }
+      ]
+    }
+  ]
+}

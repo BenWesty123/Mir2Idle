@@ -1,0 +1,49 @@
+{
+  "spellId": "SoulShield",
+  "direction": 2,
+  "blend": "screen",
+  "layers": [],
+  "projectile": {
+    "sheet": "p0.png",
+    "interval": 30,
+    "slotWidth": 24,
+    "slotHeight": 17,
+    "library": "Magic",
+    "baseIndex": 1200,
+    "moveDurationMs": 400,
+    "delayMs": 0,
+    "startOffsetX": 8,
+    "startOffsetY": -42,
+    "endOffsetX": 24,
+    "endOffsetY": -36,
+    "frames": [
+      {
+        "slot": 0,
+        "srcFrame": 1200,
+        "w": 24,
+        "h": 15,
+        "offsetX": 12,
+        "offsetY": -28,
+        "empty": false
+      },
+      {
+        "slot": 1,
+        "srcFrame": 1201,
+        "w": 24,
+        "h": 16,
+        "offsetX": 12,
+        "offsetY": -28,
+        "empty": false
+      },
+      {
+        "slot": 2,
+        "srcFrame": 1202,
+        "w": 24,
+        "h": 17,
+        "offsetX": 12,
+        "offsetY": -30,
+        "empty": false
+      }
+    ]
+  }
+}

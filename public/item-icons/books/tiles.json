@@ -1,0 +1,16 @@
+{
+    "frameCount":  1,
+    "exported":  1,
+    "source":  "Items.Lib",
+    "tiles":  [
+                  {
+                      "frame":  3640,
+                      "file":  "images/frame_003640.png",
+                      "width":  32,
+                      "height":  23,
+                      "offsetX":  3,
+                      "offsetY":  5
+                  }
+              ],
+    "startFrame":  3640
+}

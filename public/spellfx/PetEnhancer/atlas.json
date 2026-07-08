@@ -1,0 +1,89 @@
+{
+  "spellId": "PetEnhancer",
+  "direction": 2,
+  "blend": "screen",
+  "layers": [
+    {
+      "sheet": "l0.png",
+      "interval": 100,
+      "slotWidth": 304,
+      "slotHeight": 297,
+      "library": "Magic3",
+      "baseIndex": 200,
+      "frames": [
+        {
+          "slot": 0,
+          "srcFrame": 200,
+          "w": 240,
+          "h": 146,
+          "offsetX": -76,
+          "offsetY": -82,
+          "empty": false
+        },
+        {
+          "slot": 1,
+          "srcFrame": 201,
+          "w": 304,
+          "h": 290,
+          "offsetX": -116,
+          "offsetY": -213,
+          "empty": false
+        },
+        {
+          "slot": 2,
+          "srcFrame": 202,
+          "w": 264,
+          "h": 297,
+          "offsetX": -98,
+          "offsetY": -204,
+          "empty": false
+        },
+        {
+          "slot": 3,
+          "srcFrame": 203,
+          "w": 240,
+          "h": 297,
+          "offsetX": -89,
+          "offsetY": -216,
+          "empty": false
+        },
+        {
+          "slot": 4,
+          "srcFrame": 204,
+          "w": 220,
+          "h": 285,
+          "offsetX": -79,
+          "offsetY": -217,
+          "empty": false
+        },
+        {
+          "slot": 5,
+          "srcFrame": 205,
+          "w": 184,
+          "h": 266,
+          "offsetX": -64,
+          "offsetY": -217,
+          "empty": false
+        },
+        {
+          "slot": 6,
+          "srcFrame": 206,
+          "w": 132,
+          "h": 215,
+          "offsetX": -42,
+          "offsetY": -188,
+          "empty": false
+        },
+        {
+          "slot": 7,
+          "srcFrame": 207,
+          "w": 92,
+          "h": 149,
+          "offsetX": -23,
+          "offsetY": -147,
+          "empty": false
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,308 @@
+{
+  "layer": "monster",
+  "index": 221,
+  "direction": 6,
+  "slotWidth": 144,
+  "slotHeight": 136,
+  "actions": {
+    "standing": {
+      "interval": 500,
+      "frames": [
+        {
+          "slot": 0,
+          "srcFrame": 24,
+          "w": 108,
+          "h": 100,
+          "offsetX": -36,
+          "offsetY": -59
+        },
+        {
+          "slot": 1,
+          "srcFrame": 25,
+          "w": 108,
+          "h": 100,
+          "offsetX": -37,
+          "offsetY": -58
+        },
+        {
+          "slot": 2,
+          "srcFrame": 26,
+          "w": 108,
+          "h": 100,
+          "offsetX": -36,
+          "offsetY": -59
+        },
+        {
+          "slot": 3,
+          "srcFrame": 27,
+          "w": 108,
+          "h": 100,
+          "offsetX": -35,
+          "offsetY": -59
+        }
+      ]
+    },
+    "walking": {
+      "interval": 100,
+      "frames": [
+        {
+          "slot": 4,
+          "srcFrame": 68,
+          "w": 96,
+          "h": 100,
+          "offsetX": -24,
+          "offsetY": -62
+        },
+        {
+          "slot": 5,
+          "srcFrame": 69,
+          "w": 104,
+          "h": 100,
+          "offsetX": -35,
+          "offsetY": -60
+        },
+        {
+          "slot": 6,
+          "srcFrame": 70,
+          "w": 116,
+          "h": 100,
+          "offsetX": -48,
+          "offsetY": -58
+        },
+        {
+          "slot": 7,
+          "srcFrame": 71,
+          "w": 128,
+          "h": 104,
+          "offsetX": -55,
+          "offsetY": -59
+        },
+        {
+          "slot": 8,
+          "srcFrame": 72,
+          "w": 120,
+          "h": 104,
+          "offsetX": -48,
+          "offsetY": -60
+        },
+        {
+          "slot": 9,
+          "srcFrame": 73,
+          "w": 104,
+          "h": 104,
+          "offsetX": -35,
+          "offsetY": -62
+        }
+      ]
+    },
+    "attack1": {
+      "interval": 100,
+      "frames": [
+        {
+          "slot": 10,
+          "srcFrame": 116,
+          "w": 132,
+          "h": 128,
+          "offsetX": -52,
+          "offsetY": -89
+        },
+        {
+          "slot": 11,
+          "srcFrame": 117,
+          "w": 120,
+          "h": 132,
+          "offsetX": -10,
+          "offsetY": -93
+        },
+        {
+          "slot": 12,
+          "srcFrame": 118,
+          "w": 132,
+          "h": 136,
+          "offsetX": -15,
+          "offsetY": -97
+        },
+        {
+          "slot": 13,
+          "srcFrame": 119,
+          "w": 144,
+          "h": 92,
+          "offsetX": -69,
+          "offsetY": -48
+        },
+        {
+          "slot": 14,
+          "srcFrame": 120,
+          "w": 136,
+          "h": 92,
+          "offsetX": -60,
+          "offsetY": -48
+        },
+        {
+          "slot": 15,
+          "srcFrame": 121,
+          "w": 116,
+          "h": 100,
+          "offsetX": -48,
+          "offsetY": -53
+        }
+      ]
+    },
+    "struck": {
+      "interval": 200,
+      "frames": [
+        {
+          "slot": 16,
+          "srcFrame": 140,
+          "w": 140,
+          "h": 104,
+          "offsetX": -51,
+          "offsetY": -59
+        },
+        {
+          "slot": 17,
+          "srcFrame": 141,
+          "w": 140,
+          "h": 100,
+          "offsetX": -51,
+          "offsetY": -58
+        }
+      ]
+    },
+    "die": {
+      "interval": 100,
+      "frames": [
+        {
+          "slot": 18,
+          "srcFrame": 186,
+          "w": 104,
+          "h": 100,
+          "offsetX": -42,
+          "offsetY": -57
+        },
+        {
+          "slot": 19,
+          "srcFrame": 187,
+          "w": 96,
+          "h": 96,
+          "offsetX": -48,
+          "offsetY": -56
+        },
+        {
+          "slot": 20,
+          "srcFrame": 188,
+          "w": 100,
+          "h": 96,
+          "offsetX": -55,
+          "offsetY": -54
+        },
+        {
+          "slot": 21,
+          "srcFrame": 189,
+          "w": 132,
+          "h": 88,
+          "offsetX": -84,
+          "offsetY": -38
+        },
+        {
+          "slot": 22,
+          "srcFrame": 190,
+          "w": 140,
+          "h": 88,
+          "offsetX": -90,
+          "offsetY": -31
+        },
+        {
+          "slot": 23,
+          "srcFrame": 191,
+          "w": 144,
+          "h": 88,
+          "offsetX": -92,
+          "offsetY": -33
+        },
+        {
+          "slot": 24,
+          "srcFrame": 192,
+          "w": 140,
+          "h": 88,
+          "offsetX": -90,
+          "offsetY": -31
+        }
+      ]
+    },
+    "dead": {
+      "interval": 1000,
+      "frames": [
+        {
+          "slot": 25,
+          "srcFrame": 192,
+          "w": 140,
+          "h": 88,
+          "offsetX": -90,
+          "offsetY": -31
+        }
+      ]
+    },
+    "revive": {
+      "interval": 100,
+      "frames": [
+        {
+          "slot": 26,
+          "srcFrame": 144,
+          "w": 108,
+          "h": 92,
+          "offsetX": -18,
+          "offsetY": -65
+        },
+        {
+          "slot": 27,
+          "srcFrame": 143,
+          "w": 112,
+          "h": 104,
+          "offsetX": -31,
+          "offsetY": -68
+        },
+        {
+          "slot": 28,
+          "srcFrame": 142,
+          "w": 108,
+          "h": 104,
+          "offsetX": -27,
+          "offsetY": -67
+        },
+        {
+          "slot": 29,
+          "srcFrame": 141,
+          "w": 140,
+          "h": 100,
+          "offsetX": -51,
+          "offsetY": -58
+        },
+        {
+          "slot": 30,
+          "srcFrame": 140,
+          "w": 140,
+          "h": 104,
+          "offsetX": -51,
+          "offsetY": -59
+        },
+        {
+          "slot": 31,
+          "srcFrame": 139,
+          "w": 132,
+          "h": 112,
+          "offsetX": -36,
+          "offsetY": -67
+        },
+        {
+          "slot": 32,
+          "srcFrame": 138,
+          "w": 132,
+          "h": 108,
+          "offsetX": -39,
+          "offsetY": -66
+        }
+      ]
+    }
+  }
+}

@@ -1,0 +1,101 @@
+{
+    "spellId":  "EnergyShield",
+    "direction":  2,
+    "blend":  "screen",
+    "layers":  [
+                   {
+                       "sheet":  "cast.png",
+                       "interval":  100,
+                       "slotWidth":  132,
+                       "slotHeight":  135,
+                       "library":  "Magic2",
+                       "baseIndex":  1890,
+                       "anchor":  "player",
+                       "frames":  [
+                                      {
+                                          "slot":  0,
+                                          "srcFrame":  1890,
+                                          "w":  116,
+                                          "h":  134,
+                                          "offsetX":  -32,
+                                          "offsetY":  -78,
+                                          "empty":  false
+                                      },
+                                      {
+                                          "slot":  1,
+                                          "srcFrame":  1891,
+                                          "w":  116,
+                                          "h":  124,
+                                          "offsetX":  -32,
+                                          "offsetY":  -69,
+                                          "empty":  false
+                                      },
+                                      {
+                                          "slot":  2,
+                                          "srcFrame":  1892,
+                                          "w":  128,
+                                          "h":  135,
+                                          "offsetX":  -38,
+                                          "offsetY":  -81,
+                                          "empty":  false
+                                      },
+                                      {
+                                          "slot":  3,
+                                          "srcFrame":  1893,
+                                          "w":  132,
+                                          "h":  126,
+                                          "offsetX":  -37,
+                                          "offsetY":  -73,
+                                          "empty":  false
+                                      },
+                                      {
+                                          "slot":  4,
+                                          "srcFrame":  1894,
+                                          "w":  128,
+                                          "h":  124,
+                                          "offsetX":  -38,
+                                          "offsetY":  -70,
+                                          "empty":  false
+                                      },
+                                      {
+                                          "slot":  5,
+                                          "srcFrame":  1895,
+                                          "w":  124,
+                                          "h":  124,
+                                          "offsetX":  -38,
+                                          "offsetY":  -70,
+                                          "empty":  false
+                                      }
+                                  ]
+                   },
+                   {
+                       "sheet":  "loop.png",
+                       "interval":  400,
+                       "slotWidth":  124,
+                       "slotHeight":  140,
+                       "library":  "Magic2",
+                       "baseIndex":  1900,
+                       "anchor":  "player",
+                       "frames":  [
+                                      {
+                                          "slot":  0,
+                                          "srcFrame":  1900,
+                                          "w":  120,
+                                          "h":  121,
+                                          "offsetX":  -34,
+                                          "offsetY":  -65,
+                                          "empty":  false
+                                      },
+                                      {
+                                          "slot":  1,
+                                          "srcFrame":  1901,
+                                          "w":  124,
+                                          "h":  140,
+                                          "offsetX":  -36,
+                                          "offsetY":  -83,
+                                          "empty":  false
+                                      }
+                                  ]
+                   }
+               ]
+}

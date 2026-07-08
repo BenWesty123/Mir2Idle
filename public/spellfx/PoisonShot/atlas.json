@@ -1,0 +1,89 @@
+{
+  "spellId": "PoisonShot",
+  "direction": 2,
+  "blend": "screen",
+  "layers": [
+    {
+      "sheet": "l0.png",
+      "interval": 125,
+      "slotWidth": 56,
+      "slotHeight": 68,
+      "library": "Magic3",
+      "baseIndex": 2300,
+      "frames": [
+        {
+          "slot": 0,
+          "srcFrame": 2300,
+          "w": 52,
+          "h": 59,
+          "offsetX": 3,
+          "offsetY": -53,
+          "empty": false
+        },
+        {
+          "slot": 1,
+          "srcFrame": 2301,
+          "w": 44,
+          "h": 52,
+          "offsetX": 5,
+          "offsetY": -51,
+          "empty": false
+        },
+        {
+          "slot": 2,
+          "srcFrame": 2302,
+          "w": 48,
+          "h": 58,
+          "offsetX": 5,
+          "offsetY": -51,
+          "empty": false
+        },
+        {
+          "slot": 3,
+          "srcFrame": 2303,
+          "w": 56,
+          "h": 53,
+          "offsetX": 5,
+          "offsetY": -51,
+          "empty": false
+        },
+        {
+          "slot": 4,
+          "srcFrame": 2304,
+          "w": 48,
+          "h": 53,
+          "offsetX": 4,
+          "offsetY": -48,
+          "empty": false
+        },
+        {
+          "slot": 5,
+          "srcFrame": 2305,
+          "w": 56,
+          "h": 58,
+          "offsetX": 2,
+          "offsetY": -50,
+          "empty": false
+        },
+        {
+          "slot": 6,
+          "srcFrame": 2306,
+          "w": 52,
+          "h": 62,
+          "offsetX": 1,
+          "offsetY": -51,
+          "empty": false
+        },
+        {
+          "slot": 7,
+          "srcFrame": 2307,
+          "w": 48,
+          "h": 68,
+          "offsetX": 0,
+          "offsetY": -54,
+          "empty": false
+        }
+      ]
+    }
+  ]
+}

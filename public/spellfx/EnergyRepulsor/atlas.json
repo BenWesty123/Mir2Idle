@@ -1,0 +1,71 @@
+{
+  "spellId": "EnergyRepulsor",
+  "direction": 2,
+  "blend": "screen",
+  "layers": [
+    {
+      "sheet": "l0.png",
+      "interval": 100,
+      "slotWidth": 144,
+      "slotHeight": 122,
+      "library": "Magic2",
+      "baseIndex": 190,
+      "frames": [
+        {
+          "slot": 0,
+          "srcFrame": 190,
+          "w": 48,
+          "h": 82,
+          "offsetX": 0,
+          "offsetY": -57,
+          "empty": false
+        },
+        {
+          "slot": 1,
+          "srcFrame": 191,
+          "w": 104,
+          "h": 122,
+          "offsetX": -28,
+          "offsetY": -87,
+          "empty": false
+        },
+        {
+          "slot": 2,
+          "srcFrame": 192,
+          "w": 132,
+          "h": 121,
+          "offsetX": -43,
+          "offsetY": -86,
+          "empty": false
+        },
+        {
+          "slot": 3,
+          "srcFrame": 193,
+          "w": 144,
+          "h": 119,
+          "offsetX": -48,
+          "offsetY": -85,
+          "empty": false
+        },
+        {
+          "slot": 4,
+          "srcFrame": 194,
+          "w": 140,
+          "h": 116,
+          "offsetX": -47,
+          "offsetY": -84,
+          "empty": false
+        },
+        {
+          "slot": 5,
+          "srcFrame": 195,
+          "w": 132,
+          "h": 116,
+          "offsetX": -43,
+          "offsetY": -83,
+          "empty": false
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,107 @@
+{
+  "spellId": "ThunderStorm",
+  "direction": 2,
+  "blend": "screen",
+  "layers": [
+    {
+      "sheet": "l0.png",
+      "interval": 60,
+      "slotWidth": 264,
+      "slotHeight": 180,
+      "library": "Magic",
+      "baseIndex": 1680,
+      "frames": [
+        {
+          "slot": 0,
+          "srcFrame": 1680,
+          "w": 100,
+          "h": 89,
+          "offsetX": -27,
+          "offsetY": -64,
+          "empty": false
+        },
+        {
+          "slot": 1,
+          "srcFrame": 1681,
+          "w": 144,
+          "h": 106,
+          "offsetX": -49,
+          "offsetY": -63,
+          "empty": false
+        },
+        {
+          "slot": 2,
+          "srcFrame": 1682,
+          "w": 204,
+          "h": 142,
+          "offsetX": -78,
+          "offsetY": -79,
+          "empty": false
+        },
+        {
+          "slot": 3,
+          "srcFrame": 1683,
+          "w": 264,
+          "h": 176,
+          "offsetX": -109,
+          "offsetY": -97,
+          "empty": false
+        },
+        {
+          "slot": 4,
+          "srcFrame": 1684,
+          "w": 248,
+          "h": 171,
+          "offsetX": -101,
+          "offsetY": -96,
+          "empty": false
+        },
+        {
+          "slot": 5,
+          "srcFrame": 1685,
+          "w": 260,
+          "h": 180,
+          "offsetX": -107,
+          "offsetY": -100,
+          "empty": false
+        },
+        {
+          "slot": 6,
+          "srcFrame": 1686,
+          "w": 264,
+          "h": 177,
+          "offsetX": -108,
+          "offsetY": -97,
+          "empty": false
+        },
+        {
+          "slot": 7,
+          "srcFrame": 1687,
+          "w": 244,
+          "h": 169,
+          "offsetX": -101,
+          "offsetY": -93,
+          "empty": false
+        },
+        {
+          "slot": 8,
+          "srcFrame": 1688,
+          "w": 264,
+          "h": 178,
+          "offsetX": -109,
+          "offsetY": -99,
+          "empty": false
+        },
+        {
+          "slot": 9,
+          "srcFrame": 1689,
+          "w": 240,
+          "h": 161,
+          "offsetX": -96,
+          "offsetY": -89,
+          "empty": false
+        }
+      ]
+    }
+  ]
+}
