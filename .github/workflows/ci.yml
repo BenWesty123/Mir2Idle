@@ -18,7 +18,10 @@ jobs:
       - name: Set up Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: 20
+          # Match the local dev Node version. Must be >= 21 so `node --test`
+          # expands the "tests/**/*.test.mjs" glob instead of treating it as a
+          # literal path (Node 20 fails that step).
+          node-version: 24
           cache: npm
 
       # 3. Install dev dependencies (oxlint + playwright) from package-lock.
