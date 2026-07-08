@@ -9,6 +9,8 @@ on:
 jobs:
   check:
     runs-on: ubuntu-latest
+    # Safety net: the whole job should finish in ~2 min; never let it hang.
+    timeout-minutes: 10
     steps:
       # 1. Grab the repo's code onto the CI machine.
       - name: Checkout code
@@ -28,12 +30,10 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
-      # 4. The offline fixtures in `npm run check` boot the game in headless
-      #    Chromium via Playwright, so the browser binary must be present.
-      - name: Install Playwright Chromium
-        run: npx playwright install --with-deps chromium
-
-      # 5. The full gate: lint + integrity rules + syntax-check every module
-      #    + unit tests + offline regression fixtures.
+      # 4. CI gate: lint + integrity rules + syntax-check every module + unit
+      #    tests + release-asset source verify. This deliberately does NOT run
+      #    `fixture:offline` (the Playwright 5-minute offline simulations),
+      #    which are slow and environment-sensitive on headless Linux - run
+      #    those locally with `npm run check` before pushing.
       - name: Run checks
-        run: npm run check
+        run: npm run check:ci
