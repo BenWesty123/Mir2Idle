@@ -3,10 +3,18 @@ import assert from "node:assert/strict";
 import {
   CRIT_BASE_DAMAGE_PERCENT,
   CRIT_CHANCE_CAP_PERCENT,
+  CRIT_TEXT_MAX_PX,
+  CRIT_TEXT_MIN_PX,
+  advanceCritTextTracking,
   applyIncomingDamageReduction,
   applyOutgoingCrit,
   clampCritChancePercent,
   critMultiplier,
+  critTextFillColor,
+  critTextFontSize,
+  critTextReferenceDamage,
+  critTextScaleRatio,
+  critTextZoneFloor,
   expectedCritMultiplier,
   rollCrit,
   enemyAttackDefenceType,
@@ -292,4 +300,38 @@ test("poisonTickDamageEvents", () => {
     amount: 0,
     kind: "physical",
   });
+});
+
+test("critTextZoneFloor scales from enemy max HP", () => {
+  assert.equal(critTextZoneFloor(0), 1);
+  assert.equal(critTextZoneFloor(10_000), 300);
+});
+
+test("advanceCritTextTracking sizes before updating baseline", () => {
+  const first = advanceCritTextTracking(1_000, 0, 0, { zoneFloor: 300 });
+  assert.ok(first.scale > 0.8);
+  assert.equal(first.ema, 1_000);
+  assert.equal(first.peak, 1_000);
+
+  const typical = advanceCritTextTracking(900, first.ema, first.peak, { zoneFloor: 300 });
+  assert.ok(typical.scale < first.scale);
+  assert.ok(typical.scale > 0.5);
+
+  const record = advanceCritTextTracking(2_500, typical.ema, typical.peak, { zoneFloor: 300 });
+  assert.ok(record.scale > typical.scale);
+  assert.equal(record.peak, 2_500);
+});
+
+test("critTextFontSize and fill color tier with scale", () => {
+  assert.equal(critTextFontSize(0), CRIT_TEXT_MIN_PX);
+  assert.equal(critTextFontSize(1), CRIT_TEXT_MAX_PX);
+  assert.equal(critTextFillColor(0.5), "#ff6a2b");
+  assert.equal(critTextFillColor(0.95), "#fff2d6");
+});
+
+test("critTextScaleRatio uses a log curve", () => {
+  const ref = critTextReferenceDamage(1_000, 1_500, 300);
+  assert.ok(critTextScaleRatio(500, ref) < critTextScaleRatio(1_000, ref));
+  assert.ok(critTextScaleRatio(1_000, ref) < critTextScaleRatio(2_000, ref));
+  assert.equal(critTextScaleRatio(0, ref), 0);
 });

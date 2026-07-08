@@ -40,6 +40,7 @@ import {
   spellMpCost,
   taoistSpellById,
   taoistSpellByShape,
+  thunderBoltUndeadMultiplier,
   warriorSpellById,
   warriorSpellByShape,
 } from "./warriorMagic.js";
@@ -218,6 +219,7 @@ import {
   empoweredStatLabel,
   empowerSpellBonusTooltipRows,
   empowerSlotChoiceLabels,
+  empowerSwapChoiceLabels,
   formatEmpowerRollDescription,
   formatEmpowerAppliedChangeLabel,
   rollEmpoweredItemDrop,
@@ -264,15 +266,25 @@ import {
 import {
   crystalHolyDevaStats,
   resolveTaoistPetTargetCoordinates,
+  taoistPetAttackDelayMs,
+  taoistPetCombatStats,
   taoistPetLayerBlendModes,
+  taoistPetLevelFromSpellLevel,
+  taoistPetMaxLevelFromSpellLevel,
+  clampTaoistSpellLevel,
 } from "./core/taoistPets.js";
 import { splitPartyRewardAmount } from "./core/party.js";
 import { socialEquipmentEntry } from "./core/socialEquipment.js";
 import {
   CRIT_BASE_DAMAGE_PERCENT,
+  advanceCritTextTracking,
   applyIncomingDamageReduction as applyIncomingDamageReductionCore,
   applyOutgoingCrit,
   clampCritChancePercent,
+  critTextFillColor,
+  critTextFontSize,
+  critTextZoneFloor,
+  smoothstep01,
   enemyAttackDefenceType,
   enemyDamageEvent,
   incomingAttackDefenceStat,
@@ -392,6 +404,17 @@ const TELEPORT_RING_ICON_SRC = "./public/ui/teleport-ring.png";
 function teleportRingOwned() {
   return Boolean(state.account?.ownedUnlocks?.[TELEPORT_RING_UNLOCK_KEY]);
 }
+// Organisation Skills: lets gems and orbs stack in the inventory. Buyable BOTH
+// with rebirth points (see ACCOUNT_UPGRADE_DEFS "rebirth-organisation-skills")
+// and with tokens (this unlock key). Key + cost mirror UNLOCK_TOKEN_COSTS in
+// tools/stats-worker/worker.js.
+const ORGANISATION_SKILLS_UNLOCK_KEY = "organisation-skills";
+const ORGANISATION_SKILLS_TOKEN_COST = 200;
+const ORGANISATION_SKILLS_STACK_SIZE = 99;
+function organisationSkillsUnlocked() {
+  return accountUpgradePurchased("rebirth-organisation-skills")
+    || Boolean(state.account?.ownedUnlocks?.[ORGANISATION_SKILLS_UNLOCK_KEY]);
+}
 const REBIRTH_ENABLED = true;
 const CODEX_CATEGORY_DEFS = [
   { id: "all", label: "All" },
@@ -485,6 +508,19 @@ const ACCOUNT_UPGRADE_DEFS = [
     summary: "Allows every character to keep three combat skills set to auto.",
   },
   {
+    id: "autocast-slot-4",
+    label: "Fourth Autocast Slot",
+    section: "normal",
+    category: "combat",
+    cost: 0,
+    itemCosts: [{ itemId: "hog-tooth", quantity: 1 }],
+    effect: "autocastSlots",
+    value: 1,
+    sourceHint: "Drops from King Hog",
+    sourceZoneHint: "Black Dragon Dungeon",
+    summary: "Allows every character to keep four combat skills set to auto.",
+  },
+  {
     id: "auto-potion-slot-3",
     label: "Third Auto Potion Slot",
     section: "normal",
@@ -507,6 +543,19 @@ const ACCOUNT_UPGRADE_DEFS = [
     value: 1,
     sourceHint: "Drops from Wooma Taurus",
     summary: "Allows hotbar slot 4 to trigger auto potions.",
+  },
+  {
+    id: "auto-potion-slot-5",
+    label: "Fifth Auto Potion Slot",
+    section: "normal",
+    category: "utility",
+    cost: 0,
+    itemCosts: [{ itemId: "stone-heart", quantity: 1 }],
+    effect: "autoPotionSlots",
+    value: 1,
+    sourceHint: "Drops from Incarnated Zuma Taurus",
+    sourceZoneHint: "Black Dragon Dungeon",
+    summary: "Allows hotbar slot 5 to trigger auto potions.",
   },
   {
     id: "rebirth-soul-yield",
@@ -588,6 +637,18 @@ const ACCOUNT_UPGRADE_DEFS = [
     maxTier: 1,
     rebirthCosts: [50],
     summary: "Doubles how many poisons and amulets fit in each inventory stack.",
+  },
+  {
+    id: "rebirth-organisation-skills",
+    label: "Organisation Skills",
+    section: "rebirth",
+    category: "utility",
+    currency: "rebirthPoints",
+    effect: "gemOrbStackUnlock",
+    value: 1,
+    maxTier: 1,
+    rebirthCosts: [50],
+    summary: "Lets gems and orbs stack in your inventory. Also available in the Cash Shop for tokens.",
   },
   {
     id: "rebirth-skill-exp-gain",
@@ -859,7 +920,7 @@ const BOSS_ROOM_DEFS = {
   },
   "zone-red-cavern-kr": {
     bossName: "Dream and Dark Devourer",
-    respawnMinutes: BOSS_RESPAWN_MINUTES_STANDARD,
+    respawnMinutes: BOSS_RESPAWN_MINUTES_ELITE,
     unlockHint: "Select saved characters to call into the fight.",
     empowerLabel: "Empower the Devourers for better drops",
     empowerRequirement: BOSS_EMPOWER_UNLOCK_HINT,
@@ -1105,6 +1166,23 @@ const BOSS_PARTY_CATCHUP_MAX_STEPS = 12000;
 const OFFLINE_PROGRESS_CAP_MS = 8 * 60 * 60 * 1000;
 const OFFLINE_PROGRESS_MIN_MS = 30 * 1000;
 const COMBAT_STANCE_HOLD_MS = 1000;
+// Fallback time an enemy's attack animation is protected from being overwritten by a
+// flinch, used only when the attack clip length is unknown. Normally the lock matches the
+// monster's actual attack animation duration (see enemyAttackAnimationMs) so a flinch never
+// cuts an attack short, yet fast attackers can still visibly stagger the enemy between
+// attacks. The attack's damage is resolved independently of the animation, so this window
+// never locks the enemy out of attacking.
+const ENEMY_ATTACK_FLINCH_LOCK_MS = 260;
+
+// Duration of an enemy attack clip (frame count x frame interval) from its atlas, so the
+// flinch lock can match the animation the monster is actually playing.
+function enemyAttackAnimationMs(atlas, action, fallbackMs = ENEMY_ATTACK_FLINCH_LOCK_MS) {
+  const clip = atlas?.actions?.[action];
+  const frames = clip?.frames?.length ?? 0;
+  const interval = Number(clip?.interval) || 0;
+  if (frames <= 0 || interval <= 0) return fallbackMs;
+  return frames * interval;
+}
 let lastCombatEquipmentLockAt = 0;
 // Taoist support/queue polling — must not shorten weapon swing cooldown.
 const TAOIST_COMBAT_POLL_MS = 250;
@@ -2797,6 +2875,8 @@ const state = {
     statBuffs: [],
     autoPotionReadyAt: { hp: 0, mp: 0 },
     floatingTexts: [],
+    critTextRecentEma: 0,
+    critTextSessionPeak: 0,
     level: 1,
     experience: 0,
     gold: 0,
@@ -2827,6 +2907,11 @@ const DRAGGABLE_SCENE_WINDOWS = new Set(["character", "inventory"]);
 let sceneWindowDragState = null;
 let sceneOverlayInteractionUntil = 0;
 const sceneScrollPositions = new Map();
+// Element currently under a held pointer (mousedown/touchstart without release).
+// While a pointer is held, signature-driven innerHTML rebuilds of the element it
+// is over are deferred so the pressed button is not destroyed before the browser
+// can fire its click (mousedown + mouseup must land on the same node).
+let heldPointerTarget = null;
 let combatSkillBarSignature = "";
 let playerHudSignature = "";
 let hotbarSignature = "";
@@ -4040,6 +4125,7 @@ function sanitizeOwnedUnlocks(owned) {
   const valid = new Set([
     STORAGE_PAGE_UNLOCK_KEY,
     TELEPORT_RING_UNLOCK_KEY,
+    ORGANISATION_SKILLS_UNLOCK_KEY,
     ...CHARACTER_IDS.map((classId) => inventoryPageUnlockKey(classId)),
   ]);
   const result = {};
@@ -5634,6 +5720,7 @@ function offlineWarriorAttack(enemy, now) {
   let damage = 0;
   if (learned) {
     if (!rollHit(battle.player.accuracy, enemy.agility)) {
+      consumeOutgoingCritFlag();
       rollSlayingChargeAfterAttack(now);
       maybeAutoWarriorCharge(now, { offline: true });
       return true;
@@ -5657,10 +5744,12 @@ function offlineWarriorAttack(enemy, now) {
   }
   const scaled = scalePhysicalDamageForStun(damage, enemyStunned(enemy, now));
   if (scaled <= 0) {
+    consumeOutgoingCritFlag();
     rollSlayingChargeAfterAttack(now);
     maybeAutoWarriorCharge(now, { offline: true });
     return true;
   }
+  consumeOutgoingCritFlag();
   applyOfflineEnemyDamage(enemy, scaled, now, learned ? "magic" : "physical");
   if (learned) levelWarriorMagic(skill, learned, now);
   levelPassiveWeaponMagic(now);
@@ -8055,8 +8144,9 @@ function setEnemyAction(action, oneShot = false, now = performance.now()) {
   state.enemy.frame = 0;
   state.enemy.oneShot = oneShot;
   state.enemy.lastTick = now;
-  if (oneShot && swarmIsAttackAction(action) && state.enemy.atlas?.castEffect) {
-    state.enemy.attackFxStartedAt = now;
+  if (oneShot && swarmIsAttackAction(action)) {
+    state.enemy.attackFlinchLockUntil = now + enemyAttackAnimationMs(state.enemy.atlas, action);
+    if (state.enemy.atlas?.castEffect) state.enemy.attackFxStartedAt = now;
   }
   updateEnemyActionButtons();
   render();
@@ -8168,6 +8258,7 @@ function resetBattle(enemyId = state.battle.enemyId) {
   state.battle.vampAmount = 0;
   state.battle.vampTickAt = 0;
   state.battle.autoPotionReadyAt = { hp: 0, mp: 0 };
+  resetCritTextTracking();
   state.battle.level = state.game.progress.level;
   state.battle.experience = state.game.progress.experience;
   state.battle.gold = state.game.progress.gold;
@@ -8311,6 +8402,7 @@ function startBattle() {
   stopOneStepTest();
   state.continuousWalk = false;
   state.battle.running = true;
+  resetCritTextTracking();
   resetCombatEquipmentLock();
   const now = performance.now();
   state.battle.phase = "advance";
@@ -9573,6 +9665,7 @@ function accountUpgradeEffectLabel(upgrade) {
   if (upgrade?.effect === "goldBonusPercent") return "Monster kill gold";
   if (upgrade?.effect === "dropChanceBonusPercent") return "All drop chances";
   if (upgrade?.effect === "poisonAmuletStackMultiplier") return "Poison & amulet stack size";
+  if (upgrade?.effect === "gemOrbStackUnlock") return "Gem & orb stacking";
   if (upgrade?.effect === "skillExperienceGainMaxBonus") return "Skill practice XP per cast";
   if (upgrade?.effect === "bonusAwakeningSoulChancePercent") return "Extra Awakening Soul chance";
   if (upgrade?.effect === "bossRespawnReductionPercent") return "Boss respawn time";
@@ -9624,6 +9717,9 @@ function accountUpgradeProgressText(upgrade) {
   }
   if (upgrade?.effect === "poisonAmuletStackMultiplier") {
     return tier >= 1 ? "2x per stack" : "1x -> 2x per stack";
+  }
+  if (upgrade?.effect === "gemOrbStackUnlock") {
+    return organisationSkillsUnlocked() ? "Stackable" : "1 per slot -> stackable";
   }
   if (upgrade?.effect === "skillExperienceGainMaxBonus") {
     const currentMax = BASE_SKILL_EXPERIENCE_GAIN_MAX + tier * step;
@@ -9755,7 +9851,8 @@ function accountUpgradeSourceText(upgrade) {
       return Array.isArray(item?.drop?.zones) ? item.drop.zones : [];
     })),
   ];
-  const zoneText = zones.length ? zones.map(zoneLabel).join(", ") : "";
+  const zoneText = upgrade?.sourceZoneHint
+    ?? (zones.length ? zones.map(zoneLabel).join(", ") : "");
   if (upgrade?.sourceHint && zoneText) return `${upgrade.sourceHint} (${zoneText})`;
   if (upgrade?.sourceHint) return upgrade.sourceHint;
   return zoneText ? `Drops in ${zoneText}` : "Source not set";
@@ -11180,8 +11277,8 @@ function attemptCraftingCubeTargetedEmpowerSwap() {
     return false;
   }
 
-  const choicesA = empowerSlotChoiceLabels(validation.empoweredEntryA, validation.empoweredItemA);
-  const choicesB = empowerSlotChoiceLabels(validation.empoweredEntryB, validation.empoweredItemB);
+  const choicesA = empowerSwapChoiceLabels(validation.empoweredEntryA, validation.empoweredItemA, validation.empoweredItemB);
+  const choicesB = empowerSwapChoiceLabels(validation.empoweredEntryB, validation.empoweredItemB, validation.empoweredItemA);
   const slotA = Math.trunc(Number(state.craftingCube?.targetedEmpowerSwapSlotA) || 0);
   const slotB = Math.trunc(Number(state.craftingCube?.targetedEmpowerSwapSlotB) || 0);
   if (!choicesA.some((choice) => choice.index === slotA) || !choicesB.some((choice) => choice.index === slotB)) {
@@ -11375,8 +11472,8 @@ function canAttemptCraftingCubeCraft() {
     return choices.some((choice) => choice.index === slotIndex);
   }
   if (recipeId === CRAFTING_CUBE_TARGETED_EMPOWER_SWAP_RECIPE_ID) {
-    const choicesA = empowerSlotChoiceLabels(validation.empoweredEntryA, validation.empoweredItemA);
-    const choicesB = empowerSlotChoiceLabels(validation.empoweredEntryB, validation.empoweredItemB);
+    const choicesA = empowerSwapChoiceLabels(validation.empoweredEntryA, validation.empoweredItemA, validation.empoweredItemB);
+    const choicesB = empowerSwapChoiceLabels(validation.empoweredEntryB, validation.empoweredItemB, validation.empoweredItemA);
     const slotA = Math.trunc(Number(state.craftingCube?.targetedEmpowerSwapSlotA) || 0);
     const slotB = Math.trunc(Number(state.craftingCube?.targetedEmpowerSwapSlotB) || 0);
     return choicesA.some((choice) => choice.index === slotA)
@@ -12652,8 +12749,15 @@ function sceneOverlayInteractionActive() {
   return performance.now() < sceneOverlayInteractionUntil;
 }
 
+function isPointerHeldWithin(element) {
+  return Boolean(element && heldPointerTarget && element.contains(heldPointerTarget));
+}
+
 function shouldDeferSceneOverlayRender(liveSignature) {
   if (sceneWindowDragState || inventoryDragState) return true;
+  // A pointer pressed anywhere in the overlay must never have its target node
+  // rebuilt out from under it, or the pending click is lost.
+  if (isPointerHeldWithin(els.sceneOverlay)) return true;
   if (!sceneOverlayInteractionActive()) return false;
   return liveSignature === sceneOverlayLiveSignature;
 }
@@ -14108,12 +14212,24 @@ function dropInventoryEntryToHotbarSlot(entryId, slot) {
   const targetEntryId = state.hotbar.slots[targetSlot] ?? null;
   if (sourceHotbarSlot === targetSlot) return;
 
+  const targetEntry = targetEntryId ? inventoryEntryById(targetEntryId) : null;
+  if (targetEntry && stackEntriesCombinable(entry, targetEntry)) {
+    mergeEntryIntoStack(entry, targetEntry);
+    if (entry.quantity <= 0) {
+      clearHotbarEntry(entry.id);
+      state.inventory.items = state.inventory.items.filter((candidate) => candidate.id !== entry.id);
+    }
+    ensureInventorySlots();
+    syncBossPartyControlledInventoryFromState();
+    renderInventoryStacksChanged({ hotbarChanged: true });
+    return;
+  }
+
   if (sourceHotbarSlot >= 0) {
     state.hotbar.slots[sourceHotbarSlot] = targetEntryId;
     state.hotbar.slots[targetSlot] = entry.id;
   } else {
     const sourceInventorySlot = Number.isInteger(entry.slot) ? entry.slot : nextFreeInventorySlot();
-    const targetEntry = targetEntryId ? inventoryEntryById(targetEntryId) : null;
     state.hotbar.slots[targetSlot] = entry.id;
     entry.slot = null;
     if (targetEntry) targetEntry.slot = sourceInventorySlot;
@@ -14278,6 +14394,9 @@ function isStackableItem(item) {
 
 function maxItemStack(item) {
   const base = Math.max(1, Math.floor(Number(item?.maxStack) || 1));
+  if (organisationSkillsUnlocked() && isGemUpgradeItem(item)) {
+    return Math.max(base, ORGANISATION_SKILLS_STACK_SIZE);
+  }
   if (poisonAmuletStackMultiplier() <= 1) return base;
   const poisonOrAmulet = item?.type === "poison" || item?.type === "amulet" || item?.poison || item?.amulet;
   return poisonOrAmulet ? base * poisonAmuletStackMultiplier() : base;
@@ -15197,10 +15316,23 @@ function updatePendingHeal(now) {
   return true;
 }
 
+function resolvePendingPoisonTarget(pending) {
+  if (pending?.targetSwarmId != null && groupDungeonSwarmSideActive()) {
+    const swarmEnemy = findGroupDungeonSwarmEnemy(pending.targetSwarmId);
+    if (!swarmEnemy || swarmEnemy.dying || swarmEnemy.hp <= 0) return { enemy: null, swarmEnemy: null };
+    return { enemy: swarmEnemyToBattleEntity(swarmEnemy), swarmEnemy };
+  }
+  const enemy = state.battle.enemy;
+  const swarmEnemy = enemy?.swarmId ? findGroupDungeonSwarmEnemy(enemy.swarmId) : null;
+  return { enemy, swarmEnemy };
+}
+
 function updatePendingPoison(now, options = {}) {
   const battle = state.battle;
   const pending = battle.pendingPoison;
-  if (!pending || now < pending.at || !battle.enemy || battle.enemy.hp <= 0) return false;
+  if (!pending || now < pending.at) return false;
+  const { enemy, swarmEnemy } = resolvePendingPoisonTarget(pending);
+  if (!enemy || enemy.hp <= 0) return false;
   battle.pendingPoison = null;
   const spell = taoistCombatSpell(pending.spellId);
   const learned = learnedMagic(spell.id);
@@ -15212,7 +15344,7 @@ function updatePendingPoison(now, options = {}) {
   const tickValue = poisonKind === "green"
     ? Math.max(1, Math.floor(value / 15) + level + 1 + (poisonAttack > 0 ? randomInt(0, poisonAttack - 1) : 0))
     : 0;
-  const applied = applyEnemyPoison(battle.enemy, {
+  const applied = applyEnemyPoison(enemy, {
     kind: poisonKind,
     value: tickValue,
     ticksRemaining: durationTicks,
@@ -15222,11 +15354,11 @@ function updatePendingPoison(now, options = {}) {
   if (!options.offline && !suppressSimulationRender) {
     playSpellSfx(spell.id, "impact", { volume: 0.5 }) || playSpellSfx(spell.id, "cast", { volume: 0.42 });
     const poisonEvents = applied
-      ? poisonAppliedEvents(spell.label, battle.enemy.name, poisonKind)
-      : poisonResistedEvents(spell.label, battle.enemy.name, poisonKind);
-    applyCombatEvents(poisonEvents, now, { enemy: battle.enemy });
+      ? poisonAppliedEvents(spell.label, enemy.name, poisonKind)
+      : poisonResistedEvents(spell.label, enemy.name, poisonKind);
+    applyCombatEvents(poisonEvents, now, swarmEnemy ? { swarmEnemy } : { enemy });
   }
-  if (isQueuedCombatSpell("Poisoning") && !poisonCandidateForEnemy(battle.enemy, now)) {
+  if (isQueuedCombatSpell("Poisoning") && !hasAvailablePoisoningTarget(now)) {
     clearQueuedCombatSpell("Poisoning");
   }
   battlePanelSignature = "";
@@ -15234,13 +15366,16 @@ function updatePendingPoison(now, options = {}) {
   return applied;
 }
 
-function updateEnemyPoisons(now, options = {}) {
-  const battle = state.battle;
-  const enemy = battle.enemy;
-  if (!enemy || enemy.hp <= 0 || !Array.isArray(enemy.poisons) || enemy.poisons.length === 0) return false;
+function tickEnemyPoisonState(enemy, now, options = {}) {
+  if (!enemy || enemy.hp <= 0 || !Array.isArray(enemy.poisons) || enemy.poisons.length === 0) {
+    return { changed: false, killed: false };
+  }
 
   let changed = false;
   const active = [];
+  const swarmEnemy = enemy.swarmId ? findGroupDungeonSwarmEnemy(enemy.swarmId) : null;
+  const eventContext = swarmEnemy ? { swarmEnemy } : { enemy };
+
   for (const poison of enemy.poisons) {
     poison.tickMs = Math.max(1, Math.trunc(Number(poison.tickMs) || CRYSTAL_POISON_TICK_MS));
     poison.nextTickAt = Number(poison.nextTickAt) || now + poison.tickMs;
@@ -15257,8 +15392,11 @@ function updateEnemyPoisons(now, options = {}) {
       if (poison.kind === "green") {
         const damage = Math.max(0, Math.trunc(Number(poison.value) || 0));
         if (damage > 0) {
-          applyCombatEvents(poisonTickDamageEvents("green", damage), now, { enemy });
-          if (!options.offline && !suppressSimulationRender) addCombatText("enemy", damage, "poison", tickAt);
+          applyCombatEvents(poisonTickDamageEvents("green", damage), now, eventContext);
+          if (!options.offline && !suppressSimulationRender) {
+            if (swarmEnemy) addSwarmEnemyCombatText(swarmEnemy, damage, "poison", tickAt);
+            else addCombatText("enemy", damage, "poison", tickAt);
+          }
         }
       }
     }
@@ -15268,24 +15406,49 @@ function updateEnemyPoisons(now, options = {}) {
   }
 
   enemy.poisons = active;
-  if (changed) {
-    battlePanelSignature = "";
-    playerHudSignature = "";
-  }
+  return { changed, killed: enemy.hp <= 0 };
+}
 
-  if (enemy.hp <= 0 && !options.offline && !suppressSimulationRender) {
-    if (groupDungeonSwarmSideActive()) {
-      syncBattleEnemyHpToSwarm();
-      maybeKillGroupDungeonSwarmEnemy(enemy, now);
-    } else {
-      finishEnemy(now);
-      setEnemyAction("die", false, now);
-      playMonsterSfx("death");
-      pushBattleLog(`${enemy.name} is defeated by poison.`);
+function updateEnemyPoisons(now, options = {}) {
+  if (groupDungeonSwarmSideActive()) {
+    const swarm = state.battle.swarm;
+    if (!swarm?.enemies?.length) return false;
+    let anyChanged = false;
+    for (const swarmEnemy of swarm.enemies) {
+      if (swarmEnemy.dying || swarmEnemy.hp <= 0) continue;
+      if (!Array.isArray(swarmEnemy.poisons) || !swarmEnemy.poisons.length) continue;
+      const entity = swarmEnemyToBattleEntity(swarmEnemy);
+      const result = tickEnemyPoisonState(entity, now, options);
+      if (!result.changed) continue;
+      anyChanged = true;
+      if (result.killed && !options.offline && !suppressSimulationRender) {
+        maybeKillGroupDungeonSwarmEnemy(entity, now);
+      }
     }
+    if (anyChanged) {
+      battlePanelSignature = "";
+      playerHudSignature = "";
+    }
+    syncGroupDungeonPrimaryEnemy();
+    return anyChanged;
   }
 
-  return changed;
+  const battle = state.battle;
+  const enemy = battle.enemy;
+  const result = tickEnemyPoisonState(enemy, now, options);
+  if (!result.changed) return false;
+
+  battlePanelSignature = "";
+  playerHudSignature = "";
+
+  if (result.killed && !options.offline && !suppressSimulationRender) {
+    finishEnemy(now);
+    setEnemyAction("die", false, now);
+    playMonsterSfx("death");
+    pushBattleLog(`${enemy.name} is defeated by poison.`);
+  }
+
+  return true;
 }
 
 function crystalHealRegenLevel(entity) {
@@ -16368,7 +16531,11 @@ function renderSceneOverlay(options = {}) {
   const destroyConfirmHtml = inventoryDestroyConfirmHtml();
   const rebirthConfirmHtmlContent = rebirthConfirmHtml();
   if (!overlayScenes.length && !destroyConfirmHtml && !rebirthConfirmHtmlContent) {
-    cleanupInventoryCarry();
+    // A hotbar drag lives on the stage (not in the overlay) and must survive even
+    // when no scene window is open, or it would be cancelled on the next frame.
+    if (!inventoryDragState || !isHotbarEntry(inventoryDragState.entryId)) {
+      cleanupInventoryCarry();
+    }
     els.sceneOverlay.hidden = true;
     els.sceneOverlay.innerHTML = "";
     sceneSignature = "";
@@ -16624,14 +16791,12 @@ function buildSceneOverlaySignature(openScenes, bossEntryZoneId) {
   if (bossEntryZoneId) {
     payload.bossEntryRespawnSec = Math.ceil(bossRespawnRemainingMs(bossEntryZoneId) / 1000);
   }
-  if (openScenes.includes("teleportRing")) {
-    const nowTs = Date.now();
-    payload.teleportRingTimers = teleportRingBossZoneIds()
-      .map((zoneId) => Math.ceil(bossRespawnRemainingMs(zoneId, nowTs) / 1000));
-  }
+  // Teleport-ring respawn timers tick every second; they are refreshed in place by
+  // refreshOpenSceneLiveText so they must NOT force a full overlay rebuild here.
   if (openScenes.includes("character")) {
     payload.level = state.game.progress.level;
-    payload.experience = state.game.progress.experience;
+    // Live XP is refreshed in place (refreshOpenSceneLiveText); excluding it keeps
+    // the skill window (and its autocast buttons) from rebuilding on every kill.
     payload.magic = sceneMagicSignature();
     if (state.characterTab === "character") {
       payload.equipment = state.inventory.equipment;
@@ -16676,7 +16841,6 @@ function buildSceneOverlayLiveSignature(openScenes, bossEntryZoneId) {
   const payload = {};
   if (openScenes.includes("character")) {
     payload.level = state.game.progress.level;
-    payload.experience = state.game.progress.experience;
     payload.magic = sceneMagicSignature();
     if (state.characterTab === "character") {
       payload.equipment = state.inventory.equipment;
@@ -16709,11 +16873,6 @@ function buildSceneOverlayLiveSignature(openScenes, bossEntryZoneId) {
   }
   if (bossEntryZoneId) {
     payload.bossEntryRespawnSec = Math.ceil(bossRespawnRemainingMs(bossEntryZoneId) / 1000);
-  }
-  if (openScenes.includes("teleportRing")) {
-    const nowTs = Date.now();
-    payload.teleportRingTimers = teleportRingBossZoneIds()
-      .map((zoneId) => Math.ceil(bossRespawnRemainingMs(zoneId, nowTs) / 1000));
   }
   return JSON.stringify(payload);
 }
@@ -17697,6 +17856,7 @@ function accountUpgradeIconText(upgrade) {
   if (upgrade?.effect === "goldBonusPercent") return "G+";
   if (upgrade?.effect === "dropChanceBonusPercent") return "DR";
   if (upgrade?.effect === "poisonAmuletStackMultiplier") return "ST";
+  if (upgrade?.effect === "gemOrbStackUnlock") return "OS";
   if (upgrade?.effect === "skillExperienceGainMaxBonus") return "SK";
   if (upgrade?.effect === "bonusAwakeningSoulChancePercent") return "S+";
   if (upgrade?.effect === "bossRespawnReductionPercent") return "RS";
@@ -18212,12 +18372,18 @@ function characterSkillSpells(classId = state.battle.combatClass) {
   return [...spells].sort(compareCombatSpellsByLearnLevel);
 }
 
+function crystalSkillProgressText(spell, learned) {
+  if (!learned) return "Unlearned";
+  const level = Number(learned?.level) || 0;
+  if (level >= 3) return "Mastered";
+  return `${learned?.experience ?? 0}/${spellExperienceTarget(spell, level)}`;
+}
+
 function crystalSkillRowHtml(spell, learned) {
   const isLearned = Boolean(learned);
   const level = isLearned ? Number(learned?.level) || 0 : 0;
-  const nextNeed = spellExperienceTarget(spell, level);
   const nextLevel = spellLevelRequirement(spell, level);
-  const progress = !isLearned ? "Unlearned" : level >= 3 ? "Mastered" : `${learned?.experience ?? 0}/${nextNeed}`;
+  const progress = crystalSkillProgressText(spell, learned);
   const mp = effectiveSpellMpCost(spell, learned);
   const cooldown = spellDelayMs(spell, learned);
   const controlLabel = spell.toggle ? "toggle" : "auto cast";
@@ -18254,7 +18420,7 @@ function crystalSkillRowHtml(spell, learned) {
       <span class="crystal-skill-name">${escapeHtml(spell.label)}</span>
       <span class="crystal-skill-level">${isLearned ? `Lv ${level}` : "Lv -"}</span>
       ${autoControl}
-      <span class="crystal-skill-exp">${escapeHtml(progress)}</span>
+      <span class="crystal-skill-exp" data-skill-exp="${escapeHtml(spell.id)}">${escapeHtml(progress)}</span>
       <span class="crystal-skill-meta">${escapeHtml(meta)}</span>
     </div>
   `;
@@ -18335,6 +18501,15 @@ function confirmTeleportRingPurchase() {
     pushBattleLog("Teleport Ring unlocked - tap the ring at the top-right to warp to boss rooms.");
     playSfx("ui.gold", { volume: 0.55, throttleMs: 80 });
     syncTeleportRingButton();
+    saveGameState(true);
+  });
+}
+
+function confirmOrganisationSkillsPurchase() {
+  if (organisationSkillsUnlocked() || state.tokens.buying) return;
+  purchasePageUnlock(ORGANISATION_SKILLS_UNLOCK_KEY, () => {
+    pushBattleLog("Organisation Skills unlocked - gems and orbs now stack in your inventory.");
+    playSfx("ui.gold", { volume: 0.55, throttleMs: 80 });
     saveGameState(true);
   });
 }
@@ -18522,6 +18697,13 @@ function cashShopSceneHtml() {
     : `<button type="button" class="primary" data-buy-unlock="${TELEPORT_RING_UNLOCK_KEY}" ${tokens.buying || !ringAffordable ? "disabled" : ""}>
           ${tokens.buying ? "Purchasing..." : `Buy for ${TELEPORT_RING_TOKEN_COST} tokens`}
         </button>${ringAffordable ? "" : `<small class="cash-shop-need">Need ${TELEPORT_RING_TOKEN_COST} tokens</small>`}`;
+  const orgOwned = organisationSkillsUnlocked();
+  const orgAffordable = balanceValue >= ORGANISATION_SKILLS_TOKEN_COST;
+  const orgButtonHtml = orgOwned
+    ? `<button type="button" class="cash-shop-owned" disabled>Owned</button>`
+    : `<button type="button" class="primary" data-buy-unlock="${ORGANISATION_SKILLS_UNLOCK_KEY}" ${tokens.buying || !orgAffordable ? "disabled" : ""}>
+          ${tokens.buying ? "Purchasing..." : `Buy for ${ORGANISATION_SKILLS_TOKEN_COST} tokens`}
+        </button>${orgAffordable ? "" : `<small class="cash-shop-need">Need ${ORGANISATION_SKILLS_TOKEN_COST} tokens</small>`}`;
   const spendHtml = `
       <div class="cash-shop-spend">
         <h3>Spend tokens</h3>
@@ -18532,6 +18714,13 @@ function cashShopSceneHtml() {
             <small>Adds a ring button to your screen that opens a boss-room teleport menu with live respawn timers.</small>
           </div>
           <div class="cash-shop-item-buy">${ringButtonHtml}</div>
+        </div>
+        <div class="cash-shop-item">
+          <div class="cash-shop-item-info">
+            <strong>Organisation Skills</strong>
+            <small>Lets gems and orbs stack in your inventory. Also available in the Rebirth shop for rebirth points.</small>
+          </div>
+          <div class="cash-shop-item-buy">${orgButtonHtml}</div>
         </div>
       </div>
   `;
@@ -19770,6 +19959,8 @@ function finishInventoryClickCarry(event) {
         if (canDropEntryToInventorySlot(carry.entryId, targetSlot, carry.sourceEquipmentSlot).ok) {
           void dropInventoryEntryToInventorySlot(carry.entryId, targetSlot, carry.sourceEquipmentSlot);
         }
+      } else if (isHotbarEntry(carry.entryId)) {
+        // Dropped outside a valid target; leave the stack on the hotbar.
       } else {
         void confirmDestroyInventoryEntry(carry.entryId);
       }
@@ -19844,7 +20035,13 @@ function finishInventoryClickCarry(event) {
         applyGemUpgrade(targetEntryId, carry.entryId);
         return true;
       }
-      combineInventoryStackEntries(carry.entryId, targetEntryId);
+      if (!combineInventoryStackEntries(carry.entryId, targetEntryId)) {
+        const sourceHotbarSlot = hotbarSlotForEntry(carry.entryId);
+        const targetHotbarSlot = hotbarSlotForEntry(targetEntryId);
+        if (sourceHotbarSlot >= 0 && targetHotbarSlot >= 0) {
+          dropInventoryEntryToHotbarSlot(carry.entryId, targetHotbarSlot);
+        }
+      }
     }
     return true;
   }
@@ -20995,6 +21192,11 @@ function finishGroupDungeonBossSwarmEncounter(now = performance.now()) {
     pushBattleLog(`${bossLabel} will respawn in ${formatBossRespawnDelay(respawnMinutes)}.`);
   }
   pushBattleLog(`All ${bossLabel} defeated.`);
+  freezeBossPartyMembersForAftermath(party, now);
+  if (party.pet?.active) {
+    party.pet.nextAttackAt = Number.POSITIVE_INFINITY;
+    setTaoPetAction("standing", false, now);
+  }
   if (nextZone) {
     pushBattleLog(`Advance to ${nextZone.label} when you are ready.`);
   } else if (bossRoomDef(zone?.id)) {
@@ -22120,10 +22322,14 @@ function tryConsumeEnemyPendingStruck(now) {
   const battle = state.battle;
   const enemy = battle.enemy;
   if (!battle.pendingEnemyStruck || !enemy || enemy.hp <= 0) return false;
-  // Flinch is allowed to interrupt walking (enemies react to hits while approaching),
-  // but must not cut off attack/other one-shot animations.
-  if (state.enemy.oneShot && state.enemy.action !== "standing") return false;
+  // Never interrupt spawn-reveal or death animations.
+  if (state.enemy.action === "die" || state.enemy.action === "show") return false;
+  // Let the current flinch finish before starting another (avoids a frozen first frame).
   if (state.enemy.action === "struck") return false;
+  // Protect a freshly started attack animation for a brief window so the enemy visibly
+  // attacks; after that a flinch may interrupt it (the attack's damage is already resolved
+  // independently, so this never stops the enemy from attacking).
+  if (swarmIsAttackAction(state.enemy.action) && now < (state.enemy.attackFlinchLockUntil ?? 0)) return false;
   battle.pendingEnemyStruck = false;
   setEnemyAction("struck", true, now);
   return true;
@@ -22137,8 +22343,11 @@ function queueSwarmEnemyStruck(enemy, now) {
 function tryConsumeSwarmEnemyPendingStruck(enemy, now) {
   if (!enemy?.pendingStruck || enemy.dying || enemy.hp <= 0) return false;
   if (swarmEnemyWalkInProgress(enemy)) return false;
-  if (enemy.oneShot && enemy.action !== "standing") return false;
+  if (enemy.action === "die" || enemy.action === "show") return false;
   if (enemy.action === "struck") return false;
+  // Protect a freshly started attack animation briefly, then allow the flinch (the hit's
+  // damage resolves independently, so this never prevents the enemy from attacking).
+  if (swarmIsAttackAction(enemy.action) && now < (enemy.attackFlinchLockUntil ?? 0)) return false;
   enemy.pendingStruck = false;
   setSwarmEnemyAction(enemy, "struck", true, now);
   return true;
@@ -22203,9 +22412,12 @@ function setSwarmEnemyAction(enemy, action, oneShot = false, now = performance.n
   enemy.frame = 0;
   enemy.oneShot = oneShot;
   enemy.lastTick = now;
-  if (oneShot && swarmIsAttackAction(enemy.action) && enemy.atlas?.castEffect) {
-    const hellKeeperMagic = isHellKeeperSwarmEnemy(enemy) && enemy.hellKeeperMagicStrike;
-    if (!hellKeeperMagic) enemy.attackFxStartedAt = now;
+  if (oneShot && swarmIsAttackAction(enemy.action)) {
+    enemy.attackFlinchLockUntil = now + enemyAttackAnimationMs(enemy.atlas, enemy.action);
+    if (enemy.atlas?.castEffect) {
+      const hellKeeperMagic = isHellKeeperSwarmEnemy(enemy) && enemy.hellKeeperMagicStrike;
+      if (!hellKeeperMagic) enemy.attackFxStartedAt = now;
+    }
   }
 }
 
@@ -23115,16 +23327,21 @@ function updateGroupDungeonBossPartyBattle(now) {
     finishGroupDungeonWaveIfReady(now);
   }
 
-  const enemy = state.battle.enemy;
-  if (party.pet?.active && now >= (party.pet.nextAttackAt ?? 0)) bossPartyPetAttack(now);
+  const bossSwarmComplete = Boolean(groupDungeonBossSwarmState()?.complete);
+  if (!bossSwarmComplete) {
+    const enemy = state.battle.enemy;
+    if (party.pet?.active && now >= (party.pet.nextAttackAt ?? 0)) bossPartyPetAttack(now);
 
-  for (const member of party.members) {
-    if (!member.alive || member.hp <= 0 || now < (member.nextActionAt ?? 0)) continue;
-    if (bossPartyMemberIsWalkingToMelee(member)) continue;
-    bossPartyMemberAction(member, now);
+    for (const member of party.members) {
+      if (!member.alive || member.hp <= 0 || now < (member.nextActionAt ?? 0)) continue;
+      if (bossPartyMemberIsWalkingToMelee(member)) continue;
+      bossPartyMemberAction(member, now);
+    }
+
+    runGroupDungeonSwarmAttackPass(now);
+  } else {
+    for (const member of party.members) updateBossPartyMemberRestState(member, now);
   }
-
-  runGroupDungeonSwarmAttackPass(now);
 
   // Crystal ActionFeed ordering: flinches play only after movement and attacks resolve.
   for (const swarmEnemy of swarm.enemies) {
@@ -23133,7 +23350,7 @@ function updateGroupDungeonBossPartyBattle(now) {
 
   updateBossPartyMeleeAdvance(now);
   bossPartySyncControlledPlayerRef();
-  if (!isPlayerOneShotAction()) setPlayerLocomotion("stance", now);
+  if (!bossSwarmComplete && !isPlayerOneShotAction()) setPlayerLocomotion("stance", now);
   return true;
 }
 
@@ -23579,8 +23796,8 @@ function craftingCubeTargetedChoiceHtml() {
     if (!preview?.ok) return "";
     const selectedSwapSlotA = Math.trunc(Number(state.craftingCube?.targetedEmpowerSwapSlotA) || 0);
     const selectedSwapSlotB = Math.trunc(Number(state.craftingCube?.targetedEmpowerSwapSlotB) || 0);
-    const renderSwapGroup = (side, item, entry, selectedSlot) => {
-      const choices = empowerSlotChoiceLabels(entry, item);
+    const renderSwapGroup = (side, item, entry, selectedSlot, targetItem) => {
+      const choices = empowerSwapChoiceLabels(entry, item, targetItem);
       if (!choices.length) return "";
       const itemName = itemDisplayName(item, entry);
       return `
@@ -23603,8 +23820,8 @@ function craftingCubeTargetedChoiceHtml() {
     };
     return `
       <div class="crafting-cube-targeted-choices">
-        ${renderSwapGroup("a", preview.empoweredItemA, preview.empoweredEntryA, selectedSwapSlotA)}
-        ${renderSwapGroup("b", preview.empoweredItemB, preview.empoweredEntryB, selectedSwapSlotB)}
+        ${renderSwapGroup("a", preview.empoweredItemA, preview.empoweredEntryA, selectedSwapSlotA, preview.empoweredItemB)}
+        ${renderSwapGroup("b", preview.empoweredItemB, preview.empoweredEntryB, selectedSwapSlotB, preview.empoweredItemA)}
       </div>
     `;
   }
@@ -24347,6 +24564,7 @@ function bindControls() {
     const buyUnlockButton = event.target.closest("[data-buy-unlock]");
     if (buyUnlockButton && root.contains(buyUnlockButton)) {
       if (buyUnlockButton.dataset.buyUnlock === TELEPORT_RING_UNLOCK_KEY) confirmTeleportRingPurchase();
+      else if (buyUnlockButton.dataset.buyUnlock === ORGANISATION_SKILLS_UNLOCK_KEY) confirmOrganisationSkillsPurchase();
       return;
     }
     const bossAssistButton = event.target.closest("[data-boss-assist]");
@@ -24548,6 +24766,10 @@ function bindControls() {
     };
     reader.readAsText(file);
   });
+  const clearHeldPointer = () => { heldPointerTarget = null; };
+  root.addEventListener("pointerdown", (event) => { heldPointerTarget = event.target; }, true);
+  window.addEventListener("pointerup", clearHeldPointer, true);
+  window.addEventListener("pointercancel", clearHeldPointer, true);
   window.addEventListener("pointerdown", () => {
     if (state.settings.musicEnabled) syncBackgroundMusic();
   }, { once: true });
@@ -24575,7 +24797,11 @@ function bindControls() {
   root.addEventListener("dblclick", (event) => {
     const inventoryItem = event.target.closest("[data-inventory-entry]");
     if (!inventoryItem || !root.contains(inventoryItem)) return;
-    if (inventoryItem.closest("[data-hotbar-slot]")) return;
+    if (inventoryItem.closest("[data-hotbar-slot]")) {
+      const slot = hotbarSlotForEntry(inventoryItem.dataset.inventoryEntry);
+      if (slot >= 0) useHotbarSlot(slot);
+      return;
+    }
     if (inventoryItem.dataset.equippedSlot) {
       unequipSlot(inventoryItem.dataset.equippedSlot);
       return;
@@ -24682,6 +24908,13 @@ function bindControls() {
     if (key === "s") {
       event.preventDefault();
       toggleOpenScene("character", { characterTab: "skill" });
+      return;
+    }
+    if (key === "a" || key === "d") {
+      if (keyboardCycleCharacterIds().length >= 2) {
+        event.preventDefault();
+        cycleKeyboardCharacterSelection(key === "a" ? -1 : 1);
+      }
       return;
     }
     if (key === " " || event.code === "Space") {
@@ -26013,6 +26246,8 @@ function updateBossPartyBattle(now) {
   if (!enemyFrozenActive(enemy, now) && now >= (state.battle.nextEnemyAttackAt ?? 0) && bossPartyEnemyAttack(now)) {
     state.battle.nextEnemyAttackAt = now + effectiveEnemyAttackMs(enemy, now);
   }
+  // Crystal ActionFeed ordering: flinches play only after movement and attacks resolve.
+  tryConsumeEnemyPendingStruck(now);
   updateBossPartyMeleeAdvance(now);
   bossPartyAdvanceEnemy(now);
   updateBossPartyReinforcementSwarm(now);
@@ -26262,10 +26497,10 @@ function bossPartyWarriorAction(member, now) {
         ? rollWarriorMagicDamage(attackSkill, learned, member, enemy, member.inventory)
         : rollDamage(effectiveCombatStats(member).dc, enemyPhysicalDefence(enemy), member.luck);
     return twinDrakeRawDamage;
-  }, "physical", now, () => {
+  }, "physical", now, (damage, crit) => {
     if (learned) bossPartyLevelMagicSkill(member, attackSkill, learned, now);
     bossPartyLevelPassiveWeaponMagic(member, now);
-    if (usingTwinDrake && enemy.hp > 0) queueTwinDrakeSecondHit(member, learned, twinDrakeRawDamage, now);
+    if (usingTwinDrake && enemy.hp > 0) queueTwinDrakeSecondHit(member, learned, twinDrakeRawDamage, now, crit);
     if (usingSweepAttack && learned) bossPartySweepSplash(member, attackSkill, learned, enemy, now);
   }, learned ? attackSkill : null);
   bossPartyRollSlayingCharge(member, now);
@@ -26574,14 +26809,17 @@ function bossPartyTaoistAction(member, now) {
 
   const poison = spells.find((spell) => spell.id === "Poisoning");
   if (poison && !state.battle.bossParty.pendingPoison && bossPartyCanCast(member, poison, now)) {
-    const entry = bossPartyPoisonCandidate(member, state.battle.enemy, now);
+    const target = groupDungeonSwarmSideActive()
+      ? groupDungeonSwarmBestPoisonTarget(now, { member, poisonEntries: bossPartyPoisonInventoryEntries(member) })
+      : null;
+    const entry = target?.entry ?? bossPartyPoisonCandidate(member, state.battle.enemy, now);
     const item = entry ? itemDefinition(entry.itemId) : null;
     if (entry && item && bossPartyConsumeOneInventoryUnit(member, entry.id)) {
       const learned = bossPartyLearned(member, poison.id);
       member.mp -= effectiveSpellMpCost(poison, learned, member.inventory);
       learned.castReadyAt = now + spellDelayMs(poison, learned);
       member.nextActionAt = now + spellDelayMs(poison, learned);
-      bossPartyQueuePoisonApply(member, poison, learned, item, now);
+      bossPartyQueuePoisonApply(member, poison, learned, item, now, target?.swarmEnemy?.id ?? null);
       return true;
     }
   }
@@ -26698,7 +26936,9 @@ function bossPartyAttackEnemy(member, label, rollDamageFn, kind, now, onHit, ski
     pushBattleLog(`${member.classId} ${label.toLowerCase()} misses ${enemy.name}.`);
     return true;
   }
-  const damage = scaleEnemyPhysicalDamage(rollDamageFn(), enemy, now);
+  const rolled = rollDamageFn();
+  const crit = consumeOutgoingCritFlag();
+  const damage = scaleEnemyPhysicalDamage(rolled, enemy, now);
   if (damage <= 0) {
     bossPartyShowEnemyMiss(member.classId, now);
     pushBattleLog(`${member.classId} ${label.toLowerCase()} misses ${enemy.name}.`);
@@ -26716,10 +26956,10 @@ function bossPartyAttackEnemy(member, label, rollDamageFn, kind, now, onHit, ski
       && playSpellSfx(skill.id, "impact", bossPartySfxParams(member, 0.5, 80));
     if (!skillImpact) playWeaponHitSfx({ ...bossPartySfxParams(member, 0.5, 90), family: bossPartyWeaponSfxFamily(member, "hit") });
   }
-  bossPartyShowEnemyDamage(member.classId, damage, now);
+  bossPartyShowEnemyDamage(member.classId, damage, now, crit);
   pushBattleLog(`${member.classId} ${label} hits ${enemy.name} for ${damage}.`);
   if (kind === "physical" && enemy.hp > 0) applyCrystalFreezingAttackProc(member, enemy, now);
-  if (typeof onHit === "function") onHit(damage);
+  if (typeof onHit === "function") onHit(damage, crit);
   maybeKillGroupDungeonSwarmEnemy(enemy, now);
   return true;
 }
@@ -26729,7 +26969,12 @@ function bossPartyWeaponAttack(member, now) {
   member.nextActionAt = now + attackDelayMs(bossPartyEffectiveAttackSpeed(member, now), member.level);
   bossPartyControlledVisual(member, BASIC_ATTACK_SKILL, BASIC_ATTACK_SKILL.bodyAction, now);
   playWeaponSwingSfx({ ...bossPartySfxParams(member, 0.52, 90), family: bossPartyWeaponSfxFamily(member, "swing") });
-  return bossPartyAttackEnemy(member, "Attack", () => rollDamage(effectiveCombatStats(member).dc, enemyPhysicalDefence(state.battle.enemy), member.luck), "physical", now, () => bossPartyLevelPassiveWeaponMagic(member, now));
+  return bossPartyAttackEnemy(member, "Attack", () => applyCritToOutgoingDamage(
+    rollDamage(effectiveCombatStats(member).dc, enemyPhysicalDefence(state.battle.enemy), member.luck),
+    member,
+    null,
+    member.inventory,
+  ), "physical", now, () => bossPartyLevelPassiveWeaponMagic(member, now));
 }
 
 function bossPartyControlledVisual(member, skill, bodyAction, now, options = {}) {
@@ -26876,6 +27121,22 @@ function bossPartyUsableTaoistPoisoning(member, now, options = {}) {
   const learned = bossPartyLearned(member, spell.id);
   if (!bossPartyCanUseTaoistSpell(member, spell, learned, now, { requireAuto: options.requireAuto !== false })) return null;
   if (state.battle.bossParty.pendingPoison) return null;
+  if (groupDungeonSwarmSideActive()) {
+    const target = groupDungeonSwarmBestPoisonTarget(now, {
+      member,
+      poisonEntries: bossPartyPoisonInventoryEntries(member),
+    });
+    if (!target) return null;
+    return {
+      spell,
+      learned,
+      cost: effectiveSpellMpCost(spell, learned, member.inventory),
+      entry: target.entry,
+      item: target.item,
+      kind: target.kind,
+      targetSwarmId: target.swarmEnemy.id,
+    };
+  }
   const enemy = state.battle.enemy;
   if (!enemy || enemy.hp <= 0) return null;
   if (!options.ignoreRange && bossPartyMemberEnemyDistance(member) > crystalSpellRangePx(spell)) return null;
@@ -27421,7 +27682,7 @@ function bossPartyCastQueuedTaoistSpell(member, queued, now) {
     member.mp -= queued.cost;
     queued.learned.castReadyAt = now + spellDelayMs(queued.spell, queued.learned);
     member.nextActionAt = now + spellDelayMs(queued.spell, queued.learned);
-    bossPartyQueuePoisonApply(member, queued.spell, queued.learned, queued.item, now);
+    bossPartyQueuePoisonApply(member, queued.spell, queued.learned, queued.item, now, queued.targetSwarmId ?? null);
     return true;
   }
   if (queued.spell.id === "PoisonCloud") {
@@ -28279,7 +28540,7 @@ function drawMassHealImpactFxCanvas(ctx) {
 
 // Mirrors solo `castTaoistPoisoning` + `updatePendingPoison`: cast SFX on use,
 // impact SFX when the poison actually lands on the boss after the Crystal delay.
-function bossPartyQueuePoisonApply(member, poison, learned, item, now) {
+function bossPartyQueuePoisonApply(member, poison, learned, item, now, targetSwarmId = null) {
   const party = state.battle.bossParty;
   if (!party) return;
   party.pendingPoison = {
@@ -28289,6 +28550,7 @@ function bossPartyQueuePoisonApply(member, poison, learned, item, now) {
     value: rollTaoistPoisonPower(poison, learned, member),
     kind: poisonItemKind(item),
     itemName: item.name,
+    targetSwarmId: targetSwarmId ?? null,
   };
   bossPartyControlledVisual(member, poison, poison.bodyAction ?? "spell", now);
   bossPartyCastSfx(member, poison.id, 0.38, 160);
@@ -28298,8 +28560,9 @@ function bossPartyQueuePoisonApply(member, poison, learned, item, now) {
 function updateBossPartyPendingPoison(now) {
   const party = state.battle.bossParty;
   const pending = party?.pendingPoison;
-  const enemy = state.battle.enemy;
-  if (!pending || now < pending.at || !enemy || enemy.hp <= 0) return;
+  if (!pending || now < pending.at) return;
+  const { enemy, swarmEnemy } = resolvePendingPoisonTarget(pending);
+  if (!enemy || enemy.hp <= 0) return;
   party.pendingPoison = null;
   const spell = taoistCombatSpell(pending.spellId);
   const member = party.members.find((entry) => entry.classId === pending.memberClassId);
@@ -28321,9 +28584,10 @@ function updateBossPartyPendingPoison(now) {
   const sfx = bossPartySfxParamsForClass(pending.memberClassId, 0.5, 0);
   playSpellSfx(spell.id, "impact", sfx) || playSpellSfx(spell.id, "cast", sfx);
   const label = poisonKind === "green" ? "Green Poison" : "Yellow Poison";
-  addCombatText("enemy", poisonKind === "green" ? "Poison" : "Weaken", poisonKind === "green" ? "poison" : "debuff", now);
+  if (swarmEnemy) addSwarmEnemyCombatText(swarmEnemy, poisonKind === "green" ? "Poison" : "Weaken", poisonKind === "green" ? "poison" : "debuff", now);
+  else addCombatText("enemy", poisonKind === "green" ? "Poison" : "Weaken", poisonKind === "green" ? "poison" : "debuff", now);
   pushBattleLog(applied ? `${label} affects ${enemy.name}.` : `${enemy.name} resists the weaker ${label}.`);
-  if (isQueuedCombatSpell("Poisoning") && member && !bossPartyPoisonCandidate(member, enemy, now)) {
+  if (isQueuedCombatSpell("Poisoning") && member && !bossPartyHasAvailablePoisoningTarget(member, now)) {
     clearQueuedCombatSpell("Poisoning");
   }
 }
@@ -28337,12 +28601,14 @@ function bossPartyQueueImpact(member, spell, label, atlas, now, rollDamageFn) {
   if (!enemy) return;
   const hit = rollMagicHit(enemy);
   const damage = hit ? Math.max(0, Math.trunc(Number(rollDamageFn()) || 0)) : 0;
+  const crit = damage > 0 && consumeOutgoingCritFlag();
   partyBossImpacts().push({
     at: now + wizardImpactDelay(spell, atlas),
     spellId: spell.id,
     label,
     damage,
     hit: hit && damage > 0,
+    crit,
     worldX: state.battle.enemyX,
     casterClassId: member.classId,
   });
@@ -28446,16 +28712,19 @@ function updateBossPartyImpacts(now) {
       continue;
     }
     if (!impact.hit || impact.damage <= 0) {
-      bossPartyShowEnemyMiss(impact.casterClassId, now);
-      applyCombatEvents(magicAttackMissEvents(impact.label, enemy.name), now);
+      applyBossPartyCombatEvents(impact.casterClassId, magicAttackMissEvents(impact.label, enemy.name), now);
       continue;
     }
     syncBattleEnemyHpToSwarm();
     strikeGroupDungeonSwarmEnemy(enemy, now);
     playMonsterSfx("flinch", enemy, bossPartySfxParamsForClass(impact.casterClassId, 0.42, 80));
-    bossPartyShowEnemyDamage(impact.casterClassId, impact.damage, now);
   recordBossCombatDamage(impact.casterClassId, impact.spellId, impact.damage);
-  applyCombatEvents(magicAttackHitEvents(impact.label, enemy.name, impact.damage), now, { enemy });
+  applyBossPartyCombatEvents(
+    impact.casterClassId,
+    magicAttackHitEvents(impact.label, enemy.name, impact.damage, "enemy", critDamageKind(impact.crit)),
+    now,
+    { enemy },
+  );
   maybeKillGroupDungeonSwarmEnemy(enemy, now);
   const caster = state.battle.bossParty?.members.find((m) => m.classId === impact.casterClassId);
   const spell = combatAttackSpell(impact.spellId);
@@ -30024,8 +30293,19 @@ function bossPartyDamageTextKind(classId) {
   return "damage";
 }
 
-function bossPartyShowEnemyDamage(classId, damage, now = performance.now()) {
-  addCombatText("enemy", damage, bossPartyDamageTextKind(classId), now, bossPartyDamageTextOffset(classId));
+function bossPartyShowEnemyDamage(classId, damage, now = performance.now(), crit = false) {
+  const kind = crit ? "crit" : bossPartyDamageTextKind(classId);
+  addCombatText("enemy", damage, kind, now, bossPartyDamageTextOffset(classId));
+}
+
+function applyBossPartyCombatEvents(classId, events, now = performance.now(), context = {}) {
+  const offsetX = bossPartyDamageTextOffset(classId);
+  if (offsetX) {
+    for (const event of events) {
+      if (event.type === "combatText") event.offsetX = offsetX;
+    }
+  }
+  applyCombatEvents(events, now, context);
 }
 
 function bossPartyShowEnemyMiss(classId, now = performance.now()) {
@@ -30186,6 +30466,47 @@ function renderPartySwitchBar() {
   partySwitchBarSignature = signature;
   els.partySwitchBar.hidden = false;
   els.partySwitchBar.innerHTML = partySwitchBarHtml();
+}
+
+function characterSelectOptionEnabled(entry) {
+  const combatClass = COMBAT_CLASSES.find((candidate) => candidate.id === entry.id);
+  return !entry.disabled && !combatClass?.disabled;
+}
+
+function selectableTownCharacterIds() {
+  if (state.game.mode !== "town" || bossPartyOnField()) return [];
+  return CHARACTER_SELECT_CLASSES.filter(characterSelectOptionEnabled).map((entry) => entry.id);
+}
+
+function selectablePartyCharacterIds() {
+  const party = state.battle.bossParty;
+  if (!party || party.defeated || !bossPartyOnField() || !isGroupContentZone(activeZone())) return [];
+  if ((party.members?.length ?? 0) < 2 || !bossPartyCanSwitchControl()) return [];
+  return party.members
+    .filter((member) => member.alive && member.hp > 0)
+    .map((member) => member.classId)
+    .sort((a, b) => BOSS_PARTY_ORDER.indexOf(a) - BOSS_PARTY_ORDER.indexOf(b));
+}
+
+function keyboardCycleCharacterIds() {
+  const townIds = selectableTownCharacterIds();
+  if (townIds.length >= 2) return townIds;
+  const partyIds = selectablePartyCharacterIds();
+  return partyIds.length >= 2 ? partyIds : [];
+}
+
+function cycleKeyboardCharacterSelection(direction) {
+  const ids = keyboardCycleCharacterIds();
+  if (ids.length < 2) return false;
+  const currentId = normalizeCharacterId(bossPartyOnField() ? bossPartyControlledClassId() : state.activeCharacterId);
+  const currentIndex = ids.indexOf(currentId);
+  const startIndex = currentIndex >= 0 ? currentIndex : 0;
+  const nextIndex = (startIndex + direction + ids.length * 10) % ids.length;
+  const nextId = ids[nextIndex];
+  if (nextId === currentId) return false;
+  if (bossPartyOnField()) return switchControlledPartyMember(nextId);
+  void selectPlayerClass(nextId);
+  return true;
 }
 
 function finishBossPartyEnemy(now) {
@@ -30853,13 +31174,16 @@ function updateBossPartyMemberVampirismRegen(member, now) {
   return changed;
 }
 
-function bossPartyPoisonCandidate(member, enemy, now) {
+function bossPartyPoisonInventoryEntries(member) {
   const entries = bossPartyCarriedInventoryEntries(member).filter((entry) => isPoisonItem(itemDefinition(entry.itemId)));
-  const green = entries.find((entry) => poisonItemKind(itemDefinition(entry.itemId)) === "green") ?? null;
-  const yellow = entries.find((entry) => poisonItemKind(itemDefinition(entry.itemId)) === "yellow") ?? null;
-  if (green && poisonNeedsApply(enemy, "green", now)) return green;
-  if (yellow && poisonNeedsApply(enemy, "yellow", now)) return yellow;
-  return null;
+  return {
+    green: entries.find((entry) => poisonItemKind(itemDefinition(entry.itemId)) === "green") ?? null,
+    yellow: entries.find((entry) => poisonItemKind(itemDefinition(entry.itemId)) === "yellow") ?? null,
+  };
+}
+
+function bossPartyPoisonCandidate(member, enemy, now) {
+  return poisonCandidateForEntries(enemy, bossPartyPoisonInventoryEntries(member), now);
 }
 
 function bossPartyAmuletCandidate(member) {
@@ -31213,19 +31537,6 @@ function enemyStunned(enemy, now = performance.now()) {
 
 function scaleEnemyPhysicalDamage(damage, enemy, now = performance.now()) {
   return scalePhysicalDamageForStun(damage, enemyStunned(enemy, now));
-}
-
-function tryApplyTwinDrakeStun(enemy, learned, now = performance.now()) {
-  if (!enemy || enemy.hp <= 0 || !learned) return false;
-  const level = Math.max(0, Math.min(3, Number(learned.level) || 0));
-  const playerLevel = Math.max(1, Math.trunc(Number(state.battle.player?.level ?? state.game.progress.level) || 1));
-  const enemyLevel = Math.max(0, Math.trunc(Number(enemy?.level) || 0));
-  if (enemyLevel >= playerLevel + 10) return false;
-  if (randomInt(0, 19) > level + 1) return false;
-  const durationMs = (2 + level) * 1000;
-  enemy.stunnedUntil = Math.max(Number(enemy.stunnedUntil) || 0, now + durationMs);
-  pushBattleLog(`${enemy.name} is stunned.`);
-  return true;
 }
 
 function playTwinDrakeBladeSfx(options = {}) {
@@ -31613,14 +31924,14 @@ function clearSlashingBurstPendingState() {
   state.battle.slashingBurstDash = null;
 }
 
-function queueTwinDrakeSecondHit(source, learned, rawDamage, now) {
+function queueTwinDrakeSecondHit(source, learned, rawDamage, now, crit = false) {
   if (!learned || rawDamage == null) return;
   const hits = state.battle.pendingTwinDrakeHits ?? [];
   hits.push({
     at: now + CRYSTAL_TWIN_DRAKE_SECOND_HIT_DELAY_MS,
     memberClassId: source?.classId ?? state.battle.combatClass,
     rawDamage: Math.max(0, Math.trunc(Number(rawDamage) || 0)),
-    applyStun: true,
+    crit: Boolean(crit),
   });
   state.battle.pendingTwinDrakeHits = hits.slice(-6);
 }
@@ -31670,10 +31981,14 @@ function updatePendingTwinDrakeHits(now) {
     strikeGroupDungeonSwarmEnemy(battle.enemy, now);
     playMonsterSfx("flinch");
     playWeaponHitSfx();
-    addCombatText("enemy", damage, "damage", now);
+    const textKind = critDamageKind(entry.crit);
+    if (bossPartyActiveFight()) {
+      addCombatText("enemy", damage, textKind, now, bossPartyDamageTextOffset(entry.memberClassId));
+    } else {
+      addCombatText("enemy", damage, textKind, now);
+    }
     pushBattleLog(`Twin Drake Blade hits ${battle.enemy.name} again for ${damage}.`);
     if (battle.enemy.hp > 0) applyCrystalFreezingAttackProc(attacker, battle.enemy, now);
-    if (entry.applyStun) tryApplyTwinDrakeStun(battle.enemy, learned, now);
     if (battle.enemy.hp <= 0) {
       if (groupDungeonSwarmSideActive()) {
         maybeKillGroupDungeonSwarmEnemy(battle.enemy, now);
@@ -31888,9 +32203,10 @@ function warriorAttack(now) {
     }
     damage = applyCritToOutgoingDamage(swing.damage, battle.player);
   }
-  if (!warriorApplyPhysicalHit(skill, learned, damage, now)) return true;
+  const crit = consumeOutgoingCritFlag();
+  if (!warriorApplyPhysicalHit(skill, learned, damage, now, crit)) return true;
   if (skill.id === "TwinDrakeBlade" && charged && battle.enemy?.hp > 0) {
-    queueTwinDrakeSecondHit({ classId: battle.combatClass }, learned, damage, now);
+    queueTwinDrakeSecondHit({ classId: battle.combatClass }, learned, damage, now, crit);
   }
   return true;
 }
@@ -32824,7 +33140,9 @@ function rollWarriorMagicDamage(skill, learned, player, enemy, inventory = state
 
 function rollWizardMagicDamage(spell, learned, player, enemy, inventory = state.inventory) {
   const boosted = rollWizardMagicValue(spell, learned, player, inventory);
-  const adjusted = spell?.id === "ThunderBolt" && enemy?.undead ? Math.trunc(boosted * 1.5) : boosted;
+  const adjusted = spell?.id === "ThunderBolt" && enemy?.undead
+    ? Math.trunc(boosted * thunderBoltUndeadMultiplier(learned?.level))
+    : boosted;
   return applyCritToOutgoingDamage(applyWizardMagicDefence(adjusted, enemy), player, spell?.id, inventory);
 }
 
@@ -33420,12 +33738,87 @@ function applyHealingCircleTickAllies(effect, now, options = {}) {
   return healed;
 }
 
-function poisonCandidateForEnemy(enemy, now = performance.now()) {
-  const green = poisonInventoryEntries("green")[0] ?? null;
-  const yellow = poisonInventoryEntries("yellow")[0] ?? null;
+function poisonCandidateForEntries(enemy, entries, now = performance.now()) {
+  const green = entries?.green ?? null;
+  const yellow = entries?.yellow ?? null;
   if (green && poisonNeedsApply(enemy, "green", now)) return green;
   if (yellow && poisonNeedsApply(enemy, "yellow", now)) return yellow;
   return null;
+}
+
+function poisonInventoryEntrySets() {
+  return {
+    green: poisonInventoryEntries("green")[0] ?? null,
+    yellow: poisonInventoryEntries("yellow")[0] ?? null,
+  };
+}
+
+function groupDungeonSwarmCasterWorldX(member = null) {
+  if (member?.worldX != null) return Number(member.worldX) || 0;
+  return Number(state.battle.playerX) || 0;
+}
+
+function groupDungeonSwarmEnemySpellDistance(casterWorldX, swarmEnemy) {
+  return Math.max(0, (Number(swarmEnemy?.worldX) || 0) - casterWorldX);
+}
+
+function groupDungeonSwarmPoisonInRange(swarmEnemy, spell, member = null) {
+  return groupDungeonSwarmEnemySpellDistance(groupDungeonSwarmCasterWorldX(member), swarmEnemy) <= crystalSpellRangePx(spell);
+}
+
+function groupDungeonSwarmBestPoisonTarget(now, options = {}) {
+  if (!groupDungeonSwarmSideActive()) return null;
+  const spell = taoistCombatSpell("Poisoning");
+  const member = options.member ?? null;
+  const entries = options.poisonEntries ?? poisonInventoryEntrySets();
+  const meleeCol = swarmSnapTileX(groupDungeonSwarmMeleeWorldX());
+  const spawnRow = arenaSpawnMapRow();
+  let best = null;
+  let bestScore = Infinity;
+
+  for (const swarmEnemy of groupDungeonSwarmLivingEnemies()) {
+    if (!options.ignoreRange && !groupDungeonSwarmPoisonInRange(swarmEnemy, spell, member)) continue;
+    const entity = swarmEnemyToBattleEntity(swarmEnemy);
+    const entry = poisonCandidateForEntries(entity, entries, now);
+    if (!entry) continue;
+    const item = itemDefinition(entry.itemId);
+    if (!isPoisonItem(item)) continue;
+    const score = Math.abs(Number(swarmEnemy.worldX) - meleeCol)
+      + Math.abs(Number(swarmEnemy.mapRow) - spawnRow) * GROUP_DUNGEON_SWARM_CELL_HEIGHT;
+    if (score < bestScore) {
+      bestScore = score;
+      best = {
+        swarmEnemy,
+        entity,
+        entry,
+        item,
+        kind: poisonItemKind(item),
+      };
+    }
+  }
+
+  return best;
+}
+
+function hasAvailablePoisoningTarget(now, options = {}) {
+  if (groupDungeonSwarmSideActive()) return Boolean(groupDungeonSwarmBestPoisonTarget(now, options));
+  const enemy = state.battle.enemy;
+  return Boolean(enemy && enemy.hp > 0 && poisonCandidateForEnemy(enemy, now));
+}
+
+function bossPartyHasAvailablePoisoningTarget(member, now) {
+  if (groupDungeonSwarmSideActive()) {
+    return Boolean(groupDungeonSwarmBestPoisonTarget(now, {
+      member,
+      poisonEntries: bossPartyPoisonInventoryEntries(member),
+    }));
+  }
+  const enemy = state.battle.enemy;
+  return Boolean(enemy && enemy.hp > 0 && bossPartyPoisonCandidate(member, enemy, now));
+}
+
+function poisonCandidateForEnemy(enemy, now = performance.now()) {
+  return poisonCandidateForEntries(enemy, poisonInventoryEntrySets(), now);
 }
 
 function poisonNeedsApply(enemy, kind, now) {
@@ -35501,6 +35894,19 @@ function usableTaoistPoisoning(now, options = {}) {
   const learned = learnedMagic(spell.id);
   if (!canUseTaoistSpell(spell, learned, now, { requireAuto: options.requireAuto !== false })) return null;
   if (state.battle.pendingPoison) return null;
+  if (groupDungeonSwarmSideActive()) {
+    const target = groupDungeonSwarmBestPoisonTarget(now, { ignoreRange: options.ignoreRange });
+    if (!target) return null;
+    return {
+      spell,
+      learned,
+      cost: effectiveSpellMpCost(spell, learned),
+      entry: target.entry,
+      item: target.item,
+      kind: target.kind,
+      targetSwarmId: target.swarmEnemy.id,
+    };
+  }
   const enemy = state.battle.enemy;
   if (!enemy || enemy.hp <= 0) return null;
   if (!options.ignoreRange && enemyDistance() > crystalSpellRangePx(spell)) return null;
@@ -36034,10 +36440,12 @@ function reduceTaoistPetIncomingDamage(pet, amount) {
 }
 
 function createTaoistSkeletonPet(spellLevel, now = performance.now()) {
-  const level = Math.max(0, Math.min(3, Math.trunc(Number(spellLevel) || 0)));
-  const maxPetLevel = 4 + level;
+  const spellLvl = clampTaoistSpellLevel(spellLevel);
+  const petLevel = taoistPetLevelFromSpellLevel(spellLvl);
+  const maxPetLevel = taoistPetMaxLevelFromSpellLevel(spellLvl, "SummonSkeleton");
   const stats = CRYSTAL_SUMMON_SKELETON_PET_STATS;
-  const attackMs = Math.max(400, Math.trunc(stats.attackMs - maxPetLevel * 70));
+  const combat = taoistPetCombatStats(stats, petLevel);
+  const attackMs = taoistPetAttackDelayMs(stats.attackMs, maxPetLevel);
   const pet = {
     active: true,
     dead: false,
@@ -36045,13 +36453,13 @@ function createTaoistSkeletonPet(spellLevel, now = performance.now()) {
     name: stats.name,
     monsterIndex: CRYSTAL_SUMMON_SKELETON_PET_INDEX,
     worldX: 0,
-    level,
+    level: petLevel,
     maxPetLevel,
-    maxHp: stats.maxHp + level * 20,
-    hp: stats.maxHp + level * 20,
-    dc: [stats.dc[0] + level, stats.dc[1] + level],
-    ac: [stats.ac[0] + level * 2, stats.ac[1] + level * 2],
-    amc: [stats.amc[0] + level * 2, stats.amc[1] + level * 2],
+    maxHp: combat.maxHp,
+    hp: combat.maxHp,
+    dc: combat.dc,
+    ac: combat.ac,
+    amc: combat.amc,
     accuracy: stats.accuracy,
     agility: stats.agility,
     luck: stats.luck,
@@ -36070,10 +36478,12 @@ function createTaoistSkeletonPet(spellLevel, now = performance.now()) {
 }
 
 function createTaoistShinsuPet(spellLevel, now = performance.now()) {
-  const level = Math.max(0, Math.min(3, Math.trunc(Number(spellLevel) || 0)));
-  const maxPetLevel = 1 + level * 2;
+  const spellLvl = clampTaoistSpellLevel(spellLevel);
+  const petLevel = taoistPetLevelFromSpellLevel(spellLvl);
+  const maxPetLevel = taoistPetMaxLevelFromSpellLevel(spellLvl, "SummonShinsu");
   const stats = CRYSTAL_SUMMON_SHINSU_PET_STATS;
-  const attackMs = Math.max(400, Math.trunc(stats.attackMs - maxPetLevel * 70));
+  const combat = taoistPetCombatStats(stats, petLevel);
+  const attackMs = taoistPetAttackDelayMs(stats.attackMs, maxPetLevel);
   const pet = {
     active: true,
     dead: false,
@@ -36082,13 +36492,13 @@ function createTaoistShinsuPet(spellLevel, now = performance.now()) {
     monsterIndex: CRYSTAL_SUMMON_SHINSU_PET_INDEX,
     shinsuVisible: false,
     worldX: 0,
-    level,
+    level: petLevel,
     maxPetLevel,
-    maxHp: stats.maxHp + level * 20,
-    hp: stats.maxHp + level * 20,
-    dc: [stats.dc[0] + level, stats.dc[1] + level],
-    ac: [stats.ac[0] + level * 2, stats.ac[1] + level * 2],
-    amc: [stats.amc[0] + level * 2, stats.amc[1] + level * 2],
+    maxHp: combat.maxHp,
+    hp: combat.maxHp,
+    dc: combat.dc,
+    ac: combat.ac,
+    amc: combat.amc,
     accuracy: stats.accuracy,
     agility: stats.agility,
     luck: stats.luck,
@@ -36656,24 +37066,29 @@ function applyWizardMirrorSpellImpact(mirror, impact, now) {
   }
   if (!impact.hit || impact.damage <= 0) {
     if (bossPartyOnField()) {
-      bossPartyShowEnemyMiss(owner?.classId ?? "Wizard", now);
+      applyBossPartyCombatEvents(owner?.classId ?? "Wizard", magicAttackMissEvents(spell.label, enemy.name), now);
+    } else {
+      applyCombatEvents(magicAttackMissEvents(spell.label, enemy.name), now);
     }
-    applyCombatEvents(magicAttackMissEvents(spell.label, enemy.name), now);
     return;
   }
   if (bossPartyOnField()) {
     syncBattleEnemyHpToSwarm();
     strikeGroupDungeonSwarmEnemy(enemy, now);
     playMonsterSfx("flinch", enemy, bossPartySfxParamsForClass(owner?.classId ?? "Wizard", 0.34, 120));
-    bossPartyShowEnemyDamage(owner?.classId ?? "Wizard", impact.damage, now);
     recordBossCombatDamage(owner?.classId ?? "Wizard", impact.spellId, impact.damage);
-    applyCombatEvents(magicAttackHitEvents(spell.label, enemy.name, impact.damage), now, { enemy });
+    applyBossPartyCombatEvents(
+      owner?.classId ?? "Wizard",
+      magicAttackHitEvents(spell.label, enemy.name, impact.damage, "enemy", critDamageKind(impact.crit)),
+      now,
+      { enemy },
+    );
     maybeKillGroupDungeonSwarmEnemy(enemy, now);
     return;
   }
   queueEnemyStruck(now);
   playMonsterSfx("flinch");
-  applyCombatEvents(magicAttackHitEvents(spell.label, enemy.name, impact.damage), now, { enemy: enemy });
+  applyCombatEvents(magicAttackHitEvents(spell.label, enemy.name, impact.damage, "enemy", critDamageKind(impact.crit)), now, { enemy: enemy });
   if (enemy.hp <= 0) {
     finishEnemy(now);
     setEnemyAction("die", false, now);
@@ -36720,12 +37135,14 @@ function wizardMirrorTryAttack(mirror, owner, now, options = {}) {
   const damage = hit
     ? rollWizardMagicDamage(spell, learned, owner, enemy, wizardMirrorOwnerInventory(owner))
     : 0;
+  const crit = damage > 0 && consumeOutgoingCritFlag();
   const impactAt = now + wizardImpactDelay(spell, atlas);
   const impact = {
     at: impactAt,
     spellId: spell.id,
     damage,
     hit: hit && damage > 0,
+    crit,
   };
   if (bossPartyOnField()) {
     partyBossImpacts().push({
@@ -36734,6 +37151,7 @@ function wizardMirrorTryAttack(mirror, owner, now, options = {}) {
       label: spell.label,
       damage: impact.damage,
       hit: impact.hit,
+      crit: impact.crit,
       casterClassId: owner.classId,
       fromMirror: true,
     });
@@ -37115,6 +37533,7 @@ function castTaoistPoisoning(poisoning, now, options = {}) {
     value: rollTaoistPoisonPower(spell, learned, battle.player),
     kind,
     itemName: item.name,
+    targetSwarmId: poisoning.targetSwarmId ?? null,
   };
 
   if (!options.offline) {
@@ -38671,6 +39090,30 @@ function resolveIncomingEnemyRangedAttack(enemy, target, options = {}) {
 const FLOATING_TEXT_STACK_GAP = 17; // px between stacked numbers sharing a column
 const FLOATING_TEXT_STACK_WINDOW_MS = 650; // only recently spawned texts still crowd the spawn point
 const FLOATING_TEXT_STACK_X_TOLERANCE = 34; // horizontal distance still counted as the same column
+function resetCritTextTracking(resetBaseline = true) {
+  if (resetBaseline) state.battle.critTextRecentEma = 0;
+  state.battle.critTextSessionPeak = 0;
+}
+
+function resetCritTextSessionPeak() {
+  state.battle.critTextSessionPeak = 0;
+}
+
+function noteCritFloatingText(damage) {
+  const amount = Math.max(0, Math.trunc(Number(damage) || 0));
+  if (amount <= 0) return 0.35;
+  const zoneFloor = critTextZoneFloor(state.battle.enemy?.maxHp ?? 0);
+  const tracking = advanceCritTextTracking(
+    amount,
+    state.battle.critTextRecentEma ?? 0,
+    state.battle.critTextSessionPeak ?? 0,
+    { zoneFloor },
+  );
+  state.battle.critTextRecentEma = tracking.ema;
+  state.battle.critTextSessionPeak = tracking.peak;
+  return tracking.scale;
+}
+
 function floatingTextStackOffsetY(x, now) {
   let stacked = 0;
   for (const entry of state.battle.floatingTexts) {
@@ -38683,7 +39126,7 @@ function floatingTextStackOffsetY(x, now) {
 function addCombatText(anchor, text, kind = "damage", now = performance.now(), offsetX = 0) {
   const bounds = combatTextBounds(anchor);
   const x = bounds.centerX + offsetX;
-  state.battle.floatingTexts.push({
+  const entry = {
     id: `${now}-${Math.random()}`,
     anchor,
     text: String(text),
@@ -38691,7 +39134,9 @@ function addCombatText(anchor, text, kind = "damage", now = performance.now(), o
     x,
     y: bounds.topY - 16 - floatingTextStackOffsetY(x, now),
     createdAt: now,
-  });
+  };
+  if (kind === "crit") entry.critScale = noteCritFloatingText(text);
+  state.battle.floatingTexts.push(entry);
   state.battle.floatingTexts = state.battle.floatingTexts.slice(-12);
 }
 
@@ -39011,6 +39456,7 @@ function spawnNextEnemy(now) {
   dismissTaoistPet();
   if (battle.enemy) battle.enemy.poisons = [];
   battle.floatingTexts = [];
+  resetCritTextSessionPeak();
   state.enemy.index = template.monsterIndex;
   state.enemy.action = "standing";
   state.enemy.frame = 0;
@@ -39137,11 +39583,14 @@ function renderCombatSkillBar(now = performance.now()) {
     return;
   }
 
+  // Structural signature only. Per-frame values (MP, cooldown countdown) are NOT
+  // included here - they are refreshed in place by updateCombatSkillBarCooldowns
+  // below. Rebuilding the innerHTML every frame (MP regen ticks constantly) was
+  // destroying the autocast buttons mid-click, so they flickered and ate presses.
   const signature = JSON.stringify({
     mode: state.game.mode,
     running: state.battle.running,
     phase: state.battle.phase,
-    mp: state.battle.player?.mp ?? 0,
     poisons: `${poisonInventoryCount("green")}:${poisonInventoryCount("yellow")}`,
     amulets: amuletInventoryCount(),
     magic: magicSignature(),
@@ -39149,22 +39598,51 @@ function renderCombatSkillBar(now = performance.now()) {
     queuedCombatSpellId: state.battle.queuedCombatSpellId ?? "",
     flamingSwordReady: warriorFlamingSwordReady(),
     twinDrakeReady: warriorTwinDrakeReady(),
-    cooldownSecond: skills.map((skill) => {
-      const learned = learnedMagic(skill.id);
-      const remaining = skill.toggle ? 0 : Math.ceil(Math.max(0, (learned?.castReadyAt ?? 0) - now) / 1000);
-      return `${skill.id}:${remaining}`;
-    }),
+    // Only the affordability flip (usable <-> not) is structural; the raw MP value is not.
+    usable: skills.map((skill) => `${skill.id}:${combatSkillUsable(skill) ? 1 : 0}`),
   });
-  if (signature === combatSkillBarSignature) return;
-  combatSkillBarSignature = signature;
-  els.combatSkillBar.hidden = false;
-  els.combatSkillBar.innerHTML = skills.map((skill) => combatSkillButtonHtml(skill, learnedMagic(skill.id), now)).join("");
-  applyCombatHudLayout();
+  // Never rebuild while a pointer is pressed on the bar, or the pressed button is
+  // replaced before its click fires.
+  if (signature !== combatSkillBarSignature && !isPointerHeldWithin(els.combatSkillBar)) {
+    combatSkillBarSignature = signature;
+    els.combatSkillBar.hidden = false;
+    els.combatSkillBar.innerHTML = skills.map((skill) => combatSkillButtonHtml(skill, learnedMagic(skill.id), now)).join("");
+    applyCombatHudLayout();
+  }
+  updateCombatSkillBarCooldowns(skills, now);
 }
 
-function combatSkillButtonHtml(skill, learned, now) {
-  const remainingMs = skill.toggle ? 0 : Math.max(0, (learned?.castReadyAt ?? 0) - now);
-  const remainingSeconds = Math.ceil(remainingMs / 1000);
+// In-place refresh of the volatile per-frame bits (cooldown countdown, cooling
+// state, manual-cast label) so the skill bar does not need an innerHTML rebuild
+// every frame. Structural changes still go through renderCombatSkillBar.
+function updateCombatSkillBarCooldowns(skills, now = performance.now()) {
+  if (!els.combatSkillBar || els.combatSkillBar.hidden) return;
+  const combatClass = state.battle.combatClass;
+  for (const skill of skills) {
+    const control = els.combatSkillBar.querySelector(`[data-skill-id="${skill.id}"]`);
+    if (!control) continue;
+    const learned = learnedMagic(skill.id);
+    const remainingMs = skill.toggle ? 0 : Math.max(0, (learned?.castReadyAt ?? 0) - now);
+    const remainingSeconds = Math.ceil(remainingMs / 1000);
+    const chargeReady = warriorChargeReady(skill.id);
+    const queued = isQueuedCombatSpell(skill.id, combatClass);
+    const button = control.querySelector(".combat-skill-button");
+    if (button) button.classList.toggle("cooling", remainingMs > 0);
+    const manualLabel = chargeReady ? "Ready" : queued ? "Next" : remainingSeconds > 0 ? String(remainingSeconds) : "Cast";
+    const autoSpan = control.querySelector(".combat-skill-auto");
+    if (autoSpan) autoSpan.textContent = manualLabel;
+    const cooldownSpan = control.querySelector(".combat-skill-cooldown");
+    if (cooldownSpan) {
+      cooldownSpan.textContent = remainingSeconds > 0 ? String(remainingSeconds) : "";
+      cooldownSpan.hidden = remainingSeconds <= 0;
+    }
+  }
+}
+
+// True when the player currently has the MP and consumables to cast this skill.
+// Shared by the skill bar's structural signature and its "no-mp" class so the two
+// never drift; the raw MP value is deliberately not part of the signature.
+function combatSkillUsable(skill, learned = learnedMagic(skill.id)) {
   const mpCost = effectiveSpellMpCost(skill, learned);
   const enoughMp = (state.battle.player?.mp ?? 0) >= mpCost;
   const hasPoison = skill.id !== "Poisoning" || poisonInventoryCount() > 0;
@@ -39175,6 +39653,16 @@ function combatSkillButtonHtml(skill, learned, now) {
   const needsAmulet = skill.id === "SoulFireBall" || skill.id === "Plague" || skill.id === "Curse" || skill.id === "SummonSkeleton" || skill.id === "SummonShinsu" || skill.id === "SummonHolyDeva";
   const amuletCost = taoistSummonAmuletCost(skill.id);
   const hasAmulet = !needsAmulet || amuletInventoryCount() >= (skill.id === "SoulFireBall" ? 1 : amuletCost);
+  return enoughMp && hasPoison && hasPoisonCloudSupplies && hasPlagueSupplies && hasCurseSupplies && hasAmulet;
+}
+
+function combatSkillButtonHtml(skill, learned, now) {
+  const remainingMs = skill.toggle ? 0 : Math.max(0, (learned?.castReadyAt ?? 0) - now);
+  const remainingSeconds = Math.ceil(remainingMs / 1000);
+  const mpCost = effectiveSpellMpCost(skill, learned);
+  const needsAmulet = skill.id === "SoulFireBall" || skill.id === "Plague" || skill.id === "Curse" || skill.id === "SummonSkeleton" || skill.id === "SummonShinsu" || skill.id === "SummonHolyDeva";
+  const amuletCost = taoistSummonAmuletCost(skill.id);
+  const usable = combatSkillUsable(skill, learned);
   const auto = Boolean(learned?.autoCast);
   const combatClass = state.battle.combatClass;
   const queued = isQueuedCombatSpell(skill.id, combatClass);
@@ -39210,9 +39698,9 @@ function combatSkillButtonHtml(skill, learned, now) {
     ? `Autocast slots full (${autoCastSlotsUsed(combatClass)}/${autoCastSlotLimit()})`
     : `Enable ${skill.label} auto`;
   return `
-    <div class="combat-skill-control ${auto ? "active" : ""} ${queued || chargeReady ? "queued" : ""}">
+    <div class="combat-skill-control ${auto ? "active" : ""} ${queued || chargeReady ? "queued" : ""}" data-skill-id="${escapeHtml(skill.id)}">
       <button
-        class="combat-skill-button ${auto ? "active" : ""} ${queued || chargeReady ? "queued" : ""} ${chargeReady ? "charged" : ""} ${remainingMs > 0 ? "cooling" : ""} ${!enoughMp || !hasPoison || !hasPoisonCloudSupplies || !hasPlagueSupplies || !hasCurseSupplies || !hasAmulet ? "no-mp" : ""}"
+        class="combat-skill-button ${auto ? "active" : ""} ${queued || chargeReady ? "queued" : ""} ${chargeReady ? "charged" : ""} ${remainingMs > 0 ? "cooling" : ""} ${usable ? "" : "no-mp"}"
         type="button"
         data-cast-combat-skill="${escapeHtml(skill.id)}"
         title="${escapeHtml(castTitle)}"
@@ -39220,7 +39708,7 @@ function combatSkillButtonHtml(skill, learned, now) {
         <img src="${escapeHtml(magicIconSrc(skill))}" alt="" />
         <span class="combat-skill-level">Lv ${learned?.level ?? 0}</span>
         <span class="combat-skill-auto">${manualLabel}</span>
-        ${remainingSeconds > 0 ? `<span class="combat-skill-cooldown">${remainingSeconds}</span>` : ""}
+        <span class="combat-skill-cooldown"${remainingSeconds > 0 ? "" : " hidden"}>${remainingSeconds > 0 ? remainingSeconds : ""}</span>
       </button>
       <button
         class="combat-skill-toggle ${auto ? "active" : ""} ${autoLimitReached ? "locked" : ""}"
@@ -39243,6 +39731,7 @@ function normalizeHotbarSlots() {
 
 function renderHotbar() {
   if (inventoryDragState) return;
+  if (isPointerHeldWithin(els.hotbar)) return;
   normalizeHotbarSlots();
   const signature = JSON.stringify({
     autoPotionSlots: autoPotionSlotLimit(),
@@ -40245,9 +40734,44 @@ function render() {
   renderGamePanel();
   renderBattlePanel();
   renderSceneOverlay({ deferUserInteraction: true });
+  refreshOpenSceneLiveText();
   renderCombatSkillBar();
   renderPartySwitchBar();
   applyCombatHudLayout();
+}
+
+// Per-frame in-place text refresh for the few overlay values that tick constantly
+// (skill XP, teleport-ring respawn timers). These are deliberately excluded from
+// the overlay signature so they update without rebuilding - and destroying - the
+// clickable buttons around them.
+function refreshOpenSceneLiveText() {
+  if (!els.sceneOverlay || els.sceneOverlay.hidden) return;
+  if (state.openScenes.character) {
+    const expSpans = els.sceneOverlay.querySelectorAll("[data-skill-exp]");
+    if (expSpans.length) {
+      const spellsById = new Map(characterSkillSpells().map((spell) => [spell.id, spell]));
+      for (const span of expSpans) {
+        const spell = spellsById.get(span.dataset.skillExp);
+        if (!spell) continue;
+        const text = crystalSkillProgressText(spell, learnedMagic(spell.id));
+        if (span.textContent !== text) span.textContent = text;
+      }
+    }
+  }
+  if (state.openScenes.teleportRing) {
+    const now = Date.now();
+    for (const button of els.sceneOverlay.querySelectorAll("[data-teleport-ring-zone]")) {
+      const remaining = bossRespawnRemainingMs(button.dataset.teleportRingZone, now);
+      const ready = remaining <= 0;
+      button.classList.toggle("is-ready", ready);
+      const status = button.querySelector(".teleport-ring-status");
+      if (!status) continue;
+      status.classList.toggle("is-ready", ready);
+      status.classList.toggle("is-cooldown", !ready);
+      const text = ready ? "Ready" : formatDuration(remaining);
+      if (status.textContent !== text) status.textContent = text;
+    }
+  }
 }
 
 function renderPlayerResourceHud() {
@@ -43079,11 +43603,8 @@ function drawTaoistPetHealthBar(ctx) {
   ctx.restore();
 }
 
-function drawEnemyPoisonDots(ctx) {
-  const enemy = state.battle.enemy;
-  const poisons = Array.isArray(enemy?.poisons) ? enemy.poisons.filter((poison) => (Number(poison.ticksRemaining) || 0) > 0) : [];
-  if (!state.showEnemies || !enemy || enemy.hp <= 0 || !poisons.length) return;
-  const bounds = enemyFrameBounds();
+function drawPoisonDotsAtBounds(ctx, bounds, poisons) {
+  if (!poisons.length) return;
   const size = 4;
   const gap = 3;
   const totalWidth = poisons.length * size + (poisons.length - 1) * gap;
@@ -43099,6 +43620,30 @@ function drawEnemyPoisonDots(ctx) {
     x += size + gap;
   }
   ctx.restore();
+}
+
+function drawEnemyPoisonDots(ctx) {
+  if (!state.showEnemies) return;
+  if (!state.battle.running && state.battle.phase === "idle") return;
+
+  if (groupDungeonSwarmSideActive()) {
+    const swarm = state.battle.swarm;
+    if (!swarm?.enemies?.length) return;
+    for (const enemy of swarm.enemies) {
+      if (enemy.dying || enemy.hp <= 0) continue;
+      const poisons = Array.isArray(enemy.poisons)
+        ? enemy.poisons.filter((poison) => (Number(poison.ticksRemaining) || 0) > 0)
+        : [];
+      if (!poisons.length) continue;
+      drawPoisonDotsAtBounds(ctx, swarmEnemyFrameBounds(enemy), poisons);
+    }
+    return;
+  }
+
+  const enemy = state.battle.enemy;
+  const poisons = Array.isArray(enemy?.poisons) ? enemy.poisons.filter((poison) => (Number(poison.ticksRemaining) || 0) > 0) : [];
+  if (!enemy || enemy.hp <= 0 || !poisons.length) return;
+  drawPoisonDotsAtBounds(ctx, enemyFrameBounds(), poisons);
 }
 
 function swarmEnemyFrameBounds(enemy) {
@@ -44099,16 +44644,22 @@ function drawFloatingCombatText(ctx) {
     const x = entry.x;
     const y = entry.y - t * 34;
     const alpha = t < 0.72 ? 1 : Math.max(0, 1 - (t - 0.72) / 0.28);
-    // Crits read bigger and gain a "!" so they stand out from normal hits.
+    // Crits read bigger based on damage vs recent/session baseline; gain a "!" suffix.
     const crit = entry.kind === "crit";
     const text = crit ? `${entry.text}!` : entry.text;
+    const critScale = crit ? (entry.critScale ?? 0.35) : 0;
+    const baseFontSize = crit ? critTextFontSize(critScale) : 14;
+    const spawnPop = crit && age < 90
+      ? 1 + 0.1 * (1 - age / 90) * smoothstep01(critScale)
+      : 1;
+    const fontSize = Math.round(baseFontSize * spawnPop);
     ctx.font = crit
-      ? "800 20px Segoe UI, system-ui, sans-serif"
+      ? `800 ${fontSize}px Segoe UI, system-ui, sans-serif`
       : "700 14px Segoe UI, system-ui, sans-serif";
     ctx.globalAlpha = alpha;
-    ctx.lineWidth = crit ? 4 : 3;
+    ctx.lineWidth = crit ? Math.max(3, 3 + critScale * 2) : 3;
     ctx.strokeStyle = "rgba(0, 0, 0, 0.72)";
-    ctx.fillStyle = combatTextColor(entry.kind);
+    ctx.fillStyle = crit ? critTextFillColor(critScale) : combatTextColor(entry.kind);
     ctx.strokeText(text, x, y);
     ctx.fillText(text, x, y);
   }

@@ -54,6 +54,7 @@ const UNLOCK_TOKEN_COSTS = {
   "inv-page-3:wizard": 250,
   "inv-page-3:taoist": 250,
   "teleport-ring": 500,
+  "organisation-skills": 200,
 };
 const PAGE_UNLOCK_KEYS = new Set(Object.keys(UNLOCK_TOKEN_COSTS));
 const STRIPE_SIGNATURE_TOLERANCE_SECONDS = 300;
@@ -415,16 +416,35 @@ function itemIdValue(value) {
 }
 
 const BONUS_STAT_RANGE_KEYS = ["dc", "mc", "sc", "ac", "amc"];
+// Must stay in sync with the client's sanitizeItemBonusStats (src/battleData.js).
+// Empowerments (including ones moved between items by the crafting-cube swap) can use
+// any of these keys, so any omission here silently drops that stat from other players'
+// Social-tab view of the gear.
 const BONUS_STAT_SCALAR_KEYS = [
   "hp", "mp", "accuracy", "agility", "luck", "attackSpeed",
   "poisonAttack", "freezing", "magicResist", "poisonResist",
   "healthRecovery", "poisonRecovery", "strong", "xpBonusPercent",
+  "goldBonusPercent", "bonusAwakeningSoulChancePercent", "damageTakenReductionPercent",
+  "critChancePercent", "critDamagePercent", "skillLevelBonusPercent",
+];
+// dropChanceBonusPercent rolls in fractional 0.25 steps, so it must NOT be truncated.
+const BONUS_STAT_FRACTIONAL_KEYS = ["dropChanceBonusPercent"];
+// Must stay in sync with the client's sanitizeEmpowerSpellBonuses (src/core/empoweredItems.js).
+const EMPOWER_SPELL_KINDS = [
+  "damagePercent", "manaCostPercent", "healingPercent", "cooldownReductionSeconds",
+  "petHealthPercent", "petDamageReductionPercent", "critChancePercent", "critDamagePercent",
 ];
 
 function signedIntValue(value, max = 99999) {
   const number = Math.trunc(Number(value));
   if (!Number.isFinite(number)) return 0;
   return Math.max(-max, Math.min(max, number));
+}
+
+function signedFractionalValue(value, max = 99999) {
+  const number = Number(value);
+  if (!Number.isFinite(number)) return 0;
+  return Number(Math.max(-max, Math.min(max, number)).toFixed(4));
 }
 
 function normalizeBonusStatsPayload(value) {
@@ -437,6 +457,9 @@ function normalizeBonusStatsPayload(value) {
   for (const key of BONUS_STAT_SCALAR_KEYS) {
     output[key] = signedIntValue(source[key]);
   }
+  for (const key of BONUS_STAT_FRACTIONAL_KEYS) {
+    output[key] = signedFractionalValue(source[key]);
+  }
   return output;
 }
 
@@ -448,7 +471,7 @@ function normalizeEmpowerSpellBonuses(value) {
     if (!key) continue;
     const row = parseJsonObject(raw);
     const normalized = {};
-    for (const kind of ["damagePercent", "manaCostPercent", "healingPercent", "cooldownReductionSeconds"]) {
+    for (const kind of EMPOWER_SPELL_KINDS) {
       const amount = signedIntValue(row[kind]);
       if (amount !== 0) normalized[kind] = amount;
     }

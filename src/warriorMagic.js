@@ -175,8 +175,8 @@ export const CRYSTAL_WARRIOR_SPELLS = [
     powerBonus: 0,
     mPowerBase: 0,
     mPowerBonus: 0,
-    multiplierBase: 0.8,
-    multiplierBonus: 0.1,
+    multiplierBase: 0.6,
+    multiplierBonus: 0.08,
     range: 0,
     description: "The weapon performs two swings in one motion.",
   },
@@ -462,7 +462,7 @@ export const CRYSTAL_WIZARD_SPELLS = [
     multiplierBase: 1,
     multiplierBonus: 0,
     range: 9,
-    description: "Calls a thunderbolt to attack the target from the sky.",
+    description: "Calls a thunderbolt to attack the target from the sky. Extra damage vs undead scales with skill level.",
   },
   {
     id: "FireWall",
@@ -661,8 +661,8 @@ export const CRYSTAL_WIZARD_SPELLS = [
     powerBonus: 0,
     mPowerBase: 15,
     mPowerBonus: 20,
-    multiplierBase: 1,
-    multiplierBonus: 0,
+    multiplierBase: 1.1,
+    multiplierBonus: 0.3,
     range: 9,
     description: "Casts a powerful column of fire that burns its target.",
   },
@@ -1253,6 +1253,14 @@ export function spellMpCost(spell, learned) {
 }
 
 export const CRYSTAL_SPELL_GLOBAL_LOCK_MS = 1800;
+
+/** Undead-only damage multiplier by Thunder Bolt skill level (L0 unchanged vs legacy 1.5×). */
+export const THUNDER_BOLT_UNDEAD_MULTIPLIER_BY_LEVEL = [1.5, 1.5, 1.8, 2.35];
+
+export function thunderBoltUndeadMultiplier(spellLevel) {
+  const level = Math.max(0, Math.min(3, Math.trunc(Number(spellLevel) || 0)));
+  return THUNDER_BOLT_UNDEAD_MULTIPLIER_BY_LEVEL[level] ?? 1.5;
+}
 
 export function spellDelayMs(spell, learned) {
   if (!spell || spell.id === BASIC_ATTACK_SKILL.id) return 0;

@@ -33,6 +33,40 @@ function valueMatchesRoll(value, roll) {
   return Math.abs(units - Math.round(units)) < 0.000001;
 }
 
+// Empowerments can be moved between items via the crafting cube (empowerment swap),
+// so an item may legally carry a roll that is not in its own table. Build a pool of
+// every legal empower roll, keyed by target, so swapped empowerments validate against
+// the union of all item tables instead of only the host item's table.
+const SWAP_EMPOWER_POOL = buildSwapEmpowerPool();
+
+function empowerRollTarget(roll) {
+  if (roll.type === "spell") return `spell:${roll.spellId}:${roll.kind}`;
+  return roll.range ? `stat:${roll.key}:${roll.index}` : `stat:${roll.key}`;
+}
+
+function buildSwapEmpowerPool() {
+  const pool = new Map();
+  for (const rule of Object.values(ITEM_RULES)) {
+    if (!rule?.empower?.allowed) continue;
+    for (const roll of rule.empower.rolls ?? []) {
+      const target = empowerRollTarget(roll);
+      if (!pool.has(target)) pool.set(target, []);
+      pool.get(target).push(roll);
+    }
+  }
+  return pool;
+}
+
+// True when `value` is a legal empower roll for `target` on ANY item, i.e. it could
+// have been swapped onto this item. Luck is the only swap-restricted roll: it may
+// only be moved onto weapons (mirrors canPlaceEmpowerSlotOnItem in the client).
+function swapEmpowerRollLegal(target, value, isWeapon) {
+  if (target === "stat:luck" && !isWeapon) return false;
+  const rolls = SWAP_EMPOWER_POOL.get(target);
+  if (!rolls) return false;
+  return rolls.some((roll) => valueMatchesRoll(value, roll));
+}
+
 function validateSmith(entry, rule, context) {
   const violations = [];
   const level = Math.trunc(Number(entry.smithLevel) || 0);
@@ -113,6 +147,7 @@ function validateGemAndRefine(entry, rule, context) {
 
 function validateEmpower(entry, rule, context) {
   const violations = [];
+  const isWeapon = Array.isArray(rule.slots) && rule.slots.includes("weapon");
   const tier = Math.trunc(Number(entry.empowerTier) || 0);
   const empowered = Boolean(entry.empowered);
   const statValues = statEntries(entry.empowerBonusStats).filter((row) => row.value !== 0);
@@ -141,7 +176,8 @@ function validateEmpower(entry, rule, context) {
       && candidate.key === key
       && (candidate.range ? candidate.index === Number(indexText) : indexText == null)
     ));
-    if (!roll || !valueMatchesRoll(row.value, roll)) {
+    const swapTarget = indexText == null ? `stat:${key}` : `stat:${key}:${indexText}`;
+    if ((!roll || !valueMatchesRoll(row.value, roll)) && !swapEmpowerRollLegal(swapTarget, row.value, isWeapon)) {
       violations.push(violation("empower_stat", ...context, `${row.target} empower value ${row.value} is not a legal roll.`));
     }
   }
@@ -149,7 +185,8 @@ function validateEmpower(entry, rule, context) {
     const roll = rule.empower.rolls.find((candidate) => (
       candidate.type === "spell" && candidate.spellId === row.spellId && candidate.kind === row.kind
     ));
-    if (!roll || !valueMatchesRoll(row.value, roll)) {
+    const swapTarget = `spell:${row.spellId}:${row.kind}`;
+    if ((!roll || !valueMatchesRoll(row.value, roll)) && !swapEmpowerRollLegal(swapTarget, row.value, isWeapon)) {
       violations.push(violation("empower_spell", ...context, `${row.spellId} ${row.kind} ${row.value} is not a legal roll.`));
     }
   }

@@ -7,7 +7,9 @@ import {
   resolveTaoistPetTargetCoordinates,
   resolveTaoistPetTargetWorldX,
   shouldKeepHolyDevaBetweenSoloFights,
+  taoistPetCombatStats,
   taoistPetLayerBlendModes,
+  taoistPetLevelFromSpellLevel,
 } from "../src/core/taoistPets.js";
 
 const baseStats = {
@@ -18,27 +20,46 @@ const baseStats = {
   attackMs: 2000,
 };
 
-test("Holy Deva level zero matches Crystal base stats", () => {
+test("taoistPetLevelFromSpellLevel maps spell tiers to pet levels 0/2/4/7", () => {
+  assert.deepEqual([0, 1, 2, 3].map(taoistPetLevelFromSpellLevel), [0, 2, 4, 7]);
+  assert.equal(taoistPetLevelFromSpellLevel(99), 7);
+});
+
+test("taoistPetCombatStats applies Crystal scaling plus 25% buff", () => {
+  assert.deepEqual(taoistPetCombatStats({
+    maxHp: 140,
+    dc: [12, 23],
+    ac: [2, 4],
+    amc: [3, 6],
+  }, 7), {
+    maxHp: 350,
+    dc: [23, 37],
+    ac: [20, 22],
+    amc: [21, 25],
+  });
+});
+
+test("Holy Deva spell level zero summons pet level zero with 25% buff", () => {
   assert.deepEqual(crystalHolyDevaStats(baseStats, 0), {
     level: 0,
     maxPetLevel: 1,
-    maxHp: 1200,
-    dc: [23, 35],
-    ac: [30, 30],
-    amc: [38, 38],
+    maxHp: 1500,
+    dc: [28, 43],
+    ac: [37, 37],
+    amc: [47, 47],
     attackMs: 1930,
     moveSpeed: 48 / 0.67,
   });
 });
 
-test("Holy Deva spell level three uses Crystal pet scaling and speed floors", () => {
+test("Holy Deva spell level three summons pet level seven with 25% buff", () => {
   assert.deepEqual(crystalHolyDevaStats(baseStats, 3), {
-    level: 3,
+    level: 7,
     maxPetLevel: 7,
-    maxHp: 1260,
-    dc: [26, 38],
-    ac: [36, 36],
-    amc: [44, 44],
+    maxHp: 1675,
+    dc: [37, 52],
+    ac: [55, 55],
+    amc: [65, 65],
     attackMs: 1510,
     moveSpeed: 120,
   });
@@ -46,7 +67,7 @@ test("Holy Deva spell level three uses Crystal pet scaling and speed floors", ()
 
 test("Holy Deva spell levels are clamped to Crystal's zero-to-three range", () => {
   assert.equal(crystalHolyDevaStats(baseStats, -4).level, 0);
-  assert.equal(crystalHolyDevaStats(baseStats, 99).level, 3);
+  assert.equal(crystalHolyDevaStats(baseStats, 99).level, 7);
 });
 
 test("living and pending Holy Devas persist between solo enemies", () => {

@@ -246,6 +246,7 @@ const ZUMA_TAURUS_BOSS_DROPS = {
 const INCARNATED_ZT_BOSS_DROPS = {
   gold: 20000,
   items: [
+    { id: "stone-heart", chance: 0.1 },
     { id: "zuma-relic", chance: 0.1 },
     { id: "awakening-soul", chance: 0.2 },
     { id: "book-twin-drake-blade", chance: 0.1 },
@@ -624,6 +625,7 @@ const KING_HOG_BOSS_DROPS = {
   gold: 35000,
   benedictionOils: 2,
   items: [
+    { id: "hog-tooth", chance: 0.1 },
     { id: "awakening-soul", chance: 0.75 },
     { id: "book-blade-avalanche", chance: 0.1 },
     { id: "book-healing-circle", chance: 0.1 },

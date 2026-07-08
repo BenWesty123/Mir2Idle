@@ -105,6 +105,37 @@ test("rejects empowerment rolls that are not legal for the item", () => {
   assert.ok(result.violations.some((row) => row.code === "empower_stat"));
 });
 
+test("accepts empowerments swapped in from another item (crafting cube)", () => {
+  // Accuracy is a weapon empower roll; the armour's own table does not include it,
+  // but the empowerment swap can legally move it onto the armour.
+  const accuracyRoll = ITEM_RULES[weaponId].empower.rolls.find((r) => r.type === "stat" && r.key === "accuracy");
+  assert.ok(accuracyRoll, "expected weapon to roll accuracy");
+  const armourHasAccuracy = ITEM_RULES[armourId].empower.rolls.some((r) => r.type === "stat" && r.key === "accuracy");
+  assert.equal(armourHasAccuracy, false, "armour should not natively roll accuracy");
+
+  const empowerStats = emptyStats();
+  empowerStats.accuracy = accuracyRoll.max;
+  const result = validate("armour", entry(armourId, {
+    empowered: true,
+    empowerTier: 1,
+    empowerBonusStats: empowerStats,
+  }));
+  assert.equal(result.valid, true, JSON.stringify(result.violations));
+});
+
+test("still rejects Luck swapped onto a non-weapon slot", () => {
+  const luckRoll = ITEM_RULES[weaponId].empower.rolls.find((r) => r.type === "stat" && r.key === "luck");
+  assert.ok(luckRoll, "expected weapon to roll luck empower");
+  const empowerStats = emptyStats();
+  empowerStats.luck = luckRoll.max;
+  const result = validate("armour", entry(armourId, {
+    empowered: true,
+    empowerTier: 1,
+    empowerBonusStats: empowerStats,
+  }));
+  assert.ok(result.violations.some((row) => row.code === "empower_stat"));
+});
+
 test("integrity fingerprints are deterministic", () => {
   const result = validate("weapon", entry("invented-sword"));
   assert.equal(integrityFingerprint(result), integrityFingerprint(result));

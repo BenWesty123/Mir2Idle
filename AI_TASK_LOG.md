@@ -1,5 +1,24 @@
 # AI Task Log - LOM Idle V2
 
+## 2026-07-08 - Fix: swapped empowerments false-flagged by Social integrity check
+
+### What
+Empowered-crafting empowerment swaps (crafting cube) move an empowerment from one item onto another. The stats-worker anti-cheat validator (`tools/stats-worker/itemLegality.js` `validateEmpower`) validated each item's empowerments only against that item's OWN roll table, so a legitimately swapped roll (e.g. a weapon's `accuracy` on armour) was rejected as `empower_stat`/`empower_spell`, marking the account's leaderboard row `flagged`. The full client->worker->Social display pipeline otherwise carries the swapped stats correctly (verified `prototypeStatsCharacterEquipment`, `socialEquipmentEntry`, worker `normalizeEquipmentPayload`, and the `character_stats` upsert).
+
+### Fix (`tools/stats-worker/itemLegality.js`)
+- Added a `SWAP_EMPOWER_POOL` built from the union of every item's `empower.rolls`, keyed by roll target.
+- `validateEmpower` now accepts a stat/spell value if it matches the item's own table OR any pooled roll for the same target (`swapEmpowerRollLegal`). Luck stays weapon-only, mirroring the client's `canPlaceEmpowerSlotOnItem`. The per-tier roll-count check is unchanged.
+- No rule DATA change, so `ITEM_INTEGRITY_RULES_VERSION` is left as-is; flagged rows re-clear on their next submission.
+
+### Verify
+- `tests/itemLegality.test.mjs`: added "accepts empowerments swapped in from another item" and "still rejects Luck swapped onto a non-weapon slot". Full `npm run check` green (417 tests). Worker-only change; no site repackage needed, but the stats worker must be redeployed by the user.
+
+### Follow-up: worker normalization dropped empower stat/spell types
+After the integrity fix, another player viewing swapped gear still saw one empowerment missing. Cause: the worker's `normalizeEquipmentPayload` helpers only whitelisted a subset of empower fields, so anything outside it was silently stripped from the stored/served snapshot.
+- `normalizeBonusStatsPayload` was missing `goldBonusPercent`, `bonusAwakeningSoulChancePercent`, `damageTakenReductionPercent`, `critChancePercent`, `critDamagePercent`, `skillLevelBonusPercent`, and truncated the fractional `dropChanceBonusPercent` to 0.
+- `normalizeEmpowerSpellBonuses` was missing spell kinds `petHealthPercent`, `petDamageReductionPercent`, `critChancePercent`, `critDamagePercent`.
+- Fix (`tools/stats-worker/worker.js`): expanded `BONUS_STAT_SCALAR_KEYS`, added `BONUS_STAT_FRACTIONAL_KEYS` (`dropChanceBonusPercent`) + `signedFractionalValue`, and added an `EMPOWER_SPELL_KINDS` list — all kept in sync with the client's `sanitizeItemBonusStats` / `sanitizeEmpowerSpellBonuses`. Requires another worker redeploy; existing rows heal on next submission.
+
 ## 2026-07-06 - Utility reward empowers on all slots (gold/XP/soul/drop)
 
 ### What

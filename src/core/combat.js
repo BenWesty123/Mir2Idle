@@ -66,6 +66,79 @@ export function expectedCritMultiplier(critChancePercent = 0, critDamagePercent 
   return 1 + chance * (critMultiplier(critDamagePercent) - 1);
 }
 
+/** Floating crit text: min/max font size in px (drawFloatingCombatText). */
+export const CRIT_TEXT_MIN_PX = 16;
+export const CRIT_TEXT_MAX_PX = 34;
+/** How quickly the "typical crit" baseline adapts to recent hits. */
+export const CRIT_TEXT_EMA_ALPHA = 0.15;
+/** Zone floor = enemy max HP × this ratio (warm start before EMA exists). */
+export const CRIT_TEXT_ZONE_FLOOR_HP_RATIO = 0.03;
+/** Session peak contributes at this fraction when sizing a crit. */
+export const CRIT_TEXT_PEAK_WEIGHT = 0.85;
+/** Recent-average crits contribute at EMA × this multiplier. */
+export const CRIT_TEXT_BASELINE_MULTIPLIER = 1.5;
+
+export function critTextZoneFloor(maxHp, ratio = CRIT_TEXT_ZONE_FLOOR_HP_RATIO) {
+  const hp = Math.max(0, Math.trunc(Number(maxHp) || 0));
+  if (hp <= 0) return 1;
+  return Math.max(1, Math.round(hp * ratio));
+}
+
+export function critTextReferenceDamage(ema, peak, zoneFloor, options = {}) {
+  const peakWeight = options.peakWeight ?? CRIT_TEXT_PEAK_WEIGHT;
+  const baselineMult = options.baselineMultiplier ?? CRIT_TEXT_BASELINE_MULTIPLIER;
+  let reference = Math.max(1, Math.trunc(Number(zoneFloor) || 0));
+  const recent = Math.max(0, Math.trunc(Number(ema) || 0));
+  const sessionPeak = Math.max(0, Math.trunc(Number(peak) || 0));
+  if (recent > 0) reference = Math.max(reference, Math.round(recent * baselineMult));
+  if (sessionPeak > 0) reference = Math.max(reference, Math.round(sessionPeak * peakWeight));
+  return reference;
+}
+
+export function critTextScaleRatio(damage, reference) {
+  const amount = Math.max(0, Math.trunc(Number(damage) || 0));
+  const ref = Math.max(1, Math.trunc(Number(reference) || 0));
+  if (amount <= 0) return 0;
+  return Math.max(0, Math.min(1, Math.log1p(amount) / Math.log1p(ref)));
+}
+
+export function smoothstep01(value) {
+  const t = Math.max(0, Math.min(1, Number(value) || 0));
+  return t * t * (3 - 2 * t);
+}
+
+export function critTextFontSize(scale, minPx = CRIT_TEXT_MIN_PX, maxPx = CRIT_TEXT_MAX_PX) {
+  return minPx + (maxPx - minPx) * smoothstep01(scale);
+}
+
+export function critTextFillColor(scale) {
+  if (scale >= 0.95) return "#fff2d6";
+  if (scale >= 0.8) return "#ffe08a";
+  if (scale >= 0.6) return "#ffb347";
+  return "#ff6a2b";
+}
+
+/**
+ * Size a crit against current tracking, then advance EMA + session peak.
+ * Scale is computed before mutating so record hits compare to prior history.
+ * @returns {{ scale: number, ema: number, peak: number }}
+ */
+export function advanceCritTextTracking(damage, ema, peak, options = {}) {
+  const amount = Math.max(0, Math.trunc(Number(damage) || 0));
+  const alpha = options.emaAlpha ?? CRIT_TEXT_EMA_ALPHA;
+  const zoneFloor = Math.max(1, Math.trunc(Number(options.zoneFloor) || 0));
+  const recent = Math.max(0, Math.trunc(Number(ema) || 0));
+  const sessionPeak = Math.max(0, Math.trunc(Number(peak) || 0));
+  const reference = critTextReferenceDamage(recent, sessionPeak, zoneFloor, options);
+  const scale = critTextScaleRatio(amount, reference);
+  const nextEma = recent <= 0 ? amount : recent + alpha * (amount - recent);
+  return {
+    scale,
+    ema: nextEma,
+    peak: Math.max(sessionPeak, amount),
+  };
+}
+
 /**
  * @param {number} amount
  * @param {object} [options]

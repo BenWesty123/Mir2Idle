@@ -1874,6 +1874,19 @@ export function rollEmpowermentRerollAtSlot(entry, item, slotIndex, rng = Math.r
 }
 
 /**
+ * Whether an empowerment slot may be placed onto a given target item via a swap.
+ * Luck breaks the game on anything but a weapon, so it may only move weapon→weapon.
+ * @param {{ type?: string, key?: string } | null | undefined} slot
+ * @param {{ slot?: string } | null | undefined} targetItem The item that would receive the slot.
+ */
+export function canPlaceEmpowerSlotOnItem(slot, targetItem) {
+  if (slot?.type === "stat" && slot?.key === "luck") {
+    return targetItem?.slot === "weapon";
+  }
+  return true;
+}
+
+/**
  * Labels for each active empowerment on an entry (for targeted reroll UI).
  * @param {object | null | undefined} entry
  * @param {object | null | undefined} item
@@ -1886,6 +1899,24 @@ export function empowerSlotChoiceLabels(entry, item) {
     const amount = captureEmpowerSlotAmount(entry, slot);
     return { index, label: formatEmpowerAppliedChangeLabel(roll, amount) };
   });
+}
+
+/**
+ * Labels for empowerments on `item` that are eligible to swap onto `targetItem`,
+ * keeping the original slot indices so they line up with
+ * {@link swapEmpowermentsAtSlotIndices}. Luck is only offered when the target is a
+ * weapon.
+ * @param {object | null | undefined} entry
+ * @param {object | null | undefined} item
+ * @param {object | null | undefined} targetItem The item that would receive the swap.
+ * @returns {{ index: number, label: string }[]}
+ */
+export function empowerSwapChoiceLabels(entry, item, targetItem) {
+  if (!entry || !item) return [];
+  const slots = listEmpowerSlotsFromEntry(entry);
+  return empowerSlotChoiceLabels(entry, item).filter((choice) =>
+    canPlaceEmpowerSlotOnItem(slots[choice.index], targetItem),
+  );
 }
 
 /**
@@ -1935,6 +1966,10 @@ export function swapEmpowermentsAtSlotIndices(entryA, itemA, slotIndexA, entryB,
 
   const slotA = slotsA[pickA];
   const slotB = slotsB[pickB];
+  // slotA moves onto itemB and slotB moves onto itemA; Luck may only land on a weapon.
+  if (!canPlaceEmpowerSlotOnItem(slotA, itemB) || !canPlaceEmpowerSlotOnItem(slotB, itemA)) {
+    return { ok: false, error: "Luck can only be swapped onto weapons." };
+  }
   const amountA = captureEmpowerSlotAmount(entryA, slotA);
   const amountB = captureEmpowerSlotAmount(entryB, slotB);
   const rollA = empowerSlotRollDef(itemA, slotA);
@@ -1981,8 +2016,13 @@ export function swapRandomEmpowermentsBetweenEntries(entryA, itemA, entryB, item
     }
     return { ok: false, error: "Both items need at least one empowerment to swap." };
   }
-  const indexA = Math.min(slotsA.length - 1, Math.floor(rng() * slotsA.length));
-  const indexB = Math.min(slotsB.length - 1, Math.floor(rng() * slotsB.length));
+  const eligibleA = slotsA.map((_, i) => i).filter((i) => canPlaceEmpowerSlotOnItem(slotsA[i], itemB));
+  const eligibleB = slotsB.map((_, i) => i).filter((i) => canPlaceEmpowerSlotOnItem(slotsB[i], itemA));
+  if (!eligibleA.length || !eligibleB.length) {
+    return { ok: false, error: "Both items need an empowerment that can move to the other." };
+  }
+  const indexA = eligibleA[Math.min(eligibleA.length - 1, Math.floor(rng() * eligibleA.length))];
+  const indexB = eligibleB[Math.min(eligibleB.length - 1, Math.floor(rng() * eligibleB.length))];
   return swapEmpowermentsAtSlotIndices(entryA, itemA, indexA, entryB, itemB, indexB);
 }
 

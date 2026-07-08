@@ -1,5 +1,6 @@
 import fs from "node:fs";
 import path from "node:path";
+import { execFileSync } from "node:child_process";
 import { copyItemIcon, frameFileName } from "./item-icon-utils.mjs";
 
 const root = path.resolve(import.meta.dirname, "..");
@@ -142,6 +143,8 @@ const idOverrides = {
   RedPoison: "yellow-poison",
   BenedictionOil: "benediction-oil",
   AwakeningSoul0: "awakening-soul",
+  BoarTooth: "hog-tooth",
+  StoneHeart: "stone-heart",
   Fencing: "book-fencing",
   Slaying: "book-slaying",
   Thrusting: "book-thrusting",
@@ -213,12 +216,21 @@ const nameOverrides = {
   RedPoison: "Yellow Poison",
   LargeBone: "Large Bone",
   HeartOfDead: "Ghoul Heart",
+  BoarTooth: "Hog Tooth",
+  StoneHeart: "Stone Heart",
   AwakeningSoul0: "Awakening Soul",
+};
+
+const iconSrcOverrides = {
+  StoneHeart: "./public/item-icons/items/stone-heart.png",
+  BoarTooth: "./public/item-icons/items/hog-tooth.png",
 };
 
 const stackSizeOverrides = {
   LargeBone: 64,
   HeartOfDead: 64,
+  BoarTooth: 64,
+  StoneHeart: 64,
   Amulet: 200,
   GreenPoison: 200,
   RedPoison: 200,
@@ -488,7 +500,11 @@ function itemDefinition(item, dropsByName, curatedDropsById) {
     icon: {
       library: item.icon?.library ?? "Items",
       frame,
-      src: item.type === "Book" ? "./public/item-icons/books/images/frame_003640.png" : `./public/item-icons/items/${frameFileName(frame)}`,
+      src:
+        iconSrcOverrides[item.name] ??
+        (item.type === "Book"
+          ? "./public/item-icons/books/images/frame_003640.png"
+          : `./public/item-icons/items/${frameFileName(frame)}`),
     },
     requirements: requirementFor(item),
     stackable: isStackable,
@@ -630,6 +646,12 @@ const extraNames = [
   "RedPoison",
   "BenedictionOil",
   "AwakeningSoul0",
+  "WoomaHeart",
+  "StoneHeart",
+  "ZumaRelic",
+  "LargeBone",
+  "HeartOfDead",
+  "BoarTooth",
   "AmethystNecklace",
   "BlueThunderNecklace",
   "BracerOfMagic",
@@ -691,11 +713,17 @@ if (removedIds.length && !allowItemRemoval) {
 
 fs.writeFileSync(itemsOutputPath, `${JSON.stringify(output, null, 2)}\n`);
 
-const extraIconFrames = [280, 284, 285, 286];
+const extraIconFrames = [280, 284, 285, 286, 2770];
 for (const frame of extraIconFrames) {
   if (copyIcon(frame)) {
     console.log(`Copied icon ${frameFileName(frame)}`);
   }
 }
+
+execFileSync(
+  "powershell",
+  ["-ExecutionPolicy", "Bypass", "-File", path.join(import.meta.dirname, "build-upgrade-material-icons.ps1")],
+  { stdio: "inherit", cwd: root },
+);
 
 console.log(`Wrote ${items.length} items to ${path.relative(root, itemsOutputPath)}`);

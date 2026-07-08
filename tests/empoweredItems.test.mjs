@@ -64,6 +64,8 @@ import {
   rollEmpowermentRerollAtSlot,
   swapRandomEmpowermentsBetweenEntries,
   swapEmpowermentsAtSlotIndices,
+  empowerSwapChoiceLabels,
+  canPlaceEmpowerSlotOnItem,
   empowerSlotChoiceLabels,
   listEmpowerSlotsFromEntry,
 } from "../src/core/empoweredItems.js";
@@ -429,6 +431,82 @@ test("swapEmpowermentsAtSlotIndices exchanges chosen empowerments", () => {
   assert.equal(entryA.empowerBonusStats.mc[1], 2);
   assert.equal(entryB.empowerBonusStats.dc[1], 3);
   assert.equal(entryB.empowerBonusStats.sc[1], 1);
+});
+
+test("swapEmpowermentsAtSlotIndices refuses to move Luck onto a non-weapon", () => {
+  const weaponEntry = {
+    empowered: true,
+    empowerTier: 2,
+    empowerBonusStats: sanitizeItemBonusStats({ dc: [0, 3], luck: 2 }),
+    empowerSpellBonuses: {},
+  };
+  const ringEntry = {
+    empowered: true,
+    empowerTier: 2,
+    empowerBonusStats: sanitizeItemBonusStats({ mc: [0, 5] }),
+    empowerSpellBonuses: {},
+  };
+  const luckIndex = listEmpowerSlotsFromEntry(weaponEntry).findIndex((slot) => slot.key === "luck");
+  assert.ok(luckIndex >= 0);
+  const result = swapEmpowermentsAtSlotIndices(weaponEntry, UNIVERSAL_WEAPON, luckIndex, ringEntry, MC_RING, 0);
+  assert.equal(result.ok, false);
+  assert.equal(weaponEntry.empowerBonusStats.luck, 2);
+  assert.equal(ringEntry.empowerBonusStats.mc[1], 5);
+});
+
+test("swapEmpowermentsAtSlotIndices allows Luck to move weapon to weapon", () => {
+  const entryA = {
+    empowered: true,
+    empowerTier: 2,
+    empowerBonusStats: sanitizeItemBonusStats({ dc: [0, 3], luck: 2 }),
+    empowerSpellBonuses: {},
+  };
+  const entryB = {
+    empowered: true,
+    empowerTier: 2,
+    empowerBonusStats: sanitizeItemBonusStats({ dc: [0, 5], sc: [0, 1] }),
+    empowerSpellBonuses: {},
+  };
+  const luckIndex = listEmpowerSlotsFromEntry(entryA).findIndex((slot) => slot.key === "luck");
+  const result = swapEmpowermentsAtSlotIndices(entryA, UNIVERSAL_WEAPON, luckIndex, entryB, UNIVERSAL_WEAPON, 0);
+  assert.equal(result.ok, true);
+  assert.equal(entryB.empowerBonusStats.luck, 2);
+  assert.equal(entryA.empowerBonusStats.dc[1], 5);
+});
+
+test("empowerSwapChoiceLabels offers Luck only when the target is a weapon", () => {
+  const entry = {
+    empowered: true,
+    empowerTier: 2,
+    empowerBonusStats: sanitizeItemBonusStats({ dc: [0, 3], luck: 2 }),
+    empowerSpellBonuses: {},
+  };
+  const toWeapon = empowerSwapChoiceLabels(entry, UNIVERSAL_WEAPON, UNIVERSAL_WEAPON);
+  assert.ok(toWeapon.some((choice) => /Luck/.test(choice.label)));
+  const toRing = empowerSwapChoiceLabels(entry, UNIVERSAL_WEAPON, MC_RING);
+  assert.ok(toRing.every((choice) => !/Luck/.test(choice.label)));
+  assert.equal(canPlaceEmpowerSlotOnItem({ type: "stat", key: "luck" }, UNIVERSAL_WEAPON), true);
+  assert.equal(canPlaceEmpowerSlotOnItem({ type: "stat", key: "luck" }, MC_RING), false);
+  assert.equal(canPlaceEmpowerSlotOnItem({ type: "stat", key: "dc" }, MC_RING), true);
+});
+
+test("swapRandomEmpowermentsBetweenEntries never moves Luck onto a non-weapon", () => {
+  const weaponEntry = {
+    empowered: true,
+    empowerTier: 2,
+    empowerBonusStats: sanitizeItemBonusStats({ dc: [0, 3], luck: 2 }),
+    empowerSpellBonuses: {},
+  };
+  const ringEntry = {
+    empowered: true,
+    empowerTier: 2,
+    empowerBonusStats: sanitizeItemBonusStats({ mc: [0, 5], ac: [0, 1] }),
+    empowerSpellBonuses: {},
+  };
+  // rng biased to the last eligible slot; luck must still be excluded from the pool.
+  const result = swapRandomEmpowermentsBetweenEntries(weaponEntry, UNIVERSAL_WEAPON, ringEntry, MC_RING, () => 0.999);
+  assert.equal(result.ok, true);
+  assert.equal(weaponEntry.empowerBonusStats.luck, 2);
 });
 
 test("formatEmpowerAppliedChangeLabel uses the rolled amount", () => {

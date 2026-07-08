@@ -12,6 +12,7 @@ import {
   crystalSpellCastCooldownMs,
   spellLevelRequirement,
   spellExperienceTarget,
+  thunderBoltUndeadMultiplier,
 } from "../src/warriorMagic.js";
 
 test("spell lists are non-empty and every spell has id + label", () => {
@@ -59,4 +60,13 @@ test("spell level/experience targets by learned level", () => {
   assert.equal(spellExperienceTarget(spell, 0), 5);
   assert.equal(spellExperienceTarget(spell, 2), 20);
   assert.equal(spellExperienceTarget(spell, 3), 0); // maxed
+});
+
+test("thunderBoltUndeadMultiplier scales by skill level with L0 unchanged", () => {
+  assert.equal(thunderBoltUndeadMultiplier(0), 1.5);
+  assert.equal(thunderBoltUndeadMultiplier(1), 1.5);
+  assert.equal(thunderBoltUndeadMultiplier(2), 1.8);
+  assert.equal(thunderBoltUndeadMultiplier(3), 2.35);
+  assert.equal(thunderBoltUndeadMultiplier(99), 2.35);
+  assert.equal(thunderBoltUndeadMultiplier(-1), 1.5);
 });

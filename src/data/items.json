@@ -33480,6 +33480,138 @@
       "crystalType": "CraftingMaterial"
     },
     {
+      "id": "hog-tooth",
+      "name": "Hog Tooth",
+      "type": "material",
+      "slot": "material",
+      "class": "any",
+      "source": {
+        "crystalIndex": 1170,
+        "name": "BoarTooth"
+      },
+      "icon": {
+        "library": "Items",
+        "frame": 2770,
+        "src": "./public/item-icons/items/hog-tooth.png"
+      },
+      "requirements": {
+        "type": "none",
+        "amount": 0,
+        "classMask": 31,
+        "genderMask": 3
+      },
+      "stackable": true,
+      "maxStack": 64,
+      "stats": {
+        "ac": [
+          0,
+          0
+        ],
+        "amc": [
+          0,
+          0
+        ],
+        "dc": [
+          0,
+          0
+        ],
+        "mc": [
+          0,
+          0
+        ],
+        "sc": [
+          0,
+          0
+        ],
+        "hp": 0,
+        "mp": 0,
+        "accuracy": 0,
+        "agility": 0,
+        "luck": 0,
+        "attackSpeed": 0
+      },
+      "shop": {
+        "buy": 2500,
+        "sell": 10000
+      },
+      "drop": {
+        "zones": [
+          "zone-bdd-8"
+        ],
+        "chance": 0.1,
+        "chances": {
+          "zone-bdd-8": 0.1
+        }
+      },
+      "crystalType": "Nothing"
+    },
+    {
+      "id": "stone-heart",
+      "name": "Stone Heart",
+      "type": "material",
+      "slot": "material",
+      "class": "any",
+      "source": {
+        "crystalIndex": 1080,
+        "name": "StoneHeart"
+      },
+      "icon": {
+        "library": "Items",
+        "frame": 448,
+        "src": "./public/item-icons/items/stone-heart.png"
+      },
+      "requirements": {
+        "type": "none",
+        "amount": 0,
+        "classMask": 31,
+        "genderMask": 3
+      },
+      "stackable": true,
+      "maxStack": 64,
+      "stats": {
+        "ac": [
+          0,
+          0
+        ],
+        "amc": [
+          0,
+          0
+        ],
+        "dc": [
+          0,
+          0
+        ],
+        "mc": [
+          0,
+          0
+        ],
+        "sc": [
+          0,
+          0
+        ],
+        "hp": 0,
+        "mp": 0,
+        "accuracy": 0,
+        "agility": 0,
+        "luck": 0,
+        "attackSpeed": 0
+      },
+      "shop": {
+        "buy": 2500,
+        "sell": 10000
+      },
+      "drop": {
+        "zones": [
+          "zone-bdd-11"
+        ],
+        "chance": 0.1,
+        "chances": {
+          "zone-bdd-11": 0.1
+        }
+      },
+      "crystalType": "Nothing"
+    },
+    {
       "id": "zuma-soul-spring-wand",
       "name": "Zuma Soul Spring Wand",
       "type": "weapon",
