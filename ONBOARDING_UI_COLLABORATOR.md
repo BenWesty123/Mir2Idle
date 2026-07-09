@@ -9,10 +9,9 @@ There are two of us:
 - **Ben** — handles gameplay logic, data, combat, drops, saves.
 - **You** — handle how the game LOOKS: UI panels, layout, colors, icons, art.
 
-We each work with an AI assistant in an editor: Ben uses **Cursor**, and you'll
-use **Google Antigravity**. That's fine — the project stores its rules in a way
-both editors understand, so your Antigravity AI will know to stay on the visual
-side. More on that below.
+We both work with an AI assistant in an editor called **Cursor**. The rules for
+who-changes-what are already built into the project, so your AI will
+automatically know to stay on the visual side. More on that below.
 
 ---
 
@@ -24,7 +23,7 @@ Install these four things:
    (accept all the default options in the installer).
 2. **Node.js version 24** — runs the game and its checks. Download the "24.x"
    version: https://nodejs.org/  (again, defaults are fine).
-3. **Google Antigravity** — your AI code editor. Download: https://antigravity.google/
+3. **Cursor** — the AI code editor. Download: https://cursor.com/
 4. **A GitHub account** — sign up free at https://github.com/ and tell Ben your
    username so he can invite you to the project.
 
@@ -42,8 +41,8 @@ press **Accept invitation**. Now you have access to the project.
 
 ## Part 3 — Get the project onto your PC (one time)
 
-You'll do this with your AI's help, but here's what happens. Open Antigravity,
-and open a terminal inside it (top menu: **Terminal → New Terminal**). Then type
+You'll do this with your AI's help, but here's what happens. Open Cursor, and
+open a terminal inside it (top menu: **Terminal → New Terminal**). Then type
 these commands one at a time, pressing Enter after each:
 
 ```powershell
@@ -64,27 +63,17 @@ git config user.name "Your Name"
 git config user.email "you@example.com"
 ```
 
-Finally, in Antigravity choose **File → Open Folder** and open the `Mir2Idle`
-folder you just downloaded. **Important:** open that exact folder (its root), not
-a parent folder — that's how your AI loads the project's rules.
+Finally, in Cursor choose **File → Open Folder** and open the `Mir2Idle` folder
+you just downloaded. **Important:** open that exact folder (its root), not a
+parent folder — that's how your AI loads the project's rules.
 
 ---
 
 ## Part 4 — How to work with your AI
 
-Your AI in Antigravity has already been given the project's rules. Antigravity
-automatically reads two things when you open the project folder:
-- `AGENTS.md` in the project root (general project rules), and
-- the `.agents/rules/` folder, which contains
-  `collaboration-boundaries.md` — the file that defines your UI/visual area.
-
-**One-time check:** open the Customizations panel (the `...` menu at the top of
-the agent panel → **Rules**) and make sure `collaboration-boundaries` is listed
-and set to **Always On**. If it's there, you're set. Also, as a safe habit, at
-the start of a work session tell your AI: *"Read `.agents/rules/collaboration-boundaries.md`
-and confirm which parts of the project I'm allowed to change."*
-
-Those rules tell it:
+Your AI in Cursor has already been given the project's rules (they live in a file
+called `.cursor/rules/collaboration-boundaries.mdc`, and it reads them
+automatically). Those rules tell it:
 
 - ✅ You CAN change: how the game looks — UI panels and windows, layout,
   spacing, fonts, colors, buttons, tooltips, icons, art, visual effects, and the
