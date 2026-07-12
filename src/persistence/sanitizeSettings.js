@@ -4,6 +4,12 @@ export const DEFAULT_MUSIC_ENABLED = true;
 export const DEFAULT_SFX_ENABLED = true;
 export const DEFAULT_SFX_VOLUME = 0.55;
 export const DEFAULT_PROTOTYPE_STATS_ENABLED = true;
+export const DEFAULT_AUTO_POTION_HP_THRESHOLD = 0.5;
+export const DEFAULT_AUTO_POTION_MP_THRESHOLD = 0.5;
+/** Lowest allowed auto-potion trigger (5%). */
+export const AUTO_POTION_THRESHOLD_MIN = 0.05;
+/** Highest allowed auto-potion trigger (100% = drink whenever not full). */
+export const AUTO_POTION_THRESHOLD_MAX = 1;
 export const MUSIC_MODE_PLAYLIST = "playlist";
 export const MUSIC_MODE_TRACK = "track";
 
@@ -13,6 +19,19 @@ export const MUSIC_MODE_TRACK = "track";
  */
 export function normalizedVolume(value) {
   return Math.max(0, Math.min(1, Number(value) || 0));
+}
+
+/**
+ * Auto-potion trigger as a 0–1 ratio (e.g. 0.5 = drink below 50%).
+ * @param {unknown} value
+ * @param {number} [fallback]
+ * @returns {number}
+ */
+export function normalizedAutoPotionThreshold(value, fallback = DEFAULT_AUTO_POTION_HP_THRESHOLD) {
+  const raw = Number(value);
+  if (!Number.isFinite(raw)) return fallback;
+  const clamped = Math.max(AUTO_POTION_THRESHOLD_MIN, Math.min(AUTO_POTION_THRESHOLD_MAX, raw));
+  return Math.round(clamped * 100) / 100;
 }
 
 /**
@@ -129,6 +148,14 @@ export function sanitizeSettingsState(savedSettings = {}) {
       ? savedSettings.sfxEnabled === true
       : DEFAULT_SFX_ENABLED,
     sfxVolume: normalizedVolume(savedSettings.sfxVolume ?? DEFAULT_SFX_VOLUME),
+    autoPotionHpThreshold: normalizedAutoPotionThreshold(
+      savedSettings.autoPotionHpThreshold,
+      DEFAULT_AUTO_POTION_HP_THRESHOLD,
+    ),
+    autoPotionMpThreshold: normalizedAutoPotionThreshold(
+      savedSettings.autoPotionMpThreshold,
+      DEFAULT_AUTO_POTION_MP_THRESHOLD,
+    ),
     prototypeStatsEnabled: Object.prototype.hasOwnProperty.call(savedSettings, "prototypeStatsEnabled")
       ? savedSettings.prototypeStatsEnabled === true
       : DEFAULT_PROTOTYPE_STATS_ENABLED,

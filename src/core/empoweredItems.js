@@ -1937,6 +1937,26 @@ export function rollEmpowermentReroll(entry, item, rng = Math.random) {
   return rollEmpowermentRerollAtSlot(entry, item, slotIndex, rng);
 }
 
+export const EMPOWER_SWAP_STAT_COLLISION_ERROR =
+  "You cannot swap a stat to an item that already has that stat.";
+
+/**
+ * An empowerment is stored as a single value per stat key, so moving `incomingSlot`
+ * onto `destEntry` would clobber an existing empowerment if the destination already
+ * has that same stat (other than the slot it is giving away in the exchange).
+ * @param {{ type: string, key?: string, range?: boolean, index?: number, spellId?: string, kind?: string }} incomingSlot
+ * @param {object} destEntry
+ * @param {{ type: string, key?: string, range?: boolean, index?: number, spellId?: string, kind?: string }} removedSlot Slot the destination is losing in the swap.
+ */
+function swapCausesStatCollision(incomingSlot, destEntry, removedSlot) {
+  const incomingId = empowerSlotIdentity(incomingSlot);
+  const removedId = empowerSlotIdentity(removedSlot);
+  if (incomingId === removedId) return false;
+  return listEmpowerSlotsFromEntry(destEntry).some(
+    (slot) => empowerSlotIdentity(slot) === incomingId,
+  );
+}
+
 /**
  * Swap chosen empowerments between two empowered items.
  * @param {object} entryA
@@ -1969,6 +1989,14 @@ export function swapEmpowermentsAtSlotIndices(entryA, itemA, slotIndexA, entryB,
   // slotA moves onto itemB and slotB moves onto itemA; Luck may only land on a weapon.
   if (!canPlaceEmpowerSlotOnItem(slotA, itemB) || !canPlaceEmpowerSlotOnItem(slotB, itemA)) {
     return { ok: false, error: "Luck can only be swapped onto weapons." };
+  }
+  // Each stat exists once per item, so refuse a swap that would overwrite an
+  // existing empowerment of the same stat on the receiving item.
+  if (
+    swapCausesStatCollision(slotA, entryB, slotB)
+    || swapCausesStatCollision(slotB, entryA, slotA)
+  ) {
+    return { ok: false, error: EMPOWER_SWAP_STAT_COLLISION_ERROR };
   }
   const amountA = captureEmpowerSlotAmount(entryA, slotA);
   const amountB = captureEmpowerSlotAmount(entryB, slotB);
@@ -2021,8 +2049,22 @@ export function swapRandomEmpowermentsBetweenEntries(entryA, itemA, entryB, item
   if (!eligibleA.length || !eligibleB.length) {
     return { ok: false, error: "Both items need an empowerment that can move to the other." };
   }
-  const indexA = eligibleA[Math.min(eligibleA.length - 1, Math.floor(rng() * eligibleA.length))];
-  const indexB = eligibleB[Math.min(eligibleB.length - 1, Math.floor(rng() * eligibleB.length))];
+  // Only consider pairs that would not overwrite an existing stat on either item.
+  const validPairs = [];
+  for (const i of eligibleA) {
+    for (const j of eligibleB) {
+      if (
+        !swapCausesStatCollision(slotsA[i], entryB, slotsB[j])
+        && !swapCausesStatCollision(slotsB[j], entryA, slotsA[i])
+      ) {
+        validPairs.push([i, j]);
+      }
+    }
+  }
+  if (!validPairs.length) {
+    return { ok: false, error: EMPOWER_SWAP_STAT_COLLISION_ERROR };
+  }
+  const [indexA, indexB] = validPairs[Math.min(validPairs.length - 1, Math.floor(rng() * validPairs.length))];
   return swapEmpowermentsAtSlotIndices(entryA, itemA, indexA, entryB, itemB, indexB);
 }
 

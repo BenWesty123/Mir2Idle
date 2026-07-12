@@ -10,6 +10,7 @@ import {
 } from "../src/warriorMagic.js";
 import { PHASE1_ENEMY_TEMPLATES, PHASE1_ZONES } from "../src/phase1Data.js";
 import { buildUsedSpellfxFiles } from "./itch-spellfx-manifest.mjs";
+import { ARMOUR_SPECIAL_EFFECT_DEFS } from "../src/armourVisualEffects.js";
 
 const root = path.resolve(import.meta.dirname, "..");
 const outputRoot = path.join(root, "dist");
@@ -32,6 +33,8 @@ const sourceFiles = [
   "src/app.js",
   "src/app.monolith.js",
   "src/atlas.js",
+  "src/armourVisualEffects.js",
+  "src/levelVisualEffects.js",
   "src/battleData.js",
   "src/bossDrops.js",
   "src/buffPotions.js",
@@ -129,6 +132,7 @@ const usedMagicIconFiles = new Set(
     .map((spell) => `frame_${String(Number(spell.icon) * 2).padStart(6, "0")}.png`),
 );
 const usedCommonSpriteFiles = buildUsedCommonSpriteFiles();
+const usedArmourEffectFiles = buildUsedArmourEffectFiles();
 const usedItemIconFiles = buildUsedItemIconFiles();
 const usedBookIconFiles = buildUsedBookIconFiles();
 const usedMonsterIndices = buildUsedMonsterIndices();
@@ -235,6 +239,32 @@ function buildUsedNpcFiles() {
   return files;
 }
 
+function buildUsedArmourEffectFiles() {
+  const files = new Set();
+  const addEffectId = (effectId) => {
+    const def = ARMOUR_SPECIAL_EFFECT_DEFS[effectId];
+    if (!def?.atlasPath) return;
+    const atlasPath = path.join(root, def.atlasPath.replace(/^\.\//, ""));
+    if (!fs.existsSync(atlasPath)) return;
+    const atlas = readJsonFile(atlasPath);
+    const baseRel = path.relative(path.join(root, "public"), path.dirname(atlasPath)).replace(/\\/g, "/");
+    files.add(`${baseRel}/atlas.json`);
+    for (const layer of atlas.layers ?? []) {
+      if (layer.sheet) files.add(`${baseRel}/${layer.sheet}`);
+    }
+  };
+
+  // Ship every DEFINED special-effect atlas (native + level effects), not only
+  // those currently assigned to an item. Several are scaffolding for future
+  // development; the client preloads all of them at boot, so shipping the full
+  // set keeps the packaged build from 404ing. addEffectId() silently skips any
+  // def whose atlas file is not on disk, so this stays safe.
+  for (const def of Object.values(ARMOUR_SPECIAL_EFFECT_DEFS)) {
+    addEffectId(def.id);
+  }
+  return files;
+}
+
 function buildUsedCommonSpriteFiles() {
   const files = new Set(["sprite-sets/common/layers.json"]);
   const addLayerIndex = (layer, index) => {
@@ -262,7 +292,7 @@ function shouldExcludePublic(relativePath) {
   // Ship the committed item-icon atlas (items-atlas.png/json), NOT the ~260
   // individual frame PNGs — keeps the package under itch.io's 1,000-file limit.
   if (/^item-icons\/items\/frame_.+\.png$/.test(relativePath)) return true;
-  if (/^sprite-sets\/common\/(?:armour|hair|weapon)\/\d+\.(?:json|png)$/.test(relativePath)) {
+  if (/^sprite-sets\/common\/(?:armour|hair|weapon|wing)\/\d+\.(?:json|png)$/.test(relativePath)) {
     return !usedCommonSpriteFiles.has(relativePath);
   }
   if (relativePath.startsWith("magic-icons/images/")) {
@@ -291,6 +321,9 @@ function shouldExcludePublic(relativePath) {
   if (relativePath.startsWith("spellfx/")) {
     return !usedSpellfxFiles.has(relativePath);
   }
+  if (relativePath.startsWith("armour-effects/") || relativePath.startsWith("level-effects/")) {
+    return !usedArmourEffectFiles.has(relativePath);
+  }
   if (relativePath.startsWith("audio/sfx/")) {
     return !usedSfxFiles.has(relativePath);
   }
@@ -318,7 +351,7 @@ function bundlePackagedAtlasManifests() {
     for (const file of collectPackageFiles(directory)) {
       if (path.extname(file.fullPath).toLowerCase() !== ".json") continue;
       const relativePath = path.relative(packageRoot, file.fullPath).replace(/\\/g, "/");
-      if (!/^(?:public\/sprite-sets\/common\/(?:armour|hair|weapon)\/\d+|public\/monsters\/monster\/\d+)\.json$/.test(relativePath)) {
+      if (!/^(?:public\/sprite-sets\/common\/(?:armour|hair|weapon|wing)\/\d+|public\/monsters\/monster\/\d+)\.json$/.test(relativePath)) {
         continue;
       }
       atlases[relativePath] = readJsonFile(file.fullPath);
@@ -519,21 +552,25 @@ function validateItchLimits(metrics, zipPath = null) {
   if (!fs.existsSync(path.join(packageRoot, "index.html"))) {
     issues.push("Missing index.html at package root.");
   }
+  // The live game deploys to Cloudflare Pages (project `lom2idle`), which has no
+  // 1,000-file limit. That cap was an itch.io HTML-embed constraint; we no longer
+  // ship to itch, so the file-count check is informational only (warn, don't fail).
   const zipEntries = zipPath && fs.existsSync(zipPath) ? countZipEntries(zipPath) : metrics.files;
-  if (zipEntries > 1000) {
-    issues.push(`Too many zip entries (${zipEntries}). itch.io HTML limit is 1,000.`);
-  }
-  if (metrics.files > 1000) {
-    issues.push(`Too many extracted files (${metrics.files}). itch.io HTML limit is 1,000.`);
+  const ITCH_FILE_LIMIT = 1000;
+  if (zipEntries > ITCH_FILE_LIMIT || metrics.files > ITCH_FILE_LIMIT) {
+    console.warn(
+      `Note: package has ${metrics.files} files (${zipEntries} zip entries), over the old itch.io 1,000-file limit. ` +
+        "This is fine for Cloudflare Pages, which is the live deploy target.",
+    );
   }
   if (metrics.mb > 500) {
-    issues.push(`Package too large (${metrics.mb} MB). itch.io HTML limit is 500 MB.`);
+    issues.push(`Package too large (${metrics.mb} MB). limit is 500 MB.`);
   }
   if (metrics.maxFileMb > 200) {
-    issues.push(`Largest file is ${metrics.maxFileMb} MB. itch.io single-file limit is 200 MB.`);
+    issues.push(`Largest file is ${metrics.maxFileMb} MB. single-file limit is 200 MB.`);
   }
   if (issues.length) {
-    throw new Error(`Itch.io packaging checks failed:\n- ${issues.join("\n- ")}`);
+    throw new Error(`Packaging checks failed:\n- ${issues.join("\n- ")}`);
   }
 }
 

@@ -1,6 +1,10 @@
 import test from "node:test";
 import assert from "node:assert/strict";
 import {
+  AUTO_POTION_THRESHOLD_MAX,
+  AUTO_POTION_THRESHOLD_MIN,
+  DEFAULT_AUTO_POTION_HP_THRESHOLD,
+  DEFAULT_AUTO_POTION_MP_THRESHOLD,
   DEFAULT_MUSIC_ENABLED,
   DEFAULT_SFX_ENABLED,
   MUSIC_MODE_PLAYLIST,
@@ -8,6 +12,7 @@ import {
   MUSIC_SETTINGS_VERSION,
   SCENE_WINDOW_EDGE_PAD,
   clampSceneWindowCoords,
+  normalizedAutoPotionThreshold,
   normalizedMusicMode,
   normalizedVolume,
   sanitizeSceneWindowPosition,
@@ -23,6 +28,14 @@ test("normalizedVolume clamps to [0, 1]", () => {
   assert.equal(normalizedVolume("bad"), 0);
 });
 
+test("normalizedAutoPotionThreshold clamps to allowed range", () => {
+  assert.equal(normalizedAutoPotionThreshold(0.5), 0.5);
+  assert.equal(normalizedAutoPotionThreshold(0), AUTO_POTION_THRESHOLD_MIN);
+  assert.equal(normalizedAutoPotionThreshold(2), AUTO_POTION_THRESHOLD_MAX);
+  assert.equal(normalizedAutoPotionThreshold("bad"), DEFAULT_AUTO_POTION_HP_THRESHOLD);
+  assert.equal(normalizedAutoPotionThreshold(undefined, 0.7), 0.7);
+});
+
 test("normalizedMusicMode", () => {
   assert.equal(normalizedMusicMode(MUSIC_MODE_TRACK), MUSIC_MODE_TRACK);
   assert.equal(normalizedMusicMode("other"), MUSIC_MODE_PLAYLIST);
@@ -32,6 +45,8 @@ test("sanitizeSettingsState: defaults when music settings version is old", () =>
   const result = sanitizeSettingsState({ musicSettingsVersion: 0 });
   assert.equal(result.musicEnabled, DEFAULT_MUSIC_ENABLED);
   assert.equal(result.sfxEnabled, DEFAULT_SFX_ENABLED);
+  assert.equal(result.autoPotionHpThreshold, DEFAULT_AUTO_POTION_HP_THRESHOLD);
+  assert.equal(result.autoPotionMpThreshold, DEFAULT_AUTO_POTION_MP_THRESHOLD);
 });
 
 test("sanitizeSettingsState: honors explicit flags at current version", () => {
@@ -42,6 +57,8 @@ test("sanitizeSettingsState: honors explicit flags at current version", () => {
     musicMode: MUSIC_MODE_TRACK,
     sfxEnabled: false,
     sfxVolume: 0.2,
+    autoPotionHpThreshold: 0.35,
+    autoPotionMpThreshold: 0.7,
     prototypeStatsEnabled: false,
     prototypeStatsNoticeVersion: 2,
     cloudBackupNoticeVersion: 1,
@@ -52,6 +69,8 @@ test("sanitizeSettingsState: honors explicit flags at current version", () => {
   assert.equal(result.musicMode, MUSIC_MODE_TRACK);
   assert.equal(result.sfxEnabled, false);
   assert.equal(result.sfxVolume, 0.2);
+  assert.equal(result.autoPotionHpThreshold, 0.35);
+  assert.equal(result.autoPotionMpThreshold, 0.7);
   assert.equal(result.prototypeStatsEnabled, false);
   assert.equal(result.prototypeStatsNoticeVersion, 2);
   assert.equal(result.cloudBackupNoticeVersion, 1);

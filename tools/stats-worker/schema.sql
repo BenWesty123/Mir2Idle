@@ -123,6 +123,18 @@ CREATE TABLE IF NOT EXISTS account_unlocks (
   PRIMARY KEY (recovery_code, unlock_key)
 );
 
+-- Server-authoritative record of re-buyable, time-limited subscriptions (e.g.
+-- the Monthly Supporter perk). Unlike account_unlocks these are NOT permanent:
+-- `expires_at` is an epoch-ms timestamp and buying again extends it. Keyed to the
+-- portable recovery code so the perk survives save resets and device changes.
+CREATE TABLE IF NOT EXISTS account_subscriptions (
+  recovery_code TEXT NOT NULL,
+  subscription_key TEXT NOT NULL,
+  expires_at INTEGER NOT NULL DEFAULT 0,
+  updated_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  PRIMARY KEY (recovery_code, subscription_key)
+);
+
 -- Player-chosen public display names (aliases) shown on the Social tab and the
 -- town noticeboard in place of the derived `Player XXXXXXXX` label. Keyed to the
 -- account `player_id`; the owning `recovery_code` is stored so only the account

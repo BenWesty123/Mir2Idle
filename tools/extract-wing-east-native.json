@@ -1,0 +1,43 @@
+{
+  "dataRoot": "C:/Users/bb-we/Documents/Crystal-master/Next/NextClient/Data",
+  "outputRoot": "../public/sprite-sets/common",
+  "direction": 2,
+  "actions": {
+    "standing": { "start": 0, "count": 8, "offset": 8, "interval": 250 },
+    "walking": { "start": 64, "count": 6, "offset": 6, "interval": 100 },
+    "running": { "start": 112, "count": 6, "offset": 6, "interval": 100 },
+    "stance": { "start": 160, "count": 1, "offset": 1, "interval": 1000 },
+    "stance2": { "start": 332, "count": 1, "offset": 6, "interval": 1000 },
+    "attack1": { "start": 168, "count": 6, "offset": 6, "interval": 100 },
+    "attack2": { "start": 216, "count": 6, "offset": 6, "interval": 100 },
+    "attack3": { "start": 264, "count": 8, "offset": 8, "interval": 100 },
+    "attack4": { "start": 448, "count": 6, "offset": 6, "interval": 100 },
+    "spell": { "start": 328, "count": 6, "offset": 6, "interval": 100 },
+    "harvest": { "start": 376, "count": 2, "offset": 2, "interval": 300 },
+    "struck": { "start": 392, "count": 3, "offset": 3, "interval": 100 },
+    "die": { "start": 416, "count": 4, "offset": 4, "interval": 100 },
+    "dead": { "start": 419, "count": 1, "offset": 4, "interval": 1000 },
+    "revive": { "start": 416, "count": 4, "offset": 4, "interval": 100 },
+    "mine": { "start": 216, "count": 6, "offset": 6, "interval": 100 },
+    "lunge": { "start": 300, "count": 1, "offset": 6, "interval": 1000 },
+    "sneek": { "start": 496, "count": 6, "offset": 6, "interval": 100 },
+    "dashAttack": { "start": 112, "count": 3, "offset": 3, "interval": 100 },
+    "walkingBow": { "start": 0, "count": 6, "offset": 6, "interval": 100 },
+    "runningBow": { "start": 48, "count": 6, "offset": 6, "interval": 100 },
+    "attackRange1": { "start": 96, "count": 8, "offset": 8, "interval": 100 },
+    "attackRange2": { "start": 160, "count": 8, "offset": 8, "interval": 100 },
+    "attackRange3": { "start": 224, "count": 8, "offset": 8, "interval": 100 },
+    "jump": { "start": 288, "count": 8, "offset": 8, "interval": 100 },
+    "mountStanding": { "start": 448, "count": 4, "offset": 4, "interval": 500 },
+    "mountWalking": { "start": 480, "count": 8, "offset": 8, "interval": 100 },
+    "mountRunning": { "start": 544, "count": 6, "offset": 6, "interval": 100 },
+    "mountStruck": { "start": 592, "count": 3, "offset": 3, "interval": 100 },
+    "mountAttack": { "start": 616, "count": 6, "offset": 6, "interval": 100 },
+    "fishingCast": { "start": 632, "count": 8, "offset": 8, "interval": 100 },
+    "fishingWait": { "start": 696, "count": 6, "offset": 6, "interval": 120 },
+    "fishingReel": { "start": 744, "count": 8, "offset": 8, "interval": 100 }
+  },
+  "layers": [
+    { "name": "wing", "folder": "CHumEffect" }
+  ]
+}
