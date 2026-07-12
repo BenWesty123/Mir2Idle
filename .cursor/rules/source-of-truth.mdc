@@ -19,11 +19,13 @@ alwaysApply: true
 - Use the `NAVIGATION MAP` comment block near the top of `src/app.monolith.js`, and the system map in `AI_HANDOFF.md`.
 - Search by function/const NAME, not by line number (line numbers drift).
 
-## Releasing to itch.io (copy-only packaging)
-- Release with `npm run release:itch`. It packages AND boots the packaged build headlessly (`verify:itch:build`). If that boot check is RED, do NOT upload - the release differs from the tested dev build.
+## Releasing the website - Cloudflare Pages (copy-only packaging)
+- The live game deploys to **Cloudflare Pages (project `lom2idle`, www.lom2idle.com)**, NOT itch.io. The `release:itch`/`package:itch`/`dist/itch` names are legacy ("the website build").
+- Build with `npm run release:itch`. It packages AND boots the packaged build headlessly (`verify:itch:build`). If that boot check is RED, do NOT deploy - the build differs from the tested dev build.
+- Deploy with the **Wrangler CLI**: `npx wrangler pages deploy dist/itch --project-name=lom2idle --branch=main`. **`--branch=main` is required** - without it wrangler uses your current git branch and Cloudflare publishes a *preview* deploy (`<branch>.lom2idle.pages.dev`), leaving `lom2idle.com` unchanged. Do NOT use the dashboard drag-and-drop - it caps at **1,000 files** (build is ~1,067); the Wrangler CLI supports up to 20,000. The packager's file-count check is thus a non-fatal warning; the 500 MB total / 200 MB per-file limits still apply.
 - Packaging only COPIES a chosen subset of files into `dist/itch/`; it must NEVER regenerate atlases or rewrite data files. The dev build must render from the exact same committed files that ship.
 - Item/paper-doll icons are PREBUILT atlases in `public/` (`public/item-icons/items-atlas.*`, `public/ui/character/stateitems-atlas.*`), merged onto icons at load by `applyItemIconAtlas` / `applyStateItemAtlas`. After changing icon art, run `npm run build:item-atlas` (or `build:stateitem-atlas`) and test in dev. Do NOT add a package-time atlas rebuild back into `tools/package-itch.mjs`.
-- Asset paths in source must be relative (`./public/...`), never absolute (`/public/...`), so they work on itch's subpath without rewriting.
+- Asset paths in source must be relative (`./public/...`), never absolute (`/public/...`), so they work under a subpath without rewriting.
 
 ## House rules
 - Preserve player saves. If you change save structure, add migration logic (extend the `sanitize*` / `restore*` functions; never silently drop fields).

@@ -2,6 +2,7 @@ import fs from "node:fs";
 import path from "node:path";
 import { execFileSync } from "node:child_process";
 import { copyItemIcon, frameFileName } from "./item-icon-utils.mjs";
+import { ARMOUR_VISUAL_EFFECT_ITEM_IDS, visualEffectForArmourItemId } from "../src/armourVisualEffects.js";
 
 const root = path.resolve(import.meta.dirname, "..");
 const selectionCsvPath = path.join(root, "content-audit/phase-1/warrior-item-selection.csv");
@@ -197,6 +198,14 @@ const nameOverrides = {
   "WizardRobe(M)": "Wizard Robe",
   "PearlArmour(M)": "Pearl Armour",
   "TaoArmour(M)": "Tao Armour",
+  "HeavenArmour(M)": "Heaven Robe",
+  "HeavenArmour(M)1": "Heaven Robe",
+  "HeavenArmour(M)2": "Heaven Robe",
+  "HeavenArmour(M)3": "Heaven Robe",
+  "HeavenArmour(F)": "Heaven Robe",
+  "HeavenArmour(F)1": "Heaven Robe",
+  "HeavenArmour(F)2": "Heaven Robe",
+  "HeavenArmour(F)3": "Heaven Robe",
   ZumaJudgementMace: "Zuma Judgement Mace",
   ZumaWarMageStaff: "Zuma War Mage Staff",
   ZumaSoulSpringWand: "Zuma Soul Spring Wand",
@@ -518,6 +527,14 @@ function itemDefinition(item, dropsByName, curatedDropsById) {
 
   if (item.type === "Weapon") def.visual = { layer: "weapon", index: Number(item.shape) || 0 };
   if (item.type === "Armour") def.visual = { layer: "armour", index: Number(item.shape) || 0 };
+  if (ARMOUR_VISUAL_EFFECT_ITEM_IDS.has(def.id)) {
+    const levelEffectId = visualEffectForArmourItemId(def.id);
+    if (levelEffectId != null) {
+      def.visualEffect = levelEffectId;
+    } else if (Number(item.effect) > 0) {
+      def.visualEffect = Number(item.effect);
+    }
+  }
   if (item.type === "Potion") def.shape = Number(item.shape) || 0;
   if (isTaoistAmulet) {
     def.shape = Number(item.shape) || 0;

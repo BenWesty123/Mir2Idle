@@ -32,11 +32,12 @@ class FakeStatement {
 }
 
 class FakeDb {
-  constructor({ balances = {}, stripeEvents = [], recentMessage = null, unlocks = [] } = {}) {
+  constructor({ balances = {}, stripeEvents = [], recentMessage = null, unlocks = [], subscriptions = {} } = {}) {
     this.balances = { ...balances };
     this.stripeEvents = new Set(stripeEvents);
     this.recentMessage = recentMessage;
     this.unlocks = new Set(unlocks);
+    this.subscriptions = { ...subscriptions };
     this.calls = [];
     this.nextMessageId = 1;
   }
@@ -77,6 +78,10 @@ class FakeDb {
       this.balances[code] = (this.balances[code] ?? 0) + amount;
       return { meta: { changes: 1 } };
     }
+    if (/INSERT INTO account_subscriptions/.test(sql)) {
+      this.subscriptions[`${args[0]}::${args[1]}`] = args[2];
+      return { meta: { changes: 1 } };
+    }
     if (/INSERT INTO token_ledger/.test(sql)) return { meta: { changes: 1 } };
     return { meta: { changes: 1 } };
   }
@@ -94,6 +99,10 @@ class FakeDb {
         created_at: "2026-07-01T00:00:00Z",
       };
     }
+    if (/SELECT expires_at FROM account_subscriptions/.test(sql)) {
+      const key = `${args[0]}::${args[1]}`;
+      return key in this.subscriptions ? { expires_at: this.subscriptions[key] } : null;
+    }
     if (/SELECT balance FROM token_accounts/.test(sql)) return { balance: this.balances[args[0]] ?? 0 };
     return null;
   }
@@ -105,6 +114,13 @@ class FakeDb {
       const results = [...this.unlocks]
         .filter((entry) => entry.startsWith(`${code}::`))
         .map((entry) => ({ unlock_key: entry.slice(code.length + 2) }));
+      return { results };
+    }
+    if (/SELECT subscription_key, expires_at FROM account_subscriptions/.test(sql)) {
+      const code = args[0];
+      const results = Object.entries(this.subscriptions)
+        .filter(([entry]) => entry.startsWith(`${code}::`))
+        .map(([entry, expiresAt]) => ({ subscription_key: entry.slice(code.length + 2), expires_at: expiresAt }));
       return { results };
     }
     return { results: [] };
@@ -326,6 +342,21 @@ test("unlock-page rejects the teleport ring when the balance is below 500", asyn
   assert.ok(!db.unlocks.has(`${VALID_CODE}::teleport-ring`));
 });
 
+test("unlock-page charges 300 tokens for time logging", async () => {
+  const db = new FakeDb({ balances: { [VALID_CODE]: 300 } });
+  const response = await request("/shop/unlock-page", {
+    method: "POST",
+    headers: { "content-type": "application/json" },
+    body: JSON.stringify({ recoveryCode: VALID_CODE, unlockKey: "time-logging" }),
+  }, { DB: db });
+  assert.equal(response.status, 200);
+  const data = await response.json();
+  assert.equal(data.ok, true);
+  assert.equal(data.unlockKey, "time-logging");
+  assert.equal(data.balance, 0);
+  assert.ok(db.unlocks.has(`${VALID_CODE}::time-logging`));
+});
+
 test("unlock-page is idempotent and never double-charges", async () => {
   const db = new FakeDb({
     balances: { [VALID_CODE]: 300 },
@@ -381,4 +412,98 @@ test("unlocks GET returns the owned unlock keys", async () => {
   const data = await response.json();
   assert.deepEqual(data.unlocks.sort(), ["inv-page-3:taoist", "storage-page-3"]);
   assert.equal(data.balance, 42);
+});
+
+const DAY_MS = 24 * 60 * 60 * 1000;
+
+test("subscribe charges 1000 tokens and sets a 28-day expiry", async () => {
+  const db = new FakeDb({ balances: { [VALID_CODE]: 1200 } });
+  const before = Date.now();
+  const response = await request("/shop/subscribe", {
+    method: "POST",
+    headers: { "content-type": "application/json" },
+    body: JSON.stringify({ recoveryCode: VALID_CODE, subscriptionKey: "monthly-supporter" }),
+  }, { DB: db });
+  assert.equal(response.status, 200);
+  const data = await response.json();
+  assert.equal(data.ok, true);
+  assert.equal(data.subscriptionKey, "monthly-supporter");
+  assert.equal(data.balance, 200);
+  assert.equal(db.balances[VALID_CODE], 200);
+  // Expiry is ~28 days out (allow a small window for clock drift during the test).
+  assert.ok(data.expiresAt >= before + 28 * DAY_MS);
+  assert.ok(data.expiresAt <= Date.now() + 28 * DAY_MS + 5000);
+});
+
+test("subscribe extends from the current expiry when still active", async () => {
+  const activeUntil = Date.now() + 10 * DAY_MS;
+  const db = new FakeDb({
+    balances: { [VALID_CODE]: 1000 },
+    subscriptions: { [`${VALID_CODE}::monthly-supporter`]: activeUntil },
+  });
+  const response = await request("/shop/subscribe", {
+    method: "POST",
+    headers: { "content-type": "application/json" },
+    body: JSON.stringify({ recoveryCode: VALID_CODE, subscriptionKey: "monthly-supporter" }),
+  }, { DB: db });
+  assert.equal(response.status, 200);
+  const data = await response.json();
+  // Should extend from the existing expiry, not from now: ~38 days total.
+  assert.ok(data.expiresAt >= activeUntil + 28 * DAY_MS - 5000);
+  assert.equal(db.balances[VALID_CODE], 0);
+});
+
+test("subscribe returns 402 and writes nothing when the balance is too low", async () => {
+  const db = new FakeDb({ balances: { [VALID_CODE]: 999 } });
+  const response = await request("/shop/subscribe", {
+    method: "POST",
+    headers: { "content-type": "application/json" },
+    body: JSON.stringify({ recoveryCode: VALID_CODE, subscriptionKey: "monthly-supporter" }),
+  }, { DB: db });
+  assert.equal(response.status, 402);
+  const data = await response.json();
+  assert.equal(data.code, "INSUFFICIENT_TOKENS");
+  assert.equal(db.balances[VALID_CODE], 999);
+  assert.ok(!(`${VALID_CODE}::monthly-supporter` in db.subscriptions));
+});
+
+test("subscribe rejects an unknown subscription key", async () => {
+  const db = new FakeDb({ balances: { [VALID_CODE]: 5000 } });
+  const response = await request("/shop/subscribe", {
+    method: "POST",
+    headers: { "content-type": "application/json" },
+    body: JSON.stringify({ recoveryCode: VALID_CODE, subscriptionKey: "lifetime-supporter" }),
+  }, { DB: db });
+  assert.equal(response.status, 400);
+  assert.equal(db.balances[VALID_CODE], 5000);
+});
+
+test("unlocks GET returns active subscriptions and omits expired ones", async () => {
+  const db = new FakeDb({
+    balances: { [VALID_CODE]: 5 },
+    subscriptions: {
+      [`${VALID_CODE}::monthly-supporter`]: Date.now() + 5 * DAY_MS,
+    },
+  });
+  const response = await request(
+    `/shop/unlocks?recoveryCode=${encodeURIComponent(VALID_CODE)}`,
+    { method: "GET" },
+    { DB: db },
+  );
+  assert.equal(response.status, 200);
+  const data = await response.json();
+  assert.ok(data.subscriptions);
+  assert.ok(Number(data.subscriptions["monthly-supporter"]) > Date.now());
+
+  const expiredDb = new FakeDb({
+    balances: { [VALID_CODE]: 5 },
+    subscriptions: { [`${VALID_CODE}::monthly-supporter`]: Date.now() - DAY_MS },
+  });
+  const expiredResponse = await request(
+    `/shop/unlocks?recoveryCode=${encodeURIComponent(VALID_CODE)}`,
+    { method: "GET" },
+    { DB: expiredDb },
+  );
+  const expiredData = await expiredResponse.json();
+  assert.equal(expiredData.subscriptions["monthly-supporter"], undefined);
 });

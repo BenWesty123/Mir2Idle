@@ -66,6 +66,7 @@ import {
   swapEmpowermentsAtSlotIndices,
   empowerSwapChoiceLabels,
   canPlaceEmpowerSlotOnItem,
+  EMPOWER_SWAP_STAT_COLLISION_ERROR,
   empowerSlotChoiceLabels,
   listEmpowerSlotsFromEntry,
 } from "../src/core/empoweredItems.js";
@@ -464,14 +465,15 @@ test("swapEmpowermentsAtSlotIndices allows Luck to move weapon to weapon", () =>
   const entryB = {
     empowered: true,
     empowerTier: 2,
-    empowerBonusStats: sanitizeItemBonusStats({ dc: [0, 5], sc: [0, 1] }),
+    empowerBonusStats: sanitizeItemBonusStats({ mc: [0, 5], sc: [0, 1] }),
     empowerSpellBonuses: {},
   };
   const luckIndex = listEmpowerSlotsFromEntry(entryA).findIndex((slot) => slot.key === "luck");
-  const result = swapEmpowermentsAtSlotIndices(entryA, UNIVERSAL_WEAPON, luckIndex, entryB, UNIVERSAL_WEAPON, 0);
+  const scIndex = listEmpowerSlotsFromEntry(entryB).findIndex((slot) => slot.key === "sc");
+  const result = swapEmpowermentsAtSlotIndices(entryA, UNIVERSAL_WEAPON, luckIndex, entryB, UNIVERSAL_WEAPON, scIndex);
   assert.equal(result.ok, true);
   assert.equal(entryB.empowerBonusStats.luck, 2);
-  assert.equal(entryA.empowerBonusStats.dc[1], 5);
+  assert.equal(entryA.empowerBonusStats.sc[1], 1);
 });
 
 test("empowerSwapChoiceLabels offers Luck only when the target is a weapon", () => {
@@ -507,6 +509,75 @@ test("swapRandomEmpowermentsBetweenEntries never moves Luck onto a non-weapon", 
   const result = swapRandomEmpowermentsBetweenEntries(weaponEntry, UNIVERSAL_WEAPON, ringEntry, MC_RING, () => 0.999);
   assert.equal(result.ok, true);
   assert.equal(weaponEntry.empowerBonusStats.luck, 2);
+});
+
+test("swapEmpowermentsAtSlotIndices refuses to overwrite a shared stat", () => {
+  const entryA = {
+    empowered: true,
+    empowerTier: 2,
+    empowerBonusStats: sanitizeItemBonusStats({ critChancePercent: 50, freezing: 2 }),
+    empowerSpellBonuses: {},
+  };
+  const entryB = {
+    empowered: true,
+    empowerTier: 1,
+    empowerBonusStats: sanitizeItemBonusStats({ critChancePercent: 10 }),
+    empowerSpellBonuses: {},
+  };
+  const freezingIndex = listEmpowerSlotsFromEntry(entryA).findIndex((slot) => slot.key === "freezing");
+  const critIndexB = listEmpowerSlotsFromEntry(entryB).findIndex((slot) => slot.key === "critChancePercent");
+  // Moving B's crit onto A (which already has crit) would clobber A's 50% crit.
+  const result = swapEmpowermentsAtSlotIndices(entryA, UNIVERSAL_WEAPON, freezingIndex, entryB, UNIVERSAL_WEAPON, critIndexB);
+  assert.equal(result.ok, false);
+  assert.equal(result.error, EMPOWER_SWAP_STAT_COLLISION_ERROR);
+  assert.equal(entryA.empowerBonusStats.critChancePercent, 50);
+  assert.equal(entryA.empowerBonusStats.freezing, 2);
+  assert.equal(entryB.empowerBonusStats.critChancePercent, 10);
+});
+
+test("swapEmpowermentsAtSlotIndices allows exchanging the same stat directly", () => {
+  const entryA = {
+    empowered: true,
+    empowerTier: 1,
+    empowerBonusStats: sanitizeItemBonusStats({ critChancePercent: 50 }),
+    empowerSpellBonuses: {},
+  };
+  const entryB = {
+    empowered: true,
+    empowerTier: 1,
+    empowerBonusStats: sanitizeItemBonusStats({ critChancePercent: 10 }),
+    empowerSpellBonuses: {},
+  };
+  const critA = listEmpowerSlotsFromEntry(entryA).findIndex((slot) => slot.key === "critChancePercent");
+  const critB = listEmpowerSlotsFromEntry(entryB).findIndex((slot) => slot.key === "critChancePercent");
+  const result = swapEmpowermentsAtSlotIndices(entryA, UNIVERSAL_WEAPON, critA, entryB, UNIVERSAL_WEAPON, critB);
+  assert.equal(result.ok, true);
+  assert.equal(entryA.empowerBonusStats.critChancePercent, 10);
+  assert.equal(entryB.empowerBonusStats.critChancePercent, 50);
+});
+
+test("swapRandomEmpowermentsBetweenEntries never picks a colliding pair (the reported bug)", () => {
+  // The reported case: A had 50% crit + freezing, B had 10% crit. Random swap must
+  // not destroy the 50% crit by dropping crit onto crit; it can only exchange crit↔crit.
+  const entryA = {
+    empowered: true,
+    empowerTier: 2,
+    empowerBonusStats: sanitizeItemBonusStats({ critChancePercent: 50, freezing: 2 }),
+    empowerSpellBonuses: {},
+  };
+  const entryB = {
+    empowered: true,
+    empowerTier: 1,
+    empowerBonusStats: sanitizeItemBonusStats({ critChancePercent: 10 }),
+    empowerSpellBonuses: {},
+  };
+  // rng biased toward the last candidate to prove the colliding pair is never chosen.
+  const result = swapRandomEmpowermentsBetweenEntries(entryA, UNIVERSAL_WEAPON, entryB, UNIVERSAL_WEAPON, () => 0.999);
+  assert.equal(result.ok, true);
+  // Freezing stays put (no partner to swap with), crit values exchange, nothing deleted.
+  assert.equal(entryA.empowerBonusStats.freezing, 2);
+  assert.equal(entryA.empowerBonusStats.critChancePercent, 10);
+  assert.equal(entryB.empowerBonusStats.critChancePercent, 50);
 });
 
 test("formatEmpowerAppliedChangeLabel uses the rolled amount", () => {

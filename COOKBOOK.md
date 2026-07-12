@@ -116,14 +116,21 @@ Why this matters: the atlas is built and tested in dev, so the itch release copi
 
 ---
 
-## 8. Release to itch.io safely
+## 8. Build & deploy the website (Cloudflare Pages) safely
 
 ```powershell
 npm.cmd run release:itch
 ```
 
-This one command audits assets, builds the upload zip in `dist/`, and then **boots the real packaged build in a headless browser** to confirm it still works.
+The live game deploys to **Cloudflare Pages (project `lom2idle`, www.lom2idle.com)** - not itch.io. The `release:itch` name and `dist/itch/` folder are legacy; think "the website build". This one command audits assets, builds the package into `dist/itch/`, and then **boots the real packaged build in a headless browser** to confirm it still works.
 
 - Packaging only **copies a chosen subset of your files** into `dist/itch/`; it never deletes or edits anything in your project and never rebuilds atlases. So what you tested in dev is what ships.
-- If the final "Release boot check" step is RED, **do not upload** - the package differs from the tested build (e.g. a needed file was not copied). Read the listed problem (a missing asset URL or a console error) and fix it, then re-run.
-- Upload the `dist/lom-idle-v2-itch-*.zip` it prints, using the on-screen itch.io settings (HTML, embed in page).
+- If the final "Release boot check" step is RED, **do not deploy** - the package differs from the tested build (e.g. a needed file was not copied). Read the listed problem (a missing asset URL or a console error) and fix it, then re-run.
+- When green, deploy the built `dist/itch/` folder with the **Wrangler CLI**:
+
+```powershell
+npx wrangler pages deploy dist/itch --project-name=lom2idle --branch=main
+```
+
+- **`--branch=main` is required** - it targets the production branch. Without it, wrangler uses your current git branch name and Cloudflare creates a *preview* deploy (a `<branch>.lom2idle.pages.dev` URL), so `lom2idle.com` won't change.
+- Do NOT use the Pages dashboard drag-and-drop - it caps at **1,000 files** and the build is ~1,067; the Wrangler CLI allows up to 20,000. (The packager's file-count warning is expected and fine.)

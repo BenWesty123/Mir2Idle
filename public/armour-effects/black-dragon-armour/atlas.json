@@ -1,0 +1,110 @@
+﻿{
+    "effectId":  101,
+    "label":  "Black Dragon Armour",
+    "direction":  2,
+    "blend":  "screen",
+    "drawBehind":  false,
+    "durationMs":  1500,
+    "layers":  [
+                   {
+                       "sheet":  "loop.png",
+                       "interval":  150,
+                       "slotWidth":  52,
+                       "slotHeight":  92,
+                       "library":  "CHumEffect",
+                       "baseIndex":  0,
+                       "frames":  [
+                                      {
+                                          "slot":  0,
+                                          "srcFrame":  0,
+                                          "w":  52,
+                                          "h":  92,
+                                          "offsetX":  -2,
+                                          "offsetY":  -79,
+                                          "empty":  false
+                                      },
+                                      {
+                                          "slot":  1,
+                                          "srcFrame":  1,
+                                          "w":  52,
+                                          "h":  92,
+                                          "offsetX":  1,
+                                          "offsetY":  -79,
+                                          "empty":  false
+                                      },
+                                      {
+                                          "slot":  2,
+                                          "srcFrame":  2,
+                                          "w":  48,
+                                          "h":  92,
+                                          "offsetX":  2,
+                                          "offsetY":  -79,
+                                          "empty":  false
+                                      },
+                                      {
+                                          "slot":  3,
+                                          "srcFrame":  3,
+                                          "w":  48,
+                                          "h":  92,
+                                          "offsetX":  3,
+                                          "offsetY":  -79,
+                                          "empty":  false
+                                      },
+                                      {
+                                          "slot":  4,
+                                          "srcFrame":  4,
+                                          "w":  48,
+                                          "h":  92,
+                                          "offsetX":  0,
+                                          "offsetY":  -81,
+                                          "empty":  false
+                                      },
+                                      {
+                                          "slot":  5,
+                                          "srcFrame":  5,
+                                          "w":  52,
+                                          "h":  92,
+                                          "offsetX":  -2,
+                                          "offsetY":  -79,
+                                          "empty":  false
+                                      },
+                                      {
+                                          "slot":  6,
+                                          "srcFrame":  6,
+                                          "w":  52,
+                                          "h":  92,
+                                          "offsetX":  1,
+                                          "offsetY":  -79,
+                                          "empty":  false
+                                      },
+                                      {
+                                          "slot":  7,
+                                          "srcFrame":  7,
+                                          "w":  48,
+                                          "h":  92,
+                                          "offsetX":  2,
+                                          "offsetY":  -79,
+                                          "empty":  false
+                                      },
+                                      {
+                                          "slot":  8,
+                                          "srcFrame":  8,
+                                          "w":  44,
+                                          "h":  92,
+                                          "offsetX":  3,
+                                          "offsetY":  -79,
+                                          "empty":  false
+                                      },
+                                      {
+                                          "slot":  9,
+                                          "srcFrame":  9,
+                                          "w":  48,
+                                          "h":  92,
+                                          "offsetX":  0,
+                                          "offsetY":  -81,
+                                          "empty":  false
+                                      }
+                                  ]
+                   }
+               ]
+}
