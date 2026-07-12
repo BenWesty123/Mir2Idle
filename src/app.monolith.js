@@ -476,6 +476,7 @@ const CODEX_CATEGORY_DEFS = [
   { id: "gems", label: "Gems" },
   { id: "other", label: "Other" },
 ];
+const CODEX_CATEGORY_ORDER = new Map(CODEX_CATEGORY_DEFS.map((category, index) => [category.id, index]));
 const ACHIEVEMENT_UNLOCK_SOUL_COST = 10;
 const ACHIEVEMENTS_TEST_ACCESS = false;
 const ACHIEVEMENT_DEFS = [
@@ -2777,6 +2778,7 @@ const state = {
   upgradeCategory: "combat",
   codexCategory: "all",
   codexHideUnfound: false,
+  codexSearchQuery: "",
   codexSelectedItemId: null,
   townPartyIdleMembers: [],
   townPartyIdleEvent: null,
@@ -2971,6 +2973,7 @@ let gamePanelSignature = "";
 let gamePanelDynamicSignature = "";
 let sceneSignature = "";
 let sceneOverlayLiveSignature = "";
+let accountCodexRevision = 0;
 let sceneWindowStack = [];
 const DRAGGABLE_SCENE_WINDOWS = new Set(["character", "inventory"]);
 let sceneWindowDragState = null;
@@ -3911,6 +3914,7 @@ function applySaveSnapshot(snapshot) {
     accountRestoreOptions(),
   );
   state.account = account;
+  noteAccountCodexChanged();
   const ranUnfairSkillPurge = maybePurgeUnfairSkills(snapshot);
   syncAccountBossKillsToCharacters();
   syncAccountBossRespawnsToCharacters();
@@ -4764,6 +4768,7 @@ function performAccountRebirth() {
   resetNonRebirthAccountUpgrades();
   state.account.codex = permanentCodex;
   state.account.achievements = permanentAchievements;
+  noteAccountCodexChanged();
   ensureAccountStats();
   let pointsGained = 0;
   if (soulsConverted > 0) {
@@ -7860,6 +7865,7 @@ function resetRuntimeGameState() {
   state.account.stats = createDefaultAccountStats();
   state.account.codex = createDefaultAccountCodexState();
   state.account.achievements = createDefaultAccountAchievementState();
+  noteAccountCodexChanged();
   state.activeCharacterId = "Warrior";
   state.game = {
     mode: "town",
@@ -12767,14 +12773,23 @@ function zoneLabel(zoneId) {
 }
 
 function ensureAccountCodex() {
-  state.account.codex = sanitizeAccountCodexState(state.account?.codex);
+  // Codex is sanitized on load/import/clone. Keep this a cheap shape check so
+  // UI reads (hundreds per Codex open) never rebuild the whole discovery map.
+  const current = state.account?.codex;
+  if (!current || typeof current !== "object" || !current.items || typeof current.items !== "object") {
+    state.account.codex = createDefaultAccountCodexState();
+  }
   return state.account.codex;
 }
 
+function noteAccountCodexChanged() {
+  accountCodexRevision += 1;
+  if (state.openScenes?.codex) sceneSignature = "";
+}
+
 function codexItemDiscovery(itemId) {
-  const item = itemDefinition(itemId);
-  if (!item) return null;
-  return ensureAccountCodex().items[item.id] ?? null;
+  if (!itemId) return null;
+  return ensureAccountCodex().items[itemId] ?? null;
 }
 
 function codexDropSource({ zone = activeZone(), enemy = state.battle.enemy, kind = "zone" } = {}) {
@@ -12832,7 +12847,7 @@ function recordCodexDrop(itemId, source = codexDropSource()) {
   sourceEntry.lastSeenAt = now;
   entry.sources[sourceId] = sourceEntry;
   codex.items[item.id] = entry;
-  if (state.openScenes?.codex) sceneSignature = "";
+  noteAccountCodexChanged();
   return true;
 }
 
@@ -16552,6 +16567,30 @@ function bindSceneButtons(rootEl) {
       renderSceneOverlay();
     });
   });
+  rootEl.querySelectorAll("[data-codex-search]").forEach((input) => {
+    input.addEventListener("input", () => {
+      state.codexSearchQuery = String(input.value ?? "");
+      noteSceneOverlayInteraction(900);
+      sceneSignature = "";
+      renderSceneOverlay();
+    });
+    input.addEventListener("keydown", (event) => {
+      if (event.key !== "Escape") return;
+      if (!state.codexSearchQuery) return;
+      event.preventDefault();
+      state.codexSearchQuery = "";
+      noteSceneOverlayInteraction(900);
+      sceneSignature = "";
+      renderSceneOverlay();
+    });
+  });
+  rootEl.querySelectorAll("[data-codex-clear-search]").forEach((button) => {
+    button.addEventListener("click", () => {
+      state.codexSearchQuery = "";
+      sceneSignature = "";
+      renderSceneOverlay();
+    });
+  });
   rootEl.querySelectorAll("[data-unlock-achievements]").forEach((button) => {
     button.addEventListener("click", () => unlockAchievementsFeature());
   });
@@ -17031,6 +17070,7 @@ function buildSceneOverlaySignature(openScenes, bossEntryZoneId) {
     inventoryPage: state.inventoryPage,
     codexCategory: state.codexCategory,
     codexHideUnfound: state.codexHideUnfound,
+    codexSearchQuery: state.codexSearchQuery,
     codexSelectedItemId: state.codexSelectedItemId,
     storagePage: state.storagePage,
     pendingStorageUnlock: state.pendingStorageUnlock,
@@ -17105,7 +17145,8 @@ function buildSceneOverlaySignature(openScenes, bossEntryZoneId) {
     payload.inventoryItems = state.inventory.items.map(inventoryEntrySignature);
   }
   if (openScenes.includes("codex")) {
-    payload.codex = state.account.codex;
+    // Revision only - do not stringify the full discovery map every overlay tick.
+    payload.codexRevision = accountCodexRevision;
     payload.itemDataVersion = state.itemData.items.length;
   }
   if (openScenes.includes("achievements")) {
@@ -17308,38 +17349,84 @@ function codexCategoryForItem(item) {
   return "other";
 }
 
+function compareCodexItems(a, b) {
+  const categoryOrder = (CODEX_CATEGORY_ORDER.get(codexCategoryForItem(a)) ?? 99)
+    - (CODEX_CATEGORY_ORDER.get(codexCategoryForItem(b)) ?? 99);
+  if (categoryOrder !== 0) return categoryOrder;
+  const slotOrder = String(a.slot ?? "").localeCompare(String(b.slot ?? ""));
+  if (slotOrder !== 0) return slotOrder;
+  const levelA = Number(a.requirements?.type === "level" ? a.requirements.amount : 0) || 0;
+  const levelB = Number(b.requirements?.type === "level" ? b.requirements.amount : 0) || 0;
+  if (levelA !== levelB) return levelA - levelB;
+  return String(a.name).localeCompare(String(b.name));
+}
+
 function codexCategoryItems(categoryId = state.codexCategory) {
   const category = normalizeCodexCategory(categoryId);
   return [...(state.itemData.items ?? [])]
     .filter((item) => category === "all" || codexCategoryForItem(item) === category)
-    .sort((a, b) => {
-      const categoryOrder = CODEX_CATEGORY_DEFS.findIndex((entry) => entry.id === codexCategoryForItem(a))
-        - CODEX_CATEGORY_DEFS.findIndex((entry) => entry.id === codexCategoryForItem(b));
-      if (categoryOrder !== 0) return categoryOrder;
-      const slotOrder = String(a.slot ?? "").localeCompare(String(b.slot ?? ""));
-      if (slotOrder !== 0) return slotOrder;
-      const levelA = Number(a.requirements?.type === "level" ? a.requirements.amount : 0) || 0;
-      const levelB = Number(b.requirements?.type === "level" ? b.requirements.amount : 0) || 0;
-      if (levelA !== levelB) return levelA - levelB;
-      return String(a.name).localeCompare(String(b.name));
-    });
+    .sort(compareCodexItems);
+}
+
+function codexProgressByCategory() {
+  const progress = Object.fromEntries(
+    CODEX_CATEGORY_DEFS.map((category) => [category.id, { discovered: 0, total: 0 }]),
+  );
+  const discoveries = ensureAccountCodex().items;
+  for (const item of state.itemData.items ?? []) {
+    const category = codexCategoryForItem(item);
+    const discovered = Boolean(discoveries[item.id]);
+    progress.all.total += 1;
+    if (discovered) progress.all.discovered += 1;
+    const bucket = progress[category];
+    if (!bucket) continue;
+    bucket.total += 1;
+    if (discovered) bucket.discovered += 1;
+  }
+  return progress;
 }
 
 function codexCategoryProgress(categoryId) {
-  const items = codexCategoryItems(categoryId);
-  const discovered = items.filter((item) => codexItemDiscovery(item.id)).length;
-  return { discovered, total: items.length };
+  return codexProgressByCategory()[normalizeCodexCategory(categoryId)]
+    ?? { discovered: 0, total: 0 };
+}
+
+function normalizeCodexSearchQuery(query = state.codexSearchQuery) {
+  return String(query ?? "").trim().toLowerCase();
+}
+
+function codexItemMatchesSearch(item, query = state.codexSearchQuery) {
+  const normalized = normalizeCodexSearchQuery(query);
+  if (!normalized) return true;
+  // Never match on undiscovered names — that would spoil hidden entries.
+  if (!codexItemDiscovery(item.id)) return false;
+  if (String(item.name ?? "").toLowerCase().includes(normalized)) return true;
+  const slot = item.slot && item.slot !== "consumable" ? slotLabel(item.slot) : title(item.type);
+  if (String(slot).toLowerCase().includes(normalized)) return true;
+  const req = itemRequirementLabel(item.requirements);
+  return Boolean(req && String(req).toLowerCase().includes(normalized));
 }
 
 function codexSceneHtml() {
   const categoryId = normalizeCodexCategory(state.codexCategory);
+  const progressByCategory = codexProgressByCategory();
+  const searchQuery = String(state.codexSearchQuery ?? "");
+  const normalizedSearch = normalizeCodexSearchQuery(searchQuery);
   const categoryItems = codexCategoryItems(categoryId);
-  const items = state.codexHideUnfound
+  let items = state.codexHideUnfound
     ? categoryItems.filter((item) => codexItemDiscovery(item.id))
     : categoryItems;
+  if (normalizedSearch) {
+    items = items.filter((item) => codexItemMatchesSearch(item, searchQuery));
+  }
   const selectedItem = codexSelectedItem(items);
-  const totalProgress = codexCategoryProgress("all");
-  const categoryProgress = codexCategoryProgress(categoryId);
+  const totalProgress = progressByCategory.all;
+  const categoryProgress = progressByCategory[categoryId] ?? { discovered: 0, total: 0 };
+  const emptyMessage = normalizedSearch
+    ? "No matching discovered items."
+    : state.codexHideUnfound
+      ? "No discovered items in this category yet."
+      : "No items in this category.";
   return `
     <section class="codex-panel">
       <div class="codex-summary">
@@ -17360,7 +17447,7 @@ function codexSceneHtml() {
       </div>
       <div class="codex-category-tabs">
         ${CODEX_CATEGORY_DEFS.map((category) => {
-          const progress = codexCategoryProgress(category.id);
+          const progress = progressByCategory[category.id] ?? { discovered: 0, total: 0 };
           return `
             <button
               type="button"
@@ -17373,11 +17460,25 @@ function codexSceneHtml() {
           `;
         }).join("")}
       </div>
+      <div class="codex-search">
+        <input
+          type="search"
+          data-codex-search
+          placeholder="Search discovered items..."
+          value="${escapeHtml(searchQuery)}"
+          autocomplete="off"
+          spellcheck="false"
+          aria-label="Search discovered Codex items"
+        />
+        ${normalizedSearch
+          ? `<button type="button" class="codex-search-clear" data-codex-clear-search aria-label="Clear search">Clear</button>`
+          : ""}
+      </div>
       <div class="codex-browser">
         <div class="codex-list" data-preserve-scroll="codex-list">
           ${items.length
             ? items.map((item) => codexItemRowHtml(item, selectedItem)).join("")
-            : `<div class="codex-empty">No discovered items in this category yet.</div>`}
+            : `<div class="codex-empty">${escapeHtml(emptyMessage)}</div>`}
         </div>
         ${codexDetailPanelHtml(selectedItem)}
       </div>
@@ -26856,7 +26957,16 @@ function bossPartyWarriorAction(member, now) {
   const thrustingLearned = bossPartyLearned(member, "Thrusting");
   const useThrusting = Boolean(thrusting && thrustingLearned
     && distance > BOSS_PARTY_WARRIOR_REACH && distance <= BOSS_PARTY_THRUSTING_REACH);
-  const sweepAttack = !useThrusting ? resolveActiveSweepAttack(member, now) : null;
+  // Blade Avalanche outranks Half Moon / Cross Half Moon: cast BA on cooldown,
+  // and only use sweep attacks while BA is cooling down (or unavailable).
+  const blade = autoSkills.find((skill) => skill.id === "BladeAvalanche");
+  const bladeLearned = blade ? bossPartyLearned(member, "BladeAvalanche") : null;
+  const bladeReady = Boolean(
+    blade
+    && bladeLearned
+    && bossPartyCanUseWarriorSkill(member, blade, bladeLearned, now, { requireAuto: true }),
+  );
+  const sweepAttack = !useThrusting && !bladeReady ? resolveActiveSweepAttack(member, now) : null;
   const useSweepAttack = Boolean(sweepAttack);
   let attackSkill = null;
   let learned = null;
@@ -32726,14 +32836,23 @@ function usableWarriorAttackSkill(now) {
   const charged = chargedWarriorAttack(now);
   if (charged) return charged;
 
-  const sweep = usableWarriorSweepAttack(now);
-  if (sweep) return sweep;
-
+  // Slaying stays above BA when a charge is pending.
   const slaying = chargedSlayingAttack(now);
   if (slaying) return slaying;
 
   const queued = queuedWarriorAttackSkill(now);
   if (queued) return queued;
+
+  // Blade Avalanche slightly above Half Moon / Cross Half Moon: cast BA whenever
+  // it is ready, and let sweep attacks fill the gaps while it is on cooldown.
+  const blade = autoWarriorCombatSkills().find((skill) => skill.id === "BladeAvalanche");
+  const bladeLearned = learnedMagic("BladeAvalanche");
+  if (blade && bladeLearned && canAutoCastWarriorSkill(blade, bladeLearned, now)) {
+    return { skill: blade, learned: bladeLearned, cost: effectiveSpellMpCost(blade, bladeLearned) };
+  }
+
+  const sweep = usableWarriorSweepAttack(now);
+  if (sweep) return sweep;
 
   if (slashingBurstDashEnabled() && warriorSlashingBurstLeapDesired(now) && warriorSlashingBurstDashIntent(now)) {
     const skill = warriorSpellById("SlashingBurst");
@@ -32871,6 +32990,12 @@ function usableWarriorSweepAttack(now = performance.now(), member = null) {
     const thrustingLearned = bossPartyLearned(member, "Thrusting");
     if (thrusting && thrustingLearned
       && distance > BOSS_PARTY_WARRIOR_REACH && distance <= BOSS_PARTY_THRUSTING_REACH) {
+      return null;
+    }
+    const blade = autoSkills.find((skill) => skill.id === "BladeAvalanche");
+    const bladeLearned = blade ? bossPartyLearned(member, "BladeAvalanche") : null;
+    if (blade && bladeLearned
+      && bossPartyCanUseWarriorSkill(member, blade, bladeLearned, now, { requireAuto: true })) {
       return null;
     }
     const sweep = resolveActiveSweepAttack(member, now);

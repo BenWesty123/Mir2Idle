@@ -1,5 +1,44 @@
 # AI Task Log - LOM Idle V2
 
+## 2026-07-12 - Warrior BA vs Half Moon cast priority
+
+### What
+Blade Avalanche was losing to Half Moon / Cross Half Moon in practice (especially boss party), so BA did not cast on cooldown. BA should cast whenever ready; HM/CHM fill swings while BA is cooling down.
+
+### Changes
+- `src/app.monolith.js` `usableWarriorAttackSkill`: pick ready autocast Blade Avalanche before sweep attacks (after charged / Slaying / queued).
+- `bossPartyWarriorAction`: do not prefer sweep while BA is autocast-ready; same BA-over-sweep rule as solo.
+- `usableWarriorSweepAttack` (boss-party member path): also defer sweep when BA is ready.
+
+### Verify
+- `node --check src/app.monolith.js`; unit tests.
+
+## 2026-07-12 - Codex search
+
+### What
+Added a search box to the Item Codex that filters the current category list by discovered item name, slot/type, or requirement text. Undiscovered entries never match (avoids spoiling hidden names). Escape / Clear clears the query. Session-only UI state (`codexSearchQuery`), not saved.
+
+### Changes
+- `src/app.monolith.js`: filter helpers + search input bindings; included in overlay signature; focus restore already covers `data-codex-search`.
+- `src/styles.css`: search row styling under category tabs.
+
+### Verify
+- `node --check src/app.monolith.js`; smoke with `?scene=codex` if server up.
+
+## 2026-07-12 - Codex open freeze (sanitize-on-read)
+
+### What
+Opening the Item Codex froze the game for ~1–2s. Root cause: `codexItemDiscovery()` called `ensureAccountCodex()` → full `sanitizeAccountCodexState()` on every lookup, and open rebuilt progress for every category by re-filtering/sorting all ~500 items and scanning discoveries thousands of times. Cost scaled with how many items the player had discovered.
+
+### Fix (`src/app.monolith.js`)
+- `ensureAccountCodex()` is now a cheap shape check; sanitize stays on load/import/clone only.
+- `codexItemDiscovery()` is a direct map lookup.
+- Category tab progress is computed in one pass over items (`codexProgressByCategory`).
+- Overlay signature tracks `accountCodexRevision` instead of JSON-stringifying the full discovery map every tick.
+
+### Verify
+- Monolith syntax-check + 432 unit tests green. Full `npm run check` blocked by unrelated stale `integrity:rules` (other WIP). `npm run smoke` with `?scene=codex` (below).
+
 ## 2026-07-12 - Options sliders for auto-potion HP/MP thresholds
 
 ### What

@@ -3367,7 +3367,7 @@ body.scene-window-drag-active {
 
 .codex-panel {
   display: grid;
-  grid-template-rows: auto auto minmax(0, 1fr);
+  grid-template-rows: auto auto auto minmax(0, 1fr);
   gap: 10px;
   height: calc(100% - 48px);
   min-height: 0;
@@ -3454,6 +3454,54 @@ body.scene-window-drag-active {
 .codex-category-tab.active,
 .codex-category-tab:hover,
 .codex-category-tab:focus-visible {
+  border-color: rgba(241, 208, 149, 0.75);
+  background: rgba(53, 34, 14, 0.95);
+  color: #ffe0a0;
+}
+
+.codex-search {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.codex-search input[type="search"] {
+  flex: 1;
+  min-width: 0;
+  min-height: 32px;
+  padding: 6px 10px;
+  border: 1px solid rgba(96, 70, 37, 0.85);
+  background: rgba(13, 10, 7, 0.88);
+  color: #ffe0a0;
+  font-size: 12px;
+}
+
+.codex-search input[type="search"]::placeholder {
+  color: #8f7a55;
+}
+
+.codex-search input[type="search"]:focus-visible {
+  outline: none;
+  border-color: rgba(241, 208, 149, 0.75);
+  background: rgba(53, 34, 14, 0.95);
+}
+
+.codex-search input[type="search"]::-webkit-search-cancel-button {
+  filter: invert(0.8);
+}
+
+.codex-search-clear {
+  flex: 0 0 auto;
+  min-height: 32px;
+  padding: 5px 10px;
+  border: 1px solid rgba(96, 70, 37, 0.85);
+  background: rgba(13, 10, 7, 0.88);
+  color: #d5bd88;
+  font-size: 11px;
+}
+
+.codex-search-clear:hover,
+.codex-search-clear:focus-visible {
   border-color: rgba(241, 208, 149, 0.75);
   background: rgba(53, 34, 14, 0.95);
   color: #ffe0a0;
