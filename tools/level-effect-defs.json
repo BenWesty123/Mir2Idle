@@ -1,0 +1,84 @@
+{
+  "staggerDelayMs": 5000,
+  "effects": [
+    {
+      "id": "mist",
+      "label": "Mist",
+      "crystalFlag": 990,
+      "layers": [
+        { "library": "Effect", "start": 296, "count": 32, "durationMs": 3600, "blend": true, "drawBehind": false, "delayMs": 0 }
+      ]
+    },
+    {
+      "id": "red-dragon",
+      "label": "Red Dragon",
+      "crystalFlag": 991,
+      "layers": [
+        { "library": "Effect", "start": 990, "count": 20, "durationMs": 3200, "blend": true, "drawBehind": true, "delayMs": 0 },
+        { "library": "Effect", "start": 1020, "count": 32, "durationMs": 4200, "blend": true, "drawBehind": false, "delayMs": 5000 }
+      ]
+    },
+    {
+      "id": "blue-dragon",
+      "label": "Blue Dragon",
+      "crystalFlag": 992,
+      "layers": [
+        { "library": "Effect", "start": 1210, "count": 20, "durationMs": 3200, "blend": true, "drawBehind": true, "delayMs": 0 },
+        { "library": "Effect", "start": 1240, "count": 32, "durationMs": 4200, "blend": true, "drawBehind": false, "delayMs": 0 }
+      ]
+    },
+    {
+      "id": "rebirth1",
+      "label": "Rebirth 1",
+      "crystalFlag": 993,
+      "layers": [
+        { "library": "Magic3", "start": 6800, "count": 20, "durationMs": 3600, "blend": true, "drawBehind": false, "delayMs": 0 }
+      ]
+    },
+    {
+      "id": "rebirth2",
+      "label": "Rebirth 2",
+      "crystalFlag": 994,
+      "layers": [
+        { "library": "Magic3", "start": 6870, "count": 19, "durationMs": 3600, "blend": true, "drawBehind": true, "delayMs": 0 },
+        { "library": "Magic3", "start": 6840, "count": 22, "durationMs": 3600, "blend": true, "drawBehind": false, "delayMs": 5000 }
+      ]
+    },
+    {
+      "id": "rebirth3",
+      "label": "Rebirth 3",
+      "crystalFlag": 995,
+      "layers": [
+        { "library": "Magic3", "start": 6906, "count": 19, "durationMs": 3600, "blend": true, "drawBehind": false, "delayMs": 5000 },
+        { "library": "Magic3", "start": 6930, "count": 29, "durationMs": 3600, "blend": true, "drawBehind": true, "delayMs": 0 }
+      ]
+    },
+    {
+      "id": "new-blue",
+      "label": "New Blue",
+      "crystalFlag": 996,
+      "layers": [
+        { "library": "Magic3", "start": 7040, "count": 31, "durationMs": 3600, "blend": true, "drawBehind": false, "delayMs": 5000 },
+        { "library": "Magic3", "start": 7080, "count": 24, "durationMs": 3600, "blend": true, "drawBehind": true, "delayMs": 0 }
+      ]
+    },
+    {
+      "id": "yellow-dragon",
+      "label": "Yellow Dragon",
+      "crystalFlag": 997,
+      "layers": [
+        { "library": "Magic3", "start": 7120, "count": 31, "durationMs": 3600, "blend": true, "drawBehind": false, "delayMs": 5000 },
+        { "library": "Magic3", "start": 7160, "count": 24, "durationMs": 3600, "blend": true, "drawBehind": true, "delayMs": 0 }
+      ]
+    },
+    {
+      "id": "phoenix",
+      "label": "Phoenix",
+      "crystalFlag": 998,
+      "layers": [
+        { "library": "Magic3", "start": 6970, "count": 26, "durationMs": 3600, "blend": true, "drawBehind": false, "delayMs": 5000 },
+        { "library": "Magic3", "start": 7000, "count": 21, "durationMs": 3600, "blend": true, "drawBehind": true, "delayMs": 0 }
+      ]
+    }
+  ]
+}

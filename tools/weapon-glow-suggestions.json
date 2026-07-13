@@ -1,0 +1,3822 @@
+{
+  "generatedAt": "2026-07-10T10:10:23.424Z",
+  "method": "PCA orientation/elongation/aspect + native-offset weapon coverage",
+  "topN": 8,
+  "assigned": [
+    {
+      "glow": 62,
+      "margin": 0.023973653631491842,
+      "weaponShape": 76,
+      "names": [
+        "GonRyunHolyLightSword(?)",
+        "GonRyunHolyLightSword(?)2",
+        "GonRyunHolyLightSword(?)1"
+      ],
+      "shape": 0.8648288345099684,
+      "cover": 0.9844866152472352,
+      "score": 0.8983330131164031
+    },
+    {
+      "glow": 22,
+      "margin": 0.02318820078627415,
+      "weaponShape": 14,
+      "names": [
+        "PowerAxe"
+      ],
+      "shape": 0.8401903045886724,
+      "cover": 0.9948275862068965,
+      "score": 0.8834887434417752
+    },
+    {
+      "glow": 32,
+      "margin": 0.10251724527111505,
+      "weaponShape": 48,
+      "names": [
+        "BoneCarvedFan"
+      ],
+      "shape": 0.8532895030458011,
+      "cover": 0.9224574958545632,
+      "score": 0.8726565410322545
+    },
+    {
+      "glow": 65,
+      "margin": 0.03904506035671318,
+      "weaponShape": 68,
+      "names": [],
+      "shape": 0.8403669326813203,
+      "cover": 0.9336848484793263,
+      "score": 0.8664959491047619
+    },
+    {
+      "glow": 58,
+      "margin": 0.02168513948590245,
+      "weaponShape": 38,
+      "names": [],
+      "shape": 0.8171908939124043,
+      "cover": 0.9533264959032877,
+      "score": 0.8553088624698517
+    },
+    {
+      "glow": 63,
+      "margin": 0.034075569200734845,
+      "weaponShape": 72,
+      "names": [],
+      "shape": 0.7727933324801759,
+      "cover": 1,
+      "score": 0.8364111993857266
+    },
+    {
+      "glow": 66,
+      "margin": 0.049287742124785594,
+      "weaponShape": 69,
+      "names": [],
+      "shape": 0.7511402389479316,
+      "cover": 0.9512195121951219,
+      "score": 0.8071624354571448
+    }
+  ],
+  "suggestions": [
+    {
+      "glow": 17,
+      "empty": false,
+      "candidates": [
+        {
+          "weaponShape": 38,
+          "names": [],
+          "shape": 0.8166654659749653,
+          "cover": 1,
+          "score": 0.8679991355019749
+        },
+        {
+          "weaponShape": 14,
+          "names": [
+            "PowerAxe"
+          ],
+          "shape": 0.8057422772672956,
+          "cover": 1,
+          "score": 0.8601344396324528
+        },
+        {
+          "weaponShape": 68,
+          "names": [],
+          "shape": 0.7729172940085263,
+          "cover": 1,
+          "score": 0.836500451686139
+        },
+        {
+          "weaponShape": 76,
+          "names": [
+            "GonRyunHolyLightSword(?)",
+            "GonRyunHolyLightSword(?)2",
+            "GonRyunHolyLightSword(?)1"
+          ],
+          "shape": 0.7717164680252855,
+          "cover": 0.9911723924754924,
+          "score": 0.8331641268713434
+        },
+        {
+          "weaponShape": 69,
+          "names": [],
+          "shape": 0.7606465626263907,
+          "cover": 1,
+          "score": 0.8276655250910013
+        },
+        {
+          "weaponShape": 16,
+          "names": [
+            "GreatAxe",
+            "SolidGreatAxe"
+          ],
+          "shape": 0.757309268496271,
+          "cover": 1,
+          "score": 0.8252626733173152
+        },
+        {
+          "weaponShape": 47,
+          "names": [
+            "RawSword"
+          ],
+          "shape": 0.7469202445502103,
+          "cover": 1,
+          "score": 0.8177825760761515
+        },
+        {
+          "weaponShape": 21,
+          "names": [
+            "ZumaJudgementMace",
+            "JudgementMace"
+          ],
+          "shape": 0.7285977231659995,
+          "cover": 0.9969117600477586,
+          "score": 0.803725653492892
+        }
+      ]
+    },
+    {
+      "glow": 18,
+      "empty": false,
+      "candidates": [
+        {
+          "weaponShape": 14,
+          "names": [
+            "PowerAxe"
+          ],
+          "shape": 0.7881357979089243,
+          "cover": 1,
+          "score": 0.8474577744944255
+        },
+        {
+          "weaponShape": 69,
+          "names": [],
+          "shape": 0.7273882067897371,
+          "cover": 1,
+          "score": 0.8037195088886108
+        },
+        {
+          "weaponShape": 21,
+          "names": [
+            "ZumaJudgementMace",
+            "JudgementMace"
+          ],
+          "shape": 0.7232916169156768,
+          "cover": 1,
+          "score": 0.8007699641792873
+        },
+        {
+          "weaponShape": 4,
+          "names": [
+            "BronzeAxe",
+            "SteelAxe",
+            "SolidBronzeAxe"
+          ],
+          "shape": 0.7142616068484494,
+          "cover": 1,
+          "score": 0.7942683569308836
+        },
+        {
+          "weaponShape": 38,
+          "names": [],
+          "shape": 0.7192179071549302,
+          "cover": 0.9849560321183133,
+          "score": 0.7936245821446775
+        },
+        {
+          "weaponShape": 76,
+          "names": [
+            "GonRyunHolyLightSword(?)",
+            "GonRyunHolyLightSword(?)2",
+            "GonRyunHolyLightSword(?)1"
+          ],
+          "shape": 0.6994445965921202,
+          "cover": 1,
+          "score": 0.7836001095463265
+        },
+        {
+          "weaponShape": 16,
+          "names": [
+            "GreatAxe",
+            "SolidGreatAxe"
+          ],
+          "shape": 0.7401655215954367,
+          "cover": 0.8885543677683317,
+          "score": 0.7817143985238473
+        },
+        {
+          "weaponShape": 1,
+          "names": [
+            "Dagger",
+            "FireBloodSword",
+            "SharpDagger"
+          ],
+          "shape": 0.6868414912219923,
+          "cover": 1,
+          "score": 0.7745258736798345
+        }
+      ]
+    },
+    {
+      "glow": 21,
+      "empty": false,
+      "candidates": [
+        {
+          "weaponShape": 76,
+          "names": [
+            "GonRyunHolyLightSword(?)",
+            "GonRyunHolyLightSword(?)2",
+            "GonRyunHolyLightSword(?)1"
+          ],
+          "shape": 0.7197378644504945,
+          "cover": 0.7276327155431632,
+          "score": 0.7219484227564417
+        },
+        {
+          "weaponShape": 14,
+          "names": [
+            "PowerAxe"
+          ],
+          "shape": 0.892423004305827,
+          "cover": 0.641672583645193,
+          "score": 0.7054284762974243
+        },
+        {
+          "weaponShape": 47,
+          "names": [
+            "RawSword"
+          ],
+          "shape": 0.6823667163018872,
+          "cover": 0.7339929511401413,
+          "score": 0.6968220620565984
+        },
+        {
+          "weaponShape": 4,
+          "names": [
+            "BronzeAxe",
+            "SteelAxe",
+            "SolidBronzeAxe"
+          ],
+          "shape": 0.8330819057407731,
+          "cover": 0.5277828128343592,
+          "score": 0.6515416877911239
+        },
+        {
+          "weaponShape": 16,
+          "names": [
+            "GreatAxe",
+            "SolidGreatAxe"
+          ],
+          "shape": 0.7789617956902167,
+          "cover": 0.5609869821193825,
+          "score": 0.6158292171446555
+        },
+        {
+          "weaponShape": 42,
+          "names": [
+            "PickAxe",
+            "PickAxe0"
+          ],
+          "shape": 0.7901535822235108,
+          "cover": 0.44553823787632424,
+          "score": 0.6125733265128076
+        },
+        {
+          "weaponShape": 69,
+          "names": [],
+          "shape": 0.7504877239324372,
+          "cover": 0.5905897124661428,
+          "score": 0.5982289530530367
+        },
+        {
+          "weaponShape": 38,
+          "names": [],
+          "shape": 0.7406452916309189,
+          "cover": 0.5897201398550072,
+          "score": 0.5910571836800522
+        }
+      ]
+    },
+    {
+      "glow": 22,
+      "empty": false,
+      "candidates": [
+        {
+          "weaponShape": 14,
+          "names": [
+            "PowerAxe"
+          ],
+          "shape": 0.8401903045886724,
+          "cover": 0.9948275862068965,
+          "score": 0.8834887434417752
+        },
+        {
+          "weaponShape": 38,
+          "names": [],
+          "shape": 0.8094890014163943,
+          "cover": 0.9909587915560611,
+          "score": 0.860300542655501
+        },
+        {
+          "weaponShape": 76,
+          "names": [
+            "GonRyunHolyLightSword(?)",
+            "GonRyunHolyLightSword(?)2",
+            "GonRyunHolyLightSword(?)1"
+          ],
+          "shape": 0.7901275992696883,
+          "cover": 1,
+          "score": 0.8488918714741757
+        },
+        {
+          "weaponShape": 16,
+          "names": [
+            "GreatAxe",
+            "SolidGreatAxe"
+          ],
+          "shape": 0.8144282816023817,
+          "cover": 0.9234560901365605,
+          "score": 0.8449560679919517
+        },
+        {
+          "weaponShape": 21,
+          "names": [
+            "ZumaJudgementMace",
+            "JudgementMace"
+          ],
+          "shape": 0.7807308999487841,
+          "cover": 1,
+          "score": 0.8421262479631245
+        },
+        {
+          "weaponShape": 68,
+          "names": [],
+          "shape": 0.7659796827248025,
+          "cover": 0.9936516049064743,
+          "score": 0.8297278209356707
+        },
+        {
+          "weaponShape": 77,
+          "names": [
+            "GonRyunHolyLightSword(?)",
+            "GonRyunHolyLightSword(?)1",
+            "GonRyunHolyLightSword(?)2"
+          ],
+          "shape": 0.7627481871003554,
+          "cover": 1,
+          "score": 0.8291786947122559
+        },
+        {
+          "weaponShape": 1,
+          "names": [
+            "Dagger",
+            "FireBloodSword",
+            "SharpDagger"
+          ],
+          "shape": 0.7596089827510291,
+          "cover": 1,
+          "score": 0.826918467580741
+        }
+      ]
+    },
+    {
+      "glow": 23,
+      "empty": false,
+      "candidates": [
+        {
+          "weaponShape": 76,
+          "names": [
+            "GonRyunHolyLightSword(?)",
+            "GonRyunHolyLightSword(?)2",
+            "GonRyunHolyLightSword(?)1"
+          ],
+          "shape": 0.8491927269829942,
+          "cover": 1,
+          "score": 0.8914187634277558
+        },
+        {
+          "weaponShape": 21,
+          "names": [
+            "ZumaJudgementMace",
+            "JudgementMace"
+          ],
+          "shape": 0.822250111384927,
+          "cover": 1,
+          "score": 0.8720200801971474
+        },
+        {
+          "weaponShape": 14,
+          "names": [
+            "PowerAxe"
+          ],
+          "shape": 0.8478812164626772,
+          "cover": 0.9116919263640144,
+          "score": 0.8657482152350515
+        },
+        {
+          "weaponShape": 77,
+          "names": [
+            "GonRyunHolyLightSword(?)",
+            "GonRyunHolyLightSword(?)1",
+            "GonRyunHolyLightSword(?)2"
+          ],
+          "shape": 0.8174524735185846,
+          "cover": 0.9866685042005281,
+          "score": 0.8648329621095289
+        },
+        {
+          "weaponShape": 19,
+          "names": [
+            "DragonSword"
+          ],
+          "shape": 0.8122397265075937,
+          "cover": 1,
+          "score": 0.8648126030854675
+        },
+        {
+          "weaponShape": 47,
+          "names": [
+            "RawSword"
+          ],
+          "shape": 0.8148618697242864,
+          "cover": 0.9842581308448715,
+          "score": 0.8622928228380502
+        },
+        {
+          "weaponShape": 1,
+          "names": [
+            "Dagger",
+            "FireBloodSword",
+            "SharpDagger"
+          ],
+          "shape": 0.7978478726540115,
+          "cover": 1,
+          "score": 0.8544504683108882
+        },
+        {
+          "weaponShape": 38,
+          "names": [],
+          "shape": 0.8356978718187069,
+          "cover": 0.8989601323521835,
+          "score": 0.8534113047680805
+        }
+      ]
+    },
+    {
+      "glow": 24,
+      "empty": false,
+      "candidates": [
+        {
+          "weaponShape": 47,
+          "names": [
+            "RawSword"
+          ],
+          "shape": 0.5664614290138577,
+          "cover": 0.35576181936123935,
+          "score": 0.442716887187379
+        },
+        {
+          "weaponShape": 68,
+          "names": [],
+          "shape": 0.5591718317997492,
+          "cover": 0.3701647564469914,
+          "score": 0.43887986502762455
+        },
+        {
+          "weaponShape": 71,
+          "names": [],
+          "shape": 0.5554062077483806,
+          "cover": 0.338472485768501,
+          "score": 0.4330627731841471
+        },
+        {
+          "weaponShape": 67,
+          "names": [],
+          "shape": 0.5520835550231975,
+          "cover": 0.359740905369049,
+          "score": 0.432754768342869
+        },
+        {
+          "weaponShape": 70,
+          "names": [],
+          "shape": 0.5490336572734116,
+          "cover": 0.34784387365032526,
+          "score": 0.4293929328545882
+        },
+        {
+          "weaponShape": 46,
+          "names": [
+            "BarbarianSword"
+          ],
+          "shape": 0.5439587680663869,
+          "cover": 0.384745141678428,
+          "score": 0.42935533689228444
+        },
+        {
+          "weaponShape": 55,
+          "names": [
+            "IceDragonSkyKnife",
+            "(????)IceDragonSkyKnife"
+          ],
+          "shape": 0.5352950366948652,
+          "cover": 0.35893387712842273,
+          "score": 0.42058794637888836
+        },
+        {
+          "weaponShape": 7,
+          "names": [
+            "Scimitar",
+            "SharpScimitar"
+          ],
+          "shape": 0.5243157725055829,
+          "cover": 0.40977056962025316,
+          "score": 0.4176648720268045
+        }
+      ]
+    },
+    {
+      "glow": 25,
+      "empty": false,
+      "candidates": [
+        {
+          "weaponShape": 1,
+          "names": [
+            "Dagger",
+            "FireBloodSword",
+            "SharpDagger"
+          ],
+          "shape": 0.6497511118700827,
+          "cover": 0.4592378618113912,
+          "score": 0.5128261110039759
+        },
+        {
+          "weaponShape": 14,
+          "names": [
+            "PowerAxe"
+          ],
+          "shape": 0.6536569754540911,
+          "cover": 0.3614351991074876,
+          "score": 0.5060536718394794
+        },
+        {
+          "weaponShape": 4,
+          "names": [
+            "BronzeAxe",
+            "SteelAxe",
+            "SolidBronzeAxe"
+          ],
+          "shape": 0.6428998313023356,
+          "cover": 0.4302607949515166,
+          "score": 0.5050534364429303
+        },
+        {
+          "weaponShape": 0,
+          "names": [
+            "WoodenSword",
+            "EbonySword"
+          ],
+          "shape": 0.6266839324335902,
+          "cover": 0.45911063609275815,
+          "score": 0.4962052736892752
+        },
+        {
+          "weaponShape": 12,
+          "names": [
+            "PrinceDagger"
+          ],
+          "shape": 0.6046392042665371,
+          "cover": 0.5186526882576059,
+          "score": 0.48616819052115207
+        },
+        {
+          "weaponShape": 2,
+          "names": [
+            "BronzeSword",
+            "IronSword",
+            "BronzeWarriorSword"
+          ],
+          "shape": 0.6137954329029109,
+          "cover": 0.4258302005012532,
+          "score": 0.4836640713392187
+        },
+        {
+          "weaponShape": 69,
+          "names": [],
+          "shape": 0.5864446640068224,
+          "cover": 0.457436666505857,
+          "score": 0.4670689514024861
+        },
+        {
+          "weaponShape": 25,
+          "names": [
+            "RedMoonSword"
+          ],
+          "shape": 0.598913244298678,
+          "cover": 0.35671442931597086,
+          "score": 0.46617554996801325
+        }
+      ]
+    },
+    {
+      "glow": 26,
+      "empty": false,
+      "candidates": [
+        {
+          "weaponShape": 69,
+          "names": [],
+          "shape": 0.6274013319765911,
+          "cover": 0.0331349062026704,
+          "score": 0.4549761798310073
+        },
+        {
+          "weaponShape": 14,
+          "names": [
+            "PowerAxe"
+          ],
+          "shape": 0.5670233464526052,
+          "cover": 0.4008522769461522,
+          "score": 0.44754033258659864
+        },
+        {
+          "weaponShape": 68,
+          "names": [],
+          "shape": 0.5564961735402247,
+          "cover": 0.17326114377490914,
+          "score": 0.4176568370389029
+        },
+        {
+          "weaponShape": 38,
+          "names": [],
+          "shape": 0.5231146709414238,
+          "cover": 0.35583819960402585,
+          "score": 0.4115147066390197
+        },
+        {
+          "weaponShape": 7,
+          "names": [
+            "Scimitar",
+            "SharpScimitar"
+          ],
+          "shape": 0.5249713295076854,
+          "cover": 0.33102097533268415,
+          "score": 0.41041941282813654
+        },
+        {
+          "weaponShape": 47,
+          "names": [
+            "RawSword"
+          ],
+          "shape": 0.5330329669958471,
+          "cover": 0.2633015393278901,
+          "score": 0.4095872870911431
+        },
+        {
+          "weaponShape": 4,
+          "names": [
+            "BronzeAxe",
+            "SteelAxe",
+            "SolidBronzeAxe"
+          ],
+          "shape": 0.5340678111765662,
+          "cover": 0.2281306513265276,
+          "score": 0.4068856278771274
+        },
+        {
+          "weaponShape": 42,
+          "names": [
+            "PickAxe",
+            "PickAxe0"
+          ],
+          "shape": 0.5313568238357007,
+          "cover": 0.24739630503653381,
+          "score": 0.40682175105528484
+        }
+      ]
+    },
+    {
+      "glow": 27,
+      "empty": false,
+      "candidates": [
+        {
+          "weaponShape": 69,
+          "names": [],
+          "shape": 0.7164597411640676,
+          "cover": 0.11350920016024751,
+          "score": 0.526974915253833
+        },
+        {
+          "weaponShape": 72,
+          "names": [],
+          "shape": 0.6073280341229271,
+          "cover": 0.12946119319039007,
+          "score": 0.44996338150116577
+        },
+        {
+          "weaponShape": 68,
+          "names": [],
+          "shape": 0.600521244976071,
+          "cover": 0.16036621486751876,
+          "score": 0.4480911854397879
+        },
+        {
+          "weaponShape": 14,
+          "names": [
+            "PowerAxe"
+          ],
+          "shape": 0.5955362920180687,
+          "cover": 0.12413793103448276,
+          "score": 0.44095164749438875
+        },
+        {
+          "weaponShape": 71,
+          "names": [],
+          "shape": 0.608142699992132,
+          "cover": 0.0040650406504065045,
+          "score": 0.4382611179780748
+        },
+        {
+          "weaponShape": 38,
+          "names": [],
+          "shape": 0.5887565539314938,
+          "cover": 0.1394706450167201,
+          "score": 0.4375728420423141
+        },
+        {
+          "weaponShape": 16,
+          "names": [
+            "GreatAxe",
+            "SolidGreatAxe"
+          ],
+          "shape": 0.5462916891822076,
+          "cover": 0.10208816705336426,
+          "score": 0.4033346565824192
+        },
+        {
+          "weaponShape": 42,
+          "names": [
+            "PickAxe",
+            "PickAxe0"
+          ],
+          "shape": 0.5374262207501713,
+          "cover": 0.11403508771929824,
+          "score": 0.3981223175366146
+        }
+      ]
+    },
+    {
+      "glow": 28,
+      "empty": false,
+      "candidates": [
+        {
+          "weaponShape": 21,
+          "names": [
+            "ZumaJudgementMace",
+            "JudgementMace"
+          ],
+          "shape": 0.8138074597269651,
+          "cover": 0.9762099236383499,
+          "score": 0.8592801496221528
+        },
+        {
+          "weaponShape": 14,
+          "names": [
+            "PowerAxe"
+          ],
+          "shape": 0.8285016105986027,
+          "cover": 0.9354130236642014,
+          "score": 0.8584368062569704
+        },
+        {
+          "weaponShape": 19,
+          "names": [
+            "DragonSword"
+          ],
+          "shape": 0.8096252815038261,
+          "cover": 0.9784518132421866,
+          "score": 0.856896710390567
+        },
+        {
+          "weaponShape": 1,
+          "names": [
+            "Dagger",
+            "FireBloodSword",
+            "SharpDagger"
+          ],
+          "shape": 0.796304015209886,
+          "cover": 0.9950980392156863,
+          "score": 0.8519663419315101
+        },
+        {
+          "weaponShape": 4,
+          "names": [
+            "BronzeAxe",
+            "SteelAxe",
+            "SolidBronzeAxe"
+          ],
+          "shape": 0.7970876577368815,
+          "cover": 0.9746083145567681,
+          "score": 0.8467934416464498
+        },
+        {
+          "weaponShape": 76,
+          "names": [
+            "GonRyunHolyLightSword(?)",
+            "GonRyunHolyLightSword(?)2",
+            "GonRyunHolyLightSword(?)1"
+          ],
+          "shape": 0.8129331891044216,
+          "cover": 0.918419108318649,
+          "score": 0.8424692464844052
+        },
+        {
+          "weaponShape": 16,
+          "names": [
+            "GreatAxe",
+            "SolidGreatAxe"
+          ],
+          "shape": 0.8444267189990395,
+          "cover": 0.7927147914894306,
+          "score": 0.829947379296349
+        },
+        {
+          "weaponShape": 12,
+          "names": [
+            "PrinceDagger"
+          ],
+          "shape": 0.7683826763801384,
+          "cover": 0.98606220657277,
+          "score": 0.8293329448340752
+        }
+      ]
+    },
+    {
+      "glow": 29,
+      "empty": false,
+      "candidates": [
+        {
+          "weaponShape": 14,
+          "names": [
+            "PowerAxe"
+          ],
+          "shape": 0.8131788587376743,
+          "cover": 0.8067395313567376,
+          "score": 0.811375847071012
+        },
+        {
+          "weaponShape": 38,
+          "names": [],
+          "shape": 0.7673021512915514,
+          "cover": 0.8542579266183802,
+          "score": 0.7916497683830636
+        },
+        {
+          "weaponShape": 21,
+          "names": [
+            "ZumaJudgementMace",
+            "JudgementMace"
+          ],
+          "shape": 0.7411756123261305,
+          "cover": 0.8976016720261637,
+          "score": 0.7849749090421398
+        },
+        {
+          "weaponShape": 76,
+          "names": [
+            "GonRyunHolyLightSword(?)",
+            "GonRyunHolyLightSword(?)2",
+            "GonRyunHolyLightSword(?)1"
+          ],
+          "shape": 0.7438114389736914,
+          "cover": 0.8505180090670906,
+          "score": 0.7736892785998433
+        },
+        {
+          "weaponShape": 42,
+          "names": [
+            "PickAxe",
+            "PickAxe0"
+          ],
+          "shape": 0.7566148676248075,
+          "cover": 0.7833443490157366,
+          "score": 0.7640991224142676
+        },
+        {
+          "weaponShape": 19,
+          "names": [
+            "DragonSword"
+          ],
+          "shape": 0.7224954022801939,
+          "cover": 0.8485446022510261,
+          "score": 0.757789178272027
+        },
+        {
+          "weaponShape": 4,
+          "names": [
+            "BronzeAxe",
+            "SteelAxe",
+            "SolidBronzeAxe"
+          ],
+          "shape": 0.7256640295589661,
+          "cover": 0.8140905009461711,
+          "score": 0.7504234415473836
+        },
+        {
+          "weaponShape": 77,
+          "names": [
+            "GonRyunHolyLightSword(?)",
+            "GonRyunHolyLightSword(?)1",
+            "GonRyunHolyLightSword(?)2"
+          ],
+          "shape": 0.7099947833371208,
+          "cover": 0.8460561589072472,
+          "score": 0.7480919684967562
+        }
+      ]
+    },
+    {
+      "glow": 30,
+      "empty": false,
+      "candidates": [
+        {
+          "weaponShape": 72,
+          "names": [],
+          "shape": 0.8275329190053043,
+          "cover": 0.8183978415684335,
+          "score": 0.8249750973229806
+        },
+        {
+          "weaponShape": 69,
+          "names": [],
+          "shape": 0.7447669089519686,
+          "cover": 0.8157388113126062,
+          "score": 0.7646390416129472
+        },
+        {
+          "weaponShape": 48,
+          "names": [
+            "BoneCarvedFan"
+          ],
+          "shape": 0.6837549140126502,
+          "cover": 0.7678264997773339,
+          "score": 0.7072949580267617
+        },
+        {
+          "weaponShape": 71,
+          "names": [],
+          "shape": 0.5725403805713243,
+          "cover": 0.9735772357723578,
+          "score": 0.6848307000276137
+        },
+        {
+          "weaponShape": 14,
+          "names": [
+            "PowerAxe"
+          ],
+          "shape": 0.5779954087352399,
+          "cover": 0.933688885733167,
+          "score": 0.6775895822946596
+        },
+        {
+          "weaponShape": 16,
+          "names": [
+            "GreatAxe",
+            "SolidGreatAxe"
+          ],
+          "shape": 0.5927769530280371,
+          "cover": 0.8260787233152342,
+          "score": 0.6581014487084523
+        },
+        {
+          "weaponShape": 4,
+          "names": [
+            "BronzeAxe",
+            "SteelAxe",
+            "SolidBronzeAxe"
+          ],
+          "shape": 0.5394819786666557,
+          "cover": 0.9451475691166413,
+          "score": 0.6530683439926517
+        },
+        {
+          "weaponShape": 68,
+          "names": [],
+          "shape": 0.6099865713576164,
+          "cover": 0.7566479026156484,
+          "score": 0.6510517441098653
+        }
+      ]
+    },
+    {
+      "glow": 31,
+      "empty": false,
+      "candidates": [
+        {
+          "weaponShape": 77,
+          "names": [
+            "GonRyunHolyLightSword(?)",
+            "GonRyunHolyLightSword(?)1",
+            "GonRyunHolyLightSword(?)2"
+          ],
+          "shape": 0.9079587674145322,
+          "cover": 0.978467367258991,
+          "score": 0.9277011753709806
+        },
+        {
+          "weaponShape": 76,
+          "names": [
+            "GonRyunHolyLightSword(?)",
+            "GonRyunHolyLightSword(?)2",
+            "GonRyunHolyLightSword(?)1"
+          ],
+          "shape": 0.8923378008296542,
+          "cover": 0.9912990275447222,
+          "score": 0.9200469443098732
+        },
+        {
+          "weaponShape": 47,
+          "names": [
+            "RawSword"
+          ],
+          "shape": 0.8786001179133798,
+          "cover": 0.9421192429910511,
+          "score": 0.8963854729351277
+        },
+        {
+          "weaponShape": 78,
+          "names": [
+            "GonRyunHolyLightSword(?)",
+            "GonRyunHolyLightSword(?)1",
+            "GonRyunHolyLightSword(?)2"
+          ],
+          "shape": 0.8684412341389505,
+          "cover": 0.917956482560442,
+          "score": 0.882305503696968
+        },
+        {
+          "weaponShape": 38,
+          "names": [],
+          "shape": 0.8722396233162051,
+          "cover": 0.8531375908151203,
+          "score": 0.8668910542159014
+        },
+        {
+          "weaponShape": 46,
+          "names": [
+            "BarbarianSword"
+          ],
+          "shape": 0.8321856632039278,
+          "cover": 0.9561185319412692,
+          "score": 0.8668868664503835
+        },
+        {
+          "weaponShape": 19,
+          "names": [
+            "DragonSword"
+          ],
+          "shape": 0.8246901495719595,
+          "cover": 0.9531775405323646,
+          "score": 0.8606666190408729
+        },
+        {
+          "weaponShape": 7,
+          "names": [
+            "Scimitar",
+            "SharpScimitar"
+          ],
+          "shape": 0.8318581410885999,
+          "cover": 0.9104178838039597,
+          "score": 0.8538548690489007
+        }
+      ]
+    },
+    {
+      "glow": 32,
+      "empty": false,
+      "candidates": [
+        {
+          "weaponShape": 48,
+          "names": [
+            "BoneCarvedFan"
+          ],
+          "shape": 0.8532895030458011,
+          "cover": 0.9224574958545632,
+          "score": 0.8726565410322545
+        },
+        {
+          "weaponShape": 72,
+          "names": [],
+          "shape": 0.7132963813990585,
+          "cover": 0.9163067898350623,
+          "score": 0.7701392957611395
+        },
+        {
+          "weaponShape": 69,
+          "names": [],
+          "shape": 0.5912274783858529,
+          "cover": 0.8100270079069304,
+          "score": 0.6524913466517546
+        },
+        {
+          "weaponShape": 71,
+          "names": [],
+          "shape": 0.43878078644247065,
+          "cover": 0.9507705836071643,
+          "score": 0.5821379296485849
+        },
+        {
+          "weaponShape": 68,
+          "names": [],
+          "shape": 0.47960704388643105,
+          "cover": 0.733882772062035,
+          "score": 0.5508042477756001
+        },
+        {
+          "weaponShape": 0,
+          "names": [
+            "WoodenSword",
+            "EbonySword"
+          ],
+          "shape": 0.3527418288110619,
+          "cover": 0.7244091573667943,
+          "score": 0.45680868080666703
+        },
+        {
+          "weaponShape": 14,
+          "names": [
+            "PowerAxe"
+          ],
+          "shape": 0.5322903985454247,
+          "cover": 0.6686018667023078,
+          "score": 0.44877206988953194
+        },
+        {
+          "weaponShape": 16,
+          "names": [
+            "GreatAxe",
+            "SolidGreatAxe"
+          ],
+          "shape": 0.47035793804053894,
+          "cover": 0.6643638968258998,
+          "score": 0.4037653772781262
+        }
+      ]
+    },
+    {
+      "glow": 33,
+      "empty": false,
+      "candidates": [
+        {
+          "weaponShape": 48,
+          "names": [
+            "BoneCarvedFan"
+          ],
+          "shape": 0.7348254357410791,
+          "cover": 0.17831140446307042,
+          "score": 0.5465488313709579
+        },
+        {
+          "weaponShape": 72,
+          "names": [],
+          "shape": 0.6458828218558547,
+          "cover": 0.2493140853653323,
+          "score": 0.48946841210201786
+        },
+        {
+          "weaponShape": 77,
+          "names": [
+            "GonRyunHolyLightSword(?)",
+            "GonRyunHolyLightSword(?)1",
+            "GonRyunHolyLightSword(?)2"
+          ],
+          "shape": 0.3753018545309043,
+          "cover": 0.7798328263460196,
+          "score": 0.4885705266391366
+        },
+        {
+          "weaponShape": 69,
+          "names": [],
+          "shape": 0.5253826095932878,
+          "cover": 0.18801104407403368,
+          "score": 0.3967005612264225
+        },
+        {
+          "weaponShape": 38,
+          "names": [],
+          "shape": 0.436340638582558,
+          "cover": 0.6065631080521535,
+          "score": 0.3736084443685528
+        },
+        {
+          "weaponShape": 52,
+          "names": [
+            "FrozenSabre"
+          ],
+          "shape": 0.4250099205540664,
+          "cover": 0.6342867766219776,
+          "score": 0.3681672469078816
+        },
+        {
+          "weaponShape": 68,
+          "names": [],
+          "shape": 0.4238502305256174,
+          "cover": 0.5375423512346066,
+          "score": 0.3578513163994359
+        },
+        {
+          "weaponShape": 55,
+          "names": [
+            "IceDragonSkyKnife",
+            "(????)IceDragonSkyKnife"
+          ],
+          "shape": 0.40714824435185004,
+          "cover": 0.6411280954733688,
+          "score": 0.35597728928972217
+        }
+      ]
+    },
+    {
+      "glow": 34,
+      "empty": false,
+      "candidates": [
+        {
+          "weaponShape": 76,
+          "names": [
+            "GonRyunHolyLightSword(?)",
+            "GonRyunHolyLightSword(?)2",
+            "GonRyunHolyLightSword(?)1"
+          ],
+          "shape": 0.8487320023818798,
+          "cover": 0.9247153199205437,
+          "score": 0.8700073312927057
+        },
+        {
+          "weaponShape": 77,
+          "names": [
+            "GonRyunHolyLightSword(?)",
+            "GonRyunHolyLightSword(?)1",
+            "GonRyunHolyLightSword(?)2"
+          ],
+          "shape": 0.8430924211333859,
+          "cover": 0.8846941453939534,
+          "score": 0.8547409039263447
+        },
+        {
+          "weaponShape": 14,
+          "names": [
+            "PowerAxe"
+          ],
+          "shape": 0.8149362475153877,
+          "cover": 0.938909841954023,
+          "score": 0.8496488539582057
+        },
+        {
+          "weaponShape": 12,
+          "names": [
+            "PrinceDagger"
+          ],
+          "shape": 0.7980093202175471,
+          "cover": 0.9083333333333333,
+          "score": 0.8289000438899672
+        },
+        {
+          "weaponShape": 21,
+          "names": [
+            "ZumaJudgementMace",
+            "JudgementMace"
+          ],
+          "shape": 0.7737774853354624,
+          "cover": 0.9620959542219385,
+          "score": 0.8265066566236758
+        },
+        {
+          "weaponShape": 19,
+          "names": [
+            "DragonSword"
+          ],
+          "shape": 0.7821034787791002,
+          "cover": 0.9242571408014966,
+          "score": 0.8219065041453713
+        },
+        {
+          "weaponShape": 78,
+          "names": [
+            "GonRyunHolyLightSword(?)",
+            "GonRyunHolyLightSword(?)1",
+            "GonRyunHolyLightSword(?)2"
+          ],
+          "shape": 0.8219666295980594,
+          "cover": 0.811774493298888,
+          "score": 0.8191128314342915
+        },
+        {
+          "weaponShape": 73,
+          "names": [
+            "(??)DragonSlayer"
+          ],
+          "shape": 0.7753897791434282,
+          "cover": 0.9076214521211895,
+          "score": 0.8124146475772014
+        }
+      ]
+    },
+    {
+      "glow": 35,
+      "empty": false,
+      "candidates": [
+        {
+          "weaponShape": 14,
+          "names": [
+            "PowerAxe"
+          ],
+          "shape": 0.6284217521228705,
+          "cover": 0.7824786895957706,
+          "score": 0.6715576946152826
+        },
+        {
+          "weaponShape": 46,
+          "names": [
+            "BarbarianSword"
+          ],
+          "shape": 0.6013193192735223,
+          "cover": 0.7479633647994635,
+          "score": 0.6423796520207858
+        },
+        {
+          "weaponShape": 1,
+          "names": [
+            "Dagger",
+            "FireBloodSword",
+            "SharpDagger"
+          ],
+          "shape": 0.5508807541095601,
+          "cover": 0.7495178627006358,
+          "score": 0.6064991445150613
+        },
+        {
+          "weaponShape": 72,
+          "names": [],
+          "shape": 0.7645075360192173,
+          "cover": 0.5660764151185994,
+          "score": 0.6059209146154592
+        },
+        {
+          "weaponShape": 18,
+          "names": [
+            "SerpentSword",
+            "SolidSerpentSword"
+          ],
+          "shape": 0.5499206321619532,
+          "cover": 0.731286033669861,
+          "score": 0.6007029445841674
+        },
+        {
+          "weaponShape": 69,
+          "names": [],
+          "shape": 0.7635286085156177,
+          "cover": 0.515720152547165,
+          "score": 0.6002811730808668
+        },
+        {
+          "weaponShape": 13,
+          "names": [
+            "SpiritBlade",
+            "SpiritBlade1",
+            "SpiritBlade2"
+          ],
+          "shape": 0.5277746950838723,
+          "cover": 0.7613220815752461,
+          "score": 0.593167963301457
+        },
+        {
+          "weaponShape": 75,
+          "names": [
+            "(??)DragonSword"
+          ],
+          "shape": 0.5276650354229508,
+          "cover": 0.7267753593997573,
+          "score": 0.5834159261364567
+        }
+      ]
+    },
+    {
+      "glow": 36,
+      "empty": false,
+      "candidates": [
+        {
+          "weaponShape": 21,
+          "names": [
+            "ZumaJudgementMace",
+            "JudgementMace"
+          ],
+          "shape": 0.833166815113565,
+          "cover": 0.7260648252767765,
+          "score": 0.8031782579592643
+        },
+        {
+          "weaponShape": 4,
+          "names": [
+            "BronzeAxe",
+            "SteelAxe",
+            "SolidBronzeAxe"
+          ],
+          "shape": 0.8311009520028307,
+          "cover": 0.7205134498948932,
+          "score": 0.8001364514126083
+        },
+        {
+          "weaponShape": 19,
+          "names": [
+            "DragonSword"
+          ],
+          "shape": 0.7868455740772806,
+          "cover": 0.7890485066612536,
+          "score": 0.787462395200793
+        },
+        {
+          "weaponShape": 5,
+          "names": [
+            "HookedSword",
+            "SharpSword"
+          ],
+          "shape": 0.7937965561741893,
+          "cover": 0.7404542190722538,
+          "score": 0.7788607017856474
+        },
+        {
+          "weaponShape": 15,
+          "names": [
+            "PurifierSword"
+          ],
+          "shape": 0.7742186265422965,
+          "cover": 0.761055522485643,
+          "score": 0.7705329574064335
+        },
+        {
+          "weaponShape": 3,
+          "names": [
+            "BoneDecapitator",
+            "ShortSword",
+            "BrokenSword"
+          ],
+          "shape": 0.749618781753391,
+          "cover": 0.8159486009282851,
+          "score": 0.7681911311223615
+        },
+        {
+          "weaponShape": 11,
+          "names": [
+            "KrissSword",
+            "KeenKrissSword"
+          ],
+          "shape": 0.7446329352203265,
+          "cover": 0.8046312766590917,
+          "score": 0.7614324708231808
+        },
+        {
+          "weaponShape": 7,
+          "names": [
+            "Scimitar",
+            "SharpScimitar"
+          ],
+          "shape": 0.7250743046018729,
+          "cover": 0.7993303716325868,
+          "score": 0.7458660033704729
+        }
+      ]
+    },
+    {
+      "glow": 37,
+      "empty": false,
+      "candidates": [
+        {
+          "weaponShape": 77,
+          "names": [
+            "GonRyunHolyLightSword(?)",
+            "GonRyunHolyLightSword(?)1",
+            "GonRyunHolyLightSword(?)2"
+          ],
+          "shape": 0.9151605005821354,
+          "cover": 0.9750137645111948,
+          "score": 0.931919414482272
+        },
+        {
+          "weaponShape": 76,
+          "names": [
+            "GonRyunHolyLightSword(?)",
+            "GonRyunHolyLightSword(?)2",
+            "GonRyunHolyLightSword(?)1"
+          ],
+          "shape": 0.9009546168480299,
+          "cover": 0.9908059308977794,
+          "score": 0.9261129847819598
+        },
+        {
+          "weaponShape": 47,
+          "names": [
+            "RawSword"
+          ],
+          "shape": 0.8824762777751085,
+          "cover": 0.9388455445733387,
+          "score": 0.8982596724786129
+        },
+        {
+          "weaponShape": 78,
+          "names": [
+            "GonRyunHolyLightSword(?)",
+            "GonRyunHolyLightSword(?)1",
+            "GonRyunHolyLightSword(?)2"
+          ],
+          "shape": 0.8741064318725883,
+          "cover": 0.9132296156815741,
+          "score": 0.8850609233391044
+        },
+        {
+          "weaponShape": 46,
+          "names": [
+            "BarbarianSword"
+          ],
+          "shape": 0.8451463652998185,
+          "cover": 0.9521874184170245,
+          "score": 0.8751178601726362
+        },
+        {
+          "weaponShape": 7,
+          "names": [
+            "Scimitar",
+            "SharpScimitar"
+          ],
+          "shape": 0.8491690233365141,
+          "cover": 0.9090557043167803,
+          "score": 0.8659372940109886
+        },
+        {
+          "weaponShape": 19,
+          "names": [
+            "DragonSword"
+          ],
+          "shape": 0.8281529566158224,
+          "cover": 0.9518152614940245,
+          "score": 0.8627784019817191
+        },
+        {
+          "weaponShape": 38,
+          "names": [],
+          "shape": 0.8690869555225238,
+          "cover": 0.8409454651472708,
+          "score": 0.8612073382174529
+        }
+      ]
+    },
+    {
+      "glow": 38,
+      "empty": false,
+      "candidates": [
+        {
+          "weaponShape": 48,
+          "names": [
+            "BoneCarvedFan"
+          ],
+          "shape": 0.745207548056319,
+          "cover": 0.1189125451447859,
+          "score": 0.5482028640247386
+        },
+        {
+          "weaponShape": 77,
+          "names": [
+            "GonRyunHolyLightSword(?)",
+            "GonRyunHolyLightSword(?)1",
+            "GonRyunHolyLightSword(?)2"
+          ],
+          "shape": 0.3202006381780624,
+          "cover": 0.7380254108901274,
+          "score": 0.4371915745374406
+        },
+        {
+          "weaponShape": 72,
+          "names": [],
+          "shape": 0.5778697630935935,
+          "cover": 0.1827836454670881,
+          "score": 0.43397902668316196
+        },
+        {
+          "weaponShape": 14,
+          "names": [
+            "PowerAxe"
+          ],
+          "shape": 0.4225122201091692,
+          "cover": 0.4336608554976388,
+          "score": 0.34670756231737043
+        },
+        {
+          "weaponShape": 69,
+          "names": [],
+          "shape": 0.454559849312026,
+          "cover": 0.12340042566614538,
+          "score": 0.33937633321994093
+        },
+        {
+          "weaponShape": 38,
+          "names": [],
+          "shape": 0.37623058180402835,
+          "cover": 0.5401998349675329,
+          "score": 0.32382560272571864
+        },
+        {
+          "weaponShape": 76,
+          "names": [
+            "GonRyunHolyLightSword(?)",
+            "GonRyunHolyLightSword(?)2",
+            "GonRyunHolyLightSword(?)1"
+          ],
+          "shape": 0.3424702990426755,
+          "cover": 0.6096233961216739,
+          "score": 0.3063217081306504
+        },
+        {
+          "weaponShape": 42,
+          "names": [
+            "PickAxe",
+            "PickAxe0"
+          ],
+          "shape": 0.3866400871345833,
+          "cover": 0.2795914571266107,
+          "score": 0.30578082553530783
+        }
+      ]
+    },
+    {
+      "glow": 39,
+      "empty": false,
+      "candidates": [
+        {
+          "weaponShape": 48,
+          "names": [
+            "BoneCarvedFan"
+          ],
+          "shape": 0.8470330223494329,
+          "cover": 0.9096250356980253,
+          "score": 0.8645587860870388
+        },
+        {
+          "weaponShape": 72,
+          "names": [],
+          "shape": 0.7087281868787348,
+          "cover": 0.9005864691057283,
+          "score": 0.762448505902293
+        },
+        {
+          "weaponShape": 69,
+          "names": [],
+          "shape": 0.590145418140492,
+          "cover": 0.7993055891730616,
+          "score": 0.6487102660296116
+        },
+        {
+          "weaponShape": 71,
+          "names": [],
+          "shape": 0.4413640983936684,
+          "cover": 0.9340680489347587,
+          "score": 0.5793212045451737
+        },
+        {
+          "weaponShape": 14,
+          "names": [
+            "PowerAxe"
+          ],
+          "shape": 0.533188243733945,
+          "cover": 0.6350382352831982,
+          "score": 0.44612928254619383
+        },
+        {
+          "weaponShape": 68,
+          "names": [],
+          "shape": 0.4761005285347525,
+          "cover": 0.7014228418253472,
+          "score": 0.4115318190439058
+        },
+        {
+          "weaponShape": 42,
+          "names": [
+            "PickAxe",
+            "PickAxe0"
+          ],
+          "shape": 0.47456965522845507,
+          "cover": 0.6057941376513982,
+          "score": 0.4010579772543247
+        },
+        {
+          "weaponShape": 4,
+          "names": [
+            "BronzeAxe",
+            "SteelAxe",
+            "SolidBronzeAxe"
+          ],
+          "shape": 0.4620854174490348,
+          "cover": 0.6506891733695859,
+          "score": 0.39646903955352447
+        }
+      ]
+    },
+    {
+      "glow": 40,
+      "empty": false,
+      "candidates": [
+        {
+          "weaponShape": 77,
+          "names": [
+            "GonRyunHolyLightSword(?)",
+            "GonRyunHolyLightSword(?)1",
+            "GonRyunHolyLightSword(?)2"
+          ],
+          "shape": 0.9197632386338659,
+          "cover": 0.9807143315837538,
+          "score": 0.9368295446598345
+        },
+        {
+          "weaponShape": 76,
+          "names": [
+            "GonRyunHolyLightSword(?)",
+            "GonRyunHolyLightSword(?)2",
+            "GonRyunHolyLightSword(?)1"
+          ],
+          "shape": 0.9020207209477198,
+          "cover": 0.9921323608780555,
+          "score": 0.9272519801282137
+        },
+        {
+          "weaponShape": 47,
+          "names": [
+            "RawSword"
+          ],
+          "shape": 0.8799647714999882,
+          "cover": 0.9441042816149491,
+          "score": 0.8979238343321773
+        },
+        {
+          "weaponShape": 78,
+          "names": [
+            "GonRyunHolyLightSword(?)",
+            "GonRyunHolyLightSword(?)1",
+            "GonRyunHolyLightSword(?)2"
+          ],
+          "shape": 0.878309093283251,
+          "cover": 0.9197775260183434,
+          "score": 0.889920254449077
+        },
+        {
+          "weaponShape": 46,
+          "names": [
+            "BarbarianSword"
+          ],
+          "shape": 0.8454530708653052,
+          "cover": 0.9569422752916111,
+          "score": 0.8766700481046709
+        },
+        {
+          "weaponShape": 7,
+          "names": [
+            "Scimitar",
+            "SharpScimitar"
+          ],
+          "shape": 0.846460188176609,
+          "cover": 0.9138633966244726,
+          "score": 0.8653330865420108
+        },
+        {
+          "weaponShape": 38,
+          "names": [],
+          "shape": 0.8694196746429899,
+          "cover": 0.8460017159373099,
+          "score": 0.8628626462053994
+        },
+        {
+          "weaponShape": 19,
+          "names": [
+            "DragonSword"
+          ],
+          "shape": 0.8232210758382027,
+          "cover": 0.9572207847181576,
+          "score": 0.8607409943245901
+        }
+      ]
+    },
+    {
+      "glow": 41,
+      "empty": false,
+      "candidates": [
+        {
+          "weaponShape": 48,
+          "names": [
+            "BoneCarvedFan"
+          ],
+          "shape": 0.7526340571658038,
+          "cover": 0.1614297512285625,
+          "score": 0.5577166367797778
+        },
+        {
+          "weaponShape": 72,
+          "names": [],
+          "shape": 0.608504810571622,
+          "cover": 0.2289606802769582,
+          "score": 0.4605616102787097
+        },
+        {
+          "weaponShape": 77,
+          "names": [
+            "GonRyunHolyLightSword(?)",
+            "GonRyunHolyLightSword(?)1",
+            "GonRyunHolyLightSword(?)2"
+          ],
+          "shape": 0.3400903294302806,
+          "cover": 0.7683200573623115,
+          "score": 0.4599946532512493
+        },
+        {
+          "weaponShape": 69,
+          "names": [],
+          "shape": 0.49318588942631014,
+          "cover": 0.16470722279007785,
+          "score": 0.37123514822037096
+        },
+        {
+          "weaponShape": 38,
+          "names": [],
+          "shape": 0.400617516095792,
+          "cover": 0.5859348559172406,
+          "score": 0.3458662274688598
+        },
+        {
+          "weaponShape": 14,
+          "names": [
+            "PowerAxe"
+          ],
+          "shape": 0.41174369106299163,
+          "cover": 0.488203424329502,
+          "score": 0.34429939314964514
+        },
+        {
+          "weaponShape": 52,
+          "names": [
+            "FrozenSabre"
+          ],
+          "shape": 0.39029727592473173,
+          "cover": 0.6202147734095644,
+          "score": 0.34179508645994416
+        },
+        {
+          "weaponShape": 68,
+          "names": [],
+          "shape": 0.39594190825666736,
+          "cover": 0.509408344181332,
+          "score": 0.33500019167457107
+        }
+      ]
+    },
+    {
+      "glow": 42,
+      "empty": false,
+      "candidates": [
+        {
+          "weaponShape": 48,
+          "names": [
+            "BoneCarvedFan"
+          ],
+          "shape": 0.8463710137533937,
+          "cover": 0.9104003501830173,
+          "score": 0.8642992279536883
+        },
+        {
+          "weaponShape": 72,
+          "names": [],
+          "shape": 0.7088571280533601,
+          "cover": 0.9006628489017843,
+          "score": 0.7625627298909189
+        },
+        {
+          "weaponShape": 69,
+          "names": [],
+          "shape": 0.5898878673979537,
+          "cover": 0.7985570861790496,
+          "score": 0.6483152486566606
+        },
+        {
+          "weaponShape": 71,
+          "names": [],
+          "shape": 0.44176400403979466,
+          "cover": 0.9340680489347587,
+          "score": 0.5796091366103846
+        },
+        {
+          "weaponShape": 14,
+          "names": [
+            "PowerAxe"
+          ],
+          "shape": 0.5329212413274198,
+          "cover": 0.6354143926906056,
+          "score": 0.4459739042394216
+        },
+        {
+          "weaponShape": 68,
+          "names": [],
+          "shape": 0.47648227716728886,
+          "cover": 0.699170928922779,
+          "score": 0.4115859905948803
+        },
+        {
+          "weaponShape": 42,
+          "names": [
+            "PickAxe",
+            "PickAxe0"
+          ],
+          "shape": 0.47502854367050873,
+          "cover": 0.6065857970324089,
+          "score": 0.40146595955194236
+        },
+        {
+          "weaponShape": 4,
+          "names": [
+            "BronzeAxe",
+            "SteelAxe",
+            "SolidBronzeAxe"
+          ],
+          "shape": 0.4625742375167987,
+          "cover": 0.650000839176097,
+          "score": 0.39675353325135254
+        }
+      ]
+    },
+    {
+      "glow": 43,
+      "empty": false,
+      "candidates": [
+        {
+          "weaponShape": 77,
+          "names": [
+            "GonRyunHolyLightSword(?)",
+            "GonRyunHolyLightSword(?)1",
+            "GonRyunHolyLightSword(?)2"
+          ],
+          "shape": 0.9099924790427389,
+          "cover": 0.9710811772485453,
+          "score": 0.9270973145403647
+        },
+        {
+          "weaponShape": 76,
+          "names": [
+            "GonRyunHolyLightSword(?)",
+            "GonRyunHolyLightSword(?)2",
+            "GonRyunHolyLightSword(?)1"
+          ],
+          "shape": 0.8929023594287455,
+          "cover": 0.9875112602667138,
+          "score": 0.9193928516633766
+        },
+        {
+          "weaponShape": 47,
+          "names": [
+            "RawSword"
+          ],
+          "shape": 0.8967834130828884,
+          "cover": 0.9373911946440906,
+          "score": 0.9081535919200251
+        },
+        {
+          "weaponShape": 78,
+          "names": [
+            "GonRyunHolyLightSword(?)",
+            "GonRyunHolyLightSword(?)1",
+            "GonRyunHolyLightSword(?)2"
+          ],
+          "shape": 0.8701498612442561,
+          "cover": 0.9009283886689431,
+          "score": 0.8787678489231684
+        },
+        {
+          "weaponShape": 46,
+          "names": [
+            "BarbarianSword"
+          ],
+          "shape": 0.8484599730556608,
+          "cover": 0.9424648157640543,
+          "score": 0.874781329014011
+        },
+        {
+          "weaponShape": 7,
+          "names": [
+            "Scimitar",
+            "SharpScimitar"
+          ],
+          "shape": 0.8588395055527459,
+          "cover": 0.9019563453424213,
+          "score": 0.8709122206938551
+        },
+        {
+          "weaponShape": 19,
+          "names": [
+            "DragonSword"
+          ],
+          "shape": 0.8402644142794173,
+          "cover": 0.9456776228128898,
+          "score": 0.8697801126687896
+        },
+        {
+          "weaponShape": 38,
+          "names": [],
+          "shape": 0.8658017155990507,
+          "cover": 0.8261100676106732,
+          "score": 0.854688054162305
+        }
+      ]
+    },
+    {
+      "glow": 44,
+      "empty": false,
+      "candidates": [
+        {
+          "weaponShape": 48,
+          "names": [
+            "BoneCarvedFan"
+          ],
+          "shape": 0.7050213867640562,
+          "cover": 0.07648745868170329,
+          "score": 0.5151111694209274
+        },
+        {
+          "weaponShape": 72,
+          "names": [],
+          "shape": 0.5853640642935005,
+          "cover": 0.13625802430991585,
+          "score": 0.4348154126736921
+        },
+        {
+          "weaponShape": 14,
+          "names": [
+            "PowerAxe"
+          ],
+          "shape": 0.38365431490210855,
+          "cover": 0.3465922844456325,
+          "score": 0.31019715060519015
+        },
+        {
+          "weaponShape": 69,
+          "names": [],
+          "shape": 0.36737808242543457,
+          "cover": 0.08375700052616869,
+          "score": 0.2727204053978774
+        },
+        {
+          "weaponShape": 42,
+          "names": [
+            "PickAxe",
+            "PickAxe0"
+          ],
+          "shape": 0.346939331695992,
+          "cover": 0.2227056425168396,
+          "score": 0.2716214717877645
+        },
+        {
+          "weaponShape": 38,
+          "names": [],
+          "shape": 0.3032696568459197,
+          "cover": 0.4746488797105334,
+          "score": 0.26486974314069445
+        },
+        {
+          "weaponShape": 16,
+          "names": [
+            "GreatAxe",
+            "SolidGreatAxe"
+          ],
+          "shape": 0.3417614550064572,
+          "cover": 0.16701780720527837,
+          "score": 0.26243599271076645
+        },
+        {
+          "weaponShape": 21,
+          "names": [
+            "ZumaJudgementMace",
+            "JudgementMace"
+          ],
+          "shape": 0.2847820783515442,
+          "cover": 0.5718205181804591,
+          "score": 0.2610815071947968
+        }
+      ]
+    },
+    {
+      "glow": 45,
+      "empty": false,
+      "candidates": [
+        {
+          "weaponShape": 48,
+          "names": [
+            "BoneCarvedFan"
+          ],
+          "shape": 0.8465249583894956,
+          "cover": 0.9104003501830173,
+          "score": 0.8644100680916817
+        },
+        {
+          "weaponShape": 72,
+          "names": [],
+          "shape": 0.7085228722203393,
+          "cover": 0.9006628489017843,
+          "score": 0.7623220656911438
+        },
+        {
+          "weaponShape": 69,
+          "names": [],
+          "shape": 0.5899544075223093,
+          "cover": 0.7985570861790496,
+          "score": 0.6483631575461966
+        },
+        {
+          "weaponShape": 71,
+          "names": [],
+          "shape": 0.4416465483225544,
+          "cover": 0.9340680489347587,
+          "score": 0.5795245684939716
+        },
+        {
+          "weaponShape": 14,
+          "names": [
+            "PowerAxe"
+          ],
+          "shape": 0.533196590975479,
+          "cover": 0.6331433171092102,
+          "score": 0.44594959057904743
+        },
+        {
+          "weaponShape": 68,
+          "names": [],
+          "shape": 0.476356745634175,
+          "cover": 0.699170928922779,
+          "score": 0.41149560789103834
+        },
+        {
+          "weaponShape": 42,
+          "names": [
+            "PickAxe",
+            "PickAxe0"
+          ],
+          "shape": 0.4750567272938611,
+          "cover": 0.6041729736353335,
+          "score": 0.4012497950678427
+        },
+        {
+          "weaponShape": 4,
+          "names": [
+            "BronzeAxe",
+            "SteelAxe",
+            "SolidBronzeAxe"
+          ],
+          "shape": 0.4625918956806912,
+          "cover": 0.64807776225302,
+          "score": 0.39657778559089363
+        }
+      ]
+    },
+    {
+      "glow": 46,
+      "empty": false,
+      "candidates": [
+        {
+          "weaponShape": 47,
+          "names": [
+            "RawSword"
+          ],
+          "shape": 0.5664614290138577,
+          "cover": 0.35576181936123935,
+          "score": 0.442716887187379
+        },
+        {
+          "weaponShape": 68,
+          "names": [],
+          "shape": 0.5591718317997492,
+          "cover": 0.3701647564469914,
+          "score": 0.43887986502762455
+        },
+        {
+          "weaponShape": 71,
+          "names": [],
+          "shape": 0.5554062077483806,
+          "cover": 0.338472485768501,
+          "score": 0.4330627731841471
+        },
+        {
+          "weaponShape": 67,
+          "names": [],
+          "shape": 0.5520835550231975,
+          "cover": 0.359740905369049,
+          "score": 0.432754768342869
+        },
+        {
+          "weaponShape": 70,
+          "names": [],
+          "shape": 0.5490336572734116,
+          "cover": 0.34784387365032526,
+          "score": 0.4293929328545882
+        },
+        {
+          "weaponShape": 46,
+          "names": [
+            "BarbarianSword"
+          ],
+          "shape": 0.5439587680663869,
+          "cover": 0.384745141678428,
+          "score": 0.42935533689228444
+        },
+        {
+          "weaponShape": 55,
+          "names": [
+            "IceDragonSkyKnife",
+            "(????)IceDragonSkyKnife"
+          ],
+          "shape": 0.5352950366948652,
+          "cover": 0.35893387712842273,
+          "score": 0.42058794637888836
+        },
+        {
+          "weaponShape": 7,
+          "names": [
+            "Scimitar",
+            "SharpScimitar"
+          ],
+          "shape": 0.5243157725055829,
+          "cover": 0.40977056962025316,
+          "score": 0.4176648720268045
+        }
+      ]
+    },
+    {
+      "glow": 47,
+      "empty": false,
+      "candidates": [
+        {
+          "weaponShape": 1,
+          "names": [
+            "Dagger",
+            "FireBloodSword",
+            "SharpDagger"
+          ],
+          "shape": 0.6497511118700827,
+          "cover": 0.4592378618113912,
+          "score": 0.5128261110039759
+        },
+        {
+          "weaponShape": 14,
+          "names": [
+            "PowerAxe"
+          ],
+          "shape": 0.6536569754540911,
+          "cover": 0.3614351991074876,
+          "score": 0.5060536718394794
+        },
+        {
+          "weaponShape": 4,
+          "names": [
+            "BronzeAxe",
+            "SteelAxe",
+            "SolidBronzeAxe"
+          ],
+          "shape": 0.6428998313023356,
+          "cover": 0.4302607949515166,
+          "score": 0.5050534364429303
+        },
+        {
+          "weaponShape": 0,
+          "names": [
+            "WoodenSword",
+            "EbonySword"
+          ],
+          "shape": 0.6266839324335902,
+          "cover": 0.45911063609275815,
+          "score": 0.4962052736892752
+        },
+        {
+          "weaponShape": 12,
+          "names": [
+            "PrinceDagger"
+          ],
+          "shape": 0.6046392042665371,
+          "cover": 0.5186526882576059,
+          "score": 0.48616819052115207
+        },
+        {
+          "weaponShape": 2,
+          "names": [
+            "BronzeSword",
+            "IronSword",
+            "BronzeWarriorSword"
+          ],
+          "shape": 0.6137954329029109,
+          "cover": 0.4258302005012532,
+          "score": 0.4836640713392187
+        },
+        {
+          "weaponShape": 69,
+          "names": [],
+          "shape": 0.5864446640068224,
+          "cover": 0.457436666505857,
+          "score": 0.4670689514024861
+        },
+        {
+          "weaponShape": 25,
+          "names": [
+            "RedMoonSword"
+          ],
+          "shape": 0.598913244298678,
+          "cover": 0.35671442931597086,
+          "score": 0.46617554996801325
+        }
+      ]
+    },
+    {
+      "glow": 48,
+      "empty": false,
+      "candidates": [
+        {
+          "weaponShape": 69,
+          "names": [],
+          "shape": 0.6274385624924076,
+          "cover": 0.0331349062026704,
+          "score": 0.4550029858023952
+        },
+        {
+          "weaponShape": 14,
+          "names": [
+            "PowerAxe"
+          ],
+          "shape": 0.5669987019572743,
+          "cover": 0.4008522769461522,
+          "score": 0.4475225885499604
+        },
+        {
+          "weaponShape": 68,
+          "names": [],
+          "shape": 0.5565312814259467,
+          "cover": 0.17326114377490914,
+          "score": 0.4176821147166227
+        },
+        {
+          "weaponShape": 38,
+          "names": [],
+          "shape": 0.5230821753191214,
+          "cover": 0.35583819960402585,
+          "score": 0.41149130979096193
+        },
+        {
+          "weaponShape": 7,
+          "names": [
+            "Scimitar",
+            "SharpScimitar"
+          ],
+          "shape": 0.5250059773006971,
+          "cover": 0.33102097533268415,
+          "score": 0.41044435923910494
+        },
+        {
+          "weaponShape": 47,
+          "names": [
+            "RawSword"
+          ],
+          "shape": 0.5330052225662021,
+          "cover": 0.2633015393278901,
+          "score": 0.4095673111017987
+        },
+        {
+          "weaponShape": 4,
+          "names": [
+            "BronzeAxe",
+            "SteelAxe",
+            "SolidBronzeAxe"
+          ],
+          "shape": 0.5341033630981799,
+          "cover": 0.2281306513265276,
+          "score": 0.4069112252606892
+        },
+        {
+          "weaponShape": 42,
+          "names": [
+            "PickAxe",
+            "PickAxe0"
+          ],
+          "shape": 0.5313291709310303,
+          "cover": 0.24739630503653381,
+          "score": 0.40680184096392213
+        }
+      ]
+    },
+    {
+      "glow": 49,
+      "empty": false,
+      "candidates": [
+        {
+          "weaponShape": 47,
+          "names": [
+            "RawSword"
+          ],
+          "shape": 0.5664837991206055,
+          "cover": 0.35576181936123935,
+          "score": 0.44273299366423746
+        },
+        {
+          "weaponShape": 68,
+          "names": [],
+          "shape": 0.5591866465451228,
+          "cover": 0.3701647564469914,
+          "score": 0.43889053164429365
+        },
+        {
+          "weaponShape": 71,
+          "names": [],
+          "shape": 0.5554096921864027,
+          "cover": 0.338472485768501,
+          "score": 0.433065281979523
+        },
+        {
+          "weaponShape": 67,
+          "names": [],
+          "shape": 0.5520631960895025,
+          "cover": 0.359740905369049,
+          "score": 0.4327401099106086
+        },
+        {
+          "weaponShape": 70,
+          "names": [],
+          "shape": 0.5490133229804279,
+          "cover": 0.34784387365032526,
+          "score": 0.42937829216364
+        },
+        {
+          "weaponShape": 46,
+          "names": [
+            "BarbarianSword"
+          ],
+          "shape": 0.5439439747068595,
+          "cover": 0.384745141678428,
+          "score": 0.42934468567342476
+        },
+        {
+          "weaponShape": 55,
+          "names": [
+            "IceDragonSkyKnife",
+            "(????)IceDragonSkyKnife"
+          ],
+          "shape": 0.5352726203582128,
+          "cover": 0.35893387712842273,
+          "score": 0.4205718066164986
+        },
+        {
+          "weaponShape": 7,
+          "names": [
+            "Scimitar",
+            "SharpScimitar"
+          ],
+          "shape": 0.5243380219056215,
+          "cover": 0.40977056962025316,
+          "score": 0.4176808915948323
+        }
+      ]
+    },
+    {
+      "glow": 50,
+      "empty": false,
+      "candidates": [
+        {
+          "weaponShape": 1,
+          "names": [
+            "Dagger",
+            "FireBloodSword",
+            "SharpDagger"
+          ],
+          "shape": 0.6497511118700827,
+          "cover": 0.4592378618113912,
+          "score": 0.5128261110039759
+        },
+        {
+          "weaponShape": 14,
+          "names": [
+            "PowerAxe"
+          ],
+          "shape": 0.6536569754540911,
+          "cover": 0.3614351991074876,
+          "score": 0.5060536718394794
+        },
+        {
+          "weaponShape": 4,
+          "names": [
+            "BronzeAxe",
+            "SteelAxe",
+            "SolidBronzeAxe"
+          ],
+          "shape": 0.6428998313023356,
+          "cover": 0.4302607949515166,
+          "score": 0.5050534364429303
+        },
+        {
+          "weaponShape": 0,
+          "names": [
+            "WoodenSword",
+            "EbonySword"
+          ],
+          "shape": 0.6266839324335902,
+          "cover": 0.45911063609275815,
+          "score": 0.4962052736892752
+        },
+        {
+          "weaponShape": 12,
+          "names": [
+            "PrinceDagger"
+          ],
+          "shape": 0.6046392042665371,
+          "cover": 0.5186526882576059,
+          "score": 0.48616819052115207
+        },
+        {
+          "weaponShape": 2,
+          "names": [
+            "BronzeSword",
+            "IronSword",
+            "BronzeWarriorSword"
+          ],
+          "shape": 0.6137954329029109,
+          "cover": 0.4258302005012532,
+          "score": 0.4836640713392187
+        },
+        {
+          "weaponShape": 69,
+          "names": [],
+          "shape": 0.5864446640068224,
+          "cover": 0.457436666505857,
+          "score": 0.4670689514024861
+        },
+        {
+          "weaponShape": 25,
+          "names": [
+            "RedMoonSword"
+          ],
+          "shape": 0.598913244298678,
+          "cover": 0.35671442931597086,
+          "score": 0.46617554996801325
+        }
+      ]
+    },
+    {
+      "glow": 51,
+      "empty": false,
+      "candidates": [
+        {
+          "weaponShape": 69,
+          "names": [],
+          "shape": 0.6274528341068174,
+          "cover": 0.0331349062026704,
+          "score": 0.4550132613647702
+        },
+        {
+          "weaponShape": 14,
+          "names": [
+            "PowerAxe"
+          ],
+          "shape": 0.5671003216177317,
+          "cover": 0.4008522769461522,
+          "score": 0.44759575470548973
+        },
+        {
+          "weaponShape": 68,
+          "names": [],
+          "shape": 0.5565600062869153,
+          "cover": 0.17326114377490914,
+          "score": 0.4177027966165201
+        },
+        {
+          "weaponShape": 38,
+          "names": [],
+          "shape": 0.5230356632387136,
+          "cover": 0.35583819960402585,
+          "score": 0.4114578210930684
+        },
+        {
+          "weaponShape": 7,
+          "names": [
+            "Scimitar",
+            "SharpScimitar"
+          ],
+          "shape": 0.5250378349889067,
+          "cover": 0.33342482148653035,
+          "score": 0.41070287369769276
+        },
+        {
+          "weaponShape": 47,
+          "names": [
+            "RawSword"
+          ],
+          "shape": 0.5331279500565513,
+          "cover": 0.2633015393278901,
+          "score": 0.40965567489485016
+        },
+        {
+          "weaponShape": 4,
+          "names": [
+            "BronzeAxe",
+            "SteelAxe",
+            "SolidBronzeAxe"
+          ],
+          "shape": 0.5341290644647392,
+          "cover": 0.23005372824960452,
+          "score": 0.40711819178307346
+        },
+        {
+          "weaponShape": 42,
+          "names": [
+            "PickAxe",
+            "PickAxe0"
+          ],
+          "shape": 0.531451275216692,
+          "cover": 0.24739630503653381,
+          "score": 0.40688975604959854
+        }
+      ]
+    },
+    {
+      "glow": 52,
+      "empty": false,
+      "candidates": [
+        {
+          "weaponShape": 47,
+          "names": [
+            "RawSword"
+          ],
+          "shape": 0.5664614290138577,
+          "cover": 0.35576181936123935,
+          "score": 0.442716887187379
+        },
+        {
+          "weaponShape": 68,
+          "names": [],
+          "shape": 0.5591718317997492,
+          "cover": 0.3701647564469914,
+          "score": 0.43887986502762455
+        },
+        {
+          "weaponShape": 71,
+          "names": [],
+          "shape": 0.5554062077483806,
+          "cover": 0.338472485768501,
+          "score": 0.4330627731841471
+        },
+        {
+          "weaponShape": 67,
+          "names": [],
+          "shape": 0.5520835550231975,
+          "cover": 0.359740905369049,
+          "score": 0.432754768342869
+        },
+        {
+          "weaponShape": 70,
+          "names": [],
+          "shape": 0.5490336572734116,
+          "cover": 0.34784387365032526,
+          "score": 0.4293929328545882
+        },
+        {
+          "weaponShape": 46,
+          "names": [
+            "BarbarianSword"
+          ],
+          "shape": 0.5439587680663869,
+          "cover": 0.384745141678428,
+          "score": 0.42935533689228444
+        },
+        {
+          "weaponShape": 55,
+          "names": [
+            "IceDragonSkyKnife",
+            "(????)IceDragonSkyKnife"
+          ],
+          "shape": 0.5352950366948652,
+          "cover": 0.35893387712842273,
+          "score": 0.42058794637888836
+        },
+        {
+          "weaponShape": 7,
+          "names": [
+            "Scimitar",
+            "SharpScimitar"
+          ],
+          "shape": 0.5243157725055829,
+          "cover": 0.40977056962025316,
+          "score": 0.4176648720268045
+        }
+      ]
+    },
+    {
+      "glow": 53,
+      "empty": false,
+      "candidates": [
+        {
+          "weaponShape": 1,
+          "names": [
+            "Dagger",
+            "FireBloodSword",
+            "SharpDagger"
+          ],
+          "shape": 0.6498341394903508,
+          "cover": 0.4592378618113912,
+          "score": 0.5128858908905689
+        },
+        {
+          "weaponShape": 14,
+          "names": [
+            "PowerAxe"
+          ],
+          "shape": 0.6536530342628384,
+          "cover": 0.3601331157741543,
+          "score": 0.5059232300151107
+        },
+        {
+          "weaponShape": 4,
+          "names": [
+            "BronzeAxe",
+            "SteelAxe",
+            "SolidBronzeAxe"
+          ],
+          "shape": 0.6428991342938248,
+          "cover": 0.4283377180284397,
+          "score": 0.5048644730583409
+        },
+        {
+          "weaponShape": 0,
+          "names": [
+            "WoodenSword",
+            "EbonySword"
+          ],
+          "shape": 0.626684137188577,
+          "cover": 0.455078378028242,
+          "score": 0.4958102598225431
+        },
+        {
+          "weaponShape": 12,
+          "names": [
+            "PrinceDagger"
+          ],
+          "shape": 0.6047232440720818,
+          "cover": 0.5186526882576059,
+          "score": 0.48622869918114425
+        },
+        {
+          "weaponShape": 2,
+          "names": [
+            "BronzeSword",
+            "IronSword",
+            "BronzeWarriorSword"
+          ],
+          "shape": 0.6138808607267323,
+          "cover": 0.4214442355889725,
+          "score": 0.48329575481096654
+        },
+        {
+          "weaponShape": 69,
+          "names": [],
+          "shape": 0.5864419476152103,
+          "cover": 0.457436666505857,
+          "score": 0.4670669956005254
+        },
+        {
+          "weaponShape": 25,
+          "names": [
+            "RedMoonSword"
+          ],
+          "shape": 0.5989140553192217,
+          "cover": 0.35671442931597086,
+          "score": 0.46617613390280477
+        }
+      ]
+    },
+    {
+      "glow": 54,
+      "empty": false,
+      "candidates": [
+        {
+          "weaponShape": 69,
+          "names": [],
+          "shape": 0.6274013319765911,
+          "cover": 0.0331349062026704,
+          "score": 0.4549761798310073
+        },
+        {
+          "weaponShape": 14,
+          "names": [
+            "PowerAxe"
+          ],
+          "shape": 0.5670233464526052,
+          "cover": 0.4008522769461522,
+          "score": 0.44754033258659864
+        },
+        {
+          "weaponShape": 68,
+          "names": [],
+          "shape": 0.5564961735402247,
+          "cover": 0.17326114377490914,
+          "score": 0.4176568370389029
+        },
+        {
+          "weaponShape": 38,
+          "names": [],
+          "shape": 0.5231146709414238,
+          "cover": 0.35583819960402585,
+          "score": 0.4115147066390197
+        },
+        {
+          "weaponShape": 7,
+          "names": [
+            "Scimitar",
+            "SharpScimitar"
+          ],
+          "shape": 0.5249713295076854,
+          "cover": 0.33102097533268415,
+          "score": 0.41041941282813654
+        },
+        {
+          "weaponShape": 47,
+          "names": [
+            "RawSword"
+          ],
+          "shape": 0.5330329669958471,
+          "cover": 0.2633015393278901,
+          "score": 0.4095872870911431
+        },
+        {
+          "weaponShape": 4,
+          "names": [
+            "BronzeAxe",
+            "SteelAxe",
+            "SolidBronzeAxe"
+          ],
+          "shape": 0.5340678111765662,
+          "cover": 0.2281306513265276,
+          "score": 0.4068856278771274
+        },
+        {
+          "weaponShape": 42,
+          "names": [
+            "PickAxe",
+            "PickAxe0"
+          ],
+          "shape": 0.5313568238357007,
+          "cover": 0.24739630503653381,
+          "score": 0.40682175105528484
+        }
+      ]
+    },
+    {
+      "glow": 55,
+      "empty": false,
+      "candidates": [
+        {
+          "weaponShape": 38,
+          "names": [],
+          "shape": 0.8574134734032925,
+          "cover": 0.8946454063183118,
+          "score": 0.867838414619498
+        },
+        {
+          "weaponShape": 47,
+          "names": [
+            "RawSword"
+          ],
+          "shape": 0.8152359326540045,
+          "cover": 0.960546800473156,
+          "score": 0.8559229756433668
+        },
+        {
+          "weaponShape": 68,
+          "names": [],
+          "shape": 0.8060387746850048,
+          "cover": 0.9501120512709926,
+          "score": 0.8463792921290815
+        },
+        {
+          "weaponShape": 76,
+          "names": [
+            "GonRyunHolyLightSword(?)",
+            "GonRyunHolyLightSword(?)2",
+            "GonRyunHolyLightSword(?)1"
+          ],
+          "shape": 0.8153116215140636,
+          "cover": 0.9191987056826322,
+          "score": 0.8444000050812628
+        },
+        {
+          "weaponShape": 67,
+          "names": [],
+          "shape": 0.7894046312683172,
+          "cover": 0.951267258895344,
+          "score": 0.8347261670038847
+        },
+        {
+          "weaponShape": 12,
+          "names": [
+            "PrinceDagger"
+          ],
+          "shape": 0.777894671660738,
+          "cover": 0.9754988262910798,
+          "score": 0.8332238349572336
+        },
+        {
+          "weaponShape": 46,
+          "names": [
+            "BarbarianSword"
+          ],
+          "shape": 0.7854720930178081,
+          "cover": 0.9542495808513253,
+          "score": 0.8327297896111929
+        },
+        {
+          "weaponShape": 77,
+          "names": [
+            "GonRyunHolyLightSword(?)",
+            "GonRyunHolyLightSword(?)1",
+            "GonRyunHolyLightSword(?)2"
+          ],
+          "shape": 0.7990868909858091,
+          "cover": 0.8954564377602875,
+          "score": 0.8260703640826631
+        }
+      ]
+    },
+    {
+      "glow": 56,
+      "empty": false,
+      "candidates": [
+        {
+          "weaponShape": 14,
+          "names": [
+            "PowerAxe"
+          ],
+          "shape": 0.8744648325078286,
+          "cover": 0.8698465437420179,
+          "score": 0.8731717116534016
+        },
+        {
+          "weaponShape": 38,
+          "names": [],
+          "shape": 0.814163731072057,
+          "cover": 0.8844771988667178,
+          "score": 0.833851502054562
+        },
+        {
+          "weaponShape": 16,
+          "names": [
+            "GreatAxe",
+            "SolidGreatAxe"
+          ],
+          "shape": 0.8304486959165739,
+          "cover": 0.8376854306014188,
+          "score": 0.8324749816283304
+        },
+        {
+          "weaponShape": 21,
+          "names": [
+            "ZumaJudgementMace",
+            "JudgementMace"
+          ],
+          "shape": 0.7987123192305859,
+          "cover": 0.9032913149359194,
+          "score": 0.8279944380280794
+        },
+        {
+          "weaponShape": 4,
+          "names": [
+            "BronzeAxe",
+            "SteelAxe",
+            "SolidBronzeAxe"
+          ],
+          "shape": 0.7864411720849196,
+          "cover": 0.9200193849678386,
+          "score": 0.8238430716921369
+        },
+        {
+          "weaponShape": 76,
+          "names": [
+            "GonRyunHolyLightSword(?)",
+            "GonRyunHolyLightSword(?)2",
+            "GonRyunHolyLightSword(?)1"
+          ],
+          "shape": 0.8011068065437623,
+          "cover": 0.8659023668639053,
+          "score": 0.8192495634334023
+        },
+        {
+          "weaponShape": 1,
+          "names": [
+            "Dagger",
+            "FireBloodSword",
+            "SharpDagger"
+          ],
+          "shape": 0.7672494424296143,
+          "cover": 0.9444444444444444,
+          "score": 0.8168640429937668
+        },
+        {
+          "weaponShape": 68,
+          "names": [],
+          "shape": 0.7748129630678584,
+          "cover": 0.8983396381314188,
+          "score": 0.8094004320856554
+        }
+      ]
+    },
+    {
+      "glow": 57,
+      "empty": false,
+      "candidates": [
+        {
+          "weaponShape": 48,
+          "names": [
+            "BoneCarvedFan"
+          ],
+          "shape": 0.6788994115476609,
+          "cover": 0.7494518802346122,
+          "score": 0.6986541027800073
+        },
+        {
+          "weaponShape": 14,
+          "names": [
+            "PowerAxe"
+          ],
+          "shape": 0.6627388711168258,
+          "cover": 0.784341934531765,
+          "score": 0.6967877288730088
+        },
+        {
+          "weaponShape": 21,
+          "names": [
+            "ZumaJudgementMace",
+            "JudgementMace"
+          ],
+          "shape": 0.6093371709178378,
+          "cover": 0.8423784018044593,
+          "score": 0.6745887155660918
+        },
+        {
+          "weaponShape": 19,
+          "names": [
+            "DragonSword"
+          ],
+          "shape": 0.5991218072146381,
+          "cover": 0.8623869758045166,
+          "score": 0.6728360544198041
+        },
+        {
+          "weaponShape": 4,
+          "names": [
+            "BronzeAxe",
+            "SteelAxe",
+            "SolidBronzeAxe"
+          ],
+          "shape": 0.633841910315501,
+          "cover": 0.7521388500769944,
+          "score": 0.6669650534487191
+        },
+        {
+          "weaponShape": 76,
+          "names": [
+            "GonRyunHolyLightSword(?)",
+            "GonRyunHolyLightSword(?)2",
+            "GonRyunHolyLightSword(?)1"
+          ],
+          "shape": 0.6082329630552816,
+          "cover": 0.7643544656963142,
+          "score": 0.6519469837947707
+        },
+        {
+          "weaponShape": 47,
+          "names": [
+            "RawSword"
+          ],
+          "shape": 0.5962907810480501,
+          "cover": 0.7950043984498109,
+          "score": 0.6519305939205431
+        },
+        {
+          "weaponShape": 15,
+          "names": [
+            "PurifierSword"
+          ],
+          "shape": 0.5985399464201484,
+          "cover": 0.7610354569096329,
+          "score": 0.6440386893572041
+        }
+      ]
+    },
+    {
+      "glow": 58,
+      "empty": false,
+      "candidates": [
+        {
+          "weaponShape": 38,
+          "names": [],
+          "shape": 0.8171908939124043,
+          "cover": 0.9533264959032877,
+          "score": 0.8553088624698517
+        },
+        {
+          "weaponShape": 77,
+          "names": [
+            "GonRyunHolyLightSword(?)",
+            "GonRyunHolyLightSword(?)1",
+            "GonRyunHolyLightSword(?)2"
+          ],
+          "shape": 0.7897894418651061,
+          "cover": 0.9463404458609745,
+          "score": 0.8336237229839493
+        },
+        {
+          "weaponShape": 47,
+          "names": [
+            "RawSword"
+          ],
+          "shape": 0.7714463885840701,
+          "cover": 0.9717432036452488,
+          "score": 0.8275294968012001
+        },
+        {
+          "weaponShape": 78,
+          "names": [
+            "GonRyunHolyLightSword(?)",
+            "GonRyunHolyLightSword(?)1",
+            "GonRyunHolyLightSword(?)2"
+          ],
+          "shape": 0.7751344078943709,
+          "cover": 0.9509540616671727,
+          "score": 0.8243639109507555
+        },
+        {
+          "weaponShape": 46,
+          "names": [
+            "BarbarianSword"
+          ],
+          "shape": 0.7558047909107055,
+          "cover": 0.9874661652701545,
+          "score": 0.8206699757313513
+        },
+        {
+          "weaponShape": 1,
+          "names": [
+            "Dagger",
+            "FireBloodSword",
+            "SharpDagger"
+          ],
+          "shape": 0.7424568053995051,
+          "cover": 1,
+          "score": 0.8145688998876437
+        },
+        {
+          "weaponShape": 76,
+          "names": [
+            "GonRyunHolyLightSword(?)",
+            "GonRyunHolyLightSword(?)2",
+            "GonRyunHolyLightSword(?)1"
+          ],
+          "shape": 0.7687686423763792,
+          "cover": 0.9318616974300097,
+          "score": 0.8144346977913957
+        },
+        {
+          "weaponShape": 69,
+          "names": [],
+          "shape": 0.7620688623782821,
+          "cover": 0.9481369177340142,
+          "score": 0.8141679178778871
+        }
+      ]
+    },
+    {
+      "glow": 59,
+      "empty": false,
+      "candidates": [
+        {
+          "weaponShape": 14,
+          "names": [
+            "PowerAxe"
+          ],
+          "shape": 0.8408532165730804,
+          "cover": 0.9370994089518548,
+          "score": 0.8678021504391372
+        },
+        {
+          "weaponShape": 16,
+          "names": [
+            "GreatAxe",
+            "SolidGreatAxe"
+          ],
+          "shape": 0.816552641980443,
+          "cover": 0.9451420404971237,
+          "score": 0.8525576735651135
+        },
+        {
+          "weaponShape": 38,
+          "names": [],
+          "shape": 0.829554747277663,
+          "cover": 0.9058037715034302,
+          "score": 0.8509044740608778
+        },
+        {
+          "weaponShape": 4,
+          "names": [
+            "BronzeAxe",
+            "SteelAxe",
+            "SolidBronzeAxe"
+          ],
+          "shape": 0.7673556214298473,
+          "cover": 0.9869429444171712,
+          "score": 0.8288400718662979
+        },
+        {
+          "weaponShape": 1,
+          "names": [
+            "Dagger",
+            "FireBloodSword",
+            "SharpDagger"
+          ],
+          "shape": 0.7648172578686437,
+          "cover": 0.9861111111111112,
+          "score": 0.8267795367765347
+        },
+        {
+          "weaponShape": 68,
+          "names": [],
+          "shape": 0.7659571835013121,
+          "cover": 0.9684314467231148,
+          "score": 0.8226499772034168
+        },
+        {
+          "weaponShape": 76,
+          "names": [
+            "GonRyunHolyLightSword(?)",
+            "GonRyunHolyLightSword(?)2",
+            "GonRyunHolyLightSword(?)1"
+          ],
+          "shape": 0.8003701317312941,
+          "cover": 0.8580808604904472,
+          "score": 0.8165291357838569
+        },
+        {
+          "weaponShape": 12,
+          "names": [
+            "PrinceDagger"
+          ],
+          "shape": 0.7305451862164202,
+          "cover": 0.9930555555555556,
+          "score": 0.8040480896313781
+        }
+      ]
+    },
+    {
+      "glow": 60,
+      "empty": false,
+      "candidates": [
+        {
+          "weaponShape": 48,
+          "names": [
+            "BoneCarvedFan"
+          ],
+          "shape": 0.841097070100997,
+          "cover": 0.792505618713006,
+          "score": 0.8274914637123595
+        },
+        {
+          "weaponShape": 72,
+          "names": [],
+          "shape": 0.7572014313601907,
+          "cover": 0.7320185081000228,
+          "score": 0.7501502128473437
+        },
+        {
+          "weaponShape": 69,
+          "names": [],
+          "shape": 0.6111740274512247,
+          "cover": 0.7245094232296725,
+          "score": 0.6429079382691901
+        },
+        {
+          "weaponShape": 14,
+          "names": [
+            "PowerAxe"
+          ],
+          "shape": 0.5186718061785283,
+          "cover": 0.8499242858787015,
+          "score": 0.6114225004945768
+        },
+        {
+          "weaponShape": 76,
+          "names": [
+            "GonRyunHolyLightSword(?)",
+            "GonRyunHolyLightSword(?)2",
+            "GonRyunHolyLightSword(?)1"
+          ],
+          "shape": 0.43533583220730215,
+          "cover": 0.8926745709323207,
+          "score": 0.5633906790503074
+        },
+        {
+          "weaponShape": 71,
+          "names": [],
+          "shape": 0.4051399376711382,
+          "cover": 0.9166666666666666,
+          "score": 0.5483674217898862
+        },
+        {
+          "weaponShape": 68,
+          "names": [],
+          "shape": 0.46968609203481226,
+          "cover": 0.7354457752942627,
+          "score": 0.5440988033474584
+        },
+        {
+          "weaponShape": 77,
+          "names": [
+            "GonRyunHolyLightSword(?)",
+            "GonRyunHolyLightSword(?)1",
+            "GonRyunHolyLightSword(?)2"
+          ],
+          "shape": 0.43372348874835887,
+          "cover": 0.8245477955976859,
+          "score": 0.5431542946661704
+        }
+      ]
+    },
+    {
+      "glow": 61,
+      "empty": false,
+      "candidates": [
+        {
+          "weaponShape": 77,
+          "names": [
+            "GonRyunHolyLightSword(?)",
+            "GonRyunHolyLightSword(?)1",
+            "GonRyunHolyLightSword(?)2"
+          ],
+          "shape": 0.8735626013954291,
+          "cover": 0.9473140495867769,
+          "score": 0.8942130068890065
+        },
+        {
+          "weaponShape": 76,
+          "names": [
+            "GonRyunHolyLightSword(?)",
+            "GonRyunHolyLightSword(?)2",
+            "GonRyunHolyLightSword(?)1"
+          ],
+          "shape": 0.8577238447044309,
+          "cover": 0.9821428571428572,
+          "score": 0.8925611681871902
+        },
+        {
+          "weaponShape": 38,
+          "names": [],
+          "shape": 0.8887404894956524,
+          "cover": 0.8712121212121212,
+          "score": 0.8838325463762637
+        },
+        {
+          "weaponShape": 78,
+          "names": [
+            "GonRyunHolyLightSword(?)",
+            "GonRyunHolyLightSword(?)1",
+            "GonRyunHolyLightSword(?)2"
+          ],
+          "shape": 0.862036176637696,
+          "cover": 0.907060667846009,
+          "score": 0.8746430341760236
+        },
+        {
+          "weaponShape": 73,
+          "names": [
+            "(??)DragonSlayer"
+          ],
+          "shape": 0.8344730646320123,
+          "cover": 0.9771784232365145,
+          "score": 0.8744305650412729
+        },
+        {
+          "weaponShape": 47,
+          "names": [
+            "RawSword"
+          ],
+          "shape": 0.8256604113738878,
+          "cover": 0.9806701030927836,
+          "score": 0.8690631250551786
+        },
+        {
+          "weaponShape": 46,
+          "names": [
+            "BarbarianSword"
+          ],
+          "shape": 0.8187013211216327,
+          "cover": 0.9915215765861995,
+          "score": 0.8670909926517114
+        },
+        {
+          "weaponShape": 7,
+          "names": [
+            "Scimitar",
+            "SharpScimitar"
+          ],
+          "shape": 0.7884245471396881,
+          "cover": 1,
+          "score": 0.8476656739405755
+        }
+      ]
+    },
+    {
+      "glow": 62,
+      "empty": false,
+      "candidates": [
+        {
+          "weaponShape": 76,
+          "names": [
+            "GonRyunHolyLightSword(?)",
+            "GonRyunHolyLightSword(?)2",
+            "GonRyunHolyLightSword(?)1"
+          ],
+          "shape": 0.8648288345099684,
+          "cover": 0.9844866152472352,
+          "score": 0.8983330131164031
+        },
+        {
+          "weaponShape": 70,
+          "names": [],
+          "shape": 0.8291449437290435,
+          "cover": 0.990625,
+          "score": 0.8743593594849113
+        },
+        {
+          "weaponShape": 47,
+          "names": [
+            "RawSword"
+          ],
+          "shape": 0.8165250683595301,
+          "cover": 0.9536082474226804,
+          "score": 0.8549083584972121
+        },
+        {
+          "weaponShape": 38,
+          "names": [],
+          "shape": 0.8420784228813272,
+          "cover": 0.8812153796024763,
+          "score": 0.8530367707632489
+        },
+        {
+          "weaponShape": 46,
+          "names": [
+            "BarbarianSword"
+          ],
+          "shape": 0.7933921451764147,
+          "cover": 0.9309727319554439,
+          "score": 0.8319147094745428
+        },
+        {
+          "weaponShape": 77,
+          "names": [
+            "GonRyunHolyLightSword(?)",
+            "GonRyunHolyLightSword(?)1",
+            "GonRyunHolyLightSword(?)2"
+          ],
+          "shape": 0.8325800409733171,
+          "cover": 0.8049966992460544,
+          "score": 0.8248567052896836
+        },
+        {
+          "weaponShape": 68,
+          "names": [],
+          "shape": 0.806031820883965,
+          "cover": 0.8582354760838836,
+          "score": 0.8206488443399422
+        },
+        {
+          "weaponShape": 12,
+          "names": [
+            "PrinceDagger"
+          ],
+          "shape": 0.7488698809751406,
+          "cover": 1,
+          "score": 0.8191863143021012
+        }
+      ]
+    },
+    {
+      "glow": 63,
+      "empty": false,
+      "candidates": [
+        {
+          "weaponShape": 72,
+          "names": [],
+          "shape": 0.7727933324801759,
+          "cover": 1,
+          "score": 0.8364111993857266
+        },
+        {
+          "weaponShape": 48,
+          "names": [
+            "BoneCarvedFan"
+          ],
+          "shape": 0.7349256124941702,
+          "cover": 0.9756756756756757,
+          "score": 0.8023356301849918
+        },
+        {
+          "weaponShape": 69,
+          "names": [],
+          "shape": 0.7170703309321104,
+          "cover": 0.9329268292682926,
+          "score": 0.7775101504662414
+        },
+        {
+          "weaponShape": 38,
+          "names": [],
+          "shape": 0.5883439513171467,
+          "cover": 0.9966100136748601,
+          "score": 0.7026584487773064
+        },
+        {
+          "weaponShape": 14,
+          "names": [
+            "PowerAxe"
+          ],
+          "shape": 0.5642644678004969,
+          "cover": 0.9934895833333334,
+          "score": 0.684447500149691
+        },
+        {
+          "weaponShape": 68,
+          "names": [],
+          "shape": 0.5675419220589502,
+          "cover": 0.9811320754716981,
+          "score": 0.6833471650145195
+        },
+        {
+          "weaponShape": 55,
+          "names": [
+            "IceDragonSkyKnife",
+            "(????)IceDragonSkyKnife"
+          ],
+          "shape": 0.567652056146178,
+          "cover": 0.9342155123286557,
+          "score": 0.6702898238772718
+        },
+        {
+          "weaponShape": 76,
+          "names": [
+            "GonRyunHolyLightSword(?)",
+            "GonRyunHolyLightSword(?)2",
+            "GonRyunHolyLightSword(?)1"
+          ],
+          "shape": 0.5259233413893286,
+          "cover": 1,
+          "score": 0.6586648058003166
+        }
+      ]
+    },
+    {
+      "glow": 64,
+      "empty": false,
+      "candidates": [
+        {
+          "weaponShape": 38,
+          "names": [],
+          "shape": 0.8388177422265738,
+          "cover": 0.896505376344086,
+          "score": 0.8549702797794771
+        },
+        {
+          "weaponShape": 77,
+          "names": [
+            "GonRyunHolyLightSword(?)",
+            "GonRyunHolyLightSword(?)1",
+            "GonRyunHolyLightSword(?)2"
+          ],
+          "shape": 0.8010801507883869,
+          "cover": 0.9493801652892562,
+          "score": 0.8426041548486303
+        },
+        {
+          "weaponShape": 76,
+          "names": [
+            "GonRyunHolyLightSword(?)",
+            "GonRyunHolyLightSword(?)2",
+            "GonRyunHolyLightSword(?)1"
+          ],
+          "shape": 0.7815829225729555,
+          "cover": 0.996031746031746,
+          "score": 0.8416285931414169
+        },
+        {
+          "weaponShape": 47,
+          "names": [
+            "RawSword"
+          ],
+          "shape": 0.7736603577831409,
+          "cover": 0.9871134020618557,
+          "score": 0.833427210181181
+        },
+        {
+          "weaponShape": 78,
+          "names": [
+            "GonRyunHolyLightSword(?)",
+            "GonRyunHolyLightSword(?)1",
+            "GonRyunHolyLightSword(?)2"
+          ],
+          "shape": 0.8018040672732959,
+          "cover": 0.9067398119122257,
+          "score": 0.8311860757721963
+        },
+        {
+          "weaponShape": 73,
+          "names": [
+            "(??)DragonSlayer"
+          ],
+          "shape": 0.7564252092447477,
+          "cover": 0.975103734439834,
+          "score": 0.8176551962993719
+        },
+        {
+          "weaponShape": 12,
+          "names": [
+            "PrinceDagger"
+          ],
+          "shape": 0.7419918830028459,
+          "cover": 1,
+          "score": 0.814234155762049
+        },
+        {
+          "weaponShape": 68,
+          "names": [],
+          "shape": 0.7786881413953253,
+          "cover": 0.8962264150943396,
+          "score": 0.8115988580310494
+        }
+      ]
+    },
+    {
+      "glow": 65,
+      "empty": false,
+      "candidates": [
+        {
+          "weaponShape": 68,
+          "names": [],
+          "shape": 0.8403669326813203,
+          "cover": 0.9336848484793263,
+          "score": 0.8664959491047619
+        },
+        {
+          "weaponShape": 38,
+          "names": [],
+          "shape": 0.7996580968251341,
+          "cover": 0.8989180679784005,
+          "score": 0.8274508887480487
+        },
+        {
+          "weaponShape": 47,
+          "names": [
+            "RawSword"
+          ],
+          "shape": 0.786521380198212,
+          "cover": 0.8647605141710577,
+          "score": 0.8084283377106088
+        },
+        {
+          "weaponShape": 14,
+          "names": [
+            "PowerAxe"
+          ],
+          "shape": 0.8019201154901863,
+          "cover": 0.8104985994163771,
+          "score": 0.8043220909895197
+        },
+        {
+          "weaponShape": 69,
+          "names": [],
+          "shape": 0.8144809083728113,
+          "cover": 0.7550722013622082,
+          "score": 0.7978464704098424
+        },
+        {
+          "weaponShape": 67,
+          "names": [],
+          "shape": 0.7664493356713947,
+          "cover": 0.8664971461987194,
+          "score": 0.7944627226190457
+        },
+        {
+          "weaponShape": 70,
+          "names": [],
+          "shape": 0.728586505834972,
+          "cover": 0.9564761302160496,
+          "score": 0.7923956006616737
+        },
+        {
+          "weaponShape": 7,
+          "names": [
+            "Scimitar",
+            "SharpScimitar"
+          ],
+          "shape": 0.7402650046316935,
+          "cover": 0.8068577572216813,
+          "score": 0.7589109753568901
+        }
+      ]
+    },
+    {
+      "glow": 66,
+      "empty": false,
+      "candidates": [
+        {
+          "weaponShape": 69,
+          "names": [],
+          "shape": 0.7511402389479316,
+          "cover": 0.9512195121951219,
+          "score": 0.8071624354571448
+        },
+        {
+          "weaponShape": 72,
+          "names": [],
+          "shape": 0.6637148518504989,
+          "cover": 1,
+          "score": 0.7578746933323592
+        },
+        {
+          "weaponShape": 14,
+          "names": [
+            "PowerAxe"
+          ],
+          "shape": 0.6434528414098964,
+          "cover": 1,
+          "score": 0.7432860458151255
+        },
+        {
+          "weaponShape": 38,
+          "names": [],
+          "shape": 0.6332207924335619,
+          "cover": 1,
+          "score": 0.7359189705521645
+        },
+        {
+          "weaponShape": 48,
+          "names": [
+            "BoneCarvedFan"
+          ],
+          "shape": 0.6279990340040995,
+          "cover": 0.9905405405405405,
+          "score": 0.729510655834303
+        },
+        {
+          "weaponShape": 55,
+          "names": [
+            "IceDragonSkyKnife",
+            "(????)IceDragonSkyKnife"
+          ],
+          "shape": 0.6126536790923615,
+          "cover": 1,
+          "score": 0.7211106489465002
+        },
+        {
+          "weaponShape": 68,
+          "names": [],
+          "shape": 0.6080556126813451,
+          "cover": 0.9858490566037736,
+          "score": 0.7138377769796251
+        },
+        {
+          "weaponShape": 78,
+          "names": [
+            "GonRyunHolyLightSword(?)",
+            "GonRyunHolyLightSword(?)1",
+            "GonRyunHolyLightSword(?)2"
+          ],
+          "shape": 0.5950676936982181,
+          "cover": 0.9992163009404389,
+          "score": 0.7082293037260399
+        }
+      ]
+    }
+  ]
+}

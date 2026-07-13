@@ -82,9 +82,15 @@ npm.cmd run build:item-atlas    # repack public/item-icons/items-atlas.* after c
 
 `npm run check` only catches syntax/lint/unit-test problems - it does NOT prove the game boots. For changes to `app.monolith.js`, also run `npm run smoke` (in another terminal, with `npm run dev` running): it loads the game in headless Chromium and fails if there are any console or page errors. This is the only automated way to catch runtime/eval-order regressions in the monolith.
 
-## Releasing to itch.io
+## Releasing (Cloudflare Pages)
 
-Ship with `npm run release:itch`. It runs the asset audit, builds the package, runs the existing source/package audits, and finally **boots the actual packaged build in headless Chromium** (`tools/verify-itch-build.mjs`). If that last step is RED, the package no longer matches the dev build you tested - do NOT upload; fix the reported problem and re-run.
+The live game is deployed to **Cloudflare Pages (project `lom2idle`, https://www.lom2idle.com)**. We no longer ship to itch.io - the `release:itch` / `package:itch` / `verify:itch` script names and the `dist/itch/` folder name are legacy; treat them as "the website build".
+
+Build with `npm run release:itch`. It runs the asset audit, builds the package into `dist/itch/`, runs the source/package audits, and finally **boots the actual packaged build in headless Chromium** (`tools/verify-itch-build.mjs`). If that last step is RED, the package no longer matches the dev build you tested - do NOT deploy; fix the reported problem and re-run.
+
+Deploy the built folder with the **Wrangler CLI**: `npx wrangler pages deploy dist/itch --project-name=lom2idle --branch=main`.
+- **`--branch=main` is mandatory.** Wrangler otherwise defaults the deployment branch to your current git branch; if that isn't the production branch (`main`), Cloudflare publishes it as a *preview* deploy (a `<sanitized-branch>.lom2idle.pages.dev` alias) and the live `lom2idle.com` / `www.lom2idle.com` domains do NOT update. This has bitten us: deploying from a `docs/...` branch produced a `docs-switch-collaborator-to.lom2idle.pages.dev` preview while production stayed stale.
+- **Do NOT use the Pages dashboard drag-and-drop** - its direct upload caps at **1,000 files** and the build is ~1,067; the Wrangler CLI supports up to 20,000. (That is why the packager's old itch 1,000-file check is now a non-fatal warning; the size limits - 500 MB total / 200 MB per file - still apply.)
 
 Core principle - **packaging only copies, never rewrites file contents.** `tools/package-itch.mjs` copies a chosen subset of files into `dist/itch/` (leaving the rest in source) and applies exactly one render-neutral transform: the cache-bust `?v=` stamp. It must NOT regenerate atlases or rewrite data files; that is what previously made the release differ from the tested build (rebuilt icon/stateitem atlases were never seen until after upload, scrambling icons and turning sprites into the wrong art).
 
@@ -96,7 +102,7 @@ Prebuilt atlases (the fix): item and paper-doll icons are packed into `public/` 
 The release verifier (`verify:itch:build`) is deliberately INDEPENDENT of the packager: it observes what the running packaged game actually requests/renders (failing on 404s, console errors, or item icons falling back to individual frames) and cross-checks every monster sprite referenced in `phase1Data` against the package - so a file left out of the copied subset (the "Minotaur renders as a torch" class) fails the build instead of shipping.
 
 ### Cache-busting
-The game is shipped as a static HTML bundle to itch.io, whose CDN caches files for a long time keyed by their full URL (query string included). Stale caches are avoided with a `?v=` cache-bust token, handled in two different ways:
+The game is shipped as a static HTML bundle to Cloudflare Pages, whose CDN caches files keyed by their full URL (query string included). Stale caches are avoided with a `?v=` cache-bust token, handled in two different ways:
 
 - **Local dev** (`tools/server.mjs`): every response is sent with `Cache-Control: no-store, max-age=0`, so the browser always re-fetches the latest source. The `?v=` value in `src/app.js` is irrelevant in dev - you never need to touch it.
 - **Release** (`tools/package-itch.mjs`): `patchCacheBusting()` re-stamps every `?v=` token in the packaged HTML/JS with a fresh per-build timestamp (`buildVersion`). This covers both the entry `<script>` in `index.html` AND the in-source module import `src/app.js` -> `"./app.monolith.js?v=..."`, so a changed monolith can never be served from a stale cache. The JS stamp is anchored to a `.js`/`.mjs` specifier so it does NOT disturb the `?v=${MONSTER_ASSET_VERSION}` / `${MAP_STAMP_ASSET_VERSION}` asset URLs inside the monolith. If a required file (`index.html`, `src/app.js`) has no `?v=` token to stamp, the build fails loudly rather than shipping a stale-cache risk.

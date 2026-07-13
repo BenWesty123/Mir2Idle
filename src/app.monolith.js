@@ -26,6 +26,11 @@ import {
 import { SPELL_GROUPS, bodyActionForSpell, spellLabel } from "./spellBodyActions.js";
 import { loadAtlas, loadJson, missingActions, sheetUrl } from "./atlas.js";
 import {
+  ARMOUR_SPECIAL_EFFECT_DEFS,
+  armourVisualEffectForItem,
+  wingActionInterval,
+} from "./armourVisualEffects.js";
+import {
   BASIC_ATTACK_SKILL,
   CRYSTAL_TAOIST_SPELLS,
   CRYSTAL_WARRIOR_SPELLS,
@@ -133,6 +138,8 @@ import {
   WEAPON_REFINE_MAX,
 } from "./persistence/sanitizeCharacter.js";
 import {
+  DEFAULT_AUTO_POTION_HP_THRESHOLD,
+  DEFAULT_AUTO_POTION_MP_THRESHOLD,
   DEFAULT_MUSIC_ENABLED,
   DEFAULT_MUSIC_VOLUME,
   DEFAULT_PROTOTYPE_STATS_ENABLED,
@@ -143,6 +150,7 @@ import {
   MUSIC_SETTINGS_VERSION,
   SCENE_WINDOW_EDGE_PAD,
   clampSceneWindowCoords,
+  normalizedAutoPotionThreshold,
   normalizedMusicMode,
   normalizedVolume,
   sanitizeSettingsState,
@@ -415,6 +423,47 @@ function organisationSkillsUnlocked() {
   return accountUpgradePurchased("rebirth-organisation-skills")
     || Boolean(state.account?.ownedUnlocks?.[ORGANISATION_SKILLS_UNLOCK_KEY]);
 }
+// Time Logging: unlocks a window showing your live XP-per-hour in the current
+// zone. Buyable BOTH with rebirth points (ACCOUNT_UPGRADE_DEFS
+// "rebirth-time-logging") and with tokens (this unlock key). Key + cost mirror
+// UNLOCK_TOKEN_COSTS in tools/stats-worker/worker.js.
+const TIME_LOGGING_UNLOCK_KEY = "time-logging";
+const TIME_LOGGING_TOKEN_COST = 300;
+function timeLoggingUnlocked() {
+  return accountUpgradePurchased("rebirth-time-logging")
+    || Boolean(state.account?.ownedUnlocks?.[TIME_LOGGING_UNLOCK_KEY]);
+}
+// Monthly Supporter: a re-buyable, time-limited (28-day) Cash Shop subscription.
+// While active it grants a multiplicative +10% XP and gold, a multiplicative
+// -10% boss respawn time, and +1 auto-potion and +1 auto-cast slot. Expiry is
+// server-authoritative (SUBSCRIPTION_* in tools/stats-worker/worker.js); the
+// stored epoch-ms timestamp lives in state.account.subscriptions.
+const MONTHLY_SUPPORTER_KEY = "monthly-supporter";
+const MONTHLY_SUPPORTER_TOKEN_COST = 1000;
+const MONTHLY_SUPPORTER_DURATION_MS = 28 * 24 * 60 * 60 * 1000;
+const SUPPORTER_XP_MULTIPLIER = 1.1;
+const SUPPORTER_GOLD_MULTIPLIER = 1.1;
+const SUPPORTER_BOSS_RESPAWN_MULTIPLIER = 0.9;
+const SUPPORTER_BONUS_AUTO_POTION_SLOTS = 1;
+const SUPPORTER_BONUS_AUTOCAST_SLOTS = 1;
+function supporterExpiresAt() {
+  const value = Number(state.account?.subscriptions?.[MONTHLY_SUPPORTER_KEY]);
+  return Number.isFinite(value) && value > 0 ? Math.trunc(value) : 0;
+}
+function supporterActive(now = Date.now()) {
+  return supporterExpiresAt() > now;
+}
+function supporterDaysRemaining(now = Date.now()) {
+  const ms = supporterExpiresAt() - now;
+  return ms > 0 ? Math.ceil(ms / (24 * 60 * 60 * 1000)) : 0;
+}
+// Multiplicative supporter factor applied to a final gold amount (kept as its
+// own factor so it stacks on top of, rather than adding into, other bonuses).
+function applySupporterGold(gold) {
+  const amount = Math.trunc(Number(gold) || 0);
+  if (amount <= 0 || !supporterActive()) return amount;
+  return Math.max(1, Math.round(amount * SUPPORTER_GOLD_MULTIPLIER));
+}
 const REBIRTH_ENABLED = true;
 const CODEX_CATEGORY_DEFS = [
   { id: "all", label: "All" },
@@ -427,6 +476,7 @@ const CODEX_CATEGORY_DEFS = [
   { id: "gems", label: "Gems" },
   { id: "other", label: "Other" },
 ];
+const CODEX_CATEGORY_ORDER = new Map(CODEX_CATEGORY_DEFS.map((category, index) => [category.id, index]));
 const ACHIEVEMENT_UNLOCK_SOUL_COST = 10;
 const ACHIEVEMENTS_TEST_ACCESS = false;
 const ACHIEVEMENT_DEFS = [
@@ -649,6 +699,18 @@ const ACCOUNT_UPGRADE_DEFS = [
     maxTier: 1,
     rebirthCosts: [50],
     summary: "Lets gems and orbs stack in your inventory. Also available in the Cash Shop for tokens.",
+  },
+  {
+    id: "rebirth-time-logging",
+    label: "Time Logging",
+    section: "rebirth",
+    category: "utility",
+    currency: "rebirthPoints",
+    effect: "timeLoggingUnlock",
+    value: 1,
+    maxTier: 1,
+    rebirthCosts: [50],
+    summary: "Adds a window showing your live XP per hour in the current zone. Also available in the Cash Shop for tokens.",
   },
   {
     id: "rebirth-skill-exp-gain",
@@ -1702,7 +1764,7 @@ function offlineGroupAutoUsePotions(member, now, report) {
   member.autoPotionReadyAt = member.autoPotionReadyAt ?? { hp: 0, mp: 0 };
   let used = false;
   for (const kind of ["hp", "mp"].sort((a, b) => offlineGroupResourceRatio(member, a) - offlineGroupResourceRatio(member, b))) {
-    if (offlineGroupResourceRatio(member, kind) >= AUTO_POTION_THRESHOLD) continue;
+    if (offlineGroupResourceRatio(member, kind) >= autoPotionThreshold(kind)) continue;
     if ((member.autoPotionReadyAt[kind] ?? 0) > now) continue;
     if (kind === "hp" && (member.potHealthAmount ?? 0) > 0) continue;
     if (kind === "mp" && (member.potManaAmount ?? 0) > 0) continue;
@@ -1745,7 +1807,7 @@ function offlineGroupAwardKill(zone, enemy, now, report) {
   const goldPerShare = splitPartyRewardAmount(totalGold, shareCount);
   for (const member of recipients) {
     const xp = adjustedKillExperience(xpPerShare, member.game.progress.level, enemy.level ?? 0, member.inventory);
-    const gold = adjustedKillGold(goldPerShare, totalGoldBonusPercent(member.inventory));
+    const gold = applySupporterGold(adjustedKillGold(goldPerShare, totalGoldBonusPercent(member.inventory)));
     offlineGroupApplyMemberReward(member, xp, gold, enemy, now);
   }
 }
@@ -2553,6 +2615,11 @@ const state = {
   spriteSet: "common",
   action: "standing",
   frame: 0,
+  wingFrame: 0,
+  wingLastTick: performance.now(),
+  activeArmourSpecialEffectId: null,
+  armourSpecialEffectStartedAt: 0,
+  armourSpecialEffectAtlases: {},
   playerOneShot: false,
   paused: false,
   smooth: true,
@@ -2593,6 +2660,7 @@ const state = {
     codex: createDefaultAccountCodexState(),
     achievements: createDefaultAccountAchievementState(),
     ownedUnlocks: {},
+    subscriptions: {},
   },
   settings: {
     musicEnabled: DEFAULT_MUSIC_ENABLED,
@@ -2600,6 +2668,8 @@ const state = {
     musicMode: MUSIC_MODE_PLAYLIST,
     sfxEnabled: DEFAULT_SFX_ENABLED,
     sfxVolume: DEFAULT_SFX_VOLUME,
+    autoPotionHpThreshold: DEFAULT_AUTO_POTION_HP_THRESHOLD,
+    autoPotionMpThreshold: DEFAULT_AUTO_POTION_MP_THRESHOLD,
     prototypeStatsEnabled: DEFAULT_PROTOTYPE_STATS_ENABLED,
     prototypeStatsNoticeVersion: 0,
     prototypeResetNoticeVersion: 0,
@@ -2708,6 +2778,7 @@ const state = {
   upgradeCategory: "combat",
   codexCategory: "all",
   codexHideUnfound: false,
+  codexSearchQuery: "",
   codexSelectedItemId: null,
   townPartyIdleMembers: [],
   townPartyIdleEvent: null,
@@ -2882,7 +2953,7 @@ const state = {
     gold: 0,
     log: [],
   },
-  indexes: { armour: 0, hair: 0, weapon: null },
+  indexes: { armour: 0, hair: 0, weapon: null, wing: null },
   atlasIndexes: { armour: null, hair: null, weapon: null },
   atlases: { armour: null, hair: null, weapon: null },
   catalogue: null,
@@ -2902,6 +2973,7 @@ let gamePanelSignature = "";
 let gamePanelDynamicSignature = "";
 let sceneSignature = "";
 let sceneOverlayLiveSignature = "";
+let accountCodexRevision = 0;
 let sceneWindowStack = [];
 const DRAGGABLE_SCENE_WINDOWS = new Set(["character", "inventory"]);
 let sceneWindowDragState = null;
@@ -3052,17 +3124,30 @@ function gameShellHtml() {
         <div class="game-stage-card">
           <div class="stage-shell game-stage-shell">
             <div class="player-resource-hud" id="playerResourceHud" hidden></div>
-            <button
-              type="button"
-              id="teleportRingButton"
-              class="teleport-ring-button"
-              data-open-scene="teleportRing"
-              aria-label="Teleport Ring - warp to boss rooms"
-              title="Teleport Ring"
-              hidden
-            >
-              <img src="./public/ui/teleport-ring.png" alt="" aria-hidden="true" />
-            </button>
+            <div class="stage-corner-buttons">
+              <button
+                type="button"
+                id="teleportRingButton"
+                class="stage-corner-button teleport-ring-button"
+                data-open-scene="teleportRing"
+                aria-label="Teleport Ring - warp to boss rooms"
+                title="Teleport Ring"
+                hidden
+              >
+                <img src="./public/ui/teleport-ring.png" alt="" aria-hidden="true" />
+              </button>
+              <button
+                type="button"
+                id="timeLoggingButton"
+                class="stage-corner-button time-logging-button"
+                data-open-scene="timeLogging"
+                aria-label="Time Logging - view your XP per hour"
+                title="Time Logging"
+                hidden
+              >
+                <span aria-hidden="true">XP/h</span>
+              </button>
+            </div>
             <div class="stage" id="stage">
               <div class="party-switch-bar" id="partySwitchBar" aria-label="Switch party character" hidden></div>
               <div class="crystal-hotbar" id="hotbar" aria-label="Potion hotbar"></div>
@@ -3204,6 +3289,25 @@ async function init() {
   state.healingRestoreAtlas = await loadJson(`./public/spellfx/${HEALING_RESTORE_FX_ID}/atlas.json`).catch(() => null);
   state.townIdleTeleportAtlas = await loadJson(`./public/spellfx/${TOWN_IDLE_TELEPORT_FX_ID}/atlas.json`).catch(() => null);
   state.townIdleReviveAtlas = await loadJson(`./public/spellfx/${REVIVE_FX_ID}/atlas.json`).catch(() => null);
+  // Preload every defined special-effect atlas (native + level effects). Some
+  // are scaffolding for future development and not yet assigned to any item;
+  // the release packager ships all defined effect atlases (see
+  // buildUsedArmourEffectFiles in tools/package-itch.mjs) so these never 404.
+  state.armourSpecialEffectAtlases = Object.fromEntries(
+    await Promise.all(
+      Object.values(ARMOUR_SPECIAL_EFFECT_DEFS).map(async (def) => [
+        def.id,
+        await loadJson(def.atlasPath).catch(() => null),
+      ]),
+    ),
+  );
+  await Promise.all(
+    Object.entries(state.armourSpecialEffectAtlases).flatMap(([effectId, atlas]) => (
+      (atlas?.layers ?? []).map((layer) => (
+        loadCachedImage(`${armourSpecialEffectAssetBase(Number(effectId))}/${layer.sheet}`).catch(() => null)
+      ))
+    )),
+  );
   state.mapLightningAtlas = await loadJson(`./public/spellfx/${MAP_LIGHTNING_FX_ID}/atlas.json`).catch(() => null);
   state.mapHellFireAtlas = await loadJson(`./public/spellfx/${MAP_HELL_FIRE_FX_ID}/atlas.json`).catch(() => null);
   if (state.townIdleTeleportAtlas) await preloadSpellAtlasSheets(TOWN_IDLE_TELEPORT_FX_ID, state.townIdleTeleportAtlas);
@@ -3348,6 +3452,22 @@ function installTestHarness() {
         buttonHidden: document.getElementById("teleportRingButton")?.hidden ?? null,
       };
     },
+    grantTimeLogging() {
+      markUnlockOwned(TIME_LOGGING_UNLOCK_KEY);
+      applyOwnedUnlocks();
+      renderGamePanel();
+      return {
+        owned: timeLoggingUnlocked(),
+        buttonHidden: document.getElementById("timeLoggingButton")?.hidden ?? null,
+      };
+    },
+    recordXpSample(xp = 100, ageMs = 0, zoneId = state.game.activeZoneId) {
+      xpRateSamples.push({ t: performance.now() - Math.max(0, Math.trunc(Number(ageMs) || 0)), xp: Math.trunc(Number(xp) || 0), zoneId });
+      return currentZoneXpRate();
+    },
+    timeLoggingState() {
+      return { unlocked: timeLoggingUnlocked(), mode: state.game.mode, zoneId: state.game.activeZoneId ?? null, rate: currentZoneXpRate() };
+    },
     openTeleportRingMenu() {
       openScene("teleportRing");
       const buttons = [...document.querySelectorAll("[data-teleport-ring-zone]")];
@@ -3355,6 +3475,19 @@ function installTestHarness() {
         zoneId: button.dataset.teleportRingZone,
         text: button.textContent.replace(/\s+/g, " ").trim(),
       }));
+    },
+    // Locally grants/expires the Monthly Supporter perk (bypasses the server) so
+    // the perk math and slot limits can be exercised headlessly.
+    setSupporter(daysFromNow = 28) {
+      setSupporterExpiry(daysFromNow > 0 ? Date.now() + daysFromNow * 24 * 60 * 60 * 1000 : 0);
+      refreshSupporterDependentUi();
+      return {
+        active: supporterActive(),
+        daysRemaining: supporterDaysRemaining(),
+        autoPotionSlots: autoPotionSlotLimit(),
+        autoCastSlots: autoCastSlotLimit(),
+        xpMultiplier: supporterExperienceMultiplier(),
+      };
     },
   };
 }
@@ -3484,6 +3617,7 @@ function createSaveSnapshot() {
       codex: cloneAccountCodexState(state.account.codex),
       achievements: cloneAccountAchievementState(state.account.achievements),
       ownedUnlocks: sanitizeOwnedUnlocks(state.account.ownedUnlocks),
+      subscriptions: sanitizeSubscriptions(state.account.subscriptions),
     },
     game: {
       ...activeCharacter.game,
@@ -3514,6 +3648,14 @@ function createSaveSnapshot() {
       musicTrackId: currentMusicTrack()?.id ?? BACKGROUND_MUSIC_TRACKS[0]?.id ?? null,
       sfxEnabled: Boolean(state.settings.sfxEnabled),
       sfxVolume: normalizedVolume(state.settings.sfxVolume),
+      autoPotionHpThreshold: normalizedAutoPotionThreshold(
+        state.settings.autoPotionHpThreshold,
+        DEFAULT_AUTO_POTION_HP_THRESHOLD,
+      ),
+      autoPotionMpThreshold: normalizedAutoPotionThreshold(
+        state.settings.autoPotionMpThreshold,
+        DEFAULT_AUTO_POTION_MP_THRESHOLD,
+      ),
       prototypeStatsEnabled: Boolean(state.settings.prototypeStatsEnabled),
       prototypeStatsNoticeVersion: Math.max(0, Math.trunc(Number(state.settings.prototypeStatsNoticeVersion) || 0)),
       prototypeResetNoticeVersion: Math.max(0, Math.trunc(Number(state.settings.prototypeResetNoticeVersion) || 0)),
@@ -3674,6 +3816,7 @@ function accountRestoreOptions() {
     sanitizeCodex: sanitizeAccountCodexState,
     sanitizeAchievements: sanitizeAccountAchievementState,
     sanitizeOwnedUnlocks,
+    sanitizeSubscriptions,
     sanitizeBossKills,
   };
 }
@@ -3771,6 +3914,7 @@ function applySaveSnapshot(snapshot) {
     accountRestoreOptions(),
   );
   state.account = account;
+  noteAccountCodexChanged();
   const ranUnfairSkillPurge = maybePurgeUnfairSkills(snapshot);
   syncAccountBossKillsToCharacters();
   syncAccountBossRespawnsToCharacters();
@@ -4126,12 +4270,29 @@ function sanitizeOwnedUnlocks(owned) {
     STORAGE_PAGE_UNLOCK_KEY,
     TELEPORT_RING_UNLOCK_KEY,
     ORGANISATION_SKILLS_UNLOCK_KEY,
+    TIME_LOGGING_UNLOCK_KEY,
     ...CHARACTER_IDS.map((classId) => inventoryPageUnlockKey(classId)),
   ]);
   const result = {};
   if (owned && typeof owned === "object") {
     for (const [key, value] of Object.entries(owned)) {
       if (value && valid.has(key)) result[key] = true;
+    }
+  }
+  return result;
+}
+
+// Server-authoritative expiry timestamps for re-buyable subscriptions. Keeps only
+// known keys with a positive epoch-ms expiry; the server is the source of truth
+// (refreshed on boot), this is just the local mirror used offline and for the UI.
+function sanitizeSubscriptions(subscriptions) {
+  const valid = new Set([MONTHLY_SUPPORTER_KEY]);
+  const result = {};
+  if (subscriptions && typeof subscriptions === "object") {
+    for (const [key, value] of Object.entries(subscriptions)) {
+      if (!valid.has(key)) continue;
+      const expiresAt = Math.max(0, Math.trunc(Number(value) || 0));
+      if (expiresAt > 0) result[key] = expiresAt;
     }
   }
   return result;
@@ -4607,6 +4768,7 @@ function performAccountRebirth() {
   resetNonRebirthAccountUpgrades();
   state.account.codex = permanentCodex;
   state.account.achievements = permanentAchievements;
+  noteAccountCodexChanged();
   ensureAccountStats();
   let pointsGained = 0;
   if (soulsConverted > 0) {
@@ -6068,10 +6230,10 @@ function offlineEnemyAttack(enemy, now, report) {
 function awardOfflineEnemyRewards(zone, enemy, report) {
   const reward = zone?.rewards ?? { gold: [1, 2] };
   const xp = adjustedKillExperience(enemy?.experience ?? 0, state.game.progress.level, enemy?.level ?? 0);
-  const gold = adjustedKillGold(
+  const gold = applySupporterGold(adjustedKillGold(
     randomInt(reward.gold[0], reward.gold[1]),
     totalGoldBonusPercent(),
-  );
+  ));
   const drops = isRedThunderZumaEnemy(enemy)
     ? rollRedThunderZumaDrops()
     : rollZoneDrops(zone, enemy);
@@ -6437,6 +6599,21 @@ function setSfxEnabled(enabled) {
 
 function setSfxVolume(value) {
   state.settings.sfxVolume = normalizedVolume(value);
+  saveGameState(true);
+  sceneSignature = "";
+  renderSceneOverlay();
+}
+
+function autoPotionThreshold(kind) {
+  const fallback = kind === "mp" ? DEFAULT_AUTO_POTION_MP_THRESHOLD : DEFAULT_AUTO_POTION_HP_THRESHOLD;
+  const saved = kind === "mp" ? state.settings.autoPotionMpThreshold : state.settings.autoPotionHpThreshold;
+  return normalizedAutoPotionThreshold(saved, fallback);
+}
+
+function setAutoPotionThreshold(kind, value) {
+  const next = normalizedAutoPotionThreshold(value, autoPotionThreshold(kind));
+  if (kind === "mp") state.settings.autoPotionMpThreshold = next;
+  else state.settings.autoPotionHpThreshold = next;
   saveGameState(true);
   sceneSignature = "";
   renderSceneOverlay();
@@ -7688,6 +7865,7 @@ function resetRuntimeGameState() {
   state.account.stats = createDefaultAccountStats();
   state.account.codex = createDefaultAccountCodexState();
   state.account.achievements = createDefaultAccountAchievementState();
+  noteAccountCodexChanged();
   state.activeCharacterId = "Warrior";
   state.game = {
     mode: "town",
@@ -7721,6 +7899,8 @@ function resetRuntimeGameState() {
   state.settings.musicMode = MUSIC_MODE_PLAYLIST;
   state.settings.sfxEnabled = DEFAULT_SFX_ENABLED;
   state.settings.sfxVolume = DEFAULT_SFX_VOLUME;
+  state.settings.autoPotionHpThreshold = DEFAULT_AUTO_POTION_HP_THRESHOLD;
+  state.settings.autoPotionMpThreshold = DEFAULT_AUTO_POTION_MP_THRESHOLD;
   state.settings.prototypeStatsEnabled = DEFAULT_PROTOTYPE_STATS_ENABLED;
   state.settings.prototypeStatsNoticeVersion = 0;
   state.settings.prototypeResetNoticeVersion = 0;
@@ -9105,7 +9285,7 @@ function tryAddMiningOre(itemId, purity) {
   }
   state.inventory.items.push(createOreInventoryEntry(itemId, purity));
   syncBossPartyControlledInventoryFromState();
-  gamePanelSignature = "";
+  gamePanelDynamicSignature = "";
   sceneSignature = "";
   hotbarSignature = "";
   return true;
@@ -10040,7 +10220,7 @@ function addInventoryItem(itemId, quantity = 1, options = {}) {
   }
 
   syncBossPartyControlledInventoryFromState();
-  gamePanelSignature = "";
+  gamePanelDynamicSignature = "";
   return added;
 }
 
@@ -12426,6 +12606,7 @@ function applyGemUpgrade(gemEntryId, targetEntryId) {
   removeInventoryEntry(gemEntry.id, 1);
 
   const success = Math.random() < chance;
+  const gemKindLabel = gemDef.kind === "orb" ? "Orb" : "Gem";
   if (success) {
     applyGemStatUpgrade(targetEntry, targetItem, gemDef);
     targetEntry.gemCount = Math.max(0, Math.trunc(Number(targetEntry.gemCount) || 0)) + 1;
@@ -12433,7 +12614,7 @@ function applyGemUpgrade(gemEntryId, targetEntryId) {
     const amount = gemDef.durabilityBonus > 0 ? gemDef.durabilityBonus : (gemDef.stat?.amount ?? 1);
     playSfx("item.equip.weapon", { volume: 0.42, throttleMs: 80 });
     pushBattleLog(`${targetName} upgraded with ${gemName}: +${amount} ${statLabel}.`);
-    addLootNotice(`${targetItem.name} gem upgrade`, "item");
+    addConsumableOutcomeNotice(`${gemKindLabel}: Success! +${amount} ${statLabel}`, "success");
   } else if (gemDef.kind === "gem" && Math.random() < GEM_FAIL_DESTROY_CHANCE) {
     if (isEquippedEntry(targetEntry.id)) {
       for (const slotId of Object.keys(state.inventory.equipment)) {
@@ -12443,9 +12624,11 @@ function applyGemUpgrade(gemEntryId, targetEntryId) {
     removeInventoryEntry(targetEntry.id, 1);
     playSfx("item.move", { volume: 0.38, throttleMs: 80 });
     pushBattleLog(`${gemName} failed and destroyed ${targetName}.`);
+    addConsumableOutcomeNotice(`${gemKindLabel}: Item destroyed!`, "destroy");
   } else {
     playSfx("item.move", { volume: 0.38, throttleMs: 80 });
     pushBattleLog(`${gemName} had no effect on ${targetName}.`);
+    addConsumableOutcomeNotice(`${gemKindLabel}: No effect`, "fail");
   }
 
   hideItemTooltip();
@@ -12590,14 +12773,23 @@ function zoneLabel(zoneId) {
 }
 
 function ensureAccountCodex() {
-  state.account.codex = sanitizeAccountCodexState(state.account?.codex);
+  // Codex is sanitized on load/import/clone. Keep this a cheap shape check so
+  // UI reads (hundreds per Codex open) never rebuild the whole discovery map.
+  const current = state.account?.codex;
+  if (!current || typeof current !== "object" || !current.items || typeof current.items !== "object") {
+    state.account.codex = createDefaultAccountCodexState();
+  }
   return state.account.codex;
 }
 
+function noteAccountCodexChanged() {
+  accountCodexRevision += 1;
+  if (state.openScenes?.codex) sceneSignature = "";
+}
+
 function codexItemDiscovery(itemId) {
-  const item = itemDefinition(itemId);
-  if (!item) return null;
-  return ensureAccountCodex().items[item.id] ?? null;
+  if (!itemId) return null;
+  return ensureAccountCodex().items[itemId] ?? null;
 }
 
 function codexDropSource({ zone = activeZone(), enemy = state.battle.enemy, kind = "zone" } = {}) {
@@ -12655,7 +12847,7 @@ function recordCodexDrop(itemId, source = codexDropSource()) {
   sourceEntry.lastSeenAt = now;
   entry.sources[sourceId] = sourceEntry;
   codex.items[item.id] = entry;
-  if (state.openScenes?.codex) sceneSignature = "";
+  noteAccountCodexChanged();
   return true;
 }
 
@@ -12915,10 +13107,15 @@ function baseBossRespawnMinutesForZone(zoneId) {
 }
 
 function effectiveBossRespawnMinutesForZone(zoneId) {
-  return adjustedBossRespawnMinutes(
+  const minutes = adjustedBossRespawnMinutes(
     baseBossRespawnMinutesForZone(zoneId),
     rebirthBossRespawnReductionPercent(),
   );
+  // Monthly Supporter shaves a further multiplicative 10% off the respawn wait.
+  if (minutes > 0 && supporterActive()) {
+    return Math.max(1, Math.round(minutes * SUPPORTER_BOSS_RESPAWN_MULTIPLIER));
+  }
+  return minutes;
 }
 
 function accountUpgradeIsMaxed(upgrade) {
@@ -12994,13 +13191,17 @@ function equipmentExperienceRate(inventory = state.inventory) {
   return 1 + equippedXpBonusPercent(inventory) / 100;
 }
 
+function supporterExperienceMultiplier() {
+  return supporterActive() ? SUPPORTER_XP_MULTIPLIER : 1;
+}
+
 function adjustedKillExperience(amount, playerLevel, monsterLevel, inventory = state.inventory) {
   return crystalAdjustedExperience(
     amount,
     playerLevel,
     monsterLevel,
     true,
-    rebirthExperienceRate() * equipmentExperienceRate(inventory) * TESTING_XP_MULTIPLIER,
+    rebirthExperienceRate() * equipmentExperienceRate(inventory) * supporterExperienceMultiplier() * TESTING_XP_MULTIPLIER,
   );
 }
 
@@ -13078,20 +13279,28 @@ function maxAccountUpgradeValue(effect) {
   ), 0);
 }
 
+function supporterAutoCastBonusSlots() {
+  return supporterActive() ? SUPPORTER_BONUS_AUTOCAST_SLOTS : 0;
+}
+
+function supporterAutoPotionBonusSlots() {
+  return supporterActive() ? SUPPORTER_BONUS_AUTO_POTION_SLOTS : 0;
+}
+
 function autoCastSlotLimit() {
-  return BASE_AUTOCAST_SLOTS + accountUpgradeValue("autocastSlots");
+  return BASE_AUTOCAST_SLOTS + accountUpgradeValue("autocastSlots") + supporterAutoCastBonusSlots();
 }
 
 function maxAutoCastSlotLimit() {
-  return BASE_AUTOCAST_SLOTS + maxAccountUpgradeValue("autocastSlots");
+  return BASE_AUTOCAST_SLOTS + maxAccountUpgradeValue("autocastSlots") + supporterAutoCastBonusSlots();
 }
 
 function autoPotionSlotLimit() {
-  return Math.min(HOTBAR_SLOT_COUNT, BASE_AUTO_POTION_SLOTS + accountUpgradeValue("autoPotionSlots"));
+  return Math.min(HOTBAR_SLOT_COUNT, BASE_AUTO_POTION_SLOTS + accountUpgradeValue("autoPotionSlots") + supporterAutoPotionBonusSlots());
 }
 
 function maxAutoPotionSlotLimit() {
-  return Math.min(HOTBAR_SLOT_COUNT, BASE_AUTO_POTION_SLOTS + maxAccountUpgradeValue("autoPotionSlots"));
+  return Math.min(HOTBAR_SLOT_COUNT, BASE_AUTO_POTION_SLOTS + maxAccountUpgradeValue("autoPotionSlots") + supporterAutoPotionBonusSlots());
 }
 
 function autoPotionSlots() {
@@ -14890,13 +15099,16 @@ function useBenedictionOilEntry(entryId) {
   if (outcome === "bless") {
     weaponEntry.bonusStats.luck = Math.min(BENEDICTION_MAX_WEAPON_LUCK, currentLuck + 1);
     pushBattleLog(`Benediction Oil blessed ${weaponName}: ${benedictionLuckLabel(weaponEntry.bonusStats.luck)}.`);
+    addConsumableOutcomeNotice(`Benediction: Blessed (${benedictionLuckLabel(weaponEntry.bonusStats.luck)})`, "success");
     playSfx("item.equip.weapon", { volume: 0.42, throttleMs: 120 });
   } else if (outcome === "curse") {
     weaponEntry.bonusStats.luck = Math.max(-CRYSTAL_MAX_LUCK, currentLuck - 1);
     pushBattleLog(`Benediction Oil cursed ${weaponName}: ${benedictionLuckLabel(weaponEntry.bonusStats.luck)}.`);
+    addConsumableOutcomeNotice(`Benediction: Cursed (${benedictionLuckLabel(weaponEntry.bonusStats.luck)})`, "curse");
     playSfx("combat.miss", { volume: 0.34, throttleMs: 120 });
   } else {
     pushBattleLog(`Benediction Oil had no effect on ${weaponName}.`);
+    addConsumableOutcomeNotice("Benediction: No effect", "fail");
     playSfx("combat.miss", { volume: 0.24, throttleMs: 120 });
   }
 
@@ -15135,7 +15347,7 @@ function autoUsePotionForKind(kind, now) {
 function shouldAutoUsePotion(kind, now) {
   const player = state.battle.player;
   if (!player) return false;
-  if (resourceRatio(kind) >= AUTO_POTION_THRESHOLD) return false;
+  if (resourceRatio(kind) >= autoPotionThreshold(kind)) return false;
   if ((state.battle.autoPotionReadyAt?.[kind] ?? 0) > now) return false;
   if (kind === "hp" && (state.battle.potHealthAmount ?? 0) > 0) return false;
   if (kind === "mp" && (state.battle.potManaAmount ?? 0) > 0) return false;
@@ -15773,14 +15985,70 @@ function applyEquippedStatsToBattlePlayer() {
   state.battle.player = nextPlayer;
 }
 
+function equippedArmourVisualEffect() {
+  return armourVisualEffectForItem(equippedItem("armour"));
+}
+
+function desiredEquippedWingIndex() {
+  const effect = equippedArmourVisualEffect();
+  if (effect?.kind !== "wing") return null;
+  const index = effect.index;
+  return state.catalogue?.layers?.wing?.indexes?.includes(index) ? index : null;
+}
+
+function syncArmourSpecialEffectState() {
+  const effect = equippedArmourVisualEffect();
+  const nextId = effect?.kind === "special" ? effect.id : null;
+  if (nextId === state.activeArmourSpecialEffectId) return;
+  state.activeArmourSpecialEffectId = nextId;
+  state.armourSpecialEffectStartedAt = nextId ? performance.now() : 0;
+}
+
+function bossPartyMemberArmourVisualEffect(member) {
+  const equipment = member?.inventory?.equipment ?? {};
+  for (const entryId of Object.values(equipment)) {
+    if (!entryId) continue;
+    const entry = bossPartyInventoryEntryById(member, entryId);
+    const item = entry ? itemDefinition(entry.itemId) : null;
+    if (item?.slot === "armour") return armourVisualEffectForItem(item);
+  }
+  return null;
+}
+
+function bossPartyMemberWingIndex(member) {
+  const effect = bossPartyMemberArmourVisualEffect(member);
+  if (effect?.kind !== "wing") return null;
+  const index = effect.index;
+  return state.catalogue?.layers?.wing?.indexes?.includes(index) ? index : null;
+}
+
+function syncBossPartyMemberArmourSpecialEffect(member) {
+  const effect = bossPartyMemberArmourVisualEffect(member);
+  const nextId = effect?.kind === "special" ? effect.id : null;
+  if (nextId === member.activeArmourSpecialEffectId) return;
+  member.activeArmourSpecialEffectId = nextId;
+  member.armourSpecialEffectStartedAt = nextId ? performance.now() : 0;
+}
+
 function applyEquippedVisualIndexes() {
   const changedLayers = [];
-  for (const layer of ["weapon", "armour"]) {
-    const index = desiredEquippedVisualIndex(layer);
+  for (const layer of ["weapon", "armour", "wing", "weaponGlow"]) {
+    const index = layer === "wing"
+      ? desiredEquippedWingIndex()
+      : layer === "weaponGlow"
+        ? desiredEquippedWeaponGlowIndex()
+        : desiredEquippedVisualIndex(layer);
     const previousIndex = state.indexes[layer];
     state.indexes[layer] = index;
-    if (state.indexes[layer] !== previousIndex) changedLayers.push(layer);
+    if (state.indexes[layer] !== previousIndex) {
+      changedLayers.push(layer);
+      if (layer === "wing") {
+        state.wingFrame = 0;
+        state.wingLastTick = performance.now();
+      }
+    }
   }
+  syncArmourSpecialEffectState();
   return changedLayers;
 }
 
@@ -15794,6 +16062,14 @@ function desiredEquippedVisualIndex(layer) {
   const index = item?.visual?.index ?? fallback;
   if (index == null) return fallback;
   return state.catalogue?.layers?.[layer]?.indexes?.includes(index) ? index : fallback;
+}
+
+function desiredEquippedWeaponGlowIndex() {
+  if (state.game.mode === "mining") return null;
+  const item = equippedVisualItem("weapon");
+  const glow = Number(item?.visualWeaponGlow);
+  if (!Number.isFinite(glow) || glow <= 0) return null;
+  return state.catalogue?.layers?.weaponGlow?.indexes?.includes(glow) ? glow : null;
 }
 
 function equippedVisualItem(layer) {
@@ -15838,6 +16114,7 @@ function renderGamePanel() {
   syncAchievementsNavigation();
   syncCashShopNavigation();
   syncTeleportRingButton();
+  syncTimeLoggingButton();
   if (IS_GAME_UI) {
     renderGameUiPanel();
     return;
@@ -15956,13 +16233,18 @@ function renderGameUiPanel() {
   document.body.dataset.gameMode = game.mode;
   const hasBossSwarmPanel = game.mode !== "mining" && Boolean(groupDungeonBossSwarmZone(zone) && groupDungeonBossSwarmState());
   const hasWavePanel = game.mode !== "mining" && Boolean(groupDungeonZone(zone) && !groupDungeonBossZone(zone) && !groupDungeonBossSwarmZone(zone) && groupDungeonWaveState());
+  // Layout only depends on mode/zone — wave/swarm cards live in a always-present
+  // slot and must not force a full rebuild (that destroys Return To Town mid-click).
   const layoutSignature = JSON.stringify({
     ui: UI_MODE,
     mode: game.mode,
     activeZoneId: game.activeZoneId,
-    hasWavePanel: hasWavePanel || hasBossSwarmPanel,
   });
   if (layoutSignature !== gamePanelSignature) {
+    // Same held-pointer guard as the scene overlay: mousedown + mouseup must land
+    // on the same node or the browser never fires click.
+    if (isPointerHeldWithin(els.gamePanel)) return;
+
     gamePanelSignature = layoutSignature;
     gamePanelDynamicSignature = "";
 
@@ -16031,6 +16313,12 @@ function renderGameUiPanel() {
     groupDungeonBossSwarm: groupDungeonBossSwarmSignature(),
   });
   if (dynamicSignature === gamePanelDynamicSignature) return;
+  // Defer interactive button HTML swaps while the pointer is down on them.
+  if (isPointerHeldWithin(els.gamePanel.querySelector("[data-game-ui-advance-floor]"))
+    || isPointerHeldWithin(els.gamePanel.querySelector("[data-game-ui-damage-report]"))
+    || isPointerHeldWithin(els.gamePanel.querySelector("#returnToTown"))) {
+    return;
+  }
   gamePanelDynamicSignature = dynamicSignature;
 
   setGamePanelText("[data-game-ui-zone-label]", zone?.label ?? (game.mode === "mining" ? "Mine" : "Hunting Zone"));
@@ -16150,6 +16438,13 @@ function syncTeleportRingButton() {
   const button = document.getElementById("teleportRingButton");
   if (button) button.hidden = !show;
   if (!show && state.openScenes?.teleportRing) state.openScenes.teleportRing = false;
+}
+
+function syncTimeLoggingButton() {
+  const show = timeLoggingUnlocked() && UI_MODE === "game";
+  const button = document.getElementById("timeLoggingButton");
+  if (button) button.hidden = !show;
+  if (!show && state.openScenes?.timeLogging) state.openScenes.timeLogging = false;
 }
 
 function bindSceneButtons(rootEl) {
@@ -16272,6 +16567,30 @@ function bindSceneButtons(rootEl) {
       renderSceneOverlay();
     });
   });
+  rootEl.querySelectorAll("[data-codex-search]").forEach((input) => {
+    input.addEventListener("input", () => {
+      state.codexSearchQuery = String(input.value ?? "");
+      noteSceneOverlayInteraction(900);
+      sceneSignature = "";
+      renderSceneOverlay();
+    });
+    input.addEventListener("keydown", (event) => {
+      if (event.key !== "Escape") return;
+      if (!state.codexSearchQuery) return;
+      event.preventDefault();
+      state.codexSearchQuery = "";
+      noteSceneOverlayInteraction(900);
+      sceneSignature = "";
+      renderSceneOverlay();
+    });
+  });
+  rootEl.querySelectorAll("[data-codex-clear-search]").forEach((button) => {
+    button.addEventListener("click", () => {
+      state.codexSearchQuery = "";
+      sceneSignature = "";
+      renderSceneOverlay();
+    });
+  });
   rootEl.querySelectorAll("[data-unlock-achievements]").forEach((button) => {
     button.addEventListener("click", () => unlockAchievementsFeature());
   });
@@ -16313,6 +16632,7 @@ function initialOpenScenesFromUrl() {
     leaderboard: scenes.has("leaderboard"),
     cashShop: scenes.has("cashShop") || scenes.has("shop"),
     teleportRing: scenes.has("teleportRing"),
+    timeLogging: scenes.has("timeLogging"),
   };
 }
 
@@ -16329,7 +16649,7 @@ function npcActiveScene() {
 }
 
 function currentOverlayScenes() {
-  const openScenes = ["characterSelect", "character", "inventory", "codex", "achievements", "upgrades", "gettingStarted", "options", "leaderboard", "cashShop", "teleportRing"].filter((scene) => state.openScenes[scene]);
+  const openScenes = ["characterSelect", "character", "inventory", "codex", "achievements", "upgrades", "gettingStarted", "options", "leaderboard", "cashShop", "teleportRing", "timeLogging"].filter((scene) => state.openScenes[scene]);
   const npcScene = npcActiveScene();
   const overlayScenes = npcScene ? [...openScenes, npcScene] : openScenes;
   return [...overlayScenes, ...craftingCubeCompanionScenes()];
@@ -16339,7 +16659,7 @@ function isSceneWindowOpen(scene) {
   if (scene === "craftingCubeRecipes") {
     return state.activeScene === "craftingCube" && Boolean(state.craftingCube?.recipesOpen);
   }
-  if (scene === "character" || scene === "inventory" || scene === "codex" || scene === "achievements" || scene === "upgrades" || scene === "characterSelect" || scene === "gettingStarted" || scene === "options" || scene === "leaderboard" || scene === "cashShop" || scene === "teleportRing") {
+  if (scene === "character" || scene === "inventory" || scene === "codex" || scene === "achievements" || scene === "upgrades" || scene === "characterSelect" || scene === "gettingStarted" || scene === "options" || scene === "leaderboard" || scene === "cashShop" || scene === "teleportRing" || scene === "timeLogging") {
     return Boolean(state.openScenes[scene]);
   }
   return state.activeScene === scene;
@@ -16405,9 +16725,10 @@ function toggleOpenScene(scene, options = {}) {
 }
 
 function openScene(scene, updateUrl = true) {
-  if (!["character", "inventory", "codex", "achievements", "upgrades", "characterSelect", "gettingStarted", "options", "leaderboard", "cashShop", "teleportRing"].includes(scene)) return;
+  if (!["character", "inventory", "codex", "achievements", "upgrades", "characterSelect", "gettingStarted", "options", "leaderboard", "cashShop", "teleportRing", "timeLogging"].includes(scene)) return;
   if (scene === "achievements" && !achievementsEnabled()) return;
   if (scene === "teleportRing" && !teleportRingOwned()) return;
+  if (scene === "timeLogging" && !timeLoggingUnlocked()) return;
   state.game.selectedTownNpcId = null;
   if (state.activeScene === "townNpc" || state.activeScene === "storage" || state.activeScene === "bossEntry" || state.activeScene === "weaponRefine" || state.activeScene === "craftingCube") {
     removeSceneWindowFromStack(state.activeScene);
@@ -16424,6 +16745,7 @@ function openScene(scene, updateUrl = true) {
     state.openScenes.leaderboard = false;
     state.openScenes.cashShop = false;
     state.openScenes.teleportRing = false;
+    state.openScenes.timeLogging = false;
   } else {
     state.openScenes.characterSelect = false;
   }
@@ -16446,7 +16768,7 @@ function closeScene(scene = null, updateUrl = true) {
     updateUrl = scene;
     scene = null;
   }
-  if (scene === "character" || scene === "inventory" || scene === "codex" || scene === "achievements" || scene === "upgrades" || scene === "characterSelect" || scene === "gettingStarted" || scene === "options" || scene === "leaderboard" || scene === "cashShop" || scene === "teleportRing") {
+  if (scene === "character" || scene === "inventory" || scene === "codex" || scene === "achievements" || scene === "upgrades" || scene === "characterSelect" || scene === "gettingStarted" || scene === "options" || scene === "leaderboard" || scene === "cashShop" || scene === "teleportRing" || scene === "timeLogging") {
     state.openScenes[scene] = false;
     if (scene === "inventory") state.pendingInventoryDestroyEntryId = null;
     if (scene === "upgrades") state.pendingRebirthConfirm = false;
@@ -16526,7 +16848,8 @@ function renderSceneOverlay(options = {}) {
   const deferUserInteraction = Boolean(options.deferUserInteraction);
   if (!achievementsEnabled()) state.openScenes.achievements = false;
   if (state.openScenes.teleportRing && !teleportRingOwned()) state.openScenes.teleportRing = false;
-  const openScenes = ["characterSelect", "character", "inventory", "codex", "achievements", "upgrades", "gettingStarted", "options", "leaderboard", "cashShop", "teleportRing"].filter((scene) => state.openScenes[scene]);
+  if (state.openScenes.timeLogging && !timeLoggingUnlocked()) state.openScenes.timeLogging = false;
+  const openScenes = ["characterSelect", "character", "inventory", "codex", "achievements", "upgrades", "gettingStarted", "options", "leaderboard", "cashShop", "teleportRing", "timeLogging"].filter((scene) => state.openScenes[scene]);
   const overlayScenes = currentOverlayScenes();
   const destroyConfirmHtml = inventoryDestroyConfirmHtml();
   const rebirthConfirmHtmlContent = rebirthConfirmHtml();
@@ -16747,6 +17070,7 @@ function buildSceneOverlaySignature(openScenes, bossEntryZoneId) {
     inventoryPage: state.inventoryPage,
     codexCategory: state.codexCategory,
     codexHideUnfound: state.codexHideUnfound,
+    codexSearchQuery: state.codexSearchQuery,
     codexSelectedItemId: state.codexSelectedItemId,
     storagePage: state.storagePage,
     pendingStorageUnlock: state.pendingStorageUnlock,
@@ -16821,7 +17145,8 @@ function buildSceneOverlaySignature(openScenes, bossEntryZoneId) {
     payload.inventoryItems = state.inventory.items.map(inventoryEntrySignature);
   }
   if (openScenes.includes("codex")) {
-    payload.codex = state.account.codex;
+    // Revision only - do not stringify the full discovery map every overlay tick.
+    payload.codexRevision = accountCodexRevision;
     payload.itemDataVersion = state.itemData.items.length;
   }
   if (openScenes.includes("achievements")) {
@@ -16957,6 +17282,7 @@ function sceneClassName(scene) {
   if (scene === "leaderboard") return "scene-window leaderboard-window";
   if (scene === "cashShop") return "scene-window cash-shop-window";
   if (scene === "teleportRing") return "scene-window teleport-ring-window";
+  if (scene === "timeLogging") return "scene-window time-logging-window";
   return "scene-window";
 }
 
@@ -16976,6 +17302,7 @@ function sceneTitle(scene) {
   if (scene === "leaderboard") return "Social";
   if (scene === "cashShop") return "Cash Shop";
   if (scene === "teleportRing") return "Teleport Ring";
+  if (scene === "timeLogging") return "Time Logging";
   if (scene === "bossEntry") {
     const zone = bossEntryZone();
     if (groupDungeonZone(zone)) return zone?.label ?? "Group Dungeon";
@@ -16997,6 +17324,7 @@ function sceneBodyHtml(scene) {
   if (scene === "leaderboard") return leaderboardSceneHtml();
   if (scene === "cashShop") return cashShopSceneHtml();
   if (scene === "teleportRing") return teleportRingSceneHtml();
+  if (scene === "timeLogging") return timeLoggingSceneHtml();
   if (scene === "bossEntry") return bossEntrySceneHtml();
   if (scene === "weaponRefine") return weaponRefineSceneHtml();
   if (scene === "craftingCube") return craftingCubeSceneHtml();
@@ -17021,38 +17349,84 @@ function codexCategoryForItem(item) {
   return "other";
 }
 
+function compareCodexItems(a, b) {
+  const categoryOrder = (CODEX_CATEGORY_ORDER.get(codexCategoryForItem(a)) ?? 99)
+    - (CODEX_CATEGORY_ORDER.get(codexCategoryForItem(b)) ?? 99);
+  if (categoryOrder !== 0) return categoryOrder;
+  const slotOrder = String(a.slot ?? "").localeCompare(String(b.slot ?? ""));
+  if (slotOrder !== 0) return slotOrder;
+  const levelA = Number(a.requirements?.type === "level" ? a.requirements.amount : 0) || 0;
+  const levelB = Number(b.requirements?.type === "level" ? b.requirements.amount : 0) || 0;
+  if (levelA !== levelB) return levelA - levelB;
+  return String(a.name).localeCompare(String(b.name));
+}
+
 function codexCategoryItems(categoryId = state.codexCategory) {
   const category = normalizeCodexCategory(categoryId);
   return [...(state.itemData.items ?? [])]
     .filter((item) => category === "all" || codexCategoryForItem(item) === category)
-    .sort((a, b) => {
-      const categoryOrder = CODEX_CATEGORY_DEFS.findIndex((entry) => entry.id === codexCategoryForItem(a))
-        - CODEX_CATEGORY_DEFS.findIndex((entry) => entry.id === codexCategoryForItem(b));
-      if (categoryOrder !== 0) return categoryOrder;
-      const slotOrder = String(a.slot ?? "").localeCompare(String(b.slot ?? ""));
-      if (slotOrder !== 0) return slotOrder;
-      const levelA = Number(a.requirements?.type === "level" ? a.requirements.amount : 0) || 0;
-      const levelB = Number(b.requirements?.type === "level" ? b.requirements.amount : 0) || 0;
-      if (levelA !== levelB) return levelA - levelB;
-      return String(a.name).localeCompare(String(b.name));
-    });
+    .sort(compareCodexItems);
+}
+
+function codexProgressByCategory() {
+  const progress = Object.fromEntries(
+    CODEX_CATEGORY_DEFS.map((category) => [category.id, { discovered: 0, total: 0 }]),
+  );
+  const discoveries = ensureAccountCodex().items;
+  for (const item of state.itemData.items ?? []) {
+    const category = codexCategoryForItem(item);
+    const discovered = Boolean(discoveries[item.id]);
+    progress.all.total += 1;
+    if (discovered) progress.all.discovered += 1;
+    const bucket = progress[category];
+    if (!bucket) continue;
+    bucket.total += 1;
+    if (discovered) bucket.discovered += 1;
+  }
+  return progress;
 }
 
 function codexCategoryProgress(categoryId) {
-  const items = codexCategoryItems(categoryId);
-  const discovered = items.filter((item) => codexItemDiscovery(item.id)).length;
-  return { discovered, total: items.length };
+  return codexProgressByCategory()[normalizeCodexCategory(categoryId)]
+    ?? { discovered: 0, total: 0 };
+}
+
+function normalizeCodexSearchQuery(query = state.codexSearchQuery) {
+  return String(query ?? "").trim().toLowerCase();
+}
+
+function codexItemMatchesSearch(item, query = state.codexSearchQuery) {
+  const normalized = normalizeCodexSearchQuery(query);
+  if (!normalized) return true;
+  // Never match on undiscovered names — that would spoil hidden entries.
+  if (!codexItemDiscovery(item.id)) return false;
+  if (String(item.name ?? "").toLowerCase().includes(normalized)) return true;
+  const slot = item.slot && item.slot !== "consumable" ? slotLabel(item.slot) : title(item.type);
+  if (String(slot).toLowerCase().includes(normalized)) return true;
+  const req = itemRequirementLabel(item.requirements);
+  return Boolean(req && String(req).toLowerCase().includes(normalized));
 }
 
 function codexSceneHtml() {
   const categoryId = normalizeCodexCategory(state.codexCategory);
+  const progressByCategory = codexProgressByCategory();
+  const searchQuery = String(state.codexSearchQuery ?? "");
+  const normalizedSearch = normalizeCodexSearchQuery(searchQuery);
   const categoryItems = codexCategoryItems(categoryId);
-  const items = state.codexHideUnfound
+  let items = state.codexHideUnfound
     ? categoryItems.filter((item) => codexItemDiscovery(item.id))
     : categoryItems;
+  if (normalizedSearch) {
+    items = items.filter((item) => codexItemMatchesSearch(item, searchQuery));
+  }
   const selectedItem = codexSelectedItem(items);
-  const totalProgress = codexCategoryProgress("all");
-  const categoryProgress = codexCategoryProgress(categoryId);
+  const totalProgress = progressByCategory.all;
+  const categoryProgress = progressByCategory[categoryId] ?? { discovered: 0, total: 0 };
+  const emptyMessage = normalizedSearch
+    ? "No matching discovered items."
+    : state.codexHideUnfound
+      ? "No discovered items in this category yet."
+      : "No items in this category.";
   return `
     <section class="codex-panel">
       <div class="codex-summary">
@@ -17073,7 +17447,7 @@ function codexSceneHtml() {
       </div>
       <div class="codex-category-tabs">
         ${CODEX_CATEGORY_DEFS.map((category) => {
-          const progress = codexCategoryProgress(category.id);
+          const progress = progressByCategory[category.id] ?? { discovered: 0, total: 0 };
           return `
             <button
               type="button"
@@ -17086,11 +17460,25 @@ function codexSceneHtml() {
           `;
         }).join("")}
       </div>
+      <div class="codex-search">
+        <input
+          type="search"
+          data-codex-search
+          placeholder="Search discovered items..."
+          value="${escapeHtml(searchQuery)}"
+          autocomplete="off"
+          spellcheck="false"
+          aria-label="Search discovered Codex items"
+        />
+        ${normalizedSearch
+          ? `<button type="button" class="codex-search-clear" data-codex-clear-search aria-label="Clear search">Clear</button>`
+          : ""}
+      </div>
       <div class="codex-browser">
         <div class="codex-list" data-preserve-scroll="codex-list">
           ${items.length
             ? items.map((item) => codexItemRowHtml(item, selectedItem)).join("")
-            : `<div class="codex-empty">No discovered items in this category yet.</div>`}
+            : `<div class="codex-empty">${escapeHtml(emptyMessage)}</div>`}
         </div>
         ${codexDetailPanelHtml(selectedItem)}
       </div>
@@ -17782,7 +18170,7 @@ function upgradesSceneHtml() {
         </aside>
         <div class="upgrade-content">
           ${sectionPanel}
-          <div class="upgrade-list">
+          <div class="upgrade-list" data-preserve-scroll="upgrade-list">
             ${upgrades.map((upgrade) => accountUpgradeHtml(upgrade)).join("")}
           </div>
         </div>
@@ -17919,7 +18307,7 @@ function gettingStartedSceneHtml() {
         "Only potions belong on the hotbar. Hover any item for a tooltip with its restore amount and stats.",
       ])}
       ${gettingStartedSectionHtml("Auto Potions", [
-        `Hotbar slots marked <strong>Auto</strong> drink for you when HP or MP drops below <strong>50%</strong>. You start with ${BASE_AUTO_POTION_SLOTS} auto slots; account upgrades can raise that to ${maxAutoPotionSlotLimit()} (currently ${autoPotionSlotCount} unlocked).`,
+        `Hotbar slots marked <strong>Auto</strong> drink for you when HP or MP drops below the thresholds in <strong>Options</strong> (default <strong>50%</strong> each). You start with ${BASE_AUTO_POTION_SLOTS} auto slots; account upgrades can raise that to ${maxAutoPotionSlotLimit()} (currently ${autoPotionSlotCount} unlocked).`,
         "Auto potions scan auto slots left to right and pick the strongest valid potion for the resource that needs healing. There is a short cooldown between automatic drinks.",
         "Place your best HP potions in auto slots for emergencies and keep manual slots for buffs or poisons you want to trigger yourself.",
       ])}
@@ -17985,6 +18373,8 @@ function optionsSceneHtml() {
   const track = currentMusicTrack();
   const volume = Math.round(normalizedVolume(state.settings.musicVolume) * 100);
   const sfxVolume = Math.round(normalizedVolume(state.settings.sfxVolume) * 100);
+  const autoPotionHpPercent = Math.round(autoPotionThreshold("hp") * 100);
+  const autoPotionMpPercent = Math.round(autoPotionThreshold("mp") * 100);
   const musicMode = normalizedMusicMode(state.settings.musicMode);
   const statsReady = state.prototypeStats.configured;
   const statsEnabled = statsReady && state.settings.prototypeStatsEnabled;
@@ -18077,6 +18467,22 @@ function optionsSceneHtml() {
         ` : ""}
         ${state.cloudSave.statusText ? `<p class="options-cloud-status" data-cloud-status>${escapeHtml(state.cloudSave.statusText)}</p>` : ""}
       </section>
+      <div class="options-row">
+        <div>
+          <strong>Auto Potions</strong>
+          <span>Drink from Auto hotbar slots when HP or MP drops below these thresholds.</span>
+        </div>
+      </div>
+      <label class="options-volume">
+        <span>Auto HP %</span>
+        <input type="range" min="5" max="100" step="5" value="${autoPotionHpPercent}" data-auto-potion-hp />
+        <strong>${autoPotionHpPercent}%</strong>
+      </label>
+      <label class="options-volume">
+        <span>Auto MP %</span>
+        <input type="range" min="5" max="100" step="5" value="${autoPotionMpPercent}" data-auto-potion-mp />
+        <strong>${autoPotionMpPercent}%</strong>
+      </label>
       <div class="options-row">
         <div>
           <strong>Music</strong>
@@ -18514,6 +18920,27 @@ function confirmOrganisationSkillsPurchase() {
   });
 }
 
+function confirmTimeLoggingPurchase() {
+  if (timeLoggingUnlocked() || state.tokens.buying) return;
+  purchasePageUnlock(TIME_LOGGING_UNLOCK_KEY, () => {
+    pushBattleLog("Time Logging unlocked - tap the XP/h button at the top-right to see your XP per hour.");
+    playSfx("ui.gold", { volume: 0.55, throttleMs: 80 });
+    syncTimeLoggingButton();
+    saveGameState(true);
+  });
+}
+
+// Cash Shop purchase/renewal of the Monthly Supporter subscription (28 days).
+function confirmMonthlySupporterPurchase() {
+  if (state.tokens.buying) return;
+  purchaseSubscription(MONTHLY_SUPPORTER_KEY, () => {
+    pushBattleLog("Monthly Supporter active - +10% XP & gold, faster boss respawns, and extra auto slots for 28 days.");
+    playSfx("ui.gold", { volume: 0.55, throttleMs: 80 });
+    refreshSupporterDependentUi();
+    saveGameState(true);
+  });
+}
+
 async function fetchTokenBalance(force = false) {
   const base = leaderboardApiBase();
   const recoveryCode = state.cloudSave?.recoveryCode ?? "";
@@ -18573,6 +19000,23 @@ function markUnlockOwned(unlockKey) {
   state.account.ownedUnlocks[unlockKey] = true;
 }
 
+// Sets (or clears, when expiresAt <= 0) a subscription's local expiry mirror.
+function setSupporterExpiry(expiresAt) {
+  if (!state.account.subscriptions || typeof state.account.subscriptions !== "object") {
+    state.account.subscriptions = {};
+  }
+  const value = Math.max(0, Math.trunc(Number(expiresAt) || 0));
+  if (value > 0) state.account.subscriptions[MONTHLY_SUPPORTER_KEY] = value;
+  else delete state.account.subscriptions[MONTHLY_SUPPORTER_KEY];
+}
+
+// Re-renders the bits of UI whose contents depend on whether the supporter perk
+// is active (hotbar auto-slot badges + any open overlay such as the Cash Shop).
+function refreshSupporterDependentUi() {
+  sceneSignature = "";
+  if (typeof renderHotbar === "function") renderHotbar();
+}
+
 // Spends PAGE_UNLOCK_TOKEN_COST tokens on a server-recorded one-off unlock.
 // The worker is authoritative: it charges (or reports "already owned") and
 // returns the new balance. onSuccess applies the unlock to local state.
@@ -18614,6 +19058,46 @@ async function purchasePageUnlock(unlockKey, onSuccess) {
   }
 }
 
+// Buys (or extends) a re-buyable subscription. The worker charges tokens and
+// returns the new server-authoritative expiry, which we mirror locally.
+async function purchaseSubscription(subscriptionKey, onSuccess) {
+  if (state.tokens.buying) return;
+  const base = leaderboardApiBase();
+  const recoveryCode = state.cloudSave?.recoveryCode ?? "";
+  if (!base || !recoveryCode) {
+    state.tokens.error = "The token shop is not configured yet.";
+    refreshTokenScenes();
+    return;
+  }
+  state.tokens.buying = true;
+  state.tokens.error = "";
+  refreshTokenScenes();
+  try {
+    const response = await fetch(`${base}/shop/subscribe`, {
+      method: "POST",
+      headers: { "content-type": "application/json", Accept: "application/json" },
+      body: JSON.stringify({ recoveryCode, subscriptionKey }),
+    });
+    const data = await response.json().catch(() => ({}));
+    if (Number.isFinite(Number(data?.balance))) {
+      state.tokens.balance = Math.max(0, Math.trunc(Number(data.balance)));
+    }
+    if (response.status === 402 || data?.code === "INSUFFICIENT_TOKENS") {
+      state.tokens.error = "Not enough tokens. Open the Cash Shop to buy more.";
+      return;
+    }
+    if (!response.ok || !data?.ok) throw new Error(data?.error || `HTTP ${response.status}`);
+    setSupporterExpiry(Number(data.expiresAt) || 0);
+    state.tokens.status = "ready";
+    onSuccess?.();
+  } catch (error) {
+    state.tokens.error = error?.message || "Could not complete the purchase.";
+  } finally {
+    state.tokens.buying = false;
+    refreshTokenScenes();
+  }
+}
+
 // Applies the account's server-owned unlocks to live state. Called after boot
 // (once the server list is fetched) and after rebirth (which rebuilds state),
 // so paid pages are never lost.
@@ -18640,6 +19124,7 @@ function applyOwnedUnlocks() {
   // The Teleport Ring has no derived save state - owning it just shows the
   // top-right button, so reconcile its visibility here.
   syncTeleportRingButton();
+  syncTimeLoggingButton();
 }
 
 // Fetches the account's owned unlocks + balance from the server (source of
@@ -18662,6 +19147,14 @@ async function fetchAccountUnlocks() {
     if (Array.isArray(data.unlocks)) {
       for (const key of data.unlocks) markUnlockOwned(String(key));
       applyOwnedUnlocks();
+    }
+    // The server is authoritative for subscriptions: it only reports keys that
+    // are still active, so a missing key means the perk has lapsed - mirror that.
+    if (data.subscriptions && typeof data.subscriptions === "object") {
+      setSupporterExpiry(Number(data.subscriptions[MONTHLY_SUPPORTER_KEY]) || 0);
+      refreshSupporterDependentUi();
+    }
+    if (Array.isArray(data.unlocks) || (data.subscriptions && typeof data.subscriptions === "object")) {
       saveGameState();
       refreshTokenScenes();
     }
@@ -18704,9 +19197,39 @@ function cashShopSceneHtml() {
     : `<button type="button" class="primary" data-buy-unlock="${ORGANISATION_SKILLS_UNLOCK_KEY}" ${tokens.buying || !orgAffordable ? "disabled" : ""}>
           ${tokens.buying ? "Purchasing..." : `Buy for ${ORGANISATION_SKILLS_TOKEN_COST} tokens`}
         </button>${orgAffordable ? "" : `<small class="cash-shop-need">Need ${ORGANISATION_SKILLS_TOKEN_COST} tokens</small>`}`;
+  const supporterOn = supporterActive();
+  const supporterDays = supporterDaysRemaining();
+  const supporterAffordable = balanceValue >= MONTHLY_SUPPORTER_TOKEN_COST;
+  const supporterButtonHtml = `<button type="button" class="primary" data-buy-subscription="${MONTHLY_SUPPORTER_KEY}" ${tokens.buying || !supporterAffordable ? "disabled" : ""}>
+          ${tokens.buying ? "Purchasing..." : `${supporterOn ? "Extend" : "Buy"} for ${MONTHLY_SUPPORTER_TOKEN_COST} tokens`}
+        </button>${supporterAffordable ? "" : `<small class="cash-shop-need">Need ${MONTHLY_SUPPORTER_TOKEN_COST} tokens</small>`}`;
+  const supporterStatusHtml = supporterOn
+    ? `<span class="cash-shop-active">Active - ${supporterDays} day${supporterDays === 1 ? "" : "s"} left</span>`
+    : "";
+  const timeLoggingOwned = timeLoggingUnlocked();
+  const timeLoggingAffordable = balanceValue >= TIME_LOGGING_TOKEN_COST;
+  const timeLoggingButtonHtml = timeLoggingOwned
+    ? `<button type="button" class="cash-shop-owned" disabled>Owned</button>`
+    : `<button type="button" class="primary" data-buy-unlock="${TIME_LOGGING_UNLOCK_KEY}" ${tokens.buying || !timeLoggingAffordable ? "disabled" : ""}>
+          ${tokens.buying ? "Purchasing..." : `Buy for ${TIME_LOGGING_TOKEN_COST} tokens`}
+        </button>${timeLoggingAffordable ? "" : `<small class="cash-shop-need">Need ${TIME_LOGGING_TOKEN_COST} tokens</small>`}`;
   const spendHtml = `
       <div class="cash-shop-spend">
         <h3>Spend tokens</h3>
+        <div class="cash-shop-item">
+          <div class="cash-shop-item-info">
+            <strong>Monthly Supporter${supporterStatusHtml}</strong>
+            <small>+10% XP, +10% gold, 10% faster boss respawns, and +1 auto-potion &amp; +1 auto-spell slot. Lasts 28 days; buy again any time to extend.</small>
+          </div>
+          <div class="cash-shop-item-buy">${supporterButtonHtml}</div>
+        </div>
+        <div class="cash-shop-item">
+          <div class="cash-shop-item-info">
+            <strong>Time Logging</strong>
+            <small>Adds an XP/h button that opens a window showing your live experience per hour in the current zone. Also in the Rebirth shop for 50 Souls.</small>
+          </div>
+          <div class="cash-shop-item-buy">${timeLoggingButtonHtml}</div>
+        </div>
         <div class="cash-shop-item">
           <img class="cash-shop-item-icon" src="${TELEPORT_RING_ICON_SRC}" alt="Teleport Ring" />
           <div class="cash-shop-item-info">
@@ -18786,6 +19309,57 @@ function teleportRingSceneHtml() {
       <div class="teleport-ring-list" data-preserve-scroll="teleport-ring-list">
         ${rows}
       </div>
+    </section>
+  `;
+}
+
+// Label of the zone the player is currently hunting in, or null when not in a
+// combat zone (town/mining/idle) - used by the Time Logging window.
+function timeLoggingActiveZoneLabel() {
+  if (state.game.mode !== "zone") return null;
+  const zoneId = state.game.activeZoneId ?? null;
+  if (!zoneId) return null;
+  const zone = PROTOTYPE_ZONES.find((entry) => entry.id === zoneId);
+  return zone?.label ?? bossRoomDef(zoneId)?.bossName ?? zoneId;
+}
+
+// Display string for the live XP/hr number (also used by the per-frame refresh).
+function timeLoggingRateText() {
+  const rate = currentZoneXpRate();
+  if (!rate) return "Measuring...";
+  return `${rate.xpPerHour.toLocaleString()} XP/hr`;
+}
+
+// Estimated time to the next level at the current XP/hr (also used per-frame).
+function timeLoggingTimeToLevelText() {
+  const needed = xpForNextLevel(state.game.progress.level) - state.game.progress.experience;
+  if (!Number.isFinite(needed)) return "Max level";
+  if (needed <= 0) return "Ready to level up";
+  const rate = currentZoneXpRate();
+  if (!rate || rate.xpPerHour <= 0) return "Measuring...";
+  return formatDuration(Math.round((needed / rate.xpPerHour) * 3_600_000));
+}
+
+// Time Logging window: live XP-per-hour readout for the current zone.
+function timeLoggingSceneHtml() {
+  const zoneLabel = timeLoggingActiveZoneLabel();
+  if (!zoneLabel) {
+    return `
+    <section class="time-logging-panel">
+      <p class="time-logging-intro">Enter a hunting zone to start measuring your XP per hour.</p>
+    </section>
+  `;
+  }
+  return `
+    <section class="time-logging-panel">
+      <p class="time-logging-intro">Your live experience rate in this zone. Keep hunting to refine it.</p>
+      <div class="time-logging-readout">
+        <span class="time-logging-zone">${escapeHtml(zoneLabel)}</span>
+        <strong class="time-logging-rate" data-xp-per-hour>${escapeHtml(timeLoggingRateText())}</strong>
+        <span class="time-logging-eta-label">Est. time to level up</span>
+        <span class="time-logging-eta" data-time-to-level>${escapeHtml(timeLoggingTimeToLevelText())}</span>
+      </div>
+      <small class="time-logging-note">Sampled from the last 5 minutes of kills. XP rates scale with your level versus the monsters', so compare zones at a similar level.</small>
     </section>
   `;
 }
@@ -21595,7 +22169,10 @@ function groupDungeonSwarmAliveCount(swarm = state.battle.swarm) {
 }
 
 function markGroupDungeonWaveUiDirty() {
-  gamePanelSignature = "";
+  // Wave/swarm combat updates only need the dynamic side-panel slots refreshed.
+  // Clearing gamePanelSignature rebuilt the whole panel (including Return To Town
+  // / Advance Floor) every spawn/kill and ate clicks mid-press.
+  gamePanelDynamicSignature = "";
 }
 
 function invalidateGroupDungeonWaveUi() {
@@ -24565,6 +25142,12 @@ function bindControls() {
     if (buyUnlockButton && root.contains(buyUnlockButton)) {
       if (buyUnlockButton.dataset.buyUnlock === TELEPORT_RING_UNLOCK_KEY) confirmTeleportRingPurchase();
       else if (buyUnlockButton.dataset.buyUnlock === ORGANISATION_SKILLS_UNLOCK_KEY) confirmOrganisationSkillsPurchase();
+      else if (buyUnlockButton.dataset.buyUnlock === TIME_LOGGING_UNLOCK_KEY) confirmTimeLoggingPurchase();
+      return;
+    }
+    const buySubscriptionButton = event.target.closest("[data-buy-subscription]");
+    if (buySubscriptionButton && root.contains(buySubscriptionButton)) {
+      if (buySubscriptionButton.dataset.buySubscription === MONTHLY_SUPPORTER_KEY) confirmMonthlySupporterPurchase();
       return;
     }
     const bossAssistButton = event.target.closest("[data-boss-assist]");
@@ -24732,6 +25315,16 @@ function bindControls() {
     const sfxVolumeInput = event.target.closest("[data-sfx-volume]");
     if (sfxVolumeInput && root.contains(sfxVolumeInput)) {
       setSfxVolume(Number(sfxVolumeInput.value) / 100);
+      return;
+    }
+    const autoPotionHpInput = event.target.closest("[data-auto-potion-hp]");
+    if (autoPotionHpInput && root.contains(autoPotionHpInput)) {
+      setAutoPotionThreshold("hp", Number(autoPotionHpInput.value) / 100);
+      return;
+    }
+    const autoPotionMpInput = event.target.closest("[data-auto-potion-mp]");
+    if (autoPotionMpInput && root.contains(autoPotionMpInput)) {
+      setAutoPotionThreshold("mp", Number(autoPotionMpInput.value) / 100);
     }
   });
   root.addEventListener("change", (event) => {
@@ -25124,7 +25717,7 @@ function queueVisualAtlasReload(refreshLayers = []) {
 
 function ensureEquippedVisualsFresh() {
   const changedLayers = applyEquippedVisualIndexes();
-  const staleLayers = ["weapon", "armour"].filter((layer) => (
+  const staleLayers = ["weapon", "armour", "wing"].filter((layer) => (
     (state.atlasIndexes?.[layer] ?? null) !== (state.indexes[layer] ?? null)
   ));
   const reloadLayers = [...new Set([...changedLayers, ...staleLayers])];
@@ -26045,12 +26638,21 @@ function bossPartyMemberVisualIndexes(member) {
 
 function bossPartyMemberVisualIndex(member, layer) {
   if (layer === "hair") return state.indexes.hair ?? 0;
+  if (layer === "wing") return bossPartyMemberWingIndex(member);
+  if (layer === "weaponGlow") return bossPartyMemberWeaponGlowIndex(member);
   if (layer !== "weapon" && layer !== "armour") return state.indexes[layer] ?? null;
   const fallback = layer === "weapon" ? null : 0;
   const item = bossPartyMemberEquippedVisualItem(member, layer);
   const index = item?.visual?.index ?? fallback;
   if (index == null) return fallback;
   return state.catalogue?.layers?.[layer]?.indexes?.includes(index) ? index : fallback;
+}
+
+function bossPartyMemberWeaponGlowIndex(member) {
+  const item = bossPartyMemberEquippedVisualItem(member, "weapon");
+  const glow = Number(item?.visualWeaponGlow);
+  if (!Number.isFinite(glow) || glow <= 0) return null;
+  return state.catalogue?.layers?.weaponGlow?.indexes?.includes(glow) ? glow : null;
 }
 
 function bossPartyMemberEquippedVisualItem(member, layer) {
@@ -26071,6 +26673,7 @@ async function preloadBossPartyVisualAtlases(members) {
 
 async function preloadBossPartyMemberVisualAtlases(member) {
   member.visualIndexes = bossPartyMemberVisualIndexes(member);
+  syncBossPartyMemberArmourSpecialEffect(member);
   member.visualAtlases = member.visualAtlases ?? {};
   await Promise.all(layerNames().map(async (layer) => {
     const index = member.visualIndexes[layer];
@@ -26354,7 +26957,16 @@ function bossPartyWarriorAction(member, now) {
   const thrustingLearned = bossPartyLearned(member, "Thrusting");
   const useThrusting = Boolean(thrusting && thrustingLearned
     && distance > BOSS_PARTY_WARRIOR_REACH && distance <= BOSS_PARTY_THRUSTING_REACH);
-  const sweepAttack = !useThrusting ? resolveActiveSweepAttack(member, now) : null;
+  // Blade Avalanche outranks Half Moon / Cross Half Moon: cast BA on cooldown,
+  // and only use sweep attacks while BA is cooling down (or unavailable).
+  const blade = autoSkills.find((skill) => skill.id === "BladeAvalanche");
+  const bladeLearned = blade ? bossPartyLearned(member, "BladeAvalanche") : null;
+  const bladeReady = Boolean(
+    blade
+    && bladeLearned
+    && bossPartyCanUseWarriorSkill(member, blade, bladeLearned, now, { requireAuto: true }),
+  );
+  const sweepAttack = !useThrusting && !bladeReady ? resolveActiveSweepAttack(member, now) : null;
   const useSweepAttack = Boolean(sweepAttack);
   let attackSkill = null;
   let learned = null;
@@ -26495,7 +27107,12 @@ function bossPartyWarriorAction(member, now) {
       ? rollSweepPrimaryDamage(attackSkill, learned, member, enemy, member.inventory)
       : learned
         ? rollWarriorMagicDamage(attackSkill, learned, member, enemy, member.inventory)
-        : rollDamage(effectiveCombatStats(member).dc, enemyPhysicalDefence(enemy), member.luck);
+        : applyCritToOutgoingDamage(
+          rollDamage(effectiveCombatStats(member).dc, enemyPhysicalDefence(enemy), member.luck),
+          member,
+          null,
+          member.inventory,
+        );
     return twinDrakeRawDamage;
   }, "physical", now, (damage, crit) => {
     if (learned) bossPartyLevelMagicSkill(member, attackSkill, learned, now);
@@ -30688,6 +31305,10 @@ function applyBossPartyMemberKillReward(member, {
 }) {
   if (!member) return;
   const leveledTo = applyBossPartyExperienceReward(member, xp, now);
+  // Group-dungeon XP goes through this per-member path, not awardEnemyRewards.
+  // Sample only the locally-controlled character so the live XP/hr tracker works
+  // in group dungeons too (same zone/mode gating as the solo path).
+  if (member.classId === bossPartyControlledClassId()) recordXpRateSample(xp);
   member.inventory.gold += gold;
   member.game.progress.gold = member.inventory.gold;
   if (member.classId === bossPartyControlledClassId()) {
@@ -30740,7 +31361,7 @@ function awardBossPartyKillShare(now = performance.now(), options = {}) {
 
   for (const member of recipients) {
     const xp = adjustedKillExperience(xpPerShare, member.game.progress.level, enemy.level ?? 0, member.inventory);
-    const gold = adjustedKillGold(goldPerShare, totalGoldBonusPercent(member.inventory));
+    const gold = applySupporterGold(adjustedKillGold(goldPerShare, totalGoldBonusPercent(member.inventory)));
     const drops = rollBossPartyZoneDrops(member, zone, enemy);
     applyBossPartyMemberKillReward(member, { xp, gold, drops, now, zoneId: zone.id });
   }
@@ -30761,7 +31382,7 @@ function awardBossPartyBossKillShare(enemy, now = performance.now()) {
 
   for (const member of recipients) {
     const xp = adjustedKillExperience(xpPerShare, member.game.progress.level, enemy.level ?? 0, member.inventory);
-    const gold = adjustedKillGold(goldPerShare, totalGoldBonusPercent(member.inventory));
+    const gold = applySupporterGold(adjustedKillGold(goldPerShare, totalGoldBonusPercent(member.inventory)));
     const includeItems = member.classId === lootClassId;
     const drops = includeItems ? rollBossPartyDrops(member, enemy) : { added: [], ignored: [] };
     applyBossPartyMemberKillReward(member, {
@@ -30995,7 +31616,7 @@ function bossPartyAutoUsePotions(member, now) {
   }
   let used = false;
   for (const kind of ["hp", "mp"].sort((a, b) => bossPartyResourceRatio(member, a) - bossPartyResourceRatio(member, b))) {
-    if (bossPartyResourceRatio(member, kind) >= AUTO_POTION_THRESHOLD) continue;
+    if (bossPartyResourceRatio(member, kind) >= autoPotionThreshold(kind)) continue;
     if ((member.autoPotionReadyAt?.[kind] ?? 0) > now) continue;
     if (kind === "hp" && (member.potHealthAmount ?? 0) > 0) continue;
     if (kind === "mp" && (member.potManaAmount ?? 0) > 0) continue;
@@ -32215,14 +32836,23 @@ function usableWarriorAttackSkill(now) {
   const charged = chargedWarriorAttack(now);
   if (charged) return charged;
 
-  const sweep = usableWarriorSweepAttack(now);
-  if (sweep) return sweep;
-
+  // Slaying stays above BA when a charge is pending.
   const slaying = chargedSlayingAttack(now);
   if (slaying) return slaying;
 
   const queued = queuedWarriorAttackSkill(now);
   if (queued) return queued;
+
+  // Blade Avalanche slightly above Half Moon / Cross Half Moon: cast BA whenever
+  // it is ready, and let sweep attacks fill the gaps while it is on cooldown.
+  const blade = autoWarriorCombatSkills().find((skill) => skill.id === "BladeAvalanche");
+  const bladeLearned = learnedMagic("BladeAvalanche");
+  if (blade && bladeLearned && canAutoCastWarriorSkill(blade, bladeLearned, now)) {
+    return { skill: blade, learned: bladeLearned, cost: effectiveSpellMpCost(blade, bladeLearned) };
+  }
+
+  const sweep = usableWarriorSweepAttack(now);
+  if (sweep) return sweep;
 
   if (slashingBurstDashEnabled() && warriorSlashingBurstLeapDesired(now) && warriorSlashingBurstDashIntent(now)) {
     const skill = warriorSpellById("SlashingBurst");
@@ -32360,6 +32990,12 @@ function usableWarriorSweepAttack(now = performance.now(), member = null) {
     const thrustingLearned = bossPartyLearned(member, "Thrusting");
     if (thrusting && thrustingLearned
       && distance > BOSS_PARTY_WARRIOR_REACH && distance <= BOSS_PARTY_THRUSTING_REACH) {
+      return null;
+    }
+    const blade = autoSkills.find((skill) => skill.id === "BladeAvalanche");
+    const bladeLearned = blade ? bossPartyLearned(member, "BladeAvalanche") : null;
+    if (blade && bladeLearned
+      && bossPartyCanUseWarriorSkill(member, blade, bladeLearned, now, { requireAuto: true })) {
       return null;
     }
     const sweep = resolveActiveSweepAttack(member, now);
@@ -39240,13 +39876,14 @@ function awardEnemyRewards() {
   const reward = zone?.rewards ?? { gold: [1, 2] };
   const enemy = state.battle.enemy;
   const xp = adjustedKillExperience(enemy?.experience ?? 0, state.game.progress.level, enemy?.level ?? 0);
+  recordXpRateSample(xp);
   const bossDrops = bossDropTableForEnemy(enemy);
-  const gold = adjustedKillGold(
+  const gold = applySupporterGold(adjustedKillGold(
     bossDrops
       ? bossDrops.gold
       : randomInt(reward.gold[0], reward.gold[1]),
     totalGoldBonusPercent(),
-  );
+  ));
   const drops = bossDrops
     ? rollBossSoloDrops(enemy)
     : isRedThunderZumaEnemy(enemy)
@@ -39282,6 +39919,54 @@ function awardEnemyRewards() {
       ...state.game.recentLoot,
     ].slice(0, 6);
   }
+}
+
+// Live XP-per-hour tracker (Time Logging unlock). Session-only, not saved. We
+// keep a trailing window of {time, xp, zoneId} samples and extrapolate the
+// current zone's rate over a trailing 5-minute window. Sampling is hooked into
+// the live kill paths only: awardEnemyRewards (solo) and the controlled
+// character's share in applyBossPartyMemberKillReward (group dungeons). Offline
+// catch-up XP is deliberately not counted, so this measures active hunting.
+const XP_RATE_WINDOW_MS = 5 * 60 * 1000;
+const XP_RATE_MIN_SAMPLE_MS = 20 * 1000;
+let xpRateSamples = [];
+
+function pruneXpRateSamples(now = performance.now()) {
+  const cutoff = now - XP_RATE_WINDOW_MS;
+  if (xpRateSamples.length && xpRateSamples[0].t < cutoff) {
+    xpRateSamples = xpRateSamples.filter((sample) => sample.t >= cutoff);
+  }
+}
+
+function recordXpRateSample(xp) {
+  if (!timeLoggingUnlocked()) return;
+  const amount = Math.max(0, Math.trunc(Number(xp) || 0));
+  if (amount <= 0 || state.game.mode !== "zone") return;
+  const zoneId = state.game.activeZoneId ?? null;
+  if (!zoneId) return;
+  const now = performance.now();
+  xpRateSamples.push({ t: now, xp: amount, zoneId });
+  pruneXpRateSamples(now);
+}
+
+// Returns the current zone's live XP/hr over the trailing window, or null until
+// there is enough data (>=2 kills spanning >= XP_RATE_MIN_SAMPLE_MS) to be fair.
+function currentZoneXpRate(now = performance.now()) {
+  pruneXpRateSamples(now);
+  const zoneId = state.game.mode === "zone" ? (state.game.activeZoneId ?? null) : null;
+  if (!zoneId) return null;
+  const samples = xpRateSamples.filter((sample) => sample.zoneId === zoneId);
+  if (samples.length < 2) return null;
+  const totalXp = samples.reduce((sum, sample) => sum + sample.xp, 0);
+  const sampleMs = Math.min(XP_RATE_WINDOW_MS, now - samples[0].t);
+  if (sampleMs < XP_RATE_MIN_SAMPLE_MS) return null;
+  return {
+    zoneId,
+    xpPerHour: Math.round(totalXp / (sampleMs / 3_600_000)),
+    sampleMs,
+    kills: samples.length,
+    totalXp,
+  };
 }
 
 function applyExperienceReward(xp) {
@@ -39338,6 +40023,15 @@ function addLootNotice(text, kind = "item") {
     createdAt: performance.now(),
   });
   state.game.lootToasts = state.game.lootToasts.slice(-6);
+}
+
+function addConsumableOutcomeNotice(text, outcome) {
+  const kind = outcome === "success"
+    ? "success"
+    : outcome === "curse" || outcome === "destroy"
+      ? "curse"
+      : "fail";
+  addLootNotice(text, kind);
 }
 
 function rollRedThunderZumaDrops() {
@@ -40639,6 +41333,7 @@ function updateFrame(now, clip) {
       maybePlayMiningSwingSfx(previousFrame, state.frame);
       state.lastTick = isPlayerSmoothLoopAction() ? now : state.lastTick + steps * intervalMs;
     }
+    updateWingFrame(now, clip);
     return;
   }
 
@@ -40770,6 +41465,18 @@ function refreshOpenSceneLiveText() {
       status.classList.toggle("is-cooldown", !ready);
       const text = ready ? "Ready" : formatDuration(remaining);
       if (status.textContent !== text) status.textContent = text;
+    }
+  }
+  if (state.openScenes.timeLogging) {
+    const rateEl = els.sceneOverlay.querySelector("[data-xp-per-hour]");
+    if (rateEl) {
+      const text = timeLoggingRateText();
+      if (rateEl.textContent !== text) rateEl.textContent = text;
+    }
+    const etaEl = els.sceneOverlay.querySelector("[data-time-to-level]");
+    if (etaEl) {
+      const text = timeLoggingTimeToLevelText();
+      if (etaEl.textContent !== text) etaEl.textContent = text;
     }
   }
 }
@@ -43686,18 +44393,132 @@ function enemyFrameBounds() {
   };
 }
 
+function updateWingFrame(now, bodyClip) {
+  const wingIndex = state.indexes.wing;
+  if (wingIndex == null) {
+    state.wingFrame = 0;
+    return;
+  }
+  const wingAtlas = state.atlases.wing;
+  const wingClip = wingAtlas?.actions?.[state.action] ?? wingAtlas?.actions?.[bodyClip ? state.action : "stance"];
+  if (!wingClip?.frames?.length) return;
+  const intervalMs = wingActionInterval(state.action, wingClip);
+  const dt = now - (state.wingLastTick ?? now);
+  if (dt < intervalMs) return;
+  const steps = Math.floor(dt / intervalMs);
+  if (isPlayerOneShotAction()) {
+    const nextFrame = state.wingFrame + steps;
+    if (nextFrame >= wingClip.frames.length && state.battle.player?.hp > 0) {
+      state.wingFrame = 0;
+      state.wingLastTick = now;
+      return;
+    }
+    state.wingFrame = Math.min(wingClip.frames.length - 1, nextFrame);
+  } else {
+    const frameStep = isPlayerSmoothLoopAction() ? 1 : steps;
+    state.wingFrame = (state.wingFrame + frameStep) % wingClip.frames.length;
+  }
+  state.wingLastTick = isPlayerSmoothLoopAction() ? now : (state.wingLastTick ?? now) + steps * intervalMs;
+}
+
+function armourSpecialEffectAssetBase(effectId) {
+  const def = ARMOUR_SPECIAL_EFFECT_DEFS[effectId];
+  return def?.atlasPath?.replace(/\/atlas\.json$/, "") ?? `./public/armour-effects/${effectId}`;
+}
+
+function drawArmourEffectLayerCanvas(ctx, effectId, layer, frameIndex, anchorX, anchorY) {
+  const meta = layer.frames?.[frameIndex] ?? layer.frames?.[0];
+  if (!meta || meta.empty) return;
+  const sheet = cachedImage(`${armourSpecialEffectAssetBase(effectId)}/${layer.sheet}`);
+  if (!sheet) return;
+  drawAtlasFrameMeta(ctx, sheet, layer.slotWidth, meta, anchorX, anchorY);
+}
+
+function armourEffectLayerDrawBehind(layer, atlas) {
+  if (typeof layer?.drawBehind === "boolean") return layer.drawBehind;
+  return !!atlas?.drawBehind;
+}
+
+function drawArmourSpecialEffectLayers(ctx, effectId, startedAt, anchorX, anchorY, now, drawBehind) {
+  const atlas = state.armourSpecialEffectAtlases?.[effectId];
+  if (!atlas?.layers?.length) return;
+  for (const layer of atlas.layers) {
+    if (armourEffectLayerDrawBehind(layer, atlas) !== drawBehind) continue;
+    const frameIndex = spellFxLoopFrameIndex(layer, startedAt || now, now);
+    if (frameIndex < 0) continue;
+    const blendMode = layer.blend === false ? "normal" : (atlas.blend ?? "screen");
+    const draw = () => drawArmourEffectLayerCanvas(ctx, effectId, layer, frameIndex, anchorX, anchorY);
+    if (blendMode === "screen") withScreenBlend(ctx, draw);
+    else draw();
+  }
+}
+
+function drawCharacterVisualLayers(ctx, {
+  action,
+  displayFrame,
+  wingFrame = displayFrame,
+  anchorX,
+  anchorY,
+  indexes,
+  atlases,
+  spriteSet = state.spriteSet,
+  armourSpecialEffectId = null,
+  armourSpecialEffectStartedAt = 0,
+}) {
+  const now = performance.now();
+  if (armourSpecialEffectId) {
+    drawArmourSpecialEffectLayers(
+      ctx,
+      armourSpecialEffectId,
+      armourSpecialEffectStartedAt,
+      anchorX,
+      anchorY,
+      now,
+      true,
+    );
+  }
+  for (const layer of layerNames()) {
+    const index = indexes?.[layer];
+    if (index == null || index === "") continue;
+    const atlas = atlases?.[layer];
+    const clip = atlas?.actions?.[action] ?? atlas?.actions?.stance ?? atlas?.actions?.standing;
+    const frameIndex = layer === "wing"
+      ? Math.max(0, Math.min(wingFrame ?? displayFrame, (clip?.frames?.length ?? 1) - 1))
+      : Math.max(0, Math.min(displayFrame, (clip?.frames?.length ?? 1) - 1));
+    const meta = clip?.frames?.[frameIndex] ?? clip?.frames?.[0];
+    if (!atlas || !clip || !meta || meta.empty) continue;
+    const sheet = cachedImage(sheetUrl(spriteSet, layer, index));
+    if (!sheet) continue;
+    const drawLayer = () => drawAtlasFrame(ctx, sheet, atlas.slotWidth, atlas.slotHeight, meta, anchorX, anchorY);
+    if (layer === "wing" || layer === "weaponGlow") withScreenBlend(ctx, drawLayer);
+    else drawLayer();
+  }
+  if (armourSpecialEffectId) {
+    drawArmourSpecialEffectLayers(
+      ctx,
+      armourSpecialEffectId,
+      armourSpecialEffectStartedAt,
+      anchorX,
+      anchorY,
+      now,
+      false,
+    );
+  }
+}
+
 function drawPlayerCanvas(ctx, displayFrame) {
   const { x: anchorX, y: anchorY } = combatAnchor("player");
-  for (const layer of layerNames()) {
-    const atlas = state.atlases[layer];
-    const index = state.indexes[layer];
-    const clip = atlas?.actions?.[state.action];
-    const meta = clip?.frames?.[displayFrame] ?? clip?.frames?.[0];
-    if (!atlas || !clip || !meta || meta.empty) continue;
-    const sheet = cachedImage(sheetUrl(state.spriteSet, layer, index));
-    if (!sheet) continue;
-    drawAtlasFrame(ctx, sheet, atlas.slotWidth, atlas.slotHeight, meta, anchorX, anchorY);
-  }
+  drawCharacterVisualLayers(ctx, {
+    action: state.action,
+    displayFrame,
+    wingFrame: state.wingFrame,
+    anchorX,
+    anchorY,
+    indexes: state.indexes,
+    atlases: state.atlases,
+    armourSpecialEffectId: state.activeArmourSpecialEffectId,
+    armourSpecialEffectStartedAt: state.armourSpecialEffectStartedAt,
+  });
 }
 
 function wizardMirrorAnchor() {
@@ -43956,18 +44777,27 @@ function drawBossPartyMemberCanvas(ctx, member, anchorOverride = null) {
   const anchorY = anchorOverride
     ? Math.round(anchorOverride.y)
     : Math.floor(state.stageHeight * LANE.y);
-  for (const layer of layerNames()) {
-    const index = member.visualIndexes?.[layer];
-    if (index == null || index === "") continue;
-    const atlas = member.visualAtlases?.[layer] ?? (member.classId === bossPartyControlledClassId() ? state.atlases[layer] : null);
-    const clip = atlas?.actions?.[action] ?? atlas?.actions?.stance ?? atlas?.actions?.standing;
-    const frameIndex = Math.max(0, Math.min(member.visualFrame ?? 0, (clip?.frames?.length ?? 1) - 1));
-    const meta = clip?.frames?.[frameIndex] ?? clip?.frames?.[0];
-    if (!atlas || !clip || !meta || meta.empty) continue;
-    const sheet = cachedImage(sheetUrl(state.spriteSet, layer, index));
-    if (!sheet) continue;
-    drawAtlasFrame(ctx, sheet, atlas.slotWidth, atlas.slotHeight, meta, anchorX, anchorY);
-  }
+  const frameIndex = Math.max(0, Math.trunc(Number(member.visualFrame) || 0));
+  const wingFrame = Math.max(0, Math.trunc(Number(member.wingFrame ?? member.visualFrame) || 0));
+  drawCharacterVisualLayers(ctx, {
+    action,
+    displayFrame: frameIndex,
+    wingFrame,
+    anchorX,
+    anchorY,
+    indexes: member.visualIndexes,
+    atlases: Object.fromEntries(
+      layerNames().map((layer) => {
+        const index = member.visualIndexes?.[layer];
+        if (index == null || index === "") return [layer, null];
+        const atlas = member.visualAtlases?.[layer]
+          ?? (member.classId === bossPartyControlledClassId() ? state.atlases[layer] : null);
+        return [layer, atlas];
+      }),
+    ),
+    armourSpecialEffectId: member.activeArmourSpecialEffectId ?? null,
+    armourSpecialEffectStartedAt: member.armourSpecialEffectStartedAt ?? 0,
+  });
 }
 
 function drawAtlasFrameMeta(ctx, sheet, slotStride, meta, anchorX, anchorY, scale = 1) {
@@ -44717,6 +45547,9 @@ function lootNoticeColor(kind) {
   if (kind === "level") return "#e6f0ff";
   if (kind === "gold") return "#e2ba54";
   if (kind === "full") return "#d98572";
+  if (kind === "success") return "#8ee89a";
+  if (kind === "fail") return "#c8c0b4";
+  if (kind === "curse") return "#ef8a72";
   return "#d8d0bf";
 }
 
@@ -44724,6 +45557,9 @@ function lootNoticeBorder(kind) {
   if (kind === "level") return "rgba(158, 205, 255, 0.82)";
   if (kind === "gold") return "rgba(226, 186, 84, 0.72)";
   if (kind === "full") return "rgba(217, 133, 114, 0.72)";
+  if (kind === "success") return "rgba(126, 220, 142, 0.78)";
+  if (kind === "fail") return "rgba(200, 192, 180, 0.62)";
+  if (kind === "curse") return "rgba(239, 138, 114, 0.78)";
   return "rgba(216, 208, 191, 0.54)";
 }
 
@@ -45555,7 +46391,7 @@ function combatAnchor(name) {
 function layerNames() {
   const names = Object.keys(state.catalogue?.layers ?? {});
   if (names.length === 0) return ["armour", "hair", "weapon"];
-  const preferred = ["weaponBack", "armour", "hair", "weapon", "weaponFront", "weaponAlt", "effect"];
+  const preferred = ["weaponBack", "wing", "armour", "hair", "weapon", "weaponGlow", "weaponFront", "weaponAlt", "effect"];
   return [
     ...preferred.filter((name) => names.includes(name)),
     ...names.filter((name) => !preferred.includes(name)),

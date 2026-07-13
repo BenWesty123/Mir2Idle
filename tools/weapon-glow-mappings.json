@@ -1,0 +1,131 @@
+{
+  "version": 1,
+  "mappings": [
+    {
+      "weaponShape": 30,
+      "weaponNames": ["DragonStaff", "BlackDragonStaff"],
+      "glow": 1,
+      "tint": { "hue": 0, "saturate": 100 },
+      "notes": ""
+    },
+    {
+      "weaponShape": 22,
+      "weaponNames": ["WarMageStaff", "ZumaWarMageStaff"],
+      "glow": 2,
+      "tint": { "hue": 0, "saturate": 100 },
+      "notes": ""
+    },
+    {
+      "weaponShape": 26,
+      "weaponNames": ["WarSpiritBlade"],
+      "glow": 3,
+      "tint": { "hue": 0, "saturate": 100 },
+      "notes": ""
+    },
+    {
+      "weaponShape": 27,
+      "weaponNames": ["MagicScythe"],
+      "glow": 4,
+      "tint": { "hue": 0, "saturate": 100 },
+      "notes": ""
+    },
+    {
+      "weaponShape": 28,
+      "weaponNames": ["StoneBambooFan"],
+      "glow": 5,
+      "tint": { "hue": 0, "saturate": 100 },
+      "notes": ""
+    },
+    {
+      "weaponShape": 32,
+      "weaponNames": ["SwordOfWarGod"],
+      "glow": 6,
+      "tint": { "hue": 0, "saturate": 100 },
+      "notes": ""
+    },
+    {
+      "weaponShape": 33,
+      "weaponNames": ["BladeOfSorcery"],
+      "glow": 7,
+      "tint": { "hue": 0, "saturate": 100 },
+      "notes": ""
+    },
+    {
+      "weaponShape": 34,
+      "weaponNames": ["HeavenSword"],
+      "glow": 8,
+      "tint": { "hue": 0, "saturate": 100 },
+      "notes": ""
+    },
+    {
+      "weaponShape": 41,
+      "weaponNames": ["MirSword", "MirSword1", "MirSword2", "MirSword3", "MirSword4", "MirSword5"],
+      "glow": 9,
+      "tint": { "hue": 0, "saturate": 100 },
+      "notes": ""
+    },
+    {
+      "weaponShape": 35,
+      "weaponNames": ["BurstSword"],
+      "glow": 10,
+      "tint": { "hue": 0, "saturate": 100 },
+      "notes": ""
+    },
+    {
+      "weaponShape": 37,
+      "weaponNames": ["DragonBloodSword"],
+      "glow": 11,
+      "tint": { "hue": 0, "saturate": 100 },
+      "notes": ""
+    },
+    {
+      "weaponShape": 36,
+      "weaponNames": ["HolyBloodSpear"],
+      "glow": 12,
+      "tint": { "hue": 0, "saturate": 100 },
+      "notes": ""
+    },
+    {
+      "weaponShape": 51,
+      "weaponNames": ["BlackTigerHammer"],
+      "glow": 13,
+      "tint": { "hue": 0, "saturate": 100 },
+      "notes": ""
+    },
+    {
+      "weaponShape": 39,
+      "weaponNames": ["StaffOfLotus"],
+      "glow": 14,
+      "tint": { "hue": 0, "saturate": 100 },
+      "notes": ""
+    },
+    {
+      "weaponShape": 40,
+      "weaponNames": ["FanOfCrane"],
+      "glow": 15,
+      "tint": { "hue": 0, "saturate": 100 },
+      "notes": ""
+    },
+    {
+      "weaponShape": 45,
+      "weaponNames": ["HellYamaBlade", "HellYamaBlade1", "HellYamaBlade2", "HellYamaBlade3", "HellYamaBlade4", "HellYamaBlade5"],
+      "glow": 16,
+      "tint": { "hue": 0, "saturate": 100 },
+      "notes": ""
+    },
+    {
+      "weaponShape": 31,
+      "weaponNames": ["SoulSabre", "BlackDragonSoulSabre"],
+      "glow": 19,
+      "tint": { "hue": 0, "saturate": 100 },
+      "notes": ""
+    },
+    {
+      "weaponShape": 29,
+      "weaponNames": ["DragonSlayer", "BlackDragonSlayer"],
+      "glow": 20,
+      "tint": { "hue": 0, "saturate": 100 },
+      "notes": ""
+    }
+  ]
+}

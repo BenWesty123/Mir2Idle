@@ -55,8 +55,18 @@ const UNLOCK_TOKEN_COSTS = {
   "inv-page-3:taoist": 250,
   "teleport-ring": 500,
   "organisation-skills": 200,
+  "time-logging": 300,
 };
 const PAGE_UNLOCK_KEYS = new Set(Object.keys(UNLOCK_TOKEN_COSTS));
+
+// Re-buyable, time-limited subscriptions bought with tokens. Unlike the one-off
+// unlocks above, these can be purchased again to EXTEND the expiry. Keys, costs,
+// and duration are server-owned so the client cannot forge or reprice them.
+const SUBSCRIPTION_TOKEN_COSTS = {
+  "monthly-supporter": 1000,
+};
+const SUBSCRIPTION_KEYS = new Set(Object.keys(SUBSCRIPTION_TOKEN_COSTS));
+const SUBSCRIPTION_DURATION_MS = 28 * 24 * 60 * 60 * 1000;
 const STRIPE_SIGNATURE_TOLERANCE_SECONDS = 300;
 const DEFAULT_SITE_URL = "https://www.lom2idle.com";
 
@@ -1503,10 +1513,20 @@ async function handleShopUnlocksGet(request, env, headers) {
   const unlocks = (rows?.results ?? [])
     .map((row) => String(row.unlock_key))
     .filter((key) => PAGE_UNLOCK_KEYS.has(key));
+  const subRows = await env.DB.prepare(
+    "SELECT subscription_key, expires_at FROM account_subscriptions WHERE recovery_code = ?",
+  ).bind(recoveryCode).all();
+  const now = Date.now();
+  const subscriptions = {};
+  for (const row of subRows?.results ?? []) {
+    const key = String(row.subscription_key);
+    const expiresAt = intValue(row.expires_at, 0, Number.MAX_SAFE_INTEGER);
+    if (SUBSCRIPTION_KEYS.has(key) && expiresAt > now) subscriptions[key] = expiresAt;
+  }
   const balanceRow = await env.DB.prepare(
     "SELECT balance FROM token_accounts WHERE recovery_code = ?",
   ).bind(recoveryCode).first();
-  return json({ ok: true, unlocks, balance: intValue(balanceRow?.balance) }, 200, {
+  return json({ ok: true, unlocks, subscriptions, balance: intValue(balanceRow?.balance) }, 200, {
     ...headers,
     "cache-control": "no-store",
   });
@@ -1563,6 +1583,60 @@ async function handleShopUnlockPost(request, env, headers) {
     "SELECT balance FROM token_accounts WHERE recovery_code = ?",
   ).bind(recoveryCode).first();
   return json({ ok: true, unlockKey, balance: intValue(balanceRow?.balance) }, 200, {
+    ...headers,
+    "cache-control": "no-store",
+  });
+}
+
+// Buys (or extends) a re-buyable, time-limited subscription. Charges the token
+// cost atomically with a balance guard, then extends the expiry from the later
+// of now or the current expiry, so buying again while active stacks the time.
+async function handleShopSubscribePost(request, env, headers) {
+  if (!env.DB) return json({ error: "Database binding DB is missing." }, 500, headers);
+  const parsed = await boundedJsonBody(request, 4_000);
+  if (!parsed.ok) return json({ error: parsed.error }, parsed.status, headers);
+  const recoveryCode = normalizeRecoveryCode(parsed.value?.recoveryCode);
+  const subscriptionKey = textValue(parsed.value?.subscriptionKey, 60);
+  if (!recoveryCode) return json({ error: "Invalid recovery code." }, 400, headers);
+  if (!SUBSCRIPTION_KEYS.has(subscriptionKey)) return json({ error: "Unknown subscription." }, 400, headers);
+  const cost = SUBSCRIPTION_TOKEN_COSTS[subscriptionKey];
+
+  // Charge first with a `balance >= cost` guard so concurrent buys can never
+  // drive the balance negative. If it fails the player simply has too few tokens.
+  const charge = await env.DB.prepare(`
+    UPDATE token_accounts
+    SET balance = balance - ?, updated_at = CURRENT_TIMESTAMP
+    WHERE recovery_code = ? AND balance >= ?
+  `).bind(cost, recoveryCode, cost).run();
+  if ((charge?.meta?.changes ?? 0) !== 1) {
+    return json({ error: "Not enough tokens.", code: "INSUFFICIENT_TOKENS" }, 402, headers);
+  }
+
+  // Extend from whichever is later: now, or a still-active expiry.
+  const now = Date.now();
+  const existing = await env.DB.prepare(
+    "SELECT expires_at FROM account_subscriptions WHERE recovery_code = ? AND subscription_key = ?",
+  ).bind(recoveryCode, subscriptionKey).first();
+  const base = Math.max(now, intValue(existing?.expires_at, 0, Number.MAX_SAFE_INTEGER));
+  const expiresAt = base + SUBSCRIPTION_DURATION_MS;
+
+  await env.DB.prepare(`
+    INSERT INTO account_subscriptions (recovery_code, subscription_key, expires_at, updated_at)
+    VALUES (?, ?, ?, CURRENT_TIMESTAMP)
+    ON CONFLICT(recovery_code, subscription_key) DO UPDATE SET
+      expires_at = excluded.expires_at,
+      updated_at = CURRENT_TIMESTAMP
+  `).bind(recoveryCode, subscriptionKey, expiresAt).run();
+
+  await env.DB.prepare(`
+    INSERT INTO token_ledger (recovery_code, delta, reason, ref)
+    VALUES (?, ?, 'spend:subscription', ?)
+  `).bind(recoveryCode, -cost, subscriptionKey).run();
+
+  const balanceRow = await env.DB.prepare(
+    "SELECT balance FROM token_accounts WHERE recovery_code = ?",
+  ).bind(recoveryCode).first();
+  return json({ ok: true, subscriptionKey, expiresAt, balance: intValue(balanceRow?.balance) }, 200, {
     ...headers,
     "cache-control": "no-store",
   });
@@ -1650,6 +1724,7 @@ export default {
     if (url.pathname === "/shop/balance" && request.method === "GET") return handleShopBalanceGet(request, env, headers);
     if (url.pathname === "/shop/unlocks" && request.method === "GET") return handleShopUnlocksGet(request, env, headers);
     if (url.pathname === "/shop/unlock-page" && request.method === "POST") return handleShopUnlockPost(request, env, headers);
+    if (url.pathname === "/shop/subscribe" && request.method === "POST") return handleShopSubscribePost(request, env, headers);
     if (url.pathname === "/player/alias" && request.method === "GET") return handlePlayerAliasGet(request, env, headers);
     if (url.pathname === "/player/alias" && request.method === "POST") return handlePlayerAliasPost(request, env, headers);
     if (url.pathname === "/town-messages" && request.method === "GET") return handleTownMessagesGet(request, env, headers);

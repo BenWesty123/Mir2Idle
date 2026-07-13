@@ -1,5 +1,124 @@
 # AI Task Log - LOM Idle V2
 
+## 2026-07-12 - Warrior BA vs Half Moon cast priority
+
+### What
+Blade Avalanche was losing to Half Moon / Cross Half Moon in practice (especially boss party), so BA did not cast on cooldown. BA should cast whenever ready; HM/CHM fill swings while BA is cooling down.
+
+### Changes
+- `src/app.monolith.js` `usableWarriorAttackSkill`: pick ready autocast Blade Avalanche before sweep attacks (after charged / Slaying / queued).
+- `bossPartyWarriorAction`: do not prefer sweep while BA is autocast-ready; same BA-over-sweep rule as solo.
+- `usableWarriorSweepAttack` (boss-party member path): also defer sweep when BA is ready.
+
+### Verify
+- `node --check src/app.monolith.js`; unit tests.
+
+## 2026-07-12 - Codex search
+
+### What
+Added a search box to the Item Codex that filters the current category list by discovered item name, slot/type, or requirement text. Undiscovered entries never match (avoids spoiling hidden names). Escape / Clear clears the query. Session-only UI state (`codexSearchQuery`), not saved.
+
+### Changes
+- `src/app.monolith.js`: filter helpers + search input bindings; included in overlay signature; focus restore already covers `data-codex-search`.
+- `src/styles.css`: search row styling under category tabs.
+
+### Verify
+- `node --check src/app.monolith.js`; smoke with `?scene=codex` if server up.
+
+## 2026-07-12 - Codex open freeze (sanitize-on-read)
+
+### What
+Opening the Item Codex froze the game for ~1–2s. Root cause: `codexItemDiscovery()` called `ensureAccountCodex()` → full `sanitizeAccountCodexState()` on every lookup, and open rebuilt progress for every category by re-filtering/sorting all ~500 items and scanning discoveries thousands of times. Cost scaled with how many items the player had discovered.
+
+### Fix (`src/app.monolith.js`)
+- `ensureAccountCodex()` is now a cheap shape check; sanitize stays on load/import/clone only.
+- `codexItemDiscovery()` is a direct map lookup.
+- Category tab progress is computed in one pass over items (`codexProgressByCategory`).
+- Overlay signature tracks `accountCodexRevision` instead of JSON-stringifying the full discovery map every tick.
+
+### Verify
+- Monolith syntax-check + 432 unit tests green. Full `npm run check` blocked by unrelated stale `integrity:rules` (other WIP). `npm run smoke` with `?scene=codex` (below).
+
+## 2026-07-12 - Options sliders for auto-potion HP/MP thresholds
+
+### What
+Auto potions always triggered at a hard-coded 50% HP/MP. Players can now set separate thresholds in Options (5%–100%, step 5%, default 50% each).
+
+### Changes
+- `src/persistence/sanitizeSettings.js`: `autoPotionHpThreshold` / `autoPotionMpThreshold` with `normalizedAutoPotionThreshold` (clamp 0.05–1.0); defaults 0.5; migrated via existing `sanitizeSettingsState`.
+- `src/app.monolith.js`: save/reset/serialize the settings; `autoPotionThreshold(kind)` used by live, offline, and boss-party auto-potion paths; Options UI sliders + Getting Started copy updated. Taoist auto-heal still uses the fixed `AUTO_POTION_THRESHOLD` (0.5).
+- `tests/persistenceSettings.test.mjs`: cover sanitize + clamp behaviour.
+
+### Verify
+- `npm run check` green (432 tests); `npm run smoke` clean (no console/page errors).
+
+## 2026-07-12 - Time Logging XP/hr tracker now works in group dungeons
+
+### What
+The Time Logging "XP/h" window stayed empty during group dungeons. Root cause: group-dungeon kills award XP through a **different path** than solo play. Solo kills call `awardEnemyRewards` (which samples `recordXpRateSample`), but group dungeons award each party member via `applyBossPartyMemberKillReward` (`awardBossPartyKillShare` / `awardBossPartyBossKillShare`), so no XP samples were ever recorded. (The mode/zone gating was fine - group dungeons run in `state.game.mode === "zone"` with a real `activeZoneId`.)
+
+### Fix (`src/app.monolith.js`)
+- In `applyBossPartyMemberKillReward`, after `applyBossPartyExperienceReward`, sample only the locally-controlled character's share: `if (member.classId === bossPartyControlledClassId()) recordXpRateSample(xp);`. `bossPartyControlledClassId()` is the party leader, whose state mirrors top-level `state.game` (correct zone + mode), so the existing `recordXpRateSample` / `currentZoneXpRate` gating attributes it to the right zone. Only the controlled member is sampled (assist members' shares are ignored), matching the solo behaviour of measuring the local player's active hunting.
+- Updated the tracker doc comment to note both live paths (solo `awardEnemyRewards` + group-dungeon controlled share).
+
+### Verify
+- `npm run check` green (431 tests); `npm run smoke` clean (no console/page errors).
+
+## 2026-07-11 - Unblock website build: obsolete itch file-count check + over-eager effect-atlas preload
+
+### What
+Producing a full website package (`npm run release:itch`) failed for two reasons, both unrelated to the token-shop work:
+1. **Obsolete itch 1,000-file limit.** The live game now deploys to **Cloudflare Pages** (`lom2idle`); the 1,000-file guard in `tools/package-itch.mjs` was an itch.io HTML-embed constraint. The project is at 1,067 files, so packaging died before the boot check could even run. (Note: Cloudflare Pages' *dashboard* direct upload also caps at 1,000 files, but the **Wrangler CLI** allows up to 20,000 - so deploy the site with `npx wrangler pages deploy dist/itch --project-name=lom2idle --branch=main`, not the dashboard. The `--branch=main` is required - without it wrangler deploys a *preview* on your current git branch and production stays stale.)
+2. **Effect-atlas 404s in the packaged build.** The boot verifier then failed on 404s for `public/armour-effects/{oma-king-robe,black-dragon-armour}` and `public/level-effects/{mist,red-dragon,blue-dragon,rebirth1,rebirth2,rebirth3,new-blue,yellow-dragon,phoenix}` `atlas.json`. Root cause: the boot preload loaded `def.atlasPath` for **every** entry in `ARMOUR_SPECIAL_EFFECT_DEFS`, but the packager (`buildUsedArmourEffectFiles`) only ships effect atlases an item actually assigns (`visualEffect >= 100` in `items.json`). None of these 11 are assigned yet (they belong to uncommitted armour/level-effects WIP: `src/armourVisualEffects.js`, `src/levelVisualEffects.js`), so the trimmed build 404'd on them. The game already tolerated the misses (`loadJson(...).catch(() => null)`); it was console-error noise that the strict boot verifier (correctly) rejects.
+
+### Fix
+- `tools/package-itch.mjs` `validateItchLimits`: the 1,000-file check is now a **non-fatal warning** (Cloudflare Pages has no limit); the 500 MB total / 200 MB per-file checks remain fatal.
+- `tools/package-itch.mjs` `buildUsedArmourEffectFiles`: now ships **every DEFINED** special-effect atlas (`ARMOUR_SPECIAL_EFFECT_DEFS`), not only item-assigned ones. Several effects are intentional scaffolding for future development (not yet assigned to any item), and the client preloads all of them at boot - so shipping the full set is what stops the 404s while keeping the effects available for future work. `addEffectId()` skips any def whose atlas file is missing, so it stays safe. (The boot preload in `src/app.monolith.js` is left preloading all defs, as before.)
+- Docs corrected from the old itch.io zip-upload flow to Cloudflare Pages: `AGENTS.md`, `COOKBOOK.md`, `AI_HANDOFF.md`, and `.cursor/rules/source-of-truth.mdc`. (Legacy `release:itch`/`dist/itch` names kept to avoid churn - noted as "the website build".)
+
+### Verify
+- `npm run check` green; `npm run smoke` clean. Full `npm run release:itch` now passes end-to-end incl. the headless **boot check ("Release boot check passed")** - the effect 404s are gone. Package: `dist/itch` (267 MB, 1,067 files; file-count warning is expected/fine for Pages).
+
+## 2026-07-11 - "Time Logging" XP/hr tracker (300 tokens Cash Shop / 50 Souls Rebirth)
+
+### What
+A new permanent unlock that adds a live **experience-per-hour** readout for whatever combat zone you're currently hunting in. Owning it shows an **XP/h** button at the top-right of the play screen; clicking it opens a dedicated **Time Logging** window with the current zone and a live XP/hr number. Sold two ways (mirrors Organisation Skills): **300 tokens** in the Cash Shop, or **50 Souls** in the Rebirth shop.
+
+### Server (`tools/stats-worker/`)
+- `worker.js`: added `"time-logging": 300` to `UNLOCK_TOKEN_COSTS`. Reuses the existing idempotent `POST /shop/unlock-page` flow (no new route). **Deployed** (version `c8efc7eb`, no schema change - reuses `account_unlocks`). Live-checked: `unlock-page` with `time-logging` -> 402 for a zero-balance code (key recognized), unknown key -> 400.
+- `tests/statsWorkerShop.test.mjs`: added "unlock-page charges 300 tokens for time logging".
+
+### Client (`src/app.monolith.js`)
+- Unlock: `TIME_LOGGING_UNLOCK_KEY`/`_TOKEN_COST`, `timeLoggingUnlocked()` (true if the rebirth upgrade is purchased OR the token unlock is owned). New rebirth upgrade def `rebirth-time-logging` (maxTier 1, `rebirthCosts:[50]`, category `utility`) - auto-appears in the Rebirth shop. Added key to `sanitizeOwnedUnlocks` whitelist and the harness key export.
+- Tracker: session-only trailing-window sampler (`XP_RATE_WINDOW_MS` 5m, `XP_RATE_MIN_SAMPLE_MS` 20s) - `recordXpRateSample` / `pruneXpRateSamples` / `currentZoneXpRate`. Hooked into `awardEnemyRewards` (the LIVE solo-kill path) only, so offline catch-up XP (which also runs through `applyExperienceReward`) is deliberately excluded. Returns `null` until >=2 kills span >=20s.
+- UI: top-right buttons wrapped in a `.stage-corner-buttons` flex container (ring + new `#timeLoggingButton`). `syncTimeLoggingButton()` (owned + `UI_MODE === "game"`; NOT gated on `cashShopEnabled()` since it's also a rebirth unlock) called alongside `syncTeleportRingButton()`. New `timeLogging` scene wired through all the same allowlists as `teleportRing` (`initialOpenScenesFromUrl`, `currentOverlayScenes`, `isSceneWindowOpen`, `openScene`+gate, `closeScene`, `renderSceneOverlay` guard, `sceneClassName`/`sceneTitle`/`sceneBodyHtml`). `timeLoggingSceneHtml()` renders the zone + `[data-xp-per-hour]` span + an `[data-time-to-level]` est.-time-to-level line (`xpForNextLevel(level) - experience` / current XP/hr via `formatDuration`; shows "Max level"/"Ready to level up"/"Measuring..." at the edges); both numbers tick in place via `refreshOpenSceneLiveText` (no rebuild).
+- Shop: Cash Shop "Spend tokens" item (Buy for 300 / Owned) + `confirmTimeLoggingPurchase()` + `data-buy-unlock` handler branch. Test harness gained `grantTimeLogging()`, `recordXpSample(xp, ageMs)`, `timeLoggingState()`.
+- `styles.css`: `.stage-corner-buttons` container, shared `.stage-corner-button` base (positioning moved off `.teleport-ring-button`), `.time-logging-button` text style, `.time-logging-panel/-readout/-rate/...`.
+
+### Verify
+- `npm run check` green (431 tests, incl. new worker test); `npm run smoke` clean. Headless (`?testHarness=1`, warrior-bicheon save): `grantTimeLogging()` -> owned + button visible; `currentZoneXpRate` null before enough samples, then 120,000 XP/hr from two synthetic samples spanning 60s; window renders "Bicheon 1" + live "XP/hr" and the number refreshes in place. No console errors.
+- **Worker deployed; client not yet packaged.** To finish going live: run the website package/upload for the client changes. (Rebirth-shop 50-Souls purchase is fully client-side; the 300-token Cash Shop purchase now works server-side.)
+
+## 2026-07-11 - Cash Shop "Monthly Supporter" subscription (1000 tokens / 28 days)
+
+### What
+A re-buyable, time-limited Cash Shop perk. While active it grants a multiplicative **+10% XP**, **+10% gold**, **-10% boss respawn time**, and **+1 auto-potion** and **+1 auto-cast** slot. Lasts 28 days; buying again while active extends the expiry. Multipliers stack multiplicatively on top of rebirth/equipment bonuses (e.g. supporter + a 2x rebirth XP = 2.2x).
+
+### Server (authoritative expiry - `tools/stats-worker/`)
+- `schema.sql`: new `account_subscriptions` table (`recovery_code`, `subscription_key`, `expires_at` epoch-ms, `updated_at`; PK on code+key). Unlike `account_unlocks`, these expire and can be re-bought. Created on the remote D1 (idempotent `CREATE TABLE IF NOT EXISTS`).
+- `worker.js`: `SUBSCRIPTION_TOKEN_COSTS` (`monthly-supporter: 1000`), `SUBSCRIPTION_DURATION_MS` (28 days). New `POST /shop/subscribe` charges tokens atomically (`balance >= cost` guard) then extends expiry from `max(now, currentExpiry)`; writes a `spend:subscription` ledger row. `GET /shop/unlocks` now also returns `subscriptions` (only still-active keys). Timestamps read via `intValue(..., Number.MAX_SAFE_INTEGER)` since the default int cap is 32-bit.
+- `tests/statsWorkerShop.test.mjs`: charges 1000 + 28-day expiry, extends from current expiry, 402 when short, 400 unknown key, active-vs-expired in the unlocks GET. FakeDb extended with an `account_subscriptions` mock. All 20 shop tests green.
+
+### Client (`src/app.monolith.js`)
+- Constants + helpers near the other unlock keys: `MONTHLY_SUPPORTER_KEY/_TOKEN_COST/_DURATION_MS`, `supporterActive()`, `supporterExpiresAt()`, `supporterDaysRemaining()`, `applySupporterGold()`.
+- Perk hooks (single choke-points): XP `* supporterExperienceMultiplier()` inside `adjustedKillExperience`; gold wrapped with `applySupporterGold(...)` at all 5 kill-gold sites; `effectiveBossRespawnMinutesForZone` `* 0.9`; `+1` in `autoCastSlotLimit`/`maxAutoCastSlotLimit` and `autoPotionSlotLimit`/`maxAutoPotionSlotLimit` (auto-potion still capped at `HOTBAR_SLOT_COUNT` = 6).
+- Persistence: `state.account.subscriptions` (`Record<key, expiresAtMs>`) added to default state, `createSaveSnapshot`, `sanitizeSubscriptions`, `accountRestoreOptions`, and `restoreAccount.js`.
+- Shop flow: `purchaseSubscription()` -> `setSupporterExpiry()`; boot `fetchAccountUnlocks` now mirrors the server's `subscriptions` (server-authoritative: a missing key means lapsed). Cash Shop item renders "Buy/Extend for 1000 tokens" + an "Active - Nd left" badge (`.cash-shop-active` in `styles.css`). `data-buy-subscription` handler + `confirmMonthlySupporterPurchase()`. Test harness gained `window.__lomTest.setSupporter(days)`.
+
+### Verify
+- `npm run check` green; `npm run smoke` clean (no console errors). Headless (`?testHarness=1`): baseline auto-potion 2 / auto-cast 1 / xp 1x -> active 3 / 2 / 1.1x -> reverts cleanly; Cash Shop shows "Buy for 1000 tokens" inactive and "Extend for 1000 tokens" + "Active - 28 days left" when active.
+- Worker deployed (version `5d54dfac`) and live-checked (`/shop/subscribe` -> 402 for a zero-balance code; `/shop/unlocks` returns `subscriptions`). **Client not yet packaged/uploaded** - needs a website release to go live.
+
 ## 2026-07-08 - Fix: swapped empowerments false-flagged by Social integrity check
 
 ### What

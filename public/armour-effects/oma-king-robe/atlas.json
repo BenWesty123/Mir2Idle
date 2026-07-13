@@ -1,0 +1,317 @@
+﻿{
+    "effectId":  100,
+    "label":  "Oma King Robe",
+    "direction":  2,
+    "blend":  "screen",
+    "drawBehind":  false,
+    "durationMs":  3600,
+    "layers":  [
+                   {
+                       "sheet":  "loop.png",
+                       "interval":  109,
+                       "slotWidth":  84,
+                       "slotHeight":  137,
+                       "library":  "Effect",
+                       "baseIndex":  352,
+                       "frames":  [
+                                      {
+                                          "slot":  0,
+                                          "srcFrame":  352,
+                                          "w":  56,
+                                          "h":  117,
+                                          "offsetX":  -5,
+                                          "offsetY":  -93,
+                                          "empty":  false
+                                      },
+                                      {
+                                          "slot":  1,
+                                          "srcFrame":  353,
+                                          "w":  60,
+                                          "h":  115,
+                                          "offsetX":  -18,
+                                          "offsetY":  -92,
+                                          "empty":  false
+                                      },
+                                      {
+                                          "slot":  2,
+                                          "srcFrame":  354,
+                                          "w":  64,
+                                          "h":  111,
+                                          "offsetX":  -24,
+                                          "offsetY":  -89,
+                                          "empty":  false
+                                      },
+                                      {
+                                          "slot":  3,
+                                          "srcFrame":  355,
+                                          "w":  68,
+                                          "h":  108,
+                                          "offsetX":  -10,
+                                          "offsetY":  -87,
+                                          "empty":  false
+                                      },
+                                      {
+                                          "slot":  4,
+                                          "srcFrame":  356,
+                                          "w":  64,
+                                          "h":  99,
+                                          "offsetX":  -8,
+                                          "offsetY":  -86,
+                                          "empty":  false
+                                      },
+                                      {
+                                          "slot":  5,
+                                          "srcFrame":  357,
+                                          "w":  84,
+                                          "h":  98,
+                                          "offsetX":  -31,
+                                          "offsetY":  -86,
+                                          "empty":  false
+                                      },
+                                      {
+                                          "slot":  6,
+                                          "srcFrame":  358,
+                                          "w":  76,
+                                          "h":  127,
+                                          "offsetX":  -25,
+                                          "offsetY":  -85,
+                                          "empty":  false
+                                      },
+                                      {
+                                          "slot":  7,
+                                          "srcFrame":  359,
+                                          "w":  72,
+                                          "h":  133,
+                                          "offsetX":  -13,
+                                          "offsetY":  -85,
+                                          "empty":  false
+                                      },
+                                      {
+                                          "slot":  8,
+                                          "srcFrame":  360,
+                                          "w":  68,
+                                          "h":  122,
+                                          "offsetX":  -9,
+                                          "offsetY":  -84,
+                                          "empty":  false
+                                      },
+                                      {
+                                          "slot":  9,
+                                          "srcFrame":  361,
+                                          "w":  68,
+                                          "h":  113,
+                                          "offsetX":  -9,
+                                          "offsetY":  -83,
+                                          "empty":  false
+                                      },
+                                      {
+                                          "slot":  10,
+                                          "srcFrame":  362,
+                                          "w":  68,
+                                          "h":  108,
+                                          "offsetX":  -15,
+                                          "offsetY":  -83,
+                                          "empty":  false
+                                      },
+                                      {
+                                          "slot":  11,
+                                          "srcFrame":  363,
+                                          "w":  68,
+                                          "h":  124,
+                                          "offsetX":  -16,
+                                          "offsetY":  -99,
+                                          "empty":  false
+                                      },
+                                      {
+                                          "slot":  12,
+                                          "srcFrame":  364,
+                                          "w":  68,
+                                          "h":  124,
+                                          "offsetX":  -5,
+                                          "offsetY":  -99,
+                                          "empty":  false
+                                      },
+                                      {
+                                          "slot":  13,
+                                          "srcFrame":  365,
+                                          "w":  76,
+                                          "h":  119,
+                                          "offsetX":  -5,
+                                          "offsetY":  -95,
+                                          "empty":  false
+                                      },
+                                      {
+                                          "slot":  14,
+                                          "srcFrame":  366,
+                                          "w":  76,
+                                          "h":  121,
+                                          "offsetX":  -5,
+                                          "offsetY":  -89,
+                                          "empty":  false
+                                      },
+                                      {
+                                          "slot":  15,
+                                          "srcFrame":  367,
+                                          "w":  72,
+                                          "h":  114,
+                                          "offsetX":  -5,
+                                          "offsetY":  -83,
+                                          "empty":  false
+                                      },
+                                      {
+                                          "slot":  16,
+                                          "srcFrame":  368,
+                                          "w":  68,
+                                          "h":  106,
+                                          "offsetX":  -10,
+                                          "offsetY":  -77,
+                                          "empty":  false
+                                      },
+                                      {
+                                          "slot":  17,
+                                          "srcFrame":  369,
+                                          "w":  68,
+                                          "h":  123,
+                                          "offsetX":  -9,
+                                          "offsetY":  -75,
+                                          "empty":  false
+                                      },
+                                      {
+                                          "slot":  18,
+                                          "srcFrame":  370,
+                                          "w":  68,
+                                          "h":  136,
+                                          "offsetX":  -8,
+                                          "offsetY":  -88,
+                                          "empty":  false
+                                      },
+                                      {
+                                          "slot":  19,
+                                          "srcFrame":  371,
+                                          "w":  64,
+                                          "h":  137,
+                                          "offsetX":  -5,
+                                          "offsetY":  -89,
+                                          "empty":  false
+                                      },
+                                      {
+                                          "slot":  20,
+                                          "srcFrame":  372,
+                                          "w":  4,
+                                          "h":  1,
+                                          "offsetX":  0,
+                                          "offsetY":  0,
+                                          "empty":  false
+                                      },
+                                      {
+                                          "slot":  21,
+                                          "srcFrame":  373,
+                                          "w":  4,
+                                          "h":  1,
+                                          "offsetX":  0,
+                                          "offsetY":  0,
+                                          "empty":  false
+                                      },
+                                      {
+                                          "slot":  22,
+                                          "srcFrame":  374,
+                                          "w":  4,
+                                          "h":  1,
+                                          "offsetX":  0,
+                                          "offsetY":  0,
+                                          "empty":  false
+                                      },
+                                      {
+                                          "slot":  23,
+                                          "srcFrame":  375,
+                                          "w":  4,
+                                          "h":  1,
+                                          "offsetX":  0,
+                                          "offsetY":  0,
+                                          "empty":  false
+                                      },
+                                      {
+                                          "slot":  24,
+                                          "srcFrame":  376,
+                                          "w":  4,
+                                          "h":  1,
+                                          "offsetX":  0,
+                                          "offsetY":  0,
+                                          "empty":  false
+                                      },
+                                      {
+                                          "slot":  25,
+                                          "srcFrame":  377,
+                                          "w":  4,
+                                          "h":  1,
+                                          "offsetX":  0,
+                                          "offsetY":  0,
+                                          "empty":  false
+                                      },
+                                      {
+                                          "slot":  26,
+                                          "srcFrame":  378,
+                                          "w":  4,
+                                          "h":  1,
+                                          "offsetX":  0,
+                                          "offsetY":  0,
+                                          "empty":  false
+                                      },
+                                      {
+                                          "slot":  27,
+                                          "srcFrame":  379,
+                                          "w":  4,
+                                          "h":  1,
+                                          "offsetX":  0,
+                                          "offsetY":  0,
+                                          "empty":  false
+                                      },
+                                      {
+                                          "slot":  28,
+                                          "srcFrame":  380,
+                                          "w":  4,
+                                          "h":  1,
+                                          "offsetX":  0,
+                                          "offsetY":  0,
+                                          "empty":  false
+                                      },
+                                      {
+                                          "slot":  29,
+                                          "srcFrame":  381,
+                                          "w":  4,
+                                          "h":  1,
+                                          "offsetX":  0,
+                                          "offsetY":  0,
+                                          "empty":  false
+                                      },
+                                      {
+                                          "slot":  30,
+                                          "srcFrame":  382,
+                                          "w":  4,
+                                          "h":  1,
+                                          "offsetX":  0,
+                                          "offsetY":  0,
+                                          "empty":  false
+                                      },
+                                      {
+                                          "slot":  31,
+                                          "srcFrame":  383,
+                                          "w":  4,
+                                          "h":  1,
+                                          "offsetX":  0,
+                                          "offsetY":  0,
+                                          "empty":  false
+                                      },
+                                      {
+                                          "slot":  32,
+                                          "srcFrame":  384,
+                                          "w":  4,
+                                          "h":  1,
+                                          "offsetX":  0,
+                                          "offsetY":  0,
+                                          "empty":  false
+                                      }
+                                  ]
+                   }
+               ]
+}

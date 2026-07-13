@@ -15,7 +15,7 @@ function parseJsonText(text) {
 
 function packagedAtlasKey(url) {
   const key = String(url).split(/[?#]/, 1)[0].replace(/\\/g, "/").replace(/^\.\//, "");
-  return /^(?:public\/sprite-sets\/common\/(?:armour|hair|weapon)\/\d+|public\/monsters\/monster\/\d+)\.json$/.test(key)
+  return /^(?:public\/sprite-sets\/common\/(?:armour|hair|weapon|wing)\/\d+|public\/monsters\/monster\/\d+)\.json$/.test(key)
     ? key
     : null;
 }
