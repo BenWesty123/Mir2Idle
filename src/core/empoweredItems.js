@@ -1736,12 +1736,14 @@ export function listEmpowerSlotsFromEntry(entry) {
  * @param {{ type: "stat", key: string, range?: boolean, index?: number } | { type: "spell", spellId: string, kind: string }} slot
  */
 function captureEmpowerSlotAmount(entry, slot) {
+  // Preserve fractional stats (e.g. dropChanceBonusPercent rolls in 0.25 steps);
+  // truncating here would delete sub-1% drop chance on swap.
   if (slot.type === "spell") {
-    return Math.trunc(Number(entry.empowerSpellBonuses?.[slot.spellId]?.[slot.kind]) || 0);
+    return Number(entry.empowerSpellBonuses?.[slot.spellId]?.[slot.kind]) || 0;
   }
   const bonus = sanitizeItemBonusStats(entry.empowerBonusStats);
-  if (slot.range) return Math.trunc(Number(bonus[slot.key]?.[slot.index ?? 1]) || 0);
-  return Math.trunc(Number(bonus[slot.key]) || 0);
+  if (slot.range) return Number(bonus[slot.key]?.[slot.index ?? 1]) || 0;
+  return Number(bonus[slot.key]) || 0;
 }
 
 /**
@@ -1750,7 +1752,9 @@ function captureEmpowerSlotAmount(entry, slot) {
  * @param {number} amount
  */
 function restoreEmpowerSlotAmount(entry, slot, amount) {
-  const value = Math.trunc(Number(amount) || 0);
+  // Keep the exact rolled value (already quantised to its stat's step); truncating
+  // would drop fractional stats such as sub-1% item drop chance.
+  const value = Number(amount) || 0;
   if (value <= 0) return;
   entry.empowerBonusStats = sanitizeItemBonusStats(entry.empowerBonusStats ?? {});
   entry.empowerSpellBonuses = sanitizeEmpowerSpellBonuses(entry.empowerSpellBonuses ?? {});

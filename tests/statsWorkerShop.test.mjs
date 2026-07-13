@@ -398,6 +398,64 @@ test("unlock-page rejects an unknown unlock key", async () => {
   assert.equal(db.balances[VALID_CODE], 300);
 });
 
+test("shop spend charges 200 tokens for spirit-box-deposit", async () => {
+  const db = new FakeDb({ balances: { [VALID_CODE]: 250 } });
+  const response = await request("/shop/spend", {
+    method: "POST",
+    headers: { "content-type": "application/json" },
+    body: JSON.stringify({ recoveryCode: VALID_CODE, spendKey: "spirit-box-deposit" }),
+  }, { DB: db });
+  assert.equal(response.status, 200);
+  const data = await response.json();
+  assert.equal(data.ok, true);
+  assert.equal(data.spendKey, "spirit-box-deposit");
+  assert.equal(data.balance, 50);
+  assert.equal(db.balances[VALID_CODE], 50);
+});
+
+test("shop spend is not idempotent and can charge repeatedly", async () => {
+  const db = new FakeDb({ balances: { [VALID_CODE]: 500 } });
+  const first = await request("/shop/spend", {
+    method: "POST",
+    headers: { "content-type": "application/json" },
+    body: JSON.stringify({ recoveryCode: VALID_CODE, spendKey: "spirit-box-deposit" }),
+  }, { DB: db });
+  assert.equal(first.status, 200);
+  const second = await request("/shop/spend", {
+    method: "POST",
+    headers: { "content-type": "application/json" },
+    body: JSON.stringify({ recoveryCode: VALID_CODE, spendKey: "spirit-box-deposit" }),
+  }, { DB: db });
+  assert.equal(second.status, 200);
+  const data = await second.json();
+  assert.equal(data.balance, 100);
+  assert.equal(db.balances[VALID_CODE], 100);
+});
+
+test("shop spend rejects when the balance is below 200", async () => {
+  const db = new FakeDb({ balances: { [VALID_CODE]: 150 } });
+  const response = await request("/shop/spend", {
+    method: "POST",
+    headers: { "content-type": "application/json" },
+    body: JSON.stringify({ recoveryCode: VALID_CODE, spendKey: "spirit-box-deposit" }),
+  }, { DB: db });
+  assert.equal(response.status, 402);
+  const data = await response.json();
+  assert.equal(data.code, "INSUFFICIENT_TOKENS");
+  assert.equal(db.balances[VALID_CODE], 150);
+});
+
+test("shop spend rejects an unknown spend key", async () => {
+  const db = new FakeDb({ balances: { [VALID_CODE]: 300 } });
+  const response = await request("/shop/spend", {
+    method: "POST",
+    headers: { "content-type": "application/json" },
+    body: JSON.stringify({ recoveryCode: VALID_CODE, spendKey: "not-a-real-spend" }),
+  }, { DB: db });
+  assert.equal(response.status, 400);
+  assert.equal(db.balances[VALID_CODE], 300);
+});
+
 test("unlocks GET returns the owned unlock keys", async () => {
   const db = new FakeDb({
     balances: { [VALID_CODE]: 42 },

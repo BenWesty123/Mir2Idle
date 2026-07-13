@@ -82,6 +82,40 @@ test("restoreAccountFromSnapshot: restores account block from minimal fixture", 
   assert.equal(account.stats.bossKills["zone-bug-cave-kr"], 1);
   assert.equal(account.stats.bossKills["zone-wooma-temple-kr"], 2);
   assert.equal(account.storage.pagesUnlocked, 1);
+  assert.deepEqual(account.spiritBox, { paid: false, entry: null });
+});
+
+test("restoreAccountFromSnapshot: keeps spirit box entry when sanitizer provided", () => {
+  const characters = {
+    Warrior: { game: {} },
+    Wizard: { game: {} },
+    Taoist: { game: {} },
+  };
+  const options = {
+    ...accountOptions(),
+    sanitizeSpiritBox: (saved) => ({
+      paid: Boolean(saved?.paid),
+      entry: saved?.entry?.itemId
+        ? {
+          id: "spirit-box-item",
+          itemId: saved.entry.itemId,
+          quantity: Math.max(1, Math.trunc(Number(saved.entry.quantity) || 1)),
+          slot: null,
+        }
+        : null,
+    }),
+  };
+  const snapshot = {
+    ...minimalSave,
+    account: {
+      ...minimalSave.account,
+      spiritBox: { paid: true, entry: { itemId: "wooma-heart", quantity: 2 } },
+    },
+  };
+  const { account } = restoreAccountFromSnapshot(snapshot, characters, options);
+  assert.equal(account.spiritBox.paid, true);
+  assert.equal(account.spiritBox.entry.itemId, "wooma-heart");
+  assert.equal(account.spiritBox.entry.quantity, 2);
 });
 
 test("restoreSaveUiMeta", () => {

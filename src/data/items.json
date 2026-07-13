@@ -9199,6 +9199,66 @@
       "crystalType": "Stone"
     },
     {
+      "id": "dd-soul",
+      "name": "DD Soul",
+      "type": "scroll",
+      "slot": "consumable",
+      "class": "any",
+      "source": {
+        "crystalIndex": 937,
+        "name": "DdSoul"
+      },
+      "icon": {
+        "library": "Items",
+        "frame": 3224,
+        "src": "./public/item-icons/items/dd-soul.png"
+      },
+      "requirements": {
+        "type": "none",
+        "amount": 0,
+        "classMask": 31,
+        "genderMask": 3
+      },
+      "stackable": true,
+      "maxStack": 64,
+      "stats": {
+        "ac": [
+          0,
+          0
+        ],
+        "amc": [
+          0,
+          0
+        ],
+        "dc": [
+          0,
+          0
+        ],
+        "mc": [
+          0,
+          0
+        ],
+        "sc": [
+          0,
+          0
+        ],
+        "hp": 0,
+        "mp": 0,
+        "accuracy": 0,
+        "agility": 0,
+        "luck": 0,
+        "attackSpeed": 0
+      },
+      "shop": {
+        "buy": 0,
+        "sell": 0
+      },
+      "scroll": {
+        "kind": "dd-soul"
+      },
+      "crystalType": "Scroll"
+    },
+    {
       "id": "death-gauntlet",
       "name": "Death Gauntlet",
       "type": "bracelet",
@@ -16926,6 +16986,126 @@
         }
       },
       "crystalType": "Weapon"
+    },
+    {
+      "id": "iwt-soul",
+      "name": "IWT Soul",
+      "type": "scroll",
+      "slot": "consumable",
+      "class": "any",
+      "source": {
+        "crystalIndex": 937,
+        "name": "IwtSoul"
+      },
+      "icon": {
+        "library": "Items",
+        "frame": 3224,
+        "src": "./public/item-icons/items/iwt-soul.png"
+      },
+      "requirements": {
+        "type": "none",
+        "amount": 0,
+        "classMask": 31,
+        "genderMask": 3
+      },
+      "stackable": true,
+      "maxStack": 64,
+      "stats": {
+        "ac": [
+          0,
+          0
+        ],
+        "amc": [
+          0,
+          0
+        ],
+        "dc": [
+          0,
+          0
+        ],
+        "mc": [
+          0,
+          0
+        ],
+        "sc": [
+          0,
+          0
+        ],
+        "hp": 0,
+        "mp": 0,
+        "accuracy": 0,
+        "agility": 0,
+        "luck": 0,
+        "attackSpeed": 0
+      },
+      "shop": {
+        "buy": 0,
+        "sell": 0
+      },
+      "scroll": {
+        "kind": "iwt-soul"
+      },
+      "crystalType": "Scroll"
+    },
+    {
+      "id": "izt-soul",
+      "name": "IZT Soul",
+      "type": "scroll",
+      "slot": "consumable",
+      "class": "any",
+      "source": {
+        "crystalIndex": 937,
+        "name": "IztSoul"
+      },
+      "icon": {
+        "library": "Items",
+        "frame": 3224,
+        "src": "./public/item-icons/items/izt-soul.png"
+      },
+      "requirements": {
+        "type": "none",
+        "amount": 0,
+        "classMask": 31,
+        "genderMask": 3
+      },
+      "stackable": true,
+      "maxStack": 64,
+      "stats": {
+        "ac": [
+          0,
+          0
+        ],
+        "amc": [
+          0,
+          0
+        ],
+        "dc": [
+          0,
+          0
+        ],
+        "mc": [
+          0,
+          0
+        ],
+        "sc": [
+          0,
+          0
+        ],
+        "hp": 0,
+        "mp": 0,
+        "accuracy": 0,
+        "agility": 0,
+        "luck": 0,
+        "attackSpeed": 0
+      },
+      "shop": {
+        "buy": 0,
+        "sell": 0
+      },
+      "scroll": {
+        "kind": "izt-soul"
+      },
+      "crystalType": "Scroll"
     },
     {
       "id": "jade-necklace",

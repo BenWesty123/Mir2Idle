@@ -580,6 +580,31 @@ test("swapRandomEmpowermentsBetweenEntries never picks a colliding pair (the rep
   assert.equal(entryB.empowerBonusStats.critChancePercent, 50);
 });
 
+test("swapEmpowermentsAtSlotIndices preserves fractional drop chance (sub-1%)", () => {
+  const weaponEntry = {
+    empowered: true,
+    empowerTier: 2,
+    empowerBonusStats: sanitizeItemBonusStats({ dc: [0, 3], dropChanceBonusPercent: 0.5 }),
+    empowerSpellBonuses: {},
+  };
+  const necklaceEntry = {
+    empowered: true,
+    empowerTier: 1,
+    empowerBonusStats: sanitizeItemBonusStats({ sc: [0, 2] }),
+    empowerSpellBonuses: {},
+  };
+  const dropIndex = listEmpowerSlotsFromEntry(weaponEntry).findIndex(
+    (slot) => slot.key === "dropChanceBonusPercent",
+  );
+  const scIndex = listEmpowerSlotsFromEntry(necklaceEntry).findIndex((slot) => slot.key === "sc");
+  const result = swapEmpowermentsAtSlotIndices(weaponEntry, UNIVERSAL_WEAPON, dropIndex, necklaceEntry, MC_RING, scIndex);
+  assert.equal(result.ok, true);
+  // The 0.5% drop chance must land intact on the necklace, not truncate to 0 and vanish.
+  assert.equal(necklaceEntry.empowerBonusStats.dropChanceBonusPercent, 0.5);
+  assert.equal(weaponEntry.empowerBonusStats.sc[1], 2);
+  assert.equal(weaponEntry.empowerBonusStats.dropChanceBonusPercent, 0);
+});
+
 test("formatEmpowerAppliedChangeLabel uses the rolled amount", () => {
   const dcRoll = WEAPON_EMPOWER_ROLL_DEFS.find((roll) => roll.key === "dc");
   assert.equal(formatEmpowerAppliedChangeLabel(dcRoll, 3), "+3 DC");

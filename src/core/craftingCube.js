@@ -3,6 +3,13 @@ import { itemCanBeEmpowered, listEmpowerSlotsFromEntry } from "./empoweredItems.
 export const HAVOC_CRYSTAL_ITEM_ID = "havoc-crystal";
 export const ADAMANTINE_ORE_ITEM_ID = "adamantine-ore";
 export const FOCUS_PRISM_ITEM_ID = "focus-prism";
+export const WOOMA_HEART_ITEM_ID = "wooma-heart";
+export const ZUMA_RELIC_ITEM_ID = "zuma-relic";
+export const IWT_SOUL_ITEM_ID = "iwt-soul";
+export const IZT_SOUL_ITEM_ID = "izt-soul";
+export const DD_SOUL_ITEM_ID = "dd-soul";
+export const STONE_HEART_ITEM_ID = "stone-heart";
+export const HOG_TOOTH_ITEM_ID = "hog-tooth";
 
 export const CRAFTING_CUBE_SALVAGE_ONLY_EMPOWERED_ERROR = "Can only salvage Empowered Items";
 
@@ -10,6 +17,27 @@ export const CRAFTING_CUBE_FOCUS_PRISM_RECIPE_ID = "focus-prism";
 export const CRAFTING_CUBE_FOCUS_PRISM_LABEL = "Focus Prism";
 export const CRAFTING_CUBE_FOCUS_PRISM_CRYSTAL_COST = 4;
 export const CRAFTING_CUBE_FOCUS_PRISM_REQUIREMENTS_ERROR = "Place four Havoc Crystals in the cube.";
+
+export const CRAFTING_CUBE_IWT_SOUL_RECIPE_ID = "iwt-soul";
+export const CRAFTING_CUBE_IWT_SOUL_LABEL = "IWT Soul";
+export const CRAFTING_CUBE_IWT_SOUL_HEART_COST = 2;
+export const CRAFTING_CUBE_IWT_SOUL_RELIC_COST = 1;
+export const CRAFTING_CUBE_IWT_SOUL_REQUIREMENTS_ERROR =
+  "Place two Wooma Hearts and one Zuma Relic in the cube.";
+
+export const CRAFTING_CUBE_IZT_SOUL_RECIPE_ID = "izt-soul";
+export const CRAFTING_CUBE_IZT_SOUL_LABEL = "IZT Soul";
+export const CRAFTING_CUBE_IZT_SOUL_HEART_COST = 1;
+export const CRAFTING_CUBE_IZT_SOUL_RELIC_COST = 2;
+export const CRAFTING_CUBE_IZT_SOUL_REQUIREMENTS_ERROR =
+  "Place one Wooma Heart and two Zuma Relics in the cube.";
+
+export const CRAFTING_CUBE_DD_SOUL_RECIPE_ID = "dd-soul";
+export const CRAFTING_CUBE_DD_SOUL_LABEL = "DD Soul";
+export const CRAFTING_CUBE_DD_SOUL_STONE_HEART_COST = 1;
+export const CRAFTING_CUBE_DD_SOUL_HOG_TOOTH_COST = 1;
+export const CRAFTING_CUBE_DD_SOUL_REQUIREMENTS_ERROR =
+  "Place one Stone Heart and one Hog Tooth in the cube.";
 
 export const CRAFTING_CUBE_EMPOWER_REROLL_RECIPE_ID = "empower-reroll";
 export const CRAFTING_CUBE_EMPOWER_REROLL_LABEL = "Random Empowerment Reroll";
@@ -36,6 +64,9 @@ export const CRAFTING_CUBE_TARGETED_EMPOWER_SWAP_REQUIREMENTS_ERROR =
 /** Gold charged (in addition to materials) when a recipe is crafted. */
 export const CRAFTING_CUBE_RECIPE_GOLD_COSTS = {
   [CRAFTING_CUBE_FOCUS_PRISM_RECIPE_ID]: 25000,
+  [CRAFTING_CUBE_IWT_SOUL_RECIPE_ID]: 0,
+  [CRAFTING_CUBE_IZT_SOUL_RECIPE_ID]: 0,
+  [CRAFTING_CUBE_DD_SOUL_RECIPE_ID]: 0,
   [CRAFTING_CUBE_EMPOWER_REROLL_RECIPE_ID]: 10000,
   [CRAFTING_CUBE_TARGETED_EMPOWER_REROLL_RECIPE_ID]: 25000,
   [CRAFTING_CUBE_EMPOWER_SWAP_RECIPE_ID]: 25000,
@@ -58,6 +89,21 @@ export const CRAFTING_CUBE_RECIPES = [
     id: CRAFTING_CUBE_FOCUS_PRISM_RECIPE_ID,
     label: CRAFTING_CUBE_FOCUS_PRISM_LABEL,
     summary: `${CRAFTING_CUBE_FOCUS_PRISM_CRYSTAL_COST} Havoc Crystals${goldSummary(CRAFTING_CUBE_FOCUS_PRISM_RECIPE_ID)}`,
+  },
+  {
+    id: CRAFTING_CUBE_IWT_SOUL_RECIPE_ID,
+    label: CRAFTING_CUBE_IWT_SOUL_LABEL,
+    summary: `${CRAFTING_CUBE_IWT_SOUL_HEART_COST} Wooma Hearts + ${CRAFTING_CUBE_IWT_SOUL_RELIC_COST} Zuma Relic${goldSummary(CRAFTING_CUBE_IWT_SOUL_RECIPE_ID)}`,
+  },
+  {
+    id: CRAFTING_CUBE_IZT_SOUL_RECIPE_ID,
+    label: CRAFTING_CUBE_IZT_SOUL_LABEL,
+    summary: `${CRAFTING_CUBE_IZT_SOUL_HEART_COST} Wooma Heart + ${CRAFTING_CUBE_IZT_SOUL_RELIC_COST} Zuma Relics${goldSummary(CRAFTING_CUBE_IZT_SOUL_RECIPE_ID)}`,
+  },
+  {
+    id: CRAFTING_CUBE_DD_SOUL_RECIPE_ID,
+    label: CRAFTING_CUBE_DD_SOUL_LABEL,
+    summary: `${CRAFTING_CUBE_DD_SOUL_STONE_HEART_COST} Stone Heart + ${CRAFTING_CUBE_DD_SOUL_HOG_TOOTH_COST} Hog Tooth${goldSummary(CRAFTING_CUBE_DD_SOUL_RECIPE_ID)}`,
   },
   {
     id: CRAFTING_CUBE_EMPOWER_REROLL_RECIPE_ID,
@@ -281,6 +327,186 @@ export function validateCraftingCubeFocusPrismCraft(boardEntries) {
 }
 
 /**
+ * @param {{ entry: object, item: object }[]} boardEntries
+ * @param {{
+ *   itemId: string,
+ *   cost: number,
+ *   singular: string,
+ *   plural: string,
+ *   onlyOneStackError: string,
+ * }} materialA
+ * @param {{
+ *   itemId: string,
+ *   cost: number,
+ *   singular: string,
+ *   plural: string,
+ *   onlyOneStackError: string,
+ * }} materialB
+ * @param {string} requirementsError
+ * @returns {{
+ *   ok: boolean,
+ *   error: string | null,
+ *   entryA?: object,
+ *   entryB?: object,
+ * }}
+ */
+function validateCraftingCubeTwoMaterialCraft(boardEntries, materialA, materialB, requirementsError) {
+  let entryA = null;
+  let entryB = null;
+
+  for (const row of boardEntries) {
+    const entry = row?.entry;
+    const item = row?.item;
+    if (!entry || !item) continue;
+
+    if (item.id === materialA.itemId) {
+      if (entryA) return { ok: false, error: materialA.onlyOneStackError };
+      entryA = entry;
+      continue;
+    }
+
+    if (item.id === materialB.itemId) {
+      if (entryB) return { ok: false, error: materialB.onlyOneStackError };
+      entryB = entry;
+      continue;
+    }
+
+    return { ok: false, error: requirementsError };
+  }
+
+  if (!entryA || !entryB) {
+    return { ok: false, error: requirementsError };
+  }
+
+  const qtyA = Math.max(1, Math.trunc(Number(entryA.quantity) || 1));
+  if (qtyA < materialA.cost) {
+    const label = materialA.cost === 1 ? materialA.singular : materialA.plural;
+    return { ok: false, error: `Need at least ${materialA.cost} ${label}.` };
+  }
+
+  const qtyB = Math.max(1, Math.trunc(Number(entryB.quantity) || 1));
+  if (qtyB < materialB.cost) {
+    const label = materialB.cost === 1 ? materialB.singular : materialB.plural;
+    return { ok: false, error: `Need at least ${materialB.cost} ${label}.` };
+  }
+
+  return { ok: true, error: null, entryA, entryB };
+}
+
+/**
+ * @param {{ entry: object, item: object }[]} boardEntries Staged cube entries with item defs.
+ * @param {number} heartCost
+ * @param {number} relicCost
+ * @param {string} requirementsError
+ * @returns {{
+ *   ok: boolean,
+ *   error: string | null,
+ *   heartEntry?: object,
+ *   relicEntry?: object,
+ * }}
+ */
+function validateCraftingCubeHeartRelicSoulCraft(boardEntries, heartCost, relicCost, requirementsError) {
+  const result = validateCraftingCubeTwoMaterialCraft(
+    boardEntries,
+    {
+      itemId: WOOMA_HEART_ITEM_ID,
+      cost: heartCost,
+      singular: "Wooma Heart",
+      plural: "Wooma Hearts",
+      onlyOneStackError: "Place only one Wooma Heart stack.",
+    },
+    {
+      itemId: ZUMA_RELIC_ITEM_ID,
+      cost: relicCost,
+      singular: "Zuma Relic",
+      plural: "Zuma Relics",
+      onlyOneStackError: "Place only one Zuma Relic stack.",
+    },
+    requirementsError,
+  );
+  if (!result.ok) return { ok: false, error: result.error };
+  return {
+    ok: true,
+    error: null,
+    heartEntry: result.entryA,
+    relicEntry: result.entryB,
+  };
+}
+
+/**
+ * @param {{ entry: object, item: object }[]} boardEntries Staged cube entries with item defs.
+ * @returns {{
+ *   ok: boolean,
+ *   error: string | null,
+ *   heartEntry?: object,
+ *   relicEntry?: object,
+ * }}
+ */
+export function validateCraftingCubeIwtSoulCraft(boardEntries) {
+  return validateCraftingCubeHeartRelicSoulCraft(
+    boardEntries,
+    CRAFTING_CUBE_IWT_SOUL_HEART_COST,
+    CRAFTING_CUBE_IWT_SOUL_RELIC_COST,
+    CRAFTING_CUBE_IWT_SOUL_REQUIREMENTS_ERROR,
+  );
+}
+
+/**
+ * @param {{ entry: object, item: object }[]} boardEntries Staged cube entries with item defs.
+ * @returns {{
+ *   ok: boolean,
+ *   error: string | null,
+ *   heartEntry?: object,
+ *   relicEntry?: object,
+ * }}
+ */
+export function validateCraftingCubeIztSoulCraft(boardEntries) {
+  return validateCraftingCubeHeartRelicSoulCraft(
+    boardEntries,
+    CRAFTING_CUBE_IZT_SOUL_HEART_COST,
+    CRAFTING_CUBE_IZT_SOUL_RELIC_COST,
+    CRAFTING_CUBE_IZT_SOUL_REQUIREMENTS_ERROR,
+  );
+}
+
+/**
+ * @param {{ entry: object, item: object }[]} boardEntries Staged cube entries with item defs.
+ * @returns {{
+ *   ok: boolean,
+ *   error: string | null,
+ *   stoneHeartEntry?: object,
+ *   hogToothEntry?: object,
+ * }}
+ */
+export function validateCraftingCubeDdSoulCraft(boardEntries) {
+  const result = validateCraftingCubeTwoMaterialCraft(
+    boardEntries,
+    {
+      itemId: STONE_HEART_ITEM_ID,
+      cost: CRAFTING_CUBE_DD_SOUL_STONE_HEART_COST,
+      singular: "Stone Heart",
+      plural: "Stone Hearts",
+      onlyOneStackError: "Place only one Stone Heart stack.",
+    },
+    {
+      itemId: HOG_TOOTH_ITEM_ID,
+      cost: CRAFTING_CUBE_DD_SOUL_HOG_TOOTH_COST,
+      singular: "Hog Tooth",
+      plural: "Hog Teeth",
+      onlyOneStackError: "Place only one Hog Tooth stack.",
+    },
+    CRAFTING_CUBE_DD_SOUL_REQUIREMENTS_ERROR,
+  );
+  if (!result.ok) return { ok: false, error: result.error };
+  return {
+    ok: true,
+    error: null,
+    stoneHeartEntry: result.entryA,
+    hogToothEntry: result.entryB,
+  };
+}
+
+/**
  * @param {{ entry: object, item: object }[]} boardEntries Staged cube entries with item defs.
  * @returns {{
  *   ok: boolean,
@@ -437,6 +663,10 @@ export function craftingCubeAutofillEntryIds(recipeId, inventoryEntries, resolve
   const crystalStacks = [];
   const focusPrismStacks = [];
   const adamantineOres = [];
+  const woomaHeartStacks = [];
+  const zumaRelicStacks = [];
+  const stoneHeartStacks = [];
+  const hogToothStacks = [];
 
   for (const entry of inventoryEntries) {
     if (!entry?.id || !entry.itemId) continue;
@@ -453,22 +683,39 @@ export function craftingCubeAutofillEntryIds(recipeId, inventoryEntries, resolve
     }
     if (item.id === ADAMANTINE_ORE_ITEM_ID) {
       adamantineOres.push(entry);
+      continue;
+    }
+    if (item.id === WOOMA_HEART_ITEM_ID) {
+      woomaHeartStacks.push(entry);
+      continue;
+    }
+    if (item.id === ZUMA_RELIC_ITEM_ID) {
+      zumaRelicStacks.push(entry);
+      continue;
+    }
+    if (item.id === STONE_HEART_ITEM_ID) {
+      stoneHeartStacks.push(entry);
+      continue;
+    }
+    if (item.id === HOG_TOOTH_ITEM_ID) {
+      hogToothStacks.push(entry);
     }
   }
 
-  crystalStacks.sort((a, b) => {
+  const byQtyThenId = (a, b) => {
     const qtyDelta = Math.max(1, Math.trunc(Number(b.quantity) || 1))
       - Math.max(1, Math.trunc(Number(a.quantity) || 1));
     if (qtyDelta !== 0) return qtyDelta;
     return String(a.id).localeCompare(String(b.id));
-  });
-  focusPrismStacks.sort((a, b) => {
-    const qtyDelta = Math.max(1, Math.trunc(Number(b.quantity) || 1))
-      - Math.max(1, Math.trunc(Number(a.quantity) || 1));
-    if (qtyDelta !== 0) return qtyDelta;
-    return String(a.id).localeCompare(String(b.id));
-  });
+  };
+
+  crystalStacks.sort(byQtyThenId);
+  focusPrismStacks.sort(byQtyThenId);
   adamantineOres.sort((a, b) => String(a.id).localeCompare(String(b.id)));
+  woomaHeartStacks.sort(byQtyThenId);
+  zumaRelicStacks.sort(byQtyThenId);
+  stoneHeartStacks.sort(byQtyThenId);
+  hogToothStacks.sort(byQtyThenId);
 
   if (
     recipeId === CRAFTING_CUBE_FOCUS_PRISM_RECIPE_ID
@@ -476,6 +723,23 @@ export function craftingCubeAutofillEntryIds(recipeId, inventoryEntries, resolve
     || recipeId === CRAFTING_CUBE_EMPOWER_SWAP_RECIPE_ID
   ) {
     return crystalStacks[0] ? [crystalStacks[0].id] : [];
+  }
+
+  if (
+    recipeId === CRAFTING_CUBE_IWT_SOUL_RECIPE_ID
+    || recipeId === CRAFTING_CUBE_IZT_SOUL_RECIPE_ID
+  ) {
+    const picks = [];
+    if (woomaHeartStacks[0]) picks.push(woomaHeartStacks[0].id);
+    if (zumaRelicStacks[0]) picks.push(zumaRelicStacks[0].id);
+    return picks;
+  }
+
+  if (recipeId === CRAFTING_CUBE_DD_SOUL_RECIPE_ID) {
+    const picks = [];
+    if (stoneHeartStacks[0]) picks.push(stoneHeartStacks[0].id);
+    if (hogToothStacks[0]) picks.push(hogToothStacks[0].id);
+    return picks;
   }
 
   if (recipeId === CRAFTING_CUBE_TARGETED_EMPOWER_REROLL_RECIPE_ID) {

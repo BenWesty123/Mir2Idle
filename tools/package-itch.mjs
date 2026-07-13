@@ -68,6 +68,7 @@ const sourceFiles = [
   "src/warriorMagic.js",
   "src/zumaArcherSwarm.js",
   "src/data/items.json",
+  "src/data/changelog.json",
 ];
 
 const publicExcludes = new Set([
