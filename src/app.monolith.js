@@ -244,6 +244,15 @@ import {
   CRAFTING_CUBE_EMPOWER_SWAP_RECIPE_ID,
   CRAFTING_CUBE_FOCUS_PRISM_CRYSTAL_COST,
   CRAFTING_CUBE_FOCUS_PRISM_RECIPE_ID,
+  CRAFTING_CUBE_DD_SOUL_HOG_TOOTH_COST,
+  CRAFTING_CUBE_DD_SOUL_RECIPE_ID,
+  CRAFTING_CUBE_DD_SOUL_STONE_HEART_COST,
+  CRAFTING_CUBE_IWT_SOUL_HEART_COST,
+  CRAFTING_CUBE_IWT_SOUL_RECIPE_ID,
+  CRAFTING_CUBE_IWT_SOUL_RELIC_COST,
+  CRAFTING_CUBE_IZT_SOUL_HEART_COST,
+  CRAFTING_CUBE_IZT_SOUL_RECIPE_ID,
+  CRAFTING_CUBE_IZT_SOUL_RELIC_COST,
   CRAFTING_CUBE_RECIPES,
   craftingCubeAutofillEntryIds,
   craftingCubeRecipeGoldCost,
@@ -251,11 +260,17 @@ import {
   CRAFTING_CUBE_TARGETED_EMPOWER_REROLL_RECIPE_ID,
   CRAFTING_CUBE_TARGETED_EMPOWER_SWAP_PRISM_COST,
   CRAFTING_CUBE_TARGETED_EMPOWER_SWAP_RECIPE_ID,
+  DD_SOUL_ITEM_ID,
   FOCUS_PRISM_ITEM_ID,
   HAVOC_CRYSTAL_ITEM_ID,
+  IWT_SOUL_ITEM_ID,
+  IZT_SOUL_ITEM_ID,
+  validateCraftingCubeDdSoulCraft,
   validateCraftingCubeEmpowerReroll,
   validateCraftingCubeEmpowerSwap,
   validateCraftingCubeFocusPrismCraft,
+  validateCraftingCubeIwtSoulCraft,
+  validateCraftingCubeIztSoulCraft,
   validateCraftingCubeSalvageEntries,
   validateCraftingCubeTargetedEmpowerReroll,
   validateCraftingCubeTargetedEmpowerSwap,
@@ -353,7 +368,8 @@ import {
  *  playSfx / syncBackgroundMusic .. audio: sfx + music (~4900-5070)
  *  addInventoryItem / equipment ... inventory + equipment logic (~7306)
  *  renderGamePanel ............... side panel UI (~11314)
- *  renderSceneOverlay ............ Character/Inventory/Upgrades/Shop/Storage windows (~11735)
+ *  renderSceneOverlay ............ Character/Inventory/Upgrades/Shop/Storage/What's New windows (~11735)
+ *  changelog.json / What's New ... patch notes scene (src/data/changelog.json)
  *  enterZone ..................... zone + teleport entry (~14032)
  *  bindControls .................. DOM input wiring (~16861)
  *  tick() ........................ MAIN GAME LOOP (~17390)
@@ -432,6 +448,23 @@ const TIME_LOGGING_TOKEN_COST = 300;
 function timeLoggingUnlocked() {
   return accountUpgradePurchased("rebirth-time-logging")
     || Boolean(state.account?.ownedUnlocks?.[TIME_LOGGING_UNLOCK_KEY]);
+}
+// Spirit Box: rebirth-only utility that holds one inventory entry across rebirth.
+// Storing costs Awakening Souls (local) or tokens (server spend key below).
+const SPIRIT_BOX_SOUL_COST = 100;
+const SPIRIT_BOX_TOKEN_COST = 200;
+const SPIRIT_BOX_SPEND_KEY = "spirit-box-deposit";
+// Ethereal items are high-power gear that may NOT be carried through rebirth via
+// the Spirit Box. Match by base id; gendered/refined Oma King Robe variants share
+// the "oma-king-robe" prefix so they are all covered.
+const ETHEREAL_ITEM_IDS = new Set(["heaven-armour", "oma-king-robe", "crystal-armour"]);
+function isEtherealItem(item) {
+  const id = typeof item === "string" ? item : item?.id;
+  if (!id) return false;
+  return ETHEREAL_ITEM_IDS.has(id) || id.startsWith("oma-king-robe");
+}
+function spiritBoxUnlocked() {
+  return accountUpgradePurchased("rebirth-spirit-box");
 }
 // Monthly Supporter: a re-buyable, time-limited (28-day) Cash Shop subscription.
 // While active it grants a multiplicative +10% XP and gold, a multiplicative
@@ -711,6 +744,18 @@ const ACCOUNT_UPGRADE_DEFS = [
     maxTier: 1,
     rebirthCosts: [50],
     summary: "Adds a window showing your live XP per hour in the current zone. Also available in the Cash Shop for tokens.",
+  },
+  {
+    id: "rebirth-spirit-box",
+    label: "Spirit Box",
+    section: "rebirth",
+    category: "utility",
+    currency: "rebirthPoints",
+    effect: "spiritBoxUnlock",
+    value: 1,
+    maxTier: 1,
+    rebirthCosts: [50],
+    summary: "Unlocks a Spirit Box that can hold one item through rebirth. Opening the slot costs 100 Awakening Souls or 200 tokens and stays open until you rebirth; swap freely before then.",
   },
   {
     id: "rebirth-skill-exp-gain",
@@ -1249,6 +1294,9 @@ let lastCombatEquipmentLockAt = 0;
 // Taoist support/queue polling — must not shorten weapon swing cooldown.
 const TAOIST_COMBAT_POLL_MS = 250;
 const BENEDICTION_OIL_ITEM_ID = "benediction-oil";
+const IWT_SOUL_ZONE_ID = "zone-bdd-4";
+const IZT_SOUL_ZONE_ID = "zone-bdd-11";
+const DD_SOUL_ZONE_ID = "zone-bdd-13";
 const GEM_STAT_INDEPENDENT = true;
 const GEM_FAIL_DESTROY_CHANCE = 3 / 15;
 const GEM_MERCHANT_RANDOM_BASE_COST = 7;
@@ -2661,6 +2709,7 @@ const state = {
     achievements: createDefaultAccountAchievementState(),
     ownedUnlocks: {},
     subscriptions: {},
+    spiritBox: createDefaultSpiritBoxState(),
   },
   settings: {
     musicEnabled: DEFAULT_MUSIC_ENABLED,
@@ -2716,6 +2765,7 @@ const state = {
     status: "idle",
     error: "",
     buying: false,
+    allowLocalSpend: false,
   },
   demoImport: {
     active: false,
@@ -2752,6 +2802,7 @@ const state = {
   craftingCube: createDefaultCraftingCubeState(),
   bossEntryZoneId: null,
   bossEntryFromGroupDungeonAdvance: false,
+  pendingDungeonSoulEntryId: null,
   bossAssistSelection: [],
   bossEmpowerSelected: false,
   pendingBossEmpowered: false,
@@ -2759,6 +2810,7 @@ const state = {
   teleportRegionId: DEFAULT_TELEPORT_REGION_ID,
   teleportBrowseRegionId: null,
   openScenes: initialOpenScenesFromUrl(),
+  changelog: { entries: [] },
   characterTab: "character",
   leaderboard: {
     status: "idle",
@@ -2774,6 +2826,7 @@ const state = {
   pendingStorageUnlock: null,
   pendingInventoryTokenUnlock: false,
   pendingRebirthConfirm: false,
+  spiritBoxDepositMode: null,
   upgradeSection: "normal",
   upgradeCategory: "combat",
   codexCategory: "all",
@@ -3020,7 +3073,9 @@ const root = document.querySelector("#app");
 const query = new URLSearchParams(window.location.search);
 const UI_MODE = query.get("ui") === "lab" ? "lab" : "game";
 const IS_GAME_UI = UI_MODE === "game";
-const TEST_HARNESS = query.get("testHarness") === "1";
+const TEST_HARNESS = query.get("testHarness") === "1"
+  || location.hostname === "localhost"
+  || location.hostname === "127.0.0.1";
 
 document.body.dataset.ui = UI_MODE;
 
@@ -3147,6 +3202,17 @@ function gameShellHtml() {
               >
                 <span aria-hidden="true">XP/h</span>
               </button>
+              <button
+                type="button"
+                id="spiritBoxButton"
+                class="stage-corner-button spirit-box-button"
+                data-open-scene="spiritBox"
+                aria-label="Spirit Box - store one item through rebirth"
+                title="Spirit Box"
+                hidden
+              >
+                <img src="./public/ui/spirit-box.png" alt="" aria-hidden="true" />
+              </button>
             </div>
             <div class="stage" id="stage">
               <div class="party-switch-bar" id="partySwitchBar" aria-label="Switch party character" hidden></div>
@@ -3251,6 +3317,9 @@ async function init() {
   state.spellIndex = await loadJson("./public/spellfx/index.json").catch(() => ({ spells: [] }));
   state.itemData = await loadJson("./src/data/items.json").catch(() => ({ items: [] }));
   await applyItemIconAtlas(state.itemData);
+  state.changelog = sanitizeChangelogData(
+    await loadJson("./src/data/changelog.json").catch(() => ({ entries: [] })),
+  );
   state.mapTileIndex = await loadJson("./public/maptiles/index.json").catch(() => ({ sets: [] }));
   state.mapObjectIndex = await loadJson("./public/mapobjects/index.json").catch(() => ({ sets: [] }));
   state.mapStampIndex = await loadJson(`./public/mapstamps/index.json?v=${MAP_STAMP_ASSET_VERSION}`).catch(() => ({ stamps: [] }));
@@ -3461,6 +3530,25 @@ function installTestHarness() {
         buttonHidden: document.getElementById("timeLoggingButton")?.hidden ?? null,
       };
     },
+    grantSpiritBox() {
+      state.account.upgrades = sanitizeAccountUpgradeState(state.account.upgrades);
+      if (!state.account.upgrades.tiers) state.account.upgrades.tiers = {};
+      state.account.upgrades.tiers["rebirth-spirit-box"] = 1;
+      syncSpiritBoxButton();
+      renderGamePanel();
+      return {
+        owned: spiritBoxUnlocked(),
+        buttonHidden: document.getElementById("spiritBoxButton")?.hidden ?? null,
+      };
+    },
+    spiritBoxState() {
+      return {
+        unlocked: spiritBoxUnlocked(),
+        paid: spiritBoxSlotPaid(),
+        depositMode: state.spiritBoxDepositMode,
+        entry: spiritBoxStoredEntry(),
+      };
+    },
     recordXpSample(xp = 100, ageMs = 0, zoneId = state.game.activeZoneId) {
       xpRateSamples.push({ t: performance.now() - Math.max(0, Math.trunc(Number(ageMs) || 0)), xp: Math.trunc(Number(xp) || 0), zoneId });
       return currentZoneXpRate();
@@ -3487,6 +3575,96 @@ function installTestHarness() {
         autoPotionSlots: autoPotionSlotLimit(),
         autoCastSlots: autoCastSlotLimit(),
         xpMultiplier: supporterExperienceMultiplier(),
+      };
+    },
+    // Dev helper for Spirit Box testing: 50 RP, 200 souls, 400 local-spend tokens,
+    // and a handful of bag items. Does NOT auto-buy the upgrade (spend the 50 RP).
+    setupSpiritBoxTest({
+      rebirthPoints = 50,
+      souls = 200,
+      tokens = 400,
+      unlockSpiritBox = false,
+    } = {}) {
+      state.account.rebirthPoints = Math.max(0, Math.trunc(Number(rebirthPoints) || 0));
+      if (unlockSpiritBox) {
+        state.account.upgrades = sanitizeAccountUpgradeState(state.account.upgrades);
+        if (!state.account.upgrades.tiers) state.account.upgrades.tiers = {};
+        state.account.upgrades.tiers["rebirth-spirit-box"] = 1;
+      }
+      addInventoryItem(AWAKENING_SOUL_ITEM_ID, Math.max(0, Math.trunc(Number(souls) || 0)));
+      addInventoryItem("wooma-heart", 3);
+      addInventoryItem("zuma-relic", 2);
+      addInventoryItem("iron-sword", 1);
+      addInventoryItem("bronze-helmet", 1);
+      addInventoryItem("gold-ring", 1);
+      addInventoryItem("hp-drug-large", 10);
+      // Ethereal gear so you can confirm the Spirit Box refuses to store them.
+      addInventoryItem("heaven-armour", 1);
+      addInventoryItem("oma-king-robe", 1);
+      addInventoryItem("crystal-armour", 1);
+      state.tokens.balance = Math.max(0, Math.trunc(Number(tokens) || 0));
+      state.tokens.status = "ready";
+      state.tokens.error = "";
+      state.tokens.allowLocalSpend = true;
+      captureActiveCharacterState();
+      syncSpiritBoxButton();
+      sceneSignature = "";
+      gamePanelSignature = "";
+      battlePanelSignature = "";
+      hotbarSignature = "";
+      renderSceneOverlay();
+      renderGamePanel();
+      renderBattlePanel();
+      renderHotbar();
+      saveGameState(true);
+      return {
+        rebirthPoints: accountRebirthPoints(),
+        souls: accountAwakenedSoulCount(),
+        tokens: state.tokens.balance,
+        allowLocalSpend: Boolean(state.tokens.allowLocalSpend),
+        note: "Local test tokens only - Spirit Box Open·Tokens will spend these without the worker.",
+        spiritBoxUnlocked: spiritBoxUnlocked(),
+        inventoryItemIds: carriedInventoryEntries().map((entry) => entry.itemId),
+      };
+    },
+    // Drop any item straight into the inventory for testing, e.g.
+    // __lomTest.grantItem("heaven-armour") or __lomTest.grantItem("crystal-armour", 2).
+    grantItem(itemId, quantity = 1) {
+      const item = itemDefinition(itemId);
+      if (!item) {
+        return { ok: false, error: `Unknown item id "${itemId}".` };
+      }
+      const qty = Math.max(1, Math.trunc(Number(quantity) || 1));
+      addInventoryItem(itemId, qty);
+      captureActiveCharacterState();
+      sceneSignature = "";
+      gamePanelSignature = "";
+      hotbarSignature = "";
+      renderSceneOverlay();
+      renderGamePanel();
+      renderHotbar();
+      saveGameState(true);
+      return {
+        ok: true,
+        itemId,
+        name: itemDisplayName(item),
+        quantity: qty,
+        inventoryItemIds: carriedInventoryEntries().map((entry) => entry.itemId),
+      };
+    },
+    // Grant local-only tokens for Spirit Box testing (does not touch the live balance).
+    grantLocalTokens(amount = 400) {
+      state.tokens.balance = Math.max(0, Math.trunc(Number(amount) || 0));
+      state.tokens.status = "ready";
+      state.tokens.error = "";
+      state.tokens.allowLocalSpend = true;
+      sceneSignature = "";
+      renderSceneOverlay();
+      renderGamePanel();
+      return {
+        tokens: state.tokens.balance,
+        allowLocalSpend: true,
+        note: "Local test tokens active until you reload without re-granting.",
       };
     },
   };
@@ -3618,6 +3796,7 @@ function createSaveSnapshot() {
       achievements: cloneAccountAchievementState(state.account.achievements),
       ownedUnlocks: sanitizeOwnedUnlocks(state.account.ownedUnlocks),
       subscriptions: sanitizeSubscriptions(state.account.subscriptions),
+      spiritBox: sanitizeSpiritBoxState(state.account.spiritBox),
     },
     game: {
       ...activeCharacter.game,
@@ -3817,6 +3996,7 @@ function accountRestoreOptions() {
     sanitizeAchievements: sanitizeAccountAchievementState,
     sanitizeOwnedUnlocks,
     sanitizeSubscriptions,
+    sanitizeSpiritBox: sanitizeSpiritBoxState,
     sanitizeBossKills,
   };
 }
@@ -4019,6 +4199,271 @@ function createDefaultAccountAchievementState() {
     enabled: false,
     unlocked: {},
   };
+}
+
+function createDefaultSpiritBoxState() {
+  return { paid: false, entry: null };
+}
+
+function ensureSpiritBoxState() {
+  state.account.spiritBox = sanitizeSpiritBoxState(state.account?.spiritBox);
+  return state.account.spiritBox;
+}
+
+function sanitizeSpiritBoxState(saved = {}) {
+  const raw = saved && typeof saved === "object" ? saved : {};
+  const savedEntry = raw.entry;
+  let entry = null;
+  if (savedEntry?.itemId && itemDefinition(savedEntry.itemId)) {
+    entry = {
+      id: "spirit-box-item",
+      itemId: savedEntry.itemId,
+      quantity: 1,
+      slot: null,
+      ...normalizeInventoryEntryFields(savedEntry),
+    };
+  }
+  // Legacy saves only stored `entry`. Treat an occupied box as already opened this cycle.
+  const paid = typeof raw.paid === "boolean" ? Boolean(raw.paid) : Boolean(entry);
+  return { paid, entry };
+}
+
+function spiritBoxStoredEntry() {
+  return ensureSpiritBoxState().entry ?? null;
+}
+
+function spiritBoxSlotPaid() {
+  return Boolean(ensureSpiritBoxState().paid);
+}
+
+function clearSpiritBoxPaidForRebirth() {
+  const box = ensureSpiritBoxState();
+  box.paid = false;
+  clearSpiritBoxDepositMode();
+}
+
+function cloneEntryForSpiritBox(entry) {
+  if (!entry?.itemId) return null;
+  return {
+    id: "spirit-box-item",
+    itemId: entry.itemId,
+    quantity: 1,
+    slot: null,
+    ...normalizeInventoryEntryFields(entry),
+  };
+}
+
+function canDepositInventoryEntryToSpiritBox(entryId) {
+  if (!spiritBoxUnlocked()) return { ok: false, reason: "Unlock Spirit Box first." };
+  if (!spiritBoxSlotPaid()) {
+    return { ok: false, reason: "Open the Spirit Box slot first (100 Souls or 200 Tokens)." };
+  }
+  if (spiritBoxStoredEntry()) return { ok: false, reason: "Spirit Box already holds an item. Withdraw it first to swap." };
+  const entry = inventoryEntryById(entryId);
+  if (!entry) return { ok: false, reason: "Item not found." };
+  if (isEquippedEntry(entry.id)) return { ok: false, reason: "Unequip the item first." };
+  if (isWeaponRefineStagedEntry(entry.id) || isCraftingCubeStagedEntry(entry.id)) {
+    return { ok: false, reason: "Return the item from the craft board first." };
+  }
+  if (!itemDefinition(entry.itemId)) return { ok: false, reason: "Unknown item." };
+  if (isEtherealItem(entry.itemId)) return { ok: false, reason: "Ethereal items cannot be sealed in the Spirit Box." };
+  return { ok: true, entry };
+}
+
+async function purchaseSpiritBoxSlot(method) {
+  if (!spiritBoxUnlocked()) return false;
+  if (spiritBoxSlotPaid()) {
+    pushBattleLog("Spirit Box slot is already open until your next rebirth.");
+    battlePanelSignature = "";
+    renderBattlePanel();
+    return false;
+  }
+  const payMethod = method === "tokens" ? "tokens" : method === "souls" ? "souls" : null;
+  if (!payMethod) return false;
+
+  if (payMethod === "souls") {
+    if (!payAccountAwakeningSouls(SPIRIT_BOX_SOUL_COST)) {
+      pushBattleLog(`Need ${SPIRIT_BOX_SOUL_COST} Awakening Souls to open the Spirit Box slot.`);
+      battlePanelSignature = "";
+      renderBattlePanel();
+      return false;
+    }
+  } else if (!(await chargeSpiritBoxTokens())) {
+    return false;
+  }
+
+  ensureSpiritBoxState().paid = true;
+  clearSpiritBoxDepositMode();
+  if (!state.openScenes.inventory) {
+    state.openScenes.inventory = true;
+    pushSceneWindow("inventory");
+  }
+  pushBattleLog("Spirit Box slot opened until your next rebirth. Store or swap items freely.");
+  playSfx("ui.gold", { volume: 0.55, throttleMs: 80 });
+  sceneSignature = "";
+  gamePanelSignature = "";
+  battlePanelSignature = "";
+  renderSceneOverlay();
+  renderGamePanel();
+  renderBattlePanel();
+  saveGameState(true);
+  return true;
+}
+
+function clearSpiritBoxDepositMode() {
+  if (state.spiritBoxDepositMode == null) return;
+  state.spiritBoxDepositMode = null;
+  sceneSignature = "";
+}
+
+async function chargeSpiritBoxTokens() {
+  if (state.tokens.buying) return false;
+
+  // Dev/local test path: __lomTest.setupSpiritBoxTest() sets allowLocalSpend so
+  // Spirit Box token deposits work without hitting the live worker.
+  if (state.tokens.allowLocalSpend) {
+    const balance = Math.max(0, Math.trunc(Number(state.tokens.balance) || 0));
+    if (balance < SPIRIT_BOX_TOKEN_COST) {
+      pushBattleLog(`Need ${SPIRIT_BOX_TOKEN_COST} tokens to open the Spirit Box slot.`);
+      battlePanelSignature = "";
+      renderBattlePanel();
+      return false;
+    }
+    state.tokens.balance = balance - SPIRIT_BOX_TOKEN_COST;
+    state.tokens.status = "ready";
+    return true;
+  }
+
+  const base = leaderboardApiBase();
+  const recoveryCode = state.cloudSave?.recoveryCode ?? "";
+  if (!base || !recoveryCode) {
+    pushBattleLog("Link a recovery code (Options) to spend tokens on the Spirit Box.");
+    battlePanelSignature = "";
+    renderBattlePanel();
+    return false;
+  }
+  state.tokens.buying = true;
+  state.tokens.error = "";
+  try {
+    const response = await fetch(`${base}/shop/spend`, {
+      method: "POST",
+      headers: { "content-type": "application/json", Accept: "application/json" },
+      body: JSON.stringify({ recoveryCode, spendKey: SPIRIT_BOX_SPEND_KEY }),
+    });
+    const data = await response.json().catch(() => ({}));
+    if (Number.isFinite(Number(data?.balance))) {
+      state.tokens.balance = Math.max(0, Math.trunc(Number(data.balance)));
+    }
+    if (response.status === 402 || data?.code === "INSUFFICIENT_TOKENS") {
+      pushBattleLog(`Need ${SPIRIT_BOX_TOKEN_COST} tokens to open the Spirit Box slot.`);
+      battlePanelSignature = "";
+      renderBattlePanel();
+      return false;
+    }
+    if (!response.ok || !data?.ok) throw new Error(data?.error || `HTTP ${response.status}`);
+    state.tokens.status = "ready";
+    return true;
+  } catch (error) {
+    pushBattleLog(error?.message || "Could not spend tokens on the Spirit Box.");
+    battlePanelSignature = "";
+    renderBattlePanel();
+    return false;
+  } finally {
+    state.tokens.buying = false;
+  }
+}
+
+async function depositInventoryEntryToSpiritBox(entryId) {
+  const check = canDepositInventoryEntryToSpiritBox(entryId);
+  if (!check.ok) {
+    pushBattleLog(check.reason);
+    battlePanelSignature = "";
+    renderBattlePanel();
+    return false;
+  }
+
+  const entry = check.entry;
+  const stored = cloneEntryForSpiritBox(entry);
+  const item = itemDefinition(entry.itemId);
+  if (!stored || !item) return false;
+
+  // Always store exactly one unit, even for stackable items.
+  if (!consumeOneInventoryUnit(entry.id)) {
+    pushBattleLog("Could not move that item into the Spirit Box.");
+    battlePanelSignature = "";
+    renderBattlePanel();
+    return false;
+  }
+
+  ensureSpiritBoxState().entry = stored;
+  syncBossPartyControlledInventoryFromState();
+  pushBattleLog(`${itemDisplayName(item, stored)} sealed in the Spirit Box.`);
+  playSfx("item.move", { volume: 0.42, throttleMs: 80 });
+  hideItemTooltip();
+  sceneSignature = "";
+  gamePanelSignature = "";
+  battlePanelSignature = "";
+  hotbarSignature = "";
+  renderSceneOverlay();
+  renderGamePanel();
+  renderBattlePanel();
+  renderHotbar();
+  saveGameState(true);
+  return true;
+}
+
+function withdrawSpiritBoxEntry() {
+  if (!spiritBoxUnlocked()) return false;
+  const stored = spiritBoxStoredEntry();
+  if (!stored) {
+    pushBattleLog("Spirit Box is empty.");
+    battlePanelSignature = "";
+    renderBattlePanel();
+    return false;
+  }
+  ensureInventorySlots();
+  const item = itemDefinition(stored.itemId);
+  if (!item) {
+    ensureSpiritBoxState().entry = null;
+    saveGameState(true);
+    return false;
+  }
+
+  const mergeTarget = findStackMergeTarget(stored, carriedInventoryEntries());
+  if (mergeTarget) {
+    mergeTarget.quantity += Math.max(1, Math.trunc(Number(stored.quantity) || 1));
+  } else {
+    const slot = nextFreeInventorySlot();
+    if (slot === null || slot >= state.inventory.maxSlots) {
+      pushBattleLog("Inventory is full.");
+      battlePanelSignature = "";
+      renderBattlePanel();
+      return false;
+    }
+    state.inventory.items.push({
+      id: allocateInventoryEntryId(),
+      itemId: stored.itemId,
+      quantity: Math.max(1, Math.trunc(Number(stored.quantity) || 1)),
+      slot,
+      ...normalizeInventoryEntryFields(stored),
+    });
+  }
+
+  // Keep `paid` so players can swap items before rebirth. Rebirth clears paid.
+  ensureSpiritBoxState().entry = null;
+  ensureInventorySlots();
+  syncBossPartyControlledInventoryFromState();
+  pushBattleLog(`${itemDisplayName(item, stored)} withdrawn from the Spirit Box.`);
+  playSfx("item.move", { volume: 0.42, throttleMs: 80 });
+  hideItemTooltip();
+  sceneSignature = "";
+  gamePanelSignature = "";
+  battlePanelSignature = "";
+  renderSceneOverlay();
+  renderGamePanel();
+  renderBattlePanel();
+  saveGameState(true);
+  return true;
 }
 
 function createDefaultCharacterState(classId) {
@@ -4766,6 +5211,7 @@ function performAccountRebirth() {
   const permanentAchievements = cloneAccountAchievementState(state.account.achievements);
   resetAccountStorageForRebirth();
   resetNonRebirthAccountUpgrades();
+  clearSpiritBoxPaidForRebirth();
   state.account.codex = permanentCodex;
   state.account.achievements = permanentAchievements;
   noteAccountCodexChanged();
@@ -7530,6 +7976,37 @@ function parseBuildVersionFromText(text) {
   return match ? match[1] : null;
 }
 
+function sanitizeChangelogData(data) {
+  const entries = Array.isArray(data?.entries) ? data.entries : [];
+  return {
+    entries: entries.map((entry, index) => {
+      const date = String(entry?.date ?? "").trim();
+      const title = String(entry?.title ?? "").trim();
+      const id = String(entry?.id ?? "").trim() || `${date || "entry"}-${index}`;
+      const highlights = (Array.isArray(entry?.highlights) ? entry.highlights : [])
+        .map((line) => String(line ?? "").trim())
+        .filter(Boolean);
+      if (!date && !title && !highlights.length) return null;
+      return { id, date, title, highlights };
+    }).filter(Boolean),
+  };
+}
+
+async function refreshChangelogFromDeployed() {
+  try {
+    const data = await loadJson(`./src/data/changelog.json?_=${Date.now()}`);
+    state.changelog = sanitizeChangelogData(data);
+  } catch {
+    // Keep whatever was loaded at boot if the refresh fails.
+  }
+  return state.changelog;
+}
+
+async function openChangelog(options = {}) {
+  if (options.refresh) await refreshChangelogFromDeployed();
+  openScene("changelog");
+}
+
 // The build stamp this tab is actually running, read from the entry <script>.
 function loadedBuildVersion() {
   const script = document.querySelector('script[type="module"][src*="app.js"]');
@@ -7561,6 +8038,7 @@ function renderUpdateAvailableBar() {
   els.updateAvailableBar.hidden = false;
   els.updateAvailableBar.innerHTML = `
     <span class="update-available-bar-text">A new version is available.</span>
+    <button type="button" class="update-available-bar-whats-new" data-open-changelog>What's new</button>
     <button type="button" class="update-available-bar-reload" data-update-reload>Reload</button>
     <button type="button" class="update-available-bar-close" data-dismiss-update-bar aria-label="Dismiss update notice">&times;</button>
   `;
@@ -7917,6 +8395,7 @@ function resetRuntimeGameState() {
   state.activeScene = null;
   state.bossEntryZoneId = null;
   state.bossEntryFromGroupDungeonAdvance = false;
+  clearPendingDungeonSoulEntry();
   state.bossAssistSelection = [];
   state.bossEmpowerSelected = false;
   state.pendingBossEmpowered = false;
@@ -9846,6 +10325,8 @@ function accountUpgradeEffectLabel(upgrade) {
   if (upgrade?.effect === "dropChanceBonusPercent") return "All drop chances";
   if (upgrade?.effect === "poisonAmuletStackMultiplier") return "Poison & amulet stack size";
   if (upgrade?.effect === "gemOrbStackUnlock") return "Gem & orb stacking";
+  if (upgrade?.effect === "timeLoggingUnlock") return "XP per hour window";
+  if (upgrade?.effect === "spiritBoxUnlock") return "Spirit Box";
   if (upgrade?.effect === "skillExperienceGainMaxBonus") return "Skill practice XP per cast";
   if (upgrade?.effect === "bonusAwakeningSoulChancePercent") return "Extra Awakening Soul chance";
   if (upgrade?.effect === "bossRespawnReductionPercent") return "Boss respawn time";
@@ -9900,6 +10381,12 @@ function accountUpgradeProgressText(upgrade) {
   }
   if (upgrade?.effect === "gemOrbStackUnlock") {
     return organisationSkillsUnlocked() ? "Stackable" : "1 per slot -> stackable";
+  }
+  if (upgrade?.effect === "timeLoggingUnlock") {
+    return tier >= 1 || timeLoggingUnlocked() ? "Unlocked" : "Locked -> Unlocked";
+  }
+  if (upgrade?.effect === "spiritBoxUnlock") {
+    return tier >= 1 ? "Unlocked" : "Locked -> Unlocked";
   }
   if (upgrade?.effect === "skillExperienceGainMaxBonus") {
     const currentMax = BASE_SKILL_EXPERIENCE_GAIN_MAX + tier * step;
@@ -11338,6 +11825,99 @@ function attemptCraftingCubeFocusPrismCraft() {
   return true;
 }
 
+function attemptCraftingCubeIwtSoulCraft() {
+  return attemptCraftingCubeTwoMaterialSoulCraft({
+    recipeId: CRAFTING_CUBE_IWT_SOUL_RECIPE_ID,
+    itemId: IWT_SOUL_ITEM_ID,
+    validate: validateCraftingCubeIwtSoulCraft,
+    defaultName: "IWT Soul",
+    consume: (validation) => {
+      consumeStagedCraftingCubeEntryQuantity(validation.heartEntry.id, CRAFTING_CUBE_IWT_SOUL_HEART_COST);
+      consumeStagedCraftingCubeEntryQuantity(validation.relicEntry.id, CRAFTING_CUBE_IWT_SOUL_RELIC_COST);
+    },
+    logMaterials: `${CRAFTING_CUBE_IWT_SOUL_HEART_COST} Wooma Hearts and ${CRAFTING_CUBE_IWT_SOUL_RELIC_COST} Zuma Relic`,
+  });
+}
+
+function attemptCraftingCubeIztSoulCraft() {
+  return attemptCraftingCubeTwoMaterialSoulCraft({
+    recipeId: CRAFTING_CUBE_IZT_SOUL_RECIPE_ID,
+    itemId: IZT_SOUL_ITEM_ID,
+    validate: validateCraftingCubeIztSoulCraft,
+    defaultName: "IZT Soul",
+    consume: (validation) => {
+      consumeStagedCraftingCubeEntryQuantity(validation.heartEntry.id, CRAFTING_CUBE_IZT_SOUL_HEART_COST);
+      consumeStagedCraftingCubeEntryQuantity(validation.relicEntry.id, CRAFTING_CUBE_IZT_SOUL_RELIC_COST);
+    },
+    logMaterials: `${CRAFTING_CUBE_IZT_SOUL_HEART_COST} Wooma Heart and ${CRAFTING_CUBE_IZT_SOUL_RELIC_COST} Zuma Relics`,
+  });
+}
+
+function attemptCraftingCubeDdSoulCraft() {
+  return attemptCraftingCubeTwoMaterialSoulCraft({
+    recipeId: CRAFTING_CUBE_DD_SOUL_RECIPE_ID,
+    itemId: DD_SOUL_ITEM_ID,
+    validate: validateCraftingCubeDdSoulCraft,
+    defaultName: "DD Soul",
+    consume: (validation) => {
+      consumeStagedCraftingCubeEntryQuantity(
+        validation.stoneHeartEntry.id,
+        CRAFTING_CUBE_DD_SOUL_STONE_HEART_COST,
+      );
+      consumeStagedCraftingCubeEntryQuantity(
+        validation.hogToothEntry.id,
+        CRAFTING_CUBE_DD_SOUL_HOG_TOOTH_COST,
+      );
+    },
+    logMaterials: `${CRAFTING_CUBE_DD_SOUL_STONE_HEART_COST} Stone Heart and ${CRAFTING_CUBE_DD_SOUL_HOG_TOOTH_COST} Hog Tooth`,
+  });
+}
+
+function attemptCraftingCubeTwoMaterialSoulCraft({
+  recipeId,
+  itemId,
+  validate,
+  defaultName,
+  consume,
+  logMaterials,
+}) {
+  if (state.craftingCube?.mode !== "craft") return false;
+  const validation = validate(craftingCubeBoardEntries());
+  if (!validation.ok) {
+    setCraftingCubeFeedback(validation.error);
+    sceneSignature = "";
+    renderSceneOverlay();
+    playSfx("ui.button", { volume: 0.28, throttleMs: 120 });
+    return false;
+  }
+
+  if (!canAffordCraftingCubeGold(recipeId)) {
+    reportCraftingCubeGoldShortfall(recipeId);
+    return false;
+  }
+
+  consume(validation);
+  spendCraftingCubeGold(recipeId);
+  state.craftingCube.feedback = null;
+  state.craftingCube.feedbackKind = null;
+  state.craftingCube.lastRerollNotice = null;
+
+  const soulItem = itemDefinition(itemId);
+  addInventoryItem(itemId, 1);
+  const soulName = soulItem?.name ?? defaultName;
+  pushBattleLog(`Crafted 1 ${soulName} from ${logMaterials}.`);
+  addLootNotice(`1× ${soulName}`, "item");
+
+  hideItemTooltip();
+  sceneSignature = "";
+  gamePanelSignature = "";
+  saveGameState(true);
+  renderSceneOverlay();
+  renderGamePanel();
+  playSfx("item.pickup", { volume: 0.42, throttleMs: 120 });
+  return true;
+}
+
 function setCraftingCubeTargetedEmpowerSlot(slotIndex) {
   if (!state.craftingCube) state.craftingCube = createDefaultCraftingCubeState();
   const pick = Math.trunc(Number(slotIndex) || 0);
@@ -11620,6 +12200,15 @@ function craftingCubeRecipeValidation(recipeId, boardEntries = craftingCubeBoard
   if (recipeId === CRAFTING_CUBE_FOCUS_PRISM_RECIPE_ID) {
     return validateCraftingCubeFocusPrismCraft(boardEntries);
   }
+  if (recipeId === CRAFTING_CUBE_IWT_SOUL_RECIPE_ID) {
+    return validateCraftingCubeIwtSoulCraft(boardEntries);
+  }
+  if (recipeId === CRAFTING_CUBE_IZT_SOUL_RECIPE_ID) {
+    return validateCraftingCubeIztSoulCraft(boardEntries);
+  }
+  if (recipeId === CRAFTING_CUBE_DD_SOUL_RECIPE_ID) {
+    return validateCraftingCubeDdSoulCraft(boardEntries);
+  }
   if (recipeId === CRAFTING_CUBE_EMPOWER_REROLL_RECIPE_ID) {
     return validateCraftingCubeEmpowerReroll(boardEntries);
   }
@@ -11665,6 +12254,9 @@ function canAttemptCraftingCubeCraft() {
 function attemptCraftingCubeCraft() {
   const recipeId = state.craftingCube?.selectedRecipeId;
   if (recipeId === CRAFTING_CUBE_FOCUS_PRISM_RECIPE_ID) return attemptCraftingCubeFocusPrismCraft();
+  if (recipeId === CRAFTING_CUBE_IWT_SOUL_RECIPE_ID) return attemptCraftingCubeIwtSoulCraft();
+  if (recipeId === CRAFTING_CUBE_IZT_SOUL_RECIPE_ID) return attemptCraftingCubeIztSoulCraft();
+  if (recipeId === CRAFTING_CUBE_DD_SOUL_RECIPE_ID) return attemptCraftingCubeDdSoulCraft();
   if (recipeId === CRAFTING_CUBE_EMPOWER_REROLL_RECIPE_ID) return attemptCraftingCubeEmpowerReroll();
   if (recipeId === CRAFTING_CUBE_TARGETED_EMPOWER_REROLL_RECIPE_ID) return attemptCraftingCubeTargetedEmpowerReroll();
   if (recipeId === CRAFTING_CUBE_EMPOWER_SWAP_RECIPE_ID) return attemptCraftingCubeEmpowerSwap();
@@ -13872,6 +14464,7 @@ function itemEntryById(entryId) {
   if (inventory) return inventory;
   const storage = storageEntryById(entryId);
   if (storage) return storage;
+  if (entryId === "spirit-box-item") return spiritBoxStoredEntry();
   return weaponRefineStagedRecord(entryId)?.entry
     ?? craftingCubeStagedRecord(entryId)?.entry
     ?? null;
@@ -14627,6 +15220,33 @@ function isBenedictionOilItem(item) {
   return Boolean(item) && (item.scroll?.kind === "benediction" || item.id === BENEDICTION_OIL_ITEM_ID);
 }
 
+function isIwtSoulItem(item) {
+  return Boolean(item) && (item.scroll?.kind === "iwt-soul" || item.id === IWT_SOUL_ITEM_ID);
+}
+
+function isIztSoulItem(item) {
+  return Boolean(item) && (item.scroll?.kind === "izt-soul" || item.id === IZT_SOUL_ITEM_ID);
+}
+
+function isDdSoulItem(item) {
+  return Boolean(item) && (item.scroll?.kind === "dd-soul" || item.id === DD_SOUL_ITEM_ID);
+}
+
+function isDungeonSoulPortalItem(item) {
+  return isIwtSoulItem(item) || isIztSoulItem(item) || isDdSoulItem(item);
+}
+
+function dungeonSoulPortalZoneId(item) {
+  if (isIwtSoulItem(item)) return IWT_SOUL_ZONE_ID;
+  if (isIztSoulItem(item)) return IZT_SOUL_ZONE_ID;
+  if (isDdSoulItem(item)) return DD_SOUL_ZONE_ID;
+  return null;
+}
+
+function clearPendingDungeonSoulEntry() {
+  state.pendingDungeonSoulEntryId = null;
+}
+
 function applyEmpoweredDropRoll(entry, item) {
   if (!state.battle.bossEmpowered || !entry || !item || isStackableItem(item) || !isEquipableItem(item)) return false;
   const roll = rollEmpoweredItemDrop(item, Math.random, empoweredBossDropRollOptions());
@@ -15066,7 +15686,43 @@ async function useInventoryEntry(entryId) {
     useBenedictionOilEntry(entryId);
     return;
   }
+  if (isDungeonSoulPortalItem(item)) {
+    useDungeonSoulPortalEntry(entryId);
+    return;
+  }
   await equipInventoryEntry(entryId);
+}
+
+function useDungeonSoulPortalEntry(entryId) {
+  const entry = inventoryEntryById(entryId);
+  const item = entry ? itemDefinition(entry.itemId) : null;
+  if (!entry || !item || !isDungeonSoulPortalItem(item)) return false;
+
+  const zoneId = dungeonSoulPortalZoneId(item);
+  const zone = zoneId ? PROTOTYPE_ZONES.find((entryZone) => entryZone.id === zoneId) : null;
+  if (!zone) {
+    pushBattleLog("That dungeon room is not available yet.");
+    battlePanelSignature = "";
+    renderBattlePanel();
+    return false;
+  }
+
+  // Same party-picker entry window as a normal KR / group-dungeon teleport,
+  // not the BDD "advance floor" window that reuses the current dungeon party.
+  state.pendingDungeonSoulEntryId = entry.id;
+  state.bossEntryZoneId = zone.id;
+  state.bossEntryFromGroupDungeonAdvance = false;
+  state.bossEmpowerSelected = false;
+  state.bossAssistSelection = [];
+  state.pendingBossAssistSelection = [];
+  state.activeScene = "bossEntry";
+  pushSceneWindow("bossEntry");
+  hideItemTooltip();
+  sceneSignature = "";
+  renderSceneOverlay();
+  playSfx("ui.teleport", { volume: 0.42, throttleMs: 300 });
+  pushBattleLog(`${item.name} opens a path to ${zone.label}.`);
+  return true;
 }
 
 function useBenedictionOilEntry(entryId) {
@@ -16115,6 +16771,7 @@ function renderGamePanel() {
   syncCashShopNavigation();
   syncTeleportRingButton();
   syncTimeLoggingButton();
+  syncSpiritBoxButton();
   if (IS_GAME_UI) {
     renderGameUiPanel();
     return;
@@ -16447,6 +17104,19 @@ function syncTimeLoggingButton() {
   if (!show && state.openScenes?.timeLogging) state.openScenes.timeLogging = false;
 }
 
+function syncSpiritBoxButton() {
+  const show = spiritBoxUnlocked() && UI_MODE === "game";
+  const button = document.getElementById("spiritBoxButton");
+  if (button) {
+    button.hidden = !show;
+    button.classList.toggle("has-item", Boolean(spiritBoxStoredEntry()));
+  }
+  if (!show && state.openScenes?.spiritBox) {
+    state.openScenes.spiritBox = false;
+    clearSpiritBoxDepositMode();
+  }
+}
+
 function bindSceneButtons(rootEl) {
   rootEl.querySelectorAll("[data-open-scene]").forEach((button) => {
     button.addEventListener("click", () => openScene(button.dataset.openScene));
@@ -16628,11 +17298,13 @@ function initialOpenScenesFromUrl() {
     upgrades: scenes.has("upgrades"),
     characterSelect: scenes.has("characterSelect") || scenes.has("characters"),
     gettingStarted: scenes.has("gettingStarted") || scenes.has("guide"),
+    changelog: scenes.has("changelog") || scenes.has("whatsNew") || scenes.has("whats-new"),
     options: scenes.has("options"),
     leaderboard: scenes.has("leaderboard"),
     cashShop: scenes.has("cashShop") || scenes.has("shop"),
     teleportRing: scenes.has("teleportRing"),
     timeLogging: scenes.has("timeLogging"),
+    spiritBox: scenes.has("spiritBox"),
   };
 }
 
@@ -16649,7 +17321,7 @@ function npcActiveScene() {
 }
 
 function currentOverlayScenes() {
-  const openScenes = ["characterSelect", "character", "inventory", "codex", "achievements", "upgrades", "gettingStarted", "options", "leaderboard", "cashShop", "teleportRing", "timeLogging"].filter((scene) => state.openScenes[scene]);
+  const openScenes = ["characterSelect", "character", "inventory", "codex", "achievements", "upgrades", "gettingStarted", "changelog", "options", "leaderboard", "cashShop", "teleportRing", "timeLogging", "spiritBox"].filter((scene) => state.openScenes[scene]);
   const npcScene = npcActiveScene();
   const overlayScenes = npcScene ? [...openScenes, npcScene] : openScenes;
   return [...overlayScenes, ...craftingCubeCompanionScenes()];
@@ -16659,7 +17331,7 @@ function isSceneWindowOpen(scene) {
   if (scene === "craftingCubeRecipes") {
     return state.activeScene === "craftingCube" && Boolean(state.craftingCube?.recipesOpen);
   }
-  if (scene === "character" || scene === "inventory" || scene === "codex" || scene === "achievements" || scene === "upgrades" || scene === "characterSelect" || scene === "gettingStarted" || scene === "options" || scene === "leaderboard" || scene === "cashShop" || scene === "teleportRing" || scene === "timeLogging") {
+  if (scene === "character" || scene === "inventory" || scene === "codex" || scene === "achievements" || scene === "upgrades" || scene === "characterSelect" || scene === "gettingStarted" || scene === "changelog" || scene === "options" || scene === "leaderboard" || scene === "cashShop" || scene === "teleportRing" || scene === "timeLogging" || scene === "spiritBox") {
     return Boolean(state.openScenes[scene]);
   }
   return state.activeScene === scene;
@@ -16725,10 +17397,11 @@ function toggleOpenScene(scene, options = {}) {
 }
 
 function openScene(scene, updateUrl = true) {
-  if (!["character", "inventory", "codex", "achievements", "upgrades", "characterSelect", "gettingStarted", "options", "leaderboard", "cashShop", "teleportRing", "timeLogging"].includes(scene)) return;
+  if (!["character", "inventory", "codex", "achievements", "upgrades", "characterSelect", "gettingStarted", "changelog", "options", "leaderboard", "cashShop", "teleportRing", "timeLogging", "spiritBox"].includes(scene)) return;
   if (scene === "achievements" && !achievementsEnabled()) return;
   if (scene === "teleportRing" && !teleportRingOwned()) return;
   if (scene === "timeLogging" && !timeLoggingUnlocked()) return;
+  if (scene === "spiritBox" && !spiritBoxUnlocked()) return;
   state.game.selectedTownNpcId = null;
   if (state.activeScene === "townNpc" || state.activeScene === "storage" || state.activeScene === "bossEntry" || state.activeScene === "weaponRefine" || state.activeScene === "craftingCube") {
     removeSceneWindowFromStack(state.activeScene);
@@ -16741,11 +17414,13 @@ function openScene(scene, updateUrl = true) {
     state.openScenes.achievements = false;
     state.openScenes.upgrades = false;
     state.openScenes.gettingStarted = false;
+    state.openScenes.changelog = false;
     state.openScenes.options = false;
     state.openScenes.leaderboard = false;
     state.openScenes.cashShop = false;
     state.openScenes.teleportRing = false;
     state.openScenes.timeLogging = false;
+    state.openScenes.spiritBox = false;
   } else {
     state.openScenes.characterSelect = false;
   }
@@ -16754,6 +17429,7 @@ function openScene(scene, updateUrl = true) {
   if (scene === "options") void fetchPlayerAlias();
   if (scene === "leaderboard") void ensureLeaderboardData();
   if (scene === "cashShop") void fetchTokenBalance(true);
+  if (scene === "spiritBox" && !state.tokens.allowLocalSpend) void fetchTokenBalance(true);
   pushSceneWindow(scene);
   playSfx("ui.button", { volume: 0.35, throttleMs: 80 });
   if (updateUrl) setSceneUrl();
@@ -16768,10 +17444,11 @@ function closeScene(scene = null, updateUrl = true) {
     updateUrl = scene;
     scene = null;
   }
-  if (scene === "character" || scene === "inventory" || scene === "codex" || scene === "achievements" || scene === "upgrades" || scene === "characterSelect" || scene === "gettingStarted" || scene === "options" || scene === "leaderboard" || scene === "cashShop" || scene === "teleportRing" || scene === "timeLogging") {
+  if (scene === "character" || scene === "inventory" || scene === "codex" || scene === "achievements" || scene === "upgrades" || scene === "characterSelect" || scene === "gettingStarted" || scene === "changelog" || scene === "options" || scene === "leaderboard" || scene === "cashShop" || scene === "teleportRing" || scene === "timeLogging" || scene === "spiritBox") {
     state.openScenes[scene] = false;
     if (scene === "inventory") state.pendingInventoryDestroyEntryId = null;
     if (scene === "upgrades") state.pendingRebirthConfirm = false;
+    if (scene === "spiritBox") clearSpiritBoxDepositMode();
     removeSceneWindowFromStack(scene);
   } else if (scene === "weaponRefine") {
     restoreAllWeaponRefineStagedEntries();
@@ -16795,6 +17472,7 @@ function closeScene(scene = null, updateUrl = true) {
       state.bossEntryZoneId = null;
       state.bossEntryFromGroupDungeonAdvance = false;
       state.bossEmpowerSelected = false;
+      clearPendingDungeonSoulEntry();
     }
     if (scene === "townNpc") {
       resetWeaponRefineState();
@@ -16812,6 +17490,7 @@ function closeScene(scene = null, updateUrl = true) {
     if (state.activeScene === "townNpc" || state.activeScene === "storage" || state.activeScene === "weaponRefine" || state.activeScene === "craftingCube") state.game.selectedTownNpcId = null;
     state.bossEntryZoneId = null;
     state.bossEntryFromGroupDungeonAdvance = false;
+    clearPendingDungeonSoulEntry();
     state.activeScene = null;
     state.openScenes.character = false;
     state.openScenes.inventory = false;
@@ -16820,6 +17499,7 @@ function closeScene(scene = null, updateUrl = true) {
     state.openScenes.upgrades = false;
     state.openScenes.characterSelect = false;
     state.openScenes.gettingStarted = false;
+    state.openScenes.changelog = false;
     state.openScenes.options = false;
     state.openScenes.leaderboard = false;
     state.openScenes.cashShop = false;
@@ -16849,7 +17529,11 @@ function renderSceneOverlay(options = {}) {
   if (!achievementsEnabled()) state.openScenes.achievements = false;
   if (state.openScenes.teleportRing && !teleportRingOwned()) state.openScenes.teleportRing = false;
   if (state.openScenes.timeLogging && !timeLoggingUnlocked()) state.openScenes.timeLogging = false;
-  const openScenes = ["characterSelect", "character", "inventory", "codex", "achievements", "upgrades", "gettingStarted", "options", "leaderboard", "cashShop", "teleportRing", "timeLogging"].filter((scene) => state.openScenes[scene]);
+  if (state.openScenes.spiritBox && !spiritBoxUnlocked()) {
+    state.openScenes.spiritBox = false;
+    clearSpiritBoxDepositMode();
+  }
+  const openScenes = ["characterSelect", "character", "inventory", "codex", "achievements", "upgrades", "gettingStarted", "changelog", "options", "leaderboard", "cashShop", "teleportRing", "timeLogging", "spiritBox"].filter((scene) => state.openScenes[scene]);
   const overlayScenes = currentOverlayScenes();
   const destroyConfirmHtml = inventoryDestroyConfirmHtml();
   const rebirthConfirmHtmlContent = rebirthConfirmHtml();
@@ -17159,6 +17843,13 @@ function buildSceneOverlaySignature(openScenes, bossEntryZoneId) {
     payload.storagePage2Purchased = state.account.storage.page2Purchased;
     payload.storageItems = state.account.storage.items.map(inventoryEntrySignature);
   }
+  if (openScenes.includes("spiritBox")) {
+    payload.spiritBox = sanitizeSpiritBoxState(state.account.spiritBox);
+    payload.spiritBoxDepositMode = state.spiritBoxDepositMode;
+    payload.awakeningSouls = accountAwakenedSoulCount();
+    payload.tokenBalance = state.tokens.balance;
+    payload.tokensBuying = state.tokens.buying;
+  }
   return JSON.stringify(payload);
 }
 
@@ -17278,11 +17969,13 @@ function sceneClassName(scene) {
   if (scene === "character") return "scene-window character-window";
   if (scene === "upgrades") return "scene-window upgrades-window";
   if (scene === "gettingStarted") return "scene-window getting-started-window";
+  if (scene === "changelog") return "scene-window changelog-window";
   if (scene === "options") return "scene-window options-window";
   if (scene === "leaderboard") return "scene-window leaderboard-window";
   if (scene === "cashShop") return "scene-window cash-shop-window";
   if (scene === "teleportRing") return "scene-window teleport-ring-window";
   if (scene === "timeLogging") return "scene-window time-logging-window";
+  if (scene === "spiritBox") return "scene-window spirit-box-window";
   return "scene-window";
 }
 
@@ -17298,11 +17991,13 @@ function sceneTitle(scene) {
   if (scene === "craftingCubeRecipes") return "Recipes";
   if (scene === "upgrades") return "Upgrades";
   if (scene === "gettingStarted") return "Getting Started";
+  if (scene === "changelog") return "What's New";
   if (scene === "options") return "Options";
   if (scene === "leaderboard") return "Social";
   if (scene === "cashShop") return "Cash Shop";
   if (scene === "teleportRing") return "Teleport Ring";
   if (scene === "timeLogging") return "Time Logging";
+  if (scene === "spiritBox") return "Spirit Box";
   if (scene === "bossEntry") {
     const zone = bossEntryZone();
     if (groupDungeonZone(zone)) return zone?.label ?? "Group Dungeon";
@@ -17320,11 +18015,13 @@ function sceneBodyHtml(scene) {
   if (scene === "storage") return storageSceneHtml();
   if (scene === "upgrades") return upgradesSceneHtml();
   if (scene === "gettingStarted") return gettingStartedSceneHtml();
+  if (scene === "changelog") return changelogSceneHtml();
   if (scene === "options") return optionsSceneHtml();
   if (scene === "leaderboard") return leaderboardSceneHtml();
   if (scene === "cashShop") return cashShopSceneHtml();
   if (scene === "teleportRing") return teleportRingSceneHtml();
   if (scene === "timeLogging") return timeLoggingSceneHtml();
+  if (scene === "spiritBox") return spiritBoxSceneHtml();
   if (scene === "bossEntry") return bossEntrySceneHtml();
   if (scene === "weaponRefine") return weaponRefineSceneHtml();
   if (scene === "craftingCube") return craftingCubeSceneHtml();
@@ -18245,6 +18942,8 @@ function accountUpgradeIconText(upgrade) {
   if (upgrade?.effect === "dropChanceBonusPercent") return "DR";
   if (upgrade?.effect === "poisonAmuletStackMultiplier") return "ST";
   if (upgrade?.effect === "gemOrbStackUnlock") return "OS";
+  if (upgrade?.effect === "timeLoggingUnlock") return "XP";
+  if (upgrade?.effect === "spiritBoxUnlock") return "SB";
   if (upgrade?.effect === "skillExperienceGainMaxBonus") return "SK";
   if (upgrade?.effect === "bonusAwakeningSoulChancePercent") return "S+";
   if (upgrade?.effect === "bossRespawnReductionPercent") return "RS";
@@ -18329,6 +19028,36 @@ function gettingStartedSceneHtml() {
   `;
 }
 
+function changelogEntryHtml(entry) {
+  const heading = entry.title
+    ? `${escapeHtml(entry.date)}${entry.date ? " — " : ""}${escapeHtml(entry.title)}`
+    : escapeHtml(entry.date || entry.id);
+  const highlights = entry.highlights.length
+    ? `<ul class="changelog-highlights">${entry.highlights.map((line) => `<li>${escapeHtml(line)}</li>`).join("")}</ul>`
+    : "";
+  return `
+    <article class="changelog-entry">
+      <h3>${heading}</h3>
+      ${highlights}
+    </article>
+  `;
+}
+
+function changelogSceneHtml() {
+  const entries = Array.isArray(state.changelog?.entries) ? state.changelog.entries : [];
+  const body = entries.length
+    ? entries.map(changelogEntryHtml).join("")
+    : `<p class="changelog-empty">No patch notes yet. Check back after the next update.</p>`;
+  return `
+    <section class="changelog-panel" data-preserve-scroll="changelog">
+      <p class="changelog-intro">
+        Recent game updates. Newest changes are listed first. When an update is available, you can also open this from the green bar at the top before reloading.
+      </p>
+      ${body}
+    </section>
+  `;
+}
+
 function playerAliasSectionHtml() {
   const stats = state.prototypeStats;
   const displayName = prototypeStatsDisplayName();
@@ -18395,6 +19124,13 @@ function optionsSceneHtml() {
           <span>Stats, potions, auto pots, skills, and other basics.</span>
         </div>
         <button type="button" data-open-scene="gettingStarted">Open Guide</button>
+      </div>
+      <div class="options-row">
+        <div>
+          <strong>What's New</strong>
+          <span>Recent patch notes and game updates.</span>
+        </div>
+        <button type="button" data-open-scene="changelog">Open What's New</button>
       </div>
       <div class="options-row">
         <div>
@@ -18894,7 +19630,7 @@ function refreshTokenScenes() {
   if (townMessageBoardOpen()) refreshTownMessageBoard();
   // The cash shop and the inventory/storage token-unlock dialogs all show the
   // live balance, so re-render whichever of them is open.
-  if (state.openScenes?.cashShop || state.openScenes?.inventory || state.openScenes?.storage) {
+  if (state.openScenes?.cashShop || state.openScenes?.inventory || state.openScenes?.storage || state.openScenes?.spiritBox) {
     sceneSignature = "";
     renderSceneOverlay();
   }
@@ -18942,6 +19678,13 @@ function confirmMonthlySupporterPurchase() {
 }
 
 async function fetchTokenBalance(force = false) {
+  // Local Spirit Box test tokens must not be overwritten by the live balance.
+  if (state.tokens.allowLocalSpend) {
+    state.tokens.status = "ready";
+    state.tokens.error = "";
+    refreshTokenScenes();
+    return;
+  }
   const base = leaderboardApiBase();
   const recoveryCode = state.cloudSave?.recoveryCode ?? "";
   if (!base || !recoveryCode) return;
@@ -19125,6 +19868,7 @@ function applyOwnedUnlocks() {
   // top-right button, so reconcile its visibility here.
   syncTeleportRingButton();
   syncTimeLoggingButton();
+  syncSpiritBoxButton();
 }
 
 // Fetches the account's owned unlocks + balance from the server (source of
@@ -19360,6 +20104,63 @@ function timeLoggingSceneHtml() {
         <span class="time-logging-eta" data-time-to-level>${escapeHtml(timeLoggingTimeToLevelText())}</span>
       </div>
       <small class="time-logging-note">Sampled from the last 5 minutes of kills. XP rates scale with your level versus the monsters', so compare zones at a similar level.</small>
+    </section>
+  `;
+}
+
+function spiritBoxSceneHtml() {
+  const stored = spiritBoxStoredEntry();
+  const paid = spiritBoxSlotPaid();
+  const souls = accountAwakenedSoulCount();
+  const tokenBalance = Math.max(0, Math.trunc(Number(state.tokens.balance) || 0));
+  const buying = Boolean(state.tokens.buying);
+
+  if (stored) {
+    const item = itemDefinition(stored.itemId);
+    const stack = item && isStackableItem(item) && stored.quantity > 1
+      ? `<span class="crystal-item-qty">${stored.quantity}</span>`
+      : "";
+    const intro = paid
+      ? "This item survives rebirth. Withdraw anytime to swap before you rebirth - the slot stays open this cycle."
+      : "This item survived rebirth. Withdraw it when ready. Opening the slot again costs another fee.";
+    return `
+    <section class="spirit-box-panel">
+      <p class="spirit-box-intro">${intro}</p>
+      <div class="spirit-box-slot occupied has-tooltip${inventoryEmpoweredClass(stored)}" data-tooltip-item="${escapeHtml(stored.itemId)}" data-tooltip-entry="spirit-box-item" data-spirit-box-slot>
+        ${item ? itemIconHtml(item) : ""}
+        ${stack}
+      </div>
+      <div class="spirit-box-item-name">${escapeHtml(item ? itemDisplayName(item, stored) : stored.itemId)}</div>
+      <button type="button" class="primary" data-spirit-box-withdraw>Withdraw</button>
+    </section>
+  `;
+  }
+
+  if (paid) {
+    return `
+    <section class="spirit-box-panel">
+      <p class="spirit-box-intro">Slot open until your next rebirth. Click or drop one inventory item to store it (stacks store only 1). You can swap freely before rebirthing.</p>
+      <div class="spirit-box-slot empty paid" data-spirit-box-slot aria-label="Open Spirit Box slot"></div>
+      <small class="spirit-box-note">No extra fee this cycle.</small>
+    </section>
+  `;
+  }
+
+  const soulsReady = souls >= SPIRIT_BOX_SOUL_COST;
+  const tokensReady = tokenBalance >= SPIRIT_BOX_TOKEN_COST;
+  return `
+    <section class="spirit-box-panel">
+      <p class="spirit-box-intro">Pay once to open the slot until your next rebirth. Then store or swap one item freely.</p>
+      <div class="spirit-box-slot empty" data-spirit-box-slot aria-label="Locked Spirit Box slot"></div>
+      <div class="spirit-box-pay-row">
+        <button type="button" class="primary" data-spirit-box-open-slot="souls" ${soulsReady ? "" : "disabled"}>
+          Open · ${SPIRIT_BOX_SOUL_COST} Souls
+        </button>
+        <button type="button" class="primary" data-spirit-box-open-slot="tokens" ${tokensReady && !buying ? "" : "disabled"}>
+          Open · ${SPIRIT_BOX_TOKEN_COST} Tokens
+        </button>
+      </div>
+      <small class="spirit-box-note">Have ${souls} Awakening Souls · ${tokenBalance} tokens${state.tokens.allowLocalSpend ? " (local test)" : ""}.</small>
     </section>
   `;
 }
@@ -19675,6 +20476,7 @@ function leaderboardListHtml() {
 function leaderboardRowHtml(row, index) {
   const combined = Math.max(0, Math.trunc(Number(row?.combinedCharacterLevels) || 0));
   const souls = Math.max(0, Math.trunc(Number(row?.awakeningSoulsHeld) || 0));
+  const rebirths = Math.max(0, Math.trunc(Number(row?.rebirthCount) || 0));
   const topChar = leaderboardRowCharacters(row)[0];
   const topLabel = topChar ? `${escapeHtml(topChar.characterClass)} Lv ${Math.max(1, Math.trunc(Number(topChar.level) || 1))}` : "";
   return `
@@ -19683,6 +20485,7 @@ function leaderboardRowHtml(row, index) {
       <span class="leaderboard-player">${escapeHtml(row?.player ?? "Player")}</span>
       <span class="leaderboard-cell">Levels ${combined}</span>
       <span class="leaderboard-cell">${topLabel}</span>
+      <span class="leaderboard-cell">Rebirths ${rebirths}</span>
       <span class="leaderboard-cell">Souls ${souls}</span>
     </button>
   `;
@@ -19703,6 +20506,9 @@ function leaderboardDetailHtml() {
   const activeClass = normalizeCharacterId(lb.detailClass ?? characters[0]?.characterClass);
   const view = characters.find((entry) => entry.characterClass === activeClass) ?? characters[0] ?? null;
   const lastSeen = leaderboardLastSeenLabel(row?.lastSeen);
+  const rebirths = Math.max(0, Math.trunc(Number(row?.rebirthCount) || 0));
+  const souls = Math.max(0, Math.trunc(Number(row?.awakeningSoulsHeld) || 0));
+  const combined = Math.max(0, Math.trunc(Number(row?.combinedCharacterLevels) || 0));
   const classTabs = characters.map((entry) => `
     <button type="button" class="leaderboard-class-tab ${entry.characterClass === activeClass ? "active" : ""}" data-leaderboard-class="${escapeHtml(entry.characterClass)}">
       ${escapeHtml(entry.characterClass)} Lv ${Math.max(1, Math.trunc(Number(entry.level) || 1))}
@@ -19714,7 +20520,7 @@ function leaderboardDetailHtml() {
         <button type="button" class="leaderboard-back" data-leaderboard-back>Back to list</button>
         <span class="leaderboard-detail-name">${escapeHtml(row?.player ?? "Player")}</span>
       </div>
-      <p class="leaderboard-note leaderboard-snapshot">Self-reported snapshot${lastSeen ? ` - as of ${escapeHtml(lastSeen)}` : ""}.</p>
+      <p class="leaderboard-note leaderboard-snapshot">Levels ${combined} · Rebirths ${rebirths} · Souls ${souls}${lastSeen ? ` · as of ${escapeHtml(lastSeen)}` : ""}.</p>
       <div class="leaderboard-class-tabs">${classTabs}</div>
       ${view ? foreignCharacterPageHtml(view) : `<p class="leaderboard-note">No character data for this player.</p>`}
     </div>
@@ -20419,6 +21225,11 @@ function handleInventoryShiftClick(event, itemElement) {
     return false;
   }
 
+  if (inventoryOpen && state.openScenes.spiritBox && inventoryItem && spiritBoxSlotPaid() && !spiritBoxStoredEntry()) {
+    void depositInventoryEntryToSpiritBox(entryId);
+    return true;
+  }
+
   if (inventoryOpen && isCraftingCubeWindowOpen() && inventoryItem) {
     return quickMoveInventoryEntryToCraftingCube(entryId);
   }
@@ -20505,6 +21316,19 @@ function handleInventoryCarryClick(event) {
   const itemElement = event.target.closest("[data-inventory-entry], [data-storage-entry], [data-refine-board-entry], [data-crafting-cube-board-entry]");
   if (!itemElement || !root.contains(itemElement)) return false;
 
+  if (
+    state.openScenes.spiritBox
+    && spiritBoxSlotPaid()
+    && !spiritBoxStoredEntry()
+    && itemElement.hasAttribute("data-inventory-entry")
+    && !itemElement.closest("[data-hotbar-slot]")
+    && !itemElement.closest("[data-equipped-slot]")
+  ) {
+    event.preventDefault();
+    void depositInventoryEntryToSpiritBox(itemElement.dataset.inventoryEntry);
+    return true;
+  }
+
   if (event.shiftKey) {
     event.preventDefault();
     handleInventoryShiftClick(event, itemElement);
@@ -20569,6 +21393,24 @@ function finishInventoryClickCarry(event) {
       );
       return true;
     }
+  }
+
+  const spiritBoxSlot = dropTarget.closest("[data-spirit-box-slot]");
+  if (spiritBoxSlot && root.contains(spiritBoxSlot) && carry.sourceContainer === "inventory") {
+    if (!spiritBoxSlotPaid()) {
+      pushBattleLog("Open the Spirit Box slot first (100 Souls or 200 Tokens).");
+      battlePanelSignature = "";
+      renderBattlePanel();
+      return false;
+    }
+    if (spiritBoxStoredEntry()) {
+      pushBattleLog("Withdraw the current item before storing another.");
+      battlePanelSignature = "";
+      renderBattlePanel();
+      return false;
+    }
+    void depositInventoryEntryToSpiritBox(carry.entryId);
+    return true;
   }
 
   const equipmentSlot = dropTarget.closest("[data-equipment-slot]");
@@ -20830,7 +21672,7 @@ function gridSlotElementAt(clientX, clientY, slotSelector, containerSelector, ga
 }
 
 function inventoryDropTargetAt(event) {
-  const dropSelector = "[data-inventory-entry], [data-storage-entry], [data-inventory-slot], [data-equipment-slot], [data-hotbar-slot], [data-storage-slot], [data-refine-slot], [data-crafting-cube-slot]";
+  const dropSelector = "[data-inventory-entry], [data-storage-entry], [data-inventory-slot], [data-equipment-slot], [data-hotbar-slot], [data-storage-slot], [data-refine-slot], [data-crafting-cube-slot], [data-spirit-box-slot]";
   if (inventoryDragState && inventoryDragState.sourceContainer !== "storage") {
     const entry = inventoryDragState.sourceContainer === "weaponRefine"
       ? weaponRefineEntryById(inventoryDragState.entryId)
@@ -20971,7 +21813,7 @@ function inventoryItemHtml(entry) {
   const tag = equipped ? "Equipped" : isStackableItem(item) ? `Stack ${entry.quantity}/${maxItemStack(item)}` : "Item";
   const command = isEquipableItem(item)
     ? `<button data-equip-entry="${entry.id}" ${equipped || !requirement.ok ? "disabled" : ""}>${equipped ? "Equipped" : requirement.ok ? "Equip" : "Locked"}</button>`
-    : isPotionItem(item) || isBenedictionOilItem(item)
+    : isPotionItem(item) || isBenedictionOilItem(item) || isDungeonSoulPortalItem(item)
     ? `<button data-use-entry="${entry.id}">Use</button>`
     : "";
   return `
@@ -20987,21 +21829,18 @@ function inventoryItemHtml(entry) {
 }
 
 function itemTooltipHtml(item, entry = null) {
-  const equipable = isEquipableItem(item);
   return `
     <strong>${escapeHtml(itemDisplayName(item, entry))}</strong>
-    ${equipable ? "" : `<span>${escapeHtml(title(item.type))}${item.slot ? ` | ${escapeHtml(slotLabel(item.slot))}` : ""}</span>`}
+    ${isEtherealItem(item) ? `<span class="item-ethereal-tag">Ethereal — cannot be stored in the Spirit Box</span>` : ""}
     ${entry?.smithLevel ? `<span>Smith: +${Math.max(0, Math.trunc(Number(entry.smithLevel) || 0))}</span>` : ""}
     ${entry?.gemCount ? `<span>Gem upgrades: ${Math.max(0, Math.trunc(Number(entry.gemCount) || 0))}</span>` : ""}
     ${entry?.weaponRefineLevel ? `<span>Refine: +${Math.max(0, Math.trunc(Number(entry.weaponRefineLevel) || 0))} / ${WEAPON_REFINE_MAX}</span>` : ""}
     ${entry && isOreItem(item) ? itemOreTooltipHtml(entry, item) : ""}
     ${entry && itemUsesEntryDurability(item) && !isOreItem(item) ? itemDurabilityTooltipHtml(entry, item) : ""}
-    ${!equipable && item.source?.name ? `<span>Crystal: ${escapeHtml(item.source.name)} #${item.source.crystalIndex}</span>` : ""}
-    ${item.visual ? `<span>Visual: ${escapeHtml(item.visual.layer)} ${item.visual.index}</span>` : ""}
     ${itemSpellTooltipHtml(item)}
     ${itemRequirementTooltipHtml(item)}
     ${isGemUpgradeItem(item) ? itemGemTooltipHtml(item) : ""}
-    ${isBookItem(item) ? "" : isBenedictionOilItem(item) ? itemBenedictionTooltipHtml(item, entry) : isPotionItem(item) ? itemPotionTooltipHtml(item) : isPoisonItem(item) ? itemPoisonTooltipHtml(item) : isTaoistAmuletItem(item) ? itemAmuletTooltipHtml(item) : itemEquipmentStatsTooltipHtml(entry, item)}
+    ${isBookItem(item) ? "" : isBenedictionOilItem(item) ? itemBenedictionTooltipHtml(item, entry) : isDungeonSoulPortalItem(item) ? itemDungeonSoulPortalTooltipHtml(item) : isPotionItem(item) ? itemPotionTooltipHtml(item) : isPoisonItem(item) ? itemPoisonTooltipHtml(item) : isTaoistAmuletItem(item) ? itemAmuletTooltipHtml(item) : itemEquipmentStatsTooltipHtml(entry, item)}
     ${item.stackable ? `<span>Stack: ${maxItemStack(item)}</span>` : ""}
     ${entry ? itemTooltipMarkHtml(entry) : ""}
   `;
@@ -21061,6 +21900,16 @@ function itemBenedictionTooltipHtml(item, entry = null) {
     <span>Total luck = base 1 + weapon luck. Luck ${CRYSTAL_MAX_LUCK} always rolls maximum damage.</span>
     ${equippedLine}
   `;
+}
+
+function itemDungeonSoulPortalTooltipHtml(item) {
+  if (isDdSoulItem(item)) {
+    return `<span>Use to open the Dark Devil Palace entry window and skip to Dark Devil.</span>`;
+  }
+  if (isIztSoulItem(item)) {
+    return `<span>Use to open the Zuma Palace entry window and skip to Incarnated Zuma Taurus.</span>`;
+  }
+  return `<span>Use to open the Wooma Palace (South) entry window and skip early Black Dragon Dungeon floors.</span>`;
 }
 
 function itemOreTooltipHtml(entry, item) {
@@ -21354,6 +22203,25 @@ async function confirmBossZoneEntry(zoneId) {
     playSfx("ui.button", { volume: 0.25, throttleMs: 120 });
     return;
   }
+
+  const pendingDungeonSoulEntryId = state.pendingDungeonSoulEntryId;
+  if (pendingDungeonSoulEntryId) {
+    const soulEntry = inventoryEntryById(pendingDungeonSoulEntryId);
+    const soulItem = soulEntry ? itemDefinition(soulEntry.itemId) : null;
+    if (!soulEntry || !soulItem || !isDungeonSoulPortalItem(soulItem)) {
+      clearPendingDungeonSoulEntry();
+      pushBattleLog("Dungeon soul is no longer available.");
+      battlePanelSignature = "";
+      renderBattlePanel();
+      sceneSignature = "";
+      renderSceneOverlay();
+      playSfx("ui.button", { volume: 0.25, throttleMs: 120 });
+      return;
+    }
+    removeInventoryEntry(soulEntry.id, 1);
+    clearPendingDungeonSoulEntry();
+  }
+
   if (advancingFromDungeon) {
     const party = state.battle.bossParty;
     if (party?.members?.length) {
@@ -25108,6 +25976,11 @@ function bindControls() {
       location.reload();
       return;
     }
+    const openChangelogButton = event.target.closest("[data-open-changelog]");
+    if (openChangelogButton && root.contains(openChangelogButton)) {
+      void openChangelog({ refresh: true });
+      return;
+    }
     const dismissUpdateBarButton = event.target.closest("[data-dismiss-update-bar]");
     if (dismissUpdateBarButton && root.contains(dismissUpdateBarButton)) {
       dismissUpdateAvailableBar();
@@ -25245,6 +26118,16 @@ function bindControls() {
     const accountUpgradeButton = event.target.closest("[data-buy-account-upgrade]");
     if (accountUpgradeButton && root.contains(accountUpgradeButton)) {
       buyAccountUpgrade(accountUpgradeButton.dataset.buyAccountUpgrade);
+      return;
+    }
+    const spiritBoxOpenSlotButton = event.target.closest("[data-spirit-box-open-slot]");
+    if (spiritBoxOpenSlotButton && root.contains(spiritBoxOpenSlotButton)) {
+      void purchaseSpiritBoxSlot(spiritBoxOpenSlotButton.dataset.spiritBoxOpenSlot);
+      return;
+    }
+    const spiritBoxWithdrawButton = event.target.closest("[data-spirit-box-withdraw]");
+    if (spiritBoxWithdrawButton && root.contains(spiritBoxWithdrawButton)) {
+      withdrawSpiritBoxEntry();
       return;
     }
     const performRebirthButton = event.target.closest("[data-perform-rebirth]");

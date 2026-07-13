@@ -1,5 +1,50 @@
 # AI Task Log - LOM Idle V2
 
+## 2026-07-12 - Spirit Box slot stays open until rebirth
+
+### What
+Paying souls/tokens opens the Spirit Box for the whole rebirth cycle. Withdraw/swap before rebirth no longer clears the fee. Rebirth clears `paid` but keeps any stored item.
+
+### Changes
+- `account.spiritBox.paid` flag; cleared in `performAccountRebirth`
+- Open-slot buttons charge immediately; deposits are free while paid
+
+## 2026-07-12 - Spirit Box rebirth upgrade
+
+### What
+Rebirth upgrade (50 RP) unlocks a top-right **Spirit Box** that holds one inventory entry through rebirth. Deposit costs 100 Awakening Souls or 200 tokens; withdraw clears the box so the next store costs again.
+
+### Changes
+- `ACCOUNT_UPGRADE_DEFS`: `rebirth-spirit-box`
+- Account save field `spiritBox.entry` (survives rebirth purge; not wiped with storage)
+- Corner button + Spirit Box window (deposit mode → click/drop inventory item; withdraw)
+- Worker `/shop/spend` with `spirit-box-deposit` (200 tokens); client charges via recovery code
+- Tests: shop spend + restoreAccount spiritBox
+
+### Verify
+- `npm.cmd run check`; `npm.cmd run smoke` with dev server
+- Deploy stats-worker manually so token deposits work in production
+
+## 2026-07-12 - IWT Soul crafting cube item
+
+### What
+Craftable dungeon souls:
+- **IWT Soul**: 2 Wooma Hearts + 1 Zuma Relic → Wooma Palace (South) / IWT (`zone-bdd-4`)
+- **IZT Soul**: 1 Wooma Heart + 2 Zuma Relics → Zuma Palace / IZT (`zone-bdd-11`)
+- **DD Soul**: 1 Stone Heart + 1 Hog Tooth → Dark Devil Palace (`zone-bdd-13`)
+
+Use opens the normal group-dungeon entry window with party picker. Soul consumed only on Enter confirm.
+
+### Changes
+- `src/data/items.json`: `iwt-soul` / `izt-soul` / `dd-soul` consumables with purple/green/red cube icons.
+- `public/item-icons/items-atlas.*`: rebuilt for soul icons.
+- `src/core/craftingCube.js`: recipes, shared two-material validation, autofill.
+- `src/app.monolith.js`: craft + portal use + consume-on-confirm.
+- `tests/craftingCubeSalvage.test.mjs`: recipe coverage.
+
+### Verify
+- `npm.cmd run check`; `npm.cmd run smoke` with dev server.
+
 ## 2026-07-12 - Warrior BA vs Half Moon cast priority
 
 ### What

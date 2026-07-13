@@ -58,6 +58,11 @@ const UNLOCK_TOKEN_COSTS = {
   "time-logging": 300,
 };
 const PAGE_UNLOCK_KEYS = new Set(Object.keys(UNLOCK_TOKEN_COSTS));
+// Repeatable token spends (not unlocks). Keys and costs are server-owned.
+const SPEND_TOKEN_COSTS = {
+  "spirit-box-deposit": 200,
+};
+const SPEND_TOKEN_KEYS = new Set(Object.keys(SPEND_TOKEN_COSTS));
 
 // Re-buyable, time-limited subscriptions bought with tokens. Unlike the one-off
 // unlocks above, these can be purchased again to EXTEND the expiry. Keys, costs,
@@ -1588,6 +1593,41 @@ async function handleShopUnlockPost(request, env, headers) {
   });
 }
 
+// Charges a known repeatable spend (e.g. Spirit Box deposit). Unlike unlocks,
+// this is never idempotent - every successful call deducts tokens again.
+async function handleShopSpendPost(request, env, headers) {
+  if (!env.DB) return json({ error: "Database binding DB is missing." }, 500, headers);
+  const parsed = await boundedJsonBody(request, 4_000);
+  if (!parsed.ok) return json({ error: parsed.error }, parsed.status, headers);
+  const recoveryCode = normalizeRecoveryCode(parsed.value?.recoveryCode);
+  const spendKey = textValue(parsed.value?.spendKey, 60);
+  if (!recoveryCode) return json({ error: "Invalid recovery code." }, 400, headers);
+  if (!SPEND_TOKEN_KEYS.has(spendKey)) return json({ error: "Unknown spend." }, 400, headers);
+  const cost = SPEND_TOKEN_COSTS[spendKey];
+
+  const charge = await env.DB.prepare(`
+    UPDATE token_accounts
+    SET balance = balance - ?, updated_at = CURRENT_TIMESTAMP
+    WHERE recovery_code = ? AND balance >= ?
+  `).bind(cost, recoveryCode, cost).run();
+  if ((charge?.meta?.changes ?? 0) !== 1) {
+    return json({ error: "Not enough tokens.", code: "INSUFFICIENT_TOKENS" }, 402, headers);
+  }
+
+  await env.DB.prepare(`
+    INSERT INTO token_ledger (recovery_code, delta, reason, ref)
+    VALUES (?, ?, 'spend:shop', ?)
+  `).bind(recoveryCode, -cost, spendKey).run();
+
+  const balanceRow = await env.DB.prepare(
+    "SELECT balance FROM token_accounts WHERE recovery_code = ?",
+  ).bind(recoveryCode).first();
+  return json({ ok: true, spendKey, balance: intValue(balanceRow?.balance) }, 200, {
+    ...headers,
+    "cache-control": "no-store",
+  });
+}
+
 // Buys (or extends) a re-buyable, time-limited subscription. Charges the token
 // cost atomically with a balance guard, then extends the expiry from the later
 // of now or the current expiry, so buying again while active stacks the time.
@@ -1724,6 +1764,7 @@ export default {
     if (url.pathname === "/shop/balance" && request.method === "GET") return handleShopBalanceGet(request, env, headers);
     if (url.pathname === "/shop/unlocks" && request.method === "GET") return handleShopUnlocksGet(request, env, headers);
     if (url.pathname === "/shop/unlock-page" && request.method === "POST") return handleShopUnlockPost(request, env, headers);
+    if (url.pathname === "/shop/spend" && request.method === "POST") return handleShopSpendPost(request, env, headers);
     if (url.pathname === "/shop/subscribe" && request.method === "POST") return handleShopSubscribePost(request, env, headers);
     if (url.pathname === "/player/alias" && request.method === "GET") return handlePlayerAliasGet(request, env, headers);
     if (url.pathname === "/player/alias" && request.method === "POST") return handlePlayerAliasPost(request, env, headers);

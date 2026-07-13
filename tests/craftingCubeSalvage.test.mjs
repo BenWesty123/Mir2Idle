@@ -10,6 +10,14 @@ import {
   CRAFTING_CUBE_EMPOWER_SWAP_CRYSTAL_COST,
   CRAFTING_CUBE_EMPOWER_SWAP_RECIPE_ID,
   CRAFTING_CUBE_EMPOWER_SWAP_REQUIREMENTS_ERROR,
+  CRAFTING_CUBE_DD_SOUL_RECIPE_ID,
+  CRAFTING_CUBE_DD_SOUL_REQUIREMENTS_ERROR,
+  CRAFTING_CUBE_IWT_SOUL_HEART_COST,
+  CRAFTING_CUBE_IWT_SOUL_RECIPE_ID,
+  CRAFTING_CUBE_IWT_SOUL_REQUIREMENTS_ERROR,
+  CRAFTING_CUBE_IZT_SOUL_RECIPE_ID,
+  CRAFTING_CUBE_IZT_SOUL_RELIC_COST,
+  CRAFTING_CUBE_IZT_SOUL_REQUIREMENTS_ERROR,
   CRAFTING_CUBE_SALVAGE_ONLY_EMPOWERED_ERROR,
   CRAFTING_CUBE_TARGETED_EMPOWER_REROLL_CRYSTAL_COST,
   CRAFTING_CUBE_TARGETED_EMPOWER_REROLL_RECIPE_ID,
@@ -19,10 +27,17 @@ import {
   CRAFTING_CUBE_TARGETED_EMPOWER_SWAP_REQUIREMENTS_ERROR,
   FOCUS_PRISM_ITEM_ID,
   HAVOC_CRYSTAL_ITEM_ID,
+  HOG_TOOTH_ITEM_ID,
+  STONE_HEART_ITEM_ID,
+  WOOMA_HEART_ITEM_ID,
+  ZUMA_RELIC_ITEM_ID,
   craftingCubeAutofillEntryIds,
+  validateCraftingCubeDdSoulCraft,
   validateCraftingCubeEmpowerReroll,
   validateCraftingCubeEmpowerSwap,
   validateCraftingCubeFocusPrismCraft,
+  validateCraftingCubeIwtSoulCraft,
+  validateCraftingCubeIztSoulCraft,
   validateCraftingCubeSalvageEntries,
   validateCraftingCubeTargetedEmpowerReroll,
   validateCraftingCubeTargetedEmpowerSwap,
@@ -39,6 +54,10 @@ const EMPOWERED_WEAPON = {
 const HAVOC_CRYSTAL = { id: HAVOC_CRYSTAL_ITEM_ID, type: "material", slot: "material" };
 const ADAMANTINE_ORE = { id: ADAMANTINE_ORE_ITEM_ID, type: "ore", slot: "material" };
 const FOCUS_PRISM = { id: FOCUS_PRISM_ITEM_ID, type: "material", slot: "material" };
+const WOOMA_HEART = { id: WOOMA_HEART_ITEM_ID, type: "material", slot: "material" };
+const ZUMA_RELIC = { id: ZUMA_RELIC_ITEM_ID, type: "material", slot: "material" };
+const STONE_HEART = { id: STONE_HEART_ITEM_ID, type: "material", slot: "material" };
+const HOG_TOOTH = { id: HOG_TOOTH_ITEM_ID, type: "material", slot: "material" };
 
 test("salvage grants one Havoc Crystal per empowerment tier", () => {
   const result = validateCraftingCubeSalvageEntries([
@@ -250,6 +269,128 @@ test("autofill pulls only havoc crystals for focus prism recipe", () => {
     resolveItem,
   );
   assert.deepEqual(picks, ["e-crystal"]);
+});
+
+test("iwt soul craft accepts two wooma hearts and one zuma relic", () => {
+  const result = validateCraftingCubeIwtSoulCraft([
+    { entry: { itemId: WOOMA_HEART_ITEM_ID, quantity: 2 }, item: WOOMA_HEART },
+    { entry: { itemId: ZUMA_RELIC_ITEM_ID, quantity: 1 }, item: ZUMA_RELIC },
+  ]);
+  assert.equal(result.ok, true);
+  assert.equal(result.heartEntry?.quantity, 2);
+  assert.equal(result.relicEntry?.quantity, 1);
+});
+
+test("iwt soul craft rejects fewer than two wooma hearts", () => {
+  const result = validateCraftingCubeIwtSoulCraft([
+    { entry: { itemId: WOOMA_HEART_ITEM_ID, quantity: 1 }, item: WOOMA_HEART },
+    { entry: { itemId: ZUMA_RELIC_ITEM_ID, quantity: 1 }, item: ZUMA_RELIC },
+  ]);
+  assert.equal(result.ok, false);
+  assert.match(result.error, new RegExp(`${CRAFTING_CUBE_IWT_SOUL_HEART_COST}`));
+});
+
+test("iwt soul craft rejects missing zuma relic", () => {
+  const result = validateCraftingCubeIwtSoulCraft([
+    { entry: { itemId: WOOMA_HEART_ITEM_ID, quantity: 2 }, item: WOOMA_HEART },
+  ]);
+  assert.equal(result.ok, false);
+  assert.equal(result.error, CRAFTING_CUBE_IWT_SOUL_REQUIREMENTS_ERROR);
+});
+
+test("autofill pulls wooma hearts and zuma relic for iwt soul recipe", () => {
+  const hearts = { id: "e-heart", itemId: WOOMA_HEART_ITEM_ID, quantity: 3 };
+  const relic = { id: "e-relic", itemId: ZUMA_RELIC_ITEM_ID, quantity: 2 };
+  const crystals = { id: "e-crystal", itemId: HAVOC_CRYSTAL_ITEM_ID, quantity: 9 };
+  const resolveItem = (itemId) => {
+    if (itemId === WOOMA_HEART_ITEM_ID) return WOOMA_HEART;
+    if (itemId === ZUMA_RELIC_ITEM_ID) return ZUMA_RELIC;
+    if (itemId === HAVOC_CRYSTAL_ITEM_ID) return HAVOC_CRYSTAL;
+    return null;
+  };
+  const picks = craftingCubeAutofillEntryIds(
+    CRAFTING_CUBE_IWT_SOUL_RECIPE_ID,
+    [crystals, hearts, relic],
+    resolveItem,
+  );
+  assert.deepEqual(picks, ["e-heart", "e-relic"]);
+});
+
+test("izt soul craft accepts one wooma heart and two zuma relics", () => {
+  const result = validateCraftingCubeIztSoulCraft([
+    { entry: { itemId: WOOMA_HEART_ITEM_ID, quantity: 1 }, item: WOOMA_HEART },
+    { entry: { itemId: ZUMA_RELIC_ITEM_ID, quantity: 2 }, item: ZUMA_RELIC },
+  ]);
+  assert.equal(result.ok, true);
+  assert.equal(result.heartEntry?.quantity, 1);
+  assert.equal(result.relicEntry?.quantity, 2);
+});
+
+test("izt soul craft rejects fewer than two zuma relics", () => {
+  const result = validateCraftingCubeIztSoulCraft([
+    { entry: { itemId: WOOMA_HEART_ITEM_ID, quantity: 1 }, item: WOOMA_HEART },
+    { entry: { itemId: ZUMA_RELIC_ITEM_ID, quantity: 1 }, item: ZUMA_RELIC },
+  ]);
+  assert.equal(result.ok, false);
+  assert.match(result.error, new RegExp(`${CRAFTING_CUBE_IZT_SOUL_RELIC_COST}`));
+});
+
+test("izt soul craft rejects missing wooma heart", () => {
+  const result = validateCraftingCubeIztSoulCraft([
+    { entry: { itemId: ZUMA_RELIC_ITEM_ID, quantity: 2 }, item: ZUMA_RELIC },
+  ]);
+  assert.equal(result.ok, false);
+  assert.equal(result.error, CRAFTING_CUBE_IZT_SOUL_REQUIREMENTS_ERROR);
+});
+
+test("autofill pulls materials for izt soul recipe", () => {
+  const hearts = { id: "e-heart", itemId: WOOMA_HEART_ITEM_ID, quantity: 1 };
+  const relic = { id: "e-relic", itemId: ZUMA_RELIC_ITEM_ID, quantity: 3 };
+  const resolveItem = (itemId) => {
+    if (itemId === WOOMA_HEART_ITEM_ID) return WOOMA_HEART;
+    if (itemId === ZUMA_RELIC_ITEM_ID) return ZUMA_RELIC;
+    return null;
+  };
+  const picks = craftingCubeAutofillEntryIds(
+    CRAFTING_CUBE_IZT_SOUL_RECIPE_ID,
+    [hearts, relic],
+    resolveItem,
+  );
+  assert.deepEqual(picks, ["e-heart", "e-relic"]);
+});
+
+test("dd soul craft accepts one stone heart and one hog tooth", () => {
+  const result = validateCraftingCubeDdSoulCraft([
+    { entry: { itemId: STONE_HEART_ITEM_ID, quantity: 1 }, item: STONE_HEART },
+    { entry: { itemId: HOG_TOOTH_ITEM_ID, quantity: 1 }, item: HOG_TOOTH },
+  ]);
+  assert.equal(result.ok, true);
+  assert.equal(result.stoneHeartEntry?.quantity, 1);
+  assert.equal(result.hogToothEntry?.quantity, 1);
+});
+
+test("dd soul craft rejects missing hog tooth", () => {
+  const result = validateCraftingCubeDdSoulCraft([
+    { entry: { itemId: STONE_HEART_ITEM_ID, quantity: 1 }, item: STONE_HEART },
+  ]);
+  assert.equal(result.ok, false);
+  assert.equal(result.error, CRAFTING_CUBE_DD_SOUL_REQUIREMENTS_ERROR);
+});
+
+test("autofill pulls materials for dd soul recipe", () => {
+  const stone = { id: "e-stone", itemId: STONE_HEART_ITEM_ID, quantity: 2 };
+  const tooth = { id: "e-tooth", itemId: HOG_TOOTH_ITEM_ID, quantity: 1 };
+  const resolveItem = (itemId) => {
+    if (itemId === STONE_HEART_ITEM_ID) return STONE_HEART;
+    if (itemId === HOG_TOOTH_ITEM_ID) return HOG_TOOTH;
+    return null;
+  };
+  const picks = craftingCubeAutofillEntryIds(
+    CRAFTING_CUBE_DD_SOUL_RECIPE_ID,
+    [stone, tooth],
+    resolveItem,
+  );
+  assert.deepEqual(picks, ["e-stone", "e-tooth"]);
 });
 
 test("empower swap accepts two empowered items and four havoc crystals", () => {

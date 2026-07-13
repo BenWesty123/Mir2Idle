@@ -1,0 +1,4632 @@
+{
+  "version": 1,
+  "savedAt": 1783876643893,
+  "activeCharacterId": "Warrior",
+  "groupDungeonRun": null,
+  "characters": {
+    "Warrior": {
+      "classId": "Warrior",
+      "game": {
+        "mode": "town",
+        "activeZoneId": null,
+        "kills": 0,
+        "zoneKills": 0,
+        "distance": 0,
+        "playtimeMs": 78,
+        "lastReward": null,
+        "recentLoot": [],
+        "dropPity": {},
+        "bossRespawns": {},
+        "bossKills": {},
+        "progress": {
+          "level": 1,
+          "experience": 0,
+          "gold": 0
+        },
+        "starterGearVersion": 1,
+        "miningNextRollAt": 0,
+        "miningSpotId": null,
+        "groupDungeonRun": null
+      },
+      "inventory": {
+        "gold": 0,
+        "pagesUnlocked": 1,
+        "goldPageUnlocked": false,
+        "tokenPageUnlocked": false,
+        "maxSlots": 40,
+        "nextInstanceId": 12,
+        "items": [
+          {
+            "id": "item-1",
+            "itemId": "wooden-sword",
+            "quantity": 1,
+            "slot": 0,
+            "smithLevel": 0,
+            "weaponRefineLevel": 0,
+            "gemCount": 0,
+            "empowered": false,
+            "empowerTier": 0,
+            "bonusStats": {
+              "dc": [
+                0,
+                0
+              ],
+              "mc": [
+                0,
+                0
+              ],
+              "sc": [
+                0,
+                0
+              ],
+              "ac": [
+                0,
+                0
+              ],
+              "amc": [
+                0,
+                0
+              ],
+              "hp": 0,
+              "mp": 0,
+              "accuracy": 0,
+              "agility": 0,
+              "luck": 0,
+              "attackSpeed": 0,
+              "poisonAttack": 0,
+              "freezing": 0,
+              "magicResist": 0,
+              "poisonResist": 0,
+              "healthRecovery": 0,
+              "poisonRecovery": 0,
+              "strong": 0,
+              "xpBonusPercent": 0,
+              "goldBonusPercent": 0,
+              "bonusAwakeningSoulChancePercent": 0,
+              "damageTakenReductionPercent": 0,
+              "critChancePercent": 0,
+              "critDamagePercent": 0,
+              "skillLevelBonusPercent": 0,
+              "dropChanceBonusPercent": 0
+            },
+            "smithBonusStats": {
+              "dc": [
+                0,
+                0
+              ],
+              "mc": [
+                0,
+                0
+              ],
+              "sc": [
+                0,
+                0
+              ],
+              "ac": [
+                0,
+                0
+              ],
+              "amc": [
+                0,
+                0
+              ],
+              "hp": 0,
+              "mp": 0,
+              "accuracy": 0,
+              "agility": 0,
+              "luck": 0,
+              "attackSpeed": 0,
+              "poisonAttack": 0,
+              "freezing": 0,
+              "magicResist": 0,
+              "poisonResist": 0,
+              "healthRecovery": 0,
+              "poisonRecovery": 0,
+              "strong": 0,
+              "xpBonusPercent": 0,
+              "goldBonusPercent": 0,
+              "bonusAwakeningSoulChancePercent": 0,
+              "damageTakenReductionPercent": 0,
+              "critChancePercent": 0,
+              "critDamagePercent": 0,
+              "skillLevelBonusPercent": 0,
+              "dropChanceBonusPercent": 0
+            },
+            "empowerBonusStats": {
+              "dc": [
+                0,
+                0
+              ],
+              "mc": [
+                0,
+                0
+              ],
+              "sc": [
+                0,
+                0
+              ],
+              "ac": [
+                0,
+                0
+              ],
+              "amc": [
+                0,
+                0
+              ],
+              "hp": 0,
+              "mp": 0,
+              "accuracy": 0,
+              "agility": 0,
+              "luck": 0,
+              "attackSpeed": 0,
+              "poisonAttack": 0,
+              "freezing": 0,
+              "magicResist": 0,
+              "poisonResist": 0,
+              "healthRecovery": 0,
+              "poisonRecovery": 0,
+              "strong": 0,
+              "xpBonusPercent": 0,
+              "goldBonusPercent": 0,
+              "bonusAwakeningSoulChancePercent": 0,
+              "damageTakenReductionPercent": 0,
+              "critChancePercent": 0,
+              "critDamagePercent": 0,
+              "skillLevelBonusPercent": 0,
+              "dropChanceBonusPercent": 0
+            },
+            "empowerSpellBonuses": {},
+            "inventoryMark": null
+          },
+          {
+            "id": "item-2",
+            "itemId": "base-dress",
+            "quantity": 1,
+            "slot": 1,
+            "smithLevel": 0,
+            "weaponRefineLevel": 0,
+            "gemCount": 0,
+            "empowered": false,
+            "empowerTier": 0,
+            "bonusStats": {
+              "dc": [
+                0,
+                0
+              ],
+              "mc": [
+                0,
+                0
+              ],
+              "sc": [
+                0,
+                0
+              ],
+              "ac": [
+                0,
+                0
+              ],
+              "amc": [
+                0,
+                0
+              ],
+              "hp": 0,
+              "mp": 0,
+              "accuracy": 0,
+              "agility": 0,
+              "luck": 0,
+              "attackSpeed": 0,
+              "poisonAttack": 0,
+              "freezing": 0,
+              "magicResist": 0,
+              "poisonResist": 0,
+              "healthRecovery": 0,
+              "poisonRecovery": 0,
+              "strong": 0,
+              "xpBonusPercent": 0,
+              "goldBonusPercent": 0,
+              "bonusAwakeningSoulChancePercent": 0,
+              "damageTakenReductionPercent": 0,
+              "critChancePercent": 0,
+              "critDamagePercent": 0,
+              "skillLevelBonusPercent": 0,
+              "dropChanceBonusPercent": 0
+            },
+            "smithBonusStats": {
+              "dc": [
+                0,
+                0
+              ],
+              "mc": [
+                0,
+                0
+              ],
+              "sc": [
+                0,
+                0
+              ],
+              "ac": [
+                0,
+                0
+              ],
+              "amc": [
+                0,
+                0
+              ],
+              "hp": 0,
+              "mp": 0,
+              "accuracy": 0,
+              "agility": 0,
+              "luck": 0,
+              "attackSpeed": 0,
+              "poisonAttack": 0,
+              "freezing": 0,
+              "magicResist": 0,
+              "poisonResist": 0,
+              "healthRecovery": 0,
+              "poisonRecovery": 0,
+              "strong": 0,
+              "xpBonusPercent": 0,
+              "goldBonusPercent": 0,
+              "bonusAwakeningSoulChancePercent": 0,
+              "damageTakenReductionPercent": 0,
+              "critChancePercent": 0,
+              "critDamagePercent": 0,
+              "skillLevelBonusPercent": 0,
+              "dropChanceBonusPercent": 0
+            },
+            "empowerBonusStats": {
+              "dc": [
+                0,
+                0
+              ],
+              "mc": [
+                0,
+                0
+              ],
+              "sc": [
+                0,
+                0
+              ],
+              "ac": [
+                0,
+                0
+              ],
+              "amc": [
+                0,
+                0
+              ],
+              "hp": 0,
+              "mp": 0,
+              "accuracy": 0,
+              "agility": 0,
+              "luck": 0,
+              "attackSpeed": 0,
+              "poisonAttack": 0,
+              "freezing": 0,
+              "magicResist": 0,
+              "poisonResist": 0,
+              "healthRecovery": 0,
+              "poisonRecovery": 0,
+              "strong": 0,
+              "xpBonusPercent": 0,
+              "goldBonusPercent": 0,
+              "bonusAwakeningSoulChancePercent": 0,
+              "damageTakenReductionPercent": 0,
+              "critChancePercent": 0,
+              "critDamagePercent": 0,
+              "skillLevelBonusPercent": 0,
+              "dropChanceBonusPercent": 0
+            },
+            "empowerSpellBonuses": {},
+            "inventoryMark": null
+          },
+          {
+            "id": "item-3",
+            "itemId": "hp-drug-small",
+            "quantity": 5,
+            "slot": 2,
+            "smithLevel": 0,
+            "weaponRefineLevel": 0,
+            "gemCount": 0,
+            "empowered": false,
+            "empowerTier": 0,
+            "bonusStats": {
+              "dc": [
+                0,
+                0
+              ],
+              "mc": [
+                0,
+                0
+              ],
+              "sc": [
+                0,
+                0
+              ],
+              "ac": [
+                0,
+                0
+              ],
+              "amc": [
+                0,
+                0
+              ],
+              "hp": 0,
+              "mp": 0,
+              "accuracy": 0,
+              "agility": 0,
+              "luck": 0,
+              "attackSpeed": 0,
+              "poisonAttack": 0,
+              "freezing": 0,
+              "magicResist": 0,
+              "poisonResist": 0,
+              "healthRecovery": 0,
+              "poisonRecovery": 0,
+              "strong": 0,
+              "xpBonusPercent": 0,
+              "goldBonusPercent": 0,
+              "bonusAwakeningSoulChancePercent": 0,
+              "damageTakenReductionPercent": 0,
+              "critChancePercent": 0,
+              "critDamagePercent": 0,
+              "skillLevelBonusPercent": 0,
+              "dropChanceBonusPercent": 0
+            },
+            "smithBonusStats": {
+              "dc": [
+                0,
+                0
+              ],
+              "mc": [
+                0,
+                0
+              ],
+              "sc": [
+                0,
+                0
+              ],
+              "ac": [
+                0,
+                0
+              ],
+              "amc": [
+                0,
+                0
+              ],
+              "hp": 0,
+              "mp": 0,
+              "accuracy": 0,
+              "agility": 0,
+              "luck": 0,
+              "attackSpeed": 0,
+              "poisonAttack": 0,
+              "freezing": 0,
+              "magicResist": 0,
+              "poisonResist": 0,
+              "healthRecovery": 0,
+              "poisonRecovery": 0,
+              "strong": 0,
+              "xpBonusPercent": 0,
+              "goldBonusPercent": 0,
+              "bonusAwakeningSoulChancePercent": 0,
+              "damageTakenReductionPercent": 0,
+              "critChancePercent": 0,
+              "critDamagePercent": 0,
+              "skillLevelBonusPercent": 0,
+              "dropChanceBonusPercent": 0
+            },
+            "empowerBonusStats": {
+              "dc": [
+                0,
+                0
+              ],
+              "mc": [
+                0,
+                0
+              ],
+              "sc": [
+                0,
+                0
+              ],
+              "ac": [
+                0,
+                0
+              ],
+              "amc": [
+                0,
+                0
+              ],
+              "hp": 0,
+              "mp": 0,
+              "accuracy": 0,
+              "agility": 0,
+              "luck": 0,
+              "attackSpeed": 0,
+              "poisonAttack": 0,
+              "freezing": 0,
+              "magicResist": 0,
+              "poisonResist": 0,
+              "healthRecovery": 0,
+              "poisonRecovery": 0,
+              "strong": 0,
+              "xpBonusPercent": 0,
+              "goldBonusPercent": 0,
+              "bonusAwakeningSoulChancePercent": 0,
+              "damageTakenReductionPercent": 0,
+              "critChancePercent": 0,
+              "critDamagePercent": 0,
+              "skillLevelBonusPercent": 0,
+              "dropChanceBonusPercent": 0
+            },
+            "empowerSpellBonuses": {},
+            "inventoryMark": null
+          },
+          {
+            "id": "item-4",
+            "itemId": "mp-drug-small",
+            "quantity": 5,
+            "slot": 3,
+            "smithLevel": 0,
+            "weaponRefineLevel": 0,
+            "gemCount": 0,
+            "empowered": false,
+            "empowerTier": 0,
+            "bonusStats": {
+              "dc": [
+                0,
+                0
+              ],
+              "mc": [
+                0,
+                0
+              ],
+              "sc": [
+                0,
+                0
+              ],
+              "ac": [
+                0,
+                0
+              ],
+              "amc": [
+                0,
+                0
+              ],
+              "hp": 0,
+              "mp": 0,
+              "accuracy": 0,
+              "agility": 0,
+              "luck": 0,
+              "attackSpeed": 0,
+              "poisonAttack": 0,
+              "freezing": 0,
+              "magicResist": 0,
+              "poisonResist": 0,
+              "healthRecovery": 0,
+              "poisonRecovery": 0,
+              "strong": 0,
+              "xpBonusPercent": 0,
+              "goldBonusPercent": 0,
+              "bonusAwakeningSoulChancePercent": 0,
+              "damageTakenReductionPercent": 0,
+              "critChancePercent": 0,
+              "critDamagePercent": 0,
+              "skillLevelBonusPercent": 0,
+              "dropChanceBonusPercent": 0
+            },
+            "smithBonusStats": {
+              "dc": [
+                0,
+                0
+              ],
+              "mc": [
+                0,
+                0
+              ],
+              "sc": [
+                0,
+                0
+              ],
+              "ac": [
+                0,
+                0
+              ],
+              "amc": [
+                0,
+                0
+              ],
+              "hp": 0,
+              "mp": 0,
+              "accuracy": 0,
+              "agility": 0,
+              "luck": 0,
+              "attackSpeed": 0,
+              "poisonAttack": 0,
+              "freezing": 0,
+              "magicResist": 0,
+              "poisonResist": 0,
+              "healthRecovery": 0,
+              "poisonRecovery": 0,
+              "strong": 0,
+              "xpBonusPercent": 0,
+              "goldBonusPercent": 0,
+              "bonusAwakeningSoulChancePercent": 0,
+              "damageTakenReductionPercent": 0,
+              "critChancePercent": 0,
+              "critDamagePercent": 0,
+              "skillLevelBonusPercent": 0,
+              "dropChanceBonusPercent": 0
+            },
+            "empowerBonusStats": {
+              "dc": [
+                0,
+                0
+              ],
+              "mc": [
+                0,
+                0
+              ],
+              "sc": [
+                0,
+                0
+              ],
+              "ac": [
+                0,
+                0
+              ],
+              "amc": [
+                0,
+                0
+              ],
+              "hp": 0,
+              "mp": 0,
+              "accuracy": 0,
+              "agility": 0,
+              "luck": 0,
+              "attackSpeed": 0,
+              "poisonAttack": 0,
+              "freezing": 0,
+              "magicResist": 0,
+              "poisonResist": 0,
+              "healthRecovery": 0,
+              "poisonRecovery": 0,
+              "strong": 0,
+              "xpBonusPercent": 0,
+              "goldBonusPercent": 0,
+              "bonusAwakeningSoulChancePercent": 0,
+              "damageTakenReductionPercent": 0,
+              "critChancePercent": 0,
+              "critDamagePercent": 0,
+              "skillLevelBonusPercent": 0,
+              "dropChanceBonusPercent": 0
+            },
+            "empowerSpellBonuses": {},
+            "inventoryMark": null
+          },
+          {
+            "id": "item-5",
+            "itemId": "awakening-soul",
+            "quantity": 200,
+            "slot": 4,
+            "smithLevel": 0,
+            "weaponRefineLevel": 0,
+            "gemCount": 0,
+            "empowered": false,
+            "empowerTier": 0,
+            "bonusStats": {
+              "dc": [
+                0,
+                0
+              ],
+              "mc": [
+                0,
+                0
+              ],
+              "sc": [
+                0,
+                0
+              ],
+              "ac": [
+                0,
+                0
+              ],
+              "amc": [
+                0,
+                0
+              ],
+              "hp": 0,
+              "mp": 0,
+              "accuracy": 0,
+              "agility": 0,
+              "luck": 0,
+              "attackSpeed": 0,
+              "poisonAttack": 0,
+              "freezing": 0,
+              "magicResist": 0,
+              "poisonResist": 0,
+              "healthRecovery": 0,
+              "poisonRecovery": 0,
+              "strong": 0,
+              "xpBonusPercent": 0,
+              "goldBonusPercent": 0,
+              "bonusAwakeningSoulChancePercent": 0,
+              "damageTakenReductionPercent": 0,
+              "critChancePercent": 0,
+              "critDamagePercent": 0,
+              "skillLevelBonusPercent": 0,
+              "dropChanceBonusPercent": 0
+            },
+            "smithBonusStats": {
+              "dc": [
+                0,
+                0
+              ],
+              "mc": [
+                0,
+                0
+              ],
+              "sc": [
+                0,
+                0
+              ],
+              "ac": [
+                0,
+                0
+              ],
+              "amc": [
+                0,
+                0
+              ],
+              "hp": 0,
+              "mp": 0,
+              "accuracy": 0,
+              "agility": 0,
+              "luck": 0,
+              "attackSpeed": 0,
+              "poisonAttack": 0,
+              "freezing": 0,
+              "magicResist": 0,
+              "poisonResist": 0,
+              "healthRecovery": 0,
+              "poisonRecovery": 0,
+              "strong": 0,
+              "xpBonusPercent": 0,
+              "goldBonusPercent": 0,
+              "bonusAwakeningSoulChancePercent": 0,
+              "damageTakenReductionPercent": 0,
+              "critChancePercent": 0,
+              "critDamagePercent": 0,
+              "skillLevelBonusPercent": 0,
+              "dropChanceBonusPercent": 0
+            },
+            "empowerBonusStats": {
+              "dc": [
+                0,
+                0
+              ],
+              "mc": [
+                0,
+                0
+              ],
+              "sc": [
+                0,
+                0
+              ],
+              "ac": [
+                0,
+                0
+              ],
+              "amc": [
+                0,
+                0
+              ],
+              "hp": 0,
+              "mp": 0,
+              "accuracy": 0,
+              "agility": 0,
+              "luck": 0,
+              "attackSpeed": 0,
+              "poisonAttack": 0,
+              "freezing": 0,
+              "magicResist": 0,
+              "poisonResist": 0,
+              "healthRecovery": 0,
+              "poisonRecovery": 0,
+              "strong": 0,
+              "xpBonusPercent": 0,
+              "goldBonusPercent": 0,
+              "bonusAwakeningSoulChancePercent": 0,
+              "damageTakenReductionPercent": 0,
+              "critChancePercent": 0,
+              "critDamagePercent": 0,
+              "skillLevelBonusPercent": 0,
+              "dropChanceBonusPercent": 0
+            },
+            "empowerSpellBonuses": {},
+            "inventoryMark": null
+          },
+          {
+            "id": "item-6",
+            "itemId": "wooma-heart",
+            "quantity": 3,
+            "slot": 5,
+            "smithLevel": 0,
+            "weaponRefineLevel": 0,
+            "gemCount": 0,
+            "empowered": false,
+            "empowerTier": 0,
+            "bonusStats": {
+              "dc": [
+                0,
+                0
+              ],
+              "mc": [
+                0,
+                0
+              ],
+              "sc": [
+                0,
+                0
+              ],
+              "ac": [
+                0,
+                0
+              ],
+              "amc": [
+                0,
+                0
+              ],
+              "hp": 0,
+              "mp": 0,
+              "accuracy": 0,
+              "agility": 0,
+              "luck": 0,
+              "attackSpeed": 0,
+              "poisonAttack": 0,
+              "freezing": 0,
+              "magicResist": 0,
+              "poisonResist": 0,
+              "healthRecovery": 0,
+              "poisonRecovery": 0,
+              "strong": 0,
+              "xpBonusPercent": 0,
+              "goldBonusPercent": 0,
+              "bonusAwakeningSoulChancePercent": 0,
+              "damageTakenReductionPercent": 0,
+              "critChancePercent": 0,
+              "critDamagePercent": 0,
+              "skillLevelBonusPercent": 0,
+              "dropChanceBonusPercent": 0
+            },
+            "smithBonusStats": {
+              "dc": [
+                0,
+                0
+              ],
+              "mc": [
+                0,
+                0
+              ],
+              "sc": [
+                0,
+                0
+              ],
+              "ac": [
+                0,
+                0
+              ],
+              "amc": [
+                0,
+                0
+              ],
+              "hp": 0,
+              "mp": 0,
+              "accuracy": 0,
+              "agility": 0,
+              "luck": 0,
+              "attackSpeed": 0,
+              "poisonAttack": 0,
+              "freezing": 0,
+              "magicResist": 0,
+              "poisonResist": 0,
+              "healthRecovery": 0,
+              "poisonRecovery": 0,
+              "strong": 0,
+              "xpBonusPercent": 0,
+              "goldBonusPercent": 0,
+              "bonusAwakeningSoulChancePercent": 0,
+              "damageTakenReductionPercent": 0,
+              "critChancePercent": 0,
+              "critDamagePercent": 0,
+              "skillLevelBonusPercent": 0,
+              "dropChanceBonusPercent": 0
+            },
+            "empowerBonusStats": {
+              "dc": [
+                0,
+                0
+              ],
+              "mc": [
+                0,
+                0
+              ],
+              "sc": [
+                0,
+                0
+              ],
+              "ac": [
+                0,
+                0
+              ],
+              "amc": [
+                0,
+                0
+              ],
+              "hp": 0,
+              "mp": 0,
+              "accuracy": 0,
+              "agility": 0,
+              "luck": 0,
+              "attackSpeed": 0,
+              "poisonAttack": 0,
+              "freezing": 0,
+              "magicResist": 0,
+              "poisonResist": 0,
+              "healthRecovery": 0,
+              "poisonRecovery": 0,
+              "strong": 0,
+              "xpBonusPercent": 0,
+              "goldBonusPercent": 0,
+              "bonusAwakeningSoulChancePercent": 0,
+              "damageTakenReductionPercent": 0,
+              "critChancePercent": 0,
+              "critDamagePercent": 0,
+              "skillLevelBonusPercent": 0,
+              "dropChanceBonusPercent": 0
+            },
+            "empowerSpellBonuses": {},
+            "inventoryMark": null
+          },
+          {
+            "id": "item-7",
+            "itemId": "zuma-relic",
+            "quantity": 2,
+            "slot": 6,
+            "smithLevel": 0,
+            "weaponRefineLevel": 0,
+            "gemCount": 0,
+            "empowered": false,
+            "empowerTier": 0,
+            "bonusStats": {
+              "dc": [
+                0,
+                0
+              ],
+              "mc": [
+                0,
+                0
+              ],
+              "sc": [
+                0,
+                0
+              ],
+              "ac": [
+                0,
+                0
+              ],
+              "amc": [
+                0,
+                0
+              ],
+              "hp": 0,
+              "mp": 0,
+              "accuracy": 0,
+              "agility": 0,
+              "luck": 0,
+              "attackSpeed": 0,
+              "poisonAttack": 0,
+              "freezing": 0,
+              "magicResist": 0,
+              "poisonResist": 0,
+              "healthRecovery": 0,
+              "poisonRecovery": 0,
+              "strong": 0,
+              "xpBonusPercent": 0,
+              "goldBonusPercent": 0,
+              "bonusAwakeningSoulChancePercent": 0,
+              "damageTakenReductionPercent": 0,
+              "critChancePercent": 0,
+              "critDamagePercent": 0,
+              "skillLevelBonusPercent": 0,
+              "dropChanceBonusPercent": 0
+            },
+            "smithBonusStats": {
+              "dc": [
+                0,
+                0
+              ],
+              "mc": [
+                0,
+                0
+              ],
+              "sc": [
+                0,
+                0
+              ],
+              "ac": [
+                0,
+                0
+              ],
+              "amc": [
+                0,
+                0
+              ],
+              "hp": 0,
+              "mp": 0,
+              "accuracy": 0,
+              "agility": 0,
+              "luck": 0,
+              "attackSpeed": 0,
+              "poisonAttack": 0,
+              "freezing": 0,
+              "magicResist": 0,
+              "poisonResist": 0,
+              "healthRecovery": 0,
+              "poisonRecovery": 0,
+              "strong": 0,
+              "xpBonusPercent": 0,
+              "goldBonusPercent": 0,
+              "bonusAwakeningSoulChancePercent": 0,
+              "damageTakenReductionPercent": 0,
+              "critChancePercent": 0,
+              "critDamagePercent": 0,
+              "skillLevelBonusPercent": 0,
+              "dropChanceBonusPercent": 0
+            },
+            "empowerBonusStats": {
+              "dc": [
+                0,
+                0
+              ],
+              "mc": [
+                0,
+                0
+              ],
+              "sc": [
+                0,
+                0
+              ],
+              "ac": [
+                0,
+                0
+              ],
+              "amc": [
+                0,
+                0
+              ],
+              "hp": 0,
+              "mp": 0,
+              "accuracy": 0,
+              "agility": 0,
+              "luck": 0,
+              "attackSpeed": 0,
+              "poisonAttack": 0,
+              "freezing": 0,
+              "magicResist": 0,
+              "poisonResist": 0,
+              "healthRecovery": 0,
+              "poisonRecovery": 0,
+              "strong": 0,
+              "xpBonusPercent": 0,
+              "goldBonusPercent": 0,
+              "bonusAwakeningSoulChancePercent": 0,
+              "damageTakenReductionPercent": 0,
+              "critChancePercent": 0,
+              "critDamagePercent": 0,
+              "skillLevelBonusPercent": 0,
+              "dropChanceBonusPercent": 0
+            },
+            "empowerSpellBonuses": {},
+            "inventoryMark": null
+          },
+          {
+            "id": "item-8",
+            "itemId": "iron-sword",
+            "quantity": 1,
+            "slot": 7,
+            "smithLevel": 0,
+            "weaponRefineLevel": 0,
+            "gemCount": 0,
+            "empowered": false,
+            "empowerTier": 0,
+            "bonusStats": {
+              "dc": [
+                0,
+                0
+              ],
+              "mc": [
+                0,
+                0
+              ],
+              "sc": [
+                0,
+                0
+              ],
+              "ac": [
+                0,
+                0
+              ],
+              "amc": [
+                0,
+                0
+              ],
+              "hp": 0,
+              "mp": 0,
+              "accuracy": 0,
+              "agility": 0,
+              "luck": 0,
+              "attackSpeed": 0,
+              "poisonAttack": 0,
+              "freezing": 0,
+              "magicResist": 0,
+              "poisonResist": 0,
+              "healthRecovery": 0,
+              "poisonRecovery": 0,
+              "strong": 0,
+              "xpBonusPercent": 0,
+              "goldBonusPercent": 0,
+              "bonusAwakeningSoulChancePercent": 0,
+              "damageTakenReductionPercent": 0,
+              "critChancePercent": 0,
+              "critDamagePercent": 0,
+              "skillLevelBonusPercent": 0,
+              "dropChanceBonusPercent": 0
+            },
+            "smithBonusStats": {
+              "dc": [
+                0,
+                0
+              ],
+              "mc": [
+                0,
+                0
+              ],
+              "sc": [
+                0,
+                0
+              ],
+              "ac": [
+                0,
+                0
+              ],
+              "amc": [
+                0,
+                0
+              ],
+              "hp": 0,
+              "mp": 0,
+              "accuracy": 0,
+              "agility": 0,
+              "luck": 0,
+              "attackSpeed": 0,
+              "poisonAttack": 0,
+              "freezing": 0,
+              "magicResist": 0,
+              "poisonResist": 0,
+              "healthRecovery": 0,
+              "poisonRecovery": 0,
+              "strong": 0,
+              "xpBonusPercent": 0,
+              "goldBonusPercent": 0,
+              "bonusAwakeningSoulChancePercent": 0,
+              "damageTakenReductionPercent": 0,
+              "critChancePercent": 0,
+              "critDamagePercent": 0,
+              "skillLevelBonusPercent": 0,
+              "dropChanceBonusPercent": 0
+            },
+            "empowerBonusStats": {
+              "dc": [
+                0,
+                0
+              ],
+              "mc": [
+                0,
+                0
+              ],
+              "sc": [
+                0,
+                0
+              ],
+              "ac": [
+                0,
+                0
+              ],
+              "amc": [
+                0,
+                0
+              ],
+              "hp": 0,
+              "mp": 0,
+              "accuracy": 0,
+              "agility": 0,
+              "luck": 0,
+              "attackSpeed": 0,
+              "poisonAttack": 0,
+              "freezing": 0,
+              "magicResist": 0,
+              "poisonResist": 0,
+              "healthRecovery": 0,
+              "poisonRecovery": 0,
+              "strong": 0,
+              "xpBonusPercent": 0,
+              "goldBonusPercent": 0,
+              "bonusAwakeningSoulChancePercent": 0,
+              "damageTakenReductionPercent": 0,
+              "critChancePercent": 0,
+              "critDamagePercent": 0,
+              "skillLevelBonusPercent": 0,
+              "dropChanceBonusPercent": 0
+            },
+            "empowerSpellBonuses": {},
+            "inventoryMark": null
+          },
+          {
+            "id": "item-9",
+            "itemId": "bronze-helmet",
+            "quantity": 1,
+            "slot": 8,
+            "smithLevel": 0,
+            "weaponRefineLevel": 0,
+            "gemCount": 0,
+            "empowered": false,
+            "empowerTier": 0,
+            "bonusStats": {
+              "dc": [
+                0,
+                0
+              ],
+              "mc": [
+                0,
+                0
+              ],
+              "sc": [
+                0,
+                0
+              ],
+              "ac": [
+                0,
+                0
+              ],
+              "amc": [
+                0,
+                0
+              ],
+              "hp": 0,
+              "mp": 0,
+              "accuracy": 0,
+              "agility": 0,
+              "luck": 0,
+              "attackSpeed": 0,
+              "poisonAttack": 0,
+              "freezing": 0,
+              "magicResist": 0,
+              "poisonResist": 0,
+              "healthRecovery": 0,
+              "poisonRecovery": 0,
+              "strong": 0,
+              "xpBonusPercent": 0,
+              "goldBonusPercent": 0,
+              "bonusAwakeningSoulChancePercent": 0,
+              "damageTakenReductionPercent": 0,
+              "critChancePercent": 0,
+              "critDamagePercent": 0,
+              "skillLevelBonusPercent": 0,
+              "dropChanceBonusPercent": 0
+            },
+            "smithBonusStats": {
+              "dc": [
+                0,
+                0
+              ],
+              "mc": [
+                0,
+                0
+              ],
+              "sc": [
+                0,
+                0
+              ],
+              "ac": [
+                0,
+                0
+              ],
+              "amc": [
+                0,
+                0
+              ],
+              "hp": 0,
+              "mp": 0,
+              "accuracy": 0,
+              "agility": 0,
+              "luck": 0,
+              "attackSpeed": 0,
+              "poisonAttack": 0,
+              "freezing": 0,
+              "magicResist": 0,
+              "poisonResist": 0,
+              "healthRecovery": 0,
+              "poisonRecovery": 0,
+              "strong": 0,
+              "xpBonusPercent": 0,
+              "goldBonusPercent": 0,
+              "bonusAwakeningSoulChancePercent": 0,
+              "damageTakenReductionPercent": 0,
+              "critChancePercent": 0,
+              "critDamagePercent": 0,
+              "skillLevelBonusPercent": 0,
+              "dropChanceBonusPercent": 0
+            },
+            "empowerBonusStats": {
+              "dc": [
+                0,
+                0
+              ],
+              "mc": [
+                0,
+                0
+              ],
+              "sc": [
+                0,
+                0
+              ],
+              "ac": [
+                0,
+                0
+              ],
+              "amc": [
+                0,
+                0
+              ],
+              "hp": 0,
+              "mp": 0,
+              "accuracy": 0,
+              "agility": 0,
+              "luck": 0,
+              "attackSpeed": 0,
+              "poisonAttack": 0,
+              "freezing": 0,
+              "magicResist": 0,
+              "poisonResist": 0,
+              "healthRecovery": 0,
+              "poisonRecovery": 0,
+              "strong": 0,
+              "xpBonusPercent": 0,
+              "goldBonusPercent": 0,
+              "bonusAwakeningSoulChancePercent": 0,
+              "damageTakenReductionPercent": 0,
+              "critChancePercent": 0,
+              "critDamagePercent": 0,
+              "skillLevelBonusPercent": 0,
+              "dropChanceBonusPercent": 0
+            },
+            "empowerSpellBonuses": {},
+            "inventoryMark": null
+          },
+          {
+            "id": "item-10",
+            "itemId": "gold-ring",
+            "quantity": 1,
+            "slot": 9,
+            "smithLevel": 0,
+            "weaponRefineLevel": 0,
+            "gemCount": 0,
+            "empowered": false,
+            "empowerTier": 0,
+            "bonusStats": {
+              "dc": [
+                0,
+                0
+              ],
+              "mc": [
+                0,
+                0
+              ],
+              "sc": [
+                0,
+                0
+              ],
+              "ac": [
+                0,
+                0
+              ],
+              "amc": [
+                0,
+                0
+              ],
+              "hp": 0,
+              "mp": 0,
+              "accuracy": 0,
+              "agility": 0,
+              "luck": 0,
+              "attackSpeed": 0,
+              "poisonAttack": 0,
+              "freezing": 0,
+              "magicResist": 0,
+              "poisonResist": 0,
+              "healthRecovery": 0,
+              "poisonRecovery": 0,
+              "strong": 0,
+              "xpBonusPercent": 0,
+              "goldBonusPercent": 0,
+              "bonusAwakeningSoulChancePercent": 0,
+              "damageTakenReductionPercent": 0,
+              "critChancePercent": 0,
+              "critDamagePercent": 0,
+              "skillLevelBonusPercent": 0,
+              "dropChanceBonusPercent": 0
+            },
+            "smithBonusStats": {
+              "dc": [
+                0,
+                0
+              ],
+              "mc": [
+                0,
+                0
+              ],
+              "sc": [
+                0,
+                0
+              ],
+              "ac": [
+                0,
+                0
+              ],
+              "amc": [
+                0,
+                0
+              ],
+              "hp": 0,
+              "mp": 0,
+              "accuracy": 0,
+              "agility": 0,
+              "luck": 0,
+              "attackSpeed": 0,
+              "poisonAttack": 0,
+              "freezing": 0,
+              "magicResist": 0,
+              "poisonResist": 0,
+              "healthRecovery": 0,
+              "poisonRecovery": 0,
+              "strong": 0,
+              "xpBonusPercent": 0,
+              "goldBonusPercent": 0,
+              "bonusAwakeningSoulChancePercent": 0,
+              "damageTakenReductionPercent": 0,
+              "critChancePercent": 0,
+              "critDamagePercent": 0,
+              "skillLevelBonusPercent": 0,
+              "dropChanceBonusPercent": 0
+            },
+            "empowerBonusStats": {
+              "dc": [
+                0,
+                0
+              ],
+              "mc": [
+                0,
+                0
+              ],
+              "sc": [
+                0,
+                0
+              ],
+              "ac": [
+                0,
+                0
+              ],
+              "amc": [
+                0,
+                0
+              ],
+              "hp": 0,
+              "mp": 0,
+              "accuracy": 0,
+              "agility": 0,
+              "luck": 0,
+              "attackSpeed": 0,
+              "poisonAttack": 0,
+              "freezing": 0,
+              "magicResist": 0,
+              "poisonResist": 0,
+              "healthRecovery": 0,
+              "poisonRecovery": 0,
+              "strong": 0,
+              "xpBonusPercent": 0,
+              "goldBonusPercent": 0,
+              "bonusAwakeningSoulChancePercent": 0,
+              "damageTakenReductionPercent": 0,
+              "critChancePercent": 0,
+              "critDamagePercent": 0,
+              "skillLevelBonusPercent": 0,
+              "dropChanceBonusPercent": 0
+            },
+            "empowerSpellBonuses": {},
+            "inventoryMark": null
+          },
+          {
+            "id": "item-11",
+            "itemId": "hp-drug-large",
+            "quantity": 10,
+            "slot": 10,
+            "smithLevel": 0,
+            "weaponRefineLevel": 0,
+            "gemCount": 0,
+            "empowered": false,
+            "empowerTier": 0,
+            "bonusStats": {
+              "dc": [
+                0,
+                0
+              ],
+              "mc": [
+                0,
+                0
+              ],
+              "sc": [
+                0,
+                0
+              ],
+              "ac": [
+                0,
+                0
+              ],
+              "amc": [
+                0,
+                0
+              ],
+              "hp": 0,
+              "mp": 0,
+              "accuracy": 0,
+              "agility": 0,
+              "luck": 0,
+              "attackSpeed": 0,
+              "poisonAttack": 0,
+              "freezing": 0,
+              "magicResist": 0,
+              "poisonResist": 0,
+              "healthRecovery": 0,
+              "poisonRecovery": 0,
+              "strong": 0,
+              "xpBonusPercent": 0,
+              "goldBonusPercent": 0,
+              "bonusAwakeningSoulChancePercent": 0,
+              "damageTakenReductionPercent": 0,
+              "critChancePercent": 0,
+              "critDamagePercent": 0,
+              "skillLevelBonusPercent": 0,
+              "dropChanceBonusPercent": 0
+            },
+            "smithBonusStats": {
+              "dc": [
+                0,
+                0
+              ],
+              "mc": [
+                0,
+                0
+              ],
+              "sc": [
+                0,
+                0
+              ],
+              "ac": [
+                0,
+                0
+              ],
+              "amc": [
+                0,
+                0
+              ],
+              "hp": 0,
+              "mp": 0,
+              "accuracy": 0,
+              "agility": 0,
+              "luck": 0,
+              "attackSpeed": 0,
+              "poisonAttack": 0,
+              "freezing": 0,
+              "magicResist": 0,
+              "poisonResist": 0,
+              "healthRecovery": 0,
+              "poisonRecovery": 0,
+              "strong": 0,
+              "xpBonusPercent": 0,
+              "goldBonusPercent": 0,
+              "bonusAwakeningSoulChancePercent": 0,
+              "damageTakenReductionPercent": 0,
+              "critChancePercent": 0,
+              "critDamagePercent": 0,
+              "skillLevelBonusPercent": 0,
+              "dropChanceBonusPercent": 0
+            },
+            "empowerBonusStats": {
+              "dc": [
+                0,
+                0
+              ],
+              "mc": [
+                0,
+                0
+              ],
+              "sc": [
+                0,
+                0
+              ],
+              "ac": [
+                0,
+                0
+              ],
+              "amc": [
+                0,
+                0
+              ],
+              "hp": 0,
+              "mp": 0,
+              "accuracy": 0,
+              "agility": 0,
+              "luck": 0,
+              "attackSpeed": 0,
+              "poisonAttack": 0,
+              "freezing": 0,
+              "magicResist": 0,
+              "poisonResist": 0,
+              "healthRecovery": 0,
+              "poisonRecovery": 0,
+              "strong": 0,
+              "xpBonusPercent": 0,
+              "goldBonusPercent": 0,
+              "bonusAwakeningSoulChancePercent": 0,
+              "damageTakenReductionPercent": 0,
+              "critChancePercent": 0,
+              "critDamagePercent": 0,
+              "skillLevelBonusPercent": 0,
+              "dropChanceBonusPercent": 0
+            },
+            "empowerSpellBonuses": {},
+            "inventoryMark": null
+          }
+        ],
+        "equipment": {
+          "weapon": null,
+          "armour": null,
+          "helmet": null,
+          "torch": null,
+          "necklace": null,
+          "braceletL": null,
+          "braceletR": null,
+          "ringL": null,
+          "ringR": null,
+          "amulet": null,
+          "belt": null,
+          "boots": null,
+          "stone": null,
+          "mount": null
+        }
+      },
+      "hotbar": {
+        "slots": [
+          null,
+          null,
+          null,
+          null,
+          null,
+          null
+        ]
+      },
+      "magic": {
+        "learned": {}
+      },
+      "battle": {
+        "running": false,
+        "paused": false,
+        "playerHp": 18,
+        "playerMp": 14,
+        "potHealthAmount": 0,
+        "potManaAmount": 0,
+        "healAmount": 0,
+        "vampAmount": 0,
+        "statBuffs": [],
+        "petStatBuffs": []
+      }
+    },
+    "Wizard": {
+      "classId": "Wizard",
+      "game": {
+        "mode": "town",
+        "activeZoneId": null,
+        "kills": 0,
+        "zoneKills": 0,
+        "distance": 0,
+        "playtimeMs": 0,
+        "lastReward": null,
+        "recentLoot": [],
+        "dropPity": {},
+        "bossRespawns": {},
+        "bossKills": {},
+        "progress": {
+          "level": 1,
+          "experience": 0,
+          "gold": 0
+        },
+        "starterGearVersion": 1,
+        "miningNextRollAt": 0,
+        "miningSpotId": null,
+        "groupDungeonRun": null
+      },
+      "inventory": {
+        "gold": 0,
+        "pagesUnlocked": 1,
+        "goldPageUnlocked": false,
+        "tokenPageUnlocked": false,
+        "maxSlots": 40,
+        "nextInstanceId": 5,
+        "items": [
+          {
+            "id": "item-1",
+            "itemId": "wooden-sword",
+            "quantity": 1,
+            "slot": 0,
+            "smithLevel": 0,
+            "weaponRefineLevel": 0,
+            "gemCount": 0,
+            "empowered": false,
+            "empowerTier": 0,
+            "bonusStats": {
+              "dc": [
+                0,
+                0
+              ],
+              "mc": [
+                0,
+                0
+              ],
+              "sc": [
+                0,
+                0
+              ],
+              "ac": [
+                0,
+                0
+              ],
+              "amc": [
+                0,
+                0
+              ],
+              "hp": 0,
+              "mp": 0,
+              "accuracy": 0,
+              "agility": 0,
+              "luck": 0,
+              "attackSpeed": 0,
+              "poisonAttack": 0,
+              "freezing": 0,
+              "magicResist": 0,
+              "poisonResist": 0,
+              "healthRecovery": 0,
+              "poisonRecovery": 0,
+              "strong": 0,
+              "xpBonusPercent": 0,
+              "goldBonusPercent": 0,
+              "bonusAwakeningSoulChancePercent": 0,
+              "damageTakenReductionPercent": 0,
+              "critChancePercent": 0,
+              "critDamagePercent": 0,
+              "skillLevelBonusPercent": 0,
+              "dropChanceBonusPercent": 0
+            },
+            "smithBonusStats": {
+              "dc": [
+                0,
+                0
+              ],
+              "mc": [
+                0,
+                0
+              ],
+              "sc": [
+                0,
+                0
+              ],
+              "ac": [
+                0,
+                0
+              ],
+              "amc": [
+                0,
+                0
+              ],
+              "hp": 0,
+              "mp": 0,
+              "accuracy": 0,
+              "agility": 0,
+              "luck": 0,
+              "attackSpeed": 0,
+              "poisonAttack": 0,
+              "freezing": 0,
+              "magicResist": 0,
+              "poisonResist": 0,
+              "healthRecovery": 0,
+              "poisonRecovery": 0,
+              "strong": 0,
+              "xpBonusPercent": 0,
+              "goldBonusPercent": 0,
+              "bonusAwakeningSoulChancePercent": 0,
+              "damageTakenReductionPercent": 0,
+              "critChancePercent": 0,
+              "critDamagePercent": 0,
+              "skillLevelBonusPercent": 0,
+              "dropChanceBonusPercent": 0
+            },
+            "empowerBonusStats": {
+              "dc": [
+                0,
+                0
+              ],
+              "mc": [
+                0,
+                0
+              ],
+              "sc": [
+                0,
+                0
+              ],
+              "ac": [
+                0,
+                0
+              ],
+              "amc": [
+                0,
+                0
+              ],
+              "hp": 0,
+              "mp": 0,
+              "accuracy": 0,
+              "agility": 0,
+              "luck": 0,
+              "attackSpeed": 0,
+              "poisonAttack": 0,
+              "freezing": 0,
+              "magicResist": 0,
+              "poisonResist": 0,
+              "healthRecovery": 0,
+              "poisonRecovery": 0,
+              "strong": 0,
+              "xpBonusPercent": 0,
+              "goldBonusPercent": 0,
+              "bonusAwakeningSoulChancePercent": 0,
+              "damageTakenReductionPercent": 0,
+              "critChancePercent": 0,
+              "critDamagePercent": 0,
+              "skillLevelBonusPercent": 0,
+              "dropChanceBonusPercent": 0
+            },
+            "empowerSpellBonuses": {},
+            "inventoryMark": null
+          },
+          {
+            "id": "item-2",
+            "itemId": "base-dress",
+            "quantity": 1,
+            "slot": 1,
+            "smithLevel": 0,
+            "weaponRefineLevel": 0,
+            "gemCount": 0,
+            "empowered": false,
+            "empowerTier": 0,
+            "bonusStats": {
+              "dc": [
+                0,
+                0
+              ],
+              "mc": [
+                0,
+                0
+              ],
+              "sc": [
+                0,
+                0
+              ],
+              "ac": [
+                0,
+                0
+              ],
+              "amc": [
+                0,
+                0
+              ],
+              "hp": 0,
+              "mp": 0,
+              "accuracy": 0,
+              "agility": 0,
+              "luck": 0,
+              "attackSpeed": 0,
+              "poisonAttack": 0,
+              "freezing": 0,
+              "magicResist": 0,
+              "poisonResist": 0,
+              "healthRecovery": 0,
+              "poisonRecovery": 0,
+              "strong": 0,
+              "xpBonusPercent": 0,
+              "goldBonusPercent": 0,
+              "bonusAwakeningSoulChancePercent": 0,
+              "damageTakenReductionPercent": 0,
+              "critChancePercent": 0,
+              "critDamagePercent": 0,
+              "skillLevelBonusPercent": 0,
+              "dropChanceBonusPercent": 0
+            },
+            "smithBonusStats": {
+              "dc": [
+                0,
+                0
+              ],
+              "mc": [
+                0,
+                0
+              ],
+              "sc": [
+                0,
+                0
+              ],
+              "ac": [
+                0,
+                0
+              ],
+              "amc": [
+                0,
+                0
+              ],
+              "hp": 0,
+              "mp": 0,
+              "accuracy": 0,
+              "agility": 0,
+              "luck": 0,
+              "attackSpeed": 0,
+              "poisonAttack": 0,
+              "freezing": 0,
+              "magicResist": 0,
+              "poisonResist": 0,
+              "healthRecovery": 0,
+              "poisonRecovery": 0,
+              "strong": 0,
+              "xpBonusPercent": 0,
+              "goldBonusPercent": 0,
+              "bonusAwakeningSoulChancePercent": 0,
+              "damageTakenReductionPercent": 0,
+              "critChancePercent": 0,
+              "critDamagePercent": 0,
+              "skillLevelBonusPercent": 0,
+              "dropChanceBonusPercent": 0
+            },
+            "empowerBonusStats": {
+              "dc": [
+                0,
+                0
+              ],
+              "mc": [
+                0,
+                0
+              ],
+              "sc": [
+                0,
+                0
+              ],
+              "ac": [
+                0,
+                0
+              ],
+              "amc": [
+                0,
+                0
+              ],
+              "hp": 0,
+              "mp": 0,
+              "accuracy": 0,
+              "agility": 0,
+              "luck": 0,
+              "attackSpeed": 0,
+              "poisonAttack": 0,
+              "freezing": 0,
+              "magicResist": 0,
+              "poisonResist": 0,
+              "healthRecovery": 0,
+              "poisonRecovery": 0,
+              "strong": 0,
+              "xpBonusPercent": 0,
+              "goldBonusPercent": 0,
+              "bonusAwakeningSoulChancePercent": 0,
+              "damageTakenReductionPercent": 0,
+              "critChancePercent": 0,
+              "critDamagePercent": 0,
+              "skillLevelBonusPercent": 0,
+              "dropChanceBonusPercent": 0
+            },
+            "empowerSpellBonuses": {},
+            "inventoryMark": null
+          },
+          {
+            "id": "item-3",
+            "itemId": "hp-drug-small",
+            "quantity": 5,
+            "slot": 2,
+            "smithLevel": 0,
+            "weaponRefineLevel": 0,
+            "gemCount": 0,
+            "empowered": false,
+            "empowerTier": 0,
+            "bonusStats": {
+              "dc": [
+                0,
+                0
+              ],
+              "mc": [
+                0,
+                0
+              ],
+              "sc": [
+                0,
+                0
+              ],
+              "ac": [
+                0,
+                0
+              ],
+              "amc": [
+                0,
+                0
+              ],
+              "hp": 0,
+              "mp": 0,
+              "accuracy": 0,
+              "agility": 0,
+              "luck": 0,
+              "attackSpeed": 0,
+              "poisonAttack": 0,
+              "freezing": 0,
+              "magicResist": 0,
+              "poisonResist": 0,
+              "healthRecovery": 0,
+              "poisonRecovery": 0,
+              "strong": 0,
+              "xpBonusPercent": 0,
+              "goldBonusPercent": 0,
+              "bonusAwakeningSoulChancePercent": 0,
+              "damageTakenReductionPercent": 0,
+              "critChancePercent": 0,
+              "critDamagePercent": 0,
+              "skillLevelBonusPercent": 0,
+              "dropChanceBonusPercent": 0
+            },
+            "smithBonusStats": {
+              "dc": [
+                0,
+                0
+              ],
+              "mc": [
+                0,
+                0
+              ],
+              "sc": [
+                0,
+                0
+              ],
+              "ac": [
+                0,
+                0
+              ],
+              "amc": [
+                0,
+                0
+              ],
+              "hp": 0,
+              "mp": 0,
+              "accuracy": 0,
+              "agility": 0,
+              "luck": 0,
+              "attackSpeed": 0,
+              "poisonAttack": 0,
+              "freezing": 0,
+              "magicResist": 0,
+              "poisonResist": 0,
+              "healthRecovery": 0,
+              "poisonRecovery": 0,
+              "strong": 0,
+              "xpBonusPercent": 0,
+              "goldBonusPercent": 0,
+              "bonusAwakeningSoulChancePercent": 0,
+              "damageTakenReductionPercent": 0,
+              "critChancePercent": 0,
+              "critDamagePercent": 0,
+              "skillLevelBonusPercent": 0,
+              "dropChanceBonusPercent": 0
+            },
+            "empowerBonusStats": {
+              "dc": [
+                0,
+                0
+              ],
+              "mc": [
+                0,
+                0
+              ],
+              "sc": [
+                0,
+                0
+              ],
+              "ac": [
+                0,
+                0
+              ],
+              "amc": [
+                0,
+                0
+              ],
+              "hp": 0,
+              "mp": 0,
+              "accuracy": 0,
+              "agility": 0,
+              "luck": 0,
+              "attackSpeed": 0,
+              "poisonAttack": 0,
+              "freezing": 0,
+              "magicResist": 0,
+              "poisonResist": 0,
+              "healthRecovery": 0,
+              "poisonRecovery": 0,
+              "strong": 0,
+              "xpBonusPercent": 0,
+              "goldBonusPercent": 0,
+              "bonusAwakeningSoulChancePercent": 0,
+              "damageTakenReductionPercent": 0,
+              "critChancePercent": 0,
+              "critDamagePercent": 0,
+              "skillLevelBonusPercent": 0,
+              "dropChanceBonusPercent": 0
+            },
+            "empowerSpellBonuses": {},
+            "inventoryMark": null
+          },
+          {
+            "id": "item-4",
+            "itemId": "mp-drug-small",
+            "quantity": 5,
+            "slot": 3,
+            "smithLevel": 0,
+            "weaponRefineLevel": 0,
+            "gemCount": 0,
+            "empowered": false,
+            "empowerTier": 0,
+            "bonusStats": {
+              "dc": [
+                0,
+                0
+              ],
+              "mc": [
+                0,
+                0
+              ],
+              "sc": [
+                0,
+                0
+              ],
+              "ac": [
+                0,
+                0
+              ],
+              "amc": [
+                0,
+                0
+              ],
+              "hp": 0,
+              "mp": 0,
+              "accuracy": 0,
+              "agility": 0,
+              "luck": 0,
+              "attackSpeed": 0,
+              "poisonAttack": 0,
+              "freezing": 0,
+              "magicResist": 0,
+              "poisonResist": 0,
+              "healthRecovery": 0,
+              "poisonRecovery": 0,
+              "strong": 0,
+              "xpBonusPercent": 0,
+              "goldBonusPercent": 0,
+              "bonusAwakeningSoulChancePercent": 0,
+              "damageTakenReductionPercent": 0,
+              "critChancePercent": 0,
+              "critDamagePercent": 0,
+              "skillLevelBonusPercent": 0,
+              "dropChanceBonusPercent": 0
+            },
+            "smithBonusStats": {
+              "dc": [
+                0,
+                0
+              ],
+              "mc": [
+                0,
+                0
+              ],
+              "sc": [
+                0,
+                0
+              ],
+              "ac": [
+                0,
+                0
+              ],
+              "amc": [
+                0,
+                0
+              ],
+              "hp": 0,
+              "mp": 0,
+              "accuracy": 0,
+              "agility": 0,
+              "luck": 0,
+              "attackSpeed": 0,
+              "poisonAttack": 0,
+              "freezing": 0,
+              "magicResist": 0,
+              "poisonResist": 0,
+              "healthRecovery": 0,
+              "poisonRecovery": 0,
+              "strong": 0,
+              "xpBonusPercent": 0,
+              "goldBonusPercent": 0,
+              "bonusAwakeningSoulChancePercent": 0,
+              "damageTakenReductionPercent": 0,
+              "critChancePercent": 0,
+              "critDamagePercent": 0,
+              "skillLevelBonusPercent": 0,
+              "dropChanceBonusPercent": 0
+            },
+            "empowerBonusStats": {
+              "dc": [
+                0,
+                0
+              ],
+              "mc": [
+                0,
+                0
+              ],
+              "sc": [
+                0,
+                0
+              ],
+              "ac": [
+                0,
+                0
+              ],
+              "amc": [
+                0,
+                0
+              ],
+              "hp": 0,
+              "mp": 0,
+              "accuracy": 0,
+              "agility": 0,
+              "luck": 0,
+              "attackSpeed": 0,
+              "poisonAttack": 0,
+              "freezing": 0,
+              "magicResist": 0,
+              "poisonResist": 0,
+              "healthRecovery": 0,
+              "poisonRecovery": 0,
+              "strong": 0,
+              "xpBonusPercent": 0,
+              "goldBonusPercent": 0,
+              "bonusAwakeningSoulChancePercent": 0,
+              "damageTakenReductionPercent": 0,
+              "critChancePercent": 0,
+              "critDamagePercent": 0,
+              "skillLevelBonusPercent": 0,
+              "dropChanceBonusPercent": 0
+            },
+            "empowerSpellBonuses": {},
+            "inventoryMark": null
+          }
+        ],
+        "equipment": {
+          "weapon": null,
+          "armour": null,
+          "helmet": null,
+          "torch": null,
+          "necklace": null,
+          "braceletL": null,
+          "braceletR": null,
+          "ringL": null,
+          "ringR": null,
+          "amulet": null,
+          "belt": null,
+          "boots": null,
+          "stone": null,
+          "mount": null
+        }
+      },
+      "hotbar": {
+        "slots": [
+          null,
+          null,
+          null,
+          null,
+          null,
+          null
+        ]
+      },
+      "magic": {
+        "learned": {}
+      },
+      "battle": {
+        "running": false,
+        "paused": false,
+        "playerHp": null,
+        "playerMp": null,
+        "potHealthAmount": 0,
+        "potManaAmount": 0,
+        "healAmount": 0,
+        "vampAmount": 0,
+        "statBuffs": [],
+        "petStatBuffs": []
+      }
+    },
+    "Taoist": {
+      "classId": "Taoist",
+      "game": {
+        "mode": "town",
+        "activeZoneId": null,
+        "kills": 0,
+        "zoneKills": 0,
+        "distance": 0,
+        "playtimeMs": 0,
+        "lastReward": null,
+        "recentLoot": [],
+        "dropPity": {},
+        "bossRespawns": {},
+        "bossKills": {},
+        "progress": {
+          "level": 1,
+          "experience": 0,
+          "gold": 0
+        },
+        "starterGearVersion": 1,
+        "miningNextRollAt": 0,
+        "miningSpotId": null,
+        "groupDungeonRun": null
+      },
+      "inventory": {
+        "gold": 0,
+        "pagesUnlocked": 1,
+        "goldPageUnlocked": false,
+        "tokenPageUnlocked": false,
+        "maxSlots": 40,
+        "nextInstanceId": 5,
+        "items": [
+          {
+            "id": "item-1",
+            "itemId": "wooden-sword",
+            "quantity": 1,
+            "slot": 0,
+            "smithLevel": 0,
+            "weaponRefineLevel": 0,
+            "gemCount": 0,
+            "empowered": false,
+            "empowerTier": 0,
+            "bonusStats": {
+              "dc": [
+                0,
+                0
+              ],
+              "mc": [
+                0,
+                0
+              ],
+              "sc": [
+                0,
+                0
+              ],
+              "ac": [
+                0,
+                0
+              ],
+              "amc": [
+                0,
+                0
+              ],
+              "hp": 0,
+              "mp": 0,
+              "accuracy": 0,
+              "agility": 0,
+              "luck": 0,
+              "attackSpeed": 0,
+              "poisonAttack": 0,
+              "freezing": 0,
+              "magicResist": 0,
+              "poisonResist": 0,
+              "healthRecovery": 0,
+              "poisonRecovery": 0,
+              "strong": 0,
+              "xpBonusPercent": 0,
+              "goldBonusPercent": 0,
+              "bonusAwakeningSoulChancePercent": 0,
+              "damageTakenReductionPercent": 0,
+              "critChancePercent": 0,
+              "critDamagePercent": 0,
+              "skillLevelBonusPercent": 0,
+              "dropChanceBonusPercent": 0
+            },
+            "smithBonusStats": {
+              "dc": [
+                0,
+                0
+              ],
+              "mc": [
+                0,
+                0
+              ],
+              "sc": [
+                0,
+                0
+              ],
+              "ac": [
+                0,
+                0
+              ],
+              "amc": [
+                0,
+                0
+              ],
+              "hp": 0,
+              "mp": 0,
+              "accuracy": 0,
+              "agility": 0,
+              "luck": 0,
+              "attackSpeed": 0,
+              "poisonAttack": 0,
+              "freezing": 0,
+              "magicResist": 0,
+              "poisonResist": 0,
+              "healthRecovery": 0,
+              "poisonRecovery": 0,
+              "strong": 0,
+              "xpBonusPercent": 0,
+              "goldBonusPercent": 0,
+              "bonusAwakeningSoulChancePercent": 0,
+              "damageTakenReductionPercent": 0,
+              "critChancePercent": 0,
+              "critDamagePercent": 0,
+              "skillLevelBonusPercent": 0,
+              "dropChanceBonusPercent": 0
+            },
+            "empowerBonusStats": {
+              "dc": [
+                0,
+                0
+              ],
+              "mc": [
+                0,
+                0
+              ],
+              "sc": [
+                0,
+                0
+              ],
+              "ac": [
+                0,
+                0
+              ],
+              "amc": [
+                0,
+                0
+              ],
+              "hp": 0,
+              "mp": 0,
+              "accuracy": 0,
+              "agility": 0,
+              "luck": 0,
+              "attackSpeed": 0,
+              "poisonAttack": 0,
+              "freezing": 0,
+              "magicResist": 0,
+              "poisonResist": 0,
+              "healthRecovery": 0,
+              "poisonRecovery": 0,
+              "strong": 0,
+              "xpBonusPercent": 0,
+              "goldBonusPercent": 0,
+              "bonusAwakeningSoulChancePercent": 0,
+              "damageTakenReductionPercent": 0,
+              "critChancePercent": 0,
+              "critDamagePercent": 0,
+              "skillLevelBonusPercent": 0,
+              "dropChanceBonusPercent": 0
+            },
+            "empowerSpellBonuses": {},
+            "inventoryMark": null
+          },
+          {
+            "id": "item-2",
+            "itemId": "base-dress",
+            "quantity": 1,
+            "slot": 1,
+            "smithLevel": 0,
+            "weaponRefineLevel": 0,
+            "gemCount": 0,
+            "empowered": false,
+            "empowerTier": 0,
+            "bonusStats": {
+              "dc": [
+                0,
+                0
+              ],
+              "mc": [
+                0,
+                0
+              ],
+              "sc": [
+                0,
+                0
+              ],
+              "ac": [
+                0,
+                0
+              ],
+              "amc": [
+                0,
+                0
+              ],
+              "hp": 0,
+              "mp": 0,
+              "accuracy": 0,
+              "agility": 0,
+              "luck": 0,
+              "attackSpeed": 0,
+              "poisonAttack": 0,
+              "freezing": 0,
+              "magicResist": 0,
+              "poisonResist": 0,
+              "healthRecovery": 0,
+              "poisonRecovery": 0,
+              "strong": 0,
+              "xpBonusPercent": 0,
+              "goldBonusPercent": 0,
+              "bonusAwakeningSoulChancePercent": 0,
+              "damageTakenReductionPercent": 0,
+              "critChancePercent": 0,
+              "critDamagePercent": 0,
+              "skillLevelBonusPercent": 0,
+              "dropChanceBonusPercent": 0
+            },
+            "smithBonusStats": {
+              "dc": [
+                0,
+                0
+              ],
+              "mc": [
+                0,
+                0
+              ],
+              "sc": [
+                0,
+                0
+              ],
+              "ac": [
+                0,
+                0
+              ],
+              "amc": [
+                0,
+                0
+              ],
+              "hp": 0,
+              "mp": 0,
+              "accuracy": 0,
+              "agility": 0,
+              "luck": 0,
+              "attackSpeed": 0,
+              "poisonAttack": 0,
+              "freezing": 0,
+              "magicResist": 0,
+              "poisonResist": 0,
+              "healthRecovery": 0,
+              "poisonRecovery": 0,
+              "strong": 0,
+              "xpBonusPercent": 0,
+              "goldBonusPercent": 0,
+              "bonusAwakeningSoulChancePercent": 0,
+              "damageTakenReductionPercent": 0,
+              "critChancePercent": 0,
+              "critDamagePercent": 0,
+              "skillLevelBonusPercent": 0,
+              "dropChanceBonusPercent": 0
+            },
+            "empowerBonusStats": {
+              "dc": [
+                0,
+                0
+              ],
+              "mc": [
+                0,
+                0
+              ],
+              "sc": [
+                0,
+                0
+              ],
+              "ac": [
+                0,
+                0
+              ],
+              "amc": [
+                0,
+                0
+              ],
+              "hp": 0,
+              "mp": 0,
+              "accuracy": 0,
+              "agility": 0,
+              "luck": 0,
+              "attackSpeed": 0,
+              "poisonAttack": 0,
+              "freezing": 0,
+              "magicResist": 0,
+              "poisonResist": 0,
+              "healthRecovery": 0,
+              "poisonRecovery": 0,
+              "strong": 0,
+              "xpBonusPercent": 0,
+              "goldBonusPercent": 0,
+              "bonusAwakeningSoulChancePercent": 0,
+              "damageTakenReductionPercent": 0,
+              "critChancePercent": 0,
+              "critDamagePercent": 0,
+              "skillLevelBonusPercent": 0,
+              "dropChanceBonusPercent": 0
+            },
+            "empowerSpellBonuses": {},
+            "inventoryMark": null
+          },
+          {
+            "id": "item-3",
+            "itemId": "hp-drug-small",
+            "quantity": 5,
+            "slot": 2,
+            "smithLevel": 0,
+            "weaponRefineLevel": 0,
+            "gemCount": 0,
+            "empowered": false,
+            "empowerTier": 0,
+            "bonusStats": {
+              "dc": [
+                0,
+                0
+              ],
+              "mc": [
+                0,
+                0
+              ],
+              "sc": [
+                0,
+                0
+              ],
+              "ac": [
+                0,
+                0
+              ],
+              "amc": [
+                0,
+                0
+              ],
+              "hp": 0,
+              "mp": 0,
+              "accuracy": 0,
+              "agility": 0,
+              "luck": 0,
+              "attackSpeed": 0,
+              "poisonAttack": 0,
+              "freezing": 0,
+              "magicResist": 0,
+              "poisonResist": 0,
+              "healthRecovery": 0,
+              "poisonRecovery": 0,
+              "strong": 0,
+              "xpBonusPercent": 0,
+              "goldBonusPercent": 0,
+              "bonusAwakeningSoulChancePercent": 0,
+              "damageTakenReductionPercent": 0,
+              "critChancePercent": 0,
+              "critDamagePercent": 0,
+              "skillLevelBonusPercent": 0,
+              "dropChanceBonusPercent": 0
+            },
+            "smithBonusStats": {
+              "dc": [
+                0,
+                0
+              ],
+              "mc": [
+                0,
+                0
+              ],
+              "sc": [
+                0,
+                0
+              ],
+              "ac": [
+                0,
+                0
+              ],
+              "amc": [
+                0,
+                0
+              ],
+              "hp": 0,
+              "mp": 0,
+              "accuracy": 0,
+              "agility": 0,
+              "luck": 0,
+              "attackSpeed": 0,
+              "poisonAttack": 0,
+              "freezing": 0,
+              "magicResist": 0,
+              "poisonResist": 0,
+              "healthRecovery": 0,
+              "poisonRecovery": 0,
+              "strong": 0,
+              "xpBonusPercent": 0,
+              "goldBonusPercent": 0,
+              "bonusAwakeningSoulChancePercent": 0,
+              "damageTakenReductionPercent": 0,
+              "critChancePercent": 0,
+              "critDamagePercent": 0,
+              "skillLevelBonusPercent": 0,
+              "dropChanceBonusPercent": 0
+            },
+            "empowerBonusStats": {
+              "dc": [
+                0,
+                0
+              ],
+              "mc": [
+                0,
+                0
+              ],
+              "sc": [
+                0,
+                0
+              ],
+              "ac": [
+                0,
+                0
+              ],
+              "amc": [
+                0,
+                0
+              ],
+              "hp": 0,
+              "mp": 0,
+              "accuracy": 0,
+              "agility": 0,
+              "luck": 0,
+              "attackSpeed": 0,
+              "poisonAttack": 0,
+              "freezing": 0,
+              "magicResist": 0,
+              "poisonResist": 0,
+              "healthRecovery": 0,
+              "poisonRecovery": 0,
+              "strong": 0,
+              "xpBonusPercent": 0,
+              "goldBonusPercent": 0,
+              "bonusAwakeningSoulChancePercent": 0,
+              "damageTakenReductionPercent": 0,
+              "critChancePercent": 0,
+              "critDamagePercent": 0,
+              "skillLevelBonusPercent": 0,
+              "dropChanceBonusPercent": 0
+            },
+            "empowerSpellBonuses": {},
+            "inventoryMark": null
+          },
+          {
+            "id": "item-4",
+            "itemId": "mp-drug-small",
+            "quantity": 5,
+            "slot": 3,
+            "smithLevel": 0,
+            "weaponRefineLevel": 0,
+            "gemCount": 0,
+            "empowered": false,
+            "empowerTier": 0,
+            "bonusStats": {
+              "dc": [
+                0,
+                0
+              ],
+              "mc": [
+                0,
+                0
+              ],
+              "sc": [
+                0,
+                0
+              ],
+              "ac": [
+                0,
+                0
+              ],
+              "amc": [
+                0,
+                0
+              ],
+              "hp": 0,
+              "mp": 0,
+              "accuracy": 0,
+              "agility": 0,
+              "luck": 0,
+              "attackSpeed": 0,
+              "poisonAttack": 0,
+              "freezing": 0,
+              "magicResist": 0,
+              "poisonResist": 0,
+              "healthRecovery": 0,
+              "poisonRecovery": 0,
+              "strong": 0,
+              "xpBonusPercent": 0,
+              "goldBonusPercent": 0,
+              "bonusAwakeningSoulChancePercent": 0,
+              "damageTakenReductionPercent": 0,
+              "critChancePercent": 0,
+              "critDamagePercent": 0,
+              "skillLevelBonusPercent": 0,
+              "dropChanceBonusPercent": 0
+            },
+            "smithBonusStats": {
+              "dc": [
+                0,
+                0
+              ],
+              "mc": [
+                0,
+                0
+              ],
+              "sc": [
+                0,
+                0
+              ],
+              "ac": [
+                0,
+                0
+              ],
+              "amc": [
+                0,
+                0
+              ],
+              "hp": 0,
+              "mp": 0,
+              "accuracy": 0,
+              "agility": 0,
+              "luck": 0,
+              "attackSpeed": 0,
+              "poisonAttack": 0,
+              "freezing": 0,
+              "magicResist": 0,
+              "poisonResist": 0,
+              "healthRecovery": 0,
+              "poisonRecovery": 0,
+              "strong": 0,
+              "xpBonusPercent": 0,
+              "goldBonusPercent": 0,
+              "bonusAwakeningSoulChancePercent": 0,
+              "damageTakenReductionPercent": 0,
+              "critChancePercent": 0,
+              "critDamagePercent": 0,
+              "skillLevelBonusPercent": 0,
+              "dropChanceBonusPercent": 0
+            },
+            "empowerBonusStats": {
+              "dc": [
+                0,
+                0
+              ],
+              "mc": [
+                0,
+                0
+              ],
+              "sc": [
+                0,
+                0
+              ],
+              "ac": [
+                0,
+                0
+              ],
+              "amc": [
+                0,
+                0
+              ],
+              "hp": 0,
+              "mp": 0,
+              "accuracy": 0,
+              "agility": 0,
+              "luck": 0,
+              "attackSpeed": 0,
+              "poisonAttack": 0,
+              "freezing": 0,
+              "magicResist": 0,
+              "poisonResist": 0,
+              "healthRecovery": 0,
+              "poisonRecovery": 0,
+              "strong": 0,
+              "xpBonusPercent": 0,
+              "goldBonusPercent": 0,
+              "bonusAwakeningSoulChancePercent": 0,
+              "damageTakenReductionPercent": 0,
+              "critChancePercent": 0,
+              "critDamagePercent": 0,
+              "skillLevelBonusPercent": 0,
+              "dropChanceBonusPercent": 0
+            },
+            "empowerSpellBonuses": {},
+            "inventoryMark": null
+          }
+        ],
+        "equipment": {
+          "weapon": null,
+          "armour": null,
+          "helmet": null,
+          "torch": null,
+          "necklace": null,
+          "braceletL": null,
+          "braceletR": null,
+          "ringL": null,
+          "ringR": null,
+          "amulet": null,
+          "belt": null,
+          "boots": null,
+          "stone": null,
+          "mount": null
+        }
+      },
+      "hotbar": {
+        "slots": [
+          null,
+          null,
+          null,
+          null,
+          null,
+          null
+        ]
+      },
+      "magic": {
+        "learned": {}
+      },
+      "battle": {
+        "running": false,
+        "paused": false,
+        "playerHp": null,
+        "playerMp": null,
+        "potHealthAmount": 0,
+        "potManaAmount": 0,
+        "healAmount": 0,
+        "vampAmount": 0,
+        "statBuffs": [],
+        "petStatBuffs": []
+      }
+    }
+  },
+  "account": {
+    "storage": {
+      "pagesUnlocked": 1,
+      "page2Purchased": false,
+      "tokenPageUnlocked": false,
+      "maxSlots": 80,
+      "nextInstanceId": 1,
+      "items": []
+    },
+    "upgrades": {
+      "tiers": {}
+    },
+    "rebirthPoints": 50,
+    "bossRespawns": {},
+    "stats": {
+      "rebirthCount": 0,
+      "rebirthPointsGained": 0,
+      "rebirthPointsSpent": 0,
+      "bossKills": {}
+    },
+    "codex": {
+      "items": {}
+    },
+    "achievements": {
+      "enabled": false,
+      "unlocked": {}
+    },
+    "ownedUnlocks": {},
+    "subscriptions": {},
+    "spiritBox": {
+      "entry": null
+    }
+  },
+  "game": {
+    "mode": "town",
+    "activeZoneId": null,
+    "kills": 0,
+    "zoneKills": 0,
+    "distance": 0,
+    "playtimeMs": 78,
+    "lastReward": null,
+    "recentLoot": [],
+    "dropPity": {},
+    "bossRespawns": {},
+    "bossKills": {},
+    "progress": {
+      "level": 1,
+      "experience": 0,
+      "gold": 0
+    },
+    "starterGearVersion": 1,
+    "miningNextRollAt": 0,
+    "miningSpotId": null,
+    "groupDungeonRun": null
+  },
+  "inventory": {
+    "gold": 0,
+    "pagesUnlocked": 1,
+    "goldPageUnlocked": false,
+    "tokenPageUnlocked": false,
+    "maxSlots": 40,
+    "nextInstanceId": 12,
+    "items": [
+      {
+        "id": "item-1",
+        "itemId": "wooden-sword",
+        "quantity": 1,
+        "slot": 0,
+        "smithLevel": 0,
+        "weaponRefineLevel": 0,
+        "gemCount": 0,
+        "empowered": false,
+        "empowerTier": 0,
+        "bonusStats": {
+          "dc": [
+            0,
+            0
+          ],
+          "mc": [
+            0,
+            0
+          ],
+          "sc": [
+            0,
+            0
+          ],
+          "ac": [
+            0,
+            0
+          ],
+          "amc": [
+            0,
+            0
+          ],
+          "hp": 0,
+          "mp": 0,
+          "accuracy": 0,
+          "agility": 0,
+          "luck": 0,
+          "attackSpeed": 0,
+          "poisonAttack": 0,
+          "freezing": 0,
+          "magicResist": 0,
+          "poisonResist": 0,
+          "healthRecovery": 0,
+          "poisonRecovery": 0,
+          "strong": 0,
+          "xpBonusPercent": 0,
+          "goldBonusPercent": 0,
+          "bonusAwakeningSoulChancePercent": 0,
+          "damageTakenReductionPercent": 0,
+          "critChancePercent": 0,
+          "critDamagePercent": 0,
+          "skillLevelBonusPercent": 0,
+          "dropChanceBonusPercent": 0
+        },
+        "smithBonusStats": {
+          "dc": [
+            0,
+            0
+          ],
+          "mc": [
+            0,
+            0
+          ],
+          "sc": [
+            0,
+            0
+          ],
+          "ac": [
+            0,
+            0
+          ],
+          "amc": [
+            0,
+            0
+          ],
+          "hp": 0,
+          "mp": 0,
+          "accuracy": 0,
+          "agility": 0,
+          "luck": 0,
+          "attackSpeed": 0,
+          "poisonAttack": 0,
+          "freezing": 0,
+          "magicResist": 0,
+          "poisonResist": 0,
+          "healthRecovery": 0,
+          "poisonRecovery": 0,
+          "strong": 0,
+          "xpBonusPercent": 0,
+          "goldBonusPercent": 0,
+          "bonusAwakeningSoulChancePercent": 0,
+          "damageTakenReductionPercent": 0,
+          "critChancePercent": 0,
+          "critDamagePercent": 0,
+          "skillLevelBonusPercent": 0,
+          "dropChanceBonusPercent": 0
+        },
+        "empowerBonusStats": {
+          "dc": [
+            0,
+            0
+          ],
+          "mc": [
+            0,
+            0
+          ],
+          "sc": [
+            0,
+            0
+          ],
+          "ac": [
+            0,
+            0
+          ],
+          "amc": [
+            0,
+            0
+          ],
+          "hp": 0,
+          "mp": 0,
+          "accuracy": 0,
+          "agility": 0,
+          "luck": 0,
+          "attackSpeed": 0,
+          "poisonAttack": 0,
+          "freezing": 0,
+          "magicResist": 0,
+          "poisonResist": 0,
+          "healthRecovery": 0,
+          "poisonRecovery": 0,
+          "strong": 0,
+          "xpBonusPercent": 0,
+          "goldBonusPercent": 0,
+          "bonusAwakeningSoulChancePercent": 0,
+          "damageTakenReductionPercent": 0,
+          "critChancePercent": 0,
+          "critDamagePercent": 0,
+          "skillLevelBonusPercent": 0,
+          "dropChanceBonusPercent": 0
+        },
+        "empowerSpellBonuses": {},
+        "inventoryMark": null
+      },
+      {
+        "id": "item-2",
+        "itemId": "base-dress",
+        "quantity": 1,
+        "slot": 1,
+        "smithLevel": 0,
+        "weaponRefineLevel": 0,
+        "gemCount": 0,
+        "empowered": false,
+        "empowerTier": 0,
+        "bonusStats": {
+          "dc": [
+            0,
+            0
+          ],
+          "mc": [
+            0,
+            0
+          ],
+          "sc": [
+            0,
+            0
+          ],
+          "ac": [
+            0,
+            0
+          ],
+          "amc": [
+            0,
+            0
+          ],
+          "hp": 0,
+          "mp": 0,
+          "accuracy": 0,
+          "agility": 0,
+          "luck": 0,
+          "attackSpeed": 0,
+          "poisonAttack": 0,
+          "freezing": 0,
+          "magicResist": 0,
+          "poisonResist": 0,
+          "healthRecovery": 0,
+          "poisonRecovery": 0,
+          "strong": 0,
+          "xpBonusPercent": 0,
+          "goldBonusPercent": 0,
+          "bonusAwakeningSoulChancePercent": 0,
+          "damageTakenReductionPercent": 0,
+          "critChancePercent": 0,
+          "critDamagePercent": 0,
+          "skillLevelBonusPercent": 0,
+          "dropChanceBonusPercent": 0
+        },
+        "smithBonusStats": {
+          "dc": [
+            0,
+            0
+          ],
+          "mc": [
+            0,
+            0
+          ],
+          "sc": [
+            0,
+            0
+          ],
+          "ac": [
+            0,
+            0
+          ],
+          "amc": [
+            0,
+            0
+          ],
+          "hp": 0,
+          "mp": 0,
+          "accuracy": 0,
+          "agility": 0,
+          "luck": 0,
+          "attackSpeed": 0,
+          "poisonAttack": 0,
+          "freezing": 0,
+          "magicResist": 0,
+          "poisonResist": 0,
+          "healthRecovery": 0,
+          "poisonRecovery": 0,
+          "strong": 0,
+          "xpBonusPercent": 0,
+          "goldBonusPercent": 0,
+          "bonusAwakeningSoulChancePercent": 0,
+          "damageTakenReductionPercent": 0,
+          "critChancePercent": 0,
+          "critDamagePercent": 0,
+          "skillLevelBonusPercent": 0,
+          "dropChanceBonusPercent": 0
+        },
+        "empowerBonusStats": {
+          "dc": [
+            0,
+            0
+          ],
+          "mc": [
+            0,
+            0
+          ],
+          "sc": [
+            0,
+            0
+          ],
+          "ac": [
+            0,
+            0
+          ],
+          "amc": [
+            0,
+            0
+          ],
+          "hp": 0,
+          "mp": 0,
+          "accuracy": 0,
+          "agility": 0,
+          "luck": 0,
+          "attackSpeed": 0,
+          "poisonAttack": 0,
+          "freezing": 0,
+          "magicResist": 0,
+          "poisonResist": 0,
+          "healthRecovery": 0,
+          "poisonRecovery": 0,
+          "strong": 0,
+          "xpBonusPercent": 0,
+          "goldBonusPercent": 0,
+          "bonusAwakeningSoulChancePercent": 0,
+          "damageTakenReductionPercent": 0,
+          "critChancePercent": 0,
+          "critDamagePercent": 0,
+          "skillLevelBonusPercent": 0,
+          "dropChanceBonusPercent": 0
+        },
+        "empowerSpellBonuses": {},
+        "inventoryMark": null
+      },
+      {
+        "id": "item-3",
+        "itemId": "hp-drug-small",
+        "quantity": 5,
+        "slot": 2,
+        "smithLevel": 0,
+        "weaponRefineLevel": 0,
+        "gemCount": 0,
+        "empowered": false,
+        "empowerTier": 0,
+        "bonusStats": {
+          "dc": [
+            0,
+            0
+          ],
+          "mc": [
+            0,
+            0
+          ],
+          "sc": [
+            0,
+            0
+          ],
+          "ac": [
+            0,
+            0
+          ],
+          "amc": [
+            0,
+            0
+          ],
+          "hp": 0,
+          "mp": 0,
+          "accuracy": 0,
+          "agility": 0,
+          "luck": 0,
+          "attackSpeed": 0,
+          "poisonAttack": 0,
+          "freezing": 0,
+          "magicResist": 0,
+          "poisonResist": 0,
+          "healthRecovery": 0,
+          "poisonRecovery": 0,
+          "strong": 0,
+          "xpBonusPercent": 0,
+          "goldBonusPercent": 0,
+          "bonusAwakeningSoulChancePercent": 0,
+          "damageTakenReductionPercent": 0,
+          "critChancePercent": 0,
+          "critDamagePercent": 0,
+          "skillLevelBonusPercent": 0,
+          "dropChanceBonusPercent": 0
+        },
+        "smithBonusStats": {
+          "dc": [
+            0,
+            0
+          ],
+          "mc": [
+            0,
+            0
+          ],
+          "sc": [
+            0,
+            0
+          ],
+          "ac": [
+            0,
+            0
+          ],
+          "amc": [
+            0,
+            0
+          ],
+          "hp": 0,
+          "mp": 0,
+          "accuracy": 0,
+          "agility": 0,
+          "luck": 0,
+          "attackSpeed": 0,
+          "poisonAttack": 0,
+          "freezing": 0,
+          "magicResist": 0,
+          "poisonResist": 0,
+          "healthRecovery": 0,
+          "poisonRecovery": 0,
+          "strong": 0,
+          "xpBonusPercent": 0,
+          "goldBonusPercent": 0,
+          "bonusAwakeningSoulChancePercent": 0,
+          "damageTakenReductionPercent": 0,
+          "critChancePercent": 0,
+          "critDamagePercent": 0,
+          "skillLevelBonusPercent": 0,
+          "dropChanceBonusPercent": 0
+        },
+        "empowerBonusStats": {
+          "dc": [
+            0,
+            0
+          ],
+          "mc": [
+            0,
+            0
+          ],
+          "sc": [
+            0,
+            0
+          ],
+          "ac": [
+            0,
+            0
+          ],
+          "amc": [
+            0,
+            0
+          ],
+          "hp": 0,
+          "mp": 0,
+          "accuracy": 0,
+          "agility": 0,
+          "luck": 0,
+          "attackSpeed": 0,
+          "poisonAttack": 0,
+          "freezing": 0,
+          "magicResist": 0,
+          "poisonResist": 0,
+          "healthRecovery": 0,
+          "poisonRecovery": 0,
+          "strong": 0,
+          "xpBonusPercent": 0,
+          "goldBonusPercent": 0,
+          "bonusAwakeningSoulChancePercent": 0,
+          "damageTakenReductionPercent": 0,
+          "critChancePercent": 0,
+          "critDamagePercent": 0,
+          "skillLevelBonusPercent": 0,
+          "dropChanceBonusPercent": 0
+        },
+        "empowerSpellBonuses": {},
+        "inventoryMark": null
+      },
+      {
+        "id": "item-4",
+        "itemId": "mp-drug-small",
+        "quantity": 5,
+        "slot": 3,
+        "smithLevel": 0,
+        "weaponRefineLevel": 0,
+        "gemCount": 0,
+        "empowered": false,
+        "empowerTier": 0,
+        "bonusStats": {
+          "dc": [
+            0,
+            0
+          ],
+          "mc": [
+            0,
+            0
+          ],
+          "sc": [
+            0,
+            0
+          ],
+          "ac": [
+            0,
+            0
+          ],
+          "amc": [
+            0,
+            0
+          ],
+          "hp": 0,
+          "mp": 0,
+          "accuracy": 0,
+          "agility": 0,
+          "luck": 0,
+          "attackSpeed": 0,
+          "poisonAttack": 0,
+          "freezing": 0,
+          "magicResist": 0,
+          "poisonResist": 0,
+          "healthRecovery": 0,
+          "poisonRecovery": 0,
+          "strong": 0,
+          "xpBonusPercent": 0,
+          "goldBonusPercent": 0,
+          "bonusAwakeningSoulChancePercent": 0,
+          "damageTakenReductionPercent": 0,
+          "critChancePercent": 0,
+          "critDamagePercent": 0,
+          "skillLevelBonusPercent": 0,
+          "dropChanceBonusPercent": 0
+        },
+        "smithBonusStats": {
+          "dc": [
+            0,
+            0
+          ],
+          "mc": [
+            0,
+            0
+          ],
+          "sc": [
+            0,
+            0
+          ],
+          "ac": [
+            0,
+            0
+          ],
+          "amc": [
+            0,
+            0
+          ],
+          "hp": 0,
+          "mp": 0,
+          "accuracy": 0,
+          "agility": 0,
+          "luck": 0,
+          "attackSpeed": 0,
+          "poisonAttack": 0,
+          "freezing": 0,
+          "magicResist": 0,
+          "poisonResist": 0,
+          "healthRecovery": 0,
+          "poisonRecovery": 0,
+          "strong": 0,
+          "xpBonusPercent": 0,
+          "goldBonusPercent": 0,
+          "bonusAwakeningSoulChancePercent": 0,
+          "damageTakenReductionPercent": 0,
+          "critChancePercent": 0,
+          "critDamagePercent": 0,
+          "skillLevelBonusPercent": 0,
+          "dropChanceBonusPercent": 0
+        },
+        "empowerBonusStats": {
+          "dc": [
+            0,
+            0
+          ],
+          "mc": [
+            0,
+            0
+          ],
+          "sc": [
+            0,
+            0
+          ],
+          "ac": [
+            0,
+            0
+          ],
+          "amc": [
+            0,
+            0
+          ],
+          "hp": 0,
+          "mp": 0,
+          "accuracy": 0,
+          "agility": 0,
+          "luck": 0,
+          "attackSpeed": 0,
+          "poisonAttack": 0,
+          "freezing": 0,
+          "magicResist": 0,
+          "poisonResist": 0,
+          "healthRecovery": 0,
+          "poisonRecovery": 0,
+          "strong": 0,
+          "xpBonusPercent": 0,
+          "goldBonusPercent": 0,
+          "bonusAwakeningSoulChancePercent": 0,
+          "damageTakenReductionPercent": 0,
+          "critChancePercent": 0,
+          "critDamagePercent": 0,
+          "skillLevelBonusPercent": 0,
+          "dropChanceBonusPercent": 0
+        },
+        "empowerSpellBonuses": {},
+        "inventoryMark": null
+      },
+      {
+        "id": "item-5",
+        "itemId": "awakening-soul",
+        "quantity": 200,
+        "slot": 4,
+        "smithLevel": 0,
+        "weaponRefineLevel": 0,
+        "gemCount": 0,
+        "empowered": false,
+        "empowerTier": 0,
+        "bonusStats": {
+          "dc": [
+            0,
+            0
+          ],
+          "mc": [
+            0,
+            0
+          ],
+          "sc": [
+            0,
+            0
+          ],
+          "ac": [
+            0,
+            0
+          ],
+          "amc": [
+            0,
+            0
+          ],
+          "hp": 0,
+          "mp": 0,
+          "accuracy": 0,
+          "agility": 0,
+          "luck": 0,
+          "attackSpeed": 0,
+          "poisonAttack": 0,
+          "freezing": 0,
+          "magicResist": 0,
+          "poisonResist": 0,
+          "healthRecovery": 0,
+          "poisonRecovery": 0,
+          "strong": 0,
+          "xpBonusPercent": 0,
+          "goldBonusPercent": 0,
+          "bonusAwakeningSoulChancePercent": 0,
+          "damageTakenReductionPercent": 0,
+          "critChancePercent": 0,
+          "critDamagePercent": 0,
+          "skillLevelBonusPercent": 0,
+          "dropChanceBonusPercent": 0
+        },
+        "smithBonusStats": {
+          "dc": [
+            0,
+            0
+          ],
+          "mc": [
+            0,
+            0
+          ],
+          "sc": [
+            0,
+            0
+          ],
+          "ac": [
+            0,
+            0
+          ],
+          "amc": [
+            0,
+            0
+          ],
+          "hp": 0,
+          "mp": 0,
+          "accuracy": 0,
+          "agility": 0,
+          "luck": 0,
+          "attackSpeed": 0,
+          "poisonAttack": 0,
+          "freezing": 0,
+          "magicResist": 0,
+          "poisonResist": 0,
+          "healthRecovery": 0,
+          "poisonRecovery": 0,
+          "strong": 0,
+          "xpBonusPercent": 0,
+          "goldBonusPercent": 0,
+          "bonusAwakeningSoulChancePercent": 0,
+          "damageTakenReductionPercent": 0,
+          "critChancePercent": 0,
+          "critDamagePercent": 0,
+          "skillLevelBonusPercent": 0,
+          "dropChanceBonusPercent": 0
+        },
+        "empowerBonusStats": {
+          "dc": [
+            0,
+            0
+          ],
+          "mc": [
+            0,
+            0
+          ],
+          "sc": [
+            0,
+            0
+          ],
+          "ac": [
+            0,
+            0
+          ],
+          "amc": [
+            0,
+            0
+          ],
+          "hp": 0,
+          "mp": 0,
+          "accuracy": 0,
+          "agility": 0,
+          "luck": 0,
+          "attackSpeed": 0,
+          "poisonAttack": 0,
+          "freezing": 0,
+          "magicResist": 0,
+          "poisonResist": 0,
+          "healthRecovery": 0,
+          "poisonRecovery": 0,
+          "strong": 0,
+          "xpBonusPercent": 0,
+          "goldBonusPercent": 0,
+          "bonusAwakeningSoulChancePercent": 0,
+          "damageTakenReductionPercent": 0,
+          "critChancePercent": 0,
+          "critDamagePercent": 0,
+          "skillLevelBonusPercent": 0,
+          "dropChanceBonusPercent": 0
+        },
+        "empowerSpellBonuses": {},
+        "inventoryMark": null
+      },
+      {
+        "id": "item-6",
+        "itemId": "wooma-heart",
+        "quantity": 3,
+        "slot": 5,
+        "smithLevel": 0,
+        "weaponRefineLevel": 0,
+        "gemCount": 0,
+        "empowered": false,
+        "empowerTier": 0,
+        "bonusStats": {
+          "dc": [
+            0,
+            0
+          ],
+          "mc": [
+            0,
+            0
+          ],
+          "sc": [
+            0,
+            0
+          ],
+          "ac": [
+            0,
+            0
+          ],
+          "amc": [
+            0,
+            0
+          ],
+          "hp": 0,
+          "mp": 0,
+          "accuracy": 0,
+          "agility": 0,
+          "luck": 0,
+          "attackSpeed": 0,
+          "poisonAttack": 0,
+          "freezing": 0,
+          "magicResist": 0,
+          "poisonResist": 0,
+          "healthRecovery": 0,
+          "poisonRecovery": 0,
+          "strong": 0,
+          "xpBonusPercent": 0,
+          "goldBonusPercent": 0,
+          "bonusAwakeningSoulChancePercent": 0,
+          "damageTakenReductionPercent": 0,
+          "critChancePercent": 0,
+          "critDamagePercent": 0,
+          "skillLevelBonusPercent": 0,
+          "dropChanceBonusPercent": 0
+        },
+        "smithBonusStats": {
+          "dc": [
+            0,
+            0
+          ],
+          "mc": [
+            0,
+            0
+          ],
+          "sc": [
+            0,
+            0
+          ],
+          "ac": [
+            0,
+            0
+          ],
+          "amc": [
+            0,
+            0
+          ],
+          "hp": 0,
+          "mp": 0,
+          "accuracy": 0,
+          "agility": 0,
+          "luck": 0,
+          "attackSpeed": 0,
+          "poisonAttack": 0,
+          "freezing": 0,
+          "magicResist": 0,
+          "poisonResist": 0,
+          "healthRecovery": 0,
+          "poisonRecovery": 0,
+          "strong": 0,
+          "xpBonusPercent": 0,
+          "goldBonusPercent": 0,
+          "bonusAwakeningSoulChancePercent": 0,
+          "damageTakenReductionPercent": 0,
+          "critChancePercent": 0,
+          "critDamagePercent": 0,
+          "skillLevelBonusPercent": 0,
+          "dropChanceBonusPercent": 0
+        },
+        "empowerBonusStats": {
+          "dc": [
+            0,
+            0
+          ],
+          "mc": [
+            0,
+            0
+          ],
+          "sc": [
+            0,
+            0
+          ],
+          "ac": [
+            0,
+            0
+          ],
+          "amc": [
+            0,
+            0
+          ],
+          "hp": 0,
+          "mp": 0,
+          "accuracy": 0,
+          "agility": 0,
+          "luck": 0,
+          "attackSpeed": 0,
+          "poisonAttack": 0,
+          "freezing": 0,
+          "magicResist": 0,
+          "poisonResist": 0,
+          "healthRecovery": 0,
+          "poisonRecovery": 0,
+          "strong": 0,
+          "xpBonusPercent": 0,
+          "goldBonusPercent": 0,
+          "bonusAwakeningSoulChancePercent": 0,
+          "damageTakenReductionPercent": 0,
+          "critChancePercent": 0,
+          "critDamagePercent": 0,
+          "skillLevelBonusPercent": 0,
+          "dropChanceBonusPercent": 0
+        },
+        "empowerSpellBonuses": {},
+        "inventoryMark": null
+      },
+      {
+        "id": "item-7",
+        "itemId": "zuma-relic",
+        "quantity": 2,
+        "slot": 6,
+        "smithLevel": 0,
+        "weaponRefineLevel": 0,
+        "gemCount": 0,
+        "empowered": false,
+        "empowerTier": 0,
+        "bonusStats": {
+          "dc": [
+            0,
+            0
+          ],
+          "mc": [
+            0,
+            0
+          ],
+          "sc": [
+            0,
+            0
+          ],
+          "ac": [
+            0,
+            0
+          ],
+          "amc": [
+            0,
+            0
+          ],
+          "hp": 0,
+          "mp": 0,
+          "accuracy": 0,
+          "agility": 0,
+          "luck": 0,
+          "attackSpeed": 0,
+          "poisonAttack": 0,
+          "freezing": 0,
+          "magicResist": 0,
+          "poisonResist": 0,
+          "healthRecovery": 0,
+          "poisonRecovery": 0,
+          "strong": 0,
+          "xpBonusPercent": 0,
+          "goldBonusPercent": 0,
+          "bonusAwakeningSoulChancePercent": 0,
+          "damageTakenReductionPercent": 0,
+          "critChancePercent": 0,
+          "critDamagePercent": 0,
+          "skillLevelBonusPercent": 0,
+          "dropChanceBonusPercent": 0
+        },
+        "smithBonusStats": {
+          "dc": [
+            0,
+            0
+          ],
+          "mc": [
+            0,
+            0
+          ],
+          "sc": [
+            0,
+            0
+          ],
+          "ac": [
+            0,
+            0
+          ],
+          "amc": [
+            0,
+            0
+          ],
+          "hp": 0,
+          "mp": 0,
+          "accuracy": 0,
+          "agility": 0,
+          "luck": 0,
+          "attackSpeed": 0,
+          "poisonAttack": 0,
+          "freezing": 0,
+          "magicResist": 0,
+          "poisonResist": 0,
+          "healthRecovery": 0,
+          "poisonRecovery": 0,
+          "strong": 0,
+          "xpBonusPercent": 0,
+          "goldBonusPercent": 0,
+          "bonusAwakeningSoulChancePercent": 0,
+          "damageTakenReductionPercent": 0,
+          "critChancePercent": 0,
+          "critDamagePercent": 0,
+          "skillLevelBonusPercent": 0,
+          "dropChanceBonusPercent": 0
+        },
+        "empowerBonusStats": {
+          "dc": [
+            0,
+            0
+          ],
+          "mc": [
+            0,
+            0
+          ],
+          "sc": [
+            0,
+            0
+          ],
+          "ac": [
+            0,
+            0
+          ],
+          "amc": [
+            0,
+            0
+          ],
+          "hp": 0,
+          "mp": 0,
+          "accuracy": 0,
+          "agility": 0,
+          "luck": 0,
+          "attackSpeed": 0,
+          "poisonAttack": 0,
+          "freezing": 0,
+          "magicResist": 0,
+          "poisonResist": 0,
+          "healthRecovery": 0,
+          "poisonRecovery": 0,
+          "strong": 0,
+          "xpBonusPercent": 0,
+          "goldBonusPercent": 0,
+          "bonusAwakeningSoulChancePercent": 0,
+          "damageTakenReductionPercent": 0,
+          "critChancePercent": 0,
+          "critDamagePercent": 0,
+          "skillLevelBonusPercent": 0,
+          "dropChanceBonusPercent": 0
+        },
+        "empowerSpellBonuses": {},
+        "inventoryMark": null
+      },
+      {
+        "id": "item-8",
+        "itemId": "iron-sword",
+        "quantity": 1,
+        "slot": 7,
+        "smithLevel": 0,
+        "weaponRefineLevel": 0,
+        "gemCount": 0,
+        "empowered": false,
+        "empowerTier": 0,
+        "bonusStats": {
+          "dc": [
+            0,
+            0
+          ],
+          "mc": [
+            0,
+            0
+          ],
+          "sc": [
+            0,
+            0
+          ],
+          "ac": [
+            0,
+            0
+          ],
+          "amc": [
+            0,
+            0
+          ],
+          "hp": 0,
+          "mp": 0,
+          "accuracy": 0,
+          "agility": 0,
+          "luck": 0,
+          "attackSpeed": 0,
+          "poisonAttack": 0,
+          "freezing": 0,
+          "magicResist": 0,
+          "poisonResist": 0,
+          "healthRecovery": 0,
+          "poisonRecovery": 0,
+          "strong": 0,
+          "xpBonusPercent": 0,
+          "goldBonusPercent": 0,
+          "bonusAwakeningSoulChancePercent": 0,
+          "damageTakenReductionPercent": 0,
+          "critChancePercent": 0,
+          "critDamagePercent": 0,
+          "skillLevelBonusPercent": 0,
+          "dropChanceBonusPercent": 0
+        },
+        "smithBonusStats": {
+          "dc": [
+            0,
+            0
+          ],
+          "mc": [
+            0,
+            0
+          ],
+          "sc": [
+            0,
+            0
+          ],
+          "ac": [
+            0,
+            0
+          ],
+          "amc": [
+            0,
+            0
+          ],
+          "hp": 0,
+          "mp": 0,
+          "accuracy": 0,
+          "agility": 0,
+          "luck": 0,
+          "attackSpeed": 0,
+          "poisonAttack": 0,
+          "freezing": 0,
+          "magicResist": 0,
+          "poisonResist": 0,
+          "healthRecovery": 0,
+          "poisonRecovery": 0,
+          "strong": 0,
+          "xpBonusPercent": 0,
+          "goldBonusPercent": 0,
+          "bonusAwakeningSoulChancePercent": 0,
+          "damageTakenReductionPercent": 0,
+          "critChancePercent": 0,
+          "critDamagePercent": 0,
+          "skillLevelBonusPercent": 0,
+          "dropChanceBonusPercent": 0
+        },
+        "empowerBonusStats": {
+          "dc": [
+            0,
+            0
+          ],
+          "mc": [
+            0,
+            0
+          ],
+          "sc": [
+            0,
+            0
+          ],
+          "ac": [
+            0,
+            0
+          ],
+          "amc": [
+            0,
+            0
+          ],
+          "hp": 0,
+          "mp": 0,
+          "accuracy": 0,
+          "agility": 0,
+          "luck": 0,
+          "attackSpeed": 0,
+          "poisonAttack": 0,
+          "freezing": 0,
+          "magicResist": 0,
+          "poisonResist": 0,
+          "healthRecovery": 0,
+          "poisonRecovery": 0,
+          "strong": 0,
+          "xpBonusPercent": 0,
+          "goldBonusPercent": 0,
+          "bonusAwakeningSoulChancePercent": 0,
+          "damageTakenReductionPercent": 0,
+          "critChancePercent": 0,
+          "critDamagePercent": 0,
+          "skillLevelBonusPercent": 0,
+          "dropChanceBonusPercent": 0
+        },
+        "empowerSpellBonuses": {},
+        "inventoryMark": null
+      },
+      {
+        "id": "item-9",
+        "itemId": "bronze-helmet",
+        "quantity": 1,
+        "slot": 8,
+        "smithLevel": 0,
+        "weaponRefineLevel": 0,
+        "gemCount": 0,
+        "empowered": false,
+        "empowerTier": 0,
+        "bonusStats": {
+          "dc": [
+            0,
+            0
+          ],
+          "mc": [
+            0,
+            0
+          ],
+          "sc": [
+            0,
+            0
+          ],
+          "ac": [
+            0,
+            0
+          ],
+          "amc": [
+            0,
+            0
+          ],
+          "hp": 0,
+          "mp": 0,
+          "accuracy": 0,
+          "agility": 0,
+          "luck": 0,
+          "attackSpeed": 0,
+          "poisonAttack": 0,
+          "freezing": 0,
+          "magicResist": 0,
+          "poisonResist": 0,
+          "healthRecovery": 0,
+          "poisonRecovery": 0,
+          "strong": 0,
+          "xpBonusPercent": 0,
+          "goldBonusPercent": 0,
+          "bonusAwakeningSoulChancePercent": 0,
+          "damageTakenReductionPercent": 0,
+          "critChancePercent": 0,
+          "critDamagePercent": 0,
+          "skillLevelBonusPercent": 0,
+          "dropChanceBonusPercent": 0
+        },
+        "smithBonusStats": {
+          "dc": [
+            0,
+            0
+          ],
+          "mc": [
+            0,
+            0
+          ],
+          "sc": [
+            0,
+            0
+          ],
+          "ac": [
+            0,
+            0
+          ],
+          "amc": [
+            0,
+            0
+          ],
+          "hp": 0,
+          "mp": 0,
+          "accuracy": 0,
+          "agility": 0,
+          "luck": 0,
+          "attackSpeed": 0,
+          "poisonAttack": 0,
+          "freezing": 0,
+          "magicResist": 0,
+          "poisonResist": 0,
+          "healthRecovery": 0,
+          "poisonRecovery": 0,
+          "strong": 0,
+          "xpBonusPercent": 0,
+          "goldBonusPercent": 0,
+          "bonusAwakeningSoulChancePercent": 0,
+          "damageTakenReductionPercent": 0,
+          "critChancePercent": 0,
+          "critDamagePercent": 0,
+          "skillLevelBonusPercent": 0,
+          "dropChanceBonusPercent": 0
+        },
+        "empowerBonusStats": {
+          "dc": [
+            0,
+            0
+          ],
+          "mc": [
+            0,
+            0
+          ],
+          "sc": [
+            0,
+            0
+          ],
+          "ac": [
+            0,
+            0
+          ],
+          "amc": [
+            0,
+            0
+          ],
+          "hp": 0,
+          "mp": 0,
+          "accuracy": 0,
+          "agility": 0,
+          "luck": 0,
+          "attackSpeed": 0,
+          "poisonAttack": 0,
+          "freezing": 0,
+          "magicResist": 0,
+          "poisonResist": 0,
+          "healthRecovery": 0,
+          "poisonRecovery": 0,
+          "strong": 0,
+          "xpBonusPercent": 0,
+          "goldBonusPercent": 0,
+          "bonusAwakeningSoulChancePercent": 0,
+          "damageTakenReductionPercent": 0,
+          "critChancePercent": 0,
+          "critDamagePercent": 0,
+          "skillLevelBonusPercent": 0,
+          "dropChanceBonusPercent": 0
+        },
+        "empowerSpellBonuses": {},
+        "inventoryMark": null
+      },
+      {
+        "id": "item-10",
+        "itemId": "gold-ring",
+        "quantity": 1,
+        "slot": 9,
+        "smithLevel": 0,
+        "weaponRefineLevel": 0,
+        "gemCount": 0,
+        "empowered": false,
+        "empowerTier": 0,
+        "bonusStats": {
+          "dc": [
+            0,
+            0
+          ],
+          "mc": [
+            0,
+            0
+          ],
+          "sc": [
+            0,
+            0
+          ],
+          "ac": [
+            0,
+            0
+          ],
+          "amc": [
+            0,
+            0
+          ],
+          "hp": 0,
+          "mp": 0,
+          "accuracy": 0,
+          "agility": 0,
+          "luck": 0,
+          "attackSpeed": 0,
+          "poisonAttack": 0,
+          "freezing": 0,
+          "magicResist": 0,
+          "poisonResist": 0,
+          "healthRecovery": 0,
+          "poisonRecovery": 0,
+          "strong": 0,
+          "xpBonusPercent": 0,
+          "goldBonusPercent": 0,
+          "bonusAwakeningSoulChancePercent": 0,
+          "damageTakenReductionPercent": 0,
+          "critChancePercent": 0,
+          "critDamagePercent": 0,
+          "skillLevelBonusPercent": 0,
+          "dropChanceBonusPercent": 0
+        },
+        "smithBonusStats": {
+          "dc": [
+            0,
+            0
+          ],
+          "mc": [
+            0,
+            0
+          ],
+          "sc": [
+            0,
+            0
+          ],
+          "ac": [
+            0,
+            0
+          ],
+          "amc": [
+            0,
+            0
+          ],
+          "hp": 0,
+          "mp": 0,
+          "accuracy": 0,
+          "agility": 0,
+          "luck": 0,
+          "attackSpeed": 0,
+          "poisonAttack": 0,
+          "freezing": 0,
+          "magicResist": 0,
+          "poisonResist": 0,
+          "healthRecovery": 0,
+          "poisonRecovery": 0,
+          "strong": 0,
+          "xpBonusPercent": 0,
+          "goldBonusPercent": 0,
+          "bonusAwakeningSoulChancePercent": 0,
+          "damageTakenReductionPercent": 0,
+          "critChancePercent": 0,
+          "critDamagePercent": 0,
+          "skillLevelBonusPercent": 0,
+          "dropChanceBonusPercent": 0
+        },
+        "empowerBonusStats": {
+          "dc": [
+            0,
+            0
+          ],
+          "mc": [
+            0,
+            0
+          ],
+          "sc": [
+            0,
+            0
+          ],
+          "ac": [
+            0,
+            0
+          ],
+          "amc": [
+            0,
+            0
+          ],
+          "hp": 0,
+          "mp": 0,
+          "accuracy": 0,
+          "agility": 0,
+          "luck": 0,
+          "attackSpeed": 0,
+          "poisonAttack": 0,
+          "freezing": 0,
+          "magicResist": 0,
+          "poisonResist": 0,
+          "healthRecovery": 0,
+          "poisonRecovery": 0,
+          "strong": 0,
+          "xpBonusPercent": 0,
+          "goldBonusPercent": 0,
+          "bonusAwakeningSoulChancePercent": 0,
+          "damageTakenReductionPercent": 0,
+          "critChancePercent": 0,
+          "critDamagePercent": 0,
+          "skillLevelBonusPercent": 0,
+          "dropChanceBonusPercent": 0
+        },
+        "empowerSpellBonuses": {},
+        "inventoryMark": null
+      },
+      {
+        "id": "item-11",
+        "itemId": "hp-drug-large",
+        "quantity": 10,
+        "slot": 10,
+        "smithLevel": 0,
+        "weaponRefineLevel": 0,
+        "gemCount": 0,
+        "empowered": false,
+        "empowerTier": 0,
+        "bonusStats": {
+          "dc": [
+            0,
+            0
+          ],
+          "mc": [
+            0,
+            0
+          ],
+          "sc": [
+            0,
+            0
+          ],
+          "ac": [
+            0,
+            0
+          ],
+          "amc": [
+            0,
+            0
+          ],
+          "hp": 0,
+          "mp": 0,
+          "accuracy": 0,
+          "agility": 0,
+          "luck": 0,
+          "attackSpeed": 0,
+          "poisonAttack": 0,
+          "freezing": 0,
+          "magicResist": 0,
+          "poisonResist": 0,
+          "healthRecovery": 0,
+          "poisonRecovery": 0,
+          "strong": 0,
+          "xpBonusPercent": 0,
+          "goldBonusPercent": 0,
+          "bonusAwakeningSoulChancePercent": 0,
+          "damageTakenReductionPercent": 0,
+          "critChancePercent": 0,
+          "critDamagePercent": 0,
+          "skillLevelBonusPercent": 0,
+          "dropChanceBonusPercent": 0
+        },
+        "smithBonusStats": {
+          "dc": [
+            0,
+            0
+          ],
+          "mc": [
+            0,
+            0
+          ],
+          "sc": [
+            0,
+            0
+          ],
+          "ac": [
+            0,
+            0
+          ],
+          "amc": [
+            0,
+            0
+          ],
+          "hp": 0,
+          "mp": 0,
+          "accuracy": 0,
+          "agility": 0,
+          "luck": 0,
+          "attackSpeed": 0,
+          "poisonAttack": 0,
+          "freezing": 0,
+          "magicResist": 0,
+          "poisonResist": 0,
+          "healthRecovery": 0,
+          "poisonRecovery": 0,
+          "strong": 0,
+          "xpBonusPercent": 0,
+          "goldBonusPercent": 0,
+          "bonusAwakeningSoulChancePercent": 0,
+          "damageTakenReductionPercent": 0,
+          "critChancePercent": 0,
+          "critDamagePercent": 0,
+          "skillLevelBonusPercent": 0,
+          "dropChanceBonusPercent": 0
+        },
+        "empowerBonusStats": {
+          "dc": [
+            0,
+            0
+          ],
+          "mc": [
+            0,
+            0
+          ],
+          "sc": [
+            0,
+            0
+          ],
+          "ac": [
+            0,
+            0
+          ],
+          "amc": [
+            0,
+            0
+          ],
+          "hp": 0,
+          "mp": 0,
+          "accuracy": 0,
+          "agility": 0,
+          "luck": 0,
+          "attackSpeed": 0,
+          "poisonAttack": 0,
+          "freezing": 0,
+          "magicResist": 0,
+          "poisonResist": 0,
+          "healthRecovery": 0,
+          "poisonRecovery": 0,
+          "strong": 0,
+          "xpBonusPercent": 0,
+          "goldBonusPercent": 0,
+          "bonusAwakeningSoulChancePercent": 0,
+          "damageTakenReductionPercent": 0,
+          "critChancePercent": 0,
+          "critDamagePercent": 0,
+          "skillLevelBonusPercent": 0,
+          "dropChanceBonusPercent": 0
+        },
+        "empowerSpellBonuses": {},
+        "inventoryMark": null
+      }
+    ],
+    "equipment": {
+      "weapon": null,
+      "armour": null,
+      "helmet": null,
+      "torch": null,
+      "necklace": null,
+      "braceletL": null,
+      "braceletR": null,
+      "ringL": null,
+      "ringR": null,
+      "amulet": null,
+      "belt": null,
+      "boots": null,
+      "stone": null,
+      "mount": null
+    }
+  },
+  "hotbar": {
+    "slots": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ]
+  },
+  "magic": {
+    "learned": {}
+  },
+  "battle": {
+    "combatClass": "Warrior",
+    "running": false,
+    "paused": false,
+    "playerHp": 18,
+    "playerMp": 14,
+    "potHealthAmount": 0,
+    "potManaAmount": 0,
+    "healAmount": 0,
+    "vampAmount": 0,
+    "statBuffs": [],
+    "petStatBuffs": []
+  },
+  "indexes": {
+    "armour": 0,
+    "hair": 0,
+    "weapon": null
+  },
+  "characterTab": "character",
+  "settings": {
+    "musicSettingsVersion": 2,
+    "musicEnabled": true,
+    "musicVolume": 0.35,
+    "musicMode": "playlist",
+    "musicTrackId": "30001",
+    "sfxEnabled": true,
+    "sfxVolume": 0.55,
+    "autoPotionHpThreshold": 0.5,
+    "autoPotionMpThreshold": 0.5,
+    "prototypeStatsEnabled": true,
+    "prototypeStatsNoticeVersion": 0,
+    "prototypeResetNoticeVersion": 0,
+    "prototypeResetNoticeLastSeenAt": 0,
+    "cloudBackupNoticeVersion": 0,
+    "cloudBackupNoticeLastSeenAt": 0,
+    "demoLiveSiteBannerLastSeenAt": 0,
+    "unfairSkillPurgeVersion": 0,
+    "sceneWindowPositions": {
+      "character": null,
+      "inventory": null
+    }
+  }
+}
