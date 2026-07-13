@@ -130,6 +130,8 @@ export function sanitizeSceneWindowPositions(saved) {
   return {
     character: sanitizeSceneWindowPosition(positions.character),
     inventory: sanitizeSceneWindowPosition(positions.inventory),
+    codex: sanitizeSceneWindowPosition(positions.codex),
+    upgrades: sanitizeSceneWindowPosition(positions.upgrades),
   };
 }
 
