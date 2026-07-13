@@ -34,6 +34,7 @@ import {
   empowerBonusStatLines,
   empowerCandidateRolls,
   empowerReferenceCatalog,
+  empowerCodexSlotCatalog,
   empowerRollDescriptionsForItem,
   formatEmpowerRollDescription,
   formatEmpowerAppliedChangeLabel,
@@ -1448,4 +1449,24 @@ test("empowerReferenceCatalog: exposes weapon classes and tier weights", () => {
     weaponEmpowerRollDescriptionsForClass("wizard"),
     wizard.rolls,
   );
+});
+
+test("empowerCodexSlotCatalog: flat slot lists include weapon union and armour ranges", () => {
+  const catalog = empowerCodexSlotCatalog();
+  assert.equal(catalog.itemChancePercent, 20);
+  assert.ok(catalog.slots.length >= 7);
+  const weapon = catalog.slots.find((slot) => slot.id === "weapon");
+  const armour = catalog.slots.find((slot) => slot.id === "armour");
+  const ring = catalog.slots.find((slot) => slot.id === "ring");
+  assert.equal(weapon.sections.length, 1);
+  assert.equal(weapon.note, null);
+  const weaponRolls = weapon.sections[0].rolls;
+  assert.ok(weaponRolls.includes("+1–5 DC"));
+  assert.ok(weaponRolls.includes("+1–3 MC"));
+  assert.ok(weaponRolls.includes("+1–3 SC"));
+  assert.ok(weaponRolls.includes("Increase Slaying damage by 5–35%"));
+  assert.ok(weaponRolls.includes("Increase Flame Disruptor damage by 10–35%"));
+  assert.ok(armour.sections[0].rolls.includes("+1–5 AC"));
+  assert.ok(armour.sections[0].rolls.some((roll) => roll.includes("crit chance") || roll.includes("Crit Rate")));
+  assert.ok(ring.sections[0].rolls.includes("+1–6 DC"));
 });

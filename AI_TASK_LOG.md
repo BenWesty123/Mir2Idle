@@ -1,5 +1,90 @@
 # AI Task Log - LOM Idle V2
 
+## 2026-07-13 - Achievement categories (Party / Warrior / Wizard / Tao)
+
+### What
+Split Achievements into four categories. Existing achievements are all **Party** (any character). Warrior / Wizard / Tao tabs exist but are empty for now; class-category unlocks will only fire for that class.
+
+### Changes
+- `ACHIEVEMENT_CATEGORY_DEFS` + `category` on each `ACHIEVEMENT_DEFS` entry
+- Unlock checks gated by category class (`achievementMatchesCharacter` / boss participant filter)
+- Achievements window category tabs + empty-state copy
+- Retro checks scan all characters for level achievements; class-specific boss kills stay non-retroactive
+
+### Verify
+- `npm.cmd run check`; `npm.cmd run smoke` with dev server
+
+## 2026-07-13 - Class level achievements (Warrior / Wizard / Tao)
+
+### What
+Added per-class level achievements for Warrior, Wizard, and Tao: levels 7, 22, 33, 40, 43, 45, 48, 50. XP bonuses scale by level (1% through 33, then 2/3/4/5/6% for 40/43/45/48/50). Party rewards unchanged.
+
+### Changes
+- `CLASS_LEVEL_ACHIEVEMENT_LEVELS` / `CLASS_LEVEL_ACHIEVEMENT_XP_BONUS` / `CLASS_LEVEL_ACHIEVEMENT_DEFS` appended into `ACHIEVEMENT_DEFS`
+
+### Verify
+- `npm.cmd run check`; `npm.cmd run smoke` with dev server
+
+## 2026-07-13 - Warrior solo boss AC achievements
+
+### What
+Warrior solo boss achievements grant permanent account-wide AC to all characters when claimed: +0-1 (Wooma Taurus, Evil Snake), +0-2 (Evil Centipede, Zuma Taurus, Minotaur King, Bone Lord), +0-3 (Yimoogi, Oma King Spirit, Dream and Dark Devourer). Max AC only increases (min stays +0).
+
+### Changes
+- `WARRIOR_SOLO_BOSS_ACHIEVEMENT_DEFS` with `reward.ac: [0, N]`
+- `achievementRangeStatBonus` / `applyAchievementStats` hooked into `applyRebirthUpgradeStats`
+
+### Verify
+- `npm.cmd run check`; `npm.cmd run smoke` with dev server
+
+## 2026-07-13 - Wizard solo boss AMC achievements
+
+### What
+Same solo boss set as Warrior, under Wizard category, granting permanent account-wide AMC (+0-1 / +0-2 / +0-3 tiers). Full set = +0-19 AMC.
+
+### Changes
+- `WIZARD_SOLO_BOSS_ACHIEVEMENT_DEFS` with `reward.amc: [0, N]`
+
+### Verify
+- `npm.cmd run check`; `npm.cmd run smoke` with dev server
+
+## 2026-07-13 - Tao solo boss soul drop chance achievements
+
+### What
+Same solo boss set under Tao category. Grants permanent extra Awakening Soul drop chance: +1% / +2% / +3% by tier. Full set = +19% (stacks with rebirth + gear, capped at 100%).
+
+### Changes
+- `TAO_SOLO_BOSS_ACHIEVEMENT_DEFS` with `reward.bonusAwakeningSoulChancePercent`
+- Wired into `totalBonusAwakeningSoulChancePercent` via `achievementBonusAwakeningSoulChancePercent`
+
+### Verify
+- `npm.cmd run check`; `npm.cmd run smoke` with dev server
+
+## 2026-07-13 - Party BDD boss achievements
+
+### What
+Party achievements for BDD bosses: King Scorpion (10 souls), IWT room clear (15), King Hog (25), IZT room clear (35), Dark Devil (50). IWT/IZT unlock only when the full boss swarm room is cleared.
+
+### Changes
+- New party `ACHIEVEMENT_DEFS` entries for `zone-bdd-2/4/8/11/13`
+- `finishGroupDungeonBossSwarmEncounter` now calls `checkBossKillAchievements`
+
+### Verify
+- `npm.cmd run check`; `npm.cmd run smoke` with dev server
+
+## 2026-07-13 - Codex Empowerments section
+
+### What
+Added an **Empowerments** section to the Codex: left list of item slots (Weapon, Armour, Helmet, …), right panel lists every possible empowerment for that slot with min–max ranges. Weapons use one flat union list (no class breakdown).
+
+### Changes
+- `empowerCodexSlotCatalog()` in `src/core/empoweredItems.js`
+- Codex UI: Items / Empowerments section tabs in `src/app.monolith.js` + styles
+- Unit test for the catalog helper
+
+### Verify
+- `npm.cmd run check`; `npm.cmd run smoke` with dev server
+
 ## 2026-07-12 - Spirit Box slot stays open until rebirth
 
 ### What
