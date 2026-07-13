@@ -2393,7 +2393,7 @@ const TOWN_NPCS = [
     yOffsetTiles: 2,
     width: 84,
     height: 88,
-    panel: "Enter the Bichon academy training room.",
+    panel: "Enter the Academy practice room or the Testing room.",
   },
   {
     id: "message-board",
@@ -3137,6 +3137,7 @@ const state = {
     experience: 0,
     gold: 0,
     log: [],
+    testingRoomMeter: null,
   },
   indexes: { armour: 0, hair: 0, weapon: null, wing: null },
   atlasIndexes: { armour: null, hair: null, weapon: null },
@@ -9114,6 +9115,7 @@ function resetBattle(enemyId = state.battle.enemyId) {
   state.battle.experience = state.game.progress.experience;
   state.battle.gold = state.game.progress.gold;
   state.battle.log = [`A ${template.name} steps forward.`];
+  resetTestingRoomDpsMeter(now);
   state.action = "standing";
   state.frame = 0;
   state.lastTick = now;
@@ -9256,6 +9258,7 @@ function startBattle() {
   resetCritTextTracking();
   resetCombatEquipmentLock();
   const now = performance.now();
+  resetTestingRoomDpsMeter(now);
   state.battle.phase = "advance";
   state.battle.lastMotionAt = now;
   state.battle.travelStartedAt = now;
@@ -9492,7 +9495,9 @@ function pushRecentLoot(text) {
 }
 
 function combatPlayableZones() {
-  return PROTOTYPE_ZONES.filter((zone) => !zone.miningOnly && !zone.trainingRoom && !zone.roomOnly);
+  return PROTOTYPE_ZONES.filter((zone) => (
+    !zone.miningOnly && !zone.trainingRoom && !zone.testingRoom && !zone.roomOnly
+  ));
 }
 
 function isRoomOnlyZone(zone = activeZone()) {
@@ -9501,6 +9506,67 @@ function isRoomOnlyZone(zone = activeZone()) {
 
 function isTrainingRoomZone(zone = activeZone()) {
   return Boolean(zone?.trainingRoom);
+}
+
+function isTestingRoomZone(zone = activeZone()) {
+  return Boolean(zone?.testingRoom);
+}
+
+function resetTestingRoomDpsMeter(now = performance.now()) {
+  if (!isTestingRoomZone()) {
+    state.battle.testingRoomMeter = null;
+    return;
+  }
+  // Clock starts on first damage so walk-in time does not tank the average.
+  state.battle.testingRoomMeter = {
+    startedAt: 0,
+    nextReportAt: 0,
+    totalDamage: 0,
+  };
+}
+
+function isTestingRoomDpsTrackingActive() {
+  return isTestingRoomZone()
+    && state.battle.running
+    && !state.battle.bossParty?.active
+    && Boolean(state.battle.enemy)
+    && !suppressSimulationRender;
+}
+
+function recordTestingRoomDamage(amount) {
+  if (!isTestingRoomDpsTrackingActive()) return;
+  const damage = Math.max(0, Math.trunc(Number(amount) || 0));
+  if (damage <= 0) return;
+  const battle = state.battle;
+  if (!battle.testingRoomMeter) resetTestingRoomDpsMeter(performance.now());
+  const meter = battle.testingRoomMeter;
+  const now = performance.now();
+  if (!meter.startedAt) {
+    meter.startedAt = now;
+    meter.nextReportAt = now + 1000;
+  }
+  meter.totalDamage += damage;
+}
+
+function pushTestingRoomDpsLog(dps) {
+  const line = `Trainer: Your DPS is ${Math.max(0, Math.trunc(dps))}.`;
+  state.battle.log.unshift(line);
+  state.battle.log = state.battle.log.slice(0, BATTLE_LOG_MAX_LINES);
+  battlePanelSignature = "";
+  gamePanelDynamicSignature = "";
+}
+
+function updateTestingRoomDpsMeter(now = performance.now()) {
+  if (!isTestingRoomDpsTrackingActive()) return;
+  const battle = state.battle;
+  if (!battle.testingRoomMeter) resetTestingRoomDpsMeter(now);
+  const meter = battle.testingRoomMeter;
+  if (!meter.startedAt) return;
+  while (now >= meter.nextReportAt) {
+    const elapsedSec = Math.max(0.001, (meter.nextReportAt - meter.startedAt) / 1000);
+    pushTestingRoomDpsLog(Math.round(meter.totalDamage / elapsedSec));
+    meter.nextReportAt += 1000;
+  }
 }
 
 function trainingRoomEnemyTemplate(zone = activeZone()) {
@@ -25943,18 +26009,28 @@ function gemMerchantNpcSceneHtml(npc) {
 }
 
 function trainerNpcSceneHtml(npc) {
-  const zone = PROTOTYPE_ZONES.find((entry) => entry.trainingRoom);
+  const academyZone = PROTOTYPE_ZONES.find((entry) => entry.trainingRoom);
+  const testingZone = PROTOTYPE_ZONES.find((entry) => entry.testingRoom);
   return `
     <section class="npc-panel crystal-npc-text trainer-panel">
       <span>${escapeHtml(npc.panel)}</span>
       <button
         type="button"
-        data-enter-zone="${escapeHtml(zone?.id ?? "")}"
+        data-enter-zone="${escapeHtml(academyZone?.id ?? "")}"
         class="trainer-enter-button"
-        ${zone ? "" : "disabled"}
+        ${academyZone ? "" : "disabled"}
       >
         <strong>Enter Academy</strong>
         <span>Practice autocast spells on a training dummy</span>
+      </button>
+      <button
+        type="button"
+        data-enter-zone="${escapeHtml(testingZone?.id ?? "")}"
+        class="trainer-enter-button"
+        ${testingZone ? "" : "disabled"}
+      >
+        <strong>Enter Testing Room</strong>
+        <span>Normal combat vs an immortal Trainer</span>
       </button>
     </section>
   `;
@@ -26005,7 +26081,7 @@ function teleportNpcSceneHtml(npc) {
 }
 
 function randomZoneEnemyTemplate(zone = activeZone()) {
-  if (isTrainingRoomZone(zone)) return trainingRoomEnemyTemplate(zone);
+  if (isTrainingRoomZone(zone) || isTestingRoomZone(zone)) return trainingRoomEnemyTemplate(zone);
   const ids = zone?.enemyIds?.length ? zone.enemyIds : ENEMY_TEMPLATES.map((enemy) => enemy.id);
   const pickedId = ids[randomInt(0, ids.length - 1)];
   return ENEMY_TEMPLATES.find((enemy) => enemy.id === pickedId) ?? ENEMY_TEMPLATES[0];
@@ -33171,6 +33247,8 @@ function updateBattle(now) {
     updateTrainingRoomBattle(now);
     return;
   }
+
+  updateTestingRoomDpsMeter(now);
 
   updatePendingEnemyStrike(now);
   updatePendingImpact(now);
@@ -40727,6 +40805,7 @@ function applyCombatDamageEvent(event, now = performance.now(), context = {}) {
   recordCombatEquipmentLockActivity(now);
   if (event.target === "enemy") {
     const enemy = context.enemy ?? state.battle.enemy;
+    recordTestingRoomDamage(amount);
     reduceEnemyHp(enemy, amount);
     return;
   }
@@ -41395,7 +41474,11 @@ function spawnNextEnemy(now) {
   const currentIndex = ENEMY_TEMPLATES.findIndex((enemy) => enemy.id === battle.enemyId);
   const zone = activeZone();
   const template = state.game.mode === "zone"
-    ? (isTrainingRoomZone(zone) ? trainingRoomEnemyTemplate(zone) : randomZoneEnemyTemplate(zone))
+    ? (
+      (isTrainingRoomZone(zone) || isTestingRoomZone(zone))
+        ? trainingRoomEnemyTemplate(zone)
+        : randomZoneEnemyTemplate(zone)
+    )
     : ENEMY_TEMPLATES[(currentIndex + 1 + ENEMY_TEMPLATES.length) % ENEMY_TEMPLATES.length];
   battle.enemyId = template.id;
   battle.enemy = { ...template, hp: template.maxHp, mp: template.maxMp, poisons: [], debuffs: { slowUntil: 0, frozenUntil: 0 } };
