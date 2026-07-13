@@ -4858,4 +4858,16 @@ export const PHASE1_ZONES = [
     arenaFocusMap: { x: 8, y: 12 },
     ...TRAINING_ROOM_VISUALS,
   },
+  {
+    id: "zone-testing-room",
+    label: "Testing Room",
+    description: "Crystal map 0110 — normal combat vs immortal Trainer",
+    testingRoom: true,
+    enemyIds: [290],
+    rewards: { gold: [0, 0] },
+    arenaSpawnDistance: 120,
+    arenaSpawnMap: { x: 11, y: 15 },
+    arenaFocusMap: { x: 8, y: 12 },
+    ...TRAINING_ROOM_VISUALS,
+  },
 ];

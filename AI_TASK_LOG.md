@@ -1,5 +1,31 @@
 # AI Task Log - LOM Idle V2
 
+## 2026-07-13 - Testing Room DPS callouts
+
+### What
+In the Trainer Testing Room, the Trainer reports your DPS every second in the activity log (`Trainer: Your DPS is N.`). DPS is fight-average: total damage since first hit ÷ elapsed seconds (not per-second burst windows).
+
+### Changes
+- `testingRoomMeter` on battle state; `recordTestingRoomDamage` / `updateTestingRoomDpsMeter`
+- Damage hooked in `applyCombatDamageEvent` (works even when dummy HP does not drop)
+- Meter resets on `startBattle` / `resetBattle`; clock starts on first damage
+
+### Verify
+- `npm.cmd run check`; `npm.cmd run smoke` with dev server
+
+## 2026-07-13 - Trainer Testing Room (stage 1)
+
+### What
+Trainer NPC now offers a second room: **Testing Room**. Same Academy map and immortal Trainer dummy (enemy 290), but uses normal solo combat (real cooldowns / enemy attacks) instead of the Academy fast practice-cast loop. Not killable → no rewards.
+
+### Changes
+- `zone-testing-room` in `phase1Data.js` (`testingRoom: true`, same visuals/spawn as Academy)
+- `isTestingRoomZone`, excluded from `combatPlayableZones`, fixed spawn via `trainingRoomEnemyTemplate`
+- Trainer panel: Enter Academy + Enter Testing Room buttons
+
+### Verify
+- `npm.cmd run check`; `npm.cmd run smoke` with dev server
+
 ## 2026-07-13 - Achievement categories (Party / Warrior / Wizard / Tao)
 
 ### What
