@@ -222,6 +222,7 @@ import {
   applyEquippedSpellMpCostReduction,
   equippedSpellCritChanceBonusPercent,
   equippedSpellCritDamageBonusPercent,
+  empowerCodexSlotCatalog,
   empowerItemBonusLines,
   empoweredItemStarSuffix,
   empoweredStatLabel,
@@ -512,11 +513,94 @@ const CODEX_CATEGORY_DEFS = [
 const CODEX_CATEGORY_ORDER = new Map(CODEX_CATEGORY_DEFS.map((category, index) => [category.id, index]));
 const ACHIEVEMENT_UNLOCK_SOUL_COST = 10;
 const ACHIEVEMENTS_TEST_ACCESS = false;
+const ACHIEVEMENT_CATEGORY_DEFS = [
+  { id: "party", label: "Party", classId: null },
+  { id: "warrior", label: "Warrior", classId: "Warrior" },
+  { id: "wizard", label: "Wizard", classId: "Wizard" },
+  { id: "tao", label: "Tao", classId: "Taoist" },
+];
+const ACHIEVEMENT_CATEGORY_IDS = new Set(ACHIEVEMENT_CATEGORY_DEFS.map((entry) => entry.id));
+const CLASS_LEVEL_ACHIEVEMENT_LEVELS = [7, 22, 33, 40, 43, 45, 48, 50];
+const CLASS_LEVEL_ACHIEVEMENT_XP_BONUS = {
+  7: 1,
+  22: 1,
+  33: 1,
+  40: 2,
+  43: 3,
+  45: 4,
+  48: 5,
+  50: 6,
+};
+const CLASS_LEVEL_ACHIEVEMENT_DEFS = ACHIEVEMENT_CATEGORY_DEFS
+  .filter((category) => category.classId)
+  .flatMap((category) => CLASS_LEVEL_ACHIEVEMENT_LEVELS.map((level) => ({
+    id: `${category.id}-reach-level-${level}`,
+    label: `Reach level ${level}`,
+    summary: `Reach level ${level} as a ${category.classId}.`,
+    category: category.id,
+    trigger: { type: "level", level },
+    reward: { xpBonusPercent: CLASS_LEVEL_ACHIEVEMENT_XP_BONUS[level] ?? 1 },
+  })));
+const WARRIOR_SOLO_BOSS_ACHIEVEMENT_DEFS = [
+  { id: "warrior-solo-wooma-taurus", label: "Solo Wooma Taurus", bossName: "Wooma Taurus", zoneId: "zone-wooma-temple-kr", acMax: 1 },
+  { id: "warrior-solo-evil-snake", label: "Solo Evil Snake", bossName: "Evil Snake", zoneId: "zone-stone-temple-kr", acMax: 1 },
+  { id: "warrior-solo-evil-centipede", label: "Solo Evil Centipede", bossName: "Evil Centipede", zoneId: "zone-bug-cave-kr", acMax: 2 },
+  { id: "warrior-solo-zuma-taurus", label: "Solo Zuma Taurus", bossName: "Zuma Taurus", zoneId: "zone-zuma-temple-kr", acMax: 2 },
+  { id: "warrior-solo-minotaur-king", label: "Solo Minotaur King", bossName: "Minotaur King", zoneId: "zone-prajna-temple-kr", acMax: 2 },
+  { id: "warrior-solo-bone-lord", label: "Solo Bone Lord", bossName: "Bone Lord", zoneId: "zone-prajna-cave-kr", acMax: 2 },
+  { id: "warrior-solo-yimoogi", label: "Solo Yimoogi", bossName: "Yimoogi", zoneId: "zone-viper-cave-kr", acMax: 3 },
+  { id: "warrior-solo-oma-king-spirit", label: "Solo Oma King Spirit", bossName: "Oma King Spirit", zoneId: "zone-kings-tomb", acMax: 3 },
+  { id: "warrior-solo-dream-and-dark-devourer", label: "Solo Dream and Dark Devourer", bossName: "Dream and Dark Devourer", zoneId: "zone-red-cavern-kr", acMax: 3 },
+].map((entry) => ({
+  id: entry.id,
+  label: entry.label,
+  summary: `Defeat ${entry.bossName} using only the Warrior.`,
+  category: "warrior",
+  trigger: { type: "bossKill", zoneId: entry.zoneId, solo: true },
+  reward: { ac: [0, entry.acMax] },
+}));
+const WIZARD_SOLO_BOSS_ACHIEVEMENT_DEFS = [
+  { id: "wizard-solo-wooma-taurus", label: "Solo Wooma Taurus", bossName: "Wooma Taurus", zoneId: "zone-wooma-temple-kr", amcMax: 1 },
+  { id: "wizard-solo-evil-snake", label: "Solo Evil Snake", bossName: "Evil Snake", zoneId: "zone-stone-temple-kr", amcMax: 1 },
+  { id: "wizard-solo-evil-centipede", label: "Solo Evil Centipede", bossName: "Evil Centipede", zoneId: "zone-bug-cave-kr", amcMax: 2 },
+  { id: "wizard-solo-zuma-taurus", label: "Solo Zuma Taurus", bossName: "Zuma Taurus", zoneId: "zone-zuma-temple-kr", amcMax: 2 },
+  { id: "wizard-solo-minotaur-king", label: "Solo Minotaur King", bossName: "Minotaur King", zoneId: "zone-prajna-temple-kr", amcMax: 2 },
+  { id: "wizard-solo-bone-lord", label: "Solo Bone Lord", bossName: "Bone Lord", zoneId: "zone-prajna-cave-kr", amcMax: 2 },
+  { id: "wizard-solo-yimoogi", label: "Solo Yimoogi", bossName: "Yimoogi", zoneId: "zone-viper-cave-kr", amcMax: 3 },
+  { id: "wizard-solo-oma-king-spirit", label: "Solo Oma King Spirit", bossName: "Oma King Spirit", zoneId: "zone-kings-tomb", amcMax: 3 },
+  { id: "wizard-solo-dream-and-dark-devourer", label: "Solo Dream and Dark Devourer", bossName: "Dream and Dark Devourer", zoneId: "zone-red-cavern-kr", amcMax: 3 },
+].map((entry) => ({
+  id: entry.id,
+  label: entry.label,
+  summary: `Defeat ${entry.bossName} using only the Wizard.`,
+  category: "wizard",
+  trigger: { type: "bossKill", zoneId: entry.zoneId, solo: true },
+  reward: { amc: [0, entry.amcMax] },
+}));
+const TAO_SOLO_BOSS_ACHIEVEMENT_DEFS = [
+  { id: "tao-solo-wooma-taurus", label: "Solo Wooma Taurus", bossName: "Wooma Taurus", zoneId: "zone-wooma-temple-kr", soulChancePercent: 1 },
+  { id: "tao-solo-evil-snake", label: "Solo Evil Snake", bossName: "Evil Snake", zoneId: "zone-stone-temple-kr", soulChancePercent: 1 },
+  { id: "tao-solo-evil-centipede", label: "Solo Evil Centipede", bossName: "Evil Centipede", zoneId: "zone-bug-cave-kr", soulChancePercent: 2 },
+  { id: "tao-solo-zuma-taurus", label: "Solo Zuma Taurus", bossName: "Zuma Taurus", zoneId: "zone-zuma-temple-kr", soulChancePercent: 2 },
+  { id: "tao-solo-minotaur-king", label: "Solo Minotaur King", bossName: "Minotaur King", zoneId: "zone-prajna-temple-kr", soulChancePercent: 2 },
+  { id: "tao-solo-bone-lord", label: "Solo Bone Lord", bossName: "Bone Lord", zoneId: "zone-prajna-cave-kr", soulChancePercent: 2 },
+  { id: "tao-solo-yimoogi", label: "Solo Yimoogi", bossName: "Yimoogi", zoneId: "zone-viper-cave-kr", soulChancePercent: 3 },
+  { id: "tao-solo-oma-king-spirit", label: "Solo Oma King Spirit", bossName: "Oma King Spirit", zoneId: "zone-kings-tomb", soulChancePercent: 3 },
+  { id: "tao-solo-dream-and-dark-devourer", label: "Solo Dream and Dark Devourer", bossName: "Dream and Dark Devourer", zoneId: "zone-red-cavern-kr", soulChancePercent: 3 },
+].map((entry) => ({
+  id: entry.id,
+  label: entry.label,
+  summary: `Defeat ${entry.bossName} using only the Taoist.`,
+  category: "tao",
+  trigger: { type: "bossKill", zoneId: entry.zoneId, solo: true },
+  reward: { bonusAwakeningSoulChancePercent: entry.soulChancePercent },
+}));
 const ACHIEVEMENT_DEFS = [
   {
     id: "reach-level-7",
     label: "Reach level 7",
     summary: "Reach level 7 on any character.",
+    category: "party",
     trigger: { type: "level", level: 7 },
     reward: { gold: 10000 },
   },
@@ -524,20 +608,65 @@ const ACHIEVEMENT_DEFS = [
     id: "solo-kill-evil-snake",
     label: "Solo kill Evil Snake",
     summary: "Defeat Evil Snake in Stone Tomb KR using only one character.",
+    category: "party",
     trigger: { type: "bossKill", zoneId: "zone-stone-temple-kr", solo: true },
     reward: { gold: 50000 },
   },
-  { id: "reach-level-22", label: "Reach level 22", summary: "Reach level 22 on any character.", trigger: { type: "level", level: 22 }, reward: { gold: 20000 } },
-  { id: "reach-level-33", label: "Reach level 33", summary: "Reach level 33 on any character.", trigger: { type: "level", level: 33 }, reward: { gold: 30000 } },
-  { id: "reach-level-40", label: "Reach level 40", summary: "Reach level 40 on any character.", trigger: { type: "level", level: 40 }, reward: { gold: 50000 } },
-  { id: "reach-level-43", label: "Reach level 43", summary: "Reach level 43 on any character.", trigger: { type: "level", level: 43 }, reward: { xpBonusPercent: 1 } },
-  { id: "reach-level-45", label: "Reach level 45", summary: "Reach level 45 on any character.", trigger: { type: "level", level: 45 }, reward: { xpBonusPercent: 1 } },
-  { id: "kill-zuma-taurus", label: "Kill Zuma Taurus", summary: "Defeat Zuma Taurus in Zuma Temple KR.", trigger: { type: "bossKill", zoneId: "zone-zuma-temple-kr" }, reward: { itemId: "awakening-soul", quantity: 2 } },
-  { id: "kill-evil-centipede", label: "Kill Evil Centipede", summary: "Defeat Evil Centipede in Bug Cave KR.", trigger: { type: "bossKill", zoneId: "zone-bug-cave-kr" }, reward: { itemId: "awakening-soul", quantity: 1 } },
-  { id: "kill-bone-lord", label: "Kill Bone Lord", summary: "Defeat Bone Lord in Prajna Cave KR.", trigger: { type: "bossKill", zoneId: "zone-prajna-cave-kr" }, reward: { itemId: "awakening-soul", quantity: 1 } },
-  { id: "kill-minotaur-king", label: "Kill Minotaur King", summary: "Defeat Minotaur King in Prajna Temple KR.", trigger: { type: "bossKill", zoneId: "zone-prajna-temple-kr" }, reward: { itemId: "awakening-soul", quantity: 2 } },
-  { id: "kill-oma-king-spirit", label: "Kill Oma King Spirit", summary: "Defeat Oma King Spirit in Kings Tomb.", trigger: { type: "bossKill", zoneId: "zone-kings-tomb" }, reward: { itemId: "awakening-soul", quantity: 5 } },
-  { id: "kill-yimoogi", label: "Kill Yimoogi", summary: "Defeat Yimoogi in Viper Cave KR.", trigger: { type: "bossKill", zoneId: "zone-viper-cave-kr" }, reward: { itemId: "awakening-soul", quantity: 5 } },
+  { id: "reach-level-22", label: "Reach level 22", summary: "Reach level 22 on any character.", category: "party", trigger: { type: "level", level: 22 }, reward: { gold: 20000 } },
+  { id: "reach-level-33", label: "Reach level 33", summary: "Reach level 33 on any character.", category: "party", trigger: { type: "level", level: 33 }, reward: { gold: 30000 } },
+  { id: "reach-level-40", label: "Reach level 40", summary: "Reach level 40 on any character.", category: "party", trigger: { type: "level", level: 40 }, reward: { gold: 50000 } },
+  { id: "reach-level-43", label: "Reach level 43", summary: "Reach level 43 on any character.", category: "party", trigger: { type: "level", level: 43 }, reward: { xpBonusPercent: 1 } },
+  { id: "reach-level-45", label: "Reach level 45", summary: "Reach level 45 on any character.", category: "party", trigger: { type: "level", level: 45 }, reward: { xpBonusPercent: 1 } },
+  { id: "kill-zuma-taurus", label: "Kill Zuma Taurus", summary: "Defeat Zuma Taurus in Zuma Temple KR.", category: "party", trigger: { type: "bossKill", zoneId: "zone-zuma-temple-kr" }, reward: { itemId: "awakening-soul", quantity: 2 } },
+  { id: "kill-evil-centipede", label: "Kill Evil Centipede", summary: "Defeat Evil Centipede in Bug Cave KR.", category: "party", trigger: { type: "bossKill", zoneId: "zone-bug-cave-kr" }, reward: { itemId: "awakening-soul", quantity: 1 } },
+  { id: "kill-bone-lord", label: "Kill Bone Lord", summary: "Defeat Bone Lord in Prajna Cave KR.", category: "party", trigger: { type: "bossKill", zoneId: "zone-prajna-cave-kr" }, reward: { itemId: "awakening-soul", quantity: 1 } },
+  { id: "kill-minotaur-king", label: "Kill Minotaur King", summary: "Defeat Minotaur King in Prajna Temple KR.", category: "party", trigger: { type: "bossKill", zoneId: "zone-prajna-temple-kr" }, reward: { itemId: "awakening-soul", quantity: 2 } },
+  { id: "kill-oma-king-spirit", label: "Kill Oma King Spirit", summary: "Defeat Oma King Spirit in Kings Tomb.", category: "party", trigger: { type: "bossKill", zoneId: "zone-kings-tomb" }, reward: { itemId: "awakening-soul", quantity: 5 } },
+  { id: "kill-yimoogi", label: "Kill Yimoogi", summary: "Defeat Yimoogi in Viper Cave KR.", category: "party", trigger: { type: "bossKill", zoneId: "zone-viper-cave-kr" }, reward: { itemId: "awakening-soul", quantity: 5 } },
+  {
+    id: "kill-king-scorpion",
+    label: "Defeat King Scorpion",
+    summary: "Defeat King Scorpion in Black Dragon Dungeon.",
+    category: "party",
+    trigger: { type: "bossKill", zoneId: "zone-bdd-2" },
+    reward: { itemId: "awakening-soul", quantity: 10 },
+  },
+  {
+    id: "kill-iwt",
+    label: "Defeat IWT",
+    summary: "Clear Wooma Palace by defeating all three Incarnated Wooma Taurus.",
+    category: "party",
+    trigger: { type: "bossKill", zoneId: "zone-bdd-4" },
+    reward: { itemId: "awakening-soul", quantity: 15 },
+  },
+  {
+    id: "kill-king-hog",
+    label: "Defeat King Hog",
+    summary: "Defeat King Hog in Black Dragon Dungeon.",
+    category: "party",
+    trigger: { type: "bossKill", zoneId: "zone-bdd-8" },
+    reward: { itemId: "awakening-soul", quantity: 25 },
+  },
+  {
+    id: "kill-izt",
+    label: "Defeat IZT",
+    summary: "Clear Zuma Palace by defeating Incarnated Zuma Taurus and its reinforcements.",
+    category: "party",
+    trigger: { type: "bossKill", zoneId: "zone-bdd-11" },
+    reward: { itemId: "awakening-soul", quantity: 35 },
+  },
+  {
+    id: "kill-dark-devil",
+    label: "Defeat Dark Devil",
+    summary: "Defeat Dark Devil in Black Dragon Dungeon.",
+    category: "party",
+    trigger: { type: "bossKill", zoneId: "zone-bdd-13" },
+    reward: { itemId: "awakening-soul", quantity: 50 },
+  },
+  ...CLASS_LEVEL_ACHIEVEMENT_DEFS,
+  ...WARRIOR_SOLO_BOSS_ACHIEVEMENT_DEFS,
+  ...WIZARD_SOLO_BOSS_ACHIEVEMENT_DEFS,
+  ...TAO_SOLO_BOSS_ACHIEVEMENT_DEFS,
 ];
 const HOTBAR_SLOT_COUNT = 6;
 const BASE_AUTOCAST_SLOTS = 1;
@@ -2829,10 +2958,13 @@ const state = {
   spiritBoxDepositMode: null,
   upgradeSection: "normal",
   upgradeCategory: "combat",
+  codexSection: "items",
   codexCategory: "all",
   codexHideUnfound: false,
   codexSearchQuery: "",
   codexSelectedItemId: null,
+  codexEmpowerSlotId: "weapon",
+  achievementCategory: "party",
   townPartyIdleMembers: [],
   townPartyIdleEvent: null,
   townPartyIdleStepEvent: null,
@@ -4863,6 +4995,40 @@ function achievementUnlocked(achievementId) {
   return Boolean(ensureAccountAchievements().unlocked?.[achievementId]);
 }
 
+function normalizeAchievementCategory(categoryId) {
+  const id = String(categoryId ?? "").trim().toLowerCase();
+  return ACHIEVEMENT_CATEGORY_IDS.has(id) ? id : "party";
+}
+
+function achievementCategoryDef(categoryId = "party") {
+  const id = normalizeAchievementCategory(categoryId);
+  return ACHIEVEMENT_CATEGORY_DEFS.find((entry) => entry.id === id) ?? ACHIEVEMENT_CATEGORY_DEFS[0];
+}
+
+function achievementDefsForCategory(categoryId = state.achievementCategory) {
+  const category = normalizeAchievementCategory(categoryId);
+  return ACHIEVEMENT_DEFS.filter((def) => normalizeAchievementCategory(def.category) === category);
+}
+
+function achievementCategoryClassId(def) {
+  return achievementCategoryDef(def?.category).classId;
+}
+
+function achievementMatchesCharacter(def, characterId) {
+  const requiredClassId = achievementCategoryClassId(def);
+  if (!requiredClassId) return true;
+  return normalizeCharacterId(characterId) === requiredClassId;
+}
+
+function characterLevelForAchievements(classId) {
+  const id = normalizeCharacterId(classId);
+  if (!id) return 1;
+  if (id === state.activeCharacterId) {
+    return Math.max(1, Math.trunc(Number(state.game.progress.level) || 1));
+  }
+  return Math.max(1, Math.trunc(Number(state.characters?.[id]?.game?.progress?.level) || 1));
+}
+
 function unlockAchievementsFeature() {
   const achievements = ensureAccountAchievements();
   if (achievements.enabled) return false;
@@ -4919,6 +5085,15 @@ function achievementRewardLabel(def) {
   if (gold > 0) return `${gold.toLocaleString()} gold`;
   const xpBonus = Math.max(0, Number(def?.reward?.xpBonusPercent) || 0);
   if (xpBonus > 0) return `Permanent +${xpBonus}% XP`;
+  const soulChance = Math.max(0, Number(def?.reward?.bonusAwakeningSoulChancePercent) || 0);
+  if (soulChance > 0) return `Permanent +${soulChance}% soul drop chance (all characters)`;
+  for (const [statKey, label] of [["ac", "AC"], ["amc", "AMC"]]) {
+    const range = def?.reward?.[statKey];
+    if (!Array.isArray(range) || range.length < 2) continue;
+    const min = Math.max(0, Math.trunc(Number(range[0]) || 0));
+    const max = Math.max(0, Math.trunc(Number(range[1]) || 0));
+    return `Permanent +${min}-${max} ${label} (all characters)`;
+  }
   const quantity = Math.max(0, Math.trunc(Number(def?.reward?.quantity) || 0));
   const item = itemDefinition(def?.reward?.itemId);
   if (item && quantity > 0) return `${quantity} ${item.name}${quantity === 1 ? "" : "s"}`;
@@ -5017,6 +5192,8 @@ function claimAchievementReward(achievementId) {
   if (gold > 0) addLootNotice(`+${gold.toLocaleString()} gold for ${characterId}`, "gold");
   if (itemId && itemQuantity > 0) addLootNotice(`+${achievementRewardLabel(def)} for ${characterId}`, "item");
   if (Number(def.reward?.xpBonusPercent) > 0) addLootNotice(achievementRewardLabel(def), "level");
+  if (Number(def.reward?.bonusAwakeningSoulChancePercent) > 0) addLootNotice(achievementRewardLabel(def), "level");
+  if (Array.isArray(def.reward?.ac) || Array.isArray(def.reward?.amc)) addLootNotice(achievementRewardLabel(def), "level");
   pushBattleLog(`Claimed ${def.label}: ${achievementRewardLabel(def)} for ${characterId}.`);
   playSfx("ui.gold", { volume: 0.6, throttleMs: 120 });
   sceneSignature = "";
@@ -5033,22 +5210,31 @@ function claimAchievementReward(achievementId) {
 
 function checkAchievementsForCurrentCharacter() {
   if (!achievementsEnabled()) return;
-  checkLevelAchievements(state.game.progress.level, state.activeCharacterId);
+  captureActiveCharacterState();
+  for (const classId of CHARACTER_IDS) {
+    checkLevelAchievements(characterLevelForAchievements(classId), classId);
+  }
   for (const def of ACHIEVEMENT_DEFS) {
     if (achievementUnlocked(def.id)) continue;
-    if (def.trigger?.type === "bossKill" && !def.trigger.solo && bossKillCount(def.trigger.zoneId) > 0) unlockAchievement(def);
+    // Class-specific boss kills are not retroactive: historic party composition was not saved.
+    if (normalizeAchievementCategory(def.category) !== "party") continue;
+    if (def.trigger?.type === "bossKill" && !def.trigger.solo && bossKillCount(def.trigger.zoneId) > 0) {
+      unlockAchievement(def);
+    }
   }
 }
 
 function checkLevelAchievements(level, characterId = state.activeCharacterId) {
   if (!achievementsEnabled()) return false;
   const reachedLevel = Math.max(1, Math.trunc(Number(level) || 1));
+  const unlockedBy = normalizeCharacterId(characterId ?? state.activeCharacterId);
   let unlocked = false;
   for (const def of ACHIEVEMENT_DEFS) {
     if (achievementUnlocked(def.id) || def.trigger?.type !== "level") continue;
+    if (!achievementMatchesCharacter(def, unlockedBy)) continue;
     const targetLevel = Math.max(1, Math.trunc(Number(def.trigger.level) || 1));
     if (reachedLevel < targetLevel) continue;
-    unlocked = unlockAchievement(def, { characterId }) || unlocked;
+    unlocked = unlockAchievement(def, { characterId: unlockedBy }) || unlocked;
   }
   return unlocked;
 }
@@ -5066,6 +5252,12 @@ function checkBossKillAchievements(zoneId, participantClassIds = []) {
     if (achievementUnlocked(def.id)) continue;
     if (def.trigger?.type !== "bossKill" || def.trigger.zoneId !== zoneId) continue;
     if (def.trigger.solo && participants.length !== 1) continue;
+    const requiredClassId = achievementCategoryClassId(def);
+    if (requiredClassId) {
+      if (!participants.includes(requiredClassId)) continue;
+      unlocked = unlockAchievement(def, { characterId: requiredClassId }) || unlocked;
+      continue;
+    }
     const characterId = def.trigger.solo ? participants[0] : state.activeCharacterId;
     unlocked = unlockAchievement(def, { characterId }) || unlocked;
   }
@@ -13741,6 +13933,14 @@ function achievementExperienceBonusPercent() {
   }, 0);
 }
 
+function achievementBonusAwakeningSoulChancePercent() {
+  const unlocked = state.account?.achievements?.unlocked ?? {};
+  return ACHIEVEMENT_DEFS.reduce((total, def) => {
+    if (unlocked[def.id]?.rewardClaimed !== true) return total;
+    return total + Math.max(0, Number(def.reward?.bonusAwakeningSoulChancePercent) || 0);
+  }, 0);
+}
+
 function rebirthExperienceRate() {
   return 1 + (accountUpgradeValue("xpBonusPercent") + achievementExperienceBonusPercent()) / 100;
 }
@@ -13775,7 +13975,9 @@ function totalDropChanceBonusPercent(inventory = state.inventory) {
 function totalBonusAwakeningSoulChancePercent(inventory = state.inventory) {
   return Math.min(
     100,
-    rebirthBonusAwakeningSoulChancePercent() + equippedBonusFromStats(inventory, "bonusAwakeningSoulChancePercent"),
+    rebirthBonusAwakeningSoulChancePercent()
+      + equippedBonusFromStats(inventory, "bonusAwakeningSoulChancePercent")
+      + achievementBonusAwakeningSoulChancePercent(),
   );
 }
 
@@ -13826,6 +14028,28 @@ function applyRebirthUpgradeStats(stats) {
   stats.accuracy += rebirthStatUpgradeBonus("accuracy");
   stats.agility += rebirthStatUpgradeBonus("agility");
   stats.luck += accountUpgradeValue("baseLuck");
+  applyAchievementStats(stats);
+}
+
+function achievementRangeStatBonus(statKey) {
+  const unlocked = state.account?.achievements?.unlocked ?? {};
+  return ACHIEVEMENT_DEFS.reduce((total, def) => {
+    if (unlocked[def.id]?.rewardClaimed !== true) return total;
+    const range = def.reward?.[statKey];
+    if (!Array.isArray(range) || range.length < 2) return total;
+    total[0] += Math.max(0, Math.trunc(Number(range[0]) || 0));
+    total[1] += Math.max(0, Math.trunc(Number(range[1]) || 0));
+    return total;
+  }, [0, 0]);
+}
+
+function applyAchievementStats(stats) {
+  for (const statKey of ["ac", "amc"]) {
+    if (!stats?.[statKey]) continue;
+    const [minBonus, maxBonus] = achievementRangeStatBonus(statKey);
+    if (minBonus) stats[statKey][0] += minBonus;
+    if (maxBonus) stats[statKey][1] += maxBonus;
+  }
 }
 
 function bossEmpowermentUnlocked() {
@@ -17215,6 +17439,13 @@ function bindSceneButtons(rootEl) {
       renderSceneOverlay();
     });
   });
+  rootEl.querySelectorAll("[data-codex-section]").forEach((button) => {
+    button.addEventListener("click", () => {
+      state.codexSection = normalizeCodexSection(button.dataset.codexSection);
+      sceneSignature = "";
+      renderSceneOverlay();
+    });
+  });
   rootEl.querySelectorAll("[data-codex-category]").forEach((button) => {
     button.addEventListener("click", () => {
       state.codexCategory = normalizeCodexCategory(button.dataset.codexCategory);
@@ -17226,6 +17457,13 @@ function bindSceneButtons(rootEl) {
   rootEl.querySelectorAll("[data-codex-item]").forEach((button) => {
     button.addEventListener("click", () => {
       state.codexSelectedItemId = button.dataset.codexItem || null;
+      sceneSignature = "";
+      renderSceneOverlay();
+    });
+  });
+  rootEl.querySelectorAll("[data-codex-empower-slot]").forEach((button) => {
+    button.addEventListener("click", () => {
+      state.codexEmpowerSlotId = normalizeCodexEmpowerSlotId(button.dataset.codexEmpowerSlot);
       sceneSignature = "";
       renderSceneOverlay();
     });
@@ -17263,6 +17501,13 @@ function bindSceneButtons(rootEl) {
   });
   rootEl.querySelectorAll("[data-unlock-achievements]").forEach((button) => {
     button.addEventListener("click", () => unlockAchievementsFeature());
+  });
+  rootEl.querySelectorAll("[data-achievement-category]").forEach((button) => {
+    button.addEventListener("click", () => {
+      state.achievementCategory = normalizeAchievementCategory(button.dataset.achievementCategory);
+      sceneSignature = "";
+      renderSceneOverlay();
+    });
   });
   rootEl.querySelectorAll("[data-claim-achievement]").forEach((row) => {
     const claim = () => claimAchievementReward(row.dataset.claimAchievement);
@@ -17752,10 +17997,13 @@ function buildSceneOverlaySignature(openScenes, bossEntryZoneId) {
     openScenes: state.openScenes,
     characterTab: state.characterTab,
     inventoryPage: state.inventoryPage,
+    codexSection: state.codexSection,
     codexCategory: state.codexCategory,
     codexHideUnfound: state.codexHideUnfound,
     codexSearchQuery: state.codexSearchQuery,
     codexSelectedItemId: state.codexSelectedItemId,
+    codexEmpowerSlotId: state.codexEmpowerSlotId,
+    achievementCategory: state.achievementCategory,
     storagePage: state.storagePage,
     pendingStorageUnlock: state.pendingStorageUnlock,
     pendingInventoryTokenUnlock: state.pendingInventoryTokenUnlock,
@@ -18030,8 +18278,25 @@ function sceneBodyHtml(scene) {
   return "";
 }
 
+function normalizeCodexSection(sectionId) {
+  return sectionId === "empowerments" ? "empowerments" : "items";
+}
+
 function normalizeCodexCategory(categoryId) {
   return CODEX_CATEGORY_DEFS.some((category) => category.id === categoryId) ? categoryId : "all";
+}
+
+function normalizeCodexEmpowerSlotId(slotId) {
+  const catalog = empowerCodexSlotCatalog();
+  return catalog.slots.some((slot) => slot.id === slotId)
+    ? slotId
+    : (catalog.slots[0]?.id ?? "weapon");
+}
+
+function selectedCodexEmpowerSlot() {
+  const catalog = empowerCodexSlotCatalog();
+  const slotId = normalizeCodexEmpowerSlotId(state.codexEmpowerSlotId);
+  return catalog.slots.find((slot) => slot.id === slotId) ?? catalog.slots[0] ?? null;
 }
 
 function codexCategoryForItem(item) {
@@ -18105,6 +18370,103 @@ function codexItemMatchesSearch(item, query = state.codexSearchQuery) {
 }
 
 function codexSceneHtml() {
+  const section = normalizeCodexSection(state.codexSection);
+  return `
+    <section class="codex-panel ${section === "empowerments" ? "codex-panel-empowerments" : ""}">
+      <div class="codex-section-tabs" role="tablist" aria-label="Codex sections">
+        <button
+          type="button"
+          class="codex-section-tab ${section === "items" ? "active" : ""}"
+          data-codex-section="items"
+        >
+          <span>Items</span>
+          <small>Drop discovery</small>
+        </button>
+        <button
+          type="button"
+          class="codex-section-tab ${section === "empowerments" ? "active" : ""}"
+          data-codex-section="empowerments"
+        >
+          <span>Empowerments</span>
+          <small>Slot roll ranges</small>
+        </button>
+      </div>
+      ${section === "empowerments" ? codexEmpowermentsSceneHtml() : codexItemsSceneHtml()}
+    </section>
+  `;
+}
+
+function codexEmpowermentsSceneHtml() {
+  const catalog = empowerCodexSlotCatalog();
+  const selected = selectedCodexEmpowerSlot();
+  const tierText = catalog.tierWeights
+    .map((row) => `${row.tier}★ ${row.percent}%`)
+    .join(" · ");
+  return `
+      <div class="codex-summary">
+        <div>
+          <p class="eyebrow">Empower Codex</p>
+          <strong>Boss loot empower chance ${catalog.itemChancePercent}%</strong>
+        </div>
+        <div class="codex-summary-actions">
+          <span>Tiers: ${escapeHtml(tierText)}</span>
+        </div>
+      </div>
+      <div class="codex-browser codex-empower-browser">
+        <div class="codex-list" data-preserve-scroll="codex-empower-list">
+          ${catalog.slots.map((slot) => `
+            <button
+              type="button"
+              class="codex-row discovered ${selected?.id === slot.id ? "active" : ""}"
+              data-codex-empower-slot="${escapeHtml(slot.id)}"
+            >
+              <span class="codex-row-icon codex-empower-slot-icon">${escapeHtml(slot.label.slice(0, 1))}</span>
+              <span class="codex-row-main">
+                <span class="codex-row-title">${escapeHtml(slot.label)}</span>
+                <span class="codex-row-meta">${slot.sections.reduce((sum, section) => sum + section.rolls.length, 0)} possible rolls</span>
+              </span>
+            </button>
+          `).join("")}
+        </div>
+        ${codexEmpowerDetailPanelHtml(selected)}
+      </div>
+  `;
+}
+
+function codexEmpowerDetailPanelHtml(slot) {
+  if (!slot) {
+    return `
+      <aside class="codex-detail">
+        <div class="codex-detail-empty">No empower slots to show.</div>
+      </aside>
+    `;
+  }
+  return `
+    <aside class="codex-detail discovered codex-empower-detail" data-preserve-scroll="codex-empower-detail">
+      <header>
+        <div class="codex-detail-icon codex-empower-slot-icon">${escapeHtml(slot.label.slice(0, 1))}</div>
+        <div>
+          <p class="eyebrow">Item slot</p>
+          <h3>${escapeHtml(slot.label)}</h3>
+          ${slot.note ? `<span>${escapeHtml(slot.note)}</span>` : ""}
+        </div>
+      </header>
+      ${slot.sections.map((section) => `
+        <section class="codex-detail-section">
+          <strong>${escapeHtml(section.label)}</strong>
+          ${section.description ? `<p class="codex-empower-section-note">${escapeHtml(section.description)}</p>` : ""}
+          <ul class="codex-empower-roll-list">
+            ${section.rolls.length
+              ? section.rolls.map((roll) => `<li>${escapeHtml(roll)}</li>`).join("")
+              : `<li class="codex-empower-roll-empty">No rolls in this group.</li>`}
+          </ul>
+        </section>
+      `).join("")}
+    </aside>
+  `;
+}
+
+function codexItemsSceneHtml() {
   const categoryId = normalizeCodexCategory(state.codexCategory);
   const progressByCategory = codexProgressByCategory();
   const searchQuery = String(state.codexSearchQuery ?? "");
@@ -18125,7 +18487,6 @@ function codexSceneHtml() {
       ? "No discovered items in this category yet."
       : "No items in this category.";
   return `
-    <section class="codex-panel">
       <div class="codex-summary">
         <div>
           <p class="eyebrow">Item Codex</p>
@@ -18179,7 +18540,6 @@ function codexSceneHtml() {
         </div>
         ${codexDetailPanelHtml(selectedItem)}
       </div>
-    </section>
   `;
 }
 
@@ -18278,8 +18638,10 @@ function codexHiddenDetailPanelHtml(item) {
 }
 
 function achievementsSceneHtml() {
+  const categoryId = normalizeAchievementCategory(state.achievementCategory);
+  const categoryDefs = achievementDefsForCategory(categoryId);
   const unlockedCount = ACHIEVEMENT_DEFS.filter((def) => achievementUnlocked(def.id)).length;
-  const rewardsReady = ACHIEVEMENT_DEFS.filter((def) => {
+  const rewardsReady = categoryDefs.filter((def) => {
     const record = ensureAccountAchievements().unlocked?.[def.id];
     return Boolean(record) && record.rewardClaimed !== true;
   }).length;
@@ -18292,8 +18654,28 @@ function achievementsSceneHtml() {
         </div>
         <span>${rewardsReady > 0 ? `${rewardsReady} reward${rewardsReady === 1 ? "" : "s"} ready to claim.` : "Progress is permanent across rebirth."}</span>
       </div>
+      <div class="achievements-category-tabs" role="tablist" aria-label="Achievement categories">
+        ${ACHIEVEMENT_CATEGORY_DEFS.map((category) => {
+          const defs = achievementDefsForCategory(category.id);
+          const unlocked = defs.filter((def) => achievementUnlocked(def.id)).length;
+          return `
+            <button
+              type="button"
+              role="tab"
+              class="achievements-category-tab ${category.id === categoryId ? "active" : ""}"
+              aria-selected="${category.id === categoryId ? "true" : "false"}"
+              data-achievement-category="${escapeHtml(category.id)}"
+            >
+              <span>${escapeHtml(category.label)}</span>
+              <small>${unlocked}/${defs.length}</small>
+            </button>
+          `;
+        }).join("")}
+      </div>
       <div class="achievements-list" data-preserve-scroll="achievements-list">
-        ${ACHIEVEMENT_DEFS.map((def) => achievementRowHtml(def, true)).join("")}
+        ${categoryDefs.length
+          ? categoryDefs.map((def) => achievementRowHtml(def, true)).join("")
+          : `<div class="achievements-empty">No achievements in this category yet.</div>`}
       </div>
     </section>
   `;
@@ -18306,8 +18688,12 @@ function achievementRowHtml(def, enabled) {
   const claimable = unlocked && !rewardClaimed;
   const targetLevel = Math.max(1, Math.trunc(Number(def.trigger?.level) || 1));
   const rewardLabel = achievementRewardLabel(def);
+  const categoryClassId = achievementCategoryClassId(def);
+  const progressLevel = categoryClassId
+    ? characterLevelForAchievements(categoryClassId)
+    : state.game.progress.level;
   const progressText = def.trigger?.type === "level"
-    ? `Current level: ${state.game.progress.level}/${targetLevel}`
+    ? `Current level: ${progressLevel}/${targetLevel}`
     : "Not yet achieved.";
   return `
     <article ${claimable ? `role="button" tabindex="0" data-claim-achievement="${escapeHtml(def.id)}"` : ""} class="achievement-row ${claimable ? "claimable" : unlocked ? "unlocked claimed" : enabled ? "available" : "locked"}">
@@ -22644,6 +23030,7 @@ function finishGroupDungeonBossSwarmEncounter(now = performance.now()) {
   } else if (bossRoomDef(zone?.id)) {
     pushBattleLog("Return to town when you are ready.");
   }
+  checkBossKillAchievements(zone?.id ?? party.zoneId, bossPartyMemberClassIds(party));
   markGroupDungeonWaveUiDirty();
   gamePanelSignature = "";
   gamePanelDynamicSignature = "";

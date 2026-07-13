@@ -1,6 +1,16 @@
 {
   "entries": [
     {
+      "id": "2026-07-13-codex-empowerments",
+      "date": "2026-07-13",
+      "title": "Codex, achievements & UI",
+      "highlights": [
+        "Added Empowerments to the Codex.",
+        "Added new achievements.",
+        "Slightly moved the Sort button."
+      ]
+    },
+    {
       "id": "2026-07-12-souls-spirit-box",
       "date": "2026-07-12",
       "title": "Boss souls & Spirit Box",

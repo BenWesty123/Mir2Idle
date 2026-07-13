@@ -1280,6 +1280,62 @@ export function empowerReferenceCatalog() {
 }
 
 /**
+ * Unique roll labels across every weapon class (warrior / wizard / tao / universal).
+ * @returns {string[]}
+ */
+function allWeaponEmpowerRollDescriptions() {
+  const rolls = [];
+  const seen = new Set();
+  for (const def of WEAPON_EMPOWER_CLASS_DEFS) {
+    for (const roll of weaponEmpowerRollDescriptionsForClass(def.id)) {
+      if (seen.has(roll)) continue;
+      seen.add(roll);
+      rolls.push(roll);
+    }
+  }
+  return rolls;
+}
+
+/**
+ * Player-facing Codex catalog: every roll a slot type can produce, with min–max labels.
+ * Each slot is a single flat list (weapons = union of all weapon-class pools).
+ * @returns {{
+ *   itemChancePercent: number,
+ *   tierWeights: { tier: number, weight: number, percent: number }[],
+ *   slots: {
+ *     id: string,
+ *     label: string,
+ *     note: string | null,
+ *     sections: { id: string, label: string, description?: string, rolls: string[] }[],
+ *   }[],
+ * }}
+ */
+export function empowerCodexSlotCatalog() {
+  const catalog = empowerReferenceCatalog();
+  return {
+    itemChancePercent: catalog.itemChancePercent,
+    tierWeights: catalog.tierWeights,
+    slots: EMPOWER_SLOT_GROUPS.map((group) => {
+      const rolls = group.id === "weapon"
+        ? allWeaponEmpowerRollDescriptions()
+        : empowerRollDescriptionsForItem({ slot: group.slots?.[0], stats: {} });
+      return {
+        id: group.id,
+        label: group.label,
+        note: null,
+        sections: [
+          {
+            id: "all",
+            label: "Possible empowerments",
+            rolls,
+          },
+        ],
+      };
+    }),
+  };
+}
+
+/**
  * @param {string | null | undefined} slot
  * @param {object} stats
  */

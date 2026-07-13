@@ -3484,10 +3484,54 @@ body.scene-window-drag-active {
 
 .codex-panel {
   display: grid;
-  grid-template-rows: auto auto auto minmax(0, 1fr);
+  grid-template-rows: auto auto auto auto minmax(0, 1fr);
   gap: 10px;
   height: calc(100% - 48px);
   min-height: 0;
+}
+
+.codex-panel-empowerments {
+  grid-template-rows: auto auto minmax(0, 1fr);
+}
+
+.codex-section-tabs {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 6px;
+}
+
+.codex-section-tab {
+  display: grid;
+  gap: 2px;
+  min-height: 44px;
+  padding: 8px 10px;
+  border: 1px solid rgba(95, 73, 39, 0.82);
+  background:
+    linear-gradient(180deg, rgba(28, 20, 12, 0.96), rgba(10, 8, 6, 0.96));
+  color: #b89d6a;
+  text-align: center;
+}
+
+.codex-section-tab.active,
+.codex-section-tab:hover,
+.codex-section-tab:focus-visible {
+  border-color: rgba(226, 181, 83, 0.78);
+  background:
+    linear-gradient(180deg, rgba(84, 53, 21, 0.72), rgba(24, 16, 10, 0.96));
+  box-shadow: inset 0 -3px 0 rgba(226, 181, 83, 0.72);
+  color: #ffe0a0;
+}
+
+.codex-section-tab span {
+  color: inherit;
+  font-size: 13px;
+  font-weight: 700;
+}
+
+.codex-section-tab small {
+  color: inherit;
+  opacity: 0.72;
+  font-size: 11px;
 }
 
 .codex-summary {
@@ -3880,6 +3924,51 @@ body.scene-window-drag-active {
   white-space: nowrap;
 }
 
+.codex-empower-slot-icon {
+  display: grid;
+  place-items: center;
+  font-size: 16px;
+  font-weight: 700;
+  color: #ffe0a0;
+  background: rgba(84, 53, 21, 0.45);
+}
+
+.codex-empower-detail {
+  display: flex;
+  flex-direction: column;
+  align-content: stretch;
+  overflow: auto;
+  grid-template-rows: unset;
+}
+
+.codex-empower-section-note {
+  margin: 0;
+  color: #bda678;
+  font-size: 12px;
+  line-height: 1.35;
+}
+
+.codex-empower-roll-list {
+  display: grid;
+  gap: 4px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.codex-empower-roll-list li {
+  padding: 6px 8px;
+  border: 1px solid rgba(78, 58, 31, 0.7);
+  background: rgba(11, 9, 6, 0.72);
+  color: #e6d2a4;
+  font-size: 12px;
+  line-height: 1.35;
+}
+
+.codex-empower-roll-empty {
+  color: #75664b;
+}
+
 .achievements-window {
   width: min(760px, calc(100vw - 32px));
   height: min(560px, calc(100vh - 32px));
@@ -3888,7 +3977,7 @@ body.scene-window-drag-active {
 
 .achievements-panel {
   display: grid;
-  grid-template-rows: auto minmax(0, 1fr);
+  grid-template-rows: auto auto minmax(0, 1fr);
   gap: 10px;
   height: calc(100% - 48px);
   min-height: 0;
@@ -3916,12 +4005,60 @@ body.scene-window-drag-active {
   line-height: 16px;
 }
 
+.achievements-category-tabs {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 5px;
+}
+
+.achievements-category-tab {
+  display: grid;
+  gap: 2px;
+  min-height: 44px;
+  padding: 6px 8px;
+  border: 1px solid rgba(96, 70, 37, 0.85);
+  background: rgba(13, 10, 7, 0.88);
+  color: #d5bd88;
+  text-align: left;
+}
+
+.achievements-category-tab span {
+  overflow: hidden;
+  font-size: 12px;
+  font-weight: 700;
+  line-height: 14px;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.achievements-category-tab small {
+  color: #8f7a55;
+  font-size: 10px;
+}
+
+.achievements-category-tab.active,
+.achievements-category-tab:hover,
+.achievements-category-tab:focus-visible {
+  border-color: rgba(241, 208, 149, 0.75);
+  background: rgba(53, 34, 14, 0.95);
+  color: #ffe0a0;
+}
+
 .achievements-list {
   display: grid;
   align-content: start;
   gap: 8px;
   min-height: 0;
   overflow: auto;
+}
+
+.achievements-empty {
+  padding: 18px 14px;
+  border: 1px dashed rgba(121, 90, 48, 0.55);
+  color: #a89266;
+  font-size: 13px;
+  line-height: 18px;
+  text-align: center;
 }
 
 .achievement-row {
