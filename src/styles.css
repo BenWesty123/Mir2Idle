@@ -215,6 +215,297 @@ button.active,
   z-index: 1;
 }
 
+.stage-info-bar {
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: calc(var(--stage-canvas-height, 100%) - var(--stage-info-bar-height, 150px));
+  z-index: 6;
+  display: grid;
+  grid-template-columns: 150px minmax(0, 1fr) 150px;
+  width: 100%;
+  height: var(--stage-info-bar-height, 150px);
+  pointer-events: none;
+  image-rendering: pixelated;
+}
+
+.stage-info-bar-left,
+.stage-info-bar-mid,
+.stage-info-bar-right {
+  width: 100%;
+  height: var(--stage-info-bar-height, 150px);
+  background-repeat: no-repeat;
+  background-position: left bottom;
+  background-size: 150px 150px;
+}
+
+.stage-info-bar-left {
+  position: relative;
+  background: none;
+}
+
+.stage-info-orb {
+  position: absolute;
+  left: 9px;
+  top: 28px;
+  z-index: 0;
+  width: 88px;
+  height: 86px;
+  overflow: hidden;
+  border-radius: 50%;
+  background: #050403;
+}
+
+.stage-info-orb-hp,
+.stage-info-orb-mp {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  overflow: hidden;
+}
+
+.stage-info-orb-hp {
+  left: 0;
+  width: 41px;
+}
+
+.stage-info-orb-mp {
+  left: 41px;
+  right: 0;
+}
+
+.stage-info-orb-fill {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  height: 0%;
+  transition: height 120ms linear;
+}
+
+.stage-info-orb-fill::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: #fff;
+  opacity: 0;
+  pointer-events: none;
+}
+
+.stage-info-orb-fill.stage-info-orb-flash::after {
+  animation: stage-info-orb-flash 320ms ease-out;
+}
+
+@keyframes stage-info-orb-flash {
+  0% { opacity: 1; }
+  100% { opacity: 0; }
+}
+
+.stage-info-orb-hp-fill {
+  background: linear-gradient(#c84a3d, #76241f);
+}
+
+.stage-info-orb-mp-fill {
+  background: linear-gradient(#477fc9, #21426f);
+}
+
+.stage-info-orb-text {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  z-index: 1;
+  transform: translate(-50%, -50%);
+  color: #f3e0ae;
+  font-size: 8px;
+  font-weight: 700;
+  line-height: 1;
+  text-shadow: 1px 1px 0 #000, -1px 0 0 #000, 0 -1px 0 #000;
+  white-space: nowrap;
+  pointer-events: none;
+}
+
+.stage-info-bar-left-art {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  background-image: url("../public/ui/InfoBar-Left.png");
+  background-position: left bottom;
+  background-size: 150px 150px;
+  background-repeat: no-repeat;
+  image-rendering: pixelated;
+  pointer-events: none;
+}
+
+.stage-info-bar-mid {
+  background-image: url("../public/ui/InfoBar-Mid.png");
+  background-repeat: repeat-x;
+  background-position: left bottom;
+}
+
+.stage-info-bar-right {
+  position: relative;
+  background: none;
+}
+
+.stage-info-bag-track {
+  position: absolute;
+  left: 45px;
+  top: 103px;
+  z-index: 0;
+  width: 99px;
+  height: 12px;
+  overflow: hidden;
+  background: #000;
+}
+
+.stage-info-bag-fill {
+  display: block;
+  width: 0%;
+  height: 100%;
+  background: linear-gradient(180deg, #f0d080 0%, #c8912e 55%, #8a5f18 100%);
+  box-shadow: inset 0 1px 0 rgba(255, 236, 180, 0.35);
+}
+
+.stage-info-bag-text {
+  position: absolute;
+  left: 94px;
+  top: 109px;
+  z-index: 2;
+  transform: translate(-50%, -50%);
+  color: #f3e0ae;
+  font-size: 9px;
+  font-weight: 700;
+  line-height: 1;
+  text-shadow: 1px 1px 0 #000, -1px 0 0 #000, 0 -1px 0 #000;
+  white-space: nowrap;
+  pointer-events: none;
+}
+
+.stage-info-gold-track {
+  position: absolute;
+  left: 45px;
+  top: 120px;
+  z-index: 0;
+  width: 104px;
+  height: 13px;
+  background: #000;
+}
+
+.stage-info-gold-text {
+  position: absolute;
+  left: 97px;
+  top: 126px;
+  z-index: 2;
+  transform: translate(-50%, -50%);
+  color: #f3e0ae;
+  font-size: 9px;
+  font-weight: 700;
+  line-height: 1;
+  text-shadow: 1px 1px 0 #000, -1px 0 0 #000, 0 -1px 0 #000;
+  white-space: nowrap;
+  pointer-events: none;
+}
+
+.stage-info-character-button,
+.stage-info-inventory-button {
+  position: absolute;
+  top: 73px;
+  z-index: 3;
+  width: 23px;
+  height: 22px;
+  min-height: 22px;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: transparent;
+  cursor: pointer;
+  image-rendering: pixelated;
+  pointer-events: auto;
+}
+
+.stage-info-character-button {
+  left: 31px;
+}
+
+.stage-info-inventory-button {
+  left: 54px;
+}
+
+.stage-info-character-button:hover,
+.stage-info-character-button:focus-visible {
+  background: url("../public/ui/InfoBar-Character-hover.png") center / 23px 22px no-repeat;
+  outline: 0;
+}
+
+.stage-info-inventory-button:hover,
+.stage-info-inventory-button:focus-visible {
+  background: url("../public/ui/InfoBar-Inventory-hover.png") center / 23px 22px no-repeat;
+  outline: 0;
+}
+
+.stage-info-character-button:active,
+.stage-info-inventory-button:active {
+  filter: brightness(0.92);
+}
+
+.stage-info-bar-right-art {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  background-image: url("../public/ui/InfoBar-Right.png");
+  background-position: right bottom;
+  background-size: 150px 150px;
+  background-repeat: no-repeat;
+  image-rendering: pixelated;
+  pointer-events: none;
+}
+
+.stage-xp-bar {
+  position: absolute;
+  left: 10px;
+  right: 10px;
+  top: calc(var(--stage-canvas-height, 100%) - 8px);
+  bottom: auto;
+  z-index: 8;
+  height: 8px;
+  pointer-events: none;
+}
+
+.stage-xp-bar[hidden] {
+  display: none;
+}
+
+.stage-xp-bar-track {
+  display: block;
+  width: 100%;
+  height: 8px;
+  overflow: hidden;
+  border: 1px solid rgba(84, 70, 48, 0.95);
+  background: rgba(8, 7, 5, 0.9);
+  box-sizing: border-box;
+}
+
+.stage-xp-bar-fill {
+  display: block;
+  height: 100%;
+  background: linear-gradient(180deg, #f0d080 0%, #c8912e 55%, #8a5f18 100%);
+  box-shadow: inset 0 1px 0 rgba(255, 236, 180, 0.35);
+}
+
+.stage-xp-bar-level {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  z-index: 1;
+  transform: translate(-50%, -50%);
+  color: #f3e0ae;
+  font-size: 10px;
+  font-weight: 700;
+  line-height: 1;
+  text-shadow: 1px 1px 0 #000, -1px 0 0 #000, 0 -1px 0 #000;
+  white-space: nowrap;
+}
+
 .stage::after {
   content: "";
   position: absolute;
@@ -367,6 +658,25 @@ button.active,
   box-shadow: 0 6px 18px rgba(0, 0, 0, 0.35);
   image-rendering: pixelated;
   pointer-events: auto;
+}
+
+.crystal-hotbar-drag-handle {
+  position: absolute;
+  left: 0;
+  top: 0;
+  z-index: 4;
+  width: 10px;
+  height: 100%;
+  cursor: grab;
+  touch-action: none;
+}
+
+.crystal-hotbar.crystal-hotbar-dragging .crystal-hotbar-drag-handle {
+  cursor: grabbing;
+}
+
+body.crystal-hotbar-drag-active {
+  user-select: none;
 }
 
 .hotbar-slot {
@@ -4462,7 +4772,7 @@ body.scene-window-drag-active {
   position: absolute;
   top: 0;
   left: 0;
-  right: 30px;
+  right: 80px;
   height: 40px;
   z-index: 4;
   cursor: grab;
@@ -6500,7 +6810,7 @@ body.scene-window-drag-active {
 }
 
 .crystal-inventory-gold,
-.crystal-inventory-weight {
+.crystal-inventory-bag-usage {
   position: absolute;
   top: 212px;
   height: 14px;
@@ -6513,13 +6823,19 @@ body.scene-window-drag-active {
 .crystal-inventory-gold {
   left: 40px;
   width: 111px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #000;
+  text-align: center;
 }
 
 .crystal-inventory-sort {
   position: absolute;
-  left: 182px;
-  top: 211px;
-  width: 50px;
+  left: 226px;
+  top: 13px;
+  z-index: 6;
+  width: 48px;
   height: 16px;
   min-height: 16px;
   padding: 0;
@@ -6546,10 +6862,43 @@ body.scene-window-drag-active {
   top: 321px;
 }
 
-.crystal-inventory-weight {
-  left: 255px;
-  width: 40px;
-  text-align: right;
+.crystal-inventory-bag-usage {
+  left: 162px;
+  top: 213px;
+  width: 122px;
+  height: 14px;
+  color: #f2dfb4;
+}
+
+.crystal-inventory-bag-usage .inventory-bag-usage-track {
+  position: relative;
+  display: block;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  border-radius: 7px;
+  background: #000;
+}
+
+.crystal-inventory-bag-usage .inventory-bag-usage-fill {
+  display: block;
+  height: 100%;
+  background: linear-gradient(180deg, #f0d080 0%, #c8912e 55%, #8a5f18 100%);
+  box-shadow: inset 0 1px 0 rgba(255, 236, 180, 0.35);
+}
+
+.crystal-inventory-bag-usage .inventory-bag-usage-text {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  z-index: 1;
+  transform: translate(-50%, -50%);
+  color: #f2dfb4;
+  font-size: 10px;
+  font-weight: 700;
+  line-height: 1;
+  text-shadow: 1px 1px #000;
+  pointer-events: none;
 }
 
 .crystal-inventory-slot,

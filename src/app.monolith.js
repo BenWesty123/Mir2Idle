@@ -3165,6 +3165,8 @@ let accountCodexRevision = 0;
 let sceneWindowStack = [];
 const DRAGGABLE_SCENE_WINDOWS = new Set(["character", "inventory", "codex", "upgrades"]);
 let sceneWindowDragState = null;
+let hotbarDragState = null;
+let hotbarWindowPosition = null;
 let sceneOverlayInteractionUntil = 0;
 const sceneScrollPositions = new Map();
 // Element currently under a held pointer (mousedown/touchstart without release).
@@ -3174,6 +3176,12 @@ const sceneScrollPositions = new Map();
 let heldPointerTarget = null;
 let combatSkillBarSignature = "";
 let playerHudSignature = "";
+let stageXpBarSignature = "";
+let stageInfoBagFillSignature = "";
+let stageInfoGoldSignature = "";
+let stageInfoOrbSignature = "";
+let stageInfoOrbLastHp = null;
+let stageInfoOrbLastMp = null;
 let hotbarSignature = "";
 let hoveredTooltipEntryId = null;
 let partySwitchBarSignature = "";
@@ -3257,6 +3265,46 @@ function labShellHtml() {
             <div class="party-switch-bar" id="partySwitchBar" aria-label="Switch party character" hidden></div>
             <div class="crystal-hotbar" id="hotbar" aria-label="Potion hotbar"></div>
             <div class="combat-skill-bar" id="combatSkillBar" hidden></div>
+            <div class="stage-info-bar" aria-hidden="true">
+              <div class="stage-info-bar-left">
+                <div class="stage-info-orb" aria-hidden="true">
+                  <div class="stage-info-orb-hp">
+                    <div class="stage-info-orb-fill stage-info-orb-hp-fill" id="stageInfoHpFill"></div>
+                    <span class="stage-info-orb-text" id="stageInfoHpText"></span>
+                  </div>
+                  <div class="stage-info-orb-mp">
+                    <div class="stage-info-orb-fill stage-info-orb-mp-fill" id="stageInfoMpFill"></div>
+                    <span class="stage-info-orb-text" id="stageInfoMpText"></span>
+                  </div>
+                </div>
+                <div class="stage-info-bar-left-art"></div>
+              </div>
+              <div class="stage-info-bar-mid"></div>
+              <div class="stage-info-bar-right">
+                <div class="stage-info-bag-track">
+                  <div class="stage-info-bag-fill" id="stageInfoBagFill"></div>
+                </div>
+                <div class="stage-info-gold-track"></div>
+                <div class="stage-info-bar-right-art"></div>
+                <span class="stage-info-bag-text" id="stageInfoBagText"></span>
+                <span class="stage-info-gold-text" id="stageInfoGoldText"></span>
+                <button
+                  type="button"
+                  class="stage-info-character-button"
+                  data-toggle-scene="character"
+                  aria-label="Character"
+                  title="Character"
+                ></button>
+                <button
+                  type="button"
+                  class="stage-info-inventory-button"
+                  data-toggle-scene="inventory"
+                  aria-label="Inventory"
+                  title="Inventory"
+                ></button>
+              </div>
+            </div>
+            <div class="stage-xp-bar" id="stageXpBar" hidden aria-label="Experience progress"></div>
           </div>
         </div>
         <div class="readout" id="readout"></div>
@@ -3353,6 +3401,46 @@ function gameShellHtml() {
               <div class="party-switch-bar" id="partySwitchBar" aria-label="Switch party character" hidden></div>
               <div class="crystal-hotbar" id="hotbar" aria-label="Potion hotbar"></div>
               <div class="combat-skill-bar" id="combatSkillBar" hidden></div>
+              <div class="stage-info-bar" aria-hidden="true">
+                <div class="stage-info-bar-left">
+                  <div class="stage-info-orb" aria-hidden="true">
+                    <div class="stage-info-orb-hp">
+                      <div class="stage-info-orb-fill stage-info-orb-hp-fill" id="stageInfoHpFill"></div>
+                      <span class="stage-info-orb-text" id="stageInfoHpText"></span>
+                    </div>
+                    <div class="stage-info-orb-mp">
+                      <div class="stage-info-orb-fill stage-info-orb-mp-fill" id="stageInfoMpFill"></div>
+                      <span class="stage-info-orb-text" id="stageInfoMpText"></span>
+                    </div>
+                  </div>
+                  <div class="stage-info-bar-left-art"></div>
+                </div>
+                <div class="stage-info-bar-mid"></div>
+                <div class="stage-info-bar-right">
+                  <div class="stage-info-bag-track">
+                    <div class="stage-info-bag-fill" id="stageInfoBagFill"></div>
+                  </div>
+                  <div class="stage-info-gold-track"></div>
+                  <div class="stage-info-bar-right-art"></div>
+                  <span class="stage-info-bag-text" id="stageInfoBagText"></span>
+                  <span class="stage-info-gold-text" id="stageInfoGoldText"></span>
+                  <button
+                    type="button"
+                    class="stage-info-character-button"
+                    data-toggle-scene="character"
+                    aria-label="Character"
+                    title="Character"
+                  ></button>
+                  <button
+                    type="button"
+                    class="stage-info-inventory-button"
+                    data-toggle-scene="inventory"
+                    aria-label="Inventory"
+                    title="Inventory"
+                  ></button>
+                </div>
+              </div>
+              <div class="stage-xp-bar" id="stageXpBar" hidden aria-label="Experience progress"></div>
             </div>
           </div>
           <div class="game-activity-panel" id="battlePanel"></div>
@@ -3416,6 +3504,14 @@ const els = {
   actionGroups: document.querySelector("#actionGroups"),
   stage: document.querySelector("#stage"),
   playerResourceHud: document.querySelector("#playerResourceHud"),
+  stageXpBar: document.querySelector("#stageXpBar"),
+  stageInfoBagFill: document.querySelector("#stageInfoBagFill"),
+  stageInfoBagText: document.querySelector("#stageInfoBagText"),
+  stageInfoGoldText: document.querySelector("#stageInfoGoldText"),
+  stageInfoHpFill: document.querySelector("#stageInfoHpFill"),
+  stageInfoHpText: document.querySelector("#stageInfoHpText"),
+  stageInfoMpFill: document.querySelector("#stageInfoMpFill"),
+  stageInfoMpText: document.querySelector("#stageInfoMpText"),
   hotbar: document.querySelector("#hotbar"),
   combatSkillBar: document.querySelector("#combatSkillBar"),
   partySwitchBar: document.querySelector("#partySwitchBar"),
@@ -3550,6 +3646,7 @@ async function init() {
   renderZoneEditor();
   renderActionControls();
   bindControls();
+  bindHotbarDrag();
   reconcileSceneWindowPositions();
   syncFullscreenToggle();
   bindBossDamageReportControls();
@@ -13800,7 +13897,7 @@ function isPointerHeldWithin(element) {
 }
 
 function shouldDeferSceneOverlayRender(liveSignature) {
-  if (sceneWindowDragState || inventoryDragState) return true;
+  if (sceneWindowDragState || hotbarDragState || inventoryDragState) return true;
   // A pointer pressed anywhere in the overlay must never have its target node
   // rebuilt out from under it, or the pending click is lost.
   if (isPointerHeldWithin(els.sceneOverlay)) return true;
@@ -17415,6 +17512,9 @@ function bindSceneButtons(rootEl) {
   rootEl.querySelectorAll("[data-open-scene]").forEach((button) => {
     button.addEventListener("click", () => openScene(button.dataset.openScene));
   });
+  rootEl.querySelectorAll("[data-toggle-scene]").forEach((button) => {
+    button.addEventListener("click", () => toggleOpenScene(button.dataset.toggleScene));
+  });
   rootEl.querySelectorAll("[data-teleport-region]").forEach((button) => {
     button.addEventListener("click", () => {
       const region = teleportRegionById(button.dataset.teleportRegion);
@@ -17664,7 +17764,33 @@ function removeSceneWindowFromStack(scene) {
 }
 
 function syncSceneWindowStackFromState() {
-  sceneWindowStack = currentOverlayScenes();
+  const open = currentOverlayScenes();
+  const openSet = new Set(open);
+  sceneWindowStack = sceneWindowStack.filter((scene) => openSet.has(scene));
+  for (const scene of open) {
+    if (!sceneWindowStack.includes(scene)) sceneWindowStack.push(scene);
+  }
+}
+
+function orderedOverlayScenes() {
+  syncSceneWindowStackFromState();
+  return sceneWindowStack.slice();
+}
+
+function applySceneWindowStackZIndexes(rootEl = els.sceneOverlay) {
+  if (!rootEl) return;
+  const base = 21;
+  for (const [index, scene] of sceneWindowStack.entries()) {
+    const element = rootEl.querySelector(`[data-scene-window="${scene}"]`);
+    if (!element) continue;
+    element.style.zIndex = String(base + index);
+  }
+}
+
+function bringSceneWindowToFront(scene) {
+  if (!scene || !isSceneWindowOpen(scene)) return;
+  pushSceneWindow(scene);
+  applySceneWindowStackZIndexes();
 }
 
 function closeMostRecentSceneWindow() {
@@ -17849,7 +17975,7 @@ function renderSceneOverlay(options = {}) {
     clearSpiritBoxDepositMode();
   }
   const openScenes = ["characterSelect", "character", "inventory", "codex", "achievements", "upgrades", "gettingStarted", "changelog", "options", "leaderboard", "cashShop", "teleportRing", "timeLogging", "spiritBox"].filter((scene) => state.openScenes[scene]);
-  const overlayScenes = currentOverlayScenes();
+  const overlayScenes = orderedOverlayScenes();
   const destroyConfirmHtml = inventoryDestroyConfirmHtml();
   const rebirthConfirmHtmlContent = rebirthConfirmHtml();
   if (!overlayScenes.length && !destroyConfirmHtml && !rebirthConfirmHtmlContent) {
@@ -17886,7 +18012,9 @@ function renderSceneOverlay(options = {}) {
   `;
   bindSceneButtons(els.sceneOverlay);
   bindDraggableSceneWindows(els.sceneOverlay);
+  bindSceneWindowFocus(els.sceneOverlay);
   applySceneWindowPositions(els.sceneOverlay);
+  applySceneWindowStackZIndexes(els.sceneOverlay);
   bindSceneScrollPreservation(els.sceneOverlay);
   restoreSceneScrollPositions(scrollPositions);
   restoreSceneOverlayFocus(focusSnapshot);
@@ -17947,7 +18075,6 @@ function applySceneWindowPosition(element, scene) {
   element.style.left = `${pos.x}px`;
   element.style.top = `${pos.y}px`;
   element.style.margin = "0";
-  element.style.zIndex = "21";
   element.dataset.sceneWindowPositioned = "1";
   return true;
 }
@@ -18014,7 +18141,7 @@ function beginSceneWindowDrag(event, scene, windowEl, handleEl) {
   };
   windowEl.classList.add("scene-window-dragging");
   document.body.classList.add("scene-window-drag-active");
-  windowEl.style.zIndex = "22";
+  bringSceneWindowToFront(scene);
   handleEl.setPointerCapture(event.pointerId);
   handleEl.addEventListener("pointermove", handleSceneWindowDragMove);
   handleEl.addEventListener("pointerup", handleSceneWindowDragEnd);
@@ -18056,6 +18183,18 @@ function bindDraggableSceneWindows(rootEl) {
     handle.addEventListener("pointerdown", (event) => {
       if (event.button !== 0 || inventoryDragState) return;
       beginSceneWindowDrag(event, scene, windowEl, handle);
+    });
+  }
+}
+
+function bindSceneWindowFocus(rootEl) {
+  if (!rootEl) return;
+  for (const windowEl of rootEl.querySelectorAll("[data-scene-window]")) {
+    const scene = windowEl.dataset.sceneWindow;
+    if (!scene) continue;
+    windowEl.addEventListener("pointerdown", (event) => {
+      if (event.button !== 0) return;
+      bringSceneWindowToFront(scene);
     });
   }
 }
@@ -21159,8 +21298,8 @@ function inventorySceneHtml() {
       ${inventoryPageTabsHtml()}
       ${inventoryPageUnlockConfirmHtml()}
       <span class="crystal-inventory-gold">${state.inventory.gold}</span>
+      ${inventoryBagUsageHtml("crystal-inventory-bag-usage")}
       <button type="button" class="crystal-inventory-sort" data-sort-inventory title="Sort inventory">Sort</button>
-      <span class="crystal-inventory-weight">${inventoryUsedSlots()}/${state.inventory.maxSlots}</span>
       ${Array.from({ length: visibleSlots }, (_, index) => crystalInventorySlotHtml(pageStart + index, index)).join("")}
     </section>
   `;
@@ -26268,6 +26407,11 @@ function bindControls() {
     const sceneButton = event.target.closest("[data-open-scene]");
     if (sceneButton && root.contains(sceneButton)) {
       openScene(sceneButton.dataset.openScene);
+      return;
+    }
+    const toggleSceneButton = event.target.closest("[data-toggle-scene]");
+    if (toggleSceneButton && root.contains(toggleSceneButton)) {
+      toggleOpenScene(toggleSceneButton.dataset.toggleScene);
       return;
     }
     const selectPlayerClassButton = event.target.closest("[data-select-player-class]");
@@ -41793,7 +41937,11 @@ function renderHotbar() {
   });
   if (signature === hotbarSignature) return;
   hotbarSignature = signature;
-  els.hotbar.innerHTML = Array.from({ length: HOTBAR_SLOT_COUNT }, (_, slot) => hotbarSlotHtml(slot)).join("");
+  els.hotbar.innerHTML = `
+    <div class="crystal-hotbar-drag-handle" aria-hidden="true"></div>
+    ${Array.from({ length: HOTBAR_SLOT_COUNT }, (_, slot) => hotbarSlotHtml(slot)).join("")}
+  `;
+  applyHotbarWindowPosition();
 }
 
 function hotbarSlotHtml(slot) {
@@ -41987,6 +42135,9 @@ const COMBAT_HUD_HOTBAR_HEIGHT = 38;
 const COMBAT_HUD_SKILL_BAR_HEIGHT = 81;
 const COMBAT_HUD_PLAYER_GAP = 38;
 const COMBAT_HUD_STACK_GAP = 6;
+/** Keep the hotbar clear of the stage-canvas bottom edge (and info-bar chrome). */
+const COMBAT_HUD_CANVAS_BOTTOM_GAP = 20;
+const STAGE_INFO_BAR_HEIGHT = 150;
 
 function combatHudLayoutMetrics(options = {}) {
   const skillBarVisible = options.skillBarVisible ?? (
@@ -41995,12 +42146,14 @@ function combatHudLayoutMetrics(options = {}) {
     && Boolean(els.combatSkillBar.innerHTML.trim())
   );
   const feetPx = Math.round(combatAnchor("player").y * state.scale);
-  const hotbarTop = feetPx + COMBAT_HUD_PLAYER_GAP;
+  const canvasHeight = state.stageHeight * state.scale;
+  const preferredHotbarTop = feetPx + COMBAT_HUD_PLAYER_GAP;
+  const maxHotbarTop = Math.max(0, canvasHeight - COMBAT_HUD_HOTBAR_HEIGHT - COMBAT_HUD_CANVAS_BOTTOM_GAP);
+  const hotbarTop = Math.min(preferredHotbarTop, maxHotbarTop);
   const skillTop = hotbarTop + COMBAT_HUD_HOTBAR_HEIGHT + COMBAT_HUD_STACK_GAP;
   const hudBottom = skillBarVisible
     ? skillTop + COMBAT_HUD_SKILL_BAR_HEIGHT + 4
     : hotbarTop + COMBAT_HUD_HOTBAR_HEIGHT + 4;
-  const canvasHeight = state.stageHeight * state.scale;
   return {
     feetPx,
     hotbarTop,
@@ -42025,8 +42178,110 @@ function applyCombatHudLayout(options = {}) {
   const metrics = combatHudLayoutMetrics(options);
   els.stage.style.width = `${state.stageWidth * state.scale}px`;
   els.stage.style.height = `${metrics.displayHeight}px`;
+  els.stage.style.setProperty("--stage-canvas-height", `${metrics.canvasHeight}px`);
+  els.stage.style.setProperty("--stage-info-bar-height", `${STAGE_INFO_BAR_HEIGHT}px`);
   els.stage.style.setProperty("--combat-hud-hotbar-top", `${metrics.hotbarTop}px`);
   els.stage.style.setProperty("--combat-hud-skill-top", `${metrics.skillTop}px`);
+  applyHotbarWindowPosition(metrics);
+}
+
+function clampHotbarWindowPosition(x, y) {
+  if (!els.stage || !els.hotbar) return { x: Math.round(x), y: Math.round(y) };
+  const barW = els.hotbar.offsetWidth || 240;
+  const barH = els.hotbar.offsetHeight || COMBAT_HUD_HOTBAR_HEIGHT;
+  const maxX = Math.max(0, els.stage.clientWidth - barW);
+  const maxY = Math.max(0, els.stage.clientHeight - barH);
+  return {
+    x: Math.max(0, Math.min(Math.round(x), maxX)),
+    y: Math.max(0, Math.min(Math.round(y), maxY)),
+  };
+}
+
+function applyHotbarWindowPosition(metrics = null) {
+  if (!els.hotbar) return;
+  if (!hotbarWindowPosition) {
+    els.hotbar.style.left = "";
+    els.hotbar.style.top = "";
+    els.hotbar.style.transform = "";
+    return;
+  }
+  const clamped = clampHotbarWindowPosition(hotbarWindowPosition.x, hotbarWindowPosition.y);
+  hotbarWindowPosition = clamped;
+  els.hotbar.style.left = `${clamped.x}px`;
+  els.hotbar.style.top = `${clamped.y}px`;
+  els.hotbar.style.transform = "none";
+  const skillTop = clamped.y + COMBAT_HUD_HOTBAR_HEIGHT + COMBAT_HUD_STACK_GAP;
+  els.stage?.style.setProperty("--combat-hud-skill-top", `${skillTop}px`);
+  if (!metrics) return;
+  const hudBottom = metrics.skillBarVisible
+    ? skillTop + COMBAT_HUD_SKILL_BAR_HEIGHT + 4
+    : clamped.y + COMBAT_HUD_HOTBAR_HEIGHT + 4;
+  const displayHeight = Math.max(metrics.canvasHeight, hudBottom);
+  if (displayHeight > els.stage.clientHeight) {
+    els.stage.style.height = `${displayHeight}px`;
+  }
+}
+
+function beginHotbarDrag(event, handleEl) {
+  if (event.button !== 0 || inventoryDragState || sceneWindowDragState) return;
+  event.preventDefault();
+  if (!els.hotbar || !els.stage) return;
+  const stageRect = els.stage.getBoundingClientRect();
+  const barRect = els.hotbar.getBoundingClientRect();
+  const startX = hotbarWindowPosition?.x ?? (barRect.left - stageRect.left);
+  const startY = hotbarWindowPosition?.y ?? (barRect.top - stageRect.top);
+  hotbarWindowPosition = { x: Math.round(startX), y: Math.round(startY) };
+  applyHotbarWindowPosition();
+  hotbarDragState = {
+    handleEl,
+    pointerId: event.pointerId,
+    offsetX: event.clientX - stageRect.left - hotbarWindowPosition.x,
+    offsetY: event.clientY - stageRect.top - hotbarWindowPosition.y,
+  };
+  els.hotbar.classList.add("crystal-hotbar-dragging");
+  document.body.classList.add("crystal-hotbar-drag-active");
+  handleEl.setPointerCapture(event.pointerId);
+  handleEl.addEventListener("pointermove", handleHotbarDragMove);
+  handleEl.addEventListener("pointerup", handleHotbarDragEnd);
+  handleEl.addEventListener("pointercancel", handleHotbarDragEnd);
+}
+
+function handleHotbarDragMove(event) {
+  if (!hotbarDragState || event.pointerId !== hotbarDragState.pointerId || !els.stage) return;
+  const stageRect = els.stage.getBoundingClientRect();
+  const next = clampHotbarWindowPosition(
+    event.clientX - stageRect.left - hotbarDragState.offsetX,
+    event.clientY - stageRect.top - hotbarDragState.offsetY,
+  );
+  hotbarWindowPosition = next;
+  applyHotbarWindowPosition();
+}
+
+function handleHotbarDragEnd(event) {
+  if (!hotbarDragState || event.pointerId !== hotbarDragState.pointerId) return;
+  const { handleEl, pointerId } = hotbarDragState;
+  handleEl.removeEventListener("pointermove", handleHotbarDragMove);
+  handleEl.removeEventListener("pointerup", handleHotbarDragEnd);
+  handleEl.removeEventListener("pointercancel", handleHotbarDragEnd);
+  els.hotbar?.classList.remove("crystal-hotbar-dragging");
+  document.body.classList.remove("crystal-hotbar-drag-active");
+  try {
+    handleEl.releasePointerCapture(pointerId);
+  } catch {
+    // Ignore stale capture errors after interrupted drags.
+  }
+  hotbarDragState = null;
+}
+
+function bindHotbarDrag() {
+  if (!els.hotbar || els.hotbar.dataset.hotbarDragBound === "1") return;
+  els.hotbar.dataset.hotbarDragBound = "1";
+  els.hotbar.addEventListener("pointerdown", (event) => {
+    if (event.button !== 0 || inventoryDragState || sceneWindowDragState) return;
+    const handle = event.target.closest(".crystal-hotbar-drag-handle");
+    if (!handle || !els.hotbar.contains(handle)) return;
+    beginHotbarDrag(event, handle);
+  });
 }
 
 function updateStageSize() {
@@ -42764,6 +43019,10 @@ function render() {
 
   renderCanvasStage(displayFrame, frameCount);
   renderPlayerResourceHud();
+  renderStageXpBar();
+  renderStageInfoBagFill();
+  renderStageInfoGold();
+  renderStageInfoOrb();
   renderHotbar();
 
   if (!IS_GAME_UI && els.readout && els.frameMeta) {
@@ -42917,6 +43176,119 @@ function potionQuickButtonHtml(kind, label, count) {
 
 function resourcePercentage(value, max) {
   return max > 0 ? Math.max(0, Math.min(100, (value / max) * 100)) : 0;
+}
+
+function stageXpProgressPercent() {
+  const needed = xpForNextLevel(state.game.progress.level);
+  if (!Number.isFinite(needed) || needed <= 0) return 100;
+  return resourcePercentage(state.game.progress.experience, needed);
+}
+
+function renderStageXpBar() {
+  if (!els.stageXpBar) return;
+  const level = state.game.progress.level;
+  const experience = state.game.progress.experience;
+  const needed = xpForNextLevel(level);
+  const pct = stageXpProgressPercent();
+  const signature = JSON.stringify({ level, experience, needed, pct });
+  if (signature === stageXpBarSignature) return;
+  stageXpBarSignature = signature;
+
+  els.stageXpBar.hidden = false;
+  els.stageXpBar.innerHTML = `
+    <span class="stage-xp-bar-level">${escapeHtml(String(level))}</span>
+    <span class="stage-xp-bar-track" aria-hidden="true">
+      <span class="stage-xp-bar-fill" style="width:${pct}%"></span>
+    </span>
+  `;
+  els.stageXpBar.title = Number.isFinite(needed)
+    ? `Level ${level} · XP ${experience}/${needed}`
+    : `Level ${level} · XP Max`;
+}
+
+function renderStageInfoBagFill() {
+  if (!els.stageInfoBagFill) return;
+  const used = inventoryUsedSlots();
+  const maxSlots = Math.max(0, Math.trunc(Number(state.inventory?.maxSlots) || 0));
+  const pct = resourcePercentage(used, maxSlots);
+  const label = `${used}/${maxSlots}`;
+  const signature = `${label}:${pct}`;
+  if (signature === stageInfoBagFillSignature) return;
+  stageInfoBagFillSignature = signature;
+  els.stageInfoBagFill.style.width = `${pct}%`;
+  if (els.stageInfoBagText) els.stageInfoBagText.textContent = label;
+  const track = els.stageInfoBagFill.parentElement;
+  if (track) track.title = `Bag ${label}`;
+}
+
+function renderStageInfoGold() {
+  if (!els.stageInfoGoldText) return;
+  const gold = Math.max(0, Math.trunc(Number(state.inventory?.gold) || 0));
+  const label = String(gold);
+  if (label === stageInfoGoldSignature) return;
+  stageInfoGoldSignature = label;
+  els.stageInfoGoldText.textContent = label;
+  els.stageInfoGoldText.title = `Gold ${label}`;
+}
+
+function stageInfoPlayerVitals() {
+  const stats = characterTotalStats();
+  return {
+    hp: Math.max(0, Math.floor(Number(stats.hp) || 0)),
+    maxHp: Math.max(0, Math.floor(Number(stats.maxHp) || 0)),
+    mp: Math.max(0, Math.floor(Number(stats.mp) || 0)),
+    maxMp: Math.max(0, Math.floor(Number(stats.maxMp) || 0)),
+  };
+}
+
+function flashStageInfoOrbPanel(el) {
+  if (!el) return;
+  el.classList.remove("stage-info-orb-flash");
+  void el.offsetWidth;
+  el.classList.add("stage-info-orb-flash");
+}
+
+function renderStageInfoOrb() {
+  if (!els.stageInfoHpFill && !els.stageInfoMpFill) return;
+  const { hp, maxHp, mp, maxMp } = stageInfoPlayerVitals();
+  const hpPct = resourcePercentage(hp, maxHp);
+  const mpPct = resourcePercentage(mp, maxMp);
+  const hpLabel = `${hp}/${maxHp}`;
+  const mpLabel = `${mp}/${maxMp}`;
+  const signature = `${hpLabel}|${mpLabel}|${hpPct}|${mpPct}`;
+  if (signature === stageInfoOrbSignature) return;
+  const prevHp = stageInfoOrbLastHp;
+  const prevMp = stageInfoOrbLastMp;
+  stageInfoOrbSignature = signature;
+  stageInfoOrbLastHp = hp;
+  stageInfoOrbLastMp = mp;
+  if (els.stageInfoHpFill) els.stageInfoHpFill.style.height = `${hpPct}%`;
+  if (els.stageInfoMpFill) els.stageInfoMpFill.style.height = `${mpPct}%`;
+  if (els.stageInfoHpText) {
+    els.stageInfoHpText.textContent = hpLabel;
+    els.stageInfoHpText.title = `HP ${hpLabel}`;
+  }
+  if (els.stageInfoMpText) {
+    els.stageInfoMpText.textContent = mpLabel;
+    els.stageInfoMpText.title = `MP ${mpLabel}`;
+  }
+  if (prevHp !== null && prevHp !== hp) flashStageInfoOrbPanel(els.stageInfoHpFill);
+  if (prevMp !== null && prevMp !== mp) flashStageInfoOrbPanel(els.stageInfoMpFill);
+}
+
+function inventoryBagUsageHtml(className = "inventory-bag-usage") {
+  const used = inventoryUsedSlots();
+  const maxSlots = Math.max(0, Math.trunc(Number(state.inventory?.maxSlots) || 0));
+  const pct = resourcePercentage(used, maxSlots);
+  const label = `${used}/${maxSlots}`;
+  return `
+    <div class="${escapeHtml(className)}" title="Bag ${escapeHtml(label)}" aria-label="Bag ${escapeHtml(label)}">
+      <span class="inventory-bag-usage-track">
+        <span class="inventory-bag-usage-fill" style="width:${pct}%"></span>
+        <span class="inventory-bag-usage-text">${escapeHtml(label)}</span>
+      </span>
+    </div>
+  `;
 }
 
 function renderCanvasStage(displayFrame, frameCount) {
