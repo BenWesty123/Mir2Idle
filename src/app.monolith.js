@@ -34828,7 +34828,8 @@ function canUseWizardSpell(spell, learned, now, options = {}) {
 }
 
 function wizardFireWallRequiresMeleeRange() {
-  return !bossPartyActiveFight();
+  // Boss fights and the Testing Room keep FireWall as a ranged ground spell.
+  return !bossPartyActiveFight() && !isTestingRoomZone();
 }
 
 function wizardHoldsCombatPosition() {

@@ -8,6 +8,7 @@ In the Trainer Testing Room, the Trainer reports your DPS every second in the ac
 ### Changes
 - `testingRoomMeter` on battle state; `recordTestingRoomDamage` / `updateTestingRoomDpsMeter`
 - Damage hooked in `applyCombatDamageEvent` (works even when dummy HP does not drop)
+- Testing Room FireWall skips the solo melee gate (same as boss fights). Trainer stays stationary/non-attacking.
 - Meter resets on `startBattle` / `resetBattle`; clock starts on first damage
 
 ### Verify
