@@ -2859,6 +2859,8 @@ const state = {
     sceneWindowPositions: {
       character: null,
       inventory: null,
+      codex: null,
+      upgrades: null,
     },
   },
   demoLiveSiteBanner: {
@@ -3161,7 +3163,7 @@ let sceneSignature = "";
 let sceneOverlayLiveSignature = "";
 let accountCodexRevision = 0;
 let sceneWindowStack = [];
-const DRAGGABLE_SCENE_WINDOWS = new Set(["character", "inventory"]);
+const DRAGGABLE_SCENE_WINDOWS = new Set(["character", "inventory", "codex", "upgrades"]);
 let sceneWindowDragState = null;
 let sceneOverlayInteractionUntil = 0;
 const sceneScrollPositions = new Map();
@@ -3979,6 +3981,8 @@ function createSaveSnapshot() {
       sceneWindowPositions: {
         character: state.settings.sceneWindowPositions?.character ?? null,
         inventory: state.settings.sceneWindowPositions?.inventory ?? null,
+        codex: state.settings.sceneWindowPositions?.codex ?? null,
+        upgrades: state.settings.sceneWindowPositions?.upgrades ?? null,
       },
     },
   };
@@ -17895,7 +17899,7 @@ function sceneWindowPosition(scene) {
 function setSceneWindowPosition(scene, x, y) {
   if (!DRAGGABLE_SCENE_WINDOWS.has(scene)) return;
   if (!state.settings.sceneWindowPositions) {
-    state.settings.sceneWindowPositions = { character: null, inventory: null };
+    state.settings.sceneWindowPositions = { character: null, inventory: null, codex: null, upgrades: null };
   }
   state.settings.sceneWindowPositions[scene] = { x: Math.round(x), y: Math.round(y) };
 }
@@ -18632,7 +18636,7 @@ function codexItemRowHtml(item, selectedItem) {
       data-codex-item="${escapeHtml(item.id)}"
       ${discovered ? `data-tooltip-item="${escapeHtml(item.id)}"` : ""}
     >
-      <span class="codex-row-icon">${discovered ? itemIconHtml(item, 32) : "?"}</span>
+      <span class="codex-row-icon">${discovered ? itemIconHtml(item, 28) : "?"}</span>
       <span class="codex-row-main">
         <span class="codex-row-title">${escapeHtml(discovered ? item.name : "Undiscovered")}</span>
         <span class="codex-row-meta">${escapeHtml(slot)}${req && discovered ? ` | ${escapeHtml(req)}` : ""}</span>

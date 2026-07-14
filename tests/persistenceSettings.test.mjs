@@ -106,13 +106,19 @@ test("sanitizeSceneWindowPositions", () => {
   assert.deepEqual(sanitizeSceneWindowPositions({
     character: { x: 10, y: 20 },
     inventory: { x: "nope", y: 5 },
+    codex: { x: 80, y: 90 },
+    upgrades: { x: 64, y: 72 },
   }), {
     character: { x: 10, y: 20 },
     inventory: null,
+    codex: { x: 80, y: 90 },
+    upgrades: { x: 64, y: 72 },
   });
   assert.deepEqual(sanitizeSceneWindowPositions(undefined), {
     character: null,
     inventory: null,
+    codex: null,
+    upgrades: null,
   });
 });
 
@@ -121,10 +127,14 @@ test("sanitizeSettingsState: includes scene window positions", () => {
     sceneWindowPositions: {
       character: { x: 40, y: 50 },
       inventory: { x: 300, y: 120 },
+      codex: { x: 120, y: 80 },
+      upgrades: { x: 90, y: 60 },
     },
   });
   assert.deepEqual(result.sceneWindowPositions, {
     character: { x: 40, y: 50 },
     inventory: { x: 300, y: 120 },
+    codex: { x: 120, y: 80 },
+    upgrades: { x: 90, y: 60 },
   });
 });
