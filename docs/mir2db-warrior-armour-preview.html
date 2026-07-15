@@ -1,0 +1,294 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Mir2DB Warrior Armour — not in LOM Idle yet</title>
+<style>
+  :root {
+    --bg: #121820;
+    --panel: #1c2430;
+    --ink: #e8eef6;
+    --muted: #8a9aad;
+    --accent: #6eb5ff;
+    --line: #2e3a4a;
+    --card: #171e28;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    min-height: 100vh;
+    font-family: "Trebuchet MS", "Segoe UI", sans-serif;
+    color: var(--ink);
+    background:
+      radial-gradient(ellipse at 15% 0%, #243048 0%, transparent 50%),
+      radial-gradient(ellipse at 90% 100%, #1a2830 0%, transparent 45%),
+      var(--bg);
+  }
+  header {
+    padding: 28px 32px 8px;
+    max-width: 1100px;
+    margin: 0 auto;
+  }
+  header h1 {
+    margin: 0 0 6px;
+    font-size: 1.55rem;
+    font-weight: 700;
+    color: var(--accent);
+  }
+  header p { margin: 0; color: var(--muted); max-width: 64ch; line-height: 1.45; }
+  .layout {
+    display: grid;
+    grid-template-columns: 320px 1fr;
+    gap: 28px;
+    max-width: 1100px;
+    margin: 0 auto;
+    padding: 24px 32px 48px;
+  }
+  @media (max-width: 860px) { .layout { grid-template-columns: 1fr; } }
+  .stage-wrap {
+    background: var(--panel);
+    border: 1px solid var(--line);
+    border-radius: 8px;
+    padding: 20px;
+    position: sticky;
+    top: 16px;
+    align-self: start;
+  }
+  .stage-wrap h2 {
+    margin: 0 0 12px;
+    font-size: 0.95rem;
+    color: var(--muted);
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+  }
+  .stage {
+    position: relative;
+    width: 248px;
+    height: 284px;
+    margin: 0 auto 28px;
+    image-rendering: pixelated;
+    transform: scale(1.15);
+    transform-origin: top center;
+  }
+  .panel-bg {
+    position: absolute;
+    inset: 0;
+    background: url("../public/ui/character/character-panel.png") 0 0 / 248px 284px no-repeat;
+  }
+  .doll { position: absolute; inset: 0; pointer-events: none; }
+  .layer { position: absolute; image-rendering: pixelated; }
+  .fallback-armour {
+    position: absolute;
+    left: 92px;
+    top: 160px;
+    width: 72px;
+    height: 72px;
+    object-fit: contain;
+    image-rendering: pixelated;
+    filter: drop-shadow(0 0 4px rgba(0,0,0,0.8));
+  }
+  .selected-meta { margin-top: 8px; text-align: center; }
+  .selected-meta .name { font-size: 1.15rem; font-weight: 700; color: var(--accent); }
+  .selected-meta .stats { color: var(--muted); font-size: 0.92rem; margin-top: 4px; }
+  .selected-meta .note { color: #d09070; font-size: 0.8rem; margin-top: 6px; }
+  .cards {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+    gap: 14px;
+  }
+  .card {
+    background: var(--card);
+    border: 1px solid var(--line);
+    border-radius: 8px;
+    padding: 14px;
+    cursor: pointer;
+    text-align: left;
+    color: inherit;
+    font: inherit;
+  }
+  .card:hover, .card.active { border-color: var(--accent); }
+  .card.active { box-shadow: 0 0 0 1px var(--accent); }
+  .card-top { display: flex; gap: 12px; align-items: center; }
+  .card img.icon {
+    width: 48px; height: 48px;
+    image-rendering: pixelated;
+    background: #0c1018;
+    border: 1px solid var(--line);
+    border-radius: 4px;
+  }
+  .card .title { font-weight: 700; }
+  .card .sub { color: var(--muted); font-size: 0.8rem; margin-top: 2px; }
+  .card .statline {
+    margin-top: 10px;
+    font-size: 0.85rem;
+    color: #c8d4e4;
+    display: grid;
+    gap: 2px;
+  }
+  .badge {
+    display: inline-block;
+    margin-top: 8px;
+    font-size: 0.7rem;
+    padding: 2px 6px;
+    border-radius: 3px;
+    background: #243040;
+    color: var(--accent);
+  }
+  .owned {
+    max-width: 1100px;
+    margin: 0 auto 40px;
+    padding: 0 32px;
+  }
+  details {
+    background: var(--panel);
+    border: 1px solid var(--line);
+    border-radius: 8px;
+    padding: 12px 16px;
+  }
+  summary { cursor: pointer; color: var(--muted); }
+  .owned-list {
+    margin: 12px 0 0;
+    padding: 0;
+    list-style: none;
+    columns: 2;
+    gap: 24px;
+    font-size: 0.85rem;
+    color: var(--muted);
+  }
+  @media (max-width: 700px) { .owned-list { columns: 1; } }
+  .owned-list li { margin-bottom: 4px; }
+  footer {
+    max-width: 1100px;
+    margin: 0 auto;
+    padding: 0 32px 40px;
+    color: #5a6a7a;
+    font-size: 0.75rem;
+  }
+  a { color: var(--accent); }
+  .empty {
+    color: var(--muted);
+    padding: 24px;
+    border: 1px dashed var(--line);
+    border-radius: 8px;
+  }
+</style>
+</head>
+<body>
+<header>
+  <h1>Warrior armour from Mir2DB — missing from LOM Idle</h1>
+  <p>
+    From the Korean official Mir2 “Warrior armour” list
+    (<a href="https://www.mir2db.com/list/38" target="_blank" rel="noopener">mir2db.com/list/38</a>).
+    Matched mainly by Looks/frame id (same as our paper-doll frames).
+    2 unique piece(s) not already in items.json (gender twins collapsed).
+    Click a piece to dress the character.
+  </p>
+</header>
+<div class="layout">
+  <aside class="stage-wrap">
+    <h2>Character preview</h2>
+    <div class="stage">
+      <div class="panel-bg"></div>
+      <div class="doll" id="doll"></div>
+    </div>
+    <div class="selected-meta" id="meta"></div>
+  </aside>
+  <section id="cards-wrap">
+    <div class="cards" id="cards"></div>
+  </section>
+</div>
+<section class="owned">
+  <details open>
+    <summary>Already in the game (10 base types from list/38)</summary>
+    <ul class="owned-list">
+      <li><strong>Heaven Robe</strong> — our <em>Heaven Robe</em> (AC 6-15 / MAC 4-8, Lv 20, via name)</li><li><strong>Mir Armour</strong> — our <em>Mir Armour (M)1</em> (AC 0-0 / MAC 0-0, Lv 20, via frame)</li><li><strong>Heavy Armour</strong> — our <em>Fine Iron Armour (F)</em> (AC 4-7 / MAC 2-3, Lv 22, via frame)</li><li><strong>Iron Armour</strong> — our <em>Fine Iron Armour (M)</em> (AC 5-15 / MAC 3-4, Lv 33, via frame)</li><li><strong>Black Dragon Armor</strong> — our <em>Black Dragon Armor (M)1</em> (AC 5-19 / MAC 0-6, Lv 35, via frame)</li><li><strong>Steel Armour</strong> — our <em>Steel Armour</em> (AC 6-20 / MAC 3-6, Lv 40, via frame)</li><li><strong>Oma King Robe</strong> — our <em>Oma King Robe</em> (AC 6-20 / MAC 2-10, Lv 48, via frame)</li><li><strong>Black Tiger Armour</strong> — our <em>Black Tiger Armour (M)</em> (AC 8-23 / MAC 3-8, Lv 50, via frame)</li><li><strong>Tarragon Armour</strong> — our <em>Tarragon Armour (M)1</em> (AC 0-0 / MAC 0-0, Lv 50, via frame)</li><li><strong>Raiders Armour</strong> — our <em>Raiders Armour (M)1</em> (AC 0-0 / MAC 0-0, Lv 52, via frame)</li>
+    </ul>
+  </details>
+</section>
+<footer>
+  Black Dragon +1…+7 variants count as owned if base Black Dragon Armor exists.
+  Local preview only. Open:
+  <code>http://localhost:4177/docs/mir2db-warrior-armour-preview.html</code>
+</footer>
+<script>
+const DATA = {"armours":[{"id":1626,"cn":"兽魂甲胄(男)","cnBase":"兽魂甲胄","kr":"수혼갑주(남)","en":"Beast Soul Armour","lv":40,"ac":[6,20],"mac":[3,7],"effectiveAc":[6,20],"effectiveMac":[3,7],"img":1034,"iconUrl":"https://cdn.mir2db.com/images/item/1034.png","paperDoll":{"src":"../public/ui/character/stateitem-1034.png","x":84,"y":145,"w":104,"h":181},"notes":[],"upgrade":""},{"id":3004,"cn":"玄骨黑衣(男)","cnBase":"玄骨黑衣","kr":"현골흑의(남)","en":"Mysterious Bone Robe","lv":45,"ac":[8,23],"mac":[3,8],"effectiveAc":[8,23],"effectiveMac":[3,8],"img":3334,"iconUrl":"https://cdn.mir2db.com/images/item/3334.png","paperDoll":{"src":"../public/ui/character/stateitem-3334.png","x":51,"y":138,"w":160,"h":190},"notes":[],"upgrade":""}],"ownedBrief":[{"cn":"天衣无缝","en":"Heaven Robe","our":"Heaven Robe","ac":[6,15],"mac":[4,8],"lv":20,"how":"name"},{"cn":"天龙不死衣","en":"Mir Armour","our":"Mir Armour (M)1","ac":[0,0],"mac":[0,0],"lv":20,"how":"frame"},{"cn":"重盔甲","en":"Heavy Armour","our":"Fine Iron Armour (F)","ac":[4,7],"mac":[2,3],"lv":22,"how":"frame"},{"cn":"战神盔甲","en":"Iron Armour","our":"Fine Iron Armour (M)","ac":[5,15],"mac":[3,4],"lv":33,"how":"frame"},{"cn":"黑龙战甲","en":"Black Dragon Armor","our":"Black Dragon Armor (M)1","ac":[5,19],"mac":[0,6],"lv":35,"how":"frame"},{"cn":"鬼面甲胄","en":"Steel Armour","our":"Steel Armour","ac":[6,20],"mac":[3,6],"lv":40,"how":"frame"},{"cn":"破凰天魔衣","en":"Oma King Robe","our":"Oma King Robe","ac":[6,20],"mac":[2,10],"lv":48,"how":"frame"},{"cn":"黑虎甲胄","en":"Black Tiger Armour","our":"Black Tiger Armour (M)","ac":[8,23],"mac":[3,8],"lv":50,"how":"frame"},{"cn":"血龙甲胄","en":"Tarragon Armour","our":"Tarragon Armour (M)1","ac":[0,0],"mac":[0,0],"lv":50,"how":"frame"},{"cn":"监视者铠甲","en":"Raiders Armour","our":"Raiders Armour (M)1","ac":[0,0],"mac":[0,0],"lv":52,"how":"frame"}],"weapon":{"src":"../public/ui/character/stateitem-48.png","x":59,"y":146,"w":52,"h":103},"hair":{"src":"../public/ui/character/hair-441.png","x":131,"y":173,"w":16,"h":14}};
+const hair = DATA.hair;
+const weapon = DATA.weapon;
+const armours = DATA.armours;
+
+function esc(s) {
+  return String(s ?? "").replace(/[&<>"']/g, (c) =>
+    ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[c],
+  );
+}
+
+function layer(frame, title) {
+  if (!frame) return "";
+  return `<img class="layer" src="${esc(frame.src)}" alt="" title="${esc(title || "")}"
+    style="left:${frame.x}px;top:${frame.y}px;width:${frame.w}px;height:${frame.h}px;" />`;
+}
+
+function renderDoll(a) {
+  const doll = document.getElementById("doll");
+  if (!a) {
+    doll.innerHTML = layer(hair, "Hair") + (weapon ? layer(weapon, "Dragon Sword") : "");
+    document.getElementById("meta").innerHTML = "<div class=\"stats\">Pick an armour — or none missing.</div>";
+    return;
+  }
+  let html = "";
+  if (a.paperDoll) html += layer(a.paperDoll, a.en);
+  else html += `<img class="fallback-armour" src="${esc(a.iconUrl)}" alt="${esc(a.en)}" />`;
+  if (weapon) html += layer(weapon, "Dragon Sword");
+  html += layer(hair, "Hair");
+  doll.innerHTML = html;
+  const notes = (a.notes || []).map((n) => `<div class="note">${esc(n)}</div>`).join("");
+  document.getElementById("meta").innerHTML = `
+    <div class="name">${esc(a.en)}</div>
+    <div class="stats">AC ${a.effectiveAc.join("-")} / MAC ${a.effectiveMac.join("-")} · Need Lv ${a.lv}</div>
+    <div class="stats">${esc(a.cn)} · Mir2DB #${a.id} · Looks ${a.img}</div>
+    ${notes}
+    ${!a.paperDoll ? '<div class="note">No worn sprite in our stateitems for Looks ' + a.img + "</div>" : ""}
+  `;
+}
+
+function renderCards() {
+  const root = document.getElementById("cards");
+  if (!root || !armours.length) {
+    renderDoll(null);
+    return;
+  }
+  root.innerHTML = armours
+    .map(
+      (a, i) => `
+    <button type="button" class="card${i === 0 ? " active" : ""}" data-i="${i}">
+      <div class="card-top">
+        <img class="icon" src="${esc(a.iconUrl)}" alt="" />
+        <div>
+          <div class="title">${esc(a.en)}</div>
+          <div class="sub">${esc(a.cn)}</div>
+        </div>
+      </div>
+      <div class="statline">
+        <span>AC ${a.effectiveAc.join("-")} / MAC ${a.effectiveMac.join("-")}</span>
+        <span>Need level ${a.lv}</span>
+      </div>
+      <span class="badge">${a.paperDoll ? "Has paper doll" : "Icon only"}</span>
+    </button>
+  `,
+    )
+    .join("");
+  root.querySelectorAll(".card").forEach((btn) => {
+    btn.addEventListener("click", () => {
+      root.querySelectorAll(".card").forEach((c) => c.classList.remove("active"));
+      btn.classList.add("active");
+      renderDoll(armours[+btn.dataset.i]);
+    });
+  });
+  renderDoll(armours[0]);
+}
+
+renderCards();
+</script>
+</body>
+</html>

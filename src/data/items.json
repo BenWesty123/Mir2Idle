@@ -146,12 +146,16 @@
         "zones": [
           "zone-bdd-2",
           "zone-bdd-4",
+          "zone-fox-cave-1",
+          "zone-fox-cave-2",
           "zone-hell-gd-3"
         ],
         "chances": {
           "zone-bdd-2": 0.025,
           "zone-bdd-4": 0.025,
-          "zone-hell-gd-3": 0.1
+          "zone-hell-gd-3": 0.1,
+          "zone-fox-cave-1": 0.00244,
+          "zone-fox-cave-2": 0.00325
         },
         "chance": 0.1
       }
@@ -301,6 +305,63 @@
       "crystalType": "Gem"
     },
     {
+      "id": "adamantine-belt",
+      "name": "Adamantine Belt",
+      "type": "belt",
+      "slot": "belt",
+      "class": "any",
+      "source": {
+        "crystalIndex": 617,
+        "name": "AdamantineBelt"
+      },
+      "icon": {
+        "library": "Items",
+        "frame": 555,
+        "src": "./public/item-icons/items/frame_000555.png"
+      },
+      "requirements": {
+        "type": "level",
+        "amount": 39,
+        "classMask": 31,
+        "genderMask": 3
+      },
+      "stackable": false,
+      "maxStack": 1,
+      "stats": {
+        "ac": [
+          1,
+          3
+        ],
+        "amc": [
+          1,
+          3
+        ],
+        "dc": [
+          0,
+          0
+        ],
+        "mc": [
+          0,
+          0
+        ],
+        "sc": [
+          0,
+          0
+        ],
+        "hp": 0,
+        "mp": 0,
+        "accuracy": 0,
+        "agility": 0,
+        "luck": 0,
+        "attackSpeed": 0
+      },
+      "shop": {
+        "buy": 34000,
+        "sell": 6800
+      },
+      "crystalType": "Belt"
+    },
+    {
       "id": "adamantine-necklace",
       "name": "Adamantine Necklace",
       "type": "necklace",
@@ -360,12 +421,16 @@
         "zones": [
           "zone-bdd-2",
           "zone-bdd-4",
+          "zone-fox-cave-1",
+          "zone-fox-cave-2",
           "zone-hell-gd-3"
         ],
         "chances": {
           "zone-bdd-2": 0.025,
           "zone-bdd-4": 0.025,
-          "zone-hell-gd-3": 0.05
+          "zone-hell-gd-3": 0.05,
+          "zone-fox-cave-1": 0.00122,
+          "zone-fox-cave-2": 0.00163
         },
         "chance": 0.05
       }
@@ -888,12 +953,16 @@
         "zones": [
           "zone-bdd-2",
           "zone-bdd-4",
+          "zone-fox-cave-1",
+          "zone-fox-cave-2",
           "zone-hell-gd-3"
         ],
         "chances": {
           "zone-bdd-2": 0.025,
           "zone-bdd-4": 0.025,
-          "zone-hell-gd-3": 0.05
+          "zone-hell-gd-3": 0.05,
+          "zone-fox-cave-1": 0.00244,
+          "zone-fox-cave-2": 0.00325
         },
         "chance": 0.05
       }
@@ -3356,10 +3425,14 @@
       "crystalType": "Bracelet",
       "drop": {
         "zones": [
+          "zone-fox-cave-1",
+          "zone-fox-cave-2",
           "zone-hell-gd-3"
         ],
         "chances": {
-          "zone-hell-gd-3": 0.1
+          "zone-hell-gd-3": 0.1,
+          "zone-fox-cave-1": 0.00244,
+          "zone-fox-cave-2": 0.00325
         },
         "chance": 0.1
       }
@@ -6653,12 +6726,16 @@
         "zones": [
           "zone-bdd-2",
           "zone-bdd-4",
+          "zone-fox-cave-1",
+          "zone-fox-cave-2",
           "zone-hell-gd-3"
         ],
         "chances": {
           "zone-bdd-2": 0.025,
           "zone-bdd-4": 0.025,
-          "zone-hell-gd-3": 0.05
+          "zone-hell-gd-3": 0.05,
+          "zone-fox-cave-1": 0.00122,
+          "zone-fox-cave-2": 0.00163
         },
         "chance": 0.05
       }
@@ -9185,6 +9262,8 @@
       },
       "drop": {
         "zones": [
+          "zone-fox-cave-1",
+          "zone-fox-cave-2",
           "zone-viper-cave-2",
           "zone-zuma-temple-1",
           "zone-zuma-temple-2"
@@ -9193,7 +9272,9 @@
         "chances": {
           "zone-zuma-temple-1": 0.005,
           "zone-zuma-temple-2": 0.005,
-          "zone-viper-cave-2": 0.00526
+          "zone-viper-cave-2": 0.00526,
+          "zone-fox-cave-1": 0.00122,
+          "zone-fox-cave-2": 0.00163
         }
       },
       "crystalType": "Stone"
@@ -13937,12 +14018,16 @@
         "zones": [
           "zone-bdd-2",
           "zone-bdd-4",
+          "zone-fox-cave-1",
+          "zone-fox-cave-2",
           "zone-hell-gd-3"
         ],
         "chances": {
           "zone-bdd-2": 0.01,
           "zone-bdd-4": 0.01,
-          "zone-hell-gd-3": 0.05
+          "zone-hell-gd-3": 0.05,
+          "zone-fox-cave-1": 0.00122,
+          "zone-fox-cave-2": 0.00163
         },
         "chance": 0.05
       }
@@ -14270,12 +14355,16 @@
         "zones": [
           "zone-bdd-2",
           "zone-bdd-4",
+          "zone-fox-cave-1",
+          "zone-fox-cave-2",
           "zone-hell-gd-3"
         ],
         "chances": {
           "zone-bdd-2": 0.025,
           "zone-bdd-4": 0.025,
-          "zone-hell-gd-3": 0.1
+          "zone-hell-gd-3": 0.1,
+          "zone-fox-cave-1": 0.00244,
+          "zone-fox-cave-2": 0.00325
         },
         "chance": 0.1
       }
@@ -15190,12 +15279,16 @@
         "zones": [
           "zone-bdd-2",
           "zone-bdd-4",
+          "zone-fox-cave-1",
+          "zone-fox-cave-2",
           "zone-hell-gd-3"
         ],
         "chances": {
           "zone-bdd-2": 0.01,
           "zone-bdd-4": 0.01,
-          "zone-hell-gd-3": 0.1
+          "zone-hell-gd-3": 0.1,
+          "zone-fox-cave-1": 0.00244,
+          "zone-fox-cave-2": 0.00325
         },
         "chance": 0.1
       }
@@ -15260,12 +15353,16 @@
         "zones": [
           "zone-bdd-2",
           "zone-bdd-4",
+          "zone-fox-cave-1",
+          "zone-fox-cave-2",
           "zone-hell-gd-3"
         ],
         "chances": {
           "zone-bdd-2": 0.025,
           "zone-bdd-4": 0.025,
-          "zone-hell-gd-3": 0.05
+          "zone-hell-gd-3": 0.05,
+          "zone-fox-cave-1": 0.00122,
+          "zone-fox-cave-2": 0.00163
         },
         "chance": 0.05
       }
@@ -15343,6 +15440,72 @@
         }
       },
       "crystalType": "Ring"
+    },
+    {
+      "id": "hog-tooth",
+      "name": "Hog Tooth",
+      "type": "material",
+      "slot": "material",
+      "class": "any",
+      "source": {
+        "crystalIndex": 1170,
+        "name": "BoarTooth"
+      },
+      "icon": {
+        "library": "Items",
+        "frame": 2770,
+        "src": "./public/item-icons/items/hog-tooth.png"
+      },
+      "requirements": {
+        "type": "none",
+        "amount": 0,
+        "classMask": 31,
+        "genderMask": 3
+      },
+      "stackable": true,
+      "maxStack": 64,
+      "stats": {
+        "ac": [
+          0,
+          0
+        ],
+        "amc": [
+          0,
+          0
+        ],
+        "dc": [
+          0,
+          0
+        ],
+        "mc": [
+          0,
+          0
+        ],
+        "sc": [
+          0,
+          0
+        ],
+        "hp": 0,
+        "mp": 0,
+        "accuracy": 0,
+        "agility": 0,
+        "luck": 0,
+        "attackSpeed": 0
+      },
+      "shop": {
+        "buy": 2500,
+        "sell": 10000
+      },
+      "drop": {
+        "zones": [
+          "zone-bdd-8"
+        ],
+        "chance": 0.1,
+        "chances": {
+          "zone-bdd-8": 0.1
+        }
+      },
+      "crystalType": "Nothing"
     },
     {
       "id": "holy-blood-spear",
@@ -15472,10 +15635,14 @@
       "crystalType": "Bracelet",
       "drop": {
         "zones": [
+          "zone-fox-cave-1",
+          "zone-fox-cave-2",
           "zone-hell-gd-3"
         ],
         "chances": {
-          "zone-hell-gd-3": 0.05
+          "zone-hell-gd-3": 0.05,
+          "zone-fox-cave-1": 0.00244,
+          "zone-fox-cave-2": 0.00325
         },
         "chance": 0.05
       }
@@ -16157,13 +16324,17 @@
       },
       "drop": {
         "zones": [
+          "zone-fox-cave-1",
+          "zone-fox-cave-2",
           "zone-prajna-temple-1",
           "zone-prajna-temple-2"
         ],
-        "chance": 0.0022,
+        "chance": 0.004,
         "chances": {
           "zone-prajna-temple-1": 0.0015,
-          "zone-prajna-temple-2": 0.0022
+          "zone-prajna-temple-2": 0.0022,
+          "zone-fox-cave-1": 0.00244,
+          "zone-fox-cave-2": 0.00325
         }
       },
       "set": 6,
@@ -19930,6 +20101,8 @@
       },
       "drop": {
         "zones": [
+          "zone-fox-cave-1",
+          "zone-fox-cave-2",
           "zone-viper-cave-2",
           "zone-zuma-temple-1",
           "zone-zuma-temple-2"
@@ -19938,7 +20111,9 @@
         "chances": {
           "zone-zuma-temple-1": 0.005,
           "zone-zuma-temple-2": 0.005,
-          "zone-viper-cave-2": 0.00526
+          "zone-viper-cave-2": 0.00526,
+          "zone-fox-cave-1": 0.00122,
+          "zone-fox-cave-2": 0.00163
         }
       },
       "crystalType": "Stone"
@@ -21572,12 +21747,16 @@
         "zones": [
           "zone-bdd-2",
           "zone-bdd-4",
+          "zone-fox-cave-1",
+          "zone-fox-cave-2",
           "zone-hell-gd-3"
         ],
         "chances": {
           "zone-bdd-2": 0.05,
           "zone-bdd-4": 0.05,
-          "zone-hell-gd-3": 0.05
+          "zone-hell-gd-3": 0.05,
+          "zone-fox-cave-1": 0.00244,
+          "zone-fox-cave-2": 0.00325
         },
         "chance": 0.05
       }
@@ -22324,10 +22503,14 @@
       "crystalType": "Ring",
       "drop": {
         "zones": [
+          "zone-fox-cave-1",
+          "zone-fox-cave-2",
           "zone-hell-gd-3"
         ],
         "chances": {
-          "zone-hell-gd-3": 0.05
+          "zone-hell-gd-3": 0.05,
+          "zone-fox-cave-1": 0.00244,
+          "zone-fox-cave-2": 0.00325
         },
         "chance": 0.05
       }
@@ -25014,6 +25197,63 @@
       "crystalType": "Ring"
     },
     {
+      "id": "red-scale-boots",
+      "name": "Red Scale Boots",
+      "type": "boots",
+      "slot": "boots",
+      "class": "any",
+      "source": {
+        "crystalIndex": 625,
+        "name": "RedScaleBoots"
+      },
+      "icon": {
+        "library": "Items",
+        "frame": 565,
+        "src": "./public/item-icons/items/frame_000565.png"
+      },
+      "requirements": {
+        "type": "level",
+        "amount": 40,
+        "classMask": 31,
+        "genderMask": 3
+      },
+      "stackable": false,
+      "maxStack": 1,
+      "stats": {
+        "ac": [
+          0,
+          0
+        ],
+        "amc": [
+          0,
+          0
+        ],
+        "dc": [
+          0,
+          0
+        ],
+        "mc": [
+          0,
+          0
+        ],
+        "sc": [
+          0,
+          0
+        ],
+        "hp": 0,
+        "mp": 0,
+        "accuracy": 6,
+        "agility": 6,
+        "luck": 0,
+        "attackSpeed": 0
+      },
+      "shop": {
+        "buy": 16000,
+        "sell": 3200
+      },
+      "crystalType": "Boots"
+    },
+    {
       "id": "requiem-necklace",
       "name": "Requiem Necklace",
       "type": "necklace",
@@ -25073,12 +25313,16 @@
         "zones": [
           "zone-bdd-2",
           "zone-bdd-4",
+          "zone-fox-cave-1",
+          "zone-fox-cave-2",
           "zone-hell-gd-3"
         ],
         "chances": {
           "zone-bdd-2": 0.025,
           "zone-bdd-4": 0.025,
-          "zone-hell-gd-3": 0.05
+          "zone-hell-gd-3": 0.05,
+          "zone-fox-cave-1": 0.00122,
+          "zone-fox-cave-2": 0.00163
         },
         "chance": 0.05
       }
@@ -25324,10 +25568,14 @@
       "crystalType": "Helmet",
       "drop": {
         "zones": [
+          "zone-fox-cave-1",
+          "zone-fox-cave-2",
           "zone-hell-gd-3"
         ],
         "chances": {
-          "zone-hell-gd-3": 0.05
+          "zone-hell-gd-3": 0.05,
+          "zone-fox-cave-1": 0.00122,
+          "zone-fox-cave-2": 0.00163
         },
         "chance": 0.05
       }
@@ -25868,6 +26116,8 @@
       },
       "drop": {
         "zones": [
+          "zone-fox-cave-1",
+          "zone-fox-cave-2",
           "zone-viper-cave-2",
           "zone-zuma-temple-1",
           "zone-zuma-temple-2"
@@ -25876,7 +26126,9 @@
         "chances": {
           "zone-zuma-temple-1": 0.005,
           "zone-zuma-temple-2": 0.005,
-          "zone-viper-cave-2": 0.00526
+          "zone-viper-cave-2": 0.00526,
+          "zone-fox-cave-1": 0.00122,
+          "zone-fox-cave-2": 0.00163
         }
       },
       "crystalType": "Stone"
@@ -26959,13 +27211,17 @@
       },
       "drop": {
         "zones": [
+          "zone-fox-cave-1",
+          "zone-fox-cave-2",
           "zone-prajna-temple-1",
           "zone-prajna-temple-2"
         ],
-        "chance": 0.0012,
+        "chance": 0.004,
         "chances": {
           "zone-prajna-temple-1": 0.0008,
-          "zone-prajna-temple-2": 0.0012
+          "zone-prajna-temple-2": 0.0012,
+          "zone-fox-cave-1": 0.00244,
+          "zone-fox-cave-2": 0.00325
         }
       },
       "set": 5,
@@ -27764,12 +28020,16 @@
         "zones": [
           "zone-bdd-2",
           "zone-bdd-4",
+          "zone-fox-cave-1",
+          "zone-fox-cave-2",
           "zone-hell-gd-3"
         ],
         "chances": {
           "zone-bdd-2": 0.05,
           "zone-bdd-4": 0.05,
-          "zone-hell-gd-3": 0.05
+          "zone-hell-gd-3": 0.05,
+          "zone-fox-cave-1": 0.00244,
+          "zone-fox-cave-2": 0.00325
         },
         "chance": 0.05
       }
@@ -28704,12 +28964,16 @@
         "zones": [
           "zone-bdd-2",
           "zone-bdd-4",
+          "zone-fox-cave-1",
+          "zone-fox-cave-2",
           "zone-hell-gd-3"
         ],
         "chances": {
           "zone-bdd-2": 0.025,
           "zone-bdd-4": 0.025,
-          "zone-hell-gd-3": 0.05
+          "zone-hell-gd-3": 0.05,
+          "zone-fox-cave-1": 0.00244,
+          "zone-fox-cave-2": 0.00325
         },
         "chance": 0.05
       }
@@ -29374,10 +29638,14 @@
       "crystalType": "Bracelet",
       "drop": {
         "zones": [
+          "zone-fox-cave-1",
+          "zone-fox-cave-2",
           "zone-hell-gd-3"
         ],
         "chances": {
-          "zone-hell-gd-3": 0.1
+          "zone-hell-gd-3": 0.1,
+          "zone-fox-cave-1": 0.00244,
+          "zone-fox-cave-2": 0.00325
         },
         "chance": 0.1
       }
@@ -29660,6 +29928,72 @@
         "index": 28
       },
       "crystalType": "Weapon"
+    },
+    {
+      "id": "stone-heart",
+      "name": "Stone Heart",
+      "type": "material",
+      "slot": "material",
+      "class": "any",
+      "source": {
+        "crystalIndex": 1080,
+        "name": "StoneHeart"
+      },
+      "icon": {
+        "library": "Items",
+        "frame": 448,
+        "src": "./public/item-icons/items/stone-heart.png"
+      },
+      "requirements": {
+        "type": "none",
+        "amount": 0,
+        "classMask": 31,
+        "genderMask": 3
+      },
+      "stackable": true,
+      "maxStack": 64,
+      "stats": {
+        "ac": [
+          0,
+          0
+        ],
+        "amc": [
+          0,
+          0
+        ],
+        "dc": [
+          0,
+          0
+        ],
+        "mc": [
+          0,
+          0
+        ],
+        "sc": [
+          0,
+          0
+        ],
+        "hp": 0,
+        "mp": 0,
+        "accuracy": 0,
+        "agility": 0,
+        "luck": 0,
+        "attackSpeed": 0
+      },
+      "shop": {
+        "buy": 2500,
+        "sell": 10000
+      },
+      "drop": {
+        "zones": [
+          "zone-bdd-11"
+        ],
+        "chance": 0.1,
+        "chances": {
+          "zone-bdd-11": 0.1
+        }
+      },
+      "crystalType": "Nothing"
     },
     {
       "id": "storm-drug-l",
@@ -30604,12 +30938,16 @@
         "zones": [
           "zone-bdd-2",
           "zone-bdd-4",
+          "zone-fox-cave-1",
+          "zone-fox-cave-2",
           "zone-hell-gd-3"
         ],
         "chances": {
           "zone-bdd-2": 0.025,
           "zone-bdd-4": 0.025,
-          "zone-hell-gd-3": 0.05
+          "zone-hell-gd-3": 0.05,
+          "zone-fox-cave-1": 0.00244,
+          "zone-fox-cave-2": 0.00325
         },
         "chance": 0.05
       }
@@ -30796,12 +31134,16 @@
         "zones": [
           "zone-bdd-2",
           "zone-bdd-4",
+          "zone-fox-cave-1",
+          "zone-fox-cave-2",
           "zone-hell-gd-3"
         ],
         "chances": {
           "zone-bdd-2": 0.01,
           "zone-bdd-4": 0.01,
-          "zone-hell-gd-3": 0.05
+          "zone-hell-gd-3": 0.05,
+          "zone-fox-cave-1": 0.00122,
+          "zone-fox-cave-2": 0.00163
         },
         "chance": 0.05
       }
@@ -31916,12 +32258,16 @@
         "zones": [
           "zone-bdd-2",
           "zone-bdd-4",
+          "zone-fox-cave-1",
+          "zone-fox-cave-2",
           "zone-hell-gd-3"
         ],
         "chances": {
           "zone-bdd-2": 0.025,
           "zone-bdd-4": 0.025,
-          "zone-hell-gd-3": 0.05
+          "zone-hell-gd-3": 0.05,
+          "zone-fox-cave-1": 0.00244,
+          "zone-fox-cave-2": 0.00325
         },
         "chance": 0.05
       }
@@ -32807,12 +33153,16 @@
         "zones": [
           "zone-bdd-2",
           "zone-bdd-4",
+          "zone-fox-cave-1",
+          "zone-fox-cave-2",
           "zone-hell-gd-3"
         ],
         "chances": {
           "zone-bdd-2": 0.01,
           "zone-bdd-4": 0.01,
-          "zone-hell-gd-3": 0.05
+          "zone-hell-gd-3": 0.05,
+          "zone-fox-cave-1": 0.00122,
+          "zone-fox-cave-2": 0.00163
         },
         "chance": 0.05
       }
@@ -33658,138 +34008,6 @@
         }
       },
       "crystalType": "CraftingMaterial"
-    },
-    {
-      "id": "hog-tooth",
-      "name": "Hog Tooth",
-      "type": "material",
-      "slot": "material",
-      "class": "any",
-      "source": {
-        "crystalIndex": 1170,
-        "name": "BoarTooth"
-      },
-      "icon": {
-        "library": "Items",
-        "frame": 2770,
-        "src": "./public/item-icons/items/hog-tooth.png"
-      },
-      "requirements": {
-        "type": "none",
-        "amount": 0,
-        "classMask": 31,
-        "genderMask": 3
-      },
-      "stackable": true,
-      "maxStack": 64,
-      "stats": {
-        "ac": [
-          0,
-          0
-        ],
-        "amc": [
-          0,
-          0
-        ],
-        "dc": [
-          0,
-          0
-        ],
-        "mc": [
-          0,
-          0
-        ],
-        "sc": [
-          0,
-          0
-        ],
-        "hp": 0,
-        "mp": 0,
-        "accuracy": 0,
-        "agility": 0,
-        "luck": 0,
-        "attackSpeed": 0
-      },
-      "shop": {
-        "buy": 2500,
-        "sell": 10000
-      },
-      "drop": {
-        "zones": [
-          "zone-bdd-8"
-        ],
-        "chance": 0.1,
-        "chances": {
-          "zone-bdd-8": 0.1
-        }
-      },
-      "crystalType": "Nothing"
-    },
-    {
-      "id": "stone-heart",
-      "name": "Stone Heart",
-      "type": "material",
-      "slot": "material",
-      "class": "any",
-      "source": {
-        "crystalIndex": 1080,
-        "name": "StoneHeart"
-      },
-      "icon": {
-        "library": "Items",
-        "frame": 448,
-        "src": "./public/item-icons/items/stone-heart.png"
-      },
-      "requirements": {
-        "type": "none",
-        "amount": 0,
-        "classMask": 31,
-        "genderMask": 3
-      },
-      "stackable": true,
-      "maxStack": 64,
-      "stats": {
-        "ac": [
-          0,
-          0
-        ],
-        "amc": [
-          0,
-          0
-        ],
-        "dc": [
-          0,
-          0
-        ],
-        "mc": [
-          0,
-          0
-        ],
-        "sc": [
-          0,
-          0
-        ],
-        "hp": 0,
-        "mp": 0,
-        "accuracy": 0,
-        "agility": 0,
-        "luck": 0,
-        "attackSpeed": 0
-      },
-      "shop": {
-        "buy": 2500,
-        "sell": 10000
-      },
-      "drop": {
-        "zones": [
-          "zone-bdd-11"
-        ],
-        "chance": 0.1,
-        "chances": {
-          "zone-bdd-11": 0.1
-        }
-      },
-      "crystalType": "Nothing"
     },
     {
       "id": "zuma-soul-spring-wand",
