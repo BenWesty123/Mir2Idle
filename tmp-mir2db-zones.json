@@ -1,0 +1,5025 @@
+{
+  "ourZones": [
+    {
+      "id": "zone-bicheon-1",
+      "label": "Bicheon 1"
+    },
+    {
+      "id": "zone-bicheon-2",
+      "label": "Bicheon 2"
+    },
+    {
+      "id": "zone-bicheon-3",
+      "label": "Bicheon 3"
+    },
+    {
+      "id": "zone-bone-cave-1",
+      "label": "Bone Cave 1"
+    },
+    {
+      "id": "zone-bone-cave-2",
+      "label": "Bone Cave 2"
+    },
+    {
+      "id": "zone-bone-cave-kr",
+      "label": "Bone Cave KR"
+    },
+    {
+      "id": "zone-dead-mines-1",
+      "label": "Dead Mines 1"
+    },
+    {
+      "id": "zone-dead-mines-2",
+      "label": "Dead Mines 2"
+    },
+    {
+      "id": "zone-dead-mines-kr",
+      "label": "Dead Mines KR"
+    },
+    {
+      "id": "zone-kings-tomb",
+      "label": "Kings Tomb"
+    },
+    {
+      "id": "zone-insect-cave-1",
+      "label": "Insect Cave 1"
+    },
+    {
+      "id": "zone-insect-cave-2",
+      "label": "Insect Cave 2"
+    },
+    {
+      "id": "zone-insect-cave-kr",
+      "label": "Insect Cave KR"
+    },
+    {
+      "id": "zone-wooma-temple-1",
+      "label": "Wooma Temple 1"
+    },
+    {
+      "id": "zone-wooma-temple-2",
+      "label": "Wooma Temple 2"
+    },
+    {
+      "id": "zone-wooma-temple-kr",
+      "label": "Wooma Temple KR"
+    },
+    {
+      "id": "zone-bug-cave-1",
+      "label": "Bug Cave 1"
+    },
+    {
+      "id": "zone-bug-cave-2",
+      "label": "Bug Cave 2"
+    },
+    {
+      "id": "zone-bug-cave-kr",
+      "label": "Bug Cave KR"
+    },
+    {
+      "id": "zone-stone-temple-1",
+      "label": "Stone Temple 1"
+    },
+    {
+      "id": "zone-stone-temple-2",
+      "label": "Stone Temple 2"
+    },
+    {
+      "id": "zone-stone-temple-kr",
+      "label": "Stone Tomb KR"
+    },
+    {
+      "id": "zone-zuma-temple-1",
+      "label": "Zuma Temple 1"
+    },
+    {
+      "id": "zone-zuma-temple-2",
+      "label": "Zuma Temple 2"
+    },
+    {
+      "id": "zone-zuma-temple-kr",
+      "label": "Zuma Temple KR"
+    },
+    {
+      "id": "zone-viper-cave-1",
+      "label": "Viper Cave 1"
+    },
+    {
+      "id": "zone-viper-cave-2",
+      "label": "Viper Cave 2"
+    },
+    {
+      "id": "zone-viper-cave-kr",
+      "label": "Viper Cave KR"
+    },
+    {
+      "id": "zone-prajna-cave-1",
+      "label": "Prajna Cave 1"
+    },
+    {
+      "id": "zone-prajna-cave-2",
+      "label": "Prajna Cave 2"
+    },
+    {
+      "id": "zone-prajna-cave-kr",
+      "label": "Prajna Cave KR"
+    },
+    {
+      "id": "zone-prajna-temple-1",
+      "label": "Prajna Temple 1"
+    },
+    {
+      "id": "zone-prajna-temple-2",
+      "label": "Prajna Temple 2"
+    },
+    {
+      "id": "zone-prajna-temple-kr",
+      "label": "Prajna Temple KR"
+    },
+    {
+      "id": "zone-red-cavern-1",
+      "label": "Red Cavern 1"
+    },
+    {
+      "id": "zone-red-cavern-2",
+      "label": "Red Cavern 2"
+    },
+    {
+      "id": "zone-red-cavern-kr",
+      "label": "Red Cavern KR"
+    },
+    {
+      "id": "zone-hell-gd-1",
+      "label": "Hell Cavern"
+    },
+    {
+      "id": "zone-hell-gd-2",
+      "label": "Hell Cavern — Floor 2"
+    },
+    {
+      "id": "zone-hell-gd-3",
+      "label": "Hell Cavern — Floor 3"
+    },
+    {
+      "id": "zone-bdd-1",
+      "label": "Black Dragon Dungeon 1F"
+    },
+    {
+      "id": "zone-bdd-2",
+      "label": "King Scorpion's Cave"
+    },
+    {
+      "id": "zone-bdd-3",
+      "label": "Purgatory Hall"
+    },
+    {
+      "id": "zone-bdd-4",
+      "label": "Wooma Palace (South)"
+    },
+    {
+      "id": "zone-bdd-5",
+      "label": "Wooma Palace (North)"
+    },
+    {
+      "id": "zone-bdd-6",
+      "label": "HwanMaJin"
+    },
+    {
+      "id": "zone-bdd-7",
+      "label": "Noble Hog Palace (South)"
+    },
+    {
+      "id": "zone-bdd-8",
+      "label": "Noble Hog Palace (North)"
+    },
+    {
+      "id": "zone-bdd-10",
+      "label": "HwanMaJin II"
+    },
+    {
+      "id": "zone-bdd-11",
+      "label": "Zuma Palace"
+    },
+    {
+      "id": "zone-bdd-12",
+      "label": "Prison Hall"
+    },
+    {
+      "id": "zone-bdd-13",
+      "label": "Dark Devil Palace"
+    },
+    {
+      "id": "zone-flame-queen-kr",
+      "label": "Flame Queen KR"
+    },
+    {
+      "id": "zone-flaming-mutant-kr",
+      "label": "Flaming Mutant KR"
+    },
+    {
+      "id": "zone-scaly-beast-kr",
+      "label": "Scaly Beast KR"
+    },
+    {
+      "id": "zone-lab-stone-colossus",
+      "label": "Lab: Stone Colossus"
+    },
+    {
+      "id": "zone-lab-overseer",
+      "label": "Lab: Overseer"
+    },
+    {
+      "id": "zone-lab-halberd-lord",
+      "label": "Lab: Halberd Lord"
+    },
+    {
+      "id": "zone-lab-white-boar",
+      "label": "Lab: White Boar"
+    },
+    {
+      "id": "zone-lab-witch-doctor",
+      "label": "Lab: Witch Doctor"
+    },
+    {
+      "id": "zone-lab-hell-keeper",
+      "label": "Lab: Hell Keeper"
+    },
+    {
+      "id": "zone-lab-cave-witch",
+      "label": "Lab: Cave Witch"
+    },
+    {
+      "id": "zone-lab-manectric-king",
+      "label": "Lab: Manectric King"
+    },
+    {
+      "id": "zone-lab-hell-lord",
+      "label": "Lab: Hell Lord"
+    },
+    {
+      "id": "zone-bichon-mine",
+      "label": "Dead Mines"
+    },
+    {
+      "id": "zone-training-academy",
+      "label": "Academy"
+    },
+    {
+      "id": "zone-testing-room",
+      "label": "Testing Room"
+    }
+  ],
+  "bosses": [
+    {
+      "zoneId": "zone-wooma-temple-kr",
+      "boss": "Wooma Taurus"
+    },
+    {
+      "zoneId": "zone-stone-temple-kr",
+      "boss": "Evil Snake"
+    },
+    {
+      "zoneId": "zone-bug-cave-kr",
+      "boss": "Evil Centipede"
+    },
+    {
+      "zoneId": "zone-zuma-temple-kr",
+      "boss": "Zuma Taurus"
+    },
+    {
+      "zoneId": "zone-prajna-temple-kr",
+      "boss": "Minotaur King"
+    },
+    {
+      "zoneId": "zone-prajna-cave-kr",
+      "boss": "Bone Lord"
+    },
+    {
+      "zoneId": "zone-viper-cave-kr",
+      "boss": "Yimoogi"
+    },
+    {
+      "zoneId": "zone-kings-tomb",
+      "boss": "Oma King Spirit"
+    },
+    {
+      "zoneId": "zone-red-cavern-kr",
+      "boss": "Dream and Dark Devourer"
+    },
+    {
+      "zoneId": "zone-flame-queen-kr",
+      "boss": "Flame Queen"
+    },
+    {
+      "zoneId": "zone-flaming-mutant-kr",
+      "boss": "Flaming Mutant"
+    },
+    {
+      "zoneId": "zone-scaly-beast-kr",
+      "boss": "Scaly Beast"
+    }
+  ],
+  "results": [
+    {
+      "listId": 54,
+      "cn": "沃玛寺庙",
+      "en": "Wooma Temple",
+      "mapCount": 4,
+      "maps": [
+        "沃玛寺庙入口",
+        "沃玛寺庙一层",
+        "沃玛寺庙二层",
+        "沃玛寺庙三层"
+      ],
+      "matchedZones": [
+        "zone-wooma-temple-1",
+        "zone-wooma-temple-2",
+        "zone-wooma-temple-kr",
+        "zone-stone-temple-1",
+        "zone-stone-temple-2",
+        "zone-stone-temple-kr",
+        "zone-zuma-temple-1",
+        "zone-zuma-temple-2",
+        "zone-zuma-temple-kr",
+        "zone-prajna-temple-1",
+        "zone-prajna-temple-2",
+        "zone-prajna-temple-kr",
+        "zone-bdd-4",
+        "zone-bdd-5"
+      ],
+      "uniqueMobIds": 10,
+      "sampleMobs": [
+        {
+          "id": "14",
+          "cn": "山洞蝙蝠",
+          "kr": "관박쥐",
+          "lv": 20,
+          "hp": 25,
+          "exp": 80,
+          "img": "80",
+          "inGame": false
+        },
+        {
+          "id": "40",
+          "cn": "洞蛆",
+          "kr": "동굴구더기",
+          "lv": 21,
+          "hp": 80,
+          "exp": 146,
+          "img": "24",
+          "inGame": false
+        },
+        {
+          "id": "41",
+          "cn": "粪虫",
+          "kr": "둥",
+          "lv": 26,
+          "hp": 155,
+          "exp": 258,
+          "img": "29",
+          "inGame": false
+        },
+        {
+          "id": "149",
+          "cn": "沃玛战士",
+          "kr": "우면귀",
+          "lv": 30,
+          "hp": 265,
+          "exp": 372,
+          "img": "30",
+          "inGame": false
+        },
+        {
+          "id": "150",
+          "cn": "沃玛勇士",
+          "kr": "우면귀병",
+          "lv": 30,
+          "hp": 285,
+          "exp": 408,
+          "img": "32",
+          "inGame": false
+        },
+        {
+          "id": "153",
+          "cn": "沃玛护卫",
+          "kr": "우면귀장",
+          "lv": 50,
+          "hp": 1000,
+          "exp": 2400,
+          "img": "151",
+          "inGame": false
+        },
+        {
+          "id": "154",
+          "cn": "沃玛战将",
+          "kr": "우면귀졸",
+          "lv": 30,
+          "hp": 285,
+          "exp": 408,
+          "img": "33",
+          "inGame": false
+        },
+        {
+          "id": "266",
+          "cn": "火焰沃玛",
+          "kr": "화염우면귀",
+          "lv": 31,
+          "hp": 240,
+          "exp": 420,
+          "img": "31",
+          "inGame": false
+        },
+        {
+          "id": "33",
+          "cn": "黑暗战士",
+          "kr": "다크",
+          "lv": 26,
+          "hp": 165,
+          "exp": 288,
+          "img": "28",
+          "inGame": false
+        },
+        {
+          "id": "151",
+          "cn": "沃玛教主",
+          "kr": "우면귀왕",
+          "lv": 99,
+          "hp": 2200,
+          "exp": 6000,
+          "img": "34",
+          "inGame": false
+        }
+      ]
+    },
+    {
+      "listId": 55,
+      "cn": "古代沃玛寺庙",
+      "en": "Ancient Wooma Temple",
+      "mapCount": 4,
+      "maps": [
+        "古代沃玛寺庙1层",
+        "古代沃玛寺庙2层",
+        "古代沃玛寺庙3层",
+        "古代沃玛寺庙4层"
+      ],
+      "matchedZones": [
+        "zone-wooma-temple-1",
+        "zone-wooma-temple-2",
+        "zone-wooma-temple-kr",
+        "zone-stone-temple-1",
+        "zone-stone-temple-2",
+        "zone-stone-temple-kr",
+        "zone-zuma-temple-1",
+        "zone-zuma-temple-2",
+        "zone-zuma-temple-kr",
+        "zone-prajna-temple-1",
+        "zone-prajna-temple-2",
+        "zone-prajna-temple-kr",
+        "zone-bdd-4",
+        "zone-bdd-5"
+      ],
+      "uniqueMobIds": 6,
+      "sampleMobs": [
+        {
+          "id": "282",
+          "cn": "古代沃玛战士",
+          "kr": "고대우면귀",
+          "lv": 59,
+          "hp": 1400,
+          "exp": 6240,
+          "img": "30",
+          "inGame": false
+        },
+        {
+          "id": "283",
+          "cn": "古代沃玛勇士",
+          "kr": "고대우면귀병",
+          "lv": 59,
+          "hp": 1450,
+          "exp": 6360,
+          "img": "32",
+          "inGame": false
+        },
+        {
+          "id": "284",
+          "cn": "古代沃玛战将",
+          "kr": "고대우면귀졸",
+          "lv": 59,
+          "hp": 1500,
+          "exp": 6480,
+          "img": "33",
+          "inGame": false
+        },
+        {
+          "id": "285",
+          "cn": "古代火焰沃玛",
+          "kr": "고대화염우면귀",
+          "lv": 59,
+          "hp": 1550,
+          "exp": 6600,
+          "img": "31",
+          "inGame": false
+        },
+        {
+          "id": "325",
+          "cn": "古代沃玛教主",
+          "kr": "고대우면귀왕",
+          "lv": 99,
+          "hp": 30000,
+          "exp": 30000,
+          "img": "34",
+          "inGame": false
+        },
+        {
+          "id": "286",
+          "cn": "古代沃玛护卫",
+          "kr": "고대우면귀장",
+          "lv": 59,
+          "hp": 1600,
+          "exp": 6720,
+          "img": "151",
+          "inGame": false
+        }
+      ]
+    },
+    {
+      "listId": 56,
+      "cn": "半兽古墓",
+      "en": "Oma Cave / Semi-beast Tomb",
+      "mapCount": 3,
+      "maps": [
+        "半兽古墓一层",
+        "半兽古墓二层",
+        "半兽古墓三层"
+      ],
+      "matchedZones": [
+        "zone-bone-cave-1",
+        "zone-bone-cave-2",
+        "zone-bone-cave-kr",
+        "zone-kings-tomb",
+        "zone-insect-cave-1",
+        "zone-insect-cave-2",
+        "zone-insect-cave-kr",
+        "zone-bug-cave-1",
+        "zone-bug-cave-2",
+        "zone-bug-cave-kr",
+        "zone-stone-temple-kr",
+        "zone-viper-cave-1",
+        "zone-viper-cave-2",
+        "zone-viper-cave-kr",
+        "zone-prajna-cave-1",
+        "zone-prajna-cave-2",
+        "zone-prajna-cave-kr",
+        "zone-red-cavern-1",
+        "zone-red-cavern-2",
+        "zone-red-cavern-kr",
+        "zone-hell-gd-1",
+        "zone-hell-gd-2",
+        "zone-hell-gd-3",
+        "zone-bdd-2",
+        "zone-scaly-beast-kr",
+        "zone-lab-cave-witch"
+      ],
+      "uniqueMobIds": 8,
+      "sampleMobs": [
+        {
+          "id": "14",
+          "cn": "山洞蝙蝠",
+          "kr": "관박쥐",
+          "lv": 20,
+          "hp": 25,
+          "exp": 80,
+          "img": "80",
+          "inGame": false
+        },
+        {
+          "id": "40",
+          "cn": "洞蛆",
+          "kr": "동굴구더기",
+          "lv": 21,
+          "hp": 80,
+          "exp": 146,
+          "img": "24",
+          "inGame": false
+        },
+        {
+          "id": "175",
+          "cn": "蝎子",
+          "kr": "전갈",
+          "lv": 18,
+          "hp": 45,
+          "exp": 115,
+          "img": "83",
+          "inGame": false
+        },
+        {
+          "id": "220",
+          "cn": "骷髅战士",
+          "kr": "큰도끼해골",
+          "lv": 19,
+          "hp": 105,
+          "exp": 180,
+          "img": "22",
+          "inGame": false
+        },
+        {
+          "id": "234",
+          "cn": "骷髅",
+          "kr": "해골",
+          "lv": 18,
+          "hp": 90,
+          "exp": 168,
+          "img": "20",
+          "inGame": false
+        },
+        {
+          "id": "118",
+          "cn": "掷斧骷髅",
+          "kr": "쌍도끼해골",
+          "lv": 18,
+          "hp": 100,
+          "exp": 168,
+          "img": "21",
+          "inGame": false
+        },
+        {
+          "id": "240",
+          "cn": "骷髅战将",
+          "kr": "해골전사",
+          "lv": 20,
+          "hp": 110,
+          "exp": 192,
+          "img": "23",
+          "inGame": false
+        },
+        {
+          "id": "241",
+          "cn": "骷髅精灵",
+          "kr": "해골투사",
+          "lv": 50,
+          "hp": 500,
+          "exp": 960,
+          "img": "150",
+          "inGame": false
+        }
+      ]
+    },
+    {
+      "listId": 57,
+      "cn": "古代半兽古墓",
+      "en": "Ancient Oma Cave",
+      "mapCount": 3,
+      "maps": [
+        "古代半兽古墓1层",
+        "古代半兽古墓2层",
+        "古代半兽古墓3层"
+      ],
+      "matchedZones": [
+        "zone-bone-cave-1",
+        "zone-bone-cave-2",
+        "zone-bone-cave-kr",
+        "zone-insect-cave-1",
+        "zone-insect-cave-2",
+        "zone-insect-cave-kr",
+        "zone-bug-cave-1",
+        "zone-bug-cave-2",
+        "zone-bug-cave-kr",
+        "zone-viper-cave-1",
+        "zone-viper-cave-2",
+        "zone-viper-cave-kr",
+        "zone-prajna-cave-1",
+        "zone-prajna-cave-2",
+        "zone-prajna-cave-kr",
+        "zone-red-cavern-1",
+        "zone-red-cavern-2",
+        "zone-red-cavern-kr",
+        "zone-hell-gd-1",
+        "zone-hell-gd-2",
+        "zone-hell-gd-3",
+        "zone-bdd-2",
+        "zone-lab-cave-witch"
+      ],
+      "uniqueMobIds": 6,
+      "sampleMobs": [
+        {
+          "id": "277",
+          "cn": "古代骷髅",
+          "kr": "고대해골",
+          "lv": 40,
+          "hp": 500,
+          "exp": 1680,
+          "img": "20",
+          "inGame": false
+        },
+        {
+          "id": "278",
+          "cn": "古代掷斧骷髅",
+          "kr": "고대쌍도끼해골",
+          "lv": 40,
+          "hp": 550,
+          "exp": 1740,
+          "img": "21",
+          "inGame": false
+        },
+        {
+          "id": "279",
+          "cn": "古代骷髅战士",
+          "kr": "고대큰도끼해골",
+          "lv": 40,
+          "hp": 600,
+          "exp": 1800,
+          "img": "22",
+          "inGame": false
+        },
+        {
+          "id": "326",
+          "cn": "古代骸骨鬼王",
+          "kr": "고대해골귀왕",
+          "lv": 99,
+          "hp": 2200,
+          "exp": 6000,
+          "img": "251",
+          "inGame": false
+        },
+        {
+          "id": "280",
+          "cn": "古代骷髅战将",
+          "kr": "고대해골전사",
+          "lv": 40,
+          "hp": 650,
+          "exp": 1860,
+          "img": "23",
+          "inGame": false
+        },
+        {
+          "id": "281",
+          "cn": "古代骷髅精灵",
+          "kr": "고대해골투사",
+          "lv": 40,
+          "hp": 1000,
+          "exp": 2400,
+          "img": "150",
+          "inGame": false
+        }
+      ]
+    },
+    {
+      "listId": 58,
+      "cn": "虫洞",
+      "en": "Bug Cave / Insect Cave",
+      "mapCount": 4,
+      "maps": [
+        "虫洞1层",
+        "虫洞2层",
+        "虫洞3层",
+        "虫洞4层"
+      ],
+      "matchedZones": [
+        "zone-bone-cave-1",
+        "zone-bone-cave-2",
+        "zone-bone-cave-kr",
+        "zone-insect-cave-1",
+        "zone-insect-cave-2",
+        "zone-insect-cave-kr",
+        "zone-bug-cave-1",
+        "zone-bug-cave-2",
+        "zone-bug-cave-kr",
+        "zone-viper-cave-1",
+        "zone-viper-cave-2",
+        "zone-viper-cave-kr",
+        "zone-prajna-cave-1",
+        "zone-prajna-cave-2",
+        "zone-prajna-cave-kr",
+        "zone-red-cavern-1",
+        "zone-red-cavern-2",
+        "zone-red-cavern-kr",
+        "zone-hell-gd-1",
+        "zone-hell-gd-2",
+        "zone-hell-gd-3",
+        "zone-bdd-2",
+        "zone-lab-cave-witch"
+      ],
+      "uniqueMobIds": 6,
+      "sampleMobs": [
+        {
+          "id": "31",
+          "cn": "",
+          "kr": "다각충",
+          "lv": 28,
+          "hp": 190,
+          "exp": 276,
+          "img": "107",
+          "inGame": false
+        },
+        {
+          "id": "32",
+          "cn": "",
+          "kr": "다발충",
+          "lv": 28,
+          "hp": 190,
+          "exp": 276,
+          "img": "106",
+          "inGame": false
+        },
+        {
+          "id": "218",
+          "cn": "",
+          "kr": "치충",
+          "lv": 27,
+          "hp": 185,
+          "exp": 264,
+          "img": "103",
+          "inGame": false
+        },
+        {
+          "id": "225",
+          "cn": "",
+          "kr": "투안충",
+          "lv": 26,
+          "hp": 180,
+          "exp": 264,
+          "img": "105",
+          "inGame": false
+        },
+        {
+          "id": "228",
+          "cn": "",
+          "kr": "포안충",
+          "lv": 27,
+          "hp": 200,
+          "exp": 276,
+          "img": "104",
+          "inGame": false
+        },
+        {
+          "id": "101",
+          "cn": "舌刃大虫",
+          "kr": "설인대충",
+          "lv": 50,
+          "hp": 2000,
+          "exp": 3960,
+          "img": "220",
+          "inGame": false
+        }
+      ]
+    },
+    {
+      "listId": 59,
+      "cn": "毒蛇矿区",
+      "en": "Snake Valley / Venom Mine",
+      "mapCount": 3,
+      "maps": [
+        "毒蛇矿区1层",
+        "毒蛇矿区2层",
+        "毒蛇矿区3层"
+      ],
+      "matchedZones": [
+        "zone-dead-mines-1",
+        "zone-dead-mines-2",
+        "zone-dead-mines-kr",
+        "zone-viper-cave-1",
+        "zone-viper-cave-2",
+        "zone-viper-cave-kr",
+        "zone-bichon-mine"
+      ],
+      "uniqueMobIds": 11,
+      "sampleMobs": [
+        {
+          "id": "15",
+          "cn": "尸王",
+          "kr": "구울",
+          "lv": 50,
+          "hp": 500,
+          "exp": 1440,
+          "img": "152",
+          "inGame": false
+        },
+        {
+          "id": "181",
+          "cn": "령僵尸",
+          "kr": "령좀비",
+          "lv": 35,
+          "hp": 300,
+          "exp": 600,
+          "img": "40",
+          "inGame": false
+        },
+        {
+          "id": "182",
+          "cn": "괴승僵尸",
+          "kr": "괴승좀비",
+          "lv": 35,
+          "hp": 300,
+          "exp": 600,
+          "img": "50",
+          "inGame": false
+        },
+        {
+          "id": "183",
+          "cn": "僵尸",
+          "kr": "좀비",
+          "lv": 35,
+          "hp": 300,
+          "exp": 600,
+          "img": "51",
+          "inGame": false
+        },
+        {
+          "id": "184",
+          "cn": "혈僵尸",
+          "kr": "혈좀비",
+          "lv": 35,
+          "hp": 300,
+          "exp": 600,
+          "img": "52",
+          "inGame": false
+        },
+        {
+          "id": "185",
+          "cn": "묵혈僵尸",
+          "kr": "묵혈좀비",
+          "lv": 35,
+          "hp": 300,
+          "exp": 600,
+          "img": "53",
+          "inGame": false
+        },
+        {
+          "id": "338",
+          "cn": "사슬尸王",
+          "kr": "사슬구울",
+          "lv": 50,
+          "hp": 500,
+          "exp": 1440,
+          "img": "152",
+          "inGame": false
+        },
+        {
+          "id": "289",
+          "cn": "",
+          "kr": "뒤틀린시체",
+          "lv": 30,
+          "hp": 205,
+          "exp": 360,
+          "img": "52",
+          "inGame": false
+        },
+        {
+          "id": "290",
+          "cn": "광포한尸王",
+          "kr": "광포한구위",
+          "lv": 50,
+          "hp": 500,
+          "exp": 1440,
+          "img": "152",
+          "inGame": false
+        },
+        {
+          "id": "291",
+          "cn": "",
+          "kr": "묵진",
+          "lv": 35,
+          "hp": 252,
+          "exp": 420,
+          "img": "40",
+          "inGame": false
+        },
+        {
+          "id": "292",
+          "cn": "",
+          "kr": "백망",
+          "lv": 36,
+          "hp": 320,
+          "exp": 432,
+          "img": "225",
+          "inGame": false
+        }
+      ]
+    },
+    {
+      "listId": 60,
+      "cn": "龙蛇川",
+      "en": "Dragon Snake River",
+      "mapCount": 11,
+      "maps": [
+        "봉인의서",
+        "봉인의서",
+        "봉인의서",
+        "봉인의서",
+        "封印通道",
+        "封印通道",
+        "封印通道",
+        "封印通道",
+        "혈독",
+        "혈독",
+        "룡사천"
+      ],
+      "matchedZones": [
+        "zone-viper-cave-1",
+        "zone-viper-cave-2",
+        "zone-viper-cave-kr",
+        "zone-bdd-1"
+      ],
+      "uniqueMobIds": 10,
+      "sampleMobs": [
+        {
+          "id": "65",
+          "cn": "",
+          "kr": "보물함",
+          "lv": 60,
+          "hp": 5,
+          "exp": 0,
+          "img": "145",
+          "inGame": false
+        },
+        {
+          "id": "110",
+          "cn": "",
+          "kr": "수호궁사",
+          "lv": 55,
+          "hp": 1000,
+          "exp": 4080,
+          "img": "47",
+          "inGame": false
+        },
+        {
+          "id": "111",
+          "cn": "",
+          "kr": "수호신장",
+          "lv": 50,
+          "hp": 1100,
+          "exp": 4320,
+          "img": "61",
+          "inGame": false
+        },
+        {
+          "id": "112",
+          "cn": "",
+          "kr": "수호호법",
+          "lv": 50,
+          "hp": 1200,
+          "exp": 4800,
+          "img": "62",
+          "inGame": false
+        },
+        {
+          "id": "337",
+          "cn": "",
+          "kr": "수호신마",
+          "lv": 50,
+          "hp": 1100,
+          "exp": 4320,
+          "img": "61",
+          "inGame": false
+        },
+        {
+          "id": "248",
+          "cn": "",
+          "kr": "혈독남사",
+          "lv": 55,
+          "hp": 1150,
+          "exp": 6480,
+          "img": "227",
+          "inGame": false
+        },
+        {
+          "id": "249",
+          "cn": "",
+          "kr": "혈독마주",
+          "lv": 55,
+          "hp": 1800,
+          "exp": 5400,
+          "img": "223",
+          "inGame": false
+        },
+        {
+          "id": "250",
+          "cn": "",
+          "kr": "혈독황사",
+          "lv": 55,
+          "hp": 1200,
+          "exp": 6720,
+          "img": "226",
+          "inGame": false
+        },
+        {
+          "id": "247",
+          "cn": "혈독鬼豚",
+          "kr": "혈독귀돈",
+          "lv": 99,
+          "hp": 6000,
+          "exp": 10000,
+          "img": "181",
+          "inGame": false
+        },
+        {
+          "id": "68",
+          "cn": "浮龙金蛇",
+          "kr": "부룡금사",
+          "lv": 99,
+          "hp": 20000,
+          "exp": 20000,
+          "img": "224",
+          "inGame": false
+        }
+      ]
+    },
+    {
+      "listId": 61,
+      "cn": "地牢",
+      "en": "Dungeon / Bicheon Dungeon",
+      "mapCount": 13,
+      "maps": [
+        "地牢一层东",
+        "地牢一层西",
+        "地牢一层北",
+        "地牢二层西",
+        "地牢二层北",
+        "黑暗地带",
+        "生死之间",
+        "传奇部落",
+        "邪恶势力",
+        "幽名圣域",
+        "恐怖空间",
+        "一线天",
+        "死亡棺材"
+      ],
+      "matchedZones": [
+        "zone-bicheon-1",
+        "zone-bicheon-2",
+        "zone-bicheon-3",
+        "zone-bdd-1"
+      ],
+      "uniqueMobIds": 9,
+      "sampleMobs": [
+        {
+          "id": "18",
+          "cn": "",
+          "kr": "궁수경계병",
+          "lv": 255,
+          "hp": 10000,
+          "exp": 1,
+          "img": "71",
+          "inGame": false
+        },
+        {
+          "id": "125",
+          "cn": "跳跳蜂",
+          "kr": "앵벌",
+          "lv": 26,
+          "hp": 180,
+          "exp": 330,
+          "img": "81",
+          "inGame": false
+        },
+        {
+          "id": "200",
+          "cn": "蜈蚣",
+          "kr": "지네",
+          "lv": 26,
+          "hp": 210,
+          "exp": 372,
+          "img": "73",
+          "inGame": false
+        },
+        {
+          "id": "260",
+          "cn": "巨型蠕虫",
+          "kr": "호접충",
+          "lv": 26,
+          "hp": 180,
+          "exp": 372,
+          "img": "82",
+          "inGame": false
+        },
+        {
+          "id": "275",
+          "cn": "黑色恶蛆",
+          "kr": "흑치",
+          "lv": 28,
+          "hp": 200,
+          "exp": 300,
+          "img": "74",
+          "inGame": false
+        },
+        {
+          "id": "329",
+          "cn": "희귀한跳跳蜂",
+          "kr": "희귀한앵벌",
+          "lv": 26,
+          "hp": 180,
+          "exp": 330,
+          "img": "81",
+          "inGame": false
+        },
+        {
+          "id": "204",
+          "cn": "钳虫",
+          "kr": "집게벌레",
+          "lv": 31,
+          "hp": 240,
+          "exp": 408,
+          "img": "120",
+          "inGame": false
+        },
+        {
+          "id": "139",
+          "cn": "邪恶钳虫",
+          "kr": "왕집게벌레",
+          "lv": 60,
+          "hp": 2000,
+          "exp": 3600,
+          "img": "121",
+          "inGame": false
+        },
+        {
+          "id": "216",
+          "cn": "触龙神",
+          "kr": "촉룡신",
+          "lv": 99,
+          "hp": 2000,
+          "exp": 6000,
+          "img": "140",
+          "inGame": false
+        }
+      ]
+    },
+    {
+      "listId": 62,
+      "cn": "未知暗殿",
+      "en": "Unknown Dark Hall",
+      "mapCount": 4,
+      "maps": [
+        "连接通道",
+        "连接通道",
+        "连接通道",
+        "未知暗殿"
+      ],
+      "matchedZones": [
+        "zone-bdd-3",
+        "zone-bdd-12",
+        "zone-bdd-13"
+      ],
+      "uniqueMobIds": 21,
+      "sampleMobs": [
+        {
+          "id": "18",
+          "cn": "",
+          "kr": "궁수경계병",
+          "lv": 255,
+          "hp": 10000,
+          "exp": 1,
+          "img": "71",
+          "inGame": false
+        },
+        {
+          "id": "125",
+          "cn": "跳跳蜂",
+          "kr": "앵벌",
+          "lv": 26,
+          "hp": 180,
+          "exp": 330,
+          "img": "81",
+          "inGame": false
+        },
+        {
+          "id": "200",
+          "cn": "蜈蚣",
+          "kr": "지네",
+          "lv": 26,
+          "hp": 210,
+          "exp": 372,
+          "img": "73",
+          "inGame": false
+        },
+        {
+          "id": "204",
+          "cn": "钳虫",
+          "kr": "집게벌레",
+          "lv": 31,
+          "hp": 240,
+          "exp": 408,
+          "img": "120",
+          "inGame": false
+        },
+        {
+          "id": "275",
+          "cn": "黑色恶蛆",
+          "kr": "흑치",
+          "lv": 28,
+          "hp": 200,
+          "exp": 300,
+          "img": "74",
+          "inGame": false
+        },
+        {
+          "id": "187",
+          "cn": "법령僵尸",
+          "kr": "법령좀비",
+          "lv": 25,
+          "hp": 155,
+          "exp": 252,
+          "img": "40",
+          "inGame": false
+        },
+        {
+          "id": "188",
+          "cn": "파혈僵尸",
+          "kr": "파혈좀비",
+          "lv": 25,
+          "hp": 155,
+          "exp": 240,
+          "img": "50",
+          "inGame": false
+        },
+        {
+          "id": "189",
+          "cn": "혈강僵尸",
+          "kr": "혈강좀비",
+          "lv": 25,
+          "hp": 155,
+          "exp": 240,
+          "img": "51",
+          "inGame": false
+        },
+        {
+          "id": "190",
+          "cn": "혈귀僵尸",
+          "kr": "혈귀좀비",
+          "lv": 25,
+          "hp": 155,
+          "exp": 240,
+          "img": "52",
+          "inGame": false
+        },
+        {
+          "id": "191",
+          "cn": "불괴僵尸",
+          "kr": "불괴좀비",
+          "lv": 25,
+          "hp": 155,
+          "exp": 240,
+          "img": "53",
+          "inGame": false
+        },
+        {
+          "id": "339",
+          "cn": "未知巨型多角虫",
+          "kr": "미지갑각충",
+          "lv": 50,
+          "hp": 900,
+          "exp": 138,
+          "img": "91",
+          "inGame": false
+        },
+        {
+          "id": "340",
+          "cn": "未知尸王",
+          "kr": "미지구울",
+          "lv": 50,
+          "hp": 800,
+          "exp": 138,
+          "img": "152",
+          "inGame": false
+        },
+        {
+          "id": "341",
+          "cn": "未知白野猪",
+          "kr": "미지백돈",
+          "lv": 50,
+          "hp": 400,
+          "exp": 138,
+          "img": "112",
+          "inGame": false
+        },
+        {
+          "id": "342",
+          "cn": "未知鹿",
+          "kr": "미지사슴",
+          "lv": 50,
+          "hp": 1200,
+          "exp": 138,
+          "img": "161",
+          "inGame": false
+        },
+        {
+          "id": "343",
+          "cn": "未知半兽勇士",
+          "kr": "미지오마용사",
+          "lv": 50,
+          "hp": 900,
+          "exp": 138,
+          "img": "102",
+          "inGame": false
+        }
+      ]
+    },
+    {
+      "listId": 63,
+      "cn": "石墓",
+      "en": "Stone Tomb / Stone Temple",
+      "mapCount": 8,
+      "maps": [
+        "石墓入口",
+        "石墓1层",
+        "石墓2层",
+        "石墓3层",
+        "石墓4层",
+        "石墓5层",
+        "石墓6层",
+        "石墓7层"
+      ],
+      "matchedZones": [
+        "zone-kings-tomb",
+        "zone-wooma-temple-1",
+        "zone-wooma-temple-2",
+        "zone-wooma-temple-kr",
+        "zone-stone-temple-1",
+        "zone-stone-temple-2",
+        "zone-stone-temple-kr",
+        "zone-zuma-temple-1",
+        "zone-zuma-temple-2",
+        "zone-zuma-temple-kr",
+        "zone-prajna-temple-1",
+        "zone-prajna-temple-2",
+        "zone-prajna-temple-kr",
+        "zone-lab-stone-colossus"
+      ],
+      "uniqueMobIds": 8,
+      "sampleMobs": [
+        {
+          "id": "120",
+          "cn": "楔蛾",
+          "kr": "쐐기나방",
+          "lv": 32,
+          "hp": 220,
+          "exp": 648,
+          "img": "39",
+          "inGame": false
+        },
+        {
+          "id": "170",
+          "cn": "红野猪",
+          "kr": "적돈",
+          "lv": 32,
+          "hp": 300,
+          "exp": 600,
+          "img": "110",
+          "inGame": false
+        },
+        {
+          "id": "272",
+          "cn": "黑野猪",
+          "kr": "흑돈",
+          "lv": 35,
+          "hp": 280,
+          "exp": 696,
+          "img": "111",
+          "inGame": false
+        },
+        {
+          "id": "275",
+          "cn": "黑色恶蛆",
+          "kr": "흑치",
+          "lv": 28,
+          "hp": 200,
+          "exp": 300,
+          "img": "74",
+          "inGame": false
+        },
+        {
+          "id": "77",
+          "cn": "角蝇",
+          "kr": "비막원충",
+          "lv": 30,
+          "hp": 200,
+          "exp": 444,
+          "img": "41",
+          "inGame": false
+        },
+        {
+          "id": "252",
+          "cn": "蝎蛇",
+          "kr": "혈사갈",
+          "lv": 35,
+          "hp": 330,
+          "exp": 660,
+          "img": "130",
+          "inGame": false
+        },
+        {
+          "id": "62",
+          "cn": "白野猪",
+          "kr": "백돈",
+          "lv": 50,
+          "hp": 2000,
+          "exp": 4320,
+          "img": "112",
+          "inGame": false
+        },
+        {
+          "id": "276",
+          "cn": "邪恶毒蛇",
+          "kr": "흑혈사",
+          "lv": 50,
+          "hp": 2000,
+          "exp": 4800,
+          "img": "164",
+          "inGame": false
+        }
+      ]
+    },
+    {
+      "listId": 64,
+      "cn": "香石古墓",
+      "en": "Fragrant Stone Tomb",
+      "mapCount": 4,
+      "maps": [
+        "秘密通道",
+        "香石古墓1层",
+        "香石古墓2层",
+        "香石古墓3层"
+      ],
+      "matchedZones": [
+        "zone-kings-tomb",
+        "zone-stone-temple-1",
+        "zone-stone-temple-2",
+        "zone-stone-temple-kr",
+        "zone-lab-stone-colossus"
+      ],
+      "uniqueMobIds": 13,
+      "sampleMobs": [
+        {
+          "id": "191",
+          "cn": "불괴僵尸",
+          "kr": "불괴좀비",
+          "lv": 25,
+          "hp": 155,
+          "exp": 240,
+          "img": "53",
+          "inGame": false
+        },
+        {
+          "id": "187",
+          "cn": "법령僵尸",
+          "kr": "법령좀비",
+          "lv": 25,
+          "hp": 155,
+          "exp": 252,
+          "img": "40",
+          "inGame": false
+        },
+        {
+          "id": "188",
+          "cn": "파혈僵尸",
+          "kr": "파혈좀비",
+          "lv": 25,
+          "hp": 155,
+          "exp": 240,
+          "img": "50",
+          "inGame": false
+        },
+        {
+          "id": "189",
+          "cn": "혈강僵尸",
+          "kr": "혈강좀비",
+          "lv": 25,
+          "hp": 155,
+          "exp": 240,
+          "img": "51",
+          "inGame": false
+        },
+        {
+          "id": "190",
+          "cn": "혈귀僵尸",
+          "kr": "혈귀좀비",
+          "lv": 25,
+          "hp": 155,
+          "exp": 240,
+          "img": "52",
+          "inGame": false
+        },
+        {
+          "id": "328",
+          "cn": "혈목僵尸",
+          "kr": "혈목좀비",
+          "lv": 25,
+          "hp": 155,
+          "exp": 240,
+          "img": "52",
+          "inGame": false
+        },
+        {
+          "id": "77",
+          "cn": "角蝇",
+          "kr": "비막원충",
+          "lv": 30,
+          "hp": 200,
+          "exp": 444,
+          "img": "41",
+          "inGame": false
+        },
+        {
+          "id": "120",
+          "cn": "楔蛾",
+          "kr": "쐐기나방",
+          "lv": 32,
+          "hp": 220,
+          "exp": 648,
+          "img": "39",
+          "inGame": false
+        },
+        {
+          "id": "170",
+          "cn": "红野猪",
+          "kr": "적돈",
+          "lv": 32,
+          "hp": 300,
+          "exp": 600,
+          "img": "110",
+          "inGame": false
+        },
+        {
+          "id": "252",
+          "cn": "蝎蛇",
+          "kr": "혈사갈",
+          "lv": 35,
+          "hp": 330,
+          "exp": 660,
+          "img": "130",
+          "inGame": false
+        },
+        {
+          "id": "272",
+          "cn": "黑野猪",
+          "kr": "흑돈",
+          "lv": 35,
+          "hp": 280,
+          "exp": 696,
+          "img": "111",
+          "inGame": false
+        },
+        {
+          "id": "275",
+          "cn": "黑色恶蛆",
+          "kr": "흑치",
+          "lv": 28,
+          "hp": 200,
+          "exp": 300,
+          "img": "74",
+          "inGame": false
+        },
+        {
+          "id": "327",
+          "cn": "혈법僵尸",
+          "kr": "혈법좀비",
+          "lv": 25,
+          "hp": 155,
+          "exp": 252,
+          "img": "40",
+          "inGame": false
+        }
+      ]
+    },
+    {
+      "listId": 65,
+      "cn": "祖玛寺庙",
+      "en": "Zuma Temple",
+      "mapCount": 11,
+      "maps": [
+        "祖玛神殿入口",
+        "祖玛神殿1层",
+        "祖玛神殿2层",
+        "祖玛神殿3层",
+        "祖玛神殿4层",
+        "祖玛神殿5层",
+        "祖玛神殿大厅",
+        "祖玛神殿7层一",
+        "祖玛神殿7层二",
+        "祖玛神殿7层三",
+        "祖玛教主之家"
+      ],
+      "matchedZones": [
+        "zone-wooma-temple-1",
+        "zone-wooma-temple-2",
+        "zone-wooma-temple-kr",
+        "zone-stone-temple-1",
+        "zone-stone-temple-2",
+        "zone-stone-temple-kr",
+        "zone-zuma-temple-1",
+        "zone-zuma-temple-2",
+        "zone-zuma-temple-kr",
+        "zone-prajna-temple-1",
+        "zone-prajna-temple-2",
+        "zone-prajna-temple-kr",
+        "zone-bdd-11"
+      ],
+      "uniqueMobIds": 8,
+      "sampleMobs": [
+        {
+          "id": "44",
+          "cn": "祖玛弓箭手",
+          "kr": "마궁사",
+          "lv": 40,
+          "hp": 900,
+          "exp": 2280,
+          "img": "47",
+          "inGame": false
+        },
+        {
+          "id": "77",
+          "cn": "角蝇",
+          "kr": "비막원충",
+          "lv": 30,
+          "hp": 200,
+          "exp": 444,
+          "img": "41",
+          "inGame": false
+        },
+        {
+          "id": "120",
+          "cn": "楔蛾",
+          "kr": "쐐기나방",
+          "lv": 32,
+          "hp": 220,
+          "exp": 648,
+          "img": "39",
+          "inGame": false
+        },
+        {
+          "id": "222",
+          "cn": "大老鼠",
+          "kr": "큰쥐",
+          "lv": 32,
+          "hp": 900,
+          "exp": 2160,
+          "img": "46",
+          "inGame": false
+        },
+        {
+          "id": "194",
+          "cn": "祖玛雕像",
+          "kr": "주마신장",
+          "lv": 50,
+          "hp": 1000,
+          "exp": 2640,
+          "img": "61",
+          "inGame": false
+        },
+        {
+          "id": "197",
+          "cn": "祖玛卫士",
+          "kr": "주마호법",
+          "lv": 50,
+          "hp": 1100,
+          "exp": 2880,
+          "img": "62",
+          "inGame": false
+        },
+        {
+          "id": "192",
+          "cn": "咒魔击雷将",
+          "kr": "주마격뢰장",
+          "lv": 54,
+          "hp": 3000,
+          "exp": 5000,
+          "img": "221",
+          "inGame": false
+        },
+        {
+          "id": "195",
+          "cn": "祖玛教主",
+          "kr": "주마왕",
+          "lv": 99,
+          "hp": 12000,
+          "exp": 12000,
+          "img": "63",
+          "inGame": false
+        }
+      ]
+    },
+    {
+      "listId": 66,
+      "cn": "悲月山",
+      "en": "Sorrow Moon Mountain",
+      "mapCount": 3,
+      "maps": [
+        "기문혈",
+        "비월산",
+        "비월신전"
+      ],
+      "matchedZones": [],
+      "uniqueMobIds": 12,
+      "sampleMobs": [
+        {
+          "id": "79",
+          "cn": "",
+          "kr": "비월각충",
+          "lv": 51,
+          "hp": 700,
+          "exp": 2520,
+          "img": "238",
+          "inGame": false
+        },
+        {
+          "id": "80",
+          "cn": "",
+          "kr": "비월소호",
+          "lv": 55,
+          "hp": 1200,
+          "exp": 6240,
+          "img": "232",
+          "inGame": false
+        },
+        {
+          "id": "81",
+          "cn": "",
+          "kr": "비월적호",
+          "lv": 55,
+          "hp": 800,
+          "exp": 6000,
+          "img": "231",
+          "inGame": false
+        },
+        {
+          "id": "83",
+          "cn": "",
+          "kr": "비월충",
+          "lv": 50,
+          "hp": 760,
+          "exp": 2340,
+          "img": "240",
+          "inGame": false
+        },
+        {
+          "id": "84",
+          "cn": "",
+          "kr": "비월치충",
+          "lv": 52,
+          "hp": 880,
+          "exp": 2676,
+          "img": "241",
+          "inGame": false
+        },
+        {
+          "id": "85",
+          "cn": "",
+          "kr": "비월호충",
+          "lv": 53,
+          "hp": 800,
+          "exp": 2880,
+          "img": "239",
+          "inGame": false
+        },
+        {
+          "id": "86",
+          "cn": "",
+          "kr": "비월흑호",
+          "lv": 55,
+          "hp": 1500,
+          "exp": 6000,
+          "img": "230",
+          "inGame": false
+        },
+        {
+          "id": "254",
+          "cn": "",
+          "kr": "호기연",
+          "lv": 37,
+          "hp": 1000,
+          "exp": 2400,
+          "img": "235",
+          "inGame": false
+        },
+        {
+          "id": "255",
+          "cn": "",
+          "kr": "호기옥",
+          "lv": 39,
+          "hp": 1500,
+          "exp": 4800,
+          "img": "236",
+          "inGame": false
+        },
+        {
+          "id": "262",
+          "cn": "",
+          "kr": "호혼석",
+          "lv": 50,
+          "hp": 700,
+          "exp": 1800,
+          "img": "233",
+          "inGame": false
+        },
+        {
+          "id": "82",
+          "cn": "悲月天珠",
+          "kr": "비월천주",
+          "lv": 99,
+          "hp": 30000,
+          "exp": 30000,
+          "img": "237",
+          "inGame": false
+        },
+        {
+          "id": "261",
+          "cn": "",
+          "kr": "호혼기석",
+          "lv": 60,
+          "hp": 1200,
+          "exp": 4800,
+          "img": "234",
+          "inGame": false
+        }
+      ]
+    },
+    {
+      "listId": 67,
+      "cn": "异秘洞",
+      "en": "Mystery Cave / Strange Cave",
+      "mapCount": 6,
+      "maps": [
+        "异秘洞1层",
+        "异秘洞2层",
+        "异秘洞3层",
+        "异秘洞4层",
+        "异秘洞문파구역1层",
+        "异秘洞문파구역2层"
+      ],
+      "matchedZones": [
+        "zone-bone-cave-1",
+        "zone-bone-cave-2",
+        "zone-bone-cave-kr",
+        "zone-insect-cave-1",
+        "zone-insect-cave-2",
+        "zone-insect-cave-kr",
+        "zone-bug-cave-1",
+        "zone-bug-cave-2",
+        "zone-bug-cave-kr",
+        "zone-viper-cave-1",
+        "zone-viper-cave-2",
+        "zone-viper-cave-kr",
+        "zone-prajna-cave-1",
+        "zone-prajna-cave-2",
+        "zone-prajna-cave-kr",
+        "zone-red-cavern-1",
+        "zone-red-cavern-2",
+        "zone-red-cavern-kr",
+        "zone-hell-gd-1",
+        "zone-hell-gd-2",
+        "zone-hell-gd-3",
+        "zone-bdd-2",
+        "zone-lab-cave-witch"
+      ],
+      "uniqueMobIds": 10,
+      "sampleMobs": [
+        {
+          "id": "794",
+          "cn": "",
+          "kr": "토견",
+          "lv": 70,
+          "hp": 1500,
+          "exp": 6600,
+          "img": "348",
+          "inGame": false
+        },
+        {
+          "id": "795",
+          "cn": "",
+          "kr": "호토견",
+          "lv": 70,
+          "hp": 1600,
+          "exp": 7150,
+          "img": "349",
+          "inGame": false
+        },
+        {
+          "id": "796",
+          "cn": "",
+          "kr": "각섬",
+          "lv": 70,
+          "hp": 1700,
+          "exp": 7150,
+          "img": "352",
+          "inGame": false
+        },
+        {
+          "id": "799",
+          "cn": "",
+          "kr": "어인",
+          "lv": 70,
+          "hp": 2000,
+          "exp": 7700,
+          "img": "351",
+          "inGame": false
+        },
+        {
+          "id": "803",
+          "cn": "",
+          "kr": "붉은장충",
+          "lv": 70,
+          "hp": 1500,
+          "exp": 6600,
+          "img": "48",
+          "inGame": false
+        },
+        {
+          "id": "804",
+          "cn": "",
+          "kr": "어인의알",
+          "lv": 70,
+          "hp": 10,
+          "exp": 0,
+          "img": "350",
+          "inGame": false
+        },
+        {
+          "id": "797",
+          "cn": "",
+          "kr": "인용",
+          "lv": 70,
+          "hp": 1600,
+          "exp": 7150,
+          "img": "353",
+          "inGame": false
+        },
+        {
+          "id": "800",
+          "cn": "",
+          "kr": "어창인",
+          "lv": 70,
+          "hp": 2000,
+          "exp": 7700,
+          "img": "345",
+          "inGame": false
+        },
+        {
+          "id": "801",
+          "cn": "",
+          "kr": "어법인",
+          "lv": 70,
+          "hp": 2000,
+          "exp": 8250,
+          "img": "346",
+          "inGame": false
+        },
+        {
+          "id": "802",
+          "cn": "",
+          "kr": "어월인",
+          "lv": 70,
+          "hp": 4000,
+          "exp": 9900,
+          "img": "347",
+          "inGame": false
+        }
+      ]
+    },
+    {
+      "listId": 68,
+      "cn": "沙遗迹",
+      "en": "Sand Ruins",
+      "mapCount": 4,
+      "maps": [
+        "沙遗迹",
+        "모래유적촌장집",
+        "모래유적의원",
+        "모래유적사당"
+      ],
+      "matchedZones": [],
+      "uniqueMobIds": 10,
+      "sampleMobs": [
+        {
+          "id": "1040",
+          "cn": "",
+          "kr": "여귀",
+          "lv": 84,
+          "hp": 4590,
+          "exp": 14850,
+          "img": "396",
+          "inGame": false
+        },
+        {
+          "id": "1041",
+          "cn": "",
+          "kr": "태골서",
+          "lv": 84,
+          "hp": 5040,
+          "exp": 16280,
+          "img": "397",
+          "inGame": false
+        },
+        {
+          "id": "1042",
+          "cn": "",
+          "kr": "대망",
+          "lv": 84,
+          "hp": 4824,
+          "exp": 16280,
+          "img": "398",
+          "inGame": false
+        },
+        {
+          "id": "1043",
+          "cn": "",
+          "kr": "주마술사",
+          "lv": 84,
+          "hp": 3690,
+          "exp": 17820,
+          "img": "400",
+          "inGame": false
+        },
+        {
+          "id": "1044",
+          "cn": "",
+          "kr": "주마화궁사",
+          "lv": 84,
+          "hp": 3870,
+          "exp": 17820,
+          "img": "401",
+          "inGame": false
+        },
+        {
+          "id": "1045",
+          "cn": "",
+          "kr": "주마풍궁사",
+          "lv": 84,
+          "hp": 3870,
+          "exp": 17820,
+          "img": "402",
+          "inGame": false
+        },
+        {
+          "id": "1046",
+          "cn": "",
+          "kr": "주마검사",
+          "lv": 84,
+          "hp": 6300,
+          "exp": 20350,
+          "img": "403",
+          "inGame": false
+        },
+        {
+          "id": "1047",
+          "cn": "",
+          "kr": "여귀석",
+          "lv": 84,
+          "hp": 2790,
+          "exp": 14850,
+          "img": "404",
+          "inGame": false
+        },
+        {
+          "id": "1048",
+          "cn": "",
+          "kr": "마석거인",
+          "lv": 84,
+          "hp": 5670,
+          "exp": 17050,
+          "img": "405",
+          "inGame": false
+        },
+        {
+          "id": "1049",
+          "cn": "",
+          "kr": "격괴장",
+          "lv": 84,
+          "hp": 16200,
+          "exp": 45650,
+          "img": "406",
+          "inGame": false
+        }
+      ]
+    },
+    {
+      "listId": 69,
+      "cn": "古代石墓",
+      "en": "Ancient Stone Tomb",
+      "mapCount": 3,
+      "maps": [
+        "古代石墓1层",
+        "古代石墓2层",
+        "古代石墓3层"
+      ],
+      "matchedZones": [
+        "zone-kings-tomb",
+        "zone-stone-temple-1",
+        "zone-stone-temple-2",
+        "zone-stone-temple-kr",
+        "zone-lab-stone-colossus"
+      ],
+      "uniqueMobIds": 6,
+      "sampleMobs": [
+        {
+          "id": "303",
+          "cn": "古代黑色恶蛆",
+          "kr": "고대흑치",
+          "lv": 50,
+          "hp": 800,
+          "exp": 4560,
+          "img": "74",
+          "inGame": false
+        },
+        {
+          "id": "304",
+          "cn": "古代红野猪",
+          "kr": "고대적돈",
+          "lv": 50,
+          "hp": 950,
+          "exp": 4680,
+          "img": "110",
+          "inGame": false
+        },
+        {
+          "id": "305",
+          "cn": "古代黑野猪",
+          "kr": "고대흑돈",
+          "lv": 50,
+          "hp": 1100,
+          "exp": 5040,
+          "img": "111",
+          "inGame": false
+        },
+        {
+          "id": "306",
+          "cn": "古代白野猪",
+          "kr": "고대백돈",
+          "lv": 50,
+          "hp": 1150,
+          "exp": 5280,
+          "img": "112",
+          "inGame": false
+        },
+        {
+          "id": "313",
+          "cn": "古代蝎蛇",
+          "kr": "고대혈사갈",
+          "lv": 50,
+          "hp": 1000,
+          "exp": 4800,
+          "img": "130",
+          "inGame": false
+        },
+        {
+          "id": "330",
+          "cn": "古代鬼豚王",
+          "kr": "고대귀돈왕",
+          "lv": 99,
+          "hp": 12000,
+          "exp": 12000,
+          "img": "112",
+          "inGame": false
+        }
+      ]
+    },
+    {
+      "listId": 70,
+      "cn": "古代祖玛寺庙",
+      "en": "Ancient Zuma Temple",
+      "mapCount": 3,
+      "maps": [
+        "古代祖玛神殿1层",
+        "古代祖玛神殿2层",
+        "古代祖玛神殿3层"
+      ],
+      "matchedZones": [
+        "zone-wooma-temple-1",
+        "zone-wooma-temple-2",
+        "zone-wooma-temple-kr",
+        "zone-stone-temple-1",
+        "zone-stone-temple-2",
+        "zone-stone-temple-kr",
+        "zone-zuma-temple-1",
+        "zone-zuma-temple-2",
+        "zone-zuma-temple-kr",
+        "zone-prajna-temple-1",
+        "zone-prajna-temple-2",
+        "zone-prajna-temple-kr",
+        "zone-bdd-11"
+      ],
+      "uniqueMobIds": 5,
+      "sampleMobs": [
+        {
+          "id": "421",
+          "cn": "古代大老鼠",
+          "kr": "고대큰쥐",
+          "lv": 66,
+          "hp": 900,
+          "exp": 7200,
+          "img": "46",
+          "inGame": false
+        },
+        {
+          "id": "422",
+          "cn": "古代祖玛弓箭手",
+          "kr": "고대마궁사",
+          "lv": 66,
+          "hp": 900,
+          "exp": 7320,
+          "img": "47",
+          "inGame": false
+        },
+        {
+          "id": "423",
+          "cn": "古代祖玛雕像",
+          "kr": "고대주마신장",
+          "lv": 66,
+          "hp": 1000,
+          "exp": 7440,
+          "img": "61",
+          "inGame": false
+        },
+        {
+          "id": "424",
+          "cn": "古代祖玛卫士",
+          "kr": "고대주마호법",
+          "lv": 66,
+          "hp": 1100,
+          "exp": 7560,
+          "img": "62",
+          "inGame": false
+        },
+        {
+          "id": "425",
+          "cn": "古代咒魔击雷将",
+          "kr": "고대주마격뢰장",
+          "lv": 99,
+          "hp": 40000,
+          "exp": 30000,
+          "img": "221",
+          "inGame": false
+        }
+      ]
+    },
+    {
+      "listId": 71,
+      "cn": "道馆矿区",
+      "en": "Dojo Mine",
+      "mapCount": 4,
+      "maps": [
+        "迷石矿山1层",
+        "迷石矿山2层",
+        "迷石矿山3层",
+        "迷石矿山4层"
+      ],
+      "matchedZones": [
+        "zone-dead-mines-1",
+        "zone-dead-mines-2",
+        "zone-dead-mines-kr",
+        "zone-bichon-mine"
+      ],
+      "uniqueMobIds": 8,
+      "sampleMobs": [
+        {
+          "id": "63",
+          "cn": "",
+          "kr": "법귀",
+          "lv": 30,
+          "hp": 205,
+          "exp": 360,
+          "img": "50",
+          "inGame": false
+        },
+        {
+          "id": "106",
+          "cn": "",
+          "kr": "손귀",
+          "lv": 30,
+          "hp": 205,
+          "exp": 360,
+          "img": "53",
+          "inGame": false
+        },
+        {
+          "id": "113",
+          "cn": "",
+          "kr": "시귀",
+          "lv": 30,
+          "hp": 230,
+          "exp": 360,
+          "img": "51",
+          "inGame": false
+        },
+        {
+          "id": "121",
+          "cn": "",
+          "kr": "아귀",
+          "lv": 30,
+          "hp": 205,
+          "exp": 360,
+          "img": "52",
+          "inGame": false
+        },
+        {
+          "id": "198",
+          "cn": "",
+          "kr": "주술귀",
+          "lv": 31,
+          "hp": 205,
+          "exp": 384,
+          "img": "40",
+          "inGame": false
+        },
+        {
+          "id": "39",
+          "cn": "",
+          "kr": "독귀",
+          "lv": 34,
+          "hp": 250,
+          "exp": 480,
+          "img": "51",
+          "inGame": false
+        },
+        {
+          "id": "129",
+          "cn": "염尸王",
+          "kr": "염마귀",
+          "lv": 40,
+          "hp": 600,
+          "exp": 960,
+          "img": "152",
+          "inGame": false
+        },
+        {
+          "id": "253",
+          "cn": "",
+          "kr": "혈아귀",
+          "lv": 34,
+          "hp": 205,
+          "exp": 516,
+          "img": "50",
+          "inGame": false
+        }
+      ]
+    },
+    {
+      "listId": 72,
+      "cn": "赤月峡谷",
+      "en": "Red Moon Valley / Red Cavern",
+      "mapCount": 14,
+      "maps": [
+        "赤月峡谷1层北",
+        "赤月峡谷1层西",
+        "赤月峡谷1层东",
+        "赤月峡谷2层",
+        "赤月峡谷3层西",
+        "赤月峡谷3层东",
+        "赤月峡谷4层",
+        "赤月峡谷5层",
+        "赤月峡谷5层",
+        "恶魔老巢",
+        "恶魔祭坛",
+        "赤月峡谷5层(任务)",
+        "赤月峡谷5层(任务)",
+        "恶魔老巢(任务)"
+      ],
+      "matchedZones": [
+        "zone-red-cavern-1",
+        "zone-red-cavern-2",
+        "zone-red-cavern-kr",
+        "zone-hell-gd-1",
+        "zone-hell-gd-2",
+        "zone-hell-gd-3"
+      ],
+      "uniqueMobIds": 15,
+      "sampleMobs": [
+        {
+          "id": "76",
+          "cn": "月魔蜘蛛",
+          "kr": "비독주",
+          "lv": 52,
+          "hp": 300,
+          "exp": 648,
+          "img": "113",
+          "inGame": false
+        },
+        {
+          "id": "98",
+          "cn": "钢牙蜘蛛",
+          "kr": "산적거미",
+          "lv": 45,
+          "hp": 300,
+          "exp": 684,
+          "img": "114",
+          "inGame": false
+        },
+        {
+          "id": "173",
+          "cn": "天狼蜘蛛",
+          "kr": "적침주",
+          "lv": 40,
+          "hp": 300,
+          "exp": 624,
+          "img": "119",
+          "inGame": false
+        },
+        {
+          "id": "230",
+          "cn": "幻影蜘蛛",
+          "kr": "폭안거미",
+          "lv": 53,
+          "hp": 210,
+          "exp": 648,
+          "img": "132",
+          "inGame": false
+        },
+        {
+          "id": "355",
+          "cn": "",
+          "kr": "적월편주",
+          "lv": 52,
+          "hp": 300,
+          "exp": 648,
+          "img": "113",
+          "inGame": false
+        },
+        {
+          "id": "116",
+          "cn": "神石毒魔蛛",
+          "kr": "신석독마주",
+          "lv": 50,
+          "hp": 2000,
+          "exp": 5000,
+          "img": "223",
+          "inGame": false
+        },
+        {
+          "id": "265",
+          "cn": "花吻蜘蛛",
+          "kr": "화갑주",
+          "lv": 54,
+          "hp": 350,
+          "exp": 768,
+          "img": "117",
+          "inGame": false
+        },
+        {
+          "id": "353",
+          "cn": "",
+          "kr": "소보",
+          "lv": 55,
+          "hp": 1000,
+          "exp": 1152,
+          "img": "115",
+          "inGame": false
+        },
+        {
+          "id": "270",
+          "cn": "黑颚蜘蛛",
+          "kr": "흑각거미",
+          "lv": 53,
+          "hp": 350,
+          "exp": 720,
+          "img": "118",
+          "inGame": false
+        },
+        {
+          "id": "354",
+          "cn": "",
+          "kr": "혈원인",
+          "lv": 56,
+          "hp": 900,
+          "exp": 2160,
+          "img": "116",
+          "inGame": false
+        },
+        {
+          "id": "246",
+          "cn": "",
+          "kr": "혈거인",
+          "lv": 55,
+          "hp": 700,
+          "exp": 1152,
+          "img": "115",
+          "inGame": false
+        },
+        {
+          "id": "251",
+          "cn": "",
+          "kr": "혈마",
+          "lv": 56,
+          "hp": 900,
+          "exp": 2160,
+          "img": "116",
+          "inGame": false
+        },
+        {
+          "id": "171",
+          "cn": "赤月恶魔",
+          "kr": "적월마",
+          "lv": 99,
+          "hp": 5000,
+          "exp": 6000,
+          "img": "131",
+          "inGame": false
+        },
+        {
+          "id": "174",
+          "cn": "双头血魔",
+          "kr": "적혈마",
+          "lv": 55,
+          "hp": 900,
+          "exp": 1080,
+          "img": "92",
+          "inGame": false
+        },
+        {
+          "id": "268",
+          "cn": "双头金刚",
+          "kr": "회혈마",
+          "lv": 55,
+          "hp": 900,
+          "exp": 1080,
+          "img": "93",
+          "inGame": false
+        }
+      ]
+    },
+    {
+      "listId": 73,
+      "cn": "月之谷",
+      "en": "Moon Valley",
+      "mapCount": 6,
+      "maps": [
+        "月之谷1层",
+        "月之谷2层",
+        "月之圣殿左室",
+        "月之圣殿右室",
+        "月之圣殿通道1",
+        "月之圣殿通道2"
+      ],
+      "matchedZones": [],
+      "uniqueMobIds": 15,
+      "sampleMobs": [
+        {
+          "id": "75",
+          "cn": "",
+          "kr": "비독마주",
+          "lv": 70,
+          "hp": 1270,
+          "exp": 8030,
+          "img": "260",
+          "inGame": false
+        },
+        {
+          "id": "97",
+          "cn": "",
+          "kr": "산월마주",
+          "lv": 70,
+          "hp": 1400,
+          "exp": 8360,
+          "img": "261",
+          "inGame": false
+        },
+        {
+          "id": "158",
+          "cn": "月之镰神将",
+          "kr": "월지겸신장",
+          "lv": 80,
+          "hp": 21000,
+          "exp": 30000,
+          "img": "257",
+          "inGame": false
+        },
+        {
+          "id": "161",
+          "cn": "",
+          "kr": "월지마주",
+          "lv": 75,
+          "hp": 1420,
+          "exp": 8200,
+          "img": "265",
+          "inGame": false
+        },
+        {
+          "id": "162",
+          "cn": "",
+          "kr": "월지투신",
+          "lv": 70,
+          "hp": 1450,
+          "exp": 7480,
+          "img": "270",
+          "inGame": false
+        },
+        {
+          "id": "172",
+          "cn": "",
+          "kr": "적침마주",
+          "lv": 70,
+          "hp": 1100,
+          "exp": 8470,
+          "img": "262",
+          "inGame": false
+        },
+        {
+          "id": "264",
+          "cn": "",
+          "kr": "화갑마주",
+          "lv": 70,
+          "hp": 1420,
+          "exp": 8800,
+          "img": "264",
+          "inGame": false
+        },
+        {
+          "id": "271",
+          "cn": "",
+          "kr": "흑각마주",
+          "lv": 70,
+          "hp": 1320,
+          "exp": 8690,
+          "img": "263",
+          "inGame": false
+        },
+        {
+          "id": "231",
+          "cn": "",
+          "kr": "폭안마주",
+          "lv": 70,
+          "hp": 1300,
+          "exp": 7810,
+          "img": "269",
+          "inGame": false
+        },
+        {
+          "id": "157",
+          "cn": "",
+          "kr": "월지격장",
+          "lv": 75,
+          "hp": 1550,
+          "exp": 9100,
+          "img": "268",
+          "inGame": false
+        },
+        {
+          "id": "159",
+          "cn": "",
+          "kr": "월지마신",
+          "lv": 70,
+          "hp": 1000,
+          "exp": 7700,
+          "img": "271",
+          "inGame": false
+        },
+        {
+          "id": "160",
+          "cn": "",
+          "kr": "월지마장",
+          "lv": 75,
+          "hp": 1420,
+          "exp": 8600,
+          "img": "266",
+          "inGame": false
+        },
+        {
+          "id": "163",
+          "cn": "",
+          "kr": "월지호교",
+          "lv": 75,
+          "hp": 1480,
+          "exp": 8650,
+          "img": "267",
+          "inGame": false
+        },
+        {
+          "id": "99",
+          "cn": "石魔兽",
+          "kr": "석마수",
+          "lv": 80,
+          "hp": 30000,
+          "exp": 40000,
+          "img": "258",
+          "inGame": false
+        },
+        {
+          "id": "180",
+          "cn": "鸟人像",
+          "kr": "조인상",
+          "lv": 80,
+          "hp": 26000,
+          "exp": 35000,
+          "img": "259",
+          "inGame": false
+        }
+      ]
+    },
+    {
+      "listId": 74,
+      "cn": "弦月林",
+      "en": "Crescent Forest",
+      "mapCount": 4,
+      "maps": [
+        "弦月林1层",
+        "弦月林2层",
+        "弦月林3层",
+        "弦月堂"
+      ],
+      "matchedZones": [],
+      "uniqueMobIds": 18,
+      "sampleMobs": [
+        {
+          "id": "1300",
+          "cn": "草丛龟",
+          "kr": "숲거북이",
+          "lv": 66,
+          "hp": 1550,
+          "exp": 10080,
+          "img": "413",
+          "inGame": false
+        },
+        {
+          "id": "1301",
+          "cn": "杉精魄",
+          "kr": "삼나무정백",
+          "lv": 66,
+          "hp": 1600,
+          "exp": 9960,
+          "img": "414",
+          "inGame": false
+        },
+        {
+          "id": "1302",
+          "cn": "弦月寒虎",
+          "kr": "현월환호",
+          "lv": 75,
+          "hp": 2350,
+          "exp": 11500,
+          "img": "222",
+          "inGame": false
+        },
+        {
+          "id": "1303",
+          "cn": "熊",
+          "kr": "곰",
+          "lv": 66,
+          "hp": 1950,
+          "exp": 10200,
+          "img": "415",
+          "inGame": false
+        },
+        {
+          "id": "1304",
+          "cn": "金钱豹",
+          "kr": "표범",
+          "lv": 66,
+          "hp": 1300,
+          "exp": 7200,
+          "img": "416",
+          "inGame": false
+        },
+        {
+          "id": "1305",
+          "cn": "弦月坛战士1",
+          "kr": "현월단전사1",
+          "lv": 70,
+          "hp": 2150,
+          "exp": 9350,
+          "img": "6",
+          "inGame": false
+        },
+        {
+          "id": "1306",
+          "cn": "弦月坛战士2",
+          "kr": "현월단전사2",
+          "lv": 70,
+          "hp": 2150,
+          "exp": 9350,
+          "img": "6",
+          "inGame": false
+        },
+        {
+          "id": "1307",
+          "cn": "弦月坛术士1",
+          "kr": "현월단술사1",
+          "lv": 70,
+          "hp": 1050,
+          "exp": 9350,
+          "img": "7",
+          "inGame": false
+        },
+        {
+          "id": "1308",
+          "cn": "弦月坛术士2",
+          "kr": "현월단술사2",
+          "lv": 70,
+          "hp": 1050,
+          "exp": 9350,
+          "img": "7",
+          "inGame": false
+        },
+        {
+          "id": "1309",
+          "cn": "弦月坛道士1",
+          "kr": "현월단도사1",
+          "lv": 70,
+          "hp": 1480,
+          "exp": 9350,
+          "img": "8",
+          "inGame": false
+        },
+        {
+          "id": "1310",
+          "cn": "弦月坛道士2",
+          "kr": "현월단도사2",
+          "lv": 70,
+          "hp": 1480,
+          "exp": 9350,
+          "img": "8",
+          "inGame": false
+        },
+        {
+          "id": "1311",
+          "cn": "弦月坛刺客1",
+          "kr": "현월단자객1",
+          "lv": 70,
+          "hp": 1820,
+          "exp": 9350,
+          "img": "22",
+          "inGame": false
+        },
+        {
+          "id": "1312",
+          "cn": "弦月坛刺客2",
+          "kr": "현월단자객2",
+          "lv": 70,
+          "hp": 1820,
+          "exp": 9350,
+          "img": "22",
+          "inGame": false
+        },
+        {
+          "id": "1313",
+          "cn": "定缘道士",
+          "kr": "정연도사",
+          "lv": 80,
+          "hp": 12500,
+          "exp": 24000,
+          "img": "33",
+          "inGame": false
+        },
+        {
+          "id": "1314",
+          "cn": "金胜战士",
+          "kr": "전승전사",
+          "lv": 80,
+          "hp": 14500,
+          "exp": 24000,
+          "img": "31",
+          "inGame": false
+        }
+      ]
+    },
+    {
+      "listId": 75,
+      "cn": "墨龙穴",
+      "en": "Ink Dragon Lair / Black Dragon Cave",
+      "mapCount": 13,
+      "maps": [
+        "묵룡동1층",
+        "흑사궁",
+        "묵룡동굴",
+        "묵룡동2층",
+        "연옥관",
+        "우마궁",
+        "환마진",
+        "귀돈궁",
+        "단혼관",
+        "환마진",
+        "주마궁",
+        "파옥관",
+        "흑천마궁"
+      ],
+      "matchedZones": [
+        "zone-bone-cave-1",
+        "zone-bone-cave-2",
+        "zone-bone-cave-kr",
+        "zone-insect-cave-1",
+        "zone-insect-cave-2",
+        "zone-insect-cave-kr",
+        "zone-bug-cave-1",
+        "zone-bug-cave-2",
+        "zone-bug-cave-kr",
+        "zone-viper-cave-1",
+        "zone-viper-cave-2",
+        "zone-viper-cave-kr",
+        "zone-prajna-cave-1",
+        "zone-prajna-cave-2",
+        "zone-prajna-cave-kr",
+        "zone-red-cavern-1",
+        "zone-red-cavern-2",
+        "zone-red-cavern-kr",
+        "zone-hell-gd-1",
+        "zone-hell-gd-2",
+        "zone-hell-gd-3",
+        "zone-bdd-1",
+        "zone-bdd-2",
+        "zone-lab-cave-witch"
+      ],
+      "uniqueMobIds": 16,
+      "sampleMobs": [
+        {
+          "id": "77",
+          "cn": "角蝇",
+          "kr": "비막원충",
+          "lv": 30,
+          "hp": 200,
+          "exp": 444,
+          "img": "41",
+          "inGame": false
+        },
+        {
+          "id": "120",
+          "cn": "楔蛾",
+          "kr": "쐐기나방",
+          "lv": 32,
+          "hp": 220,
+          "exp": 648,
+          "img": "39",
+          "inGame": false
+        },
+        {
+          "id": "316",
+          "cn": "黑龙尸王",
+          "kr": "묵룡구울",
+          "lv": 50,
+          "hp": 1100,
+          "exp": 3480,
+          "img": "152",
+          "inGame": false
+        },
+        {
+          "id": "321",
+          "cn": "黑龙祖玛弓箭手",
+          "kr": "묵룡마궁사",
+          "lv": 40,
+          "hp": 1100,
+          "exp": 3720,
+          "img": "47",
+          "inGame": false
+        },
+        {
+          "id": "273",
+          "cn": "黑蛇王",
+          "kr": "흑사왕",
+          "lv": 99,
+          "hp": 5000,
+          "exp": 12000,
+          "img": "180",
+          "inGame": false
+        },
+        {
+          "id": "317",
+          "cn": "黑龙钳虫",
+          "kr": "묵룡집게벌레",
+          "lv": 60,
+          "hp": 1260,
+          "exp": 3480,
+          "img": "121",
+          "inGame": false
+        },
+        {
+          "id": "318",
+          "cn": "黑龙邪恶毒蛇",
+          "kr": "묵룡흑혈사",
+          "lv": 50,
+          "hp": 1260,
+          "exp": 3480,
+          "img": "164",
+          "inGame": false
+        },
+        {
+          "id": "78",
+          "cn": "蝙蝠",
+          "kr": "비막충",
+          "lv": 5,
+          "hp": 3,
+          "exp": 6,
+          "img": "42",
+          "inGame": false
+        },
+        {
+          "id": "148",
+          "cn": "牛魔鬼尊",
+          "kr": "우마귀존",
+          "lv": 99,
+          "hp": 6000,
+          "exp": 12000,
+          "img": "34",
+          "inGame": false
+        },
+        {
+          "id": "320",
+          "cn": "黑龙护卫",
+          "kr": "묵룡귀장",
+          "lv": 50,
+          "hp": 1100,
+          "exp": 3600,
+          "img": "151",
+          "inGame": false
+        },
+        {
+          "id": "319",
+          "cn": "黑龙白野猪",
+          "kr": "묵룡백돈",
+          "lv": 50,
+          "hp": 1100,
+          "exp": 3720,
+          "img": "112",
+          "inGame": false
+        },
+        {
+          "id": "322",
+          "cn": "黑龙雕像",
+          "kr": "묵룡신장",
+          "lv": 50,
+          "hp": 1440,
+          "exp": 4080,
+          "img": "61",
+          "inGame": false
+        },
+        {
+          "id": "323",
+          "cn": "黑龙卫士",
+          "kr": "묵룡호법",
+          "lv": 50,
+          "hp": 1620,
+          "exp": 4320,
+          "img": "62",
+          "inGame": false
+        },
+        {
+          "id": "21",
+          "cn": "鬼豚王",
+          "kr": "귀돈왕",
+          "lv": 99,
+          "hp": 8000,
+          "exp": 18000,
+          "img": "181",
+          "inGame": false
+        },
+        {
+          "id": "193",
+          "cn": "咒魔石尊",
+          "kr": "주마석존",
+          "lv": 99,
+          "hp": 10000,
+          "exp": 18000,
+          "img": "63",
+          "inGame": false
+        }
+      ]
+    },
+    {
+      "listId": 76,
+      "cn": "神穿鬼路",
+      "en": "Spirit Ghost Path",
+      "mapCount": 5,
+      "maps": [
+        "神穿鬼路",
+        "神穿鬼路",
+        "龙痕丘陵",
+        "神穿鬼路",
+        "神穿鬼路"
+      ],
+      "matchedZones": [],
+      "uniqueMobIds": 10,
+      "sampleMobs": [
+        {
+          "id": "1335",
+          "cn": "水龙",
+          "kr": "수룡",
+          "lv": 83,
+          "hp": 2970,
+          "exp": 14050,
+          "img": "432",
+          "inGame": false
+        },
+        {
+          "id": "1336",
+          "cn": "沼玄武",
+          "kr": "소현무",
+          "lv": 83,
+          "hp": 2845,
+          "exp": 13555,
+          "img": "433",
+          "inGame": false
+        },
+        {
+          "id": "1337",
+          "cn": "",
+          "kr": "동굴박쥐",
+          "lv": 82,
+          "hp": 2555,
+          "exp": 12700,
+          "img": "80",
+          "inGame": false
+        },
+        {
+          "id": "1338",
+          "cn": "동굴钳虫",
+          "kr": "동굴집게벌레",
+          "lv": 82,
+          "hp": 2740,
+          "exp": 12950,
+          "img": "121",
+          "inGame": false
+        },
+        {
+          "id": "1339",
+          "cn": "",
+          "kr": "푸른거미",
+          "lv": 82,
+          "hp": 2800,
+          "exp": 13100,
+          "img": "261",
+          "inGame": false
+        },
+        {
+          "id": "1340",
+          "cn": "穷奇",
+          "kr": "궁기",
+          "lv": 86,
+          "hp": 8250,
+          "exp": 29855,
+          "img": "434",
+          "inGame": false
+        },
+        {
+          "id": "1341",
+          "cn": "龙骨战士",
+          "kr": "용골전사",
+          "lv": 82,
+          "hp": 2150,
+          "exp": 8500,
+          "img": "435",
+          "inGame": false
+        },
+        {
+          "id": "1342",
+          "cn": "龙骨弓士",
+          "kr": "용골궁사",
+          "lv": 82,
+          "hp": 2780,
+          "exp": 13100,
+          "img": "436",
+          "inGame": false
+        },
+        {
+          "id": "1343",
+          "cn": "沙暴风",
+          "kr": "모래폭풍",
+          "lv": 82,
+          "hp": 1460,
+          "exp": 11500,
+          "img": "437",
+          "inGame": false
+        },
+        {
+          "id": "1344",
+          "cn": "麒麟",
+          "kr": "기린",
+          "lv": 84,
+          "hp": 2495,
+          "exp": 14270,
+          "img": "438",
+          "inGame": false
+        }
+      ]
+    },
+    {
+      "listId": 77,
+      "cn": "般若石窟",
+      "en": "Prajna Cave",
+      "mapCount": 6,
+      "maps": [
+        "般若石窟1层",
+        "般若石窟2层东",
+        "般若石窟2层西",
+        "般若石窟3层",
+        "般若石窟4层",
+        "般若石窟5层"
+      ],
+      "matchedZones": [
+        "zone-bone-cave-1",
+        "zone-bone-cave-2",
+        "zone-bone-cave-kr",
+        "zone-insect-cave-1",
+        "zone-insect-cave-2",
+        "zone-insect-cave-kr",
+        "zone-bug-cave-1",
+        "zone-bug-cave-2",
+        "zone-bug-cave-kr",
+        "zone-viper-cave-1",
+        "zone-viper-cave-2",
+        "zone-viper-cave-kr",
+        "zone-prajna-cave-1",
+        "zone-prajna-cave-2",
+        "zone-prajna-cave-kr",
+        "zone-prajna-temple-1",
+        "zone-prajna-temple-2",
+        "zone-prajna-temple-kr",
+        "zone-red-cavern-1",
+        "zone-red-cavern-2",
+        "zone-red-cavern-kr",
+        "zone-hell-gd-1",
+        "zone-hell-gd-2",
+        "zone-hell-gd-3",
+        "zone-bdd-2",
+        "zone-lab-cave-witch"
+      ],
+      "uniqueMobIds": 8,
+      "sampleMobs": [
+        {
+          "id": "26",
+          "cn": "浪人鬼",
+          "kr": "낭인귀",
+          "lv": 35,
+          "hp": 430,
+          "exp": 1224,
+          "img": "190",
+          "inGame": false
+        },
+        {
+          "id": "40",
+          "cn": "洞蛆",
+          "kr": "동굴구더기",
+          "lv": 21,
+          "hp": 80,
+          "exp": 146,
+          "img": "24",
+          "inGame": false
+        },
+        {
+          "id": "69",
+          "cn": "腐蚀鬼",
+          "kr": "부식귀",
+          "lv": 33,
+          "hp": 350,
+          "exp": 1128,
+          "img": "191",
+          "inGame": false
+        },
+        {
+          "id": "175",
+          "cn": "蝎子",
+          "kr": "전갈",
+          "lv": 18,
+          "hp": 45,
+          "exp": 115,
+          "img": "83",
+          "inGame": false
+        },
+        {
+          "id": "235",
+          "cn": "骷髅弓箭手",
+          "kr": "해골궁수",
+          "lv": 38,
+          "hp": 450,
+          "exp": 1224,
+          "img": "195",
+          "inGame": false
+        },
+        {
+          "id": "236",
+          "cn": "骷髅武士",
+          "kr": "해골무사",
+          "lv": 45,
+          "hp": 540,
+          "exp": 1536,
+          "img": "194",
+          "inGame": false
+        },
+        {
+          "id": "239",
+          "cn": "骷髅士兵",
+          "kr": "해골병졸",
+          "lv": 42,
+          "hp": 520,
+          "exp": 1380,
+          "img": "193",
+          "inGame": false
+        },
+        {
+          "id": "237",
+          "cn": "骷髅武将",
+          "kr": "해골무장",
+          "lv": 49,
+          "hp": 620,
+          "exp": 1620,
+          "img": "192",
+          "inGame": false
+        }
+      ]
+    },
+    {
+      "listId": 78,
+      "cn": "般若神殿",
+      "en": "Prajna Temple",
+      "mapCount": 10,
+      "maps": [
+        "般若神殿大厅",
+        "般若神殿1层",
+        "般若神殿2层",
+        "般若神殿3层",
+        "般若神殿4层",
+        "般若神殿5层东",
+        "般若神殿5层西",
+        "般若神殿6层",
+        "般若神殿7层",
+        "般若神殿8层"
+      ],
+      "matchedZones": [
+        "zone-wooma-temple-1",
+        "zone-wooma-temple-2",
+        "zone-wooma-temple-kr",
+        "zone-stone-temple-1",
+        "zone-stone-temple-2",
+        "zone-stone-temple-kr",
+        "zone-zuma-temple-1",
+        "zone-zuma-temple-2",
+        "zone-zuma-temple-kr",
+        "zone-prajna-cave-1",
+        "zone-prajna-cave-2",
+        "zone-prajna-cave-kr",
+        "zone-prajna-temple-1",
+        "zone-prajna-temple-2",
+        "zone-prajna-temple-kr"
+      ],
+      "uniqueMobIds": 8,
+      "sampleMobs": [
+        {
+          "id": "53",
+          "cn": "",
+          "kr": "반야귀졸",
+          "lv": 42,
+          "hp": 500,
+          "exp": 1656,
+          "img": "200",
+          "inGame": false
+        },
+        {
+          "id": "54",
+          "cn": "",
+          "kr": "반야빙귀",
+          "lv": 48,
+          "hp": 630,
+          "exp": 1776,
+          "img": "201",
+          "inGame": false
+        },
+        {
+          "id": "55",
+          "cn": "",
+          "kr": "반야우사",
+          "lv": 49,
+          "hp": 620,
+          "exp": 2040,
+          "img": "205",
+          "inGame": false
+        },
+        {
+          "id": "56",
+          "cn": "",
+          "kr": "반야운귀",
+          "lv": 48,
+          "hp": 600,
+          "exp": 1740,
+          "img": "202",
+          "inGame": false
+        },
+        {
+          "id": "57",
+          "cn": "",
+          "kr": "반야좌사",
+          "lv": 49,
+          "hp": 570,
+          "exp": 2040,
+          "img": "206",
+          "inGame": false
+        },
+        {
+          "id": "58",
+          "cn": "",
+          "kr": "반야풍귀",
+          "lv": 48,
+          "hp": 550,
+          "exp": 1740,
+          "img": "203",
+          "inGame": false
+        },
+        {
+          "id": "59",
+          "cn": "",
+          "kr": "반야화귀",
+          "lv": 48,
+          "hp": 500,
+          "exp": 1824,
+          "img": "204",
+          "inGame": false
+        },
+        {
+          "id": "96",
+          "cn": "邪牛天王",
+          "kr": "사우천왕",
+          "lv": 99,
+          "hp": 15000,
+          "exp": 15000,
+          "img": "207",
+          "inGame": false
+        }
+      ]
+    },
+    {
+      "listId": 79,
+      "cn": "古代般若石窟",
+      "en": "Ancient Prajna Cave",
+      "mapCount": 3,
+      "maps": [
+        "古代般若石窟1层",
+        "古代般若石窟2层",
+        "古代般若石窟3层"
+      ],
+      "matchedZones": [
+        "zone-bone-cave-1",
+        "zone-bone-cave-2",
+        "zone-bone-cave-kr",
+        "zone-insect-cave-1",
+        "zone-insect-cave-2",
+        "zone-insect-cave-kr",
+        "zone-bug-cave-1",
+        "zone-bug-cave-2",
+        "zone-bug-cave-kr",
+        "zone-viper-cave-1",
+        "zone-viper-cave-2",
+        "zone-viper-cave-kr",
+        "zone-prajna-cave-1",
+        "zone-prajna-cave-2",
+        "zone-prajna-cave-kr",
+        "zone-prajna-temple-1",
+        "zone-prajna-temple-2",
+        "zone-prajna-temple-kr",
+        "zone-red-cavern-1",
+        "zone-red-cavern-2",
+        "zone-red-cavern-kr",
+        "zone-hell-gd-1",
+        "zone-hell-gd-2",
+        "zone-hell-gd-3",
+        "zone-bdd-2",
+        "zone-lab-cave-witch"
+      ],
+      "uniqueMobIds": 7,
+      "sampleMobs": [
+        {
+          "id": "307",
+          "cn": "古代腐蚀鬼",
+          "kr": "고대부식귀",
+          "lv": 58,
+          "hp": 1500,
+          "exp": 6000,
+          "img": "191",
+          "inGame": false
+        },
+        {
+          "id": "308",
+          "cn": "古代浪人鬼",
+          "kr": "고대낭인귀",
+          "lv": 58,
+          "hp": 1150,
+          "exp": 6000,
+          "img": "190",
+          "inGame": false
+        },
+        {
+          "id": "309",
+          "cn": "古代骷髅弓箭手",
+          "kr": "고대해골궁수",
+          "lv": 58,
+          "hp": 900,
+          "exp": 6120,
+          "img": "195",
+          "inGame": false
+        },
+        {
+          "id": "310",
+          "cn": "古代骷髅士兵",
+          "kr": "고대해골병졸",
+          "lv": 58,
+          "hp": 1300,
+          "exp": 6240,
+          "img": "193",
+          "inGame": false
+        },
+        {
+          "id": "311",
+          "cn": "古代骷髅武士",
+          "kr": "고대해골무사",
+          "lv": 58,
+          "hp": 1400,
+          "exp": 6360,
+          "img": "194",
+          "inGame": false
+        },
+        {
+          "id": "312",
+          "cn": "古代骷髅武将",
+          "kr": "고대해골무장",
+          "lv": 58,
+          "hp": 1500,
+          "exp": 6480,
+          "img": "192",
+          "inGame": false
+        },
+        {
+          "id": "324",
+          "cn": "古代骸骨盘王",
+          "kr": "고대해골반왕",
+          "lv": 99,
+          "hp": 15000,
+          "exp": 15000,
+          "img": "196",
+          "inGame": false
+        }
+      ]
+    },
+    {
+      "listId": 80,
+      "cn": "片木岛",
+      "en": "Pianmu Island / Flatwood Isle",
+      "mapCount": 12,
+      "maps": [
+        "片木岛",
+        "片木岛村庄",
+        "货船入口",
+        "货船仓库",
+        "货船居住舱",
+        "货船船艄",
+        "货船船长室",
+        "帆船入口",
+        "帆船仓库",
+        "帆船居住仓",
+        "帆船船艄",
+        "帆船船长室"
+      ],
+      "matchedZones": [],
+      "uniqueMobIds": 15,
+      "sampleMobs": [
+        {
+          "id": "983",
+          "cn": "",
+          "kr": "긴코원숭이",
+          "lv": 81,
+          "hp": 2050,
+          "exp": 9850,
+          "img": "382",
+          "inGame": false
+        },
+        {
+          "id": "984",
+          "cn": "",
+          "kr": "변이갑충",
+          "lv": 80,
+          "hp": 1920,
+          "exp": 9000,
+          "img": "383",
+          "inGame": false
+        },
+        {
+          "id": "985",
+          "cn": "",
+          "kr": "거장화",
+          "lv": 80,
+          "hp": 1920,
+          "exp": 9000,
+          "img": "384",
+          "inGame": false
+        },
+        {
+          "id": "986",
+          "cn": "",
+          "kr": "서성이는궁병",
+          "lv": 80,
+          "hp": 1920,
+          "exp": 11000,
+          "img": "385",
+          "inGame": false
+        },
+        {
+          "id": "989",
+          "cn": "",
+          "kr": "익사한노예",
+          "lv": 80,
+          "hp": 1920,
+          "exp": 11000,
+          "img": "388",
+          "inGame": false
+        },
+        {
+          "id": "993",
+          "cn": "",
+          "kr": "저주받은상자1",
+          "lv": 80,
+          "hp": 1,
+          "exp": 1,
+          "img": "392",
+          "inGame": false
+        },
+        {
+          "id": "994",
+          "cn": "",
+          "kr": "저주받은상자2",
+          "lv": 80,
+          "hp": 1,
+          "exp": 1,
+          "img": "392",
+          "inGame": false
+        },
+        {
+          "id": "995",
+          "cn": "",
+          "kr": "저주받은상자3",
+          "lv": 80,
+          "hp": 1,
+          "exp": 1,
+          "img": "392",
+          "inGame": false
+        },
+        {
+          "id": "988",
+          "cn": "",
+          "kr": "떠도는선원",
+          "lv": 81,
+          "hp": 2050,
+          "exp": 11000,
+          "img": "387",
+          "inGame": false
+        },
+        {
+          "id": "990",
+          "cn": "",
+          "kr": "선박의악령",
+          "lv": 80,
+          "hp": 1920,
+          "exp": 11000,
+          "img": "389",
+          "inGame": false
+        },
+        {
+          "id": "991",
+          "cn": "",
+          "kr": "농노군",
+          "lv": 81,
+          "hp": 2050,
+          "exp": 11000,
+          "img": "390",
+          "inGame": false
+        },
+        {
+          "id": "996",
+          "cn": "",
+          "kr": "변이된감시원",
+          "lv": 83,
+          "hp": 2100,
+          "exp": 12000,
+          "img": "393",
+          "inGame": false
+        },
+        {
+          "id": "997",
+          "cn": "",
+          "kr": "혼불",
+          "lv": 80,
+          "hp": 1920,
+          "exp": 10500,
+          "img": "394",
+          "inGame": false
+        },
+        {
+          "id": "987",
+          "cn": "",
+          "kr": "그을린요리사",
+          "lv": 81,
+          "hp": 2200,
+          "exp": 11550,
+          "img": "386",
+          "inGame": false
+        },
+        {
+          "id": "992",
+          "cn": "",
+          "kr": "거친선목",
+          "lv": 83,
+          "hp": 2300,
+          "exp": 12100,
+          "img": "391",
+          "inGame": false
+        }
+      ]
+    },
+    {
+      "listId": 81,
+      "cn": "魔龙山",
+      "en": "Evil Dragon Mountain",
+      "mapCount": 14,
+      "maps": [
+        "将军营帐",
+        "魔龙东郊",
+        "东林间胜地",
+        "魔龙旧寨",
+        "魔龙祭坛",
+        "魔龙西郊",
+        "西林间胜地",
+        "魔龙沼泽",
+        "魔龙岭",
+        "魔龙西关",
+        "魔龙东关",
+        "魔龙谷",
+        "龙源血路",
+        "魔龙血域"
+      ],
+      "matchedZones": [
+        "zone-bdd-1",
+        "zone-bdd-13"
+      ],
+      "uniqueMobIds": 9,
+      "sampleMobs": [
+        {
+          "id": "87",
+          "cn": "",
+          "kr": "비익오마",
+          "lv": 58,
+          "hp": 1100,
+          "exp": 5640,
+          "img": "210",
+          "inGame": false
+        },
+        {
+          "id": "128",
+          "cn": "",
+          "kr": "양마지석",
+          "lv": 60,
+          "hp": 9000,
+          "exp": 2400,
+          "img": "217",
+          "inGame": false
+        },
+        {
+          "id": "131",
+          "cn": "",
+          "kr": "오마검병",
+          "lv": 54,
+          "hp": 1100,
+          "exp": 5280,
+          "img": "213",
+          "inGame": false
+        },
+        {
+          "id": "132",
+          "cn": "",
+          "kr": "오마석궁병",
+          "lv": 58,
+          "hp": 1000,
+          "exp": 4800,
+          "img": "215",
+          "inGame": false
+        },
+        {
+          "id": "136",
+          "cn": "",
+          "kr": "오마참병",
+          "lv": 54,
+          "hp": 1170,
+          "exp": 5400,
+          "img": "214",
+          "inGame": false
+        },
+        {
+          "id": "164",
+          "cn": "",
+          "kr": "음마지석",
+          "lv": 60,
+          "hp": 10000,
+          "exp": 2640,
+          "img": "218",
+          "inGame": false
+        },
+        {
+          "id": "135",
+          "cn": "",
+          "kr": "오마중위병",
+          "lv": 57,
+          "hp": 1440,
+          "exp": 6120,
+          "img": "211",
+          "inGame": false
+        },
+        {
+          "id": "137",
+          "cn": "",
+          "kr": "오마친위병",
+          "lv": 57,
+          "hp": 1350,
+          "exp": 5880,
+          "img": "212",
+          "inGame": false
+        },
+        {
+          "id": "227",
+          "cn": "破凰魔神",
+          "kr": "파황마신",
+          "lv": 99,
+          "hp": 25000,
+          "exp": 32000,
+          "img": "219",
+          "inGame": false
+        }
+      ]
+    },
+    {
+      "listId": 82,
+      "cn": "魔龙殿阁",
+      "en": "Evil Dragon Hall",
+      "mapCount": 3,
+      "maps": [
+        "뇌화동",
+        "화령동",
+        "마룡의전각"
+      ],
+      "matchedZones": [
+        "zone-bdd-1",
+        "zone-bdd-3",
+        "zone-bdd-12",
+        "zone-bdd-13"
+      ],
+      "uniqueMobIds": 13,
+      "sampleMobs": [
+        {
+          "id": "87",
+          "cn": "",
+          "kr": "비익오마",
+          "lv": 58,
+          "hp": 1100,
+          "exp": 5640,
+          "img": "210",
+          "inGame": false
+        },
+        {
+          "id": "131",
+          "cn": "",
+          "kr": "오마검병",
+          "lv": 54,
+          "hp": 1100,
+          "exp": 5280,
+          "img": "213",
+          "inGame": false
+        },
+        {
+          "id": "132",
+          "cn": "",
+          "kr": "오마석궁병",
+          "lv": 58,
+          "hp": 1000,
+          "exp": 4800,
+          "img": "215",
+          "inGame": false
+        },
+        {
+          "id": "135",
+          "cn": "",
+          "kr": "오마중위병",
+          "lv": 57,
+          "hp": 1440,
+          "exp": 6120,
+          "img": "211",
+          "inGame": false
+        },
+        {
+          "id": "136",
+          "cn": "",
+          "kr": "오마참병",
+          "lv": 54,
+          "hp": 1170,
+          "exp": 5400,
+          "img": "214",
+          "inGame": false
+        },
+        {
+          "id": "137",
+          "cn": "",
+          "kr": "오마친위병",
+          "lv": 57,
+          "hp": 1350,
+          "exp": 5880,
+          "img": "212",
+          "inGame": false
+        },
+        {
+          "id": "142",
+          "cn": "",
+          "kr": "파룡신상",
+          "lv": 255,
+          "hp": 20000,
+          "exp": 1000,
+          "img": "802",
+          "inGame": false
+        },
+        {
+          "id": "143",
+          "cn": "",
+          "kr": "천룡신상",
+          "lv": 255,
+          "hp": 20000,
+          "exp": 1000,
+          "img": "803",
+          "inGame": false
+        },
+        {
+          "id": "144",
+          "cn": "",
+          "kr": "마룡신상",
+          "lv": 255,
+          "hp": 20000,
+          "exp": 1000,
+          "img": "804",
+          "inGame": false
+        },
+        {
+          "id": "145",
+          "cn": "",
+          "kr": "귀룡신상",
+          "lv": 255,
+          "hp": 20000,
+          "exp": 1000,
+          "img": "805",
+          "inGame": false
+        },
+        {
+          "id": "146",
+          "cn": "",
+          "kr": "화룡신상",
+          "lv": 255,
+          "hp": 20000,
+          "exp": 1000,
+          "img": "806",
+          "inGame": false
+        },
+        {
+          "id": "147",
+          "cn": "",
+          "kr": "사룡신상",
+          "lv": 255,
+          "hp": 20000,
+          "exp": 1000,
+          "img": "807",
+          "inGame": false
+        },
+        {
+          "id": "226",
+          "cn": "破天魔龙",
+          "kr": "파천마룡",
+          "lv": 99,
+          "hp": 65000,
+          "exp": 1,
+          "img": "800",
+          "inGame": false
+        }
+      ]
+    },
+    {
+      "listId": 83,
+      "cn": "石槽矿区",
+      "en": "Stone Trough Mine",
+      "mapCount": 4,
+      "maps": [
+        "石槽矿区1层",
+        "石槽矿区2层",
+        "石槽矿区3层",
+        "石槽矿区4层"
+      ],
+      "matchedZones": [
+        "zone-dead-mines-1",
+        "zone-dead-mines-2",
+        "zone-dead-mines-kr",
+        "zone-stone-temple-1",
+        "zone-stone-temple-2",
+        "zone-stone-temple-kr",
+        "zone-lab-stone-colossus",
+        "zone-bichon-mine"
+      ],
+      "uniqueMobIds": 9,
+      "sampleMobs": [
+        {
+          "id": "716",
+          "cn": "",
+          "kr": "격투괭이",
+          "lv": 70,
+          "hp": 1500,
+          "exp": 5720,
+          "img": "330",
+          "inGame": false
+        },
+        {
+          "id": "717",
+          "cn": "",
+          "kr": "불괭이",
+          "lv": 70,
+          "hp": 1700,
+          "exp": 6050,
+          "img": "331",
+          "inGame": false
+        },
+        {
+          "id": "718",
+          "cn": "",
+          "kr": "창괭이",
+          "lv": 70,
+          "hp": 1500,
+          "exp": 6050,
+          "img": "332",
+          "inGame": false
+        },
+        {
+          "id": "719",
+          "cn": "",
+          "kr": "얼룩망치괭이",
+          "lv": 70,
+          "hp": 2000,
+          "exp": 6270,
+          "img": "333",
+          "inGame": false
+        },
+        {
+          "id": "720",
+          "cn": "",
+          "kr": "검은망치괭이",
+          "lv": 70,
+          "hp": 2000,
+          "exp": 6600,
+          "img": "334",
+          "inGame": false
+        },
+        {
+          "id": "722",
+          "cn": "",
+          "kr": "무당괭이",
+          "lv": 70,
+          "hp": 1700,
+          "exp": 7150,
+          "img": "336",
+          "inGame": false
+        },
+        {
+          "id": "721",
+          "cn": "",
+          "kr": "갑괭이",
+          "lv": 70,
+          "hp": 2800,
+          "exp": 7150,
+          "img": "335",
+          "inGame": false
+        },
+        {
+          "id": "723",
+          "cn": "",
+          "kr": "호중귀1",
+          "lv": 70,
+          "hp": 1200,
+          "exp": 4400,
+          "img": "337",
+          "inGame": false
+        },
+        {
+          "id": "724",
+          "cn": "",
+          "kr": "호중귀2",
+          "lv": 70,
+          "hp": 1200,
+          "exp": 4400,
+          "img": "338",
+          "inGame": false
+        }
+      ]
+    },
+    {
+      "listId": 84,
+      "cn": "红色洞窟",
+      "en": "Red Cave / Hellfire Cave",
+      "mapCount": 13,
+      "maps": [
+        "뱀의또아리",
+        "地狱深渊",
+        "칠흑의미로",
+        "칠흑의미로",
+        "칠흑의미로",
+        "칠흑의미로",
+        "칠흑의미로",
+        "칠흑의미로",
+        "칠흑의미로",
+        "칠흑의미로",
+        "칠흑의미로",
+        "칠흑의미로",
+        "邪恶之心"
+      ],
+      "matchedZones": [
+        "zone-bone-cave-1",
+        "zone-bone-cave-2",
+        "zone-bone-cave-kr",
+        "zone-insect-cave-1",
+        "zone-insect-cave-2",
+        "zone-insect-cave-kr",
+        "zone-bug-cave-1",
+        "zone-bug-cave-2",
+        "zone-bug-cave-kr",
+        "zone-viper-cave-1",
+        "zone-viper-cave-2",
+        "zone-viper-cave-kr",
+        "zone-prajna-cave-1",
+        "zone-prajna-cave-2",
+        "zone-prajna-cave-kr",
+        "zone-red-cavern-1",
+        "zone-red-cavern-2",
+        "zone-red-cavern-kr",
+        "zone-hell-gd-1",
+        "zone-hell-gd-2",
+        "zone-hell-gd-3",
+        "zone-bdd-2",
+        "zone-lab-hell-keeper",
+        "zone-lab-cave-witch",
+        "zone-lab-hell-lord"
+      ],
+      "uniqueMobIds": 8,
+      "sampleMobs": [
+        {
+          "id": "427",
+          "cn": "",
+          "kr": "신시",
+          "lv": 55,
+          "hp": 1300,
+          "exp": 6000,
+          "img": "135",
+          "inGame": false
+        },
+        {
+          "id": "428",
+          "cn": "",
+          "kr": "청신시",
+          "lv": 55,
+          "hp": 900,
+          "exp": 6120,
+          "img": "136",
+          "inGame": false
+        },
+        {
+          "id": "429",
+          "cn": "",
+          "kr": "서괴",
+          "lv": 56,
+          "hp": 1150,
+          "exp": 6360,
+          "img": "137",
+          "inGame": false
+        },
+        {
+          "id": "430",
+          "cn": "",
+          "kr": "광서괴",
+          "lv": 70,
+          "hp": 1500,
+          "exp": 6050,
+          "img": "138",
+          "inGame": false
+        },
+        {
+          "id": "431",
+          "cn": "",
+          "kr": "연혼괴수",
+          "lv": 70,
+          "hp": 2000,
+          "exp": 7700,
+          "img": "139",
+          "inGame": false
+        },
+        {
+          "id": "432",
+          "cn": "",
+          "kr": "연혼괴흑수",
+          "lv": 70,
+          "hp": 2000,
+          "exp": 7700,
+          "img": "54",
+          "inGame": false
+        },
+        {
+          "id": "2603",
+          "cn": "",
+          "kr": "칠흑의원오",
+          "lv": 99,
+          "hp": 30000,
+          "exp": 30000,
+          "img": "57",
+          "inGame": false
+        },
+        {
+          "id": "435",
+          "cn": "怨恶",
+          "kr": "원오",
+          "lv": 99,
+          "hp": 30000,
+          "exp": 30000,
+          "img": "57",
+          "inGame": false
+        }
+      ]
+    },
+    {
+      "listId": 85,
+      "cn": "地狱之路",
+      "en": "Hell Road",
+      "mapCount": 3,
+      "maps": [
+        "地狱道1层",
+        "地狱道2层",
+        "地狱道3层"
+      ],
+      "matchedZones": [
+        "zone-hell-gd-1",
+        "zone-hell-gd-2",
+        "zone-hell-gd-3",
+        "zone-lab-hell-keeper",
+        "zone-lab-hell-lord"
+      ],
+      "uniqueMobIds": 6,
+      "sampleMobs": [
+        {
+          "id": "8",
+          "cn": "",
+          "kr": "강조귀",
+          "lv": 60,
+          "hp": 930,
+          "exp": 7320,
+          "img": "273",
+          "inGame": false
+        },
+        {
+          "id": "107",
+          "cn": "",
+          "kr": "수두귀",
+          "lv": 60,
+          "hp": 1350,
+          "exp": 7560,
+          "img": "276",
+          "inGame": false
+        },
+        {
+          "id": "207",
+          "cn": "",
+          "kr": "참원귀",
+          "lv": 60,
+          "hp": 900,
+          "exp": 7080,
+          "img": "272",
+          "inGame": false
+        },
+        {
+          "id": "114",
+          "cn": "",
+          "kr": "식신귀",
+          "lv": 60,
+          "hp": 1350,
+          "exp": 7320,
+          "img": "274",
+          "inGame": false
+        },
+        {
+          "id": "167",
+          "cn": "",
+          "kr": "인면귀",
+          "lv": 60,
+          "hp": 750,
+          "exp": 7560,
+          "img": "277",
+          "inGame": false
+        },
+        {
+          "id": "201",
+          "cn": "地狱守门人",
+          "kr": "지옥문지기",
+          "lv": 99,
+          "hp": 20000,
+          "exp": 20000,
+          "img": "275",
+          "inGame": false
+        }
+      ]
+    },
+    {
+      "listId": 86,
+      "cn": "尖啸地狱",
+      "en": "Screaming Hell",
+      "mapCount": 7,
+      "maps": [
+        "尖啸地狱入口",
+        "尖啸地狱",
+        "尖啸地狱",
+        "尖啸地狱",
+        "尖啸地狱",
+        "尖啸地狱",
+        "尖啸地狱"
+      ],
+      "matchedZones": [
+        "zone-hell-gd-1",
+        "zone-hell-gd-2",
+        "zone-hell-gd-3",
+        "zone-lab-hell-keeper",
+        "zone-lab-hell-lord"
+      ],
+      "uniqueMobIds": 3,
+      "sampleMobs": [
+        {
+          "id": "48",
+          "cn": "",
+          "kr": "무명사령",
+          "lv": 70,
+          "hp": 900,
+          "exp": 8580,
+          "img": "282",
+          "inGame": false
+        },
+        {
+          "id": "124",
+          "cn": "黑暗사령",
+          "kr": "암흑사령",
+          "lv": 70,
+          "hp": 900,
+          "exp": 8580,
+          "img": "283",
+          "inGame": false
+        },
+        {
+          "id": "263",
+          "cn": "",
+          "kr": "혼마사령",
+          "lv": 70,
+          "hp": 900,
+          "exp": 8580,
+          "img": "284",
+          "inGame": false
+        }
+      ]
+    },
+    {
+      "listId": 87,
+      "cn": "冰寒地狱",
+      "en": "Frozen Hell",
+      "mapCount": 6,
+      "maps": [
+        "빙한지옥-동굴",
+        "빙한지옥신전-남",
+        "빙한지옥신전-북",
+        "냉기의길",
+        "위험한동굴",
+        "수문장의방"
+      ],
+      "matchedZones": [
+        "zone-hell-gd-1",
+        "zone-hell-gd-2",
+        "zone-hell-gd-3",
+        "zone-lab-hell-keeper",
+        "zone-lab-hell-lord"
+      ],
+      "uniqueMobIds": 7,
+      "sampleMobs": [
+        {
+          "id": "10",
+          "cn": "",
+          "kr": "격빙야차",
+          "lv": 70,
+          "hp": 1100,
+          "exp": 9350,
+          "img": "280",
+          "inGame": false
+        },
+        {
+          "id": "102",
+          "cn": "",
+          "kr": "설인량",
+          "lv": 70,
+          "hp": 1500,
+          "exp": 8910,
+          "img": "278",
+          "inGame": false
+        },
+        {
+          "id": "103",
+          "cn": "",
+          "kr": "설한야차",
+          "lv": 70,
+          "hp": 1100,
+          "exp": 8910,
+          "img": "279",
+          "inGame": false
+        },
+        {
+          "id": "210",
+          "cn": "",
+          "kr": "창한야차",
+          "lv": 70,
+          "hp": 1100,
+          "exp": 9350,
+          "img": "281",
+          "inGame": false
+        },
+        {
+          "id": "126",
+          "cn": "",
+          "kr": "야차수호장",
+          "lv": 70,
+          "hp": 1800,
+          "exp": 9300,
+          "img": "285",
+          "inGame": false
+        },
+        {
+          "id": "90",
+          "cn": "",
+          "kr": "빙한지옥문",
+          "lv": 70,
+          "hp": 20000,
+          "exp": 1,
+          "img": "287",
+          "inGame": false
+        },
+        {
+          "id": "233",
+          "cn": "寒冰守护鬼",
+          "kr": "한빙수호귀",
+          "lv": 99,
+          "hp": 20000,
+          "exp": 20000,
+          "img": "286",
+          "inGame": false
+        }
+      ]
+    },
+    {
+      "listId": 88,
+      "cn": "业火地狱",
+      "en": "Karmic Fire Hell",
+      "mapCount": 6,
+      "maps": [
+        "业火地狱1层",
+        "业火地狱2层",
+        "业火地狱3层",
+        "业火地狱2层东",
+        "业火大殿入口",
+        "业火大殿"
+      ],
+      "matchedZones": [
+        "zone-hell-gd-1",
+        "zone-hell-gd-2",
+        "zone-hell-gd-3",
+        "zone-lab-hell-keeper",
+        "zone-lab-hell-lord"
+      ],
+      "uniqueMobIds": 13,
+      "sampleMobs": [
+        {
+          "id": "368",
+          "cn": "",
+          "kr": "궁귀",
+          "lv": 70,
+          "hp": 1500,
+          "exp": 9350,
+          "img": "290",
+          "inGame": false
+        },
+        {
+          "id": "369",
+          "cn": "",
+          "kr": "철마야차",
+          "lv": 70,
+          "hp": 1500,
+          "exp": 9350,
+          "img": "291",
+          "inGame": false
+        },
+        {
+          "id": "370",
+          "cn": "",
+          "kr": "폭마야차",
+          "lv": 70,
+          "hp": 1100,
+          "exp": 9570,
+          "img": "292",
+          "inGame": false
+        },
+        {
+          "id": "371",
+          "cn": "",
+          "kr": "석마야차",
+          "lv": 70,
+          "hp": 1100,
+          "exp": 9570,
+          "img": "293",
+          "inGame": false
+        },
+        {
+          "id": "372",
+          "cn": "",
+          "kr": "야공수호귀",
+          "lv": 99,
+          "hp": 15000,
+          "exp": 10000,
+          "img": "294",
+          "inGame": false
+        },
+        {
+          "id": "373",
+          "cn": "",
+          "kr": "염화적귀",
+          "lv": 70,
+          "hp": 1600,
+          "exp": 9735,
+          "img": "295",
+          "inGame": false
+        },
+        {
+          "id": "374",
+          "cn": "",
+          "kr": "열장적귀",
+          "lv": 70,
+          "hp": 1100,
+          "exp": 9735,
+          "img": "296",
+          "inGame": false
+        },
+        {
+          "id": "375",
+          "cn": "",
+          "kr": "거도적귀",
+          "lv": 70,
+          "hp": 1600,
+          "exp": 9900,
+          "img": "297",
+          "inGame": false
+        },
+        {
+          "id": "376",
+          "cn": "",
+          "kr": "패검적귀",
+          "lv": 70,
+          "hp": 1600,
+          "exp": 9900,
+          "img": "298",
+          "inGame": false
+        },
+        {
+          "id": "377",
+          "cn": "",
+          "kr": "독인적귀",
+          "lv": 99,
+          "hp": 20000,
+          "exp": 15000,
+          "img": "299",
+          "inGame": false
+        },
+        {
+          "id": "382",
+          "cn": "阎魔太子",
+          "kr": "염마태자의분신",
+          "lv": 99,
+          "hp": 40000,
+          "exp": 30000,
+          "img": "304",
+          "inGame": false
+        },
+        {
+          "id": "444",
+          "cn": "",
+          "kr": "태자수호귀",
+          "lv": 99,
+          "hp": 5000,
+          "exp": 100,
+          "img": "294",
+          "inGame": false
+        },
+        {
+          "id": "445",
+          "cn": "",
+          "kr": "태자친위적귀",
+          "lv": 99,
+          "hp": 5000,
+          "exp": 150,
+          "img": "299",
+          "inGame": false
+        }
+      ]
+    },
+    {
+      "listId": 89,
+      "cn": "南蛮",
+      "en": "Southern Barbarian Land",
+      "mapCount": 4,
+      "maps": [
+        "南蛮",
+        "고대비밀의통로",
+        "고대도시의흔적",
+        "남만지역"
+      ],
+      "matchedZones": [],
+      "uniqueMobIds": 24,
+      "sampleMobs": [
+        {
+          "id": "531",
+          "cn": "",
+          "kr": "한시",
+          "lv": 70,
+          "hp": 1000,
+          "exp": 4730,
+          "img": "322",
+          "inGame": false
+        },
+        {
+          "id": "532",
+          "cn": "",
+          "kr": "광한시",
+          "lv": 70,
+          "hp": 1300,
+          "exp": 5060,
+          "img": "323",
+          "inGame": false
+        },
+        {
+          "id": "533",
+          "cn": "",
+          "kr": "역천귀",
+          "lv": 70,
+          "hp": 1000,
+          "exp": 5060,
+          "img": "318",
+          "inGame": false
+        },
+        {
+          "id": "534",
+          "cn": "",
+          "kr": "흑천귀",
+          "lv": 70,
+          "hp": 1200,
+          "exp": 5280,
+          "img": "319",
+          "inGame": false
+        },
+        {
+          "id": "535",
+          "cn": "",
+          "kr": "멸귀",
+          "lv": 70,
+          "hp": 1700,
+          "exp": 5610,
+          "img": "320",
+          "inGame": false
+        },
+        {
+          "id": "536",
+          "cn": "",
+          "kr": "한천귀",
+          "lv": 70,
+          "hp": 1800,
+          "exp": 5390,
+          "img": "321",
+          "inGame": false
+        },
+        {
+          "id": "537",
+          "cn": "",
+          "kr": "백상",
+          "lv": 70,
+          "hp": 2200,
+          "exp": 6490,
+          "img": "324",
+          "inGame": false
+        },
+        {
+          "id": "538",
+          "cn": "",
+          "kr": "남만흑호",
+          "lv": 70,
+          "hp": 1500,
+          "exp": 6160,
+          "img": "325",
+          "inGame": false
+        },
+        {
+          "id": "539",
+          "cn": "",
+          "kr": "남만백호",
+          "lv": 70,
+          "hp": 1700,
+          "exp": 6380,
+          "img": "326",
+          "inGame": false
+        },
+        {
+          "id": "540",
+          "cn": "",
+          "kr": "흑성성",
+          "lv": 70,
+          "hp": 1350,
+          "exp": 5280,
+          "img": "327",
+          "inGame": false
+        },
+        {
+          "id": "541",
+          "cn": "",
+          "kr": "서우",
+          "lv": 70,
+          "hp": 2000,
+          "exp": 6710,
+          "img": "328",
+          "inGame": false
+        },
+        {
+          "id": "542",
+          "cn": "丹墨",
+          "kr": "단묵",
+          "lv": 99,
+          "hp": 30000,
+          "exp": 36000,
+          "img": "329",
+          "inGame": false
+        },
+        {
+          "id": "620",
+          "cn": "",
+          "kr": "썩어버린역천귀",
+          "lv": 72,
+          "hp": 1200,
+          "exp": 5610,
+          "img": "318",
+          "inGame": false
+        },
+        {
+          "id": "621",
+          "cn": "",
+          "kr": "불타버린흑천귀",
+          "lv": 72,
+          "hp": 1400,
+          "exp": 5720,
+          "img": "319",
+          "inGame": false
+        },
+        {
+          "id": "622",
+          "cn": "",
+          "kr": "광기의멸귀",
+          "lv": 72,
+          "hp": 1850,
+          "exp": 6050,
+          "img": "320",
+          "inGame": false
+        }
+      ]
+    },
+    {
+      "listId": 90,
+      "cn": "灰色洞窟",
+      "en": "Grey Cave",
+      "mapCount": 5,
+      "maps": [
+        "灰色洞穴东",
+        "灰色洞穴西",
+        "灰色神殿1层",
+        "灰色神殿2层",
+        "灰色神殿3层"
+      ],
+      "matchedZones": [
+        "zone-bone-cave-1",
+        "zone-bone-cave-2",
+        "zone-bone-cave-kr",
+        "zone-insect-cave-1",
+        "zone-insect-cave-2",
+        "zone-insect-cave-kr",
+        "zone-bug-cave-1",
+        "zone-bug-cave-2",
+        "zone-bug-cave-kr",
+        "zone-viper-cave-1",
+        "zone-viper-cave-2",
+        "zone-viper-cave-kr",
+        "zone-prajna-cave-1",
+        "zone-prajna-cave-2",
+        "zone-prajna-cave-kr",
+        "zone-red-cavern-1",
+        "zone-red-cavern-2",
+        "zone-red-cavern-kr",
+        "zone-hell-gd-1",
+        "zone-hell-gd-2",
+        "zone-hell-gd-3",
+        "zone-bdd-2",
+        "zone-lab-cave-witch"
+      ],
+      "uniqueMobIds": 10,
+      "sampleMobs": [
+        {
+          "id": "853",
+          "cn": "",
+          "kr": "비익청오마",
+          "lv": 80,
+          "hp": 1920,
+          "exp": 9850,
+          "img": "250",
+          "inGame": false
+        },
+        {
+          "id": "854",
+          "cn": "",
+          "kr": "검은흑성성",
+          "lv": 80,
+          "hp": 1920,
+          "exp": 9850,
+          "img": "367",
+          "inGame": false
+        },
+        {
+          "id": "855",
+          "cn": "",
+          "kr": "이두흑호",
+          "lv": 80,
+          "hp": 1920,
+          "exp": 9850,
+          "img": "368",
+          "inGame": false
+        },
+        {
+          "id": "856",
+          "cn": "",
+          "kr": "태구오마",
+          "lv": 81,
+          "hp": 2300,
+          "exp": 12100,
+          "img": "369",
+          "inGame": false
+        },
+        {
+          "id": "858",
+          "cn": "",
+          "kr": "다목오마",
+          "lv": 81,
+          "hp": 2200,
+          "exp": 11550,
+          "img": "371",
+          "inGame": false
+        },
+        {
+          "id": "860",
+          "cn": "",
+          "kr": "오마적병",
+          "lv": 81,
+          "hp": 2050,
+          "exp": 11000,
+          "img": "373",
+          "inGame": false
+        },
+        {
+          "id": "857",
+          "cn": "",
+          "kr": "거권오마",
+          "lv": 81,
+          "hp": 2300,
+          "exp": 12100,
+          "img": "370",
+          "inGame": false
+        },
+        {
+          "id": "859",
+          "cn": "",
+          "kr": "오마흑병",
+          "lv": 81,
+          "hp": 2050,
+          "exp": 11000,
+          "img": "372",
+          "inGame": false
+        },
+        {
+          "id": "861",
+          "cn": "",
+          "kr": "오마제사장",
+          "lv": 83,
+          "hp": 1920,
+          "exp": 11000,
+          "img": "374",
+          "inGame": false
+        },
+        {
+          "id": "866",
+          "cn": "",
+          "kr": "오마흑령",
+          "lv": 99,
+          "hp": 48000,
+          "exp": 37000,
+          "img": "378",
+          "inGame": false
+        }
+      ]
+    }
+  ]
+}

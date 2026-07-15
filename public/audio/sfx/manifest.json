@@ -16,6 +16,22 @@
       "sourceFile": "M49-1.wav"
     },
     {
+      "key": "spell.HealingCircle.cast",
+      "label": "Healing Circle cast",
+      "id": 20860,
+      "spellId": 86,
+      "variant": 0,
+      "sourceFile": "M86-0.wav"
+    },
+    {
+      "key": "spell.HealingCircle.impact",
+      "label": "Healing Circle field",
+      "id": 20861,
+      "spellId": 86,
+      "variant": 1,
+      "sourceFile": "M86-1.wav"
+    },
+    {
       "key": "pet.skeleton.flinch",
       "label": "Bone Familiar flinch",
       "id": 782,
@@ -32,6 +48,42 @@
       "label": "Scorpion flinch",
       "id": 212,
       "sourceFile": "021-2.wav"
+    },
+    {
+      "key": "monster.127.death",
+      "label": "Black Fox Man death",
+      "id": 1273,
+      "sourceFile": "127-3.wav"
+    },
+    {
+      "key": "monster.128.attack",
+      "label": "Red Fox Man attack",
+      "id": 1281,
+      "sourceFile": "128-1.wav"
+    },
+    {
+      "key": "monster.128.death",
+      "label": "Red Fox Man death",
+      "id": 1283,
+      "sourceFile": "128-3.wav"
+    },
+    {
+      "key": "monster.129.death",
+      "label": "White Fox Man death",
+      "id": 1293,
+      "sourceFile": "129-3.wav"
+    },
+    {
+      "key": "monster.131.flinch",
+      "label": "Guardian Rock flinch",
+      "id": 1312,
+      "sourceFile": "131-2.wav"
+    },
+    {
+      "key": "monster.131.death",
+      "label": "Guardian Rock death",
+      "id": 1313,
+      "sourceFile": "131-3.wav"
     }
   ],
   "groups": [
@@ -451,7 +503,23 @@
         "monster.163.attack",
         "monster.163.flinch",
         "monster.163.death",
-        "monster.163.range"
+        "monster.163.range",
+        "monster.127.attack",
+        "monster.127.flinch",
+        "monster.128.flinch",
+        "monster.129.attack",
+        "monster.129.flinch",
+        "monster.132.attack",
+        "monster.132.flinch",
+        "monster.132.death",
+        "monster.133.attack",
+        "monster.133.flinch",
+        "monster.133.death",
+        "monster.134.attack",
+        "monster.134.flinch",
+        "monster.134.death",
+        "monster.134.range",
+        "monster.131.attack"
       ]
     },
     {
@@ -3633,6 +3701,134 @@
       "group": "monster",
       "sourceFile": "163-5.wav",
       "src": "./public/audio/sfx/files/1635-163-5.wav"
+    },
+    "monster.127.attack": {
+      "key": "monster.127.attack",
+      "label": "Black Fox Man attack",
+      "id": 1271,
+      "group": "monster",
+      "sourceFile": "127-1.wav",
+      "src": "./public/audio/sfx/files/1271-127-1.wav"
+    },
+    "monster.127.flinch": {
+      "key": "monster.127.flinch",
+      "label": "Black Fox Man flinch",
+      "id": 1272,
+      "group": "monster",
+      "sourceFile": "127-2.wav",
+      "src": "./public/audio/sfx/files/1272-127-2.wav"
+    },
+    "monster.128.flinch": {
+      "key": "monster.128.flinch",
+      "label": "Red Fox Man flinch",
+      "id": 1282,
+      "group": "monster",
+      "sourceFile": "128-2.wav",
+      "src": "./public/audio/sfx/files/1282-128-2.wav"
+    },
+    "monster.129.attack": {
+      "key": "monster.129.attack",
+      "label": "White Fox Man attack",
+      "id": 1291,
+      "group": "monster",
+      "sourceFile": "129-1.wav",
+      "src": "./public/audio/sfx/files/1291-129-1.wav"
+    },
+    "monster.129.flinch": {
+      "key": "monster.129.flinch",
+      "label": "White Fox Man flinch",
+      "id": 1292,
+      "group": "monster",
+      "sourceFile": "129-2.wav",
+      "src": "./public/audio/sfx/files/1292-129-2.wav"
+    },
+    "monster.132.attack": {
+      "key": "monster.132.attack",
+      "label": "Electric Element attack",
+      "id": 1321,
+      "group": "monster",
+      "sourceFile": "132-1.wav",
+      "src": "./public/audio/sfx/files/1321-132-1.wav"
+    },
+    "monster.132.flinch": {
+      "key": "monster.132.flinch",
+      "label": "Electric Element flinch",
+      "id": 1322,
+      "group": "monster",
+      "sourceFile": "132-2.wav",
+      "src": "./public/audio/sfx/files/1322-132-2.wav"
+    },
+    "monster.132.death": {
+      "key": "monster.132.death",
+      "label": "Electric Element death",
+      "id": 1323,
+      "group": "monster",
+      "sourceFile": "132-3.wav",
+      "src": "./public/audio/sfx/files/1323-132-3.wav"
+    },
+    "monster.133.attack": {
+      "key": "monster.133.attack",
+      "label": "Cloud Element attack",
+      "id": 1331,
+      "group": "monster",
+      "sourceFile": "133-1.wav",
+      "src": "./public/audio/sfx/files/1331-133-1.wav"
+    },
+    "monster.133.flinch": {
+      "key": "monster.133.flinch",
+      "label": "Cloud Element flinch",
+      "id": 1332,
+      "group": "monster",
+      "sourceFile": "133-2.wav",
+      "src": "./public/audio/sfx/files/1332-133-2.wav"
+    },
+    "monster.133.death": {
+      "key": "monster.133.death",
+      "label": "Cloud Element death",
+      "id": 1333,
+      "group": "monster",
+      "sourceFile": "133-3.wav",
+      "src": "./public/audio/sfx/files/1333-133-3.wav"
+    },
+    "monster.134.attack": {
+      "key": "monster.134.attack",
+      "label": "Great Fox Spirit attack",
+      "id": 1341,
+      "group": "monster",
+      "sourceFile": "134-1.wav",
+      "src": "./public/audio/sfx/files/1341-134-1.wav"
+    },
+    "monster.134.flinch": {
+      "key": "monster.134.flinch",
+      "label": "Great Fox Spirit flinch",
+      "id": 1342,
+      "group": "monster",
+      "sourceFile": "134-2.wav",
+      "src": "./public/audio/sfx/files/1342-134-2.wav"
+    },
+    "monster.134.death": {
+      "key": "monster.134.death",
+      "label": "Great Fox Spirit death",
+      "id": 1343,
+      "group": "monster",
+      "sourceFile": "134-3.wav",
+      "src": "./public/audio/sfx/files/1343-134-3.wav"
+    },
+    "monster.134.range": {
+      "key": "monster.134.range",
+      "label": "Great Fox Spirit range attack",
+      "id": 1345,
+      "group": "monster",
+      "sourceFile": "134-5.wav",
+      "src": "./public/audio/sfx/files/1345-134-5.wav"
+    },
+    "monster.131.attack": {
+      "key": "monster.131.attack",
+      "label": "Guardian Rock attack",
+      "id": 1311,
+      "group": "monster",
+      "sourceFile": "131-1.wav",
+      "src": "./public/audio/sfx/files/1311-131-1.wav"
     },
     "map.lightning": {
       "key": "map.lightning",

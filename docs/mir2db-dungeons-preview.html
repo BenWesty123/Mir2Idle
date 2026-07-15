@@ -1,0 +1,376 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Mir2DB dungeons / bosses / monsters vs LOM Idle</title>
+<style>
+  :root {
+    --bg: #141210; --panel: #221c18; --ink: #f2e8d8; --muted: #9a8c78;
+    --accent: #e0a050; --ok: #6aaf70; --miss: #d07050; --line: #3a3028;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0; font-family: "Trebuchet MS", "Segoe UI", sans-serif; color: var(--ink);
+    background: radial-gradient(ellipse at 10% 0%, #2a2218, transparent 50%), var(--bg);
+  }
+  header, main, footer { max-width: 1100px; margin: 0 auto; padding: 24px 28px; }
+  h1 { margin: 0 0 8px; color: var(--accent); font-size: 1.5rem; }
+  h2 { margin: 28px 0 10px; font-size: 1.15rem; color: var(--accent); }
+  p, li { color: var(--muted); line-height: 1.45; }
+  a { color: #deb060; }
+  .cards { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 12px; }
+  .card {
+    background: var(--panel); border: 1px solid var(--line); border-radius: 8px; padding: 14px;
+  }
+  .card h3 { margin: 0 0 6px; font-size: 1rem; color: var(--ink); }
+  .badge {
+    display: inline-block; font-size: 0.7rem; padding: 2px 6px; border-radius: 3px; margin-bottom: 8px;
+  }
+  .badge.ok { background: #1e3020; color: var(--ok); }
+  .badge.partial { background: #302818; color: #d0a050; }
+  .badge.miss { background: #302018; color: var(--miss); }
+  .mobs { margin: 8px 0 0; padding: 0; list-style: none; font-size: 0.82rem; }
+  .mobs li {
+    display: grid; grid-template-columns: 28px 1fr auto; gap: 8px; align-items: center;
+    padding: 4px 0; border-top: 1px solid #2a241e; color: var(--ink);
+  }
+  .mobs img { width: 28px; height: 28px; image-rendering: pixelated; }
+  .mobs .stat { color: var(--muted); white-space: nowrap; }
+  .note { font-size: 0.8rem; color: #b09070; margin-top: 8px; }
+  table { width: 100%; border-collapse: collapse; font-size: 0.88rem; }
+  th, td { text-align: left; padding: 8px 10px; border-bottom: 1px solid var(--line); }
+  th { color: var(--muted); font-weight: 600; }
+  code { color: #e0c090; }
+</style>
+</head>
+<body>
+<header>
+  <h1>Mir2DB monsters, bosses &amp; dungeons</h1>
+  <p>
+    Mir2DB is strongest here as a <strong style="color:var(--ink)">map + spawn roster</strong> database
+    (floors, portals, which mobs spawn, levels/HP/icons) — not as drop tables.
+    Our idle zones mostly come from <em>Crystal</em>; Mir2DB is Korean official layout, so overlap is high on classics but not identical.
+  </p>
+  <p>
+    Browse lists on the site under maps, e.g.
+    <a href="https://www.mir2db.com/list/54" target="_blank" rel="noopener">Wooma (list/54)</a>,
+    <a href="https://www.mir2db.com/list/65" target="_blank" rel="noopener">Zuma (list/65)</a>,
+    <a href="https://www.mir2db.com/map/54" target="_blank" rel="noopener">map detail</a>.
+    API: <code>api.php?type=list|map|mob&amp;id=…</code>, icons <code>cdn.mir2db.com/images/mob/{img}.png</code>.
+  </p>
+</header>
+<main>
+  <h2>Classic dungeons we already cover</h2>
+  <p>Same thematic bosses; Mir2DB names are often CN/KR while ours are Crystal English — auto-match undercounts mobs.</p>
+  <div class="cards">
+    <article class="card">
+          <span class="badge ok">In LOM Idle</span>
+          <h3>Wooma Temple</h3>
+          <div style="font-size:0.8rem;color:var(--muted)">Mir2DB list/54 · 4 maps · our zone-wooma-temple-kr</div>
+          <div style="font-size:0.85rem;margin-top:6px">Boss line: <strong style="color:var(--ink)">Wooma Taurus</strong></div>
+          <ul class="mobs">
+            <li>
+              <img src="https://cdn.mir2db.com/images/mob/34.png" alt="" />
+              <span>Wooma Taurus</span>
+              <span class="stat">Lv99 · 2,200 HP</span>
+            </li><li>
+              <img src="https://cdn.mir2db.com/images/mob/151.png" alt="" />
+              <span>沃玛护卫</span>
+              <span class="stat">Lv50 · 1,000 HP</span>
+            </li>
+          </ul>
+          
+        </article><article class="card">
+          <span class="badge ok">In LOM Idle</span>
+          <h3>Bug Cave</h3>
+          <div style="font-size:0.8rem;color:var(--muted)">Mir2DB list/58 · 4 maps · our zone-bug-cave-kr</div>
+          <div style="font-size:0.85rem;margin-top:6px">Boss line: <strong style="color:var(--ink)">Evil Centipede</strong></div>
+          <ul class="mobs">
+            <li>
+              <img src="https://cdn.mir2db.com/images/mob/220.png" alt="" />
+              <span>舌刃大虫</span>
+              <span class="stat">Lv50 · 2,000 HP</span>
+            </li>
+          </ul>
+          <div class="note">KR mob names didn&#39;t auto-match EN crystal names</div>
+        </article><article class="card">
+          <span class="badge ok">In LOM Idle</span>
+          <h3>Stone Tomb</h3>
+          <div style="font-size:0.8rem;color:var(--muted)">Mir2DB list/63 · 8 maps · our zone-stone-temple-kr</div>
+          <div style="font-size:0.85rem;margin-top:6px">Boss line: <strong style="color:var(--ink)">Evil Snake</strong></div>
+          <ul class="mobs">
+            <li>
+              <img src="https://cdn.mir2db.com/images/mob/164.png" alt="" />
+              <span>邪恶毒蛇</span>
+              <span class="stat">Lv50 · 2,000 HP</span>
+            </li>
+          </ul>
+          <div class="note">Mir2DB 邪恶毒蛇 ≈ Evil Snake</div>
+        </article><article class="card">
+          <span class="badge ok">In LOM Idle</span>
+          <h3>Zuma Temple</h3>
+          <div style="font-size:0.8rem;color:var(--muted)">Mir2DB list/65 · 11 maps · our zone-zuma-temple-kr</div>
+          <div style="font-size:0.85rem;margin-top:6px">Boss line: <strong style="color:var(--ink)">Zuma Taurus</strong></div>
+          <ul class="mobs">
+            <li>
+              <img src="https://cdn.mir2db.com/images/mob/63.png" alt="" />
+              <span>Zuma Taurus</span>
+              <span class="stat">Lv99 · 12,000 HP</span>
+            </li><li>
+              <img src="https://cdn.mir2db.com/images/mob/221.png" alt="" />
+              <span>咒魔击雷将</span>
+              <span class="stat">Lv54 · 3,000 HP</span>
+            </li>
+          </ul>
+          
+        </article><article class="card">
+          <span class="badge ok">In LOM Idle</span>
+          <h3>Red Moon Valley</h3>
+          <div style="font-size:0.8rem;color:var(--muted)">Mir2DB list/72 · 14 maps · our zone-red-cavern-kr</div>
+          <div style="font-size:0.85rem;margin-top:6px">Boss line: <strong style="color:var(--ink)">Dream and Dark Devourer / Red Moon line</strong></div>
+          <ul class="mobs">
+            <li>
+              <img src="https://cdn.mir2db.com/images/mob/131.png" alt="" />
+              <span>Red Moon Demon</span>
+              <span class="stat">Lv99 · 5,000 HP</span>
+            </li><li>
+              <img src="https://cdn.mir2db.com/images/mob/223.png" alt="" />
+              <span>神石毒魔蛛</span>
+              <span class="stat">Lv50 · 2,000 HP</span>
+            </li><li>
+              <img src="https://cdn.mir2db.com/images/mob/115.png" alt="" />
+              <span>소보</span>
+              <span class="stat">Lv55 · 1,000 HP</span>
+            </li>
+          </ul>
+          
+        </article><article class="card">
+          <span class="badge ok">In LOM Idle</span>
+          <h3>Prajna Cave</h3>
+          <div style="font-size:0.8rem;color:var(--muted)">Mir2DB list/77 · 6 maps · our zone-prajna-cave-kr</div>
+          <div style="font-size:0.85rem;margin-top:6px">Boss line: <strong style="color:var(--ink)">Bone Lord</strong></div>
+          <ul class="mobs">
+            
+          </ul>
+          <div class="note">CN skeleton names map to Bone* roster</div>
+        </article><article class="card">
+          <span class="badge ok">In LOM Idle</span>
+          <h3>Prajna Temple</h3>
+          <div style="font-size:0.8rem;color:var(--muted)">Mir2DB list/78 · 10 maps · our zone-prajna-temple-kr</div>
+          <div style="font-size:0.85rem;margin-top:6px">Boss line: <strong style="color:var(--ink)">Minotaur King</strong></div>
+          <ul class="mobs">
+            <li>
+              <img src="https://cdn.mir2db.com/images/mob/207.png" alt="" />
+              <span>邪牛天王</span>
+              <span class="stat">Lv99 · 15,000 HP</span>
+            </li>
+          </ul>
+          <div class="note">邪牛天王 ≈ Minotaur King</div>
+        </article><article class="card">
+          <span class="badge partial">Partial overlap</span>
+          <h3>Evil Dragon Mountain</h3>
+          <div style="font-size:0.8rem;color:var(--muted)">Mir2DB list/81 · 14 maps · our zone-bdd-*</div>
+          <div style="font-size:0.85rem;margin-top:6px">Boss line: <strong style="color:var(--ink)">破凰魔神 (Phoenix-breaker demon)</strong></div>
+          <ul class="mobs">
+            <li>
+              <img src="https://cdn.mir2db.com/images/mob/219.png" alt="" />
+              <span>破凰魔神</span>
+              <span class="stat">Lv99 · 25,000 HP</span>
+            </li>
+          </ul>
+          <div class="note">We have Black Dragon Dungeon floors; not 1:1 with Mir2DB Evil Dragon Mountain</div>
+        </article>
+  </div>
+
+  <h2>Mir2DB dungeons with no LOM Idle zone</h2>
+  <p>These look like the real “new content” targets from this site (KR-official later areas).</p>
+  <div class="cards">
+    <article class="card">
+        <span class="badge miss">No zone yet</span>
+        <h3>Sorrow Moon Mountain</h3>
+        <div style="font-size:0.8rem;color:var(--muted)">悲月山 · list/66 · 3 maps</div>
+        <p class="note" style="margin-top:8px">Fox/tiger mountain temple — related vibe to Fox Cave but KR-official layout; boss 悲月天珠 ~30k HP</p>
+        <ul class="mobs">
+          <li>
+            <img src="https://cdn.mir2db.com/images/mob/237.png" alt="" />
+            <span>悲月天珠</span>
+            <span class="stat">Lv99 · 30,000 HP</span>
+          </li>
+        </ul>
+        <div style="margin-top:8px;font-size:0.8rem"><a href="https://www.mir2db.com/list/66" target="_blank" rel="noopener">Open on Mir2DB</a></div>
+      </article><article class="card">
+        <span class="badge miss">No zone yet</span>
+        <h3>Sand Ruins</h3>
+        <div style="font-size:0.8rem;color:var(--muted)">沙遗迹 · list/68 · 4 maps</div>
+        <p class="note" style="margin-top:8px">High-level (~84) ruin complex; several mini-bosses</p>
+        <ul class="mobs">
+          <li>
+            <img src="https://cdn.mir2db.com/images/mob/406.png" alt="" />
+            <span>격괴장</span>
+            <span class="stat">Lv84 · 16,200 HP</span>
+          </li><li>
+            <img src="https://cdn.mir2db.com/images/mob/405.png" alt="" />
+            <span>마석거인</span>
+            <span class="stat">Lv84 · 5,670 HP</span>
+          </li><li>
+            <img src="https://cdn.mir2db.com/images/mob/401.png" alt="" />
+            <span>주마화궁사</span>
+            <span class="stat">Lv84 · 3,870 HP</span>
+          </li><li>
+            <img src="https://cdn.mir2db.com/images/mob/404.png" alt="" />
+            <span>여귀석</span>
+            <span class="stat">Lv84 · 2,790 HP</span>
+          </li>
+        </ul>
+        <div style="margin-top:8px;font-size:0.8rem"><a href="https://www.mir2db.com/list/68" target="_blank" rel="noopener">Open on Mir2DB</a></div>
+      </article><article class="card">
+        <span class="badge miss">No zone yet</span>
+        <h3>Moon Valley</h3>
+        <div style="font-size:0.8rem;color:var(--muted)">月之谷 · list/73 · 6 maps</div>
+        <p class="note" style="margin-top:8px">Lv70–80 moon shrine; boss 石魔兽 30k HP</p>
+        <ul class="mobs">
+          <li>
+            <img src="https://cdn.mir2db.com/images/mob/258.png" alt="" />
+            <span>石魔兽</span>
+            <span class="stat">Lv80 · 30,000 HP</span>
+          </li><li>
+            <img src="https://cdn.mir2db.com/images/mob/259.png" alt="" />
+            <span>鸟人像</span>
+            <span class="stat">Lv80 · 26,000 HP</span>
+          </li>
+        </ul>
+        <div style="margin-top:8px;font-size:0.8rem"><a href="https://www.mir2db.com/list/73" target="_blank" rel="noopener">Open on Mir2DB</a></div>
+      </article><article class="card">
+        <span class="badge miss">No zone yet</span>
+        <h3>Crescent Forest</h3>
+        <div style="font-size:0.8rem;color:var(--muted)">弦月林 · list/74 · 4 maps</div>
+        <p class="note" style="margin-top:8px">Lv66–80 forest + class champions in 弦月堂</p>
+        <ul class="mobs">
+          <li>
+            <img src="https://cdn.mir2db.com/images/mob/31.png" alt="" />
+            <span>金胜战士</span>
+            <span class="stat">Lv80 · 14,500 HP</span>
+          </li><li>
+            <img src="https://cdn.mir2db.com/images/mob/34.png" alt="" />
+            <span>焱门客</span>
+            <span class="stat">Lv80 · 13,000 HP</span>
+          </li><li>
+            <img src="https://cdn.mir2db.com/images/mob/33.png" alt="" />
+            <span>定缘道士</span>
+            <span class="stat">Lv80 · 12,500 HP</span>
+          </li><li>
+            <img src="https://cdn.mir2db.com/images/mob/32.png" alt="" />
+            <span>圣术士</span>
+            <span class="stat">Lv80 · 12,000 HP</span>
+          </li><li>
+            <img src="https://cdn.mir2db.com/images/mob/417.png" alt="" />
+            <span>流觞弓匠</span>
+            <span class="stat">Lv80 · 12,000 HP</span>
+          </li>
+        </ul>
+        <div style="margin-top:8px;font-size:0.8rem"><a href="https://www.mir2db.com/list/74" target="_blank" rel="noopener">Open on Mir2DB</a></div>
+      </article><article class="card">
+        <span class="badge miss">No zone yet</span>
+        <h3>Spirit Ghost Path</h3>
+        <div style="font-size:0.8rem;color:var(--muted)">神穿鬼路 · list/76 · 5 maps</div>
+        <p class="note" style="margin-top:8px">Lv82+ dragon/spirit path (穷奇, 麒麟, 水龙…)</p>
+        <ul class="mobs">
+          <li>
+            <img src="https://cdn.mir2db.com/images/mob/434.png" alt="" />
+            <span>穷奇</span>
+            <span class="stat">Lv86 · 8,250 HP</span>
+          </li><li>
+            <img src="https://cdn.mir2db.com/images/mob/432.png" alt="" />
+            <span>水龙</span>
+            <span class="stat">Lv83 · 2,970 HP</span>
+          </li><li>
+            <img src="https://cdn.mir2db.com/images/mob/433.png" alt="" />
+            <span>沼玄武</span>
+            <span class="stat">Lv83 · 2,845 HP</span>
+          </li><li>
+            <img src="https://cdn.mir2db.com/images/mob/261.png" alt="" />
+            <span>푸른거미</span>
+            <span class="stat">Lv82 · 2,800 HP</span>
+          </li><li>
+            <img src="https://cdn.mir2db.com/images/mob/436.png" alt="" />
+            <span>龙骨弓士</span>
+            <span class="stat">Lv82 · 2,780 HP</span>
+          </li><li>
+            <img src="https://cdn.mir2db.com/images/mob/121.png" alt="" />
+            <span>동굴钳虫</span>
+            <span class="stat">Lv82 · 2,740 HP</span>
+          </li>
+        </ul>
+        <div style="margin-top:8px;font-size:0.8rem"><a href="https://www.mir2db.com/list/76" target="_blank" rel="noopener">Open on Mir2DB</a></div>
+      </article><article class="card">
+        <span class="badge miss">No zone yet</span>
+        <h3>Pianmu Island</h3>
+        <div style="font-size:0.8rem;color:var(--muted)">片木岛 · list/80 · 12 maps</div>
+        <p class="note" style="margin-top:8px">Island + ghost ships; no LOM Idle zone</p>
+        <ul class="mobs">
+          <li>
+            <img src="https://cdn.mir2db.com/images/mob/382.png" alt="" />
+            <span>긴코원숭이</span>
+            <span class="stat">Lv81 · 2,050 HP</span>
+          </li><li>
+            <img src="https://cdn.mir2db.com/images/mob/383.png" alt="" />
+            <span>변이갑충</span>
+            <span class="stat">Lv80 · 1,920 HP</span>
+          </li><li>
+            <img src="https://cdn.mir2db.com/images/mob/384.png" alt="" />
+            <span>거장화</span>
+            <span class="stat">Lv80 · 1,920 HP</span>
+          </li>
+        </ul>
+        <div style="margin-top:8px;font-size:0.8rem"><a href="https://www.mir2db.com/list/80" target="_blank" rel="noopener">Open on Mir2DB</a></div>
+      </article><article class="card">
+        <span class="badge miss">No zone yet</span>
+        <h3>Southern Barbarian Land</h3>
+        <div style="font-size:0.8rem;color:var(--muted)">南蛮 · list/89 · 4 maps</div>
+        <p class="note" style="margin-top:8px">Lv70–99; dual bosses 万兽之王 / 丹墨</p>
+        <ul class="mobs">
+          <li>
+            <img src="https://cdn.mir2db.com/images/mob/229.png" alt="" />
+            <span>万兽之王</span>
+            <span class="stat">Lv99 · 34,000 HP</span>
+          </li><li>
+            <img src="https://cdn.mir2db.com/images/mob/329.png" alt="" />
+            <span>丹墨</span>
+            <span class="stat">Lv99 · 30,000 HP</span>
+          </li><li>
+            <img src="https://cdn.mir2db.com/images/mob/325.png" alt="" />
+            <span>난폭한남만흑호</span>
+            <span class="stat">Lv72 · 1,700 HP</span>
+          </li><li>
+            <img src="https://cdn.mir2db.com/images/mob/322.png" alt="" />
+            <span>냉혈의한시</span>
+            <span class="stat">Lv72 · 1,200 HP</span>
+          </li>
+        </ul>
+        <div style="margin-top:8px;font-size:0.8rem"><a href="https://www.mir2db.com/list/89" target="_blank" rel="noopener">Open on Mir2DB</a></div>
+      </article>
+  </div>
+
+  <h2>Our zones / bosses (for cross-check)</h2>
+  <table>
+    <thead><tr><th>Zone</th><th>Boss</th></tr></thead>
+    <tbody>
+      <tr><td><code>zone-wooma-temple-kr</code></td><td>Wooma Taurus</td></tr><tr><td><code>zone-stone-temple-kr</code></td><td>Evil Snake</td></tr><tr><td><code>zone-bug-cave-kr</code></td><td>Evil Centipede</td></tr><tr><td><code>zone-zuma-temple-kr</code></td><td>Zuma Taurus</td></tr><tr><td><code>zone-prajna-temple-kr</code></td><td>Minotaur King</td></tr><tr><td><code>zone-prajna-cave-kr</code></td><td>Bone Lord</td></tr><tr><td><code>zone-viper-cave-kr</code></td><td>Yimoogi</td></tr><tr><td><code>zone-kings-tomb</code></td><td>Oma King Spirit</td></tr><tr><td><code>zone-red-cavern-kr</code></td><td>Dream and Dark Devourer</td></tr><tr><td><code>zone-flame-queen-kr</code></td><td>Flame Queen</td></tr><tr><td><code>zone-flaming-mutant-kr</code></td><td>Flaming Mutant</td></tr><tr><td><code>zone-scaly-beast-kr</code></td><td>Scaly Beast</td></tr>
+    </tbody>
+  </table>
+
+  <h2>What Mir2DB is / isn’t good for</h2>
+  <ul>
+    <li><strong style="color:var(--ink)">Good:</strong> dungeon floor lists, spawn rosters, monster level/HP/exp, mob icons, portal connections.</li>
+    <li><strong style="color:var(--ink)">Weak:</strong> English names (often empty), drop tables (not in the mob/map API), Crystal-specific layouts (Fox Cave came from Crystal <code>Fox01–03</code>, not this KR DB).</li>
+    <li><strong style="color:var(--ink)">Ancient_* lists</strong> (55, 57, 69, 70, 79) are harder KR variants of classics we already themed.</li>
+  </ul>
+</main>
+<footer>
+  Generated from Mir2DB API snapshots. Local preview:
+  <code>http://localhost:4177/info/docs/.../</code> →
+  <code>http://localhost:4177/docs/mir2db-dungeons-preview.html</code>
+</footer>
+</body>
+</html>

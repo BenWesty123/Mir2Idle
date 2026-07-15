@@ -290,6 +290,7 @@ import {
 import {
   crystalHolyDevaStats,
   resolveTaoistPetTargetCoordinates,
+  shouldKeepHolyDevaBetweenSoloFights,
   taoistPetAttackDelayMs,
   taoistPetCombatStats,
   taoistPetLayerBlendModes,
@@ -1161,6 +1162,13 @@ const BOSS_ROOM_DEFS = {
     empowerLabel: "Empower the Devourers for better drops",
     empowerRequirement: BOSS_EMPOWER_UNLOCK_HINT,
   },
+  "zone-fox-cave-kr": {
+    bossName: "Great Fox Spirit",
+    respawnMinutes: BOSS_RESPAWN_MINUTES_ELITE,
+    unlockHint: "Select saved characters to call into the fight.",
+    empowerLabel: "Empower Great Fox Spirit for better drops",
+    empowerRequirement: BOSS_EMPOWER_UNLOCK_HINT,
+  },
   "zone-flame-queen-kr": {
     bossName: "Flame Queen",
     respawnMinutes: BOSS_RESPAWN_MINUTES_ELITE,
@@ -1686,6 +1694,16 @@ const CAVE_EDGE_SETS = {
       scrollRatio: 1,
     },
   },
+  "fox-cave-corridor": {
+    skipTopGroundRows: 1,
+    overlay: {
+      src: "./public/mapedges/fox-cave-wall-columns.png",
+      columnCount: 26,
+      columnWidth: 48,
+      yOffsetFromBase: -508,
+      scrollRatio: 1,
+    },
+  },
 };
 
 const PROTOTYPE_ZONES = PHASE1_ZONES;
@@ -1731,6 +1749,9 @@ const TELEPORT_REGIONS = [
       "zone-zuma-temple-1",
       "zone-zuma-temple-2",
       "zone-zuma-temple-kr",
+      "zone-fox-cave-1",
+      "zone-fox-cave-2",
+      "zone-fox-cave-kr",
     ],
   },
   {
@@ -1787,8 +1808,8 @@ const TOWN_VISUALS = {
   stageMaxHeight: 480,
 };
 
-const MAP_STAMP_ASSET_VERSION = "20260625-hell-gd-3-22388";
-const MONSTER_ASSET_VERSION = "20260703-holy-deva-blend";
+const MAP_STAMP_ASSET_VERSION = "20260714-fox-cave-kr-3432";
+const MONSTER_ASSET_VERSION = "20260714-great-fox-efx";
 const HELL_BOLT_MONSTER_INDEX = 219;
 const HELL_BOLT_TEMPLATE_ID = 429;
 const WITCH_DOCTOR_MONSTER_INDEX = 220;
@@ -2188,6 +2209,8 @@ function simulateOfflineGroupDungeonProgress(zone, pending, startedAt = performa
     members,
     pet: null,
     petDiedThisFight: false,
+    holyDeva: null,
+    holyDevaDiedThisFight: false,
     effects: [],
     pendingPoison: null,
     finished: false,
@@ -3094,6 +3117,8 @@ const state = {
     petStatBuffs: [],
     taoPet: null,
     taoPetDiedThisFight: false,
+    taoHolyDeva: null,
+    taoHolyDevaDiedThisFight: false,
     wizardMirror: null,
     bossParty: null,
     bossEmpowered: false,
@@ -3105,6 +3130,7 @@ const state = {
     nextMapLightningAt: 0,
     mapHellFireEffects: [],
     nextMapHellFireAt: 0,
+    greatFoxSpiritEffects: [],
     lastPlayerAttackCooldownMs: 0,
     wizardSpellLockUntil: 0,
     lastNoMpLogAt: 0,
@@ -5155,6 +5181,42 @@ function addItemQuantityToInventoryState(inventory, itemId, quantity) {
   return added;
 }
 
+// Prefer live boss-party inventories while a fight/aftermath is on the field, so a later
+// syncBossPartyMembersToCharacters cannot wipe achievement grants from state.characters.
+function achievementRewardInventoryTarget(characterId) {
+  const id = normalizeCharacterId(characterId);
+  const partyMember = bossPartyOnField() ? bossPartyMemberByClassId(id) : null;
+  if (partyMember) {
+    if (id === normalizeCharacterId(state.activeCharacterId)) {
+      return { inventory: state.inventory, partyMember, controlled: true };
+    }
+    ensureBossPartyInventorySlots(partyMember);
+    return { inventory: partyMember.inventory, partyMember, controlled: false };
+  }
+  if (id === normalizeCharacterId(state.activeCharacterId)) {
+    return { inventory: state.inventory, partyMember: null, controlled: true };
+  }
+  return {
+    inventory: state.characters[id]?.inventory ?? null,
+    partyMember: null,
+    controlled: false,
+  };
+}
+
+function syncAchievementRewardInventory(characterId, character, target) {
+  const id = normalizeCharacterId(characterId);
+  if (!character || !target?.inventory) return;
+  if (target.controlled) {
+    if (bossPartyOnField()) syncBossPartyControlledInventoryFromState(id);
+    captureActiveCharacterState();
+    return;
+  }
+  if (target.partyMember) {
+    character.inventory = cloneInventoryState(target.partyMember.inventory);
+    character.game.progress.gold = character.inventory.gold;
+  }
+}
+
 function claimAchievementReward(achievementId) {
   const def = ACHIEVEMENT_DEFS.find((entry) => entry.id === achievementId);
   const achievements = ensureAccountAchievements();
@@ -5168,7 +5230,9 @@ function claimAchievementReward(achievementId) {
   captureActiveCharacterState();
   const character = state.characters[characterId];
   if (!character) return false;
-  const targetInventory = characterId === state.activeCharacterId ? state.inventory : character.inventory;
+  const target = achievementRewardInventoryTarget(characterId);
+  const targetInventory = target.inventory;
+  if (!targetInventory) return false;
 
   if (itemId && itemQuantity > 0) {
     const item = itemDefinition(itemId);
@@ -5184,14 +5248,19 @@ function claimAchievementReward(achievementId) {
 
   if (gold > 0) {
     targetInventory.gold = Math.max(0, Math.trunc(Number(targetInventory.gold) || 0)) + gold;
-    character.inventory.gold = targetInventory.gold;
-    character.game.progress.gold = targetInventory.gold;
     if (characterId === state.activeCharacterId) {
       state.inventory.gold = targetInventory.gold;
       state.game.progress.gold = targetInventory.gold;
       state.battle.gold = targetInventory.gold;
     }
   }
+
+  syncAchievementRewardInventory(characterId, character, target);
+  if (gold > 0) {
+    character.inventory.gold = Math.max(0, Math.trunc(Number(character.inventory.gold) || 0));
+    character.game.progress.gold = character.inventory.gold;
+  }
+
   record.rewardClaimed = true;
   addLootNotice(`Achievement Reward: ${def.label}`, "level");
   if (gold > 0) addLootNotice(`+${gold.toLocaleString()} gold for ${characterId}`, "gold");
@@ -6144,7 +6213,7 @@ function simulateOfflineProgress(zone, pending) {
     const step = processOfflineZoneFightCycle(report, result, limitMs, LANE.respawnDelayMs);
     if (step.status === "player_died" || step.status === "fight_incomplete") break;
 
-    dismissTaoistPet();
+    dismissTaoistPet({ keepHolyDeva: true });
     awardOfflineEnemyRewards(zone, template, report);
     state.game.distance += enemySpawnDistance();
     offlineUpdateRecovery(startedAt + report.elapsedMs, report);
@@ -6323,6 +6392,20 @@ function rebaseOfflineTransientTimers(simulatedNow, actualNow = performance.now(
       CRYSTAL_HEAL_DELAY_MS,
     );
   }
+  if (state.battle.taoHolyDeva?.active) {
+    state.battle.taoHolyDeva.nextAttackAt = rebaseTransientTimestamp(
+      state.battle.taoHolyDeva.nextAttackAt,
+      simulatedNow,
+      actualNow,
+      state.battle.taoHolyDeva.attackMs,
+    );
+    state.battle.taoHolyDeva.healTickAt = rebaseTransientTimestamp(
+      state.battle.taoHolyDeva.healTickAt,
+      simulatedNow,
+      actualNow,
+      CRYSTAL_HEAL_DELAY_MS,
+    );
+  }
   state.battle.autoPotionReadyAt = {
     hp: rebaseTransientTimestamp(state.battle.autoPotionReadyAt?.hp, simulatedNow, actualNow, AUTO_POTION_COOLDOWN_MS),
     mp: rebaseTransientTimestamp(state.battle.autoPotionReadyAt?.mp, simulatedNow, actualNow, AUTO_POTION_COOLDOWN_MS),
@@ -6364,7 +6447,7 @@ function simulateOfflineFight(template, startedAt, remainingMs, report) {
     initialNextEnemyAttackMs: enemy.attackMs,
     getPlayerHp: () => state.battle.player?.hp ?? 0,
     getPetAttackDelayMs: (simNow) => offlinePetAttackDelayMs(
-      state.battle.taoPet?.active ? state.battle.taoPet : null,
+      livingTaoistTankPet() ?? livingTaoistHolyDeva(),
       simNow,
     ),
     isEnemyFrozen: (target, now) => enemyFrozenActive(target, now),
@@ -6375,13 +6458,13 @@ function simulateOfflineFight(template, startedAt, remainingMs, report) {
       state.battle.enemyAggro = true;
       state.battle.playerX = 0;
       state.battle.enemyX = playerAttackRange();
-      dismissTaoistPet();
+      dismissTaoistPet({ keepHolyDeva: true });
       offlineUpdateRecovery(simNow, report);
     },
     onRecovery: (now) => offlineUpdateRecovery(now, report),
     onPlayerAttack: (target, now) => offlinePlayerAttack(target, now),
     onPetAttack: (now) => {
-      if (state.battle.taoPet?.active && (state.battle.taoPet.nextAttackAt ?? 0) <= now) {
+      if (livingTaoistPets().some((pet) => (pet.nextAttackAt ?? 0) <= now)) {
         updateTaoistPetAttack(now, { offline: true });
       }
     },
@@ -9091,6 +9174,7 @@ function resetBattle(enemyId = state.battle.enemyId) {
   state.battle.nextMapLightningAt = 0;
   state.battle.mapHellFireEffects = [];
   state.battle.nextMapHellFireAt = 0;
+  state.battle.greatFoxSpiritEffects = [];
   clearTransientCombatBuffs();
   state.battle.furyUntil = 0;
   state.battle.furyBonus = 0;
@@ -9188,6 +9272,7 @@ function resetBattleForRoomOnly(zone = activeZone()) {
   state.battle.nextMapLightningAt = 0;
   state.battle.mapHellFireEffects = [];
   state.battle.nextMapHellFireAt = 0;
+  state.battle.greatFoxSpiritEffects = [];
   clearTransientCombatBuffs();
   state.battle.furyUntil = 0;
   state.battle.furyBonus = 0;
@@ -9863,7 +9948,7 @@ function trainingRoomCastTaoist(spell, learned, cost, now) {
     if (!applied) return false;
     trainingRoomPlayCastVisual(spell, now);
     playSpellSfx(spell.id, "cast");
-    queuePetEnhancerImpactFx(spell, now, { soundPlayed: true });
+    queuePetEnhancerImpactFx(spell, now, { soundPlayed: true, pet: applied.pet });
     return true;
   }
 
@@ -9873,11 +9958,20 @@ function trainingRoomCastTaoist(spell, learned, cost, now) {
     const item = entry ? itemDefinition(entry.itemId) : null;
     if (!entry || !isTaoistAmuletItem(item) || amuletInventoryCount() < amuletCost) return false;
     if (!consumeAmuletInventoryUnits(amuletCost)) return false;
-    if (battle.taoPet?.active) dismissTaoistPet();
+    if (isTaoistHolyDevaSummonSpell(spell.id)) {
+      if (battle.taoHolyDeva?.active) {
+        battle.taoHolyDeva = null;
+        battle.taoHolyDevaDiedThisFight = false;
+      }
+    } else if (battle.taoPet?.active) {
+      battle.taoPet = null;
+      battle.petStatBuffs = [];
+      battle.taoPetDiedThisFight = false;
+    }
     trainingRoomSpendMp(spell, learned, cost);
     levelMagicSkill(spell, learned, now);
-    battle.taoPet = createTaoistSummonPet(spell.id, learned.level, now);
-    state.taoPetAtlas = taoPetAtlasFor(battle.taoPet);
+    const pet = createTaoistSummonPet(spell.id, learned.level, now);
+    placeSummonedTaoistPet(pet);
     trainingRoomPlayCastVisual(spell, now);
     playSpellSfx(spell.id, "cast");
     return true;
@@ -16437,14 +16531,14 @@ function updatePotionRegen(now) {
   return changed;
 }
 
-function queueHealingRestore(amount, now = performance.now(), target = "player") {
+function queueHealingRestore(amount, now = performance.now(), target = "player", pet = null) {
   const value = Math.max(0, Math.trunc(Number(amount) || 0));
   if (value <= 0) return false;
   if (target === "pet") {
-    const pet = state.battle.taoPet;
-    if (!pet?.active || pet.hp <= 0) return false;
-    pet.healAmount = Math.min(65535, (pet.healAmount ?? 0) + value);
-    if (!pet.healTickAt) pet.healTickAt = now + CRYSTAL_HEAL_DELAY_MS;
+    const healPet = pet ?? mostHurtHealableTaoistPet(true) ?? state.battle.taoPet;
+    if (!healPet?.active || healPet.hp <= 0) return false;
+    healPet.healAmount = Math.min(65535, (healPet.healAmount ?? 0) + value);
+    if (!healPet.healTickAt) healPet.healTickAt = now + CRYSTAL_HEAL_DELAY_MS;
     return true;
   }
   state.battle.healAmount = Math.min(65535, (state.battle.healAmount ?? 0) + value);
@@ -16460,14 +16554,16 @@ function updatePendingHeal(now) {
   const spell = taoistCombatSpell(pending.spellId);
   const amount = Math.max(0, Math.trunc(Number(pending.amount) || 0));
   const target = pending.target === "pet" ? "pet" : "player";
-  const targetStats = target === "pet" ? battle.taoPet : battle.player;
+  const targetStats = target === "pet"
+    ? (pending.pet ?? battle.taoPet ?? battle.taoHolyDeva)
+    : battle.player;
   if (!targetStats || targetStats.hp >= targetStats.maxHp || amount <= 0) return false;
-  queueHealingRestore(amount, now, target);
+  queueHealingRestore(amount, now, target, target === "pet" ? targetStats : null);
   const learned = learnedMagic(spell.id);
   if (learned) levelMagicSkill(spell, learned, now);
   if (!suppressSimulationRender) {
     playSpellSfx(spell.id, "impact", { volume: 0.46 }) || playSpellSfx(spell.id, "cast", { volume: 0.42 });
-    const healEntity = target === "pet" ? battle.taoPet : battle.player;
+    const healEntity = target === "pet" ? targetStats : battle.player;
     showEntityQueuedHealText(healEntity, amount, now);
     queueEntityHealRestoreFx(healEntity, spell, now, { startAt: now });
     pushBattleLog(`${spell.label} starts restoring ${amount} HP to ${target === "pet" ? targetStats.name : battle.combatClass}.`);
@@ -16755,7 +16851,19 @@ function updateVampirismRegen(now) {
 }
 
 function updateTaoistPetHealingRegen(now) {
-  const pet = state.battle.taoPet;
+  let changed = false;
+  for (const pet of [
+    state.battle.taoPet,
+    state.battle.taoHolyDeva,
+    state.battle.bossParty?.pet,
+    state.battle.bossParty?.holyDeva,
+  ].filter(Boolean)) {
+    if (updateOneTaoistPetHealingRegen(pet, now)) changed = true;
+  }
+  return changed;
+}
+
+function updateOneTaoistPetHealingRegen(pet, now) {
   if (!pet?.active || pet.hp <= 0) return false;
 
   let changed = false;
@@ -22789,6 +22897,7 @@ function returnToTown() {
   state.battle.bossParty = null;
   state.battle.bossEmpowered = false;
   state.battle.groundSpellEffects = [];
+  state.battle.greatFoxSpiritEffects = [];
   if (state.battle.enemy) state.battle.enemy.poisons = [];
   state.battle.nextPlayerAttackAt = 0;
   state.battle.nextEnemyAttackAt = 0;
@@ -25233,6 +25342,7 @@ function updateGroupDungeonBossPartyBattle(now) {
   if (!bossSwarmComplete) {
     const enemy = state.battle.enemy;
     if (party.pet?.active && now >= (party.pet.nextAttackAt ?? 0)) bossPartyPetAttack(now);
+  if (party.holyDeva?.active && now >= (party.holyDeva.nextAttackAt ?? 0)) bossPartyPetAttack(now);
 
     for (const member of party.members) {
       if (!member.alive || member.hp <= 0 || now < (member.nextActionAt ?? 0)) continue;
@@ -27303,6 +27413,8 @@ function beginBossPartyFight(zoneId, now = performance.now()) {
     members,
     pet: null,
     petDiedThisFight: false,
+    holyDeva: null,
+    holyDevaDiedThisFight: false,
     effects: [],
     pendingPoison: null,
     finished: false,
@@ -28186,6 +28298,7 @@ function updateBossPartyBattle(now) {
   }
 
   if (party.pet?.active && now >= (party.pet.nextAttackAt ?? 0)) bossPartyPetAttack(now);
+  if (party.holyDeva?.active && now >= (party.holyDeva.nextAttackAt ?? 0)) bossPartyPetAttack(now);
   for (const member of party.members) {
     if (!member.alive || member.hp <= 0 || now < (member.nextActionAt ?? 0)) continue;
     if (bossPartyMemberIsWalkingToMelee(member)) continue;
@@ -28673,49 +28786,47 @@ function bossPartyTaoistAction(member, now) {
   }
 
   const summon = spells.find((spell) => spell.id === "SummonSkeleton");
-  if (summon && !bossPartyActivePet() && !state.battle.bossParty.petDiedThisFight && bossPartyCanCast(member, summon, now)) {
+  if (summon && !bossPartySummonSlotBlocked(summon.id) && bossPartyCanCast(member, summon, now)) {
     const amuletCost = taoistSummonAmuletCost(summon.id);
     if (bossPartyAmuletInventoryCount(member) >= amuletCost && bossPartyConsumeAmuletInventoryUnits(member, amuletCost)) {
       const learned = bossPartyLearned(member, summon.id);
       member.mp -= effectiveSpellMpCost(summon, learned, member.inventory);
       learned.castReadyAt = now + spellDelayMs(summon, learned);
       member.nextActionAt = now + spellDelayMs(summon, learned);
-      state.battle.bossParty.pet = createTaoistSummonPet(summon.id, Math.max(0, Number(learned.level) || 0), now);
-      state.battle.bossParty.pet.name = `${member.classId}'s ${state.battle.bossParty.pet.name}`;
-      state.battle.taoPet = state.battle.bossParty.pet;
-      state.taoPetAtlas = taoPetAtlasFor(state.battle.taoPet);
+      const pet = createTaoistSummonPet(summon.id, Math.max(0, Number(learned.level) || 0), now);
+      pet.name = `${member.classId}'s ${pet.name}`;
+      placeSummonedTaoistPet(pet, { bossParty: true });
       bossPartyControlledVisual(member, summon, summon.bodyAction ?? "spell", now);
       bossPartyCastSfx(member, summon.id, 0.38, 160);
       bossPartyLevelMagicSkill(member, summon, learned, now);
-      playTaoPetAppearSfx({ volume: bossPartySfxVolume(member, 0.4, 0.18), throttleMs: 250, pet: state.battle.taoPet });
-      pushBattleLog(`${member.classId} summons ${state.battle.bossParty.pet.name}.`);
+      playTaoPetAppearSfx({ volume: bossPartySfxVolume(member, 0.4, 0.18), throttleMs: 250, pet });
+      pushBattleLog(`${member.classId} summons ${pet.name}.`);
       return true;
     }
   }
 
   const shinsu = spells.find((spell) => spell.id === "SummonShinsu");
-  if (shinsu && !bossPartyActivePet() && !state.battle.bossParty.petDiedThisFight && bossPartyCanCast(member, shinsu, now)) {
+  if (shinsu && !bossPartySummonSlotBlocked(shinsu.id) && bossPartyCanCast(member, shinsu, now)) {
     const amuletCost = taoistSummonAmuletCost(shinsu.id);
     if (bossPartyAmuletInventoryCount(member) >= amuletCost && bossPartyConsumeAmuletInventoryUnits(member, amuletCost)) {
       const learned = bossPartyLearned(member, shinsu.id);
       member.mp -= effectiveSpellMpCost(shinsu, learned, member.inventory);
       learned.castReadyAt = now + spellDelayMs(shinsu, learned);
       member.nextActionAt = now + spellDelayMs(shinsu, learned);
-      state.battle.bossParty.pet = createTaoistSummonPet(shinsu.id, Math.max(0, Number(learned.level) || 0), now);
-      state.battle.bossParty.pet.name = `${member.classId}'s ${state.battle.bossParty.pet.name}`;
-      state.battle.taoPet = state.battle.bossParty.pet;
-      state.taoPetAtlas = taoPetAtlasFor(state.battle.taoPet);
+      const pet = createTaoistSummonPet(shinsu.id, Math.max(0, Number(learned.level) || 0), now);
+      pet.name = `${member.classId}'s ${pet.name}`;
+      placeSummonedTaoistPet(pet, { bossParty: true });
       bossPartyControlledVisual(member, shinsu, shinsu.bodyAction ?? "spell", now);
       bossPartyCastSfx(member, shinsu.id, 0.38, 160);
       bossPartyLevelMagicSkill(member, shinsu, learned, now);
-      playTaoPetAppearSfx({ volume: bossPartySfxVolume(member, 0.4, 0.18), throttleMs: 250, pet: state.battle.taoPet });
-      pushBattleLog(`${member.classId} summons ${state.battle.bossParty.pet.name}.`);
+      playTaoPetAppearSfx({ volume: bossPartySfxVolume(member, 0.4, 0.18), throttleMs: 250, pet });
+      pushBattleLog(`${member.classId} summons ${pet.name}.`);
       return true;
     }
   }
 
   const holyDeva = spells.find((spell) => spell.id === "SummonHolyDeva");
-  if (holyDeva && !bossPartyActivePet() && !state.battle.pendingTaoPet && !state.battle.bossParty.petDiedThisFight && bossPartyCanCast(member, holyDeva, now)) {
+  if (holyDeva && !bossPartySummonSlotBlocked(holyDeva.id) && bossPartyCanCast(member, holyDeva, now)) {
     const amuletCost = taoistSummonAmuletCost(holyDeva.id);
     if (bossPartyAmuletInventoryCount(member) >= amuletCost && bossPartyConsumeAmuletInventoryUnits(member, amuletCost)) {
       const learned = bossPartyLearned(member, holyDeva.id);
@@ -29285,7 +29396,8 @@ function bossPartyUsableTaoistPetEnhancer(member, now, options = {}) {
   const learned = bossPartyLearned(member, spell?.id);
   const manual = options.requireAuto === false;
   if (!spell || !learned || !bossPartyCanUseTaoistSpell(member, spell, learned, now, { requireAuto: !manual })) return null;
-  const pet = state.battle.bossParty?.pet;
+  // Prefer an unbuffed living pet (tank first, then Holy Deva) — same as solo.
+  const pet = activeTaoistPet(now);
   if (!pet?.active || pet.hp <= 0) return null;
   if (!manual && hasPetEnhancerBuff(pet, now)) return null;
   return {
@@ -29297,7 +29409,7 @@ function bossPartyUsableTaoistPetEnhancer(member, now, options = {}) {
 }
 
 function bossPartyCastPetEnhancer(member, castBundle, now) {
-  const pet = state.battle.bossParty?.pet;
+  const pet = castBundle.pet ?? activeTaoistPet(now);
   if (!pet?.active || pet.hp <= 0) return false;
   member.mp -= castBundle.cost;
   castBundle.learned.castReadyAt = now + spellDelayMs(castBundle.spell, castBundle.learned);
@@ -29316,7 +29428,7 @@ function bossPartyCastPetEnhancer(member, castBundle, now) {
   bossPartyControlledVisual(member, castBundle.spell, castBundle.spell.bodyAction ?? "spell", now);
   bossPartyCastSfx(member, castBundle.spell.id, 0.38, 160);
   showPetEnhancerBuffText(applied, now);
-  queuePetEnhancerImpactFx(castBundle.spell, now, { soundPlayed: true });
+  queuePetEnhancerImpactFx(castBundle.spell, now, { soundPlayed: true, pet: applied.pet });
   pushBattleLog(formatPetEnhancerAppliedLog(castBundle.spell, pet.name ?? "pet", applied, applied.durationMs));
   return true;
 }
@@ -29572,8 +29684,7 @@ function bossPartyUsableTaoistSummonSpell(member, spellId, now, options = {}) {
   if (!spell) return null;
   const learned = bossPartyLearned(member, spell.id);
   if (!bossPartyCanUseTaoistSpell(member, spell, learned, now, { requireAuto: options.requireAuto !== false })) return null;
-  const party = state.battle.bossParty;
-  if (party.petDiedThisFight || bossPartyActivePet() || party.pendingTaoPet || state.battle.pendingTaoPet) return null;
+  if (bossPartySummonSlotBlocked(spellId)) return null;
   const enemy = state.battle.enemy;
   if (!enemy || enemy.hp <= 0) return null;
   if (!options.ignoreRange && bossPartyMemberEnemyDistance(member) > taoistSummonPetRangePx()) return null;
@@ -29774,14 +29885,13 @@ function bossPartyCastQueuedTaoistSpell(member, queued, now) {
         bossParty: true,
       };
     } else {
-      state.battle.bossParty.pet = createTaoistSummonPet(
+      const pet = createTaoistSummonPet(
         queued.spell.id,
         Math.max(0, Number(queued.learned.level) || 0),
         now,
       );
-      state.battle.bossParty.pet.name = `${member.classId}'s ${state.battle.bossParty.pet.name}`;
-      state.battle.taoPet = state.battle.bossParty.pet;
-      state.taoPetAtlas = taoPetAtlasFor(state.battle.taoPet);
+      pet.name = `${member.classId}'s ${pet.name}`;
+      placeSummonedTaoistPet(pet, { bossParty: true });
     }
     bossPartyControlledVisual(member, queued.spell, queued.spell.bodyAction ?? "spell", now);
     bossPartyCastSfx(member, queued.spell.id, 0.38, 160);
@@ -29789,8 +29899,9 @@ function bossPartyCastQueuedTaoistSpell(member, queued, now) {
     if (delayedHolyDeva) {
       pushBattleLog(`${member.classId} casts ${queued.spell.label}.`);
     } else {
-      playTaoPetAppearSfx({ volume: bossPartySfxVolume(member, 0.4, 0.18), throttleMs: 250, pet: state.battle.taoPet });
-      pushBattleLog(`${member.classId} summons ${state.battle.bossParty.pet.name}.`);
+      const pet = state.battle.bossParty.pet;
+      playTaoPetAppearSfx({ volume: bossPartySfxVolume(member, 0.4, 0.18), throttleMs: 250, pet });
+      pushBattleLog(`${member.classId} summons ${pet.name}.`);
     }
     return true;
   }
@@ -30368,6 +30479,7 @@ function queueDefenceBuffImpactFx(spell, anchor, now, options = {}) {
     worldX: options.worldX ?? null,
     memberClassId: options.memberClassId ?? null,
     petFx: Boolean(options.petFx),
+    petSpellId: options.petSpellId ?? null,
     startAt: now,
     soundPlayed: Boolean(options.soundPlayed),
   });
@@ -30745,6 +30857,8 @@ function bossPartyHealTarget(manual = false) {
   const candidates = [];
   const pet = bossPartyActivePet();
   if (pet) candidates.push(pet);
+  const holyDeva = livingTaoistHolyDeva();
+  if (holyDeva) candidates.push(holyDeva);
   for (const member of party.members ?? []) {
     if (member.alive && member.hp > 0) candidates.push(member);
   }
@@ -30811,6 +30925,42 @@ function isScalyBeastEnemy(enemy = state.battle.enemy) {
   return enemy?.attackMode === "scalyBeast"
     || enemy?.id === SCALY_BEAST_ENEMY_ID
     || enemy?.crystalName === "ScalyBeast";
+}
+
+/** Crystal AI 49 — Electric / Cloud Element close AoE MAC smash. */
+function isThunderElementEnemy(enemy = state.battle.enemy) {
+  return enemy?.attackMode === "thunderElement"
+    || enemy?.crystalName === "ElectricElement"
+    || enemy?.crystalName === "CloudElement"
+    || enemy?.crystalName === "ThunderElement";
+}
+
+function isGreatFoxSpiritEnemy(enemy = state.battle.enemy) {
+  return enemy?.attackMode === "greatFoxSpirit" || enemy?.crystalName === "GreatFoxSpirit";
+}
+
+function greatFoxSpiritStage(enemy = state.battle.enemy) {
+  // Crystal: ExtraByte = 4 - floor(HP / (MaxHP / 4)), clamped to FrameSet levels 0-4.
+  if (!isGreatFoxSpiritEnemy(enemy) || !(enemy?.maxHp > 0)) return 0;
+  const maxHp = Math.max(1, Math.trunc(Number(enemy.maxHp) || 1));
+  const hp = Math.max(0, Math.trunc(Number(enemy.hp) || 0));
+  const quarter = Math.max(1, Math.trunc(maxHp / 4));
+  return Math.max(0, Math.min(4, 4 - Math.trunc(hp / quarter)));
+}
+
+function enemyVisualActions(atlas, enemy = state.battle.enemy) {
+  if (!atlas) return null;
+  if (!isGreatFoxSpiritEnemy(enemy)) return atlas.actions;
+  return atlas.stages?.[greatFoxSpiritStage(enemy)]?.actions ?? atlas.actions;
+}
+
+function enemyVisualActionClip(atlas, action, enemy = state.battle.enemy) {
+  return enemyVisualActions(atlas, enemy)?.[action];
+}
+
+/** Crystal AI 48 — Guardian Rock stationary pull (idle also applies MAC crush). */
+function isGuardianRockEnemy(enemy = state.battle.enemy) {
+  return enemy?.attackMode === "guardianRock" || enemy?.crystalName === "GuardianRock";
 }
 
 function isDarkDevilEnemy(enemy = state.battle.enemy) {
@@ -31111,6 +31261,7 @@ function boneLordTargetDistance() {
 }
 
 function boneLordUsesRangedAttack(distancePx = boneLordTargetDistance()) {
+  if (state.battle.enemy?.alwaysRanged) return true;
   return distancePx > boneLordMeleeRange();
 }
 
@@ -31468,6 +31619,403 @@ function beginScalyBeastAttack(now) {
   return true;
 }
 
+function thunderElementAttackRangePx(enemy = state.battle.enemy) {
+  const tiles = Math.trunc(Number(enemy?.attackRangeTiles) || 0);
+  if (tiles > 0) return tiles * LANE_TILE_PX;
+  return bossPartyActiveFight() ? BOSS_PARTY_BOSS_REACH : LANE.enemyRange;
+}
+
+function canThunderElementAttack() {
+  const battle = state.battle;
+  if (battle.phase !== "engaged" || !battle.enemyRevealed || !battle.enemy?.hp) return false;
+  if (enemyFrozenActive(battle.enemy)) return false;
+  if (!battle.enemyAggro) return false;
+  const rangePx = thunderElementAttackRangePx(battle.enemy);
+  if (bossPartyActiveFight()) {
+    const target = bossPartyFrontTarget();
+    return Boolean(target && bossPartyTargetEnemyDistance(target) <= rangePx);
+  }
+  return enemyTargetDistance() <= rangePx;
+}
+
+function beginThunderElementAttack(now) {
+  if (state.battle.pendingEnemyStrike) return false;
+  if (!canThunderElementAttack()) return false;
+  const enemy = state.battle.enemy;
+  const impactMs = Math.max(0, Math.trunc(Number(enemy?.attackImpactDelayMs) || 300));
+  const clip = state.enemy.atlas?.actions?.attack1;
+  const animMs = Math.max(
+    impactMs,
+    (clip?.frames?.length || 6) * Math.max(1, Number(clip?.interval) || 80),
+  );
+  state.battle.pendingEnemyStrike = {
+    kind: "thunderElementSmash",
+    at: now + impactMs,
+    startedAt: now,
+    aoe: true,
+    vfxUntil: now + animMs,
+  };
+  setEnemyAction("attack1", true, now);
+  playMonsterSfx("attack", enemy, { force: true, throttleMs: 0 });
+  return true;
+}
+
+function greatFoxSpiritTargets() {
+  const targets = [];
+  const consider = (kind, entity, logName) => {
+    if (!entity || (entity.hp ?? 0) <= 0) return;
+    targets.push({
+      kind,
+      entity,
+      logName,
+      stats: defenceStatsForEntity(entity),
+    });
+  };
+  if (bossPartyActiveFight()) {
+    const party = state.battle.bossParty;
+    for (const member of party?.members ?? []) {
+      if (member.alive) consider("member", member, member.classId);
+    }
+    if (party?.pet?.active) consider("pet", party.pet, party.pet.name);
+    return targets;
+  }
+  const battle = state.battle;
+  consider("player", battle.player, battle.combatClass);
+  if (battle.taoPet?.active) consider("pet", battle.taoPet, battle.taoPet.name);
+  return targets;
+}
+
+function canGreatFoxSpiritAttack() {
+  const battle = state.battle;
+  return battle.phase === "engaged"
+    && battle.enemyRevealed
+    && battle.enemy?.hp > 0
+    && !enemyFrozenActive(battle.enemy)
+    && battle.enemyAggro
+    && greatFoxSpiritTargets().length > 0;
+}
+
+function beginGreatFoxSpiritAttack(now) {
+  if (state.battle.pendingEnemyStrike || !canGreatFoxSpiritAttack()) return false;
+  const enemy = state.battle.enemy;
+  const impactMs = Math.max(0, Math.trunc(Number(enemy?.attackImpactDelayMs) || 300));
+  const clip = enemyVisualActionClip(state.enemy.atlas, "attack1", enemy);
+  const projectile = state.enemy.atlas?.projectile;
+  const hitFxMs = Math.max(1, Number(projectile?.burstDurationMs) || 1400);
+  const animMs = Math.max(
+    impactMs,
+    (clip?.frames?.length || 8) * Math.max(1, Number(clip?.interval) || 120),
+  );
+  // Crystal AttackRange1: ground barrage can start up to 600ms late and runs 1400ms.
+  const vfxUntil = now + Math.max(animMs, impactMs + 600 + hitFxMs);
+  state.battle.pendingEnemyStrike = {
+    kind: "greatFoxSpiritAoe",
+    at: now + impactMs,
+    startedAt: now,
+    ranged: true,
+    vfxUntil,
+  };
+  setEnemyAction("attack1", true, now);
+  playMonsterSfx(enemyAttackSfxKind(enemy, true), enemy, { force: true, throttleMs: 0 });
+  spawnGreatFoxSpiritGroundBarrage(now);
+  return true;
+}
+
+function greatFoxSpiritHitVariantFrames(atlas = state.enemy.atlas) {
+  const projectile = atlas?.projectile;
+  const variants = Array.isArray(projectile?.variants) ? projectile.variants : null;
+  if (variants?.length) {
+    const pick = variants[Math.floor(Math.random() * variants.length)];
+    if (pick?.frames?.length) return pick.frames;
+  }
+  return Array.isArray(projectile?.frames) ? projectile.frames : [];
+}
+
+function greatFoxSpiritEffectAnchorWorldX() {
+  if (bossPartyActiveFight()) {
+    const living = (state.battle.bossParty?.members ?? []).filter(
+      (member) => member.alive && (member.hp ?? 0) > 0,
+    );
+    if (living.length) {
+      return Number(living[Math.floor(Math.random() * living.length)].worldX) || state.battle.playerX;
+    }
+  }
+  return Number(state.battle.playerX) || 0;
+}
+
+function pushGreatFoxSpiritEffect({ frames, worldX, screenYOffset = 0, startedAt, durationMs }) {
+  if (!frames?.length) return;
+  if (!Array.isArray(state.battle.greatFoxSpiritEffects)) state.battle.greatFoxSpiritEffects = [];
+  state.battle.greatFoxSpiritEffects.push({
+    frames,
+    worldX: Number(worldX) || 0,
+    screenYOffset: Number(screenYOffset) || 0,
+    startedAt,
+    expiresAt: startedAt + Math.max(1, durationMs),
+  });
+  if (state.battle.greatFoxSpiritEffects.length > 24) {
+    state.battle.greatFoxSpiritEffects = state.battle.greatFoxSpiritEffects.slice(-24);
+  }
+}
+
+/** Crystal AttackRange1: 5–8 random map hits within ±7 tiles of the party. */
+function spawnGreatFoxSpiritGroundBarrage(now) {
+  const atlas = state.enemy.atlas;
+  const projectile = atlas?.projectile;
+  if (!projectile) return;
+  const durationMs = Math.max(1, Number(projectile.burstDurationMs) || 1400);
+  const count = 5 + Math.floor(Math.random() * 4);
+  const anchorX = greatFoxSpiritEffectAnchorWorldX();
+  for (let i = 0; i < count; i += 1) {
+    const delay = Math.floor(Math.random() * 601);
+    const tileOff = Math.floor(Math.random() * 15) - 7;
+    pushGreatFoxSpiritEffect({
+      frames: greatFoxSpiritHitVariantFrames(atlas),
+      worldX: anchorX + tileOff * LANE_TILE_PX,
+      screenYOffset: (Math.floor(Math.random() * 5) - 2) * 6,
+      startedAt: now + delay,
+      durationMs,
+    });
+  }
+}
+
+/** Crystal SpellEffect.GreatFoxSpirit on each ranged target. */
+function spawnGreatFoxSpiritTargetHitFx(targetRef, now) {
+  const atlas = state.enemy.atlas;
+  const projectile = atlas?.projectile;
+  if (!projectile) return;
+  const durationMs = Math.max(1, Number(projectile.burstDurationMs) || 1400);
+  let worldX = Number(state.battle.playerX) || 0;
+  if (targetRef?.kind === "member" || targetRef?.kind === "pet") {
+    worldX = Number(targetRef.entity?.worldX) || worldX;
+  }
+  pushGreatFoxSpiritEffect({
+    frames: greatFoxSpiritHitVariantFrames(atlas),
+    worldX,
+    screenYOffset: 0,
+    startedAt: now,
+    durationMs,
+  });
+  playMonsterSfx("range", state.battle.enemy, { volume: 0.42, throttleMs: 60 });
+}
+
+function pruneGreatFoxSpiritEffects(now = performance.now()) {
+  const effects = state.battle.greatFoxSpiritEffects;
+  if (!Array.isArray(effects) || !effects.length) return;
+  state.battle.greatFoxSpiritEffects = effects.filter((effect) => now <= effect.expiresAt);
+}
+
+function drawGreatFoxSpiritEffectsCanvas(ctx, now = performance.now()) {
+  pruneGreatFoxSpiritEffects(now);
+  const effects = state.battle.greatFoxSpiritEffects;
+  if (!Array.isArray(effects) || !effects.length) return;
+  const atlas = state.enemy.atlas;
+  const sheet = cachedImage(monsterAtlasPngUrl(state.enemy.index));
+  if (!atlas || !sheet) return;
+  const projectile = atlas.projectile;
+  const interval = Math.max(1, Number(projectile?.interval) || 70);
+  const groundY = Math.round(state.stageHeight * LANE.y + 2);
+  for (const effect of effects) {
+    if (now < effect.startedAt || now > effect.expiresAt) continue;
+    const frames = effect.frames;
+    if (!frames?.length) continue;
+    const frameIndex = Math.min(
+      frames.length - 1,
+      Math.floor((now - effect.startedAt) / interval),
+    );
+    const meta = frames[frameIndex];
+    if (!meta || meta.empty) continue;
+    const x = Math.round(Number(effect.worldX) - state.battle.cameraX);
+    const y = groundY + (Number(effect.screenYOffset) || 0);
+    withScreenBlend(ctx, () => {
+      drawAtlasFrameMeta(
+        ctx,
+        sheet,
+        atlas.slotWidth,
+        { ...meta, offsetX: meta.offsetX + x, offsetY: meta.offsetY + y },
+        0,
+        0,
+      );
+    });
+  }
+}
+
+function greatFoxSpiritAttackEntity(enemy) {
+  const multipliers = Array.isArray(enemy?.stageDamageMultipliers)
+    ? enemy.stageDamageMultipliers
+    : [1, 1.2, 1.45, 1.75, 2];
+  const multiplier = Math.max(1, Number(multipliers[greatFoxSpiritStage(enemy)]) || 1);
+  return {
+    ...enemy,
+    dc: scaleStatRange(enemy.dc ?? [0, 0], multiplier),
+    mc: scaleStatRange(enemy.mc ?? [0, 0], multiplier),
+  };
+}
+
+function delaySlowedCombatant(targetRef, now, delayMs) {
+  const delay = Math.max(0, Math.trunc(Number(delayMs) || 0));
+  if (delay <= 0) return;
+  if (targetRef.kind === "member") {
+    targetRef.entity.nextActionAt = Math.max(now, Number(targetRef.entity.nextActionAt) || now) + delay;
+  } else if (targetRef.kind === "player") {
+    state.battle.nextPlayerAttackAt = Math.max(now, Number(state.battle.nextPlayerAttackAt) || now) + delay;
+  } else if (targetRef.kind === "pet") {
+    targetRef.entity.nextAttackAt = Math.max(now, Number(targetRef.entity.nextAttackAt) || now) + delay;
+  }
+}
+
+function applyGreatFoxSpiritPoisons(enemy, targetRef, now, offsetIndex = 0) {
+  // Crystal: PoisonTarget(..., chanceToPoison=5, ...) → Random.Next(5) == 0 (20%).
+  const slowChance = Math.max(1, Math.trunc(Number(enemy?.slowChance) || 5));
+  const paralysisChance = Math.max(1, Math.trunc(Number(enemy?.paralysisChance) || 5));
+  let slowApplied = false;
+  let paralysisApplied = false;
+  if (rollPoisonProc(slowChance)) {
+    slowApplied = applyCombatantPoison(targetRef.entity, {
+      kind: "slow",
+      value: 0,
+      ticksRemaining: Math.max(1, Math.trunc(Number(enemy?.slowTicks) || 15)),
+    }, now);
+  }
+  if (rollPoisonProc(paralysisChance)) {
+    paralysisApplied = applyCombatantPoison(targetRef.entity, {
+      kind: "paralysis",
+      value: 0,
+      ticksRemaining: Math.max(1, Math.trunc(Number(enemy?.paralysisTicks) || 5)),
+    }, now);
+  }
+  if (slowApplied) {
+    delaySlowedCombatant(targetRef, now, enemy?.slowActionDelayMs);
+    pushBattleLog(`${targetRef.logName} is slowed.`);
+    addCombatantPoisonText(targetRef.kind, targetRef.entity, "Slow", "poison", now, offsetIndex * 14);
+  }
+  if (paralysisApplied) {
+    pushBattleLog(`${targetRef.logName} is paralyzed.`);
+    addCombatantPoisonText(targetRef.kind, targetRef.entity, "Paralysis", "poison", now, offsetIndex * 14);
+  }
+}
+
+function guardianRockAttackRangePx(enemy = state.battle.enemy) {
+  const tiles = Math.max(1, Math.trunc(Number(enemy?.attackRangeTiles) || 7));
+  return tiles * LANE_TILE_PX;
+}
+
+function canGuardianRockAttack() {
+  const battle = state.battle;
+  if (battle.phase !== "engaged" || !battle.enemyRevealed || !battle.enemy?.hp) return false;
+  if (enemyFrozenActive(battle.enemy)) return false;
+  if (!battle.enemyAggro) return false;
+  const rangePx = guardianRockAttackRangePx(battle.enemy);
+  if (bossPartyActiveFight()) {
+    const target = bossPartyFrontTarget();
+    return Boolean(target && bossPartyTargetEnemyDistance(target) <= rangePx);
+  }
+  return enemyTargetDistance() <= rangePx;
+}
+
+function beginGuardianRockAttack(now) {
+  if (state.battle.pendingEnemyStrike) return false;
+  if (!canGuardianRockAttack()) return false;
+  const enemy = state.battle.enemy;
+  const impactMs = Math.max(0, Math.trunc(Number(enemy?.attackImpactDelayMs) || 500));
+  const clip = state.enemy.atlas?.actions?.attack1;
+  const cast = state.enemy.atlas?.castEffect;
+  const animMs = Math.max(
+    impactMs,
+    (clip?.frames?.length || 5) * Math.max(1, Number(clip?.interval) || 120),
+    (cast?.frames?.length || 0) * Math.max(1, Number(cast?.interval) || 100),
+  );
+  state.battle.pendingEnemyStrike = {
+    kind: "guardianRockPull",
+    at: now + impactMs,
+    startedAt: now,
+    ranged: true,
+    vfxUntil: now + animMs,
+  };
+  setEnemyAction("attack1", true, now);
+  playMonsterSfx("attack", enemy, { force: true, throttleMs: 0 });
+  return true;
+}
+
+/** Crystal PullAttack: yank the target toward the rock by up to pullMaxTiles (after magic-resist check). */
+function pullCombatantTowardEnemy(targetRef, enemy = state.battle.enemy) {
+  const enemyX = Number(state.battle.enemyX) || 0;
+  const maxTiles = Math.max(1, Math.trunc(Number(enemy?.pullMaxTiles) || 4));
+  const pullEntity = (getter, setter) => {
+    const x = Number(getter()) || 0;
+    const gapTiles = Math.floor(Math.abs(enemyX - x) / LANE_TILE_PX);
+    const pullTiles = Math.min(maxTiles, Math.max(0, gapTiles - 1));
+    if (pullTiles <= 0) return 0;
+    const dir = Math.sign(enemyX - x) || 1;
+    let next = x + dir * pullTiles * LANE_TILE_PX;
+    if (dir > 0) next = Math.min(next, enemyX - LANE.enemyRange);
+    else next = Math.max(next, enemyX + LANE.enemyRange);
+    setter(next);
+    return pullTiles;
+  };
+  if (targetRef.kind === "player") {
+    return pullEntity(
+      () => state.battle.playerX,
+      (v) => { state.battle.playerX = v; },
+    );
+  }
+  if (targetRef.kind === "pet" && targetRef.entity) {
+    return pullEntity(
+      () => targetRef.entity.worldX ?? state.battle.playerX,
+      (v) => { targetRef.entity.worldX = v; },
+    );
+  }
+  if (targetRef.kind === "member" && targetRef.entity) {
+    return pullEntity(
+      () => targetRef.entity.worldX ?? state.battle.playerX,
+      (v) => { targetRef.entity.worldX = v; },
+    );
+  }
+  return 0;
+}
+
+function resolveGuardianRockPull(now) {
+  const enemy = state.battle.enemy;
+  if (!enemy || enemy.hp <= 0 || !state.battle.enemyRevealed) return;
+  let targetRef = null;
+  if (bossPartyActiveFight()) {
+    const target = bossPartyFrontTarget();
+    if (!target) return;
+    targetRef = {
+      kind: target === state.battle.bossParty?.pet ? "pet" : "member",
+      entity: target,
+      logName: target.name || target.classId,
+      stats: defenceStatsForEntity(target),
+    };
+  } else {
+    const target = enemyAttackTarget();
+    targetRef = {
+      kind: target.kind,
+      entity: target.kind === "player" ? state.battle.player : state.battle.taoPet,
+      logName: target.name,
+      stats: target,
+    };
+  }
+  if (!targetRef?.entity) return;
+  // Crystal: MagicResist can cancel the pull entirely.
+  if (!rollMagicHit({ magicResist: targetRef.stats?.magicResist ?? 0 })) {
+    applyCombatEvents(
+      physicalAttackMissEvents(enemy.name, targetRef.logName, targetRef.kind === "player" ? "player" : "pet"),
+      now,
+      { target: targetRef },
+    );
+    pushBattleLog(`${targetRef.logName} resists ${enemy.name}'s pull.`);
+    return;
+  }
+  const pulled = pullCombatantTowardEnemy(targetRef, enemy);
+  if (pulled > 0) pushBattleLog(`${enemy.name} pulls ${targetRef.logName} closer.`);
+  // Idle addition: MAC crush on a successful grab (Crystal's rock deals no HP damage).
+  resolveSplashStrikeTarget(enemy, targetRef, now, 0, {
+    defenceType: enemy.attackDefenceType || "MAC",
+    ranged: true,
+  });
+}
+
 function beginMassBurstAttack(now) {
   if (state.battle.pendingEnemyStrike) return false;
   const enemy = state.battle.enemy;
@@ -31647,11 +32195,19 @@ function applyCombatantPoison(combatant, poison, now = performance.now()) {
   if (!Array.isArray(combatant.poisons)) combatant.poisons = [];
   const ticksRemaining = Math.max(1, Math.trunc(Number(poison.ticksRemaining) || 1));
   const value = Math.max(0, Math.trunc(Number(poison.value) || 0));
-  const kind = poison.kind === "green" ? "green" : poison.kind === "paralysis" ? "paralysis" : null;
+  const kind = poison.kind === "green"
+    ? "green"
+    : poison.kind === "paralysis"
+      ? "paralysis"
+      : poison.kind === "slow"
+        ? "slow"
+        : null;
   if (!kind) return false;
 
   const existing = combatantPoison(combatant, kind);
-  if (kind === "paralysis" && existing) return false;
+  // Crystal HumanObject.ApplyPoison: Frozen/Slow/Paralysis never refresh while active
+  // (stops permanent CC from repeated hits).
+  if ((kind === "paralysis" || kind === "slow") && existing) return false;
   if (existing) {
     if (kind === "green" && (Number(existing.value) || 0) > value) return false;
     if (kind !== "green" && (Number(existing.ticksRemaining) || 0) > ticksRemaining) return false;
@@ -31715,8 +32271,8 @@ function handleCombatantPoisonDeath(entity, targetKind, now, options = {}) {
   if ((entity?.hp ?? 0) > 0) return;
   if (options.offline) return;
   if (targetKind === "pet") {
-    if (bossPartyActiveFight()) bossPartyMarkPetDead(now);
-    else markTaoistPetDead(now);
+    if (bossPartyActiveFight()) bossPartyMarkPetDead(now, entity);
+    else markTaoistPetDead(now, { pet: entity });
     return;
   }
   if (targetKind === "member") {
@@ -31742,7 +32298,7 @@ function updateEntityPoisons(entity, targetKind, now, options = {}) {
     poison.nextTickAt = Number(poison.nextTickAt) || now + poison.tickMs;
     poison.ticksRemaining = Math.max(0, Math.trunc(Number(poison.ticksRemaining) || 0));
 
-    if (poison.kind === "paralysis") {
+    if (poison.kind === "paralysis" || poison.kind === "slow") {
       let steps = 0;
       while ((entity.hp ?? 0) > 0 && poison.ticksRemaining > 0 && now >= poison.nextTickAt && steps < 20) {
         poison.nextTickAt += poison.tickMs;
@@ -31793,6 +32349,7 @@ function updateCombatantPoisons(now, options = {}) {
   const battle = state.battle;
   if (battle.player && updateEntityPoisons(battle.player, "player", now, options)) changed = true;
   if (battle.taoPet?.active && updateEntityPoisons(battle.taoPet, "pet", now, options)) changed = true;
+  if (battle.taoHolyDeva?.active && updateEntityPoisons(battle.taoHolyDeva, "pet", now, options)) changed = true;
   return changed;
 }
 
@@ -31825,15 +32382,18 @@ function beginBoneLordAttack(now) {
     const startedAt = now;
     const moveDurationMs = boneLordImpactDelay(distance, enemy);
     const projectile = state.enemy.atlas?.projectile;
+    const impactAt = startedAt + moveDurationMs;
     state.battle.pendingEnemyStrike = {
-      at: startedAt + moveDurationMs,
+      at: impactAt,
       startedAt,
       ranged: true,
       aoe: useAoe,
       moveDurationMs,
-      vfxUntil: useAoe
-        ? enemyRangedStrikeVfxUntil(startedAt, moveDurationMs, projectile)
-        : startedAt + moveDurationMs,
+      vfxUntil: Math.max(
+        impactAt,
+        enemyRangedStrikeVfxUntil(startedAt, moveDurationMs, projectile),
+        enemyTravelImpactVfxUntil(impactAt, projectile),
+      ),
     };
     setEnemyAction("attackRange1", true, now);
     playMonsterSfx(enemyAttackSfxKind(enemy, true), enemy, { force: true, throttleMs: 0 });
@@ -32053,6 +32613,59 @@ function updatePendingEnemyStrike(now) {
     if (now >= vfxUntil) state.battle.pendingEnemyStrike = null;
     return;
   }
+  if (strike.kind === "thunderElementSmash") {
+    if (now >= strike.at && !strike.resolved) {
+      strike.resolved = true;
+      const enemy = state.battle.enemy;
+      if (!enemy || enemy.hp <= 0 || !state.battle.enemyRevealed) {
+        if (now >= vfxUntil) state.battle.pendingEnemyStrike = null;
+        return;
+      }
+      const targets = splashTargetsNearEnemy(enemy, { tilesField: "aoeSplashTiles", fallbackTiles: 2 });
+      targets.forEach((target, index) => resolveSplashStrikeTarget(
+        enemy,
+        target,
+        now,
+        index,
+        { defenceType: enemy.attackDefenceType || "MAC" },
+      ));
+    }
+    if (now >= vfxUntil) state.battle.pendingEnemyStrike = null;
+    return;
+  }
+  if (strike.kind === "greatFoxSpiritAoe") {
+    if (now >= strike.at && !strike.resolved) {
+      strike.resolved = true;
+      const enemy = state.battle.enemy;
+      if (!enemy || enemy.hp <= 0 || !state.battle.enemyRevealed) {
+        if (now >= vfxUntil) state.battle.pendingEnemyStrike = null;
+        return;
+      }
+      const attacker = greatFoxSpiritAttackEntity(enemy);
+      greatFoxSpiritTargets().forEach((target, index) => {
+        spawnGreatFoxSpiritTargetHitFx(target, now);
+        applyStrikeTargetIncoming(enemy.name, attacker, target, now, {
+          offsetX: index * 14,
+          magicShield: true,
+          defenceType: enemy.attackDefenceType || "MAC",
+          resolveOptions: { aoe: true },
+          onHit: ({ targetRef, now: impactNow }) => {
+            applyGreatFoxSpiritPoisons(enemy, targetRef, impactNow, index);
+          },
+        });
+      });
+    }
+    if (now >= vfxUntil) state.battle.pendingEnemyStrike = null;
+    return;
+  }
+  if (strike.kind === "guardianRockPull") {
+    if (now >= strike.at && !strike.resolved) {
+      strike.resolved = true;
+      resolveGuardianRockPull(now);
+    }
+    if (now >= vfxUntil) state.battle.pendingEnemyStrike = null;
+    return;
+  }
   if (strike.kind === "massBurst") {
     if (now >= strike.at && !strike.resolved) {
       strike.resolved = true;
@@ -32107,9 +32720,12 @@ function updatePendingEnemyStrike(now) {
 
 function bossPartyEnemyAttack(now) {
   const enemy = state.battle.enemy;
+  if (isGreatFoxSpiritEnemy(enemy)) return beginGreatFoxSpiritAttack(now);
   if (isEvilCentipedeEnemy(enemy)) return beginEvilCentipedeAttack(now);
   if (isMassBurstEnemy(enemy)) return beginMassBurstAttack(now);
   if (isScalyBeastEnemy(enemy)) return beginScalyBeastAttack(now);
+  if (isThunderElementEnemy(enemy)) return beginThunderElementAttack(now);
+  if (isGuardianRockEnemy(enemy)) return beginGuardianRockAttack(now);
   if (isDarkDevilEnemy(enemy)) return beginDarkDevilAttack(now);
   if (isKingScorpionEnemy(enemy)) return beginKingScorpionAttack(now);
   if (enemyHasRangedMeleeAttack(enemy)) return beginBoneLordAttack(now);
@@ -32128,29 +32744,42 @@ function bossPartyTaoistMemberInventory() {
 }
 
 function bossPartyPetAttack(now) {
-  const pet = state.battle.bossParty?.pet;
+  const pets = [
+    state.battle.bossParty?.pet,
+    state.battle.bossParty?.holyDeva,
+  ].filter((pet) => pet?.active && (pet.hp ?? 0) > 0);
+  let acted = false;
+  for (const pet of pets) {
+    if (bossPartyOnePetAttack(pet, now)) acted = true;
+  }
+  return acted;
+}
+
+function bossPartyOnePetAttack(pet, now) {
   const enemy = state.battle.enemy;
   if (!pet?.active || !enemy || enemy.hp <= 0 || !state.battle.enemyRevealed) return false;
   if (combatantParalyzed(pet)) return false;
   if (state.battle.pendingPetAttack) return false;
+  if ((pet.nextAttackAt ?? 0) > now) return false;
   if (pet.spellId === "SummonShinsu" && !pet.shinsuVisible && pet.action === "show") return false;
   if (bossPartyPetEnemyDistance(pet, enemy) > taoistPetAttackRangePx(pet)) {
-    setTaoPetAction("standing", false, now);
+    setTaoPetAction("standing", false, now, pet);
     return false;
   }
   pet.nextAttackAt = now + Math.max(400, Math.trunc(Number(pet.attackMs) || 1200));
   revealTaoistShinsuPet(pet);
   const result = rollTaoistPetAttackResult(pet, enemy, bossPartyTaoistMemberInventory());
-  setTaoPetAction("attack1", true, now);
+  setTaoPetAction("attack1", true, now, pet);
 
   if (pet.spellId === "SummonShinsu" || pet.spellId === "SummonHolyDeva") {
     if (pet.spellId === "SummonShinsu") {
-      playTaoPetSfx("attack", { volume: 0.34, throttleMs: 250 });
+      playTaoPetSfx("attack", { volume: 0.34, throttleMs: 250, pet });
     }
     const target = taoistPetAttackTargetPosition(enemy);
     state.battle.pendingPetAttack = {
       at: now + taoistPetAttackImpactMs(pet),
       spellId: pet.spellId,
+      petSpellId: pet.spellId,
       hit: result.hit,
       damage: result.damage,
       offline: false,
@@ -32161,24 +32790,14 @@ function bossPartyPetAttack(now) {
     return true;
   }
 
-  playTaoPetSfx("attack", { volume: 0.34, throttleMs: 250 });
+  playTaoPetSfx("attack", { volume: 0.34, throttleMs: 250, pet });
   applyTaoistPetAttackResult(pet, enemy, result, now, { bossParty: true });
   return true;
 }
 
-function bossPartyMarkPetDead(now) {
-  const pet = state.battle.bossParty?.pet;
+function bossPartyMarkPetDead(now, pet = state.battle.bossParty?.pet) {
   if (!pet || pet.dead) return;
-  pet.active = false;
-  pet.dead = true;
-  pet.hp = 0;
-  state.battle.bossParty.petDiedThisFight = true;
-  pet.action = "die";
-  pet.frame = 0;
-  pet.oneShot = true;
-  pet.lastTick = now;
-  playTaoPetSfx("death", { volume: 0.42, throttleMs: 120 });
-  pushBattleLog(`${pet.name} falls.`);
+  markTaoistPetDead(now, { pet, sound: true, log: true });
   const steppedUp = refreshBossPartyMeleePositions({ now });
   if (steppedUp) {
     updateBossPartyMeleeAdvance(now);
@@ -32592,6 +33211,7 @@ function bossDropTableForEnemy(enemy = state.battle.enemy) {
   if (isKingHogEnemy(enemy)) return BOSS_DROP_TABLE_BY_LABEL["King Hog"];
   if (isDreamDevourerEnemy(enemy)) return BOSS_DROP_TABLE_BY_LABEL["Dream Devourer"];
   if (isDarkDevourerEnemy(enemy)) return BOSS_DROP_TABLE_BY_LABEL["Dark Devourer"];
+  if (isGreatFoxSpiritEnemy(enemy)) return BOSS_DROP_TABLE_BY_LABEL["Great Fox Spirit"];
   if (isDarkDevilEnemy(enemy)) return BOSS_DROP_TABLE_BY_LABEL["Dark Devil"];
   if (isHellKeeperEnemy(enemy)) return BOSS_DROP_TABLE_BY_LABEL["Hell Keeper"];
   return null;
@@ -35279,6 +35899,12 @@ function effectiveEnemyOffenceStat(enemy, stat, now = performance.now()) {
 
 function effectiveEnemyAttackMs(enemy, now = performance.now()) {
   let base = Math.max(400, Math.trunc(Number(enemy?.attackMs) || 2500));
+  if (isGreatFoxSpiritEnemy(enemy)) {
+    const stageAttackMs = Array.isArray(enemy?.stageAttackMs)
+      ? enemy.stageAttackMs
+      : [1600, 1360, 1120, 880, 720];
+    base = Math.max(400, Math.trunc(Number(stageAttackMs[greatFoxSpiritStage(enemy)]) || base));
+  }
   if (enemyEnrageActive(enemy, now)) {
     base = Math.max(400, Math.trunc(Number(enemy?.enrageAttackMs) || base));
   }
@@ -36804,7 +37430,9 @@ function pushDefenceBuff(buffList, spell, bonus, expiresAt, learned = null) {
 function entityStatBuffList(entity) {
   if (!entity) return [];
   if (entity === state.battle.taoPet) return state.battle.petStatBuffs ?? [];
+  if (entity === state.battle.taoHolyDeva) return entity.statBuffs ?? [];
   if (entity === state.battle.bossParty?.pet) return entity.statBuffs ?? [];
+  if (entity === state.battle.bossParty?.holyDeva) return entity.statBuffs ?? [];
   if (Array.isArray(entity.statBuffs)) return entity.statBuffs;
   return state.battle.statBuffs ?? [];
 }
@@ -36887,12 +37515,16 @@ function showTaoistDefenceBuffTexts(spell, bonus, applied, now = performance.now
   for (const entry of applied.results) {
     if (!entry.entity || entry.entity.hp <= 0) continue;
     if (state.battle.bossParty?.active) {
-      if (entry.entity === state.battle.bossParty?.pet || entry.entity?.classId) {
+      if (
+        entry.entity === state.battle.bossParty?.pet
+        || entry.entity === state.battle.bossParty?.holyDeva
+        || entry.entity?.classId
+      ) {
         addBossPartyMemberCombatText(entry.entity, text, "buff", now);
       }
       continue;
     }
-    const anchor = entry.entity === state.battle.taoPet
+    const anchor = entry.entity === state.battle.taoPet || entry.entity === state.battle.taoHolyDeva
       ? "pet"
       : (entry.entity === state.battle.player ? "player" : entry.entity?.classId ?? "player");
     addCombatText(anchor, text, "buff", now);
@@ -36909,7 +37541,6 @@ function applyDefenceBuffEffect(spell, learned, caster, now, options = {}) {
     ? rollWizardDefenceBuffDurationMs(learned, caster)
     : rollTaoistDefenceBuffDurationMs(learned, caster);
   const expiresAt = now + durationMs;
-  const pet = options.pet ?? state.battle.taoPet ?? state.battle.bossParty?.pet;
   const buffPet = spell?.id !== "MagicShield";
 
   if (options.member) {
@@ -36924,13 +37555,21 @@ function applyDefenceBuffEffect(spell, learned, caster, now, options = {}) {
     applyEquippedStatsToBattlePlayer();
   }
 
-  if (buffPet && pet?.active) {
-    const currentPetBuffs = pet === state.battle.taoPet
-      ? state.battle.petStatBuffs
-      : (pet.statBuffs ?? []);
-    const nextPetBuffs = pushDefenceBuff(currentPetBuffs, spell, bonus, expiresAt, learned);
-    if (pet === state.battle.taoPet) state.battle.petStatBuffs = nextPetBuffs;
-    else pet.statBuffs = nextPetBuffs;
+  if (buffPet) {
+    const pets = options.pet
+      ? [options.pet]
+      : [state.battle.taoPet, state.battle.taoHolyDeva, state.battle.bossParty?.pet, state.battle.bossParty?.holyDeva];
+    const seen = new Set();
+    for (const pet of pets.filter(Boolean)) {
+      if (seen.has(pet) || !pet?.active) continue;
+      seen.add(pet);
+      const currentPetBuffs = pet === state.battle.taoPet
+        ? state.battle.petStatBuffs
+        : (pet.statBuffs ?? []);
+      const nextPetBuffs = pushDefenceBuff(currentPetBuffs, spell, bonus, expiresAt, learned);
+      if (pet === state.battle.taoPet) state.battle.petStatBuffs = nextPetBuffs;
+      else pet.statBuffs = nextPetBuffs;
+    }
   }
 
   if (learned && options.levelSkill !== false) levelMagicSkill(spell, learned, now);
@@ -36941,7 +37580,10 @@ const ULTIMATE_ENHANCER_BUFF_KIND = "ultimateEnhancer";
 const ULTIMATE_ENHANCER_BONUS_CAP = 16; // Crystal default is 8; raised for higher idle-game stat growth
 
 function ultimateEnhancerStatForTarget(entity) {
-  const classId = entity === state.battle.taoPet || entity === state.battle.bossParty?.pet
+  const classId = entity === state.battle.taoPet
+    || entity === state.battle.taoHolyDeva
+    || entity === state.battle.bossParty?.pet
+    || entity === state.battle.bossParty?.holyDeva
     ? "pet"
     : (entity?.classId ?? state.battle.combatClass);
   if (classId === "Wizard") return "mc";
@@ -36978,6 +37620,10 @@ function ultimateEnhancerTargets(now = performance.now()) {
       const entry = ultimateEnhancerTargetEntry(party.pet);
       if (entry) targets.push(entry);
     }
+    if (party.holyDeva?.active && party.holyDeva.hp > 0) {
+      const entry = ultimateEnhancerTargetEntry(party.holyDeva);
+      if (entry) targets.push(entry);
+    }
     return targets;
   }
   const player = state.battle.player;
@@ -36988,6 +37634,11 @@ function ultimateEnhancerTargets(now = performance.now()) {
   const pet = state.battle.taoPet;
   if (pet?.active && pet.hp > 0) {
     const entry = ultimateEnhancerTargetEntry(pet);
+    if (entry) targets.push(entry);
+  }
+  const holyDeva = state.battle.taoHolyDeva;
+  if (holyDeva?.active && holyDeva.hp > 0) {
+    const entry = ultimateEnhancerTargetEntry(holyDeva);
     if (entry) targets.push(entry);
   }
   return targets;
@@ -37025,7 +37676,12 @@ function setEntityStatBuffList(entity, buffList) {
     state.battle.petStatBuffs = buffList;
     return;
   }
-  if (entity === state.battle.bossParty?.pet || entity?.classId) {
+  if (
+    entity === state.battle.taoHolyDeva
+    || entity === state.battle.bossParty?.pet
+    || entity === state.battle.bossParty?.holyDeva
+    || entity?.classId
+  ) {
     entity.statBuffs = buffList;
     return;
   }
@@ -37392,12 +38048,10 @@ function maybeCastTaoistUltimateEnhancer(now) {
 const PET_ENHANCER_BUFF_KIND = "petEnhancer";
 
 function activeTaoistPet(now = performance.now()) {
-  if (state.battle.bossParty?.active) {
-    const pet = state.battle.bossParty.pet;
-    return pet?.active && pet.hp > 0 ? pet : null;
+  for (const pet of livingTaoistPets()) {
+    if (!hasPetEnhancerBuff(pet, now)) return pet;
   }
-  const pet = state.battle.taoPet;
-  return pet?.active && pet.hp > 0 ? pet : null;
+  return livingTaoistTankPet() ?? livingTaoistHolyDeva();
 }
 
 function petEnhancerLevel(pet) {
@@ -37468,8 +38122,18 @@ function formatPetEnhancerAppliedLog(spell, petName, applied, durationMs) {
 function showPetEnhancerBuffText(applied, now = performance.now()) {
   if (!applied || suppressSimulationRender) return;
   const text = `+${applied.dcInc} DC, +${applied.acInc} AC, +${applied.amcInc} MAC`;
-  if (state.battle.bossParty?.active) {
-    addBossPartyMemberCombatText(applied.pet, text, "buff", now);
+  if (applied.pet) {
+    const bounds = taoistPetFrameBounds(applied.pet);
+    state.battle.floatingTexts.push({
+      id: `${now}-${Math.random()}`,
+      anchor: "pet",
+      text,
+      kind: "buff",
+      x: bounds.centerX,
+      y: bounds.topY - 16 - floatingTextStackOffsetY(bounds.centerX, now),
+      createdAt: now,
+    });
+    state.battle.floatingTexts = state.battle.floatingTexts.slice(-12);
     return;
   }
   addCombatText("pet", text, "buff", now);
@@ -37480,6 +38144,7 @@ function queuePetEnhancerImpactFx(spell, now = performance.now(), options = {}) 
   queueDefenceBuffImpactFx(spell, "pet", now, {
     petFx: true,
     soundPlayed: Boolean(options.soundPlayed),
+    petSpellId: options.pet?.spellId ?? null,
   });
 }
 
@@ -37498,7 +38163,7 @@ function updatePendingPetEnhancer(now, options = {}) {
     battle.activeTaoSpell = null;
     battle.activeTaoSpellAtlas = null;
     showPetEnhancerBuffText(applied, now);
-    queuePetEnhancerImpactFx(spell, now, { soundPlayed: true });
+    queuePetEnhancerImpactFx(spell, now, { soundPlayed: true, pet: applied.pet });
     pushBattleLog(formatPetEnhancerAppliedLog(spell, applied.pet.name ?? "pet", applied, applied.durationMs));
   }
   playerHudSignature = "";
@@ -37861,12 +38526,12 @@ function usableTaoistHealing(now, options = {}) {
   const manual = options.requireAuto === false;
   if (state.battle.pendingMassHeal) return null;
   if (!canUseTaoistSpell(spell, learned, now, { requireAuto: !manual })) return null;
-  const pet = taoistPetCanBeHealed() ? state.battle.taoPet : null;
-  if (pet && (manual || pet.hp / Math.max(1, pet.maxHp) < AUTO_POTION_THRESHOLD)) {
+  const pet = mostHurtHealableTaoistPet(manual);
+  if (pet) {
     const pendingAmount = Math.max(0, Number(pet.healAmount) || 0)
-      + (state.battle.pendingHeal?.target === "pet" ? Math.max(0, Number(state.battle.pendingHeal?.amount) || 0) : 0);
+      + (state.battle.pendingHeal?.pet === pet ? Math.max(0, Number(state.battle.pendingHeal?.amount) || 0) : 0);
     if (pendingAmount < pet.maxHp - pet.hp) {
-      return { spell, learned, cost: effectiveSpellMpCost(spell, learned), target: "pet" };
+      return { spell, learned, cost: effectiveSpellMpCost(spell, learned), target: "pet", pet };
     }
   }
   const player = state.battle.player;
@@ -38236,7 +38901,7 @@ function usableTaoistSummonSpell(spellId, now, options = {}) {
   const learned = learnedMagic(spell.id);
   if (!canUseTaoistSpell(spell, learned, now, { requireAuto: options.requireAuto !== false })) return null;
   const battle = state.battle;
-  if (battle.taoPetDiedThisFight || battle.taoPet?.active || battle.pendingTaoPet) return null;
+  if (taoistSummonSlotBlocked(spellId)) return null;
   const enemy = battle.enemy;
   if (!enemy || enemy.hp <= 0 || battle.combatClass !== "Taoist") return null;
   if (!options.ignoreRange && enemyDistance() > taoistSummonPetRangePx()) return null;
@@ -38327,7 +38992,7 @@ function castQueuedTaoistSpell(queued, now) {
 function castTaoistSummonPet(summon, now, options = {}) {
   const battle = state.battle;
   const { spell, learned, cost, item, amuletCost = taoistSummonAmuletCost(spell.id) } = summon;
-  if (battle.taoPet?.active || battle.pendingTaoPet) return false;
+  if (taoistSummonSlotBlocked(spell.id)) return false;
   if (!consumeAmuletInventoryUnits(amuletCost)) return false;
   commitTaoistSpellUse(spell, learned, cost, now);
   levelMagicSkill(spell, learned, now);
@@ -38370,22 +39035,23 @@ function updatePendingTaoPet(now) {
     const owner = party?.members?.find(
       (member) => member.classId === pending.ownerClassId && member.alive && member.hp > 0,
     );
-    if (!party?.active || !owner || !battle.enemy || battle.enemy.hp <= 0 || bossPartyActivePet()) return true;
-    party.pet = createTaoistSummonPet(pending.spellId, pending.spellLevel, now);
-    party.pet.name = `${owner.classId}'s ${party.pet.name}`;
-    battle.taoPet = party.pet;
-    state.taoPetAtlas = taoPetAtlasFor(battle.taoPet);
-    playTaoPetAppearSfx({ volume: bossPartySfxVolume(owner, 0.4, 0.18), throttleMs: 250, pet: battle.taoPet });
-    pushBattleLog(`${party.pet.name} joins the fight.`);
+    if (!party?.active || !owner || !battle.enemy || battle.enemy.hp <= 0) return true;
+    if (bossPartySummonSlotBlocked(pending.spellId)) return true;
+    const pet = createTaoistSummonPet(pending.spellId, pending.spellLevel, now);
+    pet.name = `${owner.classId}'s ${pet.name}`;
+    placeSummonedTaoistPet(pet, { bossParty: true });
+    playTaoPetAppearSfx({ volume: bossPartySfxVolume(owner, 0.4, 0.18), throttleMs: 250, pet });
+    pushBattleLog(`${pet.name} joins the fight.`);
     battlePanelSignature = "";
     return true;
   }
   if (battle.combatClass !== "Taoist" || !battle.enemy || battle.enemy.hp <= 0 || !battle.running) return true;
-  battle.taoPet = createTaoistSummonPet(pending.spellId, pending.spellLevel, now);
-  state.taoPetAtlas = taoPetAtlasFor(battle.taoPet);
+  if (taoistSummonSlotBlocked(pending.spellId)) return true;
+  const pet = createTaoistSummonPet(pending.spellId, pending.spellLevel, now);
+  placeSummonedTaoistPet(pet);
   battle.enemyAggro = true;
-  playTaoPetAppearSfx({ volume: 0.48, throttleMs: 250 });
-  pushBattleLog(`${battle.taoPet.name} joins the fight.`);
+  playTaoPetAppearSfx({ volume: 0.48, throttleMs: 250, pet });
+  pushBattleLog(`${pet.name} joins the fight.`);
   battlePanelSignature = "";
   return true;
 }
@@ -38551,13 +39217,107 @@ function taoistPetIsFollower(pet = state.battle.taoPet) {
   return pet?.spellId === "SummonHolyDeva";
 }
 
-function taoistPetFollowWorldX(pet = state.battle.taoPet) {
+function isTaoistTankSummonSpell(spellId) {
+  return spellId === "SummonSkeleton" || spellId === "SummonShinsu";
+}
+
+function isTaoistHolyDevaSummonSpell(spellId) {
+  return spellId === "SummonHolyDeva";
+}
+
+function livingTaoistTankPet() {
+  if (state.battle.bossParty?.active) {
+    const pet = state.battle.bossParty.pet;
+    return pet?.active && (pet.hp ?? 0) > 0 && isTaoistTankSummonSpell(pet.spellId) ? pet : null;
+  }
+  const pet = state.battle.taoPet;
+  return pet?.active && (pet.hp ?? 0) > 0 ? pet : null;
+}
+
+function livingTaoistHolyDeva() {
+  if (state.battle.bossParty?.active) {
+    const pet = state.battle.bossParty.holyDeva;
+    return pet?.active && (pet.hp ?? 0) > 0 ? pet : null;
+  }
+  const pet = state.battle.taoHolyDeva;
+  return pet?.active && (pet.hp ?? 0) > 0 ? pet : null;
+}
+
+function livingTaoistPets() {
+  return [livingTaoistTankPet(), livingTaoistHolyDeva()].filter(Boolean);
+}
+
+function resolveTaoistPetBySpellId(spellId) {
+  if (isTaoistHolyDevaSummonSpell(spellId)) return livingTaoistHolyDeva()
+    ?? (state.battle.bossParty?.active ? state.battle.bossParty.holyDeva : state.battle.taoHolyDeva);
+  return livingTaoistTankPet()
+    ?? (state.battle.bossParty?.active ? state.battle.bossParty.pet : state.battle.taoPet);
+}
+
+function taoistSummonSlotBlocked(spellId) {
+  const battle = state.battle;
+  if (battle.pendingTaoPet) return true;
+  if (isTaoistHolyDevaSummonSpell(spellId)) {
+    return Boolean(battle.taoHolyDevaDiedThisFight || battle.taoHolyDeva?.active);
+  }
+  return Boolean(battle.taoPetDiedThisFight || battle.taoPet?.active);
+}
+
+function bossPartySummonSlotBlocked(spellId) {
+  const party = state.battle.bossParty;
+  if (!party) return true;
+  if (party.pendingTaoPet || state.battle.pendingTaoPet) return true;
+  if (isTaoistHolyDevaSummonSpell(spellId)) {
+    return Boolean(party.holyDevaDiedThisFight || party.holyDeva?.active);
+  }
+  return Boolean(party.petDiedThisFight || bossPartyActivePet());
+}
+
+function placeSummonedTaoistPet(pet, options = {}) {
+  if (!pet) return pet;
+  if (isTaoistHolyDevaSummonSpell(pet.spellId)) {
+    if (options.bossParty || state.battle.bossParty?.active) {
+      state.battle.bossParty.holyDeva = pet;
+      state.battle.taoHolyDeva = pet;
+    } else {
+      state.battle.taoHolyDeva = pet;
+    }
+  } else if (options.bossParty || state.battle.bossParty?.active) {
+    state.battle.bossParty.pet = pet;
+    state.battle.taoPet = pet;
+  } else {
+    state.battle.taoPet = pet;
+  }
+  return pet;
+}
+
+function mostHurtHealableTaoistPet(manual = false) {
+  let best = null;
+  let bestRatio = Infinity;
+  for (const pet of livingTaoistPets()) {
+    const maxHp = Math.max(1, Number(pet.maxHp) || 0);
+    if ((pet.hp ?? 0) >= maxHp) continue;
+    const pendingAmount = Math.max(0, Number(pet.healAmount) || 0);
+    if (pendingAmount >= maxHp - pet.hp) continue;
+    const ratio = pet.hp / maxHp;
+    if (!manual && ratio >= AUTO_POTION_THRESHOLD) continue;
+    if (ratio < bestRatio) {
+      bestRatio = ratio;
+      best = pet;
+    }
+  }
+  return best;
+}
+
+function taoistPetFollowWorldX(pet = livingTaoistHolyDeva() ?? state.battle.taoHolyDeva) {
   if (bossPartyOnField()) return bossPartyHolyDevaPetWorldX(pet);
   return Math.round((Number(state.battle.playerX) || 0) - HOLY_DEVA_FOLLOW_GAP);
 }
 
 function syncTaoistFollowerPetPosition(now = performance.now()) {
-  const pet = state.battle.taoPet ?? state.battle.bossParty?.pet;
+  const pet = livingTaoistHolyDeva()
+    ?? state.battle.taoHolyDeva
+    ?? state.battle.bossParty?.holyDeva;
   if (!pet?.active || (pet.hp ?? 0) <= 0 || !taoistPetIsFollower(pet)) return;
   const desiredWorldX = taoistPetFollowWorldX(pet);
   if (bossPartyOnField()) {
@@ -38720,7 +39480,11 @@ function updatePendingPetAttack(now, options = {}) {
   const impact = battle.pendingPetAttack;
   if (!impact || now < impact.at) return false;
   battle.pendingPetAttack = null;
-  const pet = battle.taoPet ?? battle.bossParty?.pet;
+  const pet = resolveTaoistPetBySpellId(impact.petSpellId ?? impact.spellId)
+    ?? battle.taoPet
+    ?? battle.taoHolyDeva
+    ?? battle.bossParty?.pet
+    ?? battle.bossParty?.holyDeva;
   const enemy = battle.enemy;
   if (!pet?.active || !enemy || enemy.hp <= 0) return true;
   const offline = Boolean(options.offline || impact.offline);
@@ -38773,11 +39537,23 @@ function clampNumber(value, min, max) {
 }
 
 function dismissTaoistPet(options = {}) {
-  state.battle.pendingTaoPet = null;
-  state.battle.pendingPetAttack = null;
-  state.battle.taoPet = null;
-  state.battle.petStatBuffs = [];
-  if (options.clearDeathLock !== false) state.battle.taoPetDiedThisFight = false;
+  const battle = state.battle;
+  const keepHolyDeva = options.keepHolyDeva === true
+    && shouldKeepHolyDevaBetweenSoloFights(battle.taoHolyDeva, battle.pendingTaoPet);
+  const keepPendingHolyDeva = keepHolyDeva && isTaoistHolyDevaSummonSpell(battle.pendingTaoPet?.spellId);
+  if (!keepPendingHolyDeva) battle.pendingTaoPet = null;
+  battle.pendingPetAttack = null;
+  battle.taoPet = null;
+  battle.petStatBuffs = [];
+  if (options.clearDeathLock !== false) battle.taoPetDiedThisFight = false;
+  if (!keepHolyDeva) {
+    battle.taoHolyDeva = null;
+    if (options.clearDeathLock !== false) battle.taoHolyDevaDiedThisFight = false;
+  }
+  if (battle.bossParty) {
+    battle.bossParty.pet = null;
+    if (!keepHolyDeva) battle.bossParty.holyDeva = null;
+  }
 }
 
 function dismissWizardMirror(options = {}) {
@@ -39286,18 +40062,16 @@ function taoistPetCanTank() {
 }
 
 function taoistPetCanBeHealed() {
-  const pet = state.battle.taoPet;
-  return state.battle.combatClass === "Taoist" && Boolean(pet?.active) && (pet.hp ?? 0) > 0 && (pet.hp ?? 0) < (pet.maxHp ?? 0);
+  return Boolean(mostHurtHealableTaoistPet(true));
 }
 
-function taoistPetEnemyDistance() {
-  const pet = state.battle.taoPet;
+function taoistPetEnemyDistance(pet = state.battle.taoPet) {
   if (!pet) return Infinity;
   return Math.max(0, (Number(state.battle.enemyX) || 0) - resolvedTaoPetWorldX(pet));
 }
 
 function markTaoistPetDead(now = performance.now(), options = {}) {
-  const pet = state.battle.taoPet;
+  const pet = options.pet ?? state.battle.taoPet;
   if (!pet || pet.dead) return;
   pet.active = false;
   pet.dead = true;
@@ -39308,10 +40082,16 @@ function markTaoistPetDead(now = performance.now(), options = {}) {
   pet.frame = 0;
   pet.oneShot = true;
   pet.lastTick = now;
-  state.battle.taoPetDiedThisFight = true;
+  if (isTaoistHolyDevaSummonSpell(pet.spellId)) {
+    state.battle.taoHolyDevaDiedThisFight = true;
+    if (state.battle.bossParty) state.battle.bossParty.holyDevaDiedThisFight = true;
+  } else {
+    state.battle.taoPetDiedThisFight = true;
+    if (state.battle.bossParty) state.battle.bossParty.petDiedThisFight = true;
+  }
   state.battle.nextPlayerAttackAt = 0;
   state.battle.nextEnemyAttackAt = 0;
-  if (options.sound !== false) playTaoPetSfx("death", { volume: 0.46, throttleMs: 120 });
+  if (options.sound !== false) playTaoPetSfx("death", { volume: 0.46, throttleMs: 120, pet });
   if (options.log !== false) pushBattleLog(options.message ?? `${pet.name} falls.`);
   battlePanelSignature = "";
   combatSkillBarSignature = "";
@@ -39479,7 +40259,7 @@ function taoistAttack(now) {
 
 function castTaoistHealing(healing, now, options = {}) {
   const battle = state.battle;
-  const { spell, learned, cost, target = "player" } = healing;
+  const { spell, learned, cost, target = "player", pet = null } = healing;
   const atlas = state.taoistSpellAtlases[spell.id] ?? null;
   const amount = rollTaoistHealingAmount(spell, learned, battle.player);
   battle.lastPlayerAttackCooldownMs = spellDelayMs(spell, learned);
@@ -39490,6 +40270,7 @@ function castTaoistHealing(healing, now, options = {}) {
     spellId: spell.id,
     amount,
     target,
+    pet: target === "pet" ? (pet ?? mostHurtHealableTaoistPet(true) ?? battle.taoPet) : null,
   };
 
   if (!options.offline) {
@@ -39503,7 +40284,8 @@ function castTaoistHealing(healing, now, options = {}) {
     battle.pendingPoison = null;
     setPlayerAction(spell.bodyAction ?? "spell", now, true);
     playSpellSfx(spell.id, "cast");
-    pushBattleLog(`Taoist casts ${spell.label}${target === "pet" ? ` on ${battle.taoPet?.name ?? "pet"}` : ""}.`);
+    const petName = battle.pendingHeal.pet?.name ?? "pet";
+    pushBattleLog(`Taoist casts ${spell.label}${target === "pet" ? ` on ${petName}` : ""}.`);
   }
   return true;
 }
@@ -39634,8 +40416,17 @@ function castTaoistSoulFireBall(soulFireBall, now, options = {}) {
 
 function updateTaoistPetAttack(now, options = {}) {
   const battle = state.battle;
-  const pet = battle.taoPet;
-  if (battle.combatClass !== "Taoist" || !pet?.active || !battle.enemy || battle.enemy.hp <= 0) return false;
+  if (battle.combatClass !== "Taoist") return false;
+  let acted = false;
+  for (const pet of livingTaoistPets()) {
+    if (updateOneTaoistPetAttack(pet, now, options)) acted = true;
+  }
+  return acted;
+}
+
+function updateOneTaoistPetAttack(pet, now, options = {}) {
+  const battle = state.battle;
+  if (!pet?.active || !battle.enemy || battle.enemy.hp <= 0) return false;
   if (combatantParalyzed(pet)) return false;
   if (battle.pendingPetAttack) return false;
   if (taoistPetIsFollower(pet) && (pet.moving || pet.followPending)) return false;
@@ -39647,17 +40438,17 @@ function updateTaoistPetAttack(now, options = {}) {
     pet.frame = 0;
     pet.oneShot = false;
   }
-  if (taoistPetEnemyDistance() > taoistPetAttackRangePx(pet)) {
-    if (!options.offline && !taoistPetIsFollower(pet)) setTaoPetAction("standing", false, now);
+  if (taoistPetEnemyDistance(pet) > taoistPetAttackRangePx(pet)) {
+    if (!options.offline && !taoistPetIsFollower(pet)) setTaoPetAction("standing", false, now, pet);
     return false;
   }
   pet.nextAttackAt = now + Math.max(400, Math.trunc(Number(pet.attackMs) || 1200));
-  return taoistPetAttack(now, options);
+  return taoistPetAttack(now, options, pet);
 }
 
-function taoistPetAttack(now, options = {}) {
+function taoistPetAttack(now, options = {}, petOverride = null) {
   const battle = state.battle;
-  const pet = battle.taoPet;
+  const pet = petOverride ?? battle.taoPet;
   const enemy = battle.enemy;
   if (!pet?.active || !enemy || enemy.hp <= 0) return false;
 
@@ -39665,17 +40456,18 @@ function taoistPetAttack(now, options = {}) {
   revealTaoistShinsuPet(pet);
   const result = rollTaoistPetAttackResult(pet, enemy);
   if (!options.offline) {
-    setTaoPetAction("attack1", true, now);
+    setTaoPetAction("attack1", true, now, pet);
   }
 
   if (pet.spellId === "SummonShinsu" || pet.spellId === "SummonHolyDeva") {
     if (!options.offline && pet.spellId === "SummonShinsu") {
-      playTaoPetSfx("attack", { volume: 0.36, throttleMs: 250 });
+      playTaoPetSfx("attack", { volume: 0.36, throttleMs: 250, pet });
     }
     const target = taoistPetAttackTargetPosition(enemy);
     battle.pendingPetAttack = {
       at: now + taoistPetAttackImpactMs(pet),
       spellId: pet.spellId,
+      petSpellId: pet.spellId,
       hit: result.hit,
       damage: result.damage,
       offline: Boolean(options.offline),
@@ -39686,13 +40478,13 @@ function taoistPetAttack(now, options = {}) {
     return true;
   }
 
-  if (!options.offline) playTaoPetSfx("attack", { volume: 0.36, throttleMs: 250 });
+  if (!options.offline) playTaoPetSfx("attack", { volume: 0.36, throttleMs: 250, pet });
   applyTaoistPetAttackResult(pet, enemy, result, now, options);
   return true;
 }
 
-function setTaoPetAction(action, oneShot = false, now = performance.now()) {
-  const pet = state.battle.taoPet;
+function setTaoPetAction(action, oneShot = false, now = performance.now(), petOverride = null) {
+  const pet = petOverride ?? state.battle.taoPet;
   if (!pet?.active) return;
   pet.action = action;
   pet.frame = 0;
@@ -40746,9 +41538,12 @@ function applyGroundSpellTickToSwarmEnemy(effect, swarmEnemy, now) {
 function enemyAttack(now) {
   const battle = state.battle;
   if (isTrainingDummyEnemy(battle.enemy)) return false;
+  if (isGreatFoxSpiritEnemy(battle.enemy)) return beginGreatFoxSpiritAttack(now);
   if (isEvilCentipedeEnemy(battle.enemy)) return beginEvilCentipedeAttack(now);
   if (isMassBurstEnemy(battle.enemy)) return beginMassBurstAttack(now);
   if (isScalyBeastEnemy(battle.enemy)) return beginScalyBeastAttack(now);
+  if (isThunderElementEnemy(battle.enemy)) return beginThunderElementAttack(now);
+  if (isGuardianRockEnemy(battle.enemy)) return beginGuardianRockAttack(now);
   if (isDarkDevilEnemy(battle.enemy)) return beginDarkDevilAttack(now);
   if (isKingScorpionEnemy(battle.enemy)) return beginKingScorpionAttack(now);
   if (enemyHasRangedMeleeAttack(battle.enemy)) return beginBoneLordAttack(now);
@@ -40829,7 +41624,7 @@ function applyCombatDamageEvent(event, now = performance.now(), context = {}) {
 function bossPartyIncomingStrikeTarget(partyEntity, now, options = {}) {
   const { magicShield = false, displayName } = options;
   const name = displayName ?? partyEntity.name ?? partyEntity.classId ?? "Party member";
-  if (partyEntity === state.battle.bossParty?.pet) {
+  if (partyEntity === state.battle.bossParty?.pet || partyEntity === state.battle.bossParty?.holyDeva) {
     return {
       kind: "pet",
       name,
@@ -40837,8 +41632,8 @@ function bossPartyIncomingStrikeTarget(partyEntity, now, options = {}) {
       applyDamage: (amount, impactNow) => {
         recordBossCombatDamageTaken("Pet", amount);
         partyEntity.hp = Math.max(0, partyEntity.hp - amount);
-        setTaoPetAction("struck", true, impactNow);
-        if (partyEntity.hp <= 0) bossPartyMarkPetDead(impactNow);
+        setTaoPetAction("struck", true, impactNow, partyEntity);
+        if (partyEntity.hp <= 0) bossPartyMarkPetDead(impactNow, partyEntity);
       },
     };
   }
@@ -41505,7 +42300,7 @@ function spawnNextEnemy(now) {
   battle.pendingPoison = null;
   clearTwinDrakePendingState();
   battle.attachedSpellFx = (battle.attachedSpellFx ?? []).filter((entry) => entry.spellId !== "TwinDrakeBlade");
-  dismissTaoistPet();
+  dismissTaoistPet({ keepHolyDeva: true });
   if (battle.enemy) battle.enemy.poisons = [];
   battle.floatingTexts = [];
   resetCritTextSessionPeak();
@@ -42340,9 +43135,12 @@ function canEnemyAttack() {
   if (isTrainingDummyEnemy(battle.enemy)) return false;
   if (battle.phase !== "engaged" || !battle.enemyRevealed || !battle.enemy?.hp) return false;
   if (enemyFrozenActive(battle.enemy)) return false;
+  if (isGreatFoxSpiritEnemy(battle.enemy)) return canGreatFoxSpiritAttack();
   if (isEvilCentipedeEnemy(battle.enemy)) return canEvilCentipedeAttack();
   if (isMassBurstEnemy(battle.enemy)) return canMassBurstAttack();
   if (isScalyBeastEnemy(battle.enemy)) return canScalyBeastAttack();
+  if (isThunderElementEnemy(battle.enemy)) return canThunderElementAttack();
+  if (isGuardianRockEnemy(battle.enemy)) return canGuardianRockAttack();
   if (isDarkDevilEnemy(battle.enemy)) return canDarkDevilAttack();
   if (isKingScorpionEnemy(battle.enemy)) return canKingScorpionAttack();
   if (enemyHasRangedMeleeAttack(battle.enemy)) return canBoneLordAttack();
@@ -42571,7 +43369,7 @@ function updateEnemyFrame(now) {
   if (groupDungeonBossReinforcementsActive()) {
     updateGroupDungeonSwarmFrames(now);
   }
-  const clip = state.enemy.atlas?.actions?.[state.enemy.action];
+  const clip = enemyVisualActionClip(state.enemy.atlas, state.enemy.action, state.battle.enemy);
   if (state.paused || !clip?.frames?.length) return;
   const dt = now - state.enemy.lastTick;
   if (dt < clip.interval) return;
@@ -42617,7 +43415,17 @@ function updateEnemyFrame(now) {
 }
 
 function updateTaoPetFrame(now) {
-  const pet = state.battle.taoPet;
+  for (const pet of [
+    state.battle.taoPet,
+    state.battle.taoHolyDeva,
+    state.battle.bossParty?.pet,
+    state.battle.bossParty?.holyDeva,
+  ].filter(Boolean)) {
+    updateOneTaoPetFrame(pet, now);
+  }
+}
+
+function updateOneTaoPetFrame(pet, now) {
   if (!pet || (!pet.active && !pet.dead)) return;
   const atlas = taoPetAtlasFor(pet);
   const clip = atlas?.actions?.[pet.action];
@@ -42976,6 +43784,7 @@ function renderCanvasStage(displayFrame, frameCount) {
   drawGroundSpellEffectsCanvas(ctx, { aboveEntities: true });
   drawEnemyRangeProjectileCanvas(ctx);
   drawSwarmEnemyRangeProjectileCanvas(ctx);
+  drawGreatFoxSpiritEffectsCanvas(ctx);
   drawEnemyHealthBar(ctx);
   drawTaoistPetHealthBar(ctx);
   drawEnemyPoisonDots(ctx);
@@ -44728,13 +45537,22 @@ function buildStampArenaDrawList(displayFrame) {
   }
 
   if (state.showEnemies) {
-    const pet = state.battle.taoPet;
-    if (pet && (pet.active || pet.dead)) {
+    const pets = [
+      state.battle.taoPet,
+      state.battle.taoHolyDeva,
+      ...(state.battle.bossParty?.active
+        ? [state.battle.bossParty.pet, state.battle.bossParty.holyDeva]
+        : []),
+    ].filter(Boolean);
+    const seen = new Set();
+    for (const pet of pets) {
+      if (seen.has(pet) || !(pet.active || pet.dead)) continue;
+      seen.add(pet);
       entities.push({
         zRow: spawnRow,
         worldX: resolvedTaoPetWorldX(pet),
         kindRank: STAMP_ARENA_KIND_RANK.pet,
-        draw: (ctx) => drawTaoistPetCanvas(ctx),
+        draw: (ctx) => drawTaoistPetCanvas(ctx, pet),
       });
     }
   }
@@ -45279,11 +46097,11 @@ function drawGroupDungeonSwarmEnemyCanvas(ctx, enemy) {
       drawMonsterCastEffectCanvas(ctx, atlas, sheet, anchorX, anchorY, enemy.attackFxStartedAt);
     } else if (!isHellKeeperSwarmEnemy(enemy) || enemy.hellKeeperMagicStrike) {
       if (!atlas.castEffect || enemy.hellKeeperMagicStrike) {
-        drawEnemyActionBlendCanvas(ctx, atlas, sheet, anchorX, anchorY, enemy.action, enemy.frame);
+        drawEnemyActionBlendCanvas(ctx, atlas, sheet, anchorX, anchorY, enemy.action, enemy.frame, enemy);
       }
     }
   }
-  drawEnemyDebuffTintCanvas(ctx, atlas, sheet, anchorX, anchorY, enemy.action, enemy.frame, enemyDebuffTint(enemy));
+  drawEnemyDebuffTintCanvas(ctx, atlas, sheet, anchorX, anchorY, enemy.action, enemy.frame, enemyDebuffTint(enemy), enemy);
 }
 
 function drawEnemyCanvas(ctx) {
@@ -45291,7 +46109,7 @@ function drawEnemyCanvas(ctx) {
   if (groupDungeonSwarmActive()) return;
   if (!state.battle.enemyRevealed && state.enemy.action !== "show") return;
   const atlas = state.enemy.atlas;
-  const clip = atlas?.actions?.[state.enemy.action];
+  const clip = enemyVisualActionClip(atlas, state.enemy.action, state.battle.enemy);
   const meta = clip?.frames?.[state.enemy.frame] ?? clip?.frames?.[0];
   if (!atlas || !clip || !meta || meta.empty) return;
   const sheet = cachedImage(monsterAtlasPngUrl(state.enemy.index));
@@ -45306,22 +46124,23 @@ function drawEnemyCanvas(ctx) {
   drawEnemyDebuffTintCanvas(ctx, atlas, sheet, anchorX, anchorY, state.enemy.action, state.enemy.frame, enemyDebuffTint(state.battle.enemy));
 }
 
-function enemyActionBlendKey(action, atlas = null) {
+function enemyActionBlendKey(action, atlas = null, enemy = state.battle.enemy) {
+  const actions = enemyVisualActions(atlas, enemy);
   if (action === "standing") return "standingBlend";
   if (action === "walking") return "walkingBlend";
   if (action === "attack1") return "attack1Blend";
   if (action === "attackNorthWest") {
-    return atlas?.actions?.attackNorthWestBlend ? "attackNorthWestBlend" : "attack1Blend";
+    return actions?.attackNorthWestBlend ? "attackNorthWestBlend" : "attack1Blend";
   }
   if (action === "attackSouthWest") {
-    return atlas?.actions?.attackSouthWestBlend ? "attackSouthWestBlend" : "attack1Blend";
+    return actions?.attackSouthWestBlend ? "attackSouthWestBlend" : "attack1Blend";
   }
   if (action === "attackRange1") return "attackRange1Blend";
   if (action === "attackRangeNorthWest") {
-    return atlas?.actions?.attackRangeNorthWestBlend ? "attackRangeNorthWestBlend" : "attackRange1Blend";
+    return actions?.attackRangeNorthWestBlend ? "attackRangeNorthWestBlend" : "attackRange1Blend";
   }
   if (action === "attackRangeSouthWest") {
-    return atlas?.actions?.attackRangeSouthWestBlend ? "attackRangeSouthWestBlend" : "attackRange1Blend";
+    return actions?.attackRangeSouthWestBlend ? "attackRangeSouthWestBlend" : "attackRange1Blend";
   }
   if (action === "die") return "dieBlend";
   return null;
@@ -45339,9 +46158,9 @@ function drawMonsterCastEffectCanvas(ctx, atlas, sheet, anchorX, anchorY, attack
   });
 }
 
-function drawEnemyActionBlendCanvas(ctx, atlas, sheet, anchorX, anchorY, action, frame) {
-  const blendKey = enemyActionBlendKey(action, atlas);
-  const blendClip = blendKey ? atlas?.actions?.[blendKey] : null;
+function drawEnemyActionBlendCanvas(ctx, atlas, sheet, anchorX, anchorY, action, frame, enemy = state.battle.enemy) {
+  const blendKey = enemyActionBlendKey(action, atlas, enemy);
+  const blendClip = blendKey ? enemyVisualActions(atlas, enemy)?.[blendKey] : null;
   if (!blendClip?.frames?.length) return;
   // Death blend is a one-shot overlay; clamping to the last frame leaves it stuck on the corpse.
   if (action === "die" && frame >= blendClip.frames.length) return;
@@ -45360,13 +46179,14 @@ function enemyDebuffTint(enemy, now = performance.now()) {
   return null;
 }
 
-function drawEnemyDebuffTintCanvas(ctx, atlas, sheet, anchorX, anchorY, action, frame, tint) {
+function drawEnemyDebuffTintCanvas(ctx, atlas, sheet, anchorX, anchorY, action, frame, tint, enemy = state.battle.enemy) {
   if (!tint) return;
-  const clip = atlas?.actions?.[action];
+  const actions = enemyVisualActions(atlas, enemy);
+  const clip = actions?.[action];
   const meta = clip?.frames?.[frame] ?? clip?.frames?.[0];
   if (meta && !meta.empty) drawAtlasFrameTint(ctx, sheet, atlas.slotWidth, atlas.slotHeight, meta, anchorX, anchorY, tint);
-  const blendKey = enemyActionBlendKey(action, atlas);
-  const blendClip = blendKey ? atlas?.actions?.[blendKey] : null;
+  const blendKey = enemyActionBlendKey(action, atlas, enemy);
+  const blendClip = blendKey ? actions?.[blendKey] : null;
   if (!blendClip?.frames?.length) return;
   if (action === "die" && frame >= blendClip.frames.length) return;
   const frameIndex = Math.max(0, Math.min(frame, blendClip.frames.length - 1));
@@ -45381,6 +46201,18 @@ function enemyProjectileVfxUntil(startedAt, projectile) {
   const interval = Math.max(1, Number(projectile.interval) || 60);
   const animMs = projectile.frames.length * interval;
   return startedAt + burstDelayMs + Math.max(burstDurationMs, animMs);
+}
+
+/** White Fox-style travel bolt: impactFrames play on the target after the bolt lands. */
+function enemyTravelImpactVfxUntil(impactAt, projectile) {
+  const impactFrames = projectile?.impactFrames;
+  if (!Array.isArray(impactFrames) || !impactFrames.length) return impactAt;
+  const interval = Math.max(1, Number(projectile.impactInterval) || 60);
+  const burstMs = Math.max(
+    Number(projectile.impactBurstDurationMs) || 0,
+    impactFrames.length * interval,
+  );
+  return impactAt + burstMs;
 }
 
 function enemyProjectileBurstAnchor(projectile, strike) {
@@ -45500,11 +46332,49 @@ function drawEnemyRangeProjectileCanvas(ctx) {
     const frameSlotWidth = projectile.frameSlotWidth ?? slotWidth;
     const frameSlotHeight = projectile.frameSlotHeight ?? slotHeight;
     withScreenBlend(ctx, () => {
-      drawAtlasFrame(
+      if (Number.isFinite(Number(meta.sheetX))) {
+        drawAtlasFrameMeta(
+          ctx,
+          sheet,
+          slotWidth,
+          { ...meta, offsetX: meta.offsetX + targetAnchor.x, offsetY: meta.offsetY + targetAnchor.y },
+          0,
+          0,
+        );
+      } else {
+        drawAtlasFrame(
+          ctx,
+          sheet,
+          frameSlotWidth,
+          frameSlotHeight,
+          { ...meta, offsetX: meta.offsetX + targetAnchor.x, offsetY: meta.offsetY + targetAnchor.y },
+          0,
+          0,
+        );
+      }
+    });
+    return;
+  }
+
+  // Travel bolt (White Fox / Bone Lord style), plus optional impactFrames after land.
+  const vfxUntil = Number(strike.vfxUntil) || strike.at;
+  if (now < startedAt || now > vfxUntil) return;
+  const enemyAnchor = combatAnchor("enemy");
+  const targetAnchor = boneLordProjectileTargetAnchor();
+  const impactFrames = Array.isArray(projectile.impactFrames) ? projectile.impactFrames : null;
+  if (now >= strike.at && impactFrames?.length) {
+    const impactInterval = Math.max(1, Number(projectile.impactInterval) || 60);
+    const frameIndex = Math.min(
+      impactFrames.length - 1,
+      Math.floor((now - strike.at) / impactInterval),
+    );
+    const meta = impactFrames[frameIndex] ?? impactFrames[0];
+    if (!meta || meta.empty) return;
+    withScreenBlend(ctx, () => {
+      drawAtlasFrameMeta(
         ctx,
         sheet,
-        frameSlotWidth,
-        frameSlotHeight,
+        slotWidth,
         { ...meta, offsetX: meta.offsetX + targetAnchor.x, offsetY: meta.offsetY + targetAnchor.y },
         0,
         0,
@@ -45512,25 +46382,35 @@ function drawEnemyRangeProjectileCanvas(ctx) {
     });
     return;
   }
-
-  if (now < startedAt || now > strike.at) return;
+  if (now > strike.at) return;
   const travelT = Math.min(1, Math.max(0, (now - startedAt) / moveDurationMs));
+  const x = enemyAnchor.x + (targetAnchor.x - enemyAnchor.x) * travelT;
+  const y = enemyAnchor.y + (targetAnchor.y - enemyAnchor.y) * travelT;
+  const useRotation = projectile.rotate === true;
+  if (useRotation) {
+    const baseFrame = travelProjectileBaseFrame(projectile);
+    if (!baseFrame || baseFrame.empty) return;
+    const baseAngleDeg = Number(projectile.baseAngleDeg);
+    const baseAngleRad = Number.isFinite(baseAngleDeg)
+      ? (baseAngleDeg * Math.PI) / 180
+      : Math.PI;
+    const angleRad = travelProjectileAngleRad(enemyAnchor.x, enemyAnchor.y, targetAnchor.x, targetAnchor.y, baseAngleRad);
+    withScreenBlend(ctx, () => {
+      drawRotatedAtlasSprite(ctx, sheet, slotWidth, slotHeight, baseFrame, x, y, angleRad, 1, "anchor");
+    });
+    return;
+  }
   const frameIndex = Math.min(
     projectile.frames.length - 1,
     Math.floor((now - startedAt) / Math.max(1, projectile.interval ?? 30)) % projectile.frames.length,
   );
   const meta = projectile.frames[frameIndex] ?? projectile.frames[0];
   if (!meta || meta.empty) return;
-  const enemyAnchor = combatAnchor("enemy");
-  const targetAnchor = boneLordProjectileTargetAnchor();
-  const x = enemyAnchor.x + (targetAnchor.x - enemyAnchor.x) * travelT;
-  const y = enemyAnchor.y + (targetAnchor.y - enemyAnchor.y) * travelT;
   withScreenBlend(ctx, () => {
-    drawAtlasFrame(
+    drawAtlasFrameMeta(
       ctx,
       sheet,
       slotWidth,
-      slotHeight,
       { ...meta, offsetX: meta.offsetX + x, offsetY: meta.offsetY + y },
       0,
       0,
@@ -45557,8 +46437,26 @@ function drawMonsterOverlayCanvas(ctx, atlas, sheet, anchorX, anchorY, action, f
   else drawOverlay();
 }
 
-function drawTaoistPetCanvas(ctx) {
-  const pet = state.battle.taoPet;
+function drawTaoistPetCanvas(ctx, petOverride = null) {
+  const pets = petOverride
+    ? [petOverride]
+    : [
+      state.battle.taoPet,
+      state.battle.taoHolyDeva,
+      ...(state.battle.bossParty?.active
+        ? [state.battle.bossParty.pet, state.battle.bossParty.holyDeva]
+        : []),
+    ].filter(Boolean);
+  // Deduplicate mirrored party/solo references.
+  const seen = new Set();
+  for (const pet of pets) {
+    if (seen.has(pet) || (!pet.active && !pet.dead)) continue;
+    seen.add(pet);
+    drawOneTaoistPetCanvas(ctx, pet);
+  }
+}
+
+function drawOneTaoistPetCanvas(ctx, pet) {
   if (!state.showEnemies || !pet || (!pet.active && !pet.dead)) return;
   const atlas = taoPetAtlasFor(pet);
   const clip = atlas?.actions?.[pet.action];
@@ -45566,7 +46464,7 @@ function drawTaoistPetCanvas(ctx) {
   if (!atlas || !clip || !meta || meta.empty) return;
   const sheet = cachedImage(`./public/monsters/monster/${taoistPetRenderMonsterIndex(pet)}.png`);
   if (!sheet) return;
-  const { x: anchorX, y: anchorY } = taoistPetAnchor();
+  const { x: anchorX, y: anchorY } = taoistPetAnchor(pet);
   if (atlas.overlays) {
     const drawBase = () => {
       drawAtlasFrameMeta(ctx, sheet, atlas.slotWidth, meta, anchorX, anchorY);
@@ -45586,8 +46484,8 @@ function drawTaoistPetCanvas(ctx) {
   }
 }
 
-function taoistPetAnchor() {
-  const pet = state.battle.taoPet;
+function taoistPetAnchor(petOverride = null) {
+  const pet = petOverride ?? state.battle.taoPet ?? state.battle.taoHolyDeva;
   if (pet) {
     return {
       x: Math.round(resolvedTaoPetWorldX(pet) - state.battle.cameraX),
@@ -45645,27 +46543,37 @@ function drawEnemyHealthBar(ctx) {
 }
 
 function drawTaoistPetHealthBar(ctx) {
-  const pet = state.battle.taoPet;
-  if (!state.showEnemies || !pet?.active || pet.hp <= 0) return;
-  if (!state.battle.running && state.battle.phase === "idle") return;
-  const bounds = taoistPetFrameBounds();
-  const width = 30;
-  const height = 4;
-  const x = Math.round(bounds.centerX - width / 2);
-  const y = Math.round(bounds.topY - 9);
-  const pct = Math.max(0, Math.min(1, pet.hp / Math.max(1, pet.maxHp)));
+  const pets = [
+    state.battle.taoPet,
+    state.battle.taoHolyDeva,
+    ...(state.battle.bossParty?.active
+      ? [state.battle.bossParty.pet, state.battle.bossParty.holyDeva]
+      : []),
+  ].filter(Boolean);
+  const seen = new Set();
+  for (const pet of pets) {
+    if (seen.has(pet) || !state.showEnemies || !pet?.active || pet.hp <= 0) continue;
+    seen.add(pet);
+    if (!state.battle.running && state.battle.phase === "idle") continue;
+    const bounds = taoistPetFrameBounds(pet);
+    const width = 30;
+    const height = 4;
+    const x = Math.round(bounds.centerX - width / 2);
+    const y = Math.round(bounds.topY - 9);
+    const pct = Math.max(0, Math.min(1, pet.hp / Math.max(1, pet.maxHp)));
 
-  ctx.save();
-  ctx.fillStyle = "rgba(0, 0, 0, 0.72)";
-  ctx.fillRect(x - 1, y - 1, width + 2, height + 2);
-  ctx.fillStyle = "#1d2d1c";
-  ctx.fillRect(x, y, width, height);
-  ctx.fillStyle = "#4fa34d";
-  ctx.fillRect(x, y, Math.round(width * pct), height);
-  ctx.strokeStyle = "rgba(221, 245, 201, 0.45)";
-  ctx.lineWidth = 1;
-  ctx.strokeRect(x - 0.5, y - 0.5, width + 1, height + 1);
-  ctx.restore();
+    ctx.save();
+    ctx.fillStyle = "rgba(0, 0, 0, 0.72)";
+    ctx.fillRect(x - 1, y - 1, width + 2, height + 2);
+    ctx.fillStyle = "#1d2d1c";
+    ctx.fillRect(x, y, width, height);
+    ctx.fillStyle = "#4fa34d";
+    ctx.fillRect(x, y, Math.round(width * pct), height);
+    ctx.strokeStyle = "rgba(221, 245, 201, 0.45)";
+    ctx.lineWidth = 1;
+    ctx.strokeRect(x - 0.5, y - 0.5, width + 1, height + 1);
+    ctx.restore();
+  }
 }
 
 function drawPoisonDotsAtBounds(ctx, bounds, poisons) {
@@ -45736,7 +46644,7 @@ function enemyFrameBounds() {
   }
   const anchor = combatAnchor("enemy");
   const atlas = state.enemy.atlas;
-  const clip = atlas?.actions?.[state.enemy.action];
+  const clip = enemyVisualActionClip(atlas, state.enemy.action, state.battle.enemy);
   const meta = clip?.frames?.[state.enemy.frame] ?? clip?.frames?.[0];
   if (!atlas || !meta || meta.empty) {
     return { centerX: anchor.x, topY: anchor.y - 64, width: 96, height: 112 };
@@ -46168,10 +47076,11 @@ function drawAtlasFrameMeta(ctx, sheet, slotStride, meta, anchorX, anchorY, scal
   const sx = Number.isFinite(Number(meta.sheetX))
     ? Math.trunc(Number(meta.sheetX))
     : Math.trunc(Number(meta.slot) || 0) * slotStride;
+  const sy = Number.isFinite(Number(meta.sheetY)) ? Math.trunc(Number(meta.sheetY)) : 0;
   ctx.drawImage(
     sheet,
     sx,
-    0,
+    sy,
     w,
     h,
     anchorX + ox * drawScale,
@@ -46183,16 +47092,22 @@ function drawAtlasFrameMeta(ctx, sheet, slotStride, meta, anchorX, anchorY, scal
 
 function drawAtlasFrame(ctx, sheet, slotWidth, slotHeight, meta, anchorX, anchorY, scale = 1) {
   const drawScale = Math.max(0.1, Number(scale) || 1);
+  const sx = Number.isFinite(Number(meta.sheetX))
+    ? Math.trunc(Number(meta.sheetX))
+    : meta.slot * slotWidth;
+  const sy = Number.isFinite(Number(meta.sheetY)) ? Math.trunc(Number(meta.sheetY)) : 0;
+  const sourceWidth = Math.max(1, Math.trunc(Number(meta.w) || slotWidth));
+  const sourceHeight = Math.max(1, Math.trunc(Number(meta.h) || slotHeight));
   ctx.drawImage(
     sheet,
-    meta.slot * slotWidth,
-    0,
-    slotWidth,
-    slotHeight,
+    sx,
+    sy,
+    sourceWidth,
+    sourceHeight,
     anchorX + meta.offsetX * drawScale,
     anchorY + meta.offsetY * drawScale,
-    slotWidth * drawScale,
-    slotHeight * drawScale,
+    sourceWidth * drawScale,
+    sourceHeight * drawScale,
   );
 }
 
@@ -46246,7 +47161,9 @@ function drawRotatedAtlasSprite(ctx, sheet, slotWidth, slotHeight, meta, anchorX
   const h = Math.max(1, Math.trunc(Number(meta.h) || slotHeight));
   const ox = Math.trunc(Number(meta.offsetX) || 0);
   const oy = Math.trunc(Number(meta.offsetY) || 0);
-  const sx = Math.trunc(Number(meta.slot) || 0) * slotWidth;
+  const sx = Number.isFinite(Number(meta.sheetX))
+    ? Math.trunc(Number(meta.sheetX))
+    : Math.trunc(Number(meta.slot) || 0) * slotWidth;
   const drawX = pivot === "center" ? -(w * drawScale) / 2 : ox * drawScale;
   const drawY = pivot === "center" ? -(h * drawScale) / 2 : oy * drawScale;
   ctx.save();
@@ -46581,7 +47498,11 @@ function defenceBuffImpactAnchor(entry) {
     return ultimateEnhancerImpactAnchor(entry);
   }
   if (entry.spellId === "PetEnhancer") {
-    const pet = state.battle.bossParty?.pet ?? state.battle.taoPet;
+    const pet = (entry.petSpellId ? resolveTaoistPetBySpellId(entry.petSpellId) : null)
+      ?? state.battle.bossParty?.pet
+      ?? state.battle.bossParty?.holyDeva
+      ?? state.battle.taoPet
+      ?? state.battle.taoHolyDeva;
     const worldX = resolvedTaoPetWorldX(pet);
     return { x: Math.floor(worldX - state.battle.cameraX), y: Math.floor(state.stageHeight * LANE.y) };
   }
@@ -46968,9 +47889,9 @@ function bossPartyMemberFrameBounds(member) {
   return { centerX: anchor.x, topY: anchor.y - 80, height: 112 };
 }
 
-function taoistPetFrameBounds() {
-  const anchor = taoistPetAnchor();
-  const pet = state.battle.taoPet;
+function taoistPetFrameBounds(petOverride = null) {
+  const pet = petOverride ?? state.battle.taoPet ?? state.battle.taoHolyDeva;
+  const anchor = taoistPetAnchor(pet);
   const atlas = taoPetAtlasFor(pet);
   const clip = atlas?.actions?.[pet?.action];
   const meta = clip?.frames?.[pet?.frame ?? 0] ?? clip?.frames?.[0];

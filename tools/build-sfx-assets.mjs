@@ -257,6 +257,13 @@ const groups = [
       ...monsterSounds("Crazy Manworm", 155),
       ...monsterSounds("Dark Devourer", 159, { range: 1595 }),
       ...monsterSounds("Dream Devourer", 163, { range: 1635 }),
+      ...monsterSounds("Black Fox Man", 127),
+      ...monsterSounds("Red Fox Man", 128),
+      ...monsterSounds("White Fox Man", 129),
+      ...monsterSounds("Electric Element", 132),
+      ...monsterSounds("Cloud Element", 133),
+      ...monsterSounds("Great Fox Spirit", 134, { range: 1345 }),
+      ...monsterSounds("Guardian Rock", 131),
     ],
   },
   {
