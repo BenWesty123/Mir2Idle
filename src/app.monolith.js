@@ -2470,19 +2470,19 @@ const CHARACTER_SELECT_CLASSES = [
   {
     id: "Warrior",
     label: "Warrior",
-    role: "Weapon combat",
+    role: "Weapon",
     image: "./public/ui/character-select/warrior.png",
   },
   {
     id: "Wizard",
     label: "Wizard",
-    role: "Magic combat",
+    role: "Magic",
     image: "./public/ui/character-select/wizard.png",
   },
   {
     id: "Taoist",
     label: "Taoist",
-    role: "Spirit combat",
+    role: "Spirit",
     image: "./public/ui/character-select/taoist.png",
   },
 ];
@@ -3171,6 +3171,7 @@ let hotbarDragState = null;
 let hotbarWindowPosition = null;
 let combatSkillBarDragState = null;
 let combatSkillBarWindowPosition = null;
+let hotbarVertical = false;
 let sceneOverlayInteractionUntil = 0;
 const sceneScrollPositions = new Map();
 // Element currently under a held pointer (mousedown/touchstart without release).
@@ -3282,6 +3283,7 @@ function labShellHtml() {
                   <span class="stage-info-orb-text stage-info-mp-text" id="stageInfoMpText"></span>
                 </div>
                 <div class="stage-info-bar-left-art"></div>
+                <span class="stage-info-level" id="stageInfoLevel"></span>
                 <span class="stage-info-zone-name" id="stageInfoZoneName"></span>
               </div>
               <div class="stage-info-bar-mid"></div>
@@ -3367,6 +3369,8 @@ function gameShellHtml() {
         <div class="game-stage-card">
           <div class="stage-shell game-stage-shell">
             <div class="player-resource-hud" id="playerResourceHud" hidden></div>
+            <div class="party-paperdoll-bar" id="partyPaperDollBar" aria-label="Party paper dolls" hidden></div>
+            <div class="party-switch-bar" id="partySwitchBar" aria-label="Switch party character" hidden></div>
             <div class="stage-corner-buttons">
               <button
                 type="button"
@@ -3403,8 +3407,6 @@ function gameShellHtml() {
               </button>
             </div>
             <div class="stage" id="stage">
-              <div class="party-paperdoll-bar" id="partyPaperDollBar" aria-label="Party paper dolls" hidden></div>
-              <div class="party-switch-bar" id="partySwitchBar" aria-label="Switch party character" hidden></div>
               <div class="crystal-hotbar" id="hotbar" aria-label="Potion hotbar"></div>
               <div class="combat-skill-bar" id="combatSkillBar" hidden></div>
               <div class="stage-info-bar" aria-hidden="true">
@@ -3417,6 +3419,7 @@ function gameShellHtml() {
                     <span class="stage-info-orb-text stage-info-mp-text" id="stageInfoMpText"></span>
                   </div>
                   <div class="stage-info-bar-left-art"></div>
+                  <span class="stage-info-level" id="stageInfoLevel"></span>
                   <span class="stage-info-zone-name" id="stageInfoZoneName"></span>
                 </div>
                 <div class="stage-info-bar-mid"></div>
@@ -3509,6 +3512,7 @@ const els = {
   stage: document.querySelector("#stage"),
   playerResourceHud: document.querySelector("#playerResourceHud"),
   stageXpBar: document.querySelector("#stageXpBar"),
+  stageInfoLevel: document.querySelector("#stageInfoLevel"),
   stageInfoBagFill: document.querySelector("#stageInfoBagFill"),
   stageInfoBagText: document.querySelector("#stageInfoBagText"),
   stageInfoGoldText: document.querySelector("#stageInfoGoldText"),
@@ -3653,6 +3657,7 @@ async function init() {
   renderActionControls();
   bindControls();
   bindHotbarDrag();
+  bindHotbarOrientationToggle();
   bindCombatSkillBarDrag();
   reconcileSceneWindowPositions();
   syncFullscreenToggle();
@@ -19979,7 +19984,9 @@ function characterSelectPaperDollHtml(character) {
   const layers = [
     armourItem ? crystalPaperDollLayerHtml(armourItem, "armour") : "",
     weaponItem ? crystalPaperDollLayerHtml(weaponItem, "weapon") : "",
-    helmetItem ? crystalPaperDollLayerHtml(helmetItem, "helmet") : crystalPaperDollFrameHtml(CHARACTER_PAPER_DOLL_FRAMES.hair, "Hair"),
+    helmetItem
+      ? crystalPaperDollLayerHtml(helmetItem, "helmet")
+      : crystalPaperDollFrameHtml(state.characterStateItems?.hair ?? CHARACTER_PAPER_DOLL_FRAMES.hair, "Hair"),
   ].filter(Boolean);
   return `
     <div class="character-select-paperdoll-stage" aria-hidden="true">
@@ -32731,7 +32738,9 @@ function bossPartyMemberPaperDollHtml(member) {
   const layers = [
     armourItem ? crystalPaperDollLayerHtml(armourItem, "armour") : "",
     weaponItem ? crystalPaperDollLayerHtml(weaponItem, "weapon") : "",
-    helmetItem ? crystalPaperDollLayerHtml(helmetItem, "helmet") : crystalPaperDollFrameHtml(CHARACTER_PAPER_DOLL_FRAMES.hair, "Hair"),
+    helmetItem
+      ? crystalPaperDollLayerHtml(helmetItem, "helmet")
+      : crystalPaperDollFrameHtml(state.characterStateItems?.hair ?? CHARACTER_PAPER_DOLL_FRAMES.hair, "Hair"),
   ].filter(Boolean);
   return `
     <div class="${classes.join(" ")}" title="${escapeHtml(member.classId)}">
@@ -42066,7 +42075,6 @@ function renderCombatSkillBar(now = performance.now()) {
     combatSkillBarSignature = signature;
     els.combatSkillBar.hidden = false;
     els.combatSkillBar.innerHTML = `
-      <div class="combat-skill-bar-drag-handle" aria-hidden="true"></div>
       ${skills.map((skill) => combatSkillButtonHtml(skill, learnedMagic(skill.id), now)).join("")}
     `;
     applyCombatHudLayout();
@@ -42196,6 +42204,7 @@ function renderHotbar() {
   if (isPointerHeldWithin(els.hotbar)) return;
   normalizeHotbarSlots();
   const signature = JSON.stringify({
+    vertical: hotbarVertical,
     autoPotionSlots: autoPotionSlotLimit(),
     slots: state.hotbar.slots.map((entryId, slot) => {
       const entry = hotbarEntryAtSlot(slot);
@@ -42204,8 +42213,10 @@ function renderHotbar() {
   });
   if (signature === hotbarSignature) return;
   hotbarSignature = signature;
+  els.hotbar.classList.toggle("is-vertical", hotbarVertical);
   els.hotbar.innerHTML = `
     <div class="crystal-hotbar-drag-handle" aria-hidden="true"></div>
+    <button type="button" class="crystal-hotbar-orient-hit" aria-label="${hotbarVertical ? "Switch hotbar to horizontal" : "Switch hotbar to vertical"}" title="${hotbarVertical ? "Horizontal" : "Vertical"}"></button>
     ${Array.from({ length: HOTBAR_SLOT_COUNT }, (_, slot) => hotbarSlotHtml(slot)).join("")}
   `;
   applyHotbarWindowPosition();
@@ -42214,7 +42225,8 @@ function renderHotbar() {
 function hotbarSlotHtml(slot) {
   const entry = hotbarEntryAtSlot(slot);
   const item = entry ? itemDefinition(entry.itemId) : null;
-  const x = 12 + slot * 35;
+  const x = hotbarVertical ? 3 : 12 + slot * 35;
+  const y = hotbarVertical ? 12 + slot * 35 : 3;
   const key = slot + 1;
   const autoSlot = autoPotionSlots().includes(slot);
   const itemHtml = item
@@ -42238,7 +42250,7 @@ function hotbarSlotHtml(slot) {
     <div
       class="hotbar-slot ${item ? "filled" : ""} ${autoSlot ? "auto-slot" : ""}"
       data-hotbar-slot="${slot}"
-      style="left:${x}px; top:3px;"
+      style="left:${x}px; top:${y}px;"
       title="Hotbar ${key}${autoSlot ? " auto potion" : ""}"
     >
       <span class="hotbar-key">${key}</span>
@@ -42399,12 +42411,23 @@ function crystalProjectileImpactDelayMs() {
 }
 
 const COMBAT_HUD_HOTBAR_HEIGHT = 38;
+const COMBAT_HUD_HOTBAR_VERTICAL_HEIGHT = 240;
+const COMBAT_HUD_HOTBAR_VERTICAL_WIDTH = 38;
 const COMBAT_HUD_SKILL_BAR_HEIGHT = 81;
 const COMBAT_HUD_PLAYER_GAP = 38;
 const COMBAT_HUD_STACK_GAP = 6;
 /** Keep the hotbar clear of the stage-canvas bottom edge (and info-bar chrome). */
 const COMBAT_HUD_CANVAS_BOTTOM_GAP = 20;
 const STAGE_INFO_BAR_HEIGHT = 150;
+const STAGE_XP_BAR_HEIGHT = 8;
+const COMBAT_SKILL_BAR_BELOW_XP_GAP = 4;
+
+function combatHotbarSize() {
+  if (hotbarVertical) {
+    return { width: COMBAT_HUD_HOTBAR_VERTICAL_WIDTH, height: COMBAT_HUD_HOTBAR_VERTICAL_HEIGHT };
+  }
+  return { width: 240, height: COMBAT_HUD_HOTBAR_HEIGHT };
+}
 
 function combatHudLayoutMetrics(options = {}) {
   const skillBarVisible = options.skillBarVisible ?? (
@@ -42414,13 +42437,16 @@ function combatHudLayoutMetrics(options = {}) {
   );
   const feetPx = Math.round(combatAnchor("player").y * state.scale);
   const canvasHeight = state.stageHeight * state.scale;
+  const hotbarSize = combatHotbarSize();
   const preferredHotbarTop = feetPx + COMBAT_HUD_PLAYER_GAP;
-  const maxHotbarTop = Math.max(0, canvasHeight - COMBAT_HUD_HOTBAR_HEIGHT - COMBAT_HUD_CANVAS_BOTTOM_GAP);
+  const maxHotbarTop = Math.max(0, canvasHeight - hotbarSize.height - COMBAT_HUD_CANVAS_BOTTOM_GAP);
   const hotbarTop = Math.min(preferredHotbarTop, maxHotbarTop);
-  const skillTop = hotbarTop + COMBAT_HUD_HOTBAR_HEIGHT + COMBAT_HUD_STACK_GAP;
-  const hudBottom = skillBarVisible
-    ? skillTop + COMBAT_HUD_SKILL_BAR_HEIGHT + 4
-    : hotbarTop + COMBAT_HUD_HOTBAR_HEIGHT + 4;
+  // Locked under the XP bar (last STAGE_XP_BAR_HEIGHT px of the canvas), centered.
+  const skillTop = canvasHeight + COMBAT_SKILL_BAR_BELOW_XP_GAP;
+  const hudBottom = Math.max(
+    hotbarTop + hotbarSize.height + 4,
+    skillBarVisible ? skillTop + COMBAT_HUD_SKILL_BAR_HEIGHT + 4 : canvasHeight,
+  );
   return {
     feetPx,
     hotbarTop,
@@ -42434,10 +42460,8 @@ function combatHudLayoutMetrics(options = {}) {
 
 function combatHudViewportReservePx() {
   if (!IS_GAME_UI) return 0;
-  const skillBarExpected = combatSkillBarShouldShow();
-  const reserve = COMBAT_HUD_PLAYER_GAP + COMBAT_HUD_HOTBAR_HEIGHT + 4;
-  if (!skillBarExpected) return reserve;
-  return reserve + COMBAT_HUD_STACK_GAP + COMBAT_HUD_SKILL_BAR_HEIGHT;
+  const hotbarSize = combatHotbarSize();
+  return COMBAT_HUD_PLAYER_GAP + hotbarSize.height + 4;
 }
 
 function applyCombatHudLayout(options = {}) {
@@ -42455,8 +42479,9 @@ function applyCombatHudLayout(options = {}) {
 
 function clampHotbarWindowPosition(x, y) {
   if (!els.stage || !els.hotbar) return { x: Math.round(x), y: Math.round(y) };
-  const barW = els.hotbar.offsetWidth || 240;
-  const barH = els.hotbar.offsetHeight || COMBAT_HUD_HOTBAR_HEIGHT;
+  const size = combatHotbarSize();
+  const barW = els.hotbar.offsetWidth || size.width;
+  const barH = els.hotbar.offsetHeight || size.height;
   const maxX = Math.max(0, els.stage.clientWidth - barW);
   const maxY = Math.max(0, els.stage.clientHeight - barH);
   return {
@@ -42478,17 +42503,13 @@ function applyHotbarWindowPosition(metrics = null) {
   els.hotbar.style.left = `${clamped.x}px`;
   els.hotbar.style.top = `${clamped.y}px`;
   els.hotbar.style.transform = "none";
-  if (!combatSkillBarWindowPosition) {
-    const skillTop = clamped.y + COMBAT_HUD_HOTBAR_HEIGHT + COMBAT_HUD_STACK_GAP;
-    els.stage?.style.setProperty("--combat-hud-skill-top", `${skillTop}px`);
-  }
-  if (!metrics) return;
-  const skillTopForHud = combatSkillBarWindowPosition
-    ? combatSkillBarWindowPosition.y
-    : clamped.y + COMBAT_HUD_HOTBAR_HEIGHT + COMBAT_HUD_STACK_GAP;
-  const hudBottom = metrics.skillBarVisible
-    ? skillTopForHud + COMBAT_HUD_SKILL_BAR_HEIGHT + 4
-    : clamped.y + COMBAT_HUD_HOTBAR_HEIGHT + 4;
+  if (!metrics || !els.stage) return;
+  const size = combatHotbarSize();
+  const skillTop = (metrics.canvasHeight ?? 0) + COMBAT_SKILL_BAR_BELOW_XP_GAP;
+  const hudBottom = Math.max(
+    clamped.y + size.height + 4,
+    metrics.skillBarVisible ? skillTop + COMBAT_HUD_SKILL_BAR_HEIGHT + 4 : 0,
+  );
   const displayHeight = Math.max(metrics.canvasHeight, hudBottom);
   if (displayHeight > els.stage.clientHeight) {
     els.stage.style.height = `${displayHeight}px`;
@@ -42557,105 +42578,54 @@ function bindHotbarDrag() {
   });
 }
 
-function clampCombatSkillBarWindowPosition(x, y) {
-  if (!els.stage || !els.combatSkillBar) return { x: Math.round(x), y: Math.round(y) };
-  const barW = els.combatSkillBar.offsetWidth || 240;
-  const barH = els.combatSkillBar.offsetHeight || COMBAT_HUD_SKILL_BAR_HEIGHT;
-  const maxX = Math.max(0, els.stage.clientWidth - barW);
-  const maxY = Math.max(0, els.stage.clientHeight - barH);
-  return {
-    x: Math.max(0, Math.min(Math.round(x), maxX)),
-    y: Math.max(0, Math.min(Math.round(y), maxY)),
-  };
+function bindHotbarOrientationToggle() {
+  if (!els.hotbar || els.hotbar.dataset.hotbarOrientBound === "1") return;
+  els.hotbar.dataset.hotbarOrientBound = "1";
+  els.hotbar.addEventListener("click", (event) => {
+    const hit = event.target.closest(".crystal-hotbar-orient-hit");
+    if (!hit || !els.hotbar.contains(hit)) return;
+    event.preventDefault();
+    event.stopPropagation();
+    hotbarVertical = !hotbarVertical;
+    hotbarSignature = "";
+    renderHotbar();
+    applyCombatHudLayout();
+    playSfx("ui.button", { volume: 0.3, throttleMs: 80 });
+  });
 }
 
 function applyCombatSkillBarWindowPosition(metrics = null) {
   if (!els.combatSkillBar) return;
-  if (!combatSkillBarWindowPosition) {
-    els.combatSkillBar.style.left = "";
-    els.combatSkillBar.style.top = "";
-    els.combatSkillBar.style.transform = "";
-    return;
-  }
-  const clamped = clampCombatSkillBarWindowPosition(combatSkillBarWindowPosition.x, combatSkillBarWindowPosition.y);
-  combatSkillBarWindowPosition = clamped;
-  els.combatSkillBar.style.left = `${clamped.x}px`;
-  els.combatSkillBar.style.top = `${clamped.y}px`;
-  els.combatSkillBar.style.transform = "none";
+  // Skill bar is locked centered under the XP bar for now.
+  combatSkillBarWindowPosition = null;
+  combatSkillBarDragState = null;
+  els.combatSkillBar.style.left = "";
+  els.combatSkillBar.style.top = "";
+  els.combatSkillBar.style.bottom = "";
+  els.combatSkillBar.style.transform = "";
   if (!metrics || !els.stage) return;
-  const hotbarBottom = hotbarWindowPosition
-    ? hotbarWindowPosition.y + COMBAT_HUD_HOTBAR_HEIGHT + 4
-    : (metrics.hotbarTop ?? 0) + COMBAT_HUD_HOTBAR_HEIGHT + 4;
-  const hudBottom = Math.max(
-    hotbarBottom,
-    clamped.y + (els.combatSkillBar.offsetHeight || COMBAT_HUD_SKILL_BAR_HEIGHT) + 4,
-  );
+  const skillTop = (metrics.canvasHeight ?? 0) + COMBAT_SKILL_BAR_BELOW_XP_GAP;
+  const hudBottom = metrics.skillBarVisible
+    ? skillTop + COMBAT_HUD_SKILL_BAR_HEIGHT + 4
+    : (metrics.hotbarTop ?? 0) + combatHotbarSize().height + 4;
   const displayHeight = Math.max(metrics.canvasHeight, hudBottom);
   if (displayHeight > els.stage.clientHeight) {
     els.stage.style.height = `${displayHeight}px`;
   }
 }
 
-function beginCombatSkillBarDrag(event, handleEl) {
-  if (event.button !== 0 || inventoryDragState || sceneWindowDragState || hotbarDragState) return;
-  event.preventDefault();
-  if (!els.combatSkillBar || !els.stage) return;
-  const stageRect = els.stage.getBoundingClientRect();
-  const barRect = els.combatSkillBar.getBoundingClientRect();
-  const startX = combatSkillBarWindowPosition?.x ?? (barRect.left - stageRect.left);
-  const startY = combatSkillBarWindowPosition?.y ?? (barRect.top - stageRect.top);
-  combatSkillBarWindowPosition = { x: Math.round(startX), y: Math.round(startY) };
-  applyCombatSkillBarWindowPosition();
-  combatSkillBarDragState = {
-    handleEl,
-    pointerId: event.pointerId,
-    offsetX: event.clientX - stageRect.left - combatSkillBarWindowPosition.x,
-    offsetY: event.clientY - stageRect.top - combatSkillBarWindowPosition.y,
-  };
-  els.combatSkillBar.classList.add("combat-skill-bar-dragging");
-  document.body.classList.add("combat-skill-bar-drag-active");
-  handleEl.setPointerCapture(event.pointerId);
-  handleEl.addEventListener("pointermove", handleCombatSkillBarDragMove);
-  handleEl.addEventListener("pointerup", handleCombatSkillBarDragEnd);
-  handleEl.addEventListener("pointercancel", handleCombatSkillBarDragEnd);
+function beginCombatSkillBarDrag() {
+  // Dragging disabled while the skill bar is locked under the XP bar.
 }
 
-function handleCombatSkillBarDragMove(event) {
-  if (!combatSkillBarDragState || event.pointerId !== combatSkillBarDragState.pointerId || !els.stage) return;
-  const stageRect = els.stage.getBoundingClientRect();
-  const next = clampCombatSkillBarWindowPosition(
-    event.clientX - stageRect.left - combatSkillBarDragState.offsetX,
-    event.clientY - stageRect.top - combatSkillBarDragState.offsetY,
-  );
-  combatSkillBarWindowPosition = next;
-  applyCombatSkillBarWindowPosition();
-}
+function handleCombatSkillBarDragMove() {}
 
-function handleCombatSkillBarDragEnd(event) {
-  if (!combatSkillBarDragState || event.pointerId !== combatSkillBarDragState.pointerId) return;
-  const { handleEl, pointerId } = combatSkillBarDragState;
-  handleEl.removeEventListener("pointermove", handleCombatSkillBarDragMove);
-  handleEl.removeEventListener("pointerup", handleCombatSkillBarDragEnd);
-  handleEl.removeEventListener("pointercancel", handleCombatSkillBarDragEnd);
-  els.combatSkillBar?.classList.remove("combat-skill-bar-dragging");
-  document.body.classList.remove("combat-skill-bar-drag-active");
-  try {
-    handleEl.releasePointerCapture(pointerId);
-  } catch {
-    // Ignore stale capture errors after interrupted drags.
-  }
+function handleCombatSkillBarDragEnd() {
   combatSkillBarDragState = null;
 }
 
 function bindCombatSkillBarDrag() {
-  if (!els.combatSkillBar || els.combatSkillBar.dataset.combatSkillBarDragBound === "1") return;
-  els.combatSkillBar.dataset.combatSkillBarDragBound = "1";
-  els.combatSkillBar.addEventListener("pointerdown", (event) => {
-    if (event.button !== 0 || inventoryDragState || sceneWindowDragState || hotbarDragState) return;
-    const handle = event.target.closest(".combat-skill-bar-drag-handle");
-    if (!handle || !els.combatSkillBar.contains(handle)) return;
-    beginCombatSkillBarDrag(event, handle);
-  });
+  // Intentionally unbound while locked.
 }
 
 function updateStageSize() {
@@ -43473,62 +43443,13 @@ function refreshOpenSceneLiveText() {
 }
 
 function renderPlayerResourceHud() {
-  const player = state.battle.player;
-  const shouldShow = Boolean(player) && (state.game.mode === "zone" || state.game.mode === "mining" || state.battle.running || state.showEnemies);
-  if (!shouldShow) {
-    if (!els.playerResourceHud.hidden || playerHudSignature) {
-      els.playerResourceHud.hidden = true;
-      els.playerResourceHud.innerHTML = "";
-      playerHudSignature = "";
-    }
-    return;
+  // Player resource HUD removed; HP/MP live in the stage info bar.
+  if (!els.playerResourceHud) return;
+  if (!els.playerResourceHud.hidden || playerHudSignature) {
+    els.playerResourceHud.hidden = true;
+    els.playerResourceHud.innerHTML = "";
+    playerHudSignature = "";
   }
-
-  const hpPotions = potionInventoryCount("hp");
-  const mpPotions = potionInventoryCount("mp");
-  const pendingHp = (state.battle.potHealthAmount ?? 0) + (state.battle.healAmount ?? 0) + (state.battle.vampAmount ?? 0);
-  const pendingMp = state.battle.potManaAmount ?? 0;
-  const now = performance.now();
-  const activeBuffs = pruneStatBuffs(state.battle.statBuffs ?? [], now).map((buff) => ({
-    label: buff.label,
-    bonus: statBuffBonusLabel(buff),
-    remaining: formatBuffRemaining(buff.expiresAt - now),
-  }));
-  const signature = JSON.stringify({
-    className: state.battle.combatClass,
-    level: state.game.progress.level,
-    hp: player.hp,
-    maxHp: player.maxHp,
-    mp: player.mp,
-    maxMp: player.maxMp,
-    pendingHp,
-    pendingMp,
-    hpPotions,
-    mpPotions,
-    activeBuffs,
-  });
-  if (signature === playerHudSignature) return;
-  playerHudSignature = signature;
-
-  els.playerResourceHud.hidden = false;
-  const titleHtml = IS_GAME_UI
-    ? `<div class="player-resource-title game-minimal"><span>Lv ${state.game.progress.level}</span></div>`
-    : `
-      <div class="player-resource-title">
-        <strong>${escapeHtml(state.battle.combatClass)}</strong>
-        <span>Lv ${state.game.progress.level}</span>
-      </div>
-    `;
-  els.playerResourceHud.innerHTML = `
-    ${titleHtml}
-    ${playerResourceBarHtml("hp", "HP", player.hp, player.maxHp, pendingHp)}
-    ${playerResourceBarHtml("mp", "MP", player.mp, player.maxMp, pendingMp)}
-    <div class="player-resource-potions">
-      ${potionQuickButtonHtml("hp", "HP", hpPotions)}
-      ${potionQuickButtonHtml("mp", "MP", mpPotions)}
-    </div>
-    ${activeBuffs.length ? `<div class="player-resource-buffs">${activeBuffs.map((buff) => `<span class="player-stat-buff">${escapeHtml(buff.label)} ${escapeHtml(buff.bonus)} · ${escapeHtml(buff.remaining)}</span>`).join("")}</div>` : ""}
-  `;
 }
 
 function playerResourceBarHtml(kind, label, value, max, pending = 0) {
@@ -43565,19 +43486,25 @@ function renderStageXpBar() {
   const experience = state.game.progress.experience;
   const needed = xpForNextLevel(level);
   const pct = stageXpProgressPercent();
+  const pctLabel = Number.isFinite(needed) ? `${Math.round(pct)}%` : "Max";
   const signature = JSON.stringify({ level, experience, needed, pct });
   if (signature === stageXpBarSignature) return;
   stageXpBarSignature = signature;
 
+  if (els.stageInfoLevel) {
+    els.stageInfoLevel.textContent = String(level);
+    els.stageInfoLevel.title = `Level ${level}`;
+  }
+
   els.stageXpBar.hidden = false;
   els.stageXpBar.innerHTML = `
-    <span class="stage-xp-bar-level">${escapeHtml(String(level))}</span>
+    <span class="stage-xp-bar-pct">${escapeHtml(pctLabel)}</span>
     <span class="stage-xp-bar-track" aria-hidden="true">
       <span class="stage-xp-bar-fill" style="width:${pct}%"></span>
     </span>
   `;
   els.stageXpBar.title = Number.isFinite(needed)
-    ? `Level ${level} · XP ${experience}/${needed}`
+    ? `Level ${level} · ${pctLabel} · XP ${experience}/${needed}`
     : `Level ${level} · XP Max`;
 }
 

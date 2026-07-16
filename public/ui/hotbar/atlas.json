@@ -3,7 +3,7 @@
   "source": "Crystal Client BeltDialog: Libraries.Prguse frame 1932, item cells at x * 35 + 12, y 3",
   "layers": [
     {
-      "sheet": "belt-horizontal.png",
+      "sheet": "belt-horizontal1.png",
       "interval": 1000,
       "slotWidth": 240,
       "slotHeight": 38,

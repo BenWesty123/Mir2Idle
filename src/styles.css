@@ -367,6 +367,24 @@ button.active,
   pointer-events: none;
 }
 
+.stage-info-level {
+  position: absolute;
+  left: 3px;
+  top: 109px;
+  z-index: 5;
+  width: 24px;
+  height: 12px;
+  overflow: hidden;
+  color: #f3e0ae;
+  font-size: 9px;
+  font-weight: 700;
+  line-height: 12px;
+  text-align: center;
+  text-shadow: 1px 1px 0 #000, -1px 0 0 #000, 0 -1px 0 #000;
+  white-space: nowrap;
+  pointer-events: none;
+}
+
 .stage-info-bar-left-art {
   position: absolute;
   inset: 0;
@@ -544,17 +562,22 @@ button.active,
 }
 
 .stage-xp-bar-level {
+  display: none;
+}
+
+.stage-xp-bar-pct {
   position: absolute;
   left: 50%;
   top: 50%;
   z-index: 1;
   transform: translate(-50%, -50%);
   color: #f3e0ae;
-  font-size: 10px;
+  font-size: 9px;
   font-weight: 700;
   line-height: 1;
   text-shadow: 1px 1px 0 #000, -1px 0 0 #000, 0 -1px 0 #000;
   white-space: nowrap;
+  pointer-events: none;
 }
 
 .stage::after {
@@ -570,21 +593,11 @@ button.active,
 }
 
 .player-resource-hud {
-  position: absolute;
-  left: 12px;
-  top: 12px;
-  z-index: 10;
-  width: 226px;
-  padding: 7px;
-  border: 1px solid rgba(84, 70, 48, 0.9);
-  background: rgba(12, 10, 8, 0.88);
-  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.35);
-  color: #ead9b2;
-  image-rendering: pixelated;
+  display: none !important;
 }
 
 .player-resource-hud[hidden] {
-  display: none;
+  display: none !important;
 }
 
 .player-resource-title {
@@ -702,13 +715,69 @@ button.active,
   transform: translateX(-50%);
   border: 1px solid rgba(88, 72, 47, 0.85);
   background-color: rgba(9, 9, 7, 0.94);
-  background-image: url("../public/ui/hotbar/belt-horizontal.png");
+  background-image: url("../public/ui/hotbar/belt-horizontal1.png");
   background-position: 0 0;
   background-size: 240px 38px;
   background-repeat: no-repeat;
   box-shadow: 0 6px 18px rgba(0, 0, 0, 0.35);
   image-rendering: pixelated;
   pointer-events: auto;
+}
+
+.crystal-hotbar.is-vertical {
+  width: 38px;
+  height: 240px;
+  background-image: none;
+}
+
+/* Same belt art, rotated 90° clockwise to fill the vertical hotbar. */
+.crystal-hotbar.is-vertical::before {
+  content: "";
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: 240px;
+  height: 38px;
+  margin: 0;
+  background-color: rgba(9, 9, 7, 0.94);
+  background-image: url("../public/ui/hotbar/belt-horizontal1.png");
+  background-position: 0 0;
+  background-size: 240px 38px;
+  background-repeat: no-repeat;
+  transform: translate(-50%, -50%) rotate(90deg);
+  transform-origin: center center;
+  image-rendering: pixelated;
+  pointer-events: none;
+  z-index: 0;
+}
+
+.crystal-hotbar-orient-hit {
+  position: absolute;
+  z-index: 5;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  box-shadow: none;
+  cursor: pointer;
+  appearance: none;
+}
+
+.crystal-hotbar:not(.is-vertical) .crystal-hotbar-orient-hit {
+  top: 0;
+  right: 0;
+  width: 20px;
+  height: 100%;
+}
+
+/* Right edge becomes bottom after 90° CW rotate. */
+.crystal-hotbar.is-vertical .crystal-hotbar-orient-hit {
+  top: auto;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  height: 20px;
 }
 
 .crystal-hotbar-drag-handle {
@@ -722,6 +791,14 @@ button.active,
   touch-action: none;
 }
 
+/* Left edge becomes top after 90° CW rotate. */
+.crystal-hotbar.is-vertical .crystal-hotbar-drag-handle {
+  left: 0;
+  top: 0;
+  width: 100%;
+  height: 10px;
+}
+
 .crystal-hotbar.crystal-hotbar-dragging .crystal-hotbar-drag-handle {
   cursor: grabbing;
 }
@@ -732,6 +809,7 @@ body.crystal-hotbar-drag-active {
 
 .hotbar-slot {
   position: absolute;
+  z-index: 2;
   width: 32px;
   height: 32px;
   background: rgba(0, 0, 0, 0.82);
@@ -825,13 +903,14 @@ body.crystal-hotbar-drag-active {
 .combat-skill-bar {
   position: absolute;
   left: 50%;
-  top: var(--combat-hud-skill-top, calc(var(--combat-hud-hotbar-top, 82%) + 44px));
+  top: var(--combat-hud-skill-top, calc(var(--stage-canvas-height, 100%) + 4px));
+  bottom: auto;
   z-index: 9;
   display: flex;
   gap: 6px;
   max-width: calc(100% - 24px);
   margin-top: 0;
-  padding: 6px 6px 6px 14px;
+  padding: 6px;
   border: 1px solid rgba(88, 72, 47, 0.85);
   background: rgba(12, 10, 8, 0.88);
   box-shadow: 0 6px 18px rgba(0, 0, 0, 0.35);
@@ -844,14 +923,7 @@ body.crystal-hotbar-drag-active {
 }
 
 .combat-skill-bar-drag-handle {
-  position: absolute;
-  left: 0;
-  top: 0;
-  z-index: 4;
-  width: 10px;
-  height: 100%;
-  cursor: grab;
-  touch-action: none;
+  display: none;
 }
 
 .combat-skill-bar.combat-skill-bar-dragging .combat-skill-bar-drag-handle {
@@ -865,7 +937,7 @@ body.combat-skill-bar-drag-active {
 .party-paperdoll-bar {
   position: absolute;
   left: 50%;
-  top: 12px;
+  top: 8px;
   z-index: 11;
   display: flex;
   gap: 6px;
@@ -906,19 +978,20 @@ body.combat-skill-bar-drag-active {
   top: 50%;
   width: 248px;
   height: 284px;
-  transform: translate(-50%, -46%) scale(0.42);
+  /* Character art sits in the lower ~70% of the 248x284 paper-doll canvas. */
+  transform: translate(-50%, -70%) scale(0.5);
   transform-origin: center center;
   pointer-events: none;
 }
 
 .party-paperdoll-bar:not([hidden]) ~ .party-switch-bar {
-  top: 118px;
+  top: 116px;
 }
 
 .party-switch-bar {
   position: absolute;
   left: 50%;
-  top: 12px;
+  top: 8px;
   z-index: 11;
   display: flex;
   gap: 6px;
@@ -5266,8 +5339,8 @@ body.scene-window-drag-active {
 .upgrades-window {
   position: relative;
   width: min(600px, calc(100vw - 32px));
-  height: min(400px, calc(100vh - 32px));
-  max-height: min(400px, calc(100vh - 32px));
+  height: min(560px, calc(100vh - 32px));
+  max-height: min(560px, calc(100vh - 32px));
   overflow: hidden;
   display: flex;
   flex-direction: column;
@@ -5452,7 +5525,7 @@ body.scene-window-drag-active {
   display: flex;
   flex-direction: column;
   align-items: stretch;
-  gap: 4px;
+  gap: 6px;
   flex: 1 1 auto;
   min-height: 0;
   overflow-x: hidden;
@@ -5581,14 +5654,15 @@ body.scene-window-drag-active {
 .upgrade-card {
   display: grid;
   grid-template-columns: 32px minmax(0, 1fr) auto auto;
-  align-items: center;
+  align-items: start;
   gap: 6px;
-  min-height: 0;
+  flex: 0 0 auto;
+  min-height: auto;
   border: 1px solid rgba(88, 68, 38, 0.86);
   background:
     linear-gradient(90deg, rgba(26, 19, 11, 0.98), rgba(12, 9, 6, 0.96));
   box-shadow: inset 0 0 0 1px rgba(255, 215, 122, 0.035);
-  padding: 5px 6px;
+  padding: 6px 7px;
   position: relative;
 }
 
@@ -5645,6 +5719,7 @@ body.scene-window-drag-active {
   place-items: center;
   width: 28px;
   height: 28px;
+  margin-top: 1px;
   border: 1px solid rgba(213, 168, 83, 0.45);
   background:
     radial-gradient(circle at 50% 30%, rgba(240, 212, 132, 0.18), transparent 58%),
@@ -5717,7 +5792,8 @@ body.scene-window-drag-active {
 .upgrade-source {
   color: #aa956b;
   font-size: 10px;
-  line-height: 1.25;
+  line-height: 1.35;
+  overflow-wrap: anywhere;
 }
 
 .upgrade-progress {
@@ -5727,6 +5803,7 @@ body.scene-window-drag-active {
   gap: 6px;
   color: #b9995f;
   font-size: 10px;
+  line-height: 1.3;
 }
 
 .upgrade-progress strong {
@@ -5748,11 +5825,12 @@ body.scene-window-drag-active {
 
 .upgrade-requirements {
   display: grid;
-  align-content: center;
+  align-content: start;
   gap: 3px;
   justify-self: start;
   width: max-content;
   max-width: 100%;
+  padding-top: 1px;
 }
 
 .upgrade-material {
@@ -5820,10 +5898,10 @@ body.scene-window-drag-active {
 
 .upgrade-card button {
   min-width: 64px;
-  min-height: 0;
-  align-self: center;
+  min-height: 28px;
+  align-self: start;
   white-space: nowrap;
-  padding: 4px 6px;
+  padding: 4px 8px;
   font-size: 10px;
 }
 
@@ -5835,7 +5913,7 @@ body.scene-window-drag-active {
 
 @media (max-width: 640px) {
   .upgrades-window {
-    height: min(400px, calc(100vh - 24px));
+    height: min(560px, calc(100vh - 24px));
     max-height: calc(100vh - 24px);
   }
 
@@ -5939,7 +6017,7 @@ body.scene-window-drag-active {
   position: relative;
   container-type: size;
   display: flex;
-  align-items: flex-start;
+  align-items: center;
   justify-content: center;
   min-height: 0;
   overflow: hidden;
@@ -5947,16 +6025,31 @@ body.scene-window-drag-active {
 
 .character-select-paperdoll-stage {
   position: absolute;
-  left: 0;
-  right: 0;
-  top: 0;
+  left: 50%;
+  top: 50%;
   width: 248px;
   height: 284px;
-  margin: 0 auto;
-  /* cqw/px yields a unitless ratio for scale(); length/number would invalidate the whole transform. */
-  transform: scale(min(100cqw / 248px, (100cqh - 10px) / 284px));
-  transform-origin: top center;
+  background: none;
+  /*
+   * Scale to fit the full stage inside the portrait (prevents clipped legs),
+   * then lift so the figure sits in the vertical center of the card.
+   */
+  transform: translate(-50%, -70%) scale(min(100cqw / 248px, 100cqh / 284px));
+  transform-origin: center center;
   pointer-events: none;
+  image-rendering: pixelated;
+}
+
+/* Naked body + gear layers share this 248x284 box (same origin as frame left/top). */
+/* Naked body is the base pose; gear frames are offset separately on .crystal-paper-doll-layer. */
+.character-select-paperdoll-stage .crystal-paper-doll {
+  background: url("../public/ui/nakedpaperdoll.png") 3px 3px / 248px 284px no-repeat;
+  image-rendering: pixelated;
+}
+
+.character-select-paperdoll-stage .crystal-paper-doll-layer {
+  z-index: 1;
+  transform: translate(-5px, -87px);
 }
 
 .character-select-portrait img {
@@ -7822,6 +7915,7 @@ body[data-ui="game"][data-game-mode="town"] .game-stage-shell {
   justify-content: center;
   overflow: auto;
   padding: 12px;
+  position: relative;
 }
 
 .game-shell .stage::after {
