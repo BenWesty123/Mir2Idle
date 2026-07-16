@@ -2861,6 +2861,7 @@ const state = {
       inventory: null,
       codex: null,
       upgrades: null,
+      leaderboard: null,
     },
   },
   demoLiveSiteBanner: {
@@ -2951,6 +2952,7 @@ const state = {
     selectedIndex: null,
     detailClass: null,
     foreignEntries: {},
+    searchQuery: "",
   },
   inventoryPage: 0,
   storagePage: 0,
@@ -3163,7 +3165,7 @@ let sceneSignature = "";
 let sceneOverlayLiveSignature = "";
 let accountCodexRevision = 0;
 let sceneWindowStack = [];
-const DRAGGABLE_SCENE_WINDOWS = new Set(["character", "inventory", "codex", "upgrades"]);
+const DRAGGABLE_SCENE_WINDOWS = new Set(["character", "inventory", "codex", "upgrades", "leaderboard"]);
 let sceneWindowDragState = null;
 let hotbarDragState = null;
 let hotbarWindowPosition = null;
@@ -3182,9 +3184,11 @@ let stageInfoGoldSignature = "";
 let stageInfoOrbSignature = "";
 let stageInfoOrbLastHp = null;
 let stageInfoOrbLastMp = null;
+let stageInfoZoneNameSignature = null;
 let hotbarSignature = "";
 let hoveredTooltipEntryId = null;
 let partySwitchBarSignature = "";
+let partyPaperDollBarSignature = "";
 let lastSimulationAt = performance.now();
 let lastRenderAt = 0;
 let suppressSimulationRender = false;
@@ -3262,22 +3266,21 @@ function labShellHtml() {
         <div class="stage-shell">
           <div class="player-resource-hud" id="playerResourceHud" hidden></div>
           <div class="stage" id="stage">
+            <div class="party-paperdoll-bar" id="partyPaperDollBar" aria-label="Party paper dolls" hidden></div>
             <div class="party-switch-bar" id="partySwitchBar" aria-label="Switch party character" hidden></div>
             <div class="crystal-hotbar" id="hotbar" aria-label="Potion hotbar"></div>
             <div class="combat-skill-bar" id="combatSkillBar" hidden></div>
             <div class="stage-info-bar" aria-hidden="true">
               <div class="stage-info-bar-left">
-                <div class="stage-info-orb" aria-hidden="true">
-                  <div class="stage-info-orb-hp">
-                    <div class="stage-info-orb-fill stage-info-orb-hp-fill" id="stageInfoHpFill"></div>
-                    <span class="stage-info-orb-text" id="stageInfoHpText"></span>
-                  </div>
-                  <div class="stage-info-orb-mp">
-                    <div class="stage-info-orb-fill stage-info-orb-mp-fill" id="stageInfoMpFill"></div>
-                    <span class="stage-info-orb-text" id="stageInfoMpText"></span>
-                  </div>
+                <div class="stage-info-bar-top-art" aria-hidden="true"></div>
+                <div class="stage-info-orb-fill stage-info-orb-hp-fill" id="stageInfoHpFill" aria-hidden="true"></div>
+                <div class="stage-info-orb-fill stage-info-orb-mp-fill" id="stageInfoMpFill" aria-hidden="true"></div>
+                <div class="stage-info-orb-texts" aria-hidden="true">
+                  <span class="stage-info-orb-text stage-info-hp-text" id="stageInfoHpText"></span>
+                  <span class="stage-info-orb-text stage-info-mp-text" id="stageInfoMpText"></span>
                 </div>
                 <div class="stage-info-bar-left-art"></div>
+                <span class="stage-info-zone-name" id="stageInfoZoneName"></span>
               </div>
               <div class="stage-info-bar-mid"></div>
               <div class="stage-info-bar-right">
@@ -3398,22 +3401,21 @@ function gameShellHtml() {
               </button>
             </div>
             <div class="stage" id="stage">
+              <div class="party-paperdoll-bar" id="partyPaperDollBar" aria-label="Party paper dolls" hidden></div>
               <div class="party-switch-bar" id="partySwitchBar" aria-label="Switch party character" hidden></div>
               <div class="crystal-hotbar" id="hotbar" aria-label="Potion hotbar"></div>
               <div class="combat-skill-bar" id="combatSkillBar" hidden></div>
               <div class="stage-info-bar" aria-hidden="true">
                 <div class="stage-info-bar-left">
-                  <div class="stage-info-orb" aria-hidden="true">
-                    <div class="stage-info-orb-hp">
-                      <div class="stage-info-orb-fill stage-info-orb-hp-fill" id="stageInfoHpFill"></div>
-                      <span class="stage-info-orb-text" id="stageInfoHpText"></span>
-                    </div>
-                    <div class="stage-info-orb-mp">
-                      <div class="stage-info-orb-fill stage-info-orb-mp-fill" id="stageInfoMpFill"></div>
-                      <span class="stage-info-orb-text" id="stageInfoMpText"></span>
-                    </div>
+                  <div class="stage-info-bar-top-art" aria-hidden="true"></div>
+                  <div class="stage-info-orb-fill stage-info-orb-hp-fill" id="stageInfoHpFill" aria-hidden="true"></div>
+                  <div class="stage-info-orb-fill stage-info-orb-mp-fill" id="stageInfoMpFill" aria-hidden="true"></div>
+                  <div class="stage-info-orb-texts" aria-hidden="true">
+                    <span class="stage-info-orb-text stage-info-hp-text" id="stageInfoHpText"></span>
+                    <span class="stage-info-orb-text stage-info-mp-text" id="stageInfoMpText"></span>
                   </div>
                   <div class="stage-info-bar-left-art"></div>
+                  <span class="stage-info-zone-name" id="stageInfoZoneName"></span>
                 </div>
                 <div class="stage-info-bar-mid"></div>
                 <div class="stage-info-bar-right">
@@ -3512,9 +3514,11 @@ const els = {
   stageInfoHpText: document.querySelector("#stageInfoHpText"),
   stageInfoMpFill: document.querySelector("#stageInfoMpFill"),
   stageInfoMpText: document.querySelector("#stageInfoMpText"),
+  stageInfoZoneName: document.querySelector("#stageInfoZoneName"),
   hotbar: document.querySelector("#hotbar"),
   combatSkillBar: document.querySelector("#combatSkillBar"),
   partySwitchBar: document.querySelector("#partySwitchBar"),
+  partyPaperDollBar: document.querySelector("#partyPaperDollBar"),
   readout: document.querySelector("#readout"),
   frameMeta: document.querySelector("#frameMeta"),
   gamePanel: document.querySelector("#gamePanel"),
@@ -4080,6 +4084,7 @@ function createSaveSnapshot() {
         inventory: state.settings.sceneWindowPositions?.inventory ?? null,
         codex: state.settings.sceneWindowPositions?.codex ?? null,
         upgrades: state.settings.sceneWindowPositions?.upgrades ?? null,
+        leaderboard: state.settings.sceneWindowPositions?.leaderboard ?? null,
       },
     },
   };
@@ -8706,6 +8711,7 @@ function invalidateUi() {
   playerHudSignature = "";
   hotbarSignature = "";
   partySwitchBarSignature = "";
+  partyPaperDollBarSignature = "";
 }
 
 function renderEnemyControls() {
@@ -17700,6 +17706,24 @@ function bindSceneButtons(rootEl) {
   rootEl.querySelectorAll("[data-leaderboard-class]").forEach((button) => {
     button.addEventListener("click", () => selectLeaderboardClass(button.dataset.leaderboardClass));
   });
+  rootEl.querySelectorAll("[data-leaderboard-search]").forEach((input) => {
+    input.addEventListener("input", () => {
+      state.leaderboard.searchQuery = String(input.value ?? "");
+      noteSceneOverlayInteraction(900);
+      sceneSignature = "";
+      renderSceneOverlay();
+    });
+    input.addEventListener("keydown", (event) => {
+      if (event.key !== "Escape") return;
+      if (!state.leaderboard.searchQuery) return;
+      event.preventDefault();
+      state.leaderboard.searchQuery = "";
+      noteSceneOverlayInteraction(900);
+      sceneSignature = "";
+      renderSceneOverlay();
+    });
+  });
+  bindLeaderboardScroll(rootEl);
 }
 
 function initialOpenScenesFromUrl() {
@@ -17783,6 +17807,11 @@ function applySceneWindowStackZIndexes(rootEl = els.sceneOverlay) {
   for (const [index, scene] of sceneWindowStack.entries()) {
     const element = rootEl.querySelector(`[data-scene-window="${scene}"]`);
     if (!element) continue;
+    // Unpositioned windows stay in the flex stack; relative + z-index lets them
+    // compete with fixed/dragged siblings when overlapping.
+    if (!element.dataset.sceneWindowPositioned && !element.style.position) {
+      element.style.position = "relative";
+    }
     element.style.zIndex = String(base + index);
   }
 }
@@ -18027,7 +18056,13 @@ function sceneWindowPosition(scene) {
 function setSceneWindowPosition(scene, x, y) {
   if (!DRAGGABLE_SCENE_WINDOWS.has(scene)) return;
   if (!state.settings.sceneWindowPositions) {
-    state.settings.sceneWindowPositions = { character: null, inventory: null, codex: null, upgrades: null };
+    state.settings.sceneWindowPositions = {
+      character: null,
+      inventory: null,
+      codex: null,
+      upgrades: null,
+      leaderboard: null,
+    };
   }
   state.settings.sceneWindowPositions[scene] = { x: Math.round(x), y: Math.round(y) };
 }
@@ -18810,7 +18845,7 @@ function codexDetailPanelHtml(item) {
   return `
     <aside class="codex-detail discovered">
       <header>
-        <div class="codex-detail-icon">${itemIconHtml(item, 54)}</div>
+        <div class="codex-detail-icon">${itemIconHtml(item, 30)}</div>
         <div>
           <p class="eyebrow">${escapeHtml(slot)}</p>
           <h3>${escapeHtml(item.name)}</h3>
@@ -19918,11 +19953,35 @@ function characterSelectCardHtml(entry) {
       aria-pressed="${active ? "true" : "false"}"
     >
       <span class="character-select-portrait">
-        <img src="${escapeHtml(entry.image)}" alt="" />
+        ${characterSelectPaperDollHtml(character)}
       </span>
       <strong>${escapeHtml(entry.label)}</strong>
       <span>${active ? "Selected" : escapeHtml(entry.role)} | Lv ${progress.level} | ${progress.gold}g</span>
     </button>
+  `;
+}
+
+function characterStateEquippedItem(character, slotId) {
+  const inventory = character?.inventory;
+  const entryId = inventory?.equipment?.[slotId];
+  if (!entryId) return null;
+  const entry = inventory.items?.find((candidate) => candidate.id === entryId) ?? null;
+  return entry ? itemDefinition(entry.itemId) : null;
+}
+
+function characterSelectPaperDollHtml(character) {
+  const armourItem = characterStateEquippedItem(character, "armour");
+  const weaponItem = characterStateEquippedItem(character, "weapon");
+  const helmetItem = characterStateEquippedItem(character, "helmet");
+  const layers = [
+    armourItem ? crystalPaperDollLayerHtml(armourItem, "armour") : "",
+    weaponItem ? crystalPaperDollLayerHtml(weaponItem, "weapon") : "",
+    helmetItem ? crystalPaperDollLayerHtml(helmetItem, "helmet") : crystalPaperDollFrameHtml(CHARACTER_PAPER_DOLL_FRAMES.hair, "Hair"),
+  ].filter(Boolean);
+  return `
+    <div class="character-select-paperdoll-stage" aria-hidden="true">
+      <div class="crystal-paper-doll">${layers.join("")}</div>
+    </div>
   `;
 }
 
@@ -21041,6 +21100,23 @@ function leaderboardSceneHtml() {
 
 function leaderboardListHtml() {
   const lb = state.leaderboard;
+  const searchQuery = String(lb.searchQuery ?? "");
+  const playerName = prototypeStatsDisplayName();
+  const searchHtml = `
+    <div class="leaderboard-player-name" title="${escapeHtml(playerName)}">${escapeHtml(playerName)}</div>
+    <label class="leaderboard-search">
+      <span class="leaderboard-search-label">Name</span>
+      <input
+        type="search"
+        data-leaderboard-search
+        value="${escapeHtml(searchQuery)}"
+        placeholder="Name"
+        aria-label="Search by name"
+        spellcheck="false"
+        autocomplete="off"
+      />
+    </label>
+  `;
   let body = "";
   if (lb.status === "unconfigured") {
     body = `<p class="leaderboard-note">The leaderboard is not configured in this build.</p>`;
@@ -21051,39 +21127,137 @@ function leaderboardListHtml() {
   } else if (!lb.rows.length) {
     body = `<p class="leaderboard-note">No ranked players yet.</p>`;
   } else {
-    body = `
+    const needle = searchQuery.trim().toLowerCase();
+    const entries = lb.rows
+      .map((row, index) => ({ row, index }))
+      .filter(({ row }) => !needle || String(row?.player ?? "").toLowerCase().includes(needle));
+    body = entries.length
+      ? `
       <div class="leaderboard-list" data-preserve-scroll="leaderboard-list">
-        ${lb.rows.map((row, index) => leaderboardRowHtml(row, index)).join("")}
+        ${entries.map(({ row, index }) => leaderboardRowHtml(row, index)).join("")}
       </div>
-    `;
+      <div class="leaderboard-scroll" aria-label="Leaderboard scroll">
+        <button type="button" class="leaderboard-scroll-btn leaderboard-scroll-up" data-leaderboard-scroll="-1" aria-label="Scroll up"></button>
+        <div class="leaderboard-scroll-track">
+          <div class="leaderboard-scroll-thumb" tabindex="0" aria-label="Scroll position"></div>
+        </div>
+        <button type="button" class="leaderboard-scroll-btn leaderboard-scroll-down" data-leaderboard-scroll="1" aria-label="Scroll down"></button>
+      </div>
+    `
+      : `<p class="leaderboard-note">No players match “${escapeHtml(searchQuery.trim())}”.</p>`;
   }
   return `
     <div class="leaderboard-body">
-      <div class="leaderboard-toolbar">
-        <span class="leaderboard-subtitle">Ranked by combined character levels</span>
-        <button type="button" class="leaderboard-refresh" data-leaderboard-refresh ${lb.status === "loading" ? "disabled" : ""}>Refresh</button>
-      </div>
+      ${searchHtml}
+      <button type="button" class="leaderboard-refresh" data-leaderboard-refresh ${lb.status === "loading" ? "disabled" : ""} title="Refresh">Refresh</button>
       ${body}
     </div>
   `;
 }
 
 function leaderboardRowHtml(row, index) {
-  const combined = Math.max(0, Math.trunc(Number(row?.combinedCharacterLevels) || 0));
-  const souls = Math.max(0, Math.trunc(Number(row?.awakeningSoulsHeld) || 0));
-  const rebirths = Math.max(0, Math.trunc(Number(row?.rebirthCount) || 0));
   const topChar = leaderboardRowCharacters(row)[0];
-  const topLabel = topChar ? `${escapeHtml(topChar.characterClass)} Lv ${Math.max(1, Math.trunc(Number(topChar.level) || 1))}` : "";
+  const className = topChar ? String(topChar.characterClass ?? "") : "";
+  const level = topChar ? String(Math.max(1, Math.trunc(Number(topChar.level) || 1))) : "";
+  const rebirths = Math.max(0, Math.trunc(Number(row?.rebirthCount) || 0));
+  const souls = Math.max(0, Math.trunc(Number(row?.awakeningSoulsHeld) || 0));
   return `
     <button type="button" class="leaderboard-row" data-leaderboard-player="${index}">
-      <span class="leaderboard-rank">#${Math.max(1, Math.trunc(Number(row?.rank) || index + 1))}</span>
+      <span class="leaderboard-rank">${Math.max(1, Math.trunc(Number(row?.rank) || index + 1))}</span>
       <span class="leaderboard-player">${escapeHtml(row?.player ?? "Player")}</span>
-      <span class="leaderboard-cell">Levels ${combined}</span>
-      <span class="leaderboard-cell">${topLabel}</span>
-      <span class="leaderboard-cell">Rebirths ${rebirths}</span>
-      <span class="leaderboard-cell">Souls ${souls}</span>
+      <span class="leaderboard-cell">${escapeHtml(className)}</span>
+      <span class="leaderboard-cell">${escapeHtml(level)}</span>
+      <span class="leaderboard-cell">${rebirths}</span>
+      <span class="leaderboard-cell">${souls}</span>
     </button>
   `;
+}
+
+function syncLeaderboardScrollUi(list, thumb, scrollRoot) {
+  if (!list || !thumb) return;
+  const maxScroll = Math.max(0, list.scrollHeight - list.clientHeight);
+  const track = scrollRoot?.querySelector(".leaderboard-scroll-track");
+  const trackH = track?.clientHeight || 0;
+  if (maxScroll <= 0 || trackH <= 0) {
+    thumb.style.display = "none";
+    scrollRoot?.classList.add("is-idle");
+    return;
+  }
+  scrollRoot?.classList.remove("is-idle");
+  thumb.style.display = "";
+  const thumbH = Math.max(18, Math.round((list.clientHeight / list.scrollHeight) * trackH));
+  const maxTop = Math.max(0, trackH - thumbH);
+  const top = maxScroll > 0 ? Math.round((list.scrollTop / maxScroll) * maxTop) : 0;
+  thumb.style.height = `${thumbH}px`;
+  thumb.style.top = `${top}px`;
+  thumb.style.transform = "";
+}
+
+let leaderboardScrollDrag = null;
+
+function bindLeaderboardScroll(rootEl) {
+  const list = rootEl.querySelector(".leaderboard-list");
+  const scrollRoot = rootEl.querySelector(".leaderboard-scroll");
+  if (!list || !scrollRoot || scrollRoot.dataset.bound === "1") return;
+  scrollRoot.dataset.bound = "1";
+  const thumb = scrollRoot.querySelector(".leaderboard-scroll-thumb");
+  const track = scrollRoot.querySelector(".leaderboard-scroll-track");
+  const sync = () => syncLeaderboardScrollUi(list, thumb, scrollRoot);
+  list.addEventListener("scroll", sync, { passive: true });
+  scrollRoot.querySelectorAll("[data-leaderboard-scroll]").forEach((button) => {
+    button.addEventListener("click", () => {
+      const dir = Number(button.dataset.leaderboardScroll) || 0;
+      const row = list.querySelector(".leaderboard-row");
+      const step = Math.max(18, row?.offsetHeight || Math.round(list.clientHeight * 0.2));
+      list.scrollTop += dir * step;
+      sync();
+    });
+  });
+  const onMove = (event) => {
+    if (!leaderboardScrollDrag || event.pointerId !== leaderboardScrollDrag.pointerId) return;
+    const trackH = track?.clientHeight || 0;
+    const thumbH = thumb?.offsetHeight || 18;
+    const maxTop = Math.max(0, trackH - thumbH);
+    const maxScroll = Math.max(0, list.scrollHeight - list.clientHeight);
+    if (!maxTop || !maxScroll) return;
+    const trackRect = track.getBoundingClientRect();
+    const localY = event.clientY - trackRect.top - leaderboardScrollDrag.offsetY;
+    const top = Math.max(0, Math.min(maxTop, localY));
+    list.scrollTop = (top / maxTop) * maxScroll;
+    sync();
+  };
+  const onUp = (event) => {
+    if (!leaderboardScrollDrag || event.pointerId !== leaderboardScrollDrag.pointerId) return;
+    document.removeEventListener("pointermove", onMove);
+    document.removeEventListener("pointerup", onUp);
+    document.removeEventListener("pointercancel", onUp);
+    leaderboardScrollDrag = null;
+  };
+  thumb?.addEventListener("pointerdown", (event) => {
+    if (event.button !== 0) return;
+    event.preventDefault();
+    const thumbTop = Number.parseFloat(thumb.style.top || "0") || 0;
+    leaderboardScrollDrag = {
+      pointerId: event.pointerId,
+      offsetY: event.clientY - track.getBoundingClientRect().top - thumbTop,
+    };
+    document.addEventListener("pointermove", onMove);
+    document.addEventListener("pointerup", onUp);
+    document.addEventListener("pointercancel", onUp);
+  });
+  track?.addEventListener("pointerdown", (event) => {
+    if (event.button !== 0 || event.target === thumb) return;
+    const trackH = track.clientHeight || 0;
+    const thumbH = thumb?.offsetHeight || 18;
+    const maxTop = Math.max(0, trackH - thumbH);
+    const maxScroll = Math.max(0, list.scrollHeight - list.clientHeight);
+    if (!maxTop || !maxScroll) return;
+    const localY = event.clientY - track.getBoundingClientRect().top - thumbH / 2;
+    const top = Math.max(0, Math.min(maxTop, localY));
+    list.scrollTop = (top / maxTop) * maxScroll;
+    sync();
+  });
+  requestAnimationFrame(sync);
 }
 
 function leaderboardDetailHtml() {
@@ -21138,8 +21312,10 @@ function foreignCharacterPageHtml(view) {
         ${foreignPaperDollHtml(view)}
         ${EQUIPMENT_SLOTS.map((slot) => foreignEquipmentSlotHtml(slot, view)).join("")}
       </div>
-      ${foreignCharacterStatsHtml(view)}
-      ${foreignCharacterSkillsHtml(view)}
+      <div class="leaderboard-character-side">
+        ${foreignCharacterStatsHtml(view)}
+        ${foreignCharacterSkillsHtml(view)}
+      </div>
     </div>
   `;
 }
@@ -21357,27 +21533,25 @@ function inventoryPageTabsHtml() {
     const active = tab.index === state.inventoryPage ? " active" : "";
     const secondary = tab.index > 0 ? " secondary" : "";
     const locked = tab.unlocked ? "" : " locked";
-    const left = tab.index === 0 ? 6 : 76 + (tab.index - 1) * 70;
+    const typeClass = tab.type === "gold" ? " tab-gold" : tab.type === "token" ? " tab-token" : "";
+    const left = 6 + tab.index * 72;
     let label = "";
     let title = `Items ${tab.index + 1}`;
     let actionAttr = tab.unlocked ? ` data-inventory-page="${tab.index}"` : "";
-    if (tab.index > 0 && tab.unlocked) {
-      label = `ITEMS ${tab.index + 1}`;
-    } else if (!tab.unlocked && tab.type === "token") {
-      label = `${PAGE_UNLOCK_TOKEN_COST} Tok`;
+    if (!tab.unlocked && tab.type === "token") {
       title = `Unlock a new inventory page for ${PAGE_UNLOCK_TOKEN_COST} tokens`;
       actionAttr = ` data-unlock-inventory="token"`;
     } else if (!tab.unlocked) {
-      label = `${INVENTORY_PAGE_2_UNLOCK_COST.toLocaleString()}g`;
       title = `Unlock a new inventory page for ${INVENTORY_PAGE_2_UNLOCK_COST.toLocaleString()} gold`;
       actionAttr = ` data-unlock-inventory="gold"`;
     }
     return `
       <button
-        class="crystal-inventory-tab${active}${secondary}${locked}"
+        class="crystal-inventory-tab${active}${secondary}${typeClass}${locked}"
         type="button"${actionAttr}
         style="left:${left}px;"
         title="${title}"
+        aria-label="${escapeHtml(title)}"
       >${label}</button>
     `;
   }).join("");
@@ -32528,6 +32702,53 @@ function switchControlledPartyMember(classId) {
   return true;
 }
 
+function bossPartyMemberInventory(member) {
+  if (!member) return null;
+  if (member.classId === bossPartyControlledClassId()) return state.inventory;
+  return member.inventory ?? null;
+}
+
+function bossPartyMemberEquippedItem(member, slotId) {
+  const inventory = bossPartyMemberInventory(member);
+  const entryId = inventory?.equipment?.[slotId];
+  if (!entryId) return null;
+  const entry = inventory.items?.find((candidate) => candidate.id === entryId) ?? null;
+  return entry ? itemDefinition(entry.itemId) : null;
+}
+
+function bossPartyMemberPaperDollHtml(member) {
+  const controlled = member.classId === bossPartyControlledClassId();
+  const dead = !member.alive || member.hp <= 0;
+  const classes = ["party-paperdoll-box"];
+  if (controlled) classes.push("controlled");
+  if (dead) classes.push("dead");
+  const armourItem = bossPartyMemberEquippedItem(member, "armour");
+  const weaponItem = bossPartyMemberEquippedItem(member, "weapon");
+  const helmetItem = bossPartyMemberEquippedItem(member, "helmet");
+  const layers = [
+    armourItem ? crystalPaperDollLayerHtml(armourItem, "armour") : "",
+    weaponItem ? crystalPaperDollLayerHtml(weaponItem, "weapon") : "",
+    helmetItem ? crystalPaperDollLayerHtml(helmetItem, "helmet") : crystalPaperDollFrameHtml(CHARACTER_PAPER_DOLL_FRAMES.hair, "Hair"),
+  ].filter(Boolean);
+  return `
+    <div class="${classes.join(" ")}" title="${escapeHtml(member.classId)}">
+      <div class="party-paperdoll-stage" aria-hidden="true">
+        <div class="crystal-paper-doll">${layers.join("")}</div>
+      </div>
+    </div>
+  `;
+}
+
+function partyPaperDollBarHtml() {
+  const party = state.battle.bossParty;
+  if (!party?.members?.length) return "";
+  return party.members
+    .slice()
+    .sort((a, b) => BOSS_PARTY_ORDER.indexOf(a.classId) - BOSS_PARTY_ORDER.indexOf(b.classId))
+    .map((member) => bossPartyMemberPaperDollHtml(member))
+    .join("");
+}
+
 function partySwitchBarHtml() {
   const party = state.battle.bossParty;
   if (!party?.members?.length) return "";
@@ -32554,6 +32775,43 @@ function partySwitchBarHtml() {
     .join("");
 }
 
+function renderPartyPaperDollBar() {
+  if (!els.partyPaperDollBar) return;
+  const party = state.battle.bossParty;
+  const shouldShow = bossPartyOnField()
+    && !party?.defeated
+    && isGroupContentZone(activeZone())
+    && (party?.members?.length ?? 0) >= 1;
+  if (!shouldShow) {
+    if (!els.partyPaperDollBar.hidden || partyPaperDollBarSignature) {
+      els.partyPaperDollBar.hidden = true;
+      els.partyPaperDollBar.innerHTML = "";
+      partyPaperDollBarSignature = "";
+    }
+    return;
+  }
+  const controlled = bossPartyControlledClassId();
+  const signature = JSON.stringify({
+    controlled,
+    members: party.members.map((member) => {
+      const inventory = member.classId === controlled ? state.inventory : member.inventory;
+      const gear = ["armour", "weapon", "helmet"]
+        .map((slotId) => {
+          const entryId = inventory?.equipment?.[slotId];
+          if (!entryId) return `${slotId}:`;
+          const entry = inventory.items?.find((candidate) => candidate.id === entryId);
+          return `${slotId}:${entry?.itemId ?? ""}`;
+        })
+        .join("|");
+      return `${member.classId}:${member.alive && member.hp > 0 ? "alive" : "dead"}:${gear}`;
+    }),
+  });
+  if (signature === partyPaperDollBarSignature) return;
+  partyPaperDollBarSignature = signature;
+  els.partyPaperDollBar.hidden = false;
+  els.partyPaperDollBar.innerHTML = partyPaperDollBarHtml();
+}
+
 function renderPartySwitchBar() {
   if (!els.partySwitchBar) return;
   const party = state.battle.bossParty;
@@ -32567,16 +32825,19 @@ function renderPartySwitchBar() {
       els.partySwitchBar.innerHTML = "";
       partySwitchBarSignature = "";
     }
+    renderPartyPaperDollBar();
     return;
   }
   const signature = JSON.stringify({
     controlled: bossPartyControlledClassId(),
     members: party.members.map((member) => `${member.classId}:${member.alive && member.hp > 0 ? "alive" : "dead"}`),
   });
-  if (signature === partySwitchBarSignature) return;
-  partySwitchBarSignature = signature;
-  els.partySwitchBar.hidden = false;
-  els.partySwitchBar.innerHTML = partySwitchBarHtml();
+  if (signature !== partySwitchBarSignature) {
+    partySwitchBarSignature = signature;
+    els.partySwitchBar.hidden = false;
+    els.partySwitchBar.innerHTML = partySwitchBarHtml();
+  }
+  renderPartyPaperDollBar();
 }
 
 function characterSelectOptionEnabled(entry) {
@@ -43023,6 +43284,7 @@ function render() {
   renderStageInfoBagFill();
   renderStageInfoGold();
   renderStageInfoOrb();
+  renderStageInfoZoneName();
   renderHotbar();
 
   if (!IS_GAME_UI && els.readout && els.frameMeta) {
@@ -43206,29 +43468,68 @@ function renderStageXpBar() {
     : `Level ${level} · XP Max`;
 }
 
+function formatInfoBarCompactAmount(value) {
+  const n = Math.max(0, Math.floor(Number(value) || 0));
+  if (n >= 1_000_000) return `${(n / 1_000_000).toFixed(2)}M`;
+  if (n >= 1_000) return `${(n / 1_000).toFixed(2)}K`;
+  return String(n);
+}
+
+function formatInfoBarAmount(value, maxChars) {
+  const n = Math.max(0, Math.floor(Number(value) || 0));
+  const full = String(n);
+  if (full.length <= maxChars) return full;
+  return formatInfoBarCompactAmount(n);
+}
+
+function formatInfoBarPair(current, maxValue, maxChars) {
+  const cur = Math.max(0, Math.floor(Number(current) || 0));
+  const max = Math.max(0, Math.floor(Number(maxValue) || 0));
+  const full = `${cur}/${max}`;
+  if (full.length <= maxChars) return full;
+  return `${formatInfoBarCompactAmount(cur)}/${formatInfoBarCompactAmount(max)}`;
+}
+
 function renderStageInfoBagFill() {
   if (!els.stageInfoBagFill) return;
   const used = inventoryUsedSlots();
   const maxSlots = Math.max(0, Math.trunc(Number(state.inventory?.maxSlots) || 0));
   const pct = resourcePercentage(used, maxSlots);
-  const label = `${used}/${maxSlots}`;
-  const signature = `${label}:${pct}`;
+  const fullLabel = `${used}/${maxSlots}`;
+  const label = formatInfoBarPair(used, maxSlots, 11);
+  const signature = `${label}:${fullLabel}:${pct}`;
   if (signature === stageInfoBagFillSignature) return;
   stageInfoBagFillSignature = signature;
   els.stageInfoBagFill.style.width = `${pct}%`;
-  if (els.stageInfoBagText) els.stageInfoBagText.textContent = label;
+  if (els.stageInfoBagText) {
+    els.stageInfoBagText.textContent = label;
+    els.stageInfoBagText.title = `Bag ${fullLabel}`;
+  }
   const track = els.stageInfoBagFill.parentElement;
-  if (track) track.title = `Bag ${label}`;
+  if (track) track.title = `Bag ${fullLabel}`;
 }
 
 function renderStageInfoGold() {
   if (!els.stageInfoGoldText) return;
   const gold = Math.max(0, Math.trunc(Number(state.inventory?.gold) || 0));
-  const label = String(gold);
-  if (label === stageInfoGoldSignature) return;
-  stageInfoGoldSignature = label;
+  const label = formatInfoBarAmount(gold, 10);
+  const signature = `${label}:${gold}`;
+  if (signature === stageInfoGoldSignature) return;
+  stageInfoGoldSignature = signature;
   els.stageInfoGoldText.textContent = label;
-  els.stageInfoGoldText.title = `Gold ${label}`;
+  els.stageInfoGoldText.title = `Gold ${gold}`;
+}
+
+function renderStageInfoZoneName() {
+  if (!els.stageInfoZoneName) return;
+  const zone = activeZone();
+  const label = zone?.label
+    ?? (state.game.activeZoneId ? zoneLabel(state.game.activeZoneId) : "");
+  if (label === stageInfoZoneNameSignature) return;
+  stageInfoZoneNameSignature = label;
+  els.stageInfoZoneName.textContent = label;
+  els.stageInfoZoneName.title = label;
+  els.stageInfoZoneName.hidden = !label;
 }
 
 function stageInfoPlayerVitals() {
@@ -43253,9 +43554,11 @@ function renderStageInfoOrb() {
   const { hp, maxHp, mp, maxMp } = stageInfoPlayerVitals();
   const hpPct = resourcePercentage(hp, maxHp);
   const mpPct = resourcePercentage(mp, maxMp);
-  const hpLabel = `${hp}/${maxHp}`;
-  const mpLabel = `${mp}/${maxMp}`;
-  const signature = `${hpLabel}|${mpLabel}|${hpPct}|${mpPct}`;
+  const hpFull = `${hp}/${maxHp}`;
+  const mpFull = `${mp}/${maxMp}`;
+  const hpLabel = formatInfoBarPair(hp, maxHp, 9);
+  const mpLabel = formatInfoBarPair(mp, maxMp, 9);
+  const signature = `${hpLabel}|${mpLabel}|${hpFull}|${mpFull}|${hpPct}|${mpPct}`;
   if (signature === stageInfoOrbSignature) return;
   const prevHp = stageInfoOrbLastHp;
   const prevMp = stageInfoOrbLastMp;
@@ -43266,11 +43569,11 @@ function renderStageInfoOrb() {
   if (els.stageInfoMpFill) els.stageInfoMpFill.style.height = `${mpPct}%`;
   if (els.stageInfoHpText) {
     els.stageInfoHpText.textContent = hpLabel;
-    els.stageInfoHpText.title = `HP ${hpLabel}`;
+    els.stageInfoHpText.title = `HP ${hpFull}`;
   }
   if (els.stageInfoMpText) {
     els.stageInfoMpText.textContent = mpLabel;
-    els.stageInfoMpText.title = `MP ${mpLabel}`;
+    els.stageInfoMpText.title = `MP ${mpFull}`;
   }
   if (prevHp !== null && prevHp !== hp) flashStageInfoOrbPanel(els.stageInfoHpFill);
   if (prevMp !== null && prevMp !== mp) flashStageInfoOrbPanel(els.stageInfoMpFill);
