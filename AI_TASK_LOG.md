@@ -1,5 +1,166 @@
 # AI Task Log - LOM Idle V2
 
+## 2026-07-16 - L40–50 armour niche rebalance
+
+### What
+Retuned Heaven / Dark / Tiger / Crane / Lotus / Oma King / Tarragon armour stats
+so each piece owns a clear niche (Heaven = offence+luck, Dark = HP hybrids,
+Tiger/Crane/Lotus = class mid-tier, Oma = pure tank, Tarragon = L50 class apex).
+Updated `src/data/items.json` (26 entries) and regenerated integrity rules.
+
+### Verify
+- `npm.cmd run integrity:rules`
+- `npm.cmd run check`
+
+## 2026-07-16 - Glyphs drop only from empowered bosses (one per kill)
+
+### What
+Removed per-boss glyph rows from `bossDrops.js`. Empowered boss kills now get a
+separate 10% roll for exactly one glyph, chosen uniformly from all `GLYPH_DEFS`
+(`rollEmpoweredBossGlyphItemId` in `glyphModifiers.js`, wired in `rollBossTableDrops`).
+
+### Verify
+- `npm.cmd run check`
+
+## 2026-07-16 - Plague bang damage retune (~75% Ice Storm feel)
+
+### What
+Plague area burst no longer uses `2 × Max SC`. Bang damage is now a native Taoist
+magic roll (`rollTaoistMagicValue`: rolled SC + Plague crystal power). Plague's
+power fields stay 0, so the bang is effectively rolled SC — roughly ~70–80% of an
+Ice Storm bang at similar primary stats, without cloning Ice Storm's power formula.
+Poison / Slow / Freeze rolls are unchanged.
+
+### Verify
+- `node --check src/app.monolith.js`
+
+## 2026-07-16 - Fox accessory line + mid-end ladder smoothing
+
+### What
+Added 18 Fox accessories (Purple/Red/Blue x normal + Great; ring/bracelet/necklace,
+Crystal idx 442-447, 514-519, 571-576) and smoothed the accessory ladder so it steps
+~+2 max per tier: Boundless/Cloud/mid necks -> Fox (L43-44) -> Great Fox (L46-48) ->
+L50-54 (buffed). Buffed pledge/crimson-ruby/five-element rings, dual-titan/evil-whisp/
+sacred-angel amulets, cuspid/sorcery-anchor/purified-mirror necklaces.
+
+Done via `tools/add-fox-items-and-rebalance.mjs` (idempotent). Fox icons (frames
+893-910) copied into `public/item-icons/items/` and packed via `build:item-atlas`.
+Fox items given placeholder drop on `zone-hell-gd-3` (0.025) - retune drops later.
+
+### Verify
+- `node tools/add-fox-items-and-rebalance.mjs`
+- `npm.cmd run build:item-atlas` && `npm.cmd run integrity:rules`
+- `npm.cmd run check` (461 tests pass) + `npm.cmd run smoke` (clean)
+
+## 2026-07-16 - Fix stuck poison tint after CC expires
+
+### What
+Paralysis grayscale was applied via `ctx.filter` on the battle canvas, which could leak and leave the character grey after the poison ended. Grayscale now runs only on the scratch canvas; battle `ctx.filter` is forced to `none` each frame. Also ticks boss-party Holy Deva poisons (was skipped).
+
+### Verify
+- `npm.cmd run smoke`
+
+## 2026-07-16 - Missing Crystal items picker
+
+### What
+Added `tools/build-missing-crystal-items-picker.mjs` (npm `build:missing-items-picker`)
+which writes `tile-review/missing-crystal-items/index.html` — a filterable checklist
+of Crystal items not yet in `items.json`. Selection downloads JSON/CSV; apply with
+`npm run apply:missing-items-selection -- <selection.json>`.
+
+### Verify
+- `npm.cmd run build:missing-items-picker`
+- Open `tile-review/missing-crystal-items/index.html`
+
+## 2026-07-16 - Fix crafting-cube / weapon-refine dupe on character switch
+
+### What
+Fixed an item duplication exploit: staging an item in the Crafting Cube (or
+Weapon Refine table), then switching characters with A/D, left the item on the
+board. The board is **global** state, not per-character. On switch,
+`selectPlayerClass` serialized the leaving character *with* the staged item
+re-added to their bag (via `cloneInventoryStateIncludingWeaponRefineStaged`),
+but never cleared the board - so unstaging on the new character dropped a second
+copy into *their* bag = duplication.
+
+Fix: `selectPlayerClass` now calls `restoreAllCraftingCubeStagedEntries()` /
+`restoreAllWeaponRefineStagedEntries()` (returning staged items to the current
+character's bag and clearing the boards) *before* `captureActiveCharacterState()`.
+
+### Verify
+- `npm.cmd run check`
+- `npm.cmd run smoke` (with `npm run dev`)
+
+## 2026-07-16 - Player poison draw tint (Crystal)
+
+### What
+Matched Crystal `PlayerObject` DrawColour visuals for combatant poisons:
+- **Paralysis** → grayscale (Crystal Gray → `SetGrayscale`)
+- **Slow** → purple tint (same as existing enemy slow)
+- **Green** → green tint
+
+Applied on solo player, boss-party members, and Taoist pets via `combatantPoisonTint`.
+
+### Verify
+- `npm.cmd run check`
+- `npm.cmd run smoke` (with `npm run dev`)
+
+## 2026-07-15 - Glyph Phase 4 Disruptor Cascade
+
+### What
+Wired **Glyph of Disruptor Cascade**: Flame Disruptor has a 50% chance per orthogonally adjacent swarm enemy to deal 50% of the primary hit. Solo fights are a no-op (no adjacent targets). Drop: King Scorpion (5%).
+
+Also moved Glyph paper-doll slot to bottom-left (former Amulet spot) and retuned Pet Might to 100% Max DC.
+
+### Verify
+- `npm.cmd run check`
+
+## 2026-07-15 - Glyph Pet Might retune to 100% Max DC
+
+### What
+Pet Might now adds **100% of owner Max DC** to pet attack (was 50%).
+
+### Verify
+- `node --test tests/glyphs.test.mjs`
+
+## 2026-07-15 - Glyph Phase 3 pet + Magic Shield
+
+### What
+Wired Phase 3 glyphs:
+- **Glyph of Pet Might**: Taoist pets add 50% of owner Max DC to attack
+- **Glyph of Mana Aegis**: Magic Shield loses DR; incoming damage drains MP before HP (2 MP per 1 HP); shield ends at 0 MP
+
+Drops: Bone Lord (Pet Might), Minotaur King (Mana Aegis).
+
+### Verify
+- `npm.cmd run check`
+
+## 2026-07-15 - Glyph Phase 2 warrior modifiers
+
+### What
+Wired Phase 2 warrior glyphs:
+- **Glyph of Flaming Bulwark**: Flaming Sword toggle grants 25% DR for 3s
+- **Glyph of Twin Fury**: Twin Drake Blade damage ×2; enforces 2s cooldown even with auto-cast
+
+Drops: King Hog (Flaming Bulwark), Hell Keeper (Twin Fury).
+
+### Verify
+- `npm.cmd run check`
+
+## 2026-07-15 - Glyph slot + Phase 1 spell modifiers
+
+### What
+Added a new **Glyph** equipment slot and `src/glyphModifiers.js` for fixed spell-rewrite items (not empowers). Phase 1 combat hooks:
+- **Glyph of Spirit Wards** (Tao): Soul Shield + Blessed Armour bonuses use `floor(Max SC / 5) + 4` instead of level
+- **Glyph of Eternal Firewall** (Wizard): Fire Wall duration ×2
+- **Glyph of Bulwark Field** (Warrior): Protection Field AC bonus ×2, duration fixed to 5s
+
+Preliminary 5% drops: Great Fox Spirit / Oma King Spirit / Dark Devil. Remaining glyphs are defined but not implemented yet.
+
+### Verify
+- `npm.cmd run check`
+- Equip a glyph and cast the matching spell
+
 ## 2026-07-15 - Pet Enhancer targets Holy Deva in boss party
 
 ### What

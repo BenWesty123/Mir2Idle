@@ -24,7 +24,7 @@ const minimalSave = JSON.parse(readFileSync(join(__dirname, "fixtures/saves/mini
 const zoneIds = ["zone-bicheon-1", "zone-bichon-mine", "zone-wooma-temple-kr", "zone-bug-cave-kr"];
 const equipmentSlotIds = [
   "weapon", "armour", "helmet", "torch", "necklace", "braceletL", "braceletR",
-  "ringL", "ringR", "amulet", "belt", "boots", "stone", "mount",
+  "ringL", "ringR", "amulet", "belt", "boots", "stone", "glyph", "mount",
 ];
 
 function createDefaultCharacter(classId) {

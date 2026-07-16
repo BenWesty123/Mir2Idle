@@ -30,7 +30,7 @@ const SLOT_FLAGS = {
 
 const DIRECT_SLOTS = new Set([
   "weapon", "armour", "helmet", "torch", "necklace", "amulet",
-  "belt", "boots", "stone", "mount",
+  "belt", "boots", "stone", "mount", "glyph",
 ]);
 
 function equipmentSlots(item) {
