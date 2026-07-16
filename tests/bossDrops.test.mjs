@@ -19,6 +19,7 @@ const EXPECTED_LABELS = [
   "King Hog",
   "Dream Devourer",
   "Dark Devourer",
+  "Great Fox Spirit",
   "Dark Devil",
   "Hell Keeper",
 ];

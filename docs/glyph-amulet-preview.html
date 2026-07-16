@@ -1,0 +1,1013 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Glyph &amp; Amulet icon preview — Crystal</title>
+  <style>
+    :root {
+      color-scheme: dark;
+      --bg: #12151c;
+      --panel: #1b2130;
+      --border: #2d3648;
+      --text: #e8edf7;
+      --muted: #9aa8c0;
+      --accent: #c9a227;
+      --missing: #8b3a3a;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font: 14px/1.45 system-ui, Segoe UI, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+    }
+    .header {
+      position: sticky;
+      top: 0;
+      z-index: 2;
+      padding: 16px 20px;
+      background: rgba(18, 21, 28, 0.94);
+      border-bottom: 1px solid var(--border);
+      backdrop-filter: blur(8px);
+    }
+    .header h1 { margin: 0 0 6px; font-size: 20px; }
+    .header p { margin: 0 0 12px; color: var(--muted); max-width: 72ch; }
+    .toolbar { display: flex; gap: 10px; flex-wrap: wrap; align-items: center; }
+    .toolbar input, .toolbar select {
+      padding: 8px 12px;
+      border-radius: 8px;
+      border: 1px solid var(--border);
+      background: var(--panel);
+      color: var(--text);
+    }
+    .toolbar input { min-width: 240px; }
+    .stats { color: var(--muted); font-size: 13px; }
+    main { padding: 20px; max-width: 1400px; margin: 0 auto; }
+    .section { margin-bottom: 32px; }
+    .section__title {
+      margin: 0 0 8px;
+      font-size: 17px;
+      color: var(--accent);
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .section__subtitle {
+      margin: 0 0 14px;
+      color: var(--muted);
+      font-size: 13px;
+      max-width: 72ch;
+    }
+    .section__count {
+      font-size: 12px;
+      color: var(--muted);
+      background: var(--panel);
+      border: 1px solid var(--border);
+      border-radius: 999px;
+      padding: 2px 8px;
+    }
+    .glyph-family {
+      margin-bottom: 18px;
+      padding: 12px 14px 14px;
+      background: rgba(27, 33, 48, 0.55);
+      border: 1px solid var(--border);
+      border-left: 3px solid var(--family-color, var(--accent));
+      border-radius: 10px;
+    }
+    .glyph-family__title {
+      margin: 0 0 10px;
+      font-size: 14px;
+      color: var(--family-color, var(--text));
+    }
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+      gap: 10px;
+    }
+    .grid--glyph {
+      grid-template-columns: repeat(4, minmax(180px, 1fr));
+    }
+    @media (max-width: 900px) {
+      .grid--glyph { grid-template-columns: repeat(2, minmax(160px, 1fr)); }
+    }
+    .card {
+      display: flex;
+      gap: 10px;
+      align-items: flex-start;
+      padding: 10px;
+      background: var(--panel);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      min-height: 72px;
+    }
+    .card--missing, .card--frame0 { border-color: var(--missing); }
+    .card__icon {
+      flex: 0 0 48px;
+      width: 48px;
+      height: 48px;
+      display: grid;
+      place-items: center;
+      background: #0d1017;
+      border-radius: 6px;
+      border: 1px solid #000;
+    }
+    .card__icon img {
+      image-rendering: pixelated;
+      image-rendering: crisp-edges;
+      max-width: 48px;
+      max-height: 48px;
+    }
+    .card__placeholder {
+      color: var(--muted);
+      font-weight: 700;
+      font-size: 18px;
+    }
+    .card__name { margin: 0; font-size: 13px; font-weight: 600; word-break: break-word; }
+    .card__meta { margin: 4px 0 0; font-size: 11px; color: var(--muted); }
+    .card__badge {
+      display: inline-block;
+      margin-top: 6px;
+      font-size: 10px;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+      color: #ffb4b4;
+    }
+    .card.hidden, .section.hidden, .glyph-family.hidden { display: none; }
+    .note {
+      margin: 0 0 20px;
+      padding: 12px 14px;
+      border-radius: 10px;
+      border: 1px solid var(--border);
+      background: var(--panel);
+      color: var(--muted);
+      font-size: 13px;
+    }
+    .note strong { color: var(--text); }
+  </style>
+</head>
+<body>
+  <header class="header">
+    <h1>Glyph &amp; Amulet icon preview</h1>
+    <p>Crystal <code>Items</code> library candidates for unique-stat gear (not Tao amulets). Regenerate with <code>node tools/gen-glyph-amulet-preview.mjs</code>.</p>
+    <div class="toolbar">
+      <input id="filter" type="search" placeholder="Filter by name…" autofocus>
+      <select id="sectionFilter" aria-label="Section filter">
+        <option value="">All sections</option>
+        <option value="glyphs">Awakening Glyphs</option>
+        <option value="souls">Awakening Souls</option>
+        <option value="gems">Gems &amp; Orbs</option>
+        <option value="stones">Stat Stones</option>
+        <option value="amulets">Amulet candidates</option>
+      </select>
+      <span class="stats">96 items · 90 with icons · 6 missing</span>
+    </div>
+  </header>
+  <main id="gallery">
+    <p class="note"><strong>Glyphs</strong> (frames 3200–3223) are the most on-theme pick. <strong>Amulet candidates</strong> borrow quest, mask, bell, ribbon, and jewellery icons — Crystal’s <code>Amulet</code> type is only Tao amulet / poison / revival.</p>
+
+    <section class="section" data-section="glyphs">
+      <h2 class="section__title">Awakening Glyphs <span class="section__count">24</span></h2>
+      <p class="section__subtitle">Six themed families × four tiers. Shape id maps to stat theme in Crystal awakening.</p>
+      <div class="glyph-family" style="--family-color:#e07a5f">
+    <h3 class="glyph-family__title">Bravery (Warrior / DC)</h3>
+    <div class="grid grid--glyph"><article class="card" data-name="braveryglyph0" data-type="Awakening">
+    <div class="card__icon"><img src="./glyph-amulet-preview-icons/frame_003200.png" alt="" loading="lazy" width="48" height="48"></div>
+    <div class="card__body">
+      <h3 class="card__name">Bravery Glyph0</h3>
+      <p class="card__meta">Awakening · idx 913 · frame 3200 · tier 0</p>
+      
+    </div>
+  </article>
+<article class="card" data-name="braveryglyph1" data-type="Awakening">
+    <div class="card__icon"><img src="./glyph-amulet-preview-icons/frame_003201.png" alt="" loading="lazy" width="48" height="48"></div>
+    <div class="card__body">
+      <h3 class="card__name">Bravery Glyph1</h3>
+      <p class="card__meta">Awakening · idx 914 · frame 3201 · tier 1</p>
+      
+    </div>
+  </article>
+<article class="card" data-name="braveryglyph2" data-type="Awakening">
+    <div class="card__icon"><img src="./glyph-amulet-preview-icons/frame_003202.png" alt="" loading="lazy" width="48" height="48"></div>
+    <div class="card__body">
+      <h3 class="card__name">Bravery Glyph2</h3>
+      <p class="card__meta">Awakening · idx 915 · frame 3202 · tier 2</p>
+      
+    </div>
+  </article>
+<article class="card" data-name="braveryglyph3" data-type="Awakening">
+    <div class="card__icon"><img src="./glyph-amulet-preview-icons/frame_003203.png" alt="" loading="lazy" width="48" height="48"></div>
+    <div class="card__body">
+      <h3 class="card__name">Bravery Glyph3</h3>
+      <p class="card__meta">Awakening · idx 916 · frame 3203 · tier 3</p>
+      
+    </div>
+  </article></div>
+  </div>
+<div class="glyph-family" style="--family-color:#6ea8fe">
+    <h3 class="glyph-family__title">Magic (Wizard / MC)</h3>
+    <div class="grid grid--glyph"><article class="card" data-name="magicglyph0" data-type="Awakening">
+    <div class="card__icon"><img src="./glyph-amulet-preview-icons/frame_003204.png" alt="" loading="lazy" width="48" height="48"></div>
+    <div class="card__body">
+      <h3 class="card__name">Magic Glyph0</h3>
+      <p class="card__meta">Awakening · idx 917 · frame 3204 · tier 0</p>
+      
+    </div>
+  </article>
+<article class="card" data-name="magicglyph1" data-type="Awakening">
+    <div class="card__icon"><img src="./glyph-amulet-preview-icons/frame_003205.png" alt="" loading="lazy" width="48" height="48"></div>
+    <div class="card__body">
+      <h3 class="card__name">Magic Glyph1</h3>
+      <p class="card__meta">Awakening · idx 918 · frame 3205 · tier 1</p>
+      
+    </div>
+  </article>
+<article class="card" data-name="magicglyph2" data-type="Awakening">
+    <div class="card__icon"><img src="./glyph-amulet-preview-icons/frame_003206.png" alt="" loading="lazy" width="48" height="48"></div>
+    <div class="card__body">
+      <h3 class="card__name">Magic Glyph2</h3>
+      <p class="card__meta">Awakening · idx 919 · frame 3206 · tier 2</p>
+      
+    </div>
+  </article>
+<article class="card" data-name="magicglyph3" data-type="Awakening">
+    <div class="card__icon"><img src="./glyph-amulet-preview-icons/frame_003207.png" alt="" loading="lazy" width="48" height="48"></div>
+    <div class="card__body">
+      <h3 class="card__name">Magic Glyph3</h3>
+      <p class="card__meta">Awakening · idx 920 · frame 3207 · tier 3</p>
+      
+    </div>
+  </article></div>
+  </div>
+<div class="glyph-family" style="--family-color:#7dcea0">
+    <h3 class="glyph-family__title">Soul (Taoist / SC)</h3>
+    <div class="grid grid--glyph"><article class="card" data-name="soulglyph0" data-type="Awakening">
+    <div class="card__icon"><img src="./glyph-amulet-preview-icons/frame_003208.png" alt="" loading="lazy" width="48" height="48"></div>
+    <div class="card__body">
+      <h3 class="card__name">Soul Glyph0</h3>
+      <p class="card__meta">Awakening · idx 921 · frame 3208 · tier 0</p>
+      
+    </div>
+  </article>
+<article class="card" data-name="soulglyph1" data-type="Awakening">
+    <div class="card__icon"><img src="./glyph-amulet-preview-icons/frame_003209.png" alt="" loading="lazy" width="48" height="48"></div>
+    <div class="card__body">
+      <h3 class="card__name">Soul Glyph1</h3>
+      <p class="card__meta">Awakening · idx 922 · frame 3209 · tier 1</p>
+      
+    </div>
+  </article>
+<article class="card" data-name="soulglyph2" data-type="Awakening">
+    <div class="card__icon"><img src="./glyph-amulet-preview-icons/frame_003210.png" alt="" loading="lazy" width="48" height="48"></div>
+    <div class="card__body">
+      <h3 class="card__name">Soul Glyph2</h3>
+      <p class="card__meta">Awakening · idx 923 · frame 3210 · tier 2</p>
+      
+    </div>
+  </article>
+<article class="card" data-name="soulglyph3" data-type="Awakening">
+    <div class="card__icon"><img src="./glyph-amulet-preview-icons/frame_003211.png" alt="" loading="lazy" width="48" height="48"></div>
+    <div class="card__body">
+      <h3 class="card__name">Soul Glyph3</h3>
+      <p class="card__meta">Awakening · idx 924 · frame 3211 · tier 3</p>
+      
+    </div>
+  </article></div>
+  </div>
+<div class="glyph-family" style="--family-color:#c9b87a">
+    <h3 class="glyph-family__title">Protection (defence)</h3>
+    <div class="grid grid--glyph"><article class="card" data-name="protectionglyph0" data-type="Awakening">
+    <div class="card__icon"><img src="./glyph-amulet-preview-icons/frame_003212.png" alt="" loading="lazy" width="48" height="48"></div>
+    <div class="card__body">
+      <h3 class="card__name">Protection Glyph0</h3>
+      <p class="card__meta">Awakening · idx 925 · frame 3212 · tier 0</p>
+      
+    </div>
+  </article>
+<article class="card" data-name="protectionglyph1" data-type="Awakening">
+    <div class="card__icon"><img src="./glyph-amulet-preview-icons/frame_003213.png" alt="" loading="lazy" width="48" height="48"></div>
+    <div class="card__body">
+      <h3 class="card__name">Protection Glyph1</h3>
+      <p class="card__meta">Awakening · idx 926 · frame 3213 · tier 1</p>
+      
+    </div>
+  </article>
+<article class="card" data-name="protectionglyph2" data-type="Awakening">
+    <div class="card__icon"><img src="./glyph-amulet-preview-icons/frame_003214.png" alt="" loading="lazy" width="48" height="48"></div>
+    <div class="card__body">
+      <h3 class="card__name">Protection Glyph2</h3>
+      <p class="card__meta">Awakening · idx 927 · frame 3214 · tier 2</p>
+      
+    </div>
+  </article>
+<article class="card" data-name="protectionglyph3" data-type="Awakening">
+    <div class="card__icon"><img src="./glyph-amulet-preview-icons/frame_003215.png" alt="" loading="lazy" width="48" height="48"></div>
+    <div class="card__body">
+      <h3 class="card__name">Protection Glyph3</h3>
+      <p class="card__meta">Awakening · idx 928 · frame 3215 · tier 3</p>
+      
+    </div>
+  </article></div>
+  </div>
+<div class="glyph-family" style="--family-color:#c77dff">
+    <h3 class="glyph-family__title">Evil Slayer</h3>
+    <div class="grid grid--glyph"><article class="card" data-name="evilslayerglyph0" data-type="Awakening">
+    <div class="card__icon"><img src="./glyph-amulet-preview-icons/frame_003216.png" alt="" loading="lazy" width="48" height="48"></div>
+    <div class="card__body">
+      <h3 class="card__name">Evil Slayer Glyph0</h3>
+      <p class="card__meta">Awakening · idx 929 · frame 3216 · tier 0</p>
+      
+    </div>
+  </article>
+<article class="card" data-name="evilslayerglyph1" data-type="Awakening">
+    <div class="card__icon"><img src="./glyph-amulet-preview-icons/frame_003217.png" alt="" loading="lazy" width="48" height="48"></div>
+    <div class="card__body">
+      <h3 class="card__name">Evil Slayer Glyph1</h3>
+      <p class="card__meta">Awakening · idx 930 · frame 3217 · tier 1</p>
+      
+    </div>
+  </article>
+<article class="card" data-name="evilslayerglyph2" data-type="Awakening">
+    <div class="card__icon"><img src="./glyph-amulet-preview-icons/frame_003218.png" alt="" loading="lazy" width="48" height="48"></div>
+    <div class="card__body">
+      <h3 class="card__name">Evil Slayer Glyph2</h3>
+      <p class="card__meta">Awakening · idx 931 · frame 3218 · tier 2</p>
+      
+    </div>
+  </article>
+<article class="card" data-name="evilslayerglyph3" data-type="Awakening">
+    <div class="card__icon"><img src="./glyph-amulet-preview-icons/frame_003219.png" alt="" loading="lazy" width="48" height="48"></div>
+    <div class="card__body">
+      <h3 class="card__name">Evil Slayer Glyph3</h3>
+      <p class="card__meta">Awakening · idx 932 · frame 3219 · tier 3</p>
+      
+    </div>
+  </article></div>
+  </div>
+<div class="glyph-family" style="--family-color:#f4a261">
+    <h3 class="glyph-family__title">Body (HP / survivability)</h3>
+    <div class="grid grid--glyph"><article class="card" data-name="bodyglyph0" data-type="Awakening">
+    <div class="card__icon"><img src="./glyph-amulet-preview-icons/frame_003220.png" alt="" loading="lazy" width="48" height="48"></div>
+    <div class="card__body">
+      <h3 class="card__name">Body Glyph0</h3>
+      <p class="card__meta">Awakening · idx 933 · frame 3220 · tier 0</p>
+      
+    </div>
+  </article>
+<article class="card" data-name="bodyglyph1" data-type="Awakening">
+    <div class="card__icon"><img src="./glyph-amulet-preview-icons/frame_003221.png" alt="" loading="lazy" width="48" height="48"></div>
+    <div class="card__body">
+      <h3 class="card__name">Body Glyph1</h3>
+      <p class="card__meta">Awakening · idx 934 · frame 3221 · tier 1</p>
+      
+    </div>
+  </article>
+<article class="card" data-name="bodyglyph2" data-type="Awakening">
+    <div class="card__icon"><img src="./glyph-amulet-preview-icons/frame_003222.png" alt="" loading="lazy" width="48" height="48"></div>
+    <div class="card__body">
+      <h3 class="card__name">Body Glyph2</h3>
+      <p class="card__meta">Awakening · idx 935 · frame 3222 · tier 2</p>
+      
+    </div>
+  </article>
+<article class="card" data-name="bodyglyph3" data-type="Awakening">
+    <div class="card__icon"><img src="./glyph-amulet-preview-icons/frame_003223.png" alt="" loading="lazy" width="48" height="48"></div>
+    <div class="card__body">
+      <h3 class="card__name">Body Glyph3</h3>
+      <p class="card__meta">Awakening · idx 936 · frame 3223 · tier 3</p>
+      
+    </div>
+  </article></div>
+  </div>
+    </section>
+
+    <section class="section" data-section="souls">
+    <h2 class="section__title">Awakening Souls <span class="section__count">20</span></h2>
+    <p class="section__subtitle">Orb-like soul icons (frames 3224–3227) — good for a rare tier above glyphs.</p>
+    <div class="grid"><article class="card" data-name="awakeningsoul0" data-type="Awakening">
+    <div class="card__icon"><img src="./glyph-amulet-preview-icons/frame_003224.png" alt="" loading="lazy" width="48" height="48"></div>
+    <div class="card__body">
+      <h3 class="card__name">Awakening Soul0</h3>
+      <p class="card__meta">Awakening · idx 937 · frame 3224 · tier 0</p>
+      
+    </div>
+  </article>
+<article class="card" data-name="awakeningsoul1" data-type="Awakening">
+    <div class="card__icon"><img src="./glyph-amulet-preview-icons/frame_003225.png" alt="" loading="lazy" width="48" height="48"></div>
+    <div class="card__body">
+      <h3 class="card__name">Awakening Soul1</h3>
+      <p class="card__meta">Awakening · idx 938 · frame 3225 · tier 1</p>
+      
+    </div>
+  </article>
+<article class="card" data-name="awakeningsoul2" data-type="Awakening">
+    <div class="card__icon"><img src="./glyph-amulet-preview-icons/frame_003226.png" alt="" loading="lazy" width="48" height="48"></div>
+    <div class="card__body">
+      <h3 class="card__name">Awakening Soul2</h3>
+      <p class="card__meta">Awakening · idx 939 · frame 3226 · tier 2</p>
+      
+    </div>
+  </article>
+<article class="card" data-name="awakeningsoul3" data-type="Awakening">
+    <div class="card__icon"><img src="./glyph-amulet-preview-icons/frame_003227.png" alt="" loading="lazy" width="48" height="48"></div>
+    <div class="card__body">
+      <h3 class="card__name">Awakening Soul3</h3>
+      <p class="card__meta">Awakening · idx 940 · frame 3227 · tier 3</p>
+      
+    </div>
+  </article></div>
+  </section>
+
+    <section class="section" data-section="gems">
+    <h2 class="section__title">Gems &amp; Orbs <span class="section__count">130</span></h2>
+    <p class="section__subtitle">Crafting empower icons — gem (shape 3) and orb (shape 4) variants per stat family.</p>
+    <div class="grid"><article class="card" data-name="braverygem" data-type="Gem">
+    <div class="card__icon"><img src="./glyph-amulet-preview-icons/frame_000714.png" alt="" loading="lazy" width="48" height="48"></div>
+    <div class="card__body">
+      <h3 class="card__name">Bravery Gem</h3>
+      <p class="card__meta">Gem · idx 734 · frame 714</p>
+      
+    </div>
+  </article>
+<article class="card" data-name="braveryorb" data-type="Gem">
+    <div class="card__icon"><img src="./glyph-amulet-preview-icons/frame_000704.png" alt="" loading="lazy" width="48" height="48"></div>
+    <div class="card__body">
+      <h3 class="card__name">Bravery Orb</h3>
+      <p class="card__meta">Gem · idx 747 · frame 704</p>
+      
+    </div>
+  </article>
+<article class="card" data-name="magicgem" data-type="Gem">
+    <div class="card__icon"><img src="./glyph-amulet-preview-icons/frame_000711.png" alt="" loading="lazy" width="48" height="48"></div>
+    <div class="card__body">
+      <h3 class="card__name">Magic Gem</h3>
+      <p class="card__meta">Gem · idx 735 · frame 711</p>
+      
+    </div>
+  </article>
+<article class="card" data-name="magicorb" data-type="Gem">
+    <div class="card__icon"><img src="./glyph-amulet-preview-icons/frame_000701.png" alt="" loading="lazy" width="48" height="48"></div>
+    <div class="card__body">
+      <h3 class="card__name">Magic Orb</h3>
+      <p class="card__meta">Gem · idx 748 · frame 701</p>
+      
+    </div>
+  </article>
+<article class="card" data-name="soulgem" data-type="Gem">
+    <div class="card__icon"><img src="./glyph-amulet-preview-icons/frame_000712.png" alt="" loading="lazy" width="48" height="48"></div>
+    <div class="card__body">
+      <h3 class="card__name">Soul Gem</h3>
+      <p class="card__meta">Gem · idx 736 · frame 712</p>
+      
+    </div>
+  </article>
+<article class="card" data-name="soulorb" data-type="Gem">
+    <div class="card__icon"><img src="./glyph-amulet-preview-icons/frame_000702.png" alt="" loading="lazy" width="48" height="48"></div>
+    <div class="card__body">
+      <h3 class="card__name">Soul Orb</h3>
+      <p class="card__meta">Gem · idx 749 · frame 702</p>
+      
+    </div>
+  </article>
+<article class="card" data-name="protectiongem" data-type="Gem">
+    <div class="card__icon"><img src="./glyph-amulet-preview-icons/frame_000713.png" alt="" loading="lazy" width="48" height="48"></div>
+    <div class="card__body">
+      <h3 class="card__name">Protection Gem</h3>
+      <p class="card__meta">Gem · idx 737 · frame 713</p>
+      
+    </div>
+  </article>
+<article class="card" data-name="protectionorb" data-type="Gem">
+    <div class="card__icon"><img src="./glyph-amulet-preview-icons/frame_000703.png" alt="" loading="lazy" width="48" height="48"></div>
+    <div class="card__body">
+      <h3 class="card__name">Protection Orb</h3>
+      <p class="card__meta">Gem · idx 750 · frame 703</p>
+      
+    </div>
+  </article>
+<article class="card" data-name="evilslayergem" data-type="Gem">
+    <div class="card__icon"><img src="./glyph-amulet-preview-icons/frame_000715.png" alt="" loading="lazy" width="48" height="48"></div>
+    <div class="card__body">
+      <h3 class="card__name">Evil Slayer Gem</h3>
+      <p class="card__meta">Gem · idx 738 · frame 715</p>
+      
+    </div>
+  </article>
+<article class="card" data-name="evilslayerorb" data-type="Gem">
+    <div class="card__icon"><img src="./glyph-amulet-preview-icons/frame_000705.png" alt="" loading="lazy" width="48" height="48"></div>
+    <div class="card__body">
+      <h3 class="card__name">Evil Slayer Orb</h3>
+      <p class="card__meta">Gem · idx 751 · frame 705</p>
+      
+    </div>
+  </article>
+<article class="card" data-name="durabilitygem" data-type="Gem">
+    <div class="card__icon"><img src="./glyph-amulet-preview-icons/frame_000710.png" alt="" loading="lazy" width="48" height="48"></div>
+    <div class="card__body">
+      <h3 class="card__name">Durability Gem</h3>
+      <p class="card__meta">Gem · idx 739 · frame 710</p>
+      
+    </div>
+  </article>
+<article class="card" data-name="durabilityorb" data-type="Gem">
+    <div class="card__icon"><img src="./glyph-amulet-preview-icons/frame_000700.png" alt="" loading="lazy" width="48" height="48"></div>
+    <div class="card__body">
+      <h3 class="card__name">Durability Orb</h3>
+      <p class="card__meta">Gem · idx 752 · frame 700</p>
+      
+    </div>
+  </article>
+<article class="card" data-name="stormgem" data-type="Gem">
+    <div class="card__icon"><img src="./glyph-amulet-preview-icons/frame_000733.png" alt="" loading="lazy" width="48" height="48"></div>
+    <div class="card__body">
+      <h3 class="card__name">Storm Gem</h3>
+      <p class="card__meta">Gem · idx 740 · frame 733</p>
+      
+    </div>
+  </article>
+<article class="card" data-name="stormorb" data-type="Gem">
+    <div class="card__icon"><img src="./glyph-amulet-preview-icons/frame_000723.png" alt="" loading="lazy" width="48" height="48"></div>
+    <div class="card__body">
+      <h3 class="card__name">Storm Orb</h3>
+      <p class="card__meta">Gem · idx 753 · frame 723</p>
+      
+    </div>
+  </article>
+<article class="card" data-name="agilitygem" data-type="Gem">
+    <div class="card__icon"><img src="./glyph-amulet-preview-icons/frame_000736.png" alt="" loading="lazy" width="48" height="48"></div>
+    <div class="card__body">
+      <h3 class="card__name">Agility Gem</h3>
+      <p class="card__meta">Gem · idx 741 · frame 736</p>
+      
+    </div>
+  </article>
+<article class="card" data-name="agilityorb" data-type="Gem">
+    <div class="card__icon"><img src="./glyph-amulet-preview-icons/frame_000726.png" alt="" loading="lazy" width="48" height="48"></div>
+    <div class="card__body">
+      <h3 class="card__name">Agility Orb</h3>
+      <p class="card__meta">Gem · idx 754 · frame 726</p>
+      
+    </div>
+  </article>
+<article class="card" data-name="accuracygem" data-type="Gem">
+    <div class="card__icon"><img src="./glyph-amulet-preview-icons/frame_000734.png" alt="" loading="lazy" width="48" height="48"></div>
+    <div class="card__body">
+      <h3 class="card__name">Accuracy Gem</h3>
+      <p class="card__meta">Gem · idx 742 · frame 734</p>
+      
+    </div>
+  </article>
+<article class="card" data-name="accuracyorb" data-type="Gem">
+    <div class="card__icon"><img src="./glyph-amulet-preview-icons/frame_000724.png" alt="" loading="lazy" width="48" height="48"></div>
+    <div class="card__body">
+      <h3 class="card__name">Accuracy Orb</h3>
+      <p class="card__meta">Gem · idx 755 · frame 724</p>
+      
+    </div>
+  </article>
+<article class="card" data-name="poisongem" data-type="Gem">
+    <div class="card__icon"><img src="./glyph-amulet-preview-icons/frame_000732.png" alt="" loading="lazy" width="48" height="48"></div>
+    <div class="card__body">
+      <h3 class="card__name">Poison Gem</h3>
+      <p class="card__meta">Gem · idx 743 · frame 732</p>
+      
+    </div>
+  </article>
+<article class="card" data-name="poisonorb" data-type="Gem">
+    <div class="card__icon"><img src="./glyph-amulet-preview-icons/frame_000722.png" alt="" loading="lazy" width="48" height="48"></div>
+    <div class="card__body">
+      <h3 class="card__name">Poison Orb</h3>
+      <p class="card__meta">Gem · idx 756 · frame 722</p>
+      
+    </div>
+  </article>
+<article class="card" data-name="freezinggem" data-type="Gem">
+    <div class="card__icon"><img src="./glyph-amulet-preview-icons/frame_000735.png" alt="" loading="lazy" width="48" height="48"></div>
+    <div class="card__body">
+      <h3 class="card__name">Freezing Gem</h3>
+      <p class="card__meta">Gem · idx 744 · frame 735</p>
+      
+    </div>
+  </article>
+<article class="card" data-name="freezingorb" data-type="Gem">
+    <div class="card__icon"><img src="./glyph-amulet-preview-icons/frame_000725.png" alt="" loading="lazy" width="48" height="48"></div>
+    <div class="card__body">
+      <h3 class="card__name">Freezing Orb</h3>
+      <p class="card__meta">Gem · idx 757 · frame 725</p>
+      
+    </div>
+  </article>
+<article class="card" data-name="disillusiongem" data-type="Gem">
+    <div class="card__icon"><img src="./glyph-amulet-preview-icons/frame_000730.png" alt="" loading="lazy" width="48" height="48"></div>
+    <div class="card__body">
+      <h3 class="card__name">Disillusion Gem</h3>
+      <p class="card__meta">Gem · idx 745 · frame 730</p>
+      
+    </div>
+  </article>
+<article class="card" data-name="disillusionorb" data-type="Gem">
+    <div class="card__icon"><img src="./glyph-amulet-preview-icons/frame_000720.png" alt="" loading="lazy" width="48" height="48"></div>
+    <div class="card__body">
+      <h3 class="card__name">Disillusion Orb</h3>
+      <p class="card__meta">Gem · idx 758 · frame 720</p>
+      
+    </div>
+  </article>
+<article class="card" data-name="endurancegem" data-type="Gem">
+    <div class="card__icon"><img src="./glyph-amulet-preview-icons/frame_000731.png" alt="" loading="lazy" width="48" height="48"></div>
+    <div class="card__body">
+      <h3 class="card__name">Endurance Gem</h3>
+      <p class="card__meta">Gem · idx 746 · frame 731</p>
+      
+    </div>
+  </article>
+<article class="card" data-name="enduranceorb" data-type="Gem">
+    <div class="card__icon"><img src="./glyph-amulet-preview-icons/frame_000721.png" alt="" loading="lazy" width="48" height="48"></div>
+    <div class="card__body">
+      <h3 class="card__name">Endurance Orb</h3>
+      <p class="card__meta">Gem · idx 759 · frame 721</p>
+      
+    </div>
+  </article></div>
+  </section>
+
+    <section class="section" data-section="stones">
+    <h2 class="section__title">Stat Stones <span class="section__count">35</span></h2>
+    <p class="section__subtitle">Base stone icons (unsized) — may suit a stone equip slot with unique flat stats.</p>
+    <div class="grid"><article class="card" data-name="healthstone" data-type="Stone">
+    <div class="card__icon"><img src="./glyph-amulet-preview-icons/frame_000589.png" alt="" loading="lazy" width="48" height="48"></div>
+    <div class="card__body">
+      <h3 class="card__name">Health Stone</h3>
+      <p class="card__meta">Stone · idx 631 · frame 589</p>
+      
+    </div>
+  </article>
+<article class="card" data-name="magicstone" data-type="Stone">
+    <div class="card__icon"><img src="./glyph-amulet-preview-icons/frame_000584.png" alt="" loading="lazy" width="48" height="48"></div>
+    <div class="card__body">
+      <h3 class="card__name">Magic Stone</h3>
+      <p class="card__meta">Stone · idx 636 · frame 584</p>
+      
+    </div>
+  </article>
+<article class="card" data-name="powerstone" data-type="Stone">
+    <div class="card__icon"><img src="./glyph-amulet-preview-icons/frame_000579.png" alt="" loading="lazy" width="48" height="48"></div>
+    <div class="card__body">
+      <h3 class="card__name">Power Stone</h3>
+      <p class="card__meta">Stone · idx 641 · frame 579</p>
+      
+    </div>
+  </article>
+<article class="card" data-name="dcstone" data-type="Stone">
+    <div class="card__icon"><img src="./glyph-amulet-preview-icons/frame_000614.png" alt="" loading="lazy" width="48" height="48"></div>
+    <div class="card__body">
+      <h3 class="card__name">DCStone</h3>
+      <p class="card__meta">Stone · idx 646 · frame 614</p>
+      
+    </div>
+  </article>
+<article class="card" data-name="mcstone" data-type="Stone">
+    <div class="card__icon"><img src="./glyph-amulet-preview-icons/frame_000624.png" alt="" loading="lazy" width="48" height="48"></div>
+    <div class="card__body">
+      <h3 class="card__name">MCStone</h3>
+      <p class="card__meta">Stone · idx 651 · frame 624</p>
+      
+    </div>
+  </article>
+<article class="card" data-name="scstone" data-type="Stone">
+    <div class="card__icon"><img src="./glyph-amulet-preview-icons/frame_000619.png" alt="" loading="lazy" width="48" height="48"></div>
+    <div class="card__body">
+      <h3 class="card__name">SCStone</h3>
+      <p class="card__meta">Stone · idx 656 · frame 619</p>
+      
+    </div>
+  </article>
+<article class="card" data-name="frozenstone" data-type="Stone">
+    <div class="card__icon"><img src="./glyph-amulet-preview-icons/frame_001068.png" alt="" loading="lazy" width="48" height="48"></div>
+    <div class="card__body">
+      <h3 class="card__name">Frozen Stone</h3>
+      <p class="card__meta">Stone · idx 657 · frame 1068</p>
+      
+    </div>
+  </article></div>
+  </section>
+
+    <section class="section" data-section="amulets">
+    <h2 class="section__title">Amulet &amp; charm candidates <span class="section__count">187</span></h2>
+    <p class="section__subtitle">Pendants, relics, masks, bells, ribbons, and small jewellery — not Crystal Amulet type.</p>
+    <div class="grid"><article class="card" data-name="blujadependant" data-type="Quest">
+    <div class="card__icon"><img src="./glyph-amulet-preview-icons/frame_000246.png" alt="" loading="lazy" width="48" height="48"></div>
+    <div class="card__body">
+      <h3 class="card__name">Blu Jade Pendant</h3>
+      <p class="card__meta">Quest · idx 1138 · frame 246</p>
+      
+    </div>
+  </article>
+<article class="card" data-name="relics" data-type="Quest">
+    <div class="card__icon"><img src="./glyph-amulet-preview-icons/frame_000271.png" alt="" loading="lazy" width="48" height="48"></div>
+    <div class="card__body">
+      <h3 class="card__name">Relics</h3>
+      <p class="card__meta">Quest · idx 1125 · frame 271</p>
+      
+    </div>
+  </article>
+<article class="card" data-name="oldnecklace" data-type="Quest">
+    <div class="card__icon"><img src="./glyph-amulet-preview-icons/frame_000234.png" alt="" loading="lazy" width="48" height="48"></div>
+    <div class="card__body">
+      <h3 class="card__name">Old Necklace</h3>
+      <p class="card__meta">Quest · idx 1136 · frame 234</p>
+      
+    </div>
+  </article>
+<article class="card" data-name="oliviasring" data-type="Quest">
+    <div class="card__icon"><img src="./glyph-amulet-preview-icons/frame_000142.png" alt="" loading="lazy" width="48" height="48"></div>
+    <div class="card__body">
+      <h3 class="card__name">Olivias Ring</h3>
+      <p class="card__meta">Quest · idx 1124 · frame 142</p>
+      
+    </div>
+  </article>
+<article class="card" data-name="jadering" data-type="Quest">
+    <div class="card__icon"><img src="./glyph-amulet-preview-icons/frame_000771.png" alt="" loading="lazy" width="48" height="48"></div>
+    <div class="card__body">
+      <h3 class="card__name">Jade Ring</h3>
+      <p class="card__meta">Quest · idx 1117 · frame 771</p>
+      
+    </div>
+  </article>
+<article class="card" data-name="skeletonhead" data-type="Quest">
+    <div class="card__icon"><img src="./glyph-amulet-preview-icons/frame_001078.png" alt="" loading="lazy" width="48" height="48"></div>
+    <div class="card__body">
+      <h3 class="card__name">Skeleton Head</h3>
+      <p class="card__meta">Quest · idx 1134 · frame 1078</p>
+      
+    </div>
+  </article>
+<article class="card" data-name="zombieeye" data-type="Quest">
+    <div class="card__icon"><img src="./glyph-amulet-preview-icons/frame_000809.png" alt="" loading="lazy" width="48" height="48"></div>
+    <div class="card__body">
+      <h3 class="card__name">Zombie Eye</h3>
+      <p class="card__meta">Quest · idx 1131 · frame 809</p>
+      
+    </div>
+  </article>
+<article class="card card--missing" data-name="ancientbanga[green]" data-type="Scroll">
+    <div class="card__icon"><div class="card__placeholder" title="missing">?</div></div>
+    <div class="card__body">
+      <h3 class="card__name">Ancient Banga [Green]</h3>
+      <p class="card__meta">Scroll · idx 1291 · frame 3767</p>
+      <span class="card__badge">no file</span>
+    </div>
+  </article>
+<article class="card card--missing" data-name="ancientbanga[purple]" data-type="Scroll">
+    <div class="card__icon"><div class="card__placeholder" title="missing">?</div></div>
+    <div class="card__body">
+      <h3 class="card__name">Ancient Banga [Purple]</h3>
+      <p class="card__meta">Scroll · idx 1292 · frame 3766</p>
+      <span class="card__badge">no file</span>
+    </div>
+  </article>
+<article class="card card--missing" data-name="resurrectionscroll" data-type="Scroll">
+    <div class="card__icon"><div class="card__placeholder" title="missing">?</div></div>
+    <div class="card__body">
+      <h3 class="card__name">Resurrection Scroll</h3>
+      <p class="card__meta">Scroll · idx 1286 · frame 3730</p>
+      <span class="card__badge">no file</span>
+    </div>
+  </article>
+<article class="card" data-name="havoccrystal" data-type="CraftingMaterial">
+    <div class="card__icon"><img src="./glyph-amulet-preview-icons/frame_001173.png" alt="" loading="lazy" width="48" height="48"></div>
+    <div class="card__body">
+      <h3 class="card__name">Havoc Crystal</h3>
+      <p class="card__meta">CraftingMaterial · idx 818 · frame 1173</p>
+      
+    </div>
+  </article>
+<article class="card" data-name="translucent" data-type="CraftingMaterial">
+    <div class="card__icon"><img src="./glyph-amulet-preview-icons/frame_001170.png" alt="" loading="lazy" width="48" height="48"></div>
+    <div class="card__body">
+      <h3 class="card__name">Translucent</h3>
+      <p class="card__meta">CraftingMaterial · idx 817 · frame 1170</p>
+      
+    </div>
+  </article>
+<article class="card" data-name="bookofmana" data-type="CraftingMaterial">
+    <div class="card__icon"><img src="./glyph-amulet-preview-icons/frame_001179.png" alt="" loading="lazy" width="48" height="48"></div>
+    <div class="card__body">
+      <h3 class="card__name">Bookof Mana</h3>
+      <p class="card__meta">CraftingMaterial · idx 819 · frame 1179</p>
+      
+    </div>
+  </article>
+<article class="card" data-name="bookofspirit" data-type="CraftingMaterial">
+    <div class="card__icon"><img src="./glyph-amulet-preview-icons/frame_001180.png" alt="" loading="lazy" width="48" height="48"></div>
+    <div class="card__body">
+      <h3 class="card__name">Bookof Spirit</h3>
+      <p class="card__meta">CraftingMaterial · idx 820 · frame 1180</p>
+      
+    </div>
+  </article>
+<article class="card" data-name="sealedhero" data-type="SealedHero">
+    <div class="card__icon"><img src="./glyph-amulet-preview-icons/frame_000789.png" alt="" loading="lazy" width="48" height="48"></div>
+    <div class="card__body">
+      <h3 class="card__name">Sealed Hero</h3>
+      <p class="card__meta">SealedHero · idx 1349 · frame 789</p>
+      
+    </div>
+  </article>
+<article class="card" data-name="leathermask" data-type="Mask">
+    <div class="card__icon"><img src="./glyph-amulet-preview-icons/frame_002110.png" alt="" loading="lazy" width="48" height="48"></div>
+    <div class="card__body">
+      <h3 class="card__name">Leather Mask</h3>
+      <p class="card__meta">Mask · idx 786 · frame 2110</p>
+      
+    </div>
+  </article>
+<article class="card" data-name="whitemask" data-type="Mask">
+    <div class="card__icon"><img src="./glyph-amulet-preview-icons/frame_002111.png" alt="" loading="lazy" width="48" height="48"></div>
+    <div class="card__body">
+      <h3 class="card__name">White Mask</h3>
+      <p class="card__meta">Mask · idx 787 · frame 2111</p>
+      
+    </div>
+  </article>
+<article class="card" data-name="blackmask" data-type="Mask">
+    <div class="card__icon"><img src="./glyph-amulet-preview-icons/frame_002112.png" alt="" loading="lazy" width="48" height="48"></div>
+    <div class="card__body">
+      <h3 class="card__name">Black Mask</h3>
+      <p class="card__meta">Mask · idx 788 · frame 2112</p>
+      
+    </div>
+  </article>
+<article class="card" data-name="silvermask" data-type="Mask">
+    <div class="card__icon"><img src="./glyph-amulet-preview-icons/frame_002113.png" alt="" loading="lazy" width="48" height="48"></div>
+    <div class="card__body">
+      <h3 class="card__name">Silver Mask</h3>
+      <p class="card__meta">Mask · idx 789 · frame 2113</p>
+      
+    </div>
+  </article>
+<article class="card" data-name="titaniummask" data-type="Mask">
+    <div class="card__icon"><img src="./glyph-amulet-preview-icons/frame_002114.png" alt="" loading="lazy" width="48" height="48"></div>
+    <div class="card__body">
+      <h3 class="card__name">Titanium Mask</h3>
+      <p class="card__meta">Mask · idx 790 · frame 2114</p>
+      
+    </div>
+  </article>
+<article class="card" data-name="bronzebell" data-type="Bells">
+    <div class="card__icon"><img src="./glyph-amulet-preview-icons/frame_002066.png" alt="" loading="lazy" width="48" height="48"></div>
+    <div class="card__body">
+      <h3 class="card__name">Bronze Bell</h3>
+      <p class="card__meta">Bells · idx 778 · frame 2066</p>
+      
+    </div>
+  </article>
+<article class="card" data-name="silverbell" data-type="Bells">
+    <div class="card__icon"><img src="./glyph-amulet-preview-icons/frame_002067.png" alt="" loading="lazy" width="48" height="48"></div>
+    <div class="card__body">
+      <h3 class="card__name">Silver Bell</h3>
+      <p class="card__meta">Bells · idx 779 · frame 2067</p>
+      
+    </div>
+  </article>
+<article class="card card--missing" data-name="goldbell" data-type="Bells">
+    <div class="card__icon"><div class="card__placeholder" title="missing">?</div></div>
+    <div class="card__body">
+      <h3 class="card__name">Gold Bell</h3>
+      <p class="card__meta">Bells · idx 780 · frame 3761</p>
+      <span class="card__badge">no file</span>
+    </div>
+  </article>
+<article class="card card--missing" data-name="greenbell" data-type="Bells">
+    <div class="card__icon"><div class="card__placeholder" title="missing">?</div></div>
+    <div class="card__body">
+      <h3 class="card__name">Green Bell</h3>
+      <p class="card__meta">Bells · idx 781 · frame 3760</p>
+      <span class="card__badge">no file</span>
+    </div>
+  </article>
+<article class="card card--missing" data-name="redribbon" data-type="Ribbon">
+    <div class="card__icon"><div class="card__placeholder" title="missing">?</div></div>
+    <div class="card__body">
+      <h3 class="card__name">Red Ribbon</h3>
+      <p class="card__meta">Ribbon · idx 783 · frame 3759</p>
+      <span class="card__badge">no file</span>
+    </div>
+  </article>
+<article class="card" data-name="blueribbon" data-type="Ribbon">
+    <div class="card__icon"><img src="./glyph-amulet-preview-icons/frame_002064.png" alt="" loading="lazy" width="48" height="48"></div>
+    <div class="card__body">
+      <h3 class="card__name">Blue Ribbon</h3>
+      <p class="card__meta">Ribbon · idx 784 · frame 2064</p>
+      
+    </div>
+  </article>
+<article class="card" data-name="blackribbon" data-type="Ribbon">
+    <div class="card__icon"><img src="./glyph-amulet-preview-icons/frame_002065.png" alt="" loading="lazy" width="48" height="48"></div>
+    <div class="card__body">
+      <h3 class="card__name">Black Ribbon</h3>
+      <p class="card__meta">Ribbon · idx 785 · frame 2065</p>
+      
+    </div>
+  </article>
+<article class="card" data-name="charmring" data-type="Ring">
+    <div class="card__icon"><img src="./glyph-amulet-preview-icons/frame_000159.png" alt="" loading="lazy" width="48" height="48"></div>
+    <div class="card__body">
+      <h3 class="card__name">Charm Ring</h3>
+      <p class="card__meta">Ring · idx 417 · frame 159</p>
+      
+    </div>
+  </article>
+<article class="card" data-name="serpenteyering" data-type="Ring">
+    <div class="card__icon"><img src="./glyph-amulet-preview-icons/frame_000165.png" alt="" loading="lazy" width="48" height="48"></div>
+    <div class="card__body">
+      <h3 class="card__name">Serpent Eye Ring</h3>
+      <p class="card__meta">Ring · idx 414 · frame 165</p>
+      
+    </div>
+  </article>
+<article class="card" data-name="hornring" data-type="Ring">
+    <div class="card__icon"><img src="./glyph-amulet-preview-icons/frame_000140.png" alt="" loading="lazy" width="48" height="48"></div>
+    <div class="card__body">
+      <h3 class="card__name">Horn Ring</h3>
+      <p class="card__meta">Ring · idx 407 · frame 140</p>
+      
+    </div>
+  </article>
+<article class="card" data-name="pearlring" data-type="Ring">
+    <div class="card__icon"><img src="./glyph-amulet-preview-icons/frame_000161.png" alt="" loading="lazy" width="48" height="48"></div>
+    <div class="card__body">
+      <h3 class="card__name">Pearl Ring</h3>
+      <p class="card__meta">Ring · idx 415 · frame 161</p>
+      
+    </div>
+  </article>
+<article class="card" data-name="soulring" data-type="Ring">
+    <div class="card__icon"><img src="./glyph-amulet-preview-icons/frame_000674.png" alt="" loading="lazy" width="48" height="48"></div>
+    <div class="card__body">
+      <h3 class="card__name">Soul Ring</h3>
+      <p class="card__meta">Ring · idx 435 · frame 674</p>
+      
+    </div>
+  </article>
+<article class="card" data-name="dragonring" data-type="Ring">
+    <div class="card__icon"><img src="./glyph-amulet-preview-icons/frame_000169.png" alt="" loading="lazy" width="48" height="48"></div>
+    <div class="card__body">
+      <h3 class="card__name">Dragon Ring</h3>
+      <p class="card__meta">Ring · idx 423 · frame 169</p>
+      
+    </div>
+  </article>
+<article class="card" data-name="recallnecklace" data-type="Necklace">
+    <div class="card__icon"><img src="./glyph-amulet-preview-icons/frame_000247.png" alt="" loading="lazy" width="48" height="48"></div>
+    <div class="card__body">
+      <h3 class="card__name">Recall Necklace</h3>
+      <p class="card__meta">Necklace · idx 12 · frame 247</p>
+      
+    </div>
+  </article>
+<article class="card" data-name="spiritnecklace" data-type="Necklace">
+    <div class="card__icon"><img src="./glyph-amulet-preview-icons/frame_000249.png" alt="" loading="lazy" width="48" height="48"></div>
+    <div class="card__body">
+      <h3 class="card__name">Spirit Necklace</h3>
+      <p class="card__meta">Necklace · idx 8 · frame 249</p>
+      
+    </div>
+  </article></div>
+  </section>
+  </main>
+  <script>
+    const filter = document.getElementById("filter");
+    const sectionFilter = document.getElementById("sectionFilter");
+    function applyFilters() {
+      const q = filter.value.trim().toLowerCase();
+      const section = sectionFilter.value;
+      document.querySelectorAll(".card").forEach((card) => {
+        const name = card.dataset.name || "";
+        const inSection = !section || card.closest('[data-section="' + section + '"]');
+        card.classList.toggle("hidden", (q && !name.includes(q)) || !inSection);
+      });
+      document.querySelectorAll(".glyph-family").forEach((block) => {
+        const visible = block.querySelectorAll(".card:not(.hidden)").length > 0;
+        block.classList.toggle("hidden", !visible);
+      });
+      document.querySelectorAll(".section").forEach((sectionEl) => {
+        const key = sectionEl.dataset.section || "";
+        if (section && key && key !== section) {
+          sectionEl.classList.add("hidden");
+          return;
+        }
+        if (section && key === section) {
+          sectionEl.classList.remove("hidden");
+          return;
+        }
+        const visible = sectionEl.querySelectorAll(".card:not(.hidden), .glyph-family:not(.hidden)").length > 0;
+        sectionEl.classList.toggle("hidden", !visible);
+      });
+    }
+    filter.addEventListener("input", applyFilters);
+    sectionFilter.addEventListener("change", applyFilters);
+  </script>
+</body>
+</html>

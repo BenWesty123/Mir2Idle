@@ -1,6 +1,111 @@
 ﻿{
     "sets":  [
                  {
+                     "id":  "fox-cave",
+                     "label":  "Fox Cave",
+                     "sheet":  "fox-cave.png",
+                     "slotWidth":  96,
+                     "slotHeight":  64,
+                     "tiles":  [
+                                   {
+                                       "slot":  0,
+                                       "srcFrame":  2950,
+                                       "w":  96,
+                                       "h":  64,
+                                       "offsetX":  7,
+                                       "offsetY":  -44
+                                   },
+                                   {
+                                       "slot":  1,
+                                       "srcFrame":  2951,
+                                       "w":  96,
+                                       "h":  64,
+                                       "offsetX":  7,
+                                       "offsetY":  -44
+                                   },
+                                   {
+                                       "slot":  2,
+                                       "srcFrame":  2952,
+                                       "w":  96,
+                                       "h":  64,
+                                       "offsetX":  7,
+                                       "offsetY":  -44
+                                   },
+                                   {
+                                       "slot":  3,
+                                       "srcFrame":  2953,
+                                       "w":  96,
+                                       "h":  64,
+                                       "offsetX":  7,
+                                       "offsetY":  -44
+                                   },
+                                   {
+                                       "slot":  4,
+                                       "srcFrame":  2954,
+                                       "w":  96,
+                                       "h":  64,
+                                       "offsetX":  7,
+                                       "offsetY":  -44
+                                   },
+                                   {
+                                       "slot":  5,
+                                       "srcFrame":  2958,
+                                       "w":  96,
+                                       "h":  64,
+                                       "offsetX":  7,
+                                       "offsetY":  -44
+                                   },
+                                   {
+                                       "slot":  6,
+                                       "srcFrame":  2962,
+                                       "w":  96,
+                                       "h":  64,
+                                       "offsetX":  7,
+                                       "offsetY":  -44
+                                   },
+                                   {
+                                       "slot":  7,
+                                       "srcFrame":  2963,
+                                       "w":  96,
+                                       "h":  64,
+                                       "offsetX":  7,
+                                       "offsetY":  -44
+                                   },
+                                   {
+                                       "slot":  8,
+                                       "srcFrame":  2967,
+                                       "w":  96,
+                                       "h":  64,
+                                       "offsetX":  7,
+                                       "offsetY":  -44
+                                   },
+                                   {
+                                       "slot":  9,
+                                       "srcFrame":  2968,
+                                       "w":  96,
+                                       "h":  64,
+                                       "offsetX":  7,
+                                       "offsetY":  -44
+                                   },
+                                   {
+                                       "slot":  10,
+                                       "srcFrame":  2972,
+                                       "w":  96,
+                                       "h":  64,
+                                       "offsetX":  7,
+                                       "offsetY":  -44
+                                   },
+                                   {
+                                       "slot":  11,
+                                       "srcFrame":  3450,
+                                       "w":  96,
+                                       "h":  64,
+                                       "offsetX":  7,
+                                       "offsetY":  -44
+                                   }
+                               ]
+                 },
+                 {
                      "id":  "red-cavern",
                      "label":  "Red Cavern",
                      "sheet":  "red-cavern.png",

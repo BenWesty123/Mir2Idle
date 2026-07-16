@@ -188,6 +188,21 @@
       "description": "Dream and Dark Devourer — emerge together"
     },
     {
+      "id": "zone-fox-cave-1",
+      "label": "Fox Cave 1",
+      "description": "Sealed Maze — Fox Men, Electric/Cloud Elements (Crystal FOX01 corridor; Wizard/Tao-leaning vs Red Cavern)"
+    },
+    {
+      "id": "zone-fox-cave-2",
+      "label": "Fox Cave 2",
+      "description": "Deeper Fox Cave — same trash plus rare Guardian Rock (Crystal temple guardian)"
+    },
+    {
+      "id": "zone-fox-cave-kr",
+      "label": "Fox Cave KR",
+      "description": "Sacred Fox Temple — Great Fox Spirit boss room"
+    },
+    {
       "id": "zone-hell-gd-1",
       "label": "Hell Cavern",
       "description": "Hell group dungeon — Demon, Slasher, Pirate, Cannibal trash; Hell Bolt and Witch Doctor rare (Crystal HELL01 east corridor)"
@@ -331,6 +346,11 @@
       "id": "zone-training-academy",
       "label": "Academy",
       "description": "Crystal map 0110 — Trainer dummy"
+    },
+    {
+      "id": "zone-testing-room",
+      "label": "Testing Room",
+      "description": "Crystal map 0110 — normal combat vs immortal Trainer"
     }
   ]
 }

@@ -1,5 +1,411 @@
 # AI Task Log - LOM Idle V2
 
+## 2026-07-16 - L40–50 armour niche rebalance
+
+### What
+Retuned Heaven / Dark / Tiger / Crane / Lotus / Oma King / Tarragon armour stats
+so each piece owns a clear niche (Heaven = offence+luck, Dark = HP hybrids,
+Tiger/Crane/Lotus = class mid-tier, Oma = pure tank, Tarragon = L50 class apex).
+Updated `src/data/items.json` (26 entries) and regenerated integrity rules.
+
+### Verify
+- `npm.cmd run integrity:rules`
+- `npm.cmd run check`
+
+## 2026-07-16 - Glyphs drop only from empowered bosses (one per kill)
+
+### What
+Removed per-boss glyph rows from `bossDrops.js`. Empowered boss kills now get a
+separate 10% roll for exactly one glyph, chosen uniformly from all `GLYPH_DEFS`
+(`rollEmpoweredBossGlyphItemId` in `glyphModifiers.js`, wired in `rollBossTableDrops`).
+
+### Verify
+- `npm.cmd run check`
+
+## 2026-07-16 - Plague bang damage retune (~75% Ice Storm feel)
+
+### What
+Plague area burst no longer uses `2 × Max SC`. Bang damage is now a native Taoist
+magic roll (`rollTaoistMagicValue`: rolled SC + Plague crystal power). Plague's
+power fields stay 0, so the bang is effectively rolled SC — roughly ~70–80% of an
+Ice Storm bang at similar primary stats, without cloning Ice Storm's power formula.
+Poison / Slow / Freeze rolls are unchanged.
+
+### Verify
+- `node --check src/app.monolith.js`
+
+## 2026-07-16 - Fox accessory line + mid-end ladder smoothing
+
+### What
+Added 18 Fox accessories (Purple/Red/Blue x normal + Great; ring/bracelet/necklace,
+Crystal idx 442-447, 514-519, 571-576) and smoothed the accessory ladder so it steps
+~+2 max per tier: Boundless/Cloud/mid necks -> Fox (L43-44) -> Great Fox (L46-48) ->
+L50-54 (buffed). Buffed pledge/crimson-ruby/five-element rings, dual-titan/evil-whisp/
+sacred-angel amulets, cuspid/sorcery-anchor/purified-mirror necklaces.
+
+Done via `tools/add-fox-items-and-rebalance.mjs` (idempotent). Fox icons (frames
+893-910) copied into `public/item-icons/items/` and packed via `build:item-atlas`.
+Fox items given placeholder drop on `zone-hell-gd-3` (0.025) - retune drops later.
+
+### Verify
+- `node tools/add-fox-items-and-rebalance.mjs`
+- `npm.cmd run build:item-atlas` && `npm.cmd run integrity:rules`
+- `npm.cmd run check` (461 tests pass) + `npm.cmd run smoke` (clean)
+
+## 2026-07-16 - Fix stuck poison tint after CC expires
+
+### What
+Paralysis grayscale was applied via `ctx.filter` on the battle canvas, which could leak and leave the character grey after the poison ended. Grayscale now runs only on the scratch canvas; battle `ctx.filter` is forced to `none` each frame. Also ticks boss-party Holy Deva poisons (was skipped).
+
+### Verify
+- `npm.cmd run smoke`
+
+## 2026-07-16 - Missing Crystal items picker
+
+### What
+Added `tools/build-missing-crystal-items-picker.mjs` (npm `build:missing-items-picker`)
+which writes `tile-review/missing-crystal-items/index.html` — a filterable checklist
+of Crystal items not yet in `items.json`. Selection downloads JSON/CSV; apply with
+`npm run apply:missing-items-selection -- <selection.json>`.
+
+### Verify
+- `npm.cmd run build:missing-items-picker`
+- Open `tile-review/missing-crystal-items/index.html`
+
+## 2026-07-16 - Fix crafting-cube / weapon-refine dupe on character switch
+
+### What
+Fixed an item duplication exploit: staging an item in the Crafting Cube (or
+Weapon Refine table), then switching characters with A/D, left the item on the
+board. The board is **global** state, not per-character. On switch,
+`selectPlayerClass` serialized the leaving character *with* the staged item
+re-added to their bag (via `cloneInventoryStateIncludingWeaponRefineStaged`),
+but never cleared the board - so unstaging on the new character dropped a second
+copy into *their* bag = duplication.
+
+Fix: `selectPlayerClass` now calls `restoreAllCraftingCubeStagedEntries()` /
+`restoreAllWeaponRefineStagedEntries()` (returning staged items to the current
+character's bag and clearing the boards) *before* `captureActiveCharacterState()`.
+
+### Verify
+- `npm.cmd run check`
+- `npm.cmd run smoke` (with `npm run dev`)
+
+## 2026-07-16 - Player poison draw tint (Crystal)
+
+### What
+Matched Crystal `PlayerObject` DrawColour visuals for combatant poisons:
+- **Paralysis** → grayscale (Crystal Gray → `SetGrayscale`)
+- **Slow** → purple tint (same as existing enemy slow)
+- **Green** → green tint
+
+Applied on solo player, boss-party members, and Taoist pets via `combatantPoisonTint`.
+
+### Verify
+- `npm.cmd run check`
+- `npm.cmd run smoke` (with `npm run dev`)
+
+## 2026-07-15 - Glyph Phase 4 Disruptor Cascade
+
+### What
+Wired **Glyph of Disruptor Cascade**: Flame Disruptor has a 50% chance per orthogonally adjacent swarm enemy to deal 50% of the primary hit. Solo fights are a no-op (no adjacent targets). Drop: King Scorpion (5%).
+
+Also moved Glyph paper-doll slot to bottom-left (former Amulet spot) and retuned Pet Might to 100% Max DC.
+
+### Verify
+- `npm.cmd run check`
+
+## 2026-07-15 - Glyph Pet Might retune to 100% Max DC
+
+### What
+Pet Might now adds **100% of owner Max DC** to pet attack (was 50%).
+
+### Verify
+- `node --test tests/glyphs.test.mjs`
+
+## 2026-07-15 - Glyph Phase 3 pet + Magic Shield
+
+### What
+Wired Phase 3 glyphs:
+- **Glyph of Pet Might**: Taoist pets add 50% of owner Max DC to attack
+- **Glyph of Mana Aegis**: Magic Shield loses DR; incoming damage drains MP before HP (2 MP per 1 HP); shield ends at 0 MP
+
+Drops: Bone Lord (Pet Might), Minotaur King (Mana Aegis).
+
+### Verify
+- `npm.cmd run check`
+
+## 2026-07-15 - Glyph Phase 2 warrior modifiers
+
+### What
+Wired Phase 2 warrior glyphs:
+- **Glyph of Flaming Bulwark**: Flaming Sword toggle grants 25% DR for 3s
+- **Glyph of Twin Fury**: Twin Drake Blade damage ×2; enforces 2s cooldown even with auto-cast
+
+Drops: King Hog (Flaming Bulwark), Hell Keeper (Twin Fury).
+
+### Verify
+- `npm.cmd run check`
+
+## 2026-07-15 - Glyph slot + Phase 1 spell modifiers
+
+### What
+Added a new **Glyph** equipment slot and `src/glyphModifiers.js` for fixed spell-rewrite items (not empowers). Phase 1 combat hooks:
+- **Glyph of Spirit Wards** (Tao): Soul Shield + Blessed Armour bonuses use `floor(Max SC / 5) + 4` instead of level
+- **Glyph of Eternal Firewall** (Wizard): Fire Wall duration ×2
+- **Glyph of Bulwark Field** (Warrior): Protection Field AC bonus ×2, duration fixed to 5s
+
+Preliminary 5% drops: Great Fox Spirit / Oma King Spirit / Dark Devil. Remaining glyphs are defined but not implemented yet.
+
+### Verify
+- `npm.cmd run check`
+- Equip a glyph and cast the matching spell
+
+## 2026-07-15 - Pet Enhancer targets Holy Deva in boss party
+
+### What
+Boss/group-dungeon Pet Enhancer only looked at `bossParty.pet` (Skeleton/Shinsu), so Holy Deva never received the buff. It now uses the same unbuffed-pet preference as solo (`activeTaoistPet`: tank first, then Holy Deva). Impact FX / buff text follow the actual target pet.
+
+### Verify
+- `npm.cmd run check`
+
+## 2026-07-15 - Achievement claim boss-party wipe fix
+
+### What
+Fixed achievement item/gold claims being marked Claimed while the reward vanished during boss/group-dungeon fights: grants now write into live boss-party inventories (same idea as `addInventoryItem`) before save sync. No automatic reclaim migration (would overcompensate players who already received rewards).
+
+### Verify
+- `npm.cmd run check`
+
+## 2026-07-15 - Taoist Holy Deva alongside Skeleton/Shinsu
+
+### What
+Taoists can keep **Holy Deva** summoned at the same time as **Skeleton or Shinsu** (still mutually exclusive with each other).
+Separate slots: tank pet (`taoPet`) + Holy Deva (`taoHolyDeva`), with per-slot death locks. Holy Deva can persist between solo fights.
+
+### Verify
+- `npm.cmd run check`; `npm.cmd run smoke`
+
+## 2026-07-15 - Great Fox Spirit boss drops
+
+### What
+Wired `GREAT_FOX_SPIRIT_BOSS_DROPS` from the Red Cavern Devourer table with tier tweaks:
+- **2.5%:** Burst Sword, Conqueror Spear, Dragon Blood Sword (promoted from 1.25%)
+- **1.25%:** Heaven Armour (demoted from 2.5%), Black Tiger Hammer, Fan Of Crane, Staff Of Lotus
+
+### Verify
+- `npm.cmd run check`
+
+## 2026-07-15 - Red Scale Boots + Adamantine Belt
+
+### What
+Added two Great Fox Spirit drop items from Crystal with endgame idle stats:
+- **Red Scale Boots** (Lv 40): Accuracy +6, Agility +6
+- **Adamantine Belt** (Lv 39): AC 1-3, AMC 1-3
+
+### Assets
+- Crystal item icons 565 / 555 copied into `public/item-icons/items/`
+- Rebuilt committed item atlas and item-integrity rules
+
+### Verify
+- `npm.cmd run check`
+
+## 2026-07-14 - Great Fox Spirit Slow/Paralysis fix
+
+### What
+Fixed permanent CC: every AoE hit was applying Slow + Paralysis at 100% and refreshing Slow.
+
+### Crystal match
+- `PoisonTarget(..., 5, ...)` → **20%** proc each (`rollPoisonProc(5)`)
+- Slow duration **15** ticks; Paralysis **5** ticks
+- Neither refreshes while already active (Crystal `ApplyPoison` rule)
+
+### Verify
+- `npm.cmd run check`; `npm.cmd run smoke`
+
+## 2026-07-14 - Great Fox Spirit attack EFX
+
+### What
+Wired Crystal AttackRange1 / SpellEffect visuals for Great Fox Spirit.
+
+### Assets
+- Mon134 projectile variants: frames **375 / 395 / 415** × 20 (1400ms @ 70ms)
+- Atlas rebuilt to `8188×6312` (still under 8192)
+- Range SFX `monster.134.range` → Crystal `1345`
+
+### Runtime
+- On attack start: 5–8 ground barrage hits within ±7 tiles of the party
+- On each AoE target: SpellEffect-style hit burst + range SFX
+- Body DrawBlend unchanged (aura still draws)
+
+### Verify
+- `npm.cmd run build:sfx`; `npm.cmd run check`; `npm.cmd run smoke`
+
+## 2026-07-14 - Great Fox Spirit atlas rebuild
+
+### What
+Fixed the broken Mon134 model: the previous 4-stage grid atlas was **15680×8320**, over common GPU texture limits, so frame sampling looked scrambled.
+
+### Fix
+- Shelf-pack body + DrawBlend frames under an **8192px** edge (`8188×5863`)
+- Include all **5 Crystal stages** (FrameSet levels 0–4)
+- Die blend uses Crystal's absolute **318+** frames (not DieStart+30)
+- Runtime stage index now matches Crystal `4 - floor(HP / (MaxHP/4))`
+- Stage cadence/damage extended for stage 5: `720ms` / `2.0×`
+- Bumped `MONSTER_ASSET_VERSION`
+
+### Verify
+- `npm.cmd run check`; `npm.cmd run smoke`
+
+## 2026-07-14 - Great Fox Spirit endgame retune
+
+### What
+Retuned Great Fox Spirit to sit roughly 25% above the combined Dream + Dark Devourer encounter while keeping its distinct all-party AoE and crowd-control mechanics.
+
+### Tuning
+- HP: `30,000` (150% of the Devourers' combined 20,000)
+- Balanced defence: AC/AMC `38` (no longer class-skewed)
+- Base DC/MC: `63–113`; Accuracy/Agility: `19`
+- Stage cadence: `1600 / 1360 / 1120 / 880ms` (25% faster)
+- Existing stage damage multipliers and Slow + Paralysis remain unchanged
+
+### Verify
+- `npm.cmd run check`; `npm.cmd run smoke`
+
+## 2026-07-14 - Great Fox Spirit staged all-party AoE
+
+### What
+Replaced the reused Thunder Element attack with a dedicated Great Fox Spirit attack: every cast targets all living party members (and active pets), applies Slow + Paralysis on successful MAC hits, and escalates through four HP-based visual/combat stages.
+
+### Stages
+- Stage 1 (>75% HP): 1.0× damage, 2000ms attacks
+- Stage 2 (≤75%): 1.2× damage, 1700ms attacks
+- Stage 3 (≤50%): 1.45× damage, 1400ms attacks
+- Stage 4 (≤25%): 1.75× damage, 1100ms attacks
+
+### Assets / behavior
+- Rebuilt Mon134 with Crystal stages 0–3 in one grid-packed atlas (`134.png` / `134.json`)
+- Added `sheetY` atlas-frame support and HP-stage action selection
+- Slow and Paralysis last five 1-second ticks and remain magic/poison-resistable
+- No Guardian Rocks and no pull/teleport behavior
+
+### Verify
+- `npm.cmd run check`; `npm.cmd run smoke`
+
+## 2026-07-14 - Fox Cave KR room (Great Fox Spirit)
+
+### What
+Sacred Fox Temple boss room uses Crystal **Fox03** map stamp focused on Great Fox Spirit's fixed spawn **(34, 32)** (same pattern as Evil Centipede).
+
+### Changes
+- `tools/build-fox-cave-kr-stamp.ps1` → stamp focus `(34, 32)` (not invented south stand)
+- Zone `arenaSpawnMap` / `arenaFocusMap`: `{ x: 34, y: 32 }`; removed bogus `arenaEnemyMapRowOffset`
+- Template **452**: `stationaryBoss`, `fixedArenaSpawn`, `moveMs: 0`
+- Bumped `MAP_STAMP_ASSET_VERSION`
+
+### Verify
+- `npm.cmd run check`; `npm.cmd run smoke`
+
+## 2026-07-15 - Fox Cave 1/2 drop rate rebalance
+
+### What
+Lowered Fox Cave trash accessory drop rates so overall drops match target kill cadence.
+
+### Targets
+- `zone-fox-cave-1`: ~1 item / 20 kills (5.0% total) — 15 commons @ 0.244%, 11 rares @ 0.122%
+- `zone-fox-cave-2`: ~1 item / 15 kills (6.67% total) — 15 commons @ 0.325%, 11 rares @ 0.163%
+
+### Verify
+- `npm.cmd run check`
+
+## 2026-07-14 - Fox Cave accessory drop pool
+
+### What
+Wired **26** accessory drops for Fox Cave trash (level 35–43 pool + Boundless / Thunder / Tae Guk rings).
+
+### Zones
+- `zone-fox-cave-1`: 15 items @ 0.244% (common tier), 11 @ 0.122% (rare tier) — ~1/20 kills
+- `zone-fox-cave-2`: same pool @ 0.325% / 0.163% — ~1/15 kills
+
+### Pool
+Bracelets, helmets, necklaces, rings (incl. `boundless-ring`, `thunder-ring`, `tae-guk-ring`), DC/MC/SC Stone XL. (Amulet of Revival removed from pool.)
+
+### Verify
+- `npm.cmd run check`
+
+## 2026-07-14 - Fox Cave layout: Guardian Rock + Great Fox KR
+
+### What
+Corrected roles: **Guardian Rock** is Fox Cave 2 rare sub-boss; **Great Fox Spirit** is Fox Cave KR main boss.
+
+### Changes
+- Template **453 Guardian Rock**: pull (magic-resistable) + idle MAC crush; atlas Mon131 + castEffect FX 12–21
+- Template **452 Great Fox Spirit**: KR stats (15k HP / 30k XP); `zone-fox-cave-kr` + `BOSS_ROOM_DEFS`
+- Fox Cave 2 spawn uses 453; Mongchon teleport lists KR
+
+### Verify
+- `npm.cmd run check`; `npm.cmd run smoke`
+
+## 2026-07-14 - Fox Cave 1 vs Red Cavern power parity
+
+### What
+Retuned Fox Cave 1 trash (447–451) to Red Cavern 1 power (Lv 90, ~1s attack, HP/DC/XP/gold), with **high AC + AMC 0** so Wizard/Tao prefer Fox and Warriors prefer Red.
+
+### Mapping
+- Black Fox ≈ Ghastly Leecher (2500 HP)
+- Red Fox ≈ Cyano Ghast; White Fox ≈ Mutated Manworm
+- Electric/Cloud ≈ mid + Crazy Manworm hit, AC 40
+- Zone gold `[380, 580]` matches Red Cavern 1
+
+### Verify
+- `npm.cmd run check`
+
+## 2026-07-14 - Electric/Cloud Element AoE MAC smash
+
+### What
+Crystal AI 49 ThunderElement kit for Electric Element (450) and Cloud Element (451): close 2-tile AoE DC vs MAC at 300ms, Attack1 blend FX.
+
+### Changes
+- `phase1Data.js`: `attackMode: "thunderElement"`, `aoeSplashTiles: 2`, `attackDefenceType: "MAC"`, `attackImpactDelayMs: 300`
+- Monolith: `beginThunderElementAttack` / `thunderElementSmash` splash resolution (no paralysis)
+- `tools/build-fox-element-blend.ps1` packs Mon132/133 `attack1Blend` from lib frames 64+
+
+### Verify
+- `npm.cmd run check`; `npm.cmd run smoke`
+
+## 2026-07-14 - Red/White Fox Man ranged EFX
+
+### What
+Wired Crystal ranged kits for Red Fox Man (447 / Mon128) and White Fox Man (449 / Mon129): prajnaGuard always-ranged attacks plus atlas projectile FX.
+
+### Changes
+- `tools/build-fox-man-combat-fx.ps1` packs Red `targetBurst` (Mon128 224×9) and White Magic 1160 travel + Mon129 352×10 impact into atlases 128/129 (`attackRange1` cloned from `attack1`)
+- `phase1Data.js`: both use `attackMode: "prajnaGuard"`, range 6, `alwaysRanged`, MAC / MACAgility
+- Solo projectile drawer: rotated travel + post-land `impactFrames`; `sheetX` support in `drawRotatedAtlasSprite`; Red burst delayed to impact
+
+### Verify
+- `npm.cmd run check`; `npm.cmd run smoke` with `npm.cmd run dev`
+
+## 2026-07-14 - Fox Cave 1 trash: Elements + Trap Rocks
+
+### What
+Added Electric Element (450), Cloud Element (451), Trap Rock / Trap Rock 1 (452–453) to `zone-fox-cave-1`. Crystal stats, **AMC 0** (Tao/Wizard focus); Elements keep AC 100. Atlases 130/132/133 + SFX entries.
+
+## 2026-07-14 - Fox Cave Floor 1 (corridor)
+
+### What
+Added **Fox Cave 1** (`zone-fox-cave-1`) under Mongchon Province: FOX01 corridor loop walls + Fox Cave floor tiles, with Red / Black / White Fox Men. Gold-only rewards for now (no item drops wired yet).
+
+### Changes
+- Region: `tools/tile-review/fox-cave-fox01-corridor-region.json` (cols 36–61, lane Y 270)
+- Builders: `tools/build-fox-cave-tiles.ps1`, `tools/build-fox-cave-corridor-edge.ps1`
+- Art: `public/maptiles/fox-cave.png`, `public/mapedges/fox-cave-wall-columns.png` (+ padded review edge)
+- Templates 447–449 (`monsterIndex` 128/127/129); atlases exported; SFX entries added (some Crystal wavs missing)
+- `FOX_CAVE_VISUALS` + zone in `phase1Data.js`; `CAVE_EDGE_SETS["fox-cave-corridor"]` (26×48, yOffset −508); teleport region entry
+
+### Verify
+- `npm.cmd run check`; `npm.cmd run smoke`
+
 ## 2026-07-13 - Testing Room DPS callouts
 
 ### What
@@ -8,6 +414,7 @@ In the Trainer Testing Room, the Trainer reports your DPS every second in the ac
 ### Changes
 - `testingRoomMeter` on battle state; `recordTestingRoomDamage` / `updateTestingRoomDpsMeter`
 - Damage hooked in `applyCombatDamageEvent` (works even when dummy HP does not drop)
+- Testing Room FireWall skips the solo melee gate (same as boss fights). Trainer stays stationary/non-attacking.
 - Meter resets on `startBattle` / `resetBattle`; clock starts on first damage
 
 ### Verify

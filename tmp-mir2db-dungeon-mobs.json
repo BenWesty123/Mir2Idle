@@ -1,0 +1,7369 @@
+[
+  {
+    "listId": 54,
+    "label": "Wooma Temple",
+    "mapCount": 4,
+    "maps": [
+      "沃玛寺庙入口",
+      "沃玛寺庙一层",
+      "沃玛寺庙二层",
+      "沃玛寺庙三层"
+    ],
+    "mobs": [
+      {
+        "id": "151",
+        "cn": "沃玛教主",
+        "kr": "우면귀왕",
+        "img": "34",
+        "spawnSlots": 1,
+        "floors": [
+          "沃玛寺庙三层"
+        ],
+        "en": "Wooma Taurus",
+        "lv": 99,
+        "hp": 2200,
+        "exp": 6000,
+        "inGame": true,
+        "icon": "https://cdn.mir2db.com/images/mob/34.png"
+      },
+      {
+        "id": "153",
+        "cn": "沃玛护卫",
+        "kr": "우면귀장",
+        "img": "151",
+        "spawnSlots": 3,
+        "floors": [
+          "沃玛寺庙一层",
+          "沃玛寺庙二层",
+          "沃玛寺庙三层"
+        ],
+        "en": "沃玛护卫",
+        "lv": 50,
+        "hp": 1000,
+        "exp": 2400,
+        "inGame": false,
+        "icon": "https://cdn.mir2db.com/images/mob/151.png"
+      },
+      {
+        "id": "150",
+        "cn": "沃玛勇士",
+        "kr": "우면귀병",
+        "img": "32",
+        "spawnSlots": 14,
+        "floors": [
+          "沃玛寺庙一层",
+          "沃玛寺庙二层",
+          "沃玛寺庙三层"
+        ],
+        "en": "Wooma Fighter",
+        "lv": 30,
+        "hp": 285,
+        "exp": 408,
+        "inGame": true,
+        "icon": "https://cdn.mir2db.com/images/mob/32.png"
+      },
+      {
+        "id": "154",
+        "cn": "沃玛战将",
+        "kr": "우면귀졸",
+        "img": "33",
+        "spawnSlots": 14,
+        "floors": [
+          "沃玛寺庙一层",
+          "沃玛寺庙二层",
+          "沃玛寺庙三层"
+        ],
+        "en": "Wooma Warrior",
+        "lv": 30,
+        "hp": 285,
+        "exp": 408,
+        "inGame": true,
+        "icon": "https://cdn.mir2db.com/images/mob/33.png"
+      },
+      {
+        "id": "149",
+        "cn": "沃玛战士",
+        "kr": "우면귀",
+        "img": "30",
+        "spawnSlots": 4,
+        "floors": [
+          "沃玛寺庙一层",
+          "沃玛寺庙二层"
+        ],
+        "en": "Wooma Soldier",
+        "lv": 30,
+        "hp": 265,
+        "exp": 372,
+        "inGame": true,
+        "icon": "https://cdn.mir2db.com/images/mob/30.png"
+      },
+      {
+        "id": "266",
+        "cn": "火焰沃玛",
+        "kr": "화염우면귀",
+        "img": "31",
+        "spawnSlots": 14,
+        "floors": [
+          "沃玛寺庙一层",
+          "沃玛寺庙二层",
+          "沃玛寺庙三层"
+        ],
+        "en": "Flaming Wooma",
+        "lv": 31,
+        "hp": 240,
+        "exp": 420,
+        "inGame": true,
+        "icon": "https://cdn.mir2db.com/images/mob/31.png"
+      },
+      {
+        "id": "33",
+        "cn": "黑暗战士",
+        "kr": "다크",
+        "img": "28",
+        "spawnSlots": 12,
+        "floors": [
+          "沃玛寺庙二层",
+          "沃玛寺庙三层"
+        ],
+        "en": "黑暗战士",
+        "lv": 26,
+        "hp": 165,
+        "exp": 288,
+        "inGame": false,
+        "icon": "https://cdn.mir2db.com/images/mob/28.png"
+      },
+      {
+        "id": "41",
+        "cn": "粪虫",
+        "kr": "둥",
+        "img": "29",
+        "spawnSlots": 2,
+        "floors": [
+          "沃玛寺庙一层",
+          "沃玛寺庙二层"
+        ],
+        "en": "粪虫",
+        "lv": 26,
+        "hp": 155,
+        "exp": 258,
+        "inGame": false,
+        "icon": "https://cdn.mir2db.com/images/mob/29.png"
+      },
+      {
+        "id": "40",
+        "cn": "洞蛆",
+        "kr": "동굴구더기",
+        "img": "24",
+        "spawnSlots": 1,
+        "floors": [
+          "沃玛寺庙入口"
+        ],
+        "en": "洞蛆",
+        "lv": 21,
+        "hp": 80,
+        "exp": 146,
+        "inGame": false,
+        "icon": "https://cdn.mir2db.com/images/mob/24.png"
+      },
+      {
+        "id": "14",
+        "cn": "山洞蝙蝠",
+        "kr": "관박쥐",
+        "img": "80",
+        "spawnSlots": 8,
+        "floors": [
+          "沃玛寺庙入口",
+          "沃玛寺庙一层",
+          "沃玛寺庙二层"
+        ],
+        "en": "Cave Bat",
+        "lv": 20,
+        "hp": 25,
+        "exp": 80,
+        "inGame": true,
+        "icon": "https://cdn.mir2db.com/images/mob/80.png"
+      }
+    ],
+    "owned": [
+      {
+        "id": "151",
+        "cn": "沃玛教主",
+        "kr": "우면귀왕",
+        "img": "34",
+        "spawnSlots": 1,
+        "floors": [
+          "沃玛寺庙三层"
+        ],
+        "en": "Wooma Taurus",
+        "lv": 99,
+        "hp": 2200,
+        "exp": 6000,
+        "inGame": true,
+        "icon": "https://cdn.mir2db.com/images/mob/34.png"
+      },
+      {
+        "id": "150",
+        "cn": "沃玛勇士",
+        "kr": "우면귀병",
+        "img": "32",
+        "spawnSlots": 14,
+        "floors": [
+          "沃玛寺庙一层",
+          "沃玛寺庙二层",
+          "沃玛寺庙三层"
+        ],
+        "en": "Wooma Fighter",
+        "lv": 30,
+        "hp": 285,
+        "exp": 408,
+        "inGame": true,
+        "icon": "https://cdn.mir2db.com/images/mob/32.png"
+      },
+      {
+        "id": "154",
+        "cn": "沃玛战将",
+        "kr": "우면귀졸",
+        "img": "33",
+        "spawnSlots": 14,
+        "floors": [
+          "沃玛寺庙一层",
+          "沃玛寺庙二层",
+          "沃玛寺庙三层"
+        ],
+        "en": "Wooma Warrior",
+        "lv": 30,
+        "hp": 285,
+        "exp": 408,
+        "inGame": true,
+        "icon": "https://cdn.mir2db.com/images/mob/33.png"
+      },
+      {
+        "id": "149",
+        "cn": "沃玛战士",
+        "kr": "우면귀",
+        "img": "30",
+        "spawnSlots": 4,
+        "floors": [
+          "沃玛寺庙一层",
+          "沃玛寺庙二层"
+        ],
+        "en": "Wooma Soldier",
+        "lv": 30,
+        "hp": 265,
+        "exp": 372,
+        "inGame": true,
+        "icon": "https://cdn.mir2db.com/images/mob/30.png"
+      },
+      {
+        "id": "266",
+        "cn": "火焰沃玛",
+        "kr": "화염우면귀",
+        "img": "31",
+        "spawnSlots": 14,
+        "floors": [
+          "沃玛寺庙一层",
+          "沃玛寺庙二层",
+          "沃玛寺庙三层"
+        ],
+        "en": "Flaming Wooma",
+        "lv": 31,
+        "hp": 240,
+        "exp": 420,
+        "inGame": true,
+        "icon": "https://cdn.mir2db.com/images/mob/31.png"
+      },
+      {
+        "id": "14",
+        "cn": "山洞蝙蝠",
+        "kr": "관박쥐",
+        "img": "80",
+        "spawnSlots": 8,
+        "floors": [
+          "沃玛寺庙入口",
+          "沃玛寺庙一层",
+          "沃玛寺庙二层"
+        ],
+        "en": "Cave Bat",
+        "lv": 20,
+        "hp": 25,
+        "exp": 80,
+        "inGame": true,
+        "icon": "https://cdn.mir2db.com/images/mob/80.png"
+      }
+    ],
+    "missing": [
+      {
+        "id": "153",
+        "cn": "沃玛护卫",
+        "kr": "우면귀장",
+        "img": "151",
+        "spawnSlots": 3,
+        "floors": [
+          "沃玛寺庙一层",
+          "沃玛寺庙二层",
+          "沃玛寺庙三层"
+        ],
+        "en": "沃玛护卫",
+        "lv": 50,
+        "hp": 1000,
+        "exp": 2400,
+        "inGame": false,
+        "icon": "https://cdn.mir2db.com/images/mob/151.png"
+      },
+      {
+        "id": "33",
+        "cn": "黑暗战士",
+        "kr": "다크",
+        "img": "28",
+        "spawnSlots": 12,
+        "floors": [
+          "沃玛寺庙二层",
+          "沃玛寺庙三层"
+        ],
+        "en": "黑暗战士",
+        "lv": 26,
+        "hp": 165,
+        "exp": 288,
+        "inGame": false,
+        "icon": "https://cdn.mir2db.com/images/mob/28.png"
+      },
+      {
+        "id": "41",
+        "cn": "粪虫",
+        "kr": "둥",
+        "img": "29",
+        "spawnSlots": 2,
+        "floors": [
+          "沃玛寺庙一层",
+          "沃玛寺庙二层"
+        ],
+        "en": "粪虫",
+        "lv": 26,
+        "hp": 155,
+        "exp": 258,
+        "inGame": false,
+        "icon": "https://cdn.mir2db.com/images/mob/29.png"
+      },
+      {
+        "id": "40",
+        "cn": "洞蛆",
+        "kr": "동굴구더기",
+        "img": "24",
+        "spawnSlots": 1,
+        "floors": [
+          "沃玛寺庙入口"
+        ],
+        "en": "洞蛆",
+        "lv": 21,
+        "hp": 80,
+        "exp": 146,
+        "inGame": false,
+        "icon": "https://cdn.mir2db.com/images/mob/24.png"
+      }
+    ],
+    "bosses": [
+      {
+        "id": "151",
+        "cn": "沃玛教主",
+        "kr": "우면귀왕",
+        "img": "34",
+        "spawnSlots": 1,
+        "floors": [
+          "沃玛寺庙三层"
+        ],
+        "en": "Wooma Taurus",
+        "lv": 99,
+        "hp": 2200,
+        "exp": 6000,
+        "inGame": true,
+        "icon": "https://cdn.mir2db.com/images/mob/34.png"
+      },
+      {
+        "id": "153",
+        "cn": "沃玛护卫",
+        "kr": "우면귀장",
+        "img": "151",
+        "spawnSlots": 3,
+        "floors": [
+          "沃玛寺庙一层",
+          "沃玛寺庙二层",
+          "沃玛寺庙三层"
+        ],
+        "en": "沃玛护卫",
+        "lv": 50,
+        "hp": 1000,
+        "exp": 2400,
+        "inGame": false,
+        "icon": "https://cdn.mir2db.com/images/mob/151.png"
+      }
+    ]
+  },
+  {
+    "listId": 58,
+    "label": "Bug Cave",
+    "mapCount": 4,
+    "maps": [
+      "虫洞1层",
+      "虫洞2层",
+      "虫洞3层",
+      "虫洞4层"
+    ],
+    "mobs": [
+      {
+        "id": "101",
+        "cn": "舌刃大虫",
+        "kr": "설인대충",
+        "img": "220",
+        "spawnSlots": 1,
+        "floors": [
+          "虫洞4层"
+        ],
+        "en": "舌刃大虫",
+        "lv": 50,
+        "hp": 2000,
+        "exp": 3960,
+        "inGame": false,
+        "icon": "https://cdn.mir2db.com/images/mob/220.png"
+      },
+      {
+        "id": "228",
+        "cn": "",
+        "kr": "포안충",
+        "img": "104",
+        "spawnSlots": 24,
+        "floors": [
+          "虫洞1层",
+          "虫洞2层",
+          "虫洞3层",
+          "虫洞4层"
+        ],
+        "en": "포안충",
+        "lv": 27,
+        "hp": 200,
+        "exp": 276,
+        "inGame": false,
+        "icon": "https://cdn.mir2db.com/images/mob/104.png"
+      },
+      {
+        "id": "31",
+        "cn": "",
+        "kr": "다각충",
+        "img": "107",
+        "spawnSlots": 32,
+        "floors": [
+          "虫洞1层",
+          "虫洞2层",
+          "虫洞3层",
+          "虫洞4层"
+        ],
+        "en": "다각충",
+        "lv": 28,
+        "hp": 190,
+        "exp": 276,
+        "inGame": false,
+        "icon": "https://cdn.mir2db.com/images/mob/107.png"
+      },
+      {
+        "id": "32",
+        "cn": "",
+        "kr": "다발충",
+        "img": "106",
+        "spawnSlots": 31,
+        "floors": [
+          "虫洞1层",
+          "虫洞2层",
+          "虫洞3层",
+          "虫洞4层"
+        ],
+        "en": "다발충",
+        "lv": 28,
+        "hp": 190,
+        "exp": 276,
+        "inGame": false,
+        "icon": "https://cdn.mir2db.com/images/mob/106.png"
+      },
+      {
+        "id": "218",
+        "cn": "",
+        "kr": "치충",
+        "img": "103",
+        "spawnSlots": 35,
+        "floors": [
+          "虫洞1层",
+          "虫洞2层",
+          "虫洞3层",
+          "虫洞4层"
+        ],
+        "en": "치충",
+        "lv": 27,
+        "hp": 185,
+        "exp": 264,
+        "inGame": false,
+        "icon": "https://cdn.mir2db.com/images/mob/103.png"
+      },
+      {
+        "id": "225",
+        "cn": "",
+        "kr": "투안충",
+        "img": "105",
+        "spawnSlots": 26,
+        "floors": [
+          "虫洞1层",
+          "虫洞2层",
+          "虫洞3层",
+          "虫洞4层"
+        ],
+        "en": "투안충",
+        "lv": 26,
+        "hp": 180,
+        "exp": 264,
+        "inGame": false,
+        "icon": "https://cdn.mir2db.com/images/mob/105.png"
+      }
+    ],
+    "owned": [],
+    "missing": [
+      {
+        "id": "101",
+        "cn": "舌刃大虫",
+        "kr": "설인대충",
+        "img": "220",
+        "spawnSlots": 1,
+        "floors": [
+          "虫洞4层"
+        ],
+        "en": "舌刃大虫",
+        "lv": 50,
+        "hp": 2000,
+        "exp": 3960,
+        "inGame": false,
+        "icon": "https://cdn.mir2db.com/images/mob/220.png"
+      },
+      {
+        "id": "228",
+        "cn": "",
+        "kr": "포안충",
+        "img": "104",
+        "spawnSlots": 24,
+        "floors": [
+          "虫洞1层",
+          "虫洞2层",
+          "虫洞3层",
+          "虫洞4层"
+        ],
+        "en": "포안충",
+        "lv": 27,
+        "hp": 200,
+        "exp": 276,
+        "inGame": false,
+        "icon": "https://cdn.mir2db.com/images/mob/104.png"
+      },
+      {
+        "id": "31",
+        "cn": "",
+        "kr": "다각충",
+        "img": "107",
+        "spawnSlots": 32,
+        "floors": [
+          "虫洞1层",
+          "虫洞2层",
+          "虫洞3层",
+          "虫洞4层"
+        ],
+        "en": "다각충",
+        "lv": 28,
+        "hp": 190,
+        "exp": 276,
+        "inGame": false,
+        "icon": "https://cdn.mir2db.com/images/mob/107.png"
+      },
+      {
+        "id": "32",
+        "cn": "",
+        "kr": "다발충",
+        "img": "106",
+        "spawnSlots": 31,
+        "floors": [
+          "虫洞1层",
+          "虫洞2层",
+          "虫洞3层",
+          "虫洞4层"
+        ],
+        "en": "다발충",
+        "lv": 28,
+        "hp": 190,
+        "exp": 276,
+        "inGame": false,
+        "icon": "https://cdn.mir2db.com/images/mob/106.png"
+      },
+      {
+        "id": "218",
+        "cn": "",
+        "kr": "치충",
+        "img": "103",
+        "spawnSlots": 35,
+        "floors": [
+          "虫洞1层",
+          "虫洞2层",
+          "虫洞3层",
+          "虫洞4层"
+        ],
+        "en": "치충",
+        "lv": 27,
+        "hp": 185,
+        "exp": 264,
+        "inGame": false,
+        "icon": "https://cdn.mir2db.com/images/mob/103.png"
+      },
+      {
+        "id": "225",
+        "cn": "",
+        "kr": "투안충",
+        "img": "105",
+        "spawnSlots": 26,
+        "floors": [
+          "虫洞1层",
+          "虫洞2层",
+          "虫洞3层",
+          "虫洞4层"
+        ],
+        "en": "투안충",
+        "lv": 26,
+        "hp": 180,
+        "exp": 264,
+        "inGame": false,
+        "icon": "https://cdn.mir2db.com/images/mob/105.png"
+      }
+    ],
+    "bosses": [
+      {
+        "id": "101",
+        "cn": "舌刃大虫",
+        "kr": "설인대충",
+        "img": "220",
+        "spawnSlots": 1,
+        "floors": [
+          "虫洞4层"
+        ],
+        "en": "舌刃大虫",
+        "lv": 50,
+        "hp": 2000,
+        "exp": 3960,
+        "inGame": false,
+        "icon": "https://cdn.mir2db.com/images/mob/220.png"
+      }
+    ]
+  },
+  {
+    "listId": 63,
+    "label": "Stone Tomb",
+    "mapCount": 8,
+    "maps": [
+      "石墓入口",
+      "石墓1层",
+      "石墓2层",
+      "石墓3层",
+      "石墓4层",
+      "石墓5层",
+      "石墓6层",
+      "石墓7层"
+    ],
+    "mobs": [
+      {
+        "id": "62",
+        "cn": "白野猪",
+        "kr": "백돈",
+        "img": "112",
+        "spawnSlots": 5,
+        "floors": [
+          "石墓4层",
+          "石墓5层",
+          "石墓7层"
+        ],
+        "en": "White Boar",
+        "lv": 50,
+        "hp": 2000,
+        "exp": 4320,
+        "inGame": true,
+        "icon": "https://cdn.mir2db.com/images/mob/112.png"
+      },
+      {
+        "id": "276",
+        "cn": "邪恶毒蛇",
+        "kr": "흑혈사",
+        "img": "164",
+        "spawnSlots": 1,
+        "floors": [
+          "石墓7层"
+        ],
+        "en": "邪恶毒蛇",
+        "lv": 50,
+        "hp": 2000,
+        "exp": 4800,
+        "inGame": false,
+        "icon": "https://cdn.mir2db.com/images/mob/164.png"
+      },
+      {
+        "id": "252",
+        "cn": "蝎蛇",
+        "kr": "혈사갈",
+        "img": "130",
+        "spawnSlots": 14,
+        "floors": [
+          "石墓3层",
+          "石墓4层",
+          "石墓5层",
+          "石墓6层"
+        ],
+        "en": "Snake Scorpion",
+        "lv": 35,
+        "hp": 330,
+        "exp": 660,
+        "inGame": true,
+        "icon": "https://cdn.mir2db.com/images/mob/130.png"
+      },
+      {
+        "id": "170",
+        "cn": "红野猪",
+        "kr": "적돈",
+        "img": "110",
+        "spawnSlots": 82,
+        "floors": [
+          "石墓1层",
+          "石墓2层",
+          "石墓3层",
+          "石墓4层",
+          "石墓5层",
+          "石墓6层"
+        ],
+        "en": "Red Boar",
+        "lv": 32,
+        "hp": 300,
+        "exp": 600,
+        "inGame": true,
+        "icon": "https://cdn.mir2db.com/images/mob/110.png"
+      },
+      {
+        "id": "272",
+        "cn": "黑野猪",
+        "kr": "흑돈",
+        "img": "111",
+        "spawnSlots": 95,
+        "floors": [
+          "石墓1层",
+          "石墓2层",
+          "石墓3层",
+          "石墓4层",
+          "石墓5层",
+          "石墓6层"
+        ],
+        "en": "Black Boar",
+        "lv": 35,
+        "hp": 280,
+        "exp": 696,
+        "inGame": true,
+        "icon": "https://cdn.mir2db.com/images/mob/111.png"
+      },
+      {
+        "id": "120",
+        "cn": "楔蛾",
+        "kr": "쐐기나방",
+        "img": "39",
+        "spawnSlots": 7,
+        "floors": [
+          "石墓1层",
+          "石墓2层",
+          "石墓3层",
+          "石墓4层",
+          "石墓5层",
+          "石墓6层",
+          "石墓7层"
+        ],
+        "en": "Wedge Moth",
+        "lv": 32,
+        "hp": 220,
+        "exp": 648,
+        "inGame": true,
+        "icon": "https://cdn.mir2db.com/images/mob/39.png"
+      },
+      {
+        "id": "77",
+        "cn": "角蝇",
+        "kr": "비막원충",
+        "img": "41",
+        "spawnSlots": 5,
+        "floors": [
+          "石墓3层",
+          "石墓4层",
+          "石墓5层",
+          "石墓6层",
+          "石墓7层"
+        ],
+        "en": "Horn Fly",
+        "lv": 30,
+        "hp": 200,
+        "exp": 444,
+        "inGame": false,
+        "icon": "https://cdn.mir2db.com/images/mob/41.png"
+      },
+      {
+        "id": "275",
+        "cn": "黑色恶蛆",
+        "kr": "흑치",
+        "img": "74",
+        "spawnSlots": 84,
+        "floors": [
+          "石墓1层",
+          "石墓2层",
+          "石墓3层",
+          "石墓4层",
+          "石墓5层",
+          "石墓6层",
+          "石墓7层"
+        ],
+        "en": "Black Maggot",
+        "lv": 28,
+        "hp": 200,
+        "exp": 300,
+        "inGame": true,
+        "icon": "https://cdn.mir2db.com/images/mob/74.png"
+      }
+    ],
+    "owned": [
+      {
+        "id": "62",
+        "cn": "白野猪",
+        "kr": "백돈",
+        "img": "112",
+        "spawnSlots": 5,
+        "floors": [
+          "石墓4层",
+          "石墓5层",
+          "石墓7层"
+        ],
+        "en": "White Boar",
+        "lv": 50,
+        "hp": 2000,
+        "exp": 4320,
+        "inGame": true,
+        "icon": "https://cdn.mir2db.com/images/mob/112.png"
+      },
+      {
+        "id": "252",
+        "cn": "蝎蛇",
+        "kr": "혈사갈",
+        "img": "130",
+        "spawnSlots": 14,
+        "floors": [
+          "石墓3层",
+          "石墓4层",
+          "石墓5层",
+          "石墓6层"
+        ],
+        "en": "Snake Scorpion",
+        "lv": 35,
+        "hp": 330,
+        "exp": 660,
+        "inGame": true,
+        "icon": "https://cdn.mir2db.com/images/mob/130.png"
+      },
+      {
+        "id": "170",
+        "cn": "红野猪",
+        "kr": "적돈",
+        "img": "110",
+        "spawnSlots": 82,
+        "floors": [
+          "石墓1层",
+          "石墓2层",
+          "石墓3层",
+          "石墓4层",
+          "石墓5层",
+          "石墓6层"
+        ],
+        "en": "Red Boar",
+        "lv": 32,
+        "hp": 300,
+        "exp": 600,
+        "inGame": true,
+        "icon": "https://cdn.mir2db.com/images/mob/110.png"
+      },
+      {
+        "id": "272",
+        "cn": "黑野猪",
+        "kr": "흑돈",
+        "img": "111",
+        "spawnSlots": 95,
+        "floors": [
+          "石墓1层",
+          "石墓2层",
+          "石墓3层",
+          "石墓4层",
+          "石墓5层",
+          "石墓6层"
+        ],
+        "en": "Black Boar",
+        "lv": 35,
+        "hp": 280,
+        "exp": 696,
+        "inGame": true,
+        "icon": "https://cdn.mir2db.com/images/mob/111.png"
+      },
+      {
+        "id": "120",
+        "cn": "楔蛾",
+        "kr": "쐐기나방",
+        "img": "39",
+        "spawnSlots": 7,
+        "floors": [
+          "石墓1层",
+          "石墓2层",
+          "石墓3层",
+          "石墓4层",
+          "石墓5层",
+          "石墓6层",
+          "石墓7层"
+        ],
+        "en": "Wedge Moth",
+        "lv": 32,
+        "hp": 220,
+        "exp": 648,
+        "inGame": true,
+        "icon": "https://cdn.mir2db.com/images/mob/39.png"
+      },
+      {
+        "id": "275",
+        "cn": "黑色恶蛆",
+        "kr": "흑치",
+        "img": "74",
+        "spawnSlots": 84,
+        "floors": [
+          "石墓1层",
+          "石墓2层",
+          "石墓3层",
+          "石墓4层",
+          "石墓5层",
+          "石墓6层",
+          "石墓7层"
+        ],
+        "en": "Black Maggot",
+        "lv": 28,
+        "hp": 200,
+        "exp": 300,
+        "inGame": true,
+        "icon": "https://cdn.mir2db.com/images/mob/74.png"
+      }
+    ],
+    "missing": [
+      {
+        "id": "276",
+        "cn": "邪恶毒蛇",
+        "kr": "흑혈사",
+        "img": "164",
+        "spawnSlots": 1,
+        "floors": [
+          "石墓7层"
+        ],
+        "en": "邪恶毒蛇",
+        "lv": 50,
+        "hp": 2000,
+        "exp": 4800,
+        "inGame": false,
+        "icon": "https://cdn.mir2db.com/images/mob/164.png"
+      },
+      {
+        "id": "77",
+        "cn": "角蝇",
+        "kr": "비막원충",
+        "img": "41",
+        "spawnSlots": 5,
+        "floors": [
+          "石墓3层",
+          "石墓4层",
+          "石墓5层",
+          "石墓6层",
+          "石墓7层"
+        ],
+        "en": "Horn Fly",
+        "lv": 30,
+        "hp": 200,
+        "exp": 444,
+        "inGame": false,
+        "icon": "https://cdn.mir2db.com/images/mob/41.png"
+      }
+    ],
+    "bosses": [
+      {
+        "id": "276",
+        "cn": "邪恶毒蛇",
+        "kr": "흑혈사",
+        "img": "164",
+        "spawnSlots": 1,
+        "floors": [
+          "石墓7层"
+        ],
+        "en": "邪恶毒蛇",
+        "lv": 50,
+        "hp": 2000,
+        "exp": 4800,
+        "inGame": false,
+        "icon": "https://cdn.mir2db.com/images/mob/164.png"
+      }
+    ]
+  },
+  {
+    "listId": 65,
+    "label": "Zuma Temple",
+    "mapCount": 11,
+    "maps": [
+      "祖玛神殿入口",
+      "祖玛神殿1层",
+      "祖玛神殿2层",
+      "祖玛神殿3层",
+      "祖玛神殿4层",
+      "祖玛神殿5层",
+      "祖玛神殿大厅",
+      "祖玛神殿7层一",
+      "祖玛神殿7层二",
+      "祖玛神殿7层三",
+      "祖玛教主之家"
+    ],
+    "mobs": [
+      {
+        "id": "195",
+        "cn": "祖玛教主",
+        "kr": "주마왕",
+        "img": "63",
+        "spawnSlots": 1,
+        "floors": [
+          "祖玛教主之家"
+        ],
+        "en": "Zuma Taurus",
+        "lv": 99,
+        "hp": 12000,
+        "exp": 12000,
+        "inGame": true,
+        "icon": "https://cdn.mir2db.com/images/mob/63.png"
+      },
+      {
+        "id": "192",
+        "cn": "咒魔击雷将",
+        "kr": "주마격뢰장",
+        "img": "221",
+        "spawnSlots": 2,
+        "floors": [
+          "祖玛神殿4层",
+          "祖玛神殿7层二"
+        ],
+        "en": "咒魔击雷将",
+        "lv": 54,
+        "hp": 3000,
+        "exp": 5000,
+        "inGame": false,
+        "icon": "https://cdn.mir2db.com/images/mob/221.png"
+      },
+      {
+        "id": "197",
+        "cn": "祖玛卫士",
+        "kr": "주마호법",
+        "img": "62",
+        "spawnSlots": 27,
+        "floors": [
+          "祖玛神殿3层",
+          "祖玛神殿4层",
+          "祖玛神殿5层",
+          "祖玛神殿7层一",
+          "祖玛神殿7层二",
+          "祖玛神殿7层三"
+        ],
+        "en": "Zuma Guardian",
+        "lv": 50,
+        "hp": 1100,
+        "exp": 2880,
+        "inGame": true,
+        "icon": "https://cdn.mir2db.com/images/mob/62.png"
+      },
+      {
+        "id": "194",
+        "cn": "祖玛雕像",
+        "kr": "주마신장",
+        "img": "61",
+        "spawnSlots": 25,
+        "floors": [
+          "祖玛神殿3层",
+          "祖玛神殿4层",
+          "祖玛神殿5层",
+          "祖玛神殿7层一",
+          "祖玛神殿7层二",
+          "祖玛神殿7层三"
+        ],
+        "en": "Zuma Statue",
+        "lv": 50,
+        "hp": 1000,
+        "exp": 2640,
+        "inGame": true,
+        "icon": "https://cdn.mir2db.com/images/mob/61.png"
+      },
+      {
+        "id": "44",
+        "cn": "祖玛弓箭手",
+        "kr": "마궁사",
+        "img": "47",
+        "spawnSlots": 27,
+        "floors": [
+          "祖玛神殿1层",
+          "祖玛神殿2层",
+          "祖玛神殿3层",
+          "祖玛神殿4层",
+          "祖玛神殿5层",
+          "祖玛神殿7层一",
+          "祖玛神殿7层二",
+          "祖玛神殿7层三"
+        ],
+        "en": "Zuma Archer",
+        "lv": 40,
+        "hp": 900,
+        "exp": 2280,
+        "inGame": true,
+        "icon": "https://cdn.mir2db.com/images/mob/47.png"
+      },
+      {
+        "id": "222",
+        "cn": "大老鼠",
+        "kr": "큰쥐",
+        "img": "46",
+        "spawnSlots": 13,
+        "floors": [
+          "祖玛神殿1层",
+          "祖玛神殿2层",
+          "祖玛神殿3层",
+          "祖玛神殿4层"
+        ],
+        "en": "Giant Rat",
+        "lv": 32,
+        "hp": 900,
+        "exp": 2160,
+        "inGame": true,
+        "icon": "https://cdn.mir2db.com/images/mob/46.png"
+      },
+      {
+        "id": "120",
+        "cn": "楔蛾",
+        "kr": "쐐기나방",
+        "img": "39",
+        "spawnSlots": 23,
+        "floors": [
+          "祖玛神殿1层",
+          "祖玛神殿2层",
+          "祖玛神殿3层",
+          "祖玛神殿4层",
+          "祖玛神殿5层",
+          "祖玛神殿7层一",
+          "祖玛神殿7层二",
+          "祖玛神殿7层三"
+        ],
+        "en": "Wedge Moth",
+        "lv": 32,
+        "hp": 220,
+        "exp": 648,
+        "inGame": true,
+        "icon": "https://cdn.mir2db.com/images/mob/39.png"
+      },
+      {
+        "id": "77",
+        "cn": "角蝇",
+        "kr": "비막원충",
+        "img": "41",
+        "spawnSlots": 27,
+        "floors": [
+          "祖玛神殿1层",
+          "祖玛神殿2层",
+          "祖玛神殿3层",
+          "祖玛神殿4层",
+          "祖玛神殿5层",
+          "祖玛神殿7层一",
+          "祖玛神殿7层二",
+          "祖玛神殿7层三"
+        ],
+        "en": "Horn Fly",
+        "lv": 30,
+        "hp": 200,
+        "exp": 444,
+        "inGame": false,
+        "icon": "https://cdn.mir2db.com/images/mob/41.png"
+      }
+    ],
+    "owned": [
+      {
+        "id": "195",
+        "cn": "祖玛教主",
+        "kr": "주마왕",
+        "img": "63",
+        "spawnSlots": 1,
+        "floors": [
+          "祖玛教主之家"
+        ],
+        "en": "Zuma Taurus",
+        "lv": 99,
+        "hp": 12000,
+        "exp": 12000,
+        "inGame": true,
+        "icon": "https://cdn.mir2db.com/images/mob/63.png"
+      },
+      {
+        "id": "197",
+        "cn": "祖玛卫士",
+        "kr": "주마호법",
+        "img": "62",
+        "spawnSlots": 27,
+        "floors": [
+          "祖玛神殿3层",
+          "祖玛神殿4层",
+          "祖玛神殿5层",
+          "祖玛神殿7层一",
+          "祖玛神殿7层二",
+          "祖玛神殿7层三"
+        ],
+        "en": "Zuma Guardian",
+        "lv": 50,
+        "hp": 1100,
+        "exp": 2880,
+        "inGame": true,
+        "icon": "https://cdn.mir2db.com/images/mob/62.png"
+      },
+      {
+        "id": "194",
+        "cn": "祖玛雕像",
+        "kr": "주마신장",
+        "img": "61",
+        "spawnSlots": 25,
+        "floors": [
+          "祖玛神殿3层",
+          "祖玛神殿4层",
+          "祖玛神殿5层",
+          "祖玛神殿7层一",
+          "祖玛神殿7层二",
+          "祖玛神殿7层三"
+        ],
+        "en": "Zuma Statue",
+        "lv": 50,
+        "hp": 1000,
+        "exp": 2640,
+        "inGame": true,
+        "icon": "https://cdn.mir2db.com/images/mob/61.png"
+      },
+      {
+        "id": "44",
+        "cn": "祖玛弓箭手",
+        "kr": "마궁사",
+        "img": "47",
+        "spawnSlots": 27,
+        "floors": [
+          "祖玛神殿1层",
+          "祖玛神殿2层",
+          "祖玛神殿3层",
+          "祖玛神殿4层",
+          "祖玛神殿5层",
+          "祖玛神殿7层一",
+          "祖玛神殿7层二",
+          "祖玛神殿7层三"
+        ],
+        "en": "Zuma Archer",
+        "lv": 40,
+        "hp": 900,
+        "exp": 2280,
+        "inGame": true,
+        "icon": "https://cdn.mir2db.com/images/mob/47.png"
+      },
+      {
+        "id": "222",
+        "cn": "大老鼠",
+        "kr": "큰쥐",
+        "img": "46",
+        "spawnSlots": 13,
+        "floors": [
+          "祖玛神殿1层",
+          "祖玛神殿2层",
+          "祖玛神殿3层",
+          "祖玛神殿4层"
+        ],
+        "en": "Giant Rat",
+        "lv": 32,
+        "hp": 900,
+        "exp": 2160,
+        "inGame": true,
+        "icon": "https://cdn.mir2db.com/images/mob/46.png"
+      },
+      {
+        "id": "120",
+        "cn": "楔蛾",
+        "kr": "쐐기나방",
+        "img": "39",
+        "spawnSlots": 23,
+        "floors": [
+          "祖玛神殿1层",
+          "祖玛神殿2层",
+          "祖玛神殿3层",
+          "祖玛神殿4层",
+          "祖玛神殿5层",
+          "祖玛神殿7层一",
+          "祖玛神殿7层二",
+          "祖玛神殿7层三"
+        ],
+        "en": "Wedge Moth",
+        "lv": 32,
+        "hp": 220,
+        "exp": 648,
+        "inGame": true,
+        "icon": "https://cdn.mir2db.com/images/mob/39.png"
+      }
+    ],
+    "missing": [
+      {
+        "id": "192",
+        "cn": "咒魔击雷将",
+        "kr": "주마격뢰장",
+        "img": "221",
+        "spawnSlots": 2,
+        "floors": [
+          "祖玛神殿4层",
+          "祖玛神殿7层二"
+        ],
+        "en": "咒魔击雷将",
+        "lv": 54,
+        "hp": 3000,
+        "exp": 5000,
+        "inGame": false,
+        "icon": "https://cdn.mir2db.com/images/mob/221.png"
+      },
+      {
+        "id": "77",
+        "cn": "角蝇",
+        "kr": "비막원충",
+        "img": "41",
+        "spawnSlots": 27,
+        "floors": [
+          "祖玛神殿1层",
+          "祖玛神殿2层",
+          "祖玛神殿3层",
+          "祖玛神殿4层",
+          "祖玛神殿5层",
+          "祖玛神殿7层一",
+          "祖玛神殿7层二",
+          "祖玛神殿7层三"
+        ],
+        "en": "Horn Fly",
+        "lv": 30,
+        "hp": 200,
+        "exp": 444,
+        "inGame": false,
+        "icon": "https://cdn.mir2db.com/images/mob/41.png"
+      }
+    ],
+    "bosses": [
+      {
+        "id": "195",
+        "cn": "祖玛教主",
+        "kr": "주마왕",
+        "img": "63",
+        "spawnSlots": 1,
+        "floors": [
+          "祖玛教主之家"
+        ],
+        "en": "Zuma Taurus",
+        "lv": 99,
+        "hp": 12000,
+        "exp": 12000,
+        "inGame": true,
+        "icon": "https://cdn.mir2db.com/images/mob/63.png"
+      },
+      {
+        "id": "192",
+        "cn": "咒魔击雷将",
+        "kr": "주마격뢰장",
+        "img": "221",
+        "spawnSlots": 2,
+        "floors": [
+          "祖玛神殿4层",
+          "祖玛神殿7层二"
+        ],
+        "en": "咒魔击雷将",
+        "lv": 54,
+        "hp": 3000,
+        "exp": 5000,
+        "inGame": false,
+        "icon": "https://cdn.mir2db.com/images/mob/221.png"
+      }
+    ]
+  },
+  {
+    "listId": 72,
+    "label": "Red Moon Valley",
+    "mapCount": 14,
+    "maps": [
+      "赤月峡谷1层北",
+      "赤月峡谷1层西",
+      "赤月峡谷1层东",
+      "赤月峡谷2层",
+      "赤月峡谷3层西",
+      "赤月峡谷3层东",
+      "赤月峡谷4层",
+      "赤月峡谷5层",
+      "赤月峡谷5层",
+      "恶魔老巢",
+      "恶魔祭坛",
+      "赤月峡谷5层(任务)",
+      "赤月峡谷5层(任务)",
+      "恶魔老巢(任务)"
+    ],
+    "mobs": [
+      {
+        "id": "171",
+        "cn": "赤月恶魔",
+        "kr": "적월마",
+        "img": "131",
+        "spawnSlots": 1,
+        "floors": [
+          "恶魔老巢"
+        ],
+        "en": "Red Moon Demon",
+        "lv": 99,
+        "hp": 5000,
+        "exp": 6000,
+        "inGame": true,
+        "icon": "https://cdn.mir2db.com/images/mob/131.png"
+      },
+      {
+        "id": "116",
+        "cn": "神石毒魔蛛",
+        "kr": "신석독마주",
+        "img": "223",
+        "spawnSlots": 2,
+        "floors": [
+          "赤月峡谷1层西",
+          "赤月峡谷4层"
+        ],
+        "en": "神石毒魔蛛",
+        "lv": 50,
+        "hp": 2000,
+        "exp": 5000,
+        "inGame": false,
+        "icon": "https://cdn.mir2db.com/images/mob/223.png"
+      },
+      {
+        "id": "353",
+        "cn": "",
+        "kr": "소보",
+        "img": "115",
+        "spawnSlots": 1,
+        "floors": [
+          "赤月峡谷1层西"
+        ],
+        "en": "소보",
+        "lv": 55,
+        "hp": 1000,
+        "exp": 1152,
+        "inGame": false,
+        "icon": "https://cdn.mir2db.com/images/mob/115.png"
+      },
+      {
+        "id": "354",
+        "cn": "",
+        "kr": "혈원인",
+        "img": "116",
+        "spawnSlots": 1,
+        "floors": [
+          "赤月峡谷2层"
+        ],
+        "en": "혈원인",
+        "lv": 56,
+        "hp": 900,
+        "exp": 2160,
+        "inGame": false,
+        "icon": "https://cdn.mir2db.com/images/mob/116.png"
+      },
+      {
+        "id": "251",
+        "cn": "",
+        "kr": "혈마",
+        "img": "116",
+        "spawnSlots": 8,
+        "floors": [
+          "赤月峡谷4层",
+          "赤月峡谷5层",
+          "恶魔老巢"
+        ],
+        "en": "혈마",
+        "lv": 56,
+        "hp": 900,
+        "exp": 2160,
+        "inGame": false,
+        "icon": "https://cdn.mir2db.com/images/mob/116.png"
+      },
+      {
+        "id": "174",
+        "cn": "双头血魔",
+        "kr": "적혈마",
+        "img": "92",
+        "spawnSlots": 1,
+        "floors": [
+          "赤月峡谷5层(任务)"
+        ],
+        "en": "Twin Head Blood Demon",
+        "lv": 55,
+        "hp": 900,
+        "exp": 1080,
+        "inGame": true,
+        "icon": "https://cdn.mir2db.com/images/mob/92.png"
+      },
+      {
+        "id": "268",
+        "cn": "双头金刚",
+        "kr": "회혈마",
+        "img": "93",
+        "spawnSlots": 1,
+        "floors": [
+          "赤月峡谷5层(任务)"
+        ],
+        "en": "Twin Head King Kong",
+        "lv": 55,
+        "hp": 900,
+        "exp": 1080,
+        "inGame": false,
+        "icon": "https://cdn.mir2db.com/images/mob/93.png"
+      },
+      {
+        "id": "246",
+        "cn": "",
+        "kr": "혈거인",
+        "img": "115",
+        "spawnSlots": 13,
+        "floors": [
+          "赤月峡谷3层西",
+          "赤月峡谷3层东",
+          "赤月峡谷4层",
+          "赤月峡谷5层",
+          "恶魔老巢",
+          "赤月峡谷5层(任务)"
+        ],
+        "en": "혈거인",
+        "lv": 55,
+        "hp": 700,
+        "exp": 1152,
+        "inGame": false,
+        "icon": "https://cdn.mir2db.com/images/mob/115.png"
+      },
+      {
+        "id": "265",
+        "cn": "花吻蜘蛛",
+        "kr": "화갑주",
+        "img": "117",
+        "spawnSlots": 7,
+        "floors": [
+          "赤月峡谷1层西",
+          "赤月峡谷1层东",
+          "赤月峡谷2层",
+          "赤月峡谷3层西",
+          "赤月峡谷3层东",
+          "赤月峡谷4层",
+          "恶魔老巢"
+        ],
+        "en": "花吻蜘蛛",
+        "lv": 54,
+        "hp": 350,
+        "exp": 768,
+        "inGame": false,
+        "icon": "https://cdn.mir2db.com/images/mob/117.png"
+      },
+      {
+        "id": "270",
+        "cn": "黑颚蜘蛛",
+        "kr": "흑각거미",
+        "img": "118",
+        "spawnSlots": 8,
+        "floors": [
+          "赤月峡谷1层东",
+          "赤月峡谷2层",
+          "赤月峡谷3层西",
+          "赤月峡谷3层东",
+          "赤月峡谷5层",
+          "赤月峡谷5层(任务)"
+        ],
+        "en": "黑颚蜘蛛",
+        "lv": 53,
+        "hp": 350,
+        "exp": 720,
+        "inGame": false,
+        "icon": "https://cdn.mir2db.com/images/mob/118.png"
+      },
+      {
+        "id": "76",
+        "cn": "月魔蜘蛛",
+        "kr": "비독주",
+        "img": "113",
+        "spawnSlots": 12,
+        "floors": [
+          "赤月峡谷1层北",
+          "赤月峡谷1层西",
+          "赤月峡谷1层东",
+          "赤月峡谷2层",
+          "赤月峡谷3层西",
+          "赤月峡谷3层东",
+          "赤月峡谷4层",
+          "赤月峡谷5层",
+          "恶魔老巢",
+          "赤月峡谷5层(任务)"
+        ],
+        "en": "Moon Spider",
+        "lv": 52,
+        "hp": 300,
+        "exp": 648,
+        "inGame": false,
+        "icon": "https://cdn.mir2db.com/images/mob/113.png"
+      },
+      {
+        "id": "355",
+        "cn": "",
+        "kr": "적월편주",
+        "img": "113",
+        "spawnSlots": 12,
+        "floors": [
+          "赤月峡谷1层北",
+          "赤月峡谷1层西",
+          "赤月峡谷1层东",
+          "赤月峡谷2层",
+          "赤月峡谷3层西",
+          "赤月峡谷3层东",
+          "赤月峡谷4层",
+          "赤月峡谷5层",
+          "恶魔老巢",
+          "赤月峡谷5层(任务)"
+        ],
+        "en": "적월편주",
+        "lv": 52,
+        "hp": 300,
+        "exp": 648,
+        "inGame": false,
+        "icon": "https://cdn.mir2db.com/images/mob/113.png"
+      },
+      {
+        "id": "98",
+        "cn": "钢牙蜘蛛",
+        "kr": "산적거미",
+        "img": "114",
+        "spawnSlots": 2,
+        "floors": [
+          "赤月峡谷1层北",
+          "赤月峡谷1层西"
+        ],
+        "en": "Steel Tooth Spider",
+        "lv": 45,
+        "hp": 300,
+        "exp": 684,
+        "inGame": false,
+        "icon": "https://cdn.mir2db.com/images/mob/114.png"
+      },
+      {
+        "id": "173",
+        "cn": "天狼蜘蛛",
+        "kr": "적침주",
+        "img": "119",
+        "spawnSlots": 1,
+        "floors": [
+          "赤月峡谷1层北"
+        ],
+        "en": "天狼蜘蛛",
+        "lv": 40,
+        "hp": 300,
+        "exp": 624,
+        "inGame": false,
+        "icon": "https://cdn.mir2db.com/images/mob/119.png"
+      },
+      {
+        "id": "230",
+        "cn": "幻影蜘蛛",
+        "kr": "폭안거미",
+        "img": "132",
+        "spawnSlots": 11,
+        "floors": [
+          "赤月峡谷1层北",
+          "赤月峡谷1层西",
+          "赤月峡谷1层东",
+          "赤月峡谷2层",
+          "赤月峡谷3层西",
+          "赤月峡谷3层东",
+          "赤月峡谷4层",
+          "赤月峡谷5层",
+          "赤月峡谷5层(任务)"
+        ],
+        "en": "Phantom Spider",
+        "lv": 53,
+        "hp": 210,
+        "exp": 648,
+        "inGame": false,
+        "icon": "https://cdn.mir2db.com/images/mob/132.png"
+      }
+    ],
+    "owned": [
+      {
+        "id": "171",
+        "cn": "赤月恶魔",
+        "kr": "적월마",
+        "img": "131",
+        "spawnSlots": 1,
+        "floors": [
+          "恶魔老巢"
+        ],
+        "en": "Red Moon Demon",
+        "lv": 99,
+        "hp": 5000,
+        "exp": 6000,
+        "inGame": true,
+        "icon": "https://cdn.mir2db.com/images/mob/131.png"
+      },
+      {
+        "id": "174",
+        "cn": "双头血魔",
+        "kr": "적혈마",
+        "img": "92",
+        "spawnSlots": 1,
+        "floors": [
+          "赤月峡谷5层(任务)"
+        ],
+        "en": "Twin Head Blood Demon",
+        "lv": 55,
+        "hp": 900,
+        "exp": 1080,
+        "inGame": true,
+        "icon": "https://cdn.mir2db.com/images/mob/92.png"
+      }
+    ],
+    "missing": [
+      {
+        "id": "116",
+        "cn": "神石毒魔蛛",
+        "kr": "신석독마주",
+        "img": "223",
+        "spawnSlots": 2,
+        "floors": [
+          "赤月峡谷1层西",
+          "赤月峡谷4层"
+        ],
+        "en": "神石毒魔蛛",
+        "lv": 50,
+        "hp": 2000,
+        "exp": 5000,
+        "inGame": false,
+        "icon": "https://cdn.mir2db.com/images/mob/223.png"
+      },
+      {
+        "id": "353",
+        "cn": "",
+        "kr": "소보",
+        "img": "115",
+        "spawnSlots": 1,
+        "floors": [
+          "赤月峡谷1层西"
+        ],
+        "en": "소보",
+        "lv": 55,
+        "hp": 1000,
+        "exp": 1152,
+        "inGame": false,
+        "icon": "https://cdn.mir2db.com/images/mob/115.png"
+      },
+      {
+        "id": "354",
+        "cn": "",
+        "kr": "혈원인",
+        "img": "116",
+        "spawnSlots": 1,
+        "floors": [
+          "赤月峡谷2层"
+        ],
+        "en": "혈원인",
+        "lv": 56,
+        "hp": 900,
+        "exp": 2160,
+        "inGame": false,
+        "icon": "https://cdn.mir2db.com/images/mob/116.png"
+      },
+      {
+        "id": "251",
+        "cn": "",
+        "kr": "혈마",
+        "img": "116",
+        "spawnSlots": 8,
+        "floors": [
+          "赤月峡谷4层",
+          "赤月峡谷5层",
+          "恶魔老巢"
+        ],
+        "en": "혈마",
+        "lv": 56,
+        "hp": 900,
+        "exp": 2160,
+        "inGame": false,
+        "icon": "https://cdn.mir2db.com/images/mob/116.png"
+      },
+      {
+        "id": "268",
+        "cn": "双头金刚",
+        "kr": "회혈마",
+        "img": "93",
+        "spawnSlots": 1,
+        "floors": [
+          "赤月峡谷5层(任务)"
+        ],
+        "en": "Twin Head King Kong",
+        "lv": 55,
+        "hp": 900,
+        "exp": 1080,
+        "inGame": false,
+        "icon": "https://cdn.mir2db.com/images/mob/93.png"
+      },
+      {
+        "id": "246",
+        "cn": "",
+        "kr": "혈거인",
+        "img": "115",
+        "spawnSlots": 13,
+        "floors": [
+          "赤月峡谷3层西",
+          "赤月峡谷3层东",
+          "赤月峡谷4层",
+          "赤月峡谷5层",
+          "恶魔老巢",
+          "赤月峡谷5层(任务)"
+        ],
+        "en": "혈거인",
+        "lv": 55,
+        "hp": 700,
+        "exp": 1152,
+        "inGame": false,
+        "icon": "https://cdn.mir2db.com/images/mob/115.png"
+      },
+      {
+        "id": "265",
+        "cn": "花吻蜘蛛",
+        "kr": "화갑주",
+        "img": "117",
+        "spawnSlots": 7,
+        "floors": [
+          "赤月峡谷1层西",
+          "赤月峡谷1层东",
+          "赤月峡谷2层",
+          "赤月峡谷3层西",
+          "赤月峡谷3层东",
+          "赤月峡谷4层",
+          "恶魔老巢"
+        ],
+        "en": "花吻蜘蛛",
+        "lv": 54,
+        "hp": 350,
+        "exp": 768,
+        "inGame": false,
+        "icon": "https://cdn.mir2db.com/images/mob/117.png"
+      },
+      {
+        "id": "270",
+        "cn": "黑颚蜘蛛",
+        "kr": "흑각거미",
+        "img": "118",
+        "spawnSlots": 8,
+        "floors": [
+          "赤月峡谷1层东",
+          "赤月峡谷2层",
+          "赤月峡谷3层西",
+          "赤月峡谷3层东",
+          "赤月峡谷5层",
+          "赤月峡谷5层(任务)"
+        ],
+        "en": "黑颚蜘蛛",
+        "lv": 53,
+        "hp": 350,
+        "exp": 720,
+        "inGame": false,
+        "icon": "https://cdn.mir2db.com/images/mob/118.png"
+      },
+      {
+        "id": "76",
+        "cn": "月魔蜘蛛",
+        "kr": "비독주",
+        "img": "113",
+        "spawnSlots": 12,
+        "floors": [
+          "赤月峡谷1层北",
+          "赤月峡谷1层西",
+          "赤月峡谷1层东",
+          "赤月峡谷2层",
+          "赤月峡谷3层西",
+          "赤月峡谷3层东",
+          "赤月峡谷4层",
+          "赤月峡谷5层",
+          "恶魔老巢",
+          "赤月峡谷5层(任务)"
+        ],
+        "en": "Moon Spider",
+        "lv": 52,
+        "hp": 300,
+        "exp": 648,
+        "inGame": false,
+        "icon": "https://cdn.mir2db.com/images/mob/113.png"
+      },
+      {
+        "id": "355",
+        "cn": "",
+        "kr": "적월편주",
+        "img": "113",
+        "spawnSlots": 12,
+        "floors": [
+          "赤月峡谷1层北",
+          "赤月峡谷1层西",
+          "赤月峡谷1层东",
+          "赤月峡谷2层",
+          "赤月峡谷3层西",
+          "赤月峡谷3层东",
+          "赤月峡谷4层",
+          "赤月峡谷5层",
+          "恶魔老巢",
+          "赤月峡谷5层(任务)"
+        ],
+        "en": "적월편주",
+        "lv": 52,
+        "hp": 300,
+        "exp": 648,
+        "inGame": false,
+        "icon": "https://cdn.mir2db.com/images/mob/113.png"
+      },
+      {
+        "id": "98",
+        "cn": "钢牙蜘蛛",
+        "kr": "산적거미",
+        "img": "114",
+        "spawnSlots": 2,
+        "floors": [
+          "赤月峡谷1层北",
+          "赤月峡谷1层西"
+        ],
+        "en": "Steel Tooth Spider",
+        "lv": 45,
+        "hp": 300,
+        "exp": 684,
+        "inGame": false,
+        "icon": "https://cdn.mir2db.com/images/mob/114.png"
+      },
+      {
+        "id": "173",
+        "cn": "天狼蜘蛛",
+        "kr": "적침주",
+        "img": "119",
+        "spawnSlots": 1,
+        "floors": [
+          "赤月峡谷1层北"
+        ],
+        "en": "天狼蜘蛛",
+        "lv": 40,
+        "hp": 300,
+        "exp": 624,
+        "inGame": false,
+        "icon": "https://cdn.mir2db.com/images/mob/119.png"
+      },
+      {
+        "id": "230",
+        "cn": "幻影蜘蛛",
+        "kr": "폭안거미",
+        "img": "132",
+        "spawnSlots": 11,
+        "floors": [
+          "赤月峡谷1层北",
+          "赤月峡谷1层西",
+          "赤月峡谷1层东",
+          "赤月峡谷2层",
+          "赤月峡谷3层西",
+          "赤月峡谷3层东",
+          "赤月峡谷4层",
+          "赤月峡谷5层",
+          "赤月峡谷5层(任务)"
+        ],
+        "en": "Phantom Spider",
+        "lv": 53,
+        "hp": 210,
+        "exp": 648,
+        "inGame": false,
+        "icon": "https://cdn.mir2db.com/images/mob/132.png"
+      }
+    ],
+    "bosses": [
+      {
+        "id": "171",
+        "cn": "赤月恶魔",
+        "kr": "적월마",
+        "img": "131",
+        "spawnSlots": 1,
+        "floors": [
+          "恶魔老巢"
+        ],
+        "en": "Red Moon Demon",
+        "lv": 99,
+        "hp": 5000,
+        "exp": 6000,
+        "inGame": true,
+        "icon": "https://cdn.mir2db.com/images/mob/131.png"
+      },
+      {
+        "id": "116",
+        "cn": "神石毒魔蛛",
+        "kr": "신석독마주",
+        "img": "223",
+        "spawnSlots": 2,
+        "floors": [
+          "赤月峡谷1层西",
+          "赤月峡谷4层"
+        ],
+        "en": "神石毒魔蛛",
+        "lv": 50,
+        "hp": 2000,
+        "exp": 5000,
+        "inGame": false,
+        "icon": "https://cdn.mir2db.com/images/mob/223.png"
+      },
+      {
+        "id": "353",
+        "cn": "",
+        "kr": "소보",
+        "img": "115",
+        "spawnSlots": 1,
+        "floors": [
+          "赤月峡谷1层西"
+        ],
+        "en": "소보",
+        "lv": 55,
+        "hp": 1000,
+        "exp": 1152,
+        "inGame": false,
+        "icon": "https://cdn.mir2db.com/images/mob/115.png"
+      }
+    ]
+  },
+  {
+    "listId": 77,
+    "label": "Prajna Cave",
+    "mapCount": 6,
+    "maps": [
+      "般若石窟1层",
+      "般若石窟2层东",
+      "般若石窟2层西",
+      "般若石窟3层",
+      "般若石窟4层",
+      "般若石窟5层"
+    ],
+    "mobs": [
+      {
+        "id": "237",
+        "cn": "骷髅武将",
+        "kr": "해골무장",
+        "img": "192",
+        "spawnSlots": 28,
+        "floors": [
+          "般若石窟2层东",
+          "般若石窟2层西",
+          "般若石窟3层",
+          "般若石窟4层",
+          "般若石窟5层"
+        ],
+        "en": "骷髅武将",
+        "lv": 49,
+        "hp": 620,
+        "exp": 1620,
+        "inGame": false,
+        "icon": "https://cdn.mir2db.com/images/mob/192.png"
+      },
+      {
+        "id": "236",
+        "cn": "骷髅武士",
+        "kr": "해골무사",
+        "img": "194",
+        "spawnSlots": 36,
+        "floors": [
+          "般若石窟1层",
+          "般若石窟2层东",
+          "般若石窟2层西",
+          "般若石窟3层",
+          "般若石窟4层",
+          "般若石窟5层"
+        ],
+        "en": "骷髅武士",
+        "lv": 45,
+        "hp": 540,
+        "exp": 1536,
+        "inGame": false,
+        "icon": "https://cdn.mir2db.com/images/mob/194.png"
+      },
+      {
+        "id": "239",
+        "cn": "骷髅士兵",
+        "kr": "해골병졸",
+        "img": "193",
+        "spawnSlots": 37,
+        "floors": [
+          "般若石窟1层",
+          "般若石窟2层东",
+          "般若石窟2层西",
+          "般若石窟3层",
+          "般若石窟4层",
+          "般若石窟5层"
+        ],
+        "en": "骷髅士兵",
+        "lv": 42,
+        "hp": 520,
+        "exp": 1380,
+        "inGame": false,
+        "icon": "https://cdn.mir2db.com/images/mob/193.png"
+      },
+      {
+        "id": "235",
+        "cn": "骷髅弓箭手",
+        "kr": "해골궁수",
+        "img": "195",
+        "spawnSlots": 37,
+        "floors": [
+          "般若石窟1层",
+          "般若石窟2层东",
+          "般若石窟2层西",
+          "般若石窟3层",
+          "般若石窟4层",
+          "般若石窟5层"
+        ],
+        "en": "骷髅弓箭手",
+        "lv": 38,
+        "hp": 450,
+        "exp": 1224,
+        "inGame": false,
+        "icon": "https://cdn.mir2db.com/images/mob/195.png"
+      },
+      {
+        "id": "26",
+        "cn": "浪人鬼",
+        "kr": "낭인귀",
+        "img": "190",
+        "spawnSlots": 23,
+        "floors": [
+          "般若石窟1层",
+          "般若石窟2层东",
+          "般若石窟2层西",
+          "般若石窟3层",
+          "般若石窟4层",
+          "般若石窟5层"
+        ],
+        "en": "浪人鬼",
+        "lv": 35,
+        "hp": 430,
+        "exp": 1224,
+        "inGame": false,
+        "icon": "https://cdn.mir2db.com/images/mob/190.png"
+      },
+      {
+        "id": "69",
+        "cn": "腐蚀鬼",
+        "kr": "부식귀",
+        "img": "191",
+        "spawnSlots": 27,
+        "floors": [
+          "般若石窟1层",
+          "般若石窟2层东",
+          "般若石窟2层西",
+          "般若石窟3层",
+          "般若石窟4层",
+          "般若石窟5层"
+        ],
+        "en": "腐蚀鬼",
+        "lv": 33,
+        "hp": 350,
+        "exp": 1128,
+        "inGame": false,
+        "icon": "https://cdn.mir2db.com/images/mob/191.png"
+      },
+      {
+        "id": "40",
+        "cn": "洞蛆",
+        "kr": "동굴구더기",
+        "img": "24",
+        "spawnSlots": 10,
+        "floors": [
+          "般若石窟1层",
+          "般若石窟2层东",
+          "般若石窟2层西",
+          "般若石窟3层",
+          "般若石窟4层"
+        ],
+        "en": "洞蛆",
+        "lv": 21,
+        "hp": 80,
+        "exp": 146,
+        "inGame": false,
+        "icon": "https://cdn.mir2db.com/images/mob/24.png"
+      },
+      {
+        "id": "175",
+        "cn": "蝎子",
+        "kr": "전갈",
+        "img": "83",
+        "spawnSlots": 5,
+        "floors": [
+          "般若石窟1层",
+          "般若石窟2层东",
+          "般若石窟2层西"
+        ],
+        "en": "蝎子",
+        "lv": 18,
+        "hp": 45,
+        "exp": 115,
+        "inGame": false,
+        "icon": "https://cdn.mir2db.com/images/mob/83.png"
+      }
+    ],
+    "owned": [],
+    "missing": [
+      {
+        "id": "237",
+        "cn": "骷髅武将",
+        "kr": "해골무장",
+        "img": "192",
+        "spawnSlots": 28,
+        "floors": [
+          "般若石窟2层东",
+          "般若石窟2层西",
+          "般若石窟3层",
+          "般若石窟4层",
+          "般若石窟5层"
+        ],
+        "en": "骷髅武将",
+        "lv": 49,
+        "hp": 620,
+        "exp": 1620,
+        "inGame": false,
+        "icon": "https://cdn.mir2db.com/images/mob/192.png"
+      },
+      {
+        "id": "236",
+        "cn": "骷髅武士",
+        "kr": "해골무사",
+        "img": "194",
+        "spawnSlots": 36,
+        "floors": [
+          "般若石窟1层",
+          "般若石窟2层东",
+          "般若石窟2层西",
+          "般若石窟3层",
+          "般若石窟4层",
+          "般若石窟5层"
+        ],
+        "en": "骷髅武士",
+        "lv": 45,
+        "hp": 540,
+        "exp": 1536,
+        "inGame": false,
+        "icon": "https://cdn.mir2db.com/images/mob/194.png"
+      },
+      {
+        "id": "239",
+        "cn": "骷髅士兵",
+        "kr": "해골병졸",
+        "img": "193",
+        "spawnSlots": 37,
+        "floors": [
+          "般若石窟1层",
+          "般若石窟2层东",
+          "般若石窟2层西",
+          "般若石窟3层",
+          "般若石窟4层",
+          "般若石窟5层"
+        ],
+        "en": "骷髅士兵",
+        "lv": 42,
+        "hp": 520,
+        "exp": 1380,
+        "inGame": false,
+        "icon": "https://cdn.mir2db.com/images/mob/193.png"
+      },
+      {
+        "id": "235",
+        "cn": "骷髅弓箭手",
+        "kr": "해골궁수",
+        "img": "195",
+        "spawnSlots": 37,
+        "floors": [
+          "般若石窟1层",
+          "般若石窟2层东",
+          "般若石窟2层西",
+          "般若石窟3层",
+          "般若石窟4层",
+          "般若石窟5层"
+        ],
+        "en": "骷髅弓箭手",
+        "lv": 38,
+        "hp": 450,
+        "exp": 1224,
+        "inGame": false,
+        "icon": "https://cdn.mir2db.com/images/mob/195.png"
+      },
+      {
+        "id": "26",
+        "cn": "浪人鬼",
+        "kr": "낭인귀",
+        "img": "190",
+        "spawnSlots": 23,
+        "floors": [
+          "般若石窟1层",
+          "般若石窟2层东",
+          "般若石窟2层西",
+          "般若石窟3层",
+          "般若石窟4层",
+          "般若石窟5层"
+        ],
+        "en": "浪人鬼",
+        "lv": 35,
+        "hp": 430,
+        "exp": 1224,
+        "inGame": false,
+        "icon": "https://cdn.mir2db.com/images/mob/190.png"
+      },
+      {
+        "id": "69",
+        "cn": "腐蚀鬼",
+        "kr": "부식귀",
+        "img": "191",
+        "spawnSlots": 27,
+        "floors": [
+          "般若石窟1层",
+          "般若石窟2层东",
+          "般若石窟2层西",
+          "般若石窟3层",
+          "般若石窟4层",
+          "般若石窟5层"
+        ],
+        "en": "腐蚀鬼",
+        "lv": 33,
+        "hp": 350,
+        "exp": 1128,
+        "inGame": false,
+        "icon": "https://cdn.mir2db.com/images/mob/191.png"
+      },
+      {
+        "id": "40",
+        "cn": "洞蛆",
+        "kr": "동굴구더기",
+        "img": "24",
+        "spawnSlots": 10,
+        "floors": [
+          "般若石窟1层",
+          "般若石窟2层东",
+          "般若石窟2层西",
+          "般若石窟3层",
+          "般若石窟4层"
+        ],
+        "en": "洞蛆",
+        "lv": 21,
+        "hp": 80,
+        "exp": 146,
+        "inGame": false,
+        "icon": "https://cdn.mir2db.com/images/mob/24.png"
+      },
+      {
+        "id": "175",
+        "cn": "蝎子",
+        "kr": "전갈",
+        "img": "83",
+        "spawnSlots": 5,
+        "floors": [
+          "般若石窟1层",
+          "般若石窟2层东",
+          "般若石窟2层西"
+        ],
+        "en": "蝎子",
+        "lv": 18,
+        "hp": 45,
+        "exp": 115,
+        "inGame": false,
+        "icon": "https://cdn.mir2db.com/images/mob/83.png"
+      }
+    ],
+    "bosses": []
+  },
+  {
+    "listId": 78,
+    "label": "Prajna Temple",
+    "mapCount": 10,
+    "maps": [
+      "般若神殿大厅",
+      "般若神殿1层",
+      "般若神殿2层",
+      "般若神殿3层",
+      "般若神殿4层",
+      "般若神殿5层东",
+      "般若神殿5层西",
+      "般若神殿6层",
+      "般若神殿7层",
+      "般若神殿8层"
+    ],
+    "mobs": [
+      {
+        "id": "96",
+        "cn": "邪牛天王",
+        "kr": "사우천왕",
+        "img": "207",
+        "spawnSlots": 1,
+        "floors": [
+          "般若神殿8层"
+        ],
+        "en": "邪牛天王",
+        "lv": 99,
+        "hp": 15000,
+        "exp": 15000,
+        "inGame": false,
+        "icon": "https://cdn.mir2db.com/images/mob/207.png"
+      },
+      {
+        "id": "54",
+        "cn": "",
+        "kr": "반야빙귀",
+        "img": "201",
+        "spawnSlots": 36,
+        "floors": [
+          "般若神殿1层",
+          "般若神殿2层",
+          "般若神殿3层",
+          "般若神殿4层",
+          "般若神殿5层东",
+          "般若神殿5层西",
+          "般若神殿6层",
+          "般若神殿7层",
+          "般若神殿8层"
+        ],
+        "en": "반야빙귀",
+        "lv": 48,
+        "hp": 630,
+        "exp": 1776,
+        "inGame": false,
+        "icon": "https://cdn.mir2db.com/images/mob/201.png"
+      },
+      {
+        "id": "55",
+        "cn": "",
+        "kr": "반야우사",
+        "img": "205",
+        "spawnSlots": 34,
+        "floors": [
+          "般若神殿1层",
+          "般若神殿2层",
+          "般若神殿3层",
+          "般若神殿4层",
+          "般若神殿5层东",
+          "般若神殿5层西",
+          "般若神殿6层",
+          "般若神殿7层",
+          "般若神殿8层"
+        ],
+        "en": "반야우사",
+        "lv": 49,
+        "hp": 620,
+        "exp": 2040,
+        "inGame": false,
+        "icon": "https://cdn.mir2db.com/images/mob/205.png"
+      },
+      {
+        "id": "56",
+        "cn": "",
+        "kr": "반야운귀",
+        "img": "202",
+        "spawnSlots": 38,
+        "floors": [
+          "般若神殿1层",
+          "般若神殿2层",
+          "般若神殿3层",
+          "般若神殿4层",
+          "般若神殿5层东",
+          "般若神殿5层西",
+          "般若神殿6层",
+          "般若神殿7层",
+          "般若神殿8层"
+        ],
+        "en": "반야운귀",
+        "lv": 48,
+        "hp": 600,
+        "exp": 1740,
+        "inGame": false,
+        "icon": "https://cdn.mir2db.com/images/mob/202.png"
+      },
+      {
+        "id": "57",
+        "cn": "",
+        "kr": "반야좌사",
+        "img": "206",
+        "spawnSlots": 35,
+        "floors": [
+          "般若神殿1层",
+          "般若神殿2层",
+          "般若神殿3层",
+          "般若神殿4层",
+          "般若神殿5层东",
+          "般若神殿5层西",
+          "般若神殿6层",
+          "般若神殿7层",
+          "般若神殿8层"
+        ],
+        "en": "반야좌사",
+        "lv": 49,
+        "hp": 570,
+        "exp": 2040,
+        "inGame": false,
+        "icon": "https://cdn.mir2db.com/images/mob/206.png"
+      },
+      {
+        "id": "58",
+        "cn": "",
+        "kr": "반야풍귀",
+        "img": "203",
+        "spawnSlots": 38,
+        "floors": [
+          "般若神殿1层",
+          "般若神殿2层",
+          "般若神殿3层",
+          "般若神殿4层",
+          "般若神殿5层东",
+          "般若神殿5层西",
+          "般若神殿6层",
+          "般若神殿7层",
+          "般若神殿8层"
+        ],
+        "en": "반야풍귀",
+        "lv": 48,
+        "hp": 550,
+        "exp": 1740,
+        "inGame": false,
+        "icon": "https://cdn.mir2db.com/images/mob/203.png"
+      },
+      {
+        "id": "59",
+        "cn": "",
+        "kr": "반야화귀",
+        "img": "204",
+        "spawnSlots": 36,
+        "floors": [
+          "般若神殿1层",
+          "般若神殿2层",
+          "般若神殿3层",
+          "般若神殿4层",
+          "般若神殿5层东",
+          "般若神殿5层西",
+          "般若神殿6层",
+          "般若神殿7层",
+          "般若神殿8层"
+        ],
+        "en": "반야화귀",
+        "lv": 48,
+        "hp": 500,
+        "exp": 1824,
+        "inGame": false,
+        "icon": "https://cdn.mir2db.com/images/mob/204.png"
+      },
+      {
+        "id": "53",
+        "cn": "",
+        "kr": "반야귀졸",
+        "img": "200",
+        "spawnSlots": 87,
+        "floors": [
+          "般若神殿1层",
+          "般若神殿2层",
+          "般若神殿3层",
+          "般若神殿4层",
+          "般若神殿5层东",
+          "般若神殿5层西",
+          "般若神殿6层",
+          "般若神殿7层",
+          "般若神殿8层"
+        ],
+        "en": "반야귀졸",
+        "lv": 42,
+        "hp": 500,
+        "exp": 1656,
+        "inGame": false,
+        "icon": "https://cdn.mir2db.com/images/mob/200.png"
+      }
+    ],
+    "owned": [],
+    "missing": [
+      {
+        "id": "96",
+        "cn": "邪牛天王",
+        "kr": "사우천왕",
+        "img": "207",
+        "spawnSlots": 1,
+        "floors": [
+          "般若神殿8层"
+        ],
+        "en": "邪牛天王",
+        "lv": 99,
+        "hp": 15000,
+        "exp": 15000,
+        "inGame": false,
+        "icon": "https://cdn.mir2db.com/images/mob/207.png"
+      },
+      {
+        "id": "54",
+        "cn": "",
+        "kr": "반야빙귀",
+        "img": "201",
+        "spawnSlots": 36,
+        "floors": [
+          "般若神殿1层",
+          "般若神殿2层",
+          "般若神殿3层",
+          "般若神殿4层",
+          "般若神殿5层东",
+          "般若神殿5层西",
+          "般若神殿6层",
+          "般若神殿7层",
+          "般若神殿8层"
+        ],
+        "en": "반야빙귀",
+        "lv": 48,
+        "hp": 630,
+        "exp": 1776,
+        "inGame": false,
+        "icon": "https://cdn.mir2db.com/images/mob/201.png"
+      },
+      {
+        "id": "55",
+        "cn": "",
+        "kr": "반야우사",
+        "img": "205",
+        "spawnSlots": 34,
+        "floors": [
+          "般若神殿1层",
+          "般若神殿2层",
+          "般若神殿3层",
+          "般若神殿4层",
+          "般若神殿5层东",
+          "般若神殿5层西",
+          "般若神殿6层",
+          "般若神殿7层",
+          "般若神殿8层"
+        ],
+        "en": "반야우사",
+        "lv": 49,
+        "hp": 620,
+        "exp": 2040,
+        "inGame": false,
+        "icon": "https://cdn.mir2db.com/images/mob/205.png"
+      },
+      {
+        "id": "56",
+        "cn": "",
+        "kr": "반야운귀",
+        "img": "202",
+        "spawnSlots": 38,
+        "floors": [
+          "般若神殿1层",
+          "般若神殿2层",
+          "般若神殿3层",
+          "般若神殿4层",
+          "般若神殿5层东",
+          "般若神殿5层西",
+          "般若神殿6层",
+          "般若神殿7层",
+          "般若神殿8层"
+        ],
+        "en": "반야운귀",
+        "lv": 48,
+        "hp": 600,
+        "exp": 1740,
+        "inGame": false,
+        "icon": "https://cdn.mir2db.com/images/mob/202.png"
+      },
+      {
+        "id": "57",
+        "cn": "",
+        "kr": "반야좌사",
+        "img": "206",
+        "spawnSlots": 35,
+        "floors": [
+          "般若神殿1层",
+          "般若神殿2层",
+          "般若神殿3层",
+          "般若神殿4层",
+          "般若神殿5层东",
+          "般若神殿5层西",
+          "般若神殿6层",
+          "般若神殿7层",
+          "般若神殿8层"
+        ],
+        "en": "반야좌사",
+        "lv": 49,
+        "hp": 570,
+        "exp": 2040,
+        "inGame": false,
+        "icon": "https://cdn.mir2db.com/images/mob/206.png"
+      },
+      {
+        "id": "58",
+        "cn": "",
+        "kr": "반야풍귀",
+        "img": "203",
+        "spawnSlots": 38,
+        "floors": [
+          "般若神殿1层",
+          "般若神殿2层",
+          "般若神殿3层",
+          "般若神殿4层",
+          "般若神殿5层东",
+          "般若神殿5层西",
+          "般若神殿6层",
+          "般若神殿7层",
+          "般若神殿8层"
+        ],
+        "en": "반야풍귀",
+        "lv": 48,
+        "hp": 550,
+        "exp": 1740,
+        "inGame": false,
+        "icon": "https://cdn.mir2db.com/images/mob/203.png"
+      },
+      {
+        "id": "59",
+        "cn": "",
+        "kr": "반야화귀",
+        "img": "204",
+        "spawnSlots": 36,
+        "floors": [
+          "般若神殿1层",
+          "般若神殿2层",
+          "般若神殿3层",
+          "般若神殿4层",
+          "般若神殿5层东",
+          "般若神殿5层西",
+          "般若神殿6层",
+          "般若神殿7层",
+          "般若神殿8层"
+        ],
+        "en": "반야화귀",
+        "lv": 48,
+        "hp": 500,
+        "exp": 1824,
+        "inGame": false,
+        "icon": "https://cdn.mir2db.com/images/mob/204.png"
+      },
+      {
+        "id": "53",
+        "cn": "",
+        "kr": "반야귀졸",
+        "img": "200",
+        "spawnSlots": 87,
+        "floors": [
+          "般若神殿1层",
+          "般若神殿2层",
+          "般若神殿3层",
+          "般若神殿4层",
+          "般若神殿5层东",
+          "般若神殿5层西",
+          "般若神殿6层",
+          "般若神殿7层",
+          "般若神殿8层"
+        ],
+        "en": "반야귀졸",
+        "lv": 42,
+        "hp": 500,
+        "exp": 1656,
+        "inGame": false,
+        "icon": "https://cdn.mir2db.com/images/mob/200.png"
+      }
+    ],
+    "bosses": [
+      {
+        "id": "96",
+        "cn": "邪牛天王",
+        "kr": "사우천왕",
+        "img": "207",
+        "spawnSlots": 1,
+        "floors": [
+          "般若神殿8层"
+        ],
+        "en": "邪牛天王",
+        "lv": 99,
+        "hp": 15000,
+        "exp": 15000,
+        "inGame": false,
+        "icon": "https://cdn.mir2db.com/images/mob/207.png"
+      }
+    ]
+  },
+  {
+    "listId": 66,
+    "label": "Sorrow Moon Mountain (no zone?)",
+    "mapCount": 3,
+    "maps": [
+      "기문혈",
+      "비월산",
+      "비월신전"
+    ],
+    "mobs": [
+      {
+        "id": "82",
+        "cn": "悲月天珠",
+        "kr": "비월천주",
+        "img": "237",
+        "spawnSlots": 1,
+        "floors": [
+          "비월신전"
+        ],
+        "en": "悲月天珠",
+        "lv": 99,
+        "hp": 30000,
+        "exp": 30000,
+        "inGame": false,
+        "icon": "https://cdn.mir2db.com/images/mob/237.png"
+      },
+      {
+        "id": "86",
+        "cn": "",
+        "kr": "비월흑호",
+        "img": "230",
+        "spawnSlots": 75,
+        "floors": [
+          "기문혈",
+          "비월산",
+          "비월신전"
+        ],
+        "en": "비월흑호",
+        "lv": 55,
+        "hp": 1500,
+        "exp": 6000,
+        "inGame": false,
+        "icon": "https://cdn.mir2db.com/images/mob/230.png"
+      },
+      {
+        "id": "255",
+        "cn": "",
+        "kr": "호기옥",
+        "img": "236",
+        "spawnSlots": 23,
+        "floors": [
+          "기문혈",
+          "비월산",
+          "비월신전"
+        ],
+        "en": "호기옥",
+        "lv": 39,
+        "hp": 1500,
+        "exp": 4800,
+        "inGame": false,
+        "icon": "https://cdn.mir2db.com/images/mob/236.png"
+      },
+      {
+        "id": "261",
+        "cn": "",
+        "kr": "호혼기석",
+        "img": "234",
+        "spawnSlots": 4,
+        "floors": [
+          "비월신전"
+        ],
+        "en": "호혼기석",
+        "lv": 60,
+        "hp": 1200,
+        "exp": 4800,
+        "inGame": false,
+        "icon": "https://cdn.mir2db.com/images/mob/234.png"
+      },
+      {
+        "id": "80",
+        "cn": "",
+        "kr": "비월소호",
+        "img": "232",
+        "spawnSlots": 26,
+        "floors": [
+          "기문혈",
+          "비월산",
+          "비월신전"
+        ],
+        "en": "비월소호",
+        "lv": 55,
+        "hp": 1200,
+        "exp": 6240,
+        "inGame": false,
+        "icon": "https://cdn.mir2db.com/images/mob/232.png"
+      },
+      {
+        "id": "254",
+        "cn": "",
+        "kr": "호기연",
+        "img": "235",
+        "spawnSlots": 32,
+        "floors": [
+          "기문혈",
+          "비월산"
+        ],
+        "en": "호기연",
+        "lv": 37,
+        "hp": 1000,
+        "exp": 2400,
+        "inGame": false,
+        "icon": "https://cdn.mir2db.com/images/mob/235.png"
+      },
+      {
+        "id": "84",
+        "cn": "",
+        "kr": "비월치충",
+        "img": "241",
+        "spawnSlots": 27,
+        "floors": [
+          "기문혈",
+          "비월산"
+        ],
+        "en": "비월치충",
+        "lv": 52,
+        "hp": 880,
+        "exp": 2676,
+        "inGame": false,
+        "icon": "https://cdn.mir2db.com/images/mob/241.png"
+      },
+      {
+        "id": "81",
+        "cn": "",
+        "kr": "비월적호",
+        "img": "231",
+        "spawnSlots": 51,
+        "floors": [
+          "기문혈",
+          "비월산",
+          "비월신전"
+        ],
+        "en": "비월적호",
+        "lv": 55,
+        "hp": 800,
+        "exp": 6000,
+        "inGame": false,
+        "icon": "https://cdn.mir2db.com/images/mob/231.png"
+      },
+      {
+        "id": "85",
+        "cn": "",
+        "kr": "비월호충",
+        "img": "239",
+        "spawnSlots": 22,
+        "floors": [
+          "기문혈",
+          "비월산"
+        ],
+        "en": "비월호충",
+        "lv": 53,
+        "hp": 800,
+        "exp": 2880,
+        "inGame": false,
+        "icon": "https://cdn.mir2db.com/images/mob/239.png"
+      },
+      {
+        "id": "83",
+        "cn": "",
+        "kr": "비월충",
+        "img": "240",
+        "spawnSlots": 51,
+        "floors": [
+          "기문혈",
+          "비월산"
+        ],
+        "en": "비월충",
+        "lv": 50,
+        "hp": 760,
+        "exp": 2340,
+        "inGame": false,
+        "icon": "https://cdn.mir2db.com/images/mob/240.png"
+      },
+      {
+        "id": "79",
+        "cn": "",
+        "kr": "비월각충",
+        "img": "238",
+        "spawnSlots": 62,
+        "floors": [
+          "기문혈",
+          "비월산"
+        ],
+        "en": "비월각충",
+        "lv": 51,
+        "hp": 700,
+        "exp": 2520,
+        "inGame": false,
+        "icon": "https://cdn.mir2db.com/images/mob/238.png"
+      },
+      {
+        "id": "262",
+        "cn": "",
+        "kr": "호혼석",
+        "img": "233",
+        "spawnSlots": 32,
+        "floors": [
+          "기문혈",
+          "비월산"
+        ],
+        "en": "호혼석",
+        "lv": 50,
+        "hp": 700,
+        "exp": 1800,
+        "inGame": false,
+        "icon": "https://cdn.mir2db.com/images/mob/233.png"
+      }
+    ],
+    "owned": [],
+    "missing": [
+      {
+        "id": "82",
+        "cn": "悲月天珠",
+        "kr": "비월천주",
+        "img": "237",
+        "spawnSlots": 1,
+        "floors": [
+          "비월신전"
+        ],
+        "en": "悲月天珠",
+        "lv": 99,
+        "hp": 30000,
+        "exp": 30000,
+        "inGame": false,
+        "icon": "https://cdn.mir2db.com/images/mob/237.png"
+      },
+      {
+        "id": "86",
+        "cn": "",
+        "kr": "비월흑호",
+        "img": "230",
+        "spawnSlots": 75,
+        "floors": [
+          "기문혈",
+          "비월산",
+          "비월신전"
+        ],
+        "en": "비월흑호",
+        "lv": 55,
+        "hp": 1500,
+        "exp": 6000,
+        "inGame": false,
+        "icon": "https://cdn.mir2db.com/images/mob/230.png"
+      },
+      {
+        "id": "255",
+        "cn": "",
+        "kr": "호기옥",
+        "img": "236",
+        "spawnSlots": 23,
+        "floors": [
+          "기문혈",
+          "비월산",
+          "비월신전"
+        ],
+        "en": "호기옥",
+        "lv": 39,
+        "hp": 1500,
+        "exp": 4800,
+        "inGame": false,
+        "icon": "https://cdn.mir2db.com/images/mob/236.png"
+      },
+      {
+        "id": "261",
+        "cn": "",
+        "kr": "호혼기석",
+        "img": "234",
+        "spawnSlots": 4,
+        "floors": [
+          "비월신전"
+        ],
+        "en": "호혼기석",
+        "lv": 60,
+        "hp": 1200,
+        "exp": 4800,
+        "inGame": false,
+        "icon": "https://cdn.mir2db.com/images/mob/234.png"
+      },
+      {
+        "id": "80",
+        "cn": "",
+        "kr": "비월소호",
+        "img": "232",
+        "spawnSlots": 26,
+        "floors": [
+          "기문혈",
+          "비월산",
+          "비월신전"
+        ],
+        "en": "비월소호",
+        "lv": 55,
+        "hp": 1200,
+        "exp": 6240,
+        "inGame": false,
+        "icon": "https://cdn.mir2db.com/images/mob/232.png"
+      },
+      {
+        "id": "254",
+        "cn": "",
+        "kr": "호기연",
+        "img": "235",
+        "spawnSlots": 32,
+        "floors": [
+          "기문혈",
+          "비월산"
+        ],
+        "en": "호기연",
+        "lv": 37,
+        "hp": 1000,
+        "exp": 2400,
+        "inGame": false,
+        "icon": "https://cdn.mir2db.com/images/mob/235.png"
+      },
+      {
+        "id": "84",
+        "cn": "",
+        "kr": "비월치충",
+        "img": "241",
+        "spawnSlots": 27,
+        "floors": [
+          "기문혈",
+          "비월산"
+        ],
+        "en": "비월치충",
+        "lv": 52,
+        "hp": 880,
+        "exp": 2676,
+        "inGame": false,
+        "icon": "https://cdn.mir2db.com/images/mob/241.png"
+      },
+      {
+        "id": "81",
+        "cn": "",
+        "kr": "비월적호",
+        "img": "231",
+        "spawnSlots": 51,
+        "floors": [
+          "기문혈",
+          "비월산",
+          "비월신전"
+        ],
+        "en": "비월적호",
+        "lv": 55,
+        "hp": 800,
+        "exp": 6000,
+        "inGame": false,
+        "icon": "https://cdn.mir2db.com/images/mob/231.png"
+      },
+      {
+        "id": "85",
+        "cn": "",
+        "kr": "비월호충",
+        "img": "239",
+        "spawnSlots": 22,
+        "floors": [
+          "기문혈",
+          "비월산"
+        ],
+        "en": "비월호충",
+        "lv": 53,
+        "hp": 800,
+        "exp": 2880,
+        "inGame": false,
+        "icon": "https://cdn.mir2db.com/images/mob/239.png"
+      },
+      {
+        "id": "83",
+        "cn": "",
+        "kr": "비월충",
+        "img": "240",
+        "spawnSlots": 51,
+        "floors": [
+          "기문혈",
+          "비월산"
+        ],
+        "en": "비월충",
+        "lv": 50,
+        "hp": 760,
+        "exp": 2340,
+        "inGame": false,
+        "icon": "https://cdn.mir2db.com/images/mob/240.png"
+      },
+      {
+        "id": "79",
+        "cn": "",
+        "kr": "비월각충",
+        "img": "238",
+        "spawnSlots": 62,
+        "floors": [
+          "기문혈",
+          "비월산"
+        ],
+        "en": "비월각충",
+        "lv": 51,
+        "hp": 700,
+        "exp": 2520,
+        "inGame": false,
+        "icon": "https://cdn.mir2db.com/images/mob/238.png"
+      },
+      {
+        "id": "262",
+        "cn": "",
+        "kr": "호혼석",
+        "img": "233",
+        "spawnSlots": 32,
+        "floors": [
+          "기문혈",
+          "비월산"
+        ],
+        "en": "호혼석",
+        "lv": 50,
+        "hp": 700,
+        "exp": 1800,
+        "inGame": false,
+        "icon": "https://cdn.mir2db.com/images/mob/233.png"
+      }
+    ],
+    "bosses": [
+      {
+        "id": "82",
+        "cn": "悲月天珠",
+        "kr": "비월천주",
+        "img": "237",
+        "spawnSlots": 1,
+        "floors": [
+          "비월신전"
+        ],
+        "en": "悲月天珠",
+        "lv": 99,
+        "hp": 30000,
+        "exp": 30000,
+        "inGame": false,
+        "icon": "https://cdn.mir2db.com/images/mob/237.png"
+      }
+    ]
+  },
+  {
+    "listId": 68,
+    "label": "Sand Ruins (no zone?)",
+    "mapCount": 4,
+    "maps": [
+      "沙遗迹",
+      "모래유적촌장집",
+      "모래유적의원",
+      "모래유적사당"
+    ],
+    "mobs": [
+      {
+        "id": "1049",
+        "cn": "",
+        "kr": "격괴장",
+        "img": "406",
+        "spawnSlots": 1,
+        "floors": [
+          "沙遗迹"
+        ],
+        "en": "격괴장",
+        "lv": 84,
+        "hp": 16200,
+        "exp": 45650,
+        "inGame": false,
+        "icon": "https://cdn.mir2db.com/images/mob/406.png"
+      },
+      {
+        "id": "1046",
+        "cn": "",
+        "kr": "주마검사",
+        "img": "403",
+        "spawnSlots": 4,
+        "floors": [
+          "沙遗迹"
+        ],
+        "en": "주마검사",
+        "lv": 84,
+        "hp": 6300,
+        "exp": 20350,
+        "inGame": false,
+        "icon": "https://cdn.mir2db.com/images/mob/403.png"
+      },
+      {
+        "id": "1048",
+        "cn": "",
+        "kr": "마석거인",
+        "img": "405",
+        "spawnSlots": 1,
+        "floors": [
+          "沙遗迹"
+        ],
+        "en": "마석거인",
+        "lv": 84,
+        "hp": 5670,
+        "exp": 17050,
+        "inGame": false,
+        "icon": "https://cdn.mir2db.com/images/mob/405.png"
+      },
+      {
+        "id": "1041",
+        "cn": "",
+        "kr": "태골서",
+        "img": "397",
+        "spawnSlots": 4,
+        "floors": [
+          "沙遗迹"
+        ],
+        "en": "태골서",
+        "lv": 84,
+        "hp": 5040,
+        "exp": 16280,
+        "inGame": false,
+        "icon": "https://cdn.mir2db.com/images/mob/397.png"
+      },
+      {
+        "id": "1042",
+        "cn": "",
+        "kr": "대망",
+        "img": "398",
+        "spawnSlots": 4,
+        "floors": [
+          "沙遗迹"
+        ],
+        "en": "대망",
+        "lv": 84,
+        "hp": 4824,
+        "exp": 16280,
+        "inGame": false,
+        "icon": "https://cdn.mir2db.com/images/mob/398.png"
+      },
+      {
+        "id": "1040",
+        "cn": "",
+        "kr": "여귀",
+        "img": "396",
+        "spawnSlots": 4,
+        "floors": [
+          "沙遗迹"
+        ],
+        "en": "여귀",
+        "lv": 84,
+        "hp": 4590,
+        "exp": 14850,
+        "inGame": false,
+        "icon": "https://cdn.mir2db.com/images/mob/396.png"
+      },
+      {
+        "id": "1044",
+        "cn": "",
+        "kr": "주마화궁사",
+        "img": "401",
+        "spawnSlots": 3,
+        "floors": [
+          "沙遗迹"
+        ],
+        "en": "주마화궁사",
+        "lv": 84,
+        "hp": 3870,
+        "exp": 17820,
+        "inGame": false,
+        "icon": "https://cdn.mir2db.com/images/mob/401.png"
+      },
+      {
+        "id": "1045",
+        "cn": "",
+        "kr": "주마풍궁사",
+        "img": "402",
+        "spawnSlots": 4,
+        "floors": [
+          "沙遗迹"
+        ],
+        "en": "주마풍궁사",
+        "lv": 84,
+        "hp": 3870,
+        "exp": 17820,
+        "inGame": false,
+        "icon": "https://cdn.mir2db.com/images/mob/402.png"
+      },
+      {
+        "id": "1043",
+        "cn": "",
+        "kr": "주마술사",
+        "img": "400",
+        "spawnSlots": 4,
+        "floors": [
+          "沙遗迹"
+        ],
+        "en": "주마술사",
+        "lv": 84,
+        "hp": 3690,
+        "exp": 17820,
+        "inGame": false,
+        "icon": "https://cdn.mir2db.com/images/mob/400.png"
+      },
+      {
+        "id": "1047",
+        "cn": "",
+        "kr": "여귀석",
+        "img": "404",
+        "spawnSlots": 1,
+        "floors": [
+          "沙遗迹"
+        ],
+        "en": "여귀석",
+        "lv": 84,
+        "hp": 2790,
+        "exp": 14850,
+        "inGame": false,
+        "icon": "https://cdn.mir2db.com/images/mob/404.png"
+      }
+    ],
+    "owned": [],
+    "missing": [
+      {
+        "id": "1049",
+        "cn": "",
+        "kr": "격괴장",
+        "img": "406",
+        "spawnSlots": 1,
+        "floors": [
+          "沙遗迹"
+        ],
+        "en": "격괴장",
+        "lv": 84,
+        "hp": 16200,
+        "exp": 45650,
+        "inGame": false,
+        "icon": "https://cdn.mir2db.com/images/mob/406.png"
+      },
+      {
+        "id": "1046",
+        "cn": "",
+        "kr": "주마검사",
+        "img": "403",
+        "spawnSlots": 4,
+        "floors": [
+          "沙遗迹"
+        ],
+        "en": "주마검사",
+        "lv": 84,
+        "hp": 6300,
+        "exp": 20350,
+        "inGame": false,
+        "icon": "https://cdn.mir2db.com/images/mob/403.png"
+      },
+      {
+        "id": "1048",
+        "cn": "",
+        "kr": "마석거인",
+        "img": "405",
+        "spawnSlots": 1,
+        "floors": [
+          "沙遗迹"
+        ],
+        "en": "마석거인",
+        "lv": 84,
+        "hp": 5670,
+        "exp": 17050,
+        "inGame": false,
+        "icon": "https://cdn.mir2db.com/images/mob/405.png"
+      },
+      {
+        "id": "1041",
+        "cn": "",
+        "kr": "태골서",
+        "img": "397",
+        "spawnSlots": 4,
+        "floors": [
+          "沙遗迹"
+        ],
+        "en": "태골서",
+        "lv": 84,
+        "hp": 5040,
+        "exp": 16280,
+        "inGame": false,
+        "icon": "https://cdn.mir2db.com/images/mob/397.png"
+      },
+      {
+        "id": "1042",
+        "cn": "",
+        "kr": "대망",
+        "img": "398",
+        "spawnSlots": 4,
+        "floors": [
+          "沙遗迹"
+        ],
+        "en": "대망",
+        "lv": 84,
+        "hp": 4824,
+        "exp": 16280,
+        "inGame": false,
+        "icon": "https://cdn.mir2db.com/images/mob/398.png"
+      },
+      {
+        "id": "1040",
+        "cn": "",
+        "kr": "여귀",
+        "img": "396",
+        "spawnSlots": 4,
+        "floors": [
+          "沙遗迹"
+        ],
+        "en": "여귀",
+        "lv": 84,
+        "hp": 4590,
+        "exp": 14850,
+        "inGame": false,
+        "icon": "https://cdn.mir2db.com/images/mob/396.png"
+      },
+      {
+        "id": "1044",
+        "cn": "",
+        "kr": "주마화궁사",
+        "img": "401",
+        "spawnSlots": 3,
+        "floors": [
+          "沙遗迹"
+        ],
+        "en": "주마화궁사",
+        "lv": 84,
+        "hp": 3870,
+        "exp": 17820,
+        "inGame": false,
+        "icon": "https://cdn.mir2db.com/images/mob/401.png"
+      },
+      {
+        "id": "1045",
+        "cn": "",
+        "kr": "주마풍궁사",
+        "img": "402",
+        "spawnSlots": 4,
+        "floors": [
+          "沙遗迹"
+        ],
+        "en": "주마풍궁사",
+        "lv": 84,
+        "hp": 3870,
+        "exp": 17820,
+        "inGame": false,
+        "icon": "https://cdn.mir2db.com/images/mob/402.png"
+      },
+      {
+        "id": "1043",
+        "cn": "",
+        "kr": "주마술사",
+        "img": "400",
+        "spawnSlots": 4,
+        "floors": [
+          "沙遗迹"
+        ],
+        "en": "주마술사",
+        "lv": 84,
+        "hp": 3690,
+        "exp": 17820,
+        "inGame": false,
+        "icon": "https://cdn.mir2db.com/images/mob/400.png"
+      },
+      {
+        "id": "1047",
+        "cn": "",
+        "kr": "여귀석",
+        "img": "404",
+        "spawnSlots": 1,
+        "floors": [
+          "沙遗迹"
+        ],
+        "en": "여귀석",
+        "lv": 84,
+        "hp": 2790,
+        "exp": 14850,
+        "inGame": false,
+        "icon": "https://cdn.mir2db.com/images/mob/404.png"
+      }
+    ],
+    "bosses": [
+      {
+        "id": "1049",
+        "cn": "",
+        "kr": "격괴장",
+        "img": "406",
+        "spawnSlots": 1,
+        "floors": [
+          "沙遗迹"
+        ],
+        "en": "격괴장",
+        "lv": 84,
+        "hp": 16200,
+        "exp": 45650,
+        "inGame": false,
+        "icon": "https://cdn.mir2db.com/images/mob/406.png"
+      },
+      {
+        "id": "1048",
+        "cn": "",
+        "kr": "마석거인",
+        "img": "405",
+        "spawnSlots": 1,
+        "floors": [
+          "沙遗迹"
+        ],
+        "en": "마석거인",
+        "lv": 84,
+        "hp": 5670,
+        "exp": 17050,
+        "inGame": false,
+        "icon": "https://cdn.mir2db.com/images/mob/405.png"
+      },
+      {
+        "id": "1044",
+        "cn": "",
+        "kr": "주마화궁사",
+        "img": "401",
+        "spawnSlots": 3,
+        "floors": [
+          "沙遗迹"
+        ],
+        "en": "주마화궁사",
+        "lv": 84,
+        "hp": 3870,
+        "exp": 17820,
+        "inGame": false,
+        "icon": "https://cdn.mir2db.com/images/mob/401.png"
+      },
+      {
+        "id": "1047",
+        "cn": "",
+        "kr": "여귀석",
+        "img": "404",
+        "spawnSlots": 1,
+        "floors": [
+          "沙遗迹"
+        ],
+        "en": "여귀석",
+        "lv": 84,
+        "hp": 2790,
+        "exp": 14850,
+        "inGame": false,
+        "icon": "https://cdn.mir2db.com/images/mob/404.png"
+      }
+    ]
+  },
+  {
+    "listId": 73,
+    "label": "Moon Valley (no zone?)",
+    "mapCount": 6,
+    "maps": [
+      "月之谷1层",
+      "月之谷2层",
+      "月之圣殿左室",
+      "月之圣殿右室",
+      "月之圣殿通道1",
+      "月之圣殿通道2"
+    ],
+    "mobs": [
+      {
+        "id": "99",
+        "cn": "石魔兽",
+        "kr": "석마수",
+        "img": "258",
+        "spawnSlots": 1,
+        "floors": [
+          "月之圣殿右室"
+        ],
+        "en": "石魔兽",
+        "lv": 80,
+        "hp": 30000,
+        "exp": 40000,
+        "inGame": false,
+        "icon": "https://cdn.mir2db.com/images/mob/258.png"
+      },
+      {
+        "id": "180",
+        "cn": "鸟人像",
+        "kr": "조인상",
+        "img": "259",
+        "spawnSlots": 2,
+        "floors": [
+          "月之圣殿通道1",
+          "月之圣殿通道2"
+        ],
+        "en": "鸟人像",
+        "lv": 80,
+        "hp": 26000,
+        "exp": 35000,
+        "inGame": false,
+        "icon": "https://cdn.mir2db.com/images/mob/259.png"
+      },
+      {
+        "id": "158",
+        "cn": "月之镰神将",
+        "kr": "월지겸신장",
+        "img": "257",
+        "spawnSlots": 6,
+        "floors": [
+          "月之谷1层",
+          "月之谷2层",
+          "月之圣殿左室",
+          "月之圣殿右室",
+          "月之圣殿通道1",
+          "月之圣殿通道2"
+        ],
+        "en": "月之镰神将",
+        "lv": 80,
+        "hp": 21000,
+        "exp": 30000,
+        "inGame": false,
+        "icon": "https://cdn.mir2db.com/images/mob/257.png"
+      },
+      {
+        "id": "157",
+        "cn": "",
+        "kr": "월지격장",
+        "img": "268",
+        "spawnSlots": 19,
+        "floors": [
+          "月之圣殿左室",
+          "月之圣殿右室",
+          "月之圣殿通道1",
+          "月之圣殿通道2"
+        ],
+        "en": "월지격장",
+        "lv": 75,
+        "hp": 1550,
+        "exp": 9100,
+        "inGame": false,
+        "icon": "https://cdn.mir2db.com/images/mob/268.png"
+      },
+      {
+        "id": "163",
+        "cn": "",
+        "kr": "월지호교",
+        "img": "267",
+        "spawnSlots": 19,
+        "floors": [
+          "月之圣殿左室",
+          "月之圣殿右室",
+          "月之圣殿通道1",
+          "月之圣殿通道2"
+        ],
+        "en": "월지호교",
+        "lv": 75,
+        "hp": 1480,
+        "exp": 8650,
+        "inGame": false,
+        "icon": "https://cdn.mir2db.com/images/mob/267.png"
+      },
+      {
+        "id": "162",
+        "cn": "",
+        "kr": "월지투신",
+        "img": "270",
+        "spawnSlots": 28,
+        "floors": [
+          "月之谷1层",
+          "月之谷2层",
+          "月之圣殿左室",
+          "月之圣殿右室",
+          "月之圣殿通道1",
+          "月之圣殿通道2"
+        ],
+        "en": "월지투신",
+        "lv": 70,
+        "hp": 1450,
+        "exp": 7480,
+        "inGame": false,
+        "icon": "https://cdn.mir2db.com/images/mob/270.png"
+      },
+      {
+        "id": "161",
+        "cn": "",
+        "kr": "월지마주",
+        "img": "265",
+        "spawnSlots": 36,
+        "floors": [
+          "月之谷1层",
+          "月之谷2层",
+          "月之圣殿通道1",
+          "月之圣殿通道2"
+        ],
+        "en": "월지마주",
+        "lv": 75,
+        "hp": 1420,
+        "exp": 8200,
+        "inGame": false,
+        "icon": "https://cdn.mir2db.com/images/mob/265.png"
+      },
+      {
+        "id": "160",
+        "cn": "",
+        "kr": "월지마장",
+        "img": "266",
+        "spawnSlots": 19,
+        "floors": [
+          "月之圣殿左室",
+          "月之圣殿右室",
+          "月之圣殿通道1",
+          "月之圣殿通道2"
+        ],
+        "en": "월지마장",
+        "lv": 75,
+        "hp": 1420,
+        "exp": 8600,
+        "inGame": false,
+        "icon": "https://cdn.mir2db.com/images/mob/266.png"
+      },
+      {
+        "id": "264",
+        "cn": "",
+        "kr": "화갑마주",
+        "img": "264",
+        "spawnSlots": 31,
+        "floors": [
+          "月之谷1层",
+          "月之谷2层",
+          "月之圣殿左室"
+        ],
+        "en": "화갑마주",
+        "lv": 70,
+        "hp": 1420,
+        "exp": 8800,
+        "inGame": false,
+        "icon": "https://cdn.mir2db.com/images/mob/264.png"
+      },
+      {
+        "id": "97",
+        "cn": "",
+        "kr": "산월마주",
+        "img": "261",
+        "spawnSlots": 5,
+        "floors": [
+          "月之谷1层"
+        ],
+        "en": "산월마주",
+        "lv": 70,
+        "hp": 1400,
+        "exp": 8360,
+        "inGame": false,
+        "icon": "https://cdn.mir2db.com/images/mob/261.png"
+      },
+      {
+        "id": "271",
+        "cn": "",
+        "kr": "흑각마주",
+        "img": "263",
+        "spawnSlots": 27,
+        "floors": [
+          "月之谷1层",
+          "月之谷2层"
+        ],
+        "en": "흑각마주",
+        "lv": 70,
+        "hp": 1320,
+        "exp": 8690,
+        "inGame": false,
+        "icon": "https://cdn.mir2db.com/images/mob/263.png"
+      },
+      {
+        "id": "231",
+        "cn": "",
+        "kr": "폭안마주",
+        "img": "269",
+        "spawnSlots": 23,
+        "floors": [
+          "月之谷2层",
+          "月之圣殿左室",
+          "月之圣殿右室",
+          "月之圣殿通道1",
+          "月之圣殿通道2"
+        ],
+        "en": "폭안마주",
+        "lv": 70,
+        "hp": 1300,
+        "exp": 7810,
+        "inGame": false,
+        "icon": "https://cdn.mir2db.com/images/mob/269.png"
+      },
+      {
+        "id": "75",
+        "cn": "",
+        "kr": "비독마주",
+        "img": "260",
+        "spawnSlots": 43,
+        "floors": [
+          "月之谷1层",
+          "月之谷2层",
+          "月之圣殿左室",
+          "月之圣殿右室",
+          "月之圣殿通道1",
+          "月之圣殿通道2"
+        ],
+        "en": "비독마주",
+        "lv": 70,
+        "hp": 1270,
+        "exp": 8030,
+        "inGame": false,
+        "icon": "https://cdn.mir2db.com/images/mob/260.png"
+      },
+      {
+        "id": "172",
+        "cn": "",
+        "kr": "적침마주",
+        "img": "262",
+        "spawnSlots": 28,
+        "floors": [
+          "月之谷1层",
+          "月之谷2层"
+        ],
+        "en": "적침마주",
+        "lv": 70,
+        "hp": 1100,
+        "exp": 8470,
+        "inGame": false,
+        "icon": "https://cdn.mir2db.com/images/mob/262.png"
+      },
+      {
+        "id": "159",
+        "cn": "",
+        "kr": "월지마신",
+        "img": "271",
+        "spawnSlots": 11,
+        "floors": [
+          "月之圣殿左室",
+          "月之圣殿右室"
+        ],
+        "en": "월지마신",
+        "lv": 70,
+        "hp": 1000,
+        "exp": 7700,
+        "inGame": false,
+        "icon": "https://cdn.mir2db.com/images/mob/271.png"
+      }
+    ],
+    "owned": [],
+    "missing": [
+      {
+        "id": "99",
+        "cn": "石魔兽",
+        "kr": "석마수",
+        "img": "258",
+        "spawnSlots": 1,
+        "floors": [
+          "月之圣殿右室"
+        ],
+        "en": "石魔兽",
+        "lv": 80,
+        "hp": 30000,
+        "exp": 40000,
+        "inGame": false,
+        "icon": "https://cdn.mir2db.com/images/mob/258.png"
+      },
+      {
+        "id": "180",
+        "cn": "鸟人像",
+        "kr": "조인상",
+        "img": "259",
+        "spawnSlots": 2,
+        "floors": [
+          "月之圣殿通道1",
+          "月之圣殿通道2"
+        ],
+        "en": "鸟人像",
+        "lv": 80,
+        "hp": 26000,
+        "exp": 35000,
+        "inGame": false,
+        "icon": "https://cdn.mir2db.com/images/mob/259.png"
+      },
+      {
+        "id": "158",
+        "cn": "月之镰神将",
+        "kr": "월지겸신장",
+        "img": "257",
+        "spawnSlots": 6,
+        "floors": [
+          "月之谷1层",
+          "月之谷2层",
+          "月之圣殿左室",
+          "月之圣殿右室",
+          "月之圣殿通道1",
+          "月之圣殿通道2"
+        ],
+        "en": "月之镰神将",
+        "lv": 80,
+        "hp": 21000,
+        "exp": 30000,
+        "inGame": false,
+        "icon": "https://cdn.mir2db.com/images/mob/257.png"
+      },
+      {
+        "id": "157",
+        "cn": "",
+        "kr": "월지격장",
+        "img": "268",
+        "spawnSlots": 19,
+        "floors": [
+          "月之圣殿左室",
+          "月之圣殿右室",
+          "月之圣殿通道1",
+          "月之圣殿通道2"
+        ],
+        "en": "월지격장",
+        "lv": 75,
+        "hp": 1550,
+        "exp": 9100,
+        "inGame": false,
+        "icon": "https://cdn.mir2db.com/images/mob/268.png"
+      },
+      {
+        "id": "163",
+        "cn": "",
+        "kr": "월지호교",
+        "img": "267",
+        "spawnSlots": 19,
+        "floors": [
+          "月之圣殿左室",
+          "月之圣殿右室",
+          "月之圣殿通道1",
+          "月之圣殿通道2"
+        ],
+        "en": "월지호교",
+        "lv": 75,
+        "hp": 1480,
+        "exp": 8650,
+        "inGame": false,
+        "icon": "https://cdn.mir2db.com/images/mob/267.png"
+      },
+      {
+        "id": "162",
+        "cn": "",
+        "kr": "월지투신",
+        "img": "270",
+        "spawnSlots": 28,
+        "floors": [
+          "月之谷1层",
+          "月之谷2层",
+          "月之圣殿左室",
+          "月之圣殿右室",
+          "月之圣殿通道1",
+          "月之圣殿通道2"
+        ],
+        "en": "월지투신",
+        "lv": 70,
+        "hp": 1450,
+        "exp": 7480,
+        "inGame": false,
+        "icon": "https://cdn.mir2db.com/images/mob/270.png"
+      },
+      {
+        "id": "161",
+        "cn": "",
+        "kr": "월지마주",
+        "img": "265",
+        "spawnSlots": 36,
+        "floors": [
+          "月之谷1层",
+          "月之谷2层",
+          "月之圣殿通道1",
+          "月之圣殿通道2"
+        ],
+        "en": "월지마주",
+        "lv": 75,
+        "hp": 1420,
+        "exp": 8200,
+        "inGame": false,
+        "icon": "https://cdn.mir2db.com/images/mob/265.png"
+      },
+      {
+        "id": "160",
+        "cn": "",
+        "kr": "월지마장",
+        "img": "266",
+        "spawnSlots": 19,
+        "floors": [
+          "月之圣殿左室",
+          "月之圣殿右室",
+          "月之圣殿通道1",
+          "月之圣殿通道2"
+        ],
+        "en": "월지마장",
+        "lv": 75,
+        "hp": 1420,
+        "exp": 8600,
+        "inGame": false,
+        "icon": "https://cdn.mir2db.com/images/mob/266.png"
+      },
+      {
+        "id": "264",
+        "cn": "",
+        "kr": "화갑마주",
+        "img": "264",
+        "spawnSlots": 31,
+        "floors": [
+          "月之谷1层",
+          "月之谷2层",
+          "月之圣殿左室"
+        ],
+        "en": "화갑마주",
+        "lv": 70,
+        "hp": 1420,
+        "exp": 8800,
+        "inGame": false,
+        "icon": "https://cdn.mir2db.com/images/mob/264.png"
+      },
+      {
+        "id": "97",
+        "cn": "",
+        "kr": "산월마주",
+        "img": "261",
+        "spawnSlots": 5,
+        "floors": [
+          "月之谷1层"
+        ],
+        "en": "산월마주",
+        "lv": 70,
+        "hp": 1400,
+        "exp": 8360,
+        "inGame": false,
+        "icon": "https://cdn.mir2db.com/images/mob/261.png"
+      },
+      {
+        "id": "271",
+        "cn": "",
+        "kr": "흑각마주",
+        "img": "263",
+        "spawnSlots": 27,
+        "floors": [
+          "月之谷1层",
+          "月之谷2层"
+        ],
+        "en": "흑각마주",
+        "lv": 70,
+        "hp": 1320,
+        "exp": 8690,
+        "inGame": false,
+        "icon": "https://cdn.mir2db.com/images/mob/263.png"
+      },
+      {
+        "id": "231",
+        "cn": "",
+        "kr": "폭안마주",
+        "img": "269",
+        "spawnSlots": 23,
+        "floors": [
+          "月之谷2层",
+          "月之圣殿左室",
+          "月之圣殿右室",
+          "月之圣殿通道1",
+          "月之圣殿通道2"
+        ],
+        "en": "폭안마주",
+        "lv": 70,
+        "hp": 1300,
+        "exp": 7810,
+        "inGame": false,
+        "icon": "https://cdn.mir2db.com/images/mob/269.png"
+      },
+      {
+        "id": "75",
+        "cn": "",
+        "kr": "비독마주",
+        "img": "260",
+        "spawnSlots": 43,
+        "floors": [
+          "月之谷1层",
+          "月之谷2层",
+          "月之圣殿左室",
+          "月之圣殿右室",
+          "月之圣殿通道1",
+          "月之圣殿通道2"
+        ],
+        "en": "비독마주",
+        "lv": 70,
+        "hp": 1270,
+        "exp": 8030,
+        "inGame": false,
+        "icon": "https://cdn.mir2db.com/images/mob/260.png"
+      },
+      {
+        "id": "172",
+        "cn": "",
+        "kr": "적침마주",
+        "img": "262",
+        "spawnSlots": 28,
+        "floors": [
+          "月之谷1层",
+          "月之谷2层"
+        ],
+        "en": "적침마주",
+        "lv": 70,
+        "hp": 1100,
+        "exp": 8470,
+        "inGame": false,
+        "icon": "https://cdn.mir2db.com/images/mob/262.png"
+      },
+      {
+        "id": "159",
+        "cn": "",
+        "kr": "월지마신",
+        "img": "271",
+        "spawnSlots": 11,
+        "floors": [
+          "月之圣殿左室",
+          "月之圣殿右室"
+        ],
+        "en": "월지마신",
+        "lv": 70,
+        "hp": 1000,
+        "exp": 7700,
+        "inGame": false,
+        "icon": "https://cdn.mir2db.com/images/mob/271.png"
+      }
+    ],
+    "bosses": [
+      {
+        "id": "99",
+        "cn": "石魔兽",
+        "kr": "석마수",
+        "img": "258",
+        "spawnSlots": 1,
+        "floors": [
+          "月之圣殿右室"
+        ],
+        "en": "石魔兽",
+        "lv": 80,
+        "hp": 30000,
+        "exp": 40000,
+        "inGame": false,
+        "icon": "https://cdn.mir2db.com/images/mob/258.png"
+      },
+      {
+        "id": "180",
+        "cn": "鸟人像",
+        "kr": "조인상",
+        "img": "259",
+        "spawnSlots": 2,
+        "floors": [
+          "月之圣殿通道1",
+          "月之圣殿通道2"
+        ],
+        "en": "鸟人像",
+        "lv": 80,
+        "hp": 26000,
+        "exp": 35000,
+        "inGame": false,
+        "icon": "https://cdn.mir2db.com/images/mob/259.png"
+      }
+    ]
+  },
+  {
+    "listId": 74,
+    "label": "Crescent Forest (no zone?)",
+    "mapCount": 4,
+    "maps": [
+      "弦月林1层",
+      "弦月林2层",
+      "弦月林3层",
+      "弦月堂"
+    ],
+    "mobs": [
+      {
+        "id": "1314",
+        "cn": "金胜战士",
+        "kr": "전승전사",
+        "img": "31",
+        "spawnSlots": 3,
+        "floors": [
+          "弦月林2层",
+          "弦月林3层"
+        ],
+        "en": "金胜战士",
+        "lv": 80,
+        "hp": 14500,
+        "exp": 24000,
+        "inGame": false,
+        "icon": "https://cdn.mir2db.com/images/mob/31.png"
+      },
+      {
+        "id": "1316",
+        "cn": "焱门客",
+        "kr": "혁문객",
+        "img": "34",
+        "spawnSlots": 3,
+        "floors": [
+          "弦月林2层",
+          "弦月林3层"
+        ],
+        "en": "焱门客",
+        "lv": 80,
+        "hp": 13000,
+        "exp": 24000,
+        "inGame": false,
+        "icon": "https://cdn.mir2db.com/images/mob/34.png"
+      },
+      {
+        "id": "1313",
+        "cn": "定缘道士",
+        "kr": "정연도사",
+        "img": "33",
+        "spawnSlots": 3,
+        "floors": [
+          "弦月林2层",
+          "弦月林3层"
+        ],
+        "en": "定缘道士",
+        "lv": 80,
+        "hp": 12500,
+        "exp": 24000,
+        "inGame": false,
+        "icon": "https://cdn.mir2db.com/images/mob/33.png"
+      },
+      {
+        "id": "1315",
+        "cn": "圣术士",
+        "kr": "성술사",
+        "img": "32",
+        "spawnSlots": 3,
+        "floors": [
+          "弦月林2层",
+          "弦月林3层"
+        ],
+        "en": "圣术士",
+        "lv": 80,
+        "hp": 12000,
+        "exp": 24000,
+        "inGame": false,
+        "icon": "https://cdn.mir2db.com/images/mob/32.png"
+      },
+      {
+        "id": "1317",
+        "cn": "流觞弓匠",
+        "kr": "유상궁장",
+        "img": "417",
+        "spawnSlots": 3,
+        "floors": [
+          "弦月林2层",
+          "弦月林3层"
+        ],
+        "en": "流觞弓匠",
+        "lv": 80,
+        "hp": 12000,
+        "exp": 24000,
+        "inGame": false,
+        "icon": "https://cdn.mir2db.com/images/mob/417.png"
+      },
+      {
+        "id": "1302",
+        "cn": "弦月寒虎",
+        "kr": "현월환호",
+        "img": "222",
+        "spawnSlots": 12,
+        "floors": [
+          "弦月林1层",
+          "弦月林2层",
+          "弦月林3层"
+        ],
+        "en": "弦月寒虎",
+        "lv": 75,
+        "hp": 2350,
+        "exp": 11500,
+        "inGame": false,
+        "icon": "https://cdn.mir2db.com/images/mob/222.png"
+      },
+      {
+        "id": "1305",
+        "cn": "弦月坛战士1",
+        "kr": "현월단전사1",
+        "img": "6",
+        "spawnSlots": 9,
+        "floors": [
+          "弦月林1层",
+          "弦月林2层",
+          "弦月林3层"
+        ],
+        "en": "弦月坛战士1",
+        "lv": 70,
+        "hp": 2150,
+        "exp": 9350,
+        "inGame": false,
+        "icon": "https://cdn.mir2db.com/images/mob/6.png"
+      },
+      {
+        "id": "1306",
+        "cn": "弦月坛战士2",
+        "kr": "현월단전사2",
+        "img": "6",
+        "spawnSlots": 9,
+        "floors": [
+          "弦月林1层",
+          "弦月林2层",
+          "弦月林3层"
+        ],
+        "en": "弦月坛战士2",
+        "lv": 70,
+        "hp": 2150,
+        "exp": 9350,
+        "inGame": true,
+        "icon": "https://cdn.mir2db.com/images/mob/6.png"
+      },
+      {
+        "id": "1303",
+        "cn": "熊",
+        "kr": "곰",
+        "img": "415",
+        "spawnSlots": 12,
+        "floors": [
+          "弦月林1层",
+          "弦月林2层",
+          "弦月林3层"
+        ],
+        "en": "熊",
+        "lv": 66,
+        "hp": 1950,
+        "exp": 10200,
+        "inGame": false,
+        "icon": "https://cdn.mir2db.com/images/mob/415.png"
+      },
+      {
+        "id": "1311",
+        "cn": "弦月坛刺客1",
+        "kr": "현월단자객1",
+        "img": "22",
+        "spawnSlots": 9,
+        "floors": [
+          "弦月林1层",
+          "弦月林2层",
+          "弦月林3层"
+        ],
+        "en": "弦月坛刺客1",
+        "lv": 70,
+        "hp": 1820,
+        "exp": 9350,
+        "inGame": false,
+        "icon": "https://cdn.mir2db.com/images/mob/22.png"
+      },
+      {
+        "id": "1312",
+        "cn": "弦月坛刺客2",
+        "kr": "현월단자객2",
+        "img": "22",
+        "spawnSlots": 9,
+        "floors": [
+          "弦月林1层",
+          "弦月林2层",
+          "弦月林3层"
+        ],
+        "en": "弦月坛刺客2",
+        "lv": 70,
+        "hp": 1820,
+        "exp": 9350,
+        "inGame": true,
+        "icon": "https://cdn.mir2db.com/images/mob/22.png"
+      },
+      {
+        "id": "1301",
+        "cn": "杉精魄",
+        "kr": "삼나무정백",
+        "img": "414",
+        "spawnSlots": 12,
+        "floors": [
+          "弦月林1层",
+          "弦月林2层",
+          "弦月林3层"
+        ],
+        "en": "杉精魄",
+        "lv": 66,
+        "hp": 1600,
+        "exp": 9960,
+        "inGame": false,
+        "icon": "https://cdn.mir2db.com/images/mob/414.png"
+      },
+      {
+        "id": "1300",
+        "cn": "草丛龟",
+        "kr": "숲거북이",
+        "img": "413",
+        "spawnSlots": 12,
+        "floors": [
+          "弦月林1层",
+          "弦月林2层",
+          "弦月林3层"
+        ],
+        "en": "草丛龟",
+        "lv": 66,
+        "hp": 1550,
+        "exp": 10080,
+        "inGame": false,
+        "icon": "https://cdn.mir2db.com/images/mob/413.png"
+      },
+      {
+        "id": "1309",
+        "cn": "弦月坛道士1",
+        "kr": "현월단도사1",
+        "img": "8",
+        "spawnSlots": 9,
+        "floors": [
+          "弦月林1层",
+          "弦月林2层",
+          "弦月林3层"
+        ],
+        "en": "弦月坛道士1",
+        "lv": 70,
+        "hp": 1480,
+        "exp": 9350,
+        "inGame": false,
+        "icon": "https://cdn.mir2db.com/images/mob/8.png"
+      },
+      {
+        "id": "1310",
+        "cn": "弦月坛道士2",
+        "kr": "현월단도사2",
+        "img": "8",
+        "spawnSlots": 9,
+        "floors": [
+          "弦月林1层",
+          "弦月林2层",
+          "弦月林3层"
+        ],
+        "en": "弦月坛道士2",
+        "lv": 70,
+        "hp": 1480,
+        "exp": 9350,
+        "inGame": true,
+        "icon": "https://cdn.mir2db.com/images/mob/8.png"
+      },
+      {
+        "id": "1304",
+        "cn": "金钱豹",
+        "kr": "표범",
+        "img": "416",
+        "spawnSlots": 11,
+        "floors": [
+          "弦月林1层",
+          "弦月林2层",
+          "弦月林3层"
+        ],
+        "en": "金钱豹",
+        "lv": 66,
+        "hp": 1300,
+        "exp": 7200,
+        "inGame": false,
+        "icon": "https://cdn.mir2db.com/images/mob/416.png"
+      },
+      {
+        "id": "1307",
+        "cn": "弦月坛术士1",
+        "kr": "현월단술사1",
+        "img": "7",
+        "spawnSlots": 9,
+        "floors": [
+          "弦月林1层",
+          "弦月林2层",
+          "弦月林3层"
+        ],
+        "en": "弦月坛术士1",
+        "lv": 70,
+        "hp": 1050,
+        "exp": 9350,
+        "inGame": false,
+        "icon": "https://cdn.mir2db.com/images/mob/7.png"
+      },
+      {
+        "id": "1308",
+        "cn": "弦月坛术士2",
+        "kr": "현월단술사2",
+        "img": "7",
+        "spawnSlots": 9,
+        "floors": [
+          "弦月林1层",
+          "弦月林2层",
+          "弦月林3层"
+        ],
+        "en": "弦月坛术士2",
+        "lv": 70,
+        "hp": 1050,
+        "exp": 9350,
+        "inGame": true,
+        "icon": "https://cdn.mir2db.com/images/mob/7.png"
+      }
+    ],
+    "owned": [
+      {
+        "id": "1306",
+        "cn": "弦月坛战士2",
+        "kr": "현월단전사2",
+        "img": "6",
+        "spawnSlots": 9,
+        "floors": [
+          "弦月林1层",
+          "弦月林2层",
+          "弦月林3层"
+        ],
+        "en": "弦月坛战士2",
+        "lv": 70,
+        "hp": 2150,
+        "exp": 9350,
+        "inGame": true,
+        "icon": "https://cdn.mir2db.com/images/mob/6.png"
+      },
+      {
+        "id": "1312",
+        "cn": "弦月坛刺客2",
+        "kr": "현월단자객2",
+        "img": "22",
+        "spawnSlots": 9,
+        "floors": [
+          "弦月林1层",
+          "弦月林2层",
+          "弦月林3层"
+        ],
+        "en": "弦月坛刺客2",
+        "lv": 70,
+        "hp": 1820,
+        "exp": 9350,
+        "inGame": true,
+        "icon": "https://cdn.mir2db.com/images/mob/22.png"
+      },
+      {
+        "id": "1310",
+        "cn": "弦月坛道士2",
+        "kr": "현월단도사2",
+        "img": "8",
+        "spawnSlots": 9,
+        "floors": [
+          "弦月林1层",
+          "弦月林2层",
+          "弦月林3层"
+        ],
+        "en": "弦月坛道士2",
+        "lv": 70,
+        "hp": 1480,
+        "exp": 9350,
+        "inGame": true,
+        "icon": "https://cdn.mir2db.com/images/mob/8.png"
+      },
+      {
+        "id": "1308",
+        "cn": "弦月坛术士2",
+        "kr": "현월단술사2",
+        "img": "7",
+        "spawnSlots": 9,
+        "floors": [
+          "弦月林1层",
+          "弦月林2层",
+          "弦月林3层"
+        ],
+        "en": "弦月坛术士2",
+        "lv": 70,
+        "hp": 1050,
+        "exp": 9350,
+        "inGame": true,
+        "icon": "https://cdn.mir2db.com/images/mob/7.png"
+      }
+    ],
+    "missing": [
+      {
+        "id": "1314",
+        "cn": "金胜战士",
+        "kr": "전승전사",
+        "img": "31",
+        "spawnSlots": 3,
+        "floors": [
+          "弦月林2层",
+          "弦月林3层"
+        ],
+        "en": "金胜战士",
+        "lv": 80,
+        "hp": 14500,
+        "exp": 24000,
+        "inGame": false,
+        "icon": "https://cdn.mir2db.com/images/mob/31.png"
+      },
+      {
+        "id": "1316",
+        "cn": "焱门客",
+        "kr": "혁문객",
+        "img": "34",
+        "spawnSlots": 3,
+        "floors": [
+          "弦月林2层",
+          "弦月林3层"
+        ],
+        "en": "焱门客",
+        "lv": 80,
+        "hp": 13000,
+        "exp": 24000,
+        "inGame": false,
+        "icon": "https://cdn.mir2db.com/images/mob/34.png"
+      },
+      {
+        "id": "1313",
+        "cn": "定缘道士",
+        "kr": "정연도사",
+        "img": "33",
+        "spawnSlots": 3,
+        "floors": [
+          "弦月林2层",
+          "弦月林3层"
+        ],
+        "en": "定缘道士",
+        "lv": 80,
+        "hp": 12500,
+        "exp": 24000,
+        "inGame": false,
+        "icon": "https://cdn.mir2db.com/images/mob/33.png"
+      },
+      {
+        "id": "1315",
+        "cn": "圣术士",
+        "kr": "성술사",
+        "img": "32",
+        "spawnSlots": 3,
+        "floors": [
+          "弦月林2层",
+          "弦月林3层"
+        ],
+        "en": "圣术士",
+        "lv": 80,
+        "hp": 12000,
+        "exp": 24000,
+        "inGame": false,
+        "icon": "https://cdn.mir2db.com/images/mob/32.png"
+      },
+      {
+        "id": "1317",
+        "cn": "流觞弓匠",
+        "kr": "유상궁장",
+        "img": "417",
+        "spawnSlots": 3,
+        "floors": [
+          "弦月林2层",
+          "弦月林3层"
+        ],
+        "en": "流觞弓匠",
+        "lv": 80,
+        "hp": 12000,
+        "exp": 24000,
+        "inGame": false,
+        "icon": "https://cdn.mir2db.com/images/mob/417.png"
+      },
+      {
+        "id": "1302",
+        "cn": "弦月寒虎",
+        "kr": "현월환호",
+        "img": "222",
+        "spawnSlots": 12,
+        "floors": [
+          "弦月林1层",
+          "弦月林2层",
+          "弦月林3层"
+        ],
+        "en": "弦月寒虎",
+        "lv": 75,
+        "hp": 2350,
+        "exp": 11500,
+        "inGame": false,
+        "icon": "https://cdn.mir2db.com/images/mob/222.png"
+      },
+      {
+        "id": "1305",
+        "cn": "弦月坛战士1",
+        "kr": "현월단전사1",
+        "img": "6",
+        "spawnSlots": 9,
+        "floors": [
+          "弦月林1层",
+          "弦月林2层",
+          "弦月林3层"
+        ],
+        "en": "弦月坛战士1",
+        "lv": 70,
+        "hp": 2150,
+        "exp": 9350,
+        "inGame": false,
+        "icon": "https://cdn.mir2db.com/images/mob/6.png"
+      },
+      {
+        "id": "1303",
+        "cn": "熊",
+        "kr": "곰",
+        "img": "415",
+        "spawnSlots": 12,
+        "floors": [
+          "弦月林1层",
+          "弦月林2层",
+          "弦月林3层"
+        ],
+        "en": "熊",
+        "lv": 66,
+        "hp": 1950,
+        "exp": 10200,
+        "inGame": false,
+        "icon": "https://cdn.mir2db.com/images/mob/415.png"
+      },
+      {
+        "id": "1311",
+        "cn": "弦月坛刺客1",
+        "kr": "현월단자객1",
+        "img": "22",
+        "spawnSlots": 9,
+        "floors": [
+          "弦月林1层",
+          "弦月林2层",
+          "弦月林3层"
+        ],
+        "en": "弦月坛刺客1",
+        "lv": 70,
+        "hp": 1820,
+        "exp": 9350,
+        "inGame": false,
+        "icon": "https://cdn.mir2db.com/images/mob/22.png"
+      },
+      {
+        "id": "1301",
+        "cn": "杉精魄",
+        "kr": "삼나무정백",
+        "img": "414",
+        "spawnSlots": 12,
+        "floors": [
+          "弦月林1层",
+          "弦月林2层",
+          "弦月林3层"
+        ],
+        "en": "杉精魄",
+        "lv": 66,
+        "hp": 1600,
+        "exp": 9960,
+        "inGame": false,
+        "icon": "https://cdn.mir2db.com/images/mob/414.png"
+      },
+      {
+        "id": "1300",
+        "cn": "草丛龟",
+        "kr": "숲거북이",
+        "img": "413",
+        "spawnSlots": 12,
+        "floors": [
+          "弦月林1层",
+          "弦月林2层",
+          "弦月林3层"
+        ],
+        "en": "草丛龟",
+        "lv": 66,
+        "hp": 1550,
+        "exp": 10080,
+        "inGame": false,
+        "icon": "https://cdn.mir2db.com/images/mob/413.png"
+      },
+      {
+        "id": "1309",
+        "cn": "弦月坛道士1",
+        "kr": "현월단도사1",
+        "img": "8",
+        "spawnSlots": 9,
+        "floors": [
+          "弦月林1层",
+          "弦月林2层",
+          "弦月林3层"
+        ],
+        "en": "弦月坛道士1",
+        "lv": 70,
+        "hp": 1480,
+        "exp": 9350,
+        "inGame": false,
+        "icon": "https://cdn.mir2db.com/images/mob/8.png"
+      },
+      {
+        "id": "1304",
+        "cn": "金钱豹",
+        "kr": "표범",
+        "img": "416",
+        "spawnSlots": 11,
+        "floors": [
+          "弦月林1层",
+          "弦月林2层",
+          "弦月林3层"
+        ],
+        "en": "金钱豹",
+        "lv": 66,
+        "hp": 1300,
+        "exp": 7200,
+        "inGame": false,
+        "icon": "https://cdn.mir2db.com/images/mob/416.png"
+      },
+      {
+        "id": "1307",
+        "cn": "弦月坛术士1",
+        "kr": "현월단술사1",
+        "img": "7",
+        "spawnSlots": 9,
+        "floors": [
+          "弦月林1层",
+          "弦月林2层",
+          "弦月林3层"
+        ],
+        "en": "弦月坛术士1",
+        "lv": 70,
+        "hp": 1050,
+        "exp": 9350,
+        "inGame": false,
+        "icon": "https://cdn.mir2db.com/images/mob/7.png"
+      }
+    ],
+    "bosses": [
+      {
+        "id": "1314",
+        "cn": "金胜战士",
+        "kr": "전승전사",
+        "img": "31",
+        "spawnSlots": 3,
+        "floors": [
+          "弦月林2层",
+          "弦月林3层"
+        ],
+        "en": "金胜战士",
+        "lv": 80,
+        "hp": 14500,
+        "exp": 24000,
+        "inGame": false,
+        "icon": "https://cdn.mir2db.com/images/mob/31.png"
+      },
+      {
+        "id": "1316",
+        "cn": "焱门客",
+        "kr": "혁문객",
+        "img": "34",
+        "spawnSlots": 3,
+        "floors": [
+          "弦月林2层",
+          "弦月林3层"
+        ],
+        "en": "焱门客",
+        "lv": 80,
+        "hp": 13000,
+        "exp": 24000,
+        "inGame": false,
+        "icon": "https://cdn.mir2db.com/images/mob/34.png"
+      },
+      {
+        "id": "1313",
+        "cn": "定缘道士",
+        "kr": "정연도사",
+        "img": "33",
+        "spawnSlots": 3,
+        "floors": [
+          "弦月林2层",
+          "弦月林3层"
+        ],
+        "en": "定缘道士",
+        "lv": 80,
+        "hp": 12500,
+        "exp": 24000,
+        "inGame": false,
+        "icon": "https://cdn.mir2db.com/images/mob/33.png"
+      },
+      {
+        "id": "1315",
+        "cn": "圣术士",
+        "kr": "성술사",
+        "img": "32",
+        "spawnSlots": 3,
+        "floors": [
+          "弦月林2层",
+          "弦月林3层"
+        ],
+        "en": "圣术士",
+        "lv": 80,
+        "hp": 12000,
+        "exp": 24000,
+        "inGame": false,
+        "icon": "https://cdn.mir2db.com/images/mob/32.png"
+      },
+      {
+        "id": "1317",
+        "cn": "流觞弓匠",
+        "kr": "유상궁장",
+        "img": "417",
+        "spawnSlots": 3,
+        "floors": [
+          "弦月林2层",
+          "弦月林3层"
+        ],
+        "en": "流觞弓匠",
+        "lv": 80,
+        "hp": 12000,
+        "exp": 24000,
+        "inGame": false,
+        "icon": "https://cdn.mir2db.com/images/mob/417.png"
+      }
+    ]
+  },
+  {
+    "listId": 76,
+    "label": "Spirit Ghost Path (no zone?)",
+    "mapCount": 5,
+    "maps": [
+      "神穿鬼路",
+      "神穿鬼路",
+      "龙痕丘陵",
+      "神穿鬼路",
+      "神穿鬼路"
+    ],
+    "mobs": [
+      {
+        "id": "1340",
+        "cn": "穷奇",
+        "kr": "궁기",
+        "img": "434",
+        "spawnSlots": 16,
+        "floors": [
+          "龙痕丘陵"
+        ],
+        "en": "穷奇",
+        "lv": 86,
+        "hp": 8250,
+        "exp": 29855,
+        "inGame": false,
+        "icon": "https://cdn.mir2db.com/images/mob/434.png"
+      },
+      {
+        "id": "1335",
+        "cn": "水龙",
+        "kr": "수룡",
+        "img": "432",
+        "spawnSlots": 32,
+        "floors": [
+          "神穿鬼路"
+        ],
+        "en": "水龙",
+        "lv": 83,
+        "hp": 2970,
+        "exp": 14050,
+        "inGame": false,
+        "icon": "https://cdn.mir2db.com/images/mob/432.png"
+      },
+      {
+        "id": "1336",
+        "cn": "沼玄武",
+        "kr": "소현무",
+        "img": "433",
+        "spawnSlots": 16,
+        "floors": [
+          "神穿鬼路"
+        ],
+        "en": "沼玄武",
+        "lv": 83,
+        "hp": 2845,
+        "exp": 13555,
+        "inGame": false,
+        "icon": "https://cdn.mir2db.com/images/mob/433.png"
+      },
+      {
+        "id": "1339",
+        "cn": "",
+        "kr": "푸른거미",
+        "img": "261",
+        "spawnSlots": 16,
+        "floors": [
+          "神穿鬼路"
+        ],
+        "en": "푸른거미",
+        "lv": 82,
+        "hp": 2800,
+        "exp": 13100,
+        "inGame": false,
+        "icon": "https://cdn.mir2db.com/images/mob/261.png"
+      },
+      {
+        "id": "1342",
+        "cn": "龙骨弓士",
+        "kr": "용골궁사",
+        "img": "436",
+        "spawnSlots": 16,
+        "floors": [
+          "龙痕丘陵"
+        ],
+        "en": "龙骨弓士",
+        "lv": 82,
+        "hp": 2780,
+        "exp": 13100,
+        "inGame": false,
+        "icon": "https://cdn.mir2db.com/images/mob/436.png"
+      },
+      {
+        "id": "1338",
+        "cn": "동굴钳虫",
+        "kr": "동굴집게벌레",
+        "img": "121",
+        "spawnSlots": 16,
+        "floors": [
+          "神穿鬼路"
+        ],
+        "en": "동굴钳虫",
+        "lv": 82,
+        "hp": 2740,
+        "exp": 12950,
+        "inGame": false,
+        "icon": "https://cdn.mir2db.com/images/mob/121.png"
+      },
+      {
+        "id": "1337",
+        "cn": "",
+        "kr": "동굴박쥐",
+        "img": "80",
+        "spawnSlots": 16,
+        "floors": [
+          "神穿鬼路"
+        ],
+        "en": "동굴박쥐",
+        "lv": 82,
+        "hp": 2555,
+        "exp": 12700,
+        "inGame": false,
+        "icon": "https://cdn.mir2db.com/images/mob/80.png"
+      },
+      {
+        "id": "1344",
+        "cn": "麒麟",
+        "kr": "기린",
+        "img": "438",
+        "spawnSlots": 15,
+        "floors": [
+          "龙痕丘陵"
+        ],
+        "en": "麒麟",
+        "lv": 84,
+        "hp": 2495,
+        "exp": 14270,
+        "inGame": false,
+        "icon": "https://cdn.mir2db.com/images/mob/438.png"
+      },
+      {
+        "id": "1341",
+        "cn": "龙骨战士",
+        "kr": "용골전사",
+        "img": "435",
+        "spawnSlots": 16,
+        "floors": [
+          "龙痕丘陵"
+        ],
+        "en": "龙骨战士",
+        "lv": 82,
+        "hp": 2150,
+        "exp": 8500,
+        "inGame": false,
+        "icon": "https://cdn.mir2db.com/images/mob/435.png"
+      },
+      {
+        "id": "1343",
+        "cn": "沙暴风",
+        "kr": "모래폭풍",
+        "img": "437",
+        "spawnSlots": 16,
+        "floors": [
+          "龙痕丘陵"
+        ],
+        "en": "沙暴风",
+        "lv": 82,
+        "hp": 1460,
+        "exp": 11500,
+        "inGame": false,
+        "icon": "https://cdn.mir2db.com/images/mob/437.png"
+      }
+    ],
+    "owned": [],
+    "missing": [
+      {
+        "id": "1340",
+        "cn": "穷奇",
+        "kr": "궁기",
+        "img": "434",
+        "spawnSlots": 16,
+        "floors": [
+          "龙痕丘陵"
+        ],
+        "en": "穷奇",
+        "lv": 86,
+        "hp": 8250,
+        "exp": 29855,
+        "inGame": false,
+        "icon": "https://cdn.mir2db.com/images/mob/434.png"
+      },
+      {
+        "id": "1335",
+        "cn": "水龙",
+        "kr": "수룡",
+        "img": "432",
+        "spawnSlots": 32,
+        "floors": [
+          "神穿鬼路"
+        ],
+        "en": "水龙",
+        "lv": 83,
+        "hp": 2970,
+        "exp": 14050,
+        "inGame": false,
+        "icon": "https://cdn.mir2db.com/images/mob/432.png"
+      },
+      {
+        "id": "1336",
+        "cn": "沼玄武",
+        "kr": "소현무",
+        "img": "433",
+        "spawnSlots": 16,
+        "floors": [
+          "神穿鬼路"
+        ],
+        "en": "沼玄武",
+        "lv": 83,
+        "hp": 2845,
+        "exp": 13555,
+        "inGame": false,
+        "icon": "https://cdn.mir2db.com/images/mob/433.png"
+      },
+      {
+        "id": "1339",
+        "cn": "",
+        "kr": "푸른거미",
+        "img": "261",
+        "spawnSlots": 16,
+        "floors": [
+          "神穿鬼路"
+        ],
+        "en": "푸른거미",
+        "lv": 82,
+        "hp": 2800,
+        "exp": 13100,
+        "inGame": false,
+        "icon": "https://cdn.mir2db.com/images/mob/261.png"
+      },
+      {
+        "id": "1342",
+        "cn": "龙骨弓士",
+        "kr": "용골궁사",
+        "img": "436",
+        "spawnSlots": 16,
+        "floors": [
+          "龙痕丘陵"
+        ],
+        "en": "龙骨弓士",
+        "lv": 82,
+        "hp": 2780,
+        "exp": 13100,
+        "inGame": false,
+        "icon": "https://cdn.mir2db.com/images/mob/436.png"
+      },
+      {
+        "id": "1338",
+        "cn": "동굴钳虫",
+        "kr": "동굴집게벌레",
+        "img": "121",
+        "spawnSlots": 16,
+        "floors": [
+          "神穿鬼路"
+        ],
+        "en": "동굴钳虫",
+        "lv": 82,
+        "hp": 2740,
+        "exp": 12950,
+        "inGame": false,
+        "icon": "https://cdn.mir2db.com/images/mob/121.png"
+      },
+      {
+        "id": "1337",
+        "cn": "",
+        "kr": "동굴박쥐",
+        "img": "80",
+        "spawnSlots": 16,
+        "floors": [
+          "神穿鬼路"
+        ],
+        "en": "동굴박쥐",
+        "lv": 82,
+        "hp": 2555,
+        "exp": 12700,
+        "inGame": false,
+        "icon": "https://cdn.mir2db.com/images/mob/80.png"
+      },
+      {
+        "id": "1344",
+        "cn": "麒麟",
+        "kr": "기린",
+        "img": "438",
+        "spawnSlots": 15,
+        "floors": [
+          "龙痕丘陵"
+        ],
+        "en": "麒麟",
+        "lv": 84,
+        "hp": 2495,
+        "exp": 14270,
+        "inGame": false,
+        "icon": "https://cdn.mir2db.com/images/mob/438.png"
+      },
+      {
+        "id": "1341",
+        "cn": "龙骨战士",
+        "kr": "용골전사",
+        "img": "435",
+        "spawnSlots": 16,
+        "floors": [
+          "龙痕丘陵"
+        ],
+        "en": "龙骨战士",
+        "lv": 82,
+        "hp": 2150,
+        "exp": 8500,
+        "inGame": false,
+        "icon": "https://cdn.mir2db.com/images/mob/435.png"
+      },
+      {
+        "id": "1343",
+        "cn": "沙暴风",
+        "kr": "모래폭풍",
+        "img": "437",
+        "spawnSlots": 16,
+        "floors": [
+          "龙痕丘陵"
+        ],
+        "en": "沙暴风",
+        "lv": 82,
+        "hp": 1460,
+        "exp": 11500,
+        "inGame": false,
+        "icon": "https://cdn.mir2db.com/images/mob/437.png"
+      }
+    ],
+    "bosses": []
+  },
+  {
+    "listId": 80,
+    "label": "Pianmu Island (no zone?)",
+    "mapCount": 12,
+    "maps": [
+      "片木岛",
+      "片木岛村庄",
+      "货船入口",
+      "货船仓库",
+      "货船居住舱",
+      "货船船艄",
+      "货船船长室",
+      "帆船入口",
+      "帆船仓库",
+      "帆船居住仓",
+      "帆船船艄",
+      "帆船船长室"
+    ],
+    "mobs": [
+      {
+        "id": "992",
+        "cn": "",
+        "kr": "거친선목",
+        "img": "391",
+        "spawnSlots": 5,
+        "floors": [
+          "货船居住舱",
+          "货船船艄",
+          "帆船居住仓",
+          "帆船船艄"
+        ],
+        "en": "거친선목",
+        "lv": 83,
+        "hp": 2300,
+        "exp": 12100,
+        "inGame": false,
+        "icon": "https://cdn.mir2db.com/images/mob/391.png"
+      },
+      {
+        "id": "987",
+        "cn": "",
+        "kr": "그을린요리사",
+        "img": "386",
+        "spawnSlots": 5,
+        "floors": [
+          "货船居住舱",
+          "货船船艄",
+          "帆船居住仓",
+          "帆船船艄"
+        ],
+        "en": "그을린요리사",
+        "lv": 81,
+        "hp": 2200,
+        "exp": 11550,
+        "inGame": false,
+        "icon": "https://cdn.mir2db.com/images/mob/386.png"
+      },
+      {
+        "id": "996",
+        "cn": "",
+        "kr": "변이된감시원",
+        "img": "393",
+        "spawnSlots": 5,
+        "floors": [
+          "货船入口",
+          "货船仓库",
+          "帆船入口",
+          "帆船仓库"
+        ],
+        "en": "변이된감시원",
+        "lv": 83,
+        "hp": 2100,
+        "exp": 12000,
+        "inGame": false,
+        "icon": "https://cdn.mir2db.com/images/mob/393.png"
+      },
+      {
+        "id": "983",
+        "cn": "",
+        "kr": "긴코원숭이",
+        "img": "382",
+        "spawnSlots": 1,
+        "floors": [
+          "片木岛"
+        ],
+        "en": "긴코원숭이",
+        "lv": 81,
+        "hp": 2050,
+        "exp": 9850,
+        "inGame": false,
+        "icon": "https://cdn.mir2db.com/images/mob/382.png"
+      },
+      {
+        "id": "988",
+        "cn": "",
+        "kr": "떠도는선원",
+        "img": "387",
+        "spawnSlots": 5,
+        "floors": [
+          "货船入口",
+          "货船仓库",
+          "帆船入口",
+          "帆船仓库"
+        ],
+        "en": "떠도는선원",
+        "lv": 81,
+        "hp": 2050,
+        "exp": 11000,
+        "inGame": false,
+        "icon": "https://cdn.mir2db.com/images/mob/387.png"
+      },
+      {
+        "id": "991",
+        "cn": "",
+        "kr": "농노군",
+        "img": "390",
+        "spawnSlots": 7,
+        "floors": [
+          "货船入口",
+          "货船仓库",
+          "货船船艄",
+          "帆船入口",
+          "帆船仓库",
+          "帆船船艄"
+        ],
+        "en": "농노군",
+        "lv": 81,
+        "hp": 2050,
+        "exp": 11000,
+        "inGame": false,
+        "icon": "https://cdn.mir2db.com/images/mob/390.png"
+      },
+      {
+        "id": "984",
+        "cn": "",
+        "kr": "변이갑충",
+        "img": "383",
+        "spawnSlots": 2,
+        "floors": [
+          "片木岛"
+        ],
+        "en": "변이갑충",
+        "lv": 80,
+        "hp": 1920,
+        "exp": 9000,
+        "inGame": false,
+        "icon": "https://cdn.mir2db.com/images/mob/383.png"
+      },
+      {
+        "id": "985",
+        "cn": "",
+        "kr": "거장화",
+        "img": "384",
+        "spawnSlots": 1,
+        "floors": [
+          "片木岛"
+        ],
+        "en": "거장화",
+        "lv": 80,
+        "hp": 1920,
+        "exp": 9000,
+        "inGame": false,
+        "icon": "https://cdn.mir2db.com/images/mob/384.png"
+      },
+      {
+        "id": "986",
+        "cn": "",
+        "kr": "서성이는궁병",
+        "img": "385",
+        "spawnSlots": 10,
+        "floors": [
+          "片木岛",
+          "货船入口",
+          "货船仓库",
+          "货船居住舱",
+          "货船船艄",
+          "帆船入口",
+          "帆船仓库",
+          "帆船居住仓",
+          "帆船船艄"
+        ],
+        "en": "서성이는궁병",
+        "lv": 80,
+        "hp": 1920,
+        "exp": 11000,
+        "inGame": false,
+        "icon": "https://cdn.mir2db.com/images/mob/385.png"
+      },
+      {
+        "id": "989",
+        "cn": "",
+        "kr": "익사한노예",
+        "img": "388",
+        "spawnSlots": 10,
+        "floors": [
+          "片木岛",
+          "货船入口",
+          "货船仓库",
+          "货船居住舱",
+          "货船船艄",
+          "帆船入口",
+          "帆船仓库",
+          "帆船居住仓",
+          "帆船船艄"
+        ],
+        "en": "익사한노예",
+        "lv": 80,
+        "hp": 1920,
+        "exp": 11000,
+        "inGame": false,
+        "icon": "https://cdn.mir2db.com/images/mob/388.png"
+      },
+      {
+        "id": "990",
+        "cn": "",
+        "kr": "선박의악령",
+        "img": "389",
+        "spawnSlots": 8,
+        "floors": [
+          "货船入口",
+          "货船仓库",
+          "货船居住舱",
+          "货船船艄",
+          "帆船入口",
+          "帆船仓库",
+          "帆船居住仓",
+          "帆船船艄"
+        ],
+        "en": "선박의악령",
+        "lv": 80,
+        "hp": 1920,
+        "exp": 11000,
+        "inGame": false,
+        "icon": "https://cdn.mir2db.com/images/mob/389.png"
+      },
+      {
+        "id": "997",
+        "cn": "",
+        "kr": "혼불",
+        "img": "394",
+        "spawnSlots": 9,
+        "floors": [
+          "货船入口",
+          "货船仓库",
+          "货船居住舱",
+          "货船船艄",
+          "帆船入口",
+          "帆船仓库",
+          "帆船居住仓",
+          "帆船船艄"
+        ],
+        "en": "혼불",
+        "lv": 80,
+        "hp": 1920,
+        "exp": 10500,
+        "inGame": false,
+        "icon": "https://cdn.mir2db.com/images/mob/394.png"
+      },
+      {
+        "id": "993",
+        "cn": "",
+        "kr": "저주받은상자1",
+        "img": "392",
+        "spawnSlots": 5,
+        "floors": [
+          "片木岛",
+          "货船居住舱",
+          "货船船艄",
+          "帆船居住仓",
+          "帆船船艄"
+        ],
+        "en": "저주받은상자1",
+        "lv": 80,
+        "hp": 1,
+        "exp": 1,
+        "inGame": false,
+        "icon": "https://cdn.mir2db.com/images/mob/392.png"
+      },
+      {
+        "id": "994",
+        "cn": "",
+        "kr": "저주받은상자2",
+        "img": "392",
+        "spawnSlots": 5,
+        "floors": [
+          "片木岛",
+          "货船居住舱",
+          "货船船艄",
+          "帆船居住仓",
+          "帆船船艄"
+        ],
+        "en": "저주받은상자2",
+        "lv": 80,
+        "hp": 1,
+        "exp": 1,
+        "inGame": true,
+        "icon": "https://cdn.mir2db.com/images/mob/392.png"
+      },
+      {
+        "id": "995",
+        "cn": "",
+        "kr": "저주받은상자3",
+        "img": "392",
+        "spawnSlots": 5,
+        "floors": [
+          "片木岛",
+          "货船居住舱",
+          "货船船艄",
+          "帆船居住仓",
+          "帆船船艄"
+        ],
+        "en": "저주받은상자3",
+        "lv": 80,
+        "hp": 1,
+        "exp": 1,
+        "inGame": true,
+        "icon": "https://cdn.mir2db.com/images/mob/392.png"
+      }
+    ],
+    "owned": [
+      {
+        "id": "994",
+        "cn": "",
+        "kr": "저주받은상자2",
+        "img": "392",
+        "spawnSlots": 5,
+        "floors": [
+          "片木岛",
+          "货船居住舱",
+          "货船船艄",
+          "帆船居住仓",
+          "帆船船艄"
+        ],
+        "en": "저주받은상자2",
+        "lv": 80,
+        "hp": 1,
+        "exp": 1,
+        "inGame": true,
+        "icon": "https://cdn.mir2db.com/images/mob/392.png"
+      },
+      {
+        "id": "995",
+        "cn": "",
+        "kr": "저주받은상자3",
+        "img": "392",
+        "spawnSlots": 5,
+        "floors": [
+          "片木岛",
+          "货船居住舱",
+          "货船船艄",
+          "帆船居住仓",
+          "帆船船艄"
+        ],
+        "en": "저주받은상자3",
+        "lv": 80,
+        "hp": 1,
+        "exp": 1,
+        "inGame": true,
+        "icon": "https://cdn.mir2db.com/images/mob/392.png"
+      }
+    ],
+    "missing": [
+      {
+        "id": "992",
+        "cn": "",
+        "kr": "거친선목",
+        "img": "391",
+        "spawnSlots": 5,
+        "floors": [
+          "货船居住舱",
+          "货船船艄",
+          "帆船居住仓",
+          "帆船船艄"
+        ],
+        "en": "거친선목",
+        "lv": 83,
+        "hp": 2300,
+        "exp": 12100,
+        "inGame": false,
+        "icon": "https://cdn.mir2db.com/images/mob/391.png"
+      },
+      {
+        "id": "987",
+        "cn": "",
+        "kr": "그을린요리사",
+        "img": "386",
+        "spawnSlots": 5,
+        "floors": [
+          "货船居住舱",
+          "货船船艄",
+          "帆船居住仓",
+          "帆船船艄"
+        ],
+        "en": "그을린요리사",
+        "lv": 81,
+        "hp": 2200,
+        "exp": 11550,
+        "inGame": false,
+        "icon": "https://cdn.mir2db.com/images/mob/386.png"
+      },
+      {
+        "id": "996",
+        "cn": "",
+        "kr": "변이된감시원",
+        "img": "393",
+        "spawnSlots": 5,
+        "floors": [
+          "货船入口",
+          "货船仓库",
+          "帆船入口",
+          "帆船仓库"
+        ],
+        "en": "변이된감시원",
+        "lv": 83,
+        "hp": 2100,
+        "exp": 12000,
+        "inGame": false,
+        "icon": "https://cdn.mir2db.com/images/mob/393.png"
+      },
+      {
+        "id": "983",
+        "cn": "",
+        "kr": "긴코원숭이",
+        "img": "382",
+        "spawnSlots": 1,
+        "floors": [
+          "片木岛"
+        ],
+        "en": "긴코원숭이",
+        "lv": 81,
+        "hp": 2050,
+        "exp": 9850,
+        "inGame": false,
+        "icon": "https://cdn.mir2db.com/images/mob/382.png"
+      },
+      {
+        "id": "988",
+        "cn": "",
+        "kr": "떠도는선원",
+        "img": "387",
+        "spawnSlots": 5,
+        "floors": [
+          "货船入口",
+          "货船仓库",
+          "帆船入口",
+          "帆船仓库"
+        ],
+        "en": "떠도는선원",
+        "lv": 81,
+        "hp": 2050,
+        "exp": 11000,
+        "inGame": false,
+        "icon": "https://cdn.mir2db.com/images/mob/387.png"
+      },
+      {
+        "id": "991",
+        "cn": "",
+        "kr": "농노군",
+        "img": "390",
+        "spawnSlots": 7,
+        "floors": [
+          "货船入口",
+          "货船仓库",
+          "货船船艄",
+          "帆船入口",
+          "帆船仓库",
+          "帆船船艄"
+        ],
+        "en": "농노군",
+        "lv": 81,
+        "hp": 2050,
+        "exp": 11000,
+        "inGame": false,
+        "icon": "https://cdn.mir2db.com/images/mob/390.png"
+      },
+      {
+        "id": "984",
+        "cn": "",
+        "kr": "변이갑충",
+        "img": "383",
+        "spawnSlots": 2,
+        "floors": [
+          "片木岛"
+        ],
+        "en": "변이갑충",
+        "lv": 80,
+        "hp": 1920,
+        "exp": 9000,
+        "inGame": false,
+        "icon": "https://cdn.mir2db.com/images/mob/383.png"
+      },
+      {
+        "id": "985",
+        "cn": "",
+        "kr": "거장화",
+        "img": "384",
+        "spawnSlots": 1,
+        "floors": [
+          "片木岛"
+        ],
+        "en": "거장화",
+        "lv": 80,
+        "hp": 1920,
+        "exp": 9000,
+        "inGame": false,
+        "icon": "https://cdn.mir2db.com/images/mob/384.png"
+      },
+      {
+        "id": "986",
+        "cn": "",
+        "kr": "서성이는궁병",
+        "img": "385",
+        "spawnSlots": 10,
+        "floors": [
+          "片木岛",
+          "货船入口",
+          "货船仓库",
+          "货船居住舱",
+          "货船船艄",
+          "帆船入口",
+          "帆船仓库",
+          "帆船居住仓",
+          "帆船船艄"
+        ],
+        "en": "서성이는궁병",
+        "lv": 80,
+        "hp": 1920,
+        "exp": 11000,
+        "inGame": false,
+        "icon": "https://cdn.mir2db.com/images/mob/385.png"
+      },
+      {
+        "id": "989",
+        "cn": "",
+        "kr": "익사한노예",
+        "img": "388",
+        "spawnSlots": 10,
+        "floors": [
+          "片木岛",
+          "货船入口",
+          "货船仓库",
+          "货船居住舱",
+          "货船船艄",
+          "帆船入口",
+          "帆船仓库",
+          "帆船居住仓",
+          "帆船船艄"
+        ],
+        "en": "익사한노예",
+        "lv": 80,
+        "hp": 1920,
+        "exp": 11000,
+        "inGame": false,
+        "icon": "https://cdn.mir2db.com/images/mob/388.png"
+      },
+      {
+        "id": "990",
+        "cn": "",
+        "kr": "선박의악령",
+        "img": "389",
+        "spawnSlots": 8,
+        "floors": [
+          "货船入口",
+          "货船仓库",
+          "货船居住舱",
+          "货船船艄",
+          "帆船入口",
+          "帆船仓库",
+          "帆船居住仓",
+          "帆船船艄"
+        ],
+        "en": "선박의악령",
+        "lv": 80,
+        "hp": 1920,
+        "exp": 11000,
+        "inGame": false,
+        "icon": "https://cdn.mir2db.com/images/mob/389.png"
+      },
+      {
+        "id": "997",
+        "cn": "",
+        "kr": "혼불",
+        "img": "394",
+        "spawnSlots": 9,
+        "floors": [
+          "货船入口",
+          "货船仓库",
+          "货船居住舱",
+          "货船船艄",
+          "帆船入口",
+          "帆船仓库",
+          "帆船居住仓",
+          "帆船船艄"
+        ],
+        "en": "혼불",
+        "lv": 80,
+        "hp": 1920,
+        "exp": 10500,
+        "inGame": false,
+        "icon": "https://cdn.mir2db.com/images/mob/394.png"
+      },
+      {
+        "id": "993",
+        "cn": "",
+        "kr": "저주받은상자1",
+        "img": "392",
+        "spawnSlots": 5,
+        "floors": [
+          "片木岛",
+          "货船居住舱",
+          "货船船艄",
+          "帆船居住仓",
+          "帆船船艄"
+        ],
+        "en": "저주받은상자1",
+        "lv": 80,
+        "hp": 1,
+        "exp": 1,
+        "inGame": false,
+        "icon": "https://cdn.mir2db.com/images/mob/392.png"
+      }
+    ],
+    "bosses": [
+      {
+        "id": "983",
+        "cn": "",
+        "kr": "긴코원숭이",
+        "img": "382",
+        "spawnSlots": 1,
+        "floors": [
+          "片木岛"
+        ],
+        "en": "긴코원숭이",
+        "lv": 81,
+        "hp": 2050,
+        "exp": 9850,
+        "inGame": false,
+        "icon": "https://cdn.mir2db.com/images/mob/382.png"
+      },
+      {
+        "id": "984",
+        "cn": "",
+        "kr": "변이갑충",
+        "img": "383",
+        "spawnSlots": 2,
+        "floors": [
+          "片木岛"
+        ],
+        "en": "변이갑충",
+        "lv": 80,
+        "hp": 1920,
+        "exp": 9000,
+        "inGame": false,
+        "icon": "https://cdn.mir2db.com/images/mob/383.png"
+      },
+      {
+        "id": "985",
+        "cn": "",
+        "kr": "거장화",
+        "img": "384",
+        "spawnSlots": 1,
+        "floors": [
+          "片木岛"
+        ],
+        "en": "거장화",
+        "lv": 80,
+        "hp": 1920,
+        "exp": 9000,
+        "inGame": false,
+        "icon": "https://cdn.mir2db.com/images/mob/384.png"
+      }
+    ]
+  },
+  {
+    "listId": 81,
+    "label": "Evil Dragon Mountain",
+    "mapCount": 14,
+    "maps": [
+      "将军营帐",
+      "魔龙东郊",
+      "东林间胜地",
+      "魔龙旧寨",
+      "魔龙祭坛",
+      "魔龙西郊",
+      "西林间胜地",
+      "魔龙沼泽",
+      "魔龙岭",
+      "魔龙西关",
+      "魔龙东关",
+      "魔龙谷",
+      "龙源血路",
+      "魔龙血域"
+    ],
+    "mobs": [
+      {
+        "id": "227",
+        "cn": "破凰魔神",
+        "kr": "파황마신",
+        "img": "219",
+        "spawnSlots": 1,
+        "floors": [
+          "魔龙血域"
+        ],
+        "en": "破凰魔神",
+        "lv": 99,
+        "hp": 25000,
+        "exp": 32000,
+        "inGame": false,
+        "icon": "https://cdn.mir2db.com/images/mob/219.png"
+      },
+      {
+        "id": "164",
+        "cn": "",
+        "kr": "음마지석",
+        "img": "218",
+        "spawnSlots": 41,
+        "floors": [
+          "魔龙东郊",
+          "魔龙祭坛",
+          "魔龙西郊",
+          "西林间胜地",
+          "魔龙沼泽",
+          "魔龙岭",
+          "魔龙西关",
+          "魔龙东关",
+          "魔龙谷",
+          "龙源血路",
+          "魔龙血域"
+        ],
+        "en": "음마지석",
+        "lv": 60,
+        "hp": 10000,
+        "exp": 2640,
+        "inGame": false,
+        "icon": "https://cdn.mir2db.com/images/mob/218.png"
+      },
+      {
+        "id": "128",
+        "cn": "",
+        "kr": "양마지석",
+        "img": "217",
+        "spawnSlots": 46,
+        "floors": [
+          "魔龙东郊",
+          "魔龙祭坛",
+          "魔龙西郊",
+          "西林间胜地",
+          "魔龙沼泽",
+          "魔龙岭",
+          "魔龙西关",
+          "魔龙东关",
+          "魔龙谷",
+          "龙源血路",
+          "魔龙血域"
+        ],
+        "en": "양마지석",
+        "lv": 60,
+        "hp": 9000,
+        "exp": 2400,
+        "inGame": false,
+        "icon": "https://cdn.mir2db.com/images/mob/217.png"
+      },
+      {
+        "id": "135",
+        "cn": "",
+        "kr": "오마중위병",
+        "img": "211",
+        "spawnSlots": 37,
+        "floors": [
+          "魔龙旧寨",
+          "魔龙祭坛",
+          "西林间胜地",
+          "魔龙沼泽",
+          "魔龙岭",
+          "魔龙西关",
+          "魔龙东关",
+          "魔龙谷",
+          "龙源血路",
+          "魔龙血域"
+        ],
+        "en": "오마중위병",
+        "lv": 57,
+        "hp": 1440,
+        "exp": 6120,
+        "inGame": false,
+        "icon": "https://cdn.mir2db.com/images/mob/211.png"
+      },
+      {
+        "id": "137",
+        "cn": "",
+        "kr": "오마친위병",
+        "img": "212",
+        "spawnSlots": 36,
+        "floors": [
+          "魔龙旧寨",
+          "魔龙祭坛",
+          "西林间胜地",
+          "魔龙沼泽",
+          "魔龙岭",
+          "魔龙西关",
+          "魔龙东关",
+          "魔龙谷",
+          "龙源血路",
+          "魔龙血域"
+        ],
+        "en": "오마친위병",
+        "lv": 57,
+        "hp": 1350,
+        "exp": 5880,
+        "inGame": false,
+        "icon": "https://cdn.mir2db.com/images/mob/212.png"
+      },
+      {
+        "id": "136",
+        "cn": "",
+        "kr": "오마참병",
+        "img": "214",
+        "spawnSlots": 50,
+        "floors": [
+          "魔龙东郊",
+          "东林间胜地",
+          "魔龙旧寨",
+          "魔龙祭坛",
+          "魔龙西郊",
+          "西林间胜地",
+          "魔龙沼泽",
+          "魔龙岭",
+          "魔龙西关",
+          "魔龙东关",
+          "魔龙谷",
+          "龙源血路"
+        ],
+        "en": "오마참병",
+        "lv": 54,
+        "hp": 1170,
+        "exp": 5400,
+        "inGame": false,
+        "icon": "https://cdn.mir2db.com/images/mob/214.png"
+      },
+      {
+        "id": "87",
+        "cn": "",
+        "kr": "비익오마",
+        "img": "210",
+        "spawnSlots": 64,
+        "floors": [
+          "魔龙东郊",
+          "东林间胜地",
+          "魔龙旧寨",
+          "魔龙祭坛",
+          "魔龙西郊",
+          "西林间胜地",
+          "魔龙沼泽",
+          "魔龙岭",
+          "魔龙西关",
+          "魔龙东关",
+          "魔龙谷",
+          "龙源血路",
+          "魔龙血域"
+        ],
+        "en": "비익오마",
+        "lv": 58,
+        "hp": 1100,
+        "exp": 5640,
+        "inGame": false,
+        "icon": "https://cdn.mir2db.com/images/mob/210.png"
+      },
+      {
+        "id": "131",
+        "cn": "",
+        "kr": "오마검병",
+        "img": "213",
+        "spawnSlots": 53,
+        "floors": [
+          "魔龙东郊",
+          "东林间胜地",
+          "魔龙旧寨",
+          "魔龙祭坛",
+          "魔龙西郊",
+          "西林间胜地",
+          "魔龙沼泽",
+          "魔龙岭",
+          "魔龙西关",
+          "魔龙东关",
+          "魔龙谷",
+          "龙源血路",
+          "魔龙血域"
+        ],
+        "en": "오마검병",
+        "lv": 54,
+        "hp": 1100,
+        "exp": 5280,
+        "inGame": false,
+        "icon": "https://cdn.mir2db.com/images/mob/213.png"
+      },
+      {
+        "id": "132",
+        "cn": "",
+        "kr": "오마석궁병",
+        "img": "215",
+        "spawnSlots": 56,
+        "floors": [
+          "魔龙东郊",
+          "东林间胜地",
+          "魔龙旧寨",
+          "魔龙祭坛",
+          "魔龙西郊",
+          "西林间胜地",
+          "魔龙沼泽",
+          "魔龙岭",
+          "魔龙西关",
+          "魔龙东关",
+          "魔龙谷",
+          "龙源血路",
+          "魔龙血域"
+        ],
+        "en": "오마석궁병",
+        "lv": 58,
+        "hp": 1000,
+        "exp": 4800,
+        "inGame": false,
+        "icon": "https://cdn.mir2db.com/images/mob/215.png"
+      }
+    ],
+    "owned": [],
+    "missing": [
+      {
+        "id": "227",
+        "cn": "破凰魔神",
+        "kr": "파황마신",
+        "img": "219",
+        "spawnSlots": 1,
+        "floors": [
+          "魔龙血域"
+        ],
+        "en": "破凰魔神",
+        "lv": 99,
+        "hp": 25000,
+        "exp": 32000,
+        "inGame": false,
+        "icon": "https://cdn.mir2db.com/images/mob/219.png"
+      },
+      {
+        "id": "164",
+        "cn": "",
+        "kr": "음마지석",
+        "img": "218",
+        "spawnSlots": 41,
+        "floors": [
+          "魔龙东郊",
+          "魔龙祭坛",
+          "魔龙西郊",
+          "西林间胜地",
+          "魔龙沼泽",
+          "魔龙岭",
+          "魔龙西关",
+          "魔龙东关",
+          "魔龙谷",
+          "龙源血路",
+          "魔龙血域"
+        ],
+        "en": "음마지석",
+        "lv": 60,
+        "hp": 10000,
+        "exp": 2640,
+        "inGame": false,
+        "icon": "https://cdn.mir2db.com/images/mob/218.png"
+      },
+      {
+        "id": "128",
+        "cn": "",
+        "kr": "양마지석",
+        "img": "217",
+        "spawnSlots": 46,
+        "floors": [
+          "魔龙东郊",
+          "魔龙祭坛",
+          "魔龙西郊",
+          "西林间胜地",
+          "魔龙沼泽",
+          "魔龙岭",
+          "魔龙西关",
+          "魔龙东关",
+          "魔龙谷",
+          "龙源血路",
+          "魔龙血域"
+        ],
+        "en": "양마지석",
+        "lv": 60,
+        "hp": 9000,
+        "exp": 2400,
+        "inGame": false,
+        "icon": "https://cdn.mir2db.com/images/mob/217.png"
+      },
+      {
+        "id": "135",
+        "cn": "",
+        "kr": "오마중위병",
+        "img": "211",
+        "spawnSlots": 37,
+        "floors": [
+          "魔龙旧寨",
+          "魔龙祭坛",
+          "西林间胜地",
+          "魔龙沼泽",
+          "魔龙岭",
+          "魔龙西关",
+          "魔龙东关",
+          "魔龙谷",
+          "龙源血路",
+          "魔龙血域"
+        ],
+        "en": "오마중위병",
+        "lv": 57,
+        "hp": 1440,
+        "exp": 6120,
+        "inGame": false,
+        "icon": "https://cdn.mir2db.com/images/mob/211.png"
+      },
+      {
+        "id": "137",
+        "cn": "",
+        "kr": "오마친위병",
+        "img": "212",
+        "spawnSlots": 36,
+        "floors": [
+          "魔龙旧寨",
+          "魔龙祭坛",
+          "西林间胜地",
+          "魔龙沼泽",
+          "魔龙岭",
+          "魔龙西关",
+          "魔龙东关",
+          "魔龙谷",
+          "龙源血路",
+          "魔龙血域"
+        ],
+        "en": "오마친위병",
+        "lv": 57,
+        "hp": 1350,
+        "exp": 5880,
+        "inGame": false,
+        "icon": "https://cdn.mir2db.com/images/mob/212.png"
+      },
+      {
+        "id": "136",
+        "cn": "",
+        "kr": "오마참병",
+        "img": "214",
+        "spawnSlots": 50,
+        "floors": [
+          "魔龙东郊",
+          "东林间胜地",
+          "魔龙旧寨",
+          "魔龙祭坛",
+          "魔龙西郊",
+          "西林间胜地",
+          "魔龙沼泽",
+          "魔龙岭",
+          "魔龙西关",
+          "魔龙东关",
+          "魔龙谷",
+          "龙源血路"
+        ],
+        "en": "오마참병",
+        "lv": 54,
+        "hp": 1170,
+        "exp": 5400,
+        "inGame": false,
+        "icon": "https://cdn.mir2db.com/images/mob/214.png"
+      },
+      {
+        "id": "87",
+        "cn": "",
+        "kr": "비익오마",
+        "img": "210",
+        "spawnSlots": 64,
+        "floors": [
+          "魔龙东郊",
+          "东林间胜地",
+          "魔龙旧寨",
+          "魔龙祭坛",
+          "魔龙西郊",
+          "西林间胜地",
+          "魔龙沼泽",
+          "魔龙岭",
+          "魔龙西关",
+          "魔龙东关",
+          "魔龙谷",
+          "龙源血路",
+          "魔龙血域"
+        ],
+        "en": "비익오마",
+        "lv": 58,
+        "hp": 1100,
+        "exp": 5640,
+        "inGame": false,
+        "icon": "https://cdn.mir2db.com/images/mob/210.png"
+      },
+      {
+        "id": "131",
+        "cn": "",
+        "kr": "오마검병",
+        "img": "213",
+        "spawnSlots": 53,
+        "floors": [
+          "魔龙东郊",
+          "东林间胜地",
+          "魔龙旧寨",
+          "魔龙祭坛",
+          "魔龙西郊",
+          "西林间胜地",
+          "魔龙沼泽",
+          "魔龙岭",
+          "魔龙西关",
+          "魔龙东关",
+          "魔龙谷",
+          "龙源血路",
+          "魔龙血域"
+        ],
+        "en": "오마검병",
+        "lv": 54,
+        "hp": 1100,
+        "exp": 5280,
+        "inGame": false,
+        "icon": "https://cdn.mir2db.com/images/mob/213.png"
+      },
+      {
+        "id": "132",
+        "cn": "",
+        "kr": "오마석궁병",
+        "img": "215",
+        "spawnSlots": 56,
+        "floors": [
+          "魔龙东郊",
+          "东林间胜地",
+          "魔龙旧寨",
+          "魔龙祭坛",
+          "魔龙西郊",
+          "西林间胜地",
+          "魔龙沼泽",
+          "魔龙岭",
+          "魔龙西关",
+          "魔龙东关",
+          "魔龙谷",
+          "龙源血路",
+          "魔龙血域"
+        ],
+        "en": "오마석궁병",
+        "lv": 58,
+        "hp": 1000,
+        "exp": 4800,
+        "inGame": false,
+        "icon": "https://cdn.mir2db.com/images/mob/215.png"
+      }
+    ],
+    "bosses": [
+      {
+        "id": "227",
+        "cn": "破凰魔神",
+        "kr": "파황마신",
+        "img": "219",
+        "spawnSlots": 1,
+        "floors": [
+          "魔龙血域"
+        ],
+        "en": "破凰魔神",
+        "lv": 99,
+        "hp": 25000,
+        "exp": 32000,
+        "inGame": false,
+        "icon": "https://cdn.mir2db.com/images/mob/219.png"
+      }
+    ]
+  },
+  {
+    "listId": 89,
+    "label": "Southern Barbarian Land (no zone?)",
+    "mapCount": 4,
+    "maps": [
+      "南蛮",
+      "고대비밀의통로",
+      "고대도시의흔적",
+      "남만지역"
+    ],
+    "mobs": [
+      {
+        "id": "617",
+        "cn": "万兽之王",
+        "kr": "야수왕",
+        "img": "229",
+        "spawnSlots": 1,
+        "floors": [
+          "고대도시의흔적"
+        ],
+        "en": "万兽之王",
+        "lv": 99,
+        "hp": 34000,
+        "exp": 40000,
+        "inGame": false,
+        "icon": "https://cdn.mir2db.com/images/mob/229.png"
+      },
+      {
+        "id": "542",
+        "cn": "丹墨",
+        "kr": "단묵",
+        "img": "329",
+        "spawnSlots": 1,
+        "floors": [
+          "南蛮"
+        ],
+        "en": "丹墨",
+        "lv": 99,
+        "hp": 30000,
+        "exp": 36000,
+        "inGame": false,
+        "icon": "https://cdn.mir2db.com/images/mob/329.png"
+      },
+      {
+        "id": "624",
+        "cn": "",
+        "kr": "맹렬한백상",
+        "img": "324",
+        "spawnSlots": 5,
+        "floors": [
+          "고대도시의흔적"
+        ],
+        "en": "맹렬한백상",
+        "lv": 72,
+        "hp": 2350,
+        "exp": 7095,
+        "inGame": false,
+        "icon": "https://cdn.mir2db.com/images/mob/324.png"
+      },
+      {
+        "id": "537",
+        "cn": "",
+        "kr": "백상",
+        "img": "324",
+        "spawnSlots": 8,
+        "floors": [
+          "南蛮"
+        ],
+        "en": "백상",
+        "lv": 70,
+        "hp": 2200,
+        "exp": 6490,
+        "inGame": false,
+        "icon": "https://cdn.mir2db.com/images/mob/324.png"
+      },
+      {
+        "id": "628",
+        "cn": "",
+        "kr": "광폭한서우",
+        "img": "328",
+        "spawnSlots": 4,
+        "floors": [
+          "고대도시의흔적"
+        ],
+        "en": "광폭한서우",
+        "lv": 72,
+        "hp": 2100,
+        "exp": 7040,
+        "inGame": false,
+        "icon": "https://cdn.mir2db.com/images/mob/328.png"
+      },
+      {
+        "id": "541",
+        "cn": "",
+        "kr": "서우",
+        "img": "328",
+        "spawnSlots": 8,
+        "floors": [
+          "南蛮"
+        ],
+        "en": "서우",
+        "lv": 70,
+        "hp": 2000,
+        "exp": 6710,
+        "inGame": false,
+        "icon": "https://cdn.mir2db.com/images/mob/328.png"
+      },
+      {
+        "id": "623",
+        "cn": "",
+        "kr": "얼어붙은한천귀",
+        "img": "321",
+        "spawnSlots": 12,
+        "floors": [
+          "고대비밀의통로",
+          "고대도시의흔적"
+        ],
+        "en": "얼어붙은한천귀",
+        "lv": 72,
+        "hp": 1900,
+        "exp": 5940,
+        "inGame": false,
+        "icon": "https://cdn.mir2db.com/images/mob/321.png"
+      },
+      {
+        "id": "622",
+        "cn": "",
+        "kr": "광기의멸귀",
+        "img": "320",
+        "spawnSlots": 12,
+        "floors": [
+          "고대비밀의통로",
+          "고대도시의흔적"
+        ],
+        "en": "광기의멸귀",
+        "lv": 72,
+        "hp": 1850,
+        "exp": 6050,
+        "inGame": false,
+        "icon": "https://cdn.mir2db.com/images/mob/320.png"
+      },
+      {
+        "id": "626",
+        "cn": "",
+        "kr": "난폭한남만백호",
+        "img": "326",
+        "spawnSlots": 4,
+        "floors": [
+          "고대도시의흔적"
+        ],
+        "en": "난폭한남만백호",
+        "lv": 72,
+        "hp": 1800,
+        "exp": 6710,
+        "inGame": false,
+        "icon": "https://cdn.mir2db.com/images/mob/326.png"
+      },
+      {
+        "id": "536",
+        "cn": "",
+        "kr": "한천귀",
+        "img": "321",
+        "spawnSlots": 12,
+        "floors": [
+          "南蛮"
+        ],
+        "en": "한천귀",
+        "lv": 70,
+        "hp": 1800,
+        "exp": 5390,
+        "inGame": false,
+        "icon": "https://cdn.mir2db.com/images/mob/321.png"
+      },
+      {
+        "id": "625",
+        "cn": "",
+        "kr": "난폭한남만흑호",
+        "img": "325",
+        "spawnSlots": 3,
+        "floors": [
+          "고대도시의흔적"
+        ],
+        "en": "난폭한남만흑호",
+        "lv": 72,
+        "hp": 1700,
+        "exp": 6600,
+        "inGame": false,
+        "icon": "https://cdn.mir2db.com/images/mob/325.png"
+      },
+      {
+        "id": "535",
+        "cn": "",
+        "kr": "멸귀",
+        "img": "320",
+        "spawnSlots": 12,
+        "floors": [
+          "南蛮"
+        ],
+        "en": "멸귀",
+        "lv": 70,
+        "hp": 1700,
+        "exp": 5610,
+        "inGame": false,
+        "icon": "https://cdn.mir2db.com/images/mob/320.png"
+      },
+      {
+        "id": "539",
+        "cn": "",
+        "kr": "남만백호",
+        "img": "326",
+        "spawnSlots": 7,
+        "floors": [
+          "南蛮"
+        ],
+        "en": "남만백호",
+        "lv": 70,
+        "hp": 1700,
+        "exp": 6380,
+        "inGame": false,
+        "icon": "https://cdn.mir2db.com/images/mob/326.png"
+      },
+      {
+        "id": "627",
+        "cn": "",
+        "kr": "분노한흑성성",
+        "img": "327",
+        "spawnSlots": 5,
+        "floors": [
+          "고대도시의흔적"
+        ],
+        "en": "분노한흑성성",
+        "lv": 72,
+        "hp": 1550,
+        "exp": 5720,
+        "inGame": false,
+        "icon": "https://cdn.mir2db.com/images/mob/327.png"
+      },
+      {
+        "id": "619",
+        "cn": "",
+        "kr": "냉혈의광한시",
+        "img": "323",
+        "spawnSlots": 4,
+        "floors": [
+          "고대도시의흔적"
+        ],
+        "en": "냉혈의광한시",
+        "lv": 72,
+        "hp": 1500,
+        "exp": 5500,
+        "inGame": false,
+        "icon": "https://cdn.mir2db.com/images/mob/323.png"
+      },
+      {
+        "id": "538",
+        "cn": "",
+        "kr": "남만흑호",
+        "img": "325",
+        "spawnSlots": 8,
+        "floors": [
+          "南蛮"
+        ],
+        "en": "남만흑호",
+        "lv": 70,
+        "hp": 1500,
+        "exp": 6160,
+        "inGame": false,
+        "icon": "https://cdn.mir2db.com/images/mob/325.png"
+      },
+      {
+        "id": "621",
+        "cn": "",
+        "kr": "불타버린흑천귀",
+        "img": "319",
+        "spawnSlots": 19,
+        "floors": [
+          "고대비밀의통로",
+          "고대도시의흔적"
+        ],
+        "en": "불타버린흑천귀",
+        "lv": 72,
+        "hp": 1400,
+        "exp": 5720,
+        "inGame": false,
+        "icon": "https://cdn.mir2db.com/images/mob/319.png"
+      },
+      {
+        "id": "540",
+        "cn": "",
+        "kr": "흑성성",
+        "img": "327",
+        "spawnSlots": 8,
+        "floors": [
+          "南蛮"
+        ],
+        "en": "흑성성",
+        "lv": 70,
+        "hp": 1350,
+        "exp": 5280,
+        "inGame": false,
+        "icon": "https://cdn.mir2db.com/images/mob/327.png"
+      },
+      {
+        "id": "532",
+        "cn": "",
+        "kr": "광한시",
+        "img": "323",
+        "spawnSlots": 6,
+        "floors": [
+          "南蛮"
+        ],
+        "en": "광한시",
+        "lv": 70,
+        "hp": 1300,
+        "exp": 5060,
+        "inGame": false,
+        "icon": "https://cdn.mir2db.com/images/mob/323.png"
+      },
+      {
+        "id": "620",
+        "cn": "",
+        "kr": "썩어버린역천귀",
+        "img": "318",
+        "spawnSlots": 13,
+        "floors": [
+          "고대비밀의통로",
+          "고대도시의흔적"
+        ],
+        "en": "썩어버린역천귀",
+        "lv": 72,
+        "hp": 1200,
+        "exp": 5610,
+        "inGame": false,
+        "icon": "https://cdn.mir2db.com/images/mob/318.png"
+      },
+      {
+        "id": "618",
+        "cn": "",
+        "kr": "냉혈의한시",
+        "img": "322",
+        "spawnSlots": 3,
+        "floors": [
+          "고대도시의흔적"
+        ],
+        "en": "냉혈의한시",
+        "lv": 72,
+        "hp": 1200,
+        "exp": 5060,
+        "inGame": false,
+        "icon": "https://cdn.mir2db.com/images/mob/322.png"
+      },
+      {
+        "id": "534",
+        "cn": "",
+        "kr": "흑천귀",
+        "img": "319",
+        "spawnSlots": 11,
+        "floors": [
+          "南蛮"
+        ],
+        "en": "흑천귀",
+        "lv": 70,
+        "hp": 1200,
+        "exp": 5280,
+        "inGame": false,
+        "icon": "https://cdn.mir2db.com/images/mob/319.png"
+      },
+      {
+        "id": "531",
+        "cn": "",
+        "kr": "한시",
+        "img": "322",
+        "spawnSlots": 6,
+        "floors": [
+          "南蛮"
+        ],
+        "en": "한시",
+        "lv": 70,
+        "hp": 1000,
+        "exp": 4730,
+        "inGame": false,
+        "icon": "https://cdn.mir2db.com/images/mob/322.png"
+      },
+      {
+        "id": "533",
+        "cn": "",
+        "kr": "역천귀",
+        "img": "318",
+        "spawnSlots": 8,
+        "floors": [
+          "南蛮"
+        ],
+        "en": "역천귀",
+        "lv": 70,
+        "hp": 1000,
+        "exp": 5060,
+        "inGame": false,
+        "icon": "https://cdn.mir2db.com/images/mob/318.png"
+      }
+    ],
+    "owned": [],
+    "missing": [
+      {
+        "id": "617",
+        "cn": "万兽之王",
+        "kr": "야수왕",
+        "img": "229",
+        "spawnSlots": 1,
+        "floors": [
+          "고대도시의흔적"
+        ],
+        "en": "万兽之王",
+        "lv": 99,
+        "hp": 34000,
+        "exp": 40000,
+        "inGame": false,
+        "icon": "https://cdn.mir2db.com/images/mob/229.png"
+      },
+      {
+        "id": "542",
+        "cn": "丹墨",
+        "kr": "단묵",
+        "img": "329",
+        "spawnSlots": 1,
+        "floors": [
+          "南蛮"
+        ],
+        "en": "丹墨",
+        "lv": 99,
+        "hp": 30000,
+        "exp": 36000,
+        "inGame": false,
+        "icon": "https://cdn.mir2db.com/images/mob/329.png"
+      },
+      {
+        "id": "624",
+        "cn": "",
+        "kr": "맹렬한백상",
+        "img": "324",
+        "spawnSlots": 5,
+        "floors": [
+          "고대도시의흔적"
+        ],
+        "en": "맹렬한백상",
+        "lv": 72,
+        "hp": 2350,
+        "exp": 7095,
+        "inGame": false,
+        "icon": "https://cdn.mir2db.com/images/mob/324.png"
+      },
+      {
+        "id": "537",
+        "cn": "",
+        "kr": "백상",
+        "img": "324",
+        "spawnSlots": 8,
+        "floors": [
+          "南蛮"
+        ],
+        "en": "백상",
+        "lv": 70,
+        "hp": 2200,
+        "exp": 6490,
+        "inGame": false,
+        "icon": "https://cdn.mir2db.com/images/mob/324.png"
+      },
+      {
+        "id": "628",
+        "cn": "",
+        "kr": "광폭한서우",
+        "img": "328",
+        "spawnSlots": 4,
+        "floors": [
+          "고대도시의흔적"
+        ],
+        "en": "광폭한서우",
+        "lv": 72,
+        "hp": 2100,
+        "exp": 7040,
+        "inGame": false,
+        "icon": "https://cdn.mir2db.com/images/mob/328.png"
+      },
+      {
+        "id": "541",
+        "cn": "",
+        "kr": "서우",
+        "img": "328",
+        "spawnSlots": 8,
+        "floors": [
+          "南蛮"
+        ],
+        "en": "서우",
+        "lv": 70,
+        "hp": 2000,
+        "exp": 6710,
+        "inGame": false,
+        "icon": "https://cdn.mir2db.com/images/mob/328.png"
+      },
+      {
+        "id": "623",
+        "cn": "",
+        "kr": "얼어붙은한천귀",
+        "img": "321",
+        "spawnSlots": 12,
+        "floors": [
+          "고대비밀의통로",
+          "고대도시의흔적"
+        ],
+        "en": "얼어붙은한천귀",
+        "lv": 72,
+        "hp": 1900,
+        "exp": 5940,
+        "inGame": false,
+        "icon": "https://cdn.mir2db.com/images/mob/321.png"
+      },
+      {
+        "id": "622",
+        "cn": "",
+        "kr": "광기의멸귀",
+        "img": "320",
+        "spawnSlots": 12,
+        "floors": [
+          "고대비밀의통로",
+          "고대도시의흔적"
+        ],
+        "en": "광기의멸귀",
+        "lv": 72,
+        "hp": 1850,
+        "exp": 6050,
+        "inGame": false,
+        "icon": "https://cdn.mir2db.com/images/mob/320.png"
+      },
+      {
+        "id": "626",
+        "cn": "",
+        "kr": "난폭한남만백호",
+        "img": "326",
+        "spawnSlots": 4,
+        "floors": [
+          "고대도시의흔적"
+        ],
+        "en": "난폭한남만백호",
+        "lv": 72,
+        "hp": 1800,
+        "exp": 6710,
+        "inGame": false,
+        "icon": "https://cdn.mir2db.com/images/mob/326.png"
+      },
+      {
+        "id": "536",
+        "cn": "",
+        "kr": "한천귀",
+        "img": "321",
+        "spawnSlots": 12,
+        "floors": [
+          "南蛮"
+        ],
+        "en": "한천귀",
+        "lv": 70,
+        "hp": 1800,
+        "exp": 5390,
+        "inGame": false,
+        "icon": "https://cdn.mir2db.com/images/mob/321.png"
+      },
+      {
+        "id": "625",
+        "cn": "",
+        "kr": "난폭한남만흑호",
+        "img": "325",
+        "spawnSlots": 3,
+        "floors": [
+          "고대도시의흔적"
+        ],
+        "en": "난폭한남만흑호",
+        "lv": 72,
+        "hp": 1700,
+        "exp": 6600,
+        "inGame": false,
+        "icon": "https://cdn.mir2db.com/images/mob/325.png"
+      },
+      {
+        "id": "535",
+        "cn": "",
+        "kr": "멸귀",
+        "img": "320",
+        "spawnSlots": 12,
+        "floors": [
+          "南蛮"
+        ],
+        "en": "멸귀",
+        "lv": 70,
+        "hp": 1700,
+        "exp": 5610,
+        "inGame": false,
+        "icon": "https://cdn.mir2db.com/images/mob/320.png"
+      },
+      {
+        "id": "539",
+        "cn": "",
+        "kr": "남만백호",
+        "img": "326",
+        "spawnSlots": 7,
+        "floors": [
+          "南蛮"
+        ],
+        "en": "남만백호",
+        "lv": 70,
+        "hp": 1700,
+        "exp": 6380,
+        "inGame": false,
+        "icon": "https://cdn.mir2db.com/images/mob/326.png"
+      },
+      {
+        "id": "627",
+        "cn": "",
+        "kr": "분노한흑성성",
+        "img": "327",
+        "spawnSlots": 5,
+        "floors": [
+          "고대도시의흔적"
+        ],
+        "en": "분노한흑성성",
+        "lv": 72,
+        "hp": 1550,
+        "exp": 5720,
+        "inGame": false,
+        "icon": "https://cdn.mir2db.com/images/mob/327.png"
+      },
+      {
+        "id": "619",
+        "cn": "",
+        "kr": "냉혈의광한시",
+        "img": "323",
+        "spawnSlots": 4,
+        "floors": [
+          "고대도시의흔적"
+        ],
+        "en": "냉혈의광한시",
+        "lv": 72,
+        "hp": 1500,
+        "exp": 5500,
+        "inGame": false,
+        "icon": "https://cdn.mir2db.com/images/mob/323.png"
+      },
+      {
+        "id": "538",
+        "cn": "",
+        "kr": "남만흑호",
+        "img": "325",
+        "spawnSlots": 8,
+        "floors": [
+          "南蛮"
+        ],
+        "en": "남만흑호",
+        "lv": 70,
+        "hp": 1500,
+        "exp": 6160,
+        "inGame": false,
+        "icon": "https://cdn.mir2db.com/images/mob/325.png"
+      },
+      {
+        "id": "621",
+        "cn": "",
+        "kr": "불타버린흑천귀",
+        "img": "319",
+        "spawnSlots": 19,
+        "floors": [
+          "고대비밀의통로",
+          "고대도시의흔적"
+        ],
+        "en": "불타버린흑천귀",
+        "lv": 72,
+        "hp": 1400,
+        "exp": 5720,
+        "inGame": false,
+        "icon": "https://cdn.mir2db.com/images/mob/319.png"
+      },
+      {
+        "id": "540",
+        "cn": "",
+        "kr": "흑성성",
+        "img": "327",
+        "spawnSlots": 8,
+        "floors": [
+          "南蛮"
+        ],
+        "en": "흑성성",
+        "lv": 70,
+        "hp": 1350,
+        "exp": 5280,
+        "inGame": false,
+        "icon": "https://cdn.mir2db.com/images/mob/327.png"
+      },
+      {
+        "id": "532",
+        "cn": "",
+        "kr": "광한시",
+        "img": "323",
+        "spawnSlots": 6,
+        "floors": [
+          "南蛮"
+        ],
+        "en": "광한시",
+        "lv": 70,
+        "hp": 1300,
+        "exp": 5060,
+        "inGame": false,
+        "icon": "https://cdn.mir2db.com/images/mob/323.png"
+      },
+      {
+        "id": "620",
+        "cn": "",
+        "kr": "썩어버린역천귀",
+        "img": "318",
+        "spawnSlots": 13,
+        "floors": [
+          "고대비밀의통로",
+          "고대도시의흔적"
+        ],
+        "en": "썩어버린역천귀",
+        "lv": 72,
+        "hp": 1200,
+        "exp": 5610,
+        "inGame": false,
+        "icon": "https://cdn.mir2db.com/images/mob/318.png"
+      },
+      {
+        "id": "618",
+        "cn": "",
+        "kr": "냉혈의한시",
+        "img": "322",
+        "spawnSlots": 3,
+        "floors": [
+          "고대도시의흔적"
+        ],
+        "en": "냉혈의한시",
+        "lv": 72,
+        "hp": 1200,
+        "exp": 5060,
+        "inGame": false,
+        "icon": "https://cdn.mir2db.com/images/mob/322.png"
+      },
+      {
+        "id": "534",
+        "cn": "",
+        "kr": "흑천귀",
+        "img": "319",
+        "spawnSlots": 11,
+        "floors": [
+          "南蛮"
+        ],
+        "en": "흑천귀",
+        "lv": 70,
+        "hp": 1200,
+        "exp": 5280,
+        "inGame": false,
+        "icon": "https://cdn.mir2db.com/images/mob/319.png"
+      },
+      {
+        "id": "531",
+        "cn": "",
+        "kr": "한시",
+        "img": "322",
+        "spawnSlots": 6,
+        "floors": [
+          "南蛮"
+        ],
+        "en": "한시",
+        "lv": 70,
+        "hp": 1000,
+        "exp": 4730,
+        "inGame": false,
+        "icon": "https://cdn.mir2db.com/images/mob/322.png"
+      },
+      {
+        "id": "533",
+        "cn": "",
+        "kr": "역천귀",
+        "img": "318",
+        "spawnSlots": 8,
+        "floors": [
+          "南蛮"
+        ],
+        "en": "역천귀",
+        "lv": 70,
+        "hp": 1000,
+        "exp": 5060,
+        "inGame": false,
+        "icon": "https://cdn.mir2db.com/images/mob/318.png"
+      }
+    ],
+    "bosses": [
+      {
+        "id": "617",
+        "cn": "万兽之王",
+        "kr": "야수왕",
+        "img": "229",
+        "spawnSlots": 1,
+        "floors": [
+          "고대도시의흔적"
+        ],
+        "en": "万兽之王",
+        "lv": 99,
+        "hp": 34000,
+        "exp": 40000,
+        "inGame": false,
+        "icon": "https://cdn.mir2db.com/images/mob/229.png"
+      },
+      {
+        "id": "542",
+        "cn": "丹墨",
+        "kr": "단묵",
+        "img": "329",
+        "spawnSlots": 1,
+        "floors": [
+          "南蛮"
+        ],
+        "en": "丹墨",
+        "lv": 99,
+        "hp": 30000,
+        "exp": 36000,
+        "inGame": false,
+        "icon": "https://cdn.mir2db.com/images/mob/329.png"
+      },
+      {
+        "id": "625",
+        "cn": "",
+        "kr": "난폭한남만흑호",
+        "img": "325",
+        "spawnSlots": 3,
+        "floors": [
+          "고대도시의흔적"
+        ],
+        "en": "난폭한남만흑호",
+        "lv": 72,
+        "hp": 1700,
+        "exp": 6600,
+        "inGame": false,
+        "icon": "https://cdn.mir2db.com/images/mob/325.png"
+      },
+      {
+        "id": "618",
+        "cn": "",
+        "kr": "냉혈의한시",
+        "img": "322",
+        "spawnSlots": 3,
+        "floors": [
+          "고대도시의흔적"
+        ],
+        "en": "냉혈의한시",
+        "lv": 72,
+        "hp": 1200,
+        "exp": 5060,
+        "inGame": false,
+        "icon": "https://cdn.mir2db.com/images/mob/322.png"
+      }
+    ]
+  }
+]

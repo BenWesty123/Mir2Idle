@@ -1,6 +1,21 @@
 {
   "entries": [
     {
+      "id": "2026-07-16-fox-glyphs",
+      "date": "2026-07-16",
+      "title": "Fox Cave, late game & Glyphs",
+      "highlights": [
+        "Added Fox Cave 1, 2 and KR.",
+        "Added Greater Fox Spirit and Fox items.",
+        "Rebalanced current late game items and armours.",
+        "Added new late game armour and weapons.",
+        "Added drops to Hell Guardian.",
+        "Added Plague to Dark and Dream Devourer drops.",
+        "Added Glyphs — 10% chance to drop from Empowered bosses. Only 7 in game at the moment while they get tested.",
+        "Fixed duplication bug (Thanks SmavidDavid)."
+      ]
+    },
+    {
       "id": "2026-07-13-codex-empowerments",
       "date": "2026-07-13",
       "title": "Codex, achievements & UI",

@@ -51,6 +51,7 @@ const sourceFiles = [
   "src/core/socialEquipment.js",
   "src/core/taoistPets.js",
   "src/core/wizardMirror.js",
+  "src/glyphModifiers.js",
   "src/groupDungeonSwarm.js",
   "src/persistence/restoreAccount.js",
   "src/persistence/restoreCharacter.js",
