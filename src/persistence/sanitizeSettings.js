@@ -132,6 +132,7 @@ export function sanitizeSceneWindowPositions(saved) {
     inventory: sanitizeSceneWindowPosition(positions.inventory),
     codex: sanitizeSceneWindowPosition(positions.codex),
     upgrades: sanitizeSceneWindowPosition(positions.upgrades),
+    leaderboard: sanitizeSceneWindowPosition(positions.leaderboard),
   };
 }
 
