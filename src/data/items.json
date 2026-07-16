@@ -2466,8 +2466,8 @@
       "maxStack": 1,
       "stats": {
         "ac": [
-          8,
-          25
+          10,
+          27
         ],
         "amc": [
           4,
@@ -2475,7 +2475,7 @@
         ],
         "dc": [
           1,
-          1
+          3
         ],
         "mc": [
           0,
@@ -2527,8 +2527,8 @@
       "maxStack": 1,
       "stats": {
         "ac": [
-          8,
-          25
+          10,
+          27
         ],
         "amc": [
           4,
@@ -2536,7 +2536,7 @@
         ],
         "dc": [
           1,
-          1
+          3
         ],
         "mc": [
           0,
@@ -2979,27 +2979,27 @@
       "maxStack": 1,
       "stats": {
         "ac": [
-          5,
-          17
+          6,
+          18
         ],
         "amc": [
-          3,
-          8
+          4,
+          9
         ],
         "dc": [
-          1,
+          0,
           2
         ],
         "mc": [
           0,
-          5
+          4
         ],
         "sc": [
           0,
           4
         ],
         "hp": 200,
-        "mp": 0,
+        "mp": 60,
         "accuracy": 0,
         "agility": 0,
         "luck": 0,
@@ -3049,27 +3049,27 @@
       "maxStack": 1,
       "stats": {
         "ac": [
-          5,
-          17
+          6,
+          18
         ],
         "amc": [
-          3,
-          8
+          4,
+          9
         ],
         "dc": [
-          1,
+          0,
           2
         ],
         "mc": [
           0,
-          5
+          4
         ],
         "sc": [
           0,
           4
         ],
         "hp": 200,
-        "mp": 0,
+        "mp": 60,
         "accuracy": 0,
         "agility": 0,
         "luck": 0,
@@ -3084,6 +3084,177 @@
         "index": 15
       },
       "crystalType": "Armour"
+    },
+    {
+      "id": "blue-fox-bracelet",
+      "name": "Blue Fox Bracelet",
+      "type": "bracelet",
+      "slot": "bracelet",
+      "class": "any",
+      "source": {
+        "crystalIndex": 516,
+        "name": "BlueFoxBracelet"
+      },
+      "icon": {
+        "library": "Items",
+        "frame": 901,
+        "src": "./public/item-icons/items/frame_000901.png"
+      },
+      "requirements": {
+        "type": "level",
+        "amount": 44,
+        "classMask": 31,
+        "genderMask": 3
+      },
+      "stackable": false,
+      "maxStack": 1,
+      "stats": {
+        "ac": [
+          0,
+          0
+        ],
+        "amc": [
+          0,
+          0
+        ],
+        "dc": [
+          1,
+          2
+        ],
+        "mc": [
+          0,
+          0
+        ],
+        "sc": [
+          1,
+          5
+        ],
+        "hp": 0,
+        "mp": 0,
+        "accuracy": 0,
+        "agility": 0,
+        "luck": 0,
+        "attackSpeed": 0
+      },
+      "shop": {
+        "buy": 30000,
+        "sell": 6000
+      },
+      "crystalType": "Bracelet"
+    },
+    {
+      "id": "blue-fox-collar",
+      "name": "Blue Fox Collar",
+      "type": "necklace",
+      "slot": "necklace",
+      "class": "any",
+      "source": {
+        "crystalIndex": 573,
+        "name": "BlueFoxCollar"
+      },
+      "icon": {
+        "library": "Items",
+        "frame": 907,
+        "src": "./public/item-icons/items/frame_000907.png"
+      },
+      "requirements": {
+        "type": "level",
+        "amount": 44,
+        "classMask": 31,
+        "genderMask": 3
+      },
+      "stackable": false,
+      "maxStack": 1,
+      "stats": {
+        "ac": [
+          0,
+          0
+        ],
+        "amc": [
+          0,
+          0
+        ],
+        "dc": [
+          1,
+          2
+        ],
+        "mc": [
+          0,
+          0
+        ],
+        "sc": [
+          2,
+          8
+        ],
+        "hp": 0,
+        "mp": 0,
+        "accuracy": 0,
+        "agility": 0,
+        "luck": 0,
+        "attackSpeed": 0
+      },
+      "shop": {
+        "buy": 30000,
+        "sell": 6000
+      },
+      "crystalType": "Necklace"
+    },
+    {
+      "id": "blue-fox-ring",
+      "name": "Blue Fox Ring",
+      "type": "ring",
+      "slot": "ring",
+      "class": "any",
+      "source": {
+        "crystalIndex": 444,
+        "name": "BlueFoxRing"
+      },
+      "icon": {
+        "library": "Items",
+        "frame": 895,
+        "src": "./public/item-icons/items/frame_000895.png"
+      },
+      "requirements": {
+        "type": "level",
+        "amount": 43,
+        "classMask": 31,
+        "genderMask": 3
+      },
+      "stackable": false,
+      "maxStack": 1,
+      "stats": {
+        "ac": [
+          0,
+          0
+        ],
+        "amc": [
+          0,
+          0
+        ],
+        "dc": [
+          1,
+          4
+        ],
+        "mc": [
+          0,
+          0
+        ],
+        "sc": [
+          1,
+          8
+        ],
+        "hp": 0,
+        "mp": 0,
+        "accuracy": 0,
+        "agility": 0,
+        "luck": 0,
+        "attackSpeed": 0
+      },
+      "shop": {
+        "buy": 30000,
+        "sell": 6000
+      },
+      "crystalType": "Ring"
     },
     {
       "id": "blue-jade-necklace",
@@ -8569,16 +8740,16 @@
       "maxStack": 1,
       "stats": {
         "ac": [
-          6,
-          19
+          7,
+          20
         ],
         "amc": [
           5,
-          9
+          10
         ],
         "dc": [
-          1,
-          1
+          0,
+          0
         ],
         "mc": [
           0,
@@ -8586,7 +8757,7 @@
         ],
         "sc": [
           0,
-          6
+          8
         ],
         "hp": 0,
         "mp": 0,
@@ -8630,16 +8801,16 @@
       "maxStack": 1,
       "stats": {
         "ac": [
-          6,
-          19
+          7,
+          20
         ],
         "amc": [
           5,
-          9
+          10
         ],
         "dc": [
-          1,
-          1
+          0,
+          0
         ],
         "mc": [
           0,
@@ -8647,7 +8818,7 @@
         ],
         "sc": [
           0,
-          6
+          8
         ],
         "hp": 0,
         "mp": 0,
@@ -8704,7 +8875,7 @@
         ],
         "mc": [
           1,
-          8
+          13
         ],
         "sc": [
           0,
@@ -8828,7 +8999,7 @@
         ],
         "dc": [
           4,
-          9
+          11
         ],
         "mc": [
           0,
@@ -10382,7 +10553,7 @@
         ],
         "dc": [
           2,
-          6
+          8
         ],
         "mc": [
           0,
@@ -11160,7 +11331,7 @@
         ],
         "mc": [
           2,
-          5
+          7
         ],
         "sc": [
           0,
@@ -12012,7 +12183,7 @@
         ],
         "dc": [
           1,
-          5
+          6
         ],
         "mc": [
           0,
@@ -12020,7 +12191,7 @@
         ],
         "sc": [
           1,
-          7
+          10
         ],
         "hp": 0,
         "mp": 0,
@@ -12859,6 +13030,454 @@
         }
       },
       "crystalType": "Ring"
+    },
+    {
+      "id": "glyph-bulwark-field",
+      "name": "Glyph of Bulwark Field",
+      "type": "glyph",
+      "slot": "glyph",
+      "class": "warrior",
+      "glyph": {
+        "modifier": "warriorProtectionFieldBurst"
+      },
+      "icon": {
+        "library": "Items",
+        "frame": 3212,
+        "src": "./public/item-icons/items/frame_003212.png"
+      },
+      "requirements": {
+        "type": "level",
+        "amount": 35,
+        "classMask": 1,
+        "genderMask": 3
+      },
+      "stackable": false,
+      "maxStack": 1,
+      "stats": {
+        "ac": [
+          0,
+          0
+        ],
+        "amc": [
+          0,
+          0
+        ],
+        "dc": [
+          0,
+          0
+        ],
+        "mc": [
+          0,
+          0
+        ],
+        "sc": [
+          0,
+          0
+        ],
+        "hp": 0,
+        "mp": 0,
+        "accuracy": 0,
+        "agility": 0,
+        "luck": 0,
+        "attackSpeed": 0
+      },
+      "shop": {
+        "buy": 0,
+        "sell": 50000
+      },
+      "description": "Protection Field grants a much stronger AC bonus for a short time."
+    },
+    {
+      "id": "glyph-disruptor-cascade",
+      "name": "Glyph of Disruptor Cascade",
+      "type": "glyph",
+      "slot": "glyph",
+      "class": "wizard",
+      "glyph": {
+        "modifier": "wizardFlameDisruptorSplash"
+      },
+      "icon": {
+        "library": "Items",
+        "frame": 3206,
+        "src": "./public/item-icons/items/frame_003206.png"
+      },
+      "requirements": {
+        "type": "level",
+        "amount": 35,
+        "classMask": 2,
+        "genderMask": 3
+      },
+      "stackable": false,
+      "maxStack": 1,
+      "stats": {
+        "ac": [
+          0,
+          0
+        ],
+        "amc": [
+          0,
+          0
+        ],
+        "dc": [
+          0,
+          0
+        ],
+        "mc": [
+          0,
+          0
+        ],
+        "sc": [
+          0,
+          0
+        ],
+        "hp": 0,
+        "mp": 0,
+        "accuracy": 0,
+        "agility": 0,
+        "luck": 0,
+        "attackSpeed": 0
+      },
+      "shop": {
+        "buy": 0,
+        "sell": 50000
+      },
+      "description": "Flame Disruptor can also strike enemies next to the target for reduced damage."
+    },
+    {
+      "id": "glyph-eternal-firewall",
+      "name": "Glyph of Eternal Firewall",
+      "type": "glyph",
+      "slot": "glyph",
+      "class": "wizard",
+      "glyph": {
+        "modifier": "wizardFireWallDuration"
+      },
+      "icon": {
+        "library": "Items",
+        "frame": 3204,
+        "src": "./public/item-icons/items/frame_003204.png"
+      },
+      "requirements": {
+        "type": "level",
+        "amount": 35,
+        "classMask": 2,
+        "genderMask": 3
+      },
+      "stackable": false,
+      "maxStack": 1,
+      "stats": {
+        "ac": [
+          0,
+          0
+        ],
+        "amc": [
+          0,
+          0
+        ],
+        "dc": [
+          0,
+          0
+        ],
+        "mc": [
+          0,
+          0
+        ],
+        "sc": [
+          0,
+          0
+        ],
+        "hp": 0,
+        "mp": 0,
+        "accuracy": 0,
+        "agility": 0,
+        "luck": 0,
+        "attackSpeed": 0
+      },
+      "shop": {
+        "buy": 0,
+        "sell": 50000
+      },
+      "description": "Fire Wall lasts much longer."
+    },
+    {
+      "id": "glyph-flaming-bulwark",
+      "name": "Glyph of Flaming Bulwark",
+      "type": "glyph",
+      "slot": "glyph",
+      "class": "warrior",
+      "glyph": {
+        "modifier": "warriorFlamingSwordDr"
+      },
+      "icon": {
+        "library": "Items",
+        "frame": 3200,
+        "src": "./public/item-icons/items/frame_003200.png"
+      },
+      "requirements": {
+        "type": "level",
+        "amount": 35,
+        "classMask": 1,
+        "genderMask": 3
+      },
+      "stackable": false,
+      "maxStack": 1,
+      "stats": {
+        "ac": [
+          0,
+          0
+        ],
+        "amc": [
+          0,
+          0
+        ],
+        "dc": [
+          0,
+          0
+        ],
+        "mc": [
+          0,
+          0
+        ],
+        "sc": [
+          0,
+          0
+        ],
+        "hp": 0,
+        "mp": 0,
+        "accuracy": 0,
+        "agility": 0,
+        "luck": 0,
+        "attackSpeed": 0
+      },
+      "shop": {
+        "buy": 0,
+        "sell": 50000
+      },
+      "description": "Activating Flaming Sword briefly reduces the damage you take."
+    },
+    {
+      "id": "glyph-mana-aegis",
+      "name": "Glyph of Mana Aegis",
+      "type": "glyph",
+      "slot": "glyph",
+      "class": "wizard",
+      "glyph": {
+        "modifier": "wizardMagicShieldMp"
+      },
+      "icon": {
+        "library": "Items",
+        "frame": 3205,
+        "src": "./public/item-icons/items/frame_003205.png"
+      },
+      "requirements": {
+        "type": "level",
+        "amount": 35,
+        "classMask": 2,
+        "genderMask": 3
+      },
+      "stackable": false,
+      "maxStack": 1,
+      "stats": {
+        "ac": [
+          0,
+          0
+        ],
+        "amc": [
+          0,
+          0
+        ],
+        "dc": [
+          0,
+          0
+        ],
+        "mc": [
+          0,
+          0
+        ],
+        "sc": [
+          0,
+          0
+        ],
+        "hp": 0,
+        "mp": 0,
+        "accuracy": 0,
+        "agility": 0,
+        "luck": 0,
+        "attackSpeed": 0
+      },
+      "shop": {
+        "buy": 0,
+        "sell": 50000
+      },
+      "description": "Magic Shield no longer reduces damage. Instead, mana is drained before health."
+    },
+    {
+      "id": "glyph-pet-might",
+      "name": "Glyph of Pet Might",
+      "type": "glyph",
+      "slot": "glyph",
+      "class": "taoist",
+      "glyph": {
+        "modifier": "taoPetOwnerDc"
+      },
+      "icon": {
+        "library": "Items",
+        "frame": 3209,
+        "src": "./public/item-icons/items/frame_003209.png"
+      },
+      "requirements": {
+        "type": "level",
+        "amount": 35,
+        "classMask": 4,
+        "genderMask": 3
+      },
+      "stackable": false,
+      "maxStack": 1,
+      "stats": {
+        "ac": [
+          0,
+          0
+        ],
+        "amc": [
+          0,
+          0
+        ],
+        "dc": [
+          0,
+          0
+        ],
+        "mc": [
+          0,
+          0
+        ],
+        "sc": [
+          0,
+          0
+        ],
+        "hp": 0,
+        "mp": 0,
+        "accuracy": 0,
+        "agility": 0,
+        "luck": 0,
+        "attackSpeed": 0
+      },
+      "shop": {
+        "buy": 0,
+        "sell": 50000
+      },
+      "description": "Your pets add your physical power to their attacks."
+    },
+    {
+      "id": "glyph-spirit-wards",
+      "name": "Glyph of Spirit Wards",
+      "type": "glyph",
+      "slot": "glyph",
+      "class": "taoist",
+      "glyph": {
+        "modifier": "taoDefenceBuffFromSc"
+      },
+      "icon": {
+        "library": "Items",
+        "frame": 3208,
+        "src": "./public/item-icons/items/frame_003208.png"
+      },
+      "requirements": {
+        "type": "level",
+        "amount": 35,
+        "classMask": 4,
+        "genderMask": 3
+      },
+      "stackable": false,
+      "maxStack": 1,
+      "stats": {
+        "ac": [
+          0,
+          0
+        ],
+        "amc": [
+          0,
+          0
+        ],
+        "dc": [
+          0,
+          0
+        ],
+        "mc": [
+          0,
+          0
+        ],
+        "sc": [
+          0,
+          0
+        ],
+        "hp": 0,
+        "mp": 0,
+        "accuracy": 0,
+        "agility": 0,
+        "luck": 0,
+        "attackSpeed": 0
+      },
+      "shop": {
+        "buy": 0,
+        "sell": 50000
+      },
+      "description": "Soul Shield and Blessed Armour scale from your Spirit rather than your level."
+    },
+    {
+      "id": "glyph-twin-fury",
+      "name": "Glyph of Twin Fury",
+      "type": "glyph",
+      "slot": "glyph",
+      "class": "warrior",
+      "glyph": {
+        "modifier": "warriorTwinDrakeBurst"
+      },
+      "icon": {
+        "library": "Items",
+        "frame": 3216,
+        "src": "./public/item-icons/items/frame_003216.png"
+      },
+      "requirements": {
+        "type": "level",
+        "amount": 35,
+        "classMask": 1,
+        "genderMask": 3
+      },
+      "stackable": false,
+      "maxStack": 1,
+      "stats": {
+        "ac": [
+          0,
+          0
+        ],
+        "amc": [
+          0,
+          0
+        ],
+        "dc": [
+          0,
+          0
+        ],
+        "mc": [
+          0,
+          0
+        ],
+        "sc": [
+          0,
+          0
+        ],
+        "hp": 0,
+        "mp": 0,
+        "accuracy": 0,
+        "agility": 0,
+        "luck": 0,
+        "attackSpeed": 0
+      },
+      "shop": {
+        "buy": 0,
+        "sell": 50000
+      },
+      "description": "Twin Drake Blade hits much harder, but needs time to recover after each use."
     },
     {
       "id": "gold-bar",
@@ -13959,6 +14578,177 @@
       "crystalType": "Weapon"
     },
     {
+      "id": "great-blue-fox-bracelet",
+      "name": "Great Blue Fox Bracelet",
+      "type": "bracelet",
+      "slot": "bracelet",
+      "class": "any",
+      "source": {
+        "crystalIndex": 519,
+        "name": "GreatBlueFoxBrace"
+      },
+      "icon": {
+        "library": "Items",
+        "frame": 904,
+        "src": "./public/item-icons/items/frame_000904.png"
+      },
+      "requirements": {
+        "type": "level",
+        "amount": 47,
+        "classMask": 31,
+        "genderMask": 3
+      },
+      "stackable": false,
+      "maxStack": 1,
+      "stats": {
+        "ac": [
+          0,
+          0
+        ],
+        "amc": [
+          0,
+          0
+        ],
+        "dc": [
+          1,
+          3
+        ],
+        "mc": [
+          0,
+          0
+        ],
+        "sc": [
+          2,
+          6
+        ],
+        "hp": 0,
+        "mp": 0,
+        "accuracy": 0,
+        "agility": 0,
+        "luck": 0,
+        "attackSpeed": 0
+      },
+      "shop": {
+        "buy": 38000,
+        "sell": 7600
+      },
+      "crystalType": "Bracelet"
+    },
+    {
+      "id": "great-blue-fox-collar",
+      "name": "Great Blue Fox Collar",
+      "type": "necklace",
+      "slot": "necklace",
+      "class": "any",
+      "source": {
+        "crystalIndex": 576,
+        "name": "GreatBlueFoxCollar"
+      },
+      "icon": {
+        "library": "Items",
+        "frame": 910,
+        "src": "./public/item-icons/items/frame_000910.png"
+      },
+      "requirements": {
+        "type": "level",
+        "amount": 48,
+        "classMask": 31,
+        "genderMask": 3
+      },
+      "stackable": false,
+      "maxStack": 1,
+      "stats": {
+        "ac": [
+          0,
+          0
+        ],
+        "amc": [
+          0,
+          0
+        ],
+        "dc": [
+          1,
+          3
+        ],
+        "mc": [
+          0,
+          0
+        ],
+        "sc": [
+          2,
+          9
+        ],
+        "hp": 0,
+        "mp": 0,
+        "accuracy": 0,
+        "agility": 0,
+        "luck": 0,
+        "attackSpeed": 0
+      },
+      "shop": {
+        "buy": 38000,
+        "sell": 7600
+      },
+      "crystalType": "Necklace"
+    },
+    {
+      "id": "great-blue-fox-ring",
+      "name": "Great Blue Fox Ring",
+      "type": "ring",
+      "slot": "ring",
+      "class": "any",
+      "source": {
+        "crystalIndex": 447,
+        "name": "GreatBlueFoxRing"
+      },
+      "icon": {
+        "library": "Items",
+        "frame": 898,
+        "src": "./public/item-icons/items/frame_000898.png"
+      },
+      "requirements": {
+        "type": "level",
+        "amount": 46,
+        "classMask": 31,
+        "genderMask": 3
+      },
+      "stackable": false,
+      "maxStack": 1,
+      "stats": {
+        "ac": [
+          0,
+          0
+        ],
+        "amc": [
+          0,
+          0
+        ],
+        "dc": [
+          1,
+          5
+        ],
+        "mc": [
+          0,
+          0
+        ],
+        "sc": [
+          1,
+          9
+        ],
+        "hp": 0,
+        "mp": 0,
+        "accuracy": 0,
+        "agility": 0,
+        "luck": 0,
+        "attackSpeed": 0
+      },
+      "shop": {
+        "buy": 38000,
+        "sell": 7600
+      },
+      "crystalType": "Ring"
+    },
+    {
       "id": "great-helmet",
       "name": "Great Helmet",
       "type": "helmet",
@@ -14031,6 +14821,348 @@
         },
         "chance": 0.05
       }
+    },
+    {
+      "id": "great-purple-fox-bracelet",
+      "name": "Great Purple Fox Bracelet",
+      "type": "bracelet",
+      "slot": "bracelet",
+      "class": "any",
+      "source": {
+        "crystalIndex": 517,
+        "name": "GreatPurpleFoxBrace"
+      },
+      "icon": {
+        "library": "Items",
+        "frame": 902,
+        "src": "./public/item-icons/items/frame_000902.png"
+      },
+      "requirements": {
+        "type": "level",
+        "amount": 47,
+        "classMask": 31,
+        "genderMask": 3
+      },
+      "stackable": false,
+      "maxStack": 1,
+      "stats": {
+        "ac": [
+          1,
+          2
+        ],
+        "amc": [
+          0,
+          2
+        ],
+        "dc": [
+          2,
+          6
+        ],
+        "mc": [
+          0,
+          0
+        ],
+        "sc": [
+          0,
+          0
+        ],
+        "hp": 0,
+        "mp": 0,
+        "accuracy": 0,
+        "agility": 0,
+        "luck": 0,
+        "attackSpeed": 0
+      },
+      "shop": {
+        "buy": 38000,
+        "sell": 7600
+      },
+      "crystalType": "Bracelet"
+    },
+    {
+      "id": "great-purple-fox-collar",
+      "name": "Great Purple Fox Collar",
+      "type": "necklace",
+      "slot": "necklace",
+      "class": "any",
+      "source": {
+        "crystalIndex": 574,
+        "name": "GreatPurpleFoxCollar"
+      },
+      "icon": {
+        "library": "Items",
+        "frame": 908,
+        "src": "./public/item-icons/items/frame_000908.png"
+      },
+      "requirements": {
+        "type": "level",
+        "amount": 48,
+        "classMask": 31,
+        "genderMask": 3
+      },
+      "stackable": false,
+      "maxStack": 1,
+      "stats": {
+        "ac": [
+          0,
+          0
+        ],
+        "amc": [
+          0,
+          0
+        ],
+        "dc": [
+          4,
+          9
+        ],
+        "mc": [
+          0,
+          0
+        ],
+        "sc": [
+          0,
+          0
+        ],
+        "hp": 0,
+        "mp": 0,
+        "accuracy": 0,
+        "agility": 0,
+        "luck": 0,
+        "attackSpeed": 0
+      },
+      "shop": {
+        "buy": 38000,
+        "sell": 7600
+      },
+      "crystalType": "Necklace"
+    },
+    {
+      "id": "great-purple-fox-ring",
+      "name": "Great Purple Fox Ring",
+      "type": "ring",
+      "slot": "ring",
+      "class": "any",
+      "source": {
+        "crystalIndex": 445,
+        "name": "GreatPurpleFoxRing"
+      },
+      "icon": {
+        "library": "Items",
+        "frame": 896,
+        "src": "./public/item-icons/items/frame_000896.png"
+      },
+      "requirements": {
+        "type": "level",
+        "amount": 46,
+        "classMask": 31,
+        "genderMask": 3
+      },
+      "stackable": false,
+      "maxStack": 1,
+      "stats": {
+        "ac": [
+          0,
+          0
+        ],
+        "amc": [
+          0,
+          0
+        ],
+        "dc": [
+          1,
+          12
+        ],
+        "mc": [
+          0,
+          0
+        ],
+        "sc": [
+          0,
+          0
+        ],
+        "hp": 0,
+        "mp": 0,
+        "accuracy": 0,
+        "agility": 0,
+        "luck": 0,
+        "attackSpeed": 0
+      },
+      "shop": {
+        "buy": 38000,
+        "sell": 7600
+      },
+      "crystalType": "Ring"
+    },
+    {
+      "id": "great-red-fox-bracelet",
+      "name": "Great Red Fox Bracelet",
+      "type": "bracelet",
+      "slot": "bracelet",
+      "class": "any",
+      "source": {
+        "crystalIndex": 518,
+        "name": "GreatRedFoxBrace"
+      },
+      "icon": {
+        "library": "Items",
+        "frame": 903,
+        "src": "./public/item-icons/items/frame_000903.png"
+      },
+      "requirements": {
+        "type": "level",
+        "amount": 47,
+        "classMask": 31,
+        "genderMask": 3
+      },
+      "stackable": false,
+      "maxStack": 1,
+      "stats": {
+        "ac": [
+          0,
+          0
+        ],
+        "amc": [
+          1,
+          3
+        ],
+        "dc": [
+          0,
+          0
+        ],
+        "mc": [
+          2,
+          5
+        ],
+        "sc": [
+          0,
+          0
+        ],
+        "hp": 0,
+        "mp": 0,
+        "accuracy": 0,
+        "agility": 0,
+        "luck": 0,
+        "attackSpeed": 0
+      },
+      "shop": {
+        "buy": 38000,
+        "sell": 7600
+      },
+      "crystalType": "Bracelet"
+    },
+    {
+      "id": "great-red-fox-collar",
+      "name": "Great Red Fox Collar",
+      "type": "necklace",
+      "slot": "necklace",
+      "class": "any",
+      "source": {
+        "crystalIndex": 575,
+        "name": "GreatRedFoxCollar"
+      },
+      "icon": {
+        "library": "Items",
+        "frame": 909,
+        "src": "./public/item-icons/items/frame_000909.png"
+      },
+      "requirements": {
+        "type": "level",
+        "amount": 48,
+        "classMask": 31,
+        "genderMask": 3
+      },
+      "stackable": false,
+      "maxStack": 1,
+      "stats": {
+        "ac": [
+          0,
+          0
+        ],
+        "amc": [
+          0,
+          0
+        ],
+        "dc": [
+          0,
+          0
+        ],
+        "mc": [
+          2,
+          9
+        ],
+        "sc": [
+          0,
+          0
+        ],
+        "hp": 0,
+        "mp": 0,
+        "accuracy": 0,
+        "agility": 0,
+        "luck": 0,
+        "attackSpeed": 0
+      },
+      "shop": {
+        "buy": 38000,
+        "sell": 7600
+      },
+      "crystalType": "Necklace"
+    },
+    {
+      "id": "great-red-fox-ring",
+      "name": "Great Red Fox Ring",
+      "type": "ring",
+      "slot": "ring",
+      "class": "any",
+      "source": {
+        "crystalIndex": 446,
+        "name": "GreatRedFoxRing"
+      },
+      "icon": {
+        "library": "Items",
+        "frame": 897,
+        "src": "./public/item-icons/items/frame_000897.png"
+      },
+      "requirements": {
+        "type": "level",
+        "amount": 46,
+        "classMask": 31,
+        "genderMask": 3
+      },
+      "stackable": false,
+      "maxStack": 1,
+      "stats": {
+        "ac": [
+          0,
+          0
+        ],
+        "amc": [
+          0,
+          0
+        ],
+        "dc": [
+          0,
+          0
+        ],
+        "mc": [
+          1,
+          11
+        ],
+        "sc": [
+          0,
+          0
+        ],
+        "hp": 0,
+        "mp": 0,
+        "accuracy": 0,
+        "agility": 0,
+        "luck": 0,
+        "attackSpeed": 0
+      },
+      "shop": {
+        "buy": 38000,
+        "sell": 7600
+      },
+      "crystalType": "Ring"
     },
     {
       "id": "green-bead",
@@ -14128,15 +15260,15 @@
       "stats": {
         "ac": [
           5,
-          16
+          15
         ],
         "amc": [
-          3,
-          8
+          5,
+          10
         ],
         "dc": [
-          1,
-          2
+          0,
+          0
         ],
         "mc": [
           0,
@@ -14144,10 +15276,10 @@
         ],
         "sc": [
           0,
-          4
+          5
         ],
-        "hp": 110,
-        "mp": 140,
+        "hp": 120,
+        "mp": 180,
         "accuracy": 0,
         "agility": 0,
         "luck": 0,
@@ -14198,15 +15330,15 @@
       "stats": {
         "ac": [
           5,
-          16
+          15
         ],
         "amc": [
-          3,
-          8
+          5,
+          10
         ],
         "dc": [
-          1,
-          2
+          0,
+          0
         ],
         "mc": [
           0,
@@ -14214,10 +15346,10 @@
         ],
         "sc": [
           0,
-          4
+          5
         ],
-        "hp": 110,
-        "mp": 140,
+        "hp": 120,
+        "mp": 180,
         "accuracy": 0,
         "agility": 0,
         "luck": 0,
@@ -14780,12 +15912,12 @@
       "maxStack": 1,
       "stats": {
         "ac": [
-          11,
-          20
+          8,
+          16
         ],
         "amc": [
-          5,
-          10
+          4,
+          9
         ],
         "dc": [
           0,
@@ -18412,12 +19544,12 @@
       "maxStack": 1,
       "stats": {
         "ac": [
-          5,
-          15
+          6,
+          16
         ],
         "amc": [
-          6,
-          10
+          7,
+          12
         ],
         "dc": [
           0,
@@ -18425,7 +19557,7 @@
         ],
         "mc": [
           0,
-          7
+          9
         ],
         "sc": [
           0,
@@ -18473,12 +19605,12 @@
       "maxStack": 1,
       "stats": {
         "ac": [
-          5,
-          15
+          6,
+          16
         ],
         "amc": [
-          6,
-          10
+          7,
+          12
         ],
         "dc": [
           0,
@@ -18486,7 +19618,7 @@
         ],
         "mc": [
           0,
-          7
+          9
         ],
         "sc": [
           0,
@@ -22062,8 +23194,8 @@
           0,
           0
         ],
-        "hp": 120,
-        "mp": 30,
+        "hp": 150,
+        "mp": 40,
         "accuracy": 0,
         "agility": 0,
         "luck": 0,
@@ -22123,8 +23255,8 @@
           0,
           0
         ],
-        "hp": 120,
-        "mp": 30,
+        "hp": 150,
+        "mp": 40,
         "accuracy": 0,
         "agility": 0,
         "luck": 0,
@@ -22184,8 +23316,8 @@
           0,
           0
         ],
-        "hp": 120,
-        "mp": 30,
+        "hp": 150,
+        "mp": 40,
         "accuracy": 0,
         "agility": 0,
         "luck": 0,
@@ -22245,8 +23377,8 @@
           0,
           0
         ],
-        "hp": 120,
-        "mp": 30,
+        "hp": 150,
+        "mp": 40,
         "accuracy": 0,
         "agility": 0,
         "luck": 0,
@@ -22306,8 +23438,8 @@
           0,
           0
         ],
-        "hp": 120,
-        "mp": 30,
+        "hp": 150,
+        "mp": 40,
         "accuracy": 0,
         "agility": 0,
         "luck": 0,
@@ -22367,8 +23499,8 @@
           0,
           0
         ],
-        "hp": 120,
-        "mp": 30,
+        "hp": 150,
+        "mp": 40,
         "accuracy": 0,
         "agility": 0,
         "luck": 0,
@@ -22428,8 +23560,8 @@
           0,
           0
         ],
-        "hp": 120,
-        "mp": 30,
+        "hp": 150,
+        "mp": 40,
         "accuracy": 0,
         "agility": 0,
         "luck": 0,
@@ -23158,7 +24290,7 @@
         ],
         "dc": [
           1,
-          11
+          14
         ],
         "mc": [
           0,
@@ -24201,7 +25333,7 @@
         ],
         "sc": [
           2,
-          9
+          11
         ],
         "hp": 0,
         "mp": 0,
@@ -24377,6 +25509,177 @@
         }
       },
       "set": 7,
+      "crystalType": "Ring"
+    },
+    {
+      "id": "purple-fox-bracelet",
+      "name": "Purple Fox Bracelet",
+      "type": "bracelet",
+      "slot": "bracelet",
+      "class": "any",
+      "source": {
+        "crystalIndex": 514,
+        "name": "PurpleFoxBracelet"
+      },
+      "icon": {
+        "library": "Items",
+        "frame": 899,
+        "src": "./public/item-icons/items/frame_000899.png"
+      },
+      "requirements": {
+        "type": "level",
+        "amount": 44,
+        "classMask": 31,
+        "genderMask": 3
+      },
+      "stackable": false,
+      "maxStack": 1,
+      "stats": {
+        "ac": [
+          1,
+          2
+        ],
+        "amc": [
+          0,
+          0
+        ],
+        "dc": [
+          2,
+          5
+        ],
+        "mc": [
+          0,
+          0
+        ],
+        "sc": [
+          0,
+          0
+        ],
+        "hp": 0,
+        "mp": 0,
+        "accuracy": 0,
+        "agility": 0,
+        "luck": 0,
+        "attackSpeed": 0
+      },
+      "shop": {
+        "buy": 30000,
+        "sell": 6000
+      },
+      "crystalType": "Bracelet"
+    },
+    {
+      "id": "purple-fox-collar",
+      "name": "Purple Fox Collar",
+      "type": "necklace",
+      "slot": "necklace",
+      "class": "any",
+      "source": {
+        "crystalIndex": 571,
+        "name": "PurpleFoxCollar"
+      },
+      "icon": {
+        "library": "Items",
+        "frame": 905,
+        "src": "./public/item-icons/items/frame_000905.png"
+      },
+      "requirements": {
+        "type": "level",
+        "amount": 44,
+        "classMask": 31,
+        "genderMask": 3
+      },
+      "stackable": false,
+      "maxStack": 1,
+      "stats": {
+        "ac": [
+          0,
+          0
+        ],
+        "amc": [
+          0,
+          0
+        ],
+        "dc": [
+          3,
+          8
+        ],
+        "mc": [
+          0,
+          0
+        ],
+        "sc": [
+          0,
+          0
+        ],
+        "hp": 0,
+        "mp": 0,
+        "accuracy": 0,
+        "agility": 0,
+        "luck": 0,
+        "attackSpeed": 0
+      },
+      "shop": {
+        "buy": 30000,
+        "sell": 6000
+      },
+      "crystalType": "Necklace"
+    },
+    {
+      "id": "purple-fox-ring",
+      "name": "Purple Fox Ring",
+      "type": "ring",
+      "slot": "ring",
+      "class": "any",
+      "source": {
+        "crystalIndex": 442,
+        "name": "PurpleFoxRing"
+      },
+      "icon": {
+        "library": "Items",
+        "frame": 893,
+        "src": "./public/item-icons/items/frame_000893.png"
+      },
+      "requirements": {
+        "type": "level",
+        "amount": 43,
+        "classMask": 31,
+        "genderMask": 3
+      },
+      "stackable": false,
+      "maxStack": 1,
+      "stats": {
+        "ac": [
+          1,
+          2
+        ],
+        "amc": [
+          0,
+          0
+        ],
+        "dc": [
+          1,
+          10
+        ],
+        "mc": [
+          0,
+          0
+        ],
+        "sc": [
+          0,
+          0
+        ],
+        "hp": 0,
+        "mp": 0,
+        "accuracy": 0,
+        "agility": 0,
+        "luck": 0,
+        "attackSpeed": 0
+      },
+      "shop": {
+        "buy": 30000,
+        "sell": 6000
+      },
       "crystalType": "Ring"
     },
     {
@@ -24894,8 +26197,8 @@
       "maxStack": 1,
       "stats": {
         "ac": [
-          5,
-          16
+          6,
+          18
         ],
         "amc": [
           3,
@@ -24903,17 +26206,17 @@
         ],
         "dc": [
           1,
-          2
+          3
         ],
         "mc": [
           0,
-          5
+          0
         ],
         "sc": [
           0,
-          4
+          0
         ],
-        "hp": 230,
+        "hp": 260,
         "mp": 0,
         "accuracy": 0,
         "agility": 0,
@@ -24964,8 +26267,8 @@
       "maxStack": 1,
       "stats": {
         "ac": [
-          5,
-          16
+          6,
+          18
         ],
         "amc": [
           3,
@@ -24973,17 +26276,17 @@
         ],
         "dc": [
           1,
-          2
+          3
         ],
         "mc": [
           0,
-          5
+          0
         ],
         "sc": [
           0,
-          4
+          0
         ],
-        "hp": 230,
+        "hp": 260,
         "mp": 0,
         "accuracy": 0,
         "agility": 0,
@@ -25065,6 +26368,177 @@
         },
         "chance": 0.05
       }
+    },
+    {
+      "id": "red-fox-bracelet",
+      "name": "Red Fox Bracelet",
+      "type": "bracelet",
+      "slot": "bracelet",
+      "class": "any",
+      "source": {
+        "crystalIndex": 515,
+        "name": "RedFoxBracelet"
+      },
+      "icon": {
+        "library": "Items",
+        "frame": 900,
+        "src": "./public/item-icons/items/frame_000900.png"
+      },
+      "requirements": {
+        "type": "level",
+        "amount": 44,
+        "classMask": 31,
+        "genderMask": 3
+      },
+      "stackable": false,
+      "maxStack": 1,
+      "stats": {
+        "ac": [
+          0,
+          0
+        ],
+        "amc": [
+          1,
+          2
+        ],
+        "dc": [
+          0,
+          0
+        ],
+        "mc": [
+          1,
+          4
+        ],
+        "sc": [
+          0,
+          0
+        ],
+        "hp": 0,
+        "mp": 0,
+        "accuracy": 0,
+        "agility": 0,
+        "luck": 0,
+        "attackSpeed": 0
+      },
+      "shop": {
+        "buy": 30000,
+        "sell": 6000
+      },
+      "crystalType": "Bracelet"
+    },
+    {
+      "id": "red-fox-collar",
+      "name": "Red Fox Collar",
+      "type": "necklace",
+      "slot": "necklace",
+      "class": "any",
+      "source": {
+        "crystalIndex": 572,
+        "name": "RedFoxCollar"
+      },
+      "icon": {
+        "library": "Items",
+        "frame": 906,
+        "src": "./public/item-icons/items/frame_000906.png"
+      },
+      "requirements": {
+        "type": "level",
+        "amount": 44,
+        "classMask": 31,
+        "genderMask": 3
+      },
+      "stackable": false,
+      "maxStack": 1,
+      "stats": {
+        "ac": [
+          0,
+          0
+        ],
+        "amc": [
+          0,
+          0
+        ],
+        "dc": [
+          0,
+          0
+        ],
+        "mc": [
+          2,
+          8
+        ],
+        "sc": [
+          0,
+          0
+        ],
+        "hp": 0,
+        "mp": 0,
+        "accuracy": 0,
+        "agility": 0,
+        "luck": 0,
+        "attackSpeed": 0
+      },
+      "shop": {
+        "buy": 30000,
+        "sell": 6000
+      },
+      "crystalType": "Necklace"
+    },
+    {
+      "id": "red-fox-ring",
+      "name": "Red Fox Ring",
+      "type": "ring",
+      "slot": "ring",
+      "class": "any",
+      "source": {
+        "crystalIndex": 443,
+        "name": "RedFoxRing"
+      },
+      "icon": {
+        "library": "Items",
+        "frame": 894,
+        "src": "./public/item-icons/items/frame_000894.png"
+      },
+      "requirements": {
+        "type": "level",
+        "amount": 43,
+        "classMask": 31,
+        "genderMask": 3
+      },
+      "stackable": false,
+      "maxStack": 1,
+      "stats": {
+        "ac": [
+          0,
+          0
+        ],
+        "amc": [
+          0,
+          1
+        ],
+        "dc": [
+          0,
+          0
+        ],
+        "mc": [
+          1,
+          9
+        ],
+        "sc": [
+          0,
+          0
+        ],
+        "hp": 0,
+        "mp": 0,
+        "accuracy": 0,
+        "agility": 0,
+        "luck": 0,
+        "attackSpeed": 0
+      },
+      "shop": {
+        "buy": 30000,
+        "sell": 6000
+      },
+      "crystalType": "Ring"
     },
     {
       "id": "red-moon-sword",
@@ -25696,7 +27170,7 @@
         ],
         "sc": [
           2,
-          6
+          8
         ],
         "hp": 0,
         "mp": 0,
@@ -27711,8 +29185,8 @@
           0
         ],
         "mc": [
-          2,
-          9
+          3,
+          11
         ],
         "sc": [
           0,
@@ -31655,16 +33129,16 @@
       "maxStack": 1,
       "stats": {
         "ac": [
-          10,
-          31
+          12,
+          32
         ],
         "amc": [
           5,
-          10
+          11
         ],
         "dc": [
           1,
-          1
+          4
         ],
         "mc": [
           0,
@@ -31674,7 +33148,7 @@
           0,
           0
         ],
-        "hp": 0,
+        "hp": 80,
         "mp": 0,
         "accuracy": 0,
         "agility": 0,
@@ -31717,12 +33191,12 @@
       "maxStack": 1,
       "stats": {
         "ac": [
-          6,
-          19
+          8,
+          22
         ],
         "amc": [
           8,
-          13
+          14
         ],
         "dc": [
           0,
@@ -31730,14 +33204,14 @@
         ],
         "mc": [
           0,
-          8
+          10
         ],
         "sc": [
           0,
           0
         ],
         "hp": 0,
-        "mp": 0,
+        "mp": 80,
         "accuracy": 0,
         "agility": 0,
         "luck": 0,
@@ -31779,12 +33253,12 @@
       "maxStack": 1,
       "stats": {
         "ac": [
-          8,
-          24
+          9,
+          25
         ],
         "amc": [
-          6,
-          11
+          7,
+          12
         ],
         "dc": [
           0,
@@ -31796,10 +33270,10 @@
         ],
         "sc": [
           0,
-          7
+          9
         ],
         "hp": 0,
-        "mp": 0,
+        "mp": 60,
         "accuracy": 0,
         "agility": 0,
         "luck": 0,
@@ -31841,16 +33315,16 @@
       "maxStack": 1,
       "stats": {
         "ac": [
-          10,
-          31
+          12,
+          32
         ],
         "amc": [
           5,
-          10
+          11
         ],
         "dc": [
           1,
-          1
+          4
         ],
         "mc": [
           0,
@@ -31860,7 +33334,7 @@
           0,
           0
         ],
-        "hp": 0,
+        "hp": 80,
         "mp": 0,
         "accuracy": 0,
         "agility": 0,
@@ -31903,12 +33377,12 @@
       "maxStack": 1,
       "stats": {
         "ac": [
-          6,
-          19
+          8,
+          22
         ],
         "amc": [
           8,
-          13
+          14
         ],
         "dc": [
           0,
@@ -31916,14 +33390,14 @@
         ],
         "mc": [
           0,
-          8
+          10
         ],
         "sc": [
           0,
           0
         ],
         "hp": 0,
-        "mp": 0,
+        "mp": 80,
         "accuracy": 0,
         "agility": 0,
         "luck": 0,
@@ -31965,12 +33439,12 @@
       "maxStack": 1,
       "stats": {
         "ac": [
-          8,
-          24
+          9,
+          25
         ],
         "amc": [
-          6,
-          11
+          7,
+          12
         ],
         "dc": [
           0,
@@ -31982,10 +33456,10 @@
         ],
         "sc": [
           0,
-          7
+          9
         ],
         "hp": 0,
-        "mp": 0,
+        "mp": 60,
         "accuracy": 0,
         "agility": 0,
         "luck": 0,

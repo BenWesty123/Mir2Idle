@@ -301,6 +301,28 @@ import {
 import { splitPartyRewardAmount } from "./core/party.js";
 import { socialEquipmentEntry } from "./core/socialEquipment.js";
 import {
+  absorbDamageWithManaAegis,
+  applyGlyphGroundDuration,
+  applyGlyphProtectionFieldBonus,
+  applyGlyphProtectionFieldDuration,
+  applyGlyphTwinDrakeDamage,
+  equippedGlyphDef,
+  flameDisruptorSplashDamage,
+  FLAMING_SWORD_GLYPH_DR_KIND,
+  glyphDescription,
+  glyphDefById,
+  glyphDefByItemId,
+  glyphFlameDisruptorSplashParams,
+  glyphFlamingSwordDrParams,
+  glyphMagicShieldMpParams,
+  glyphPetOwnerDcBonus,
+  glyphTwinDrakeCooldownMs,
+  isGlyphItem,
+  rollEmpoweredBossGlyphItemId,
+  rollFlameDisruptorSplashChance,
+  rollTaoistDefenceBuffBonus as rollTaoistDefenceBuffBonusFromGlyph,
+} from "./glyphModifiers.js";
+import {
   CRIT_BASE_DAMAGE_PERCENT,
   advanceCritTextTracking,
   applyIncomingDamageReduction as applyIncomingDamageReductionCore,
@@ -363,6 +385,7 @@ import {
  *  ACCOUNT_UPGRADE_DEFS .......... account/rebirth upgrade defs (~163)
  *  BOSS_ROOM_DEFS ................ boss rooms + "empower" config (~353)
  *  BOSS DROP TABLES .............. moved OUT to src/bossDrops.js (tune drop rates there)
+ *  glyphModifiers.js ............. Glyph slot spell modifiers (src/glyphModifiers.js)
  *  init() ........................ boot + asset loading (~2236)
  *  saveGameState/loadSavedGameState/importGameSaveFromText  saves (~2458)
  *  sanitize... / restore... ...... save migration + load normalisation (~2500-3850)
@@ -2525,6 +2548,7 @@ const EQUIPMENT_SLOTS = [
   { id: "belt", label: "Belt" },
   { id: "boots", label: "Boots" },
   { id: "stone", label: "Stone" },
+  { id: "glyph", label: "Glyph" },
   { id: "mount", label: "Mount" },
 ];
 
@@ -2545,7 +2569,7 @@ const CRYSTAL_EQUIPMENT_SLOT_POSITIONS = {
   braceletR: { x: 203, y: 170 },
   ringL: { x: 8, y: 206 },
   ringR: { x: 203, y: 206 },
-  amulet: { x: 8, y: 242 },
+  glyph: { x: 8, y: 242 },
   boots: { x: 48, y: 242 },
   belt: { x: 88, y: 242 },
   stone: { x: 128, y: 242 },
@@ -6942,8 +6966,8 @@ function offlineEnemyAttack(enemy, now, report) {
     target: {
       kind: "player",
       applyDamage: (amount) => {
-        player.hp = Math.max(0, player.hp - amount);
-        report.damageTaken += amount;
+        const dealt = applyCombatantIncomingHpDamage(player, amount, now);
+        report.damageTaken += dealt;
         if (player.hp <= 0) {
           state.battle.running = false;
           state.battle.phase = "idle";
@@ -14450,6 +14474,60 @@ function applyFlamingSwordChargeState(target, now) {
   target.flamingSwordReady = true;
   target.flamingSwordReadyAt = now;
   target.flamingSwordExpiresAt = now + windowMs;
+  maybeApplyFlamingSwordGlyphDr(target, now);
+}
+
+function maybeApplyFlamingSwordGlyphDr(target, now) {
+  // Boss-party charges apply to the member first, then mirror onto state.battle —
+  // only proc the glyph once on the member (or solo battle state).
+  if (state.battle.bossParty?.active && target === state.battle) return;
+  const inventory = target?.inventory
+    ?? (target === state.battle || !target?.classId ? state.inventory : null);
+  if (!inventory) return;
+  const glyph = equippedGlyphDef(inventory, itemDefinition);
+  const params = glyphFlamingSwordDrParams(glyph);
+  if (!params || params.reductionPercent <= 0 || params.durationMs <= 0) return;
+  const buffEntity = target?.classId
+    ? target
+    : (target === state.battle ? state.battle.player : target);
+  if (!buffEntity) return;
+  const expiresAt = now + params.durationMs;
+  const nextBuffs = pushFlamingSwordGlyphDrBuff(
+    entityStatBuffList(buffEntity),
+    params.reductionPercent,
+    expiresAt,
+  );
+  setEntityStatBuffList(buffEntity, nextBuffs);
+  if (buffEntity === state.battle.player || buffEntity?.classId === bossPartyControlledClassId()) {
+    state.battle.statBuffs = [...nextBuffs];
+    applyEquippedStatsToBattlePlayer();
+  }
+  const label = `Flaming Sword ${params.reductionPercent}% DR`;
+  pushBattleLog(`${label} for ${formatBuffRemaining(params.durationMs)}.`);
+  if (!suppressSimulationRender && (!buffEntity?.classId || buffEntity.classId === bossPartyControlledClassId())) {
+    addCombatText("player", label, "buff", now);
+  }
+  if (!suppressSimulationRender) {
+    battlePanelSignature = "";
+    playerHudSignature = "";
+    renderPlayerResourceHud();
+  }
+}
+
+function pushFlamingSwordGlyphDrBuff(buffList, reductionPercent, expiresAt) {
+  const list = Array.isArray(buffList)
+    ? buffList.filter((buff) => buff.kind !== FLAMING_SWORD_GLYPH_DR_KIND)
+    : [];
+  list.push({
+    kind: FLAMING_SWORD_GLYPH_DR_KIND,
+    label: "Flaming Bulwark",
+    stat: "damageReduction",
+    minBonus: 0,
+    maxBonus: 0,
+    reductionPercent: Math.max(0, Math.min(100, Math.trunc(Number(reductionPercent) || 0))),
+    expiresAt,
+  });
+  return list;
 }
 
 function applyTwinDrakeChargeState(target, now) {
@@ -21145,9 +21223,10 @@ function foreignPaperDollHtml(view) {
 }
 
 function foreignEquipmentSlotHtml(slot, view) {
+  const position = CRYSTAL_EQUIPMENT_SLOT_POSITIONS[slot.id];
+  if (!position) return "";
   const item = foreignEquippedItem(view, slot.id);
   const entry = item ? foreignRegisterEntry(view, slot.id) : null;
-  const position = CRYSTAL_EQUIPMENT_SLOT_POSITIONS[slot.id] ?? { x: 0, y: 0 };
   const content = item
     ? `<div class="crystal-equipment-item has-tooltip" data-tooltip-item="${escapeHtml(item.id)}" ${entry ? `data-tooltip-entry="${escapeHtml(entry.id)}"` : ""} title="${escapeHtml(itemDisplayName(item, entry))}">${itemIconHtml(item)}</div>`
     : "";
@@ -21223,9 +21302,10 @@ function equippedItem(slotId) {
 }
 
 function crystalEquipmentSlotHtml(slot) {
+  const position = CRYSTAL_EQUIPMENT_SLOT_POSITIONS[slot.id];
+  if (!position) return "";
   const entry = equippedEntry(slot.id);
   const item = entry ? itemDefinition(entry.itemId) : null;
-  const position = CRYSTAL_EQUIPMENT_SLOT_POSITIONS[slot.id] ?? { x: 0, y: 0 };
   const content = entry && item ? crystalEquipmentItemHtml(entry, item, slot.id) : "";
   return `
     <div
@@ -22402,11 +22482,23 @@ function itemTooltipHtml(item, entry = null) {
     ${entry && isOreItem(item) ? itemOreTooltipHtml(entry, item) : ""}
     ${entry && itemUsesEntryDurability(item) && !isOreItem(item) ? itemDurabilityTooltipHtml(entry, item) : ""}
     ${itemSpellTooltipHtml(item)}
+    ${itemGlyphTooltipHtml(item)}
     ${itemRequirementTooltipHtml(item)}
     ${isGemUpgradeItem(item) ? itemGemTooltipHtml(item) : ""}
-    ${isBookItem(item) ? "" : isBenedictionOilItem(item) ? itemBenedictionTooltipHtml(item, entry) : isDungeonSoulPortalItem(item) ? itemDungeonSoulPortalTooltipHtml(item) : isPotionItem(item) ? itemPotionTooltipHtml(item) : isPoisonItem(item) ? itemPoisonTooltipHtml(item) : isTaoistAmuletItem(item) ? itemAmuletTooltipHtml(item) : itemEquipmentStatsTooltipHtml(entry, item)}
+    ${isBookItem(item) || isGlyphItem(item) ? "" : isBenedictionOilItem(item) ? itemBenedictionTooltipHtml(item, entry) : isDungeonSoulPortalItem(item) ? itemDungeonSoulPortalTooltipHtml(item) : isPotionItem(item) ? itemPotionTooltipHtml(item) : isPoisonItem(item) ? itemPoisonTooltipHtml(item) : isTaoistAmuletItem(item) ? itemAmuletTooltipHtml(item) : itemEquipmentStatsTooltipHtml(entry, item)}
     ${item.stackable ? `<span>Stack: ${maxItemStack(item)}</span>` : ""}
     ${entry ? itemTooltipMarkHtml(entry) : ""}
+  `;
+}
+
+function itemGlyphTooltipHtml(item) {
+  if (!isGlyphItem(item)) return "";
+  const def = glyphDefByItemId(item.id) ?? glyphDefById(item?.glyph?.modifier) ?? null;
+  const text = glyphDescription(def) || item.description || "";
+  if (!text) return `<span>Glyph — spell modifier</span>`;
+  return `
+    <span class="item-glyph-tag">Glyph</span>
+    <span>${escapeHtml(text)}</span>
   `;
 }
 
@@ -22717,6 +22809,18 @@ async function selectPlayerClass(classId) {
     return true;
   }
 
+  // Crafting-cube / weapon-refine staging pulls items OUT of the live inventory
+  // into global (non-per-character) state. If we switch characters while items
+  // are staged, the board carries over to the next character and unstaging there
+  // drops the items into their bag while the leaving character keeps them too
+  // (via serialization) - a duplication. Return staged items to the current
+  // character's bag and clear the boards before capturing/switching.
+  if (Object.keys(state.craftingCube?.stagedEntries ?? {}).length) {
+    restoreAllCraftingCubeStagedEntries();
+  }
+  if (Object.keys(state.weaponRefine?.stagedEntries ?? {}).length) {
+    restoreAllWeaponRefineStagedEntries();
+  }
   captureActiveCharacterState();
   stopOneStepTest();
   state.continuousWalk = false;
@@ -29674,7 +29778,9 @@ function bossPartyCastWizardDefenceBuff(member, castBundle, now) {
     memberClassId: partyMember.classId,
     now,
   });
-  const applied = formatDefenceBuffApplied(castBundle.spell, bonus, reductionPercent);
+  const applied = formatDefenceBuffApplied(castBundle.spell, bonus, reductionPercent, {
+    manaAegis: Boolean(glyphMagicShieldMpParams(equippedGlyphFor(partyMember))),
+  });
   pushBattleLog(`${partyMember.classId} casts ${castBundle.spell.label} (${applied}, ${formatBuffRemaining(durationMs)}).`);
   return true;
 }
@@ -30814,6 +30920,10 @@ function updateBossPartyImpacts(now) {
   if (impact.spellId === "Vampirism" && impact.damage > 0 && caster && learned) {
     queueBossPartyVampirismRestore(caster, vampirismRestoreAmount(impact.damage, learned), now);
   }
+  applyFlameDisruptorGlyphSplash(spell, impact.damage, enemy, now, {
+    partyMember: caster,
+    sfx: bossPartySfxParamsForClass(impact.casterClassId, 0.36, 60),
+  });
   if (!impact.fromMirror && caster && spell && learned) bossPartyLevelMagicSkill(caster, spell, learned, now);
   }
   state.battle.bossParty.impacts = remaining;
@@ -32344,6 +32454,7 @@ function updateCombatantPoisons(now, options = {}) {
       if (updateEntityPoisons(member, "member", now, options)) changed = true;
     }
     if (party?.pet?.active && updateEntityPoisons(party.pet, "pet", now, options)) changed = true;
+    if (party?.holyDeva?.active && updateEntityPoisons(party.holyDeva, "pet", now, options)) changed = true;
     return changed;
   }
   const battle = state.battle;
@@ -32462,7 +32573,7 @@ function resolveMinotaurKingSoloAoeStrike(enemy, now) {
       magicResist: battle.player.magicResist ?? 0,
       agility: battle.player.agility,
       applyDamage: (damage, impactNow) => {
-        battle.player.hp = Math.max(0, battle.player.hp - damage);
+        applyCombatantIncomingHpDamage(battle.player, damage, impactNow);
         maybeNotifyMagicShieldStruck(null, impactNow);
         setPlayerAction("struck", impactNow + 250, true);
         playSfx("player.flinch", { volume: 0.45, throttleMs: 120 });
@@ -33237,6 +33348,14 @@ function rollBossTableDrops(dropTable, awardItem, inventory = state.inventory) {
   if (rollBonusBossDropItem(dropTable, AWAKENING_SOUL_ITEM_ID, totalBonusAwakeningSoulChancePercent(inventory))) {
     const soul = itemDefinition(AWAKENING_SOUL_ITEM_ID);
     if (soul) awardItem(soul, added, ignored);
+  }
+  // Glyphs: empowered bosses only. One 10% roll, then one random glyph from the full pool.
+  if (state.battle.bossEmpowered) {
+    const glyphId = rollEmpoweredBossGlyphItemId();
+    if (glyphId) {
+      const glyph = itemDefinition(glyphId);
+      if (glyph) awardItem(glyph, added, ignored);
+    }
   }
   return { added, ignored };
 }
@@ -34082,12 +34201,21 @@ function twinDrakeAutoCastActive(learned) {
   return Boolean(learned?.autoCast);
 }
 
+function twinDrakeGlyphEnforcesCooldown(inventory = state.inventory) {
+  return glyphTwinDrakeCooldownMs(equippedGlyphDef(inventory, itemDefinition)) > 0;
+}
+
 function setWarriorSpellCastReadyAt(skill, learned, now, inventory = state.inventory) {
-  if (skill?.id === "TwinDrakeBlade" && twinDrakeAutoCastActive(learned)) {
+  if (skill?.id === "TwinDrakeBlade" && twinDrakeAutoCastActive(learned) && !twinDrakeGlyphEnforcesCooldown(inventory)) {
     learned.castReadyAt = 0;
     return;
   }
-  learned.castReadyAt = now + applyEquippedSpellCooldownReductionMs(skill?.id, spellDelayMs(skill, learned), inventory);
+  let delayMs = spellDelayMs(skill, learned);
+  if (skill?.id === "TwinDrakeBlade") {
+    const glyphCd = glyphTwinDrakeCooldownMs(equippedGlyphDef(inventory, itemDefinition));
+    if (glyphCd > 0) delayMs = Math.max(delayMs, glyphCd);
+  }
+  learned.castReadyAt = now + applyEquippedSpellCooldownReductionMs(skill?.id, delayMs, inventory);
 }
 
 function bossPartySetWarriorSpellCastReadyAt(member, skill, learned, now) {
@@ -34108,12 +34236,24 @@ function bossPartySpellCastReadyAt(member, spellId, learned = null) {
 
 function bossPartySpellOnCooldown(member, skill, learned, now) {
   if (!skill || !learned) return false;
-  if (skill.id === "TwinDrakeBlade" && twinDrakeAutoCastActive(learned)) return false;
+  if (
+    skill.id === "TwinDrakeBlade"
+    && twinDrakeAutoCastActive(learned)
+    && !twinDrakeGlyphEnforcesCooldown(inventoryForCombatant(member))
+  ) {
+    return false;
+  }
   return bossPartySpellCastReadyAt(member, skill.id, learned) > now;
 }
 
 function warriorSpellCastOnCooldown(skill, learned, now) {
-  if (skill?.id === "TwinDrakeBlade" && twinDrakeAutoCastActive(learned)) return false;
+  if (
+    skill?.id === "TwinDrakeBlade"
+    && twinDrakeAutoCastActive(learned)
+    && !twinDrakeGlyphEnforcesCooldown(state.inventory)
+  ) {
+    return false;
+  }
   return (learned?.castReadyAt ?? 0) > now;
 }
 
@@ -34609,7 +34749,11 @@ function castWarriorCharge(skill, learned, cost, now) {
     const memberLearned = member?.magic?.learned?.[skill.id];
     if (memberLearned) {
       memberLearned.castReadyAt = learned.castReadyAt;
-      if (skill.id === "TwinDrakeBlade" && twinDrakeAutoCastActive(memberLearned)) {
+      if (
+        skill.id === "TwinDrakeBlade"
+        && twinDrakeAutoCastActive(memberLearned)
+        && !twinDrakeGlyphEnforcesCooldown(inventoryForCombatant(member))
+      ) {
         memberLearned.castReadyAt = 0;
       }
     }
@@ -35743,8 +35887,13 @@ function rollWarriorMagicDamage(skill, learned, player, enemy, inventory = state
   const attack = rollStat(combatant.dc, combatant.luck);
   const boosted = Math.trunc((attack + crystalMagicPower(skill, learned)) * crystalMagicMultiplier(skill, learned));
   const withEmpower = applyEquippedSpellDamageBonus(skill?.id, boosted, inventory);
+  const withGlyph = applyGlyphTwinDrakeDamage(
+    withEmpower,
+    skill?.id,
+    equippedGlyphDef(inventory, itemDefinition),
+  );
   const defence = rollStat(enemyPhysicalDefence(enemy));
-  return applyCritToOutgoingDamage(Math.max(0, withEmpower - defence), player, skill?.id, inventory);
+  return applyCritToOutgoingDamage(Math.max(0, withGlyph - defence), player, skill?.id, inventory);
 }
 
 function rollWizardMagicDamage(spell, learned, player, enemy, inventory = state.inventory) {
@@ -36086,10 +36235,15 @@ function rollPlagueEffectKind(heldPoisonKind) {
   return null;
 }
 
-function plagueBurstDamageValue(player, inventory = state.inventory) {
-  const stats = combatantForMagicRoll(player);
-  const [, maxSc] = statRange(stats.sc ?? [0, 0]);
-  return applyEquippedSpellDamageBonus("Plague", Math.max(0, Math.trunc(maxSc * 2)), inventory);
+// Plague bang uses Crystal's exact Plague damage (raw SC roll; its power fields are 0), then
+// scaled down so the AOE lands below an Ice Storm bang. Only the burst is scaled - the poison
+// DOT still uses the full Crystal roll elsewhere.
+const PLAGUE_BURST_SCALE = 0.75;
+function plagueBurstDamageValue(player, inventory = state.inventory, learned = null) {
+  const spell = taoistCombatSpell("Plague");
+  const skill = learned ?? learnedMagic(spell.id);
+  const base = rollTaoistMagicValue(spell, skill, player) * PLAGUE_BURST_SCALE;
+  return applyEquippedSpellDamageBonus("Plague", Math.max(0, Math.trunc(base)), inventory);
 }
 
 function applyPlagueEffectToEnemy(enemy, effectKind, level, powerValue, now, options = {}) {
@@ -36134,7 +36288,7 @@ function applyPlagueSpellImpact(spell, impact, now, options = {}) {
   const caster = options.partyMember ?? battle.player;
   const inventory = options.partyMember?.inventory ?? state.inventory;
   const sfx = options.sfx ?? { volume: 0.42, throttleMs: 80 };
-  const baseDamage = plagueBurstDamageValue(caster, inventory);
+  const baseDamage = plagueBurstDamageValue(caster, inventory, learned);
 
   playSpellStrikeSfx(spell.id, { volume: 0.5, force: true, throttleMs: 0 });
 
@@ -36831,12 +36985,16 @@ function applyRageBuffEffect(skill, learned, entity, now) {
 }
 
 function applyProtectionFieldBuffEffect(skill, learned, entity, now) {
-  const bonus = protectionFieldAcBonus(warriorMaxAcForProtectionField(entity), learned);
+  const glyph = equippedGlyphFor(entity);
+  const bonus = applyGlyphProtectionFieldBonus(
+    protectionFieldAcBonus(warriorMaxAcForProtectionField(entity), learned),
+    glyph,
+  );
   if (bonus <= 0) {
     pushBattleLog(`${skill.label} had no effect.`);
     return false;
   }
-  const durationMs = protectionFieldDurationMs(learned);
+  const durationMs = applyGlyphProtectionFieldDuration(protectionFieldDurationMs(learned), glyph);
   const nextBuffs = pushProtectionFieldBuff(entityStatBuffList(entity), skill, bonus, now + durationMs);
   setEntityStatBuffList(entity, nextBuffs);
   syncWarriorBuffStateFromEntity(entity, nextBuffs);
@@ -37146,8 +37304,11 @@ function rollMagicShieldReductionPercent(learned) {
   return (skillLevel + 2) * 10;
 }
 
-function formatDefenceBuffApplied(spell, bonus, reductionPercent = 0) {
-  if (spell?.id === "MagicShield") return `${reductionPercent}% damage reduction`;
+function formatDefenceBuffApplied(spell, bonus, reductionPercent = 0, options = {}) {
+  if (spell?.id === "MagicShield") {
+    if (options.manaAegis) return "MP absorbs damage (2 MP / 1 HP)";
+    return `${reductionPercent}% damage reduction`;
+  }
   const statTag = defenceBuffStat(spell.id) === "amc" ? "MAC" : "AC";
   return `+${bonus} ${statTag}`;
 }
@@ -37160,6 +37321,84 @@ function combatDefenceBuffSpell(spellId) {
 
 function rollDefenceBuffBonus(level) {
   return Math.floor(Math.max(1, Math.trunc(Number(level) || 1)) / 7) + 4;
+}
+
+function inventoryForGlyph(entity = null) {
+  if (entity?.inventory) return entity.inventory;
+  if (entity?.classId && state.battle.bossParty?.active) {
+    const member = state.battle.bossParty.members?.find((row) => row.classId === entity.classId);
+    if (member?.inventory) return member.inventory;
+  }
+  return state.inventory;
+}
+
+function equippedGlyphFor(entityOrInventory = null) {
+  if (entityOrInventory?.equipment != null && Array.isArray(entityOrInventory?.items)) {
+    return equippedGlyphDef(entityOrInventory, itemDefinition);
+  }
+  return equippedGlyphDef(inventoryForGlyph(entityOrInventory), itemDefinition);
+}
+
+function magicShieldMemberClassIdForEntity(entity) {
+  if (!entity) return null;
+  if (state.battle.bossParty?.active && entity.classId) return entity.classId;
+  return null;
+}
+
+function clearMagicShieldBuff(entity, now = performance.now()) {
+  if (!entity) return;
+  const nextBuffs = pruneStatBuffs(entityStatBuffList(entity), now)
+    .filter((buff) => buff.kind !== "magicShield");
+  setEntityStatBuffList(entity, nextBuffs);
+  if (entity.classId === bossPartyControlledClassId() || entity === state.battle.player) {
+    state.battle.statBuffs = [...nextBuffs];
+  }
+  const memberClassId = magicShieldMemberClassIdForEntity(entity);
+  state.battle.attachedSpellFx = (state.battle.attachedSpellFx ?? []).filter(
+    (entry) => entry.spellId !== "MagicShield" || (entry.memberClassId ?? null) !== memberClassId,
+  );
+}
+
+/**
+ * Mana Aegis: with Magic Shield up, spend MP before HP (2 MP per 1 HP).
+ * Returns the HP damage that still applies after absorption.
+ */
+function absorbIncomingWithManaAegis(entity, amount, now = performance.now()) {
+  const damage = Math.max(0, Math.trunc(Number(amount) || 0));
+  if (!entity || damage <= 0) return damage;
+  const params = glyphMagicShieldMpParams(equippedGlyphFor(entity));
+  if (!params) return damage;
+  const buffs = pruneStatBuffs(entityStatBuffList(entity), now);
+  if (!buffs.some((buff) => buff.kind === "magicShield")) return damage;
+
+  const result = absorbDamageWithManaAegis(damage, entity.mp, params);
+  entity.mp = Math.max(0, Math.min(entity.maxMp ?? result.remainingMp, result.remainingMp));
+  if (entity.classId === bossPartyControlledClassId() && state.battle.player && state.battle.player !== entity) {
+    state.battle.player.mp = entity.mp;
+  }
+  if (result.mpSpent > 0) {
+    maybeNotifyMagicShieldStruck(magicShieldMemberClassIdForEntity(entity), now);
+    playerHudSignature = "";
+  }
+  if (result.shieldBroken) {
+    clearMagicShieldBuff(entity, now);
+    if (!suppressSimulationRender) {
+      pushBattleLog("Magic Shield fades as mana runs dry.");
+    }
+  }
+  return result.hpDamage;
+}
+
+function applyCombatantIncomingHpDamage(entity, amount, now = performance.now()) {
+  const hpDamage = absorbIncomingWithManaAegis(entity, amount, now);
+  entity.hp = Math.max(0, (entity.hp ?? 0) - hpDamage);
+  return hpDamage;
+}
+
+function rollTaoistDefenceBuffBonusForCaster(caster) {
+  const level = caster?.level ?? state.game.progress.level;
+  const maxSc = statRange(caster?.sc ?? [0, 0])[1];
+  return rollTaoistDefenceBuffBonusFromGlyph(level, maxSc, equippedGlyphFor(caster));
 }
 
 function rollTaoistDefenceBuffBonus(level) {
@@ -37400,17 +37639,20 @@ function taoistPartyDefenceBuffTargets(now = performance.now()) {
   return ultimateEnhancerTargets(now);
 }
 
-function pushDefenceBuff(buffList, spell, bonus, expiresAt, learned = null) {
+function pushDefenceBuff(buffList, spell, bonus, expiresAt, learned = null, options = {}) {
   const kind = defenceBuffKind(spell.id);
   const list = Array.isArray(buffList) ? buffList.filter((buff) => buff.kind !== kind) : [];
   if (spell.id === "MagicShield") {
+    const reductionPercent = options.reductionPercent != null
+      ? Math.max(0, Math.trunc(Number(options.reductionPercent) || 0))
+      : rollMagicShieldReductionPercent(learned);
     list.push({
       kind,
       label: spell.label,
       stat: "damageReduction",
       minBonus: 0,
       maxBonus: 0,
-      reductionPercent: rollMagicShieldReductionPercent(learned),
+      reductionPercent,
       expiresAt,
     });
     return list;
@@ -37480,7 +37722,7 @@ function applyTaoistDefenceBuffEffect(spell, learned, caster, now, options = {})
 }
 
 function applyTaoistPartyDefenceBuffToTargets(spell, learned, caster, now, options = {}) {
-  const bonus = rollDefenceBuffBonus(caster?.level ?? state.game.progress.level);
+  const bonus = rollTaoistDefenceBuffBonusForCaster(caster);
   const durationMs = rollTaoistDefenceBuffDurationMs(learned, caster);
   const expiresAt = now + durationMs;
   const results = [];
@@ -37536,7 +37778,11 @@ function applyDefenceBuffEffect(spell, learned, caster, now, options = {}) {
     return applyTaoistPartyDefenceBuffToTargets(spell, learned, caster, now, options);
   }
   const bonus = rollDefenceBuffBonus(caster?.level ?? state.game.progress.level);
-  const reductionPercent = spell?.id === "MagicShield" ? rollMagicShieldReductionPercent(learned) : 0;
+  const manaAegis = spell?.id === "MagicShield"
+    && Boolean(glyphMagicShieldMpParams(equippedGlyphFor(caster)));
+  const reductionPercent = spell?.id === "MagicShield" && !manaAegis
+    ? rollMagicShieldReductionPercent(learned)
+    : 0;
   const durationMs = spell?.id === "MagicShield"
     ? rollWizardDefenceBuffDurationMs(learned, caster)
     : rollTaoistDefenceBuffDurationMs(learned, caster);
@@ -37545,13 +37791,17 @@ function applyDefenceBuffEffect(spell, learned, caster, now, options = {}) {
 
   if (options.member) {
     const buffMember = resolveBossPartyMember(options.member);
-    buffMember.statBuffs = pushDefenceBuff(buffMember.statBuffs ?? [], spell, bonus, expiresAt, learned);
+    buffMember.statBuffs = pushDefenceBuff(buffMember.statBuffs ?? [], spell, bonus, expiresAt, learned, {
+      reductionPercent,
+    });
     if (buffMember.classId === bossPartyControlledClassId()) {
       state.battle.statBuffs = [...buffMember.statBuffs];
       applyEquippedStatsToBattlePlayer();
     }
   } else {
-    state.battle.statBuffs = pushDefenceBuff(state.battle.statBuffs, spell, bonus, expiresAt, learned);
+    state.battle.statBuffs = pushDefenceBuff(state.battle.statBuffs, spell, bonus, expiresAt, learned, {
+      reductionPercent,
+    });
     applyEquippedStatsToBattlePlayer();
   }
 
@@ -37566,14 +37816,16 @@ function applyDefenceBuffEffect(spell, learned, caster, now, options = {}) {
       const currentPetBuffs = pet === state.battle.taoPet
         ? state.battle.petStatBuffs
         : (pet.statBuffs ?? []);
-      const nextPetBuffs = pushDefenceBuff(currentPetBuffs, spell, bonus, expiresAt, learned);
+      const nextPetBuffs = pushDefenceBuff(currentPetBuffs, spell, bonus, expiresAt, learned, {
+        reductionPercent,
+      });
       if (pet === state.battle.taoPet) state.battle.petStatBuffs = nextPetBuffs;
       else pet.statBuffs = nextPetBuffs;
     }
   }
 
   if (learned && options.levelSkill !== false) levelMagicSkill(spell, learned, now);
-  return { bonus, durationMs, reductionPercent };
+  return { bonus, durationMs, reductionPercent, manaAegis };
 }
 
 const ULTIMATE_ENHANCER_BUFF_KIND = "ultimateEnhancer";
@@ -38235,7 +38487,7 @@ function updatePendingDefenceBuff(now, options = {}) {
     ? applyDefenceBuffEffect(spell, learned, battle.player, now)
     : applyTaoistDefenceBuffEffect(spell, learned, battle.player, now);
   if (!applied) return false;
-  const { bonus, durationMs, reductionPercent } = applied;
+  const { bonus, durationMs, reductionPercent, manaAegis } = applied;
   if (!options.offline && !suppressSimulationRender) {
     if (spell.id === "MagicShield") {
       const memberClassId = state.battle.bossParty?.active && state.battle.combatClass === "Wizard"
@@ -38244,7 +38496,7 @@ function updatePendingDefenceBuff(now, options = {}) {
       startMagicShieldLoopFx({ expiresAt: now + durationMs, memberClassId, now });
       battle.activeWizardSpell = null;
       battle.activeWizardSpellAtlas = null;
-      const appliedText = formatDefenceBuffApplied(spell, bonus, reductionPercent);
+      const appliedText = formatDefenceBuffApplied(spell, bonus, reductionPercent, { manaAegis });
       addCombatText("player", appliedText, "buff", now);
       pushBattleLog(`${spell.label} strengthens defence (${appliedText}, ${formatBuffRemaining(durationMs)}).`);
     } else {
@@ -39423,12 +39675,18 @@ function taoistPetAttackTargetPosition(enemy) {
 function rollTaoistPetAttackResult(pet, enemy, inventory = state.inventory, owner = null) {
   if (!rollHit(pet.accuracy, enemy.agility)) return { hit: false, damage: 0 };
   const attackStat = effectiveCombatStats(pet).dc;
+  const ownerEntity = owner ?? taoistPetCritOwner();
+  const ownerMaxDc = statRange(ownerEntity?.dc ?? [0, 0])[1];
+  const glyphBonus = glyphPetOwnerDcBonus(ownerMaxDc, equippedGlyphFor(ownerEntity ?? inventory));
+  const attackWithGlyph = glyphBonus > 0
+    ? [attackStat[0] + glyphBonus, attackStat[1] + glyphBonus]
+    : attackStat;
   const defence = pet.spellId === "SummonHolyDeva"
     ? enemyMagicalDefence(enemy)
     : enemyPhysicalDefence(enemy);
-  const rawDamage = rollDamage(attackStat, defence, pet.luck);
+  const rawDamage = rollDamage(attackWithGlyph, defence, pet.luck);
   const boosted = applyEquippedSpellDamageBonus(pet?.spellId, rawDamage, inventory);
-  const damage = applyCritToOutgoingDamage(boosted, owner ?? taoistPetCritOwner());
+  const damage = applyCritToOutgoingDamage(boosted, ownerEntity);
   return { hit: damage > 0, damage, crit: consumeOutgoingCritFlag() };
 }
 
@@ -39849,11 +40107,16 @@ function applyWizardMirrorSpellImpact(mirror, impact, now) {
       { enemy },
     );
     maybeKillGroupDungeonSwarmEnemy(enemy, now);
+    applyFlameDisruptorGlyphSplash(spell, impact.damage, enemy, now, {
+      partyMember: owner,
+      sfx: bossPartySfxParamsForClass(owner?.classId ?? "Wizard", 0.3, 60),
+    });
     return;
   }
   queueEnemyStruck(now);
   playMonsterSfx("flinch");
   applyCombatEvents(magicAttackHitEvents(spell.label, enemy.name, impact.damage, "enemy", critDamageKind(impact.crit)), now, { enemy: enemy });
+  applyFlameDisruptorGlyphSplash(spell, impact.damage, enemy, now, { partyMember: owner });
   if (enemy.hp <= 0) {
     finishEnemy(now);
     setEnemyAction("die", false, now);
@@ -40698,6 +40961,70 @@ function wizardAutoSpellEligible(spell, member = null) {
   return true;
 }
 
+function adjacentSwarmEnemiesToPrimary(primaryEnemy) {
+  if (!groupDungeonSwarmSideActive() || !primaryEnemy) return [];
+  const primary = primaryEnemy.swarmId
+    ? findGroupDungeonSwarmEnemy(primaryEnemy.swarmId)
+    : null;
+  if (!primary || primary.hp <= 0 || primary.dying) return [];
+  const tile = swarmEnemyReservedTile(primary);
+  const neighborKeys = new Set(
+    fireWallCrossTiles(tile.worldX, tile.mapRow)
+      .filter((entry) => !(entry.worldX === tile.worldX && entry.mapRow === tile.mapRow))
+      .map(groupDungeonFireWallTileKey),
+  );
+  return (state.battle.swarm?.enemies ?? []).filter((enemy) => {
+    if (enemy.id === primary.id || enemy.hp <= 0 || enemy.dying) return false;
+    return neighborKeys.has(groupDungeonFireWallTileKey(swarmEnemyReservedTile(enemy)));
+  });
+}
+
+/**
+ * Disruptor Cascade: each orthogonally adjacent swarm enemy has a chance to take
+ * a fraction of the primary Flame Disruptor hit. Solo / no-swarm fights are a no-op.
+ */
+function applyFlameDisruptorGlyphSplash(spell, primaryDamage, primaryEnemy, now, options = {}) {
+  if (spell?.id !== "FlameDisruptor") return;
+  const damage = Math.max(0, Math.trunc(Number(primaryDamage) || 0));
+  if (damage <= 0) return;
+  const caster = options.partyMember ?? state.battle.player;
+  const params = glyphFlameDisruptorSplashParams(equippedGlyphFor(caster));
+  if (!params) return;
+  const splashDamage = flameDisruptorSplashDamage(damage, params.damageFraction);
+  if (splashDamage <= 0) return;
+
+  const adjacent = adjacentSwarmEnemiesToPrimary(primaryEnemy);
+  if (!adjacent.length) return;
+
+  const sfx = options.sfx ?? { volume: 0.36, throttleMs: 60 };
+  const casterClassId = options.partyMember?.classId
+    ?? (bossPartyOnField() ? "Wizard" : null);
+
+  for (const swarmEnemy of adjacent) {
+    if (!rollFlameDisruptorSplashChance(params.chance)) continue;
+    const entity = swarmEnemyToBattleEntity(swarmEnemy);
+    addSwarmEnemyCombatText(swarmEnemy, splashDamage, "damage", now);
+    strikeGroupDungeonSwarmEnemy(entity, now);
+    playMonsterSfx("flinch", swarmEnemy, sfx);
+    const events = magicAttackHitEvents(
+      spell.label,
+      swarmEnemy.name,
+      splashDamage,
+      "enemy",
+      "damage",
+      { swarmId: swarmEnemy.id },
+    );
+    if (casterClassId && bossPartyOnField()) {
+      recordBossCombatDamage(casterClassId, spell.id, splashDamage);
+      applyBossPartyCombatEvents(casterClassId, events, now, { swarmEnemy });
+    } else {
+      applyCombatEvents(events, now, { swarmEnemy });
+    }
+    maybeKillGroupDungeonSwarmEnemy(entity, now);
+  }
+  syncGroupDungeonPrimaryEnemy();
+}
+
 function applyWizardBangSpellImpact(spell, impact, now, options = {}) {
   const battle = state.battle;
   const baseValue = Math.max(0, Math.trunc(Number(impact.baseValue) || 0));
@@ -40858,6 +41185,7 @@ function updatePendingImpact(now) {
   if (spell.id === "Vampirism" && impact.damage > 0 && learned) {
     queueVampirismRestore(vampirismRestoreAmount(impact.damage, learned), now);
   }
+  applyFlameDisruptorGlyphSplash(spell, impact.damage, battle.enemy, now);
   if (learned) levelMagicSkill(spell, learned, now);
 
   if (battle.enemy.hp <= 0) {
@@ -40900,7 +41228,7 @@ function createWizardGroundSpellEffect(spell, impact, now, partyCaster = null, p
     ? wizardStormFieldDurationMs(spell)
     : areaField && spell.groundFixedDurationMs != null
       ? wizardStormFieldDurationMs(spell)
-      : wizardGroundEffectDurationMs(spell, durationPower);
+      : wizardGroundEffectDurationMs(spell, durationPower, partyCaster ?? state.battle.player);
   const tickStartDelayMs = Math.max(0, Math.trunc(Number(spell.groundTickStartDelayMs) || 0));
   const effect = {
     id: `${spell.id}-${now}-${Math.random()}`,
@@ -40955,13 +41283,14 @@ function createWizardGroundSpellEffect(spell, impact, now, partyCaster = null, p
   updateGroundSpellEffects(now);
 }
 
-function wizardGroundEffectDurationMs(spell, value) {
+function wizardGroundEffectDurationMs(spell, value, caster = null) {
   if (spell?.groundFixedDurationMs != null) {
     return Math.max(0, Math.trunc(Number(spell.groundFixedDurationMs) || 0));
   }
   const base = Math.max(0, Math.trunc(Number(spell.groundDurationBaseMs) || 10000));
   const perPower = Math.max(0, Math.trunc(Number(spell.groundDurationPerPowerMs) || 500));
-  return base + Math.max(0, Math.trunc(Number(value) || 0)) * perPower;
+  const duration = base + Math.max(0, Math.trunc(Number(value) || 0)) * perPower;
+  return applyGlyphGroundDuration(duration, spell?.id, equippedGlyphFor(caster));
 }
 
 function mapLightningSettings(zone = activeZone()) {
@@ -41085,7 +41414,7 @@ function mapLightningStrikeHitsTarget(effect, target) {
 function applyMapLightningHitToMember(member, damage, now) {
   if (!member || member.hp <= 0) return;
   if (damage > 0) {
-    member.hp = Math.max(0, member.hp - damage);
+    applyCombatantIncomingHpDamage(member, damage, now);
     recordCombatEquipmentLockActivity(now);
   }
   const offsetX = bossPartyDamageTextOffset(member.classId);
@@ -41589,7 +41918,7 @@ function enemyAttackTarget() {
     magicResist: battle.player.magicResist ?? 0,
     agility: battle.player.agility,
     applyDamage: (damage, now) => {
-      battle.player.hp = Math.max(0, battle.player.hp - damage);
+      applyCombatantIncomingHpDamage(battle.player, damage, now);
       maybeNotifyMagicShieldStruck(null, now);
       setPlayerAction("struck", now + 250, true);
       playSfx("player.flinch", { volume: 0.45, throttleMs: 120 });
@@ -41643,8 +41972,8 @@ function bossPartyIncomingStrikeTarget(partyEntity, now, options = {}) {
       name,
       anchor: "player",
       applyDamage: (amount, impactNow) => {
-        recordBossCombatDamageTaken(partyEntity.classId, amount);
-        partyEntity.hp = Math.max(0, partyEntity.hp - amount);
+        const dealt = applyCombatantIncomingHpDamage(partyEntity, amount, impactNow);
+        recordBossCombatDamageTaken(partyEntity.classId, dealt);
         if (magicShield) maybeNotifyMagicShieldStruck(null, impactNow);
         setPlayerAction("struck", impactNow + 250, true);
         playSfx("player.flinch", bossPartySfxParams(partyEntity, 0.45, 120));
@@ -41659,8 +41988,8 @@ function bossPartyIncomingStrikeTarget(partyEntity, now, options = {}) {
     name,
     anchor: "enemy",
     applyDamage: (amount, impactNow) => {
-      recordBossCombatDamageTaken(partyEntity.classId, amount);
-      partyEntity.hp = Math.max(0, partyEntity.hp - amount);
+      const dealt = applyCombatantIncomingHpDamage(partyEntity, amount, impactNow);
+      recordBossCombatDamageTaken(partyEntity.classId, dealt);
       if (magicShield) notifyWizardMagicShieldStruckOnHit(partyEntity, impactNow);
       partyEntity.visualAction = "struck";
       partyEntity.visualFrame = 0;
@@ -41703,7 +42032,7 @@ function strikeTargetRefToIncoming(targetRef, now, options = {}) {
     name: targetRef.logName ?? state.battle.combatClass,
     anchor: "player",
     applyDamage: (amount, impactNow) => {
-      entity.hp = Math.max(0, entity.hp - amount);
+      applyCombatantIncomingHpDamage(entity, amount, impactNow);
       if (options.magicShield) maybeNotifyMagicShieldStruck(null, impactNow);
       setPlayerAction("struck", impactNow + 250, true);
       playSfx("player.flinch", { volume: 0.45, throttleMs: 120, force: true });
@@ -41834,11 +42163,19 @@ function incomingDamageReductionPercent(target, now = performance.now()) {
   const classId = buffEntity?.classId
     ?? (buffEntity === state.battle.player ? state.battle.combatClass : null);
   let percent = 0;
+  const buffs = pruneStatBuffs(entityStatBuffList(buffEntity), now);
   // Wizard Magic Shield buff (existing behaviour): pet/enemy entities have no classId.
+  // Mana Aegis glyph replaces Magic Shield DR with MP absorption.
   if (!classId || classId === "Wizard") {
-    const buffs = pruneStatBuffs(entityStatBuffList(buffEntity), now);
     const shield = buffs.find((buff) => buff.kind === "magicShield");
-    percent += Math.max(0, Math.trunc(Number(shield?.reductionPercent) || 0));
+    if (shield && !glyphMagicShieldMpParams(equippedGlyphFor(buffEntity))) {
+      percent += Math.max(0, Math.trunc(Number(shield?.reductionPercent) || 0));
+    }
+  }
+  // Flaming Bulwark glyph DR (Warrior Flaming Sword toggle).
+  const flamingGlyphDr = buffs.find((buff) => buff.kind === FLAMING_SWORD_GLYPH_DR_KIND);
+  if (flamingGlyphDr) {
+    percent += Math.max(0, Math.trunc(Number(flamingGlyphDr.reductionPercent) || 0));
   }
   // Equipped "damage taken −%" empower (all classes) for player-owned entities.
   const inventory = damageReductionInventoryForEntity(buffEntity);
@@ -43747,6 +44084,7 @@ function renderCanvasStage(displayFrame, frameCount) {
     canvas.style.height = `${displayHeight}px`;
   }
   ctx.imageSmoothingEnabled = state.smooth;
+  ctx.filter = "none";
   ctx.clearRect(0, 0, state.stageWidth, state.stageHeight);
 
   if (state.game.mode === "town") {
@@ -46179,6 +46517,19 @@ function enemyDebuffTint(enemy, now = performance.now()) {
   return null;
 }
 
+/**
+ * Crystal PlayerObject / MonsterObject DrawColour mapping:
+ * Paralysis → Gray (ApplyDrawColour enables grayscale), Frozen → Blue,
+ * Slow → Purple, Green → Green. Priority matches Crystal's flag switch order.
+ */
+function combatantPoisonTint(entity) {
+  if (!entity || (entity.hp ?? 0) <= 0) return null;
+  if (combatantPoison(entity, "paralysis")) return { mode: "grayscale" };
+  if (combatantPoison(entity, "slow")) return { mode: "tint", color: "#7b3fd1", alpha: 0.42 };
+  if (combatantPoison(entity, "green")) return { mode: "tint", color: "#1f9d3a", alpha: 0.42 };
+  return null;
+}
+
 function drawEnemyDebuffTintCanvas(ctx, atlas, sheet, anchorX, anchorY, action, frame, tint, enemy = state.battle.enemy) {
   if (!tint) return;
   const actions = enemyVisualActions(atlas, enemy);
@@ -46465,16 +46816,28 @@ function drawOneTaoistPetCanvas(ctx, pet) {
   const sheet = cachedImage(`./public/monsters/monster/${taoistPetRenderMonsterIndex(pet)}.png`);
   if (!sheet) return;
   const { x: anchorX, y: anchorY } = taoistPetAnchor(pet);
-  if (atlas.overlays) {
-    const drawBase = () => {
+  const poisonTint = combatantPoisonTint(pet);
+  const drawPetFrame = () => {
+    if (poisonTint?.mode === "grayscale") {
+      drawAtlasFrameGrayscale(ctx, sheet, atlas.slotWidth, atlas.slotHeight, meta, anchorX, anchorY);
+      return;
+    }
+    if (atlas.overlays) {
       drawAtlasFrameMeta(ctx, sheet, atlas.slotWidth, meta, anchorX, anchorY);
-    };
+      return;
+    }
+    drawAtlasFrame(ctx, sheet, atlas.slotWidth, atlas.slotHeight, meta, anchorX, anchorY);
+  };
+  if (atlas.overlays && poisonTint?.mode !== "grayscale") {
     const blend = taoistPetLayerBlendModes(atlas).base;
-    if (blend === "screen") withScreenBlend(ctx, drawBase);
-    else drawBase();
+    if (blend === "screen") withScreenBlend(ctx, drawPetFrame);
+    else drawPetFrame();
     drawMonsterOverlayCanvas(ctx, atlas, sheet, anchorX, anchorY, pet.action, pet.frame);
   } else {
-    drawAtlasFrame(ctx, sheet, atlas.slotWidth, atlas.slotHeight, meta, anchorX, anchorY);
+    drawPetFrame();
+  }
+  if (poisonTint?.mode === "tint") {
+    drawAtlasFrameTint(ctx, sheet, atlas.slotWidth, atlas.slotHeight, meta, anchorX, anchorY, poisonTint);
   }
   if (pet.spellId === "SummonShinsu" && pet.shinsuVisible && pet.action === "attack1") {
     const breathFrame = pet.frame - CRYSTAL_SHINSU_ATTACK_IMPACT_FRAME;
@@ -46730,6 +47093,7 @@ function drawCharacterVisualLayers(ctx, {
   spriteSet = state.spriteSet,
   armourSpecialEffectId = null,
   armourSpecialEffectStartedAt = 0,
+  poisonTint = null,
 }) {
   const now = performance.now();
   if (armourSpecialEffectId) {
@@ -46743,6 +47107,8 @@ function drawCharacterVisualLayers(ctx, {
       true,
     );
   }
+  // Never set ctx.filter on the battle canvas — it can leak across draws/frames.
+  // Paralysis grayscale is applied per-sprite on the scratch canvas instead.
   for (const layer of layerNames()) {
     const index = indexes?.[layer];
     if (index == null || index === "") continue;
@@ -46755,9 +47121,18 @@ function drawCharacterVisualLayers(ctx, {
     if (!atlas || !clip || !meta || meta.empty) continue;
     const sheet = cachedImage(sheetUrl(spriteSet, layer, index));
     if (!sheet) continue;
-    const drawLayer = () => drawAtlasFrame(ctx, sheet, atlas.slotWidth, atlas.slotHeight, meta, anchorX, anchorY);
+    const drawLayer = () => {
+      if (poisonTint?.mode === "grayscale") {
+        drawAtlasFrameGrayscale(ctx, sheet, atlas.slotWidth, atlas.slotHeight, meta, anchorX, anchorY);
+        return;
+      }
+      drawAtlasFrame(ctx, sheet, atlas.slotWidth, atlas.slotHeight, meta, anchorX, anchorY);
+    };
     if (layer === "wing" || layer === "weaponGlow") withScreenBlend(ctx, drawLayer);
     else drawLayer();
+    if (poisonTint?.mode === "tint") {
+      drawAtlasFrameTint(ctx, sheet, atlas.slotWidth, atlas.slotHeight, meta, anchorX, anchorY, poisonTint);
+    }
   }
   if (armourSpecialEffectId) {
     drawArmourSpecialEffectLayers(
@@ -46784,6 +47159,7 @@ function drawPlayerCanvas(ctx, displayFrame) {
     atlases: state.atlases,
     armourSpecialEffectId: state.activeArmourSpecialEffectId,
     armourSpecialEffectStartedAt: state.armourSpecialEffectStartedAt,
+    poisonTint: combatantPoisonTint(state.battle.player),
   });
 }
 
@@ -47063,6 +47439,7 @@ function drawBossPartyMemberCanvas(ctx, member, anchorOverride = null) {
     ),
     armourSpecialEffectId: member.activeArmourSpecialEffectId ?? null,
     armourSpecialEffectStartedAt: member.armourSpecialEffectStartedAt ?? 0,
+    poisonTint: combatantPoisonTint(member),
   });
 }
 
@@ -47114,37 +47491,87 @@ function drawAtlasFrame(ctx, sheet, slotWidth, slotHeight, meta, anchorX, anchor
 let atlasTintScratchCanvas = null;
 let atlasTintScratchCtx = null;
 
+function ensureAtlasTintScratch(w, h) {
+  if (!atlasTintScratchCanvas) {
+    atlasTintScratchCanvas = document.createElement("canvas");
+    atlasTintScratchCtx = atlasTintScratchCanvas.getContext("2d");
+  }
+  if (!atlasTintScratchCtx) return null;
+  if (atlasTintScratchCanvas.width !== w || atlasTintScratchCanvas.height !== h) {
+    atlasTintScratchCanvas.width = w;
+    atlasTintScratchCanvas.height = h;
+  }
+  return atlasTintScratchCtx;
+}
+
+function atlasFrameSourceRect(meta, slotWidth, slotHeight) {
+  const sx = Number.isFinite(Number(meta.sheetX))
+    ? Math.trunc(Number(meta.sheetX))
+    : Math.trunc(Number(meta.slot) || 0) * slotWidth;
+  const sy = Number.isFinite(Number(meta.sheetY)) ? Math.trunc(Number(meta.sheetY)) : 0;
+  const sourceWidth = Math.max(1, Math.trunc(Number(meta.w) || slotWidth));
+  const sourceHeight = Math.max(1, Math.trunc(Number(meta.h) || slotHeight));
+  return { sx, sy, sourceWidth, sourceHeight };
+}
+
+/** Crystal paralysis: grayscale on a scratch canvas so the battle ctx.filter never sticks. */
+function drawAtlasFrameGrayscale(ctx, sheet, slotWidth, slotHeight, meta, anchorX, anchorY, scale = 1) {
+  if (!sheet || !meta || meta.empty) return;
+  const drawScale = Math.max(0.1, Number(scale) || 1);
+  const w = Math.max(1, Math.trunc(Number(slotWidth) || 1));
+  const h = Math.max(1, Math.trunc(Number(slotHeight) || 1));
+  const scratch = ensureAtlasTintScratch(w, h);
+  if (!scratch) return;
+  const { sx, sy, sourceWidth, sourceHeight } = atlasFrameSourceRect(meta, slotWidth, slotHeight);
+  scratch.clearRect(0, 0, w, h);
+  scratch.globalCompositeOperation = "source-over";
+  scratch.globalAlpha = 1;
+  scratch.filter = "grayscale(1)";
+  scratch.drawImage(sheet, sx, sy, sourceWidth, sourceHeight, 0, 0, sourceWidth, sourceHeight);
+  scratch.filter = "none";
+  ctx.drawImage(
+    atlasTintScratchCanvas,
+    0,
+    0,
+    sourceWidth,
+    sourceHeight,
+    anchorX + meta.offsetX * drawScale,
+    anchorY + meta.offsetY * drawScale,
+    sourceWidth * drawScale,
+    sourceHeight * drawScale,
+  );
+}
+
 function drawAtlasFrameTint(ctx, sheet, slotWidth, slotHeight, meta, anchorX, anchorY, tint, scale = 1) {
   if (!tint || !sheet || !meta || meta.empty) return;
   const drawScale = Math.max(0.1, Number(scale) || 1);
   const w = Math.max(1, Math.trunc(Number(slotWidth) || 1));
   const h = Math.max(1, Math.trunc(Number(slotHeight) || 1));
-  if (!atlasTintScratchCanvas) {
-    atlasTintScratchCanvas = document.createElement("canvas");
-    atlasTintScratchCtx = atlasTintScratchCanvas.getContext("2d");
-  }
-  if (!atlasTintScratchCtx) return;
-  if (atlasTintScratchCanvas.width !== w || atlasTintScratchCanvas.height !== h) {
-    atlasTintScratchCanvas.width = w;
-    atlasTintScratchCanvas.height = h;
-  }
-  atlasTintScratchCtx.clearRect(0, 0, w, h);
-  atlasTintScratchCtx.globalCompositeOperation = "source-over";
-  atlasTintScratchCtx.globalAlpha = 1;
-  atlasTintScratchCtx.drawImage(sheet, meta.slot * slotWidth, 0, slotWidth, slotHeight, 0, 0, w, h);
-  atlasTintScratchCtx.globalCompositeOperation = "source-atop";
-  atlasTintScratchCtx.fillStyle = tint.color;
-  atlasTintScratchCtx.fillRect(0, 0, w, h);
-  atlasTintScratchCtx.globalCompositeOperation = "source-over";
+  const scratch = ensureAtlasTintScratch(w, h);
+  if (!scratch) return;
+  const { sx, sy, sourceWidth, sourceHeight } = atlasFrameSourceRect(meta, slotWidth, slotHeight);
+  scratch.clearRect(0, 0, w, h);
+  scratch.globalCompositeOperation = "source-over";
+  scratch.globalAlpha = 1;
+  scratch.filter = "none";
+  scratch.drawImage(sheet, sx, sy, sourceWidth, sourceHeight, 0, 0, sourceWidth, sourceHeight);
+  scratch.globalCompositeOperation = "source-atop";
+  scratch.fillStyle = tint.color;
+  scratch.fillRect(0, 0, sourceWidth, sourceHeight);
+  scratch.globalCompositeOperation = "source-over";
 
   ctx.save();
   ctx.globalAlpha = Math.max(0, Math.min(1, Number(tint.alpha) || 0.42));
   ctx.drawImage(
     atlasTintScratchCanvas,
+    0,
+    0,
+    sourceWidth,
+    sourceHeight,
     anchorX + meta.offsetX * drawScale,
     anchorY + meta.offsetY * drawScale,
-    slotWidth * drawScale,
-    slotHeight * drawScale,
+    sourceWidth * drawScale,
+    sourceHeight * drawScale,
   );
   ctx.restore();
 }

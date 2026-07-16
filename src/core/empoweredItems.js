@@ -763,6 +763,7 @@ export const EMPOWER_SLOT_GROUPS = [
 export function itemCanBeEmpowered(item) {
   const slot = item?.slot;
   if (!slot || slot === "consumable") return false;
+  if (slot === "glyph" || item?.type === "glyph") return false;
   if (item?.type === "book" || item?.type === "scroll") return false;
   if (item?.gem) return false;
   return true;
