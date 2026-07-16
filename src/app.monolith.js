@@ -3169,6 +3169,8 @@ const DRAGGABLE_SCENE_WINDOWS = new Set(["character", "inventory", "codex", "upg
 let sceneWindowDragState = null;
 let hotbarDragState = null;
 let hotbarWindowPosition = null;
+let combatSkillBarDragState = null;
+let combatSkillBarWindowPosition = null;
 let sceneOverlayInteractionUntil = 0;
 const sceneScrollPositions = new Map();
 // Element currently under a held pointer (mousedown/touchstart without release).
@@ -3651,6 +3653,7 @@ async function init() {
   renderActionControls();
   bindControls();
   bindHotbarDrag();
+  bindCombatSkillBarDrag();
   reconcileSceneWindowPositions();
   syncFullscreenToggle();
   bindBossDamageReportControls();
@@ -13903,7 +13906,7 @@ function isPointerHeldWithin(element) {
 }
 
 function shouldDeferSceneOverlayRender(liveSignature) {
-  if (sceneWindowDragState || hotbarDragState || inventoryDragState) return true;
+  if (sceneWindowDragState || hotbarDragState || combatSkillBarDragState || inventoryDragState) return true;
   // A pointer pressed anywhere in the overlay must never have its target node
   // rebuilt out from under it, or the pending click is lost.
   if (isPointerHeldWithin(els.sceneOverlay)) return true;
@@ -42062,7 +42065,10 @@ function renderCombatSkillBar(now = performance.now()) {
   if (signature !== combatSkillBarSignature && !isPointerHeldWithin(els.combatSkillBar)) {
     combatSkillBarSignature = signature;
     els.combatSkillBar.hidden = false;
-    els.combatSkillBar.innerHTML = skills.map((skill) => combatSkillButtonHtml(skill, learnedMagic(skill.id), now)).join("");
+    els.combatSkillBar.innerHTML = `
+      <div class="combat-skill-bar-drag-handle" aria-hidden="true"></div>
+      ${skills.map((skill) => combatSkillButtonHtml(skill, learnedMagic(skill.id), now)).join("")}
+    `;
     applyCombatHudLayout();
   }
   updateCombatSkillBarCooldowns(skills, now);
@@ -42444,6 +42450,7 @@ function applyCombatHudLayout(options = {}) {
   els.stage.style.setProperty("--combat-hud-hotbar-top", `${metrics.hotbarTop}px`);
   els.stage.style.setProperty("--combat-hud-skill-top", `${metrics.skillTop}px`);
   applyHotbarWindowPosition(metrics);
+  applyCombatSkillBarWindowPosition(metrics);
 }
 
 function clampHotbarWindowPosition(x, y) {
@@ -42471,11 +42478,16 @@ function applyHotbarWindowPosition(metrics = null) {
   els.hotbar.style.left = `${clamped.x}px`;
   els.hotbar.style.top = `${clamped.y}px`;
   els.hotbar.style.transform = "none";
-  const skillTop = clamped.y + COMBAT_HUD_HOTBAR_HEIGHT + COMBAT_HUD_STACK_GAP;
-  els.stage?.style.setProperty("--combat-hud-skill-top", `${skillTop}px`);
+  if (!combatSkillBarWindowPosition) {
+    const skillTop = clamped.y + COMBAT_HUD_HOTBAR_HEIGHT + COMBAT_HUD_STACK_GAP;
+    els.stage?.style.setProperty("--combat-hud-skill-top", `${skillTop}px`);
+  }
   if (!metrics) return;
+  const skillTopForHud = combatSkillBarWindowPosition
+    ? combatSkillBarWindowPosition.y
+    : clamped.y + COMBAT_HUD_HOTBAR_HEIGHT + COMBAT_HUD_STACK_GAP;
   const hudBottom = metrics.skillBarVisible
-    ? skillTop + COMBAT_HUD_SKILL_BAR_HEIGHT + 4
+    ? skillTopForHud + COMBAT_HUD_SKILL_BAR_HEIGHT + 4
     : clamped.y + COMBAT_HUD_HOTBAR_HEIGHT + 4;
   const displayHeight = Math.max(metrics.canvasHeight, hudBottom);
   if (displayHeight > els.stage.clientHeight) {
@@ -42484,7 +42496,7 @@ function applyHotbarWindowPosition(metrics = null) {
 }
 
 function beginHotbarDrag(event, handleEl) {
-  if (event.button !== 0 || inventoryDragState || sceneWindowDragState) return;
+  if (event.button !== 0 || inventoryDragState || sceneWindowDragState || combatSkillBarDragState) return;
   event.preventDefault();
   if (!els.hotbar || !els.stage) return;
   const stageRect = els.stage.getBoundingClientRect();
@@ -42538,10 +42550,111 @@ function bindHotbarDrag() {
   if (!els.hotbar || els.hotbar.dataset.hotbarDragBound === "1") return;
   els.hotbar.dataset.hotbarDragBound = "1";
   els.hotbar.addEventListener("pointerdown", (event) => {
-    if (event.button !== 0 || inventoryDragState || sceneWindowDragState) return;
+    if (event.button !== 0 || inventoryDragState || sceneWindowDragState || combatSkillBarDragState) return;
     const handle = event.target.closest(".crystal-hotbar-drag-handle");
     if (!handle || !els.hotbar.contains(handle)) return;
     beginHotbarDrag(event, handle);
+  });
+}
+
+function clampCombatSkillBarWindowPosition(x, y) {
+  if (!els.stage || !els.combatSkillBar) return { x: Math.round(x), y: Math.round(y) };
+  const barW = els.combatSkillBar.offsetWidth || 240;
+  const barH = els.combatSkillBar.offsetHeight || COMBAT_HUD_SKILL_BAR_HEIGHT;
+  const maxX = Math.max(0, els.stage.clientWidth - barW);
+  const maxY = Math.max(0, els.stage.clientHeight - barH);
+  return {
+    x: Math.max(0, Math.min(Math.round(x), maxX)),
+    y: Math.max(0, Math.min(Math.round(y), maxY)),
+  };
+}
+
+function applyCombatSkillBarWindowPosition(metrics = null) {
+  if (!els.combatSkillBar) return;
+  if (!combatSkillBarWindowPosition) {
+    els.combatSkillBar.style.left = "";
+    els.combatSkillBar.style.top = "";
+    els.combatSkillBar.style.transform = "";
+    return;
+  }
+  const clamped = clampCombatSkillBarWindowPosition(combatSkillBarWindowPosition.x, combatSkillBarWindowPosition.y);
+  combatSkillBarWindowPosition = clamped;
+  els.combatSkillBar.style.left = `${clamped.x}px`;
+  els.combatSkillBar.style.top = `${clamped.y}px`;
+  els.combatSkillBar.style.transform = "none";
+  if (!metrics || !els.stage) return;
+  const hotbarBottom = hotbarWindowPosition
+    ? hotbarWindowPosition.y + COMBAT_HUD_HOTBAR_HEIGHT + 4
+    : (metrics.hotbarTop ?? 0) + COMBAT_HUD_HOTBAR_HEIGHT + 4;
+  const hudBottom = Math.max(
+    hotbarBottom,
+    clamped.y + (els.combatSkillBar.offsetHeight || COMBAT_HUD_SKILL_BAR_HEIGHT) + 4,
+  );
+  const displayHeight = Math.max(metrics.canvasHeight, hudBottom);
+  if (displayHeight > els.stage.clientHeight) {
+    els.stage.style.height = `${displayHeight}px`;
+  }
+}
+
+function beginCombatSkillBarDrag(event, handleEl) {
+  if (event.button !== 0 || inventoryDragState || sceneWindowDragState || hotbarDragState) return;
+  event.preventDefault();
+  if (!els.combatSkillBar || !els.stage) return;
+  const stageRect = els.stage.getBoundingClientRect();
+  const barRect = els.combatSkillBar.getBoundingClientRect();
+  const startX = combatSkillBarWindowPosition?.x ?? (barRect.left - stageRect.left);
+  const startY = combatSkillBarWindowPosition?.y ?? (barRect.top - stageRect.top);
+  combatSkillBarWindowPosition = { x: Math.round(startX), y: Math.round(startY) };
+  applyCombatSkillBarWindowPosition();
+  combatSkillBarDragState = {
+    handleEl,
+    pointerId: event.pointerId,
+    offsetX: event.clientX - stageRect.left - combatSkillBarWindowPosition.x,
+    offsetY: event.clientY - stageRect.top - combatSkillBarWindowPosition.y,
+  };
+  els.combatSkillBar.classList.add("combat-skill-bar-dragging");
+  document.body.classList.add("combat-skill-bar-drag-active");
+  handleEl.setPointerCapture(event.pointerId);
+  handleEl.addEventListener("pointermove", handleCombatSkillBarDragMove);
+  handleEl.addEventListener("pointerup", handleCombatSkillBarDragEnd);
+  handleEl.addEventListener("pointercancel", handleCombatSkillBarDragEnd);
+}
+
+function handleCombatSkillBarDragMove(event) {
+  if (!combatSkillBarDragState || event.pointerId !== combatSkillBarDragState.pointerId || !els.stage) return;
+  const stageRect = els.stage.getBoundingClientRect();
+  const next = clampCombatSkillBarWindowPosition(
+    event.clientX - stageRect.left - combatSkillBarDragState.offsetX,
+    event.clientY - stageRect.top - combatSkillBarDragState.offsetY,
+  );
+  combatSkillBarWindowPosition = next;
+  applyCombatSkillBarWindowPosition();
+}
+
+function handleCombatSkillBarDragEnd(event) {
+  if (!combatSkillBarDragState || event.pointerId !== combatSkillBarDragState.pointerId) return;
+  const { handleEl, pointerId } = combatSkillBarDragState;
+  handleEl.removeEventListener("pointermove", handleCombatSkillBarDragMove);
+  handleEl.removeEventListener("pointerup", handleCombatSkillBarDragEnd);
+  handleEl.removeEventListener("pointercancel", handleCombatSkillBarDragEnd);
+  els.combatSkillBar?.classList.remove("combat-skill-bar-dragging");
+  document.body.classList.remove("combat-skill-bar-drag-active");
+  try {
+    handleEl.releasePointerCapture(pointerId);
+  } catch {
+    // Ignore stale capture errors after interrupted drags.
+  }
+  combatSkillBarDragState = null;
+}
+
+function bindCombatSkillBarDrag() {
+  if (!els.combatSkillBar || els.combatSkillBar.dataset.combatSkillBarDragBound === "1") return;
+  els.combatSkillBar.dataset.combatSkillBarDragBound = "1";
+  els.combatSkillBar.addEventListener("pointerdown", (event) => {
+    if (event.button !== 0 || inventoryDragState || sceneWindowDragState || hotbarDragState) return;
+    const handle = event.target.closest(".combat-skill-bar-drag-handle");
+    if (!handle || !els.combatSkillBar.contains(handle)) return;
+    beginCombatSkillBarDrag(event, handle);
   });
 }
 
