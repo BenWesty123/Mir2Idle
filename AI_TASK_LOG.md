@@ -1,5 +1,31 @@
 # AI Task Log - LOM Idle V2
 
+## 2026-07-16 - Remove HP/MP orb flash on damage/heal
+
+### What
+Removed the white flash overlay on the stage info bar HP/MP fills when
+vitals change (`flashStageInfoOrbPanel` + CSS keyframes). Bars still animate
+height; they no longer flash.
+
+### Verify
+- `npm.cmd run check`
+- `npm.cmd run smoke`
+
+## 2026-07-16 - Package CSS UI art cache busting
+
+### What
+Updated `tools/package-itch.mjs` so packaged CSS `url(...)` references to local
+assets receive the same per-build `?v=` stamp as HTML/JS. This prevents returning
+browsers from pairing the new stage info bar CSS with stale cached `InfoBar-*`
+images, which could make the HP/MP empty background art disappear only in the
+packaged Cloudflare build.
+
+### Verify
+- `npm.cmd run integrity:rules`
+- `npm.cmd run check`
+- `npm.cmd run release:itch`
+- Confirmed `dist/itch/src/styles.css` stamps `InfoBar-*` background/mask URLs
+
 ## 2026-07-16 - L40–50 armour niche rebalance
 
 ### What

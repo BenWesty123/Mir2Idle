@@ -3235,8 +3235,6 @@ let stageXpBarSignature = "";
 let stageInfoBagFillSignature = "";
 let stageInfoGoldSignature = "";
 let stageInfoOrbSignature = "";
-let stageInfoOrbLastHp = null;
-let stageInfoOrbLastMp = null;
 let stageInfoZoneNameSignature = null;
 let hotbarSignature = "";
 let hoveredTooltipEntryId = null;
@@ -44589,13 +44587,63 @@ function refreshOpenSceneLiveText() {
 }
 
 function renderPlayerResourceHud() {
-  // Player resource HUD removed; HP/MP live in the stage info bar.
   if (!els.playerResourceHud) return;
-  if (!els.playerResourceHud.hidden || playerHudSignature) {
-    els.playerResourceHud.hidden = true;
-    els.playerResourceHud.innerHTML = "";
-    playerHudSignature = "";
+  const player = state.battle.player;
+  const shouldShow = Boolean(player) && (state.game.mode === "zone" || state.game.mode === "mining" || state.battle.running || state.showEnemies);
+  if (!shouldShow) {
+    if (!els.playerResourceHud.hidden || playerHudSignature) {
+      els.playerResourceHud.hidden = true;
+      els.playerResourceHud.innerHTML = "";
+      playerHudSignature = "";
+    }
+    return;
   }
+
+  const hpPotions = potionInventoryCount("hp");
+  const mpPotions = potionInventoryCount("mp");
+  const pendingHp = (state.battle.potHealthAmount ?? 0) + (state.battle.healAmount ?? 0) + (state.battle.vampAmount ?? 0);
+  const pendingMp = state.battle.potManaAmount ?? 0;
+  const now = performance.now();
+  const activeBuffs = pruneStatBuffs(state.battle.statBuffs ?? [], now).map((buff) => ({
+    label: buff.label,
+    bonus: statBuffBonusLabel(buff),
+    remaining: formatBuffRemaining(buff.expiresAt - now),
+  }));
+  const signature = JSON.stringify({
+    className: state.battle.combatClass,
+    level: state.game.progress.level,
+    hp: player.hp,
+    maxHp: player.maxHp,
+    mp: player.mp,
+    maxMp: player.maxMp,
+    pendingHp,
+    pendingMp,
+    hpPotions,
+    mpPotions,
+    activeBuffs,
+  });
+  if (signature === playerHudSignature) return;
+  playerHudSignature = signature;
+
+  els.playerResourceHud.hidden = false;
+  const titleHtml = IS_GAME_UI
+    ? `<div class="player-resource-title game-minimal"><span>Lv ${state.game.progress.level}</span></div>`
+    : `
+      <div class="player-resource-title">
+        <strong>${escapeHtml(state.battle.combatClass)}</strong>
+        <span>Lv ${state.game.progress.level}</span>
+      </div>
+    `;
+  els.playerResourceHud.innerHTML = `
+    ${titleHtml}
+    ${playerResourceBarHtml("hp", "HP", player.hp, player.maxHp, pendingHp)}
+    ${playerResourceBarHtml("mp", "MP", player.mp, player.maxMp, pendingMp)}
+    <div class="player-resource-potions">
+      ${potionQuickButtonHtml("hp", "HP", hpPotions)}
+      ${potionQuickButtonHtml("mp", "MP", mpPotions)}
+    </div>
+    ${activeBuffs.length ? `<div class="player-resource-buffs">${activeBuffs.map((buff) => `<span class="player-stat-buff">${escapeHtml(buff.label)} ${escapeHtml(buff.bonus)} · ${escapeHtml(buff.remaining)}</span>`).join("")}</div>` : ""}
+  `;
 }
 
 function playerResourceBarHtml(kind, label, value, max, pending = 0) {
@@ -44728,13 +44776,6 @@ function stageInfoPlayerVitals() {
   };
 }
 
-function flashStageInfoOrbPanel(el) {
-  if (!el) return;
-  el.classList.remove("stage-info-orb-flash");
-  void el.offsetWidth;
-  el.classList.add("stage-info-orb-flash");
-}
-
 function renderStageInfoOrb() {
   if (!els.stageInfoHpFill && !els.stageInfoMpFill) return;
   const { hp, maxHp, mp, maxMp } = stageInfoPlayerVitals();
@@ -44746,11 +44787,7 @@ function renderStageInfoOrb() {
   const mpLabel = formatInfoBarPair(mp, maxMp, 9);
   const signature = `${hpLabel}|${mpLabel}|${hpFull}|${mpFull}|${hpPct}|${mpPct}`;
   if (signature === stageInfoOrbSignature) return;
-  const prevHp = stageInfoOrbLastHp;
-  const prevMp = stageInfoOrbLastMp;
   stageInfoOrbSignature = signature;
-  stageInfoOrbLastHp = hp;
-  stageInfoOrbLastMp = mp;
   if (els.stageInfoHpFill) els.stageInfoHpFill.style.height = `${hpPct}%`;
   if (els.stageInfoMpFill) els.stageInfoMpFill.style.height = `${mpPct}%`;
   if (els.stageInfoHpText) {
@@ -44761,8 +44798,6 @@ function renderStageInfoOrb() {
     els.stageInfoMpText.textContent = mpLabel;
     els.stageInfoMpText.title = `MP ${mpFull}`;
   }
-  if (prevHp !== null && prevHp !== hp) flashStageInfoOrbPanel(els.stageInfoHpFill);
-  if (prevMp !== null && prevMp !== mp) flashStageInfoOrbPanel(els.stageInfoMpFill);
 }
 
 function inventoryBagUsageHtml(className = "inventory-bag-usage") {

@@ -410,23 +410,35 @@ function copyDirectory(from, to, relativeRoot = "") {
 const CACHE_BUST_REQUIRED_FILES = ["index.html", "src/app.js"];
 
 /**
- * Re-stamp `?v=` cache-bust tokens across every packaged HTML/JS source file.
+ * Re-stamp `?v=` cache-bust tokens across every packaged HTML/JS/CSS source file.
  * HTML uses a broad regex so the entry script, styles.css and any asset link
  * are all stamped. JS uses a regex anchored to a `.js`/`.mjs` module specifier
  * so it rewrites in-source imports (src/app.js -> "./app.monolith.js?v=...")
  * WITHOUT touching the dynamic `?v=${MONSTER_ASSET_VERSION}` asset URLs that
- * live inside the monolith.
+ * live inside the monolith. CSS stamps local url(...) assets so returning
+ * browsers fetch updated UI art after a release.
  */
 function stampCacheBust(relativePath, text) {
   if (relativePath.endsWith(".html")) {
     return text.replace(/\?v=[^"']+/g, `?v=${buildVersion}`);
+  }
+  if (relativePath.endsWith(".css")) {
+    return text.replace(/url\((["']?)([^"')]+)\1\)/g, (match, quote, rawUrl) => {
+      const url = rawUrl.trim();
+      if (!url || /^(?:data:|https?:|#)/i.test(url)) return match;
+      const hashIndex = url.indexOf("#");
+      const pathAndQuery = hashIndex >= 0 ? url.slice(0, hashIndex) : url;
+      const hash = hashIndex >= 0 ? url.slice(hashIndex) : "";
+      const cleanPath = pathAndQuery.split("?")[0];
+      return `url(${quote}${cleanPath}?v=${buildVersion}${hash}${quote})`;
+    });
   }
   return text.replace(/(\.m?js)\?v=[^"'`\s]+/g, `$1?v=${buildVersion}`);
 }
 
 function patchCacheBusting() {
   for (const relativePath of sourceFiles) {
-    if (!/\.(?:html|m?js)$/.test(relativePath)) continue;
+    if (!/\.(?:html|m?js|css)$/.test(relativePath)) continue;
     const filePath = path.join(packageRoot, relativePath);
     if (!fs.existsSync(filePath)) continue;
     const original = fs.readFileSync(filePath, "utf8");
