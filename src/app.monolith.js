@@ -3222,6 +3222,8 @@ let hotbarWindowPosition = null;
 let combatSkillBarDragState = null;
 let combatSkillBarWindowPosition = null;
 let hotbarVertical = false;
+/** "classic" = top-left resource HUD; "infoBar" = bottom InfoBar chrome. */
+let hudChromeMode = "classic";
 let sceneOverlayInteractionUntil = 0;
 const sceneScrollPositions = new Map();
 // Element currently under a held pointer (mousedown/touchstart without release).
@@ -3316,7 +3318,17 @@ function labShellHtml() {
       </aside>
 
       <section class="stage-panel">
-        <div class="stage-shell">
+        <div class="stage-shell" data-hud-chrome="classic">
+          <button
+            type="button"
+            id="hudChromeToggle"
+            class="hud-chrome-toggle"
+            aria-label="Toggle HUD style"
+            title="Toggle HUD"
+            aria-pressed="false"
+          >
+            <img src="./public/ui/UI-Slider.png" alt="" aria-hidden="true" />
+          </button>
           <div class="player-resource-hud" id="playerResourceHud" hidden></div>
           <div class="stage" id="stage">
             <div class="party-paperdoll-bar" id="partyPaperDollBar" aria-label="Party paper dolls" hidden></div>
@@ -3417,7 +3429,17 @@ function gameShellHtml() {
     <section class="game-layout">
       <section class="game-stage-area">
         <div class="game-stage-card">
-          <div class="stage-shell game-stage-shell">
+          <div class="stage-shell game-stage-shell" data-hud-chrome="classic">
+            <button
+              type="button"
+              id="hudChromeToggle"
+              class="hud-chrome-toggle"
+              aria-label="Toggle HUD style"
+              title="Toggle HUD"
+              aria-pressed="false"
+            >
+              <img src="./public/ui/UI-Slider.png" alt="" aria-hidden="true" />
+            </button>
             <div class="player-resource-hud" id="playerResourceHud" hidden></div>
             <div class="party-paperdoll-bar" id="partyPaperDollBar" aria-label="Party paper dolls" hidden></div>
             <div class="party-switch-bar" id="partySwitchBar" aria-label="Switch party character" hidden></div>
@@ -3560,6 +3582,7 @@ const els = {
   spellControls: document.querySelector("#spellControls"),
   actionGroups: document.querySelector("#actionGroups"),
   stage: document.querySelector("#stage"),
+  hudChromeToggle: document.querySelector("#hudChromeToggle"),
   playerResourceHud: document.querySelector("#playerResourceHud"),
   stageXpBar: document.querySelector("#stageXpBar"),
   stageInfoLevel: document.querySelector("#stageInfoLevel"),
@@ -3709,6 +3732,8 @@ async function init() {
   bindHotbarDrag();
   bindHotbarOrientationToggle();
   bindCombatSkillBarDrag();
+  bindHudChromeToggle();
+  applyHudChromeMode();
   reconcileSceneWindowPositions();
   syncFullscreenToggle();
   bindBossDamageReportControls();
@@ -43727,6 +43752,47 @@ function bindHotbarOrientationToggle() {
   });
 }
 
+function applyHudChromeMode() {
+  const mode = hudChromeMode === "infoBar" ? "infoBar" : "classic";
+  hudChromeMode = mode;
+  const shell = els.stage?.closest(".stage-shell");
+  if (shell) shell.dataset.hudChrome = mode;
+  if (els.hudChromeToggle) {
+    const infoBar = mode === "infoBar";
+    els.hudChromeToggle.setAttribute("aria-pressed", infoBar ? "true" : "false");
+    els.hudChromeToggle.title = infoBar ? "Show classic HUD" : "Show InfoBar HUD";
+    els.hudChromeToggle.setAttribute(
+      "aria-label",
+      infoBar ? "Switch to classic resource HUD" : "Switch to InfoBar HUD",
+    );
+    const img = els.hudChromeToggle.querySelector("img");
+    if (img) {
+      img.src = infoBar ? "./public/ui/UI-Slider1.png" : "./public/ui/UI-Slider.png";
+    }
+  }
+  playerHudSignature = "";
+  stageXpBarSignature = "";
+  renderPlayerResourceHud();
+  renderStageXpBar();
+  if (mode === "infoBar") {
+    renderStageInfoBagFill();
+    renderStageInfoGold();
+    renderStageInfoOrb();
+    renderStageInfoZoneName();
+  }
+}
+
+function bindHudChromeToggle() {
+  if (!els.hudChromeToggle || els.hudChromeToggle.dataset.hudChromeBound === "1") return;
+  els.hudChromeToggle.dataset.hudChromeBound = "1";
+  els.hudChromeToggle.addEventListener("click", (event) => {
+    event.preventDefault();
+    hudChromeMode = hudChromeMode === "classic" ? "infoBar" : "classic";
+    applyHudChromeMode();
+    playSfx("ui.button", { volume: 0.3, throttleMs: 80 });
+  });
+}
+
 function applyCombatSkillBarWindowPosition(metrics = null) {
   if (!els.combatSkillBar) return;
   // Skill bar is locked centered under the XP bar for now.
@@ -44589,13 +44655,65 @@ function refreshOpenSceneLiveText() {
 }
 
 function renderPlayerResourceHud() {
-  // Player resource HUD removed; HP/MP live in the stage info bar.
   if (!els.playerResourceHud) return;
-  if (!els.playerResourceHud.hidden || playerHudSignature) {
-    els.playerResourceHud.hidden = true;
-    els.playerResourceHud.innerHTML = "";
-    playerHudSignature = "";
+  const player = state.battle.player;
+  const shouldShow = hudChromeMode === "classic"
+    && Boolean(player)
+    && (state.game.mode === "zone" || state.game.mode === "mining" || state.battle.running || state.showEnemies);
+  if (!shouldShow) {
+    if (!els.playerResourceHud.hidden || playerHudSignature) {
+      els.playerResourceHud.hidden = true;
+      els.playerResourceHud.innerHTML = "";
+      playerHudSignature = "";
+    }
+    return;
   }
+
+  const hpPotions = potionInventoryCount("hp");
+  const mpPotions = potionInventoryCount("mp");
+  const pendingHp = (state.battle.potHealthAmount ?? 0) + (state.battle.healAmount ?? 0) + (state.battle.vampAmount ?? 0);
+  const pendingMp = state.battle.potManaAmount ?? 0;
+  const now = performance.now();
+  const activeBuffs = pruneStatBuffs(state.battle.statBuffs ?? [], now).map((buff) => ({
+    label: buff.label,
+    bonus: statBuffBonusLabel(buff),
+    remaining: formatBuffRemaining(buff.expiresAt - now),
+  }));
+  const signature = JSON.stringify({
+    className: state.battle.combatClass,
+    level: state.game.progress.level,
+    hp: player.hp,
+    maxHp: player.maxHp,
+    mp: player.mp,
+    maxMp: player.maxMp,
+    pendingHp,
+    pendingMp,
+    hpPotions,
+    mpPotions,
+    activeBuffs,
+  });
+  if (signature === playerHudSignature) return;
+  playerHudSignature = signature;
+
+  els.playerResourceHud.hidden = false;
+  const titleHtml = IS_GAME_UI
+    ? `<div class="player-resource-title game-minimal"><span>Lv ${state.game.progress.level}</span></div>`
+    : `
+      <div class="player-resource-title">
+        <strong>${escapeHtml(state.battle.combatClass)}</strong>
+        <span>Lv ${state.game.progress.level}</span>
+      </div>
+    `;
+  els.playerResourceHud.innerHTML = `
+    ${titleHtml}
+    ${playerResourceBarHtml("hp", "HP", player.hp, player.maxHp, pendingHp)}
+    ${playerResourceBarHtml("mp", "MP", player.mp, player.maxMp, pendingMp)}
+    <div class="player-resource-potions">
+      ${potionQuickButtonHtml("hp", "HP", hpPotions)}
+      ${potionQuickButtonHtml("mp", "MP", mpPotions)}
+    </div>
+    ${activeBuffs.length ? `<div class="player-resource-buffs">${activeBuffs.map((buff) => `<span class="player-stat-buff">${escapeHtml(buff.label)} ${escapeHtml(buff.bonus)} · ${escapeHtml(buff.remaining)}</span>`).join("")}</div>` : ""}
+  `;
 }
 
 function playerResourceBarHtml(kind, label, value, max, pending = 0) {
@@ -44628,6 +44746,14 @@ function stageXpProgressPercent() {
 
 function renderStageXpBar() {
   if (!els.stageXpBar) return;
+  if (hudChromeMode !== "infoBar") {
+    if (!els.stageXpBar.hidden || stageXpBarSignature) {
+      els.stageXpBar.hidden = true;
+      els.stageXpBar.innerHTML = "";
+      stageXpBarSignature = "";
+    }
+    return;
+  }
   const level = state.game.progress.level;
   const experience = state.game.progress.experience;
   const needed = xpForNextLevel(level);
