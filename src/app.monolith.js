@@ -3239,6 +3239,7 @@ let stageInfoGoldSignature = "";
 let stageInfoOrbSignature = "";
 let stageInfoOrbLastHp = null;
 let stageInfoOrbLastMp = null;
+let suppressNextStageInfoMpFlash = false;
 let stageInfoZoneNameSignature = null;
 let hotbarSignature = "";
 let hoveredTooltipEntryId = null;
@@ -35183,6 +35184,7 @@ function updatePendingTwinDrakeHits(now) {
 
 function castWarriorCharge(skill, learned, cost, now) {
   const battle = state.battle;
+  suppressNextStageInfoMpFlash = true;
   battle.player.mp = Math.max(0, battle.player.mp - cost);
   setWarriorSpellCastReadyAt(skill, learned, now);
   clearQueuedCombatSpell(skill.id);
@@ -44888,7 +44890,8 @@ function renderStageInfoOrb() {
     els.stageInfoMpText.title = `MP ${mpFull}`;
   }
   if (prevHp !== null && hp < prevHp) flashStageInfoOrbPanel(els.stageInfoHpFill);
-  if (prevMp !== null && mp < prevMp) flashStageInfoOrbPanel(els.stageInfoMpFill);
+  if (prevMp !== null && mp < prevMp && !suppressNextStageInfoMpFlash) flashStageInfoOrbPanel(els.stageInfoMpFill);
+  suppressNextStageInfoMpFlash = false;
 }
 
 function inventoryBagUsageHtml(className = "inventory-bag-usage") {
