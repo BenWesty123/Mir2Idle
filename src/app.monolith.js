@@ -44887,8 +44887,8 @@ function renderStageInfoOrb() {
     els.stageInfoMpText.textContent = mpLabel;
     els.stageInfoMpText.title = `MP ${mpFull}`;
   }
-  if (prevHp !== null && prevHp !== hp) flashStageInfoOrbPanel(els.stageInfoHpFill);
-  if (prevMp !== null && prevMp !== mp) flashStageInfoOrbPanel(els.stageInfoMpFill);
+  if (prevHp !== null && hp < prevHp) flashStageInfoOrbPanel(els.stageInfoHpFill);
+  if (prevMp !== null && mp < prevMp) flashStageInfoOrbPanel(els.stageInfoMpFill);
 }
 
 function inventoryBagUsageHtml(className = "inventory-bag-usage") {
