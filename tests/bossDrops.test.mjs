@@ -22,6 +22,7 @@ const EXPECTED_LABELS = [
   "Great Fox Spirit",
   "Dark Devil",
   "Hell Keeper",
+  "Manectric King",
 ];
 
 function loadKnownItemIds() {

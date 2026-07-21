@@ -13032,6 +13032,62 @@
       "crystalType": "Ring"
     },
     {
+      "id": "glyph-battle-wizard",
+      "name": "Glyph of Battle Wizard",
+      "type": "glyph",
+      "slot": "glyph",
+      "class": "wizard",
+      "glyph": {
+        "modifier": "battleWizard"
+      },
+      "icon": {
+        "library": "Items",
+        "frame": 3217,
+        "src": "./public/item-icons/items/frame_003217.png"
+      },
+      "requirements": {
+        "type": "level",
+        "amount": 35,
+        "classMask": 2,
+        "genderMask": 3
+      },
+      "stackable": false,
+      "maxStack": 1,
+      "stats": {
+        "ac": [
+          0,
+          0
+        ],
+        "amc": [
+          0,
+          0
+        ],
+        "dc": [
+          0,
+          0
+        ],
+        "mc": [
+          0,
+          0
+        ],
+        "sc": [
+          0,
+          0
+        ],
+        "hp": 0,
+        "mp": 0,
+        "accuracy": 0,
+        "agility": 0,
+        "luck": 0,
+        "attackSpeed": 0
+      },
+      "shop": {
+        "buy": 0,
+        "sell": 50000
+      },
+      "description": "While in melee range of an enemy: +25% armour and damage. At range: -25% armour and damage."
+    },
+    {
       "id": "glyph-bulwark-field",
       "name": "Glyph of Bulwark Field",
       "type": "glyph",
@@ -13256,6 +13312,174 @@
       "description": "Activating Flaming Sword briefly reduces the damage you take."
     },
     {
+      "id": "glyph-glass-canon",
+      "name": "Glyph of Glass Canon",
+      "type": "glyph",
+      "slot": "glyph",
+      "class": "any",
+      "glyph": {
+        "modifier": "glassCannon"
+      },
+      "icon": {
+        "library": "Items",
+        "frame": 3220,
+        "src": "./public/item-icons/items/frame_003220.png"
+      },
+      "requirements": {
+        "type": "level",
+        "amount": 35,
+        "classMask": 31,
+        "genderMask": 3
+      },
+      "stackable": false,
+      "maxStack": 1,
+      "stats": {
+        "ac": [
+          0,
+          0
+        ],
+        "amc": [
+          0,
+          0
+        ],
+        "dc": [
+          0,
+          0
+        ],
+        "mc": [
+          0,
+          0
+        ],
+        "sc": [
+          0,
+          0
+        ],
+        "hp": 0,
+        "mp": 0,
+        "accuracy": 0,
+        "agility": 0,
+        "luck": 0,
+        "attackSpeed": 0
+      },
+      "shop": {
+        "buy": 0,
+        "sell": 50000
+      },
+      "description": "Damage done increased by 50%. Damage taken increased by 100%."
+    },
+    {
+      "id": "glyph-infinite-mana",
+      "name": "Glyph of Infinite Mana",
+      "type": "glyph",
+      "slot": "glyph",
+      "class": "wizard",
+      "glyph": {
+        "modifier": "wizardManaRegen"
+      },
+      "icon": {
+        "library": "Items",
+        "frame": 3207,
+        "src": "./public/item-icons/items/frame_003207.png"
+      },
+      "requirements": {
+        "type": "level",
+        "amount": 35,
+        "classMask": 2,
+        "genderMask": 3
+      },
+      "stackable": false,
+      "maxStack": 1,
+      "stats": {
+        "ac": [
+          0,
+          0
+        ],
+        "amc": [
+          0,
+          0
+        ],
+        "dc": [
+          0,
+          0
+        ],
+        "mc": [
+          0,
+          0
+        ],
+        "sc": [
+          0,
+          0
+        ],
+        "hp": 0,
+        "mp": 0,
+        "accuracy": 0,
+        "agility": 0,
+        "luck": 0,
+        "attackSpeed": 0
+      },
+      "shop": {
+        "buy": 0,
+        "sell": 50000
+      },
+      "description": "You regenerate 5 mana every second."
+    },
+    {
+      "id": "glyph-instant-healing",
+      "name": "Glyph of Instant Healing",
+      "type": "glyph",
+      "slot": "glyph",
+      "class": "taoist",
+      "glyph": {
+        "modifier": "taoHealingInstant"
+      },
+      "icon": {
+        "library": "Items",
+        "frame": 3210,
+        "src": "./public/item-icons/items/frame_003210.png"
+      },
+      "requirements": {
+        "type": "level",
+        "amount": 35,
+        "classMask": 4,
+        "genderMask": 3
+      },
+      "stackable": false,
+      "maxStack": 1,
+      "stats": {
+        "ac": [
+          0,
+          0
+        ],
+        "amc": [
+          0,
+          0
+        ],
+        "dc": [
+          0,
+          0
+        ],
+        "mc": [
+          0,
+          0
+        ],
+        "sc": [
+          0,
+          0
+        ],
+        "hp": 0,
+        "mp": 0,
+        "accuracy": 0,
+        "agility": 0,
+        "luck": 0,
+        "attackSpeed": 0
+      },
+      "shop": {
+        "buy": 0,
+        "sell": 50000
+      },
+      "description": "Healing restores health instantly, but only for half the usual amount."
+    },
+    {
       "id": "glyph-mana-aegis",
       "name": "Glyph of Mana Aegis",
       "type": "glyph",
@@ -13310,6 +13534,62 @@
         "sell": 50000
       },
       "description": "Magic Shield no longer reduces damage. Instead, mana is drained before health."
+    },
+    {
+      "id": "glyph-monk",
+      "name": "Glyph of the Monk",
+      "type": "glyph",
+      "slot": "glyph",
+      "class": "taoist",
+      "glyph": {
+        "modifier": "monk"
+      },
+      "icon": {
+        "library": "Items",
+        "frame": 3211,
+        "src": "./public/item-icons/items/frame_003211.png"
+      },
+      "requirements": {
+        "type": "level",
+        "amount": 35,
+        "classMask": 4,
+        "genderMask": 3
+      },
+      "stackable": false,
+      "maxStack": 1,
+      "stats": {
+        "ac": [
+          0,
+          0
+        ],
+        "amc": [
+          0,
+          0
+        ],
+        "dc": [
+          0,
+          0
+        ],
+        "mc": [
+          0,
+          0
+        ],
+        "sc": [
+          0,
+          0
+        ],
+        "hp": 0,
+        "mp": 0,
+        "accuracy": 0,
+        "agility": 0,
+        "luck": 0,
+        "attackSpeed": 0
+      },
+      "shop": {
+        "buy": 0,
+        "sell": 50000
+      },
+      "description": "While no pets are summoned: +50% DC and SC."
     },
     {
       "id": "glyph-pet-might",
@@ -13368,6 +13648,62 @@
       "description": "Your pets add your physical power to their attacks."
     },
     {
+      "id": "glyph-revival",
+      "name": "Glyph of Revival",
+      "type": "glyph",
+      "slot": "glyph",
+      "class": "any",
+      "glyph": {
+        "modifier": "revival"
+      },
+      "icon": {
+        "library": "Items",
+        "frame": 3224,
+        "src": "./public/item-icons/items/frame_003224.png"
+      },
+      "requirements": {
+        "type": "level",
+        "amount": 35,
+        "classMask": 31,
+        "genderMask": 3
+      },
+      "stackable": false,
+      "maxStack": 1,
+      "stats": {
+        "ac": [
+          0,
+          0
+        ],
+        "amc": [
+          0,
+          0
+        ],
+        "dc": [
+          0,
+          0
+        ],
+        "mc": [
+          0,
+          0
+        ],
+        "sc": [
+          0,
+          0
+        ],
+        "hp": 0,
+        "mp": 0,
+        "accuracy": 0,
+        "agility": 0,
+        "luck": 0,
+        "attackSpeed": 0
+      },
+      "shop": {
+        "buy": 0,
+        "sell": 50000
+      },
+      "description": "Revives you to full health once, then breaks."
+    },
+    {
       "id": "glyph-spirit-wards",
       "name": "Glyph of Spirit Wards",
       "type": "glyph",
@@ -13422,6 +13758,118 @@
         "sell": 50000
       },
       "description": "Soul Shield and Blessed Armour scale from your Spirit rather than your level."
+    },
+    {
+      "id": "glyph-tank",
+      "name": "Glyph of Tank",
+      "type": "glyph",
+      "slot": "glyph",
+      "class": "any",
+      "glyph": {
+        "modifier": "tank"
+      },
+      "icon": {
+        "library": "Items",
+        "frame": 3213,
+        "src": "./public/item-icons/items/frame_003213.png"
+      },
+      "requirements": {
+        "type": "level",
+        "amount": 35,
+        "classMask": 31,
+        "genderMask": 3
+      },
+      "stackable": false,
+      "maxStack": 1,
+      "stats": {
+        "ac": [
+          0,
+          0
+        ],
+        "amc": [
+          0,
+          0
+        ],
+        "dc": [
+          0,
+          0
+        ],
+        "mc": [
+          0,
+          0
+        ],
+        "sc": [
+          0,
+          0
+        ],
+        "hp": 0,
+        "mp": 0,
+        "accuracy": 0,
+        "agility": 0,
+        "luck": 0,
+        "attackSpeed": 0
+      },
+      "shop": {
+        "buy": 0,
+        "sell": 50000
+      },
+      "description": "Damage taken decreased by 25%. Damage done decreased by 50%."
+    },
+    {
+      "id": "glyph-hero",
+      "name": "Glyph of the Hero",
+      "type": "glyph",
+      "slot": "glyph",
+      "class": "any",
+      "glyph": {
+        "modifier": "hero"
+      },
+      "icon": {
+        "library": "Items",
+        "frame": 3214,
+        "src": "./public/item-icons/items/frame_003214.png"
+      },
+      "requirements": {
+        "type": "level",
+        "amount": 35,
+        "classMask": 31,
+        "genderMask": 3
+      },
+      "stackable": false,
+      "maxStack": 1,
+      "stats": {
+        "ac": [
+          0,
+          0
+        ],
+        "amc": [
+          0,
+          0
+        ],
+        "dc": [
+          0,
+          0
+        ],
+        "mc": [
+          0,
+          0
+        ],
+        "sc": [
+          0,
+          0
+        ],
+        "hp": 0,
+        "mp": 0,
+        "accuracy": 0,
+        "agility": 0,
+        "luck": 0,
+        "attackSpeed": 0
+      },
+      "shop": {
+        "buy": 0,
+        "sell": 50000
+      },
+      "description": "You take all damage your party members would receive."
     },
     {
       "id": "glyph-twin-fury",
@@ -34566,6 +35014,68 @@
         }
       },
       "crystalType": "Ring"
+    },
+    {
+      "id": "winged-heaven-armour",
+      "name": "Heaven Armour",
+      "type": "armour",
+      "slot": "armour",
+      "class": "any",
+      "source": {
+        "crystalIndex": 378,
+        "name": "HeavenArmour(M)3"
+      },
+      "icon": {
+        "library": "Items",
+        "frame": 87,
+        "src": "./public/item-icons/items/frame_000087.png"
+      },
+      "requirements": {
+        "type": "level",
+        "amount": 50,
+        "classMask": 31,
+        "genderMask": 3
+      },
+      "stackable": false,
+      "maxStack": 1,
+      "stats": {
+        "ac": [
+          12,
+          28
+        ],
+        "amc": [
+          8,
+          14
+        ],
+        "dc": [
+          1,
+          5
+        ],
+        "mc": [
+          0,
+          11
+        ],
+        "sc": [
+          0,
+          11
+        ],
+        "hp": 0,
+        "mp": 0,
+        "accuracy": 0,
+        "agility": 0,
+        "luck": 1,
+        "attackSpeed": 0
+      },
+      "shop": {
+        "buy": 2000000,
+        "sell": 400000
+      },
+      "visual": {
+        "layer": "armour",
+        "index": 9
+      },
+      "visualEffect": 1,
+      "crystalType": "Armour"
     },
     {
       "id": "wisdom-coronet",

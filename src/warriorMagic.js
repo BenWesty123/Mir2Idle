@@ -1262,10 +1262,17 @@ export function thunderBoltUndeadMultiplier(spellLevel) {
   return THUNDER_BOLT_UNDEAD_MULTIPLIER_BY_LEVEL[level] ?? 1.5;
 }
 
+/** Cast/action lock from delayBase (not spell recharge). Use for next-attack gaps. */
+export function spellActionDelayMs(spell, learned) {
+  if (!spell || spell.id === BASIC_ATTACK_SKILL.id) return 0;
+  return Math.max(0, (Number(spell.delayBase) || 0) - (Number(learned?.level) || 0) * (Number(spell.delayReduction) || 0));
+}
+
+/** Spell recharge delay. Prefer autoCooldownMs when set (e.g. Poison Cloud 18s). */
 export function spellDelayMs(spell, learned) {
   if (!spell || spell.id === BASIC_ATTACK_SKILL.id) return 0;
   if (spell.autoCooldownMs) return Math.max(0, Number(spell.autoCooldownMs) || 0);
-  return Math.max(0, (Number(spell.delayBase) || 0) - (Number(learned?.level) || 0) * (Number(spell.delayReduction) || 0));
+  return spellActionDelayMs(spell, learned);
 }
 
 // Crystal uses per-spell UserMagic.GetDelay() and also a global SpellTime lock (1800ms) on cast.

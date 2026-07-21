@@ -478,6 +478,26 @@
         "monster.220.attack",
         "monster.220.flinch",
         "monster.220.death",
+        "monster.221.attack",
+        "monster.221.flinch",
+        "monster.221.death",
+        "monster.222.attack",
+        "monster.222.flinch",
+        "monster.222.death",
+        "monster.223.attack",
+        "monster.223.flinch",
+        "monster.223.death",
+        "monster.223.range",
+        "monster.224.attack",
+        "monster.224.flinch",
+        "monster.224.death",
+        "monster.233.attack",
+        "monster.233.flinch",
+        "monster.233.death",
+        "monster.229.attack",
+        "monster.229.flinch",
+        "monster.229.death",
+        "monster.229.range",
         "monster.226.attack",
         "monster.226.flinch",
         "monster.226.death",
@@ -3493,6 +3513,166 @@
       "group": "monster",
       "sourceFile": "220-3.wav",
       "src": "./public/audio/sfx/files/2203-220-3.wav"
+    },
+    "monster.221.attack": {
+      "key": "monster.221.attack",
+      "label": "Manectric Hammer attack",
+      "id": 2221,
+      "group": "monster",
+      "sourceFile": "222-1.wav",
+      "src": "./public/audio/sfx/files/2221-222-1.wav"
+    },
+    "monster.221.flinch": {
+      "key": "monster.221.flinch",
+      "label": "Manectric Hammer flinch",
+      "id": 2212,
+      "group": "monster",
+      "sourceFile": "221-2.wav",
+      "src": "./public/audio/sfx/files/2212-221-2.wav"
+    },
+    "monster.221.death": {
+      "key": "monster.221.death",
+      "label": "Manectric Hammer death",
+      "id": 2213,
+      "group": "monster",
+      "sourceFile": "221-3.wav",
+      "src": "./public/audio/sfx/files/2213-221-3.wav"
+    },
+    "monster.222.attack": {
+      "key": "monster.222.attack",
+      "label": "Manectric Club attack",
+      "id": 2221,
+      "group": "monster",
+      "sourceFile": "222-1.wav",
+      "src": "./public/audio/sfx/files/2221-222-1.wav"
+    },
+    "monster.222.flinch": {
+      "key": "monster.222.flinch",
+      "label": "Manectric Club flinch",
+      "id": 2222,
+      "group": "monster",
+      "sourceFile": "222-2.wav",
+      "src": "./public/audio/sfx/files/2222-222-2.wav"
+    },
+    "monster.222.death": {
+      "key": "monster.222.death",
+      "label": "Manectric Club death",
+      "id": 2223,
+      "group": "monster",
+      "sourceFile": "222-3.wav",
+      "src": "./public/audio/sfx/files/2223-222-3.wav"
+    },
+    "monster.223.attack": {
+      "key": "monster.223.attack",
+      "label": "Manectric Claw attack",
+      "id": 2231,
+      "group": "monster",
+      "sourceFile": "223-1.wav",
+      "src": "./public/audio/sfx/files/2231-223-1.wav"
+    },
+    "monster.223.flinch": {
+      "key": "monster.223.flinch",
+      "label": "Manectric Claw flinch",
+      "id": 2232,
+      "group": "monster",
+      "sourceFile": "223-2.wav",
+      "src": "./public/audio/sfx/files/2232-223-2.wav"
+    },
+    "monster.223.death": {
+      "key": "monster.223.death",
+      "label": "Manectric Claw death",
+      "id": 2233,
+      "group": "monster",
+      "sourceFile": "223-3.wav",
+      "src": "./public/audio/sfx/files/2233-223-3.wav"
+    },
+    "monster.223.range": {
+      "key": "monster.223.range",
+      "label": "Manectric Claw range attack",
+      "id": 2235,
+      "group": "monster",
+      "sourceFile": "223-5.wav",
+      "src": "./public/audio/sfx/files/2235-223-5.wav"
+    },
+    "monster.224.attack": {
+      "key": "monster.224.attack",
+      "label": "Manectric Staff attack",
+      "id": 2241,
+      "group": "monster",
+      "sourceFile": "224-1.wav",
+      "src": "./public/audio/sfx/files/2241-224-1.wav"
+    },
+    "monster.224.flinch": {
+      "key": "monster.224.flinch",
+      "label": "Manectric Staff flinch",
+      "id": 2242,
+      "group": "monster",
+      "sourceFile": "224-2.wav",
+      "src": "./public/audio/sfx/files/2242-224-2.wav"
+    },
+    "monster.224.death": {
+      "key": "monster.224.death",
+      "label": "Manectric Staff death",
+      "id": 2243,
+      "group": "monster",
+      "sourceFile": "224-3.wav",
+      "src": "./public/audio/sfx/files/2243-224-3.wav"
+    },
+    "monster.233.attack": {
+      "key": "monster.233.attack",
+      "label": "Manectric Slave attack",
+      "id": 2331,
+      "group": "monster",
+      "sourceFile": "233-1.wav",
+      "src": "./public/audio/sfx/files/2331-233-1.wav"
+    },
+    "monster.233.flinch": {
+      "key": "monster.233.flinch",
+      "label": "Manectric Slave flinch",
+      "id": 2332,
+      "group": "monster",
+      "sourceFile": "233-2.wav",
+      "src": "./public/audio/sfx/files/2332-233-2.wav"
+    },
+    "monster.233.death": {
+      "key": "monster.233.death",
+      "label": "Manectric Slave death",
+      "id": 2333,
+      "group": "monster",
+      "sourceFile": "233-3.wav",
+      "src": "./public/audio/sfx/files/2333-233-3.wav"
+    },
+    "monster.229.attack": {
+      "key": "monster.229.attack",
+      "label": "Manectric King attack",
+      "id": 2291,
+      "group": "monster",
+      "sourceFile": "229-1.wav",
+      "src": "./public/audio/sfx/files/2291-229-1.wav"
+    },
+    "monster.229.flinch": {
+      "key": "monster.229.flinch",
+      "label": "Manectric King flinch",
+      "id": 2292,
+      "group": "monster",
+      "sourceFile": "229-2.wav",
+      "src": "./public/audio/sfx/files/2292-229-2.wav"
+    },
+    "monster.229.death": {
+      "key": "monster.229.death",
+      "label": "Manectric King death",
+      "id": 2293,
+      "group": "monster",
+      "sourceFile": "229-3.wav",
+      "src": "./public/audio/sfx/files/2293-229-3.wav"
+    },
+    "monster.229.range": {
+      "key": "monster.229.range",
+      "label": "Manectric King range attack",
+      "id": 2295,
+      "group": "monster",
+      "sourceFile": "229-5.wav",
+      "src": "./public/audio/sfx/files/2295-229-5.wav"
     },
     "monster.226.attack": {
       "key": "monster.226.attack",

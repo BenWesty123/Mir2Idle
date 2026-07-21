@@ -20,7 +20,7 @@ test("oma-king-robe has no native armour effect when visualEffect unset", () => 
   assert.equal(effect, null);
 });
 
-test("heaven-armour wing effect stays disabled until allowlisted", () => {
+test("heaven-armour (Heaven Robe) wing effect stays disabled", () => {
   assert.equal(ARMOUR_WING_EFFECT_ITEM_IDS.has("heaven-armour"), false);
   const effect = armourVisualEffectForItem({
     id: "heaven-armour",
@@ -28,6 +28,18 @@ test("heaven-armour wing effect stays disabled until allowlisted", () => {
     visualEffect: 1,
   });
   assert.equal(effect, null);
+});
+
+test("winged-heaven-armour resolves Crystal wing effect 1", () => {
+  assert.equal(ARMOUR_WING_EFFECT_ITEM_IDS.has("winged-heaven-armour"), true);
+  const effect = armourVisualEffectForItem({
+    id: "winged-heaven-armour",
+    slot: "armour",
+    visualEffect: 1,
+  });
+  assert.equal(effect?.kind, "wing");
+  assert.equal(effect?.effectId, 1);
+  assert.equal(effect?.index, 0);
 });
 
 test("black dragon effect 101 resolves when visualEffect is set on item", () => {

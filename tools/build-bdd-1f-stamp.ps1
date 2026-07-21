@@ -149,6 +149,8 @@ function Read-Type1Map($path) {
   $middle = [int[]]::new($count)
   $front = [int[]]::new($count)
   $frontIndex = [int[]]::new($count)
+  $frontAnimFrame = [byte[]]::new($count)
+  $frontAnimTick = [byte[]]::new($count)
 
   $offset = 54
   for ($x = 0; $x -lt $width; $x++) {
@@ -157,6 +159,10 @@ function Read-Type1Map($path) {
       $back[$i] = [BitConverter]::ToInt32($bytes, $offset) -bxor 0xAA38AA38
       $middle[$i] = [BitConverter]::ToInt16($bytes, $offset + 4) -bxor $xor
       $front[$i] = [BitConverter]::ToInt16($bytes, $offset + 6) -bxor $xor
+      # Type1 cell bytes: DoorIndex(+8), DoorOffset(+9), FrontAnimationFrame(+10), FrontAnimationTick(+11),
+      # FrontIndex(+12), Light(+13), Unknown(+14). Animation bit 0x80 = Crystal DrawBlend.
+      $frontAnimFrame[$i] = $bytes[$offset + 10]
+      $frontAnimTick[$i] = $bytes[$offset + 11]
       $slot = [int]$bytes[$offset + 12] + 2
       if ($slot -eq 102) { $slot = 90 }
       if ($slot -ge 255) { $slot = -1 }
@@ -172,6 +178,8 @@ function Read-Type1Map($path) {
     Middle = $middle
     Front = $front
     FrontIndex = $frontIndex
+    FrontAnimFrame = $frontAnimFrame
+    FrontAnimTick = $frontAnimTick
   }
 }
 
@@ -234,11 +242,12 @@ $CropHCells = [Math]::Min($CropHCells, $map.Height - $CropY)
 
 $assets = [ordered]@{}
 $layers = New-Object System.Collections.Generic.List[object]
+$animatedLayers = New-Object System.Collections.Generic.List[object]
 $assetList = New-Object System.Collections.Generic.List[object]
 
-function Add-Layer([int]$slotId, [int]$frame, [int]$mapX, [int]$mapY, [int]$x, [int]$y, [bool]$floorSized, [string]$Kind) {
+function Ensure-StampAsset([int]$slotId, [int]$frame) {
   $image = Get-MapImage $slotId $frame
-  if ($null -eq $image) { return }
+  if ($null -eq $image) { return $null }
   $key = "$slotId`:$frame"
   if (-not $assets.Contains($key)) {
     $assets[$key] = [pscustomobject]@{
@@ -248,23 +257,80 @@ function Add-Layer([int]$slotId, [int]$frame, [int]$mapX, [int]$mapY, [int]$x, [
       Slot = $assetList.Count
       W = $image.Bitmap.Width
       H = $image.Bitmap.Height
+      OffsetX = [int]$image.OffsetX
+      OffsetY = [int]$image.OffsetY
       Image = $image
     }
     $assetList.Add($assets[$key])
   }
-  $asset = $assets[$key]
+  return $assets[$key]
+}
+
+function Add-Layer([int]$slotId, [int]$frame, [int]$mapX, [int]$mapY, [int]$x, [int]$y, [bool]$floorSized, [string]$Kind) {
+  $asset = Ensure-StampAsset $slotId $frame
+  if ($null -eq $asset) { return }
   $layers.Add([pscustomobject]@{
     slot = $asset.Slot
     x = $x
     y = $y
     w = $asset.W
     h = $asset.H
-    source = $key
+    source = $asset.Key
     floor = $floorSized
     kind = $Kind
     mapCol = $mapX
     mapRow = $mapY
     inFront = ($Kind -eq "front" -and -not $floorSized -and $mapY -gt $FocusMapY)
+  })
+}
+
+# Crystal GameScene: FrontAnimationFrame bit 0x80 = DrawBlend; lower 7 bits = frame count.
+# AnimationCount advances every 100ms, so intervalMs = 100 * (1 + FrontAnimationTick).
+# Positioning matches Crystal's blend draw for Objects13 (slot 14): 
+#   Point(drawX, drawY - 3*CellHeight) with library offsets, where drawY is the (+1) cell step.
+function Add-AnimatedBlendLayer([int]$slotId, [int]$baseFrame, [int]$frameCount, [int]$animTick, [int]$mapX, [int]$mapY) {
+  if ($frameCount -le 0) { return }
+  $frameEntries = New-Object System.Collections.Generic.List[object]
+  $baseAsset = $null
+  for ($i = 0; $i -lt $frameCount; $i++) {
+    $asset = Ensure-StampAsset $slotId ($baseFrame + $i)
+    if ($null -eq $asset) { continue }
+    if ($null -eq $baseAsset) { $baseAsset = $asset }
+    $frameEntries.Add([ordered]@{
+      slot = $asset.Slot
+      w = $asset.W
+      h = $asset.H
+      offsetX = $asset.OffsetX
+      offsetY = $asset.OffsetY
+      sourceFrame = $asset.SourceFrame
+    }) | Out-Null
+  }
+  if ($null -eq $baseAsset -or $frameEntries.Count -eq 0) { return }
+
+  $cellDrawX = ($mapX - $CropX) * $CellWidth
+  $cellDrawY = (($mapY - $CropY) + 1) * $CellHeight
+  if ($slotId -eq 14 -or $slotId -eq 27 -or ($slotId -gt 99 -and $slotId -lt 199)) {
+    $drawX = $cellDrawX + $baseAsset.OffsetX
+    $drawY = $cellDrawY - (3 * $CellHeight) + $baseAsset.OffsetY
+  } else {
+    # Crystal else-branch: DrawBlend at (drawX, drawY - height) without offsets.
+    $drawX = $cellDrawX
+    $drawY = $cellDrawY - $baseAsset.H
+  }
+
+  $animatedLayers.Add([pscustomobject]@{
+    x = $drawX
+    y = $drawY
+    w = $baseAsset.W
+    h = $baseAsset.H
+    source = $baseAsset.Key
+    kind = "front"
+    mapCol = $mapX
+    mapRow = $mapY
+    inFront = ($mapY -gt $FocusMapY)
+    blend = $true
+    interval = 100 * (1 + [Math]::Max(0, $animTick))
+    frames = @($frameEntries.ToArray())
   })
 }
 
@@ -337,6 +403,16 @@ for ($pass = 0; $pass -lt 2; $pass++) {
       } else {
         (($y - $CropY) + 1) * $CellHeight - $image.Bitmap.Height
       }
+      $animRaw = [int]$map.FrontAnimFrame[$cell]
+      $blend = ($animRaw -band 0x80) -ne 0
+      $animCount = $animRaw -band 0x7F
+      # Blend-animated front props (torches/flames): bake the full strip and draw additively at runtime.
+      # Do not also bake frame 0 as a normal opaque layer — black "smoke" pixels are meant for DrawBlend.
+      # Tall (non-floor) objects are processed on pass 1 — same pass as other props.
+      if ($blend -and $animCount -gt 1 -and -not $floorSized) {
+        Add-AnimatedBlendLayer $frontSlot $frontFrame $animCount ([int]$map.FrontAnimTick[$cell]) $x $y
+        continue
+      }
       Add-Layer $frontSlot $frontFrame $x $y $drawX $drawY $floorSized "front"
     }
   }
@@ -394,6 +470,23 @@ for ($i = 0; $i -lt $layers.Count; $i++) {
   $asset = $assetList[$layerSlot]
   $layers[$i].slot = ($asset.SheetRow * $sheetInfo.columns) + $asset.SheetCol
 }
+for ($i = 0; $i -lt $animatedLayers.Count; $i++) {
+  $anim = $animatedLayers[$i]
+  $patchedFrames = @()
+  foreach ($frame in $anim.frames) {
+    $asset = $assetList[$frame.slot]
+    $patched = [ordered]@{}
+    foreach ($prop in $frame.GetEnumerator()) {
+      if ($prop.Key -eq "slot") {
+        $patched.slot = ($asset.SheetRow * $sheetInfo.columns) + $asset.SheetCol
+      } else {
+        $patched[$prop.Key] = $prop.Value
+      }
+    }
+    $patchedFrames += $patched
+  }
+  $anim.frames = $patchedFrames
+}
 
 $stamp = [ordered]@{
   id = $StampId
@@ -428,6 +521,23 @@ $stamp = [ordered]@{
     if ($_.inFront) { $entry.inFront = $true }
     $entry
   })
+  animatedLayers = @($animatedLayers.ToArray() | ForEach-Object {
+    $entry = [ordered]@{
+      x = $_.x
+      y = $_.y
+      w = $_.w
+      h = $_.h
+      source = $_.source
+      mapCol = $_.mapCol
+      mapRow = $_.mapRow
+      kind = $_.kind
+      blend = $true
+      interval = $_.interval
+      frames = @($_.frames)
+    }
+    if ($_.inFront) { $entry.inFront = $true }
+    $entry
+  })
   assets = @($assetList.ToArray() | ForEach-Object {
     [ordered]@{
       slot = ($_.SheetRow * $sheetInfo.columns) + $_.SheetCol
@@ -447,7 +557,7 @@ if (-not $SkipIndex) {
     $existingStamps = @($parsed.stamps | Where-Object { $_.id -ne $StampId })
   }
   $utf8NoBom = New-Object System.Text.UTF8Encoding($false)
-  $indexJson = ([ordered]@{ stamps = @($existingStamps + @($stamp)) } | ConvertTo-Json -Depth 8)
+  $indexJson = ([ordered]@{ stamps = @($existingStamps + @($stamp)) } | ConvertTo-Json -Depth 12)
   [System.IO.File]::WriteAllText($indexPath, $indexJson, $utf8NoBom)
 }
 
@@ -459,6 +569,7 @@ foreach ($entry in $loadedLibs.Values) { if ($null -ne $entry) { $entry.Dispose(
   sheet = $sheetPath
   assetCount = $assetList.Count
   layerCount = $layers.Count
+  animatedLayerCount = $animatedLayers.Count
   cropX = $CropX
   cropY = $CropY
   cropWCells = $CropWCells

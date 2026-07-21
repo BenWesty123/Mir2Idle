@@ -71,10 +71,10 @@ export const ARMOUR_SPECIAL_EFFECT_DEFS = {
 };
 
 /**
- * Wing overlays (Crystal CHumEffect, effect ids 1–99). Empty until an item is
- * explicitly allowlisted — Heaven Armour stays off until we opt it in.
+ * Wing overlays (Crystal CHumEffect, effect ids 1–99). Opt-in per item —
+ * Heaven Robe stays wingless; Heaven Armour uses Crystal effect 1 → wing 0.
  */
-export const ARMOUR_WING_EFFECT_ITEM_IDS = new Set();
+export const ARMOUR_WING_EFFECT_ITEM_IDS = new Set(["winged-heaven-armour"]);
 
 /** Items that receive visualEffect from Crystal or level-aura assignments at build. */
 export const ARMOUR_VISUAL_EFFECT_ITEM_IDS = new Set(Object.keys(LEVEL_EFFECT_ARMOUR_ASSIGNMENTS));

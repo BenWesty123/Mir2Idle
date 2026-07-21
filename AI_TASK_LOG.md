@@ -1,5 +1,600 @@
 # AI Task Log - LOM Idle V2
 
+## 2026-07-21 - Poison Cloud locked Taoist attacks for full cooldown
+
+### What
+After casting Poison Cloud, the Taoist could not attack for the full 18s spell
+recharge. `spellDelayMs` returns `autoCooldownMs` (18s), and that value was also
+used as `lastPlayerAttackCooldownMs` / boss-party `nextActionAt`.
+
+### Changes
+- `src/warriorMagic.js`: add `spellActionDelayMs` (delayBase only); keep
+  `spellDelayMs` for recharge
+- `src/app.monolith.js`: Poison Cloud action lock uses `spellActionDelayMs`
+  (~1.8s); `castReadyAt` still uses `spellDelayMs` (18s)
+- `tests/warriorMagic.test.mjs`: covers the split
+
+### Verify
+- `npm.cmd run check`
+
+## 2026-07-20 - Tao tank pets teleport between solo fights
+
+### What
+Skeleton and Shinsu no longer die/resummon between solo enemies. On fight end they
+teleport away (Teleport FX + `ui.teleport`) after a short post-fight pause
+(`TAOIST_PET_BETWEEN_FIGHT_TELEPORT_DELAY_MS` = stance hold); when the Taoist is
+in summon range of the next enemy they teleport back with HP/buffs preserved and
+no amulet/MP cost. Holy Deva behavior is unchanged. Offline uses the same
+stash/recall (no FX / no delay).
+
+### Changes
+- `src/core/taoistPets.js`: stash/recall helpers + `shouldKeepTankPetBetweenSoloFights`
+- `src/app.monolith.js`: `stashedTaoPet`, `retireTaoistPetAfterFight` teleport-away,
+  `maybeRecallStashedTaoistPet`, dismiss keep flags, Teleport FX draw path
+- `tests/taoistPets.test.mjs`: coverage for stash/recall persistence
+
+### Verify
+- `npm.cmd run check`
+- `npm.cmd run smoke` (with `npm run dev`)
+
+## 2026-07-20 - Glyph of the Hero
+
+### What
+Added **Glyph of the Hero** (any class): in group/boss-party fights, the wearer
+takes all damage other party members would receive. AOE stacks as multiple hits
+on the hero; pets keep their own damage. Defence/absorb use the hero’s gear.
+
+### Changes
+- `src/glyphModifiers.js`: `hero` def + `glyphIsHero`
+- `src/data/items.json`: `glyph-hero` (frame 3214)
+- `src/app.monolith.js`: `bossPartyLivingHeroMember` / `resolveBossPartyHeroRedirectTarget`;
+  hooks in `applyBossPartyIncomingStrike`, `applyStrikeTargetIncoming`,
+  `applyCombatantIncomingHpDamage`, poison ticks, `offlineGroupFrontTarget`
+- tests, item atlas, integrity rules
+
+### Verify
+- `npm.cmd run check`
+- `npm.cmd run smoke`
+
+## 2026-07-20 - Glyph of the Monk
+
+### What
+Added **Glyph of the Monk** (Taoist): while **no pets are summoned**, **+50% DC and SC**.
+In group / boss-party fights the boost applies **only to the Taoist** (not pets or other members).
+Stored combatant stats no longer bake the boost (avoids double-scaling).
+
+### Changes
+- `src/glyphModifiers.js`: `monk` def + `glyphMonkParams` / `applyGlyphMonkCombatStats`
+- `src/data/items.json`: `glyph-monk` (SoulGlyph3 / frame 3211)
+- `src/app.monolith.js`: Taoist-only via `combatantIsTaoist` + `effectiveCombatStats`; UI via `characterTotalStats`
+- tests, item atlas, integrity rules
+
+### Verify
+- `npm.cmd run check`
+- `npm.cmd run smoke` (with `npm run dev`)
+
+## 2026-07-20 - Glyph of Battle Wizard
+
+### What
+Added **Glyph of Battle Wizard** (Wizard): within melee reach (`LANE.warriorRange`)
+**+25% AC/AMC and damage**; at range **−25% AC/AMC and damage**.
+
+### Changes
+- `src/glyphModifiers.js`: `battleWizard` helpers
+- `src/data/items.json`: `glyph-battle-wizard` (EvilSlayerGlyph1 / frame 3217)
+- `src/app.monolith.js`: defence + outgoing damage stance hooks
+- tests, item atlas, integrity rules
+
+### Verify
+- `npm.cmd run check`
+
+## 2026-07-20 - Glyph of Revival
+
+### What
+Added **Glyph of Revival** (all classes): on lethal damage, restores **full HP**
+once and **destroys** the equipped glyph. Hooks the shared incoming HP damage path
+(solo + boss party) and offline group chunk deaths.
+
+### Changes
+- `src/glyphModifiers.js`: `revival` def + `glyphIsRevival`
+- `src/data/items.json`: `glyph-revival` (AwakeningSoul0 / frame 3224)
+- `src/app.monolith.js`: `tryConsumeGlyphRevival`
+- tests, item atlas, integrity rules
+
+### Verify
+- `npm.cmd run check`
+
+## 2026-07-20 - Glyph of Tank
+
+### What
+Added **Glyph of Tank** (all classes): **−25% damage taken** (0.75×), **−50% damage
+done** (0.5×). Shares the Glass Canon combat-damage multiplier path.
+
+### Changes
+- `src/glyphModifiers.js`: `tank` def; generalized `glyphCombatDamageParams`
+- `src/data/items.json`: `glyph-tank` (ProtectionGlyph1 / frame 3213)
+- tests, item atlas, integrity rules
+
+### Verify
+- `npm.cmd run check`
+
+## 2026-07-20 - Glyph of Glass Canon
+
+### What
+Added **Glyph of Glass Canon** (all classes): **+50% damage done**, **+100% damage
+taken** (2× incoming). Hooks the shared outgoing crit path and incoming enemy
+attack / DR wrappers so solo, boss-party, and offline group DPS estimates all
+see the tradeoff.
+
+### Changes
+- `src/glyphModifiers.js`: `glassCannon` helpers
+- `src/data/items.json`: `glyph-glass-canon` (BodyGlyph0 / frame 3220, classMask 31)
+- `src/app.monolith.js`: outgoing + incoming combat hooks + offline group DPS
+- tests, item atlas, integrity rules
+
+### Verify
+- `npm.cmd run check`
+
+## 2026-07-20 - Glyph of Infinite Mana
+
+### What
+Added **Glyph of Infinite Mana** (Wizard): passive **+5 MP/s**. Accrues from
+elapsed *simulated* time (bulk formula), so offline fight steps of uneven length
+still grant the correct total. Live, solo offline, mining offline, and boss-party
+paths all call the same helper.
+
+### Changes
+- `src/glyphModifiers.js`: `wizardManaRegen` + `accrueGlyphManaRegen`
+- `src/data/items.json`: `glyph-infinite-mana` (MagicGlyph3 / frame 3207)
+- `src/app.monolith.js`: live + offline + boss-party regen hooks
+- tests, item atlas, integrity rules
+
+### Verify
+- `npm.cmd run check`
+
+## 2026-07-20 - Glyph of Instant Healing
+
+### What
+Added **Glyph of Instant Healing** (Taoist): Healing restores HP immediately
+instead of queued tick regen, but only for **50%** of the usual amount.
+Mass Healing / Healing Circle are unaffected. Joins the empowered-boss glyph pool.
+
+### Changes
+- `src/glyphModifiers.js`: `taoHealingInstant` def + helpers
+- `src/data/items.json`: `glyph-instant-healing` (SoulGlyph2 / frame 3210)
+- `src/app.monolith.js`: solo + boss-party Healing cast paths
+- `tests/glyphs.test.mjs`, item atlas, integrity rules
+
+### Verify
+- `npm.cmd run check`
+
+## 2026-07-20 - Heaven Armour (L50 winged)
+
+### What
+Added **Heaven Armour** as a distinct L50 chase piece: same look as Heaven Robe,
+Crystal wing effect 1 (wing index 0), all-class offence+luck niche balanced against
+Tarragon/Oma. Heaven Robe (`heaven-armour`) stays the wingless L40 glass robe.
+
+### Changes
+- `src/data/items.json`: new `winged-heaven-armour` (Lv 50, AC 12–28, AMC 8–14,
+  DC 1–5, MC 0–11, SC 0–11, Luck +1, `visualEffect: 1`).
+- `src/armourVisualEffects.js`: allowlist wings for `winged-heaven-armour` only.
+- `src/bossDrops.js`: Hell Keeper 0.5% drop (alongside Tarragon).
+- Ethereal (Spirit Box blocked); regenerated item-integrity rules.
+
+### Verify
+- `npm.cmd run check`
+
+## 2026-07-20 - Ice Hell floors join Hell Cavern progression
+
+### What
+Ice Hell 1 / 2 / KR South / KR North are no longer a separate `ice-hell`
+dungeon. They are Hell Cavern floors 4–7, so advancing past Hell Keeper leads
+straight into Ice Hell.
+
+### Changes
+- `src/phase1Data.js`: ice hell zones `groupDungeon: "hell"`, floors 4–7
+- `src/app.monolith.js`: wasteland teleporter only lists `zone-hell-gd-1`
+  (Ice Hell is reached by advancing, like deeper BDD floors)
+
+## 2026-07-20 - Manectric King drop table (Hell Keeper clone)
+
+### What
+Added a standalone Manectric King boss drop table: same as Hell Keeper minus
+Book of Blizzard. Wired via `isManectricKingEnemy` → `BOSS_DROP_TABLE_BY_LABEL`.
+
+### Changes
+- `src/bossDrops.js`: `MANECTRIC_KING_BOSS_DROPS` + label map entry
+- `src/app.monolith.js`: resolver + Awakening Soul source list
+- `tests/bossDrops.test.mjs`: expected label
+
+## 2026-07-20 - Manectric King SFX
+
+### What
+Manectric King (229) had no attack/flinch/death/range clips in the Idle SFX pack,
+so `playMonsterSfx` always no-op'd even though Crystal ships `229-1/2/3/5.wav`.
+
+### Changes
+- `tools/build-sfx-assets.mjs`: add `monsterSounds("Manectric King", 229, { range: 2295 })`.
+- Rebuild `public/audio/sfx/` (manifest + wav copies).
+- Mass-burst path uses `enemyAttackSfxKind(..., true)` so AttackRange1 plays `229-5`.
+
+## 2026-07-19 - Manectric King mass-burst VFX restore
+
+### What
+The big AOE explosion on Manectric King (Ice Hell KR North) was invisible.
+The attack logic still fired; the FX atlas rebuild had cropped projectile slots
+45–56 (Crystal frames 720–731) off `229.png`, so the draw path sampled the wrong
+pixels (line-beam FX region) instead of the explosion.
+
+### Changes
+- `tools/build-manectric-king-fx-atlas.ps1`: always re-extract projectile 720–731
+  from Crystal and pack with `sheetX` (same pattern as castEffect), so future FX
+  rebuilds cannot drop the mass-burst art.
+- Rebuilt `public/monsters/monster/229.json` + `.png`.
+- Bumped `MONSTER_ASSET_VERSION` cache-bust.
+
+## 2026-07-19 - Empowered / Ascended Group Dungeons (Black Dragon Dungeon)
+
+### What
+Extended the Empowered/Ascended feature to **group dungeons**, initially scoped to
+**Black Dragon Dungeon** (`groupDungeon: "bdd"`) since it's the only finished one. You
+toggle Empowered or Ascended on the dungeon *entrance* screen (floor 1). The gold is
+paid **once** at entry and the tier persists across every floor of the run:
+- **Empowered** = 300,000 gold; every monster (trash + bosses) gets 2× HP and 2× damage.
+- **Ascended** = 1,000,000 gold; every monster gets 3× HP and 3× damage.
+No extra empowered enrage is added (BDD bosses already have their own enrage). Trash
+receive the drop multiplier (2×/3×) on their **gold** only — trash never drop items,
+glyphs, or empowered items. Bosses keep the normal empowered drop/glyph/empowered-item
+plumbing.
+
+### Changes (all in `src/app.monolith.js` unless noted)
+- Constants: `GROUP_DUNGEON_EMPOWER_GOLD_COST=300000`, `GROUP_DUNGEON_ASCEND_GOLD_COST=1000000`,
+  `GROUP_DUNGEON_EMPOWER_DAMAGE_MULTIPLIER=2` (ascended reuses `ASCENDED_BOSS_DAMAGE_MULTIPLIER=3`).
+- Helpers: `groupDungeonEmpowerable(zone)` (true only for `groupDungeon === "bdd"`),
+  `groupDungeonEmpowerTierValue()`, and `applyGroupDungeonEmpowerCombatModifiers(enemy)`
+  (uniform HP+damage scale, no enrage, guarded by `enemy.groupDungeonEmpowerScaled`).
+  `bossEmpowerAvailableForZone` now also returns true for empowerable group dungeons.
+  Zone-aware cost helpers `bossEmpowerGoldCostForZone` / `bossAscendGoldCostForZone`.
+- Persistent tier: new `state.groupDungeonEmpowerTier` (0/1/2). Set in `confirmBossZoneEntry`
+  (charges once via `chargeBossFightGold(cost)`), survives floor advances, cleared in
+  `returnToTown` and full resets. Stored on the run snapshot + `sanitizeGroupDungeonOfflineRun`
+  as `empowerTier` and re-seeded in `beginBossPartyFight` so it survives save/load & resume.
+  `beginBossPartyFight` re-applies `state.battle.bossEmpowered/bossAscended` from the tier
+  each floor (enterZone clears them from the now-false pending flags on advance).
+- Scaling sites: `buildSwarmEnemyFromTemplate` (covers wave trash, boss-swarm, reinforcements),
+  and `spawnGroupDungeonBossEnemy` (single-boss floors). The old boss-room hook in
+  `spawnGroupDungeonBossSwarmEnemy` is skipped for group dungeons to avoid double-scaling/enrage.
+- Drops: `awardBossPartyKillShare` multiplies trash gold by the drop multiplier for empowerable
+  group dungeons. New module flag `suppressEmpoweredZoneDropRoll` (set around
+  `rollBossPartyZoneDrops` for group dungeons) makes trash zone drops never roll empowered/glyph
+  bonuses; `addBossPartyZoneDropItem` / `addZoneDropItem` respect it. Boss loot unaffected.
+- UI: `groupDungeonEntrySceneHtml` (floor-1 wave entry) now renders the shared
+  `bossEmpowerAscendControlsHtml` and gates its Enter button on affordability; the controls
+  helper handles group-dungeon zones (no boss-room def) with generic labels and GD gold costs.
+- Removed now-dead `canAffordBoss{Empower,Ascend}Fight` / `chargeBoss{Empower,Ascend}Gold`.
+
+## 2026-07-19 - Boss Ascension (new rebirth upgrade / stronger empowered tier)
+
+### What
+Added a new rebirth upgrade **Boss Ascension** (`boss-ascension`, 100 Rebirth Points,
+requires Boss Empowerment). It unlocks a stronger, mutually-exclusive fight tier
+"Ascended" that mirrors Empowered but at 3× instead of 2×: 3× HP, 3× damage (flat,
+overriding the empowered 2×/1.5× per-boss split), 3× boss-table drop rate, and a 30%
+empowered-item drop chance (vs 20% for Empowered). Same enrage/Fury stages. Costs
+300,000 gold per attempt (spent even if you die). Applies to the same 12 boss zones.
+
+### Fix / changes (all in `src/app.monolith.js` unless noted)
+- Constants: `BOSS_ASCEND_GOLD_COST=300000`, `BOSS_ASCEND_DROP_RATE_MULTIPLIER=3`,
+  `BOSS_ASCEND_ITEM_CHANCE=0.3`, `ASCENDED_BOSS_HP_MULTIPLIER=3`,
+  `ASCENDED_BOSS_DAMAGE_MULTIPLIER=3`, `BOSS_ASCEND_SKIP_REBIRTH_UNLOCK=false`,
+  `BOSS_ASCEND_UNLOCK_HINT`.
+- Upgrade def `boss-ascension` in `ACCOUNT_UPGRADE_DEFS` (rebirthPoints [100],
+  `requiresUpgradeId: "boss-empowerment"`). Added effect labels ("Boss ascension" / "A")
+  and the unlocked/locked status string.
+- State: `state.bossAscendSelected`, `state.pendingBossAscended`, `state.battle.bossAscended`
+  added and reset alongside every existing empower reset.
+- Ascended is treated as a superset of Empowered: an ascended fight keeps
+  `bossEmpowered=true` (so all empowered drop/glyph/item plumbing keeps working) plus a
+  `bossAscended` flag that bumps HP/damage/drops/item-chance. `empoweredBossDamageMultiplier`,
+  `applyEmpoweredBossCombatModifiers`, `empoweredBossPreviewMaxHp`, `empoweredBossCombatLogLine`,
+  `empoweredBossDropRollOptions`, and `rollBossTableDrops` all branch on `bossAscended`.
+- Helpers: `bossAscensionUnlocked`, `bossAscendGoldCost`, `bossAscendFightSelected`,
+  `canAffordBossAscendFight`, `chargeBossAscendGold`. `confirmBossZoneEntry` charges 300k
+  and sets both pending flags for ascended, 100k/empowered otherwise. `enterZone` reads the
+  pending flags and logs "Ascended fight …".
+- UI: shared `bossEmpowerAscendState` / `bossEmpowerAscendControlsHtml` render two
+  mutually-exclusive toggle buttons (Empower / Ascend) with an accurate gold/lock note.
+  Wired `toggleBossAscendSelection` + `data-toggle-boss-ascend`. Also added these controls
+  to `groupDungeonBossSwarmEntrySceneHtml` (the Devourer entry scene), which previously had
+  NO empower toggle at all — so Empowered/Ascended are now actually reachable for the
+  Devourers. `src/styles.css`: violet accent for `.boss-ascend-button`.
+
+### Verify
+`npm run check` (462 tests + lint + syntax) green; `npm run smoke` green (0 errors).
+
+## 2026-07-19 - Manectric King difficulty pass 2 (still easier than Hell Keeper)
+
+### Why pass 1 felt easy
+Hell Keeper is always-on party AOE, stationary (no walk-in downtime), and Hell Cavern
+adds map fire. King's line kit + late execute let the party heal through him.
+
+### Pass 2
+- HP **78k**, DC/MC **115–280**, AC **82** / AMC **90**, Acc **40** / Agi **50**
+- attackMs **1000**, impact **300ms**, moveMs **550**, XP **35k**, gold **720–1100**
+- Mass burst from **50%** HP; above that, **1/4** of ready attacks pulse AOE (7–10s CD)
+- Enrage stages **70% / 40% / 15%** for 10s at **700ms** swings
+
+## 2026-07-19 - Manectric King ~20% harder than Hell Keeper (mix)
+
+### What
+Retuned Manectric King as a mix of survivability + pressure + execute, not a flat
+Hell Keeper +20% copy.
+
+### Snapshot vs Hell Keeper
+| | Hell Keeper | Manectric King (now) |
+|---|---|---|
+| HP | 50k | **60k** |
+| attackMs | 1200 | **1150** (enrage **850** under 40%/15%) |
+| Acc / Agi | 35 / 44 | **34 / 40** |
+| AC / AMC | 69 / 75 | **72 / 80** |
+| DC / MC | 94–250 | **100–240 / 100–220** |
+| XP | 25k | **30k** |
+
+### Behaviour
+- Mass burst opens at **30%** HP (was 20%) — longer execute without map fire
+- Attack2 (DC beam) when close: **1/2** chance (`manectricKingAttack2Chance: 2`)
+- Soft BDD-style enrage stages at 40% / 15% (faster swing + walk)
+- moveMs 2000 → **700** (closes like BDD bosses)
+- Gold reward **650–980**
+
+## 2026-07-19 - Manectric King attacks match Crystal (not King Scorpion)
+
+### What
+Stopped routing Manectric King's normal attacks through King Scorpion's
+melee/ranged mix. Crystal's `ManectricKing.Attack` always `LineAttack`s.
+
+### Crystal behaviour now mirrored
+- Below 20% HP: mass burst (radius 7, MC, ACAgility, projectile 720)
+- Else Attack1 (~2/3): MC damage, full attackRangeTiles line, body + Attack1 aura
+- Else Attack2 (~1/3 when primary within range-1): DC damage, shortened line,
+  Attack2 castEffect beam
+- Line delay `tile * 50 + attackImpactDelayMs`; hits everyone on facing lane tiles
+
+### Changes
+- `beginManectricKingLineAttack` / `canManectricKingLineAttack` /
+  `resolveManectricKingLineHit` + strike kind `manectricKingLine`
+- Mass-burst begin/can call those instead of King Scorpion
+- Removed Manectric projectile hack from `beginKingScorpionAttack`
+- Template `rangedAttackDefenceType` → `ACAgility`
+
+### Not ported yet
+- Attack2 push (`LineAttack(..., push: true)`)
+
+## 2026-07-19 - Manectric King line-attack EFX
+
+### What
+Added Crystal-accurate attack VFX for Manectric King so line attacks no longer look like
+the boss-centered mass-burst explosion.
+
+### Crystal reference (MonsterObject.cs / ManectricKing.cs)
+- Attack1 DrawBlend: `440 + FrameIndex + Dir*6` (west 476–481) — body aura
+- Attack2 DrawBlend: `576 + FrameIndex + Dir*8` (west 624–631) — large directional line beam
+- AttackRange1 Effect: frame 720×12 — self-centered mass burst (already on `projectile`)
+
+### Changes
+- `tools/build-manectric-king-fx-atlas.ps1` (new): appends `attack1Blend` + `castEffect`
+  (Attack2 west beam) onto atlas 229; preserves existing body + projectile.
+- `beginKingScorpionAttack`: Manectric King line path does NOT use `atlas.projectile`
+  (that VFX is mass-burst only); `setEnemyAction` plays `castEffect` line beam instead.
+- `beginMassBurstAttack`: clears `attackFxStartedAt` so under-20% mass burst only shows
+  projectile 720 (Crystal AttackRange1), not the Attack2 beam.
+- `drawEnemyCanvas`: draws castEffect AND attack1Blend together (Crystal Attack2 does both).
+
+### Verify
+`npm run check` + `npm run smoke`.
+
+## 2026-07-19 - Fix Manectric King AOE attack disappearance
+
+### What
+Manectric King's mass-burst AOE made the boss vanish for a few frames. Root cause:
+atlas `229.json` `attackRange1` is a tiny die-effect stub (~48×120, Crystal frames
+558–563 = west die-effect region), not a body clip. `beginMassBurstAttack` hardcoded
+`setEnemyAction("attackRange1")`, so the body was replaced by that stub while the
+real AOE VFX (projectile frames 720+) still played.
+
+### Fix
+- `enemyPrefersAttackRange1` now requires frames to look like a body clip (≥35% of
+  standing width). Rejects Manectric King's stub; Bone Lord / Flame Queen / Claw /
+  BDD bosses still prefer their real `attackRange1`.
+- `beginMassBurstAttack` uses that helper and falls back to `attack1` (full body)
+  when `attackRange1` is not body-sized. Projectile AOE VFX unchanged.
+
+### Verify
+`npm run check` + `npm run smoke`.
+
+## 2026-07-19 - Ice Hell KR (North): Manectric King boss room
+
+### What
+Added the Ice Hell group-dungeon boss room `zone-ice-hell-gd-4` ("Ice Hell — KR
+(North)") on Crystal HELL206 (IceHellTemple_KR) north chamber at map (131, 62).
+It is the 4th `ice-hell` floor (after the KR South swarm floor), so
+`groupDungeonNextFloorZone` advances into it automatically.
+
+### Changes
+- `tools/build-ice-hell-kr-north-stamp.ps1` (new): builds the `ice-hell-kr-north-center`
+  map stamp (hell206 @ 131,62), delegating to `build-ice-hell-stamp.ps1`. Rebuilt
+  the stamp (648 static layers + 2 animated blend torches).
+- `src/phase1Data.js`:
+  - Added `ICE_HELL_KR_NORTH_ROOM_VISUALS` (mapStamp `ice-hell-kr-north-center`).
+  - Added `zone-ice-hell-gd-4` boss room: `groupDungeonBoss` (single mobile boss,
+    like the BDD King Scorpion / Dark Devil rooms), floor 4, 30-min respawn,
+    `enemyIds: [293]`, gold reward [600, 900]. `groupDungeonBoss` rooms are exempt
+    from the `groupDungeonSwarm` directional-clip test, so mobile King (293) needs
+    no extra atlas rigging.
+- `src/app.monolith.js`: added `zone-ice-hell-gd-4` to the wasteland teleporter
+  region; bumped `MAP_STAMP_ASSET_VERSION` to invalidate cached stamps.
+
+### Verify
+`npm run check` + `npm run smoke` green.
+
+### Follow-ups
+- No Manectric King boss drop table yet (`dropPath: Unused\IceHell\ManectricKing`).
+  Wire loot in `src/bossDrops.js` when ready.
+
+## 2026-07-19 - Empowered mode for Yimoogi, Devourers, Great Fox Spirit
+
+### What
+Enabled empowered boss fights for three bosses that were still showing
+"Empowered fights for this boss are coming soon": Yimoogi (`zone-viper-cave-kr`),
+Dream and Dark Devourer (`zone-red-cavern-kr`), and Great Fox Spirit
+(`zone-fox-cave-kr`). All three use the shared empowered tuning: 2x HP, 2x damage,
+enrage stages at 70%/40%/15% HP.
+
+### Fix / changes (all in `src/app.monolith.js`)
+- Added the three zone ids to `BOSS_EMPOWER_AVAILABLE_ZONE_IDS` (flips the boss-room
+  UI from "coming soon" to the real empower toggle + gold cost).
+- Added `isYimoogiEnemy`, `isGreatFoxSpiritEnemy`, `isDreamDevourerEnemy`, and
+  `isDarkDevourerEnemy` to `supportsEmpoweredBossCombat()` and to the 2x group in
+  `empoweredBossDamageMultiplier()`.
+- Devourers are a `bossSwarm` fight (two enemies built fresh from templates), so the
+  generic `enterZone` path (which only scales `state.battle.enemy`) never reaches them.
+  Added a hook in `spawnGroupDungeonBossSwarmEnemy` to call
+  `applyEmpoweredBossCombatModifiers` on each supported swarm member at spawn when
+  the fight is empowered. Yimoogi and Great Fox Spirit are single-enemy rooms and
+  needed no extra handling.
+- Loot (empowered drop-rate multiplier, empowered-item rolls, empowered glyph drops)
+  was already generic on `state.battle.bossEmpowered`, so no drop changes were needed.
+
+### Verify
+`npm run check` (462 tests + lint + syntax) green; `npm run smoke` green (0 errors).
+
+## 2026-07-19 - Ice Hell KR blend-animated torch flames
+
+### What
+Ice Hell KR stamp had three Crystal blend-animated flame props baked as static
+opaque frames. Black "smoke" pixels (meant for additive DrawBlend) showed as
+broken grain, and the flames did not flicker.
+
+### Fix
+- `tools/build-bdd-1f-stamp.ps1`: read Type1 `FrontAnimationFrame` / Tick; when
+  bit 0x80 (blend) + count > 1, bake the full frame strip into
+  `animatedLayers` instead of a static opaque layer. Interval = 100ms × (1+tick)
+  matching Crystal's AnimationCount clock.
+- `src/app.monolith.js`: draw `animatedLayers` with canvas `lighter` (additive),
+  cycling frames from `performance.now()`. Depth sorting unchanged (inFront /
+  mapRow). Bumped `MAP_STAMP_ASSET_VERSION`.
+- Rebuilt `ice-hell-kr-center` → 3 animated layers × 8 frames (6799 / 6810 / 6821).
+
+### Verify
+`npm run check` + `npm run smoke` green.
+
+## 2026-07-19 - Ice Hell KR (South) floor + Manectric Blest mob
+
+### What
+Added the third Ice Hell group-dungeon room, `zone-ice-hell-gd-3` ("Ice Hell — KR
+(South)", `groupDungeonFloor: 3`), a swarm floor with NO boss yet. Introduces the
+Manectric Blest brawler as its feature mob, backed by Claw + Staff casters, Slave rare.
+
+### Fix / changes
+- Blest (template 422, monsterIndex 228) atlas had NO directional swarm anims
+  (only standing/walking/attack1/...). Ran `tools/append-monster-swarm-directions.ps1
+  -Indexes 228` to add walk/attack/standing N/S/NW/SW clips (melee, so the
+  `attackRange1` warning is expected). Without this the groupDungeonSwarm test fails.
+- Scaled Blest stats to Ice Hell tuning (matches sibling Manectric mobs): maxHp
+  1700->10000, dc [25,65]->[92,178], ac [12]->[48], accuracy 18->32, exp 9300->10580.
+- New `tools/build-ice-hell-kr-stamp.ps1` (hell206 = Crystal IceHellTemple_KR, floor
+  frames 3750-3755) -> rebuilt `public/mapstamps/ice-hell-kr-center-stamp.*` at map 88,107.
+- `src/phase1Data.js`: added `ICE_HELL_KR_ROOM_VISUALS` + `zone-ice-hell-gd-3`
+  (5 waves, Blest-heavy enemyIds, gold [460,700], spawn/focus {88,107}).
+- `src/app.monolith.js`: added `zone-ice-hell-gd-3` to the Wasteland teleporter region.
+
+### Verify
+`npm run check` green; `npm run smoke` green (0 console/page errors).
+
+## 2026-07-19 - Ice Hell F1: Manectric Claw ranged attack EFX
+
+### What
+Audited attack effects for the Ice Hell F1 Manectric mobs against Crystal
+`Client/MirObjects/MonsterObject.cs`:
+- Hammer (221), Club (222), Slave (233): plain melee, no attack effect in Crystal - left as-is.
+- Claw (223): Crystal `new Effect(ManectricClaw, 304 + Direction*10, 10, ...)` on `this` -
+  a self-cast electric discharge on its RANGED attack. Was missing + it was set up as melee.
+- Staff (224): its electric blend is on Attack2 (`296 + FrameIndex + Direction*6`), a special
+  cast we don't use; its basic melee has no effect. Left as plain melee (owner decision).
+
+### Fix
+- New `tools/build-manectric-claw-fx-atlas.ps1`: extracts west-facing (MirDirection.Left=6)
+  effect frames 364-373 into `223.json` `castEffect` (interval 100), appended after bodyWidth.
+- `phase1Data.js` template 420 (Claw): added `attackRangeTiles:6`,
+  `rangedAttackDefenceType/attackDefenceType:"MACAgility"`, `attackImpactDelayMs:500`.
+- `app.monolith.js`: `MANECTRIC_CLAW_TEMPLATE_ID`/`_MONSTER_INDEX`, `isManectricClawSwarmEnemy`,
+  `beginManectricClawSwarmAttack` (ranged from distance, melee when adjacent), dispatched in
+  `groupDungeonSwarmEnemyAttack`. castEffect auto-fires via `setSwarmEnemyAction` on attack.
+
+### SFX
+The five Manectric mobs (221-224, 233) had NO sound entries at all. Added them to
+`tools/build-sfx-assets.mjs` using Crystal's convention (attack=+1, flinch=+2, death=+3,
+range=+5) and reran `npm run build:sfx`:
+- Club 222, Slave 233: full attack/flinch/death.
+- Claw 223: attack/flinch/death + `223-5` range sound (used by its new ranged attack).
+- Staff 224: attack/flinch/death (`224-6` is its unused Attack2 special).
+- Hammer 221: Crystal pack has no `221-1` (attack) - borrowed Club's melee clip (222-1),
+  matching the Ghastly Leecher<-Cyano Ghast borrow precedent.
+
+### Verify
+- `npm.cmd run check` (green); `npm.cmd run smoke` (green). Visual/audio confirm in dev pending.
+
+## 2026-07-18 - Fix crafting-cube dupe on save restore/import
+
+### What
+Same class of bug as the character-switch cube dupe: staging pulls items into
+global live board state, while saves fold those items back into inventory via
+`cloneInventoryStateIncludingWeaponRefineStaged`. Cloud restore / file import
+reloaded inventory but left the live cube/refine boards populated → item in
+cube and bag (same entry id).
+
+### Fix
+- `discardLiveCraftingBoardsForSaveReplace()` resets cube + weapon refine without
+  unstaging (unstaging after apply would push a second copy)
+- Called from `applySaveSnapshot` so every restore path is covered
+- `replaceCurrentGameWithSnapshot` closes open craft/refine scenes after apply
+
+### Verify
+- `npm.cmd run check`; `npm.cmd run smoke`
+
+## 2026-07-18 - Great Fox Spirit atlas split (mobile lag)
+
+### What
+Split Mon134 so body/DrawBlend and AttackRange1 hit FX are no longer one giant sheet.
+Mobile lag reports pointed at the previous `8188×6312` (~12 MB / ~207 MB VRAM) atlas.
+
+### Assets
+- Body: `134.png` shelf-packed with deduped `srcFrame`s → `8178×2840`
+- Hit FX: companion `134-fx.png` → `8146×798` (3×20 Crystal variants)
+- Atlas JSON `projectile.sheet = "134-fx.png"`
+
+### Runtime
+- `monsterProjectilePngUrl` / preload on enemy atlas load
+- Great Fox (and generic enemy projectile draw) sample from the companion sheet when set
+- Package filter keeps `NNN-fx.png` for used monster indices
+- Bumped `MONSTER_ASSET_VERSION`
+
+### Verify
+- Rebuild: `powershell -ExecutionPolicy Bypass -File tools/build-great-fox-spirit-atlas.ps1`
+- `npm.cmd run check`; `npm.cmd run smoke` (with `npm run dev`)
+
+## 2026-07-17 - Hotfix: rebirth upgrade cards crushed in list
+
+### What
+On the fox-cave/glyphs baseline, `.upgrade-card` used `min-height: 0` with default
+flex shrink, so cards squashed and overlapped in `.upgrade-list`. Ported the layout
+fix from later main: `flex: 0 0 auto`, `min-height: auto`, taller upgrades window
+(560px), and related card spacing so rebirth upgrades stay readable/clickable.
+
+### Verify
+- `npm.cmd run check`
+
 ## 2026-07-16 - L40–50 armour niche rebalance
 
 ### What

@@ -307,8 +307,10 @@ function shouldExcludePublic(relativePath) {
   if (relativePath.startsWith("item-icons/books/images/")) {
     return !usedBookIconFiles.has(relativePath);
   }
-  if (/^monsters\/monster\/\d+\.(?:json|png)$/.test(relativePath)) {
-    const index = Math.trunc(Number(path.posix.basename(relativePath, path.extname(relativePath))));
+  // Include `134.png` / `134.json` and companion sheets like `134-fx.png`.
+  const monsterAtlasMatch = relativePath.match(/^monsters\/monster\/(\d+)(?:-[a-z0-9]+)?\.(?:json|png)$/i);
+  if (monsterAtlasMatch) {
+    const index = Math.trunc(Number(monsterAtlasMatch[1]));
     return !usedMonsterIndices.has(index);
   }
   if (relativePath.startsWith("mapobjects/")) {

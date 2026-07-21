@@ -8,6 +8,7 @@ import {
   warriorSpellById,
   taoistSpellById,
   spellMpCost,
+  spellActionDelayMs,
   spellDelayMs,
   crystalSpellCastCooldownMs,
   spellLevelRequirement,
@@ -45,6 +46,15 @@ test("spellDelayMs honours autoCooldown, reduction and floors at 0", () => {
   assert.equal(spellDelayMs({ id: "X", delayBase: 1000, delayReduction: 100 }, { level: 3 }), 700);
   assert.equal(spellDelayMs({ id: "X", delayBase: 100, delayReduction: 100 }, { level: 5 }), 0);
   assert.equal(spellDelayMs({ id: "X", autoCooldownMs: 2500 }, { level: 9 }), 2500);
+});
+
+test("spellActionDelayMs uses delayBase only (Poison Cloud must not lock attacks for 18s)", () => {
+  const poisonCloud = taoistSpellById("PoisonCloud");
+  assert.ok(poisonCloud?.autoCooldownMs > poisonCloud?.delayBase);
+  assert.equal(spellActionDelayMs(poisonCloud, { level: 0 }), poisonCloud.delayBase);
+  assert.equal(spellDelayMs(poisonCloud, { level: 0 }), poisonCloud.autoCooldownMs);
+  assert.equal(spellActionDelayMs({ id: "X", delayBase: 1000, delayReduction: 100, autoCooldownMs: 18000 }, { level: 3 }), 700);
+  assert.equal(spellActionDelayMs(BASIC_ATTACK_SKILL), 0);
 });
 
 test("crystalSpellCastCooldownMs respects the 1800ms global lock", () => {

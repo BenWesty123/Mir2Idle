@@ -248,6 +248,16 @@ const groups = [
       ...monsterSounds("Hell Keeper", 218, { flinch: 2186 }),
       ...monsterSounds("Hell Bolt", 219),
       ...monsterSounds("Witch Doctor", 220, { flinch: 2201 }),
+      // Ice Hell (Manectric family). Crystal pack ships no 221-1 (Hammer attack) -
+      // borrow Club's melee attack (222-1) so it isn't silent. Claw is ranged (223-5).
+      ...monsterSounds("Manectric Hammer", 221, { attack: 2221 }),
+      ...monsterSounds("Manectric Club", 222),
+      ...monsterSounds("Manectric Claw", 223, { range: 2235 }),
+      ...monsterSounds("Manectric Staff", 224),
+      ...monsterSounds("Manectric Slave", 233),
+      // Ice Hell KR North boss. Crystal ships 229-1/2/3 melee+hit+death and 229-5 for
+      // AttackRange1 (mass-burst explosion); Idle uses range for that AOE path.
+      ...monsterSounds("Manectric King", 229, { range: 2295 }),
       ...monsterSoundsByImage("Demon", 226, 225),
       ...monsterSoundsByImage("Demon Warrior", 227, 225),
       // Crystal ships no 152-*.wav for Ghastly Leecher; borrow Cyano Ghast clips (153).

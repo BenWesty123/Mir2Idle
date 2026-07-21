@@ -84,6 +84,63 @@ export function shouldKeepHolyDevaBetweenSoloFights(pet, pendingPet) {
   return activeHolyDeva || pendingHolyDeva;
 }
 
+export function isTaoistTankSummonSpellId(spellId) {
+  return spellId === "SummonSkeleton" || spellId === "SummonShinsu";
+}
+
+/** Living / pending / stashed Skeleton or Shinsu should survive solo fight transitions. */
+export function shouldKeepTankPetBetweenSoloFights(pet, pendingPet, stashedPet) {
+  const activeTank = isTaoistTankSummonSpellId(pet?.spellId)
+    && Boolean(pet?.active)
+    && !pet?.dead
+    && Number(pet?.hp) > 0;
+  const pendingTank = isTaoistTankSummonSpellId(pendingPet?.spellId);
+  const stashedTank = isTaoistTankSummonSpellId(stashedPet?.spellId)
+    && !stashedPet?.dead
+    && Number(stashedPet?.hp) > 0;
+  return activeTank || pendingTank || stashedTank;
+}
+
+/** Snapshot a living tank pet for between-fight recall (teleport away). */
+export function prepareTaoistTankPetStash(pet) {
+  if (!isTaoistTankSummonSpellId(pet?.spellId) || pet.dead || Number(pet.hp) <= 0) return null;
+  const stashed = {
+    ...pet,
+    active: false,
+    dead: false,
+    action: "standing",
+    frame: 0,
+    oneShot: false,
+    moving: false,
+    followPending: false,
+  };
+  if (stashed.spellId === "SummonShinsu") {
+    stashed.shinsuVisible = true;
+  }
+  return stashed;
+}
+
+/** Reactivate a stashed tank pet for the next fight (teleport back). */
+export function prepareTaoistTankPetRecall(pet, now = 0) {
+  if (!isTaoistTankSummonSpellId(pet?.spellId) || pet.dead || Number(pet.hp) <= 0) return null;
+  const recalled = {
+    ...pet,
+    active: true,
+    dead: false,
+    action: "standing",
+    frame: 0,
+    oneShot: false,
+    lastTick: now,
+    nextAttackAt: now + 1000,
+    moving: false,
+    followPending: false,
+  };
+  if (recalled.spellId === "SummonShinsu") {
+    recalled.shinsuVisible = true;
+  }
+  return recalled;
+}
+
 export function resolveTaoistPetTargetWorldX(enemyWorldX, battleEnemyX) {
   if (enemyWorldX != null && Number.isFinite(Number(enemyWorldX))) {
     return Number(enemyWorldX);

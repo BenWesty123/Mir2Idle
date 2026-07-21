@@ -4,9 +4,13 @@ import test from "node:test";
 
 import {
   crystalHolyDevaStats,
+  isTaoistTankSummonSpellId,
+  prepareTaoistTankPetRecall,
+  prepareTaoistTankPetStash,
   resolveTaoistPetTargetCoordinates,
   resolveTaoistPetTargetWorldX,
   shouldKeepHolyDevaBetweenSoloFights,
+  shouldKeepTankPetBetweenSoloFights,
   taoistPetCombatStats,
   taoistPetLayerBlendModes,
   taoistPetLevelFromSpellLevel,
@@ -92,6 +96,73 @@ test("living and pending Holy Devas persist between solo enemies", () => {
     dead: false,
     hp: 100,
   }, null), false);
+});
+
+test("Skeleton and Shinsu persist between solo enemies via live, pending, or stashed state", () => {
+  assert.equal(isTaoistTankSummonSpellId("SummonSkeleton"), true);
+  assert.equal(isTaoistTankSummonSpellId("SummonShinsu"), true);
+  assert.equal(isTaoistTankSummonSpellId("SummonHolyDeva"), false);
+  assert.equal(shouldKeepTankPetBetweenSoloFights({
+    spellId: "SummonSkeleton",
+    active: true,
+    dead: false,
+    hp: 80,
+  }, null, null), true);
+  assert.equal(shouldKeepTankPetBetweenSoloFights(null, {
+    spellId: "SummonShinsu",
+  }, null), true);
+  assert.equal(shouldKeepTankPetBetweenSoloFights(null, null, {
+    spellId: "SummonSkeleton",
+    dead: false,
+    hp: 40,
+  }), true);
+  assert.equal(shouldKeepTankPetBetweenSoloFights({
+    spellId: "SummonSkeleton",
+    active: false,
+    dead: true,
+    hp: 0,
+  }, null, null), false);
+  assert.equal(shouldKeepTankPetBetweenSoloFights({
+    spellId: "SummonHolyDeva",
+    active: true,
+    dead: false,
+    hp: 100,
+  }, null, null), false);
+});
+
+test("tank pet stash/recall keeps HP and resets to a standing combat-ready pose", () => {
+  const stashed = prepareTaoistTankPetStash({
+    spellId: "SummonShinsu",
+    active: true,
+    dead: false,
+    hp: 77,
+    maxHp: 100,
+    action: "attack1",
+    frame: 3,
+    oneShot: true,
+    shinsuVisible: false,
+  });
+  assert.equal(stashed.active, false);
+  assert.equal(stashed.dead, false);
+  assert.equal(stashed.hp, 77);
+  assert.equal(stashed.action, "standing");
+  assert.equal(stashed.frame, 0);
+  assert.equal(stashed.oneShot, false);
+  assert.equal(stashed.shinsuVisible, true);
+
+  const recalled = prepareTaoistTankPetRecall(stashed, 5000);
+  assert.equal(recalled.active, true);
+  assert.equal(recalled.hp, 77);
+  assert.equal(recalled.action, "standing");
+  assert.equal(recalled.shinsuVisible, true);
+  assert.equal(recalled.nextAttackAt, 6000);
+
+  assert.equal(prepareTaoistTankPetStash({
+    spellId: "SummonSkeleton",
+    active: true,
+    dead: true,
+    hp: 0,
+  }), null);
 });
 
 test("Holy Deva runtime assets use east-facing Crystal layers and summon audio", () => {

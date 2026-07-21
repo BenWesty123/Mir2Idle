@@ -1,6 +1,20 @@
 {
   "entries": [
     {
+      "id": "2026-07-20-ice-hell-glyphs",
+      "date": "2026-07-20",
+      "title": "Ice Hell, Glyphs & Ascended",
+      "highlights": [
+        "Added Ice Hell wing to Hell Cavern.",
+        "Added more Glyphs.",
+        "BDD and all the other bosses can now be empowered.",
+        "Added Ascended mode. Like Empowered, but bosses drop even more.",
+        "Added new level 50 Heaven Armour.",
+        "Change Tao pet so it now teleports when out of combat.",
+        "Added Poison Cloud to drops."
+      ]
+    },
+    {
       "id": "2026-07-16-fox-glyphs",
       "date": "2026-07-16",
       "title": "Fox Cave, late game & Glyphs",
