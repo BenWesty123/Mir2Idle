@@ -3224,6 +3224,8 @@ let combatSkillBarWindowPosition = null;
 let hotbarVertical = false;
 /** "classic" = top-left resource HUD; "infoBar" = bottom InfoBar chrome. */
 let hudChromeMode = "classic";
+let compactUi = false;
+let compactMenuOpen = false;
 let sceneOverlayInteractionUntil = 0;
 const sceneScrollPositions = new Map();
 // Element currently under a held pointer (mousedown/touchstart without release).
@@ -3259,7 +3261,7 @@ let stageCanvas = null;
 let stageContext = null;
 let stampBackgroundCache = { canvas: null, key: "" };
 let townMapCache = { canvas: null, key: "" };
-let lastStageShellSize = { w: 0, h: 0, mode: "", scale: 0 };
+let lastStageShellSize = { w: 0, h: 0, mode: "", scale: 0, compact: false };
 let lastStageDisplaySize = { w: 0, h: 0 };
 let inventoryDragState = null;
 let townPartyIdleSignature = "";
@@ -3408,11 +3410,23 @@ function gameShellHtml() {
     <div id="demoLiveSiteBar" class="demo-live-site-bar" hidden></div>
     <div id="updateAvailableBar" class="update-available-bar" hidden></div>
     <header class="game-topbar">
+      <button
+        type="button"
+        id="compactMenuToggle"
+        class="compact-menu-toggle"
+        aria-label="Open menu"
+        aria-expanded="false"
+        aria-controls="gameTopActions"
+        title="Menu"
+        hidden
+      >
+        <span class="compact-menu-toggle-bars" aria-hidden="true"></span>
+      </button>
       <div class="game-brand">
         <p class="eyebrow">LOM Idle V2</p>
         <h1>Legend of Mir Idle</h1>
       </div>
-      <nav class="game-top-actions" aria-label="Game windows">
+      <nav class="game-top-actions" id="gameTopActions" aria-label="Game windows">
         <button type="button" data-open-scene="character">Character</button>
         <button type="button" data-open-scene="inventory">Inventory</button>
         <button type="button" data-open-scene="codex">Codex</button>
@@ -3445,6 +3459,16 @@ function gameShellHtml() {
             <div class="party-paperdoll-bar" id="partyPaperDollBar" aria-label="Party paper dolls" hidden></div>
             <div class="party-switch-bar" id="partySwitchBar" aria-label="Switch party character" hidden></div>
             <div class="stage-corner-buttons">
+              <button
+                type="button"
+                id="compactReturnToTown"
+                class="stage-corner-button compact-return-town-button"
+                aria-label="Return to Town"
+                title="Return to Town"
+                hidden
+              >
+                <span aria-hidden="true">Town</span>
+              </button>
               <button
                 type="button"
                 id="teleportRingButton"
@@ -3584,6 +3608,9 @@ const els = {
   actionGroups: document.querySelector("#actionGroups"),
   stage: document.querySelector("#stage"),
   hudChromeToggle: document.querySelector("#hudChromeToggle"),
+  compactMenuToggle: document.querySelector("#compactMenuToggle"),
+  compactReturnToTown: document.querySelector("#compactReturnToTown"),
+  gameTopActions: document.querySelector("#gameTopActions"),
   playerResourceHud: document.querySelector("#playerResourceHud"),
   stageXpBar: document.querySelector("#stageXpBar"),
   stageInfoLevel: document.querySelector("#stageInfoLevel"),
@@ -3734,6 +3761,9 @@ async function init() {
   bindHotbarOrientationToggle();
   bindCombatSkillBarDrag();
   bindHudChromeToggle();
+  bindCompactMenuToggle();
+  bindCompactUiMedia();
+  syncCompactUi();
   applyHudChromeMode();
   reconcileSceneWindowPositions();
   syncFullscreenToggle();
@@ -5922,7 +5952,7 @@ function returnAllCharactersToTown() {
   state.battle.bossParty = null;
   state.game.mode = "town";
   state.game.activeZoneId = null;
-  lastStageShellSize = { w: 0, h: 0, mode: "", scale: 0 };
+  lastStageShellSize = { w: 0, h: 0, mode: "", scale: 0, compact: false };
   state.game.zoneKills = 0;
   state.game.distance = 0;
   state.game.miningNextRollAt = 0;
@@ -17505,6 +17535,7 @@ function renderGameUiPanel() {
   const game = state.game;
   const zone = activeZone();
   document.body.dataset.gameMode = game.mode;
+  syncCompactReturnToTownButton();
   const hasBossSwarmPanel = game.mode !== "mining" && Boolean(groupDungeonBossSwarmZone(zone) && groupDungeonBossSwarmState());
   const hasWavePanel = game.mode !== "mining" && Boolean(groupDungeonZone(zone) && !groupDungeonBossZone(zone) && !groupDungeonBossSwarmZone(zone) && groupDungeonWaveState());
   // Layout only depends on mode/zone — wave/swarm cards live in a always-present
@@ -23289,7 +23320,7 @@ async function enterZone(zoneId, options = {}) {
   state.game.mode = "zone";
   state.game.activeZoneId = zone.id;
   clearStampBackgroundCache();
-  lastStageShellSize = { w: 0, h: 0, mode: "", scale: 0 };
+  lastStageShellSize = { w: 0, h: 0, mode: "", scale: 0, compact: false };
   state.game.miningNextRollAt = 0;
   state.game.zoneKills = 0;
   state.game.distance = 0;
@@ -27285,6 +27316,7 @@ function bindControls() {
     if (state.settings.musicEnabled) syncBackgroundMusic();
   }, { once: true });
   window.addEventListener("resize", () => {
+    syncCompactUi();
     reconcileSceneWindowPositions();
   });
   window.addEventListener("pagehide", () => {
@@ -43755,12 +43787,14 @@ function bindHotbarOrientationToggle() {
 }
 
 function applyHudChromeMode() {
+  if (compactUi) hudChromeMode = "classic";
   const mode = hudChromeMode === "infoBar" ? "infoBar" : "classic";
   hudChromeMode = mode;
   const shell = els.stage?.closest(".stage-shell");
   if (shell) shell.dataset.hudChrome = mode;
   if (els.hudChromeToggle) {
     const infoBar = mode === "infoBar";
+    els.hudChromeToggle.hidden = compactUi;
     els.hudChromeToggle.setAttribute("aria-pressed", infoBar ? "true" : "false");
     els.hudChromeToggle.title = infoBar ? "Show classic HUD" : "Show InfoBar HUD";
     els.hudChromeToggle.setAttribute(
@@ -43789,10 +43823,101 @@ function bindHudChromeToggle() {
   els.hudChromeToggle.dataset.hudChromeBound = "1";
   els.hudChromeToggle.addEventListener("click", (event) => {
     event.preventDefault();
+    if (compactUi) return;
     hudChromeMode = hudChromeMode === "classic" ? "infoBar" : "classic";
     applyHudChromeMode();
     playSfx("ui.button", { volume: 0.3, throttleMs: 80 });
   });
+}
+
+function compactUiPreferred() {
+  if (!IS_GAME_UI || typeof window.matchMedia !== "function") return false;
+  // Width alone fails on phones in landscape / "Desktop site" (S25 etc.).
+  const touchUi = window.matchMedia("(hover: none) and (pointer: coarse)").matches
+    || (Number(navigator.maxTouchPoints) > 0 && window.matchMedia("(pointer: coarse)").matches);
+  const narrow = window.matchMedia("(max-width: 820px)").matches;
+  const shortPhone = window.matchMedia("(max-height: 500px) and (orientation: landscape)").matches
+    && Number(navigator.maxTouchPoints) > 0;
+  // UA fallback for Android/iOS when the browser requests a desktop viewport.
+  const mobileUa = /Android|iPhone|iPad|iPod|Mobile/i.test(navigator.userAgent || "");
+  return touchUi || narrow || shortPhone || mobileUa;
+}
+
+function bindCompactUiMedia() {
+  if (!IS_GAME_UI || typeof window.matchMedia !== "function" || window.__lomCompactMediaBound) return;
+  window.__lomCompactMediaBound = true;
+  const queries = [
+    "(max-width: 820px)",
+    "(hover: none) and (pointer: coarse)",
+    "(pointer: coarse)",
+    "(max-height: 500px) and (orientation: landscape)",
+  ];
+  for (const query of queries) {
+    const media = window.matchMedia(query);
+    const onChange = () => syncCompactUi();
+    if (typeof media.addEventListener === "function") media.addEventListener("change", onChange);
+    else if (typeof media.addListener === "function") media.addListener(onChange);
+  }
+}
+
+function applyCompactMenuState() {
+  document.body.classList.toggle("compact-menu-open", compactUi && compactMenuOpen);
+  if (!els.compactMenuToggle) return;
+  els.compactMenuToggle.hidden = !compactUi;
+  els.compactMenuToggle.setAttribute("aria-expanded", compactMenuOpen ? "true" : "false");
+  els.compactMenuToggle.setAttribute("aria-label", compactMenuOpen ? "Close menu" : "Open menu");
+  els.compactMenuToggle.title = compactMenuOpen ? "Close menu" : "Menu";
+}
+
+function syncCompactReturnToTownButton() {
+  if (!els.compactReturnToTown) return;
+  const show = compactUi && state.game.mode !== "town";
+  els.compactReturnToTown.hidden = !show;
+}
+
+function syncCompactUi() {
+  const next = compactUiPreferred();
+  const changed = next !== compactUi;
+  compactUi = next;
+  if (!compactUi) compactMenuOpen = false;
+  document.body.classList.toggle("compact-ui", compactUi);
+  applyCompactMenuState();
+  syncCompactReturnToTownButton();
+  if (compactUi) {
+    hudChromeMode = "classic";
+    applyHudChromeMode();
+  } else if (changed) {
+    applyHudChromeMode();
+  }
+  if (changed) {
+    lastStageShellSize = { w: 0, h: 0, mode: "", scale: 0, compact: false };
+    updateStageSize();
+    applyCombatHudLayout();
+  }
+}
+
+function bindCompactMenuToggle() {
+  if (els.compactMenuToggle && els.compactMenuToggle.dataset.compactMenuBound !== "1") {
+    els.compactMenuToggle.dataset.compactMenuBound = "1";
+    els.compactMenuToggle.addEventListener("click", (event) => {
+      event.preventDefault();
+      if (!compactUi) return;
+      compactMenuOpen = !compactMenuOpen;
+      applyCompactMenuState();
+      // Overlay menu does not resize the stage.
+      playSfx("ui.button", { volume: 0.3, throttleMs: 80 });
+    });
+  }
+  if (els.compactReturnToTown && els.compactReturnToTown.dataset.compactTownBound !== "1") {
+    els.compactReturnToTown.dataset.compactTownBound = "1";
+    els.compactReturnToTown.addEventListener("click", (event) => {
+      event.preventDefault();
+      if (!compactUi || state.game.mode === "town") return;
+      returnToTown();
+      syncCompactReturnToTownButton();
+      playSfx("ui.button", { volume: 0.3, throttleMs: 80 });
+    });
+  }
 }
 
 function applyCombatSkillBarWindowPosition(metrics = null) {
@@ -43840,24 +43965,37 @@ function updateStageSize() {
     && shellHeight === lastStageShellSize.h
     && mode === lastStageShellSize.mode
     && state.scale === lastStageShellSize.scale
+    && compactUi === lastStageShellSize.compact
     && state.stageWidth > 0
     && state.stageHeight > 0
   ) {
     return;
   }
-  lastStageShellSize = { w: shellWidth, h: shellHeight, mode, scale: state.scale };
+  lastStageShellSize = { w: shellWidth, h: shellHeight, mode, scale: state.scale, compact: compactUi };
   const zone = activeZone();
   const inTown = state.game.mode === "town";
-  const minWidth = Math.max(520, Number(zone?.stageMinWidth) || 520);
+  const pad = compactUi ? 8 : 24;
+  const hudReserve = combatHudViewportReservePx();
+  const availW = Math.max(compactUi ? 280 : 520, shell.clientWidth - pad);
+  const availH = Math.max(compactUi ? 180 : 260, shell.clientHeight - pad - hudReserve);
+  const minWidth = compactUi
+    ? Math.max(280, Math.min(520, availW))
+    : Math.max(520, Number(zone?.stageMinWidth) || 520);
   const minHeight = Math.max(
-    260,
-    Number(inTown ? TOWN_VISUALS.stageMinHeight : zone?.stageMinHeight) || 260,
+    compactUi ? 180 : 260,
+    Number(inTown ? TOWN_VISUALS.stageMinHeight : zone?.stageMinHeight) || (compactUi ? 180 : 260),
   );
   const maxHeight = Math.max(
     minHeight,
     Number(inTown ? TOWN_VISUALS.stageMaxHeight : zone?.stageMaxHeight) || 360,
   );
-  const hudReserve = combatHudViewportReservePx();
+  if (compactUi) {
+    // Keep integer scale at 1 and shrink the stage world to the phone shell.
+    state.scale = 1;
+    state.stageWidth = Math.max(minWidth, Math.floor(availW));
+    state.stageHeight = Math.max(minHeight, Math.min(maxHeight, Math.floor(availH)));
+    return;
+  }
   const width = Math.max(minWidth, Math.floor((shell.clientWidth - 24) / Math.max(1, state.scale)));
   const height = Math.max(
     minHeight,
@@ -44681,9 +44819,11 @@ function renderPlayerResourceHud() {
     bonus: statBuffBonusLabel(buff),
     remaining: formatBuffRemaining(buff.expiresAt - now),
   }));
+  const kills = Math.max(0, Math.trunc(Number(state.game.kills) || 0));
   const signature = JSON.stringify({
     className: state.battle.combatClass,
     level: state.game.progress.level,
+    kills,
     hp: player.hp,
     maxHp: player.maxHp,
     mp: player.mp,
@@ -44693,13 +44833,14 @@ function renderPlayerResourceHud() {
     hpPotions,
     mpPotions,
     activeBuffs,
+    compact: compactUi,
   });
   if (signature === playerHudSignature) return;
   playerHudSignature = signature;
 
   els.playerResourceHud.hidden = false;
   const titleHtml = IS_GAME_UI
-    ? `<div class="player-resource-title game-minimal"><span>Lv ${state.game.progress.level}</span></div>`
+    ? `<div class="player-resource-title game-minimal"><span>Lv ${state.game.progress.level}</span>${compactUi ? `<span class="player-resource-kills">Kills ${kills}</span>` : ""}</div>`
     : `
       <div class="player-resource-title">
         <strong>${escapeHtml(state.battle.combatClass)}</strong>

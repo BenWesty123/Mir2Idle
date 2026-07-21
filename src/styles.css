@@ -666,7 +666,17 @@ button.active,
 }
 
 .player-resource-title.game-minimal {
-  justify-content: flex-end;
+  justify-content: space-between;
+}
+
+.player-resource-kills {
+  color: #f0b35c;
+  font-size: 11px;
+  font-weight: 700;
+}
+
+.compact-menu-toggle {
+  display: none;
 }
 
 .player-resource-row {
@@ -8221,6 +8231,245 @@ body[data-ui="game"] .game-activity-panel {
 .game-side-panel .game-log-card .game-card-title strong {
   color: #efd79d;
   font-size: 12px;
+}
+
+/* Compact phone UI: left burger rail, stage fills viewport, classic HUD only. */
+body.compact-ui .game-shell {
+  position: relative;
+  width: 100%;
+  max-width: none;
+  min-height: 100dvh;
+  height: 100dvh;
+  margin: 0;
+  padding: 0;
+  overflow: hidden;
+  display: grid;
+  grid-template-columns: 48px minmax(0, 1fr);
+  grid-template-rows: auto minmax(0, 1fr);
+}
+
+body.compact-ui .demo-live-site-bar,
+body.compact-ui .update-available-bar {
+  grid-column: 1 / -1;
+}
+
+body.compact-ui .game-topbar {
+  grid-row: 2;
+  grid-column: 1;
+  position: relative;
+  z-index: 50;
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  justify-content: flex-start;
+  gap: 8px;
+  width: 48px;
+  min-width: 48px;
+  max-width: 48px;
+  height: 100%;
+  margin: 0;
+  padding: 8px 6px;
+  overflow-x: hidden;
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+  overscroll-behavior: contain;
+  box-sizing: border-box;
+}
+
+body.compact-ui.compact-menu-open .game-topbar {
+  position: absolute;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  width: min(280px, 86vw);
+  min-width: min(280px, 86vw);
+  max-width: min(280px, 86vw);
+  height: auto;
+  box-shadow: 8px 0 24px rgba(0, 0, 0, 0.45);
+}
+
+body.compact-ui .compact-menu-toggle {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex: 0 0 auto;
+  width: 36px;
+  height: 36px;
+  margin: 0 auto;
+  padding: 0;
+  border: 1px solid #5b4629;
+  background: #19130d;
+  color: #ecd6a3;
+  cursor: pointer;
+}
+
+body.compact-ui .compact-menu-toggle-bars,
+body.compact-ui .compact-menu-toggle-bars::before,
+body.compact-ui .compact-menu-toggle-bars::after {
+  display: block;
+  width: 16px;
+  height: 2px;
+  background: currentColor;
+  content: "";
+}
+
+body.compact-ui .compact-menu-toggle-bars {
+  position: relative;
+}
+
+body.compact-ui .compact-menu-toggle-bars::before {
+  position: absolute;
+  top: -5px;
+  left: 0;
+}
+
+body.compact-ui .compact-menu-toggle-bars::after {
+  position: absolute;
+  top: 5px;
+  left: 0;
+}
+
+body.compact-ui.compact-menu-open .compact-menu-toggle-bars {
+  background: transparent;
+}
+
+body.compact-ui.compact-menu-open .compact-menu-toggle-bars::before {
+  top: 0;
+  transform: rotate(45deg);
+}
+
+body.compact-ui.compact-menu-open .compact-menu-toggle-bars::after {
+  top: 0;
+  transform: rotate(-45deg);
+}
+
+body.compact-ui .game-brand {
+  display: none;
+}
+
+body.compact-ui.compact-menu-open .game-brand {
+  display: block;
+  padding: 0 4px;
+}
+
+body.compact-ui.compact-menu-open .game-brand h1 {
+  font-size: 14px;
+  line-height: 1.15;
+}
+
+body.compact-ui .game-top-actions {
+  display: none;
+  grid-template-columns: 1fr 1fr;
+  gap: 4px;
+  overflow: visible;
+  min-height: 0;
+  flex: 0 0 auto;
+  padding-bottom: 8px;
+}
+
+body.compact-ui.compact-menu-open .game-top-actions {
+  display: grid;
+}
+
+body.compact-ui .game-top-actions button {
+  width: 100%;
+  min-height: 36px;
+  padding: 6px 8px;
+  font-size: 11px;
+  line-height: 1.2;
+  text-align: center;
+  justify-content: center;
+}
+
+body.compact-ui .game-layout {
+  grid-row: 2;
+  grid-column: 2;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: 0;
+  min-width: 0;
+  min-height: 0;
+  height: 100%;
+}
+
+body.compact-ui .game-side-panel {
+  display: none !important;
+}
+
+body.compact-ui .game-stage-area,
+body.compact-ui .game-stage-card,
+body.compact-ui .game-stage-shell {
+  min-width: 0;
+  min-height: 0;
+  height: 100%;
+}
+
+body.compact-ui .game-stage-card {
+  border: 0;
+  box-shadow: none;
+  background: #0c0d0b;
+}
+
+body.compact-ui .game-stage-shell {
+  padding: 0;
+  overflow: hidden;
+  /* Prefer keeping the stage/HUD bottom in view when the level is taller than the phone. */
+  justify-content: flex-end;
+  align-items: center;
+}
+
+body.compact-ui .hud-chrome-toggle {
+  display: none !important;
+}
+
+body.compact-ui .stage-corner-buttons {
+  top: 10px;
+  right: 10px;
+}
+
+body.compact-ui .compact-return-town-button {
+  width: auto;
+  min-width: 52px;
+  padding: 0 8px;
+  font-size: 11px;
+  font-weight: 700;
+  color: #f3e0ae;
+  text-shadow: 1px 1px 0 #000;
+}
+
+body.compact-ui .compact-return-town-button[hidden] {
+  display: none;
+}
+
+body.compact-ui .player-resource-hud {
+  left: 8px;
+  top: 8px;
+  width: min(226px, calc(100% - 56px));
+  z-index: 14;
+}
+
+body.compact-ui .fullscreen-toggle {
+  right: 10px;
+  bottom: 10px;
+}
+
+body.compact-ui .scene-overlay {
+  z-index: 40;
+  padding: 8px;
+  align-items: center;
+  justify-content: center;
+}
+
+body.compact-ui .scene-window-stack {
+  transform: scale(0.78);
+  transform-origin: center center;
+  max-width: 100%;
+  max-height: 100%;
+}
+
+body.compact-ui .scene-window {
+  max-width: calc(100vw / 0.78 - 24px);
+  max-height: calc(100dvh / 0.78 - 24px);
 }
 
 @media (max-width: 1050px) {
