@@ -49,6 +49,31 @@ export function mergeAccountBossRespawns(accountBossRespawns, characters, option
 }
 
 /**
+ * Shared account gold. New saves store `account.gold`. Older saves without that
+ * field sum every character wallet once so nothing is lost on migrate.
+ *
+ * @param {object | null | undefined} snapshotAccount
+ * @param {Record<string, object>} characters
+ * @param {string[]} characterIds
+ * @returns {number}
+ */
+export function resolveAccountGold(snapshotAccount, characters, characterIds) {
+  const saved = snapshotAccount && typeof snapshotAccount === "object" ? snapshotAccount : {};
+  if (Object.prototype.hasOwnProperty.call(saved, "gold")) {
+    return Math.max(0, Math.trunc(Number(saved.gold) || 0));
+  }
+  let total = 0;
+  for (const classId of characterIds ?? []) {
+    const character = characters?.[classId];
+    total += Math.max(
+      0,
+      Math.trunc(Number(character?.inventory?.gold ?? character?.game?.progress?.gold) || 0),
+    );
+  }
+  return total;
+}
+
+/**
  * @param {object} snapshot
  * @param {Record<string, object>} characters
  * @param {object} options
@@ -72,6 +97,7 @@ export function restoreAccountFromSnapshot(snapshot, characters, options) {
     storage: options.sanitizeStorage(savedStorageRaw),
     upgrades: options.sanitizeUpgrades(snapshot.account?.upgrades ?? snapshot.upgrades),
     rebirthPoints: Math.max(0, Math.trunc(Number(snapshot.account?.rebirthPoints) || 0)),
+    gold: resolveAccountGold(snapshot.account, characters, options.characterIds),
     bossRespawns: mergeAccountBossRespawns(
       options.sanitizeBossRespawns(snapshot.account?.bossRespawns),
       characters,

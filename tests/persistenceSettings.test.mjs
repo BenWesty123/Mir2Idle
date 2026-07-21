@@ -1,20 +1,25 @@
 import test from "node:test";
 import assert from "node:assert/strict";
 import {
+  AUTO_POTION_CHARACTER_IDS,
   AUTO_POTION_THRESHOLD_MAX,
   AUTO_POTION_THRESHOLD_MIN,
   DEFAULT_AUTO_POTION_HP_THRESHOLD,
   DEFAULT_AUTO_POTION_MP_THRESHOLD,
   DEFAULT_MUSIC_ENABLED,
   DEFAULT_SFX_ENABLED,
+  DEFAULT_SHOW_ACTIVITY_LOG,
+  DEFAULT_SHOW_RECENT_LOOT,
   MUSIC_MODE_PLAYLIST,
   MUSIC_MODE_TRACK,
   MUSIC_SETTINGS_VERSION,
   SCENE_WINDOW_EDGE_PAD,
   clampSceneWindowCoords,
+  createDefaultAutoPotionThresholdsByCharacter,
   normalizedAutoPotionThreshold,
   normalizedMusicMode,
   normalizedVolume,
+  sanitizeAutoPotionThresholdsByCharacter,
   sanitizeSceneWindowPosition,
   sanitizeSceneWindowPositions,
   sanitizeSettingsState,
@@ -45,8 +50,11 @@ test("sanitizeSettingsState: defaults when music settings version is old", () =>
   const result = sanitizeSettingsState({ musicSettingsVersion: 0 });
   assert.equal(result.musicEnabled, DEFAULT_MUSIC_ENABLED);
   assert.equal(result.sfxEnabled, DEFAULT_SFX_ENABLED);
+  assert.equal(result.showRecentLoot, DEFAULT_SHOW_RECENT_LOOT);
+  assert.equal(result.showActivityLog, DEFAULT_SHOW_ACTIVITY_LOG);
   assert.equal(result.autoPotionHpThreshold, DEFAULT_AUTO_POTION_HP_THRESHOLD);
   assert.equal(result.autoPotionMpThreshold, DEFAULT_AUTO_POTION_MP_THRESHOLD);
+  assert.deepEqual(result.autoPotionThresholdsByCharacter, createDefaultAutoPotionThresholdsByCharacter());
 });
 
 test("sanitizeSettingsState: honors explicit flags at current version", () => {
@@ -57,6 +65,8 @@ test("sanitizeSettingsState: honors explicit flags at current version", () => {
     musicMode: MUSIC_MODE_TRACK,
     sfxEnabled: false,
     sfxVolume: 0.2,
+    showRecentLoot: false,
+    showActivityLog: false,
     autoPotionHpThreshold: 0.35,
     autoPotionMpThreshold: 0.7,
     prototypeStatsEnabled: false,
@@ -69,12 +79,38 @@ test("sanitizeSettingsState: honors explicit flags at current version", () => {
   assert.equal(result.musicMode, MUSIC_MODE_TRACK);
   assert.equal(result.sfxEnabled, false);
   assert.equal(result.sfxVolume, 0.2);
+  assert.equal(result.showRecentLoot, false);
+  assert.equal(result.showActivityLog, false);
   assert.equal(result.autoPotionHpThreshold, 0.35);
   assert.equal(result.autoPotionMpThreshold, 0.7);
+  assert.deepEqual(result.autoPotionThresholdsByCharacter, createDefaultAutoPotionThresholdsByCharacter(0.35, 0.7));
   assert.equal(result.prototypeStatsEnabled, false);
   assert.equal(result.prototypeStatsNoticeVersion, 2);
   assert.equal(result.cloudBackupNoticeVersion, 1);
   assert.equal(result.cloudBackupNoticeLastSeenAt, 123456);
+});
+
+test("sanitizeAutoPotionThresholdsByCharacter: seeds from legacy flat thresholds", () => {
+  const result = sanitizeAutoPotionThresholdsByCharacter(undefined, 0.25, 0.8);
+  for (const classId of AUTO_POTION_CHARACTER_IDS) {
+    assert.deepEqual(result[classId], { hp: 0.25, mp: 0.8 });
+  }
+});
+
+test("sanitizeAutoPotionThresholdsByCharacter: keeps per-class values", () => {
+  const result = sanitizeAutoPotionThresholdsByCharacter({
+    Warrior: { hp: 0.4, mp: 0.6 },
+    Wizard: { hp: 0.2, mp: 0.9 },
+    Taoist: { hp: 0.55, mp: 0.35 },
+  }, 0.5, 0.5);
+  assert.deepEqual(result.Warrior, { hp: 0.4, mp: 0.6 });
+  assert.deepEqual(result.Wizard, { hp: 0.2, mp: 0.9 });
+  assert.deepEqual(result.Taoist, { hp: 0.55, mp: 0.35 });
+  assert.equal(sanitizeSettingsState({
+    autoPotionThresholdsByCharacter: result,
+    autoPotionHpThreshold: 0.1,
+    autoPotionMpThreshold: 0.1,
+  }).autoPotionHpThreshold, 0.4);
 });
 
 test("sanitizeSceneWindowPosition", () => {

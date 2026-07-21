@@ -282,24 +282,6 @@ button.active,
   pointer-events: none;
 }
 
-.stage-info-orb-fill::after {
-  content: "";
-  position: absolute;
-  inset: 0;
-  background: #fff;
-  opacity: 0;
-  pointer-events: none;
-}
-
-.stage-info-orb-fill.stage-info-orb-flash::after {
-  animation: stage-info-orb-flash 320ms ease-out;
-}
-
-@keyframes stage-info-orb-flash {
-  0% { opacity: 1; }
-  100% { opacity: 0; }
-}
-
 .stage-info-orb-hp-fill {
   z-index: 1;
   background-image: url("../public/ui/InfoBar-HP.png");
@@ -1037,10 +1019,25 @@ body.combat-skill-bar-drag-active {
   top: 50%;
   width: 248px;
   height: 284px;
-  /* Character art sits in the lower ~70% of the 248x284 paper-doll canvas. */
-  transform: translate(-50%, -70%) scale(0.5);
-  transform-origin: center center;
+  /*
+   * Anchor on the paper-doll figure centre so head→feet fill the 72x96
+   * portrait with only a few pixels of padding (pixel-measured).
+   */
+  transform: translate(-124px, -145px) scale(0.5);
+  transform-origin: 124px 145px;
   pointer-events: none;
+  image-rendering: pixelated;
+}
+
+/* Naked body is the base pose (fixes invisible unarmoured characters + missing heads). */
+.party-paperdoll-stage .crystal-paper-doll {
+  background: url("../public/ui/nakedpaperdoll.png") 3px 3px / 248px 284px no-repeat;
+  image-rendering: pixelated;
+}
+
+.party-paperdoll-stage .crystal-paper-doll-layer {
+  z-index: 1;
+  transform: translate(-5px, -87px);
 }
 
 .party-paperdoll-bar:not([hidden]) ~ .party-switch-bar {
@@ -6105,11 +6102,11 @@ body.scene-window-drag-active {
   height: 284px;
   background: none;
   /*
-   * Scale to fit the full stage inside the portrait (prevents clipped legs),
-   * then lift so the figure sits in the vertical center of the card.
+   * Same figure-centred crop as party portraits: anchor on the doll centre
+   * (~124, 145) and scale to fill the portrait (not the empty 248x284 canvas).
    */
-  transform: translate(-50%, -70%) scale(min(100cqw / 248px, 100cqh / 284px));
-  transform-origin: center center;
+  transform: translate(-124px, -145px) scale(min(100cqw / 150px, 100cqh / 191px));
+  transform-origin: 124px 145px;
   pointer-events: none;
   image-rendering: pixelated;
 }
@@ -6295,6 +6292,28 @@ body.scene-window-drag-active {
   color: rgba(223, 195, 131, 0.45);
   cursor: default;
   filter: grayscale(0.6);
+}
+
+.options-auto-potion-characters {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 8px;
+}
+
+.options-auto-potion-characters button {
+  min-width: 0;
+  border: 1px solid var(--line);
+  background: #14110c;
+  color: #dfc383;
+  padding: 8px 10px;
+}
+
+.options-auto-potion-characters button:hover,
+.options-auto-potion-characters button:focus-visible,
+.options-auto-potion-characters button.active {
+  border-color: #c9913d;
+  background: #1d1810;
+  color: #f0d69a;
 }
 
 .options-volume {
@@ -8040,8 +8059,36 @@ body[data-ui="game"] .game-activity-panel {
   align-content: start;
 }
 
+.game-side-panel .game-log-card.is-collapsed,
+.game-side-panel .recent-loot.is-collapsed {
+  flex: 0 0 auto;
+}
+
 .game-side-panel .game-side-loot-card {
   flex: 0 0 auto;
+}
+
+.game-log-card-meta {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.game-panel-section-toggle {
+  min-width: 52px;
+  padding: 2px 8px;
+  border: 1px solid rgba(122, 96, 52, 0.9);
+  background: rgba(28, 22, 14, 0.9);
+  color: #efd79d;
+  font: inherit;
+  font-size: 11px;
+  line-height: 1.2;
+  cursor: pointer;
+}
+
+.game-panel-section-toggle:hover {
+  border-color: rgba(231, 194, 116, 0.7);
+  color: #f6e7b8;
 }
 
 .recent-loot-empty {

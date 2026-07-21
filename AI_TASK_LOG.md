@@ -1,5 +1,108 @@
 # AI Task Log - LOM Idle V2
 
+## 2026-07-21 - Toggle Recent Loot / Activity Log panels
+
+### What
+Players can hide or show the side-panel Recent Loot and Activity Log boxes.
+Preference persists in settings (defaults On). Toggle from the panel header
+(Hide/Show) or Options.
+
+### Changes
+- `src/persistence/sanitizeSettings.js`: `showRecentLoot` / `showActivityLog`
+- `src/app.monolith.js`: panel HTML, Options rows, setters, save/load/reset
+- `src/styles.css`: collapsed stub + Hide/Show button styling
+- `tests/persistenceSettings.test.mjs`: defaults + explicit false
+
+### Verify
+- `npm.cmd run check` / `npm.cmd run smoke`
+- Manual: Hide from panel header, reload, confirm stays hidden; Options On/Off
+
+## 2026-07-21 - Character Select shows XP % to next level
+
+### What
+Character Select cards show `Lv X | Y%` (progress toward next level) instead of
+shared gold. Max level shows `Max`.
+
+### Changes
+- `src/app.monolith.js`: `characterSelectXpPercentText` + card label update
+
+### Verify
+- `npm.cmd run check`
+- Manual: open Character Select and confirm each class shows its own XP %
+
+## 2026-07-21 - Shared account gold pool
+
+### What
+Gold is no longer per-character. Warrior / Wizard / Taoist share one account
+wallet for earning, spending, shops, and Character Select. Existing saves
+migrate by summing each class's gold into `account.gold` once.
+
+### Changes
+- `src/persistence/restoreAccount.js`: `resolveAccountGold` migration + restore
+- `src/app.monolith.js`: shared gold helpers; character switch / party / offline /
+  achievements / rebirth / Character Select use the account pool
+- `tests/persistenceRestoreAccount.test.mjs`: sum vs saved `account.gold`
+
+### Verify
+- `npm.cmd run check`
+- Manual: earn gold on Warrior, switch to Wizard, confirm gold unchanged; buy
+  from shop on either class
+
+## 2026-07-21 - Fix party switch paper-doll portraits
+
+### What
+Group-dungeon / boss-room party paper-doll portraits were missing the naked
+body base and gear layer offset used by character-select. Unarmoured
+characters disappeared, heads showed as black voids, and framing was off.
+Follow-up: retuned crop so heads/feet sit with even padding in the 72x96 box.
+Also applied the same figure-centred fill to the Character Select window.
+
+### Changes
+- `src/styles.css`: party portraits use `nakedpaperdoll.png` + layer
+  `translate(-5px, -87px)`, with figure-centred crop
+  (`translate(-124px,-145px) scale(0.5)`)
+- `src/styles.css`: character-select stage uses the same figure centre with
+  container-query scale `min(100cqw/150px, 100cqh/191px)`
+
+### Verify
+- Manual: enter group content with mixed gear (including an unarmoured
+  character) and confirm bodies, heads, and centering in the portrait bar
+- Manual: open Characters and confirm each class paper doll fills the card
+
+## 2026-07-21 - Character-specific auto potion HP/MP thresholds
+
+### What
+Options Auto HP/MP sliders are per character. Players pick Warrior / Wizard /
+Taoist in Options, then set that class's drink thresholds. Party and offline
+group auto-pots use each member's own thresholds. Old flat settings seed all
+three classes on load.
+
+### Changes
+- `src/persistence/sanitizeSettings.js`: `autoPotionThresholdsByCharacter` + migration
+- `src/app.monolith.js`: Options character buttons, per-class get/set, party/offline
+- `src/styles.css`: Options character button row
+- `tests/persistenceSettings.test.mjs`: migration + per-class sanitize coverage
+
+### Verify
+- `npm.cmd run check`
+- Manual: Options → set Wizard HP different from Warrior → switch characters / party
+
+## 2026-07-21 - Remove HP/MP info-bar flash
+
+### What
+Stage info orb HP/MP fills no longer white-flash when values drop. Fill height
+and labels still update normally.
+
+### Changes
+- `src/app.monolith.js`: removed `flashStageInfoOrbPanel`, last-value tracking,
+  and warrior-charge MP flash suppress
+- `src/styles.css`: removed `.stage-info-orb-flash` animation / overlay
+
+### Verify
+- `node --check src/app.monolith.js`
+- Manual: take damage / spend MP and confirm orbs do not flash
+- Note: taoist offline fixture currently flips between two result sets after Dave UI merge (unrelated)
+
 ## 2026-07-21 - Poison Cloud locked Taoist attacks for full cooldown
 
 ### What

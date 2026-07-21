@@ -1,6 +1,20 @@
 {
   "entries": [
     {
+      "id": "2026-07-21-account-gold-ui",
+      "date": "2026-07-21",
+      "title": "Shared gold, UI & Options",
+      "highlights": [
+        "Gold is now account-wide, not character-specific.",
+        "Added character-specific HP and MP auto potion sliders in the Options menu.",
+        "Added back the UI update with some changes.",
+        "Fixed character selection UI size issue.",
+        "Removed HP and MP flashing.",
+        "You can now toggle the Mir GUI or the Idle text-based GUI in the top right of the game window.",
+        "Mir GUI is automatically removed on mobile devices."
+      ]
+    },
+    {
       "id": "2026-07-20-ice-hell-glyphs",
       "date": "2026-07-20",
       "title": "Ice Hell, Glyphs & Ascended",

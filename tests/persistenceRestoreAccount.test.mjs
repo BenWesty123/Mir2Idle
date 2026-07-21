@@ -7,6 +7,7 @@ import {
   detectUnpaidStoragePage2,
   mergeAccountBossKills,
   mergeAccountBossRespawns,
+  resolveAccountGold,
   resolveSavedGroupDungeonRun,
   restoreAccountFromSnapshot,
   restoreSaveUiMeta,
@@ -78,11 +79,47 @@ test("restoreAccountFromSnapshot: restores account block from minimal fixture", 
   const { account, hadUnpaidStoragePage2 } = restoreAccountFromSnapshot(minimalSave, characters, accountOptions());
   assert.equal(hadUnpaidStoragePage2, false);
   assert.equal(account.rebirthPoints, 0);
+  assert.equal(account.gold, 0);
   assert.equal(account.stats.rebirthCount, 1);
   assert.equal(account.stats.bossKills["zone-bug-cave-kr"], 1);
   assert.equal(account.stats.bossKills["zone-wooma-temple-kr"], 2);
   assert.equal(account.storage.pagesUnlocked, 1);
   assert.deepEqual(account.spiritBox, { paid: false, entry: null });
+});
+
+test("resolveAccountGold: sums character wallets when account.gold is missing", () => {
+  const characters = {
+    Warrior: { inventory: { gold: 100 }, game: { progress: { gold: 100 } } },
+    Wizard: { inventory: { gold: 250 }, game: { progress: { gold: 250 } } },
+    Taoist: { inventory: { gold: 50 }, game: { progress: { gold: 50 } } },
+  };
+  assert.equal(resolveAccountGold({}, characters, characterIds), 400);
+  assert.equal(resolveAccountGold({ rebirthPoints: 1 }, characters, characterIds), 400);
+});
+
+test("resolveAccountGold: prefers saved account.gold over character sums", () => {
+  const characters = {
+    Warrior: { inventory: { gold: 999 } },
+    Wizard: { inventory: { gold: 999 } },
+    Taoist: { inventory: { gold: 999 } },
+  };
+  assert.equal(resolveAccountGold({ gold: 42 }, characters, characterIds), 42);
+  assert.equal(resolveAccountGold({ gold: 0 }, characters, characterIds), 0);
+});
+
+test("restoreAccountFromSnapshot: migrates summed character gold into account.gold", () => {
+  const characters = {
+    Warrior: { inventory: { gold: 10 }, game: { progress: { gold: 10 }, bossKills: {} } },
+    Wizard: { inventory: { gold: 20 }, game: { progress: { gold: 20 } } },
+    Taoist: { inventory: { gold: 30 }, game: { progress: { gold: 30 } } },
+  };
+  const snapshot = {
+    ...minimalSave,
+    account: { ...minimalSave.account },
+  };
+  delete snapshot.account.gold;
+  const { account } = restoreAccountFromSnapshot(snapshot, characters, accountOptions());
+  assert.equal(account.gold, 60);
 });
 
 test("restoreAccountFromSnapshot: keeps spirit box entry when sanitizer provided", () => {
