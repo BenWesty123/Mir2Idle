@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "savedAt": 1782648526569,
+  "savedAt": 1784164892815,
   "activeCharacterId": "Warrior",
   "groupDungeonRun": null,
   "characters": {
@@ -19,7 +19,7 @@
         "bossRespawns": {},
         "bossKills": {},
         "progress": {
-          "level": 110,
+          "level": 500,
           "experience": 0,
           "gold": 99999999
         },
@@ -548,7 +548,7 @@
             "key": null,
             "autoCast": true,
             "castReadyAt": 0,
-            "learnedAt": 1782632904022
+            "learnedAt": 1784164892815
           },
           "Slaying": {
             "spellId": "Slaying",
@@ -557,7 +557,7 @@
             "key": null,
             "autoCast": true,
             "castReadyAt": 0,
-            "learnedAt": 1782632904022
+            "learnedAt": 1784164892815
           },
           "Thrusting": {
             "spellId": "Thrusting",
@@ -566,7 +566,7 @@
             "key": null,
             "autoCast": true,
             "castReadyAt": 0,
-            "learnedAt": 1782632904022
+            "learnedAt": 1784164892815
           },
           "HalfMoon": {
             "spellId": "HalfMoon",
@@ -575,7 +575,16 @@
             "key": null,
             "autoCast": true,
             "castReadyAt": 0,
-            "learnedAt": 1782632904022
+            "learnedAt": 1784164892815
+          },
+          "CrossHalfMoon": {
+            "spellId": "CrossHalfMoon",
+            "level": 3,
+            "experience": 999999,
+            "key": null,
+            "autoCast": true,
+            "castReadyAt": 0,
+            "learnedAt": 1784164892815
           },
           "TwinDrakeBlade": {
             "spellId": "TwinDrakeBlade",
@@ -584,7 +593,7 @@
             "key": null,
             "autoCast": true,
             "castReadyAt": 0,
-            "learnedAt": 1782632904022
+            "learnedAt": 1784164892815
           },
           "FlamingSword": {
             "spellId": "FlamingSword",
@@ -593,7 +602,7 @@
             "key": null,
             "autoCast": true,
             "castReadyAt": 0,
-            "learnedAt": 1782632904022
+            "learnedAt": 1784164892815
           },
           "LionRoar": {
             "spellId": "LionRoar",
@@ -602,7 +611,7 @@
             "key": null,
             "autoCast": true,
             "castReadyAt": 0,
-            "learnedAt": 1782632904022
+            "learnedAt": 1784164892815
           },
           "BladeAvalanche": {
             "spellId": "BladeAvalanche",
@@ -611,7 +620,7 @@
             "key": null,
             "autoCast": true,
             "castReadyAt": 0,
-            "learnedAt": 1782632904022
+            "learnedAt": 1784164892815
           },
           "ProtectionField": {
             "spellId": "ProtectionField",
@@ -620,7 +629,7 @@
             "key": null,
             "autoCast": true,
             "castReadyAt": 0,
-            "learnedAt": 1782632904022
+            "learnedAt": 1784164892815
           },
           "Rage": {
             "spellId": "Rage",
@@ -629,7 +638,7 @@
             "key": null,
             "autoCast": true,
             "castReadyAt": 0,
-            "learnedAt": 1782632904022
+            "learnedAt": 1784164892815
           },
           "SlashingBurst": {
             "spellId": "SlashingBurst",
@@ -638,7 +647,7 @@
             "key": null,
             "autoCast": true,
             "castReadyAt": 0,
-            "learnedAt": 1782632904022
+            "learnedAt": 1784164892815
           },
           "Fury": {
             "spellId": "Fury",
@@ -647,7 +656,7 @@
             "key": null,
             "autoCast": true,
             "castReadyAt": 0,
-            "learnedAt": 1782632904022
+            "learnedAt": 1784164892815
           },
           "ImmortalSkin": {
             "spellId": "ImmortalSkin",
@@ -656,7 +665,7 @@
             "key": null,
             "autoCast": true,
             "castReadyAt": 0,
-            "learnedAt": 1782632904022
+            "learnedAt": 1784164892815
           }
         }
       },
@@ -687,7 +696,7 @@
         "bossRespawns": {},
         "bossKills": {},
         "progress": {
-          "level": 110,
+          "level": 500,
           "experience": 0,
           "gold": 99999999
         },
@@ -1216,7 +1225,7 @@
             "key": null,
             "autoCast": true,
             "castReadyAt": 0,
-            "learnedAt": 1782632904022
+            "learnedAt": 1784164892815
           },
           "GreatFireBall": {
             "spellId": "GreatFireBall",
@@ -1225,7 +1234,7 @@
             "key": null,
             "autoCast": true,
             "castReadyAt": 0,
-            "learnedAt": 1782632904022
+            "learnedAt": 1784164892815
           },
           "ThunderBolt": {
             "spellId": "ThunderBolt",
@@ -1234,7 +1243,7 @@
             "key": null,
             "autoCast": true,
             "castReadyAt": 0,
-            "learnedAt": 1782632904022
+            "learnedAt": 1784164892815
           },
           "FireWall": {
             "spellId": "FireWall",
@@ -1243,7 +1252,7 @@
             "key": null,
             "autoCast": true,
             "castReadyAt": 0,
-            "learnedAt": 1782632904022
+            "learnedAt": 1784164892815
           },
           "FrostCrunch": {
             "spellId": "FrostCrunch",
@@ -1252,7 +1261,7 @@
             "key": null,
             "autoCast": true,
             "castReadyAt": 0,
-            "learnedAt": 1782632904022
+            "learnedAt": 1784164892815
           },
           "IceStorm": {
             "spellId": "IceStorm",
@@ -1261,7 +1270,16 @@
             "key": null,
             "autoCast": true,
             "castReadyAt": 0,
-            "learnedAt": 1782632904022
+            "learnedAt": 1784164892815
+          },
+          "Blizzard": {
+            "spellId": "Blizzard",
+            "level": 3,
+            "experience": 999999,
+            "key": null,
+            "autoCast": true,
+            "castReadyAt": 0,
+            "learnedAt": 1784164892815
           },
           "MagicShield": {
             "spellId": "MagicShield",
@@ -1270,7 +1288,7 @@
             "key": null,
             "autoCast": true,
             "castReadyAt": 0,
-            "learnedAt": 1782632904022
+            "learnedAt": 1784164892815
           },
           "TurnUndead": {
             "spellId": "TurnUndead",
@@ -1279,7 +1297,7 @@
             "key": null,
             "autoCast": true,
             "castReadyAt": 0,
-            "learnedAt": 1782632904022
+            "learnedAt": 1784164892815
           },
           "Vampirism": {
             "spellId": "Vampirism",
@@ -1288,7 +1306,7 @@
             "key": null,
             "autoCast": true,
             "castReadyAt": 0,
-            "learnedAt": 1782632904022
+            "learnedAt": 1784164892815
           },
           "FlameDisruptor": {
             "spellId": "FlameDisruptor",
@@ -1297,7 +1315,16 @@
             "key": null,
             "autoCast": true,
             "castReadyAt": 0,
-            "learnedAt": 1782632904022
+            "learnedAt": 1784164892815
+          },
+          "FlameField": {
+            "spellId": "FlameField",
+            "level": 3,
+            "experience": 999999,
+            "key": null,
+            "autoCast": true,
+            "castReadyAt": 0,
+            "learnedAt": 1784164892815
           },
           "Mirroring": {
             "spellId": "Mirroring",
@@ -1306,7 +1333,7 @@
             "key": null,
             "autoCast": true,
             "castReadyAt": 0,
-            "learnedAt": 1782632904022
+            "learnedAt": 1784164892815
           },
           "MagicBooster": {
             "spellId": "MagicBooster",
@@ -1315,7 +1342,7 @@
             "key": null,
             "autoCast": true,
             "castReadyAt": 0,
-            "learnedAt": 1782632904022
+            "learnedAt": 1784164892815
           },
           "MeteorStrike": {
             "spellId": "MeteorStrike",
@@ -1324,7 +1351,7 @@
             "key": null,
             "autoCast": true,
             "castReadyAt": 0,
-            "learnedAt": 1782632904022
+            "learnedAt": 1784164892815
           }
         }
       },
@@ -1355,7 +1382,7 @@
         "bossRespawns": {},
         "bossKills": {},
         "progress": {
-          "level": 110,
+          "level": 500,
           "experience": 0,
           "gold": 99999999
         },
@@ -1884,7 +1911,7 @@
             "key": null,
             "autoCast": true,
             "castReadyAt": 0,
-            "learnedAt": 1782632904022
+            "learnedAt": 1784164892815
           },
           "SpiritSword": {
             "spellId": "SpiritSword",
@@ -1893,7 +1920,7 @@
             "key": null,
             "autoCast": true,
             "castReadyAt": 0,
-            "learnedAt": 1782632904022
+            "learnedAt": 1784164892815
           },
           "Poisoning": {
             "spellId": "Poisoning",
@@ -1902,7 +1929,34 @@
             "key": null,
             "autoCast": true,
             "castReadyAt": 0,
-            "learnedAt": 1782632904022
+            "learnedAt": 1784164892815
+          },
+          "PoisonCloud": {
+            "spellId": "PoisonCloud",
+            "level": 3,
+            "experience": 999999,
+            "key": null,
+            "autoCast": true,
+            "castReadyAt": 0,
+            "learnedAt": 1784164892815
+          },
+          "Curse": {
+            "spellId": "Curse",
+            "level": 3,
+            "experience": 999999,
+            "key": null,
+            "autoCast": true,
+            "castReadyAt": 0,
+            "learnedAt": 1784164892815
+          },
+          "Plague": {
+            "spellId": "Plague",
+            "level": 3,
+            "experience": 999999,
+            "key": null,
+            "autoCast": true,
+            "castReadyAt": 0,
+            "learnedAt": 1784164892815
           },
           "SoulFireBall": {
             "spellId": "SoulFireBall",
@@ -1911,7 +1965,7 @@
             "key": null,
             "autoCast": true,
             "castReadyAt": 0,
-            "learnedAt": 1782632904022
+            "learnedAt": 1784164892815
           },
           "SummonSkeleton": {
             "spellId": "SummonSkeleton",
@@ -1920,7 +1974,7 @@
             "key": null,
             "autoCast": true,
             "castReadyAt": 0,
-            "learnedAt": 1782632904022
+            "learnedAt": 1784164892815
           },
           "SoulShield": {
             "spellId": "SoulShield",
@@ -1929,7 +1983,7 @@
             "key": null,
             "autoCast": true,
             "castReadyAt": 0,
-            "learnedAt": 1782632904022
+            "learnedAt": 1784164892815
           },
           "BlessedArmour": {
             "spellId": "BlessedArmour",
@@ -1938,7 +1992,16 @@
             "key": null,
             "autoCast": true,
             "castReadyAt": 0,
-            "learnedAt": 1782632904022
+            "learnedAt": 1784164892815
+          },
+          "EnergyShield": {
+            "spellId": "EnergyShield",
+            "level": 3,
+            "experience": 999999,
+            "key": null,
+            "autoCast": true,
+            "castReadyAt": 0,
+            "learnedAt": 1784164892815
           },
           "MassHealing": {
             "spellId": "MassHealing",
@@ -1947,7 +2010,16 @@
             "key": null,
             "autoCast": true,
             "castReadyAt": 0,
-            "learnedAt": 1782632904022
+            "learnedAt": 1784164892815
+          },
+          "HealingCircle": {
+            "spellId": "HealingCircle",
+            "level": 3,
+            "experience": 999999,
+            "key": null,
+            "autoCast": true,
+            "castReadyAt": 0,
+            "learnedAt": 1784164892815
           },
           "UltimateEnhancer": {
             "spellId": "UltimateEnhancer",
@@ -1956,7 +2028,7 @@
             "key": null,
             "autoCast": true,
             "castReadyAt": 0,
-            "learnedAt": 1782632904022
+            "learnedAt": 1784164892815
           },
           "SummonShinsu": {
             "spellId": "SummonShinsu",
@@ -1965,7 +2037,7 @@
             "key": null,
             "autoCast": true,
             "castReadyAt": 0,
-            "learnedAt": 1782632904022
+            "learnedAt": 1784164892815
           },
           "SummonHolyDeva": {
             "spellId": "SummonHolyDeva",
@@ -1974,7 +2046,7 @@
             "key": null,
             "autoCast": true,
             "castReadyAt": 0,
-            "learnedAt": 1782632904022
+            "learnedAt": 1784164892815
           },
           "PetEnhancer": {
             "spellId": "PetEnhancer",
@@ -1983,7 +2055,7 @@
             "key": null,
             "autoCast": true,
             "castReadyAt": 0,
-            "learnedAt": 1782632904022
+            "learnedAt": 1784164892815
           }
         }
       },
@@ -2033,7 +2105,7 @@
     "bossRespawns": {},
     "bossKills": {},
     "progress": {
-      "level": 110,
+      "level": 500,
       "experience": 0,
       "gold": 99999999
     },
@@ -2562,7 +2634,7 @@
         "key": null,
         "autoCast": true,
         "castReadyAt": 0,
-        "learnedAt": 1782632904022
+        "learnedAt": 1784164892815
       },
       "Slaying": {
         "spellId": "Slaying",
@@ -2571,7 +2643,7 @@
         "key": null,
         "autoCast": true,
         "castReadyAt": 0,
-        "learnedAt": 1782632904022
+        "learnedAt": 1784164892815
       },
       "Thrusting": {
         "spellId": "Thrusting",
@@ -2580,7 +2652,7 @@
         "key": null,
         "autoCast": true,
         "castReadyAt": 0,
-        "learnedAt": 1782632904022
+        "learnedAt": 1784164892815
       },
       "HalfMoon": {
         "spellId": "HalfMoon",
@@ -2589,7 +2661,16 @@
         "key": null,
         "autoCast": true,
         "castReadyAt": 0,
-        "learnedAt": 1782632904022
+        "learnedAt": 1784164892815
+      },
+      "CrossHalfMoon": {
+        "spellId": "CrossHalfMoon",
+        "level": 3,
+        "experience": 999999,
+        "key": null,
+        "autoCast": true,
+        "castReadyAt": 0,
+        "learnedAt": 1784164892815
       },
       "TwinDrakeBlade": {
         "spellId": "TwinDrakeBlade",
@@ -2598,7 +2679,7 @@
         "key": null,
         "autoCast": true,
         "castReadyAt": 0,
-        "learnedAt": 1782632904022
+        "learnedAt": 1784164892815
       },
       "FlamingSword": {
         "spellId": "FlamingSword",
@@ -2607,7 +2688,7 @@
         "key": null,
         "autoCast": true,
         "castReadyAt": 0,
-        "learnedAt": 1782632904022
+        "learnedAt": 1784164892815
       },
       "LionRoar": {
         "spellId": "LionRoar",
@@ -2616,7 +2697,7 @@
         "key": null,
         "autoCast": true,
         "castReadyAt": 0,
-        "learnedAt": 1782632904022
+        "learnedAt": 1784164892815
       },
       "BladeAvalanche": {
         "spellId": "BladeAvalanche",
@@ -2625,7 +2706,7 @@
         "key": null,
         "autoCast": true,
         "castReadyAt": 0,
-        "learnedAt": 1782632904022
+        "learnedAt": 1784164892815
       },
       "ProtectionField": {
         "spellId": "ProtectionField",
@@ -2634,7 +2715,7 @@
         "key": null,
         "autoCast": true,
         "castReadyAt": 0,
-        "learnedAt": 1782632904022
+        "learnedAt": 1784164892815
       },
       "Rage": {
         "spellId": "Rage",
@@ -2643,7 +2724,7 @@
         "key": null,
         "autoCast": true,
         "castReadyAt": 0,
-        "learnedAt": 1782632904022
+        "learnedAt": 1784164892815
       },
       "SlashingBurst": {
         "spellId": "SlashingBurst",
@@ -2652,7 +2733,7 @@
         "key": null,
         "autoCast": true,
         "castReadyAt": 0,
-        "learnedAt": 1782632904022
+        "learnedAt": 1784164892815
       },
       "Fury": {
         "spellId": "Fury",
@@ -2661,7 +2742,7 @@
         "key": null,
         "autoCast": true,
         "castReadyAt": 0,
-        "learnedAt": 1782632904022
+        "learnedAt": 1784164892815
       },
       "ImmortalSkin": {
         "spellId": "ImmortalSkin",
@@ -2670,7 +2751,7 @@
         "key": null,
         "autoCast": true,
         "castReadyAt": 0,
-        "learnedAt": 1782632904022
+        "learnedAt": 1784164892815
       }
     }
   },

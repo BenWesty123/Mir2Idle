@@ -2648,19 +2648,19 @@ const CHARACTER_SELECT_CLASSES = [
   {
     id: "Warrior",
     label: "Warrior",
-    role: "Weapon combat",
+    role: "Weapon",
     image: "./public/ui/character-select/warrior.png",
   },
   {
     id: "Wizard",
     label: "Wizard",
-    role: "Magic combat",
+    role: "Magic",
     image: "./public/ui/character-select/wizard.png",
   },
   {
     id: "Taoist",
     label: "Taoist",
-    role: "Spirit combat",
+    role: "Spirit",
     image: "./public/ui/character-select/taoist.png",
   },
 ];
@@ -3040,6 +3040,7 @@ const state = {
       inventory: null,
       codex: null,
       upgrades: null,
+      leaderboard: null,
     },
   },
   demoLiveSiteBanner: {
@@ -3134,6 +3135,7 @@ const state = {
     selectedIndex: null,
     detailClass: null,
     foreignEntries: {},
+    searchQuery: "",
   },
   inventoryPage: 0,
   storagePage: 0,
@@ -3353,8 +3355,17 @@ let sceneSignature = "";
 let sceneOverlayLiveSignature = "";
 let accountCodexRevision = 0;
 let sceneWindowStack = [];
-const DRAGGABLE_SCENE_WINDOWS = new Set(["character", "inventory", "codex", "upgrades"]);
+const DRAGGABLE_SCENE_WINDOWS = new Set(["character", "inventory", "codex", "upgrades", "leaderboard"]);
 let sceneWindowDragState = null;
+let hotbarDragState = null;
+let hotbarWindowPosition = null;
+let combatSkillBarDragState = null;
+let combatSkillBarWindowPosition = null;
+let hotbarVertical = false;
+/** "classic" = top-left resource HUD; "infoBar" = bottom InfoBar chrome. */
+let hudChromeMode = "classic";
+let compactUi = false;
+let compactMenuOpen = false;
 let sceneOverlayInteractionUntil = 0;
 const sceneScrollPositions = new Map();
 // Element currently under a held pointer (mousedown/touchstart without release).
@@ -3364,9 +3375,18 @@ const sceneScrollPositions = new Map();
 let heldPointerTarget = null;
 let combatSkillBarSignature = "";
 let playerHudSignature = "";
+let stageXpBarSignature = "";
+let stageInfoBagFillSignature = "";
+let stageInfoGoldSignature = "";
+let stageInfoOrbSignature = "";
+let stageInfoOrbLastHp = null;
+let stageInfoOrbLastMp = null;
+let suppressNextStageInfoMpFlash = false;
+let stageInfoZoneNameSignature = null;
 let hotbarSignature = "";
 let hoveredTooltipEntryId = null;
 let partySwitchBarSignature = "";
+let partyPaperDollBarSignature = "";
 let lastSimulationAt = performance.now();
 let lastRenderAt = 0;
 let suppressSimulationRender = false;
@@ -3381,7 +3401,7 @@ let stageCanvas = null;
 let stageContext = null;
 let stampBackgroundCache = { canvas: null, key: "" };
 let townMapCache = { canvas: null, key: "" };
-let lastStageShellSize = { w: 0, h: 0, mode: "", scale: 0 };
+let lastStageShellSize = { w: 0, h: 0, mode: "", scale: 0, compact: false };
 let lastStageDisplaySize = { w: 0, h: 0 };
 let inventoryDragState = null;
 let townPartyIdleSignature = "";
@@ -3441,12 +3461,62 @@ function labShellHtml() {
       </aside>
 
       <section class="stage-panel">
-        <div class="stage-shell">
+        <div class="stage-shell" data-hud-chrome="classic">
+          <button
+            type="button"
+            id="hudChromeToggle"
+            class="hud-chrome-toggle"
+            aria-label="Toggle HUD style"
+            title="Toggle HUD"
+            aria-pressed="false"
+          >
+            <img src="./public/ui/UI-Slider.png" alt="" aria-hidden="true" />
+          </button>
           <div class="player-resource-hud" id="playerResourceHud" hidden></div>
           <div class="stage" id="stage">
+            <div class="party-paperdoll-bar" id="partyPaperDollBar" aria-label="Party paper dolls" hidden></div>
             <div class="party-switch-bar" id="partySwitchBar" aria-label="Switch party character" hidden></div>
             <div class="crystal-hotbar" id="hotbar" aria-label="Potion hotbar"></div>
             <div class="combat-skill-bar" id="combatSkillBar" hidden></div>
+            <div class="stage-info-bar" aria-hidden="true">
+              <div class="stage-info-bar-left">
+                <div class="stage-info-bar-top-art" aria-hidden="true"></div>
+                <div class="stage-info-orb-fill stage-info-orb-hp-fill" id="stageInfoHpFill" aria-hidden="true"></div>
+                <div class="stage-info-orb-fill stage-info-orb-mp-fill" id="stageInfoMpFill" aria-hidden="true"></div>
+                <div class="stage-info-orb-texts" aria-hidden="true">
+                  <span class="stage-info-orb-text stage-info-hp-text" id="stageInfoHpText"></span>
+                  <span class="stage-info-orb-text stage-info-mp-text" id="stageInfoMpText"></span>
+                </div>
+                <div class="stage-info-bar-left-art"></div>
+                <span class="stage-info-level" id="stageInfoLevel"></span>
+                <span class="stage-info-zone-name" id="stageInfoZoneName"></span>
+              </div>
+              <div class="stage-info-bar-mid"></div>
+              <div class="stage-info-bar-right">
+                <div class="stage-info-bag-track">
+                  <div class="stage-info-bag-fill" id="stageInfoBagFill"></div>
+                </div>
+                <div class="stage-info-gold-track"></div>
+                <div class="stage-info-bar-right-art"></div>
+                <span class="stage-info-bag-text" id="stageInfoBagText"></span>
+                <span class="stage-info-gold-text" id="stageInfoGoldText"></span>
+                <button
+                  type="button"
+                  class="stage-info-character-button"
+                  data-toggle-scene="character"
+                  aria-label="Character"
+                  title="Character"
+                ></button>
+                <button
+                  type="button"
+                  class="stage-info-inventory-button"
+                  data-toggle-scene="inventory"
+                  aria-label="Inventory"
+                  title="Inventory"
+                ></button>
+              </div>
+            </div>
+            <div class="stage-xp-bar" id="stageXpBar" hidden aria-label="Experience progress"></div>
           </div>
         </div>
         <div class="readout" id="readout"></div>
@@ -3480,11 +3550,23 @@ function gameShellHtml() {
     <div id="demoLiveSiteBar" class="demo-live-site-bar" hidden></div>
     <div id="updateAvailableBar" class="update-available-bar" hidden></div>
     <header class="game-topbar">
+      <button
+        type="button"
+        id="compactMenuToggle"
+        class="compact-menu-toggle"
+        aria-label="Open menu"
+        aria-expanded="false"
+        aria-controls="gameTopActions"
+        title="Menu"
+        hidden
+      >
+        <span class="compact-menu-toggle-bars" aria-hidden="true"></span>
+      </button>
       <div class="game-brand">
         <p class="eyebrow">LOM Idle V2</p>
         <h1>Legend of Mir Idle</h1>
       </div>
-      <nav class="game-top-actions" aria-label="Game windows">
+      <nav class="game-top-actions" id="gameTopActions" aria-label="Game windows">
         <button type="button" data-open-scene="character">Character</button>
         <button type="button" data-open-scene="inventory">Inventory</button>
         <button type="button" data-open-scene="codex">Codex</button>
@@ -3502,9 +3584,31 @@ function gameShellHtml() {
     <section class="game-layout">
       <section class="game-stage-area">
         <div class="game-stage-card">
-          <div class="stage-shell game-stage-shell">
+          <div class="stage-shell game-stage-shell" data-hud-chrome="classic">
+            <button
+              type="button"
+              id="hudChromeToggle"
+              class="hud-chrome-toggle"
+              aria-label="Toggle HUD style"
+              title="Toggle HUD"
+              aria-pressed="false"
+            >
+              <img src="./public/ui/UI-Slider.png" alt="" aria-hidden="true" />
+            </button>
             <div class="player-resource-hud" id="playerResourceHud" hidden></div>
+            <div class="party-paperdoll-bar" id="partyPaperDollBar" aria-label="Party paper dolls" hidden></div>
+            <div class="party-switch-bar" id="partySwitchBar" aria-label="Switch party character" hidden></div>
             <div class="stage-corner-buttons">
+              <button
+                type="button"
+                id="compactReturnToTown"
+                class="stage-corner-button compact-return-town-button"
+                aria-label="Return to Town"
+                title="Return to Town"
+                hidden
+              >
+                <span aria-hidden="true">Town</span>
+              </button>
               <button
                 type="button"
                 id="teleportRingButton"
@@ -3540,9 +3644,47 @@ function gameShellHtml() {
               </button>
             </div>
             <div class="stage" id="stage">
-              <div class="party-switch-bar" id="partySwitchBar" aria-label="Switch party character" hidden></div>
               <div class="crystal-hotbar" id="hotbar" aria-label="Potion hotbar"></div>
               <div class="combat-skill-bar" id="combatSkillBar" hidden></div>
+              <div class="stage-info-bar" aria-hidden="true">
+                <div class="stage-info-bar-left">
+                  <div class="stage-info-bar-top-art" aria-hidden="true"></div>
+                  <div class="stage-info-orb-fill stage-info-orb-hp-fill" id="stageInfoHpFill" aria-hidden="true"></div>
+                  <div class="stage-info-orb-fill stage-info-orb-mp-fill" id="stageInfoMpFill" aria-hidden="true"></div>
+                  <div class="stage-info-orb-texts" aria-hidden="true">
+                    <span class="stage-info-orb-text stage-info-hp-text" id="stageInfoHpText"></span>
+                    <span class="stage-info-orb-text stage-info-mp-text" id="stageInfoMpText"></span>
+                  </div>
+                  <div class="stage-info-bar-left-art"></div>
+                  <span class="stage-info-level" id="stageInfoLevel"></span>
+                  <span class="stage-info-zone-name" id="stageInfoZoneName"></span>
+                </div>
+                <div class="stage-info-bar-mid"></div>
+                <div class="stage-info-bar-right">
+                  <div class="stage-info-bag-track">
+                    <div class="stage-info-bag-fill" id="stageInfoBagFill"></div>
+                  </div>
+                  <div class="stage-info-gold-track"></div>
+                  <div class="stage-info-bar-right-art"></div>
+                  <span class="stage-info-bag-text" id="stageInfoBagText"></span>
+                  <span class="stage-info-gold-text" id="stageInfoGoldText"></span>
+                  <button
+                    type="button"
+                    class="stage-info-character-button"
+                    data-toggle-scene="character"
+                    aria-label="Character"
+                    title="Character"
+                  ></button>
+                  <button
+                    type="button"
+                    class="stage-info-inventory-button"
+                    data-toggle-scene="inventory"
+                    aria-label="Inventory"
+                    title="Inventory"
+                  ></button>
+                </div>
+              </div>
+              <div class="stage-xp-bar" id="stageXpBar" hidden aria-label="Experience progress"></div>
             </div>
           </div>
           <div class="game-activity-panel" id="battlePanel"></div>
@@ -3605,10 +3747,25 @@ const els = {
   spellControls: document.querySelector("#spellControls"),
   actionGroups: document.querySelector("#actionGroups"),
   stage: document.querySelector("#stage"),
+  hudChromeToggle: document.querySelector("#hudChromeToggle"),
+  compactMenuToggle: document.querySelector("#compactMenuToggle"),
+  compactReturnToTown: document.querySelector("#compactReturnToTown"),
+  gameTopActions: document.querySelector("#gameTopActions"),
   playerResourceHud: document.querySelector("#playerResourceHud"),
+  stageXpBar: document.querySelector("#stageXpBar"),
+  stageInfoLevel: document.querySelector("#stageInfoLevel"),
+  stageInfoBagFill: document.querySelector("#stageInfoBagFill"),
+  stageInfoBagText: document.querySelector("#stageInfoBagText"),
+  stageInfoGoldText: document.querySelector("#stageInfoGoldText"),
+  stageInfoHpFill: document.querySelector("#stageInfoHpFill"),
+  stageInfoHpText: document.querySelector("#stageInfoHpText"),
+  stageInfoMpFill: document.querySelector("#stageInfoMpFill"),
+  stageInfoMpText: document.querySelector("#stageInfoMpText"),
+  stageInfoZoneName: document.querySelector("#stageInfoZoneName"),
   hotbar: document.querySelector("#hotbar"),
   combatSkillBar: document.querySelector("#combatSkillBar"),
   partySwitchBar: document.querySelector("#partySwitchBar"),
+  partyPaperDollBar: document.querySelector("#partyPaperDollBar"),
   readout: document.querySelector("#readout"),
   frameMeta: document.querySelector("#frameMeta"),
   gamePanel: document.querySelector("#gamePanel"),
@@ -3740,6 +3897,14 @@ async function init() {
   renderZoneEditor();
   renderActionControls();
   bindControls();
+  bindHotbarDrag();
+  bindHotbarOrientationToggle();
+  bindCombatSkillBarDrag();
+  bindHudChromeToggle();
+  bindCompactMenuToggle();
+  bindCompactUiMedia();
+  syncCompactUi();
+  applyHudChromeMode();
   reconcileSceneWindowPositions();
   syncFullscreenToggle();
   bindBossDamageReportControls();
@@ -4173,6 +4338,7 @@ function createSaveSnapshot() {
         inventory: state.settings.sceneWindowPositions?.inventory ?? null,
         codex: state.settings.sceneWindowPositions?.codex ?? null,
         upgrades: state.settings.sceneWindowPositions?.upgrades ?? null,
+        leaderboard: state.settings.sceneWindowPositions?.leaderboard ?? null,
       },
     },
   };
@@ -5951,7 +6117,7 @@ function returnAllCharactersToTown() {
   state.battle.bossParty = null;
   state.game.mode = "town";
   state.game.activeZoneId = null;
-  lastStageShellSize = { w: 0, h: 0, mode: "", scale: 0 };
+  lastStageShellSize = { w: 0, h: 0, mode: "", scale: 0, compact: false };
   state.game.zoneKills = 0;
   state.game.distance = 0;
   state.game.miningNextRollAt = 0;
@@ -8895,6 +9061,7 @@ function invalidateUi() {
   playerHudSignature = "";
   hotbarSignature = "";
   partySwitchBarSignature = "";
+  partyPaperDollBarSignature = "";
 }
 
 function renderEnemyControls() {
@@ -14112,7 +14279,7 @@ function isPointerHeldWithin(element) {
 }
 
 function shouldDeferSceneOverlayRender(liveSignature) {
-  if (sceneWindowDragState || inventoryDragState) return true;
+  if (sceneWindowDragState || hotbarDragState || combatSkillBarDragState || inventoryDragState) return true;
   // A pointer pressed anywhere in the overlay must never have its target node
   // rebuilt out from under it, or the pending click is lost.
   if (isPointerHeldWithin(els.sceneOverlay)) return true;
@@ -17730,6 +17897,7 @@ function renderGameUiPanel() {
   const game = state.game;
   const zone = activeZone();
   document.body.dataset.gameMode = game.mode;
+  syncCompactReturnToTownButton();
   const hasBossSwarmPanel = game.mode !== "mining" && Boolean(groupDungeonBossSwarmZone(zone) && groupDungeonBossSwarmState());
   const hasWavePanel = game.mode !== "mining" && Boolean(groupDungeonZone(zone) && !groupDungeonBossZone(zone) && !groupDungeonBossSwarmZone(zone) && groupDungeonWaveState());
   // Layout only depends on mode/zone — wave/swarm cards live in a always-present
@@ -17963,6 +18131,9 @@ function bindSceneButtons(rootEl) {
   rootEl.querySelectorAll("[data-open-scene]").forEach((button) => {
     button.addEventListener("click", () => openScene(button.dataset.openScene));
   });
+  rootEl.querySelectorAll("[data-toggle-scene]").forEach((button) => {
+    button.addEventListener("click", () => toggleOpenScene(button.dataset.toggleScene));
+  });
   rootEl.querySelectorAll("[data-teleport-region]").forEach((button) => {
     button.addEventListener("click", () => {
       const region = teleportRegionById(button.dataset.teleportRegion);
@@ -18148,6 +18319,24 @@ function bindSceneButtons(rootEl) {
   rootEl.querySelectorAll("[data-leaderboard-class]").forEach((button) => {
     button.addEventListener("click", () => selectLeaderboardClass(button.dataset.leaderboardClass));
   });
+  rootEl.querySelectorAll("[data-leaderboard-search]").forEach((input) => {
+    input.addEventListener("input", () => {
+      state.leaderboard.searchQuery = String(input.value ?? "");
+      noteSceneOverlayInteraction(900);
+      sceneSignature = "";
+      renderSceneOverlay();
+    });
+    input.addEventListener("keydown", (event) => {
+      if (event.key !== "Escape") return;
+      if (!state.leaderboard.searchQuery) return;
+      event.preventDefault();
+      state.leaderboard.searchQuery = "";
+      noteSceneOverlayInteraction(900);
+      sceneSignature = "";
+      renderSceneOverlay();
+    });
+  });
+  bindLeaderboardScroll(rootEl);
 }
 
 function initialOpenScenesFromUrl() {
@@ -18212,7 +18401,38 @@ function removeSceneWindowFromStack(scene) {
 }
 
 function syncSceneWindowStackFromState() {
-  sceneWindowStack = currentOverlayScenes();
+  const open = currentOverlayScenes();
+  const openSet = new Set(open);
+  sceneWindowStack = sceneWindowStack.filter((scene) => openSet.has(scene));
+  for (const scene of open) {
+    if (!sceneWindowStack.includes(scene)) sceneWindowStack.push(scene);
+  }
+}
+
+function orderedOverlayScenes() {
+  syncSceneWindowStackFromState();
+  return sceneWindowStack.slice();
+}
+
+function applySceneWindowStackZIndexes(rootEl = els.sceneOverlay) {
+  if (!rootEl) return;
+  const base = 21;
+  for (const [index, scene] of sceneWindowStack.entries()) {
+    const element = rootEl.querySelector(`[data-scene-window="${scene}"]`);
+    if (!element) continue;
+    // Unpositioned windows stay in the flex stack; relative + z-index lets them
+    // compete with fixed/dragged siblings when overlapping.
+    if (!element.dataset.sceneWindowPositioned && !element.style.position) {
+      element.style.position = "relative";
+    }
+    element.style.zIndex = String(base + index);
+  }
+}
+
+function bringSceneWindowToFront(scene) {
+  if (!scene || !isSceneWindowOpen(scene)) return;
+  pushSceneWindow(scene);
+  applySceneWindowStackZIndexes();
 }
 
 function closeMostRecentSceneWindow() {
@@ -18398,7 +18618,7 @@ function renderSceneOverlay(options = {}) {
     clearSpiritBoxDepositMode();
   }
   const openScenes = ["characterSelect", "character", "inventory", "codex", "achievements", "upgrades", "gettingStarted", "changelog", "options", "leaderboard", "cashShop", "teleportRing", "timeLogging", "spiritBox"].filter((scene) => state.openScenes[scene]);
-  const overlayScenes = currentOverlayScenes();
+  const overlayScenes = orderedOverlayScenes();
   const destroyConfirmHtml = inventoryDestroyConfirmHtml();
   const rebirthConfirmHtmlContent = rebirthConfirmHtml();
   if (!overlayScenes.length && !destroyConfirmHtml && !rebirthConfirmHtmlContent) {
@@ -18435,7 +18655,9 @@ function renderSceneOverlay(options = {}) {
   `;
   bindSceneButtons(els.sceneOverlay);
   bindDraggableSceneWindows(els.sceneOverlay);
+  bindSceneWindowFocus(els.sceneOverlay);
   applySceneWindowPositions(els.sceneOverlay);
+  applySceneWindowStackZIndexes(els.sceneOverlay);
   bindSceneScrollPreservation(els.sceneOverlay);
   restoreSceneScrollPositions(scrollPositions);
   restoreSceneOverlayFocus(focusSnapshot);
@@ -18448,7 +18670,13 @@ function sceneWindowPosition(scene) {
 function setSceneWindowPosition(scene, x, y) {
   if (!DRAGGABLE_SCENE_WINDOWS.has(scene)) return;
   if (!state.settings.sceneWindowPositions) {
-    state.settings.sceneWindowPositions = { character: null, inventory: null, codex: null, upgrades: null };
+    state.settings.sceneWindowPositions = {
+      character: null,
+      inventory: null,
+      codex: null,
+      upgrades: null,
+      leaderboard: null,
+    };
   }
   state.settings.sceneWindowPositions[scene] = { x: Math.round(x), y: Math.round(y) };
 }
@@ -18496,7 +18724,6 @@ function applySceneWindowPosition(element, scene) {
   element.style.left = `${pos.x}px`;
   element.style.top = `${pos.y}px`;
   element.style.margin = "0";
-  element.style.zIndex = "21";
   element.dataset.sceneWindowPositioned = "1";
   return true;
 }
@@ -18563,7 +18790,7 @@ function beginSceneWindowDrag(event, scene, windowEl, handleEl) {
   };
   windowEl.classList.add("scene-window-dragging");
   document.body.classList.add("scene-window-drag-active");
-  windowEl.style.zIndex = "22";
+  bringSceneWindowToFront(scene);
   handleEl.setPointerCapture(event.pointerId);
   handleEl.addEventListener("pointermove", handleSceneWindowDragMove);
   handleEl.addEventListener("pointerup", handleSceneWindowDragEnd);
@@ -18605,6 +18832,18 @@ function bindDraggableSceneWindows(rootEl) {
     handle.addEventListener("pointerdown", (event) => {
       if (event.button !== 0 || inventoryDragState) return;
       beginSceneWindowDrag(event, scene, windowEl, handle);
+    });
+  }
+}
+
+function bindSceneWindowFocus(rootEl) {
+  if (!rootEl) return;
+  for (const windowEl of rootEl.querySelectorAll("[data-scene-window]")) {
+    const scene = windowEl.dataset.sceneWindow;
+    if (!scene) continue;
+    windowEl.addEventListener("pointerdown", (event) => {
+      if (event.button !== 0) return;
+      bringSceneWindowToFront(scene);
     });
   }
 }
@@ -19220,7 +19459,7 @@ function codexDetailPanelHtml(item) {
   return `
     <aside class="codex-detail discovered">
       <header>
-        <div class="codex-detail-icon">${itemIconHtml(item, 54)}</div>
+        <div class="codex-detail-icon">${itemIconHtml(item, 30)}</div>
         <div>
           <p class="eyebrow">${escapeHtml(slot)}</p>
           <h3>${escapeHtml(item.name)}</h3>
@@ -20404,11 +20643,37 @@ function characterSelectCardHtml(entry) {
       aria-pressed="${active ? "true" : "false"}"
     >
       <span class="character-select-portrait">
-        <img src="${escapeHtml(entry.image)}" alt="" />
+        ${characterSelectPaperDollHtml(character)}
       </span>
       <strong>${escapeHtml(entry.label)}</strong>
       <span>${active ? "Selected" : escapeHtml(entry.role)} | Lv ${progress.level} | ${progress.gold}g</span>
     </button>
+  `;
+}
+
+function characterStateEquippedItem(character, slotId) {
+  const inventory = character?.inventory;
+  const entryId = inventory?.equipment?.[slotId];
+  if (!entryId) return null;
+  const entry = inventory.items?.find((candidate) => candidate.id === entryId) ?? null;
+  return entry ? itemDefinition(entry.itemId) : null;
+}
+
+function characterSelectPaperDollHtml(character) {
+  const armourItem = characterStateEquippedItem(character, "armour");
+  const weaponItem = characterStateEquippedItem(character, "weapon");
+  const helmetItem = characterStateEquippedItem(character, "helmet");
+  const layers = [
+    armourItem ? crystalPaperDollLayerHtml(armourItem, "armour") : "",
+    weaponItem ? crystalPaperDollLayerHtml(weaponItem, "weapon") : "",
+    helmetItem
+      ? crystalPaperDollLayerHtml(helmetItem, "helmet")
+      : crystalPaperDollFrameHtml(state.characterStateItems?.hair ?? CHARACTER_PAPER_DOLL_FRAMES.hair, "Hair"),
+  ].filter(Boolean);
+  return `
+    <div class="character-select-paperdoll-stage" aria-hidden="true">
+      <div class="crystal-paper-doll">${layers.join("")}</div>
+    </div>
   `;
 }
 
@@ -21527,6 +21792,23 @@ function leaderboardSceneHtml() {
 
 function leaderboardListHtml() {
   const lb = state.leaderboard;
+  const searchQuery = String(lb.searchQuery ?? "");
+  const playerName = prototypeStatsDisplayName();
+  const searchHtml = `
+    <div class="leaderboard-player-name" title="${escapeHtml(playerName)}">${escapeHtml(playerName)}</div>
+    <label class="leaderboard-search">
+      <span class="leaderboard-search-label">Name</span>
+      <input
+        type="search"
+        data-leaderboard-search
+        value="${escapeHtml(searchQuery)}"
+        placeholder="Name"
+        aria-label="Search by name"
+        spellcheck="false"
+        autocomplete="off"
+      />
+    </label>
+  `;
   let body = "";
   if (lb.status === "unconfigured") {
     body = `<p class="leaderboard-note">The leaderboard is not configured in this build.</p>`;
@@ -21537,39 +21819,137 @@ function leaderboardListHtml() {
   } else if (!lb.rows.length) {
     body = `<p class="leaderboard-note">No ranked players yet.</p>`;
   } else {
-    body = `
+    const needle = searchQuery.trim().toLowerCase();
+    const entries = lb.rows
+      .map((row, index) => ({ row, index }))
+      .filter(({ row }) => !needle || String(row?.player ?? "").toLowerCase().includes(needle));
+    body = entries.length
+      ? `
       <div class="leaderboard-list" data-preserve-scroll="leaderboard-list">
-        ${lb.rows.map((row, index) => leaderboardRowHtml(row, index)).join("")}
+        ${entries.map(({ row, index }) => leaderboardRowHtml(row, index)).join("")}
       </div>
-    `;
+      <div class="leaderboard-scroll" aria-label="Leaderboard scroll">
+        <button type="button" class="leaderboard-scroll-btn leaderboard-scroll-up" data-leaderboard-scroll="-1" aria-label="Scroll up"></button>
+        <div class="leaderboard-scroll-track">
+          <div class="leaderboard-scroll-thumb" tabindex="0" aria-label="Scroll position"></div>
+        </div>
+        <button type="button" class="leaderboard-scroll-btn leaderboard-scroll-down" data-leaderboard-scroll="1" aria-label="Scroll down"></button>
+      </div>
+    `
+      : `<p class="leaderboard-note">No players match “${escapeHtml(searchQuery.trim())}”.</p>`;
   }
   return `
     <div class="leaderboard-body">
-      <div class="leaderboard-toolbar">
-        <span class="leaderboard-subtitle">Ranked by combined character levels</span>
-        <button type="button" class="leaderboard-refresh" data-leaderboard-refresh ${lb.status === "loading" ? "disabled" : ""}>Refresh</button>
-      </div>
+      ${searchHtml}
+      <button type="button" class="leaderboard-refresh" data-leaderboard-refresh ${lb.status === "loading" ? "disabled" : ""} title="Refresh">Refresh</button>
       ${body}
     </div>
   `;
 }
 
 function leaderboardRowHtml(row, index) {
-  const combined = Math.max(0, Math.trunc(Number(row?.combinedCharacterLevels) || 0));
-  const souls = Math.max(0, Math.trunc(Number(row?.awakeningSoulsHeld) || 0));
-  const rebirths = Math.max(0, Math.trunc(Number(row?.rebirthCount) || 0));
   const topChar = leaderboardRowCharacters(row)[0];
-  const topLabel = topChar ? `${escapeHtml(topChar.characterClass)} Lv ${Math.max(1, Math.trunc(Number(topChar.level) || 1))}` : "";
+  const className = topChar ? String(topChar.characterClass ?? "") : "";
+  const level = topChar ? String(Math.max(1, Math.trunc(Number(topChar.level) || 1))) : "";
+  const rebirths = Math.max(0, Math.trunc(Number(row?.rebirthCount) || 0));
+  const souls = Math.max(0, Math.trunc(Number(row?.awakeningSoulsHeld) || 0));
   return `
     <button type="button" class="leaderboard-row" data-leaderboard-player="${index}">
-      <span class="leaderboard-rank">#${Math.max(1, Math.trunc(Number(row?.rank) || index + 1))}</span>
+      <span class="leaderboard-rank">${Math.max(1, Math.trunc(Number(row?.rank) || index + 1))}</span>
       <span class="leaderboard-player">${escapeHtml(row?.player ?? "Player")}</span>
-      <span class="leaderboard-cell">Levels ${combined}</span>
-      <span class="leaderboard-cell">${topLabel}</span>
-      <span class="leaderboard-cell">Rebirths ${rebirths}</span>
-      <span class="leaderboard-cell">Souls ${souls}</span>
+      <span class="leaderboard-cell">${escapeHtml(className)}</span>
+      <span class="leaderboard-cell">${escapeHtml(level)}</span>
+      <span class="leaderboard-cell">${rebirths}</span>
+      <span class="leaderboard-cell">${souls}</span>
     </button>
   `;
+}
+
+function syncLeaderboardScrollUi(list, thumb, scrollRoot) {
+  if (!list || !thumb) return;
+  const maxScroll = Math.max(0, list.scrollHeight - list.clientHeight);
+  const track = scrollRoot?.querySelector(".leaderboard-scroll-track");
+  const trackH = track?.clientHeight || 0;
+  if (maxScroll <= 0 || trackH <= 0) {
+    thumb.style.display = "none";
+    scrollRoot?.classList.add("is-idle");
+    return;
+  }
+  scrollRoot?.classList.remove("is-idle");
+  thumb.style.display = "";
+  const thumbH = Math.max(18, Math.round((list.clientHeight / list.scrollHeight) * trackH));
+  const maxTop = Math.max(0, trackH - thumbH);
+  const top = maxScroll > 0 ? Math.round((list.scrollTop / maxScroll) * maxTop) : 0;
+  thumb.style.height = `${thumbH}px`;
+  thumb.style.top = `${top}px`;
+  thumb.style.transform = "";
+}
+
+let leaderboardScrollDrag = null;
+
+function bindLeaderboardScroll(rootEl) {
+  const list = rootEl.querySelector(".leaderboard-list");
+  const scrollRoot = rootEl.querySelector(".leaderboard-scroll");
+  if (!list || !scrollRoot || scrollRoot.dataset.bound === "1") return;
+  scrollRoot.dataset.bound = "1";
+  const thumb = scrollRoot.querySelector(".leaderboard-scroll-thumb");
+  const track = scrollRoot.querySelector(".leaderboard-scroll-track");
+  const sync = () => syncLeaderboardScrollUi(list, thumb, scrollRoot);
+  list.addEventListener("scroll", sync, { passive: true });
+  scrollRoot.querySelectorAll("[data-leaderboard-scroll]").forEach((button) => {
+    button.addEventListener("click", () => {
+      const dir = Number(button.dataset.leaderboardScroll) || 0;
+      const row = list.querySelector(".leaderboard-row");
+      const step = Math.max(18, row?.offsetHeight || Math.round(list.clientHeight * 0.2));
+      list.scrollTop += dir * step;
+      sync();
+    });
+  });
+  const onMove = (event) => {
+    if (!leaderboardScrollDrag || event.pointerId !== leaderboardScrollDrag.pointerId) return;
+    const trackH = track?.clientHeight || 0;
+    const thumbH = thumb?.offsetHeight || 18;
+    const maxTop = Math.max(0, trackH - thumbH);
+    const maxScroll = Math.max(0, list.scrollHeight - list.clientHeight);
+    if (!maxTop || !maxScroll) return;
+    const trackRect = track.getBoundingClientRect();
+    const localY = event.clientY - trackRect.top - leaderboardScrollDrag.offsetY;
+    const top = Math.max(0, Math.min(maxTop, localY));
+    list.scrollTop = (top / maxTop) * maxScroll;
+    sync();
+  };
+  const onUp = (event) => {
+    if (!leaderboardScrollDrag || event.pointerId !== leaderboardScrollDrag.pointerId) return;
+    document.removeEventListener("pointermove", onMove);
+    document.removeEventListener("pointerup", onUp);
+    document.removeEventListener("pointercancel", onUp);
+    leaderboardScrollDrag = null;
+  };
+  thumb?.addEventListener("pointerdown", (event) => {
+    if (event.button !== 0) return;
+    event.preventDefault();
+    const thumbTop = Number.parseFloat(thumb.style.top || "0") || 0;
+    leaderboardScrollDrag = {
+      pointerId: event.pointerId,
+      offsetY: event.clientY - track.getBoundingClientRect().top - thumbTop,
+    };
+    document.addEventListener("pointermove", onMove);
+    document.addEventListener("pointerup", onUp);
+    document.addEventListener("pointercancel", onUp);
+  });
+  track?.addEventListener("pointerdown", (event) => {
+    if (event.button !== 0 || event.target === thumb) return;
+    const trackH = track.clientHeight || 0;
+    const thumbH = thumb?.offsetHeight || 18;
+    const maxTop = Math.max(0, trackH - thumbH);
+    const maxScroll = Math.max(0, list.scrollHeight - list.clientHeight);
+    if (!maxTop || !maxScroll) return;
+    const localY = event.clientY - track.getBoundingClientRect().top - thumbH / 2;
+    const top = Math.max(0, Math.min(maxTop, localY));
+    list.scrollTop = (top / maxTop) * maxScroll;
+    sync();
+  });
+  requestAnimationFrame(sync);
 }
 
 function leaderboardDetailHtml() {
@@ -21624,8 +22004,10 @@ function foreignCharacterPageHtml(view) {
         ${foreignPaperDollHtml(view)}
         ${EQUIPMENT_SLOTS.map((slot) => foreignEquipmentSlotHtml(slot, view)).join("")}
       </div>
-      ${foreignCharacterStatsHtml(view)}
-      ${foreignCharacterSkillsHtml(view)}
+      <div class="leaderboard-character-side">
+        ${foreignCharacterStatsHtml(view)}
+        ${foreignCharacterSkillsHtml(view)}
+      </div>
     </div>
   `;
 }
@@ -21786,8 +22168,8 @@ function inventorySceneHtml() {
       ${inventoryPageTabsHtml()}
       ${inventoryPageUnlockConfirmHtml()}
       <span class="crystal-inventory-gold">${state.inventory.gold}</span>
+      ${inventoryBagUsageHtml("crystal-inventory-bag-usage")}
       <button type="button" class="crystal-inventory-sort" data-sort-inventory title="Sort inventory">Sort</button>
-      <span class="crystal-inventory-weight">${inventoryUsedSlots()}/${state.inventory.maxSlots}</span>
       ${Array.from({ length: visibleSlots }, (_, index) => crystalInventorySlotHtml(pageStart + index, index)).join("")}
     </section>
   `;
@@ -21845,27 +22227,25 @@ function inventoryPageTabsHtml() {
     const active = tab.index === state.inventoryPage ? " active" : "";
     const secondary = tab.index > 0 ? " secondary" : "";
     const locked = tab.unlocked ? "" : " locked";
-    const left = tab.index === 0 ? 6 : 76 + (tab.index - 1) * 70;
+    const typeClass = tab.type === "gold" ? " tab-gold" : tab.type === "token" ? " tab-token" : "";
+    const left = 6 + tab.index * 72;
     let label = "";
     let title = `Items ${tab.index + 1}`;
     let actionAttr = tab.unlocked ? ` data-inventory-page="${tab.index}"` : "";
-    if (tab.index > 0 && tab.unlocked) {
-      label = `ITEMS ${tab.index + 1}`;
-    } else if (!tab.unlocked && tab.type === "token") {
-      label = `${PAGE_UNLOCK_TOKEN_COST} Tok`;
+    if (!tab.unlocked && tab.type === "token") {
       title = `Unlock a new inventory page for ${PAGE_UNLOCK_TOKEN_COST} tokens`;
       actionAttr = ` data-unlock-inventory="token"`;
     } else if (!tab.unlocked) {
-      label = `${INVENTORY_PAGE_2_UNLOCK_COST.toLocaleString()}g`;
       title = `Unlock a new inventory page for ${INVENTORY_PAGE_2_UNLOCK_COST.toLocaleString()} gold`;
       actionAttr = ` data-unlock-inventory="gold"`;
     }
     return `
       <button
-        class="crystal-inventory-tab${active}${secondary}${locked}"
+        class="crystal-inventory-tab${active}${secondary}${typeClass}${locked}"
         type="button"${actionAttr}
         style="left:${left}px;"
         title="${title}"
+        aria-label="${escapeHtml(title)}"
       >${label}</button>
     `;
   }).join("");
@@ -23410,7 +23790,7 @@ async function enterZone(zoneId, options = {}) {
   state.game.mode = "zone";
   state.game.activeZoneId = zone.id;
   clearStampBackgroundCache();
-  lastStageShellSize = { w: 0, h: 0, mode: "", scale: 0 };
+  lastStageShellSize = { w: 0, h: 0, mode: "", scale: 0, compact: false };
   state.game.miningNextRollAt = 0;
   state.game.zoneKills = 0;
   state.game.distance = 0;
@@ -27071,6 +27451,11 @@ function bindControls() {
       openScene(sceneButton.dataset.openScene);
       return;
     }
+    const toggleSceneButton = event.target.closest("[data-toggle-scene]");
+    if (toggleSceneButton && root.contains(toggleSceneButton)) {
+      toggleOpenScene(toggleSceneButton.dataset.toggleScene);
+      return;
+    }
     const selectPlayerClassButton = event.target.closest("[data-select-player-class]");
     if (selectPlayerClassButton && root.contains(selectPlayerClassButton)) {
       void selectPlayerClass(selectPlayerClassButton.dataset.selectPlayerClass);
@@ -27523,6 +27908,7 @@ function bindControls() {
     if (state.settings.musicEnabled) syncBackgroundMusic();
   }, { once: true });
   window.addEventListener("resize", () => {
+    syncCompactUi();
     reconcileSceneWindowPositions();
   });
   window.addEventListener("pagehide", () => {
@@ -33918,6 +34304,55 @@ function switchControlledPartyMember(classId) {
   return true;
 }
 
+function bossPartyMemberInventory(member) {
+  if (!member) return null;
+  if (member.classId === bossPartyControlledClassId()) return state.inventory;
+  return member.inventory ?? null;
+}
+
+function bossPartyMemberEquippedItem(member, slotId) {
+  const inventory = bossPartyMemberInventory(member);
+  const entryId = inventory?.equipment?.[slotId];
+  if (!entryId) return null;
+  const entry = inventory.items?.find((candidate) => candidate.id === entryId) ?? null;
+  return entry ? itemDefinition(entry.itemId) : null;
+}
+
+function bossPartyMemberPaperDollHtml(member) {
+  const controlled = member.classId === bossPartyControlledClassId();
+  const dead = !member.alive || member.hp <= 0;
+  const classes = ["party-paperdoll-box"];
+  if (controlled) classes.push("controlled");
+  if (dead) classes.push("dead");
+  const armourItem = bossPartyMemberEquippedItem(member, "armour");
+  const weaponItem = bossPartyMemberEquippedItem(member, "weapon");
+  const helmetItem = bossPartyMemberEquippedItem(member, "helmet");
+  const layers = [
+    armourItem ? crystalPaperDollLayerHtml(armourItem, "armour") : "",
+    weaponItem ? crystalPaperDollLayerHtml(weaponItem, "weapon") : "",
+    helmetItem
+      ? crystalPaperDollLayerHtml(helmetItem, "helmet")
+      : crystalPaperDollFrameHtml(state.characterStateItems?.hair ?? CHARACTER_PAPER_DOLL_FRAMES.hair, "Hair"),
+  ].filter(Boolean);
+  return `
+    <div class="${classes.join(" ")}" title="${escapeHtml(member.classId)}">
+      <div class="party-paperdoll-stage" aria-hidden="true">
+        <div class="crystal-paper-doll">${layers.join("")}</div>
+      </div>
+    </div>
+  `;
+}
+
+function partyPaperDollBarHtml() {
+  const party = state.battle.bossParty;
+  if (!party?.members?.length) return "";
+  return party.members
+    .slice()
+    .sort((a, b) => BOSS_PARTY_ORDER.indexOf(a.classId) - BOSS_PARTY_ORDER.indexOf(b.classId))
+    .map((member) => bossPartyMemberPaperDollHtml(member))
+    .join("");
+}
+
 function partySwitchBarHtml() {
   const party = state.battle.bossParty;
   if (!party?.members?.length) return "";
@@ -33944,6 +34379,43 @@ function partySwitchBarHtml() {
     .join("");
 }
 
+function renderPartyPaperDollBar() {
+  if (!els.partyPaperDollBar) return;
+  const party = state.battle.bossParty;
+  const shouldShow = bossPartyOnField()
+    && !party?.defeated
+    && isGroupContentZone(activeZone())
+    && (party?.members?.length ?? 0) >= 1;
+  if (!shouldShow) {
+    if (!els.partyPaperDollBar.hidden || partyPaperDollBarSignature) {
+      els.partyPaperDollBar.hidden = true;
+      els.partyPaperDollBar.innerHTML = "";
+      partyPaperDollBarSignature = "";
+    }
+    return;
+  }
+  const controlled = bossPartyControlledClassId();
+  const signature = JSON.stringify({
+    controlled,
+    members: party.members.map((member) => {
+      const inventory = member.classId === controlled ? state.inventory : member.inventory;
+      const gear = ["armour", "weapon", "helmet"]
+        .map((slotId) => {
+          const entryId = inventory?.equipment?.[slotId];
+          if (!entryId) return `${slotId}:`;
+          const entry = inventory.items?.find((candidate) => candidate.id === entryId);
+          return `${slotId}:${entry?.itemId ?? ""}`;
+        })
+        .join("|");
+      return `${member.classId}:${member.alive && member.hp > 0 ? "alive" : "dead"}:${gear}`;
+    }),
+  });
+  if (signature === partyPaperDollBarSignature) return;
+  partyPaperDollBarSignature = signature;
+  els.partyPaperDollBar.hidden = false;
+  els.partyPaperDollBar.innerHTML = partyPaperDollBarHtml();
+}
+
 function renderPartySwitchBar() {
   if (!els.partySwitchBar) return;
   const party = state.battle.bossParty;
@@ -33957,16 +34429,19 @@ function renderPartySwitchBar() {
       els.partySwitchBar.innerHTML = "";
       partySwitchBarSignature = "";
     }
+    renderPartyPaperDollBar();
     return;
   }
   const signature = JSON.stringify({
     controlled: bossPartyControlledClassId(),
     members: party.members.map((member) => `${member.classId}:${member.alive && member.hp > 0 ? "alive" : "dead"}`),
   });
-  if (signature === partySwitchBarSignature) return;
-  partySwitchBarSignature = signature;
-  els.partySwitchBar.hidden = false;
-  els.partySwitchBar.innerHTML = partySwitchBarHtml();
+  if (signature !== partySwitchBarSignature) {
+    partySwitchBarSignature = signature;
+    els.partySwitchBar.hidden = false;
+    els.partySwitchBar.innerHTML = partySwitchBarHtml();
+  }
+  renderPartyPaperDollBar();
 }
 
 function characterSelectOptionEnabled(entry) {
@@ -35565,6 +36040,7 @@ function updatePendingTwinDrakeHits(now) {
 
 function castWarriorCharge(skill, learned, cost, now) {
   const battle = state.battle;
+  suppressNextStageInfoMpFlash = true;
   battle.player.mp = Math.max(0, battle.player.mp - cost);
   setWarriorSpellCastReadyAt(skill, learned, now);
   clearQueuedCombatSpell(skill.id);
@@ -43942,7 +44418,9 @@ function renderCombatSkillBar(now = performance.now()) {
   if (signature !== combatSkillBarSignature && !isPointerHeldWithin(els.combatSkillBar)) {
     combatSkillBarSignature = signature;
     els.combatSkillBar.hidden = false;
-    els.combatSkillBar.innerHTML = skills.map((skill) => combatSkillButtonHtml(skill, learnedMagic(skill.id), now)).join("");
+    els.combatSkillBar.innerHTML = `
+      ${skills.map((skill) => combatSkillButtonHtml(skill, learnedMagic(skill.id), now)).join("")}
+    `;
     applyCombatHudLayout();
   }
   updateCombatSkillBarCooldowns(skills, now);
@@ -44070,6 +44548,7 @@ function renderHotbar() {
   if (isPointerHeldWithin(els.hotbar)) return;
   normalizeHotbarSlots();
   const signature = JSON.stringify({
+    vertical: hotbarVertical,
     autoPotionSlots: autoPotionSlotLimit(),
     slots: state.hotbar.slots.map((entryId, slot) => {
       const entry = hotbarEntryAtSlot(slot);
@@ -44078,13 +44557,20 @@ function renderHotbar() {
   });
   if (signature === hotbarSignature) return;
   hotbarSignature = signature;
-  els.hotbar.innerHTML = Array.from({ length: HOTBAR_SLOT_COUNT }, (_, slot) => hotbarSlotHtml(slot)).join("");
+  els.hotbar.classList.toggle("is-vertical", hotbarVertical);
+  els.hotbar.innerHTML = `
+    <div class="crystal-hotbar-drag-handle" aria-hidden="true"></div>
+    <button type="button" class="crystal-hotbar-orient-hit" aria-label="${hotbarVertical ? "Switch hotbar to horizontal" : "Switch hotbar to vertical"}" title="${hotbarVertical ? "Horizontal" : "Vertical"}"></button>
+    ${Array.from({ length: HOTBAR_SLOT_COUNT }, (_, slot) => hotbarSlotHtml(slot)).join("")}
+  `;
+  applyHotbarWindowPosition();
 }
 
 function hotbarSlotHtml(slot) {
   const entry = hotbarEntryAtSlot(slot);
   const item = entry ? itemDefinition(entry.itemId) : null;
-  const x = 12 + slot * 35;
+  const x = hotbarVertical ? 3 : 12 + slot * 35;
+  const y = hotbarVertical ? 12 + slot * 35 : 3;
   const key = slot + 1;
   const autoSlot = autoPotionSlots().includes(slot);
   const itemHtml = item
@@ -44108,7 +44594,7 @@ function hotbarSlotHtml(slot) {
     <div
       class="hotbar-slot ${item ? "filled" : ""} ${autoSlot ? "auto-slot" : ""}"
       data-hotbar-slot="${slot}"
-      style="left:${x}px; top:3px;"
+      style="left:${x}px; top:${y}px;"
       title="Hotbar ${key}${autoSlot ? " auto potion" : ""}"
     >
       <span class="hotbar-key">${key}</span>
@@ -44269,9 +44755,23 @@ function crystalProjectileImpactDelayMs() {
 }
 
 const COMBAT_HUD_HOTBAR_HEIGHT = 38;
+const COMBAT_HUD_HOTBAR_VERTICAL_HEIGHT = 240;
+const COMBAT_HUD_HOTBAR_VERTICAL_WIDTH = 38;
 const COMBAT_HUD_SKILL_BAR_HEIGHT = 81;
 const COMBAT_HUD_PLAYER_GAP = 38;
 const COMBAT_HUD_STACK_GAP = 6;
+/** Keep the hotbar clear of the stage-canvas bottom edge (and info-bar chrome). */
+const COMBAT_HUD_CANVAS_BOTTOM_GAP = 20;
+const STAGE_INFO_BAR_HEIGHT = 150;
+const STAGE_XP_BAR_HEIGHT = 8;
+const COMBAT_SKILL_BAR_BELOW_XP_GAP = 4;
+
+function combatHotbarSize() {
+  if (hotbarVertical) {
+    return { width: COMBAT_HUD_HOTBAR_VERTICAL_WIDTH, height: COMBAT_HUD_HOTBAR_VERTICAL_HEIGHT };
+  }
+  return { width: 240, height: COMBAT_HUD_HOTBAR_HEIGHT };
+}
 
 function combatHudLayoutMetrics(options = {}) {
   const skillBarVisible = options.skillBarVisible ?? (
@@ -44280,12 +44780,17 @@ function combatHudLayoutMetrics(options = {}) {
     && Boolean(els.combatSkillBar.innerHTML.trim())
   );
   const feetPx = Math.round(combatAnchor("player").y * state.scale);
-  const hotbarTop = feetPx + COMBAT_HUD_PLAYER_GAP;
-  const skillTop = hotbarTop + COMBAT_HUD_HOTBAR_HEIGHT + COMBAT_HUD_STACK_GAP;
-  const hudBottom = skillBarVisible
-    ? skillTop + COMBAT_HUD_SKILL_BAR_HEIGHT + 4
-    : hotbarTop + COMBAT_HUD_HOTBAR_HEIGHT + 4;
   const canvasHeight = state.stageHeight * state.scale;
+  const hotbarSize = combatHotbarSize();
+  const preferredHotbarTop = feetPx + COMBAT_HUD_PLAYER_GAP;
+  const maxHotbarTop = Math.max(0, canvasHeight - hotbarSize.height - COMBAT_HUD_CANVAS_BOTTOM_GAP);
+  const hotbarTop = Math.min(preferredHotbarTop, maxHotbarTop);
+  // Locked under the XP bar (last STAGE_XP_BAR_HEIGHT px of the canvas), centered.
+  const skillTop = canvasHeight + COMBAT_SKILL_BAR_BELOW_XP_GAP;
+  const hudBottom = Math.max(
+    hotbarTop + hotbarSize.height + 4,
+    skillBarVisible ? skillTop + COMBAT_HUD_SKILL_BAR_HEIGHT + 4 : canvasHeight,
+  );
   return {
     feetPx,
     hotbarTop,
@@ -44299,10 +44804,8 @@ function combatHudLayoutMetrics(options = {}) {
 
 function combatHudViewportReservePx() {
   if (!IS_GAME_UI) return 0;
-  const skillBarExpected = combatSkillBarShouldShow();
-  const reserve = COMBAT_HUD_PLAYER_GAP + COMBAT_HUD_HOTBAR_HEIGHT + 4;
-  if (!skillBarExpected) return reserve;
-  return reserve + COMBAT_HUD_STACK_GAP + COMBAT_HUD_SKILL_BAR_HEIGHT;
+  const hotbarSize = combatHotbarSize();
+  return COMBAT_HUD_PLAYER_GAP + hotbarSize.height + 4;
 }
 
 function applyCombatHudLayout(options = {}) {
@@ -44310,8 +44813,297 @@ function applyCombatHudLayout(options = {}) {
   const metrics = combatHudLayoutMetrics(options);
   els.stage.style.width = `${state.stageWidth * state.scale}px`;
   els.stage.style.height = `${metrics.displayHeight}px`;
+  els.stage.style.setProperty("--stage-canvas-height", `${metrics.canvasHeight}px`);
+  els.stage.style.setProperty("--stage-info-bar-height", `${STAGE_INFO_BAR_HEIGHT}px`);
   els.stage.style.setProperty("--combat-hud-hotbar-top", `${metrics.hotbarTop}px`);
   els.stage.style.setProperty("--combat-hud-skill-top", `${metrics.skillTop}px`);
+  applyHotbarWindowPosition(metrics);
+  applyCombatSkillBarWindowPosition(metrics);
+}
+
+function clampHotbarWindowPosition(x, y) {
+  if (!els.stage || !els.hotbar) return { x: Math.round(x), y: Math.round(y) };
+  const size = combatHotbarSize();
+  const barW = els.hotbar.offsetWidth || size.width;
+  const barH = els.hotbar.offsetHeight || size.height;
+  const maxX = Math.max(0, els.stage.clientWidth - barW);
+  const maxY = Math.max(0, els.stage.clientHeight - barH);
+  return {
+    x: Math.max(0, Math.min(Math.round(x), maxX)),
+    y: Math.max(0, Math.min(Math.round(y), maxY)),
+  };
+}
+
+function applyHotbarWindowPosition(metrics = null) {
+  if (!els.hotbar) return;
+  if (!hotbarWindowPosition) {
+    els.hotbar.style.left = "";
+    els.hotbar.style.top = "";
+    els.hotbar.style.transform = "";
+    return;
+  }
+  const clamped = clampHotbarWindowPosition(hotbarWindowPosition.x, hotbarWindowPosition.y);
+  hotbarWindowPosition = clamped;
+  els.hotbar.style.left = `${clamped.x}px`;
+  els.hotbar.style.top = `${clamped.y}px`;
+  els.hotbar.style.transform = "none";
+  if (!metrics || !els.stage) return;
+  const size = combatHotbarSize();
+  const skillTop = (metrics.canvasHeight ?? 0) + COMBAT_SKILL_BAR_BELOW_XP_GAP;
+  const hudBottom = Math.max(
+    clamped.y + size.height + 4,
+    metrics.skillBarVisible ? skillTop + COMBAT_HUD_SKILL_BAR_HEIGHT + 4 : 0,
+  );
+  const displayHeight = Math.max(metrics.canvasHeight, hudBottom);
+  if (displayHeight > els.stage.clientHeight) {
+    els.stage.style.height = `${displayHeight}px`;
+  }
+}
+
+function beginHotbarDrag(event, handleEl) {
+  if (event.button !== 0 || inventoryDragState || sceneWindowDragState || combatSkillBarDragState) return;
+  event.preventDefault();
+  if (!els.hotbar || !els.stage) return;
+  const stageRect = els.stage.getBoundingClientRect();
+  const barRect = els.hotbar.getBoundingClientRect();
+  const startX = hotbarWindowPosition?.x ?? (barRect.left - stageRect.left);
+  const startY = hotbarWindowPosition?.y ?? (barRect.top - stageRect.top);
+  hotbarWindowPosition = { x: Math.round(startX), y: Math.round(startY) };
+  applyHotbarWindowPosition();
+  hotbarDragState = {
+    handleEl,
+    pointerId: event.pointerId,
+    offsetX: event.clientX - stageRect.left - hotbarWindowPosition.x,
+    offsetY: event.clientY - stageRect.top - hotbarWindowPosition.y,
+  };
+  els.hotbar.classList.add("crystal-hotbar-dragging");
+  document.body.classList.add("crystal-hotbar-drag-active");
+  handleEl.setPointerCapture(event.pointerId);
+  handleEl.addEventListener("pointermove", handleHotbarDragMove);
+  handleEl.addEventListener("pointerup", handleHotbarDragEnd);
+  handleEl.addEventListener("pointercancel", handleHotbarDragEnd);
+}
+
+function handleHotbarDragMove(event) {
+  if (!hotbarDragState || event.pointerId !== hotbarDragState.pointerId || !els.stage) return;
+  const stageRect = els.stage.getBoundingClientRect();
+  const next = clampHotbarWindowPosition(
+    event.clientX - stageRect.left - hotbarDragState.offsetX,
+    event.clientY - stageRect.top - hotbarDragState.offsetY,
+  );
+  hotbarWindowPosition = next;
+  applyHotbarWindowPosition();
+}
+
+function handleHotbarDragEnd(event) {
+  if (!hotbarDragState || event.pointerId !== hotbarDragState.pointerId) return;
+  const { handleEl, pointerId } = hotbarDragState;
+  handleEl.removeEventListener("pointermove", handleHotbarDragMove);
+  handleEl.removeEventListener("pointerup", handleHotbarDragEnd);
+  handleEl.removeEventListener("pointercancel", handleHotbarDragEnd);
+  els.hotbar?.classList.remove("crystal-hotbar-dragging");
+  document.body.classList.remove("crystal-hotbar-drag-active");
+  try {
+    handleEl.releasePointerCapture(pointerId);
+  } catch {
+    // Ignore stale capture errors after interrupted drags.
+  }
+  hotbarDragState = null;
+}
+
+function bindHotbarDrag() {
+  if (!els.hotbar || els.hotbar.dataset.hotbarDragBound === "1") return;
+  els.hotbar.dataset.hotbarDragBound = "1";
+  els.hotbar.addEventListener("pointerdown", (event) => {
+    if (event.button !== 0 || inventoryDragState || sceneWindowDragState || combatSkillBarDragState) return;
+    const handle = event.target.closest(".crystal-hotbar-drag-handle");
+    if (!handle || !els.hotbar.contains(handle)) return;
+    beginHotbarDrag(event, handle);
+  });
+}
+
+function bindHotbarOrientationToggle() {
+  if (!els.hotbar || els.hotbar.dataset.hotbarOrientBound === "1") return;
+  els.hotbar.dataset.hotbarOrientBound = "1";
+  els.hotbar.addEventListener("click", (event) => {
+    const hit = event.target.closest(".crystal-hotbar-orient-hit");
+    if (!hit || !els.hotbar.contains(hit)) return;
+    event.preventDefault();
+    event.stopPropagation();
+    hotbarVertical = !hotbarVertical;
+    hotbarSignature = "";
+    renderHotbar();
+    applyCombatHudLayout();
+    playSfx("ui.button", { volume: 0.3, throttleMs: 80 });
+  });
+}
+
+function applyHudChromeMode() {
+  if (compactUi) hudChromeMode = "classic";
+  const mode = hudChromeMode === "infoBar" ? "infoBar" : "classic";
+  hudChromeMode = mode;
+  const shell = els.stage?.closest(".stage-shell");
+  if (shell) shell.dataset.hudChrome = mode;
+  if (els.hudChromeToggle) {
+    const infoBar = mode === "infoBar";
+    els.hudChromeToggle.hidden = compactUi;
+    els.hudChromeToggle.setAttribute("aria-pressed", infoBar ? "true" : "false");
+    els.hudChromeToggle.title = infoBar ? "Show classic HUD" : "Show InfoBar HUD";
+    els.hudChromeToggle.setAttribute(
+      "aria-label",
+      infoBar ? "Switch to classic resource HUD" : "Switch to InfoBar HUD",
+    );
+    const img = els.hudChromeToggle.querySelector("img");
+    if (img) {
+      img.src = infoBar ? "./public/ui/UI-Slider1.png" : "./public/ui/UI-Slider.png";
+    }
+  }
+  playerHudSignature = "";
+  stageXpBarSignature = "";
+  renderPlayerResourceHud();
+  renderStageXpBar();
+  if (mode === "infoBar") {
+    renderStageInfoBagFill();
+    renderStageInfoGold();
+    renderStageInfoOrb();
+    renderStageInfoZoneName();
+  }
+}
+
+function bindHudChromeToggle() {
+  if (!els.hudChromeToggle || els.hudChromeToggle.dataset.hudChromeBound === "1") return;
+  els.hudChromeToggle.dataset.hudChromeBound = "1";
+  els.hudChromeToggle.addEventListener("click", (event) => {
+    event.preventDefault();
+    if (compactUi) return;
+    hudChromeMode = hudChromeMode === "classic" ? "infoBar" : "classic";
+    applyHudChromeMode();
+    playSfx("ui.button", { volume: 0.3, throttleMs: 80 });
+  });
+}
+
+function compactUiPreferred() {
+  if (!IS_GAME_UI || typeof window.matchMedia !== "function") return false;
+  // Width alone fails on phones in landscape / "Desktop site" (S25 etc.).
+  const touchUi = window.matchMedia("(hover: none) and (pointer: coarse)").matches
+    || (Number(navigator.maxTouchPoints) > 0 && window.matchMedia("(pointer: coarse)").matches);
+  const narrow = window.matchMedia("(max-width: 820px)").matches;
+  const shortPhone = window.matchMedia("(max-height: 500px) and (orientation: landscape)").matches
+    && Number(navigator.maxTouchPoints) > 0;
+  // UA fallback for Android/iOS when the browser requests a desktop viewport.
+  const mobileUa = /Android|iPhone|iPad|iPod|Mobile/i.test(navigator.userAgent || "");
+  return touchUi || narrow || shortPhone || mobileUa;
+}
+
+function bindCompactUiMedia() {
+  if (!IS_GAME_UI || typeof window.matchMedia !== "function" || window.__lomCompactMediaBound) return;
+  window.__lomCompactMediaBound = true;
+  const queries = [
+    "(max-width: 820px)",
+    "(hover: none) and (pointer: coarse)",
+    "(pointer: coarse)",
+    "(max-height: 500px) and (orientation: landscape)",
+  ];
+  for (const query of queries) {
+    const media = window.matchMedia(query);
+    const onChange = () => syncCompactUi();
+    if (typeof media.addEventListener === "function") media.addEventListener("change", onChange);
+    else if (typeof media.addListener === "function") media.addListener(onChange);
+  }
+}
+
+function applyCompactMenuState() {
+  document.body.classList.toggle("compact-menu-open", compactUi && compactMenuOpen);
+  if (!els.compactMenuToggle) return;
+  els.compactMenuToggle.hidden = !compactUi;
+  els.compactMenuToggle.setAttribute("aria-expanded", compactMenuOpen ? "true" : "false");
+  els.compactMenuToggle.setAttribute("aria-label", compactMenuOpen ? "Close menu" : "Open menu");
+  els.compactMenuToggle.title = compactMenuOpen ? "Close menu" : "Menu";
+}
+
+function syncCompactReturnToTownButton() {
+  if (!els.compactReturnToTown) return;
+  const show = compactUi && state.game.mode !== "town";
+  els.compactReturnToTown.hidden = !show;
+}
+
+function syncCompactUi() {
+  const next = compactUiPreferred();
+  const changed = next !== compactUi;
+  compactUi = next;
+  if (!compactUi) compactMenuOpen = false;
+  document.body.classList.toggle("compact-ui", compactUi);
+  applyCompactMenuState();
+  syncCompactReturnToTownButton();
+  if (compactUi) {
+    hudChromeMode = "classic";
+    applyHudChromeMode();
+  } else if (changed) {
+    applyHudChromeMode();
+  }
+  if (changed) {
+    lastStageShellSize = { w: 0, h: 0, mode: "", scale: 0, compact: false };
+    updateStageSize();
+    applyCombatHudLayout();
+  }
+}
+
+function bindCompactMenuToggle() {
+  if (els.compactMenuToggle && els.compactMenuToggle.dataset.compactMenuBound !== "1") {
+    els.compactMenuToggle.dataset.compactMenuBound = "1";
+    els.compactMenuToggle.addEventListener("click", (event) => {
+      event.preventDefault();
+      if (!compactUi) return;
+      compactMenuOpen = !compactMenuOpen;
+      applyCompactMenuState();
+      // Overlay menu does not resize the stage.
+      playSfx("ui.button", { volume: 0.3, throttleMs: 80 });
+    });
+  }
+  if (els.compactReturnToTown && els.compactReturnToTown.dataset.compactTownBound !== "1") {
+    els.compactReturnToTown.dataset.compactTownBound = "1";
+    els.compactReturnToTown.addEventListener("click", (event) => {
+      event.preventDefault();
+      if (!compactUi || state.game.mode === "town") return;
+      returnToTown();
+      syncCompactReturnToTownButton();
+      playSfx("ui.button", { volume: 0.3, throttleMs: 80 });
+    });
+  }
+}
+
+function applyCombatSkillBarWindowPosition(metrics = null) {
+  if (!els.combatSkillBar) return;
+  // Skill bar is locked centered under the XP bar for now.
+  combatSkillBarWindowPosition = null;
+  combatSkillBarDragState = null;
+  els.combatSkillBar.style.left = "";
+  els.combatSkillBar.style.top = "";
+  els.combatSkillBar.style.bottom = "";
+  els.combatSkillBar.style.transform = "";
+  if (!metrics || !els.stage) return;
+  const skillTop = (metrics.canvasHeight ?? 0) + COMBAT_SKILL_BAR_BELOW_XP_GAP;
+  const hudBottom = metrics.skillBarVisible
+    ? skillTop + COMBAT_HUD_SKILL_BAR_HEIGHT + 4
+    : (metrics.hotbarTop ?? 0) + combatHotbarSize().height + 4;
+  const displayHeight = Math.max(metrics.canvasHeight, hudBottom);
+  if (displayHeight > els.stage.clientHeight) {
+    els.stage.style.height = `${displayHeight}px`;
+  }
+}
+
+function beginCombatSkillBarDrag() {
+  // Dragging disabled while the skill bar is locked under the XP bar.
+}
+
+function handleCombatSkillBarDragMove() {}
+
+function handleCombatSkillBarDragEnd() {
+  combatSkillBarDragState = null;
+}
+
+function bindCombatSkillBarDrag() {
+  // Intentionally unbound while locked.
 }
 
 function updateStageSize() {
@@ -44325,24 +45117,37 @@ function updateStageSize() {
     && shellHeight === lastStageShellSize.h
     && mode === lastStageShellSize.mode
     && state.scale === lastStageShellSize.scale
+    && compactUi === lastStageShellSize.compact
     && state.stageWidth > 0
     && state.stageHeight > 0
   ) {
     return;
   }
-  lastStageShellSize = { w: shellWidth, h: shellHeight, mode, scale: state.scale };
+  lastStageShellSize = { w: shellWidth, h: shellHeight, mode, scale: state.scale, compact: compactUi };
   const zone = activeZone();
   const inTown = state.game.mode === "town";
-  const minWidth = Math.max(520, Number(zone?.stageMinWidth) || 520);
+  const pad = compactUi ? 8 : 24;
+  const hudReserve = combatHudViewportReservePx();
+  const availW = Math.max(compactUi ? 280 : 520, shell.clientWidth - pad);
+  const availH = Math.max(compactUi ? 180 : 260, shell.clientHeight - pad - hudReserve);
+  const minWidth = compactUi
+    ? Math.max(280, Math.min(520, availW))
+    : Math.max(520, Number(zone?.stageMinWidth) || 520);
   const minHeight = Math.max(
-    260,
-    Number(inTown ? TOWN_VISUALS.stageMinHeight : zone?.stageMinHeight) || 260,
+    compactUi ? 180 : 260,
+    Number(inTown ? TOWN_VISUALS.stageMinHeight : zone?.stageMinHeight) || (compactUi ? 180 : 260),
   );
   const maxHeight = Math.max(
     minHeight,
     Number(inTown ? TOWN_VISUALS.stageMaxHeight : zone?.stageMaxHeight) || 360,
   );
-  const hudReserve = combatHudViewportReservePx();
+  if (compactUi) {
+    // Keep integer scale at 1 and shrink the stage world to the phone shell.
+    state.scale = 1;
+    state.stageWidth = Math.max(minWidth, Math.floor(availW));
+    state.stageHeight = Math.max(minHeight, Math.min(maxHeight, Math.floor(availH)));
+    return;
+  }
   const width = Math.max(minWidth, Math.floor((shell.clientWidth - 24) / Math.max(1, state.scale)));
   const height = Math.max(
     minHeight,
@@ -45111,6 +45916,11 @@ function render() {
 
   renderCanvasStage(displayFrame, frameCount);
   renderPlayerResourceHud();
+  renderStageXpBar();
+  renderStageInfoBagFill();
+  renderStageInfoGold();
+  renderStageInfoOrb();
+  renderStageInfoZoneName();
   renderHotbar();
 
   if (!IS_GAME_UI && els.readout && els.frameMeta) {
@@ -45186,8 +45996,11 @@ function refreshOpenSceneLiveText() {
 }
 
 function renderPlayerResourceHud() {
+  if (!els.playerResourceHud) return;
   const player = state.battle.player;
-  const shouldShow = Boolean(player) && (state.game.mode === "zone" || state.game.mode === "mining" || state.battle.running || state.showEnemies);
+  const shouldShow = hudChromeMode === "classic"
+    && Boolean(player)
+    && (state.game.mode === "zone" || state.game.mode === "mining" || state.battle.running || state.showEnemies);
   if (!shouldShow) {
     if (!els.playerResourceHud.hidden || playerHudSignature) {
       els.playerResourceHud.hidden = true;
@@ -45207,9 +46020,11 @@ function renderPlayerResourceHud() {
     bonus: statBuffBonusLabel(buff),
     remaining: formatBuffRemaining(buff.expiresAt - now),
   }));
+  const kills = Math.max(0, Math.trunc(Number(state.game.kills) || 0));
   const signature = JSON.stringify({
     className: state.battle.combatClass,
     level: state.game.progress.level,
+    kills,
     hp: player.hp,
     maxHp: player.maxHp,
     mp: player.mp,
@@ -45219,13 +46034,14 @@ function renderPlayerResourceHud() {
     hpPotions,
     mpPotions,
     activeBuffs,
+    compact: compactUi,
   });
   if (signature === playerHudSignature) return;
   playerHudSignature = signature;
 
   els.playerResourceHud.hidden = false;
   const titleHtml = IS_GAME_UI
-    ? `<div class="player-resource-title game-minimal"><span>Lv ${state.game.progress.level}</span></div>`
+    ? `<div class="player-resource-title game-minimal"><span>Lv ${state.game.progress.level}</span>${compactUi ? `<span class="player-resource-kills">Kills ${kills}</span>` : ""}</div>`
     : `
       <div class="player-resource-title">
         <strong>${escapeHtml(state.battle.combatClass)}</strong>
@@ -45264,6 +46080,175 @@ function potionQuickButtonHtml(kind, label, count) {
 
 function resourcePercentage(value, max) {
   return max > 0 ? Math.max(0, Math.min(100, (value / max) * 100)) : 0;
+}
+
+function stageXpProgressPercent() {
+  const needed = xpForNextLevel(state.game.progress.level);
+  if (!Number.isFinite(needed) || needed <= 0) return 100;
+  return resourcePercentage(state.game.progress.experience, needed);
+}
+
+function renderStageXpBar() {
+  if (!els.stageXpBar) return;
+  if (hudChromeMode !== "infoBar") {
+    if (!els.stageXpBar.hidden || stageXpBarSignature) {
+      els.stageXpBar.hidden = true;
+      els.stageXpBar.innerHTML = "";
+      stageXpBarSignature = "";
+    }
+    return;
+  }
+  const level = state.game.progress.level;
+  const experience = state.game.progress.experience;
+  const needed = xpForNextLevel(level);
+  const pct = stageXpProgressPercent();
+  const pctLabel = Number.isFinite(needed) ? `${Math.round(pct)}%` : "Max";
+  const signature = JSON.stringify({ level, experience, needed, pct });
+  if (signature === stageXpBarSignature) return;
+  stageXpBarSignature = signature;
+
+  if (els.stageInfoLevel) {
+    els.stageInfoLevel.textContent = String(level);
+    els.stageInfoLevel.title = `Level ${level}`;
+  }
+
+  els.stageXpBar.hidden = false;
+  els.stageXpBar.innerHTML = `
+    <span class="stage-xp-bar-pct">${escapeHtml(pctLabel)}</span>
+    <span class="stage-xp-bar-track" aria-hidden="true">
+      <span class="stage-xp-bar-fill" style="width:${pct}%"></span>
+    </span>
+  `;
+  els.stageXpBar.title = Number.isFinite(needed)
+    ? `Level ${level} · ${pctLabel} · XP ${experience}/${needed}`
+    : `Level ${level} · XP Max`;
+}
+
+function formatInfoBarCompactAmount(value) {
+  const n = Math.max(0, Math.floor(Number(value) || 0));
+  if (n >= 1_000_000) return `${(n / 1_000_000).toFixed(2)}M`;
+  if (n >= 1_000) return `${(n / 1_000).toFixed(2)}K`;
+  return String(n);
+}
+
+function formatInfoBarAmount(value, maxChars) {
+  const n = Math.max(0, Math.floor(Number(value) || 0));
+  const full = String(n);
+  if (full.length <= maxChars) return full;
+  return formatInfoBarCompactAmount(n);
+}
+
+function formatInfoBarPair(current, maxValue, maxChars) {
+  const cur = Math.max(0, Math.floor(Number(current) || 0));
+  const max = Math.max(0, Math.floor(Number(maxValue) || 0));
+  const full = `${cur}/${max}`;
+  if (full.length <= maxChars) return full;
+  return `${formatInfoBarCompactAmount(cur)}/${formatInfoBarCompactAmount(max)}`;
+}
+
+function renderStageInfoBagFill() {
+  if (!els.stageInfoBagFill) return;
+  const used = inventoryUsedSlots();
+  const maxSlots = Math.max(0, Math.trunc(Number(state.inventory?.maxSlots) || 0));
+  const pct = resourcePercentage(used, maxSlots);
+  const fullLabel = `${used}/${maxSlots}`;
+  const label = formatInfoBarPair(used, maxSlots, 11);
+  const signature = `${label}:${fullLabel}:${pct}`;
+  if (signature === stageInfoBagFillSignature) return;
+  stageInfoBagFillSignature = signature;
+  els.stageInfoBagFill.style.width = `${pct}%`;
+  if (els.stageInfoBagText) {
+    els.stageInfoBagText.textContent = label;
+    els.stageInfoBagText.title = `Bag ${fullLabel}`;
+  }
+  const track = els.stageInfoBagFill.parentElement;
+  if (track) track.title = `Bag ${fullLabel}`;
+}
+
+function renderStageInfoGold() {
+  if (!els.stageInfoGoldText) return;
+  const gold = Math.max(0, Math.trunc(Number(state.inventory?.gold) || 0));
+  const label = formatInfoBarAmount(gold, 10);
+  const signature = `${label}:${gold}`;
+  if (signature === stageInfoGoldSignature) return;
+  stageInfoGoldSignature = signature;
+  els.stageInfoGoldText.textContent = label;
+  els.stageInfoGoldText.title = `Gold ${gold}`;
+}
+
+function renderStageInfoZoneName() {
+  if (!els.stageInfoZoneName) return;
+  const zone = activeZone();
+  const label = zone?.label
+    ?? (state.game.activeZoneId ? zoneLabel(state.game.activeZoneId) : "");
+  if (label === stageInfoZoneNameSignature) return;
+  stageInfoZoneNameSignature = label;
+  els.stageInfoZoneName.textContent = label;
+  els.stageInfoZoneName.title = label;
+  els.stageInfoZoneName.hidden = !label;
+}
+
+function stageInfoPlayerVitals() {
+  const stats = characterTotalStats();
+  return {
+    hp: Math.max(0, Math.floor(Number(stats.hp) || 0)),
+    maxHp: Math.max(0, Math.floor(Number(stats.maxHp) || 0)),
+    mp: Math.max(0, Math.floor(Number(stats.mp) || 0)),
+    maxMp: Math.max(0, Math.floor(Number(stats.maxMp) || 0)),
+  };
+}
+
+function flashStageInfoOrbPanel(el) {
+  if (!el) return;
+  el.classList.remove("stage-info-orb-flash");
+  void el.offsetWidth;
+  el.classList.add("stage-info-orb-flash");
+}
+
+function renderStageInfoOrb() {
+  if (!els.stageInfoHpFill && !els.stageInfoMpFill) return;
+  const { hp, maxHp, mp, maxMp } = stageInfoPlayerVitals();
+  const hpPct = resourcePercentage(hp, maxHp);
+  const mpPct = resourcePercentage(mp, maxMp);
+  const hpFull = `${hp}/${maxHp}`;
+  const mpFull = `${mp}/${maxMp}`;
+  const hpLabel = formatInfoBarPair(hp, maxHp, 9);
+  const mpLabel = formatInfoBarPair(mp, maxMp, 9);
+  const signature = `${hpLabel}|${mpLabel}|${hpFull}|${mpFull}|${hpPct}|${mpPct}`;
+  if (signature === stageInfoOrbSignature) return;
+  const prevHp = stageInfoOrbLastHp;
+  const prevMp = stageInfoOrbLastMp;
+  stageInfoOrbSignature = signature;
+  stageInfoOrbLastHp = hp;
+  stageInfoOrbLastMp = mp;
+  if (els.stageInfoHpFill) els.stageInfoHpFill.style.height = `${hpPct}%`;
+  if (els.stageInfoMpFill) els.stageInfoMpFill.style.height = `${mpPct}%`;
+  if (els.stageInfoHpText) {
+    els.stageInfoHpText.textContent = hpLabel;
+    els.stageInfoHpText.title = `HP ${hpFull}`;
+  }
+  if (els.stageInfoMpText) {
+    els.stageInfoMpText.textContent = mpLabel;
+    els.stageInfoMpText.title = `MP ${mpFull}`;
+  }
+  if (prevHp !== null && hp < prevHp) flashStageInfoOrbPanel(els.stageInfoHpFill);
+  if (prevMp !== null && mp < prevMp && !suppressNextStageInfoMpFlash) flashStageInfoOrbPanel(els.stageInfoMpFill);
+  suppressNextStageInfoMpFlash = false;
+}
+
+function inventoryBagUsageHtml(className = "inventory-bag-usage") {
+  const used = inventoryUsedSlots();
+  const maxSlots = Math.max(0, Math.trunc(Number(state.inventory?.maxSlots) || 0));
+  const pct = resourcePercentage(used, maxSlots);
+  const label = `${used}/${maxSlots}`;
+  return `
+    <div class="${escapeHtml(className)}" title="Bag ${escapeHtml(label)}" aria-label="Bag ${escapeHtml(label)}">
+      <span class="inventory-bag-usage-track">
+        <span class="inventory-bag-usage-fill" style="width:${pct}%"></span>
+        <span class="inventory-bag-usage-text">${escapeHtml(label)}</span>
+      </span>
+    </div>
+  `;
 }
 
 function renderCanvasStage(displayFrame, frameCount) {
