@@ -108,17 +108,20 @@ test("sanitizeSceneWindowPositions", () => {
     inventory: { x: "nope", y: 5 },
     codex: { x: 80, y: 90 },
     upgrades: { x: 64, y: 72 },
+    leaderboard: { x: 12, y: 34 },
   }), {
     character: { x: 10, y: 20 },
     inventory: null,
     codex: { x: 80, y: 90 },
     upgrades: { x: 64, y: 72 },
+    leaderboard: { x: 12, y: 34 },
   });
   assert.deepEqual(sanitizeSceneWindowPositions(undefined), {
     character: null,
     inventory: null,
     codex: null,
     upgrades: null,
+    leaderboard: null,
   });
 });
 
@@ -129,6 +132,7 @@ test("sanitizeSettingsState: includes scene window positions", () => {
       inventory: { x: 300, y: 120 },
       codex: { x: 120, y: 80 },
       upgrades: { x: 90, y: 60 },
+      leaderboard: { x: 15, y: 25 },
     },
   });
   assert.deepEqual(result.sceneWindowPositions, {
@@ -136,5 +140,6 @@ test("sanitizeSettingsState: includes scene window positions", () => {
     inventory: { x: 300, y: 120 },
     codex: { x: 120, y: 80 },
     upgrades: { x: 90, y: 60 },
+    leaderboard: { x: 15, y: 25 },
   });
 });
