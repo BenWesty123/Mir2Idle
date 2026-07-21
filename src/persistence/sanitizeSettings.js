@@ -4,12 +4,16 @@ export const DEFAULT_MUSIC_ENABLED = true;
 export const DEFAULT_SFX_ENABLED = true;
 export const DEFAULT_SFX_VOLUME = 0.55;
 export const DEFAULT_PROTOTYPE_STATS_ENABLED = true;
+export const DEFAULT_SHOW_RECENT_LOOT = true;
+export const DEFAULT_SHOW_ACTIVITY_LOG = true;
 export const DEFAULT_AUTO_POTION_HP_THRESHOLD = 0.5;
 export const DEFAULT_AUTO_POTION_MP_THRESHOLD = 0.5;
 /** Lowest allowed auto-potion trigger (5%). */
 export const AUTO_POTION_THRESHOLD_MIN = 0.05;
 /** Highest allowed auto-potion trigger (100% = drink whenever not full). */
 export const AUTO_POTION_THRESHOLD_MAX = 1;
+/** Class ids that store their own auto-potion HP/MP thresholds. */
+export const AUTO_POTION_CHARACTER_IDS = ["Warrior", "Wizard", "Taoist"];
 export const MUSIC_MODE_PLAYLIST = "playlist";
 export const MUSIC_MODE_TRACK = "track";
 
@@ -32,6 +36,53 @@ export function normalizedAutoPotionThreshold(value, fallback = DEFAULT_AUTO_POT
   if (!Number.isFinite(raw)) return fallback;
   const clamped = Math.max(AUTO_POTION_THRESHOLD_MIN, Math.min(AUTO_POTION_THRESHOLD_MAX, raw));
   return Math.round(clamped * 100) / 100;
+}
+
+/**
+ * @param {number} [hp]
+ * @param {number} [mp]
+ * @returns {Record<string, { hp: number, mp: number }>}
+ */
+export function createDefaultAutoPotionThresholdsByCharacter(
+  hp = DEFAULT_AUTO_POTION_HP_THRESHOLD,
+  mp = DEFAULT_AUTO_POTION_MP_THRESHOLD,
+) {
+  const normalizedHp = normalizedAutoPotionThreshold(hp, DEFAULT_AUTO_POTION_HP_THRESHOLD);
+  const normalizedMp = normalizedAutoPotionThreshold(mp, DEFAULT_AUTO_POTION_MP_THRESHOLD);
+  return Object.fromEntries(
+    AUTO_POTION_CHARACTER_IDS.map((classId) => [classId, { hp: normalizedHp, mp: normalizedMp }]),
+  );
+}
+
+/**
+ * Per-character auto-potion thresholds. Legacy flat HP/MP settings seed every
+ * class when the map is missing (pre-character-specific saves).
+ *
+ * @param {unknown} savedByCharacter
+ * @param {unknown} [legacyHp]
+ * @param {unknown} [legacyMp]
+ * @returns {Record<string, { hp: number, mp: number }>}
+ */
+export function sanitizeAutoPotionThresholdsByCharacter(
+  savedByCharacter,
+  legacyHp = DEFAULT_AUTO_POTION_HP_THRESHOLD,
+  legacyMp = DEFAULT_AUTO_POTION_MP_THRESHOLD,
+) {
+  const fallbackHp = normalizedAutoPotionThreshold(legacyHp, DEFAULT_AUTO_POTION_HP_THRESHOLD);
+  const fallbackMp = normalizedAutoPotionThreshold(legacyMp, DEFAULT_AUTO_POTION_MP_THRESHOLD);
+  const source = savedByCharacter && typeof savedByCharacter === "object" ? savedByCharacter : {};
+  return Object.fromEntries(
+    AUTO_POTION_CHARACTER_IDS.map((classId) => {
+      const entry = source[classId];
+      return [
+        classId,
+        {
+          hp: normalizedAutoPotionThreshold(entry?.hp, fallbackHp),
+          mp: normalizedAutoPotionThreshold(entry?.mp, fallbackMp),
+        },
+      ];
+    }),
+  );
 }
 
 /**
@@ -141,6 +192,17 @@ export function sanitizeSceneWindowPositions(saved) {
  */
 export function sanitizeSettingsState(savedSettings = {}) {
   const hasCurrentMusicSettings = Number(savedSettings.musicSettingsVersion) >= MUSIC_SETTINGS_VERSION;
+  const autoPotionThresholdsByCharacter = sanitizeAutoPotionThresholdsByCharacter(
+    savedSettings.autoPotionThresholdsByCharacter,
+    savedSettings.autoPotionHpThreshold,
+    savedSettings.autoPotionMpThreshold,
+  );
+  // Flat fields remain for older readers; mirror Warrior after per-character migration.
+  const legacyMirror = autoPotionThresholdsByCharacter.Warrior
+    ?? {
+      hp: DEFAULT_AUTO_POTION_HP_THRESHOLD,
+      mp: DEFAULT_AUTO_POTION_MP_THRESHOLD,
+    };
   return {
     musicEnabled: hasCurrentMusicSettings && Object.prototype.hasOwnProperty.call(savedSettings, "musicEnabled")
       ? savedSettings.musicEnabled === true
@@ -151,17 +213,18 @@ export function sanitizeSettingsState(savedSettings = {}) {
       ? savedSettings.sfxEnabled === true
       : DEFAULT_SFX_ENABLED,
     sfxVolume: normalizedVolume(savedSettings.sfxVolume ?? DEFAULT_SFX_VOLUME),
-    autoPotionHpThreshold: normalizedAutoPotionThreshold(
-      savedSettings.autoPotionHpThreshold,
-      DEFAULT_AUTO_POTION_HP_THRESHOLD,
-    ),
-    autoPotionMpThreshold: normalizedAutoPotionThreshold(
-      savedSettings.autoPotionMpThreshold,
-      DEFAULT_AUTO_POTION_MP_THRESHOLD,
-    ),
+    autoPotionHpThreshold: legacyMirror.hp,
+    autoPotionMpThreshold: legacyMirror.mp,
+    autoPotionThresholdsByCharacter,
     prototypeStatsEnabled: Object.prototype.hasOwnProperty.call(savedSettings, "prototypeStatsEnabled")
       ? savedSettings.prototypeStatsEnabled === true
       : DEFAULT_PROTOTYPE_STATS_ENABLED,
+    showRecentLoot: Object.prototype.hasOwnProperty.call(savedSettings, "showRecentLoot")
+      ? savedSettings.showRecentLoot === true
+      : DEFAULT_SHOW_RECENT_LOOT,
+    showActivityLog: Object.prototype.hasOwnProperty.call(savedSettings, "showActivityLog")
+      ? savedSettings.showActivityLog === true
+      : DEFAULT_SHOW_ACTIVITY_LOG,
     prototypeStatsNoticeVersion: Math.max(0, Math.trunc(Number(savedSettings.prototypeStatsNoticeVersion) || 0)),
     prototypeResetNoticeVersion: Math.max(0, Math.trunc(Number(savedSettings.prototypeResetNoticeVersion) || 0)),
     prototypeResetNoticeLastSeenAt: Math.max(0, Math.trunc(Number(savedSettings.prototypeResetNoticeLastSeenAt) || 0)),

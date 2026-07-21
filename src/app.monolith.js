@@ -146,14 +146,18 @@ import {
   DEFAULT_PROTOTYPE_STATS_ENABLED,
   DEFAULT_SFX_ENABLED,
   DEFAULT_SFX_VOLUME,
+  DEFAULT_SHOW_ACTIVITY_LOG,
+  DEFAULT_SHOW_RECENT_LOOT,
   MUSIC_MODE_PLAYLIST,
   MUSIC_MODE_TRACK,
   MUSIC_SETTINGS_VERSION,
   SCENE_WINDOW_EDGE_PAD,
   clampSceneWindowCoords,
+  createDefaultAutoPotionThresholdsByCharacter,
   normalizedAutoPotionThreshold,
   normalizedMusicMode,
   normalizedVolume,
+  sanitizeAutoPotionThresholdsByCharacter,
   sanitizeSettingsState,
   sceneWindowPositionFitsBounds,
 } from "./persistence/sanitizeSettings.js";
@@ -2033,8 +2037,7 @@ function offlineGroupApplyExperience(member, xp) {
 
 function offlineGroupApplyMemberReward(member, xp, gold, enemy, now) {
   const leveledTo = offlineGroupApplyExperience(member, xp);
-  member.inventory.gold += gold;
-  member.game.progress.gold = member.inventory.gold;
+  creditSharedGold(gold, member);
   member.game.kills += 1;
   member.game.zoneKills += 1;
   member.game.lastReward = { xp, gold, drops: [] };
@@ -2050,7 +2053,7 @@ function offlineGroupAutoUsePotions(member, now, report) {
   member.autoPotionReadyAt = member.autoPotionReadyAt ?? { hp: 0, mp: 0 };
   let used = false;
   for (const kind of ["hp", "mp"].sort((a, b) => offlineGroupResourceRatio(member, a) - offlineGroupResourceRatio(member, b))) {
-    if (offlineGroupResourceRatio(member, kind) >= autoPotionThreshold(kind)) continue;
+    if (offlineGroupResourceRatio(member, kind) >= autoPotionThreshold(kind, member.classId)) continue;
     if ((member.autoPotionReadyAt[kind] ?? 0) > now) continue;
     if (kind === "hp" && (member.potHealthAmount ?? 0) > 0) continue;
     if (kind === "mp" && (member.potManaAmount ?? 0) > 0) continue;
@@ -3011,6 +3014,7 @@ const state = {
     },
     upgrades: createDefaultAccountUpgradeState(),
     rebirthPoints: 0,
+    gold: 0,
     bossRespawns: {},
     stats: createDefaultAccountStats(),
     codex: createDefaultAccountCodexState(),
@@ -3025,8 +3029,11 @@ const state = {
     musicMode: MUSIC_MODE_PLAYLIST,
     sfxEnabled: DEFAULT_SFX_ENABLED,
     sfxVolume: DEFAULT_SFX_VOLUME,
+    showRecentLoot: DEFAULT_SHOW_RECENT_LOOT,
+    showActivityLog: DEFAULT_SHOW_ACTIVITY_LOG,
     autoPotionHpThreshold: DEFAULT_AUTO_POTION_HP_THRESHOLD,
     autoPotionMpThreshold: DEFAULT_AUTO_POTION_MP_THRESHOLD,
+    autoPotionThresholdsByCharacter: createDefaultAutoPotionThresholdsByCharacter(),
     prototypeStatsEnabled: DEFAULT_PROTOTYPE_STATS_ENABLED,
     prototypeStatsNoticeVersion: 0,
     prototypeResetNoticeVersion: 0,
@@ -3108,6 +3115,8 @@ const state = {
   selectedObjectSlot: ZONE_OBJECT_EMPTY,
   zoneExportText: "",
   activeScene: null,
+  /** Options UI: which class's auto-potion sliders are being edited (not persisted). */
+  optionsAutoPotionClassId: null,
   bossDamageReportOpen: false,
   weaponRefine: createDefaultWeaponRefineState(),
   craftingCube: createDefaultCraftingCubeState(),
@@ -3379,9 +3388,6 @@ let stageXpBarSignature = "";
 let stageInfoBagFillSignature = "";
 let stageInfoGoldSignature = "";
 let stageInfoOrbSignature = "";
-let stageInfoOrbLastHp = null;
-let stageInfoOrbLastMp = null;
-let suppressNextStageInfoMpFlash = false;
 let stageInfoZoneNameSignature = null;
 let hotbarSignature = "";
 let hoveredTooltipEntryId = null;
@@ -4280,6 +4286,7 @@ function createSaveSnapshot() {
       storage: cloneStorageState(state.account.storage),
       upgrades: cloneAccountUpgradeState(state.account.upgrades),
       rebirthPoints: accountRebirthPoints(),
+      gold: accountGold(),
       bossRespawns: { ...accountBossRespawns() },
       stats: sanitizeAccountStats(state.account.stats),
       codex: cloneAccountCodexState(state.account.codex),
@@ -4317,12 +4324,21 @@ function createSaveSnapshot() {
       musicTrackId: currentMusicTrack()?.id ?? BACKGROUND_MUSIC_TRACKS[0]?.id ?? null,
       sfxEnabled: Boolean(state.settings.sfxEnabled),
       sfxVolume: normalizedVolume(state.settings.sfxVolume),
-      autoPotionHpThreshold: normalizedAutoPotionThreshold(
+      showRecentLoot: state.settings.showRecentLoot !== false,
+      showActivityLog: state.settings.showActivityLog !== false,
+      autoPotionThresholdsByCharacter: sanitizeAutoPotionThresholdsByCharacter(
+        state.settings.autoPotionThresholdsByCharacter,
         state.settings.autoPotionHpThreshold,
+        state.settings.autoPotionMpThreshold,
+      ),
+      autoPotionHpThreshold: normalizedAutoPotionThreshold(
+        state.settings.autoPotionThresholdsByCharacter?.Warrior?.hp
+          ?? state.settings.autoPotionHpThreshold,
         DEFAULT_AUTO_POTION_HP_THRESHOLD,
       ),
       autoPotionMpThreshold: normalizedAutoPotionThreshold(
-        state.settings.autoPotionMpThreshold,
+        state.settings.autoPotionThresholdsByCharacter?.Warrior?.mp
+          ?? state.settings.autoPotionMpThreshold,
         DEFAULT_AUTO_POTION_MP_THRESHOLD,
       ),
       prototypeStatsEnabled: Boolean(state.settings.prototypeStatsEnabled),
@@ -4614,6 +4630,7 @@ function applySaveSnapshot(snapshot) {
   const ranUnfairSkillPurge = maybePurgeUnfairSkills(snapshot);
   syncAccountBossKillsToCharacters();
   syncAccountBossRespawnsToCharacters();
+  stampSharedGoldOnAllCharacters();
   const uiMeta = restoreSaveUiMeta(snapshot, {
     characterTabIds: CHARACTER_TABS.map((tab) => tab.id),
     normalizeCharacterId,
@@ -5165,13 +5182,8 @@ function trackRebirthPointsSpent(quantity) {
 }
 
 function accountTotalGold() {
-  captureActiveCharacterState();
-  let total = 0;
-  for (const classId of CHARACTER_IDS) {
-    const character = state.characters[classId];
-    total += Math.max(0, Math.trunc(Number(character?.game?.progress?.gold ?? character?.inventory?.gold) || 0));
-  }
-  return total;
+  commitLiveGoldToAccount();
+  return accountGold();
 }
 
 function accountStatsSnapshot() {
@@ -5566,7 +5578,8 @@ function syncAchievementRewardInventory(characterId, character, target) {
   }
   if (target.partyMember) {
     character.inventory = cloneInventoryState(target.partyMember.inventory);
-    character.game.progress.gold = character.inventory.gold;
+    character.inventory.gold = accountGold();
+    character.game.progress.gold = accountGold();
   }
 }
 
@@ -5600,23 +5613,15 @@ function claimAchievementReward(achievementId) {
   }
 
   if (gold > 0) {
-    targetInventory.gold = Math.max(0, Math.trunc(Number(targetInventory.gold) || 0)) + gold;
-    if (characterId === state.activeCharacterId) {
-      state.inventory.gold = targetInventory.gold;
-      state.game.progress.gold = targetInventory.gold;
-      state.battle.gold = targetInventory.gold;
-    }
+    creditSharedGold(gold);
+    stampSharedGoldOnAllCharacters();
   }
 
   syncAchievementRewardInventory(characterId, character, target);
-  if (gold > 0) {
-    character.inventory.gold = Math.max(0, Math.trunc(Number(character.inventory.gold) || 0));
-    character.game.progress.gold = character.inventory.gold;
-  }
 
   record.rewardClaimed = true;
   addLootNotice(`Achievement Reward: ${def.label}`, "level");
-  if (gold > 0) addLootNotice(`+${gold.toLocaleString()} gold for ${characterId}`, "gold");
+  if (gold > 0) addLootNotice(`+${gold.toLocaleString()} gold`, "gold");
   if (itemId && itemQuantity > 0) addLootNotice(`+${achievementRewardLabel(def)} for ${characterId}`, "item");
   if (Number(def.reward?.xpBonusPercent) > 0) addLootNotice(achievementRewardLabel(def), "level");
   if (Number(def.reward?.bonusAwakeningSoulChancePercent) > 0) addLootNotice(achievementRewardLabel(def), "level");
@@ -5778,6 +5783,61 @@ function accountRebirthPoints() {
   return Math.max(0, Math.trunc(Number(state.account.rebirthPoints) || 0));
 }
 
+/** Shared wallet across Warrior / Wizard / Taoist (live inventory is the working copy). */
+function accountGold() {
+  if (state.inventory) {
+    return Math.max(0, Math.trunc(Number(state.inventory.gold) || 0));
+  }
+  return Math.max(0, Math.trunc(Number(state.account?.gold) || 0));
+}
+
+/** Push the live inventory wallet into the shared account pool. */
+function commitLiveGoldToAccount() {
+  if (!state.account) return accountGold();
+  const live = accountGold();
+  state.account.gold = live;
+  if (state.game?.progress) state.game.progress.gold = live;
+  if (state.battle) state.battle.gold = live;
+  return live;
+}
+
+/** Apply the persisted account pool onto live inventory / HUD mirrors. */
+function applyAccountGoldToLiveState() {
+  const gold = Math.max(0, Math.trunc(Number(state.account?.gold) || 0));
+  if (state.inventory) state.inventory.gold = gold;
+  if (state.game?.progress) state.game.progress.gold = gold;
+  if (state.battle) state.battle.gold = gold;
+  return gold;
+}
+
+/** Credit gold into the shared pool (and optional party-member mirror). */
+function creditSharedGold(amount, member = null) {
+  const add = Math.max(0, Math.trunc(Number(amount) || 0));
+  if (add > 0 && state.inventory) {
+    state.inventory.gold = Math.max(0, Math.trunc(Number(state.inventory.gold) || 0)) + add;
+  } else if (add > 0 && state.account) {
+    state.account.gold = Math.max(0, Math.trunc(Number(state.account.gold) || 0)) + add;
+  }
+  commitLiveGoldToAccount();
+  const gold = accountGold();
+  if (member?.inventory) {
+    member.inventory.gold = gold;
+    if (member.game?.progress) member.game.progress.gold = gold;
+  }
+  return gold;
+}
+
+/** Stamp every saved character slot with the shared wallet (avoids stale per-class gold). */
+function stampSharedGoldOnAllCharacters() {
+  const gold = accountGold();
+  for (const classId of CHARACTER_IDS) {
+    const character = state.characters?.[classId];
+    if (!character?.inventory) continue;
+    character.inventory.gold = gold;
+    if (character.game?.progress) character.game.progress.gold = gold;
+  }
+}
+
 function payRebirthPoints(quantity) {
   const cost = Math.max(1, Math.trunc(Number(quantity) || 1));
   if (accountRebirthPoints() < cost) return false;
@@ -5842,6 +5902,7 @@ function performAccountRebirth() {
     trackRebirthPointsGained(pointsGained);
   }
   state.account.stats.rebirthCount += 1;
+  state.account.gold = 0;
   for (const classId of CHARACTER_IDS) {
     state.characters[classId] = resetCharacterProgressForRebirth(classId);
   }
@@ -6009,14 +6070,16 @@ function applyCharacterState(classId, character = createDefaultCharacterState(cl
   };
   syncInventoryCapacity();
   ensureInventorySlots();
-  state.game.progress.gold = state.inventory.gold;
+  applyAccountGoldToLiveState();
   applyEquippedVisualIndexes();
   syncTownPartyIdleMembers();
 }
 
 function captureActiveCharacterState() {
+  commitLiveGoldToAccount();
   const classId = normalizeCharacterId(state.activeCharacterId);
   state.characters[classId] = serializeCurrentCharacterState();
+  stampSharedGoldOnAllCharacters();
 }
 
 // Keep every saved character's zone/town state aligned (boss party assist chars each
@@ -6170,20 +6233,27 @@ function serializeCurrentCharacterState() {
 }
 
 function serializeCharactersState() {
+  commitLiveGoldToAccount();
+  stampSharedGoldOnAllCharacters();
+  const sharedGold = accountGold();
   return Object.fromEntries(CHARACTER_IDS.map((classId) => {
     const character = state.characters[classId] ?? createDefaultCharacterState(classId);
     return [classId, {
       classId,
       game: {
         ...character.game,
-        progress: { ...character.game.progress },
+        progress: { ...character.game.progress, gold: sharedGold },
         starterGearVersion: Math.max(STARTER_GEAR_VERSION, Math.trunc(Number(character.game.starterGearVersion) || 0)),
         dropPity: { ...character.game.dropPity },
         bossRespawns: { ...character.game.bossRespawns },
         bossKills: { ...character.game.bossKills },
         recentLoot: [...character.game.recentLoot],
       },
-      inventory: cloneInventoryState(character.inventory),
+      inventory: (() => {
+        const inventory = cloneInventoryState(character.inventory);
+        inventory.gold = sharedGold;
+        return inventory;
+      })(),
       hotbar: cloneHotbarState(character.hotbar),
       magic: magicStateForPersistence(character.magic),
       battle: { ...character.battle },
@@ -7696,17 +7766,70 @@ function setSfxVolume(value) {
   renderSceneOverlay();
 }
 
-function autoPotionThreshold(kind) {
+function setShowRecentLoot(enabled) {
+  state.settings.showRecentLoot = Boolean(enabled);
+  saveGameState(true);
+  gamePanelDynamicSignature = "";
+  sceneSignature = "";
+  renderGameUiPanel();
+  renderSceneOverlay();
+}
+
+function setShowActivityLog(enabled) {
+  state.settings.showActivityLog = Boolean(enabled);
+  saveGameState(true);
+  gamePanelDynamicSignature = "";
+  sceneSignature = "";
+  renderGameUiPanel();
+  renderSceneOverlay();
+}
+
+function optionsAutoPotionClassId() {
+  const selected = String(state.optionsAutoPotionClassId ?? "");
+  if (CHARACTER_IDS.includes(selected)) return selected;
+  return normalizeCharacterId(state.activeCharacterId);
+}
+
+function ensureAutoPotionThresholdsByCharacter() {
+  state.settings.autoPotionThresholdsByCharacter = sanitizeAutoPotionThresholdsByCharacter(
+    state.settings.autoPotionThresholdsByCharacter,
+    state.settings.autoPotionHpThreshold,
+    state.settings.autoPotionMpThreshold,
+  );
+  return state.settings.autoPotionThresholdsByCharacter;
+}
+
+function autoPotionThreshold(kind, classId = state.activeCharacterId) {
   const fallback = kind === "mp" ? DEFAULT_AUTO_POTION_MP_THRESHOLD : DEFAULT_AUTO_POTION_HP_THRESHOLD;
-  const saved = kind === "mp" ? state.settings.autoPotionMpThreshold : state.settings.autoPotionHpThreshold;
+  const id = normalizeCharacterId(classId);
+  const byCharacter = ensureAutoPotionThresholdsByCharacter();
+  const saved = byCharacter[id]?.[kind]
+    ?? (kind === "mp" ? state.settings.autoPotionMpThreshold : state.settings.autoPotionHpThreshold);
   return normalizedAutoPotionThreshold(saved, fallback);
 }
 
-function setAutoPotionThreshold(kind, value) {
-  const next = normalizedAutoPotionThreshold(value, autoPotionThreshold(kind));
-  if (kind === "mp") state.settings.autoPotionMpThreshold = next;
-  else state.settings.autoPotionHpThreshold = next;
+function setAutoPotionThreshold(kind, value, classId = optionsAutoPotionClassId()) {
+  const id = normalizeCharacterId(classId);
+  const byCharacter = ensureAutoPotionThresholdsByCharacter();
+  const current = byCharacter[id] ?? {
+    hp: DEFAULT_AUTO_POTION_HP_THRESHOLD,
+    mp: DEFAULT_AUTO_POTION_MP_THRESHOLD,
+  };
+  const next = normalizedAutoPotionThreshold(value, kind === "mp" ? current.mp : current.hp);
+  byCharacter[id] = {
+    hp: kind === "hp" ? next : normalizedAutoPotionThreshold(current.hp, DEFAULT_AUTO_POTION_HP_THRESHOLD),
+    mp: kind === "mp" ? next : normalizedAutoPotionThreshold(current.mp, DEFAULT_AUTO_POTION_MP_THRESHOLD),
+  };
+  // Keep legacy flat fields mirrored to Warrior for older readers / migrations.
+  state.settings.autoPotionHpThreshold = byCharacter.Warrior?.hp ?? DEFAULT_AUTO_POTION_HP_THRESHOLD;
+  state.settings.autoPotionMpThreshold = byCharacter.Warrior?.mp ?? DEFAULT_AUTO_POTION_MP_THRESHOLD;
   saveGameState(true);
+  sceneSignature = "";
+  renderSceneOverlay();
+}
+
+function setOptionsAutoPotionClassId(classId) {
+  state.optionsAutoPotionClassId = normalizeCharacterId(classId);
   sceneSignature = "";
   renderSceneOverlay();
 }
@@ -8985,6 +9108,7 @@ function resetRuntimeGameState() {
   state.account.storage = createDefaultStorageState();
   state.account.upgrades = createDefaultAccountUpgradeState();
   state.account.rebirthPoints = 0;
+  state.account.gold = 0;
   state.account.bossRespawns = {};
   state.account.stats = createDefaultAccountStats();
   state.account.codex = createDefaultAccountCodexState();
@@ -9023,8 +9147,12 @@ function resetRuntimeGameState() {
   state.settings.musicMode = MUSIC_MODE_PLAYLIST;
   state.settings.sfxEnabled = DEFAULT_SFX_ENABLED;
   state.settings.sfxVolume = DEFAULT_SFX_VOLUME;
+  state.settings.showRecentLoot = DEFAULT_SHOW_RECENT_LOOT;
+  state.settings.showActivityLog = DEFAULT_SHOW_ACTIVITY_LOG;
   state.settings.autoPotionHpThreshold = DEFAULT_AUTO_POTION_HP_THRESHOLD;
   state.settings.autoPotionMpThreshold = DEFAULT_AUTO_POTION_MP_THRESHOLD;
+  state.settings.autoPotionThresholdsByCharacter = createDefaultAutoPotionThresholdsByCharacter();
+  state.optionsAutoPotionClassId = null;
   state.settings.prototypeStatsEnabled = DEFAULT_PROTOTYPE_STATS_ENABLED;
   state.settings.prototypeStatsNoticeVersion = 0;
   state.settings.prototypeResetNoticeVersion = 0;
@@ -10660,6 +10788,8 @@ function syncBossPartyControlledInventoryFromState(classId = bossPartyLeaderClas
   if (normalizeCharacterId(state.activeCharacterId) !== leaderClassId) return;
   member.inventory = cloneInventoryState(state.inventory);
   member.hotbar = cloneHotbarState(state.hotbar);
+  member.inventory.gold = accountGold();
+  if (member.game?.progress) member.game.progress.gold = accountGold();
   ensureBossPartyInventorySlots(member);
 }
 
@@ -10669,11 +10799,11 @@ function syncBossPartyControlledInventoryToState(classId = bossPartyLeaderClassI
   const leaderClassId = bossPartyLeaderClassId(party);
   const member = party.members.find((candidate) => candidate.classId === classId);
   if (!member || classId !== leaderClassId) return;
+  commitLiveGoldToAccount();
   state.inventory = cloneInventoryState(member.inventory);
   state.hotbar = cloneHotbarState(member.hotbar);
   state.magic = cloneMagicState(member.magic);
-  state.game.progress.gold = member.inventory.gold;
-  state.battle.gold = member.inventory.gold;
+  applyAccountGoldToLiveState();
 }
 
 function mergeBossPartyMemberSpellCooldowns(member, magicState) {
@@ -17975,6 +18105,8 @@ function renderGameUiPanel() {
     gold: state.inventory.gold,
     recentLoot: game.recentLoot,
     log: state.battle.log,
+    showRecentLoot: state.settings.showRecentLoot !== false,
+    showActivityLog: state.settings.showActivityLog !== false,
     bossParty: bossPartySignature(),
     groupDungeonWaves: groupDungeonWaveSignature(),
     groupDungeonBossSwarm: groupDungeonBossSwarmSignature(),
@@ -17983,7 +18115,9 @@ function renderGameUiPanel() {
   // Defer interactive button HTML swaps while the pointer is down on them.
   if (isPointerHeldWithin(els.gamePanel.querySelector("[data-game-ui-advance-floor]"))
     || isPointerHeldWithin(els.gamePanel.querySelector("[data-game-ui-damage-report]"))
-    || isPointerHeldWithin(els.gamePanel.querySelector("#returnToTown"))) {
+    || isPointerHeldWithin(els.gamePanel.querySelector("#returnToTown"))
+    || isPointerHeldWithin(els.gamePanel.querySelector("[data-toggle-recent-loot]"))
+    || isPointerHeldWithin(els.gamePanel.querySelector("[data-toggle-activity-log]"))) {
     return;
   }
   gamePanelDynamicSignature = dynamicSignature;
@@ -18023,6 +18157,7 @@ function testLevelUpCharacter() {
 }
 
 function recentLootHtml() {
+  if (state.settings.showRecentLoot === false) return "";
   if (!state.game.recentLoot.length) return "";
   return `
     <section class="recent-loot">
@@ -18033,9 +18168,23 @@ function recentLootHtml() {
 }
 
 function gameSideRecentLootHtml() {
+  const visible = state.settings.showRecentLoot !== false;
+  if (!visible) {
+    return `
+      <section class="recent-loot game-side-loot-card is-collapsed">
+        <div class="game-card-title">
+          <strong>Recent Loot</strong>
+          <button type="button" class="game-panel-section-toggle" data-toggle-recent-loot>Show</button>
+        </div>
+      </section>
+    `;
+  }
   return `
     <section class="recent-loot game-side-loot-card">
-      <strong>Recent Loot</strong>
+      <div class="game-card-title">
+        <strong>Recent Loot</strong>
+        <button type="button" class="game-panel-section-toggle" data-toggle-recent-loot>Hide</button>
+      </div>
       ${state.game.recentLoot.length
     ? state.game.recentLoot.map((line) => `<span>${escapeHtml(line)}</span>`).join("")
     : `<span class="recent-loot-empty">No loot yet.</span>`}
@@ -18044,11 +18193,25 @@ function gameSideRecentLootHtml() {
 }
 
 function activityLogHtml() {
+  const visible = state.settings.showActivityLog !== false;
+  if (!visible) {
+    return `
+      <section class="game-card game-log-card is-collapsed">
+        <div class="game-card-title">
+          <strong>Activity Log</strong>
+          <button type="button" class="game-panel-section-toggle" data-toggle-activity-log>Show</button>
+        </div>
+      </section>
+    `;
+  }
   return `
     <section class="game-card game-log-card">
       <div class="game-card-title">
         <strong>Activity Log</strong>
-        <span>${title(state.battle.phase)}</span>
+        <span class="game-log-card-meta">
+          <span>${title(state.battle.phase)}</span>
+          <button type="button" class="game-panel-section-toggle" data-toggle-activity-log>Hide</button>
+        </span>
       </div>
       <div class="game-log-list">
         ${bossPartyStatusHtml()}
@@ -18509,7 +18672,10 @@ function openScene(scene, updateUrl = true) {
   }
   state.openScenes[scene] = true;
   if (scene === "achievements") checkAchievementsForCurrentCharacter();
-  if (scene === "options") void fetchPlayerAlias();
+  if (scene === "options") {
+    state.optionsAutoPotionClassId = normalizeCharacterId(state.activeCharacterId);
+    void fetchPlayerAlias();
+  }
   if (scene === "leaderboard") void ensureLeaderboardData();
   if (scene === "cashShop") void fetchTokenBalance(true);
   if (scene === "spiritBox" && !state.tokens.allowLocalSpend) void fetchTokenBalance(true);
@@ -20326,7 +20492,7 @@ function gettingStartedSceneHtml() {
         "Only potions belong on the hotbar. Hover any item for a tooltip with its restore amount and stats.",
       ])}
       ${gettingStartedSectionHtml("Auto Potions", [
-        `Hotbar slots marked <strong>Auto</strong> drink for you when HP or MP drops below the thresholds in <strong>Options</strong> (default <strong>50%</strong> each). You start with ${BASE_AUTO_POTION_SLOTS} auto slots; account upgrades can raise that to ${maxAutoPotionSlotLimit()} (currently ${autoPotionSlotCount} unlocked).`,
+        `Hotbar slots marked <strong>Auto</strong> drink for you when HP or MP drops below that character&apos;s thresholds in <strong>Options</strong> (default <strong>50%</strong> each). You start with ${BASE_AUTO_POTION_SLOTS} auto slots; account upgrades can raise that to ${maxAutoPotionSlotLimit()} (currently ${autoPotionSlotCount} unlocked).`,
         "Auto potions scan auto slots left to right and pick the strongest valid potion for the resource that needs healing. There is a short cooldown between automatic drinks.",
         "Place your best HP potions in auto slots for emergencies and keep manual slots for buffs or poisons you want to trigger yourself.",
       ])}
@@ -20422,8 +20588,9 @@ function optionsSceneHtml() {
   const track = currentMusicTrack();
   const volume = Math.round(normalizedVolume(state.settings.musicVolume) * 100);
   const sfxVolume = Math.round(normalizedVolume(state.settings.sfxVolume) * 100);
-  const autoPotionHpPercent = Math.round(autoPotionThreshold("hp") * 100);
-  const autoPotionMpPercent = Math.round(autoPotionThreshold("mp") * 100);
+  const autoPotionClassId = optionsAutoPotionClassId();
+  const autoPotionHpPercent = Math.round(autoPotionThreshold("hp", autoPotionClassId) * 100);
+  const autoPotionMpPercent = Math.round(autoPotionThreshold("mp", autoPotionClassId) * 100);
   const musicMode = normalizedMusicMode(state.settings.musicMode);
   const statsReady = state.prototypeStats.configured;
   const statsEnabled = statsReady && state.settings.prototypeStatsEnabled;
@@ -20526,9 +20693,21 @@ function optionsSceneHtml() {
       <div class="options-row">
         <div>
           <strong>Auto Potions</strong>
-          <span>Drink from Auto hotbar slots when HP or MP drops below these thresholds.</span>
+          <span>Pick a character, then set when that class drinks from Auto hotbar slots.</span>
         </div>
       </div>
+      <div class="options-auto-potion-characters" role="group" aria-label="Auto potion character">
+        ${CHARACTER_IDS.map((classId) => `
+          <button
+            type="button"
+            class="${classId === autoPotionClassId ? "active" : ""}"
+            data-options-auto-potion-class="${escapeHtml(classId)}"
+          >
+            ${escapeHtml(classId)}
+          </button>
+        `).join("")}
+      </div>
+      <p class="options-note">Editing thresholds for <strong>${escapeHtml(autoPotionClassId)}</strong>.</p>
       <label class="options-volume">
         <span>Auto HP %</span>
         <input type="range" min="5" max="100" step="5" value="${autoPotionHpPercent}" data-auto-potion-hp />
@@ -20575,6 +20754,24 @@ function optionsSceneHtml() {
         <input type="range" min="0" max="100" step="1" value="${sfxVolume}" data-sfx-volume />
         <strong>${sfxVolume}%</strong>
       </label>
+      <div class="options-row">
+        <div>
+          <strong>Recent Loot</strong>
+          <span>${state.settings.showRecentLoot !== false ? "Shown in the side panel while hunting" : "Hidden from the side panel"}</span>
+        </div>
+        <button type="button" class="${state.settings.showRecentLoot !== false ? "active" : ""}" data-toggle-recent-loot>
+          ${state.settings.showRecentLoot !== false ? "On" : "Off"}
+        </button>
+      </div>
+      <div class="options-row">
+        <div>
+          <strong>Activity Log</strong>
+          <span>${state.settings.showActivityLog !== false ? "Shown in the side panel while hunting" : "Hidden from the side panel"}</span>
+        </div>
+        <button type="button" class="${state.settings.showActivityLog !== false ? "active" : ""}" data-toggle-activity-log>
+          ${state.settings.showActivityLog !== false ? "On" : "Off"}
+        </button>
+      </div>
       <div class="music-track-list">
         ${BACKGROUND_MUSIC_TRACKS.map((entry, index) => `
           <button
@@ -20629,11 +20826,23 @@ function characterSelectSceneHtml() {
   `;
 }
 
+function characterSelectXpPercentText(progress) {
+  const level = Math.max(1, Math.trunc(Number(progress?.level) || PLAYER_TEMPLATE.level));
+  const experience = Math.max(0, Math.trunc(Number(progress?.experience) || 0));
+  const needed = xpForNextLevel(level);
+  if (!Number.isFinite(needed) || needed <= 0) return "Max";
+  const percent = Math.min(100, Math.floor((experience / needed) * 100));
+  return `${percent}%`;
+}
+
 function characterSelectCardHtml(entry) {
   const active = entry.id === state.battle.combatClass;
   const disabled = entry.disabled || COMBAT_CLASSES.some((combatClass) => combatClass.id === entry.id && combatClass.disabled);
   const character = active ? serializeCurrentCharacterState() : state.characters[entry.id];
-  const progress = character?.game?.progress ?? { level: PLAYER_TEMPLATE.level, gold: PLAYER_TEMPLATE.gold };
+  const progress = character?.game?.progress ?? {
+    level: PLAYER_TEMPLATE.level,
+    experience: PLAYER_TEMPLATE.experience,
+  };
   return `
     <button
       type="button"
@@ -20646,7 +20855,7 @@ function characterSelectCardHtml(entry) {
         ${characterSelectPaperDollHtml(character)}
       </span>
       <strong>${escapeHtml(entry.label)}</strong>
-      <span>${active ? "Selected" : escapeHtml(entry.role)} | Lv ${progress.level} | ${progress.gold}g</span>
+      <span>Lv ${progress.level} | ${characterSelectXpPercentText(progress)}</span>
     </button>
   `;
 }
@@ -27568,6 +27777,24 @@ function bindControls() {
       setSfxEnabled(!state.settings.sfxEnabled);
       if (!state.settings.sfxEnabled) return;
       playSfx("ui.button");
+      return;
+    }
+    const recentLootToggleButton = event.target.closest("[data-toggle-recent-loot]");
+    if (recentLootToggleButton && root.contains(recentLootToggleButton)) {
+      setShowRecentLoot(state.settings.showRecentLoot === false);
+      playSfx("ui.button", { volume: 0.35, throttleMs: 80 });
+      return;
+    }
+    const activityLogToggleButton = event.target.closest("[data-toggle-activity-log]");
+    if (activityLogToggleButton && root.contains(activityLogToggleButton)) {
+      setShowActivityLog(state.settings.showActivityLog === false);
+      playSfx("ui.button", { volume: 0.35, throttleMs: 80 });
+      return;
+    }
+    const autoPotionClassButton = event.target.closest("[data-options-auto-potion-class]");
+    if (autoPotionClassButton && root.contains(autoPotionClassButton)) {
+      setOptionsAutoPotionClassId(autoPotionClassButton.dataset.optionsAutoPotionClass);
+      playSfx("ui.button", { volume: 0.35, throttleMs: 80 });
       return;
     }
     const prototypeStatsToggleButton = event.target.closest("[data-toggle-prototype-stats]");
@@ -34681,13 +34908,7 @@ function applyBossPartyMemberKillReward(member, {
   // Sample only the locally-controlled character so the live XP/hr tracker works
   // in group dungeons too (same zone/mode gating as the solo path).
   if (member.classId === bossPartyControlledClassId()) recordXpRateSample(xp);
-  member.inventory.gold += gold;
-  member.game.progress.gold = member.inventory.gold;
-  if (member.classId === bossPartyControlledClassId()) {
-    state.inventory.gold = member.inventory.gold;
-    state.game.progress.gold = member.inventory.gold;
-    state.battle.gold = member.inventory.gold;
-  }
+  creditSharedGold(gold, member);
   member.game.kills += 1;
   member.game.zoneKills += 1;
   if (includeItems && zoneId) member.game.dropPity[zoneId] = 0;
@@ -35002,7 +35223,7 @@ function bossPartyAutoUsePotions(member, now) {
   }
   let used = false;
   for (const kind of ["hp", "mp"].sort((a, b) => bossPartyResourceRatio(member, a) - bossPartyResourceRatio(member, b))) {
-    if (bossPartyResourceRatio(member, kind) >= autoPotionThreshold(kind)) continue;
+    if (bossPartyResourceRatio(member, kind) >= autoPotionThreshold(kind, member.classId)) continue;
     if ((member.autoPotionReadyAt?.[kind] ?? 0) > now) continue;
     if (kind === "hp" && (member.potHealthAmount ?? 0) > 0) continue;
     if (kind === "mp" && (member.potManaAmount ?? 0) > 0) continue;
@@ -35219,16 +35440,13 @@ function syncBossPartyMembersToCharacters(party, options = {}) {
   if (!party?.members?.length) return;
   const leaderClassId = bossPartyLeaderClassId(party);
   if (normalizeCharacterId(state.activeCharacterId) === leaderClassId) {
-    const leaderMember = party.members.find((candidate) => candidate.classId === leaderClassId);
-    const savedGold = Math.max(0, Number(leaderMember?.inventory?.gold ?? leaderMember?.game?.progress?.gold) || 0);
     syncBossPartyControlledMemberFromState(leaderClassId);
-    const leaderAfter = party.members.find((candidate) => candidate.classId === leaderClassId);
-    if (leaderAfter) {
-      leaderAfter.inventory.gold = Math.max(savedGold, Number(leaderAfter.inventory.gold) || 0);
-      leaderAfter.game.progress.gold = leaderAfter.inventory.gold;
-    }
   }
+  commitLiveGoldToAccount();
+  const sharedGold = accountGold();
   for (const member of party.members) {
+    member.inventory.gold = sharedGold;
+    if (member.game?.progress) member.game.progress.gold = sharedGold;
     const character = state.characters[member.classId] ?? createDefaultCharacterState(member.classId);
     character.inventory = cloneInventoryState(member.inventory);
     character.hotbar = cloneHotbarState(member.hotbar);
@@ -35238,7 +35456,7 @@ function syncBossPartyMembersToCharacters(party, options = {}) {
       ...member.game,
       mode: state.game.mode,
       activeZoneId: state.game.activeZoneId,
-      progress: { ...member.game.progress, gold: member.inventory.gold },
+      progress: { ...member.game.progress, gold: sharedGold },
       recentLoot: [...(member.game.recentLoot ?? [])],
       dropPity: { ...(member.game.dropPity ?? {}) },
       bossRespawns: { ...accountBossRespawns() },
@@ -35256,6 +35474,7 @@ function syncBossPartyMembersToCharacters(party, options = {}) {
     };
     state.characters[member.classId] = character;
   }
+  stampSharedGoldOnAllCharacters();
   persistCharacterGameLocation({
     mode: state.game.mode,
     zoneId: state.game.activeZoneId,
@@ -36040,7 +36259,6 @@ function updatePendingTwinDrakeHits(now) {
 
 function castWarriorCharge(skill, learned, cost, now) {
   const battle = state.battle;
-  suppressNextStageInfoMpFlash = true;
   battle.player.mp = Math.max(0, battle.player.mp - cost);
   setWarriorSpellCastReadyAt(skill, learned, now);
   clearQueuedCombatSpell(skill.id);
@@ -46198,13 +46416,6 @@ function stageInfoPlayerVitals() {
   };
 }
 
-function flashStageInfoOrbPanel(el) {
-  if (!el) return;
-  el.classList.remove("stage-info-orb-flash");
-  void el.offsetWidth;
-  el.classList.add("stage-info-orb-flash");
-}
-
 function renderStageInfoOrb() {
   if (!els.stageInfoHpFill && !els.stageInfoMpFill) return;
   const { hp, maxHp, mp, maxMp } = stageInfoPlayerVitals();
@@ -46216,11 +46427,7 @@ function renderStageInfoOrb() {
   const mpLabel = formatInfoBarPair(mp, maxMp, 9);
   const signature = `${hpLabel}|${mpLabel}|${hpFull}|${mpFull}|${hpPct}|${mpPct}`;
   if (signature === stageInfoOrbSignature) return;
-  const prevHp = stageInfoOrbLastHp;
-  const prevMp = stageInfoOrbLastMp;
   stageInfoOrbSignature = signature;
-  stageInfoOrbLastHp = hp;
-  stageInfoOrbLastMp = mp;
   if (els.stageInfoHpFill) els.stageInfoHpFill.style.height = `${hpPct}%`;
   if (els.stageInfoMpFill) els.stageInfoMpFill.style.height = `${mpPct}%`;
   if (els.stageInfoHpText) {
@@ -46231,9 +46438,6 @@ function renderStageInfoOrb() {
     els.stageInfoMpText.textContent = mpLabel;
     els.stageInfoMpText.title = `MP ${mpFull}`;
   }
-  if (prevHp !== null && hp < prevHp) flashStageInfoOrbPanel(els.stageInfoHpFill);
-  if (prevMp !== null && mp < prevMp && !suppressNextStageInfoMpFlash) flashStageInfoOrbPanel(els.stageInfoMpFill);
-  suppressNextStageInfoMpFlash = false;
 }
 
 function inventoryBagUsageHtml(className = "inventory-bag-usage") {

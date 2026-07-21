@@ -1,12 +1,12 @@
 {
   "kills": 38,
   "xp": 395,
-  "gold": 194,
+  "gold": 191,
   "elapsedMs": 300000,
-  "playerHp": 123,
+  "playerHp": 120,
   "playerMp": 3,
   "playerMaxMp": 123,
   "playerDied": false,
   "levels": [],
-  "damageTaken": 7
+  "damageTaken": 10
 }
