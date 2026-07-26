@@ -3,7 +3,7 @@
 > **Private dev sheet** — not shipped to players. Regenerate after table changes:
 > `npm run empower:ref`
 
-Last generated: 2026-07-06
+Last generated: 2026-07-26
 
 ## System overview
 
@@ -19,8 +19,8 @@ Last generated: 2026-07-06
 - Warrior weapon — DC only. Wizard weapon — DC + MC. Tao weapon — DC + SC. Universal weapon — DC + MC + SC.
 - Warrior and Universal weapons roll DC empower plus Acc, A Speed, Freezing, and Poison.
 - Warrior weapons also roll warrior skill damage and Flaming Sword cooldown empowers.
-- Wizard and Universal weapons roll MC empower; MC weapons also roll wizard spell damage and mana cost empowers.
-- Tao and Universal weapons roll SC empower; SC weapons also roll tao spell healing, damage, and pet damage / health / damage-taken empowers.
+- Wizard and Universal weapons roll MC empower; MC weapons also roll wizard spell damage, mana cost, and Blizzard / Meteor Strike cooldown empowers.
+- Tao and Universal weapons roll SC empower; SC weapons also roll tao spell healing, damage, pet damage / health / damage-taken, and Poison Cloud cooldown empowers.
 - All weapons may roll gold drop, bonus XP, item drop chance, and Awakening Soul drop chance empowers.
 - Luck — all weapon classes.
 
@@ -84,6 +84,8 @@ Base DC + MC — no SC.
 - Reduce mana cost of Flame Field by 10–40%
 - Reduce mana cost of Meteor Strike by 10–40%
 - Reduce mana cost of Blizzard by 10–40%
+- Reduce Meteor Strike cooldown by 1–5 seconds
+- Reduce Blizzard cooldown by 1–5 seconds
 - Increase Flame Disruptor crit chance by 5–25%
 - Increase Flame Disruptor crit damage by 10–50%
 - Increase Fire Wall crit chance by 5–25%
@@ -130,6 +132,7 @@ Base DC + SC — no MC.
 - Increase Holy Deva damage by 10–50%
 - Increase Holy Deva health by 10–50%
 - Reduce Holy Deva damage taken by 5–20%
+- Reduce Poison Cloud cooldown by 1–5 seconds
 - Increase Soul Fire Ball crit chance by 5–25%
 - Increase Soul Fire Ball crit damage by 10–50%
 - +5–40% Gold drop
@@ -169,6 +172,8 @@ Base DC + MC + SC.
 - Reduce mana cost of Flame Field by 10–40%
 - Reduce mana cost of Meteor Strike by 10–40%
 - Reduce mana cost of Blizzard by 10–40%
+- Reduce Meteor Strike cooldown by 1–5 seconds
+- Reduce Blizzard cooldown by 1–5 seconds
 - Increase Flame Disruptor crit chance by 5–25%
 - Increase Flame Disruptor crit damage by 10–50%
 - Increase Fire Wall crit chance by 5–25%
@@ -201,6 +206,7 @@ Base DC + MC + SC.
 - Increase Holy Deva damage by 10–50%
 - Increase Holy Deva health by 10–50%
 - Reduce Holy Deva damage taken by 5–20%
+- Reduce Poison Cloud cooldown by 1–5 seconds
 - Increase Soul Fire Ball crit chance by 5–25%
 - Increase Soul Fire Ball crit damage by 10–50%
 - +5–40% Gold drop
@@ -239,6 +245,7 @@ Slots: `armour`, `dress`
 - +1–14% Crit Rate
 - +5–20% Crit Damage
 - +5–30% Skill leveling
+- +5–35% Potion restore
 
 ### Helmet
 
@@ -258,6 +265,7 @@ Slots: `helmet`
 - +1–10% Crit Rate
 - +5–15% Crit Damage
 - +5–20% Skill leveling
+- +5–25% Potion restore
 
 ### Bracelet
 
@@ -322,6 +330,7 @@ Slots: `belt`, `boots`
 - +1–6% Crit Rate
 - +5–10% Crit Damage
 - +2–10% Skill leveling
+- +5–20% Potion restore
 
 ### Stone
 
@@ -382,6 +391,8 @@ Grouped by slot. Weapons show their class and actual roll pool from `empowerCand
 - Reduce mana cost of Flame Field by 5–20%
 - Reduce mana cost of Meteor Strike by 5–20%
 - Reduce mana cost of Blizzard by 5–20%
+- Reduce Meteor Strike cooldown by 1–3 seconds
+- Reduce Blizzard cooldown by 1–3 seconds
 - Increase Healing healing by 5–15%
 - Increase Mass Healing healing by 5–15%
 - Increase Soul Fire Ball damage by 5–20%
@@ -394,6 +405,7 @@ Grouped by slot. Weapons show their class and actual roll pool from `empowerCand
 - Increase Holy Deva damage by 5–25%
 - Increase Holy Deva health by 5–25%
 - Reduce Holy Deva damage taken by 5–10%
+- Reduce Poison Cloud cooldown by 1–3 seconds
 - Increase Slaying crit chance by 2–12%
 - Increase Slaying crit damage by 5–25%
 - Increase Flaming Sword crit chance by 2–12%
@@ -434,6 +446,7 @@ Grouped by slot. Weapons show their class and actual roll pool from `empowerCand
 - +1–14% Crit Rate
 - +5–20% Crit Damage
 - +5–30% Skill leveling
+- +5–35% Potion restore
 
 **Light Armour** (`light-armour`)
 - +1–5 AC
@@ -470,6 +483,8 @@ Grouped by slot. Weapons show their class and actual roll pool from `empowerCand
 - Reduce mana cost of Flame Field by 5–20%
 - Reduce mana cost of Meteor Strike by 5–20%
 - Reduce mana cost of Blizzard by 5–20%
+- Reduce Meteor Strike cooldown by 1–3 seconds
+- Reduce Blizzard cooldown by 1–3 seconds
 - Increase Healing healing by 5–15%
 - Increase Mass Healing healing by 5–15%
 - Increase Soul Fire Ball damage by 5–20%
@@ -482,6 +497,7 @@ Grouped by slot. Weapons show their class and actual roll pool from `empowerCand
 - Increase Holy Deva damage by 5–25%
 - Increase Holy Deva health by 5–25%
 - Reduce Holy Deva damage taken by 5–10%
+- Reduce Poison Cloud cooldown by 1–3 seconds
 - Increase Slaying crit chance by 2–12%
 - Increase Slaying crit damage by 5–25%
 - Increase Flaming Sword crit chance by 2–12%
@@ -522,6 +538,7 @@ Grouped by slot. Weapons show their class and actual roll pool from `empowerCand
 - +1–14% Crit Rate
 - +5–20% Crit Damage
 - +5–30% Skill leveling
+- +5–35% Potion restore
 
 **Solid Armour** (`solid-armour`)
 - +1–5 AC
@@ -558,6 +575,8 @@ Grouped by slot. Weapons show their class and actual roll pool from `empowerCand
 - Reduce mana cost of Flame Field by 5–20%
 - Reduce mana cost of Meteor Strike by 5–20%
 - Reduce mana cost of Blizzard by 5–20%
+- Reduce Meteor Strike cooldown by 1–3 seconds
+- Reduce Blizzard cooldown by 1–3 seconds
 - Increase Healing healing by 5–15%
 - Increase Mass Healing healing by 5–15%
 - Increase Soul Fire Ball damage by 5–20%
@@ -570,6 +589,7 @@ Grouped by slot. Weapons show their class and actual roll pool from `empowerCand
 - Increase Holy Deva damage by 5–25%
 - Increase Holy Deva health by 5–25%
 - Reduce Holy Deva damage taken by 5–10%
+- Reduce Poison Cloud cooldown by 1–3 seconds
 - Increase Slaying crit chance by 2–12%
 - Increase Slaying crit damage by 5–25%
 - Increase Flaming Sword crit chance by 2–12%
@@ -610,6 +630,7 @@ Grouped by slot. Weapons show their class and actual roll pool from `empowerCand
 - +1–14% Crit Rate
 - +5–20% Crit Damage
 - +5–30% Skill leveling
+- +5–35% Potion restore
 
 **Bone Robe** (`bone-robe`)
 - +1–5 AC
@@ -646,6 +667,8 @@ Grouped by slot. Weapons show their class and actual roll pool from `empowerCand
 - Reduce mana cost of Flame Field by 5–20%
 - Reduce mana cost of Meteor Strike by 5–20%
 - Reduce mana cost of Blizzard by 5–20%
+- Reduce Meteor Strike cooldown by 1–3 seconds
+- Reduce Blizzard cooldown by 1–3 seconds
 - Increase Healing healing by 5–15%
 - Increase Mass Healing healing by 5–15%
 - Increase Soul Fire Ball damage by 5–20%
@@ -658,6 +681,7 @@ Grouped by slot. Weapons show their class and actual roll pool from `empowerCand
 - Increase Holy Deva damage by 5–25%
 - Increase Holy Deva health by 5–25%
 - Reduce Holy Deva damage taken by 5–10%
+- Reduce Poison Cloud cooldown by 1–3 seconds
 - Increase Slaying crit chance by 2–12%
 - Increase Slaying crit damage by 5–25%
 - Increase Flaming Sword crit chance by 2–12%
@@ -698,6 +722,7 @@ Grouped by slot. Weapons show their class and actual roll pool from `empowerCand
 - +1–14% Crit Rate
 - +5–20% Crit Damage
 - +5–30% Skill leveling
+- +5–35% Potion restore
 
 **Medium Armour** (`medium-armour`)
 - +1–5 AC
@@ -734,6 +759,8 @@ Grouped by slot. Weapons show their class and actual roll pool from `empowerCand
 - Reduce mana cost of Flame Field by 5–20%
 - Reduce mana cost of Meteor Strike by 5–20%
 - Reduce mana cost of Blizzard by 5–20%
+- Reduce Meteor Strike cooldown by 1–3 seconds
+- Reduce Blizzard cooldown by 1–3 seconds
 - Increase Healing healing by 5–15%
 - Increase Mass Healing healing by 5–15%
 - Increase Soul Fire Ball damage by 5–20%
@@ -746,6 +773,7 @@ Grouped by slot. Weapons show their class and actual roll pool from `empowerCand
 - Increase Holy Deva damage by 5–25%
 - Increase Holy Deva health by 5–25%
 - Reduce Holy Deva damage taken by 5–10%
+- Reduce Poison Cloud cooldown by 1–3 seconds
 - Increase Slaying crit chance by 2–12%
 - Increase Slaying crit damage by 5–25%
 - Increase Flaming Sword crit chance by 2–12%
@@ -786,6 +814,7 @@ Grouped by slot. Weapons show their class and actual roll pool from `empowerCand
 - +1–14% Crit Rate
 - +5–20% Crit Damage
 - +5–30% Skill leveling
+- +5–35% Potion restore
 
 **Crystal Armour** (`crystal-armour`)
 - +1–5 AC
@@ -822,6 +851,8 @@ Grouped by slot. Weapons show their class and actual roll pool from `empowerCand
 - Reduce mana cost of Flame Field by 5–20%
 - Reduce mana cost of Meteor Strike by 5–20%
 - Reduce mana cost of Blizzard by 5–20%
+- Reduce Meteor Strike cooldown by 1–3 seconds
+- Reduce Blizzard cooldown by 1–3 seconds
 - Increase Healing healing by 5–15%
 - Increase Mass Healing healing by 5–15%
 - Increase Soul Fire Ball damage by 5–20%
@@ -834,6 +865,7 @@ Grouped by slot. Weapons show their class and actual roll pool from `empowerCand
 - Increase Holy Deva damage by 5–25%
 - Increase Holy Deva health by 5–25%
 - Reduce Holy Deva damage taken by 5–10%
+- Reduce Poison Cloud cooldown by 1–3 seconds
 - Increase Slaying crit chance by 2–12%
 - Increase Slaying crit damage by 5–25%
 - Increase Flaming Sword crit chance by 2–12%
@@ -874,6 +906,7 @@ Grouped by slot. Weapons show their class and actual roll pool from `empowerCand
 - +1–14% Crit Rate
 - +5–20% Crit Damage
 - +5–30% Skill leveling
+- +5–35% Potion restore
 
 **Mir Armour (F)1** (`mir-armour-f-1`)
 - +1–5 AC
@@ -909,6 +942,7 @@ Grouped by slot. Weapons show their class and actual roll pool from `empowerCand
 - +1–14% Crit Rate
 - +5–20% Crit Damage
 - +5–30% Skill leveling
+- +5–35% Potion restore
 
 **Mir Armour (F)2** (`mir-armour-f-2`)
 - +1–5 AC
@@ -934,6 +968,8 @@ Grouped by slot. Weapons show their class and actual roll pool from `empowerCand
 - Reduce mana cost of Flame Field by 5–20%
 - Reduce mana cost of Meteor Strike by 5–20%
 - Reduce mana cost of Blizzard by 5–20%
+- Reduce Meteor Strike cooldown by 1–3 seconds
+- Reduce Blizzard cooldown by 1–3 seconds
 - Increase Flame Disruptor crit chance by 2–12%
 - Increase Flame Disruptor crit damage by 5–25%
 - Increase Fire Wall crit chance by 2–12%
@@ -962,6 +998,7 @@ Grouped by slot. Weapons show their class and actual roll pool from `empowerCand
 - +1–14% Crit Rate
 - +5–20% Crit Damage
 - +5–30% Skill leveling
+- +5–35% Potion restore
 
 **Mir Armour (F)3** (`mir-armour-f-3`)
 - +1–5 AC
@@ -983,6 +1020,7 @@ Grouped by slot. Weapons show their class and actual roll pool from `empowerCand
 - Increase Holy Deva damage by 5–25%
 - Increase Holy Deva health by 5–25%
 - Reduce Holy Deva damage taken by 5–10%
+- Reduce Poison Cloud cooldown by 1–3 seconds
 - Increase Soul Fire Ball crit chance by 2–12%
 - Increase Soul Fire Ball crit damage by 5–25%
 - +5–30% Gold drop
@@ -993,6 +1031,7 @@ Grouped by slot. Weapons show their class and actual roll pool from `empowerCand
 - +1–14% Crit Rate
 - +5–20% Crit Damage
 - +5–30% Skill leveling
+- +5–35% Potion restore
 
 **Mir Armour (M)1** (`mir-armour-m-1`)
 - +1–5 AC
@@ -1028,6 +1067,7 @@ Grouped by slot. Weapons show their class and actual roll pool from `empowerCand
 - +1–14% Crit Rate
 - +5–20% Crit Damage
 - +5–30% Skill leveling
+- +5–35% Potion restore
 
 **Mir Armour (M)2** (`mir-armour-m-2`)
 - +1–5 AC
@@ -1053,6 +1093,8 @@ Grouped by slot. Weapons show their class and actual roll pool from `empowerCand
 - Reduce mana cost of Flame Field by 5–20%
 - Reduce mana cost of Meteor Strike by 5–20%
 - Reduce mana cost of Blizzard by 5–20%
+- Reduce Meteor Strike cooldown by 1–3 seconds
+- Reduce Blizzard cooldown by 1–3 seconds
 - Increase Flame Disruptor crit chance by 2–12%
 - Increase Flame Disruptor crit damage by 5–25%
 - Increase Fire Wall crit chance by 2–12%
@@ -1081,6 +1123,7 @@ Grouped by slot. Weapons show their class and actual roll pool from `empowerCand
 - +1–14% Crit Rate
 - +5–20% Crit Damage
 - +5–30% Skill leveling
+- +5–35% Potion restore
 
 **Mir Armour (M)3** (`mir-armour-m-3`)
 - +1–5 AC
@@ -1102,6 +1145,7 @@ Grouped by slot. Weapons show their class and actual roll pool from `empowerCand
 - Increase Holy Deva damage by 5–25%
 - Increase Holy Deva health by 5–25%
 - Reduce Holy Deva damage taken by 5–10%
+- Reduce Poison Cloud cooldown by 1–3 seconds
 - Increase Soul Fire Ball crit chance by 2–12%
 - Increase Soul Fire Ball crit damage by 5–25%
 - +5–30% Gold drop
@@ -1112,6 +1156,7 @@ Grouped by slot. Weapons show their class and actual roll pool from `empowerCand
 - +1–14% Crit Rate
 - +5–20% Crit Damage
 - +5–30% Skill leveling
+- +5–35% Potion restore
 
 **Heavy Armour** (`heavy-armour`)
 - +1–5 AC
@@ -1148,6 +1193,8 @@ Grouped by slot. Weapons show their class and actual roll pool from `empowerCand
 - Reduce mana cost of Flame Field by 5–20%
 - Reduce mana cost of Meteor Strike by 5–20%
 - Reduce mana cost of Blizzard by 5–20%
+- Reduce Meteor Strike cooldown by 1–3 seconds
+- Reduce Blizzard cooldown by 1–3 seconds
 - Increase Healing healing by 5–15%
 - Increase Mass Healing healing by 5–15%
 - Increase Soul Fire Ball damage by 5–20%
@@ -1160,6 +1207,7 @@ Grouped by slot. Weapons show their class and actual roll pool from `empowerCand
 - Increase Holy Deva damage by 5–25%
 - Increase Holy Deva health by 5–25%
 - Reduce Holy Deva damage taken by 5–10%
+- Reduce Poison Cloud cooldown by 1–3 seconds
 - Increase Slaying crit chance by 2–12%
 - Increase Slaying crit damage by 5–25%
 - Increase Flaming Sword crit chance by 2–12%
@@ -1200,6 +1248,7 @@ Grouped by slot. Weapons show their class and actual roll pool from `empowerCand
 - +1–14% Crit Rate
 - +5–20% Crit Damage
 - +5–30% Skill leveling
+- +5–35% Potion restore
 
 **Heavy Armour (F)** (`heavy-armour-f`)
 - +1–5 AC
@@ -1236,6 +1285,8 @@ Grouped by slot. Weapons show their class and actual roll pool from `empowerCand
 - Reduce mana cost of Flame Field by 5–20%
 - Reduce mana cost of Meteor Strike by 5–20%
 - Reduce mana cost of Blizzard by 5–20%
+- Reduce Meteor Strike cooldown by 1–3 seconds
+- Reduce Blizzard cooldown by 1–3 seconds
 - Increase Healing healing by 5–15%
 - Increase Mass Healing healing by 5–15%
 - Increase Soul Fire Ball damage by 5–20%
@@ -1248,6 +1299,7 @@ Grouped by slot. Weapons show their class and actual roll pool from `empowerCand
 - Increase Holy Deva damage by 5–25%
 - Increase Holy Deva health by 5–25%
 - Reduce Holy Deva damage taken by 5–10%
+- Reduce Poison Cloud cooldown by 1–3 seconds
 - Increase Slaying crit chance by 2–12%
 - Increase Slaying crit damage by 5–25%
 - Increase Flaming Sword crit chance by 2–12%
@@ -1288,6 +1340,7 @@ Grouped by slot. Weapons show their class and actual roll pool from `empowerCand
 - +1–14% Crit Rate
 - +5–20% Crit Damage
 - +5–30% Skill leveling
+- +5–35% Potion restore
 
 **Magic Robe** (`magic-robe`)
 - +1–5 AC
@@ -1313,6 +1366,8 @@ Grouped by slot. Weapons show their class and actual roll pool from `empowerCand
 - Reduce mana cost of Flame Field by 5–20%
 - Reduce mana cost of Meteor Strike by 5–20%
 - Reduce mana cost of Blizzard by 5–20%
+- Reduce Meteor Strike cooldown by 1–3 seconds
+- Reduce Blizzard cooldown by 1–3 seconds
 - Increase Flame Disruptor crit chance by 2–12%
 - Increase Flame Disruptor crit damage by 5–25%
 - Increase Fire Wall crit chance by 2–12%
@@ -1341,6 +1396,7 @@ Grouped by slot. Weapons show their class and actual roll pool from `empowerCand
 - +1–14% Crit Rate
 - +5–20% Crit Damage
 - +5–30% Skill leveling
+- +5–35% Potion restore
 
 **Magic Robe (F)** (`magic-robe-f`)
 - +1–5 AC
@@ -1366,6 +1422,8 @@ Grouped by slot. Weapons show their class and actual roll pool from `empowerCand
 - Reduce mana cost of Flame Field by 5–20%
 - Reduce mana cost of Meteor Strike by 5–20%
 - Reduce mana cost of Blizzard by 5–20%
+- Reduce Meteor Strike cooldown by 1–3 seconds
+- Reduce Blizzard cooldown by 1–3 seconds
 - Increase Flame Disruptor crit chance by 2–12%
 - Increase Flame Disruptor crit damage by 5–25%
 - Increase Fire Wall crit chance by 2–12%
@@ -1394,6 +1452,7 @@ Grouped by slot. Weapons show their class and actual roll pool from `empowerCand
 - +1–14% Crit Rate
 - +5–20% Crit Damage
 - +5–30% Skill leveling
+- +5–35% Potion restore
 
 **Soul Armour** (`soul-armour`)
 - +1–5 AC
@@ -1415,6 +1474,7 @@ Grouped by slot. Weapons show their class and actual roll pool from `empowerCand
 - Increase Holy Deva damage by 5–25%
 - Increase Holy Deva health by 5–25%
 - Reduce Holy Deva damage taken by 5–10%
+- Reduce Poison Cloud cooldown by 1–3 seconds
 - Increase Soul Fire Ball crit chance by 2–12%
 - Increase Soul Fire Ball crit damage by 5–25%
 - +5–30% Gold drop
@@ -1425,6 +1485,7 @@ Grouped by slot. Weapons show their class and actual roll pool from `empowerCand
 - +1–14% Crit Rate
 - +5–20% Crit Damage
 - +5–30% Skill leveling
+- +5–35% Potion restore
 
 **Soul Armour (F)** (`soul-armour-f`)
 - +1–5 AC
@@ -1446,6 +1507,7 @@ Grouped by slot. Weapons show their class and actual roll pool from `empowerCand
 - Increase Holy Deva damage by 5–25%
 - Increase Holy Deva health by 5–25%
 - Reduce Holy Deva damage taken by 5–10%
+- Reduce Poison Cloud cooldown by 1–3 seconds
 - Increase Soul Fire Ball crit chance by 2–12%
 - Increase Soul Fire Ball crit damage by 5–25%
 - +5–30% Gold drop
@@ -1456,6 +1518,7 @@ Grouped by slot. Weapons show their class and actual roll pool from `empowerCand
 - +1–14% Crit Rate
 - +5–20% Crit Damage
 - +5–30% Skill leveling
+- +5–35% Potion restore
 
 **Fire Magic Robe (F)** (`fire-magic-robe-f`)
 - +1–5 AC
@@ -1481,6 +1544,8 @@ Grouped by slot. Weapons show their class and actual roll pool from `empowerCand
 - Reduce mana cost of Flame Field by 5–20%
 - Reduce mana cost of Meteor Strike by 5–20%
 - Reduce mana cost of Blizzard by 5–20%
+- Reduce Meteor Strike cooldown by 1–3 seconds
+- Reduce Blizzard cooldown by 1–3 seconds
 - Increase Flame Disruptor crit chance by 2–12%
 - Increase Flame Disruptor crit damage by 5–25%
 - Increase Fire Wall crit chance by 2–12%
@@ -1509,6 +1574,7 @@ Grouped by slot. Weapons show their class and actual roll pool from `empowerCand
 - +1–14% Crit Rate
 - +5–20% Crit Damage
 - +5–30% Skill leveling
+- +5–35% Potion restore
 
 **Fire Magic Robe (M)** (`fire-magic-robe`)
 - +1–5 AC
@@ -1534,6 +1600,8 @@ Grouped by slot. Weapons show their class and actual roll pool from `empowerCand
 - Reduce mana cost of Flame Field by 5–20%
 - Reduce mana cost of Meteor Strike by 5–20%
 - Reduce mana cost of Blizzard by 5–20%
+- Reduce Meteor Strike cooldown by 1–3 seconds
+- Reduce Blizzard cooldown by 1–3 seconds
 - Increase Flame Disruptor crit chance by 2–12%
 - Increase Flame Disruptor crit damage by 5–25%
 - Increase Fire Wall crit chance by 2–12%
@@ -1562,6 +1630,7 @@ Grouped by slot. Weapons show their class and actual roll pool from `empowerCand
 - +1–14% Crit Rate
 - +5–20% Crit Damage
 - +5–30% Skill leveling
+- +5–35% Potion restore
 
 **Tao Armour** (`tao-armour`)
 - +1–5 AC
@@ -1583,6 +1652,7 @@ Grouped by slot. Weapons show their class and actual roll pool from `empowerCand
 - Increase Holy Deva damage by 5–25%
 - Increase Holy Deva health by 5–25%
 - Reduce Holy Deva damage taken by 5–10%
+- Reduce Poison Cloud cooldown by 1–3 seconds
 - Increase Soul Fire Ball crit chance by 2–12%
 - Increase Soul Fire Ball crit damage by 5–25%
 - +5–30% Gold drop
@@ -1593,6 +1663,7 @@ Grouped by slot. Weapons show their class and actual roll pool from `empowerCand
 - +1–14% Crit Rate
 - +5–20% Crit Damage
 - +5–30% Skill leveling
+- +5–35% Potion restore
 
 **Tao Armour (F)** (`tao-armour-f`)
 - +1–5 AC
@@ -1614,6 +1685,7 @@ Grouped by slot. Weapons show their class and actual roll pool from `empowerCand
 - Increase Holy Deva damage by 5–25%
 - Increase Holy Deva health by 5–25%
 - Reduce Holy Deva damage taken by 5–10%
+- Reduce Poison Cloud cooldown by 1–3 seconds
 - Increase Soul Fire Ball crit chance by 2–12%
 - Increase Soul Fire Ball crit damage by 5–25%
 - +5–30% Gold drop
@@ -1624,6 +1696,7 @@ Grouped by slot. Weapons show their class and actual roll pool from `empowerCand
 - +1–14% Crit Rate
 - +5–20% Crit Damage
 - +5–30% Skill leveling
+- +5–35% Potion restore
 
 **Thick Armour (F)** (`thick-armour-f`)
 - +1–5 AC
@@ -1660,6 +1733,8 @@ Grouped by slot. Weapons show their class and actual roll pool from `empowerCand
 - Reduce mana cost of Flame Field by 5–20%
 - Reduce mana cost of Meteor Strike by 5–20%
 - Reduce mana cost of Blizzard by 5–20%
+- Reduce Meteor Strike cooldown by 1–3 seconds
+- Reduce Blizzard cooldown by 1–3 seconds
 - Increase Healing healing by 5–15%
 - Increase Mass Healing healing by 5–15%
 - Increase Soul Fire Ball damage by 5–20%
@@ -1672,6 +1747,7 @@ Grouped by slot. Weapons show their class and actual roll pool from `empowerCand
 - Increase Holy Deva damage by 5–25%
 - Increase Holy Deva health by 5–25%
 - Reduce Holy Deva damage taken by 5–10%
+- Reduce Poison Cloud cooldown by 1–3 seconds
 - Increase Slaying crit chance by 2–12%
 - Increase Slaying crit damage by 5–25%
 - Increase Flaming Sword crit chance by 2–12%
@@ -1712,6 +1788,7 @@ Grouped by slot. Weapons show their class and actual roll pool from `empowerCand
 - +1–14% Crit Rate
 - +5–20% Crit Damage
 - +5–30% Skill leveling
+- +5–35% Potion restore
 
 **Thick Armour (M)** (`thick-armour`)
 - +1–5 AC
@@ -1748,6 +1825,8 @@ Grouped by slot. Weapons show their class and actual roll pool from `empowerCand
 - Reduce mana cost of Flame Field by 5–20%
 - Reduce mana cost of Meteor Strike by 5–20%
 - Reduce mana cost of Blizzard by 5–20%
+- Reduce Meteor Strike cooldown by 1–3 seconds
+- Reduce Blizzard cooldown by 1–3 seconds
 - Increase Healing healing by 5–15%
 - Increase Mass Healing healing by 5–15%
 - Increase Soul Fire Ball damage by 5–20%
@@ -1760,6 +1839,7 @@ Grouped by slot. Weapons show their class and actual roll pool from `empowerCand
 - Increase Holy Deva damage by 5–25%
 - Increase Holy Deva health by 5–25%
 - Reduce Holy Deva damage taken by 5–10%
+- Reduce Poison Cloud cooldown by 1–3 seconds
 - Increase Slaying crit chance by 2–12%
 - Increase Slaying crit damage by 5–25%
 - Increase Flaming Sword crit chance by 2–12%
@@ -1800,6 +1880,7 @@ Grouped by slot. Weapons show their class and actual roll pool from `empowerCand
 - +1–14% Crit Rate
 - +5–20% Crit Damage
 - +5–30% Skill leveling
+- +5–35% Potion restore
 
 **Fine Iron Armour (F)** (`fine-iron-armour-f`)
 - +1–5 AC
@@ -1836,6 +1917,8 @@ Grouped by slot. Weapons show their class and actual roll pool from `empowerCand
 - Reduce mana cost of Flame Field by 5–20%
 - Reduce mana cost of Meteor Strike by 5–20%
 - Reduce mana cost of Blizzard by 5–20%
+- Reduce Meteor Strike cooldown by 1–3 seconds
+- Reduce Blizzard cooldown by 1–3 seconds
 - Increase Healing healing by 5–15%
 - Increase Mass Healing healing by 5–15%
 - Increase Soul Fire Ball damage by 5–20%
@@ -1848,6 +1931,7 @@ Grouped by slot. Weapons show their class and actual roll pool from `empowerCand
 - Increase Holy Deva damage by 5–25%
 - Increase Holy Deva health by 5–25%
 - Reduce Holy Deva damage taken by 5–10%
+- Reduce Poison Cloud cooldown by 1–3 seconds
 - Increase Slaying crit chance by 2–12%
 - Increase Slaying crit damage by 5–25%
 - Increase Flaming Sword crit chance by 2–12%
@@ -1888,6 +1972,7 @@ Grouped by slot. Weapons show their class and actual roll pool from `empowerCand
 - +1–14% Crit Rate
 - +5–20% Crit Damage
 - +5–30% Skill leveling
+- +5–35% Potion restore
 
 **Fine Iron Armour (M)** (`fine-iron-armour`)
 - +1–5 AC
@@ -1924,6 +2009,8 @@ Grouped by slot. Weapons show their class and actual roll pool from `empowerCand
 - Reduce mana cost of Flame Field by 5–20%
 - Reduce mana cost of Meteor Strike by 5–20%
 - Reduce mana cost of Blizzard by 5–20%
+- Reduce Meteor Strike cooldown by 1–3 seconds
+- Reduce Blizzard cooldown by 1–3 seconds
 - Increase Healing healing by 5–15%
 - Increase Mass Healing healing by 5–15%
 - Increase Soul Fire Ball damage by 5–20%
@@ -1936,6 +2023,7 @@ Grouped by slot. Weapons show their class and actual roll pool from `empowerCand
 - Increase Holy Deva damage by 5–25%
 - Increase Holy Deva health by 5–25%
 - Reduce Holy Deva damage taken by 5–10%
+- Reduce Poison Cloud cooldown by 1–3 seconds
 - Increase Slaying crit chance by 2–12%
 - Increase Slaying crit damage by 5–25%
 - Increase Flaming Sword crit chance by 2–12%
@@ -1976,6 +2064,7 @@ Grouped by slot. Weapons show their class and actual roll pool from `empowerCand
 - +1–14% Crit Rate
 - +5–20% Crit Damage
 - +5–30% Skill leveling
+- +5–35% Potion restore
 
 **Fire Robe (F)** (`fire-robe-f`)
 - +1–5 AC
@@ -2001,6 +2090,8 @@ Grouped by slot. Weapons show their class and actual roll pool from `empowerCand
 - Reduce mana cost of Flame Field by 5–20%
 - Reduce mana cost of Meteor Strike by 5–20%
 - Reduce mana cost of Blizzard by 5–20%
+- Reduce Meteor Strike cooldown by 1–3 seconds
+- Reduce Blizzard cooldown by 1–3 seconds
 - Increase Flame Disruptor crit chance by 2–12%
 - Increase Flame Disruptor crit damage by 5–25%
 - Increase Fire Wall crit chance by 2–12%
@@ -2029,6 +2120,7 @@ Grouped by slot. Weapons show their class and actual roll pool from `empowerCand
 - +1–14% Crit Rate
 - +5–20% Crit Damage
 - +5–30% Skill leveling
+- +5–35% Potion restore
 
 **Fire Robe (M)** (`fire-robe`)
 - +1–5 AC
@@ -2054,6 +2146,8 @@ Grouped by slot. Weapons show their class and actual roll pool from `empowerCand
 - Reduce mana cost of Flame Field by 5–20%
 - Reduce mana cost of Meteor Strike by 5–20%
 - Reduce mana cost of Blizzard by 5–20%
+- Reduce Meteor Strike cooldown by 1–3 seconds
+- Reduce Blizzard cooldown by 1–3 seconds
 - Increase Flame Disruptor crit chance by 2–12%
 - Increase Flame Disruptor crit damage by 5–25%
 - Increase Fire Wall crit chance by 2–12%
@@ -2082,6 +2176,7 @@ Grouped by slot. Weapons show their class and actual roll pool from `empowerCand
 - +1–14% Crit Rate
 - +5–20% Crit Damage
 - +5–30% Skill leveling
+- +5–35% Potion restore
 
 **Iron Armour** (`iron-armour`)
 - +1–5 AC
@@ -2118,6 +2213,8 @@ Grouped by slot. Weapons show their class and actual roll pool from `empowerCand
 - Reduce mana cost of Flame Field by 5–20%
 - Reduce mana cost of Meteor Strike by 5–20%
 - Reduce mana cost of Blizzard by 5–20%
+- Reduce Meteor Strike cooldown by 1–3 seconds
+- Reduce Blizzard cooldown by 1–3 seconds
 - Increase Healing healing by 5–15%
 - Increase Mass Healing healing by 5–15%
 - Increase Soul Fire Ball damage by 5–20%
@@ -2130,6 +2227,7 @@ Grouped by slot. Weapons show their class and actual roll pool from `empowerCand
 - Increase Holy Deva damage by 5–25%
 - Increase Holy Deva health by 5–25%
 - Reduce Holy Deva damage taken by 5–10%
+- Reduce Poison Cloud cooldown by 1–3 seconds
 - Increase Slaying crit chance by 2–12%
 - Increase Slaying crit damage by 5–25%
 - Increase Flaming Sword crit chance by 2–12%
@@ -2170,6 +2268,7 @@ Grouped by slot. Weapons show their class and actual roll pool from `empowerCand
 - +1–14% Crit Rate
 - +5–20% Crit Damage
 - +5–30% Skill leveling
+- +5–35% Potion restore
 
 **Iron Armour (F)** (`iron-armour-f`)
 - +1–5 AC
@@ -2206,6 +2305,8 @@ Grouped by slot. Weapons show their class and actual roll pool from `empowerCand
 - Reduce mana cost of Flame Field by 5–20%
 - Reduce mana cost of Meteor Strike by 5–20%
 - Reduce mana cost of Blizzard by 5–20%
+- Reduce Meteor Strike cooldown by 1–3 seconds
+- Reduce Blizzard cooldown by 1–3 seconds
 - Increase Healing healing by 5–15%
 - Increase Mass Healing healing by 5–15%
 - Increase Soul Fire Ball damage by 5–20%
@@ -2218,6 +2319,7 @@ Grouped by slot. Weapons show their class and actual roll pool from `empowerCand
 - Increase Holy Deva damage by 5–25%
 - Increase Holy Deva health by 5–25%
 - Reduce Holy Deva damage taken by 5–10%
+- Reduce Poison Cloud cooldown by 1–3 seconds
 - Increase Slaying crit chance by 2–12%
 - Increase Slaying crit damage by 5–25%
 - Increase Flaming Sword crit chance by 2–12%
@@ -2258,6 +2360,7 @@ Grouped by slot. Weapons show their class and actual roll pool from `empowerCand
 - +1–14% Crit Rate
 - +5–20% Crit Damage
 - +5–30% Skill leveling
+- +5–35% Potion restore
 
 **Pearl Armour** (`pearl-armour`)
 - +1–5 AC
@@ -2279,6 +2382,7 @@ Grouped by slot. Weapons show their class and actual roll pool from `empowerCand
 - Increase Holy Deva damage by 5–25%
 - Increase Holy Deva health by 5–25%
 - Reduce Holy Deva damage taken by 5–10%
+- Reduce Poison Cloud cooldown by 1–3 seconds
 - Increase Soul Fire Ball crit chance by 2–12%
 - Increase Soul Fire Ball crit damage by 5–25%
 - +5–30% Gold drop
@@ -2289,6 +2393,7 @@ Grouped by slot. Weapons show their class and actual roll pool from `empowerCand
 - +1–14% Crit Rate
 - +5–20% Crit Damage
 - +5–30% Skill leveling
+- +5–35% Potion restore
 
 **Pearl Armour (F)** (`pearl-armour-f`)
 - +1–5 AC
@@ -2310,6 +2415,7 @@ Grouped by slot. Weapons show their class and actual roll pool from `empowerCand
 - Increase Holy Deva damage by 5–25%
 - Increase Holy Deva health by 5–25%
 - Reduce Holy Deva damage taken by 5–10%
+- Reduce Poison Cloud cooldown by 1–3 seconds
 - Increase Soul Fire Ball crit chance by 2–12%
 - Increase Soul Fire Ball crit damage by 5–25%
 - +5–30% Gold drop
@@ -2320,6 +2426,7 @@ Grouped by slot. Weapons show their class and actual roll pool from `empowerCand
 - +1–14% Crit Rate
 - +5–20% Crit Damage
 - +5–30% Skill leveling
+- +5–35% Potion restore
 
 **Witch Robe (F)** (`witch-robe-f`)
 - +1–5 AC
@@ -2345,6 +2452,8 @@ Grouped by slot. Weapons show their class and actual roll pool from `empowerCand
 - Reduce mana cost of Flame Field by 5–20%
 - Reduce mana cost of Meteor Strike by 5–20%
 - Reduce mana cost of Blizzard by 5–20%
+- Reduce Meteor Strike cooldown by 1–3 seconds
+- Reduce Blizzard cooldown by 1–3 seconds
 - Increase Flame Disruptor crit chance by 2–12%
 - Increase Flame Disruptor crit damage by 5–25%
 - Increase Fire Wall crit chance by 2–12%
@@ -2373,6 +2482,7 @@ Grouped by slot. Weapons show their class and actual roll pool from `empowerCand
 - +1–14% Crit Rate
 - +5–20% Crit Damage
 - +5–30% Skill leveling
+- +5–35% Potion restore
 
 **Wizard Robe** (`wizard-robe`)
 - +1–5 AC
@@ -2398,6 +2508,8 @@ Grouped by slot. Weapons show their class and actual roll pool from `empowerCand
 - Reduce mana cost of Flame Field by 5–20%
 - Reduce mana cost of Meteor Strike by 5–20%
 - Reduce mana cost of Blizzard by 5–20%
+- Reduce Meteor Strike cooldown by 1–3 seconds
+- Reduce Blizzard cooldown by 1–3 seconds
 - Increase Flame Disruptor crit chance by 2–12%
 - Increase Flame Disruptor crit damage by 5–25%
 - Increase Fire Wall crit chance by 2–12%
@@ -2426,6 +2538,7 @@ Grouped by slot. Weapons show their class and actual roll pool from `empowerCand
 - +1–14% Crit Rate
 - +5–20% Crit Damage
 - +5–30% Skill leveling
+- +5–35% Potion restore
 
 **Ying Yang Robe (F)** (`ying-yang-robe-f`)
 - +1–5 AC
@@ -2447,6 +2560,7 @@ Grouped by slot. Weapons show their class and actual roll pool from `empowerCand
 - Increase Holy Deva damage by 5–25%
 - Increase Holy Deva health by 5–25%
 - Reduce Holy Deva damage taken by 5–10%
+- Reduce Poison Cloud cooldown by 1–3 seconds
 - Increase Soul Fire Ball crit chance by 2–12%
 - Increase Soul Fire Ball crit damage by 5–25%
 - +5–30% Gold drop
@@ -2457,6 +2571,7 @@ Grouped by slot. Weapons show their class and actual roll pool from `empowerCand
 - +1–14% Crit Rate
 - +5–20% Crit Damage
 - +5–30% Skill leveling
+- +5–35% Potion restore
 
 **Ying Yang Robe (M)** (`ying-yang-robe`)
 - +1–5 AC
@@ -2478,6 +2593,7 @@ Grouped by slot. Weapons show their class and actual roll pool from `empowerCand
 - Increase Holy Deva damage by 5–25%
 - Increase Holy Deva health by 5–25%
 - Reduce Holy Deva damage taken by 5–10%
+- Reduce Poison Cloud cooldown by 1–3 seconds
 - Increase Soul Fire Ball crit chance by 2–12%
 - Increase Soul Fire Ball crit damage by 5–25%
 - +5–30% Gold drop
@@ -2488,6 +2604,7 @@ Grouped by slot. Weapons show their class and actual roll pool from `empowerCand
 - +1–14% Crit Rate
 - +5–20% Crit Damage
 - +5–30% Skill leveling
+- +5–35% Potion restore
 
 **Black Dragon Armor (F)1** (`black-dragon-armor-f-1`)
 - +1–5 AC
@@ -2524,6 +2641,8 @@ Grouped by slot. Weapons show their class and actual roll pool from `empowerCand
 - Reduce mana cost of Flame Field by 5–20%
 - Reduce mana cost of Meteor Strike by 5–20%
 - Reduce mana cost of Blizzard by 5–20%
+- Reduce Meteor Strike cooldown by 1–3 seconds
+- Reduce Blizzard cooldown by 1–3 seconds
 - Increase Healing healing by 5–15%
 - Increase Mass Healing healing by 5–15%
 - Increase Soul Fire Ball damage by 5–20%
@@ -2536,6 +2655,7 @@ Grouped by slot. Weapons show their class and actual roll pool from `empowerCand
 - Increase Holy Deva damage by 5–25%
 - Increase Holy Deva health by 5–25%
 - Reduce Holy Deva damage taken by 5–10%
+- Reduce Poison Cloud cooldown by 1–3 seconds
 - Increase Slaying crit chance by 2–12%
 - Increase Slaying crit damage by 5–25%
 - Increase Flaming Sword crit chance by 2–12%
@@ -2576,6 +2696,7 @@ Grouped by slot. Weapons show their class and actual roll pool from `empowerCand
 - +1–14% Crit Rate
 - +5–20% Crit Damage
 - +5–30% Skill leveling
+- +5–35% Potion restore
 
 **Black Dragon Armor (F)2** (`black-dragon-armor-f-2`)
 - +1–5 AC
@@ -2601,6 +2722,8 @@ Grouped by slot. Weapons show their class and actual roll pool from `empowerCand
 - Reduce mana cost of Flame Field by 5–20%
 - Reduce mana cost of Meteor Strike by 5–20%
 - Reduce mana cost of Blizzard by 5–20%
+- Reduce Meteor Strike cooldown by 1–3 seconds
+- Reduce Blizzard cooldown by 1–3 seconds
 - Increase Flame Disruptor crit chance by 2–12%
 - Increase Flame Disruptor crit damage by 5–25%
 - Increase Fire Wall crit chance by 2–12%
@@ -2629,6 +2752,7 @@ Grouped by slot. Weapons show their class and actual roll pool from `empowerCand
 - +1–14% Crit Rate
 - +5–20% Crit Damage
 - +5–30% Skill leveling
+- +5–35% Potion restore
 
 **Black Dragon Armor (F)3** (`black-dragon-armor-f-3`)
 - +1–5 AC
@@ -2650,6 +2774,7 @@ Grouped by slot. Weapons show their class and actual roll pool from `empowerCand
 - Increase Holy Deva damage by 5–25%
 - Increase Holy Deva health by 5–25%
 - Reduce Holy Deva damage taken by 5–10%
+- Reduce Poison Cloud cooldown by 1–3 seconds
 - Increase Soul Fire Ball crit chance by 2–12%
 - Increase Soul Fire Ball crit damage by 5–25%
 - +5–30% Gold drop
@@ -2660,6 +2785,7 @@ Grouped by slot. Weapons show their class and actual roll pool from `empowerCand
 - +1–14% Crit Rate
 - +5–20% Crit Damage
 - +5–30% Skill leveling
+- +5–35% Potion restore
 
 **Black Dragon Armor (M)1** (`black-dragon-armor-m-1`)
 - +1–5 AC
@@ -2696,6 +2822,8 @@ Grouped by slot. Weapons show their class and actual roll pool from `empowerCand
 - Reduce mana cost of Flame Field by 5–20%
 - Reduce mana cost of Meteor Strike by 5–20%
 - Reduce mana cost of Blizzard by 5–20%
+- Reduce Meteor Strike cooldown by 1–3 seconds
+- Reduce Blizzard cooldown by 1–3 seconds
 - Increase Healing healing by 5–15%
 - Increase Mass Healing healing by 5–15%
 - Increase Soul Fire Ball damage by 5–20%
@@ -2708,6 +2836,7 @@ Grouped by slot. Weapons show their class and actual roll pool from `empowerCand
 - Increase Holy Deva damage by 5–25%
 - Increase Holy Deva health by 5–25%
 - Reduce Holy Deva damage taken by 5–10%
+- Reduce Poison Cloud cooldown by 1–3 seconds
 - Increase Slaying crit chance by 2–12%
 - Increase Slaying crit damage by 5–25%
 - Increase Flaming Sword crit chance by 2–12%
@@ -2748,6 +2877,7 @@ Grouped by slot. Weapons show their class and actual roll pool from `empowerCand
 - +1–14% Crit Rate
 - +5–20% Crit Damage
 - +5–30% Skill leveling
+- +5–35% Potion restore
 
 **Black Dragon Armor (M)2** (`black-dragon-armor-m-2`)
 - +1–5 AC
@@ -2773,6 +2903,8 @@ Grouped by slot. Weapons show their class and actual roll pool from `empowerCand
 - Reduce mana cost of Flame Field by 5–20%
 - Reduce mana cost of Meteor Strike by 5–20%
 - Reduce mana cost of Blizzard by 5–20%
+- Reduce Meteor Strike cooldown by 1–3 seconds
+- Reduce Blizzard cooldown by 1–3 seconds
 - Increase Flame Disruptor crit chance by 2–12%
 - Increase Flame Disruptor crit damage by 5–25%
 - Increase Fire Wall crit chance by 2–12%
@@ -2801,6 +2933,7 @@ Grouped by slot. Weapons show their class and actual roll pool from `empowerCand
 - +1–14% Crit Rate
 - +5–20% Crit Damage
 - +5–30% Skill leveling
+- +5–35% Potion restore
 
 **Black Dragon Armor (M)3** (`black-dragon-armor-m-3`)
 - +1–5 AC
@@ -2822,6 +2955,7 @@ Grouped by slot. Weapons show their class and actual roll pool from `empowerCand
 - Increase Holy Deva damage by 5–25%
 - Increase Holy Deva health by 5–25%
 - Reduce Holy Deva damage taken by 5–10%
+- Reduce Poison Cloud cooldown by 1–3 seconds
 - Increase Soul Fire Ball crit chance by 2–12%
 - Increase Soul Fire Ball crit damage by 5–25%
 - +5–30% Gold drop
@@ -2832,6 +2966,7 @@ Grouped by slot. Weapons show their class and actual roll pool from `empowerCand
 - +1–14% Crit Rate
 - +5–20% Crit Damage
 - +5–30% Skill leveling
+- +5–35% Potion restore
 
 **Dragon Robe** (`dragon-robe`)
 - +1–5 AC
@@ -2857,6 +2992,8 @@ Grouped by slot. Weapons show their class and actual roll pool from `empowerCand
 - Reduce mana cost of Flame Field by 5–20%
 - Reduce mana cost of Meteor Strike by 5–20%
 - Reduce mana cost of Blizzard by 5–20%
+- Reduce Meteor Strike cooldown by 1–3 seconds
+- Reduce Blizzard cooldown by 1–3 seconds
 - Increase Flame Disruptor crit chance by 2–12%
 - Increase Flame Disruptor crit damage by 5–25%
 - Increase Fire Wall crit chance by 2–12%
@@ -2885,6 +3022,7 @@ Grouped by slot. Weapons show their class and actual roll pool from `empowerCand
 - +1–14% Crit Rate
 - +5–20% Crit Damage
 - +5–30% Skill leveling
+- +5–35% Potion restore
 
 **Dragon Robe (F)** (`dragon-robe-f`)
 - +1–5 AC
@@ -2910,6 +3048,8 @@ Grouped by slot. Weapons show their class and actual roll pool from `empowerCand
 - Reduce mana cost of Flame Field by 5–20%
 - Reduce mana cost of Meteor Strike by 5–20%
 - Reduce mana cost of Blizzard by 5–20%
+- Reduce Meteor Strike cooldown by 1–3 seconds
+- Reduce Blizzard cooldown by 1–3 seconds
 - Increase Flame Disruptor crit chance by 2–12%
 - Increase Flame Disruptor crit damage by 5–25%
 - Increase Fire Wall crit chance by 2–12%
@@ -2938,8 +3078,9 @@ Grouped by slot. Weapons show their class and actual roll pool from `empowerCand
 - +1–14% Crit Rate
 - +5–20% Crit Damage
 - +5–30% Skill leveling
+- +5–35% Potion restore
 
-**Heaven Armour** (`heaven-armour`)
+**Heaven Robe** (`heaven-armour`)
 - +1–5 AC
 - +1–5 AMC
 - +1–5 DC
@@ -2974,6 +3115,8 @@ Grouped by slot. Weapons show their class and actual roll pool from `empowerCand
 - Reduce mana cost of Flame Field by 5–20%
 - Reduce mana cost of Meteor Strike by 5–20%
 - Reduce mana cost of Blizzard by 5–20%
+- Reduce Meteor Strike cooldown by 1–3 seconds
+- Reduce Blizzard cooldown by 1–3 seconds
 - Increase Healing healing by 5–15%
 - Increase Mass Healing healing by 5–15%
 - Increase Soul Fire Ball damage by 5–20%
@@ -2986,6 +3129,7 @@ Grouped by slot. Weapons show their class and actual roll pool from `empowerCand
 - Increase Holy Deva damage by 5–25%
 - Increase Holy Deva health by 5–25%
 - Reduce Holy Deva damage taken by 5–10%
+- Reduce Poison Cloud cooldown by 1–3 seconds
 - Increase Slaying crit chance by 2–12%
 - Increase Slaying crit damage by 5–25%
 - Increase Flaming Sword crit chance by 2–12%
@@ -3026,6 +3170,7 @@ Grouped by slot. Weapons show their class and actual roll pool from `empowerCand
 - +1–14% Crit Rate
 - +5–20% Crit Damage
 - +5–30% Skill leveling
+- +5–35% Potion restore
 
 **Royal Armour (F)** (`royal-armour-f`)
 - +1–5 AC
@@ -3062,6 +3207,8 @@ Grouped by slot. Weapons show their class and actual roll pool from `empowerCand
 - Reduce mana cost of Flame Field by 5–20%
 - Reduce mana cost of Meteor Strike by 5–20%
 - Reduce mana cost of Blizzard by 5–20%
+- Reduce Meteor Strike cooldown by 1–3 seconds
+- Reduce Blizzard cooldown by 1–3 seconds
 - Increase Healing healing by 5–15%
 - Increase Mass Healing healing by 5–15%
 - Increase Soul Fire Ball damage by 5–20%
@@ -3074,6 +3221,7 @@ Grouped by slot. Weapons show their class and actual roll pool from `empowerCand
 - Increase Holy Deva damage by 5–25%
 - Increase Holy Deva health by 5–25%
 - Reduce Holy Deva damage taken by 5–10%
+- Reduce Poison Cloud cooldown by 1–3 seconds
 - Increase Slaying crit chance by 2–12%
 - Increase Slaying crit damage by 5–25%
 - Increase Flaming Sword crit chance by 2–12%
@@ -3114,6 +3262,7 @@ Grouped by slot. Weapons show their class and actual roll pool from `empowerCand
 - +1–14% Crit Rate
 - +5–20% Crit Damage
 - +5–30% Skill leveling
+- +5–35% Potion restore
 
 **Royal Armour (M)** (`royal-armour`)
 - +1–5 AC
@@ -3150,6 +3299,8 @@ Grouped by slot. Weapons show their class and actual roll pool from `empowerCand
 - Reduce mana cost of Flame Field by 5–20%
 - Reduce mana cost of Meteor Strike by 5–20%
 - Reduce mana cost of Blizzard by 5–20%
+- Reduce Meteor Strike cooldown by 1–3 seconds
+- Reduce Blizzard cooldown by 1–3 seconds
 - Increase Healing healing by 5–15%
 - Increase Mass Healing healing by 5–15%
 - Increase Soul Fire Ball damage by 5–20%
@@ -3162,6 +3313,7 @@ Grouped by slot. Weapons show their class and actual roll pool from `empowerCand
 - Increase Holy Deva damage by 5–25%
 - Increase Holy Deva health by 5–25%
 - Reduce Holy Deva damage taken by 5–10%
+- Reduce Poison Cloud cooldown by 1–3 seconds
 - Increase Slaying crit chance by 2–12%
 - Increase Slaying crit damage by 5–25%
 - Increase Flaming Sword crit chance by 2–12%
@@ -3202,6 +3354,7 @@ Grouped by slot. Weapons show their class and actual roll pool from `empowerCand
 - +1–14% Crit Rate
 - +5–20% Crit Damage
 - +5–30% Skill leveling
+- +5–35% Potion restore
 
 **Steel Armour** (`steel-armour`)
 - +1–5 AC
@@ -3238,6 +3391,8 @@ Grouped by slot. Weapons show their class and actual roll pool from `empowerCand
 - Reduce mana cost of Flame Field by 5–20%
 - Reduce mana cost of Meteor Strike by 5–20%
 - Reduce mana cost of Blizzard by 5–20%
+- Reduce Meteor Strike cooldown by 1–3 seconds
+- Reduce Blizzard cooldown by 1–3 seconds
 - Increase Healing healing by 5–15%
 - Increase Mass Healing healing by 5–15%
 - Increase Soul Fire Ball damage by 5–20%
@@ -3250,6 +3405,7 @@ Grouped by slot. Weapons show their class and actual roll pool from `empowerCand
 - Increase Holy Deva damage by 5–25%
 - Increase Holy Deva health by 5–25%
 - Reduce Holy Deva damage taken by 5–10%
+- Reduce Poison Cloud cooldown by 1–3 seconds
 - Increase Slaying crit chance by 2–12%
 - Increase Slaying crit damage by 5–25%
 - Increase Flaming Sword crit chance by 2–12%
@@ -3290,6 +3446,7 @@ Grouped by slot. Weapons show their class and actual roll pool from `empowerCand
 - +1–14% Crit Rate
 - +5–20% Crit Damage
 - +5–30% Skill leveling
+- +5–35% Potion restore
 
 **Steel Armour (F)** (`steel-armour-f`)
 - +1–5 AC
@@ -3326,6 +3483,8 @@ Grouped by slot. Weapons show their class and actual roll pool from `empowerCand
 - Reduce mana cost of Flame Field by 5–20%
 - Reduce mana cost of Meteor Strike by 5–20%
 - Reduce mana cost of Blizzard by 5–20%
+- Reduce Meteor Strike cooldown by 1–3 seconds
+- Reduce Blizzard cooldown by 1–3 seconds
 - Increase Healing healing by 5–15%
 - Increase Mass Healing healing by 5–15%
 - Increase Soul Fire Ball damage by 5–20%
@@ -3338,6 +3497,7 @@ Grouped by slot. Weapons show their class and actual roll pool from `empowerCand
 - Increase Holy Deva damage by 5–25%
 - Increase Holy Deva health by 5–25%
 - Reduce Holy Deva damage taken by 5–10%
+- Reduce Poison Cloud cooldown by 1–3 seconds
 - Increase Slaying crit chance by 2–12%
 - Increase Slaying crit damage by 5–25%
 - Increase Flaming Sword crit chance by 2–12%
@@ -3378,6 +3538,7 @@ Grouped by slot. Weapons show their class and actual roll pool from `empowerCand
 - +1–14% Crit Rate
 - +5–20% Crit Damage
 - +5–30% Skill leveling
+- +5–35% Potion restore
 
 **Studded Armour (F)** (`studded-armour-f`)
 - +1–5 AC
@@ -3403,6 +3564,8 @@ Grouped by slot. Weapons show their class and actual roll pool from `empowerCand
 - Reduce mana cost of Flame Field by 5–20%
 - Reduce mana cost of Meteor Strike by 5–20%
 - Reduce mana cost of Blizzard by 5–20%
+- Reduce Meteor Strike cooldown by 1–3 seconds
+- Reduce Blizzard cooldown by 1–3 seconds
 - Increase Flame Disruptor crit chance by 2–12%
 - Increase Flame Disruptor crit damage by 5–25%
 - Increase Fire Wall crit chance by 2–12%
@@ -3431,6 +3594,7 @@ Grouped by slot. Weapons show their class and actual roll pool from `empowerCand
 - +1–14% Crit Rate
 - +5–20% Crit Damage
 - +5–30% Skill leveling
+- +5–35% Potion restore
 
 **Studded Armour (M)** (`studded-armour`)
 - +1–5 AC
@@ -3456,6 +3620,8 @@ Grouped by slot. Weapons show their class and actual roll pool from `empowerCand
 - Reduce mana cost of Flame Field by 5–20%
 - Reduce mana cost of Meteor Strike by 5–20%
 - Reduce mana cost of Blizzard by 5–20%
+- Reduce Meteor Strike cooldown by 1–3 seconds
+- Reduce Blizzard cooldown by 1–3 seconds
 - Increase Flame Disruptor crit chance by 2–12%
 - Increase Flame Disruptor crit damage by 5–25%
 - Increase Fire Wall crit chance by 2–12%
@@ -3484,6 +3650,7 @@ Grouped by slot. Weapons show their class and actual roll pool from `empowerCand
 - +1–14% Crit Rate
 - +5–20% Crit Damage
 - +5–30% Skill leveling
+- +5–35% Potion restore
 
 **Titan Armour** (`titan-armour`)
 - +1–5 AC
@@ -3505,6 +3672,7 @@ Grouped by slot. Weapons show their class and actual roll pool from `empowerCand
 - Increase Holy Deva damage by 5–25%
 - Increase Holy Deva health by 5–25%
 - Reduce Holy Deva damage taken by 5–10%
+- Reduce Poison Cloud cooldown by 1–3 seconds
 - Increase Soul Fire Ball crit chance by 2–12%
 - Increase Soul Fire Ball crit damage by 5–25%
 - +5–30% Gold drop
@@ -3515,6 +3683,7 @@ Grouped by slot. Weapons show their class and actual roll pool from `empowerCand
 - +1–14% Crit Rate
 - +5–20% Crit Damage
 - +5–30% Skill leveling
+- +5–35% Potion restore
 
 **Titan Armour (F)** (`titan-armour-f`)
 - +1–5 AC
@@ -3536,6 +3705,7 @@ Grouped by slot. Weapons show their class and actual roll pool from `empowerCand
 - Increase Holy Deva damage by 5–25%
 - Increase Holy Deva health by 5–25%
 - Reduce Holy Deva damage taken by 5–10%
+- Reduce Poison Cloud cooldown by 1–3 seconds
 - Increase Soul Fire Ball crit chance by 2–12%
 - Increase Soul Fire Ball crit damage by 5–25%
 - +5–30% Gold drop
@@ -3546,6 +3716,7 @@ Grouped by slot. Weapons show their class and actual roll pool from `empowerCand
 - +1–14% Crit Rate
 - +5–20% Crit Damage
 - +5–30% Skill leveling
+- +5–35% Potion restore
 
 **Blue Dark Armour (F)** (`blue-dark-armour-f`)
 - +1–5 AC
@@ -3582,6 +3753,8 @@ Grouped by slot. Weapons show their class and actual roll pool from `empowerCand
 - Reduce mana cost of Flame Field by 5–20%
 - Reduce mana cost of Meteor Strike by 5–20%
 - Reduce mana cost of Blizzard by 5–20%
+- Reduce Meteor Strike cooldown by 1–3 seconds
+- Reduce Blizzard cooldown by 1–3 seconds
 - Increase Healing healing by 5–15%
 - Increase Mass Healing healing by 5–15%
 - Increase Soul Fire Ball damage by 5–20%
@@ -3594,6 +3767,7 @@ Grouped by slot. Weapons show their class and actual roll pool from `empowerCand
 - Increase Holy Deva damage by 5–25%
 - Increase Holy Deva health by 5–25%
 - Reduce Holy Deva damage taken by 5–10%
+- Reduce Poison Cloud cooldown by 1–3 seconds
 - Increase Slaying crit chance by 2–12%
 - Increase Slaying crit damage by 5–25%
 - Increase Flaming Sword crit chance by 2–12%
@@ -3634,6 +3808,7 @@ Grouped by slot. Weapons show their class and actual roll pool from `empowerCand
 - +1–14% Crit Rate
 - +5–20% Crit Damage
 - +5–30% Skill leveling
+- +5–35% Potion restore
 
 **Blue Dark Armour (M)** (`blue-dark-armour`)
 - +1–5 AC
@@ -3670,6 +3845,8 @@ Grouped by slot. Weapons show their class and actual roll pool from `empowerCand
 - Reduce mana cost of Flame Field by 5–20%
 - Reduce mana cost of Meteor Strike by 5–20%
 - Reduce mana cost of Blizzard by 5–20%
+- Reduce Meteor Strike cooldown by 1–3 seconds
+- Reduce Blizzard cooldown by 1–3 seconds
 - Increase Healing healing by 5–15%
 - Increase Mass Healing healing by 5–15%
 - Increase Soul Fire Ball damage by 5–20%
@@ -3682,6 +3859,7 @@ Grouped by slot. Weapons show their class and actual roll pool from `empowerCand
 - Increase Holy Deva damage by 5–25%
 - Increase Holy Deva health by 5–25%
 - Reduce Holy Deva damage taken by 5–10%
+- Reduce Poison Cloud cooldown by 1–3 seconds
 - Increase Slaying crit chance by 2–12%
 - Increase Slaying crit damage by 5–25%
 - Increase Flaming Sword crit chance by 2–12%
@@ -3722,6 +3900,7 @@ Grouped by slot. Weapons show their class and actual roll pool from `empowerCand
 - +1–14% Crit Rate
 - +5–20% Crit Damage
 - +5–30% Skill leveling
+- +5–35% Potion restore
 
 **Green Dark Armour (F)** (`green-dark-armour-f`)
 - +1–5 AC
@@ -3758,6 +3937,8 @@ Grouped by slot. Weapons show their class and actual roll pool from `empowerCand
 - Reduce mana cost of Flame Field by 5–20%
 - Reduce mana cost of Meteor Strike by 5–20%
 - Reduce mana cost of Blizzard by 5–20%
+- Reduce Meteor Strike cooldown by 1–3 seconds
+- Reduce Blizzard cooldown by 1–3 seconds
 - Increase Healing healing by 5–15%
 - Increase Mass Healing healing by 5–15%
 - Increase Soul Fire Ball damage by 5–20%
@@ -3770,6 +3951,7 @@ Grouped by slot. Weapons show their class and actual roll pool from `empowerCand
 - Increase Holy Deva damage by 5–25%
 - Increase Holy Deva health by 5–25%
 - Reduce Holy Deva damage taken by 5–10%
+- Reduce Poison Cloud cooldown by 1–3 seconds
 - Increase Slaying crit chance by 2–12%
 - Increase Slaying crit damage by 5–25%
 - Increase Flaming Sword crit chance by 2–12%
@@ -3810,6 +3992,7 @@ Grouped by slot. Weapons show their class and actual roll pool from `empowerCand
 - +1–14% Crit Rate
 - +5–20% Crit Damage
 - +5–30% Skill leveling
+- +5–35% Potion restore
 
 **Green Dark Armour (M)** (`green-dark-armour`)
 - +1–5 AC
@@ -3846,6 +4029,8 @@ Grouped by slot. Weapons show their class and actual roll pool from `empowerCand
 - Reduce mana cost of Flame Field by 5–20%
 - Reduce mana cost of Meteor Strike by 5–20%
 - Reduce mana cost of Blizzard by 5–20%
+- Reduce Meteor Strike cooldown by 1–3 seconds
+- Reduce Blizzard cooldown by 1–3 seconds
 - Increase Healing healing by 5–15%
 - Increase Mass Healing healing by 5–15%
 - Increase Soul Fire Ball damage by 5–20%
@@ -3858,6 +4043,7 @@ Grouped by slot. Weapons show their class and actual roll pool from `empowerCand
 - Increase Holy Deva damage by 5–25%
 - Increase Holy Deva health by 5–25%
 - Reduce Holy Deva damage taken by 5–10%
+- Reduce Poison Cloud cooldown by 1–3 seconds
 - Increase Slaying crit chance by 2–12%
 - Increase Slaying crit damage by 5–25%
 - Increase Flaming Sword crit chance by 2–12%
@@ -3898,13 +4084,12 @@ Grouped by slot. Weapons show their class and actual roll pool from `empowerCand
 - +1–14% Crit Rate
 - +5–20% Crit Damage
 - +5–30% Skill leveling
+- +5–35% Potion restore
 
 **Red Dark Armour (F)** (`red-dark-armour-f`)
 - +1–5 AC
 - +1–5 AMC
 - +1–5 DC
-- +1–3 MC
-- +1–3 SC
 - +10–100 HP (step 10)
 - +10–100 MP (step 10)
 - +1–3 Agi
@@ -3917,35 +4102,6 @@ Grouped by slot. Weapons show their class and actual roll pool from `empowerCand
 - Reduce mana cost of Blade Avalanche by 5–20%
 - Increase Slashing Burst damage by 5–15%
 - Reduce mana cost of Slashing Burst by 5–20%
-- Increase Flame Disruptor damage by 5–20%
-- Increase Fire Wall damage by 5–15%
-- Increase Thunder Bolt damage by 5–20%
-- Increase Ice Storm damage by 5–15%
-- Increase Flame Field damage by 5–15%
-- Increase Meteor Strike damage by 5–15%
-- Increase Blizzard damage by 5–15%
-- Increase Fire Ball damage by 5–20%
-- Increase Great Fire Ball damage by 5–20%
-- Increase Frost Crunch damage by 5–15%
-- Reduce mana cost of Flame Disruptor by 5–20%
-- Reduce mana cost of Fire Wall by 5–20%
-- Reduce mana cost of Thunder Bolt by 5–20%
-- Reduce mana cost of Ice Storm by 5–20%
-- Reduce mana cost of Flame Field by 5–20%
-- Reduce mana cost of Meteor Strike by 5–20%
-- Reduce mana cost of Blizzard by 5–20%
-- Increase Healing healing by 5–15%
-- Increase Mass Healing healing by 5–15%
-- Increase Soul Fire Ball damage by 5–20%
-- Increase Skeleton damage by 5–25%
-- Increase Skeleton health by 5–25%
-- Reduce Skeleton damage taken by 5–10%
-- Increase Shinsu damage by 5–25%
-- Increase Shinsu health by 5–25%
-- Reduce Shinsu damage taken by 5–10%
-- Increase Holy Deva damage by 5–25%
-- Increase Holy Deva health by 5–25%
-- Reduce Holy Deva damage taken by 5–10%
 - Increase Slaying crit chance by 2–12%
 - Increase Slaying crit damage by 5–25%
 - Increase Flaming Sword crit chance by 2–12%
@@ -3956,28 +4112,6 @@ Grouped by slot. Weapons show their class and actual roll pool from `empowerCand
 - Increase Blade Avalanche crit damage by 5–25%
 - Increase Slashing Burst crit chance by 2–12%
 - Increase Slashing Burst crit damage by 5–25%
-- Increase Flame Disruptor crit chance by 2–12%
-- Increase Flame Disruptor crit damage by 5–25%
-- Increase Fire Wall crit chance by 2–12%
-- Increase Fire Wall crit damage by 5–25%
-- Increase Thunder Bolt crit chance by 2–12%
-- Increase Thunder Bolt crit damage by 5–25%
-- Increase Ice Storm crit chance by 2–12%
-- Increase Ice Storm crit damage by 5–25%
-- Increase Flame Field crit chance by 2–12%
-- Increase Flame Field crit damage by 5–25%
-- Increase Meteor Strike crit chance by 2–12%
-- Increase Meteor Strike crit damage by 5–25%
-- Increase Blizzard crit chance by 2–12%
-- Increase Blizzard crit damage by 5–25%
-- Increase Fire Ball crit chance by 2–12%
-- Increase Fire Ball crit damage by 5–25%
-- Increase Great Fire Ball crit chance by 2–12%
-- Increase Great Fire Ball crit damage by 5–25%
-- Increase Frost Crunch crit chance by 2–12%
-- Increase Frost Crunch crit damage by 5–25%
-- Increase Soul Fire Ball crit chance by 2–12%
-- Increase Soul Fire Ball crit damage by 5–25%
 - +5–30% Gold drop
 - +5–30% Bonus XP
 - +0%–1% Item drop chance
@@ -3986,13 +4120,12 @@ Grouped by slot. Weapons show their class and actual roll pool from `empowerCand
 - +1–14% Crit Rate
 - +5–20% Crit Damage
 - +5–30% Skill leveling
+- +5–35% Potion restore
 
 **Red Dark Armour (M)** (`red-dark-armour`)
 - +1–5 AC
 - +1–5 AMC
 - +1–5 DC
-- +1–3 MC
-- +1–3 SC
 - +10–100 HP (step 10)
 - +10–100 MP (step 10)
 - +1–3 Agi
@@ -4005,35 +4138,6 @@ Grouped by slot. Weapons show their class and actual roll pool from `empowerCand
 - Reduce mana cost of Blade Avalanche by 5–20%
 - Increase Slashing Burst damage by 5–15%
 - Reduce mana cost of Slashing Burst by 5–20%
-- Increase Flame Disruptor damage by 5–20%
-- Increase Fire Wall damage by 5–15%
-- Increase Thunder Bolt damage by 5–20%
-- Increase Ice Storm damage by 5–15%
-- Increase Flame Field damage by 5–15%
-- Increase Meteor Strike damage by 5–15%
-- Increase Blizzard damage by 5–15%
-- Increase Fire Ball damage by 5–20%
-- Increase Great Fire Ball damage by 5–20%
-- Increase Frost Crunch damage by 5–15%
-- Reduce mana cost of Flame Disruptor by 5–20%
-- Reduce mana cost of Fire Wall by 5–20%
-- Reduce mana cost of Thunder Bolt by 5–20%
-- Reduce mana cost of Ice Storm by 5–20%
-- Reduce mana cost of Flame Field by 5–20%
-- Reduce mana cost of Meteor Strike by 5–20%
-- Reduce mana cost of Blizzard by 5–20%
-- Increase Healing healing by 5–15%
-- Increase Mass Healing healing by 5–15%
-- Increase Soul Fire Ball damage by 5–20%
-- Increase Skeleton damage by 5–25%
-- Increase Skeleton health by 5–25%
-- Reduce Skeleton damage taken by 5–10%
-- Increase Shinsu damage by 5–25%
-- Increase Shinsu health by 5–25%
-- Reduce Shinsu damage taken by 5–10%
-- Increase Holy Deva damage by 5–25%
-- Increase Holy Deva health by 5–25%
-- Reduce Holy Deva damage taken by 5–10%
 - Increase Slaying crit chance by 2–12%
 - Increase Slaying crit damage by 5–25%
 - Increase Flaming Sword crit chance by 2–12%
@@ -4044,28 +4148,6 @@ Grouped by slot. Weapons show their class and actual roll pool from `empowerCand
 - Increase Blade Avalanche crit damage by 5–25%
 - Increase Slashing Burst crit chance by 2–12%
 - Increase Slashing Burst crit damage by 5–25%
-- Increase Flame Disruptor crit chance by 2–12%
-- Increase Flame Disruptor crit damage by 5–25%
-- Increase Fire Wall crit chance by 2–12%
-- Increase Fire Wall crit damage by 5–25%
-- Increase Thunder Bolt crit chance by 2–12%
-- Increase Thunder Bolt crit damage by 5–25%
-- Increase Ice Storm crit chance by 2–12%
-- Increase Ice Storm crit damage by 5–25%
-- Increase Flame Field crit chance by 2–12%
-- Increase Flame Field crit damage by 5–25%
-- Increase Meteor Strike crit chance by 2–12%
-- Increase Meteor Strike crit damage by 5–25%
-- Increase Blizzard crit chance by 2–12%
-- Increase Blizzard crit damage by 5–25%
-- Increase Fire Ball crit chance by 2–12%
-- Increase Fire Ball crit damage by 5–25%
-- Increase Great Fire Ball crit chance by 2–12%
-- Increase Great Fire Ball crit damage by 5–25%
-- Increase Frost Crunch crit chance by 2–12%
-- Increase Frost Crunch crit damage by 5–25%
-- Increase Soul Fire Ball crit chance by 2–12%
-- Increase Soul Fire Ball crit damage by 5–25%
 - +5–30% Gold drop
 - +5–30% Bonus XP
 - +0%–1% Item drop chance
@@ -4074,6 +4156,7 @@ Grouped by slot. Weapons show their class and actual roll pool from `empowerCand
 - +1–14% Crit Rate
 - +5–20% Crit Damage
 - +5–30% Skill leveling
+- +5–35% Potion restore
 
 **Black Tiger Armour (F)** (`black-tiger-armour-f`)
 - +1–5 AC
@@ -4109,6 +4192,7 @@ Grouped by slot. Weapons show their class and actual roll pool from `empowerCand
 - +1–14% Crit Rate
 - +5–20% Crit Damage
 - +5–30% Skill leveling
+- +5–35% Potion restore
 
 **Black Tiger Armour (M)** (`black-tiger-armour`)
 - +1–5 AC
@@ -4144,6 +4228,7 @@ Grouped by slot. Weapons show their class and actual roll pool from `empowerCand
 - +1–14% Crit Rate
 - +5–20% Crit Damage
 - +5–30% Skill leveling
+- +5–35% Potion restore
 
 **Crane Armour (F)** (`crane-armour-f`)
 - +1–5 AC
@@ -4165,6 +4250,7 @@ Grouped by slot. Weapons show their class and actual roll pool from `empowerCand
 - Increase Holy Deva damage by 5–25%
 - Increase Holy Deva health by 5–25%
 - Reduce Holy Deva damage taken by 5–10%
+- Reduce Poison Cloud cooldown by 1–3 seconds
 - Increase Soul Fire Ball crit chance by 2–12%
 - Increase Soul Fire Ball crit damage by 5–25%
 - +5–30% Gold drop
@@ -4175,6 +4261,7 @@ Grouped by slot. Weapons show their class and actual roll pool from `empowerCand
 - +1–14% Crit Rate
 - +5–20% Crit Damage
 - +5–30% Skill leveling
+- +5–35% Potion restore
 
 **Crane Armour (M)** (`crane-armour`)
 - +1–5 AC
@@ -4196,6 +4283,7 @@ Grouped by slot. Weapons show their class and actual roll pool from `empowerCand
 - Increase Holy Deva damage by 5–25%
 - Increase Holy Deva health by 5–25%
 - Reduce Holy Deva damage taken by 5–10%
+- Reduce Poison Cloud cooldown by 1–3 seconds
 - Increase Soul Fire Ball crit chance by 2–12%
 - Increase Soul Fire Ball crit damage by 5–25%
 - +5–30% Gold drop
@@ -4206,6 +4294,7 @@ Grouped by slot. Weapons show their class and actual roll pool from `empowerCand
 - +1–14% Crit Rate
 - +5–20% Crit Damage
 - +5–30% Skill leveling
+- +5–35% Potion restore
 
 **Lotus Armour (F)** (`lotus-armour-f`)
 - +1–5 AC
@@ -4231,6 +4320,8 @@ Grouped by slot. Weapons show their class and actual roll pool from `empowerCand
 - Reduce mana cost of Flame Field by 5–20%
 - Reduce mana cost of Meteor Strike by 5–20%
 - Reduce mana cost of Blizzard by 5–20%
+- Reduce Meteor Strike cooldown by 1–3 seconds
+- Reduce Blizzard cooldown by 1–3 seconds
 - Increase Flame Disruptor crit chance by 2–12%
 - Increase Flame Disruptor crit damage by 5–25%
 - Increase Fire Wall crit chance by 2–12%
@@ -4259,6 +4350,7 @@ Grouped by slot. Weapons show their class and actual roll pool from `empowerCand
 - +1–14% Crit Rate
 - +5–20% Crit Damage
 - +5–30% Skill leveling
+- +5–35% Potion restore
 
 **Lotus Armour (M)** (`lotus-armour`)
 - +1–5 AC
@@ -4284,6 +4376,8 @@ Grouped by slot. Weapons show their class and actual roll pool from `empowerCand
 - Reduce mana cost of Flame Field by 5–20%
 - Reduce mana cost of Meteor Strike by 5–20%
 - Reduce mana cost of Blizzard by 5–20%
+- Reduce Meteor Strike cooldown by 1–3 seconds
+- Reduce Blizzard cooldown by 1–3 seconds
 - Increase Flame Disruptor crit chance by 2–12%
 - Increase Flame Disruptor crit damage by 5–25%
 - Increase Fire Wall crit chance by 2–12%
@@ -4312,6 +4406,7 @@ Grouped by slot. Weapons show their class and actual roll pool from `empowerCand
 - +1–14% Crit Rate
 - +5–20% Crit Damage
 - +5–30% Skill leveling
+- +5–35% Potion restore
 
 **Oma King Robe** (`oma-king-robe`)
 - +1–5 AC
@@ -4348,6 +4443,8 @@ Grouped by slot. Weapons show their class and actual roll pool from `empowerCand
 - Reduce mana cost of Flame Field by 5–20%
 - Reduce mana cost of Meteor Strike by 5–20%
 - Reduce mana cost of Blizzard by 5–20%
+- Reduce Meteor Strike cooldown by 1–3 seconds
+- Reduce Blizzard cooldown by 1–3 seconds
 - Increase Healing healing by 5–15%
 - Increase Mass Healing healing by 5–15%
 - Increase Soul Fire Ball damage by 5–20%
@@ -4360,6 +4457,7 @@ Grouped by slot. Weapons show their class and actual roll pool from `empowerCand
 - Increase Holy Deva damage by 5–25%
 - Increase Holy Deva health by 5–25%
 - Reduce Holy Deva damage taken by 5–10%
+- Reduce Poison Cloud cooldown by 1–3 seconds
 - Increase Slaying crit chance by 2–12%
 - Increase Slaying crit damage by 5–25%
 - Increase Flaming Sword crit chance by 2–12%
@@ -4400,6 +4498,7 @@ Grouped by slot. Weapons show their class and actual roll pool from `empowerCand
 - +1–14% Crit Rate
 - +5–20% Crit Damage
 - +5–30% Skill leveling
+- +5–35% Potion restore
 
 **Oma King Robe (F)1** (`oma-king-robe-f-1`)
 - +1–5 AC
@@ -4436,6 +4535,8 @@ Grouped by slot. Weapons show their class and actual roll pool from `empowerCand
 - Reduce mana cost of Flame Field by 5–20%
 - Reduce mana cost of Meteor Strike by 5–20%
 - Reduce mana cost of Blizzard by 5–20%
+- Reduce Meteor Strike cooldown by 1–3 seconds
+- Reduce Blizzard cooldown by 1–3 seconds
 - Increase Healing healing by 5–15%
 - Increase Mass Healing healing by 5–15%
 - Increase Soul Fire Ball damage by 5–20%
@@ -4448,6 +4549,7 @@ Grouped by slot. Weapons show their class and actual roll pool from `empowerCand
 - Increase Holy Deva damage by 5–25%
 - Increase Holy Deva health by 5–25%
 - Reduce Holy Deva damage taken by 5–10%
+- Reduce Poison Cloud cooldown by 1–3 seconds
 - Increase Slaying crit chance by 2–12%
 - Increase Slaying crit damage by 5–25%
 - Increase Flaming Sword crit chance by 2–12%
@@ -4488,6 +4590,7 @@ Grouped by slot. Weapons show their class and actual roll pool from `empowerCand
 - +1–14% Crit Rate
 - +5–20% Crit Damage
 - +5–30% Skill leveling
+- +5–35% Potion restore
 
 **Oma King Robe (F)2** (`oma-king-robe-f-2`)
 - +1–5 AC
@@ -4524,6 +4627,8 @@ Grouped by slot. Weapons show their class and actual roll pool from `empowerCand
 - Reduce mana cost of Flame Field by 5–20%
 - Reduce mana cost of Meteor Strike by 5–20%
 - Reduce mana cost of Blizzard by 5–20%
+- Reduce Meteor Strike cooldown by 1–3 seconds
+- Reduce Blizzard cooldown by 1–3 seconds
 - Increase Healing healing by 5–15%
 - Increase Mass Healing healing by 5–15%
 - Increase Soul Fire Ball damage by 5–20%
@@ -4536,6 +4641,7 @@ Grouped by slot. Weapons show their class and actual roll pool from `empowerCand
 - Increase Holy Deva damage by 5–25%
 - Increase Holy Deva health by 5–25%
 - Reduce Holy Deva damage taken by 5–10%
+- Reduce Poison Cloud cooldown by 1–3 seconds
 - Increase Slaying crit chance by 2–12%
 - Increase Slaying crit damage by 5–25%
 - Increase Flaming Sword crit chance by 2–12%
@@ -4576,6 +4682,7 @@ Grouped by slot. Weapons show their class and actual roll pool from `empowerCand
 - +1–14% Crit Rate
 - +5–20% Crit Damage
 - +5–30% Skill leveling
+- +5–35% Potion restore
 
 **Oma King Robe (F)3** (`oma-king-robe-f-3`)
 - +1–5 AC
@@ -4612,6 +4719,8 @@ Grouped by slot. Weapons show their class and actual roll pool from `empowerCand
 - Reduce mana cost of Flame Field by 5–20%
 - Reduce mana cost of Meteor Strike by 5–20%
 - Reduce mana cost of Blizzard by 5–20%
+- Reduce Meteor Strike cooldown by 1–3 seconds
+- Reduce Blizzard cooldown by 1–3 seconds
 - Increase Healing healing by 5–15%
 - Increase Mass Healing healing by 5–15%
 - Increase Soul Fire Ball damage by 5–20%
@@ -4624,6 +4733,7 @@ Grouped by slot. Weapons show their class and actual roll pool from `empowerCand
 - Increase Holy Deva damage by 5–25%
 - Increase Holy Deva health by 5–25%
 - Reduce Holy Deva damage taken by 5–10%
+- Reduce Poison Cloud cooldown by 1–3 seconds
 - Increase Slaying crit chance by 2–12%
 - Increase Slaying crit damage by 5–25%
 - Increase Flaming Sword crit chance by 2–12%
@@ -4664,6 +4774,7 @@ Grouped by slot. Weapons show their class and actual roll pool from `empowerCand
 - +1–14% Crit Rate
 - +5–20% Crit Damage
 - +5–30% Skill leveling
+- +5–35% Potion restore
 
 **Oma King Robe (M)1** (`oma-king-robe-m-1`)
 - +1–5 AC
@@ -4700,6 +4811,8 @@ Grouped by slot. Weapons show their class and actual roll pool from `empowerCand
 - Reduce mana cost of Flame Field by 5–20%
 - Reduce mana cost of Meteor Strike by 5–20%
 - Reduce mana cost of Blizzard by 5–20%
+- Reduce Meteor Strike cooldown by 1–3 seconds
+- Reduce Blizzard cooldown by 1–3 seconds
 - Increase Healing healing by 5–15%
 - Increase Mass Healing healing by 5–15%
 - Increase Soul Fire Ball damage by 5–20%
@@ -4712,6 +4825,7 @@ Grouped by slot. Weapons show their class and actual roll pool from `empowerCand
 - Increase Holy Deva damage by 5–25%
 - Increase Holy Deva health by 5–25%
 - Reduce Holy Deva damage taken by 5–10%
+- Reduce Poison Cloud cooldown by 1–3 seconds
 - Increase Slaying crit chance by 2–12%
 - Increase Slaying crit damage by 5–25%
 - Increase Flaming Sword crit chance by 2–12%
@@ -4752,6 +4866,7 @@ Grouped by slot. Weapons show their class and actual roll pool from `empowerCand
 - +1–14% Crit Rate
 - +5–20% Crit Damage
 - +5–30% Skill leveling
+- +5–35% Potion restore
 
 **Oma King Robe (M)2** (`oma-king-robe-m-2`)
 - +1–5 AC
@@ -4788,6 +4903,8 @@ Grouped by slot. Weapons show their class and actual roll pool from `empowerCand
 - Reduce mana cost of Flame Field by 5–20%
 - Reduce mana cost of Meteor Strike by 5–20%
 - Reduce mana cost of Blizzard by 5–20%
+- Reduce Meteor Strike cooldown by 1–3 seconds
+- Reduce Blizzard cooldown by 1–3 seconds
 - Increase Healing healing by 5–15%
 - Increase Mass Healing healing by 5–15%
 - Increase Soul Fire Ball damage by 5–20%
@@ -4800,6 +4917,7 @@ Grouped by slot. Weapons show their class and actual roll pool from `empowerCand
 - Increase Holy Deva damage by 5–25%
 - Increase Holy Deva health by 5–25%
 - Reduce Holy Deva damage taken by 5–10%
+- Reduce Poison Cloud cooldown by 1–3 seconds
 - Increase Slaying crit chance by 2–12%
 - Increase Slaying crit damage by 5–25%
 - Increase Flaming Sword crit chance by 2–12%
@@ -4840,6 +4958,7 @@ Grouped by slot. Weapons show their class and actual roll pool from `empowerCand
 - +1–14% Crit Rate
 - +5–20% Crit Damage
 - +5–30% Skill leveling
+- +5–35% Potion restore
 
 **Oma King Robe (M)3** (`oma-king-robe-m-3`)
 - +1–5 AC
@@ -4876,6 +4995,8 @@ Grouped by slot. Weapons show their class and actual roll pool from `empowerCand
 - Reduce mana cost of Flame Field by 5–20%
 - Reduce mana cost of Meteor Strike by 5–20%
 - Reduce mana cost of Blizzard by 5–20%
+- Reduce Meteor Strike cooldown by 1–3 seconds
+- Reduce Blizzard cooldown by 1–3 seconds
 - Increase Healing healing by 5–15%
 - Increase Mass Healing healing by 5–15%
 - Increase Soul Fire Ball damage by 5–20%
@@ -4888,6 +5009,7 @@ Grouped by slot. Weapons show their class and actual roll pool from `empowerCand
 - Increase Holy Deva damage by 5–25%
 - Increase Holy Deva health by 5–25%
 - Reduce Holy Deva damage taken by 5–10%
+- Reduce Poison Cloud cooldown by 1–3 seconds
 - Increase Slaying crit chance by 2–12%
 - Increase Slaying crit damage by 5–25%
 - Increase Flaming Sword crit chance by 2–12%
@@ -4928,6 +5050,99 @@ Grouped by slot. Weapons show their class and actual roll pool from `empowerCand
 - +1–14% Crit Rate
 - +5–20% Crit Damage
 - +5–30% Skill leveling
+- +5–35% Potion restore
+
+**Heaven Armour** (`winged-heaven-armour`)
+- +1–5 AC
+- +1–5 AMC
+- +1–5 DC
+- +1–3 MC
+- +1–3 SC
+- +10–100 HP (step 10)
+- +10–100 MP (step 10)
+- +1–3 Agi
+- Increase Slaying damage by 5–20%
+- Increase Flaming Sword damage by 5–15%
+- Reduce Flaming Sword cooldown by 1–3 seconds
+- Increase Twin Drake Blade damage by 5–15%
+- Reduce mana cost of Twin Drake Blade by 5–20%
+- Increase Blade Avalanche damage by 5–15%
+- Reduce mana cost of Blade Avalanche by 5–20%
+- Increase Slashing Burst damage by 5–15%
+- Reduce mana cost of Slashing Burst by 5–20%
+- Increase Flame Disruptor damage by 5–20%
+- Increase Fire Wall damage by 5–15%
+- Increase Thunder Bolt damage by 5–20%
+- Increase Ice Storm damage by 5–15%
+- Increase Flame Field damage by 5–15%
+- Increase Meteor Strike damage by 5–15%
+- Increase Blizzard damage by 5–15%
+- Increase Fire Ball damage by 5–20%
+- Increase Great Fire Ball damage by 5–20%
+- Increase Frost Crunch damage by 5–15%
+- Reduce mana cost of Flame Disruptor by 5–20%
+- Reduce mana cost of Fire Wall by 5–20%
+- Reduce mana cost of Thunder Bolt by 5–20%
+- Reduce mana cost of Ice Storm by 5–20%
+- Reduce mana cost of Flame Field by 5–20%
+- Reduce mana cost of Meteor Strike by 5–20%
+- Reduce mana cost of Blizzard by 5–20%
+- Reduce Meteor Strike cooldown by 1–3 seconds
+- Reduce Blizzard cooldown by 1–3 seconds
+- Increase Healing healing by 5–15%
+- Increase Mass Healing healing by 5–15%
+- Increase Soul Fire Ball damage by 5–20%
+- Increase Skeleton damage by 5–25%
+- Increase Skeleton health by 5–25%
+- Reduce Skeleton damage taken by 5–10%
+- Increase Shinsu damage by 5–25%
+- Increase Shinsu health by 5–25%
+- Reduce Shinsu damage taken by 5–10%
+- Increase Holy Deva damage by 5–25%
+- Increase Holy Deva health by 5–25%
+- Reduce Holy Deva damage taken by 5–10%
+- Reduce Poison Cloud cooldown by 1–3 seconds
+- Increase Slaying crit chance by 2–12%
+- Increase Slaying crit damage by 5–25%
+- Increase Flaming Sword crit chance by 2–12%
+- Increase Flaming Sword crit damage by 5–25%
+- Increase Twin Drake Blade crit chance by 2–12%
+- Increase Twin Drake Blade crit damage by 5–25%
+- Increase Blade Avalanche crit chance by 2–12%
+- Increase Blade Avalanche crit damage by 5–25%
+- Increase Slashing Burst crit chance by 2–12%
+- Increase Slashing Burst crit damage by 5–25%
+- Increase Flame Disruptor crit chance by 2–12%
+- Increase Flame Disruptor crit damage by 5–25%
+- Increase Fire Wall crit chance by 2–12%
+- Increase Fire Wall crit damage by 5–25%
+- Increase Thunder Bolt crit chance by 2–12%
+- Increase Thunder Bolt crit damage by 5–25%
+- Increase Ice Storm crit chance by 2–12%
+- Increase Ice Storm crit damage by 5–25%
+- Increase Flame Field crit chance by 2–12%
+- Increase Flame Field crit damage by 5–25%
+- Increase Meteor Strike crit chance by 2–12%
+- Increase Meteor Strike crit damage by 5–25%
+- Increase Blizzard crit chance by 2–12%
+- Increase Blizzard crit damage by 5–25%
+- Increase Fire Ball crit chance by 2–12%
+- Increase Fire Ball crit damage by 5–25%
+- Increase Great Fire Ball crit chance by 2–12%
+- Increase Great Fire Ball crit damage by 5–25%
+- Increase Frost Crunch crit chance by 2–12%
+- Increase Frost Crunch crit damage by 5–25%
+- Increase Soul Fire Ball crit chance by 2–12%
+- Increase Soul Fire Ball crit damage by 5–25%
+- +5–30% Gold drop
+- +5–30% Bonus XP
+- +0%–1% Item drop chance
+- +5–15% Awakening Soul drop chance
+- −3–12% Damage taken
+- +1–14% Crit Rate
+- +5–20% Crit Damage
+- +5–30% Skill leveling
+- +5–35% Potion restore
 
 **Tarragon Armour (F)1** (`tarragon-armour-f-1`)
 - +1–5 AC
@@ -4963,6 +5178,7 @@ Grouped by slot. Weapons show their class and actual roll pool from `empowerCand
 - +1–14% Crit Rate
 - +5–20% Crit Damage
 - +5–30% Skill leveling
+- +5–35% Potion restore
 
 **Tarragon Armour (F)2** (`tarragon-armour-f-2`)
 - +1–5 AC
@@ -4988,6 +5204,8 @@ Grouped by slot. Weapons show their class and actual roll pool from `empowerCand
 - Reduce mana cost of Flame Field by 5–20%
 - Reduce mana cost of Meteor Strike by 5–20%
 - Reduce mana cost of Blizzard by 5–20%
+- Reduce Meteor Strike cooldown by 1–3 seconds
+- Reduce Blizzard cooldown by 1–3 seconds
 - Increase Flame Disruptor crit chance by 2–12%
 - Increase Flame Disruptor crit damage by 5–25%
 - Increase Fire Wall crit chance by 2–12%
@@ -5016,6 +5234,7 @@ Grouped by slot. Weapons show their class and actual roll pool from `empowerCand
 - +1–14% Crit Rate
 - +5–20% Crit Damage
 - +5–30% Skill leveling
+- +5–35% Potion restore
 
 **Tarragon Armour (F)3** (`tarragon-armour-f-3`)
 - +1–5 AC
@@ -5037,6 +5256,7 @@ Grouped by slot. Weapons show their class and actual roll pool from `empowerCand
 - Increase Holy Deva damage by 5–25%
 - Increase Holy Deva health by 5–25%
 - Reduce Holy Deva damage taken by 5–10%
+- Reduce Poison Cloud cooldown by 1–3 seconds
 - Increase Soul Fire Ball crit chance by 2–12%
 - Increase Soul Fire Ball crit damage by 5–25%
 - +5–30% Gold drop
@@ -5047,6 +5267,7 @@ Grouped by slot. Weapons show their class and actual roll pool from `empowerCand
 - +1–14% Crit Rate
 - +5–20% Crit Damage
 - +5–30% Skill leveling
+- +5–35% Potion restore
 
 **Tarragon Armour (M)1** (`tarragon-armour-m-1`)
 - +1–5 AC
@@ -5082,6 +5303,7 @@ Grouped by slot. Weapons show their class and actual roll pool from `empowerCand
 - +1–14% Crit Rate
 - +5–20% Crit Damage
 - +5–30% Skill leveling
+- +5–35% Potion restore
 
 **Tarragon Armour (M)2** (`tarragon-armour-m-2`)
 - +1–5 AC
@@ -5107,6 +5329,8 @@ Grouped by slot. Weapons show their class and actual roll pool from `empowerCand
 - Reduce mana cost of Flame Field by 5–20%
 - Reduce mana cost of Meteor Strike by 5–20%
 - Reduce mana cost of Blizzard by 5–20%
+- Reduce Meteor Strike cooldown by 1–3 seconds
+- Reduce Blizzard cooldown by 1–3 seconds
 - Increase Flame Disruptor crit chance by 2–12%
 - Increase Flame Disruptor crit damage by 5–25%
 - Increase Fire Wall crit chance by 2–12%
@@ -5135,6 +5359,7 @@ Grouped by slot. Weapons show their class and actual roll pool from `empowerCand
 - +1–14% Crit Rate
 - +5–20% Crit Damage
 - +5–30% Skill leveling
+- +5–35% Potion restore
 
 **Tarragon Armour (M)3** (`tarragon-armour-m-3`)
 - +1–5 AC
@@ -5156,6 +5381,7 @@ Grouped by slot. Weapons show their class and actual roll pool from `empowerCand
 - Increase Holy Deva damage by 5–25%
 - Increase Holy Deva health by 5–25%
 - Reduce Holy Deva damage taken by 5–10%
+- Reduce Poison Cloud cooldown by 1–3 seconds
 - Increase Soul Fire Ball crit chance by 2–12%
 - Increase Soul Fire Ball crit damage by 5–25%
 - +5–30% Gold drop
@@ -5166,6 +5392,7 @@ Grouped by slot. Weapons show their class and actual roll pool from `empowerCand
 - +1–14% Crit Rate
 - +5–20% Crit Damage
 - +5–30% Skill leveling
+- +5–35% Potion restore
 
 **Raiders Armour (F)1** (`raiders-armour-f-1`)
 - +1–5 AC
@@ -5201,6 +5428,7 @@ Grouped by slot. Weapons show their class and actual roll pool from `empowerCand
 - +1–14% Crit Rate
 - +5–20% Crit Damage
 - +5–30% Skill leveling
+- +5–35% Potion restore
 
 **Raiders Armour (F)2** (`raiders-armour-f-2`)
 - +1–5 AC
@@ -5226,6 +5454,8 @@ Grouped by slot. Weapons show their class and actual roll pool from `empowerCand
 - Reduce mana cost of Flame Field by 5–20%
 - Reduce mana cost of Meteor Strike by 5–20%
 - Reduce mana cost of Blizzard by 5–20%
+- Reduce Meteor Strike cooldown by 1–3 seconds
+- Reduce Blizzard cooldown by 1–3 seconds
 - Increase Flame Disruptor crit chance by 2–12%
 - Increase Flame Disruptor crit damage by 5–25%
 - Increase Fire Wall crit chance by 2–12%
@@ -5254,6 +5484,7 @@ Grouped by slot. Weapons show their class and actual roll pool from `empowerCand
 - +1–14% Crit Rate
 - +5–20% Crit Damage
 - +5–30% Skill leveling
+- +5–35% Potion restore
 
 **Raiders Armour (F)3** (`raiders-armour-f-3`)
 - +1–5 AC
@@ -5275,6 +5506,7 @@ Grouped by slot. Weapons show their class and actual roll pool from `empowerCand
 - Increase Holy Deva damage by 5–25%
 - Increase Holy Deva health by 5–25%
 - Reduce Holy Deva damage taken by 5–10%
+- Reduce Poison Cloud cooldown by 1–3 seconds
 - Increase Soul Fire Ball crit chance by 2–12%
 - Increase Soul Fire Ball crit damage by 5–25%
 - +5–30% Gold drop
@@ -5285,6 +5517,7 @@ Grouped by slot. Weapons show their class and actual roll pool from `empowerCand
 - +1–14% Crit Rate
 - +5–20% Crit Damage
 - +5–30% Skill leveling
+- +5–35% Potion restore
 
 **Raiders Armour (M)1** (`raiders-armour-m-1`)
 - +1–5 AC
@@ -5320,6 +5553,7 @@ Grouped by slot. Weapons show their class and actual roll pool from `empowerCand
 - +1–14% Crit Rate
 - +5–20% Crit Damage
 - +5–30% Skill leveling
+- +5–35% Potion restore
 
 **Raiders Armour (M)2** (`raiders-armour-m-2`)
 - +1–5 AC
@@ -5345,6 +5579,8 @@ Grouped by slot. Weapons show their class and actual roll pool from `empowerCand
 - Reduce mana cost of Flame Field by 5–20%
 - Reduce mana cost of Meteor Strike by 5–20%
 - Reduce mana cost of Blizzard by 5–20%
+- Reduce Meteor Strike cooldown by 1–3 seconds
+- Reduce Blizzard cooldown by 1–3 seconds
 - Increase Flame Disruptor crit chance by 2–12%
 - Increase Flame Disruptor crit damage by 5–25%
 - Increase Fire Wall crit chance by 2–12%
@@ -5373,6 +5609,7 @@ Grouped by slot. Weapons show their class and actual roll pool from `empowerCand
 - +1–14% Crit Rate
 - +5–20% Crit Damage
 - +5–30% Skill leveling
+- +5–35% Potion restore
 
 **Raiders Armour (M)3** (`raiders-armour-m-3`)
 - +1–5 AC
@@ -5394,6 +5631,7 @@ Grouped by slot. Weapons show their class and actual roll pool from `empowerCand
 - Increase Holy Deva damage by 5–25%
 - Increase Holy Deva health by 5–25%
 - Reduce Holy Deva damage taken by 5–10%
+- Reduce Poison Cloud cooldown by 1–3 seconds
 - Increase Soul Fire Ball crit chance by 2–12%
 - Increase Soul Fire Ball crit damage by 5–25%
 - +5–30% Gold drop
@@ -5404,6 +5642,7 @@ Grouped by slot. Weapons show their class and actual roll pool from `empowerCand
 - +1–14% Crit Rate
 - +5–20% Crit Damage
 - +5–30% Skill leveling
+- +5–35% Potion restore
 
 **Gonryunyongdrama (?) (F)1** (`gonryunyongdrama-f-1`)
 - +1–5 AC
@@ -5440,6 +5679,8 @@ Grouped by slot. Weapons show their class and actual roll pool from `empowerCand
 - Reduce mana cost of Flame Field by 5–20%
 - Reduce mana cost of Meteor Strike by 5–20%
 - Reduce mana cost of Blizzard by 5–20%
+- Reduce Meteor Strike cooldown by 1–3 seconds
+- Reduce Blizzard cooldown by 1–3 seconds
 - Increase Healing healing by 5–15%
 - Increase Mass Healing healing by 5–15%
 - Increase Soul Fire Ball damage by 5–20%
@@ -5452,6 +5693,7 @@ Grouped by slot. Weapons show their class and actual roll pool from `empowerCand
 - Increase Holy Deva damage by 5–25%
 - Increase Holy Deva health by 5–25%
 - Reduce Holy Deva damage taken by 5–10%
+- Reduce Poison Cloud cooldown by 1–3 seconds
 - Increase Slaying crit chance by 2–12%
 - Increase Slaying crit damage by 5–25%
 - Increase Flaming Sword crit chance by 2–12%
@@ -5492,6 +5734,7 @@ Grouped by slot. Weapons show their class and actual roll pool from `empowerCand
 - +1–14% Crit Rate
 - +5–20% Crit Damage
 - +5–30% Skill leveling
+- +5–35% Potion restore
 
 **Gonryunyongdrama (?) (F)2** (`gonryunyongdrama-f-2`)
 - +1–5 AC
@@ -5528,6 +5771,8 @@ Grouped by slot. Weapons show their class and actual roll pool from `empowerCand
 - Reduce mana cost of Flame Field by 5–20%
 - Reduce mana cost of Meteor Strike by 5–20%
 - Reduce mana cost of Blizzard by 5–20%
+- Reduce Meteor Strike cooldown by 1–3 seconds
+- Reduce Blizzard cooldown by 1–3 seconds
 - Increase Healing healing by 5–15%
 - Increase Mass Healing healing by 5–15%
 - Increase Soul Fire Ball damage by 5–20%
@@ -5540,6 +5785,7 @@ Grouped by slot. Weapons show their class and actual roll pool from `empowerCand
 - Increase Holy Deva damage by 5–25%
 - Increase Holy Deva health by 5–25%
 - Reduce Holy Deva damage taken by 5–10%
+- Reduce Poison Cloud cooldown by 1–3 seconds
 - Increase Slaying crit chance by 2–12%
 - Increase Slaying crit damage by 5–25%
 - Increase Flaming Sword crit chance by 2–12%
@@ -5580,6 +5826,7 @@ Grouped by slot. Weapons show their class and actual roll pool from `empowerCand
 - +1–14% Crit Rate
 - +5–20% Crit Damage
 - +5–30% Skill leveling
+- +5–35% Potion restore
 
 **Gonryunyongdrama (?) (F)3** (`gonryunyongdrama-f-3`)
 - +1–5 AC
@@ -5616,6 +5863,8 @@ Grouped by slot. Weapons show their class and actual roll pool from `empowerCand
 - Reduce mana cost of Flame Field by 5–20%
 - Reduce mana cost of Meteor Strike by 5–20%
 - Reduce mana cost of Blizzard by 5–20%
+- Reduce Meteor Strike cooldown by 1–3 seconds
+- Reduce Blizzard cooldown by 1–3 seconds
 - Increase Healing healing by 5–15%
 - Increase Mass Healing healing by 5–15%
 - Increase Soul Fire Ball damage by 5–20%
@@ -5628,6 +5877,7 @@ Grouped by slot. Weapons show their class and actual roll pool from `empowerCand
 - Increase Holy Deva damage by 5–25%
 - Increase Holy Deva health by 5–25%
 - Reduce Holy Deva damage taken by 5–10%
+- Reduce Poison Cloud cooldown by 1–3 seconds
 - Increase Slaying crit chance by 2–12%
 - Increase Slaying crit damage by 5–25%
 - Increase Flaming Sword crit chance by 2–12%
@@ -5668,6 +5918,7 @@ Grouped by slot. Weapons show their class and actual roll pool from `empowerCand
 - +1–14% Crit Rate
 - +5–20% Crit Damage
 - +5–30% Skill leveling
+- +5–35% Potion restore
 
 **Gonryunyongdrama (?) (M)1** (`gonryunyongdrama-m-1`)
 - +1–5 AC
@@ -5704,6 +5955,8 @@ Grouped by slot. Weapons show their class and actual roll pool from `empowerCand
 - Reduce mana cost of Flame Field by 5–20%
 - Reduce mana cost of Meteor Strike by 5–20%
 - Reduce mana cost of Blizzard by 5–20%
+- Reduce Meteor Strike cooldown by 1–3 seconds
+- Reduce Blizzard cooldown by 1–3 seconds
 - Increase Healing healing by 5–15%
 - Increase Mass Healing healing by 5–15%
 - Increase Soul Fire Ball damage by 5–20%
@@ -5716,6 +5969,7 @@ Grouped by slot. Weapons show their class and actual roll pool from `empowerCand
 - Increase Holy Deva damage by 5–25%
 - Increase Holy Deva health by 5–25%
 - Reduce Holy Deva damage taken by 5–10%
+- Reduce Poison Cloud cooldown by 1–3 seconds
 - Increase Slaying crit chance by 2–12%
 - Increase Slaying crit damage by 5–25%
 - Increase Flaming Sword crit chance by 2–12%
@@ -5756,6 +6010,7 @@ Grouped by slot. Weapons show their class and actual roll pool from `empowerCand
 - +1–14% Crit Rate
 - +5–20% Crit Damage
 - +5–30% Skill leveling
+- +5–35% Potion restore
 
 **Gonryunyongdrama (?) (M)2** (`gonryunyongdrama-m-2`)
 - +1–5 AC
@@ -5791,6 +6046,7 @@ Grouped by slot. Weapons show their class and actual roll pool from `empowerCand
 - +1–14% Crit Rate
 - +5–20% Crit Damage
 - +5–30% Skill leveling
+- +5–35% Potion restore
 
 **Gonryunyongdrama (?) (M)3** (`gonryunyongdrama-m-3`)
 - +1–5 AC
@@ -5827,6 +6083,8 @@ Grouped by slot. Weapons show their class and actual roll pool from `empowerCand
 - Reduce mana cost of Flame Field by 5–20%
 - Reduce mana cost of Meteor Strike by 5–20%
 - Reduce mana cost of Blizzard by 5–20%
+- Reduce Meteor Strike cooldown by 1–3 seconds
+- Reduce Blizzard cooldown by 1–3 seconds
 - Increase Healing healing by 5–15%
 - Increase Mass Healing healing by 5–15%
 - Increase Soul Fire Ball damage by 5–20%
@@ -5839,6 +6097,7 @@ Grouped by slot. Weapons show their class and actual roll pool from `empowerCand
 - Increase Holy Deva damage by 5–25%
 - Increase Holy Deva health by 5–25%
 - Reduce Holy Deva damage taken by 5–10%
+- Reduce Poison Cloud cooldown by 1–3 seconds
 - Increase Slaying crit chance by 2–12%
 - Increase Slaying crit damage by 5–25%
 - Increase Flaming Sword crit chance by 2–12%
@@ -5879,6 +6138,7 @@ Grouped by slot. Weapons show their class and actual roll pool from `empowerCand
 - +1–14% Crit Rate
 - +5–20% Crit Damage
 - +5–30% Skill leveling
+- +5–35% Potion restore
 
 ### Belt / Boots
 
@@ -5920,6 +6180,8 @@ Grouped by slot. Weapons show their class and actual roll pool from `empowerCand
 - Reduce mana cost of Flame Field by 5–15%
 - Reduce mana cost of Meteor Strike by 5–15%
 - Reduce mana cost of Blizzard by 5–15%
+- Reduce Meteor Strike cooldown by 1–2 seconds
+- Reduce Blizzard cooldown by 1–2 seconds
 - Increase Healing healing by 5–10%
 - Increase Mass Healing healing by 5–10%
 - Increase Soul Fire Ball damage by 5–10%
@@ -5932,6 +6194,7 @@ Grouped by slot. Weapons show their class and actual roll pool from `empowerCand
 - Increase Holy Deva damage by 5–20%
 - Increase Holy Deva health by 5–20%
 - Reduce Holy Deva damage taken by 5%
+- Reduce Poison Cloud cooldown by 1–2 seconds
 - Increase Slaying crit chance by 1–8%
 - Increase Slaying crit damage by 5–15%
 - Increase Flaming Sword crit chance by 1–8%
@@ -5971,6 +6234,7 @@ Grouped by slot. Weapons show their class and actual roll pool from `empowerCand
 - +1–6% Crit Rate
 - +5–10% Crit Damage
 - +2–10% Skill leveling
+- +5–20% Potion restore
 
 **Strong Leather Belt** (`strong-leather-belt`)
 - +1–3 AC
@@ -6010,6 +6274,8 @@ Grouped by slot. Weapons show their class and actual roll pool from `empowerCand
 - Reduce mana cost of Flame Field by 5–15%
 - Reduce mana cost of Meteor Strike by 5–15%
 - Reduce mana cost of Blizzard by 5–15%
+- Reduce Meteor Strike cooldown by 1–2 seconds
+- Reduce Blizzard cooldown by 1–2 seconds
 - Increase Healing healing by 5–10%
 - Increase Mass Healing healing by 5–10%
 - Increase Soul Fire Ball damage by 5–10%
@@ -6022,6 +6288,7 @@ Grouped by slot. Weapons show their class and actual roll pool from `empowerCand
 - Increase Holy Deva damage by 5–20%
 - Increase Holy Deva health by 5–20%
 - Reduce Holy Deva damage taken by 5%
+- Reduce Poison Cloud cooldown by 1–2 seconds
 - Increase Slaying crit chance by 1–8%
 - Increase Slaying crit damage by 5–15%
 - Increase Flaming Sword crit chance by 1–8%
@@ -6061,6 +6328,7 @@ Grouped by slot. Weapons show their class and actual roll pool from `empowerCand
 - +1–6% Crit Rate
 - +5–10% Crit Damage
 - +2–10% Skill leveling
+- +5–20% Potion restore
 
 **Chain Belt** (`chain-belt`)
 - +1–3 AC
@@ -6100,6 +6368,8 @@ Grouped by slot. Weapons show their class and actual roll pool from `empowerCand
 - Reduce mana cost of Flame Field by 5–15%
 - Reduce mana cost of Meteor Strike by 5–15%
 - Reduce mana cost of Blizzard by 5–15%
+- Reduce Meteor Strike cooldown by 1–2 seconds
+- Reduce Blizzard cooldown by 1–2 seconds
 - Increase Healing healing by 5–10%
 - Increase Mass Healing healing by 5–10%
 - Increase Soul Fire Ball damage by 5–10%
@@ -6112,6 +6382,7 @@ Grouped by slot. Weapons show their class and actual roll pool from `empowerCand
 - Increase Holy Deva damage by 5–20%
 - Increase Holy Deva health by 5–20%
 - Reduce Holy Deva damage taken by 5%
+- Reduce Poison Cloud cooldown by 1–2 seconds
 - Increase Slaying crit chance by 1–8%
 - Increase Slaying crit damage by 5–15%
 - Increase Flaming Sword crit chance by 1–8%
@@ -6151,6 +6422,7 @@ Grouped by slot. Weapons show their class and actual roll pool from `empowerCand
 - +1–6% Crit Rate
 - +5–10% Crit Damage
 - +2–10% Skill leveling
+- +5–20% Potion restore
 
 **Steel Buckle** (`steel-buckle`)
 - +1–3 AC
@@ -6190,6 +6462,8 @@ Grouped by slot. Weapons show their class and actual roll pool from `empowerCand
 - Reduce mana cost of Flame Field by 5–15%
 - Reduce mana cost of Meteor Strike by 5–15%
 - Reduce mana cost of Blizzard by 5–15%
+- Reduce Meteor Strike cooldown by 1–2 seconds
+- Reduce Blizzard cooldown by 1–2 seconds
 - Increase Healing healing by 5–10%
 - Increase Mass Healing healing by 5–10%
 - Increase Soul Fire Ball damage by 5–10%
@@ -6202,6 +6476,7 @@ Grouped by slot. Weapons show their class and actual roll pool from `empowerCand
 - Increase Holy Deva damage by 5–20%
 - Increase Holy Deva health by 5–20%
 - Reduce Holy Deva damage taken by 5%
+- Reduce Poison Cloud cooldown by 1–2 seconds
 - Increase Slaying crit chance by 1–8%
 - Increase Slaying crit damage by 5–15%
 - Increase Flaming Sword crit chance by 1–8%
@@ -6241,6 +6516,7 @@ Grouped by slot. Weapons show their class and actual roll pool from `empowerCand
 - +1–6% Crit Rate
 - +5–10% Crit Damage
 - +2–10% Skill leveling
+- +5–20% Potion restore
 
 **Bronze Strap** (`bronze-strap`)
 - +1–3 AC
@@ -6280,6 +6556,8 @@ Grouped by slot. Weapons show their class and actual roll pool from `empowerCand
 - Reduce mana cost of Flame Field by 5–15%
 - Reduce mana cost of Meteor Strike by 5–15%
 - Reduce mana cost of Blizzard by 5–15%
+- Reduce Meteor Strike cooldown by 1–2 seconds
+- Reduce Blizzard cooldown by 1–2 seconds
 - Increase Healing healing by 5–10%
 - Increase Mass Healing healing by 5–10%
 - Increase Soul Fire Ball damage by 5–10%
@@ -6292,6 +6570,7 @@ Grouped by slot. Weapons show their class and actual roll pool from `empowerCand
 - Increase Holy Deva damage by 5–20%
 - Increase Holy Deva health by 5–20%
 - Reduce Holy Deva damage taken by 5%
+- Reduce Poison Cloud cooldown by 1–2 seconds
 - Increase Slaying crit chance by 1–8%
 - Increase Slaying crit damage by 5–15%
 - Increase Flaming Sword crit chance by 1–8%
@@ -6331,6 +6610,7 @@ Grouped by slot. Weapons show their class and actual roll pool from `empowerCand
 - +1–6% Crit Rate
 - +5–10% Crit Damage
 - +2–10% Skill leveling
+- +5–20% Potion restore
 
 **Black Iron Belt** (`black-iron-belt`)
 - +1–3 AC
@@ -6370,6 +6650,8 @@ Grouped by slot. Weapons show their class and actual roll pool from `empowerCand
 - Reduce mana cost of Flame Field by 5–15%
 - Reduce mana cost of Meteor Strike by 5–15%
 - Reduce mana cost of Blizzard by 5–15%
+- Reduce Meteor Strike cooldown by 1–2 seconds
+- Reduce Blizzard cooldown by 1–2 seconds
 - Increase Healing healing by 5–10%
 - Increase Mass Healing healing by 5–10%
 - Increase Soul Fire Ball damage by 5–10%
@@ -6382,6 +6664,7 @@ Grouped by slot. Weapons show their class and actual roll pool from `empowerCand
 - Increase Holy Deva damage by 5–20%
 - Increase Holy Deva health by 5–20%
 - Reduce Holy Deva damage taken by 5%
+- Reduce Poison Cloud cooldown by 1–2 seconds
 - Increase Slaying crit chance by 1–8%
 - Increase Slaying crit damage by 5–15%
 - Increase Flaming Sword crit chance by 1–8%
@@ -6421,6 +6704,7 @@ Grouped by slot. Weapons show their class and actual roll pool from `empowerCand
 - +1–6% Crit Rate
 - +5–10% Crit Damage
 - +2–10% Skill leveling
+- +5–20% Potion restore
 
 **Steel Belt** (`steel-belt`)
 - +1–3 AC
@@ -6460,6 +6744,8 @@ Grouped by slot. Weapons show their class and actual roll pool from `empowerCand
 - Reduce mana cost of Flame Field by 5–15%
 - Reduce mana cost of Meteor Strike by 5–15%
 - Reduce mana cost of Blizzard by 5–15%
+- Reduce Meteor Strike cooldown by 1–2 seconds
+- Reduce Blizzard cooldown by 1–2 seconds
 - Increase Healing healing by 5–10%
 - Increase Mass Healing healing by 5–10%
 - Increase Soul Fire Ball damage by 5–10%
@@ -6472,6 +6758,7 @@ Grouped by slot. Weapons show their class and actual roll pool from `empowerCand
 - Increase Holy Deva damage by 5–20%
 - Increase Holy Deva health by 5–20%
 - Reduce Holy Deva damage taken by 5%
+- Reduce Poison Cloud cooldown by 1–2 seconds
 - Increase Slaying crit chance by 1–8%
 - Increase Slaying crit damage by 5–15%
 - Increase Flaming Sword crit chance by 1–8%
@@ -6511,6 +6798,7 @@ Grouped by slot. Weapons show their class and actual roll pool from `empowerCand
 - +1–6% Crit Rate
 - +5–10% Crit Damage
 - +2–10% Skill leveling
+- +5–20% Potion restore
 
 **Gold Belt** (`gold-belt`)
 - +1–3 AC
@@ -6550,6 +6838,8 @@ Grouped by slot. Weapons show their class and actual roll pool from `empowerCand
 - Reduce mana cost of Flame Field by 5–15%
 - Reduce mana cost of Meteor Strike by 5–15%
 - Reduce mana cost of Blizzard by 5–15%
+- Reduce Meteor Strike cooldown by 1–2 seconds
+- Reduce Blizzard cooldown by 1–2 seconds
 - Increase Healing healing by 5–10%
 - Increase Mass Healing healing by 5–10%
 - Increase Soul Fire Ball damage by 5–10%
@@ -6562,6 +6852,7 @@ Grouped by slot. Weapons show their class and actual roll pool from `empowerCand
 - Increase Holy Deva damage by 5–20%
 - Increase Holy Deva health by 5–20%
 - Reduce Holy Deva damage taken by 5%
+- Reduce Poison Cloud cooldown by 1–2 seconds
 - Increase Slaying crit chance by 1–8%
 - Increase Slaying crit damage by 5–15%
 - Increase Flaming Sword crit chance by 1–8%
@@ -6601,6 +6892,101 @@ Grouped by slot. Weapons show their class and actual roll pool from `empowerCand
 - +1–6% Crit Rate
 - +5–10% Crit Damage
 - +2–10% Skill leveling
+- +5–20% Potion restore
+
+**Adamantine Belt** (`adamantine-belt`)
+- +1–3 AC
+- +1–3 AMC
+- +1–2 DC
+- +1–2 SC
+- +1–2 MC
+- +1–2 Agi
+- +1–2 Acc
+- +1 Poison Resist
+- +1 Magic Resist
+- +10–30 HP (step 10)
+- +10–30 MP (step 10)
+- Increase Slaying damage by 5–10%
+- Increase Flaming Sword damage by 5–10%
+- Reduce Flaming Sword cooldown by 1–2 seconds
+- Increase Twin Drake Blade damage by 5–10%
+- Reduce mana cost of Twin Drake Blade by 5–15%
+- Increase Blade Avalanche damage by 5–10%
+- Reduce mana cost of Blade Avalanche by 5–15%
+- Increase Slashing Burst damage by 5–10%
+- Reduce mana cost of Slashing Burst by 5–15%
+- Increase Flame Disruptor damage by 5–10%
+- Increase Fire Wall damage by 5–10%
+- Increase Thunder Bolt damage by 5–10%
+- Increase Ice Storm damage by 5–10%
+- Increase Flame Field damage by 5–10%
+- Increase Meteor Strike damage by 5–10%
+- Increase Blizzard damage by 5–10%
+- Increase Fire Ball damage by 5–10%
+- Increase Great Fire Ball damage by 5–10%
+- Increase Frost Crunch damage by 5–10%
+- Reduce mana cost of Flame Disruptor by 5–15%
+- Reduce mana cost of Fire Wall by 5–15%
+- Reduce mana cost of Thunder Bolt by 5–15%
+- Reduce mana cost of Ice Storm by 5–15%
+- Reduce mana cost of Flame Field by 5–15%
+- Reduce mana cost of Meteor Strike by 5–15%
+- Reduce mana cost of Blizzard by 5–15%
+- Reduce Meteor Strike cooldown by 1–2 seconds
+- Reduce Blizzard cooldown by 1–2 seconds
+- Increase Healing healing by 5–10%
+- Increase Mass Healing healing by 5–10%
+- Increase Soul Fire Ball damage by 5–10%
+- Increase Skeleton damage by 5–20%
+- Increase Skeleton health by 5–20%
+- Reduce Skeleton damage taken by 5%
+- Increase Shinsu damage by 5–20%
+- Increase Shinsu health by 5–20%
+- Reduce Shinsu damage taken by 5%
+- Increase Holy Deva damage by 5–20%
+- Increase Holy Deva health by 5–20%
+- Reduce Holy Deva damage taken by 5%
+- Reduce Poison Cloud cooldown by 1–2 seconds
+- Increase Slaying crit chance by 1–8%
+- Increase Slaying crit damage by 5–15%
+- Increase Flaming Sword crit chance by 1–8%
+- Increase Flaming Sword crit damage by 5–15%
+- Increase Twin Drake Blade crit chance by 1–8%
+- Increase Twin Drake Blade crit damage by 5–15%
+- Increase Blade Avalanche crit chance by 1–8%
+- Increase Blade Avalanche crit damage by 5–15%
+- Increase Slashing Burst crit chance by 1–8%
+- Increase Slashing Burst crit damage by 5–15%
+- Increase Flame Disruptor crit chance by 1–8%
+- Increase Flame Disruptor crit damage by 5–15%
+- Increase Fire Wall crit chance by 1–8%
+- Increase Fire Wall crit damage by 5–15%
+- Increase Thunder Bolt crit chance by 1–8%
+- Increase Thunder Bolt crit damage by 5–15%
+- Increase Ice Storm crit chance by 1–8%
+- Increase Ice Storm crit damage by 5–15%
+- Increase Flame Field crit chance by 1–8%
+- Increase Flame Field crit damage by 5–15%
+- Increase Meteor Strike crit chance by 1–8%
+- Increase Meteor Strike crit damage by 5–15%
+- Increase Blizzard crit chance by 1–8%
+- Increase Blizzard crit damage by 5–15%
+- Increase Fire Ball crit chance by 1–8%
+- Increase Fire Ball crit damage by 5–15%
+- Increase Great Fire Ball crit chance by 1–8%
+- Increase Great Fire Ball crit damage by 5–15%
+- Increase Frost Crunch crit chance by 1–8%
+- Increase Frost Crunch crit damage by 5–15%
+- Increase Soul Fire Ball crit chance by 1–8%
+- Increase Soul Fire Ball crit damage by 5–15%
+- +2–10% Gold drop
+- +2–10% Bonus XP
+- +2–5% Awakening Soul drop chance
+- −1–5% Damage taken
+- +1–6% Crit Rate
+- +5–10% Crit Damage
+- +2–10% Skill leveling
+- +5–20% Potion restore
 
 **Low Shoes** (`low-shoes`)
 - +1–3 AC
@@ -6640,6 +7026,8 @@ Grouped by slot. Weapons show their class and actual roll pool from `empowerCand
 - Reduce mana cost of Flame Field by 5–15%
 - Reduce mana cost of Meteor Strike by 5–15%
 - Reduce mana cost of Blizzard by 5–15%
+- Reduce Meteor Strike cooldown by 1–2 seconds
+- Reduce Blizzard cooldown by 1–2 seconds
 - Increase Healing healing by 5–10%
 - Increase Mass Healing healing by 5–10%
 - Increase Soul Fire Ball damage by 5–10%
@@ -6652,6 +7040,7 @@ Grouped by slot. Weapons show their class and actual roll pool from `empowerCand
 - Increase Holy Deva damage by 5–20%
 - Increase Holy Deva health by 5–20%
 - Reduce Holy Deva damage taken by 5%
+- Reduce Poison Cloud cooldown by 1–2 seconds
 - Increase Slaying crit chance by 1–8%
 - Increase Slaying crit damage by 5–15%
 - Increase Flaming Sword crit chance by 1–8%
@@ -6691,6 +7080,7 @@ Grouped by slot. Weapons show their class and actual roll pool from `empowerCand
 - +1–6% Crit Rate
 - +5–10% Crit Damage
 - +2–10% Skill leveling
+- +5–20% Potion restore
 
 **Leather Boots** (`leather-boots`)
 - +1–3 AC
@@ -6730,6 +7120,8 @@ Grouped by slot. Weapons show their class and actual roll pool from `empowerCand
 - Reduce mana cost of Flame Field by 5–15%
 - Reduce mana cost of Meteor Strike by 5–15%
 - Reduce mana cost of Blizzard by 5–15%
+- Reduce Meteor Strike cooldown by 1–2 seconds
+- Reduce Blizzard cooldown by 1–2 seconds
 - Increase Healing healing by 5–10%
 - Increase Mass Healing healing by 5–10%
 - Increase Soul Fire Ball damage by 5–10%
@@ -6742,6 +7134,7 @@ Grouped by slot. Weapons show their class and actual roll pool from `empowerCand
 - Increase Holy Deva damage by 5–20%
 - Increase Holy Deva health by 5–20%
 - Reduce Holy Deva damage taken by 5%
+- Reduce Poison Cloud cooldown by 1–2 seconds
 - Increase Slaying crit chance by 1–8%
 - Increase Slaying crit damage by 5–15%
 - Increase Flaming Sword crit chance by 1–8%
@@ -6781,6 +7174,7 @@ Grouped by slot. Weapons show their class and actual roll pool from `empowerCand
 - +1–6% Crit Rate
 - +5–10% Crit Damage
 - +2–10% Skill leveling
+- +5–20% Potion restore
 
 **Silk Boots** (`silk-boots`)
 - +1–3 AC
@@ -6820,6 +7214,8 @@ Grouped by slot. Weapons show their class and actual roll pool from `empowerCand
 - Reduce mana cost of Flame Field by 5–15%
 - Reduce mana cost of Meteor Strike by 5–15%
 - Reduce mana cost of Blizzard by 5–15%
+- Reduce Meteor Strike cooldown by 1–2 seconds
+- Reduce Blizzard cooldown by 1–2 seconds
 - Increase Healing healing by 5–10%
 - Increase Mass Healing healing by 5–10%
 - Increase Soul Fire Ball damage by 5–10%
@@ -6832,6 +7228,7 @@ Grouped by slot. Weapons show their class and actual roll pool from `empowerCand
 - Increase Holy Deva damage by 5–20%
 - Increase Holy Deva health by 5–20%
 - Reduce Holy Deva damage taken by 5%
+- Reduce Poison Cloud cooldown by 1–2 seconds
 - Increase Slaying crit chance by 1–8%
 - Increase Slaying crit damage by 5–15%
 - Increase Flaming Sword crit chance by 1–8%
@@ -6871,6 +7268,7 @@ Grouped by slot. Weapons show their class and actual roll pool from `empowerCand
 - +1–6% Crit Rate
 - +5–10% Crit Damage
 - +2–10% Skill leveling
+- +5–20% Potion restore
 
 **Black Boots** (`black-boots`)
 - +1–3 AC
@@ -6910,6 +7308,8 @@ Grouped by slot. Weapons show their class and actual roll pool from `empowerCand
 - Reduce mana cost of Flame Field by 5–15%
 - Reduce mana cost of Meteor Strike by 5–15%
 - Reduce mana cost of Blizzard by 5–15%
+- Reduce Meteor Strike cooldown by 1–2 seconds
+- Reduce Blizzard cooldown by 1–2 seconds
 - Increase Healing healing by 5–10%
 - Increase Mass Healing healing by 5–10%
 - Increase Soul Fire Ball damage by 5–10%
@@ -6922,6 +7322,7 @@ Grouped by slot. Weapons show their class and actual roll pool from `empowerCand
 - Increase Holy Deva damage by 5–20%
 - Increase Holy Deva health by 5–20%
 - Reduce Holy Deva damage taken by 5%
+- Reduce Poison Cloud cooldown by 1–2 seconds
 - Increase Slaying crit chance by 1–8%
 - Increase Slaying crit damage by 5–15%
 - Increase Flaming Sword crit chance by 1–8%
@@ -6961,6 +7362,7 @@ Grouped by slot. Weapons show their class and actual roll pool from `empowerCand
 - +1–6% Crit Rate
 - +5–10% Crit Damage
 - +2–10% Skill leveling
+- +5–20% Potion restore
 
 **Dragon Boots** (`dragon-boots`)
 - +1–3 AC
@@ -7000,6 +7402,8 @@ Grouped by slot. Weapons show their class and actual roll pool from `empowerCand
 - Reduce mana cost of Flame Field by 5–15%
 - Reduce mana cost of Meteor Strike by 5–15%
 - Reduce mana cost of Blizzard by 5–15%
+- Reduce Meteor Strike cooldown by 1–2 seconds
+- Reduce Blizzard cooldown by 1–2 seconds
 - Increase Healing healing by 5–10%
 - Increase Mass Healing healing by 5–10%
 - Increase Soul Fire Ball damage by 5–10%
@@ -7012,6 +7416,7 @@ Grouped by slot. Weapons show their class and actual roll pool from `empowerCand
 - Increase Holy Deva damage by 5–20%
 - Increase Holy Deva health by 5–20%
 - Reduce Holy Deva damage taken by 5%
+- Reduce Poison Cloud cooldown by 1–2 seconds
 - Increase Slaying crit chance by 1–8%
 - Increase Slaying crit damage by 5–15%
 - Increase Flaming Sword crit chance by 1–8%
@@ -7051,6 +7456,101 @@ Grouped by slot. Weapons show their class and actual roll pool from `empowerCand
 - +1–6% Crit Rate
 - +5–10% Crit Damage
 - +2–10% Skill leveling
+- +5–20% Potion restore
+
+**Red Scale Boots** (`red-scale-boots`)
+- +1–3 AC
+- +1–3 AMC
+- +1–2 DC
+- +1–2 SC
+- +1–2 MC
+- +1–2 Agi
+- +1–2 Acc
+- +1 Poison Resist
+- +1 Magic Resist
+- +10–30 HP (step 10)
+- +10–30 MP (step 10)
+- Increase Slaying damage by 5–10%
+- Increase Flaming Sword damage by 5–10%
+- Reduce Flaming Sword cooldown by 1–2 seconds
+- Increase Twin Drake Blade damage by 5–10%
+- Reduce mana cost of Twin Drake Blade by 5–15%
+- Increase Blade Avalanche damage by 5–10%
+- Reduce mana cost of Blade Avalanche by 5–15%
+- Increase Slashing Burst damage by 5–10%
+- Reduce mana cost of Slashing Burst by 5–15%
+- Increase Flame Disruptor damage by 5–10%
+- Increase Fire Wall damage by 5–10%
+- Increase Thunder Bolt damage by 5–10%
+- Increase Ice Storm damage by 5–10%
+- Increase Flame Field damage by 5–10%
+- Increase Meteor Strike damage by 5–10%
+- Increase Blizzard damage by 5–10%
+- Increase Fire Ball damage by 5–10%
+- Increase Great Fire Ball damage by 5–10%
+- Increase Frost Crunch damage by 5–10%
+- Reduce mana cost of Flame Disruptor by 5–15%
+- Reduce mana cost of Fire Wall by 5–15%
+- Reduce mana cost of Thunder Bolt by 5–15%
+- Reduce mana cost of Ice Storm by 5–15%
+- Reduce mana cost of Flame Field by 5–15%
+- Reduce mana cost of Meteor Strike by 5–15%
+- Reduce mana cost of Blizzard by 5–15%
+- Reduce Meteor Strike cooldown by 1–2 seconds
+- Reduce Blizzard cooldown by 1–2 seconds
+- Increase Healing healing by 5–10%
+- Increase Mass Healing healing by 5–10%
+- Increase Soul Fire Ball damage by 5–10%
+- Increase Skeleton damage by 5–20%
+- Increase Skeleton health by 5–20%
+- Reduce Skeleton damage taken by 5%
+- Increase Shinsu damage by 5–20%
+- Increase Shinsu health by 5–20%
+- Reduce Shinsu damage taken by 5%
+- Increase Holy Deva damage by 5–20%
+- Increase Holy Deva health by 5–20%
+- Reduce Holy Deva damage taken by 5%
+- Reduce Poison Cloud cooldown by 1–2 seconds
+- Increase Slaying crit chance by 1–8%
+- Increase Slaying crit damage by 5–15%
+- Increase Flaming Sword crit chance by 1–8%
+- Increase Flaming Sword crit damage by 5–15%
+- Increase Twin Drake Blade crit chance by 1–8%
+- Increase Twin Drake Blade crit damage by 5–15%
+- Increase Blade Avalanche crit chance by 1–8%
+- Increase Blade Avalanche crit damage by 5–15%
+- Increase Slashing Burst crit chance by 1–8%
+- Increase Slashing Burst crit damage by 5–15%
+- Increase Flame Disruptor crit chance by 1–8%
+- Increase Flame Disruptor crit damage by 5–15%
+- Increase Fire Wall crit chance by 1–8%
+- Increase Fire Wall crit damage by 5–15%
+- Increase Thunder Bolt crit chance by 1–8%
+- Increase Thunder Bolt crit damage by 5–15%
+- Increase Ice Storm crit chance by 1–8%
+- Increase Ice Storm crit damage by 5–15%
+- Increase Flame Field crit chance by 1–8%
+- Increase Flame Field crit damage by 5–15%
+- Increase Meteor Strike crit chance by 1–8%
+- Increase Meteor Strike crit damage by 5–15%
+- Increase Blizzard crit chance by 1–8%
+- Increase Blizzard crit damage by 5–15%
+- Increase Fire Ball crit chance by 1–8%
+- Increase Fire Ball crit damage by 5–15%
+- Increase Great Fire Ball crit chance by 1–8%
+- Increase Great Fire Ball crit damage by 5–15%
+- Increase Frost Crunch crit chance by 1–8%
+- Increase Frost Crunch crit damage by 5–15%
+- Increase Soul Fire Ball crit chance by 1–8%
+- Increase Soul Fire Ball crit damage by 5–15%
+- +2–10% Gold drop
+- +2–10% Bonus XP
+- +2–5% Awakening Soul drop chance
+- −1–5% Damage taken
+- +1–6% Crit Rate
+- +5–10% Crit Damage
+- +2–10% Skill leveling
+- +5–20% Potion restore
 
 ### Bracelet
 
@@ -7075,6 +7575,7 @@ Grouped by slot. Weapons show their class and actual roll pool from `empowerCand
 - Increase Holy Deva damage by 5–20%
 - Increase Holy Deva health by 5–20%
 - Reduce Holy Deva damage taken by 5%
+- Reduce Poison Cloud cooldown by 1–2 seconds
 - Increase Soul Fire Ball crit chance by 1–8%
 - Increase Soul Fire Ball crit damage by 5–15%
 - +2–12% Gold drop
@@ -7110,6 +7611,8 @@ Grouped by slot. Weapons show their class and actual roll pool from `empowerCand
 - Reduce mana cost of Flame Field by 5–15%
 - Reduce mana cost of Meteor Strike by 5–15%
 - Reduce mana cost of Blizzard by 5–15%
+- Reduce Meteor Strike cooldown by 1–2 seconds
+- Reduce Blizzard cooldown by 1–2 seconds
 - Increase Flame Disruptor crit chance by 1–8%
 - Increase Flame Disruptor crit damage by 5–15%
 - Increase Fire Wall crit chance by 1–8%
@@ -7194,6 +7697,7 @@ Grouped by slot. Weapons show their class and actual roll pool from `empowerCand
 - Increase Holy Deva damage by 5–20%
 - Increase Holy Deva health by 5–20%
 - Reduce Holy Deva damage taken by 5%
+- Reduce Poison Cloud cooldown by 1–2 seconds
 - Increase Soul Fire Ball crit chance by 1–8%
 - Increase Soul Fire Ball crit damage by 5–15%
 - +2–12% Gold drop
@@ -7275,6 +7779,8 @@ Grouped by slot. Weapons show their class and actual roll pool from `empowerCand
 - Reduce mana cost of Flame Field by 5–15%
 - Reduce mana cost of Meteor Strike by 5–15%
 - Reduce mana cost of Blizzard by 5–15%
+- Reduce Meteor Strike cooldown by 1–2 seconds
+- Reduce Blizzard cooldown by 1–2 seconds
 - Increase Healing healing by 5–10%
 - Increase Mass Healing healing by 5–10%
 - Increase Soul Fire Ball damage by 5–10%
@@ -7287,6 +7793,7 @@ Grouped by slot. Weapons show their class and actual roll pool from `empowerCand
 - Increase Holy Deva damage by 5–20%
 - Increase Holy Deva health by 5–20%
 - Reduce Holy Deva damage taken by 5%
+- Reduce Poison Cloud cooldown by 1–2 seconds
 - Increase Slaying crit chance by 1–8%
 - Increase Slaying crit damage by 5–15%
 - Increase Flaming Sword crit chance by 1–8%
@@ -7398,6 +7905,8 @@ Grouped by slot. Weapons show their class and actual roll pool from `empowerCand
 - Reduce mana cost of Flame Field by 5–15%
 - Reduce mana cost of Meteor Strike by 5–15%
 - Reduce mana cost of Blizzard by 5–15%
+- Reduce Meteor Strike cooldown by 1–2 seconds
+- Reduce Blizzard cooldown by 1–2 seconds
 - Increase Healing healing by 5–10%
 - Increase Mass Healing healing by 5–10%
 - Increase Soul Fire Ball damage by 5–10%
@@ -7410,6 +7919,7 @@ Grouped by slot. Weapons show their class and actual roll pool from `empowerCand
 - Increase Holy Deva damage by 5–20%
 - Increase Holy Deva health by 5–20%
 - Reduce Holy Deva damage taken by 5%
+- Reduce Poison Cloud cooldown by 1–2 seconds
 - Increase Slaying crit chance by 1–8%
 - Increase Slaying crit damage by 5–15%
 - Increase Flaming Sword crit chance by 1–8%
@@ -7486,6 +7996,8 @@ Grouped by slot. Weapons show their class and actual roll pool from `empowerCand
 - Reduce mana cost of Flame Field by 5–15%
 - Reduce mana cost of Meteor Strike by 5–15%
 - Reduce mana cost of Blizzard by 5–15%
+- Reduce Meteor Strike cooldown by 1–2 seconds
+- Reduce Blizzard cooldown by 1–2 seconds
 - Increase Healing healing by 5–10%
 - Increase Mass Healing healing by 5–10%
 - Increase Soul Fire Ball damage by 5–10%
@@ -7498,6 +8010,7 @@ Grouped by slot. Weapons show their class and actual roll pool from `empowerCand
 - Increase Holy Deva damage by 5–20%
 - Increase Holy Deva health by 5–20%
 - Reduce Holy Deva damage taken by 5%
+- Reduce Poison Cloud cooldown by 1–2 seconds
 - Increase Slaying crit chance by 1–8%
 - Increase Slaying crit damage by 5–15%
 - Increase Flaming Sword crit chance by 1–8%
@@ -7574,6 +8087,8 @@ Grouped by slot. Weapons show their class and actual roll pool from `empowerCand
 - Reduce mana cost of Flame Field by 5–15%
 - Reduce mana cost of Meteor Strike by 5–15%
 - Reduce mana cost of Blizzard by 5–15%
+- Reduce Meteor Strike cooldown by 1–2 seconds
+- Reduce Blizzard cooldown by 1–2 seconds
 - Increase Healing healing by 5–10%
 - Increase Mass Healing healing by 5–10%
 - Increase Soul Fire Ball damage by 5–10%
@@ -7586,6 +8101,7 @@ Grouped by slot. Weapons show their class and actual roll pool from `empowerCand
 - Increase Holy Deva damage by 5–20%
 - Increase Holy Deva health by 5–20%
 - Reduce Holy Deva damage taken by 5%
+- Reduce Poison Cloud cooldown by 1–2 seconds
 - Increase Slaying crit chance by 1–8%
 - Increase Slaying crit damage by 5–15%
 - Increase Flaming Sword crit chance by 1–8%
@@ -7662,6 +8178,8 @@ Grouped by slot. Weapons show their class and actual roll pool from `empowerCand
 - Reduce mana cost of Flame Field by 5–15%
 - Reduce mana cost of Meteor Strike by 5–15%
 - Reduce mana cost of Blizzard by 5–15%
+- Reduce Meteor Strike cooldown by 1–2 seconds
+- Reduce Blizzard cooldown by 1–2 seconds
 - Increase Healing healing by 5–10%
 - Increase Mass Healing healing by 5–10%
 - Increase Soul Fire Ball damage by 5–10%
@@ -7674,6 +8192,7 @@ Grouped by slot. Weapons show their class and actual roll pool from `empowerCand
 - Increase Holy Deva damage by 5–20%
 - Increase Holy Deva health by 5–20%
 - Reduce Holy Deva damage taken by 5%
+- Reduce Poison Cloud cooldown by 1–2 seconds
 - Increase Slaying crit chance by 1–8%
 - Increase Slaying crit damage by 5–15%
 - Increase Flaming Sword crit chance by 1–8%
@@ -7750,6 +8269,8 @@ Grouped by slot. Weapons show their class and actual roll pool from `empowerCand
 - Reduce mana cost of Flame Field by 5–15%
 - Reduce mana cost of Meteor Strike by 5–15%
 - Reduce mana cost of Blizzard by 5–15%
+- Reduce Meteor Strike cooldown by 1–2 seconds
+- Reduce Blizzard cooldown by 1–2 seconds
 - Increase Healing healing by 5–10%
 - Increase Mass Healing healing by 5–10%
 - Increase Soul Fire Ball damage by 5–10%
@@ -7762,6 +8283,7 @@ Grouped by slot. Weapons show their class and actual roll pool from `empowerCand
 - Increase Holy Deva damage by 5–20%
 - Increase Holy Deva health by 5–20%
 - Reduce Holy Deva damage taken by 5%
+- Reduce Poison Cloud cooldown by 1–2 seconds
 - Increase Slaying crit chance by 1–8%
 - Increase Slaying crit damage by 5–15%
 - Increase Flaming Sword crit chance by 1–8%
@@ -7897,6 +8419,8 @@ Grouped by slot. Weapons show their class and actual roll pool from `empowerCand
 - Reduce mana cost of Flame Field by 5–15%
 - Reduce mana cost of Meteor Strike by 5–15%
 - Reduce mana cost of Blizzard by 5–15%
+- Reduce Meteor Strike cooldown by 1–2 seconds
+- Reduce Blizzard cooldown by 1–2 seconds
 - Increase Flame Disruptor crit chance by 1–8%
 - Increase Flame Disruptor crit damage by 5–15%
 - Increase Fire Wall crit chance by 1–8%
@@ -7946,6 +8470,7 @@ Grouped by slot. Weapons show their class and actual roll pool from `empowerCand
 - Increase Holy Deva damage by 5–20%
 - Increase Holy Deva health by 5–20%
 - Reduce Holy Deva damage taken by 5%
+- Reduce Poison Cloud cooldown by 1–2 seconds
 - Increase Soul Fire Ball crit chance by 1–8%
 - Increase Soul Fire Ball crit damage by 5–15%
 - +2–12% Gold drop
@@ -8027,6 +8552,8 @@ Grouped by slot. Weapons show their class and actual roll pool from `empowerCand
 - Reduce mana cost of Flame Field by 5–15%
 - Reduce mana cost of Meteor Strike by 5–15%
 - Reduce mana cost of Blizzard by 5–15%
+- Reduce Meteor Strike cooldown by 1–2 seconds
+- Reduce Blizzard cooldown by 1–2 seconds
 - Increase Healing healing by 5–10%
 - Increase Mass Healing healing by 5–10%
 - Increase Soul Fire Ball damage by 5–10%
@@ -8039,6 +8566,7 @@ Grouped by slot. Weapons show their class and actual roll pool from `empowerCand
 - Increase Holy Deva damage by 5–20%
 - Increase Holy Deva health by 5–20%
 - Reduce Holy Deva damage taken by 5%
+- Reduce Poison Cloud cooldown by 1–2 seconds
 - Increase Slaying crit chance by 1–8%
 - Increase Slaying crit damage by 5–15%
 - Increase Flaming Sword crit chance by 1–8%
@@ -8115,6 +8643,8 @@ Grouped by slot. Weapons show their class and actual roll pool from `empowerCand
 - Reduce mana cost of Flame Field by 5–15%
 - Reduce mana cost of Meteor Strike by 5–15%
 - Reduce mana cost of Blizzard by 5–15%
+- Reduce Meteor Strike cooldown by 1–2 seconds
+- Reduce Blizzard cooldown by 1–2 seconds
 - Increase Healing healing by 5–10%
 - Increase Mass Healing healing by 5–10%
 - Increase Soul Fire Ball damage by 5–10%
@@ -8127,6 +8657,7 @@ Grouped by slot. Weapons show their class and actual roll pool from `empowerCand
 - Increase Holy Deva damage by 5–20%
 - Increase Holy Deva health by 5–20%
 - Reduce Holy Deva damage taken by 5%
+- Reduce Poison Cloud cooldown by 1–2 seconds
 - Increase Slaying crit chance by 1–8%
 - Increase Slaying crit damage by 5–15%
 - Increase Flaming Sword crit chance by 1–8%
@@ -8203,6 +8734,8 @@ Grouped by slot. Weapons show their class and actual roll pool from `empowerCand
 - Reduce mana cost of Flame Field by 5–15%
 - Reduce mana cost of Meteor Strike by 5–15%
 - Reduce mana cost of Blizzard by 5–15%
+- Reduce Meteor Strike cooldown by 1–2 seconds
+- Reduce Blizzard cooldown by 1–2 seconds
 - Increase Healing healing by 5–10%
 - Increase Mass Healing healing by 5–10%
 - Increase Soul Fire Ball damage by 5–10%
@@ -8215,6 +8748,7 @@ Grouped by slot. Weapons show their class and actual roll pool from `empowerCand
 - Increase Holy Deva damage by 5–20%
 - Increase Holy Deva health by 5–20%
 - Reduce Holy Deva damage taken by 5%
+- Reduce Poison Cloud cooldown by 1–2 seconds
 - Increase Slaying crit chance by 1–8%
 - Increase Slaying crit damage by 5–15%
 - Increase Flaming Sword crit chance by 1–8%
@@ -8280,6 +8814,8 @@ Grouped by slot. Weapons show their class and actual roll pool from `empowerCand
 - Reduce mana cost of Flame Field by 5–15%
 - Reduce mana cost of Meteor Strike by 5–15%
 - Reduce mana cost of Blizzard by 5–15%
+- Reduce Meteor Strike cooldown by 1–2 seconds
+- Reduce Blizzard cooldown by 1–2 seconds
 - Increase Flame Disruptor crit chance by 1–8%
 - Increase Flame Disruptor crit damage by 5–15%
 - Increase Fire Wall crit chance by 1–8%
@@ -8344,6 +8880,8 @@ Grouped by slot. Weapons show their class and actual roll pool from `empowerCand
 - Reduce mana cost of Flame Field by 5–15%
 - Reduce mana cost of Meteor Strike by 5–15%
 - Reduce mana cost of Blizzard by 5–15%
+- Reduce Meteor Strike cooldown by 1–2 seconds
+- Reduce Blizzard cooldown by 1–2 seconds
 - Increase Healing healing by 5–10%
 - Increase Mass Healing healing by 5–10%
 - Increase Soul Fire Ball damage by 5–10%
@@ -8356,6 +8894,7 @@ Grouped by slot. Weapons show their class and actual roll pool from `empowerCand
 - Increase Holy Deva damage by 5–20%
 - Increase Holy Deva health by 5–20%
 - Reduce Holy Deva damage taken by 5%
+- Reduce Poison Cloud cooldown by 1–2 seconds
 - Increase Slaying crit chance by 1–8%
 - Increase Slaying crit damage by 5–15%
 - Increase Flaming Sword crit chance by 1–8%
@@ -8417,6 +8956,7 @@ Grouped by slot. Weapons show their class and actual roll pool from `empowerCand
 - Increase Holy Deva damage by 5–20%
 - Increase Holy Deva health by 5–20%
 - Reduce Holy Deva damage taken by 5%
+- Reduce Poison Cloud cooldown by 1–2 seconds
 - Increase Soul Fire Ball crit chance by 1–8%
 - Increase Soul Fire Ball crit damage by 5–15%
 - +2–12% Gold drop
@@ -8448,6 +8988,7 @@ Grouped by slot. Weapons show their class and actual roll pool from `empowerCand
 - Increase Holy Deva damage by 5–20%
 - Increase Holy Deva health by 5–20%
 - Reduce Holy Deva damage taken by 5%
+- Reduce Poison Cloud cooldown by 1–2 seconds
 - Increase Soul Fire Ball crit chance by 1–8%
 - Increase Soul Fire Ball crit damage by 5–15%
 - +2–12% Gold drop
@@ -8549,6 +9090,7 @@ Grouped by slot. Weapons show their class and actual roll pool from `empowerCand
 - Increase Holy Deva damage by 5–20%
 - Increase Holy Deva health by 5–20%
 - Reduce Holy Deva damage taken by 5%
+- Reduce Poison Cloud cooldown by 1–2 seconds
 - Increase Soul Fire Ball crit chance by 1–8%
 - Increase Soul Fire Ball crit damage by 5–15%
 - +2–12% Gold drop
@@ -8595,6 +9137,8 @@ Grouped by slot. Weapons show their class and actual roll pool from `empowerCand
 - Reduce mana cost of Flame Field by 5–15%
 - Reduce mana cost of Meteor Strike by 5–15%
 - Reduce mana cost of Blizzard by 5–15%
+- Reduce Meteor Strike cooldown by 1–2 seconds
+- Reduce Blizzard cooldown by 1–2 seconds
 - Increase Healing healing by 5–10%
 - Increase Mass Healing healing by 5–10%
 - Increase Soul Fire Ball damage by 5–10%
@@ -8607,6 +9151,7 @@ Grouped by slot. Weapons show their class and actual roll pool from `empowerCand
 - Increase Holy Deva damage by 5–20%
 - Increase Holy Deva health by 5–20%
 - Reduce Holy Deva damage taken by 5%
+- Reduce Poison Cloud cooldown by 1–2 seconds
 - Increase Slaying crit chance by 1–8%
 - Increase Slaying crit damage by 5–15%
 - Increase Flaming Sword crit chance by 1–8%
@@ -8683,6 +9228,8 @@ Grouped by slot. Weapons show their class and actual roll pool from `empowerCand
 - Reduce mana cost of Flame Field by 5–15%
 - Reduce mana cost of Meteor Strike by 5–15%
 - Reduce mana cost of Blizzard by 5–15%
+- Reduce Meteor Strike cooldown by 1–2 seconds
+- Reduce Blizzard cooldown by 1–2 seconds
 - Increase Healing healing by 5–10%
 - Increase Mass Healing healing by 5–10%
 - Increase Soul Fire Ball damage by 5–10%
@@ -8695,6 +9242,7 @@ Grouped by slot. Weapons show their class and actual roll pool from `empowerCand
 - Increase Holy Deva damage by 5–20%
 - Increase Holy Deva health by 5–20%
 - Reduce Holy Deva damage taken by 5%
+- Reduce Poison Cloud cooldown by 1–2 seconds
 - Increase Slaying crit chance by 1–8%
 - Increase Slaying crit damage by 5–15%
 - Increase Flaming Sword crit chance by 1–8%
@@ -8760,6 +9308,8 @@ Grouped by slot. Weapons show their class and actual roll pool from `empowerCand
 - Reduce mana cost of Flame Field by 5–15%
 - Reduce mana cost of Meteor Strike by 5–15%
 - Reduce mana cost of Blizzard by 5–15%
+- Reduce Meteor Strike cooldown by 1–2 seconds
+- Reduce Blizzard cooldown by 1–2 seconds
 - Increase Flame Disruptor crit chance by 1–8%
 - Increase Flame Disruptor crit damage by 5–15%
 - Increase Fire Wall crit chance by 1–8%
@@ -8824,6 +9374,8 @@ Grouped by slot. Weapons show their class and actual roll pool from `empowerCand
 - Reduce mana cost of Flame Field by 5–15%
 - Reduce mana cost of Meteor Strike by 5–15%
 - Reduce mana cost of Blizzard by 5–15%
+- Reduce Meteor Strike cooldown by 1–2 seconds
+- Reduce Blizzard cooldown by 1–2 seconds
 - Increase Healing healing by 5–10%
 - Increase Mass Healing healing by 5–10%
 - Increase Soul Fire Ball damage by 5–10%
@@ -8836,6 +9388,7 @@ Grouped by slot. Weapons show their class and actual roll pool from `empowerCand
 - Increase Holy Deva damage by 5–20%
 - Increase Holy Deva health by 5–20%
 - Reduce Holy Deva damage taken by 5%
+- Reduce Poison Cloud cooldown by 1–2 seconds
 - Increase Slaying crit chance by 1–8%
 - Increase Slaying crit damage by 5–15%
 - Increase Flaming Sword crit chance by 1–8%
@@ -8912,6 +9465,8 @@ Grouped by slot. Weapons show their class and actual roll pool from `empowerCand
 - Reduce mana cost of Flame Field by 5–15%
 - Reduce mana cost of Meteor Strike by 5–15%
 - Reduce mana cost of Blizzard by 5–15%
+- Reduce Meteor Strike cooldown by 1–2 seconds
+- Reduce Blizzard cooldown by 1–2 seconds
 - Increase Healing healing by 5–10%
 - Increase Mass Healing healing by 5–10%
 - Increase Soul Fire Ball damage by 5–10%
@@ -8924,6 +9479,7 @@ Grouped by slot. Weapons show their class and actual roll pool from `empowerCand
 - Increase Holy Deva damage by 5–20%
 - Increase Holy Deva health by 5–20%
 - Reduce Holy Deva damage taken by 5%
+- Reduce Poison Cloud cooldown by 1–2 seconds
 - Increase Slaying crit chance by 1–8%
 - Increase Slaying crit damage by 5–15%
 - Increase Flaming Sword crit chance by 1–8%
@@ -8989,6 +9545,8 @@ Grouped by slot. Weapons show their class and actual roll pool from `empowerCand
 - Reduce mana cost of Flame Field by 5–15%
 - Reduce mana cost of Meteor Strike by 5–15%
 - Reduce mana cost of Blizzard by 5–15%
+- Reduce Meteor Strike cooldown by 1–2 seconds
+- Reduce Blizzard cooldown by 1–2 seconds
 - Increase Flame Disruptor crit chance by 1–8%
 - Increase Flame Disruptor crit damage by 5–15%
 - Increase Fire Wall crit chance by 1–8%
@@ -9042,6 +9600,8 @@ Grouped by slot. Weapons show their class and actual roll pool from `empowerCand
 - Reduce mana cost of Flame Field by 5–15%
 - Reduce mana cost of Meteor Strike by 5–15%
 - Reduce mana cost of Blizzard by 5–15%
+- Reduce Meteor Strike cooldown by 1–2 seconds
+- Reduce Blizzard cooldown by 1–2 seconds
 - Increase Flame Disruptor crit chance by 1–8%
 - Increase Flame Disruptor crit damage by 5–15%
 - Increase Fire Wall crit chance by 1–8%
@@ -9126,6 +9686,7 @@ Grouped by slot. Weapons show their class and actual roll pool from `empowerCand
 - Increase Holy Deva damage by 5–20%
 - Increase Holy Deva health by 5–20%
 - Reduce Holy Deva damage taken by 5%
+- Reduce Poison Cloud cooldown by 1–2 seconds
 - Increase Soul Fire Ball crit chance by 1–8%
 - Increase Soul Fire Ball crit damage by 5–15%
 - +2–12% Gold drop
@@ -9161,6 +9722,8 @@ Grouped by slot. Weapons show their class and actual roll pool from `empowerCand
 - Reduce mana cost of Flame Field by 5–15%
 - Reduce mana cost of Meteor Strike by 5–15%
 - Reduce mana cost of Blizzard by 5–15%
+- Reduce Meteor Strike cooldown by 1–2 seconds
+- Reduce Blizzard cooldown by 1–2 seconds
 - Increase Flame Disruptor crit chance by 1–8%
 - Increase Flame Disruptor crit damage by 5–15%
 - Increase Fire Wall crit chance by 1–8%
@@ -9245,6 +9808,7 @@ Grouped by slot. Weapons show their class and actual roll pool from `empowerCand
 - Increase Holy Deva damage by 5–20%
 - Increase Holy Deva health by 5–20%
 - Reduce Holy Deva damage taken by 5%
+- Reduce Poison Cloud cooldown by 1–2 seconds
 - Increase Soul Fire Ball crit chance by 1–8%
 - Increase Soul Fire Ball crit damage by 5–15%
 - +2–12% Gold drop
@@ -9280,6 +9844,8 @@ Grouped by slot. Weapons show their class and actual roll pool from `empowerCand
 - Reduce mana cost of Flame Field by 5–15%
 - Reduce mana cost of Meteor Strike by 5–15%
 - Reduce mana cost of Blizzard by 5–15%
+- Reduce Meteor Strike cooldown by 1–2 seconds
+- Reduce Blizzard cooldown by 1–2 seconds
 - Increase Flame Disruptor crit chance by 1–8%
 - Increase Flame Disruptor crit damage by 5–15%
 - Increase Fire Wall crit chance by 1–8%
@@ -9399,6 +9965,7 @@ Grouped by slot. Weapons show their class and actual roll pool from `empowerCand
 - Increase Holy Deva damage by 5–20%
 - Increase Holy Deva health by 5–20%
 - Reduce Holy Deva damage taken by 5%
+- Reduce Poison Cloud cooldown by 1–2 seconds
 - Increase Soul Fire Ball crit chance by 1–8%
 - Increase Soul Fire Ball crit damage by 5–15%
 - +2–12% Gold drop
@@ -9434,6 +10001,252 @@ Grouped by slot. Weapons show their class and actual roll pool from `empowerCand
 - Reduce mana cost of Flame Field by 5–15%
 - Reduce mana cost of Meteor Strike by 5–15%
 - Reduce mana cost of Blizzard by 5–15%
+- Reduce Meteor Strike cooldown by 1–2 seconds
+- Reduce Blizzard cooldown by 1–2 seconds
+- Increase Flame Disruptor crit chance by 1–8%
+- Increase Flame Disruptor crit damage by 5–15%
+- Increase Fire Wall crit chance by 1–8%
+- Increase Fire Wall crit damage by 5–15%
+- Increase Thunder Bolt crit chance by 1–8%
+- Increase Thunder Bolt crit damage by 5–15%
+- Increase Ice Storm crit chance by 1–8%
+- Increase Ice Storm crit damage by 5–15%
+- Increase Flame Field crit chance by 1–8%
+- Increase Flame Field crit damage by 5–15%
+- Increase Meteor Strike crit chance by 1–8%
+- Increase Meteor Strike crit damage by 5–15%
+- Increase Blizzard crit chance by 1–8%
+- Increase Blizzard crit damage by 5–15%
+- Increase Fire Ball crit chance by 1–8%
+- Increase Fire Ball crit damage by 5–15%
+- Increase Great Fire Ball crit chance by 1–8%
+- Increase Great Fire Ball crit damage by 5–15%
+- Increase Frost Crunch crit chance by 1–8%
+- Increase Frost Crunch crit damage by 5–15%
+- +2–12% Gold drop
+- +2–12% Bonus XP
+- +2–6% Awakening Soul drop chance
+- −1–4% Damage taken
+- +1–6% Crit Rate
+- +5–15% Crit Damage
+- +2–12% Skill leveling
+
+**Blue Fox Bracelet** (`blue-fox-bracelet`)
+- +1–2 AC
+- +1–2 AMC
+- +1–4 DC
+- +1–3 SC
+- +1 Poison Resist
+- +1 Magic Resist
+- +1–3 Agi
+- +1–3 Acc
+- Increase Healing healing by 5–10%
+- Increase Mass Healing healing by 5–10%
+- Increase Soul Fire Ball damage by 5–10%
+- Increase Skeleton damage by 5–20%
+- Increase Skeleton health by 5–20%
+- Reduce Skeleton damage taken by 5%
+- Increase Shinsu damage by 5–20%
+- Increase Shinsu health by 5–20%
+- Reduce Shinsu damage taken by 5%
+- Increase Holy Deva damage by 5–20%
+- Increase Holy Deva health by 5–20%
+- Reduce Holy Deva damage taken by 5%
+- Reduce Poison Cloud cooldown by 1–2 seconds
+- Increase Soul Fire Ball crit chance by 1–8%
+- Increase Soul Fire Ball crit damage by 5–15%
+- +2–12% Gold drop
+- +2–12% Bonus XP
+- +2–6% Awakening Soul drop chance
+- −1–4% Damage taken
+- +1–6% Crit Rate
+- +5–15% Crit Damage
+- +2–12% Skill leveling
+
+**Purple Fox Bracelet** (`purple-fox-bracelet`)
+- +1–2 AC
+- +1–2 AMC
+- +1–4 DC
+- +1 Poison Resist
+- +1 Magic Resist
+- +1–3 Agi
+- +1–3 Acc
+- Increase Slaying damage by 5–10%
+- Increase Flaming Sword damage by 5–10%
+- Reduce Flaming Sword cooldown by 1–2 seconds
+- Increase Twin Drake Blade damage by 5–10%
+- Reduce mana cost of Twin Drake Blade by 5–15%
+- Increase Blade Avalanche damage by 5–10%
+- Reduce mana cost of Blade Avalanche by 5–15%
+- Increase Slashing Burst damage by 5–10%
+- Reduce mana cost of Slashing Burst by 5–15%
+- Increase Slaying crit chance by 1–8%
+- Increase Slaying crit damage by 5–15%
+- Increase Flaming Sword crit chance by 1–8%
+- Increase Flaming Sword crit damage by 5–15%
+- Increase Twin Drake Blade crit chance by 1–8%
+- Increase Twin Drake Blade crit damage by 5–15%
+- Increase Blade Avalanche crit chance by 1–8%
+- Increase Blade Avalanche crit damage by 5–15%
+- Increase Slashing Burst crit chance by 1–8%
+- Increase Slashing Burst crit damage by 5–15%
+- +2–12% Gold drop
+- +2–12% Bonus XP
+- +2–6% Awakening Soul drop chance
+- −1–4% Damage taken
+- +1–6% Crit Rate
+- +5–15% Crit Damage
+- +2–12% Skill leveling
+
+**Red Fox Bracelet** (`red-fox-bracelet`)
+- +1–2 AC
+- +1–2 AMC
+- +1–3 MC
+- +1 Poison Resist
+- +1 Magic Resist
+- +1–3 Agi
+- +1–3 Acc
+- Increase Flame Disruptor damage by 5–10%
+- Increase Fire Wall damage by 5–10%
+- Increase Thunder Bolt damage by 5–10%
+- Increase Ice Storm damage by 5–10%
+- Increase Flame Field damage by 5–10%
+- Increase Meteor Strike damage by 5–10%
+- Increase Blizzard damage by 5–10%
+- Increase Fire Ball damage by 5–10%
+- Increase Great Fire Ball damage by 5–10%
+- Increase Frost Crunch damage by 5–10%
+- Reduce mana cost of Flame Disruptor by 5–15%
+- Reduce mana cost of Fire Wall by 5–15%
+- Reduce mana cost of Thunder Bolt by 5–15%
+- Reduce mana cost of Ice Storm by 5–15%
+- Reduce mana cost of Flame Field by 5–15%
+- Reduce mana cost of Meteor Strike by 5–15%
+- Reduce mana cost of Blizzard by 5–15%
+- Reduce Meteor Strike cooldown by 1–2 seconds
+- Reduce Blizzard cooldown by 1–2 seconds
+- Increase Flame Disruptor crit chance by 1–8%
+- Increase Flame Disruptor crit damage by 5–15%
+- Increase Fire Wall crit chance by 1–8%
+- Increase Fire Wall crit damage by 5–15%
+- Increase Thunder Bolt crit chance by 1–8%
+- Increase Thunder Bolt crit damage by 5–15%
+- Increase Ice Storm crit chance by 1–8%
+- Increase Ice Storm crit damage by 5–15%
+- Increase Flame Field crit chance by 1–8%
+- Increase Flame Field crit damage by 5–15%
+- Increase Meteor Strike crit chance by 1–8%
+- Increase Meteor Strike crit damage by 5–15%
+- Increase Blizzard crit chance by 1–8%
+- Increase Blizzard crit damage by 5–15%
+- Increase Fire Ball crit chance by 1–8%
+- Increase Fire Ball crit damage by 5–15%
+- Increase Great Fire Ball crit chance by 1–8%
+- Increase Great Fire Ball crit damage by 5–15%
+- Increase Frost Crunch crit chance by 1–8%
+- Increase Frost Crunch crit damage by 5–15%
+- +2–12% Gold drop
+- +2–12% Bonus XP
+- +2–6% Awakening Soul drop chance
+- −1–4% Damage taken
+- +1–6% Crit Rate
+- +5–15% Crit Damage
+- +2–12% Skill leveling
+
+**Great Blue Fox Bracelet** (`great-blue-fox-bracelet`)
+- +1–2 AC
+- +1–2 AMC
+- +1–4 DC
+- +1–3 SC
+- +1 Poison Resist
+- +1 Magic Resist
+- +1–3 Agi
+- +1–3 Acc
+- Increase Healing healing by 5–10%
+- Increase Mass Healing healing by 5–10%
+- Increase Soul Fire Ball damage by 5–10%
+- Increase Skeleton damage by 5–20%
+- Increase Skeleton health by 5–20%
+- Reduce Skeleton damage taken by 5%
+- Increase Shinsu damage by 5–20%
+- Increase Shinsu health by 5–20%
+- Reduce Shinsu damage taken by 5%
+- Increase Holy Deva damage by 5–20%
+- Increase Holy Deva health by 5–20%
+- Reduce Holy Deva damage taken by 5%
+- Reduce Poison Cloud cooldown by 1–2 seconds
+- Increase Soul Fire Ball crit chance by 1–8%
+- Increase Soul Fire Ball crit damage by 5–15%
+- +2–12% Gold drop
+- +2–12% Bonus XP
+- +2–6% Awakening Soul drop chance
+- −1–4% Damage taken
+- +1–6% Crit Rate
+- +5–15% Crit Damage
+- +2–12% Skill leveling
+
+**Great Purple Fox Bracelet** (`great-purple-fox-bracelet`)
+- +1–2 AC
+- +1–2 AMC
+- +1–4 DC
+- +1 Poison Resist
+- +1 Magic Resist
+- +1–3 Agi
+- +1–3 Acc
+- Increase Slaying damage by 5–10%
+- Increase Flaming Sword damage by 5–10%
+- Reduce Flaming Sword cooldown by 1–2 seconds
+- Increase Twin Drake Blade damage by 5–10%
+- Reduce mana cost of Twin Drake Blade by 5–15%
+- Increase Blade Avalanche damage by 5–10%
+- Reduce mana cost of Blade Avalanche by 5–15%
+- Increase Slashing Burst damage by 5–10%
+- Reduce mana cost of Slashing Burst by 5–15%
+- Increase Slaying crit chance by 1–8%
+- Increase Slaying crit damage by 5–15%
+- Increase Flaming Sword crit chance by 1–8%
+- Increase Flaming Sword crit damage by 5–15%
+- Increase Twin Drake Blade crit chance by 1–8%
+- Increase Twin Drake Blade crit damage by 5–15%
+- Increase Blade Avalanche crit chance by 1–8%
+- Increase Blade Avalanche crit damage by 5–15%
+- Increase Slashing Burst crit chance by 1–8%
+- Increase Slashing Burst crit damage by 5–15%
+- +2–12% Gold drop
+- +2–12% Bonus XP
+- +2–6% Awakening Soul drop chance
+- −1–4% Damage taken
+- +1–6% Crit Rate
+- +5–15% Crit Damage
+- +2–12% Skill leveling
+
+**Great Red Fox Bracelet** (`great-red-fox-bracelet`)
+- +1–2 AC
+- +1–2 AMC
+- +1–3 MC
+- +1 Poison Resist
+- +1 Magic Resist
+- +1–3 Agi
+- +1–3 Acc
+- Increase Flame Disruptor damage by 5–10%
+- Increase Fire Wall damage by 5–10%
+- Increase Thunder Bolt damage by 5–10%
+- Increase Ice Storm damage by 5–10%
+- Increase Flame Field damage by 5–10%
+- Increase Meteor Strike damage by 5–10%
+- Increase Blizzard damage by 5–10%
+- Increase Fire Ball damage by 5–10%
+- Increase Great Fire Ball damage by 5–10%
+- Increase Frost Crunch damage by 5–10%
+- Reduce mana cost of Flame Disruptor by 5–15%
+- Reduce mana cost of Fire Wall by 5–15%
+- Reduce mana cost of Thunder Bolt by 5–15%
+- Reduce mana cost of Ice Storm by 5–15%
+- Reduce mana cost of Flame Field by 5–15%
+- Reduce mana cost of Meteor Strike by 5–15%
+- Reduce mana cost of Blizzard by 5–15%
+- Reduce Meteor Strike cooldown by 1–2 seconds
+- Reduce Blizzard cooldown by 1–2 seconds
 - Increase Flame Disruptor crit chance by 1–8%
 - Increase Flame Disruptor crit damage by 5–15%
 - Increase Fire Wall crit chance by 1–8%
@@ -9522,6 +10335,8 @@ Grouped by slot. Weapons show their class and actual roll pool from `empowerCand
 - Reduce mana cost of Flame Field by 5–15%
 - Reduce mana cost of Meteor Strike by 5–15%
 - Reduce mana cost of Blizzard by 5–15%
+- Reduce Meteor Strike cooldown by 1–2 seconds
+- Reduce Blizzard cooldown by 1–2 seconds
 - Increase Flame Disruptor crit chance by 1–8%
 - Increase Flame Disruptor crit damage by 5–15%
 - Increase Fire Wall crit chance by 1–8%
@@ -9571,8 +10386,131 @@ Grouped by slot. Weapons show their class and actual roll pool from `empowerCand
 - Increase Holy Deva damage by 5–20%
 - Increase Holy Deva health by 5–20%
 - Reduce Holy Deva damage taken by 5%
+- Reduce Poison Cloud cooldown by 1–2 seconds
 - Increase Soul Fire Ball crit chance by 1–8%
 - Increase Soul Fire Ball crit damage by 5–15%
+- +2–12% Gold drop
+- +2–12% Bonus XP
+- +2–6% Awakening Soul drop chance
+- −1–4% Damage taken
+- +1–6% Crit Rate
+- +5–15% Crit Damage
+- +2–12% Skill leveling
+
+**Bracelet of Agony** (`bracelet-of-agony-taoist`)
+- +1–2 AC
+- +1–2 AMC
+- +1–4 DC
+- +1–3 SC
+- +1 Poison Resist
+- +1 Magic Resist
+- +1–3 Agi
+- +1–3 Acc
+- Increase Healing healing by 5–10%
+- Increase Mass Healing healing by 5–10%
+- Increase Soul Fire Ball damage by 5–10%
+- Increase Skeleton damage by 5–20%
+- Increase Skeleton health by 5–20%
+- Reduce Skeleton damage taken by 5%
+- Increase Shinsu damage by 5–20%
+- Increase Shinsu health by 5–20%
+- Reduce Shinsu damage taken by 5%
+- Increase Holy Deva damage by 5–20%
+- Increase Holy Deva health by 5–20%
+- Reduce Holy Deva damage taken by 5%
+- Reduce Poison Cloud cooldown by 1–2 seconds
+- Increase Soul Fire Ball crit chance by 1–8%
+- Increase Soul Fire Ball crit damage by 5–15%
+- +2–12% Gold drop
+- +2–12% Bonus XP
+- +2–6% Awakening Soul drop chance
+- −1–4% Damage taken
+- +1–6% Crit Rate
+- +5–15% Crit Damage
+- +2–12% Skill leveling
+
+**Bracelet of Agony** (`bracelet-of-agony-warrior`)
+- +1–2 AC
+- +1–2 AMC
+- +1–4 DC
+- +1 Poison Resist
+- +1 Magic Resist
+- +1–3 Agi
+- +1–3 Acc
+- Increase Slaying damage by 5–10%
+- Increase Flaming Sword damage by 5–10%
+- Reduce Flaming Sword cooldown by 1–2 seconds
+- Increase Twin Drake Blade damage by 5–10%
+- Reduce mana cost of Twin Drake Blade by 5–15%
+- Increase Blade Avalanche damage by 5–10%
+- Reduce mana cost of Blade Avalanche by 5–15%
+- Increase Slashing Burst damage by 5–10%
+- Reduce mana cost of Slashing Burst by 5–15%
+- Increase Slaying crit chance by 1–8%
+- Increase Slaying crit damage by 5–15%
+- Increase Flaming Sword crit chance by 1–8%
+- Increase Flaming Sword crit damage by 5–15%
+- Increase Twin Drake Blade crit chance by 1–8%
+- Increase Twin Drake Blade crit damage by 5–15%
+- Increase Blade Avalanche crit chance by 1–8%
+- Increase Blade Avalanche crit damage by 5–15%
+- Increase Slashing Burst crit chance by 1–8%
+- Increase Slashing Burst crit damage by 5–15%
+- +2–12% Gold drop
+- +2–12% Bonus XP
+- +2–6% Awakening Soul drop chance
+- −1–4% Damage taken
+- +1–6% Crit Rate
+- +5–15% Crit Damage
+- +2–12% Skill leveling
+
+**Bracelet of Agony** (`bracelet-of-agony-wizard`)
+- +1–2 AC
+- +1–2 AMC
+- +1–3 MC
+- +1 Poison Resist
+- +1 Magic Resist
+- +1–3 Agi
+- +1–3 Acc
+- Increase Flame Disruptor damage by 5–10%
+- Increase Fire Wall damage by 5–10%
+- Increase Thunder Bolt damage by 5–10%
+- Increase Ice Storm damage by 5–10%
+- Increase Flame Field damage by 5–10%
+- Increase Meteor Strike damage by 5–10%
+- Increase Blizzard damage by 5–10%
+- Increase Fire Ball damage by 5–10%
+- Increase Great Fire Ball damage by 5–10%
+- Increase Frost Crunch damage by 5–10%
+- Reduce mana cost of Flame Disruptor by 5–15%
+- Reduce mana cost of Fire Wall by 5–15%
+- Reduce mana cost of Thunder Bolt by 5–15%
+- Reduce mana cost of Ice Storm by 5–15%
+- Reduce mana cost of Flame Field by 5–15%
+- Reduce mana cost of Meteor Strike by 5–15%
+- Reduce mana cost of Blizzard by 5–15%
+- Reduce Meteor Strike cooldown by 1–2 seconds
+- Reduce Blizzard cooldown by 1–2 seconds
+- Increase Flame Disruptor crit chance by 1–8%
+- Increase Flame Disruptor crit damage by 5–15%
+- Increase Fire Wall crit chance by 1–8%
+- Increase Fire Wall crit damage by 5–15%
+- Increase Thunder Bolt crit chance by 1–8%
+- Increase Thunder Bolt crit damage by 5–15%
+- Increase Ice Storm crit chance by 1–8%
+- Increase Ice Storm crit damage by 5–15%
+- Increase Flame Field crit chance by 1–8%
+- Increase Flame Field crit damage by 5–15%
+- Increase Meteor Strike crit chance by 1–8%
+- Increase Meteor Strike crit damage by 5–15%
+- Increase Blizzard crit chance by 1–8%
+- Increase Blizzard crit damage by 5–15%
+- Increase Fire Ball crit chance by 1–8%
+- Increase Fire Ball crit damage by 5–15%
+- Increase Great Fire Ball crit chance by 1–8%
+- Increase Great Fire Ball crit damage by 5–15%
+- Increase Frost Crunch crit chance by 1–8%
+- Increase Frost Crunch crit damage by 5–15%
 - +2–12% Gold drop
 - +2–12% Bonus XP
 - +2–6% Awakening Soul drop chance
@@ -9617,6 +10555,8 @@ Grouped by slot. Weapons show their class and actual roll pool from `empowerCand
 - Reduce mana cost of Flame Field by 5–20%
 - Reduce mana cost of Meteor Strike by 5–20%
 - Reduce mana cost of Blizzard by 5–20%
+- Reduce Meteor Strike cooldown by 1–3 seconds
+- Reduce Blizzard cooldown by 1–3 seconds
 - Increase Healing healing by 5–15%
 - Increase Mass Healing healing by 5–15%
 - Increase Soul Fire Ball damage by 5–20%
@@ -9629,6 +10569,7 @@ Grouped by slot. Weapons show their class and actual roll pool from `empowerCand
 - Increase Holy Deva damage by 5–25%
 - Increase Holy Deva health by 5–25%
 - Reduce Holy Deva damage taken by 5–10%
+- Reduce Poison Cloud cooldown by 1–3 seconds
 - Increase Slaying crit chance by 2–12%
 - Increase Slaying crit damage by 5–25%
 - Increase Flaming Sword crit chance by 2–12%
@@ -9668,6 +10609,7 @@ Grouped by slot. Weapons show their class and actual roll pool from `empowerCand
 - +1–10% Crit Rate
 - +5–15% Crit Damage
 - +5–20% Skill leveling
+- +5–25% Potion restore
 
 **Skeleton Helmet** (`skeleton-helmet`)
 - +1–3 AC
@@ -9703,6 +10645,8 @@ Grouped by slot. Weapons show their class and actual roll pool from `empowerCand
 - Reduce mana cost of Flame Field by 5–20%
 - Reduce mana cost of Meteor Strike by 5–20%
 - Reduce mana cost of Blizzard by 5–20%
+- Reduce Meteor Strike cooldown by 1–3 seconds
+- Reduce Blizzard cooldown by 1–3 seconds
 - Increase Healing healing by 5–15%
 - Increase Mass Healing healing by 5–15%
 - Increase Soul Fire Ball damage by 5–20%
@@ -9715,6 +10659,7 @@ Grouped by slot. Weapons show their class and actual roll pool from `empowerCand
 - Increase Holy Deva damage by 5–25%
 - Increase Holy Deva health by 5–25%
 - Reduce Holy Deva damage taken by 5–10%
+- Reduce Poison Cloud cooldown by 1–3 seconds
 - Increase Slaying crit chance by 2–12%
 - Increase Slaying crit damage by 5–25%
 - Increase Flaming Sword crit chance by 2–12%
@@ -9754,6 +10699,7 @@ Grouped by slot. Weapons show their class and actual roll pool from `empowerCand
 - +1–10% Crit Rate
 - +5–15% Crit Damage
 - +5–20% Skill leveling
+- +5–25% Potion restore
 
 **Bronze Helmet** (`bronze-helmet`)
 - +1–3 AC
@@ -9789,6 +10735,8 @@ Grouped by slot. Weapons show their class and actual roll pool from `empowerCand
 - Reduce mana cost of Flame Field by 5–20%
 - Reduce mana cost of Meteor Strike by 5–20%
 - Reduce mana cost of Blizzard by 5–20%
+- Reduce Meteor Strike cooldown by 1–3 seconds
+- Reduce Blizzard cooldown by 1–3 seconds
 - Increase Healing healing by 5–15%
 - Increase Mass Healing healing by 5–15%
 - Increase Soul Fire Ball damage by 5–20%
@@ -9801,6 +10749,7 @@ Grouped by slot. Weapons show their class and actual roll pool from `empowerCand
 - Increase Holy Deva damage by 5–25%
 - Increase Holy Deva health by 5–25%
 - Reduce Holy Deva damage taken by 5–10%
+- Reduce Poison Cloud cooldown by 1–3 seconds
 - Increase Slaying crit chance by 2–12%
 - Increase Slaying crit damage by 5–25%
 - Increase Flaming Sword crit chance by 2–12%
@@ -9840,6 +10789,7 @@ Grouped by slot. Weapons show their class and actual roll pool from `empowerCand
 - +1–10% Crit Rate
 - +5–15% Crit Damage
 - +5–20% Skill leveling
+- +5–25% Potion restore
 
 **Superior Bronze Helmet** (`superior-bronze-helmet`)
 - +1–3 AC
@@ -9875,6 +10825,8 @@ Grouped by slot. Weapons show their class and actual roll pool from `empowerCand
 - Reduce mana cost of Flame Field by 5–20%
 - Reduce mana cost of Meteor Strike by 5–20%
 - Reduce mana cost of Blizzard by 5–20%
+- Reduce Meteor Strike cooldown by 1–3 seconds
+- Reduce Blizzard cooldown by 1–3 seconds
 - Increase Healing healing by 5–15%
 - Increase Mass Healing healing by 5–15%
 - Increase Soul Fire Ball damage by 5–20%
@@ -9887,6 +10839,7 @@ Grouped by slot. Weapons show their class and actual roll pool from `empowerCand
 - Increase Holy Deva damage by 5–25%
 - Increase Holy Deva health by 5–25%
 - Reduce Holy Deva damage taken by 5–10%
+- Reduce Poison Cloud cooldown by 1–3 seconds
 - Increase Slaying crit chance by 2–12%
 - Increase Slaying crit damage by 5–25%
 - Increase Flaming Sword crit chance by 2–12%
@@ -9926,6 +10879,7 @@ Grouped by slot. Weapons show their class and actual roll pool from `empowerCand
 - +1–10% Crit Rate
 - +5–15% Crit Damage
 - +5–20% Skill leveling
+- +5–25% Potion restore
 
 **Bone Hood** (`bone-hood`)
 - +1–3 AC
@@ -9961,6 +10915,8 @@ Grouped by slot. Weapons show their class and actual roll pool from `empowerCand
 - Reduce mana cost of Flame Field by 5–20%
 - Reduce mana cost of Meteor Strike by 5–20%
 - Reduce mana cost of Blizzard by 5–20%
+- Reduce Meteor Strike cooldown by 1–3 seconds
+- Reduce Blizzard cooldown by 1–3 seconds
 - Increase Healing healing by 5–15%
 - Increase Mass Healing healing by 5–15%
 - Increase Soul Fire Ball damage by 5–20%
@@ -9973,6 +10929,7 @@ Grouped by slot. Weapons show their class and actual roll pool from `empowerCand
 - Increase Holy Deva damage by 5–25%
 - Increase Holy Deva health by 5–25%
 - Reduce Holy Deva damage taken by 5–10%
+- Reduce Poison Cloud cooldown by 1–3 seconds
 - Increase Slaying crit chance by 2–12%
 - Increase Slaying crit damage by 5–25%
 - Increase Flaming Sword crit chance by 2–12%
@@ -10012,6 +10969,7 @@ Grouped by slot. Weapons show their class and actual roll pool from `empowerCand
 - +1–10% Crit Rate
 - +5–15% Crit Damage
 - +5–20% Skill leveling
+- +5–25% Potion restore
 
 **Magic Helmet** (`magic-helmet`)
 - +1–3 AC
@@ -10047,6 +11005,8 @@ Grouped by slot. Weapons show their class and actual roll pool from `empowerCand
 - Reduce mana cost of Flame Field by 5–20%
 - Reduce mana cost of Meteor Strike by 5–20%
 - Reduce mana cost of Blizzard by 5–20%
+- Reduce Meteor Strike cooldown by 1–3 seconds
+- Reduce Blizzard cooldown by 1–3 seconds
 - Increase Healing healing by 5–15%
 - Increase Mass Healing healing by 5–15%
 - Increase Soul Fire Ball damage by 5–20%
@@ -10059,6 +11019,7 @@ Grouped by slot. Weapons show their class and actual roll pool from `empowerCand
 - Increase Holy Deva damage by 5–25%
 - Increase Holy Deva health by 5–25%
 - Reduce Holy Deva damage taken by 5–10%
+- Reduce Poison Cloud cooldown by 1–3 seconds
 - Increase Slaying crit chance by 2–12%
 - Increase Slaying crit damage by 5–25%
 - Increase Flaming Sword crit chance by 2–12%
@@ -10098,6 +11059,7 @@ Grouped by slot. Weapons show their class and actual roll pool from `empowerCand
 - +1–10% Crit Rate
 - +5–15% Crit Damage
 - +5–20% Skill leveling
+- +5–25% Potion restore
 
 **Superior Magic Helmet** (`superior-magic-helmet`)
 - +1–3 AC
@@ -10133,6 +11095,8 @@ Grouped by slot. Weapons show their class and actual roll pool from `empowerCand
 - Reduce mana cost of Flame Field by 5–20%
 - Reduce mana cost of Meteor Strike by 5–20%
 - Reduce mana cost of Blizzard by 5–20%
+- Reduce Meteor Strike cooldown by 1–3 seconds
+- Reduce Blizzard cooldown by 1–3 seconds
 - Increase Healing healing by 5–15%
 - Increase Mass Healing healing by 5–15%
 - Increase Soul Fire Ball damage by 5–20%
@@ -10145,6 +11109,7 @@ Grouped by slot. Weapons show their class and actual roll pool from `empowerCand
 - Increase Holy Deva damage by 5–25%
 - Increase Holy Deva health by 5–25%
 - Reduce Holy Deva damage taken by 5–10%
+- Reduce Poison Cloud cooldown by 1–3 seconds
 - Increase Slaying crit chance by 2–12%
 - Increase Slaying crit damage by 5–25%
 - Increase Flaming Sword crit chance by 2–12%
@@ -10184,6 +11149,7 @@ Grouped by slot. Weapons show their class and actual roll pool from `empowerCand
 - +1–10% Crit Rate
 - +5–15% Crit Damage
 - +5–20% Skill leveling
+- +5–25% Potion restore
 
 **Brass Helmet** (`brass-helmet`)
 - +1–3 AC
@@ -10219,6 +11185,8 @@ Grouped by slot. Weapons show their class and actual roll pool from `empowerCand
 - Reduce mana cost of Flame Field by 5–20%
 - Reduce mana cost of Meteor Strike by 5–20%
 - Reduce mana cost of Blizzard by 5–20%
+- Reduce Meteor Strike cooldown by 1–3 seconds
+- Reduce Blizzard cooldown by 1–3 seconds
 - Increase Healing healing by 5–15%
 - Increase Mass Healing healing by 5–15%
 - Increase Soul Fire Ball damage by 5–20%
@@ -10231,6 +11199,7 @@ Grouped by slot. Weapons show their class and actual roll pool from `empowerCand
 - Increase Holy Deva damage by 5–25%
 - Increase Holy Deva health by 5–25%
 - Reduce Holy Deva damage taken by 5–10%
+- Reduce Poison Cloud cooldown by 1–3 seconds
 - Increase Slaying crit chance by 2–12%
 - Increase Slaying crit damage by 5–25%
 - Increase Flaming Sword crit chance by 2–12%
@@ -10270,6 +11239,7 @@ Grouped by slot. Weapons show their class and actual roll pool from `empowerCand
 - +1–10% Crit Rate
 - +5–15% Crit Damage
 - +5–20% Skill leveling
+- +5–25% Potion restore
 
 **Shaman Helmet** (`shaman-helmet`)
 - +1–3 AC
@@ -10305,6 +11275,8 @@ Grouped by slot. Weapons show their class and actual roll pool from `empowerCand
 - Reduce mana cost of Flame Field by 5–20%
 - Reduce mana cost of Meteor Strike by 5–20%
 - Reduce mana cost of Blizzard by 5–20%
+- Reduce Meteor Strike cooldown by 1–3 seconds
+- Reduce Blizzard cooldown by 1–3 seconds
 - Increase Healing healing by 5–15%
 - Increase Mass Healing healing by 5–15%
 - Increase Soul Fire Ball damage by 5–20%
@@ -10317,6 +11289,7 @@ Grouped by slot. Weapons show their class and actual roll pool from `empowerCand
 - Increase Holy Deva damage by 5–25%
 - Increase Holy Deva health by 5–25%
 - Reduce Holy Deva damage taken by 5–10%
+- Reduce Poison Cloud cooldown by 1–3 seconds
 - Increase Slaying crit chance by 2–12%
 - Increase Slaying crit damage by 5–25%
 - Increase Flaming Sword crit chance by 2–12%
@@ -10356,6 +11329,7 @@ Grouped by slot. Weapons show their class and actual roll pool from `empowerCand
 - +1–10% Crit Rate
 - +5–15% Crit Damage
 - +5–20% Skill leveling
+- +5–25% Potion restore
 
 **Steel Helmet** (`steel-helmet`)
 - +1–3 AC
@@ -10391,6 +11365,8 @@ Grouped by slot. Weapons show their class and actual roll pool from `empowerCand
 - Reduce mana cost of Flame Field by 5–20%
 - Reduce mana cost of Meteor Strike by 5–20%
 - Reduce mana cost of Blizzard by 5–20%
+- Reduce Meteor Strike cooldown by 1–3 seconds
+- Reduce Blizzard cooldown by 1–3 seconds
 - Increase Healing healing by 5–15%
 - Increase Mass Healing healing by 5–15%
 - Increase Soul Fire Ball damage by 5–20%
@@ -10403,6 +11379,7 @@ Grouped by slot. Weapons show their class and actual roll pool from `empowerCand
 - Increase Holy Deva damage by 5–25%
 - Increase Holy Deva health by 5–25%
 - Reduce Holy Deva damage taken by 5–10%
+- Reduce Poison Cloud cooldown by 1–3 seconds
 - Increase Slaying crit chance by 2–12%
 - Increase Slaying crit damage by 5–25%
 - Increase Flaming Sword crit chance by 2–12%
@@ -10442,6 +11419,7 @@ Grouped by slot. Weapons show their class and actual roll pool from `empowerCand
 - +1–10% Crit Rate
 - +5–15% Crit Damage
 - +5–20% Skill leveling
+- +5–25% Potion restore
 
 **Helmet Of Hero** (`helmet-of-hero`)
 - +1–3 AC
@@ -10477,6 +11455,8 @@ Grouped by slot. Weapons show their class and actual roll pool from `empowerCand
 - Reduce mana cost of Flame Field by 5–20%
 - Reduce mana cost of Meteor Strike by 5–20%
 - Reduce mana cost of Blizzard by 5–20%
+- Reduce Meteor Strike cooldown by 1–3 seconds
+- Reduce Blizzard cooldown by 1–3 seconds
 - Increase Healing healing by 5–15%
 - Increase Mass Healing healing by 5–15%
 - Increase Soul Fire Ball damage by 5–20%
@@ -10489,6 +11469,7 @@ Grouped by slot. Weapons show their class and actual roll pool from `empowerCand
 - Increase Holy Deva damage by 5–25%
 - Increase Holy Deva health by 5–25%
 - Reduce Holy Deva damage taken by 5–10%
+- Reduce Poison Cloud cooldown by 1–3 seconds
 - Increase Slaying crit chance by 2–12%
 - Increase Slaying crit damage by 5–25%
 - Increase Flaming Sword crit chance by 2–12%
@@ -10528,6 +11509,7 @@ Grouped by slot. Weapons show their class and actual roll pool from `empowerCand
 - +1–10% Crit Rate
 - +5–15% Crit Damage
 - +5–20% Skill leveling
+- +5–25% Potion restore
 
 **Great Helmet** (`great-helmet`)
 - +1–3 AC
@@ -10563,6 +11545,8 @@ Grouped by slot. Weapons show their class and actual roll pool from `empowerCand
 - Reduce mana cost of Flame Field by 5–20%
 - Reduce mana cost of Meteor Strike by 5–20%
 - Reduce mana cost of Blizzard by 5–20%
+- Reduce Meteor Strike cooldown by 1–3 seconds
+- Reduce Blizzard cooldown by 1–3 seconds
 - Increase Healing healing by 5–15%
 - Increase Mass Healing healing by 5–15%
 - Increase Soul Fire Ball damage by 5–20%
@@ -10575,6 +11559,7 @@ Grouped by slot. Weapons show their class and actual roll pool from `empowerCand
 - Increase Holy Deva damage by 5–25%
 - Increase Holy Deva health by 5–25%
 - Reduce Holy Deva damage taken by 5–10%
+- Reduce Poison Cloud cooldown by 1–3 seconds
 - Increase Slaying crit chance by 2–12%
 - Increase Slaying crit damage by 5–25%
 - Increase Flaming Sword crit chance by 2–12%
@@ -10614,6 +11599,7 @@ Grouped by slot. Weapons show their class and actual roll pool from `empowerCand
 - +1–10% Crit Rate
 - +5–15% Crit Damage
 - +5–20% Skill leveling
+- +5–25% Potion restore
 
 **Royal Helmet** (`royal-helmet`)
 - +1–3 AC
@@ -10649,6 +11635,8 @@ Grouped by slot. Weapons show their class and actual roll pool from `empowerCand
 - Reduce mana cost of Flame Field by 5–20%
 - Reduce mana cost of Meteor Strike by 5–20%
 - Reduce mana cost of Blizzard by 5–20%
+- Reduce Meteor Strike cooldown by 1–3 seconds
+- Reduce Blizzard cooldown by 1–3 seconds
 - Increase Healing healing by 5–15%
 - Increase Mass Healing healing by 5–15%
 - Increase Soul Fire Ball damage by 5–20%
@@ -10661,6 +11649,7 @@ Grouped by slot. Weapons show their class and actual roll pool from `empowerCand
 - Increase Holy Deva damage by 5–25%
 - Increase Holy Deva health by 5–25%
 - Reduce Holy Deva damage taken by 5–10%
+- Reduce Poison Cloud cooldown by 1–3 seconds
 - Increase Slaying crit chance by 2–12%
 - Increase Slaying crit damage by 5–25%
 - Increase Flaming Sword crit chance by 2–12%
@@ -10700,6 +11689,7 @@ Grouped by slot. Weapons show their class and actual roll pool from `empowerCand
 - +1–10% Crit Rate
 - +5–15% Crit Damage
 - +5–20% Skill leveling
+- +5–25% Potion restore
 
 **Tao Coronet** (`tao-coronet`)
 - +1–3 AC
@@ -10720,6 +11710,7 @@ Grouped by slot. Weapons show their class and actual roll pool from `empowerCand
 - Increase Holy Deva damage by 5–25%
 - Increase Holy Deva health by 5–25%
 - Reduce Holy Deva damage taken by 5–10%
+- Reduce Poison Cloud cooldown by 1–3 seconds
 - Increase Soul Fire Ball crit chance by 2–12%
 - Increase Soul Fire Ball crit damage by 5–25%
 - +5–20% Gold drop
@@ -10729,6 +11720,7 @@ Grouped by slot. Weapons show their class and actual roll pool from `empowerCand
 - +1–10% Crit Rate
 - +5–15% Crit Damage
 - +5–20% Skill leveling
+- +5–25% Potion restore
 
 **Wisdom Coronet** (`wisdom-coronet`)
 - +1–3 AC
@@ -10753,6 +11745,8 @@ Grouped by slot. Weapons show their class and actual roll pool from `empowerCand
 - Reduce mana cost of Flame Field by 5–20%
 - Reduce mana cost of Meteor Strike by 5–20%
 - Reduce mana cost of Blizzard by 5–20%
+- Reduce Meteor Strike cooldown by 1–3 seconds
+- Reduce Blizzard cooldown by 1–3 seconds
 - Increase Flame Disruptor crit chance by 2–12%
 - Increase Flame Disruptor crit damage by 5–25%
 - Increase Fire Wall crit chance by 2–12%
@@ -10780,6 +11774,7 @@ Grouped by slot. Weapons show their class and actual roll pool from `empowerCand
 - +1–10% Crit Rate
 - +5–15% Crit Damage
 - +5–20% Skill leveling
+- +5–25% Potion restore
 
 ### material
 
@@ -10810,10 +11805,16 @@ Grouped by slot. Weapons show their class and actual roll pool from `empowerCand
 **Havoc Crystal** (`havoc-crystal`)
 - +AC
 
+**Hog Tooth** (`hog-tooth`)
+- +AC
+
 **Large Bone** (`large-bone`)
 - +AC
 
 **Silver Ore** (`silver-ore`)
+- +AC
+
+**Stone Heart** (`stone-heart`)
 - +AC
 
 **Wooma Heart** (`wooma-heart`)
@@ -10882,6 +11883,8 @@ Grouped by slot. Weapons show their class and actual roll pool from `empowerCand
 - Reduce mana cost of Flame Field by 5–15%
 - Reduce mana cost of Meteor Strike by 5–15%
 - Reduce mana cost of Blizzard by 5–15%
+- Reduce Meteor Strike cooldown by 1–2 seconds
+- Reduce Blizzard cooldown by 1–2 seconds
 - Increase Flame Disruptor crit chance by 1–8%
 - Increase Flame Disruptor crit damage by 5–15%
 - Increase Fire Wall crit chance by 1–8%
@@ -10968,6 +11971,8 @@ Grouped by slot. Weapons show their class and actual roll pool from `empowerCand
 - Reduce mana cost of Flame Field by 5–15%
 - Reduce mana cost of Meteor Strike by 5–15%
 - Reduce mana cost of Blizzard by 5–15%
+- Reduce Meteor Strike cooldown by 1–2 seconds
+- Reduce Blizzard cooldown by 1–2 seconds
 - Increase Flame Disruptor crit chance by 1–8%
 - Increase Flame Disruptor crit damage by 5–15%
 - Increase Fire Wall crit chance by 1–8%
@@ -11031,6 +12036,8 @@ Grouped by slot. Weapons show their class and actual roll pool from `empowerCand
 - Reduce mana cost of Flame Field by 5–15%
 - Reduce mana cost of Meteor Strike by 5–15%
 - Reduce mana cost of Blizzard by 5–15%
+- Reduce Meteor Strike cooldown by 1–2 seconds
+- Reduce Blizzard cooldown by 1–2 seconds
 - Increase Healing healing by 5–10%
 - Increase Mass Healing healing by 5–10%
 - Increase Soul Fire Ball damage by 5–10%
@@ -11043,6 +12050,7 @@ Grouped by slot. Weapons show their class and actual roll pool from `empowerCand
 - Increase Holy Deva damage by 5–20%
 - Increase Holy Deva health by 5–20%
 - Reduce Holy Deva damage taken by 5%
+- Reduce Poison Cloud cooldown by 1–2 seconds
 - Increase Slaying crit chance by 1–8%
 - Increase Slaying crit damage by 5–15%
 - Increase Flaming Sword crit chance by 1–8%
@@ -11137,6 +12145,7 @@ Grouped by slot. Weapons show their class and actual roll pool from `empowerCand
 - Increase Holy Deva damage by 5–20%
 - Increase Holy Deva health by 5–20%
 - Reduce Holy Deva damage taken by 5%
+- Reduce Poison Cloud cooldown by 1–2 seconds
 - Increase Soul Fire Ball crit chance by 1–8%
 - Increase Soul Fire Ball crit damage by 5–15%
 - +2–12% Gold drop
@@ -11171,6 +12180,8 @@ Grouped by slot. Weapons show their class and actual roll pool from `empowerCand
 - Reduce mana cost of Flame Field by 5–15%
 - Reduce mana cost of Meteor Strike by 5–15%
 - Reduce mana cost of Blizzard by 5–15%
+- Reduce Meteor Strike cooldown by 1–2 seconds
+- Reduce Blizzard cooldown by 1–2 seconds
 - Increase Flame Disruptor crit chance by 1–8%
 - Increase Flame Disruptor crit damage by 5–15%
 - Increase Fire Wall crit chance by 1–8%
@@ -11219,6 +12230,7 @@ Grouped by slot. Weapons show their class and actual roll pool from `empowerCand
 - Increase Holy Deva damage by 5–20%
 - Increase Holy Deva health by 5–20%
 - Reduce Holy Deva damage taken by 5%
+- Reduce Poison Cloud cooldown by 1–2 seconds
 - Increase Soul Fire Ball crit chance by 1–8%
 - Increase Soul Fire Ball crit damage by 5–15%
 - +2–12% Gold drop
@@ -11253,6 +12265,8 @@ Grouped by slot. Weapons show their class and actual roll pool from `empowerCand
 - Reduce mana cost of Flame Field by 5–15%
 - Reduce mana cost of Meteor Strike by 5–15%
 - Reduce mana cost of Blizzard by 5–15%
+- Reduce Meteor Strike cooldown by 1–2 seconds
+- Reduce Blizzard cooldown by 1–2 seconds
 - Increase Flame Disruptor crit chance by 1–8%
 - Increase Flame Disruptor crit damage by 5–15%
 - Increase Fire Wall crit chance by 1–8%
@@ -11301,6 +12315,7 @@ Grouped by slot. Weapons show their class and actual roll pool from `empowerCand
 - Increase Holy Deva damage by 5–20%
 - Increase Holy Deva health by 5–20%
 - Reduce Holy Deva damage taken by 5%
+- Reduce Poison Cloud cooldown by 1–2 seconds
 - Increase Soul Fire Ball crit chance by 1–8%
 - Increase Soul Fire Ball crit damage by 5–15%
 - +2–12% Gold drop
@@ -11331,6 +12346,7 @@ Grouped by slot. Weapons show their class and actual roll pool from `empowerCand
 - Increase Holy Deva damage by 5–20%
 - Increase Holy Deva health by 5–20%
 - Reduce Holy Deva damage taken by 5%
+- Reduce Poison Cloud cooldown by 1–2 seconds
 - Increase Soul Fire Ball crit chance by 1–8%
 - Increase Soul Fire Ball crit damage by 5–15%
 - +2–12% Gold drop
@@ -11361,6 +12377,7 @@ Grouped by slot. Weapons show their class and actual roll pool from `empowerCand
 - Increase Holy Deva damage by 5–20%
 - Increase Holy Deva health by 5–20%
 - Reduce Holy Deva damage taken by 5%
+- Reduce Poison Cloud cooldown by 1–2 seconds
 - Increase Soul Fire Ball crit chance by 1–8%
 - Increase Soul Fire Ball crit damage by 5–15%
 - +2–12% Gold drop
@@ -11395,6 +12412,8 @@ Grouped by slot. Weapons show their class and actual roll pool from `empowerCand
 - Reduce mana cost of Flame Field by 5–15%
 - Reduce mana cost of Meteor Strike by 5–15%
 - Reduce mana cost of Blizzard by 5–15%
+- Reduce Meteor Strike cooldown by 1–2 seconds
+- Reduce Blizzard cooldown by 1–2 seconds
 - Increase Flame Disruptor crit chance by 1–8%
 - Increase Flame Disruptor crit damage by 5–15%
 - Increase Fire Wall crit chance by 1–8%
@@ -11458,6 +12477,8 @@ Grouped by slot. Weapons show their class and actual roll pool from `empowerCand
 - Reduce mana cost of Flame Field by 5–15%
 - Reduce mana cost of Meteor Strike by 5–15%
 - Reduce mana cost of Blizzard by 5–15%
+- Reduce Meteor Strike cooldown by 1–2 seconds
+- Reduce Blizzard cooldown by 1–2 seconds
 - Increase Healing healing by 5–10%
 - Increase Mass Healing healing by 5–10%
 - Increase Soul Fire Ball damage by 5–10%
@@ -11470,6 +12491,7 @@ Grouped by slot. Weapons show their class and actual roll pool from `empowerCand
 - Increase Holy Deva damage by 5–20%
 - Increase Holy Deva health by 5–20%
 - Reduce Holy Deva damage taken by 5%
+- Reduce Poison Cloud cooldown by 1–2 seconds
 - Increase Slaying crit chance by 1–8%
 - Increase Slaying crit damage by 5–15%
 - Increase Flaming Sword crit chance by 1–8%
@@ -11545,6 +12567,8 @@ Grouped by slot. Weapons show their class and actual roll pool from `empowerCand
 - Reduce mana cost of Flame Field by 5–15%
 - Reduce mana cost of Meteor Strike by 5–15%
 - Reduce mana cost of Blizzard by 5–15%
+- Reduce Meteor Strike cooldown by 1–2 seconds
+- Reduce Blizzard cooldown by 1–2 seconds
 - Increase Healing healing by 5–10%
 - Increase Mass Healing healing by 5–10%
 - Increase Soul Fire Ball damage by 5–10%
@@ -11557,6 +12581,7 @@ Grouped by slot. Weapons show their class and actual roll pool from `empowerCand
 - Increase Holy Deva damage by 5–20%
 - Increase Holy Deva health by 5–20%
 - Reduce Holy Deva damage taken by 5%
+- Reduce Poison Cloud cooldown by 1–2 seconds
 - Increase Slaying crit chance by 1–8%
 - Increase Slaying crit damage by 5–15%
 - Increase Flaming Sword crit chance by 1–8%
@@ -11632,6 +12657,8 @@ Grouped by slot. Weapons show their class and actual roll pool from `empowerCand
 - Reduce mana cost of Flame Field by 5–15%
 - Reduce mana cost of Meteor Strike by 5–15%
 - Reduce mana cost of Blizzard by 5–15%
+- Reduce Meteor Strike cooldown by 1–2 seconds
+- Reduce Blizzard cooldown by 1–2 seconds
 - Increase Healing healing by 5–10%
 - Increase Mass Healing healing by 5–10%
 - Increase Soul Fire Ball damage by 5–10%
@@ -11644,6 +12671,7 @@ Grouped by slot. Weapons show their class and actual roll pool from `empowerCand
 - Increase Holy Deva damage by 5–20%
 - Increase Holy Deva health by 5–20%
 - Reduce Holy Deva damage taken by 5%
+- Reduce Poison Cloud cooldown by 1–2 seconds
 - Increase Slaying crit chance by 1–8%
 - Increase Slaying crit damage by 5–15%
 - Increase Flaming Sword crit chance by 1–8%
@@ -11810,6 +12838,8 @@ Grouped by slot. Weapons show their class and actual roll pool from `empowerCand
 - Reduce mana cost of Flame Field by 5–15%
 - Reduce mana cost of Meteor Strike by 5–15%
 - Reduce mana cost of Blizzard by 5–15%
+- Reduce Meteor Strike cooldown by 1–2 seconds
+- Reduce Blizzard cooldown by 1–2 seconds
 - Increase Flame Disruptor crit chance by 1–8%
 - Increase Flame Disruptor crit damage by 5–15%
 - Increase Fire Wall crit chance by 1–8%
@@ -11858,6 +12888,7 @@ Grouped by slot. Weapons show their class and actual roll pool from `empowerCand
 - Increase Holy Deva damage by 5–20%
 - Increase Holy Deva health by 5–20%
 - Reduce Holy Deva damage taken by 5%
+- Reduce Poison Cloud cooldown by 1–2 seconds
 - Increase Soul Fire Ball crit chance by 1–8%
 - Increase Soul Fire Ball crit damage by 5–15%
 - +2–12% Gold drop
@@ -11888,6 +12919,7 @@ Grouped by slot. Weapons show their class and actual roll pool from `empowerCand
 - Increase Holy Deva damage by 5–20%
 - Increase Holy Deva health by 5–20%
 - Reduce Holy Deva damage taken by 5%
+- Reduce Poison Cloud cooldown by 1–2 seconds
 - Increase Soul Fire Ball crit chance by 1–8%
 - Increase Soul Fire Ball crit damage by 5–15%
 - +2–12% Gold drop
@@ -11918,6 +12950,7 @@ Grouped by slot. Weapons show their class and actual roll pool from `empowerCand
 - Increase Holy Deva damage by 5–20%
 - Increase Holy Deva health by 5–20%
 - Reduce Holy Deva damage taken by 5%
+- Reduce Poison Cloud cooldown by 1–2 seconds
 - Increase Soul Fire Ball crit chance by 1–8%
 - Increase Soul Fire Ball crit damage by 5–15%
 - +2–12% Gold drop
@@ -11948,6 +12981,7 @@ Grouped by slot. Weapons show their class and actual roll pool from `empowerCand
 - Increase Holy Deva damage by 5–20%
 - Increase Holy Deva health by 5–20%
 - Reduce Holy Deva damage taken by 5%
+- Reduce Poison Cloud cooldown by 1–2 seconds
 - Increase Soul Fire Ball crit chance by 1–8%
 - Increase Soul Fire Ball crit damage by 5–15%
 - +2–12% Gold drop
@@ -11993,6 +13027,8 @@ Grouped by slot. Weapons show their class and actual roll pool from `empowerCand
 - Reduce mana cost of Flame Field by 5–15%
 - Reduce mana cost of Meteor Strike by 5–15%
 - Reduce mana cost of Blizzard by 5–15%
+- Reduce Meteor Strike cooldown by 1–2 seconds
+- Reduce Blizzard cooldown by 1–2 seconds
 - Increase Healing healing by 5–10%
 - Increase Mass Healing healing by 5–10%
 - Increase Soul Fire Ball damage by 5–10%
@@ -12005,6 +13041,7 @@ Grouped by slot. Weapons show their class and actual roll pool from `empowerCand
 - Increase Holy Deva damage by 5–20%
 - Increase Holy Deva health by 5–20%
 - Reduce Holy Deva damage taken by 5%
+- Reduce Poison Cloud cooldown by 1–2 seconds
 - Increase Slaying crit chance by 1–8%
 - Increase Slaying crit damage by 5–15%
 - Increase Flaming Sword crit chance by 1–8%
@@ -12069,6 +13106,8 @@ Grouped by slot. Weapons show their class and actual roll pool from `empowerCand
 - Reduce mana cost of Flame Field by 5–15%
 - Reduce mana cost of Meteor Strike by 5–15%
 - Reduce mana cost of Blizzard by 5–15%
+- Reduce Meteor Strike cooldown by 1–2 seconds
+- Reduce Blizzard cooldown by 1–2 seconds
 - Increase Flame Disruptor crit chance by 1–8%
 - Increase Flame Disruptor crit damage by 5–15%
 - Increase Fire Wall crit chance by 1–8%
@@ -12151,6 +13190,7 @@ Grouped by slot. Weapons show their class and actual roll pool from `empowerCand
 - Increase Holy Deva damage by 5–20%
 - Increase Holy Deva health by 5–20%
 - Reduce Holy Deva damage taken by 5%
+- Reduce Poison Cloud cooldown by 1–2 seconds
 - Increase Soul Fire Ball crit chance by 1–8%
 - Increase Soul Fire Ball crit damage by 5–15%
 - +2–12% Gold drop
@@ -12181,6 +13221,7 @@ Grouped by slot. Weapons show their class and actual roll pool from `empowerCand
 - Increase Holy Deva damage by 5–20%
 - Increase Holy Deva health by 5–20%
 - Reduce Holy Deva damage taken by 5%
+- Reduce Poison Cloud cooldown by 1–2 seconds
 - Increase Soul Fire Ball crit chance by 1–8%
 - Increase Soul Fire Ball crit damage by 5–15%
 - +2–12% Gold drop
@@ -12283,6 +13324,8 @@ Grouped by slot. Weapons show their class and actual roll pool from `empowerCand
 - Reduce mana cost of Flame Field by 5–15%
 - Reduce mana cost of Meteor Strike by 5–15%
 - Reduce mana cost of Blizzard by 5–15%
+- Reduce Meteor Strike cooldown by 1–2 seconds
+- Reduce Blizzard cooldown by 1–2 seconds
 - Increase Flame Disruptor crit chance by 1–8%
 - Increase Flame Disruptor crit damage by 5–15%
 - Increase Fire Wall crit chance by 1–8%
@@ -12399,6 +13442,7 @@ Grouped by slot. Weapons show their class and actual roll pool from `empowerCand
 - Increase Holy Deva damage by 5–20%
 - Increase Holy Deva health by 5–20%
 - Reduce Holy Deva damage taken by 5%
+- Reduce Poison Cloud cooldown by 1–2 seconds
 - Increase Soul Fire Ball crit chance by 1–8%
 - Increase Soul Fire Ball crit damage by 5–15%
 - +2–12% Gold drop
@@ -12429,6 +13473,7 @@ Grouped by slot. Weapons show their class and actual roll pool from `empowerCand
 - Increase Holy Deva damage by 5–20%
 - Increase Holy Deva health by 5–20%
 - Reduce Holy Deva damage taken by 5%
+- Reduce Poison Cloud cooldown by 1–2 seconds
 - Increase Soul Fire Ball crit chance by 1–8%
 - Increase Soul Fire Ball crit damage by 5–15%
 - +2–12% Gold drop
@@ -12497,6 +13542,8 @@ Grouped by slot. Weapons show their class and actual roll pool from `empowerCand
 - Reduce mana cost of Flame Field by 5–15%
 - Reduce mana cost of Meteor Strike by 5–15%
 - Reduce mana cost of Blizzard by 5–15%
+- Reduce Meteor Strike cooldown by 1–2 seconds
+- Reduce Blizzard cooldown by 1–2 seconds
 - Increase Flame Disruptor crit chance by 1–8%
 - Increase Flame Disruptor crit damage by 5–15%
 - Increase Fire Wall crit chance by 1–8%
@@ -12545,6 +13592,7 @@ Grouped by slot. Weapons show their class and actual roll pool from `empowerCand
 - Increase Holy Deva damage by 5–20%
 - Increase Holy Deva health by 5–20%
 - Reduce Holy Deva damage taken by 5%
+- Reduce Poison Cloud cooldown by 1–2 seconds
 - Increase Soul Fire Ball crit chance by 1–8%
 - Increase Soul Fire Ball crit damage by 5–15%
 - +2–12% Gold drop
@@ -12579,6 +13627,8 @@ Grouped by slot. Weapons show their class and actual roll pool from `empowerCand
 - Reduce mana cost of Flame Field by 5–15%
 - Reduce mana cost of Meteor Strike by 5–15%
 - Reduce mana cost of Blizzard by 5–15%
+- Reduce Meteor Strike cooldown by 1–2 seconds
+- Reduce Blizzard cooldown by 1–2 seconds
 - Increase Flame Disruptor crit chance by 1–8%
 - Increase Flame Disruptor crit damage by 5–15%
 - Increase Fire Wall crit chance by 1–8%
@@ -12631,6 +13681,8 @@ Grouped by slot. Weapons show their class and actual roll pool from `empowerCand
 - Reduce mana cost of Flame Field by 5–15%
 - Reduce mana cost of Meteor Strike by 5–15%
 - Reduce mana cost of Blizzard by 5–15%
+- Reduce Meteor Strike cooldown by 1–2 seconds
+- Reduce Blizzard cooldown by 1–2 seconds
 - Increase Flame Disruptor crit chance by 1–8%
 - Increase Flame Disruptor crit damage by 5–15%
 - Increase Fire Wall crit chance by 1–8%
@@ -12717,6 +13769,8 @@ Grouped by slot. Weapons show their class and actual roll pool from `empowerCand
 - Reduce mana cost of Flame Field by 5–15%
 - Reduce mana cost of Meteor Strike by 5–15%
 - Reduce mana cost of Blizzard by 5–15%
+- Reduce Meteor Strike cooldown by 1–2 seconds
+- Reduce Blizzard cooldown by 1–2 seconds
 - Increase Flame Disruptor crit chance by 1–8%
 - Increase Flame Disruptor crit damage by 5–15%
 - Increase Fire Wall crit chance by 1–8%
@@ -12799,8 +13853,247 @@ Grouped by slot. Weapons show their class and actual roll pool from `empowerCand
 - Increase Holy Deva damage by 5–20%
 - Increase Holy Deva health by 5–20%
 - Reduce Holy Deva damage taken by 5%
+- Reduce Poison Cloud cooldown by 1–2 seconds
 - Increase Soul Fire Ball crit chance by 1–8%
 - Increase Soul Fire Ball crit damage by 5–15%
+- +2–12% Gold drop
+- +2–12% Bonus XP
+- +2–6% Awakening Soul drop chance
+- −1–4% Damage taken
+- +1–6% Crit Rate
+- +5–15% Crit Damage
+- +2–12% Skill leveling
+
+**Blue Fox Collar** (`blue-fox-collar`)
+- +1–6 DC
+- +1–4 SC
+- +1–2 A Speed
+- +1–2 Freezing
+- +1–2 Poison
+- +1–3 AC
+- +1–3 AMC
+- Increase Healing healing by 5–10%
+- Increase Mass Healing healing by 5–10%
+- Increase Soul Fire Ball damage by 5–10%
+- Increase Skeleton damage by 5–20%
+- Increase Skeleton health by 5–20%
+- Reduce Skeleton damage taken by 5%
+- Increase Shinsu damage by 5–20%
+- Increase Shinsu health by 5–20%
+- Reduce Shinsu damage taken by 5%
+- Increase Holy Deva damage by 5–20%
+- Increase Holy Deva health by 5–20%
+- Reduce Holy Deva damage taken by 5%
+- Reduce Poison Cloud cooldown by 1–2 seconds
+- Increase Soul Fire Ball crit chance by 1–8%
+- Increase Soul Fire Ball crit damage by 5–15%
+- +2–12% Gold drop
+- +2–12% Bonus XP
+- +2–6% Awakening Soul drop chance
+- −1–4% Damage taken
+- +1–6% Crit Rate
+- +5–15% Crit Damage
+- +2–12% Skill leveling
+
+**Purple Fox Collar** (`purple-fox-collar`)
+- +1–6 DC
+- +1–2 A Speed
+- +1–2 Freezing
+- +1–2 Poison
+- +1–3 AC
+- +1–3 AMC
+- Increase Slaying damage by 5–10%
+- Increase Flaming Sword damage by 5–10%
+- Reduce Flaming Sword cooldown by 1–2 seconds
+- Increase Twin Drake Blade damage by 5–10%
+- Reduce mana cost of Twin Drake Blade by 5–15%
+- Increase Blade Avalanche damage by 5–10%
+- Reduce mana cost of Blade Avalanche by 5–15%
+- Increase Slashing Burst damage by 5–10%
+- Reduce mana cost of Slashing Burst by 5–15%
+- Increase Slaying crit chance by 1–8%
+- Increase Slaying crit damage by 5–15%
+- Increase Flaming Sword crit chance by 1–8%
+- Increase Flaming Sword crit damage by 5–15%
+- Increase Twin Drake Blade crit chance by 1–8%
+- Increase Twin Drake Blade crit damage by 5–15%
+- Increase Blade Avalanche crit chance by 1–8%
+- Increase Blade Avalanche crit damage by 5–15%
+- Increase Slashing Burst crit chance by 1–8%
+- Increase Slashing Burst crit damage by 5–15%
+- +2–12% Gold drop
+- +2–12% Bonus XP
+- +2–6% Awakening Soul drop chance
+- −1–4% Damage taken
+- +1–6% Crit Rate
+- +5–15% Crit Damage
+- +2–12% Skill leveling
+
+**Red Fox Collar** (`red-fox-collar`)
+- +1–4 MC
+- +1–2 A Speed
+- +1–2 Freezing
+- +1–2 Poison
+- +1–3 AC
+- +1–3 AMC
+- Increase Flame Disruptor damage by 5–10%
+- Increase Fire Wall damage by 5–10%
+- Increase Thunder Bolt damage by 5–10%
+- Increase Ice Storm damage by 5–10%
+- Increase Flame Field damage by 5–10%
+- Increase Meteor Strike damage by 5–10%
+- Increase Blizzard damage by 5–10%
+- Increase Fire Ball damage by 5–10%
+- Increase Great Fire Ball damage by 5–10%
+- Increase Frost Crunch damage by 5–10%
+- Reduce mana cost of Flame Disruptor by 5–15%
+- Reduce mana cost of Fire Wall by 5–15%
+- Reduce mana cost of Thunder Bolt by 5–15%
+- Reduce mana cost of Ice Storm by 5–15%
+- Reduce mana cost of Flame Field by 5–15%
+- Reduce mana cost of Meteor Strike by 5–15%
+- Reduce mana cost of Blizzard by 5–15%
+- Reduce Meteor Strike cooldown by 1–2 seconds
+- Reduce Blizzard cooldown by 1–2 seconds
+- Increase Flame Disruptor crit chance by 1–8%
+- Increase Flame Disruptor crit damage by 5–15%
+- Increase Fire Wall crit chance by 1–8%
+- Increase Fire Wall crit damage by 5–15%
+- Increase Thunder Bolt crit chance by 1–8%
+- Increase Thunder Bolt crit damage by 5–15%
+- Increase Ice Storm crit chance by 1–8%
+- Increase Ice Storm crit damage by 5–15%
+- Increase Flame Field crit chance by 1–8%
+- Increase Flame Field crit damage by 5–15%
+- Increase Meteor Strike crit chance by 1–8%
+- Increase Meteor Strike crit damage by 5–15%
+- Increase Blizzard crit chance by 1–8%
+- Increase Blizzard crit damage by 5–15%
+- Increase Fire Ball crit chance by 1–8%
+- Increase Fire Ball crit damage by 5–15%
+- Increase Great Fire Ball crit chance by 1–8%
+- Increase Great Fire Ball crit damage by 5–15%
+- Increase Frost Crunch crit chance by 1–8%
+- Increase Frost Crunch crit damage by 5–15%
+- +2–12% Gold drop
+- +2–12% Bonus XP
+- +2–6% Awakening Soul drop chance
+- −1–4% Damage taken
+- +1–6% Crit Rate
+- +5–15% Crit Damage
+- +2–12% Skill leveling
+
+**Great Blue Fox Collar** (`great-blue-fox-collar`)
+- +1–6 DC
+- +1–4 SC
+- +1–2 A Speed
+- +1–2 Freezing
+- +1–2 Poison
+- +1–3 AC
+- +1–3 AMC
+- Increase Healing healing by 5–10%
+- Increase Mass Healing healing by 5–10%
+- Increase Soul Fire Ball damage by 5–10%
+- Increase Skeleton damage by 5–20%
+- Increase Skeleton health by 5–20%
+- Reduce Skeleton damage taken by 5%
+- Increase Shinsu damage by 5–20%
+- Increase Shinsu health by 5–20%
+- Reduce Shinsu damage taken by 5%
+- Increase Holy Deva damage by 5–20%
+- Increase Holy Deva health by 5–20%
+- Reduce Holy Deva damage taken by 5%
+- Reduce Poison Cloud cooldown by 1–2 seconds
+- Increase Soul Fire Ball crit chance by 1–8%
+- Increase Soul Fire Ball crit damage by 5–15%
+- +2–12% Gold drop
+- +2–12% Bonus XP
+- +2–6% Awakening Soul drop chance
+- −1–4% Damage taken
+- +1–6% Crit Rate
+- +5–15% Crit Damage
+- +2–12% Skill leveling
+
+**Great Purple Fox Collar** (`great-purple-fox-collar`)
+- +1–6 DC
+- +1–2 A Speed
+- +1–2 Freezing
+- +1–2 Poison
+- +1–3 AC
+- +1–3 AMC
+- Increase Slaying damage by 5–10%
+- Increase Flaming Sword damage by 5–10%
+- Reduce Flaming Sword cooldown by 1–2 seconds
+- Increase Twin Drake Blade damage by 5–10%
+- Reduce mana cost of Twin Drake Blade by 5–15%
+- Increase Blade Avalanche damage by 5–10%
+- Reduce mana cost of Blade Avalanche by 5–15%
+- Increase Slashing Burst damage by 5–10%
+- Reduce mana cost of Slashing Burst by 5–15%
+- Increase Slaying crit chance by 1–8%
+- Increase Slaying crit damage by 5–15%
+- Increase Flaming Sword crit chance by 1–8%
+- Increase Flaming Sword crit damage by 5–15%
+- Increase Twin Drake Blade crit chance by 1–8%
+- Increase Twin Drake Blade crit damage by 5–15%
+- Increase Blade Avalanche crit chance by 1–8%
+- Increase Blade Avalanche crit damage by 5–15%
+- Increase Slashing Burst crit chance by 1–8%
+- Increase Slashing Burst crit damage by 5–15%
+- +2–12% Gold drop
+- +2–12% Bonus XP
+- +2–6% Awakening Soul drop chance
+- −1–4% Damage taken
+- +1–6% Crit Rate
+- +5–15% Crit Damage
+- +2–12% Skill leveling
+
+**Great Red Fox Collar** (`great-red-fox-collar`)
+- +1–4 MC
+- +1–2 A Speed
+- +1–2 Freezing
+- +1–2 Poison
+- +1–3 AC
+- +1–3 AMC
+- Increase Flame Disruptor damage by 5–10%
+- Increase Fire Wall damage by 5–10%
+- Increase Thunder Bolt damage by 5–10%
+- Increase Ice Storm damage by 5–10%
+- Increase Flame Field damage by 5–10%
+- Increase Meteor Strike damage by 5–10%
+- Increase Blizzard damage by 5–10%
+- Increase Fire Ball damage by 5–10%
+- Increase Great Fire Ball damage by 5–10%
+- Increase Frost Crunch damage by 5–10%
+- Reduce mana cost of Flame Disruptor by 5–15%
+- Reduce mana cost of Fire Wall by 5–15%
+- Reduce mana cost of Thunder Bolt by 5–15%
+- Reduce mana cost of Ice Storm by 5–15%
+- Reduce mana cost of Flame Field by 5–15%
+- Reduce mana cost of Meteor Strike by 5–15%
+- Reduce mana cost of Blizzard by 5–15%
+- Reduce Meteor Strike cooldown by 1–2 seconds
+- Reduce Blizzard cooldown by 1–2 seconds
+- Increase Flame Disruptor crit chance by 1–8%
+- Increase Flame Disruptor crit damage by 5–15%
+- Increase Fire Wall crit chance by 1–8%
+- Increase Fire Wall crit damage by 5–15%
+- Increase Thunder Bolt crit chance by 1–8%
+- Increase Thunder Bolt crit damage by 5–15%
+- Increase Ice Storm crit chance by 1–8%
+- Increase Ice Storm crit damage by 5–15%
+- Increase Flame Field crit chance by 1–8%
+- Increase Flame Field crit damage by 5–15%
+- Increase Meteor Strike crit chance by 1–8%
+- Increase Meteor Strike crit damage by 5–15%
+- Increase Blizzard crit chance by 1–8%
+- Increase Blizzard crit damage by 5–15%
+- Increase Fire Ball crit chance by 1–8%
+- Increase Fire Ball crit damage by 5–15%
+- Increase Great Fire Ball crit chance by 1–8%
+- Increase Great Fire Ball crit damage by 5–15%
+- Increase Frost Crunch crit chance by 1–8%
+- Increase Frost Crunch crit damage by 5–15%
 - +2–12% Gold drop
 - +2–12% Bonus XP
 - +2–6% Awakening Soul drop chance
@@ -12863,6 +14156,7 @@ Grouped by slot. Weapons show their class and actual roll pool from `empowerCand
 - Increase Holy Deva damage by 5–20%
 - Increase Holy Deva health by 5–20%
 - Reduce Holy Deva damage taken by 5%
+- Reduce Poison Cloud cooldown by 1–2 seconds
 - Increase Soul Fire Ball crit chance by 1–8%
 - Increase Soul Fire Ball crit damage by 5–15%
 - +2–12% Gold drop
@@ -12897,6 +14191,127 @@ Grouped by slot. Weapons show their class and actual roll pool from `empowerCand
 - Reduce mana cost of Flame Field by 5–15%
 - Reduce mana cost of Meteor Strike by 5–15%
 - Reduce mana cost of Blizzard by 5–15%
+- Reduce Meteor Strike cooldown by 1–2 seconds
+- Reduce Blizzard cooldown by 1–2 seconds
+- Increase Flame Disruptor crit chance by 1–8%
+- Increase Flame Disruptor crit damage by 5–15%
+- Increase Fire Wall crit chance by 1–8%
+- Increase Fire Wall crit damage by 5–15%
+- Increase Thunder Bolt crit chance by 1–8%
+- Increase Thunder Bolt crit damage by 5–15%
+- Increase Ice Storm crit chance by 1–8%
+- Increase Ice Storm crit damage by 5–15%
+- Increase Flame Field crit chance by 1–8%
+- Increase Flame Field crit damage by 5–15%
+- Increase Meteor Strike crit chance by 1–8%
+- Increase Meteor Strike crit damage by 5–15%
+- Increase Blizzard crit chance by 1–8%
+- Increase Blizzard crit damage by 5–15%
+- Increase Fire Ball crit chance by 1–8%
+- Increase Fire Ball crit damage by 5–15%
+- Increase Great Fire Ball crit chance by 1–8%
+- Increase Great Fire Ball crit damage by 5–15%
+- Increase Frost Crunch crit chance by 1–8%
+- Increase Frost Crunch crit damage by 5–15%
+- +2–12% Gold drop
+- +2–12% Bonus XP
+- +2–6% Awakening Soul drop chance
+- −1–4% Damage taken
+- +1–6% Crit Rate
+- +5–15% Crit Damage
+- +2–12% Skill leveling
+
+**Necklace of Agony** (`necklace-of-agony-taoist`)
+- +1–6 DC
+- +1–4 SC
+- +1–2 A Speed
+- +1–2 Freezing
+- +1–2 Poison
+- +1–3 AC
+- +1–3 AMC
+- Increase Healing healing by 5–10%
+- Increase Mass Healing healing by 5–10%
+- Increase Soul Fire Ball damage by 5–10%
+- Increase Skeleton damage by 5–20%
+- Increase Skeleton health by 5–20%
+- Reduce Skeleton damage taken by 5%
+- Increase Shinsu damage by 5–20%
+- Increase Shinsu health by 5–20%
+- Reduce Shinsu damage taken by 5%
+- Increase Holy Deva damage by 5–20%
+- Increase Holy Deva health by 5–20%
+- Reduce Holy Deva damage taken by 5%
+- Reduce Poison Cloud cooldown by 1–2 seconds
+- Increase Soul Fire Ball crit chance by 1–8%
+- Increase Soul Fire Ball crit damage by 5–15%
+- +2–12% Gold drop
+- +2–12% Bonus XP
+- +2–6% Awakening Soul drop chance
+- −1–4% Damage taken
+- +1–6% Crit Rate
+- +5–15% Crit Damage
+- +2–12% Skill leveling
+
+**Necklace of Agony** (`necklace-of-agony-warrior`)
+- +1–6 DC
+- +1–2 A Speed
+- +1–2 Freezing
+- +1–2 Poison
+- +1–3 AC
+- +1–3 AMC
+- Increase Slaying damage by 5–10%
+- Increase Flaming Sword damage by 5–10%
+- Reduce Flaming Sword cooldown by 1–2 seconds
+- Increase Twin Drake Blade damage by 5–10%
+- Reduce mana cost of Twin Drake Blade by 5–15%
+- Increase Blade Avalanche damage by 5–10%
+- Reduce mana cost of Blade Avalanche by 5–15%
+- Increase Slashing Burst damage by 5–10%
+- Reduce mana cost of Slashing Burst by 5–15%
+- Increase Slaying crit chance by 1–8%
+- Increase Slaying crit damage by 5–15%
+- Increase Flaming Sword crit chance by 1–8%
+- Increase Flaming Sword crit damage by 5–15%
+- Increase Twin Drake Blade crit chance by 1–8%
+- Increase Twin Drake Blade crit damage by 5–15%
+- Increase Blade Avalanche crit chance by 1–8%
+- Increase Blade Avalanche crit damage by 5–15%
+- Increase Slashing Burst crit chance by 1–8%
+- Increase Slashing Burst crit damage by 5–15%
+- +2–12% Gold drop
+- +2–12% Bonus XP
+- +2–6% Awakening Soul drop chance
+- −1–4% Damage taken
+- +1–6% Crit Rate
+- +5–15% Crit Damage
+- +2–12% Skill leveling
+
+**Necklace of Agony** (`necklace-of-agony-wizard`)
+- +1–4 MC
+- +1–2 A Speed
+- +1–2 Freezing
+- +1–2 Poison
+- +1–3 AC
+- +1–3 AMC
+- Increase Flame Disruptor damage by 5–10%
+- Increase Fire Wall damage by 5–10%
+- Increase Thunder Bolt damage by 5–10%
+- Increase Ice Storm damage by 5–10%
+- Increase Flame Field damage by 5–10%
+- Increase Meteor Strike damage by 5–10%
+- Increase Blizzard damage by 5–10%
+- Increase Fire Ball damage by 5–10%
+- Increase Great Fire Ball damage by 5–10%
+- Increase Frost Crunch damage by 5–10%
+- Reduce mana cost of Flame Disruptor by 5–15%
+- Reduce mana cost of Fire Wall by 5–15%
+- Reduce mana cost of Thunder Bolt by 5–15%
+- Reduce mana cost of Ice Storm by 5–15%
+- Reduce mana cost of Flame Field by 5–15%
+- Reduce mana cost of Meteor Strike by 5–15%
+- Reduce mana cost of Blizzard by 5–15%
+- Reduce Meteor Strike cooldown by 1–2 seconds
+- Reduce Blizzard cooldown by 1–2 seconds
 - Increase Flame Disruptor crit chance by 1–8%
 - Increase Flame Disruptor crit damage by 5–15%
 - Increase Fire Wall crit chance by 1–8%
@@ -12983,6 +14398,8 @@ Grouped by slot. Weapons show their class and actual roll pool from `empowerCand
 - Reduce mana cost of Flame Field by 5–15%
 - Reduce mana cost of Meteor Strike by 5–15%
 - Reduce mana cost of Blizzard by 5–15%
+- Reduce Meteor Strike cooldown by 1–2 seconds
+- Reduce Blizzard cooldown by 1–2 seconds
 - Increase Flame Disruptor crit chance by 1–8%
 - Increase Flame Disruptor crit damage by 5–15%
 - Increase Fire Wall crit chance by 1–8%
@@ -13069,6 +14486,8 @@ Grouped by slot. Weapons show their class and actual roll pool from `empowerCand
 - Reduce mana cost of Flame Field by 5–15%
 - Reduce mana cost of Meteor Strike by 5–15%
 - Reduce mana cost of Blizzard by 5–15%
+- Reduce Meteor Strike cooldown by 1–2 seconds
+- Reduce Blizzard cooldown by 1–2 seconds
 - Increase Flame Disruptor crit chance by 1–8%
 - Increase Flame Disruptor crit damage by 5–15%
 - Increase Fire Wall crit chance by 1–8%
@@ -13121,6 +14540,8 @@ Grouped by slot. Weapons show their class and actual roll pool from `empowerCand
 - Reduce mana cost of Flame Field by 5–15%
 - Reduce mana cost of Meteor Strike by 5–15%
 - Reduce mana cost of Blizzard by 5–15%
+- Reduce Meteor Strike cooldown by 1–2 seconds
+- Reduce Blizzard cooldown by 1–2 seconds
 - Increase Flame Disruptor crit chance by 1–8%
 - Increase Flame Disruptor crit damage by 5–15%
 - Increase Fire Wall crit chance by 1–8%
@@ -13169,6 +14590,7 @@ Grouped by slot. Weapons show their class and actual roll pool from `empowerCand
 - Increase Holy Deva damage by 5–20%
 - Increase Holy Deva health by 5–20%
 - Reduce Holy Deva damage taken by 5%
+- Reduce Poison Cloud cooldown by 1–2 seconds
 - Increase Soul Fire Ball crit chance by 1–8%
 - Increase Soul Fire Ball crit damage by 5–15%
 - +2–12% Gold drop
@@ -13199,6 +14621,7 @@ Grouped by slot. Weapons show their class and actual roll pool from `empowerCand
 - Increase Holy Deva damage by 5–20%
 - Increase Holy Deva health by 5–20%
 - Reduce Holy Deva damage taken by 5%
+- Reduce Poison Cloud cooldown by 1–2 seconds
 - Increase Soul Fire Ball crit chance by 1–8%
 - Increase Soul Fire Ball crit damage by 5–15%
 - +2–12% Gold drop
@@ -13229,6 +14652,7 @@ Grouped by slot. Weapons show their class and actual roll pool from `empowerCand
 - Increase Holy Deva damage by 5–20%
 - Increase Holy Deva health by 5–20%
 - Reduce Holy Deva damage taken by 5%
+- Reduce Poison Cloud cooldown by 1–2 seconds
 - Increase Soul Fire Ball crit chance by 1–8%
 - Increase Soul Fire Ball crit damage by 5–15%
 - +2–12% Gold drop
@@ -13331,6 +14755,8 @@ Grouped by slot. Weapons show their class and actual roll pool from `empowerCand
 - Reduce mana cost of Flame Field by 5–15%
 - Reduce mana cost of Meteor Strike by 5–15%
 - Reduce mana cost of Blizzard by 5–15%
+- Reduce Meteor Strike cooldown by 1–2 seconds
+- Reduce Blizzard cooldown by 1–2 seconds
 - Increase Flame Disruptor crit chance by 1–8%
 - Increase Flame Disruptor crit damage by 5–15%
 - Increase Fire Wall crit chance by 1–8%
@@ -13413,6 +14839,7 @@ Grouped by slot. Weapons show their class and actual roll pool from `empowerCand
 - Increase Holy Deva damage by 5–20%
 - Increase Holy Deva health by 5–20%
 - Reduce Holy Deva damage taken by 5%
+- Reduce Poison Cloud cooldown by 1–2 seconds
 - Increase Soul Fire Ball crit chance by 1–8%
 - Increase Soul Fire Ball crit damage by 5–15%
 - +2–12% Gold drop
@@ -13447,6 +14874,8 @@ Grouped by slot. Weapons show their class and actual roll pool from `empowerCand
 - Reduce mana cost of Flame Field by 5–15%
 - Reduce mana cost of Meteor Strike by 5–15%
 - Reduce mana cost of Blizzard by 5–15%
+- Reduce Meteor Strike cooldown by 1–2 seconds
+- Reduce Blizzard cooldown by 1–2 seconds
 - Increase Flame Disruptor crit chance by 1–8%
 - Increase Flame Disruptor crit damage by 5–15%
 - Increase Fire Wall crit chance by 1–8%
@@ -13495,6 +14924,7 @@ Grouped by slot. Weapons show their class and actual roll pool from `empowerCand
 - Increase Holy Deva damage by 5–20%
 - Increase Holy Deva health by 5–20%
 - Reduce Holy Deva damage taken by 5%
+- Reduce Poison Cloud cooldown by 1–2 seconds
 - Increase Soul Fire Ball crit chance by 1–8%
 - Increase Soul Fire Ball crit damage by 5–15%
 - +2–12% Gold drop
@@ -13529,6 +14959,8 @@ Grouped by slot. Weapons show their class and actual roll pool from `empowerCand
 - Reduce mana cost of Flame Field by 5–15%
 - Reduce mana cost of Meteor Strike by 5–15%
 - Reduce mana cost of Blizzard by 5–15%
+- Reduce Meteor Strike cooldown by 1–2 seconds
+- Reduce Blizzard cooldown by 1–2 seconds
 - Increase Flame Disruptor crit chance by 1–8%
 - Increase Flame Disruptor crit damage by 5–15%
 - Increase Fire Wall crit chance by 1–8%
@@ -13577,6 +15009,7 @@ Grouped by slot. Weapons show their class and actual roll pool from `empowerCand
 - Increase Holy Deva damage by 5–20%
 - Increase Holy Deva health by 5–20%
 - Reduce Holy Deva damage taken by 5%
+- Reduce Poison Cloud cooldown by 1–2 seconds
 - Increase Soul Fire Ball crit chance by 1–8%
 - Increase Soul Fire Ball crit damage by 5–15%
 - +2–12% Gold drop
@@ -13675,6 +15108,7 @@ Grouped by slot. Weapons show their class and actual roll pool from `empowerCand
 - Increase Holy Deva damage by 5–20%
 - Increase Holy Deva health by 5–20%
 - Reduce Holy Deva damage taken by 5%
+- Reduce Poison Cloud cooldown by 1–2 seconds
 - Increase Soul Fire Ball crit chance by 1–8%
 - Increase Soul Fire Ball crit damage by 5–15%
 - +2–12% Gold drop
@@ -13709,6 +15143,8 @@ Grouped by slot. Weapons show their class and actual roll pool from `empowerCand
 - Reduce mana cost of Flame Field by 5–15%
 - Reduce mana cost of Meteor Strike by 5–15%
 - Reduce mana cost of Blizzard by 5–15%
+- Reduce Meteor Strike cooldown by 1–2 seconds
+- Reduce Blizzard cooldown by 1–2 seconds
 - Increase Flame Disruptor crit chance by 1–8%
 - Increase Flame Disruptor crit damage by 5–15%
 - Increase Fire Wall crit chance by 1–8%
@@ -13829,6 +15265,8 @@ Grouped by slot. Weapons show their class and actual roll pool from `empowerCand
 - Reduce mana cost of Flame Field by 5–15%
 - Reduce mana cost of Meteor Strike by 5–15%
 - Reduce mana cost of Blizzard by 5–15%
+- Reduce Meteor Strike cooldown by 1–2 seconds
+- Reduce Blizzard cooldown by 1–2 seconds
 - Increase Flame Disruptor crit chance by 1–8%
 - Increase Flame Disruptor crit damage by 5–15%
 - Increase Fire Wall crit chance by 1–8%
@@ -13877,6 +15315,7 @@ Grouped by slot. Weapons show their class and actual roll pool from `empowerCand
 - Increase Holy Deva damage by 5–20%
 - Increase Holy Deva health by 5–20%
 - Reduce Holy Deva damage taken by 5%
+- Reduce Poison Cloud cooldown by 1–2 seconds
 - Increase Soul Fire Ball crit chance by 1–8%
 - Increase Soul Fire Ball crit damage by 5–15%
 - +2–12% Gold drop
@@ -13911,6 +15350,8 @@ Grouped by slot. Weapons show their class and actual roll pool from `empowerCand
 - Reduce mana cost of Flame Field by 5–15%
 - Reduce mana cost of Meteor Strike by 5–15%
 - Reduce mana cost of Blizzard by 5–15%
+- Reduce Meteor Strike cooldown by 1–2 seconds
+- Reduce Blizzard cooldown by 1–2 seconds
 - Increase Flame Disruptor crit chance by 1–8%
 - Increase Flame Disruptor crit damage by 5–15%
 - Increase Fire Wall crit chance by 1–8%
@@ -14076,6 +15517,8 @@ Grouped by slot. Weapons show their class and actual roll pool from `empowerCand
 - Reduce mana cost of Flame Field by 5–15%
 - Reduce mana cost of Meteor Strike by 5–15%
 - Reduce mana cost of Blizzard by 5–15%
+- Reduce Meteor Strike cooldown by 1–2 seconds
+- Reduce Blizzard cooldown by 1–2 seconds
 - Increase Healing healing by 5–10%
 - Increase Mass Healing healing by 5–10%
 - Increase Soul Fire Ball damage by 5–10%
@@ -14088,6 +15531,7 @@ Grouped by slot. Weapons show their class and actual roll pool from `empowerCand
 - Increase Holy Deva damage by 5–20%
 - Increase Holy Deva health by 5–20%
 - Reduce Holy Deva damage taken by 5%
+- Reduce Poison Cloud cooldown by 1–2 seconds
 - Increase Slaying crit chance by 1–8%
 - Increase Slaying crit damage by 5–15%
 - Increase Flaming Sword crit chance by 1–8%
@@ -14148,6 +15592,7 @@ Grouped by slot. Weapons show their class and actual roll pool from `empowerCand
 - Increase Holy Deva damage by 5–20%
 - Increase Holy Deva health by 5–20%
 - Reduce Holy Deva damage taken by 5%
+- Reduce Poison Cloud cooldown by 1–2 seconds
 - Increase Soul Fire Ball crit chance by 1–8%
 - Increase Soul Fire Ball crit damage by 5–15%
 - +2–12% Gold drop
@@ -14227,6 +15672,8 @@ Grouped by slot. Weapons show their class and actual roll pool from `empowerCand
 - Reduce mana cost of Flame Field by 5–15%
 - Reduce mana cost of Meteor Strike by 5–15%
 - Reduce mana cost of Blizzard by 5–15%
+- Reduce Meteor Strike cooldown by 1–2 seconds
+- Reduce Blizzard cooldown by 1–2 seconds
 - Increase Healing healing by 5–10%
 - Increase Mass Healing healing by 5–10%
 - Increase Soul Fire Ball damage by 5–10%
@@ -14239,6 +15686,7 @@ Grouped by slot. Weapons show their class and actual roll pool from `empowerCand
 - Increase Holy Deva damage by 5–20%
 - Increase Holy Deva health by 5–20%
 - Reduce Holy Deva damage taken by 5%
+- Reduce Poison Cloud cooldown by 1–2 seconds
 - Increase Slaying crit chance by 1–8%
 - Increase Slaying crit damage by 5–15%
 - Increase Flaming Sword crit chance by 1–8%
@@ -14299,6 +15747,7 @@ Grouped by slot. Weapons show their class and actual roll pool from `empowerCand
 - Increase Holy Deva damage by 5–20%
 - Increase Holy Deva health by 5–20%
 - Reduce Holy Deva damage taken by 5%
+- Reduce Poison Cloud cooldown by 1–2 seconds
 - Increase Soul Fire Ball crit chance by 1–8%
 - Increase Soul Fire Ball crit damage by 5–15%
 - +2–12% Gold drop
@@ -14333,6 +15782,8 @@ Grouped by slot. Weapons show their class and actual roll pool from `empowerCand
 - Reduce mana cost of Flame Field by 5–15%
 - Reduce mana cost of Meteor Strike by 5–15%
 - Reduce mana cost of Blizzard by 5–15%
+- Reduce Meteor Strike cooldown by 1–2 seconds
+- Reduce Blizzard cooldown by 1–2 seconds
 - Increase Flame Disruptor crit chance by 1–8%
 - Increase Flame Disruptor crit damage by 5–15%
 - Increase Fire Wall crit chance by 1–8%
@@ -14385,6 +15836,8 @@ Grouped by slot. Weapons show their class and actual roll pool from `empowerCand
 - Reduce mana cost of Flame Field by 5–15%
 - Reduce mana cost of Meteor Strike by 5–15%
 - Reduce mana cost of Blizzard by 5–15%
+- Reduce Meteor Strike cooldown by 1–2 seconds
+- Reduce Blizzard cooldown by 1–2 seconds
 - Increase Flame Disruptor crit chance by 1–8%
 - Increase Flame Disruptor crit damage by 5–15%
 - Increase Fire Wall crit chance by 1–8%
@@ -14433,6 +15886,7 @@ Grouped by slot. Weapons show their class and actual roll pool from `empowerCand
 - Increase Holy Deva damage by 5–20%
 - Increase Holy Deva health by 5–20%
 - Reduce Holy Deva damage taken by 5%
+- Reduce Poison Cloud cooldown by 1–2 seconds
 - Increase Soul Fire Ball crit chance by 1–8%
 - Increase Soul Fire Ball crit damage by 5–15%
 - +2–12% Gold drop
@@ -14463,6 +15917,7 @@ Grouped by slot. Weapons show their class and actual roll pool from `empowerCand
 - Increase Holy Deva damage by 5–20%
 - Increase Holy Deva health by 5–20%
 - Reduce Holy Deva damage taken by 5%
+- Reduce Poison Cloud cooldown by 1–2 seconds
 - Increase Soul Fire Ball crit chance by 1–8%
 - Increase Soul Fire Ball crit damage by 5–15%
 - +2–12% Gold drop
@@ -14508,6 +15963,8 @@ Grouped by slot. Weapons show their class and actual roll pool from `empowerCand
 - Reduce mana cost of Flame Field by 5–15%
 - Reduce mana cost of Meteor Strike by 5–15%
 - Reduce mana cost of Blizzard by 5–15%
+- Reduce Meteor Strike cooldown by 1–2 seconds
+- Reduce Blizzard cooldown by 1–2 seconds
 - Increase Healing healing by 5–10%
 - Increase Mass Healing healing by 5–10%
 - Increase Soul Fire Ball damage by 5–10%
@@ -14520,6 +15977,7 @@ Grouped by slot. Weapons show their class and actual roll pool from `empowerCand
 - Increase Holy Deva damage by 5–20%
 - Increase Holy Deva health by 5–20%
 - Reduce Holy Deva damage taken by 5%
+- Reduce Poison Cloud cooldown by 1–2 seconds
 - Increase Slaying crit chance by 1–8%
 - Increase Slaying crit damage by 5–15%
 - Increase Flaming Sword crit chance by 1–8%
@@ -14629,6 +16087,8 @@ Grouped by slot. Weapons show their class and actual roll pool from `empowerCand
 - Reduce mana cost of Flame Field by 5–15%
 - Reduce mana cost of Meteor Strike by 5–15%
 - Reduce mana cost of Blizzard by 5–15%
+- Reduce Meteor Strike cooldown by 1–2 seconds
+- Reduce Blizzard cooldown by 1–2 seconds
 - Increase Healing healing by 5–10%
 - Increase Mass Healing healing by 5–10%
 - Increase Soul Fire Ball damage by 5–10%
@@ -14641,6 +16101,7 @@ Grouped by slot. Weapons show their class and actual roll pool from `empowerCand
 - Increase Holy Deva damage by 5–20%
 - Increase Holy Deva health by 5–20%
 - Reduce Holy Deva damage taken by 5%
+- Reduce Poison Cloud cooldown by 1–2 seconds
 - Increase Slaying crit chance by 1–8%
 - Increase Slaying crit damage by 5–15%
 - Increase Flaming Sword crit chance by 1–8%
@@ -14739,6 +16200,8 @@ Grouped by slot. Weapons show their class and actual roll pool from `empowerCand
 - Reduce mana cost of Flame Field by 5–15%
 - Reduce mana cost of Meteor Strike by 5–15%
 - Reduce mana cost of Blizzard by 5–15%
+- Reduce Meteor Strike cooldown by 1–2 seconds
+- Reduce Blizzard cooldown by 1–2 seconds
 - Increase Flame Disruptor crit chance by 1–8%
 - Increase Flame Disruptor crit damage by 5–15%
 - Increase Fire Wall crit chance by 1–8%
@@ -14787,6 +16250,7 @@ Grouped by slot. Weapons show their class and actual roll pool from `empowerCand
 - Increase Holy Deva damage by 5–20%
 - Increase Holy Deva health by 5–20%
 - Reduce Holy Deva damage taken by 5%
+- Reduce Poison Cloud cooldown by 1–2 seconds
 - Increase Soul Fire Ball crit chance by 1–8%
 - Increase Soul Fire Ball crit damage by 5–15%
 - +2–12% Gold drop
@@ -14889,6 +16353,8 @@ Grouped by slot. Weapons show their class and actual roll pool from `empowerCand
 - Reduce mana cost of Flame Field by 5–15%
 - Reduce mana cost of Meteor Strike by 5–15%
 - Reduce mana cost of Blizzard by 5–15%
+- Reduce Meteor Strike cooldown by 1–2 seconds
+- Reduce Blizzard cooldown by 1–2 seconds
 - Increase Flame Disruptor crit chance by 1–8%
 - Increase Flame Disruptor crit damage by 5–15%
 - Increase Fire Wall crit chance by 1–8%
@@ -14941,6 +16407,8 @@ Grouped by slot. Weapons show their class and actual roll pool from `empowerCand
 - Reduce mana cost of Flame Field by 5–15%
 - Reduce mana cost of Meteor Strike by 5–15%
 - Reduce mana cost of Blizzard by 5–15%
+- Reduce Meteor Strike cooldown by 1–2 seconds
+- Reduce Blizzard cooldown by 1–2 seconds
 - Increase Flame Disruptor crit chance by 1–8%
 - Increase Flame Disruptor crit damage by 5–15%
 - Increase Fire Wall crit chance by 1–8%
@@ -15023,8 +16491,247 @@ Grouped by slot. Weapons show their class and actual roll pool from `empowerCand
 - Increase Holy Deva damage by 5–20%
 - Increase Holy Deva health by 5–20%
 - Reduce Holy Deva damage taken by 5%
+- Reduce Poison Cloud cooldown by 1–2 seconds
 - Increase Soul Fire Ball crit chance by 1–8%
 - Increase Soul Fire Ball crit damage by 5–15%
+- +2–12% Gold drop
+- +2–12% Bonus XP
+- +2–6% Awakening Soul drop chance
+- −1–4% Damage taken
+- +1–6% Crit Rate
+- +5–15% Crit Damage
+- +2–12% Skill leveling
+
+**Blue Fox Ring** (`blue-fox-ring`)
+- +1–6 DC
+- +1–4 SC
+- +1–2 A Speed
+- +1–2 Freezing
+- +1–2 Poison
+- +1–3 AC
+- +1–3 AMC
+- Increase Healing healing by 5–10%
+- Increase Mass Healing healing by 5–10%
+- Increase Soul Fire Ball damage by 5–10%
+- Increase Skeleton damage by 5–20%
+- Increase Skeleton health by 5–20%
+- Reduce Skeleton damage taken by 5%
+- Increase Shinsu damage by 5–20%
+- Increase Shinsu health by 5–20%
+- Reduce Shinsu damage taken by 5%
+- Increase Holy Deva damage by 5–20%
+- Increase Holy Deva health by 5–20%
+- Reduce Holy Deva damage taken by 5%
+- Reduce Poison Cloud cooldown by 1–2 seconds
+- Increase Soul Fire Ball crit chance by 1–8%
+- Increase Soul Fire Ball crit damage by 5–15%
+- +2–12% Gold drop
+- +2–12% Bonus XP
+- +2–6% Awakening Soul drop chance
+- −1–4% Damage taken
+- +1–6% Crit Rate
+- +5–15% Crit Damage
+- +2–12% Skill leveling
+
+**Purple Fox Ring** (`purple-fox-ring`)
+- +1–6 DC
+- +1–2 A Speed
+- +1–2 Freezing
+- +1–2 Poison
+- +1–3 AC
+- +1–3 AMC
+- Increase Slaying damage by 5–10%
+- Increase Flaming Sword damage by 5–10%
+- Reduce Flaming Sword cooldown by 1–2 seconds
+- Increase Twin Drake Blade damage by 5–10%
+- Reduce mana cost of Twin Drake Blade by 5–15%
+- Increase Blade Avalanche damage by 5–10%
+- Reduce mana cost of Blade Avalanche by 5–15%
+- Increase Slashing Burst damage by 5–10%
+- Reduce mana cost of Slashing Burst by 5–15%
+- Increase Slaying crit chance by 1–8%
+- Increase Slaying crit damage by 5–15%
+- Increase Flaming Sword crit chance by 1–8%
+- Increase Flaming Sword crit damage by 5–15%
+- Increase Twin Drake Blade crit chance by 1–8%
+- Increase Twin Drake Blade crit damage by 5–15%
+- Increase Blade Avalanche crit chance by 1–8%
+- Increase Blade Avalanche crit damage by 5–15%
+- Increase Slashing Burst crit chance by 1–8%
+- Increase Slashing Burst crit damage by 5–15%
+- +2–12% Gold drop
+- +2–12% Bonus XP
+- +2–6% Awakening Soul drop chance
+- −1–4% Damage taken
+- +1–6% Crit Rate
+- +5–15% Crit Damage
+- +2–12% Skill leveling
+
+**Red Fox Ring** (`red-fox-ring`)
+- +1–4 MC
+- +1–2 A Speed
+- +1–2 Freezing
+- +1–2 Poison
+- +1–3 AC
+- +1–3 AMC
+- Increase Flame Disruptor damage by 5–10%
+- Increase Fire Wall damage by 5–10%
+- Increase Thunder Bolt damage by 5–10%
+- Increase Ice Storm damage by 5–10%
+- Increase Flame Field damage by 5–10%
+- Increase Meteor Strike damage by 5–10%
+- Increase Blizzard damage by 5–10%
+- Increase Fire Ball damage by 5–10%
+- Increase Great Fire Ball damage by 5–10%
+- Increase Frost Crunch damage by 5–10%
+- Reduce mana cost of Flame Disruptor by 5–15%
+- Reduce mana cost of Fire Wall by 5–15%
+- Reduce mana cost of Thunder Bolt by 5–15%
+- Reduce mana cost of Ice Storm by 5–15%
+- Reduce mana cost of Flame Field by 5–15%
+- Reduce mana cost of Meteor Strike by 5–15%
+- Reduce mana cost of Blizzard by 5–15%
+- Reduce Meteor Strike cooldown by 1–2 seconds
+- Reduce Blizzard cooldown by 1–2 seconds
+- Increase Flame Disruptor crit chance by 1–8%
+- Increase Flame Disruptor crit damage by 5–15%
+- Increase Fire Wall crit chance by 1–8%
+- Increase Fire Wall crit damage by 5–15%
+- Increase Thunder Bolt crit chance by 1–8%
+- Increase Thunder Bolt crit damage by 5–15%
+- Increase Ice Storm crit chance by 1–8%
+- Increase Ice Storm crit damage by 5–15%
+- Increase Flame Field crit chance by 1–8%
+- Increase Flame Field crit damage by 5–15%
+- Increase Meteor Strike crit chance by 1–8%
+- Increase Meteor Strike crit damage by 5–15%
+- Increase Blizzard crit chance by 1–8%
+- Increase Blizzard crit damage by 5–15%
+- Increase Fire Ball crit chance by 1–8%
+- Increase Fire Ball crit damage by 5–15%
+- Increase Great Fire Ball crit chance by 1–8%
+- Increase Great Fire Ball crit damage by 5–15%
+- Increase Frost Crunch crit chance by 1–8%
+- Increase Frost Crunch crit damage by 5–15%
+- +2–12% Gold drop
+- +2–12% Bonus XP
+- +2–6% Awakening Soul drop chance
+- −1–4% Damage taken
+- +1–6% Crit Rate
+- +5–15% Crit Damage
+- +2–12% Skill leveling
+
+**Great Blue Fox Ring** (`great-blue-fox-ring`)
+- +1–6 DC
+- +1–4 SC
+- +1–2 A Speed
+- +1–2 Freezing
+- +1–2 Poison
+- +1–3 AC
+- +1–3 AMC
+- Increase Healing healing by 5–10%
+- Increase Mass Healing healing by 5–10%
+- Increase Soul Fire Ball damage by 5–10%
+- Increase Skeleton damage by 5–20%
+- Increase Skeleton health by 5–20%
+- Reduce Skeleton damage taken by 5%
+- Increase Shinsu damage by 5–20%
+- Increase Shinsu health by 5–20%
+- Reduce Shinsu damage taken by 5%
+- Increase Holy Deva damage by 5–20%
+- Increase Holy Deva health by 5–20%
+- Reduce Holy Deva damage taken by 5%
+- Reduce Poison Cloud cooldown by 1–2 seconds
+- Increase Soul Fire Ball crit chance by 1–8%
+- Increase Soul Fire Ball crit damage by 5–15%
+- +2–12% Gold drop
+- +2–12% Bonus XP
+- +2–6% Awakening Soul drop chance
+- −1–4% Damage taken
+- +1–6% Crit Rate
+- +5–15% Crit Damage
+- +2–12% Skill leveling
+
+**Great Purple Fox Ring** (`great-purple-fox-ring`)
+- +1–6 DC
+- +1–2 A Speed
+- +1–2 Freezing
+- +1–2 Poison
+- +1–3 AC
+- +1–3 AMC
+- Increase Slaying damage by 5–10%
+- Increase Flaming Sword damage by 5–10%
+- Reduce Flaming Sword cooldown by 1–2 seconds
+- Increase Twin Drake Blade damage by 5–10%
+- Reduce mana cost of Twin Drake Blade by 5–15%
+- Increase Blade Avalanche damage by 5–10%
+- Reduce mana cost of Blade Avalanche by 5–15%
+- Increase Slashing Burst damage by 5–10%
+- Reduce mana cost of Slashing Burst by 5–15%
+- Increase Slaying crit chance by 1–8%
+- Increase Slaying crit damage by 5–15%
+- Increase Flaming Sword crit chance by 1–8%
+- Increase Flaming Sword crit damage by 5–15%
+- Increase Twin Drake Blade crit chance by 1–8%
+- Increase Twin Drake Blade crit damage by 5–15%
+- Increase Blade Avalanche crit chance by 1–8%
+- Increase Blade Avalanche crit damage by 5–15%
+- Increase Slashing Burst crit chance by 1–8%
+- Increase Slashing Burst crit damage by 5–15%
+- +2–12% Gold drop
+- +2–12% Bonus XP
+- +2–6% Awakening Soul drop chance
+- −1–4% Damage taken
+- +1–6% Crit Rate
+- +5–15% Crit Damage
+- +2–12% Skill leveling
+
+**Great Red Fox Ring** (`great-red-fox-ring`)
+- +1–4 MC
+- +1–2 A Speed
+- +1–2 Freezing
+- +1–2 Poison
+- +1–3 AC
+- +1–3 AMC
+- Increase Flame Disruptor damage by 5–10%
+- Increase Fire Wall damage by 5–10%
+- Increase Thunder Bolt damage by 5–10%
+- Increase Ice Storm damage by 5–10%
+- Increase Flame Field damage by 5–10%
+- Increase Meteor Strike damage by 5–10%
+- Increase Blizzard damage by 5–10%
+- Increase Fire Ball damage by 5–10%
+- Increase Great Fire Ball damage by 5–10%
+- Increase Frost Crunch damage by 5–10%
+- Reduce mana cost of Flame Disruptor by 5–15%
+- Reduce mana cost of Fire Wall by 5–15%
+- Reduce mana cost of Thunder Bolt by 5–15%
+- Reduce mana cost of Ice Storm by 5–15%
+- Reduce mana cost of Flame Field by 5–15%
+- Reduce mana cost of Meteor Strike by 5–15%
+- Reduce mana cost of Blizzard by 5–15%
+- Reduce Meteor Strike cooldown by 1–2 seconds
+- Reduce Blizzard cooldown by 1–2 seconds
+- Increase Flame Disruptor crit chance by 1–8%
+- Increase Flame Disruptor crit damage by 5–15%
+- Increase Fire Wall crit chance by 1–8%
+- Increase Fire Wall crit damage by 5–15%
+- Increase Thunder Bolt crit chance by 1–8%
+- Increase Thunder Bolt crit damage by 5–15%
+- Increase Ice Storm crit chance by 1–8%
+- Increase Ice Storm crit damage by 5–15%
+- Increase Flame Field crit chance by 1–8%
+- Increase Flame Field crit damage by 5–15%
+- Increase Meteor Strike crit chance by 1–8%
+- Increase Meteor Strike crit damage by 5–15%
+- Increase Blizzard crit chance by 1–8%
+- Increase Blizzard crit damage by 5–15%
+- Increase Fire Ball crit chance by 1–8%
+- Increase Fire Ball crit damage by 5–15%
+- Increase Great Fire Ball crit chance by 1–8%
+- Increase Great Fire Ball crit damage by 5–15%
+- Increase Frost Crunch crit chance by 1–8%
+- Increase Frost Crunch crit damage by 5–15%
 - +2–12% Gold drop
 - +2–12% Bonus XP
 - +2–6% Awakening Soul drop chance
@@ -15057,6 +16764,8 @@ Grouped by slot. Weapons show their class and actual roll pool from `empowerCand
 - Reduce mana cost of Flame Field by 5–15%
 - Reduce mana cost of Meteor Strike by 5–15%
 - Reduce mana cost of Blizzard by 5–15%
+- Reduce Meteor Strike cooldown by 1–2 seconds
+- Reduce Blizzard cooldown by 1–2 seconds
 - Increase Flame Disruptor crit chance by 1–8%
 - Increase Flame Disruptor crit damage by 5–15%
 - Increase Fire Wall crit chance by 1–8%
@@ -15105,6 +16814,7 @@ Grouped by slot. Weapons show their class and actual roll pool from `empowerCand
 - Increase Holy Deva damage by 5–20%
 - Increase Holy Deva health by 5–20%
 - Reduce Holy Deva damage taken by 5%
+- Reduce Poison Cloud cooldown by 1–2 seconds
 - Increase Soul Fire Ball crit chance by 1–8%
 - Increase Soul Fire Ball crit damage by 5–15%
 - +2–12% Gold drop
@@ -15141,6 +16851,244 @@ Grouped by slot. Weapons show their class and actual roll pool from `empowerCand
 - Increase Blade Avalanche crit damage by 5–15%
 - Increase Slashing Burst crit chance by 1–8%
 - Increase Slashing Burst crit damage by 5–15%
+- +2–12% Gold drop
+- +2–12% Bonus XP
+- +2–6% Awakening Soul drop chance
+- −1–4% Damage taken
+- +1–6% Crit Rate
+- +5–15% Crit Damage
+- +2–12% Skill leveling
+
+**Beast Ring** (`beast-ring2`)
+- +1–6 DC
+- +1–2 A Speed
+- +1–2 Freezing
+- +1–2 Poison
+- +1–3 AC
+- +1–3 AMC
+- Increase Slaying damage by 5–10%
+- Increase Flaming Sword damage by 5–10%
+- Reduce Flaming Sword cooldown by 1–2 seconds
+- Increase Twin Drake Blade damage by 5–10%
+- Reduce mana cost of Twin Drake Blade by 5–15%
+- Increase Blade Avalanche damage by 5–10%
+- Reduce mana cost of Blade Avalanche by 5–15%
+- Increase Slashing Burst damage by 5–10%
+- Reduce mana cost of Slashing Burst by 5–15%
+- Increase Slaying crit chance by 1–8%
+- Increase Slaying crit damage by 5–15%
+- Increase Flaming Sword crit chance by 1–8%
+- Increase Flaming Sword crit damage by 5–15%
+- Increase Twin Drake Blade crit chance by 1–8%
+- Increase Twin Drake Blade crit damage by 5–15%
+- Increase Blade Avalanche crit chance by 1–8%
+- Increase Blade Avalanche crit damage by 5–15%
+- Increase Slashing Burst crit chance by 1–8%
+- Increase Slashing Burst crit damage by 5–15%
+- +2–12% Gold drop
+- +2–12% Bonus XP
+- +2–6% Awakening Soul drop chance
+- −1–4% Damage taken
+- +1–6% Crit Rate
+- +5–15% Crit Damage
+- +2–12% Skill leveling
+
+**Beast Ring** (`beast-ring3`)
+- +1–4 MC
+- +1–2 A Speed
+- +1–2 Freezing
+- +1–2 Poison
+- +1–3 AC
+- +1–3 AMC
+- Increase Flame Disruptor damage by 5–10%
+- Increase Fire Wall damage by 5–10%
+- Increase Thunder Bolt damage by 5–10%
+- Increase Ice Storm damage by 5–10%
+- Increase Flame Field damage by 5–10%
+- Increase Meteor Strike damage by 5–10%
+- Increase Blizzard damage by 5–10%
+- Increase Fire Ball damage by 5–10%
+- Increase Great Fire Ball damage by 5–10%
+- Increase Frost Crunch damage by 5–10%
+- Reduce mana cost of Flame Disruptor by 5–15%
+- Reduce mana cost of Fire Wall by 5–15%
+- Reduce mana cost of Thunder Bolt by 5–15%
+- Reduce mana cost of Ice Storm by 5–15%
+- Reduce mana cost of Flame Field by 5–15%
+- Reduce mana cost of Meteor Strike by 5–15%
+- Reduce mana cost of Blizzard by 5–15%
+- Reduce Meteor Strike cooldown by 1–2 seconds
+- Reduce Blizzard cooldown by 1–2 seconds
+- Increase Flame Disruptor crit chance by 1–8%
+- Increase Flame Disruptor crit damage by 5–15%
+- Increase Fire Wall crit chance by 1–8%
+- Increase Fire Wall crit damage by 5–15%
+- Increase Thunder Bolt crit chance by 1–8%
+- Increase Thunder Bolt crit damage by 5–15%
+- Increase Ice Storm crit chance by 1–8%
+- Increase Ice Storm crit damage by 5–15%
+- Increase Flame Field crit chance by 1–8%
+- Increase Flame Field crit damage by 5–15%
+- Increase Meteor Strike crit chance by 1–8%
+- Increase Meteor Strike crit damage by 5–15%
+- Increase Blizzard crit chance by 1–8%
+- Increase Blizzard crit damage by 5–15%
+- Increase Fire Ball crit chance by 1–8%
+- Increase Fire Ball crit damage by 5–15%
+- Increase Great Fire Ball crit chance by 1–8%
+- Increase Great Fire Ball crit damage by 5–15%
+- Increase Frost Crunch crit chance by 1–8%
+- Increase Frost Crunch crit damage by 5–15%
+- +2–12% Gold drop
+- +2–12% Bonus XP
+- +2–6% Awakening Soul drop chance
+- −1–4% Damage taken
+- +1–6% Crit Rate
+- +5–15% Crit Damage
+- +2–12% Skill leveling
+
+**Beast Ring** (`beast-ring4`)
+- +1–6 DC
+- +1–4 SC
+- +1–2 A Speed
+- +1–2 Freezing
+- +1–2 Poison
+- +1–3 AC
+- +1–3 AMC
+- Increase Healing healing by 5–10%
+- Increase Mass Healing healing by 5–10%
+- Increase Soul Fire Ball damage by 5–10%
+- Increase Skeleton damage by 5–20%
+- Increase Skeleton health by 5–20%
+- Reduce Skeleton damage taken by 5%
+- Increase Shinsu damage by 5–20%
+- Increase Shinsu health by 5–20%
+- Reduce Shinsu damage taken by 5%
+- Increase Holy Deva damage by 5–20%
+- Increase Holy Deva health by 5–20%
+- Reduce Holy Deva damage taken by 5%
+- Reduce Poison Cloud cooldown by 1–2 seconds
+- Increase Soul Fire Ball crit chance by 1–8%
+- Increase Soul Fire Ball crit damage by 5–15%
+- +2–12% Gold drop
+- +2–12% Bonus XP
+- +2–6% Awakening Soul drop chance
+- −1–4% Damage taken
+- +1–6% Crit Rate
+- +5–15% Crit Damage
+- +2–12% Skill leveling
+
+**Ring of Agony** (`ring-of-agony-taoist`)
+- +1–6 DC
+- +1–4 SC
+- +1–2 A Speed
+- +1–2 Freezing
+- +1–2 Poison
+- +1–3 AC
+- +1–3 AMC
+- Increase Healing healing by 5–10%
+- Increase Mass Healing healing by 5–10%
+- Increase Soul Fire Ball damage by 5–10%
+- Increase Skeleton damage by 5–20%
+- Increase Skeleton health by 5–20%
+- Reduce Skeleton damage taken by 5%
+- Increase Shinsu damage by 5–20%
+- Increase Shinsu health by 5–20%
+- Reduce Shinsu damage taken by 5%
+- Increase Holy Deva damage by 5–20%
+- Increase Holy Deva health by 5–20%
+- Reduce Holy Deva damage taken by 5%
+- Reduce Poison Cloud cooldown by 1–2 seconds
+- Increase Soul Fire Ball crit chance by 1–8%
+- Increase Soul Fire Ball crit damage by 5–15%
+- +2–12% Gold drop
+- +2–12% Bonus XP
+- +2–6% Awakening Soul drop chance
+- −1–4% Damage taken
+- +1–6% Crit Rate
+- +5–15% Crit Damage
+- +2–12% Skill leveling
+
+**Ring of Agony** (`ring-of-agony-warrior`)
+- +1–6 DC
+- +1–2 A Speed
+- +1–2 Freezing
+- +1–2 Poison
+- +1–3 AC
+- +1–3 AMC
+- Increase Slaying damage by 5–10%
+- Increase Flaming Sword damage by 5–10%
+- Reduce Flaming Sword cooldown by 1–2 seconds
+- Increase Twin Drake Blade damage by 5–10%
+- Reduce mana cost of Twin Drake Blade by 5–15%
+- Increase Blade Avalanche damage by 5–10%
+- Reduce mana cost of Blade Avalanche by 5–15%
+- Increase Slashing Burst damage by 5–10%
+- Reduce mana cost of Slashing Burst by 5–15%
+- Increase Slaying crit chance by 1–8%
+- Increase Slaying crit damage by 5–15%
+- Increase Flaming Sword crit chance by 1–8%
+- Increase Flaming Sword crit damage by 5–15%
+- Increase Twin Drake Blade crit chance by 1–8%
+- Increase Twin Drake Blade crit damage by 5–15%
+- Increase Blade Avalanche crit chance by 1–8%
+- Increase Blade Avalanche crit damage by 5–15%
+- Increase Slashing Burst crit chance by 1–8%
+- Increase Slashing Burst crit damage by 5–15%
+- +2–12% Gold drop
+- +2–12% Bonus XP
+- +2–6% Awakening Soul drop chance
+- −1–4% Damage taken
+- +1–6% Crit Rate
+- +5–15% Crit Damage
+- +2–12% Skill leveling
+
+**Ring of Agony** (`ring-of-agony-wizard`)
+- +1–4 MC
+- +1–2 A Speed
+- +1–2 Freezing
+- +1–2 Poison
+- +1–3 AC
+- +1–3 AMC
+- Increase Flame Disruptor damage by 5–10%
+- Increase Fire Wall damage by 5–10%
+- Increase Thunder Bolt damage by 5–10%
+- Increase Ice Storm damage by 5–10%
+- Increase Flame Field damage by 5–10%
+- Increase Meteor Strike damage by 5–10%
+- Increase Blizzard damage by 5–10%
+- Increase Fire Ball damage by 5–10%
+- Increase Great Fire Ball damage by 5–10%
+- Increase Frost Crunch damage by 5–10%
+- Reduce mana cost of Flame Disruptor by 5–15%
+- Reduce mana cost of Fire Wall by 5–15%
+- Reduce mana cost of Thunder Bolt by 5–15%
+- Reduce mana cost of Ice Storm by 5–15%
+- Reduce mana cost of Flame Field by 5–15%
+- Reduce mana cost of Meteor Strike by 5–15%
+- Reduce mana cost of Blizzard by 5–15%
+- Reduce Meteor Strike cooldown by 1–2 seconds
+- Reduce Blizzard cooldown by 1–2 seconds
+- Increase Flame Disruptor crit chance by 1–8%
+- Increase Flame Disruptor crit damage by 5–15%
+- Increase Fire Wall crit chance by 1–8%
+- Increase Fire Wall crit damage by 5–15%
+- Increase Thunder Bolt crit chance by 1–8%
+- Increase Thunder Bolt crit damage by 5–15%
+- Increase Ice Storm crit chance by 1–8%
+- Increase Ice Storm crit damage by 5–15%
+- Increase Flame Field crit chance by 1–8%
+- Increase Flame Field crit damage by 5–15%
+- Increase Meteor Strike crit chance by 1–8%
+- Increase Meteor Strike crit damage by 5–15%
+- Increase Blizzard crit chance by 1–8%
+- Increase Blizzard crit damage by 5–15%
+- Increase Fire Ball crit chance by 1–8%
+- Increase Fire Ball crit damage by 5–15%
+- Increase Great Fire Ball crit chance by 1–8%
+- Increase Great Fire Ball crit damage by 5–15%
+- Increase Frost Crunch crit chance by 1–8%
+- Increase Frost Crunch crit damage by 5–15%
 - +2–12% Gold drop
 - +2–12% Bonus XP
 - +2–6% Awakening Soul drop chance
@@ -15215,6 +17163,8 @@ Grouped by slot. Weapons show their class and actual roll pool from `empowerCand
 - Reduce mana cost of Flame Field by 5–15%
 - Reduce mana cost of Meteor Strike by 5–15%
 - Reduce mana cost of Blizzard by 5–15%
+- Reduce Meteor Strike cooldown by 1–2 seconds
+- Reduce Blizzard cooldown by 1–2 seconds
 - Increase Healing healing by 5–10%
 - Increase Mass Healing healing by 5–10%
 - Increase Soul Fire Ball damage by 5–10%
@@ -15227,6 +17177,7 @@ Grouped by slot. Weapons show their class and actual roll pool from `empowerCand
 - Increase Holy Deva damage by 5–20%
 - Increase Holy Deva health by 5–20%
 - Reduce Holy Deva damage taken by 5%
+- Reduce Poison Cloud cooldown by 1–2 seconds
 - Increase Slaying crit chance by 1–8%
 - Increase Slaying crit damage by 5–15%
 - Increase Flaming Sword crit chance by 1–8%
@@ -15300,6 +17251,8 @@ Grouped by slot. Weapons show their class and actual roll pool from `empowerCand
 - Reduce mana cost of Flame Field by 5–15%
 - Reduce mana cost of Meteor Strike by 5–15%
 - Reduce mana cost of Blizzard by 5–15%
+- Reduce Meteor Strike cooldown by 1–2 seconds
+- Reduce Blizzard cooldown by 1–2 seconds
 - Increase Healing healing by 5–10%
 - Increase Mass Healing healing by 5–10%
 - Increase Soul Fire Ball damage by 5–10%
@@ -15312,6 +17265,7 @@ Grouped by slot. Weapons show their class and actual roll pool from `empowerCand
 - Increase Holy Deva damage by 5–20%
 - Increase Holy Deva health by 5–20%
 - Reduce Holy Deva damage taken by 5%
+- Reduce Poison Cloud cooldown by 1–2 seconds
 - Increase Slaying crit chance by 1–8%
 - Increase Slaying crit damage by 5–15%
 - Increase Flaming Sword crit chance by 1–8%
@@ -15374,6 +17328,8 @@ Grouped by slot. Weapons show their class and actual roll pool from `empowerCand
 - Reduce mana cost of Flame Field by 5–15%
 - Reduce mana cost of Meteor Strike by 5–15%
 - Reduce mana cost of Blizzard by 5–15%
+- Reduce Meteor Strike cooldown by 1–2 seconds
+- Reduce Blizzard cooldown by 1–2 seconds
 - Increase Flame Disruptor crit chance by 1–8%
 - Increase Flame Disruptor crit damage by 5–15%
 - Increase Fire Wall crit chance by 1–8%
@@ -15435,6 +17391,8 @@ Grouped by slot. Weapons show their class and actual roll pool from `empowerCand
 - Reduce mana cost of Flame Field by 5–15%
 - Reduce mana cost of Meteor Strike by 5–15%
 - Reduce mana cost of Blizzard by 5–15%
+- Reduce Meteor Strike cooldown by 1–2 seconds
+- Reduce Blizzard cooldown by 1–2 seconds
 - Increase Healing healing by 5–10%
 - Increase Mass Healing healing by 5–10%
 - Increase Soul Fire Ball damage by 5–10%
@@ -15447,6 +17405,7 @@ Grouped by slot. Weapons show their class and actual roll pool from `empowerCand
 - Increase Holy Deva damage by 5–20%
 - Increase Holy Deva health by 5–20%
 - Reduce Holy Deva damage taken by 5%
+- Reduce Poison Cloud cooldown by 1–2 seconds
 - Increase Slaying crit chance by 1–8%
 - Increase Slaying crit damage by 5–15%
 - Increase Flaming Sword crit chance by 1–8%
@@ -15505,6 +17464,7 @@ Grouped by slot. Weapons show their class and actual roll pool from `empowerCand
 - Increase Holy Deva damage by 5–20%
 - Increase Holy Deva health by 5–20%
 - Reduce Holy Deva damage taken by 5%
+- Reduce Poison Cloud cooldown by 1–2 seconds
 - Increase Soul Fire Ball crit chance by 1–8%
 - Increase Soul Fire Ball crit damage by 5–15%
 - +5–30% Gold drop
@@ -15548,6 +17508,8 @@ Grouped by slot. Weapons show their class and actual roll pool from `empowerCand
 - Reduce mana cost of Flame Field by 5–15%
 - Reduce mana cost of Meteor Strike by 5–15%
 - Reduce mana cost of Blizzard by 5–15%
+- Reduce Meteor Strike cooldown by 1–2 seconds
+- Reduce Blizzard cooldown by 1–2 seconds
 - Increase Healing healing by 5–10%
 - Increase Mass Healing healing by 5–10%
 - Increase Soul Fire Ball damage by 5–10%
@@ -15560,6 +17522,7 @@ Grouped by slot. Weapons show their class and actual roll pool from `empowerCand
 - Increase Holy Deva damage by 5–20%
 - Increase Holy Deva health by 5–20%
 - Reduce Holy Deva damage taken by 5%
+- Reduce Poison Cloud cooldown by 1–2 seconds
 - Increase Slaying crit chance by 1–8%
 - Increase Slaying crit damage by 5–15%
 - Increase Flaming Sword crit chance by 1–8%
@@ -15633,6 +17596,8 @@ Grouped by slot. Weapons show their class and actual roll pool from `empowerCand
 - Reduce mana cost of Flame Field by 5–15%
 - Reduce mana cost of Meteor Strike by 5–15%
 - Reduce mana cost of Blizzard by 5–15%
+- Reduce Meteor Strike cooldown by 1–2 seconds
+- Reduce Blizzard cooldown by 1–2 seconds
 - Increase Healing healing by 5–10%
 - Increase Mass Healing healing by 5–10%
 - Increase Soul Fire Ball damage by 5–10%
@@ -15645,6 +17610,7 @@ Grouped by slot. Weapons show their class and actual roll pool from `empowerCand
 - Increase Holy Deva damage by 5–20%
 - Increase Holy Deva health by 5–20%
 - Reduce Holy Deva damage taken by 5%
+- Reduce Poison Cloud cooldown by 1–2 seconds
 - Increase Slaying crit chance by 1–8%
 - Increase Slaying crit damage by 5–15%
 - Increase Flaming Sword crit chance by 1–8%
@@ -15718,6 +17684,8 @@ Grouped by slot. Weapons show their class and actual roll pool from `empowerCand
 - Reduce mana cost of Flame Field by 5–15%
 - Reduce mana cost of Meteor Strike by 5–15%
 - Reduce mana cost of Blizzard by 5–15%
+- Reduce Meteor Strike cooldown by 1–2 seconds
+- Reduce Blizzard cooldown by 1–2 seconds
 - Increase Healing healing by 5–10%
 - Increase Mass Healing healing by 5–10%
 - Increase Soul Fire Ball damage by 5–10%
@@ -15730,6 +17698,7 @@ Grouped by slot. Weapons show their class and actual roll pool from `empowerCand
 - Increase Holy Deva damage by 5–20%
 - Increase Holy Deva health by 5–20%
 - Reduce Holy Deva damage taken by 5%
+- Reduce Poison Cloud cooldown by 1–2 seconds
 - Increase Slaying crit chance by 1–8%
 - Increase Slaying crit damage by 5–15%
 - Increase Flaming Sword crit chance by 1–8%
@@ -15824,6 +17793,8 @@ Grouped by slot. Weapons show their class and actual roll pool from `empowerCand
 - Reduce mana cost of Flame Field by 5–15%
 - Reduce mana cost of Meteor Strike by 5–15%
 - Reduce mana cost of Blizzard by 5–15%
+- Reduce Meteor Strike cooldown by 1–2 seconds
+- Reduce Blizzard cooldown by 1–2 seconds
 - Increase Flame Disruptor crit chance by 1–8%
 - Increase Flame Disruptor crit damage by 5–15%
 - Increase Fire Wall crit chance by 1–8%
@@ -15870,6 +17841,7 @@ Grouped by slot. Weapons show their class and actual roll pool from `empowerCand
 - Increase Holy Deva damage by 5–20%
 - Increase Holy Deva health by 5–20%
 - Reduce Holy Deva damage taken by 5%
+- Reduce Poison Cloud cooldown by 1–2 seconds
 - Increase Soul Fire Ball crit chance by 1–8%
 - Increase Soul Fire Ball crit damage by 5–15%
 - +5–30% Gold drop
@@ -15913,6 +17885,8 @@ Grouped by slot. Weapons show their class and actual roll pool from `empowerCand
 - Reduce mana cost of Flame Field by 5–15%
 - Reduce mana cost of Meteor Strike by 5–15%
 - Reduce mana cost of Blizzard by 5–15%
+- Reduce Meteor Strike cooldown by 1–2 seconds
+- Reduce Blizzard cooldown by 1–2 seconds
 - Increase Healing healing by 5–10%
 - Increase Mass Healing healing by 5–10%
 - Increase Soul Fire Ball damage by 5–10%
@@ -15925,6 +17899,7 @@ Grouped by slot. Weapons show their class and actual roll pool from `empowerCand
 - Increase Holy Deva damage by 5–20%
 - Increase Holy Deva health by 5–20%
 - Reduce Holy Deva damage taken by 5%
+- Reduce Poison Cloud cooldown by 1–2 seconds
 - Increase Slaying crit chance by 1–8%
 - Increase Slaying crit damage by 5–15%
 - Increase Flaming Sword crit chance by 1–8%
@@ -15998,6 +17973,8 @@ Grouped by slot. Weapons show their class and actual roll pool from `empowerCand
 - Reduce mana cost of Flame Field by 5–15%
 - Reduce mana cost of Meteor Strike by 5–15%
 - Reduce mana cost of Blizzard by 5–15%
+- Reduce Meteor Strike cooldown by 1–2 seconds
+- Reduce Blizzard cooldown by 1–2 seconds
 - Increase Healing healing by 5–10%
 - Increase Mass Healing healing by 5–10%
 - Increase Soul Fire Ball damage by 5–10%
@@ -16010,6 +17987,7 @@ Grouped by slot. Weapons show their class and actual roll pool from `empowerCand
 - Increase Holy Deva damage by 5–20%
 - Increase Holy Deva health by 5–20%
 - Reduce Holy Deva damage taken by 5%
+- Reduce Poison Cloud cooldown by 1–2 seconds
 - Increase Slaying crit chance by 1–8%
 - Increase Slaying crit damage by 5–15%
 - Increase Flaming Sword crit chance by 1–8%
@@ -16083,6 +18061,8 @@ Grouped by slot. Weapons show their class and actual roll pool from `empowerCand
 - Reduce mana cost of Flame Field by 5–15%
 - Reduce mana cost of Meteor Strike by 5–15%
 - Reduce mana cost of Blizzard by 5–15%
+- Reduce Meteor Strike cooldown by 1–2 seconds
+- Reduce Blizzard cooldown by 1–2 seconds
 - Increase Healing healing by 5–10%
 - Increase Mass Healing healing by 5–10%
 - Increase Soul Fire Ball damage by 5–10%
@@ -16095,6 +18075,7 @@ Grouped by slot. Weapons show their class and actual roll pool from `empowerCand
 - Increase Holy Deva damage by 5–20%
 - Increase Holy Deva health by 5–20%
 - Reduce Holy Deva damage taken by 5%
+- Reduce Poison Cloud cooldown by 1–2 seconds
 - Increase Slaying crit chance by 1–8%
 - Increase Slaying crit damage by 5–15%
 - Increase Flaming Sword crit chance by 1–8%
@@ -16189,6 +18170,8 @@ Grouped by slot. Weapons show their class and actual roll pool from `empowerCand
 - Reduce mana cost of Flame Field by 5–15%
 - Reduce mana cost of Meteor Strike by 5–15%
 - Reduce mana cost of Blizzard by 5–15%
+- Reduce Meteor Strike cooldown by 1–2 seconds
+- Reduce Blizzard cooldown by 1–2 seconds
 - Increase Flame Disruptor crit chance by 1–8%
 - Increase Flame Disruptor crit damage by 5–15%
 - Increase Fire Wall crit chance by 1–8%
@@ -16235,6 +18218,7 @@ Grouped by slot. Weapons show their class and actual roll pool from `empowerCand
 - Increase Holy Deva damage by 5–20%
 - Increase Holy Deva health by 5–20%
 - Reduce Holy Deva damage taken by 5%
+- Reduce Poison Cloud cooldown by 1–2 seconds
 - Increase Soul Fire Ball crit chance by 1–8%
 - Increase Soul Fire Ball crit damage by 5–15%
 - +5–30% Gold drop
@@ -16299,6 +18283,8 @@ Grouped by slot. Weapons show their class and actual roll pool from `empowerCand
 - Reduce mana cost of Flame Field by 5–15%
 - Reduce mana cost of Meteor Strike by 5–15%
 - Reduce mana cost of Blizzard by 5–15%
+- Reduce Meteor Strike cooldown by 1–2 seconds
+- Reduce Blizzard cooldown by 1–2 seconds
 - Increase Flame Disruptor crit chance by 1–8%
 - Increase Flame Disruptor crit damage by 5–15%
 - Increase Fire Wall crit chance by 1–8%
@@ -16345,6 +18331,7 @@ Grouped by slot. Weapons show their class and actual roll pool from `empowerCand
 - Increase Holy Deva damage by 5–20%
 - Increase Holy Deva health by 5–20%
 - Reduce Holy Deva damage taken by 5%
+- Reduce Poison Cloud cooldown by 1–2 seconds
 - Increase Soul Fire Ball crit chance by 1–8%
 - Increase Soul Fire Ball crit damage by 5–15%
 - +5–30% Gold drop
@@ -16409,6 +18396,8 @@ Grouped by slot. Weapons show their class and actual roll pool from `empowerCand
 - Reduce mana cost of Flame Field by 5–15%
 - Reduce mana cost of Meteor Strike by 5–15%
 - Reduce mana cost of Blizzard by 5–15%
+- Reduce Meteor Strike cooldown by 1–2 seconds
+- Reduce Blizzard cooldown by 1–2 seconds
 - Increase Flame Disruptor crit chance by 1–8%
 - Increase Flame Disruptor crit damage by 5–15%
 - Increase Fire Wall crit chance by 1–8%
@@ -16455,6 +18444,7 @@ Grouped by slot. Weapons show their class and actual roll pool from `empowerCand
 - Increase Holy Deva damage by 5–20%
 - Increase Holy Deva health by 5–20%
 - Reduce Holy Deva damage taken by 5%
+- Reduce Poison Cloud cooldown by 1–2 seconds
 - Increase Soul Fire Ball crit chance by 1–8%
 - Increase Soul Fire Ball crit damage by 5–15%
 - +5–30% Gold drop
@@ -16488,6 +18478,8 @@ Grouped by slot. Weapons show their class and actual roll pool from `empowerCand
 - Reduce mana cost of Flame Field by 10–40%
 - Reduce mana cost of Meteor Strike by 10–40%
 - Reduce mana cost of Blizzard by 10–40%
+- Reduce Meteor Strike cooldown by 1–5 seconds
+- Reduce Blizzard cooldown by 1–5 seconds
 - Increase Flame Disruptor crit chance by 5–25%
 - Increase Flame Disruptor crit damage by 10–50%
 - Increase Fire Wall crit chance by 5–25%
@@ -16638,6 +18630,8 @@ Grouped by slot. Weapons show their class and actual roll pool from `empowerCand
 - Reduce mana cost of Flame Field by 10–40%
 - Reduce mana cost of Meteor Strike by 10–40%
 - Reduce mana cost of Blizzard by 10–40%
+- Reduce Meteor Strike cooldown by 1–5 seconds
+- Reduce Blizzard cooldown by 1–5 seconds
 - Increase Flame Disruptor crit chance by 5–25%
 - Increase Flame Disruptor crit damage by 10–50%
 - Increase Fire Wall crit chance by 5–25%
@@ -16896,6 +18890,8 @@ Grouped by slot. Weapons show their class and actual roll pool from `empowerCand
 - Reduce mana cost of Flame Field by 10–40%
 - Reduce mana cost of Meteor Strike by 10–40%
 - Reduce mana cost of Blizzard by 10–40%
+- Reduce Meteor Strike cooldown by 1–5 seconds
+- Reduce Blizzard cooldown by 1–5 seconds
 - Increase Flame Disruptor crit chance by 5–25%
 - Increase Flame Disruptor crit damage by 10–50%
 - Increase Fire Wall crit chance by 5–25%
@@ -16928,6 +18924,7 @@ Grouped by slot. Weapons show their class and actual roll pool from `empowerCand
 - Increase Holy Deva damage by 10–50%
 - Increase Holy Deva health by 10–50%
 - Reduce Holy Deva damage taken by 5–20%
+- Reduce Poison Cloud cooldown by 1–5 seconds
 - Increase Soul Fire Ball crit chance by 5–25%
 - Increase Soul Fire Ball crit damage by 10–50%
 - +5–40% Gold drop
@@ -17089,6 +19086,7 @@ Grouped by slot. Weapons show their class and actual roll pool from `empowerCand
 - Increase Holy Deva damage by 10–50%
 - Increase Holy Deva health by 10–50%
 - Reduce Holy Deva damage taken by 5–20%
+- Reduce Poison Cloud cooldown by 1–5 seconds
 - Increase Soul Fire Ball crit chance by 5–25%
 - Increase Soul Fire Ball crit damage by 10–50%
 - +5–40% Gold drop
@@ -17114,6 +19112,7 @@ Grouped by slot. Weapons show their class and actual roll pool from `empowerCand
 - Increase Holy Deva damage by 10–50%
 - Increase Holy Deva health by 10–50%
 - Reduce Holy Deva damage taken by 5–20%
+- Reduce Poison Cloud cooldown by 1–5 seconds
 - Increase Soul Fire Ball crit chance by 5–25%
 - Increase Soul Fire Ball crit damage by 10–50%
 - +5–40% Gold drop
@@ -17178,6 +19177,8 @@ Grouped by slot. Weapons show their class and actual roll pool from `empowerCand
 - Reduce mana cost of Flame Field by 10–40%
 - Reduce mana cost of Meteor Strike by 10–40%
 - Reduce mana cost of Blizzard by 10–40%
+- Reduce Meteor Strike cooldown by 1–5 seconds
+- Reduce Blizzard cooldown by 1–5 seconds
 - Increase Flame Disruptor crit chance by 5–25%
 - Increase Flame Disruptor crit damage by 10–50%
 - Increase Fire Wall crit chance by 5–25%
@@ -17226,6 +19227,8 @@ Grouped by slot. Weapons show their class and actual roll pool from `empowerCand
 - Reduce mana cost of Flame Field by 10–40%
 - Reduce mana cost of Meteor Strike by 10–40%
 - Reduce mana cost of Blizzard by 10–40%
+- Reduce Meteor Strike cooldown by 1–5 seconds
+- Reduce Blizzard cooldown by 1–5 seconds
 - Increase Flame Disruptor crit chance by 5–25%
 - Increase Flame Disruptor crit damage by 10–50%
 - Increase Fire Wall crit chance by 5–25%
@@ -17352,6 +19355,8 @@ Grouped by slot. Weapons show their class and actual roll pool from `empowerCand
 - Reduce mana cost of Flame Field by 10–40%
 - Reduce mana cost of Meteor Strike by 10–40%
 - Reduce mana cost of Blizzard by 10–40%
+- Reduce Meteor Strike cooldown by 1–5 seconds
+- Reduce Blizzard cooldown by 1–5 seconds
 - Increase Flame Disruptor crit chance by 5–25%
 - Increase Flame Disruptor crit damage by 10–50%
 - Increase Fire Wall crit chance by 5–25%
@@ -17395,6 +19400,7 @@ Grouped by slot. Weapons show their class and actual roll pool from `empowerCand
 - Increase Holy Deva damage by 10–50%
 - Increase Holy Deva health by 10–50%
 - Reduce Holy Deva damage taken by 5–20%
+- Reduce Poison Cloud cooldown by 1–5 seconds
 - Increase Soul Fire Ball crit chance by 5–25%
 - Increase Soul Fire Ball crit damage by 10–50%
 - +5–40% Gold drop
@@ -17420,6 +19426,7 @@ Grouped by slot. Weapons show their class and actual roll pool from `empowerCand
 - Increase Holy Deva damage by 10–50%
 - Increase Holy Deva health by 10–50%
 - Reduce Holy Deva damage taken by 5–20%
+- Reduce Poison Cloud cooldown by 1–5 seconds
 - Increase Soul Fire Ball crit chance by 5–25%
 - Increase Soul Fire Ball crit damage by 10–50%
 - +5–40% Gold drop
@@ -17552,6 +19559,8 @@ Grouped by slot. Weapons show their class and actual roll pool from `empowerCand
 - Reduce mana cost of Flame Field by 10–40%
 - Reduce mana cost of Meteor Strike by 10–40%
 - Reduce mana cost of Blizzard by 10–40%
+- Reduce Meteor Strike cooldown by 1–5 seconds
+- Reduce Blizzard cooldown by 1–5 seconds
 - Increase Flame Disruptor crit chance by 5–25%
 - Increase Flame Disruptor crit damage by 10–50%
 - Increase Fire Wall crit chance by 5–25%
@@ -17595,6 +19604,7 @@ Grouped by slot. Weapons show their class and actual roll pool from `empowerCand
 - Increase Holy Deva damage by 10–50%
 - Increase Holy Deva health by 10–50%
 - Reduce Holy Deva damage taken by 5–20%
+- Reduce Poison Cloud cooldown by 1–5 seconds
 - Increase Soul Fire Ball crit chance by 5–25%
 - Increase Soul Fire Ball crit damage by 10–50%
 - +5–40% Gold drop
@@ -17659,6 +19669,8 @@ Grouped by slot. Weapons show their class and actual roll pool from `empowerCand
 - Reduce mana cost of Flame Field by 10–40%
 - Reduce mana cost of Meteor Strike by 10–40%
 - Reduce mana cost of Blizzard by 10–40%
+- Reduce Meteor Strike cooldown by 1–5 seconds
+- Reduce Blizzard cooldown by 1–5 seconds
 - Increase Flame Disruptor crit chance by 5–25%
 - Increase Flame Disruptor crit damage by 10–50%
 - Increase Fire Wall crit chance by 5–25%
@@ -17741,6 +19753,8 @@ Grouped by slot. Weapons show their class and actual roll pool from `empowerCand
 - Reduce mana cost of Flame Field by 10–40%
 - Reduce mana cost of Meteor Strike by 10–40%
 - Reduce mana cost of Blizzard by 10–40%
+- Reduce Meteor Strike cooldown by 1–5 seconds
+- Reduce Blizzard cooldown by 1–5 seconds
 - Increase Flame Disruptor crit chance by 5–25%
 - Increase Flame Disruptor crit damage by 10–50%
 - Increase Fire Wall crit chance by 5–25%
@@ -17784,6 +19798,7 @@ Grouped by slot. Weapons show their class and actual roll pool from `empowerCand
 - Increase Holy Deva damage by 10–50%
 - Increase Holy Deva health by 10–50%
 - Reduce Holy Deva damage taken by 5–20%
+- Reduce Poison Cloud cooldown by 1–5 seconds
 - Increase Soul Fire Ball crit chance by 5–25%
 - Increase Soul Fire Ball crit damage by 10–50%
 - +5–40% Gold drop
@@ -17916,6 +19931,8 @@ Grouped by slot. Weapons show their class and actual roll pool from `empowerCand
 - Reduce mana cost of Flame Field by 10–40%
 - Reduce mana cost of Meteor Strike by 10–40%
 - Reduce mana cost of Blizzard by 10–40%
+- Reduce Meteor Strike cooldown by 1–5 seconds
+- Reduce Blizzard cooldown by 1–5 seconds
 - Increase Flame Disruptor crit chance by 5–25%
 - Increase Flame Disruptor crit damage by 10–50%
 - Increase Fire Wall crit chance by 5–25%
@@ -17959,6 +19976,7 @@ Grouped by slot. Weapons show their class and actual roll pool from `empowerCand
 - Increase Holy Deva damage by 10–50%
 - Increase Holy Deva health by 10–50%
 - Reduce Holy Deva damage taken by 5–20%
+- Reduce Poison Cloud cooldown by 1–5 seconds
 - Increase Soul Fire Ball crit chance by 5–25%
 - Increase Soul Fire Ball crit damage by 10–50%
 - +5–40% Gold drop
@@ -17989,6 +20007,8 @@ Grouped by slot. Weapons show their class and actual roll pool from `empowerCand
 - Reduce mana cost of Flame Field by 10–40%
 - Reduce mana cost of Meteor Strike by 10–40%
 - Reduce mana cost of Blizzard by 10–40%
+- Reduce Meteor Strike cooldown by 1–5 seconds
+- Reduce Blizzard cooldown by 1–5 seconds
 - Increase Flame Disruptor crit chance by 5–25%
 - Increase Flame Disruptor crit damage by 10–50%
 - Increase Fire Wall crit chance by 5–25%
@@ -18066,6 +20086,7 @@ Grouped by slot. Weapons show their class and actual roll pool from `empowerCand
 - Increase Holy Deva damage by 10–50%
 - Increase Holy Deva health by 10–50%
 - Reduce Holy Deva damage taken by 5–20%
+- Reduce Poison Cloud cooldown by 1–5 seconds
 - Increase Soul Fire Ball crit chance by 5–25%
 - Increase Soul Fire Ball crit damage by 10–50%
 - +5–40% Gold drop
@@ -18159,6 +20180,7 @@ Grouped by slot. Weapons show their class and actual roll pool from `empowerCand
 - Increase Holy Deva damage by 10–50%
 - Increase Holy Deva health by 10–50%
 - Reduce Holy Deva damage taken by 5–20%
+- Reduce Poison Cloud cooldown by 1–5 seconds
 - Increase Soul Fire Ball crit chance by 5–25%
 - Increase Soul Fire Ball crit damage by 10–50%
 - +5–40% Gold drop
@@ -18189,6 +20211,8 @@ Grouped by slot. Weapons show their class and actual roll pool from `empowerCand
 - Reduce mana cost of Flame Field by 10–40%
 - Reduce mana cost of Meteor Strike by 10–40%
 - Reduce mana cost of Blizzard by 10–40%
+- Reduce Meteor Strike cooldown by 1–5 seconds
+- Reduce Blizzard cooldown by 1–5 seconds
 - Increase Flame Disruptor crit chance by 5–25%
 - Increase Flame Disruptor crit damage by 10–50%
 - Increase Fire Wall crit chance by 5–25%
@@ -18305,6 +20329,8 @@ Grouped by slot. Weapons show their class and actual roll pool from `empowerCand
 - Reduce mana cost of Flame Field by 10–40%
 - Reduce mana cost of Meteor Strike by 10–40%
 - Reduce mana cost of Blizzard by 10–40%
+- Reduce Meteor Strike cooldown by 1–5 seconds
+- Reduce Blizzard cooldown by 1–5 seconds
 - Increase Flame Disruptor crit chance by 5–25%
 - Increase Flame Disruptor crit damage by 10–50%
 - Increase Fire Wall crit chance by 5–25%
@@ -18382,6 +20408,7 @@ Grouped by slot. Weapons show their class and actual roll pool from `empowerCand
 - Increase Holy Deva damage by 10–50%
 - Increase Holy Deva health by 10–50%
 - Reduce Holy Deva damage taken by 5–20%
+- Reduce Poison Cloud cooldown by 1–5 seconds
 - Increase Soul Fire Ball crit chance by 5–25%
 - Increase Soul Fire Ball crit damage by 10–50%
 - +5–40% Gold drop
@@ -18412,6 +20439,8 @@ Grouped by slot. Weapons show their class and actual roll pool from `empowerCand
 - Reduce mana cost of Flame Field by 10–40%
 - Reduce mana cost of Meteor Strike by 10–40%
 - Reduce mana cost of Blizzard by 10–40%
+- Reduce Meteor Strike cooldown by 1–5 seconds
+- Reduce Blizzard cooldown by 1–5 seconds
 - Increase Flame Disruptor crit chance by 5–25%
 - Increase Flame Disruptor crit damage by 10–50%
 - Increase Fire Wall crit chance by 5–25%
@@ -18489,6 +20518,7 @@ Grouped by slot. Weapons show their class and actual roll pool from `empowerCand
 - Increase Holy Deva damage by 10–50%
 - Increase Holy Deva health by 10–50%
 - Reduce Holy Deva damage taken by 5–20%
+- Reduce Poison Cloud cooldown by 1–5 seconds
 - Increase Soul Fire Ball crit chance by 5–25%
 - Increase Soul Fire Ball crit damage by 10–50%
 - +5–40% Gold drop
@@ -18519,6 +20549,8 @@ Grouped by slot. Weapons show their class and actual roll pool from `empowerCand
 - Reduce mana cost of Flame Field by 10–40%
 - Reduce mana cost of Meteor Strike by 10–40%
 - Reduce mana cost of Blizzard by 10–40%
+- Reduce Meteor Strike cooldown by 1–5 seconds
+- Reduce Blizzard cooldown by 1–5 seconds
 - Increase Flame Disruptor crit chance by 5–25%
 - Increase Flame Disruptor crit damage by 10–50%
 - Increase Fire Wall crit chance by 5–25%
@@ -18573,6 +20605,8 @@ Grouped by slot. Weapons show their class and actual roll pool from `empowerCand
 - Reduce mana cost of Flame Field by 10–40%
 - Reduce mana cost of Meteor Strike by 10–40%
 - Reduce mana cost of Blizzard by 10–40%
+- Reduce Meteor Strike cooldown by 1–5 seconds
+- Reduce Blizzard cooldown by 1–5 seconds
 - Increase Flame Disruptor crit chance by 5–25%
 - Increase Flame Disruptor crit damage by 10–50%
 - Increase Fire Wall crit chance by 5–25%
@@ -18605,6 +20639,7 @@ Grouped by slot. Weapons show their class and actual roll pool from `empowerCand
 - Increase Holy Deva damage by 10–50%
 - Increase Holy Deva health by 10–50%
 - Reduce Holy Deva damage taken by 5–20%
+- Reduce Poison Cloud cooldown by 1–5 seconds
 - Increase Soul Fire Ball crit chance by 5–25%
 - Increase Soul Fire Ball crit damage by 10–50%
 - +5–40% Gold drop
@@ -18669,6 +20704,8 @@ Grouped by slot. Weapons show their class and actual roll pool from `empowerCand
 - Reduce mana cost of Flame Field by 10–40%
 - Reduce mana cost of Meteor Strike by 10–40%
 - Reduce mana cost of Blizzard by 10–40%
+- Reduce Meteor Strike cooldown by 1–5 seconds
+- Reduce Blizzard cooldown by 1–5 seconds
 - Increase Flame Disruptor crit chance by 5–25%
 - Increase Flame Disruptor crit damage by 10–50%
 - Increase Fire Wall crit chance by 5–25%
@@ -18717,6 +20754,8 @@ Grouped by slot. Weapons show their class and actual roll pool from `empowerCand
 - Reduce mana cost of Flame Field by 10–40%
 - Reduce mana cost of Meteor Strike by 10–40%
 - Reduce mana cost of Blizzard by 10–40%
+- Reduce Meteor Strike cooldown by 1–5 seconds
+- Reduce Blizzard cooldown by 1–5 seconds
 - Increase Flame Disruptor crit chance by 5–25%
 - Increase Flame Disruptor crit damage by 10–50%
 - Increase Fire Wall crit chance by 5–25%
@@ -18760,6 +20799,7 @@ Grouped by slot. Weapons show their class and actual roll pool from `empowerCand
 - Increase Holy Deva damage by 10–50%
 - Increase Holy Deva health by 10–50%
 - Reduce Holy Deva damage taken by 5–20%
+- Reduce Poison Cloud cooldown by 1–5 seconds
 - Increase Soul Fire Ball crit chance by 5–25%
 - Increase Soul Fire Ball crit damage by 10–50%
 - +5–40% Gold drop
@@ -18858,6 +20898,8 @@ Grouped by slot. Weapons show their class and actual roll pool from `empowerCand
 - Reduce mana cost of Flame Field by 10–40%
 - Reduce mana cost of Meteor Strike by 10–40%
 - Reduce mana cost of Blizzard by 10–40%
+- Reduce Meteor Strike cooldown by 1–5 seconds
+- Reduce Blizzard cooldown by 1–5 seconds
 - Increase Flame Disruptor crit chance by 5–25%
 - Increase Flame Disruptor crit damage by 10–50%
 - Increase Fire Wall crit chance by 5–25%
@@ -18906,6 +20948,8 @@ Grouped by slot. Weapons show their class and actual roll pool from `empowerCand
 - Reduce mana cost of Flame Field by 10–40%
 - Reduce mana cost of Meteor Strike by 10–40%
 - Reduce mana cost of Blizzard by 10–40%
+- Reduce Meteor Strike cooldown by 1–5 seconds
+- Reduce Blizzard cooldown by 1–5 seconds
 - Increase Flame Disruptor crit chance by 5–25%
 - Increase Flame Disruptor crit damage by 10–50%
 - Increase Fire Wall crit chance by 5–25%
@@ -18983,6 +21027,7 @@ Grouped by slot. Weapons show their class and actual roll pool from `empowerCand
 - Increase Holy Deva damage by 10–50%
 - Increase Holy Deva health by 10–50%
 - Reduce Holy Deva damage taken by 5–20%
+- Reduce Poison Cloud cooldown by 1–5 seconds
 - Increase Soul Fire Ball crit chance by 5–25%
 - Increase Soul Fire Ball crit damage by 10–50%
 - +5–40% Gold drop
@@ -19013,6 +21058,8 @@ Grouped by slot. Weapons show their class and actual roll pool from `empowerCand
 - Reduce mana cost of Flame Field by 10–40%
 - Reduce mana cost of Meteor Strike by 10–40%
 - Reduce mana cost of Blizzard by 10–40%
+- Reduce Meteor Strike cooldown by 1–5 seconds
+- Reduce Blizzard cooldown by 1–5 seconds
 - Increase Flame Disruptor crit chance by 5–25%
 - Increase Flame Disruptor crit damage by 10–50%
 - Increase Fire Wall crit chance by 5–25%
@@ -19095,6 +21142,8 @@ Grouped by slot. Weapons show their class and actual roll pool from `empowerCand
 - Reduce mana cost of Flame Field by 10–40%
 - Reduce mana cost of Meteor Strike by 10–40%
 - Reduce mana cost of Blizzard by 10–40%
+- Reduce Meteor Strike cooldown by 1–5 seconds
+- Reduce Blizzard cooldown by 1–5 seconds
 - Increase Flame Disruptor crit chance by 5–25%
 - Increase Flame Disruptor crit damage by 10–50%
 - Increase Fire Wall crit chance by 5–25%
@@ -19138,6 +21187,7 @@ Grouped by slot. Weapons show their class and actual roll pool from `empowerCand
 - Increase Holy Deva damage by 10–50%
 - Increase Holy Deva health by 10–50%
 - Reduce Holy Deva damage taken by 5–20%
+- Reduce Poison Cloud cooldown by 1–5 seconds
 - Increase Soul Fire Ball crit chance by 5–25%
 - Increase Soul Fire Ball crit damage by 10–50%
 - +5–40% Gold drop
@@ -19197,6 +21247,7 @@ Grouped by slot. Weapons show their class and actual roll pool from `empowerCand
 - Increase Holy Deva damage by 10–50%
 - Increase Holy Deva health by 10–50%
 - Reduce Holy Deva damage taken by 5–20%
+- Reduce Poison Cloud cooldown by 1–5 seconds
 - Increase Soul Fire Ball crit chance by 5–25%
 - Increase Soul Fire Ball crit damage by 10–50%
 - +5–40% Gold drop
@@ -19261,6 +21312,8 @@ Grouped by slot. Weapons show their class and actual roll pool from `empowerCand
 - Reduce mana cost of Flame Field by 10–40%
 - Reduce mana cost of Meteor Strike by 10–40%
 - Reduce mana cost of Blizzard by 10–40%
+- Reduce Meteor Strike cooldown by 1–5 seconds
+- Reduce Blizzard cooldown by 1–5 seconds
 - Increase Flame Disruptor crit chance by 5–25%
 - Increase Flame Disruptor crit damage by 10–50%
 - Increase Fire Wall crit chance by 5–25%
@@ -19304,6 +21357,7 @@ Grouped by slot. Weapons show their class and actual roll pool from `empowerCand
 - Increase Holy Deva damage by 10–50%
 - Increase Holy Deva health by 10–50%
 - Reduce Holy Deva damage taken by 5–20%
+- Reduce Poison Cloud cooldown by 1–5 seconds
 - Increase Soul Fire Ball crit chance by 5–25%
 - Increase Soul Fire Ball crit damage by 10–50%
 - +5–40% Gold drop
@@ -19368,6 +21422,8 @@ Grouped by slot. Weapons show their class and actual roll pool from `empowerCand
 - Reduce mana cost of Flame Field by 10–40%
 - Reduce mana cost of Meteor Strike by 10–40%
 - Reduce mana cost of Blizzard by 10–40%
+- Reduce Meteor Strike cooldown by 1–5 seconds
+- Reduce Blizzard cooldown by 1–5 seconds
 - Increase Flame Disruptor crit chance by 5–25%
 - Increase Flame Disruptor crit damage by 10–50%
 - Increase Fire Wall crit chance by 5–25%
@@ -19445,6 +21501,7 @@ Grouped by slot. Weapons show their class and actual roll pool from `empowerCand
 - Increase Holy Deva damage by 10–50%
 - Increase Holy Deva health by 10–50%
 - Reduce Holy Deva damage taken by 5–20%
+- Reduce Poison Cloud cooldown by 1–5 seconds
 - Increase Soul Fire Ball crit chance by 5–25%
 - Increase Soul Fire Ball crit damage by 10–50%
 - +5–40% Gold drop
@@ -19475,6 +21532,8 @@ Grouped by slot. Weapons show their class and actual roll pool from `empowerCand
 - Reduce mana cost of Flame Field by 10–40%
 - Reduce mana cost of Meteor Strike by 10–40%
 - Reduce mana cost of Blizzard by 10–40%
+- Reduce Meteor Strike cooldown by 1–5 seconds
+- Reduce Blizzard cooldown by 1–5 seconds
 - Increase Flame Disruptor crit chance by 5–25%
 - Increase Flame Disruptor crit damage by 10–50%
 - Increase Fire Wall crit chance by 5–25%
@@ -19557,6 +21616,8 @@ Grouped by slot. Weapons show their class and actual roll pool from `empowerCand
 - Reduce mana cost of Flame Field by 10–40%
 - Reduce mana cost of Meteor Strike by 10–40%
 - Reduce mana cost of Blizzard by 10–40%
+- Reduce Meteor Strike cooldown by 1–5 seconds
+- Reduce Blizzard cooldown by 1–5 seconds
 - Increase Flame Disruptor crit chance by 5–25%
 - Increase Flame Disruptor crit damage by 10–50%
 - Increase Fire Wall crit chance by 5–25%
@@ -19600,8 +21661,229 @@ Grouped by slot. Weapons show their class and actual roll pool from `empowerCand
 - Increase Holy Deva damage by 10–50%
 - Increase Holy Deva health by 10–50%
 - Reduce Holy Deva damage taken by 5–20%
+- Reduce Poison Cloud cooldown by 1–5 seconds
 - Increase Soul Fire Ball crit chance by 5–25%
 - Increase Soul Fire Ball crit damage by 10–50%
+- +5–40% Gold drop
+- +5–40% Bonus XP
+- +0%–1% Item drop chance
+- +5–20% Awakening Soul drop chance
+- +1–20% Crit Rate
+- +5–30% Crit Damage
+- +5–40% Skill leveling
+
+**Raw Sword** (`raw-sword1`) (Warrior weapon)
+- +1–5 DC
+- +1–3 Acc
+- +1–2 A Speed
+- +1–2 Freezing
+- +1–2 Poison
+- +1–2 Luck
+- Increase Slaying damage by 5–35%
+- Increase Flaming Sword damage by 5–25%
+- Reduce Flaming Sword cooldown by 1–5 seconds
+- Increase Twin Drake Blade damage by 5–25%
+- Reduce mana cost of Twin Drake Blade by 10–40%
+- Increase Blade Avalanche damage by 5–25%
+- Reduce mana cost of Blade Avalanche by 10–40%
+- Increase Slashing Burst damage by 5–25%
+- Reduce mana cost of Slashing Burst by 10–40%
+- Increase Slaying crit chance by 5–25%
+- Increase Slaying crit damage by 10–50%
+- Increase Flaming Sword crit chance by 5–25%
+- Increase Flaming Sword crit damage by 10–50%
+- Increase Twin Drake Blade crit chance by 5–25%
+- Increase Twin Drake Blade crit damage by 10–50%
+- Increase Blade Avalanche crit chance by 5–25%
+- Increase Blade Avalanche crit damage by 10–50%
+- Increase Slashing Burst crit chance by 5–25%
+- Increase Slashing Burst crit damage by 10–50%
+- +5–40% Gold drop
+- +5–40% Bonus XP
+- +0%–1% Item drop chance
+- +5–20% Awakening Soul drop chance
+- +1–20% Crit Rate
+- +5–30% Crit Damage
+- +5–40% Skill leveling
+
+**Raw Sword** (`raw-sword2`) (Wizard weapon)
+- +1–3 MC
+- +1–2 Luck
+- Increase Flame Disruptor damage by 10–35%
+- Increase Fire Wall damage by 5–25%
+- Increase Thunder Bolt damage by 10–35%
+- Increase Ice Storm damage by 5–25%
+- Increase Flame Field damage by 5–25%
+- Increase Meteor Strike damage by 5–25%
+- Increase Blizzard damage by 5–25%
+- Increase Fire Ball damage by 10–35%
+- Increase Great Fire Ball damage by 10–35%
+- Increase Frost Crunch damage by 5–25%
+- Reduce mana cost of Flame Disruptor by 10–40%
+- Reduce mana cost of Fire Wall by 10–40%
+- Reduce mana cost of Thunder Bolt by 10–40%
+- Reduce mana cost of Ice Storm by 10–40%
+- Reduce mana cost of Flame Field by 10–40%
+- Reduce mana cost of Meteor Strike by 10–40%
+- Reduce mana cost of Blizzard by 10–40%
+- Reduce Meteor Strike cooldown by 1–5 seconds
+- Reduce Blizzard cooldown by 1–5 seconds
+- Increase Flame Disruptor crit chance by 5–25%
+- Increase Flame Disruptor crit damage by 10–50%
+- Increase Fire Wall crit chance by 5–25%
+- Increase Fire Wall crit damage by 10–50%
+- Increase Thunder Bolt crit chance by 5–25%
+- Increase Thunder Bolt crit damage by 10–50%
+- Increase Ice Storm crit chance by 5–25%
+- Increase Ice Storm crit damage by 10–50%
+- Increase Flame Field crit chance by 5–25%
+- Increase Flame Field crit damage by 10–50%
+- Increase Meteor Strike crit chance by 5–25%
+- Increase Meteor Strike crit damage by 10–50%
+- Increase Blizzard crit chance by 5–25%
+- Increase Blizzard crit damage by 10–50%
+- Increase Fire Ball crit chance by 5–25%
+- Increase Fire Ball crit damage by 10–50%
+- Increase Great Fire Ball crit chance by 5–25%
+- Increase Great Fire Ball crit damage by 10–50%
+- Increase Frost Crunch crit chance by 5–25%
+- Increase Frost Crunch crit damage by 10–50%
+- +5–40% Gold drop
+- +5–40% Bonus XP
+- +0%–1% Item drop chance
+- +5–20% Awakening Soul drop chance
+- +1–20% Crit Rate
+- +5–30% Crit Damage
+- +5–40% Skill leveling
+
+**Raw Sword** (`raw-sword3`) (Tao weapon)
+- +1–3 SC
+- +1–2 Luck
+- Increase Healing healing by 5–25%
+- Increase Mass Healing healing by 5–25%
+- Increase Soul Fire Ball damage by 10–35%
+- Increase Skeleton damage by 10–50%
+- Increase Skeleton health by 10–50%
+- Reduce Skeleton damage taken by 5–20%
+- Increase Shinsu damage by 10–50%
+- Increase Shinsu health by 10–50%
+- Reduce Shinsu damage taken by 5–20%
+- Increase Holy Deva damage by 10–50%
+- Increase Holy Deva health by 10–50%
+- Reduce Holy Deva damage taken by 5–20%
+- Reduce Poison Cloud cooldown by 1–5 seconds
+- Increase Soul Fire Ball crit chance by 5–25%
+- Increase Soul Fire Ball crit damage by 10–50%
+- +5–40% Gold drop
+- +5–40% Bonus XP
+- +0%–1% Item drop chance
+- +5–20% Awakening Soul drop chance
+- +1–20% Crit Rate
+- +5–30% Crit Damage
+- +5–40% Skill leveling
+
+**Ice Dragon Sky Knife** (`ice-dragon-sky-knife`) (Tao weapon)
+- +1–3 SC
+- +1–2 Luck
+- Increase Healing healing by 5–25%
+- Increase Mass Healing healing by 5–25%
+- Increase Soul Fire Ball damage by 10–35%
+- Increase Skeleton damage by 10–50%
+- Increase Skeleton health by 10–50%
+- Reduce Skeleton damage taken by 5–20%
+- Increase Shinsu damage by 10–50%
+- Increase Shinsu health by 10–50%
+- Reduce Shinsu damage taken by 5–20%
+- Increase Holy Deva damage by 10–50%
+- Increase Holy Deva health by 10–50%
+- Reduce Holy Deva damage taken by 5–20%
+- Reduce Poison Cloud cooldown by 1–5 seconds
+- Increase Soul Fire Ball crit chance by 5–25%
+- Increase Soul Fire Ball crit damage by 10–50%
+- +5–40% Gold drop
+- +5–40% Bonus XP
+- +0%–1% Item drop chance
+- +5–20% Awakening Soul drop chance
+- +1–20% Crit Rate
+- +5–30% Crit Damage
+- +5–40% Skill leveling
+
+**Ice Dragon Sky Rod** (`ice-dragon-sky-rod`) (Wizard weapon)
+- +1–3 MC
+- +1–2 Luck
+- Increase Flame Disruptor damage by 10–35%
+- Increase Fire Wall damage by 5–25%
+- Increase Thunder Bolt damage by 10–35%
+- Increase Ice Storm damage by 5–25%
+- Increase Flame Field damage by 5–25%
+- Increase Meteor Strike damage by 5–25%
+- Increase Blizzard damage by 5–25%
+- Increase Fire Ball damage by 10–35%
+- Increase Great Fire Ball damage by 10–35%
+- Increase Frost Crunch damage by 5–25%
+- Reduce mana cost of Flame Disruptor by 10–40%
+- Reduce mana cost of Fire Wall by 10–40%
+- Reduce mana cost of Thunder Bolt by 10–40%
+- Reduce mana cost of Ice Storm by 10–40%
+- Reduce mana cost of Flame Field by 10–40%
+- Reduce mana cost of Meteor Strike by 10–40%
+- Reduce mana cost of Blizzard by 10–40%
+- Reduce Meteor Strike cooldown by 1–5 seconds
+- Reduce Blizzard cooldown by 1–5 seconds
+- Increase Flame Disruptor crit chance by 5–25%
+- Increase Flame Disruptor crit damage by 10–50%
+- Increase Fire Wall crit chance by 5–25%
+- Increase Fire Wall crit damage by 10–50%
+- Increase Thunder Bolt crit chance by 5–25%
+- Increase Thunder Bolt crit damage by 10–50%
+- Increase Ice Storm crit chance by 5–25%
+- Increase Ice Storm crit damage by 10–50%
+- Increase Flame Field crit chance by 5–25%
+- Increase Flame Field crit damage by 10–50%
+- Increase Meteor Strike crit chance by 5–25%
+- Increase Meteor Strike crit damage by 10–50%
+- Increase Blizzard crit chance by 5–25%
+- Increase Blizzard crit damage by 10–50%
+- Increase Fire Ball crit chance by 5–25%
+- Increase Fire Ball crit damage by 10–50%
+- Increase Great Fire Ball crit chance by 5–25%
+- Increase Great Fire Ball crit damage by 10–50%
+- Increase Frost Crunch crit chance by 5–25%
+- Increase Frost Crunch crit damage by 10–50%
+- +5–40% Gold drop
+- +5–40% Bonus XP
+- +0%–1% Item drop chance
+- +5–20% Awakening Soul drop chance
+- +1–20% Crit Rate
+- +5–30% Crit Damage
+- +5–40% Skill leveling
+
+**Ice Dragon Sky Sword** (`ice-dragon-sky-sword`) (Warrior weapon)
+- +1–5 DC
+- +1–3 Acc
+- +1–2 A Speed
+- +1–2 Freezing
+- +1–2 Poison
+- +1–2 Luck
+- Increase Slaying damage by 5–35%
+- Increase Flaming Sword damage by 5–25%
+- Reduce Flaming Sword cooldown by 1–5 seconds
+- Increase Twin Drake Blade damage by 5–25%
+- Reduce mana cost of Twin Drake Blade by 10–40%
+- Increase Blade Avalanche damage by 5–25%
+- Reduce mana cost of Blade Avalanche by 10–40%
+- Increase Slashing Burst damage by 5–25%
+- Reduce mana cost of Slashing Burst by 10–40%
+- Increase Slaying crit chance by 5–25%
+- Increase Slaying crit damage by 10–50%
+- Increase Flaming Sword crit chance by 5–25%
+- Increase Flaming Sword crit damage by 10–50%
+- Increase Twin Drake Blade crit chance by 5–25%
+- Increase Twin Drake Blade crit damage by 10–50%
+- Increase Blade Avalanche crit chance by 5–25%
+- Increase Blade Avalanche crit damage by 10–50%
+- Increase Slashing Burst crit chance by 5–25%
+- Increase Slashing Burst crit damage by 10–50%
 - +5–40% Gold drop
 - +5–40% Bonus XP
 - +0%–1% Item drop chance
@@ -19698,6 +21980,8 @@ Grouped by slot. Weapons show their class and actual roll pool from `empowerCand
 - Reduce mana cost of Flame Field by 10–40%
 - Reduce mana cost of Meteor Strike by 10–40%
 - Reduce mana cost of Blizzard by 10–40%
+- Reduce Meteor Strike cooldown by 1–5 seconds
+- Reduce Blizzard cooldown by 1–5 seconds
 - Increase Flame Disruptor crit chance by 5–25%
 - Increase Flame Disruptor crit damage by 10–50%
 - Increase Fire Wall crit chance by 5–25%
@@ -19741,6 +22025,7 @@ Grouped by slot. Weapons show their class and actual roll pool from `empowerCand
 - Increase Holy Deva damage by 10–50%
 - Increase Holy Deva health by 10–50%
 - Reduce Holy Deva damage taken by 5–20%
+- Reduce Poison Cloud cooldown by 1–5 seconds
 - Increase Soul Fire Ball crit chance by 5–25%
 - Increase Soul Fire Ball crit damage by 10–50%
 - +5–40% Gold drop
@@ -19799,133 +22084,7 @@ Grouped by slot. Weapons show their class and actual roll pool from `empowerCand
 - Increase Holy Deva damage by 10–50%
 - Increase Holy Deva health by 10–50%
 - Reduce Holy Deva damage taken by 5–20%
-- Increase Soul Fire Ball crit chance by 5–25%
-- Increase Soul Fire Ball crit damage by 10–50%
-- +5–40% Gold drop
-- +5–40% Bonus XP
-- +0%–1% Item drop chance
-- +5–20% Awakening Soul drop chance
-- +1–20% Crit Rate
-- +5–30% Crit Damage
-- +5–40% Skill leveling
-
-**Ice Dragon Sky Knife** (`ice-dragon-sky-knife`) (Warrior weapon)
-- +1–5 DC
-- +1–3 Acc
-- +1–2 A Speed
-- +1–2 Freezing
-- +1–2 Poison
-- +1–2 Luck
-- Increase Slaying damage by 5–35%
-- Increase Flaming Sword damage by 5–25%
-- Reduce Flaming Sword cooldown by 1–5 seconds
-- Increase Twin Drake Blade damage by 5–25%
-- Reduce mana cost of Twin Drake Blade by 10–40%
-- Increase Blade Avalanche damage by 5–25%
-- Reduce mana cost of Blade Avalanche by 10–40%
-- Increase Slashing Burst damage by 5–25%
-- Reduce mana cost of Slashing Burst by 10–40%
-- Increase Slaying crit chance by 5–25%
-- Increase Slaying crit damage by 10–50%
-- Increase Flaming Sword crit chance by 5–25%
-- Increase Flaming Sword crit damage by 10–50%
-- Increase Twin Drake Blade crit chance by 5–25%
-- Increase Twin Drake Blade crit damage by 10–50%
-- Increase Blade Avalanche crit chance by 5–25%
-- Increase Blade Avalanche crit damage by 10–50%
-- Increase Slashing Burst crit chance by 5–25%
-- Increase Slashing Burst crit damage by 10–50%
-- +5–40% Gold drop
-- +5–40% Bonus XP
-- +0%–1% Item drop chance
-- +5–20% Awakening Soul drop chance
-- +1–20% Crit Rate
-- +5–30% Crit Damage
-- +5–40% Skill leveling
-
-**Ice Dragon Sky Rod** (`ice-dragon-sky-rod`) (Universal weapon)
-- +1–5 DC
-- +1–3 MC
-- +1–3 SC
-- +1–3 Acc
-- +1–2 A Speed
-- +1–2 Freezing
-- +1–2 Poison
-- +1–2 Luck
-- Increase Flame Disruptor damage by 10–35%
-- Increase Fire Wall damage by 5–25%
-- Increase Thunder Bolt damage by 10–35%
-- Increase Ice Storm damage by 5–25%
-- Increase Flame Field damage by 5–25%
-- Increase Meteor Strike damage by 5–25%
-- Increase Blizzard damage by 5–25%
-- Increase Fire Ball damage by 10–35%
-- Increase Great Fire Ball damage by 10–35%
-- Increase Frost Crunch damage by 5–25%
-- Reduce mana cost of Flame Disruptor by 10–40%
-- Reduce mana cost of Fire Wall by 10–40%
-- Reduce mana cost of Thunder Bolt by 10–40%
-- Reduce mana cost of Ice Storm by 10–40%
-- Reduce mana cost of Flame Field by 10–40%
-- Reduce mana cost of Meteor Strike by 10–40%
-- Reduce mana cost of Blizzard by 10–40%
-- Increase Flame Disruptor crit chance by 5–25%
-- Increase Flame Disruptor crit damage by 10–50%
-- Increase Fire Wall crit chance by 5–25%
-- Increase Fire Wall crit damage by 10–50%
-- Increase Thunder Bolt crit chance by 5–25%
-- Increase Thunder Bolt crit damage by 10–50%
-- Increase Ice Storm crit chance by 5–25%
-- Increase Ice Storm crit damage by 10–50%
-- Increase Flame Field crit chance by 5–25%
-- Increase Flame Field crit damage by 10–50%
-- Increase Meteor Strike crit chance by 5–25%
-- Increase Meteor Strike crit damage by 10–50%
-- Increase Blizzard crit chance by 5–25%
-- Increase Blizzard crit damage by 10–50%
-- Increase Fire Ball crit chance by 5–25%
-- Increase Fire Ball crit damage by 10–50%
-- Increase Great Fire Ball crit chance by 5–25%
-- Increase Great Fire Ball crit damage by 10–50%
-- Increase Frost Crunch crit chance by 5–25%
-- Increase Frost Crunch crit damage by 10–50%
-- Increase Healing healing by 5–25%
-- Increase Mass Healing healing by 5–25%
-- Increase Soul Fire Ball damage by 10–35%
-- Increase Skeleton damage by 10–50%
-- Increase Skeleton health by 10–50%
-- Reduce Skeleton damage taken by 5–20%
-- Increase Shinsu damage by 10–50%
-- Increase Shinsu health by 10–50%
-- Reduce Shinsu damage taken by 5–20%
-- Increase Holy Deva damage by 10–50%
-- Increase Holy Deva health by 10–50%
-- Reduce Holy Deva damage taken by 5–20%
-- Increase Soul Fire Ball crit chance by 5–25%
-- Increase Soul Fire Ball crit damage by 10–50%
-- +5–40% Gold drop
-- +5–40% Bonus XP
-- +0%–1% Item drop chance
-- +5–20% Awakening Soul drop chance
-- +1–20% Crit Rate
-- +5–30% Crit Damage
-- +5–40% Skill leveling
-
-**Ice Dragon Sky Sword** (`ice-dragon-sky-sword`) (Tao weapon)
-- +1–3 SC
-- +1–2 Luck
-- Increase Healing healing by 5–25%
-- Increase Mass Healing healing by 5–25%
-- Increase Soul Fire Ball damage by 10–35%
-- Increase Skeleton damage by 10–50%
-- Increase Skeleton health by 10–50%
-- Reduce Skeleton damage taken by 5–20%
-- Increase Shinsu damage by 10–50%
-- Increase Shinsu health by 10–50%
-- Reduce Shinsu damage taken by 5–20%
-- Increase Holy Deva damage by 10–50%
-- Increase Holy Deva health by 10–50%
-- Reduce Holy Deva damage taken by 5–20%
+- Reduce Poison Cloud cooldown by 1–5 seconds
 - Increase Soul Fire Ball crit chance by 5–25%
 - Increase Soul Fire Ball crit damage by 10–50%
 - +5–40% Gold drop
@@ -19955,6 +22114,8 @@ Grouped by slot. Weapons show their class and actual roll pool from `empowerCand
 - Reduce mana cost of Flame Field by 10–40%
 - Reduce mana cost of Meteor Strike by 10–40%
 - Reduce mana cost of Blizzard by 10–40%
+- Reduce Meteor Strike cooldown by 1–5 seconds
+- Reduce Blizzard cooldown by 1–5 seconds
 - Increase Flame Disruptor crit chance by 5–25%
 - Increase Flame Disruptor crit damage by 10–50%
 - Increase Fire Wall crit chance by 5–25%

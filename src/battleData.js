@@ -232,6 +232,7 @@ export function cloneStats(stats) {
     critChancePercent: stats.critChancePercent ?? 0,
     critDamagePercent: stats.critDamagePercent ?? 0,
     skillLevelBonusPercent: stats.skillLevelBonusPercent ?? 0,
+    potionRestoreBonusPercent: stats.potionRestoreBonusPercent ?? 0,
   };
 }
 
@@ -258,6 +259,7 @@ export function addStats(target, source) {
   target.critChancePercent += Number(source.critChancePercent) || 0;
   target.critDamagePercent += Number(source.critDamagePercent) || 0;
   target.skillLevelBonusPercent += Number(source.skillLevelBonusPercent) || 0;
+  target.potionRestoreBonusPercent += Number(source.potionRestoreBonusPercent) || 0;
 }
 
 export function addRange(target, source) {
@@ -266,7 +268,11 @@ export function addRange(target, source) {
   target[1] += Number(source[1]) || 0;
 }
 
-/** Max successful smith duplicate combines (+5). Gems/orbs use bonusStats separately. */
+/**
+ * Base max successful smith duplicate combines (+5).
+ * Rebirth Master Smithing can raise the live cap to +10 (see smithCombineStatCap).
+ * Gems/orbs use bonusStats separately.
+ */
 export const SMITH_COMBINE_STAT_CAP = 5;
 
 function sanitizeBonusPercentPoints(value) {
@@ -285,7 +291,7 @@ export function sanitizeItemBonusStats(stats) {
   for (const key of ["hp", "mp", "accuracy", "agility", "luck", "attackSpeed"]) {
     bonusStats[key] = Math.trunc(Number(stats?.[key]) || 0);
   }
-  for (const key of ["poisonAttack", "freezing", "magicResist", "poisonResist", "healthRecovery", "poisonRecovery", "strong", "xpBonusPercent", "goldBonusPercent", "bonusAwakeningSoulChancePercent", "damageTakenReductionPercent", "critChancePercent", "critDamagePercent", "skillLevelBonusPercent"]) {
+  for (const key of ["poisonAttack", "freezing", "magicResist", "poisonResist", "healthRecovery", "poisonRecovery", "strong", "xpBonusPercent", "goldBonusPercent", "bonusAwakeningSoulChancePercent", "damageTakenReductionPercent", "critChancePercent", "critDamagePercent", "skillLevelBonusPercent", "potionRestoreBonusPercent"]) {
     bonusStats[key] = Math.trunc(Number(stats?.[key]) || 0);
   }
   bonusStats.dropChanceBonusPercent = sanitizeBonusPercentPoints(stats?.dropChanceBonusPercent);

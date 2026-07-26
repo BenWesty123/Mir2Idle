@@ -226,6 +226,14 @@ function buildUsedMaptileFiles() {
     if (!wanted.has(set.id) || !set.sheet) continue;
     files.add(`maptiles/${set.sheet}`);
   }
+  // Floor-patch overlays (Red Cavern / Namman grass) live under maptiles/ but are
+  // not mapSet sheets — collect them from zone floorDecorations so they ship.
+  for (const zone of PHASE1_ZONES) {
+    for (const decor of zone.floorDecorations ?? []) {
+      const sheet = typeof decor?.sheet === "string" ? decor.sheet.trim() : "";
+      if (sheet) files.add(`maptiles/${sheet}`);
+    }
+  }
   return files;
 }
 

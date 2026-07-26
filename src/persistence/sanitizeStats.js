@@ -44,14 +44,19 @@ export function sanitizeAccountStats(saved = {}, zoneFilter = () => false) {
  * @param {Record<string, unknown>} savedPity
  * @param {string[]} zoneIds
  * @param {number} [maxPity=DROP_PITY_KILLS]
+ * @param {Record<string, number> | null | undefined} [pityByZone]
  */
-export function sanitizeDropPity(savedPity, zoneIds, maxPity = DROP_PITY_KILLS) {
+export function sanitizeDropPity(savedPity, zoneIds, maxPity = DROP_PITY_KILLS, pityByZone = null) {
   if (!savedPity || typeof savedPity !== "object") return {};
-  const cap = Math.max(0, Math.trunc(Number(maxPity) || DROP_PITY_KILLS));
+  const defaultCap = Math.max(0, Math.trunc(Number(maxPity) || DROP_PITY_KILLS));
   return Object.fromEntries(
-    zoneIds.map((zoneId) => [
-      zoneId,
-      Math.max(0, Math.min(cap, Math.trunc(Number(savedPity[zoneId]) || 0))),
-    ]),
+    zoneIds.map((zoneId) => {
+      const zoneCap = Math.max(0, Math.trunc(Number(pityByZone?.[zoneId]) || 0));
+      const cap = zoneCap > 0 ? zoneCap : defaultCap;
+      return [
+        zoneId,
+        Math.max(0, Math.min(cap, Math.trunc(Number(savedPity[zoneId]) || 0))),
+      ];
+    }),
   );
 }

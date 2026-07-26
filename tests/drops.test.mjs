@@ -5,8 +5,12 @@ import {
   adjustedDropChance,
   applyDropChanceBonus,
   applyDropChanceBonusToBossTable,
+  awakeningSoulBossDropRollCount,
   bossDropTableHasItem,
+  bossDropTableItemChance,
   buildZoneDropCandidates,
+  countIndependentChanceHits,
+  omitBossDropTableItem,
   rollBonusBossDropItem,
   rollBossTableDropSelection,
   rollChanceTable,
@@ -94,6 +98,36 @@ test("rollBonusBossDropItem: extra soul roll only on eligible boss tables", () =
   assert.equal(rollBonusBossDropItem(table, "awakening-soul", 60, () => 0.65), false);
   assert.equal(rollBonusBossDropItem(table, "awakening-soul", 100, () => 0.99), true);
   assert.equal(rollBonusBossDropItem(table, "awakening-soul", 110, () => 0.99), true);
+});
+
+test("awakeningSoulBossDropRollCount: normal 1 / empowered 2 / ascended 3", () => {
+  assert.equal(awakeningSoulBossDropRollCount({}), 1);
+  assert.equal(awakeningSoulBossDropRollCount({ empowered: true }), 2);
+  assert.equal(awakeningSoulBossDropRollCount({ empowered: true, ascended: true }), 3);
+  assert.equal(awakeningSoulBossDropRollCount({ ascended: true }), 3);
+});
+
+test("omitBossDropTableItem / bossDropTableItemChance", () => {
+  const table = {
+    benedictionOils: 1,
+    items: [{ id: "awakening-soul", chance: 0.5 }, { id: "oil-token", chance: 0.1 }],
+  };
+  assert.equal(bossDropTableItemChance(table, "awakening-soul"), 0.5);
+  assert.equal(bossDropTableItemChance(table, "missing"), 0);
+  const omitted = omitBossDropTableItem(table, "awakening-soul");
+  assert.equal(omitted.benedictionOils, 1);
+  assert.deepEqual(omitted.items, [{ id: "oil-token", chance: 0.1 }]);
+  assert.equal(omitBossDropTableItem(table, "missing"), table);
+});
+
+test("countIndependentChanceHits: counts successes across roll slots", () => {
+  assert.equal(countIndependentChanceHits(0.5, 3, () => 0.1), 3);
+  assert.equal(countIndependentChanceHits(0.5, 3, () => 0.9), 0);
+  const sequence = [0.1, 0.9, 0.2];
+  const rng = () => sequence.shift() ?? 1;
+  assert.equal(countIndependentChanceHits(0.5, 3, rng), 2);
+  assert.equal(countIndependentChanceHits(0, 5, () => 0), 0);
+  assert.equal(countIndependentChanceHits(1, 0, () => 0), 0);
 });
 
 test("buildZoneDropCandidates: zone and enemy-specific chances", () => {

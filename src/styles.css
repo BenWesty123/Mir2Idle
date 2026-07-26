@@ -1966,6 +1966,107 @@ dd {
   cursor: default;
 }
 
+.auto-junk-panel {
+  display: grid;
+  grid-template-rows: auto auto auto minmax(0, 1fr);
+  gap: 8px;
+  min-height: 0;
+}
+
+.auto-junk-intro {
+  margin: 0;
+  color: #b6a279;
+  font-size: 11px;
+  line-height: 1.4;
+}
+
+.auto-junk-drop-slot {
+  min-height: 64px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 10px;
+  border: 1px dashed rgba(155, 122, 60, 0.9);
+  background: rgba(25, 19, 13, 0.75);
+  color: #8f7f5c;
+  font-size: 12px;
+  text-align: center;
+  line-height: 1.3;
+}
+
+.auto-junk-drop-slot.drag-over {
+  border-style: solid;
+  border-color: rgba(210, 170, 90, 0.95);
+  color: #ffe8b8;
+}
+
+.auto-junk-drop-slot.drag-invalid {
+  border-color: rgba(160, 70, 70, 0.9);
+  color: #d9a0a0;
+}
+
+.auto-junk-rules-header {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 8px;
+  color: #e8d7b0;
+  font-size: 12px;
+}
+
+.auto-junk-rules-header span {
+  color: #9e8d6a;
+  font-size: 11px;
+}
+
+.auto-junk-rule-list {
+  display: grid;
+  gap: 4px;
+  min-height: 0;
+  overflow: auto;
+  align-content: start;
+}
+
+.auto-junk-empty {
+  color: #9e8d6a;
+  font-size: 11px;
+  line-height: 1.35;
+}
+
+.auto-junk-rule-row {
+  display: grid;
+  grid-template-columns: 28px minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 7px;
+  padding: 4px 6px;
+  border: 1px solid rgba(120, 88, 42, 0.55);
+  background: rgba(18, 12, 7, 0.55);
+}
+
+.auto-junk-rule-name {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  color: #e8d7b0;
+  font-size: 12px;
+}
+
+.auto-junk-rule-remove {
+  min-height: 24px;
+  padding: 2px 8px;
+  border: 1px solid rgba(120, 88, 42, 0.9);
+  background: linear-gradient(180deg, rgba(54, 36, 18, 0.96) 0%, rgba(22, 14, 7, 0.94) 100%);
+  color: #d5c6aa;
+  font-size: 11px;
+  cursor: pointer;
+}
+
+.auto-junk-rule-remove:hover {
+  border-color: rgba(180, 140, 70, 0.95);
+  color: #ffe8b8;
+}
+
 .gem-merchant-panel {
   grid-template-rows: auto minmax(0, 1fr);
   gap: 5px;
@@ -3189,6 +3290,69 @@ dd {
   margin-top: 4px;
 }
 
+.timed-enrage-hud {
+  position: absolute;
+  top: 10px;
+  left: 50%;
+  z-index: 24;
+  display: grid;
+  gap: 2px;
+  min-width: 180px;
+  max-width: min(320px, calc(100% - 24px));
+  padding: 8px 14px;
+  border: 1px solid rgba(180, 120, 48, 0.85);
+  border-radius: 6px;
+  background: rgba(12, 10, 8, 0.92);
+  box-shadow: 0 4px 18px rgba(0, 0, 0, 0.45);
+  color: #f0d9a0;
+  text-align: center;
+  transform: translateX(-50%);
+  pointer-events: none;
+}
+
+.timed-enrage-hud[hidden] {
+  display: none !important;
+}
+
+.timed-enrage-hud .timed-enrage-label {
+  color: #c9a86a;
+  font-size: 11px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.timed-enrage-hud .timed-enrage-value {
+  color: #ffe28a;
+  font-size: 22px;
+  font-variant-numeric: tabular-nums;
+  line-height: 1.1;
+}
+
+.timed-enrage-hud .timed-enrage-note {
+  color: #9a8664;
+  font-size: 11px;
+}
+
+.timed-enrage-hud.is-enraged {
+  border-color: rgba(220, 72, 48, 0.9);
+  background: rgba(42, 12, 10, 0.94);
+  animation: timed-enrage-pulse 1s ease-in-out infinite;
+}
+
+.timed-enrage-hud.is-enraged .timed-enrage-label,
+.timed-enrage-hud.is-enraged .timed-enrage-value {
+  color: #ff7a5c;
+}
+
+.timed-enrage-hud.is-enraged .timed-enrage-note {
+  color: #d39a88;
+}
+
+@keyframes timed-enrage-pulse {
+  0%, 100% { box-shadow: 0 0 0 0 rgba(220, 72, 48, 0.35); }
+  50% { box-shadow: 0 0 16px 2px rgba(220, 72, 48, 0.45); }
+}
+
 .boss-party-status {
   display: grid;
   gap: 4px;
@@ -4025,9 +4189,195 @@ dd {
 }
 
 .scene-window.spirit-box-window,
+.scene-window.auto-junk-window,
+.scene-window.glyphs-window,
 .scene-window.time-logging-window,
 .scene-window.teleport-ring-window {
   width: min(300px, calc(100vw - 24px));
+}
+
+.scene-window.auto-junk-window {
+  max-height: min(420px, calc(100vh - 48px));
+}
+
+.scene-window.auto-junk-window .auto-junk-panel {
+  max-height: min(340px, calc(100vh - 140px));
+}
+
+.scene-window.glyphs-window {
+  width: min(340px, calc(100vw - 24px));
+  max-height: min(480px, calc(100vh - 48px));
+}
+
+.glyphs-panel {
+  display: grid;
+  grid-template-rows: auto auto auto minmax(0, 1fr);
+  gap: 8px;
+  min-height: 0;
+  max-height: min(400px, calc(100vh - 140px));
+}
+
+.glyphs-intro {
+  margin: 0;
+  color: #b6a279;
+  font-size: 11px;
+  line-height: 1.4;
+}
+
+.glyphs-equip-grid {
+  display: grid;
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+  gap: 5px;
+}
+
+.glyphs-equip-slot {
+  position: relative;
+  min-height: 72px;
+  display: grid;
+  align-content: start;
+  justify-items: center;
+  gap: 3px;
+  padding: 4px 3px 6px;
+  border: 1px solid rgba(120, 88, 42, 0.65);
+  background: rgba(18, 12, 7, 0.7);
+}
+
+.glyphs-equip-slot.open {
+  border-style: dashed;
+}
+
+.glyphs-equip-slot.open.occupied {
+  border-style: solid;
+}
+
+.glyphs-equip-slot.open.drag-over {
+  border-color: rgba(210, 170, 90, 0.95);
+  border-style: solid;
+}
+
+.glyphs-equip-slot.open.drag-invalid {
+  border-color: rgba(160, 70, 70, 0.9);
+}
+
+.glyphs-equip-slot.locked {
+  opacity: 0.45;
+  color: #8f7f5c;
+}
+
+.glyphs-equip-slot-index {
+  font-size: 10px;
+  color: #9e8d6a;
+}
+
+.glyphs-equip-slot-empty,
+.glyphs-equip-slot-locked-label {
+  font-size: 10px;
+  color: #8f7f5c;
+  text-align: center;
+  line-height: 1.2;
+  margin-top: 10px;
+}
+
+.glyphs-equip-item {
+  width: 32px;
+  height: 32px;
+  cursor: grab;
+  touch-action: none;
+  user-select: none;
+}
+
+.glyphs-equip-item img {
+  width: 32px;
+  height: 32px;
+  object-fit: contain;
+  image-rendering: pixelated;
+  pointer-events: none;
+}
+
+.glyphs-unequip {
+  min-height: 18px;
+  padding: 1px 4px;
+  border: 1px solid rgba(120, 88, 42, 0.85);
+  background: rgba(40, 24, 12, 0.95);
+  color: #d5c6aa;
+  font-size: 9px;
+  cursor: pointer;
+}
+
+.glyphs-unequip:hover {
+  color: #ffe8b8;
+}
+
+.glyphs-bag-header {
+  color: #e8d7b0;
+  font-size: 12px;
+}
+
+.glyphs-bag-list {
+  display: grid;
+  gap: 4px;
+  min-height: 0;
+  overflow: auto;
+  align-content: start;
+}
+
+.glyphs-empty {
+  color: #9e8d6a;
+  font-size: 11px;
+}
+
+.glyphs-bag-row {
+  display: grid;
+  grid-template-columns: 28px minmax(0, 1fr) auto;
+  gap: 7px;
+  align-items: center;
+  padding: 5px 6px;
+  border: 1px solid rgba(120, 88, 42, 0.5);
+  background: rgba(18, 12, 7, 0.55);
+}
+
+.glyphs-bag-meta {
+  min-width: 0;
+  display: grid;
+  gap: 2px;
+}
+
+.glyphs-bag-meta strong {
+  color: #e8d7b0;
+  font-size: 12px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.glyphs-bag-meta span {
+  color: #9e8d6a;
+  font-size: 10px;
+  line-height: 1.3;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.glyphs-bag-row button {
+  min-height: 24px;
+  padding: 2px 8px;
+  border: 1px solid rgba(120, 88, 42, 0.9);
+  background: linear-gradient(180deg, rgba(54, 36, 18, 0.96) 0%, rgba(22, 14, 7, 0.94) 100%);
+  color: #d5c6aa;
+  font-size: 11px;
+  cursor: pointer;
+}
+
+.glyphs-bag-row button:hover:not(:disabled) {
+  border-color: rgba(180, 140, 70, 0.95);
+  color: #ffe8b8;
+}
+
+.glyphs-bag-row button:disabled {
+  opacity: 0.45;
+  cursor: default;
 }
 
 .scene-window-stack {
@@ -6628,6 +6978,11 @@ body.scene-window-drag-active {
   image-rendering: pixelated;
 }
 
+/* Crystal CharacterDialog uses Prguse2.DrawBlend for paper-doll wings. */
+.crystal-paper-doll-layer-blend {
+  mix-blend-mode: screen;
+}
+
 .crystal-character-page {
   background-image: url("../public/ui/character/pages.png");
   background-size: 744px 284px;
@@ -6655,6 +7010,44 @@ body.scene-window-drag-active {
   z-index: 6;
   width: 32px;
   height: 32px;
+}
+
+.crystal-glyphs-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+  border: 1px solid rgba(120, 88, 42, 0.75);
+  background: rgba(22, 16, 10, 0.92);
+  color: #d5c6aa;
+  cursor: pointer;
+  overflow: hidden;
+}
+
+.crystal-glyphs-button:hover,
+.crystal-glyphs-button.active {
+  outline: 1px solid rgba(241, 208, 149, 0.7);
+  outline-offset: -1px;
+  color: #ffe8b8;
+}
+
+.crystal-glyphs-button.has-item {
+  border-color: rgba(180, 140, 70, 0.95);
+}
+
+.crystal-glyphs-button-label {
+  font-size: 8px;
+  line-height: 1.05;
+  text-align: center;
+  pointer-events: none;
+}
+
+.crystal-glyphs-button img {
+  width: 28px;
+  height: 28px;
+  object-fit: contain;
+  image-rendering: pixelated;
+  pointer-events: none;
 }
 
 .crystal-equipment-slot:hover,

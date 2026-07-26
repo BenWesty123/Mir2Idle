@@ -274,6 +274,14 @@ const groups = [
       ...monsterSounds("Cloud Element", 133),
       ...monsterSounds("Great Fox Spirit", 134, { range: 1345 }),
       ...monsterSounds("Guardian Rock", 131),
+      // Southern Barbarian Land — Mir2DB imgs 324–328 map to Crystal 267–271.
+      ...monsterSounds("White Elephant", 267),
+      ...monsterSounds("Black Tiger", 268),
+      ...monsterSounds("White Tiger", 269),
+      ...monsterSounds("Black Ape", 270),
+      ...monsterSounds("Rhino", 271),
+      // Beast King art is WingedBullLord (178) which has no WAVs; use WingedTigerLord (184).
+      ...monsterSoundsByImage("Beast King", 994, 184, { range: 1845 }),
     ],
   },
   {

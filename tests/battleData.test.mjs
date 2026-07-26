@@ -180,9 +180,10 @@ test("sanitizeItemBonusStats coerces to a complete, truncated stat shape", () =>
   for (const key of ["dc", "mc", "sc", "ac", "amc"]) {
     assert.ok(Array.isArray(result[key]) && result[key].length === 2);
   }
-  for (const key of ["mp", "accuracy", "agility", "luck", "attackSpeed", "poisonAttack", "freezing", "magicResist", "poisonResist", "healthRecovery", "poisonRecovery", "strong", "xpBonusPercent", "goldBonusPercent", "bonusAwakeningSoulChancePercent", "dropChanceBonusPercent"]) {
+  for (const key of ["mp", "accuracy", "agility", "luck", "attackSpeed", "poisonAttack", "freezing", "magicResist", "poisonResist", "healthRecovery", "poisonRecovery", "strong", "xpBonusPercent", "goldBonusPercent", "bonusAwakeningSoulChancePercent", "dropChanceBonusPercent", "potionRestoreBonusPercent"]) {
     assert.equal(typeof result[key], "number");
   }
+  assert.equal(sanitizeItemBonusStats({ potionRestoreBonusPercent: 25.9 }).potionRestoreBonusPercent, 25);
   assert.equal(sanitizeItemBonusStats({ dropChanceBonusPercent: 0.75 }).dropChanceBonusPercent, 0.75);
   // unknown keys are dropped; garbage input yields a zeroed shape
   assert.equal(result.bogus, undefined);

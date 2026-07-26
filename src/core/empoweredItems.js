@@ -7,13 +7,29 @@ import { sanitizeItemBonusStats } from "../battleData.js";
 /** Base chance an equippable boss drop becomes empowered (before future rebirth bonuses). */
 export const BOSS_EMPOWER_ITEM_CHANCE = 0.2;
 
-/** Given empowered, weighted tier roll (1–4 stat empowerments). */
+/** Given empowered, weighted tier roll (1–4 stat empowerments) — Empowered bosses. */
 export const EMPOWER_TIER_WEIGHTS = [
   { tier: 1, weight: 60 },
   { tier: 2, weight: 30 },
   { tier: 3, weight: 7.5 },
   { tier: 4, weight: 2.5 },
 ];
+
+/** Ascended bosses: better star odds (50% / 35% / 10% / 5%). */
+export const ASCEND_TIER_WEIGHTS = [
+  { tier: 1, weight: 50 },
+  { tier: 2, weight: 35 },
+  { tier: 3, weight: 10 },
+  { tier: 4, weight: 5 },
+];
+
+// Future Awakened bosses (not wired yet): 30% / 30% / 25% / 15%.
+// export const AWAKEN_TIER_WEIGHTS = [
+//   { tier: 1, weight: 30 },
+//   { tier: 2, weight: 30 },
+//   { tier: 3, weight: 25 },
+//   { tier: 4, weight: 15 },
+// ];
 
 /** Warrior-oriented weapon empowers — Warrior and Universal weapons only. */
 const WEAPON_DC_EMPOWER_UTILITY_KEYS = new Set(["accuracy", "attackSpeed", "freezing", "poisonAttack"]);
@@ -86,6 +102,8 @@ export const ARMOUR_EMPOWER_ROLL_DEFS = [
   { key: "critChancePercent", range: false, min: 1, max: 14, step: 1 },
   { key: "critDamagePercent", range: false, min: 5, max: 20, step: 5 },
   { key: "skillLevelBonusPercent", range: false, min: 5, max: 30, step: 5 },
+  // Armour + helmet + belt + boots max rolls sum to 100% (hard cap at use).
+  { key: "potionRestoreBonusPercent", range: false, min: 5, max: 35, step: 5 },
 ];
 
 /** Helmet empowerments: one roll per stat key, no duplicates on the same item. */
@@ -104,6 +122,7 @@ export const HELMET_EMPOWER_ROLL_DEFS = [
   { key: "critChancePercent", range: false, min: 1, max: 10, step: 1 },
   { key: "critDamagePercent", range: false, min: 5, max: 15, step: 5 },
   { key: "skillLevelBonusPercent", range: false, min: 5, max: 20, step: 5 },
+  { key: "potionRestoreBonusPercent", range: false, min: 5, max: 25, step: 5 },
 ];
 
 /** Bracelet empowerments: one roll per stat key, no duplicates on the same item. */
@@ -165,6 +184,7 @@ export const BELT_BOOT_EMPOWER_ROLL_DEFS = [
   { key: "critChancePercent", range: false, min: 1, max: 6, step: 1 },
   { key: "critDamagePercent", range: false, min: 5, max: 10, step: 5 },
   { key: "skillLevelBonusPercent", range: false, min: 2, max: 10, step: 2 },
+  { key: "potionRestoreBonusPercent", range: false, min: 5, max: 20, step: 5 },
 ];
 
 /** Stone empowerments: one roll per stat key, no duplicates on the same item. */
@@ -456,6 +476,24 @@ export const MC_WEAPON_SPELL_EMPOWER_ROLL_DEFS = [
     step: 5,
     label: "Blizzard",
   },
+  {
+    key: "spell:MeteorStrike:cooldown",
+    spellId: "MeteorStrike",
+    kind: "cooldownReductionSeconds",
+    min: 1,
+    max: 5,
+    step: 1,
+    label: "Meteor Strike",
+  },
+  {
+    key: "spell:Blizzard:cooldown",
+    spellId: "Blizzard",
+    kind: "cooldownReductionSeconds",
+    min: 1,
+    max: 5,
+    step: 1,
+    label: "Blizzard",
+  },
   ...spellCritEmpowerRollDefs(WIZARD_CRIT_SPELL_IDS),
 ];
 
@@ -655,6 +693,15 @@ export const SC_WEAPON_SPELL_EMPOWER_ROLL_DEFS = [
     step: 5,
     label: "Holy Deva",
   },
+  {
+    key: "spell:PoisonCloud:cooldown",
+    spellId: "PoisonCloud",
+    kind: "cooldownReductionSeconds",
+    min: 1,
+    max: 5,
+    step: 1,
+    label: "Poison Cloud",
+  },
   ...spellCritEmpowerRollDefs(TAO_CRIT_SPELL_IDS),
 ];
 
@@ -680,6 +727,7 @@ const SPELL_EMPOWER_LABELS = {
   TwinDrakeBlade: "Twin Drake Blade",
   BladeAvalanche: "Blade Avalanche",
   SlashingBurst: "Slashing Burst",
+  PoisonCloud: "Poison Cloud",
 };
 
 const RANGE_KEYS = ["dc", "mc", "sc", "ac", "amc"];
@@ -698,6 +746,7 @@ const EMPOWER_PERCENT_SCALAR_KEYS = [
   "skillLevelBonusPercent",
   "dropChanceBonusPercent",
   "damageTakenReductionPercent",
+  "potionRestoreBonusPercent",
 ];
 
 const EMPOWER_SPELL_KINDS = [
@@ -738,6 +787,7 @@ const STAT_LABELS = {
   critChancePercent: "Crit Rate",
   critDamagePercent: "Crit Damage",
   skillLevelBonusPercent: "Skill leveling",
+  potionRestoreBonusPercent: "Potion restore",
 };
 
 const ARMOUR_EMPOWER_SLOTS = new Set(["armour", "dress"]);
@@ -927,7 +977,11 @@ export const GLOBAL_EMPOWER_KEYS = new Set([
   "critChancePercent",
   "critDamagePercent",
   "skillLevelBonusPercent",
+  "potionRestoreBonusPercent",
 ]);
+
+/** Combined equipped potion-restore empower cap (Health + Mana potions). */
+export const POTION_RESTORE_BONUS_CAP_PERCENT = 100;
 
 /** Each empowerment roll draws from the base pool with this probability, else the bonus pool. */
 export const EMPOWER_BASE_POOL_WEIGHT = 0.7;
@@ -1203,7 +1257,8 @@ export function formatEmpowerRollDescription(roll) {
     return `−${stat}`;
   }
   if (roll.key === "xpBonusPercent" || roll.key === "goldBonusPercent" || roll.key === "bonusAwakeningSoulChancePercent"
-    || roll.key === "critChancePercent" || roll.key === "critDamagePercent" || roll.key === "skillLevelBonusPercent") {
+    || roll.key === "critChancePercent" || roll.key === "critDamagePercent" || roll.key === "skillLevelBonusPercent"
+    || roll.key === "potionRestoreBonusPercent") {
     if (min != null && max != null && min !== max) return `+${min}–${max}% ${stat}`;
     if (min != null) return `+${min}% ${stat}`;
     return `+${stat}`;
@@ -1272,8 +1327,8 @@ export function empowerReferenceCatalog() {
       "Warrior weapon — DC only. Wizard weapon — DC + MC. Tao weapon — DC + SC. Universal weapon — DC + MC + SC.",
       "Warrior and Universal weapons roll DC empower plus Acc, A Speed, Freezing, and Poison.",
       "Warrior weapons also roll warrior skill damage and Flaming Sword cooldown empowers.",
-      "Wizard and Universal weapons roll MC empower; MC weapons also roll wizard spell damage and mana cost empowers.",
-      "Tao and Universal weapons roll SC empower; SC weapons also roll tao spell healing, damage, and pet damage / health / damage-taken empowers.",
+      "Wizard and Universal weapons roll MC empower; MC weapons also roll wizard spell damage, mana cost, and Blizzard / Meteor Strike cooldown empowers.",
+      "Tao and Universal weapons roll SC empower; SC weapons also roll tao spell healing, damage, pet damage / health / damage-taken, and Poison Cloud cooldown empowers.",
       "All weapons may roll gold drop, bonus XP, item drop chance, and Awakening Soul drop chance empowers.",
       "Luck — all weapon classes.",
     ],
@@ -1621,6 +1676,36 @@ export function applyEquippedSpellCooldownReductionMs(spellId, cooldownMs, inven
 
 /** Hard cap on stacked pet damage-taken reduction so pets are never fully immune. */
 export const PET_DAMAGE_REDUCTION_CAP_PERCENT = 75;
+
+/**
+ * Total potion restore bonus (%) from equipped armour-kind empowerments.
+ * Stacks across armour/helmet/belt/boots and caps at {@link POTION_RESTORE_BONUS_CAP_PERCENT}.
+ * @param {object | null | undefined} inventory
+ */
+export function equippedPotionRestoreBonusPercent(inventory) {
+  const equippedIds = new Set(Object.values(inventory?.equipment ?? {}).filter(Boolean));
+  let total = 0;
+  for (const entry of inventory?.items ?? []) {
+    if (!equippedIds.has(entry.id)) continue;
+    const bonus = sanitizeItemBonusStats(entry.empowerBonusStats);
+    total += Math.max(0, Math.trunc(Number(bonus.potionRestoreBonusPercent) || 0));
+  }
+  return Math.max(0, Math.min(POTION_RESTORE_BONUS_CAP_PERCENT, total));
+}
+
+/**
+ * Scale a Health/Mana potion restore amount by equipped potion-restore empower.
+ * At 100% bonus, 100 HP becomes 200 HP.
+ * @param {number} amount
+ * @param {object | null | undefined} inventory
+ */
+export function applyEquippedPotionRestoreBonus(amount, inventory) {
+  const base = Math.max(0, Math.trunc(Number(amount) || 0));
+  if (base <= 0) return 0;
+  const bonusPercent = equippedPotionRestoreBonusPercent(inventory);
+  if (bonusPercent <= 0) return base;
+  return Math.trunc(base * (1 + bonusPercent / 100));
+}
 
 /**
  * Total pet health bonus (%) from equipped items for a given summon spell (Tao pets).
@@ -2161,7 +2246,8 @@ export function formatEmpowerAppliedChangeLabel(roll, amount) {
     return `+${formatted} ${stat}`;
   }
   if (roll.key === "xpBonusPercent" || roll.key === "goldBonusPercent" || roll.key === "bonusAwakeningSoulChancePercent"
-    || roll.key === "critChancePercent" || roll.key === "critDamagePercent" || roll.key === "skillLevelBonusPercent") {
+    || roll.key === "critChancePercent" || roll.key === "critDamagePercent" || roll.key === "skillLevelBonusPercent"
+    || roll.key === "potionRestoreBonusPercent") {
     return `+${value}% ${stat}`;
   }
   return `+${value} ${stat}`;
@@ -2183,7 +2269,7 @@ export function empowerBonusStatLines(empowerBonusStats) {
     const value = bonus[key] || 0;
     if (value !== 0) lines.push(`+${value} ${STAT_LABELS[key]}`);
   }
-  for (const key of ["xpBonusPercent", "goldBonusPercent", "bonusAwakeningSoulChancePercent", "critChancePercent", "critDamagePercent", "skillLevelBonusPercent"]) {
+  for (const key of ["xpBonusPercent", "goldBonusPercent", "bonusAwakeningSoulChancePercent", "critChancePercent", "critDamagePercent", "skillLevelBonusPercent", "potionRestoreBonusPercent"]) {
     const value = bonus[key] || 0;
     if (value !== 0) lines.push(`+${value}% ${STAT_LABELS[key]}`);
   }

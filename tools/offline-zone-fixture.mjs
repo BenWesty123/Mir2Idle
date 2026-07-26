@@ -140,9 +140,23 @@ await page.waitForFunction(
 );
 await page.waitForTimeout(3000);
 
+// Re-seed immediately before the sim so the 3s settle wait (and variable rAF
+// Math.random burn) cannot desync the offline characterization.
 const result = await page.evaluate(
-  ({ method, ms }) => window.__lomTest[method](ms),
-  { method: runMethod, ms: elapsedMs },
+  ({ method, ms, seed }) => {
+    function mulberry32(localSeed) {
+      let state = localSeed >>> 0;
+      return () => {
+        state = (state + 0x6d2b79f5) >>> 0;
+        let t = Math.imul(state ^ (state >>> 15), 1 | state);
+        t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t;
+        return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
+      };
+    }
+    Math.random = mulberry32(seed);
+    return window.__lomTest[method](ms);
+  },
+  { method: runMethod, ms: elapsedMs, seed: rngSeed },
 );
 
 await browser.close();

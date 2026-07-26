@@ -67,6 +67,19 @@ test("sanitizeDropPity: clamps per zone and ignores invalid root", () => {
   });
 });
 
+test("sanitizeDropPity: honors per-zone pity caps", () => {
+  const result = sanitizeDropPity(
+    { "zone-bicheon-1": 40, "zone-bicheon-2": 120 },
+    pityZoneIds,
+    DROP_PITY_KILLS,
+    { "zone-bicheon-2": 100 },
+  );
+  assert.deepEqual(result, {
+    "zone-bicheon-1": DROP_PITY_KILLS,
+    "zone-bicheon-2": 100,
+  });
+});
+
 test("DROP_PITY_KILLS matches live cap", () => {
   assert.equal(DROP_PITY_KILLS, 8);
 });

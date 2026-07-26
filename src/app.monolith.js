@@ -207,8 +207,12 @@ import {
   applyDropChanceBonus,
   applyDropChanceBonusToBossTable,
   adjustedDropChance,
+  awakeningSoulBossDropRollCount,
   bossDropTableHasItem,
+  bossDropTableItemChance,
   buildZoneDropCandidates,
+  countIndependentChanceHits,
+  omitBossDropTableItem,
   rollBonusBossDropItem,
   rollBossTableDropSelection,
   rollChanceTable,
@@ -218,8 +222,10 @@ import {
   weightedDropCandidate,
 } from "./core/drops.js";
 import {
+  ASCEND_TIER_WEIGHTS,
   BOSS_EMPOWER_ITEM_CHANCE,
   applyEquippedPetHealthBonus,
+  applyEquippedPotionRestoreBonus,
   equippedPetDamageReductionPercent,
   applyEquippedSpellDamageBonus,
   applyEquippedSpellCooldownReductionMs,
@@ -321,8 +327,10 @@ import {
   applyGlyphMonkCombatStats,
   applyGlyphProtectionFieldBonus,
   applyGlyphProtectionFieldDuration,
+  applyGlyphHpPotionRestore,
   applyGlyphTwinDrakeDamage,
-  equippedGlyphDef,
+  equippedGlyphDefs,
+  GLYPH_EQUIPMENT_SLOT_IDS,
   flameDisruptorSplashDamage,
   FLAMING_SWORD_GLYPH_DR_KIND,
   glyphBattleWizardParams,
@@ -339,6 +347,7 @@ import {
   glyphManaRegenPerSecond,
   glyphMonkParams,
   glyphPetOwnerDcBonus,
+  glyphPotionTickDelayMs,
   glyphTwinDrakeCooldownMs,
   isGlyphItem,
   isWithinMeleeRange,
@@ -446,6 +455,9 @@ const COMBAT_ANCHORS = {
 const LANE_TILE_PX = 48;
 const MAP_LANE_ROW_STEP = 28;
 const MAP_TILE_ANCHOR_ROW_STEP = 32;
+// Anchor row whose 96x64 Crystal back tile covers LANE.y (player feet).
+// destY = baseY + R*step + offsetY - 58; with offsetY=-44 this is R=4.
+const MAP_TILE_LANE_ANCHOR_ROW = 4;
 const WALK_CYCLE_MS = PLAYER_ACTIONS.walking.count * PLAYER_ACTIONS.walking.interval;
 const RUN_CYCLE_MS = PLAYER_ACTIONS.running.count * PLAYER_ACTIONS.running.interval;
 const WALK_SPEED = Math.round(LANE_TILE_PX / (WALK_CYCLE_MS / 1000));
@@ -940,6 +952,40 @@ const ACCOUNT_UPGRADE_DEFS = [
     summary: "Unlocks a Spirit Box that can hold one item through rebirth. Opening the slot costs 100 Awakening Souls or 200 tokens and stays open until you rebirth; swap freely before then.",
   },
   {
+    id: "rebirth-extra-glyph-slot",
+    label: "Add Additional Glyph Slot",
+    section: "rebirth",
+    category: "utility",
+    currency: "rebirthPoints",
+    effect: "extraGlyphSlot",
+    value: 1,
+    maxTier: 1,
+    rebirthCosts: [250],
+    summary: "Unlocks one additional glyph equip slot on the Glyphs page (2 slots max).",
+  },
+  {
+    id: "rebirth-smith-combine-cap",
+    label: "Master Smithing",
+    section: "rebirth",
+    category: "utility",
+    currency: "rebirthPoints",
+    effect: "smithCombineCapBonus",
+    value: 1,
+    rebirthCosts: [50, 100, 150, 200, 250],
+    summary: "Raises the maximum Smith combine level by +1 per purchase (from +5 up to +10). Higher levels keep stepping down in success chance, to a minimum of 1%.",
+  },
+  {
+    id: "rebirth-gem-orb-cap",
+    label: "Gem Cutting",
+    section: "rebirth",
+    category: "utility",
+    currency: "rebirthPoints",
+    effect: "gemOrbUpgradeCapBonus",
+    value: 1,
+    rebirthCosts: [50, 100, 150, 200, 250],
+    summary: "Lets every gem and orb apply +1 extra time per purchase (up to +5). Raises each gem/orb's own stat cap and total-upgrade cap; success chance still drops with each application.",
+  },
+  {
     id: "rebirth-skill-exp-gain",
     label: "Focused Training",
     section: "rebirth",
@@ -1251,6 +1297,13 @@ const BOSS_ROOM_DEFS = {
     empowerLabel: "Empower Great Fox Spirit for better drops",
     empowerRequirement: BOSS_EMPOWER_UNLOCK_HINT,
   },
+  "zone-namman-boss": {
+    bossName: "Beast King",
+    respawnMinutes: 120,
+    unlockHint: "Select saved characters to call into the fight.",
+    empowerLabel: "Empower Beast King for better drops",
+    empowerRequirement: BOSS_EMPOWER_UNLOCK_HINT,
+  },
   "zone-flame-queen-kr": {
     bossName: "Flame Queen",
     respawnMinutes: BOSS_RESPAWN_MINUTES_ELITE,
@@ -1337,6 +1390,15 @@ const TAOIST_DEFENCE_BUFF_IMPACT_FX = {
   BlessedArmour: "BlessedArmourImpact",
 };
 const CRYSTAL_POT_DELAY_MS = 200;
+
+function crystalPotDelayMs(inventory = state.inventory, hpPending = false) {
+  return glyphPotionTickDelayMs(CRYSTAL_POT_DELAY_MS, equippedGlyphFor(inventory), { hpPending });
+}
+
+function applyPotionHpRestoreWithGlyph(amount, inventory = state.inventory) {
+  const withGear = applyEquippedPotionRestoreBonus(amount, inventory);
+  return applyGlyphHpPotionRestore(withGear, equippedGlyphFor(inventory));
+}
 const CRYSTAL_HEAL_DELAY_MS = 600;
 const CRYSTAL_HEAL_APPLY_DELAY_MS = 500;
 const CRYSTAL_VAMP_FIRST_DELAY_MS = 1000;
@@ -1478,16 +1540,27 @@ const STARTER_GEAR_VERSION = 1;
 const SAVE_INTERVAL_MS = 2000;
 const SIMULATION_STEP_MS = 100;
 const MAX_SIMULATION_CATCH_UP_MS = 10 * 60 * 1000;
-// iOS Safari (incl. iPadOS, which masquerades as Mac) janks on a full 60fps
-// canvas redraw. The simulation still steps every rAF for timing accuracy;
-// we only throttle how often we repaint. Other platforms stay uncapped.
+// Mobile browsers jank on a full 60fps canvas redraw (originally seen on iOS
+// Safari, but mid-range Android phones hit the same wall in dense late-game
+// content). The simulation still steps every rAF for timing accuracy; we only
+// throttle how often we repaint. Desktop stays uncapped.
 const IS_IOS = (() => {
   if (typeof navigator === "undefined") return false;
   const ua = navigator.userAgent || "";
   if (/iP(hone|od|ad)/.test(ua)) return true;
   return navigator.platform === "MacIntel" && (navigator.maxTouchPoints || 0) > 1;
 })();
-const RENDER_MIN_INTERVAL_MS = IS_IOS ? 33 : 0;
+const IS_MOBILE_DEVICE = (() => {
+  if (IS_IOS) return true;
+  if (typeof navigator === "undefined") return false;
+  if (/Android|Mobi/i.test(navigator.userAgent || "")) return true;
+  // Touch-first devices without a fine pointer (excludes touch-screen laptops).
+  return (navigator.maxTouchPoints || 0) > 0
+    && typeof window !== "undefined"
+    && typeof window.matchMedia === "function"
+    && window.matchMedia("(hover: none) and (pointer: coarse)").matches;
+})();
+const RENDER_MIN_INTERVAL_MS = IS_MOBILE_DEVICE ? 33 : 0;
 const BOSS_PARTY_CATCHUP_MAX_STEPS = 12000;
 const OFFLINE_PROGRESS_CAP_MS = 8 * 60 * 60 * 1000;
 const OFFLINE_PROGRESS_MIN_MS = 30 * 1000;
@@ -1559,6 +1632,7 @@ const AWAKENING_SOUL_BOSS_SOURCES = [
   "Oma King Spirit",
   "Hell Keeper",
   "Manectric King",
+  "Hell Lord",
 ];
 const WOMA_TAURUS_ENEMY_ID = 256;
 const INCARNATED_WT_ENEMY_ID = 306;
@@ -1626,7 +1700,11 @@ const SKILL_BOOK_BOSS_DROP_BY_ITEM_ID = Object.fromEntries(
   )),
 );
 const BENEDICTION_CURSE_CHANCE = 5;
-const SMITH_COMBINE_SUCCESS_CHANCES = [0.5, 0.4, 0.3, 0.2, 0.1, 0.05];
+// Indexed by current smithLevel when attempting the next combine.
+// Base game uses +0…+4 (cap +5). Rebirth Master Smithing unlocks +5…+9 (cap +10).
+const SMITH_COMBINE_SUCCESS_CHANCES = [0.5, 0.4, 0.3, 0.2, 0.1, 0.05, 0.04, 0.03, 0.02, 0.01];
+const SMITH_COMBINE_SUCCESS_CHANCE_MIN = 0.01;
+const SMITH_COMBINE_STAT_CAP_ABSOLUTE_MAX = 10;
 const SMITH_DEFENSIVE_UPGRADE_SLOTS = new Set(["armour", "belt", "boots", "boot", "shoes", "shoe", "helmet"]);
 const SMITH_RANDOM_TRIPLE_STAT = "__random_triple__";
 const ORE_PURITY_UNIT = 1000;
@@ -1789,6 +1867,17 @@ const CAVE_EDGE_SETS = {
       scrollRatio: 1,
     },
   },
+  "namman-trees": {
+    // Keep floor under the forest (trees are transparent between trunks).
+    skipTopGroundRows: 0,
+    overlay: {
+      // Continuous panorama from NAMMAN (296,341)-(320,359) — NOT 48px columns.
+      // Baked by tools/build-namman-tree-panorama.ps1 (1200×1583, loop width 1200).
+      src: "./public/mapedges/namman-tree-line.png",
+      yOffsetFromBase: -1551,
+      scrollRatio: 1,
+    },
+  },
 };
 
 const PROTOTYPE_ZONES = PHASE1_ZONES;
@@ -1875,6 +1964,17 @@ const TELEPORT_REGIONS = [
       "zone-red-cavern-2",
       "zone-red-cavern-kr",
       "zone-hell-gd-1",
+      "zone-fire-hell-gd-1",
+      "zone-fire-hell-gd-2",
+      "zone-fire-hell-gd-3",
+    ],
+  },
+  {
+    id: "southern-barbarian",
+    label: "Southern Barbarian Land",
+    zoneIds: [
+      "zone-namman-1",
+      "zone-namman-boss",
     ],
   },
 ];
@@ -1893,8 +1993,8 @@ const TOWN_VISUALS = {
   stageMaxHeight: 480,
 };
 
-const MAP_STAMP_ASSET_VERSION = "20260719-ice-hell-kr-north-y64";
-const MONSTER_ASSET_VERSION = "20260719-manectric-massburst-vfx";
+const MAP_STAMP_ASSET_VERSION = "20260726-fire-hell-kr-middle-up";
+const MONSTER_ASSET_VERSION = "20260726-hell-lord-struck-body";
 const HELL_BOLT_MONSTER_INDEX = 219;
 const HELL_BOLT_TEMPLATE_ID = 429;
 const WITCH_DOCTOR_MONSTER_INDEX = 220;
@@ -1903,6 +2003,9 @@ const HELL_KEEPER_MONSTER_INDEX = 218;
 const HELL_KEEPER_TEMPLATE_ID = 431;
 const MANECTRIC_CLAW_MONSTER_INDEX = 223;
 const MANECTRIC_CLAW_TEMPLATE_ID = 420;
+const HELL_BOMB_TEMPLATE_IDS = new Set([437, 438, 439]);
+const HELL_BOMB_MONSTER_INDICES = new Set([2471, 2472, 2473]);
+const HELL_BOMB_EXPLODE_IMPACT_MS = 500;
 const HELL_KEEPER_ACTION_MS = 300;
 const HELL_KEEPER_ATTACK_ANIM_MS = 800;
 const HELL_KEEPER_ATTACK_COOLDOWN_MS = 1200;
@@ -2068,15 +2171,15 @@ function offlineGroupAutoUsePotions(member, now, report) {
       .sort((a, b) => b.restore - a.restore || a.slot - b.slot)[0];
     if (!candidate) continue;
     if (!offlineGroupConsumeInventoryUnit(member, candidate.entry.id)) continue;
-    const hpRestore = potionRestoreAmount(candidate.item, "hp");
-    const mpRestore = potionRestoreAmount(candidate.item, "mp");
+    const hpRestore = applyPotionHpRestoreWithGlyph(potionRestoreAmount(candidate.item, "hp"), member.inventory);
+    const mpRestore = applyEquippedPotionRestoreBonus(potionRestoreAmount(candidate.item, "mp"), member.inventory);
     if (potionRestoreMode(candidate.item) === "instant") {
       member.hp = Math.min(member.maxHp, member.hp + hpRestore);
       member.mp = Math.min(member.maxMp, member.mp + mpRestore);
     } else {
       member.potHealthAmount = Math.min(65535, (member.potHealthAmount ?? 0) + hpRestore);
       member.potManaAmount = Math.min(65535, (member.potManaAmount ?? 0) + mpRestore);
-      member.potTickAt = member.potTickAt || now + CRYSTAL_POT_DELAY_MS;
+      member.potTickAt = member.potTickAt || now + crystalPotDelayMs(member.inventory, hpRestore > 0);
     }
     member.autoPotionReadyAt[kind] = now + AUTO_POTION_COOLDOWN_MS;
     incrementReportCount(report.potionsUsed, candidate.item.name);
@@ -2486,6 +2589,57 @@ async function preloadMonsterProjectileSheet(atlas, index) {
   return loadCachedImage(url).catch(() => null);
 }
 
+/**
+ * Evict cached monster sprite sheets that the zone being entered does not use.
+ * Without this, `imageCache` keeps every monster sheet ever met decoded in
+ * memory for the whole session; touring zones piles up tens of MB and mobile
+ * browsers jank or kill the tab under memory pressure. Sheets still needed -
+ * the destination zone's enemies (incl. swarm/reinforcement spawns) and active
+ * pets - are kept so nothing flickers; evicted sheets reload lazily on return.
+ */
+function evictMonsterImageCacheForZone(zone) {
+  const keep = new Set();
+  const addIndex = (value) => {
+    const index = Math.trunc(Number(value));
+    if (Number.isFinite(index) && index >= 0) keep.add(index);
+  };
+  const addTemplateId = (templateId) => {
+    const template = ENEMY_TEMPLATES.find((enemy) => enemy.id === templateId);
+    if (template) addIndex(template.monsterIndex);
+  };
+  const addSwarmConfig = (config) => {
+    if (!config || typeof config !== "object") return;
+    if (config.templateId != null) addTemplateId(config.templateId);
+    for (const entry of config.spawnQueue ?? []) {
+      if (entry?.templateId != null) addTemplateId(entry.templateId);
+    }
+  };
+  for (const templateId of zone?.enemyIds ?? []) addTemplateId(templateId);
+  addSwarmConfig(zone?.bossSwarmConfig);
+  addSwarmConfig(zone?.groupDungeonBossSwarmConfig);
+  addSwarmConfig(zone?.groupDungeonBossReinforcementsConfig);
+  addIndex(state.enemy?.index);
+  addIndex(state.battle.enemy?.monsterIndex);
+  for (const swarmEnemy of state.battle.swarm?.enemies ?? []) addIndex(swarmEnemy?.monsterIndex);
+  for (const pet of [...livingTaoistPets(), state.battle.stashedTaoPet]) {
+    if (!pet) continue;
+    addIndex(pet.monsterIndex);
+    addIndex(taoistPetRenderMonsterIndex(pet));
+    if (pet.spellId === "SummonShinsu") {
+      addIndex(CRYSTAL_SUMMON_SHINSU_PET_INDEX);
+      addIndex(CRYSTAL_SUMMON_SHINSU_VISIBLE_PET_INDEX);
+    }
+  }
+  for (const src of imageCache.keys()) {
+    if (!src.includes("/monsters/monster/")) continue;
+    const file = src.slice(src.lastIndexOf("/") + 1).split("?")[0];
+    const base = file.replace(/\.(png|json)$/i, "").replace(/-fx$/i, "");
+    // Companion sheets with non-numeric custom names are rare; keep them.
+    if (!/^\d+$/.test(base)) continue;
+    if (!keep.has(Math.trunc(Number(base)))) imageCache.delete(src);
+  }
+}
+
 const TOWN_NPCS = [
   {
     id: "test-shopkeeper",
@@ -2684,8 +2838,24 @@ const EQUIPMENT_SLOTS = [
   { id: "boots", label: "Boots" },
   { id: "stone", label: "Stone" },
   { id: "glyph", label: "Glyph" },
+  { id: "glyph2", label: "Glyph 2" },
+  { id: "glyph3", label: "Glyph 3" },
+  { id: "glyph4", label: "Glyph 4" },
+  { id: "glyph5", label: "Glyph 5" },
   { id: "mount", label: "Mount" },
 ];
+
+/** Max glyph equip slots unlockable today (base 1 + one rebirth upgrade). */
+const GLYPH_EQUIP_UNLOCK_CAP = 2;
+
+function unlockedGlyphEquipSlotCount() {
+  const bonus = accountUpgradePurchased("rebirth-extra-glyph-slot") ? 1 : 0;
+  return Math.min(GLYPH_EQUIP_UNLOCK_CAP, 1 + bonus);
+}
+
+function glyphEquipmentSlotIdAt(index) {
+  return GLYPH_EQUIPMENT_SLOT_IDS[index] ?? null;
+}
 
 const CHARACTER_TABS = [
   { id: "character", label: "Character", slot: 0, x: 8 },
@@ -2719,6 +2889,13 @@ const CHARACTER_PAPER_DOLL_FRAMES = {
   60: { src: "./public/ui/character/stateitem-60.png", x: 92, y: 194, w: 80, h: 128 },
   110: { src: "./public/ui/character/stateitem-110.png", x: 130, y: 172, w: 16, h: 20 },
   hair: { src: "./public/ui/character/hair-441.png", x: 131, y: 173, w: 16, h: 14 },
+};
+
+// Crystal CharacterDialog: Prguse2.DrawBlend(1200 + (effect==1?2:4) + genderOffset).
+// Male frames only (idle paper dolls use the male body / hair-441).
+const CHARACTER_PAPER_DOLL_WING_FRAMES = {
+  1: { src: "./public/ui/character/paperdoll-wing-1202.png", x: 64, y: 138, w: 148, h: 139, blend: true },
+  2: { src: "./public/ui/character/paperdoll-wing-1204.png", x: 55, y: 140, w: 156, h: 185, blend: true },
 };
 
 const STATUS_VALUE_ROWS = [
@@ -3022,6 +3199,7 @@ const state = {
     ownedUnlocks: {},
     subscriptions: {},
     spiritBox: createDefaultSpiritBoxState(),
+    autoJunkItemIds: [],
   },
   settings: {
     musicEnabled: DEFAULT_MUSIC_ENABLED,
@@ -3479,6 +3657,7 @@ function labShellHtml() {
             <img src="./public/ui/UI-Slider.png" alt="" aria-hidden="true" />
           </button>
           <div class="player-resource-hud" id="playerResourceHud" hidden></div>
+          <div class="timed-enrage-hud" id="timedEnrageHud" hidden aria-live="polite"></div>
           <div class="stage" id="stage">
             <div class="party-paperdoll-bar" id="partyPaperDollBar" aria-label="Party paper dolls" hidden></div>
             <div class="party-switch-bar" id="partySwitchBar" aria-label="Switch party character" hidden></div>
@@ -3602,6 +3781,7 @@ function gameShellHtml() {
               <img src="./public/ui/UI-Slider.png" alt="" aria-hidden="true" />
             </button>
             <div class="player-resource-hud" id="playerResourceHud" hidden></div>
+            <div class="timed-enrage-hud" id="timedEnrageHud" hidden aria-live="polite"></div>
             <div class="party-paperdoll-bar" id="partyPaperDollBar" aria-label="Party paper dolls" hidden></div>
             <div class="party-switch-bar" id="partySwitchBar" aria-label="Switch party character" hidden></div>
             <div class="stage-corner-buttons">
@@ -3758,6 +3938,7 @@ const els = {
   compactReturnToTown: document.querySelector("#compactReturnToTown"),
   gameTopActions: document.querySelector("#gameTopActions"),
   playerResourceHud: document.querySelector("#playerResourceHud"),
+  timedEnrageHud: document.querySelector("#timedEnrageHud"),
   stageXpBar: document.querySelector("#stageXpBar"),
   stageInfoLevel: document.querySelector("#stageInfoLevel"),
   stageInfoBagFill: document.querySelector("#stageInfoBagFill"),
@@ -4294,6 +4475,7 @@ function createSaveSnapshot() {
       ownedUnlocks: sanitizeOwnedUnlocks(state.account.ownedUnlocks),
       subscriptions: sanitizeSubscriptions(state.account.subscriptions),
       spiritBox: sanitizeSpiritBoxState(state.account.spiritBox),
+      autoJunkItemIds: sanitizeAutoJunkItemIds(state.account.autoJunkItemIds),
     },
     game: {
       ...activeCharacter.game,
@@ -4525,6 +4707,7 @@ function accountRestoreOptions() {
     sanitizeOwnedUnlocks,
     sanitizeSubscriptions,
     sanitizeSpiritBox: sanitizeSpiritBoxState,
+    sanitizeAutoJunkItemIds,
     sanitizeBossKills,
   };
 }
@@ -6398,7 +6581,7 @@ function restorePendingSavedPlayerResources() {
   state.battle.potHealthAmount = Math.max(0, Math.trunc(Number(pendingSavedPlayerResources.potHealthAmount) || 0));
   state.battle.potManaAmount = Math.max(0, Math.trunc(Number(pendingSavedPlayerResources.potManaAmount) || 0));
   state.battle.potTickAt = state.battle.potHealthAmount > 0 || state.battle.potManaAmount > 0
-    ? performance.now() + CRYSTAL_POT_DELAY_MS
+    ? performance.now() + crystalPotDelayMs(state.inventory, state.battle.potHealthAmount > 0)
     : 0;
   state.battle.healAmount = Math.max(0, Math.trunc(Number(pendingSavedPlayerResources.healAmount) || 0));
   state.battle.healTickAt = state.battle.healAmount > 0
@@ -6681,7 +6864,12 @@ function rebaseOfflineTransientTimers(simulatedNow, actualNow = performance.now(
   );
 
   state.battle.furyUntil = rebaseTransientTimestamp(state.battle.furyUntil, simulatedNow, actualNow, 120000);
-  state.battle.potTickAt = rebaseTransientTimestamp(state.battle.potTickAt, simulatedNow, actualNow, CRYSTAL_POT_DELAY_MS);
+  state.battle.potTickAt = rebaseTransientTimestamp(
+    state.battle.potTickAt,
+    simulatedNow,
+    actualNow,
+    crystalPotDelayMs(state.inventory, (state.battle.potHealthAmount ?? 0) > 0),
+  );
   state.battle.healTickAt = rebaseTransientTimestamp(state.battle.healTickAt, simulatedNow, actualNow, CRYSTAL_HEAL_DELAY_MS);
   state.battle.vampTickAt = rebaseTransientTimestamp(state.battle.vampTickAt, simulatedNow, actualNow, CRYSTAL_VAMP_DELAY_MS);
   // glyphManaRegenAt is a past accrual clock (not a future tick). Preserve fractional progress.
@@ -6972,8 +7160,8 @@ function offlineAutoUsePotions(now, report) {
     if (!shouldAutoUsePotion(kind, now)) continue;
     const candidate = autoPotionCandidates(kind)[0];
     if (!candidate) continue;
-    const hpRestore = potionRestoreAmount(candidate.item, "hp");
-    const mpRestore = potionRestoreAmount(candidate.item, "mp");
+    const hpRestore = applyPotionHpRestoreWithGlyph(potionRestoreAmount(candidate.item, "hp"), state.inventory);
+    const mpRestore = applyEquippedPotionRestoreBonus(potionRestoreAmount(candidate.item, "mp"), state.inventory);
     if (!removeInventoryEntry(candidate.entry.id, 1)) continue;
     queuePotionRestore(hpRestore, mpRestore, now);
     state.battle.autoPotionReadyAt[kind] = now + AUTO_POTION_COOLDOWN_MS;
@@ -9048,10 +9236,14 @@ function formatBossRespawnDelay(minutes) {
 }
 
 function sanitizeDropPity(savedPity) {
+  const pityByZone = Object.fromEntries(
+    PROTOTYPE_ZONES.map((zone) => [zone.id, zoneDropPityKills(zone)]),
+  );
   return sanitizeDropPityCore(
     savedPity,
     PROTOTYPE_ZONES.map((zone) => zone.id),
     DROP_PITY_KILLS,
+    pityByZone,
   );
 }
 
@@ -10294,7 +10486,7 @@ function trainingRoomCastWarrior(spell, learned, cost, now) {
     if (!isWarriorChargeSkill(spell)) return false;
     trainingRoomSpendMp(spell, learned, cost);
     applyFlamingSwordChargeState(battle, now);
-    learned.castReadyAt = now + spellDelayMs(spell, learned);
+    setWarriorSpellCastReadyAt(spell, learned, now);
     trainingRoomPlayCastVisual(spell, now);
     pushBattleLog(`${spell.label} readied for the next attack.`);
     return true;
@@ -11194,6 +11386,9 @@ function accountUpgradeEffectLabel(upgrade) {
   if (upgrade?.effect === "gemOrbStackUnlock") return "Gem & orb stacking";
   if (upgrade?.effect === "timeLoggingUnlock") return "XP per hour window";
   if (upgrade?.effect === "spiritBoxUnlock") return "Spirit Box";
+  if (upgrade?.effect === "extraGlyphSlot") return "Glyph equip slots";
+  if (upgrade?.effect === "smithCombineCapBonus") return "Smith combine max";
+  if (upgrade?.effect === "gemOrbUpgradeCapBonus") return "Gem/orb applications";
   if (upgrade?.effect === "skillExperienceGainMaxBonus") return "Skill practice XP per cast";
   if (upgrade?.effect === "bonusAwakeningSoulChancePercent") return "Extra Awakening Soul chance";
   if (upgrade?.effect === "bossRespawnReductionPercent") return "Boss respawn time";
@@ -11255,6 +11450,21 @@ function accountUpgradeProgressText(upgrade) {
   }
   if (upgrade?.effect === "spiritBoxUnlock") {
     return tier >= 1 ? "Unlocked" : "Locked -> Unlocked";
+  }
+  if (upgrade?.effect === "extraGlyphSlot") {
+    return tier >= 1 ? "2 glyph slots" : "1 -> 2 glyph slots";
+  }
+  if (upgrade?.effect === "smithCombineCapBonus") {
+    const current = SMITH_COMBINE_STAT_CAP + tier * step;
+    const maxCap = SMITH_COMBINE_STAT_CAP + step * accountUpgradeMaxTier(upgrade);
+    if (accountUpgradeIsMaxed(upgrade)) return `+${current} max`;
+    return `+${current} -> +${Math.min(current + step, maxCap)} max`;
+  }
+  if (upgrade?.effect === "gemOrbUpgradeCapBonus") {
+    const current = tier * step;
+    const maxBonus = step * accountUpgradeMaxTier(upgrade);
+    if (accountUpgradeIsMaxed(upgrade)) return `+${current} per gem/orb`;
+    return `+${current} -> +${Math.min(current + step, maxBonus)} per gem/orb`;
   }
   if (upgrade?.effect === "skillExperienceGainMaxBonus") {
     const currentMax = BASE_SKILL_EXPERIENCE_GAIN_MAX + tier * step;
@@ -11564,6 +11774,7 @@ function addInventoryItem(itemId, quantity = 1, options = {}) {
       if (inventoryUsedSlots() >= state.inventory.maxSlots) break;
       const entry = createInventoryEntry(itemId, add);
       state.inventory.items.push(entry);
+      applyAutoJunkMarkIfEligible(entry);
       added.push(entry);
       remaining -= add;
       continue;
@@ -11573,6 +11784,7 @@ function addInventoryItem(itemId, quantity = 1, options = {}) {
     const entry = createInventoryEntry(itemId, 1, options.entryOptions ?? {});
     if (options.empowerDrop) applyEmpoweredDropRoll(entry, item);
     state.inventory.items.push(entry);
+    applyAutoJunkMarkIfEligible(entry);
     added.push(entry);
     remaining -= 1;
   }
@@ -11840,7 +12052,132 @@ const HELP_TOOLTIP_HTML = {
     <span>Press <strong>Space</strong> again to mark it saved (🔒). Saved copies are kept when smithing two of the same item and cannot be sold manually.</span>
     <span>Press <strong>Space</strong> once more to clear the mark.</span>
   `,
+  "auto-junk-filters": `
+    <strong>Auto-junk filters</strong>
+    <span>Drag a bag item onto the pad to auto-mark future plain copies of that item as junk.</span>
+    <span>Plain means no empower, smith, weapon refine, gems, or bonus stats. Saved and upgraded copies are never auto-marked.</span>
+  `,
 };
+
+function itemBonusStatsAreEmpty(stats) {
+  const empty = sanitizeItemBonusStats({});
+  const bonus = sanitizeItemBonusStats(stats);
+  return JSON.stringify(bonus) === JSON.stringify(empty);
+}
+
+function empowerSpellBonusesAreEmpty(bonuses) {
+  return Object.keys(sanitizeEmpowerSpellBonuses(bonuses)).length === 0;
+}
+
+function isPlainAutoJunkCandidate(entry) {
+  if (!entry?.itemId) return false;
+  if (Math.max(0, Math.trunc(Number(entry.smithLevel) || 0)) > 0) return false;
+  if (Math.max(0, Math.trunc(Number(entry.weaponRefineLevel) || 0)) > 0) return false;
+  if (Math.max(0, Math.trunc(Number(entry.gemCount) || 0)) > 0) return false;
+  if (entry.empowered) return false;
+  if (Math.max(0, Math.trunc(Number(entry.empowerTier) || 0)) > 0) return false;
+  if (!itemBonusStatsAreEmpty(entry.bonusStats)) return false;
+  if (!itemBonusStatsAreEmpty(entry.smithBonusStats)) return false;
+  if (!itemBonusStatsAreEmpty(entry.empowerBonusStats)) return false;
+  if (!empowerSpellBonusesAreEmpty(entry.empowerSpellBonuses)) return false;
+  return true;
+}
+
+function sanitizeAutoJunkItemIds(saved) {
+  const seen = new Set();
+  const out = [];
+  const list = Array.isArray(saved) ? saved : [];
+  for (const raw of list) {
+    if (typeof raw !== "string" || !raw) continue;
+    if (seen.has(raw)) continue;
+    const item = itemDefinition(raw);
+    if (!item || itemSellValue(item) <= 0) continue;
+    seen.add(raw);
+    out.push(raw);
+  }
+  return out;
+}
+
+function ensureAutoJunkItemIds() {
+  if (!state.account) return [];
+  state.account.autoJunkItemIds = sanitizeAutoJunkItemIds(state.account.autoJunkItemIds);
+  return state.account.autoJunkItemIds;
+}
+
+function isAutoJunkItemId(itemId) {
+  if (typeof itemId !== "string" || !itemId) return false;
+  return ensureAutoJunkItemIds().includes(itemId);
+}
+
+function applyAutoJunkMarkIfEligible(entry) {
+  if (!entry?.id || !entry.itemId) return false;
+  if (!isAutoJunkItemId(entry.itemId)) return false;
+  if (!canMarkInventoryEntry(entry)) return false;
+  if (entry.inventoryMark != null) return false;
+  if (!isPlainAutoJunkCandidate(entry)) return false;
+  entry.inventoryMark = "junk";
+  return true;
+}
+
+function applyAutoJunkMarksToInventory() {
+  ensureInventorySlots();
+  let changed = false;
+  for (const entry of inventoryEntries()) {
+    if (applyAutoJunkMarkIfEligible(entry)) changed = true;
+  }
+  if (changed) {
+    syncBossPartyControlledInventoryFromState();
+    gamePanelSignature = "";
+    sceneSignature = "";
+    battlePanelSignature = "";
+  }
+  return changed;
+}
+
+function addAutoJunkItemId(itemId) {
+  const item = itemDefinition(itemId);
+  if (!item || itemSellValue(item) <= 0) {
+    pushBattleLog("That item cannot be sold, so it cannot be added to auto-junk.");
+    return false;
+  }
+  const list = ensureAutoJunkItemIds();
+  if (list.includes(item.id)) {
+    pushBattleLog(`${item.name} is already on the auto-junk list.`);
+    return false;
+  }
+  list.push(item.id);
+  state.account.autoJunkItemIds = list;
+  const marked = applyAutoJunkMarksToInventory();
+  playSfx("item.move", { volume: 0.32, throttleMs: 60 });
+  pushBattleLog(marked
+    ? `Added ${item.name} to auto-junk. Plain bag copies marked junk.`
+    : `Added ${item.name} to auto-junk.`);
+  saveGameState(true);
+  gamePanelSignature = "";
+  sceneSignature = "";
+  battlePanelSignature = "";
+  renderSceneOverlay();
+  renderGamePanel();
+  renderBattlePanel();
+  return true;
+}
+
+function removeAutoJunkItemId(itemId) {
+  const list = ensureAutoJunkItemIds();
+  const next = list.filter((id) => id !== itemId);
+  if (next.length === list.length) return false;
+  state.account.autoJunkItemIds = next;
+  const item = itemDefinition(itemId);
+  pushBattleLog(`Removed ${item?.name ?? itemId} from auto-junk.`);
+  saveGameState(true);
+  gamePanelSignature = "";
+  sceneSignature = "";
+  battlePanelSignature = "";
+  renderSceneOverlay();
+  renderGamePanel();
+  renderBattlePanel();
+  return true;
+}
 
 function weaponRefineStagedRecord(entryId) {
   return state.weaponRefine?.stagedEntries?.[entryId] ?? null;
@@ -13521,10 +13858,18 @@ function smithCombineBonusStatScore(smithBonusStats) {
   return total;
 }
 
-/** Item has reached max smith combines (+5 successes) and is no longer eligible. */
+/** Base +5, plus Master Smithing rebirth tiers, hard-capped at +10. */
+function smithCombineStatCap() {
+  return Math.min(
+    SMITH_COMBINE_STAT_CAP_ABSOLUTE_MAX,
+    SMITH_COMBINE_STAT_CAP + accountUpgradeValue("smithCombineCapBonus"),
+  );
+}
+
+/** Item has reached the current smith combine cap and is no longer eligible. */
 function smithCombineAtCap(entry) {
   const smithLevel = Math.max(0, Math.trunc(Number(entry?.smithLevel) || 0));
-  return smithLevel >= SMITH_COMBINE_STAT_CAP;
+  return smithLevel >= smithCombineStatCap();
 }
 
 function smithCombineDurabilityScore(entry, item) {
@@ -13715,7 +14060,9 @@ function smithStatLabel(key) {
 
 function smithCombineSuccessChance(entry) {
   const smithLevel = Math.max(0, Math.trunc(Number(entry?.smithLevel) || 0));
-  return SMITH_COMBINE_SUCCESS_CHANCES[Math.min(smithLevel, SMITH_COMBINE_SUCCESS_CHANCES.length - 1)] ?? 0.05;
+  const chance = SMITH_COMBINE_SUCCESS_CHANCES[Math.min(smithLevel, SMITH_COMBINE_SUCCESS_CHANCES.length - 1)]
+    ?? SMITH_COMBINE_SUCCESS_CHANCE_MIN;
+  return Math.max(SMITH_COMBINE_SUCCESS_CHANCE_MIN, Number(chance) || 0);
 }
 
 function smithChanceText(chance) {
@@ -13954,6 +14301,21 @@ function gemCurrentStatCount(gemDef, entry, item) {
   return Math.trunc(Number(bonus[stat.key]) || 0);
 }
 
+/** Extra gem/orb applications from Gem Cutting rebirth (0–5). */
+function gemOrbUpgradeCapBonus() {
+  return Math.max(0, Math.trunc(accountUpgradeValue("gemOrbUpgradeCapBonus") || 0));
+}
+
+/** Per-gem-type max for this gem's own stat (base maxStatCount + rebirth bonus). */
+function gemEffectiveMaxStatCount(gem) {
+  return Math.max(0, Math.trunc(Number(gem?.maxStatCount) || 0)) + gemOrbUpgradeCapBonus();
+}
+
+/** Max total gem upgrades on the item when applying this gem (base criticalDamage + rebirth). */
+function gemEffectiveTotalUpgradeCap(gem) {
+  return Math.max(0, Math.trunc(Number(gem?.criticalDamage) || 0)) + gemOrbUpgradeCapBonus();
+}
+
 function ensureInventoryEntrySmithFields(entry, item = itemDefinition(entry?.itemId)) {
   if (!entry || !item) return;
   const normalized = normalizeInventoryEntryFields(entry, item);
@@ -14014,11 +14376,11 @@ function canApplyGemToEntry(gemEntryId, targetEntryId) {
   }
   const gem = gemItem.gem;
   const gemUses = Math.max(0, Math.trunc(Number(targetEntry.gemCount) || 0));
-  if (gemUses >= gem.criticalDamage) {
+  if (gemUses >= gemEffectiveTotalUpgradeCap(gem)) {
     return { ok: false, reason: "Item has reached maximum gem upgrades." };
   }
   const statCount = gemCurrentStatCount(gem, targetEntry, targetItem);
-  if (statCount >= gem.maxStatCount) {
+  if (statCount >= gemEffectiveMaxStatCount(gem)) {
     return { ok: false, reason: "Item has reached the stat cap for this gem type." };
   }
   return {
@@ -14995,7 +15357,7 @@ function maybeApplyFlamingSwordGlyphDr(target, now) {
   const inventory = target?.inventory
     ?? (target === state.battle || !target?.classId ? state.inventory : null);
   if (!inventory) return;
-  const glyph = equippedGlyphDef(inventory, itemDefinition);
+  const glyph = equippedGlyphDefs(inventory, itemDefinition);
   const params = glyphFlamingSwordDrParams(glyph);
   if (!params || params.reductionPercent <= 0 || params.durationMs <= 0) return;
   const buffEntity = target?.classId
@@ -16059,6 +16421,7 @@ function itemEntryStats(entry, item = itemDefinition(entry?.itemId)) {
     critChancePercent: Number(item?.stats?.critChancePercent) || 0,
     critDamagePercent: Number(item?.stats?.critDamagePercent) || 0,
     skillLevelBonusPercent: Number(item?.stats?.skillLevelBonusPercent) || 0,
+    potionRestoreBonusPercent: Number(item?.stats?.potionRestoreBonusPercent) || 0,
   });
   const bonusStats = sanitizeItemBonusStats(entry?.bonusStats);
   const smithBonusStats = sanitizeSmithBonusStats(entry?.smithBonusStats);
@@ -16093,6 +16456,7 @@ function itemEntryStats(entry, item = itemDefinition(entry?.itemId)) {
     critChancePercent: stats.critChancePercent,
     critDamagePercent: stats.critDamagePercent,
     skillLevelBonusPercent: stats.skillLevelBonusPercent,
+    potionRestoreBonusPercent: stats.potionRestoreBonusPercent,
   };
 }
 
@@ -16127,6 +16491,53 @@ function dropResultEntry(drop) {
 
 function dropResultLabel(drop) {
   return itemDisplayName(dropResultItem(drop), dropResultEntry(drop));
+}
+
+/**
+ * Collapse repeated stackable drops (e.g. 3 Awakening Souls) into counted rows.
+ * Unique gear stays one row each. Souls are sorted to the front so Recent Loot's
+ * 6-line cap does not bury them under oils/gear.
+ */
+function summarizeDropResults(drops = []) {
+  const groups = [];
+  const indexByKey = new Map();
+  for (const drop of drops) {
+    const item = dropResultItem(drop);
+    if (!item) continue;
+    // Collapse stackables and Awakening Souls so multi-rolls show as "3× …"
+    // instead of being deduped to a single combat-log line.
+    const collapse = isStackableItem(item) || item.id === AWAKENING_SOUL_ITEM_ID;
+    const key = collapse ? `stack:${item.id}` : `unique:${groups.length}:${item.id}`;
+    if (collapse && indexByKey.has(key)) {
+      groups[indexByKey.get(key)].count += 1;
+      continue;
+    }
+    if (collapse) indexByKey.set(key, groups.length);
+    groups.push({ drop, item, count: 1, label: dropResultLabel(drop) });
+  }
+  groups.sort((a, b) => {
+    const aSoul = a.item?.id === AWAKENING_SOUL_ITEM_ID ? 0 : 1;
+    const bSoul = b.item?.id === AWAKENING_SOUL_ITEM_ID ? 0 : 1;
+    return aSoul - bSoul;
+  });
+  return groups;
+}
+
+function formatFoundDropSummary(summary) {
+  if (!summary) return "";
+  return summary.count > 1 ? `Found ${summary.count}× ${summary.label}` : `Found ${summary.label}`;
+}
+
+function formatDropSummaryLine(summary, verb = "Found") {
+  if (!summary) return "";
+  const name = summary.label;
+  return summary.count > 1 ? `${verb} ${summary.count}× ${name}` : `${verb} ${name}`;
+}
+
+function formatClassDropLogLine(classId, summary, verb) {
+  if (!summary) return "";
+  const qty = summary.count > 1 ? `${summary.count}× ` : "";
+  return `${classId} ${verb} ${qty}${summary.label}.`;
 }
 
 function itemDefinitionMaxDura(item) {
@@ -16245,7 +16656,9 @@ function empoweredBossDropRollOptions() {
     : (BOSS_EMPOWER_ITEM_CHANCE_DEV ?? BOSS_EMPOWER_ITEM_CHANCE);
   return {
     itemChance: baseChance + accountUpgradeValue("empowerDropChance"),
-    // tierWeights: future rebirth upgrade can bias higher tiers via accountUpgradeValue
+    // Ascended uses ASCEND_TIER_WEIGHTS; Empowered keeps EMPOWER_TIER_WEIGHTS default.
+    // Future Awakened: pass AWAKEN_TIER_WEIGHTS (30/30/25/15) when that tier ships.
+    ...(state.battle.bossAscended ? { tierWeights: ASCEND_TIER_WEIGHTS } : {}),
   };
 }
 
@@ -16342,11 +16755,23 @@ function groupDungeonEmpowerable(zone = activeZone()) {
 }
 
 // Live empower tier of the current group-dungeon fight: 0 none / 1 empowered / 2 ascended.
+// Prefer the persistent run tier (survives floor advances) over battle flags that
+// enterZone briefly clears from spent pending flags before beginBossPartyFight re-syncs them.
 function groupDungeonEmpowerTierValue() {
   if (!groupDungeonEmpowerable(activeZone())) return 0;
+  const tier = clampGroupDungeonEmpowerTier(state.groupDungeonEmpowerTier);
+  if (tier > 0) return tier;
   if (state.battle.bossAscended) return 2;
   if (state.battle.bossEmpowered) return 1;
   return 0;
+}
+
+function groupDungeonEmpowerRewardMultiplier(zone = activeZone()) {
+  if (!groupDungeonEmpowerable(zone)) return 1;
+  const tier = clampGroupDungeonEmpowerTier(state.groupDungeonEmpowerTier);
+  if (tier >= 2) return BOSS_ASCEND_DROP_RATE_MULTIPLIER;
+  if (tier >= 1) return BOSS_EMPOWER_DROP_RATE_MULTIPLIER;
+  return 1;
 }
 
 // Scale every group-dungeon monster (trash and bosses) by the run's empower tier.
@@ -16396,6 +16821,27 @@ function enemyBossIsStationary(enemy = state.battle.enemy) {
   return enemy?.attackMode === "evilCentipede" || Boolean(enemy?.stationaryBoss);
 }
 
+/** Resting world-X gap between tank (or tanking pet) and boss. Large bosses may set template.bossMeleeGap. */
+function bossPartyEnemyMeleeGap(enemy = state.battle.enemy) {
+  const fromEnemy = Math.trunc(Number(enemy?.bossMeleeGap));
+  if (fromEnemy > 0) return fromEnemy;
+  if (!enemy) {
+    const zone = activeZone();
+    const tid = zone?.enemyIds?.[0];
+    const template = tid != null ? ENEMY_TEMPLATES.find((entry) => entry.id === tid) : null;
+    const fromTemplate = Math.trunc(Number(template?.bossMeleeGap));
+    if (fromTemplate > 0) return fromTemplate;
+  }
+  return BOSS_PARTY_ENEMY_MELEE_GAP;
+}
+
+/** How far the boss may melee its front target (covers custom bossMeleeGap). */
+function bossPartyBossMeleeReach(enemy = state.battle.enemy) {
+  const fromEnemy = Math.trunc(Number(enemy?.bossMeleeReach));
+  if (fromEnemy > 0) return fromEnemy;
+  return Math.max(BOSS_PARTY_BOSS_REACH, bossPartyEnemyMeleeGap(enemy) + 8);
+}
+
 function bossPartyMembersStepToMelee(enemy = state.battle.enemy) {
   return enemyBossIsStationary(enemy);
 }
@@ -16423,7 +16869,7 @@ function applyFixedArenaEnemySpawn(now = performance.now(), options = {}) {
   if (!enemyUsesFixedArenaSpawn(enemy)) return false;
   const spawnX = arenaBossSpawnWorldX();
   if (!options.skipPlayerPosition) {
-    state.battle.playerX = Math.round(spawnX - BOSS_PARTY_ENEMY_MELEE_GAP);
+    state.battle.playerX = Math.round(spawnX - bossPartyEnemyMeleeGap(enemy));
   }
   state.battle.enemyX = spawnX;
   state.battle.phase = "engaged";
@@ -16845,8 +17291,8 @@ function usePotionEntry(entryId, preferredKind = null, options = {}) {
     return false;
   }
 
-  const hpRestore = potionRestoreAmount(item, "hp");
-  const mpRestore = potionRestoreAmount(item, "mp");
+  const hpRestore = applyPotionHpRestoreWithGlyph(potionRestoreAmount(item, "hp"), state.inventory);
+  const mpRestore = applyEquippedPotionRestoreBonus(potionRestoreAmount(item, "mp"), state.inventory);
   const canRestoreHp = hpRestore > 0 && player.hp < player.maxHp;
   const canRestoreMp = mpRestore > 0 && player.mp < player.maxMp;
   if (!canRestoreHp && !canRestoreMp) {
@@ -17091,7 +17537,9 @@ function useHotbarSlot(slot) {
 function queuePotionRestore(hpRestore, mpRestore, now = performance.now()) {
   state.battle.potHealthAmount = Math.min(65535, (state.battle.potHealthAmount ?? 0) + hpRestore);
   state.battle.potManaAmount = Math.min(65535, (state.battle.potManaAmount ?? 0) + mpRestore);
-  if (!state.battle.potTickAt) state.battle.potTickAt = now + CRYSTAL_POT_DELAY_MS;
+  if (!state.battle.potTickAt) {
+    state.battle.potTickAt = now + crystalPotDelayMs(state.inventory, (state.battle.potHealthAmount ?? 0) > 0);
+  }
   if (bossPartyActiveFight()) {
     const member = bossPartyControlledMember();
     if (member) {
@@ -17126,7 +17574,7 @@ function updatePotionRegen(now) {
   }
 
   if (!state.battle.potTickAt) {
-    state.battle.potTickAt = now + CRYSTAL_POT_DELAY_MS;
+    state.battle.potTickAt = now + crystalPotDelayMs(state.inventory, state.battle.potHealthAmount > 0);
     return changed;
   }
 
@@ -17136,7 +17584,8 @@ function updatePotionRegen(now) {
     steps < 20 &&
     (state.battle.potHealthAmount > 0 || state.battle.potManaAmount > 0)
   ) {
-    state.battle.potTickAt += CRYSTAL_POT_DELAY_MS;
+    const delayMs = crystalPotDelayMs(state.inventory, state.battle.potHealthAmount > 0);
+    state.battle.potTickAt += delayMs;
     steps += 1;
     const tickAmount = crystalPotionTickAmount();
 
@@ -17167,7 +17616,7 @@ function updatePotionRegen(now) {
   }
 
   if (steps >= 20 && (state.battle.potHealthAmount > 0 || state.battle.potManaAmount > 0)) {
-    state.battle.potTickAt = now + CRYSTAL_POT_DELAY_MS;
+    state.battle.potTickAt = now + crystalPotDelayMs(state.inventory, state.battle.potHealthAmount > 0);
   }
   if (state.battle.potHealthAmount <= 0 && state.battle.potManaAmount <= 0) state.battle.potTickAt = 0;
   if (changed) {
@@ -17326,7 +17775,17 @@ function updatePendingPoison(now, options = {}) {
   const pending = battle.pendingPoison;
   if (!pending || now < pending.at) return false;
   const { enemy, swarmEnemy } = resolvePendingPoisonTarget(pending);
-  if (!enemy || enemy.hp <= 0) return false;
+  // Target can die during the apply delay (common in BDD waves). Clear the
+  // pending slot or Poisoning stays blocked for the rest of the fight.
+  if (!enemy || enemy.hp <= 0) {
+    battle.pendingPoison = null;
+    if (isQueuedCombatSpell("Poisoning") && !hasAvailablePoisoningTarget(now)) {
+      clearQueuedCombatSpell("Poisoning");
+    }
+    battlePanelSignature = "";
+    combatSkillBarSignature = "";
+    return false;
+  }
   battle.pendingPoison = null;
   const spell = taoistCombatSpell(pending.spellId);
   const learned = learnedMagic(spell.id);
@@ -17889,6 +18348,9 @@ function compatibleEquipmentSlots(item) {
   if (!slot || slot === "consumable") return [];
   if (slot === "bracelet") return ["braceletL", "braceletR"];
   if (slot === "ring") return ["ringL", "ringR"];
+  if (slot === "glyph" || isGlyphItem(item)) {
+    return GLYPH_EQUIPMENT_SLOT_IDS.slice(0, unlockedGlyphEquipSlotCount());
+  }
   if (EQUIPMENT_SLOTS.some((entry) => entry.id === slot)) return [slot];
   return [];
 }
@@ -18336,6 +18798,19 @@ function bindSceneButtons(rootEl) {
   rootEl.querySelectorAll("[data-sell-all-junk-marked]").forEach((button) => {
     button.addEventListener("click", () => sellAllJunkMarkedInventory());
   });
+  rootEl.querySelectorAll("[data-open-auto-junk]").forEach((button) => {
+    button.addEventListener("click", () => openAutoJunkFiltersScene());
+  });
+  rootEl.querySelectorAll("[data-open-glyphs]").forEach((button) => {
+    button.addEventListener("click", () => openGlyphsScene());
+  });
+  rootEl.querySelectorAll("[data-remove-auto-junk]").forEach((button) => {
+    button.addEventListener("click", (event) => {
+      event.preventDefault();
+      event.stopPropagation();
+      removeAutoJunkItemId(button.dataset.removeAutoJunk);
+    });
+  });
   rootEl.querySelectorAll("[data-open-weapon-refine]").forEach((button) => {
     button.addEventListener("click", () => openWeaponRefineScene());
   });
@@ -18520,6 +18995,8 @@ function initialOpenScenesFromUrl() {
     teleportRing: scenes.has("teleportRing"),
     timeLogging: scenes.has("timeLogging"),
     spiritBox: scenes.has("spiritBox"),
+    autoJunk: scenes.has("autoJunk"),
+    glyphs: scenes.has("glyphs"),
   };
 }
 
@@ -18536,7 +19013,7 @@ function npcActiveScene() {
 }
 
 function currentOverlayScenes() {
-  const openScenes = ["characterSelect", "character", "inventory", "codex", "achievements", "upgrades", "gettingStarted", "changelog", "options", "leaderboard", "cashShop", "teleportRing", "timeLogging", "spiritBox"].filter((scene) => state.openScenes[scene]);
+  const openScenes = ["characterSelect", "character", "inventory", "codex", "achievements", "upgrades", "gettingStarted", "changelog", "options", "leaderboard", "cashShop", "teleportRing", "timeLogging", "spiritBox", "autoJunk", "glyphs"].filter((scene) => state.openScenes[scene]);
   const npcScene = npcActiveScene();
   const overlayScenes = npcScene ? [...openScenes, npcScene] : openScenes;
   return [...overlayScenes, ...craftingCubeCompanionScenes()];
@@ -18546,7 +19023,7 @@ function isSceneWindowOpen(scene) {
   if (scene === "craftingCubeRecipes") {
     return state.activeScene === "craftingCube" && Boolean(state.craftingCube?.recipesOpen);
   }
-  if (scene === "character" || scene === "inventory" || scene === "codex" || scene === "achievements" || scene === "upgrades" || scene === "characterSelect" || scene === "gettingStarted" || scene === "changelog" || scene === "options" || scene === "leaderboard" || scene === "cashShop" || scene === "teleportRing" || scene === "timeLogging" || scene === "spiritBox") {
+  if (scene === "character" || scene === "inventory" || scene === "codex" || scene === "achievements" || scene === "upgrades" || scene === "characterSelect" || scene === "gettingStarted" || scene === "changelog" || scene === "options" || scene === "leaderboard" || scene === "cashShop" || scene === "teleportRing" || scene === "timeLogging" || scene === "spiritBox" || scene === "autoJunk" || scene === "glyphs") {
     return Boolean(state.openScenes[scene]);
   }
   return state.activeScene === scene;
@@ -18667,6 +19144,8 @@ function openScene(scene, updateUrl = true) {
     state.openScenes.teleportRing = false;
     state.openScenes.timeLogging = false;
     state.openScenes.spiritBox = false;
+    state.openScenes.autoJunk = false;
+    state.openScenes.glyphs = false;
   } else {
     state.openScenes.characterSelect = false;
   }
@@ -18693,7 +19172,7 @@ function closeScene(scene = null, updateUrl = true) {
     updateUrl = scene;
     scene = null;
   }
-  if (scene === "character" || scene === "inventory" || scene === "codex" || scene === "achievements" || scene === "upgrades" || scene === "characterSelect" || scene === "gettingStarted" || scene === "changelog" || scene === "options" || scene === "leaderboard" || scene === "cashShop" || scene === "teleportRing" || scene === "timeLogging" || scene === "spiritBox") {
+  if (scene === "character" || scene === "inventory" || scene === "codex" || scene === "achievements" || scene === "upgrades" || scene === "characterSelect" || scene === "gettingStarted" || scene === "changelog" || scene === "options" || scene === "leaderboard" || scene === "cashShop" || scene === "teleportRing" || scene === "timeLogging" || scene === "spiritBox" || scene === "autoJunk" || scene === "glyphs") {
     state.openScenes[scene] = false;
     if (scene === "inventory") state.pendingInventoryDestroyEntryId = null;
     if (scene === "upgrades") state.pendingRebirthConfirm = false;
@@ -18753,6 +19232,11 @@ function closeScene(scene = null, updateUrl = true) {
     state.openScenes.options = false;
     state.openScenes.leaderboard = false;
     state.openScenes.cashShop = false;
+    state.openScenes.teleportRing = false;
+    state.openScenes.timeLogging = false;
+    state.openScenes.spiritBox = false;
+    state.openScenes.autoJunk = false;
+    state.openScenes.glyphs = false;
     state.pendingInventoryDestroyEntryId = null;
     state.pendingRebirthConfirm = false;
     sceneWindowStack = [];
@@ -18783,7 +19267,7 @@ function renderSceneOverlay(options = {}) {
     state.openScenes.spiritBox = false;
     clearSpiritBoxDepositMode();
   }
-  const openScenes = ["characterSelect", "character", "inventory", "codex", "achievements", "upgrades", "gettingStarted", "changelog", "options", "leaderboard", "cashShop", "teleportRing", "timeLogging", "spiritBox"].filter((scene) => state.openScenes[scene]);
+  const openScenes = ["characterSelect", "character", "inventory", "codex", "achievements", "upgrades", "gettingStarted", "changelog", "options", "leaderboard", "cashShop", "teleportRing", "timeLogging", "spiritBox", "autoJunk", "glyphs"].filter((scene) => state.openScenes[scene]);
   const overlayScenes = orderedOverlayScenes();
   const destroyConfirmHtml = inventoryDestroyConfirmHtml();
   const rebirthConfirmHtmlContent = rebirthConfirmHtml();
@@ -18793,8 +19277,12 @@ function renderSceneOverlay(options = {}) {
     if (!inventoryDragState || !isHotbarEntry(inventoryDragState.entryId)) {
       cleanupInventoryCarry();
     }
-    els.sceneOverlay.hidden = true;
-    els.sceneOverlay.innerHTML = "";
+    // Only touch the DOM when the overlay was actually open; this path runs
+    // every frame and unconditional hidden/innerHTML writes are wasted work.
+    if (!els.sceneOverlay.hidden) {
+      els.sceneOverlay.hidden = true;
+      els.sceneOverlay.innerHTML = "";
+    }
     sceneSignature = "";
     sceneOverlayLiveSignature = "";
     return;
@@ -19048,6 +19536,7 @@ function buildSceneOverlaySignature(openScenes, bossEntryZoneId) {
     teleportRegionId: state.teleportRegionId,
     teleportBrowseRegionId: state.teleportBrowseRegionId,
     selectedTownNpcId: state.game.selectedTownNpcId,
+    autoJunkItemIds: state.account?.autoJunkItemIds ?? [],
     weaponRefine: state.weaponRefine,
     craftingCube: state.craftingCube,
     combatClass: state.battle.combatClass,
@@ -19248,6 +19737,8 @@ function sceneClassName(scene) {
   if (scene === "teleportRing") return "scene-window teleport-ring-window";
   if (scene === "timeLogging") return "scene-window time-logging-window";
   if (scene === "spiritBox") return "scene-window spirit-box-window";
+  if (scene === "autoJunk") return "scene-window auto-junk-window";
+  if (scene === "glyphs") return "scene-window glyphs-window";
   return "scene-window";
 }
 
@@ -19270,6 +19761,8 @@ function sceneTitle(scene) {
   if (scene === "teleportRing") return "Teleport Ring";
   if (scene === "timeLogging") return "Time Logging";
   if (scene === "spiritBox") return "Spirit Box";
+  if (scene === "autoJunk") return "Auto-Junk Filters";
+  if (scene === "glyphs") return "Glyphs";
   if (scene === "bossEntry") {
     const zone = bossEntryZone();
     if (groupDungeonZone(zone)) return zone?.label ?? "Group Dungeon";
@@ -19294,6 +19787,8 @@ function sceneBodyHtml(scene) {
   if (scene === "teleportRing") return teleportRingSceneHtml();
   if (scene === "timeLogging") return timeLoggingSceneHtml();
   if (scene === "spiritBox") return spiritBoxSceneHtml();
+  if (scene === "autoJunk") return autoJunkFiltersSceneHtml();
+  if (scene === "glyphs") return glyphsSceneHtml();
   if (scene === "bossEntry") return bossEntrySceneHtml();
   if (scene === "weaponRefine") return weaponRefineSceneHtml();
   if (scene === "craftingCube") return craftingCubeSceneHtml();
@@ -20185,8 +20680,8 @@ function bossEmpowerAscendControlsHtml(zone) {
   if (!def && !isGroupDungeon) return "";
   const labels = {
     isGroupDungeon,
-    empowerLabel: def ? def.empowerLabel : "Empower this dungeon — tougher monsters, better drops",
-    ascendLabel: def ? `Ascend ${def.bossName} for the best drops` : "Ascend this dungeon — deadliest monsters, best drops",
+    empowerLabel: def ? def.empowerLabel : "Empower this dungeon — 2× HP, damage, XP & gold",
+    ascendLabel: def ? `Ascend ${def.bossName} for the best drops` : "Ascend this dungeon — 3× HP, damage, XP & gold",
     empowerRequirement: def ? def.empowerRequirement : BOSS_EMPOWER_UNLOCK_HINT,
   };
   const s = bossEmpowerAscendState(zone);
@@ -20429,6 +20924,9 @@ function accountUpgradeIconText(upgrade) {
   if (upgrade?.effect === "gemOrbStackUnlock") return "OS";
   if (upgrade?.effect === "timeLoggingUnlock") return "XP";
   if (upgrade?.effect === "spiritBoxUnlock") return "SB";
+  if (upgrade?.effect === "extraGlyphSlot") return "G2";
+  if (upgrade?.effect === "smithCombineCapBonus") return "SM";
+  if (upgrade?.effect === "gemOrbUpgradeCapBonus") return "GC";
   if (upgrade?.effect === "skillExperienceGainMaxBonus") return "SK";
   if (upgrade?.effect === "bonusAwakeningSoulChancePercent") return "S+";
   if (upgrade?.effect === "bossRespawnReductionPercent") return "RS";
@@ -20872,16 +21370,10 @@ function characterSelectPaperDollHtml(character) {
   const armourItem = characterStateEquippedItem(character, "armour");
   const weaponItem = characterStateEquippedItem(character, "weapon");
   const helmetItem = characterStateEquippedItem(character, "helmet");
-  const layers = [
-    armourItem ? crystalPaperDollLayerHtml(armourItem, "armour") : "",
-    weaponItem ? crystalPaperDollLayerHtml(weaponItem, "weapon") : "",
-    helmetItem
-      ? crystalPaperDollLayerHtml(helmetItem, "helmet")
-      : crystalPaperDollFrameHtml(state.characterStateItems?.hair ?? CHARACTER_PAPER_DOLL_FRAMES.hair, "Hair"),
-  ].filter(Boolean);
+  const layers = crystalPaperDollLayersHtml(armourItem, weaponItem, helmetItem);
   return `
     <div class="character-select-paperdoll-stage" aria-hidden="true">
-      <div class="crystal-paper-doll">${layers.join("")}</div>
+      <div class="crystal-paper-doll">${layers}</div>
     </div>
   `;
 }
@@ -20916,7 +21408,37 @@ function crystalCharacterEquipmentPageHtml() {
   return `
     <div class="crystal-character-panel"></div>
     ${crystalCharacterPaperDollHtml()}
-    ${EQUIPMENT_SLOTS.map((slot) => crystalEquipmentSlotHtml(slot)).join("")}
+    ${EQUIPMENT_SLOTS.filter((slot) => slot.id !== "glyph").map((slot) => crystalEquipmentSlotHtml(slot)).join("")}
+    ${crystalGlyphsButtonHtml()}
+  `;
+}
+
+function crystalGlyphsButtonHtml() {
+  const position = CRYSTAL_EQUIPMENT_SLOT_POSITIONS.glyph;
+  if (!position) return "";
+  const equippedDefs = equippedGlyphDefs(state.inventory, itemDefinition);
+  let previewItem = null;
+  for (const slotId of GLYPH_EQUIPMENT_SLOT_IDS.slice(0, unlockedGlyphEquipSlotCount())) {
+    const entry = equippedEntry(slotId);
+    if (!entry) continue;
+    previewItem = itemDefinition(entry.itemId);
+    if (previewItem) break;
+  }
+  const preview = previewItem
+    ? itemIconHtml(previewItem)
+    : `<span class="crystal-glyphs-button-label">Glyphs</span>`;
+  const countLabel = equippedDefs.length > 0 ? ` (${equippedDefs.length})` : "";
+  return `
+    <button
+      type="button"
+      class="crystal-equipment-slot crystal-glyphs-button ${previewItem ? "has-item" : ""} ${state.openScenes.glyphs ? "active" : ""}"
+      data-open-glyphs
+      title="Glyphs${countLabel}"
+      aria-label="Open glyphs"
+      style="left:${8 + position.x}px; top:${90 + position.y}px;"
+    >
+      ${preview}
+    </button>
   `;
 }
 
@@ -20924,12 +21446,27 @@ function crystalCharacterPaperDollHtml() {
   const armourItem = equippedItem("armour");
   const weaponItem = equippedItem("weapon");
   const helmetItem = equippedItem("helmet");
-  const layers = [
+  return `<div class="crystal-paper-doll" aria-hidden="true">${crystalPaperDollLayersHtml(armourItem, weaponItem, helmetItem)}</div>`;
+}
+
+function crystalPaperDollLayersHtml(armourItem, weaponItem, helmetItem) {
+  // Crystal CharacterDialog draws wings (Prguse2 blend) behind armour, then weapon, then helmet/hair.
+  return [
+    crystalPaperDollWingHtml(armourItem),
     armourItem ? crystalPaperDollLayerHtml(armourItem, "armour") : "",
     weaponItem ? crystalPaperDollLayerHtml(weaponItem, "weapon") : "",
-    helmetItem ? crystalPaperDollLayerHtml(helmetItem, "helmet") : crystalPaperDollFrameHtml(CHARACTER_PAPER_DOLL_FRAMES.hair, "Hair"),
-  ].filter(Boolean);
-  return `<div class="crystal-paper-doll" aria-hidden="true">${layers.join("")}</div>`;
+    helmetItem
+      ? crystalPaperDollLayerHtml(helmetItem, "helmet")
+      : crystalPaperDollFrameHtml(state.characterStateItems?.hair ?? CHARACTER_PAPER_DOLL_FRAMES.hair, "Hair"),
+  ].filter(Boolean).join("");
+}
+
+function crystalPaperDollWingHtml(armourItem) {
+  const effect = armourVisualEffectForItem(armourItem);
+  if (effect?.kind !== "wing") return "";
+  const frame = CHARACTER_PAPER_DOLL_WING_FRAMES[effect.effectId];
+  if (!frame) return "";
+  return crystalPaperDollFrameHtml(frame, "Wings");
 }
 
 function crystalPaperDollLayerHtml(item, label) {
@@ -20939,10 +21476,11 @@ function crystalPaperDollLayerHtml(item, label) {
 }
 
 function crystalPaperDollFrameHtml(frame, label) {
+  const blendClass = frame.blend ? " crystal-paper-doll-layer-blend" : "";
   if (frame.sheet) {
     return `
     <div
-      class="crystal-paper-doll-layer"
+      class="crystal-paper-doll-layer${blendClass}"
       title="${escapeHtml(label)}"
       style="left:${frame.x}px; top:${frame.y}px; width:${frame.w}px; height:${frame.h}px; background:url('${escapeHtml(frame.sheet)}') -${frame.sx}px -${frame.sy}px no-repeat;"
     ></div>
@@ -20950,7 +21488,7 @@ function crystalPaperDollFrameHtml(frame, label) {
   }
   return `
     <img
-      class="crystal-paper-doll-layer"
+      class="crystal-paper-doll-layer${blendClass}"
       src="${escapeHtml(frame.src)}"
       alt=""
       title="${escapeHtml(label)}"
@@ -21663,6 +22201,159 @@ function timeLoggingSceneHtml() {
   `;
 }
 
+function openAutoJunkFiltersScene() {
+  state.openScenes.autoJunk = true;
+  if (!state.openScenes.inventory) {
+    state.openScenes.inventory = true;
+    pushSceneWindow("inventory");
+  }
+  pushSceneWindow("autoJunk");
+  playSfx("ui.button", { volume: 0.35, throttleMs: 80 });
+  sceneSignature = "";
+  gamePanelSignature = "";
+  renderSceneOverlay();
+  renderGamePanel();
+}
+
+function openGlyphsScene() {
+  if (state.openScenes.glyphs) {
+    closeScene("glyphs");
+    return;
+  }
+  state.openScenes.glyphs = true;
+  if (!state.openScenes.inventory) {
+    state.openScenes.inventory = true;
+    pushSceneWindow("inventory");
+  }
+  if (!state.openScenes.character) {
+    state.openScenes.character = true;
+    state.characterTab = "character";
+    pushSceneWindow("character");
+  }
+  pushSceneWindow("glyphs");
+  playSfx("ui.button", { volume: 0.35, throttleMs: 80 });
+  sceneSignature = "";
+  gamePanelSignature = "";
+  renderSceneOverlay();
+  renderGamePanel();
+}
+
+function bagGlyphInventoryEntries() {
+  ensureInventorySlots();
+  return inventoryEntries()
+    .map((entry) => ({ entry, item: itemDefinition(entry.itemId) }))
+    .filter(({ item }) => isGlyphItem(item));
+}
+
+function glyphsSceneHtml() {
+  const unlocked = unlockedGlyphEquipSlotCount();
+  const slots = Array.from({ length: GLYPH_EQUIP_UNLOCK_CAP }, (_, index) => {
+    const open = index < unlocked;
+    const slotId = glyphEquipmentSlotIdAt(index);
+    if (!open || !slotId) {
+      return `
+        <div class="glyphs-equip-slot locked" title="Locked — buy Add Additional Glyph Slot in Rebirth upgrades" aria-label="Locked glyph slot ${index + 1}">
+          <span class="glyphs-equip-slot-index">${index + 1}</span>
+          <span class="glyphs-equip-slot-locked-label">Locked</span>
+        </div>
+      `;
+    }
+    const entry = equippedEntry(slotId);
+    const item = entry ? itemDefinition(entry.itemId) : null;
+    const content = entry && item
+      ? `
+        <div
+          class="glyphs-equip-item has-tooltip"
+          data-tooltip-item="${escapeHtml(item.id)}"
+          data-tooltip-entry="${escapeHtml(entry.id)}"
+          data-inventory-entry="${escapeHtml(entry.id)}"
+          data-equipped-slot="${escapeHtml(slotId)}"
+          draggable="false"
+          title="${escapeHtml(itemDisplayName(item, entry))}"
+        >
+          ${itemIconHtml(item)}
+        </div>
+      `
+      : `<span class="glyphs-equip-slot-empty">Empty</span>`;
+    return `
+      <div
+        class="glyphs-equip-slot open ${item ? "occupied" : ""}"
+        data-equipment-slot="${escapeHtml(slotId)}"
+        title="Glyph slot ${index + 1}"
+        aria-label="Glyph slot ${index + 1}"
+      >
+        <span class="glyphs-equip-slot-index">${index + 1}</span>
+        ${content}
+        ${entry ? `<button type="button" class="glyphs-unequip" data-unequip-slot="${escapeHtml(slotId)}">Unequip</button>` : ""}
+      </div>
+    `;
+  }).join("");
+
+  const bagRows = bagGlyphInventoryEntries().map(({ entry, item }) => {
+    const requirement = itemRequirementStatus(item);
+    const canEquip = requirement.ok;
+    return `
+      <div class="glyphs-bag-row has-tooltip" data-tooltip-item="${escapeHtml(item.id)}" data-tooltip-entry="${escapeHtml(entry.id)}">
+        ${itemIconHtml(item, 28)}
+        <div class="glyphs-bag-meta">
+          <strong>${escapeHtml(itemDisplayName(item, entry))}</strong>
+          <span>${escapeHtml(
+            glyphDescription(glyphDefByItemId(item.id) ?? glyphDefById(item?.glyph?.modifier))
+            || item.description
+            || "Glyph",
+          )}</span>
+        </div>
+        <button type="button" data-equip-entry="${escapeHtml(entry.id)}" ${canEquip ? "" : "disabled"}>${canEquip ? "Equip" : "Locked"}</button>
+      </div>
+    `;
+  }).join("");
+
+  return `
+    <section class="glyphs-panel">
+      <p class="glyphs-intro">Equip glyphs here (${unlocked} / ${GLYPH_EQUIP_UNLOCK_CAP} slots unlocked). Buy Add Additional Glyph Slot in Rebirth upgrades for a second slot.</p>
+      <div class="glyphs-equip-grid">
+        ${slots}
+      </div>
+      <div class="glyphs-bag-header">
+        <strong>Glyphs in bag</strong>
+      </div>
+      <div class="glyphs-bag-list" data-preserve-scroll="glyphs-bag">
+        ${bagRows || `<span class="glyphs-empty">No glyphs in your bag.</span>`}
+      </div>
+    </section>
+  `;
+}
+
+function autoJunkFiltersSceneHtml() {
+  const autoJunkIds = ensureAutoJunkItemIds();
+  const rows = autoJunkIds.map((itemId) => {
+    const item = itemDefinition(itemId);
+    if (!item) return "";
+    return `
+      <div class="auto-junk-rule-row has-tooltip" data-tooltip-item="${escapeHtml(item.id)}">
+        ${itemIconHtml(item, 28)}
+        <span class="auto-junk-rule-name">${escapeHtml(item.name)}</span>
+        <button type="button" class="auto-junk-rule-remove" data-remove-auto-junk="${escapeHtml(item.id)}">Remove</button>
+      </div>
+    `;
+  }).join("");
+  return `
+    <section class="auto-junk-panel" data-help-tooltip="auto-junk-filters">
+      <p class="auto-junk-intro">Drag a bag item onto the pad to auto-mark plain copies of that item as junk. Plain means no empower, smith, weapon refine, gems, or bonus stats.</p>
+      <div class="auto-junk-drop-slot" data-auto-junk-slot aria-label="Drop a bag item to auto-junk that type">
+        <span>Drag item here</span>
+      </div>
+      <div class="auto-junk-rules-header">
+        <strong>Current filters</strong>
+        <span>${autoJunkIds.length}</span>
+      </div>
+      <div class="auto-junk-rule-list" data-preserve-scroll="auto-junk-rules">
+        ${rows || `<span class="auto-junk-empty">No filters yet. Drop a sellable bag item above.</span>`}
+      </div>
+    </section>
+  `;
+}
+
 function spiritBoxSceneHtml() {
   const stored = spiritBoxStoredEntry();
   const paid = spiritBoxSlotPaid();
@@ -22244,12 +22935,7 @@ function foreignPaperDollHtml(view) {
   const armourItem = foreignEquippedItem(view, "armour");
   const weaponItem = foreignEquippedItem(view, "weapon");
   const helmetItem = foreignEquippedItem(view, "helmet");
-  const layers = [
-    armourItem ? crystalPaperDollLayerHtml(armourItem, "armour") : "",
-    weaponItem ? crystalPaperDollLayerHtml(weaponItem, "weapon") : "",
-    helmetItem ? crystalPaperDollLayerHtml(helmetItem, "helmet") : crystalPaperDollFrameHtml(CHARACTER_PAPER_DOLL_FRAMES.hair, "Hair"),
-  ].filter(Boolean);
-  return `<div class="crystal-paper-doll" aria-hidden="true">${layers.join("")}</div>`;
+  return `<div class="crystal-paper-doll" aria-hidden="true">${crystalPaperDollLayersHtml(armourItem, weaponItem, helmetItem)}</div>`;
 }
 
 function foreignEquipmentSlotHtml(slot, view) {
@@ -22901,6 +23587,15 @@ function handleInventoryShiftClick(event, itemElement) {
     return quickMoveHotbarEntryToInventory(entryId);
   }
 
+  // Equipped paper-doll gear → bag (same as double-click unequip).
+  const equippedSlot = itemElement.dataset.equippedSlot
+    || itemElement.closest("[data-equipped-slot]")?.dataset?.equippedSlot
+    || null;
+  if (equippedSlot) {
+    void unequipSlot(equippedSlot);
+    return true;
+  }
+
   const inventoryOpen = isInventoryWindowOpen();
   const storageOpen = isStorageWindowOpen();
   const characterOpen = isCharacterWindowOpen();
@@ -23098,6 +23793,13 @@ function finishInventoryClickCarry(event) {
       return false;
     }
     void depositInventoryEntryToSpiritBox(carry.entryId);
+    return true;
+  }
+
+  const autoJunkSlot = dropTarget.closest("[data-auto-junk-slot]");
+  if (autoJunkSlot && root.contains(autoJunkSlot) && carry.sourceContainer === "inventory") {
+    const entry = inventoryEntryById(carry.entryId);
+    if (entry?.itemId) addAutoJunkItemId(entry.itemId);
     return true;
   }
 
@@ -23360,7 +24062,7 @@ function gridSlotElementAt(clientX, clientY, slotSelector, containerSelector, ga
 }
 
 function inventoryDropTargetAt(event) {
-  const dropSelector = "[data-inventory-entry], [data-storage-entry], [data-inventory-slot], [data-equipment-slot], [data-hotbar-slot], [data-storage-slot], [data-refine-slot], [data-crafting-cube-slot], [data-spirit-box-slot]";
+  const dropSelector = "[data-inventory-entry], [data-storage-entry], [data-inventory-slot], [data-equipment-slot], [data-hotbar-slot], [data-storage-slot], [data-refine-slot], [data-crafting-cube-slot], [data-spirit-box-slot], [data-auto-junk-slot]";
   if (inventoryDragState && inventoryDragState.sourceContainer !== "storage") {
     const entry = inventoryDragState.sourceContainer === "weaponRefine"
       ? weaponRefineEntryById(inventoryDragState.entryId)
@@ -23488,6 +24190,13 @@ function inventoryDropTargetAccepts(dropTarget) {
       ?? inventoryEntryById(inventoryDragState.entryId);
     return canPlaceCraftingCubeItem(entry, index);
   }
+  const autoJunkSlot = dropTarget.closest("[data-auto-junk-slot]");
+  if (autoJunkSlot && root.contains(autoJunkSlot)) {
+    if (inventoryDragState.sourceContainer !== "inventory") return false;
+    const entry = inventoryEntryById(inventoryDragState.entryId);
+    const item = entry ? itemDefinition(entry.itemId) : null;
+    return Boolean(item && itemSellValue(item) > 0);
+  }
   return false;
 }
 
@@ -23578,7 +24287,7 @@ function itemGemTooltipHtml(item) {
     <span>${escapeHtml(kindLabel)}</span>
     <span>Adds +${amount} ${escapeHtml(statLabel)} on success</span>
     <span>Base success: ${Math.max(0, Math.trunc(Number(gem.criticalRate) || 0))}% (drops as stat is added)</span>
-    <span>Max ${Math.max(0, Math.trunc(Number(gem.maxStatCount) || 0))} ${escapeHtml(statLabel)} / ${Math.max(0, Math.trunc(Number(gem.criticalDamage) || 0))} total upgrades</span>
+    <span>Max ${gemEffectiveMaxStatCount(gem)} ${escapeHtml(statLabel)} / ${gemEffectiveTotalUpgradeCap(gem)} total upgrades</span>
     ${slotLabels ? `<span>Valid on: ${escapeHtml(slotLabels)}</span>` : ""}
     <span>Drag onto equipment to apply</span>
   `;
@@ -23674,7 +24383,8 @@ function formatItemBonusPercentValue(key, value) {
     return `${value > 0 ? "−" : ""}${value}%`;
   }
   if (key === "xpBonusPercent" || key === "goldBonusPercent" || key === "bonusAwakeningSoulChancePercent"
-    || key === "critChancePercent" || key === "critDamagePercent" || key === "skillLevelBonusPercent") {
+    || key === "critChancePercent" || key === "critDamagePercent" || key === "skillLevelBonusPercent"
+    || key === "potionRestoreBonusPercent") {
     return `${value > 0 ? "+" : ""}${value}%`;
   }
   return value > 0 ? `+${value}` : value;
@@ -23719,6 +24429,7 @@ function itemEquipmentStatsTooltipHtml(entry, item) {
     ["critChancePercent", "Crit Rate"],
     ["critDamagePercent", "Crit Damage"],
     ["skillLevelBonusPercent", "Skill Leveling"],
+    ["potionRestoreBonusPercent", "Potion Restore"],
   ]) {
     const value = Number(stats?.[key]) || 0;
     if (value === 0) continue;
@@ -23768,6 +24479,7 @@ function itemStatsTooltipHtml(stats) {
     ["critChancePercent", "Crit Rate"],
     ["critDamagePercent", "Crit Damage"],
     ["skillLevelBonusPercent", "Skill Leveling"],
+    ["potionRestoreBonusPercent", "Potion Restore"],
   ]) {
     const value = Number(stats?.[key]) || 0;
     if (value !== 0) {
@@ -24029,12 +24741,20 @@ async function enterZone(zoneId, options = {}) {
   if (state.battle.bossEmpowered) {
     const fightLabel = state.battle.bossAscended ? "Ascended" : "Empowered";
     const goldPaid = state.battle.bossAscended ? bossAscendGoldCostForZone(zone) : bossEmpowerGoldCostForZone(zone);
-    state.battle.log.push(`${fightLabel} fight — paid ${goldPaid.toLocaleString()} gold for improved drops.`);
-    if (supportsEmpoweredBossCombat(state.battle.enemy)) {
-      state.battle.log.push(empoweredBossCombatLogLine(state.battle.enemy));
+    if (groupDungeonEmpowerable(zone)) {
+      const mult = state.battle.bossAscended ? ASCENDED_BOSS_HP_MULTIPLIER : EMPOWERED_BOSS_HP_MULTIPLIER;
+      state.battle.log.push(
+        `${fightLabel} dungeon — paid ${goldPaid.toLocaleString()} gold. All monsters: ${mult}× HP, damage, XP, and gold.`,
+      );
+    } else {
+      state.battle.log.push(`${fightLabel} fight — paid ${goldPaid.toLocaleString()} gold for improved drops.`);
+      if (supportsEmpoweredBossCombat(state.battle.enemy)) {
+        state.battle.log.push(empoweredBossCombatLogLine(state.battle.enemy));
+      }
     }
   }
   captureActiveCharacterState();
+  evictMonsterImageCacheForZone(zone);
   playSfx("ui.teleport", { volume: 0.55, throttleMs: 300 });
   await reloadEnemyAtlas();
   startBattle();
@@ -25427,6 +26147,120 @@ function enemyEnrageActive(enemy, now = performance.now()) {
   return Number.isFinite(until) && until > now;
 }
 
+function enemyHasTimedEnrage(enemy) {
+  return Number(enemy?.timedEnrageGraceMs) > 0;
+}
+
+function timedEnrageMinAttackMs(enemy) {
+  const configured = Math.max(0, Math.trunc(Number(enemy?.timedEnrageMinAttackMs) || 0));
+  if (configured > 0) return configured;
+  const atlas = state.enemyAtlas;
+  const animMs = enemyAttackAnimationMs(atlas, "attack1", 0);
+  return animMs > 0 ? animMs : 400;
+}
+
+function timedEnrageStackCount(enemy) {
+  if (!enemyHasTimedEnrage(enemy)) return 0;
+  const combatMs = Math.max(0, Number(enemy.timedEnrageCombatMs) || 0);
+  const grace = Math.max(0, Math.trunc(Number(enemy.timedEnrageGraceMs) || 0));
+  if (combatMs < grace) return 0;
+  const interval = Math.max(1, Math.trunc(Number(enemy.timedEnrageStackIntervalMs) || 1000));
+  // First stack applies the instant the grace timer hits 0; then +1/sec.
+  return Math.floor((combatMs - grace) / interval) + 1;
+}
+
+function timedEnragePowerMultiplier(enemy) {
+  const stacks = timedEnrageStackCount(enemy);
+  if (stacks <= 0) return 1;
+  const per = Number(enemy.timedEnragePerStack);
+  const rate = Number.isFinite(per) && per > 0 ? per : 0.1;
+  // Linear from base: each stack adds the same +10% of original stats (not compound).
+  return 1 + rate * stacks;
+}
+
+function timedEnrageRemainingGraceMs(enemy) {
+  if (!enemyHasTimedEnrage(enemy)) return 0;
+  const grace = Math.max(0, Math.trunc(Number(enemy.timedEnrageGraceMs) || 0));
+  const combatMs = Math.max(0, Number(enemy.timedEnrageCombatMs) || 0);
+  return Math.max(0, grace - combatMs);
+}
+
+function updateTimedEnrage(enemy, now = performance.now()) {
+  if (!enemy || !enemyHasTimedEnrage(enemy) || enemy.hp <= 0) return;
+  if (!state.battle?.running) return;
+  const lastAt = Number(enemy._timedEnrageLastTickAt);
+  if (!Number.isFinite(lastAt)) {
+    enemy._timedEnrageLastTickAt = now;
+    enemy.timedEnrageCombatMs = Math.max(0, Number(enemy.timedEnrageCombatMs) || 0);
+    return;
+  }
+  // Clamp so a long tab-throttle hitch does not dump minutes of stacks at once.
+  const dt = Math.max(0, Math.min(250, now - lastAt));
+  enemy._timedEnrageLastTickAt = now;
+  if (dt <= 0) return;
+  const prevStacks = timedEnrageStackCount(enemy);
+  enemy.timedEnrageCombatMs = Math.max(0, Number(enemy.timedEnrageCombatMs) || 0) + dt;
+  const stacks = timedEnrageStackCount(enemy);
+  if (stacks > 0 && prevStacks <= 0) {
+    pushBattleLog(`${enemy.name} enrages! +10% of base damage, accuracy, and attack speed every second!`);
+  }
+}
+
+function formatCountdownClock(ms) {
+  const totalSeconds = Math.max(0, Math.ceil(ms / 1000));
+  const minutes = Math.floor(totalSeconds / 60);
+  const seconds = totalSeconds % 60;
+  return `${minutes}:${String(seconds).padStart(2, "0")}`;
+}
+
+function renderTimedEnrageHud() {
+  const el = els.timedEnrageHud;
+  if (!el) return;
+  const enemy = state.battle?.enemy;
+  const activeFight = Boolean(
+    enemy
+    && enemyHasTimedEnrage(enemy)
+    && state.battle?.running
+    && !state.battle?.bossParty?.finished
+    && enemy.hp > 0
+    && (state.battle.enemyRevealed || state.battle.phase === "engaged"),
+  );
+  if (!activeFight) {
+    if (!el.hidden || el.dataset.signature) {
+      el.hidden = true;
+      el.classList.remove("is-enraged");
+      el.innerHTML = "";
+      delete el.dataset.signature;
+    }
+    return;
+  }
+  const stacks = timedEnrageStackCount(enemy);
+  const remaining = timedEnrageRemainingGraceMs(enemy);
+  const mult = timedEnragePowerMultiplier(enemy);
+  const signature = stacks > 0
+    ? `enrage:${stacks}:${mult.toFixed(2)}`
+    : `grace:${Math.ceil(remaining / 1000)}`;
+  if (signature === el.dataset.signature) return;
+  el.dataset.signature = signature;
+  el.hidden = false;
+  if (stacks > 0) {
+    el.classList.add("is-enraged");
+    const pct = Math.round((mult - 1) * 100);
+    el.innerHTML = `
+      <span class="timed-enrage-label">Enraged</span>
+      <strong class="timed-enrage-value">+${pct}% total · stack ${stacks}</strong>
+      <span class="timed-enrage-note">+10% of base damage, accuracy &amp; speed each second</span>
+    `;
+  } else {
+    el.classList.remove("is-enraged");
+    el.innerHTML = `
+      <span class="timed-enrage-label">Enrage in</span>
+      <strong class="timed-enrage-value">${escapeHtml(formatCountdownClock(remaining))}</strong>
+      <span class="timed-enrage-note">Then grows stronger every second</span>
+    `;
+  }
+}
+
 function maybeTriggerEnemyEnrage(enemy, now = performance.now()) {
   if (!enemy) return;
   const stages = normalizeEnemyEnrageStages(enemy);
@@ -25856,7 +26690,10 @@ function updateGroupDungeonSwarmEnemyFrame(enemy, now) {
           enemy.lastTick = now;
         }
       } else {
+        // Dead but not on die clip (e.g. Hell Bomb after detonation) — pin last frame
+        // only until removeAt; never leave an immortal corpse.
         enemy.frame = clip.frames.length - 1;
+        if (!enemy.removeAt) enemy.removeAt = now + 80;
       }
     } else {
       enemy.frame = nextFrame;
@@ -25917,6 +26754,24 @@ function onGroupDungeonSwarmEnemyKilled(swarmEnemy, now = performance.now()) {
   }
   swarmEnemy.dying = true;
   swarmEnemy.hp = 0;
+  if (isHellBombSwarmEnemy(swarmEnemy)) {
+    // Float frames have no death dissolve — playing "die" leaves a ghost orb corpse.
+    // Detonation keeps the explode clip until VFX ends; other kills vanish immediately.
+    const vfxUntil = Number(swarmEnemy.pendingStrike?.vfxUntil);
+    if (swarmEnemy.hellBombDetonating && Number.isFinite(vfxUntil) && vfxUntil > now) {
+      swarmEnemy.removeAt = vfxUntil;
+    } else {
+      swarmEnemy.suppressDraw = true;
+      swarmEnemy.removeAt = now;
+    }
+    playMonsterSfx("death", swarmEnemy);
+    pushBattleLog(`${swarmEnemy.name} is defeated.`);
+    const waves = groupDungeonWaveState();
+    if (waves && !groupDungeonBossReinforcementsActive()) waves.killedThisWave += 1;
+    markGroupDungeonWaveUiDirty();
+    syncGroupDungeonPrimaryEnemy();
+    return;
+  }
   setSwarmEnemyAction(swarmEnemy, "die", true, now);
   playMonsterSfx("death", swarmEnemy);
   pushBattleLog(`${swarmEnemy.name} is defeated.`);
@@ -25999,7 +26854,7 @@ function bossPartyCombatTargetAnchor(target) {
   if (!target) return combatAnchor("player");
   return {
     x: Math.round((Number.isFinite(Number(target.worldX)) ? Number(target.worldX) : state.battle.playerX) - state.battle.cameraX),
-    y: Math.round(state.stageHeight * LANE.y + 2),
+    y: Math.round(arenaPartyCombatLaneYPx() + 2),
   };
 }
 
@@ -26023,7 +26878,7 @@ function torsoAnchorFromFrame(anchorX, anchorY, atlas, meta, fallbackY) {
 /** Torso aim point for party sprites (mid-height of the rendered body, not the foot line). */
 function bossPartyMemberTorsoAnchor(member) {
   const anchorX = Math.round((Number(member?.worldX ?? state.battle.playerX)) - state.battle.cameraX);
-  const anchorY = Math.floor(state.stageHeight * LANE.y);
+  const anchorY = Math.floor(arenaPartyCombatLaneYPx());
   const action = member?.visualAction ?? (member?.alive !== false ? "stance" : "die");
   const torsoLayers = ["armour", "hair", "weapon", "weaponBack", "weaponFront", "weaponAlt", "effect"];
   for (const layer of torsoLayers) {
@@ -26147,8 +27002,8 @@ function beginRedThunderZumaSwarmAttack(swarmEnemy, now) {
   return redThunderZumaSwarmRangedAttack(swarmEnemy, entity, target, now);
 }
 
-const applySwarmEnemyStrikeToTarget = (swarmEnemy, entity, target, now, { ranged = false } = {}) => {
-  applyBossPartyIncomingStrike(swarmEnemy.name, target, entity, now, { ranged });
+const applySwarmEnemyStrikeToTarget = (swarmEnemy, entity, target, now, { ranged = false, forceHit = false } = {}) => {
+  applyBossPartyIncomingStrike(swarmEnemy.name, target, entity, now, { ranged, forceHit });
 };
 
 const beginZumaArcherSwarmAttack = createZumaArcherSwarmAttack({
@@ -26205,6 +27060,8 @@ function updateSwarmEnemyPendingStrikes(now) {
       strike.resolved = true;
       if (isHellKeeperSwarmEnemy(swarmEnemy) && strike.kind === "hellKeeperBurst") {
         resolveHellKeeperSwarmStrike(swarmEnemy, strike, now);
+      } else if (isHellBombSwarmEnemy(swarmEnemy) && strike.kind === "hellBombExplode") {
+        resolveHellBombSwarmStrike(swarmEnemy, strike, now);
       } else if (isManectricClawSwarmEnemy(swarmEnemy) && strike.aoe) {
         resolveManectricClawSwarmStrike(swarmEnemy, strike, now);
       } else if (isRedThunderZumaSwarmEnemy(swarmEnemy)) {
@@ -26325,6 +27182,61 @@ function isHellBoltSwarmEnemy(swarmEnemy) {
   const templateId = Math.trunc(Number(swarmEnemy?.templateId) || 0);
   const monsterIndex = Math.trunc(Number(swarmEnemy?.monsterIndex) || 0);
   return templateId === HELL_BOLT_TEMPLATE_ID || monsterIndex === HELL_BOLT_MONSTER_INDEX;
+}
+
+function isHellBombSwarmEnemy(swarmEnemy) {
+  const templateId = Math.trunc(Number(swarmEnemy?.templateId) || 0);
+  const monsterIndex = Math.trunc(Number(swarmEnemy?.monsterIndex) || 0);
+  return HELL_BOMB_TEMPLATE_IDS.has(templateId)
+    || HELL_BOMB_MONSTER_INDICES.has(monsterIndex)
+    || /^HellBomb\d*$/i.test(String(swarmEnemy?.crystalName || ""));
+}
+
+function beginHellBombSwarmAttack(swarmEnemy, now) {
+  if (!swarmEnemy || swarmEnemy.hp <= 0 || swarmEnemy.pendingStrike || swarmEnemy.hellBombDetonating) return false;
+  if (!state.battle.enemyRevealed) return false;
+  const meleeCol = swarmSnapTileX(groupDungeonSwarmMeleeWorldX());
+  if (!swarmEnemyInAttackRange(swarmEnemy, meleeCol)) return false;
+  if (!bossPartyAllLivingTargets().length) return false;
+
+  const entity = swarmEnemyToBattleEntity(swarmEnemy);
+  const impactDelay = Math.max(
+    100,
+    Math.trunc(Number(entity.attackImpactDelayMs) || HELL_BOMB_EXPLODE_IMPACT_MS),
+  );
+  const partyRow = arenaSpawnMapRow();
+  const lane = swarmLaneFromMapRow(swarmEnemyTilePosition(swarmEnemy).mapRow, partyRow);
+  const attackAction = swarmAttackActionForLane(lane);
+  swarmEnemy.hellBombDetonating = true;
+  setSwarmEnemyAction(swarmEnemy, attackAction, true, now);
+  syncPrimarySwarmVisual(swarmEnemy, attackAction, now);
+  playMonsterSfx("attack", swarmEnemy);
+  swarmEnemy.attackFxStartedAt = now;
+  swarmEnemy.pendingStrike = {
+    kind: "hellBombExplode",
+    startedAt: now,
+    at: now + impactDelay,
+    vfxUntil: now + impactDelay + 700,
+    aoe: true,
+    resolved: false,
+  };
+  // One-shot fuse — do not schedule another attack.
+  swarmEnemy.nextAttackAt = Number.POSITIVE_INFINITY;
+  return true;
+}
+
+function resolveHellBombSwarmStrike(swarmEnemy, strike, now) {
+  const entity = swarmEnemyToBattleEntity(swarmEnemy);
+  const targets = bossPartyAllLivingTargets();
+  for (const target of targets) {
+    // Detonation always connects — Crystal bombs are not dodgeable swings.
+    applySwarmEnemyStrikeToTarget(swarmEnemy, entity, target, now, { ranged: false, forceHit: true });
+  }
+  if (targets.length) {
+    pushBattleLog(`${swarmEnemy.name} explodes across the party!`);
+  }
+  // Self-destruct after the blast (Crystal Die → CompleteDeath).
+  if (!swarmEnemy.dying) onGroupDungeonSwarmEnemyKilled(swarmEnemy, now);
 }
 
 function isWitchDoctorSwarmEnemy(swarmEnemy) {
@@ -26510,6 +27422,9 @@ function groupDungeonSwarmEnemyAttack(swarmEnemy, now) {
   if (isHellKeeperSwarmEnemy(swarmEnemy)) {
     return beginHellKeeperSwarmAttack(swarmEnemy, now);
   }
+  if (isHellBombSwarmEnemy(swarmEnemy)) {
+    return beginHellBombSwarmAttack(swarmEnemy, now);
+  }
   if (isHellBoltSwarmEnemy(swarmEnemy)) {
     return beginHellBoltSwarmAttack(swarmEnemy, now);
   }
@@ -26553,6 +27468,7 @@ function runGroupDungeonSwarmAttackPass(now) {
     if (now < (swarmEnemy.nextAttackAt ?? 0)) continue;
     if (groupDungeonSwarmEnemyAttack(swarmEnemy, now)) {
       if (!isHellKeeperSwarmEnemy(swarmEnemy)
+        && !isHellBombSwarmEnemy(swarmEnemy)
         && !isHellBoltSwarmEnemy(swarmEnemy)
         && !isWitchDoctorSwarmEnemy(swarmEnemy)
         && !isRedThunderZumaSwarmEnemy(swarmEnemy)
@@ -26801,6 +27717,9 @@ function traderNpcSceneHtml(npc) {
         <div class="trader-action-button-wrap" data-help-tooltip="inventory-marks">
           <button type="button" class="trader-action-button"${junk.count > 0 ? "" : " disabled"} data-sell-all-junk-marked>${escapeHtml(sellAllLabel)}</button>
         </div>
+        <div class="trader-action-button-wrap" data-help-tooltip="auto-junk-filters">
+          <button type="button" class="trader-action-button" data-open-auto-junk>Auto-junk filters</button>
+        </div>
       </div>
       <div class="npc-shop-list trader-sell-list" data-preserve-scroll="npc-trader-sell">
         ${rows || `<span class="trader-empty">No bag items to sell.</span>`}
@@ -26891,12 +27810,13 @@ function itemBuyValue(item, quantity = 1) {
 
 function smithNpcSceneHtml(npc) {
   const rows = smithCombineOptions().map(smithCombineRowHtml).join("");
+  const cap = smithCombineStatCap();
   return `
     <section class="npc-panel crystal-npc-text npc-shop-panel smith-panel">
-      <p>Combine two matching equipment items. The weaker copy is consumed. Saved items are always kept when paired with a non-saved copy; junk-marked copies are consumed first. Success adds +1 to the kept item's strongest stat.</p>
+      <p>Combine two matching equipment items. The weaker copy is consumed. Saved items are always kept when paired with a non-saved copy; junk-marked copies are consumed first. Success adds +1 to the kept item's strongest stat (max +${cap}${cap < SMITH_COMBINE_STAT_CAP_ABSOLUTE_MAX ? "; raise the cap with Master Smithing in Rebirth upgrades" : ""}).</p>
       <div class="npc-shop-summary">
         <span>Success chance</span>
-        <strong>By + level / gem type</strong>
+        <strong>By + level (down to 1%)</strong>
       </div>
       <div class="npc-shop-list smith-combine-list" data-preserve-scroll="npc-smith-combine">
         ${rows || `<span class="trader-empty">Bring me two matching equipment items.</span>`}
@@ -28504,7 +29424,12 @@ async function reloadEnemyAtlas() {
 
 function tick(now) {
   updatePerfClock(now);
-  catchUpSimulation(now);
+  if (!catchUpSimulation(now)) {
+    // Still replaying missed steps in budgeted chunks; keep the frame short so
+    // the page stays responsive and resume the live loop once caught up.
+    requestAnimationFrame(tick);
+    return;
+  }
   lastSimulationAt = now;
   const shouldRender = runSimulationStep(now, { autoSave: true });
   if (shouldRender && now - lastRenderAt >= RENDER_MIN_INTERVAL_MS) {
@@ -28514,9 +29439,16 @@ function tick(now) {
   requestAnimationFrame(tick);
 }
 
+// Cap how long one frame may spend replaying missed simulation steps. The
+// catch-up used to run every missed 100ms step in a single synchronous loop -
+// up to ~6000 steps after 10 minutes in the background - which froze the tab
+// for seconds on phones every time the player switched back to the game.
+const CATCH_UP_FRAME_BUDGET_MS = 8;
+
+/** @returns {boolean} true when fully caught up; false while chunks remain. */
 function catchUpSimulation(now) {
   const elapsed = Math.max(0, now - lastSimulationAt);
-  if (elapsed <= SIMULATION_STEP_MS) return;
+  if (elapsed <= SIMULATION_STEP_MS) return true;
 
   if (elapsed > MAX_SIMULATION_CATCH_UP_MS) {
     const pending = {
@@ -28534,19 +29466,27 @@ function catchUpSimulation(now) {
     if (groupDungeonPauseSnapshot?.zoneId === state.game.activeZoneId) pending.groupDungeonPauseSnapshot = groupDungeonPauseSnapshot;
     if (pending.kind === "mining") applyOfflineMiningProgress(pending);
     else applyOfflineProgress(pending);
-    return;
+    return true;
   }
 
   const catchUpMs = Math.min(elapsed, MAX_SIMULATION_CATCH_UP_MS);
   const catchUpEnd = lastSimulationAt + catchUpMs;
+  const budgetEnd = performance.now() + CATCH_UP_FRAME_BUDGET_MS;
   suppressSimulationRender = true;
   try {
     for (let simNow = lastSimulationAt + SIMULATION_STEP_MS; simNow < catchUpEnd; simNow += SIMULATION_STEP_MS) {
       runSimulationStep(simNow);
+      if (performance.now() >= budgetEnd && simNow + SIMULATION_STEP_MS < catchUpEnd) {
+        // Out of frame budget with steps left: record progress and continue
+        // from here on the next frame.
+        lastSimulationAt = simNow;
+        return false;
+      }
     }
   } finally {
     suppressSimulationRender = false;
   }
+  return true;
 }
 
 function runSimulationStep(now, options = {}) {
@@ -28775,6 +29715,12 @@ function beginBossPartyFight(zoneId, now = performance.now()) {
     positionBossPartyMembersForFixedSpawn(members, spawnX, controlledClassId);
     if (controlled) state.battle.playerX = controlled.worldX;
     applyFixedArenaEnemySpawn(now, { skipPlayerPosition: true });
+    // meleeFrontSlotWorldX was captured before fixed-spawn layout — refresh so camera /
+    // party step targets match the post-spawn front line (not the pre-spawn X).
+    const frontAfterFixed = bossPartyMeleeFrontMember(state.battle.bossParty);
+    if (frontAfterFixed) {
+      state.battle.bossParty.meleeFrontSlotWorldX = Math.round(Number(frontAfterFixed.worldX) || 0);
+    }
   } else {
     state.battle.phase = "engaged";
     state.battle.enemyAggro = true;
@@ -28835,10 +29781,21 @@ function beginBossPartyFight(zoneId, now = performance.now()) {
       setPlayerAction("stance", now);
       pushBattleLog(`${bossTemplate?.name ?? "The boss"} is recovering. Respawns in ${formatDuration(groupDungeonBossRespawnRemainingMs(entryZone))}. Advance to the next floor anytime, or wait here.`);
     } else {
+      const fixedSpawn = enemyUsesFixedArenaSpawn(enemy);
       state.battle.phase = "engaged";
       state.battle.enemyAggro = true;
-      state.battle.enemyRevealed = true;
-      state.battle.enemyX = bossPartyEnemyApproachX(members);
+      // Stamp-pinned bosses (Hell Lord throne): combat foot on the throne tile so the
+      // party can melee the seated sprite. Else fixed-arena spawn, else approach X.
+      if (applyArenaEnemyStampMapCombat(entryZone, members, controlledClassId)) {
+        state.battle.cameraX = (groupDungeonCameraAnchorWorldX() ?? state.battle.playerX) - playerScreenX();
+      } else if (!fixedSpawn) {
+        state.battle.enemyX = bossPartyEnemyApproachX(members);
+      }
+      // applyFixedArenaEnemySpawn leaves revealed=false for spawnAction:"show"; pillar bosses without
+      // a show clip still need to be visible/aggro immediately.
+      if (!fixedSpawn || enemy?.spawnAction !== "show") {
+        state.battle.enemyRevealed = true;
+      }
       state.battle.nextEnemyAttackAt = now + Math.max(400, Math.trunc(Number(enemy?.attackMs) || 1400));
       setEnemyLocomotion("standing", now);
       if (enemy?.monsterIndex) {
@@ -28927,10 +29884,11 @@ function bossPartyMeleeFrontWorldX() {
   const slotX = bossPartyMeleeFrontSlotWorldX();
   if (Number.isFinite(slotX)) return slotX;
   const enemyX = Number(state.battle.enemyX) || 0;
+  const gap = bossPartyEnemyMeleeGap();
   if (enemyUsesFixedArenaSpawn()) {
-    return Math.round((enemyX || arenaBossSpawnWorldX()) - BOSS_PARTY_ENEMY_MELEE_GAP);
+    return Math.round((enemyX || arenaBossSpawnWorldX()) - gap);
   }
-  return Math.round(enemyX - BOSS_PARTY_ENEMY_MELEE_GAP);
+  return Math.round(enemyX - gap);
 }
 
 function layoutBossPartyMembers(members, frontX, controlledClassId = state.activeCharacterId) {
@@ -29076,7 +30034,7 @@ function bossPartyInitMemberVisuals(member, now = performance.now()) {
 }
 
 function positionBossPartyMembersForFixedSpawn(members, spawnX, controlledClassId = state.activeCharacterId) {
-  layoutBossPartyMembers(members, Math.round(spawnX - BOSS_PARTY_ENEMY_MELEE_GAP), controlledClassId);
+  layoutBossPartyMembers(members, Math.round(spawnX - bossPartyEnemyMeleeGap()), controlledClassId);
 }
 
 // Where the boss first appears: a few tiles in front of the lead member, so it
@@ -29262,7 +30220,7 @@ function bossPartyAdvanceEnemy(now) {
     return;
   }
   const closingGap = Math.abs(current - desired);
-  const inWalkIn = closingGap > BOSS_PARTY_ENEMY_MELEE_GAP + 6;
+  const inWalkIn = closingGap > bossPartyEnemyMeleeGap() + 6;
   const speed = enemyAdvanceSpeed(enemy, inWalkIn ? BOSS_PARTY_BOSS_APPROACH_SPEED : LANE.enemySpeed, now);
   const step = Math.max(1, speed * dt);
   const delta = desired - current;
@@ -29277,19 +30235,20 @@ function bossPartyAdvanceEnemy(now) {
 
 function bossPartyDesiredEnemyX() {
   const party = state.battle.bossParty;
+  const gap = bossPartyEnemyMeleeGap();
   if (partyPetCanTank()) {
     const petX = Number(party?.pet?.worldX);
-    if (Number.isFinite(petX)) return Math.round(petX + BOSS_PARTY_ENEMY_MELEE_GAP);
+    if (Number.isFinite(petX)) return Math.round(petX + gap);
   }
   // Stationary bosses: party members step to a fixed front slot; the boss stays put.
   if (bossPartyMembersStepToMelee()) {
     const slotX = bossPartyMeleeFrontSlotWorldX(party);
-    if (Number.isFinite(slotX)) return Math.round(slotX + BOSS_PARTY_ENEMY_MELEE_GAP);
+    if (Number.isFinite(slotX)) return Math.round(slotX + gap);
   }
   // Mobile bosses: party holds formation; the boss walks to whoever is tanking.
   const target = bossPartyFrontTarget();
   const targetX = Number(target?.worldX);
-  if (Number.isFinite(targetX)) return Math.round(targetX + BOSS_PARTY_ENEMY_MELEE_GAP);
+  if (Number.isFinite(targetX)) return Math.round(targetX + gap);
   return null;
 }
 
@@ -29307,7 +30266,9 @@ function bossPartyHasThrusting(member) {
 }
 
 function bossPartyMemberReach(member) {
-  return bossPartyHasThrusting(member) ? BOSS_PARTY_THRUSTING_REACH : BOSS_PARTY_WARRIOR_REACH;
+  const base = bossPartyHasThrusting(member) ? BOSS_PARTY_THRUSTING_REACH : BOSS_PARTY_WARRIOR_REACH;
+  // Large-boss stand-off (bossMeleeGap) must still leave the front melee in range.
+  return Math.max(base, bossPartyEnemyMeleeGap());
 }
 
 function bossPartyCanWeaponReach(member) {
@@ -29543,7 +30504,14 @@ function spawnGroupDungeonBossEnemy(now, zone = activeZone()) {
   state.battle.phase = "engaged";
   state.battle.enemyAggro = true;
   state.battle.enemyRevealed = true;
-  state.battle.enemyX = bossPartyEnemyApproachX(party.members);
+  const stampCombatX = arenaEnemyStampCombatWorldX(zone);
+  if (stampCombatX != null) {
+    state.battle.enemyX = stampCombatX;
+  } else if (enemyUsesFixedArenaSpawn(state.battle.enemy)) {
+    state.battle.enemyX = arenaBossSpawnWorldX(zone);
+  } else {
+    state.battle.enemyX = bossPartyEnemyApproachX(party.members);
+  }
   state.battle.nextEnemyAttackAt = now + Math.max(400, Math.trunc(Number(template.attackMs) || 1400));
   setEnemyLocomotion("standing", now);
   if (template.monsterIndex) {
@@ -29624,6 +30592,7 @@ function updateBossPartyBattle(now) {
     finishBossPartyEnemy(now);
     return true;
   }
+  updateTimedEnrage(enemy, now);
   if (bossPartyAllMembersDead()) {
     finishBossPartyDefeat(now);
     return true;
@@ -29800,7 +30769,13 @@ function bossPartyWarriorAction(member, now) {
     learned = sweepAttack.learned;
     cost = effectiveSpellMpCost(sweepAttack.skill, sweepAttack.learned, member.inventory);
     usingSweepAttack = true;
-  } else if (warriorSlayingPending(member) && bossPartyLearned(member, "Slaying")) {
+  } else if (
+    warriorSlayingPending(member)
+    && bossPartyLearned(member, "Slaying")
+    // Even when BA is ready (which suppresses the sweep branch above), do not
+    // let Slaying replace Half Moon / Cross Half Moon while those can fire.
+    && !resolveActiveSweepAttack(member, now)
+  ) {
     attackSkill = warriorSpellById("Slaying");
     learned = bossPartyLearned(member, "Slaying");
     cost = 0;
@@ -30105,7 +31080,7 @@ function bossPartyTaoistAction(member, now) {
     const learned = bossPartyLearned(member, healing.id);
     const amount = rollTaoistHealingAmount(healing, learned, member, member.inventory);
     member.mp -= effectiveSpellMpCost(healing, learned, member.inventory);
-    learned.castReadyAt = now + spellDelayMs(healing, learned);
+    setLearnedSpellCastReadyAt(learned, healing, now, member.inventory);
     member.nextActionAt = now + spellDelayMs(healing, learned);
     if (glyphHealingIsInstant(equippedGlyphFor(member))) {
       applyInstantTaoistHealingRestore(healTarget, amount, now);
@@ -30128,7 +31103,7 @@ function bossPartyTaoistAction(member, now) {
     if (bossPartyAmuletInventoryCount(member) >= amuletCost && bossPartyConsumeAmuletInventoryUnits(member, amuletCost)) {
       const learned = bossPartyLearned(member, summon.id);
       member.mp -= effectiveSpellMpCost(summon, learned, member.inventory);
-      learned.castReadyAt = now + spellDelayMs(summon, learned);
+      setLearnedSpellCastReadyAt(learned, summon, now, member.inventory);
       member.nextActionAt = now + spellDelayMs(summon, learned);
       const pet = createTaoistSummonPet(summon.id, Math.max(0, Number(learned.level) || 0), now);
       pet.name = `${member.classId}'s ${pet.name}`;
@@ -30148,7 +31123,7 @@ function bossPartyTaoistAction(member, now) {
     if (bossPartyAmuletInventoryCount(member) >= amuletCost && bossPartyConsumeAmuletInventoryUnits(member, amuletCost)) {
       const learned = bossPartyLearned(member, shinsu.id);
       member.mp -= effectiveSpellMpCost(shinsu, learned, member.inventory);
-      learned.castReadyAt = now + spellDelayMs(shinsu, learned);
+      setLearnedSpellCastReadyAt(learned, shinsu, now, member.inventory);
       member.nextActionAt = now + spellDelayMs(shinsu, learned);
       const pet = createTaoistSummonPet(shinsu.id, Math.max(0, Number(learned.level) || 0), now);
       pet.name = `${member.classId}'s ${pet.name}`;
@@ -30168,7 +31143,7 @@ function bossPartyTaoistAction(member, now) {
     if (bossPartyAmuletInventoryCount(member) >= amuletCost && bossPartyConsumeAmuletInventoryUnits(member, amuletCost)) {
       const learned = bossPartyLearned(member, holyDeva.id);
       member.mp -= effectiveSpellMpCost(holyDeva, learned, member.inventory);
-      learned.castReadyAt = now + spellDelayMs(holyDeva, learned);
+      setLearnedSpellCastReadyAt(learned, holyDeva, now, member.inventory);
       member.nextActionAt = now + spellDelayMs(holyDeva, learned);
       state.battle.pendingTaoPet = {
         at: now + CRYSTAL_SUMMON_HOLY_DEVA_DELAY_MS,
@@ -30190,7 +31165,7 @@ function bossPartyTaoistAction(member, now) {
     const { spell, learned } = healingCircleBundle;
     const skillLevel = Math.max(0, Math.min(3, Math.trunc(Number(learned?.level) || 0)));
     member.mp -= healingCircleBundle.cost;
-    learned.castReadyAt = now + spellDelayMs(spell, learned);
+    setLearnedSpellCastReadyAt(learned, spell, now, member.inventory);
     member.nextActionAt = now + spellDelayMs(spell, learned);
     bossPartyControlledVisual(member, spell, spell.bodyAction ?? "spell", now);
     bossPartyCastSfx(member, spell.id, 0.38, 160);
@@ -30232,7 +31207,7 @@ function bossPartyTaoistAction(member, now) {
     if (entry && item && bossPartyConsumeOneInventoryUnit(member, entry.id)) {
       const learned = bossPartyLearned(member, poison.id);
       member.mp -= effectiveSpellMpCost(poison, learned, member.inventory);
-      learned.castReadyAt = now + spellDelayMs(poison, learned);
+      setLearnedSpellCastReadyAt(learned, poison, now, member.inventory);
       member.nextActionAt = now + spellDelayMs(poison, learned);
       bossPartyQueuePoisonApply(member, poison, learned, item, now, target?.swarmEnemy?.id ?? null);
       return true;
@@ -30247,7 +31222,7 @@ function bossPartyTaoistAction(member, now) {
       && bossPartyConsumeGreenPoisonUnits(member, POISON_CLOUD_GREEN_POISON_COST)) {
       const learned = bossPartyLearned(member, poisonCloud.id);
       member.mp -= effectiveSpellMpCost(poisonCloud, learned, member.inventory);
-      learned.castReadyAt = now + spellDelayMs(poisonCloud, learned);
+      setLearnedSpellCastReadyAt(learned, poisonCloud, now, member.inventory);
       member.nextActionAt = now + spellActionDelayMs(poisonCloud, learned);
       bossPartyControlledVisual(member, poisonCloud, poisonCloud.bodyAction ?? "spell", now);
       bossPartyCastSfx(member, poisonCloud.id, 0.38, 160);
@@ -30272,7 +31247,7 @@ function bossPartyTaoistAction(member, now) {
     if (enemy?.hp > 0 && bossPartyConsumeAmuletInventoryUnits(member, CURSE_AMULET_COST)) {
       const learned = bossPartyLearned(member, curse.id);
       member.mp -= effectiveSpellMpCost(curse, learned, member.inventory, member);
-      learned.castReadyAt = now + spellDelayMs(curse, learned);
+      setLearnedSpellCastReadyAt(learned, curse, now, member.inventory);
       member.nextActionAt = now + spellDelayMs(curse, learned);
       const centerTile = wizardBangCenterTile(state.battle.enemy, curse, member);
       bossPartyControlledVisual(member, curse, curse.bodyAction ?? "spell", now, { centerTile });
@@ -30302,7 +31277,7 @@ function bossPartyTaoistAction(member, now) {
     if (bossPartyConsumePlagueCastSupplies(member, poisonCandidate)) {
       const learned = bossPartyLearned(member, plague.id);
       member.mp -= effectiveSpellMpCost(plague, learned, member.inventory, member);
-      learned.castReadyAt = now + spellDelayMs(plague, learned);
+      setLearnedSpellCastReadyAt(learned, plague, now, member.inventory);
       member.nextActionAt = now + spellDelayMs(plague, learned);
       const centerTile = wizardBangCenterTile(state.battle.enemy, plague, member);
       bossPartyControlledVisual(member, plague, plague.bodyAction ?? "spell", now, { centerTile });
@@ -30328,7 +31303,7 @@ function bossPartyTaoistAction(member, now) {
     if (amulet && bossPartyConsumeOneInventoryUnit(member, amulet.id)) {
       const learned = bossPartyLearned(member, soulFireBall.id);
       member.mp -= effectiveSpellMpCost(soulFireBall, learned, member.inventory);
-      learned.castReadyAt = now + spellDelayMs(soulFireBall, learned);
+      setLearnedSpellCastReadyAt(learned, soulFireBall, now, member.inventory);
       member.nextActionAt = now + spellDelayMs(soulFireBall, learned);
       bossPartyControlledVisual(member, soulFireBall, soulFireBall.bodyAction ?? "spell", now);
       bossPartyCastSfx(member, soulFireBall.id, 0.38, 160);
@@ -30512,7 +31487,7 @@ function bossPartyUsableTaoistMassHealing(member, now, options = {}) {
 
 function bossPartyCastMassHealing(member, castBundle, now) {
   member.mp -= castBundle.cost;
-  castBundle.learned.castReadyAt = now + spellDelayMs(castBundle.spell, castBundle.learned);
+  setLearnedSpellCastReadyAt(castBundle.learned, castBundle.spell, now, member.inventory);
   member.nextActionAt = now + spellDelayMs(castBundle.spell, castBundle.learned);
   clearQueuedCombatSpell(castBundle.spell.id);
   state.battle.pendingMassHeal = {
@@ -30705,7 +31680,7 @@ function bossPartyCastUltimateEnhancer(member, castBundle, now) {
   const targets = ultimateEnhancerTargets(now);
   if (!targets.length) return false;
   member.mp -= castBundle.cost;
-  castBundle.learned.castReadyAt = now + spellDelayMs(castBundle.spell, castBundle.learned);
+  setLearnedSpellCastReadyAt(castBundle.learned, castBundle.spell, now, member.inventory);
   member.nextActionAt = now + spellDelayMs(castBundle.spell, castBundle.learned);
   clearQueuedCombatSpell(castBundle.spell.id);
   const applied = applyUltimateEnhancerToTargets(
@@ -30749,7 +31724,7 @@ function bossPartyCastPetEnhancer(member, castBundle, now) {
   const pet = castBundle.pet ?? activeTaoistPet(now);
   if (!pet?.active || pet.hp <= 0) return false;
   member.mp -= castBundle.cost;
-  castBundle.learned.castReadyAt = now + spellDelayMs(castBundle.spell, castBundle.learned);
+  setLearnedSpellCastReadyAt(castBundle.learned, castBundle.spell, now, member.inventory);
   member.nextActionAt = now + spellDelayMs(castBundle.spell, castBundle.learned);
   clearQueuedCombatSpell(castBundle.spell.id);
   const applied = applyPetEnhancerToPet(
@@ -30838,7 +31813,7 @@ function bossPartyCastEnergyShield(member, castBundle, now) {
   const partyMember = resolveBossPartyMember(member);
   if (!partyMember || !castBundle?.target) return false;
   partyMember.mp -= castBundle.cost;
-  castBundle.learned.castReadyAt = now + spellDelayMs(castBundle.spell, castBundle.learned);
+  setLearnedSpellCastReadyAt(castBundle.learned, castBundle.spell, now, member.inventory);
   partyMember.nextActionAt = now + spellDelayMs(castBundle.spell, castBundle.learned);
   clearQueuedCombatSpell(castBundle.spell.id);
   const applied = applyEnergyShieldEffect(
@@ -30862,7 +31837,7 @@ function bossPartyCastEnergyShield(member, castBundle, now) {
 function bossPartyCastDefenceBuff(member, castBundle, now) {
   if (!bossPartyConsumeOneInventoryUnit(member, castBundle.entry.id)) return false;
   member.mp -= castBundle.cost;
-  castBundle.learned.castReadyAt = now + spellDelayMs(castBundle.spell, castBundle.learned);
+  setLearnedSpellCastReadyAt(castBundle.learned, castBundle.spell, now, member.inventory);
   member.nextActionAt = now + spellDelayMs(castBundle.spell, castBundle.learned);
   clearQueuedCombatSpell(castBundle.spell.id);
   const applied = applyTaoistDefenceBuffEffect(
@@ -31082,7 +32057,7 @@ function bossPartyCastQueuedTaoistSpell(member, queued, now) {
     const learned = queued.learned;
     const amount = rollTaoistHealingAmount(queued.spell, learned, member, member.inventory);
     member.mp -= queued.cost;
-    learned.castReadyAt = now + spellDelayMs(queued.spell, learned);
+    setLearnedSpellCastReadyAt(learned, queued.spell, now, member.inventory);
     member.nextActionAt = now + spellDelayMs(queued.spell, learned);
     if (glyphHealingIsInstant(equippedGlyphFor(member))) {
       applyInstantTaoistHealingRestore(queued.target, amount, now);
@@ -31102,7 +32077,7 @@ function bossPartyCastQueuedTaoistSpell(member, queued, now) {
   if (queued.spell.id === "Poisoning") {
     if (!bossPartyConsumeOneInventoryUnit(member, queued.entry.id)) return false;
     member.mp -= queued.cost;
-    queued.learned.castReadyAt = now + spellDelayMs(queued.spell, queued.learned);
+    setLearnedSpellCastReadyAt(queued.learned, queued.spell, now, member.inventory);
     member.nextActionAt = now + spellDelayMs(queued.spell, queued.learned);
     bossPartyQueuePoisonApply(member, queued.spell, queued.learned, queued.item, now, queued.targetSwarmId ?? null);
     return true;
@@ -31111,7 +32086,7 @@ function bossPartyCastQueuedTaoistSpell(member, queued, now) {
     if (!bossPartyConsumeAmuletInventoryUnits(member, POISON_CLOUD_AMULET_COST)
       || !bossPartyConsumeGreenPoisonUnits(member, POISON_CLOUD_GREEN_POISON_COST)) return false;
     member.mp -= queued.cost;
-    queued.learned.castReadyAt = now + spellDelayMs(queued.spell, queued.learned);
+    setLearnedSpellCastReadyAt(queued.learned, queued.spell, now, member.inventory);
     member.nextActionAt = now + spellActionDelayMs(queued.spell, queued.learned);
     clearQueuedCombatSpell(queued.spell.id);
     bossPartyControlledVisual(member, queued.spell, queued.spell.bodyAction ?? "spell", now);
@@ -31131,7 +32106,7 @@ function bossPartyCastQueuedTaoistSpell(member, queued, now) {
   }
   if (queued.spell.id === "HealingCircle") {
     member.mp -= queued.cost;
-    queued.learned.castReadyAt = now + spellDelayMs(queued.spell, queued.learned);
+    setLearnedSpellCastReadyAt(queued.learned, queued.spell, now, member.inventory);
     member.nextActionAt = now + spellDelayMs(queued.spell, queued.learned);
     clearQueuedCombatSpell(queued.spell.id);
     bossPartyControlledVisual(member, queued.spell, queued.spell.bodyAction ?? "spell", now);
@@ -31153,7 +32128,7 @@ function bossPartyCastQueuedTaoistSpell(member, queued, now) {
   if (queued.spell.id === "Plague") {
     if (!bossPartyConsumePlagueCastSupplies(member, queued.poisonCandidate)) return false;
     member.mp -= queued.cost;
-    queued.learned.castReadyAt = now + spellDelayMs(queued.spell, queued.learned);
+    setLearnedSpellCastReadyAt(queued.learned, queued.spell, now, member.inventory);
     member.nextActionAt = now + spellDelayMs(queued.spell, queued.learned);
     clearQueuedCombatSpell(queued.spell.id);
     const centerTile = wizardBangCenterTile(state.battle.enemy, queued.spell, member);
@@ -31175,7 +32150,7 @@ function bossPartyCastQueuedTaoistSpell(member, queued, now) {
   if (queued.spell.id === "Curse") {
     if (!bossPartyConsumeAmuletInventoryUnits(member, CURSE_AMULET_COST)) return false;
     member.mp -= queued.cost;
-    queued.learned.castReadyAt = now + spellDelayMs(queued.spell, queued.learned);
+    setLearnedSpellCastReadyAt(queued.learned, queued.spell, now, member.inventory);
     member.nextActionAt = now + spellDelayMs(queued.spell, queued.learned);
     clearQueuedCombatSpell(queued.spell.id);
     const centerTile = wizardBangCenterTile(state.battle.enemy, queued.spell, member);
@@ -31201,7 +32176,7 @@ function bossPartyCastQueuedTaoistSpell(member, queued, now) {
   if (queued.spell.id === "SoulFireBall") {
     if (!bossPartyConsumeOneInventoryUnit(member, queued.entry.id)) return false;
     member.mp -= queued.cost;
-    queued.learned.castReadyAt = now + spellDelayMs(queued.spell, queued.learned);
+    setLearnedSpellCastReadyAt(queued.learned, queued.spell, now, member.inventory);
     member.nextActionAt = now + spellDelayMs(queued.spell, queued.learned);
     clearQueuedCombatSpell(queued.spell.id);
     bossPartyControlledVisual(member, queued.spell, queued.spell.bodyAction ?? "spell", now);
@@ -31216,7 +32191,7 @@ function bossPartyCastQueuedTaoistSpell(member, queued, now) {
     const amuletCost = queued.amuletCost ?? taoistSummonAmuletCost(queued.spell.id);
     if (!bossPartyConsumeAmuletInventoryUnits(member, amuletCost)) return false;
     member.mp -= queued.cost;
-    queued.learned.castReadyAt = now + spellDelayMs(queued.spell, queued.learned);
+    setLearnedSpellCastReadyAt(queued.learned, queued.spell, now, member.inventory);
     member.nextActionAt = now + spellDelayMs(queued.spell, queued.learned);
     clearQueuedCombatSpell(queued.spell.id);
     const delayedHolyDeva = queued.spell.id === "SummonHolyDeva";
@@ -31989,7 +32964,18 @@ function updateBossPartyPendingPoison(now) {
   const pending = party?.pendingPoison;
   if (!pending || now < pending.at) return;
   const { enemy, swarmEnemy } = resolvePendingPoisonTarget(pending);
-  if (!enemy || enemy.hp <= 0) return;
+  // Same race as solo: swarm target dies before apply → clear so auto/manual
+  // Poisoning can continue on remaining wave monsters.
+  if (!enemy || enemy.hp <= 0) {
+    const member = party.members.find((entry) => entry.classId === pending.memberClassId);
+    party.pendingPoison = null;
+    if (isQueuedCombatSpell("Poisoning") && member && !bossPartyHasAvailablePoisoningTarget(member, now)) {
+      clearQueuedCombatSpell("Poisoning");
+    }
+    battlePanelSignature = "";
+    combatSkillBarSignature = "";
+    return;
+  }
   party.pendingPoison = null;
   const spell = taoistCombatSpell(pending.spellId);
   const member = party.members.find((entry) => entry.classId === pending.memberClassId);
@@ -32291,6 +33277,10 @@ function isGreatFoxSpiritEnemy(enemy = state.battle.enemy) {
   return enemy?.attackMode === "greatFoxSpirit" || enemy?.crystalName === "GreatFoxSpirit";
 }
 
+function isBeastKingEnemy(enemy = state.battle.enemy) {
+  return enemy?.id === 994 || enemy?.crystalName === "WingedBullLord" || enemy?.name === "Beast King";
+}
+
 function greatFoxSpiritStage(enemy = state.battle.enemy) {
   // Crystal: ExtraByte = 4 - floor(HP / (MaxHP / 4)), clamped to FrameSet levels 0-4.
   if (!isGreatFoxSpiritEnemy(enemy) || !(enemy?.maxHp > 0)) return 0;
@@ -32329,8 +33319,7 @@ function isHellKeeperEnemy(enemy = state.battle.enemy) {
 
 function isManectricKingEnemy(enemy = state.battle.enemy) {
   return enemy?.id === MANECTRIC_KING_ENEMY_ID
-    || enemy?.crystalName === "ManectricKing"
-    || (enemy?.attackMode === "massBurst" && enemy?.massBurstStyle === "line");
+    || enemy?.crystalName === "ManectricKing";
 }
 
 function isDreamDevourerEnemy(enemy = state.battle.enemy) {
@@ -33396,13 +34385,17 @@ function beginMassBurstAttack(now) {
     if (massBurstTargetsInRange().length === 0) return false;
     const projectile = state.enemy.atlas?.projectile;
     const startedAt = now;
+    const impactAt = startedAt + MASS_BURST_IMPACT_MS;
     state.battle.pendingEnemyStrike = {
       kind: "massBurst",
-      at: startedAt + MASS_BURST_IMPACT_MS,
+      at: impactAt,
       startedAt,
       ranged: true,
       aoe: true,
-      vfxUntil: enemyProjectileVfxUntil(startedAt, projectile),
+      // Bosses without a projectile atlas (Hell Lord) used to set vfxUntil to
+      // startedAt+600, which cleared the strike before MASS_BURST_IMPACT_MS and
+      // silently dropped every hit. Keep VFX alive at least until impact.
+      vfxUntil: Math.max(impactAt, enemyProjectileVfxUntil(startedAt, projectile)),
     };
     // Prefer a real body attack clip. Manectric King's atlas attackRange1 is a tiny
     // die-effect stub (~48px), so falling back to attack1 keeps the boss visible while
@@ -34212,7 +35205,7 @@ function updatePendingEnemyStrike(now) {
         { defenceType, massBurst: true, ranged: true },
       ));
     }
-    if (now >= vfxUntil) state.battle.pendingEnemyStrike = null;
+    if (strike.resolved && now >= vfxUntil) state.battle.pendingEnemyStrike = null;
     return;
   }
   if (strike.kind === "darkDevilBurst") {
@@ -34259,7 +35252,7 @@ function bossPartyEnemyAttack(now) {
   if (enemyHasRangedMeleeAttack(enemy)) return beginBoneLordAttack(now);
   const target = bossPartyFrontTarget();
   if (!enemy || !target || !state.battle.enemyRevealed) return false;
-  if (bossPartyTargetEnemyDistance(target) > BOSS_PARTY_BOSS_REACH) return false;
+  if (bossPartyTargetEnemyDistance(target) > bossPartyBossMeleeReach()) return false;
   setEnemyAction("attack1", true, now);
   playMonsterSfx("attack");
   applyBossPartyIncomingStrike(enemy.name, target, enemy, now, { magicShield: true });
@@ -34554,17 +35547,10 @@ function bossPartyMemberPaperDollHtml(member) {
   const armourItem = bossPartyMemberEquippedItem(member, "armour");
   const weaponItem = bossPartyMemberEquippedItem(member, "weapon");
   const helmetItem = bossPartyMemberEquippedItem(member, "helmet");
-  const layers = [
-    armourItem ? crystalPaperDollLayerHtml(armourItem, "armour") : "",
-    weaponItem ? crystalPaperDollLayerHtml(weaponItem, "weapon") : "",
-    helmetItem
-      ? crystalPaperDollLayerHtml(helmetItem, "helmet")
-      : crystalPaperDollFrameHtml(state.characterStateItems?.hair ?? CHARACTER_PAPER_DOLL_FRAMES.hair, "Hair"),
-  ].filter(Boolean);
   return `
     <div class="${classes.join(" ")}" title="${escapeHtml(member.classId)}">
       <div class="party-paperdoll-stage" aria-hidden="true">
-        <div class="crystal-paper-doll">${layers.join("")}</div>
+        <div class="crystal-paper-doll">${crystalPaperDollLayersHtml(armourItem, weaponItem, helmetItem)}</div>
       </div>
     </div>
   `;
@@ -34829,23 +35815,37 @@ function bossDropTableForEnemy(enemy = state.battle.enemy) {
   if (isDreamDevourerEnemy(enemy)) return BOSS_DROP_TABLE_BY_LABEL["Dream Devourer"];
   if (isDarkDevourerEnemy(enemy)) return BOSS_DROP_TABLE_BY_LABEL["Dark Devourer"];
   if (isGreatFoxSpiritEnemy(enemy)) return BOSS_DROP_TABLE_BY_LABEL["Great Fox Spirit"];
+  if (isBeastKingEnemy(enemy)) return BOSS_DROP_TABLE_BY_LABEL["Beast King"];
   if (isDarkDevilEnemy(enemy)) return BOSS_DROP_TABLE_BY_LABEL["Dark Devil"];
   if (isHellKeeperEnemy(enemy)) return BOSS_DROP_TABLE_BY_LABEL["Hell Keeper"];
   if (isManectricKingEnemy(enemy)) return BOSS_DROP_TABLE_BY_LABEL["Manectric King"];
+  if (isHellLordEnemy(enemy)) return BOSS_DROP_TABLE_BY_LABEL["Hell Lord"];
   return null;
 }
 
 function rollBossTableDrops(dropTable, awardItem, inventory = state.inventory) {
   const added = [];
   const ignored = [];
-  let table = dropTable;
-  if (state.battle.bossEmpowered) {
-    const dropMultiplier = state.battle.bossAscended
-      ? BOSS_ASCEND_DROP_RATE_MULTIPLIER
-      : BOSS_EMPOWER_DROP_RATE_MULTIPLIER;
+  if (!dropTable) return { added, ignored };
+
+  const empowered = Boolean(state.battle.bossEmpowered);
+  const ascended = Boolean(state.battle.bossAscended);
+  const dropMultiplier = ascended
+    ? BOSS_ASCEND_DROP_RATE_MULTIPLIER
+    : empowered
+      ? BOSS_EMPOWER_DROP_RATE_MULTIPLIER
+      : 1;
+  const dropChanceBonus = totalDropChanceBonusPercent(inventory);
+  const soul = itemDefinition(AWAKENING_SOUL_ITEM_ID);
+
+  // Empowered/ascended: roll Awakening Souls separately (2× / 3×). Normal keeps the shared table path.
+  let table = empowered
+    ? omitBossDropTableItem(dropTable, AWAKENING_SOUL_ITEM_ID)
+    : dropTable;
+  if (empowered) {
     table = scaleBossDropTableChances(table, dropMultiplier);
   }
-  const adjustedTable = applyDropChanceBonusToBossTable(table, totalDropChanceBonusPercent(inventory));
+  const adjustedTable = applyDropChanceBonusToBossTable(table, dropChanceBonus);
   const { oilCount, itemIds } = rollBossTableDropSelection(adjustedTable);
   const oil = itemDefinition(BENEDICTION_OIL_ITEM_ID);
   if (oil && oilCount > 0) {
@@ -34855,12 +35855,39 @@ function rollBossTableDrops(dropTable, awardItem, inventory = state.inventory) {
     const item = itemDefinition(itemId);
     if (item) awardItem(item, added, ignored);
   }
-  if (rollBonusBossDropItem(dropTable, AWAKENING_SOUL_ITEM_ID, totalBonusAwakeningSoulChancePercent(inventory))) {
-    const soul = itemDefinition(AWAKENING_SOUL_ITEM_ID);
+
+  if (empowered) {
+    // Chance rolls: empowered 2 / ascended 3, each still at the 2×/3× drop-rate chance.
+    // Bonus soul chance (rebirth/gear) also runs once per roll slot.
+    const soulRollCount = awakeningSoulBossDropRollCount({ empowered, ascended });
+    const baseSoulChance = bossDropTableItemChance(dropTable, AWAKENING_SOUL_ITEM_ID);
+    let tableSoulHits = 0;
+    let bonusSoulHits = 0;
+    if (baseSoulChance > 0 && soul) {
+      const soulChance = adjustedDropChance(
+        Math.min(1, baseSoulChance * dropMultiplier),
+        dropChanceBonus,
+      );
+      tableSoulHits = countIndependentChanceHits(soulChance, soulRollCount);
+    }
+    const bonusSoulChancePercent = totalBonusAwakeningSoulChancePercent(inventory);
+    if (bonusSoulChancePercent > 0 && bossDropTableHasItem(dropTable, AWAKENING_SOUL_ITEM_ID)) {
+      for (let i = 0; i < soulRollCount; i += 1) {
+        if (rollBonusBossDropItem(dropTable, AWAKENING_SOUL_ITEM_ID, bonusSoulChancePercent)) {
+          bonusSoulHits += 1;
+        }
+      }
+    }
+    const totalSouls = tableSoulHits + bonusSoulHits;
+    if (soul && totalSouls > 0) {
+      for (let i = 0; i < totalSouls; i += 1) awardItem(soul, added, ignored);
+    }
+  } else if (rollBonusBossDropItem(dropTable, AWAKENING_SOUL_ITEM_ID, totalBonusAwakeningSoulChancePercent(inventory))) {
     if (soul) awardItem(soul, added, ignored);
   }
+
   // Glyphs: empowered bosses only. One 10% roll, then one random glyph from the full pool.
-  if (state.battle.bossEmpowered) {
+  if (empowered) {
     const glyphId = rollEmpoweredBossGlyphItemId();
     if (glyphId) {
       const glyph = itemDefinition(glyphId);
@@ -34913,25 +35940,31 @@ function applyBossPartyMemberKillReward(member, {
   member.game.zoneKills += 1;
   if (includeItems && zoneId) member.game.dropPity[zoneId] = 0;
   member.game.lastReward = { xp, gold, drops: drops.added };
+  const dropSummaries = summarizeDropResults(drops.added);
+  const foundLines = dropSummaries.map((summary) => formatDropSummaryLine(summary, "Found"));
   member.game.recentLoot = [
     `+${gold} gold`,
     ...leveledTo.map((level) => `Level ${level}`),
-    ...drops.added.map((drop) => `Found ${dropResultLabel(drop)}`),
+    ...foundLines,
     ...drops.ignored.map((item) => `No room for ${item.name}`),
     ...member.game.recentLoot,
-  ].slice(0, 6);
+  ].slice(0, 8);
   pushBattleLog(`${member.classId} gained ${xp} XP and ${gold} gold.`);
   if (includeItems) {
-    for (const drop of drops.added) pushBattleLog(`${member.classId} received ${dropResultLabel(drop)}.`);
+    for (const summary of dropSummaries) {
+      pushBattleLog(formatClassDropLogLine(member.classId, summary, "received"));
+    }
     for (const item of drops.ignored) pushBattleLog(`${member.classId} had no room for ${item.name}.`);
   } else {
-    for (const drop of drops.added) pushBattleLog(`${member.classId} found ${dropResultLabel(drop)}.`);
+    for (const summary of dropSummaries) {
+      pushBattleLog(formatClassDropLogLine(member.classId, summary, "found"));
+    }
     for (const item of drops.ignored) pushBattleLog(`${member.classId} had no room for ${item.name}.`);
   }
   if (member.classId === bossPartyControlledClassId() || includeItems) {
     if (xp > 0) addLootNotice(`+${xp} XP`, "level");
     if (gold > 0) addLootNotice(`+${gold} gold`, "gold");
-    for (const drop of drops.added) addLootNotice(`Found ${dropResultLabel(drop)}`, "item");
+    for (const summary of dropSummaries) addLootNotice(formatDropSummaryLine(summary, "Found"), "item");
     for (const item of drops.ignored) addLootNotice(`Inventory full: ${item.name}`, "full");
     for (const level of leveledTo) addLootNotice(`Level ${level}`, "level");
   }
@@ -34946,16 +35979,12 @@ function awardBossPartyKillShare(now = performance.now(), options = {}) {
   const recipients = bossPartyAliveRewardMembers(party);
   if (!recipients.length) return;
   const shareCount = recipients.length;
-  const xpPerShare = splitPartyRewardAmount(enemy.experience ?? 0, shareCount);
+  // Empowered/Ascended group-dungeon trash: scale XP + gold (trash still never drops items/glyphs).
+  const rewardMult = groupDungeonEmpowerRewardMultiplier(zone);
+  const xpPerShare = splitPartyRewardAmount(Math.round((enemy.experience ?? 0) * rewardMult), shareCount);
 
   const reward = zone.rewards ?? { gold: [1, 2] };
-  let totalGold = randomInt(reward.gold[0], reward.gold[1]);
-  // Empowered/Ascended group-dungeon trash pays the drop multiplier as bonus gold
-  // (trash drops no items/glyphs, so gold is the only reward that scales).
-  if (groupDungeonEmpowerable(zone)) {
-    if (state.battle.bossAscended) totalGold *= BOSS_ASCEND_DROP_RATE_MULTIPLIER;
-    else if (state.battle.bossEmpowered) totalGold *= BOSS_EMPOWER_DROP_RATE_MULTIPLIER;
-  }
+  const totalGold = randomInt(reward.gold[0], reward.gold[1]) * rewardMult;
   const goldPerShare = splitPartyRewardAmount(totalGold, shareCount);
 
   for (const member of recipients) {
@@ -34975,9 +36004,11 @@ function awardBossPartyBossKillShare(enemy, now = performance.now()) {
   if (!recipients.length) return;
   const lootClassId = bossPartyBossLootClassId(party);
   const shareCount = recipients.length;
-  const xpPerShare = splitPartyRewardAmount(enemy.experience ?? 0, shareCount);
-  const goldPerShare = splitPartyRewardAmount(dropTable.gold, shareCount);
   const zoneId = party.zoneId ?? state.game.activeZoneId;
+  const zone = PROTOTYPE_ZONES.find((entry) => entry.id === zoneId) ?? activeZone();
+  const rewardMult = groupDungeonEmpowerRewardMultiplier(zone);
+  const xpPerShare = splitPartyRewardAmount(Math.round((enemy.experience ?? 0) * rewardMult), shareCount);
+  const goldPerShare = splitPartyRewardAmount(Math.round((dropTable.gold ?? 0) * rewardMult), shareCount);
 
   for (const member of recipients) {
     const xp = adjustedKillExperience(xpPerShare, member.game.progress.level, enemy.level ?? 0, member.inventory);
@@ -35043,7 +36074,7 @@ function updateBossPartyDropPity(member, zone, candidates, added, ignored, enemy
   }
   const dryKills = advanceDropPity(member.game.dropPity[zone.id], false);
   member.game.dropPity[zone.id] = dryKills;
-  if (!shouldForceDropPity(dryKills, DROP_PITY_KILLS)) return;
+  if (!shouldForceDropPity(dryKills, zoneDropPityKills(zone))) return;
   const forced = weightedDropCandidate(candidates);
   if (!forced) return;
   addBossPartyZoneDropItem(member, forced.item, added, ignored, codexDropSource({ zone, enemy, kind: "zone" }));
@@ -35236,8 +36267,8 @@ function bossPartyAutoUsePotions(member, now) {
       .filter((candidate) => candidate.entry && candidate.restore > 0)
       .sort((a, b) => b.restore - a.restore || a.slot - b.slot)[0];
     if (!candidate || !bossPartyConsumeOneInventoryUnit(member, candidate.entry.id)) continue;
-    const hpRestore = potionRestoreAmount(candidate.item, "hp");
-    const mpRestore = potionRestoreAmount(candidate.item, "mp");
+    const hpRestore = applyPotionHpRestoreWithGlyph(potionRestoreAmount(candidate.item, "hp"), member.inventory);
+    const mpRestore = applyEquippedPotionRestoreBonus(potionRestoreAmount(candidate.item, "mp"), member.inventory);
     if (potionRestoreMode(candidate.item) === "instant") {
       const hpBefore = member.hp;
       member.hp = Math.min(member.maxHp, member.hp + hpRestore);
@@ -35246,7 +36277,7 @@ function bossPartyAutoUsePotions(member, now) {
     } else {
       member.potHealthAmount = Math.min(65535, (member.potHealthAmount ?? 0) + hpRestore);
       member.potManaAmount = Math.min(65535, (member.potManaAmount ?? 0) + mpRestore);
-      member.potTickAt = member.potTickAt || now + CRYSTAL_POT_DELAY_MS;
+      member.potTickAt = member.potTickAt || now + crystalPotDelayMs(member.inventory, hpRestore > 0);
     }
     member.autoPotionReadyAt[kind] = now + AUTO_POTION_COOLDOWN_MS;
     pushBattleLog(`${member.classId} auto used ${candidate.item.name}.`);
@@ -35262,12 +36293,13 @@ function bossPartyResourceRatio(member, kind) {
 
 function updateBossPartyMemberPotionRegen(member, now) {
   if (!member.alive || member.hp <= 0 || (!member.potHealthAmount && !member.potManaAmount)) return false;
-  if (!member.potTickAt) member.potTickAt = now + CRYSTAL_POT_DELAY_MS;
+  const inventory = member.inventory ?? state.inventory;
+  if (!member.potTickAt) member.potTickAt = now + crystalPotDelayMs(inventory, (member.potHealthAmount ?? 0) > 0);
   let changed = false;
   let steps = 0;
   while (now >= member.potTickAt && steps < 20 && (member.potHealthAmount > 0 || member.potManaAmount > 0)) {
     steps += 1;
-    member.potTickAt += CRYSTAL_POT_DELAY_MS;
+    member.potTickAt += crystalPotDelayMs(inventory, (member.potHealthAmount ?? 0) > 0);
     const tickAmount = 5 + Math.floor((member.game.progress.level ?? 1) / 10);
     if (member.potHealthAmount > 0) {
       const amount = Math.min(tickAmount, member.potHealthAmount);
@@ -35602,7 +36634,6 @@ function updateLaneMotion(now) {
   }
 
   const distance = enemyDistance();
-  const playerRange = playerAttackRange(now);
   const engageRange = playerEngageRange(now);
   if (battle.enemy.hp > 0 && distance <= engageRange) {
     if (battle.phase !== "engaged") ensureMapStampArenaLock();
@@ -35638,7 +36669,10 @@ function updateLaneMotion(now) {
     if (
       battle.enemyRevealed
       && !isTrainingDummyEnemy(battle.enemy)
-      && (taoistPetCanTank() || distance <= playerRange || wizardHoldsCombatPosition())
+      // Aggro at engage distance (not only melee/spell attack range) so trash starts
+      // walking in while the player closes — otherwise the player arrives first and
+      // the enemy never plays a walk clip.
+      && (taoistPetCanTank() || distance <= engageRange || wizardHoldsCombatPosition())
     ) battle.enemyAggro = true;
     const targetDistance = enemyTargetDistance();
     if (
@@ -35720,7 +36754,16 @@ function twinDrakeAutoCastActive(learned) {
 }
 
 function twinDrakeGlyphEnforcesCooldown(inventory = state.inventory) {
-  return glyphTwinDrakeCooldownMs(equippedGlyphDef(inventory, itemDefinition)) > 0;
+  return glyphTwinDrakeCooldownMs(equippedGlyphDefs(inventory, itemDefinition)) > 0;
+}
+
+function setLearnedSpellCastReadyAt(learned, spell, now, inventory = state.inventory) {
+  if (!learned) return;
+  learned.castReadyAt = now + applyEquippedSpellCooldownReductionMs(
+    spell?.id,
+    spellDelayMs(spell, learned),
+    inventory,
+  );
 }
 
 function setWarriorSpellCastReadyAt(skill, learned, now, inventory = state.inventory) {
@@ -35730,7 +36773,7 @@ function setWarriorSpellCastReadyAt(skill, learned, now, inventory = state.inven
   }
   let delayMs = spellDelayMs(skill, learned);
   if (skill?.id === "TwinDrakeBlade") {
-    const glyphCd = glyphTwinDrakeCooldownMs(equippedGlyphDef(inventory, itemDefinition));
+    const glyphCd = glyphTwinDrakeCooldownMs(equippedGlyphDefs(inventory, itemDefinition));
     if (glyphCd > 0) delayMs = Math.max(delayMs, glyphCd);
   }
   learned.castReadyAt = now + applyEquippedSpellCooldownReductionMs(skill?.id, delayMs, inventory);
@@ -35826,7 +36869,7 @@ function attachedSpellFxAnchor(entry) {
       x: Math.floor(Number(entry.worldX) - state.battle.cameraX),
       y: entry.mapRow != null
         ? Math.floor(swarmMapRowAnchorY(entry.mapRow))
-        : Math.floor(arenaLaneYPx()),
+        : Math.floor(arenaPartyCombatLaneYPx()),
     };
   }
   if (entry?.memberClassId) {
@@ -35835,7 +36878,7 @@ function attachedSpellFxAnchor(entry) {
     if (member) {
       return {
         x: Math.floor((member.worldX ?? state.battle.playerX) - state.battle.cameraX),
-        y: Math.floor(state.stageHeight * LANE.y),
+        y: Math.floor(arenaPartyCombatLaneYPx()),
       };
     }
   }
@@ -36571,7 +37614,10 @@ function queuedWizardAttackSpell(now) {
 function chargedSlayingAttack(now = performance.now()) {
   if (!warriorSlayingPending()) return null;
   if (warriorPendingChargeAttack(now)) return null;
-  if (usableWarriorSweepAttack(now)) return null;
+  // Yield whenever Half Moon / Cross Half Moon can fire. Do not use
+  // usableWarriorSweepAttack here — that helper also returns null when Blade
+  // Avalanche is ready, which let Slaying steal AOE farming swings.
+  if (resolveActiveSweepAttack(null, now)) return null;
   const skill = warriorSpellById("Slaying");
   const learned = learnedMagic("Slaying");
   if (!skill || !learned) return null;
@@ -37239,7 +38285,10 @@ function wizardSpellActionLockMs(spell, learned) {
 function applyWizardCastCooldown(spell, learned, now, member = null) {
   const cooldown = wizardCastCooldownMs(spell, learned);
   const actionLock = wizardSpellActionLockMs(spell, learned);
-  if (learned) learned.castReadyAt = now + cooldown;
+  const inventory = member ? inventoryForCombatant(member) : state.inventory;
+  if (learned) {
+    learned.castReadyAt = now + applyEquippedSpellCooldownReductionMs(spell?.id, cooldown, inventory);
+  }
   if (member) {
     member.wizardSpellLockUntil = now + actionLock;
     member.nextActionAt = now + actionLock;
@@ -37287,7 +38336,7 @@ function commitWizardSpellUse(spell, learned, cost, now) {
 
 function commitTaoistSpellUse(spell, learned, cost, now) {
   state.battle.player.mp = Math.max(0, state.battle.player.mp - cost);
-  if (learned) learned.castReadyAt = now + spellDelayMs(spell, learned);
+  setLearnedSpellCastReadyAt(learned, spell, now);
   // Manual Poisoning stays queued until green and yellow are both applied (or unavailable).
   if (!(spell.id === "Poisoning" && isQueuedCombatSpell("Poisoning"))) {
     clearQueuedCombatSpell(spell.id);
@@ -37388,7 +38437,7 @@ function applyCritToOutgoingDamage(damage, attacker, spellId = null, inventory =
   const result = applyOutgoingCrit(damage, chance, critDamage, randomInt);
   lastOutgoingCritFlag = result.crit;
   const glyphInventory = attacker?.inventory ?? inventory;
-  const glyph = equippedGlyphDef(glyphInventory, itemDefinition);
+  const glyph = equippedGlyphDefs(glyphInventory, itemDefinition);
   const withTradeoff = applyGlyphCombatDamageOutgoing(result.damage, glyph);
   return applyGlyphBattleWizardOutgoing(
     withTradeoff,
@@ -37415,7 +38464,7 @@ function rollWarriorMagicDamage(skill, learned, player, enemy, inventory = state
   const withGlyph = applyGlyphTwinDrakeDamage(
     withEmpower,
     skill?.id,
-    equippedGlyphDef(inventory, itemDefinition),
+    equippedGlyphDefs(inventory, itemDefinition),
   );
   const defence = rollStat(enemyPhysicalDefence(enemy));
   return applyCritToOutgoingDamage(Math.max(0, withGlyph - defence), player, skill?.id, inventory);
@@ -37493,7 +38542,7 @@ function rollTaoistHealingAmount(spell, learned, player, inventory = state.inven
   const level = Math.max(1, Math.trunc(Number(player?.level ?? state.game.progress.level) || 1));
   const base = Math.max(1, boosted + level);
   const withGear = applyEquippedSpellHealingBonus(spell?.id, base, inventory);
-  return applyGlyphHealingAmount(withGear, spell?.id, equippedGlyphDef(inventory, itemDefinition));
+  return applyGlyphHealingAmount(withGear, spell?.id, equippedGlyphDefs(inventory, itemDefinition));
 }
 
 function rollTaoistMagicDamage(spell, learned, player, enemy, inventory = state.inventory) {
@@ -37567,10 +38616,22 @@ function enemyCurseActive(enemy, now = performance.now()) {
 
 function effectiveEnemyOffenceStat(enemy, stat, now = performance.now()) {
   const debuffs = ensureEnemyDebuffs(enemy);
-  if ((debuffs.curseUntil ?? 0) <= now) return stat;
-  const rate = Math.max(0, Number(debuffs.curseRatePercent) || 0);
-  if (rate <= 0) return stat;
-  return scaleStatRange(stat, Math.max(0, 1 - rate / 100));
+  let scaled = stat;
+  if ((debuffs.curseUntil ?? 0) > now) {
+    const rate = Math.max(0, Number(debuffs.curseRatePercent) || 0);
+    if (rate > 0) scaled = scaleStatRange(scaled, Math.max(0, 1 - rate / 100));
+  }
+  const timedMult = timedEnragePowerMultiplier(enemy);
+  if (timedMult !== 1) scaled = scaleStatRange(scaled, timedMult);
+  return scaled;
+}
+
+function effectiveEnemyAccuracy(enemy, now = performance.now()) {
+  void now;
+  const base = Math.max(0, Math.trunc(Number(enemy?.accuracy) || 0));
+  const timedMult = timedEnragePowerMultiplier(enemy);
+  if (timedMult === 1) return base;
+  return Math.max(0, Math.trunc(base * timedMult));
 }
 
 function effectiveEnemyAttackMs(enemy, now = performance.now()) {
@@ -37583,6 +38644,11 @@ function effectiveEnemyAttackMs(enemy, now = performance.now()) {
   }
   if (enemyEnrageActive(enemy, now)) {
     base = Math.max(400, Math.trunc(Number(enemy?.enrageAttackMs) || base));
+  }
+  const timedMult = timedEnragePowerMultiplier(enemy);
+  if (timedMult > 1) {
+    const floor = Math.max(400, timedEnrageMinAttackMs(enemy));
+    base = Math.max(floor, Math.trunc(base / timedMult));
   }
   return enemySlowActive(enemy, now) ? base * 2 : base;
 }
@@ -38603,7 +39669,7 @@ function bossPartyCastWarriorBuff(member, skill, learned, cost, now, options = {
   if (!member || !skill?.buff || !learned) return false;
   if (!bossPartyCanUseWarriorSkill(member, skill, learned, now, { requireAuto: !options.manual })) return false;
   member.mp -= cost;
-  learned.castReadyAt = now + spellDelayMs(skill, learned);
+  setWarriorSpellCastReadyAt(skill, learned, now, inventoryForCombatant(member));
   if (!applyWarriorCombatBuffToEntity(member, skill, learned, now)) return false;
   member.nextActionAt = now + CRYSTAL_PLAYER_ACTION_LOCK_MS;
   if (options.manual) clearQueuedCombatSpell(skill.id);
@@ -38863,9 +39929,9 @@ function inventoryForGlyph(entity = null) {
 
 function equippedGlyphFor(entityOrInventory = null) {
   if (entityOrInventory?.equipment != null && Array.isArray(entityOrInventory?.items)) {
-    return equippedGlyphDef(entityOrInventory, itemDefinition);
+    return equippedGlyphDefs(entityOrInventory, itemDefinition);
   }
-  return equippedGlyphDef(inventoryForGlyph(entityOrInventory), itemDefinition);
+  return equippedGlyphDefs(inventoryForGlyph(entityOrInventory), itemDefinition);
 }
 
 function magicShieldMemberClassIdForEntity(entity) {
@@ -38965,18 +40031,31 @@ function tryConsumeGlyphRevival(entity, now = performance.now()) {
   if (isTaoistPetEntity(entity)) return false;
 
   const inventory = inventoryForGlyph(entity);
-  if (!glyphIsRevival(equippedGlyphDef(inventory, itemDefinition))) return false;
+  if (!glyphIsRevival(equippedGlyphDefs(inventory, itemDefinition))) return false;
 
-  const entryId = inventory?.equipment?.glyph ?? null;
-  if (!entryId) return false;
+  let entryId = null;
+  let slotId = null;
+  for (const candidateSlot of GLYPH_EQUIPMENT_SLOT_IDS) {
+    const candidateId = inventory?.equipment?.[candidateSlot] ?? null;
+    if (!candidateId) continue;
+    const candidateEntry = (inventory.items ?? []).find((row) => row?.id === candidateId);
+    if (!candidateEntry?.itemId) continue;
+    const def = glyphDefByItemId(candidateEntry.itemId)
+      ?? glyphDefById(itemDefinition(candidateEntry.itemId)?.glyph?.modifier);
+    if (!glyphIsRevival(def)) continue;
+    entryId = candidateId;
+    slotId = candidateSlot;
+    break;
+  }
+  if (!entryId || !slotId) return false;
   const entry = (inventory.items ?? []).find((row) => row?.id === entryId);
   if (!entry) {
-    inventory.equipment.glyph = null;
+    inventory.equipment[slotId] = null;
     return false;
   }
 
   const itemName = itemDefinition(entry.itemId)?.name ?? "Glyph of Revival";
-  inventory.equipment.glyph = null;
+  inventory.equipment[slotId] = null;
   inventory.items = (inventory.items ?? []).filter((row) => row?.id !== entryId);
   if (inventory === state.inventory) clearHotbarEntry(entryId);
 
@@ -41298,9 +42377,14 @@ function taoistPetRenderMonsterIndex(pet) {
 }
 
 function taoistPetAttackRangePx(pet) {
-  if (pet?.spellId === "SummonHolyDeva") return CRYSTAL_SUMMON_HOLY_DEVA_ATTACK_RANGE_PX;
-  if (pet?.spellId === "SummonShinsu") return CRYSTAL_SUMMON_SHINSU_ATTACK_RANGE_PX;
-  return LANE.enemyRange + 4;
+  let base = LANE.enemyRange + 4;
+  if (pet?.spellId === "SummonHolyDeva") base = CRYSTAL_SUMMON_HOLY_DEVA_ATTACK_RANGE_PX;
+  else if (pet?.spellId === "SummonShinsu") base = CRYSTAL_SUMMON_SHINSU_ATTACK_RANGE_PX;
+  // Tanking pet sits at bossMeleeGap from the boss — stretch reach to that stand-off.
+  if (bossPartyActiveFight() && partyPetCanTank() && pet === state.battle.bossParty?.pet) {
+    return Math.max(base, bossPartyEnemyMeleeGap());
+  }
+  return base;
 }
 
 function taoistShinsuAttackImpactMs() {
@@ -44006,10 +45090,14 @@ function applyIncomingDamageReduction(damage, target, now = performance.now()) {
 }
 
 function resolveIncomingEnemyAttack(enemy, target, options = {}) {
-  const result = resolveIncomingEnemyAttackCore(enemy, target, {
+  const now = options.now ?? performance.now();
+  const result = resolveIncomingEnemyAttackCore({
+    ...enemy,
+    accuracy: effectiveEnemyAccuracy(enemy, now),
+  }, target, {
     ...options,
     attackStat: enemyAttackDamageStat(enemy, options),
-    damageReductionPercent: incomingDamageReductionPercent(target, options.now ?? performance.now()),
+    damageReductionPercent: incomingDamageReductionPercent(target, now),
   });
   if (!result?.hit || !(result.damage > 0)) return result;
   const buffEntity = target?.__buffEntity ?? target;
@@ -44020,10 +45108,14 @@ function resolveIncomingEnemyAttack(enemy, target, options = {}) {
 }
 
 function resolveIncomingEnemyRangedAttack(enemy, target, options = {}) {
-  const result = resolveIncomingEnemyRangedAttackCore(enemy, target, {
+  const now = options.now ?? performance.now();
+  const result = resolveIncomingEnemyRangedAttackCore({
+    ...enemy,
+    accuracy: effectiveEnemyAccuracy(enemy, now),
+  }, target, {
     ...options,
     attackStat: enemyAttackDamageStat(enemy, { ...options, ranged: true }),
-    damageReductionPercent: incomingDamageReductionPercent(target, options.now ?? performance.now()),
+    damageReductionPercent: incomingDamageReductionPercent(target, now),
   });
   if (!result?.hit || !(result.damage > 0)) return result;
   const buffEntity = target?.__buffEntity ?? target;
@@ -44220,20 +45312,21 @@ function awardEnemyRewards() {
   if (gold > 0) playSfx("ui.gold", { volume: 0.34, throttleMs: 250 });
   pushBattleLog(`Gained ${xp} XP and ${gold} gold.`);
   if (leveledTo.length) pushBattleLog(`Level up: ${leveledTo.at(-1)}.`);
-  for (const drop of drops.added) pushBattleLog(`Received ${dropResultLabel(drop)}.`);
+  const dropSummaries = summarizeDropResults(drops.added);
+  for (const summary of dropSummaries) pushBattleLog(`${formatDropSummaryLine(summary, "Received")}.`);
   for (const item of drops.ignored) pushBattleLog(`No room for ${item.name}.`);
   addLootNotice(`+${gold} gold`, "gold");
   for (const level of leveledTo) addLootNotice(`Level ${level}`, "level");
-  for (const drop of drops.added) addLootNotice(`Found ${dropResultLabel(drop)}`, "item");
+  for (const summary of dropSummaries) addLootNotice(formatDropSummaryLine(summary, "Found"), "item");
   for (const item of drops.ignored) addLootNotice(`Inventory full: ${item.name}`, "full");
   if (drops.added.length || drops.ignored.length || gold > 0) {
     state.game.recentLoot = [
       `+${gold} gold`,
       ...leveledTo.map((level) => `Level ${level}`),
-      ...drops.added.map((drop) => `Found ${dropResultLabel(drop)}`),
+      ...dropSummaries.map((summary) => formatDropSummaryLine(summary, "Found")),
       ...drops.ignored.map((item) => `No room for ${item.name}`),
       ...state.game.recentLoot,
-    ].slice(0, 6);
+    ].slice(0, 8);
   }
 }
 
@@ -44389,6 +45482,12 @@ function zoneDropCandidates(zone, enemy = null, inventory = state.inventory) {
   );
 }
 
+function zoneDropPityKills(zone) {
+  const configured = Math.trunc(Number(zone?.dropPityKills));
+  if (Number.isFinite(configured) && configured > 0) return configured;
+  return DROP_PITY_KILLS;
+}
+
 function updateDropPity(zone, candidates, added, ignored, enemy = state.battle.enemy) {
   if (!zone || candidates.length === 0) return;
   const receivedDrop = added.length > 0 || ignored.length > 0;
@@ -44398,7 +45497,7 @@ function updateDropPity(zone, candidates, added, ignored, enemy = state.battle.e
   }
   const dryKills = advanceDropPity(state.game.dropPity[zone.id], false);
   state.game.dropPity[zone.id] = dryKills;
-  if (!shouldForceDropPity(dryKills, DROP_PITY_KILLS)) return;
+  if (!shouldForceDropPity(dryKills, zoneDropPityKills(zone))) return;
   const forced = weightedDropCandidate(candidates);
   if (!forced) return;
   addZoneDropItem(forced.item, added, ignored, codexDropSource({ zone, enemy, kind: "zone" }));
@@ -44992,10 +46091,12 @@ function combatHotbarSize() {
 }
 
 function combatHudLayoutMetrics(options = {}) {
+  // childElementCount instead of innerHTML: reading innerHTML re-serializes the
+  // whole subtree, and this runs every frame.
   const skillBarVisible = options.skillBarVisible ?? (
     Boolean(els.combatSkillBar)
     && !els.combatSkillBar.hidden
-    && Boolean(els.combatSkillBar.innerHTML.trim())
+    && els.combatSkillBar.childElementCount > 0
   );
   const feetPx = Math.round(combatAnchor("player").y * state.scale);
   const canvasHeight = state.stageHeight * state.scale;
@@ -45026,9 +46127,28 @@ function combatHudViewportReservePx() {
   return COMBAT_HUD_PLAYER_GAP + hotbarSize.height + 4;
 }
 
+// Skip the per-frame stage/hotbar style writes when nothing they depend on has
+// changed - unconditional writes forced style recalc (and the clientHeight read
+// in the skill-bar positioning forced a reflow) on every frame.
+let combatHudLayoutSignature = "";
+
 function applyCombatHudLayout(options = {}) {
   if (!els.stage) return;
   const metrics = combatHudLayoutMetrics(options);
+  const signature = [
+    state.stageWidth,
+    state.stageHeight,
+    state.scale,
+    metrics.displayHeight,
+    metrics.canvasHeight,
+    metrics.hotbarTop,
+    metrics.skillTop,
+    metrics.skillBarVisible,
+    hotbarVertical,
+    hotbarWindowPosition ? `${hotbarWindowPosition.x},${hotbarWindowPosition.y}` : "-",
+  ].join("|");
+  if (signature === combatHudLayoutSignature) return;
+  combatHudLayoutSignature = signature;
   els.stage.style.width = `${state.stageWidth * state.scale}px`;
   els.stage.style.height = `${metrics.displayHeight}px`;
   els.stage.style.setProperty("--stage-canvas-height", `${metrics.canvasHeight}px`);
@@ -45411,7 +46531,7 @@ function mapStampArenaWorldX() {
     const desiredEnemy = bossPartyDesiredEnemyX();
     const enemyX = Number.isFinite(desiredEnemy)
       ? desiredEnemy
-      : (Number(state.battle.enemyX) || frontX + BOSS_PARTY_ENEMY_MELEE_GAP);
+      : (Number(state.battle.enemyX) || frontX + bossPartyEnemyMeleeGap());
     return Math.round((frontX + enemyX) / 2);
   }
   const playerX = Number(state.battle.playerX) || 0;
@@ -45677,6 +46797,14 @@ function canPlayerAttack() {
   return false;
 }
 
+function enemyMeleeAttackRangePx(enemy = state.battle.enemy) {
+  // Mobile trash walk into LANE.enemyRange (48). Stationary bosses never do, and the
+  // player stops at warrior melee reach (52) — that 4px gap left rooted melee bosses
+  // permanently unable to swing. Let them attack once the player is in striking range.
+  if (enemyBossIsStationary(enemy)) return Math.max(LANE.enemyRange, LANE.warriorRange);
+  return LANE.enemyRange;
+}
+
 function canEnemyAttack() {
   const battle = state.battle;
   if (isTrainingDummyEnemy(battle.enemy)) return false;
@@ -45691,7 +46819,7 @@ function canEnemyAttack() {
   if (isDarkDevilEnemy(battle.enemy)) return canDarkDevilAttack();
   if (isKingScorpionEnemy(battle.enemy)) return canKingScorpionAttack();
   if (enemyHasRangedMeleeAttack(battle.enemy)) return canBoneLordAttack();
-  return battle.enemyAggro && battle.enemy?.hp > 0 && enemyTargetDistance() <= LANE.enemyRange;
+  return battle.enemyAggro && battle.enemy?.hp > 0 && enemyTargetDistance() <= enemyMeleeAttackRangePx(battle.enemy);
 }
 
 function enemyTargetDistance() {
@@ -45757,7 +46885,7 @@ function maybePlayEnemyFootstep(previousFrame, nextFrame, action = state.enemy.a
   if (bossPartyActiveFight()) {
     const desired = bossPartyDesiredEnemyX();
     const current = Number(state.battle.enemyX);
-    if (desired != null && Number.isFinite(current) && Math.abs(desired - current) <= BOSS_PARTY_ENEMY_MELEE_GAP + 6) return;
+    if (desired != null && Number.isFinite(current) && Math.abs(desired - current) <= bossPartyEnemyMeleeGap() + 6) return;
   }
   const side = footstepSideForFrame(nextFrame);
   if (!side) return;
@@ -46139,6 +47267,7 @@ function render() {
   renderStageInfoGold();
   renderStageInfoOrb();
   renderStageInfoZoneName();
+  renderTimedEnrageHud();
   renderHotbar();
 
   if (!IS_GAME_UI && els.readout && els.frameMeta) {
@@ -47886,7 +49015,15 @@ function drawMapCanvas(ctx) {
       - 58;
     const minAnchorForStage = Math.ceil((state.stageHeight - baseY - tileDrawBottom) / MAP_TILE_ANCHOR_ROW_STEP);
     const lastAnchorRow = Math.max(lastAnchorRowFromLane, minAnchorForStage + 1);
-    const firstDrawAnchorRow = firstAnchorRow % 2 === 0 ? firstAnchorRow : firstAnchorRow + 1;
+    let firstDrawAnchorRow = firstAnchorRow % 2 === 0 ? firstAnchorRow : firstAnchorRow + 1;
+    // Top-fill strips need one pattern row per 2 anchor rows above the walk lane.
+    // Extend upward so the full authored pattern is visible (not just the last few rows).
+    if (currentZoneTilePatternTopFill()) {
+      const pattern = currentZonePattern();
+      const stripTopAnchor = MAP_TILE_LANE_ANCHOR_ROW - (Math.max(1, pattern.length) - 1) * 2;
+      const evenStripTop = stripTopAnchor % 2 === 0 ? stripTopAnchor : stripTopAnchor - 1;
+      firstDrawAnchorRow = Math.min(firstDrawAnchorRow, evenStripTop);
+    }
     for (let anchorRow = firstDrawAnchorRow; anchorRow < lastAnchorRow; anchorRow += 2) {
       for (let col = -5; col < cols; col++) {
         const worldColumn = col + tileColumn;
@@ -47906,6 +49043,8 @@ function drawMapCanvas(ctx) {
     }
   }
 
+  // Floor patches sit on the tiled ground, under corridor/tree edge overlays.
+  drawZoneFloorDecorations(ctx, scrollCameraX, baseY);
   drawCaveEdgeStrip(ctx, scrollCameraX, baseY, "overlay");
   drawZoneMapStamp(ctx);
   drawZoneDecorations(ctx, scrollCameraX, baseY);
@@ -47935,6 +49074,22 @@ function mapLaneTileSlot(set, row, worldColumn) {
 // Crystal back tiles anchor on even map rows only; pattern rows are one per 2 cell rows.
 function mapAnchor2x2TileSlot(set, anchorMapRow, worldColumn) {
   const pattern = currentZonePattern();
+  if (currentZoneTilePatternTopFill()) {
+    // One pattern row per anchor step above the walk-lane tile. pattern[last] sits
+    // under the player; pattern[0] fills everything above the authored strip.
+    // Below the lane, do NOT stamp pattern[last] downward (reads as obvious repeats) —
+    // use a hashed mix of plain sand slots instead.
+    const last = pattern.length - 1;
+    const stepsAboveLane = Math.floor((MAP_TILE_LANE_ANCHOR_ROW - anchorMapRow) / 2);
+    if (stepsAboveLane < 0) {
+      const sandSlots = [2, 3, 4]; // Crystal 4002 / 4003 / 4004
+      const seed = worldColumn * 2654435761 + anchorMapRow * 40503;
+      return sandSlots[positiveModulo(seed, sandSlots.length)];
+    }
+    const patternRow = stepsAboveLane === 0 ? last : Math.max(0, last - stepsAboveLane);
+    const rowPattern = pattern[patternRow];
+    return positiveModulo(rowPattern[positiveModulo(worldColumn, rowPattern.length)], set.tiles.length);
+  }
   const patternRow = positiveModulo(Math.trunc(anchorMapRow / 2), pattern.length);
   const rowPattern = pattern[patternRow];
   return positiveModulo(rowPattern[positiveModulo(worldColumn, rowPattern.length)], set.tiles.length);
@@ -48234,11 +49389,18 @@ function drawStampLayerBatch(ctx, stamp, layers) {
   ctx.restore();
 }
 
+function zoneMapStampOffsetY(zone = activeZone()) {
+  return Math.trunc(Number(zone?.mapStampOffsetY) || 0);
+}
+
 function mapStampDrawBase(stamp) {
   const anchor = mapStampAnchor(stamp);
   const scale = Math.max(0.1, Number(stamp.scale) || 1);
   const offsetX = Number(stamp.offsetX) || 0;
-  const offsetY = Number(stamp.offsetY) || 0;
+  const stampOffsetY = Number(stamp.offsetY) || 0;
+  // Zone nudge (e.g. Fire Hell KR camera) — town stamps ignore this.
+  const zoneOffsetY = stamp.anchor === "arenaSpawn" ? zoneMapStampOffsetY() : 0;
+  const offsetY = stampOffsetY + zoneOffsetY;
   const focusX = Number(stamp.focusX) || 0;
   const focusY = Number(stamp.focusY) || 0;
   const slotWidth = Math.max(1, Math.trunc(Number(stamp.slotWidth) || 1));
@@ -48276,10 +49438,11 @@ function buildStampArenaDrawList(displayFrame) {
 
   if (bossPartyOnField()) {
     const party = state.battle.bossParty;
+    const partyRow = arenaStampPartyMapRow();
     for (const member of party?.members ?? []) {
       if (!member.alive || member.hp <= 0) continue;
       entities.push({
-        zRow: spawnRow,
+        zRow: partyRow,
         worldX: Number(member.worldX) || 0,
         kindRank: STAMP_ARENA_KIND_RANK.party,
         draw: (ctx) => drawBossPartyMemberCanvas(ctx, member),
@@ -48288,7 +49451,7 @@ function buildStampArenaDrawList(displayFrame) {
     const mirror = state.battle.wizardMirror;
     if (mirror?.active) {
       entities.push({
-        zRow: spawnRow,
+        zRow: partyRow,
         worldX: wizardMirrorWorldX(mirror),
         kindRank: STAMP_ARENA_KIND_RANK.pet,
         draw: (ctx) => drawWizardMirrorCanvas(ctx, displayFrame),
@@ -48325,7 +49488,7 @@ function buildStampArenaDrawList(displayFrame) {
       if (seen.has(pet) || !(pet.active || pet.dead)) continue;
       seen.add(pet);
       entities.push({
-        zRow: spawnRow,
+        zRow: arenaStampPartyMapRow(),
         worldX: resolvedTaoPetWorldX(pet),
         kindRank: STAMP_ARENA_KIND_RANK.pet,
         draw: (ctx) => drawTaoistPetCanvas(ctx, pet),
@@ -48351,9 +49514,8 @@ function buildStampArenaDrawList(displayFrame) {
   if (state.showEnemies && state.battle.enemy && !groupDungeonSwarmActive()) {
     const visible = state.battle.enemyRevealed || state.enemy.action === "show";
     if (visible) {
-      const enemyMapRowOffset = arenaEnemyVisualDrawOffset().mapRow;
       entities.push({
-        zRow: spawnRow + enemyMapRowOffset,
+        zRow: arenaStampBossMapRow(),
         worldX: Number(state.battle.enemyX) || 0,
         kindRank: STAMP_ARENA_KIND_RANK.enemy,
         draw: (ctx) => drawEnemyCanvas(ctx),
@@ -48459,8 +49621,6 @@ function mapStampAnchor(stamp) {
 }
 
 function drawZoneDecorations(ctx, scrollCameraX, baseY) {
-  drawZoneFloorDecorations(ctx, scrollCameraX, baseY);
-
   const set = currentMapObjectSet();
   const decorations = currentZoneDecorations();
   const loopConfig = currentZoneDecorationLoop();
@@ -48868,6 +50028,7 @@ function drawSwarmEnemyRangeProjectileCanvas(ctx) {
 
 function drawGroupDungeonSwarmEnemyCanvas(ctx, enemy) {
   if (!state.showEnemies || !enemy) return;
+  if (enemy.suppressDraw) return;
   const atlas = enemy.atlas;
   const clip = atlas?.actions?.[enemy.action];
   const meta = clip?.frames?.[enemy.frame] ?? clip?.frames?.[0];
@@ -48875,7 +50036,14 @@ function drawGroupDungeonSwarmEnemyCanvas(ctx, enemy) {
   const sheet = cachedImage(monsterAtlasPngUrl(enemy.monsterIndex));
   if (!sheet) return;
   const { x: anchorX, y: anchorY } = swarmEnemyScreenAnchor(enemy);
-  drawAtlasFrame(ctx, sheet, atlas.slotWidth, atlas.slotHeight, meta, anchorX, anchorY);
+  // Detonating bombs: only the explode blend after impact — hide the float "corpse" body.
+  const bombDetonationFx = isHellBombSwarmEnemy(enemy)
+    && enemy.hellBombDetonating
+    && enemy.dying
+    && swarmIsAttackAction(enemy.action);
+  if (!bombDetonationFx) {
+    drawEnemyBodyAtlasFrame(ctx, atlas, sheet, meta, anchorX, anchorY);
+  }
   if (swarmIsAttackAction(enemy.action)) {
     if (enemy.attackFxStartedAt && atlas.castEffect) {
       drawMonsterCastEffectCanvas(ctx, atlas, sheet, anchorX, anchorY, enemy.attackFxStartedAt);
@@ -48885,7 +50053,26 @@ function drawGroupDungeonSwarmEnemyCanvas(ctx, enemy) {
       }
     }
   }
-  drawEnemyDebuffTintCanvas(ctx, atlas, sheet, anchorX, anchorY, enemy.action, enemy.frame, enemyDebuffTint(enemy), enemy);
+  if (!bombDetonationFx) {
+    drawEnemyDebuffTintCanvas(ctx, atlas, sheet, anchorX, anchorY, enemy.action, enemy.frame, enemyDebuffTint(enemy), enemy);
+  }
+}
+
+function isHellLordEnemy(enemy = state.battle.enemy) {
+  return enemy?.crystalName === "HellLord" || enemy?.id === 440;
+}
+
+function drawEnemyHellLordBladeCanvas(ctx, atlas, sheet, anchorX, anchorY, action) {
+  if (!atlas?.actions) return;
+  const key = action === "attack1"
+    ? "attack1Blade"
+    : (action === "walking" ? "walkingBlade" : "standingBlade");
+  const clip = atlas.actions[key] ?? atlas.actions.standingBlade;
+  const meta = clip?.frames?.[0];
+  if (!meta || meta.empty) return;
+  // Crystal DrawEffects: opaque Draw(..., offSet) of frame 15 — not screen-blend.
+  // Struck/standing/walk all keep the blade over the seated body.
+  drawAtlasFrameMeta(ctx, sheet, atlas.slotWidth, meta, anchorX, anchorY);
 }
 
 function drawEnemyCanvas(ctx) {
@@ -48894,12 +50081,19 @@ function drawEnemyCanvas(ctx) {
   if (!state.battle.enemyRevealed && state.enemy.action !== "show") return;
   const atlas = state.enemy.atlas;
   const clip = enemyVisualActionClip(atlas, state.enemy.action, state.battle.enemy);
-  const meta = clip?.frames?.[state.enemy.frame] ?? clip?.frames?.[0];
+  // Empty frames (e.g. missing struck slots) used to skip the whole draw and make the boss vanish.
+  let meta = clip?.frames?.[state.enemy.frame] ?? clip?.frames?.[0];
+  if (meta?.empty) {
+    meta = atlas?.actions?.standing?.frames?.[0] ?? clip?.frames?.find((frame) => frame && !frame.empty) ?? null;
+  }
   if (!atlas || !clip || !meta || meta.empty) return;
   const sheet = cachedImage(monsterAtlasPngUrl(state.enemy.index));
   if (!sheet) return;
   const { x: anchorX, y: anchorY } = enemyVisualAnchor();
-  drawAtlasFrame(ctx, sheet, atlas.slotWidth, atlas.slotHeight, meta, anchorX, anchorY);
+  drawEnemyBodyAtlasFrame(ctx, atlas, sheet, meta, anchorX, anchorY);
+  if (isHellLordEnemy() && state.enemy.action !== "die" && state.enemy.action !== "dead") {
+    drawEnemyHellLordBladeCanvas(ctx, atlas, sheet, anchorX, anchorY, state.enemy.action);
+  }
   // Crystal ManectricKing Attack2 plays DrawBlend + Effect together; allow both here.
   // castEffect is time-based (Attack2 line beam) and may outlast the body one-shot clip.
   if (state.enemy.attackFxStartedAt && atlas.castEffect) {
@@ -48907,6 +50101,13 @@ function drawEnemyCanvas(ctx) {
   }
   drawEnemyActionBlendCanvas(ctx, atlas, sheet, anchorX, anchorY, state.enemy.action, state.enemy.frame);
   drawEnemyDebuffTintCanvas(ctx, atlas, sheet, anchorX, anchorY, state.enemy.action, state.enemy.frame, enemyDebuffTint(state.battle.enemy));
+}
+
+/** Crystal DrawBlend body (e.g. Hell Bombs): screen-blend so dark outline pixels disappear. */
+function drawEnemyBodyAtlasFrame(ctx, atlas, sheet, meta, anchorX, anchorY) {
+  const draw = () => drawAtlasFrame(ctx, sheet, atlas.slotWidth, atlas.slotHeight, meta, anchorX, anchorY);
+  if (atlas?.drawBlend || meta?.drawBlend) withScreenBlend(ctx, draw);
+  else draw();
 }
 
 function enemyActionBlendKey(action, atlas = null, enemy = state.battle.enemy) {
@@ -49299,7 +50500,7 @@ function taoistPetAnchor(petOverride = null) {
   if (pet) {
     return {
       x: Math.round(resolvedTaoPetWorldX(pet) - state.battle.cameraX),
-      y: Math.round(state.stageHeight * LANE.y + 2),
+      y: Math.round(arenaPartyCombatLaneYPx() + 2),
     };
   }
   const enemyAnchor = combatAnchor("enemy");
@@ -49613,7 +50814,7 @@ function drawPlayerCanvas(ctx, displayFrame) {
 function wizardMirrorAnchor() {
   return {
     x: Math.round(wizardMirrorWorldX() - state.battle.cameraX),
-    y: Math.round(state.stageHeight * LANE.y),
+    y: Math.round(arenaPartyCombatLaneYPx()),
   };
 }
 
@@ -49756,7 +50957,7 @@ function drawBossPartyMemberSpellFx(ctx, member, now) {
     if (member.visualAction !== skill.bodyAction) return;
     const memberAnchor = {
       x: Math.floor((member.worldX ?? state.battle.playerX) - state.battle.cameraX),
-      y: Math.floor(state.stageHeight * LANE.y),
+      y: Math.floor(arenaPartyCombatLaneYPx()),
     };
     const layers = warriorSkillFxLayers(spellId, "swing");
     const fxStartedAt = member.fxStartedAt ?? now;
@@ -49782,7 +50983,7 @@ function drawBossPartyMemberSpellFx(ctx, member, now) {
   const t = now - (member.fxStartedAt ?? 0);
   const memberAnchor = {
     x: Math.floor((member.worldX ?? state.battle.playerX) - state.battle.cameraX),
-    y: Math.floor(state.stageHeight * LANE.y),
+    y: Math.floor(arenaPartyCombatLaneYPx()),
   };
   const enemyAnchor = spell?.impactMode === "bang"
     ? wizardBangSpellAnchorFromCenter(member.fxCenterTile, combatAnchor("enemy"))
@@ -49838,7 +51039,7 @@ function drawBossPartyHealFxCanvas(ctx) {
   const atlas = state.healingRestoreAtlas;
   if (!atlas?.layers?.length) return;
   const now = performance.now();
-  const groundY = Math.floor(state.stageHeight * LANE.y);
+  const groundY = Math.floor(arenaCombatLaneYPx());
   for (const entry of fx) {
     const target = entry.target;
     if (!target) continue;
@@ -49865,7 +51066,7 @@ function drawBossPartyMemberCanvas(ctx, member, anchorOverride = null) {
     : Math.round((member.worldX ?? state.battle.playerX) - state.battle.cameraX);
   const anchorY = anchorOverride
     ? Math.round(anchorOverride.y)
-    : Math.floor(state.stageHeight * LANE.y);
+    : Math.floor(arenaPartyCombatLaneYPx());
   const frameIndex = Math.max(0, Math.trunc(Number(member.visualFrame) || 0));
   const wingFrame = Math.max(0, Math.trunc(Number(member.wingFrame ?? member.visualFrame) || 0));
   drawCharacterVisualLayers(ctx, {
@@ -51371,6 +52572,15 @@ function currentZoneTileAnchor2x2() {
   return false;
 }
 
+function currentZoneTilePatternTopFill() {
+  const zone = activeZone();
+  const draft = zoneVisualDraft(zone);
+  if (state.game.mode === "zone" && draft && Object.hasOwn(draft, "tilePatternTopFill")) {
+    return draft.tilePatternTopFill === true;
+  }
+  return state.game.mode === "zone" && zone?.tilePatternTopFill === true;
+}
+
 function currentZoneObjectSet() {
   const zone = activeZone();
   const draft = zoneVisualDraft(zone);
@@ -51457,6 +52667,7 @@ function createZoneBuilderDraft(zone) {
     objectPattern,
     tilePattern: clonePattern(Array.isArray(zone.tilePattern) && zone.tilePattern.length ? zone.tilePattern : DEFAULT_ZONE_PATTERN),
     tileAnchor2x2: zone.tileAnchor2x2 === true,
+    tilePatternTopFill: zone.tilePatternTopFill === true,
     floorDecorations: Array.isArray(zone.floorDecorations)
       ? zone.floorDecorations.map((entry) => ({ ...entry }))
       : [],
@@ -51484,7 +52695,7 @@ function mapObjectSetById(objectSetId) {
 }
 
 function preferredMapSetOrder(sets) {
-  const priority = ["wemade-mir2-custom", "oma-cave", "prajna-cave", "viper-cave", "prajna-temple", "wooma-temple", "stone-temple", "zuma-temple", "bdd-dungeon", "wemade-mir2", "forest", "shanda-mir2", "wemade-mir3", "wood", "sand", "snow"];
+  const priority = ["wemade-mir2-custom", "oma-cave", "prajna-cave", "viper-cave", "prajna-temple", "wooma-temple", "stone-temple", "zuma-temple", "bdd-dungeon", "fox-cave", "red-cavern", "namman", "wemade-mir2", "forest", "shanda-mir2", "wemade-mir3", "wood", "sand", "snow"];
   return [...sets].sort((a, b) => {
     const aIndex = priority.indexOf(a.id);
     const bIndex = priority.indexOf(b.id);
@@ -51512,7 +52723,103 @@ function arenaEnemyVisualDrawOffset(zone = activeZone()) {
   };
 }
 
+/** Pixel delta from stamp focus → arenaEnemyStampMap tile (48×32 cells). */
+function arenaEnemyStampMapDeltaPx(zone = activeZone()) {
+  const tileX = Math.trunc(Number(zone?.arenaEnemyStampMap?.x));
+  const tileY = Math.trunc(Number(zone?.arenaEnemyStampMap?.y));
+  if (!Number.isFinite(tileX) || !Number.isFinite(tileY)) return null;
+  const stamp = currentZoneMapStamp();
+  const focusMapX = Math.trunc(Number(stamp?.spawnMapX ?? zone?.arenaSpawnMap?.x));
+  const focusMapY = Math.trunc(Number(stamp?.spawnMapY ?? zone?.arenaSpawnMap?.y));
+  if (!Number.isFinite(focusMapX) || !Number.isFinite(focusMapY)) return null;
+  return {
+    x: (tileX - focusMapX) * LANE_TILE_PX,
+    y: (tileY - focusMapY) * GROUP_DUNGEON_SWARM_CELL_HEIGHT,
+  };
+}
+
+/**
+ * Hell Lord-style fights: keep the boss on his stamp tile. Party can sit on that
+ * same row, or `arenaPartyStampMapRowOffset` tiles south (tank one step down).
+ */
+function arenaStampBossLaneOffsetY(zone = activeZone()) {
+  if (!state.battle?.enemy) return 0;
+  const delta = arenaEnemyStampMapDeltaPx(zone);
+  return delta ? delta.y : 0;
+}
+
+function arenaPartyStampMapRowOffsetTiles(zone = activeZone()) {
+  if (!arenaEnemyStampMapDeltaPx(zone)) return 0;
+  const n = Math.trunc(Number(zone?.arenaPartyStampMapRowOffset));
+  return Number.isFinite(n) ? n : 0;
+}
+
+function arenaStampBossMapRow(zone = activeZone()) {
+  const tileY = Math.trunc(Number(zone?.arenaEnemyStampMap?.y));
+  if (Number.isFinite(tileY) && state.battle?.enemy) return tileY;
+  return arenaSpawnMapRow();
+}
+
+function arenaStampPartyMapRow(zone = activeZone()) {
+  return arenaStampBossMapRow(zone) + arenaPartyStampMapRowOffsetTiles(zone);
+}
+
+function arenaCombatLaneYPx(zone = activeZone()) {
+  const stamp = currentZoneMapStamp();
+  const stampOffsetY = stamp ? (Number(stamp.offsetY) || 0) : 0;
+  // Boss / throne foot line when arenaEnemyStampMap is set.
+  return arenaLaneYPx(zone) + stampOffsetY + zoneMapStampOffsetY(zone) + arenaStampBossLaneOffsetY(zone);
+}
+
+function arenaPartyCombatLaneYPx(zone = activeZone()) {
+  return arenaCombatLaneYPx(zone)
+    + arenaPartyStampMapRowOffsetTiles(zone) * GROUP_DUNGEON_SWARM_CELL_HEIGHT;
+}
+
+/**
+ * World X for an arenaEnemyStampMap tile: stamp focus lock + tile delta.
+ * Combat foot and drawn model both use this X (via enemyX + combatAnchor).
+ */
+function arenaEnemyStampCombatWorldX(zone = activeZone()) {
+  const delta = arenaEnemyStampMapDeltaPx(zone);
+  if (!delta) return null;
+  const lockX = state.battle.lockedArenaWorldX ?? state.battle.bossParty?.lockedArenaWorldX;
+  if (lockX == null || !Number.isFinite(Number(lockX))) return null;
+  return Math.round(Number(lockX) + delta.x);
+}
+
+/**
+ * Combat enemyX on the throne tile; party stands just to his left (melee gap).
+ * Vertical stamp delta is applied in combatAnchor so hitbox + sprite share one foot.
+ */
+function applyArenaEnemyStampMapCombat(zone, members, controlledClassId = state.activeCharacterId) {
+  const delta = arenaEnemyStampMapDeltaPx(zone);
+  if (!delta || !members?.length) return false;
+
+  ensureMapStampArenaLock();
+  let standX = state.battle.lockedArenaWorldX ?? state.battle.bossParty?.lockedArenaWorldX;
+  if (standX == null || !Number.isFinite(Number(standX))) {
+    standX = Math.round(bossPartyFormationFrontWorldX() || Number(state.battle.playerX) || 0);
+    state.battle.lockedArenaWorldX = standX;
+    if (state.battle.bossParty) state.battle.bossParty.lockedArenaWorldX = standX;
+  }
+  standX = Math.round(Number(standX));
+  const throneX = Math.round(standX + delta.x);
+  const gap = bossPartyEnemyMeleeGap(state.battle.enemy);
+  const frontX = Math.round(throneX - gap);
+  // Warrior next to the boss, still west (left) of the throne foot.
+  layoutBossPartyMembers(members, frontX, controlledClassId);
+  state.battle.enemyX = throneX;
+  if (state.battle.bossParty) {
+    state.battle.bossParty.meleeFrontSlotWorldX = frontX;
+  }
+  const controlled = members.find((member) => member.classId === controlledClassId) ?? members[0];
+  if (controlled) state.battle.playerX = controlled.worldX;
+  return true;
+}
+
 function enemyVisualAnchor() {
+  // Single source of truth: combat foot (enemyX + lane/stamp Y). No separate stamp pin.
   const base = combatAnchor("enemy");
   const offset = arenaEnemyVisualDrawOffset();
   return {
@@ -51523,10 +52830,11 @@ function enemyVisualAnchor() {
 
 function combatAnchor(name) {
   const battle = state.battle;
-  const laneY = arenaLaneYPx();
-  const enemyOffsetY = name === "enemy" ? Math.trunc(Number(activeZone()?.arenaEnemyOffsetY) || 0) : 0;
+  const isEnemy = name === "enemy";
+  const laneY = isEnemy ? arenaCombatLaneYPx() : arenaPartyCombatLaneYPx();
+  const enemyOffsetY = isEnemy ? Math.trunc(Number(activeZone()?.arenaEnemyOffsetY) || 0) : 0;
   if (battle.player && battle.enemy) {
-    const worldX = name === "enemy" ? battle.enemyX : battle.playerX;
+    const worldX = isEnemy ? battle.enemyX : battle.playerX;
     return {
       x: Math.floor(worldX - battle.cameraX),
       y: laneY + enemyOffsetY,
@@ -51543,7 +52851,7 @@ function combatAnchor(name) {
   if (state.game.mode === "zone") {
     return {
       x: Math.floor(state.stageWidth * anchor.x),
-      y: laneY + (name === "enemy" ? enemyOffsetY : 0),
+      y: laneY + (isEnemy ? enemyOffsetY : 0),
     };
   }
   return {

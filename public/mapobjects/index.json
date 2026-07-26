@@ -1,6 +1,63 @@
 {
     "sets":  [
                  {
+                     "id":  "namman-catalog",
+                     "label":  "Southern Barbarian Catalog Decor",
+                     "sheet":  "namman-catalog.png",
+                     "slotWidth":  600,
+                     "slotHeight":  440,
+                     "objects":  [
+                                     {
+                                         "slot":  0,
+                                         "srcCatalog":  56,
+                                         "w":  312,
+                                         "h":  440,
+                                         "offsetX":  0,
+                                         "offsetY":  0
+                                     },
+                                     {
+                                         "slot":  1,
+                                         "srcCatalog":  46,
+                                         "w":  312,
+                                         "h":  440,
+                                         "offsetX":  0,
+                                         "offsetY":  0
+                                     },
+                                     {
+                                         "slot":  2,
+                                         "srcCatalog":  80,
+                                         "w":  216,
+                                         "h":  376,
+                                         "offsetX":  0,
+                                         "offsetY":  0
+                                     },
+                                     {
+                                         "slot":  3,
+                                         "srcCatalog":  86,
+                                         "w":  264,
+                                         "h":  280,
+                                         "offsetX":  0,
+                                         "offsetY":  0
+                                     },
+                                     {
+                                         "slot":  4,
+                                         "srcCatalog":  155,
+                                         "w":  312,
+                                         "h":  408,
+                                         "offsetX":  0,
+                                         "offsetY":  0
+                                     },
+                                     {
+                                         "slot":  5,
+                                         "srcCatalog":  296,
+                                         "w":  600,
+                                         "h":  440,
+                                         "offsetX":  0,
+                                         "offsetY":  0
+                                     }
+                                 ]
+                 },
+                 {
                      "id":  "red-cavern-catalog",
                      "label":  "Red Cavern Catalog Decor",
                      "sheet":  "red-cavern-catalog.png",

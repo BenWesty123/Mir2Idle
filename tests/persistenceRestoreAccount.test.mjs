@@ -155,6 +155,46 @@ test("restoreAccountFromSnapshot: keeps spirit box entry when sanitizer provided
   assert.equal(account.spiritBox.entry.quantity, 2);
 });
 
+test("restoreAccountFromSnapshot: restores autoJunkItemIds when sanitizer provided", () => {
+  const characters = {
+    Warrior: { game: {} },
+    Wizard: { game: {} },
+    Taoist: { game: {} },
+  };
+  const options = {
+    ...accountOptions(),
+    sanitizeAutoJunkItemIds: (saved) => {
+      const seen = new Set();
+      const out = [];
+      for (const raw of Array.isArray(saved) ? saved : []) {
+        if (typeof raw !== "string" || !raw || seen.has(raw)) continue;
+        seen.add(raw);
+        out.push(raw);
+      }
+      return out;
+    },
+  };
+  const snapshot = {
+    ...minimalSave,
+    account: {
+      ...minimalSave.account,
+      autoJunkItemIds: ["iron-sword", "iron-sword", "bronze-helmet", 12, ""],
+    },
+  };
+  const { account } = restoreAccountFromSnapshot(snapshot, characters, options);
+  assert.deepEqual(account.autoJunkItemIds, ["iron-sword", "bronze-helmet"]);
+});
+
+test("restoreAccountFromSnapshot: defaults autoJunkItemIds to empty array", () => {
+  const characters = {
+    Warrior: { game: {} },
+    Wizard: { game: {} },
+    Taoist: { game: {} },
+  };
+  const { account } = restoreAccountFromSnapshot(minimalSave, characters, accountOptions());
+  assert.deepEqual(account.autoJunkItemIds, []);
+});
+
 test("restoreSaveUiMeta", () => {
   const meta = restoreSaveUiMeta(
     { activeCharacterId: "Wizard", characterTab: "skills", indexes: { hair: 2 } },

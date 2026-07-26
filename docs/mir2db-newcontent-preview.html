@@ -1,0 +1,614 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1"/>
+<title>New content candidates — Mir2DB vs LOM Idle</title>
+<style>
+  :root{--bg:#141210;--panel:#221c18;--ink:#f2e8d8;--muted:#9a8c78;--accent:#e0a050;--new:#6aaf70;--miss:#d07050;--line:#3a3028;}
+  *{box-sizing:border-box}
+  body{margin:0;font-family:"Trebuchet MS","Segoe UI",sans-serif;color:var(--ink);background:radial-gradient(ellipse at 10% 0%,#2a2218,transparent 50%),var(--bg)}
+  header,main{max-width:1180px;margin:0 auto;padding:24px 28px}
+  h1{margin:0 0 6px;color:var(--accent);font-size:1.5rem}
+  h2{margin:26px 0 12px;color:var(--accent);font-size:1.1rem}
+  p,li{color:var(--muted);line-height:1.45}
+  .cards{display:grid;grid-template-columns:repeat(auto-fill,minmax(340px,1fr));gap:14px}
+  .card{background:var(--panel);border:1px solid var(--line);border-radius:8px;padding:16px}
+  .card.excluded{opacity:.72}
+  .card h3{margin:2px 0 4px;color:var(--ink);font-size:1.05rem}
+  .card h3 .cn{color:var(--muted);font-weight:400;font-size:.9rem;margin-left:6px}
+  .meta{font-size:.78rem;color:var(--muted)}
+  .note{font-size:.85rem;color:#c0a680;margin:8px 0}
+  .bossline{font-size:.85rem;color:var(--ink);margin-bottom:6px}
+  .badge{display:inline-block;font-size:.68rem;padding:2px 7px;border-radius:3px;margin-bottom:6px}
+  .badge.new{background:#1e3020;color:var(--new)}
+  .badge.miss{background:#302018;color:var(--miss)}
+  .mons{margin:8px 0 0;padding:0;list-style:none;font-size:.82rem;max-height:420px;overflow:auto}
+  .mon{display:grid;grid-template-columns:40px 1fr auto;grid-template-areas:"img name stat" "img idx idx";gap:2px 10px;align-items:center;padding:6px 0;border-top:1px solid #2a241e}
+  .mon img{grid-area:img;width:40px;height:40px;object-fit:contain;image-rendering:pixelated;background:#0d0b09;border-radius:4px}
+  .mon-name{grid-area:name;color:var(--ink)}
+  .mon-stat{grid-area:stat;color:var(--muted);white-space:nowrap}
+  .mon-idx{grid-area:idx;color:#6d5f4d;font-size:.72rem}
+  .mon.boss{background:#241c12}
+  .mon.boss .mon-name{color:var(--accent);font-weight:600}
+  .tag{color:#b08;font-style:normal;font-size:.7rem}
+</style></head>
+<body>
+<header>
+  <h1>New content candidates — Korean-official dungeons not in LOM Idle</h1>
+  <p>Live rosters pulled from Mir2DB (<code>api.mir2db.com</code>). Icons + <strong>Mon art index</strong> come straight from the KR client's <code>Mon*.wil</code> — that index is exactly what we'd import to add each monster. Bosses (≥8,000 HP) are highlighted.</p>
+</header>
+<main>
+  <h2>Build candidates (6)</h2>
+  <div class="cards"><article class="card">
+    <span class="badge new">New content</span>
+    <h3>Moon Valley <span class="cn">月之谷</span></h3>
+    <div class="meta">Mir2DB list/73 · 6 maps · 15 monster types</div>
+    <p class="note">Lv70–80 moon shrine; boss Stone Beast ~30k HP</p>
+    <div class="bossline">Boss(es): <strong>石魔兽, 鸟人像, 月之镰神将</strong></div>
+    <ul class="mons"><li class="mon boss">
+    <img loading="lazy" src="https://cdn.mir2db.com/images/mob/258.png" alt="" onerror="this.style.visibility='hidden'"/>
+    <span class="mon-name">石魔兽</span>
+    <span class="mon-stat">Lv 80 · 30,000 HP · ×1</span>
+    <span class="mon-idx">Mon idx 258</span>
+  </li><li class="mon boss">
+    <img loading="lazy" src="https://cdn.mir2db.com/images/mob/259.png" alt="" onerror="this.style.visibility='hidden'"/>
+    <span class="mon-name">鸟人像</span>
+    <span class="mon-stat">Lv 80 · 26,000 HP · ×2</span>
+    <span class="mon-idx">Mon idx 259</span>
+  </li><li class="mon boss">
+    <img loading="lazy" src="https://cdn.mir2db.com/images/mob/257.png" alt="" onerror="this.style.visibility='hidden'"/>
+    <span class="mon-name">月之镰神将</span>
+    <span class="mon-stat">Lv 80 · 21,000 HP · ×6</span>
+    <span class="mon-idx">Mon idx 257</span>
+  </li><li class="mon">
+    <img loading="lazy" src="https://cdn.mir2db.com/images/mob/268.png" alt="" onerror="this.style.visibility='hidden'"/>
+    <span class="mon-name">월지격장</span>
+    <span class="mon-stat">Lv 75 · 1,550 HP · ×19</span>
+    <span class="mon-idx">Mon idx 268</span>
+  </li><li class="mon">
+    <img loading="lazy" src="https://cdn.mir2db.com/images/mob/267.png" alt="" onerror="this.style.visibility='hidden'"/>
+    <span class="mon-name">월지호교</span>
+    <span class="mon-stat">Lv 75 · 1,480 HP · ×19</span>
+    <span class="mon-idx">Mon idx 267</span>
+  </li><li class="mon">
+    <img loading="lazy" src="https://cdn.mir2db.com/images/mob/270.png" alt="" onerror="this.style.visibility='hidden'"/>
+    <span class="mon-name">월지투신</span>
+    <span class="mon-stat">Lv 70 · 1,450 HP · ×28</span>
+    <span class="mon-idx">Mon idx 270</span>
+  </li><li class="mon">
+    <img loading="lazy" src="https://cdn.mir2db.com/images/mob/265.png" alt="" onerror="this.style.visibility='hidden'"/>
+    <span class="mon-name">월지마주</span>
+    <span class="mon-stat">Lv 75 · 1,420 HP · ×36</span>
+    <span class="mon-idx">Mon idx 265</span>
+  </li><li class="mon">
+    <img loading="lazy" src="https://cdn.mir2db.com/images/mob/266.png" alt="" onerror="this.style.visibility='hidden'"/>
+    <span class="mon-name">월지마장</span>
+    <span class="mon-stat">Lv 75 · 1,420 HP · ×19</span>
+    <span class="mon-idx">Mon idx 266</span>
+  </li><li class="mon">
+    <img loading="lazy" src="https://cdn.mir2db.com/images/mob/264.png" alt="" onerror="this.style.visibility='hidden'"/>
+    <span class="mon-name">화갑마주</span>
+    <span class="mon-stat">Lv 70 · 1,420 HP · ×31</span>
+    <span class="mon-idx">Mon idx 264</span>
+  </li><li class="mon">
+    <img loading="lazy" src="https://cdn.mir2db.com/images/mob/261.png" alt="" onerror="this.style.visibility='hidden'"/>
+    <span class="mon-name">산월마주</span>
+    <span class="mon-stat">Lv 70 · 1,400 HP · ×5</span>
+    <span class="mon-idx">Mon idx 261</span>
+  </li><li class="mon">
+    <img loading="lazy" src="https://cdn.mir2db.com/images/mob/263.png" alt="" onerror="this.style.visibility='hidden'"/>
+    <span class="mon-name">흑각마주</span>
+    <span class="mon-stat">Lv 70 · 1,320 HP · ×27</span>
+    <span class="mon-idx">Mon idx 263</span>
+  </li><li class="mon">
+    <img loading="lazy" src="https://cdn.mir2db.com/images/mob/269.png" alt="" onerror="this.style.visibility='hidden'"/>
+    <span class="mon-name">폭안마주</span>
+    <span class="mon-stat">Lv 70 · 1,300 HP · ×23</span>
+    <span class="mon-idx">Mon idx 269</span>
+  </li><li class="mon">
+    <img loading="lazy" src="https://cdn.mir2db.com/images/mob/260.png" alt="" onerror="this.style.visibility='hidden'"/>
+    <span class="mon-name">비독마주</span>
+    <span class="mon-stat">Lv 70 · 1,270 HP · ×43</span>
+    <span class="mon-idx">Mon idx 260</span>
+  </li><li class="mon">
+    <img loading="lazy" src="https://cdn.mir2db.com/images/mob/262.png" alt="" onerror="this.style.visibility='hidden'"/>
+    <span class="mon-name">적침마주</span>
+    <span class="mon-stat">Lv 70 · 1,100 HP · ×28</span>
+    <span class="mon-idx">Mon idx 262</span>
+  </li><li class="mon">
+    <img loading="lazy" src="https://cdn.mir2db.com/images/mob/271.png" alt="" onerror="this.style.visibility='hidden'"/>
+    <span class="mon-name">월지마신</span>
+    <span class="mon-stat">Lv 70 · 1,000 HP · ×11</span>
+    <span class="mon-idx">Mon idx 271</span>
+  </li></ul>
+  </article><article class="card">
+    <span class="badge new">New content</span>
+    <h3>Spirit Ghost Path <span class="cn">神穿鬼路</span></h3>
+    <div class="meta">Mir2DB list/76 · 5 maps · 10 monster types</div>
+    <p class="note">Lv82+ exotic beasts — Qiongqi, Qilin, Water Dragon</p>
+    <div class="bossline">Boss(es): <strong>穷奇</strong></div>
+    <ul class="mons"><li class="mon boss">
+    <img loading="lazy" src="https://cdn.mir2db.com/images/mob/434.png" alt="" onerror="this.style.visibility='hidden'"/>
+    <span class="mon-name">穷奇</span>
+    <span class="mon-stat">Lv 86 · 8,250 HP · ×16</span>
+    <span class="mon-idx">Mon idx 434</span>
+  </li><li class="mon">
+    <img loading="lazy" src="https://cdn.mir2db.com/images/mob/432.png" alt="" onerror="this.style.visibility='hidden'"/>
+    <span class="mon-name">水龙</span>
+    <span class="mon-stat">Lv 83 · 2,970 HP · ×32</span>
+    <span class="mon-idx">Mon idx 432</span>
+  </li><li class="mon">
+    <img loading="lazy" src="https://cdn.mir2db.com/images/mob/433.png" alt="" onerror="this.style.visibility='hidden'"/>
+    <span class="mon-name">沼玄武</span>
+    <span class="mon-stat">Lv 83 · 2,845 HP · ×16</span>
+    <span class="mon-idx">Mon idx 433</span>
+  </li><li class="mon">
+    <img loading="lazy" src="https://cdn.mir2db.com/images/mob/261.png" alt="" onerror="this.style.visibility='hidden'"/>
+    <span class="mon-name">푸른거미</span>
+    <span class="mon-stat">Lv 82 · 2,800 HP · ×16</span>
+    <span class="mon-idx">Mon idx 261</span>
+  </li><li class="mon">
+    <img loading="lazy" src="https://cdn.mir2db.com/images/mob/436.png" alt="" onerror="this.style.visibility='hidden'"/>
+    <span class="mon-name">龙骨弓士</span>
+    <span class="mon-stat">Lv 82 · 2,780 HP · ×16</span>
+    <span class="mon-idx">Mon idx 436</span>
+  </li><li class="mon">
+    <img loading="lazy" src="https://cdn.mir2db.com/images/mob/121.png" alt="" onerror="this.style.visibility='hidden'"/>
+    <span class="mon-name">동굴钳虫</span>
+    <span class="mon-stat">Lv 82 · 2,740 HP · ×16</span>
+    <span class="mon-idx">Mon idx 121</span>
+  </li><li class="mon">
+    <img loading="lazy" src="https://cdn.mir2db.com/images/mob/80.png" alt="" onerror="this.style.visibility='hidden'"/>
+    <span class="mon-name">동굴박쥐</span>
+    <span class="mon-stat">Lv 82 · 2,555 HP · ×16</span>
+    <span class="mon-idx">Mon idx 80</span>
+  </li><li class="mon">
+    <img loading="lazy" src="https://cdn.mir2db.com/images/mob/438.png" alt="" onerror="this.style.visibility='hidden'"/>
+    <span class="mon-name">麒麟</span>
+    <span class="mon-stat">Lv 84 · 2,495 HP · ×15</span>
+    <span class="mon-idx">Mon idx 438</span>
+  </li><li class="mon">
+    <img loading="lazy" src="https://cdn.mir2db.com/images/mob/435.png" alt="" onerror="this.style.visibility='hidden'"/>
+    <span class="mon-name">龙骨战士</span>
+    <span class="mon-stat">Lv 82 · 2,150 HP · ×16</span>
+    <span class="mon-idx">Mon idx 435</span>
+  </li><li class="mon">
+    <img loading="lazy" src="https://cdn.mir2db.com/images/mob/437.png" alt="" onerror="this.style.visibility='hidden'"/>
+    <span class="mon-name">沙暴风</span>
+    <span class="mon-stat">Lv 82 · 1,460 HP · ×16</span>
+    <span class="mon-idx">Mon idx 437</span>
+  </li></ul>
+  </article><article class="card">
+    <span class="badge new">New content</span>
+    <h3>Southern Barbarian Land <span class="cn">南蛮</span></h3>
+    <div class="meta">Mir2DB list/89 · 4 maps · 24 monster types</div>
+    <p class="note">Lv70–99 end-game; dual bosses Beast King / Danmo</p>
+    <div class="bossline">Boss(es): <strong>万兽之王, 丹墨</strong></div>
+    <ul class="mons"><li class="mon boss">
+    <img loading="lazy" src="https://cdn.mir2db.com/images/mob/229.png" alt="" onerror="this.style.visibility='hidden'"/>
+    <span class="mon-name">万兽之王</span>
+    <span class="mon-stat">Lv 99 · 34,000 HP · ×1</span>
+    <span class="mon-idx">Mon idx 229</span>
+  </li><li class="mon boss">
+    <img loading="lazy" src="https://cdn.mir2db.com/images/mob/329.png" alt="" onerror="this.style.visibility='hidden'"/>
+    <span class="mon-name">丹墨</span>
+    <span class="mon-stat">Lv 99 · 30,000 HP · ×1</span>
+    <span class="mon-idx">Mon idx 329</span>
+  </li><li class="mon">
+    <img loading="lazy" src="https://cdn.mir2db.com/images/mob/324.png" alt="" onerror="this.style.visibility='hidden'"/>
+    <span class="mon-name">맹렬한백상</span>
+    <span class="mon-stat">Lv 72 · 2,350 HP · ×5</span>
+    <span class="mon-idx">Mon idx 324</span>
+  </li><li class="mon">
+    <img loading="lazy" src="https://cdn.mir2db.com/images/mob/324.png" alt="" onerror="this.style.visibility='hidden'"/>
+    <span class="mon-name">백상</span>
+    <span class="mon-stat">Lv 70 · 2,200 HP · ×8</span>
+    <span class="mon-idx">Mon idx 324</span>
+  </li><li class="mon">
+    <img loading="lazy" src="https://cdn.mir2db.com/images/mob/328.png" alt="" onerror="this.style.visibility='hidden'"/>
+    <span class="mon-name">광폭한서우</span>
+    <span class="mon-stat">Lv 72 · 2,100 HP · ×4</span>
+    <span class="mon-idx">Mon idx 328</span>
+  </li><li class="mon">
+    <img loading="lazy" src="https://cdn.mir2db.com/images/mob/328.png" alt="" onerror="this.style.visibility='hidden'"/>
+    <span class="mon-name">서우</span>
+    <span class="mon-stat">Lv 70 · 2,000 HP · ×8</span>
+    <span class="mon-idx">Mon idx 328</span>
+  </li><li class="mon">
+    <img loading="lazy" src="https://cdn.mir2db.com/images/mob/321.png" alt="" onerror="this.style.visibility='hidden'"/>
+    <span class="mon-name">얼어붙은한천귀</span>
+    <span class="mon-stat">Lv 72 · 1,900 HP · ×12</span>
+    <span class="mon-idx">Mon idx 321</span>
+  </li><li class="mon">
+    <img loading="lazy" src="https://cdn.mir2db.com/images/mob/320.png" alt="" onerror="this.style.visibility='hidden'"/>
+    <span class="mon-name">광기의멸귀</span>
+    <span class="mon-stat">Lv 72 · 1,850 HP · ×12</span>
+    <span class="mon-idx">Mon idx 320</span>
+  </li><li class="mon">
+    <img loading="lazy" src="https://cdn.mir2db.com/images/mob/326.png" alt="" onerror="this.style.visibility='hidden'"/>
+    <span class="mon-name">난폭한남만백호</span>
+    <span class="mon-stat">Lv 72 · 1,800 HP · ×4</span>
+    <span class="mon-idx">Mon idx 326</span>
+  </li><li class="mon">
+    <img loading="lazy" src="https://cdn.mir2db.com/images/mob/321.png" alt="" onerror="this.style.visibility='hidden'"/>
+    <span class="mon-name">한천귀</span>
+    <span class="mon-stat">Lv 70 · 1,800 HP · ×12</span>
+    <span class="mon-idx">Mon idx 321</span>
+  </li><li class="mon">
+    <img loading="lazy" src="https://cdn.mir2db.com/images/mob/325.png" alt="" onerror="this.style.visibility='hidden'"/>
+    <span class="mon-name">난폭한남만흑호</span>
+    <span class="mon-stat">Lv 72 · 1,700 HP · ×3</span>
+    <span class="mon-idx">Mon idx 325</span>
+  </li><li class="mon">
+    <img loading="lazy" src="https://cdn.mir2db.com/images/mob/320.png" alt="" onerror="this.style.visibility='hidden'"/>
+    <span class="mon-name">멸귀</span>
+    <span class="mon-stat">Lv 70 · 1,700 HP · ×12</span>
+    <span class="mon-idx">Mon idx 320</span>
+  </li><li class="mon">
+    <img loading="lazy" src="https://cdn.mir2db.com/images/mob/326.png" alt="" onerror="this.style.visibility='hidden'"/>
+    <span class="mon-name">남만백호</span>
+    <span class="mon-stat">Lv 70 · 1,700 HP · ×7</span>
+    <span class="mon-idx">Mon idx 326</span>
+  </li><li class="mon">
+    <img loading="lazy" src="https://cdn.mir2db.com/images/mob/327.png" alt="" onerror="this.style.visibility='hidden'"/>
+    <span class="mon-name">분노한흑성성</span>
+    <span class="mon-stat">Lv 72 · 1,550 HP · ×5</span>
+    <span class="mon-idx">Mon idx 327</span>
+  </li><li class="mon">
+    <img loading="lazy" src="https://cdn.mir2db.com/images/mob/323.png" alt="" onerror="this.style.visibility='hidden'"/>
+    <span class="mon-name">냉혈의광한시</span>
+    <span class="mon-stat">Lv 72 · 1,500 HP · ×4</span>
+    <span class="mon-idx">Mon idx 323</span>
+  </li><li class="mon">
+    <img loading="lazy" src="https://cdn.mir2db.com/images/mob/325.png" alt="" onerror="this.style.visibility='hidden'"/>
+    <span class="mon-name">남만흑호</span>
+    <span class="mon-stat">Lv 70 · 1,500 HP · ×8</span>
+    <span class="mon-idx">Mon idx 325</span>
+  </li><li class="mon">
+    <img loading="lazy" src="https://cdn.mir2db.com/images/mob/319.png" alt="" onerror="this.style.visibility='hidden'"/>
+    <span class="mon-name">불타버린흑천귀</span>
+    <span class="mon-stat">Lv 72 · 1,400 HP · ×19</span>
+    <span class="mon-idx">Mon idx 319</span>
+  </li><li class="mon">
+    <img loading="lazy" src="https://cdn.mir2db.com/images/mob/327.png" alt="" onerror="this.style.visibility='hidden'"/>
+    <span class="mon-name">흑성성</span>
+    <span class="mon-stat">Lv 70 · 1,350 HP · ×8</span>
+    <span class="mon-idx">Mon idx 327</span>
+  </li><li class="mon">
+    <img loading="lazy" src="https://cdn.mir2db.com/images/mob/323.png" alt="" onerror="this.style.visibility='hidden'"/>
+    <span class="mon-name">광한시</span>
+    <span class="mon-stat">Lv 70 · 1,300 HP · ×6</span>
+    <span class="mon-idx">Mon idx 323</span>
+  </li><li class="mon">
+    <img loading="lazy" src="https://cdn.mir2db.com/images/mob/318.png" alt="" onerror="this.style.visibility='hidden'"/>
+    <span class="mon-name">썩어버린역천귀</span>
+    <span class="mon-stat">Lv 72 · 1,200 HP · ×13</span>
+    <span class="mon-idx">Mon idx 318</span>
+  </li><li class="mon">
+    <img loading="lazy" src="https://cdn.mir2db.com/images/mob/322.png" alt="" onerror="this.style.visibility='hidden'"/>
+    <span class="mon-name">냉혈의한시</span>
+    <span class="mon-stat">Lv 72 · 1,200 HP · ×3</span>
+    <span class="mon-idx">Mon idx 322</span>
+  </li><li class="mon">
+    <img loading="lazy" src="https://cdn.mir2db.com/images/mob/319.png" alt="" onerror="this.style.visibility='hidden'"/>
+    <span class="mon-name">흑천귀</span>
+    <span class="mon-stat">Lv 70 · 1,200 HP · ×11</span>
+    <span class="mon-idx">Mon idx 319</span>
+  </li><li class="mon">
+    <img loading="lazy" src="https://cdn.mir2db.com/images/mob/322.png" alt="" onerror="this.style.visibility='hidden'"/>
+    <span class="mon-name">한시</span>
+    <span class="mon-stat">Lv 70 · 1,000 HP · ×6</span>
+    <span class="mon-idx">Mon idx 322</span>
+  </li><li class="mon">
+    <img loading="lazy" src="https://cdn.mir2db.com/images/mob/318.png" alt="" onerror="this.style.visibility='hidden'"/>
+    <span class="mon-name">역천귀</span>
+    <span class="mon-stat">Lv 70 · 1,000 HP · ×8</span>
+    <span class="mon-idx">Mon idx 318</span>
+  </li></ul>
+  </article><article class="card">
+    <span class="badge new">New content</span>
+    <h3>Sand Ruins <span class="cn">沙遗迹</span></h3>
+    <div class="meta">Mir2DB list/68 · 4 maps · 10 monster types</div>
+    <p class="note">~Lv84 ruin complex; several mini-bosses</p>
+    <div class="bossline">Boss(es): <strong>격괴장</strong></div>
+    <ul class="mons"><li class="mon boss">
+    <img loading="lazy" src="https://cdn.mir2db.com/images/mob/406.png" alt="" onerror="this.style.visibility='hidden'"/>
+    <span class="mon-name">격괴장</span>
+    <span class="mon-stat">Lv 84 · 16,200 HP · ×1</span>
+    <span class="mon-idx">Mon idx 406</span>
+  </li><li class="mon">
+    <img loading="lazy" src="https://cdn.mir2db.com/images/mob/403.png" alt="" onerror="this.style.visibility='hidden'"/>
+    <span class="mon-name">주마검사</span>
+    <span class="mon-stat">Lv 84 · 6,300 HP · ×4</span>
+    <span class="mon-idx">Mon idx 403</span>
+  </li><li class="mon">
+    <img loading="lazy" src="https://cdn.mir2db.com/images/mob/405.png" alt="" onerror="this.style.visibility='hidden'"/>
+    <span class="mon-name">마석거인</span>
+    <span class="mon-stat">Lv 84 · 5,670 HP · ×1</span>
+    <span class="mon-idx">Mon idx 405</span>
+  </li><li class="mon">
+    <img loading="lazy" src="https://cdn.mir2db.com/images/mob/397.png" alt="" onerror="this.style.visibility='hidden'"/>
+    <span class="mon-name">태골서</span>
+    <span class="mon-stat">Lv 84 · 5,040 HP · ×4</span>
+    <span class="mon-idx">Mon idx 397</span>
+  </li><li class="mon">
+    <img loading="lazy" src="https://cdn.mir2db.com/images/mob/398.png" alt="" onerror="this.style.visibility='hidden'"/>
+    <span class="mon-name">대망</span>
+    <span class="mon-stat">Lv 84 · 4,824 HP · ×4</span>
+    <span class="mon-idx">Mon idx 398</span>
+  </li><li class="mon">
+    <img loading="lazy" src="https://cdn.mir2db.com/images/mob/396.png" alt="" onerror="this.style.visibility='hidden'"/>
+    <span class="mon-name">여귀 <em class="tag">undead</em></span>
+    <span class="mon-stat">Lv 84 · 4,590 HP · ×4</span>
+    <span class="mon-idx">Mon idx 396</span>
+  </li><li class="mon">
+    <img loading="lazy" src="https://cdn.mir2db.com/images/mob/401.png" alt="" onerror="this.style.visibility='hidden'"/>
+    <span class="mon-name">주마화궁사</span>
+    <span class="mon-stat">Lv 84 · 3,870 HP · ×3</span>
+    <span class="mon-idx">Mon idx 401</span>
+  </li><li class="mon">
+    <img loading="lazy" src="https://cdn.mir2db.com/images/mob/402.png" alt="" onerror="this.style.visibility='hidden'"/>
+    <span class="mon-name">주마풍궁사</span>
+    <span class="mon-stat">Lv 84 · 3,870 HP · ×4</span>
+    <span class="mon-idx">Mon idx 402</span>
+  </li><li class="mon">
+    <img loading="lazy" src="https://cdn.mir2db.com/images/mob/400.png" alt="" onerror="this.style.visibility='hidden'"/>
+    <span class="mon-name">주마술사</span>
+    <span class="mon-stat">Lv 84 · 3,690 HP · ×4</span>
+    <span class="mon-idx">Mon idx 400</span>
+  </li><li class="mon">
+    <img loading="lazy" src="https://cdn.mir2db.com/images/mob/404.png" alt="" onerror="this.style.visibility='hidden'"/>
+    <span class="mon-name">여귀석</span>
+    <span class="mon-stat">Lv 84 · 2,790 HP · ×1</span>
+    <span class="mon-idx">Mon idx 404</span>
+  </li></ul>
+  </article><article class="card">
+    <span class="badge new">New content</span>
+    <h3>Crescent Forest <span class="cn">弦月林</span></h3>
+    <div class="meta">Mir2DB list/74 · 4 maps · 18 monster types</div>
+    <p class="note">Lv66–80 forest + class-champion hall</p>
+    <div class="bossline">Boss(es): <strong>金胜战士, 焱门客, 定缘道士</strong></div>
+    <ul class="mons"><li class="mon boss">
+    <img loading="lazy" src="https://cdn.mir2db.com/images/mob/31.png" alt="" onerror="this.style.visibility='hidden'"/>
+    <span class="mon-name">金胜战士</span>
+    <span class="mon-stat">Lv 80 · 14,500 HP · ×3</span>
+    <span class="mon-idx">Mon idx 31</span>
+  </li><li class="mon boss">
+    <img loading="lazy" src="https://cdn.mir2db.com/images/mob/34.png" alt="" onerror="this.style.visibility='hidden'"/>
+    <span class="mon-name">焱门客</span>
+    <span class="mon-stat">Lv 80 · 13,000 HP · ×3</span>
+    <span class="mon-idx">Mon idx 34</span>
+  </li><li class="mon boss">
+    <img loading="lazy" src="https://cdn.mir2db.com/images/mob/33.png" alt="" onerror="this.style.visibility='hidden'"/>
+    <span class="mon-name">定缘道士</span>
+    <span class="mon-stat">Lv 80 · 12,500 HP · ×3</span>
+    <span class="mon-idx">Mon idx 33</span>
+  </li><li class="mon boss">
+    <img loading="lazy" src="https://cdn.mir2db.com/images/mob/32.png" alt="" onerror="this.style.visibility='hidden'"/>
+    <span class="mon-name">圣术士</span>
+    <span class="mon-stat">Lv 80 · 12,000 HP · ×3</span>
+    <span class="mon-idx">Mon idx 32</span>
+  </li><li class="mon boss">
+    <img loading="lazy" src="https://cdn.mir2db.com/images/mob/417.png" alt="" onerror="this.style.visibility='hidden'"/>
+    <span class="mon-name">流觞弓匠</span>
+    <span class="mon-stat">Lv 80 · 12,000 HP · ×3</span>
+    <span class="mon-idx">Mon idx 417</span>
+  </li><li class="mon">
+    <img loading="lazy" src="https://cdn.mir2db.com/images/mob/222.png" alt="" onerror="this.style.visibility='hidden'"/>
+    <span class="mon-name">弦月寒虎</span>
+    <span class="mon-stat">Lv 75 · 2,350 HP · ×12</span>
+    <span class="mon-idx">Mon idx 222</span>
+  </li><li class="mon">
+    <img loading="lazy" src="https://cdn.mir2db.com/images/mob/6.png" alt="" onerror="this.style.visibility='hidden'"/>
+    <span class="mon-name">弦月坛战士1</span>
+    <span class="mon-stat">Lv 70 · 2,150 HP · ×9</span>
+    <span class="mon-idx">Mon idx 6</span>
+  </li><li class="mon">
+    <img loading="lazy" src="https://cdn.mir2db.com/images/mob/6.png" alt="" onerror="this.style.visibility='hidden'"/>
+    <span class="mon-name">弦月坛战士2</span>
+    <span class="mon-stat">Lv 70 · 2,150 HP · ×9</span>
+    <span class="mon-idx">Mon idx 6</span>
+  </li><li class="mon">
+    <img loading="lazy" src="https://cdn.mir2db.com/images/mob/415.png" alt="" onerror="this.style.visibility='hidden'"/>
+    <span class="mon-name">熊</span>
+    <span class="mon-stat">Lv 66 · 1,950 HP · ×12</span>
+    <span class="mon-idx">Mon idx 415</span>
+  </li><li class="mon">
+    <img loading="lazy" src="https://cdn.mir2db.com/images/mob/22.png" alt="" onerror="this.style.visibility='hidden'"/>
+    <span class="mon-name">弦月坛刺客1</span>
+    <span class="mon-stat">Lv 70 · 1,820 HP · ×9</span>
+    <span class="mon-idx">Mon idx 22</span>
+  </li><li class="mon">
+    <img loading="lazy" src="https://cdn.mir2db.com/images/mob/22.png" alt="" onerror="this.style.visibility='hidden'"/>
+    <span class="mon-name">弦月坛刺客2</span>
+    <span class="mon-stat">Lv 70 · 1,820 HP · ×9</span>
+    <span class="mon-idx">Mon idx 22</span>
+  </li><li class="mon">
+    <img loading="lazy" src="https://cdn.mir2db.com/images/mob/414.png" alt="" onerror="this.style.visibility='hidden'"/>
+    <span class="mon-name">杉精魄</span>
+    <span class="mon-stat">Lv 66 · 1,600 HP · ×12</span>
+    <span class="mon-idx">Mon idx 414</span>
+  </li><li class="mon">
+    <img loading="lazy" src="https://cdn.mir2db.com/images/mob/413.png" alt="" onerror="this.style.visibility='hidden'"/>
+    <span class="mon-name">草丛龟</span>
+    <span class="mon-stat">Lv 66 · 1,550 HP · ×12</span>
+    <span class="mon-idx">Mon idx 413</span>
+  </li><li class="mon">
+    <img loading="lazy" src="https://cdn.mir2db.com/images/mob/8.png" alt="" onerror="this.style.visibility='hidden'"/>
+    <span class="mon-name">弦月坛道士1</span>
+    <span class="mon-stat">Lv 70 · 1,480 HP · ×9</span>
+    <span class="mon-idx">Mon idx 8</span>
+  </li><li class="mon">
+    <img loading="lazy" src="https://cdn.mir2db.com/images/mob/8.png" alt="" onerror="this.style.visibility='hidden'"/>
+    <span class="mon-name">弦月坛道士2</span>
+    <span class="mon-stat">Lv 70 · 1,480 HP · ×9</span>
+    <span class="mon-idx">Mon idx 8</span>
+  </li><li class="mon">
+    <img loading="lazy" src="https://cdn.mir2db.com/images/mob/416.png" alt="" onerror="this.style.visibility='hidden'"/>
+    <span class="mon-name">金钱豹</span>
+    <span class="mon-stat">Lv 66 · 1,300 HP · ×11</span>
+    <span class="mon-idx">Mon idx 416</span>
+  </li><li class="mon">
+    <img loading="lazy" src="https://cdn.mir2db.com/images/mob/7.png" alt="" onerror="this.style.visibility='hidden'"/>
+    <span class="mon-name">弦月坛术士1</span>
+    <span class="mon-stat">Lv 70 · 1,050 HP · ×9</span>
+    <span class="mon-idx">Mon idx 7</span>
+  </li><li class="mon">
+    <img loading="lazy" src="https://cdn.mir2db.com/images/mob/7.png" alt="" onerror="this.style.visibility='hidden'"/>
+    <span class="mon-name">弦月坛术士2</span>
+    <span class="mon-stat">Lv 70 · 1,050 HP · ×9</span>
+    <span class="mon-idx">Mon idx 7</span>
+  </li></ul>
+  </article><article class="card">
+    <span class="badge new">New content</span>
+    <h3>Pianmu Island <span class="cn">片木岛</span></h3>
+    <div class="meta">Mir2DB list/80 · 12 maps · 15 monster types</div>
+    <p class="note">Island + ghost ships</p>
+    
+    <ul class="mons"><li class="mon">
+    <img loading="lazy" src="https://cdn.mir2db.com/images/mob/391.png" alt="" onerror="this.style.visibility='hidden'"/>
+    <span class="mon-name">거친선목</span>
+    <span class="mon-stat">Lv 83 · 2,300 HP · ×5</span>
+    <span class="mon-idx">Mon idx 391</span>
+  </li><li class="mon">
+    <img loading="lazy" src="https://cdn.mir2db.com/images/mob/386.png" alt="" onerror="this.style.visibility='hidden'"/>
+    <span class="mon-name">그을린요리사</span>
+    <span class="mon-stat">Lv 81 · 2,200 HP · ×5</span>
+    <span class="mon-idx">Mon idx 386</span>
+  </li><li class="mon">
+    <img loading="lazy" src="https://cdn.mir2db.com/images/mob/393.png" alt="" onerror="this.style.visibility='hidden'"/>
+    <span class="mon-name">변이된감시원</span>
+    <span class="mon-stat">Lv 83 · 2,100 HP · ×5</span>
+    <span class="mon-idx">Mon idx 393</span>
+  </li><li class="mon">
+    <img loading="lazy" src="https://cdn.mir2db.com/images/mob/382.png" alt="" onerror="this.style.visibility='hidden'"/>
+    <span class="mon-name">긴코원숭이</span>
+    <span class="mon-stat">Lv 81 · 2,050 HP · ×1</span>
+    <span class="mon-idx">Mon idx 382</span>
+  </li><li class="mon">
+    <img loading="lazy" src="https://cdn.mir2db.com/images/mob/387.png" alt="" onerror="this.style.visibility='hidden'"/>
+    <span class="mon-name">떠도는선원</span>
+    <span class="mon-stat">Lv 81 · 2,050 HP · ×5</span>
+    <span class="mon-idx">Mon idx 387</span>
+  </li><li class="mon">
+    <img loading="lazy" src="https://cdn.mir2db.com/images/mob/390.png" alt="" onerror="this.style.visibility='hidden'"/>
+    <span class="mon-name">농노군</span>
+    <span class="mon-stat">Lv 81 · 2,050 HP · ×7</span>
+    <span class="mon-idx">Mon idx 390</span>
+  </li><li class="mon">
+    <img loading="lazy" src="https://cdn.mir2db.com/images/mob/383.png" alt="" onerror="this.style.visibility='hidden'"/>
+    <span class="mon-name">변이갑충</span>
+    <span class="mon-stat">Lv 80 · 1,920 HP · ×2</span>
+    <span class="mon-idx">Mon idx 383</span>
+  </li><li class="mon">
+    <img loading="lazy" src="https://cdn.mir2db.com/images/mob/384.png" alt="" onerror="this.style.visibility='hidden'"/>
+    <span class="mon-name">거장화</span>
+    <span class="mon-stat">Lv 80 · 1,920 HP · ×1</span>
+    <span class="mon-idx">Mon idx 384</span>
+  </li><li class="mon">
+    <img loading="lazy" src="https://cdn.mir2db.com/images/mob/385.png" alt="" onerror="this.style.visibility='hidden'"/>
+    <span class="mon-name">서성이는궁병</span>
+    <span class="mon-stat">Lv 80 · 1,920 HP · ×10</span>
+    <span class="mon-idx">Mon idx 385</span>
+  </li><li class="mon">
+    <img loading="lazy" src="https://cdn.mir2db.com/images/mob/388.png" alt="" onerror="this.style.visibility='hidden'"/>
+    <span class="mon-name">익사한노예</span>
+    <span class="mon-stat">Lv 80 · 1,920 HP · ×10</span>
+    <span class="mon-idx">Mon idx 388</span>
+  </li><li class="mon">
+    <img loading="lazy" src="https://cdn.mir2db.com/images/mob/389.png" alt="" onerror="this.style.visibility='hidden'"/>
+    <span class="mon-name">선박의악령</span>
+    <span class="mon-stat">Lv 80 · 1,920 HP · ×8</span>
+    <span class="mon-idx">Mon idx 389</span>
+  </li><li class="mon">
+    <img loading="lazy" src="https://cdn.mir2db.com/images/mob/394.png" alt="" onerror="this.style.visibility='hidden'"/>
+    <span class="mon-name">혼불</span>
+    <span class="mon-stat">Lv 80 · 1,920 HP · ×9</span>
+    <span class="mon-idx">Mon idx 394</span>
+  </li><li class="mon">
+    <img loading="lazy" src="https://cdn.mir2db.com/images/mob/392.png" alt="" onerror="this.style.visibility='hidden'"/>
+    <span class="mon-name">저주받은상자1</span>
+    <span class="mon-stat">Lv 80 · 1 HP · ×5</span>
+    <span class="mon-idx">Mon idx 392</span>
+  </li><li class="mon">
+    <img loading="lazy" src="https://cdn.mir2db.com/images/mob/392.png" alt="" onerror="this.style.visibility='hidden'"/>
+    <span class="mon-name">저주받은상자2</span>
+    <span class="mon-stat">Lv 80 · 1 HP · ×5</span>
+    <span class="mon-idx">Mon idx 392</span>
+  </li><li class="mon">
+    <img loading="lazy" src="https://cdn.mir2db.com/images/mob/392.png" alt="" onerror="this.style.visibility='hidden'"/>
+    <span class="mon-name">저주받은상자3</span>
+    <span class="mon-stat">Lv 80 · 1 HP · ×5</span>
+    <span class="mon-idx">Mon idx 392</span>
+  </li></ul>
+  </article></div>
+  <h2>Excluded (already implemented)</h2>
+  <div class="cards"><article class="card excluded">
+    <span class="badge miss">Already in game (Fox Cave)</span>
+    <h3>Sorrow Moon Mountain <span class="cn">悲月山</span></h3>
+    <div class="meta">Mir2DB list/66 · 3 maps · 12 monster types</div>
+    <p class="note">EXCLUDED — this is the fox area already shipped as Fox Cave</p>
+    <div class="bossline">Boss(es): <strong>悲月天珠</strong></div>
+    <ul class="mons"><li class="mon boss">
+    <img loading="lazy" src="https://cdn.mir2db.com/images/mob/237.png" alt="" onerror="this.style.visibility='hidden'"/>
+    <span class="mon-name">悲月天珠 <em class="tag">undead</em></span>
+    <span class="mon-stat">Lv 99 · 30,000 HP · ×1</span>
+    <span class="mon-idx">Mon idx 237</span>
+  </li><li class="mon">
+    <img loading="lazy" src="https://cdn.mir2db.com/images/mob/230.png" alt="" onerror="this.style.visibility='hidden'"/>
+    <span class="mon-name">비월흑호 <em class="tag">undead</em></span>
+    <span class="mon-stat">Lv 55 · 1,500 HP · ×75</span>
+    <span class="mon-idx">Mon idx 230</span>
+  </li><li class="mon">
+    <img loading="lazy" src="https://cdn.mir2db.com/images/mob/236.png" alt="" onerror="this.style.visibility='hidden'"/>
+    <span class="mon-name">호기옥 <em class="tag">undead</em></span>
+    <span class="mon-stat">Lv 39 · 1,500 HP · ×23</span>
+    <span class="mon-idx">Mon idx 236</span>
+  </li><li class="mon">
+    <img loading="lazy" src="https://cdn.mir2db.com/images/mob/234.png" alt="" onerror="this.style.visibility='hidden'"/>
+    <span class="mon-name">호혼기석 <em class="tag">undead</em></span>
+    <span class="mon-stat">Lv 60 · 1,200 HP · ×4</span>
+    <span class="mon-idx">Mon idx 234</span>
+  </li><li class="mon">
+    <img loading="lazy" src="https://cdn.mir2db.com/images/mob/232.png" alt="" onerror="this.style.visibility='hidden'"/>
+    <span class="mon-name">비월소호 <em class="tag">undead</em></span>
+    <span class="mon-stat">Lv 55 · 1,200 HP · ×26</span>
+    <span class="mon-idx">Mon idx 232</span>
+  </li><li class="mon">
+    <img loading="lazy" src="https://cdn.mir2db.com/images/mob/235.png" alt="" onerror="this.style.visibility='hidden'"/>
+    <span class="mon-name">호기연 <em class="tag">undead</em></span>
+    <span class="mon-stat">Lv 37 · 1,000 HP · ×32</span>
+    <span class="mon-idx">Mon idx 235</span>
+  </li><li class="mon">
+    <img loading="lazy" src="https://cdn.mir2db.com/images/mob/241.png" alt="" onerror="this.style.visibility='hidden'"/>
+    <span class="mon-name">비월치충</span>
+    <span class="mon-stat">Lv 52 · 880 HP · ×27</span>
+    <span class="mon-idx">Mon idx 241</span>
+  </li><li class="mon">
+    <img loading="lazy" src="https://cdn.mir2db.com/images/mob/231.png" alt="" onerror="this.style.visibility='hidden'"/>
+    <span class="mon-name">비월적호 <em class="tag">undead</em></span>
+    <span class="mon-stat">Lv 55 · 800 HP · ×51</span>
+    <span class="mon-idx">Mon idx 231</span>
+  </li><li class="mon">
+    <img loading="lazy" src="https://cdn.mir2db.com/images/mob/239.png" alt="" onerror="this.style.visibility='hidden'"/>
+    <span class="mon-name">비월호충</span>
+    <span class="mon-stat">Lv 53 · 800 HP · ×22</span>
+    <span class="mon-idx">Mon idx 239</span>
+  </li><li class="mon">
+    <img loading="lazy" src="https://cdn.mir2db.com/images/mob/240.png" alt="" onerror="this.style.visibility='hidden'"/>
+    <span class="mon-name">비월충</span>
+    <span class="mon-stat">Lv 50 · 760 HP · ×51</span>
+    <span class="mon-idx">Mon idx 240</span>
+  </li><li class="mon">
+    <img loading="lazy" src="https://cdn.mir2db.com/images/mob/238.png" alt="" onerror="this.style.visibility='hidden'"/>
+    <span class="mon-name">비월각충</span>
+    <span class="mon-stat">Lv 51 · 700 HP · ×62</span>
+    <span class="mon-idx">Mon idx 238</span>
+  </li><li class="mon">
+    <img loading="lazy" src="https://cdn.mir2db.com/images/mob/233.png" alt="" onerror="this.style.visibility='hidden'"/>
+    <span class="mon-name">호혼석 <em class="tag">undead</em></span>
+    <span class="mon-stat">Lv 50 · 700 HP · ×32</span>
+    <span class="mon-idx">Mon idx 233</span>
+  </li></ul>
+  </article></div>
+</main>
+</body></html>

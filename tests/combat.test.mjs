@@ -103,6 +103,16 @@ test("resolveIncomingEnemyAttack: agility miss", () => {
   assert.deepEqual(result, { hit: false, damage: 0 });
 });
 
+test("resolveIncomingEnemyAttack: forceHit skips accuracy check", () => {
+  const result = resolveIncomingEnemyAttack(
+    { accuracy: 0, dc: [10, 10], luck: 0 },
+    { ac: [0, 0], agility: 99 },
+    { randomIntFn: () => 999, forceHit: true },
+  );
+  assert.equal(result.hit, true);
+  assert.equal(result.damage, 10);
+});
+
 test("resolveIncomingEnemyAttack: MAC resist miss", () => {
   const result = resolveIncomingEnemyAttack(
     { attackDefenceType: "MAC", accuracy: 99, dc: [10, 10] },

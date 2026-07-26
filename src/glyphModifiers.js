@@ -199,6 +199,17 @@ export const GLYPH_DEFS = [
     kind: "hero",
     implemented: true,
   },
+  {
+    id: "fastHealing",
+    itemId: "glyph-fast-healing",
+    classId: "any",
+    label: "Glyph of Fast Healing",
+    description: "HP potions heal 25% faster, but restore 50% less.",
+    spellIds: [],
+    kind: "fastHealing",
+    params: { healFraction: 0.5, tickDelayFraction: 0.75 },
+    implemented: true,
+  },
 ];
 
 const GLYPH_BY_ID = new Map(GLYPH_DEFS.map((def) => [def.id, def]));
@@ -255,25 +266,65 @@ export function isGlyphItem(item) {
   return item?.slot === "glyph" || Boolean(glyphDefByItemId(item?.id) || glyphDefById(item?.glyph?.modifier));
 }
 
+/** Equipment keys for glyph slots 1–5 (`glyph`, `glyph2`, …). */
+export const GLYPH_EQUIPMENT_SLOT_IDS = ["glyph", "glyph2", "glyph3", "glyph4", "glyph5"];
+
 /**
- * Resolve the equipped glyph definition from an inventory snapshot.
+ * @param {GlyphDef | GlyphDef[] | null | undefined} glyphOrGlyphs
+ * @returns {GlyphDef[]}
+ */
+export function asGlyphList(glyphOrGlyphs) {
+  if (glyphOrGlyphs == null) return [];
+  return (Array.isArray(glyphOrGlyphs) ? glyphOrGlyphs : [glyphOrGlyphs]).filter(Boolean);
+}
+
+/**
+ * @param {GlyphDef | GlyphDef[] | null | undefined} glyphOrGlyphs
+ * @param {string} kind
+ * @returns {GlyphDef | null}
+ */
+export function firstGlyphOfKind(glyphOrGlyphs, kind) {
+  const want = String(kind || "");
+  return asGlyphList(glyphOrGlyphs).find((g) => g.kind === want && g.implemented !== false) ?? null;
+}
+
+/**
+ * Resolve every equipped glyph definition from an inventory snapshot.
+ * @param {object | null | undefined} inventory
+ * @param {(itemId: string) => object | null | undefined} [itemLookup]
+ * @returns {GlyphDef[]}
+ */
+export function equippedGlyphDefs(inventory, itemLookup = null) {
+  const defs = [];
+  const items = Array.isArray(inventory?.items) ? inventory.items : [];
+  for (const slotId of GLYPH_EQUIPMENT_SLOT_IDS) {
+    const entryId = inventory?.equipment?.[slotId] ?? null;
+    if (!entryId) continue;
+    const entry = items.find((row) => row?.id === entryId);
+    if (!entry?.itemId) continue;
+    const fromTable = glyphDefByItemId(entry.itemId);
+    if (fromTable) {
+      defs.push(fromTable);
+      continue;
+    }
+    if (typeof itemLookup === "function") {
+      const item = itemLookup(entry.itemId);
+      const modifier = item?.glyph?.modifier;
+      const def = glyphDefById(modifier) ?? glyphDefByItemId(item?.id);
+      if (def) defs.push(def);
+    }
+  }
+  return defs;
+}
+
+/**
+ * Resolve the first equipped glyph definition (legacy helper).
  * @param {object | null | undefined} inventory
  * @param {(itemId: string) => object | null | undefined} [itemLookup]
  * @returns {GlyphDef | null}
  */
 export function equippedGlyphDef(inventory, itemLookup = null) {
-  const entryId = inventory?.equipment?.glyph ?? null;
-  if (!entryId) return null;
-  const entry = (inventory?.items ?? []).find((row) => row?.id === entryId);
-  if (!entry?.itemId) return null;
-  const fromTable = glyphDefByItemId(entry.itemId);
-  if (fromTable) return fromTable;
-  if (typeof itemLookup === "function") {
-    const item = itemLookup(entry.itemId);
-    const modifier = item?.glyph?.modifier;
-    return glyphDefById(modifier) ?? glyphDefByItemId(item?.id);
-  }
-  return null;
+  return equippedGlyphDefs(inventory, itemLookup)[0] ?? null;
 }
 
 /**
@@ -283,8 +334,7 @@ export function equippedGlyphDef(inventory, itemLookup = null) {
  * @returns {boolean}
  */
 export function hasGlyphModifier(inventory, kind, itemLookup = null) {
-  const def = equippedGlyphDef(inventory, itemLookup);
-  return Boolean(def && def.kind === kind && def.implemented !== false);
+  return Boolean(firstGlyphOfKind(equippedGlyphDefs(inventory, itemLookup), kind));
 }
 
 /**
@@ -294,10 +344,10 @@ export function hasGlyphModifier(inventory, kind, itemLookup = null) {
  * @returns {GlyphDef | null}
  */
 export function glyphModifierForSpell(inventory, spellId, itemLookup = null) {
-  const def = equippedGlyphDef(inventory, itemLookup);
-  if (!def || def.implemented === false) return null;
-  if (!def.spellIds.includes(String(spellId))) return null;
-  return def;
+  const id = String(spellId || "");
+  return equippedGlyphDefs(inventory, itemLookup).find(
+    (def) => def.implemented !== false && Array.isArray(def.spellIds) && def.spellIds.includes(id),
+  ) ?? null;
 }
 
 /**
@@ -343,9 +393,10 @@ export function rollTaoistDefenceBuffBonus(level, maxSc, glyph = null) {
  */
 export function applyGlyphGroundDuration(durationMs, spellId, glyph = null) {
   const base = Math.max(0, Math.trunc(Number(durationMs) || 0));
-  if (!glyph || glyph.kind !== "wizardFireWallDuration") return base;
+  const match = firstGlyphOfKind(glyph, "wizardFireWallDuration");
+  if (!match) return base;
   if (String(spellId) !== "FireWall") return base;
-  const mult = Math.max(1, Number(glyph.params?.durationMultiplier) || 2);
+  const mult = Math.max(1, Number(match.params?.durationMultiplier) || 2);
   return Math.trunc(base * mult);
 }
 
@@ -356,8 +407,9 @@ export function applyGlyphGroundDuration(durationMs, spellId, glyph = null) {
  */
 export function applyGlyphProtectionFieldBonus(bonus, glyph = null) {
   const base = Math.max(0, Math.trunc(Number(bonus) || 0));
-  if (glyph?.kind !== "warriorProtectionFieldBurst") return base;
-  const mult = Math.max(1, Number(glyph.params?.bonusMultiplier) || 2);
+  const match = firstGlyphOfKind(glyph, "warriorProtectionFieldBurst");
+  if (!match) return base;
+  const mult = Math.max(1, Number(match.params?.bonusMultiplier) || 2);
   return Math.trunc(base * mult);
 }
 
@@ -367,10 +419,11 @@ export function applyGlyphProtectionFieldBonus(bonus, glyph = null) {
  * @returns {number}
  */
 export function applyGlyphProtectionFieldDuration(durationMs, glyph = null) {
-  if (glyph?.kind !== "warriorProtectionFieldBurst") {
+  const match = firstGlyphOfKind(glyph, "warriorProtectionFieldBurst");
+  if (!match) {
     return Math.max(0, Math.trunc(Number(durationMs) || 0));
   }
-  return Math.max(0, Math.trunc(Number(glyph.params?.durationMs) || 5000));
+  return Math.max(0, Math.trunc(Number(match.params?.durationMs) || 5000));
 }
 
 /**
@@ -379,8 +432,9 @@ export function applyGlyphProtectionFieldDuration(durationMs, glyph = null) {
  * @returns {number}
  */
 export function glyphPetOwnerDcBonus(ownerMaxDc, glyph = null) {
-  if (glyph?.kind !== "taoPetOwnerDc") return 0;
-  const fraction = Math.max(0, Number(glyph.params?.ownerDcFraction) || 1);
+  const match = firstGlyphOfKind(glyph, "taoPetOwnerDc");
+  if (!match) return 0;
+  const fraction = Math.max(0, Number(match.params?.ownerDcFraction) || 1);
   return Math.floor(Math.max(0, Math.trunc(Number(ownerMaxDc) || 0)) * fraction);
 }
 
@@ -389,7 +443,7 @@ export function glyphPetOwnerDcBonus(ownerMaxDc, glyph = null) {
  * @returns {boolean}
  */
 export function glyphHealingIsInstant(glyph = null) {
-  return glyph?.kind === "taoHealingInstant" && glyph.implemented !== false;
+  return Boolean(firstGlyphOfKind(glyph, "taoHealingInstant"));
 }
 
 /**
@@ -401,10 +455,40 @@ export function glyphHealingIsInstant(glyph = null) {
  */
 export function applyGlyphHealingAmount(amount, spellId, glyph = null) {
   const base = Math.max(0, Math.trunc(Number(amount) || 0));
-  if (!glyphHealingIsInstant(glyph)) return base;
+  const match = firstGlyphOfKind(glyph, "taoHealingInstant");
+  if (!match) return base;
   if (String(spellId) !== "Healing") return base;
-  const fraction = Math.max(0, Number(glyph.params?.healFraction) || 0.5);
+  const fraction = Math.max(0, Number(match.params?.healFraction) || 0.5);
   return Math.max(0, Math.trunc(base * fraction));
+}
+
+/**
+ * Glyph of Fast Healing: HP potions restore a fraction of the usual amount.
+ * @param {number} amount
+ * @param {GlyphDef | null | undefined} glyph
+ * @returns {number}
+ */
+export function applyGlyphHpPotionRestore(amount, glyph = null) {
+  const base = Math.max(0, Math.trunc(Number(amount) || 0));
+  const match = firstGlyphOfKind(glyph, "fastHealing");
+  if (!match) return base;
+  const fraction = Math.max(0, Number(match.params?.healFraction) || 0.5);
+  return Math.max(0, Math.trunc(base * fraction));
+}
+
+/**
+ * Glyph of Fast Healing: shorten potion tick delay while HP restore is pending.
+ * @param {number} baseDelayMs
+ * @param {GlyphDef | null | undefined} glyph
+ * @param {{ hpPending?: boolean }} [options]
+ * @returns {number}
+ */
+export function glyphPotionTickDelayMs(baseDelayMs, glyph = null, options = {}) {
+  const base = Math.max(1, Math.trunc(Number(baseDelayMs) || 0));
+  const match = firstGlyphOfKind(glyph, "fastHealing");
+  if (!options.hpPending || !match) return base;
+  const fraction = Math.max(0.1, Math.min(1, Number(match.params?.tickDelayFraction) || 0.75));
+  return Math.max(1, Math.round(base * fraction));
 }
 
 /**
@@ -412,9 +496,10 @@ export function applyGlyphHealingAmount(amount, spellId, glyph = null) {
  * @returns {{ mpPerHp: number } | null}
  */
 export function glyphMagicShieldMpParams(glyph = null) {
-  if (glyph?.kind !== "wizardMagicShieldMp") return null;
+  const match = firstGlyphOfKind(glyph, "wizardMagicShieldMp");
+  if (!match) return null;
   return {
-    mpPerHp: Math.max(1, Math.trunc(Number(glyph.params?.mpPerHp) || 2)),
+    mpPerHp: Math.max(1, Math.trunc(Number(match.params?.mpPerHp) || 2)),
   };
 }
 
@@ -424,8 +509,9 @@ export function glyphMagicShieldMpParams(glyph = null) {
  * @returns {number}
  */
 export function glyphManaRegenPerSecond(glyph = null) {
-  if (glyph?.kind !== "wizardManaRegen" || glyph.implemented === false) return 0;
-  return Math.max(0, Number(glyph.params?.mpPerSecond) || 5);
+  const match = firstGlyphOfKind(glyph, "wizardManaRegen");
+  if (!match) return 0;
+  return Math.max(0, Number(match.params?.mpPerSecond) || 5);
 }
 
 /**
@@ -504,10 +590,11 @@ export function absorbDamageWithManaAegis(damage, currentMp, params = null) {
  * @returns {{ chance: number, damageFraction: number } | null}
  */
 export function glyphFlameDisruptorSplashParams(glyph = null) {
-  if (glyph?.kind !== "wizardFlameDisruptorSplash") return null;
+  const match = firstGlyphOfKind(glyph, "wizardFlameDisruptorSplash");
+  if (!match) return null;
   return {
-    chance: Math.max(0, Math.min(1, Number(glyph.params?.chance) || 0.5)),
-    damageFraction: Math.max(0, Number(glyph.params?.damageFraction) || 0.5),
+    chance: Math.max(0, Math.min(1, Number(match.params?.chance) || 0.5)),
+    damageFraction: Math.max(0, Number(match.params?.damageFraction) || 0.5),
   };
 }
 
@@ -542,34 +629,37 @@ export const FLAMING_SWORD_GLYPH_DR_KIND = "flamingSwordGlyphDr";
  * @returns {{ reductionPercent: number, durationMs: number } | null}
  */
 export function glyphFlamingSwordDrParams(glyph = null) {
-  if (glyph?.kind !== "warriorFlamingSwordDr") return null;
+  const match = firstGlyphOfKind(glyph, "warriorFlamingSwordDr");
+  if (!match) return null;
   return {
-    reductionPercent: Math.max(0, Math.min(100, Math.trunc(Number(glyph.params?.reductionPercent) || 25))),
-    durationMs: Math.max(0, Math.trunc(Number(glyph.params?.durationMs) || 3000)),
+    reductionPercent: Math.max(0, Math.min(100, Math.trunc(Number(match.params?.reductionPercent) || 25))),
+    durationMs: Math.max(0, Math.trunc(Number(match.params?.durationMs) || 3000)),
   };
 }
 
 /**
  * @param {number} damage
  * @param {string | null | undefined} spellId
- * @param {GlyphDef | null | undefined} glyph
+ * @param {GlyphDef | GlyphDef[] | null | undefined} glyph
  * @returns {number}
  */
 export function applyGlyphTwinDrakeDamage(damage, spellId, glyph = null) {
   const base = Math.max(0, Math.trunc(Number(damage) || 0));
-  if (glyph?.kind !== "warriorTwinDrakeBurst") return base;
+  const match = firstGlyphOfKind(glyph, "warriorTwinDrakeBurst");
+  if (!match) return base;
   if (String(spellId) !== "TwinDrakeBlade") return base;
-  const mult = Math.max(1, Number(glyph.params?.damageMultiplier) || 2);
+  const mult = Math.max(1, Number(match.params?.damageMultiplier) || 2);
   return Math.trunc(base * mult);
 }
 
 /**
- * @param {GlyphDef | null | undefined} glyph
+ * @param {GlyphDef | GlyphDef[] | null | undefined} glyph
  * @returns {number} cooldown ms, or 0 if glyph inactive
  */
 export function glyphTwinDrakeCooldownMs(glyph = null) {
-  if (glyph?.kind !== "warriorTwinDrakeBurst") return 0;
-  return Math.max(0, Math.trunc(Number(glyph.params?.cooldownMs) || 2000));
+  const match = firstGlyphOfKind(glyph, "warriorTwinDrakeBurst");
+  if (!match) return 0;
+  return Math.max(0, Math.trunc(Number(match.params?.cooldownMs) || 2000));
 }
 
 const COMBAT_DAMAGE_GLYPH_DEFAULTS = {
@@ -579,16 +669,16 @@ const COMBAT_DAMAGE_GLYPH_DEFAULTS = {
 
 /**
  * Shared outgoing/incoming damage multipliers for Glass Canon / Tank glyphs.
- * @param {GlyphDef | null | undefined} glyph
+ * @param {GlyphDef | GlyphDef[] | null | undefined} glyph
  * @returns {{ outgoingMultiplier: number, incomingMultiplier: number } | null}
  */
 export function glyphCombatDamageParams(glyph = null) {
-  if (!glyph || glyph.implemented === false) return null;
-  const defaults = COMBAT_DAMAGE_GLYPH_DEFAULTS[glyph.kind];
-  if (!defaults) return null;
+  const match = asGlyphList(glyph).find((g) => g.implemented !== false && COMBAT_DAMAGE_GLYPH_DEFAULTS[g.kind]);
+  if (!match) return null;
+  const defaults = COMBAT_DAMAGE_GLYPH_DEFAULTS[match.kind];
   return {
-    outgoingMultiplier: Math.max(0, Number(glyph.params?.outgoingMultiplier) || defaults.outgoingMultiplier),
-    incomingMultiplier: Math.max(0, Number(glyph.params?.incomingMultiplier) || defaults.incomingMultiplier),
+    outgoingMultiplier: Math.max(0, Number(match.params?.outgoingMultiplier) || defaults.outgoingMultiplier),
+    incomingMultiplier: Math.max(0, Number(match.params?.incomingMultiplier) || defaults.incomingMultiplier),
   };
 }
 
@@ -636,19 +726,19 @@ export function applyGlyphGlassCannonIncoming(damage, glyph = null) {
  * @returns {boolean}
  */
 export function glyphIsRevival(glyph = null) {
-  return glyph?.kind === "revival" && glyph.implemented !== false;
+  return Boolean(firstGlyphOfKind(glyph, "revival"));
 }
 
 /**
- * @param {GlyphDef | null | undefined} glyph
+ * @param {GlyphDef | GlyphDef[] | null | undefined} glyph
  * @returns {boolean}
  */
 export function glyphIsHero(glyph = null) {
-  return glyph?.kind === "hero" && glyph.implemented !== false;
+  return Boolean(firstGlyphOfKind(glyph, "hero"));
 }
 
 /**
- * @param {GlyphDef | null | undefined} glyph
+ * @param {GlyphDef | GlyphDef[] | null | undefined} glyph
  * @returns {{
  *   meleeOutgoingMultiplier: number,
  *   meleeDefenceMultiplier: number,
@@ -657,12 +747,13 @@ export function glyphIsHero(glyph = null) {
  * } | null}
  */
 export function glyphBattleWizardParams(glyph = null) {
-  if (glyph?.kind !== "battleWizard" || glyph.implemented === false) return null;
+  const match = firstGlyphOfKind(glyph, "battleWizard");
+  if (!match) return null;
   return {
-    meleeOutgoingMultiplier: Math.max(0, Number(glyph.params?.meleeOutgoingMultiplier) || 1.25),
-    meleeDefenceMultiplier: Math.max(0, Number(glyph.params?.meleeDefenceMultiplier) || 1.25),
-    rangedOutgoingMultiplier: Math.max(0, Number(glyph.params?.rangedOutgoingMultiplier) || 0.75),
-    rangedDefenceMultiplier: Math.max(0, Number(glyph.params?.rangedDefenceMultiplier) || 0.75),
+    meleeOutgoingMultiplier: Math.max(0, Number(match.params?.meleeOutgoingMultiplier) || 1.25),
+    meleeDefenceMultiplier: Math.max(0, Number(match.params?.meleeDefenceMultiplier) || 1.25),
+    rangedOutgoingMultiplier: Math.max(0, Number(match.params?.rangedOutgoingMultiplier) || 0.75),
+    rangedDefenceMultiplier: Math.max(0, Number(match.params?.rangedDefenceMultiplier) || 0.75),
   };
 }
 
@@ -718,9 +809,10 @@ export function applyGlyphBattleWizardDefence(defence, glyph = null, inMelee = n
  * @returns {{ dcScMultiplier: number } | null}
  */
 export function glyphMonkParams(glyph = null) {
-  if (glyph?.kind !== "monk" || glyph.implemented === false) return null;
+  const match = firstGlyphOfKind(glyph, "monk");
+  if (!match) return null;
   return {
-    dcScMultiplier: Math.max(0, Number(glyph.params?.dcScMultiplier) || 1.5),
+    dcScMultiplier: Math.max(0, Number(match.params?.dcScMultiplier) || 1.5),
   };
 }
 

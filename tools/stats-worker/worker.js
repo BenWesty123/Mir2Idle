@@ -799,7 +799,7 @@ async function upsertLeaderboardRow(env, stats, integrity) {
       rebirth_points_spent = MAX(leaderboard.rebirth_points_spent, excluded.rebirth_points_spent),
       character_levels = excluded.character_levels,
       character_stats = excluded.character_stats,
-      awakening_souls_held = MAX(leaderboard.awakening_souls_held, excluded.awakening_souls_held),
+      awakening_souls_held = excluded.awakening_souls_held,
       combined_character_levels = excluded.combined_character_levels,
       last_reason = excluded.last_reason,
       integrity_status = excluded.integrity_status,

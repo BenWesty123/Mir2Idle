@@ -955,14 +955,16 @@
           "zone-bdd-4",
           "zone-fox-cave-1",
           "zone-fox-cave-2",
-          "zone-hell-gd-3"
+          "zone-hell-gd-3",
+          "zone-namman-1"
         ],
         "chances": {
           "zone-bdd-2": 0.025,
           "zone-bdd-4": 0.025,
           "zone-hell-gd-3": 0.05,
           "zone-fox-cave-1": 0.00244,
-          "zone-fox-cave-2": 0.00325
+          "zone-fox-cave-2": 0.00325,
+          "zone-namman-1": 0.00111
         },
         "chance": 0.05
       }
@@ -1259,6 +1261,177 @@
         },
         "chance": 0.05
       }
+    },
+    {
+      "id": "beast-ring2",
+      "name": "Beast Ring",
+      "type": "ring",
+      "slot": "ring",
+      "class": "any",
+      "source": {
+        "crystalIndex": 452,
+        "name": "CraftRing2"
+      },
+      "icon": {
+        "library": "Items",
+        "frame": 1027,
+        "src": "./public/item-icons/items/frame_001027.png"
+      },
+      "requirements": {
+        "type": "level",
+        "amount": 52,
+        "classMask": 31,
+        "genderMask": 3
+      },
+      "stackable": false,
+      "maxStack": 1,
+      "stats": {
+        "ac": [
+          0,
+          0
+        ],
+        "amc": [
+          0,
+          0
+        ],
+        "dc": [
+          0,
+          10
+        ],
+        "mc": [
+          0,
+          0
+        ],
+        "sc": [
+          0,
+          0
+        ],
+        "hp": 0,
+        "mp": 0,
+        "accuracy": 0,
+        "agility": 0,
+        "luck": 0,
+        "attackSpeed": 2
+      },
+      "shop": {
+        "buy": 50000,
+        "sell": 10000
+      },
+      "crystalType": "Ring"
+    },
+    {
+      "id": "beast-ring3",
+      "name": "Beast Ring",
+      "type": "ring",
+      "slot": "ring",
+      "class": "any",
+      "source": {
+        "crystalIndex": 453,
+        "name": "CraftRing3"
+      },
+      "icon": {
+        "library": "Items",
+        "frame": 1027,
+        "src": "./public/item-icons/items/frame_001027.png"
+      },
+      "requirements": {
+        "type": "level",
+        "amount": 52,
+        "classMask": 31,
+        "genderMask": 3
+      },
+      "stackable": false,
+      "maxStack": 1,
+      "stats": {
+        "ac": [
+          0,
+          4
+        ],
+        "amc": [
+          0,
+          4
+        ],
+        "dc": [
+          0,
+          0
+        ],
+        "mc": [
+          1,
+          10
+        ],
+        "sc": [
+          0,
+          0
+        ],
+        "hp": 0,
+        "mp": 0,
+        "accuracy": 0,
+        "agility": 0,
+        "luck": 0,
+        "attackSpeed": 0
+      },
+      "shop": {
+        "buy": 50000,
+        "sell": 10000
+      },
+      "crystalType": "Ring"
+    },
+    {
+      "id": "beast-ring4",
+      "name": "Beast Ring",
+      "type": "ring",
+      "slot": "ring",
+      "class": "any",
+      "source": {
+        "crystalIndex": 454,
+        "name": "CraftRing4"
+      },
+      "icon": {
+        "library": "Items",
+        "frame": 1027,
+        "src": "./public/item-icons/items/frame_001027.png"
+      },
+      "requirements": {
+        "type": "level",
+        "amount": 52,
+        "classMask": 31,
+        "genderMask": 3
+      },
+      "stackable": false,
+      "maxStack": 1,
+      "stats": {
+        "ac": [
+          0,
+          4
+        ],
+        "amc": [
+          0,
+          4
+        ],
+        "dc": [
+          0,
+          0
+        ],
+        "mc": [
+          0,
+          0
+        ],
+        "sc": [
+          1,
+          10
+        ],
+        "hp": 0,
+        "mp": 0,
+        "accuracy": 0,
+        "agility": 0,
+        "luck": 0,
+        "attackSpeed": 0
+      },
+      "shop": {
+        "buy": 50000,
+        "sell": 10000
+      },
+      "crystalType": "Ring"
     },
     {
       "id": "benediction-oil",
@@ -6973,6 +7146,180 @@
       }
     },
     {
+      "id": "bracelet-of-agony-taoist",
+      "name": "Bracelet of Agony",
+      "type": "bracelet",
+      "slot": "bracelet",
+      "class": "taoist",
+      "source": {
+        "crystalIndex": 197,
+        "name": "BraceletOfAgony3"
+      },
+      "icon": {
+        "library": "Items",
+        "frame": 1028,
+        "src": "./public/item-icons/items/frame_001028.png"
+      },
+      "requirements": {
+        "type": "level",
+        "amount": 55,
+        "classMask": 4,
+        "genderMask": 3
+      },
+      "stackable": false,
+      "maxStack": 1,
+      "stats": {
+        "ac": [
+          0,
+          0
+        ],
+        "amc": [
+          0,
+          2
+        ],
+        "dc": [
+          1,
+          4
+        ],
+        "mc": [
+          0,
+          0
+        ],
+        "sc": [
+          2,
+          9
+        ],
+        "hp": 0,
+        "mp": 0,
+        "accuracy": 0,
+        "agility": 0,
+        "luck": 0,
+        "attackSpeed": 0
+      },
+      "shop": {
+        "buy": 0,
+        "sell": 1
+      },
+      "crystalType": "Bracelet",
+      "set": 28
+    },
+    {
+      "id": "bracelet-of-agony-warrior",
+      "name": "Bracelet of Agony",
+      "type": "bracelet",
+      "slot": "bracelet",
+      "class": "warrior",
+      "source": {
+        "crystalIndex": 195,
+        "name": "BraceletOfAgony1"
+      },
+      "icon": {
+        "library": "Items",
+        "frame": 1028,
+        "src": "./public/item-icons/items/frame_001028.png"
+      },
+      "requirements": {
+        "type": "level",
+        "amount": 55,
+        "classMask": 1,
+        "genderMask": 3
+      },
+      "stackable": false,
+      "maxStack": 1,
+      "stats": {
+        "ac": [
+          1,
+          2
+        ],
+        "amc": [
+          0,
+          0
+        ],
+        "dc": [
+          3,
+          9
+        ],
+        "mc": [
+          0,
+          0
+        ],
+        "sc": [
+          0,
+          0
+        ],
+        "hp": 0,
+        "mp": 0,
+        "accuracy": 0,
+        "agility": 0,
+        "luck": 0,
+        "attackSpeed": 0
+      },
+      "shop": {
+        "buy": 0,
+        "sell": 1
+      },
+      "crystalType": "Bracelet",
+      "set": 28
+    },
+    {
+      "id": "bracelet-of-agony-wizard",
+      "name": "Bracelet of Agony",
+      "type": "bracelet",
+      "slot": "bracelet",
+      "class": "wizard",
+      "source": {
+        "crystalIndex": 196,
+        "name": "BraceletOfAgony2"
+      },
+      "icon": {
+        "library": "Items",
+        "frame": 1028,
+        "src": "./public/item-icons/items/frame_001028.png"
+      },
+      "requirements": {
+        "type": "level",
+        "amount": 55,
+        "classMask": 2,
+        "genderMask": 3
+      },
+      "stackable": false,
+      "maxStack": 1,
+      "stats": {
+        "ac": [
+          0,
+          0
+        ],
+        "amc": [
+          1,
+          3
+        ],
+        "dc": [
+          0,
+          0
+        ],
+        "mc": [
+          3,
+          8
+        ],
+        "sc": [
+          0,
+          0
+        ],
+        "hp": 0,
+        "mp": 0,
+        "accuracy": 0,
+        "agility": 0,
+        "luck": 0,
+        "attackSpeed": 0
+      },
+      "shop": {
+        "buy": 0,
+        "sell": 1
+      },
+      "crystalType": "Bracelet",
+      "set": 28
+    },
+    {
       "id": "bracer-of-magic",
       "name": "Bracer Of Magic",
       "type": "bracelet",
@@ -8329,10 +8676,12 @@
       "crystalType": "Ring",
       "drop": {
         "zones": [
-          "zone-hell-gd-3"
+          "zone-hell-gd-3",
+          "zone-namman-1"
         ],
         "chances": {
-          "zone-hell-gd-3": 0.05
+          "zone-hell-gd-3": 0.05,
+          "zone-namman-1": 0.00111
         },
         "chance": 0.05
       }
@@ -9660,10 +10009,12 @@
       "crystalType": "Necklace",
       "drop": {
         "zones": [
-          "zone-hell-gd-3"
+          "zone-hell-gd-3",
+          "zone-namman-1"
         ],
         "chances": {
-          "zone-hell-gd-3": 0.05
+          "zone-hell-gd-3": 0.05,
+          "zone-namman-1": 0.00111
         },
         "chance": 0.05
       }
@@ -13256,6 +13607,62 @@
       "description": "Fire Wall lasts much longer."
     },
     {
+      "id": "glyph-fast-healing",
+      "name": "Glyph of Fast Healing",
+      "type": "glyph",
+      "slot": "glyph",
+      "class": "any",
+      "glyph": {
+        "modifier": "fastHealing"
+      },
+      "icon": {
+        "library": "Items",
+        "frame": 3215,
+        "src": "./public/item-icons/items/frame_003215.png"
+      },
+      "requirements": {
+        "type": "level",
+        "amount": 35,
+        "classMask": 31,
+        "genderMask": 3
+      },
+      "stackable": false,
+      "maxStack": 1,
+      "stats": {
+        "ac": [
+          0,
+          0
+        ],
+        "amc": [
+          0,
+          0
+        ],
+        "dc": [
+          0,
+          0
+        ],
+        "mc": [
+          0,
+          0
+        ],
+        "sc": [
+          0,
+          0
+        ],
+        "hp": 0,
+        "mp": 0,
+        "accuracy": 0,
+        "agility": 0,
+        "luck": 0,
+        "attackSpeed": 0
+      },
+      "shop": {
+        "buy": 0,
+        "sell": 50000
+      },
+      "description": "HP potions heal 25% faster, but restore 50% less."
+    },
+    {
       "id": "glyph-flaming-bulwark",
       "name": "Glyph of Flaming Bulwark",
       "type": "glyph",
@@ -13366,6 +13773,62 @@
         "sell": 50000
       },
       "description": "Damage done increased by 50%. Damage taken increased by 100%."
+    },
+    {
+      "id": "glyph-hero",
+      "name": "Glyph of the Hero",
+      "type": "glyph",
+      "slot": "glyph",
+      "class": "any",
+      "glyph": {
+        "modifier": "hero"
+      },
+      "icon": {
+        "library": "Items",
+        "frame": 3214,
+        "src": "./public/item-icons/items/frame_003214.png"
+      },
+      "requirements": {
+        "type": "level",
+        "amount": 35,
+        "classMask": 31,
+        "genderMask": 3
+      },
+      "stackable": false,
+      "maxStack": 1,
+      "stats": {
+        "ac": [
+          0,
+          0
+        ],
+        "amc": [
+          0,
+          0
+        ],
+        "dc": [
+          0,
+          0
+        ],
+        "mc": [
+          0,
+          0
+        ],
+        "sc": [
+          0,
+          0
+        ],
+        "hp": 0,
+        "mp": 0,
+        "accuracy": 0,
+        "agility": 0,
+        "luck": 0,
+        "attackSpeed": 0
+      },
+      "shop": {
+        "buy": 0,
+        "sell": 50000
+      },
+      "description": "You take all damage your party members would receive."
     },
     {
       "id": "glyph-infinite-mana",
@@ -13814,62 +14277,6 @@
         "sell": 50000
       },
       "description": "Damage taken decreased by 25%. Damage done decreased by 50%."
-    },
-    {
-      "id": "glyph-hero",
-      "name": "Glyph of the Hero",
-      "type": "glyph",
-      "slot": "glyph",
-      "class": "any",
-      "glyph": {
-        "modifier": "hero"
-      },
-      "icon": {
-        "library": "Items",
-        "frame": 3214,
-        "src": "./public/item-icons/items/frame_003214.png"
-      },
-      "requirements": {
-        "type": "level",
-        "amount": 35,
-        "classMask": 31,
-        "genderMask": 3
-      },
-      "stackable": false,
-      "maxStack": 1,
-      "stats": {
-        "ac": [
-          0,
-          0
-        ],
-        "amc": [
-          0,
-          0
-        ],
-        "dc": [
-          0,
-          0
-        ],
-        "mc": [
-          0,
-          0
-        ],
-        "sc": [
-          0,
-          0
-        ],
-        "hp": 0,
-        "mp": 0,
-        "accuracy": 0,
-        "agility": 0,
-        "luck": 0,
-        "attackSpeed": 0
-      },
-      "shop": {
-        "buy": 0,
-        "sell": 50000
-      },
-      "description": "You take all damage your party members would receive."
     },
     {
       "id": "glyph-twin-fury",
@@ -17217,12 +17624,14 @@
         "zones": [
           "zone-fox-cave-1",
           "zone-fox-cave-2",
-          "zone-hell-gd-3"
+          "zone-hell-gd-3",
+          "zone-namman-1"
         ],
         "chances": {
           "zone-hell-gd-3": 0.05,
           "zone-fox-cave-1": 0.00244,
-          "zone-fox-cave-2": 0.00325
+          "zone-fox-cave-2": 0.00325,
+          "zone-namman-1": 0.00111
         },
         "chance": 0.05
       }
@@ -17994,20 +18403,20 @@
       "name": "Ice Dragon Sky Knife",
       "type": "weapon",
       "slot": "weapon",
-      "class": "warrior",
+      "class": "taoist",
       "source": {
-        "crystalIndex": 1379,
-        "name": "IceDragonSkyKnife"
+        "crystalIndex": 1380,
+        "name": "IceDragonSkySword"
       },
       "icon": {
         "library": "Items",
-        "frame": 3880,
-        "src": "./public/item-icons/items/frame_003880.png"
+        "frame": 3882,
+        "src": "./public/item-icons/items/frame_003882.png"
       },
       "requirements": {
         "type": "level",
-        "amount": 65,
-        "classMask": 1,
+        "amount": 55,
+        "classMask": 4,
         "genderMask": 3
       },
       "stackable": false,
@@ -18022,20 +18431,20 @@
           0
         ],
         "dc": [
-          15,
-          65
+          9,
+          30
         ],
         "mc": [
           0,
           0
         ],
         "sc": [
-          0,
-          0
+          6,
+          16
         ],
-        "hp": 0,
+        "hp": 35,
         "mp": 0,
-        "accuracy": 1,
+        "accuracy": 0,
         "agility": 0,
         "luck": 0,
         "attackSpeed": 0
@@ -18046,7 +18455,7 @@
       },
       "visual": {
         "layer": "weapon",
-        "index": 55
+        "index": 57
       },
       "crystalType": "Weapon"
     },
@@ -18067,7 +18476,7 @@
       },
       "requirements": {
         "type": "level",
-        "amount": 65,
+        "amount": 55,
         "classMask": 2,
         "genderMask": 3
       },
@@ -18083,18 +18492,18 @@
           0
         ],
         "dc": [
-          5,
-          60
+          7,
+          24
         ],
         "mc": [
-          0,
-          25
+          6,
+          19
         ],
         "sc": [
-          8,
+          0,
           0
         ],
-        "hp": 35,
+        "hp": 25,
         "mp": 0,
         "accuracy": 0,
         "agility": 0,
@@ -18116,20 +18525,20 @@
       "name": "Ice Dragon Sky Sword",
       "type": "weapon",
       "slot": "weapon",
-      "class": "taoist",
+      "class": "warrior",
       "source": {
-        "crystalIndex": 1380,
-        "name": "IceDragonSkySword"
+        "crystalIndex": 1379,
+        "name": "IceDragonSkyKnife"
       },
       "icon": {
         "library": "Items",
-        "frame": 3882,
-        "src": "./public/item-icons/items/frame_003882.png"
+        "frame": 3880,
+        "src": "./public/item-icons/items/frame_003880.png"
       },
       "requirements": {
         "type": "level",
-        "amount": 65,
-        "classMask": 4,
+        "amount": 55,
+        "classMask": 1,
         "genderMask": 3
       },
       "stackable": false,
@@ -18144,20 +18553,20 @@
           0
         ],
         "dc": [
-          8,
-          33
+          12,
+          66
         ],
         "mc": [
           0,
           0
         ],
         "sc": [
-          7,
-          23
+          0,
+          0
         ],
-        "hp": 45,
+        "hp": 0,
         "mp": 0,
-        "accuracy": 0,
+        "accuracy": 2,
         "agility": 0,
         "luck": 0,
         "attackSpeed": 0
@@ -18168,7 +18577,7 @@
       },
       "visual": {
         "layer": "weapon",
-        "index": 57
+        "index": 55
       },
       "crystalType": "Weapon"
     },
@@ -19328,10 +19737,12 @@
       "crystalType": "Necklace",
       "drop": {
         "zones": [
-          "zone-hell-gd-3"
+          "zone-hell-gd-3",
+          "zone-namman-1"
         ],
         "chances": {
-          "zone-hell-gd-3": 0.05
+          "zone-hell-gd-3": 0.05,
+          "zone-namman-1": 0.00111
         },
         "chance": 0.05
       }
@@ -23049,6 +23460,180 @@
       "crystalType": "Necklace"
     },
     {
+      "id": "necklace-of-agony-taoist",
+      "name": "Necklace of Agony",
+      "type": "necklace",
+      "slot": "necklace",
+      "class": "taoist",
+      "source": {
+        "crystalIndex": 185,
+        "name": "NecklaceOfAgony3"
+      },
+      "icon": {
+        "library": "Items",
+        "frame": 1018,
+        "src": "./public/item-icons/items/frame_001018.png"
+      },
+      "requirements": {
+        "type": "level",
+        "amount": 55,
+        "classMask": 4,
+        "genderMask": 3
+      },
+      "stackable": false,
+      "maxStack": 1,
+      "stats": {
+        "ac": [
+          0,
+          0
+        ],
+        "amc": [
+          0,
+          0
+        ],
+        "dc": [
+          1,
+          3
+        ],
+        "mc": [
+          0,
+          0
+        ],
+        "sc": [
+          2,
+          12
+        ],
+        "hp": 0,
+        "mp": 0,
+        "accuracy": 0,
+        "agility": 0,
+        "luck": 0,
+        "attackSpeed": 0
+      },
+      "shop": {
+        "buy": 0,
+        "sell": 1
+      },
+      "crystalType": "Necklace",
+      "set": 28
+    },
+    {
+      "id": "necklace-of-agony-warrior",
+      "name": "Necklace of Agony",
+      "type": "necklace",
+      "slot": "necklace",
+      "class": "warrior",
+      "source": {
+        "crystalIndex": 183,
+        "name": "NecklaceOfAgony1"
+      },
+      "icon": {
+        "library": "Items",
+        "frame": 1018,
+        "src": "./public/item-icons/items/frame_001018.png"
+      },
+      "requirements": {
+        "type": "level",
+        "amount": 55,
+        "classMask": 1,
+        "genderMask": 3
+      },
+      "stackable": false,
+      "maxStack": 1,
+      "stats": {
+        "ac": [
+          0,
+          0
+        ],
+        "amc": [
+          0,
+          0
+        ],
+        "dc": [
+          4,
+          12
+        ],
+        "mc": [
+          0,
+          0
+        ],
+        "sc": [
+          0,
+          0
+        ],
+        "hp": 0,
+        "mp": 0,
+        "accuracy": 0,
+        "agility": 0,
+        "luck": 0,
+        "attackSpeed": 0
+      },
+      "shop": {
+        "buy": 0,
+        "sell": 1
+      },
+      "crystalType": "Necklace",
+      "set": 28
+    },
+    {
+      "id": "necklace-of-agony-wizard",
+      "name": "Necklace of Agony",
+      "type": "necklace",
+      "slot": "necklace",
+      "class": "wizard",
+      "source": {
+        "crystalIndex": 184,
+        "name": "NecklaceOfAgony2"
+      },
+      "icon": {
+        "library": "Items",
+        "frame": 1018,
+        "src": "./public/item-icons/items/frame_001018.png"
+      },
+      "requirements": {
+        "type": "level",
+        "amount": 55,
+        "classMask": 2,
+        "genderMask": 3
+      },
+      "stackable": false,
+      "maxStack": 1,
+      "stats": {
+        "ac": [
+          0,
+          0
+        ],
+        "amc": [
+          0,
+          0
+        ],
+        "dc": [
+          0,
+          0
+        ],
+        "mc": [
+          3,
+          12
+        ],
+        "sc": [
+          0,
+          0
+        ],
+        "hp": 0,
+        "mp": 0,
+        "accuracy": 0,
+        "agility": 0,
+        "luck": 0,
+        "attackSpeed": 0
+      },
+      "shop": {
+        "buy": 0,
+        "sell": 1
+      },
+      "crystalType": "Necklace",
+      "set": 28
+    },
+    {
       "id": "nephrite-bracelet",
       "name": "Nephrite Bracelet",
       "type": "bracelet",
@@ -26564,6 +27149,192 @@
       "crystalType": "Weapon"
     },
     {
+      "id": "raw-sword1",
+      "name": "Raw Sword",
+      "type": "weapon",
+      "slot": "weapon",
+      "class": "warrior",
+      "source": {
+        "crystalIndex": 267,
+        "name": "RawSword"
+      },
+      "icon": {
+        "library": "Items",
+        "frame": 1155,
+        "src": "./public/item-icons/items/frame_001155.png"
+      },
+      "requirements": {
+        "type": "level",
+        "amount": 52,
+        "classMask": 1,
+        "genderMask": 3
+      },
+      "stackable": false,
+      "maxStack": 1,
+      "stats": {
+        "ac": [
+          0,
+          0
+        ],
+        "amc": [
+          0,
+          0
+        ],
+        "dc": [
+          8,
+          55
+        ],
+        "mc": [
+          0,
+          0
+        ],
+        "sc": [
+          0,
+          0
+        ],
+        "hp": 0,
+        "mp": 0,
+        "accuracy": 0,
+        "agility": 0,
+        "luck": 0,
+        "attackSpeed": 0,
+        "goldBonusPercent": 100
+      },
+      "shop": {
+        "buy": 250000,
+        "sell": 50000
+      },
+      "visual": {
+        "layer": "weapon",
+        "index": 47
+      },
+      "crystalType": "Weapon"
+    },
+    {
+      "id": "raw-sword2",
+      "name": "Raw Sword",
+      "type": "weapon",
+      "slot": "weapon",
+      "class": "wizard",
+      "source": {
+        "crystalIndex": 267,
+        "name": "RawSword"
+      },
+      "icon": {
+        "library": "Items",
+        "frame": 1155,
+        "src": "./public/item-icons/items/frame_001155.png"
+      },
+      "requirements": {
+        "type": "level",
+        "amount": 52,
+        "classMask": 2,
+        "genderMask": 3
+      },
+      "stackable": false,
+      "maxStack": 1,
+      "stats": {
+        "ac": [
+          0,
+          0
+        ],
+        "amc": [
+          0,
+          0
+        ],
+        "dc": [
+          6,
+          18
+        ],
+        "mc": [
+          5,
+          15
+        ],
+        "sc": [
+          0,
+          0
+        ],
+        "hp": 0,
+        "mp": 0,
+        "accuracy": 0,
+        "agility": 0,
+        "luck": 0,
+        "attackSpeed": 0,
+        "goldBonusPercent": 100
+      },
+      "shop": {
+        "buy": 250000,
+        "sell": 50000
+      },
+      "visual": {
+        "layer": "weapon",
+        "index": 47
+      },
+      "crystalType": "Weapon"
+    },
+    {
+      "id": "raw-sword3",
+      "name": "Raw Sword",
+      "type": "weapon",
+      "slot": "weapon",
+      "class": "taoist",
+      "source": {
+        "crystalIndex": 267,
+        "name": "RawSword"
+      },
+      "icon": {
+        "library": "Items",
+        "frame": 1155,
+        "src": "./public/item-icons/items/frame_001155.png"
+      },
+      "requirements": {
+        "type": "level",
+        "amount": 52,
+        "classMask": 4,
+        "genderMask": 3
+      },
+      "stackable": false,
+      "maxStack": 1,
+      "stats": {
+        "ac": [
+          0,
+          0
+        ],
+        "amc": [
+          0,
+          0
+        ],
+        "dc": [
+          8,
+          25
+        ],
+        "mc": [
+          0,
+          0
+        ],
+        "sc": [
+          4,
+          12
+        ],
+        "hp": 0,
+        "mp": 0,
+        "accuracy": 0,
+        "agility": 0,
+        "luck": 0,
+        "attackSpeed": 0,
+        "goldBonusPercent": 100
+      },
+      "shop": {
+        "buy": 250000,
+        "sell": 50000
+      },
+      "visual": {
+        "layer": "weapon",
+        "index": 47
+      },
+      "crystalType": "Weapon"
+    },
+    {
       "id": "recovery-ring",
       "name": "Recovery Ring",
       "type": "ring",
@@ -26809,10 +27580,12 @@
       "crystalType": "Ring",
       "drop": {
         "zones": [
-          "zone-hell-gd-3"
+          "zone-hell-gd-3",
+          "zone-namman-1"
         ],
         "chances": {
-          "zone-hell-gd-3": 0.05
+          "zone-hell-gd-3": 0.05,
+          "zone-namman-1": 0.00111
         },
         "chance": 0.05
       }
@@ -27248,6 +28021,180 @@
         },
         "chance": 0.05
       }
+    },
+    {
+      "id": "ring-of-agony-taoist",
+      "name": "Ring of Agony",
+      "type": "ring",
+      "slot": "ring",
+      "class": "taoist",
+      "source": {
+        "crystalIndex": 191,
+        "name": "RingOfAgony3"
+      },
+      "icon": {
+        "library": "Items",
+        "frame": 1027,
+        "src": "./public/item-icons/items/frame_001027.png"
+      },
+      "requirements": {
+        "type": "level",
+        "amount": 55,
+        "classMask": 4,
+        "genderMask": 3
+      },
+      "stackable": false,
+      "maxStack": 1,
+      "stats": {
+        "ac": [
+          0,
+          0
+        ],
+        "amc": [
+          0,
+          0
+        ],
+        "dc": [
+          0,
+          0
+        ],
+        "mc": [
+          0,
+          0
+        ],
+        "sc": [
+          2,
+          12
+        ],
+        "hp": 0,
+        "mp": 0,
+        "accuracy": 0,
+        "agility": 0,
+        "luck": 0,
+        "attackSpeed": 0
+      },
+      "shop": {
+        "buy": 0,
+        "sell": 1
+      },
+      "crystalType": "Ring",
+      "set": 28
+    },
+    {
+      "id": "ring-of-agony-warrior",
+      "name": "Ring of Agony",
+      "type": "ring",
+      "slot": "ring",
+      "class": "warrior",
+      "source": {
+        "crystalIndex": 189,
+        "name": "RingOfAgony1"
+      },
+      "icon": {
+        "library": "Items",
+        "frame": 1027,
+        "src": "./public/item-icons/items/frame_001027.png"
+      },
+      "requirements": {
+        "type": "level",
+        "amount": 55,
+        "classMask": 1,
+        "genderMask": 3
+      },
+      "stackable": false,
+      "maxStack": 1,
+      "stats": {
+        "ac": [
+          0,
+          0
+        ],
+        "amc": [
+          0,
+          0
+        ],
+        "dc": [
+          2,
+          16
+        ],
+        "mc": [
+          0,
+          0
+        ],
+        "sc": [
+          0,
+          0
+        ],
+        "hp": 0,
+        "mp": 0,
+        "accuracy": 0,
+        "agility": 0,
+        "luck": 0,
+        "attackSpeed": 0
+      },
+      "shop": {
+        "buy": 0,
+        "sell": 1
+      },
+      "crystalType": "Ring",
+      "set": 28
+    },
+    {
+      "id": "ring-of-agony-wizard",
+      "name": "Ring of Agony",
+      "type": "ring",
+      "slot": "ring",
+      "class": "wizard",
+      "source": {
+        "crystalIndex": 190,
+        "name": "RingOfAgony2"
+      },
+      "icon": {
+        "library": "Items",
+        "frame": 1027,
+        "src": "./public/item-icons/items/frame_001027.png"
+      },
+      "requirements": {
+        "type": "level",
+        "amount": 55,
+        "classMask": 2,
+        "genderMask": 3
+      },
+      "stackable": false,
+      "maxStack": 1,
+      "stats": {
+        "ac": [
+          0,
+          0
+        ],
+        "amc": [
+          0,
+          0
+        ],
+        "dc": [
+          0,
+          0
+        ],
+        "mc": [
+          2,
+          15
+        ],
+        "sc": [
+          0,
+          0
+        ],
+        "hp": 0,
+        "mp": 0,
+        "accuracy": 0,
+        "agility": 0,
+        "luck": 0,
+        "attackSpeed": 0
+      },
+      "shop": {
+        "buy": 0,
+        "sell": 1
+      },
+      "crystalType": "Ring",
+      "set": 28
     },
     {
       "id": "royal-armour",
@@ -30888,14 +31835,16 @@
           "zone-bdd-4",
           "zone-fox-cave-1",
           "zone-fox-cave-2",
-          "zone-hell-gd-3"
+          "zone-hell-gd-3",
+          "zone-namman-1"
         ],
         "chances": {
           "zone-bdd-2": 0.025,
           "zone-bdd-4": 0.025,
           "zone-hell-gd-3": 0.05,
           "zone-fox-cave-1": 0.00244,
-          "zone-fox-cave-2": 0.00325
+          "zone-fox-cave-2": 0.00325,
+          "zone-namman-1": 0.00111
         },
         "chance": 0.05
       }
@@ -34182,14 +35131,16 @@
           "zone-bdd-4",
           "zone-fox-cave-1",
           "zone-fox-cave-2",
-          "zone-hell-gd-3"
+          "zone-hell-gd-3",
+          "zone-namman-1"
         ],
         "chances": {
           "zone-bdd-2": 0.025,
           "zone-bdd-4": 0.025,
           "zone-hell-gd-3": 0.05,
           "zone-fox-cave-1": 0.00244,
-          "zone-fox-cave-2": 0.00325
+          "zone-fox-cave-2": 0.00325,
+          "zone-namman-1": 0.00111
         },
         "chance": 0.05
       }
@@ -34675,10 +35626,12 @@
       "crystalType": "Necklace",
       "drop": {
         "zones": [
-          "zone-hell-gd-3"
+          "zone-hell-gd-3",
+          "zone-namman-1"
         ],
         "chances": {
-          "zone-hell-gd-3": 0.05
+          "zone-hell-gd-3": 0.05,
+          "zone-namman-1": 0.00111
         },
         "chance": 0.05
       }

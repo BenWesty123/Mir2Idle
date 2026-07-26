@@ -103,6 +103,60 @@ export function rollBonusBossDropItem(
 }
 
 /**
+ * @param {{ items?: { id: string, chance: number }[] } | null | undefined} dropTable
+ * @param {string} itemId
+ * @returns {{ benedictionOils?: number, items?: { id: string, chance: number }[] } | null | undefined}
+ */
+export function omitBossDropTableItem(dropTable, itemId) {
+  if (!dropTable || !itemId) return dropTable;
+  const items = Array.isArray(dropTable.items) ? dropTable.items : [];
+  const filtered = items.filter((entry) => entry?.id !== itemId);
+  if (filtered.length === items.length) return dropTable;
+  return { ...dropTable, items: filtered };
+}
+
+/**
+ * @param {{ items?: { id: string, chance: number }[] } | null | undefined} dropTable
+ * @param {string} itemId
+ * @returns {number}
+ */
+export function bossDropTableItemChance(dropTable, itemId) {
+  if (!dropTable || !itemId) return 0;
+  const items = Array.isArray(dropTable.items) ? dropTable.items : [];
+  const entry = items.find((row) => row?.id === itemId);
+  return Math.max(0, Number(entry?.chance) || 0);
+}
+
+/**
+ * How many independent Awakening Soul chance rolls a boss kill gets.
+ * Normal 1 / Empowered 2 / Ascended 3.
+ * @param {{ empowered?: boolean, ascended?: boolean }} [options]
+ * @returns {number}
+ */
+export function awakeningSoulBossDropRollCount({ empowered = false, ascended = false } = {}) {
+  if (ascended) return 3;
+  if (empowered) return 2;
+  return 1;
+}
+
+/**
+ * @param {number} chance
+ * @param {number} rollCount
+ * @param {() => number} [rng]
+ * @returns {number}
+ */
+export function countIndependentChanceHits(chance, rollCount, rng = Math.random) {
+  const p = Math.max(0, Math.min(1, Number(chance) || 0));
+  const n = Math.max(0, Math.trunc(Number(rollCount) || 0));
+  if (p <= 0 || n <= 0) return 0;
+  let hits = 0;
+  for (let i = 0; i < n; i += 1) {
+    if (rng() < p) hits += 1;
+  }
+  return hits;
+}
+
+/**
  * @param {{ benedictionOils?: number, items?: { id: string, chance: number }[] } | null | undefined} dropTable
  * @param {() => number} [rng]
  * @returns {{ oilCount: number, itemIds: string[] }}

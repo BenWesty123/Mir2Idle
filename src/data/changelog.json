@@ -1,6 +1,14 @@
 {
   "entries": [
     {
+      "id": "2026-07-26-glyph-fast-healing",
+      "date": "2026-07-26",
+      "title": "Glyph of Fast Healing",
+      "highlights": [
+        "Added Glyph of Fast Healing — HP potions heal 25% faster but restore 50% less (all classes)."
+      ]
+    },
+    {
       "id": "2026-07-21-account-gold-ui",
       "date": "2026-07-21",
       "title": "Shared gold, UI & Options",

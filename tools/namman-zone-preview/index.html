@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Namman zone floor preview (game renderer)</title>
+<style>
+:root{--bg:#12100c;--panel:#1e1a14;--ink:#e8e0d0;--muted:#9a8f7a;--accent:#c4a35a;--lane:#6b9e4a}
+*{box-sizing:border-box}
+body{margin:0;font:14px/1.4 "Segoe UI",Tahoma,sans-serif;color:var(--ink);background:var(--bg)}
+header{padding:12px 16px;border-bottom:1px solid #3a3328;display:flex;flex-wrap:wrap;gap:10px 16px;align-items:center;justify-content:space-between}
+header h1{margin:0;font-size:17px}
+header p{margin:0;color:var(--muted);font-size:13px}
+a{color:var(--accent)}
+.actions{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+button,select,input[type=range],input[type=number]{background:#332b20;color:var(--ink);border:1px solid #4a4032;border-radius:6px;padding:6px 10px;font:inherit}
+button{cursor:pointer}
+button:hover{border-color:var(--accent)}
+button.primary{background:#4a3c22;border-color:var(--accent);color:#ffe9b0}
+main{padding:16px;display:grid;gap:14px}
+.panel{background:var(--panel);border:1px solid #3a3328;border-radius:10px;padding:12px}
+.panel h2{margin:0 0 8px;font-size:12px;text-transform:uppercase;letter-spacing:.08em;color:var(--muted)}
+.toolbar{display:flex;flex-wrap:wrap;gap:10px 14px;align-items:center;margin-bottom:10px}
+.toolbar label{display:flex;gap:6px;align-items:center;color:var(--muted);font-size:13px}
+.stage-wrap{overflow:auto;border:1px solid #3a3328;border-radius:8px;background:#0a0907;padding:8px}
+canvas#stage{display:block;image-rendering:pixelated;border-radius:4px;background:#1a1510}
+.hint{color:var(--muted);font-size:12px;margin:8px 0 0}
+.status{color:var(--muted);font-size:12px;min-height:1.2em}
+.status.ok{color:#b6e08a}
+.export{width:100%;min-height:100px;font:12px/1.4 ui-monospace,Consolas,monospace;background:#120f0c;color:#d8cfbe;border:1px solid #3a3328;border-radius:8px;padding:10px}
+.legend{display:flex;flex-wrap:wrap;gap:8px;margin-top:8px}
+.legend span{font-size:12px;color:var(--muted);border:1px solid #4a4032;border-radius:999px;padding:2px 8px}
+.legend .lane{border-color:var(--lane);color:#b6e08a}
+</style>
+</head>
+<body>
+<header>
+  <div>
+    <h1>Namman zone preview</h1>
+    <p>Same floor draw path as the game (anchor 2x2 + top-fill + tile offsets). Not the simplified strip editor. <a href="../namman-floor-editor/">Pattern editor</a></p>
+  </div>
+  <div class="actions">
+    <button type="button" id="btnReload">Reload assets</button>
+    <button type="button" class="primary" id="btnCopyDiag">Copy debug rows</button>
+  </div>
+</header>
+<main>
+  <div class="panel">
+    <h2>Viewport (matches zone stage)</h2>
+    <div class="toolbar">
+      <label>Width <input type="number" id="stageW" min="480" max="1400" value="780" /></label>
+      <label>Height <input type="number" id="stageH" min="360" max="900" value="500" /></label>
+      <label>Camera X <input type="range" id="cameraX" min="0" max="2000" value="0" style="width:180px" /><span id="cameraXVal">0</span></label>
+      <label><input type="checkbox" id="showDecor" checked /> decorations</label>
+      <label><input type="checkbox" id="showOverlay" checked /> lane / row overlay</label>
+      <label><input type="checkbox" id="showPlayer" checked /> player marker</label>
+    </div>
+    <div class="stage-wrap"><canvas id="stage" width="780" height="500"></canvas></div>
+    <div class="legend">
+      <span class="lane">green line = walk lane (LANE.y)</span>
+      <span>cyan numbers = pattern row used at that anchor</span>
+      <span>below lane = mixed sand fill (not a stamp of the walk-lane row)</span>
+    </div>
+    <p class="status" id="status"></p>
+  </div>
+  <div class="panel">
+    <h2>Pattern in use (from this preview — edit in floor editor, then paste here)</h2>
+    <p class="hint">Paste a NAMMAN_TILE_PATTERN array to live-test without rebuilding. Leave as-is to use the current zone default shipped in this page.</p>
+    <textarea class="export" id="patternText"></textarea>
+    <div class="toolbar" style="margin-top:8px">
+      <button type="button" id="btnApplyPattern">Apply pattern text</button>
+      <button type="button" id="btnResetPattern">Reset to zone default</button>
+    </div>
+  </div>
+  <div class="panel">
+    <h2>Anchor → pattern row (game mapping)</h2>
+    <pre class="export" id="diag" style="min-height:80px"></pre>
+  </div>
+</main>
+<script src="./preview.js"></script>
+</body>
+</html>

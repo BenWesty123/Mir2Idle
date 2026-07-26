@@ -282,6 +282,7 @@ export function incomingAttackDefenceStat(target, defenceType) {
  * @param {string} [options.rangedAttackDefenceType]
  * @param {(min: number, max: number) => number} [options.randomIntFn]
  * @param {number} [options.resistWeight]
+ * @param {boolean} [options.forceHit] Skip accuracy vs agility (e.g. Hell Bomb detonation).
  * @returns {{ hit: boolean, damage: number }}
  */
 export function resolveIncomingEnemyAttack(attacker, target, options = {}) {
@@ -298,7 +299,11 @@ export function resolveIncomingEnemyAttack(attacker, target, options = {}) {
   ) {
     return { hit: false, damage: 0 };
   }
-  if (defenceType !== "MAC" && !rollHit(attacker.accuracy ?? 0, target.agility ?? 0, randomIntFn)) {
+  if (
+    !options.forceHit
+    && defenceType !== "MAC"
+    && !rollHit(attacker.accuracy ?? 0, target.agility ?? 0, randomIntFn)
+  ) {
     return { hit: false, damage: 0 };
   }
 

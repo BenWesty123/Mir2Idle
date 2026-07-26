@@ -2,6 +2,7 @@ import test from "node:test";
 import assert from "node:assert/strict";
 import {
   ARMOUR_EMPOWER_ROLL_DEFS,
+  ASCEND_TIER_WEIGHTS,
   BELT_BOOT_EMPOWER_ROLL_DEFS,
   BOSS_EMPOWER_ITEM_CHANCE,
   BRACELET_EMPOWER_ROLL_DEFS,
@@ -24,7 +25,10 @@ import {
   applyEmpowerSpellRoll,
   applyEquippedPetHealthBonus,
   applyEquippedPetDamageReduction,
+  applyEquippedPotionRestoreBonus,
   applyEquippedSpellDamageBonus,
+  equippedPotionRestoreBonusPercent,
+  POTION_RESTORE_BONUS_CAP_PERCENT,
   applyEquippedSpellCooldownReductionMs,
   applyEquippedSpellHealingBonus,
   applyEquippedSpellMpCostReduction,
@@ -271,6 +275,38 @@ test("rollEmpowerTier: respects weight table", () => {
   assert.equal(rollEmpowerTier(EMPOWER_TIER_WEIGHTS, () => 0.61), 2);
   assert.equal(rollEmpowerTier(EMPOWER_TIER_WEIGHTS, () => 0.91), 3);
   assert.equal(rollEmpowerTier(EMPOWER_TIER_WEIGHTS, () => 0.99), 4);
+});
+
+test("ASCEND_TIER_WEIGHTS: 50% / 35% / 10% / 5%", () => {
+  assert.deepEqual(ASCEND_TIER_WEIGHTS, [
+    { tier: 1, weight: 50 },
+    { tier: 2, weight: 35 },
+    { tier: 3, weight: 10 },
+    { tier: 4, weight: 5 },
+  ]);
+  assert.equal(rollEmpowerTier(ASCEND_TIER_WEIGHTS, () => 0), 1);
+  assert.equal(rollEmpowerTier(ASCEND_TIER_WEIGHTS, () => 0.49), 1);
+  assert.equal(rollEmpowerTier(ASCEND_TIER_WEIGHTS, () => 0.51), 2);
+  assert.equal(rollEmpowerTier(ASCEND_TIER_WEIGHTS, () => 0.84), 2);
+  assert.equal(rollEmpowerTier(ASCEND_TIER_WEIGHTS, () => 0.86), 3);
+  assert.equal(rollEmpowerTier(ASCEND_TIER_WEIGHTS, () => 0.94), 3);
+  assert.equal(rollEmpowerTier(ASCEND_TIER_WEIGHTS, () => 0.96), 4);
+});
+
+test("rollEmpoweredItemDrop: Ascended tierWeights bias higher stars", () => {
+  // rng: first call = itemChance (force success), second = tier roll into 4★ band
+  let n = 0;
+  const rng = () => {
+    n += 1;
+    if (n === 1) return 0;
+    if (n === 2) return 0.96;
+    return 0;
+  };
+  const result = rollEmpoweredItemDrop(UNIVERSAL_WEAPON, rng, {
+    itemChance: 1,
+    tierWeights: ASCEND_TIER_WEIGHTS,
+  });
+  assert.equal(result?.empowerTier, 4);
 });
 
 test("pickEmpowerRollsWithoutReplacement: no duplicate stat keys", () => {
@@ -885,6 +921,68 @@ test("max crit-chance empower on every worn slot sums to exactly 100%", () => {
   assert.equal(total, 100);
 });
 
+test("potion-restore empower rolls on armour/helmet/belt/boots only and caps at 100%", () => {
+  assert.ok(GLOBAL_EMPOWER_KEYS.has("potionRestoreBonusPercent"));
+  assert.equal(POTION_RESTORE_BONUS_CAP_PERCENT, 100);
+
+  for (const [slot, table] of [
+    ["armour", ARMOUR_EMPOWER_ROLL_DEFS],
+    ["helmet", HELMET_EMPOWER_ROLL_DEFS],
+    ["belt", BELT_BOOT_EMPOWER_ROLL_DEFS],
+    ["boots", BELT_BOOT_EMPOWER_ROLL_DEFS],
+  ]) {
+    assert.ok(table.some((roll) => roll.key === "potionRestoreBonusPercent"), `${slot} table`);
+    const keys = empowerCandidateRolls({ slot, stats: {} }).map((roll) => roll.key);
+    assert.ok(keys.includes("potionRestoreBonusPercent"), `${slot} candidates`);
+  }
+  for (const [slot, table] of [
+    ["weapon", WEAPON_EMPOWER_ROLL_DEFS],
+    ["bracelet", BRACELET_EMPOWER_ROLL_DEFS],
+    ["ring", RING_EMPOWER_ROLL_DEFS],
+    ["stone", STONE_EMPOWER_ROLL_DEFS],
+  ]) {
+    assert.equal(table.some((roll) => roll.key === "potionRestoreBonusPercent"), false, `${slot} table`);
+    const keys = empowerCandidateRolls({ slot, stats: {} }).map((roll) => roll.key);
+    assert.equal(keys.includes("potionRestoreBonusPercent"), false, `${slot} candidates`);
+  }
+
+  assert.equal(empowerBasePool(HEAVY_ARMOUR).map((r) => r.key).includes("potionRestoreBonusPercent"), false);
+  assert.ok(empowerBonusPool(HEAVY_ARMOUR).map((r) => r.key).includes("potionRestoreBonusPercent"));
+
+  const maxPotion = (table) => table.find((r) => r.key === "potionRestoreBonusPercent").max;
+  const maxWorn = maxPotion(ARMOUR_EMPOWER_ROLL_DEFS)
+    + maxPotion(HELMET_EMPOWER_ROLL_DEFS)
+    + maxPotion(BELT_BOOT_EMPOWER_ROLL_DEFS) * 2;
+  assert.equal(maxWorn, 100);
+
+  assert.equal(
+    formatEmpowerRollDescription({ key: "potionRestoreBonusPercent", range: false, min: 5, max: 35, step: 5 }),
+    "+5–35% Potion restore",
+  );
+  assert.deepEqual(
+    empowerBonusStatLines({ potionRestoreBonusPercent: 25 }),
+    ["+25% Potion restore"],
+  );
+
+  const inventory = {
+    equipment: { armour: "a1", helmet: "h1", belt: "b1", boots: "t1" },
+    items: [
+      { id: "a1", empowerBonusStats: { potionRestoreBonusPercent: 35 } },
+      { id: "h1", empowerBonusStats: { potionRestoreBonusPercent: 25 } },
+      { id: "b1", empowerBonusStats: { potionRestoreBonusPercent: 20 } },
+      { id: "t1", empowerBonusStats: { potionRestoreBonusPercent: 20 } },
+      { id: "bag", empowerBonusStats: { potionRestoreBonusPercent: 99 } },
+    ],
+  };
+  assert.equal(equippedPotionRestoreBonusPercent(inventory), 100);
+  assert.equal(applyEquippedPotionRestoreBonus(100, inventory), 200);
+  assert.equal(applyEquippedPotionRestoreBonus(50, {
+    equipment: { armour: "a1" },
+    items: [{ id: "a1", empowerBonusStats: { potionRestoreBonusPercent: 50 } }],
+  }), 75);
+  assert.equal(applyEquippedPotionRestoreBonus(100, { equipment: {}, items: [] }), 100);
+});
+
 test("skill-leveling empower is global, rolls on every worn slot, sums to ~200%", () => {
   assert.ok(GLOBAL_EMPOWER_KEYS.has("skillLevelBonusPercent"));
 
@@ -1104,6 +1202,8 @@ test("empowerCandidateRolls: wizard weapons include wizard spell empower rolls",
   assert.ok(rolls.some((roll) => roll.spellId === "FrostCrunch" && roll.kind === "damagePercent"));
   assert.ok(rolls.some((roll) => roll.spellId === "MeteorStrike" && roll.kind === "manaCostPercent"));
   assert.ok(rolls.some((roll) => roll.spellId === "Blizzard" && roll.kind === "manaCostPercent"));
+  assert.ok(rolls.some((roll) => roll.spellId === "MeteorStrike" && roll.kind === "cooldownReductionSeconds"));
+  assert.ok(rolls.some((roll) => roll.spellId === "Blizzard" && roll.kind === "cooldownReductionSeconds"));
   assert.equal(rolls.filter((roll) => roll.spellId).length, MC_WEAPON_SPELL_EMPOWER_ROLL_DEFS.length);
 });
 
@@ -1128,6 +1228,7 @@ test("empowerCandidateRolls: tao weapons include tao spell empower rolls", () =>
   assert.ok(rolls.some((roll) => roll.spellId === "SoulFireBall" && roll.kind === "damagePercent"));
   assert.ok(rolls.some((roll) => roll.spellId === "SummonSkeleton" && roll.kind === "damagePercent"));
   assert.ok(rolls.some((roll) => roll.spellId === "SummonShinsu" && roll.kind === "damagePercent"));
+  assert.ok(rolls.some((roll) => roll.spellId === "PoisonCloud" && roll.kind === "cooldownReductionSeconds"));
   assert.equal(rolls.filter((roll) => roll.spellId).length, SC_WEAPON_SPELL_EMPOWER_ROLL_DEFS.length);
 });
 
@@ -1279,16 +1380,36 @@ test("applyEmpowerSpellRoll: Flaming Sword cooldown rolls 1-5 seconds", () => {
   assert.equal(applyEmpowerSpellRoll({}, roll, () => 0.999), 5);
 });
 
+test("applyEmpowerSpellRoll: Blizzard / Meteor Strike / Poison Cloud cooldown rolls 1-5 seconds", () => {
+  for (const [defs, key, spellId] of [
+    [MC_WEAPON_SPELL_EMPOWER_ROLL_DEFS, "spell:Blizzard:cooldown", "Blizzard"],
+    [MC_WEAPON_SPELL_EMPOWER_ROLL_DEFS, "spell:MeteorStrike:cooldown", "MeteorStrike"],
+    [SC_WEAPON_SPELL_EMPOWER_ROLL_DEFS, "spell:PoisonCloud:cooldown", "PoisonCloud"],
+  ]) {
+    const roll = defs.find((row) => row.key === key);
+    const bonuses = {};
+    assert.equal(applyEmpowerSpellRoll(bonuses, roll, () => 0), 1, key);
+    assert.equal(bonuses[spellId].cooldownReductionSeconds, 1, key);
+    assert.equal(applyEmpowerSpellRoll({}, roll, () => 0.999), 5, key);
+  }
+});
+
 test("applyEquippedSpellCooldownReductionMs: subtracts equipped seconds", () => {
   const inventory = {
     equipment: { weapon: "entry-1" },
     items: [{
       id: "entry-1",
-      empowerSpellBonuses: { FlamingSword: { cooldownReductionSeconds: 3 } },
+      empowerSpellBonuses: {
+        FlamingSword: { cooldownReductionSeconds: 3 },
+        Blizzard: { cooldownReductionSeconds: 4 },
+        PoisonCloud: { cooldownReductionSeconds: 5 },
+      },
     }],
   };
   assert.equal(equippedSpellCooldownReductionSeconds("FlamingSword", inventory), 3);
   assert.equal(applyEquippedSpellCooldownReductionMs("FlamingSword", 10000, inventory), 7000);
+  assert.equal(applyEquippedSpellCooldownReductionMs("Blizzard", 15000, inventory), 11000);
+  assert.equal(applyEquippedSpellCooldownReductionMs("PoisonCloud", 18000, inventory), 13000);
   assert.equal(applyEquippedSpellCooldownReductionMs("Slaying", 10000, inventory), 10000);
 });
 
@@ -1398,6 +1519,18 @@ test("formatEmpowerRollDescription: formats stat and spell rolls", () => {
     formatEmpowerRollDescription(WARRIOR_WEAPON_SKILL_EMPOWER_ROLL_DEFS.find((row) => row.key === "skill:FlamingSword:cooldown")),
     "Reduce Flaming Sword cooldown by 1–5 seconds",
   );
+  assert.equal(
+    formatEmpowerRollDescription(MC_WEAPON_SPELL_EMPOWER_ROLL_DEFS.find((row) => row.key === "spell:Blizzard:cooldown")),
+    "Reduce Blizzard cooldown by 1–5 seconds",
+  );
+  assert.equal(
+    formatEmpowerRollDescription(MC_WEAPON_SPELL_EMPOWER_ROLL_DEFS.find((row) => row.key === "spell:MeteorStrike:cooldown")),
+    "Reduce Meteor Strike cooldown by 1–5 seconds",
+  );
+  assert.equal(
+    formatEmpowerRollDescription(SC_WEAPON_SPELL_EMPOWER_ROLL_DEFS.find((row) => row.key === "spell:PoisonCloud:cooldown")),
+    "Reduce Poison Cloud cooldown by 1–5 seconds",
+  );
 });
 
 test("empowerRollDescriptionsForItem: warrior weapon includes skill rolls", () => {
@@ -1412,6 +1545,7 @@ test("empowerRollDescriptionsForItem: tao weapon includes spell rolls", () => {
   const lines = empowerRollDescriptionsForItem(TAO_WEAPON);
   assert.ok(lines.includes("Increase Healing healing by 5–25%"));
   assert.ok(lines.includes("Increase Skeleton damage by 10–50%"));
+  assert.ok(lines.includes("Reduce Poison Cloud cooldown by 1–5 seconds"));
   assert.ok(lines.includes("+1–3 SC"));
   assert.equal(lines.includes("+1–3 MC"), false);
 });
@@ -1421,6 +1555,8 @@ test("empowerRollDescriptionsForItem: wizard weapon includes spell rolls", () =>
   assert.ok(lines.includes("Increase Flame Disruptor damage by 10–35%"));
   assert.ok(lines.includes("Increase Fire Wall damage by 5–25%"));
   assert.ok(lines.includes("Reduce mana cost of Fire Wall by 10–40%"));
+  assert.ok(lines.includes("Reduce Blizzard cooldown by 1–5 seconds"));
+  assert.ok(lines.includes("Reduce Meteor Strike cooldown by 1–5 seconds"));
   assert.ok(lines.includes("+1–3 MC"));
   assert.equal(lines.includes("+1–5 DC"), false);
 });
@@ -1441,6 +1577,9 @@ test("empowerReferenceCatalog: exposes weapon classes and tier weights", () => {
   assert.ok(wizard.rolls.includes("+1–3 MC"));
   assert.ok(wizard.rolls.includes("Increase Flame Disruptor damage by 10–35%"));
   assert.ok(wizard.rolls.includes("Reduce mana cost of Fire Wall by 10–40%"));
+  assert.ok(wizard.rolls.includes("Reduce Blizzard cooldown by 1–5 seconds"));
+  assert.ok(wizard.rolls.includes("Reduce Meteor Strike cooldown by 1–5 seconds"));
+  assert.ok(tao.rolls.includes("Reduce Poison Cloud cooldown by 1–5 seconds"));
   assert.ok(tao.rolls.includes("+1–3 SC"));
   assert.ok(tao.rolls.includes("Increase Healing healing by 5–25%"));
   assert.ok(tao.rolls.includes("Increase Skeleton damage by 10–50%"));
