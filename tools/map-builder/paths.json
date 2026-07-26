@@ -1,5 +1,7 @@
 {
   "crystalData": "C:/Users/bb-we/Documents/Crystal-master/Next/NextClient/Data",
-  "crystalMap": "C:/Users/bb-we/Documents/Crystal-master/Next/NextClient/Map",
-  "exportDir": "../tile-review/map-builder-exports"
+  "crystalMap": "C:/Users/bb-we/Documents/KR-Mir2-Client/Map",
+  "krData": "C:/Users/bb-we/Documents/KR-Mir2-Client/Data",
+  "exportDir": "../tile-review/map-builder-exports",
+  "backdropDir": "./backdrops"
 }

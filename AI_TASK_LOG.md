@@ -1,5 +1,885 @@
 # AI Task Log - LOM Idle V2
 
+## 2026-07-26 - Second Glyph rebirth upgrade
+
+Rebirth upgrade **Second Glyph** unlocks a second glyph equip slot
+(`equipment.glyph2`). Base remains one slot; purchase sets unlocked count to 2.
+Cost is temporarily **0 RP** for testing (switch to **250** after verify).
+
+Combat/modifier helpers now resolve all equipped glyph slots via
+`equippedGlyphDefs` / `firstGlyphOfKind`.
+
+### Changes
+- `src/app.monolith.js`: `rebirth-extra-glyph-slot`, `unlockedGlyphEquipSlotCount`,
+  glyphs window + equip compatibility
+- `src/glyphModifiers.js`: multi-slot `GLYPH_EQUIPMENT_SLOT_IDS` / `equippedGlyphDefs`
+- `tests/glyphs.test.mjs`: multi-slot coverage
+
+### Verify
+- `npm.cmd run check` (+ smoke when testing in-game)
+
+## 2026-07-26 - Glyphs equip window
+
+Character doll glyph slot is now a **Glyphs** button that opens a dedicated
+window. Equip still uses `equipment.glyph` (one unlocked slot); four locked
+slots preview future upgrades (max 5). Drag onto the open slot, or Equip from
+the bag list; Unequip from the window.
+
+Also fixed offline fixture flake: re-seed `Math.random` immediately before the
+sim so the settle wait cannot burn RNG.
+
+### Changes
+- `src/app.monolith.js`: `openScenes.glyphs`, button on character page, glyphs
+  scene HTML + open/close wiring
+- `src/styles.css`: glyphs button + window styles
+- `tools/offline-zone-fixture.mjs` + offline expected JSON: deterministic re-seed
+
+### Verify
+- `npm.cmd run check` + `npm.cmd run smoke`
+
+## 2026-07-26 - Account auto-junk filters (Trader)
+
+Account-wide auto-junk list on the Trader: **Auto-junk filters** opens a
+dedicated window with a drop pad and the full rule list (remove per row). Drag
+any sellable bag item to register its `itemId`. Plain bag copies (no empower /
+smith / weapon refine / gems / bonus stats) are marked junk on pickup and when
+a rule is added. Saved and upgraded copies are never auto-marked. Space-clear
+sticks on that instance (no continuous re-scan).
+
+### Changes
+- `src/app.monolith.js`: account field, helpers, `addInventoryItem` hook, Trader
+  button + `autoJunk` scene window + click-to-carry drop target
+- `src/persistence/restoreAccount.js`: restore `autoJunkItemIds`
+- `src/styles.css`: auto-junk window / rule list styles
+- `tests/persistenceRestoreAccount.test.mjs`: restore coverage
+
+### Verify
+- `npm.cmd run check` + `npm.cmd run smoke`
+
+## 2026-07-26 - Glyph of Fast Healing
+
+Added **Glyph of Fast Healing** (all classes): HP potions restore **50%** less,
+but tick **25%** faster (200ms → 150ms while HP restore is pending). MP potions
+unchanged. Joins the empowered-boss glyph pool (`glyph-fast-healing`, frame 3215).
+
+### Changes
+- `src/glyphModifiers.js`: `fastHealing` def + `applyGlyphHpPotionRestore` /
+  `glyphPotionTickDelayMs`
+- `src/data/items.json`: item entry
+- `src/app.monolith.js`: solo / auto / offline / boss-party potion paths
+- tests, changelog, item atlas, integrity rules
+
+### Verify
+- `npm.cmd run check` + `npm.cmd run smoke`
+
+## 2026-07-26 - Wizard/Tao empower cooldown reduction
+
+Added empower CDR rolls (1–5s weapons; armour/jewellery auto-scale) for
+**Blizzard**, **Meteor Strike**, and **Poison Cloud**. Wired
+`applyEquippedSpellCooldownReductionMs` into wizard `applyWizardCastCooldown`
+and all taoist castReadyAt paths (solo + boss party) via
+`setLearnedSpellCastReadyAt`. Regenerated empower reference + integrity rules.
+
+## 2026-07-26 - Beast King HP 150k
+
+Beast King (`id` 994) `maxHp` 100000 → **150000**.
+
+## 2026-07-26 - Raw Sword display names
+
+`raw-sword1` / `raw-sword2` / `raw-sword3` display name is now **Raw Sword**
+(no trailing class digit). Ids unchanged.
+
+## 2026-07-26 - Hell Lord Bracelet/Necklace of Agony
+
+Added L55 class Bracelet / Necklace of Agony (warrior/wizard/taoist) and put
+each on Hell Lord at 2.5%. Bracelets step above Dual Titan / Evil Whisp /
+Sacred Angel; necks step above Cuspid / Sorcery Anchor / Purified Mirror.
+
+## 2026-07-26 - Hell Lord Ring of Agony
+
+Added class Ring of Agony trio (L55): warrior DC 2–16, wizard MC 2–15,
+taoist SC 2–12. Hell Lord drops each at 2.5% (`ring-of-agony-*`).
+
+## 2026-07-26 - Hell Lord boss drops
+
+Hell Lord uses a Manectric King-style table: same gold/oils/pools, **Meteor
+Strike** (5%) instead of Blizzard, no Ice Dragon Sky weapons. Wired via
+`BOSS_DROP_TABLE_BY_LABEL["Hell Lord"]` + `isHellLordEnemy`.
+
+## 2026-07-26 - Manectric King Ice Dragon Sky 5%
+
+Ice Dragon Sky Sword / Knife / Rod on Manectric King raised to **5%** each
+(`0.05`).
+
+## 2026-07-26 - Ice Dragon Sky Knife/Sword model swap
+
+Swapped inventory icon + paper-doll `visual.index` (and Crystal source refs)
+between Ice Dragon Sky Knife and Sword so the art matches the class roles
+(Sword = warrior, Knife = taoist). Removed temporary Alchemist test stock.
+
+## 2026-07-26 - Manectric King Ice Dragon Sky weapons
+
+Retuned Ice Dragon Sky trio to level 55 and added them to Manectric King at
+1.25% each (later raised to 5%). Class swap vs Crystal: Sword = Warrior
+(DC 12–66, Acc 2), Knife = Taoist (DC 9–30, SC 6–16, HP 35), Rod = Wizard
+(DC 7–24, MC 6–19, HP 25).
+
+## 2026-07-26 - Hell Keeper Winged Heaven 0.1%
+
+Hell Keeper `winged-heaven-armour` chance matched Manectric King / Beast King
+(`0.005` → `0.001`).
+
+## 2026-07-26 - Ascended boss star odds buffed
+
+Ascended empowered-item tier roll is now 50% / 35% / 10% / 5% (★–★★★★) via
+`ASCEND_TIER_WEIGHTS`, passed from `empoweredBossDropRollOptions` when
+`bossAscended`. Empowered stays 60 / 30 / 7.5 / 2.5. Future Awakened (not wired):
+30 / 30 / 25 / 15 — noted as a commented stub next to the Ascended table.
+
+## 2026-07-26 - Magic Shield follows party lane
+
+`attachedSpellFxAnchor` used raw `LANE.y` for boss-party Magic Shield, so after
+`arenaPartyStampMapRowOffset` the bubble sat above the wizard. It now uses
+`arenaPartyCombatLaneYPx`.
+
+## 2026-07-26 - Hell Lord mass-burst damage actually lands
+
+Mass-burst strikes without a projectile atlas cleared at `startedAt+600` before
+impact at `+750`, so Hell Lord's AOE swings dealt no damage. `vfxUntil` now
+lasts at least until impact, and the strike only clears after resolve.
+
+## 2026-07-26 - Hell Lord full-party AOE
+
+Hell Lord attacks use `alwaysAoe` mass-burst (boneLord style) so every swing
+hits the whole party in range — no longer Manectric King's line kit.
+
+## 2026-07-26 - Hell Lord stats ~25% over Manectric King
+
+Hell Lord combat sheet is Manectric King × 1.25 (HP 97.5k, DC/MC 144–350,
+AC/AMC, XP). Same line / execute / pulse kit; stationary + Fire Hell map fire
+on top. Tightened `isManectricKingEnemy` so line-style Hell Lord does not take
+King drops. Zone gold nudged to ~1.25× King's room.
+
+## 2026-07-26 - Hell Lord flinch stays visible
+
+Struck was swapping to lib frame 128 (sparse FX, ~10% opaque) so he looked
+invisible. Atlas struck now holds seated body frames 0–1 like attack; blade
+overlay still draws. Cache `MONSTER_ASSET_VERSION` bumped.
+
+## 2026-07-26 - Hell Lord tank one tile south
+
+KR zone `arenaPartyStampMapRowOffset: 1` — party/tank/pets draw and combat on
+the row below the throne; Hell Lord stays on `(31,17)`.
+
+## 2026-07-26 - Fire Hell KR camera nudge
+
+KR-only `mapStampOffsetY: -240` (camera down = negative; 5 tiles past the
+prior -80). Stamp + combat stay locked. Positive values raise the camera.
+
+## 2026-07-26 - Fire Hell KR: jagged wall tops
+
+Root cause was not stage crop: the stamp builder skipped non-floor-sized Mir3
+middle tiles. Crystal draws those with `DrawUp` (door/wall tops, 48×160–224).
+Builder now includes them bottom-aligned like Crystal; KR `offsetY` set to 256
+so the tall tops stay on-stage at the throne fight.
+
+## 2026-07-26 - Fire Hell KR: walls above throne on-stage
+
+Crop already included map row 0; the cut-off walls were the stage clipping the
+top after the fight moved to row 17 (large `focusY`). Raised KR stamp
+`offsetY` to 192 so northern wall tiles stay visible; combat Y still follows
+stamp `offsetY`.
+
+## 2026-07-25 - Fire Hell KR stamp: northern walls
+
+Expanded the KR stamp crop north to map row 0 (`HalfCropH=23`, `CropHCells=46`)
+so throne-row walls are no longer mid-cropped. KR-only `offsetY` nudges the
+stamp down in the stage; `arenaCombatLaneYPx` now includes stamp `offsetY` so
+boss/party stay locked to the throne tiles.
+
+## 2026-07-25 - Heaven Armour paper-doll wings
+
+Character screen (and other paper dolls) now draw Crystal Prguse2 wing frames
+behind armour when `armourVisualEffectForItem` resolves a wing effect. Heaven
+Armour (`winged-heaven-armour`, effect 1) shows male frame 1202; Heaven Robe
+stays wingless via the existing allowlist.
+
+### Changes
+- Exported `public/ui/character/paperdoll-wing-1202..1205.png` + metadata JSON
+- `src/app.monolith.js`: shared `crystalPaperDollLayersHtml` / wing layer
+- `src/styles.css`: `mix-blend-mode: screen` for DrawBlend parity
+- `tools/export-paperdoll-wings.ps1` for re-export from Prguse2.Lib
+
+## 2026-07-25 - Hell Lord: party on throne row (warrior left)
+
+Boss stays on stamp tile (31,17). Party/player/pets use the same row offset so
+the warrior stands beside him on the left — not on the focus row below the seat.
+
+## 2026-07-25 - Hell Lord body/model sync
+
+Removed separate stamp visual pin. Combat foot (`enemyX` + stamp-row Y in
+`combatAnchor`) is now the only draw anchor, so hitbox and seated sprite share
+one position on the throne.
+
+## 2026-07-25 - Hell Lord: party left of throne, no adds
+
+KR party holds the stamp focus (warrior left of Hell Lord); combat foot stays on
+the throne tile with `bossMeleeGap: 240`. Boss reinforcements disabled for now.
+
+## 2026-07-25 - Hell Lord AOE blend + no vanish
+
+Attack AOE frames 80–85 are now `attack1Blend` (screen-blend) over the seated
+body instead of opaque body swap (black outlines). Struck no longer uses empty
+lib frame 129. Stage aura unhooked from idle blend. Empty body frames fall back
+to standing so he cannot vanish mid-anim.
+
+## 2026-07-25 - Hell Lord combat on throne tile
+
+`arenaEnemyStampMap` now also sets combat `enemyX` (and party melee line) to the
+throne tile so the party can hit the seated Hell Lord, not an approach-gap ghost.
+
+## 2026-07-25 - Hell Lord seated atlas (real body)
+
+Hell Lord atlas was wrongly built from Crystal DrawEffects frame **15** (blade
+overlay). Rebuilt with DefaultMonster seated body **0–3**, attack **80–85**,
+die **16–20**, opaque blade overlay + aura blend. Draw still pins to stamp tile
+`arenaEnemyStampMap (31,17)`.
+
+## 2026-07-25 - Hell Lord throne pin (stamp-map absolute)
+
+Pin Hell Lord draw to stamp tile via `arenaEnemyStampMap: {31,17}` so placement
+tracks the map stamp, not combat approach X. Body `drawBlend` off (Crystal
+`Draw(..., offSet)` is opaque; aura 21–26 stays the blend layer).
+
+## 2026-07-25 - Hell Lord throne pin (approach-relative visual)
+
+Hell Lord stays a normal stationary GD boss (combat at approach/melee so the
+party can reach him). Visual offsets account for approach gap (+144): throne
+~(31,17) uses +96/−192 from the combat foot. Also refresh
+`meleeFrontSlotWorldX` after fixed-arena layout for other pillar bosses.
+
+## 2026-07-25 - Hell Lord on throne (visual pin + atlas)
+
+Hell Lord Crystal spawn is `(31,19)` but party stand is `(26,23)`. Added visual-only
+offsets (+5/-4 tiles) so the seated sprite sits on the map throne. Rebuilt atlas
+247 to Crystal draw rules (body frame 15 + aura 21–26, `drawBlend`).
+
+## 2026-07-25 - Fire Hell KR (Hell Lord)
+
+Locked party stand at Crystal HKR `(26, 23)`. Stamp `fire-hell-kr-center` + zone
+`zone-fire-hell-gd-3` as hell GD floor 10 boss (Hell Lord, stationary). Light
+Knight Elite reinforcements. Teleporter Wasteland includes the zone. Hell Lord
+template marked `stationaryBoss`.
+
+## 2026-07-25 - Fire Hell GD Floor 2
+
+Locked party stand at Crystal HF2 `(196, 212)`. Stamp `fire-hell-gd-2-center`
++ zone `zone-fire-hell-gd-2` as hell group-dungeon floor 9 (Hell Knight Guard /
+Elite + Bomb Mk II/III). Map fire hazard slightly hotter than F1. Teleporter
+Wasteland includes the new zone.
+
+## 2026-07-25 - Hell Bomb melee detonation (party AoE)
+
+Hell Bombs (437–439) no longer melee-swing the Warrior. On reaching melee
+range they play the explode clip, hit **every living party member/pet** with DC,
+then self-destruct (kill credit). Kill them before contact to avoid the blast.
+
+## 2026-07-25 - Hell Bomb screen-blend body (no black outline)
+
+Crystal draws HellBombs with `Frame.Blend = true` (additive). Normal body draw
+left a black silhouette. Atlases 2471–2473 now set `drawBlend: true`; swarm/solo
+body draw uses screen blend (`drawEnemyBodyAtlasFrame`).
+
+## 2026-07-25 - Hell Bomb proper sprites (HellLord lib)
+
+Hell Bombs are not Mon903–905 libs — Crystal sets `BodyLibrary = HellLord`
+and reads float/explosion frames from `247.Lib` (stand 52/70/88, attack FX
+61/79/97). Built atlases `2471–2473` (avoids Lab Halberd Lord / Boar @903–904)
+via `tools/build-hell-bomb-atlases.ps1`. Templates 437–439 now point there;
+Demon/Hell Bolt placeholders 226/227/219 no longer used for bombs.
+
+## 2026-07-25 - Fire Hell walk jitter fix
+
+Hell Knight / Bomb walk clips were 200ms/frame (5fps) while the body slides a
+tile — same stutter as pre-fix Ice Hell Blest. Set all walk intervals on
+atlases 243–246 and 219/226/227 to 100ms.
+
+## 2026-07-25 - Fire Hell GD Floor 1
+
+Locked party stand at Crystal HF1 `(57, 252)`. Type5 Mir3 stamp
+`fire-hell-gd-1-center` + zone `zone-fire-hell-gd-1` as hell group-dungeon
+floor 8 (Hell Knight / Captain + Bomb adds). Retuned Fire Hell trash for idle
+(~11k knight HP). Appended swarm directional clips on atlases 243–246.
+Spot pickers remain under `tile-review/fire-hell-*-spot-picker/`.
+
+## 2026-07-25 - Fire Hell F1/F2 spot pickers
+
+HellFire maps are Mir3 Type5 (not Map 2010). Added `tools/build-fire-hell-overview.ps1`
++ `tools/build-fire-hell-spot-picker.ps1` (-Floor 1|2). Pickers at
+`tile-review/fire-hell-1-spot-picker/` and `fire-hell-2-spot-picker/` with Crystal
+spawn hubs (50,60) / (206,193).
+
+## 2026-07-25 - Beast King 2 hour respawn
+
+Beast King `respawnMinutes` set to 120 (was temp 1 min / elite 60).
+
+## 2026-07-25 - Beast King 1 min respawn (temp)
+
+Beast King `respawnMinutes` set to 1 for drop testing (was elite 60).
+Restore `BOSS_RESPAWN_MINUTES_ELITE` before release.
+
+## 2026-07-25 - Beast King Rage book drop
+
+Beast King table: warrior book `book-rage` (Rage) at 10%.
+
+## 2026-07-25 - BDD Empowered trash XP fix
+
+Empowered/Ascended Black Dragon Dungeon was scaling trash HP/damage and gold
+but **not XP** (`awardBossPartyKillShare` only multiplied gold). Kill XP and
+boss kill XP/gold now use the same 2×/3× reward multiplier. Tier reads prefer
+`state.groupDungeonEmpowerTier` so floor advances stay empowered. Entry UI/log
+copy updated to mention XP.
+
+## 2026-07-25 - Beast Ring unique stats
+
+Beast Ring2: DC 0–10, Attack Speed +2. Beast Ring3: MC 1–10, AC/AMC 0–4.
+Beast Ring4: SC 1–10, AC/AMC 0–4.
+
+## 2026-07-25 - Beast Rings (Craft Ring 2/3/4)
+
+Added `beast-ring2/3/4` named **Beast Ring** (Crystal CraftRing2/3/4 art),
+level 52. Stats matched to L50 ring peers: DC 1–14 / MC 1–13 / SC 1–12.
+On Beast King table at 1.25% with Raw Swords. Rebuilt item atlas.
+
+## 2026-07-25 - Beast King boss drop table
+
+Beast King loot from Manectric King skeleton: removed old 7.5% accessory
+pool + Blizzard; promoted 2.5%→7.5% and 1.25%→2.5%; Raw Sword1/2/3 at
+1.25%. Soul 100%, oils×2, gold 35k. Wired via `isBeastKingEnemy`.
+
+## 2026-07-25 - Beast King test drops removed
+
+Removed temporary guaranteed Raw Sword trio from Beast King boss table
+(and `isBeastKingEnemy` wiring) while the real loot table is designed.
+Weapons themselves stay in `items.json`.
+
+## 2026-07-25 - Raw Sword trio L52 + gold hook
+
+`raw-sword1/2/3` → level 52. Combat band matched to strong L45 weapons
+(Burst/Frozen / Holy Blood / Dragon Blood). Each has
+`goldBonusPercent: 100` (+100% kill gold).
+
+## 2026-07-25 - Beast King test drops (Raw Sword trio)
+
+Temporary Beast King boss table: guaranteed `raw-sword1/2/3` (chance 1)
+plus 25k gold / 1 oil. Wired via `isBeastKingEnemy` → drop table label.
+
+## 2026-07-25 - Raw Sword class trio
+
+Added `raw-sword1` (Warrior, DC 5–17), `raw-sword2` (Wizard, MC 5–17),
+`raw-sword3` (Taoist, SC 5–17) — same icon/visual/level as `raw-sword`.
+Original any-class `raw-sword` kept for save compatibility. Regenerated
+item-integrity rules (427 equippables).
+
+## 2026-07-25 - Namman trash drop pool (~1/100)
+
+Southern Barbarian Land drops 9 accessories @ 0.111% each (~1 item /
+100 kills): Thunder/Red Demon/Cloud Ring, Demon Mask, Violet Orb,
+Kunroon Tear, Spirit Reformer, Holy Tao Wheel, Baek Ta Glove. Zone
+`dropPityKills: 100` so the global 8-kill pity does not flood the pool.
+
+## 2026-07-25 - Beast King base retune (enrage race)
+
+Beast King: HP 45k→90k, DC 95–170→45–80, attackMs 1400→2200.
+Softer/slower opener; HP pool supports the timed-enrage race.
+
+## 2026-07-25 - Beast King timed enrage
+
+Beast King: 2 min grace countdown HUD, then stacking enrage — +10% of
+base damage, accuracy, and attack speed every combat second (linear).
+Attack period floors at 800ms (attack1 clip). Combat-elapsed so pause
+does not burn the timer.
+
+## 2026-07-24 - Namman difficulty ~1.5× Fox/RC
+
+Southern Barbarian trash + Beast King retuned to ~1.5× Fox/Red Cavern
+power band (HP/DC/XP; AC/AMC ~+20% from prior Namman). Zone gold ×1.5.
+Beast King: DC 95–170, AMC 38, XP 45k, attackMs 1400 (HP stayed 45k).
+
+## 2026-07-24 - Beast King KR stand → (162, 127)
+
+Moved `zone-namman-boss` `arenaSpawnMap` / `arenaFocusMap` to Crystal
+`NAMMAND_2.map` `(162, 127)` (picker pick). Rebuilt `namman-boss-center`
+stamp crop around that focus. Builder: `tools/build-namman-boss-stamp.ps1`;
+picker: `tile-review/namman-beast-kr-spot-picker/`.
+Nudge: then +2 cells south → `(162, 129)`.
+
+## 2026-07-24 - Namman tree belt: fill canopy-only column
+
+Map X=311 only had Objects15 frame 4842 — a canopy with ~164px empty
+bottom and no trunk tree under it (neighbors 310/312 have full trees).
+Bake now clones the nearest full trunk into canopy-only columns.
+
+## 2026-07-24 - Namman tree belt gaps diagnosed
+
+Panorama bake was skipping Crystal's floor-sized (48×32) understory pass
+(66 cells) and 7 front frames are **out of range for Objects15.Lib**
+(4962–4965, 5015–5017; lib only has 0..4960). Those cells stay empty —
+visible holes/strips, especially mid-right cluster. Rebuild now draws
+floor then tall (Crystal order). Still cannot invent missing Objects15 art.
+
+## 2026-07-24 - Namman dense tree belt (region 296,341)
+
+Baked NAMMAN.map `(296,341)-(320,359)` as intact panorama
+`public/mapedges/namman-tree-line.png` (1200×1583, full-image loop — not
+48px columns). Raised `MaxSpriteHeight` to 1300 so tall Objects15 canopies
+(500–1200px) are included. Wired `edgeSet: "namman-trees"` on
+`NAMMAN_FIELD_VISUALS` with `yOffsetFromBase: -1551`. Rebuild:
+`tools/build-namman-tree-panorama.ps1`.
+
+## 2026-07-24 - Namman top-fill actually matches editor strip
+
+Root cause: `tilePatternTopFill` keyed off `patternIndex >= 0`, but player
+feet sit on anchor row 4 — so the walk-lane row was stacked 3× and only the
+last few pattern rows ever drew. Now maps one pattern row per anchor step
+from `MAP_TILE_LANE_ANCHOR_ROW` (4) and extends the draw range upward to fit
+the full strip.
+
+## 2026-07-24 - Namman floor pattern visual editor
+
+Added `tools/namman-floor-editor/` — paint namman tile slots, preview
+top-fill (walk lane marked), export `NAMMAN_TILE_PATTERN` JS.
+Open via dev server: http://localhost:4177/tools/namman-floor-editor/
+
+## 2026-07-24 - Namman floor top-fill (no vertical loop)
+
+`tilePatternTopFill`: authored strip sits at the lane (last pattern row at
+index 0); higher rows use `pattern[0]` instead of modulo-wrapping the strip.
+
+## 2026-07-24 - Namman floor black squares (bad blend offsets)
+
+Blend frames `41110+` / `412xx` in Tiles.Lib carry garbage offsets
+`(-296,-266)`. Map-builder draws at cell origin (ignores offsets); the game
+applies them → tiles fly off, black holes. Builder now forces floor seat
+`(7,-44)` like normal 4000/415x tiles. Hard-refresh to pick up index.json.
+
+## 2026-07-24 - Namman floor from region export (398,318)
+
+Wired hand-picked NAMMAN.map sand/grass loop `(398,318)-(416,325)`:
+- Rebuilt `public/maptiles/namman.png` with export `backFrames` (incl. 41110+/412xx blends).
+- `NAMMAN_TILE_PATTERN` = condensed even-even slots (10×4) for `tileAnchor2x2`.
+- Removed broken `edgeSet: "namman-trees"` until a box-selected tree cluster is baked.
+- Ref: `tools/tile-review/namman-floor-region-398-318.json`, `tools/build-namman-tiles.ps1`.
+
+## 2026-07-24 - Social Awakening Souls use current held, not peak
+
+`/stats` upsert used `MAX(...)` for `awakening_souls_held`, so Social kept a
+lifetime high-water mark after rebirth/spend (e.g. SmavidDavid stuck at 2376).
+Worker now overwrites with the submitted current inventory total.
+
+## 2026-07-24 - Fix Namman floor/trees (authored pattern + panorama)
+
+Previous approach was wrong: random/overlay grass stamps looked patchy, and
+48px column tree strips shattered multi-cell trees.
+- Floor: literal even-anchor pattern from NAMMAN (672,160) with real 415x+400x
+  neighbors (`tileAnchor2x2`); removed grass floorDecorations.
+- Trees: continuous panorama `namman-tree-line.png` (full-image edge loop,
+  height-capped), not column mode.
+
+## 2026-07-24 - Namman floor patches + looping tree backdrop
+
+- Floor: green-only `4151–4155` (no mixed 400x slots) + three real
+  `NAMMAN.map` grass patches as `floorDecorations`.
+- Backdrop: looping tall-tree strip `namman-tree-columns.png` (22 cols @
+  map 696–717 / y=144) via `edgeSet: "namman-trees"`.
+- Builders: `build-namman-floor-patches.ps1`, `build-namman-tree-backdrop.ps1`.
+- Packager now includes `floorDecorations` sheets under `maptiles/`.
+
+## 2026-07-23 - Namman floor: green base + grass patches
+
+`NAMMAN.map` is mostly Tiles.Lib **4151–4155** (green) with **4001–4005**
+lighter grass accents — not a uniform 4000–4004 sheet. Rebuilt
+`public/maptiles/namman.png` (10 slots), patchy `NAMMAN_TILE_PATTERN`, and
+`tileAnchor2x2: true` so Crystal 96×64 back tiles seat on even cells.
+
+## 2026-07-23 - Namman field decorations (picker #56 #46 #80 #86 #155 #296)
+
+Wired Southern Barbarian scrolling props from `NAMMAN.map` catalog picks:
+- Sheet: `public/mapobjects/namman-catalog.png` (`decorationSet: namman-catalog`)
+- Builder: `tools/build-namman-decoration-sheet.ps1`
+- `NAMMAN_FIELD_VISUALS` uses Viper-style `worldX` + `repeatEvery` + `decorationRows`
+
+## 2026-07-23 - Namman field loops tiles (not static stamp)
+
+`zone-namman-1` now matches Red Cavern / Fox Cave: `mapSet: "namman"` +
+`NAMMAN_TILE_PATTERN` from Tiles.Lib 4000–4004 (`tools/build-namman-tiles.ps1`).
+Boss room stays on `namman-boss-center` stamp.
+
+## 2026-07-23 - Southern Barbarian map stamps (NAMMAN / NAMMAND_2)
+
+Replaced placeholder Fox Cave visuals with real Crystal map stamps:
+- Field `zone-namman-1` → `namman-field-center` from `NAMMAN.map` (684,144)
+- Boss `zone-namman-boss` → `namman-boss-center` from `NAMMAND_2.map` (248,84)
+Builders: `tools/build-namman-*-stamp.ps1`. Bumped `MAP_STAMP_ASSET_VERSION`.
+
+## 2026-07-23 - Fix Namman art (Mir2DB img ≠ Crystal lib)
+
+Wrongly used Crystal `324–328.Lib` (plants/wraiths) because Mir2DB sheet
+imgs matched those numbers. Correct Crystal cluster is **267–271**:
+WhiteMammoth, DarkBeast, LightBeast, BloodBaboon, HardenRhino (same family as
+the earlier tiger atlases). Rebuilt atlases + SFX; templates point there.
+
+## 2026-07-23 - Southern Barbarian Land Mir2DB roster
+
+Replaced KR-only tiger/bat field spawns with Mir2DB sheet mobs (img 324–328):
+White Elephant, Rhino, White Tiger, Black Tiger, Black Ape. Atlases from
+NextClient `324–328.Lib` (dir 6); SFX via matching Crystal sound packs.
+Beast King boss room unchanged. Elephant has no Walking FrameSet — builder
+synthesizes walking from standing.
+
+## 2026-07-23 - Namman / Beast King SFX
+
+Game indexes 991–994 had no `monster.*` SFX keys. Wired via
+`monsterSoundsByImage` → Crystal packs 268/269/19/184 (178 has no WAVs),
+then `npm run build:sfx`.
+
+## 2026-07-23 - Beast King stand-off (tank spacing)
+
+Large 178.Lib sprite overlaps the front tank at the default 48px gap. Added
+optional `bossMeleeGap` (Beast King = 120) plus `bossPartyEnemyMeleeGap` /
+`bossPartyBossMeleeReach`, and stretched front-melee + tanking-pet reach to
+match so both sides still connect.
+
+## 2026-07-23 - Beast King's Lair is a real boss room
+
+`zone-namman-boss` was a normal zone (continuous 1.4s respawn). Added it to
+`BOSS_ROOM_DEFS` (elite 60m timer) so entry uses the boss-party UI and a kill
+sets the respawn lock instead of looping.
+
+## 2026-07-23 - Beast King walks into melee (not stationary)
+
+Has full Direction-6 walking clip (atlas frames 140–145). Dropped
+`stationaryBoss` and set `moveMs: 1400` so it approaches like other Namman
+trash; keeps the stationary-melee range fix for other rooted bosses.
+
+## 2026-07-23 - Beast King (stationary melee) never attacked
+
+### Cause
+`stationaryBoss` skips walk-in. Default `canEnemyAttack` requires
+`distance <= LANE.enemyRange` (48). Warriors stop at `warriorRange` (52), so
+rooted melee bosses were permanently out of swing range.
+
+### Fix
+`enemyMeleeAttackRangePx`: stationary bosses use `max(enemyRange, warriorRange)`.
+
+## 2026-07-23 - Beast King art swap (Mir2DB 229 → Crystal 178.Lib)
+
+### Problem
+Boss template 994 used WingedTigerLord (`184.Lib`) because the KR server
+entry `야수왕` maps Image 184. Mir2DB Southern Barbarian sheet uses **img 229**
+— a dark demonic winged beast, not the orange feathered tiger. Crystal enum
+229 is ManectricKing (also wrong). KR WeMade `.wil` auto-match failed (dark
+sprite + FX noise).
+
+### Fix
+- Visual match: Mir2DB icon 229 ≈ Crystal **WingedBullLord `178.Lib`**
+  (NextClient v3, Direction 6).
+- Rebuilt `public/monsters/monster/994.{png,json}` at **scale 1.0**
+  (standing ~188×250; slot 476×355 for wide attack wings), top-aligned,
+  FrameSet from 178 itself (no Attack1 spin remap needed). An earlier 0.42
+  pass made standing ~79×105 — looked like trash, not a boss.
+- `phase1Data` 994: `crystalName: "WingedBullLord"`, comment notes Mir2DB vs
+  KR Image 184 mismatch.
+- Bumped `MONSTER_ASSET_VERSION` to `20260723-beastking-178-full`.
+
+## 2026-07-23 - Fix Namman monster FrameSets (wrong layout was breaking facing/anims)
+
+### Root cause
+KR KoreanServer `.Lib` files are **version 1** (DXT1, no embedded FrameSet).
+Guessing DefaultMonster or WeMade stride-10 produced **mixed directions per action**
+(standing one way, walking another, attack spinning) — exactly "facing wrong ways /
+wrong animations at wrong times".
+
+### Fix
+- Read the real FrameSet from matching **NextClient v3** libs (same MonsterImage
+  indices, same frame counts): DarkBeast 268/269, CaveBat 019, WingedTigerLord 184.
+- Build atlases from NextClient gzip art + that FrameSet, Direction 6 (left).
+- Tigers (991/992) and Bat (993): installed from proven `export-monster-atlases.ps1`
+  output (NextClient), remapped to our indexes.
+- Beast King (994): Crystal's Attack1/Attack2 are intentional **360-spin** clips;
+  standing upright form also reads oddly in isometric. For idle solo view, remap
+  all actions to the **left-facing walk** clip (frames 108–117) so facing stays
+  consistent toward the player.
+- Idle motion: solo combat keeps enemies on `standing` once in melee. Field trash
+  was not walking because aggro waited for attack range while engage starts at
+  `LANE.aggroRange` (~170px) — player closed the gap first. Fixed: aggro at
+  `engageRange` so enemies walk in as soon as the fight engages. Restored normal
+  standing idle (no walk-in-place). Boss Attack1 still remaps to left-facing walk
+  clip (Crystal Attack1 is a 360-spin).
+- Builder: `tools/build-libv1-monster-atlas.mjs` now takes a v3 FrameSet lib,
+  supports v1/v3 pixel libs, and `remap=attack1:walking,...` overrides.
+- Bumped `MONSTER_ASSET_VERSION` for cache bust.
+
+### Verify
+- Field tiger screenshot: faces left toward player.
+- Boss walk-form screenshot: faces toward player (down-left), no spin.
+- `npm run check`: pre-existing taoist fixture drift only (unrelated).
+
+
+
+### What
+The KR server package (`Downloads/KoreanServer.rar`) is a full Crystal server +
+client. It solves new-content sourcing cleanly:
+- `Server/Server.MirDB` (DB v68) = 504 monsters with Korean name + `Image`
+  index + level/HP/AC/DC + EXP + drop path.
+- `Client/Data/Monster/<Image>.Lib` = one **version-1 DXT1/BC1** `.Lib` per
+  monster (full colour, indexed by that `Image`).
+- NOTE: Mir2DB `img` != this server's `Image`. Match monsters by **Korean name**
+  (남만 = Namman = Southern Barbarian).
+
+### Pipeline (reusable)
+- `tools/parse-mirdb-monsters.mjs`: syncs onto MonsterInfoList in a v68 .MirDB
+  (skips Map/Item lists) -> `mirdb-monsters.json`.
+- `tools/lib/crystal-libv1.mjs`: version-1 `.Lib` reader + DXT1 decoder.
+- `tools/build-libv1-monster-atlas.mjs`: `.Lib` -> game atlas using Crystal
+  `FrameSet.DefaultMonster` layout. **Frames must be
+  TOP-aligned (y=0) in each slot** — the renderer reads the source rect from
+  `(slot*slotWidth, 0)` with height `meta.h`; bottom-aligning makes shorter
+  clips (standing/walking) invisible in-game.
+- **FIX (dir): use Direction 6, NOT 4.** Solo-dungeon monsters always face LEFT
+  toward the player (144/155 existing atlases are dir6).
+- **FIX (layout): these KR .Lib use the WeMade stride-10 layout, NOT Crystal
+  FrameSet.DefaultMonster.** DefaultMonster (standing off4, walking off6...) gave
+  inconsistent facings per action (standing dir6 pointed down while walking dir6
+  pointed left). The .Lib frame counts prove it: 268=327, 269=328, 184=690 —
+  ~340-frame WeMade template, not DefaultMonster's 154. Rewrote
+  `build-libv1-monster-atlas.mjs` to the same layout `build-kr-monster-atlas.mjs`
+  uses: standing off0/walking off80/attack off160/struck off240/die off260, each
+  per-direction **stride 10**, `frame = base + off + dir*stride + i`. At dir6 all
+  actions now face left. Client uses `BodyLibrary.Frames ?? DefaultMonster`
+  (MLibrary.cs) — v1 libs have no embedded frames, so the WeMade template is the
+  real one for these.
+- **Bat (019, 224 frames)** lacks a struck/die block in this template; builder now
+  falls back an all-empty struck/die/dead clip to the standing frames so death
+  still renders. Tigers (327/328) and Beast King (690) have full blocks.
+
+### Content added
+- Monster templates 991 Namman Black Tiger (268.Lib), 992 White Tiger (269),
+  993 Bat (019), 994 Beast King boss (184.Lib, 0.5x) — stats scaled just above
+  Fox Cave (lvl ~93-95 trash, lvl 108 boss).
+- Zones `zone-namman-1` (field) + `zone-namman-boss` (Beast King's Lair), wired
+  to the `southern-barbarian` teleport region. Removed the `990` test
+  placeholder (template, zone, atlas, layers entry).
+
+### Verify
+- `npm run check`: 483 tests pass; only pre-existing taoist fixture drift
+  (gold 191->194 from earlier battleData change) — unrelated.
+- `npm run smoke`: clean, 0 errors. In-game screenshots confirm both monsters
+  render + fight in their zones.
+
+## 2026-07-23 - Fix Awakening Soul multi-drop UI (loot/combat log)
+
+### What
+Empowered multi-soul awards were easy to miss: battle log deduped identical
+"received Awakening Soul" lines (so 3 souls looked like 1), and Recent Loot's
+6-line cap buried souls under oils/gear because souls are awarded last.
+
+### Fix
+- Collapse stackable drops to `Found 3× Awakening Soul`
+- Prioritize souls (and the roll summary) in Recent Loot; widen to 8 lines
+- Push soul-roll summary after drop lines so it stays visible in the combat log
+
+### Changes
+- `src/app.monolith.js`: `summarizeDropResults`, reward loot/battle log paths
+
+### Verify
+- `npm.cmd run smoke`
+
+## 2026-07-23 - Empowered/ascended Awakening Soul multi-rolls
+
+### What
+Awakening Soul drops on empowered/ascended bosses now roll multiple times
+instead of a single shared-table hit:
+- Normal bosses unchanged (shared table roll + one bonus soul roll).
+- Empowered: 2 independent soul-chance rolls; Ascended: 3.
+- Each roll still uses the empower/ascend drop-rate multiplier (2×/3×).
+- Bonus soul chance also runs once per roll slot (ascended ceiling 3+3=6).
+- Battle log reports table/bonus hits so the multi-roll is visible in-game.
+
+### Changes
+- `src/core/drops.js`: `omitBossDropTableItem`, `bossDropTableItemChance`,
+  `awakeningSoulBossDropRollCount`, `countIndependentChanceHits`
+- `src/app.monolith.js`: `rollBossTableDrops` soul multi-roll path
+- `tests/drops.test.mjs`: coverage for the new helpers
+
+### Verify
+- `npm.cmd run check`
+
+## 2026-07-22 - Map builder: native KR .wil tile rendering + Sorrow Moon (FOX02) test zone
+
+### What
+1. **Map builder now renders KR `.wil` tiles natively (crisp at any zoom).**
+   The editor previously showed a pre-rendered 3600×2400 backdrop PNG for KR
+   maps (world is 19200×12800), so it blurred badly ("low pixel/broken") at
+   normal zoom. Added a Node WeMade `.wil`/`.wix` reader
+   (`tools/lib/wemade-wil-lib.mjs`, ported from Crystal's `WeMadeLibrary.cs`;
+   nType 2 RGB565 raw-deflate, colour 0 = transparent key). The map-builder
+   server now serves tile frames from the KR `.wil` libs (Tiles/SmTiles/
+   Objects*) through the existing `/api/lib/frame` endpoint via a new `krData`
+   path. The client draws real back tiles across the whole visible area at
+   every zoom (595 unique back tiles → cache instantly), nearest-neighbour so
+   pixel art stays sharp; the backdrop is now only an instant fill that gets
+   covered. Added in-flight frame-request dedupe.
+2. **Sorrow Moon (FOX02) test zone — built then REVERTED.** Briefly added
+   `zone-sorrow-moon-mtn` using the existing fox family + fox-cave art, but
+   FOX02 (Sorrow Moon Mountain) is the same fox area the game already ships as
+   Fox Cave (Mongchon Province) — i.e. a reskin, not new content. Reverted the
+   zone (`src/phase1Data.js`) and its teleport-region entry
+   (`src/app.monolith.js`). Next: a gap analysis of KR-client maps/monsters vs
+   what the game implements, to find genuinely new dungeons + monsters.
+
+### Changes (kept)
+- New `tools/lib/wemade-wil-lib.mjs`; `tools/map-builder-server.mjs`
+  (`krData` + `resolveLib`); `tools/map-builder/app.js` (hybrid render, crisp
+  tiles, dedupe); `tools/map-builder/paths.json` (`krData`).
+
+### Verify
+- `npm.cmd run check` - pass except the pre-existing `fixture:offline-taoist`
+  drift (gold 194 vs 191), unrelated to this work.
+- `npm.cmd run smoke` - green, no console/page errors.
+
+## 2026-07-22 - Mobile performance fixes (investigation + 4 targeted changes)
+
+### What
+Players reported the game "starting to run badly on mobile". Investigation
+(3 code audits + headless profiling at 4x CPU throttle, phone viewport) found
+no single smoking gun - baseline held 60fps even in swarm zones - but four
+compounding costs that hit phones specifically:
+
+1. **Render cap now applies to all mobile, not just iOS.** `RENDER_MIN_INTERVAL_MS`
+   (33ms) was gated on `IS_IOS`; Android did the full canvas redraw + DOM work
+   every rAF. New `IS_MOBILE_DEVICE` covers Android UA and coarse-pointer
+   touch devices (touch-screen laptops excluded).
+2. **Chunked simulation catch-up.** `catchUpSimulation` replayed up to 10 min
+   of missed 100ms steps in one synchronous loop - measured a 417ms frozen
+   frame after only a 20s stall (4x throttle); a multi-minute background gap
+   froze phones for seconds on every app switch back. Now budgeted at
+   `CATCH_UP_FRAME_BUDGET_MS` (8ms) per frame; `tick()` skips the live step
+   and render until caught up. Verified: post-stall max frame now ~17-33ms.
+3. **Monster sheet cache eviction on zone change.** `imageCache` kept every
+   monster sheet ever loaded decoded in memory for the whole session (Great
+   Fox sheet alone is 5.6MB compressed). `evictMonsterImageCacheForZone` in
+   `enterZone` drops sheets the destination zone does not use, keeping the
+   zone's `enemyIds` + swarm/reinforcement config templates + live enemy/swarm
+   + taoist pets (incl. both Shinsu indexes) so nothing flickers.
+4. **Per-frame DOM guards.** `applyCombatHudLayout` wrote stage styles (and
+   forced a reflow via `clientHeight`) every frame - now signature-guarded.
+   `combatHudLayoutMetrics` used `innerHTML.trim()` (subtree re-serialisation)
+   for skill-bar visibility - now `childElementCount`. Empty scene overlay no
+   longer writes `hidden`/`innerHTML` every frame.
+
+### Changes
+- `src/app.monolith.js` only: `IS_MOBILE_DEVICE`; `tick`/`catchUpSimulation`
+  chunking; `evictMonsterImageCacheForZone` (+ `enterZone` hook);
+  `combatHudLayoutSignature` guard; overlay empty-path guard.
+
+### Verify
+- `npm.cmd run check` - pass except pre-existing `fixture:offline-taoist`
+  drift (gold 194 vs 191, hp 123 vs 120) which fails identically with these
+  changes stashed; caused by uncommitted `src/battleData.js`/`empoweredItems`
+  edits already in the working tree, not by this work.
+- `npm.cmd run smoke` - green.
+- Headless catch-up probe: 20s main-thread stall then frame deltas; max frame
+  after resume dropped from ~417ms to ~33ms.
+
+
+
+### What
+New rebirth upgrade **Gem Cutting**: five tiers at 50 / 100 / 150 / 200 / 250 RP
+add +1 application to every gem and orb per purchase (up to +5). Each gem/orb
+keeps its own base caps (`maxStatCount` / `criticalDamage`); the bonus raises
+both so per-stat and total-upgrade gates stay in sync. Success chance still
+falls with each application via the existing reflect penalty.
+
+### Changes
+- `src/app.monolith.js`: `rebirth-gem-orb-cap` / `gemOrbUpgradeCapBonus`;
+  `gemEffectiveMaxStatCount` / `gemEffectiveTotalUpgradeCap`; wired into
+  `canApplyGemToEntry` and gem tooltips; upgrade progress/icon labels
+
+### Verify
+- `npm.cmd run check`
+- Manual: buy a tier, apply a gem past its old max; tooltip shows raised caps
+
+## 2026-07-21 - Master Smithing rebirth upgrade (+6…+10)
+
+### What
+New rebirth upgrade **Master Smithing**: five tiers at 50 / 100 / 150 / 200 /
+250 RP raise the Smith combine cap from +5 up to +10. Success chance continues
+stepping down (50%…10%, then 5%…1%), never below 1%.
+
+### Changes
+- `src/app.monolith.js`: `rebirth-smith-combine-cap` upgrade; `smithCombineStatCap`;
+  extended `SMITH_COMBINE_SUCCESS_CHANCES`; Smith NPC copy
+- `src/battleData.js`: comment that `SMITH_COMBINE_STAT_CAP` is the base only
+
+### Verify
+- `npm.cmd run check`
+- Manual: buy tiers, confirm +5 items can combine again at shown %; +10 is hard max
+
+## 2026-07-21 - Potion restore empowered armour stat
+
+### What
+New empowerment `potionRestoreBonusPercent` on armour / dress, helmet, belt,
+and boots. Stacked bonus increases Health and Mana potion restore amounts
+(instant and over-time), capped at 100% combined (100 HP potion → 200 HP).
+
+### Changes
+- `src/core/empoweredItems.js`: roll tables, formatters, global bonus pool,
+  `equippedPotionRestoreBonusPercent` / `applyEquippedPotionRestoreBonus`
+- `src/battleData.js`: sanitize / clone / addStats whitelist
+- `src/app.monolith.js`: itemEntryStats + tooltips; scale potion use in live,
+  offline, boss-party, and offline-group paths
+- `tests/empoweredItems.test.mjs`, `tests/battleData.test.mjs`
+
+### Verify
+- `npm.cmd run check`
+- Manual: equip potion-restore empowered armour pieces, drink HP pot, confirm
+  total restore scales; over 100% stacked still caps at double
+
+## 2026-07-21 - Shift-click unequip from paper doll
+
+### What
+Shift-click on equipped body/paper-doll items now unequips them into the bag
+(same as double-click unequip). Previously shift-click only handled bag/hotbar/
+storage moves and ignored equipped gear.
+
+### Changes
+- `src/app.monolith.js`: `handleInventoryShiftClick` handles `data-equipped-slot`
+
+### Verify
+- Manual: Character window, Shift-click armour/weapon → lands in inventory
+
+## 2026-07-21 - Poisoning stall in BDD + Slaying vs Half Moon
+
+### What
+1. Taoist Poisoning in BDD (and solo swarm) could permanently stop after a cast
+   if the target died during the 500ms apply delay — pending poison never cleared,
+   so auto and manual Poisoning stayed blocked (manual felt "stuck").
+2. Warrior Slaying could fire instead of Half Moon / Cross Half Moon while AOE
+   farming, because Slaying's yield check used `usableWarriorSweepAttack`, which
+   also returns null when Blade Avalanche is ready.
+
+### Changes
+- `src/app.monolith.js`: clear solo/boss-party `pendingPoison` when apply target
+  is dead/missing; clear queued Poisoning only if no further targets remain
+- `src/app.monolith.js`: `chargedSlayingAttack` and boss-party warrior action
+  yield Slaying when `resolveActiveSweepAttack` can fire
+
+### Verify
+- `npm.cmd run check` / `npm.cmd run smoke`
+- Manual: BDD Tao poison through multi-wave clears; Warrior AOE farm with HM +
+  Slaying + BA on auto
+
 ## 2026-07-21 - Toggle Recent Loot / Activity Log panels
 
 ### What

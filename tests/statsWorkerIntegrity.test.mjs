@@ -92,6 +92,19 @@ test("legal current payload is stored as clear", async () => {
   assert.equal(insertStatus(db), "clear");
 });
 
+test("awakening souls upsert stores the current held count, not a lifetime max", async () => {
+  const db = new FakeDb();
+  const body = payload();
+  body.account.awakeningSoulsHeld = 94;
+  const response = await postStats(db, body);
+  assert.equal(response.status, 200);
+  const insert = db.queries.find((query) => /INSERT INTO leaderboard/.test(query.sql));
+  assert.ok(insert);
+  assert.match(insert.sql, /awakening_souls_held = excluded\.awakening_souls_held/);
+  assert.doesNotMatch(insert.sql, /awakening_souls_held = MAX\(/);
+  assert.equal(insert.args[15], 94);
+});
+
 test("impossible equipment is flagged but not automatically excluded", async () => {
   const smithBonusStats = emptyStats();
   smithBonusStats.dc[1] = 20;

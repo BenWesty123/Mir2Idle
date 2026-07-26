@@ -9,7 +9,9 @@ const state = {
   zoom: 1,
   panX: 40,
   panY: 40,
-  layers: { back: true, middle: true, front: true },
+  layers: { back: true, middle: true, front: true, terrain: true, walls: true },
+  backdrop: null,
+  backdropUsed: false,
   tool: "paint",
   paintLayer: "back",
   brush: {
@@ -76,7 +78,7 @@ function refreshRegionExport() {
 }
 
 const MAX_DETAIL_CELLS = 2400;
-const MIN_ZOOM = 0.35;
+const MIN_ZOOM = 0.03;
 const MAX_ZOOM = 4;
 
 const els = {
@@ -101,6 +103,8 @@ const els = {
   layerBack: document.querySelector("#layerBack"),
   layerMiddle: document.querySelector("#layerMiddle"),
   layerFront: document.querySelector("#layerFront"),
+  layerTerrain: document.querySelector("#layerTerrain"),
+  layerWalls: document.querySelector("#layerWalls"),
   viewport: document.querySelector("#viewport"),
   hud: document.querySelector("#hud"),
   status: document.querySelector("#status"),
@@ -382,9 +386,23 @@ function frameKey(slot, frame) {
   return `${slot}:${frame}`;
 }
 
+const frameInflight = new Map();
 async function loadFrame(slot, frame) {
   const key = frameKey(slot, frame);
   if (state.frameCache.has(key)) return state.frameCache.get(key);
+  if (frameInflight.has(key)) return frameInflight.get(key);
+  const p = (async () => {
+    try {
+      return await loadFrameUncached(slot, frame, key);
+    } finally {
+      frameInflight.delete(key);
+    }
+  })();
+  frameInflight.set(key, p);
+  return p;
+}
+
+async function loadFrameUncached(slot, frame, key) {
   try {
     const data = await fetchJson(`/api/lib/frame?slot=${slot}&frame=${frame}`);
     const canvas = document.createElement("canvas");
@@ -592,6 +610,18 @@ async function renderMap(gen) {
   const fastMode = bounds.count > MAX_DETAIL_CELLS || state.zoom < 0.5;
   state.fastRender = fastMode;
 
+  // The backdrop is only a low-res instant fill; it is drawn first and then
+  // covered by the real .wil tiles as they load, so it never limits sharpness.
+  drawBackdrop();
+  // Native tiles are pixel art: draw them nearest-neighbour so they stay crisp
+  // at any zoom (the smoothed backdrop set imageSmoothingEnabled=true).
+  ctx.imageSmoothingEnabled = false;
+
+  // Always render the real back tiles across the whole visible area (only 595
+  // unique tiles, so they cache instantly and stay crisp at every zoom). When
+  // zoomed out we skip middle/front to keep the overview cheap; zoomed in we
+  // draw all layers. fastMode=false is passed so tiles actually load, not just
+  // draw-if-cached.
   const layers = fastMode
     ? (state.layers.back ? ["back"] : [])
     : [
@@ -599,11 +629,10 @@ async function renderMap(gen) {
       ...(state.layers.middle ? ["middle"] : []),
       ...(state.layers.front ? ["front"] : []),
     ];
-
   for (const layer of layers) {
     for (let y = bounds.y0; y <= bounds.y1; y++) {
       for (let x = bounds.x0; x <= bounds.x1; x++) {
-        const ok = await drawCellLayer(x, y, layer, gen, fastMode);
+        const ok = await drawCellLayer(x, y, layer, gen, false);
         if (!ok) {
           ctx.restore();
           return;
@@ -611,6 +640,8 @@ async function renderMap(gen) {
       }
     }
   }
+
+  drawWallsOverlay(bounds);
 
   if (gen !== state.renderGeneration) {
     ctx.restore();
@@ -668,6 +699,23 @@ async function loadMapList() {
   }
 }
 
+function loadBackdrop(name) {
+  state.backdrop = null;
+  state.backdropUsed = false;
+  const img = new Image();
+  img.onload = () => {
+    state.backdrop = img;
+    state.backdropUsed = true;
+    setStatus(`Loaded ${name} with terrain backdrop (${state.map?.width}×${state.map?.height})`);
+    scheduleRender();
+  };
+  img.onerror = () => {
+    state.backdrop = null;
+    state.backdropUsed = false;
+  };
+  img.src = `/api/backdrop/${encodeURIComponent(name)}?t=${Date.now()}`;
+}
+
 async function loadMap(name) {
   setStatus(`Loading ${name}…`);
   state.frameCache.clear();
@@ -682,10 +730,51 @@ async function loadMap(name) {
     front: Int16Array.from(data.front),
     frontSlot: Int8Array.from(data.frontSlot),
   };
-  state.panX = 40;
-  state.panY = 40;
+  fitMapToView();
+  loadBackdrop(name);
   setStatus(`Loaded ${name} (${data.width}×${data.height})`);
   scheduleRender();
+}
+
+function fitMapToView() {
+  if (!state.map) return;
+  const worldW = state.map.width * CELL_W;
+  const worldH = state.map.height * CELL_H;
+  const viewW = els.viewport.width || 1200;
+  const viewH = els.viewport.height || 800;
+  const fit = Math.min(viewW / worldW, viewH / worldH) * 0.96;
+  state.zoom = Math.min(MAX_ZOOM, Math.max(MIN_ZOOM, fit));
+  state.panX = (viewW - worldW * state.zoom) / 2;
+  state.panY = (viewH - worldH * state.zoom) / 2;
+  if (els.zoomRange) {
+    els.zoomRange.value = String(state.zoom);
+    els.zoomValue.textContent = `${state.zoom.toFixed(2)}x`;
+  }
+}
+
+function isBlockedCell(i) {
+  // Wall/blocking: back bit 0x20000000 or front bit 0x8000 (matches Crystal map v1).
+  return (state.map.back[i] & 0x20000000) !== 0 || (state.map.front[i] & 0x8000) !== 0;
+}
+
+function drawBackdrop() {
+  if (!state.backdrop || !state.layers.terrain) return;
+  const worldW = state.map.width * CELL_W;
+  const worldH = state.map.height * CELL_H;
+  ctx.imageSmoothingEnabled = true;
+  ctx.drawImage(state.backdrop, 0, 0, worldW, worldH);
+}
+
+function drawWallsOverlay(bounds) {
+  if (!state.layers.walls) return;
+  ctx.fillStyle = "rgba(239, 68, 68, 0.42)";
+  for (let y = bounds.y0; y <= bounds.y1; y++) {
+    for (let x = bounds.x0; x <= bounds.x1; x++) {
+      if (isBlockedCell(cellIndex(x, y))) {
+        ctx.fillRect(x * CELL_W, y * CELL_H, CELL_W, CELL_H);
+      }
+    }
+  }
 }
 
 async function saveMap() {
@@ -779,7 +868,14 @@ function bindUi() {
   });
   els.downloadRegionJson.addEventListener("click", () => downloadRegionJson());
   els.clearRegionBtn.addEventListener("click", () => clearRegion());
-  for (const [key, el] of [["back", els.layerBack], ["middle", els.layerMiddle], ["front", els.layerFront]]) {
+  for (const [key, el] of [
+    ["back", els.layerBack],
+    ["middle", els.layerMiddle],
+    ["front", els.layerFront],
+    ["terrain", els.layerTerrain],
+    ["walls", els.layerWalls],
+  ]) {
+    if (!el) continue;
     el.addEventListener("change", () => {
       state.layers[key] = el.checked;
       scheduleRender();
@@ -912,10 +1008,11 @@ async function boot() {
   resizeViewport();
   await loadConfig();
   await loadMapList();
-  const hell = state.maps.find((m) => /^hell01\.map$/i.test(m));
-  if (hell) {
-    els.mapSelect.value = hell;
-    await loadMap(hell);
+  const preferred = state.maps.find((m) => /^FOX02\.map$/i.test(m))
+    ?? state.maps.find((m) => /^hell01\.map$/i.test(m));
+  if (preferred) {
+    els.mapSelect.value = preferred;
+    await loadMap(preferred);
   }
   els.brushBack.value = state.brush.backFrame;
   els.paletteStart.value = state.paletteStart;

@@ -1,0 +1,4284 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<title>KR MirDB items missing from LOM Idle</title>
+<style>
+  :root { --bg:#14110e; --panel:#1e1a16; --ink:#f3ebe2; --muted:#a89a8c; --line:#3a322b; --accent:#c4a574; }
+  * { box-sizing: border-box; }
+  body { margin:0; font:14px/1.45 "Segoe UI", system-ui, sans-serif; background:var(--bg); color:var(--ink); }
+  header { padding:24px 28px 12px; border-bottom:1px solid var(--line); background:linear-gradient(180deg,#221c17,var(--bg)); }
+  h1 { margin:0 0 8px; font-size:1.45rem; font-weight:650; }
+  .sub { color:var(--muted); max-width:70rem; }
+  .sub code { color:var(--accent); }
+  .stats-bar { display:flex; flex-wrap:wrap; gap:10px; margin:14px 0 8px; }
+  .pill { background:var(--panel); border:1px solid var(--line); border-radius:999px; padding:4px 12px; color:var(--muted); }
+  .pill b { color:var(--ink); font-weight:600; }
+  .filters { display:flex; flex-wrap:wrap; gap:8px; padding:12px 28px; position:sticky; top:0; background:rgba(20,17,14,.92); backdrop-filter:blur(6px); border-bottom:1px solid var(--line); z-index:2; }
+  .filters button { background:var(--panel); color:var(--ink); border:1px solid var(--line); border-radius:8px; padding:6px 10px; cursor:pointer; }
+  .filters button.active, .filters button:hover { border-color:var(--accent); color:var(--accent); }
+  main { padding:20px 28px 48px; display:grid; grid-template-columns:repeat(auto-fill,minmax(280px,1fr)); gap:14px; }
+  .card { display:flex; gap:12px; background:var(--panel); border:1px solid var(--line); border-radius:12px; padding:12px; }
+  .icon { width:48px; height:48px; image-rendering:pixelated; background:#0c0a08; border:1px solid var(--line); border-radius:6px; flex:0 0 auto; object-fit:contain; }
+  .icon.missing { display:grid; place-items:center; font-size:11px; color:var(--muted); }
+  h3 { margin:0 0 4px; font-size:1rem; font-weight:650; word-break:break-word; }
+  .type { color:var(--accent); font-size:12px; margin-bottom:2px; }
+  .meta, .stats, .tip { color:var(--muted); font-size:12px; }
+  .tip { margin-top:6px; white-space:pre-wrap; }
+  .note { padding:0 28px 20px; color:var(--muted); }
+</style>
+</head>
+<body>
+<header>
+  <h1>Korean Server items not in LOM Idle</h1>
+  <p class="sub">
+    Source: <code>C:/Users/bb-we/Documents/KR-Mir2-Client/KServer/KoreanServer/Server/Server.MirDB</code> (DB v68, custom 498).
+    Matched by inventory <b>Image/frame</b> (fallback: weapon/armour <b>Shape</b> ↔ <code>visual.index</code>).
+    Korean names are labels only — matching is by icon/shape ids.
+  </p>
+  <div class="stats-bar">
+    <span class="pill">KR items <b>2229</b></span>
+    <span class="pill">Ours <b>540</b></span>
+    <span class="pill">Matched <b>880</b></span>
+    <span class="pill">Missing gear (unique) <b>409</b></span>
+    <span class="pill">Missing non-gear <b>878</b></span>
+  </div>
+</header>
+<div class="filters">
+  <button type="button" class="active" data-filter="all">All gear (409)</button>
+  <button type="button" data-filter="Amulet">Amulet (19)</button><button type="button" data-filter="Armour">Armour (112)</button><button type="button" data-filter="Belt">Belt (19)</button><button type="button" data-filter="Boots">Boots (20)</button><button type="button" data-filter="Bracelet">Bracelet (45)</button><button type="button" data-filter="Helmet">Helmet (15)</button><button type="button" data-filter="Mask">Mask (1)</button><button type="button" data-filter="Necklace">Necklace (43)</button><button type="button" data-filter="Ring">Ring (59)</button><button type="button" data-filter="Stone">Stone (13)</button><button type="button" data-filter="Torch">Torch (13)</button><button type="button" data-filter="Weapon">Weapon (50)</button>
+</div>
+<p class="note">Icons load from local Crystal frames when that Image id exists in <code>public/item-icons</code> / <code>tile-review</code>. Blank = frame not extracted yet (often KR-only high indexes).</p>
+<main>
+<article class="card" data-type="Amulet">
+  <img class="icon" src="../tile-review/items-icons-003300-003499/images/frame_003460.png" alt="" loading="lazy" />
+  <div class="body">
+    <div class="type">Amulet · Lv1</div>
+    <h3>기공석(소)</h3>
+    <div class="meta">KR #1023 · Image 3460 · Shape 4</div>
+    <div class="stats">MC 0-1</div>
+    
+  </div>
+</article>
+<article class="card" data-type="Amulet">
+  <img class="icon" src="../tile-review/items-icons-003300-003499/images/frame_003461.png" alt="" loading="lazy" />
+  <div class="body">
+    <div class="type">Amulet · Lv1</div>
+    <h3>기공석(중)</h3>
+    <div class="meta">KR #1024 · Image 3461 · Shape 4</div>
+    <div class="stats">MC 0-2</div>
+    
+  </div>
+</article>
+<article class="card" data-type="Amulet">
+  <img class="icon" src="../tile-review/items-icons-003300-003499/images/frame_003462.png" alt="" loading="lazy" />
+  <div class="body">
+    <div class="type">Amulet · Lv1</div>
+    <h3>기공석(대)</h3>
+    <div class="meta">KR #1022 · Image 3462 · Shape 4</div>
+    <div class="stats">MC 0-3</div>
+    
+  </div>
+</article>
+<article class="card" data-type="Amulet">
+  <img class="icon" src="../tile-review/items-icons-003300-003499/images/frame_003463.png" alt="" loading="lazy" />
+  <div class="body">
+    <div class="type">Amulet · Lv1</div>
+    <h3>기공석(특)</h3>
+    <div class="meta">KR #1025 · Image 3463 · Shape 4</div>
+    <div class="stats">MC 0-3</div>
+    
+  </div>
+</article>
+<article class="card" data-type="Amulet">
+  <div class="icon missing">#3671</div>
+  <div class="body">
+    <div class="type">Amulet · Lv1</div>
+    <h3>황색독가루(중)</h3>
+    <div class="meta">KR #1034 · Image 3671 · Shape 2</div>
+    <div class="stats">SC 0-2</div>
+    
+  </div>
+</article>
+<article class="card" data-type="Amulet">
+  <div class="icon missing">#3671</div>
+  <div class="body">
+    <div class="type">Amulet · Lv1</div>
+    <h3>황색독가루(특)</h3>
+    <div class="meta">KR #1035 · Image 3671 · Shape 2</div>
+    <div class="stats">SC 0-3</div>
+    
+  </div>
+</article>
+<article class="card" data-type="Amulet">
+  <div class="icon missing">#3672</div>
+  <div class="body">
+    <div class="type">Amulet · Lv1</div>
+    <h3>황색독가루(대)</h3>
+    <div class="meta">KR #1033 · Image 3672 · Shape 2</div>
+    <div class="stats">SC 0-3</div>
+    
+  </div>
+</article>
+<article class="card" data-type="Amulet">
+  <div class="icon missing">#3672</div>
+  <div class="body">
+    <div class="type">Amulet · Lv1</div>
+    <h3>황색독주머니</h3>
+    <div class="meta">KR #1036 · Image 3672 · Shape 2</div>
+    <div class="stats">SC 0-3</div>
+    
+  </div>
+</article>
+<article class="card" data-type="Amulet">
+  <div class="icon missing">#3674</div>
+  <div class="body">
+    <div class="type">Amulet · Lv1</div>
+    <h3>회색독가루(중)</h3>
+    <div class="meta">KR #1039 · Image 3674 · Shape 1</div>
+    <div class="stats">SC 0-2</div>
+    
+  </div>
+</article>
+<article class="card" data-type="Amulet">
+  <div class="icon missing">#3674</div>
+  <div class="body">
+    <div class="type">Amulet · Lv1</div>
+    <h3>회색독가루(특)</h3>
+    <div class="meta">KR #1040 · Image 3674 · Shape 1</div>
+    <div class="stats">SC 0-3</div>
+    
+  </div>
+</article>
+<article class="card" data-type="Amulet">
+  <div class="icon missing">#3675</div>
+  <div class="body">
+    <div class="type">Amulet · Lv1</div>
+    <h3>회색독가루(대)</h3>
+    <div class="meta">KR #1038 · Image 3675 · Shape 1</div>
+    <div class="stats">SC 0-3</div>
+    
+  </div>
+</article>
+<article class="card" data-type="Amulet">
+  <div class="icon missing">#3675</div>
+  <div class="body">
+    <div class="type">Amulet · Lv1</div>
+    <h3>회색독주머니</h3>
+    <div class="meta">KR #1041 · Image 3675 · Shape 1</div>
+    <div class="stats">SC 0-3</div>
+    
+  </div>
+</article>
+<article class="card" data-type="Amulet">
+  <div class="icon missing">#3660</div>
+  <div class="body">
+    <div class="type">Amulet · Lv0</div>
+    <h3>부적</h3>
+    <div class="meta">KR #1026 · Image 3660 · Shape 0</div>
+    <div class="stats">no combat stats</div>
+    <div class="tip">옴 마니 파드메 홈</div>
+  </div>
+</article>
+<article class="card" data-type="Amulet">
+  <div class="icon missing">#3660</div>
+  <div class="body">
+    <div class="type">Amulet · Lv0</div>
+    <h3>부적(중)</h3>
+    <div class="meta">KR #1028 · Image 3660 · Shape 0</div>
+    <div class="stats">no combat stats</div>
+    <div class="tip">옴 마니 파드메 홈</div>
+  </div>
+</article>
+<article class="card" data-type="Amulet">
+  <div class="icon missing">#3661</div>
+  <div class="body">
+    <div class="type">Amulet · Lv0</div>
+    <h3>부적(대)</h3>
+    <div class="meta">KR #1027 · Image 3661 · Shape 0</div>
+    <div class="stats">no combat stats</div>
+    <div class="tip">옴 마니 파드메 홈</div>
+  </div>
+</article>
+<article class="card" data-type="Amulet">
+  <div class="icon missing">#3661</div>
+  <div class="body">
+    <div class="type">Amulet · Lv0</div>
+    <h3>부적(특)</h3>
+    <div class="meta">KR #1029 · Image 3661 · Shape 0</div>
+    <div class="stats">no combat stats</div>
+    <div class="tip">옴 마니 파드메 홈</div>
+  </div>
+</article>
+<article class="card" data-type="Amulet">
+  <div class="icon missing">#3662</div>
+  <div class="body">
+    <div class="type">Amulet · Lv0</div>
+    <h3>부적묶음</h3>
+    <div class="meta">KR #1030 · Image 3662 · Shape 0</div>
+    <div class="stats">no combat stats</div>
+    <div class="tip">옴 마니 파드메 홈</div>
+  </div>
+</article>
+<article class="card" data-type="Amulet">
+  <div class="icon missing">#3670</div>
+  <div class="body">
+    <div class="type">Amulet · Lv0</div>
+    <h3>황색독가루</h3>
+    <div class="meta">KR #1032 · Image 3670 · Shape 2</div>
+    <div class="stats">SC 0-1</div>
+    
+  </div>
+</article>
+<article class="card" data-type="Amulet">
+  <div class="icon missing">#3673</div>
+  <div class="body">
+    <div class="type">Amulet · Lv0</div>
+    <h3>회색독가루</h3>
+    <div class="meta">KR #1037 · Image 3673 · Shape 1</div>
+    <div class="stats">SC 0-1</div>
+    
+  </div>
+</article>
+<article class="card" data-type="Armour">
+  <img class="icon" src="../tile-review/items-icons-002000-002999/images/frame_002274.png" alt="" loading="lazy" />
+  <div class="body">
+    <div class="type">Armour · Lv50</div>
+    <h3>흑오비갑(남)</h3>
+    <div class="meta">KR #594 · Image 2274 · Shape 24</div>
+    <div class="stats">DC 1-1, AC 7-17, MAC 4-12</div>
+    
+  </div>
+</article>
+<article class="card" data-type="Armour">
+  <img class="icon" src="../tile-review/items-icons-002000-002999/images/frame_002284.png" alt="" loading="lazy" />
+  <div class="body">
+    <div class="type">Armour · Lv50</div>
+    <h3>흑오비갑(여)</h3>
+    <div class="meta">KR #595 · Image 2284 · Shape 24</div>
+    <div class="stats">DC 1-1, AC 7-17, MAC 4-12</div>
+    
+  </div>
+</article>
+<article class="card" data-type="Armour">
+  <img class="icon" src="../tile-review/items-icons-003300-003499/images/frame_003425.png" alt="" loading="lazy" />
+  <div class="body">
+    <div class="type">Armour · Lv50</div>
+    <h3>열천신갑(남)</h3>
+    <div class="meta">KR #388 · Image 3425 · Shape 40</div>
+    <div class="stats">DC 1-1, MC 3-6, AC 5-16, MAC 3-12, Acc +2</div>
+    
+  </div>
+</article>
+<article class="card" data-type="Armour">
+  <img class="icon" src="../tile-review/items-icons-003300-003499/images/frame_003435.png" alt="" loading="lazy" />
+  <div class="body">
+    <div class="type">Armour · Lv50</div>
+    <h3>열천신갑(여)</h3>
+    <div class="meta">KR #389 · Image 3435 · Shape 40</div>
+    <div class="stats">DC 1-1, MC 3-6, AC 5-16, MAC 3-12, Acc +2</div>
+    
+  </div>
+</article>
+<article class="card" data-type="Armour">
+  <img class="icon" src="../tile-review/items-icons-003300-003499/images/frame_003334.png" alt="" loading="lazy" />
+  <div class="body">
+    <div class="type">Armour · Lv45</div>
+    <h3>현골흑의(남)</h3>
+    <div class="meta">KR #536 · Image 3334 · Shape 31</div>
+    <div class="stats">DC 1-1, AC 8-23, MAC 3-8</div>
+    
+  </div>
+</article>
+<article class="card" data-type="Armour">
+  <img class="icon" src="../tile-review/items-icons-003300-003499/images/frame_003335.png" alt="" loading="lazy" />
+  <div class="body">
+    <div class="type">Armour · Lv45</div>
+    <h3>현월광의(남)</h3>
+    <div class="meta">KR #540 · Image 3335 · Shape 32</div>
+    <div class="stats">MC 0-7, AC 5-16, MAC 4-9</div>
+    
+  </div>
+</article>
+<article class="card" data-type="Armour">
+  <img class="icon" src="../tile-review/items-icons-003300-003499/images/frame_003336.png" alt="" loading="lazy" />
+  <div class="body">
+    <div class="type">Armour · Lv45</div>
+    <h3>현목화갑(남)</h3>
+    <div class="meta">KR #538 · Image 3336 · Shape 33</div>
+    <div class="stats">DC 1-1, SC 0-6, AC 6-18, MAC 3-9</div>
+    
+  </div>
+</article>
+<article class="card" data-type="Armour">
+  <img class="icon" src="../tile-review/items-icons-003300-003499/images/frame_003337.png" alt="" loading="lazy" />
+  <div class="body">
+    <div class="type">Armour · Lv45</div>
+    <h3>귀각현갑(남)</h3>
+    <div class="meta">KR #351 · Image 3337 · Shape 34</div>
+    <div class="stats">DC 1-1, AC 7-17, MAC 4-12</div>
+    
+  </div>
+</article>
+<article class="card" data-type="Armour">
+  <img class="icon" src="../tile-review/items-icons-003300-003499/images/frame_003338.png" alt="" loading="lazy" />
+  <div class="body">
+    <div class="type">Armour · Lv45</div>
+    <h3>현골흑의(여)</h3>
+    <div class="meta">KR #537 · Image 3338 · Shape 31</div>
+    <div class="stats">DC 1-1, AC 8-23, MAC 3-8</div>
+    
+  </div>
+</article>
+<article class="card" data-type="Armour">
+  <img class="icon" src="../tile-review/items-icons-003300-003499/images/frame_003339.png" alt="" loading="lazy" />
+  <div class="body">
+    <div class="type">Armour · Lv45</div>
+    <h3>현월광의(여)</h3>
+    <div class="meta">KR #541 · Image 3339 · Shape 32</div>
+    <div class="stats">MC 0-7, AC 5-16, MAC 4-9</div>
+    
+  </div>
+</article>
+<article class="card" data-type="Armour">
+  <img class="icon" src="../tile-review/items-icons-003300-003499/images/frame_003340.png" alt="" loading="lazy" />
+  <div class="body">
+    <div class="type">Armour · Lv45</div>
+    <h3>현목화갑(여)</h3>
+    <div class="meta">KR #539 · Image 3340 · Shape 33</div>
+    <div class="stats">DC 1-1, SC 0-6, AC 6-18, MAC 3-9</div>
+    
+  </div>
+</article>
+<article class="card" data-type="Armour">
+  <img class="icon" src="../tile-review/items-icons-003300-003499/images/frame_003341.png" alt="" loading="lazy" />
+  <div class="body">
+    <div class="type">Armour · Lv45</div>
+    <h3>귀각현갑(여)</h3>
+    <div class="meta">KR #352 · Image 3341 · Shape 34</div>
+    <div class="stats">DC 1-1, AC 7-17, MAC 4-12</div>
+    
+  </div>
+</article>
+<article class="card" data-type="Armour">
+  <img class="icon" src="../tile-review/items-icons-003300-003499/images/frame_003425.png" alt="" loading="lazy" />
+  <div class="body">
+    <div class="type">Armour · Lv45</div>
+    <h3>표호신의(남)</h3>
+    <div class="meta">KR #532 · Image 3425 · Shape 40</div>
+    <div class="stats">DC 0-1, MC 3-5, AC 5-17, MAC 4-10, Acc +2, Agi +1</div>
+    
+  </div>
+</article>
+<article class="card" data-type="Armour">
+  <img class="icon" src="../tile-review/items-icons-003300-003499/images/frame_003435.png" alt="" loading="lazy" />
+  <div class="body">
+    <div class="type">Armour · Lv45</div>
+    <h3>표호신의(여)</h3>
+    <div class="meta">KR #533 · Image 3435 · Shape 40</div>
+    <div class="stats">DC 0-1, MC 3-5, AC 5-17, MAC 4-10, Acc +2, Agi +1</div>
+    
+  </div>
+</article>
+<article class="card" data-type="Armour">
+  <img class="icon" src="../tile-review/items-icons-002000-002999/images/frame_002273.png" alt="" loading="lazy" />
+  <div class="body">
+    <div class="type">Armour · Lv44</div>
+    <h3>흑의마갑(남)</h3>
+    <div class="meta">KR #596 · Image 2273 · Shape 23</div>
+    <div class="stats">DC 1-2, MC 0-5, SC 0-4, AC 5-15, MAC 4-10, HP +100, MP +50</div>
+    
+  </div>
+</article>
+<article class="card" data-type="Armour">
+  <img class="icon" src="../tile-review/items-icons-002000-002999/images/frame_002283.png" alt="" loading="lazy" />
+  <div class="body">
+    <div class="type">Armour · Lv44</div>
+    <h3>흑의마갑(여)</h3>
+    <div class="meta">KR #597 · Image 2283 · Shape 23</div>
+    <div class="stats">DC 1-2, MC 0-5, SC 0-4, AC 5-15, MAC 4-10, HP +100, MP +50</div>
+    
+  </div>
+</article>
+<article class="card" data-type="Armour">
+  <img class="icon" src="../tile-review/items-icons-003300-003499/images/frame_003424.png" alt="" loading="lazy" />
+  <div class="body">
+    <div class="type">Armour · Lv44</div>
+    <h3>옥의마갑(남)</h3>
+    <div class="meta">KR #396 · Image 3424 · Shape 39</div>
+    <div class="stats">MC 3-5, AC 5-16, MAC 4-10, Acc +2, HP +90, MP +155</div>
+    
+  </div>
+</article>
+<article class="card" data-type="Armour">
+  <img class="icon" src="../tile-review/items-icons-003300-003499/images/frame_003434.png" alt="" loading="lazy" />
+  <div class="body">
+    <div class="type">Armour · Lv44</div>
+    <h3>옥의마갑(여)</h3>
+    <div class="meta">KR #397 · Image 3434 · Shape 39</div>
+    <div class="stats">MC 3-5, AC 5-16, MAC 4-10, Acc +2, HP +90, MP +155</div>
+    
+  </div>
+</article>
+<article class="card" data-type="Armour">
+  <img class="icon" src="../tile-review/items-icons-000000-001999/images/frame_001034.png" alt="" loading="lazy" />
+  <div class="body">
+    <div class="type">Armour · Lv40</div>
+    <h3>수혼갑주(남)</h3>
+    <div class="meta">KR #382 · Image 1034 · Shape 25</div>
+    <div class="stats">DC 0-1, AC 6-20, MAC 3-7, HP +10</div>
+    
+  </div>
+</article>
+<article class="card" data-type="Armour">
+  <img class="icon" src="../tile-review/items-icons-000000-001999/images/frame_001035.png" alt="" loading="lazy" />
+  <div class="body">
+    <div class="type">Armour · Lv40</div>
+    <h3>미혼환의(남)</h3>
+    <div class="meta">KR #366 · Image 1035 · Shape 26</div>
+    <div class="stats">MC 0-7, AC 4-14, MAC 5-8, HP +10</div>
+    
+  </div>
+</article>
+<article class="card" data-type="Armour">
+  <img class="icon" src="../tile-review/items-icons-000000-001999/images/frame_001036.png" alt="" loading="lazy" />
+  <div class="body">
+    <div class="type">Armour · Lv40</div>
+    <h3>참혼선의(남)</h3>
+    <div class="meta">KR #486 · Image 1036 · Shape 27</div>
+    <div class="stats">SC 0-6, AC 5-16, MAC 3-8, HP +10</div>
+    
+  </div>
+</article>
+<article class="card" data-type="Armour">
+  <img class="icon" src="../tile-review/items-icons-000000-001999/images/frame_001037.png" alt="" loading="lazy" />
+  <div class="body">
+    <div class="type">Armour · Lv40</div>
+    <h3>괴월자갑(남)</h3>
+    <div class="meta">KR #349 · Image 1037 · Shape 28</div>
+    <div class="stats">DC 0-1, AC 6-15, MAC 5-10, HP +10</div>
+    
+  </div>
+</article>
+<article class="card" data-type="Armour">
+  <img class="icon" src="../tile-review/items-icons-000000-001999/images/frame_001044.png" alt="" loading="lazy" />
+  <div class="body">
+    <div class="type">Armour · Lv40</div>
+    <h3>수혼갑주(여)</h3>
+    <div class="meta">KR #383 · Image 1044 · Shape 25</div>
+    <div class="stats">DC 0-1, AC 6-20, MAC 3-7, HP +10</div>
+    
+  </div>
+</article>
+<article class="card" data-type="Armour">
+  <img class="icon" src="../tile-review/items-icons-000000-001999/images/frame_001045.png" alt="" loading="lazy" />
+  <div class="body">
+    <div class="type">Armour · Lv40</div>
+    <h3>미혼환의(여)</h3>
+    <div class="meta">KR #367 · Image 1045 · Shape 26</div>
+    <div class="stats">MC 0-7, AC 4-14, MAC 5-8, HP +10</div>
+    
+  </div>
+</article>
+<article class="card" data-type="Armour">
+  <img class="icon" src="../tile-review/items-icons-000000-001999/images/frame_001046.png" alt="" loading="lazy" />
+  <div class="body">
+    <div class="type">Armour · Lv40</div>
+    <h3>참혼선의(여)</h3>
+    <div class="meta">KR #487 · Image 1046 · Shape 27</div>
+    <div class="stats">SC 0-6, AC 5-16, MAC 3-8, HP +10</div>
+    
+  </div>
+</article>
+<article class="card" data-type="Armour">
+  <img class="icon" src="../tile-review/items-icons-000000-001999/images/frame_001047.png" alt="" loading="lazy" />
+  <div class="body">
+    <div class="type">Armour · Lv40</div>
+    <h3>괴월자갑(여)</h3>
+    <div class="meta">KR #350 · Image 1047 · Shape 28</div>
+    <div class="stats">DC 0-1, AC 6-15, MAC 5-10, HP +10</div>
+    
+  </div>
+</article>
+<article class="card" data-type="Armour">
+  <img class="icon" src="../tile-review/items-icons-003300-003499/images/frame_003423.png" alt="" loading="lazy" />
+  <div class="body">
+    <div class="type">Armour · Lv40</div>
+    <h3>경량혼의(남)</h3>
+    <div class="meta">KR #345 · Image 3423 · Shape 38</div>
+    <div class="stats">MC 2-5, AC 4-14, MAC 5-10, Acc +2, HP +10</div>
+    
+  </div>
+</article>
+<article class="card" data-type="Armour">
+  <img class="icon" src="../tile-review/items-icons-003300-003499/images/frame_003433.png" alt="" loading="lazy" />
+  <div class="body">
+    <div class="type">Armour · Lv40</div>
+    <h3>경량혼의(여)</h3>
+    <div class="meta">KR #346 · Image 3433 · Shape 38</div>
+    <div class="stats">MC 2-5, AC 4-14, MAC 5-10, Acc +2, HP +10</div>
+    
+  </div>
+</article>
+<article class="card" data-type="Armour">
+  <img class="icon" src="../tile-review/items-icons-002000-002999/images/frame_002271.png" alt="" loading="lazy" />
+  <div class="body">
+    <div class="type">Armour · Lv33</div>
+    <h3>염홍의(남)</h3>
+    <div class="meta">KR #390 · Image 2271 · Shape 21</div>
+    <div class="stats">AC 4-10, MAC 5-7</div>
+    
+  </div>
+</article>
+<article class="card" data-type="Armour">
+  <img class="icon" src="../tile-review/items-icons-002000-002999/images/frame_002281.png" alt="" loading="lazy" />
+  <div class="body">
+    <div class="type">Armour · Lv33</div>
+    <h3>염홍의(여)</h3>
+    <div class="meta">KR #391 · Image 2281 · Shape 21</div>
+    <div class="stats">AC 4-10, MAC 5-7</div>
+    
+  </div>
+</article>
+<article class="card" data-type="Armour">
+  <img class="icon" src="../tile-review/items-icons-003300-003499/images/frame_003421.png" alt="" loading="lazy" />
+  <div class="body">
+    <div class="type">Armour · Lv33</div>
+    <h3>혼매신의(남)</h3>
+    <div class="meta">KR #558 · Image 3421 · Shape 36</div>
+    <div class="stats">MC 2-3, AC 3-10, MAC 5-7, Acc +2</div>
+    
+  </div>
+</article>
+<article class="card" data-type="Armour">
+  <img class="icon" src="../tile-review/items-icons-003300-003499/images/frame_003431.png" alt="" loading="lazy" />
+  <div class="body">
+    <div class="type">Armour · Lv33</div>
+    <h3>혼매신의(여)</h3>
+    <div class="meta">KR #559 · Image 3431 · Shape 36</div>
+    <div class="stats">MC 2-3, AC 3-10, MAC 5-7, Acc +2</div>
+    
+  </div>
+</article>
+<article class="card" data-type="Armour">
+  <img class="icon" src="../tile-review/items-icons-002000-002999/images/frame_002271.png" alt="" loading="lazy" />
+  <div class="body">
+    <div class="type">Armour · Lv31</div>
+    <h3>염홍천의(남)</h3>
+    <div class="meta">KR #392 · Image 2271 · Shape 21</div>
+    <div class="stats">AC 4-10, MAC 5-7</div>
+    
+  </div>
+</article>
+<article class="card" data-type="Armour">
+  <img class="icon" src="../tile-review/items-icons-002000-002999/images/frame_002281.png" alt="" loading="lazy" />
+  <div class="body">
+    <div class="type">Armour · Lv31</div>
+    <h3>염홍천의(여)</h3>
+    <div class="meta">KR #393 · Image 2281 · Shape 21</div>
+    <div class="stats">AC 4-10, MAC 5-7</div>
+    
+  </div>
+</article>
+<article class="card" data-type="Armour">
+  <img class="icon" src="../tile-review/items-icons-002000-002999/images/frame_002270.png" alt="" loading="lazy" />
+  <div class="body">
+    <div class="type">Armour · Lv22</div>
+    <h3>잔영마의(남)</h3>
+    <div class="meta">KR #476 · Image 2270 · Shape 20</div>
+    <div class="stats">AC 3-5, MAC 3-5</div>
+    
+  </div>
+</article>
+<article class="card" data-type="Armour">
+  <img class="icon" src="../tile-review/items-icons-002000-002999/images/frame_002270.png" alt="" loading="lazy" />
+  <div class="body">
+    <div class="type">Armour · Lv22</div>
+    <h3>잔영의(남)</h3>
+    <div class="meta">KR #478 · Image 2270 · Shape 20</div>
+    <div class="stats">AC 3-6, MAC 3-6</div>
+    
+  </div>
+</article>
+<article class="card" data-type="Armour">
+  <img class="icon" src="../tile-review/items-icons-002000-002999/images/frame_002280.png" alt="" loading="lazy" />
+  <div class="body">
+    <div class="type">Armour · Lv22</div>
+    <h3>잔영마의(여)</h3>
+    <div class="meta">KR #477 · Image 2280 · Shape 20</div>
+    <div class="stats">AC 3-5, MAC 3-5</div>
+    
+  </div>
+</article>
+<article class="card" data-type="Armour">
+  <img class="icon" src="../tile-review/items-icons-002000-002999/images/frame_002280.png" alt="" loading="lazy" />
+  <div class="body">
+    <div class="type">Armour · Lv22</div>
+    <h3>잔영의(여)</h3>
+    <div class="meta">KR #479 · Image 2280 · Shape 20</div>
+    <div class="stats">AC 3-6, MAC 3-6</div>
+    
+  </div>
+</article>
+<article class="card" data-type="Armour">
+  <img class="icon" src="../tile-review/items-icons-003300-003499/images/frame_003420.png" alt="" loading="lazy" />
+  <div class="body">
+    <div class="type">Armour · Lv22</div>
+    <h3>절명혁의(남)</h3>
+    <div class="meta">KR #484 · Image 3420 · Shape 35</div>
+    <div class="stats">MC 0-1, AC 3-5, MAC 3-4, Acc +2</div>
+    
+  </div>
+</article>
+<article class="card" data-type="Armour">
+  <img class="icon" src="../tile-review/items-icons-003300-003499/images/frame_003430.png" alt="" loading="lazy" />
+  <div class="body">
+    <div class="type">Armour · Lv22</div>
+    <h3>절명혁의(여)</h3>
+    <div class="meta">KR #485 · Image 3430 · Shape 35</div>
+    <div class="stats">MC 0-1, AC 3-5, MAC 3-4, Acc +2</div>
+    
+  </div>
+</article>
+<article class="card" data-type="Armour">
+  <div class="icon missing">#1428</div>
+  <div class="body">
+    <div class="type">Armour · Lv1</div>
+    <h3>외형변경[1](남)</h3>
+    <div class="meta">KR #398 · Image 1428 · Shape 42</div>
+    <div class="stats">no combat stats</div>
+    <div class="tip">외형변경용 아이템</div>
+  </div>
+</article>
+<article class="card" data-type="Armour">
+  <div class="icon missing">#1429</div>
+  <div class="body">
+    <div class="type">Armour · Lv1</div>
+    <h3>외형변경[1](여)</h3>
+    <div class="meta">KR #399 · Image 1429 · Shape 42</div>
+    <div class="stats">no combat stats</div>
+    <div class="tip">외형변경용 아이템</div>
+  </div>
+</article>
+<article class="card" data-type="Armour">
+  <img class="icon" src="../tile-review/items-icons-000000-001999/images/frame_001430.png" alt="" loading="lazy" />
+  <div class="body">
+    <div class="type">Armour · Lv1</div>
+    <h3>외형변경[2](남)</h3>
+    <div class="meta">KR #420 · Image 1430 · Shape 43</div>
+    <div class="stats">no combat stats</div>
+    <div class="tip">외형변경용 아이템</div>
+  </div>
+</article>
+<article class="card" data-type="Armour">
+  <img class="icon" src="../tile-review/items-icons-000000-001999/images/frame_001431.png" alt="" loading="lazy" />
+  <div class="body">
+    <div class="type">Armour · Lv1</div>
+    <h3>외형변경[2](여)</h3>
+    <div class="meta">KR #421 · Image 1431 · Shape 43</div>
+    <div class="stats">no combat stats</div>
+    <div class="tip">외형변경용 아이템</div>
+  </div>
+</article>
+<article class="card" data-type="Armour">
+  <img class="icon" src="../tile-review/items-icons-000000-001999/images/frame_001432.png" alt="" loading="lazy" />
+  <div class="body">
+    <div class="type">Armour · Lv1</div>
+    <h3>외형변경[3](남)</h3>
+    <div class="meta">KR #442 · Image 1432 · Shape 44</div>
+    <div class="stats">no combat stats</div>
+    <div class="tip">외형변경용 아이템</div>
+  </div>
+</article>
+<article class="card" data-type="Armour">
+  <img class="icon" src="../tile-review/items-icons-000000-001999/images/frame_001433.png" alt="" loading="lazy" />
+  <div class="body">
+    <div class="type">Armour · Lv1</div>
+    <h3>수민외형변경[3](여)</h3>
+    <div class="meta">KR #2227 · Image 1433 · Shape 44</div>
+    <div class="stats">no combat stats</div>
+    <div class="tip">수민외형변경용 아이템</div>
+  </div>
+</article>
+<article class="card" data-type="Armour">
+  <img class="icon" src="../tile-review/items-icons-000000-001999/images/frame_001433.png" alt="" loading="lazy" />
+  <div class="body">
+    <div class="type">Armour · Lv1</div>
+    <h3>외형변경[3](여)</h3>
+    <div class="meta">KR #443 · Image 1433 · Shape 44</div>
+    <div class="stats">no combat stats</div>
+    <div class="tip">외형변경용 아이템</div>
+  </div>
+</article>
+<article class="card" data-type="Armour">
+  <img class="icon" src="../tile-review/items-icons-000000-001999/images/frame_001434.png" alt="" loading="lazy" />
+  <div class="body">
+    <div class="type">Armour · Lv1</div>
+    <h3>외형변경[4](남)</h3>
+    <div class="meta">KR #460 · Image 1434 · Shape 45</div>
+    <div class="stats">no combat stats</div>
+    <div class="tip">외형변경용 아이템</div>
+  </div>
+</article>
+<article class="card" data-type="Armour">
+  <div class="icon missing">#1435</div>
+  <div class="body">
+    <div class="type">Armour · Lv1</div>
+    <h3>외형변경[4](여)</h3>
+    <div class="meta">KR #461 · Image 1435 · Shape 45</div>
+    <div class="stats">no combat stats</div>
+    <div class="tip">외형변경용 아이템</div>
+  </div>
+</article>
+<article class="card" data-type="Armour">
+  <div class="icon missing">#1436</div>
+  <div class="body">
+    <div class="type">Armour · Lv1</div>
+    <h3>외형변경[5](남)</h3>
+    <div class="meta">KR #462 · Image 1436 · Shape 46</div>
+    <div class="stats">no combat stats</div>
+    <div class="tip">외형변경용 아이템</div>
+  </div>
+</article>
+<article class="card" data-type="Armour">
+  <div class="icon missing">#1437</div>
+  <div class="body">
+    <div class="type">Armour · Lv1</div>
+    <h3>외형변경[5](여)</h3>
+    <div class="meta">KR #463 · Image 1437 · Shape 46</div>
+    <div class="stats">no combat stats</div>
+    <div class="tip">외형변경용 아이템</div>
+  </div>
+</article>
+<article class="card" data-type="Armour">
+  <div class="icon missing">#1438</div>
+  <div class="body">
+    <div class="type">Armour · Lv1</div>
+    <h3>외형변경[6](남)</h3>
+    <div class="meta">KR #464 · Image 1438 · Shape 47</div>
+    <div class="stats">no combat stats</div>
+    <div class="tip">외형변경용 아이템</div>
+  </div>
+</article>
+<article class="card" data-type="Armour">
+  <div class="icon missing">#1439</div>
+  <div class="body">
+    <div class="type">Armour · Lv1</div>
+    <h3>외형변경[6](여)</h3>
+    <div class="meta">KR #465 · Image 1439 · Shape 47</div>
+    <div class="stats">no combat stats</div>
+    <div class="tip">외형변경용 아이템</div>
+  </div>
+</article>
+<article class="card" data-type="Armour">
+  <img class="icon" src="../tile-review/items-icons-000000-001999/images/frame_001440.png" alt="" loading="lazy" />
+  <div class="body">
+    <div class="type">Armour · Lv1</div>
+    <h3>외형변경[7](남)</h3>
+    <div class="meta">KR #466 · Image 1440 · Shape 48</div>
+    <div class="stats">no combat stats</div>
+    <div class="tip">외형변경용 아이템</div>
+  </div>
+</article>
+<article class="card" data-type="Armour">
+  <img class="icon" src="../tile-review/items-icons-000000-001999/images/frame_001441.png" alt="" loading="lazy" />
+  <div class="body">
+    <div class="type">Armour · Lv1</div>
+    <h3>외형변경[7](여)</h3>
+    <div class="meta">KR #467 · Image 1441 · Shape 48</div>
+    <div class="stats">no combat stats</div>
+    <div class="tip">외형변경용 아이템</div>
+  </div>
+</article>
+<article class="card" data-type="Armour">
+  <img class="icon" src="../tile-review/items-icons-000000-001999/images/frame_001442.png" alt="" loading="lazy" />
+  <div class="body">
+    <div class="type">Armour · Lv1</div>
+    <h3>외형변경[8](남)</h3>
+    <div class="meta">KR #468 · Image 1442 · Shape 49</div>
+    <div class="stats">no combat stats</div>
+    <div class="tip">외형변경용 아이템</div>
+  </div>
+</article>
+<article class="card" data-type="Armour">
+  <img class="icon" src="../tile-review/items-icons-000000-001999/images/frame_001443.png" alt="" loading="lazy" />
+  <div class="body">
+    <div class="type">Armour · Lv1</div>
+    <h3>외형변경[8](여)</h3>
+    <div class="meta">KR #469 · Image 1443 · Shape 49</div>
+    <div class="stats">no combat stats</div>
+    <div class="tip">외형변경용 아이템</div>
+  </div>
+</article>
+<article class="card" data-type="Armour">
+  <img class="icon" src="../tile-review/items-icons-000000-001999/images/frame_001444.png" alt="" loading="lazy" />
+  <div class="body">
+    <div class="type">Armour · Lv1</div>
+    <h3>외형변경[23](남)</h3>
+    <div class="meta">KR #428 · Image 1444 · Shape 64</div>
+    <div class="stats">no combat stats</div>
+    <div class="tip">외형변경용 아이템</div>
+  </div>
+</article>
+<article class="card" data-type="Armour">
+  <img class="icon" src="../tile-review/items-icons-000000-001999/images/frame_001444.png" alt="" loading="lazy" />
+  <div class="body">
+    <div class="type">Armour · Lv1</div>
+    <h3>외형변경[9](남)</h3>
+    <div class="meta">KR #470 · Image 1444 · Shape 50</div>
+    <div class="stats">no combat stats</div>
+    <div class="tip">외형변경용 아이템</div>
+  </div>
+</article>
+<article class="card" data-type="Armour">
+  <img class="icon" src="../tile-review/items-icons-000000-001999/images/frame_001445.png" alt="" loading="lazy" />
+  <div class="body">
+    <div class="type">Armour · Lv1</div>
+    <h3>외형변경[23](여)</h3>
+    <div class="meta">KR #429 · Image 1445 · Shape 64</div>
+    <div class="stats">no combat stats</div>
+    <div class="tip">외형변경용 아이템</div>
+  </div>
+</article>
+<article class="card" data-type="Armour">
+  <img class="icon" src="../tile-review/items-icons-000000-001999/images/frame_001445.png" alt="" loading="lazy" />
+  <div class="body">
+    <div class="type">Armour · Lv1</div>
+    <h3>외형변경[9](여)</h3>
+    <div class="meta">KR #471 · Image 1445 · Shape 50</div>
+    <div class="stats">no combat stats</div>
+    <div class="tip">외형변경용 아이템</div>
+  </div>
+</article>
+<article class="card" data-type="Armour">
+  <img class="icon" src="../tile-review/items-icons-000000-001999/images/frame_001446.png" alt="" loading="lazy" />
+  <div class="body">
+    <div class="type">Armour · Lv1</div>
+    <h3>외형변경[10](남)</h3>
+    <div class="meta">KR #400 · Image 1446 · Shape 51</div>
+    <div class="stats">no combat stats</div>
+    <div class="tip">외형변경용 아이템</div>
+  </div>
+</article>
+<article class="card" data-type="Armour">
+  <img class="icon" src="../tile-review/items-icons-000000-001999/images/frame_001447.png" alt="" loading="lazy" />
+  <div class="body">
+    <div class="type">Armour · Lv1</div>
+    <h3>외형변경[10](여)</h3>
+    <div class="meta">KR #401 · Image 1447 · Shape 51</div>
+    <div class="stats">no combat stats</div>
+    <div class="tip">외형변경용 아이템</div>
+  </div>
+</article>
+<article class="card" data-type="Armour">
+  <img class="icon" src="../tile-review/items-icons-000000-001999/images/frame_001448.png" alt="" loading="lazy" />
+  <div class="body">
+    <div class="type">Armour · Lv1</div>
+    <h3>외형변경[11](남)</h3>
+    <div class="meta">KR #402 · Image 1448 · Shape 52</div>
+    <div class="stats">no combat stats</div>
+    <div class="tip">외형변경용 아이템</div>
+  </div>
+</article>
+<article class="card" data-type="Armour">
+  <img class="icon" src="../tile-review/items-icons-000000-001999/images/frame_001449.png" alt="" loading="lazy" />
+  <div class="body">
+    <div class="type">Armour · Lv1</div>
+    <h3>외형변경[12](남)</h3>
+    <div class="meta">KR #404 · Image 1449 · Shape 53</div>
+    <div class="stats">no combat stats</div>
+    <div class="tip">외형변경용 아이템</div>
+  </div>
+</article>
+<article class="card" data-type="Armour">
+  <img class="icon" src="../tile-review/items-icons-000000-001999/images/frame_001450.png" alt="" loading="lazy" />
+  <div class="body">
+    <div class="type">Armour · Lv1</div>
+    <h3>외형변경[12](여)</h3>
+    <div class="meta">KR #405 · Image 1450 · Shape 53</div>
+    <div class="stats">no combat stats</div>
+    <div class="tip">외형변경용 아이템</div>
+  </div>
+</article>
+<article class="card" data-type="Armour">
+  <img class="icon" src="../tile-review/items-icons-000000-001999/images/frame_001451.png" alt="" loading="lazy" />
+  <div class="body">
+    <div class="type">Armour · Lv1</div>
+    <h3>외형변경[13](남)</h3>
+    <div class="meta">KR #406 · Image 1451 · Shape 54</div>
+    <div class="stats">no combat stats</div>
+    <div class="tip">외형변경용 아이템</div>
+  </div>
+</article>
+<article class="card" data-type="Armour">
+  <img class="icon" src="../tile-review/items-icons-000000-001999/images/frame_001452.png" alt="" loading="lazy" />
+  <div class="body">
+    <div class="type">Armour · Lv1</div>
+    <h3>외형변경[13](여)</h3>
+    <div class="meta">KR #407 · Image 1452 · Shape 54</div>
+    <div class="stats">no combat stats</div>
+    <div class="tip">외형변경용 아이템</div>
+  </div>
+</article>
+<article class="card" data-type="Armour">
+  <img class="icon" src="../tile-review/items-icons-000000-001999/images/frame_001453.png" alt="" loading="lazy" />
+  <div class="body">
+    <div class="type">Armour · Lv1</div>
+    <h3>외형변경[14](남)</h3>
+    <div class="meta">KR #408 · Image 1453 · Shape 55</div>
+    <div class="stats">no combat stats</div>
+    <div class="tip">외형변경용 아이템</div>
+  </div>
+</article>
+<article class="card" data-type="Armour">
+  <img class="icon" src="../tile-review/items-icons-000000-001999/images/frame_001454.png" alt="" loading="lazy" />
+  <div class="body">
+    <div class="type">Armour · Lv1</div>
+    <h3>외형변경[14](여)</h3>
+    <div class="meta">KR #409 · Image 1454 · Shape 55</div>
+    <div class="stats">no combat stats</div>
+    <div class="tip">외형변경용 아이템</div>
+  </div>
+</article>
+<article class="card" data-type="Armour">
+  <img class="icon" src="../tile-review/items-icons-000000-001999/images/frame_001455.png" alt="" loading="lazy" />
+  <div class="body">
+    <div class="type">Armour · Lv1</div>
+    <h3>외형변경[15](남)</h3>
+    <div class="meta">KR #410 · Image 1455 · Shape 56</div>
+    <div class="stats">no combat stats</div>
+    <div class="tip">외형변경용 아이템</div>
+  </div>
+</article>
+<article class="card" data-type="Armour">
+  <img class="icon" src="../tile-review/items-icons-000000-001999/images/frame_001456.png" alt="" loading="lazy" />
+  <div class="body">
+    <div class="type">Armour · Lv1</div>
+    <h3>외형변경[15](여)</h3>
+    <div class="meta">KR #411 · Image 1456 · Shape 56</div>
+    <div class="stats">no combat stats</div>
+    <div class="tip">외형변경용 아이템</div>
+  </div>
+</article>
+<article class="card" data-type="Armour">
+  <img class="icon" src="../tile-review/items-icons-000000-001999/images/frame_001459.png" alt="" loading="lazy" />
+  <div class="body">
+    <div class="type">Armour · Lv1</div>
+    <h3>외형변경[17](남)</h3>
+    <div class="meta">KR #414 · Image 1459 · Shape 58</div>
+    <div class="stats">no combat stats</div>
+    <div class="tip">외형변경용 아이템</div>
+  </div>
+</article>
+<article class="card" data-type="Armour">
+  <img class="icon" src="../tile-review/items-icons-000000-001999/images/frame_001459.png" alt="" loading="lazy" />
+  <div class="body">
+    <div class="type">Armour · Lv1</div>
+    <h3>외형변경[18](남)</h3>
+    <div class="meta">KR #416 · Image 1459 · Shape 59</div>
+    <div class="stats">no combat stats</div>
+    <div class="tip">외형변경용 아이템</div>
+  </div>
+</article>
+<article class="card" data-type="Armour">
+  <img class="icon" src="../tile-review/items-icons-000000-001999/images/frame_001460.png" alt="" loading="lazy" />
+  <div class="body">
+    <div class="type">Armour · Lv1</div>
+    <h3>외형변경[17](여)</h3>
+    <div class="meta">KR #415 · Image 1460 · Shape 58</div>
+    <div class="stats">no combat stats</div>
+    <div class="tip">외형변경용 아이템</div>
+  </div>
+</article>
+<article class="card" data-type="Armour">
+  <img class="icon" src="../tile-review/items-icons-000000-001999/images/frame_001460.png" alt="" loading="lazy" />
+  <div class="body">
+    <div class="type">Armour · Lv1</div>
+    <h3>외형변경[18](여)</h3>
+    <div class="meta">KR #417 · Image 1460 · Shape 59</div>
+    <div class="stats">no combat stats</div>
+    <div class="tip">외형변경용 아이템</div>
+  </div>
+</article>
+<article class="card" data-type="Armour">
+  <img class="icon" src="../tile-review/items-icons-000000-001999/images/frame_001461.png" alt="" loading="lazy" />
+  <div class="body">
+    <div class="type">Armour · Lv1</div>
+    <h3>외형변경[19](남)</h3>
+    <div class="meta">KR #418 · Image 1461 · Shape 60</div>
+    <div class="stats">no combat stats</div>
+    <div class="tip">외형변경용 아이템</div>
+  </div>
+</article>
+<article class="card" data-type="Armour">
+  <img class="icon" src="../tile-review/items-icons-000000-001999/images/frame_001462.png" alt="" loading="lazy" />
+  <div class="body">
+    <div class="type">Armour · Lv1</div>
+    <h3>외형변경[19](여)</h3>
+    <div class="meta">KR #419 · Image 1462 · Shape 60</div>
+    <div class="stats">no combat stats</div>
+    <div class="tip">외형변경용 아이템</div>
+  </div>
+</article>
+<article class="card" data-type="Armour">
+  <img class="icon" src="../tile-review/items-icons-000000-001999/images/frame_001463.png" alt="" loading="lazy" />
+  <div class="body">
+    <div class="type">Armour · Lv1</div>
+    <h3>외형변경[20](남)</h3>
+    <div class="meta">KR #422 · Image 1463 · Shape 61</div>
+    <div class="stats">no combat stats</div>
+    <div class="tip">외형변경용 아이템</div>
+  </div>
+</article>
+<article class="card" data-type="Armour">
+  <img class="icon" src="../tile-review/items-icons-000000-001999/images/frame_001464.png" alt="" loading="lazy" />
+  <div class="body">
+    <div class="type">Armour · Lv1</div>
+    <h3>외형변경[20](여)</h3>
+    <div class="meta">KR #423 · Image 1464 · Shape 61</div>
+    <div class="stats">no combat stats</div>
+    <div class="tip">외형변경용 아이템</div>
+  </div>
+</article>
+<article class="card" data-type="Armour">
+  <img class="icon" src="../tile-review/items-icons-000000-001999/images/frame_001465.png" alt="" loading="lazy" />
+  <div class="body">
+    <div class="type">Armour · Lv1</div>
+    <h3>외형변경[21](남)</h3>
+    <div class="meta">KR #424 · Image 1465 · Shape 62</div>
+    <div class="stats">no combat stats</div>
+    <div class="tip">외형변경용 아이템</div>
+  </div>
+</article>
+<article class="card" data-type="Armour">
+  <img class="icon" src="../tile-review/items-icons-000000-001999/images/frame_001466.png" alt="" loading="lazy" />
+  <div class="body">
+    <div class="type">Armour · Lv1</div>
+    <h3>외형변경[21](여)</h3>
+    <div class="meta">KR #425 · Image 1466 · Shape 62</div>
+    <div class="stats">no combat stats</div>
+    <div class="tip">외형변경용 아이템</div>
+  </div>
+</article>
+<article class="card" data-type="Armour">
+  <img class="icon" src="../tile-review/items-icons-000000-001999/images/frame_001467.png" alt="" loading="lazy" />
+  <div class="body">
+    <div class="type">Armour · Lv1</div>
+    <h3>외형변경[22](남)</h3>
+    <div class="meta">KR #426 · Image 1467 · Shape 63</div>
+    <div class="stats">no combat stats</div>
+    <div class="tip">외형변경용 아이템</div>
+  </div>
+</article>
+<article class="card" data-type="Armour">
+  <img class="icon" src="../tile-review/items-icons-000000-001999/images/frame_001468.png" alt="" loading="lazy" />
+  <div class="body">
+    <div class="type">Armour · Lv1</div>
+    <h3>외형변경[22](여)</h3>
+    <div class="meta">KR #427 · Image 1468 · Shape 63</div>
+    <div class="stats">no combat stats</div>
+    <div class="tip">외형변경용 아이템</div>
+  </div>
+</article>
+<article class="card" data-type="Armour">
+  <img class="icon" src="../tile-review/items-icons-000000-001999/images/frame_001469.png" alt="" loading="lazy" />
+  <div class="body">
+    <div class="type">Armour · Lv1</div>
+    <h3>외형변경[24](남)</h3>
+    <div class="meta">KR #430 · Image 1469 · Shape 65</div>
+    <div class="stats">no combat stats</div>
+    <div class="tip">외형변경용 아이템</div>
+  </div>
+</article>
+<article class="card" data-type="Armour">
+  <img class="icon" src="../tile-review/items-icons-000000-001999/images/frame_001470.png" alt="" loading="lazy" />
+  <div class="body">
+    <div class="type">Armour · Lv1</div>
+    <h3>외형변경[24](여)</h3>
+    <div class="meta">KR #431 · Image 1470 · Shape 65</div>
+    <div class="stats">no combat stats</div>
+    <div class="tip">외형변경용 아이템</div>
+  </div>
+</article>
+<article class="card" data-type="Armour">
+  <img class="icon" src="../tile-review/items-icons-000000-001999/images/frame_001471.png" alt="" loading="lazy" />
+  <div class="body">
+    <div class="type">Armour · Lv1</div>
+    <h3>외형변경[25](남)</h3>
+    <div class="meta">KR #432 · Image 1471 · Shape 66</div>
+    <div class="stats">no combat stats</div>
+    <div class="tip">외형변경용 아이템</div>
+  </div>
+</article>
+<article class="card" data-type="Armour">
+  <img class="icon" src="../tile-review/items-icons-000000-001999/images/frame_001472.png" alt="" loading="lazy" />
+  <div class="body">
+    <div class="type">Armour · Lv1</div>
+    <h3>외형변경[25](여)</h3>
+    <div class="meta">KR #433 · Image 1472 · Shape 66</div>
+    <div class="stats">no combat stats</div>
+    <div class="tip">외형변경용 아이템</div>
+  </div>
+</article>
+<article class="card" data-type="Armour">
+  <img class="icon" src="../tile-review/items-icons-000000-001999/images/frame_001473.png" alt="" loading="lazy" />
+  <div class="body">
+    <div class="type">Armour · Lv1</div>
+    <h3>외형변경[26](남)</h3>
+    <div class="meta">KR #434 · Image 1473 · Shape 67</div>
+    <div class="stats">no combat stats</div>
+    <div class="tip">외형변경용 아이템</div>
+  </div>
+</article>
+<article class="card" data-type="Armour">
+  <img class="icon" src="../tile-review/items-icons-000000-001999/images/frame_001474.png" alt="" loading="lazy" />
+  <div class="body">
+    <div class="type">Armour · Lv1</div>
+    <h3>외형변경[26](여)</h3>
+    <div class="meta">KR #435 · Image 1474 · Shape 67</div>
+    <div class="stats">no combat stats</div>
+    <div class="tip">외형변경용 아이템</div>
+  </div>
+</article>
+<article class="card" data-type="Armour">
+  <img class="icon" src="../tile-review/items-icons-000000-001999/images/frame_001475.png" alt="" loading="lazy" />
+  <div class="body">
+    <div class="type">Armour · Lv1</div>
+    <h3>외형변경[27](남)</h3>
+    <div class="meta">KR #436 · Image 1475 · Shape 68</div>
+    <div class="stats">no combat stats</div>
+    <div class="tip">외형변경용 아이템</div>
+  </div>
+</article>
+<article class="card" data-type="Armour">
+  <img class="icon" src="../tile-review/items-icons-000000-001999/images/frame_001476.png" alt="" loading="lazy" />
+  <div class="body">
+    <div class="type">Armour · Lv1</div>
+    <h3>외형변경[27](여)</h3>
+    <div class="meta">KR #437 · Image 1476 · Shape 68</div>
+    <div class="stats">no combat stats</div>
+    <div class="tip">외형변경용 아이템</div>
+  </div>
+</article>
+<article class="card" data-type="Armour">
+  <img class="icon" src="../tile-review/items-icons-000000-001999/images/frame_001477.png" alt="" loading="lazy" />
+  <div class="body">
+    <div class="type">Armour · Lv1</div>
+    <h3>외형변경[28](남)</h3>
+    <div class="meta">KR #438 · Image 1477 · Shape 69</div>
+    <div class="stats">no combat stats</div>
+    <div class="tip">외형변경용 아이템</div>
+  </div>
+</article>
+<article class="card" data-type="Armour">
+  <img class="icon" src="../tile-review/items-icons-000000-001999/images/frame_001478.png" alt="" loading="lazy" />
+  <div class="body">
+    <div class="type">Armour · Lv1</div>
+    <h3>외형변경[28](여)</h3>
+    <div class="meta">KR #439 · Image 1478 · Shape 69</div>
+    <div class="stats">no combat stats</div>
+    <div class="tip">외형변경용 아이템</div>
+  </div>
+</article>
+<article class="card" data-type="Armour">
+  <img class="icon" src="../tile-review/items-icons-000000-001999/images/frame_001479.png" alt="" loading="lazy" />
+  <div class="body">
+    <div class="type">Armour · Lv1</div>
+    <h3>외형변경[29](남)</h3>
+    <div class="meta">KR #440 · Image 1479 · Shape 70</div>
+    <div class="stats">no combat stats</div>
+    <div class="tip">외형변경용 아이템</div>
+  </div>
+</article>
+<article class="card" data-type="Armour">
+  <img class="icon" src="../tile-review/items-icons-000000-001999/images/frame_001480.png" alt="" loading="lazy" />
+  <div class="body">
+    <div class="type">Armour · Lv1</div>
+    <h3>외형변경[29](여)</h3>
+    <div class="meta">KR #441 · Image 1480 · Shape 70</div>
+    <div class="stats">no combat stats</div>
+    <div class="tip">외형변경용 아이템</div>
+  </div>
+</article>
+<article class="card" data-type="Armour">
+  <img class="icon" src="../tile-review/items-icons-000000-001999/images/frame_001481.png" alt="" loading="lazy" />
+  <div class="body">
+    <div class="type">Armour · Lv1</div>
+    <h3>외형변경[30](남)</h3>
+    <div class="meta">KR #444 · Image 1481 · Shape 71</div>
+    <div class="stats">no combat stats</div>
+    <div class="tip">외형변경용 아이템</div>
+  </div>
+</article>
+<article class="card" data-type="Armour">
+  <img class="icon" src="../tile-review/items-icons-000000-001999/images/frame_001482.png" alt="" loading="lazy" />
+  <div class="body">
+    <div class="type">Armour · Lv1</div>
+    <h3>외형변경[30](여)</h3>
+    <div class="meta">KR #445 · Image 1482 · Shape 71</div>
+    <div class="stats">no combat stats</div>
+    <div class="tip">외형변경용 아이템</div>
+  </div>
+</article>
+<article class="card" data-type="Armour">
+  <img class="icon" src="../tile-review/items-icons-000000-001999/images/frame_001483.png" alt="" loading="lazy" />
+  <div class="body">
+    <div class="type">Armour · Lv1</div>
+    <h3>외형변경[31](남)</h3>
+    <div class="meta">KR #446 · Image 1483 · Shape 72</div>
+    <div class="stats">no combat stats</div>
+    <div class="tip">외형변경용 아이템</div>
+  </div>
+</article>
+<article class="card" data-type="Armour">
+  <img class="icon" src="../tile-review/items-icons-000000-001999/images/frame_001484.png" alt="" loading="lazy" />
+  <div class="body">
+    <div class="type">Armour · Lv1</div>
+    <h3>외형변경[31](여)</h3>
+    <div class="meta">KR #447 · Image 1484 · Shape 72</div>
+    <div class="stats">no combat stats</div>
+    <div class="tip">외형변경용 아이템</div>
+  </div>
+</article>
+<article class="card" data-type="Armour">
+  <img class="icon" src="../tile-review/items-icons-000000-001999/images/frame_001485.png" alt="" loading="lazy" />
+  <div class="body">
+    <div class="type">Armour · Lv1</div>
+    <h3>외형변경[32](남)</h3>
+    <div class="meta">KR #448 · Image 1485 · Shape 73</div>
+    <div class="stats">no combat stats</div>
+    <div class="tip">외형변경용 아이템</div>
+  </div>
+</article>
+<article class="card" data-type="Armour">
+  <img class="icon" src="../tile-review/items-icons-000000-001999/images/frame_001486.png" alt="" loading="lazy" />
+  <div class="body">
+    <div class="type">Armour · Lv1</div>
+    <h3>외형변경[32](여)</h3>
+    <div class="meta">KR #449 · Image 1486 · Shape 73</div>
+    <div class="stats">no combat stats</div>
+    <div class="tip">외형변경용 아이템</div>
+  </div>
+</article>
+<article class="card" data-type="Armour">
+  <img class="icon" src="../tile-review/items-icons-000000-001999/images/frame_001487.png" alt="" loading="lazy" />
+  <div class="body">
+    <div class="type">Armour · Lv1</div>
+    <h3>외형변경[33](남)</h3>
+    <div class="meta">KR #450 · Image 1487 · Shape 74</div>
+    <div class="stats">no combat stats</div>
+    <div class="tip">외형변경용 아이템</div>
+  </div>
+</article>
+<article class="card" data-type="Armour">
+  <img class="icon" src="../tile-review/items-icons-000000-001999/images/frame_001488.png" alt="" loading="lazy" />
+  <div class="body">
+    <div class="type">Armour · Lv1</div>
+    <h3>외형변경[33](여)</h3>
+    <div class="meta">KR #451 · Image 1488 · Shape 74</div>
+    <div class="stats">no combat stats</div>
+    <div class="tip">외형변경용 아이템</div>
+  </div>
+</article>
+<article class="card" data-type="Armour">
+  <img class="icon" src="../tile-review/items-icons-000000-001999/images/frame_001489.png" alt="" loading="lazy" />
+  <div class="body">
+    <div class="type">Armour · Lv1</div>
+    <h3>외형변경[34](남)</h3>
+    <div class="meta">KR #452 · Image 1489 · Shape 75</div>
+    <div class="stats">no combat stats</div>
+    <div class="tip">외형변경용 아이템</div>
+  </div>
+</article>
+<article class="card" data-type="Armour">
+  <img class="icon" src="../tile-review/items-icons-000000-001999/images/frame_001490.png" alt="" loading="lazy" />
+  <div class="body">
+    <div class="type">Armour · Lv1</div>
+    <h3>외형변경[34](여)</h3>
+    <div class="meta">KR #453 · Image 1490 · Shape 75</div>
+    <div class="stats">no combat stats</div>
+    <div class="tip">외형변경용 아이템</div>
+  </div>
+</article>
+<article class="card" data-type="Armour">
+  <img class="icon" src="../tile-review/items-icons-000000-001999/images/frame_001491.png" alt="" loading="lazy" />
+  <div class="body">
+    <div class="type">Armour · Lv1</div>
+    <h3>외형변경[35](남)</h3>
+    <div class="meta">KR #454 · Image 1491 · Shape 76</div>
+    <div class="stats">no combat stats</div>
+    <div class="tip">외형변경용 아이템</div>
+  </div>
+</article>
+<article class="card" data-type="Armour">
+  <img class="icon" src="../tile-review/items-icons-000000-001999/images/frame_001492.png" alt="" loading="lazy" />
+  <div class="body">
+    <div class="type">Armour · Lv1</div>
+    <h3>외형변경[35](여)</h3>
+    <div class="meta">KR #455 · Image 1492 · Shape 76</div>
+    <div class="stats">no combat stats</div>
+    <div class="tip">외형변경용 아이템</div>
+  </div>
+</article>
+<article class="card" data-type="Armour">
+  <div class="icon missing">#1493</div>
+  <div class="body">
+    <div class="type">Armour · Lv1</div>
+    <h3>외형변경[36](남)</h3>
+    <div class="meta">KR #456 · Image 1493 · Shape 77</div>
+    <div class="stats">no combat stats</div>
+    <div class="tip">외형변경용 아이템</div>
+  </div>
+</article>
+<article class="card" data-type="Armour">
+  <div class="icon missing">#1494</div>
+  <div class="body">
+    <div class="type">Armour · Lv1</div>
+    <h3>외형변경[36](여)</h3>
+    <div class="meta">KR #457 · Image 1494 · Shape 77</div>
+    <div class="stats">no combat stats</div>
+    <div class="tip">외형변경용 아이템</div>
+  </div>
+</article>
+<article class="card" data-type="Armour">
+  <div class="icon missing">#1495</div>
+  <div class="body">
+    <div class="type">Armour · Lv1</div>
+    <h3>외형변경[37](남)</h3>
+    <div class="meta">KR #458 · Image 1495 · Shape 78</div>
+    <div class="stats">no combat stats</div>
+    <div class="tip">외형변경용 아이템</div>
+  </div>
+</article>
+<article class="card" data-type="Armour">
+  <div class="icon missing">#1496</div>
+  <div class="body">
+    <div class="type">Armour · Lv1</div>
+    <h3>외형변경[37](여)</h3>
+    <div class="meta">KR #459 · Image 1496 · Shape 78</div>
+    <div class="stats">no combat stats</div>
+    <div class="tip">외형변경용 아이템</div>
+  </div>
+</article>
+<article class="card" data-type="Belt">
+  <div class="icon missing">#3148</div>
+  <div class="body">
+    <div class="type">Belt · Lv60</div>
+    <h3>청보요대(기민)</h3>
+    <div class="meta">KR #1064 · Image 3148 · Shape 0</div>
+    <div class="stats">AC 2-5, MAC 3-5</div>
+    
+  </div>
+</article>
+<article class="card" data-type="Belt">
+  <div class="icon missing">#3148</div>
+  <div class="body">
+    <div class="type">Belt · Lv60</div>
+    <h3>청보요대(마성)</h3>
+    <div class="meta">KR #1065 · Image 3148 · Shape 0</div>
+    <div class="stats">AC 2-3, MAC 2-5</div>
+    
+  </div>
+</article>
+<article class="card" data-type="Belt">
+  <div class="icon missing">#3148</div>
+  <div class="body">
+    <div class="type">Belt · Lv60</div>
+    <h3>청보요대(선계)</h3>
+    <div class="meta">KR #1066 · Image 3148 · Shape 0</div>
+    <div class="stats">AC 2-4, MAC 2-3</div>
+    
+  </div>
+</article>
+<article class="card" data-type="Belt">
+  <div class="icon missing">#3148</div>
+  <div class="body">
+    <div class="type">Belt · Lv60</div>
+    <h3>청보요대(신풍)</h3>
+    <div class="meta">KR #1067 · Image 3148 · Shape 0</div>
+    <div class="stats">AC 2-5, MAC 3-5</div>
+    
+  </div>
+</article>
+<article class="card" data-type="Belt">
+  <div class="icon missing">#3148</div>
+  <div class="body">
+    <div class="type">Belt · Lv60</div>
+    <h3>청보요대(용맹)</h3>
+    <div class="meta">KR #1068 · Image 3148 · Shape 0</div>
+    <div class="stats">AC 3-7, MAC 1-3</div>
+    
+  </div>
+</article>
+<article class="card" data-type="Belt">
+  <img class="icon" src="../tile-review/items-icons-002000-002999/images/frame_002763.png" alt="" loading="lazy" />
+  <div class="body">
+    <div class="type">Belt · Lv55</div>
+    <h3>혈룡허리띠</h3>
+    <div class="meta">KR #1071 · Image 2763 · Shape 0</div>
+    <div class="stats">AC 2-3, MAC 1-2</div>
+    <div class="tip">혈룡반지, 혈룡팔찌 세트 효과 : 신성+3</div>
+  </div>
+</article>
+<article class="card" data-type="Belt">
+  <div class="icon missing">#3147</div>
+  <div class="body">
+    <div class="type">Belt · Lv52</div>
+    <h3>흑술요대</h3>
+    <div class="meta">KR #1074 · Image 3147 · Shape 0</div>
+    <div class="stats">AC 3-5, MAC 2-4</div>
+    
+  </div>
+</article>
+<article class="card" data-type="Belt">
+  <div class="icon missing">#3146</div>
+  <div class="body">
+    <div class="type">Belt · Lv50</div>
+    <h3>패옥요대</h3>
+    <div class="meta">KR #1070 · Image 3146 · Shape 0</div>
+    <div class="stats">AC 2-4, MAC 2-3</div>
+    
+  </div>
+</article>
+<article class="card" data-type="Belt">
+  <img class="icon" src="../tile-review/items-icons-000000-001999/images/frame_000000.png" alt="" loading="lazy" />
+  <div class="body">
+    <div class="type">Belt · Lv45</div>
+    <h3>귀인요대5</h3>
+    <div class="meta">KR #1054 · Image 0 · Shape 0</div>
+    <div class="stats">AC 1-2, MAC 1-3</div>
+    <div class="tip">착용 효과 : 각 직업별 다른 효과를 획득
+전체 세트 효과(전사계열) : 파괴 + 1~1, 가방무게 +25
+전체 세트 효과(술사계열) : 마력 + 1~1, 가방무게 +17
+전체 세트 효과(도사계열) : 도력 + 1~1, 가방무게 +17
+전체 세트 효과(자객계열) : 파괴 + 1~1
+전체 세트 효과(궁수계열) : 파괴 + 1~1, 마력 + 0~1, 가방무게 +20
+귀인요대, 귀인장화 세트
+</div>
+  </div>
+</article>
+<article class="card" data-type="Belt">
+  <img class="icon" src="../tile-review/items-icons-000000-001999/images/frame_000558.png" alt="" loading="lazy" />
+  <div class="body">
+    <div class="type">Belt · Lv45</div>
+    <h3>귀인요대</h3>
+    <div class="meta">KR #1049 · Image 558 · Shape 0</div>
+    <div class="stats">AC 0-4, MAC 0-1</div>
+    <div class="tip">착용 효과 : 각 직업별 다른 효과를 획득
+전체 세트 효과(전사계열) : 파괴 + 1~1, 가방무게 +25
+전체 세트 효과(술사계열) : 마력 + 1~1, 가방무게 +17
+전체 세트 효과(도사계열) : 도력 + 1~1, 가방무게 +17
+전체 세트 효과(자객계열) : 파괴 + 1~1
+전체 세트 효과(궁수계열) : 파괴 + 1~1, 마력 + 0~1, 가방무게 +20
+귀인요대, 귀인장화 세트</div>
+  </div>
+</article>
+<article class="card" data-type="Belt">
+  <img class="icon" src="../tile-review/items-icons-000000-001999/images/frame_000756.png" alt="" loading="lazy" />
+  <div class="body">
+    <div class="type">Belt · Lv30</div>
+    <h3>강화홍옥요대</h3>
+    <div class="meta">KR #1048 · Image 756 · Shape 0</div>
+    <div class="stats">AC 0-2, MAC 0-1</div>
+    
+  </div>
+</article>
+<article class="card" data-type="Belt">
+  <img class="icon" src="../tile-review/items-icons-000000-001999/images/frame_000757.png" alt="" loading="lazy" />
+  <div class="body">
+    <div class="type">Belt · Lv30</div>
+    <h3>강화연옥요대</h3>
+    <div class="meta">KR #1046 · Image 757 · Shape 0</div>
+    <div class="stats">AC 0-2, MAC 0-1</div>
+    <div class="tip">전체 세트 효과 : 도력 + 0~2, 착용무게 +2,
+MaxHP +15, MaxMP +20, 신성 +1,
+정확 +1, 민첩 +1</div>
+  </div>
+</article>
+<article class="card" data-type="Belt">
+  <img class="icon" src="../tile-review/items-icons-000000-001999/images/frame_000758.png" alt="" loading="lazy" />
+  <div class="body">
+    <div class="type">Belt · Lv30</div>
+    <h3>강화백금요대</h3>
+    <div class="meta">KR #1045 · Image 758 · Shape 0</div>
+    <div class="stats">AC 0-2, MAC 0-1</div>
+    <div class="tip">전체 세트 효과 : 파괴 + 0~3, 착용무게 +2,
+MaxHP +30, 공속 +2</div>
+  </div>
+</article>
+<article class="card" data-type="Belt">
+  <div class="icon missing">#3541</div>
+  <div class="body">
+    <div class="type">Belt · Lv30</div>
+    <h3>강화청옥요대</h3>
+    <div class="meta">KR #1047 · Image 3541 · Shape 0</div>
+    <div class="stats">AC 0-1, MAC 0-2, Acc +1, Agi +1</div>
+    <div class="tip">전체 세트 효과 : 파괴 + 1~2, 마력 + 0~2,
+MaxMP +50, 정확 +1, 공속 +1</div>
+  </div>
+</article>
+<article class="card" data-type="Belt">
+  <img class="icon" src="../tile-review/items-icons-000000-001999/images/frame_000759.png" alt="" loading="lazy" />
+  <div class="body">
+    <div class="type">Belt · Lv20</div>
+    <h3>홍옥요대</h3>
+    <div class="meta">KR #1072 · Image 759 · Shape 0</div>
+    <div class="stats">AC 0-1, MAC 0-1</div>
+    <div class="tip">전체 세트 효과 : 마력 + 0~2, 마법방어 + 0~2,
+착용무게 +2, 양손무게 +1</div>
+  </div>
+</article>
+<article class="card" data-type="Belt">
+  <img class="icon" src="../tile-review/items-icons-000000-001999/images/frame_000760.png" alt="" loading="lazy" />
+  <div class="body">
+    <div class="type">Belt · Lv20</div>
+    <h3>연옥요대</h3>
+    <div class="meta">KR #1059 · Image 760 · Shape 0</div>
+    <div class="stats">AC 0-1, MAC 0-1</div>
+    <div class="tip">전체 세트 효과 : 도력 + 0~2, 방어 + 0~1,
+마법방어 + 0~1, 착용무게 +2, 양손무게 +1</div>
+  </div>
+</article>
+<article class="card" data-type="Belt">
+  <img class="icon" src="../tile-review/items-icons-000000-001999/images/frame_000761.png" alt="" loading="lazy" />
+  <div class="body">
+    <div class="type">Belt · Lv20</div>
+    <h3>백금요대</h3>
+    <div class="meta">KR #1057 · Image 761 · Shape 0</div>
+    <div class="stats">AC 0-1, MAC 0-1</div>
+    <div class="tip">전체 세트 효과 : 파괴 + 0~2, 방어 + 0~2,
+착용무게 +2, 양송무게 +1</div>
+  </div>
+</article>
+<article class="card" data-type="Belt">
+  <img class="icon" src="../tile-review/items-icons-000000-001999/images/frame_000825.png" alt="" loading="lazy" />
+  <div class="body">
+    <div class="type">Belt · Lv20</div>
+    <h3>천룡반향대</h3>
+    <div class="meta">KR #1061 · Image 825 · Shape 0</div>
+    <div class="stats">AC 2-6, MAC 2-3</div>
+    <div class="tip">천룡세트는 부위별로 다른 효과를 가진다.
+목걸이, 반지, 팔찌: 파마도+2~6, 가방무게+60, 착용무게+30, 양손무게+30, 공속+2
+신발, 벨트, 투구: 방어시 일정확률로 15초동안 30% 받는 데미지 감소 효과 발동
+옷, 검: 공격시 일정확률로 15초동안 30% 데미지 증가 효과 발동
+모든 장비: 방어+2~6, 마법방어+1~4, HP+100, 중독회복+2, 행운+2</div>
+  </div>
+</article>
+<article class="card" data-type="Belt">
+  <div class="icon missing">#3569</div>
+  <div class="body">
+    <div class="type">Belt · Lv20</div>
+    <h3>청옥요대</h3>
+    <div class="meta">KR #1069 · Image 3569 · Shape 0</div>
+    <div class="stats">AC 0-1, MAC 0-1</div>
+    <div class="tip">전체 세트 효과 : 파괴 + 1~1, 마력 + 1~1,
+방어 + 1~1, 마법방어 + 0~1
+착용무게 +2, 양손무게 +1</div>
+  </div>
+</article>
+<article class="card" data-type="Boots">
+  <div class="icon missing">#3145</div>
+  <div class="body">
+    <div class="type">Boots · Lv60</div>
+    <h3>청보화(기민)</h3>
+    <div class="meta">KR #1098 · Image 3145 · Shape 0</div>
+    <div class="stats">DC 0-1, AC 2-5, MAC 2-4</div>
+    
+  </div>
+</article>
+<article class="card" data-type="Boots">
+  <div class="icon missing">#3145</div>
+  <div class="body">
+    <div class="type">Boots · Lv60</div>
+    <h3>청보화(마성)</h3>
+    <div class="meta">KR #1099 · Image 3145 · Shape 0</div>
+    <div class="stats">MC 0-2, AC 1-3, MAC 2-4</div>
+    
+  </div>
+</article>
+<article class="card" data-type="Boots">
+  <div class="icon missing">#3145</div>
+  <div class="body">
+    <div class="type">Boots · Lv60</div>
+    <h3>청보화(선계)</h3>
+    <div class="meta">KR #1100 · Image 3145 · Shape 0</div>
+    <div class="stats">SC 0-2, AC 1-4, MAC 1-3, Agi +1</div>
+    
+  </div>
+</article>
+<article class="card" data-type="Boots">
+  <div class="icon missing">#3145</div>
+  <div class="body">
+    <div class="type">Boots · Lv60</div>
+    <h3>청보화(신풍)</h3>
+    <div class="meta">KR #1101 · Image 3145 · Shape 0</div>
+    <div class="stats">DC 0-1, MC 0-1, AC 2-4, MAC 2-3</div>
+    
+  </div>
+</article>
+<article class="card" data-type="Boots">
+  <div class="icon missing">#3145</div>
+  <div class="body">
+    <div class="type">Boots · Lv60</div>
+    <h3>청보화(용맹)</h3>
+    <div class="meta">KR #1102 · Image 3145 · Shape 0</div>
+    <div class="stats">DC 1-1, AC 2-6, MAC 1-2</div>
+    
+  </div>
+</article>
+<article class="card" data-type="Boots">
+  <div class="icon missing">#3144</div>
+  <div class="body">
+    <div class="type">Boots · Lv52</div>
+    <h3>흑술장화</h3>
+    <div class="meta">KR #1109 · Image 3144 · Shape 0</div>
+    <div class="stats">DC 0-1, MC 0-1, SC 0-1, AC 1-3, MAC 1-3, Agi +1</div>
+    
+  </div>
+</article>
+<article class="card" data-type="Boots">
+  <img class="icon" src="../tile-review/items-icons-000000-001999/images/frame_000857.png" alt="" loading="lazy" />
+  <div class="body">
+    <div class="type">Boots · Lv50</div>
+    <h3>황금무늬적장화</h3>
+    <div class="meta">KR #1108 · Image 857 · Shape 0</div>
+    <div class="stats">DC 0-1, MC 0-1, SC 0-1, AC 0-1, MAC 0-1</div>
+    <div class="tip">못 다 전한 채라의 사랑</div>
+  </div>
+</article>
+<article class="card" data-type="Boots">
+  <div class="icon missing">#3143</div>
+  <div class="body">
+    <div class="type">Boots · Lv50</div>
+    <h3>패옥장화</h3>
+    <div class="meta">KR #1104 · Image 3143 · Shape 0</div>
+    <div class="stats">MC 0-1, SC 0-1, AC 1-2, MAC 1-2</div>
+    <div class="tip">반짝이는 조개껍질로
+만들어진 장화</div>
+  </div>
+</article>
+<article class="card" data-type="Boots">
+  <img class="icon" src="../tile-review/items-icons-000000-001999/images/frame_000568.png" alt="" loading="lazy" />
+  <div class="body">
+    <div class="type">Boots · Lv45</div>
+    <h3>귀인장화</h3>
+    <div class="meta">KR #1086 · Image 568 · Shape 0</div>
+    <div class="stats">no combat stats</div>
+    <div class="tip">전체 세트 효과(전사계열) : 파괴 + 1~1, 가방무게 +25
+전체 세트 효과(술사계열) : 마력 + 1~1, 가방무게 +17
+전체 세트 효과(도사계열) : 도력 + 1~1, 가방무게 +17
+전체 세트 효과(자객계열) : 파괴 + 1~1
+전체 세트 효과(궁수계열) : 파괴 + 1~1, 마력 + 0~1, 가방무게 +20
+귀인요대, 귀인장화 세트</div>
+  </div>
+</article>
+<article class="card" data-type="Boots">
+  <img class="icon" src="../tile-review/items-icons-002000-002999/images/frame_002760.png" alt="" loading="lazy" />
+  <div class="body">
+    <div class="type">Boots · Lv45</div>
+    <h3>혈룡장화</h3>
+    <div class="meta">KR #1106 · Image 2760 · Shape 0</div>
+    <div class="stats">DC 0-1, MC 0-1, SC 0-1, AC 1-1, MAC 1-1</div>
+    <div class="tip">혈룡반지, 혈룡팔찌 세트 효과 : 신성+3</div>
+  </div>
+</article>
+<article class="card" data-type="Boots">
+  <img class="icon" src="../tile-review/items-icons-000000-001999/images/frame_000746.png" alt="" loading="lazy" />
+  <div class="body">
+    <div class="type">Boots · Lv42</div>
+    <h3>감시자신발</h3>
+    <div class="meta">KR #1076 · Image 746 · Shape 0</div>
+    <div class="stats">AC 0-2</div>
+    <div class="tip">착용 효과 : 각 직업별 다른 효과를 획득
+전체 착용 효과 :  마법저항 +1, 중독저항 +1
+지옥의 감시자</div>
+  </div>
+</article>
+<article class="card" data-type="Boots">
+  <img class="icon" src="../tile-review/items-icons-000000-001999/images/frame_000753.png" alt="" loading="lazy" />
+  <div class="body">
+    <div class="type">Boots · Lv30</div>
+    <h3>강화홍옥화</h3>
+    <div class="meta">KR #1085 · Image 753 · Shape 0</div>
+    <div class="stats">AC 0-1, MAC 1-1</div>
+    <div class="tip">전체 세트 효과 : 마력 + 0~2, 착용무게 +2,
+MaxMP +40, 민첩 +2</div>
+  </div>
+</article>
+<article class="card" data-type="Boots">
+  <img class="icon" src="../tile-review/items-icons-000000-001999/images/frame_000754.png" alt="" loading="lazy" />
+  <div class="body">
+    <div class="type">Boots · Lv30</div>
+    <h3>강화연옥화</h3>
+    <div class="meta">KR #1083 · Image 754 · Shape 0</div>
+    <div class="stats">AC 0-1, MAC 0-1, Agi +1</div>
+    <div class="tip">전체 세트 효과 : 도력 + 0~2, 착용무게 +2,
+MaxHP +15, MaxMP +20, 신성 +1,
+정확 +1, 민첩 +1</div>
+  </div>
+</article>
+<article class="card" data-type="Boots">
+  <img class="icon" src="../tile-review/items-icons-000000-001999/images/frame_000755.png" alt="" loading="lazy" />
+  <div class="body">
+    <div class="type">Boots · Lv30</div>
+    <h3>강화백금화</h3>
+    <div class="meta">KR #1082 · Image 755 · Shape 0</div>
+    <div class="stats">AC 1-1, MAC 0-1</div>
+    <div class="tip">전체 세트 효과 : 파괴 + 0~3, 착용무게 +2,
+MaxHP +30, 공속 +2</div>
+  </div>
+</article>
+<article class="card" data-type="Boots">
+  <div class="icon missing">#3542</div>
+  <div class="body">
+    <div class="type">Boots · Lv30</div>
+    <h3>강화청옥화</h3>
+    <div class="meta">KR #1084 · Image 3542 · Shape 0</div>
+    <div class="stats">AC 0-1, MAC 0-1, AS 1</div>
+    <div class="tip">전체 세트 효과 : 파괴 + 1~2, 마력 + 0~2,
+MaxMP +50, 정확 +1, 공속 +1</div>
+  </div>
+</article>
+<article class="card" data-type="Boots">
+  <img class="icon" src="../tile-review/items-icons-000000-001999/images/frame_000750.png" alt="" loading="lazy" />
+  <div class="body">
+    <div class="type">Boots · Lv20</div>
+    <h3>홍옥화</h3>
+    <div class="meta">KR #1107 · Image 750 · Shape 0</div>
+    <div class="stats">MAC 0-1</div>
+    <div class="tip">전체 세트 효과 : 마력 + 0~2, 마법방어 + 0~2,
+착용무게 +2, 양손무게 +1</div>
+  </div>
+</article>
+<article class="card" data-type="Boots">
+  <img class="icon" src="../tile-review/items-icons-000000-001999/images/frame_000751.png" alt="" loading="lazy" />
+  <div class="body">
+    <div class="type">Boots · Lv20</div>
+    <h3>연옥화</h3>
+    <div class="meta">KR #1093 · Image 751 · Shape 0</div>
+    <div class="stats">Agi +1</div>
+    <div class="tip">전체 세트 효과 : 도력 + 0~2, 방어 + 0~1,
+마법방어 + 0~1, 착용무게 +2, 양손무게 +1</div>
+  </div>
+</article>
+<article class="card" data-type="Boots">
+  <img class="icon" src="../tile-review/items-icons-000000-001999/images/frame_000752.png" alt="" loading="lazy" />
+  <div class="body">
+    <div class="type">Boots · Lv20</div>
+    <h3>백금화</h3>
+    <div class="meta">KR #1090 · Image 752 · Shape 0</div>
+    <div class="stats">AC 0-1</div>
+    <div class="tip">전체 세트 효과 : 파괴 + 0~2, 방어 + 0~2,
+착용무게 +2, 양송무게 +1</div>
+  </div>
+</article>
+<article class="card" data-type="Boots">
+  <img class="icon" src="../tile-review/items-icons-000000-001999/images/frame_000821.png" alt="" loading="lazy" />
+  <div class="body">
+    <div class="type">Boots · Lv20</div>
+    <h3>천룡신행보</h3>
+    <div class="meta">KR #1097 · Image 821 · Shape 0</div>
+    <div class="stats">no combat stats</div>
+    <div class="tip">천룡세트는 부위별로 다른 효과를 가진다.
+목걸이, 반지, 팔찌: 파마도+2~6, 가방무게+60, 착용무게+30, 양손무게+30, 공속+2
+신발, 벨트, 투구: 방어시 일정확률로 15초동안 30% 받는 데미지 감소 효과 발동
+옷, 검: 공격시 일정확률로 15초동안 30% 데미지 증가 효과 발동
+모든 장비: 방어+2~6, 마법방어+1~4, HP+100, 중독회복+2, 행운+2</div>
+  </div>
+</article>
+<article class="card" data-type="Boots">
+  <div class="icon missing">#3570</div>
+  <div class="body">
+    <div class="type">Boots · Lv20</div>
+    <h3>청옥화</h3>
+    <div class="meta">KR #1103 · Image 3570 · Shape 0</div>
+    <div class="stats">AC 0-1</div>
+    <div class="tip">전체 세트 효과 : 파괴 + 1~1, 마력 + 1~1,
+방어 + 1~1, 마법방어 + 0~1
+착용무게 +2, 양손무게 +1</div>
+  </div>
+</article>
+<article class="card" data-type="Bracelet">
+  <img class="icon" src="../tile-review/items-icons-000000-001999/images/frame_001007.png" alt="" loading="lazy" />
+  <div class="body">
+    <div class="type">Bracelet · Lv72</div>
+    <h3>암흑승천(猛)</h3>
+    <div class="meta">KR #2107 · Image 1007 · Shape 0</div>
+    <div class="stats">DC 2-6, AC 1-2, Acc +1, Agi +1</div>
+    
+  </div>
+</article>
+<article class="card" data-type="Bracelet">
+  <div class="icon missing">#3556</div>
+  <div class="body">
+    <div class="type">Bracelet · Lv72</div>
+    <h3>암흑승천(弓)</h3>
+    <div class="meta">KR #2110 · Image 3556 · Shape 0</div>
+    <div class="stats">DC 0-5, MC 0-4, AC 1-1, MAC 1-2, Acc +2, Agi +2</div>
+    
+  </div>
+</article>
+<article class="card" data-type="Bracelet">
+  <img class="icon" src="../tile-review/items-icons-003300-003499/images/frame_003480.png" alt="" loading="lazy" />
+  <div class="body">
+    <div class="type">Bracelet · Lv65</div>
+    <h3>백룡승천(용맹)1</h3>
+    <div class="meta">KR #814 · Image 3480 · Shape 0</div>
+    <div class="stats">DC 5-10, AC 2-4, MAC 0-1</div>
+    <div class="tip">백룡의 기운이 서려잇다.</div>
+  </div>
+</article>
+<article class="card" data-type="Bracelet">
+  <img class="icon" src="../tile-review/items-icons-003300-003499/images/frame_003481.png" alt="" loading="lazy" />
+  <div class="body">
+    <div class="type">Bracelet · Lv65</div>
+    <h3>백룡승천(신풍)1</h3>
+    <div class="meta">KR #812 · Image 3481 · Shape 0</div>
+    <div class="stats">DC 4-6, MC 2-4, AC 1-2, MAC 1-2, Acc +2</div>
+    <div class="tip">백룡의 기운이 서려잇다.</div>
+  </div>
+</article>
+<article class="card" data-type="Bracelet">
+  <img class="icon" src="../tile-review/items-icons-003300-003499/images/frame_003482.png" alt="" loading="lazy" />
+  <div class="body">
+    <div class="type">Bracelet · Lv65</div>
+    <h3>백룡승천(선계)1</h3>
+    <div class="meta">KR #810 · Image 3482 · Shape 0</div>
+    <div class="stats">SC 4-8, AC 2-2, MAC 1-2</div>
+    <div class="tip">백룡의 기운이 서려잇다.</div>
+  </div>
+</article>
+<article class="card" data-type="Bracelet">
+  <img class="icon" src="../tile-review/items-icons-003300-003499/images/frame_003483.png" alt="" loading="lazy" />
+  <div class="body">
+    <div class="type">Bracelet · Lv65</div>
+    <h3>백룡승천(마성)1</h3>
+    <div class="meta">KR #808 · Image 3483 · Shape 0</div>
+    <div class="stats">MC 4-8, AC 1-2, MAC 0-4</div>
+    <div class="tip">백룡의 기운이 서려잇다.</div>
+  </div>
+</article>
+<article class="card" data-type="Bracelet">
+  <img class="icon" src="../tile-review/items-icons-003300-003499/images/frame_003484.png" alt="" loading="lazy" />
+  <div class="body">
+    <div class="type">Bracelet · Lv65</div>
+    <h3>백룡승천(기민)1</h3>
+    <div class="meta">KR #806 · Image 3484 · Shape 0</div>
+    <div class="stats">DC 4-8, AC 1-3, MAC 2-2</div>
+    <div class="tip">백룡의 기운이 서려잇다.</div>
+  </div>
+</article>
+<article class="card" data-type="Bracelet">
+  <img class="icon" src="../tile-review/items-icons-003300-003499/images/frame_003490.png" alt="" loading="lazy" />
+  <div class="body">
+    <div class="type">Bracelet · Lv65</div>
+    <h3>백룡승천(기민)2</h3>
+    <div class="meta">KR #807 · Image 3490 · Shape 0</div>
+    <div class="stats">DC 6-10, AC 2-4, MAC 2-4, Agi +1</div>
+    <div class="tip">백룡의 기운이 서려잇다.</div>
+  </div>
+</article>
+<article class="card" data-type="Bracelet">
+  <img class="icon" src="../tile-review/items-icons-003300-003499/images/frame_003491.png" alt="" loading="lazy" />
+  <div class="body">
+    <div class="type">Bracelet · Lv65</div>
+    <h3>백룡승천(마성)2</h3>
+    <div class="meta">KR #809 · Image 3491 · Shape 0</div>
+    <div class="stats">MC 6-10, AC 1-3, MAC 1-4</div>
+    <div class="tip">백룡의 기운이 서려잇다.</div>
+  </div>
+</article>
+<article class="card" data-type="Bracelet">
+  <img class="icon" src="../tile-review/items-icons-003300-003499/images/frame_003492.png" alt="" loading="lazy" />
+  <div class="body">
+    <div class="type">Bracelet · Lv65</div>
+    <h3>백룡승천(선계)2</h3>
+    <div class="meta">KR #811 · Image 3492 · Shape 0</div>
+    <div class="stats">SC 6-10, AC 2-3, MAC 1-3</div>
+    <div class="tip">백룡의 기운이 서려잇다.</div>
+  </div>
+</article>
+<article class="card" data-type="Bracelet">
+  <img class="icon" src="../tile-review/items-icons-003300-003499/images/frame_003493.png" alt="" loading="lazy" />
+  <div class="body">
+    <div class="type">Bracelet · Lv65</div>
+    <h3>백룡승천(신풍)2</h3>
+    <div class="meta">KR #813 · Image 3493 · Shape 0</div>
+    <div class="stats">DC 5-8, MC 3-5, AC 2-3, MAC 2-3, Acc +2</div>
+    <div class="tip">백룡의 기운이 서려잇다.</div>
+  </div>
+</article>
+<article class="card" data-type="Bracelet">
+  <img class="icon" src="../tile-review/items-icons-003300-003499/images/frame_003494.png" alt="" loading="lazy" />
+  <div class="body">
+    <div class="type">Bracelet · Lv65</div>
+    <h3>백룡승천(용맹)2</h3>
+    <div class="meta">KR #815 · Image 3494 · Shape 0</div>
+    <div class="stats">DC 7-12, AC 3-6, MAC 1-2, Acc +1</div>
+    <div class="tip">백룡의 기운이 서려잇다.</div>
+  </div>
+</article>
+<article class="card" data-type="Bracelet">
+  <img class="icon" src="../tile-review/items-icons-000000-001999/images/frame_001007.png" alt="" loading="lazy" />
+  <div class="body">
+    <div class="type">Bracelet · Lv60</div>
+    <h3>강화된철마쌍륜</h3>
+    <div class="meta">KR #783 · Image 1007 · Shape 0</div>
+    <div class="stats">DC 4-8, AC 2-4</div>
+    
+  </div>
+</article>
+<article class="card" data-type="Bracelet">
+  <img class="icon" src="../tile-review/items-icons-000000-001999/images/frame_001009.png" alt="" loading="lazy" />
+  <div class="body">
+    <div class="type">Bracelet · Lv57</div>
+    <h3>요보탐마륜</h3>
+    <div class="meta">KR #834 · Image 1009 · Shape 0</div>
+    <div class="stats">MC 2-6, MAC 0-4</div>
+    
+  </div>
+</article>
+<article class="card" data-type="Bracelet">
+  <img class="icon" src="../tile-review/items-icons-000000-001999/images/frame_001011.png" alt="" loading="lazy" />
+  <div class="body">
+    <div class="type">Bracelet · Lv57</div>
+    <h3>오행오사륜</h3>
+    <div class="meta">KR #831 · Image 1011 · Shape 0</div>
+    <div class="stats">DC 2-4, SC 2-7</div>
+    
+  </div>
+</article>
+<article class="card" data-type="Bracelet">
+  <div class="icon missing">#3583</div>
+  <div class="body">
+    <div class="type">Bracelet · Lv57</div>
+    <h3>흑풍본륜</h3>
+    <div class="meta">KR #881 · Image 3583 · Shape 0</div>
+    <div class="stats">DC 3-5, MC 1-4, AC 0-2, MAC 2-2, Acc +1</div>
+    
+  </div>
+</article>
+<article class="card" data-type="Bracelet">
+  <img class="icon" src="../tile-review/items-icons-002000-002999/images/frame_002761.png" alt="" loading="lazy" />
+  <div class="body">
+    <div class="type">Bracelet · Lv55</div>
+    <h3>혈룡팔찌</h3>
+    <div class="meta">KR #874 · Image 2761 · Shape 0</div>
+    <div class="stats">DC 3-6, MC 2-6, SC 2-6, AC 1-2, MAC 0-3</div>
+    <div class="tip">혈룡반지, 혈룡팔찌 세트 효과 : 신성+3</div>
+  </div>
+</article>
+<article class="card" data-type="Bracelet">
+  <img class="icon" src="../tile-review/items-icons-000000-001999/images/frame_001007.png" alt="" loading="lazy" />
+  <div class="body">
+    <div class="type">Bracelet · Lv52</div>
+    <h3>철마쌍륜</h3>
+    <div class="meta">KR #853 · Image 1007 · Shape 0</div>
+    <div class="stats">DC 2-6, AC 1-2</div>
+    
+  </div>
+</article>
+<article class="card" data-type="Bracelet">
+  <div class="icon missing">#3556</div>
+  <div class="body">
+    <div class="type">Bracelet · Lv52</div>
+    <h3>음선정요</h3>
+    <div class="meta">KR #839 · Image 3556 · Shape 0</div>
+    <div class="stats">DC 0-5, MC 0-4, AC 1-1, MAC 1-2, Acc +1</div>
+    
+  </div>
+</article>
+<article class="card" data-type="Bracelet">
+  <img class="icon" src="../tile-review/items-icons-000000-001999/images/frame_000745.png" alt="" loading="lazy" />
+  <div class="body">
+    <div class="type">Bracelet · Lv50</div>
+    <h3>감시자장갑</h3>
+    <div class="meta">KR #772 · Image 745 · Shape 0</div>
+    <div class="stats">DC 2-5, AC 1-2</div>
+    <div class="tip">착용 효과 : 각 직업별 다른 효과를 획득
+전체 착용 효과 :  마법저항 +1, 중독저항 +1
+지옥의 감시자</div>
+  </div>
+</article>
+<article class="card" data-type="Bracelet">
+  <img class="icon" src="../tile-review/items-icons-000000-001999/images/frame_001028.png" alt="" loading="lazy" />
+  <div class="body">
+    <div class="type">Bracelet · Lv50</div>
+    <h3>폭압의팔찌</h3>
+    <div class="meta">KR #865 · Image 1028 · Shape 0</div>
+    <div class="stats">DC 2-6, AC 0-1</div>
+    <div class="tip">착용 효과 : 각 직업별 다른 효과를 획득
+전체 착용 효과 : 방어 + 0~1, 민첩 + 1</div>
+  </div>
+</article>
+<article class="card" data-type="Bracelet">
+  <img class="icon" src="../tile-review/items-icons-000000-001999/images/frame_001026.png" alt="" loading="lazy" />
+  <div class="body">
+    <div class="type">Bracelet · Lv49</div>
+    <h3>(강)금아월륜</h3>
+    <div class="meta">KR #765 · Image 1026 · Shape 0</div>
+    <div class="stats">DC 1-6, MC 1-5, SC 1-5, AC 1-2, MAC 1-1</div>
+    
+  </div>
+</article>
+<article class="card" data-type="Bracelet">
+  <img class="icon" src="../tile-review/items-icons-000000-001999/images/frame_001026.png" alt="" loading="lazy" />
+  <div class="body">
+    <div class="type">Bracelet · Lv49</div>
+    <h3>(연)금아월륜</h3>
+    <div class="meta">KR #767 · Image 1026 · Shape 0</div>
+    <div class="stats">DC 1-6, MC 1-5, SC 1-5, AC 1-2, MAC 1-1</div>
+    
+  </div>
+</article>
+<article class="card" data-type="Bracelet">
+  <img class="icon" src="../tile-review/items-icons-000000-001999/images/frame_001026.png" alt="" loading="lazy" />
+  <div class="body">
+    <div class="type">Bracelet · Lv49</div>
+    <h3>(진)금아월륜</h3>
+    <div class="meta">KR #769 · Image 1026 · Shape 0</div>
+    <div class="stats">DC 1-6, MC 1-5, SC 1-5, AC 1-2, MAC 1-1</div>
+    <div class="tip">월지국이여 영원하라!</div>
+  </div>
+</article>
+<article class="card" data-type="Bracelet">
+  <div class="icon missing">#3536</div>
+  <div class="body">
+    <div class="type">Bracelet · Lv49</div>
+    <h3>(강)풍아월륜</h3>
+    <div class="meta">KR #766 · Image 3536 · Shape 0</div>
+    <div class="stats">DC 2-4, MC 2-3, AC 0-1, MAC 0-1, Acc +1</div>
+    <div class="tip">월지국이여 영원하라!</div>
+  </div>
+</article>
+<article class="card" data-type="Bracelet">
+  <div class="icon missing">#3536</div>
+  <div class="body">
+    <div class="type">Bracelet · Lv49</div>
+    <h3>(연)풍아월륜</h3>
+    <div class="meta">KR #768 · Image 3536 · Shape 0</div>
+    <div class="stats">DC 2-4, MC 2-3, AC 0-1, MAC 0-1, Acc +1</div>
+    
+  </div>
+</article>
+<article class="card" data-type="Bracelet">
+  <div class="icon missing">#3536</div>
+  <div class="body">
+    <div class="type">Bracelet · Lv49</div>
+    <h3>(진)풍아월륜</h3>
+    <div class="meta">KR #770 · Image 3536 · Shape 0</div>
+    <div class="stats">DC 2-4, MC 2-3, AC 0-1, MAC 0-1, Acc +1</div>
+    <div class="tip">월지국이여 영원하라!</div>
+  </div>
+</article>
+<article class="card" data-type="Bracelet">
+  <div class="icon missing">#3560</div>
+  <div class="body">
+    <div class="type">Bracelet · Lv42</div>
+    <h3>청록여우토시</h3>
+    <div class="meta">KR #856 · Image 3560 · Shape 0</div>
+    <div class="stats">DC 1-3, MC 1-1, AC 0-1, MAC 0-2, Acc +1</div>
+    
+  </div>
+</article>
+<article class="card" data-type="Bracelet">
+  <div class="icon missing">#3582</div>
+  <div class="body">
+    <div class="type">Bracelet · Lv37</div>
+    <h3>해모륜</h3>
+    <div class="meta">KR #873 · Image 3582 · Shape 0</div>
+    <div class="stats">DC 2-2, MC 0-2, AC 0-1, MAC 0-1, Acc +1</div>
+    
+  </div>
+</article>
+<article class="card" data-type="Bracelet">
+  <div class="icon missing">#3549</div>
+  <div class="body">
+    <div class="type">Bracelet · Lv35</div>
+    <h3>비형륜</h3>
+    <div class="meta">KR #819 · Image 3549 · Shape 0</div>
+    <div class="stats">DC 1-2, MC 0-2, AC 0-1, MAC 0-1, Acc +1</div>
+    
+  </div>
+</article>
+<article class="card" data-type="Bracelet">
+  <img class="icon" src="../tile-review/items-icons-000000-001999/images/frame_000429.png" alt="" loading="lazy" />
+  <div class="body">
+    <div class="type">Bracelet · Lv33</div>
+    <h3>밀화륜</h3>
+    <div class="meta">KR #804 · Image 429 · Shape 0</div>
+    <div class="stats">SC 1-1, HP +25, MP +25</div>
+    <div class="tip">착용 효과 : +HP 25, -MP 25
+전체 세트 효과 : +HP 50, -MP 50</div>
+  </div>
+</article>
+<article class="card" data-type="Bracelet">
+  <img class="icon" src="../tile-review/items-icons-000000-001999/images/frame_000434.png" alt="" loading="lazy" />
+  <div class="body">
+    <div class="type">Bracelet · Lv33</div>
+    <h3>적난의팔찌</h3>
+    <div class="meta">KR #841 · Image 434 · Shape 0</div>
+    <div class="stats">SC 0-2</div>
+    <div class="tip">전체 세트 효과 : 정확 +2</div>
+  </div>
+</article>
+<article class="card" data-type="Bracelet">
+  <img class="icon" src="../tile-review/items-icons-000000-001999/images/frame_000547.png" alt="" loading="lazy" />
+  <div class="body">
+    <div class="type">Bracelet · Lv33</div>
+    <h3>영령옥팔찌</h3>
+    <div class="meta">KR #830 · Image 547 · Shape 0</div>
+    <div class="stats">DC 1-1, SC 0-1</div>
+    <div class="tip">영령옥팔찌, 영령옥반지 세트 효과 : 신성 +3
+전체 세트 효과 : 도력 + 1~2</div>
+  </div>
+</article>
+<article class="card" data-type="Bracelet">
+  <div class="icon missing">#3574</div>
+  <div class="body">
+    <div class="type">Bracelet · Lv33</div>
+    <h3>촉미륜</h3>
+    <div class="meta">KR #859 · Image 3574 · Shape 0</div>
+    <div class="stats">DC 0-2, MC 0-1, AC 0-1, MAC 1-0, Acc +1</div>
+    <div class="tip">촉미영, 촉미륜 : 세트효과 Max HP +25
+전체 세트 효과 : 공격속도 +2</div>
+  </div>
+</article>
+<article class="card" data-type="Bracelet">
+  <img class="icon" src="../tile-review/items-icons-000000-001999/images/frame_000763.png" alt="" loading="lazy" />
+  <div class="body">
+    <div class="type">Bracelet · Lv32</div>
+    <h3>강화홍옥륜</h3>
+    <div class="meta">KR #788 · Image 763 · Shape 0</div>
+    <div class="stats">MC 0-2, AC 1-1</div>
+    <div class="tip">전체 세트 효과 : 마력 + 0~2, 착용무게 +2,
+MaxMP +40, 민첩 +2</div>
+  </div>
+</article>
+<article class="card" data-type="Bracelet">
+  <img class="icon" src="../tile-review/items-icons-000000-001999/images/frame_000765.png" alt="" loading="lazy" />
+  <div class="body">
+    <div class="type">Bracelet · Lv32</div>
+    <h3>강화연옥륜</h3>
+    <div class="meta">KR #785 · Image 765 · Shape 0</div>
+    <div class="stats">SC 0-2, AC 0-1, MAC 0-1</div>
+    <div class="tip">전체 세트 효과 : 도력 + 0~2, 착용무게 +2,
+MaxHP +15, MaxMP +20, 신성 +1,
+정확 +1, 민첩 +1</div>
+  </div>
+</article>
+<article class="card" data-type="Bracelet">
+  <img class="icon" src="../tile-review/items-icons-000000-001999/images/frame_000767.png" alt="" loading="lazy" />
+  <div class="body">
+    <div class="type">Bracelet · Lv32</div>
+    <h3>강화백금륜</h3>
+    <div class="meta">KR #784 · Image 767 · Shape 0</div>
+    <div class="stats">DC 0-2, AC 1-1</div>
+    <div class="tip">전체 세트 효과 : 파괴 + 0~3, 착용무게 +2,
+MaxHP +30, 공속 +2</div>
+  </div>
+</article>
+<article class="card" data-type="Bracelet">
+  <div class="icon missing">#3539</div>
+  <div class="body">
+    <div class="type">Bracelet · Lv32</div>
+    <h3>강화청옥륜</h3>
+    <div class="meta">KR #787 · Image 3539 · Shape 0</div>
+    <div class="stats">DC 1-1, MC 0-1, AC 0-1, MAC 0-1</div>
+    <div class="tip">전체 세트 효과 : 파괴 + 1~2, 마력 + 0~2,
+MaxMP +50, 정확 +1, 공속 +1</div>
+  </div>
+</article>
+<article class="card" data-type="Bracelet">
+  <img class="icon" src="../tile-review/items-icons-000000-001999/images/frame_000212.png" alt="" loading="lazy" />
+  <div class="body">
+    <div class="type">Bracelet · Lv26</div>
+    <h3>위합</h3>
+    <div class="meta">KR #837 · Image 212 · Shape 0</div>
+    <div class="stats">MC 1-1</div>
+    <div class="tip">&quot;전체 세트 효과 : 그룹장일 때 &quot;&quot;@천지합일&quot;&quot;
+명령으로 그룹원 소환할 수 있습니다.&quot;</div>
+  </div>
+</article>
+<article class="card" data-type="Bracelet">
+  <div class="icon missing">#3550</div>
+  <div class="body">
+    <div class="type">Bracelet · Lv26</div>
+    <h3>비호팔찌</h3>
+    <div class="meta">KR #820 · Image 3550 · Shape 0</div>
+    <div class="stats">DC 0-1, MC 0-1, Acc +1</div>
+    
+  </div>
+</article>
+<article class="card" data-type="Bracelet">
+  <img class="icon" src="../tile-review/items-icons-000000-001999/images/frame_000762.png" alt="" loading="lazy" />
+  <div class="body">
+    <div class="type">Bracelet · Lv23</div>
+    <h3>홍옥륜</h3>
+    <div class="meta">KR #876 · Image 762 · Shape 0</div>
+    <div class="stats">MC 0-2</div>
+    <div class="tip">전체 세트 효과 : 마력 + 0~2, 마법방어 + 0~2,
+착용무게 +2, 양손무게 +1</div>
+  </div>
+</article>
+<article class="card" data-type="Bracelet">
+  <img class="icon" src="../tile-review/items-icons-000000-001999/images/frame_000766.png" alt="" loading="lazy" />
+  <div class="body">
+    <div class="type">Bracelet · Lv23</div>
+    <h3>백금륜</h3>
+    <div class="meta">KR #805 · Image 766 · Shape 0</div>
+    <div class="stats">DC 0-2</div>
+    <div class="tip">전체 세트 효과 : 파괴 + 0~2, 방어 + 0~2,
+착용무게 +2, 양송무게 +1</div>
+  </div>
+</article>
+<article class="card" data-type="Bracelet">
+  <div class="icon missing">#3566</div>
+  <div class="body">
+    <div class="type">Bracelet · Lv23</div>
+    <h3>청옥륜</h3>
+    <div class="meta">KR #857 · Image 3566 · Shape 0</div>
+    <div class="stats">DC 0-1, MC 0-1, Acc +1</div>
+    <div class="tip">전체 세트 효과 : 파괴 + 1~1, 마력 + 1~1,
+방어 + 1~1, 마법방어 + 0~1
+착용무게 +2, 양손무게 +1</div>
+  </div>
+</article>
+<article class="card" data-type="Bracelet">
+  <img class="icon" src="../tile-review/items-icons-000000-001999/images/frame_000826.png" alt="" loading="lazy" />
+  <div class="body">
+    <div class="type">Bracelet · Lv20</div>
+    <h3>천룡광마륜</h3>
+    <div class="meta">KR #847 · Image 826 · Shape 0</div>
+    <div class="stats">no combat stats</div>
+    <div class="tip">천룡세트는 부위별로 다른 효과를 가진다.
+목걸이, 반지, 팔찌: 파마도+2~6, 가방무게+60, 착용무게+30, 양손무게+30, 공속+2
+신발, 벨트, 투구: 방어시 일정확률로 15초동안 30% 받는 데미지 감소 효과 발동
+옷, 검: 공격시 일정확률로 15초동안 30% 데미지 증가 효과 발동
+모든 장비: 방어+2~6, 마법방어+1~4, HP+100, 중독회복+2, 행운+2</div>
+  </div>
+</article>
+<article class="card" data-type="Bracelet">
+  <img class="icon" src="../tile-review/items-icons-000000-001999/images/frame_000215.png" alt="" loading="lazy" />
+  <div class="body">
+    <div class="type">Bracelet · Lv18</div>
+    <h3>미지륜</h3>
+    <div class="meta">KR #803 · Image 215 · Shape 131</div>
+    <div class="stats">no combat stats</div>
+    <div class="tip">착용시, 능력치가 랜덤으로 결정되며, 처음
+착용이후 변경되지 않는다.
+</div>
+  </div>
+</article>
+<article class="card" data-type="Helmet">
+  <div class="icon missing">#3142</div>
+  <div class="body">
+    <div class="type">Helmet · Lv60</div>
+    <h3>청보관(기민)</h3>
+    <div class="meta">KR #627 · Image 3142 · Shape 0</div>
+    <div class="stats">DC 0-1, AC 3-8, MAC 3-7, Agi +2</div>
+    
+  </div>
+</article>
+<article class="card" data-type="Helmet">
+  <div class="icon missing">#3142</div>
+  <div class="body">
+    <div class="type">Helmet · Lv60</div>
+    <h3>청보관(마성)</h3>
+    <div class="meta">KR #628 · Image 3142 · Shape 0</div>
+    <div class="stats">MC 2-3, AC 2-4, MAC 3-6, Agi +1</div>
+    
+  </div>
+</article>
+<article class="card" data-type="Helmet">
+  <div class="icon missing">#3142</div>
+  <div class="body">
+    <div class="type">Helmet · Lv60</div>
+    <h3>청보관(선계)</h3>
+    <div class="meta">KR #629 · Image 3142 · Shape 0</div>
+    <div class="stats">SC 2-3, AC 2-6, MAC 3-5, Agi +1</div>
+    
+  </div>
+</article>
+<article class="card" data-type="Helmet">
+  <div class="icon missing">#3142</div>
+  <div class="body">
+    <div class="type">Helmet · Lv60</div>
+    <h3>청보관(신풍)</h3>
+    <div class="meta">KR #630 · Image 3142 · Shape 0</div>
+    <div class="stats">DC 0-1, MC 0-1, AC 3-8, MAC 3-7, Acc +2</div>
+    
+  </div>
+</article>
+<article class="card" data-type="Helmet">
+  <div class="icon missing">#3142</div>
+  <div class="body">
+    <div class="type">Helmet · Lv60</div>
+    <h3>청보관(용맹)</h3>
+    <div class="meta">KR #631 · Image 3142 · Shape 0</div>
+    <div class="stats">DC 1-1, AC 4-10, MAC 2-3, Agi +1</div>
+    
+  </div>
+</article>
+<article class="card" data-type="Helmet">
+  <div class="icon missing">#3141</div>
+  <div class="body">
+    <div class="type">Helmet · Lv52</div>
+    <h3>흑술관</h3>
+    <div class="meta">KR #639 · Image 3141 · Shape 0</div>
+    <div class="stats">DC 0-1, MC 1-3, SC 1-3, AC 4-8, MAC 3-5, Acc +1</div>
+    
+  </div>
+</article>
+<article class="card" data-type="Helmet">
+  <div class="icon missing">#3140</div>
+  <div class="body">
+    <div class="type">Helmet · Lv50</div>
+    <h3>패옥투구</h3>
+    <div class="meta">KR #634 · Image 3140 · Shape 0</div>
+    <div class="stats">DC 0-1, MC 1-3, SC 1-3, AC 3-7, MAC 3-4</div>
+    <div class="tip">반짝이는 조개껍질로
+만들어진 투구</div>
+  </div>
+</article>
+<article class="card" data-type="Helmet">
+  <img class="icon" src="../tile-review/items-icons-002000-002999/images/frame_002241.png" alt="" loading="lazy" />
+  <div class="body">
+    <div class="type">Helmet · Lv45</div>
+    <h3>혈룡투구</h3>
+    <div class="meta">KR #637 · Image 2241 · Shape 0</div>
+    <div class="stats">MC 1-2, SC 1-2, AC 3-7, MAC 3-3</div>
+    
+  </div>
+</article>
+<article class="card" data-type="Helmet">
+  <img class="icon" src="../tile-review/items-icons-000000-001999/images/frame_000744.png" alt="" loading="lazy" />
+  <div class="body">
+    <div class="type">Helmet · Lv43</div>
+    <h3>감시자투구</h3>
+    <div class="meta">KR #600 · Image 744 · Shape 0</div>
+    <div class="stats">AC 4-8, MAC 3-3</div>
+    <div class="tip">착용 효과 : 각 직업별 다른 효과를 획득
+전체 착용 효과 : 마법저항 +1, 중독저항 +1
+지옥의 감시자</div>
+  </div>
+</article>
+<article class="card" data-type="Helmet">
+  <img class="icon" src="../tile-review/items-icons-000000-001999/images/frame_000109.png" alt="" loading="lazy" />
+  <div class="body">
+    <div class="type">Helmet · Lv26</div>
+    <h3>지일</h3>
+    <div class="meta">KR #619 · Image 109 · Shape 0</div>
+    <div class="stats">AC 3-3</div>
+    <div class="tip">&quot;전체 세트 효과 : 그룹장일 때 &quot;&quot;@천지합일&quot;&quot;
+명령으로 그룹원 소환할 수 있습니다.&quot;</div>
+  </div>
+</article>
+<article class="card" data-type="Helmet">
+  <img class="icon" src="../tile-review/items-icons-000000-001999/images/frame_000827.png" alt="" loading="lazy" />
+  <div class="body">
+    <div class="type">Helmet · Lv20</div>
+    <h3>천룡추혼모</h3>
+    <div class="meta">KR #620 · Image 827 · Shape 0</div>
+    <div class="stats">AC 4-9</div>
+    <div class="tip">천룡세트는 부위별로 다른 효과를 가진다.
+목걸이, 반지, 팔찌: 파마도+2~6, 가방무게+60, 착용무게+30, 양손무게+30, 공속+2
+신발, 벨트, 투구: 방어시 일정확률로 15초동안 30% 받는 데미지 감소 효과 발동
+옷, 검: 공격시 일정확률로 15초동안 30% 데미지 증가 효과 발동
+모든 장비: 방어+2~6, 마법방어+1~4, HP+100, 중독회복+2, 행운+2</div>
+  </div>
+</article>
+<article class="card" data-type="Helmet">
+  <img class="icon" src="../public/item-icons/items/frame_000110.png" alt="" loading="lazy" />
+  <div class="body">
+    <div class="type">Helmet · Lv18</div>
+    <h3>초혼의투구</h3>
+    <div class="meta">KR #632 · Image 110 · Shape 0</div>
+    <div class="stats">AC 3-4, MAC 1-2</div>
+    <div class="tip">착용 효과 : 장착 후, 죽으면 파괴됨
+전체 세트 효과 : 장착 후, 죽을 때 파괴되지 않음.
+공격속도 +4, 파괴 + 2~5</div>
+  </div>
+</article>
+<article class="card" data-type="Helmet">
+  <img class="icon" src="../tile-review/items-icons-000000-001999/images/frame_000111.png" alt="" loading="lazy" />
+  <div class="body">
+    <div class="type">Helmet · Lv18</div>
+    <h3>미지관</h3>
+    <div class="meta">KR #611 · Image 111 · Shape 132</div>
+    <div class="stats">no combat stats</div>
+    <div class="tip">착용시, 능력치가 랜덤으로 결정되며, 처음
+착용이후 변경되지 않는다.</div>
+  </div>
+</article>
+<article class="card" data-type="Helmet">
+  <img class="icon" src="../tile-review/items-icons-000000-001999/images/frame_000101.png" alt="" loading="lazy" />
+  <div class="body">
+    <div class="type">Helmet · Lv17</div>
+    <h3>금형모</h3>
+    <div class="meta">KR #608 · Image 101 · Shape 0</div>
+    <div class="stats">MC 0-1, AC 1-1, MAC 0-2</div>
+    
+  </div>
+</article>
+<article class="card" data-type="Helmet">
+  <div class="icon missing">#3141</div>
+  <div class="body">
+    <div class="type">Helmet · Lv1</div>
+    <h3>수민흑술관</h3>
+    <div class="meta">KR #2563 · Image 3141 · Shape 0</div>
+    <div class="stats">DC 255-255, MC 255-255, SC 255-255, AC 255-255, MAC 255-255, Acc +255, Agi +255, HP +999, MP +999, Luck 117, AS 117</div>
+    
+  </div>
+</article>
+<article class="card" data-type="Mask">
+  <img class="icon" src="../tile-review/items-icons-002000-002999/images/frame_002110.png" alt="" loading="lazy" />
+  <div class="body">
+    <div class="type">Mask · Lv22</div>
+    <h3>가면</h3>
+    <div class="meta">KR #1771 · Image 2110 · Shape 1</div>
+    <div class="stats">DC 0-1, MC 0-1, SC 0-1, MAC 1-1</div>
+    
+  </div>
+</article>
+<article class="card" data-type="Necklace">
+  <img class="icon" src="../tile-review/items-icons-000000-001999/images/frame_001015.png" alt="" loading="lazy" />
+  <div class="body">
+    <div class="type">Necklace · Lv72</div>
+    <h3>암흑천추(術)</h3>
+    <div class="meta">KR #2105 · Image 1015 · Shape 0</div>
+    <div class="stats">MC 3-10, HP +50</div>
+    
+  </div>
+</article>
+<article class="card" data-type="Necklace">
+  <div class="icon missing">#3532</div>
+  <div class="body">
+    <div class="type">Necklace · Lv72</div>
+    <h3>(강)흑풍전영</h3>
+    <div class="meta">KR #643 · Image 3532 · Shape 0</div>
+    <div class="stats">DC 2-6, MC 2-4, Acc +2</div>
+    
+  </div>
+</article>
+<article class="card" data-type="Necklace">
+  <div class="icon missing">#3532</div>
+  <div class="body">
+    <div class="type">Necklace · Lv72</div>
+    <h3>(연)흑풍전영</h3>
+    <div class="meta">KR #647 · Image 3532 · Shape 0</div>
+    <div class="stats">DC 2-6, MC 2-4, Acc +2</div>
+    
+  </div>
+</article>
+<article class="card" data-type="Necklace">
+  <div class="icon missing">#3532</div>
+  <div class="body">
+    <div class="type">Necklace · Lv72</div>
+    <h3>(진)흑풍전영</h3>
+    <div class="meta">KR #651 · Image 3532 · Shape 0</div>
+    <div class="stats">DC 2-6, MC 2-4, Acc +2</div>
+    
+  </div>
+</article>
+<article class="card" data-type="Necklace">
+  <div class="icon missing">#3545</div>
+  <div class="body">
+    <div class="type">Necklace · Lv72</div>
+    <h3>암흑천추(猛)</h3>
+    <div class="meta">KR #2103 · Image 3545 · Shape 0</div>
+    <div class="stats">DC 2-9, MC 2-5, AS 2</div>
+    
+  </div>
+</article>
+<article class="card" data-type="Necklace">
+  <img class="icon" src="../tile-review/items-icons-000000-001999/images/frame_000296.png" alt="" loading="lazy" />
+  <div class="body">
+    <div class="type">Necklace · Lv65</div>
+    <h3>치독호령</h3>
+    <div class="meta">KR #732 · Image 296 · Shape 0</div>
+    <div class="stats">DC 0-3, MC 0-3, SC 0-3</div>
+    <div class="tip">우화등선 전용 아이템</div>
+  </div>
+</article>
+<article class="card" data-type="Necklace">
+  <img class="icon" src="../tile-review/items-icons-003300-003499/images/frame_003475.png" alt="" loading="lazy" />
+  <div class="body">
+    <div class="type">Necklace · Lv65</div>
+    <h3>백룡천추(용맹)1</h3>
+    <div class="meta">KR #683 · Image 3475 · Shape 0</div>
+    <div class="stats">DC 6-14, AC 0-1</div>
+    <div class="tip">백룡의 기운이 서려있다.</div>
+  </div>
+</article>
+<article class="card" data-type="Necklace">
+  <img class="icon" src="../tile-review/items-icons-003300-003499/images/frame_003476.png" alt="" loading="lazy" />
+  <div class="body">
+    <div class="type">Necklace · Lv65</div>
+    <h3>백룡천추(선계)1</h3>
+    <div class="meta">KR #679 · Image 3476 · Shape 0</div>
+    <div class="stats">SC 4-12</div>
+    <div class="tip">백룡의 기운이 서려있다.</div>
+  </div>
+</article>
+<article class="card" data-type="Necklace">
+  <img class="icon" src="../tile-review/items-icons-003300-003499/images/frame_003477.png" alt="" loading="lazy" />
+  <div class="body">
+    <div class="type">Necklace · Lv65</div>
+    <h3>백룡천추(신풍)1</h3>
+    <div class="meta">KR #681 · Image 3477 · Shape 0</div>
+    <div class="stats">DC 5-10, MC 3-7, Acc +2</div>
+    <div class="tip">백룡의 기운이 서려있다.</div>
+  </div>
+</article>
+<article class="card" data-type="Necklace">
+  <img class="icon" src="../tile-review/items-icons-003300-003499/images/frame_003478.png" alt="" loading="lazy" />
+  <div class="body">
+    <div class="type">Necklace · Lv65</div>
+    <h3>백룡천추(마성)1</h3>
+    <div class="meta">KR #677 · Image 3478 · Shape 0</div>
+    <div class="stats">MC 4-12</div>
+    <div class="tip">백룡의 기운이 서려있다.</div>
+  </div>
+</article>
+<article class="card" data-type="Necklace">
+  <img class="icon" src="../tile-review/items-icons-003300-003499/images/frame_003479.png" alt="" loading="lazy" />
+  <div class="body">
+    <div class="type">Necklace · Lv65</div>
+    <h3>백룡천추(기민)1</h3>
+    <div class="meta">KR #675 · Image 3479 · Shape 0</div>
+    <div class="stats">DC 4-12, MAC 0-1</div>
+    <div class="tip">백룡의 기운이 서려있다.</div>
+  </div>
+</article>
+<article class="card" data-type="Necklace">
+  <img class="icon" src="../tile-review/items-icons-003300-003499/images/frame_003485.png" alt="" loading="lazy" />
+  <div class="body">
+    <div class="type">Necklace · Lv65</div>
+    <h3>백룡천추(기민)2</h3>
+    <div class="meta">KR #676 · Image 3485 · Shape 0</div>
+    <div class="stats">DC 6-14, MAC 1-1, Agi +1</div>
+    <div class="tip">백룡의 기운이 서려있다.</div>
+  </div>
+</article>
+<article class="card" data-type="Necklace">
+  <img class="icon" src="../tile-review/items-icons-003300-003499/images/frame_003486.png" alt="" loading="lazy" />
+  <div class="body">
+    <div class="type">Necklace · Lv65</div>
+    <h3>백룡천추(마성)2</h3>
+    <div class="meta">KR #678 · Image 3486 · Shape 0</div>
+    <div class="stats">MC 6-14</div>
+    <div class="tip">백룡의 기운이 서려있다.</div>
+  </div>
+</article>
+<article class="card" data-type="Necklace">
+  <img class="icon" src="../tile-review/items-icons-003300-003499/images/frame_003487.png" alt="" loading="lazy" />
+  <div class="body">
+    <div class="type">Necklace · Lv65</div>
+    <h3>백룡천추(선계)2</h3>
+    <div class="meta">KR #680 · Image 3487 · Shape 0</div>
+    <div class="stats">SC 6-14</div>
+    <div class="tip">백룡의 기운이 서려있다.</div>
+  </div>
+</article>
+<article class="card" data-type="Necklace">
+  <img class="icon" src="../tile-review/items-icons-003300-003499/images/frame_003488.png" alt="" loading="lazy" />
+  <div class="body">
+    <div class="type">Necklace · Lv65</div>
+    <h3>백룡천추(신풍)2</h3>
+    <div class="meta">KR #682 · Image 3488 · Shape 0</div>
+    <div class="stats">DC 7-12, MC 4-9, MAC 0-1, Acc +3</div>
+    <div class="tip">백룡의 기운이 서려있다.</div>
+  </div>
+</article>
+<article class="card" data-type="Necklace">
+  <img class="icon" src="../tile-review/items-icons-003300-003499/images/frame_003489.png" alt="" loading="lazy" />
+  <div class="body">
+    <div class="type">Necklace · Lv65</div>
+    <h3>백룡천추(용맹)2</h3>
+    <div class="meta">KR #684 · Image 3489 · Shape 0</div>
+    <div class="stats">DC 8-16, AC 2-2, Acc +1</div>
+    <div class="tip">백룡의 기운이 서려있다.</div>
+  </div>
+</article>
+<article class="card" data-type="Necklace">
+  <img class="icon" src="../tile-review/items-icons-000000-001999/images/frame_001013.png" alt="" loading="lazy" />
+  <div class="body">
+    <div class="type">Necklace · Lv59</div>
+    <h3>금강도추</h3>
+    <div class="meta">KR #660 · Image 1013 · Shape 0</div>
+    <div class="stats">DC 5-11</div>
+    
+  </div>
+</article>
+<article class="card" data-type="Necklace">
+  <img class="icon" src="../tile-review/items-icons-000000-001999/images/frame_001015.png" alt="" loading="lazy" />
+  <div class="body">
+    <div class="type">Necklace · Lv59</div>
+    <h3>요자천추</h3>
+    <div class="meta">KR #701 · Image 1015 · Shape 0</div>
+    <div class="stats">MC 3-10</div>
+    
+  </div>
+</article>
+<article class="card" data-type="Necklace">
+  <img class="icon" src="../tile-review/items-icons-000000-001999/images/frame_001017.png" alt="" loading="lazy" />
+  <div class="body">
+    <div class="type">Necklace · Lv59</div>
+    <h3>수여십자반</h3>
+    <div class="meta">KR #692 · Image 1017 · Shape 0</div>
+    <div class="stats">DC 1-4, SC 3-10</div>
+    
+  </div>
+</article>
+<article class="card" data-type="Necklace">
+  <div class="icon missing">#3581</div>
+  <div class="body">
+    <div class="type">Necklace · Lv59</div>
+    <h3>풍월쾌추</h3>
+    <div class="meta">KR #753 · Image 3581 · Shape 0</div>
+    <div class="stats">DC 4-9, MC 3-6, Acc +2</div>
+    
+  </div>
+</article>
+<article class="card" data-type="Necklace">
+  <img class="icon" src="../tile-review/items-icons-000000-001999/images/frame_001018.png" alt="" loading="lazy" />
+  <div class="body">
+    <div class="type">Necklace · Lv56</div>
+    <h3>폭압의목걸이</h3>
+    <div class="meta">KR #746 · Image 1018 · Shape 0</div>
+    <div class="stats">no combat stats</div>
+    <div class="tip">착용 효과 : 각 직업별 다른 효과를 획득
+전체 착용 효과 : 방어 + 0~1, 민첩 +1</div>
+  </div>
+</article>
+<article class="card" data-type="Necklace">
+  <img class="icon" src="../tile-review/items-icons-002000-002999/images/frame_002764.png" alt="" loading="lazy" />
+  <div class="body">
+    <div class="type">Necklace · Lv55</div>
+    <h3>혈룡목걸이</h3>
+    <div class="meta">KR #754 · Image 2764 · Shape 0</div>
+    <div class="stats">DC 4-10, MC 3-9, SC 3-9</div>
+    <div class="tip">혈룡반지, 혈룡팔찌 세트 효과 : 신성+3</div>
+  </div>
+</article>
+<article class="card" data-type="Necklace">
+  <div class="icon missing">#3545</div>
+  <div class="body">
+    <div class="type">Necklace · Lv54</div>
+    <h3>귀전기석</h3>
+    <div class="meta">KR #659 · Image 3545 · Shape 0</div>
+    <div class="stats">DC 2-7, MC 2-5, Acc +2</div>
+    
+  </div>
+</article>
+<article class="card" data-type="Necklace">
+  <div class="icon missing">#3572</div>
+  <div class="body">
+    <div class="type">Necklace · Lv49</div>
+    <h3>청월신영</h3>
+    <div class="meta">KR #726 · Image 3572 · Shape 0</div>
+    <div class="stats">DC 3-5, MC 2-4, Acc +2</div>
+    
+  </div>
+</article>
+<article class="card" data-type="Necklace">
+  <div class="icon missing">#3558</div>
+  <div class="body">
+    <div class="type">Necklace · Lv44</div>
+    <h3>청록여우목걸이</h3>
+    <div class="meta">KR #719 · Image 3558 · Shape 0</div>
+    <div class="stats">DC 2-5, MC 1-3, Acc +2</div>
+    
+  </div>
+</article>
+<article class="card" data-type="Necklace">
+  <div class="icon missing">#3552</div>
+  <div class="body">
+    <div class="type">Necklace · Lv40</div>
+    <h3>석철운석</h3>
+    <div class="meta">KR #690 · Image 3552 · Shape 0</div>
+    <div class="stats">DC 2-4, MC 0-3, Acc +2</div>
+    
+  </div>
+</article>
+<article class="card" data-type="Necklace">
+  <img class="icon" src="../tile-review/items-icons-000000-001999/images/frame_000437.png" alt="" loading="lazy" />
+  <div class="body">
+    <div class="type">Necklace · Lv35</div>
+    <h3>영령옥목걸이</h3>
+    <div class="meta">KR #699 · Image 437 · Shape 0</div>
+    <div class="stats">DC 1-1, SC 1-3</div>
+    <div class="tip">영령옥팔찌, 영렬옥반지 세트효과 : 신성 +3
+전체 세트 효과 : 도력 + 1~2</div>
+  </div>
+</article>
+<article class="card" data-type="Necklace">
+  <div class="icon missing">#3568</div>
+  <div class="body">
+    <div class="type">Necklace · Lv35</div>
+    <h3>청옥수</h3>
+    <div class="meta">KR #725 · Image 3568 · Shape 0</div>
+    <div class="stats">DC 1-3, MC 0-2, Acc +1</div>
+    
+  </div>
+</article>
+<article class="card" data-type="Necklace">
+  <div class="icon missing">#3575</div>
+  <div class="body">
+    <div class="type">Necklace · Lv35</div>
+    <h3>촉미영</h3>
+    <div class="meta">KR #729 · Image 3575 · Shape 0</div>
+    <div class="stats">DC 1-4, MC 1-2, Acc +1</div>
+    <div class="tip">촉미영, 촉미륜 : 세트효과 Max HP +25
+전체 세트 효과 : 공격속도 +2</div>
+  </div>
+</article>
+<article class="card" data-type="Necklace">
+  <div class="icon missing">#3588</div>
+  <div class="body">
+    <div class="type">Necklace · Lv35</div>
+    <h3>투신의목걸이</h3>
+    <div class="meta">KR #736 · Image 3588 · Shape 0</div>
+    <div class="stats">no combat stats</div>
+    <div class="tip">착용 효과 : 각 직업별 다른 효과를 획득</div>
+  </div>
+</article>
+<article class="card" data-type="Necklace">
+  <img class="icon" src="../tile-review/items-icons-000000-001999/images/frame_000428.png" alt="" loading="lazy" />
+  <div class="body">
+    <div class="type">Necklace · Lv33</div>
+    <h3>밀화경</h3>
+    <div class="meta">KR #672 · Image 428 · Shape 0</div>
+    <div class="stats">MC 1-3</div>
+    <div class="tip">착용 효과 : +HP 25, -MP 25
+전체 세트 효과 : +HP 50, -MP 50</div>
+  </div>
+</article>
+<article class="card" data-type="Necklace">
+  <img class="icon" src="../tile-review/items-icons-000000-001999/images/frame_000432.png" alt="" loading="lazy" />
+  <div class="body">
+    <div class="type">Necklace · Lv33</div>
+    <h3>적난의목걸이</h3>
+    <div class="meta">KR #704 · Image 432 · Shape 0</div>
+    <div class="stats">MC 0-4</div>
+    <div class="tip">전체 세트 효과 : 정확 +2</div>
+  </div>
+</article>
+<article class="card" data-type="Necklace">
+  <img class="icon" src="../tile-review/items-icons-000000-001999/images/frame_000776.png" alt="" loading="lazy" />
+  <div class="body">
+    <div class="type">Necklace · Lv32</div>
+    <h3>강화백금목걸이</h3>
+    <div class="meta">KR #652 · Image 776 · Shape 0</div>
+    <div class="stats">DC 0-4</div>
+    <div class="tip">전체 세트 효과 : 파괴 + 0~3, 착용무게 +2,
+MaxHP +30, 공속 +2</div>
+  </div>
+</article>
+<article class="card" data-type="Necklace">
+  <img class="icon" src="../tile-review/items-icons-000000-001999/images/frame_000777.png" alt="" loading="lazy" />
+  <div class="body">
+    <div class="type">Necklace · Lv32</div>
+    <h3>강화연옥목걸이</h3>
+    <div class="meta">KR #653 · Image 777 · Shape 0</div>
+    <div class="stats">SC 0-4</div>
+    <div class="tip">전체 세트 효과 : 도력 + 0~2, 착용무게 +2,
+MaxHP +15, MaxMP +20, 신성 +1,
+정확 +1, 민첩 +1</div>
+  </div>
+</article>
+<article class="card" data-type="Necklace">
+  <img class="icon" src="../tile-review/items-icons-000000-001999/images/frame_000778.png" alt="" loading="lazy" />
+  <div class="body">
+    <div class="type">Necklace · Lv32</div>
+    <h3>강화홍옥목걸이</h3>
+    <div class="meta">KR #655 · Image 778 · Shape 0</div>
+    <div class="stats">MC 0-4</div>
+    <div class="tip">전체 세트 효과 : 마력 + 0~2, 착용무게 +2,
+MaxMP +40, 민첩 +2</div>
+  </div>
+</article>
+<article class="card" data-type="Necklace">
+  <img class="icon" src="../tile-review/items-icons-000000-001999/images/frame_000247.png" alt="" loading="lazy" />
+  <div class="body">
+    <div class="type">Necklace · Lv26</div>
+    <h3>천지</h3>
+    <div class="meta">KR #717 · Image 247 · Shape 0</div>
+    <div class="stats">DC 2-4</div>
+    <div class="tip">&quot;전체 세트 효과 : 그룹장일 때 &quot;&quot;@천지합일&quot;&quot;
+명령으로 그룹원 소환할 수 있습니다.&quot;</div>
+  </div>
+</article>
+<article class="card" data-type="Necklace">
+  <img class="icon" src="../tile-review/items-icons-000000-001999/images/frame_000782.png" alt="" loading="lazy" />
+  <div class="body">
+    <div class="type">Necklace · Lv24</div>
+    <h3>충혈목걸이</h3>
+    <div class="meta">KR #731 · Image 782 · Shape 0</div>
+    <div class="stats">DC 1-2, MC 1-2, SC 1-2</div>
+    <div class="tip">전체 세트 효과 : 파과 + 0~1, 마력 + 0~1,
+도력 + 0~1, 마법저항 +1, 중독저항 +1</div>
+  </div>
+</article>
+<article class="card" data-type="Necklace">
+  <div class="icon missing">#3551</div>
+  <div class="body">
+    <div class="type">Necklace · Lv24</div>
+    <h3>상아목걸이</h3>
+    <div class="meta">KR #689 · Image 3551 · Shape 0</div>
+    <div class="stats">DC 0-3, MC 0-1, Acc +1</div>
+    
+  </div>
+</article>
+<article class="card" data-type="Necklace">
+  <div class="icon missing">#3567</div>
+  <div class="body">
+    <div class="type">Necklace · Lv24</div>
+    <h3>청옥목걸이1</h3>
+    <div class="meta">KR #723 · Image 3567 · Shape 0</div>
+    <div class="stats">DC 1-1, MC 0-1, Acc +1</div>
+    <div class="tip">전체 세트 효과 : 파괴 + 1~1, 마력 +1~1,
+방어 + 1~1, 마법방어 +0~1
+착용무게 +2, 양손무게 +1</div>
+  </div>
+</article>
+<article class="card" data-type="Necklace">
+  <img class="icon" src="../tile-review/items-icons-000000-001999/images/frame_000775.png" alt="" loading="lazy" />
+  <div class="body">
+    <div class="type">Necklace · Lv23</div>
+    <h3>홍옥목걸이</h3>
+    <div class="meta">KR #757 · Image 775 · Shape 0</div>
+    <div class="stats">MC 1-2</div>
+    <div class="tip">전체 세트 효과 : 마력 + 0~2, 마법방어 + 0~2,
+착용무게 +2, 양손무게 +1</div>
+  </div>
+</article>
+<article class="card" data-type="Necklace">
+  <img class="icon" src="../tile-review/items-icons-000000-001999/images/frame_000781.png" alt="" loading="lazy" />
+  <div class="body">
+    <div class="type">Necklace · Lv23</div>
+    <h3>백금의목걸이</h3>
+    <div class="meta">KR #674 · Image 781 · Shape 0</div>
+    <div class="stats">DC 1-2</div>
+    <div class="tip">전체 세트 효과 : 파괴 + 0~2, 방어 + 0~2,
+착용무게 +2, 양송무게 +1</div>
+  </div>
+</article>
+<article class="card" data-type="Necklace">
+  <img class="icon" src="../tile-review/items-icons-000000-001999/images/frame_000823.png" alt="" loading="lazy" />
+  <div class="body">
+    <div class="type">Necklace · Lv20</div>
+    <h3>천룡연월신</h3>
+    <div class="meta">KR #711 · Image 823 · Shape 0</div>
+    <div class="stats">no combat stats</div>
+    <div class="tip">천룡세트는 부위별로 다른 효과를 가진다.
+목걸이, 반지, 팔찌: 파마도+2~6, 가방무게+60, 착용무게+30, 양손무게+30, 공속+2
+신발, 벨트, 투구: 방어시 일정확률로 15초동안 30% 받는 데미지 감소 효과 발동
+옷, 검: 공격시 일정확률로 15초동안 30% 데미지 증가 효과 발동
+모든 장비: 방어+2~6, 마법방어+1~4, HP+100, 중독회복+2, 행운+2</div>
+  </div>
+</article>
+<article class="card" data-type="Necklace">
+  <img class="icon" src="../tile-review/items-icons-000000-001999/images/frame_000248.png" alt="" loading="lazy" />
+  <div class="body">
+    <div class="type">Necklace · Lv1</div>
+    <h3>탐색의목걸이</h3>
+    <div class="meta">KR #734 · Image 248 · Shape 0</div>
+    <div class="stats">no combat stats</div>
+    <div class="tip">&quot;착용 후, &quot;&quot;@탐색 캐릭터명&quot;&quot;명령으로
+해당 캐릭터의 위치를 확인할 수 있습니다.&quot;</div>
+  </div>
+</article>
+<article class="card" data-type="Ring">
+  <div class="icon missing">#3531</div>
+  <div class="body">
+    <div class="type">Ring · Lv72</div>
+    <h3>(강)흑풍반지</h3>
+    <div class="meta">KR #885 · Image 3531 · Shape 0</div>
+    <div class="stats">DC 3-6, MC 2-4, Acc +2</div>
+    
+  </div>
+</article>
+<article class="card" data-type="Ring">
+  <div class="icon missing">#3531</div>
+  <div class="body">
+    <div class="type">Ring · Lv72</div>
+    <h3>(연)흑풍반지</h3>
+    <div class="meta">KR #889 · Image 3531 · Shape 0</div>
+    <div class="stats">DC 3-6, MC 2-4, Acc +2</div>
+    
+  </div>
+</article>
+<article class="card" data-type="Ring">
+  <div class="icon missing">#3531</div>
+  <div class="body">
+    <div class="type">Ring · Lv72</div>
+    <h3>(진)흑풍반지</h3>
+    <div class="meta">KR #893 · Image 3531 · Shape 0</div>
+    <div class="stats">DC 3-6, MC 2-4, Acc +2</div>
+    <div class="tip">월지국이여 영원하라!</div>
+  </div>
+</article>
+<article class="card" data-type="Ring">
+  <div class="icon missing">#3577</div>
+  <div class="body">
+    <div class="type">Ring · Lv72</div>
+    <h3>암흑안(弓)</h3>
+    <div class="meta">KR #2114 · Image 3577 · Shape 0</div>
+    <div class="stats">DC 1-8, MC 1-5, Acc +2, AS 2</div>
+    
+  </div>
+</article>
+<article class="card" data-type="Ring">
+  <img class="icon" src="../tile-review/items-icons-000000-001999/images/frame_001019.png" alt="" loading="lazy" />
+  <div class="body">
+    <div class="type">Ring · Lv70</div>
+    <h3>영웅환</h3>
+    <div class="meta">KR #959 · Image 1019 · Shape 0</div>
+    <div class="stats">no combat stats</div>
+    <div class="tip">미르의 영웅이시여</div>
+  </div>
+</article>
+<article class="card" data-type="Ring">
+  <img class="icon" src="../tile-review/items-icons-003300-003499/images/frame_003470.png" alt="" loading="lazy" />
+  <div class="body">
+    <div class="type">Ring · Lv65</div>
+    <h3>백룡안(용맹)1</h3>
+    <div class="meta">KR #933 · Image 3470 · Shape 0</div>
+    <div class="stats">DC 4-14, AC 0-1</div>
+    <div class="tip">백룡의 기운이 서려있다.</div>
+  </div>
+</article>
+<article class="card" data-type="Ring">
+  <img class="icon" src="../tile-review/items-icons-003300-003499/images/frame_003471.png" alt="" loading="lazy" />
+  <div class="body">
+    <div class="type">Ring · Lv65</div>
+    <h3>백룡안(선계)1</h3>
+    <div class="meta">KR #929 · Image 3471 · Shape 0</div>
+    <div class="stats">SC 2-11</div>
+    <div class="tip">백룡의 기운이 서려있다.</div>
+  </div>
+</article>
+<article class="card" data-type="Ring">
+  <img class="icon" src="../tile-review/items-icons-003300-003499/images/frame_003472.png" alt="" loading="lazy" />
+  <div class="body">
+    <div class="type">Ring · Lv65</div>
+    <h3>백룡안(신풍)1</h3>
+    <div class="meta">KR #931 · Image 3472 · Shape 0</div>
+    <div class="stats">DC 3-11, MC 3-9, Acc +2</div>
+    <div class="tip">백룡의 기운이 서려있다.</div>
+  </div>
+</article>
+<article class="card" data-type="Ring">
+  <img class="icon" src="../tile-review/items-icons-003300-003499/images/frame_003473.png" alt="" loading="lazy" />
+  <div class="body">
+    <div class="type">Ring · Lv65</div>
+    <h3>백룡안(마성)1</h3>
+    <div class="meta">KR #927 · Image 3473 · Shape 0</div>
+    <div class="stats">MC 2-11</div>
+    <div class="tip">백룡의 기운이 서려있다.</div>
+  </div>
+</article>
+<article class="card" data-type="Ring">
+  <img class="icon" src="../tile-review/items-icons-003300-003499/images/frame_003474.png" alt="" loading="lazy" />
+  <div class="body">
+    <div class="type">Ring · Lv65</div>
+    <h3>백룡안(기민)1</h3>
+    <div class="meta">KR #925 · Image 3474 · Shape 0</div>
+    <div class="stats">DC 3-13, MAC 0-1</div>
+    <div class="tip">백룡의 기운이 서려있다.</div>
+  </div>
+</article>
+<article class="card" data-type="Ring">
+  <img class="icon" src="../tile-review/items-icons-003300-003499/images/frame_003495.png" alt="" loading="lazy" />
+  <div class="body">
+    <div class="type">Ring · Lv65</div>
+    <h3>백룡안(기민)2</h3>
+    <div class="meta">KR #926 · Image 3495 · Shape 0</div>
+    <div class="stats">DC 5-15, AC 1-1, Agi +1</div>
+    <div class="tip">백룡의 기운이 서려있다.</div>
+  </div>
+</article>
+<article class="card" data-type="Ring">
+  <img class="icon" src="../tile-review/items-icons-003300-003499/images/frame_003496.png" alt="" loading="lazy" />
+  <div class="body">
+    <div class="type">Ring · Lv65</div>
+    <h3>백룡안(마성)2</h3>
+    <div class="meta">KR #928 · Image 3496 · Shape 0</div>
+    <div class="stats">MC 4-13</div>
+    <div class="tip">백룡의 기운이 서려있다.</div>
+  </div>
+</article>
+<article class="card" data-type="Ring">
+  <img class="icon" src="../tile-review/items-icons-003300-003499/images/frame_003497.png" alt="" loading="lazy" />
+  <div class="body">
+    <div class="type">Ring · Lv65</div>
+    <h3>백룡안(선계)2</h3>
+    <div class="meta">KR #930 · Image 3497 · Shape 0</div>
+    <div class="stats">SC 4-13</div>
+    <div class="tip">백룡의 기운이 서려있다.</div>
+  </div>
+</article>
+<article class="card" data-type="Ring">
+  <img class="icon" src="../tile-review/items-icons-003300-003499/images/frame_003498.png" alt="" loading="lazy" />
+  <div class="body">
+    <div class="type">Ring · Lv65</div>
+    <h3>백룡안(신풍)2</h3>
+    <div class="meta">KR #932 · Image 3498 · Shape 0</div>
+    <div class="stats">DC 5-13, MC 4-10, MAC 0-1, Acc +3</div>
+    <div class="tip">백룡의 기운이 서려있다.</div>
+  </div>
+</article>
+<article class="card" data-type="Ring">
+  <img class="icon" src="../tile-review/items-icons-003300-003499/images/frame_003499.png" alt="" loading="lazy" />
+  <div class="body">
+    <div class="type">Ring · Lv65</div>
+    <h3>백룡안(용맹)2</h3>
+    <div class="meta">KR #934 · Image 3499 · Shape 0</div>
+    <div class="stats">DC 6-16, AC 2-2, Acc +1</div>
+    <div class="tip">백룡의 기운이 서려있다.</div>
+  </div>
+</article>
+<article class="card" data-type="Ring">
+  <div class="icon missing">#3027</div>
+  <div class="body">
+    <div class="type">Ring · Lv60</div>
+    <h3>태극반지</h3>
+    <div class="meta">KR #992 · Image 3027 · Shape 0</div>
+    <div class="stats">DC 3-12, MC 1-10, SC 1-10, AC 0-2, MAC 0-2</div>
+    
+  </div>
+</article>
+<article class="card" data-type="Ring">
+  <img class="icon" src="../tile-review/items-icons-000000-001999/images/frame_001001.png" alt="" loading="lazy" />
+  <div class="body">
+    <div class="type">Ring · Lv55</div>
+    <h3>금룡의사슬반지</h3>
+    <div class="meta">KR #905 · Image 1001 · Shape 0</div>
+    <div class="stats">DC 2-13</div>
+    
+  </div>
+</article>
+<article class="card" data-type="Ring">
+  <img class="icon" src="../tile-review/items-icons-000000-001999/images/frame_001003.png" alt="" loading="lazy" />
+  <div class="body">
+    <div class="type">Ring · Lv55</div>
+    <h3>비요환</h3>
+    <div class="meta">KR #940 · Image 1003 · Shape 0</div>
+    <div class="stats">MC 1-10</div>
+    
+  </div>
+</article>
+<article class="card" data-type="Ring">
+  <img class="icon" src="../tile-review/items-icons-000000-001999/images/frame_001005.png" alt="" loading="lazy" />
+  <div class="body">
+    <div class="type">Ring · Lv55</div>
+    <h3>금강복마환</h3>
+    <div class="meta">KR #904 · Image 1005 · Shape 0</div>
+    <div class="stats">DC 1-6, SC 1-9</div>
+    
+  </div>
+</article>
+<article class="card" data-type="Ring">
+  <div class="icon missing">#3578</div>
+  <div class="body">
+    <div class="type">Ring · Lv55</div>
+    <h3>치우천환</h3>
+    <div class="meta">KR #991 · Image 3578 · Shape 0</div>
+    <div class="stats">DC 2-10, MC 2-8, Acc +2</div>
+    
+  </div>
+</article>
+<article class="card" data-type="Ring">
+  <img class="icon" src="../tile-review/items-icons-000000-001999/images/frame_001027.png" alt="" loading="lazy" />
+  <div class="body">
+    <div class="type">Ring · Lv52</div>
+    <h3>폭압의반지</h3>
+    <div class="meta">KR #999 · Image 1027 · Shape 0</div>
+    <div class="stats">no combat stats</div>
+    <div class="tip">착용 효과 : 각 직업별 다른 효과를 획득
+전체 착용 효과 : 방어 + 0~1, 민첩 + 1</div>
+  </div>
+</article>
+<article class="card" data-type="Ring">
+  <img class="icon" src="../tile-review/items-icons-002000-002999/images/frame_002762.png" alt="" loading="lazy" />
+  <div class="body">
+    <div class="type">Ring · Lv52</div>
+    <h3>혈룡반지</h3>
+    <div class="meta">KR #1010 · Image 2762 · Shape 0</div>
+    <div class="stats">DC 3-11, MC 1-9, SC 1-8</div>
+    <div class="tip">혈룡반지, 혈룡팔찌 세트 효과 : 신성+3</div>
+  </div>
+</article>
+<article class="card" data-type="Ring">
+  <img class="icon" src="../tile-review/items-icons-000000-001999/images/frame_000878.png" alt="" loading="lazy" />
+  <div class="body">
+    <div class="type">Ring · Lv50</div>
+    <h3>선인의반지</h3>
+    <div class="meta">KR #944 · Image 878 · Shape 0</div>
+    <div class="stats">DC 3-12, MC 1-10, SC 1-10, AC 0-2, MAC 0-2</div>
+    
+  </div>
+</article>
+<article class="card" data-type="Ring">
+  <div class="icon missing">#3577</div>
+  <div class="body">
+    <div class="type">Ring · Lv50</div>
+    <h3>충절의반지</h3>
+    <div class="meta">KR #989 · Image 3577 · Shape 0</div>
+    <div class="stats">DC 1-8, MC 1-5, Acc +2</div>
+    
+  </div>
+</article>
+<article class="card" data-type="Ring">
+  <div class="icon missing">#3580</div>
+  <div class="body">
+    <div class="type">Ring · Lv50</div>
+    <h3>풍수환</h3>
+    <div class="meta">KR #1008 · Image 3580 · Shape 0</div>
+    <div class="stats">DC 0-6, MC 0-4, Acc +2</div>
+    
+  </div>
+</article>
+<article class="card" data-type="Ring">
+  <img class="icon" src="../tile-review/items-icons-000000-001999/images/frame_000824.png" alt="" loading="lazy" />
+  <div class="body">
+    <div class="type">Ring · Lv42</div>
+    <h3>공지무환</h3>
+    <div class="meta">KR #901 · Image 824 · Shape 0</div>
+    <div class="stats">SC 2-5</div>
+    
+  </div>
+</article>
+<article class="card" data-type="Ring">
+  <img class="icon" src="../tile-review/items-icons-000000-001999/images/frame_000824.png" alt="" loading="lazy" />
+  <div class="body">
+    <div class="type">Ring · Lv42</div>
+    <h3>법지무환</h3>
+    <div class="meta">KR #936 · Image 824 · Shape 0</div>
+    <div class="stats">MC 2-5</div>
+    
+  </div>
+</article>
+<article class="card" data-type="Ring">
+  <img class="icon" src="../tile-review/items-icons-000000-001999/images/frame_000824.png" alt="" loading="lazy" />
+  <div class="body">
+    <div class="type">Ring · Lv42</div>
+    <h3>천지무환</h3>
+    <div class="meta">KR #980 · Image 824 · Shape 0</div>
+    <div class="stats">DC 2-6</div>
+    
+  </div>
+</article>
+<article class="card" data-type="Ring">
+  <img class="icon" src="../tile-review/items-icons-000000-001999/images/frame_001027.png" alt="" loading="lazy" />
+  <div class="body">
+    <div class="type">Ring · Lv42</div>
+    <h3>마령환</h3>
+    <div class="meta">KR #915 · Image 1027 · Shape 0</div>
+    <div class="stats">MC 0-5</div>
+    <div class="tip">대가-대장 제작 아이템</div>
+  </div>
+</article>
+<article class="card" data-type="Ring">
+  <img class="icon" src="../tile-review/items-icons-000000-001999/images/frame_001027.png" alt="" loading="lazy" />
+  <div class="body">
+    <div class="type">Ring · Lv42</div>
+    <h3>명롱환</h3>
+    <div class="meta">KR #918 · Image 1027 · Shape 0</div>
+    <div class="stats">MC 1-5</div>
+    <div class="tip">대가-대장 제작 아이템</div>
+  </div>
+</article>
+<article class="card" data-type="Ring">
+  <img class="icon" src="../tile-review/items-icons-000000-001999/images/frame_001027.png" alt="" loading="lazy" />
+  <div class="body">
+    <div class="type">Ring · Lv42</div>
+    <h3>수령환</h3>
+    <div class="meta">KR #947 · Image 1027 · Shape 0</div>
+    <div class="stats">SC 0-5</div>
+    <div class="tip">대가-대장 제작 아이템</div>
+  </div>
+</article>
+<article class="card" data-type="Ring">
+  <img class="icon" src="../tile-review/items-icons-000000-001999/images/frame_001027.png" alt="" loading="lazy" />
+  <div class="body">
+    <div class="type">Ring · Lv42</div>
+    <h3>신령환</h3>
+    <div class="meta">KR #953 · Image 1027 · Shape 0</div>
+    <div class="stats">SC 1-5</div>
+    <div class="tip">대가-대장 제작 아이템</div>
+  </div>
+</article>
+<article class="card" data-type="Ring">
+  <img class="icon" src="../tile-review/items-icons-000000-001999/images/frame_001027.png" alt="" loading="lazy" />
+  <div class="body">
+    <div class="type">Ring · Lv42</div>
+    <h3>영롱환</h3>
+    <div class="meta">KR #958 · Image 1027 · Shape 0</div>
+    <div class="stats">DC 1-6</div>
+    <div class="tip">대가-대장 제작 아이템</div>
+  </div>
+</article>
+<article class="card" data-type="Ring">
+  <img class="icon" src="../tile-review/items-icons-000000-001999/images/frame_001027.png" alt="" loading="lazy" />
+  <div class="body">
+    <div class="type">Ring · Lv42</div>
+    <h3>청령환</h3>
+    <div class="meta">KR #982 · Image 1027 · Shape 0</div>
+    <div class="stats">DC 0-6</div>
+    <div class="tip">대가-대장 제작 아이템</div>
+  </div>
+</article>
+<article class="card" data-type="Ring">
+  <div class="icon missing">#3554</div>
+  <div class="body">
+    <div class="type">Ring · Lv42</div>
+    <h3>승지무환</h3>
+    <div class="meta">KR #952 · Image 3554 · Shape 0</div>
+    <div class="stats">DC 2-4, MC 2-3</div>
+    
+  </div>
+</article>
+<article class="card" data-type="Ring">
+  <img class="icon" src="../tile-review/items-icons-000000-001999/images/frame_000932.png" alt="" loading="lazy" />
+  <div class="body">
+    <div class="type">Ring · Lv40</div>
+    <h3>봉인반지</h3>
+    <div class="meta">KR #938 · Image 932 · Shape 0</div>
+    <div class="stats">DC 3-3, MC 2-3, SC 2-3, AC 0-2, MAC 0-2</div>
+    
+  </div>
+</article>
+<article class="card" data-type="Ring">
+  <div class="icon missing">#3553</div>
+  <div class="body">
+    <div class="type">Ring · Lv40</div>
+    <h3>수리반지</h3>
+    <div class="meta">KR #948 · Image 3553 · Shape 0</div>
+    <div class="stats">DC 0-4, MC 0-3, Acc +1</div>
+    
+  </div>
+</article>
+<article class="card" data-type="Ring">
+  <div class="icon missing">#3559</div>
+  <div class="body">
+    <div class="type">Ring · Lv40</div>
+    <h3>청록여우반지</h3>
+    <div class="meta">KR #983 · Image 3559 · Shape 0</div>
+    <div class="stats">DC 1-5, MC 2-3, AC 0-1, Acc +2</div>
+    
+  </div>
+</article>
+<article class="card" data-type="Ring">
+  <div class="icon missing">#3579</div>
+  <div class="body">
+    <div class="type">Ring · Lv37</div>
+    <h3>풍래환</h3>
+    <div class="meta">KR #1007 · Image 3579 · Shape 0</div>
+    <div class="stats">DC 2-4, MC 1-3, AC 0-1, MAC 0-1, Acc +1</div>
+    
+  </div>
+</article>
+<article class="card" data-type="Ring">
+  <img class="icon" src="../tile-review/items-icons-000000-001999/images/frame_000430.png" alt="" loading="lazy" />
+  <div class="body">
+    <div class="type">Ring · Lv33</div>
+    <h3>밀화환</h3>
+    <div class="meta">KR #922 · Image 430 · Shape 0</div>
+    <div class="stats">DC 1-3, HP +25, MP +25</div>
+    <div class="tip">착용 효과 : +HP 25, -MP 25
+전체 세트 효과 : +HP 50, -MP 50</div>
+  </div>
+</article>
+<article class="card" data-type="Ring">
+  <div class="icon missing">#3576</div>
+  <div class="body">
+    <div class="type">Ring · Lv33</div>
+    <h3>촉미환</h3>
+    <div class="meta">KR #988 · Image 3576 · Shape 0</div>
+    <div class="stats">DC 0-3, MC 0-2, Acc +1</div>
+    <div class="tip">촉미영, 촉미륜 : 세트효과 Max HP +25
+전체 세트 효과 : 공격속도 +2</div>
+  </div>
+</article>
+<article class="card" data-type="Ring">
+  <img class="icon" src="../tile-review/items-icons-000000-001999/images/frame_000768.png" alt="" loading="lazy" />
+  <div class="body">
+    <div class="type">Ring · Lv32</div>
+    <h3>강화연옥환</h3>
+    <div class="meta">KR #895 · Image 768 · Shape 0</div>
+    <div class="stats">SC 0-3, AC 0-1, MAC 0-1</div>
+    <div class="tip">전체 세트 효과 : 도력 + 0~2, 착용무게 +2,
+MaxHP +15, MaxMP +20, 신성 +1,
+정확 +1, 민첩 +1</div>
+  </div>
+</article>
+<article class="card" data-type="Ring">
+  <img class="icon" src="../tile-review/items-icons-000000-001999/images/frame_000769.png" alt="" loading="lazy" />
+  <div class="body">
+    <div class="type">Ring · Lv32</div>
+    <h3>강화백금환</h3>
+    <div class="meta">KR #894 · Image 769 · Shape 0</div>
+    <div class="stats">DC 0-3, SC 0-2, AC 0-2</div>
+    <div class="tip">전체 세트 효과 : 파괴 + 0~3, 착용무게 +2,
+MaxHP +30, 공속 +2</div>
+  </div>
+</article>
+<article class="card" data-type="Ring">
+  <img class="icon" src="../tile-review/items-icons-000000-001999/images/frame_000770.png" alt="" loading="lazy" />
+  <div class="body">
+    <div class="type">Ring · Lv32</div>
+    <h3>강화홍옥환</h3>
+    <div class="meta">KR #897 · Image 770 · Shape 0</div>
+    <div class="stats">MC 0-3, MAC 0-2</div>
+    <div class="tip">전체 세트 효과 : 마력 + 0~2, 착용무게 +2,
+MaxMP +40, 민첩 +2</div>
+  </div>
+</article>
+<article class="card" data-type="Ring">
+  <div class="icon missing">#3543</div>
+  <div class="body">
+    <div class="type">Ring · Lv32</div>
+    <h3>강화청옥환</h3>
+    <div class="meta">KR #896 · Image 3543 · Shape 0</div>
+    <div class="stats">DC 1-2, MC 2-2, AC 0-1, MAC 0-1</div>
+    <div class="tip">전체 세트 효과 : 파괴 + 1~2, 마력 + 0~2,
+MaxMP +50, 정확 +1, 공속 +1</div>
+  </div>
+</article>
+<article class="card" data-type="Ring">
+  <div class="icon missing">#3544</div>
+  <div class="body">
+    <div class="type">Ring · Lv32</div>
+    <h3>공작환</h3>
+    <div class="meta">KR #900 · Image 3544 · Shape 0</div>
+    <div class="stats">DC 2-2, MC 0-1, Acc +1</div>
+    
+  </div>
+</article>
+<article class="card" data-type="Ring">
+  <img class="icon" src="../tile-review/items-icons-000000-001999/images/frame_000178.png" alt="" loading="lazy" />
+  <div class="body">
+    <div class="type">Ring · Lv26</div>
+    <h3>경천</h3>
+    <div class="meta">KR #899 · Image 178 · Shape 0</div>
+    <div class="stats">SC 1-3</div>
+    <div class="tip">&quot;전체 세트 효과 : 그룹장일 때 &quot;&quot;@천지합일&quot;&quot;
+명령으로 그룹원 소환할 수 있습니다.&quot;</div>
+  </div>
+</article>
+<article class="card" data-type="Ring">
+  <div class="icon missing">#3547</div>
+  <div class="body">
+    <div class="type">Ring · Lv26</div>
+    <h3>넝쿨반지</h3>
+    <div class="meta">KR #910 · Image 3547 · Shape 0</div>
+    <div class="stats">DC 1-1, MC 0-2, Acc +1</div>
+    
+  </div>
+</article>
+<article class="card" data-type="Ring">
+  <img class="icon" src="../tile-review/items-icons-000000-001999/images/frame_000771.png" alt="" loading="lazy" />
+  <div class="body">
+    <div class="type">Ring · Lv23</div>
+    <h3>홍옥환</h3>
+    <div class="meta">KR #1013 · Image 771 · Shape 0</div>
+    <div class="stats">MC 0-1, MAC 0-1</div>
+    
+  </div>
+</article>
+<article class="card" data-type="Ring">
+  <img class="icon" src="../tile-review/items-icons-000000-001999/images/frame_000773.png" alt="" loading="lazy" />
+  <div class="body">
+    <div class="type">Ring · Lv23</div>
+    <h3>백금환</h3>
+    <div class="meta">KR #924 · Image 773 · Shape 0</div>
+    <div class="stats">DC 0-1, AC 0-1</div>
+    <div class="tip">전체 세트 효과 : 파괴 + 0~2, 방어 + 0~2,
+착용무게 +2, 양송무게 +1</div>
+  </div>
+</article>
+<article class="card" data-type="Ring">
+  <img class="icon" src="../tile-review/items-icons-000000-001999/images/frame_000824.png" alt="" loading="lazy" />
+  <div class="body">
+    <div class="type">Ring · Lv20</div>
+    <h3>천룡혼세환</h3>
+    <div class="meta">KR #974 · Image 824 · Shape 0</div>
+    <div class="stats">no combat stats</div>
+    <div class="tip">천룡세트는 부위별로 다른 효과를 가진다.
+목걸이, 반지, 팔찌: 파마도+2~6, 가방무게+60, 착용무게+30, 양손무게+30, 공속+2
+신발, 벨트, 투구: 방어시 일정확률로 15초동안 30% 받는 데미지 감소 효과 발동
+옷, 검: 공격시 일정확률로 15초동안 30% 데미지 증가 효과 발동
+모든 장비: 방어+2~6, 마법방어+1~4, HP+100, 중독회복+2, 행운+2</div>
+  </div>
+</article>
+<article class="card" data-type="Ring">
+  <div class="icon missing">#3561</div>
+  <div class="body">
+    <div class="type">Ring · Lv20</div>
+    <h3>청룡반지</h3>
+    <div class="meta">KR #984 · Image 3561 · Shape 0</div>
+    <div class="stats">DC 0-1, MC 0-1, Acc +1</div>
+    
+  </div>
+</article>
+<article class="card" data-type="Ring">
+  <img class="icon" src="../tile-review/items-icons-000000-001999/images/frame_000181.png" alt="" loading="lazy" />
+  <div class="body">
+    <div class="type">Ring · Lv18</div>
+    <h3>미지환</h3>
+    <div class="meta">KR #921 · Image 181 · Shape 130</div>
+    <div class="stats">no combat stats</div>
+    <div class="tip">착용시, 능력치가 랜덤으로 결정되며, 처음
+착용이후 변경되지 않는다.</div>
+  </div>
+</article>
+<article class="card" data-type="Ring">
+  <img class="icon" src="../tile-review/items-icons-000000-001999/images/frame_000170.png" alt="" loading="lazy" />
+  <div class="body">
+    <div class="type">Ring · Lv16</div>
+    <h3>완력의반지</h3>
+    <div class="meta">KR #964 · Image 170 · Shape 0</div>
+    <div class="stats">DC 0-1</div>
+    <div class="tip">착용 효과 : 가방무게, 착용무게, 양손무게가 두배로 됩니다.</div>
+  </div>
+</article>
+<article class="card" data-type="Ring">
+  <img class="icon" src="../tile-review/items-icons-000000-001999/images/frame_000171.png" alt="" loading="lazy" />
+  <div class="body">
+    <div class="type">Ring · Lv16</div>
+    <h3>화염의반지</h3>
+    <div class="meta">KR #1015 · Image 171 · Shape 5</div>
+    <div class="stats">AC 0-1, MAC 0-1</div>
+    <div class="tip">착용 효과 : 무공 화염장 사용 가능</div>
+  </div>
+</article>
+<article class="card" data-type="Ring">
+  <img class="icon" src="../tile-review/items-icons-000000-001999/images/frame_000174.png" alt="" loading="lazy" />
+  <div class="body">
+    <div class="type">Ring · Lv16</div>
+    <h3>투명반지</h3>
+    <div class="meta">KR #996 · Image 174 · Shape 3</div>
+    <div class="stats">no combat stats</div>
+    
+  </div>
+</article>
+<article class="card" data-type="Ring">
+  <img class="icon" src="../tile-review/items-icons-000000-001999/images/frame_000175.png" alt="" loading="lazy" />
+  <div class="body">
+    <div class="type">Ring · Lv16</div>
+    <h3>재생의반지</h3>
+    <div class="meta">KR #967 · Image 175 · Shape 5</div>
+    <div class="stats">AC 0-1, MAC 0-1</div>
+    <div class="tip">착용 효과 : 죽는 순간 최대HP로 회복하고 내구가 감소됩니다.</div>
+  </div>
+</article>
+<article class="card" data-type="Ring">
+  <img class="icon" src="../tile-review/items-icons-000000-001999/images/frame_000172.png" alt="" loading="lazy" />
+  <div class="body">
+    <div class="type">Ring · Lv12</div>
+    <h3>순간이동반지</h3>
+    <div class="meta">KR #951 · Image 172 · Shape 2</div>
+    <div class="stats">no combat stats</div>
+    <div class="tip">착용 후 동일 맵상에서 원하는 
+곳으로 순간이동 가능
+명령어 : @이동</div>
+  </div>
+</article>
+<article class="card" data-type="Ring">
+  <div class="icon missing">#3571</div>
+  <div class="body">
+    <div class="type">Ring · Lv0</div>
+    <h3>청옥환</h3>
+    <div class="meta">KR #985 · Image 3571 · Shape 0</div>
+    <div class="stats">no combat stats</div>
+    <div class="tip">전체 세트 효과 : 파괴 + 1~1, 마력 + 1~1,
+방어 + 1~1, 마법방어 + 0~1
+착용무게 +2, 양손무게 +1</div>
+  </div>
+</article>
+<article class="card" data-type="Stone">
+  <div class="icon missing">#3914</div>
+  <div class="body">
+    <div class="type">Stone · Lv55</div>
+    <h3>빙한의수호석(기민)</h3>
+    <div class="meta">KR #2123 · Image 3914 · Shape 0</div>
+    <div class="stats">DC 0-3, Agi +1</div>
+    <div class="tip">지독한 추위</div>
+  </div>
+</article>
+<article class="card" data-type="Stone">
+  <div class="icon missing">#3914</div>
+  <div class="body">
+    <div class="type">Stone · Lv55</div>
+    <h3>빙한의수호석(마성)</h3>
+    <div class="meta">KR #2121 · Image 3914 · Shape 0</div>
+    <div class="stats">MC 0-6</div>
+    <div class="tip">지독한 추위</div>
+  </div>
+</article>
+<article class="card" data-type="Stone">
+  <div class="icon missing">#3914</div>
+  <div class="body">
+    <div class="type">Stone · Lv55</div>
+    <h3>빙한의수호석(선계)</h3>
+    <div class="meta">KR #2122 · Image 3914 · Shape 0</div>
+    <div class="stats">SC 0-6</div>
+    <div class="tip">지독한 추위</div>
+  </div>
+</article>
+<article class="card" data-type="Stone">
+  <div class="icon missing">#3914</div>
+  <div class="body">
+    <div class="type">Stone · Lv55</div>
+    <h3>빙한의수호석(신풍)</h3>
+    <div class="meta">KR #2124 · Image 3914 · Shape 0</div>
+    <div class="stats">DC 0-2, MC 0-1, Acc +1</div>
+    <div class="tip">지독한 추위</div>
+  </div>
+</article>
+<article class="card" data-type="Stone">
+  <div class="icon missing">#3914</div>
+  <div class="body">
+    <div class="type">Stone · Lv55</div>
+    <h3>빙한의수호석(용맹)</h3>
+    <div class="meta">KR #2120 · Image 3914 · Shape 0</div>
+    <div class="stats">DC 0-4, AC 0-2</div>
+    <div class="tip">지독한 추위</div>
+  </div>
+</article>
+<article class="card" data-type="Stone">
+  <img class="icon" src="../tile-review/items-icons-000000-001999/images/frame_001068.png" alt="" loading="lazy" />
+  <div class="body">
+    <div class="type">Stone · Lv45</div>
+    <h3>혹한의수호석</h3>
+    <div class="meta">KR #1144 · Image 1068 · Shape 0</div>
+    <div class="stats">DC 3-3, MC 3-3, SC 3-3, AC 0-1, MAC 0-1</div>
+    <div class="tip">지독한 추위</div>
+  </div>
+</article>
+<article class="card" data-type="Stone">
+  <img class="icon" src="../tile-review/items-icons-000000-001999/images/frame_000578.png" alt="" loading="lazy" />
+  <div class="body">
+    <div class="type">Stone · Lv21</div>
+    <h3>지심석(특)</h3>
+    <div class="meta">KR #1131 · Image 578 · Shape 0</div>
+    <div class="stats">HP +20, MP +30</div>
+    
+  </div>
+</article>
+<article class="card" data-type="Stone">
+  <img class="icon" src="../tile-review/items-icons-000000-001999/images/frame_000583.png" alt="" loading="lazy" />
+  <div class="body">
+    <div class="type">Stone · Lv21</div>
+    <h3>청운석(특)</h3>
+    <div class="meta">KR #1141 · Image 583 · Shape 0</div>
+    <div class="stats">MP +32</div>
+    
+  </div>
+</article>
+<article class="card" data-type="Stone">
+  <img class="icon" src="../tile-review/items-icons-000000-001999/images/frame_000588.png" alt="" loading="lazy" />
+  <div class="body">
+    <div class="type">Stone · Lv21</div>
+    <h3>적린석(특)</h3>
+    <div class="meta">KR #1126 · Image 588 · Shape 0</div>
+    <div class="stats">HP +25</div>
+    
+  </div>
+</article>
+<article class="card" data-type="Stone">
+  <img class="icon" src="../tile-review/items-icons-000000-001999/images/frame_000577.png" alt="" loading="lazy" />
+  <div class="body">
+    <div class="type">Stone · Lv17</div>
+    <h3>지심석(대)</h3>
+    <div class="meta">KR #1128 · Image 577 · Shape 0</div>
+    <div class="stats">HP +15, MP +24</div>
+    
+  </div>
+</article>
+<article class="card" data-type="Stone">
+  <img class="icon" src="../tile-review/items-icons-000000-001999/images/frame_000582.png" alt="" loading="lazy" />
+  <div class="body">
+    <div class="type">Stone · Lv17</div>
+    <h3>청운석(대)</h3>
+    <div class="meta">KR #1138 · Image 582 · Shape 0</div>
+    <div class="stats">MP +24</div>
+    
+  </div>
+</article>
+<article class="card" data-type="Stone">
+  <img class="icon" src="../tile-review/items-icons-000000-001999/images/frame_000587.png" alt="" loading="lazy" />
+  <div class="body">
+    <div class="type">Stone · Lv17</div>
+    <h3>적린석(대)</h3>
+    <div class="meta">KR #1123 · Image 587 · Shape 0</div>
+    <div class="stats">HP +15</div>
+    
+  </div>
+</article>
+<article class="card" data-type="Stone">
+  <div class="icon missing">#3626</div>
+  <div class="body">
+    <div class="type">Stone · Lv1</div>
+    <h3>사북수호석</h3>
+    <div class="meta">KR #2095 · Image 3626 · Shape 0</div>
+    <div class="stats">no combat stats</div>
+    <div class="tip">사북성원의 증표의 돌</div>
+  </div>
+</article>
+<article class="card" data-type="Torch">
+  <img class="icon" src="../tile-review/items-icons-000000-001999/images/frame_000000.png" alt="" loading="lazy" />
+  <div class="body">
+    <div class="type">Torch · Lv0</div>
+    <h3>어만횃불</h3>
+    <div class="meta">KR #1148 · Image 0 · Shape 0</div>
+    <div class="stats">no combat stats</div>
+    
+  </div>
+</article>
+<article class="card" data-type="Torch">
+  <img class="icon" src="../tile-review/items-icons-000000-001999/images/frame_000000.png" alt="" loading="lazy" />
+  <div class="body">
+    <div class="type">Torch · Lv0</div>
+    <h3>태극기</h3>
+    <div class="meta">KR #1151 · Image 0 · Shape 0</div>
+    <div class="stats">no combat stats</div>
+    
+  </div>
+</article>
+<article class="card" data-type="Torch">
+  <img class="icon" src="../tile-review/items-icons-000000-001999/images/frame_000000.png" alt="" loading="lazy" />
+  <div class="body">
+    <div class="type">Torch · Lv0</div>
+    <h3>토만횃불</h3>
+    <div class="meta">KR #1152 · Image 0 · Shape 0</div>
+    <div class="stats">no combat stats</div>
+    
+  </div>
+</article>
+<article class="card" data-type="Torch">
+  <img class="icon" src="../tile-review/items-icons-000000-001999/images/frame_000130.png" alt="" loading="lazy" />
+  <div class="body">
+    <div class="type">Torch · Lv0</div>
+    <h3>양초</h3>
+    <div class="meta">KR #1147 · Image 130 · Shape 0</div>
+    <div class="stats">no combat stats</div>
+    
+  </div>
+</article>
+<article class="card" data-type="Torch">
+  <img class="icon" src="../tile-review/items-icons-000000-001999/images/frame_000131.png" alt="" loading="lazy" />
+  <div class="body">
+    <div class="type">Torch · Lv0</div>
+    <h3>잡상인의횃불</h3>
+    <div class="meta">KR #1150 · Image 131 · Shape 1</div>
+    <div class="stats">no combat stats</div>
+    
+  </div>
+</article>
+<article class="card" data-type="Torch">
+  <img class="icon" src="../tile-review/items-icons-000000-001999/images/frame_000131.png" alt="" loading="lazy" />
+  <div class="body">
+    <div class="type">Torch · Lv0</div>
+    <h3>횃불</h3>
+    <div class="meta">KR #1154 · Image 131 · Shape 0</div>
+    <div class="stats">no combat stats</div>
+    
+  </div>
+</article>
+<article class="card" data-type="Torch">
+  <img class="icon" src="../tile-review/items-icons-000000-001999/images/frame_000132.png" alt="" loading="lazy" />
+  <div class="body">
+    <div class="type">Torch · Lv0</div>
+    <h3>용맹의횃불</h3>
+    <div class="meta">KR #1149 · Image 132 · Shape 1</div>
+    <div class="stats">DC 0-2, MC 0-2, SC 0-2, Acc +1, Luck 1</div>
+    
+  </div>
+</article>
+<article class="card" data-type="Torch">
+  <div class="icon missing">#3738</div>
+  <div class="body">
+    <div class="type">Torch · Lv0</div>
+    <h3>&lt;英&gt;파괴의횃불&lt;3&gt;</h3>
+    <div class="meta">KR #2130 · Image 3738 · Shape 1</div>
+    <div class="stats">DC 0-3</div>
+    
+  </div>
+</article>
+<article class="card" data-type="Torch">
+  <div class="icon missing">#3738</div>
+  <div class="body">
+    <div class="type">Torch · Lv0</div>
+    <h3>파괴의횃불&lt;3&gt;</h3>
+    <div class="meta">KR #1153 · Image 3738 · Shape 1</div>
+    <div class="stats">DC 0-3</div>
+    <div class="tip">넓은 범위의 화면을 밝혀준다.</div>
+  </div>
+</article>
+<article class="card" data-type="Torch">
+  <div class="icon missing">#3739</div>
+  <div class="body">
+    <div class="type">Torch · Lv0</div>
+    <h3>&lt;英&gt;마력의횃불&lt;3&gt;</h3>
+    <div class="meta">KR #2131 · Image 3739 · Shape 0</div>
+    <div class="stats">MC 0-3</div>
+    
+  </div>
+</article>
+<article class="card" data-type="Torch">
+  <div class="icon missing">#3739</div>
+  <div class="body">
+    <div class="type">Torch · Lv0</div>
+    <h3>마력의횃불&lt;3&gt;</h3>
+    <div class="meta">KR #1146 · Image 3739 · Shape 1</div>
+    <div class="stats">MC 0-3</div>
+    <div class="tip">넓은 범위의 화면을 밝혀준다.</div>
+  </div>
+</article>
+<article class="card" data-type="Torch">
+  <div class="icon missing">#3740</div>
+  <div class="body">
+    <div class="type">Torch · Lv0</div>
+    <h3>&lt;英&gt;도력의횃불&lt;3&gt;</h3>
+    <div class="meta">KR #2132 · Image 3740 · Shape 1</div>
+    <div class="stats">SC 0-3</div>
+    
+  </div>
+</article>
+<article class="card" data-type="Torch">
+  <div class="icon missing">#3740</div>
+  <div class="body">
+    <div class="type">Torch · Lv0</div>
+    <h3>도력의횃불&lt;3&gt;</h3>
+    <div class="meta">KR #1145 · Image 3740 · Shape 1</div>
+    <div class="stats">SC 0-3</div>
+    <div class="tip">넓은 범위의 화면을 밝혀준다.</div>
+  </div>
+</article>
+<article class="card" data-type="Weapon">
+  <img class="icon" src="../tile-review/items-icons-002000-002999/images/frame_002258.png" alt="" loading="lazy" />
+  <div class="body">
+    <div class="type">Weapon · Lv72</div>
+    <h3>암흑의 흑오도</h3>
+    <div class="meta">KR #2118 · Image 2258 · Shape 109</div>
+    <div class="stats">DC 15-37, AS 2</div>
+    
+  </div>
+</article>
+<article class="card" data-type="Weapon">
+  <img class="icon" src="../tile-review/items-icons-003300-003499/images/frame_003403.png" alt="" loading="lazy" />
+  <div class="body">
+    <div class="type">Weapon · Lv72</div>
+    <h3>암흑의 대력신궁</h3>
+    <div class="meta">KR #2119 · Image 3403 · Shape 213</div>
+    <div class="stats">DC 12-47, MC 3-6, Acc +2, AS 2</div>
+    
+  </div>
+</article>
+<article class="card" data-type="Weapon">
+  <img class="icon" src="../tile-review/items-icons-003200-003299/images/frame_003291.png" alt="" loading="lazy" />
+  <div class="body">
+    <div class="type">Weapon · Lv65</div>
+    <h3>비연 혼월검</h3>
+    <div class="meta">KR #221 · Image 3291 · Shape 604</div>
+    <div class="stats">DC 12-45, AS -2</div>
+    
+  </div>
+</article>
+<article class="card" data-type="Weapon">
+  <img class="icon" src="../tile-review/items-icons-003300-003499/images/frame_003407.png" alt="" loading="lazy" />
+  <div class="body">
+    <div class="type">Weapon · Lv65</div>
+    <h3>암귀 천존궁</h3>
+    <div class="meta">KR #256 · Image 3407 · Shape 708</div>
+    <div class="stats">DC 12-52, MC 4-12</div>
+    
+  </div>
+</article>
+<article class="card" data-type="Weapon">
+  <img class="icon" src="../tile-review/items-icons-003800-003899/images/frame_003883.png" alt="" loading="lazy" />
+  <div class="body">
+    <div class="type">Weapon · Lv65</div>
+    <h3>빙룡천참</h3>
+    <div class="meta">KR #2014 · Image 3883 · Shape 114</div>
+    <div class="stats">DC 10-50, Acc +1, AS -2</div>
+    <div class="tip">파천마룡에게 50의 추가 피해를
+줍니다.</div>
+  </div>
+</article>
+<article class="card" data-type="Weapon">
+  <img class="icon" src="../tile-review/items-icons-003800-003899/images/frame_003884.png" alt="" loading="lazy" />
+  <div class="body">
+    <div class="type">Weapon · Lv65</div>
+    <h3>빙룡천궁</h3>
+    <div class="meta">KR #2012 · Image 3884 · Shape 709</div>
+    <div class="stats">DC 12-58, MC 4-18, Acc +2, HP +20</div>
+    <div class="tip">파천마룡에게 50의 추가 피해를
+줍니다.</div>
+  </div>
+</article>
+<article class="card" data-type="Weapon">
+  <img class="icon" src="../tile-review/items-icons-002000-002999/images/frame_002441.png" alt="" loading="lazy" />
+  <div class="body">
+    <div class="type">Weapon · Lv60</div>
+    <h3>벽혈 도륙검</h3>
+    <div class="meta">KR #215 · Image 2441 · Shape 304</div>
+    <div class="stats">DC 6-48</div>
+    
+  </div>
+</article>
+<article class="card" data-type="Weapon">
+  <img class="icon" src="../tile-review/items-icons-002000-002999/images/frame_002442.png" alt="" loading="lazy" />
+  <div class="body">
+    <div class="type">Weapon · Lv60</div>
+    <h3>홍현 파괴장</h3>
+    <div class="meta">KR #321 · Image 2442 · Shape 402</div>
+    <div class="stats">DC 3-19, MC 4-11</div>
+    
+  </div>
+</article>
+<article class="card" data-type="Weapon">
+  <img class="icon" src="../tile-review/items-icons-002000-002999/images/frame_002443.png" alt="" loading="lazy" />
+  <div class="body">
+    <div class="type">Weapon · Lv60</div>
+    <h3>홍현 주작봉</h3>
+    <div class="meta">KR #320 · Image 2443 · Shape 403</div>
+    <div class="stats">DC 7-22, MC 3-12</div>
+    
+  </div>
+</article>
+<article class="card" data-type="Weapon">
+  <img class="icon" src="../tile-review/items-icons-002000-002999/images/frame_002444.png" alt="" loading="lazy" />
+  <div class="body">
+    <div class="type">Weapon · Lv60</div>
+    <h3>익선 매화선</h3>
+    <div class="meta">KR #278 · Image 2444 · Shape 502</div>
+    <div class="stats">DC 0-30, SC 0-10</div>
+    
+  </div>
+</article>
+<article class="card" data-type="Weapon">
+  <img class="icon" src="../tile-review/items-icons-002000-002999/images/frame_002445.png" alt="" loading="lazy" />
+  <div class="body">
+    <div class="type">Weapon · Lv60</div>
+    <h3>익선 공작선</h3>
+    <div class="meta">KR #277 · Image 2445 · Shape 503</div>
+    <div class="stats">DC 8-29, SC 2-10</div>
+    
+  </div>
+</article>
+<article class="card" data-type="Weapon">
+  <img class="icon" src="../tile-review/items-icons-002000-002999/images/frame_002446.png" alt="" loading="lazy" />
+  <div class="body">
+    <div class="type">Weapon · Lv60</div>
+    <h3>비연 파열도</h3>
+    <div class="meta">KR #220 · Image 2446 · Shape 602</div>
+    <div class="stats">DC 8-34, Acc +2</div>
+    
+  </div>
+</article>
+<article class="card" data-type="Weapon">
+  <img class="icon" src="../tile-review/items-icons-002000-002999/images/frame_002447.png" alt="" loading="lazy" />
+  <div class="body">
+    <div class="type">Weapon · Lv60</div>
+    <h3>비연 아수라도</h3>
+    <div class="meta">KR #219 · Image 2447 · Shape 603</div>
+    <div class="stats">DC 10-38</div>
+    
+  </div>
+</article>
+<article class="card" data-type="Weapon">
+  <img class="icon" src="../tile-review/items-icons-003300-003499/images/frame_003405.png" alt="" loading="lazy" />
+  <div class="body">
+    <div class="type">Weapon · Lv60</div>
+    <h3>암귀 지존궁</h3>
+    <div class="meta">KR #255 · Image 3405 · Shape 706</div>
+    <div class="stats">DC 14-40, MC 3-7</div>
+    
+  </div>
+</article>
+<article class="card" data-type="Weapon">
+  <img class="icon" src="../tile-review/items-icons-003300-003499/images/frame_003406.png" alt="" loading="lazy" />
+  <div class="body">
+    <div class="type">Weapon · Lv60</div>
+    <h3>암귀 독존궁</h3>
+    <div class="meta">KR #254 · Image 3406 · Shape 707</div>
+    <div class="stats">DC 14-44, MC 4-8</div>
+    
+  </div>
+</article>
+<article class="card" data-type="Weapon">
+  <img class="icon" src="../tile-review/items-icons-003200-003299/images/frame_003290.png" alt="" loading="lazy" />
+  <div class="body">
+    <div class="type">Weapon · Lv52</div>
+    <h3>염옥혈비</h3>
+    <div class="meta">KR #264 · Image 3290 · Shape 111</div>
+    <div class="stats">DC 10-42</div>
+    
+  </div>
+</article>
+<article class="card" data-type="Weapon">
+  <img class="icon" src="../tile-review/items-icons-003300-003499/images/frame_003404.png" alt="" loading="lazy" />
+  <div class="body">
+    <div class="type">Weapon · Lv52</div>
+    <h3>염화천궁</h3>
+    <div class="meta">KR #265 · Image 3404 · Shape 214</div>
+    <div class="stats">DC 12-50, MC 3-8</div>
+    
+  </div>
+</article>
+<article class="card" data-type="Weapon">
+  <img class="icon" src="../tile-review/items-icons-002000-002999/images/frame_002258.png" alt="" loading="lazy" />
+  <div class="body">
+    <div class="type">Weapon · Lv50</div>
+    <h3>흑오도</h3>
+    <div class="meta">KR #329 · Image 2258 · Shape 109</div>
+    <div class="stats">DC 12-36</div>
+    
+  </div>
+</article>
+<article class="card" data-type="Weapon">
+  <img class="icon" src="../tile-review/items-icons-003300-003499/images/frame_003403.png" alt="" loading="lazy" />
+  <div class="body">
+    <div class="type">Weapon · Lv50</div>
+    <h3>대력신궁</h3>
+    <div class="meta">KR #193 · Image 3403 · Shape 213</div>
+    <div class="stats">DC 12-44, MC 3-6</div>
+    
+  </div>
+</article>
+<article class="card" data-type="Weapon">
+  <img class="icon" src="../tile-review/items-icons-002000-002999/images/frame_002257.png" alt="" loading="lazy" />
+  <div class="body">
+    <div class="type">Weapon · Lv45</div>
+    <h3>편혈도</h3>
+    <div class="meta">KR #312 · Image 2257 · Shape 108</div>
+    <div class="stats">DC 12-33</div>
+    
+  </div>
+</article>
+<article class="card" data-type="Weapon">
+  <img class="icon" src="../tile-review/items-icons-003300-003499/images/frame_003333.png" alt="" loading="lazy" />
+  <div class="body">
+    <div class="type">Weapon · Lv45</div>
+    <h3>현월쌍수도</h3>
+    <div class="meta">KR #315 · Image 3333 · Shape 113</div>
+    <div class="stats">DC 11-31</div>
+    
+  </div>
+</article>
+<article class="card" data-type="Weapon">
+  <img class="icon" src="../tile-review/items-icons-003300-003499/images/frame_003402.png" alt="" loading="lazy" />
+  <div class="body">
+    <div class="type">Weapon · Lv45</div>
+    <h3>마혈궁</h3>
+    <div class="meta">KR #198 · Image 3402 · Shape 212</div>
+    <div class="stats">DC 11-40, MC 2-5</div>
+    
+  </div>
+</article>
+<article class="card" data-type="Weapon">
+  <img class="icon" src="../tile-review/items-icons-003300-003499/images/frame_003410.png" alt="" loading="lazy" />
+  <div class="body">
+    <div class="type">Weapon · Lv45</div>
+    <h3>흑혼궁</h3>
+    <div class="meta">KR #331 · Image 3410 · Shape 218</div>
+    <div class="stats">DC 6-38, MC 4-10, HP +30</div>
+    
+  </div>
+</article>
+<article class="card" data-type="Weapon">
+  <img class="icon" src="../tile-review/items-icons-000000-001999/images/frame_000065.png" alt="" loading="lazy" />
+  <div class="body">
+    <div class="type">Weapon · Lv35</div>
+    <h3>군도</h3>
+    <div class="meta">KR #182 · Image 65 · Shape 24</div>
+    <div class="stats">DC 12-16</div>
+    
+  </div>
+</article>
+<article class="card" data-type="Weapon">
+  <img class="icon" src="../tile-review/items-icons-002000-002999/images/frame_002252.png" alt="" loading="lazy" />
+  <div class="body">
+    <div class="type">Weapon · Lv26</div>
+    <h3>단단한쌍극도</h3>
+    <div class="meta">KR #190 · Image 2252 · Shape 103</div>
+    <div class="stats">DC 9-19, Acc +3</div>
+    
+  </div>
+</article>
+<article class="card" data-type="Weapon">
+  <img class="icon" src="../tile-review/items-icons-002000-002999/images/frame_002252.png" alt="" loading="lazy" />
+  <div class="body">
+    <div class="type">Weapon · Lv26</div>
+    <h3>무쇠쌍극도</h3>
+    <div class="meta">KR #204 · Image 2252 · Shape 103</div>
+    <div class="stats">DC 9-19, Acc +3</div>
+    
+  </div>
+</article>
+<article class="card" data-type="Weapon">
+  <img class="icon" src="../tile-review/items-icons-002000-002999/images/frame_002252.png" alt="" loading="lazy" />
+  <div class="body">
+    <div class="type">Weapon · Lv26</div>
+    <h3>쌍극도</h3>
+    <div class="meta">KR #252 · Image 2252 · Shape 103</div>
+    <div class="stats">DC 9-19</div>
+    
+  </div>
+</article>
+<article class="card" data-type="Weapon">
+  <img class="icon" src="../tile-review/items-icons-003300-003499/images/frame_003397.png" alt="" loading="lazy" />
+  <div class="body">
+    <div class="type">Weapon · Lv26</div>
+    <h3>만의궁</h3>
+    <div class="meta">KR #199 · Image 3397 · Shape 207</div>
+    <div class="stats">DC 7-20, MC 1-3</div>
+    
+  </div>
+</article>
+<article class="card" data-type="Weapon">
+  <img class="icon" src="../tile-review/items-icons-002000-002999/images/frame_002310.png" alt="" loading="lazy" />
+  <div class="body">
+    <div class="type">Weapon · Lv22</div>
+    <h3>평범한낚싯대</h3>
+    <div class="meta">KR #313 · Image 2310 · Shape 49</div>
+    <div class="stats">no combat stats</div>
+    
+  </div>
+</article>
+<article class="card" data-type="Weapon">
+  <div class="icon missing">#3782</div>
+  <div class="body">
+    <div class="type">Weapon · Lv22</div>
+    <h3>태공낚싯대</h3>
+    <div class="meta">KR #308 · Image 3782 · Shape 50</div>
+    <div class="stats">DC 4-6, AC 0-16, Acc +4, Luck 3</div>
+    <div class="tip">전설의 낚시꾼이 사용했던 낚싯대
+사용기간 : 1년</div>
+  </div>
+</article>
+<article class="card" data-type="Weapon">
+  <img class="icon" src="../tile-review/items-icons-000000-001999/images/frame_001157.png" alt="" loading="lazy" />
+  <div class="body">
+    <div class="type">Weapon · Lv20</div>
+    <h3>천룡신형탈명도</h3>
+    <div class="meta">KR #296 · Image 1157 · Shape 110</div>
+    <div class="stats">DC 14-60, Acc +2, Agi +1, AS 2</div>
+    <div class="tip">천룡세트는 부위별로 다른 효과를 가진다.
+목걸이, 반지, 팔찌: 파마도+2~6, 가방무게+60, 착용무게+30, 양손무게+30, 공속+2
+신발, 벨트, 투구: 방어시 일정확률로 15초동안 30% 받는 데미지 감소 효과 발동
+옷, 검: 공격시 일정확률로 15초동안 30% 데미지 증가 효과 발동
+모든 장비: 방어+2~6, 마법방어+1~4, HP+100, 중독회복+2, 행운+2</div>
+  </div>
+</article>
+<article class="card" data-type="Weapon">
+  <img class="icon" src="../tile-review/items-icons-002000-002999/images/frame_002251.png" alt="" loading="lazy" />
+  <div class="body">
+    <div class="type">Weapon · Lv20</div>
+    <h3>묵철도</h3>
+    <div class="meta">KR #211 · Image 2251 · Shape 102</div>
+    <div class="stats">DC 6-13</div>
+    
+  </div>
+</article>
+<article class="card" data-type="Weapon">
+  <img class="icon" src="../tile-review/items-icons-002000-002999/images/frame_002251.png" alt="" loading="lazy" />
+  <div class="body">
+    <div class="type">Weapon · Lv20</div>
+    <h3>묵철비오도</h3>
+    <div class="meta">KR #212 · Image 2251 · Shape 102</div>
+    <div class="stats">DC 6-13, Acc +3</div>
+    
+  </div>
+</article>
+<article class="card" data-type="Weapon">
+  <img class="icon" src="../tile-review/items-icons-002000-002999/images/frame_002257.png" alt="" loading="lazy" />
+  <div class="body">
+    <div class="type">Weapon · Lv20</div>
+    <h3>수민편혈도</h3>
+    <div class="meta">KR #2180 · Image 2257 · Shape 108</div>
+    <div class="stats">DC 255-255, MC 255-255, SC 255-255, AC 255-255, MAC 255-255, HP +999, MP +999, Luck 20, AS 100</div>
+    
+  </div>
+</article>
+<article class="card" data-type="Weapon">
+  <img class="icon" src="../tile-review/items-icons-002000-002999/images/frame_002258.png" alt="" loading="lazy" />
+  <div class="body">
+    <div class="type">Weapon · Lv20</div>
+    <h3>수민이단검</h3>
+    <div class="meta">KR #2133 · Image 2258 · Shape 109</div>
+    <div class="stats">DC 255-255, MC 255-255, SC 255-255, AC 255-255, MAC 255-255, HP +999, MP +999, Luck 20, AS 20</div>
+    
+  </div>
+</article>
+<article class="card" data-type="Weapon">
+  <img class="icon" src="../tile-review/items-icons-002000-002999/images/frame_002447.png" alt="" loading="lazy" />
+  <div class="body">
+    <div class="type">Weapon · Lv20</div>
+    <h3>수민아수라도</h3>
+    <div class="meta">KR #2183 · Image 2447 · Shape 603</div>
+    <div class="stats">DC 255-255, MC 255-255, SC 255-255, AC 255-255, MAC 255-255, HP +999, MP +999, Luck 20, AS 100</div>
+    
+  </div>
+</article>
+<article class="card" data-type="Weapon">
+  <img class="icon" src="../tile-review/items-icons-003200-003299/images/frame_003290.png" alt="" loading="lazy" />
+  <div class="body">
+    <div class="type">Weapon · Lv20</div>
+    <h3>수민염옥혈비</h3>
+    <div class="meta">KR #2181 · Image 3290 · Shape 111</div>
+    <div class="stats">DC 255-255, MC 255-255, SC 255-255, AC 255-255, MAC 255-255, HP +999, MP +999, Luck 20, AS 100</div>
+    
+  </div>
+</article>
+<article class="card" data-type="Weapon">
+  <img class="icon" src="../tile-review/items-icons-003300-003499/images/frame_003333.png" alt="" loading="lazy" />
+  <div class="body">
+    <div class="type">Weapon · Lv20</div>
+    <h3>수민현월쌍수도</h3>
+    <div class="meta">KR #2179 · Image 3333 · Shape 113</div>
+    <div class="stats">DC 255-255, MC 255-255, SC 255-255, AC 255-255, MAC 255-255, HP +999, MP +999, Luck 20, AS 100</div>
+    
+  </div>
+</article>
+<article class="card" data-type="Weapon">
+  <img class="icon" src="../tile-review/items-icons-003300-003499/images/frame_003395.png" alt="" loading="lazy" />
+  <div class="body">
+    <div class="type">Weapon · Lv20</div>
+    <h3>천룡신형탈명궁</h3>
+    <div class="meta">KR #295 · Image 3395 · Shape 205</div>
+    <div class="stats">DC 16-64, MC 5-20</div>
+    <div class="tip">천룡세트는 부위별로 다른 효과를 가진다.
+목걸이, 반지, 팔찌: 파마도+2~6, 가방무게+60, 착용무게+30, 양손무게+30, 공속+2
+신발, 벨트, 투구: 방어시 일정확률로 15초동안 30% 받는 데미지 감소 효과 발동
+옷, 검: 공격시 일정확률로 15초동안 30% 데미지 증가 효과 발동
+모든 장비: 방어+2~6, 마법방어+1~4, HP+100, 중독회복+2, 행운+2</div>
+  </div>
+</article>
+<article class="card" data-type="Weapon">
+  <img class="icon" src="../tile-review/items-icons-003300-003499/images/frame_003396.png" alt="" loading="lazy" />
+  <div class="body">
+    <div class="type">Weapon · Lv20</div>
+    <h3>절명궁</h3>
+    <div class="meta">KR #282 · Image 3396 · Shape 206</div>
+    <div class="stats">DC 5-12, MC 1-2</div>
+    
+  </div>
+</article>
+<article class="card" data-type="Weapon">
+  <img class="icon" src="../tile-review/items-icons-003800-003899/images/frame_003883.png" alt="" loading="lazy" />
+  <div class="body">
+    <div class="type">Weapon · Lv20</div>
+    <h3>수민빙룡천참</h3>
+    <div class="meta">KR #2178 · Image 3883 · Shape 114</div>
+    <div class="stats">DC 255-255, MC 255-255, SC 255-255, AC 255-255, MAC 255-255, HP +999, MP +999, Luck 20, AS 100</div>
+    
+  </div>
+</article>
+<article class="card" data-type="Weapon">
+  <img class="icon" src="../tile-review/items-icons-002000-002999/images/frame_002250.png" alt="" loading="lazy" />
+  <div class="body">
+    <div class="type">Weapon · Lv15</div>
+    <h3>음속도</h3>
+    <div class="meta">KR #276 · Image 2250 · Shape 101</div>
+    <div class="stats">DC 5-11</div>
+    
+  </div>
+</article>
+<article class="card" data-type="Weapon">
+  <img class="icon" src="../tile-review/items-icons-003300-003499/images/frame_003394.png" alt="" loading="lazy" />
+  <div class="body">
+    <div class="type">Weapon · Lv15</div>
+    <h3>삼목철궁</h3>
+    <div class="meta">KR #224 · Image 3394 · Shape 203</div>
+    <div class="stats">DC 4-10, MC 1-2</div>
+    
+  </div>
+</article>
+<article class="card" data-type="Weapon">
+  <img class="icon" src="../tile-review/items-icons-003300-003499/images/frame_003393.png" alt="" loading="lazy" />
+  <div class="body">
+    <div class="type">Weapon · Lv10</div>
+    <h3>뇌궁</h3>
+    <div class="meta">KR #186 · Image 3393 · Shape 204</div>
+    <div class="stats">DC 3-7, MC 1-2</div>
+    
+  </div>
+</article>
+<article class="card" data-type="Weapon">
+  <img class="icon" src="../tile-review/items-icons-002000-002999/images/frame_002259.png" alt="" loading="lazy" />
+  <div class="body">
+    <div class="type">Weapon · Lv7</div>
+    <h3>청동호아도</h3>
+    <div class="meta">KR #304 · Image 2259 · Shape 100</div>
+    <div class="stats">DC 3-9, Acc +3</div>
+    
+  </div>
+</article>
+<article class="card" data-type="Weapon">
+  <img class="icon" src="../tile-review/items-icons-003300-003499/images/frame_003392.png" alt="" loading="lazy" />
+  <div class="body">
+    <div class="type">Weapon · Lv7</div>
+    <h3>철궁</h3>
+    <div class="meta">KR #299 · Image 3392 · Shape 203</div>
+    <div class="stats">DC 3-6, MC 1-2</div>
+    
+  </div>
+</article>
+<article class="card" data-type="Weapon">
+  <img class="icon" src="../tile-review/items-icons-003300-003499/images/frame_003391.png" alt="" loading="lazy" />
+  <div class="body">
+    <div class="type">Weapon · Lv3</div>
+    <h3>거궁</h3>
+    <div class="meta">KR #178 · Image 3391 · Shape 202</div>
+    <div class="stats">DC 2-5</div>
+    
+  </div>
+</article>
+<article class="card" data-type="Weapon">
+  <img class="icon" src="../tile-review/items-icons-002000-002999/images/frame_002259.png" alt="" loading="lazy" />
+  <div class="body">
+    <div class="type">Weapon · Lv1</div>
+    <h3>호아도</h3>
+    <div class="meta">KR #317 · Image 2259 · Shape 100</div>
+    <div class="stats">DC 2-6, AS 20</div>
+    
+  </div>
+</article>
+<article class="card" data-type="Weapon">
+  <img class="icon" src="../tile-review/items-icons-003300-003499/images/frame_003390.png" alt="" loading="lazy" />
+  <div class="body">
+    <div class="type">Weapon · Lv1</div>
+    <h3>목궁</h3>
+    <div class="meta">KR #201 · Image 3390 · Shape 201</div>
+    <div class="stats">DC 2-4, AS 20</div>
+    <div class="tip">기본적인 목궁</div>
+  </div>
+</article>
+<article class="card" data-type="Weapon">
+  <img class="icon" src="../tile-review/items-icons-003300-003499/images/frame_003403.png" alt="" loading="lazy" />
+  <div class="body">
+    <div class="type">Weapon · Lv1</div>
+    <h3>수민이장궁</h3>
+    <div class="meta">KR #2136 · Image 3403 · Shape 213</div>
+    <div class="stats">DC 255-255, MC 255-255, SC 255-255, AC 255-255, MAC 255-255, Acc +255, Agi +255, HP +255, MP +255, Luck 10, AS 35</div>
+    
+  </div>
+</article>
+</main>
+<script>
+const buttons = [...document.querySelectorAll('.filters button')];
+const cards = [...document.querySelectorAll('.card')];
+buttons.forEach((btn) => btn.addEventListener('click', () => {
+  buttons.forEach((b) => b.classList.toggle('active', b === btn));
+  const f = btn.dataset.filter;
+  cards.forEach((c) => { c.style.display = f === 'all' || c.dataset.type === f ? '' : 'none'; });
+}));
+</script>
+</body>
+</html>

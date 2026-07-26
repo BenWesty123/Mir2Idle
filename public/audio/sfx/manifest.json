@@ -539,7 +539,26 @@
         "monster.134.flinch",
         "monster.134.death",
         "monster.134.range",
-        "monster.131.attack"
+        "monster.131.attack",
+        "monster.267.attack",
+        "monster.267.flinch",
+        "monster.267.death",
+        "monster.268.attack",
+        "monster.268.flinch",
+        "monster.268.death",
+        "monster.269.attack",
+        "monster.269.flinch",
+        "monster.269.death",
+        "monster.270.attack",
+        "monster.270.flinch",
+        "monster.270.death",
+        "monster.271.attack",
+        "monster.271.flinch",
+        "monster.271.death",
+        "monster.994.attack",
+        "monster.994.flinch",
+        "monster.994.death",
+        "monster.994.range"
       ]
     },
     {
@@ -4009,6 +4028,158 @@
       "group": "monster",
       "sourceFile": "131-1.wav",
       "src": "./public/audio/sfx/files/1311-131-1.wav"
+    },
+    "monster.267.attack": {
+      "key": "monster.267.attack",
+      "label": "White Elephant attack",
+      "id": 2671,
+      "group": "monster",
+      "sourceFile": "267-1.wav",
+      "src": "./public/audio/sfx/files/2671-267-1.wav"
+    },
+    "monster.267.flinch": {
+      "key": "monster.267.flinch",
+      "label": "White Elephant flinch",
+      "id": 2672,
+      "group": "monster",
+      "sourceFile": "267-2.wav",
+      "src": "./public/audio/sfx/files/2672-267-2.wav"
+    },
+    "monster.267.death": {
+      "key": "monster.267.death",
+      "label": "White Elephant death",
+      "id": 2673,
+      "group": "monster",
+      "sourceFile": "267-3.wav",
+      "src": "./public/audio/sfx/files/2673-267-3.wav"
+    },
+    "monster.268.attack": {
+      "key": "monster.268.attack",
+      "label": "Black Tiger attack",
+      "id": 2681,
+      "group": "monster",
+      "sourceFile": "268-1.wav",
+      "src": "./public/audio/sfx/files/2681-268-1.wav"
+    },
+    "monster.268.flinch": {
+      "key": "monster.268.flinch",
+      "label": "Black Tiger flinch",
+      "id": 2682,
+      "group": "monster",
+      "sourceFile": "268-2.wav",
+      "src": "./public/audio/sfx/files/2682-268-2.wav"
+    },
+    "monster.268.death": {
+      "key": "monster.268.death",
+      "label": "Black Tiger death",
+      "id": 2683,
+      "group": "monster",
+      "sourceFile": "268-3.wav",
+      "src": "./public/audio/sfx/files/2683-268-3.wav"
+    },
+    "monster.269.attack": {
+      "key": "monster.269.attack",
+      "label": "White Tiger attack",
+      "id": 2691,
+      "group": "monster",
+      "sourceFile": "269-1.wav",
+      "src": "./public/audio/sfx/files/2691-269-1.wav"
+    },
+    "monster.269.flinch": {
+      "key": "monster.269.flinch",
+      "label": "White Tiger flinch",
+      "id": 2692,
+      "group": "monster",
+      "sourceFile": "269-2.wav",
+      "src": "./public/audio/sfx/files/2692-269-2.wav"
+    },
+    "monster.269.death": {
+      "key": "monster.269.death",
+      "label": "White Tiger death",
+      "id": 2693,
+      "group": "monster",
+      "sourceFile": "269-3.wav",
+      "src": "./public/audio/sfx/files/2693-269-3.wav"
+    },
+    "monster.270.attack": {
+      "key": "monster.270.attack",
+      "label": "Black Ape attack",
+      "id": 2701,
+      "group": "monster",
+      "sourceFile": "270-1.wav",
+      "src": "./public/audio/sfx/files/2701-270-1.wav"
+    },
+    "monster.270.flinch": {
+      "key": "monster.270.flinch",
+      "label": "Black Ape flinch",
+      "id": 2702,
+      "group": "monster",
+      "sourceFile": "270-2.wav",
+      "src": "./public/audio/sfx/files/2702-270-2.wav"
+    },
+    "monster.270.death": {
+      "key": "monster.270.death",
+      "label": "Black Ape death",
+      "id": 2703,
+      "group": "monster",
+      "sourceFile": "270-3.wav",
+      "src": "./public/audio/sfx/files/2703-270-3.wav"
+    },
+    "monster.271.attack": {
+      "key": "monster.271.attack",
+      "label": "Rhino attack",
+      "id": 2711,
+      "group": "monster",
+      "sourceFile": "271-1.wav",
+      "src": "./public/audio/sfx/files/2711-271-1.wav"
+    },
+    "monster.271.flinch": {
+      "key": "monster.271.flinch",
+      "label": "Rhino flinch",
+      "id": 2712,
+      "group": "monster",
+      "sourceFile": "271-2.wav",
+      "src": "./public/audio/sfx/files/2712-271-2.wav"
+    },
+    "monster.271.death": {
+      "key": "monster.271.death",
+      "label": "Rhino death",
+      "id": 2713,
+      "group": "monster",
+      "sourceFile": "271-3.wav",
+      "src": "./public/audio/sfx/files/2713-271-3.wav"
+    },
+    "monster.994.attack": {
+      "key": "monster.994.attack",
+      "label": "Beast King attack",
+      "id": 1841,
+      "group": "monster",
+      "sourceFile": "184-1.wav",
+      "src": "./public/audio/sfx/files/1841-184-1.wav"
+    },
+    "monster.994.flinch": {
+      "key": "monster.994.flinch",
+      "label": "Beast King flinch",
+      "id": 1842,
+      "group": "monster",
+      "sourceFile": "184-2.wav",
+      "src": "./public/audio/sfx/files/1842-184-2.wav"
+    },
+    "monster.994.death": {
+      "key": "monster.994.death",
+      "label": "Beast King death",
+      "id": 1843,
+      "group": "monster",
+      "sourceFile": "184-3.wav",
+      "src": "./public/audio/sfx/files/1843-184-3.wav"
+    },
+    "monster.994.range": {
+      "key": "monster.994.range",
+      "label": "Beast King range attack",
+      "id": 1845,
+      "group": "monster",
+      "sourceFile": "184-5.wav",
+      "src": "./public/audio/sfx/files/1845-184-5.wav"
     },
     "map.lightning": {
       "key": "map.lightning",

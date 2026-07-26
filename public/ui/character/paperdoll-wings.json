@@ -1,0 +1,34 @@
+{
+    "1202":  {
+                 "src":  "./public/ui/character/paperdoll-wing-1202.png",
+                 "x":  64,
+                 "y":  138,
+                 "w":  148,
+                 "h":  139,
+                 "blend":  true
+             },
+    "1203":  {
+                 "src":  "./public/ui/character/paperdoll-wing-1203.png",
+                 "x":  64,
+                 "y":  145,
+                 "w":  148,
+                 "h":  144,
+                 "blend":  true
+             },
+    "1204":  {
+                 "src":  "./public/ui/character/paperdoll-wing-1204.png",
+                 "x":  55,
+                 "y":  140,
+                 "w":  156,
+                 "h":  185,
+                 "blend":  true
+             },
+    "1205":  {
+                 "src":  "./public/ui/character/paperdoll-wing-1205.png",
+                 "x":  56,
+                 "y":  144,
+                 "w":  156,
+                 "h":  185,
+                 "blend":  true
+             }
+}

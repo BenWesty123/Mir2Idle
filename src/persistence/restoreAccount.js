@@ -86,6 +86,7 @@ export function resolveAccountGold(snapshotAccount, characters, characterIds) {
  * @param {(ownedUnlocks: unknown) => object} [options.sanitizeOwnedUnlocks]
  * @param {(subscriptions: unknown) => object} [options.sanitizeSubscriptions]
  * @param {(spiritBox: unknown) => object} [options.sanitizeSpiritBox]
+ * @param {(autoJunkItemIds: unknown) => string[]} [options.sanitizeAutoJunkItemIds]
  * @param {string[]} options.characterIds
  * @param {(kills: unknown) => Record<string, number>} options.sanitizeBossKills
  */
@@ -119,6 +120,9 @@ export function restoreAccountFromSnapshot(snapshot, characters, options) {
     spiritBox: typeof options.sanitizeSpiritBox === "function"
       ? options.sanitizeSpiritBox(snapshot.account?.spiritBox)
       : { paid: false, entry: null },
+    autoJunkItemIds: typeof options.sanitizeAutoJunkItemIds === "function"
+      ? options.sanitizeAutoJunkItemIds(snapshot.account?.autoJunkItemIds)
+      : [],
   };
 
   account.stats = {

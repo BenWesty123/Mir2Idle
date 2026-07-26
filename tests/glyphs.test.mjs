@@ -8,6 +8,8 @@ import {
   applyGlyphProtectionFieldDuration,
   applyGlyphTwinDrakeDamage,
   equippedGlyphDef,
+  equippedGlyphDefs,
+  GLYPH_EQUIPMENT_SLOT_IDS,
   flameDisruptorSplashDamage,
   glyphDefById,
   glyphDefByItemId,
@@ -28,6 +30,7 @@ import {
   rollFlameDisruptorSplashChance,
   rollTaoistDefenceBuffBonus,
   applyGlyphHealingAmount,
+  applyGlyphHpPotionRestore,
   accrueGlyphManaRegen,
   applyGlyphCombatDamageIncoming,
   applyGlyphCombatDamageOutgoing,
@@ -39,13 +42,14 @@ import {
   glyphBattleWizardParams,
   applyGlyphMonkCombatStats,
   glyphMonkParams,
+  glyphPotionTickDelayMs,
   isWithinMeleeRange,
 } from "../src/glyphModifiers.js";
 import { itemCanBeEmpowered } from "../src/core/empoweredItems.js";
 
 test("glyph defs cover all implemented items and unique item ids", () => {
   const implemented = GLYPH_DEFS.filter((def) => def.implemented);
-  assert.equal(implemented.length, 16);
+  assert.equal(implemented.length, 17);
   assert.ok(glyphDefByItemId("glyph-spirit-wards"));
   assert.ok(glyphDefByItemId("glyph-eternal-firewall"));
   assert.ok(glyphDefByItemId("glyph-bulwark-field"));
@@ -62,6 +66,7 @@ test("glyph defs cover all implemented items and unique item ids", () => {
   assert.ok(glyphDefByItemId("glyph-monk"));
   assert.ok(glyphDefByItemId("glyph-mana-aegis"));
   assert.ok(glyphDefByItemId("glyph-disruptor-cascade"));
+  assert.ok(glyphDefByItemId("glyph-fast-healing"));
   const ids = new Set(GLYPH_DEFS.map((def) => def.itemId));
   assert.equal(ids.size, GLYPH_DEFS.length);
 });
@@ -112,6 +117,24 @@ test("Protection Field glyph doubles bonus and fixes duration", () => {
   assert.equal(applyGlyphProtectionFieldBonus(10, glyph), 20);
   assert.equal(applyGlyphProtectionFieldDuration(60000, glyph), 5000);
   assert.equal(applyGlyphProtectionFieldDuration(60000, null), 60000);
+});
+
+test("equippedGlyphDefs reads multiple glyph slots", () => {
+  const inventory = {
+    equipment: { glyph: "entry-1", glyph2: "entry-2" },
+    items: [
+      { id: "entry-1", itemId: "glyph-spirit-wards" },
+      { id: "entry-2", itemId: "glyph-infinite-mana" },
+    ],
+  };
+  const defs = equippedGlyphDefs(inventory);
+  assert.equal(defs.length, 2);
+  assert.equal(defs[0]?.id, "taoDefenceBuffFromSc");
+  assert.equal(defs[1]?.id, "wizardManaRegen");
+  assert.equal(hasGlyphModifier(inventory, "taoDefenceBuffFromSc"), true);
+  assert.equal(hasGlyphModifier(inventory, "wizardManaRegen"), true);
+  assert.equal(glyphManaRegenPerSecond(defs), 5);
+  assert.equal(equippedGlyphDef(inventory)?.id, "taoDefenceBuffFromSc");
 });
 
 test("equippedGlyphDef reads inventory.equipment.glyph", () => {
@@ -165,6 +188,16 @@ test("Instant Healing glyph halves Healing and marks it instant", () => {
   assert.equal(applyGlyphHealingAmount(101, "Healing", glyph), 50);
   assert.equal(applyGlyphHealingAmount(100, "MassHealing", glyph), 100);
   assert.equal(applyGlyphHealingAmount(100, "Healing", null), 100);
+});
+
+test("Fast Healing glyph halves HP potion restore and shortens tick delay", () => {
+  const glyph = glyphDefById("fastHealing");
+  assert.equal(applyGlyphHpPotionRestore(100, glyph), 50);
+  assert.equal(applyGlyphHpPotionRestore(101, glyph), 50);
+  assert.equal(applyGlyphHpPotionRestore(100, null), 100);
+  assert.equal(glyphPotionTickDelayMs(200, glyph, { hpPending: true }), 150);
+  assert.equal(glyphPotionTickDelayMs(200, glyph, { hpPending: false }), 200);
+  assert.equal(glyphPotionTickDelayMs(200, null, { hpPending: true }), 200);
 });
 
 test("Infinite Mana glyph accrues 5 MP/s across uneven offline steps", () => {

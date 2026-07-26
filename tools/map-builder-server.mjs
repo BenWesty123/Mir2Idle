@@ -15,6 +15,7 @@ import {
   backTileIndex,
   frontTileIndex,
 } from "./lib/crystal-map-lib.mjs";
+import { getWilLib, wilLabel, wilRelativeName } from "./lib/wemade-wil-lib.mjs";
 
 const toolsRoot = fileURLToPath(new URL(".", import.meta.url));
 const projectRoot = path.join(toolsRoot, "..");
@@ -25,7 +26,14 @@ const port = Number(process.env.MAP_BUILDER_PORT ?? 4178);
 const defaults = {
   crystalData: "C:/Users/bb-we/Documents/Crystal-master/Next/NextClient/Data",
   crystalMap: "C:/Users/bb-we/Documents/Crystal-master/Next/NextClient/Map",
+  // KR client art (WeMade .wil). When set + present, tile frames are served
+  // natively from these .wil libs so KR maps render crisp at any zoom.
+  krData: "",
   exportDir: path.join(projectRoot, "tile-review", "map-builder-exports"),
+  // Pre-rendered terrain PNGs (KR .wil maps have no Crystal .Lib art). If a
+  // backdrop exists for the loaded map it is drawn under the wall overlay so
+  // you can trace on the real terrain. See tools/kr-map-render (wil-exporter).
+  backdropDir: path.join(uiRoot, "backdrops"),
 };
 
 async function loadConfig() {
@@ -34,6 +42,9 @@ async function loadConfig() {
     const parsed = { ...defaults, ...JSON.parse(raw) };
     if (parsed.exportDir && !path.isAbsolute(parsed.exportDir)) {
       parsed.exportDir = path.resolve(path.dirname(configPath), parsed.exportDir);
+    }
+    if (parsed.backdropDir && !path.isAbsolute(parsed.backdropDir)) {
+      parsed.backdropDir = path.resolve(path.dirname(configPath), parsed.backdropDir);
     }
     return parsed;
   } catch {
@@ -50,6 +61,16 @@ function safeMapName(name) {
   const base = path.basename(name);
   if (!/^[\w.-]+\.map$/i.test(base)) return null;
   return base;
+}
+
+// Prefer KR .wil art when krData is configured and present, else Crystal .Lib.
+function resolveLib(config, slot) {
+  if (config.krData && existsSync(config.krData)) {
+    const wil = getWilLib(config.krData, slot);
+    if (wil) return { lib: wil, label: wilLabel(slot) };
+  }
+  const lib = getMapLib(config.crystalData, slot);
+  return lib ? { lib, label: libLabel(slot) } : null;
 }
 
 async function listMaps(mapRoot) {
@@ -78,6 +99,16 @@ createServer(async (req, res) => {
 
     if (url.pathname === "/api/maps") {
       return json(res, 200, { maps: await listMaps(config.crystalMap) });
+    }
+
+    if (url.pathname.startsWith("/api/backdrop/") && req.method === "GET") {
+      const name = safeMapName(url.pathname.slice("/api/backdrop/".length));
+      if (!name) return json(res, 400, { error: "Invalid map name" });
+      const pngPath = path.join(config.backdropDir, name.replace(/\.map$/i, ".png"));
+      if (!existsSync(pngPath)) return json(res, 404, { error: "No backdrop" });
+      const buffer = await readFile(pngPath);
+      res.writeHead(200, { "content-type": "image/png", "cache-control": "no-store" });
+      return res.end(buffer);
     }
 
     if (url.pathname.startsWith("/api/map/") && req.method === "GET") {
@@ -109,18 +140,17 @@ createServer(async (req, res) => {
     if (url.pathname === "/api/lib/slots") {
       const slots = [];
       for (let slot = 0; slot <= 28; slot++) {
-        const relative = libRelativePath(slot);
-        if (!relative) continue;
-        const lib = getMapLib(config.crystalData, slot);
+        if (!libRelativePath(slot) && !wilRelativeName(slot)) continue;
+        const resolved = resolveLib(config, slot);
         slots.push({
           slot,
-          label: libLabel(slot),
-          count: lib?.count ?? 0,
-          available: Boolean(lib),
+          label: resolved?.label ?? libLabel(slot),
+          count: resolved?.lib?.count ?? 0,
+          available: Boolean(resolved),
         });
       }
-      const lib90 = getMapLib(config.crystalData, 90);
-      slots.push({ slot: 90, label: libLabel(90), count: lib90?.count ?? 0, available: Boolean(lib90) });
+      const r90 = resolveLib(config, 90);
+      slots.push({ slot: 90, label: r90?.label ?? libLabel(90), count: r90?.lib?.count ?? 0, available: Boolean(r90) });
       return json(res, 200, { slots });
     }
 
@@ -128,8 +158,9 @@ createServer(async (req, res) => {
       const slot = Number(url.searchParams.get("slot") ?? 0);
       const frame = Number(url.searchParams.get("frame"));
       if (!Number.isFinite(frame)) return json(res, 400, { error: "frame required" });
-      const lib = getMapLib(config.crystalData, slot);
-      if (!lib) return json(res, 404, { error: "Lib not found" });
+      const resolved = resolveLib(config, slot);
+      if (!resolved) return json(res, 404, { error: "Lib not found" });
+      const lib = resolved.lib;
       const image = lib.readFrameSafe(Math.trunc(frame));
       if (!image) return json(res, 404, { error: "Frame empty" });
       return json(res, 200, {
@@ -147,8 +178,9 @@ createServer(async (req, res) => {
       const slot = Number(url.searchParams.get("slot") ?? 0);
       const start = Number(url.searchParams.get("start") ?? 0);
       const count = Math.min(200, Math.max(1, Number(url.searchParams.get("count") ?? 40)));
-      const lib = getMapLib(config.crystalData, slot);
-      if (!lib) return json(res, 404, { error: "Lib not found" });
+      const resolved = resolveLib(config, slot);
+      if (!resolved) return json(res, 404, { error: "Lib not found" });
+      const lib = resolved.lib;
       const frames = [];
       for (let i = 0; i < count; i++) {
         const frame = start + i;

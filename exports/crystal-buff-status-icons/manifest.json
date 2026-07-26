@@ -1,0 +1,253 @@
+﻿{
+    "source":  "C:\\Users\\bb-we\\Documents\\Crystal-master\\Next\\NextClient\\Data\\BuffIcon.Lib",
+    "crystalMappingFile":  "Crystal-master/Client/MirScenes/Dialogs/BuffDialog.cs",
+    "frameCount":  265,
+    "buffs":  {
+                  "Fury":  {
+                               "frame":  76,
+                               "file":  "named-buffs/Fury_frame076.png"
+                           },
+                  "Rage":  {
+                               "frame":  49,
+                               "file":  "named-buffs/Rage_frame049.png"
+                           },
+                  "ImmortalSkin":  {
+                                       "frame":  80,
+                                       "file":  "named-buffs/ImmortalSkin_frame080.png"
+                                   },
+                  "CounterAttack":  {
+                                        "frame":  7,
+                                        "file":  "named-buffs/CounterAttack_frame007.png"
+                                    },
+                  "MagicBooster":  {
+                                       "frame":  73,
+                                       "file":  "named-buffs/MagicBooster_frame073.png"
+                                   },
+                  "MagicShield":  {
+                                      "frame":  30,
+                                      "file":  "named-buffs/MagicShield_frame030.png"
+                                  },
+                  "Hiding":  {
+                                 "frame":  17,
+                                 "file":  "named-buffs/Hiding_frame017.png"
+                             },
+                  "ClearRing":  {
+                                    "frame":  17,
+                                    "file":  "named-buffs/ClearRing_frame017.png"
+                                },
+                  "Haste":  {
+                                "frame":  60,
+                                "file":  "named-buffs/Haste_frame060.png"
+                            },
+                  "SoulShield":  {
+                                     "frame":  13,
+                                     "file":  "named-buffs/SoulShield_frame013.png"
+                                 },
+                  "BlessedArmour":  {
+                                        "frame":  14,
+                                        "file":  "named-buffs/BlessedArmour_frame014.png"
+                                    },
+                  "ProtectionField":  {
+                                          "frame":  50,
+                                          "file":  "named-buffs/ProtectionField_frame050.png"
+                                      },
+                  "UltimateEnhancer":  {
+                                           "frame":  35,
+                                           "file":  "named-buffs/UltimateEnhancer_frame035.png"
+                                       },
+                  "Curse":  {
+                                "frame":  45,
+                                "file":  "named-buffs/Curse_frame045.png"
+                            },
+                  "EnergyShield":  {
+                                       "frame":  57,
+                                       "file":  "named-buffs/EnergyShield_frame057.png"
+                                   },
+                  "SwiftFeet":  {
+                                    "frame":  67,
+                                    "file":  "named-buffs/SwiftFeet_frame067.png"
+                                },
+                  "LightBody":  {
+                                    "frame":  68,
+                                    "file":  "named-buffs/LightBody_frame068.png"
+                                },
+                  "MoonLight":  {
+                                    "frame":  65,
+                                    "file":  "named-buffs/MoonLight_frame065.png"
+                                },
+                  "DarkBody":  {
+                                   "frame":  70,
+                                   "file":  "named-buffs/DarkBody_frame070.png"
+                               },
+                  "Concentration":  {
+                                        "frame":  96,
+                                        "file":  "named-buffs/Concentration_frame096.png"
+                                    },
+                  "VampireShot":  {
+                                      "frame":  100,
+                                      "file":  "named-buffs/VampireShot_frame100.png"
+                                  },
+                  "PoisonShot":  {
+                                     "frame":  102,
+                                     "file":  "named-buffs/PoisonShot_frame102.png"
+                                 },
+                  "MentalState":  {
+                                      "frame":  199,
+                                      "file":  "named-buffs/MentalState_frame199.png"
+                                  },
+                  "RhinoPriestDebuff":  {
+                                            "frame":  217,
+                                            "file":  "named-buffs/RhinoPriestDebuff_frame217.png"
+                                        },
+                  "Blindness":  {
+                                    "frame":  226,
+                                    "file":  "named-buffs/Blindness_frame226.png"
+                                },
+                  "GameMaster":  {
+                                     "frame":  173,
+                                     "file":  "named-buffs/GameMaster_frame173.png"
+                                 },
+                  "General":  {
+                                  "frame":  182,
+                                  "file":  "named-buffs/General_frame182.png"
+                              },
+                  "Exp":  {
+                              "frame":  260,
+                              "file":  "named-buffs/Exp_frame260.png"
+                          },
+                  "Drop":  {
+                               "frame":  162,
+                               "file":  "named-buffs/Drop_frame162.png"
+                           },
+                  "Gold":  {
+                               "frame":  168,
+                               "file":  "named-buffs/Gold_frame168.png"
+                           },
+                  "Knapsack":  {
+                                   "frame":  235,
+                                   "file":  "named-buffs/Knapsack_frame235.png"
+                               },
+                  "BagWeight":  {
+                                    "frame":  235,
+                                    "file":  "named-buffs/BagWeight_frame235.png"
+                                },
+                  "Transform":  {
+                                    "frame":  241,
+                                    "file":  "named-buffs/Transform_frame241.png"
+                                },
+                  "Mentor":  {
+                                 "frame":  248,
+                                 "file":  "named-buffs/Mentor_frame248.png"
+                             },
+                  "Mentee":  {
+                                 "frame":  248,
+                                 "file":  "named-buffs/Mentee_frame248.png"
+                             },
+                  "Lover":  {
+                                "frame":  201,
+                                "file":  "named-buffs/Lover_frame201.png"
+                            },
+                  "Guild":  {
+                                "frame":  203,
+                                "file":  "named-buffs/Guild_frame203.png"
+                            },
+                  "Rested":  {
+                                 "frame":  240,
+                                 "file":  "named-buffs/Rested_frame240.png"
+                             },
+                  "TemporalFlux":  {
+                                       "frame":  261,
+                                       "file":  "named-buffs/TemporalFlux_frame261.png"
+                                   },
+                  "Skill":  {
+                                "frame":  200,
+                                "file":  "named-buffs/Skill_frame200.png"
+                            },
+                  "Newbie":  {
+                                 "frame":  182,
+                                 "file":  "named-buffs/Newbie_frame182.png"
+                             },
+                  "Impact":  {
+                                 "frame":  249,
+                                 "file":  "named-buffs/Impact_frame249.png"
+                             },
+                  "Magic":  {
+                                "frame":  165,
+                                "file":  "named-buffs/Magic_frame165.png"
+                            },
+                  "Taoist":  {
+                                 "frame":  250,
+                                 "file":  "named-buffs/Taoist_frame250.png"
+                             },
+                  "Storm":  {
+                                "frame":  170,
+                                "file":  "named-buffs/Storm_frame170.png"
+                            },
+                  "HealthAid":  {
+                                    "frame":  161,
+                                    "file":  "named-buffs/HealthAid_frame161.png"
+                                },
+                  "ManaAid":  {
+                                  "frame":  169,
+                                  "file":  "named-buffs/ManaAid_frame169.png"
+                              },
+                  "Defence":  {
+                                  "frame":  166,
+                                  "file":  "named-buffs/Defence_frame166.png"
+                              },
+                  "MagicDefence":  {
+                                       "frame":  158,
+                                       "file":  "named-buffs/MagicDefence_frame158.png"
+                                   },
+                  "WonderDrug":  {
+                                     "frame":  252,
+                                     "file":  "named-buffs/WonderDrug_frame252.png"
+                                 }
+              },
+    "poisons":  {
+                    "Green":  {
+                                  "frame":  221,
+                                  "file":  "named-poisons/Poison_Green_frame221.png"
+                              },
+                    "Red":  {
+                                "frame":  222,
+                                "file":  "named-poisons/Poison_Red_frame222.png"
+                            },
+                    "Slow":  {
+                                 "frame":  225,
+                                 "file":  "named-poisons/Poison_Slow_frame225.png"
+                             },
+                    "Frozen":  {
+                                   "frame":  223,
+                                   "file":  "named-poisons/Poison_Frozen_frame223.png"
+                               },
+                    "Stun":  {
+                                 "frame":  224,
+                                 "file":  "named-poisons/Poison_Stun_frame224.png"
+                             },
+                    "Paralysis":  {
+                                      "frame":  233,
+                                      "file":  "named-poisons/Poison_Paralysis_frame233.png"
+                                  },
+                    "DelayedExplosion":  {
+                                             "frame":  229,
+                                             "file":  "named-poisons/Poison_DelayedExplosion_frame229.png"
+                                         },
+                    "Bleeding":  {
+                                     "frame":  231,
+                                     "file":  "named-poisons/Poison_Bleeding_frame231.png"
+                                 },
+                    "LRParalysis":  {
+                                        "frame":  233,
+                                        "file":  "named-poisons/Poison_LRParalysis_frame233.png"
+                                    },
+                    "Blindness":  {
+                                      "frame":  226,
+                                      "file":  "named-poisons/Poison_Blindness_frame226.png"
+                                  },
+                    "Dazed":  {
+                                  "frame":  230,
+                                  "file":  "named-poisons/Poison_Dazed_frame230.png"
+                              }
+                }
+}

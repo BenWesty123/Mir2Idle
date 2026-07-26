@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Namman floor pattern editor</title>
+<style>
+:root{--bg:#1a1712;--panel:#241f18;--ink:#e8e0d0;--muted:#9a8f7a;--accent:#c4a35a;--lane:#6b9e4a;--grid:#3a3328}
+*{box-sizing:border-box}
+body{margin:0;font:14px/1.4 "Segoe UI",Tahoma,sans-serif;color:var(--ink);background:var(--bg);min-height:100vh}
+header{padding:14px 18px;border-bottom:1px solid #3a3328;display:flex;flex-wrap:wrap;gap:12px 20px;align-items:center;justify-content:space-between}
+header h1{margin:0;font-size:18px;font-weight:650}
+header p{margin:0;color:var(--muted);font-size:13px}
+.actions{display:flex;flex-wrap:wrap;gap:8px}
+button,select{background:#332b20;color:var(--ink);border:1px solid #4a4032;border-radius:6px;padding:7px 12px;cursor:pointer;font:inherit}
+button:hover,select:hover{border-color:var(--accent)}
+button.primary{background:#4a3c22;border-color:var(--accent);color:#ffe9b0}
+main{display:grid;grid-template-columns:280px 1fr;gap:16px;padding:16px;align-items:start}
+@media(max-width:960px){main{grid-template-columns:1fr}}
+.panel{background:var(--panel);border:1px solid #3a3328;border-radius:10px;padding:12px}
+.panel h2{margin:0 0 10px;font-size:13px;text-transform:uppercase;letter-spacing:.08em;color:var(--muted);font-weight:600}
+.palette{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;max-height:calc(100vh - 140px);overflow:auto;padding-right:4px}
+.swatch{border:2px solid transparent;border-radius:8px;background:#15120e;padding:4px;cursor:pointer;text-align:center}
+.swatch.selected{border-color:var(--accent)}
+.swatch canvas{width:100%;height:auto;image-rendering:pixelated;display:block;border-radius:4px;background:#0d0b09}
+.swatch .meta{margin-top:4px;font-size:11px;color:var(--muted)}
+.swatch .meta strong{color:var(--ink);font-weight:600}
+.workspace{display:grid;gap:16px}
+.toolbar{display:flex;flex-wrap:wrap;gap:10px 14px;align-items:center;margin-bottom:10px}
+.toolbar label{display:flex;gap:6px;align-items:center;color:var(--muted);font-size:13px}
+.toolbar input[type=number]{width:64px;background:#15120e;color:var(--ink);border:1px solid #4a4032;border-radius:6px;padding:6px 8px}
+.hint{color:var(--muted);font-size:12px;margin:0 0 10px}
+.grid-wrap{overflow:auto;border:1px solid var(--grid);border-radius:8px;background:#120f0c;padding:8px}
+.pattern-grid{display:grid;gap:2px;width:max-content}
+.cell{width:72px;height:48px;border:1px solid #3a3328;cursor:crosshair;image-rendering:pixelated;background-size:100% 100%;background-repeat:no-repeat}
+.cell:hover{outline:1px solid var(--accent);outline-offset:-1px}
+.row-label{display:flex;align-items:center;gap:8px;margin-bottom:2px;color:var(--muted);font-size:12px}
+.row-label .badge{display:inline-block;padding:2px 8px;border-radius:999px;border:1px solid #4a4032}
+.row-label .badge.lane{border-color:var(--lane);color:#b6e08a;background:#24331c}
+.row-label .badge.fill{border-color:var(--accent);color:#ffe9b0;background:#332914}
+.preview-canvas{width:100%;max-width:960px;height:auto;image-rendering:pixelated;border-radius:8px;border:1px solid var(--grid);background:#0d0b09;display:block}
+.export{width:100%;min-height:140px;font:12px/1.45 ui-monospace,Consolas,monospace;background:#120f0c;color:#d8cfbe;border:1px solid #3a3328;border-radius:8px;padding:10px;resize:vertical}
+.status{color:var(--muted);font-size:12px;min-height:1.2em}
+.status.ok{color:#b6e08a}
+</style>
+</head>
+<body>
+<header>
+  <div>
+    <h1>Namman floor pattern editor</h1>
+    <p>Paint tiles from namman.png. Green box in preview = walk lane. Copy the JS when happy and paste into phase1Data (or send it back here). <a href="../namman-zone-preview/" style="color:#c4a35a">Open game-viewport preview</a></p>
+  </div>
+  <div class="actions">
+    <button type="button" id="btnReset">Reset to current zone</button>
+    <button type="button" id="btnCopy" class="primary">Copy JS pattern</button>
+  </div>
+</header>
+<main>
+  <aside class="panel">
+    <h2>Tiles</h2>
+    <div class="palette" id="palette"></div>
+  </aside>
+  <section class="workspace">
+    <div class="panel">
+      <h2>Pattern (edit)</h2>
+      <div class="toolbar">
+        <label>Columns <input type="number" id="cols" min="1" max="32" value="10" /></label>
+        <label>Rows <input type="number" id="rows" min="1" max="24" value="4" /></label>
+        <button type="button" id="btnAddTop" title="Insert a new lane at the top">+ lane top</button>
+        <button type="button" id="btnAddBottom" title="Insert a new lane at the bottom">+ lane bottom</button>
+        <button type="button" id="btnRemoveTop" title="Remove the top lane">- top</button>
+        <button type="button" id="btnRemoveBottom" title="Remove the bottom lane">- bottom</button>
+        <label>Top-fill preview
+          <select id="fillMode">
+            <option value="lastLane" selected>Last row = walk lane (current game)</option>
+            <option value="firstLane">First row = walk lane</option>
+            <option value="none">No fill (loop pattern)</option>
+          </select>
+        </label>
+        <label>Fill repeats <input type="number" id="fillRepeats" min="0" max="12" value="3" /></label>
+      </div>
+      <p class="hint">Pick a tile on the left, then click/drag on the grid. Right-click a cell to eyedrop.</p>
+      <div id="rowLabels"></div>
+      <div class="grid-wrap"><div class="pattern-grid" id="grid"></div></div>
+    </div>
+    <div class="panel">
+      <h2>Zone-style preview (screen top &rarr; walk lane at bottom)</h2>
+      <canvas class="preview-canvas" id="preview" width="960" height="448"></canvas>
+      <p class="status" id="status"></p>
+    </div>
+    <div class="panel">
+      <h2>Export</h2>
+      <textarea class="export" id="export" readonly></textarea>
+    </div>
+  </section>
+</main>
+<script src="./editor.js"></script>
+</body>
+</html>

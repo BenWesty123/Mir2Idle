@@ -1,5 +1,206 @@
-﻿{
+{
     "sets":  [
+                 {
+                     "id":  "namman",
+                     "label":  "Southern Barbarian Land",
+                     "sheet":  "namman.png",
+                     "slotWidth":  96,
+                     "slotHeight":  64,
+                     "tiles":  [
+                                   {
+                                       "slot":  0,
+                                       "srcFrame":  4000,
+                                       "w":  96,
+                                       "h":  64,
+                                       "offsetX":  7,
+                                       "offsetY":  -44
+                                   },
+                                   {
+                                       "slot":  1,
+                                       "srcFrame":  4001,
+                                       "w":  96,
+                                       "h":  64,
+                                       "offsetX":  7,
+                                       "offsetY":  -44
+                                   },
+                                   {
+                                       "slot":  2,
+                                       "srcFrame":  4002,
+                                       "w":  96,
+                                       "h":  64,
+                                       "offsetX":  7,
+                                       "offsetY":  -44
+                                   },
+                                   {
+                                       "slot":  3,
+                                       "srcFrame":  4003,
+                                       "w":  96,
+                                       "h":  64,
+                                       "offsetX":  7,
+                                       "offsetY":  -44
+                                   },
+                                   {
+                                       "slot":  4,
+                                       "srcFrame":  4004,
+                                       "w":  96,
+                                       "h":  64,
+                                       "offsetX":  7,
+                                       "offsetY":  -44
+                                   },
+                                   {
+                                       "slot":  5,
+                                       "srcFrame":  4005,
+                                       "w":  96,
+                                       "h":  64,
+                                       "offsetX":  7,
+                                       "offsetY":  -44
+                                   },
+                                   {
+                                       "slot":  6,
+                                       "srcFrame":  4006,
+                                       "w":  96,
+                                       "h":  64,
+                                       "offsetX":  7,
+                                       "offsetY":  -44
+                                   },
+                                   {
+                                       "slot":  7,
+                                       "srcFrame":  4010,
+                                       "w":  96,
+                                       "h":  64,
+                                       "offsetX":  7,
+                                       "offsetY":  -44
+                                   },
+                                   {
+                                       "slot":  8,
+                                       "srcFrame":  4011,
+                                       "w":  96,
+                                       "h":  64,
+                                       "offsetX":  7,
+                                       "offsetY":  -44
+                                   },
+                                   {
+                                       "slot":  9,
+                                       "srcFrame":  4015,
+                                       "w":  96,
+                                       "h":  64,
+                                       "offsetX":  7,
+                                       "offsetY":  -44
+                                   },
+                                   {
+                                       "slot":  10,
+                                       "srcFrame":  4016,
+                                       "w":  96,
+                                       "h":  64,
+                                       "offsetX":  7,
+                                       "offsetY":  -44
+                                   },
+                                   {
+                                       "slot":  11,
+                                       "srcFrame":  4150,
+                                       "w":  96,
+                                       "h":  64,
+                                       "offsetX":  7,
+                                       "offsetY":  -44
+                                   },
+                                   {
+                                       "slot":  12,
+                                       "srcFrame":  4151,
+                                       "w":  96,
+                                       "h":  64,
+                                       "offsetX":  7,
+                                       "offsetY":  -44
+                                   },
+                                   {
+                                       "slot":  13,
+                                       "srcFrame":  4152,
+                                       "w":  96,
+                                       "h":  64,
+                                       "offsetX":  7,
+                                       "offsetY":  -44
+                                   },
+                                   {
+                                       "slot":  14,
+                                       "srcFrame":  4154,
+                                       "w":  96,
+                                       "h":  64,
+                                       "offsetX":  7,
+                                       "offsetY":  -44
+                                   },
+                                   {
+                                       "slot":  15,
+                                       "srcFrame":  41110,
+                                       "w":  96,
+                                       "h":  64,
+                                       "offsetX":  7,
+                                       "offsetY":  -44
+                                   },
+                                   {
+                                       "slot":  16,
+                                       "srcFrame":  41111,
+                                       "w":  96,
+                                       "h":  64,
+                                       "offsetX":  7,
+                                       "offsetY":  -44
+                                   },
+                                   {
+                                       "slot":  17,
+                                       "srcFrame":  41112,
+                                       "w":  96,
+                                       "h":  64,
+                                       "offsetX":  7,
+                                       "offsetY":  -44
+                                   },
+                                   {
+                                       "slot":  18,
+                                       "srcFrame":  41113,
+                                       "w":  96,
+                                       "h":  64,
+                                       "offsetX":  7,
+                                       "offsetY":  -44
+                                   },
+                                   {
+                                       "slot":  19,
+                                       "srcFrame":  41114,
+                                       "w":  96,
+                                       "h":  64,
+                                       "offsetX":  7,
+                                       "offsetY":  -44
+                                   },
+                                   {
+                                       "slot":  20,
+                                       "srcFrame":  41115,
+                                       "w":  96,
+                                       "h":  64,
+                                       "offsetX":  7,
+                                       "offsetY":  -44
+                                   },
+                                   {
+                                       "slot":  21,
+                                       "srcFrame":  41213,
+                                       "w":  96,
+                                       "h":  64,
+                                       "offsetX":  7,
+                                       "offsetY":  -44
+                                   },
+                                   {
+                                       "slot":  22,
+                                       "srcFrame":  41217,
+                                       "w":  96,
+                                       "h":  64,
+                                       "offsetX":  7,
+                                       "offsetY":  -44
+                                   },
+                                   {
+                                       "slot":  23,
+                                       "srcFrame":  41221,
+                                       "w":  96,
+                                       "h":  64,
+                                       "offsetX":  7,
+                                       "offsetY":  -44
+                                   }
+                               ]
+                 },
                  {
                      "id":  "fox-cave",
                      "label":  "Fox Cave",

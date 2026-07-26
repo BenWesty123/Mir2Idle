@@ -80,7 +80,7 @@ The default limit is 250 rows. The maximum accepted `limit` is 500.
 Each account leaderboard row now includes:
 
 - `combinedCharacterLevels`: sum of Warrior + Wizard + Taoist levels
-- `awakeningSoulsHeld`: total Awakening Souls held account-wide
+- `awakeningSoulsHeld`: current Awakening Souls held account-wide (overwritten on each stats post; not a lifetime peak)
 - `characters`: per-class summary array for display (each entry includes `equipment` as a slot-to-`{ itemId, smithLevel }` map and `skills` as a learned-spell-id-to-level map, used to render other players' character pages in-game)
 - `characterLevels`: raw class-to-level map
 - `characterStats`: raw per-class stat summaries
