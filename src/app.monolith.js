@@ -3226,6 +3226,7 @@ const state = {
       codex: null,
       upgrades: null,
       leaderboard: null,
+      glyphs: null,
     },
   },
   demoLiveSiteBanner: {
@@ -3542,7 +3543,7 @@ let sceneSignature = "";
 let sceneOverlayLiveSignature = "";
 let accountCodexRevision = 0;
 let sceneWindowStack = [];
-const DRAGGABLE_SCENE_WINDOWS = new Set(["character", "inventory", "codex", "upgrades", "leaderboard"]);
+const DRAGGABLE_SCENE_WINDOWS = new Set(["character", "inventory", "codex", "upgrades", "leaderboard", "glyphs"]);
 let sceneWindowDragState = null;
 let hotbarDragState = null;
 let hotbarWindowPosition = null;
@@ -4558,6 +4559,7 @@ function createSaveSnapshot() {
         codex: state.settings.sceneWindowPositions?.codex ?? null,
         upgrades: state.settings.sceneWindowPositions?.upgrades ?? null,
         leaderboard: state.settings.sceneWindowPositions?.leaderboard ?? null,
+        glyphs: state.settings.sceneWindowPositions?.glyphs ?? null,
       },
     },
   };
@@ -12078,6 +12080,10 @@ const HELP_TOOLTIP_HTML = {
     <span>Drag a bag item onto the pad to auto-mark future plain copies of that item as junk.</span>
     <span>Plain means no empower, smith, weapon refine, gems, or bonus stats. Saved and upgraded copies are never auto-marked.</span>
   `,
+  glyphs: `
+    <strong>Glyphs</strong>
+    <span>Equip glyphs here. Buy Add Additional Glyph Slot in Rebirth upgrades for a second slot.</span>
+  `,
 };
 
 function itemBonusStatsAreEmpty(stats) {
@@ -19351,6 +19357,7 @@ function setSceneWindowPosition(scene, x, y) {
       codex: null,
       upgrades: null,
       leaderboard: null,
+      glyphs: null,
     };
   }
   state.settings.sceneWindowPositions[scene] = { x: Math.round(x), y: Math.round(y) };
@@ -22268,15 +22275,14 @@ function bagGlyphInventoryEntries() {
 
 function glyphsSceneHtml() {
   const unlocked = unlockedGlyphEquipSlotCount();
+  const introText = `Equip glyphs here (${unlocked} / ${GLYPH_EQUIP_UNLOCK_CAP} slots unlocked). Buy Add Additional Glyph Slot in Rebirth upgrades for a second slot.`;
   const slots = Array.from({ length: GLYPH_EQUIP_UNLOCK_CAP }, (_, index) => {
     const open = index < unlocked;
     const slotId = glyphEquipmentSlotIdAt(index);
+    const slotStyle = `left:${24 + index * 37}px; top:35px;`;
     if (!open || !slotId) {
       return `
-        <div class="glyphs-equip-slot locked" title="Locked — buy Add Additional Glyph Slot in Rebirth upgrades" aria-label="Locked glyph slot ${index + 1}">
-          <span class="glyphs-equip-slot-index">${index + 1}</span>
-          <span class="glyphs-equip-slot-locked-label">Locked</span>
-        </div>
+        <div class="glyphs-equip-slot locked" style="${slotStyle}" title="Locked — buy Add Additional Glyph Slot in Rebirth upgrades" aria-label="Locked glyph slot ${index + 1}"></div>
       `;
     }
     const entry = equippedEntry(slotId);
@@ -22295,51 +22301,53 @@ function glyphsSceneHtml() {
           ${itemIconHtml(item)}
         </div>
       `
-      : `<span class="glyphs-equip-slot-empty">Empty</span>`;
+      : "";
     return `
       <div
         class="glyphs-equip-slot open ${item ? "occupied" : ""}"
+        style="${slotStyle}"
         data-equipment-slot="${escapeHtml(slotId)}"
         title="Glyph slot ${index + 1}"
         aria-label="Glyph slot ${index + 1}"
       >
-        <span class="glyphs-equip-slot-index">${index + 1}</span>
         ${content}
-        ${entry ? `<button type="button" class="glyphs-unequip" data-unequip-slot="${escapeHtml(slotId)}">Unequip</button>` : ""}
       </div>
     `;
   }).join("");
 
-  const bagRows = bagGlyphInventoryEntries().map(({ entry, item }) => {
+  const bagEntries = bagGlyphInventoryEntries();
+  const bagSlots = bagEntries.map(({ entry, item }) => {
     const requirement = itemRequirementStatus(item);
-    const canEquip = requirement.ok;
+    const locked = !requirement.ok;
     return `
-      <div class="glyphs-bag-row has-tooltip" data-tooltip-item="${escapeHtml(item.id)}" data-tooltip-entry="${escapeHtml(entry.id)}">
-        ${itemIconHtml(item, 28)}
-        <div class="glyphs-bag-meta">
-          <strong>${escapeHtml(itemDisplayName(item, entry))}</strong>
-          <span>${escapeHtml(
-            glyphDescription(glyphDefByItemId(item.id) ?? glyphDefById(item?.glyph?.modifier))
-            || item.description
-            || "Glyph",
-          )}</span>
+      <div class="glyphs-bag-slot${locked ? " locked" : ""}">
+        <div
+          class="glyphs-bag-item has-tooltip${locked ? " locked" : ""}"
+          data-tooltip-item="${escapeHtml(item.id)}"
+          data-tooltip-entry="${escapeHtml(entry.id)}"
+          data-inventory-entry="${escapeHtml(entry.id)}"
+          draggable="false"
+          title="${escapeHtml(itemDisplayName(item, entry))}"
+        >
+          ${itemIconHtml(item)}
         </div>
-        <button type="button" data-equip-entry="${escapeHtml(entry.id)}" ${canEquip ? "" : "disabled"}>${canEquip ? "Equip" : "Locked"}</button>
       </div>
     `;
   }).join("");
 
   return `
-    <section class="glyphs-panel">
-      <p class="glyphs-intro">Equip glyphs here (${unlocked} / ${GLYPH_EQUIP_UNLOCK_CAP} slots unlocked). Buy Add Additional Glyph Slot in Rebirth upgrades for a second slot.</p>
+    <section class="glyphs-panel" aria-label="Glyphs">
+      <div
+        class="glyphs-tab-hit"
+        data-help-tooltip="glyphs"
+        data-help-tooltip-text="${escapeHtml(introText)}"
+        aria-label="Glyphs help"
+      ></div>
       <div class="glyphs-equip-grid">
         ${slots}
       </div>
-      <div class="glyphs-bag-header">
-        <strong>Glyphs in bag</strong>
-      </div>
       <div class="glyphs-bag-list" data-preserve-scroll="glyphs-bag">
-        ${bagRows || `<span class="glyphs-empty">No glyphs in your bag.</span>`}
+        ${bagSlots || `<span class="glyphs-empty">No glyphs in your bag.</span>`}
       </div>
     </section>
   `;
@@ -29337,7 +29345,11 @@ function setHoveredTownNpc(npcId) {
 }
 
 function showHelpTooltip(key, event) {
-  const html = HELP_TOOLTIP_HTML[key];
+  const target = event?.target?.closest?.("[data-help-tooltip]");
+  const customText = target?.dataset?.helpTooltipText;
+  const html = customText
+    ? `<strong>${escapeHtml(key === "glyphs" ? "Glyphs" : "Help")}</strong><span>${escapeHtml(customText)}</span>`
+    : HELP_TOOLTIP_HTML[key];
   if (!html) return;
   hoveredTooltipEntryId = null;
   els.itemTooltip.innerHTML = html;

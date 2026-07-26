@@ -4213,7 +4213,6 @@ dd {
 
 .scene-window.spirit-box-window,
 .scene-window.auto-junk-window,
-.scene-window.glyphs-window,
 .scene-window.time-logging-window,
 .scene-window.teleport-ring-window {
   width: min(300px, calc(100vw - 24px));
@@ -4227,78 +4226,126 @@ dd {
   max-height: min(340px, calc(100vh - 140px));
 }
 
-.scene-window.glyphs-window {
-  width: min(340px, calc(100vw - 24px));
-  max-height: min(480px, calc(100vh - 48px));
+.glyphs-window {
+  position: relative;
+  width: 230px;
+  height: 138px;
+  max-height: none;
+  overflow: visible;
+  border: 0;
+  background:
+    url("../public/ui/inventory/Glyphs.png") center / 230px 138px no-repeat,
+    #15110d;
+  box-shadow: none;
+  padding: 0;
+  image-rendering: pixelated;
+}
+
+.glyphs-window .scene-header {
+  margin: 0;
+}
+
+.glyphs-window .scene-window-drag-handle {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 30px;
+  height: 34px;
+  z-index: 4;
+  cursor: grab;
+  touch-action: none;
+}
+
+.glyphs-window.scene-window-dragging .scene-window-drag-handle {
+  cursor: grabbing;
+}
+
+.glyphs-window .scene-header > div {
+  display: none;
+}
+
+.glyphs-window .scene-header button {
+  position: absolute;
+  left: 203px;
+  top: 2px;
+  z-index: 5;
+  width: 24px;
+  height: 21px;
+  min-height: 21px;
+  overflow: hidden;
+  border: 0;
+  background: url("../public/ui/inventory/close.png") 0 0 / 72px 21px no-repeat;
+  color: transparent;
+  padding: 0;
+}
+
+.glyphs-window .scene-header button:hover,
+.glyphs-window .scene-header button:focus-visible {
+  border: 0;
+  background-position: -24px 0;
+  outline: 0;
+}
+
+.glyphs-window .scene-header button:active {
+  background-position: -48px 0;
 }
 
 .glyphs-panel {
-  display: grid;
-  grid-template-rows: auto auto auto minmax(0, 1fr);
-  gap: 8px;
-  min-height: 0;
-  max-height: min(400px, calc(100vh - 140px));
+  position: absolute;
+  inset: 0;
+  width: 230px;
+  height: 138px;
+  color: #e8d8b8;
+  font-size: 11px;
 }
 
-.glyphs-intro {
-  margin: 0;
-  color: #b6a279;
-  font-size: 11px;
-  line-height: 1.4;
+.glyphs-tab-hit {
+  position: absolute;
+  left: 18px;
+  top: 12px;
+  width: 72px;
+  height: 20px;
+  z-index: 5;
+  cursor: help;
 }
 
 .glyphs-equip-grid {
-  display: grid;
-  grid-template-columns: repeat(5, minmax(0, 1fr));
-  gap: 5px;
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
 }
 
 .glyphs-equip-slot {
-  position: relative;
-  min-height: 72px;
+  position: absolute;
+  width: 32px;
+  height: 32px;
   display: grid;
-  align-content: start;
-  justify-items: center;
-  gap: 3px;
-  padding: 4px 3px 6px;
-  border: 1px solid rgba(120, 88, 42, 0.65);
-  background: rgba(18, 12, 7, 0.7);
+  place-items: center;
+  border: 0;
+  background: transparent;
+  padding: 0;
+  pointer-events: auto;
 }
 
-.glyphs-equip-slot.open {
-  border-style: dashed;
-}
-
-.glyphs-equip-slot.open.occupied {
-  border-style: solid;
+.glyphs-equip-slot.open:hover,
+.glyphs-equip-slot.open.drag-over {
+  outline: 1px solid rgba(241, 208, 149, 0.45);
+  outline-offset: -1px;
 }
 
 .glyphs-equip-slot.open.drag-over {
-  border-color: rgba(210, 170, 90, 0.95);
-  border-style: solid;
+  outline-color: rgba(255, 230, 150, 0.9);
 }
 
 .glyphs-equip-slot.open.drag-invalid {
-  border-color: rgba(160, 70, 70, 0.9);
+  outline: 1px solid rgba(205, 70, 55, 0.9);
+  outline-offset: -1px;
 }
 
 .glyphs-equip-slot.locked {
-  opacity: 0.45;
-  color: #8f7f5c;
-}
-
-.glyphs-equip-slot-index {
-  font-size: 10px;
-  color: #9e8d6a;
-}
-
-.glyphs-equip-slot-empty,
-.glyphs-equip-slot-locked-label {
-  font-size: 10px;
-  color: #8f7f5c;
-  text-align: center;
-  line-height: 1.2;
-  margin-top: 10px;
+  opacity: 0.35;
+  pointer-events: none;
+  background: rgba(8, 6, 4, 0.35);
 }
 
 .glyphs-equip-item {
@@ -4317,90 +4364,57 @@ dd {
   pointer-events: none;
 }
 
-.glyphs-unequip {
-  min-height: 18px;
-  padding: 1px 4px;
-  border: 1px solid rgba(120, 88, 42, 0.85);
-  background: rgba(40, 24, 12, 0.95);
-  color: #d5c6aa;
-  font-size: 9px;
-  cursor: pointer;
-}
-
-.glyphs-unequip:hover {
-  color: #ffe8b8;
-}
-
-.glyphs-bag-header {
-  color: #e8d7b0;
-  font-size: 12px;
-}
-
 .glyphs-bag-list {
-  display: grid;
-  gap: 4px;
-  min-height: 0;
-  overflow: auto;
-  align-content: start;
+  position: absolute;
+  left: 24px;
+  top: 95px;
+  width: 184px;
+  height: 31px;
+  display: flex;
+  gap: 5px;
+  align-items: center;
+  overflow-x: auto;
+  overflow-y: hidden;
+  scrollbar-width: thin;
+}
+
+.glyphs-bag-slot {
+  position: relative;
+  flex: 0 0 32px;
+  width: 32px;
+  height: 32px;
+}
+
+.glyphs-bag-item {
+  position: absolute;
+  inset: 0;
+  cursor: grab;
+  touch-action: none;
+  user-select: none;
+}
+
+.glyphs-bag-item.locked,
+.glyphs-bag-slot.locked {
+  opacity: 0.45;
+}
+
+.glyphs-bag-item img {
+  width: 32px;
+  height: 32px;
+  object-fit: contain;
+  image-rendering: pixelated;
+  pointer-events: none;
 }
 
 .glyphs-empty {
-  color: #9e8d6a;
-  font-size: 11px;
-}
-
-.glyphs-bag-row {
-  display: grid;
-  grid-template-columns: 28px minmax(0, 1fr) auto;
-  gap: 7px;
-  align-items: center;
-  padding: 5px 6px;
-  border: 1px solid rgba(120, 88, 42, 0.5);
-  background: rgba(18, 12, 7, 0.55);
-}
-
-.glyphs-bag-meta {
-  min-width: 0;
-  display: grid;
-  gap: 2px;
-}
-
-.glyphs-bag-meta strong {
-  color: #e8d7b0;
-  font-size: 12px;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-}
-
-.glyphs-bag-meta span {
-  color: #9e8d6a;
+  display: block;
+  width: 100%;
+  color: rgba(158, 141, 106, 0.55);
   font-size: 10px;
-  line-height: 1.3;
-  display: -webkit-box;
-  -webkit-line-clamp: 2;
-  -webkit-box-orient: vertical;
-  overflow: hidden;
-}
-
-.glyphs-bag-row button {
-  min-height: 24px;
-  padding: 2px 8px;
-  border: 1px solid rgba(120, 88, 42, 0.9);
-  background: linear-gradient(180deg, rgba(54, 36, 18, 0.96) 0%, rgba(22, 14, 7, 0.94) 100%);
-  color: #d5c6aa;
-  font-size: 11px;
-  cursor: pointer;
-}
-
-.glyphs-bag-row button:hover:not(:disabled) {
-  border-color: rgba(180, 140, 70, 0.95);
-  color: #ffe8b8;
-}
-
-.glyphs-bag-row button:disabled {
-  opacity: 0.45;
-  cursor: default;
+  line-height: 31px;
+  text-align: center;
+  white-space: nowrap;
+  pointer-events: none;
 }
 
 .scene-window-stack {
@@ -4415,7 +4429,8 @@ dd {
 .character-window[data-scene-window-positioned],
 .codex-window[data-scene-window-positioned],
 .upgrades-window[data-scene-window-positioned],
-.leaderboard-window[data-scene-window-positioned] {
+.leaderboard-window[data-scene-window-positioned],
+.glyphs-window[data-scene-window-positioned] {
   position: fixed;
   z-index: 21;
   margin: 0;
