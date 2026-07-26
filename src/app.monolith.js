@@ -953,16 +953,15 @@ const ACCOUNT_UPGRADE_DEFS = [
   },
   {
     id: "rebirth-extra-glyph-slot",
-    label: "Second Glyph",
+    label: "Add Additional Glyph Slot",
     section: "rebirth",
     category: "utility",
     currency: "rebirthPoints",
     effect: "extraGlyphSlot",
     value: 1,
     maxTier: 1,
-    // TEMP: 0 for testing — set to 250 after verifying.
-    rebirthCosts: [0],
-    summary: "Unlocks a second glyph equip slot on the Glyphs page (base is one slot).",
+    rebirthCosts: [250],
+    summary: "Unlocks one additional glyph equip slot on the Glyphs page (2 slots max).",
   },
   {
     id: "rebirth-smith-combine-cap",
@@ -2846,12 +2845,12 @@ const EQUIPMENT_SLOTS = [
   { id: "mount", label: "Mount" },
 ];
 
-/** Max glyph equip slots (future upgrades unlock more; base is 1). */
-const GLYPH_EQUIP_SLOT_MAX = GLYPH_EQUIPMENT_SLOT_IDS.length;
+/** Max glyph equip slots unlockable today (base 1 + one rebirth upgrade). */
+const GLYPH_EQUIP_UNLOCK_CAP = 2;
 
 function unlockedGlyphEquipSlotCount() {
   const bonus = accountUpgradePurchased("rebirth-extra-glyph-slot") ? 1 : 0;
-  return Math.min(GLYPH_EQUIP_SLOT_MAX, 1 + bonus);
+  return Math.min(GLYPH_EQUIP_UNLOCK_CAP, 1 + bonus);
 }
 
 function glyphEquipmentSlotIdAt(index) {
@@ -22248,12 +22247,12 @@ function bagGlyphInventoryEntries() {
 
 function glyphsSceneHtml() {
   const unlocked = unlockedGlyphEquipSlotCount();
-  const slots = Array.from({ length: GLYPH_EQUIP_SLOT_MAX }, (_, index) => {
+  const slots = Array.from({ length: GLYPH_EQUIP_UNLOCK_CAP }, (_, index) => {
     const open = index < unlocked;
     const slotId = glyphEquipmentSlotIdAt(index);
     if (!open || !slotId) {
       return `
-        <div class="glyphs-equip-slot locked" title="Locked — unlock with the Second Glyph rebirth upgrade" aria-label="Locked glyph slot ${index + 1}">
+        <div class="glyphs-equip-slot locked" title="Locked — buy Add Additional Glyph Slot in Rebirth upgrades" aria-label="Locked glyph slot ${index + 1}">
           <span class="glyphs-equip-slot-index">${index + 1}</span>
           <span class="glyphs-equip-slot-locked-label">Locked</span>
         </div>
@@ -22311,7 +22310,7 @@ function glyphsSceneHtml() {
 
   return `
     <section class="glyphs-panel">
-      <p class="glyphs-intro">Equip glyphs here (${unlocked} / ${GLYPH_EQUIP_SLOT_MAX} slots unlocked). Buy Second Glyph in Rebirth upgrades for another slot.</p>
+      <p class="glyphs-intro">Equip glyphs here (${unlocked} / ${GLYPH_EQUIP_UNLOCK_CAP} slots unlocked). Buy Add Additional Glyph Slot in Rebirth upgrades for a second slot.</p>
       <div class="glyphs-equip-grid">
         ${slots}
       </div>

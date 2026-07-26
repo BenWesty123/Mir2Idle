@@ -2,9 +2,8 @@
 
 ## 2026-07-26 - Second Glyph rebirth upgrade
 
-Rebirth upgrade **Second Glyph** unlocks a second glyph equip slot
-(`equipment.glyph2`). Base remains one slot; purchase sets unlocked count to 2.
-Cost is temporarily **0 RP** for testing (switch to **250** after verify).
+Rebirth upgrade **Add Additional Glyph Slot** (250 RP, max tier 1) unlocks a
+second glyph equip slot (`equipment.glyph2`). Cap is 2 slots total.
 
 Combat/modifier helpers now resolve all equipped glyph slots via
 `equippedGlyphDefs` / `firstGlyphOfKind`.
