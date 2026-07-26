@@ -29,6 +29,29 @@ body {
   color: var(--text);
 }
 
+body.boot-loading {
+  background: #000;
+}
+
+.boot-load-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 10000;
+  background: #000;
+  opacity: 1;
+  pointer-events: all;
+  transition: opacity 560ms ease;
+}
+
+.boot-load-overlay.is-fading {
+  opacity: 0;
+  pointer-events: none;
+}
+
+.boot-load-overlay.is-gone {
+  display: none;
+}
+
 button,
 select,
 input {

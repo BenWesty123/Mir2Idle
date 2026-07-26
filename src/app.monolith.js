@@ -3978,7 +3978,23 @@ const els = {
 init().catch((err) => {
   els.status.textContent = err.message;
   els.status.classList.add("bad");
+  dismissBootLoadOverlay();
 });
+
+function dismissBootLoadOverlay() {
+  const overlay = document.querySelector("#bootLoadOverlay");
+  document.body.classList.remove("boot-loading");
+  if (!overlay || overlay.dataset.dismissed === "1") return;
+  overlay.dataset.dismissed = "1";
+  overlay.classList.add("is-fading");
+  overlay.setAttribute("aria-busy", "false");
+  const finish = () => {
+    overlay.classList.add("is-gone");
+    overlay.remove();
+  };
+  overlay.addEventListener("transitionend", finish, { once: true });
+  window.setTimeout(finish, 800);
+}
 
 async function init() {
   state.catalogue = await loadCatalogue(state.spriteSet);
@@ -4104,7 +4120,12 @@ async function init() {
   state.cloudSave.lastAttemptAt = performance.now();
   lastSimulationAt = performance.now();
   installTestHarness();
-  requestAnimationFrame(tick);
+  requestAnimationFrame(() => {
+    requestAnimationFrame(() => {
+      dismissBootLoadOverlay();
+      requestAnimationFrame(tick);
+    });
+  });
 }
 
 function installTestHarness() {
