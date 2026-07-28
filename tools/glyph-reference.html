@@ -1,0 +1,186 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Glyph reference</title>
+  <style>
+    :root {
+      --bg: #100e0c;
+      --panel: #1a1612;
+      --line: #3d3226;
+      --text: #e8dcc4;
+      --muted: #9a8b72;
+      --gold: #e0c48a;
+      --warrior: #e07a5f;
+      --wizard: #6ea8fe;
+      --taoist: #7dcea0;
+      --any: #c9b87a;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font: 14px/1.45 "Segoe UI", system-ui, sans-serif;
+      color: var(--text);
+      background:
+        radial-gradient(1200px 600px at 10% -10%, #2a2118 0%, transparent 55%),
+        radial-gradient(900px 500px at 100% 0%, #1a2430 0%, transparent 50%),
+        var(--bg);
+      min-height: 100vh;
+    }
+    header {
+      padding: 28px 24px 12px;
+      border-bottom: 1px solid var(--line);
+      background: rgba(0,0,0,0.25);
+    }
+    h1 { margin: 0 0 6px; font-size: 28px; color: var(--gold); letter-spacing: 0.02em; }
+    .note { margin: 0; color: var(--muted); }
+    .note code { color: var(--gold); }
+    main { padding: 18px 24px 40px; max-width: 1200px; margin: 0 auto; }
+    .meta {
+      display: flex; flex-wrap: wrap; gap: 10px 18px;
+      margin: 0 0 16px; color: var(--muted); font-size: 13px;
+    }
+    .meta strong { color: var(--text); font-weight: 600; }
+    .filters { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 18px; }
+    .filters button {
+      border: 1px solid var(--line);
+      background: var(--panel);
+      color: var(--muted);
+      padding: 7px 12px;
+      cursor: pointer;
+      border-radius: 4px;
+    }
+    .filters button.active { color: var(--gold); border-color: var(--gold); }
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+      gap: 12px;
+    }
+    article {
+      display: grid;
+      grid-template-columns: 56px 1fr;
+      gap: 12px;
+      padding: 12px;
+      background: var(--panel);
+      border: 1px solid var(--line);
+      border-radius: 8px;
+    }
+    .icon {
+      width: 56px; height: 56px;
+      image-rendering: pixelated;
+      background: #0a0908;
+      border: 1px solid #2a241c;
+      border-radius: 4px;
+      object-fit: contain;
+    }
+    .icon.missing {
+      display: grid; place-items: center;
+      color: var(--muted); font-size: 11px;
+    }
+    .body strong { display: block; font-size: 15px; color: #fff4dc; margin-bottom: 2px; }
+    .tags { display: flex; flex-wrap: wrap; gap: 6px; margin: 4px 0 8px; }
+    .tag {
+      font-size: 11px;
+      padding: 2px 7px;
+      border-radius: 999px;
+      border: 1px solid var(--line);
+      color: var(--muted);
+    }
+    .tag.warrior { color: var(--warrior); border-color: #6a3a2e; }
+    .tag.wizard { color: var(--wizard); border-color: #2e456a; }
+    .tag.taoist { color: var(--taoist); border-color: #2e5a42; }
+    .tag.any { color: var(--any); border-color: #5a5030; }
+    .desc { margin: 0; color: var(--text); }
+    .spells { margin: 8px 0 0; color: var(--muted); font-size: 12px; }
+    .spells code { color: #cdb892; }
+    .id { margin-top: 6px; color: #6f6350; font-size: 11px; }
+    h2 { margin: 22px 0 10px; font-size: 16px; color: var(--gold); }
+    .empty { color: var(--muted); padding: 24px 0; }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>Glyph reference</h1>
+    <p class="note">Dev-only — regenerate with <code>npm run glyph:ref</code>. Open via <code>/tools/glyph-reference.html</code>.</p>
+  </header>
+  <main>
+    <div class="meta" id="meta"></div>
+    <div class="filters" id="filters"></div>
+    <div id="content"></div>
+  </main>
+  <script type="application/json" id="glyph-data">{"generatedAt":"2026-07-27","empoweredChancePercent":10,"ascendedChancePercent":15,"slotIds":["glyph","glyph2","glyph3","glyph4","glyph5"],"glyphs":[{"id":"warriorProtectionFieldBurst","itemId":"glyph-bulwark-field","label":"Glyph of Bulwark Field","description":"Protection Field grants a much stronger AC bonus for a short time.","classId":"warrior","classLabel":"Warrior","spellIds":["ProtectionField"],"kind":"warriorProtectionFieldBurst","implemented":true,"level":35,"icon":"../public/item-icons/items/frame_003212.png","sell":50000},{"id":"warriorFlamingSwordDr","itemId":"glyph-flaming-bulwark","label":"Glyph of Flaming Bulwark","description":"Activating Flaming Sword briefly reduces the damage you take.","classId":"warrior","classLabel":"Warrior","spellIds":["FlamingSword"],"kind":"warriorFlamingSwordDr","implemented":true,"level":35,"icon":"../public/item-icons/items/frame_003200.png","sell":50000},{"id":"warriorImprovedFlamingSword","itemId":"glyph-improved-flaming-sword","label":"Glyph of Improved Flaming Sword","description":"Flaming Sword burns the enemy for 5 seconds, dealing 50% of the hit as fire damage over time.","classId":"warrior","classLabel":"Warrior","spellIds":["FlamingSword"],"kind":"warriorImprovedFlamingSword","implemented":true,"level":35,"icon":"../public/item-icons/items/frame_003203.png","sell":50000},{"id":"warriorProtectionFieldAmc","itemId":"glyph-magical-protection","label":"Glyph of Magical Protection","description":"Protection Field buffs AMC (MAC) instead of AC.","classId":"warrior","classLabel":"Warrior","spellIds":["ProtectionField"],"kind":"warriorProtectionFieldAmc","implemented":true,"level":35,"icon":"../public/item-icons/items/frame_003221.png","sell":50000},{"id":"warriorTwinDrakeBurst","itemId":"glyph-twin-fury","label":"Glyph of Twin Fury","description":"Twin Drake Blade hits much harder, but needs time to recover after each use.","classId":"warrior","classLabel":"Warrior","spellIds":["TwinDrakeBlade"],"kind":"warriorTwinDrakeBurst","implemented":true,"level":35,"icon":"../public/item-icons/items/frame_003216.png","sell":50000},{"id":"battleWizard","itemId":"glyph-battle-wizard","label":"Glyph of Battle Wizard","description":"While in melee range of an enemy: +25% armour and damage. At range: −25% armour and damage.","classId":"wizard","classLabel":"Wizard","spellIds":[],"kind":"battleWizard","implemented":true,"level":35,"icon":"../public/item-icons/items/frame_003217.png","sell":50000},{"id":"wizardFlameDisruptorSplash","itemId":"glyph-disruptor-cascade","label":"Glyph of Disruptor Cascade","description":"Flame Disruptor can also strike enemies next to the target for reduced damage.","classId":"wizard","classLabel":"Wizard","spellIds":["FlameDisruptor"],"kind":"wizardFlameDisruptorSplash","implemented":true,"level":35,"icon":"../public/item-icons/items/frame_003206.png","sell":50000},{"id":"wizardFireWallDuration","itemId":"glyph-eternal-firewall","label":"Glyph of Eternal Firewall","description":"Fire Wall lasts much longer.","classId":"wizard","classLabel":"Wizard","spellIds":["FireWall"],"kind":"wizardFireWallDuration","implemented":true,"level":35,"icon":"../public/item-icons/items/frame_003204.png","sell":50000},{"id":"wizardManaRegen","itemId":"glyph-infinite-mana","label":"Glyph of Infinite Mana","description":"You regenerate 5 mana every second.","classId":"wizard","classLabel":"Wizard","spellIds":[],"kind":"wizardManaRegen","implemented":true,"level":35,"icon":"../public/item-icons/items/frame_003207.png","sell":50000},{"id":"wizardMagicShieldMp","itemId":"glyph-mana-aegis","label":"Glyph of Mana Aegis","description":"Magic Shield no longer reduces damage. Instead, mana is drained before health.","classId":"wizard","classLabel":"Wizard","spellIds":["MagicShield"],"kind":"wizardMagicShieldMp","implemented":true,"level":35,"icon":"../public/item-icons/items/frame_003205.png","sell":50000},{"id":"wizardManyMirrors","itemId":"glyph-many-mirrors","label":"Glyph of Many Mirrors","description":"Mirroring summons three clones (one above and one below). They can only cast Fire Ball.","classId":"wizard","classLabel":"Wizard","spellIds":["Mirroring"],"kind":"wizardManyMirrors","implemented":true,"level":35,"icon":"../public/item-icons/items/frame_003219.png","sell":50000},{"id":"taoUltimateBuffChain","itemId":"glyph-buffing","label":"Glyph of Buffing","description":"Ultimate Enhancer also applies Soul Shield and Blessed Armour to the same targets.","classId":"taoist","classLabel":"Taoist","spellIds":["UltimateEnhancer","SoulShield","BlessedArmour"],"kind":"taoUltimateBuffChain","implemented":true,"level":35,"icon":"../public/item-icons/items/frame_003201.png","sell":50000},{"id":"taoHealingCircleFromSc","itemId":"glyph-improved-healing-circle","label":"Glyph of Improved Healing Circle","description":"Healing Circle restore amount scales with your Spirit (SC).","classId":"taoist","classLabel":"Taoist","spellIds":["HealingCircle"],"kind":"taoHealingCircleFromSc","implemented":true,"level":39,"icon":"../public/item-icons/items/frame_003202.png","sell":50000},{"id":"taoHealingInstant","itemId":"glyph-instant-healing","label":"Glyph of Instant Healing","description":"Healing restores health instantly, but only for half the usual amount.","classId":"taoist","classLabel":"Taoist","spellIds":["Healing"],"kind":"taoHealingInstant","implemented":true,"level":35,"icon":"../public/item-icons/items/frame_003210.png","sell":50000},{"id":"taoPetOwnerDc","itemId":"glyph-pet-might","label":"Glyph of Pet Might","description":"Your pets add your physical power to their attacks.","classId":"taoist","classLabel":"Taoist","spellIds":["SummonSkeleton","SummonShinsu","SummonHolyDeva"],"kind":"taoPetOwnerDc","implemented":true,"level":35,"icon":"../public/item-icons/items/frame_003209.png","sell":50000},{"id":"taoDefenceBuffFromSc","itemId":"glyph-spirit-wards","label":"Glyph of Spirit Wards","description":"Soul Shield and Blessed Armour scale from your Spirit rather than your level.","classId":"taoist","classLabel":"Taoist","spellIds":["SoulShield","BlessedArmour"],"kind":"taoDefenceBuffFromSc","implemented":true,"level":35,"icon":"../public/item-icons/items/frame_003208.png","sell":50000},{"id":"monk","itemId":"glyph-monk","label":"Glyph of the Monk","description":"While no pets are summoned: +50% DC and SC.","classId":"taoist","classLabel":"Taoist","spellIds":[],"kind":"monk","implemented":true,"level":35,"icon":"../public/item-icons/items/frame_003211.png","sell":50000},{"id":"criticalStrikes","itemId":"glyph-critical-strikes","label":"Glyph of Critical Strikes","description":"Base critical strike damage is doubled, but Luck no longer affects you.","classId":"any","classLabel":"All classes","spellIds":[],"kind":"criticalStrikes","implemented":true,"level":35,"icon":"../public/item-icons/items/frame_003218.png","sell":50000},{"id":"fastHealing","itemId":"glyph-fast-healing","label":"Glyph of Fast Healing","description":"HP potions heal 25% faster, but restore 50% less.","classId":"any","classLabel":"All classes","spellIds":[],"kind":"fastHealing","implemented":true,"level":35,"icon":"../public/item-icons/items/frame_003215.png","sell":50000},{"id":"glassCannon","itemId":"glyph-glass-canon","label":"Glyph of Glass Canon","description":"Damage done increased by 50%. Damage taken increased by 100%.","classId":"any","classLabel":"All classes","spellIds":[],"kind":"glassCannon","implemented":true,"level":35,"icon":"../public/item-icons/items/frame_003220.png","sell":50000},{"id":"goldDrops","itemId":"glyph-gold","label":"Glyph of Gold","description":"Gold drops from monsters and bosses are increased by 100%.","classId":"any","classLabel":"All classes","spellIds":[],"kind":"goldDrops","implemented":true,"level":35,"icon":"../public/item-icons/items/frame_003222.png","sell":50000},{"id":"revival","itemId":"glyph-revival","label":"Glyph of Revival","description":"Revives you to full health once, then breaks.","classId":"any","classLabel":"All classes","spellIds":[],"kind":"revival","implemented":true,"level":35,"icon":"../public/item-icons/items/frame_003224.png","sell":50000},{"id":"tank","itemId":"glyph-tank","label":"Glyph of Tank","description":"Damage taken decreased by 25%. Damage done decreased by 50%.","classId":"any","classLabel":"All classes","spellIds":[],"kind":"tank","implemented":true,"level":35,"icon":"../public/item-icons/items/frame_003213.png","sell":50000},{"id":"hero","itemId":"glyph-hero","label":"Glyph of the Hero","description":"You take all damage your party members would receive.","classId":"any","classLabel":"All classes","spellIds":[],"kind":"hero","implemented":true,"level":35,"icon":"../public/item-icons/items/frame_003214.png","sell":50000}]}</script>
+  <script>
+    const data = JSON.parse(document.getElementById("glyph-data").textContent);
+    const filters = document.getElementById("filters");
+    const content = document.getElementById("content");
+    const meta = document.getElementById("meta");
+    const views = [
+      { id: "all", label: "All" },
+      { id: "warrior", label: "Warrior" },
+      { id: "wizard", label: "Wizard" },
+      { id: "taoist", label: "Taoist" },
+      { id: "any", label: "All classes" },
+    ];
+    let active = "all";
+
+    meta.innerHTML =
+      "<span>Generated <strong>" + data.generatedAt + "</strong></span>" +
+      "<span>Empowered drop <strong>" + data.empoweredChancePercent + "%</strong></span>" +
+      "<span>Ascended drop <strong>" + data.ascendedChancePercent + "%</strong></span>" +
+      "<span>Slots <strong>" + data.slotIds.length + "</strong> (" + data.slotIds.join(", ") + ")</span>" +
+      "<span>Glyphs <strong>" + data.glyphs.length + "</strong></span>";
+
+    function card(row) {
+      const icon = row.icon
+        ? '<img class="icon" src="' + row.icon + '" alt="" width="56" height="56" />'
+        : '<div class="icon missing">?</div>';
+      const spells = row.spellIds.length
+        ? '<p class="spells">Spells: ' + row.spellIds.map((id) => "<code>" + id + "</code>").join(", ") + "</p>"
+        : '<p class="spells">No linked spell (passive / global)</p>';
+      return '<article>' + icon +
+        '<div class="body">' +
+        "<strong>" + row.label + "</strong>" +
+        '<div class="tags">' +
+        '<span class="tag ' + row.classId + '">' + row.classLabel + "</span>" +
+        (row.level ? '<span class="tag">Lv ' + row.level + "</span>" : "") +
+        "</div>" +
+        '<p class="desc">' + row.description + "</p>" +
+        spells +
+        '<div class="id">' + row.itemId + " · " + row.kind + "</div>" +
+        "</div></article>";
+    }
+
+    function render() {
+      filters.innerHTML = views.map((v) =>
+        '<button type="button" class="' + (active === v.id ? "active" : "") + '" data-view="' + v.id + '">' + v.label + "</button>"
+      ).join("");
+      filters.querySelectorAll("button").forEach((btn) => {
+        btn.addEventListener("click", () => { active = btn.dataset.view; render(); });
+      });
+
+      const rows = data.glyphs.filter((row) => active === "all" || row.classId === active);
+      if (!rows.length) {
+        content.innerHTML = '<p class="empty">No glyphs in this filter.</p>';
+        return;
+      }
+
+      if (active === "all") {
+        const order = ["warrior", "wizard", "taoist", "any"];
+        content.innerHTML = order.map((classId) => {
+          const group = rows.filter((row) => row.classId === classId);
+          if (!group.length) return "";
+          const label = group[0].classLabel;
+          return "<h2>" + label + " (" + group.length + ")</h2><div class=\"grid\">" +
+            group.map(card).join("") + "</div>";
+        }).join("");
+        return;
+      }
+
+      content.innerHTML = '<div class="grid">' + rows.map(card).join("") + "</div>";
+    }
+
+    render();
+  </script>
+</body>
+</html>

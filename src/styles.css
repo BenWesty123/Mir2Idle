@@ -5399,7 +5399,7 @@ body.scene-window-drag-active {
   position: absolute;
   top: 0;
   left: 0;
-  right: 80px;
+  right: 30px;
   height: 40px;
   z-index: 4;
   cursor: grab;
@@ -8589,6 +8589,22 @@ body[data-ui="game"] .game-activity-panel {
   text-align: center;
 }
 
+.game-auto-advance {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-top: 6px;
+  color: #c7b995;
+  font-size: 12px;
+  cursor: pointer;
+  user-select: none;
+}
+
+.game-auto-advance input {
+  margin: 0;
+  accent-color: #8e4f2c;
+}
+
 .game-side-panel .scene-buttons {
   grid-template-columns: 1fr 1fr;
 }
@@ -8882,7 +8898,8 @@ body.compact-ui .stage-corner-buttons {
   right: 10px;
 }
 
-body.compact-ui .compact-return-town-button {
+body.compact-ui .compact-return-town-button,
+body.compact-ui .compact-advance-floor-button {
   width: auto;
   min-width: 52px;
   padding: 0 8px;
@@ -8892,8 +8909,46 @@ body.compact-ui .compact-return-town-button {
   text-shadow: 1px 1px 0 #000;
 }
 
-body.compact-ui .compact-return-town-button[hidden] {
+body.compact-ui .compact-advance-floor-button {
+  background: rgba(142, 79, 44, 0.92);
+  border-color: #c48a4a;
+}
+
+body.compact-ui .compact-advance-floor-button:hover {
+  background: rgba(168, 96, 52, 0.96);
+  border-color: #f0c979;
+}
+
+body.compact-ui .compact-return-town-button[hidden],
+body.compact-ui .compact-advance-floor-button[hidden] {
   display: none;
+}
+
+body.compact-ui .compact-auto-advance {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  max-width: 72px;
+  padding: 4px 6px;
+  border: 1px solid #5b4629;
+  border-radius: 6px;
+  background: rgba(25, 19, 13, 0.92);
+  color: #c7b995;
+  font-size: 10px;
+  font-weight: 700;
+  line-height: 1.1;
+  cursor: pointer;
+  user-select: none;
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.4);
+}
+
+body.compact-ui .compact-auto-advance[hidden] {
+  display: none;
+}
+
+body.compact-ui .compact-auto-advance input {
+  margin: 0;
+  accent-color: #8e4f2c;
 }
 
 body.compact-ui .player-resource-hud {

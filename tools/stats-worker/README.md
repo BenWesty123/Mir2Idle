@@ -15,10 +15,21 @@ POST /cloud-save
 POST /cloud-save/restore
 ```
 
-Both routes accept JSON bodies, so recovery codes are not placed in URLs. Before deploying the cloud-save Worker changes to an existing database, run:
+Both routes accept JSON bodies, so recovery codes are not placed in URLs.
+
+`POST /cloud-save` accepts `{ recoveryCode, playerId?, save }` and binds the first
+valid Social `playerId` to that recovery code (`cloud_saves.player_id`). Later
+uploads keep the original binding even if a new device sends a different id.
+`POST /cloud-save/restore` returns that canonical `playerId` so the client can
+re-adopt the same Social / leaderboard identity. If the column is still empty,
+restore falls back to the oldest `player_aliases` row claimed with that recovery
+code and backfills `cloud_saves.player_id`.
+
+Before deploying the cloud-save Worker changes to an existing database, run:
 
 ```powershell
 npx wrangler d1 execute lom-idle-v2-stats --file .\migrate-cloud-saves.sql --remote
+npx wrangler d1 execute lom-idle-v2-stats --file .\migrate-cloud-save-player-id.sql --remote
 npx wrangler deploy --keep-vars
 ```
 

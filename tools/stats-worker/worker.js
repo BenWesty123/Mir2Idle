@@ -56,6 +56,7 @@ const UNLOCK_TOKEN_COSTS = {
   "teleport-ring": 500,
   "organisation-skills": 200,
   "time-logging": 300,
+  "group-dungeon-auto-advance": 200,
 };
 const PAGE_UNLOCK_KEYS = new Set(Object.keys(UNLOCK_TOKEN_COSTS));
 // Repeatable token spends (not unlocks). Keys and costs are server-owned.
@@ -285,6 +286,28 @@ function validCloudSaveSnapshot(save) {
   );
 }
 
+// Canonical Social identity for a recovery code: prefer the already-bound
+// cloud_saves.player_id, then the oldest alias claim for that code, then the
+// playerId the client is submitting on this save.
+async function resolveCloudSavePlayerId(env, recoveryCode, submittedPlayerId = null) {
+  const existing = await env.DB.prepare(
+    "SELECT player_id FROM cloud_saves WHERE recovery_code = ?",
+  ).bind(recoveryCode).first();
+  const bound = aliasPlayerIdValue(existing?.player_id);
+  if (bound) return bound;
+
+  const fromAlias = await env.DB.prepare(`
+    SELECT player_id FROM player_aliases
+    WHERE recovery_code = ?
+    ORDER BY created_at ASC, player_id ASC
+    LIMIT 1
+  `).bind(recoveryCode).first();
+  const aliasBound = aliasPlayerIdValue(fromAlias?.player_id);
+  if (aliasBound) return aliasBound;
+
+  return aliasPlayerIdValue(submittedPlayerId);
+}
+
 async function handleCloudSavePost(request, env, headers) {
   if (!env.DB) return json({ error: "Database binding DB is missing." }, 500, headers);
   const parsed = await boundedJsonBody(request);
@@ -298,22 +321,29 @@ async function handleCloudSavePost(request, env, headers) {
   const saveSize = new TextEncoder().encode(saveData).byteLength;
   if (saveSize > MAX_CLOUD_SAVE_REQUEST_BYTES) return json({ error: "Save is too large." }, 413, headers);
   const clientSavedAt = intValue(save.savedAt, 0, Number.MAX_SAFE_INTEGER);
+  const playerId = await resolveCloudSavePlayerId(env, recoveryCode, parsed.value?.playerId);
   await env.DB.prepare(`
     INSERT INTO cloud_saves (
-      recovery_code, save_version, save_data, client_saved_at, save_size, created_at, saved_at
-    ) VALUES (?, ?, ?, ?, ?, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP)
+      recovery_code, save_version, save_data, client_saved_at, save_size, player_id, created_at, saved_at
+    ) VALUES (?, ?, ?, ?, ?, ?, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP)
     ON CONFLICT(recovery_code) DO UPDATE SET
       save_version = excluded.save_version,
       save_data = excluded.save_data,
       client_saved_at = excluded.client_saved_at,
       save_size = excluded.save_size,
-      saved_at = CURRENT_TIMESTAMP
-  `).bind(recoveryCode, intValue(save.version, 1, 999), saveData, clientSavedAt, saveSize).run();
+      saved_at = CURRENT_TIMESTAMP,
+      player_id = COALESCE(cloud_saves.player_id, excluded.player_id)
+  `).bind(recoveryCode, intValue(save.version, 1, 999), saveData, clientSavedAt, saveSize, playerId).run();
 
-  const row = await env.DB.prepare(`SELECT saved_at FROM cloud_saves WHERE recovery_code = ?`)
-    .bind(recoveryCode)
-    .first();
-  return json({ ok: true, recoveryCode, savedAt: row?.saved_at ?? new Date().toISOString() }, 200, {
+  const row = await env.DB.prepare(
+    "SELECT saved_at, player_id FROM cloud_saves WHERE recovery_code = ?",
+  ).bind(recoveryCode).first();
+  return json({
+    ok: true,
+    recoveryCode,
+    savedAt: row?.saved_at ?? new Date().toISOString(),
+    playerId: aliasPlayerIdValue(row?.player_id) ?? playerId ?? null,
+  }, 200, {
     ...headers,
     "cache-control": "no-store",
   });
@@ -327,7 +357,7 @@ async function handleCloudSaveRestore(request, env, headers) {
   if (!recoveryCode) return json({ error: "Invalid recovery code." }, 400, headers);
 
   const row = await env.DB.prepare(`
-    SELECT save_data, save_version, saved_at
+    SELECT save_data, save_version, saved_at, player_id
     FROM cloud_saves
     WHERE recovery_code = ?
   `).bind(recoveryCode).first();
@@ -340,7 +370,28 @@ async function handleCloudSaveRestore(request, env, headers) {
     return json({ error: "The stored cloud save is damaged." }, 500, headers);
   }
   if (!validCloudSaveSnapshot(save)) return json({ error: "The stored cloud save is invalid." }, 500, headers);
-  return json({ ok: true, recoveryCode, savedAt: row.saved_at, saveVersion: row.save_version, save }, 200, {
+
+  let playerId = aliasPlayerIdValue(row.player_id);
+  if (!playerId) {
+    playerId = await resolveCloudSavePlayerId(env, recoveryCode, null);
+    if (playerId) {
+      // Backfill so later restores/saves keep the same Social identity.
+      await env.DB.prepare(`
+        UPDATE cloud_saves
+        SET player_id = ?
+        WHERE recovery_code = ? AND (player_id IS NULL OR player_id = '')
+      `).bind(playerId, recoveryCode).run();
+    }
+  }
+
+  return json({
+    ok: true,
+    recoveryCode,
+    savedAt: row.saved_at,
+    saveVersion: row.save_version,
+    playerId: playerId ?? null,
+    save,
+  }, 200, {
     ...headers,
     "cache-control": "no-store",
   });

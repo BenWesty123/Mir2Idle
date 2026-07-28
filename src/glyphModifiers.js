@@ -54,6 +54,27 @@ export const GLYPH_DEFS = [
     implemented: true,
   },
   {
+    id: "taoHealingCircleFromSc",
+    itemId: "glyph-improved-healing-circle",
+    classId: "taoist",
+    label: "Glyph of Improved Healing Circle",
+    description: "Healing Circle restore amount scales with your Spirit (SC).",
+    spellIds: ["HealingCircle"],
+    kind: "taoHealingCircleFromSc",
+    params: { scDivisor: 4 },
+    implemented: true,
+  },
+  {
+    id: "taoUltimateBuffChain",
+    itemId: "glyph-buffing",
+    classId: "taoist",
+    label: "Glyph of Buffing",
+    description: "Ultimate Enhancer also applies Soul Shield and Blessed Armour to the same targets.",
+    spellIds: ["UltimateEnhancer", "SoulShield", "BlessedArmour"],
+    kind: "taoUltimateBuffChain",
+    implemented: true,
+  },
+  {
     id: "wizardMagicShieldMp",
     itemId: "glyph-mana-aegis",
     classId: "wizard",
@@ -98,6 +119,17 @@ export const GLYPH_DEFS = [
     implemented: true,
   },
   {
+    id: "wizardManyMirrors",
+    itemId: "glyph-many-mirrors",
+    classId: "wizard",
+    label: "Glyph of Many Mirrors",
+    description: "Mirroring summons three clones (one above and one below). They can only cast Fire Ball.",
+    spellIds: ["Mirroring"],
+    kind: "wizardManyMirrors",
+    params: { offsetY: 28 },
+    implemented: true,
+  },
+  {
     id: "warriorFlamingSwordDr",
     itemId: "glyph-flaming-bulwark",
     classId: "warrior",
@@ -106,6 +138,17 @@ export const GLYPH_DEFS = [
     spellIds: ["FlamingSword"],
     kind: "warriorFlamingSwordDr",
     params: { reductionPercent: 25, durationMs: 3000 },
+    implemented: true,
+  },
+  {
+    id: "warriorImprovedFlamingSword",
+    itemId: "glyph-improved-flaming-sword",
+    classId: "warrior",
+    label: "Glyph of Improved Flaming Sword",
+    description: "Flaming Sword burns the enemy for 5 seconds, dealing 50% of the hit as fire damage over time.",
+    spellIds: ["FlamingSword"],
+    kind: "warriorImprovedFlamingSword",
+    params: { durationMs: 5000, damageFraction: 0.5, tickMs: 1000 },
     implemented: true,
   },
   {
@@ -131,6 +174,17 @@ export const GLYPH_DEFS = [
     implemented: true,
   },
   {
+    id: "warriorProtectionFieldAmc",
+    itemId: "glyph-magical-protection",
+    classId: "warrior",
+    label: "Glyph of Magical Protection",
+    description: "Protection Field buffs AMC (MAC) instead of AC.",
+    spellIds: ["ProtectionField"],
+    kind: "warriorProtectionFieldAmc",
+    params: { stat: "amc" },
+    implemented: true,
+  },
+  {
     id: "glassCannon",
     itemId: "glyph-glass-canon",
     classId: "any",
@@ -139,6 +193,17 @@ export const GLYPH_DEFS = [
     spellIds: [],
     kind: "glassCannon",
     params: { outgoingMultiplier: 1.5, incomingMultiplier: 2 },
+    implemented: true,
+  },
+  {
+    id: "goldDrops",
+    itemId: "glyph-gold",
+    classId: "any",
+    label: "Glyph of Gold",
+    description: "Gold drops from monsters and bosses are increased by 100%.",
+    spellIds: [],
+    kind: "goldDrops",
+    params: { bonusPercent: 100 },
     implemented: true,
   },
   {
@@ -210,6 +275,20 @@ export const GLYPH_DEFS = [
     params: { healFraction: 0.5, tickDelayFraction: 0.75 },
     implemented: true,
   },
+  {
+    id: "criticalStrikes",
+    itemId: "glyph-critical-strikes",
+    classId: "any",
+    label: "Glyph of Critical Strikes",
+    description: "Base critical strike damage is doubled, but Luck no longer affects you.",
+    spellIds: [],
+    kind: "criticalStrikes",
+    params: {
+      // Adds another copy of the global base crit bonus (+50%), doubling it to +100%.
+      extraBaseCritDamagePercent: 50,
+    },
+    implemented: true,
+  },
 ];
 
 const GLYPH_BY_ID = new Map(GLYPH_DEFS.map((def) => [def.id, def]));
@@ -217,6 +296,8 @@ const GLYPH_BY_ITEM_ID = new Map(GLYPH_DEFS.map((def) => [def.itemId, def]));
 
 /** Fixed chance an empowered boss kill awards exactly one glyph (before choosing which). */
 export const EMPOWERED_BOSS_GLYPH_DROP_CHANCE = 0.1;
+/** Ascended bosses: same one-glyph roll at a higher chance. */
+export const ASCENDED_BOSS_GLYPH_DROP_CHANCE = 0.15;
 
 /**
  * @returns {string[]}
@@ -226,13 +307,18 @@ export function glyphDropItemIds() {
 }
 
 /**
- * Empowered bosses only: 10% chance to drop exactly one glyph, chosen uniformly from all glyphs.
+ * Empowered/Ascended bosses: chance to drop exactly one glyph, chosen uniformly from all glyphs.
+ * Empowered 10%; Ascended 15%.
  * @param {() => number} [rng] returns a value in [0, 1)
+ * @param {{ ascended?: boolean }} [options]
  * @returns {string | null}
  */
-export function rollEmpoweredBossGlyphItemId(rng = Math.random) {
+export function rollEmpoweredBossGlyphItemId(rng = Math.random, options = {}) {
+  const chance = options?.ascended
+    ? ASCENDED_BOSS_GLYPH_DROP_CHANCE
+    : EMPOWERED_BOSS_GLYPH_DROP_CHANCE;
   const chanceRoll = typeof rng === "function" ? Number(rng()) : Math.random();
-  if (!(chanceRoll < EMPOWERED_BOSS_GLYPH_DROP_CHANCE)) return null;
+  if (!(chanceRoll < chance)) return null;
   const ids = glyphDropItemIds();
   if (!ids.length) return null;
   const pickRoll = typeof rng === "function" ? Number(rng()) : Math.random();
@@ -375,12 +461,13 @@ export function rollDefenceBuffBonusFromSc(maxSc, params = {}) {
 /**
  * @param {number} level
  * @param {number} maxSc
- * @param {GlyphDef | null | undefined} glyph
+ * @param {GlyphDef | GlyphDef[] | null | undefined} glyph
  * @returns {number}
  */
 export function rollTaoistDefenceBuffBonus(level, maxSc, glyph = null) {
-  if (glyph?.kind === "taoDefenceBuffFromSc") {
-    return rollDefenceBuffBonusFromSc(maxSc, glyph.params);
+  const match = firstGlyphOfKind(glyph, "taoDefenceBuffFromSc");
+  if (match) {
+    return rollDefenceBuffBonusFromSc(maxSc, match.params);
   }
   return rollDefenceBuffBonusFromLevel(level);
 }
@@ -401,8 +488,19 @@ export function applyGlyphGroundDuration(durationMs, spellId, glyph = null) {
 }
 
 /**
+ * Additive gold-drop bonus percent from Glyph of Gold (100 => double gold).
+ * @param {GlyphDef | GlyphDef[] | null | undefined} glyph
+ * @returns {number}
+ */
+export function glyphGoldBonusPercent(glyph = null) {
+  const match = firstGlyphOfKind(glyph, "goldDrops");
+  if (!match) return 0;
+  return Math.max(0, Math.trunc(Number(match.params?.bonusPercent) || 100));
+}
+
+/**
  * @param {number} bonus
- * @param {GlyphDef | null | undefined} glyph
+ * @param {GlyphDef | GlyphDef[] | null | undefined} glyph
  * @returns {number}
  */
 export function applyGlyphProtectionFieldBonus(bonus, glyph = null) {
@@ -415,7 +513,7 @@ export function applyGlyphProtectionFieldBonus(bonus, glyph = null) {
 
 /**
  * @param {number} durationMs
- * @param {GlyphDef | null | undefined} glyph
+ * @param {GlyphDef | GlyphDef[] | null | undefined} glyph
  * @returns {number}
  */
 export function applyGlyphProtectionFieldDuration(durationMs, glyph = null) {
@@ -424,6 +522,18 @@ export function applyGlyphProtectionFieldDuration(durationMs, glyph = null) {
     return Math.max(0, Math.trunc(Number(durationMs) || 0));
   }
   return Math.max(0, Math.trunc(Number(match.params?.durationMs) || 5000));
+}
+
+/**
+ * Which defence stat Protection Field buffs. Magical Protection switches AC → AMC.
+ * @param {GlyphDef | GlyphDef[] | null | undefined} glyph
+ * @returns {"ac" | "amc"}
+ */
+export function glyphProtectionFieldStat(glyph = null) {
+  const match = firstGlyphOfKind(glyph, "warriorProtectionFieldAmc");
+  if (!match) return "ac";
+  const stat = String(match.params?.stat || "amc").toLowerCase();
+  return stat === "amc" ? "amc" : "ac";
 }
 
 /**
@@ -439,11 +549,20 @@ export function glyphPetOwnerDcBonus(ownerMaxDc, glyph = null) {
 }
 
 /**
- * @param {GlyphDef | null | undefined} glyph
+ * @param {GlyphDef | GlyphDef[] | null | undefined} glyph
  * @returns {boolean}
  */
 export function glyphHealingIsInstant(glyph = null) {
   return Boolean(firstGlyphOfKind(glyph, "taoHealingInstant"));
+}
+
+/**
+ * Glyph of Buffing: Ultimate Enhancer also applies Soul Shield + Blessed Armour.
+ * @param {GlyphDef | GlyphDef[] | null | undefined} glyph
+ * @returns {boolean}
+ */
+export function glyphChainsDefenceBuffsWithUltimate(glyph = null) {
+  return Boolean(firstGlyphOfKind(glyph, "taoUltimateBuffChain"));
 }
 
 /**
@@ -460,6 +579,23 @@ export function applyGlyphHealingAmount(amount, spellId, glyph = null) {
   if (String(spellId) !== "Healing") return base;
   const fraction = Math.max(0, Number(match.params?.healFraction) || 0.5);
   return Math.max(0, Math.trunc(base * fraction));
+}
+
+/**
+ * Glyph of Improved Healing Circle: add floor(maxSc / scDivisor) to each tick.
+ * Without the glyph, returns the flat base heal unchanged.
+ * @param {number} baseHeal
+ * @param {number} maxSc
+ * @param {GlyphDef | GlyphDef[] | null | undefined} glyph
+ * @returns {number}
+ */
+export function healingCircleTickHealAmount(baseHeal, maxSc, glyph = null) {
+  const base = Math.max(0, Math.trunc(Number(baseHeal) || 0));
+  const match = firstGlyphOfKind(glyph, "taoHealingCircleFromSc");
+  if (!match) return base;
+  const divisor = Math.max(1, Number(match.params?.scDivisor) || 4);
+  const sc = Math.max(0, Math.trunc(Number(maxSc) || 0));
+  return base + Math.floor(sc / divisor);
 }
 
 /**
@@ -489,6 +625,27 @@ export function glyphPotionTickDelayMs(baseDelayMs, glyph = null, options = {}) 
   if (!options.hpPending || !match) return base;
   const fraction = Math.max(0.1, Math.min(1, Number(match.params?.tickDelayFraction) || 0.75));
   return Math.max(1, Math.round(base * fraction));
+}
+
+/**
+ * Glyph of Critical Strikes: Luck no longer biases damage rolls.
+ * @param {GlyphDef | GlyphDef[] | null | undefined} glyph
+ * @returns {boolean}
+ */
+export function glyphNullifiesLuck(glyph = null) {
+  return Boolean(firstGlyphOfKind(glyph, "criticalStrikes"));
+}
+
+/**
+ * Extra base crit-damage percent points while Glyph of Critical Strikes is equipped.
+ * Stacks on top of {@link CRIT_BASE_DAMAGE_PERCENT} so the base +50% becomes +100%.
+ * @param {GlyphDef | GlyphDef[] | null | undefined} glyph
+ * @returns {number}
+ */
+export function glyphExtraBaseCritDamagePercent(glyph = null) {
+  const match = firstGlyphOfKind(glyph, "criticalStrikes");
+  if (!match) return 0;
+  return Math.max(0, Math.trunc(Number(match.params?.extraBaseCritDamagePercent) || 50));
 }
 
 /**
@@ -599,6 +756,18 @@ export function glyphFlameDisruptorSplashParams(glyph = null) {
 }
 
 /**
+ * @param {GlyphDef | GlyphDef[] | null | undefined} glyph
+ * @returns {{ offsetY: number } | null}
+ */
+export function glyphManyMirrorsParams(glyph = null) {
+  const match = firstGlyphOfKind(glyph, "wizardManyMirrors");
+  if (!match) return null;
+  return {
+    offsetY: Math.max(8, Math.trunc(Number(match.params?.offsetY) || 28)),
+  };
+}
+
+/**
  * @param {number} primaryDamage
  * @param {number} damageFraction
  * @returns {number}
@@ -635,6 +804,65 @@ export function glyphFlamingSwordDrParams(glyph = null) {
     reductionPercent: Math.max(0, Math.min(100, Math.trunc(Number(match.params?.reductionPercent) || 25))),
     durationMs: Math.max(0, Math.trunc(Number(match.params?.durationMs) || 3000)),
   };
+}
+
+/**
+ * @param {GlyphDef | GlyphDef[] | null | undefined} glyph
+ * @returns {{ durationMs: number, damageFraction: number, tickMs: number } | null}
+ */
+export function glyphImprovedFlamingSwordParams(glyph = null) {
+  const match = firstGlyphOfKind(glyph, "warriorImprovedFlamingSword");
+  if (!match) return null;
+  return {
+    durationMs: Math.max(0, Math.trunc(Number(match.params?.durationMs) || 5000)),
+    damageFraction: Math.max(0, Number(match.params?.damageFraction) || 0.5),
+    tickMs: Math.max(1, Math.trunc(Number(match.params?.tickMs) || 1000)),
+  };
+}
+
+/**
+ * Total burn damage from a Flaming Sword hit (50% of dealt damage by default).
+ * @param {number} hitDamage
+ * @param {number} damageFraction
+ * @returns {number}
+ */
+export function flamingSwordBurnTotalDamage(hitDamage, damageFraction) {
+  return Math.max(0, Math.trunc((Number(hitDamage) || 0) * (Number(damageFraction) || 0)));
+}
+
+/**
+ * Build a refreshable burn state for an enemy after an Improved Flaming Sword hit.
+ * @param {number} hitDamage
+ * @param {{ durationMs: number, damageFraction: number, tickMs: number }} params
+ * @param {number} now
+ * @returns {{ remainingDamage: number, ticksRemaining: number, tickMs: number, nextTickAt: number, appliedAt: number } | null}
+ */
+export function buildFlamingSwordBurnState(hitDamage, params, now) {
+  if (!params || params.durationMs <= 0 || params.damageFraction <= 0) return null;
+  const total = flamingSwordBurnTotalDamage(hitDamage, params.damageFraction);
+  if (total <= 0) return null;
+  const tickMs = Math.max(1, Math.trunc(Number(params.tickMs) || 1000));
+  const ticksRemaining = Math.max(1, Math.round(params.durationMs / tickMs));
+  return {
+    remainingDamage: total,
+    ticksRemaining,
+    tickMs,
+    nextTickAt: now + tickMs,
+    appliedAt: now,
+  };
+}
+
+/**
+ * Damage dealt by the next burn tick (last tick takes the remainder).
+ * @param {{ remainingDamage?: number, ticksRemaining?: number } | null | undefined} burn
+ * @returns {number}
+ */
+export function flamingSwordBurnTickDamage(burn) {
+  const remaining = Math.max(0, Math.trunc(Number(burn?.remainingDamage) || 0));
+  const ticks = Math.max(0, Math.trunc(Number(burn?.ticksRemaining) || 0));
+  if (remaining <= 0 || ticks <= 0) return 0;
+  if (ticks === 1) return remaining;
+  return Math.floor(remaining / ticks);
 }
 
 /**

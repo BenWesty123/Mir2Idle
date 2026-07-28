@@ -118,6 +118,7 @@ import {
   cloudRestoreEndpoint,
   cloudSaveEndpointFromConfig,
   createRecoveryCode,
+  normalizeAccountPlayerId,
   normalizeRecoveryCode,
 } from "./core/cloudSave.js";
 import {
@@ -147,6 +148,7 @@ import {
   DEFAULT_SFX_ENABLED,
   DEFAULT_SFX_VOLUME,
   DEFAULT_SHOW_ACTIVITY_LOG,
+  DEFAULT_GROUP_DUNGEON_AUTO_ADVANCE,
   DEFAULT_SHOW_RECENT_LOOT,
   MUSIC_MODE_PLAYLIST,
   MUSIC_MODE_TRACK,
@@ -289,13 +291,19 @@ import {
 } from "./core/craftingCube.js";
 import { ITEM_INTEGRITY_RULES_VERSION } from "./core/itemIntegrityVersion.js";
 import {
+  WIZARD_MIRROR_MANY_EXTRA_STAGGER_MS,
+  WIZARD_MIRROR_MANY_OFFSET_Y,
+  WIZARD_MIRROR_ATTACK_RANGE_TILES,
   WIZARD_MIRROR_REACTION_DELAY_MS,
   WIZARD_MIRROR_UPKEEP_INTERVAL_MS,
   advanceWizardMirrorFollow,
   pickWizardMirrorAttackSpell,
   resolveWizardMirrorUpkeep,
+  scaleWizardMirrorDamage,
+  wizardMirrorAttackRangePx,
   wizardMirrorCastSfxPhase,
   wizardMirrorDurationMs,
+  wizardMirrorManyExtraOffsets,
   wizardMirrorTargetInRange,
 } from "./core/wizardMirror.js";
 import {
@@ -327,20 +335,27 @@ import {
   applyGlyphMonkCombatStats,
   applyGlyphProtectionFieldBonus,
   applyGlyphProtectionFieldDuration,
+  glyphProtectionFieldStat,
   applyGlyphHpPotionRestore,
   applyGlyphTwinDrakeDamage,
   equippedGlyphDefs,
   GLYPH_EQUIPMENT_SLOT_IDS,
   flameDisruptorSplashDamage,
   FLAMING_SWORD_GLYPH_DR_KIND,
+  buildFlamingSwordBurnState,
+  flamingSwordBurnTickDamage,
   glyphBattleWizardParams,
   glyphDescription,
   glyphDefById,
   glyphDefByItemId,
   glyphFlameDisruptorSplashParams,
   glyphFlamingSwordDrParams,
+  glyphImprovedFlamingSwordParams,
+  glyphManyMirrorsParams,
+  glyphGoldBonusPercent,
   glyphCombatDamageParams,
   glyphHealingIsInstant,
+  glyphChainsDefenceBuffsWithUltimate,
   glyphIsHero,
   glyphIsRevival,
   glyphMagicShieldMpParams,
@@ -348,7 +363,10 @@ import {
   glyphMonkParams,
   glyphPetOwnerDcBonus,
   glyphPotionTickDelayMs,
+  glyphExtraBaseCritDamagePercent,
+  glyphNullifiesLuck,
   glyphTwinDrakeCooldownMs,
+  healingCircleTickHealAmount,
   isGlyphItem,
   isWithinMeleeRange,
   rollEmpoweredBossGlyphItemId,
@@ -510,6 +528,18 @@ function timeLoggingUnlocked() {
   return accountUpgradePurchased("rebirth-time-logging")
     || Boolean(state.account?.ownedUnlocks?.[TIME_LOGGING_UNLOCK_KEY]);
 }
+// Group Dungeon Auto Advance: checkbox next to the floor-advance button in
+// multi-stage group dungeons (BDD, Hell Cavern, …). Key + cost mirror
+// UNLOCK_TOKEN_COSTS in tools/stats-worker/worker.js.
+const GROUP_DUNGEON_AUTO_ADVANCE_UNLOCK_KEY = "group-dungeon-auto-advance";
+const GROUP_DUNGEON_AUTO_ADVANCE_TOKEN_COST = 200;
+function groupDungeonAutoAdvanceUnlocked() {
+  return Boolean(state.account?.ownedUnlocks?.[GROUP_DUNGEON_AUTO_ADVANCE_UNLOCK_KEY]);
+}
+function groupDungeonAutoAdvanceEnabled() {
+  return groupDungeonAutoAdvanceUnlocked() && state.settings.groupDungeonAutoAdvance === true;
+}
+let groupDungeonAutoAdvancing = false;
 // Spirit Box: rebirth-only utility that holds one inventory entry across rebirth.
 // Storing costs Awakening Souls (local) or tokens (server spend key below).
 const SPIRIT_BOX_SOUL_COST = 100;
@@ -737,6 +767,8 @@ const HOTBAR_SLOT_COUNT = 6;
 const BASE_AUTOCAST_SLOTS = 1;
 const BASE_AUTO_POTION_SLOTS = 2;
 const BASE_SKILL_EXPERIENCE_GAIN_MAX = 3;
+/** Flat skill XP granted when using a book for a spell that is already learned. */
+const DUPLICATE_SKILL_BOOK_EXPERIENCE = 200;
 const ACCOUNT_UPGRADE_SECTIONS = [
   {
     id: "normal",
@@ -1161,7 +1193,7 @@ const ACCOUNT_UPGRADE_DEFS = [
     value: 1,
     rebirthCosts: [100],
     requiresUpgradeId: "boss-empowerment",
-    summary: "Unlock ascended boss fights (requires Boss Empowerment). Each attempt costs 300,000 gold for 3× HP, damage, and drops, plus a higher empowered-item drop chance.",
+    summary: "Unlock ascended boss fights (requires Boss Empowerment). Each attempt costs 300,000 gold for 3× HP, damage, and drops, a higher empowered-item drop chance, and a 15% glyph drop chance.",
   },
   {
     id: "rebirth-empowered-crafting",
@@ -1370,6 +1402,7 @@ const MAP_LIGHTNING_MAX_INTERVAL_MS = 5000;
 const MAP_LIGHTNING_EFFECT_MS = 600;
 const MAP_LIGHTNING_HIT_DELAY_MS = 500;
 const MAP_HELL_FIRE_FX_ID = "MapHellFire";
+const MAP_QUAKE_FX_ID = "MapQuake";
 // Crystal Map.Process: FireTime/LightningTime += Random(3000, 15000).
 const MAP_HELL_FIRE_MIN_INTERVAL_MS = 3000;
 const MAP_HELL_FIRE_MAX_INTERVAL_MS = 15000;
@@ -1963,10 +1996,8 @@ const TELEPORT_REGIONS = [
       "zone-red-cavern-1",
       "zone-red-cavern-2",
       "zone-red-cavern-kr",
+      // Hell Cavern entrance only — Ice Hell (4–7) and Fire Hell (8–10) via Advance.
       "zone-hell-gd-1",
-      "zone-fire-hell-gd-1",
-      "zone-fire-hell-gd-2",
-      "zone-fire-hell-gd-3",
     ],
   },
   {
@@ -1994,7 +2025,7 @@ const TOWN_VISUALS = {
 };
 
 const MAP_STAMP_ASSET_VERSION = "20260726-fire-hell-kr-middle-up";
-const MONSTER_ASSET_VERSION = "20260726-hell-lord-struck-body";
+const MONSTER_ASSET_VERSION = "20260726-hell-knight-die-explode";
 const HELL_BOLT_MONSTER_INDEX = 219;
 const HELL_BOLT_TEMPLATE_ID = 429;
 const WITCH_DOCTOR_MONSTER_INDEX = 220;
@@ -2005,6 +2036,8 @@ const MANECTRIC_CLAW_MONSTER_INDEX = 223;
 const MANECTRIC_CLAW_TEMPLATE_ID = 420;
 const HELL_BOMB_TEMPLATE_IDS = new Set([437, 438, 439]);
 const HELL_BOMB_MONSTER_INDICES = new Set([2471, 2472, 2473]);
+const HELL_KNIGHT_TEMPLATE_IDS = new Set([433, 434, 435, 436]);
+const HELL_KNIGHT_MONSTER_INDICES = new Set([243, 244, 245, 246]);
 const HELL_BOMB_EXPLODE_IMPACT_MS = 500;
 const HELL_KEEPER_ACTION_MS = 300;
 const HELL_KEEPER_ATTACK_ANIM_MS = 800;
@@ -3209,6 +3242,7 @@ const state = {
     sfxVolume: DEFAULT_SFX_VOLUME,
     showRecentLoot: DEFAULT_SHOW_RECENT_LOOT,
     showActivityLog: DEFAULT_SHOW_ACTIVITY_LOG,
+    groupDungeonAutoAdvance: DEFAULT_GROUP_DUNGEON_AUTO_ADVANCE,
     autoPotionHpThreshold: DEFAULT_AUTO_POTION_HP_THRESHOLD,
     autoPotionMpThreshold: DEFAULT_AUTO_POTION_MP_THRESHOLD,
     autoPotionThresholdsByCharacter: createDefaultAutoPotionThresholdsByCharacter(),
@@ -3797,6 +3831,24 @@ function gameShellHtml() {
               </button>
               <button
                 type="button"
+                id="compactAdvanceFloor"
+                class="stage-corner-button compact-advance-floor-button"
+                aria-label="Advance to next floor"
+                title="Advance to next floor"
+                hidden
+              >
+                <span aria-hidden="true">Next</span>
+              </button>
+              <label
+                id="compactGroupDungeonAutoAdvance"
+                class="compact-auto-advance"
+                hidden
+              >
+                <input type="checkbox" id="compactGroupDungeonAutoAdvanceInput" />
+                Auto
+              </label>
+              <button
+                type="button"
                 id="teleportRingButton"
                 class="stage-corner-button teleport-ring-button"
                 data-open-scene="teleportRing"
@@ -3936,6 +3988,9 @@ const els = {
   hudChromeToggle: document.querySelector("#hudChromeToggle"),
   compactMenuToggle: document.querySelector("#compactMenuToggle"),
   compactReturnToTown: document.querySelector("#compactReturnToTown"),
+  compactAdvanceFloor: document.querySelector("#compactAdvanceFloor"),
+  compactGroupDungeonAutoAdvance: document.querySelector("#compactGroupDungeonAutoAdvance"),
+  compactGroupDungeonAutoAdvanceInput: document.querySelector("#compactGroupDungeonAutoAdvanceInput"),
   gameTopActions: document.querySelector("#gameTopActions"),
   playerResourceHud: document.querySelector("#playerResourceHud"),
   timedEnrageHud: document.querySelector("#timedEnrageHud"),
@@ -4048,10 +4103,12 @@ async function init() {
   );
   state.mapLightningAtlas = await loadJson(`./public/spellfx/${MAP_LIGHTNING_FX_ID}/atlas.json`).catch(() => null);
   state.mapHellFireAtlas = await loadJson(`./public/spellfx/${MAP_HELL_FIRE_FX_ID}/atlas.json`).catch(() => null);
+  state.mapQuakeAtlas = await loadJson(`./public/spellfx/${MAP_QUAKE_FX_ID}/atlas.json`).catch(() => null);
   if (state.townIdleTeleportAtlas) await preloadSpellAtlasSheets(TOWN_IDLE_TELEPORT_FX_ID, state.townIdleTeleportAtlas);
   if (state.townIdleReviveAtlas) await preloadSpellAtlasSheets(REVIVE_FX_ID, state.townIdleReviveAtlas);
   if (state.mapLightningAtlas) await preloadSpellAtlasSheets(MAP_LIGHTNING_FX_ID, state.mapLightningAtlas);
   if (state.mapHellFireAtlas) await preloadSpellAtlasSheets(MAP_HELL_FIRE_FX_ID, state.mapHellFireAtlas);
+  if (state.mapQuakeAtlas) await preloadSpellAtlasSheets(MAP_QUAKE_FX_ID, state.mapQuakeAtlas);
   state.townNpcAtlases = await loadTownNpcAtlases();
   state.characterStateItems = {
     ...CHARACTER_PAPER_DOLL_FRAMES,
@@ -4205,6 +4262,17 @@ function installTestHarness() {
       return {
         owned: timeLoggingUnlocked(),
         buttonHidden: document.getElementById("timeLoggingButton")?.hidden ?? null,
+      };
+    },
+    grantGroupDungeonAutoAdvance() {
+      markUnlockOwned(GROUP_DUNGEON_AUTO_ADVANCE_UNLOCK_KEY);
+      applyOwnedUnlocks();
+      gamePanelSignature = "";
+      gamePanelDynamicSignature = "";
+      renderGameUiPanel();
+      return {
+        owned: groupDungeonAutoAdvanceUnlocked(),
+        autoAdvance: state.settings.groupDungeonAutoAdvance === true,
       };
     },
     grantSpiritBox() {
@@ -4508,6 +4576,7 @@ function createSaveSnapshot() {
       sfxVolume: normalizedVolume(state.settings.sfxVolume),
       showRecentLoot: state.settings.showRecentLoot !== false,
       showActivityLog: state.settings.showActivityLog !== false,
+      groupDungeonAutoAdvance: state.settings.groupDungeonAutoAdvance === true,
       autoPotionThresholdsByCharacter: sanitizeAutoPotionThresholdsByCharacter(
         state.settings.autoPotionThresholdsByCharacter,
         state.settings.autoPotionHpThreshold,
@@ -5427,6 +5496,7 @@ function sanitizeOwnedUnlocks(owned) {
     TELEPORT_RING_UNLOCK_KEY,
     ORGANISATION_SKILLS_UNLOCK_KEY,
     TIME_LOGGING_UNLOCK_KEY,
+    GROUP_DUNGEON_AUTO_ADVANCE_UNLOCK_KEY,
     ...CHARACTER_IDS.map((classId) => inventoryPageUnlockKey(classId)),
   ]);
   const result = {};
@@ -6950,6 +7020,22 @@ function rebaseOfflineTransientTimers(simulatedNow, actualNow = performance.now(
       actualNow,
       WIZARD_MIRROR_UPKEEP_INTERVAL_MS,
     );
+    for (const extra of state.battle.wizardMirror.extras ?? []) {
+      extra.nextActionAt = rebaseTransientTimestamp(
+        extra.nextActionAt,
+        simulatedNow,
+        actualNow,
+        5000,
+      );
+      if (extra.pendingImpact) {
+        extra.pendingImpact.at = rebaseTransientTimestamp(
+          extra.pendingImpact.at,
+          simulatedNow,
+          actualNow,
+          2000,
+        );
+      }
+    }
   }
   if (state.battle.pendingPetAttack) {
     state.battle.pendingPetAttack.at = rebaseTransientTimestamp(
@@ -7263,6 +7349,9 @@ function offlineWarriorAttack(enemy, now) {
   }
   consumeOutgoingCritFlag();
   applyOfflineEnemyDamage(enemy, scaled, now, learned ? "magic" : "physical");
+  if (skill.id === "FlamingSword" && enemy.hp > 0) {
+    maybeApplyImprovedFlamingSwordBurn(enemy, scaled, state.inventory, now);
+  }
   if (learned) levelWarriorMagic(skill, learned, now);
   levelPassiveWeaponMagic(now);
   rollSlayingChargeAfterAttack(now);
@@ -7279,7 +7368,7 @@ function offlineMagicAttack(enemy, now, statKey, multiplier = 1) {
     enemy,
     player[statKey] ?? player.dc,
     enemyMagicalDefence(enemy),
-    player.luck,
+    combatLuck(player),
     multiplier,
   );
   if (hit) applyOfflineEnemyDamage(enemy, damage, now, "magic");
@@ -7360,7 +7449,7 @@ function offlineWizardWeaponAttack(enemy, now) {
     enemy.agility,
     battle.player.dc,
     enemyPhysicalDefence(enemy),
-    battle.player.luck,
+    combatLuck(battle.player),
   );
   if (hit) applyOfflineEnemyDamage(enemy, applyCritToOutgoingDamage(damage, battle.player), now);
 }
@@ -7534,7 +7623,7 @@ function offlineTaoistWeaponAttack(enemy, now) {
     enemy.agility,
     effectiveCombatStats(battle.player).dc,
     enemyPhysicalDefence(enemy),
-    battle.player.luck,
+    combatLuck(battle.player),
   );
   if (hit) applyOfflineEnemyDamage(enemy, applyCritToOutgoingDamage(damage, battle.player), now);
   levelPassiveWeaponMagic(now);
@@ -7972,6 +8061,14 @@ function setShowActivityLog(enabled) {
   renderSceneOverlay();
 }
 
+function setGroupDungeonAutoAdvance(enabled) {
+  state.settings.groupDungeonAutoAdvance = Boolean(enabled);
+  saveGameState(true);
+  gamePanelDynamicSignature = "";
+  renderGameUiPanel();
+  maybeAutoAdvanceGroupDungeonFloor();
+}
+
 function optionsAutoPotionClassId() {
   const selected = String(state.optionsAutoPotionClassId ?? "");
   if (CHARACTER_IDS.includes(selected)) return selected;
@@ -8032,6 +8129,34 @@ function loadPrototypeStatsPlayerId() {
   } catch {
     return `anon-${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 10)}`;
   }
+}
+
+// Persist the account-scoped Social identity. Used when cloud restore (or a
+// cloud save response) returns the canonical playerId bound to the recovery code.
+function storePrototypeStatsPlayerId(playerId) {
+  const normalized = normalizeAccountPlayerId(playerId);
+  if (!normalized) return false;
+  state.prototypeStats.playerId = normalized;
+  state.prototypeStats.alias = "";
+  state.prototypeStats.aliasInput = "";
+  state.prototypeStats.aliasLoaded = false;
+  state.prototypeStats.aliasStatus = "";
+  state.prototypeStats.aliasError = "";
+  try {
+    localStorage.setItem(STATS_PLAYER_ID_KEY, normalized);
+  } catch (err) {
+    console.warn("Unable to persist social player id", err);
+  }
+  return true;
+}
+
+function adoptCloudAccountPlayerId(playerId) {
+  const normalized = normalizeAccountPlayerId(playerId);
+  if (!normalized) return false;
+  if (normalizeAccountPlayerId(state.prototypeStats.playerId) === normalized) return false;
+  if (!storePrototypeStatsPlayerId(normalized)) return false;
+  void fetchPlayerAlias();
+  return true;
 }
 
 function prototypeStatsPlayerLabel(playerId = state.prototypeStats.playerId) {
@@ -8359,11 +8484,16 @@ async function uploadCloudSave(reason = "manual") {
     const response = await fetch(state.cloudSave.endpoint, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ recoveryCode: state.cloudSave.recoveryCode, save: snapshot }),
+      body: JSON.stringify({
+        recoveryCode: state.cloudSave.recoveryCode,
+        playerId: state.prototypeStats.playerId,
+        save: snapshot,
+      }),
     });
     const body = await response.json().catch(() => ({}));
     if (!response.ok) throw new Error(body.error || `HTTP ${response.status}`);
     storeCloudSavedAt(parseCloudServerTime(body.savedAt) || Date.now());
+    adoptCloudAccountPlayerId(body.playerId);
     setCloudSaveStatus("Cloud save updated.");
     return true;
   } catch (err) {
@@ -8412,6 +8542,7 @@ async function findCloudSaveForRestore(code) {
       recoveryCode: normalized,
       savedAt: parseCloudServerTime(body.savedAt),
       snapshot: parsed.snapshot,
+      playerId: normalizeAccountPlayerId(body.playerId),
     };
     setCloudSaveStatus("Backup found. Confirm below to replace this browser's progress.");
     return true;
@@ -8434,6 +8565,7 @@ async function confirmCloudSaveRestore() {
   if (!restored) return false;
   storeCloudRecoveryCode(pending.recoveryCode);
   storeCloudSavedAt(pending.savedAt || Date.now());
+  adoptCloudAccountPlayerId(pending.playerId);
   state.cloudSave.pendingRestore = null;
   state.cloudSave.restoreCodeInput = "";
   state.cloudSave.lastAttemptAt = performance.now();
@@ -9341,6 +9473,7 @@ function resetRuntimeGameState() {
   state.settings.sfxVolume = DEFAULT_SFX_VOLUME;
   state.settings.showRecentLoot = DEFAULT_SHOW_RECENT_LOOT;
   state.settings.showActivityLog = DEFAULT_SHOW_ACTIVITY_LOG;
+  state.settings.groupDungeonAutoAdvance = DEFAULT_GROUP_DUNGEON_AUTO_ADVANCE;
   state.settings.autoPotionHpThreshold = DEFAULT_AUTO_POTION_HP_THRESHOLD;
   state.settings.autoPotionMpThreshold = DEFAULT_AUTO_POTION_MP_THRESHOLD;
   state.settings.autoPotionThresholdsByCharacter = createDefaultAutoPotionThresholdsByCharacter();
@@ -15006,7 +15139,9 @@ function equippedSkillLevelBonusPercent(inventory = state.inventory) {
 }
 
 function totalGoldBonusPercent(inventory = state.inventory) {
-  return rebirthGoldBonusPercent() + equippedBonusFromStats(inventory, "goldBonusPercent");
+  return rebirthGoldBonusPercent()
+    + equippedBonusFromStats(inventory, "goldBonusPercent")
+    + glyphGoldBonusPercent(equippedGlyphFor(inventory));
 }
 
 function totalDropChanceBonusPercent(inventory = state.inventory) {
@@ -15230,6 +15365,68 @@ function activeWizardAutoSpell() {
   return activeWizardAutoSpells()[0] ?? null;
 }
 
+function duplicateSkillBookStudyStatus(spell, learned) {
+  if (!spell || !learned) return { ok: false, reason: "unlearned" };
+  if (learned.level >= 3) {
+    return { ok: false, reason: "mastered", message: `${spell.label} is already mastered.` };
+  }
+  const requiredLevel = spellLevelRequirement(spell, learned.level);
+  if (state.game.progress.level < requiredLevel) {
+    return {
+      ok: false,
+      reason: "levelCap",
+      requiredLevel,
+      message: `Need character level ${requiredLevel} to train ${spell.label} further.`,
+    };
+  }
+  const need = spellExperienceTarget(spell, learned.level);
+  if (!need) {
+    return { ok: false, reason: "mastered", message: `${spell.label} is already mastered.` };
+  }
+  return { ok: true, need, requiredLevel };
+}
+
+function studyLearnedSpellFromBook(entry, item, spell, learned) {
+  const requirement = itemRequirementStatus(item);
+  if (!requirement.ok) {
+    pushBattleLog(`Cannot study ${spell.label}: ${requirement.reason}.`);
+    return false;
+  }
+  const status = duplicateSkillBookStudyStatus(spell, learned);
+  if (!status.ok) {
+    pushBattleLog(status.message ?? `${spell.label} cannot gain skill experience right now.`);
+    return false;
+  }
+
+  learned.experience += DUPLICATE_SKILL_BOOK_EXPERIENCE;
+  removeInventoryEntry(entry.id, 1);
+  playSfx("item.move", { volume: 0.44, throttleMs: 80 });
+
+  if (learned.experience >= status.need) {
+    learned.level += 1;
+    learned.experience = 0;
+    pushBattleLog(`${spell.label} reached level ${learned.level}.`);
+    addLootNotice(`${spell.label} Lv ${learned.level}`, "level");
+    if (spell.id === "Fencing" || spell.id === "SpiritSword") applyEquippedStatsToBattlePlayer();
+  } else {
+    pushBattleLog(`Studied ${spell.label} (+${DUPLICATE_SKILL_BOOK_EXPERIENCE} skill XP).`);
+    addLootNotice(`+${DUPLICATE_SKILL_BOOK_EXPERIENCE} ${spell.label} XP`, "level");
+  }
+
+  if (bossPartyOnField()) {
+    syncBossPartyControlledMemberFromState();
+  }
+  state.characterTab = "skill";
+  sceneSignature = "";
+  battlePanelSignature = "";
+  combatSkillBarSignature = "";
+  renderSceneOverlay();
+  renderBattlePanel();
+  renderCombatSkillBar();
+  renderGamePanel();
+  return true;
+}
+
 function learnSpellFromBook(entryId) {
   const entry = inventoryEntryById(entryId);
   const item = entry ? itemDefinition(entry.itemId) : null;
@@ -15239,9 +15436,9 @@ function learnSpellFromBook(entryId) {
     pushBattleLog(`${item.name} does not map to a known spell yet.`);
     return false;
   }
-  if (learnedMagic(spell.id)) {
-    pushBattleLog(`${spell.label} is already learned.`);
-    return false;
+  const learned = learnedMagic(spell.id);
+  if (learned) {
+    return studyLearnedSpellFromBook(entry, item, spell, learned);
   }
   const requirement = itemRequirementStatus(item);
   if (!requirement.ok) {
@@ -17862,6 +18059,63 @@ function tickEnemyPoisonState(enemy, now, options = {}) {
   return { changed, killed: enemy.hp <= 0 };
 }
 
+function maybeApplyImprovedFlamingSwordBurn(enemy, hitDamage, entityOrInventory, now) {
+  if (!enemy || enemy.hp <= 0) return false;
+  const params = glyphImprovedFlamingSwordParams(equippedGlyphFor(entityOrInventory));
+  if (!params) return false;
+  const burn = buildFlamingSwordBurnState(hitDamage, params, now);
+  if (!burn) return false;
+  enemy.flamingSwordBurn = burn;
+  if (enemy.swarmId != null) syncBattleEnemyRuntimeToSwarm();
+  if (!suppressSimulationRender) {
+    pushBattleLog(`${enemy.name} burns from Improved Flaming Sword.`);
+  }
+  return true;
+}
+
+function tickEnemyFlamingSwordBurn(enemy, now, options = {}) {
+  const burn = enemy?.flamingSwordBurn;
+  if (!enemy || enemy.hp <= 0 || !burn) {
+    if (enemy) enemy.flamingSwordBurn = null;
+    return { changed: false, killed: false };
+  }
+
+  burn.tickMs = Math.max(1, Math.trunc(Number(burn.tickMs) || 1000));
+  burn.nextTickAt = Number(burn.nextTickAt) || now + burn.tickMs;
+  burn.ticksRemaining = Math.max(0, Math.trunc(Number(burn.ticksRemaining) || 0));
+  burn.remainingDamage = Math.max(0, Math.trunc(Number(burn.remainingDamage) || 0));
+
+  let changed = false;
+  const swarmEnemy = enemy.swarmId ? findGroupDungeonSwarmEnemy(enemy.swarmId) : null;
+  const eventContext = swarmEnemy ? { enemy, swarmEnemy } : { enemy };
+  let steps = 0;
+
+  while (enemy.hp > 0 && burn.ticksRemaining > 0 && burn.remainingDamage > 0 && now >= burn.nextTickAt && steps < 20) {
+    const tickAt = burn.nextTickAt;
+    const damage = flamingSwordBurnTickDamage(burn);
+    burn.nextTickAt += burn.tickMs;
+    burn.ticksRemaining -= 1;
+    burn.remainingDamage = Math.max(0, burn.remainingDamage - damage);
+    steps += 1;
+    changed = true;
+    if (damage > 0) {
+      applyCombatEvents([enemyDamageEvent(damage, { kind: "magic" })], now, eventContext);
+      if (!options.offline && !suppressSimulationRender) {
+        if (swarmEnemy) addSwarmEnemyCombatText(swarmEnemy, damage, "burn", tickAt);
+        else addCombatText("enemy", damage, "burn", tickAt);
+      }
+    }
+  }
+
+  if (steps >= 20 && burn.ticksRemaining > 0 && burn.remainingDamage > 0) {
+    burn.nextTickAt = now + burn.tickMs;
+  }
+  if (!(burn.ticksRemaining > 0 && burn.remainingDamage > 0 && enemy.hp > 0)) {
+    enemy.flamingSwordBurn = null;
+  }
+  return { changed, killed: enemy.hp <= 0 };
+}
+
 function updateEnemyPoisons(now, options = {}) {
   if (groupDungeonSwarmSideActive()) {
     const swarm = state.battle.swarm;
@@ -17869,12 +18123,22 @@ function updateEnemyPoisons(now, options = {}) {
     let anyChanged = false;
     for (const swarmEnemy of swarm.enemies) {
       if (swarmEnemy.dying || swarmEnemy.hp <= 0) continue;
-      if (!Array.isArray(swarmEnemy.poisons) || !swarmEnemy.poisons.length) continue;
+      const hasPoison = Array.isArray(swarmEnemy.poisons) && swarmEnemy.poisons.length > 0;
+      const hasBurn = Boolean(swarmEnemy.flamingSwordBurn);
+      if (!hasPoison && !hasBurn) continue;
       const entity = swarmEnemyToBattleEntity(swarmEnemy);
-      const result = tickEnemyPoisonState(entity, now, options);
-      if (!result.changed) continue;
+      const poisonResult = hasPoison
+        ? tickEnemyPoisonState(entity, now, options)
+        : { changed: false, killed: false };
+      const burnResult = hasBurn || entity.flamingSwordBurn
+        ? tickEnemyFlamingSwordBurn(entity, now, options)
+        : { changed: false, killed: false };
+      swarmEnemy.poisons = entity.poisons;
+      swarmEnemy.flamingSwordBurn = entity.flamingSwordBurn;
+      swarmEnemy.hp = entity.hp;
+      if (!poisonResult.changed && !burnResult.changed) continue;
       anyChanged = true;
-      if (result.killed && !options.offline && !suppressSimulationRender) {
+      if ((poisonResult.killed || burnResult.killed) && !options.offline && !suppressSimulationRender) {
         maybeKillGroupDungeonSwarmEnemy(entity, now);
       }
     }
@@ -17888,17 +18152,22 @@ function updateEnemyPoisons(now, options = {}) {
 
   const battle = state.battle;
   const enemy = battle.enemy;
-  const result = tickEnemyPoisonState(enemy, now, options);
-  if (!result.changed) return false;
+  const poisonResult = tickEnemyPoisonState(enemy, now, options);
+  const burnResult = tickEnemyFlamingSwordBurn(enemy, now, options);
+  if (!poisonResult.changed && !burnResult.changed) return false;
 
   battlePanelSignature = "";
   playerHudSignature = "";
 
-  if (result.killed && !options.offline && !suppressSimulationRender) {
+  if ((poisonResult.killed || burnResult.killed) && !options.offline && !suppressSimulationRender) {
     finishEnemy(now);
     setEnemyAction("die", false, now);
     playMonsterSfx("death");
-    pushBattleLog(`${enemy.name} is defeated by poison.`);
+    pushBattleLog(
+      burnResult.killed && !poisonResult.killed
+        ? `${enemy.name} is defeated by burn.`
+        : `${enemy.name} is defeated by poison.`,
+    );
   }
 
   return true;
@@ -18490,6 +18759,7 @@ function renderGameUiPanel() {
   const zone = activeZone();
   document.body.dataset.gameMode = game.mode;
   syncCompactReturnToTownButton();
+  syncCompactGroupDungeonAdvanceControls();
   const hasBossSwarmPanel = game.mode !== "mining" && Boolean(groupDungeonBossSwarmZone(zone) && groupDungeonBossSwarmState());
   const hasWavePanel = game.mode !== "mining" && Boolean(groupDungeonZone(zone) && !groupDungeonBossZone(zone) && !groupDungeonBossSwarmZone(zone) && groupDungeonWaveState());
   // Layout only depends on mode/zone — wave/swarm cards live in a always-present
@@ -18569,9 +18839,11 @@ function renderGameUiPanel() {
     log: state.battle.log,
     showRecentLoot: state.settings.showRecentLoot !== false,
     showActivityLog: state.settings.showActivityLog !== false,
+    groupDungeonAutoAdvance: state.settings.groupDungeonAutoAdvance === true,
     bossParty: bossPartySignature(),
     groupDungeonWaves: groupDungeonWaveSignature(),
     groupDungeonBossSwarm: groupDungeonBossSwarmSignature(),
+    groupDungeonAutoAdvanceOwned: groupDungeonAutoAdvanceUnlocked(),
   });
   if (dynamicSignature === gamePanelDynamicSignature) return;
   // Defer interactive button HTML swaps while the pointer is down on them.
@@ -18597,6 +18869,7 @@ function renderGameUiPanel() {
   setGamePanelHtml("[data-game-ui-recent-loot]", gameSideRecentLootHtml());
   setGamePanelHtml("[data-game-ui-activity-log]", activityLogHtml());
   renderBossDamageReport();
+  maybeAutoAdvanceGroupDungeonFloor();
 }
 
 function testLevelUpCharacter() {
@@ -21667,6 +21940,8 @@ function crystalStatusValueHtml(row, stats) {
 }
 
 function characterStatusValue(key, stats) {
+  const glyphs = equippedGlyphFor(state.inventory);
+  const baseCritDamage = CRIT_BASE_DAMAGE_PERCENT + glyphExtraBaseCritDamagePercent(glyphs);
   const values = {
     hp: `${stats.hp ?? stats.maxHp}/${stats.maxHp}`,
     mp: `${stats.mp ?? stats.maxMp}/${stats.maxMp}`,
@@ -21676,11 +21951,11 @@ function characterStatusValue(key, stats) {
     mc: formatStatRange(stats.mc),
     sc: formatStatRange(stats.sc),
     critRate: `${clampCritChancePercent(stats.critChancePercent)}%`,
-    critDamage: `${100 + CRIT_BASE_DAMAGE_PERCENT + Math.max(0, Math.trunc(Number(stats.critDamagePercent) || 0))}%`,
+    critDamage: `${100 + baseCritDamage + Math.max(0, Math.trunc(Number(stats.critDamagePercent) || 0))}%`,
     attackSpeed: characterAttackSpeedLabel(),
     accuracy: `+${stats.accuracy}`,
     agility: `+${stats.agility}`,
-    luck: String(stats.luck),
+    luck: String(glyphNullifiesLuck(glyphs) ? 0 : stats.luck),
   };
   return values[key] ?? "";
 }
@@ -21755,6 +22030,18 @@ function confirmTimeLoggingPurchase() {
     pushBattleLog("Time Logging unlocked - tap the XP/h button at the top-right to see your XP per hour.");
     playSfx("ui.gold", { volume: 0.55, throttleMs: 80 });
     syncTimeLoggingButton();
+    saveGameState(true);
+  });
+}
+
+function confirmGroupDungeonAutoAdvancePurchase() {
+  if (groupDungeonAutoAdvanceUnlocked() || state.tokens.buying) return;
+  purchasePageUnlock(GROUP_DUNGEON_AUTO_ADVANCE_UNLOCK_KEY, () => {
+    pushBattleLog("Group Dungeon Auto Advance unlocked - tick Auto advance next to the Advance button in multi-stage dungeons.");
+    playSfx("ui.gold", { volume: 0.55, throttleMs: 80 });
+    gamePanelSignature = "";
+    gamePanelDynamicSignature = "";
+    renderGameUiPanel();
     saveGameState(true);
   });
 }
@@ -22050,6 +22337,13 @@ function cashShopSceneHtml() {
     : `<button type="button" class="primary" data-buy-unlock="${TIME_LOGGING_UNLOCK_KEY}" ${tokens.buying || !timeLoggingAffordable ? "disabled" : ""}>
           ${tokens.buying ? "Purchasing..." : `Buy for ${TIME_LOGGING_TOKEN_COST} tokens`}
         </button>${timeLoggingAffordable ? "" : `<small class="cash-shop-need">Need ${TIME_LOGGING_TOKEN_COST} tokens</small>`}`;
+  const autoAdvanceOwned = groupDungeonAutoAdvanceUnlocked();
+  const autoAdvanceAffordable = balanceValue >= GROUP_DUNGEON_AUTO_ADVANCE_TOKEN_COST;
+  const autoAdvanceButtonHtml = autoAdvanceOwned
+    ? `<button type="button" class="cash-shop-owned" disabled>Owned</button>`
+    : `<button type="button" class="primary" data-buy-unlock="${GROUP_DUNGEON_AUTO_ADVANCE_UNLOCK_KEY}" ${tokens.buying || !autoAdvanceAffordable ? "disabled" : ""}>
+          ${tokens.buying ? "Purchasing..." : `Buy for ${GROUP_DUNGEON_AUTO_ADVANCE_TOKEN_COST} tokens`}
+        </button>${autoAdvanceAffordable ? "" : `<small class="cash-shop-need">Need ${GROUP_DUNGEON_AUTO_ADVANCE_TOKEN_COST} tokens</small>`}`;
   const spendHtml = `
       <div class="cash-shop-spend">
         <h3>Spend tokens</h3>
@@ -22081,6 +22375,13 @@ function cashShopSceneHtml() {
             <small>Lets gems and orbs stack in your inventory. Also available in the Rebirth shop for rebirth points.</small>
           </div>
           <div class="cash-shop-item-buy">${orgButtonHtml}</div>
+        </div>
+        <div class="cash-shop-item">
+          <div class="cash-shop-item-info">
+            <strong>Group Dungeon Auto Advance</strong>
+            <small>Adds an Auto advance checkbox next to the Advance button in multi-stage group dungeons (Black Dragon Dungeon, Hell Cavern, and future ones).</small>
+          </div>
+          <div class="cash-shop-item-buy">${autoAdvanceButtonHtml}</div>
         </div>
       </div>
   `;
@@ -24260,8 +24561,21 @@ function itemSpellTooltipHtml(item) {
   const spell = magicSpellByShape(item.spell?.shape) ?? magicSpellById(item.spell?.id);
   if (!spell) return `<span>Teaches: unknown spell #${escapeHtml(item.spell?.shape ?? item.spell?.id ?? "")}</span>`;
   const learned = learnedMagic(spell.id);
+  let learnedNote = "";
+  if (learned) {
+    const study = duplicateSkillBookStudyStatus(spell, learned);
+    if (study.ok) {
+      learnedNote = ` (learned — use for +${DUPLICATE_SKILL_BOOK_EXPERIENCE} skill XP)`;
+    } else if (study.reason === "mastered") {
+      learnedNote = " (learned — mastered)";
+    } else if (study.reason === "levelCap") {
+      learnedNote = ` (learned — need Lv ${study.requiredLevel} to train)`;
+    } else {
+      learnedNote = " (learned)";
+    }
+  }
   return `
-    <span>Teaches: ${escapeHtml(spell.label)}${learned ? " (learned)" : ""}</span>
+    <span>Teaches: ${escapeHtml(spell.label)}${escapeHtml(learnedNote)}</span>
     <span>${escapeHtml(spell.description ?? "")}</span>
   `;
 }
@@ -24787,7 +25101,7 @@ function returnToTown() {
   state.groupDungeonEmpowerTier = 0;
   state.battle.groundSpellEffects = [];
   state.battle.greatFoxSpiritEffects = [];
-  if (state.battle.enemy) state.battle.enemy.poisons = [];
+  if (state.battle.enemy) { state.battle.enemy.poisons = []; state.battle.enemy.flamingSwordBurn = null; }
   state.battle.nextPlayerAttackAt = 0;
   state.battle.nextEnemyAttackAt = 0;
   state.battle.furyUntil = 0;
@@ -25035,7 +25349,9 @@ function spawnGroupDungeonBossSwarmEnemy(now = performance.now()) {
 function spawnPendingGroupDungeonBossSwarmEnemies(now = performance.now()) {
   const bossSwarm = groupDungeonBossSwarmState();
   if (!bossSwarm || bossSwarm.complete) return;
-  if (groupDungeonBossRespawnRemainingMs(activeZone()) > 0) return;
+  // Cooldown blocks a fresh encounter, but must not stop timed reinforcements
+  // mid-fight after a partial kill starts the respawn timer.
+  if (groupDungeonBossRespawnRemainingMs(activeZone()) > 0 && bossSwarm.spawned === 0) return;
   if (bossSwarm.waitingForRespawn) {
     bossSwarm.waitingForRespawn = false;
     bossSwarm.fightStartAt = now;
@@ -25113,6 +25429,7 @@ function finishGroupDungeonBossSwarmEncounter(now = performance.now()) {
   battlePanelSignature = "";
   sceneSignature = "";
   saveGameState(true);
+  maybeAutoAdvanceGroupDungeonFloor();
 }
 
 function finishGroupDungeonBossSwarmIfReady(now = performance.now()) {
@@ -25169,41 +25486,56 @@ function groupDungeonNextFloorZone(zone = activeZone()) {
   return candidates[0].entry;
 }
 
+function groupDungeonCanAdvanceFloor(zone = activeZone(), party = state.battle.bossParty) {
+  // Allow advancing both while active (wave/boss-swarm floors) and after a boss floor has
+  // finished (victory state, party.active === false), but never once the run is defeated.
+  if (!groupDungeonZone(zone) || party?.defeated || (!party?.active && !party?.finished)) return false;
+  const isBossSwarm = groupDungeonBossSwarmZone(zone);
+  const isBossFloor = groupDungeonBossZone(zone);
+  if (isBossSwarm) {
+    if (!groupDungeonBossSwarmState()?.complete && !groupDungeonBossCanSkipFloor(zone, party)) return false;
+  } else if (isBossFloor && !party.finished) {
+    if (!groupDungeonBossCanSkipFloor(zone, party)) return false;
+  } else if (!isBossFloor) {
+    const waves = groupDungeonWaveState();
+    if (!waves?.endless) return false;
+  }
+  return Boolean(groupDungeonNextFloorZone(zone));
+}
+
 function groupDungeonAdvanceButtonHtml() {
   const zone = activeZone();
   const party = state.battle.bossParty;
-  // Allow advancing both while active (wave/boss-swarm floors) and after a boss floor has
-  // finished (victory state, party.active === false), but never once the run is defeated.
   if (!groupDungeonZone(zone) || party?.defeated || (!party?.active && !party?.finished)) return "";
-  const isBossSwarm = groupDungeonBossSwarmZone(zone);
-  const isBossFloor = groupDungeonBossZone(zone);
-  if (isBossSwarm) {
-    if (!groupDungeonBossSwarmState()?.complete && !groupDungeonBossCanSkipFloor(zone, party)) return "";
-  } else if (isBossFloor && !party.finished) {
-    if (!groupDungeonBossCanSkipFloor(zone, party)) return "";
-  } else if (!isBossFloor) {
-    const waves = groupDungeonWaveState();
-    if (!waves?.endless) return "";
-  }
   const nextZone = groupDungeonNextFloorZone(zone);
   if (!nextZone) return "";
-  return `<button class="primary game-wide-button" type="button" data-advance-group-dungeon-floor>Advance to ${escapeHtml(nextZone.label)}</button>`;
+  const parts = [];
+  if (groupDungeonAutoAdvanceUnlocked()) {
+    parts.push(`<label class="game-auto-advance">
+      <input type="checkbox" data-toggle-group-dungeon-auto-advance ${state.settings.groupDungeonAutoAdvance ? "checked" : ""} />
+      Auto advance
+    </label>`);
+  }
+  if (groupDungeonCanAdvanceFloor(zone, party)) {
+    parts.push(`<button class="primary game-wide-button" type="button" data-advance-group-dungeon-floor>Advance to ${escapeHtml(nextZone.label)}</button>`);
+  }
+  return parts.join("");
 }
 
-async function advanceGroupDungeonFloor() {
+function maybeAutoAdvanceGroupDungeonFloor() {
+  if (groupDungeonAutoAdvancing) return;
+  if (!groupDungeonAutoAdvanceEnabled()) return;
+  if (!groupDungeonCanAdvanceFloor()) return;
+  groupDungeonAutoAdvancing = true;
+  void advanceGroupDungeonFloor({ auto: true }).finally(() => {
+    groupDungeonAutoAdvancing = false;
+  });
+}
+
+async function advanceGroupDungeonFloor({ auto = false } = {}) {
   const zone = activeZone();
   const party = state.battle.bossParty;
-  if (!groupDungeonZone(zone) || party?.defeated || (!party?.active && !party?.finished)) return;
-  const isBossSwarm = groupDungeonBossSwarmZone(zone);
-  const isBossFloor = groupDungeonBossZone(zone);
-  if (isBossSwarm) {
-    if (!groupDungeonBossSwarmState()?.complete && !groupDungeonBossCanSkipFloor(zone, party)) return;
-  } else if (isBossFloor && !party.finished) {
-    if (!groupDungeonBossCanSkipFloor(zone, party)) return;
-  } else if (!isBossFloor) {
-    const waves = groupDungeonWaveState();
-    if (!waves?.endless) return;
-  }
+  if (!groupDungeonCanAdvanceFloor(zone, party)) return;
   const nextZone = groupDungeonNextFloorZone(zone);
   if (!nextZone) {
     pushBattleLog("The next floor is not ready yet.");
@@ -25216,7 +25548,8 @@ async function advanceGroupDungeonFloor() {
   const assistIds = bossPartyMemberClassIds(party).filter((classId) => classId !== state.activeCharacterId);
   state.pendingBossAssistSelection = assistIds;
   const isNextBossRoom = groupDungeonBossZone(nextZone) || groupDungeonBossSwarmZone(nextZone);
-  if (isNextBossRoom) {
+  // Manual advance into a boss floor still shows the entry confirm; auto-advance skips it.
+  if (isNextBossRoom && !(auto && groupDungeonAutoAdvanceEnabled())) {
     state.bossEntryZoneId = nextZone.id;
     state.bossEntryFromGroupDungeonAdvance = true;
     state.activeScene = "bossEntry";
@@ -25672,6 +26005,7 @@ function continueGroupDungeonEndlessWaves(now = performance.now()) {
   }
   startGroupDungeonWave(now);
   invalidateGroupDungeonWaveUi();
+  maybeAutoAdvanceGroupDungeonFloor();
 }
 
 function groupDungeonWaveStatusText(waves) {
@@ -26120,6 +26454,7 @@ function swarmEnemyToBattleEntity(swarmEnemy) {
     enrageStage: swarmEnemy.enrageStage,
     _enrageStagesTriggered: swarmEnemy._enrageStagesTriggered,
     poisons: swarmEnemy.poisons,
+    flamingSwordBurn: swarmEnemy.flamingSwordBurn ?? null,
     debuffs: swarmEnemy.debuffs,
     swarmId: swarmEnemy.id,
   };
@@ -26311,6 +26646,7 @@ function syncBattleEnemyRuntimeToSwarm() {
   swarmEnemy.hp = Math.max(0, Number(battleEnemy.hp) || 0);
   if (Number.isFinite(Number(battleEnemy.mp))) swarmEnemy.mp = battleEnemy.mp;
   swarmEnemy.poisons = battleEnemy.poisons;
+  swarmEnemy.flamingSwordBurn = battleEnemy.flamingSwordBurn ?? null;
   swarmEnemy.debuffs = battleEnemy.debuffs;
   swarmEnemy.enrageUntil = battleEnemy.enrageUntil;
   swarmEnemy.enrageStage = battleEnemy.enrageStage;
@@ -26671,7 +27007,9 @@ function updateGroupDungeonSwarmEnemyFrame(enemy, now) {
     if (nextFrame >= clip.frames.length) {
       if (enemy.action === "die") {
         enemy.frame = clip.frames.length - 1;
-        enemy.removeAt = now + 120;
+        // Crystal HellKnight: Remove() on Dead after short die; keep corpse until explode FX ends.
+        const fxUntil = hellKnightDieEffectUntil(enemy, now);
+        enemy.removeAt = fxUntil != null ? Math.max(now + 80, fxUntil) : now + 120;
       } else if (enemy.hp > 0) {
         if (enemy.stepToX != null && swarmIsWalkAction(enemy.action)) {
           completeSwarmEnemyStep(enemy, now);
@@ -26747,7 +27085,16 @@ function onGroupDungeonSwarmEnemyKilled(swarmEnemy, now = performance.now()) {
       state.battle.enemy = savedEnemy;
     }
     addLootNotice(`${swarmEnemy.name} defeated`, "boss");
-    if (bossSwarm) bossSwarm.killed += 1;
+    if (bossSwarm) {
+      bossSwarm.killed += 1;
+      // Start the room cooldown on the first swarm boss kill so leaving after a
+      // partial clear (e.g. one Devourer) cannot re-enter immediately. Kill credit
+      // / achievements still wait for a full clear via setBossRespawn.
+      const zone = activeZone();
+      if (zone?.id && groupDungeonBossRespawnMinutes(zone) > 0 && startBossRespawnTimer(zone.id)) {
+        saveGameState(true);
+      }
+    }
   } else {
     awardGroupDungeonSwarmKill(swarmEnemy, now);
     noteGroupDungeonKillPace(now);
@@ -26773,6 +27120,12 @@ function onGroupDungeonSwarmEnemyKilled(swarmEnemy, now = performance.now()) {
     return;
   }
   setSwarmEnemyAction(swarmEnemy, "die", true, now);
+  // Crystal HellKnight Die: Effect(lib, 448, 10, 600) then Remove() on Dead (no corpse).
+  if (isHellKnightSwarmEnemy(swarmEnemy) && swarmEnemy.atlas?.dieEffect?.frames?.length) {
+    swarmEnemy.dieEffectStartedAt = now;
+    const fxUntil = hellKnightDieEffectUntil(swarmEnemy, now);
+    if (fxUntil != null) swarmEnemy.removeAt = fxUntil + 80;
+  }
   playMonsterSfx("death", swarmEnemy);
   pushBattleLog(`${swarmEnemy.name} is defeated.`);
   const waves = groupDungeonWaveState();
@@ -27190,6 +27543,30 @@ function isHellBombSwarmEnemy(swarmEnemy) {
   return HELL_BOMB_TEMPLATE_IDS.has(templateId)
     || HELL_BOMB_MONSTER_INDICES.has(monsterIndex)
     || /^HellBomb\d*$/i.test(String(swarmEnemy?.crystalName || ""));
+}
+
+function isHellKnightSwarmEnemy(swarmEnemy) {
+  const templateId = Math.trunc(Number(swarmEnemy?.templateId) || 0);
+  const monsterIndex = Math.trunc(Number(swarmEnemy?.monsterIndex) || 0);
+  return HELL_KNIGHT_TEMPLATE_IDS.has(templateId)
+    || HELL_KNIGHT_MONSTER_INDICES.has(monsterIndex)
+    || /^HellKnight\d*$/i.test(String(swarmEnemy?.crystalName || ""));
+}
+
+/** Crystal HellKnight Die Effect(lib, 448, 10, 600) end time. */
+function hellKnightDieEffectUntil(enemy, now = performance.now()) {
+  if (!isHellKnightSwarmEnemy(enemy) && !HELL_KNIGHT_MONSTER_INDICES.has(Math.trunc(Number(enemy?.index) || 0))) {
+    return null;
+  }
+  const started = Number(enemy?.dieEffectStartedAt);
+  if (!Number.isFinite(started)) return null;
+  const fx = enemy?.atlas?.dieEffect;
+  if (!fx?.frames?.length) return null;
+  const duration = Math.max(
+    1,
+    Math.trunc(Number(fx.durationMs) || (fx.frames.length * Math.max(1, Number(fx.interval) || 60))),
+  );
+  return started + duration;
 }
 
 function beginHellBombSwarmAttack(swarmEnemy, now) {
@@ -27632,8 +28009,8 @@ function bossRespawnReadyAt(zoneId) {
   return Math.max(0, Math.trunc(Number(accountBossRespawns()[zoneId]) || 0));
 }
 
-function setBossRespawn(zoneId, defeatedAt = Date.now()) {
-  if (!zoneTracksBossRespawn(zoneId)) return;
+function writeBossRespawnReadyAt(zoneId, defeatedAt = Date.now()) {
+  if (!zoneTracksBossRespawn(zoneId)) return false;
   let defeatTime = Math.max(0, Math.trunc(Number(defeatedAt) || Date.now()));
   // Boss-swarm finish passes performance.now(); respawn checks use Date.now().
   if (defeatTime < 1_000_000_000_000) defeatTime = Date.now();
@@ -27643,6 +28020,17 @@ function setBossRespawn(zoneId, defeatedAt = Date.now()) {
     [zoneId]: readyAt,
   };
   syncAccountBossRespawnsToCharacters();
+  return true;
+}
+
+/** Start the room timer without counting a boss kill (partial swarm clear). */
+function startBossRespawnTimer(zoneId, defeatedAt = Date.now()) {
+  if (bossRespawnRemainingMs(zoneId) > 0) return false;
+  return writeBossRespawnReadyAt(zoneId, defeatedAt);
+}
+
+function setBossRespawn(zoneId, defeatedAt = Date.now()) {
+  if (!writeBossRespawnReadyAt(zoneId, defeatedAt)) return;
   incrementAccountBossKill(zoneId);
 }
 
@@ -28816,6 +29204,7 @@ function bindControls() {
       if (buyUnlockButton.dataset.buyUnlock === TELEPORT_RING_UNLOCK_KEY) confirmTeleportRingPurchase();
       else if (buyUnlockButton.dataset.buyUnlock === ORGANISATION_SKILLS_UNLOCK_KEY) confirmOrganisationSkillsPurchase();
       else if (buyUnlockButton.dataset.buyUnlock === TIME_LOGGING_UNLOCK_KEY) confirmTimeLoggingPurchase();
+      else if (buyUnlockButton.dataset.buyUnlock === GROUP_DUNGEON_AUTO_ADVANCE_UNLOCK_KEY) confirmGroupDungeonAutoAdvancePurchase();
       return;
     }
     const buySubscriptionButton = event.target.closest("[data-buy-subscription]");
@@ -29013,6 +29402,13 @@ function bindControls() {
     const autoPotionMpInput = event.target.closest("[data-auto-potion-mp]");
     if (autoPotionMpInput && root.contains(autoPotionMpInput)) {
       setAutoPotionThreshold("mp", Number(autoPotionMpInput.value) / 100);
+    }
+  });
+  root.addEventListener("change", (event) => {
+    const autoAdvanceToggle = event.target.closest("[data-toggle-group-dungeon-auto-advance]");
+    if (autoAdvanceToggle && root.contains(autoAdvanceToggle)) {
+      setGroupDungeonAutoAdvance(Boolean(autoAdvanceToggle.checked));
+      playSfx("ui.button", { volume: 0.35, throttleMs: 80 });
     }
   });
   root.addEventListener("change", (event) => {
@@ -30878,7 +31274,7 @@ function bossPartyWarriorAction(member, now) {
       : learned
         ? rollWarriorMagicDamage(attackSkill, learned, member, enemy, member.inventory)
         : applyCritToOutgoingDamage(
-          rollDamage(effectiveCombatStats(member).dc, enemyPhysicalDefence(enemy), member.luck),
+          rollDamage(effectiveCombatStats(member).dc, enemyPhysicalDefence(enemy), combatLuck(member)),
           member,
           null,
           member.inventory,
@@ -30887,6 +31283,9 @@ function bossPartyWarriorAction(member, now) {
   }, "physical", now, (damage, crit) => {
     if (learned) bossPartyLevelMagicSkill(member, attackSkill, learned, now);
     bossPartyLevelPassiveWeaponMagic(member, now);
+    if (usingFlamingSword && enemy.hp > 0) {
+      maybeApplyImprovedFlamingSwordBurn(enemy, damage, member, now);
+    }
     if (usingTwinDrake && enemy.hp > 0) queueTwinDrakeSecondHit(member, learned, twinDrakeRawDamage, now, crit);
     if (usingSweepAttack && learned) bossPartySweepSplash(member, attackSkill, learned, enemy, now);
   }, learned ? attackSkill : null);
@@ -31360,7 +31759,7 @@ function bossPartyWeaponAttack(member, now) {
   bossPartyControlledVisual(member, BASIC_ATTACK_SKILL, BASIC_ATTACK_SKILL.bodyAction, now);
   playWeaponSwingSfx({ ...bossPartySfxParams(member, 0.52, 90), family: bossPartyWeaponSfxFamily(member, "swing") });
   return bossPartyAttackEnemy(member, "Attack", () => applyCritToOutgoingDamage(
-    rollDamage(effectiveCombatStats(member).dc, enemyPhysicalDefence(state.battle.enemy), member.luck),
+    rollDamage(effectiveCombatStats(member).dc, enemyPhysicalDefence(state.battle.enemy), combatLuck(member)),
     member,
     null,
     member.inventory,
@@ -31700,6 +32099,7 @@ function bossPartyCastUltimateEnhancer(member, castBundle, now) {
     soundPlayed: member.classId !== bossPartyControlledClassId(),
   });
   pushBattleLog(formatUltimateEnhancerAppliedLog(castBundle.spell, member.classId, applied, applied.durationMs));
+  presentGlyphBuffingChain(applied.glyphBuffChain, now);
   return true;
 }
 
@@ -35761,6 +36161,7 @@ function finishBossPartyEnemy(now) {
   battlePanelSignature = "";
   sceneSignature = "";
   saveGameState(true);
+  maybeAutoAdvanceGroupDungeonFloor();
 }
 
 function finishBossPartyDefeat(now) {
@@ -35886,9 +36287,9 @@ function rollBossTableDrops(dropTable, awardItem, inventory = state.inventory) {
     if (soul) awardItem(soul, added, ignored);
   }
 
-  // Glyphs: empowered bosses only. One 10% roll, then one random glyph from the full pool.
+  // Glyphs: empowered 10% / ascended 15%. One roll, then one random glyph from the full pool.
   if (empowered) {
-    const glyphId = rollEmpoweredBossGlyphItemId();
+    const glyphId = rollEmpoweredBossGlyphItemId(Math.random, { ascended });
     if (glyphId) {
       const glyph = itemDefinition(glyphId);
       if (glyph) awardItem(glyph, added, ignored);
@@ -37387,6 +37788,9 @@ function warriorApplyPhysicalHit(skill, learned, damage, now, crit = consumeOutg
   if (skill.id === "TwinDrakeBlade" || skill.id === "FlamingSword" || skill.id === "None") playWeaponHitSfx();
   else if (!playSpellSfx(skill.id, "impact", { volume: 0.48 })) playWeaponHitSfx();
   applyCombatEvents(physicalAttackHitEvents(attackerLabel, enemy.name, scaled, "enemy", critDamageKind(crit)), now, { enemy });
+  if (skill.id === "FlamingSword" && enemy.hp > 0) {
+    maybeApplyImprovedFlamingSwordBurn(enemy, scaled, state.inventory, now);
+  }
   if (enemy.hp > 0) applyCrystalFreezingAttackProc(battle.player, enemy, now);
   if (learned) levelWarriorMagic(skill, learned, now);
   levelPassiveWeaponMagic(now);
@@ -38434,10 +38838,11 @@ function applyCritToOutgoingDamage(damage, attacker, spellId = null, inventory =
     chance += equippedSpellCritChanceBonusPercent(spellId, inventory);
     critDamage += equippedSpellCritDamageBonusPercent(spellId, inventory);
   }
+  const glyphInventory = attacker?.inventory ?? inventory;
+  const glyph = equippedGlyphFor(glyphInventory);
+  critDamage += glyphExtraBaseCritDamagePercent(glyph);
   const result = applyOutgoingCrit(damage, chance, critDamage, randomInt);
   lastOutgoingCritFlag = result.crit;
-  const glyphInventory = attacker?.inventory ?? inventory;
-  const glyph = equippedGlyphDefs(glyphInventory, itemDefinition);
   const withTradeoff = applyGlyphCombatDamageOutgoing(result.damage, glyph);
   return applyGlyphBattleWizardOutgoing(
     withTradeoff,
@@ -39085,13 +39490,15 @@ function healingCircleCanHealEntity(entity) {
 function applyHealingCircleTickAllies(effect, now, options = {}) {
   const spell = combatGroundSpell(effect.spellId);
   if (spell?.id !== "HealingCircle") return false;
+  const amount = healingCircleTickAmountForEffect(effect);
+  if (amount <= 0) return false;
   let healed = false;
   for (const { entity } of healingCircleAllyTargets()) {
     if (!healingCircleCanHealEntity(entity)) continue;
-    if (!queueEntityHealingRestore(entity, HEALING_CIRCLE_HEAL_PER_TICK, now)) continue;
+    if (!queueEntityHealingRestore(entity, amount, now)) continue;
     healed = true;
     if (!options.offline && !suppressSimulationRender) {
-      showEntityQueuedHealText(entity, HEALING_CIRCLE_HEAL_PER_TICK, now);
+      showEntityQueuedHealText(entity, amount, now);
       queueEntityHealRestoreFx(entity, spell, now, {
         casterClassId: effect.casterClassId ?? null,
         startAt: now,
@@ -39100,6 +39507,22 @@ function applyHealingCircleTickAllies(effect, now, options = {}) {
     }
   }
   return healed;
+}
+
+function healingCircleCasterEntity(effect = null) {
+  const classId = effect?.casterClassId ?? null;
+  if (classId && state.battle.bossParty?.active) {
+    return state.battle.bossParty.members?.find((member) => member.classId === classId) ?? null;
+  }
+  return state.battle.player;
+}
+
+function healingCircleTickAmountForEffect(effect = null) {
+  const caster = healingCircleCasterEntity(effect);
+  const glyph = equippedGlyphFor(caster);
+  const stats = combatantForMagicRoll(caster);
+  const [, maxSc] = statRange(stats?.sc ?? [0, 0]);
+  return healingCircleTickHealAmount(HEALING_CIRCLE_HEAL_PER_TICK, maxSc, glyph);
 }
 
 function poisonCandidateForEntries(enemy, entries, now = performance.now()) {
@@ -39230,7 +39653,7 @@ function crystalMagicMultiplier(skill, learned) {
 }
 
 function crystalMagicDamageBeforeDefence(skill, learned, player) {
-  const attack = rollStat(player.mc ?? player.dc, player.luck);
+  const attack = rollStat(player.mc ?? player.dc, combatLuck(player));
   return Math.trunc((attack + crystalMagicPower(skill, learned)) * crystalMagicMultiplier(skill, learned));
 }
 
@@ -39428,6 +39851,14 @@ function warriorMaxAcForProtectionField(entity) {
   return ac[1];
 }
 
+function warriorMaxAmcForProtectionField(entity) {
+  const ac = [...statRange(entity?.ac ?? [0, 0])];
+  const amc = Array.isArray(entity?.amc) ? [...statRange(entity.amc)] : [...ac];
+  const buffs = pruneStatBuffs(entityStatBuffList(entity)).filter((buff) => buff.kind !== PROTECTION_FIELD_BUFF_KIND);
+  applyStatBuffsToStats({ ac, amc }, buffs);
+  return amc[1];
+}
+
 function warriorDefenseStatsForImmortalSkin(entity) {
   const dc = [...statRange(entity?.dc ?? [0, 0])];
   const ac = [...statRange(entity?.ac ?? [0, 0])];
@@ -39470,12 +39901,13 @@ function pushFuryBuff(buffList, skillLabel, bonus, expiresAt) {
   return list;
 }
 
-function pushProtectionFieldBuff(buffList, skill, bonus, expiresAt) {
+function pushProtectionFieldBuff(buffList, skill, bonus, expiresAt, stat = "ac") {
   const list = Array.isArray(buffList) ? buffList.filter((buff) => buff.kind !== PROTECTION_FIELD_BUFF_KIND) : [];
+  const buffStat = stat === "amc" ? "amc" : "ac";
   list.push({
     kind: PROTECTION_FIELD_BUFF_KIND,
     label: skill.label,
-    stat: "ac",
+    stat: buffStat,
     minBonus: bonus,
     maxBonus: bonus,
     expiresAt,
@@ -39581,8 +40013,12 @@ function applyRageBuffEffect(skill, learned, entity, now) {
 
 function applyProtectionFieldBuffEffect(skill, learned, entity, now) {
   const glyph = equippedGlyphFor(entity);
+  const buffStat = glyphProtectionFieldStat(glyph);
+  const baseStatMax = buffStat === "amc"
+    ? warriorMaxAmcForProtectionField(entity)
+    : warriorMaxAcForProtectionField(entity);
   const bonus = applyGlyphProtectionFieldBonus(
-    protectionFieldAcBonus(warriorMaxAcForProtectionField(entity), learned),
+    protectionFieldAcBonus(baseStatMax, learned),
     glyph,
   );
   if (bonus <= 0) {
@@ -39590,11 +40026,11 @@ function applyProtectionFieldBuffEffect(skill, learned, entity, now) {
     return false;
   }
   const durationMs = applyGlyphProtectionFieldDuration(protectionFieldDurationMs(learned), glyph);
-  const nextBuffs = pushProtectionFieldBuff(entityStatBuffList(entity), skill, bonus, now + durationMs);
+  const nextBuffs = pushProtectionFieldBuff(entityStatBuffList(entity), skill, bonus, now + durationMs, buffStat);
   setEntityStatBuffList(entity, nextBuffs);
   syncWarriorBuffStateFromEntity(entity, nextBuffs);
   applyEquippedStatsToBattlePlayer();
-  const bonusText = statBuffBonusLabel({ stat: "ac", minBonus: bonus, maxBonus: bonus });
+  const bonusText = statBuffBonusLabel({ stat: buffStat, minBonus: bonus, maxBonus: bonus });
   pushBattleLog(`${skill.label} adds ${bonusText} for ${formatBuffRemaining(durationMs)}.`);
   if (!entity?.classId || entity.classId === bossPartyControlledClassId()) {
     addCombatText("player", `${skill.label} ${bonusText}`, "buff", now);
@@ -39851,7 +40287,7 @@ function wizardWeaponAttack(now, failedSpell = null) {
     battle.enemy.agility,
     battle.player.dc,
     enemyPhysicalDefence(battle.enemy),
-    battle.player.luck,
+    combatLuck(battle.player),
   );
   if (!swing.hit || swing.damage <= 0) {
     applyCombatEvents(weaponSwingMissEvents("Wizard", weaponName, battle.enemy.name), now, { enemy: battle.enemy });
@@ -40397,11 +40833,12 @@ function combatantIsTaoist(entity) {
 }
 
 function effectiveCombatStats(entity) {
+  const glyphs = equippedGlyphFor(entity);
   const stats = {
     dc: [...statRange(entity?.dc)],
     mc: [...statRange(entity?.mc)],
     sc: [...statRange(entity?.sc)],
-    luck: entity?.luck ?? 0,
+    luck: glyphNullifiesLuck(glyphs) ? 0 : (entity?.luck ?? 0),
   };
   applyStatBuffsToStats(stats, pruneStatBuffs(entityStatBuffList(entity)));
   // Group / boss-party: pets fall back to the controlled inventory for glyphs; do not
@@ -40409,13 +40846,20 @@ function effectiveCombatStats(entity) {
   if (combatantIsTaoist(entity)) {
     const monk = applyGlyphMonkCombatStats(
       stats,
-      equippedGlyphFor(entity),
+      glyphs,
       taoistHasLivingSummonedPet(),
     );
     stats.dc = monk.dc;
     stats.sc = monk.sc;
   }
   return stats;
+}
+
+/** Luck used for damage rolls — 0 while Glyph of Critical Strikes is equipped. */
+function combatLuck(entity, inventory = null) {
+  const glyphs = inventory != null ? equippedGlyphFor(inventory) : equippedGlyphFor(entity);
+  if (glyphNullifiesLuck(glyphs)) return 0;
+  return Math.trunc(Number(entity?.luck) || 0);
 }
 
 function combatantForMagicRoll(entity) {
@@ -40450,12 +40894,15 @@ function applyTaoistDefenceBuffEffect(spell, learned, caster, now, options = {})
   return applyDefenceBuffEffect(spell, learned, caster, now, options);
 }
 
-function applyTaoistPartyDefenceBuffToTargets(spell, learned, caster, now, options = {}) {
+function applyTaoistDefenceBuffToTargetList(spell, learned, caster, targets, now, options = {}) {
+  if (!spell || !Array.isArray(targets) || !targets.length) return null;
   const bonus = rollTaoistDefenceBuffBonusForCaster(caster);
   const durationMs = rollTaoistDefenceBuffDurationMs(learned, caster);
   const expiresAt = now + durationMs;
   const results = [];
-  for (const { entity, name } of taoistPartyDefenceBuffTargets(now)) {
+  for (const entry of targets) {
+    const entity = entry?.entity ?? entry;
+    const name = entry?.name ?? entity?.name ?? entity?.classId ?? "ally";
     if (!entity || entity.hp <= 0) continue;
     const nextBuffs = pushDefenceBuff(entityStatBuffList(entity), spell, bonus, expiresAt, learned);
     setEntityStatBuffList(entity, nextBuffs);
@@ -40469,7 +40916,67 @@ function applyTaoistPartyDefenceBuffToTargets(spell, learned, caster, now, optio
   }
   if (!results.length) return null;
   if (learned && options.levelSkill !== false) levelMagicSkill(spell, learned, now);
-  return { bonus, durationMs, reductionPercent: 0, results };
+  return { spell, bonus, durationMs, reductionPercent: 0, results };
+}
+
+function applyTaoistPartyDefenceBuffToTargets(spell, learned, caster, now, options = {}) {
+  return applyTaoistDefenceBuffToTargetList(
+    spell,
+    learned,
+    caster,
+    taoistPartyDefenceBuffTargets(now),
+    now,
+    options,
+  );
+}
+
+function learnedTaoistSpellForCaster(caster, spellId) {
+  if (caster?.classId && state.battle.bossParty?.active) {
+    const member = resolveBossPartyMember(caster) ?? caster;
+    return bossPartyLearned(member, spellId);
+  }
+  return learnedMagic(spellId);
+}
+
+/**
+ * Glyph of Buffing: when Ultimate Enhancer lands, also apply Soul Shield + Blessed Armour
+ * to the same targets (no extra amulet/MP, does not level those skills).
+ */
+function applyGlyphBuffingChainFromUltimate(caster, targets, now, options = {}) {
+  if (!glyphChainsDefenceBuffsWithUltimate(equippedGlyphFor(caster))) return null;
+  if (!Array.isArray(targets) || !targets.length) return null;
+  const chain = [];
+  for (const spellId of ["SoulShield", "BlessedArmour"]) {
+    const spell = taoistCombatSpell(spellId);
+    if (!spell) continue;
+    const learned = learnedTaoistSpellForCaster(caster, spellId);
+    const applied = applyTaoistDefenceBuffToTargetList(spell, learned, caster, targets, now, {
+      levelSkill: false,
+    });
+    if (applied) chain.push(applied);
+  }
+  return chain.length ? chain : null;
+}
+
+function presentGlyphBuffingChain(chain, now, options = {}) {
+  if (!chain?.length || options.offline || suppressSimulationRender) return;
+  for (const applied of chain) {
+    showTaoistDefenceBuffTexts(applied.spell, applied.bonus, applied, now);
+    let soundPlayed = true;
+    for (const entry of applied.results ?? []) {
+      if (!entry.entity || entry.entity.hp <= 0) continue;
+      const impactOptions = ultimateEnhancerImpactFxOptions(entry.entity);
+      queueDefenceBuffImpactFx(applied.spell, impactOptions.anchor ?? null, now, {
+        ...impactOptions,
+        soundPlayed,
+      });
+      soundPlayed = true;
+    }
+  }
+  const labels = chain.map((entry) => entry.spell?.label).filter(Boolean);
+  if (labels.length) {
+    pushBattleLog(`Glyph of Buffing also applies ${labels.join(" and ")}.`);
+  }
 }
 
 function formatTaoistDefenceBuffAppliedLog(spell, bonus, applied, durationMs) {
@@ -40709,7 +41216,8 @@ function applyUltimateEnhancerToTargets(spell, learned, caster, targets, now, op
   }
   if (!results.length) return null;
   if (learned && options.levelSkill !== false) levelMagicSkill(spell, learned, now);
-  return { bonus, durationMs, results };
+  const glyphBuffChain = applyGlyphBuffingChainFromUltimate(caster, results, now, options);
+  return { bonus, durationMs, results, glyphBuffChain };
 }
 
 function formatUltimateEnhancerAppliedLog(spell, casterLabel, applied, durationMs) {
@@ -40754,6 +41262,7 @@ function updatePendingUltimateEnhancer(now, options = {}) {
     showUltimateEnhancerBuffTexts(applied, now);
     queueUltimateEnhancerImpactFx(spell, applied, now);
     pushBattleLog(formatUltimateEnhancerAppliedLog(spell, state.battle.combatClass, applied, applied.durationMs));
+    presentGlyphBuffingChain(applied.glyphBuffChain, now, options);
   }
   playerHudSignature = "";
   battlePanelSignature = "";
@@ -42603,9 +43112,31 @@ function wizardMirrorActive() {
   return Boolean(battle.wizardMirror?.active || battle.pendingWizardMirror);
 }
 
+function createWizardMirrorExtra(spec, now) {
+  return {
+    id: spec.id,
+    offsetY: Math.trunc(Number(spec.offsetY) || 0),
+    nextActionAt: now + 800 + (Number(spec.staggerMs) || 0),
+    pendingImpact: null,
+    fxSpellId: null,
+    fxStartedAt: 0,
+    fxUntil: 0,
+    visualAction: "stance",
+    visualFrame: 0,
+    visualOneShot: false,
+    visualLastTick: now,
+    visualUntil: 0,
+  };
+}
+
 function createWizardMirror(spellLevel, now = performance.now(), options = {}) {
   const worldX = wizardMirrorFollowWorldX();
-  return {
+  const inventory = options.inventory
+    ?? (bossPartyOnField()
+      ? bossPartyMemberByClassId(options.ownerClassId ?? "Wizard")?.inventory
+      : state.inventory);
+  const manyParams = glyphManyMirrorsParams(equippedGlyphFor(inventory));
+  const mirror = {
     active: true,
     spellId: "Mirroring",
     spellLevel: Math.max(0, Math.min(3, Math.trunc(Number(spellLevel) || 0))),
@@ -42634,7 +43165,17 @@ function createWizardMirror(spellLevel, now = performance.now(), options = {}) {
     visualOneShot: false,
     visualLastTick: now,
     visualUntil: 0,
+    manyMirrors: Boolean(manyParams),
+    extras: [],
   };
+  if (manyParams) {
+    const offsets = wizardMirrorManyExtraOffsets(manyParams.offsetY || WIZARD_MIRROR_MANY_OFFSET_Y);
+    mirror.extras = offsets.map((entry, index) => createWizardMirrorExtra({
+      ...entry,
+      staggerMs: (index + 1) * WIZARD_MIRROR_MANY_EXTRA_STAGGER_MS,
+    }, now));
+  }
+  return mirror;
 }
 
 function wizardMirrorOwner(mirror = state.battle.wizardMirror) {
@@ -42664,6 +43205,14 @@ function wizardMirrorSpellUnlocked(owner, spellId) {
 function wizardMirrorCombatOriginWorldX(mirror = state.battle.wizardMirror) {
   const owner = wizardMirrorOwner(mirror);
   return Number(owner?.worldX ?? state.battle.playerX) || 0;
+}
+
+function wizardMirrorEffectiveAttackRangePx() {
+  if (!bossPartyOnField()) return WIZARD_MIRROR_ATTACK_RANGE_TILES * LANE_TILE_PX;
+  return wizardMirrorAttackRangePx(LANE_TILE_PX, {
+    formationDepthPx: bossPartyMemberLineSlot("Wizard") * LANE_TILE_PX,
+    enemyMeleeGapPx: bossPartyEnemyMeleeGap(),
+  });
 }
 
 function updateWizardMirrorFollow(mirror, owner, now) {
@@ -42709,10 +43258,11 @@ function updateWizardMirrorFollow(mirror, owner, now) {
   return result.moving;
 }
 
-function wizardMirrorPickAttackSpell(owner, enemy) {
+function wizardMirrorPickAttackSpell(owner, enemy, mirror = state.battle.wizardMirror) {
   const spellId = pickWizardMirrorAttackSpell({
     enemyUndead: Boolean(enemy?.undead),
     flameDisruptorLearned: wizardMirrorSpellUnlocked(owner, "FlameDisruptor"),
+    fireballOnly: Boolean(mirror?.manyMirrors),
   });
   return wizardCombatSpell(spellId);
 }
@@ -42722,7 +43272,65 @@ function wizardMirrorAttackLearned(owner, spellId) {
   if (learned) return learned;
   // Crystal's HumanWizard always casts a level-three Thunder Bolt. Keep that
   // innate fallback even when a deliberately unusual save has not learned it.
-  return spellId === "ThunderBolt" ? { level: 3, castReadyAt: 0 } : null;
+  // Many Mirrors clones are Fire Ball only — same innate fallback rank.
+  if (spellId === "ThunderBolt" || spellId === "FireBall") {
+    return { level: 3, castReadyAt: 0 };
+  }
+  return null;
+}
+
+function wizardMirrorBeginCastVisual(body, spellId, now, untilAt = now + 600) {
+  const spell = wizardCombatSpell(spellId);
+  const atlas = state.wizardSpellAtlases[spellId] ?? null;
+  const impactAt = spell && atlas ? now + wizardImpactDelay(spell, atlas) : untilAt;
+  const layerEnd = Math.max(0, ...(atlas?.layers ?? []).map(
+    (layer) => (layer.delayMs ?? 0) + layer.frames.length * layer.interval,
+  ));
+  const effectEnd = spell?.impactMode === "projectile"
+    ? (impactAt - now) + (spell.impactFlashMs ?? 250)
+    : layerEnd;
+  body.fxSpellId = spellId;
+  body.fxStartedAt = now;
+  body.fxUntil = now + Math.max(600, layerEnd, effectEnd);
+  body.visualAction = "spell";
+  body.visualFrame = 0;
+  body.visualOneShot = true;
+  body.visualLastTick = now;
+  body.visualUntil = Math.max(now + 600, Number(untilAt) || 0);
+}
+
+function updateWizardMirrorBodyVisual(body, now, { moving = false, followAction = "stance" } = {}) {
+  if (body.fxSpellId && now >= (body.fxUntil ?? 0)) body.fxSpellId = null;
+  if (body.visualOneShot && now >= (body.visualUntil ?? 0)) {
+    body.visualAction = "stance";
+    body.visualFrame = 0;
+    body.visualOneShot = false;
+    body.visualLastTick = now;
+    body.visualUntil = 0;
+  }
+  if (!body.visualOneShot) {
+    const desiredAction = bossPartyOnField()
+      ? "stance"
+      : moving
+        ? followAction
+        : state.battle.running ? "stance" : "standing";
+    if (body.visualAction !== desiredAction) {
+      body.visualAction = desiredAction;
+      body.visualFrame = 0;
+      body.visualLastTick = now;
+    }
+  }
+
+  const action = PLAYER_ACTIONS[body.visualAction] ?? PLAYER_ACTIONS.stance;
+  const frameCount = Math.max(1, Number(action?.count) || 1);
+  const interval = Math.max(1, Number(action?.interval) || 100);
+  const elapsed = Math.max(0, now - (body.visualLastTick ?? now));
+  if (elapsed < interval) return;
+  const steps = Math.floor(elapsed / interval);
+  body.visualFrame = body.visualOneShot
+    ? Math.min(frameCount - 1, (body.visualFrame ?? 0) + steps)
+    : ((body.visualFrame ?? 0) + steps) % frameCount;
+  body.visualLastTick = (body.visualLastTick ?? now) + steps * interval;
 }
 
 function syncWizardMirrorOwnerMp(owner, mp) {
@@ -42749,58 +43357,17 @@ function updateWizardMirrorUpkeep(mirror, owner, now) {
   return false;
 }
 
-function wizardMirrorBeginCastVisual(mirror, spellId, now, untilAt = now + 600) {
-  const spell = wizardCombatSpell(spellId);
-  const atlas = state.wizardSpellAtlases[spellId] ?? null;
-  const impactAt = spell && atlas ? now + wizardImpactDelay(spell, atlas) : untilAt;
-  const layerEnd = Math.max(0, ...(atlas?.layers ?? []).map(
-    (layer) => (layer.delayMs ?? 0) + layer.frames.length * layer.interval,
-  ));
-  const effectEnd = spell?.impactMode === "projectile"
-    ? (impactAt - now) + (spell.impactFlashMs ?? 250)
-    : layerEnd;
-  mirror.fxSpellId = spellId;
-  mirror.fxStartedAt = now;
-  mirror.fxUntil = now + Math.max(600, layerEnd, effectEnd);
-  mirror.visualAction = "spell";
-  mirror.visualFrame = 0;
-  mirror.visualOneShot = true;
-  mirror.visualLastTick = now;
-  mirror.visualUntil = Math.max(now + 600, Number(untilAt) || 0);
-}
-
 function updateWizardMirrorVisual(mirror, now) {
-  if (mirror.fxSpellId && now >= (mirror.fxUntil ?? 0)) mirror.fxSpellId = null;
-  if (mirror.visualOneShot && now >= (mirror.visualUntil ?? 0)) {
-    mirror.visualAction = "stance";
-    mirror.visualFrame = 0;
-    mirror.visualOneShot = false;
-    mirror.visualLastTick = now;
-    mirror.visualUntil = 0;
+  updateWizardMirrorBodyVisual(mirror, now, {
+    moving: Boolean(mirror.moving),
+    followAction: mirror.followAction ?? "stance",
+  });
+  for (const extra of mirror.extras ?? []) {
+    updateWizardMirrorBodyVisual(extra, now, {
+      moving: Boolean(mirror.moving),
+      followAction: mirror.followAction ?? "stance",
+    });
   }
-  if (!mirror.visualOneShot) {
-    const desiredAction = bossPartyOnField()
-      ? "stance"
-      : mirror.moving
-        ? mirror.followAction
-        : state.battle.running ? "stance" : "standing";
-    if (mirror.visualAction !== desiredAction) {
-      mirror.visualAction = desiredAction;
-      mirror.visualFrame = 0;
-      mirror.visualLastTick = now;
-    }
-  }
-
-  const action = PLAYER_ACTIONS[mirror.visualAction] ?? PLAYER_ACTIONS.stance;
-  const frameCount = Math.max(1, Number(action?.count) || 1);
-  const interval = Math.max(1, Number(action?.interval) || 100);
-  const elapsed = Math.max(0, now - (mirror.visualLastTick ?? now));
-  if (elapsed < interval) return;
-  const steps = Math.floor(elapsed / interval);
-  mirror.visualFrame = mirror.visualOneShot
-    ? Math.min(frameCount - 1, (mirror.visualFrame ?? 0) + steps)
-    : ((mirror.visualFrame ?? 0) + steps) % frameCount;
-  mirror.visualLastTick = (mirror.visualLastTick ?? now) + steps * interval;
 }
 
 function wizardMirrorMirrorSfx(spellId, kind = "cast") {
@@ -42877,11 +43444,22 @@ function applyWizardMirrorSpellImpact(mirror, impact, now) {
 
 function updatePendingMirrorImpact(now, options = {}) {
   const mirror = state.battle.wizardMirror;
-  const pending = mirror?.pendingImpact;
-  if (!pending || now < pending.at) return false;
-  mirror.pendingImpact = null;
-  applyWizardMirrorSpellImpact(mirror, pending, now);
-  return true;
+  if (!mirror?.active) return false;
+  let applied = false;
+  const pending = mirror.pendingImpact;
+  if (pending && now >= pending.at) {
+    mirror.pendingImpact = null;
+    applyWizardMirrorSpellImpact(mirror, pending, now);
+    applied = true;
+  }
+  for (const extra of mirror.extras ?? []) {
+    const extraPending = extra.pendingImpact;
+    if (!extraPending || now < extraPending.at) continue;
+    extra.pendingImpact = null;
+    applyWizardMirrorSpellImpact(mirror, extraPending, now);
+    applied = true;
+  }
+  return applied;
 }
 
 function wizardMirrorTryMagicShield(mirror, owner, now, options = {}) {
@@ -42894,24 +43472,40 @@ function wizardMirrorTryMagicShield(mirror, owner, now, options = {}) {
     at: now + (Number(spell.impactDelayMs) || CRYSTAL_HEAL_APPLY_DELAY_MS),
     spellId: spell.id,
   };
-  wizardMirrorBeginCastVisual(mirror, spell.id, now, mirror.pendingDefenceBuff.at);
-  mirror.nextActionAt = now + wizardCastCooldownMs(spell, learned);
+  const untilAt = mirror.pendingDefenceBuff.at;
+  const cooldownUntil = now + wizardCastCooldownMs(spell, learned);
+  wizardMirrorBeginCastVisual(mirror, spell.id, now, untilAt);
+  mirror.nextActionAt = cooldownUntil;
+  // Many Mirrors extras share one shield buff, but each body should cast the visual.
+  for (const extra of mirror.extras ?? []) {
+    wizardMirrorBeginCastVisual(extra, spell.id, now, untilAt);
+    extra.nextActionAt = Math.max(Number(extra.nextActionAt) || 0, cooldownUntil);
+  }
   if (!options.offline && !suppressSimulationRender) wizardMirrorMirrorSfx(spell.id, "cast");
   return true;
 }
 
-function wizardMirrorTryAttack(mirror, owner, now, options = {}) {
+function wizardMirrorTryAttack(mirror, owner, now, options = {}, body = mirror) {
   const enemy = state.battle.enemy;
   if (!enemy || enemy.hp <= 0) return false;
   if (!options.offline && !state.battle.enemyRevealed) return false;
-  const spell = wizardMirrorPickAttackSpell(owner, enemy);
+  if (body.pendingImpact) return false;
+  const spell = wizardMirrorPickAttackSpell(owner, enemy, mirror);
   const learned = wizardMirrorAttackLearned(owner, spell?.id);
   if (!spell || !learned) return false;
-  if (!wizardMirrorTargetInRange(wizardMirrorCombatOriginWorldX(mirror), state.battle.enemyX, LANE_TILE_PX)) return false;
+  if (!wizardMirrorTargetInRange(
+    wizardMirrorCombatOriginWorldX(mirror),
+    state.battle.enemyX,
+    LANE_TILE_PX,
+    wizardMirrorEffectiveAttackRangePx(),
+  )) return false;
   const atlas = state.wizardSpellAtlases[spell.id] ?? null;
   const hit = rollMagicHit(enemy);
-  const damage = hit
+  const rawDamage = hit
     ? rollWizardMagicDamage(spell, learned, owner, enemy, wizardMirrorOwnerInventory(owner))
+    : 0;
+  const damage = rawDamage > 0
+    ? scaleWizardMirrorDamage(rawDamage, mirror.spellLevel)
     : 0;
   const crit = damage > 0 && consumeOutgoingCritFlag();
   const impactAt = now + wizardImpactDelay(spell, atlas);
@@ -42936,10 +43530,10 @@ function wizardMirrorTryAttack(mirror, owner, now, options = {}) {
   } else if (options.offline) {
     applyWizardMirrorSpellImpact(mirror, impact, now);
   } else {
-    mirror.pendingImpact = impact;
+    body.pendingImpact = impact;
   }
-  wizardMirrorBeginCastVisual(mirror, spell.id, now, impactAt);
-  mirror.nextActionAt = now + wizardCastCooldownMs(spell, learned);
+  wizardMirrorBeginCastVisual(body, spell.id, now, impactAt);
+  body.nextActionAt = now + wizardCastCooldownMs(spell, learned);
   const castSfxPhase = wizardMirrorCastSfxPhase(spell.impactMode);
   if (!options.offline && !suppressSimulationRender && castSfxPhase) {
     wizardMirrorMirrorSfx(spell.id, castSfxPhase);
@@ -42952,16 +43546,27 @@ function wizardMirrorCombatTick(now, options = {}) {
   if (!mirror?.active) return false;
   updatePendingMirrorImpact(now, options);
   updatePendingMirrorDefenceBuff(now, options);
-  if (mirror.pendingImpact || mirror.pendingDefenceBuff) return false;
-  if (mirror.moving || mirror.followPending) return false;
-  if (now < (mirror.nextActionAt ?? 0)) return false;
   const owner = wizardMirrorOwner(mirror);
   if (!owner || (owner.hp ?? 0) <= 0) return false;
   const enemy = state.battle.enemy;
   if (!enemy || enemy.hp <= 0) return false;
   if (!options.offline && !state.battle.enemyRevealed) return false;
-  if (wizardMirrorTryMagicShield(mirror, owner, now, options)) return true;
-  return wizardMirrorTryAttack(mirror, owner, now, options);
+
+  let acted = false;
+  const mainBusy = Boolean(mirror.pendingImpact || mirror.pendingDefenceBuff);
+  if (!mainBusy && !mirror.moving && !mirror.followPending && now >= (mirror.nextActionAt ?? 0)) {
+    if (wizardMirrorTryMagicShield(mirror, owner, now, options)) acted = true;
+    else if (wizardMirrorTryAttack(mirror, owner, now, options, mirror)) acted = true;
+  }
+
+  if (!mirror.moving && !mirror.followPending) {
+    for (const extra of mirror.extras ?? []) {
+      if (extra.pendingImpact) continue;
+      if (now < (extra.nextActionAt ?? 0)) continue;
+      if (wizardMirrorTryAttack(mirror, owner, now, options, extra)) acted = true;
+    }
+  }
+  return acted;
 }
 
 function usableWizardMirroring(now, options = {}) {
@@ -43032,7 +43637,11 @@ function updatePendingWizardMirror(now) {
     return true;
   }
   battle.wizardMirror = createWizardMirror(pending.spellLevel, now, { ownerClassId: pending.ownerClassId ?? null });
-  pushBattleLog("A mirror clone appears behind you.");
+  pushBattleLog(
+    battle.wizardMirror.manyMirrors
+      ? "Three mirror clones appear behind you."
+      : "A mirror clone appears behind you.",
+  );
   battlePanelSignature = "";
   return true;
 }
@@ -43701,7 +44310,7 @@ function taoistWeaponAttack(now, failedSpell = null) {
     battle.enemy.agility,
     effectiveCombatStats(battle.player).dc,
     enemyPhysicalDefence(battle.enemy),
-    battle.player.luck,
+    combatLuck(battle.player),
   );
   if (!swing.hit || swing.damage <= 0) {
     applyCombatEvents(weaponSwingMissEvents("Taoist", weaponName, battle.enemy.name), now, { enemy: battle.enemy });
@@ -44428,7 +45037,18 @@ function mapHellFireSettings(zone = activeZone()) {
   if (!zone?.mapHellFire) return null;
   const min = Math.max(0, Math.trunc(Number(zone.mapHellFireDamageMin ?? zone.mapHellFireDamage) || 50));
   const max = Math.max(min, Math.trunc(Number(zone.mapHellFireDamageMax ?? zone.mapHellFireDamage) || 150));
-  return { min, max };
+  // Crystal Hell Cavern FIRE maps use MapLava (Dragon). Hell Lord / Fire Hell KR
+  // floor bursts are MapQuake1/2 from the HellLord lib.
+  const style = String(zone.mapHellFireStyle || "lava").toLowerCase() === "quake" ? "quake" : "lava";
+  return { min, max, style };
+}
+
+function mapHellFireFxId(settings = mapHellFireSettings()) {
+  return settings?.style === "quake" ? MAP_QUAKE_FX_ID : MAP_HELL_FIRE_FX_ID;
+}
+
+function mapHellFireAtlas(settings = mapHellFireSettings()) {
+  return settings?.style === "quake" ? state.mapQuakeAtlas : state.mapHellFireAtlas;
 }
 
 function rollMapHellFireDamage(settings) {
@@ -44528,14 +45148,26 @@ function spawnMapHellFireWave(now) {
   if (!targets.length) return;
   const target = targets[randomInt(0, targets.length - 1)];
   const effects = state.battle.mapHellFireEffects ?? [];
+  // Crystal HellLord.SpawnQuakes: random MapQuake1 or MapQuake2 per burst.
+  const quakeVariant = settings.style === "quake" ? (randomInt(0, 1) === 0 ? 1 : 2) : 0;
+  const atlas = mapHellFireAtlas(settings);
+  const quakeLayer = quakeVariant
+    ? (atlas?.layers ?? []).find((layer) => Number(layer.variant) === quakeVariant)
+    : null;
+  const effectMs = Math.max(
+    400,
+    Math.trunc(Number(quakeLayer?.durationMs) || MAP_HELL_FIRE_EFFECT_MS),
+  );
   effects.push({
     id: `map-hell-fire-${now}-${Math.random()}`,
     worldX: pickMapHellFireWorldX(mapLightningTargetWorldX(target)),
     damage: rollMapHellFireDamage(settings),
     targetClassId: target.classId ?? null,
     solo: Boolean(target.solo),
+    style: settings.style,
+    quakeVariant,
     createdAt: now,
-    expiresAt: now + MAP_HELL_FIRE_HIT_DELAY_MS + MAP_HELL_FIRE_EFFECT_MS,
+    expiresAt: now + MAP_HELL_FIRE_HIT_DELAY_MS + effectMs,
     resolveBy: now + MAP_HELL_FIRE_HIT_DELAY_MS + MAP_HELL_FIRE_RESOLVE_GRACE_MS,
     hitAt: now + MAP_HELL_FIRE_HIT_DELAY_MS,
     resolved: false,
@@ -44967,7 +45599,12 @@ function applyStrikeTargetIncoming(attackerName, attackerEntity, targetRef, now,
       };
     }
   }
-  const defence = resolvedRef.stats ?? defenceTargetForIncomingAttack(resolvedRef.entity);
+  // Always resolve defence (and glyph lookups) from the hit entity when present.
+  // Precomputed `stats` blobs omit `__buffEntity`, which made Tank/Glass/etc. fall
+  // back to the controlled character's inventory on boss-party splash AOE.
+  const defence = resolvedRef.entity
+    ? defenceTargetForIncomingAttack(resolvedRef.entity)
+    : resolvedRef.stats;
   const attackEntity = options.defenceType
     ? { ...attackerEntity, attackDefenceType: options.defenceType }
     : attackerEntity;
@@ -45255,7 +45892,7 @@ function finishEnemy(now) {
   clearTwinDrakePendingState();
   battle.attachedSpellFx = (battle.attachedSpellFx ?? []).filter((entry) => entry.spellId !== "TwinDrakeBlade");
   scheduleTaoistPetRetireAfterFight(now);
-  if (battle.enemy) battle.enemy.poisons = [];
+  if (battle.enemy) { battle.enemy.poisons = []; battle.enemy.flamingSwordBurn = null; }
   battle.nextPlayerAttackAt = 0;
   battle.nextEnemyAttackAt = 0;
   if (bossDef && zone) {
@@ -45571,7 +46208,7 @@ function spawnNextEnemy(now) {
     retireTaoistPetAfterFight(now);
   }
   dismissTaoistPet({ keepHolyDeva: true, keepTankPet: true });
-  if (battle.enemy) battle.enemy.poisons = [];
+  if (battle.enemy) { battle.enemy.poisons = []; battle.enemy.flamingSwordBurn = null; }
   battle.floatingTexts = [];
   resetCritTextSessionPeak();
   state.enemy.index = template.monsterIndex;
@@ -46098,12 +46735,11 @@ function combatHudLayoutMetrics(options = {}) {
     && !els.combatSkillBar.hidden
     && els.combatSkillBar.childElementCount > 0
   );
-  const feetPx = Math.round(combatAnchor("player").y * state.scale);
   const canvasHeight = state.stageHeight * state.scale;
   const hotbarSize = combatHotbarSize();
-  const preferredHotbarTop = feetPx + COMBAT_HUD_PLAYER_GAP;
-  const maxHotbarTop = Math.max(0, canvasHeight - hotbarSize.height - COMBAT_HUD_CANVAS_BOTTOM_GAP);
-  const hotbarTop = Math.min(preferredHotbarTop, maxHotbarTop);
+  // Pin to the canvas bottom — do NOT follow player feet / lane Y. Those change
+  // on town↔zone and between arenas, which made the potion hotbar jump on teleport.
+  const hotbarTop = Math.max(0, canvasHeight - hotbarSize.height - COMBAT_HUD_CANVAS_BOTTOM_GAP);
   // Locked under the XP bar (last STAGE_XP_BAR_HEIGHT px of the canvas), centered.
   const skillTop = canvasHeight + COMBAT_SKILL_BAR_BELOW_XP_GAP;
   const hudBottom = Math.max(
@@ -46111,7 +46747,6 @@ function combatHudLayoutMetrics(options = {}) {
     skillBarVisible ? skillTop + COMBAT_HUD_SKILL_BAR_HEIGHT + 4 : canvasHeight,
   );
   return {
-    feetPx,
     hotbarTop,
     skillTop,
     hudBottom,
@@ -46180,8 +46815,10 @@ function applyHotbarWindowPosition(metrics = null) {
     els.hotbar.style.transform = "";
     return;
   }
+  // Clamp for display only — never overwrite the saved drag position here.
+  // Teleport / overlay open-close can briefly shrink the stage; writing that
+  // clamp back permanently parked the hotbar in the wrong spot.
   const clamped = clampHotbarWindowPosition(hotbarWindowPosition.x, hotbarWindowPosition.y);
-  hotbarWindowPosition = clamped;
   els.hotbar.style.left = `${clamped.x}px`;
   els.hotbar.style.top = `${clamped.y}px`;
   els.hotbar.style.transform = "none";
@@ -46365,6 +47002,38 @@ function syncCompactReturnToTownButton() {
   els.compactReturnToTown.hidden = !show;
 }
 
+function compactGroupDungeonAdvanceContext() {
+  if (!compactUi || state.game.mode === "town") return null;
+  const zone = activeZone();
+  const party = state.battle.bossParty;
+  if (!groupDungeonZone(zone) || party?.defeated || (!party?.active && !party?.finished)) return null;
+  const nextZone = groupDungeonNextFloorZone(zone);
+  if (!nextZone) return null;
+  return { zone, party, nextZone };
+}
+
+function syncCompactGroupDungeonAdvanceControls() {
+  const ctx = compactGroupDungeonAdvanceContext();
+  const canAdvance = Boolean(ctx && groupDungeonCanAdvanceFloor(ctx.zone, ctx.party));
+  const showAuto = Boolean(ctx && groupDungeonAutoAdvanceUnlocked());
+
+  if (els.compactAdvanceFloor) {
+    els.compactAdvanceFloor.hidden = !canAdvance;
+    if (canAdvance && ctx) {
+      const label = `Advance to ${ctx.nextZone.label}`;
+      els.compactAdvanceFloor.title = label;
+      els.compactAdvanceFloor.setAttribute("aria-label", label);
+    }
+  }
+
+  if (els.compactGroupDungeonAutoAdvance) {
+    els.compactGroupDungeonAutoAdvance.hidden = !showAuto;
+  }
+  if (els.compactGroupDungeonAutoAdvanceInput) {
+    els.compactGroupDungeonAutoAdvanceInput.checked = state.settings.groupDungeonAutoAdvance === true;
+  }
+}
+
 function syncCompactUi() {
   const next = compactUiPreferred();
   const changed = next !== compactUi;
@@ -46373,6 +47042,7 @@ function syncCompactUi() {
   document.body.classList.toggle("compact-ui", compactUi);
   applyCompactMenuState();
   syncCompactReturnToTownButton();
+  syncCompactGroupDungeonAdvanceControls();
   if (compactUi) {
     hudChromeMode = "classic";
     applyHudChromeMode();
@@ -46405,6 +47075,24 @@ function bindCompactMenuToggle() {
       if (!compactUi || state.game.mode === "town") return;
       returnToTown();
       syncCompactReturnToTownButton();
+      playSfx("ui.button", { volume: 0.3, throttleMs: 80 });
+    });
+  }
+  if (els.compactAdvanceFloor && els.compactAdvanceFloor.dataset.compactAdvanceBound !== "1") {
+    els.compactAdvanceFloor.dataset.compactAdvanceBound = "1";
+    els.compactAdvanceFloor.addEventListener("click", (event) => {
+      event.preventDefault();
+      if (!compactUi || !groupDungeonCanAdvanceFloor()) return;
+      void advanceGroupDungeonFloor();
+      syncCompactGroupDungeonAdvanceControls();
+      playSfx("ui.button", { volume: 0.35, throttleMs: 80 });
+    });
+  }
+  if (els.compactGroupDungeonAutoAdvanceInput && els.compactGroupDungeonAutoAdvanceInput.dataset.compactAutoBound !== "1") {
+    els.compactGroupDungeonAutoAdvanceInput.dataset.compactAutoBound = "1";
+    els.compactGroupDungeonAutoAdvanceInput.addEventListener("change", (event) => {
+      if (!compactUi) return;
+      setGroupDungeonAutoAdvance(Boolean(event.currentTarget.checked));
       playSfx("ui.button", { volume: 0.3, throttleMs: 80 });
     });
   }
@@ -50044,14 +50732,23 @@ function drawGroupDungeonSwarmEnemyCanvas(ctx, enemy) {
   if (!bombDetonationFx) {
     drawEnemyBodyAtlasFrame(ctx, atlas, sheet, meta, anchorX, anchorY);
   }
+  // Crystal DrawBlend weapon/aura overlays (Hell Knights, etc.) follow every action,
+  // not only attacks — attack-only gating hid standing/walk weapon EFX in swarm.
+  // Hell Keeper keeps castEffect-first behavior: skip body attack blend unless magic strike.
+  const suppressActionBlend = isHellKeeperSwarmEnemy(enemy)
+    && atlas.castEffect
+    && !enemy.hellKeeperMagicStrike;
+  if (!bombDetonationFx && !suppressActionBlend) {
+    drawEnemyActionBlendCanvas(ctx, atlas, sheet, anchorX, anchorY, enemy.action, enemy.frame, enemy);
+  }
   if (swarmIsAttackAction(enemy.action)) {
     if (enemy.attackFxStartedAt && atlas.castEffect) {
       drawMonsterCastEffectCanvas(ctx, atlas, sheet, anchorX, anchorY, enemy.attackFxStartedAt);
-    } else if (!isHellKeeperSwarmEnemy(enemy) || enemy.hellKeeperMagicStrike) {
-      if (!atlas.castEffect || enemy.hellKeeperMagicStrike) {
-        drawEnemyActionBlendCanvas(ctx, atlas, sheet, anchorX, anchorY, enemy.action, enemy.frame, enemy);
-      }
     }
+  }
+  // Crystal HellKnight Die/Appear: Effect(lib, 448, 10, 600) DrawBlend over the body.
+  if (enemy.dying && enemy.dieEffectStartedAt && atlas.dieEffect) {
+    drawMonsterDieEffectCanvas(ctx, atlas, sheet, anchorX, anchorY, enemy.dieEffectStartedAt);
   }
   if (!bombDetonationFx) {
     drawEnemyDebuffTintCanvas(ctx, atlas, sheet, anchorX, anchorY, enemy.action, enemy.frame, enemyDebuffTint(enemy), enemy);
@@ -50113,7 +50810,28 @@ function drawEnemyBodyAtlasFrame(ctx, atlas, sheet, meta, anchorX, anchorY) {
 function enemyActionBlendKey(action, atlas = null, enemy = state.battle.enemy) {
   const actions = enemyVisualActions(atlas, enemy);
   if (action === "standing") return "standingBlend";
+  if (action === "standingNorthWest") {
+    return actions?.standingNorthWestBlend ? "standingNorthWestBlend" : "standingBlend";
+  }
+  if (action === "standingSouthWest") {
+    return actions?.standingSouthWestBlend ? "standingSouthWestBlend" : "standingBlend";
+  }
   if (action === "walking") return "walkingBlend";
+  if (action === "walkNorth") {
+    return actions?.walkingNorthBlend ? "walkingNorthBlend" : "walkingBlend";
+  }
+  if (action === "walkSouth") {
+    return actions?.walkingSouthBlend ? "walkingSouthBlend" : "walkingBlend";
+  }
+  if (action === "walkEast") {
+    return actions?.walkingEastBlend ? "walkingEastBlend" : "walkingBlend";
+  }
+  if (action === "walkNorthWest") {
+    return actions?.walkingNorthWestBlend ? "walkingNorthWestBlend" : "walkingBlend";
+  }
+  if (action === "walkSouthWest") {
+    return actions?.walkingSouthWestBlend ? "walkingSouthWestBlend" : "walkingBlend";
+  }
   if (action === "attack1") return "attack1Blend";
   if (action === "attackNorthWest") {
     return actions?.attackNorthWestBlend ? "attackNorthWestBlend" : "attack1Blend";
@@ -50128,6 +50846,7 @@ function enemyActionBlendKey(action, atlas = null, enemy = state.battle.enemy) {
   if (action === "attackRangeSouthWest") {
     return actions?.attackRangeSouthWestBlend ? "attackRangeSouthWestBlend" : "attackRange1Blend";
   }
+  if (action === "struck") return "struckBlend";
   if (action === "die") return "dieBlend";
   return null;
 }
@@ -50138,6 +50857,19 @@ function drawMonsterCastEffectCanvas(ctx, atlas, sheet, anchorX, anchorY, attack
   const idx = Math.floor((now - attackFxStartedAt) / Math.max(1, cast.interval));
   if (idx < 0 || idx >= cast.frames.length) return;
   const meta = cast.frames[idx];
+  if (!meta || meta.empty) return;
+  withScreenBlend(ctx, () => {
+    drawAtlasFrameMeta(ctx, sheet, atlas.slotWidth, meta, anchorX, anchorY);
+  });
+}
+
+/** Crystal HellKnight death/appear burst — Effect(lib, 448, 10, 600), Blend. */
+function drawMonsterDieEffectCanvas(ctx, atlas, sheet, anchorX, anchorY, dieEffectStartedAt, now = performance.now()) {
+  const fx = atlas?.dieEffect;
+  if (!fx?.frames?.length || !Number.isFinite(Number(dieEffectStartedAt))) return;
+  const idx = Math.floor((now - dieEffectStartedAt) / Math.max(1, fx.interval));
+  if (idx < 0 || idx >= fx.frames.length) return;
+  const meta = fx.frames[idx];
   if (!meta || meta.empty) return;
   withScreenBlend(ctx, () => {
     drawAtlasFrameMeta(ctx, sheet, atlas.slotWidth, meta, anchorX, anchorY);
@@ -50811,34 +51543,33 @@ function drawPlayerCanvas(ctx, displayFrame) {
   });
 }
 
-function wizardMirrorAnchor() {
+function wizardMirrorAnchor(offsetY = 0) {
   return {
     x: Math.round(wizardMirrorWorldX() - state.battle.cameraX),
-    y: Math.round(arenaPartyCombatLaneYPx()),
+    y: Math.round(arenaPartyCombatLaneYPx() + (Number(offsetY) || 0)),
   };
 }
 
-function wizardMirrorVisualState() {
-  const mirror = state.battle.wizardMirror;
+function wizardMirrorVisualState(body = state.battle.wizardMirror) {
   return {
-    action: mirror?.visualAction ?? "stance",
-    frame: Math.max(0, Math.trunc(Number(mirror?.visualFrame) || 0)),
+    action: body?.visualAction ?? "stance",
+    frame: Math.max(0, Math.trunc(Number(body?.visualFrame) || 0)),
   };
 }
 
-function bossPartyMirrorVisualAction(mirror) {
-  return mirror?.visualAction === "spell" ? "spell" : "stance";
+function bossPartyMirrorVisualAction(body) {
+  return body?.visualAction === "spell" ? "spell" : "stance";
 }
 
-function drawWizardMirrorCanvas(ctx) {
+function drawWizardMirrorBodyCanvas(ctx, body, offsetY = 0) {
   const mirror = state.battle.wizardMirror;
-  if (!state.showEnemies || !mirror?.active) return;
+  if (!state.showEnemies || !mirror?.active || !body) return;
 
   if (bossPartyOnField()) {
     const owner = bossPartyMemberByClassId(mirror.ownerClassId ?? "Wizard");
     if (!owner) return;
-    const { x: anchorX, y: anchorY } = wizardMirrorAnchor();
-    const action = bossPartyMirrorVisualAction(mirror);
+    const { x: anchorX, y: anchorY } = wizardMirrorAnchor(offsetY);
+    const action = bossPartyMirrorVisualAction(body);
     ctx.save();
     ctx.globalAlpha = 0.88;
     for (const layer of layerNames()) {
@@ -50846,7 +51577,7 @@ function drawWizardMirrorCanvas(ctx) {
       if (index == null || index === "") continue;
       const atlas = owner.visualAtlases?.[layer] ?? (owner.classId === bossPartyControlledClassId() ? state.atlases[layer] : null);
       const clip = atlas?.actions?.[action] ?? atlas?.actions?.stance ?? atlas?.actions?.standing;
-      const frameIndex = Math.max(0, Math.min(mirror.visualFrame ?? 0, (clip?.frames?.length ?? 1) - 1));
+      const frameIndex = Math.max(0, Math.min(body.visualFrame ?? 0, (clip?.frames?.length ?? 1) - 1));
       const meta = clip?.frames?.[frameIndex] ?? clip?.frames?.[0];
       if (!atlas || !clip || !meta || meta.empty) continue;
       const sheet = cachedImage(sheetUrl(state.spriteSet, layer, index));
@@ -50858,8 +51589,8 @@ function drawWizardMirrorCanvas(ctx) {
   }
 
   if (state.battle.combatClass !== "Wizard") return;
-  const { action, frame } = wizardMirrorVisualState();
-  const { x: anchorX, y: anchorY } = wizardMirrorAnchor();
+  const { action, frame } = wizardMirrorVisualState(body);
+  const { x: anchorX, y: anchorY } = wizardMirrorAnchor(offsetY);
   ctx.save();
   ctx.globalAlpha = 0.88;
   for (const layer of layerNames()) {
@@ -50875,11 +51606,77 @@ function drawWizardMirrorCanvas(ctx) {
   ctx.restore();
 }
 
+function drawWizardMirrorCanvas(ctx) {
+  const mirror = state.battle.wizardMirror;
+  if (!state.showEnemies || !mirror?.active) return;
+  // Draw above clone first, then main, then below so lower bodies paint on top.
+  const extras = mirror.extras ?? [];
+  const above = extras.find((entry) => (entry.offsetY ?? 0) < 0);
+  const below = extras.find((entry) => (entry.offsetY ?? 0) > 0);
+  if (above) drawWizardMirrorBodyCanvas(ctx, above, above.offsetY);
+  drawWizardMirrorBodyCanvas(ctx, mirror, 0);
+  if (below) drawWizardMirrorBodyCanvas(ctx, below, below.offsetY);
+}
+
+function drawWizardMirrorBodySpellFxCanvas(ctx, body, offsetY, now) {
+  if (!body?.fxSpellId) return;
+  const spellId = body.fxSpellId;
+  const atlas = state.wizardSpellAtlases[spellId];
+  const spell = wizardCombatSpell(spellId);
+  if (!atlas || !spell) return;
+  const t = now - (body.fxStartedAt ?? 0);
+  const memberAnchor = wizardMirrorAnchor(offsetY);
+  const enemyAnchor = spell?.impactMode === "bang"
+    ? wizardBangSpellAnchorFromCenter(body.fxCenterTile, combatAnchor("enemy"))
+    : combatAnchor("enemy");
+  const hitAt = wizardImpactDelay(spell, atlas, { playerAnchor: memberAnchor, enemyAnchor });
+  const layerEnd = Math.max(0, ...atlas.layers.map((layer) => (layer.delayMs ?? 0) + layer.frames.length * layer.interval));
+  const total = Math.max(
+    layerEnd,
+    spellShowsProjectileVisual(spell, atlas) ? hitAt + spellImpactVisualDurationMs(spell, atlas) : 0,
+  );
+  if (t < 0 || t > total) {
+    body.fxSpellId = null;
+    return;
+  }
+  withScreenBlend(ctx, () => {
+    for (const layer of atlas.layers) {
+      const layerDelay = layer.delayMs ?? 0;
+      const layerT = t - layerDelay;
+      const duration = layer.frames.length * layer.interval;
+      if (layerT < 0 || layerT > duration) continue;
+      const layerAnchor = wizardSpellFxLayerAnchor(spell, layer, memberAnchor, enemyAnchor);
+      const frameIndex = Math.min(layer.frames.length - 1, Math.floor(layerT / layer.interval));
+      drawSpellLayerCanvas(ctx, atlas.spellId, layer, frameIndex, layerAnchor.x, layerAnchor.y);
+    }
+    if (spellShowsProjectileVisual(spell, atlas)) {
+      drawCombatProjectileCanvas(ctx, atlas, t, memberAnchor, enemyAnchor, hitAt);
+    }
+    if (
+      !spellUsesEnemySpriteAim(spell.id)
+      && spellDrawsImpactVisual(spell, atlas)
+      && t >= hitAt
+      && t <= hitAt + spellImpactVisualDurationMs(spell, atlas)
+    ) {
+      const impactSource = body.fxCenterTile
+        ? { centerTile: body.fxCenterTile }
+        : null;
+      const impactAnchor = impactSource
+        ? spellImpactFxScreenAnchorFromImpact(impactSource, enemyAnchor)
+        : enemyAnchor;
+      drawImpactFlashCanvas(ctx, atlas, t - hitAt, impactAnchor);
+    }
+  });
+}
+
 function drawWizardMirrorSpellFxCanvas(ctx) {
   const mirror = state.battle.wizardMirror;
   if (!mirror?.active) return;
   const now = performance.now();
-  if (mirror.fxSpellId) drawBossPartyMemberSpellFx(ctx, mirror, now);
+  drawWizardMirrorBodySpellFxCanvas(ctx, mirror, 0, now);
+  for (const extra of mirror.extras ?? []) {
+    drawWizardMirrorBodySpellFxCanvas(ctx, extra, extra.offsetY ?? 0, now);
+  }
   drawWizardMirrorMagicShieldLoopFxCanvas(ctx, mirror, now);
 }
 
@@ -50890,9 +51687,14 @@ function drawWizardMirrorMagicShieldLoopFxCanvas(ctx, mirror, now) {
   if (!loopLayer) return;
   const frameIndex = spellFxLoopFrameIndex(loopLayer, mirror.magicShieldLoopStartedAt ?? now, now);
   if (frameIndex < 0) return;
-  const { x: anchorX, y: anchorY } = wizardMirrorAnchor();
+  const anchors = [
+    wizardMirrorAnchor(0),
+    ...(mirror.extras ?? []).map((extra) => wizardMirrorAnchor(extra.offsetY ?? 0)),
+  ];
   withScreenBlend(ctx, () => {
-    drawSpellLayerCanvas(ctx, atlas.spellId, loopLayer, frameIndex, anchorX, anchorY);
+    for (const { x: anchorX, y: anchorY } of anchors) {
+      drawSpellLayerCanvas(ctx, atlas.spellId, loopLayer, frameIndex, anchorX, anchorY);
+    }
   });
 }
 
@@ -51716,20 +52518,26 @@ function drawGroundSpellEffectsCanvas(ctx, options = {}) {
 }
 
 function drawMapHellFireEffectsCanvas(ctx) {
-  const atlas = state.mapHellFireAtlas;
   const effects = (state.battle.mapHellFireEffects ?? []).filter((effect) => performance.now() <= effect.expiresAt);
-  if (!atlas?.layers?.length || !effects.length) return;
+  if (!effects.length) return;
 
   const now = performance.now();
   const groundY = arenaLaneYPx();
   for (const effect of effects) {
+    const settings = { style: effect.style === "quake" ? "quake" : "lava" };
+    const atlas = mapHellFireAtlas(settings);
+    const fxId = mapHellFireFxId(settings);
+    if (!atlas?.layers?.length) continue;
     const x = Math.floor(effect.worldX - state.battle.cameraX);
-    for (const layer of atlas.layers) {
+    const layers = settings.style === "quake"
+      ? atlas.layers.filter((layer) => Number(layer.variant) === Number(effect.quakeVariant) || (!layer.variant && !effect.quakeVariant))
+      : atlas.layers;
+    for (const layer of layers) {
       if (!layer?.frames?.length) continue;
       const slotWidth = Math.max(1, Math.trunc(Number(layer.slotWidth) || 1));
       if (x < -slotWidth || x > state.stageWidth + slotWidth) continue;
       const frameIndex = mapHellFireFrameIndex(effect, layer, now);
-      const drawLayer = () => drawSpellLayerCanvas(ctx, MAP_HELL_FIRE_FX_ID, layer, frameIndex, x, groundY);
+      const drawLayer = () => drawSpellLayerCanvas(ctx, fxId, layer, frameIndex, x, groundY);
       if (layer.blend === false) drawLayer();
       else withScreenBlend(ctx, drawLayer);
     }
@@ -51868,6 +52676,7 @@ function combatTextColor(kind) {
   if (kind === "heal") return "#80e28a";
   if (kind === "mana") return "#7fb7ff";
   if (kind === "poison") return "#69d879";
+  if (kind === "burn") return "#ff8a4a";
   if (kind === "frost") return "#9de8ff";
   if (kind === "debuff") return "#e2c45f";
   if (kind === "buff") return "#f0b35c";

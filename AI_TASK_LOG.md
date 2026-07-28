@@ -1,5 +1,322 @@
 # AI Task Log - LOM Idle V2
 
+## 2026-07-28 - Bind Social playerId to recovery code
+
+Cloud restore on a new device was minting a fresh anonymous Social identity
+while reusing the recovery code for the save, which duplicated people on the
+leaderboard. Cloud saves now bind a canonical `player_id` to each recovery
+code; restore returns it and the client re-adopts that identity.
+
+### Changes
+- `tools/stats-worker/schema.sql`, `migrate-cloud-saves.sql`,
+  `migrate-cloud-save-player-id.sql`: `cloud_saves.player_id`
+- `tools/stats-worker/worker.js`: bind on `/cloud-save`, return + alias
+  fallback/backfill on `/cloud-save/restore`
+- `src/core/cloudSave.js`: `normalizeAccountPlayerId`
+- `src/app.monolith.js`: send `playerId` on upload; adopt on save/restore
+- `tests/statsWorkerCloudSave.test.mjs`, `tests/cloudSave.test.mjs`
+- `tools/stats-worker/README.md`: deploy note for the new migration
+
+### Verify
+- `npm.cmd run check`
+- Deploy Worker after:
+  `npx wrangler d1 execute lom-idle-v2-stats --file .\migrate-cloud-save-player-id.sql --remote`
+- Manual: cloud-save on device A, restore on device B → same Social name/id
+
+## 2026-07-28 - Duplicate skill books grant +200 XP
+
+Using a skill book for a spell you already know now studies it for +200
+skill experience (consumes the book). Does nothing — and does not consume
+the book — if the skill is mastered (Lv 3) or the character is under the
+next skill-level requirement (`spellLevelRequirement`).
+
+### Changes
+- `src/app.monolith.js`: `DUPLICATE_SKILL_BOOK_EXPERIENCE`,
+  `duplicateSkillBookStudyStatus`, `studyLearnedSpellFromBook`;
+  `learnSpellFromBook` routes duplicates into study; book tooltip notes
+  study / mastered / level-cap state
+- `src/data/changelog.json`: player-facing note
+
+### Verify
+- `npm.cmd run check`
+- `npm.cmd run smoke` (with `npm.cmd run dev` running)
+- Manual: double-click a duplicate book while under-capped → +200 XP /
+  possible level-up; mastered or under next skill req → log only, book kept
+
+## 2026-07-27 - Compact UI group-dungeon Next floor button
+
+On mobile/compact UI the side panel is hidden (`display: none`), so the group
+dungeon Advance button was unreachable. Added a stage-corner **Next** button
+(same pattern as Town) plus a compact **Auto** checkbox when the Cash Shop
+unlock is owned.
+
+### Changes
+- `src/app.monolith.js`: `#compactAdvanceFloor`, `#compactGroupDungeonAutoAdvance`,
+  `syncCompactGroupDungeonAdvanceControls`, click/change wiring; synced from
+  `renderGameUiPanel` / `syncCompactUi`
+- `src/styles.css`: compact styles for Next + Auto controls
+
+### Verify
+- `npm.cmd run check`
+- Manual: phone/compact width in a multi-floor group dungeon; clear a floor and
+  confirm **Next** appears top-right and advances; Auto checkbox if unlocked
+
+## 2026-07-27 - Group Dungeon Auto Advance (Cash Shop)
+
+Permanent account unlock (200 tokens) that shows an **Auto advance** checkbox
+next to the group-dungeon Advance button. When ticked, the party advances to
+the next floor as soon as Advance would appear (including skipping the boss
+entry confirm on auto). Works for BDD, Hell Cavern, and any future multi-stage
+group dungeon that uses the same Advance flow.
+
+### Changes
+- `tools/stats-worker/worker.js`: `group-dungeon-auto-advance: 200` in
+  `UNLOCK_TOKEN_COSTS` (server must be redeployed for purchases)
+- `src/app.monolith.js`: unlock key/helpers, Cash Shop item, checkbox UI,
+  `maybeAutoAdvanceGroupDungeonFloor`, setting persistence, harness grant
+- `src/persistence/sanitizeSettings.js`: `groupDungeonAutoAdvance` (default off)
+- `src/styles.css`, changelog, `tests/statsWorkerShop.test.mjs`
+
+### Verify
+- `npm.cmd run check`
+- Note: live token purchases need the stats worker redeployed with the new key
+
+## 2026-07-27 - Glyph of Gold
+
+Any-class glyph that adds +100% gold from monster and boss kills (stacks with
+rebirth gold upgrades and gold-drop empowers via `totalGoldBonusPercent`).
+
+### Changes
+- `src/glyphModifiers.js`: `goldDrops` + `glyphGoldBonusPercent`
+- `src/app.monolith.js`: include glyph bonus in `totalGoldBonusPercent`
+- `src/data/items.json` frame 3222, changelog, tests, atlas
+
+### Verify
+- `npm.cmd run check`
+
+## 2026-07-27 - Glyph of Magical Protection
+
+Warrior glyph that makes Protection Field buff AMC (MAC) instead of AC. Bonus
+% still uses the same level formula, but against max AMC. Stacks with Bulwark
+Field (stronger/shorter) if both are equipped.
+
+### Changes
+- `src/glyphModifiers.js`: `warriorProtectionFieldAmc` + `glyphProtectionFieldStat`
+- `src/app.monolith.js`: Protection Field applies chosen defence stat
+- `src/data/items.json` frame 3221, changelog, tests, atlas
+
+### Verify
+- `npm.cmd run check`
+
+## 2026-07-27 - Mirror range vs Beast King
+
+Beast King uses `bossMeleeGap: 120`, and the party Wizard stands 4 tiles behind
+the tank (~312px). Mirror attack range was a flat 6 tiles (288px), so the clone
+summoned but never attacked — only on that boss.
+
+### Changes
+- `src/core/wizardMirror.js`: `wizardMirrorAttackRangePx` stretches for formation
+  depth + boss stand-off when needed
+- `src/app.monolith.js`: boss-party mirror attacks use the stretched range
+
+### Verify
+- `npm.cmd run check`
+
+## 2026-07-27 - Glyph of Many Mirrors
+
+Wizard glyph that triples Mirroring: main clone plus one above and one below.
+All three cast Fire Ball only (no Thunder Bolt / Flame Disruptor). Same MP
+upkeep and Mirroring rank damage scaling as a normal mirror.
+
+### Changes
+- `src/glyphModifiers.js`: `wizardManyMirrors` + `glyphManyMirrorsParams`
+- `src/core/wizardMirror.js`: Fire Ball picker flag + extra offset helpers
+- `src/app.monolith.js`: spawn/update/draw/attack extras independently
+- `src/data/items.json` frame 3219, changelog, tests, item atlas
+
+### Verify
+- `npm.cmd run check` (+ smoke)
+
+## 2026-07-27 - Mirroring clone damage by rank
+
+Mirror clone damage was full wizard spell power at every Mirroring rank, which
+felt OP. Rank 3 keeps today’s damage; lower ranks scale down.
+
+### Changes
+- `src/core/wizardMirror.js`: `wizardMirrorDamageMultiplier` /
+  `scaleWizardMirrorDamage` at 55%/70%/85%/100% for ranks 0–3
+- `src/app.monolith.js`: apply after mirror attack damage roll
+- `src/warriorMagic.js`: description notes damage scaling
+- `tests/wizardMirror.test.mjs`: multiplier coverage
+
+### Verify
+- `npm.cmd run check`
+
+## 2026-07-27 - Black Dragon armour sell price
+
+Level 35 Black Dragon armours sold for 1g because Crystal `price` is 0, so
+import set `shop.sell = max(1, floor(0/5))`.
+
+### Changes
+- `src/data/items.json`: all 6 `black-dragon-armor-{m,f}-{1,2,3}` →
+  `shop: { buy: 30000, sell: 6000 }` (same tier as Steel/Royal/Titan)
+
+### Verify
+- `npm.cmd run check`
+
+## 2026-07-27 - Potion hotbar jump on teleport
+
+Teleporting (town↔zone / between arenas) could move the potion hotbar because
+its default Y tracked player feet/lane Y, and a dragged position could be
+permanently reclamped when the stage briefly resized mid-transition.
+
+### Changes
+- `src/app.monolith.js`: pin default hotbar to canvas bottom; clamp dragged
+  position for display only (do not overwrite saved coords on layout)
+
+### Verify
+- `npm.cmd run check` (+ smoke with `npm run dev`)
+
+## 2026-07-27 - Glyph of Improved Flaming Sword
+
+Added **Glyph of Improved Flaming Sword** (Warrior): when Flaming Sword hits,
+the enemy burns for **5 seconds**, taking **50% of that hit’s damage** as fire
+DoT (1s ticks). Applies in solo, boss-party, and offline combat. Item
+`glyph-improved-flaming-sword` (frame 3203) joins the empowered-boss glyph pool.
+
+### Changes
+- `src/glyphModifiers.js`: `warriorImprovedFlamingSword` + burn helpers
+- `src/app.monolith.js`: apply on FS hit; tick alongside enemy poisons
+- `src/data/items.json` + icon, tests, changelog, item atlas
+
+### Verify
+- `npm.cmd run check` + `npm.cmd run smoke`
+
+## 2026-07-27 - Glyph of Critical Strikes
+
+Added **Glyph of Critical Strikes** (all classes): base crit damage bonus is
+**doubled** (+50% → +100% before gear crit-damage), and **Luck is treated as 0**
+for combat rolls / character display while equipped. Joins the empowered-boss
+glyph pool (`glyph-critical-strikes`, EvilSlayer frame 3218).
+
+### Changes
+- `src/glyphModifiers.js`: `criticalStrikes` + `glyphExtraBaseCritDamagePercent` /
+  `glyphNullifiesLuck`
+- `src/data/items.json` + icon frame copy
+- `src/app.monolith.js`: crit apply path, `effectiveCombatStats` / `combatLuck`,
+  character sheet crit/luck display
+- tests, changelog, item atlas, integrity rules
+
+### Verify
+- `npm.cmd run check` + `npm.cmd run smoke`
+
+## 2026-07-27 - Inventory drag chrome around Sort
+
+Inventory window drag handle stopped 80px short of the right edge, so the title
+chrome above/right of the top Sort button was dead (no drag). Extended the handle
+to `right: 30px` like Character/Codex; Sort (z-index 6) and Close still win clicks.
+
+## 2026-07-26 - Glyph of Improved Healing Circle
+
+Taoist glyph so Healing Circle tick heals scale with SC:
+`25 + floor(Max SC / 4)` while equipped (base 25 unchanged without it).
+Item `glyph-improved-healing-circle` (BraveryGlyph2 / frame 3202), drops in the
+empowered/ascended glyph pool via `GLYPH_DEFS`.
+
+## 2026-07-26 - Boss-party splash uses hit member glyphs
+
+Splash/AOE via `applyStrikeTargetIncoming` preferred precomputed `stats` without
+`__buffEntity`, so Tank/Glass lookups fell back to the controlled character's
+inventory. Damage resolve now always uses `defenceTargetForIncomingAttack(entity)`
+when the hit entity is known.
+
+## 2026-07-26 - Ascended glyph drop 15%
+
+Ascended boss kills now roll glyphs at 15% (`ASCENDED_BOSS_GLYPH_DROP_CHANCE`);
+Empowered stays at 10%. Wired via `rollEmpoweredBossGlyphItemId(..., { ascended })`
+in `rollBossTableDrops`.
+
+## 2026-07-26 - Fix Spirit Wards with multi-glyph arrays
+
+`rollTaoistDefenceBuffBonus` still checked `glyph?.kind` after
+`equippedGlyphFor` started returning an array, so Glyph of Spirit Wards never
+applied. It now uses `firstGlyphOfKind` like the other multi-slot helpers.
+
+## 2026-07-26 - Fire Hell joins Hell Cavern progression
+
+Fire Hell F1 / F2 / Hell Lord (floors **8–10**) were already `groupDungeon: "hell"`
+so Advance after Manectric King reaches them. Matched the Ice Hell pattern:
+Wasteland teleporter lists only **Hell Cavern** (`zone-hell-gd-1`); deeper wings
+are reached by advancing. Removed Fire Hell testing teleporter shortcuts.
+
+## 2026-07-26 - Boss swarm respawn on partial kill
+
+Dream/Dark Devourer (and other boss swarms) only started the room cooldown on a
+full clear. Killing one and leaving let you re-enter immediately. Respawn timer
+now starts on the first swarm boss kill; kill credit still requires a full clear.
+Spawn gate allows mid-fight timed reinforcements after that partial-kill timer.
+
+## 2026-07-26 - Hell Knight death explode FX
+
+Crystal HellKnight Die plays `Effect(lib, 448, 10, 600)` (screen-blend burst)
+over a short **lib FrameSet** body die (4f west 168–171), then `Remove()` on
+Dead — no corpse. We had only the body clip (and briefly the wrong 10f
+DefaultMonster fall). Packed `dieEffect` on atlases 243–246, restored lib die,
+and draw/remove with the explode timing.
+
+## 2026-07-26 - Hell Knight death animation fix
+
+Hell Knight libs embed a bad FrameSet (`die` count=4 / offset=4 → west
+168..171). Crystal client ignores that and uses **DefaultMonster** die
+(`Frame(144,10,0,100)` → west **204..213**, 10 frames). Atlases 243–246 were
+exported via `UseLibFrames`, so knights looked like they just stood / barely
+moved on death. Rebuilt die/dead/revive from DefaultMonster
+(`tools/fix-hell-knight-die-atlas.ps1`). Asset version
+`20260726-hell-knight-die-fix`.
+
+## 2026-07-26 - Fire Hell map AOE uses MapQuake
+
+Crystal Hell Cavern FIRE maps spawn **MapLava** (Dragon). Fire Hell / Hell Lord
+floor bursts use **MapQuake1/2** (HellLord lib frames 27 + 39). Exported
+`public/spellfx/MapQuake/`, load it beside MapHellFire, and set
+`mapHellFireStyle: "quake"` on Fire Hell F1/F2/KR visuals.
+
+### Changes
+- `tools/export-map-quake-spellfx.ps1` + `public/spellfx/MapQuake/`
+- `src/app.monolith.js`: `MAP_QUAKE_FX_ID`, atlas load, style-aware spawn/draw
+- `src/phase1Data.js`: Fire Hell `mapHellFireStyle: "quake"`
+- itch spellfx manifest + release asset audit
+
+## 2026-07-26 - Hell Knight weapon EFX
+
+Crystal draws HellKnight1–4 weapon glow via `DrawBlend` from each lib
+(standing 224+, walk 256+, attack 304+, struck 352+, die 368+). Packed those
+into atlases **243–246** (`tools/build-hell-knight-weapon-efx.ps1`). Swarm draw
+now applies action blends on stand/walk (not attack-only). Asset version
+`20260726-hell-knight-weapon-efx`.
+
+## 2026-07-26 - Hell boss respawn timers
+
+Hell Keeper **2h** (120), Manectric King **4h** (240), Hell Lord **8h** (480)
+`groupDungeonBossRespawnMinutes`.
+
+## 2026-07-26 - Glyph of Buffing
+
+Added **Glyph of Buffing** (Taoist): casting Ultimate Enhancer also applies
+Soul Shield and Blessed Armour to the same targets (no extra amulet/MP; does
+not level those skills). Joins the empowered-boss glyph pool
+(`glyph-buffing`, Bravery Glyph1 / frame 3201).
+
+### Changes
+- `src/glyphModifiers.js`: `taoUltimateBuffChain` + helper
+- `src/data/items.json` + icon frame + atlas + integrity rules
+- `src/app.monolith.js`: chain from `applyUltimateEnhancerToTargets` (solo /
+  offline / boss party / training)
+- tests + changelog
+
+### Verify
+- `npm.cmd run check` + `npm.cmd run smoke`
+
 ## 2026-07-26 - Second Glyph rebirth upgrade
 
 Rebirth upgrade **Add Additional Glyph Slot** (250 RP, max tier 1) unlocks a

@@ -716,7 +716,7 @@ export const CRYSTAL_WIZARD_SPELLS = [
     multiplierBonus: 0,
     range: 0,
     buff: true,
-    description: "Summons a mirror clone that stands behind you and follows as you travel (2–9 min by level).",
+    description: "Summons a mirror clone that stands behind you and follows as you travel (2–9 min by level). Clone damage scales with Mirroring rank (55%/70%/85%/100%).",
   },
   {
     id: "MagicBooster",

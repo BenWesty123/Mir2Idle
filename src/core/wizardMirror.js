@@ -2,16 +2,44 @@ export const WIZARD_MIRROR_ATTACK_RANGE_TILES = 6;
 export const WIZARD_MIRROR_UPKEEP_MP = 10;
 export const WIZARD_MIRROR_UPKEEP_INTERVAL_MS = 1000;
 export const WIZARD_MIRROR_REACTION_DELAY_MS = 500;
+export const WIZARD_MIRROR_MANY_OFFSET_Y = 28;
+export const WIZARD_MIRROR_MANY_EXTRA_STAGGER_MS = 200;
 
 const MIRRORING_DURATION_MS = [120000, 180000, 360000, 540000];
+// Rank 3 keeps today's full mirror damage; lower ranks scale down evenly.
+const MIRRORING_DAMAGE_MULTIPLIER = [0.55, 0.7, 0.85, 1];
 
 export function wizardMirrorDurationMs(spellLevel) {
   const level = Math.max(0, Math.min(3, Math.trunc(Number(spellLevel) || 0)));
   return MIRRORING_DURATION_MS[level];
 }
 
-export function pickWizardMirrorAttackSpell({ enemyUndead = false, flameDisruptorLearned = false } = {}) {
+export function wizardMirrorDamageMultiplier(spellLevel) {
+  const level = Math.max(0, Math.min(3, Math.trunc(Number(spellLevel) || 0)));
+  return MIRRORING_DAMAGE_MULTIPLIER[level];
+}
+
+export function scaleWizardMirrorDamage(damage, spellLevel) {
+  const amount = Math.max(0, Math.trunc(Number(damage) || 0));
+  if (amount <= 0) return 0;
+  return Math.max(1, Math.floor(amount * wizardMirrorDamageMultiplier(spellLevel)));
+}
+
+export function pickWizardMirrorAttackSpell({
+  enemyUndead = false,
+  flameDisruptorLearned = false,
+  fireballOnly = false,
+} = {}) {
+  if (fireballOnly) return "FireBall";
   return !enemyUndead && flameDisruptorLearned ? "FlameDisruptor" : "ThunderBolt";
+}
+
+export function wizardMirrorManyExtraOffsets(offsetY = WIZARD_MIRROR_MANY_OFFSET_Y) {
+  const gap = Math.max(8, Math.trunc(Number(offsetY) || WIZARD_MIRROR_MANY_OFFSET_Y));
+  return [
+    { id: "above", offsetY: -gap },
+    { id: "below", offsetY: gap },
+  ];
 }
 
 export function wizardMirrorCastSfxPhase(impactMode) {
@@ -19,12 +47,24 @@ export function wizardMirrorCastSfxPhase(impactMode) {
   return impactMode === "projectile" ? "fly" : "cast";
 }
 
-export function wizardMirrorTargetInRange(ownerWorldX, enemyWorldX, tilePx = 48) {
+export function wizardMirrorAttackRangePx(tilePx = 48, { formationDepthPx = 0, enemyMeleeGapPx = 0 } = {}) {
+  const cell = Math.max(1, Number(tilePx) || 48);
+  const base = WIZARD_MIRROR_ATTACK_RANGE_TILES * cell;
+  // Boss-party Wizard stands several tiles behind the tank; large bosses also
+  // rest farther out (bossMeleeGap). Stretch just enough to still reach.
+  const needed = Math.max(0, Number(formationDepthPx) || 0) + Math.max(0, Number(enemyMeleeGapPx) || 0);
+  return Math.max(base, needed);
+}
+
+export function wizardMirrorTargetInRange(ownerWorldX, enemyWorldX, tilePx = 48, maxRangePx = null) {
   const ownerX = Number(ownerWorldX);
   const targetX = Number(enemyWorldX);
   const cellWidth = Math.max(1, Number(tilePx) || 48);
   if (!Number.isFinite(ownerX) || !Number.isFinite(targetX)) return false;
-  return Math.abs(targetX - ownerX) <= WIZARD_MIRROR_ATTACK_RANGE_TILES * cellWidth;
+  const range = Number.isFinite(Number(maxRangePx)) && Number(maxRangePx) > 0
+    ? Number(maxRangePx)
+    : WIZARD_MIRROR_ATTACK_RANGE_TILES * cellWidth;
+  return Math.abs(targetX - ownerX) <= range;
 }
 
 export function resolveWizardMirrorUpkeep({ ownerMp, nextUpkeepAt, now } = {}) {

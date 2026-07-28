@@ -6,6 +6,7 @@ export const DEFAULT_SFX_VOLUME = 0.55;
 export const DEFAULT_PROTOTYPE_STATS_ENABLED = true;
 export const DEFAULT_SHOW_RECENT_LOOT = true;
 export const DEFAULT_SHOW_ACTIVITY_LOG = true;
+export const DEFAULT_GROUP_DUNGEON_AUTO_ADVANCE = false;
 export const DEFAULT_AUTO_POTION_HP_THRESHOLD = 0.5;
 export const DEFAULT_AUTO_POTION_MP_THRESHOLD = 0.5;
 /** Lowest allowed auto-potion trigger (5%). */
@@ -225,6 +226,9 @@ export function sanitizeSettingsState(savedSettings = {}) {
     showActivityLog: Object.prototype.hasOwnProperty.call(savedSettings, "showActivityLog")
       ? savedSettings.showActivityLog === true
       : DEFAULT_SHOW_ACTIVITY_LOG,
+    groupDungeonAutoAdvance: Object.prototype.hasOwnProperty.call(savedSettings, "groupDungeonAutoAdvance")
+      ? savedSettings.groupDungeonAutoAdvance === true
+      : DEFAULT_GROUP_DUNGEON_AUTO_ADVANCE,
     prototypeStatsNoticeVersion: Math.max(0, Math.trunc(Number(savedSettings.prototypeStatsNoticeVersion) || 0)),
     prototypeResetNoticeVersion: Math.max(0, Math.trunc(Number(savedSettings.prototypeResetNoticeVersion) || 0)),
     prototypeResetNoticeLastSeenAt: Math.max(0, Math.trunc(Number(savedSettings.prototypeResetNoticeLastSeenAt) || 0)),

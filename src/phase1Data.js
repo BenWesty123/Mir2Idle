@@ -4206,6 +4206,7 @@ const NAMMAN_BOSS_ROOM_VISUALS = {
 };
 
 // Crystal hell maps: FIRE flag — MapLava bursts (Dragon 440/470) on random tiles near each player.
+// Fire Hell (HellFire_*) uses MapQuake1/2 (HellLord lib) instead — see mapHellFireStyle: "quake".
 const HELL_CAVERN_MAP_FIRE = {
   mapHellFire: true,
 };
@@ -4312,6 +4313,8 @@ const FIRE_HELL_GD_1_ROOM_VISUALS = {
   stageMinHeight: 480,
   stageMaxHeight: 540,
   ...HELL_CAVERN_MAP_FIRE,
+  // Crystal HellLord.SpawnQuakes / MapQuake1+2 (HellLord 27 / 39) — not MapLava.
+  mapHellFireStyle: "quake",
   mapHellFireDamageMin: 80,
   mapHellFireDamageMax: 160,
 };
@@ -4327,6 +4330,7 @@ const FIRE_HELL_GD_2_ROOM_VISUALS = {
   stageMinHeight: 480,
   stageMaxHeight: 540,
   ...HELL_CAVERN_MAP_FIRE,
+  mapHellFireStyle: "quake",
   mapHellFireDamageMin: 90,
   mapHellFireDamageMax: 180,
 };
@@ -4345,6 +4349,7 @@ const FIRE_HELL_KR_ROOM_VISUALS = {
   // -240 was good; one tile up → -208. Combat follows stamp lock.
   mapStampOffsetY: -208,
   ...HELL_CAVERN_MAP_FIRE,
+  mapHellFireStyle: "quake",
   mapHellFireDamageMin: 100,
   mapHellFireDamageMax: 200,
 };
@@ -5064,7 +5069,7 @@ export const PHASE1_ZONES = [
   {
     id: "zone-hell-gd-1",
     label: "Hell Cavern",
-    description: "Hell group dungeon — Demon, Slasher, Pirate, Cannibal trash; Hell Bolt and Witch Doctor rare (Crystal HELL01 east corridor)",
+    description: "Hell group dungeon — Demon, Slasher, Pirate, Cannibal trash; Hell Bolt and Witch Doctor rare (Crystal HELL01). Advance through Ice Hell then Fire Hell.",
     groupDungeon: "hell",
     groupDungeonFloor: 1,
     groupDungeonWavesPerFloor: 5,
@@ -5111,7 +5116,7 @@ export const PHASE1_ZONES = [
     groupDungeon: "hell",
     groupDungeonFloor: 3,
     groupDungeonBossSwarm: true,
-    groupDungeonBossRespawnMinutes: 30,
+    groupDungeonBossRespawnMinutes: 120,
     enemyIds: [431],
     rewards: { gold: [520, 780] },
     arenaSpawnDistance: 180,
@@ -5173,7 +5178,7 @@ export const PHASE1_ZONES = [
   {
     id: "zone-ice-hell-gd-3",
     label: "Ice Hell — KR (South)",
-    description: "Ice Hell group dungeon KR — Manectric Blest brawlers backed by Claw + Staff casters; Slave rare (Crystal HELL206 IceHellTemple_KR). No boss yet.",
+    description: "Ice Hell group dungeon KR — Manectric Blest brawlers backed by Claw + Staff casters; Slave rare (Crystal HELL206 IceHellTemple_KR). Advance to Manectric King north chamber.",
     groupDungeon: "hell",
     groupDungeonFloor: 6,
     groupDungeonWavesPerFloor: 5,
@@ -5201,7 +5206,7 @@ export const PHASE1_ZONES = [
     groupDungeon: "hell",
     groupDungeonFloor: 7,
     groupDungeonBoss: true,
-    groupDungeonBossRespawnMinutes: 30,
+    groupDungeonBossRespawnMinutes: 240,
     enemyIds: [293],
     rewards: { gold: [720, 1100] },
     arenaSpawnDistance: 180,
@@ -5264,7 +5269,7 @@ export const PHASE1_ZONES = [
     groupDungeon: "hell",
     groupDungeonFloor: 10,
     groupDungeonBoss: true,
-    groupDungeonBossRespawnMinutes: 30,
+    groupDungeonBossRespawnMinutes: 480,
     // Reinforcements off for now (Crystal also spawns Knight Elite + Bomb Mk III around (22,30)).
     groupDungeonBossReinforcements: false,
     enemyIds: [440],

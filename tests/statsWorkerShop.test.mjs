@@ -357,6 +357,21 @@ test("unlock-page charges 300 tokens for time logging", async () => {
   assert.ok(db.unlocks.has(`${VALID_CODE}::time-logging`));
 });
 
+test("unlock-page charges 200 tokens for group dungeon auto advance", async () => {
+  const db = new FakeDb({ balances: { [VALID_CODE]: 200 } });
+  const response = await request("/shop/unlock-page", {
+    method: "POST",
+    headers: { "content-type": "application/json" },
+    body: JSON.stringify({ recoveryCode: VALID_CODE, unlockKey: "group-dungeon-auto-advance" }),
+  }, { DB: db });
+  assert.equal(response.status, 200);
+  const data = await response.json();
+  assert.equal(data.ok, true);
+  assert.equal(data.unlockKey, "group-dungeon-auto-advance");
+  assert.equal(data.balance, 0);
+  assert.ok(db.unlocks.has(`${VALID_CODE}::group-dungeon-auto-advance`));
+});
+
 test("unlock-page is idempotent and never double-charges", async () => {
   const db = new FakeDb({
     balances: { [VALID_CODE]: 300 },
