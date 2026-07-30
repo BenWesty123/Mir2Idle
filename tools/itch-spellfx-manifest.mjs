@@ -30,6 +30,7 @@ export const HEALING_RESTORE_FX_ID = "HealingRestore";
 export const REVIVE_FX_ID = "Revive";
 export const MAP_LIGHTNING_FX_ID = "MapLightning";
 export const MAP_HELL_FIRE_FX_ID = "MapHellFire";
+export const MAP_QUAKE_FX_ID = "MapQuake";
 export const TOWN_IDLE_TELEPORT_FX_ID = "Teleport";
 
 const NESTED_ATLAS_SHEET_KEYS = ["projectile", "impact", "ground", "storm", "cast", "charge"];
@@ -46,6 +47,7 @@ export function packagedSpellfxSpellIds() {
       REVIVE_FX_ID,
       MAP_LIGHTNING_FX_ID,
       MAP_HELL_FIRE_FX_ID,
+      MAP_QUAKE_FX_ID,
       TOWN_IDLE_TELEPORT_FX_ID,
     ]),
   ];

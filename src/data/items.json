@@ -1671,8 +1671,8 @@
         "attackSpeed": 0
       },
       "shop": {
-        "buy": 0,
-        "sell": 1
+        "buy": 30000,
+        "sell": 6000
       },
       "visual": {
         "layer": "armour",
@@ -1732,8 +1732,8 @@
         "attackSpeed": 0
       },
       "shop": {
-        "buy": 0,
-        "sell": 1
+        "buy": 30000,
+        "sell": 6000
       },
       "visual": {
         "layer": "armour",
@@ -1793,8 +1793,8 @@
         "attackSpeed": 0
       },
       "shop": {
-        "buy": 0,
-        "sell": 1
+        "buy": 30000,
+        "sell": 6000
       },
       "visual": {
         "layer": "armour",
@@ -1854,8 +1854,8 @@
         "attackSpeed": 0
       },
       "shop": {
-        "buy": 0,
-        "sell": 1
+        "buy": 30000,
+        "sell": 6000
       },
       "visual": {
         "layer": "armour",
@@ -1924,8 +1924,8 @@
         "attackSpeed": 0
       },
       "shop": {
-        "buy": 0,
-        "sell": 1
+        "buy": 30000,
+        "sell": 6000
       },
       "visual": {
         "layer": "armour",
@@ -1994,8 +1994,8 @@
         "attackSpeed": 0
       },
       "shop": {
-        "buy": 0,
-        "sell": 1
+        "buy": 30000,
+        "sell": 6000
       },
       "visual": {
         "layer": "armour",
@@ -13439,6 +13439,62 @@
       "description": "While in melee range of an enemy: +25% armour and damage. At range: -25% armour and damage."
     },
     {
+      "id": "glyph-buffing",
+      "name": "Glyph of Buffing",
+      "type": "glyph",
+      "slot": "glyph",
+      "class": "taoist",
+      "glyph": {
+        "modifier": "taoUltimateBuffChain"
+      },
+      "icon": {
+        "library": "Items",
+        "frame": 3201,
+        "src": "./public/item-icons/items/frame_003201.png"
+      },
+      "requirements": {
+        "type": "level",
+        "amount": 35,
+        "classMask": 4,
+        "genderMask": 3
+      },
+      "stackable": false,
+      "maxStack": 1,
+      "stats": {
+        "ac": [
+          0,
+          0
+        ],
+        "amc": [
+          0,
+          0
+        ],
+        "dc": [
+          0,
+          0
+        ],
+        "mc": [
+          0,
+          0
+        ],
+        "sc": [
+          0,
+          0
+        ],
+        "hp": 0,
+        "mp": 0,
+        "accuracy": 0,
+        "agility": 0,
+        "luck": 0,
+        "attackSpeed": 0
+      },
+      "shop": {
+        "buy": 0,
+        "sell": 50000
+      },
+      "description": "Ultimate Enhancer also applies Soul Shield and Blessed Armour to the same targets."
+    },
+    {
       "id": "glyph-bulwark-field",
       "name": "Glyph of Bulwark Field",
       "type": "glyph",
@@ -13495,6 +13551,118 @@
       "description": "Protection Field grants a much stronger AC bonus for a short time."
     },
     {
+      "id": "glyph-magical-protection",
+      "name": "Glyph of Magical Protection",
+      "type": "glyph",
+      "slot": "glyph",
+      "class": "warrior",
+      "glyph": {
+        "modifier": "warriorProtectionFieldAmc"
+      },
+      "icon": {
+        "library": "Items",
+        "frame": 3221,
+        "src": "./public/item-icons/items/frame_003221.png"
+      },
+      "requirements": {
+        "type": "level",
+        "amount": 35,
+        "classMask": 1,
+        "genderMask": 3
+      },
+      "stackable": false,
+      "maxStack": 1,
+      "stats": {
+        "ac": [
+          0,
+          0
+        ],
+        "amc": [
+          0,
+          0
+        ],
+        "dc": [
+          0,
+          0
+        ],
+        "mc": [
+          0,
+          0
+        ],
+        "sc": [
+          0,
+          0
+        ],
+        "hp": 0,
+        "mp": 0,
+        "accuracy": 0,
+        "agility": 0,
+        "luck": 0,
+        "attackSpeed": 0
+      },
+      "shop": {
+        "buy": 0,
+        "sell": 50000
+      },
+      "description": "Protection Field buffs AMC (MAC) instead of AC."
+    },
+    {
+      "id": "glyph-critical-strikes",
+      "name": "Glyph of Critical Strikes",
+      "type": "glyph",
+      "slot": "glyph",
+      "class": "any",
+      "glyph": {
+        "modifier": "criticalStrikes"
+      },
+      "icon": {
+        "library": "Items",
+        "frame": 3218,
+        "src": "./public/item-icons/items/frame_003218.png"
+      },
+      "requirements": {
+        "type": "level",
+        "amount": 35,
+        "classMask": 31,
+        "genderMask": 3
+      },
+      "stackable": false,
+      "maxStack": 1,
+      "stats": {
+        "ac": [
+          0,
+          0
+        ],
+        "amc": [
+          0,
+          0
+        ],
+        "dc": [
+          0,
+          0
+        ],
+        "mc": [
+          0,
+          0
+        ],
+        "sc": [
+          0,
+          0
+        ],
+        "hp": 0,
+        "mp": 0,
+        "accuracy": 0,
+        "agility": 0,
+        "luck": 0,
+        "attackSpeed": 0
+      },
+      "shop": {
+        "buy": 0,
+        "sell": 50000
+      },
+      "description": "Base critical strike damage is doubled, but Luck no longer affects you."
+    },
+    {
       "id": "glyph-disruptor-cascade",
       "name": "Glyph of Disruptor Cascade",
       "type": "glyph",
@@ -13549,6 +13717,62 @@
         "sell": 50000
       },
       "description": "Flame Disruptor can also strike enemies next to the target for reduced damage."
+    },
+    {
+      "id": "glyph-many-mirrors",
+      "name": "Glyph of Many Mirrors",
+      "type": "glyph",
+      "slot": "glyph",
+      "class": "wizard",
+      "glyph": {
+        "modifier": "wizardManyMirrors"
+      },
+      "icon": {
+        "library": "Items",
+        "frame": 3219,
+        "src": "./public/item-icons/items/frame_003219.png"
+      },
+      "requirements": {
+        "type": "level",
+        "amount": 35,
+        "classMask": 2,
+        "genderMask": 3
+      },
+      "stackable": false,
+      "maxStack": 1,
+      "stats": {
+        "ac": [
+          0,
+          0
+        ],
+        "amc": [
+          0,
+          0
+        ],
+        "dc": [
+          0,
+          0
+        ],
+        "mc": [
+          0,
+          0
+        ],
+        "sc": [
+          0,
+          0
+        ],
+        "hp": 0,
+        "mp": 0,
+        "accuracy": 0,
+        "agility": 0,
+        "luck": 0,
+        "attackSpeed": 0
+      },
+      "shop": {
+        "buy": 0,
+        "sell": 50000
+      },
+      "description": "Mirroring summons three clones (one above and one below). They can only cast Fire Ball."
     },
     {
       "id": "glyph-eternal-firewall",
@@ -13719,6 +13943,62 @@
       "description": "Activating Flaming Sword briefly reduces the damage you take."
     },
     {
+      "id": "glyph-improved-flaming-sword",
+      "name": "Glyph of Improved Flaming Sword",
+      "type": "glyph",
+      "slot": "glyph",
+      "class": "warrior",
+      "glyph": {
+        "modifier": "warriorImprovedFlamingSword"
+      },
+      "icon": {
+        "library": "Items",
+        "frame": 3203,
+        "src": "./public/item-icons/items/frame_003203.png"
+      },
+      "requirements": {
+        "type": "level",
+        "amount": 35,
+        "classMask": 1,
+        "genderMask": 3
+      },
+      "stackable": false,
+      "maxStack": 1,
+      "stats": {
+        "ac": [
+          0,
+          0
+        ],
+        "amc": [
+          0,
+          0
+        ],
+        "dc": [
+          0,
+          0
+        ],
+        "mc": [
+          0,
+          0
+        ],
+        "sc": [
+          0,
+          0
+        ],
+        "hp": 0,
+        "mp": 0,
+        "accuracy": 0,
+        "agility": 0,
+        "luck": 0,
+        "attackSpeed": 0
+      },
+      "shop": {
+        "buy": 0,
+        "sell": 50000
+      },
+      "description": "Flaming Sword burns the enemy for 5 seconds, dealing 50% of the hit as fire damage over time."
+    },
+    {
       "id": "glyph-glass-canon",
       "name": "Glyph of Glass Canon",
       "type": "glyph",
@@ -13775,6 +14055,62 @@
       "description": "Damage done increased by 50%. Damage taken increased by 100%."
     },
     {
+      "id": "glyph-gold",
+      "name": "Glyph of Gold",
+      "type": "glyph",
+      "slot": "glyph",
+      "class": "any",
+      "glyph": {
+        "modifier": "goldDrops"
+      },
+      "icon": {
+        "library": "Items",
+        "frame": 3222,
+        "src": "./public/item-icons/items/frame_003222.png"
+      },
+      "requirements": {
+        "type": "level",
+        "amount": 35,
+        "classMask": 31,
+        "genderMask": 3
+      },
+      "stackable": false,
+      "maxStack": 1,
+      "stats": {
+        "ac": [
+          0,
+          0
+        ],
+        "amc": [
+          0,
+          0
+        ],
+        "dc": [
+          0,
+          0
+        ],
+        "mc": [
+          0,
+          0
+        ],
+        "sc": [
+          0,
+          0
+        ],
+        "hp": 0,
+        "mp": 0,
+        "accuracy": 0,
+        "agility": 0,
+        "luck": 0,
+        "attackSpeed": 0
+      },
+      "shop": {
+        "buy": 0,
+        "sell": 50000
+      },
+      "description": "Gold drops from monsters and bosses are increased by 100%."
+    },
+    {
       "id": "glyph-hero",
       "name": "Glyph of the Hero",
       "type": "glyph",
@@ -13829,6 +14165,62 @@
         "sell": 50000
       },
       "description": "You take all damage your party members would receive."
+    },
+    {
+      "id": "glyph-improved-healing-circle",
+      "name": "Glyph of Improved Healing Circle",
+      "type": "glyph",
+      "slot": "glyph",
+      "class": "taoist",
+      "glyph": {
+        "modifier": "taoHealingCircleFromSc"
+      },
+      "icon": {
+        "library": "Items",
+        "frame": 3202,
+        "src": "./public/item-icons/items/frame_003202.png"
+      },
+      "requirements": {
+        "type": "level",
+        "amount": 39,
+        "classMask": 4,
+        "genderMask": 3
+      },
+      "stackable": false,
+      "maxStack": 1,
+      "stats": {
+        "ac": [
+          0,
+          0
+        ],
+        "amc": [
+          0,
+          0
+        ],
+        "dc": [
+          0,
+          0
+        ],
+        "mc": [
+          0,
+          0
+        ],
+        "sc": [
+          0,
+          0
+        ],
+        "hp": 0,
+        "mp": 0,
+        "accuracy": 0,
+        "agility": 0,
+        "luck": 0,
+        "attackSpeed": 0
+      },
+      "shop": {
+        "buy": 0,
+        "sell": 50000
+      },
+      "description": "Healing Circle restore amount scales with your Spirit (SC)."
     },
     {
       "id": "glyph-infinite-mana",

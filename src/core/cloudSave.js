@@ -13,6 +13,14 @@ export function normalizeRecoveryCode(value) {
   return `MIR-${compact.match(/.{1,4}/g).join("-")}`;
 }
 
+/** Account-scoped Social / leaderboard id (no character `:suffix`). */
+export function normalizeAccountPlayerId(value) {
+  const id = String(value ?? "").trim();
+  if (!id || id.includes(":")) return "";
+  if (!/^[a-z0-9_-]{8,80}$/i.test(id)) return "";
+  return id;
+}
+
 export function createRecoveryCode(cryptoApi = globalThis.crypto) {
   if (!cryptoApi?.getRandomValues) throw new Error("Secure random values are unavailable.");
   const bytes = new Uint8Array(RECOVERY_CODE_LENGTH);

@@ -6,6 +6,7 @@ import {
   applyGlyphGroundDuration,
   applyGlyphProtectionFieldBonus,
   applyGlyphProtectionFieldDuration,
+  glyphProtectionFieldStat,
   applyGlyphTwinDrakeDamage,
   equippedGlyphDef,
   equippedGlyphDefs,
@@ -15,7 +16,14 @@ import {
   glyphDefByItemId,
   glyphFlameDisruptorSplashParams,
   glyphFlamingSwordDrParams,
+  glyphImprovedFlamingSwordParams,
+  glyphManyMirrorsParams,
+  glyphGoldBonusPercent,
+  buildFlamingSwordBurnState,
+  flamingSwordBurnTickDamage,
+  flamingSwordBurnTotalDamage,
   glyphHealingIsInstant,
+  glyphChainsDefenceBuffsWithUltimate,
   glyphMagicShieldMpParams,
   glyphManaRegenPerSecond,
   glyphPetOwnerDcBonus,
@@ -26,11 +34,15 @@ import {
   rollDefenceBuffBonusFromSc,
   rollEmpoweredBossGlyphItemId,
   EMPOWERED_BOSS_GLYPH_DROP_CHANCE,
+  ASCENDED_BOSS_GLYPH_DROP_CHANCE,
   glyphDropItemIds,
   rollFlameDisruptorSplashChance,
   rollTaoistDefenceBuffBonus,
   applyGlyphHealingAmount,
   applyGlyphHpPotionRestore,
+  glyphExtraBaseCritDamagePercent,
+  glyphNullifiesLuck,
+  healingCircleTickHealAmount,
   accrueGlyphManaRegen,
   applyGlyphCombatDamageIncoming,
   applyGlyphCombatDamageOutgoing,
@@ -49,16 +61,21 @@ import { itemCanBeEmpowered } from "../src/core/empoweredItems.js";
 
 test("glyph defs cover all implemented items and unique item ids", () => {
   const implemented = GLYPH_DEFS.filter((def) => def.implemented);
-  assert.equal(implemented.length, 17);
+  assert.equal(implemented.length, 24);
   assert.ok(glyphDefByItemId("glyph-spirit-wards"));
   assert.ok(glyphDefByItemId("glyph-eternal-firewall"));
   assert.ok(glyphDefByItemId("glyph-bulwark-field"));
+  assert.ok(glyphDefByItemId("glyph-magical-protection"));
   assert.ok(glyphDefByItemId("glyph-flaming-bulwark"));
+  assert.ok(glyphDefByItemId("glyph-improved-flaming-sword"));
   assert.ok(glyphDefByItemId("glyph-twin-fury"));
   assert.ok(glyphDefByItemId("glyph-pet-might"));
   assert.ok(glyphDefByItemId("glyph-instant-healing"));
+  assert.ok(glyphDefByItemId("glyph-improved-healing-circle"));
+  assert.ok(glyphDefByItemId("glyph-buffing"));
   assert.ok(glyphDefByItemId("glyph-infinite-mana"));
   assert.ok(glyphDefByItemId("glyph-glass-canon"));
+  assert.ok(glyphDefByItemId("glyph-gold"));
   assert.ok(glyphDefByItemId("glyph-tank"));
   assert.ok(glyphDefByItemId("glyph-hero"));
   assert.ok(glyphDefByItemId("glyph-revival"));
@@ -66,7 +83,9 @@ test("glyph defs cover all implemented items and unique item ids", () => {
   assert.ok(glyphDefByItemId("glyph-monk"));
   assert.ok(glyphDefByItemId("glyph-mana-aegis"));
   assert.ok(glyphDefByItemId("glyph-disruptor-cascade"));
+  assert.ok(glyphDefByItemId("glyph-many-mirrors"));
   assert.ok(glyphDefByItemId("glyph-fast-healing"));
+  assert.ok(glyphDefByItemId("glyph-critical-strikes"));
   const ids = new Set(GLYPH_DEFS.map((def) => def.itemId));
   assert.equal(ids.size, GLYPH_DEFS.length);
 });
@@ -75,9 +94,13 @@ test("empowered boss glyph drop is one-or-none from the full pool", () => {
   const pool = glyphDropItemIds();
   assert.equal(pool.length, GLYPH_DEFS.length);
   assert.equal(EMPOWERED_BOSS_GLYPH_DROP_CHANCE, 0.1);
+  assert.equal(ASCENDED_BOSS_GLYPH_DROP_CHANCE, 0.15);
 
   assert.equal(rollEmpoweredBossGlyphItemId(() => 0.1), null);
   assert.equal(rollEmpoweredBossGlyphItemId(() => 0.99), null);
+  // Ascended uses 15%: 0.10 hits, 0.15 misses.
+  assert.ok(rollEmpoweredBossGlyphItemId(() => 0.1, { ascended: true }));
+  assert.equal(rollEmpoweredBossGlyphItemId(() => 0.15, { ascended: true }), null);
 
   let call = 0;
   const forcedHit = () => {
@@ -103,6 +126,14 @@ test("SC defence buff formula matches Ultimate Enhancer style", () => {
     14,
   );
   assert.equal(rollTaoistDefenceBuffBonus(50, 50, null), 11);
+  // Multi-slot equip returns an array; Spirit Wards must still apply.
+  assert.equal(
+    rollTaoistDefenceBuffBonus(50, 50, [
+      glyphDefById("taoUltimateBuffChain"),
+      glyphDefById("taoDefenceBuffFromSc"),
+    ]),
+    14,
+  );
 });
 
 test("Fire Wall duration doubles with glyph", () => {
@@ -117,6 +148,21 @@ test("Protection Field glyph doubles bonus and fixes duration", () => {
   assert.equal(applyGlyphProtectionFieldBonus(10, glyph), 20);
   assert.equal(applyGlyphProtectionFieldDuration(60000, glyph), 5000);
   assert.equal(applyGlyphProtectionFieldDuration(60000, null), 60000);
+});
+
+test("Magical Protection glyph switches Protection Field to AMC", () => {
+  const glyph = glyphDefById("warriorProtectionFieldAmc");
+  assert.equal(glyph?.itemId, "glyph-magical-protection");
+  assert.equal(glyphProtectionFieldStat(glyph), "amc");
+  assert.equal(glyphProtectionFieldStat(null), "ac");
+  assert.equal(glyphProtectionFieldStat([glyphDefById("warriorProtectionFieldBurst")]), "ac");
+});
+
+test("Glyph of Gold doubles monster and boss gold drops", () => {
+  const glyph = glyphDefById("goldDrops");
+  assert.equal(glyph?.itemId, "glyph-gold");
+  assert.equal(glyphGoldBonusPercent(glyph), 100);
+  assert.equal(glyphGoldBonusPercent(null), 0);
 });
 
 test("equippedGlyphDefs reads multiple glyph slots", () => {
@@ -164,6 +210,33 @@ test("Flaming Bulwark glyph exposes DR params", () => {
   assert.equal(glyphFlamingSwordDrParams(null), null);
 });
 
+test("Improved Flaming Sword glyph burns for half the hit over 5 seconds", () => {
+  const glyph = glyphDefById("warriorImprovedFlamingSword");
+  assert.deepEqual(glyphImprovedFlamingSwordParams(glyph), {
+    durationMs: 5000,
+    damageFraction: 0.5,
+    tickMs: 1000,
+  });
+  assert.equal(glyphImprovedFlamingSwordParams(null), null);
+  assert.equal(flamingSwordBurnTotalDamage(100, 0.5), 50);
+  assert.equal(flamingSwordBurnTotalDamage(101, 0.5), 50);
+
+  const burn = buildFlamingSwordBurnState(100, glyphImprovedFlamingSwordParams(glyph), 1000);
+  assert.deepEqual(burn, {
+    remainingDamage: 50,
+    ticksRemaining: 5,
+    tickMs: 1000,
+    nextTickAt: 2000,
+    appliedAt: 1000,
+  });
+  assert.equal(flamingSwordBurnTickDamage(burn), 10);
+  burn.remainingDamage -= 10;
+  burn.ticksRemaining -= 1;
+  assert.equal(flamingSwordBurnTickDamage({ remainingDamage: 13, ticksRemaining: 2 }), 6);
+  assert.equal(flamingSwordBurnTickDamage({ remainingDamage: 7, ticksRemaining: 1 }), 7);
+  assert.equal(buildFlamingSwordBurnState(1, glyphImprovedFlamingSwordParams(glyph), 0), null);
+});
+
 test("Twin Fury glyph doubles Twin Drake damage and sets cooldown", () => {
   const glyph = glyphDefById("warriorTwinDrakeBurst");
   assert.equal(applyGlyphTwinDrakeDamage(100, "TwinDrakeBlade", glyph), 200);
@@ -190,6 +263,19 @@ test("Instant Healing glyph halves Healing and marks it instant", () => {
   assert.equal(applyGlyphHealingAmount(100, "Healing", null), 100);
 });
 
+test("Improved Healing Circle glyph adds floor(maxSc/4) per tick", () => {
+  const glyph = glyphDefById("taoHealingCircleFromSc");
+  assert.equal(healingCircleTickHealAmount(25, 0, glyph), 25);
+  assert.equal(healingCircleTickHealAmount(25, 3, glyph), 25);
+  assert.equal(healingCircleTickHealAmount(25, 4, glyph), 26);
+  assert.equal(healingCircleTickHealAmount(25, 40, glyph), 35);
+  assert.equal(healingCircleTickHealAmount(25, 40, null), 25);
+  assert.equal(healingCircleTickHealAmount(25, 40, [
+    glyphDefById("taoHealingInstant"),
+    glyph,
+  ]), 35);
+});
+
 test("Fast Healing glyph halves HP potion restore and shortens tick delay", () => {
   const glyph = glyphDefById("fastHealing");
   assert.equal(applyGlyphHpPotionRestore(100, glyph), 50);
@@ -198,6 +284,15 @@ test("Fast Healing glyph halves HP potion restore and shortens tick delay", () =
   assert.equal(glyphPotionTickDelayMs(200, glyph, { hpPending: true }), 150);
   assert.equal(glyphPotionTickDelayMs(200, glyph, { hpPending: false }), 200);
   assert.equal(glyphPotionTickDelayMs(200, null, { hpPending: true }), 200);
+});
+
+test("Critical Strikes glyph doubles base crit damage and nullifies luck", () => {
+  const glyph = glyphDefById("criticalStrikes");
+  assert.equal(glyphNullifiesLuck(glyph), true);
+  assert.equal(glyphNullifiesLuck(null), false);
+  assert.equal(glyphExtraBaseCritDamagePercent(glyph), 50);
+  assert.equal(glyphExtraBaseCritDamagePercent(null), 0);
+  assert.equal(glyphExtraBaseCritDamagePercent([glyph]), 50);
 });
 
 test("Infinite Mana glyph accrues 5 MP/s across uneven offline steps", () => {
@@ -264,6 +359,15 @@ test("Hero glyph is identified by kind", () => {
   assert.equal(glyphIsHero(glyphDefById("tank")), false);
   assert.equal(glyphIsHero(null), false);
   assert.equal(glyphDefByItemId("glyph-hero")?.label, "Glyph of the Hero");
+});
+
+test("Buffing glyph chains Ultimate Enhancer with defence buffs", () => {
+  const glyph = glyphDefById("taoUltimateBuffChain");
+  assert.equal(glyph?.label, "Glyph of Buffing");
+  assert.equal(glyphChainsDefenceBuffsWithUltimate(glyph), true);
+  assert.equal(glyphChainsDefenceBuffsWithUltimate(glyphDefById("taoDefenceBuffFromSc")), false);
+  assert.equal(glyphChainsDefenceBuffsWithUltimate(null), false);
+  assert.deepEqual(glyph?.spellIds, ["UltimateEnhancer", "SoulShield", "BlessedArmour"]);
 });
 
 test("Battle Wizard glyph buffs melee and nerfs ranged damage/armour", () => {
@@ -339,4 +443,11 @@ test("Disruptor Cascade splash is half damage with 50% chance", () => {
   assert.equal(rollFlameDisruptorSplashChance(0.5, () => 0.49), true);
   assert.equal(rollFlameDisruptorSplashChance(0.5, () => 0.5), false);
   assert.equal(glyphFlameDisruptorSplashParams(null), null);
+});
+
+test("Many Mirrors glyph params expose vertical clone offset", () => {
+  const glyph = glyphDefById("wizardManyMirrors");
+  assert.equal(glyph?.itemId, "glyph-many-mirrors");
+  assert.deepEqual(glyphManyMirrorsParams(glyph), { offsetY: 28 });
+  assert.equal(glyphManyMirrorsParams(null), null);
 });

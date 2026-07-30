@@ -5,6 +5,7 @@ import {
   cloudRestoreEndpoint,
   cloudSaveEndpointFromConfig,
   createRecoveryCode,
+  normalizeAccountPlayerId,
   normalizeRecoveryCode,
 } from "../src/core/cloudSave.js";
 
@@ -12,6 +13,14 @@ test("recovery codes normalize into a readable stable format", () => {
   assert.equal(normalizeRecoveryCode("mir-abcd-2345-efgh-6789"), "MIR-ABCD-2345-EFGH-6789");
   assert.equal(normalizeRecoveryCode("bad"), "");
   assert.equal(normalizeRecoveryCode("MIR-ABCI-2345-EFGH-6789"), "");
+});
+
+test("account player ids reject character suffixes and junk", () => {
+  assert.equal(normalizeAccountPlayerId("11111111-2222-3333-4444-555555555555"), "11111111-2222-3333-4444-555555555555");
+  assert.equal(normalizeAccountPlayerId("anon-abc12345"), "anon-abc12345");
+  assert.equal(normalizeAccountPlayerId("11111111-2222-3333-4444-555555555555:Warrior"), "");
+  assert.equal(normalizeAccountPlayerId("short"), "");
+  assert.equal(normalizeAccountPlayerId(""), "");
 });
 
 test("recovery code generation uses supplied secure bytes", () => {

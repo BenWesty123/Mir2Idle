@@ -25,6 +25,7 @@
     "audit:phase1": "node tools/build-phase1-content-audit.mjs",
     "build:phase1-items": "node tools/build-phase1-items.mjs",
     "empower:ref": "node tools/generate-empower-reference.mjs",
+    "glyph:ref": "node tools/generate-glyph-reference.mjs",
     "integrity:rules": "node tools/generate-item-integrity-rules.mjs",
     "integrity:rules:check": "node tools/generate-item-integrity-rules.mjs --check",
     "build:zones-json": "node tools/build-zones-json.mjs",

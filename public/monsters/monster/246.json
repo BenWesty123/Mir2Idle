@@ -1,1 +1,1757 @@
-{"layer":"monster","index":246,"direction":6,"slotWidth":308,"slotHeight":252,"sheetHeight":252,"bodyWidth":29260,"actions":{"standing":{"interval":500,"frames":[{"slot":0,"srcFrame":24,"w":180,"h":208,"offsetX":-53,"offsetY":-155},{"slot":1,"srcFrame":25,"w":180,"h":208,"offsetX":-53,"offsetY":-155},{"slot":2,"srcFrame":26,"w":180,"h":208,"offsetX":-53,"offsetY":-155},{"slot":3,"srcFrame":27,"w":180,"h":208,"offsetX":-53,"offsetY":-155}]},"walking":{"interval":100,"frames":[{"slot":4,"srcFrame":68,"w":232,"h":204,"offsetX":-91,"offsetY":-152},{"slot":5,"srcFrame":69,"w":236,"h":204,"offsetX":-109,"offsetY":-154},{"slot":6,"srcFrame":70,"w":236,"h":204,"offsetX":-123,"offsetY":-154},{"slot":7,"srcFrame":71,"w":252,"h":204,"offsetX":-132,"offsetY":-152},{"slot":8,"srcFrame":72,"w":236,"h":204,"offsetX":-123,"offsetY":-152},{"slot":9,"srcFrame":73,"w":236,"h":204,"offsetX":-109,"offsetY":-151}]},"attack1":{"interval":100,"frames":[{"slot":10,"srcFrame":116,"w":236,"h":208,"offsetX":-99,"offsetY":-154},{"slot":11,"srcFrame":117,"w":216,"h":252,"offsetX":-38,"offsetY":-200},{"slot":12,"srcFrame":118,"w":264,"h":220,"offsetX":-7,"offsetY":-164},{"slot":13,"srcFrame":119,"w":260,"h":216,"offsetX":-15,"offsetY":-164},{"slot":14,"srcFrame":120,"w":308,"h":188,"offsetX":-182,"offsetY":-138},{"slot":15,"srcFrame":121,"w":256,"h":200,"offsetX":-144,"offsetY":-149}]},"struck":{"interval":200,"frames":[{"slot":16,"srcFrame":140,"w":260,"h":192,"offsetX":-89,"offsetY":-143},{"slot":17,"srcFrame":141,"w":248,"h":196,"offsetX":-97,"offsetY":-148}]},"die":{"interval":100,"frames":[{"slot":18,"srcFrame":168,"w":232,"h":204,"offsetX":-102,"offsetY":-152},{"slot":19,"srcFrame":169,"w":228,"h":204,"offsetX":-97,"offsetY":-153},{"slot":20,"srcFrame":170,"w":228,"h":200,"offsetX":-92,"offsetY":-154},{"slot":21,"srcFrame":171,"w":220,"h":204,"offsetX":-85,"offsetY":-155}]},"dead":{"interval":1000,"frames":[{"slot":22,"srcFrame":171,"w":220,"h":204,"offsetX":-85,"offsetY":-155}]},"revive":{"interval":100,"frames":[{"slot":23,"srcFrame":144,"w":176,"h":196,"offsetX":-32,"offsetY":-145},{"slot":24,"srcFrame":143,"w":168,"h":212,"offsetX":-15,"offsetY":-146},{"slot":25,"srcFrame":142,"w":180,"h":224,"offsetX":-15,"offsetY":-161},{"slot":26,"srcFrame":141,"w":248,"h":196,"offsetX":-97,"offsetY":-148}]},"attackRange1":{"interval":100,"frames":[{"slot":27,"srcFrame":116,"w":236,"h":208,"offsetX":-99,"offsetY":-154},{"slot":28,"srcFrame":117,"w":216,"h":252,"offsetX":-38,"offsetY":-200},{"slot":29,"srcFrame":118,"w":264,"h":220,"offsetX":-7,"offsetY":-164},{"slot":30,"srcFrame":119,"w":260,"h":216,"offsetX":-15,"offsetY":-164},{"slot":31,"srcFrame":120,"w":308,"h":188,"offsetX":-182,"offsetY":-138},{"slot":32,"srcFrame":121,"w":256,"h":200,"offsetX":-144,"offsetY":-149}]},"walkNorth":{"interval":100,"frames":[{"slot":33,"srcFrame":32,"w":176,"h":216,"offsetX":-32,"offsetY":-152},{"slot":34,"srcFrame":33,"w":180,"h":212,"offsetX":-30,"offsetY":-150},{"slot":35,"srcFrame":34,"w":176,"h":216,"offsetX":-30,"offsetY":-154},{"slot":36,"srcFrame":35,"w":176,"h":236,"offsetX":-31,"offsetY":-177},{"slot":37,"srcFrame":36,"w":176,"h":212,"offsetX":-34,"offsetY":-153},{"slot":38,"srcFrame":37,"w":180,"h":212,"offsetX":-35,"offsetY":-151}]},"walkSouth":{"interval":100,"frames":[{"slot":39,"srcFrame":56,"w":184,"h":240,"offsetX":-40,"offsetY":-149},{"slot":40,"srcFrame":57,"w":180,"h":248,"offsetX":-41,"offsetY":-148},{"slot":41,"srcFrame":58,"w":184,"h":252,"offsetX":-41,"offsetY":-144},{"slot":42,"srcFrame":59,"w":180,"h":260,"offsetX":-39,"offsetY":-146},{"slot":43,"srcFrame":60,"w":180,"h":252,"offsetX":-36,"offsetY":-144},{"slot":44,"srcFrame":61,"w":184,"h":248,"offsetX":-36,"offsetY":-148}]},"walkEast":{"interval":100,"frames":[{"slot":45,"srcFrame":44,"w":212,"h":212,"offsetX":-52,"offsetY":-152},{"slot":46,"srcFrame":45,"w":232,"h":208,"offsetX":-46,"offsetY":-151},{"slot":47,"srcFrame":46,"w":252,"h":208,"offsetX":-42,"offsetY":-151},{"slot":48,"srcFrame":47,"w":264,"h":204,"offsetX":-38,"offsetY":-150},{"slot":49,"srcFrame":48,"w":252,"h":208,"offsetX":-42,"offsetY":-153},{"slot":50,"srcFrame":49,"w":232,"h":208,"offsetX":-45,"offsetY":-154}]},"walkNorthWest":{"interval":100,"frames":[{"slot":51,"srcFrame":74,"w":184,"h":224,"offsetX":-36,"offsetY":-148},{"slot":52,"srcFrame":75,"w":172,"h":220,"offsetX":-34,"offsetY":-148},{"slot":53,"srcFrame":76,"w":176,"h":212,"offsetX":-47,"offsetY":-146},{"slot":54,"srcFrame":77,"w":188,"h":220,"offsetX":-60,"offsetY":-158},{"slot":55,"srcFrame":78,"w":176,"h":208,"offsetX":-49,"offsetY":-144},{"slot":56,"srcFrame":79,"w":172,"h":212,"offsetX":-36,"offsetY":-146}]},"walkSouthWest":{"interval":100,"frames":[{"slot":57,"srcFrame":62,"w":236,"h":196,"offsetX":-101,"offsetY":-147},{"slot":58,"srcFrame":63,"w":244,"h":200,"offsetX":-110,"offsetY":-150},{"slot":59,"srcFrame":64,"w":248,"h":208,"offsetX":-116,"offsetY":-153},{"slot":60,"srcFrame":65,"w":248,"h":216,"offsetX":-115,"offsetY":-152},{"slot":61,"srcFrame":66,"w":248,"h":208,"offsetX":-114,"offsetY":-151},{"slot":62,"srcFrame":67,"w":244,"h":196,"offsetX":-107,"offsetY":-147}]},"attackNorthWest":{"interval":100,"frames":[{"slot":63,"srcFrame":122,"w":176,"h":240,"offsetX":-30,"offsetY":-167},{"slot":64,"srcFrame":123,"w":208,"h":272,"offsetX":-30,"offsetY":-190},{"slot":65,"srcFrame":124,"w":252,"h":244,"offsetX":-29,"offsetY":-156},{"slot":66,"srcFrame":125,"w":236,"h":240,"offsetX":-29,"offsetY":-150},{"slot":67,"srcFrame":126,"w":240,"h":228,"offsetX":-125,"offsetY":-159},{"slot":68,"srcFrame":127,"w":192,"h":232,"offsetX":-79,"offsetY":-158}]},"attackSouthWest":{"interval":100,"frames":[{"slot":69,"srcFrame":110,"w":244,"h":200,"offsetX":-97,"offsetY":-161},{"slot":70,"srcFrame":111,"w":224,"h":260,"offsetX":-64,"offsetY":-217},{"slot":71,"srcFrame":112,"w":220,"h":240,"offsetX":-20,"offsetY":-199},{"slot":72,"srcFrame":113,"w":208,"h":228,"offsetX":-20,"offsetY":-185},{"slot":73,"srcFrame":114,"w":248,"h":220,"offsetX":-122,"offsetY":-107},{"slot":74,"srcFrame":115,"w":236,"h":212,"offsetX":-114,"offsetY":-128}]},"standingNorthWest":{"interval":500,"frames":[{"slot":75,"srcFrame":28,"w":164,"h":228,"offsetX":-26,"offsetY":-162},{"slot":76,"srcFrame":29,"w":164,"h":228,"offsetX":-26,"offsetY":-162},{"slot":77,"srcFrame":30,"w":164,"h":228,"offsetX":-26,"offsetY":-162},{"slot":78,"srcFrame":31,"w":164,"h":228,"offsetX":-26,"offsetY":-162}]},"standingSouthWest":{"interval":500,"frames":[{"slot":79,"srcFrame":20,"w":220,"h":204,"offsetX":-81,"offsetY":-159},{"slot":80,"srcFrame":21,"w":220,"h":204,"offsetX":-81,"offsetY":-159},{"slot":81,"srcFrame":22,"w":220,"h":204,"offsetX":-81,"offsetY":-159},{"slot":82,"srcFrame":23,"w":220,"h":204,"offsetX":-81,"offsetY":-159}]},"attackRangeNorthWest":{"interval":100,"frames":[{"slot":83,"srcFrame":122,"w":176,"h":240,"offsetX":-30,"offsetY":-167},{"slot":84,"srcFrame":123,"w":208,"h":272,"offsetX":-30,"offsetY":-190},{"slot":85,"srcFrame":124,"w":252,"h":244,"offsetX":-29,"offsetY":-156},{"slot":86,"srcFrame":125,"w":236,"h":240,"offsetX":-29,"offsetY":-150},{"slot":87,"srcFrame":126,"w":240,"h":228,"offsetX":-125,"offsetY":-159},{"slot":88,"srcFrame":127,"w":192,"h":232,"offsetX":-79,"offsetY":-158}]},"attackRangeSouthWest":{"interval":100,"frames":[{"slot":89,"srcFrame":110,"w":244,"h":200,"offsetX":-97,"offsetY":-161},{"slot":90,"srcFrame":111,"w":224,"h":260,"offsetX":-64,"offsetY":-217},{"slot":91,"srcFrame":112,"w":220,"h":240,"offsetX":-20,"offsetY":-199},{"slot":92,"srcFrame":113,"w":208,"h":228,"offsetX":-20,"offsetY":-185},{"slot":93,"srcFrame":114,"w":248,"h":220,"offsetX":-122,"offsetY":-107},{"slot":94,"srcFrame":115,"w":236,"h":212,"offsetX":-114,"offsetY":-128}]}}}
+{
+    "layer":  "monster",
+    "index":  246,
+    "direction":  6,
+    "slotWidth":  308,
+    "slotHeight":  252,
+    "bodyWidth":  32956,
+    "sheetHeight":  428,
+    "dieEffect":  {
+                      "interval":  60,
+                      "durationMs":  600,
+                      "frames":  [
+                                     {
+                                         "sheetX":  49972,
+                                         "srcFrame":  448,
+                                         "w":  256,
+                                         "h":  320,
+                                         "offsetX":  -106,
+                                         "offsetY":  -220
+                                     },
+                                     {
+                                         "sheetX":  50228,
+                                         "srcFrame":  449,
+                                         "w":  304,
+                                         "h":  396,
+                                         "offsetX":  -119,
+                                         "offsetY":  -278
+                                     },
+                                     {
+                                         "sheetX":  50532,
+                                         "srcFrame":  450,
+                                         "w":  364,
+                                         "h":  380,
+                                         "offsetX":  -152,
+                                         "offsetY":  -247
+                                     },
+                                     {
+                                         "sheetX":  50896,
+                                         "srcFrame":  451,
+                                         "w":  480,
+                                         "h":  404,
+                                         "offsetX":  -215,
+                                         "offsetY":  -227
+                                     },
+                                     {
+                                         "sheetX":  51376,
+                                         "srcFrame":  452,
+                                         "w":  532,
+                                         "h":  428,
+                                         "offsetX":  -243,
+                                         "offsetY":  -244
+                                     },
+                                     {
+                                         "sheetX":  51908,
+                                         "srcFrame":  453,
+                                         "w":  508,
+                                         "h":  408,
+                                         "offsetX":  -231,
+                                         "offsetY":  -222
+                                     },
+                                     {
+                                         "sheetX":  52416,
+                                         "srcFrame":  454,
+                                         "w":  468,
+                                         "h":  384,
+                                         "offsetX":  -211,
+                                         "offsetY":  -206
+                                     },
+                                     {
+                                         "sheetX":  52884,
+                                         "srcFrame":  455,
+                                         "w":  424,
+                                         "h":  384,
+                                         "offsetX":  -190,
+                                         "offsetY":  -222
+                                     },
+                                     {
+                                         "sheetX":  53308,
+                                         "srcFrame":  456,
+                                         "w":  416,
+                                         "h":  384,
+                                         "offsetX":  -185,
+                                         "offsetY":  -249
+                                     },
+                                     {
+                                         "sheetX":  53724,
+                                         "srcFrame":  457,
+                                         "w":  316,
+                                         "h":  264,
+                                         "offsetX":  -132,
+                                         "offsetY":  -143
+                                     }
+                                 ]
+                  },
+    "actions":  {
+                    "standing":  {
+                                     "interval":  500,
+                                     "frames":  [
+                                                    {
+                                                        "slot":  0,
+                                                        "srcFrame":  24,
+                                                        "w":  180,
+                                                        "h":  208,
+                                                        "offsetX":  -53,
+                                                        "offsetY":  -155
+                                                    },
+                                                    {
+                                                        "slot":  1,
+                                                        "srcFrame":  25,
+                                                        "w":  180,
+                                                        "h":  208,
+                                                        "offsetX":  -53,
+                                                        "offsetY":  -155
+                                                    },
+                                                    {
+                                                        "slot":  2,
+                                                        "srcFrame":  26,
+                                                        "w":  180,
+                                                        "h":  208,
+                                                        "offsetX":  -53,
+                                                        "offsetY":  -155
+                                                    },
+                                                    {
+                                                        "slot":  3,
+                                                        "srcFrame":  27,
+                                                        "w":  180,
+                                                        "h":  208,
+                                                        "offsetX":  -53,
+                                                        "offsetY":  -155
+                                                    }
+                                                ]
+                                 },
+                    "walking":  {
+                                    "interval":  100,
+                                    "frames":  [
+                                                   {
+                                                       "slot":  4,
+                                                       "srcFrame":  68,
+                                                       "w":  232,
+                                                       "h":  204,
+                                                       "offsetX":  -91,
+                                                       "offsetY":  -152
+                                                   },
+                                                   {
+                                                       "slot":  5,
+                                                       "srcFrame":  69,
+                                                       "w":  236,
+                                                       "h":  204,
+                                                       "offsetX":  -109,
+                                                       "offsetY":  -154
+                                                   },
+                                                   {
+                                                       "slot":  6,
+                                                       "srcFrame":  70,
+                                                       "w":  236,
+                                                       "h":  204,
+                                                       "offsetX":  -123,
+                                                       "offsetY":  -154
+                                                   },
+                                                   {
+                                                       "slot":  7,
+                                                       "srcFrame":  71,
+                                                       "w":  252,
+                                                       "h":  204,
+                                                       "offsetX":  -132,
+                                                       "offsetY":  -152
+                                                   },
+                                                   {
+                                                       "slot":  8,
+                                                       "srcFrame":  72,
+                                                       "w":  236,
+                                                       "h":  204,
+                                                       "offsetX":  -123,
+                                                       "offsetY":  -152
+                                                   },
+                                                   {
+                                                       "slot":  9,
+                                                       "srcFrame":  73,
+                                                       "w":  236,
+                                                       "h":  204,
+                                                       "offsetX":  -109,
+                                                       "offsetY":  -151
+                                                   }
+                                               ]
+                                },
+                    "attack1":  {
+                                    "interval":  100,
+                                    "frames":  [
+                                                   {
+                                                       "slot":  10,
+                                                       "srcFrame":  116,
+                                                       "w":  236,
+                                                       "h":  208,
+                                                       "offsetX":  -99,
+                                                       "offsetY":  -154
+                                                   },
+                                                   {
+                                                       "slot":  11,
+                                                       "srcFrame":  117,
+                                                       "w":  216,
+                                                       "h":  252,
+                                                       "offsetX":  -38,
+                                                       "offsetY":  -200
+                                                   },
+                                                   {
+                                                       "slot":  12,
+                                                       "srcFrame":  118,
+                                                       "w":  264,
+                                                       "h":  220,
+                                                       "offsetX":  -7,
+                                                       "offsetY":  -164
+                                                   },
+                                                   {
+                                                       "slot":  13,
+                                                       "srcFrame":  119,
+                                                       "w":  260,
+                                                       "h":  216,
+                                                       "offsetX":  -15,
+                                                       "offsetY":  -164
+                                                   },
+                                                   {
+                                                       "slot":  14,
+                                                       "srcFrame":  120,
+                                                       "w":  308,
+                                                       "h":  188,
+                                                       "offsetX":  -182,
+                                                       "offsetY":  -138
+                                                   },
+                                                   {
+                                                       "slot":  15,
+                                                       "srcFrame":  121,
+                                                       "w":  256,
+                                                       "h":  200,
+                                                       "offsetX":  -144,
+                                                       "offsetY":  -149
+                                                   }
+                                               ]
+                                },
+                    "struck":  {
+                                   "interval":  200,
+                                   "frames":  [
+                                                  {
+                                                      "slot":  16,
+                                                      "srcFrame":  140,
+                                                      "w":  260,
+                                                      "h":  192,
+                                                      "offsetX":  -89,
+                                                      "offsetY":  -143
+                                                  },
+                                                  {
+                                                      "slot":  17,
+                                                      "srcFrame":  141,
+                                                      "w":  248,
+                                                      "h":  196,
+                                                      "offsetX":  -97,
+                                                      "offsetY":  -148
+                                                  }
+                                              ]
+                               },
+                    "die":  {
+                                "interval":  100,
+                                "frames":  [
+                                               {
+                                                   "slot":  18,
+                                                   "srcFrame":  168,
+                                                   "w":  232,
+                                                   "h":  204,
+                                                   "offsetX":  -102,
+                                                   "offsetY":  -152
+                                               },
+                                               {
+                                                   "slot":  19,
+                                                   "srcFrame":  169,
+                                                   "w":  228,
+                                                   "h":  204,
+                                                   "offsetX":  -97,
+                                                   "offsetY":  -153
+                                               },
+                                               {
+                                                   "slot":  20,
+                                                   "srcFrame":  170,
+                                                   "w":  228,
+                                                   "h":  200,
+                                                   "offsetX":  -92,
+                                                   "offsetY":  -154
+                                               },
+                                               {
+                                                   "slot":  21,
+                                                   "srcFrame":  171,
+                                                   "w":  220,
+                                                   "h":  204,
+                                                   "offsetX":  -85,
+                                                   "offsetY":  -155
+                                               }
+                                           ]
+                            },
+                    "dead":  {
+                                 "interval":  1000,
+                                 "frames":  [
+                                                {
+                                                    "slot":  22,
+                                                    "srcFrame":  171,
+                                                    "w":  220,
+                                                    "h":  204,
+                                                    "offsetX":  -85,
+                                                    "offsetY":  -155
+                                                }
+                                            ]
+                             },
+                    "revive":  {
+                                   "interval":  100,
+                                   "frames":  [
+                                                  {
+                                                      "slot":  23,
+                                                      "srcFrame":  171,
+                                                      "w":  220,
+                                                      "h":  204,
+                                                      "offsetX":  -85,
+                                                      "offsetY":  -155
+                                                  },
+                                                  {
+                                                      "slot":  24,
+                                                      "srcFrame":  170,
+                                                      "w":  228,
+                                                      "h":  200,
+                                                      "offsetX":  -92,
+                                                      "offsetY":  -154
+                                                  },
+                                                  {
+                                                      "slot":  25,
+                                                      "srcFrame":  169,
+                                                      "w":  228,
+                                                      "h":  204,
+                                                      "offsetX":  -97,
+                                                      "offsetY":  -153
+                                                  },
+                                                  {
+                                                      "slot":  26,
+                                                      "srcFrame":  168,
+                                                      "w":  232,
+                                                      "h":  204,
+                                                      "offsetX":  -102,
+                                                      "offsetY":  -152
+                                                  }
+                                              ]
+                               },
+                    "attackRange1":  {
+                                         "interval":  100,
+                                         "frames":  [
+                                                        {
+                                                            "slot":  39,
+                                                            "srcFrame":  116,
+                                                            "w":  236,
+                                                            "h":  208,
+                                                            "offsetX":  -99,
+                                                            "offsetY":  -154
+                                                        },
+                                                        {
+                                                            "slot":  40,
+                                                            "srcFrame":  117,
+                                                            "w":  216,
+                                                            "h":  252,
+                                                            "offsetX":  -38,
+                                                            "offsetY":  -200
+                                                        },
+                                                        {
+                                                            "slot":  41,
+                                                            "srcFrame":  118,
+                                                            "w":  264,
+                                                            "h":  220,
+                                                            "offsetX":  -7,
+                                                            "offsetY":  -164
+                                                        },
+                                                        {
+                                                            "slot":  42,
+                                                            "srcFrame":  119,
+                                                            "w":  260,
+                                                            "h":  216,
+                                                            "offsetX":  -15,
+                                                            "offsetY":  -164
+                                                        },
+                                                        {
+                                                            "slot":  43,
+                                                            "srcFrame":  120,
+                                                            "w":  308,
+                                                            "h":  188,
+                                                            "offsetX":  -182,
+                                                            "offsetY":  -138
+                                                        },
+                                                        {
+                                                            "slot":  44,
+                                                            "srcFrame":  121,
+                                                            "w":  256,
+                                                            "h":  200,
+                                                            "offsetX":  -144,
+                                                            "offsetY":  -149
+                                                        }
+                                                    ]
+                                     },
+                    "walkNorth":  {
+                                      "interval":  100,
+                                      "frames":  [
+                                                     {
+                                                         "slot":  45,
+                                                         "srcFrame":  32,
+                                                         "w":  176,
+                                                         "h":  216,
+                                                         "offsetX":  -32,
+                                                         "offsetY":  -152
+                                                     },
+                                                     {
+                                                         "slot":  46,
+                                                         "srcFrame":  33,
+                                                         "w":  180,
+                                                         "h":  212,
+                                                         "offsetX":  -30,
+                                                         "offsetY":  -150
+                                                     },
+                                                     {
+                                                         "slot":  47,
+                                                         "srcFrame":  34,
+                                                         "w":  176,
+                                                         "h":  216,
+                                                         "offsetX":  -30,
+                                                         "offsetY":  -154
+                                                     },
+                                                     {
+                                                         "slot":  48,
+                                                         "srcFrame":  35,
+                                                         "w":  176,
+                                                         "h":  236,
+                                                         "offsetX":  -31,
+                                                         "offsetY":  -177
+                                                     },
+                                                     {
+                                                         "slot":  49,
+                                                         "srcFrame":  36,
+                                                         "w":  176,
+                                                         "h":  212,
+                                                         "offsetX":  -34,
+                                                         "offsetY":  -153
+                                                     },
+                                                     {
+                                                         "slot":  50,
+                                                         "srcFrame":  37,
+                                                         "w":  180,
+                                                         "h":  212,
+                                                         "offsetX":  -35,
+                                                         "offsetY":  -151
+                                                     }
+                                                 ]
+                                  },
+                    "walkSouth":  {
+                                      "interval":  100,
+                                      "frames":  [
+                                                     {
+                                                         "slot":  51,
+                                                         "srcFrame":  56,
+                                                         "w":  184,
+                                                         "h":  240,
+                                                         "offsetX":  -40,
+                                                         "offsetY":  -149
+                                                     },
+                                                     {
+                                                         "slot":  52,
+                                                         "srcFrame":  57,
+                                                         "w":  180,
+                                                         "h":  248,
+                                                         "offsetX":  -41,
+                                                         "offsetY":  -148
+                                                     },
+                                                     {
+                                                         "slot":  53,
+                                                         "srcFrame":  58,
+                                                         "w":  184,
+                                                         "h":  252,
+                                                         "offsetX":  -41,
+                                                         "offsetY":  -144
+                                                     },
+                                                     {
+                                                         "slot":  54,
+                                                         "srcFrame":  59,
+                                                         "w":  180,
+                                                         "h":  260,
+                                                         "offsetX":  -39,
+                                                         "offsetY":  -146
+                                                     },
+                                                     {
+                                                         "slot":  55,
+                                                         "srcFrame":  60,
+                                                         "w":  180,
+                                                         "h":  252,
+                                                         "offsetX":  -36,
+                                                         "offsetY":  -144
+                                                     },
+                                                     {
+                                                         "slot":  56,
+                                                         "srcFrame":  61,
+                                                         "w":  184,
+                                                         "h":  248,
+                                                         "offsetX":  -36,
+                                                         "offsetY":  -148
+                                                     }
+                                                 ]
+                                  },
+                    "walkEast":  {
+                                     "interval":  100,
+                                     "frames":  [
+                                                    {
+                                                        "slot":  57,
+                                                        "srcFrame":  44,
+                                                        "w":  212,
+                                                        "h":  212,
+                                                        "offsetX":  -52,
+                                                        "offsetY":  -152
+                                                    },
+                                                    {
+                                                        "slot":  58,
+                                                        "srcFrame":  45,
+                                                        "w":  232,
+                                                        "h":  208,
+                                                        "offsetX":  -46,
+                                                        "offsetY":  -151
+                                                    },
+                                                    {
+                                                        "slot":  59,
+                                                        "srcFrame":  46,
+                                                        "w":  252,
+                                                        "h":  208,
+                                                        "offsetX":  -42,
+                                                        "offsetY":  -151
+                                                    },
+                                                    {
+                                                        "slot":  60,
+                                                        "srcFrame":  47,
+                                                        "w":  264,
+                                                        "h":  204,
+                                                        "offsetX":  -38,
+                                                        "offsetY":  -150
+                                                    },
+                                                    {
+                                                        "slot":  61,
+                                                        "srcFrame":  48,
+                                                        "w":  252,
+                                                        "h":  208,
+                                                        "offsetX":  -42,
+                                                        "offsetY":  -153
+                                                    },
+                                                    {
+                                                        "slot":  62,
+                                                        "srcFrame":  49,
+                                                        "w":  232,
+                                                        "h":  208,
+                                                        "offsetX":  -45,
+                                                        "offsetY":  -154
+                                                    }
+                                                ]
+                                 },
+                    "walkNorthWest":  {
+                                          "interval":  100,
+                                          "frames":  [
+                                                         {
+                                                             "slot":  63,
+                                                             "srcFrame":  74,
+                                                             "w":  184,
+                                                             "h":  224,
+                                                             "offsetX":  -36,
+                                                             "offsetY":  -148
+                                                         },
+                                                         {
+                                                             "slot":  64,
+                                                             "srcFrame":  75,
+                                                             "w":  172,
+                                                             "h":  220,
+                                                             "offsetX":  -34,
+                                                             "offsetY":  -148
+                                                         },
+                                                         {
+                                                             "slot":  65,
+                                                             "srcFrame":  76,
+                                                             "w":  176,
+                                                             "h":  212,
+                                                             "offsetX":  -47,
+                                                             "offsetY":  -146
+                                                         },
+                                                         {
+                                                             "slot":  66,
+                                                             "srcFrame":  77,
+                                                             "w":  188,
+                                                             "h":  220,
+                                                             "offsetX":  -60,
+                                                             "offsetY":  -158
+                                                         },
+                                                         {
+                                                             "slot":  67,
+                                                             "srcFrame":  78,
+                                                             "w":  176,
+                                                             "h":  208,
+                                                             "offsetX":  -49,
+                                                             "offsetY":  -144
+                                                         },
+                                                         {
+                                                             "slot":  68,
+                                                             "srcFrame":  79,
+                                                             "w":  172,
+                                                             "h":  212,
+                                                             "offsetX":  -36,
+                                                             "offsetY":  -146
+                                                         }
+                                                     ]
+                                      },
+                    "walkSouthWest":  {
+                                          "interval":  100,
+                                          "frames":  [
+                                                         {
+                                                             "slot":  69,
+                                                             "srcFrame":  62,
+                                                             "w":  236,
+                                                             "h":  196,
+                                                             "offsetX":  -101,
+                                                             "offsetY":  -147
+                                                         },
+                                                         {
+                                                             "slot":  70,
+                                                             "srcFrame":  63,
+                                                             "w":  244,
+                                                             "h":  200,
+                                                             "offsetX":  -110,
+                                                             "offsetY":  -150
+                                                         },
+                                                         {
+                                                             "slot":  71,
+                                                             "srcFrame":  64,
+                                                             "w":  248,
+                                                             "h":  208,
+                                                             "offsetX":  -116,
+                                                             "offsetY":  -153
+                                                         },
+                                                         {
+                                                             "slot":  72,
+                                                             "srcFrame":  65,
+                                                             "w":  248,
+                                                             "h":  216,
+                                                             "offsetX":  -115,
+                                                             "offsetY":  -152
+                                                         },
+                                                         {
+                                                             "slot":  73,
+                                                             "srcFrame":  66,
+                                                             "w":  248,
+                                                             "h":  208,
+                                                             "offsetX":  -114,
+                                                             "offsetY":  -151
+                                                         },
+                                                         {
+                                                             "slot":  74,
+                                                             "srcFrame":  67,
+                                                             "w":  244,
+                                                             "h":  196,
+                                                             "offsetX":  -107,
+                                                             "offsetY":  -147
+                                                         }
+                                                     ]
+                                      },
+                    "attackNorthWest":  {
+                                            "interval":  100,
+                                            "frames":  [
+                                                           {
+                                                               "slot":  75,
+                                                               "srcFrame":  122,
+                                                               "w":  176,
+                                                               "h":  240,
+                                                               "offsetX":  -30,
+                                                               "offsetY":  -167
+                                                           },
+                                                           {
+                                                               "slot":  76,
+                                                               "srcFrame":  123,
+                                                               "w":  208,
+                                                               "h":  272,
+                                                               "offsetX":  -30,
+                                                               "offsetY":  -190
+                                                           },
+                                                           {
+                                                               "slot":  77,
+                                                               "srcFrame":  124,
+                                                               "w":  252,
+                                                               "h":  244,
+                                                               "offsetX":  -29,
+                                                               "offsetY":  -156
+                                                           },
+                                                           {
+                                                               "slot":  78,
+                                                               "srcFrame":  125,
+                                                               "w":  236,
+                                                               "h":  240,
+                                                               "offsetX":  -29,
+                                                               "offsetY":  -150
+                                                           },
+                                                           {
+                                                               "slot":  79,
+                                                               "srcFrame":  126,
+                                                               "w":  240,
+                                                               "h":  228,
+                                                               "offsetX":  -125,
+                                                               "offsetY":  -159
+                                                           },
+                                                           {
+                                                               "slot":  80,
+                                                               "srcFrame":  127,
+                                                               "w":  192,
+                                                               "h":  232,
+                                                               "offsetX":  -79,
+                                                               "offsetY":  -158
+                                                           }
+                                                       ]
+                                        },
+                    "attackSouthWest":  {
+                                            "interval":  100,
+                                            "frames":  [
+                                                           {
+                                                               "slot":  81,
+                                                               "srcFrame":  110,
+                                                               "w":  244,
+                                                               "h":  200,
+                                                               "offsetX":  -97,
+                                                               "offsetY":  -161
+                                                           },
+                                                           {
+                                                               "slot":  82,
+                                                               "srcFrame":  111,
+                                                               "w":  224,
+                                                               "h":  260,
+                                                               "offsetX":  -64,
+                                                               "offsetY":  -217
+                                                           },
+                                                           {
+                                                               "slot":  83,
+                                                               "srcFrame":  112,
+                                                               "w":  220,
+                                                               "h":  240,
+                                                               "offsetX":  -20,
+                                                               "offsetY":  -199
+                                                           },
+                                                           {
+                                                               "slot":  84,
+                                                               "srcFrame":  113,
+                                                               "w":  208,
+                                                               "h":  228,
+                                                               "offsetX":  -20,
+                                                               "offsetY":  -185
+                                                           },
+                                                           {
+                                                               "slot":  85,
+                                                               "srcFrame":  114,
+                                                               "w":  248,
+                                                               "h":  220,
+                                                               "offsetX":  -122,
+                                                               "offsetY":  -107
+                                                           },
+                                                           {
+                                                               "slot":  86,
+                                                               "srcFrame":  115,
+                                                               "w":  236,
+                                                               "h":  212,
+                                                               "offsetX":  -114,
+                                                               "offsetY":  -128
+                                                           }
+                                                       ]
+                                        },
+                    "standingNorthWest":  {
+                                              "interval":  500,
+                                              "frames":  [
+                                                             {
+                                                                 "slot":  87,
+                                                                 "srcFrame":  28,
+                                                                 "w":  164,
+                                                                 "h":  228,
+                                                                 "offsetX":  -26,
+                                                                 "offsetY":  -162
+                                                             },
+                                                             {
+                                                                 "slot":  88,
+                                                                 "srcFrame":  29,
+                                                                 "w":  164,
+                                                                 "h":  228,
+                                                                 "offsetX":  -26,
+                                                                 "offsetY":  -162
+                                                             },
+                                                             {
+                                                                 "slot":  89,
+                                                                 "srcFrame":  30,
+                                                                 "w":  164,
+                                                                 "h":  228,
+                                                                 "offsetX":  -26,
+                                                                 "offsetY":  -162
+                                                             },
+                                                             {
+                                                                 "slot":  90,
+                                                                 "srcFrame":  31,
+                                                                 "w":  164,
+                                                                 "h":  228,
+                                                                 "offsetX":  -26,
+                                                                 "offsetY":  -162
+                                                             }
+                                                         ]
+                                          },
+                    "standingSouthWest":  {
+                                              "interval":  500,
+                                              "frames":  [
+                                                             {
+                                                                 "slot":  91,
+                                                                 "srcFrame":  20,
+                                                                 "w":  220,
+                                                                 "h":  204,
+                                                                 "offsetX":  -81,
+                                                                 "offsetY":  -159
+                                                             },
+                                                             {
+                                                                 "slot":  92,
+                                                                 "srcFrame":  21,
+                                                                 "w":  220,
+                                                                 "h":  204,
+                                                                 "offsetX":  -81,
+                                                                 "offsetY":  -159
+                                                             },
+                                                             {
+                                                                 "slot":  93,
+                                                                 "srcFrame":  22,
+                                                                 "w":  220,
+                                                                 "h":  204,
+                                                                 "offsetX":  -81,
+                                                                 "offsetY":  -159
+                                                             },
+                                                             {
+                                                                 "slot":  94,
+                                                                 "srcFrame":  23,
+                                                                 "w":  220,
+                                                                 "h":  204,
+                                                                 "offsetX":  -81,
+                                                                 "offsetY":  -159
+                                                             }
+                                                         ]
+                                          },
+                    "attackRangeNorthWest":  {
+                                                 "interval":  100,
+                                                 "frames":  [
+                                                                {
+                                                                    "slot":  95,
+                                                                    "srcFrame":  122,
+                                                                    "w":  176,
+                                                                    "h":  240,
+                                                                    "offsetX":  -30,
+                                                                    "offsetY":  -167
+                                                                },
+                                                                {
+                                                                    "slot":  96,
+                                                                    "srcFrame":  123,
+                                                                    "w":  208,
+                                                                    "h":  272,
+                                                                    "offsetX":  -30,
+                                                                    "offsetY":  -190
+                                                                },
+                                                                {
+                                                                    "slot":  97,
+                                                                    "srcFrame":  124,
+                                                                    "w":  252,
+                                                                    "h":  244,
+                                                                    "offsetX":  -29,
+                                                                    "offsetY":  -156
+                                                                },
+                                                                {
+                                                                    "slot":  98,
+                                                                    "srcFrame":  125,
+                                                                    "w":  236,
+                                                                    "h":  240,
+                                                                    "offsetX":  -29,
+                                                                    "offsetY":  -150
+                                                                },
+                                                                {
+                                                                    "slot":  99,
+                                                                    "srcFrame":  126,
+                                                                    "w":  240,
+                                                                    "h":  228,
+                                                                    "offsetX":  -125,
+                                                                    "offsetY":  -159
+                                                                },
+                                                                {
+                                                                    "slot":  100,
+                                                                    "srcFrame":  127,
+                                                                    "w":  192,
+                                                                    "h":  232,
+                                                                    "offsetX":  -79,
+                                                                    "offsetY":  -158
+                                                                }
+                                                            ]
+                                             },
+                    "attackRangeSouthWest":  {
+                                                 "interval":  100,
+                                                 "frames":  [
+                                                                {
+                                                                    "slot":  101,
+                                                                    "srcFrame":  110,
+                                                                    "w":  244,
+                                                                    "h":  200,
+                                                                    "offsetX":  -97,
+                                                                    "offsetY":  -161
+                                                                },
+                                                                {
+                                                                    "slot":  102,
+                                                                    "srcFrame":  111,
+                                                                    "w":  224,
+                                                                    "h":  260,
+                                                                    "offsetX":  -64,
+                                                                    "offsetY":  -217
+                                                                },
+                                                                {
+                                                                    "slot":  103,
+                                                                    "srcFrame":  112,
+                                                                    "w":  220,
+                                                                    "h":  240,
+                                                                    "offsetX":  -20,
+                                                                    "offsetY":  -199
+                                                                },
+                                                                {
+                                                                    "slot":  104,
+                                                                    "srcFrame":  113,
+                                                                    "w":  208,
+                                                                    "h":  228,
+                                                                    "offsetX":  -20,
+                                                                    "offsetY":  -185
+                                                                },
+                                                                {
+                                                                    "slot":  105,
+                                                                    "srcFrame":  114,
+                                                                    "w":  248,
+                                                                    "h":  220,
+                                                                    "offsetX":  -122,
+                                                                    "offsetY":  -107
+                                                                },
+                                                                {
+                                                                    "slot":  106,
+                                                                    "srcFrame":  115,
+                                                                    "w":  236,
+                                                                    "h":  212,
+                                                                    "offsetX":  -114,
+                                                                    "offsetY":  -128
+                                                                }
+                                                            ]
+                                             },
+                    "standingBlend":  {
+                                          "interval":  500,
+                                          "frames":  [
+                                                         {
+                                                             "sheetX":  32956,
+                                                             "srcFrame":  248,
+                                                             "w":  148,
+                                                             "h":  216,
+                                                             "offsetX":  -95,
+                                                             "offsetY":  -217
+                                                         },
+                                                         {
+                                                             "sheetX":  33104,
+                                                             "srcFrame":  249,
+                                                             "w":  144,
+                                                             "h":  216,
+                                                             "offsetX":  -95,
+                                                             "offsetY":  -214
+                                                         },
+                                                         {
+                                                             "sheetX":  33248,
+                                                             "srcFrame":  250,
+                                                             "w":  144,
+                                                             "h":  216,
+                                                             "offsetX":  -93,
+                                                             "offsetY":  -214
+                                                         },
+                                                         {
+                                                             "sheetX":  33392,
+                                                             "srcFrame":  251,
+                                                             "w":  148,
+                                                             "h":  208,
+                                                             "offsetX":  -97,
+                                                             "offsetY":  -214
+                                                         }
+                                                     ]
+                                      },
+                    "standingSouthWestBlend":  {
+                                                   "interval":  500,
+                                                   "frames":  [
+                                                                  {
+                                                                      "sheetX":  33540,
+                                                                      "srcFrame":  244,
+                                                                      "w":  152,
+                                                                      "h":  212,
+                                                                      "offsetX":  -121,
+                                                                      "offsetY":  -188
+                                                                  },
+                                                                  {
+                                                                      "sheetX":  33692,
+                                                                      "srcFrame":  245,
+                                                                      "w":  148,
+                                                                      "h":  216,
+                                                                      "offsetX":  -119,
+                                                                      "offsetY":  -185
+                                                                  },
+                                                                  {
+                                                                      "sheetX":  33840,
+                                                                      "srcFrame":  246,
+                                                                      "w":  148,
+                                                                      "h":  216,
+                                                                      "offsetX":  -117,
+                                                                      "offsetY":  -185
+                                                                  },
+                                                                  {
+                                                                      "sheetX":  33988,
+                                                                      "srcFrame":  247,
+                                                                      "w":  148,
+                                                                      "h":  216,
+                                                                      "offsetX":  -121,
+                                                                      "offsetY":  -187
+                                                                  }
+                                                              ]
+                                               },
+                    "standingNorthWestBlend":  {
+                                                   "interval":  500,
+                                                   "frames":  [
+                                                                  {
+                                                                      "sheetX":  34136,
+                                                                      "srcFrame":  252,
+                                                                      "w":  132,
+                                                                      "h":  148,
+                                                                      "offsetX":  -40,
+                                                                      "offsetY":  -230
+                                                                  },
+                                                                  {
+                                                                      "sheetX":  34268,
+                                                                      "srcFrame":  253,
+                                                                      "w":  132,
+                                                                      "h":  152,
+                                                                      "offsetX":  -41,
+                                                                      "offsetY":  -229
+                                                                  },
+                                                                  {
+                                                                      "sheetX":  34400,
+                                                                      "srcFrame":  254,
+                                                                      "w":  132,
+                                                                      "h":  144,
+                                                                      "offsetX":  -40,
+                                                                      "offsetY":  -228
+                                                                  },
+                                                                  {
+                                                                      "sheetX":  34532,
+                                                                      "srcFrame":  255,
+                                                                      "w":  136,
+                                                                      "h":  148,
+                                                                      "offsetX":  -39,
+                                                                      "offsetY":  -229
+                                                                  }
+                                                              ]
+                                               },
+                    "walkingBlend":  {
+                                         "interval":  100,
+                                         "frames":  [
+                                                        {
+                                                            "sheetX":  34668,
+                                                            "srcFrame":  292,
+                                                            "w":  240,
+                                                            "h":  152,
+                                                            "offsetX":  -103,
+                                                            "offsetY":  -156
+                                                        },
+                                                        {
+                                                            "sheetX":  34908,
+                                                            "srcFrame":  293,
+                                                            "w":  256,
+                                                            "h":  152,
+                                                            "offsetX":  -122,
+                                                            "offsetY":  -154
+                                                        },
+                                                        {
+                                                            "sheetX":  35164,
+                                                            "srcFrame":  294,
+                                                            "w":  252,
+                                                            "h":  152,
+                                                            "offsetX":  -130,
+                                                            "offsetY":  -140
+                                                        },
+                                                        {
+                                                            "sheetX":  35416,
+                                                            "srcFrame":  295,
+                                                            "w":  208,
+                                                            "h":  160,
+                                                            "offsetX":  -141,
+                                                            "offsetY":  -150
+                                                        },
+                                                        {
+                                                            "sheetX":  35624,
+                                                            "srcFrame":  296,
+                                                            "w":  248,
+                                                            "h":  148,
+                                                            "offsetX":  -132,
+                                                            "offsetY":  -142
+                                                        },
+                                                        {
+                                                            "sheetX":  35872,
+                                                            "srcFrame":  297,
+                                                            "w":  248,
+                                                            "h":  148,
+                                                            "offsetX":  -117,
+                                                            "offsetY":  -154
+                                                        }
+                                                    ]
+                                     },
+                    "walkingSouthWestBlend":  {
+                                                  "interval":  100,
+                                                  "frames":  [
+                                                                 {
+                                                                     "sheetX":  36120,
+                                                                     "srcFrame":  286,
+                                                                     "w":  168,
+                                                                     "h":  180,
+                                                                     "offsetX":  -113,
+                                                                     "offsetY":  -139
+                                                                 },
+                                                                 {
+                                                                     "sheetX":  36288,
+                                                                     "srcFrame":  287,
+                                                                     "w":  164,
+                                                                     "h":  168,
+                                                                     "offsetX":  -123,
+                                                                     "offsetY":  -129
+                                                                 },
+                                                                 {
+                                                                     "sheetX":  36452,
+                                                                     "srcFrame":  288,
+                                                                     "w":  168,
+                                                                     "h":  164,
+                                                                     "offsetX":  -124,
+                                                                     "offsetY":  -117
+                                                                 },
+                                                                 {
+                                                                     "sheetX":  36620,
+                                                                     "srcFrame":  289,
+                                                                     "w":  172,
+                                                                     "h":  168,
+                                                                     "offsetX":  -132,
+                                                                     "offsetY":  -119
+                                                                 },
+                                                                 {
+                                                                     "sheetX":  36792,
+                                                                     "srcFrame":  290,
+                                                                     "w":  168,
+                                                                     "h":  168,
+                                                                     "offsetX":  -127,
+                                                                     "offsetY":  -120
+                                                                 },
+                                                                 {
+                                                                     "sheetX":  36960,
+                                                                     "srcFrame":  291,
+                                                                     "w":  156,
+                                                                     "h":  160,
+                                                                     "offsetX":  -117,
+                                                                     "offsetY":  -121
+                                                                 }
+                                                             ]
+                                              },
+                    "walkingNorthWestBlend":  {
+                                                  "interval":  100,
+                                                  "frames":  [
+                                                                 {
+                                                                     "sheetX":  37116,
+                                                                     "srcFrame":  298,
+                                                                     "w":  184,
+                                                                     "h":  136,
+                                                                     "offsetX":  -23,
+                                                                     "offsetY":  -121
+                                                                 },
+                                                                 {
+                                                                     "sheetX":  37300,
+                                                                     "srcFrame":  299,
+                                                                     "w":  196,
+                                                                     "h":  156,
+                                                                     "offsetX":  -41,
+                                                                     "offsetY":  -143
+                                                                 },
+                                                                 {
+                                                                     "sheetX":  37496,
+                                                                     "srcFrame":  300,
+                                                                     "w":  212,
+                                                                     "h":  176,
+                                                                     "offsetX":  -65,
+                                                                     "offsetY":  -162
+                                                                 },
+                                                                 {
+                                                                     "sheetX":  37708,
+                                                                     "srcFrame":  301,
+                                                                     "w":  216,
+                                                                     "h":  188,
+                                                                     "offsetX":  -80,
+                                                                     "offsetY":  -185
+                                                                 },
+                                                                 {
+                                                                     "sheetX":  37924,
+                                                                     "srcFrame":  302,
+                                                                     "w":  204,
+                                                                     "h":  168,
+                                                                     "offsetX":  -61,
+                                                                     "offsetY":  -160
+                                                                 },
+                                                                 {
+                                                                     "sheetX":  38128,
+                                                                     "srcFrame":  303,
+                                                                     "w":  192,
+                                                                     "h":  148,
+                                                                     "offsetX":  -43,
+                                                                     "offsetY":  -138
+                                                                 }
+                                                             ]
+                                              },
+                    "walkingNorthBlend":  {
+                                              "interval":  100,
+                                              "frames":  [
+                                                             {
+                                                                 "sheetX":  38320,
+                                                                 "srcFrame":  256,
+                                                                 "w":  140,
+                                                                 "h":  196,
+                                                                 "offsetX":  11,
+                                                                 "offsetY":  -133
+                                                             },
+                                                             {
+                                                                 "sheetX":  38460,
+                                                                 "srcFrame":  257,
+                                                                 "w":  136,
+                                                                 "h":  216,
+                                                                 "offsetX":  13,
+                                                                 "offsetY":  -163
+                                                             },
+                                                             {
+                                                                 "sheetX":  38596,
+                                                                 "srcFrame":  258,
+                                                                 "w":  128,
+                                                                 "h":  224,
+                                                                 "offsetX":  12,
+                                                                 "offsetY":  -177
+                                                             },
+                                                             {
+                                                                 "sheetX":  38724,
+                                                                 "srcFrame":  259,
+                                                                 "w":  124,
+                                                                 "h":  240,
+                                                                 "offsetX":  15,
+                                                                 "offsetY":  -201
+                                                             },
+                                                             {
+                                                                 "sheetX":  38848,
+                                                                 "srcFrame":  260,
+                                                                 "w":  132,
+                                                                 "h":  220,
+                                                                 "offsetX":  11,
+                                                                 "offsetY":  -175
+                                                             },
+                                                             {
+                                                                 "sheetX":  38980,
+                                                                 "srcFrame":  261,
+                                                                 "w":  136,
+                                                                 "h":  208,
+                                                                 "offsetX":  12,
+                                                                 "offsetY":  -160
+                                                             }
+                                                         ]
+                                          },
+                    "walkingSouthBlend":  {
+                                              "interval":  100,
+                                              "frames":  [
+                                                             {
+                                                                 "sheetX":  39116,
+                                                                 "srcFrame":  280,
+                                                                 "w":  140,
+                                                                 "h":  256,
+                                                                 "offsetX":  -100,
+                                                                 "offsetY":  -158
+                                                             },
+                                                             {
+                                                                 "sheetX":  39256,
+                                                                 "srcFrame":  281,
+                                                                 "w":  144,
+                                                                 "h":  240,
+                                                                 "offsetX":  -100,
+                                                                 "offsetY":  -136
+                                                             },
+                                                             {
+                                                                 "sheetX":  39400,
+                                                                 "srcFrame":  282,
+                                                                 "w":  140,
+                                                                 "h":  200,
+                                                                 "offsetX":  -83,
+                                                                 "offsetY":  -108
+                                                             },
+                                                             {
+                                                                 "sheetX":  39540,
+                                                                 "srcFrame":  283,
+                                                                 "w":  144,
+                                                                 "h":  180,
+                                                                 "offsetX":  -86,
+                                                                 "offsetY":  -92
+                                                             },
+                                                             {
+                                                                 "sheetX":  39684,
+                                                                 "srcFrame":  284,
+                                                                 "w":  140,
+                                                                 "h":  216,
+                                                                 "offsetX":  -91,
+                                                                 "offsetY":  -112
+                                                             },
+                                                             {
+                                                                 "sheetX":  39824,
+                                                                 "srcFrame":  285,
+                                                                 "w":  144,
+                                                                 "h":  240,
+                                                                 "offsetX":  -98,
+                                                                 "offsetY":  -138
+                                                             }
+                                                         ]
+                                          },
+                    "walkingEastBlend":  {
+                                             "interval":  100,
+                                             "frames":  [
+                                                            {
+                                                                "sheetX":  39968,
+                                                                "srcFrame":  268,
+                                                                "w":  248,
+                                                                "h":  172,
+                                                                "offsetX":  -96,
+                                                                "offsetY":  -89
+                                                            },
+                                                            {
+                                                                "sheetX":  40216,
+                                                                "srcFrame":  269,
+                                                                "w":  256,
+                                                                "h":  160,
+                                                                "offsetX":  -83,
+                                                                "offsetY":  -82
+                                                            },
+                                                            {
+                                                                "sheetX":  40472,
+                                                                "srcFrame":  270,
+                                                                "w":  252,
+                                                                "h":  152,
+                                                                "offsetX":  -73,
+                                                                "offsetY":  -88
+                                                            },
+                                                            {
+                                                                "sheetX":  40724,
+                                                                "srcFrame":  271,
+                                                                "w":  248,
+                                                                "h":  160,
+                                                                "offsetX":  -58,
+                                                                "offsetY":  -93
+                                                            },
+                                                            {
+                                                                "sheetX":  40972,
+                                                                "srcFrame":  272,
+                                                                "w":  252,
+                                                                "h":  156,
+                                                                "offsetX":  -69,
+                                                                "offsetY":  -83
+                                                            },
+                                                            {
+                                                                "sheetX":  41224,
+                                                                "srcFrame":  273,
+                                                                "w":  248,
+                                                                "h":  168,
+                                                                "offsetX":  -80,
+                                                                "offsetY":  -89
+                                                            }
+                                                        ]
+                                         },
+                    "attack1Blend":  {
+                                         "interval":  100,
+                                         "frames":  [
+                                                        {
+                                                            "sheetX":  41472,
+                                                            "srcFrame":  340,
+                                                            "w":  228,
+                                                            "h":  148,
+                                                            "offsetX":  -107,
+                                                            "offsetY":  -171
+                                                        },
+                                                        {
+                                                            "sheetX":  41700,
+                                                            "srcFrame":  341,
+                                                            "w":  168,
+                                                            "h":  188,
+                                                            "offsetX":  -73,
+                                                            "offsetY":  -236
+                                                        },
+                                                        {
+                                                            "sheetX":  41868,
+                                                            "srcFrame":  342,
+                                                            "w":  240,
+                                                            "h":  156,
+                                                            "offsetX":  -33,
+                                                            "offsetY":  -225
+                                                        },
+                                                        {
+                                                            "sheetX":  42108,
+                                                            "srcFrame":  343,
+                                                            "w":  228,
+                                                            "h":  176,
+                                                            "offsetX":  -14,
+                                                            "offsetY":  -227
+                                                        },
+                                                        {
+                                                            "sheetX":  42336,
+                                                            "srcFrame":  344,
+                                                            "w":  220,
+                                                            "h":  164,
+                                                            "offsetX":  -197,
+                                                            "offsetY":  -118
+                                                        },
+                                                        {
+                                                            "sheetX":  42556,
+                                                            "srcFrame":  345,
+                                                            "w":  212,
+                                                            "h":  164,
+                                                            "offsetX":  -154,
+                                                            "offsetY":  -125
+                                                        }
+                                                    ]
+                                     },
+                    "attackSouthWestBlend":  {
+                                                 "interval":  100,
+                                                 "frames":  [
+                                                                {
+                                                                    "sheetX":  42768,
+                                                                    "srcFrame":  334,
+                                                                    "w":  156,
+                                                                    "h":  152,
+                                                                    "offsetX":  -119,
+                                                                    "offsetY":  -146
+                                                                },
+                                                                {
+                                                                    "sheetX":  42924,
+                                                                    "srcFrame":  335,
+                                                                    "w":  176,
+                                                                    "h":  224,
+                                                                    "offsetX":  -111,
+                                                                    "offsetY":  -242
+                                                                },
+                                                                {
+                                                                    "sheetX":  43100,
+                                                                    "srcFrame":  336,
+                                                                    "w":  220,
+                                                                    "h":  176,
+                                                                    "offsetX":  -57,
+                                                                    "offsetY":  -261
+                                                                },
+                                                                {
+                                                                    "sheetX":  43320,
+                                                                    "srcFrame":  337,
+                                                                    "w":  212,
+                                                                    "h":  160,
+                                                                    "offsetX":  -45,
+                                                                    "offsetY":  -247
+                                                                },
+                                                                {
+                                                                    "sheetX":  43532,
+                                                                    "srcFrame":  338,
+                                                                    "w":  168,
+                                                                    "h":  192,
+                                                                    "offsetX":  -158,
+                                                                    "offsetY":  -69
+                                                                },
+                                                                {
+                                                                    "sheetX":  43700,
+                                                                    "srcFrame":  339,
+                                                                    "w":  160,
+                                                                    "h":  184,
+                                                                    "offsetX":  -129,
+                                                                    "offsetY":  -92
+                                                                }
+                                                            ]
+                                             },
+                    "attackNorthWestBlend":  {
+                                                 "interval":  100,
+                                                 "frames":  [
+                                                                {
+                                                                    "sheetX":  43860,
+                                                                    "srcFrame":  346,
+                                                                    "w":  192,
+                                                                    "h":  212,
+                                                                    "offsetX":  -41,
+                                                                    "offsetY":  -190
+                                                                },
+                                                                {
+                                                                    "sheetX":  44052,
+                                                                    "srcFrame":  347,
+                                                                    "w":  148,
+                                                                    "h":  172,
+                                                                    "offsetX":  -30,
+                                                                    "offsetY":  -230
+                                                                },
+                                                                {
+                                                                    "sheetX":  44200,
+                                                                    "srcFrame":  348,
+                                                                    "w":  208,
+                                                                    "h":  216,
+                                                                    "offsetX":  -12,
+                                                                    "offsetY":  -213
+                                                                },
+                                                                {
+                                                                    "sheetX":  44408,
+                                                                    "srcFrame":  349,
+                                                                    "w":  192,
+                                                                    "h":  236,
+                                                                    "offsetX":  4,
+                                                                    "offsetY":  -209
+                                                                },
+                                                                {
+                                                                    "sheetX":  44600,
+                                                                    "srcFrame":  350,
+                                                                    "w":  168,
+                                                                    "h":  160,
+                                                                    "offsetX":  -134,
+                                                                    "offsetY":  -164
+                                                                },
+                                                                {
+                                                                    "sheetX":  44768,
+                                                                    "srcFrame":  351,
+                                                                    "w":  220,
+                                                                    "h":  136,
+                                                                    "offsetX":  -91,
+                                                                    "offsetY":  -134
+                                                                }
+                                                            ]
+                                             },
+                    "attackRange1Blend":  {
+                                              "interval":  100,
+                                              "frames":  [
+                                                             {
+                                                                 "sheetX":  44988,
+                                                                 "srcFrame":  340,
+                                                                 "w":  228,
+                                                                 "h":  148,
+                                                                 "offsetX":  -107,
+                                                                 "offsetY":  -171
+                                                             },
+                                                             {
+                                                                 "sheetX":  45216,
+                                                                 "srcFrame":  341,
+                                                                 "w":  168,
+                                                                 "h":  188,
+                                                                 "offsetX":  -73,
+                                                                 "offsetY":  -236
+                                                             },
+                                                             {
+                                                                 "sheetX":  45384,
+                                                                 "srcFrame":  342,
+                                                                 "w":  240,
+                                                                 "h":  156,
+                                                                 "offsetX":  -33,
+                                                                 "offsetY":  -225
+                                                             },
+                                                             {
+                                                                 "sheetX":  45624,
+                                                                 "srcFrame":  343,
+                                                                 "w":  228,
+                                                                 "h":  176,
+                                                                 "offsetX":  -14,
+                                                                 "offsetY":  -227
+                                                             },
+                                                             {
+                                                                 "sheetX":  45852,
+                                                                 "srcFrame":  344,
+                                                                 "w":  220,
+                                                                 "h":  164,
+                                                                 "offsetX":  -197,
+                                                                 "offsetY":  -118
+                                                             },
+                                                             {
+                                                                 "sheetX":  46072,
+                                                                 "srcFrame":  345,
+                                                                 "w":  212,
+                                                                 "h":  164,
+                                                                 "offsetX":  -154,
+                                                                 "offsetY":  -125
+                                                             }
+                                                         ]
+                                          },
+                    "attackRangeSouthWestBlend":  {
+                                                      "interval":  100,
+                                                      "frames":  [
+                                                                     {
+                                                                         "sheetX":  46284,
+                                                                         "srcFrame":  334,
+                                                                         "w":  156,
+                                                                         "h":  152,
+                                                                         "offsetX":  -119,
+                                                                         "offsetY":  -146
+                                                                     },
+                                                                     {
+                                                                         "sheetX":  46440,
+                                                                         "srcFrame":  335,
+                                                                         "w":  176,
+                                                                         "h":  224,
+                                                                         "offsetX":  -111,
+                                                                         "offsetY":  -242
+                                                                     },
+                                                                     {
+                                                                         "sheetX":  46616,
+                                                                         "srcFrame":  336,
+                                                                         "w":  220,
+                                                                         "h":  176,
+                                                                         "offsetX":  -57,
+                                                                         "offsetY":  -261
+                                                                     },
+                                                                     {
+                                                                         "sheetX":  46836,
+                                                                         "srcFrame":  337,
+                                                                         "w":  212,
+                                                                         "h":  160,
+                                                                         "offsetX":  -45,
+                                                                         "offsetY":  -247
+                                                                     },
+                                                                     {
+                                                                         "sheetX":  47048,
+                                                                         "srcFrame":  338,
+                                                                         "w":  168,
+                                                                         "h":  192,
+                                                                         "offsetX":  -158,
+                                                                         "offsetY":  -69
+                                                                     },
+                                                                     {
+                                                                         "sheetX":  47216,
+                                                                         "srcFrame":  339,
+                                                                         "w":  160,
+                                                                         "h":  184,
+                                                                         "offsetX":  -129,
+                                                                         "offsetY":  -92
+                                                                     }
+                                                                 ]
+                                                  },
+                    "attackRangeNorthWestBlend":  {
+                                                      "interval":  100,
+                                                      "frames":  [
+                                                                     {
+                                                                         "sheetX":  47376,
+                                                                         "srcFrame":  346,
+                                                                         "w":  192,
+                                                                         "h":  212,
+                                                                         "offsetX":  -41,
+                                                                         "offsetY":  -190
+                                                                     },
+                                                                     {
+                                                                         "sheetX":  47568,
+                                                                         "srcFrame":  347,
+                                                                         "w":  148,
+                                                                         "h":  172,
+                                                                         "offsetX":  -30,
+                                                                         "offsetY":  -230
+                                                                     },
+                                                                     {
+                                                                         "sheetX":  47716,
+                                                                         "srcFrame":  348,
+                                                                         "w":  208,
+                                                                         "h":  216,
+                                                                         "offsetX":  -12,
+                                                                         "offsetY":  -213
+                                                                     },
+                                                                     {
+                                                                         "sheetX":  47924,
+                                                                         "srcFrame":  349,
+                                                                         "w":  192,
+                                                                         "h":  236,
+                                                                         "offsetX":  4,
+                                                                         "offsetY":  -209
+                                                                     },
+                                                                     {
+                                                                         "sheetX":  48116,
+                                                                         "srcFrame":  350,
+                                                                         "w":  168,
+                                                                         "h":  160,
+                                                                         "offsetX":  -134,
+                                                                         "offsetY":  -164
+                                                                     },
+                                                                     {
+                                                                         "sheetX":  48284,
+                                                                         "srcFrame":  351,
+                                                                         "w":  220,
+                                                                         "h":  136,
+                                                                         "offsetX":  -91,
+                                                                         "offsetY":  -134
+                                                                     }
+                                                                 ]
+                                                  },
+                    "struckBlend":  {
+                                        "interval":  200,
+                                        "frames":  [
+                                                       {
+                                                           "sheetX":  48504,
+                                                           "srcFrame":  364,
+                                                           "w":  228,
+                                                           "h":  144,
+                                                           "offsetX":  -93,
+                                                           "offsetY":  -146
+                                                       },
+                                                       {
+                                                           "sheetX":  48732,
+                                                           "srcFrame":  365,
+                                                           "w":  244,
+                                                           "h":  140,
+                                                           "offsetX":  -103,
+                                                           "offsetY":  -143
+                                                       }
+                                                   ]
+                                    },
+                    "dieBlend":  {
+                                     "interval":  100,
+                                     "frames":  [
+                                                    {
+                                                        "sheetX":  48976,
+                                                        "srcFrame":  392,
+                                                        "w":  252,
+                                                        "h":  136,
+                                                        "offsetX":  -111,
+                                                        "offsetY":  -144
+                                                    },
+                                                    {
+                                                        "sheetX":  49228,
+                                                        "srcFrame":  393,
+                                                        "w":  252,
+                                                        "h":  144,
+                                                        "offsetX":  -108,
+                                                        "offsetY":  -142
+                                                    },
+                                                    {
+                                                        "sheetX":  49480,
+                                                        "srcFrame":  394,
+                                                        "w":  248,
+                                                        "h":  132,
+                                                        "offsetX":  -104,
+                                                        "offsetY":  -141
+                                                    },
+                                                    {
+                                                        "sheetX":  49728,
+                                                        "srcFrame":  395,
+                                                        "w":  244,
+                                                        "h":  152,
+                                                        "offsetX":  -97,
+                                                        "offsetY":  -142
+                                                    }
+                                                ]
+                                 }
+                }
+}
