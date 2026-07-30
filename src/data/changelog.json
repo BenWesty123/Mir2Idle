@@ -1,91 +1,18 @@
 {
   "entries": [
     {
-      "id": "2026-07-28-duplicate-skill-books",
+      "id": "2026-07-28-glyphs-skill-books-auto-advance",
       "date": "2026-07-28",
-      "title": "Duplicate skill books grant XP",
+      "title": "New zones, glyphs & dungeon auto-advance",
       "highlights": [
+        "Added Southern Barbarian Land and Hell Lord.",
+        "Added 8 new glyphs.",
+        "Added Auto-junk filters — drag bag items onto the pad to auto-mark future plain copies as junk.",
+        "Your player ID is now tied to your recovery code to help reduce duplicate accounts.",
+        "Ascended bosses now have a higher chance to drop glyphs.",
+        "Empowered and Ascended bosses now get extra rolls for Awakening Souls.",
+        "Cash Shop: Group Dungeon Auto Advance (200 tokens) — tick Auto advance next to the Advance button in multi-stage group dungeons (Black Dragon Dungeon, Hell Cavern, and future ones).",
         "Using a skill book you already know adds +200 skill XP to that spell (consumes the book). No effect if the skill is mastered or you are under the next skill-level character requirement."
-      ]
-    },
-    {
-      "id": "2026-07-27-group-dungeon-auto-advance",
-      "date": "2026-07-27",
-      "title": "Group Dungeon Auto Advance",
-      "highlights": [
-        "Cash Shop: Group Dungeon Auto Advance (200 tokens) — tick Auto advance next to the Advance button in multi-stage group dungeons (Black Dragon Dungeon, Hell Cavern, and future ones)."
-      ]
-    },
-    {
-      "id": "2026-07-27-glyph-gold",
-      "date": "2026-07-27",
-      "title": "Glyph of Gold",
-      "highlights": [
-        "Added Glyph of Gold — +100% gold from monsters and bosses."
-      ]
-    },
-    {
-      "id": "2026-07-27-glyph-magical-protection",
-      "date": "2026-07-27",
-      "title": "Glyph of Magical Protection",
-      "highlights": [
-        "Added Glyph of Magical Protection (Warrior) — Protection Field buffs AMC (MAC) instead of AC."
-      ]
-    },
-    {
-      "id": "2026-07-27-glyph-many-mirrors",
-      "date": "2026-07-27",
-      "title": "Glyph of Many Mirrors",
-      "highlights": [
-        "Added Glyph of Many Mirrors (Wizard) — Mirroring summons three Fire Ball clones (main plus one above and one below)."
-      ]
-    },
-    {
-      "id": "2026-07-27-glyph-improved-flaming-sword",
-      "date": "2026-07-27",
-      "title": "Glyph of Improved Flaming Sword",
-      "highlights": [
-        "Added Glyph of Improved Flaming Sword (Warrior) — Flaming Sword burns the enemy for 5 seconds for 50% of the hit as fire DoT."
-      ]
-    },
-    {
-      "id": "2026-07-27-glyph-critical-strikes",
-      "date": "2026-07-27",
-      "title": "Glyph of Critical Strikes",
-      "highlights": [
-        "Added Glyph of Critical Strikes — doubles base crit damage, but Luck no longer affects you."
-      ]
-    },
-    {
-      "id": "2026-07-26-glyph-improved-healing-circle",
-      "date": "2026-07-26",
-      "title": "Glyph of Improved Healing Circle",
-      "highlights": [
-        "Added Glyph of Improved Healing Circle (Taoist) — Healing Circle tick heals gain floor(Max SC / 4) on top of the base 25."
-      ]
-    },
-    {
-      "id": "2026-07-26-ascended-glyph-chance",
-      "date": "2026-07-26",
-      "title": "Ascended glyph drops",
-      "highlights": [
-        "Ascended bosses now have a 15% chance to drop a glyph (Empowered stays at 10%)."
-      ]
-    },
-    {
-      "id": "2026-07-26-glyph-buffing",
-      "date": "2026-07-26",
-      "title": "Glyph of Buffing",
-      "highlights": [
-        "Added Glyph of Buffing (Taoist) - Ultimate Enhancer also applies Soul Shield and Blessed Armour to the same targets."
-      ]
-    },
-    {
-      "id": "2026-07-26-glyph-fast-healing",
-      "date": "2026-07-26",
-      "title": "Glyph of Fast Healing",
-      "highlights": [
-        "Added Glyph of Fast Healing — HP potions heal 25% faster but restore 50% less (all classes)."
       ]
     },
     {

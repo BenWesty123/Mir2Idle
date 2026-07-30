@@ -9,6 +9,7 @@ import {
 } from "../src/core/empoweredItems.js";
 import { BENEDICTION_MAX_WEAPON_LUCK, CRYSTAL_MAX_LUCK } from "../src/battleData.js";
 import { ITEM_INTEGRITY_RULES_VERSION } from "../src/core/itemIntegrityVersion.js";
+import { GLYPH_EQUIPMENT_SLOT_IDS } from "../src/glyphModifiers.js";
 
 const root = join(dirname(fileURLToPath(import.meta.url)), "..");
 const itemsPath = join(root, "src/data/items.json");
@@ -30,13 +31,15 @@ const SLOT_FLAGS = {
 
 const DIRECT_SLOTS = new Set([
   "weapon", "armour", "helmet", "torch", "necklace", "amulet",
-  "belt", "boots", "stone", "mount", "glyph",
+  "belt", "boots", "stone", "mount",
 ]);
 
 function equipmentSlots(item) {
   const slot = String(item?.slot ?? "");
   if (slot === "bracelet") return ["braceletL", "braceletR"];
   if (slot === "ring") return ["ringL", "ringR"];
+  // Glyphs can sit in any glyph equip slot (base + rebirth unlocks).
+  if (slot === "glyph") return [...GLYPH_EQUIPMENT_SLOT_IDS];
   return DIRECT_SLOTS.has(slot) ? [slot] : [];
 }
 

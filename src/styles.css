@@ -9558,7 +9558,8 @@ body.compact-ui .scene-window {
 }
 
 .leaderboard-stats,
-.leaderboard-skills {
+.leaderboard-skills,
+.leaderboard-glyphs {
   display: grid;
   align-content: start;
   gap: 2px;
@@ -9590,4 +9591,45 @@ body.compact-ui .scene-window {
 .leaderboard-stats-value {
   color: #f3e0ae;
   text-align: right;
+}
+
+.leaderboard-glyphs-preview {
+  cursor: default;
+  pointer-events: auto;
+}
+
+.leaderboard-glyph-row {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 2px 0;
+  color: #f3e0ae;
+  font-size: 9px;
+  font-weight: 700;
+  line-height: 1.2;
+  text-shadow: 1px 1px 0 #000, -1px 0 0 #000, 0 -1px 0 #000;
+  border-bottom: 1px solid #b99545;
+  min-width: 0;
+}
+
+.leaderboard-glyph-icon {
+  flex: 0 0 auto;
+  width: 20px;
+  height: 20px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+}
+
+.leaderboard-glyph-icon img {
+  max-width: 20px;
+  max-height: 20px;
+}
+
+.leaderboard-glyph-name {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }

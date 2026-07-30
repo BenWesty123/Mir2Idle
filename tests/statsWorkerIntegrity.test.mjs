@@ -115,6 +115,17 @@ test("impossible equipment is flagged but not automatically excluded", async () 
   assert.notEqual(insertStatus(db), "excluded");
 });
 
+test("impossible character levels are automatically excluded from Social", async () => {
+  const db = new FakeDb();
+  const body = payload();
+  body.account.characterLevels = { Warrior: 130, Wizard: 1, Taoist: 1 };
+  body.account.highestCharacterLevel = 130;
+  body.characters = [{ characterClass: "Warrior", level: 130, equipment: {} }];
+  const response = await postStats(db, body);
+  assert.equal(response.status, 200);
+  assert.equal(insertStatus(db), "excluded");
+});
+
 test("missing integrity version enters review instead of bypassing validation", async () => {
   const db = new FakeDb();
   await postStats(db, payload(equipmentEntry(), null));
@@ -195,7 +206,7 @@ test("manual Social exclusion refuses an ambiguous public label", async () => {
   assert.equal(db.queries.some((query) => /UPDATE leaderboard/.test(query.sql)), false);
 });
 
-test("public leaderboard excludes only administrator-excluded rows", async () => {
+test("public leaderboard hides excluded rows and levels above the cap", async () => {
   const db = new FakeDb({ results: [] });
   const response = await worker.fetch(new Request("https://stats.example/leaderboard?scope=accounts"), {
     DB: db,
@@ -205,6 +216,7 @@ test("public leaderboard excludes only administrator-excluded rows", async () =>
   assert.equal(response.status, 200);
   const select = db.queries.find((query) => /FROM leaderboard/.test(query.sql));
   assert.match(select.sql, /integrity_status, 'legacy'\) != 'excluded'/);
+  assert.match(select.sql, /highest_level <= 100/);
   assert.doesNotMatch(select.sql, /integrity_status\s*=\s*'flagged'/);
 });
 

@@ -280,6 +280,14 @@ const groups = [
       ...monsterSounds("White Tiger", 269),
       ...monsterSounds("Black Ape", 270),
       ...monsterSounds("Rhino", 271),
+      // Danmo = AncientBringer (272). Crystal:
+      //   melee Attack1 → +1, Attack2 → +6; range → +7, range Type1 → +8.
+      ...monsterSounds("Danmo", 272, {
+        attack: 2721,
+        attack2: 2726,
+        range: 2727,
+        range2: 2728,
+      }),
       // Beast King art is WingedBullLord (178) which has no WAVs; use WingedTigerLord (184).
       ...monsterSoundsByImage("Beast King", 994, 184, { range: 1845 }),
     ],
@@ -333,6 +341,12 @@ function monsterSounds(label, monsterIndex, ids = {}) {
   ];
   if (ids.range != null) {
     entries.push(sound(`${base}.range`, `${label} range attack`, ids.range));
+  }
+  if (ids.attack2 != null) {
+    entries.push(sound(`${base}.attack2`, `${label} heavy attack`, ids.attack2));
+  }
+  if (ids.range2 != null) {
+    entries.push(sound(`${base}.range2`, `${label} heavy range`, ids.range2));
   }
   return entries;
 }

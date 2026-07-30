@@ -145,6 +145,42 @@
     monsterIndex: 994,
   },
   {
+    // KR server MonsterInfo: 단묵 image=272 → Crystal AncientBringer (272.Lib).
+    // Mir2DB lists CDN img 329 for the same mob — that index is NOT the Crystal lib
+    // (329.Lib is AvengingSpirit). Same img≠lib remap as Namman beasts 267–271.
+    // Lab combat baseline (Mir2DB HP/DC/AC); MC mirrored to DC so Crystal ranged
+    // (MinMC/MaxMC) actually deals damage — KR MonsterInfo export had no MC fields.
+    id: 997,
+    name: "Danmo",
+    crystalName: "AncientBringer",
+    level: 99,
+    maxHp: 30000,
+    maxMp: 0,
+    dc: [89, 98],
+    mc: [89, 98],
+    sc: [5, 5],
+    ac: [50, 50],
+    amc: [70, 70],
+    accuracy: 16,
+    agility: 14,
+    luck: 0,
+    attackMs: 1200,
+    moveMs: 1200,
+    experience: 36000,
+    undead: false,
+    monsterIndex: 272,
+    // Crystal AncientBringer.Attack: melee ≤2 tiles (80% line DC / 20% 2×DC+para),
+    // else ranged ≤12 (90% MC AoE r4 / 10% 2×MC AoE r5 + AncientBat slaves).
+    attackMode: "ancientBringer",
+    attackRangeTiles: 12,
+    meleeRangeTiles: 2,
+    attackImpactDelayMs: 500,
+    attackDefenceType: "ACAgility",
+    rangedAttackDefenceType: "ACAgility",
+    aoeSplashTiles: 4,
+    heavyAoeSplashTiles: 5,
+  },
+  {
     id: 29,
     name: "Chicken",
     crystalName: "Hen",
@@ -5645,6 +5681,16 @@ export const PHASE1_ZONES = [
     arenaSpawnDistance: 180,
     ...OMA_CAVE_VISUALS,
     tilePattern: OMA_CAVE_KINGS_ROOM_TILE_PATTERN,
+  },
+  {
+    id: "zone-lab-danmo",
+    label: "Lab: Danmo",
+    description: "Southern Barbarian Danmo (AncientBringer / 272.Lib) test fight",
+    enemyIds: [997],
+    rewards: { gold: [0, 0] },
+    arenaSpawnDistance: 180,
+    ...NAMMAN_FIELD_VISUALS,
+    tilePattern: NAMMAN_TILE_PATTERN,
   },
   {
     id: "zone-bichon-mine",

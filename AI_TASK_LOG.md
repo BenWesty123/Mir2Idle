@@ -1,5 +1,121 @@
 # AI Task Log - LOM Idle V2
 
+## 2026-07-30 - Purge EvertonHero Social clones
+
+Nine anonymous Social rows matched EvertonHero's bugged save fingerprint
+(Warrior 55 / Wizard 48 / Taoist 48, 369 Awakening Souls, combined 151). Keep
+the real `EvertonHero` alias; delete the rest.
+
+### Files
+- `tools/stats-worker/purge-evertonhero-clones.sql`
+- `tools/stats-worker/README.md`
+
+### Verify
+- Run the `--command` DELETE from README (prefer over `--file` for OAuth)
+- Live `/leaderboard`: only one 369-soul / 55-level row, labeled EvertonHero
+
+## 2026-07-30 - Hide impossible Social levels (Warrior 130 fakes)
+
+Live Social had ~46 identical Warrior-130 / Wizard-1 / Taoist-1 accounts (plus
+one stale `highest_level` 200 row). Levels above 100 were only flagged for
+review and still shown publicly.
+
+### Fix
+- Stats Worker auto-excludes submissions with `invalid_level`
+- Public `/leaderboard` also filters `highest_level <= 100`
+- Existing rows: run `purge-cheater-levels.sql` (and redeploy Worker)
+
+### Files
+- `tools/stats-worker/worker.js`, `README.md`
+- `tests/statsWorkerIntegrity.test.mjs`
+
+### Verify
+- `node --test tests/statsWorkerIntegrity.test.mjs`
+- After deploy + optional purge: live `/leaderboard` has no `level > 100` rows
+
+## 2026-07-29 - Danmo full AncientBringer attack kit
+
+Lab Danmo (997 / 272) now uses Crystal AncientBringer's full attack set instead
+of plain melee `attack1`.
+
+### Kit (Crystal `AncientBringer.Attack`)
+- **Melee ≤2 tiles:** 80% line DC (Attack1 + blend 548+), 20% 2×DC + paralysis
+  (Attack2 + blend 628+)
+- **Ranged ≤12 tiles:** 90% MC travel bolt 688 → impact 720, AoE radius 4; 10%
+  2×MC target burst 740×14, AoE radius 5, spawns up to 4 Ancient Bats (CaveBat 19)
+- SFX: melee +1/`attack2`+6, range +7/`range2`+8 (`272-1/6/7/8.wav`)
+
+### Files
+- `tools/build-danmo-combat-atlas.mjs` + `build-libv1` includes attack2/range1
+- `public/monsters/monster/272.{png,json}` body + FX
+- `src/phase1Data.js` template `attackMode: "ancientBringer"`, MC/SC for kit
+- `src/app.monolith.js` `beginDanmoAttack` / bats / projectileHeavy draw
+- `tools/build-sfx-assets.mjs` attack2 + range2 keys
+
+### Verify
+- `npm.cmd run check` (+ `smoke` with `dev` running)
+- Teleport → Southern Barbarian Land → Lab: Danmo; kite for ranged, stay close
+  for line/para, wait for rare heavy range + bats
+
+## 2026-07-29 - Social tab shows equipped glyphs
+
+
+Stats Worker was stripping `glyph` / `glyph2` / … from submitted equipment
+(`EQUIPMENT_SLOT_IDS` never listed them), so Social character pages had nothing
+to render. Client Social view also only had a single doll glyph slot, so a
+second equipped glyph would stay invisible even after ingest worked.
+
+### Fix
+- Worker accepts all glyph equipment slots
+- Integrity rules allow glyph items in every glyph slot (`2026-07-29.1`)
+- Social foreign character page: glyph preview on the doll + Glyphs list in the
+  side panel (tooltips via `foreignRegisterEntry`)
+
+### Verify
+- `npm.cmd run check` + `npm.cmd run smoke`
+- Redeploy stats Worker before live Social can store glyphs; players must
+  re-submit stats after that
+
+## 2026-07-29 - Danmo SFX (AncientBringer 272)
+
+Wired Crystal `272-*.wav` via `monsterSounds("Danmo", 272, { attack: 2727, range: 2726 })`
+(Crystal client uses BaseSound+7 melee / +6 range impact). `npm run build:sfx`.
+
+Crystal AncientBringer also has rich attack EFX + AoE (line melee, projectile,
+radius-5 MC burst, optional bat slaves) — not ported to the idle lab fight yet.
+
+
+Southern Barbarian mini-boss art + a teleporter test fight.
+
+### Changes
+- **Art:** KR server `MonsterInfo` maps 단묵 → `image: 272` = Crystal **AncientBringer** (`272.Lib`). Mir2DB CDN img 329 is a red herring (Crystal 329 = AvengingSpirit). Same remap pattern as Namman beasts 267–271 in `KR-Mir2-Client/mirdb-monsters.json`.
+- Atlas `public/monsters/monster/272.{png,json}` (west dir 6)
+- Enemy template id **997** Danmo → `monsterIndex: 272`
+- Zone `zone-lab-danmo` on Southern Barbarian Land teleporter
+- `MONSTER_ASSET_VERSION` → `20260729-danmo-272`
+
+### Verify
+- `npm.cmd run check`
+- Manual: Teleport → Southern Barbarian Land → Lab: Danmo (skeletal-wing bronze demon)
+
+## 2026-07-29 - Scene windows no longer flip sides on click
+
+### Bug
+Clicking a scene window updated `sceneWindowStack` (correct for z-index /
+Esc), but the overlay rebuild used that same stack as flex DOM order. Moving
+an item or any other re-render then swapped left/right positions — especially
+noticeable with Storage and Crafting Cube + Recipes (non-draggable windows).
+
+### Fix
+- `layoutOverlayScenes()` renders from stable `currentOverlayScenes()` order.
+- Focus stack still drives z-index and Esc-close only.
+
+### Verify
+- `npm.cmd run check`
+- `npm.cmd run smoke` (with `npm.cmd run dev` running)
+- Manual: open Character + Inventory + Storage; click Character, move an item
+  — windows should stay in place. Same for Crafting Cube with Recipes open.
+
 ## 2026-07-28 - Bind Social playerId to recovery code
 
 Cloud restore on a new device was minting a fresh anonymous Social identity

@@ -555,6 +555,12 @@
         "monster.271.attack",
         "monster.271.flinch",
         "monster.271.death",
+        "monster.272.attack",
+        "monster.272.flinch",
+        "monster.272.death",
+        "monster.272.range",
+        "monster.272.attack2",
+        "monster.272.range2",
         "monster.994.attack",
         "monster.994.flinch",
         "monster.994.death",
@@ -4148,6 +4154,54 @@
       "group": "monster",
       "sourceFile": "271-3.wav",
       "src": "./public/audio/sfx/files/2713-271-3.wav"
+    },
+    "monster.272.attack": {
+      "key": "monster.272.attack",
+      "label": "Danmo attack",
+      "id": 2721,
+      "group": "monster",
+      "sourceFile": "272-1.wav",
+      "src": "./public/audio/sfx/files/2721-272-1.wav"
+    },
+    "monster.272.flinch": {
+      "key": "monster.272.flinch",
+      "label": "Danmo flinch",
+      "id": 2722,
+      "group": "monster",
+      "sourceFile": "272-2.wav",
+      "src": "./public/audio/sfx/files/2722-272-2.wav"
+    },
+    "monster.272.death": {
+      "key": "monster.272.death",
+      "label": "Danmo death",
+      "id": 2723,
+      "group": "monster",
+      "sourceFile": "272-3.wav",
+      "src": "./public/audio/sfx/files/2723-272-3.wav"
+    },
+    "monster.272.range": {
+      "key": "monster.272.range",
+      "label": "Danmo range attack",
+      "id": 2727,
+      "group": "monster",
+      "sourceFile": "272-7.wav",
+      "src": "./public/audio/sfx/files/2727-272-7.wav"
+    },
+    "monster.272.attack2": {
+      "key": "monster.272.attack2",
+      "label": "Danmo heavy attack",
+      "id": 2726,
+      "group": "monster",
+      "sourceFile": "272-6.wav",
+      "src": "./public/audio/sfx/files/2726-272-6.wav"
+    },
+    "monster.272.range2": {
+      "key": "monster.272.range2",
+      "label": "Danmo heavy range",
+      "id": 2728,
+      "group": "monster",
+      "sourceFile": "272-8.wav",
+      "src": "./public/audio/sfx/files/2728-272-8.wav"
     },
     "monster.994.attack": {
       "key": "monster.994.attack",

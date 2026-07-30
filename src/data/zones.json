@@ -3,6 +3,16 @@
   "source": "src/phase1Data.js",
   "zones": [
     {
+      "id": "zone-namman-1",
+      "label": "Southern Barbarian Land",
+      "description": "Namman wilds — Elephant, Rhino, Tigers, and Ape (Mir2DB 南蛮)"
+    },
+    {
+      "id": "zone-namman-boss",
+      "label": "Beast King's Lair",
+      "description": "Ancient City Ruins — Beast King (야수왕) boss room"
+    },
+    {
       "id": "zone-bicheon-1",
       "label": "Bicheon 1",
       "description": "Province outskirts"
@@ -205,7 +215,7 @@
     {
       "id": "zone-hell-gd-1",
       "label": "Hell Cavern",
-      "description": "Hell group dungeon — Demon, Slasher, Pirate, Cannibal trash; Hell Bolt and Witch Doctor rare (Crystal HELL01 east corridor)"
+      "description": "Hell group dungeon — Demon, Slasher, Pirate, Cannibal trash; Hell Bolt and Witch Doctor rare (Crystal HELL01). Advance through Ice Hell then Fire Hell."
     },
     {
       "id": "zone-hell-gd-2",
@@ -216,6 +226,41 @@
       "id": "zone-hell-gd-3",
       "label": "Hell Cavern — Floor 3",
       "description": "Hell Keeper boss room — Crystal HELL03 kings-room pocket"
+    },
+    {
+      "id": "zone-ice-hell-gd-1",
+      "label": "Ice Hell — Floor 1",
+      "description": "Ice Hell group dungeon — Manectric Claw, Hammer, Club, Staff trash; Slave rare (Crystal HELL201 IceHellCavern)"
+    },
+    {
+      "id": "zone-ice-hell-gd-2",
+      "label": "Ice Hell — Floor 2",
+      "description": "Ice Hell group dungeon — heavier Manectric Claw + Staff caster mix; Slave rare (Crystal HELL202 IceHellTemple S)"
+    },
+    {
+      "id": "zone-ice-hell-gd-3",
+      "label": "Ice Hell — KR (South)",
+      "description": "Ice Hell group dungeon KR — Manectric Blest brawlers backed by Claw + Staff casters; Slave rare (Crystal HELL206 IceHellTemple_KR). Advance to Manectric King north chamber."
+    },
+    {
+      "id": "zone-ice-hell-gd-4",
+      "label": "Ice Hell — KR (North)",
+      "description": "Manectric King boss room — Crystal HELL206 IceHellTemple_KR north chamber"
+    },
+    {
+      "id": "zone-fire-hell-gd-1",
+      "label": "Fire Hell — Floor 1",
+      "description": "Fire Hell group dungeon — Hell Knight / Captain trash with Hell Bomb adds (Crystal HF1 HellFire_1F)"
+    },
+    {
+      "id": "zone-fire-hell-gd-2",
+      "label": "Fire Hell — Floor 2",
+      "description": "Fire Hell group dungeon — Hell Knight Guard / Elite trash with Hell Bomb Mk II/III adds (Crystal HF2 HellFire_2F)"
+    },
+    {
+      "id": "zone-fire-hell-gd-3",
+      "label": "Fire Hell — KR",
+      "description": "Hell Lord boss room — Crystal HKR HellFire_KingsRoom"
     },
     {
       "id": "zone-bdd-1",
@@ -336,6 +381,11 @@
       "id": "zone-lab-hell-lord",
       "label": "Lab: Hell Lord",
       "description": "Fire Hell boss test room"
+    },
+    {
+      "id": "zone-lab-danmo",
+      "label": "Lab: Danmo",
+      "description": "Southern Barbarian Danmo (AncientBringer / 272.Lib) test fight"
     },
     {
       "id": "zone-bichon-mine",

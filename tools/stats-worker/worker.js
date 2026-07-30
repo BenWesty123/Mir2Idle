@@ -473,6 +473,8 @@ function normalizeStatRange(value) {
 const EQUIPMENT_SLOT_IDS = new Set([
   "weapon", "armour", "helmet", "torch", "necklace", "braceletL",
   "braceletR", "ringL", "ringR", "amulet", "belt", "boots", "stone", "mount",
+  // Keep in sync with GLYPH_EQUIPMENT_SLOT_IDS in src/glyphModifiers.js
+  "glyph", "glyph2", "glyph3", "glyph4", "glyph5",
 ]);
 
 function itemIdValue(value) {
@@ -740,10 +742,18 @@ function statsIntegrityResult(stats, enforceOutdatedVersion = true) {
   };
 }
 
+function hasInvalidLevelViolation(integrity) {
+  return (integrity?.violations ?? []).some((violation) => violation?.code === "invalid_level");
+}
+
 function nextIntegrityState(existing, integrity) {
   const previousStatus = textValue(existing?.integrity_status, 24) ?? "legacy";
   const fingerprint = integrityFingerprint(integrity);
   if (previousStatus === "excluded") {
+    return { status: "excluded", fingerprint, reason: JSON.stringify(integrity.violations) };
+  }
+  // Impossible levels are unambiguous cheats — hide immediately, no review queue.
+  if (hasInvalidLevelViolation(integrity)) {
     return { status: "excluded", fingerprint, reason: JSON.stringify(integrity.violations) };
   }
   if (!integrity.reviewable) {
@@ -1234,6 +1244,7 @@ async function leaderboardRows(env, scope, limit) {
     FROM leaderboard
     WHERE ${scopeWhere}
       AND COALESCE(integrity_status, 'legacy') != 'excluded'
+      AND highest_level <= ${LEADERBOARD_MAX_VALID_LEVEL}
     ORDER BY combined_character_levels DESC, awakening_souls_held DESC, highest_level DESC, experience DESC, kills DESC
     LIMIT ?
   `).bind(limit).all();
