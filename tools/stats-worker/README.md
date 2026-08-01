@@ -92,7 +92,7 @@ Each account leaderboard row now includes:
 
 - `combinedCharacterLevels`: sum of Warrior + Wizard + Taoist levels
 - `awakeningSoulsHeld`: current Awakening Souls held account-wide (overwritten on each stats post; not a lifetime peak)
-- `characters`: per-class summary array for display (each entry includes `equipment` as a slot-to-`{ itemId, smithLevel }` map and `skills` as a learned-spell-id-to-level map, used to render other players' character pages in-game)
+- `characters`: per-class summary array for display (each entry includes `equipment` as a slot-to-`{ itemId, smithLevel, ... }` map — including glyph slots `glyph` / `glyph2` / … — and `skills` as a learned-spell-id-to-level map, used to render other players' character pages in-game)
 - `characterLevels`: raw class-to-level map
 - `characterStats`: raw per-class stat summaries
 - `bossKills`: per-boss counts keyed by zone id, e.g. `{ "zone-wooma-temple-kr": 12, "zone-bug-cave-kr": 3 }`
@@ -155,7 +155,20 @@ To remove existing rows with impossible character levels (any class above level 
 npx wrangler d1 execute lom-idle-v2-stats --file .\purge-cheater-levels.sql --remote
 ```
 
-The Worker now flags submissions above that cap for private review. They remain visible until an administrator chooses **Remove From Social** on `/integrity`.
+New submissions above that cap are automatically marked `excluded` (hidden from Social). The public `/leaderboard` query also filters `highest_level > 100` so already-stored cheater rows disappear as soon as the Worker is redeployed, even before the purge SQL runs.
+
+To remove the anonymous EvertonHero save-clone rows (level 55 / 369 souls) while keeping the real `EvertonHero` alias:
+
+```powershell
+npx wrangler d1 execute lom-idle-v2-stats --remote --command "DELETE FROM leaderboard WHERE awakening_souls_held = 369 AND highest_level = 55 AND combined_character_levels = 151 AND json_extract(character_levels, '$.Warrior') = 55 AND json_extract(character_levels, '$.Wizard') = 48 AND json_extract(character_levels, '$.Taoist') = 48 AND player_id NOT IN (SELECT player_id FROM player_aliases WHERE alias_lower = 'evertonhero');"
+```
+
+Or with the file (may hit the flaky D1 `/import` OAuth auth error — prefer `--command` above):
+
+```powershell
+npx wrangler d1 execute lom-idle-v2-stats --file .\purge-evertonhero-clones.sql --remote
+```
+
 
 ## Deploy Outline
 

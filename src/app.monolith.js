@@ -2006,6 +2006,7 @@ const TELEPORT_REGIONS = [
     zoneIds: [
       "zone-namman-1",
       "zone-namman-boss",
+      "zone-lab-danmo",
     ],
   },
 ];
@@ -2025,7 +2026,7 @@ const TOWN_VISUALS = {
 };
 
 const MAP_STAMP_ASSET_VERSION = "20260726-fire-hell-kr-middle-up";
-const MONSTER_ASSET_VERSION = "20260726-hell-knight-die-explode";
+const MONSTER_ASSET_VERSION = "20260729-danmo-kit";
 const HELL_BOLT_MONSTER_INDEX = 219;
 const HELL_BOLT_TEMPLATE_ID = 429;
 const WITCH_DOCTOR_MONSTER_INDEX = 220;
@@ -2775,7 +2776,7 @@ const TOWN_NPCS = [
     width: 140,
     height: 136,
     drawShadow: false,
-    panel: "Read messages left by other players.",
+    panel: "Read the latest patch notes.",
   },
 ];
 
@@ -7710,6 +7711,7 @@ function finalizeOfflineBattleState(zone, report) {
   state.battle.returnToStandAt = 0;
   state.battle.pendingImpact = null;
   state.battle.pendingEnemyStrike = null;
+  clearDanmoBats();
   state.battle.activeSkill = "None";
   state.battle.activeSkillAtlas = null;
   state.battle.activeWizardSpell = null;
@@ -9985,6 +9987,7 @@ function resetBattle(enemyId = state.battle.enemyId) {
   state.battle.queuedCombatSpellId = null;
   state.battle.pendingImpact = null;
   state.battle.pendingEnemyStrike = null;
+  clearDanmoBats();
   state.battle.pendingHeal = null;
   state.battle.pendingPoison = null;
   state.battle.wizardSpellLockUntil = 0;
@@ -19322,9 +19325,10 @@ function syncSceneWindowStackFromState() {
   }
 }
 
-function orderedOverlayScenes() {
+/** Stable left-to-right DOM order. Focus stack is z-index / Esc only — never layout. */
+function layoutOverlayScenes() {
   syncSceneWindowStackFromState();
-  return sceneWindowStack.slice();
+  return currentOverlayScenes();
 }
 
 function applySceneWindowStackZIndexes(rootEl = els.sceneOverlay) {
@@ -19334,7 +19338,8 @@ function applySceneWindowStackZIndexes(rootEl = els.sceneOverlay) {
     const element = rootEl.querySelector(`[data-scene-window="${scene}"]`);
     if (!element) continue;
     // Unpositioned windows stay in the flex stack; relative + z-index lets them
-    // compete with fixed/dragged siblings when overlapping.
+    // compete with fixed/dragged siblings when overlapping without changing
+    // flex order (layout order is fixed by layoutOverlayScenes).
     if (!element.dataset.sceneWindowPositioned && !element.style.position) {
       element.style.position = "relative";
     }
@@ -19541,7 +19546,7 @@ function renderSceneOverlay(options = {}) {
     clearSpiritBoxDepositMode();
   }
   const openScenes = ["characterSelect", "character", "inventory", "codex", "achievements", "upgrades", "gettingStarted", "changelog", "options", "leaderboard", "cashShop", "teleportRing", "timeLogging", "spiritBox", "autoJunk", "glyphs"].filter((scene) => state.openScenes[scene]);
-  const overlayScenes = orderedOverlayScenes();
+  const overlayScenes = layoutOverlayScenes();
   const destroyConfirmHtml = inventoryDestroyConfirmHtml();
   const rebirthConfirmHtmlContent = rebirthConfirmHtml();
   if (!overlayScenes.length && !destroyConfirmHtml && !rebirthConfirmHtmlContent) {
@@ -21331,7 +21336,7 @@ function playerAliasSectionHtml() {
       <div class="options-save-transfer-header">
         <div>
           <strong>Display Name</strong>
-          <span>Shown on the Social tab and town noticeboard. Default: ${escapeHtml(defaultLabel)}</span>
+          <span>Shown on the Social tab. Default: ${escapeHtml(defaultLabel)}</span>
         </div>
       </div>
       <p class="options-note">Currently shown as: <strong>${escapeHtml(displayName)}</strong></p>
@@ -23203,10 +23208,12 @@ function foreignCharacterPageHtml(view) {
       <div class="crystal-character-window leaderboard-character-window">
         <div class="crystal-character-panel"></div>
         ${foreignPaperDollHtml(view)}
-        ${EQUIPMENT_SLOTS.map((slot) => foreignEquipmentSlotHtml(slot, view)).join("")}
+        ${EQUIPMENT_SLOTS.filter((slot) => !GLYPH_EQUIPMENT_SLOT_IDS.includes(slot.id)).map((slot) => foreignEquipmentSlotHtml(slot, view)).join("")}
+        ${foreignGlyphsPreviewHtml(view)}
       </div>
       <div class="leaderboard-character-side">
         ${foreignCharacterStatsHtml(view)}
+        ${foreignCharacterGlyphsHtml(view)}
         ${foreignCharacterSkillsHtml(view)}
       </div>
     </div>
@@ -23256,6 +23263,64 @@ function foreignEquipmentSlotHtml(slot, view) {
       style="left:${8 + position.x}px; top:${90 + position.y}px;"
     >
       ${content}
+    </div>
+  `;
+}
+
+function foreignEquippedGlyphSlots(view) {
+  return GLYPH_EQUIPMENT_SLOT_IDS
+    .map((slotId) => {
+      const item = foreignEquippedItem(view, slotId);
+      if (!item) return null;
+      const entry = foreignRegisterEntry(view, slotId);
+      return { slotId, item, entry };
+    })
+    .filter(Boolean);
+}
+
+// Doll glyph slot mirrors the local Glyphs button: preview first equipped glyph.
+function foreignGlyphsPreviewHtml(view) {
+  const position = CRYSTAL_EQUIPMENT_SLOT_POSITIONS.glyph;
+  if (!position) return "";
+  const equipped = foreignEquippedGlyphSlots(view);
+  const preview = equipped[0];
+  const names = equipped.map(({ item, entry }) => itemDisplayName(item, entry));
+  const title = names.length ? `Glyphs: ${names.join(", ")}` : "Glyphs";
+  const content = preview
+    ? `<div class="crystal-equipment-item has-tooltip" data-tooltip-item="${escapeHtml(preview.item.id)}" ${preview.entry ? `data-tooltip-entry="${escapeHtml(preview.entry.id)}"` : ""} title="${escapeHtml(itemDisplayName(preview.item, preview.entry))}">${itemIconHtml(preview.item)}</div>`
+    : `<span class="crystal-glyphs-button-label">Glyphs</span>`;
+  return `
+    <div
+      class="crystal-equipment-slot crystal-glyphs-button leaderboard-glyphs-preview ${preview ? "has-item" : ""}"
+      ${preview ? `data-tooltip-item="${escapeHtml(preview.item.id)}"` : ""}
+      ${preview?.entry ? `data-tooltip-entry="${escapeHtml(preview.entry.id)}"` : ""}
+      title="${escapeHtml(title)}"
+      style="left:${8 + position.x}px; top:${90 + position.y}px;"
+    >
+      ${content}
+    </div>
+  `;
+}
+
+function foreignCharacterGlyphsHtml(view) {
+  const equipped = foreignEquippedGlyphSlots(view);
+  if (!equipped.length) {
+    return `
+      <div class="leaderboard-glyphs">
+        <div class="leaderboard-stats-heading">Glyphs</div>
+        <p class="leaderboard-note">No glyphs equipped.</p>
+      </div>
+    `;
+  }
+  return `
+    <div class="leaderboard-glyphs">
+      <div class="leaderboard-stats-heading">Glyphs</div>
+      ${equipped.map(({ item, entry }) => `
+        <div class="leaderboard-glyph-row has-tooltip" data-tooltip-item="${escapeHtml(item.id)}" ${entry ? `data-tooltip-entry="${escapeHtml(entry.id)}"` : ""}>
+          <span class="leaderboard-glyph-icon">${itemIconHtml(item)}</span>
+          <span class="leaderboard-glyph-name">${escapeHtml(itemDisplayName(item, entry))}</span>
+        </div>
+      `).join("")}
     </div>
   `;
 }
@@ -29673,6 +29738,11 @@ function canvasPointFromEvent(event) {
 
 function openTownNpc(npcId) {
   const npc = visibleTownNpcs().find((entry) => entry.id === npcId) ?? null;
+  if (npc?.role === "MessageBoard") {
+    playSfx("ui.npc", { volume: 0.46, throttleMs: 120 });
+    void openChangelog({ refresh: true });
+    return;
+  }
   state.game.selectedTownNpcId = npc?.id ?? null;
   if (npc?.role === "Teleport") state.teleportBrowseRegionId = null;
   state.activeScene = npc?.role === "Storage" ? "storage" : state.game.selectedTownNpcId ? "townNpc" : null;
@@ -29684,10 +29754,6 @@ function openTownNpc(npcId) {
   renderSceneOverlay();
   renderGamePanel();
   render();
-  if (npc?.role === "MessageBoard" && !messageBoardDisabled()) {
-    void ensureTownMessages();
-    void fetchTokenBalance();
-  }
 }
 
 function closeTownNpc() {
@@ -33659,6 +33725,325 @@ function isKingScorpionEnemy(enemy = state.battle.enemy) {
   return enemy?.attackMode === "kingScorpion" || enemy?.crystalName === "KingScorpion";
 }
 
+/** Crystal AncientBringer (Danmo) — line melee / heavy para / ranged MC AoE / bat summon. */
+function isDanmoEnemy(enemy = state.battle.enemy) {
+  return enemy?.attackMode === "ancientBringer"
+    || enemy?.crystalName === "AncientBringer"
+    || enemy?.id === 997
+    || enemy?.name === "Danmo";
+}
+
+function danmoMeleeRangeTiles(enemy = state.battle.enemy) {
+  return Math.max(1, Math.trunc(Number(enemy?.meleeRangeTiles) || 2));
+}
+
+function danmoAttackRangeTiles(enemy = state.battle.enemy) {
+  return Math.max(1, Math.trunc(Number(enemy?.attackRangeTiles) || 12));
+}
+
+function danmoTargetDistanceTiles() {
+  const distPx = boneLordTargetDistance();
+  if (!Number.isFinite(distPx)) return Infinity;
+  return Math.max(0, Math.round(distPx / LANE_TILE_PX));
+}
+
+function canDanmoAttack() {
+  const battle = state.battle;
+  if (battle.phase !== "engaged" || !battle.enemyRevealed || !battle.enemy?.hp) return false;
+  if (enemyFrozenActive(battle.enemy)) return false;
+  if (!battle.enemyAggro) return false;
+  return danmoTargetDistanceTiles() <= danmoAttackRangeTiles(battle.enemy);
+}
+
+function clearDanmoBats() {
+  state.battle.danmoBats = [];
+}
+
+function danmoScaleStatRange(stat, mult) {
+  const [lo, hi] = statRange(stat);
+  return [Math.max(0, Math.round(lo * mult)), Math.max(0, Math.round(hi * mult))];
+}
+
+function danmoAttackEntity(enemy, { heavy = false, ranged = false } = {}) {
+  const mult = heavy ? 2 : 1;
+  const next = {
+    ...enemy,
+    attackDefenceType: enemy.attackDefenceType || "ACAgility",
+    rangedAttackDefenceType: enemy.rangedAttackDefenceType || "ACAgility",
+  };
+  if (ranged) next.mc = danmoScaleStatRange(enemy.mc, mult);
+  else next.dc = danmoScaleStatRange(enemy.dc, mult);
+  return next;
+}
+
+function splashTargetsNearWorldX(centerX, tiles = 4) {
+  const radiusPx = Math.max(1, Math.trunc(Number(tiles) || 1)) * LANE_TILE_PX;
+  const center = Number(centerX) || 0;
+  const targets = [];
+  const consider = (kind, entity, logName, worldX) => {
+    if (!entity || (entity.hp ?? 0) <= 0) return;
+    if (Math.abs(center - (Number(worldX) || 0)) > radiusPx) return;
+    targets.push({
+      kind,
+      entity,
+      logName,
+      stats: defenceStatsForEntity(entity),
+    });
+  };
+  if (bossPartyActiveFight()) {
+    const party = state.battle.bossParty;
+    if (party?.pet?.active) consider("pet", party.pet, party.pet.name, party.pet.worldX);
+    for (const member of party?.members ?? []) {
+      if (!member.alive || (member.hp ?? 0) <= 0) continue;
+      consider("member", member, member.classId, member.worldX);
+    }
+    return targets;
+  }
+  const battle = state.battle;
+  if (taoistPetCanTank() && battle.taoPet?.active && (battle.taoPet.hp ?? 0) > 0) {
+    consider("pet", battle.taoPet, battle.taoPet.name, battle.taoPet.worldX ?? taoistPetSummonWorldX());
+  }
+  if ((battle.player?.hp ?? 0) > 0) {
+    consider("player", battle.player, battle.combatClass, battle.playerX);
+  }
+  return targets;
+}
+
+function applyDanmoParalysis(enemy, combatant, now) {
+  const poisonValue = Math.max(1, rollStat(enemy.sc ?? [5, 5], enemy.luck ?? 0));
+  return applyCombatantPoison(combatant, {
+    kind: "paralysis",
+    value: poisonValue,
+    ticksRemaining: FLAMING_MUTANT_PARALYSIS_POISON_TICKS,
+  }, now);
+}
+
+function resolveDanmoLineHit(hit, heavy, now) {
+  const enemy = state.battle.enemy;
+  if (!enemy || enemy.hp <= 0 || !state.battle.enemyRevealed || !hit?.entity || (hit.entity.hp ?? 0) <= 0) return;
+  const attackEnemy = danmoAttackEntity(enemy, { heavy, ranged: false });
+  applyStrikeTargetIncoming(enemy.name, attackEnemy, hit, now, {
+    magicShield: true,
+    defenceType: "ACAgility",
+    onHit: heavy
+      ? ({ entity, now: impactNow, targetRef }) => {
+        if (applyDanmoParalysis(enemy, entity, impactNow)) {
+          pushBattleLog(`${targetRef.logName} is paralyzed.`);
+          addCombatantPoisonText(targetRef.kind, entity, "Paralysis", "poison", impactNow);
+        }
+      }
+      : undefined,
+  });
+}
+
+function resolveDanmoRangeStrike(strike, now) {
+  const enemy = state.battle.enemy;
+  if (!enemy || enemy.hp <= 0 || !state.battle.enemyRevealed) return;
+  const primary = kingScorpionPrimaryTarget();
+  if (!primary) return;
+  const tiles = strike.range2
+    ? Math.max(1, Math.trunc(Number(enemy.heavyAoeSplashTiles) || 5))
+    : Math.max(1, Math.trunc(Number(enemy.aoeSplashTiles) || 4));
+  const attackEnemy = danmoAttackEntity(enemy, { heavy: Boolean(strike.range2), ranged: true });
+  const targets = splashTargetsNearWorldX(primary.worldX, tiles);
+  let anyHit = false;
+  targets.forEach((target, index) => {
+    applyStrikeTargetIncoming(enemy.name, attackEnemy, target, now, {
+      offsetX: index * 14,
+      magicShield: true,
+      ranged: true,
+      defenceType: "ACAgility",
+      resolveOptions: { ranged: true, magicAttack: true, aoe: true },
+      onHit: () => { anyHit = true; },
+    });
+  });
+  if (strike.range2 && anyHit) spawnDanmoBats(now);
+}
+
+function spawnDanmoBats(now) {
+  const battle = state.battle;
+  if (!Array.isArray(battle.danmoBats)) battle.danmoBats = [];
+  const living = battle.danmoBats.filter((bat) => (bat.hp ?? 0) > 0);
+  // Crystal: Math.Min(6, 40 - SlaveList.Count) — lab caps at 4 living adds.
+  const count = Math.min(4, Math.max(0, 4 - living.length));
+  if (count <= 0) return;
+  const playerX = Number(battle.playerX) || 0;
+  for (let i = 0; i < count; i++) {
+    battle.danmoBats.push({
+      id: `danmo-bat-${now}-${i}`,
+      name: "Ancient Bat",
+      monsterIndex: 19,
+      maxHp: 400,
+      hp: 400,
+      dc: [25, 40],
+      accuracy: 12,
+      agility: 10,
+      luck: 0,
+      attackMs: 1600,
+      attackDefenceType: "ACAgility",
+      nextAttackAt: now + 700 + i * 180,
+      worldX: playerX + 20 + i * 14,
+      action: "standing",
+      frame: 0,
+      lastTick: now,
+      oneShot: false,
+      atlas: null,
+    });
+  }
+  pushBattleLog(`Danmo summons Ancient Bats.`);
+  void ensureDanmoBatAtlases();
+}
+
+async function ensureDanmoBatAtlases() {
+  const bats = state.battle.danmoBats ?? [];
+  for (const bat of bats) {
+    if (bat.atlas || (bat.hp ?? 0) <= 0) continue;
+    const atlas = await loadJson(monsterAtlasJsonUrl(bat.monsterIndex)).catch(() => null);
+    bat.atlas = atlas;
+    await loadCachedImage(monsterAtlasPngUrl(bat.monsterIndex)).catch(() => null);
+  }
+}
+
+function updateDanmoBats(now) {
+  const battle = state.battle;
+  const bats = battle.danmoBats;
+  if (!Array.isArray(bats) || !bats.length) return;
+  if (!isDanmoEnemy(battle.enemy) || (battle.enemy?.hp ?? 0) <= 0 || battle.phase !== "engaged") {
+    clearDanmoBats();
+    return;
+  }
+  for (const bat of bats) {
+    if ((bat.hp ?? 0) <= 0) continue;
+    const atlas = bat.atlas;
+    const clip = atlas?.actions?.[bat.action];
+    if (clip?.frames?.length) {
+      const interval = Math.max(1, Number(clip.interval) || 100);
+      if (now - bat.lastTick >= interval) {
+        bat.lastTick = now;
+        bat.frame += 1;
+        if (bat.frame >= clip.frames.length) {
+          if (bat.oneShot) {
+            bat.action = "standing";
+            bat.frame = 0;
+            bat.oneShot = false;
+          } else {
+            bat.frame = 0;
+          }
+        }
+      }
+    }
+    if (now < (bat.nextAttackAt ?? 0)) continue;
+    const target = enemyAttackTarget();
+    if (!target || (battle.player?.hp ?? 0) <= 0) continue;
+    bat.nextAttackAt = now + Math.max(600, Math.trunc(Number(bat.attackMs) || 1600));
+    bat.action = "attack1";
+    bat.frame = 0;
+    bat.oneShot = true;
+    bat.lastTick = now;
+    playMonsterSfx("attack", { monsterIndex: 19, name: bat.name }, { volume: 0.32, throttleMs: 120 });
+    const { hit, damage } = resolveIncomingEnemyAttack(bat, target);
+    if (!hit) {
+      applyIncomingTargetMiss(bat.name, target, now);
+      continue;
+    }
+    applyIncomingTargetHit(bat.name, target, damage, now);
+    maybeFinishBattleAfterPlayerHit(target, now);
+  }
+  battle.danmoBats = bats.filter((bat) => (bat.hp ?? 0) > 0);
+}
+
+function drawDanmoBatsCanvas(ctx) {
+  const bats = state.battle.danmoBats;
+  if (!Array.isArray(bats) || !bats.length) return;
+  const laneY = Math.round(state.stageHeight * LANE.y + 2);
+  for (const bat of bats) {
+    if ((bat.hp ?? 0) <= 0) continue;
+    const atlas = bat.atlas;
+    const clip = atlas?.actions?.[bat.action] ?? atlas?.actions?.standing;
+    const meta = clip?.frames?.[bat.frame] ?? clip?.frames?.[0];
+    if (!atlas || !meta || meta.empty) continue;
+    const sheet = cachedImage(monsterAtlasPngUrl(bat.monsterIndex));
+    if (!sheet) continue;
+    const anchorX = Math.round((Number(bat.worldX) || 0) - state.battle.cameraX);
+    drawEnemyBodyAtlasFrame(ctx, atlas, sheet, meta, anchorX, laneY);
+  }
+}
+
+function beginDanmoAttack(now) {
+  if (state.battle.pendingEnemyStrike) return false;
+  if (!canDanmoAttack()) return false;
+  const enemy = state.battle.enemy;
+  const distTiles = danmoTargetDistanceTiles();
+  const meleeTiles = danmoMeleeRangeTiles(enemy);
+  const ranged = distTiles > meleeTiles;
+
+  if (!ranged) {
+    // Crystal: Random.Next(5) > 0 → Attack1 (80%); else Attack2 (20%) with paralysis.
+    const heavy = randomInt(0, 4) === 0;
+    const lineTiles = meleeTiles;
+    const lineTargets = manectricKingLineTargets(lineTiles);
+    const impactBase = Math.max(0, Math.trunc(Number(enemy?.attackImpactDelayMs) || 500));
+    // Crystal PoisonLineAttack schedules each tile at +300ms (additionalDelay unused).
+    const hits = lineTargets.map((target) => ({
+      kind: target.kind,
+      entity: target.entity,
+      tile: target.tile,
+      logName: target.logName,
+      at: now + 300,
+      resolved: false,
+    }));
+    const animAction = heavy && enemyVisualActionClip(state.enemy.atlas, "attack2", enemy)
+      ? "attack2"
+      : "attack1";
+    const clip = state.enemy.atlas?.actions?.[animAction];
+    const animMs = Math.max(300, (clip?.frames?.length ?? 6) * (clip?.interval ?? 100));
+    state.battle.pendingEnemyStrike = {
+      kind: "danmoMelee",
+      startedAt: now,
+      heavy,
+      lineTiles,
+      hits,
+      vfxUntil: now + Math.max(300, animMs),
+    };
+    setEnemyAction(animAction, true, now);
+    state.enemy.attackFxStartedAt = null;
+    playMonsterSfx(heavy ? "attack2" : "attack", enemy, { force: true, throttleMs: 0 });
+    return true;
+  }
+
+  // Crystal: Random.Next(10) > 0 → Range1 (90%); else Range2 (10%) + SpawnSlaves.
+  const range2 = randomInt(0, 9) === 0;
+  const primary = kingScorpionPrimaryTarget();
+  const distancePx = primary
+    ? Math.abs((Number(state.battle.enemyX) || 0) - (Number(primary.worldX) || 0))
+    : boneLordTargetDistance();
+  const moveDurationMs = range2
+    ? Math.max(0, Math.trunc(Number(enemy?.attackImpactDelayMs) || 500))
+    : boneLordImpactDelay(distancePx, enemy);
+  const atlas = state.enemy.atlas;
+  const projectile = range2 ? atlas?.projectileHeavy : atlas?.projectile;
+  const impactAt = now + moveDurationMs;
+  const vfxUntil = Math.max(
+    impactAt,
+    enemyRangedStrikeVfxUntil(now, moveDurationMs, projectile),
+    range2 ? impactAt + 2000 : enemyTravelImpactVfxUntil(impactAt, projectile),
+  );
+  state.battle.pendingEnemyStrike = {
+    kind: "danmoRange",
+    startedAt: now,
+    at: impactAt,
+    ranged: true,
+    range2,
+    danmoRange2: range2,
+    moveDurationMs,
+    vfxUntil,
+  };
+  setEnemyAction("attackRange1", true, now);
+  state.enemy.attackFxStartedAt = null;
+  playMonsterSfx(range2 ? "range2" : "range", enemy, { force: true, throttleMs: 0 });
+  return true;
+}
+
 function isScalyBeastEnemy(enemy = state.battle.enemy) {
   return enemy?.attackMode === "scalyBeast"
     || enemy?.id === SCALY_BEAST_ENEMY_ID
@@ -35482,6 +35867,25 @@ function updatePendingEnemyStrike(now) {
     }
     return;
   }
+  if (strike.kind === "danmoMelee") {
+    for (const hit of strike.hits ?? []) {
+      if (hit.resolved || now < hit.at) continue;
+      hit.resolved = true;
+      resolveDanmoLineHit(hit, Boolean(strike.heavy), now);
+    }
+    if (now >= vfxUntil && (strike.hits ?? []).every((hit) => hit.resolved)) {
+      state.battle.pendingEnemyStrike = null;
+    }
+    return;
+  }
+  if (strike.kind === "danmoRange") {
+    if (now >= strike.at && !strike.resolved) {
+      strike.resolved = true;
+      resolveDanmoRangeStrike(strike, now);
+    }
+    if (now >= vfxUntil) state.battle.pendingEnemyStrike = null;
+    return;
+  }
   if (strike.kind === "scalyStomp" || strike.kind === "scalyMelee") {
     if (now >= strike.at && !strike.resolved) {
       strike.resolved = true;
@@ -35649,6 +36053,7 @@ function bossPartyEnemyAttack(now) {
   if (isGuardianRockEnemy(enemy)) return beginGuardianRockAttack(now);
   if (isDarkDevilEnemy(enemy)) return beginDarkDevilAttack(now);
   if (isKingScorpionEnemy(enemy)) return beginKingScorpionAttack(now);
+  if (isDanmoEnemy(enemy)) return beginDanmoAttack(now);
   if (enemyHasRangedMeleeAttack(enemy)) return beginBoneLordAttack(now);
   const target = bossPartyFrontTarget();
   if (!enemy || !target || !state.battle.enemyRevealed) return false;
@@ -36943,6 +37348,7 @@ function updateBattle(now) {
   updateTestingRoomDpsMeter(now);
 
   updatePendingEnemyStrike(now);
+  updateDanmoBats(now);
   updatePendingImpact(now);
   updatePendingSlashingBurst(now);
   updatePendingPetAttack(now);
@@ -45393,6 +45799,7 @@ function enemyAttack(now) {
   if (isGuardianRockEnemy(battle.enemy)) return beginGuardianRockAttack(now);
   if (isDarkDevilEnemy(battle.enemy)) return beginDarkDevilAttack(now);
   if (isKingScorpionEnemy(battle.enemy)) return beginKingScorpionAttack(now);
+  if (isDanmoEnemy(battle.enemy)) return beginDanmoAttack(now);
   if (enemyHasRangedMeleeAttack(battle.enemy)) return beginBoneLordAttack(now);
   const target = enemyAttackTarget();
   setEnemyAction("attack1", true, now);
@@ -47506,6 +47913,7 @@ function canEnemyAttack() {
   if (isGuardianRockEnemy(battle.enemy)) return canGuardianRockAttack();
   if (isDarkDevilEnemy(battle.enemy)) return canDarkDevilAttack();
   if (isKingScorpionEnemy(battle.enemy)) return canKingScorpionAttack();
+  if (isDanmoEnemy(battle.enemy)) return canDanmoAttack();
   if (enemyHasRangedMeleeAttack(battle.enemy)) return canBoneLordAttack();
   return battle.enemyAggro && battle.enemy?.hp > 0 && enemyTargetDistance() <= enemyMeleeAttackRangePx(battle.enemy);
 }
@@ -47675,11 +48083,20 @@ function enemyAttackSfxKind(enemy = state.battle.enemy, ranged = false) {
 }
 
 function playMonsterSfx(kind, enemy = state.battle.enemy, options = {}) {
-  const monsterIndex = resolveMonsterSfxIndex(enemy, kind);
+  let resolvedKind = kind;
+  let monsterIndex = resolveMonsterSfxIndex(enemy, resolvedKind);
+  if (monsterIndex == null && (kind === "attack2" || kind === "range2")) {
+    resolvedKind = kind === "range2" ? "range" : "attack";
+    monsterIndex = resolveMonsterSfxIndex(enemy, resolvedKind);
+  }
+  if (monsterIndex == null && kind === "range") {
+    resolvedKind = "attack";
+    monsterIndex = resolveMonsterSfxIndex(enemy, resolvedKind);
+  }
   if (monsterIndex == null) return false;
-  return playSfx(`monster.${monsterIndex}.${kind}`, {
-    volume: options.volume ?? (kind === "attack" ? 0.46 : kind === "death" ? 0.55 : 0.42),
-    throttleMs: options.throttleMs ?? (kind === "death" ? 0 : 80),
+  return playSfx(`monster.${monsterIndex}.${resolvedKind}`, {
+    volume: options.volume ?? (resolvedKind === "attack" || resolvedKind === "attack2" ? 0.46 : resolvedKind === "death" ? 0.55 : 0.42),
+    throttleMs: options.throttleMs ?? (resolvedKind === "death" ? 0 : 80),
     force: options.force,
   });
 }
@@ -48312,6 +48729,7 @@ function renderCanvasStage(displayFrame, frameCount) {
   if (bossPartyOnField()) drawBossPartyDeadMembers(ctx);
   if (!drawStampArenaEntityLayers(ctx, displayFrame)) {
     drawEnemyCanvas(ctx);
+    drawDanmoBatsCanvas(ctx);
     drawZoneMapStampForeground(ctx);
     if (bossPartyOnField()) {
       drawBossPartyLivingMembers(ctx);
@@ -50833,13 +51251,19 @@ function enemyActionBlendKey(action, atlas = null, enemy = state.battle.enemy) {
     return actions?.walkingSouthWestBlend ? "walkingSouthWestBlend" : "walkingBlend";
   }
   if (action === "attack1") return "attack1Blend";
+  if (action === "attack2") return "attack2Blend";
   if (action === "attackNorthWest") {
     return actions?.attackNorthWestBlend ? "attackNorthWestBlend" : "attack1Blend";
   }
   if (action === "attackSouthWest") {
     return actions?.attackSouthWestBlend ? "attackSouthWestBlend" : "attack1Blend";
   }
-  if (action === "attackRange1") return "attackRange1Blend";
+  if (action === "attackRange1") {
+    if (state.battle.pendingEnemyStrike?.danmoRange2 && actions?.attackRange2Blend) {
+      return "attackRange2Blend";
+    }
+    return "attackRange1Blend";
+  }
   if (action === "attackRangeNorthWest") {
     return actions?.attackRangeNorthWestBlend ? "attackRangeNorthWestBlend" : "attackRange1Blend";
   }
@@ -50955,6 +51379,8 @@ function enemyProjectileBurstAnchor(projectile, strike) {
 
 function strikeShowsEnemyProjectileVfx(strike = state.battle.pendingEnemyStrike) {
   if (!strike) return false;
+  if (strike.kind === "danmoRange") return true;
+  if (strike.kind === "danmoMelee") return false;
   if (strike.kind === "kingScorpionLine") return Boolean(strike.ranged);
   if (strike.kind === "massBurst" || strike.kind === "scalyStomp" || strike.kind === "darkDevilBurst") return true;
   if (!strike.ranged) return false;
@@ -50966,6 +51392,41 @@ function strikeShowsEnemyProjectileVfx(strike = state.battle.pendingEnemyStrike)
 function drawEnemyRangeProjectileCanvas(ctx) {
   const strike = state.battle.pendingEnemyStrike;
   if (!strike) return;
+  if (strike.kind === "danmoRange" && strike.range2) {
+    const atlas = state.enemy.atlas;
+    const projectile = atlas?.projectileHeavy;
+    if (!projectile?.frames?.length) return;
+    const sheet = cachedImage(monsterProjectilePngUrl(atlas, state.enemy.index));
+    if (!sheet) return;
+    const now = performance.now();
+    const startedAt = Number(strike.startedAt) || now;
+    const burstDelayMs = Number(projectile.burstDelayMs);
+    const burstDurationMs = Math.max(1, Number(projectile.burstDurationMs) || 2000);
+    const burstStartAt = Number.isFinite(burstDelayMs)
+      ? startedAt + Math.max(0, burstDelayMs)
+      : (Number(strike.at) || startedAt) ;
+    const burstEndAt = Number(strike.vfxUntil) || burstStartAt + burstDurationMs;
+    if (now < burstStartAt || now > burstEndAt) return;
+    const frameIndex = Math.min(
+      projectile.frames.length - 1,
+      Math.floor((now - burstStartAt) / Math.max(1, projectile.interval ?? 140)),
+    );
+    const meta = projectile.frames[frameIndex] ?? projectile.frames[0];
+    if (!meta || meta.empty) return;
+    const targetAnchor = enemyProjectileBurstAnchor(projectile, strike);
+    const slotWidth = projectile.slotWidth ?? atlas.slotWidth;
+    withScreenBlend(ctx, () => {
+      drawAtlasFrameMeta(
+        ctx,
+        sheet,
+        slotWidth,
+        { ...meta, offsetX: meta.offsetX + targetAnchor.x, offsetY: meta.offsetY + targetAnchor.y },
+        0,
+        0,
+      );
+    });
+    return;
+  }
   if (strike.kind === "kingScorpionLine") {
     if (!strike.ranged) return;
     const atlas = state.enemy.atlas;

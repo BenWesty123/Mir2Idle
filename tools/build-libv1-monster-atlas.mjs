@@ -122,7 +122,9 @@ export function buildAtlas({
     layout.walking = { ...layout.standing, interval: Math.min(layout.standing.interval || 500, 200) };
   }
   // Idle game needs these core actions; drop extras we don't drive.
-  const wanted = ["standing", "walking", "attack1", "struck", "die", "dead", "revive"];
+  // attack2 / attackRange1 are optional — included when the FrameSet has them
+  // (e.g. AncientBringer / Danmo 272).
+  const wanted = ["standing", "walking", "attack1", "attack2", "attackRange1", "struck", "die", "dead", "revive"];
   const lib = openLib(libPath);
   const frames = [];
   let slot = 0, slotW = 1, slotH = 1;
