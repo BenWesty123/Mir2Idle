@@ -1,0 +1,130 @@
+{
+  "generatedAt": "2026-07-31T19:19:20.233Z",
+  "method": "dilation IoU (glow level sets vs weapon silhouette dilated by r, at native anchor)",
+  "levels": [
+    0.12,
+    0.3,
+    0.55
+  ],
+  "frames": [
+    "standing[0]",
+    "standing[2]",
+    "attack1[2]",
+    "walking[3]"
+  ],
+  "results": [
+    {
+      "glow": 56,
+      "truth": 56,
+      "margin": 0.008519840913720433,
+      "candidates": [
+        {
+          "shape": 23,
+          "score": 0.1489560107088056,
+          "halo": 0.11598416641055541,
+          "core": 0.16671008071555568,
+          "radius": 1,
+          "names": [
+            "ZumaSoulSpringWand",
+            "SoulSpringWand"
+          ]
+        },
+        {
+          "shape": 75,
+          "score": 0.14043616979508516,
+          "halo": 0.11974631004302938,
+          "core": 0.15157686350773059,
+          "radius": 2,
+          "names": [
+            "(??)DragonSword"
+          ]
+        },
+        {
+          "shape": 42,
+          "score": 0.13400072721057374,
+          "halo": 0.11222362664941325,
+          "core": 0.14572685828196785,
+          "radius": 0,
+          "names": [
+            "PickAxe",
+            "PickAxe0"
+          ]
+        },
+        {
+          "shape": 6,
+          "score": 0.1321392222929708,
+          "halo": 0.1167373669088408,
+          "core": 0.14043252903827153,
+          "radius": 0,
+          "names": [
+            "Trident",
+            "SharpTrident"
+          ]
+        },
+        {
+          "shape": 25,
+          "score": 0.1284171088568808,
+          "halo": 0.11508957296449253,
+          "core": 0.13559347433739757,
+          "radius": 1,
+          "names": [
+            "RedMoonSword"
+          ]
+        },
+        {
+          "shape": 18,
+          "score": 0.12709861364938613,
+          "halo": 0.11341895689895398,
+          "core": 0.1344645826688496,
+          "radius": 2,
+          "names": [
+            "SerpentSword",
+            "SolidSerpentSword"
+          ]
+        },
+        {
+          "shape": 49,
+          "score": 0.12648278169223592,
+          "halo": 0.108575117378006,
+          "core": 0.13612537016912896,
+          "radius": 2,
+          "names": [
+            "BlueFishingRod"
+          ]
+        },
+        {
+          "shape": 50,
+          "score": 0.12648278169223592,
+          "halo": 0.108575117378006,
+          "core": 0.13612537016912896,
+          "radius": 2,
+          "names": [
+            "RedFishingRod[6M]"
+          ]
+        },
+        {
+          "shape": 10,
+          "score": 0.12618225413781523,
+          "halo": 0.11583176539180444,
+          "core": 0.13175559423182104,
+          "radius": 0,
+          "names": [
+            "HookedSpear",
+            "SpearWithHook"
+          ]
+        },
+        {
+          "shape": 11,
+          "score": 0.12586785502605347,
+          "halo": 0.1092332459473138,
+          "core": 0.1348249522222979,
+          "radius": 1,
+          "names": [
+            "KrissSword",
+            "KeenKrissSword"
+          ]
+        }
+      ]
+    }
+  ]
+}

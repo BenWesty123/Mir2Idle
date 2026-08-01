@@ -112,6 +112,142 @@
     monsterIndex: 270,
   },
   {
+    // Mir2DB Rebel Demon (CDN img 318) → KR image 261 = Crystal DeathCrawler.
+    // Same img≠lib remap as Namman beasts 267–271.
+    // Tuned ~1.25× Southern Barbarian Land (beast) band.
+    id: 998,
+    name: "Rebel Demon",
+    crystalName: "DeathCrawler",
+    level: 94,
+    maxHp: 2250,
+    maxMp: 0,
+    dc: [31, 63],
+    mc: [0, 0],
+    sc: [0, 0],
+    ac: [53, 53],
+    amc: [66, 66],
+    accuracy: 13,
+    agility: 12,
+    luck: 0,
+    attackMs: 1200,
+    moveMs: 1000,
+    experience: 18500,
+    undead: true,
+    monsterIndex: 261,
+  },
+  {
+    // Mir2DB Black Sky Demon (CDN img 319) → KR image 262 = Crystal BurningZombie.
+    // Slow swing (2000ms) — DC raised so DPS stays ~1.25× beast counterpart.
+    id: 999,
+    name: "Black Sky Demon",
+    crystalName: "BurningZombie",
+    level: 95,
+    maxHp: 2875,
+    maxMp: 0,
+    dc: [100, 200],
+    mc: [0, 0],
+    sc: [0, 0],
+    ac: [45, 45],
+    amc: [33, 33],
+    accuracy: 14,
+    agility: 12,
+    luck: 0,
+    attackMs: 2000,
+    moveMs: 1000,
+    experience: 20250,
+    undead: true,
+    monsterIndex: 262,
+  },
+  {
+    // Mir2DB Destroyer Demon (CDN img 320) → KR image 263 = Crystal MudZombie.
+    id: 1000,
+    name: "Destroyer Demon",
+    crystalName: "MudZombie",
+    level: 96,
+    maxHp: 3375,
+    maxMp: 0,
+    dc: [113, 225],
+    mc: [0, 0],
+    sc: [0, 0],
+    ac: [81, 81],
+    amc: [40, 40],
+    accuracy: 13,
+    agility: 11,
+    luck: 0,
+    attackMs: 2000,
+    moveMs: 1000,
+    experience: 21000,
+    undead: true,
+    monsterIndex: 263,
+  },
+  {
+    // Mir2DB Frost Demon (CDN img 321) → KR image 264 = Crystal FrozenZombie.
+    id: 1001,
+    name: "Frost Demon",
+    crystalName: "FrozenZombie",
+    level: 97,
+    maxHp: 3750,
+    maxMp: 0,
+    dc: [125, 250],
+    mc: [0, 0],
+    sc: [0, 0],
+    ac: [94, 94],
+    amc: [63, 63],
+    accuracy: 13,
+    agility: 11,
+    luck: 0,
+    attackMs: 2000,
+    moveMs: 1000,
+    experience: 21875,
+    undead: true,
+    monsterIndex: 264,
+  },
+  {
+    // Mir2DB Cold Corpse (CDN img 322) → KR image 265 = Crystal UndeadWolf.
+    // Slightly slower than Mad Corpse — modest DC bump.
+    id: 1002,
+    name: "Cold Corpse",
+    crystalName: "UndeadWolf",
+    level: 94,
+    maxHp: 2500,
+    maxMp: 0,
+    dc: [58, 113],
+    mc: [0, 0],
+    sc: [0, 0],
+    ac: [21, 21],
+    amc: [23, 23],
+    accuracy: 14,
+    agility: 15,
+    luck: 0,
+    attackMs: 1300,
+    moveMs: 800,
+    experience: 19375,
+    undead: true,
+    monsterIndex: 265,
+  },
+  {
+    // Mir2DB Mad Corpse (CDN img 323) → KR image 266 = Crystal DemonWolf.
+    id: 1003,
+    name: "Mad Corpse",
+    crystalName: "DemonWolf",
+    level: 95,
+    maxHp: 2500,
+    maxMp: 0,
+    dc: [48, 94],
+    mc: [0, 0],
+    sc: [0, 0],
+    ac: [40, 40],
+    amc: [28, 28],
+    accuracy: 14,
+    agility: 15,
+    luck: 0,
+    attackMs: 1100,
+    moveMs: 800,
+    experience: 19375,
+    undead: true,
+    monsterIndex: 266,
+  },
+  {
     // Mir2DB Beast King (img 229 / 万兽之王) art = Crystal WingedBullLord (178.Lib).
     // KR server named 야수왕 points at Image 184 (WingedTigerLord) — wrong art vs Mir2DB sheet.
     // Slow soft hitter with a large HP pool — race the 2 min timed-enrage clock.
@@ -148,25 +284,30 @@
     // KR server MonsterInfo: 단묵 image=272 → Crystal AncientBringer (272.Lib).
     // Mir2DB lists CDN img 329 for the same mob — that index is NOT the Crystal lib
     // (329.Lib is AvengingSpirit). Same img≠lib remap as Namman beasts 267–271.
-    // Lab combat baseline (Mir2DB HP/DC/AC); MC mirrored to DC so Crystal ranged
-    // (MinMC/MaxMC) actually deals damage — KR MonsterInfo export had no MC fields.
+    // Mir2DB combat (mon_id 542): HP/DC/AC + MC/SC 112–132 for Crystal ranged kit.
     id: 997,
     name: "Danmo",
     crystalName: "AncientBringer",
     level: 99,
-    maxHp: 30000,
+    // Capstone boss: ~109% of Hell Lord (id 440) on incoming party DPS x HP, and
+    // ~130% once his 10s paralysis lockout on the tank is counted. Mir2DB's sheet
+    // (dc 89-98, mc/sc 112-132, 30k HP) is far below Hell Lord tier and barely
+    // cleared a smithed party's AC, so the stats below are tuned, not imported.
+    maxHp: 119000,
     maxMp: 0,
-    dc: [89, 98],
-    mc: [89, 98],
-    sc: [5, 5],
-    ac: [50, 50],
-    amc: [70, 70],
-    accuracy: 16,
+    dc: [150, 210],
+    mc: [230, 300],
+    sc: [230, 300],
+    ac: [82, 82],
+    amc: [98, 98],
+    // Was 16, which whiffed ~45% of swings on agile characters and silently ate
+    // most of the damage budget. Matches Manectric King (id 293).
+    accuracy: 40,
     agility: 14,
     luck: 0,
-    attackMs: 1200,
-    moveMs: 1200,
-    experience: 36000,
+    attackMs: 850,
+    moveMs: 700,
+    experience: 58000,
     undead: false,
     monsterIndex: 272,
     // Crystal AncientBringer.Attack: melee ≤2 tiles (80% line DC / 20% 2×DC+para),
@@ -174,11 +315,20 @@
     attackMode: "ancientBringer",
     attackRangeTiles: 12,
     meleeRangeTiles: 2,
+    // A boss rests 1 tile from its tank (BOSS_PARTY_ENEMY_MELEE_GAP) but
+    // meleeRangeTiles is 2, so a pure distance check picks melee on every swing
+    // and the whole ranged kit is unreachable. Fire the AoE branch on a cooldown
+    // regardless of distance instead; ~1700ms makes it half his swings.
+    danmoAoeCooldownMs: 1700,
     attackImpactDelayMs: 500,
     attackDefenceType: "ACAgility",
     rangedAttackDefenceType: "ACAgility",
     aoeSplashTiles: 4,
     heavyAoeSplashTiles: 5,
+    enrageHpStages: [0.7, 0.4, 0.15],
+    enrageDurationMs: 10000,
+    enrageAttackMs: 650,
+    enrageMoveMs: 550,
   },
   {
     id: 29,
@@ -4241,6 +4391,19 @@ const NAMMAN_BOSS_ROOM_VISUALS = {
   stageMaxHeight: 540,
 };
 
+// Crystal NAMMAN.map field pocket (tools/build-namman-field-stamp.ps1) — Mir2DB Danmo
+// spawn is on 남만 map 845 (open field), not a separate indoor lair.
+const NAMMAN_DANMO_ROOM_VISUALS = {
+  backdrop: "field",
+  decorations: [],
+  objectPattern: [],
+  mapStamp: "namman-field-center",
+  mapStampOnly: true,
+  stageMinWidth: 780,
+  stageMinHeight: 480,
+  stageMaxHeight: 540,
+};
+
 // Crystal hell maps: FIRE flag — MapLava bursts (Dragon 440/470) on random tiles near each player.
 // Fire Hell (HellFire_*) uses MapQuake1/2 (HellLord lib) instead — see mapHellFireStyle: "quake".
 const HELL_CAVERN_MAP_FIRE = {
@@ -4693,9 +4856,21 @@ export const PHASE1_ZONES = [
     description: "Namman wilds — Elephant, Rhino, Tigers, and Ape (Mir2DB 南蛮)",
     enemyIds: [991, 992, 993, 995, 996, 991, 992, 993, 995, 996],
     rewards: { gold: [780, 1230] },
-    // Rare accessory pool (~1 item / 100 kills). Pity matches that cadence so the
-    // global 8-kill early-game pity does not flood this zone.
-    dropPityKills: 100,
+    // Rare accessory pool (~1 item / 100 kills natural). Pity at 20 so low
+    // drop-rate players still get occasional gear; high-DR players rarely hit it.
+    dropPityKills: 20,
+    ...NAMMAN_FIELD_VISUALS,
+    tilePattern: NAMMAN_TILE_PATTERN,
+  },
+  {
+    id: "zone-namman-demons",
+    label: "Namman Demon Fields",
+    description: "Namman field — Rebel/Sky/Destroyer/Frost Demons and Cold/Mad Corpses (~1.25× beast zone)",
+    enemyIds: [998, 999, 1000, 1001, 1002, 1003, 998, 999, 1000, 1001, 1002, 1003],
+    rewards: { gold: [975, 1538] },
+    // Baseline = zone-namman-1 accessories @ 0.111%; Beast King-tier mix-ins @ 0.028%.
+    // Pity 20 (same as zone-namman-1) — safety net for low drop-rate players.
+    dropPityKills: 20,
     ...NAMMAN_FIELD_VISUALS,
     tilePattern: NAMMAN_TILE_PATTERN,
   },
@@ -4711,6 +4886,19 @@ export const PHASE1_ZONES = [
     arenaSpawnMap: { x: 162, y: 129 },
     arenaFocusMap: { x: 162, y: 129 },
     ...NAMMAN_BOSS_ROOM_VISUALS,
+  },
+  {
+    id: "zone-namman-danmo",
+    label: "Danmo",
+    description: "Namman field — Danmo (단묵) boss spawn (Mir2DB 남만 / map 845)",
+    enemyIds: [997],
+    rewards: { gold: [1875, 3075] },
+    arenaSpawnDistance: 180,
+    arenaBossSpawnX: 300,
+    // Crystal NAMMAN.map field stamp focus — nudged 2 tiles SE from (684, 144)
+    arenaSpawnMap: { x: 686, y: 146 },
+    arenaFocusMap: { x: 686, y: 146 },
+    ...NAMMAN_DANMO_ROOM_VISUALS,
   },
   {
     id: "zone-bicheon-1",
@@ -5681,16 +5869,6 @@ export const PHASE1_ZONES = [
     arenaSpawnDistance: 180,
     ...OMA_CAVE_VISUALS,
     tilePattern: OMA_CAVE_KINGS_ROOM_TILE_PATTERN,
-  },
-  {
-    id: "zone-lab-danmo",
-    label: "Lab: Danmo",
-    description: "Southern Barbarian Danmo (AncientBringer / 272.Lib) test fight",
-    enemyIds: [997],
-    rewards: { gold: [0, 0] },
-    arenaSpawnDistance: 180,
-    ...NAMMAN_FIELD_VISUALS,
-    tilePattern: NAMMAN_TILE_PATTERN,
   },
   {
     id: "zone-bichon-mine",

@@ -1,0 +1,1748 @@
+{
+  "glow": 55,
+  "weapon": 78,
+  "mode": "rigid",
+  "median": {
+    "ang": 0,
+    "dx": 0,
+    "dy": 0
+  },
+  "baseMean": 0.6289,
+  "newMean": 0.7328,
+  "frames": 173,
+  "improved": 128,
+  "regressed": 0,
+  "alignedAt": "2026-08-01T09:27:54.916Z",
+  "corrections": [
+    {
+      "action": "standing",
+      "frame": 0,
+      "ang": 0,
+      "dx": 0,
+      "dy": 0,
+      "score": 0.7713634600465477,
+      "base": 0.7713634600465477,
+      "source": "median"
+    },
+    {
+      "action": "standing",
+      "frame": 1,
+      "ang": 0,
+      "dx": 0,
+      "dy": 0,
+      "score": 0.734393665068225,
+      "base": 0.734393665068225,
+      "source": "median"
+    },
+    {
+      "action": "standing",
+      "frame": 2,
+      "ang": 0,
+      "dx": 0,
+      "dy": 0,
+      "score": 0.7480030918433169,
+      "base": 0.7480030918433169,
+      "source": "median"
+    },
+    {
+      "action": "standing",
+      "frame": 3,
+      "ang": 0,
+      "dx": 0,
+      "dy": 0,
+      "score": 0.7456063584611317,
+      "base": 0.7456063584611317,
+      "source": "median"
+    },
+    {
+      "action": "walking",
+      "frame": 0,
+      "ang": 0,
+      "dx": 0,
+      "dy": 0,
+      "score": 0.7539832854641517,
+      "base": 0.7539832854641517,
+      "source": "median"
+    },
+    {
+      "action": "walking",
+      "frame": 1,
+      "ang": 0,
+      "dx": 0,
+      "dy": 0,
+      "score": 0.735876554354154,
+      "base": 0.735876554354154,
+      "source": "median"
+    },
+    {
+      "action": "walking",
+      "frame": 2,
+      "ang": 0,
+      "dx": 0,
+      "dy": 0,
+      "score": 0.7633930464716006,
+      "base": 0.7633930464716006,
+      "source": "median"
+    },
+    {
+      "action": "walking",
+      "frame": 3,
+      "ang": 0,
+      "dx": 0,
+      "dy": 0,
+      "score": 0.7413373073201939,
+      "base": 0.7413373073201939,
+      "source": "median"
+    },
+    {
+      "action": "walking",
+      "frame": 4,
+      "ang": 0,
+      "dx": 0,
+      "dy": 0,
+      "score": 0.7628054546359428,
+      "base": 0.7628054546359428,
+      "source": "median"
+    },
+    {
+      "action": "walking",
+      "frame": 5,
+      "ang": 0,
+      "dx": 0,
+      "dy": 0,
+      "score": 0.7905617645491494,
+      "base": 0.7905617645491494,
+      "source": "median"
+    },
+    {
+      "action": "running",
+      "frame": 0,
+      "ang": 0,
+      "dx": 0,
+      "dy": 0,
+      "score": 0.7629639989106192,
+      "base": 0.7629639989106192,
+      "source": "median"
+    },
+    {
+      "action": "running",
+      "frame": 1,
+      "ang": 0,
+      "dx": 0,
+      "dy": 0,
+      "score": 0.7609356544447822,
+      "base": 0.7609356544447822,
+      "source": "median"
+    },
+    {
+      "action": "running",
+      "frame": 2,
+      "score": 0.7710335873313183,
+      "ang": 5,
+      "dx": 4,
+      "dy": -4,
+      "base": 0.6855026925205396,
+      "source": "frame"
+    },
+    {
+      "action": "running",
+      "frame": 3,
+      "score": 0.790881992201047,
+      "ang": 7.5,
+      "dx": 0,
+      "dy": -8,
+      "base": 0.6653002427656677,
+      "source": "frame"
+    },
+    {
+      "action": "running",
+      "frame": 4,
+      "ang": 0,
+      "dx": 0,
+      "dy": 0,
+      "score": 0.7309825428593406,
+      "base": 0.7309825428593406,
+      "source": "median"
+    },
+    {
+      "action": "running",
+      "frame": 5,
+      "ang": 0,
+      "dx": 0,
+      "dy": 0,
+      "score": 0.8253960857409133,
+      "base": 0.8253960857409133,
+      "source": "median"
+    },
+    {
+      "action": "stance",
+      "frame": 0,
+      "score": 0.6354368932038834,
+      "ang": 11,
+      "dx": 0,
+      "dy": -5,
+      "base": 0.4999329214474845,
+      "source": "frame"
+    },
+    {
+      "action": "stance2",
+      "frame": 0,
+      "score": 0.6981372419712166,
+      "ang": 14.5,
+      "dx": 6,
+      "dy": -1,
+      "base": 0.4977240136175353,
+      "source": "frame"
+    },
+    {
+      "action": "attack1",
+      "frame": 0,
+      "score": 0.785791598669126,
+      "ang": 27,
+      "dx": 7,
+      "dy": -3,
+      "base": 0.5140844768186057,
+      "source": "frame"
+    },
+    {
+      "action": "attack1",
+      "frame": 1,
+      "score": 0.7772079002079002,
+      "ang": 17,
+      "dx": 3,
+      "dy": -3,
+      "base": 0.5476902286902287,
+      "source": "frame"
+    },
+    {
+      "action": "attack1",
+      "frame": 2,
+      "score": 0.8242717761068501,
+      "ang": 15,
+      "dx": 0,
+      "dy": -6,
+      "base": 0.5956846340208126,
+      "source": "frame"
+    },
+    {
+      "action": "attack1",
+      "frame": 3,
+      "score": 0.8523725879098646,
+      "ang": 16.5,
+      "dx": -3,
+      "dy": -7,
+      "base": 0.528555963144523,
+      "source": "frame"
+    },
+    {
+      "action": "attack1",
+      "frame": 4,
+      "score": 0.5933723196881091,
+      "ang": -9.5,
+      "dx": -2,
+      "dy": -5,
+      "base": 0.4919590643274854,
+      "source": "frame"
+    },
+    {
+      "action": "attack1",
+      "frame": 5,
+      "ang": 0,
+      "dx": 0,
+      "dy": 0,
+      "score": 0.63583638411715,
+      "base": 0.63583638411715,
+      "source": "median"
+    },
+    {
+      "action": "attack2",
+      "frame": 0,
+      "score": 0.6245874587458746,
+      "ang": 9,
+      "dx": -3,
+      "dy": -3,
+      "base": 0.4804825525045422,
+      "source": "frame"
+    },
+    {
+      "action": "attack2",
+      "frame": 1,
+      "score": 0.7143285509348398,
+      "ang": 11,
+      "dx": 4,
+      "dy": -3,
+      "base": 0.6709757074635184,
+      "source": "frame"
+    },
+    {
+      "action": "attack2",
+      "frame": 2,
+      "score": 0.8364817120800608,
+      "ang": 14.5,
+      "dx": 0,
+      "dy": -8,
+      "base": 0.48650475378063646,
+      "source": "frame"
+    },
+    {
+      "action": "attack2",
+      "frame": 3,
+      "score": 0.5938104448742747,
+      "ang": -8,
+      "dx": 2,
+      "dy": -4,
+      "base": 0.55274606244819,
+      "source": "frame"
+    },
+    {
+      "action": "attack2",
+      "frame": 4,
+      "score": 0.6283865521931705,
+      "ang": -8.5,
+      "dx": 2,
+      "dy": -3,
+      "base": 0.545435319645753,
+      "source": "frame"
+    },
+    {
+      "action": "attack2",
+      "frame": 5,
+      "ang": 0,
+      "dx": 0,
+      "dy": 0,
+      "score": 0.5564128144665057,
+      "base": 0.5564128144665057,
+      "source": "median"
+    },
+    {
+      "action": "attack3",
+      "frame": 0,
+      "score": 0.6895700636942674,
+      "ang": 11,
+      "dx": 4,
+      "dy": -5,
+      "base": 0.5354911635417601,
+      "source": "frame"
+    },
+    {
+      "action": "attack3",
+      "frame": 1,
+      "score": 0.7422423392532104,
+      "ang": 13,
+      "dx": 5,
+      "dy": -4,
+      "base": 0.488976695633266,
+      "source": "frame"
+    },
+    {
+      "action": "attack3",
+      "frame": 2,
+      "score": 0.6429763228984586,
+      "ang": 22,
+      "dx": 3,
+      "dy": 1,
+      "base": 0.47145073473450033,
+      "source": "frame"
+    },
+    {
+      "action": "attack3",
+      "frame": 3,
+      "score": 0.669876629606637,
+      "ang": 15,
+      "dx": 5,
+      "dy": -1,
+      "base": 0.520105423556634,
+      "source": "frame"
+    },
+    {
+      "action": "attack3",
+      "frame": 4,
+      "score": 0.6754023882846285,
+      "ang": 6.5,
+      "dx": 1,
+      "dy": -4,
+      "base": 0.5936718647621544,
+      "source": "frame"
+    },
+    {
+      "action": "attack3",
+      "frame": 5,
+      "score": 0.7110029211295035,
+      "ang": -15,
+      "dx": 2,
+      "dy": -7,
+      "base": 0.4767064371149275,
+      "source": "frame"
+    },
+    {
+      "action": "attack3",
+      "frame": 6,
+      "score": 0.7302635717695958,
+      "ang": -3,
+      "dx": 0,
+      "dy": -6,
+      "base": 0.67178602521976,
+      "source": "frame"
+    },
+    {
+      "action": "attack3",
+      "frame": 7,
+      "score": 0.754148299666275,
+      "ang": -15,
+      "dx": 4,
+      "dy": -5,
+      "base": 0.543703216131078,
+      "source": "frame"
+    },
+    {
+      "action": "attack4",
+      "frame": 0,
+      "score": 0.6976329889016455,
+      "ang": 9,
+      "dx": -2,
+      "dy": 3,
+      "base": 0.5913911213164944,
+      "source": "frame"
+    },
+    {
+      "action": "attack4",
+      "frame": 1,
+      "score": 0.7035805256528053,
+      "ang": 9,
+      "dx": -4,
+      "dy": 3,
+      "base": 0.5839705930742614,
+      "source": "frame"
+    },
+    {
+      "action": "attack4",
+      "frame": 2,
+      "score": 0.6916562383545994,
+      "ang": 8.5,
+      "dx": -4,
+      "dy": 2,
+      "base": 0.5845031756854615,
+      "source": "frame"
+    },
+    {
+      "action": "attack4",
+      "frame": 3,
+      "score": 0.7149333342195517,
+      "ang": 8,
+      "dx": -3,
+      "dy": 4,
+      "base": 0.6026359735995532,
+      "source": "frame"
+    },
+    {
+      "action": "attack4",
+      "frame": 4,
+      "score": 0.6367455621301774,
+      "ang": 3.5,
+      "dx": -3,
+      "dy": 3,
+      "base": 0.5822290810497417,
+      "source": "frame"
+    },
+    {
+      "action": "attack4",
+      "frame": 5,
+      "score": 0.6402187120291616,
+      "ang": 3.5,
+      "dx": -3,
+      "dy": 3,
+      "base": 0.5806637878202834,
+      "source": "frame"
+    },
+    {
+      "action": "spell",
+      "frame": 0,
+      "score": 0.8163489608123116,
+      "ang": -2,
+      "dx": 7,
+      "dy": -7,
+      "base": 0.7279783436458829,
+      "source": "frame"
+    },
+    {
+      "action": "spell",
+      "frame": 1,
+      "score": 0.7613743574875724,
+      "ang": -1,
+      "dx": -1,
+      "dy": -8,
+      "base": 0.6975721939345618,
+      "source": "frame"
+    },
+    {
+      "action": "spell",
+      "frame": 2,
+      "score": 0.7780656288597847,
+      "ang": 8,
+      "dx": 1,
+      "dy": -4,
+      "base": 0.6816463964214579,
+      "source": "frame"
+    },
+    {
+      "action": "spell",
+      "frame": 3,
+      "score": 0.7636739867541273,
+      "ang": 14,
+      "dx": 7,
+      "dy": -3,
+      "base": 0.5695237189846943,
+      "source": "frame"
+    },
+    {
+      "action": "spell",
+      "frame": 4,
+      "score": 0.6981372419712166,
+      "ang": 14.5,
+      "dx": 6,
+      "dy": -1,
+      "base": 0.4977240136175353,
+      "source": "frame"
+    },
+    {
+      "action": "spell",
+      "frame": 5,
+      "ang": 0,
+      "dx": 0,
+      "dy": 0,
+      "score": 0.7194978241427812,
+      "base": 0.7194978241427812,
+      "source": "median"
+    },
+    {
+      "action": "harvest",
+      "frame": 0,
+      "ang": 0,
+      "dx": 0,
+      "dy": 0,
+      "score": 0.7549460613510441,
+      "base": 0.7549460613510441,
+      "source": "median"
+    },
+    {
+      "action": "harvest",
+      "frame": 1,
+      "ang": 0,
+      "dx": 0,
+      "dy": 0,
+      "score": 0.7349650113494601,
+      "base": 0.7349650113494601,
+      "source": "median"
+    },
+    {
+      "action": "struck",
+      "frame": 0,
+      "score": 0.6428853754940711,
+      "ang": -15,
+      "dx": 4,
+      "dy": 5,
+      "base": 0.5691648323905549,
+      "source": "frame"
+    },
+    {
+      "action": "struck",
+      "frame": 1,
+      "score": 0.7622172532244474,
+      "ang": -10.5,
+      "dx": 9,
+      "dy": 5,
+      "base": 0.6098055609566401,
+      "source": "frame"
+    },
+    {
+      "action": "struck",
+      "frame": 2,
+      "score": 0.7457461207645082,
+      "ang": -8,
+      "dx": 9,
+      "dy": 1,
+      "base": 0.6523258813193997,
+      "source": "frame"
+    },
+    {
+      "action": "die",
+      "frame": 0,
+      "score": 0.7713002706289929,
+      "ang": 12,
+      "dx": 4,
+      "dy": 3,
+      "base": 0.6703800839202576,
+      "source": "frame"
+    },
+    {
+      "action": "die",
+      "frame": 1,
+      "score": 0.7618165821154657,
+      "ang": 8,
+      "dx": 1,
+      "dy": -3,
+      "base": 0.6663521327236609,
+      "source": "frame"
+    },
+    {
+      "action": "die",
+      "frame": 2,
+      "score": 0.739398824933728,
+      "ang": -15,
+      "dx": -6,
+      "dy": -5,
+      "base": 0.613362115739377,
+      "source": "frame"
+    },
+    {
+      "action": "die",
+      "frame": 3,
+      "score": 0.7996021045137653,
+      "ang": -5,
+      "dx": -10,
+      "dy": -2,
+      "base": 0.6695469738932636,
+      "source": "frame"
+    },
+    {
+      "action": "dead",
+      "frame": 0,
+      "score": 0.7996021045137653,
+      "ang": -5,
+      "dx": -10,
+      "dy": -2,
+      "base": 0.6695469738932636,
+      "source": "frame"
+    },
+    {
+      "action": "revive",
+      "frame": 0,
+      "score": 0.7713002706289929,
+      "ang": 12,
+      "dx": 4,
+      "dy": 3,
+      "base": 0.6703800839202576,
+      "source": "frame"
+    },
+    {
+      "action": "revive",
+      "frame": 1,
+      "score": 0.7618165821154657,
+      "ang": 8,
+      "dx": 1,
+      "dy": -3,
+      "base": 0.6663521327236609,
+      "source": "frame"
+    },
+    {
+      "action": "revive",
+      "frame": 2,
+      "score": 0.739398824933728,
+      "ang": -15,
+      "dx": -6,
+      "dy": -5,
+      "base": 0.613362115739377,
+      "source": "frame"
+    },
+    {
+      "action": "revive",
+      "frame": 3,
+      "score": 0.7996021045137653,
+      "ang": -5,
+      "dx": -10,
+      "dy": -2,
+      "base": 0.6695469738932636,
+      "source": "frame"
+    },
+    {
+      "action": "mine",
+      "frame": 0,
+      "score": 0.6245874587458746,
+      "ang": 9,
+      "dx": -3,
+      "dy": -3,
+      "base": 0.4804825525045422,
+      "source": "frame"
+    },
+    {
+      "action": "mine",
+      "frame": 1,
+      "score": 0.7143285509348398,
+      "ang": 11,
+      "dx": 4,
+      "dy": -3,
+      "base": 0.6709757074635184,
+      "source": "frame"
+    },
+    {
+      "action": "mine",
+      "frame": 2,
+      "score": 0.8364817120800608,
+      "ang": 14.5,
+      "dx": 0,
+      "dy": -8,
+      "base": 0.48650475378063646,
+      "source": "frame"
+    },
+    {
+      "action": "mine",
+      "frame": 3,
+      "score": 0.5938104448742747,
+      "ang": -8,
+      "dx": 2,
+      "dy": -4,
+      "base": 0.55274606244819,
+      "source": "frame"
+    },
+    {
+      "action": "mine",
+      "frame": 4,
+      "score": 0.6283865521931705,
+      "ang": -8.5,
+      "dx": 2,
+      "dy": -3,
+      "base": 0.545435319645753,
+      "source": "frame"
+    },
+    {
+      "action": "mine",
+      "frame": 5,
+      "ang": 0,
+      "dx": 0,
+      "dy": 0,
+      "score": 0.5564128144665057,
+      "base": 0.5564128144665057,
+      "source": "median"
+    },
+    {
+      "action": "lunge",
+      "frame": 0,
+      "score": 0.8523725879098646,
+      "ang": 16.5,
+      "dx": -3,
+      "dy": -7,
+      "base": 0.528555963144523,
+      "source": "frame"
+    },
+    {
+      "action": "sneek",
+      "frame": 0,
+      "score": 0.6422444779805185,
+      "ang": -1,
+      "dx": -2,
+      "dy": 12,
+      "base": 0.5509630950747701,
+      "source": "frame"
+    },
+    {
+      "action": "sneek",
+      "frame": 1,
+      "score": 0.7938544474393531,
+      "ang": 0,
+      "dx": -2,
+      "dy": 7,
+      "base": 0.745477088948787,
+      "source": "frame"
+    },
+    {
+      "action": "sneek",
+      "frame": 2,
+      "score": 0.8653577416909755,
+      "ang": -6,
+      "dx": 0,
+      "dy": 3,
+      "base": 0.7874761696947423,
+      "source": "frame"
+    },
+    {
+      "action": "sneek",
+      "frame": 3,
+      "score": 0.8033166485418808,
+      "ang": -6,
+      "dx": -1,
+      "dy": 4,
+      "base": 0.7269248585080574,
+      "source": "frame"
+    },
+    {
+      "action": "sneek",
+      "frame": 4,
+      "score": 0.8440622950094709,
+      "ang": -5.5,
+      "dx": -2,
+      "dy": 5,
+      "base": 0.725284757180657,
+      "source": "frame"
+    },
+    {
+      "action": "sneek",
+      "frame": 5,
+      "score": 0.8450753688097232,
+      "ang": -9,
+      "dx": -6,
+      "dy": 6,
+      "base": 0.7502031829603925,
+      "source": "frame"
+    },
+    {
+      "action": "dashAttack",
+      "frame": 0,
+      "ang": 0,
+      "dx": 0,
+      "dy": 0,
+      "score": 0.7629639989106192,
+      "base": 0.7629639989106192,
+      "source": "median"
+    },
+    {
+      "action": "dashAttack",
+      "frame": 1,
+      "ang": 0,
+      "dx": 0,
+      "dy": 0,
+      "score": 0.7609356544447822,
+      "base": 0.7609356544447822,
+      "source": "median"
+    },
+    {
+      "action": "dashAttack",
+      "frame": 2,
+      "score": 0.7710335873313183,
+      "ang": 5,
+      "dx": 4,
+      "dy": -4,
+      "base": 0.6855026925205396,
+      "source": "frame"
+    },
+    {
+      "action": "walkingBow",
+      "frame": 0,
+      "ang": 0,
+      "dx": 0,
+      "dy": 0,
+      "score": 0.779105267065068,
+      "base": 0.779105267065068,
+      "source": "median"
+    },
+    {
+      "action": "walkingBow",
+      "frame": 1,
+      "ang": 0,
+      "dx": 0,
+      "dy": 0,
+      "score": 0.7637887918230262,
+      "base": 0.7637887918230262,
+      "source": "median"
+    },
+    {
+      "action": "walkingBow",
+      "frame": 2,
+      "ang": 0,
+      "dx": 0,
+      "dy": 0,
+      "score": 0.7133103329308264,
+      "base": 0.7133103329308264,
+      "source": "median"
+    },
+    {
+      "action": "walkingBow",
+      "frame": 3,
+      "ang": 0,
+      "dx": 0,
+      "dy": 0,
+      "score": 0.7378662983327262,
+      "base": 0.7378662983327262,
+      "source": "median"
+    },
+    {
+      "action": "walkingBow",
+      "frame": 4,
+      "score": 0.6516928657799275,
+      "ang": -10,
+      "dx": 4,
+      "dy": 1,
+      "base": 0.44939663894578386,
+      "source": "frame"
+    },
+    {
+      "action": "walkingBow",
+      "frame": 5,
+      "score": 0.6726814008052602,
+      "ang": -12,
+      "dx": 4,
+      "dy": 1,
+      "base": 0.4827477333951279,
+      "source": "frame"
+    },
+    {
+      "action": "runningBow",
+      "frame": 0,
+      "score": 0.7363063201599261,
+      "ang": -15,
+      "dx": 6,
+      "dy": 2,
+      "base": 0.4852925023615474,
+      "source": "frame"
+    },
+    {
+      "action": "runningBow",
+      "frame": 1,
+      "score": 0.6778418739386673,
+      "ang": -14.5,
+      "dx": 5,
+      "dy": 1,
+      "base": 0.51232144640895,
+      "source": "frame"
+    },
+    {
+      "action": "runningBow",
+      "frame": 2,
+      "score": 0.7698652653774736,
+      "ang": -11,
+      "dx": -1,
+      "dy": 9,
+      "base": 0.4857323042944742,
+      "source": "frame"
+    },
+    {
+      "action": "runningBow",
+      "frame": 3,
+      "score": 0.7590374048880912,
+      "ang": -13,
+      "dx": 3,
+      "dy": 5,
+      "base": 0.5522910320076785,
+      "source": "frame"
+    },
+    {
+      "action": "runningBow",
+      "frame": 4,
+      "score": 0.7783584946487124,
+      "ang": -15,
+      "dx": 2,
+      "dy": 7,
+      "base": 0.5482806280372817,
+      "source": "frame"
+    },
+    {
+      "action": "runningBow",
+      "frame": 5,
+      "score": 0.7936926407991535,
+      "ang": -15,
+      "dx": 2,
+      "dy": 6,
+      "base": 0.594944086312526,
+      "source": "frame"
+    },
+    {
+      "action": "attackRange1",
+      "frame": 0,
+      "ang": 0,
+      "dx": 0,
+      "dy": 0,
+      "score": 0.6246439247406366,
+      "base": 0.6246439247406366,
+      "source": "median"
+    },
+    {
+      "action": "attackRange1",
+      "frame": 1,
+      "ang": 0,
+      "dx": 0,
+      "dy": 0,
+      "score": 0.538727485499135,
+      "base": 0.538727485499135,
+      "source": "median"
+    },
+    {
+      "action": "attackRange1",
+      "frame": 2,
+      "ang": 0,
+      "dx": 0,
+      "dy": 0,
+      "score": 0.6448624399050791,
+      "base": 0.6448624399050791,
+      "source": "median"
+    },
+    {
+      "action": "attackRange1",
+      "frame": 3,
+      "score": 0.7627197458973001,
+      "ang": -15,
+      "dx": 1,
+      "dy": 6,
+      "base": 0.5774026469031233,
+      "source": "frame"
+    },
+    {
+      "action": "attackRange1",
+      "frame": 4,
+      "score": 0.8099979618279491,
+      "ang": -13,
+      "dx": -7,
+      "dy": 7,
+      "base": 0.43856403499832575,
+      "source": "frame"
+    },
+    {
+      "action": "attackRange1",
+      "frame": 5,
+      "score": 0.8066073062881548,
+      "ang": -11.5,
+      "dx": -9,
+      "dy": 7,
+      "base": 0.5030882594513411,
+      "source": "frame"
+    },
+    {
+      "action": "attackRange1",
+      "frame": 6,
+      "score": 0.7222148281630179,
+      "ang": -14,
+      "dx": 0,
+      "dy": 6,
+      "base": 0.6629025295256059,
+      "source": "frame"
+    },
+    {
+      "action": "attackRange1",
+      "frame": 7,
+      "ang": 0,
+      "dx": 0,
+      "dy": 0,
+      "score": 0.6624501872312883,
+      "base": 0.6624501872312883,
+      "source": "median"
+    },
+    {
+      "action": "attackRange2",
+      "frame": 0,
+      "score": 0.7759181669678169,
+      "ang": -8.5,
+      "dx": 0,
+      "dy": 9,
+      "base": 0.62529707236722,
+      "source": "frame"
+    },
+    {
+      "action": "attackRange2",
+      "frame": 1,
+      "score": 0.8102302835099471,
+      "ang": -9.5,
+      "dx": -2,
+      "dy": 8,
+      "base": 0.5960516306583377,
+      "source": "frame"
+    },
+    {
+      "action": "attackRange2",
+      "frame": 2,
+      "score": 0.7117891198900022,
+      "ang": -10,
+      "dx": -6,
+      "dy": 4,
+      "base": 0.46907520338141495,
+      "source": "frame"
+    },
+    {
+      "action": "attackRange2",
+      "frame": 3,
+      "score": 0.658698224852071,
+      "ang": 11,
+      "dx": -6,
+      "dy": 0,
+      "base": 0.524165544054704,
+      "source": "frame"
+    },
+    {
+      "action": "attackRange2",
+      "frame": 4,
+      "score": 0.6072238555228895,
+      "ang": 11,
+      "dx": -6,
+      "dy": 2,
+      "base": 0.5234643307133857,
+      "source": "frame"
+    },
+    {
+      "action": "attackRange2",
+      "frame": 5,
+      "ang": 0,
+      "dx": 0,
+      "dy": 0,
+      "score": 0.6743132456657686,
+      "base": 0.6743132456657686,
+      "source": "median"
+    },
+    {
+      "action": "attackRange2",
+      "frame": 6,
+      "score": 0.7911118756276267,
+      "ang": -8.5,
+      "dx": -8,
+      "dy": 8,
+      "base": 0.5899291479153493,
+      "source": "frame"
+    },
+    {
+      "action": "attackRange2",
+      "frame": 7,
+      "score": 0.7838351312306935,
+      "ang": -11.5,
+      "dx": -11,
+      "dy": 6,
+      "base": 0.4991049339757744,
+      "source": "frame"
+    },
+    {
+      "action": "attackRange3",
+      "frame": 0,
+      "score": 0.785906038086693,
+      "ang": 16,
+      "dx": 6,
+      "dy": 1,
+      "base": 0.6651564948279336,
+      "source": "frame"
+    },
+    {
+      "action": "attackRange3",
+      "frame": 1,
+      "score": 0.8149563401271196,
+      "ang": 11.5,
+      "dx": 4,
+      "dy": -5,
+      "base": 0.5752041212988043,
+      "source": "frame"
+    },
+    {
+      "action": "attackRange3",
+      "frame": 2,
+      "score": 0.769791955576812,
+      "ang": 20,
+      "dx": -3,
+      "dy": -8,
+      "base": 0.5469371338803244,
+      "source": "frame"
+    },
+    {
+      "action": "attackRange3",
+      "frame": 3,
+      "score": 0.7545740080418784,
+      "ang": 11.5,
+      "dx": 0,
+      "dy": -6,
+      "base": 0.5273560427888627,
+      "source": "frame"
+    },
+    {
+      "action": "attackRange3",
+      "frame": 4,
+      "ang": 0,
+      "dx": 0,
+      "dy": 0,
+      "score": 0.573471364523318,
+      "base": 0.573471364523318,
+      "source": "median"
+    },
+    {
+      "action": "attackRange3",
+      "frame": 5,
+      "score": 0.7888407102542234,
+      "ang": -11,
+      "dx": 0,
+      "dy": -7,
+      "base": 0.524144044002798,
+      "source": "frame"
+    },
+    {
+      "action": "attackRange3",
+      "frame": 6,
+      "score": 0.7005391870110304,
+      "ang": 9.5,
+      "dx": 2,
+      "dy": -5,
+      "base": 0.626726202249839,
+      "source": "frame"
+    },
+    {
+      "action": "attackRange3",
+      "frame": 7,
+      "score": 0.8118914089441966,
+      "ang": -12.5,
+      "dx": -1,
+      "dy": -7,
+      "base": 0.523768518692008,
+      "source": "frame"
+    },
+    {
+      "action": "jump",
+      "frame": 0,
+      "score": 0.7492963336389593,
+      "ang": 5,
+      "dx": -2,
+      "dy": -2,
+      "base": 0.701008217026309,
+      "source": "frame"
+    },
+    {
+      "action": "jump",
+      "frame": 1,
+      "score": 0.8575659711032031,
+      "ang": 10,
+      "dx": -7,
+      "dy": -9,
+      "base": 0.6087374760639477,
+      "source": "frame"
+    },
+    {
+      "action": "jump",
+      "frame": 2,
+      "score": 0.8281842516924238,
+      "ang": 14,
+      "dx": 5,
+      "dy": -6,
+      "base": 0.5878809639399089,
+      "source": "frame"
+    },
+    {
+      "action": "jump",
+      "frame": 3,
+      "score": 0.646551724137931,
+      "ang": -6.5,
+      "dx": -5,
+      "dy": -2,
+      "base": 0.5179714196955576,
+      "source": "frame"
+    },
+    {
+      "action": "jump",
+      "frame": 4,
+      "score": 0.8163489608123116,
+      "ang": -2,
+      "dx": 7,
+      "dy": -7,
+      "base": 0.7279783436458829,
+      "source": "frame"
+    },
+    {
+      "action": "jump",
+      "frame": 5,
+      "score": 0.7613743574875724,
+      "ang": -1,
+      "dx": -1,
+      "dy": -8,
+      "base": 0.6975721939345618,
+      "source": "frame"
+    },
+    {
+      "action": "jump",
+      "frame": 6,
+      "score": 0.7780656288597847,
+      "ang": 8,
+      "dx": 1,
+      "dy": -4,
+      "base": 0.6816463964214579,
+      "source": "frame"
+    },
+    {
+      "action": "jump",
+      "frame": 7,
+      "score": 0.7636739867541273,
+      "ang": 14,
+      "dx": 7,
+      "dy": -3,
+      "base": 0.5695237189846943,
+      "source": "frame"
+    },
+    {
+      "action": "mountStanding",
+      "frame": 0,
+      "score": 0.7378870495588356,
+      "ang": 6,
+      "dx": -4,
+      "dy": 5,
+      "base": 0.6298010981006569,
+      "source": "frame"
+    },
+    {
+      "action": "mountStanding",
+      "frame": 1,
+      "score": 0.7220002862224766,
+      "ang": 7,
+      "dx": -3,
+      "dy": 4,
+      "base": 0.6370067262282011,
+      "source": "frame"
+    },
+    {
+      "action": "mountStanding",
+      "frame": 2,
+      "score": 0.7624629846793426,
+      "ang": 7,
+      "dx": -1,
+      "dy": 5,
+      "base": 0.6706704504023902,
+      "source": "frame"
+    },
+    {
+      "action": "mountStanding",
+      "frame": 3,
+      "score": 0.7205714152887205,
+      "ang": 6,
+      "dx": -7,
+      "dy": 3,
+      "base": 0.6137789747162801,
+      "source": "frame"
+    },
+    {
+      "action": "mountWalking",
+      "frame": 0,
+      "score": 0.7804083379179656,
+      "ang": 8.5,
+      "dx": 1,
+      "dy": 4,
+      "base": 0.6256487254722172,
+      "source": "frame"
+    },
+    {
+      "action": "mountWalking",
+      "frame": 1,
+      "score": 0.7100170302255305,
+      "ang": 7,
+      "dx": -3,
+      "dy": 4,
+      "base": 0.6422496711189574,
+      "source": "frame"
+    },
+    {
+      "action": "mountWalking",
+      "frame": 2,
+      "score": 0.6543408628491254,
+      "ang": 5,
+      "dx": -3,
+      "dy": 5,
+      "base": 0.5938322483431907,
+      "source": "frame"
+    },
+    {
+      "action": "mountWalking",
+      "frame": 3,
+      "score": 0.6595843102733174,
+      "ang": 7,
+      "dx": -2,
+      "dy": 5,
+      "base": 0.5753104341422537,
+      "source": "frame"
+    },
+    {
+      "action": "mountWalking",
+      "frame": 4,
+      "score": 0.6729403534020948,
+      "ang": 9,
+      "dx": -2,
+      "dy": 4,
+      "base": 0.597968737506996,
+      "source": "frame"
+    },
+    {
+      "action": "mountWalking",
+      "frame": 5,
+      "score": 0.733326218527516,
+      "ang": 12,
+      "dx": -2,
+      "dy": 4,
+      "base": 0.638549141308469,
+      "source": "frame"
+    },
+    {
+      "action": "mountWalking",
+      "frame": 6,
+      "score": 0.6869568181093021,
+      "ang": 9,
+      "dx": 0,
+      "dy": 6,
+      "base": 0.6017717134975678,
+      "source": "frame"
+    },
+    {
+      "action": "mountWalking",
+      "frame": 7,
+      "score": 0.6651836258740189,
+      "ang": 7.5,
+      "dx": -3,
+      "dy": 4,
+      "base": 0.5702337850644841,
+      "source": "frame"
+    },
+    {
+      "action": "mountRunning",
+      "frame": 0,
+      "ang": 0,
+      "dx": 0,
+      "dy": 0,
+      "score": 0.6431181135032962,
+      "base": 0.6431181135032962,
+      "source": "median"
+    },
+    {
+      "action": "mountRunning",
+      "frame": 1,
+      "ang": 0,
+      "dx": 0,
+      "dy": 0,
+      "score": 0.5976730769230769,
+      "base": 0.5976730769230769,
+      "source": "median"
+    },
+    {
+      "action": "mountRunning",
+      "frame": 2,
+      "score": 0.8610435472955154,
+      "ang": -4,
+      "dx": -3,
+      "dy": 3,
+      "base": 0.7735707816770387,
+      "source": "frame"
+    },
+    {
+      "action": "mountRunning",
+      "frame": 3,
+      "score": 0.8119335047000769,
+      "ang": -9.5,
+      "dx": -4,
+      "dy": 4,
+      "base": 0.7160917124791263,
+      "source": "frame"
+    },
+    {
+      "action": "mountRunning",
+      "frame": 4,
+      "ang": 0,
+      "dx": 0,
+      "dy": 0,
+      "score": 0.6380033958814053,
+      "base": 0.6380033958814053,
+      "source": "median"
+    },
+    {
+      "action": "mountRunning",
+      "frame": 5,
+      "ang": 0,
+      "dx": 0,
+      "dy": 0,
+      "score": 0.6012431105925896,
+      "base": 0.6012431105925896,
+      "source": "median"
+    },
+    {
+      "action": "mountStruck",
+      "frame": 0,
+      "score": 0.846260987153482,
+      "ang": 9.5,
+      "dx": -11,
+      "dy": -3,
+      "base": 0.6414027761205903,
+      "source": "frame"
+    },
+    {
+      "action": "mountStruck",
+      "frame": 1,
+      "ang": 0,
+      "dx": 0,
+      "dy": 0,
+      "score": 0.6850136794553667,
+      "base": 0.6850136794553667,
+      "source": "median"
+    },
+    {
+      "action": "mountStruck",
+      "frame": 2,
+      "ang": 0,
+      "dx": 0,
+      "dy": 0,
+      "score": 0.6813509600884688,
+      "base": 0.6813509600884688,
+      "source": "median"
+    },
+    {
+      "action": "mountAttack",
+      "frame": 0,
+      "ang": 0,
+      "dx": 0,
+      "dy": 0,
+      "score": 0.6637598276208276,
+      "base": 0.6637598276208276,
+      "source": "median"
+    },
+    {
+      "action": "mountAttack",
+      "frame": 1,
+      "score": 0.7742822650186835,
+      "ang": -7,
+      "dx": 2,
+      "dy": -5,
+      "base": 0.6874272703892528,
+      "source": "frame"
+    },
+    {
+      "action": "mountAttack",
+      "frame": 2,
+      "score": 0.7933564429607807,
+      "ang": -9,
+      "dx": 1,
+      "dy": 8,
+      "base": 0.5943218857724129,
+      "source": "frame"
+    },
+    {
+      "action": "mountAttack",
+      "frame": 3,
+      "score": 0.7651126424595811,
+      "ang": -3.5,
+      "dx": -5,
+      "dy": 5,
+      "base": 0.6238651824366109,
+      "source": "frame"
+    },
+    {
+      "action": "mountAttack",
+      "frame": 4,
+      "score": 0.7848141444702577,
+      "ang": 12.5,
+      "dx": 8,
+      "dy": 1,
+      "base": 0.663304338429953,
+      "source": "frame"
+    },
+    {
+      "action": "mountAttack",
+      "frame": 5,
+      "score": 0.7488324424080437,
+      "ang": -1,
+      "dx": -4,
+      "dy": 6,
+      "base": 0.6792563319333079,
+      "source": "frame"
+    },
+    {
+      "action": "fishingCast",
+      "frame": 0,
+      "score": 0.6776638975995305,
+      "ang": 13,
+      "dx": 3,
+      "dy": 3,
+      "base": 0.6346857750637251,
+      "source": "frame"
+    },
+    {
+      "action": "fishingCast",
+      "frame": 1,
+      "score": 0.7888765910348644,
+      "ang": 1,
+      "dx": -5,
+      "dy": 0,
+      "base": 0.7367626118017109,
+      "source": "frame"
+    },
+    {
+      "action": "fishingCast",
+      "frame": 2,
+      "score": 0.8212715378403637,
+      "ang": 4,
+      "dx": -9,
+      "dy": 0,
+      "base": 0.7232268425684809,
+      "source": "frame"
+    },
+    {
+      "action": "fishingCast",
+      "frame": 3,
+      "ang": 0,
+      "dx": 0,
+      "dy": 0,
+      "score": 0.68707402714135,
+      "base": 0.68707402714135,
+      "source": "median"
+    },
+    {
+      "action": "fishingCast",
+      "frame": 4,
+      "ang": 0,
+      "dx": 0,
+      "dy": 0,
+      "score": 0.7496381284298184,
+      "base": 0.7496381284298184,
+      "source": "median"
+    },
+    {
+      "action": "fishingCast",
+      "frame": 5,
+      "score": 0.8490209380607084,
+      "ang": -5.5,
+      "dx": -3,
+      "dy": -5,
+      "base": 0.7151126236339101,
+      "source": "frame"
+    },
+    {
+      "action": "fishingCast",
+      "frame": 6,
+      "ang": 0,
+      "dx": 0,
+      "dy": 0,
+      "score": 0.6708120240767311,
+      "base": 0.6708120240767311,
+      "source": "median"
+    },
+    {
+      "action": "fishingCast",
+      "frame": 7,
+      "score": 0.8178722463297274,
+      "ang": -7,
+      "dx": -4,
+      "dy": -2,
+      "base": 0.7216201151028103,
+      "source": "frame"
+    },
+    {
+      "action": "fishingWait",
+      "frame": 0,
+      "score": 0.8549197871637282,
+      "ang": -8.5,
+      "dx": -3,
+      "dy": -3,
+      "base": 0.7389027265488629,
+      "source": "frame"
+    },
+    {
+      "action": "fishingWait",
+      "frame": 1,
+      "score": 0.7573840985980662,
+      "ang": -11,
+      "dx": -4,
+      "dy": 7,
+      "base": 0.6109473418543022,
+      "source": "frame"
+    },
+    {
+      "action": "fishingWait",
+      "frame": 2,
+      "score": 0.6539222148978245,
+      "ang": -7,
+      "dx": -2,
+      "dy": 3,
+      "base": 0.613055435426105,
+      "source": "frame"
+    },
+    {
+      "action": "fishingWait",
+      "frame": 3,
+      "score": 0.7746481577684108,
+      "ang": -12.5,
+      "dx": -8,
+      "dy": 5,
+      "base": 0.5468416068809963,
+      "source": "frame"
+    },
+    {
+      "action": "fishingWait",
+      "frame": 4,
+      "score": 0.762188315815669,
+      "ang": 1,
+      "dx": -3,
+      "dy": 1,
+      "base": 0.714830389594333,
+      "source": "frame"
+    },
+    {
+      "action": "fishingWait",
+      "frame": 5,
+      "score": 0.7827646779226682,
+      "ang": -1,
+      "dx": -4,
+      "dy": 1,
+      "base": 0.7198011428217157,
+      "source": "frame"
+    },
+    {
+      "action": "fishingReel",
+      "frame": 0,
+      "ang": 0,
+      "dx": 0,
+      "dy": 0,
+      "score": 0.6233678618857901,
+      "base": 0.6233678618857901,
+      "source": "median"
+    },
+    {
+      "action": "fishingReel",
+      "frame": 1,
+      "score": 0.7114339903813588,
+      "ang": -4.5,
+      "dx": -7,
+      "dy": -1,
+      "base": 0.6635812504233556,
+      "source": "frame"
+    },
+    {
+      "action": "fishingReel",
+      "frame": 2,
+      "ang": 0,
+      "dx": 0,
+      "dy": 0,
+      "score": 0.65282469663877,
+      "base": 0.65282469663877,
+      "source": "median"
+    },
+    {
+      "action": "fishingReel",
+      "frame": 3,
+      "ang": 0,
+      "dx": 0,
+      "dy": 0,
+      "score": 0.625177304964539,
+      "base": 0.625177304964539,
+      "source": "median"
+    },
+    {
+      "action": "fishingReel",
+      "frame": 4,
+      "score": 0.7689016477878439,
+      "ang": 6,
+      "dx": 4,
+      "dy": 4,
+      "base": 0.6519321480333949,
+      "source": "frame"
+    },
+    {
+      "action": "fishingReel",
+      "frame": 5,
+      "score": 0.7715380415308751,
+      "ang": 7.5,
+      "dx": 3,
+      "dy": 2,
+      "base": 0.6886219222959714,
+      "source": "frame"
+    },
+    {
+      "action": "fishingReel",
+      "frame": 6,
+      "score": 0.7351509646705086,
+      "ang": 9,
+      "dx": 1,
+      "dy": 5,
+      "base": 0.6240823101979454,
+      "source": "frame"
+    },
+    {
+      "action": "fishingReel",
+      "frame": 7,
+      "score": 0.7560229740656343,
+      "ang": 6.5,
+      "dx": 1,
+      "dy": 5,
+      "base": 0.6340440503317808,
+      "source": "frame"
+    }
+  ]
+}

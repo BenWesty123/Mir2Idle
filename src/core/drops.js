@@ -129,11 +129,16 @@ export function bossDropTableItemChance(dropTable, itemId) {
 
 /**
  * How many independent Awakening Soul chance rolls a boss kill gets.
- * Normal 1 / Empowered 2 / Ascended 3.
- * @param {{ empowered?: boolean, ascended?: boolean }} [options]
+ * Normal 1 / Empowered 2 / Ascended 3 / Awakened 4.
+ * @param {{ empowered?: boolean, ascended?: boolean, awakened?: boolean }} [options]
  * @returns {number}
  */
-export function awakeningSoulBossDropRollCount({ empowered = false, ascended = false } = {}) {
+export function awakeningSoulBossDropRollCount({
+  empowered = false,
+  ascended = false,
+  awakened = false,
+} = {}) {
+  if (awakened) return 4;
   if (ascended) return 3;
   if (empowered) return 2;
   return 1;
@@ -181,6 +186,24 @@ export function rollBossTableDropSelection(dropTable, rng = Math.random) {
   }
 
   return { oilCount, itemIds };
+}
+
+/**
+ * Independent rolls for awakened-only boss exclusives.
+ * Chances are used as listed (not multiplied by awaken drop-rate scaling).
+ * @param {{ awakenedItems?: { id: string, chance: number }[] } | null | undefined} dropTable
+ * @param {() => number} [rng]
+ * @returns {string[]}
+ */
+export function rollBossAwakenedDropSelection(dropTable, rng = Math.random) {
+  const items = Array.isArray(dropTable?.awakenedItems) ? dropTable.awakenedItems : [];
+  const itemIds = [];
+  for (const entry of items) {
+    const chance = Math.max(0, Math.min(1, Number(entry?.chance) || 0));
+    if (!entry?.id || chance <= 0) continue;
+    if (rng() < chance) itemIds.push(entry.id);
+  }
+  return itemIds;
 }
 
 /**

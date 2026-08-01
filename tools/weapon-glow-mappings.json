@@ -3,129 +3,310 @@
   "mappings": [
     {
       "weaponShape": 30,
-      "weaponNames": ["DragonStaff", "BlackDragonStaff"],
+      "weaponNames": [
+        "DragonStaff",
+        "BlackDragonStaff"
+      ],
       "glow": 1,
-      "tint": { "hue": 0, "saturate": 100 },
-      "notes": ""
+      "tint": {
+        "hue": 0,
+        "saturate": 100
+      },
+      "notes": "",
+      "family": "aura"
     },
     {
       "weaponShape": 22,
-      "weaponNames": ["WarMageStaff", "ZumaWarMageStaff"],
+      "weaponNames": [
+        "WarMageStaff",
+        "ZumaWarMageStaff"
+      ],
       "glow": 2,
-      "tint": { "hue": 0, "saturate": 100 },
-      "notes": ""
+      "tint": {
+        "hue": 0,
+        "saturate": 100
+      },
+      "notes": "",
+      "family": "aura"
     },
     {
       "weaponShape": 26,
-      "weaponNames": ["WarSpiritBlade"],
+      "weaponNames": [
+        "WarSpiritBlade"
+      ],
       "glow": 3,
-      "tint": { "hue": 0, "saturate": 100 },
-      "notes": ""
+      "tint": {
+        "hue": 0,
+        "saturate": 100
+      },
+      "notes": "",
+      "family": "aura"
     },
     {
       "weaponShape": 27,
-      "weaponNames": ["MagicScythe"],
+      "weaponNames": [
+        "MagicScythe"
+      ],
       "glow": 4,
-      "tint": { "hue": 0, "saturate": 100 },
-      "notes": ""
+      "tint": {
+        "hue": 0,
+        "saturate": 100
+      },
+      "notes": "",
+      "family": "aura"
     },
     {
       "weaponShape": 28,
-      "weaponNames": ["StoneBambooFan"],
+      "weaponNames": [
+        "StoneBambooFan"
+      ],
       "glow": 5,
-      "tint": { "hue": 0, "saturate": 100 },
-      "notes": ""
+      "tint": {
+        "hue": 0,
+        "saturate": 100
+      },
+      "notes": "",
+      "family": "aura"
     },
     {
       "weaponShape": 32,
-      "weaponNames": ["SwordOfWarGod"],
+      "weaponNames": [
+        "SwordOfWarGod"
+      ],
       "glow": 6,
-      "tint": { "hue": 0, "saturate": 100 },
-      "notes": ""
+      "tint": {
+        "hue": 0,
+        "saturate": 100
+      },
+      "notes": "",
+      "family": "aura"
     },
     {
       "weaponShape": 33,
-      "weaponNames": ["BladeOfSorcery"],
+      "weaponNames": [
+        "BladeOfSorcery"
+      ],
       "glow": 7,
-      "tint": { "hue": 0, "saturate": 100 },
-      "notes": ""
+      "tint": {
+        "hue": 0,
+        "saturate": 100
+      },
+      "notes": "WEAKEST of the aura pairs - worth an owner glance. Matcher rank 1 but effectively a tie (shape 33 at 0.293 vs shape 47 at 0.287), and alignment lifts 0.374 -> 0.480 only via per-frame corrections that disagree wildly (-13 to +10 deg, shifts +/-12), i.e. noise-fitting rather than one authoring offset.",
+      "family": "aura"
     },
     {
       "weaponShape": 34,
-      "weaponNames": ["HeavenSword"],
+      "weaponNames": [
+        "HeavenSword"
+      ],
       "glow": 8,
-      "tint": { "hue": 0, "saturate": 100 },
-      "notes": ""
+      "tint": {
+        "hue": 0,
+        "saturate": 100
+      },
+      "notes": "",
+      "family": "aura"
     },
     {
       "weaponShape": 41,
-      "weaponNames": ["MirSword", "MirSword1", "MirSword2", "MirSword3", "MirSword4", "MirSword5"],
+      "weaponNames": [
+        "MirSword",
+        "MirSword1",
+        "MirSword2",
+        "MirSword3",
+        "MirSword4",
+        "MirSword5"
+      ],
       "glow": 9,
-      "tint": { "hue": 0, "saturate": 100 },
-      "notes": ""
+      "tint": {
+        "hue": 0,
+        "saturate": 100
+      },
+      "notes": "",
+      "family": "aura"
     },
     {
       "weaponShape": 35,
-      "weaponNames": ["BurstSword"],
+      "weaponNames": [
+        "BurstSword"
+      ],
       "glow": 10,
-      "tint": { "hue": 0, "saturate": 100 },
-      "notes": ""
+      "tint": {
+        "hue": 0,
+        "saturate": 100
+      },
+      "notes": "",
+      "family": "aura"
     },
     {
       "weaponShape": 37,
-      "weaponNames": ["DragonBloodSword"],
+      "weaponNames": [
+        "DragonBloodSword"
+      ],
       "glow": 11,
-      "tint": { "hue": 0, "saturate": 100 },
-      "notes": ""
+      "tint": {
+        "hue": 0,
+        "saturate": 100
+      },
+      "notes": "",
+      "family": "aura"
     },
     {
       "weaponShape": 36,
-      "weaponNames": ["HolyBloodSpear"],
+      "weaponNames": [
+        "HolyBloodSpear"
+      ],
       "glow": 12,
-      "tint": { "hue": 0, "saturate": 100 },
-      "notes": ""
+      "tint": {
+        "hue": 0,
+        "saturate": 100
+      },
+      "notes": "",
+      "family": "aura"
     },
     {
       "weaponShape": 51,
-      "weaponNames": ["BlackTigerHammer"],
+      "weaponNames": [
+        "BlackTigerHammer"
+      ],
       "glow": 13,
-      "tint": { "hue": 0, "saturate": 100 },
-      "notes": ""
+      "tint": {
+        "hue": 0,
+        "saturate": 100
+      },
+      "notes": "",
+      "family": "aura"
     },
     {
       "weaponShape": 39,
-      "weaponNames": ["StaffOfLotus"],
+      "weaponNames": [
+        "StaffOfLotus"
+      ],
       "glow": 14,
-      "tint": { "hue": 0, "saturate": 100 },
-      "notes": ""
+      "tint": {
+        "hue": 0,
+        "saturate": 100
+      },
+      "notes": "",
+      "family": "aura"
     },
     {
       "weaponShape": 40,
-      "weaponNames": ["FanOfCrane"],
+      "weaponNames": [
+        "FanOfCrane"
+      ],
       "glow": 15,
-      "tint": { "hue": 0, "saturate": 100 },
-      "notes": ""
+      "tint": {
+        "hue": 0,
+        "saturate": 100
+      },
+      "notes": "",
+      "family": "aura"
     },
     {
       "weaponShape": 45,
-      "weaponNames": ["HellYamaBlade", "HellYamaBlade1", "HellYamaBlade2", "HellYamaBlade3", "HellYamaBlade4", "HellYamaBlade5"],
+      "weaponNames": [
+        "HellYamaBlade",
+        "HellYamaBlade1",
+        "HellYamaBlade2",
+        "HellYamaBlade3",
+        "HellYamaBlade4",
+        "HellYamaBlade5"
+      ],
       "glow": 16,
-      "tint": { "hue": 0, "saturate": 100 },
-      "notes": ""
+      "tint": {
+        "hue": 0,
+        "saturate": 100
+      },
+      "notes": "",
+      "family": "aura"
+    },
+    {
+      "weaponShape": 23,
+      "weaponNames": [
+        "ZumaSoulSpringWand",
+        "SoulSpringWand"
+      ],
+      "glow": 17,
+      "tint": {
+        "hue": 0,
+        "saturate": 100
+      },
+      "notes": "matched by silhouette (halo dilation + desaturated core), margin 0.136",
+      "family": "aura"
+    },
+    {
+      "weaponShape": 21,
+      "weaponNames": [
+        "ZumaJudgementMace",
+        "JudgementMace"
+      ],
+      "glow": 18,
+      "tint": {
+        "hue": 0,
+        "saturate": 100
+      },
+      "notes": "matched by silhouette (halo dilation + desaturated core), margin 0.111",
+      "family": "aura"
     },
     {
       "weaponShape": 31,
-      "weaponNames": ["SoulSabre", "BlackDragonSoulSabre"],
+      "weaponNames": [
+        "SoulSabre",
+        "BlackDragonSoulSabre"
+      ],
       "glow": 19,
-      "tint": { "hue": 0, "saturate": 100 },
-      "notes": ""
+      "tint": {
+        "hue": 0,
+        "saturate": 100
+      },
+      "notes": "",
+      "family": "aura"
     },
     {
       "weaponShape": 29,
-      "weaponNames": ["DragonSlayer", "BlackDragonSlayer"],
+      "weaponNames": [
+        "DragonSlayer",
+        "BlackDragonSlayer"
+      ],
       "glow": 20,
-      "tint": { "hue": 0, "saturate": 100 },
-      "notes": ""
+      "tint": {
+        "hue": 0,
+        "saturate": 100
+      },
+      "notes": "",
+      "family": "aura"
+    },
+    {
+      "weaponShape": 78,
+      "weaponNames": [
+        "GonRyunHolyLightSword(?)",
+        "GonRyunHolyLightSword(?)1",
+        "GonRyunHolyLightSword(?)2"
+      ],
+      "glow": 55,
+      "tint": {
+        "hue": 0,
+        "saturate": 100
+      },
+      "family": "fx",
+      "notes": "owner-corrected 2026-08-01: glow 55 is weapon shape 78 (NOT IceDragonSkyKnife/55). Restored Crystal original then rigid-aligned to shape 78. Backup in tools/weapon-glow-align-backups/55/."
+    },
+    {
+      "weaponShape": 56,
+      "weaponNames": [
+        "IceDragonSkyRod",
+        "(????)IceDragonSkyRod"
+      ],
+      "glow": 56,
+      "tint": {
+        "hue": 0,
+        "saturate": 100
+      },
+      "family": "fx",
+      "notes": "owner-confirmed weapon; Crystal authored the glow ~13 deg rotated off the rod, re-aligned per frame by tools/align-weapon-glow.mjs --mode rigid (fit 0.600 -> 0.864, 173/173 frames improved). Crystal original kept in tools/weapon-glow-align-backups/56/."
     }
-  ]
+  ],
+  "candidates": [],
+  "notes": "Owner 2026-08-01: only the entries in mappings are believed correct. Mapped fx pairs: 55->shape 78 (GonRyunHolyLightSword), 56->IceDragonSkyRod. Glow 54 fully unmapped (owner rejected ConquerorSpear pairing; not a frame-sync issue). All other same-index / fx guesses rejected."
 }

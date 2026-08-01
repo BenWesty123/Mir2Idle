@@ -555,6 +555,24 @@
         "monster.271.attack",
         "monster.271.flinch",
         "monster.271.death",
+        "monster.261.attack",
+        "monster.261.flinch",
+        "monster.261.death",
+        "monster.262.attack",
+        "monster.262.flinch",
+        "monster.262.death",
+        "monster.263.attack",
+        "monster.263.flinch",
+        "monster.263.death",
+        "monster.264.attack",
+        "monster.264.flinch",
+        "monster.264.death",
+        "monster.265.attack",
+        "monster.265.flinch",
+        "monster.265.death",
+        "monster.266.attack",
+        "monster.266.flinch",
+        "monster.266.death",
         "monster.272.attack",
         "monster.272.flinch",
         "monster.272.death",
@@ -4154,6 +4172,150 @@
       "group": "monster",
       "sourceFile": "271-3.wav",
       "src": "./public/audio/sfx/files/2713-271-3.wav"
+    },
+    "monster.261.attack": {
+      "key": "monster.261.attack",
+      "label": "Rebel Demon attack",
+      "id": 2611,
+      "group": "monster",
+      "sourceFile": "261-1.wav",
+      "src": "./public/audio/sfx/files/2611-261-1.wav"
+    },
+    "monster.261.flinch": {
+      "key": "monster.261.flinch",
+      "label": "Rebel Demon flinch",
+      "id": 2612,
+      "group": "monster",
+      "sourceFile": "261-2.wav",
+      "src": "./public/audio/sfx/files/2612-261-2.wav"
+    },
+    "monster.261.death": {
+      "key": "monster.261.death",
+      "label": "Rebel Demon death",
+      "id": 2613,
+      "group": "monster",
+      "sourceFile": "261-3.wav",
+      "src": "./public/audio/sfx/files/2613-261-3.wav"
+    },
+    "monster.262.attack": {
+      "key": "monster.262.attack",
+      "label": "Black Sky Demon attack",
+      "id": 2621,
+      "group": "monster",
+      "sourceFile": "262-1.wav",
+      "src": "./public/audio/sfx/files/2621-262-1.wav"
+    },
+    "monster.262.flinch": {
+      "key": "monster.262.flinch",
+      "label": "Black Sky Demon flinch",
+      "id": 2622,
+      "group": "monster",
+      "sourceFile": "262-2.wav",
+      "src": "./public/audio/sfx/files/2622-262-2.wav"
+    },
+    "monster.262.death": {
+      "key": "monster.262.death",
+      "label": "Black Sky Demon death",
+      "id": 2623,
+      "group": "monster",
+      "sourceFile": "262-3.wav",
+      "src": "./public/audio/sfx/files/2623-262-3.wav"
+    },
+    "monster.263.attack": {
+      "key": "monster.263.attack",
+      "label": "Destroyer Demon attack",
+      "id": 2631,
+      "group": "monster",
+      "sourceFile": "263-1.wav",
+      "src": "./public/audio/sfx/files/2631-263-1.wav"
+    },
+    "monster.263.flinch": {
+      "key": "monster.263.flinch",
+      "label": "Destroyer Demon flinch",
+      "id": 2632,
+      "group": "monster",
+      "sourceFile": "263-2.wav",
+      "src": "./public/audio/sfx/files/2632-263-2.wav"
+    },
+    "monster.263.death": {
+      "key": "monster.263.death",
+      "label": "Destroyer Demon death",
+      "id": 2633,
+      "group": "monster",
+      "sourceFile": "263-3.wav",
+      "src": "./public/audio/sfx/files/2633-263-3.wav"
+    },
+    "monster.264.attack": {
+      "key": "monster.264.attack",
+      "label": "Frost Demon attack",
+      "id": 2641,
+      "group": "monster",
+      "sourceFile": "264-1.wav",
+      "src": "./public/audio/sfx/files/2641-264-1.wav"
+    },
+    "monster.264.flinch": {
+      "key": "monster.264.flinch",
+      "label": "Frost Demon flinch",
+      "id": 2642,
+      "group": "monster",
+      "sourceFile": "264-2.wav",
+      "src": "./public/audio/sfx/files/2642-264-2.wav"
+    },
+    "monster.264.death": {
+      "key": "monster.264.death",
+      "label": "Frost Demon death",
+      "id": 2643,
+      "group": "monster",
+      "sourceFile": "264-3.wav",
+      "src": "./public/audio/sfx/files/2643-264-3.wav"
+    },
+    "monster.265.attack": {
+      "key": "monster.265.attack",
+      "label": "Cold Corpse attack",
+      "id": 2651,
+      "group": "monster",
+      "sourceFile": "265-1.wav",
+      "src": "./public/audio/sfx/files/2651-265-1.wav"
+    },
+    "monster.265.flinch": {
+      "key": "monster.265.flinch",
+      "label": "Cold Corpse flinch",
+      "id": 2652,
+      "group": "monster",
+      "sourceFile": "265-2.wav",
+      "src": "./public/audio/sfx/files/2652-265-2.wav"
+    },
+    "monster.265.death": {
+      "key": "monster.265.death",
+      "label": "Cold Corpse death",
+      "id": 2653,
+      "group": "monster",
+      "sourceFile": "265-3.wav",
+      "src": "./public/audio/sfx/files/2653-265-3.wav"
+    },
+    "monster.266.attack": {
+      "key": "monster.266.attack",
+      "label": "Mad Corpse attack",
+      "id": 2661,
+      "group": "monster",
+      "sourceFile": "266-1.wav",
+      "src": "./public/audio/sfx/files/2661-266-1.wav"
+    },
+    "monster.266.flinch": {
+      "key": "monster.266.flinch",
+      "label": "Mad Corpse flinch",
+      "id": 2662,
+      "group": "monster",
+      "sourceFile": "266-2.wav",
+      "src": "./public/audio/sfx/files/2662-266-2.wav"
+    },
+    "monster.266.death": {
+      "key": "monster.266.death",
+      "label": "Mad Corpse death",
+      "id": 2663,
+      "group": "monster",
+      "sourceFile": "266-3.wav",
+      "src": "./public/audio/sfx/files/2663-266-3.wav"
     },
     "monster.272.attack": {
       "key": "monster.272.attack",

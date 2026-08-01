@@ -3,6 +3,7 @@ import assert from "node:assert/strict";
 import {
   ARMOUR_EMPOWER_ROLL_DEFS,
   ASCEND_TIER_WEIGHTS,
+  AWAKEN_TIER_WEIGHTS,
   BELT_BOOT_EMPOWER_ROLL_DEFS,
   BOSS_EMPOWER_ITEM_CHANCE,
   BRACELET_EMPOWER_ROLL_DEFS,
@@ -27,6 +28,7 @@ import {
   applyEquippedPetDamageReduction,
   applyEquippedPotionRestoreBonus,
   applyEquippedSpellDamageBonus,
+  applyEquippedPetAttackSpeedBonus,
   equippedPotionRestoreBonusPercent,
   POTION_RESTORE_BONUS_CAP_PERCENT,
   applyEquippedSpellCooldownReductionMs,
@@ -45,6 +47,10 @@ import {
   empowerItemBonusLines,
   empowerSpellBonusLines,
   empowerSpellBonusTooltipRows,
+  innateSpellBonusLines,
+  innateSpellBonusTooltipRows,
+  sanitizeInnateSpellBonuses,
+  equippedPetAttackSpeedBonusPercent,
   empoweredItemStarSuffix,
   empoweredStatLabel,
   equippedSpellCooldownReductionSeconds,
@@ -293,6 +299,22 @@ test("ASCEND_TIER_WEIGHTS: 50% / 35% / 10% / 5%", () => {
   assert.equal(rollEmpowerTier(ASCEND_TIER_WEIGHTS, () => 0.96), 4);
 });
 
+test("AWAKEN_TIER_WEIGHTS: 30% / 30% / 25% / 15%", () => {
+  assert.deepEqual(AWAKEN_TIER_WEIGHTS, [
+    { tier: 1, weight: 30 },
+    { tier: 2, weight: 30 },
+    { tier: 3, weight: 25 },
+    { tier: 4, weight: 15 },
+  ]);
+  assert.equal(rollEmpowerTier(AWAKEN_TIER_WEIGHTS, () => 0), 1);
+  assert.equal(rollEmpowerTier(AWAKEN_TIER_WEIGHTS, () => 0.29), 1);
+  assert.equal(rollEmpowerTier(AWAKEN_TIER_WEIGHTS, () => 0.31), 2);
+  assert.equal(rollEmpowerTier(AWAKEN_TIER_WEIGHTS, () => 0.59), 2);
+  assert.equal(rollEmpowerTier(AWAKEN_TIER_WEIGHTS, () => 0.61), 3);
+  assert.equal(rollEmpowerTier(AWAKEN_TIER_WEIGHTS, () => 0.84), 3);
+  assert.equal(rollEmpowerTier(AWAKEN_TIER_WEIGHTS, () => 0.86), 4);
+});
+
 test("rollEmpoweredItemDrop: Ascended tierWeights bias higher stars", () => {
   // rng: first call = itemChance (force success), second = tier roll into 4★ band
   let n = 0;
@@ -305,6 +327,21 @@ test("rollEmpoweredItemDrop: Ascended tierWeights bias higher stars", () => {
   const result = rollEmpoweredItemDrop(UNIVERSAL_WEAPON, rng, {
     itemChance: 1,
     tierWeights: ASCEND_TIER_WEIGHTS,
+  });
+  assert.equal(result?.empowerTier, 4);
+});
+
+test("rollEmpoweredItemDrop: Awakened tierWeights bias higher stars", () => {
+  let n = 0;
+  const rng = () => {
+    n += 1;
+    if (n === 1) return 0;
+    if (n === 2) return 0.86;
+    return 0;
+  };
+  const result = rollEmpoweredItemDrop(UNIVERSAL_WEAPON, rng, {
+    itemChance: 1,
+    tierWeights: AWAKEN_TIER_WEIGHTS,
   });
   assert.equal(result?.empowerTier, 4);
 });
@@ -1609,3 +1646,103 @@ test("empowerCodexSlotCatalog: flat slot lists include weapon union and armour r
   assert.ok(armour.sections[0].rolls.some((roll) => roll.includes("crit chance") || roll.includes("Crit Rate")));
   assert.ok(ring.sections[0].rolls.includes("+1–6 DC"));
 });
+
+test("sanitizeInnateSpellBonuses: keeps damage and pet attack speed only", () => {
+  assert.deepEqual(sanitizeInnateSpellBonuses({
+    SummonHolyDeva: { damagePercent: 100, petAttackSpeedPercent: 100, manaCostPercent: 20 },
+  }), {
+    SummonHolyDeva: { damagePercent: 100, petAttackSpeedPercent: 100 },
+  });
+});
+
+test("sanitizeInnateSpellBonuses: keeps Flaming Sword damage and crit fields", () => {
+  assert.deepEqual(sanitizeInnateSpellBonuses({
+    FlamingSword: { critChancePercent: 100, critDamagePercent: 100, damagePercent: 50, manaCostPercent: 20 },
+  }), {
+    FlamingSword: { damagePercent: 50, critChancePercent: 100, critDamagePercent: 100 },
+  });
+});
+
+test("equippedSpellCrit bonuses: include item-def innate with resolveItem", () => {
+  const inventory = {
+    equipment: { weapon: "entry-1" },
+    items: [{
+      id: "entry-1",
+      itemId: "awakened-judgement-mace",
+      empowerSpellBonuses: { FlamingSword: { critDamagePercent: 10 } },
+    }],
+  };
+  const resolveItem = (id) => (id === "awakened-judgement-mace"
+    ? { innateSpellBonuses: { FlamingSword: { damagePercent: 100, critDamagePercent: 100 } } }
+    : null);
+  assert.equal(equippedSpellCritDamageBonusPercent("FlamingSword", inventory), 10);
+  assert.equal(equippedSpellCritDamageBonusPercent("FlamingSword", inventory, resolveItem), 110);
+  assert.equal(equippedSpellDamageBonusPercent("FlamingSword", inventory, resolveItem), 100);
+});
+
+test("innateSpellBonusLines: formats Flaming Sword unique weapon bonuses", () => {
+  assert.deepEqual(innateSpellBonusLines({
+    FlamingSword: { damagePercent: 100, critDamagePercent: 100 },
+  }), [
+    "+100% Flaming Sword damage",
+    "+100% Flaming Sword crit damage",
+  ]);
+});
+
+test("innateSpellBonusLines: formats Holy Deva unique weapon bonuses", () => {
+  assert.deepEqual(innateSpellBonusLines({
+    SummonHolyDeva: { damagePercent: 100, petAttackSpeedPercent: 100 },
+  }), [
+    "+100% Holy Deva damage",
+    "+100% Holy Deva attack speed",
+  ]);
+  assert.deepEqual(innateSpellBonusTooltipRows({
+    SummonHolyDeva: { damagePercent: 100, petAttackSpeedPercent: 100 },
+  }), [
+    { label: "Holy Deva", value: "+100% damage" },
+    { label: "Holy Deva", value: "+100% attack speed" },
+  ]);
+});
+
+test("equippedSpellDamageBonusPercent: includes item-def innate damage with resolveItem", () => {
+  const inventory = {
+    equipment: { weapon: "entry-1" },
+    items: [{
+      id: "entry-1",
+      itemId: "awakened-soul-spring-wand",
+      empowerSpellBonuses: { SummonHolyDeva: { damagePercent: 25 } },
+    }],
+  };
+  const resolveItem = (id) => (id === "awakened-soul-spring-wand"
+    ? { innateSpellBonuses: { SummonHolyDeva: { damagePercent: 100 } } }
+    : null);
+  assert.equal(equippedSpellDamageBonusPercent("SummonHolyDeva", inventory), 25);
+  assert.equal(equippedSpellDamageBonusPercent("SummonHolyDeva", inventory, resolveItem), 125);
+  assert.equal(applyEquippedSpellDamageBonus("SummonHolyDeva", 100, inventory, resolveItem), 225);
+});
+
+test("applyEquippedPetAttackSpeedBonus: 100 percent halves attack delay with 400ms floor", () => {
+  const inventory = {
+    equipment: { weapon: "entry-1" },
+    items: [{ id: "entry-1", itemId: "awakened-soul-spring-wand" }],
+  };
+  const resolveItem = () => ({
+    innateSpellBonuses: { SummonHolyDeva: { petAttackSpeedPercent: 100 } },
+  });
+  assert.equal(equippedPetAttackSpeedBonusPercent("SummonHolyDeva", inventory, resolveItem), 100);
+  assert.equal(applyEquippedPetAttackSpeedBonus("SummonHolyDeva", 2000, inventory, resolveItem), 1000);
+  assert.equal(applyEquippedPetAttackSpeedBonus("SummonHolyDeva", 600, inventory, resolveItem), 400);
+  assert.equal(applyEquippedPetAttackSpeedBonus("SummonHolyDeva", 2000, inventory, null), 2000);
+});
+
+test("innateSpellBonuses are not cube-transferable via listEmpowerSlotsFromEntry", () => {
+  assert.equal(listEmpowerSlotsFromEntry({
+    empowerBonusStats: {},
+    empowerSpellBonuses: {},
+  }).length, 0);
+  // petAttackSpeedPercent is not an empower kind - only damagePercent becomes a cube slot.
+  assert.equal(listEmpowerSlotsFromEntry({
+    empowerSpellBonuses: { SummonHolyDeva: { damagePercent: 100, petAttackSpeedPercent: 100 } },
+  }).length, 1);
+});
+

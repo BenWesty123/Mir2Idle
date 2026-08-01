@@ -454,6 +454,16 @@ test("computeOfflinePetAttackDelayMs", () => {
     computeOfflinePetAttackDelayMs({ active: true, nextAttackAt: 900 }, 1000, { pendingPetAttack: true }),
     1,
   );
+  // A ready-but-blocked pet (paralyzed / follower mid-move) must never return 0,
+  // or the fight loop spins at delta=0 until the guard trips.
+  assert.equal(
+    computeOfflinePetAttackDelayMs({ active: true, nextAttackAt: 900 }, 1000, { blocked: true }),
+    Infinity,
+  );
+  assert.equal(
+    computeOfflinePetAttackDelayMs({ active: true, nextAttackAt: 1500 }, 1000, { blocked: true }),
+    Infinity,
+  );
 });
 
 test("computeOfflineFightTravelMs", () => {
@@ -531,6 +541,51 @@ test("simulateOfflineFightLoop: hits remaining time cap", () => {
   assert.equal(result.elapsedMs, 2500);
   assert.equal(result.killed, false);
   assert.equal(result.playerDied, false);
+});
+
+test("simulateOfflineFightLoop: guard exhaustion flags a stalled fight", () => {
+  const enemy = createOfflineFightEnemy({ id: "wolf", maxHp: 100, maxMp: 0, attackMs: 5000 });
+  const result = simulateOfflineFightLoop({
+    remainingMs: 60_000,
+    travelMs: 0,
+    enemy,
+    maxGuard: 25,
+    getPlayerHp: () => 50,
+    // Pet reports "ready now" every tick but the attack handler never acts,
+    // reproducing the delta=0 deadlock that discarded offline windows.
+    getPetAttackDelayMs: () => 0,
+    onPlayerAttack: () => false,
+  });
+  assert.equal(result.killed, false);
+  assert.equal(result.playerDied, false);
+  assert.equal(result.stalled, true);
+});
+
+test("simulateOfflineFightLoop: hitting the time cap is not a stall", () => {
+  const enemy = createOfflineFightEnemy({ id: "deer", maxHp: 100, maxMp: 0, attackMs: 900 });
+  const result = simulateOfflineFightLoop({
+    remainingMs: 2500,
+    travelMs: 500,
+    enemy,
+    getPlayerHp: () => 50,
+    getPetAttackDelayMs: () => Infinity,
+    onPlayerAttack: () => true,
+    consumePlayerCooldownMs: () => 550,
+  });
+  assert.equal(result.elapsedMs, 2500);
+  assert.equal(result.stalled, undefined);
+});
+
+test("processOfflineZoneFightCycle: stalled fight reports fight_stalled", () => {
+  const report = createOfflineZoneReport();
+  const step = processOfflineZoneFightCycle(
+    report,
+    { elapsedMs: 40, killed: false, playerDied: false, stalled: true, enemy: { id: "wolf", hp: 90 } },
+    120_000,
+    1400,
+  );
+  assert.equal(step.status, "fight_stalled");
+  assert.equal(report.elapsedMs, 40);
 });
 
 test("nextOfflineTaoistSupportSpellId: picks first available in default order", () => {

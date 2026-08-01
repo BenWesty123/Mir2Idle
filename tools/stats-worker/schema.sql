@@ -75,7 +75,12 @@ CREATE TABLE IF NOT EXISTS telemetry_sessions (
   combat_ms INTEGER NOT NULL DEFAULT 0,
   idle_ms INTEGER NOT NULL DEFAULT 0,
   total_ms INTEGER NOT NULL DEFAULT 0,
-  heartbeats INTEGER NOT NULL DEFAULT 0
+  heartbeats INTEGER NOT NULL DEFAULT 0,
+  -- Save health: latest local save size (chars), cumulative localStorage
+  -- write failures, and whether the session booted from an unloadable save.
+  save_size INTEGER NOT NULL DEFAULT 0,
+  save_failures INTEGER NOT NULL DEFAULT 0,
+  save_load_failed INTEGER NOT NULL DEFAULT 0
 );
 
 CREATE INDEX IF NOT EXISTS telemetry_sessions_last_seen_idx

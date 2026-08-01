@@ -12,6 +12,7 @@ import {
   countIndependentChanceHits,
   omitBossDropTableItem,
   rollBonusBossDropItem,
+  rollBossAwakenedDropSelection,
   rollBossTableDropSelection,
   rollChanceTable,
   rollRedThunderZumaDropIds,
@@ -42,6 +43,22 @@ test("rollBossTableDropSelection: collects hits from independent rolls", () => {
   const table = { items: [{ id: "a", chance: 0.5 }, { id: "b", chance: 0.5 }] };
   const result = rollBossTableDropSelection(table, rng);
   assert.deepEqual(result.itemIds, ["a", "b"]);
+});
+
+test("rollBossAwakenedDropSelection: independent rolls, no guaranteed fallback", () => {
+  const table = {
+    awakenedItems: [
+      { id: "awakened-soul-spring-wand", chance: 0.01 },
+      { id: "other", chance: 1 },
+    ],
+  };
+  assert.deepEqual(rollBossAwakenedDropSelection(table, () => 0.5), ["other"]);
+  assert.deepEqual(rollBossAwakenedDropSelection(table, () => 0.005), [
+    "awakened-soul-spring-wand",
+    "other",
+  ]);
+  assert.deepEqual(rollBossAwakenedDropSelection({ awakenedItems: [] }, () => 0), []);
+  assert.deepEqual(rollBossAwakenedDropSelection(null, () => 0), []);
 });
 
 test("rollChanceTable: independent chance checks", () => {
@@ -100,11 +117,13 @@ test("rollBonusBossDropItem: extra soul roll only on eligible boss tables", () =
   assert.equal(rollBonusBossDropItem(table, "awakening-soul", 110, () => 0.99), true);
 });
 
-test("awakeningSoulBossDropRollCount: normal 1 / empowered 2 / ascended 3", () => {
+test("awakeningSoulBossDropRollCount: normal 1 / empowered 2 / ascended 3 / awakened 4", () => {
   assert.equal(awakeningSoulBossDropRollCount({}), 1);
   assert.equal(awakeningSoulBossDropRollCount({ empowered: true }), 2);
   assert.equal(awakeningSoulBossDropRollCount({ empowered: true, ascended: true }), 3);
   assert.equal(awakeningSoulBossDropRollCount({ ascended: true }), 3);
+  assert.equal(awakeningSoulBossDropRollCount({ awakened: true }), 4);
+  assert.equal(awakeningSoulBossDropRollCount({ empowered: true, ascended: true, awakened: true }), 4);
 });
 
 test("omitBossDropTableItem / bossDropTableItemChance", () => {

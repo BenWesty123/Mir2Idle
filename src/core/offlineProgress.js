@@ -724,17 +724,25 @@ export function simulateOfflineFightLoop(options) {
     }
   }
 
-  return buildOfflineFightResult(elapsedMs, enemy, getPlayerHp());
+  const result = buildOfflineFightResult(elapsedMs, enemy, getPlayerHp());
+  // Guard exhaustion with the fight otherwise unresolved means the loop was
+  // spinning without simulated time advancing (e.g. a blocked pet returning a
+  // zero delay). Mark it so the caller can recover instead of silently
+  // abandoning the remaining offline window.
+  if (guard >= maxGuard && !result.killed && !result.playerDied && elapsedMs < limit) {
+    result.stalled = true;
+  }
+  return result;
 }
 
 /**
  * Apply one offline fight result to a zone report and decide whether to continue.
  *
  * @param {object} report
- * @param {{ elapsedMs?: number, killed?: boolean, playerDied?: boolean, enemy?: object | null }} fightResult
+ * @param {{ elapsedMs?: number, killed?: boolean, playerDied?: boolean, stalled?: boolean, enemy?: object | null }} fightResult
  * @param {number} limitMs
  * @param {number} respawnDelayMs
- * @returns {{ status: "player_died" | "fight_incomplete" | "kill_complete", respawnMs?: number }}
+ * @returns {{ status: "player_died" | "fight_stalled" | "fight_incomplete" | "kill_complete", respawnMs?: number }}
  */
 export function processOfflineZoneFightCycle(report, fightResult, limitMs, respawnDelayMs) {
   const limit = Math.max(0, Math.trunc(Number(limitMs) || 0));
@@ -749,7 +757,7 @@ export function processOfflineZoneFightCycle(report, fightResult, limitMs, respa
     return { status: "player_died" };
   }
   if (!fightResult.killed) {
-    return { status: "fight_incomplete" };
+    return { status: fightResult.stalled ? "fight_stalled" : "fight_incomplete" };
   }
 
   const respawnMs = computeOfflineRespawnDelay(limit - report.elapsedMs, respawnDelayMs);
@@ -801,7 +809,7 @@ export function simulateOfflineZoneProgressLoop(limitMs, options = {}) {
       enemy: null,
     };
     const step = processOfflineZoneFightCycle(report, fightResult, limit, respawnDelayMs);
-    if (step.status === "player_died" || step.status === "fight_incomplete") break;
+    if (step.status !== "kill_complete") break;
     options.onKill?.(report);
     options.onRecovery?.(startedAt + report.elapsedMs, report);
   }
@@ -818,9 +826,14 @@ export function simulateOfflineZoneProgressLoop(limitMs, options = {}) {
  * @param {boolean} [options.pendingPetAttack]
  * @param {boolean} [options.shinsuShowPending]
  * @param {boolean} [options.outOfRange]
+ * @param {boolean} [options.blocked] pet cannot act (paralyzed, mid-follow, ...)
  */
 export function computeOfflinePetAttackDelayMs(pet, simNow, options = {}) {
   if (!pet?.active) return Infinity;
+  // A ready-but-blocked pet must NOT return 0: the attack gate would refuse to
+  // act without advancing its cooldown, freezing the fight loop at delta=0
+  // until the guard tripped and the rest of the offline window was discarded.
+  if (options.blocked) return Infinity;
   const readyIn = Math.max(0, (pet.nextAttackAt ?? 0) - simNow);
   if (readyIn > 0) return readyIn;
   if (options.pendingPetAttack) return 1;

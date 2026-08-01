@@ -32,6 +32,7 @@ export const MAP_LIGHTNING_FX_ID = "MapLightning";
 export const MAP_HELL_FIRE_FX_ID = "MapHellFire";
 export const MAP_QUAKE_FX_ID = "MapQuake";
 export const TOWN_IDLE_TELEPORT_FX_ID = "Teleport";
+// FlameField is already in WIZARD_COMBAT_SPELL_IDS; cascade reuses that atlas.
 
 const NESTED_ATLAS_SHEET_KEYS = ["projectile", "impact", "ground", "storm", "cast", "charge"];
 

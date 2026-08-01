@@ -8,9 +8,19 @@
       "description": "Namman wilds — Elephant, Rhino, Tigers, and Ape (Mir2DB 南蛮)"
     },
     {
+      "id": "zone-namman-demons",
+      "label": "Namman Demon Fields",
+      "description": "Namman field — Rebel/Sky/Destroyer/Frost Demons and Cold/Mad Corpses (~1.25× beast zone)"
+    },
+    {
       "id": "zone-namman-boss",
       "label": "Beast King's Lair",
       "description": "Ancient City Ruins — Beast King (야수왕) boss room"
+    },
+    {
+      "id": "zone-namman-danmo",
+      "label": "Danmo",
+      "description": "Namman field — Danmo (단묵) boss spawn (Mir2DB 남만 / map 845)"
     },
     {
       "id": "zone-bicheon-1",
@@ -381,11 +391,6 @@
       "id": "zone-lab-hell-lord",
       "label": "Lab: Hell Lord",
       "description": "Fire Hell boss test room"
-    },
-    {
-      "id": "zone-lab-danmo",
-      "label": "Lab: Danmo",
-      "description": "Southern Barbarian Danmo (AncientBringer / 272.Lib) test fight"
     },
     {
       "id": "zone-bichon-mine",

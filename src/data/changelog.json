@@ -1,6 +1,21 @@
 {
   "entries": [
     {
+      "id": "2026-08-01-awakened-namman-glyphs",
+      "date": "2026-08-01",
+      "title": "Awakened bosses, Namman & Glyphs",
+      "highlights": [
+        "Added a third glyph equip slot (Rebirth upgrade).",
+        "Added Namman Demon Fields and Danmo to Southern Barbarian Lands.",
+        "Added Glyph Recycling to the crafting cube — turn 2 glyphs you don't want into a random new one.",
+        "Added more stats to the Stats 2 page.",
+        "Added Awakened bosses — the next (and final) tier up for bosses.",
+        "Added 3 new Awakened items. These can be seen in the Codex and only drop from specific Awakened bosses.",
+        "Unique items (including Awakened weapons) can no longer be sealed in the Spirit Box, same as Ethereal gear.",
+        "Changed Glyph of Disruptor Cascade to be more useful."
+      ]
+    },
+    {
       "id": "2026-07-28-glyphs-skill-books-auto-advance",
       "date": "2026-07-28",
       "title": "New zones, glyphs & dungeon auto-advance",

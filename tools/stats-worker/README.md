@@ -105,6 +105,7 @@ npx wrangler d1 execute lom-idle-v2-stats --file .\migrate-boss-kills.sql --remo
 npx wrangler d1 execute lom-idle-v2-stats --file .\migrate-account-stats.sql --remote
 npx wrangler d1 execute lom-idle-v2-stats --file .\migrate-ranking-stats.sql --remote
 npx wrangler d1 execute lom-idle-v2-stats --file .\migrate-town-messages.sql --remote
+npx wrangler d1 execute lom-idle-v2-stats --file .\migrate-telemetry-save-health.sql --remote
 ```
 
 Then redeploy the Worker so `/stats` stores account ranking fields and `/leaderboard` returns them.

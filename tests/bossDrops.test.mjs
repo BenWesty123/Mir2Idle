@@ -21,6 +21,7 @@ const EXPECTED_LABELS = [
   "Dark Devourer",
   "Great Fox Spirit",
   "Beast King",
+  "Danmo",
   "Dark Devil",
   "Hell Keeper",
   "Manectric King",
@@ -56,8 +57,31 @@ test("every boss drop item id exists in items.json", () => {
         unknown.push(`${label}: ${entry.id}`);
       }
     }
+    for (const entry of table.awakenedItems ?? []) {
+      if (!knownItemIds.has(entry.id)) {
+        unknown.push(`${label} (awakened): ${entry.id}`);
+      }
+    }
   }
   assert.deepEqual(unknown, [], `\nUnknown item ids in boss drops:\n${unknown.join("\n")}`);
+});
+
+test("Wooma Taurus awakened exclusives include Awakened Soul Spring Wand at 1%", () => {
+  const table = BOSS_DROP_TABLE_BY_LABEL["Wooma Taurus"];
+  const wand = (table.awakenedItems ?? []).find((entry) => entry.id === "awakened-soul-spring-wand");
+  assert.ok(wand, "expected awakened-soul-spring-wand on Wooma Taurus awakenedItems");
+  assert.equal(wand.chance, 0.01);
+});
+
+test("Evil Centipede / Evil Snake awakened exclusives for Judgement Mace and War Mage Staff", () => {
+  const centipede = BOSS_DROP_TABLE_BY_LABEL["Evil Centipede"];
+  const snake = BOSS_DROP_TABLE_BY_LABEL["Evil Snake"];
+  const mace = (centipede.awakenedItems ?? []).find((entry) => entry.id === "awakened-judgement-mace");
+  const staff = (snake.awakenedItems ?? []).find((entry) => entry.id === "awakened-war-mage-staff");
+  assert.ok(mace, "expected awakened-judgement-mace on Evil Centipede awakenedItems");
+  assert.equal(mace.chance, 0.01);
+  assert.ok(staff, "expected awakened-war-mage-staff on Evil Snake awakenedItems");
+  assert.equal(staff.chance, 0.01);
 });
 
 test("clampChance keeps values within [0,1]", () => {

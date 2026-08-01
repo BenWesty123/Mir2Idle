@@ -112,7 +112,7 @@ test("player alias: the owning recovery code can rename", async () => {
 
 test("player alias: rejects invalid names", async () => {
   const db = new FakeDb();
-  for (const alias of ["ab", "x".repeat(17), "no@symbols", "Player One"]) {
+  for (const alias of ["ab", "x".repeat(17), "no@symbols", "Player One", "im a cunt"]) {
     const response = await postAlias(db, { playerId: "player-abcdefgh", recoveryCode: VALID_CODE, alias });
     assert.equal(response.status, 400, `expected 400 for ${JSON.stringify(alias)}`);
     const data = await response.json();

@@ -196,6 +196,15 @@ export function fireWallCrossTiles(centerWorldX, centerMapRow) {
   ];
 }
 
+/** Eight tiles around a cell (N/NE/E/SE/S/SW/W/NW) — excludes the center. */
+export function adjacentEightTiles(centerWorldX, centerMapRow) {
+  const cx = swarmSnapTileX(centerWorldX);
+  const row = Math.trunc(Number(centerMapRow) || 0);
+  return spellBangAreaTiles(cx, row).filter(
+    (tile) => !(tile.worldX === cx && tile.mapRow === row),
+  );
+}
+
 /** A walking monster owns its destination cell (Crystal vacates the origin on Walk). */
 export function swarmEnemyReservedTile(enemy) {
   if (enemy.stepToX != null) {

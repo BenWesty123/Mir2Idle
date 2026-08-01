@@ -9,6 +9,7 @@ Last generated: 2026-07-27
 
 - Empowered bosses: **10%** chance to drop one random glyph.
 - Ascended bosses: **15%** chance.
+- Awakened bosses: **20%** chance.
 - Equip slots: `glyph`, `glyph2`, `glyph3`, `glyph4`, `glyph5` (5 slots).
 - Pool size: **24** glyphs (uniform pick when a drop hits).
 
@@ -72,7 +73,7 @@ Last generated: 2026-07-27
 - Class: Wizard
 - Level: 35
 - Spells: FlameDisruptor
-- Flame Disruptor can also strike enemies next to the target for reduced damage.
+- When Flame Disruptor lands the killing blow, the target explodes and deals that hit's full damage to every adjacent enemy (8 directions). Explosions chain on kills.
 
 #### Glyph of Eternal Firewall
 

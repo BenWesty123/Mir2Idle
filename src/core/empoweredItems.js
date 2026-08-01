@@ -23,13 +23,13 @@ export const ASCEND_TIER_WEIGHTS = [
   { tier: 4, weight: 5 },
 ];
 
-// Future Awakened bosses (not wired yet): 30% / 30% / 25% / 15%.
-// export const AWAKEN_TIER_WEIGHTS = [
-//   { tier: 1, weight: 30 },
-//   { tier: 2, weight: 30 },
-//   { tier: 3, weight: 25 },
-//   { tier: 4, weight: 15 },
-// ];
+/** Awakened bosses: best star odds (30% / 30% / 25% / 15%). */
+export const AWAKEN_TIER_WEIGHTS = [
+  { tier: 1, weight: 30 },
+  { tier: 2, weight: 30 },
+  { tier: 3, weight: 25 },
+  { tier: 4, weight: 15 },
+];
 
 /** Warrior-oriented weapon empowers — Warrior and Universal weapons only. */
 const WEAPON_DC_EMPOWER_UTILITY_KEYS = new Set(["accuracy", "attackSpeed", "freezing", "poisonAttack"]);
@@ -1134,6 +1134,51 @@ export function sanitizeEmpowerSpellBonuses(bonuses) {
 }
 
 /**
+ * Item-definition spell bonuses that are bound to that item forever.
+ * Never stored on inventory `empowerSpellBonuses`, so crafting-cube swap/reroll cannot move them.
+ * @param {object | null | undefined} bonuses
+ */
+export function sanitizeInnateSpellBonuses(bonuses) {
+  const sanitized = {};
+  if (!bonuses || typeof bonuses !== "object") return sanitized;
+  for (const [spellId, row] of Object.entries(bonuses)) {
+    if (!spellId || !row || typeof row !== "object") continue;
+    const entry = {};
+    const damagePercent = Math.trunc(Number(row.damagePercent) || 0);
+    if (damagePercent !== 0) entry.damagePercent = damagePercent;
+    const petAttackSpeedPercent = Math.trunc(Number(row.petAttackSpeedPercent) || 0);
+    if (petAttackSpeedPercent !== 0) entry.petAttackSpeedPercent = petAttackSpeedPercent;
+    const critChancePercent = Math.trunc(Number(row.critChancePercent) || 0);
+    if (critChancePercent !== 0) entry.critChancePercent = critChancePercent;
+    const critDamagePercent = Math.trunc(Number(row.critDamagePercent) || 0);
+    if (critDamagePercent !== 0) entry.critDamagePercent = critDamagePercent;
+    if (Object.keys(entry).length) sanitized[spellId] = entry;
+  }
+  return sanitized;
+}
+
+/**
+ * Sum a field from equipped items' `innateSpellBonuses` (item definition, not entry empower).
+ * @param {string | null | undefined} spellId
+ * @param {"damagePercent" | "petAttackSpeedPercent" | "critChancePercent" | "critDamagePercent"} field
+ * @param {object | null | undefined} inventory
+ * @param {(itemId: string) => object | null | undefined} [resolveItem]
+ */
+export function equippedInnateSpellBonusPercent(spellId, field, inventory, resolveItem = null) {
+  const id = String(spellId ?? "");
+  if (!id || typeof resolveItem !== "function") return 0;
+  const equippedIds = new Set(Object.values(inventory?.equipment ?? {}).filter(Boolean));
+  let total = 0;
+  for (const entry of inventory?.items ?? []) {
+    if (!equippedIds.has(entry.id)) continue;
+    const item = resolveItem(entry.itemId);
+    const innate = sanitizeInnateSpellBonuses(item?.innateSpellBonuses);
+    total += Number(innate[id]?.[field]) || 0;
+  }
+  return total;
+}
+
+/**
  * @param {object | null | undefined} item
  * @returns {{ key: string, range: boolean, index?: number, min?: number, max?: number }[]}
  */
@@ -1523,8 +1568,9 @@ export function applyEmpowerSpellRoll(empowerSpellBonuses, roll, rng = Math.rand
 /**
  * @param {string | null | undefined} spellId
  * @param {object | null | undefined} inventory
+ * @param {(itemId: string) => object | null | undefined} [resolveItem] Needed to include item-def innate bonuses.
  */
-export function equippedSpellDamageBonusPercent(spellId, inventory) {
+export function equippedSpellDamageBonusPercent(spellId, inventory, resolveItem = null) {
   const id = String(spellId ?? "");
   if (!id) return 0;
   const equippedIds = new Set(Object.values(inventory?.equipment ?? {}).filter(Boolean));
@@ -1534,6 +1580,7 @@ export function equippedSpellDamageBonusPercent(spellId, inventory) {
     const bonus = sanitizeEmpowerSpellBonuses(entry.empowerSpellBonuses);
     total += Number(bonus[id]?.damagePercent) || 0;
   }
+  total += equippedInnateSpellBonusPercent(id, "damagePercent", inventory, resolveItem);
   return total;
 }
 
@@ -1541,12 +1588,39 @@ export function equippedSpellDamageBonusPercent(spellId, inventory) {
  * @param {string | null | undefined} spellId
  * @param {number} damage
  * @param {object | null | undefined} inventory
+ * @param {(itemId: string) => object | null | undefined} [resolveItem]
  */
-export function applyEquippedSpellDamageBonus(spellId, damage, inventory) {
+export function applyEquippedSpellDamageBonus(spellId, damage, inventory, resolveItem = null) {
   const base = Math.trunc(Number(damage) || 0);
-  const bonusPercent = equippedSpellDamageBonusPercent(spellId, inventory);
+  const bonusPercent = equippedSpellDamageBonusPercent(spellId, inventory, resolveItem);
   if (bonusPercent <= 0) return base;
   return Math.trunc(base * (1 + bonusPercent / 100));
+}
+
+/** Floor for pet attack delay after attack-speed % (matches `PET_MIN_ATTACK_MS` in taoistPets). */
+const INNATE_PET_MIN_ATTACK_MS = 400;
+
+/**
+ * Equipped innate pet attack-speed % for a summon spell (100 = twice as fast → half delay).
+ * @param {string | null | undefined} spellId
+ * @param {object | null | undefined} inventory
+ * @param {(itemId: string) => object | null | undefined} [resolveItem]
+ */
+export function equippedPetAttackSpeedBonusPercent(spellId, inventory, resolveItem = null) {
+  return equippedInnateSpellBonusPercent(spellId, "petAttackSpeedPercent", inventory, resolveItem);
+}
+
+/**
+ * @param {string | null | undefined} spellId
+ * @param {number} attackMs
+ * @param {object | null | undefined} inventory
+ * @param {(itemId: string) => object | null | undefined} [resolveItem]
+ */
+export function applyEquippedPetAttackSpeedBonus(spellId, attackMs, inventory, resolveItem = null) {
+  const base = Math.max(0, Math.trunc(Number(attackMs) || 0));
+  const bonusPercent = equippedPetAttackSpeedBonusPercent(spellId, inventory, resolveItem);
+  if (bonusPercent <= 0) return base;
+  return Math.max(INNATE_PET_MIN_ATTACK_MS, Math.trunc(base / (1 + bonusPercent / 100)));
 }
 
 /**
@@ -1554,8 +1628,9 @@ export function applyEquippedSpellDamageBonus(spellId, damage, inventory) {
  * Stacks on top of the character's global crit chance for that spell only.
  * @param {string | null | undefined} spellId
  * @param {object | null | undefined} inventory
+ * @param {(itemId: string) => object | null | undefined} [resolveItem]
  */
-export function equippedSpellCritChanceBonusPercent(spellId, inventory) {
+export function equippedSpellCritChanceBonusPercent(spellId, inventory, resolveItem = null) {
   const id = String(spellId ?? "");
   if (!id) return 0;
   const equippedIds = new Set(Object.values(inventory?.equipment ?? {}).filter(Boolean));
@@ -1565,6 +1640,7 @@ export function equippedSpellCritChanceBonusPercent(spellId, inventory) {
     const bonus = sanitizeEmpowerSpellBonuses(entry.empowerSpellBonuses);
     total += Number(bonus[id]?.critChancePercent) || 0;
   }
+  total += equippedInnateSpellBonusPercent(id, "critChancePercent", inventory, resolveItem);
   return total;
 }
 
@@ -1573,8 +1649,9 @@ export function equippedSpellCritChanceBonusPercent(spellId, inventory) {
  * Stacks on top of the character's global crit damage for that spell only.
  * @param {string | null | undefined} spellId
  * @param {object | null | undefined} inventory
+ * @param {(itemId: string) => object | null | undefined} [resolveItem]
  */
-export function equippedSpellCritDamageBonusPercent(spellId, inventory) {
+export function equippedSpellCritDamageBonusPercent(spellId, inventory, resolveItem = null) {
   const id = String(spellId ?? "");
   if (!id) return 0;
   const equippedIds = new Set(Object.values(inventory?.equipment ?? {}).filter(Boolean));
@@ -1584,6 +1661,7 @@ export function equippedSpellCritDamageBonusPercent(spellId, inventory) {
     const bonus = sanitizeEmpowerSpellBonuses(entry.empowerSpellBonuses);
     total += Number(bonus[id]?.critDamagePercent) || 0;
   }
+  total += equippedInnateSpellBonusPercent(id, "critDamagePercent", inventory, resolveItem);
   return total;
 }
 
@@ -2335,6 +2413,55 @@ export function empowerSpellBonusTooltipRows(empowerSpellBonuses) {
     }
     if ((row.petDamageReductionPercent || 0) !== 0) {
       rows.push({ label, value: `−${row.petDamageReductionPercent}% damage taken` });
+    }
+    if ((row.critChancePercent || 0) !== 0) {
+      rows.push({ label, value: `+${row.critChancePercent}% crit chance` });
+    }
+    if ((row.critDamagePercent || 0) !== 0) {
+      rows.push({ label, value: `+${row.critDamagePercent}% crit damage` });
+    }
+  }
+  return rows;
+}
+
+/**
+ * Tooltip lines for item-definition innate spell bonuses (not empower ★ / not cube-transferable).
+ * @param {object | null | undefined} innateSpellBonuses
+ * @returns {string[]}
+ */
+export function innateSpellBonusLines(innateSpellBonuses) {
+  const bonuses = sanitizeInnateSpellBonuses(innateSpellBonuses);
+  const lines = [];
+  for (const [spellId, row] of Object.entries(bonuses)) {
+    const label = SPELL_EMPOWER_LABELS[spellId] ?? spellId;
+    if ((row.damagePercent || 0) !== 0) lines.push(`+${row.damagePercent}% ${label} damage`);
+    if ((row.petAttackSpeedPercent || 0) !== 0) {
+      lines.push(`+${row.petAttackSpeedPercent}% ${label} attack speed`);
+    }
+    if ((row.critChancePercent || 0) !== 0) {
+      lines.push(`+${row.critChancePercent}% ${label} crit chance`);
+    }
+    if ((row.critDamagePercent || 0) !== 0) {
+      lines.push(`+${row.critDamagePercent}% ${label} crit damage`);
+    }
+  }
+  return lines;
+}
+
+/**
+ * @param {object | null | undefined} innateSpellBonuses
+ * @returns {{ label: string, value: string }[]}
+ */
+export function innateSpellBonusTooltipRows(innateSpellBonuses) {
+  const bonuses = sanitizeInnateSpellBonuses(innateSpellBonuses);
+  const rows = [];
+  for (const [spellId, row] of Object.entries(bonuses)) {
+    const label = SPELL_EMPOWER_LABELS[spellId] ?? spellId;
+    if ((row.damagePercent || 0) !== 0) {
+      rows.push({ label, value: `+${row.damagePercent}% damage` });
+    }
+    if ((row.petAttackSpeedPercent || 0) !== 0) {
+      rows.push({ label, value: `+${row.petAttackSpeedPercent}% attack speed` });
     }
     if ((row.critChancePercent || 0) !== 0) {
       rows.push({ label, value: `+${row.critChancePercent}% crit chance` });
