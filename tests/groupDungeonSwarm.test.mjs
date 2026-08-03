@@ -6,6 +6,7 @@ import { fileURLToPath } from "node:url";
 
 import {
   GROUP_DUNGEON_SWARM_TILE_PX,
+  adjacentEightTiles,
   swarmLaneMapRow,
   swarmPickCenterLaneStep,
 } from "../src/groupDungeonSwarm.js";
@@ -31,6 +32,14 @@ function enemy(id, lane, overrides = {}) {
     ...overrides,
   };
 }
+
+test("adjacentEightTiles is the 8 neighbours around a cell", () => {
+  const tiles = adjacentEightTiles(meleeCol, arenaRow);
+  assert.equal(tiles.length, 8);
+  assert.equal(tiles.some((t) => t.worldX === meleeCol && t.mapRow === arenaRow), false);
+  assert.ok(tiles.some((t) => t.worldX === meleeCol + GROUP_DUNGEON_SWARM_TILE_PX && t.mapRow === arenaRow));
+  assert.ok(tiles.some((t) => t.worldX === meleeCol + GROUP_DUNGEON_SWARM_TILE_PX && t.mapRow === arenaRow + 1));
+});
 
 test("split final enemies close the empty centre melee lane", () => {
   const result = swarmPickCenterLaneStep([

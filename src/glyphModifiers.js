@@ -112,10 +112,10 @@ export const GLYPH_DEFS = [
     itemId: "glyph-disruptor-cascade",
     classId: "wizard",
     label: "Glyph of Disruptor Cascade",
-    description: "Flame Disruptor can also strike enemies next to the target for reduced damage.",
+    description: "When Flame Disruptor lands the killing blow, the target explodes and deals that hit's damage to every adjacent enemy. Explosions chain on kills.",
     spellIds: ["FlameDisruptor"],
     kind: "wizardFlameDisruptorSplash",
-    params: { chance: 0.5, damageFraction: 0.5 },
+    params: {},
     implemented: true,
   },
   {
@@ -298,6 +298,8 @@ const GLYPH_BY_ITEM_ID = new Map(GLYPH_DEFS.map((def) => [def.itemId, def]));
 export const EMPOWERED_BOSS_GLYPH_DROP_CHANCE = 0.1;
 /** Ascended bosses: same one-glyph roll at a higher chance. */
 export const ASCENDED_BOSS_GLYPH_DROP_CHANCE = 0.15;
+/** Awakened bosses: same one-glyph roll at the highest chance. */
+export const AWAKENED_BOSS_GLYPH_DROP_CHANCE = 0.2;
 
 /**
  * @returns {string[]}
@@ -307,19 +309,40 @@ export function glyphDropItemIds() {
 }
 
 /**
- * Empowered/Ascended bosses: chance to drop exactly one glyph, chosen uniformly from all glyphs.
- * Empowered 10%; Ascended 15%.
+ * Empowered/Ascended/Awakened bosses: chance to drop exactly one glyph, chosen uniformly from all glyphs.
+ * Empowered 10%; Ascended 15%; Awakened 20%.
  * @param {() => number} [rng] returns a value in [0, 1)
- * @param {{ ascended?: boolean }} [options]
+ * @param {{ ascended?: boolean, awakened?: boolean }} [options]
  * @returns {string | null}
  */
 export function rollEmpoweredBossGlyphItemId(rng = Math.random, options = {}) {
-  const chance = options?.ascended
-    ? ASCENDED_BOSS_GLYPH_DROP_CHANCE
-    : EMPOWERED_BOSS_GLYPH_DROP_CHANCE;
+  const chance = options?.awakened
+    ? AWAKENED_BOSS_GLYPH_DROP_CHANCE
+    : options?.ascended
+      ? ASCENDED_BOSS_GLYPH_DROP_CHANCE
+      : EMPOWERED_BOSS_GLYPH_DROP_CHANCE;
   const chanceRoll = typeof rng === "function" ? Number(rng()) : Math.random();
   if (!(chanceRoll < chance)) return null;
   const ids = glyphDropItemIds();
+  if (!ids.length) return null;
+  const pickRoll = typeof rng === "function" ? Number(rng()) : Math.random();
+  const index = Math.min(ids.length - 1, Math.max(0, Math.floor(pickRoll * ids.length)));
+  return ids[index] ?? null;
+}
+
+/**
+ * Crafting-cube glyph recycle: pick a uniform random glyph that is not one of the
+ * sacrificed glyph item ids (duplicates in exclude collapse to one exclusion).
+ * @param {Array<string | null | undefined> | string | null | undefined} excludeItemIds
+ * @param {() => number} [rng] returns a value in [0, 1)
+ * @returns {string | null}
+ */
+export function rollRecycledGlyphItemId(excludeItemIds = [], rng = Math.random) {
+  const list = Array.isArray(excludeItemIds)
+    ? excludeItemIds
+    : (excludeItemIds == null ? [] : [excludeItemIds]);
+  const excluded = new Set(list.filter(Boolean).map((id) => String(id)));
+  const ids = glyphDropItemIds().filter((id) => !excluded.has(id));
   if (!ids.length) return null;
   const pickRoll = typeof rng === "function" ? Number(rng()) : Math.random();
   const index = Math.min(ids.length - 1, Math.max(0, Math.floor(pickRoll * ids.length)));
@@ -743,16 +766,76 @@ export function absorbDamageWithManaAegis(damage, currentMp, params = null) {
 }
 
 /**
- * @param {GlyphDef | null | undefined} glyph
- * @returns {{ chance: number, damageFraction: number } | null}
+ * True when Glyph of Disruptor Cascade is equipped.
+ * @param {GlyphDef | GlyphDef[] | null | undefined} glyph
+ * @returns {boolean}
  */
-export function glyphFlameDisruptorSplashParams(glyph = null) {
-  const match = firstGlyphOfKind(glyph, "wizardFlameDisruptorSplash");
-  if (!match) return null;
-  return {
-    chance: Math.max(0, Math.min(1, Number(match.params?.chance) || 0.5)),
-    damageFraction: Math.max(0, Number(match.params?.damageFraction) || 0.5),
-  };
+export function glyphHasFlameDisruptorCascade(glyph = null) {
+  return Boolean(firstGlyphOfKind(glyph, "wizardFlameDisruptorSplash"));
+}
+
+/**
+ * Plan Disruptor Cascade chain explosions after a Flame Disruptor killing blow.
+ * `seedId` is already dead (hp 0). Each explosion deals `blastDamage` to every
+ * living neighbor; kills enqueue further explosions. Each enemy explodes once.
+ *
+ * @typedef {{ id: string, hp: number, neighborIds: string[] }} DisruptorCascadeNode
+ * @typedef {{ sourceId: string, targetIds: string[] }} DisruptorCascadeStep
+ *
+ * @param {string} seedId
+ * @param {number} blastDamage
+ * @param {DisruptorCascadeNode[]} enemies
+ * @returns {DisruptorCascadeStep[]}
+ */
+export function planFlameDisruptorCascadeChain(seedId, blastDamage, enemies) {
+  const damage = Math.max(0, Math.trunc(Number(blastDamage) || 0));
+  if (seedId == null || seedId === "" || damage <= 0 || !Array.isArray(enemies) || !enemies.length) {
+    return [];
+  }
+
+  /** @type {Map<any, { id: any, hp: number, neighborIds: any[] }>} */
+  const byId = new Map();
+  for (const enemy of enemies) {
+    const id = enemy?.id;
+    if (id == null || byId.has(id)) continue;
+    byId.set(id, {
+      id,
+      hp: Math.max(0, Math.trunc(Number(enemy.hp) || 0)),
+      neighborIds: Array.isArray(enemy.neighborIds) ? enemy.neighborIds.filter((n) => n != null) : [],
+    });
+  }
+  if (!byId.has(seedId)) return [];
+
+  const exploded = new Set();
+  const queued = new Set([seedId]);
+  const queue = [seedId];
+  /** @type {DisruptorCascadeStep[]} */
+  const steps = [];
+
+  while (queue.length) {
+    const sourceId = queue.shift();
+    if (sourceId == null || exploded.has(sourceId)) continue;
+    exploded.add(sourceId);
+    queued.delete(sourceId);
+    const source = byId.get(sourceId);
+    if (!source) continue;
+
+    /** @type {any[]} */
+    const targetIds = [];
+    for (const neighborId of source.neighborIds) {
+      const target = byId.get(neighborId);
+      if (!target || target.hp <= 0) continue;
+      target.hp = Math.max(0, target.hp - damage);
+      targetIds.push(neighborId);
+      if (target.hp <= 0 && !exploded.has(neighborId) && !queued.has(neighborId)) {
+        queued.add(neighborId);
+        queue.push(neighborId);
+      }
+    }
+    steps.push({ sourceId, targetIds });
+  }
+
+  return steps;
 }
 
 /**
@@ -765,29 +848,6 @@ export function glyphManyMirrorsParams(glyph = null) {
   return {
     offsetY: Math.max(8, Math.trunc(Number(match.params?.offsetY) || 28)),
   };
-}
-
-/**
- * @param {number} primaryDamage
- * @param {number} damageFraction
- * @returns {number}
- */
-export function flameDisruptorSplashDamage(primaryDamage, damageFraction = 0.5) {
-  const damage = Math.max(0, Math.trunc(Number(primaryDamage) || 0));
-  const fraction = Math.max(0, Number(damageFraction) || 0);
-  return Math.max(0, Math.trunc(damage * fraction));
-}
-
-/**
- * @param {number} chance
- * @param {() => number} [random]
- * @returns {boolean}
- */
-export function rollFlameDisruptorSplashChance(chance, random = Math.random) {
-  const c = Math.max(0, Math.min(1, Number(chance) || 0));
-  if (c <= 0) return false;
-  if (c >= 1) return true;
-  return random() < c;
 }
 
 /** Buff kind pushed when Flaming Bulwark glyph procs on Flaming Sword toggle. */

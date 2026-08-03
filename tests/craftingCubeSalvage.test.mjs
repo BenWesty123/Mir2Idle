@@ -7,11 +7,14 @@ import {
   CRAFTING_CUBE_FOCUS_PRISM_RECIPE_ID,
   CRAFTING_CUBE_FOCUS_PRISM_REQUIREMENTS_ERROR,
   CRAFTING_CUBE_EMPOWER_REROLL_REQUIREMENTS_ERROR,
+  TEMP_FREE_EMPOWER_REROLL,
   CRAFTING_CUBE_EMPOWER_SWAP_CRYSTAL_COST,
   CRAFTING_CUBE_EMPOWER_SWAP_RECIPE_ID,
   CRAFTING_CUBE_EMPOWER_SWAP_REQUIREMENTS_ERROR,
   CRAFTING_CUBE_DD_SOUL_RECIPE_ID,
   CRAFTING_CUBE_DD_SOUL_REQUIREMENTS_ERROR,
+  CRAFTING_CUBE_GLYPH_RECYCLE_RECIPE_ID,
+  CRAFTING_CUBE_GLYPH_RECYCLE_REQUIREMENTS_ERROR,
   CRAFTING_CUBE_IWT_SOUL_HEART_COST,
   CRAFTING_CUBE_IWT_SOUL_RECIPE_ID,
   CRAFTING_CUBE_IWT_SOUL_REQUIREMENTS_ERROR,
@@ -19,6 +22,7 @@ import {
   CRAFTING_CUBE_IZT_SOUL_RELIC_COST,
   CRAFTING_CUBE_IZT_SOUL_REQUIREMENTS_ERROR,
   CRAFTING_CUBE_SALVAGE_ONLY_EMPOWERED_ERROR,
+  craftingCubeRecipeGoldCost,
   CRAFTING_CUBE_TARGETED_EMPOWER_REROLL_CRYSTAL_COST,
   CRAFTING_CUBE_TARGETED_EMPOWER_REROLL_RECIPE_ID,
   CRAFTING_CUBE_TARGETED_EMPOWER_REROLL_REQUIREMENTS_ERROR,
@@ -36,6 +40,7 @@ import {
   validateCraftingCubeEmpowerReroll,
   validateCraftingCubeEmpowerSwap,
   validateCraftingCubeFocusPrismCraft,
+  validateCraftingCubeGlyphRecycle,
   validateCraftingCubeIwtSoulCraft,
   validateCraftingCubeIztSoulCraft,
   validateCraftingCubeSalvageEntries,
@@ -97,6 +102,18 @@ test("empower reroll accepts one empowered item and one havoc crystal", () => {
   assert.equal(result.crystalEntry?.quantity, 3);
 });
 
+test("empower reroll rejects missing ingredients", () => {
+  assert.equal(TEMP_FREE_EMPOWER_REROLL, false);
+  const result = validateCraftingCubeEmpowerReroll([
+    {
+      entry: { empowered: true, empowerTier: 1, itemId: EMPOWERED_WEAPON.id },
+      item: EMPOWERED_WEAPON,
+    },
+  ]);
+  assert.equal(result.ok, false);
+  assert.equal(result.error, CRAFTING_CUBE_EMPOWER_REROLL_REQUIREMENTS_ERROR);
+});
+
 test("empower reroll rejects extra items in the cube", () => {
   const result = validateCraftingCubeEmpowerReroll([
     {
@@ -110,13 +127,8 @@ test("empower reroll rejects extra items in the cube", () => {
   assert.equal(result.error, "Place only one Havoc Crystal stack.");
 });
 
-test("empower reroll rejects missing ingredients", () => {
-  const result = validateCraftingCubeEmpowerReroll([
-    {
-      entry: { empowered: true, empowerTier: 1, itemId: EMPOWERED_WEAPON.id },
-      item: EMPOWERED_WEAPON,
-    },
-  ]);
+test("empower reroll rejects empty cube", () => {
+  const result = validateCraftingCubeEmpowerReroll([]);
   assert.equal(result.ok, false);
   assert.equal(result.error, CRAFTING_CUBE_EMPOWER_REROLL_REQUIREMENTS_ERROR);
 });
@@ -187,7 +199,13 @@ test("autofill picks only havoc crystals for random reroll", () => {
     [crystals, empowered],
     resolveItem,
   );
-  assert.deepEqual(picks, ["e-crystal"]);
+  // TEMP_FREE_EMPOWER_REROLL: no crystal autofill. Revert expectation to ["e-crystal"] when undoing.
+  assert.deepEqual(picks, TEMP_FREE_EMPOWER_REROLL ? [] : ["e-crystal"]);
+});
+
+test("random empower reroll gold cost is restored", () => {
+  assert.equal(TEMP_FREE_EMPOWER_REROLL, false);
+  assert.equal(craftingCubeRecipeGoldCost(CRAFTING_CUBE_EMPOWER_REROLL_RECIPE_ID), 10000);
 });
 
 test("autofill adds crystals and adamantine for targeted reroll, not empowered items", () => {
@@ -224,7 +242,7 @@ test("autofill omits adamantine for random reroll", () => {
     [empowered, crystals, ore],
     resolveItem,
   );
-  assert.deepEqual(picks, ["e-crystal"]);
+  assert.deepEqual(picks, TEMP_FREE_EMPOWER_REROLL ? [] : ["e-crystal"]);
 });
 
 test("focus prism craft accepts four havoc crystals in one stack", () => {
@@ -391,6 +409,67 @@ test("autofill pulls materials for dd soul recipe", () => {
     resolveItem,
   );
   assert.deepEqual(picks, ["e-stone", "e-tooth"]);
+});
+
+const GLYPH_A = { id: "glyph-spirit-wards", slot: "glyph", type: "glyph", name: "Glyph of Spirit Wards" };
+const GLYPH_B = { id: "glyph-pet-might", slot: "glyph", type: "glyph", name: "Glyph of Pet Might" };
+const GLYPH_C = { id: "glyph-buffing", slot: "glyph", type: "glyph", name: "Glyph of Buffing" };
+
+test("glyph recycle accepts exactly two glyphs and excludes both item ids", () => {
+  const result = validateCraftingCubeGlyphRecycle([
+    { entry: { id: "g-a", itemId: GLYPH_A.id }, item: GLYPH_A },
+    { entry: { id: "g-b", itemId: GLYPH_B.id }, item: GLYPH_B },
+  ]);
+  assert.equal(result.ok, true);
+  assert.deepEqual(result.excludeItemIds?.sort(), [GLYPH_A.id, GLYPH_B.id].sort());
+  assert.equal(craftingCubeRecipeGoldCost(CRAFTING_CUBE_GLYPH_RECYCLE_RECIPE_ID), 100000);
+});
+
+test("glyph recycle collapses duplicate glyph types to one exclusion", () => {
+  const result = validateCraftingCubeGlyphRecycle([
+    { entry: { id: "g-a1", itemId: GLYPH_A.id }, item: GLYPH_A },
+    { entry: { id: "g-a2", itemId: GLYPH_A.id }, item: GLYPH_A },
+  ]);
+  assert.equal(result.ok, true);
+  assert.deepEqual(result.excludeItemIds, [GLYPH_A.id]);
+});
+
+test("glyph recycle rejects one glyph", () => {
+  const result = validateCraftingCubeGlyphRecycle([
+    { entry: { id: "g-a", itemId: GLYPH_A.id }, item: GLYPH_A },
+  ]);
+  assert.equal(result.ok, false);
+  assert.equal(result.error, CRAFTING_CUBE_GLYPH_RECYCLE_REQUIREMENTS_ERROR);
+});
+
+test("glyph recycle rejects non-glyph materials", () => {
+  const result = validateCraftingCubeGlyphRecycle([
+    { entry: { id: "g-a", itemId: GLYPH_A.id }, item: GLYPH_A },
+    { entry: { id: "g-b", itemId: GLYPH_B.id }, item: GLYPH_B },
+    { entry: { itemId: HAVOC_CRYSTAL_ITEM_ID, quantity: 1 }, item: HAVOC_CRYSTAL },
+  ]);
+  assert.equal(result.ok, false);
+  assert.equal(result.error, CRAFTING_CUBE_GLYPH_RECYCLE_REQUIREMENTS_ERROR);
+});
+
+test("autofill pulls two glyphs for glyph recycle recipe", () => {
+  const a = { id: "e-glyph-a", itemId: GLYPH_A.id };
+  const b = { id: "e-glyph-b", itemId: GLYPH_B.id };
+  const c = { id: "e-glyph-c", itemId: GLYPH_C.id };
+  const crystals = { id: "e-crystal", itemId: HAVOC_CRYSTAL_ITEM_ID, quantity: 4 };
+  const resolveItem = (itemId) => {
+    if (itemId === GLYPH_A.id) return GLYPH_A;
+    if (itemId === GLYPH_B.id) return GLYPH_B;
+    if (itemId === GLYPH_C.id) return GLYPH_C;
+    if (itemId === HAVOC_CRYSTAL_ITEM_ID) return HAVOC_CRYSTAL;
+    return null;
+  };
+  const picks = craftingCubeAutofillEntryIds(
+    CRAFTING_CUBE_GLYPH_RECYCLE_RECIPE_ID,
+    [crystals, c, a, b],
+    resolveItem,
+  );
+  assert.deepEqual(picks, ["e-glyph-a", "e-glyph-b"]);
 });
 
 test("empower swap accepts two empowered items and four havoc crystals", () => {

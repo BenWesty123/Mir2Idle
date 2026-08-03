@@ -280,6 +280,13 @@ const groups = [
       ...monsterSounds("White Tiger", 269),
       ...monsterSounds("Black Ape", 270),
       ...monsterSounds("Rhino", 271),
+      // Namman Demon Fields — Mir2DB CDN imgs 318–323 → KR/Crystal 261–266.
+      ...monsterSounds("Rebel Demon", 261),
+      ...monsterSounds("Black Sky Demon", 262),
+      ...monsterSounds("Destroyer Demon", 263),
+      ...monsterSounds("Frost Demon", 264),
+      ...monsterSounds("Cold Corpse", 265),
+      ...monsterSounds("Mad Corpse", 266),
       // Danmo = AncientBringer (272). Crystal:
       //   melee Attack1 → +1, Attack2 → +6; range → +7, range Type1 → +8.
       ...monsterSounds("Danmo", 272, {

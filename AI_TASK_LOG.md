@@ -1,5 +1,583 @@
 # AI Task Log - LOM Idle V2
 
+## 2026-08-01 - Spirit Box blocks Unique items
+
+Unique items can no longer be sealed in the Spirit Box (same as Ethereal).
+Any Unique/Ethereal already stored is cleared on rebirth so it cannot
+survive the reset. Tooltip + Spirit Box upgrade summary updated.
+
+### Changes
+- `src/app.monolith.js`: `canDepositInventoryEntryToSpiritBox`,
+  `clearSpiritBoxPaidForRebirth`, Unique tooltip tag, upgrade summary,
+  `__lomTest.setupSpiritBoxTest` grants an Awakened Unique for testing
+- `src/data/changelog.json`: note under today's entry
+
+### Verify
+- `npm.cmd run check`
+- Try depositing an Awakened Unique into Spirit Box (should refuse)
+- If one was already sealed, rebirth should clear it
+
+## 2026-08-01 - Stats 2 (State) bonus modifiers
+
+Character → State tab now shows an active-character **Bonuses** section:
+total XP / gold multipliers, skill leveling, soul & item drop chance,
+mining speed, boss respawn cut, potion restore, damage taken, and skill
+XP roll max. Uses existing total* helpers (rebirth + gear + achievements
++ supporter where applicable).
+
+### Verify
+- `npm.cmd run check`
+- Open Character → State and confirm Bonuses rows update with gear/upgrades
+
+## 2026-08-01 - Remove Disruptor Cascade from Alchemist
+
+Removed temp test stock `glyph-disruptor-cascade` from `ALCHEMIST_STOCK_IDS`
+and the 1g fallback in `alchemistShopBuyPrice` that existed only for that
+Crystal 0-buy test item.
+
+### Verify
+- `npm.cmd run check`
+
+## 2026-08-01 - Third Glyph slot (rebirth upgrade tier 2)
+
+**Add Additional Glyph Slot** now goes to max tier 2 (3 equip slots total).
+Tier 2 costs **500 RP**; tier 1 stays 250 RP. Unlock count uses
+`accountUpgradeTier` instead of a boolean purchased check.
+
+### Changes
+- `src/app.monolith.js`: `rebirth-extra-glyph-slot` maxTier/costs, 
+  `GLYPH_EQUIP_UNLOCK_CAP = 3`, `unlockedGlyphEquipSlotCount`, upgrade progress
+  text + glyphs intro copy
+
+### Verify
+- `npm.cmd run check` (+ smoke when testing in-game)
+
+## 2026-08-01 - Awakened bosses (tier above Ascended)
+
+Added **Boss Awakening** as the third empowered-boss tier (same UI/combat/drop
+pattern as Empowered → Ascended).
+
+- Rebirth upgrade `boss-awakening` (requires Ascension; **250 RP**). Free
+  cost needed a `payAccountUpgradeCost` skip so `payRebirthPoints` does not
+  floor 0 → 1 RP (kept for any future free rebirth upgrades).
+- Solo gold **1,000,000** / group dungeon **3,000,000**; combat & drop table
+  **4×** HP / damage / drops.
+- Empowered-item chance **40%**; star weights **30 / 30 / 25 / 15**
+  (`AWAKEN_TIER_WEIGHTS`); glyph **20%**; Awakening Soul rolls **4**.
+- Group-dungeon empower tier clamp extended to **0–3**.
+
+## 2026-07-31 - Offline sim: taoist stall fix ("2 kills instead of 8h AFK")
+
+Players (taoist only) reported AFK sessions crediting ~2 kills instead of hours.
+Root cause: the offline fight loop (`simulateOfflineFightLoop`) deadlocked at
+`delta=0` when a pet reported "attack now" (`computeOfflinePetAttackDelayMs`
+returned 0) but `updateOneTaoistPetAttack` refused to act without advancing
+`nextAttackAt`. The 5000-iteration guard then ended the fight "incomplete" and
+`simulateOfflineProgress` **broke out and silently discarded the rest of the
+offline window**. Concrete triggers, all taoist-specific:
+
+- **Paralyzed pet**: `combatantParalyzed` gates the attack, and pet/player
+  poison ticks (`updateCombatantPoisons`) were never run during offline sim, so
+  paralysis picked up live (or in a prior offline fight) never expired.
+- **Holy Deva mid-follow**: `pet.moving`/`pet.followPending` gate the attack
+  but follower movement is only cleared by live per-frame updates.
+- **Range mismatch**: `offlinePetAttackDelayMs` measured range with
+  `taoistPetEnemyDistance()` (defaults to the tank pet) while the attack gate
+  measures the specific pet.
+
+Fixes:
+
+- `src/core/offlineProgress.js`: `computeOfflinePetAttackDelayMs` takes
+  `blocked` (returns Infinity, never 0); `simulateOfflineFightLoop` marks
+  guard-exhausted unresolved fights `stalled: true`;
+  `processOfflineZoneFightCycle` returns new status `"fight_stalled"`.
+- Monolith `offlinePetAttackDelayMs`: passes `blocked` (paralysis / follower
+  moving) and per-pet distance.
+- Monolith `offlineUpdateRecovery`: now runs
+  `updateCombatantPoisons(now, { offline: true })` so player/pet paralysis,
+  slow and green poison tick down (and deal damage) with simulated time - the
+  function was already offline-aware but never wired in.
+- Monolith offline fight `onTravelComplete`: settles follower pets (clears
+  `moving`/`followPending`, `placeTaoistCombatPet`) since follower movement is
+  not simulated offline.
+- Monolith `simulateOfflineProgress`: `fight_stalled` no longer aborts the
+  window - it clears wedged transients (pendingPetAttack, pet poisons/timers),
+  advances by the respawn delay and keeps simulating; after 5 stalls it aborts
+  with `report.stallAborted` and the report shows "Offline progress ended early
+  (simulation error)" plus a `console.warn`.
+
+Verified: `npm run check` green, `npm run smoke` green, unit tests added for
+blocked delay / stalled flag / `fight_stalled` status, and
+`fixture:offline-taoist` passed 6/6 consecutive runs (previously flaked ~50% -
+the flake was the same class of bug: sim start state depending on live pre-sim
+pet frames).
+
+## 2026-07-31 - Freeze target spell FX on kill (Flame Disruptor)
+
+Target/projectile enemy FX was anchored to the live primary. A killing blow
+(`syncGroupDungeonPrimaryEnemy`) swapped the primary mid-animation, so Flame
+Disruptor's delayed enemy layer played on the *next* monster. Cast now freezes
+the target tile (`activeSpellImpactAnchor` / `fxCenterTile`) for solo, boss
+party, and mirrors.
+
+## 2026-07-31 - Disruptor Cascade uses shrunk FlameField bang
+
+Cascade explosions reuse FlameField **layer 1** (the animated field; layer 0 is
+a near-static hold) at scale 0.56 for the first 10 frames, with Crystal's 500ms
+layer delay forced to 0.
+
+## 2026-07-31 - Disruptor Cascade step delay
+
+Queued cascade explosions on `pendingDisruptorCascade` with
+`DISRUPTOR_CASCADE_STEP_DELAY_MS` (110ms) between steps so chains read as a
+sequence instead of resolving in one frame. Step 0 still lands immediately.
+
+## 2026-07-31 - Temp Alchemist stock: Disruptor Cascade
+
+Added `glyph-disruptor-cascade` to `ALCHEMIST_STOCK_IDS` for testing. Crystal
+`shop.buy` is 0, so `alchemistShopBuyPrice` sells 0-buy alchemist stock at 1g.
+Remove before release.
+
+## 2026-07-31 - Disruptor Cascade: kill-explosion chain
+
+Reworked **Glyph of Disruptor Cascade**: instead of on-hit 50%/50% orthogonal
+splash, a Flame Disruptor *killing blow* makes the target explode for that hit's
+full damage to all 8 adjacent swarm enemies (N/NE/E/SE/S/SW/W/NW). Explosions
+chain on kills (BFS, each enemy explodes once). Solo / no neighbours is a no-op.
+Pure planner in `glyphModifiers.js`; wired at FD kill sites in the monolith.
+Visual explosion FX still TODO.
+
+## 2026-07-31 - Weapon glow pairing: silhouette matcher + visual review
+
+The `CWeaponEffect` glow libs pair to weapons purely by art (no Crystal item field
+links them), so pairing was previously done by eye. Two new review-only tools make
+it measurable. Nothing here touches the game or `items.json`.
+
+`tools/render-weapon-glow-vision.mjs` renders glow and weapon layers at their shared
+Crystal anchor into flat PNG contact sheets — either layer alone, or a glow with the
+weapon's silhouette stroked over it — so a pair can be judged visually.
+
+`tools/match-weapon-glows-by-blur.mjs` scores pairs. The key observation from the
+confirmed pairs is that a glow lib is **a blurred halo drawn around a desaturated copy
+of its own weapon's sprite**. So it scores two things and blends them 35/65:
+
+- *halo*: best IoU between the glow's level sets and the weapon silhouette dilated by
+  r. Dilating by r is exactly "distance <= r", so one pass over an exact Euclidean
+  distance transform scores every radius at once.
+- *core*: the same IoU against the glow's low-saturation interior, which is the weapon
+  redrawn inside the halo. This is the sharper of the two signals.
+
+Halo alone ranks 16/18 known pairs top-1; adding the core term gives **18/18**, and the
+older PCA-moment scorer managed 7/18. Run with `--validate` to re-check against
+`weapon-glow-mappings.json` after editing it.
+
+Two new aura pairs met the confirmed-pair score band with a clear margin and were
+verified visually: **glow 17 → shape 23** (ZumaSoulSpringWand) and **glow 18 →
+shape 21** (ZumaJudgementMace).
+
+The libs are TWO families, and a shape can own one of each (owner spotted the
+first case):
+
+- **family "aura" (glows 1–20)**: gold halo around a desaturated copy of the weapon,
+  scattered shape order. All 20 confirmed by the matcher + eye.
+- **family "fx" (glows 21, 24–66)**: elemental streak/burst effects. A "glow N =
+  shape N" identity pattern holds for SOME of these but was initially overclaimed as
+  a rule — the owner flagged wrong pairs, and glow 60 proved it: its burst nests
+  around **shape 72**, not pike 60 (owner called it; the *walking* frame is the
+  discriminating view because each weapon hangs at a distinctive angle there, unlike
+  the shared standing pose).
+
+Ground truth was hunted and does not exist: every `Server.MirDB` in Crystal-master
+(Build + the four community DBs in `Crystal.Database-main`) has `Effect = 0` on all
+weapons, and NextClient/NextServer carry no weapon-effect data. Pairing is art-only;
+the owner's eye is the authority. Two automated fallbacks were tried and both fail
+on the fx family: centroid motion tracking (`match-weapon-glows-by-motion.mjs` —
+one-handers all swing identically, and a glow's own pulsing moves its centroid) and
+a bright-core variant of the dilation matcher (`--core bright` — can't even recover
+the known-good fishing rods).
+
+So `weapon-glow-mappings.json` is split into `mappings` (believed pairs) and
+`candidates`. Owner verdict 2026-08-01: **only the mapped pairs are correct**.
+Catalog is now **`mappings` (22)** = 20 aura + 2 fx
+(55→**GonRyunHolyLightSword / shape 78**, 56→IceDragonSkyRod) and
+**`candidates` (empty)**. Glow 54→ConquerorSpear was fully unmapped by the owner
+(not a frame-sync issue; Crystal art restored). Glow 55 was initially mapped to
+IceDragonSkyKnife (55) then owner-corrected to shape 78. Glow 57→IceDragonSkySword
+was rejected. Remaining glows stay unmapped with no suggested weapon.
+
+### Fixing a mis-authored glow: `tools/align-weapon-glow.mjs`
+
+The owner spotted that glow 56 sat *rotated* off IceDragonSkyRod. The pairing was
+right (the glow's tip has the rod's three-prong topology; the sword shape 57 is a
+single broad blade and cannot fit) — Crystal simply authored the art off-axis. So
+the fix is to re-align the art, not to remap it.
+
+The tool scores each frame as `0.7 * (glow's desaturated core landing on the dilated
+weapon silhouette) + 0.3 * (weapon pixels sitting under the glow)`, searches a rigid
+rotate+shift around the weapon centroid, then **regularises each frame toward the median**
+so the animation cannot jitter. Two modes: `translate` (shifts offsets only, PNG
+untouched, lossless) and `rigid` (rotates, repacks the sheet).
+
+For glow 56, translate-only reached 0.600→0.683 with per-frame shifts swinging ±12px
+(jittery); `rigid` reached **0.600→0.864 with 173/173 frames improved and none
+regressed**, and — the real tell — the per-frame answers cluster tightly *within* each
+action (standing/walking all ≈ −13°, shift ≈ (2,−5)), which is what a constant
+authoring offset looks like. Re-measuring the baked atlas returns 0.872 with zero
+further correction on every stand/walk/run/attack frame.
+
+**Gotcha worth remembering:** these `sprite-sets/common` sheets are a SINGLE ROW of
+slots — readers index `sx = slot * slotWidth, sy = 0`. The first bake repacked into a
+square grid, so every frame past the first row silently read neighbouring garbage
+(the verification pass caught it: early frames 0.90, later frames 0.13). The packer
+now always emits one row.
+
+Crystal originals are copied to `tools/weapon-glow-align-backups/<glow>/` before any
+write; `--restore` puts them back, `--report` measures without writing. The review
+page also gained live rotate/dx/dy dials plus a "copy bake command" button for
+tuning a pair by eye.
+
+**Negative result — do not retry this.** The obvious next idea is to turn alignment
+into a *matcher*: score every candidate weapon by the best score achievable under one
+shared rotate+shift, on the theory that a true pair needs a single constant correction
+while a wrong weapon needs a different fudge per frame. It was built and measured, and
+it does not work. On the aura family it managed 16–17/20 top-1, i.e. *worse* than the
+existing dilation matcher's 20/20; on seven confirmed **fx** pairs it scored **0/7**,
+essentially random (glow 31 ranked its own weapon 51st). The reason is structural:
+alignment scoring assumes the glow contains a weapon-shaped core to seat onto the
+silhouette, which is true of aura glows and false of fx glows — fire, petals and
+particle streaks have no outline to align. Scores also saturate near 1.0 once the
+transform is free, which destroys discrimination.
+
+So alignment is a **repair** tool, not a discovery tool: it is only meaningful once a
+pair is already believed, where it distinguishes "wrong weapon" from "right weapon,
+badly authored". Discovery for the fx family still has no automated method — the
+owner's eye remains the authority.
+
+### Health sweep of the believed pairs, and what the per-frame numbers mean
+
+Running `--mode rigid --report` over every pair in `mappings` (~11 min) is the right
+use of the tool, and the *shape* of a pair's per-frame scores turns out to diagnose it
+far better than the aggregate does:
+
+- **Flat and high, 0° correction** → correct and well authored. 17 of the 20 aura
+  pairs look like this.
+- **Flat and middling, correction changes nothing** → the glow tracks the weapon
+  perfectly but only covers part of it. Aura glows 5→28 and 6→32 sit at a rock-steady
+  0.44–0.50 in *every* frame and the search finds nothing better in 130+ of 173 frames;
+  that is a halo authored shorter than a long weapon, not a mismatch. Both still rank
+  #1 in the dilation matcher, so they stand. **A low aggregate score alone is not
+  evidence against a pair.**
+- **Flat and middling, but corrections disagree frame to frame** → suspicious. Glow
+  7→33 lifts 0.374 → 0.480 in 171 of 173 frames, yet via rotations spanning −13° to
+  +10° and shifts swinging ±12 with no agreement — the search buying overlap with a
+  different fudge each frame, the same signature that sank the alignment-as-matcher
+  experiment. Its matcher win is also a near tie (0.293 vs 0.287 for shape 47). Kept
+  in `mappings` on rank, but flagged in its note as the weakest aura pair.
+- **Low baseline, big lift, and per-frame answers that agree** → mis-authored, worth
+  repairing. This is the glow-56 fingerprint. Only glow 31→31 showed it: walking
+  frames 0.28 → ~0.83 under a consistent +4–6° / (−12,+5). Left un-baked pending the
+  owner's eye.
+- **0.00 baseline that nothing recovers** → the glow is never on the weapon. Glow
+  49→49 scores 0.00 on every walking and running frame.
+
+That sweep exposed a process failure worth naming: several fx entries had been written
+into `mappings` on the strength of same-index guessing plus a confident-sounding note
+("fire emanates from the dragon-head tip"), which reads like evidence but is not.
+Glows **30, 34, 49, 50 were demoted back to `candidates`** — 49 with hard evidence
+against it, the others simply unsupported. Only pairs the owner has confirmed by eye
+(56, 60→72) or that measure decisively (21→21 holds 0.85–0.89 with no correction)
+belong in `mappings`. Note in particular that glow 34 ranks *first* in the dilation
+matcher at a score of 0.046 — for fx glows the matcher's scores collapse to noise, so
+rank without magnitude means nothing.
+
+The review page now supports adjudicating the candidate queue directly: each candidate
+card renders against **its own** suggested weapon (rather than the shared dropdown, so
+all 40 can be scanned in one pass) and carries ✓ / ✗ / ? buttons that persist to
+`localStorage`, with "Export verdicts" copying a JSON blob to fold back into the
+catalog.
+
+## 2026-07-31 - Danmo winged bolt faced north; Range2 blend was blank
+
+Two Crystal frame-index bugs in `tools/build-danmo-combat-atlas.mjs`, both from
+reading a directional FX block as if it were a single non-directional animation.
+
+**1. Travel bolt faced the wrong way.** Crystal's `Missile.Draw()` is
+`index = BaseIndex + (CurrentFrame % FrameCount) + Direction * (Skip + FrameCount)`,
+and `MonsterObject.cs:2833` builds Danmo's bolt with base 688, count 4, skip 0,
+`direction16: false` — so 688 is an 8-direction block of 4 frames each and west
+(`MirDirection.Left` = 6) is **712..715**, not 688..691. The atlas shipped 688..691,
+which is direction 0 (Up): a symmetric winged silhouette seen from behind, flying
+away from the camera. 712..715 is the left-facing profile with the wings trailing
+east. Every other Danmo blend already used `DIR * stride` correctly; only the
+projectile spec had the direction term missing.
+
+Frame offsets differ per direction by design (dir 0 is centred at `-372,-92`; dir 6
+is `-119,-255`, i.e. the anchor is the leading tip and the flames trail behind).
+`drawEnemyRangeProjectileCanvas` draws the travel frame at
+`travelPoint + meta.offset`, matching Crystal's `DrawLocation + offset`, so the new
+frames stay self-consistent with no renderer change.
+
+**2. `attackRange2Blend` was 8/8 empty frames** — the on-mob crescent for the AoE
+was rendering nothing at all. Crystal reads `(730 + FrameIndex + Direction*10) - 3`,
+so dir 6 wants 790..794, but `272.Lib` has art only at 730..753 and it is *not*
+per-direction: 730 ×10 is the crescent that rises on the mob and 740 ×14 is the
+ground crater. Anything past dir 1 lands on empty frames. Switched the blend to the
+dir-0 slice **730..734** (3 padded empties + 5 frames, matching the 8-frame
+`attackRange1` body clip that drives the blend index). The crater `projectileHeavy`
+at 740 ×14 was already correct.
+
+Bumped `MONSTER_ASSET_VERSION` to `20260731-danmo-bolt-dir6` so the rebuilt
+`public/monsters/monster/272.{json,png}` beats the CDN cache. No stats, damage or
+targeting changed — Danmo stays at 109% of Hell Lord.
+
+## 2026-07-31 - Crafting Cube Glyph Recycle recipe
+
+Added **Glyph Recycle** to the crafting cube Recipes list: sacrifice two
+glyphs + 100,000 gold for one uniform-random glyph that cannot be either of
+the two consumed types (same type twice only excludes that one id). Autofill
+stages two bag glyphs.
+
+- `src/core/craftingCube.js`: recipe, gold cost, validate, autofill
+- `src/glyphModifiers.js`: `rollRecycledGlyphItemId`
+- `src/app.monolith.js`: craft attempt wiring
+- Tests: `tests/craftingCubeSalvage.test.mjs`, `tests/glyphs.test.mjs`
+
+## 2026-07-31 - Danmo winged bolt picks a random target
+
+The Range1 travel bolt (the fiery winged figure) and the Range2 burst both aimed
+at the tank every single cast: `resolveDanmoRangeStrike` centred its splash on
+`kingScorpionPrimaryTarget()` (= `bossPartyFrontTarget()`), and the art anchored
+via `boneLordProjectileTargetAnchor()`, which falls through to the front target
+because the `danmoRange` strike never sets `aoe: true`.
+
+New `danmoRangeAimTarget()` picks a random living target, preferring non-tank —
+Crystal AncientBringer aims at whoever is in range, not at whatever is tanking.
+It reuses `bossPartyRandomLivingRangedTarget()`, which already existed in the
+monolith with **zero callers**.
+
+The chosen aim point is frozen onto the strike as `aimWorldX` at launch, so:
+- the blast lands where the bolt was fired even if that target dies mid-flight;
+- travel art, impact art and damage centre all read the same number.
+
+`boneLordProjectileTargetAnchor()` now honours `aimWorldX` when present. That is
+generic but only `danmoRange` sets the field, so no other boss changes. Danmo's
+`projectile` is `style: travel` and `projectileHeavy` is `style: targetBurst` with
+`anchor: "target"`, so both follow the aim point — verified in `272.json`.
+
+**Difficulty is unchanged at 109% of Hell Lord.** Splash stayed at 4/5 tiles, and
+with the party at tiles 1/3/5 a 4-tile blast covers all three wherever it is
+centred (the Wizard sits exactly 4 tiles from the tank, on the boundary). So this
+is a visual/telegraph fix, not a balance change. Tightening splash to 2/3 tiles
+would make the pick actually matter but drops him to 89%, needing ~147k HP —
+deliberately not done.
+
+## 2026-07-31 - Danmo retuned to capstone boss (~110% of Hell Lord)
+
+Audited every boss on "total damage the party must absorb" (incoming party-wide
+DPS x fight length), which cancels party DPS and so depends only on the monsters.
+**Hell Lord (id 440) is the hardest fight in the game** — `alwaysAoe` +
+`massBurstTiles: 7` makes every swing a full-party burst with no single-target
+filler, at 541 incoming DPS across 97,500 HP.
+
+Danmo measured **2%** of that. Two bugs, not just soft numbers:
+
+- **His entire ranged kit had never fired.** A boss rests
+  `BOSS_PARTY_ENEMY_MELEE_GAP` (1 tile) from its tank while `meleeRangeTiles`
+  is 2, so `beginDanmoAttack`'s distance check picked melee on *every* swing
+  forever. The MC AOE, both splash radii, the Ancient Bat summon and both range
+  blends were unreachable in play. His melee line is 2 tiles deep and the Taoist
+  sits at 3, so the back line took literally zero damage.
+- **`accuracy: 16`** whiffed ~45% of swings on agile characters (Hell Lord's 50
+  never misses), silently eating most of the damage budget.
+
+Fix: `beginDanmoAttack` now takes the ranged branch when
+`danmoAoeReady()` is true *regardless of distance*, mirroring Dark Devil's
+`_darkDevilRangeReadyAt` cooldown pattern. New `danmoAoeCooldownMs: 1700` against
+an 850ms swing puts AOE on half his swings; enrage scales the cooldown by the
+same ratio as the swing timer. **Crystal's attack table and its 80/20 and 90/10
+probabilities are untouched — only branch selection changed.**
+
+Stats (tuned, NOT Mir2DB — its sheet is far below Hell Lord tier and barely
+cleared a smithed party's AC): HP 30k→119k, dc 89-98→150-210, mc/sc
+112-132→230-300, attackMs 1100→850, accuracy 16→40, ac/amc 50/70→82/98, XP
+36k→58k, plus `enrageHpStages [0.7, 0.4, 0.15]` / `enrageAttackMs 650`.
+
+Verified against the real formulas in `src/core/combat.js` (damage is a flat AC
+subtraction, `max(0, roll(attack) - roll(AC))`, not a percentage):
+
+| | Melee DPS on tank | AOE DPS across party | Total | Index vs Hell Lord |
+|---|---|---|---|---|
+| Danmo before | 34 | 0 | 34 | 2% |
+| Danmo after | 86 | 397 | 483 | **109%** |
+| Hell Lord | 0 | 541 | 541 | 100% |
+| Manectric King | 0 | 393 | 393 | 58% |
+| Dark Devil | 49 | 215 | 263 | 20% |
+
+Notes for whoever tunes this next:
+
+- **50% of swings is not 50% of damage.** Melee is only 18% of his incoming
+  damage because a melee hit lands on one target and an AOE hit lands on three.
+  The 18/82 split sits almost exactly on Dark Devil's 19/81.
+- **Manectric King and Hell Keeper are not mixed bosses**, despite looking like
+  it. MK's `attackRangeTiles: 5` line reaches the Wizard at tile 5, so both are
+  100% multi-target (32-35% tank share, same as Hell Lord's 33%). Dark Devil is
+  the only genuine melee+AOE boss in the game. Danmo lands at a 45% tank share.
+- **Paralysis is an uncounted difficulty multiplier.** His heavy melee uses the
+  shared `FLAMING_MUTANT_PARALYSIS_POISON_TICKS = 5` at
+  `CRYSTAL_POISON_TICK_MS = 2000`, so the tank is locked out for 10s. It can't
+  chain-lock (`applyCombatantPoison` won't refresh an active paralysis) but the
+  effect outlasts the 8.5s gap between attempts, giving **~54% uptime**. A
+  paralysed tank deals no damage, so the fight runs 9-28% longer and the party
+  eats proportionally more: **effective difficulty is ~118-139%**, not 109%.
+  Deliberately left at 5 ticks (owner's call). A per-enemy 3-tick override is the
+  lever if the first real fight feels like a coin flip.
+- **Beast King's 50,000 XP is the real anomaly** — same Namman region, ~5% of
+  Hell Lord. Danmo's 58,000 is priced to stay clear of it rather than to match
+  his difficulty. Left alone on request.
+
+## 2026-07-31 - Gon Ryun Dragon Armour: male-only naming
+
+Dropped `(F)` Gon Ryun pieces. Male trio kept as any-gender (`genderMask: 3`)
+with display name **Gon Ryun Dragon Armour** (no `(M)` / class suffix). Danmo
+table and temp alchemist stock updated. Alchemist buy path uses
+`alchemistShopBuyPrice` so 0 Crystal `shop.buy` items still purchase at the
+temp 1g override.
+
+## 2026-07-31 - Danmo boss drop table
+
+Wired `DANMO_BOSS_DROPS` (Beast King chassis + one-step shift): Fury book 10%,
+elevated Namman rares 7.5%, Hell Yama Blade trio 5%, Danmo jewellery/helms/
+boots 2.5%, Stone Golem Bracelets 1.25%, Gon Ryun Dragon Armour M/F 0.5%,
+shared heaven/tarragon/stones/gems/orbs/dark armour. Hooked via `isDanmoEnemy`.
+
+## 2026-07-31 - Gon Ryun Dragon Armour + Danmo-tier missing gear
+
+Renamed/retuned `gonryunyongdrama-*` to **Gon Ryun Dragon Armour** L60
+(Warrior AC 14–36 / AMC 6–13 / DC 2–5 / HP 100; Wizard AC 10–26 / AMC 9–16 /
+MC 0–12; Taoist AC 11–29 / AMC 8–14 / SC 0–11).
+
+Imported + balanced Crystal missing pieces for Danmo band:
+- Necklaces L58: Cross Purified; **Adamant Torque** (was Adamant Necklace,
+  distinct from Adamantine Necklace); Evil Triangle
+- Helmets L55: Helmet Of Kings / Sorcery, Purified Mask, Tarragon Helmet
+- Tarragon Boots L55; Tarragon Bracelet L58; Tarragon Ring L55
+- **Stone Golem Bracelet** 1/2/3 L60 (was Stone Monster; class trio)
+- Rings L58: Demon Ruby, Gold Dragon, Evil Expel
+
+No Danmo boss drop table wired yet.
+
+## 2026-07-31 - Hell Yama Blade L60 class trio
+
+Retuned existing `hell-yama-blade1/2/3` to **level 60** (was Mir2DB L52
+below Raw Sword). Display name **Hell Yama Blade** for all three. Combat
+band sits ~10% above Ice Dragon Sky (L55 Manectric King):
+
+- Warrior: DC 14–72, Acc 2
+- Wizard: DC 8–27, MC 7–21
+- Taoist: DC 10–33, SC 7–18, Acc 2
+
+No drop source wired yet (icons/visuals unchanged).
+
+## 2026-07-31 - Namman Demon Fields
+
+New trash zone `zone-namman-demons` reuses Southern Barbarian Land field
+visuals. Six Mir2DB Namman demons (CDN imgs 318–323 → Crystal 261–266):
+Rebel / Black Sky / Destroyer / Frost Demon, Cold / Mad Corpse. Combat + XP
+tuned to **~1.25×** the beast zone (gold ×1.25 too). Teleporter entry under
+Southern Barbarian Land.
+
+## 2026-07-31 - Namman Demon Fields drop pool (baseline + rare mix)
+
+`zone-namman-demons`: same 9 Southern Barbarian accessories @ 0.111% each
+(baseline), plus Beast King-tier mix-ins @ 0.028% each — Pledge / Crimson
+Ruby / Five Element Ring, Cuspid / Sorcery Anchor / Purified Mirror, Dual
+Titan / Evil Whisp / Sacred Angel Amulet. Both Namman trash zones use
+`dropPityKills: 20` (safety net for low drop-rate; high-DR rarely hits it).
+
+## 2026-07-31 - Danmo Namman field boss room on teleporter
+
+Promoted Danmo from hidden lab to `zone-namman-danmo` using the Crystal NAMMAN
+field stamp (`namman-field-center` — Mir2DB map 845 open-field spawn). Wired
+`BOSS_ROOM_DEFS` + Southern Barbarian teleporter. Template MC/SC → Mir2DB 112–132.
+
+## 2026-07-31 - Moderation: exclude cheating Social account (was "im a cunt")
+
+Account `9536897a-2246-4a10-9a92-194d0bb1bcfc` (triple L100 / 4 rebirths /
+263 souls / ~8h playtime) removed from Social. Alias deleted; row marked
+`integrity_status = 'excluded'` so further `/stats` submissions stay hidden.
+Also added a whole-word `cunt` alias block for after Worker redeploy.
+
+- Live D1: deleted `player_aliases` row; excluded leaderboard row
+  (`purge-manual-exclude-9536897a.sql`)
+- `tools/stats-worker/worker.js`: `ALIAS_BLOCKED_WORDS`
+- `tests/statsWorkerAlias.test.mjs`: reject `"im a cunt"`
+- Redeploy Worker when convenient: `npx wrangler deploy --keep-vars` from
+  `tools/stats-worker` (site package not required)
+
+## 2026-07-30 - Hide Lab: Danmo from teleporter
+
+Removed `zone-lab-danmo` from Southern Barbarian Land `TELEPORT_REGIONS` for a
+publish. Zone + Danmo kit stay in data/code for later lab testing.
+
+## 2026-07-30 - Save health + offline wall-clock fixes (player progress-loss reports)
+
+Players reported "offline 0 kills", "8 hours shows 5 mins", freezes on
+maximise, being put back in town, and needing to clear cookies / use recovery
+codes. Investigation found four compounding causes; this fixes the first three
+(Phase 0-2 of the plan; offline-sim fidelity is a follow-up).
+
+### Root causes fixed
+1. **Save-failure retry spiral:** `saveGameState` only advanced `lastSaveAt`
+   on success, so once `localStorage.setItem` failed (quota), `maybeAutoSave`
+   re-serialized the entire state EVERY FRAME - freezing the game. Failures
+   were silent (`console.warn`), so stale saves quietly aged for days
+   (explains "back in town" / progress loss / "clearing cookies fixes it").
+2. **Suspended performance clock:** the rAF catch-up measured time away with
+   `performance.now()`, which does not advance while a mobile tab is
+   suspended - 8h minimised showed as minutes. Wall clock (`Date.now()`) now
+   feeds the offline-progress path when it reports a longer gap (only that
+   path - it rebases combat timers; the step-replay stays on perf time).
+3. **Silent save wipe:** a corrupt/unreadable save made `loadSavedGameState`
+   return false, and boot force-saved a fresh default over it. Now: corrupt
+   blob is preserved in `lom-idle-v2-save-corrupt`, a known-good backup from
+   the last successful boot (`lom-idle-v2-save-backup`) is tried, and a red
+   banner tells the player what happened (retry save / recovery code).
+
+### Changes
+- `src/app.monolith.js`: `recordSaveWriteFailure` (exponential backoff, max
+  60s), `tryApplySaveText` + backup/corrupt slots in `loadSavedGameState`,
+  `renderSaveHealthBar` + `#saveHealthBar` bar + click handlers,
+  `lastSimulationWallClockAt` twin clock in `catchUpSimulation`/`tick`/boot,
+  telemetry payload gains `saveSize`/`saveFailures`/`saveLoadFailed`.
+- `src/styles.css`: `.save-health-bar` red variant of the update bar.
+- `tools/stats-worker/`: `worker.js` stores the new telemetry fields and
+  reports `saveHealth24h` on `/metrics`; `schema.sql` +
+  `migrate-telemetry-save-health.sql` (run against live D1 before deploying
+  the worker); README migration list updated.
+- `tests/statsWorkerTelemetry.test.mjs`: updated upsert args + new
+  save-health test.
+
+### Verify
+- `npm.cmd run check`: unit tests green; `fixture:offline-taoist` drift
+  (gold 202 vs 205) is the KNOWN pre-existing flake (flips between two result
+  sets on identical code - reproduced twice back-to-back; see 2026-07-22
+  entries). All other fixtures green.
+- `npm.cmd run smoke`: green, 25/25 actions, no console errors.
+- Headless scenario check (throwaway script): healthy boot writes backup +
+  no banner; corrupt main + backup boots from backup, preserves corrupt blob,
+  shows banner; corrupt main without backup preserves blob + shows recovery
+  banner. Zero console errors in all three.
+
+### Follow-ups (rest of the plan)
+- Phase 3: chunk/sample the synchronous full-window offline sim (freeze on
+  resume after >10min away).
+- Phase 4: offline sim fidelity - "defeated"/"0 kills" reports players see;
+  the taoist fixture nondeterminism is the same class of bug (sim start state
+  depends on live pre-sim frames).
+- Worker deploy + D1 migration are manual (user runs them).
+- Consider save compression (`CompressionStream("gzip")`) or IndexedDB once
+  telemetry confirms save sizes near quota.
+
 ## 2026-07-30 - Purge EvertonHero Social clones
 
 Nine anonymous Social rows matched EvertonHero's bugged save fingerprint

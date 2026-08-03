@@ -36,6 +36,9 @@ const TOWN_MESSAGE_CLASSES = new Set(["Warrior", "Wizard", "Taoist"]);
 const ALIAS_MIN_LENGTH = 3;
 const ALIAS_MAX_LENGTH = 16;
 const ALIAS_PATTERN = /^[A-Za-z0-9 ._'-]+$/;
+// Whole-word blocklist for public display names (Social / noticeboard).
+// Matched after whitespace collapse; keep this short and explicit.
+const ALIAS_BLOCKED_WORDS = /\b(cunt)\b/i;
 
 // Server-owned token economy. The client NEVER sends token amounts or prices;
 // these are the only source of truth. `gbpPence` is the charged price.
@@ -129,6 +132,7 @@ function normalizePlayerAlias(value) {
   if (trimmed.length < ALIAS_MIN_LENGTH || trimmed.length > ALIAS_MAX_LENGTH) return null;
   if (!ALIAS_PATTERN.test(trimmed)) return null;
   if (/^player\b/i.test(trimmed)) return null;
+  if (ALIAS_BLOCKED_WORDS.test(trimmed)) return null;
   return trimmed;
 }
 
@@ -1256,6 +1260,9 @@ function telemetryMs(value) {
   return intValue(value, 0, MAX_TELEMETRY_DELTA_MS);
 }
 
+const MAX_TELEMETRY_SAVE_SIZE = 64 * 1024 * 1024;
+const MAX_TELEMETRY_SAVE_FAILURES = 100000;
+
 function normalizeTelemetryPayload(body) {
   const playerId = textValue(body?.playerId, 120);
   const sessionId = textValue(body?.sessionId, 80);
@@ -1264,7 +1271,10 @@ function normalizeTelemetryPayload(body) {
   const combatMs = telemetryMs(body?.combatMs);
   const idleMs = telemetryMs(body?.idleMs);
   const totalMs = telemetryMs(body?.totalMs) || Math.min(MAX_TELEMETRY_DELTA_MS, foregroundMs + backgroundMs);
-  return { playerId, sessionId, foregroundMs, backgroundMs, combatMs, idleMs, totalMs };
+  const saveSize = intValue(body?.saveSize, 0, MAX_TELEMETRY_SAVE_SIZE);
+  const saveFailures = intValue(body?.saveFailures, 0, MAX_TELEMETRY_SAVE_FAILURES);
+  const saveLoadFailed = intValue(body?.saveLoadFailed, 0, 1);
+  return { playerId, sessionId, foregroundMs, backgroundMs, combatMs, idleMs, totalMs, saveSize, saveFailures, saveLoadFailed };
 }
 
 async function handleTelemetryPost(request, env, headers) {
@@ -1284,9 +1294,10 @@ async function handleTelemetryPost(request, env, headers) {
   await env.DB.prepare(`
     INSERT INTO telemetry_sessions (
       session_id, player_id, first_seen, last_seen,
-      foreground_ms, background_ms, combat_ms, idle_ms, total_ms, heartbeats
+      foreground_ms, background_ms, combat_ms, idle_ms, total_ms, heartbeats,
+      save_size, save_failures, save_load_failed
     )
-    VALUES (?, ?, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP, ?, ?, ?, ?, ?, 1)
+    VALUES (?, ?, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP, ?, ?, ?, ?, ?, 1, ?, ?, ?)
     ON CONFLICT(session_id) DO UPDATE SET
       last_seen = CURRENT_TIMESTAMP,
       foreground_ms = foreground_ms + excluded.foreground_ms,
@@ -1294,7 +1305,10 @@ async function handleTelemetryPost(request, env, headers) {
       combat_ms = combat_ms + excluded.combat_ms,
       idle_ms = idle_ms + excluded.idle_ms,
       total_ms = total_ms + excluded.total_ms,
-      heartbeats = heartbeats + 1
+      heartbeats = heartbeats + 1,
+      save_size = MAX(save_size, excluded.save_size),
+      save_failures = save_failures + excluded.save_failures,
+      save_load_failed = MAX(save_load_failed, excluded.save_load_failed)
   `).bind(
     t.sessionId,
     accountId,
@@ -1303,6 +1317,9 @@ async function handleTelemetryPost(request, env, headers) {
     t.combatMs,
     t.idleMs,
     t.totalMs,
+    t.saveSize,
+    t.saveFailures,
+    t.saveLoadFailed,
   ).run();
 
   return json({ ok: true }, 200, headers);
@@ -1338,7 +1355,12 @@ async function handleMetricsGet(request, env, headers) {
       SUM(background_ms) AS background_ms_24h,
       SUM(combat_ms) AS combat_ms_24h,
       SUM(idle_ms) AS idle_ms_24h,
-      AVG(total_ms) AS avg_session_ms_24h
+      AVG(total_ms) AS avg_session_ms_24h,
+      SUM(save_failures) AS save_failures_24h,
+      COUNT(DISTINCT CASE WHEN save_failures > 0 THEN player_id END) AS players_with_save_failures_24h,
+      COUNT(DISTINCT CASE WHEN save_load_failed > 0 THEN player_id END) AS players_with_load_failures_24h,
+      MAX(save_size) AS max_save_size_24h,
+      AVG(CASE WHEN save_size > 0 THEN save_size END) AS avg_save_size_24h
     FROM telemetry_sessions
     WHERE last_seen >= datetime('now', '-1 day')
   `).first();
@@ -1364,6 +1386,13 @@ async function handleMetricsGet(request, env, headers) {
       combatHours: telemetryHours(recent?.combat_ms_24h),
       idleHours: telemetryHours(recent?.idle_ms_24h),
       avgSessionMinutes: Math.round((intValue(recent?.avg_session_ms_24h) / 60_000) * 10) / 10,
+    },
+    saveHealth24h: {
+      saveFailures: intValue(recent?.save_failures_24h),
+      playersWithSaveFailures: intValue(recent?.players_with_save_failures_24h),
+      playersWithLoadFailures: intValue(recent?.players_with_load_failures_24h),
+      maxSaveSizeChars: intValue(recent?.max_save_size_24h),
+      avgSaveSizeChars: intValue(recent?.avg_save_size_24h),
     },
   }, 200, headers);
 }

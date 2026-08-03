@@ -4,8 +4,13 @@
 //   Attack1 blend:     512 + dir*6  ×6  → 548..553
 //   Attack2 blend:     568 + dir*10 ×10 → 628..637
 //   Range1 body blend: (648 + FI + dir*5) - 3 from FI≥3 → 678..682 (pad 3 empties)
-//   Range2 body blend: (730 + FI + dir*10) - 3 from FI≥3 → 790..794
-//   Range1 projectile: 688 ×4 travel + 720 ×10 impact on target
+//   Range1 projectile: Missile.Draw() = base + frame + Direction*(Skip+FrameCount),
+//                      created with base 688, count 4, skip 0, direction16:false
+//                      → dir 6 travel = 712..715; impact 720 ×10 is not directional
+//   Range2 body blend: Crystal reads (730 + FI + dir*10) - 3, but 272.Lib only has
+//                      art at 730..753 and it is not per-direction: 730 ×10 is the
+//                      crescent that rises on the mob, 740 ×14 the ground crater.
+//                      So dir>=2 lands on empty frames; use the dir-0 slice 730..734.
 //   Range2 burst:      740 ×14 on target
 //
 //   node tools/build-danmo-combat-atlas.mjs
@@ -89,15 +94,15 @@ function main() {
         interval: 100,
         padEmptyFront: 3,
       },
-      // Range2 on-mob blend: FI 0..2 empty, FI 3..7 → 790..794
+      // Range2 on-mob blend: FI 0..2 empty, FI 3..7 → 730..734
       {
         kind: "attackRange2Blend",
-        start: 790,
+        start: 730,
         count: 5,
         interval: 100,
         padEmptyFront: 3,
       },
-      { kind: "travel", start: 688, count: 4, interval: 50 },
+      { kind: "travel", start: 688 + DIR * 4, count: 4, interval: 50 },
       { kind: "impact", start: 720, count: 10, interval: 100 },
       { kind: "heavyBurst", start: 740, count: 14, interval: 140 },
     ];

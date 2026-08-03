@@ -33,9 +33,20 @@ function loadWeaponGlowMappings() {
   return Array.isArray(data?.mappings) ? data.mappings : [];
 }
 
+function loadWeaponGlowCandidates() {
+  if (!fs.existsSync(mappingsPath)) return [];
+  const data = readJson(mappingsPath);
+  return Array.isArray(data?.candidates) ? data.candidates : [];
+}
+
 function loadWeaponOptions(mappings) {
   const mappedShapes = new Set(mappings.map((m) => m.weaponShape));
-  const glowByShape = new Map(mappings.map((m) => [m.weaponShape, m.glow]));
+  // A shape can own two glows: a gold aura (family "aura") and an elemental FX (family "fx").
+  const glowsByShape = new Map();
+  for (const m of mappings) {
+    if (!glowsByShape.has(m.weaponShape)) glowsByShape.set(m.weaponShape, []);
+    glowsByShape.get(m.weaponShape).push(m.glow);
+  }
   const catalogue = readJson(cataloguePath);
   const indexes = catalogue.layers?.weapon?.indexes ?? [];
   const nameByShape = new Map();
@@ -54,12 +65,12 @@ function loadWeaponOptions(mappings) {
   return indexes.map((index) => {
     const names = nameByShape.get(index) ?? [];
     const label = names.length ? `${index} — ${names.join(", ")}` : `shape ${index}`;
-    const mappedGlow = glowByShape.get(index);
+    const mappedGlows = glowsByShape.get(index) ?? [];
     return {
       index,
-      label: mappedGlow != null ? `${label} ✓ glow ${mappedGlow}` : label,
+      label: mappedGlows.length ? `${label} ✓ glow ${mappedGlows.join("+")}` : label,
       mapped: mappedShapes.has(index),
-      mappedGlow: mappedGlow ?? null,
+      mappedGlow: mappedGlows[0] ?? null,
     };
   });
 }
@@ -101,7 +112,11 @@ function loadGlowManifest() {
     });
   }
 
-  const glows = indexes.filter((index) => !mappedGlowIds.has(index)).map((index) => glowById.get(index));
+  const candidateByGlow = new Map(loadWeaponGlowCandidates().map((c) => [c.glow, c]));
+  const glows = indexes.filter((index) => !mappedGlowIds.has(index)).map((index) => ({
+    ...glowById.get(index),
+    candidate: candidateByGlow.get(index) ?? null,
+  }));
   const mappedGlows = mappings.map((mapping) => ({
     ...mapping,
     glowMeta: glowById.get(mapping.glow) ?? null,
@@ -163,6 +178,14 @@ const html = `<!doctype html>
     .card.mapped header h2 { color:#b8d4a0; }
     .mapped-pill { display:inline-block; margin-left:8px; padding:2px 8px; border-radius:999px; background:#2a3320; color:#b8d4a0; font:11px Consolas,monospace; }
     option.mapped-weapon { color:#9a8b74; }
+    .verdict { display:flex; gap:6px; padding:8px 10px; border-top:1px solid var(--line); }
+    .verdict button { flex:1; background:#100e0b; color:var(--muted); border:1px solid var(--line); border-radius:6px; padding:6px 0; cursor:pointer; font:12px Consolas,monospace; }
+    .verdict button:hover { border-color:var(--accent); }
+    .verdict button.on[data-v="yes"] { background:#22331c; border-color:#5c8544; color:#c3e0a8; }
+    .verdict button.on[data-v="no"] { background:#331c1c; border-color:#8a4646; color:#e8b0b0; }
+    .verdict button.on[data-v="maybe"] { background:#332c1c; border-color:#8a7a46; color:#e8d9a8; }
+    .card.decided-yes { border-color:#4a6636; }
+    .card.decided-no { border-color:#6b3a3a; opacity:0.7; }
   </style>
 </head>
 <body>
@@ -193,9 +216,21 @@ const html = `<!doctype html>
     <label>Glow strength <input type="range" id="blendRate" min="0" max="100" value="40" /> <span id="blendLabel">40%</span></label>
     <label>Hue <input type="range" id="hue" min="0" max="360" value="0" /> <span id="hueLabel">0°</span></label>
     <label>Saturation <input type="range" id="sat" min="0" max="300" value="100" /> <span id="satLabel">100%</span></label>
+    <label>Tune glow
+      <select id="tuneTarget"><option value="">none</option></select>
+    </label>
+    <label>Rotate <input type="range" id="glowRot" min="-20" max="20" step="0.5" value="0" /> <span id="glowRotLabel">0°</span></label>
+    <label>dx <input type="range" id="glowDx" min="-16" max="16" step="1" value="0" /> <span id="glowDxLabel">0</span></label>
+    <label>dy <input type="range" id="glowDy" min="-16" max="16" step="1" value="0" /> <span id="glowDyLabel">0</span></label>
     <label><input type="checkbox" id="hideMappedWeapons" checked /> Hide mapped weapons in dropdown</label>
+    <label><input type="checkbox" id="hideDecided" /> Hide decided candidates</label>
     <button type="button" id="resetTint">Reset tint</button>
+    <button type="button" id="resetAlign">Reset align</button>
+    <button type="button" id="copyAlign">Copy bake command</button>
     <button type="button" id="restart">Restart</button>
+    <span id="verdictCount" style="color:var(--muted)"></span>
+    <button type="button" id="exportVerdicts">Export verdicts</button>
+    <button type="button" id="clearVerdicts">Clear verdicts</button>
   </div>
   <div class="legend">
     <span><i class="swatch" style="background:var(--weapon)"></i>weapon base</span>
@@ -223,12 +258,25 @@ const html = `<!doctype html>
       });
     }
 
-    function blitFrame(ctx, sheet, atlas, action, frameIndex, anchorX, anchorY) {
+    function blitFrame(ctx, sheet, atlas, action, frameIndex, anchorX, anchorY, align) {
       const clip = atlas.actions?.[action] ?? atlas.actions?.standing;
       const meta = clip?.frames?.[frameIndex] ?? clip?.frames?.[0];
       if (!meta || meta.empty || !meta.w) return;
       const sx = (meta.slot ?? 0) * atlas.slotWidth;
-      ctx.drawImage(sheet, sx, 0, meta.w, meta.h, anchorX + meta.offsetX, anchorY + meta.offsetY, meta.w, meta.h);
+      const rot = align?.rot || 0;
+      const dx = align?.dx || 0;
+      const dy = align?.dy || 0;
+      if (!rot && !dx && !dy) {
+        ctx.drawImage(sheet, sx, 0, meta.w, meta.h, anchorX + meta.offsetX, anchorY + meta.offsetY, meta.w, meta.h);
+        return;
+      }
+      // Rigid transform around Crystal's draw anchor (same pivot the bake tool uses for --fixed).
+      ctx.save();
+      ctx.translate(anchorX, anchorY);
+      ctx.rotate(rot * Math.PI / 180);
+      ctx.translate(dx, dy);
+      ctx.drawImage(sheet, sx, 0, meta.w, meta.h, meta.offsetX, meta.offsetY, meta.w, meta.h);
+      ctx.restore();
     }
 
     function withScreenBlend(ctx, rate, filter, draw) {
@@ -308,35 +356,50 @@ const html = `<!doctype html>
       const card = document.createElement("article");
       card.className = "card" + (glow.empty ? " empty" : "") + (mappedInfo ? " mapped" : "");
       card.id = id;
+      const candidateName = glow.candidate?.weaponNames?.[0] ?? (glow.candidate ? "shape " + glow.candidate.weaponShape : null);
       const title = mappedInfo
         ? "Glow " + glow.index + " → " + mappedInfo.weaponLabel
-        : "Glow " + glow.index;
+        : (candidateName ? "Glow " + glow.index + " → " + candidateName + " ?" : "Glow " + glow.index);
       const sub = mappedInfo
-        ? "weapon shape " + mappedInfo.weaponShape + " · CWeaponEffect[" + glow.index + "]"
+        ? "weapon shape " + mappedInfo.weaponShape + " · CWeaponEffect[" + glow.index + "]" +
+          (mappedInfo.family ? " · " + mappedInfo.family : "")
         : "CWeaponEffect[" + glow.index + "] · crystal weapon effect id " + glow.crystalEffectId +
-          " · " + glow.nonEmptyFrames + "/" + glow.frameCount + " standing frames";
+          " · " + glow.nonEmptyFrames + "/" + glow.frameCount + " standing frames" +
+          (glow.candidate
+            ? " · UNVERIFIED candidate: shape " + glow.candidate.weaponShape +
+              (glow.candidate.weaponNames?.[0] ? " (" + glow.candidate.weaponNames[0] + ")" : "")
+            : "");
+      const votable = !mappedInfo && glow.candidate;
       card.innerHTML =
         '<header><h2>' + title + (mappedInfo ? '<span class="mapped-pill">mapped</span>' : "") + '</h2>' +
         '<div class="sub">' + sub + '</div></header>' +
-        '<div class="stage-wrap"><canvas class="stage" width="' + STAGE_W + '" height="' + STAGE_H + '"></canvas></div>';
+        '<div class="stage-wrap"><canvas class="stage" width="' + STAGE_W + '" height="' + STAGE_H + '"></canvas></div>' +
+        (votable
+          ? '<div class="verdict"><button data-v="yes">✓ match</button>' +
+            '<button data-v="no">✗ wrong</button><button data-v="maybe">? unsure</button></div>'
+          : "");
       parent.appendChild(card);
 
       const [glowAtlas, glowSheet] = await Promise.all([
         fetch(glow.json).then((r) => r.json()),
         loadImage(glow.png).catch(() => null),
       ]);
+      const ownShape = mappedInfo?.weaponShape ?? glow.candidate?.weaponShape ?? null;
       const entry = {
         glow,
         glowAtlas,
         glowSheet,
         mappedInfo,
-        weaponShape: mappedInfo?.weaponShape ?? null,
+        el: card,
+        weaponShape: ownShape,
+        candidateShape: glow.candidate?.weaponShape ?? null,
         tint: mappedInfo?.tint ?? null,
         canvas: card.querySelector("canvas"),
         ctx: card.querySelector("canvas").getContext("2d"),
       };
-      if (mappedInfo?.weaponShape != null) {
-        entry.weaponAssets = await loadLayer("weapon", mappedInfo.weaponShape).catch(() => null);
+      // Candidates render against their own suggested shape, so the whole list can be judged in one pass.
+      if (ownShape != null) {
+        entry.weaponAssets = await loadLayer("weapon", ownShape).catch(() => null);
       }
       return entry;
     }
@@ -388,14 +451,107 @@ const html = `<!doctype html>
       const hueLabel = document.getElementById("hueLabel");
       const sat = document.getElementById("sat");
       const satLabel = document.getElementById("satLabel");
+      const tuneTarget = document.getElementById("tuneTarget");
+      for (const card of cards.concat(mappedCards)) {
+        const opt = document.createElement("option");
+        opt.value = String(card.glow.index);
+        opt.textContent = "glow " + card.glow.index;
+        tuneTarget.appendChild(opt);
+      }
+      const glowRot = document.getElementById("glowRot");
+      const glowRotLabel = document.getElementById("glowRotLabel");
+      const glowDx = document.getElementById("glowDx");
+      const glowDxLabel = document.getElementById("glowDxLabel");
+      const glowDy = document.getElementById("glowDy");
+      const glowDyLabel = document.getElementById("glowDyLabel");
       document.getElementById("restart").onclick = () => { startedAt = performance.now(); };
       blendRate.oninput = () => { blendLabel.textContent = blendRate.value + "%"; };
       hue.oninput = () => { hueLabel.textContent = hue.value + "°"; };
       sat.oninput = () => { satLabel.textContent = sat.value + "%"; };
+      glowRot.oninput = () => { glowRotLabel.textContent = glowRot.value + "°"; };
+      glowDx.oninput = () => { glowDxLabel.textContent = glowDx.value; };
+      glowDy.oninput = () => { glowDyLabel.textContent = glowDy.value; };
       document.getElementById("resetTint").onclick = () => {
         hue.value = "0"; sat.value = "100";
         hueLabel.textContent = "0°"; satLabel.textContent = "100%";
       };
+      document.getElementById("resetAlign").onclick = () => {
+        glowRot.value = "0"; glowDx.value = "0"; glowDy.value = "0";
+        glowRotLabel.textContent = "0°"; glowDxLabel.textContent = "0"; glowDyLabel.textContent = "0";
+      };
+      document.getElementById("copyAlign").onclick = async () => {
+        if (!tuneTarget.value) {
+          alert("Pick a glow in 'Tune glow' first.");
+          return;
+        }
+        const cmd = "node tools/align-weapon-glow.mjs --glow " + tuneTarget.value +
+          " --weapon " + document.getElementById("weaponSelect").value +
+          " --fixed " + glowRot.value + "," + glowDx.value + "," + glowDy.value;
+        try {
+          await navigator.clipboard.writeText(cmd);
+          document.getElementById("copyAlign").textContent = "Copied!";
+          setTimeout(() => { document.getElementById("copyAlign").textContent = "Copy bake command"; }, 1200);
+        } catch {
+          prompt("Bake command:", cmd);
+        }
+      };
+
+      const VERDICT_KEY = "weaponGlowVerdicts.v1";
+      const verdicts = JSON.parse(localStorage.getItem(VERDICT_KEY) || "{}");
+      const hideDecided = document.getElementById("hideDecided");
+      const verdictCount = document.getElementById("verdictCount");
+
+      function paintVerdict(card) {
+        const bar = card.el.querySelector(".verdict");
+        if (!bar) return;
+        const v = verdicts[card.glow.index]?.verdict ?? null;
+        for (const btn of bar.querySelectorAll("button")) {
+          btn.classList.toggle("on", btn.dataset.v === v);
+        }
+        card.el.classList.toggle("decided-yes", v === "yes");
+        card.el.classList.toggle("decided-no", v === "no");
+        card.el.style.display = hideDecided.checked && v ? "none" : "";
+      }
+
+      function refreshVerdicts() {
+        const votable = cards.filter((c) => c.el.querySelector(".verdict"));
+        const done = votable.filter((c) => verdicts[c.glow.index]?.verdict).length;
+        verdictCount.textContent = done + "/" + votable.length + " judged";
+        for (const card of votable) paintVerdict(card);
+      }
+
+      for (const card of cards) {
+        const bar = card.el.querySelector(".verdict");
+        if (!bar) continue;
+        bar.onclick = (ev) => {
+          const btn = ev.target.closest("button");
+          if (!btn) return;
+          const current = verdicts[card.glow.index]?.verdict;
+          if (current === btn.dataset.v) delete verdicts[card.glow.index];
+          else verdicts[card.glow.index] = { verdict: btn.dataset.v, weaponShape: card.candidateShape };
+          localStorage.setItem(VERDICT_KEY, JSON.stringify(verdicts));
+          refreshVerdicts();
+        };
+      }
+      hideDecided.onchange = refreshVerdicts;
+      document.getElementById("clearVerdicts").onclick = () => {
+        if (!confirm("Clear all recorded verdicts?")) return;
+        for (const key of Object.keys(verdicts)) delete verdicts[key];
+        localStorage.removeItem(VERDICT_KEY);
+        refreshVerdicts();
+      };
+      document.getElementById("exportVerdicts").onclick = async () => {
+        const payload = JSON.stringify(verdicts, null, 2);
+        try {
+          await navigator.clipboard.writeText(payload);
+          const btn = document.getElementById("exportVerdicts");
+          btn.textContent = "Copied!";
+          setTimeout(() => { btn.textContent = "Export verdicts"; }, 1200);
+        } catch {
+          prompt("Verdicts JSON:", payload);
+        }
+      };
+      refreshVerdicts();
 
       function drawCard(card, action, frameIndex, rate, filter, useMappedWeapon) {
         const ctx = card.ctx;
@@ -418,8 +574,12 @@ const html = `<!doctype html>
           const cardFilter = card.tint
             ? tintFilter(card.tint.hue ?? 0, card.tint.saturate ?? 100)
             : filter;
+          // Only the glow being tuned is transformed; every other card stays as authored.
+          const align = String(card.glow.index) === tuneTarget.value
+            ? { rot: Number(glowRot.value), dx: Number(glowDx.value), dy: Number(glowDy.value) }
+            : null;
           withScreenBlend(ctx, rate, cardFilter, () => {
-            blitFrame(ctx, card.glowSheet, card.glowAtlas, action, frameIndex, ANCHOR_X, ANCHOR_Y);
+            blitFrame(ctx, card.glowSheet, card.glowAtlas, action, frameIndex, ANCHOR_X, ANCHOR_Y, align);
           });
         }
       }
@@ -432,7 +592,7 @@ const html = `<!doctype html>
         const satPct = Number(sat.value);
         const filter = tintFilter(hueDeg, satPct);
 
-        for (const card of cards) drawCard(card, action, frameIndex, rate, filter, false);
+        for (const card of cards) drawCard(card, action, frameIndex, rate, filter, Boolean(card.weaponAssets));
         for (const card of mappedCards) drawCard(card, action, frameIndex, rate, filter, true);
         requestAnimationFrame(frame);
       }

@@ -305,6 +305,63 @@
       "crystalType": "Gem"
     },
     {
+      "id": "adamant-torque",
+      "name": "Adamant Torque",
+      "type": "necklace",
+      "slot": "necklace",
+      "class": "any",
+      "source": {
+        "crystalIndex": 568,
+        "name": "AdamantNecklace"
+      },
+      "icon": {
+        "library": "Items",
+        "frame": 1013,
+        "src": "./public/item-icons/items/frame_001013.png"
+      },
+      "requirements": {
+        "type": "level",
+        "amount": 58,
+        "classMask": 31,
+        "genderMask": 3
+      },
+      "stackable": false,
+      "maxStack": 1,
+      "stats": {
+        "ac": [
+          0,
+          0
+        ],
+        "amc": [
+          0,
+          0
+        ],
+        "dc": [
+          5,
+          12
+        ],
+        "mc": [
+          0,
+          0
+        ],
+        "sc": [
+          0,
+          0
+        ],
+        "hp": 0,
+        "mp": 0,
+        "accuracy": 0,
+        "agility": 0,
+        "luck": 0,
+        "attackSpeed": 0
+      },
+      "shop": {
+        "buy": 35000,
+        "sell": 7000
+      },
+      "crystalType": "Necklace"
+    },
+    {
       "id": "adamantine-belt",
       "name": "Adamantine Belt",
       "type": "belt",
@@ -956,7 +1013,8 @@
           "zone-fox-cave-1",
           "zone-fox-cave-2",
           "zone-hell-gd-3",
-          "zone-namman-1"
+          "zone-namman-1",
+          "zone-namman-demons"
         ],
         "chances": {
           "zone-bdd-2": 0.025,
@@ -964,7 +1022,8 @@
           "zone-hell-gd-3": 0.05,
           "zone-fox-cave-1": 0.00244,
           "zone-fox-cave-2": 0.00325,
-          "zone-namman-1": 0.00111
+          "zone-namman-1": 0.00111,
+          "zone-namman-demons": 0.00111
         },
         "chance": 0.05
       }
@@ -8677,11 +8736,13 @@
       "drop": {
         "zones": [
           "zone-hell-gd-3",
-          "zone-namman-1"
+          "zone-namman-1",
+          "zone-namman-demons"
         ],
         "chances": {
           "zone-hell-gd-3": 0.05,
-          "zone-namman-1": 0.00111
+          "zone-namman-1": 0.00111,
+          "zone-namman-demons": 0.00111
         },
         "chance": 0.05
       }
@@ -9244,13 +9305,72 @@
       "crystalType": "Ring",
       "drop": {
         "zones": [
-          "zone-hell-gd-3"
+          "zone-hell-gd-3",
+          "zone-namman-demons"
         ],
         "chances": {
-          "zone-hell-gd-3": 0.025
+          "zone-hell-gd-3": 0.025,
+          "zone-namman-demons": 0.00028
         },
         "chance": 0.025
       }
+    },
+    {
+      "id": "cross-purified",
+      "name": "Cross Purified",
+      "type": "necklace",
+      "slot": "necklace",
+      "class": "any",
+      "source": {
+        "crystalIndex": 570,
+        "name": "CrossPurified"
+      },
+      "icon": {
+        "library": "Items",
+        "frame": 1017,
+        "src": "./public/item-icons/items/frame_001017.png"
+      },
+      "requirements": {
+        "type": "level",
+        "amount": 58,
+        "classMask": 31,
+        "genderMask": 3
+      },
+      "stackable": false,
+      "maxStack": 1,
+      "stats": {
+        "ac": [
+          0,
+          0
+        ],
+        "amc": [
+          0,
+          0
+        ],
+        "dc": [
+          1,
+          4
+        ],
+        "mc": [
+          0,
+          0
+        ],
+        "sc": [
+          3,
+          12
+        ],
+        "hp": 0,
+        "mp": 0,
+        "accuracy": 0,
+        "agility": 0,
+        "luck": 0,
+        "attackSpeed": 0
+      },
+      "shop": {
+        "buy": 35000,
+        "sell": 7000
+      },
+      "crystalType": "Necklace"
     },
     {
       "id": "crystal-armour",
@@ -9372,10 +9492,12 @@
       "crystalType": "Necklace",
       "drop": {
         "zones": [
-          "zone-hell-gd-3"
+          "zone-hell-gd-3",
+          "zone-namman-demons"
         ],
         "chances": {
-          "zone-hell-gd-3": 0.025
+          "zone-hell-gd-3": 0.025,
+          "zone-namman-demons": 0.00028
         },
         "chance": 0.025
       }
@@ -10010,14 +10132,73 @@
       "drop": {
         "zones": [
           "zone-hell-gd-3",
-          "zone-namman-1"
+          "zone-namman-1",
+          "zone-namman-demons"
         ],
         "chances": {
           "zone-hell-gd-3": 0.05,
-          "zone-namman-1": 0.00111
+          "zone-namman-1": 0.00111,
+          "zone-namman-demons": 0.00111
         },
         "chance": 0.05
       }
+    },
+    {
+      "id": "demon-ruby-ring",
+      "name": "Demon Ruby Ring",
+      "type": "ring",
+      "slot": "ring",
+      "class": "any",
+      "source": {
+        "crystalIndex": 440,
+        "name": "DemonRubyRing"
+      },
+      "icon": {
+        "library": "Items",
+        "frame": 1003,
+        "src": "./public/item-icons/items/frame_001003.png"
+      },
+      "requirements": {
+        "type": "level",
+        "amount": 58,
+        "classMask": 31,
+        "genderMask": 3
+      },
+      "stackable": false,
+      "maxStack": 1,
+      "stats": {
+        "ac": [
+          0,
+          0
+        ],
+        "amc": [
+          0,
+          0
+        ],
+        "dc": [
+          0,
+          0
+        ],
+        "mc": [
+          1,
+          12
+        ],
+        "sc": [
+          0,
+          0
+        ],
+        "hp": 0,
+        "mp": 0,
+        "accuracy": 0,
+        "agility": 0,
+        "luck": 0,
+        "attackSpeed": 0
+      },
+      "shop": {
+        "buy": 55000,
+        "sell": 11000
+      },
+      "crystalType": "Ring"
     },
     {
       "id": "demonic-bells",
@@ -10928,10 +11109,12 @@
       "crystalType": "Bracelet",
       "drop": {
         "zones": [
-          "zone-hell-gd-3"
+          "zone-hell-gd-3",
+          "zone-namman-demons"
         ],
         "chances": {
-          "zone-hell-gd-3": 0.025
+          "zone-hell-gd-3": 0.025,
+          "zone-namman-demons": 0.00028
         },
         "chance": 0.025
       }
@@ -11573,6 +11756,63 @@
       "crystalType": "Bracelet"
     },
     {
+      "id": "evil-expel-ring",
+      "name": "Evil Expel Ring",
+      "type": "ring",
+      "slot": "ring",
+      "class": "any",
+      "source": {
+        "crystalIndex": 441,
+        "name": "EvilExpelRing"
+      },
+      "icon": {
+        "library": "Items",
+        "frame": 1005,
+        "src": "./public/item-icons/items/frame_001005.png"
+      },
+      "requirements": {
+        "type": "level",
+        "amount": 58,
+        "classMask": 31,
+        "genderMask": 3
+      },
+      "stackable": false,
+      "maxStack": 1,
+      "stats": {
+        "ac": [
+          0,
+          0
+        ],
+        "amc": [
+          0,
+          0
+        ],
+        "dc": [
+          1,
+          7
+        ],
+        "mc": [
+          0,
+          0
+        ],
+        "sc": [
+          1,
+          10
+        ],
+        "hp": 0,
+        "mp": 0,
+        "accuracy": 0,
+        "agility": 0,
+        "luck": 0,
+        "attackSpeed": 0
+      },
+      "shop": {
+        "buy": 55000,
+        "sell": 11000
+      },
+      "crystalType": "Ring"
+    },
+    {
       "id": "evil-slayer-ring",
       "name": "Evil Slayer Ring",
       "type": "ring",
@@ -11645,6 +11885,63 @@
       "crystalType": "Ring"
     },
     {
+      "id": "evil-triangle",
+      "name": "Evil Triangle",
+      "type": "necklace",
+      "slot": "necklace",
+      "class": "any",
+      "source": {
+        "crystalIndex": 569,
+        "name": "EvilTriangle"
+      },
+      "icon": {
+        "library": "Items",
+        "frame": 1015,
+        "src": "./public/item-icons/items/frame_001015.png"
+      },
+      "requirements": {
+        "type": "level",
+        "amount": 58,
+        "classMask": 31,
+        "genderMask": 3
+      },
+      "stackable": false,
+      "maxStack": 1,
+      "stats": {
+        "ac": [
+          0,
+          0
+        ],
+        "amc": [
+          0,
+          0
+        ],
+        "dc": [
+          0,
+          0
+        ],
+        "mc": [
+          3,
+          12
+        ],
+        "sc": [
+          0,
+          0
+        ],
+        "hp": 0,
+        "mp": 0,
+        "accuracy": 0,
+        "agility": 0,
+        "luck": 0,
+        "attackSpeed": 0
+      },
+      "shop": {
+        "buy": 35000,
+        "sell": 7000
+      },
+      "crystalType": "Necklace"
+    },
+    {
       "id": "evil-whisp-amulet",
       "name": "Evil Whisp Amulet",
       "type": "bracelet",
@@ -11702,10 +11999,12 @@
       "crystalType": "Bracelet",
       "drop": {
         "zones": [
-          "zone-hell-gd-3"
+          "zone-hell-gd-3",
+          "zone-namman-demons"
         ],
         "chances": {
-          "zone-hell-gd-3": 0.025
+          "zone-hell-gd-3": 0.025,
+          "zone-namman-demons": 0.00028
         },
         "chance": 0.025
       }
@@ -12558,10 +12857,12 @@
       "crystalType": "Ring",
       "drop": {
         "zones": [
-          "zone-hell-gd-3"
+          "zone-hell-gd-3",
+          "zone-namman-demons"
         ],
         "chances": {
-          "zone-hell-gd-3": 0.025
+          "zone-hell-gd-3": 0.025,
+          "zone-namman-demons": 0.00028
         },
         "chance": 0.025
       }
@@ -13551,62 +13852,6 @@
       "description": "Protection Field grants a much stronger AC bonus for a short time."
     },
     {
-      "id": "glyph-magical-protection",
-      "name": "Glyph of Magical Protection",
-      "type": "glyph",
-      "slot": "glyph",
-      "class": "warrior",
-      "glyph": {
-        "modifier": "warriorProtectionFieldAmc"
-      },
-      "icon": {
-        "library": "Items",
-        "frame": 3221,
-        "src": "./public/item-icons/items/frame_003221.png"
-      },
-      "requirements": {
-        "type": "level",
-        "amount": 35,
-        "classMask": 1,
-        "genderMask": 3
-      },
-      "stackable": false,
-      "maxStack": 1,
-      "stats": {
-        "ac": [
-          0,
-          0
-        ],
-        "amc": [
-          0,
-          0
-        ],
-        "dc": [
-          0,
-          0
-        ],
-        "mc": [
-          0,
-          0
-        ],
-        "sc": [
-          0,
-          0
-        ],
-        "hp": 0,
-        "mp": 0,
-        "accuracy": 0,
-        "agility": 0,
-        "luck": 0,
-        "attackSpeed": 0
-      },
-      "shop": {
-        "buy": 0,
-        "sell": 50000
-      },
-      "description": "Protection Field buffs AMC (MAC) instead of AC."
-    },
-    {
       "id": "glyph-critical-strikes",
       "name": "Glyph of Critical Strikes",
       "type": "glyph",
@@ -13717,62 +13962,6 @@
         "sell": 50000
       },
       "description": "Flame Disruptor can also strike enemies next to the target for reduced damage."
-    },
-    {
-      "id": "glyph-many-mirrors",
-      "name": "Glyph of Many Mirrors",
-      "type": "glyph",
-      "slot": "glyph",
-      "class": "wizard",
-      "glyph": {
-        "modifier": "wizardManyMirrors"
-      },
-      "icon": {
-        "library": "Items",
-        "frame": 3219,
-        "src": "./public/item-icons/items/frame_003219.png"
-      },
-      "requirements": {
-        "type": "level",
-        "amount": 35,
-        "classMask": 2,
-        "genderMask": 3
-      },
-      "stackable": false,
-      "maxStack": 1,
-      "stats": {
-        "ac": [
-          0,
-          0
-        ],
-        "amc": [
-          0,
-          0
-        ],
-        "dc": [
-          0,
-          0
-        ],
-        "mc": [
-          0,
-          0
-        ],
-        "sc": [
-          0,
-          0
-        ],
-        "hp": 0,
-        "mp": 0,
-        "accuracy": 0,
-        "agility": 0,
-        "luck": 0,
-        "attackSpeed": 0
-      },
-      "shop": {
-        "buy": 0,
-        "sell": 50000
-      },
-      "description": "Mirroring summons three clones (one above and one below). They can only cast Fire Ball."
     },
     {
       "id": "glyph-eternal-firewall",
@@ -13943,62 +14132,6 @@
       "description": "Activating Flaming Sword briefly reduces the damage you take."
     },
     {
-      "id": "glyph-improved-flaming-sword",
-      "name": "Glyph of Improved Flaming Sword",
-      "type": "glyph",
-      "slot": "glyph",
-      "class": "warrior",
-      "glyph": {
-        "modifier": "warriorImprovedFlamingSword"
-      },
-      "icon": {
-        "library": "Items",
-        "frame": 3203,
-        "src": "./public/item-icons/items/frame_003203.png"
-      },
-      "requirements": {
-        "type": "level",
-        "amount": 35,
-        "classMask": 1,
-        "genderMask": 3
-      },
-      "stackable": false,
-      "maxStack": 1,
-      "stats": {
-        "ac": [
-          0,
-          0
-        ],
-        "amc": [
-          0,
-          0
-        ],
-        "dc": [
-          0,
-          0
-        ],
-        "mc": [
-          0,
-          0
-        ],
-        "sc": [
-          0,
-          0
-        ],
-        "hp": 0,
-        "mp": 0,
-        "accuracy": 0,
-        "agility": 0,
-        "luck": 0,
-        "attackSpeed": 0
-      },
-      "shop": {
-        "buy": 0,
-        "sell": 50000
-      },
-      "description": "Flaming Sword burns the enemy for 5 seconds, dealing 50% of the hit as fire damage over time."
-    },
-    {
       "id": "glyph-glass-canon",
       "name": "Glyph of Glass Canon",
       "type": "glyph",
@@ -14165,6 +14298,62 @@
         "sell": 50000
       },
       "description": "You take all damage your party members would receive."
+    },
+    {
+      "id": "glyph-improved-flaming-sword",
+      "name": "Glyph of Improved Flaming Sword",
+      "type": "glyph",
+      "slot": "glyph",
+      "class": "warrior",
+      "glyph": {
+        "modifier": "warriorImprovedFlamingSword"
+      },
+      "icon": {
+        "library": "Items",
+        "frame": 3203,
+        "src": "./public/item-icons/items/frame_003203.png"
+      },
+      "requirements": {
+        "type": "level",
+        "amount": 35,
+        "classMask": 1,
+        "genderMask": 3
+      },
+      "stackable": false,
+      "maxStack": 1,
+      "stats": {
+        "ac": [
+          0,
+          0
+        ],
+        "amc": [
+          0,
+          0
+        ],
+        "dc": [
+          0,
+          0
+        ],
+        "mc": [
+          0,
+          0
+        ],
+        "sc": [
+          0,
+          0
+        ],
+        "hp": 0,
+        "mp": 0,
+        "accuracy": 0,
+        "agility": 0,
+        "luck": 0,
+        "attackSpeed": 0
+      },
+      "shop": {
+        "buy": 0,
+        "sell": 50000
+      },
+      "description": "Flaming Sword burns the enemy for 5 seconds, dealing 50% of the hit as fire damage over time."
     },
     {
       "id": "glyph-improved-healing-circle",
@@ -14335,6 +14524,62 @@
       "description": "Healing restores health instantly, but only for half the usual amount."
     },
     {
+      "id": "glyph-magical-protection",
+      "name": "Glyph of Magical Protection",
+      "type": "glyph",
+      "slot": "glyph",
+      "class": "warrior",
+      "glyph": {
+        "modifier": "warriorProtectionFieldAmc"
+      },
+      "icon": {
+        "library": "Items",
+        "frame": 3221,
+        "src": "./public/item-icons/items/frame_003221.png"
+      },
+      "requirements": {
+        "type": "level",
+        "amount": 35,
+        "classMask": 1,
+        "genderMask": 3
+      },
+      "stackable": false,
+      "maxStack": 1,
+      "stats": {
+        "ac": [
+          0,
+          0
+        ],
+        "amc": [
+          0,
+          0
+        ],
+        "dc": [
+          0,
+          0
+        ],
+        "mc": [
+          0,
+          0
+        ],
+        "sc": [
+          0,
+          0
+        ],
+        "hp": 0,
+        "mp": 0,
+        "accuracy": 0,
+        "agility": 0,
+        "luck": 0,
+        "attackSpeed": 0
+      },
+      "shop": {
+        "buy": 0,
+        "sell": 50000
+      },
+      "description": "Protection Field buffs AMC (MAC) instead of AC."
+    },
+    {
       "id": "glyph-mana-aegis",
       "name": "Glyph of Mana Aegis",
       "type": "glyph",
@@ -14389,6 +14634,62 @@
         "sell": 50000
       },
       "description": "Magic Shield no longer reduces damage. Instead, mana is drained before health."
+    },
+    {
+      "id": "glyph-many-mirrors",
+      "name": "Glyph of Many Mirrors",
+      "type": "glyph",
+      "slot": "glyph",
+      "class": "wizard",
+      "glyph": {
+        "modifier": "wizardManyMirrors"
+      },
+      "icon": {
+        "library": "Items",
+        "frame": 3219,
+        "src": "./public/item-icons/items/frame_003219.png"
+      },
+      "requirements": {
+        "type": "level",
+        "amount": 35,
+        "classMask": 2,
+        "genderMask": 3
+      },
+      "stackable": false,
+      "maxStack": 1,
+      "stats": {
+        "ac": [
+          0,
+          0
+        ],
+        "amc": [
+          0,
+          0
+        ],
+        "dc": [
+          0,
+          0
+        ],
+        "mc": [
+          0,
+          0
+        ],
+        "sc": [
+          0,
+          0
+        ],
+        "hp": 0,
+        "mp": 0,
+        "accuracy": 0,
+        "agility": 0,
+        "luck": 0,
+        "attackSpeed": 0
+      },
+      "shop": {
+        "buy": 0,
+        "sell": 50000
+      },
+      "description": "Mirroring summons three clones (one above and one below). They can only cast Fire Ball."
     },
     {
       "id": "glyph-monk",
@@ -14936,6 +15237,63 @@
       "crystalType": "Bracelet"
     },
     {
+      "id": "gold-dragon-ring",
+      "name": "Gold Dragon Ring",
+      "type": "ring",
+      "slot": "ring",
+      "class": "any",
+      "source": {
+        "crystalIndex": 439,
+        "name": "GoldDragonRing"
+      },
+      "icon": {
+        "library": "Items",
+        "frame": 1001,
+        "src": "./public/item-icons/items/frame_001001.png"
+      },
+      "requirements": {
+        "type": "level",
+        "amount": 58,
+        "classMask": 31,
+        "genderMask": 3
+      },
+      "stackable": false,
+      "maxStack": 1,
+      "stats": {
+        "ac": [
+          0,
+          0
+        ],
+        "amc": [
+          0,
+          0
+        ],
+        "dc": [
+          2,
+          15
+        ],
+        "mc": [
+          0,
+          0
+        ],
+        "sc": [
+          0,
+          0
+        ],
+        "hp": 0,
+        "mp": 0,
+        "accuracy": 0,
+        "agility": 0,
+        "luck": 0,
+        "attackSpeed": 0
+      },
+      "shop": {
+        "buy": 55000,
+        "sell": 11000
+      },
+      "crystalType": "Ring"
+    },
+    {
       "id": "gold-necklace",
       "name": "Gold Necklace",
       "type": "necklace",
@@ -15378,191 +15736,8 @@
       "crystalType": "Weapon"
     },
     {
-      "id": "gonryunyongdrama-f-1",
-      "name": "Gonryunyongdrama (?) (F)1",
-      "type": "armour",
-      "slot": "armour",
-      "class": "warrior",
-      "source": {
-        "crystalIndex": 1576,
-        "name": "Gonryunyongdrama(?)(F)1"
-      },
-      "icon": {
-        "library": "Items",
-        "frame": 5050,
-        "src": "./public/item-icons/items/frame_005050.png"
-      },
-      "requirements": {
-        "type": "level",
-        "amount": 60,
-        "classMask": 1,
-        "genderMask": 3
-      },
-      "stackable": false,
-      "maxStack": 1,
-      "stats": {
-        "ac": [
-          20,
-          27
-        ],
-        "amc": [
-          5,
-          13
-        ],
-        "dc": [
-          0,
-          0
-        ],
-        "mc": [
-          0,
-          0
-        ],
-        "sc": [
-          0,
-          0
-        ],
-        "hp": 0,
-        "mp": 0,
-        "accuracy": 0,
-        "agility": 0,
-        "luck": 0,
-        "attackSpeed": 0
-      },
-      "shop": {
-        "buy": 0,
-        "sell": 1
-      },
-      "visual": {
-        "layer": "armour",
-        "index": 57
-      },
-      "crystalType": "Armour"
-    },
-    {
-      "id": "gonryunyongdrama-f-2",
-      "name": "Gonryunyongdrama (?) (F)2",
-      "type": "armour",
-      "slot": "armour",
-      "class": "wizard",
-      "source": {
-        "crystalIndex": 1577,
-        "name": "Gonryunyongdrama(?)(F)2"
-      },
-      "icon": {
-        "library": "Items",
-        "frame": 5050,
-        "src": "./public/item-icons/items/frame_005050.png"
-      },
-      "requirements": {
-        "type": "level",
-        "amount": 60,
-        "classMask": 2,
-        "genderMask": 3
-      },
-      "stackable": false,
-      "maxStack": 1,
-      "stats": {
-        "ac": [
-          15,
-          23
-        ],
-        "amc": [
-          7,
-          15
-        ],
-        "dc": [
-          0,
-          0
-        ],
-        "mc": [
-          0,
-          0
-        ],
-        "sc": [
-          0,
-          0
-        ],
-        "hp": 0,
-        "mp": 0,
-        "accuracy": 0,
-        "agility": 0,
-        "luck": 0,
-        "attackSpeed": 0
-      },
-      "shop": {
-        "buy": 0,
-        "sell": 1
-      },
-      "visual": {
-        "layer": "armour",
-        "index": 57
-      },
-      "crystalType": "Armour"
-    },
-    {
-      "id": "gonryunyongdrama-f-3",
-      "name": "Gonryunyongdrama (?) (F)3",
-      "type": "armour",
-      "slot": "armour",
-      "class": "taoist",
-      "source": {
-        "crystalIndex": 1578,
-        "name": "Gonryunyongdrama(?)(F)3"
-      },
-      "icon": {
-        "library": "Items",
-        "frame": 5050,
-        "src": "./public/item-icons/items/frame_005050.png"
-      },
-      "requirements": {
-        "type": "level",
-        "amount": 60,
-        "classMask": 4,
-        "genderMask": 3
-      },
-      "stackable": false,
-      "maxStack": 1,
-      "stats": {
-        "ac": [
-          15,
-          23
-        ],
-        "amc": [
-          7,
-          15
-        ],
-        "dc": [
-          0,
-          0
-        ],
-        "mc": [
-          0,
-          0
-        ],
-        "sc": [
-          0,
-          0
-        ],
-        "hp": 0,
-        "mp": 0,
-        "accuracy": 0,
-        "agility": 0,
-        "luck": 0,
-        "attackSpeed": 0
-      },
-      "shop": {
-        "buy": 0,
-        "sell": 1
-      },
-      "visual": {
-        "layer": "armour",
-        "index": 57
-      },
-      "crystalType": "Armour"
-    },
-    {
       "id": "gonryunyongdrama-m-1",
-      "name": "Gonryunyongdrama (?) (M)1",
+      "name": "Gon Ryun Dragon Armour",
       "type": "armour",
       "slot": "armour",
       "class": "warrior",
@@ -15585,16 +15760,16 @@
       "maxStack": 1,
       "stats": {
         "ac": [
-          20,
-          27
+          14,
+          36
         ],
         "amc": [
-          5,
+          6,
           13
         ],
         "dc": [
-          0,
-          0
+          2,
+          5
         ],
         "mc": [
           0,
@@ -15604,7 +15779,7 @@
           0,
           0
         ],
-        "hp": 0,
+        "hp": 100,
         "mp": 0,
         "accuracy": 0,
         "agility": 0,
@@ -15612,8 +15787,8 @@
         "attackSpeed": 0
       },
       "shop": {
-        "buy": 0,
-        "sell": 1
+        "buy": 1000000,
+        "sell": 200000
       },
       "visual": {
         "layer": "armour",
@@ -15623,7 +15798,7 @@
     },
     {
       "id": "gonryunyongdrama-m-2",
-      "name": "Gonryunyongdrama (?) (M)2",
+      "name": "Gon Ryun Dragon Armour",
       "type": "armour",
       "slot": "armour",
       "class": "wizard",
@@ -15646,20 +15821,20 @@
       "maxStack": 1,
       "stats": {
         "ac": [
-          15,
-          27
+          10,
+          26
         ],
         "amc": [
-          7,
-          15
+          9,
+          16
         ],
         "dc": [
-          15,
+          0,
           0
         ],
         "mc": [
           0,
-          0
+          12
         ],
         "sc": [
           0,
@@ -15673,8 +15848,8 @@
         "attackSpeed": 0
       },
       "shop": {
-        "buy": 0,
-        "sell": 1
+        "buy": 1000000,
+        "sell": 200000
       },
       "visual": {
         "layer": "armour",
@@ -15684,7 +15859,7 @@
     },
     {
       "id": "gonryunyongdrama-m-3",
-      "name": "Gonryunyongdrama (?) (M)3",
+      "name": "Gon Ryun Dragon Armour",
       "type": "armour",
       "slot": "armour",
       "class": "taoist",
@@ -15707,12 +15882,12 @@
       "maxStack": 1,
       "stats": {
         "ac": [
-          15,
-          23
+          11,
+          29
         ],
         "amc": [
-          7,
-          15
+          8,
+          14
         ],
         "dc": [
           0,
@@ -15724,7 +15899,7 @@
         ],
         "sc": [
           0,
-          0
+          11
         ],
         "hp": 0,
         "mp": 0,
@@ -15734,8 +15909,8 @@
         "attackSpeed": 0
       },
       "shop": {
-        "buy": 0,
-        "sell": 1
+        "buy": 1000000,
+        "sell": 200000
       },
       "visual": {
         "layer": "armour",
@@ -17417,7 +17592,7 @@
     },
     {
       "id": "hell-yama-blade1",
-      "name": "Hell Yama Blade1",
+      "name": "Hell Yama Blade",
       "type": "weapon",
       "slot": "weapon",
       "class": "warrior",
@@ -17432,7 +17607,7 @@
       },
       "requirements": {
         "type": "level",
-        "amount": 52,
+        "amount": 60,
         "classMask": 1,
         "genderMask": 3
       },
@@ -17448,8 +17623,8 @@
           0
         ],
         "dc": [
-          7,
-          54
+          14,
+          72
         ],
         "mc": [
           0,
@@ -17461,7 +17636,7 @@
         ],
         "hp": 0,
         "mp": 0,
-        "accuracy": 0,
+        "accuracy": 2,
         "agility": 0,
         "luck": 0,
         "attackSpeed": 0
@@ -17478,7 +17653,7 @@
     },
     {
       "id": "hell-yama-blade2",
-      "name": "Hell Yama Blade2",
+      "name": "Hell Yama Blade",
       "type": "weapon",
       "slot": "weapon",
       "class": "wizard",
@@ -17493,7 +17668,7 @@
       },
       "requirements": {
         "type": "level",
-        "amount": 52,
+        "amount": 60,
         "classMask": 2,
         "genderMask": 3
       },
@@ -17509,12 +17684,12 @@
           0
         ],
         "dc": [
-          7,
-          26
+          8,
+          27
         ],
         "mc": [
-          4,
-          15
+          7,
+          21
         ],
         "sc": [
           0,
@@ -17539,7 +17714,7 @@
     },
     {
       "id": "hell-yama-blade3",
-      "name": "Hell Yama Blade3",
+      "name": "Hell Yama Blade",
       "type": "weapon",
       "slot": "weapon",
       "class": "taoist",
@@ -17554,7 +17729,7 @@
       },
       "requirements": {
         "type": "level",
-        "amount": 52,
+        "amount": 60,
         "classMask": 4,
         "genderMask": 3
       },
@@ -17570,7 +17745,7 @@
           0
         ],
         "dc": [
-          9,
+          10,
           33
         ],
         "mc": [
@@ -17578,8 +17753,8 @@
           0
         ],
         "sc": [
-          4,
-          12
+          7,
+          18
         ],
         "hp": 0,
         "mp": 0,
@@ -17671,6 +17846,120 @@
         },
         "chance": 0.1
       }
+    },
+    {
+      "id": "helmet-of-kings",
+      "name": "Helmet Of Kings",
+      "type": "helmet",
+      "slot": "helmet",
+      "class": "any",
+      "source": {
+        "crystalIndex": 608,
+        "name": "HelmetOfKings"
+      },
+      "icon": {
+        "library": "Items",
+        "frame": 1330,
+        "src": "./public/item-icons/items/frame_001330.png"
+      },
+      "requirements": {
+        "type": "level",
+        "amount": 55,
+        "classMask": 7,
+        "genderMask": 3
+      },
+      "stackable": false,
+      "maxStack": 1,
+      "stats": {
+        "ac": [
+          4,
+          9
+        ],
+        "amc": [
+          2,
+          5
+        ],
+        "dc": [
+          1,
+          3
+        ],
+        "mc": [
+          0,
+          0
+        ],
+        "sc": [
+          0,
+          0
+        ],
+        "hp": 0,
+        "mp": 0,
+        "accuracy": 0,
+        "agility": 0,
+        "luck": 0,
+        "attackSpeed": 0
+      },
+      "shop": {
+        "buy": 200000,
+        "sell": 40000
+      },
+      "crystalType": "Helmet"
+    },
+    {
+      "id": "helmet-of-sorcery",
+      "name": "Helmet Of Sorcery",
+      "type": "helmet",
+      "slot": "helmet",
+      "class": "any",
+      "source": {
+        "crystalIndex": 609,
+        "name": "HelmetOfSorcery"
+      },
+      "icon": {
+        "library": "Items",
+        "frame": 1332,
+        "src": "./public/item-icons/items/frame_001332.png"
+      },
+      "requirements": {
+        "type": "level",
+        "amount": 55,
+        "classMask": 7,
+        "genderMask": 3
+      },
+      "stackable": false,
+      "maxStack": 1,
+      "stats": {
+        "ac": [
+          2,
+          4
+        ],
+        "amc": [
+          3,
+          6
+        ],
+        "dc": [
+          0,
+          0
+        ],
+        "mc": [
+          1,
+          4
+        ],
+        "sc": [
+          0,
+          0
+        ],
+        "hp": 0,
+        "mp": 0,
+        "accuracy": 0,
+        "agility": 0,
+        "luck": 0,
+        "attackSpeed": 0
+      },
+      "shop": {
+        "buy": 200000,
+        "sell": 40000
+      },
+      "crystalType": "Helmet"
     },
     {
       "id": "hero-necklace",
@@ -18017,13 +18306,15 @@
           "zone-fox-cave-1",
           "zone-fox-cave-2",
           "zone-hell-gd-3",
-          "zone-namman-1"
+          "zone-namman-1",
+          "zone-namman-demons"
         ],
         "chances": {
           "zone-hell-gd-3": 0.05,
           "zone-fox-cave-1": 0.00244,
           "zone-fox-cave-2": 0.00325,
-          "zone-namman-1": 0.00111
+          "zone-namman-1": 0.00111,
+          "zone-namman-demons": 0.00111
         },
         "chance": 0.05
       }
@@ -19861,6 +20152,75 @@
       "crystalType": "Weapon"
     },
     {
+      "id": "awakened-judgement-mace",
+      "name": "Awakened Judgement Mace",
+      "type": "weapon",
+      "slot": "weapon",
+      "class": "any",
+      "source": {
+        "crystalIndex": 244,
+        "name": "AwakenedJudgementMace"
+      },
+      "icon": {
+        "library": "Items",
+        "frame": 55,
+        "src": "./public/item-icons/items/frame_000055.png"
+      },
+      "requirements": {
+        "type": "level",
+        "amount": 30,
+        "classMask": 7,
+        "genderMask": 3
+      },
+      "stackable": false,
+      "maxStack": 1,
+      "stats": {
+        "ac": [
+          0,
+          0
+        ],
+        "amc": [
+          0,
+          0
+        ],
+        "dc": [
+          0,
+          33
+        ],
+        "mc": [
+          0,
+          0
+        ],
+        "sc": [
+          0,
+          0
+        ],
+        "hp": 0,
+        "mp": 0,
+        "accuracy": 0,
+        "agility": 0,
+        "luck": 0,
+        "attackSpeed": 0
+      },
+      "shop": {
+        "buy": 0,
+        "sell": 10000
+      },
+      "visual": {
+        "layer": "weapon",
+        "index": 21
+      },
+      "crystalType": "Weapon",
+      "visualWeaponGlow": 18,
+      "unique": true,
+      "innateSpellBonuses": {
+        "FlamingSword": {
+          "damagePercent": 100,
+          "critDamagePercent": 100
+        }
+      }
+    },
+    {
       "id": "keen-kriss-sword",
       "name": "Keen Kriss Sword",
       "type": "weapon",
@@ -20130,11 +20490,13 @@
       "drop": {
         "zones": [
           "zone-hell-gd-3",
-          "zone-namman-1"
+          "zone-namman-1",
+          "zone-namman-demons"
         ],
         "chances": {
           "zone-hell-gd-3": 0.05,
-          "zone-namman-1": 0.00111
+          "zone-namman-1": 0.00111,
+          "zone-namman-demons": 0.00111
         },
         "chance": 0.05
       }
@@ -25739,10 +26101,12 @@
       "crystalType": "Ring",
       "drop": {
         "zones": [
-          "zone-hell-gd-3"
+          "zone-hell-gd-3",
+          "zone-namman-demons"
         ],
         "chances": {
-          "zone-hell-gd-3": 0.025
+          "zone-hell-gd-3": 0.025,
+          "zone-namman-demons": 0.00028
         },
         "chance": 0.025
       }
@@ -26717,6 +27081,63 @@
       "crystalType": "Gem"
     },
     {
+      "id": "purified-mask",
+      "name": "Purified Mask",
+      "type": "helmet",
+      "slot": "helmet",
+      "class": "any",
+      "source": {
+        "crystalIndex": 610,
+        "name": "PurifiedMask"
+      },
+      "icon": {
+        "library": "Items",
+        "frame": 1331,
+        "src": "./public/item-icons/items/frame_001331.png"
+      },
+      "requirements": {
+        "type": "level",
+        "amount": 55,
+        "classMask": 7,
+        "genderMask": 3
+      },
+      "stackable": false,
+      "maxStack": 1,
+      "stats": {
+        "ac": [
+          3,
+          6
+        ],
+        "amc": [
+          2,
+          4
+        ],
+        "dc": [
+          0,
+          0
+        ],
+        "mc": [
+          0,
+          0
+        ],
+        "sc": [
+          1,
+          4
+        ],
+        "hp": 0,
+        "mp": 0,
+        "accuracy": 0,
+        "agility": 0,
+        "luck": 0,
+        "attackSpeed": 0
+      },
+      "shop": {
+        "buy": 200000,
+        "sell": 40000
+      },
+      "crystalType": "Helmet"
+    },
+    {
       "id": "purified-mirror",
       "name": "Purified Mirror",
       "type": "necklace",
@@ -26774,10 +27195,12 @@
       "crystalType": "Necklace",
       "drop": {
         "zones": [
-          "zone-hell-gd-3"
+          "zone-hell-gd-3",
+          "zone-namman-demons"
         ],
         "chances": {
-          "zone-hell-gd-3": 0.025
+          "zone-hell-gd-3": 0.025,
+          "zone-namman-demons": 0.00028
         },
         "chance": 0.025
       }
@@ -27973,11 +28396,13 @@
       "drop": {
         "zones": [
           "zone-hell-gd-3",
-          "zone-namman-1"
+          "zone-namman-1",
+          "zone-namman-demons"
         ],
         "chances": {
           "zone-hell-gd-3": 0.05,
-          "zone-namman-1": 0.00111
+          "zone-namman-1": 0.00111,
+          "zone-namman-demons": 0.00111
         },
         "chance": 0.05
       }
@@ -28973,10 +29398,12 @@
       "crystalType": "Bracelet",
       "drop": {
         "zones": [
-          "zone-hell-gd-3"
+          "zone-hell-gd-3",
+          "zone-namman-demons"
         ],
         "chances": {
-          "zone-hell-gd-3": 0.025
+          "zone-hell-gd-3": 0.025,
+          "zone-namman-demons": 0.00028
         },
         "chance": 0.025
       }
@@ -30993,10 +31420,12 @@
       "crystalType": "Necklace",
       "drop": {
         "zones": [
-          "zone-hell-gd-3"
+          "zone-hell-gd-3",
+          "zone-namman-demons"
         ],
         "chances": {
-          "zone-hell-gd-3": 0.025
+          "zone-hell-gd-3": 0.025,
+          "zone-namman-demons": 0.00028
         },
         "chance": 0.025
       }
@@ -31495,6 +31924,75 @@
         "index": 23
       },
       "crystalType": "Weapon"
+    },
+    {
+      "id": "awakened-soul-spring-wand",
+      "name": "Awakened Soul Spring Wand",
+      "type": "weapon",
+      "slot": "weapon",
+      "class": "any",
+      "source": {
+        "crystalIndex": 272,
+        "name": "AwakenedSoulSpringWand"
+      },
+      "icon": {
+        "library": "Items",
+        "frame": 52,
+        "src": "./public/item-icons/items/frame_000052.png"
+      },
+      "requirements": {
+        "type": "level",
+        "amount": 30,
+        "classMask": 7,
+        "genderMask": 3
+      },
+      "stackable": false,
+      "maxStack": 1,
+      "stats": {
+        "ac": [
+          0,
+          0
+        ],
+        "amc": [
+          0,
+          0
+        ],
+        "dc": [
+          2,
+          18
+        ],
+        "mc": [
+          0,
+          0
+        ],
+        "sc": [
+          2,
+          4
+        ],
+        "hp": 0,
+        "mp": 0,
+        "accuracy": 1,
+        "agility": 0,
+        "luck": 0,
+        "attackSpeed": 0
+      },
+      "shop": {
+        "buy": 0,
+        "sell": 8000
+      },
+      "visual": {
+        "layer": "weapon",
+        "index": 23
+      },
+      "crystalType": "Weapon",
+      "visualWeaponGlow": 17,
+      "innateSpellBonuses": {
+        "SummonHolyDeva": {
+          "damagePercent": 100,
+          "petAttackSpeedPercent": 100
+        }
+      },
+      "unique": true
     },
     {
       "id": "soulgem",
@@ -32228,7 +32726,8 @@
           "zone-fox-cave-1",
           "zone-fox-cave-2",
           "zone-hell-gd-3",
-          "zone-namman-1"
+          "zone-namman-1",
+          "zone-namman-demons"
         ],
         "chances": {
           "zone-bdd-2": 0.025,
@@ -32236,7 +32735,8 @@
           "zone-hell-gd-3": 0.05,
           "zone-fox-cave-1": 0.00244,
           "zone-fox-cave-2": 0.00325,
-          "zone-namman-1": 0.00111
+          "zone-namman-1": 0.00111,
+          "zone-namman-demons": 0.00111
         },
         "chance": 0.05
       }
@@ -33191,6 +33691,177 @@
         "index": 28
       },
       "crystalType": "Weapon"
+    },
+    {
+      "id": "stone-golem-bracelet1",
+      "name": "Stone Golem Bracelet",
+      "type": "bracelet",
+      "slot": "bracelet",
+      "class": "warrior",
+      "source": {
+        "crystalIndex": 1634,
+        "name": "StoneMonster1"
+      },
+      "icon": {
+        "library": "Items",
+        "frame": 3893,
+        "src": "./public/item-icons/items/frame_003893.png"
+      },
+      "requirements": {
+        "type": "level",
+        "amount": 60,
+        "classMask": 1,
+        "genderMask": 3
+      },
+      "stackable": false,
+      "maxStack": 1,
+      "stats": {
+        "ac": [
+          3,
+          6
+        ],
+        "amc": [
+          0,
+          0
+        ],
+        "dc": [
+          7,
+          14
+        ],
+        "mc": [
+          0,
+          0
+        ],
+        "sc": [
+          0,
+          0
+        ],
+        "hp": 0,
+        "mp": 0,
+        "accuracy": 0,
+        "agility": 0,
+        "luck": 0,
+        "attackSpeed": 0
+      },
+      "shop": {
+        "buy": 0,
+        "sell": 1
+      },
+      "crystalType": "Bracelet"
+    },
+    {
+      "id": "stone-golem-bracelet2",
+      "name": "Stone Golem Bracelet",
+      "type": "bracelet",
+      "slot": "bracelet",
+      "class": "wizard",
+      "source": {
+        "crystalIndex": 1635,
+        "name": "StoneMonster2"
+      },
+      "icon": {
+        "library": "Items",
+        "frame": 3893,
+        "src": "./public/item-icons/items/frame_003893.png"
+      },
+      "requirements": {
+        "type": "level",
+        "amount": 60,
+        "classMask": 2,
+        "genderMask": 3
+      },
+      "stackable": false,
+      "maxStack": 1,
+      "stats": {
+        "ac": [
+          3,
+          6
+        ],
+        "amc": [
+          0,
+          0
+        ],
+        "dc": [
+          0,
+          0
+        ],
+        "mc": [
+          6,
+          12
+        ],
+        "sc": [
+          0,
+          0
+        ],
+        "hp": 0,
+        "mp": 0,
+        "accuracy": 0,
+        "agility": 0,
+        "luck": 0,
+        "attackSpeed": 0
+      },
+      "shop": {
+        "buy": 0,
+        "sell": 1
+      },
+      "crystalType": "Bracelet"
+    },
+    {
+      "id": "stone-golem-bracelet3",
+      "name": "Stone Golem Bracelet",
+      "type": "bracelet",
+      "slot": "bracelet",
+      "class": "taoist",
+      "source": {
+        "crystalIndex": 1636,
+        "name": "StoneMonster3"
+      },
+      "icon": {
+        "library": "Items",
+        "frame": 3893,
+        "src": "./public/item-icons/items/frame_003893.png"
+      },
+      "requirements": {
+        "type": "level",
+        "amount": 60,
+        "classMask": 4,
+        "genderMask": 3
+      },
+      "stackable": false,
+      "maxStack": 1,
+      "stats": {
+        "ac": [
+          3,
+          6
+        ],
+        "amc": [
+          0,
+          0
+        ],
+        "dc": [
+          0,
+          0
+        ],
+        "mc": [
+          0,
+          0
+        ],
+        "sc": [
+          6,
+          12
+        ],
+        "hp": 0,
+        "mp": 0,
+        "accuracy": 0,
+        "agility": 0,
+        "luck": 0,
+        "attackSpeed": 0
+      },
+      "shop": {
+        "buy": 0,
+        "sell": 1
+      },
+      "crystalType": "Bracelet"
     },
     {
       "id": "stone-heart",
@@ -35266,6 +35937,234 @@
       "set": 26
     },
     {
+      "id": "tarragon-boots",
+      "name": "Tarragon Boots",
+      "type": "boots",
+      "slot": "boots",
+      "class": "any",
+      "source": {
+        "crystalIndex": 135,
+        "name": "TarragonBoots"
+      },
+      "icon": {
+        "library": "Items",
+        "frame": 2760,
+        "src": "./public/item-icons/items/frame_002760.png"
+      },
+      "requirements": {
+        "type": "level",
+        "amount": 55,
+        "classMask": 31,
+        "genderMask": 3
+      },
+      "stackable": false,
+      "maxStack": 1,
+      "stats": {
+        "ac": [
+          2,
+          2
+        ],
+        "amc": [
+          2,
+          2
+        ],
+        "dc": [
+          0,
+          2
+        ],
+        "mc": [
+          0,
+          2
+        ],
+        "sc": [
+          0,
+          2
+        ],
+        "hp": 0,
+        "mp": 0,
+        "accuracy": 3,
+        "agility": 3,
+        "luck": 0,
+        "attackSpeed": 0
+      },
+      "shop": {
+        "buy": 35000,
+        "sell": 7000
+      },
+      "crystalType": "Boots"
+    },
+    {
+      "id": "tarragon-bracelet",
+      "name": "Tarragon Bracelet",
+      "type": "bracelet",
+      "slot": "bracelet",
+      "class": "any",
+      "source": {
+        "crystalIndex": 136,
+        "name": "TarragonBracelet"
+      },
+      "icon": {
+        "library": "Items",
+        "frame": 2761,
+        "src": "./public/item-icons/items/frame_002761.png"
+      },
+      "requirements": {
+        "type": "level",
+        "amount": 58,
+        "classMask": 31,
+        "genderMask": 3
+      },
+      "stackable": false,
+      "maxStack": 1,
+      "stats": {
+        "ac": [
+          1,
+          2
+        ],
+        "amc": [
+          1,
+          3
+        ],
+        "dc": [
+          3,
+          7
+        ],
+        "mc": [
+          2,
+          7
+        ],
+        "sc": [
+          2,
+          7
+        ],
+        "hp": 0,
+        "mp": 0,
+        "accuracy": 0,
+        "agility": 0,
+        "luck": 0,
+        "attackSpeed": 0
+      },
+      "shop": {
+        "buy": 35000,
+        "sell": 7000
+      },
+      "crystalType": "Bracelet"
+    },
+    {
+      "id": "tarragon-helmet",
+      "name": "Tarragon Helmet",
+      "type": "helmet",
+      "slot": "helmet",
+      "class": "any",
+      "source": {
+        "crystalIndex": 134,
+        "name": "TarragonHelmet"
+      },
+      "icon": {
+        "library": "Items",
+        "frame": 2241,
+        "src": "./public/item-icons/items/frame_002241.png"
+      },
+      "requirements": {
+        "type": "level",
+        "amount": 55,
+        "classMask": 31,
+        "genderMask": 3
+      },
+      "stackable": false,
+      "maxStack": 1,
+      "stats": {
+        "ac": [
+          4,
+          8
+        ],
+        "amc": [
+          3,
+          5
+        ],
+        "dc": [
+          0,
+          0
+        ],
+        "mc": [
+          1,
+          3
+        ],
+        "sc": [
+          1,
+          3
+        ],
+        "hp": 0,
+        "mp": 0,
+        "accuracy": 0,
+        "agility": 0,
+        "luck": 0,
+        "attackSpeed": 0
+      },
+      "shop": {
+        "buy": 35000,
+        "sell": 7000
+      },
+      "crystalType": "Helmet"
+    },
+    {
+      "id": "tarragon-ring",
+      "name": "Tarragon Ring",
+      "type": "ring",
+      "slot": "ring",
+      "class": "any",
+      "source": {
+        "crystalIndex": 137,
+        "name": "TarragonRing"
+      },
+      "icon": {
+        "library": "Items",
+        "frame": 2762,
+        "src": "./public/item-icons/items/frame_002762.png"
+      },
+      "requirements": {
+        "type": "level",
+        "amount": 55,
+        "classMask": 31,
+        "genderMask": 3
+      },
+      "stackable": false,
+      "maxStack": 1,
+      "stats": {
+        "ac": [
+          0,
+          0
+        ],
+        "amc": [
+          0,
+          0
+        ],
+        "dc": [
+          3,
+          12
+        ],
+        "mc": [
+          2,
+          10
+        ],
+        "sc": [
+          2,
+          9
+        ],
+        "hp": 0,
+        "mp": 0,
+        "accuracy": 0,
+        "agility": 0,
+        "luck": 0,
+        "attackSpeed": 0
+      },
+      "shop": {
+        "buy": 35000,
+        "sell": 7000
+      },
+      "crystalType": "Ring"
+    },
+    {
       "id": "thick-armour",
       "name": "Thick Armour (M)",
       "type": "armour",
@@ -35524,7 +36423,8 @@
           "zone-fox-cave-1",
           "zone-fox-cave-2",
           "zone-hell-gd-3",
-          "zone-namman-1"
+          "zone-namman-1",
+          "zone-namman-demons"
         ],
         "chances": {
           "zone-bdd-2": 0.025,
@@ -35532,7 +36432,8 @@
           "zone-hell-gd-3": 0.05,
           "zone-fox-cave-1": 0.00244,
           "zone-fox-cave-2": 0.00325,
-          "zone-namman-1": 0.00111
+          "zone-namman-1": 0.00111,
+          "zone-namman-demons": 0.00111
         },
         "chance": 0.05
       }
@@ -36019,11 +36920,13 @@
       "drop": {
         "zones": [
           "zone-hell-gd-3",
-          "zone-namman-1"
+          "zone-namman-1",
+          "zone-namman-demons"
         ],
         "chances": {
           "zone-hell-gd-3": 0.05,
-          "zone-namman-1": 0.00111
+          "zone-namman-1": 0.00111,
+          "zone-namman-demons": 0.00111
         },
         "chance": 0.05
       }
@@ -36160,6 +37063,75 @@
         "index": 22
       },
       "crystalType": "Weapon"
+    },
+    {
+      "id": "awakened-war-mage-staff",
+      "name": "Awakened War Mage Staff",
+      "type": "weapon",
+      "slot": "weapon",
+      "class": "any",
+      "source": {
+        "crystalIndex": 259,
+        "name": "AwakenedWarMageStaff"
+      },
+      "icon": {
+        "library": "Items",
+        "frame": 59,
+        "src": "./public/item-icons/items/frame_000059.png"
+      },
+      "requirements": {
+        "type": "level",
+        "amount": 30,
+        "classMask": 7,
+        "genderMask": 3
+      },
+      "stackable": false,
+      "maxStack": 1,
+      "stats": {
+        "ac": [
+          0,
+          0
+        ],
+        "amc": [
+          0,
+          0
+        ],
+        "dc": [
+          6,
+          12
+        ],
+        "mc": [
+          1,
+          7
+        ],
+        "sc": [
+          0,
+          0
+        ],
+        "hp": 0,
+        "mp": 0,
+        "accuracy": 0,
+        "agility": 0,
+        "luck": 0,
+        "attackSpeed": 0
+      },
+      "shop": {
+        "buy": 0,
+        "sell": 10000
+      },
+      "visual": {
+        "layer": "weapon",
+        "index": 22
+      },
+      "crystalType": "Weapon",
+      "visualWeaponGlow": 2,
+      "unique": true,
+      "innateSpellBonuses": {
+        "FireBall": {
+          "damagePercent": 100,
+          "critDamagePercent": 100
+        }
+      }
     },
     {
       "id": "war-spirit-blade",

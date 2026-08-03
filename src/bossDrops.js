@@ -128,6 +128,10 @@ const WOMA_TAURUS_BOSS_DROPS = {
     ...bossGemDrops(0.05),
     ...bossOrbDrops(0.01),
   ],
+  // Awakened fights only — listed chance is exact (not multiplied by awaken 4×).
+  awakenedItems: [
+    { id: "awakened-soul-spring-wand", chance: 0.01 },
+  ],
 };
 const INCARNATED_WT_BOSS_DROPS = {
   gold: 20000,
@@ -194,6 +198,10 @@ const EVIL_SNAKE_BOSS_DROPS = {
     ...BLACK_DRAGON_ARMOR_MYTHICAL_DROPS,
     ...bossGemDrops(0.05),
     ...bossOrbDrops(0.01),
+  ],
+  // Awakened fights only — listed chance is exact (not multiplied by awaken 4×).
+  awakenedItems: [
+    { id: "awakened-war-mage-staff", chance: 0.01 },
   ],
 };
 const ZUMA_TAURUS_BOSS_DROPS = {
@@ -337,6 +345,10 @@ const EVIL_CENTIPEDE_BOSS_DROPS = {
     ...CRYSTAL_ARMOUR_COMMON_BOSS_DROPS,
     ...bossGemDrops(0.05),
     ...bossOrbDrops(0.01),
+  ],
+  // Awakened fights only — listed chance is exact (not multiplied by awaken 4×).
+  awakenedItems: [
+    { id: "awakened-judgement-mace", chance: 0.01 },
   ],
 };
 const BONE_LORD_BOSS_DROPS = {
@@ -1131,6 +1143,58 @@ const BEAST_KING_BOSS_DROPS = {
     ...bossOrbDrops(0.02),
   ],
 };
+const DANMO_BOSS_DROPS = {
+  // Beast King chassis shifted one step: BK's 2.5% Namman rares → 7.5%;
+  // signature L60 chase (Hell Yama / Gon Ryun / Stone Golem / Danmo jewellery).
+  gold: 35000,
+  benedictionOils: 2,
+  items: [
+    { id: "awakening-soul", chance: 1 },
+    { id: "book-fury", chance: 0.1 },
+    { id: "cloud-ring", chance: 0.075 },
+    { id: "demon-mask", chance: 0.075 },
+    { id: "kunroon-tear", chance: 0.075 },
+    { id: "poison-ring", chance: 0.075 },
+    { id: "red-demon-ring", chance: 0.075 },
+    { id: "violet-orb", chance: 0.075 },
+    { id: "black-tiger-hammer", chance: 0.075 },
+    { id: "fan-of-crane", chance: 0.075 },
+    { id: "staff-of-lotus", chance: 0.075 },
+    { id: "hell-yama-blade1", chance: 0.05 },
+    { id: "hell-yama-blade2", chance: 0.05 },
+    { id: "hell-yama-blade3", chance: 0.05 },
+    { id: "adamant-torque", chance: 0.025 },
+    { id: "cross-purified", chance: 0.025 },
+    { id: "evil-triangle", chance: 0.025 },
+    { id: "helmet-of-kings", chance: 0.025 },
+    { id: "helmet-of-sorcery", chance: 0.025 },
+    { id: "purified-mask", chance: 0.025 },
+    { id: "tarragon-helmet", chance: 0.025 },
+    { id: "tarragon-boots", chance: 0.025 },
+    { id: "tarragon-bracelet", chance: 0.025 },
+    { id: "tarragon-ring", chance: 0.025 },
+    { id: "demon-ruby-ring", chance: 0.025 },
+    { id: "gold-dragon-ring", chance: 0.025 },
+    { id: "evil-expel-ring", chance: 0.025 },
+    { id: "stone-golem-bracelet1", chance: 0.0125 },
+    { id: "stone-golem-bracelet2", chance: 0.0125 },
+    { id: "stone-golem-bracelet3", chance: 0.0125 },
+    { id: "gonryunyongdrama-m-1", chance: 0.005 },
+    { id: "gonryunyongdrama-m-2", chance: 0.005 },
+    { id: "gonryunyongdrama-m-3", chance: 0.005 },
+    { id: "heaven-armour", chance: 0.005 },
+    { id: "winged-heaven-armour", chance: 0.001 },
+    { id: "tarragon-armour-m-1", chance: 0.005 },
+    { id: "tarragon-armour-m-2", chance: 0.005 },
+    { id: "tarragon-armour-m-3", chance: 0.005 },
+    ...bossTopTierStoneDrops(0.03),
+    { id: "green-dark-armour", chance: 0.02 },
+    { id: "blue-dark-armour", chance: 0.02 },
+    { id: "red-dark-armour", chance: 0.02 },
+    ...bossGemDrops(0.08),
+    ...bossOrbDrops(0.02),
+  ],
+};
 
 const BOSS_DROP_TABLE_BY_LABEL = {
   "Wooma Taurus": WOMA_TAURUS_BOSS_DROPS,
@@ -1149,6 +1213,7 @@ const BOSS_DROP_TABLE_BY_LABEL = {
   "Dark Devourer": RED_CAVERN_DEVOURER_BOSS_DROPS,
   "Great Fox Spirit": GREAT_FOX_SPIRIT_BOSS_DROPS,
   "Beast King": BEAST_KING_BOSS_DROPS,
+  "Danmo": DANMO_BOSS_DROPS,
   "Dark Devil": DARK_DEVIL_BOSS_DROPS,
   "Hell Keeper": HELL_KEEPER_BOSS_DROPS,
   "Manectric King": MANECTRIC_KING_BOSS_DROPS,
@@ -1172,17 +1237,23 @@ export function validateBossDropTables(tables, knownItemIds = null) {
     if (!Number.isFinite(Number(table.gold)) || Number(table.gold) < 0) {
       problems.push(label + ': invalid gold ' + table.gold);
     }
-    for (const entry of table.items) {
-      if (!entry || typeof entry.id !== 'string') {
-        problems.push(label + ': an entry is missing its id');
-        continue;
-      }
-      const chance = Number(entry.chance);
-      if (!Number.isFinite(chance) || chance <= 0 || chance > 1) {
-        problems.push(label + ': ' + entry.id + ' has out-of-range chance ' + entry.chance);
-      }
-      if (knownItemIds && !knownItemIds.has(entry.id)) {
-        problems.push(label + ': ' + entry.id + ' is not a known item id');
+    const pools = [
+      { name: "items", entries: table.items },
+      { name: "awakenedItems", entries: Array.isArray(table.awakenedItems) ? table.awakenedItems : [] },
+    ];
+    for (const pool of pools) {
+      for (const entry of pool.entries) {
+        if (!entry || typeof entry.id !== 'string') {
+          problems.push(label + ': an entry in ' + pool.name + ' is missing its id');
+          continue;
+        }
+        const chance = Number(entry.chance);
+        if (!Number.isFinite(chance) || chance <= 0 || chance > 1) {
+          problems.push(label + ': ' + entry.id + ' (' + pool.name + ') has out-of-range chance ' + entry.chance);
+        }
+        if (knownItemIds && !knownItemIds.has(entry.id)) {
+          problems.push(label + ': ' + entry.id + ' (' + pool.name + ') is not a known item id');
+        }
       }
     }
   }

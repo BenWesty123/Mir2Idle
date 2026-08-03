@@ -11,10 +11,10 @@ import {
   equippedGlyphDef,
   equippedGlyphDefs,
   GLYPH_EQUIPMENT_SLOT_IDS,
-  flameDisruptorSplashDamage,
   glyphDefById,
   glyphDefByItemId,
-  glyphFlameDisruptorSplashParams,
+  glyphHasFlameDisruptorCascade,
+  planFlameDisruptorCascadeChain,
   glyphFlamingSwordDrParams,
   glyphImprovedFlamingSwordParams,
   glyphManyMirrorsParams,
@@ -33,10 +33,11 @@ import {
   rollDefenceBuffBonusFromLevel,
   rollDefenceBuffBonusFromSc,
   rollEmpoweredBossGlyphItemId,
+  rollRecycledGlyphItemId,
   EMPOWERED_BOSS_GLYPH_DROP_CHANCE,
   ASCENDED_BOSS_GLYPH_DROP_CHANCE,
+  AWAKENED_BOSS_GLYPH_DROP_CHANCE,
   glyphDropItemIds,
-  rollFlameDisruptorSplashChance,
   rollTaoistDefenceBuffBonus,
   applyGlyphHealingAmount,
   applyGlyphHpPotionRestore,
@@ -95,12 +96,18 @@ test("empowered boss glyph drop is one-or-none from the full pool", () => {
   assert.equal(pool.length, GLYPH_DEFS.length);
   assert.equal(EMPOWERED_BOSS_GLYPH_DROP_CHANCE, 0.1);
   assert.equal(ASCENDED_BOSS_GLYPH_DROP_CHANCE, 0.15);
+  assert.equal(AWAKENED_BOSS_GLYPH_DROP_CHANCE, 0.2);
 
   assert.equal(rollEmpoweredBossGlyphItemId(() => 0.1), null);
   assert.equal(rollEmpoweredBossGlyphItemId(() => 0.99), null);
   // Ascended uses 15%: 0.10 hits, 0.15 misses.
   assert.ok(rollEmpoweredBossGlyphItemId(() => 0.1, { ascended: true }));
   assert.equal(rollEmpoweredBossGlyphItemId(() => 0.15, { ascended: true }), null);
+  // Awakened uses 20%: 0.15 hits, 0.20 misses.
+  assert.ok(rollEmpoweredBossGlyphItemId(() => 0.15, { awakened: true }));
+  assert.equal(rollEmpoweredBossGlyphItemId(() => 0.2, { awakened: true }), null);
+  // Awakened wins over ascended when both flags are set.
+  assert.ok(rollEmpoweredBossGlyphItemId(() => 0.15, { ascended: true, awakened: true }));
 
   let call = 0;
   const forcedHit = () => {
@@ -115,6 +122,18 @@ test("empowered boss glyph drop is one-or-none from the full pool", () => {
     return call === 1 ? 0.05 : 0.999999;
   };
   assert.equal(rollEmpoweredBossGlyphItemId(lastPick), pool[pool.length - 1]);
+});
+
+test("recycled glyph roll never returns the sacrificed glyph ids", () => {
+  const pool = glyphDropItemIds();
+  const exclude = [pool[0], pool[1]];
+  for (let i = 0; i < pool.length; i += 1) {
+    const rolled = rollRecycledGlyphItemId(exclude, () => (i + 0.5) / (pool.length - exclude.length));
+    assert.ok(rolled);
+    assert.equal(exclude.includes(rolled), false);
+  }
+  assert.equal(rollRecycledGlyphItemId(exclude, () => 0), pool[2]);
+  assert.equal(rollRecycledGlyphItemId([pool[0], pool[0]], () => 0), pool[1]);
 });
 
 test("SC defence buff formula matches Ultimate Enhancer style", () => {
@@ -432,17 +451,44 @@ test("Mana Aegis absorbs HP damage from MP at 2:1", () => {
   });
 });
 
-test("Disruptor Cascade splash is half damage with 50% chance", () => {
+test("Disruptor Cascade glyph is a kill-explosion chain modifier", () => {
   const glyph = glyphDefById("wizardFlameDisruptorSplash");
-  assert.deepEqual(glyphFlameDisruptorSplashParams(glyph), {
-    chance: 0.5,
-    damageFraction: 0.5,
-  });
-  assert.equal(flameDisruptorSplashDamage(100, 0.5), 50);
-  assert.equal(flameDisruptorSplashDamage(101, 0.5), 50);
-  assert.equal(rollFlameDisruptorSplashChance(0.5, () => 0.49), true);
-  assert.equal(rollFlameDisruptorSplashChance(0.5, () => 0.5), false);
-  assert.equal(glyphFlameDisruptorSplashParams(null), null);
+  assert.equal(glyph?.itemId, "glyph-disruptor-cascade");
+  assert.match(glyph?.description ?? "", /killing blow/i);
+  assert.equal(glyphHasFlameDisruptorCascade(glyph), true);
+  assert.equal(glyphHasFlameDisruptorCascade(null), false);
+});
+
+test("Disruptor Cascade chain explodes adjacent kills at full blast damage", () => {
+  // A killed; B and C adjacent to A; D only adjacent to B.
+  // Blast 100: A→B(80) and A→C(50) both die; B→D(40) dies. Empty blasts still listed.
+  const steps = planFlameDisruptorCascadeChain(1, 100, [
+    { id: 1, hp: 0, neighborIds: [2, 3] },
+    { id: 2, hp: 80, neighborIds: [1, 4] },
+    { id: 3, hp: 50, neighborIds: [1] },
+    { id: 4, hp: 40, neighborIds: [2] },
+  ]);
+  assert.deepEqual(steps, [
+    { sourceId: 1, targetIds: [2, 3] },
+    { sourceId: 2, targetIds: [4] },
+    { sourceId: 3, targetIds: [] },
+    { sourceId: 4, targetIds: [] },
+  ]);
+});
+
+test("Disruptor Cascade does not re-explode or loop", () => {
+  const steps = planFlameDisruptorCascadeChain("a", 50, [
+    { id: "a", hp: 0, neighborIds: ["b"] },
+    { id: "b", hp: 50, neighborIds: ["a", "c"] },
+    { id: "c", hp: 50, neighborIds: ["b"] },
+  ]);
+  assert.deepEqual(steps, [
+    { sourceId: "a", targetIds: ["b"] },
+    { sourceId: "b", targetIds: ["c"] },
+    { sourceId: "c", targetIds: [] },
+  ]);
+  assert.equal(planFlameDisruptorCascadeChain("missing", 10, [{ id: 1, hp: 0, neighborIds: [] }]).length, 0);
+  assert.equal(planFlameDisruptorCascadeChain(1, 0, [{ id: 1, hp: 0, neighborIds: [2] }]).length, 0);
 });
 
 test("Many Mirrors glyph params expose vertical clone offset", () => {

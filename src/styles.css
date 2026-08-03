@@ -3214,6 +3214,21 @@ dd {
   color: #d7b6ff;
 }
 
+.boss-awaken-button {
+  margin-top: 4px;
+  border-color: rgba(178, 120, 64, 0.78);
+}
+
+.boss-awaken-button.selected {
+  border-color: rgba(255, 186, 96, 0.98);
+  background: rgba(92, 48, 18, 0.9);
+  color: #ffe2b8;
+}
+
+.boss-awaken-button.selected strong {
+  color: #ffd08a;
+}
+
 .boss-assist-button:disabled,
 .boss-empower-button:disabled {
   opacity: 0.7;
@@ -3829,6 +3844,29 @@ dd {
 .update-available-bar-close:hover {
   color: #d8ffe6;
   border-color: #6fc48c;
+}
+
+/* Save-health warning reuses the update bar layout with an alarming red tint. */
+.save-health-bar {
+  border-bottom-color: #7a3c3c;
+  background: linear-gradient(180deg, #2a1010, #1c0a0a);
+  color: #f5c9c0;
+}
+
+.save-health-bar .update-available-bar-reload {
+  border-color: #9c5b4f;
+  background: rgba(156, 91, 79, 0.2);
+  color: #ffe0d8;
+}
+
+.save-health-bar .update-available-bar-reload:hover {
+  background: rgba(156, 91, 79, 0.35);
+  border-color: #c47b6f;
+}
+
+.save-health-bar .update-available-bar-close:hover {
+  color: #ffe0d8;
+  border-color: #c47b6f;
 }
 
 .demo-import-window {
@@ -4486,6 +4524,45 @@ body.scene-window-drag-active {
 
 .codex-panel-empowerments {
   grid-template-rows: auto auto minmax(0, 1fr);
+}
+
+.codex-panel-uniques {
+  grid-template-rows: auto auto minmax(0, 1fr);
+}
+
+.codex-section-tab[data-codex-section="uniques"].active,
+.codex-section-tab[data-codex-section="uniques"]:hover,
+.codex-section-tab[data-codex-section="uniques"]:focus-visible {
+  border-color: rgba(186, 96, 255, 0.78);
+  background:
+    linear-gradient(180deg, rgba(72, 36, 96, 0.72), rgba(18, 10, 28, 0.96));
+  box-shadow: inset 0 -2px 0 rgba(186, 96, 255, 0.72);
+  color: #e8c8ff;
+}
+
+.codex-row-icon.unique,
+.codex-detail-icon.unique {
+  box-shadow:
+    0 0 6px rgba(168, 72, 255, 0.45),
+    0 0 12px rgba(132, 40, 255, 0.28);
+  border-radius: 4px;
+}
+
+.codex-row-unique-unfound {
+  opacity: 0.88;
+}
+
+.codex-unique-detail .item-unique-tag {
+  display: inline-block;
+  margin-top: 2px;
+}
+
+.codex-unique-found {
+  color: #9fd6b0;
+}
+
+.codex-unique-unfound-note {
+  color: #b89d6a;
 }
 
 .codex-section-tabs {
@@ -6983,6 +7060,35 @@ body.scene-window-drag-active {
   mix-blend-mode: screen;
 }
 
+/* Unique weapon/armour silhouette glow on the Character paper doll. */
+.crystal-paper-doll-layer.unique {
+  filter:
+    drop-shadow(0 0 2px rgba(255, 230, 255, 0.95))
+    drop-shadow(0 0 5px rgba(210, 140, 255, 0.9))
+    drop-shadow(0 0 10px rgba(168, 72, 255, 0.75))
+    drop-shadow(0 0 18px rgba(120, 36, 220, 0.55));
+  animation: unique-paper-doll-glow 2.4s ease-in-out infinite;
+  z-index: 3;
+}
+
+@keyframes unique-paper-doll-glow {
+  0%,
+  100% {
+    filter:
+      drop-shadow(0 0 2px rgba(255, 230, 255, 0.85))
+      drop-shadow(0 0 4px rgba(196, 120, 255, 0.8))
+      drop-shadow(0 0 9px rgba(168, 72, 255, 0.65))
+      drop-shadow(0 0 14px rgba(120, 36, 220, 0.42));
+  }
+  50% {
+    filter:
+      drop-shadow(0 0 3px rgba(255, 240, 255, 1))
+      drop-shadow(0 0 7px rgba(220, 160, 255, 0.95))
+      drop-shadow(0 0 14px rgba(186, 96, 255, 0.85))
+      drop-shadow(0 0 24px rgba(140, 48, 255, 0.65));
+  }
+}
+
 .crystal-character-page {
   background-image: url("../public/ui/character/pages.png");
   background-size: 744px 284px;
@@ -7760,6 +7866,114 @@ body.scene-window-drag-active {
   z-index: 1;
 }
 
+/* Unique items — rich purple aura (stronger than empower gold/lilac). */
+.crystal-inventory-item.unique,
+.crystal-storage-item.unique,
+.crystal-equipment-item.unique,
+.spirit-box-slot.unique,
+.crafting-cube-slot-item.unique,
+.inventory-item.unique {
+  isolation: isolate;
+  box-shadow:
+    inset 0 0 0 1px rgba(196, 120, 255, 0.72),
+    0 0 6px rgba(168, 72, 255, 0.55),
+    0 0 14px rgba(132, 40, 255, 0.42),
+    0 0 22px rgba(96, 20, 220, 0.28);
+  animation: unique-item-glow-pulse 2.4s ease-in-out infinite;
+}
+
+.crystal-inventory-item.unique::before,
+.crystal-storage-item.unique::before,
+.crystal-equipment-item.unique::before,
+.spirit-box-slot.unique::before,
+.crafting-cube-slot-item.unique::before {
+  content: "";
+  position: absolute;
+  inset: -2px;
+  border-radius: 50%;
+  background: radial-gradient(
+    circle at 50% 48%,
+    rgba(236, 200, 255, 0.72) 0%,
+    rgba(186, 96, 255, 0.48) 32%,
+    rgba(120, 36, 220, 0.28) 58%,
+    transparent 76%
+  );
+  box-shadow:
+    0 0 8px rgba(186, 96, 255, 0.55),
+    0 0 16px rgba(132, 40, 255, 0.4),
+    0 0 24px rgba(96, 20, 220, 0.28);
+  pointer-events: none;
+  z-index: 0;
+  animation: unique-item-aura-breathe 2.4s ease-in-out infinite;
+}
+
+.crystal-inventory-item.unique > :not(.inventory-mark),
+.crystal-storage-item.unique > :not(.inventory-mark),
+.crystal-equipment-item.unique > *,
+.spirit-box-slot.unique > :not(.crystal-item-qty),
+.crafting-cube-slot-item.unique > :not(.crystal-item-qty) {
+  position: relative;
+  z-index: 1;
+}
+
+/* Unique wins over empower when both apply. */
+.crystal-inventory-item.unique.empowered,
+.crystal-storage-item.unique.empowered,
+.crystal-equipment-item.unique.empowered {
+  box-shadow:
+    inset 0 0 0 1px rgba(196, 120, 255, 0.78),
+    0 0 7px rgba(168, 72, 255, 0.58),
+    0 0 16px rgba(132, 40, 255, 0.45),
+    0 0 24px rgba(96, 20, 220, 0.3);
+}
+
+@keyframes unique-item-glow-pulse {
+  0%,
+  100% {
+    box-shadow:
+      inset 0 0 0 1px rgba(196, 120, 255, 0.68),
+      0 0 5px rgba(168, 72, 255, 0.48),
+      0 0 12px rgba(132, 40, 255, 0.36),
+      0 0 18px rgba(96, 20, 220, 0.22);
+  }
+  50% {
+    box-shadow:
+      inset 0 0 0 1px rgba(220, 170, 255, 0.88),
+      0 0 9px rgba(186, 96, 255, 0.72),
+      0 0 18px rgba(148, 56, 255, 0.52),
+      0 0 28px rgba(110, 32, 240, 0.36);
+  }
+}
+
+@keyframes unique-item-aura-breathe {
+  0%,
+  100% {
+    opacity: 0.82;
+    transform: scale(0.96);
+  }
+  50% {
+    opacity: 1;
+    transform: scale(1.05);
+  }
+}
+
+.item-unique-tag {
+  color: #d9a8ff;
+  font-weight: 700;
+  font-style: italic;
+  letter-spacing: 0.04em;
+  text-shadow:
+    0 0 6px rgba(186, 96, 255, 0.65),
+    0 0 12px rgba(132, 40, 255, 0.4);
+}
+
+.item-tooltip strong.item-unique-name {
+  color: #e8c8ff;
+  text-shadow:
+    0 0 8px rgba(196, 120, 255, 0.55),
+    0 0 14px rgba(132, 40, 255, 0.35);
+}
+
 .crystal-inventory-item.locked {
   opacity: 0.72;
 }
@@ -8047,12 +8261,24 @@ body.scene-window-drag-active {
   text-shadow: 0 0 8px rgba(201, 168, 255, 0.4);
 }
 
-.item-tooltip .empower-spell-stat dt {
+.item-tooltip .innate-spell-stat {
+  font-weight: 700;
+  color: #7ed0c5;
+  text-shadow: 0 0 8px rgba(126, 208, 197, 0.4);
+}
+
+.item-tooltip .empower-spell-stat dt,
+.item-tooltip .innate-spell-stat dt {
   padding-top: 4px;
   border-top: 1px solid rgba(201, 168, 255, 0.18);
 }
 
-.item-tooltip .empower-spell-stat + .empower-spell-stat dt {
+.item-tooltip .innate-spell-stat dt {
+  border-top-color: rgba(126, 208, 197, 0.22);
+}
+
+.item-tooltip .empower-spell-stat + .empower-spell-stat dt,
+.item-tooltip .innate-spell-stat + .innate-spell-stat dt {
   border-top: none;
   padding-top: 0;
 }

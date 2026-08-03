@@ -75,8 +75,26 @@ test("telemetry heartbeat upserts a session with clamped deltas", async () => {
 
   const insert = db.queries.find((query) => /INSERT INTO telemetry_sessions/.test(query.sql));
   assert.ok(insert, "expected a telemetry upsert");
-  // Character suffix is stripped to the account id.
-  assert.deepEqual(insert.args, ["sess-123", "abcdef12-3456", 40000, 5000, 30000, 15000, 45000]);
+  // Character suffix is stripped to the account id; save-health fields default to 0.
+  assert.deepEqual(insert.args, ["sess-123", "abcdef12-3456", 40000, 5000, 30000, 15000, 45000, 0, 0, 0]);
+});
+
+test("telemetry records save-health fields", async () => {
+  const db = new FakeDb();
+  await request("/telemetry", {
+    method: "POST",
+    headers: { "content-type": "application/json" },
+    body: JSON.stringify({
+      playerId: "player-b",
+      sessionId: "sess-y",
+      totalMs: 1000,
+      saveSize: 2_400_000,
+      saveFailures: 7,
+      saveLoadFailed: 1,
+    }),
+  }, db);
+  const insert = db.queries.find((query) => /INSERT INTO telemetry_sessions/.test(query.sql));
+  assert.deepEqual(insert.args.slice(7), [2_400_000, 7, 1]);
 });
 
 test("telemetry rejects a payload missing player or session id", async () => {

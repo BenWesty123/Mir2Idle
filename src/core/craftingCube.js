@@ -1,4 +1,5 @@
 import { itemCanBeEmpowered, listEmpowerSlotsFromEntry } from "./empoweredItems.js";
+import { isGlyphItem } from "../glyphModifiers.js";
 
 export const HAVOC_CRYSTAL_ITEM_ID = "havoc-crystal";
 export const ADAMANTINE_ORE_ITEM_ID = "adamantine-ore";
@@ -41,7 +42,11 @@ export const CRAFTING_CUBE_DD_SOUL_REQUIREMENTS_ERROR =
 
 export const CRAFTING_CUBE_EMPOWER_REROLL_RECIPE_ID = "empower-reroll";
 export const CRAFTING_CUBE_EMPOWER_REROLL_LABEL = "Random Empowerment Reroll";
-export const CRAFTING_CUBE_EMPOWER_REROLL_REQUIREMENTS_ERROR = "Place one empowered item and one Havoc Crystal.";
+// TEMP free random empower reroll — undo after testing (no crystal, no gold).
+export const TEMP_FREE_EMPOWER_REROLL = false;
+export const CRAFTING_CUBE_EMPOWER_REROLL_REQUIREMENTS_ERROR = TEMP_FREE_EMPOWER_REROLL
+  ? "Place one empowered item."
+  : "Place one empowered item and one Havoc Crystal.";
 
 export const CRAFTING_CUBE_TARGETED_EMPOWER_REROLL_RECIPE_ID = "empower-reroll-targeted";
 export const CRAFTING_CUBE_TARGETED_EMPOWER_REROLL_LABEL = "Targeted Empowerment Reroll";
@@ -61,13 +66,20 @@ export const CRAFTING_CUBE_TARGETED_EMPOWER_SWAP_PRISM_COST = 4;
 export const CRAFTING_CUBE_TARGETED_EMPOWER_SWAP_REQUIREMENTS_ERROR =
   "Place two empowered items, four Focus Prisms, and one Adamantine Ore.";
 
+export const CRAFTING_CUBE_GLYPH_RECYCLE_RECIPE_ID = "glyph-recycle";
+export const CRAFTING_CUBE_GLYPH_RECYCLE_LABEL = "Glyph Recycle";
+export const CRAFTING_CUBE_GLYPH_RECYCLE_GLYPH_COST = 2;
+export const CRAFTING_CUBE_GLYPH_RECYCLE_REQUIREMENTS_ERROR =
+  "Place exactly two glyphs in the cube.";
+
 /** Gold charged (in addition to materials) when a recipe is crafted. */
 export const CRAFTING_CUBE_RECIPE_GOLD_COSTS = {
   [CRAFTING_CUBE_FOCUS_PRISM_RECIPE_ID]: 25000,
   [CRAFTING_CUBE_IWT_SOUL_RECIPE_ID]: 0,
   [CRAFTING_CUBE_IZT_SOUL_RECIPE_ID]: 0,
   [CRAFTING_CUBE_DD_SOUL_RECIPE_ID]: 0,
-  [CRAFTING_CUBE_EMPOWER_REROLL_RECIPE_ID]: 10000,
+  [CRAFTING_CUBE_GLYPH_RECYCLE_RECIPE_ID]: 100000,
+  [CRAFTING_CUBE_EMPOWER_REROLL_RECIPE_ID]: TEMP_FREE_EMPOWER_REROLL ? 0 : 10000,
   [CRAFTING_CUBE_TARGETED_EMPOWER_REROLL_RECIPE_ID]: 25000,
   [CRAFTING_CUBE_EMPOWER_SWAP_RECIPE_ID]: 25000,
   [CRAFTING_CUBE_TARGETED_EMPOWER_SWAP_RECIPE_ID]: 50000,
@@ -106,9 +118,16 @@ export const CRAFTING_CUBE_RECIPES = [
     summary: `${CRAFTING_CUBE_DD_SOUL_STONE_HEART_COST} Stone Heart + ${CRAFTING_CUBE_DD_SOUL_HOG_TOOTH_COST} Hog Tooth${goldSummary(CRAFTING_CUBE_DD_SOUL_RECIPE_ID)}`,
   },
   {
+    id: CRAFTING_CUBE_GLYPH_RECYCLE_RECIPE_ID,
+    label: CRAFTING_CUBE_GLYPH_RECYCLE_LABEL,
+    summary: `${CRAFTING_CUBE_GLYPH_RECYCLE_GLYPH_COST} Glyphs${goldSummary(CRAFTING_CUBE_GLYPH_RECYCLE_RECIPE_ID)} → random glyph (not the ones used)`,
+  },
+  {
     id: CRAFTING_CUBE_EMPOWER_REROLL_RECIPE_ID,
     label: CRAFTING_CUBE_EMPOWER_REROLL_LABEL,
-    summary: `1 empowered item + 1 Havoc Crystal${goldSummary(CRAFTING_CUBE_EMPOWER_REROLL_RECIPE_ID)}`,
+    summary: TEMP_FREE_EMPOWER_REROLL
+      ? `1 empowered item${goldSummary(CRAFTING_CUBE_EMPOWER_REROLL_RECIPE_ID)}`
+      : `1 empowered item + 1 Havoc Crystal${goldSummary(CRAFTING_CUBE_EMPOWER_REROLL_RECIPE_ID)}`,
   },
   {
     id: CRAFTING_CUBE_TARGETED_EMPOWER_REROLL_RECIPE_ID,
@@ -203,7 +222,7 @@ export function validateCraftingCubeEmpowerReroll(boardEntries) {
     return { ok: false, error: CRAFTING_CUBE_EMPOWER_REROLL_REQUIREMENTS_ERROR };
   }
 
-  if (!empoweredEntry || !empoweredItem || !crystalEntry) {
+  if (!empoweredEntry || !empoweredItem || (!TEMP_FREE_EMPOWER_REROLL && !crystalEntry)) {
     return { ok: false, error: CRAFTING_CUBE_EMPOWER_REROLL_REQUIREMENTS_ERROR };
   }
 
@@ -511,6 +530,56 @@ export function validateCraftingCubeDdSoulCraft(boardEntries) {
  * @returns {{
  *   ok: boolean,
  *   error: string | null,
+ *   glyphEntryA?: object,
+ *   glyphItemA?: object,
+ *   glyphEntryB?: object,
+ *   glyphItemB?: object,
+ *   excludeItemIds?: string[],
+ * }}
+ */
+export function validateCraftingCubeGlyphRecycle(boardEntries) {
+  const glyphRows = [];
+
+  for (const row of boardEntries) {
+    const entry = row?.entry;
+    const item = row?.item;
+    if (!entry || !item) continue;
+
+    if (isGlyphItem(item)) {
+      glyphRows.push(row);
+      continue;
+    }
+
+    return { ok: false, error: CRAFTING_CUBE_GLYPH_RECYCLE_REQUIREMENTS_ERROR };
+  }
+
+  if (glyphRows.length !== CRAFTING_CUBE_GLYPH_RECYCLE_GLYPH_COST) {
+    return { ok: false, error: CRAFTING_CUBE_GLYPH_RECYCLE_REQUIREMENTS_ERROR };
+  }
+
+  const [rowA, rowB] = [...glyphRows].sort((left, right) => (
+    String(left.entry.id).localeCompare(String(right.entry.id))
+  ));
+  const excludeItemIds = [...new Set(
+    [rowA.item?.id, rowB.item?.id].filter(Boolean).map((id) => String(id)),
+  )];
+
+  return {
+    ok: true,
+    error: null,
+    glyphEntryA: rowA.entry,
+    glyphItemA: rowA.item,
+    glyphEntryB: rowB.entry,
+    glyphItemB: rowB.item,
+    excludeItemIds,
+  };
+}
+
+/**
+ * @param {{ entry: object, item: object }[]} boardEntries Staged cube entries with item defs.
+ * @returns {{
+ *   ok: boolean,
+ *   error: string | null,
  *   empoweredEntryA?: object,
  *   empoweredItemA?: object,
  *   empoweredEntryB?: object,
@@ -667,6 +736,7 @@ export function craftingCubeAutofillEntryIds(recipeId, inventoryEntries, resolve
   const zumaRelicStacks = [];
   const stoneHeartStacks = [];
   const hogToothStacks = [];
+  const glyphEntries = [];
 
   for (const entry of inventoryEntries) {
     if (!entry?.id || !entry.itemId) continue;
@@ -699,6 +769,10 @@ export function craftingCubeAutofillEntryIds(recipeId, inventoryEntries, resolve
     }
     if (item.id === HOG_TOOTH_ITEM_ID) {
       hogToothStacks.push(entry);
+      continue;
+    }
+    if (isGlyphItem(item)) {
+      glyphEntries.push(entry);
     }
   }
 
@@ -716,10 +790,11 @@ export function craftingCubeAutofillEntryIds(recipeId, inventoryEntries, resolve
   zumaRelicStacks.sort(byQtyThenId);
   stoneHeartStacks.sort(byQtyThenId);
   hogToothStacks.sort(byQtyThenId);
+  glyphEntries.sort((a, b) => String(a.id).localeCompare(String(b.id)));
 
   if (
     recipeId === CRAFTING_CUBE_FOCUS_PRISM_RECIPE_ID
-    || recipeId === CRAFTING_CUBE_EMPOWER_REROLL_RECIPE_ID
+    || (recipeId === CRAFTING_CUBE_EMPOWER_REROLL_RECIPE_ID && !TEMP_FREE_EMPOWER_REROLL)
     || recipeId === CRAFTING_CUBE_EMPOWER_SWAP_RECIPE_ID
   ) {
     return crystalStacks[0] ? [crystalStacks[0].id] : [];
@@ -740,6 +815,10 @@ export function craftingCubeAutofillEntryIds(recipeId, inventoryEntries, resolve
     if (stoneHeartStacks[0]) picks.push(stoneHeartStacks[0].id);
     if (hogToothStacks[0]) picks.push(hogToothStacks[0].id);
     return picks;
+  }
+
+  if (recipeId === CRAFTING_CUBE_GLYPH_RECYCLE_RECIPE_ID) {
+    return glyphEntries.slice(0, CRAFTING_CUBE_GLYPH_RECYCLE_GLYPH_COST).map((entry) => entry.id);
   }
 
   if (recipeId === CRAFTING_CUBE_TARGETED_EMPOWER_REROLL_RECIPE_ID) {
