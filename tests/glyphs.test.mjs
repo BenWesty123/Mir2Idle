@@ -30,6 +30,7 @@ import {
   glyphTwinDrakeCooldownMs,
   hasGlyphModifier,
   isGlyphItem,
+  glyphModifierForSpell,
   rollDefenceBuffBonusFromLevel,
   rollDefenceBuffBonusFromSc,
   rollEmpoweredBossGlyphItemId,
@@ -153,6 +154,17 @@ test("SC defence buff formula matches Ultimate Enhancer style", () => {
     ]),
     14,
   );
+  // Buffing in an earlier slot must not shadow Spirit Wards for spell lookup.
+  const inventory = {
+    equipment: { glyph: "buffing", glyph2: "wards" },
+    items: [
+      { id: "buffing", itemId: "glyph-buffing" },
+      { id: "wards", itemId: "glyph-spirit-wards" },
+    ],
+  };
+  assert.equal(glyphModifierForSpell(inventory, "SoulShield")?.id, "taoDefenceBuffFromSc");
+  assert.equal(glyphModifierForSpell(inventory, "BlessedArmour")?.id, "taoDefenceBuffFromSc");
+  assert.equal(glyphModifierForSpell(inventory, "UltimateEnhancer")?.id, "taoUltimateBuffChain");
 });
 
 test("Fire Wall duration doubles with glyph", () => {
@@ -386,7 +398,16 @@ test("Buffing glyph chains Ultimate Enhancer with defence buffs", () => {
   assert.equal(glyphChainsDefenceBuffsWithUltimate(glyph), true);
   assert.equal(glyphChainsDefenceBuffsWithUltimate(glyphDefById("taoDefenceBuffFromSc")), false);
   assert.equal(glyphChainsDefenceBuffsWithUltimate(null), false);
-  assert.deepEqual(glyph?.spellIds, ["UltimateEnhancer", "SoulShield", "BlessedArmour"]);
+  // Buffing must NOT claim SoulShield/BlessedArmour spellIds — that stole Spirit Wards
+  // from spell-scoped glyph lookup when Buffing was equipped in an earlier slot.
+  assert.deepEqual(glyph?.spellIds, ["UltimateEnhancer"]);
+  assert.equal(
+    rollTaoistDefenceBuffBonus(52, 80, [
+      glyphDefById("taoUltimateBuffChain"),
+      glyphDefById("taoDefenceBuffFromSc"),
+    ]),
+    20,
+  );
 });
 
 test("Battle Wizard glyph buffs melee and nerfs ranged damage/armour", () => {

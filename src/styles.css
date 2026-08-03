@@ -3305,6 +3305,74 @@ dd {
   margin-top: 4px;
 }
 
+.group-dungeon-boss-roster {
+  display: grid;
+  gap: 6px;
+  margin: 0 0 4px;
+  padding: 8px 10px;
+  border: 1px solid rgba(88, 72, 47, 0.85);
+  background: rgba(20, 16, 11, 0.92);
+}
+
+.group-dungeon-boss-roster-title {
+  margin: 0;
+  color: #ad9466;
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+.group-dungeon-boss-list {
+  display: grid;
+  gap: 4px;
+}
+
+.group-dungeon-boss-row {
+  display: grid;
+  grid-template-columns: minmax(0, 1.1fr) minmax(0, 1fr) auto;
+  gap: 6px 10px;
+  align-items: baseline;
+  padding: 4px 0;
+  border-top: 1px solid rgba(88, 72, 47, 0.45);
+  font-size: 12px;
+}
+
+.group-dungeon-boss-row:first-child {
+  border-top: 0;
+  padding-top: 0;
+}
+
+.group-dungeon-boss-name {
+  color: #f3e3b6;
+  font-weight: 600;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.group-dungeon-boss-floor {
+  color: #8f784f;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.group-dungeon-boss-status {
+  color: #ffd56a;
+  font-variant-numeric: tabular-nums;
+  text-align: right;
+  white-space: nowrap;
+}
+
+.group-dungeon-boss-row.is-alive .group-dungeon-boss-status {
+  color: #8ecf8a;
+}
+
+.group-dungeon-boss-row.is-respawning .group-dungeon-boss-status {
+  color: #ffd56a;
+}
+
 .timed-enrage-hud {
   position: absolute;
   top: 10px;

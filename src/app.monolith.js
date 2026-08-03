@@ -388,6 +388,8 @@ import {
   clampCritChancePercent,
   critTextFillColor,
   critTextFontSize,
+  critTextMaxDrawWidth,
+  critTextStageMaxPx,
   critTextZoneFloor,
   smoothstep01,
   enemyAttackDefenceType,
@@ -1287,6 +1289,8 @@ const BOSS_EMPOWER_AVAILABLE_ZONE_IDS = new Set([
   "zone-red-cavern-kr",
   "zone-fox-cave-kr",
   "zone-kings-tomb",
+  "zone-namman-boss",
+  "zone-namman-danmo",
 ]);
 /** Per-boss empowered fight tuning (shared combat modifiers; expand boss list in supportsEmpoweredBossCombat). */
 const EMPOWERED_BOSS_HP_MULTIPLIER = 2;
@@ -1513,6 +1517,8 @@ const KING_SCORPION_LINE_VFX_BASE_TILES = 2;
 const KING_SCORPION_LINE_VFX_STRETCH = 1.5;
 const KING_SCORPION_LINE_IMPACT_MS = 300;
 const KING_SCORPION_LINE_STEP_MS = 50;
+const CRYSTAL_SPIDER_GREEN_POISON_CHANCE = 8;
+const CRYSTAL_SPIDER_GREEN_POISON_TICKS = 5;
 
 // Crystal PlayerObject.PlayAttackSound / MonsterObject.PlayStruckSound weapon-shape groups.
 const CRYSTAL_WEAPON_SWING_SFX_GROUPS = {
@@ -1733,9 +1739,11 @@ const INCARNATED_RTZ_ENEMY_ID = 318;
 const DEFAULT_ARENA_BOSS_SPAWN_X = 300;
 const EVIL_CENTIPEDE_ENEMY_ID = 166;
 const EVIL_SNAKE_ENEMY_ID = 266;
+const CRYSTAL_SPIDER_ENEMY_ID = 465;
 const RED_THUNDER_ZUMA_ENEMY_ID = 271;
 const ZUMA_TAURUS_ENEMY_ID = 272;
 const BONE_LORD_ENEMY_ID = 279;
+const RED_EVIL_APE_ENEMY_ID = 464;
 const MINOTAUR_KING_ENEMY_ID = 287;
 const YIMOOGI_ENEMY_ID = 414;
 const MANECTRIC_KING_ENEMY_ID = 293;
@@ -2003,6 +2011,15 @@ const TELEPORT_REGIONS = [
     ],
   },
   {
+    // Crystal province TaoVillage — teleporter entry is Tree Path only;
+    // deeper Red Valley floors are reached via Advance.
+    id: "tao-village",
+    label: "Tao Village",
+    zoneIds: [
+      "zone-tree-path",
+    ],
+  },
+  {
     id: "mongchon-province",
     label: "Mongchon Province",
     zoneIds: [
@@ -2085,8 +2102,8 @@ const TOWN_VISUALS = {
   stageMaxHeight: 480,
 };
 
-const MAP_STAMP_ASSET_VERSION = "20260731-danmo-field-se2";
-const MONSTER_ASSET_VERSION = "20260731-danmo-bolt-dir6";
+const MAP_STAMP_ASSET_VERSION = "20260803-danmo-stamp-bake";
+const MONSTER_ASSET_VERSION = "20260803-danmo-atlas-split";
 const HELL_BOLT_MONSTER_INDEX = 219;
 const HELL_BOLT_TEMPLATE_ID = 429;
 const WITCH_DOCTOR_MONSTER_INDEX = 220;
@@ -2649,9 +2666,9 @@ function monsterAtlasPngUrl(index) {
   return `./public/monsters/monster/${index}.png?v=${MONSTER_ASSET_VERSION}`;
 }
 
-/** Optional companion sheet for monster projectile / hit FX (e.g. Great Fox `134-fx.png`). */
+/** Optional companion sheet for monster projectile / hit FX (e.g. Great Fox `134-fx.png`, Danmo `272-fx.png`). */
 function monsterProjectileSheetFileName(atlas) {
-  const sheet = atlas?.projectile?.sheet;
+  const sheet = atlas?.projectile?.sheet || atlas?.projectileHeavy?.sheet;
   if (typeof sheet !== "string") return null;
   const name = sheet.trim().replace(/^.*[\\/]/, "");
   return name || null;
@@ -3581,6 +3598,7 @@ const state = {
     mapHellFireEffects: [],
     nextMapHellFireAt: 0,
     greatFoxSpiritEffects: [],
+    redMoonEvilEffects: [],
     lastPlayerAttackCooldownMs: 0,
     wizardSpellLockUntil: 0,
     lastNoMpLogAt: 0,
@@ -5070,10 +5088,12 @@ function applySaveSnapshot(snapshot) {
   );
   if (groupDungeonRun?.zoneId === state.game.activeZoneId) {
     state.game.groupDungeonRun = groupDungeonRun;
+    state.groupDungeonEmpowerTier = clampGroupDungeonEmpowerTier(groupDungeonRun.empowerTier);
     state.pendingBossAssistSelection = groupDungeonRun.classIds.filter((classId) => classId !== state.activeCharacterId);
     state.bossAssistSelection = [...state.pendingBossAssistSelection];
   } else {
     state.game.groupDungeonRun = null;
+    state.groupDungeonEmpowerTier = 0;
     state.pendingBossAssistSelection = [];
     state.bossAssistSelection = [];
   }
@@ -6466,6 +6486,7 @@ function applyCharacterState(classId, character = createDefaultCharacterState(cl
   state.game.miningNextRollAt = Math.max(0, Math.trunc(Number(character.game.miningNextRollAt) || 0));
   state.game.miningSpotId = miningSpotById(character.game.miningSpotId)?.id ?? null;
   state.game.groupDungeonRun = sanitizeGroupDungeonOfflineRun?.(character.game.groupDungeonRun, character.game.activeZoneId, safeClassId) ?? null;
+  state.groupDungeonEmpowerTier = clampGroupDungeonEmpowerTier(state.game.groupDungeonRun?.empowerTier);
   state.game.progress = { ...character.game.progress };
   state.inventory = cloneInventoryState(character.inventory);
   state.hotbar = cloneHotbarState(character.hotbar);
@@ -6529,7 +6550,11 @@ function persistCharacterGameLocation({ mode, zoneId = null, classIds = null, ru
         killedThisWave: 0,
         targetThisWave: groupDungeonWaveSpawnCount(1, entryZone),
         endless: false,
+        empowerTier: clampGroupDungeonEmpowerTier(state.groupDungeonEmpowerTier),
       };
+      if (groupRun && groupRun.empowerTier == null) {
+        groupRun.empowerTier = clampGroupDungeonEmpowerTier(state.groupDungeonEmpowerTier);
+      }
       state.game.groupDungeonRun = groupRun;
       character.game.groupDungeonRun = groupRun;
     } else {
@@ -7756,7 +7781,10 @@ function taoistOfflineCastSupportSpell(spellId, enemy, now, soulFireBallOptions 
     case "HealingCircle":
       return castTaoistHealingCircle(usableTaoistHealingCircle(now), now, { offline: true });
     case "SoulShield":
-    case "BlessedArmour":
+    case "BlessedArmour": {
+      const defenceBuff = usableTaoistDefenceBuff(spellId, now);
+      return defenceBuff ? castTaoistDefenceBuff(defenceBuff, now, { offline: true }) : false;
+    }
     case "EnergyShield":
       return castTaoistEnergyShield(usableTaoistEnergyShield(now), now, { offline: true });
     case "UltimateEnhancer":
@@ -10246,6 +10274,7 @@ function resetBattle(enemyId = state.battle.enemyId) {
   state.battle.mapHellFireEffects = [];
   state.battle.nextMapHellFireAt = 0;
   state.battle.greatFoxSpiritEffects = [];
+  state.battle.redMoonEvilEffects = [];
   clearTransientCombatBuffs();
   state.battle.furyUntil = 0;
   state.battle.furyBonus = 0;
@@ -10350,6 +10379,7 @@ function resetBattleForRoomOnly(zone = activeZone()) {
   state.battle.mapHellFireEffects = [];
   state.battle.nextMapHellFireAt = 0;
   state.battle.greatFoxSpiritEffects = [];
+  state.battle.redMoonEvilEffects = [];
   clearTransientCombatBuffs();
   state.battle.furyUntil = 0;
   state.battle.furyBonus = 0;
@@ -17246,7 +17276,9 @@ function supportsEmpoweredBossCombat(enemy) {
     || isDreamDevourerEnemy(enemy)
     || isDarkDevourerEnemy(enemy)
     || isGreatFoxSpiritEnemy(enemy)
-    || isOmaKingSpiritEnemy(enemy);
+    || isOmaKingSpiritEnemy(enemy)
+    || isBeastKingEnemy(enemy)
+    || isDanmoEnemy(enemy);
 }
 
 function scaleEnemyDamageRange(range, multiplier) {
@@ -17291,6 +17323,8 @@ function empoweredBossDamageMultiplier(enemy) {
     || isDarkDevourerEnemy(enemy)
     || isGreatFoxSpiritEnemy(enemy)
     || isOmaKingSpiritEnemy(enemy)
+    || isBeastKingEnemy(enemy)
+    || isDanmoEnemy(enemy)
   ) return 2;
   return EMPOWERED_BOSS_DAMAGE_MULTIPLIER;
 }
@@ -17337,10 +17371,11 @@ function applyEmpoweredBossFightModifiers(enemy = state.battle.enemy) {
   return false;
 }
 
-// Group dungeons that support Empowered/Ascended/Awakened entry. Only Black Dragon Dungeon
-// (`groupDungeon: "bdd"`) is finished, so scope the feature to it for now.
+// Group dungeons that support Empowered/Ascended/Awakened entry. Paid once at the
+// entrance; every monster (trash + bosses) scales for the whole run.
 function groupDungeonEmpowerable(zone = activeZone()) {
-  return zone?.groupDungeon === "bdd";
+  const id = zone?.groupDungeon;
+  return id === "bdd" || id === "hell" || id === "red-valley";
 }
 
 // Live empower tier of the current group-dungeon fight: 0 none / 1 empowered / 2 ascended / 3 awakened.
@@ -21241,6 +21276,7 @@ function groupDungeonBossSwarmEntrySceneHtml(zone) {
       <p class="boss-warning muted">
         ${respawning ? `Defeat all ${escapeHtml(bossName)} to continue once they return.` : escapeHtml(groupDungeonBossSwarmEntrySummary(zone, config))}
       </p>
+      ${groupDungeonZone(zone) ? groupDungeonBossRosterHtml(zone) : ""}
       <dl class="boss-entry-stats">
         ${bossRows}
         <dt>Spawns</dt><dd>${spawnSchedule}</dd>
@@ -21410,6 +21446,7 @@ function groupDungeonEntrySceneHtml(zone) {
       <p class="boss-warning muted">
         Your party will hold position in the room while monsters come to you.
       </p>
+      ${groupDungeonBossRosterHtml(zone)}
       <dl class="boss-entry-stats">
         <dt>Zone</dt><dd>${escapeHtml(zone.label)}</dd>
         <dt>Party</dt><dd>${1 + selected.size}</dd>
@@ -21457,6 +21494,7 @@ function groupDungeonBossEntrySceneHtml(zone) {
         You're about to fight ${escapeHtml(bossName)} with your ${escapeHtml(state.activeCharacterId)}.
       </p>
       ${respawnStatusHtml}
+      ${groupDungeonBossRosterHtml(zone)}
       <dl class="boss-entry-stats">
         <dt>Boss</dt><dd>${escapeHtml(bossName)}</dd>
         <dt>Party</dt><dd>${1 + selected.size}</dd>
@@ -25803,6 +25841,7 @@ function returnToTown() {
   state.groupDungeonEmpowerTier = 0;
   state.battle.groundSpellEffects = [];
   state.battle.greatFoxSpiritEffects = [];
+  state.battle.redMoonEvilEffects = [];
   if (state.battle.enemy) { state.battle.enemy.poisons = []; state.battle.enemy.flamingSwordBurn = null; }
   state.battle.nextPlayerAttackAt = 0;
   state.battle.nextEnemyAttackAt = 0;
@@ -25852,6 +25891,54 @@ function groupDungeonBossZone(zone = activeZone()) {
 
 function groupDungeonBossSwarmZone(zone = activeZone()) {
   return Boolean(zone?.bossSwarm || (zone?.groupDungeon && zone?.groupDungeonBossSwarm));
+}
+
+/** Boss / boss-swarm floors in a group dungeon, ordered by floor number. */
+function groupDungeonBossZones(dungeonId) {
+  const id = String(dungeonId || "");
+  if (!id) return [];
+  return PROTOTYPE_ZONES
+    .filter((entry) => (
+      entry.groupDungeon === id
+      && (entry.groupDungeonBoss || entry.groupDungeonBossSwarm)
+    ))
+    .slice()
+    .sort((a, b) => (
+      Math.max(1, Math.trunc(Number(a.groupDungeonFloor) || 1))
+      - Math.max(1, Math.trunc(Number(b.groupDungeonFloor) || 1))
+    ));
+}
+
+function groupDungeonBossDisplayName(zone) {
+  if (!zone) return "Boss";
+  if (groupDungeonBossSwarmZone(zone)) return groupDungeonBossSwarmLabel(zone);
+  const boss = ENEMY_TEMPLATES.find((enemy) => zone.enemyIds?.includes(enemy.id));
+  return boss?.name ?? zone.label ?? "Boss";
+}
+
+/** Entry-panel roster: which dungeon bosses are alive vs on respawn cooldown. */
+function groupDungeonBossRosterHtml(zone, now = Date.now()) {
+  if (!groupDungeonZone(zone)) return "";
+  const bosses = groupDungeonBossZones(zone.groupDungeon);
+  if (!bosses.length) return "";
+  const rows = bosses.map((bossZone) => {
+    const remaining = groupDungeonBossRespawnRemainingMs(bossZone, now);
+    const alive = remaining <= 0;
+    const statusText = alive ? "Alive" : formatDuration(remaining);
+    return `
+      <div class="group-dungeon-boss-row${alive ? " is-alive" : " is-respawning"}" data-group-dungeon-boss-zone="${escapeHtml(bossZone.id)}">
+        <span class="group-dungeon-boss-name">${escapeHtml(groupDungeonBossDisplayName(bossZone))}</span>
+        <span class="group-dungeon-boss-floor">${escapeHtml(bossZone.label)}</span>
+        <span class="group-dungeon-boss-status" data-group-dungeon-boss-status aria-live="polite">${escapeHtml(statusText)}</span>
+      </div>
+    `;
+  }).join("");
+  return `
+    <section class="group-dungeon-boss-roster" aria-label="Dungeon boss status">
+      <h3 class="group-dungeon-boss-roster-title">Boss status</h3>
+      <div class="group-dungeon-boss-list">${rows}</div>
+    </section>
+  `;
 }
 
 function groupDungeonBossSwarmState() {
@@ -28684,11 +28771,11 @@ function zoneTracksBossRespawn(zoneId) {
   return groupDungeonBossRespawnMinutes(zone) > 0;
 }
 
-function groupDungeonBossRespawnRemainingMs(zone = activeZone()) {
+function groupDungeonBossRespawnRemainingMs(zone = activeZone(), now = Date.now()) {
   const zoneId = typeof zone === "string" ? zone : zone?.id;
   const zoneRef = typeof zone === "string" ? PROTOTYPE_ZONES.find((entry) => entry.id === zone) : zone;
   if (!zoneId || groupDungeonBossRespawnMinutes(zoneRef) <= 0) return 0;
-  return bossRespawnRemainingMs(zoneId);
+  return bossRespawnRemainingMs(zoneId, now);
 }
 
 function groupDungeonBossCanSkipFloor(zone = activeZone(), party = state.battle.bossParty) {
@@ -30774,7 +30861,11 @@ function beginBossPartyFight(zoneId, now = performance.now()) {
   // floor (enterZone reset them from the now-cleared pending flags on advance).
   if (groupDungeonEmpowerable(entryZoneForRun)) {
     if (restoredRun?.zoneId === zoneId && Number.isFinite(Number(restoredRun.empowerTier))) {
-      state.groupDungeonEmpowerTier = clampGroupDungeonEmpowerTier(restoredRun.empowerTier);
+      // Keep the higher of live tier vs saved run so a stale 0 save cannot wipe a paid run.
+      state.groupDungeonEmpowerTier = Math.max(
+        clampGroupDungeonEmpowerTier(state.groupDungeonEmpowerTier),
+        clampGroupDungeonEmpowerTier(restoredRun.empowerTier),
+      );
     }
     const tier = clampGroupDungeonEmpowerTier(state.groupDungeonEmpowerTier);
     state.battle.bossEmpowered = tier >= 1;
@@ -34374,6 +34465,10 @@ function isZumaTaurusEnemy(enemy = state.battle.enemy) {
   return enemy?.id === ZUMA_TAURUS_ENEMY_ID || enemy?.crystalName === "ZumaTaurus";
 }
 
+function isRedEvilApeEnemy(enemy = state.battle.enemy) {
+  return enemy?.id === RED_EVIL_APE_ENEMY_ID || enemy?.crystalName === "RedEvilApe";
+}
+
 function isBoneLordEnemy(enemy = state.battle.enemy) {
   return enemy?.attackMode === "boneLord" || enemy?.id === BONE_LORD_ENEMY_ID || enemy?.crystalName === "BoneLord";
 }
@@ -34402,6 +34497,13 @@ function isKingHogEnemy(enemy = state.battle.enemy) {
 
 function isKingScorpionEnemy(enemy = state.battle.enemy) {
   return enemy?.attackMode === "kingScorpion" || enemy?.crystalName === "KingScorpion";
+}
+
+/** Crystal CrystalSpider — adjacent melee, else Attack2 LineAttack (DC + MAC) + green poison. */
+function isCrystalSpiderEnemy(enemy = state.battle.enemy) {
+  return enemy?.id === CRYSTAL_SPIDER_ENEMY_ID
+    || enemy?.attackMode === "crystalSpider"
+    || enemy?.crystalName === "CrystalSpider";
 }
 
 /** Crystal AncientBringer (Danmo) — line melee / heavy para / ranged MC AoE / bat summon. */
@@ -34791,6 +34893,12 @@ function isThunderElementEnemy(enemy = state.battle.enemy) {
 
 function isGreatFoxSpiritEnemy(enemy = state.battle.enemy) {
   return enemy?.attackMode === "greatFoxSpirit" || enemy?.crystalName === "GreatFoxSpirit";
+}
+
+function isRedMoonEvilEnemy(enemy = state.battle.enemy) {
+  return enemy?.crystalName === "RedMoonEvil"
+    || enemy?.id === 454
+    || enemy?.name === "Red Moon Evil";
 }
 
 function isBeastKingEnemy(enemy = state.battle.enemy) {
@@ -35345,6 +35453,144 @@ function beginKingScorpionAttack(now) {
   return true;
 }
 
+function canCrystalSpiderAttack() {
+  const battle = state.battle;
+  if (battle.phase !== "engaged" || !battle.enemyRevealed || !battle.enemy?.hp) return false;
+  if (enemyFrozenActive(battle.enemy)) return false;
+  if (!battle.enemyAggro) return false;
+  return boneLordTargetDistance() <= boneLordAttackRange(battle.enemy);
+}
+
+function crystalSpiderAttackEnemy(ranged) {
+  const enemy = state.battle.enemy;
+  if (ranged) {
+    return {
+      ...enemy,
+      attackDefenceType: enemy.rangedAttackDefenceType || "MACAgility",
+    };
+  }
+  return {
+    ...enemy,
+    attackDefenceType: enemy.attackDefenceType || "ACAgility",
+  };
+}
+
+function applyCrystalSpiderGreenPoison(enemy, combatant, now) {
+  if (!enemy || !combatant) return false;
+  const denom = Math.max(
+    1,
+    Math.trunc(Number(enemy.greenPoisonProcDenom) || CRYSTAL_SPIDER_GREEN_POISON_CHANCE),
+  );
+  if (!rollPoisonProc(denom)) return false;
+  const poisonValue = rollStat(enemy.sc ?? [0, 0], enemy.luck ?? 0);
+  const ticks = Math.max(
+    1,
+    Math.trunc(Number(enemy.greenPoisonTicks) || CRYSTAL_SPIDER_GREEN_POISON_TICKS),
+  );
+  return applyCombatantPoison(combatant, {
+    kind: "green",
+    value: poisonValue,
+    ticksRemaining: ticks,
+  }, now);
+}
+
+function maybeApplyCrystalSpiderPoisonFromHit(enemy, entity, targetRef, now, offsetX = 0) {
+  if (!applyCrystalSpiderGreenPoison(enemy, entity, now)) return false;
+  const logName = targetRef?.logName || targetRef?.name || entity?.name || entity?.classId || "target";
+  pushBattleLog(`${logName} is poisoned.`);
+  addCombatantPoisonText(targetRef?.kind || "player", entity, "Poison", "poison", now, offsetX);
+  return true;
+}
+
+function resolveCrystalSpiderLineHit(hit, now) {
+  const enemy = state.battle.enemy;
+  if (!enemy || enemy.hp <= 0 || !state.battle.enemyRevealed || !hit?.entity || (hit.entity.hp ?? 0) <= 0) return;
+  applyStrikeTargetIncoming(enemy.name, crystalSpiderAttackEnemy(true), hit, now, {
+    ranged: true,
+    magicShield: true,
+    resolveOptions: { ranged: true },
+    onHit: ({ entity, now: impactNow, targetRef }) => {
+      maybeApplyCrystalSpiderPoisonFromHit(enemy, entity, targetRef, impactNow);
+    },
+  });
+}
+
+function resolveCrystalSpiderMelee(now) {
+  const enemy = state.battle.enemy;
+  if (!enemy || enemy.hp <= 0 || !state.battle.enemyRevealed) return false;
+  setEnemyAction("attack1", true, now);
+  playMonsterSfx("attack", enemy, { force: true, throttleMs: 0 });
+  if (bossPartyActiveFight()) {
+    const target = bossPartyFrontTarget();
+    if (!target) return false;
+    if (bossPartyTargetEnemyDistance(target) > BOSS_PARTY_BOSS_REACH) return false;
+    applyBossPartyIncomingStrike(enemy.name, target, crystalSpiderAttackEnemy(false), now, {
+      magicShield: true,
+      onHit: ({ partyEntity, now: impactNow }) => {
+        maybeApplyCrystalSpiderPoisonFromHit(enemy, partyEntity, {
+          kind: partyEntity === state.battle.bossParty?.pet ? "pet" : "member",
+          logName: partyEntity.name || partyEntity.classId,
+        }, impactNow);
+      },
+    });
+    return true;
+  }
+  const target = enemyAttackTarget();
+  if (enemyTargetDistance() > LANE.enemyRange) return false;
+  const { hit, damage } = resolveIncomingEnemyAttack(crystalSpiderAttackEnemy(false), target);
+  if (!hit) {
+    applyIncomingTargetMiss(enemy.name, target, now);
+    return true;
+  }
+  applyIncomingTargetHit(enemy.name, target, damage, now);
+  const entity = target.kind === "pet" ? state.battle.taoPet : state.battle.player;
+  maybeApplyCrystalSpiderPoisonFromHit(enemy, entity, target, now);
+  maybeFinishBattleAfterPlayerHit(target, now);
+  return true;
+}
+
+/** Crystal CrystalSpider.Attack — Crystal melees only when InRange(1), else LineAttack.
+ * Idle parks the front in melee forever, so every in-range swing uses LineAttack
+ * (beam + MAC lane hits + green poison). Melee is only the empty-line fallback. */
+function beginCrystalSpiderAttack(now) {
+  if (state.battle.pendingEnemyStrike) return false;
+  if (!canCrystalSpiderAttack()) return false;
+  const enemy = state.battle.enemy;
+  const lineTiles = Math.max(1, Math.trunc(Number(enemy?.attackRangeTiles) || KING_SCORPION_LINE_TILES));
+  const lineTargets = manectricKingLineTargets(lineTiles);
+  if (!lineTargets.length) return resolveCrystalSpiderMelee(now);
+
+  const animAction = enemyPrefersAttackRange1(state.enemy.atlas)
+    ? "attackRange1"
+    : (enemyAtlasHasDrawableAction(state.enemy.atlas, "attack2") ? "attack2" : "attack1");
+  const clip = state.enemy.atlas?.actions?.[animAction];
+  const animMs = Math.max(300, (clip?.frames?.length ?? 6) * (clip?.interval ?? 100));
+  const projectile = state.enemy.atlas?.projectile;
+  const projectileVfxMs = kingScorpionLineProjectileVfxMs(projectile);
+  const impactBase = Math.max(0, Math.trunc(Number(enemy?.attackImpactDelayMs) || KING_SCORPION_LINE_IMPACT_MS));
+  const hits = lineTargets.map((target) => ({
+    kind: target.kind,
+    entity: target.entity,
+    tile: target.tile,
+    logName: target.logName,
+    // Crystal LineAttack: MaxDistance * 50 + additionalDelay (300).
+    at: now + target.tile * KING_SCORPION_LINE_STEP_MS + impactBase,
+    resolved: false,
+  }));
+  const lastHitDelay = hits.length ? Math.max(...hits.map((hit) => hit.at - now)) : impactBase;
+  state.battle.pendingEnemyStrike = {
+    kind: "crystalSpiderLine",
+    startedAt: now,
+    ranged: true,
+    lineTiles,
+    hits,
+    vfxUntil: now + Math.max(lastHitDelay, projectileVfxMs, animMs),
+  };
+  setEnemyAction(animAction, true, now);
+  playMonsterSfx(enemyAttackSfxKind(enemy, true), enemy, { force: true, throttleMs: 0 });
+  return true;
+}
+
 function bossSplashRadiusPx(enemy = state.battle.enemy, tilesField = "aoeSplashTiles", fallbackTiles = 2) {
   const tiles = Math.max(1, Math.trunc(Number(enemy?.[tilesField]) || fallbackTiles));
   return tiles * LANE_TILE_PX;
@@ -35715,6 +35961,82 @@ function drawGreatFoxSpiritEffectsCanvas(ctx, now = performance.now()) {
         0,
       );
     });
+  }
+}
+
+/** Crystal SpellEffect.RedMoonEvil — Mon62 frames 32..37 on each hit target (Blend=false). */
+function pushRedMoonEvilEffect({ frames, worldX, screenYOffset = 0, startedAt, durationMs, interval }) {
+  if (!Array.isArray(state.battle.redMoonEvilEffects)) state.battle.redMoonEvilEffects = [];
+  state.battle.redMoonEvilEffects.push({
+    frames,
+    worldX: Math.round(Number(worldX) || 0),
+    screenYOffset: Math.round(Number(screenYOffset) || 0),
+    startedAt,
+    expiresAt: startedAt + Math.max(1, Number(durationMs) || 400),
+    interval: Math.max(1, Number(interval) || 67),
+  });
+  if (state.battle.redMoonEvilEffects.length > 24) {
+    state.battle.redMoonEvilEffects = state.battle.redMoonEvilEffects.slice(-24);
+  }
+}
+
+function spawnRedMoonEvilTargetHitFx(target, now) {
+  const atlas = state.enemy.atlas;
+  const projectile = atlas?.projectile;
+  if (!projectile?.frames?.length) return;
+  const durationMs = Math.max(1, Number(projectile.burstDurationMs) || 400);
+  let worldX = Number(state.battle.playerX) || 0;
+  if (target?.kind === "member" || target?.kind === "pet") {
+    worldX = Number(target.entity?.worldX) || worldX;
+  } else if (target?.kind === "player") {
+    worldX = Number(state.battle.playerX) || worldX;
+  }
+  pushRedMoonEvilEffect({
+    frames: projectile.frames,
+    worldX,
+    screenYOffset: 0,
+    startedAt: now,
+    durationMs,
+    interval: projectile.interval,
+  });
+}
+
+function pruneRedMoonEvilEffects(now = performance.now()) {
+  const effects = state.battle.redMoonEvilEffects;
+  if (!Array.isArray(effects) || !effects.length) return;
+  state.battle.redMoonEvilEffects = effects.filter((effect) => now <= effect.expiresAt);
+}
+
+function drawRedMoonEvilEffectsCanvas(ctx, now = performance.now()) {
+  pruneRedMoonEvilEffects(now);
+  const effects = state.battle.redMoonEvilEffects;
+  if (!Array.isArray(effects) || !effects.length) return;
+  const atlas = state.enemy.atlas;
+  const sheet = cachedImage(monsterAtlasPngUrl(state.enemy.index));
+  if (!atlas || !sheet) return;
+  const groundY = Math.round(state.stageHeight * LANE.y + 2);
+  for (const effect of effects) {
+    if (now < effect.startedAt || now > effect.expiresAt) continue;
+    const frames = effect.frames;
+    if (!frames?.length) continue;
+    const interval = Math.max(1, Number(effect.interval) || 67);
+    const frameIndex = Math.min(
+      frames.length - 1,
+      Math.floor((now - effect.startedAt) / interval),
+    );
+    const meta = frames[frameIndex];
+    if (!meta || meta.empty) continue;
+    const x = Math.round(Number(effect.worldX) - state.battle.cameraX);
+    const y = groundY + (Number(effect.screenYOffset) || 0);
+    // Crystal SpellEffect.RedMoonEvil uses Blend=false (normal alpha).
+    drawAtlasFrameMeta(
+      ctx,
+      sheet,
+      atlas.slotWidth,
+      { ...meta, offsetX: meta.offsetX + x, offsetY: meta.offsetY + y },
+      0,
+      0,
+    );
   }
 }
 
@@ -36596,6 +36918,17 @@ function updatePendingEnemyStrike(now) {
     }
     return;
   }
+  if (strike.kind === "crystalSpiderLine") {
+    for (const hit of strike.hits ?? []) {
+      if (hit.resolved || now < hit.at) continue;
+      hit.resolved = true;
+      resolveCrystalSpiderLineHit(hit, now);
+    }
+    if (now >= vfxUntil && (strike.hits ?? []).every((hit) => hit.resolved)) {
+      state.battle.pendingEnemyStrike = null;
+    }
+    return;
+  }
   if (strike.kind === "manectricKingLine") {
     for (const hit of strike.hits ?? []) {
       if (hit.resolved || now < hit.at) continue;
@@ -36741,13 +37074,16 @@ function updatePendingEnemyStrike(now) {
       const defenceType = massBurstStyle(enemy) === "line"
         ? (enemy.attackDefenceType || "ACAgility")
         : (enemy.rangedAttackDefenceType || "ACAgility");
-      targets.forEach((target, index) => resolveSplashStrikeTarget(
-        enemy,
-        target,
-        now,
-        index,
-        { defenceType, massBurst: true, ranged: true },
-      ));
+      targets.forEach((target, index) => {
+        if (isRedMoonEvilEnemy(enemy)) spawnRedMoonEvilTargetHitFx(target, now);
+        resolveSplashStrikeTarget(
+          enemy,
+          target,
+          now,
+          index,
+          { defenceType, massBurst: true, ranged: true },
+        );
+      });
     }
     if (strike.resolved && now >= vfxUntil) state.battle.pendingEnemyStrike = null;
     return;
@@ -36793,6 +37129,7 @@ function bossPartyEnemyAttack(now) {
   if (isGuardianRockEnemy(enemy)) return beginGuardianRockAttack(now);
   if (isDarkDevilEnemy(enemy)) return beginDarkDevilAttack(now);
   if (isKingScorpionEnemy(enemy)) return beginKingScorpionAttack(now);
+  if (isCrystalSpiderEnemy(enemy)) return beginCrystalSpiderAttack(now);
   if (isDanmoEnemy(enemy)) return beginDanmoAttack(now);
   if (enemyHasRangedMeleeAttack(enemy)) return beginBoneLordAttack(now);
   const target = bossPartyFrontTarget();
@@ -37350,11 +37687,14 @@ function bossDropTableForEnemy(enemy = state.battle.enemy) {
   if (isIncarnatedZumaTaurusEnemy(enemy)) return BOSS_DROP_TABLE_BY_LABEL["Incarnated Zuma Taurus"];
   if (isWoomaTaurusEnemy(enemy)) return BOSS_DROP_TABLE_BY_LABEL["Wooma Taurus"];
   if (isEvilSnakeEnemy(enemy)) return BOSS_DROP_TABLE_BY_LABEL["Evil Snake"];
+  if (isCrystalSpiderEnemy(enemy)) return BOSS_DROP_TABLE_BY_LABEL["Crystal Spider"];
   if (isZumaTaurusEnemy(enemy)) return BOSS_DROP_TABLE_BY_LABEL["Zuma Taurus"];
+  if (isRedEvilApeEnemy(enemy)) return BOSS_DROP_TABLE_BY_LABEL["Red Evil Ape"];
   if (isEvilCentipedeEnemy(enemy)) return BOSS_DROP_TABLE_BY_LABEL["Evil Centipede"];
   if (isBoneLordEnemy(enemy)) return BOSS_DROP_TABLE_BY_LABEL["Bone Lord"];
   if (isKingScorpionEnemy(enemy)) return BOSS_DROP_TABLE_BY_LABEL["King Scorpion"];
   if (isMinotaurKingEnemy(enemy)) return BOSS_DROP_TABLE_BY_LABEL["Minotaur King"];
+  if (isRedMoonEvilEnemy(enemy)) return BOSS_DROP_TABLE_BY_LABEL["Red Moon Evil"];
   if (isYimoogiEnemy(enemy)) return BOSS_DROP_TABLE_BY_LABEL["Yimoogi"];
   if (isOmaKingSpiritEnemy(enemy)) return BOSS_DROP_TABLE_BY_LABEL["Oma King Spirit"];
   if (isKingHogEnemy(enemy)) return BOSS_DROP_TABLE_BY_LABEL["King Hog"];
@@ -37532,6 +37872,15 @@ function applyBossPartyMemberKillReward(member, {
   }
 }
 
+function resolveEnemyKillGoldRange(enemy, zone) {
+  const templateId = enemy?.templateId ?? enemy?.id;
+  const template = ENEMY_TEMPLATES.find((entry) => entry.id === templateId);
+  const raw = enemy?.killGold ?? template?.killGold ?? zone?.rewards?.gold ?? [1, 2];
+  const lo = Math.max(0, Math.trunc(Number(raw[0]) || 0));
+  const hi = Math.max(lo, Math.trunc(Number(raw[1]) || 0));
+  return [lo, hi];
+}
+
 function awardBossPartyKillShare(now = performance.now(), options = {}) {
   const party = state.battle.bossParty;
   const zone = PROTOTYPE_ZONES.find((entry) => entry.id === party?.zoneId) ?? activeZone();
@@ -37545,14 +37894,16 @@ function awardBossPartyKillShare(now = performance.now(), options = {}) {
   const rewardMult = groupDungeonEmpowerRewardMultiplier(zone);
   const xpPerShare = splitPartyRewardAmount(Math.round((enemy.experience ?? 0) * rewardMult), shareCount);
 
-  const reward = zone.rewards ?? { gold: [1, 2] };
-  const totalGold = randomInt(reward.gold[0], reward.gold[1]) * rewardMult;
+  const goldRange = resolveEnemyKillGoldRange(enemy, zone);
+  const totalGold = randomInt(goldRange[0], goldRange[1]) * rewardMult;
   const goldPerShare = splitPartyRewardAmount(totalGold, shareCount);
+  // Group-dungeon wave trash is gold-only (boss floors use boss tables / zone rolls).
+  const gdTrash = groupDungeonZone(zone) && !groupDungeonBossZone(zone) && !groupDungeonBossSwarmZone(zone);
 
   for (const member of recipients) {
     const xp = adjustedKillExperience(xpPerShare, member.game.progress.level, enemy.level ?? 0, member.inventory);
     const gold = applySupporterGold(adjustedKillGold(goldPerShare, totalGoldBonusPercent(member.inventory)));
-    const drops = rollBossPartyZoneDrops(member, zone, enemy);
+    const drops = gdTrash ? { added: [], ignored: [] } : rollBossPartyZoneDrops(member, zone, enemy);
     applyBossPartyMemberKillReward(member, { xp, gold, drops, now, zoneId: zone.id });
   }
 }
@@ -39097,7 +39448,26 @@ function warriorAttack(now) {
   return true;
 }
 
+function usableWarriorAutoBuffSkill(now) {
+  // Fury / Rage / Protection Field / Immortal Skin — same top-tier order as boss-party.
+  const candidates = autoWarriorCombatSkills()
+    .filter((skill) => skill.buff)
+    .map((skill) => ({ skill, learned: learnedMagic(skill.id) }))
+    .filter(({ skill, learned }) => canAutoCastWarriorSkill(skill, learned, now))
+    .sort((a, b) => warriorAutoPriority(a.skill) - warriorAutoPriority(b.skill));
+  if (!candidates.length) return null;
+  const { skill, learned } = candidates[0];
+  return { skill, learned, cost: effectiveSpellMpCost(skill, learned) };
+}
+
 function usableWarriorAttackSkill(now) {
+  const queued = queuedWarriorAttackSkill(now);
+  // Manual buff queue first; auto combat buffs outrank every attack skill (BA, sweeps, charges).
+  if (queued && !queued.queuedWaiting && queued.skill?.buff) return queued;
+
+  const buff = usableWarriorAutoBuffSkill(now);
+  if (buff) return buff;
+
   const charged = chargedWarriorAttack(now);
   if (charged) return charged;
 
@@ -39105,7 +39475,6 @@ function usableWarriorAttackSkill(now) {
   const slaying = chargedSlayingAttack(now);
   if (slaying) return slaying;
 
-  const queued = queuedWarriorAttackSkill(now);
   if (queued) return queued;
 
   // Blade Avalanche slightly above Half Moon / Cross Half Moon: cast BA whenever
@@ -39793,6 +40162,7 @@ function canUseTaoistSpell(spell, learned, now, options = {}) {
 }
 
 function warriorAutoPriority(skill) {
+  // Combat buffs stay first so solo + boss-party share the same cast order.
   const order = ["Fury", "Rage", "ProtectionField", "ImmortalSkin", "FlamingSword", "TwinDrakeBlade", "BladeAvalanche", "Thrusting", "CrossHalfMoon", "HalfMoon"];
   const index = order.indexOf(skill?.id);
   return index === -1 ? order.length : index;
@@ -41732,10 +42102,33 @@ function isTaoistPetEntity(entity) {
   return Boolean(entity.spellId && (entity.spellId === "SummonSkeleton" || entity.spellId === "SummonShinsu" || entity.spellId === "SummonHolyDeva"));
 }
 
+/**
+ * Max SC for Glyph of Spirit Wards. Includes Glyph of the Monk and (in boss party)
+ * active SC buffs. Solo `player.sc` already has buffs baked via characterStoredCombatStats.
+ */
+function maxScForTaoistDefenceBuffBonus(caster) {
+  const glyphs = equippedGlyphFor(caster);
+  let sc = [...statRange(caster?.sc ?? [0, 0])];
+  if (caster?.classId && state.battle.bossParty?.active) {
+    const stats = { sc: [...sc] };
+    applyStatBuffsToStats(stats, pruneStatBuffs(entityStatBuffList(caster)));
+    sc = [...statRange(stats.sc)];
+  }
+  if (combatantIsTaoist(caster)) {
+    const monk = applyGlyphMonkCombatStats(
+      { dc: [0, 0], sc: [...sc] },
+      glyphs,
+      taoistHasLivingSummonedPet(),
+    );
+    sc = [...statRange(monk.sc)];
+  }
+  return sc[1];
+}
+
 function rollTaoistDefenceBuffBonusForCaster(caster) {
   const level = caster?.level ?? state.game.progress.level;
-  const maxSc = statRange(caster?.sc ?? [0, 0])[1];
-  return rollTaoistDefenceBuffBonusFromGlyph(level, maxSc, equippedGlyphFor(caster));
+  const glyphs = equippedGlyphFor(caster);
+  return rollTaoistDefenceBuffBonusFromGlyph(level, maxScForTaoistDefenceBuffBonus(caster), glyphs);
 }
 
 function rollTaoistDefenceBuffBonus(level) {
@@ -41978,6 +42371,14 @@ function taoistPartyDefenceBuffTargets(now = performance.now()) {
 
 function pushDefenceBuff(buffList, spell, bonus, expiresAt, learned = null, options = {}) {
   const kind = defenceBuffKind(spell.id);
+  const now = Math.max(0, Number(options.now) || 0);
+  const previous = Array.isArray(buffList)
+    ? buffList.find((buff) => buff.kind === kind && Number(buff.expiresAt) > now)
+    : null;
+  // Glyph of Buffing refreshes these often; never replace a stronger active ward with a weaker roll.
+  const effectiveBonus = previous
+    ? Math.max(Math.max(0, Math.trunc(Number(bonus) || 0)), Math.max(0, Math.trunc(Number(previous.maxBonus) || 0)))
+    : Math.max(0, Math.trunc(Number(bonus) || 0));
   const list = Array.isArray(buffList) ? buffList.filter((buff) => buff.kind !== kind) : [];
   if (spell.id === "MagicShield") {
     const reductionPercent = options.reductionPercent != null
@@ -42000,7 +42401,7 @@ function pushDefenceBuff(buffList, spell, bonus, expiresAt, learned = null, opti
     label: spell.label,
     stat,
     minBonus: 0,
-    maxBonus: bonus,
+    maxBonus: effectiveBonus,
     expiresAt,
   });
   return list;
@@ -42093,14 +42494,20 @@ function applyTaoistDefenceBuffEffect(spell, learned, caster, now, options = {})
 function applyTaoistDefenceBuffToTargetList(spell, learned, caster, targets, now, options = {}) {
   if (!spell || !Array.isArray(targets) || !targets.length) return null;
   const bonus = rollTaoistDefenceBuffBonusForCaster(caster);
-  const durationMs = rollTaoistDefenceBuffDurationMs(learned, caster);
+  const durationMs = options.durationMs != null
+    ? Math.max(0, Math.trunc(Number(options.durationMs) || 0))
+    : rollTaoistDefenceBuffDurationMs(learned, caster);
   const expiresAt = now + durationMs;
+  const kind = defenceBuffKind(spell.id);
+  let appliedBonus = bonus;
   const results = [];
   for (const entry of targets) {
     const entity = entry?.entity ?? entry;
     const name = entry?.name ?? entity?.name ?? entity?.classId ?? "ally";
     if (!entity || entity.hp <= 0) continue;
-    const nextBuffs = pushDefenceBuff(entityStatBuffList(entity), spell, bonus, expiresAt, learned);
+    const nextBuffs = pushDefenceBuff(entityStatBuffList(entity), spell, bonus, expiresAt, learned, { now });
+    const kept = kind ? nextBuffs.find((buff) => buff.kind === kind) : null;
+    if (kept) appliedBonus = Math.max(appliedBonus, Math.max(0, Math.trunc(Number(kept.maxBonus) || 0)));
     setEntityStatBuffList(entity, nextBuffs);
     if (entity?.classId === bossPartyControlledClassId()) {
       state.battle.statBuffs = [...(entity.statBuffs ?? nextBuffs)];
@@ -42112,7 +42519,7 @@ function applyTaoistDefenceBuffToTargetList(spell, learned, caster, targets, now
   }
   if (!results.length) return null;
   if (learned && options.levelSkill !== false) levelMagicSkill(spell, learned, now);
-  return { spell, bonus, durationMs, reductionPercent: 0, results };
+  return { spell, bonus: appliedBonus, durationMs, reductionPercent: 0, results };
 }
 
 function applyTaoistPartyDefenceBuffToTargets(spell, learned, caster, now, options = {}) {
@@ -42139,15 +42546,24 @@ function learnedTaoistSpellForCaster(caster, spellId) {
  * to the same targets (no extra amulet/MP, does not level those skills).
  */
 function applyGlyphBuffingChainFromUltimate(caster, targets, now, options = {}) {
-  if (!glyphChainsDefenceBuffsWithUltimate(equippedGlyphFor(caster))) return null;
+  // UE may have replaced solo `state.battle.player`; use the live caster so Spirit Wards
+  // reads post-UE SC / inventory correctly.
+  const liveCaster = caster?.classId
+    ? (resolveBossPartyMember(caster) ?? caster)
+    : (state.battle.player ?? caster);
+  if (!glyphChainsDefenceBuffsWithUltimate(equippedGlyphFor(liveCaster))) return null;
   if (!Array.isArray(targets) || !targets.length) return null;
   const chain = [];
+  const durationMs = options.durationMs != null
+    ? Math.max(0, Math.trunc(Number(options.durationMs) || 0))
+    : null;
   for (const spellId of ["SoulShield", "BlessedArmour"]) {
     const spell = taoistCombatSpell(spellId);
     if (!spell) continue;
-    const learned = learnedTaoistSpellForCaster(caster, spellId);
-    const applied = applyTaoistDefenceBuffToTargetList(spell, learned, caster, targets, now, {
+    const learned = learnedTaoistSpellForCaster(liveCaster, spellId);
+    const applied = applyTaoistDefenceBuffToTargetList(spell, learned, liveCaster, targets, now, {
       levelSkill: false,
+      ...(durationMs != null ? { durationMs } : {}),
     });
     if (applied) chain.push(applied);
   }
@@ -42225,6 +42641,7 @@ function applyDefenceBuffEffect(spell, learned, caster, now, options = {}) {
     const buffMember = resolveBossPartyMember(options.member);
     buffMember.statBuffs = pushDefenceBuff(buffMember.statBuffs ?? [], spell, bonus, expiresAt, learned, {
       reductionPercent,
+      now,
     });
     if (buffMember.classId === bossPartyControlledClassId()) {
       state.battle.statBuffs = [...buffMember.statBuffs];
@@ -42233,6 +42650,7 @@ function applyDefenceBuffEffect(spell, learned, caster, now, options = {}) {
   } else {
     state.battle.statBuffs = pushDefenceBuff(state.battle.statBuffs, spell, bonus, expiresAt, learned, {
       reductionPercent,
+      now,
     });
     applyEquippedStatsToBattlePlayer();
   }
@@ -42250,6 +42668,7 @@ function applyDefenceBuffEffect(spell, learned, caster, now, options = {}) {
         : (pet.statBuffs ?? []);
       const nextPetBuffs = pushDefenceBuff(currentPetBuffs, spell, bonus, expiresAt, learned, {
         reductionPercent,
+        now,
       });
       if (pet === state.battle.taoPet) state.battle.petStatBuffs = nextPetBuffs;
       else pet.statBuffs = nextPetBuffs;
@@ -42412,7 +42831,10 @@ function applyUltimateEnhancerToTargets(spell, learned, caster, targets, now, op
   }
   if (!results.length) return null;
   if (learned && options.levelSkill !== false) levelMagicSkill(spell, learned, now);
-  const glyphBuffChain = applyGlyphBuffingChainFromUltimate(caster, results, now, options);
+  const glyphBuffChain = applyGlyphBuffingChainFromUltimate(caster, results, now, {
+    ...options,
+    durationMs,
+  });
   return { bonus, durationMs, results, glyphBuffChain };
 }
 
@@ -46687,6 +47109,7 @@ function enemyAttack(now) {
   if (isGuardianRockEnemy(battle.enemy)) return beginGuardianRockAttack(now);
   if (isDarkDevilEnemy(battle.enemy)) return beginDarkDevilAttack(now);
   if (isKingScorpionEnemy(battle.enemy)) return beginKingScorpionAttack(now);
+  if (isCrystalSpiderEnemy(battle.enemy)) return beginCrystalSpiderAttack(now);
   if (isDanmoEnemy(battle.enemy)) return beginDanmoAttack(now);
   if (enemyHasRangedMeleeAttack(battle.enemy)) return beginBoneLordAttack(now);
   const target = enemyAttackTarget();
@@ -48802,6 +49225,7 @@ function canEnemyAttack() {
   if (isGuardianRockEnemy(battle.enemy)) return canGuardianRockAttack();
   if (isDarkDevilEnemy(battle.enemy)) return canDarkDevilAttack();
   if (isKingScorpionEnemy(battle.enemy)) return canKingScorpionAttack();
+  if (isCrystalSpiderEnemy(battle.enemy)) return canCrystalSpiderAttack();
   if (isDanmoEnemy(battle.enemy)) return canDanmoAttack();
   if (enemyHasRangedMeleeAttack(battle.enemy)) return canBoneLordAttack();
   return battle.enemyAggro && battle.enemy?.hp > 0 && enemyTargetDistance() <= enemyMeleeAttackRangePx(battle.enemy);
@@ -49334,6 +49758,21 @@ function refreshOpenSceneLiveText() {
       if (etaEl.textContent !== text) etaEl.textContent = text;
     }
   }
+  if (state.activeScene === "bossEntry") {
+    const now = Date.now();
+    for (const row of els.sceneOverlay.querySelectorAll("[data-group-dungeon-boss-zone]")) {
+      const zoneId = row.dataset.groupDungeonBossZone;
+      if (!zoneId) continue;
+      const remaining = bossRespawnRemainingMs(zoneId, now);
+      const alive = remaining <= 0;
+      row.classList.toggle("is-alive", alive);
+      row.classList.toggle("is-respawning", !alive);
+      const status = row.querySelector("[data-group-dungeon-boss-status]");
+      if (!status) continue;
+      const text = alive ? "Alive" : formatDuration(remaining);
+      if (status.textContent !== text) status.textContent = text;
+    }
+  }
 }
 
 function renderPlayerResourceHud() {
@@ -49637,6 +50076,7 @@ function renderCanvasStage(displayFrame, frameCount) {
   drawEnemyRangeProjectileCanvas(ctx);
   drawSwarmEnemyRangeProjectileCanvas(ctx);
   drawGreatFoxSpiritEffectsCanvas(ctx);
+  drawRedMoonEvilEffectsCanvas(ctx);
   drawEnemyHealthBar(ctx);
   drawTaoistPetHealthBar(ctx);
   drawEnemyPoisonDots(ctx);
@@ -50753,6 +51193,8 @@ function zoneStampBehindBackgroundCacheKey(stamp = currentZoneMapStamp()) {
   return [
     "zone-behind",
     stamp.id,
+    stamp.sheet || "",
+    stamp.backdrop || "",
     state.game.activeZoneId,
     state.stageWidth,
     state.stageHeight,
@@ -50765,13 +51207,20 @@ function zoneStampBehindBackgroundCacheKey(stamp = currentZoneMapStamp()) {
 }
 
 function zoneMapStampSheetReady(stamp = currentZoneMapStamp()) {
-  if (!stamp?.sheet) return false;
-  return Boolean(cachedImage(`./public/mapstamps/${stamp.sheet}?v=${MAP_STAMP_ASSET_VERSION}`));
+  if (!stamp?.sheet && !stamp?.backdrop) return false;
+  // Kick off loads for every required sheet; ready only when all have decoded.
+  let ready = true;
+  if (stamp.sheet && !cachedImage(mapStampSheetUrl(stamp))) ready = false;
+  if (stamp.backdrop && !cachedImage(mapStampBackdropUrl(stamp))) ready = false;
+  return ready;
 }
 
 function townMapStampSheetReady(stamp = currentTownMapStamp()) {
-  if (!stamp?.sheet) return false;
-  return Boolean(cachedImage(`./public/mapstamps/${stamp.sheet}?v=${MAP_STAMP_ASSET_VERSION}`));
+  if (!stamp?.sheet && !stamp?.backdrop) return false;
+  let ready = true;
+  if (stamp.sheet && !cachedImage(mapStampSheetUrl(stamp))) ready = false;
+  if (stamp.backdrop && !cachedImage(mapStampBackdropUrl(stamp))) ready = false;
+  return ready;
 }
 
 function drawTownMapCanvas(ctx) {
@@ -51342,6 +51791,48 @@ function stampSheetSlotOrigin(stamp, slot) {
   };
 }
 
+function stampLayerSourceOrigin(stamp, layer) {
+  if (Number.isFinite(Number(layer?.sheetX)) && Number.isFinite(Number(layer?.sheetY))) {
+    return {
+      sx: Math.trunc(Number(layer.sheetX)),
+      sy: Math.trunc(Number(layer.sheetY)),
+    };
+  }
+  return stampSheetSlotOrigin(stamp, layer?.slot);
+}
+
+function mapStampSheetUrl(stamp) {
+  if (!stamp?.sheet) return null;
+  return `./public/mapstamps/${stamp.sheet}?v=${MAP_STAMP_ASSET_VERSION}`;
+}
+
+function mapStampBackdropUrl(stamp) {
+  if (!stamp?.backdrop) return null;
+  return `./public/mapstamps/${stamp.backdrop}?v=${MAP_STAMP_ASSET_VERSION}`;
+}
+
+function drawStampBackdrop(ctx, stamp) {
+  const url = mapStampBackdropUrl(stamp);
+  if (!url) return false;
+  const sheet = cachedImage(url);
+  if (!sheet) return false;
+  const { baseX, baseY, scale } = mapStampDrawBase(stamp);
+  const width = Math.max(1, Math.trunc(Number(stamp.backdropWidth) || Number(stamp.width) || sheet.width || 1));
+  const height = Math.max(1, Math.trunc(Number(stamp.backdropHeight) || Number(stamp.height) || sheet.height || 1));
+  ctx.drawImage(
+    sheet,
+    0,
+    0,
+    width,
+    height,
+    baseX,
+    baseY,
+    Math.round(width * scale),
+    Math.round(height * scale),
+  );
+  return true;
+}
+
 // 100x100 ground glow sprites (2723-2732). Lamp posts are frame 2733 — keep those.
 function mapStampLayerIsGroundLightGlow(layer) {
   const match = /^(\d+):(\d+)$/.exec(String(layer?.source ?? ""));
@@ -51353,7 +51844,7 @@ function mapStampLayerIsGroundLightGlow(layer) {
 
 function drawStampLayerBatch(ctx, stamp, layers) {
   if (!stamp?.sheet || !layers?.length) return;
-  const sheet = cachedImage(`./public/mapstamps/${stamp.sheet}?v=${MAP_STAMP_ASSET_VERSION}`);
+  const sheet = cachedImage(mapStampSheetUrl(stamp));
   if (!sheet) return;
 
   const { baseX, baseY, scale, slotWidth, slotHeight } = mapStampDrawBase(stamp);
@@ -51368,7 +51859,7 @@ function drawStampLayerBatch(ctx, stamp, layers) {
     }
     const layerWidth = Math.max(1, Math.trunc(Number(layer.w) || slotWidth));
     const layerHeight = Math.max(1, Math.trunc(Number(layer.h) || slotHeight));
-    const { sx, sy } = stampSheetSlotOrigin(stamp, layer.slot);
+    const { sx, sy } = stampLayerSourceOrigin(stamp, layer);
     ctx.drawImage(
       sheet,
       sx,
@@ -51554,8 +52045,12 @@ function drawStampArenaEntityLayers(ctx, displayFrame) {
 
 function drawZoneMapStampLayers(ctx, depth = "behind", options = {}) {
   const stamp = currentZoneMapStamp();
-  if (!stamp?.sheet) return;
+  if (!stamp?.sheet && !stamp?.backdrop) return;
   const animatedMode = options.animated ?? true; // true | false | "only"
+  // Pre-baked backdrop replaces the static behind layer stack (VRAM win for tall field stamps).
+  if (depth === "behind" && animatedMode !== "only" && stamp.backdrop) {
+    drawStampBackdrop(ctx, stamp);
+  }
   const staticLayers = animatedMode === "only" ? [] : (stamp.layers ?? []);
   const animatedLayers = animatedMode === false ? [] : stampCurrentAnimatedLayers(stamp);
   if (!staticLayers.length && !animatedLayers.length) return;
@@ -51563,6 +52058,10 @@ function drawZoneMapStampLayers(ctx, depth = "behind", options = {}) {
   const hasForeground = mapStampHasForegroundLayers(stamp, spawnRow);
   const layers = [...staticLayers, ...animatedLayers].filter((layer) => {
     const inFront = mapStampLayerDrawsOverEnemy(layer, spawnRow);
+    // Backdrop already includes static behind art — skip re-drawing those layers.
+    if (stamp.backdrop && depth === "behind" && !animatedLayers.includes(layer) && !inFront) {
+      return false;
+    }
     if (!hasForeground) return true;
     if (depth === "behind") return !inFront;
     if (depth === "front") return inFront;
@@ -52271,7 +52770,12 @@ function strikeShowsEnemyProjectileVfx(strike = state.battle.pendingEnemyStrike)
   if (strike.kind === "danmoRange") return true;
   if (strike.kind === "danmoMelee") return false;
   if (strike.kind === "kingScorpionLine") return Boolean(strike.ranged);
-  if (strike.kind === "massBurst" || strike.kind === "scalyStomp" || strike.kind === "darkDevilBurst") return true;
+  if (strike.kind === "crystalSpiderLine") return true;
+  if (strike.kind === "massBurst" || strike.kind === "scalyStomp" || strike.kind === "darkDevilBurst") {
+    // Red Moon Evil SpellEffect is drawn per-target via redMoonEvilEffects, not on the boss.
+    if (strike.kind === "massBurst" && state.enemy.atlas?.projectile?.anchor === "targets") return false;
+    return true;
+  }
   if (!strike.ranged) return false;
   if (isFlamingMutantEnemy(state.battle.enemy) && strike.aoe) return true;
   if (isMinotaurKingEnemy(state.battle.enemy)) return minotaurKingStrikeUsesAoe(strike);
@@ -52316,8 +52820,8 @@ function drawEnemyRangeProjectileCanvas(ctx) {
     });
     return;
   }
-  if (strike.kind === "kingScorpionLine") {
-    if (!strike.ranged) return;
+  if (strike.kind === "kingScorpionLine" || strike.kind === "crystalSpiderLine") {
+    if (strike.kind === "kingScorpionLine" && !strike.ranged) return;
     const atlas = state.enemy.atlas;
     const projectile = atlas?.projectile;
     if (!projectile?.frames?.length) return;
@@ -52930,25 +53434,40 @@ function drawWizardMirrorBodyCanvas(ctx, body, offsetY = 0) {
   const mirror = state.battle.wizardMirror;
   if (!state.showEnemies || !mirror?.active || !body) return;
 
+  // Use drawCharacterVisualLayers so wing / weaponGlow get Crystal DrawBlend
+  // (screen composite). The old plain layer loop left Heaven Armour wing
+  // outlines black on mirrors while the real wizard drew them correctly.
   if (bossPartyOnField()) {
     const owner = bossPartyMemberByClassId(mirror.ownerClassId ?? "Wizard");
     if (!owner) return;
     const { x: anchorX, y: anchorY } = wizardMirrorAnchor(offsetY);
     const action = bossPartyMirrorVisualAction(body);
+    const frameIndex = Math.max(0, Math.trunc(Number(body.visualFrame) || 0));
+    const wingFrame = Math.max(0, Math.trunc(Number(owner.wingFrame ?? body.visualFrame) || 0));
     ctx.save();
     ctx.globalAlpha = 0.88;
-    for (const layer of layerNames()) {
-      const index = owner.visualIndexes?.[layer];
-      if (index == null || index === "") continue;
-      const atlas = owner.visualAtlases?.[layer] ?? (owner.classId === bossPartyControlledClassId() ? state.atlases[layer] : null);
-      const clip = atlas?.actions?.[action] ?? atlas?.actions?.stance ?? atlas?.actions?.standing;
-      const frameIndex = Math.max(0, Math.min(body.visualFrame ?? 0, (clip?.frames?.length ?? 1) - 1));
-      const meta = clip?.frames?.[frameIndex] ?? clip?.frames?.[0];
-      if (!atlas || !clip || !meta || meta.empty) continue;
-      const sheet = cachedImage(sheetUrl(state.spriteSet, layer, index));
-      if (!sheet) continue;
-      drawAtlasFrame(ctx, sheet, atlas.slotWidth, atlas.slotHeight, meta, anchorX, anchorY);
-    }
+    drawCharacterVisualLayers(ctx, {
+      action,
+      displayFrame: frameIndex,
+      wingFrame,
+      anchorX,
+      anchorY,
+      indexes: owner.visualIndexes,
+      atlases: Object.fromEntries(
+        layerNames().map((layer) => {
+          const index = owner.visualIndexes?.[layer];
+          if (index == null || index === "") return [layer, null];
+          const atlas = owner.visualAtlases?.[layer]
+            ?? (owner.classId === bossPartyControlledClassId() ? state.atlases[layer] : null);
+          return [layer, atlas];
+        }),
+      ),
+      armourSpecialEffectId: owner.activeArmourSpecialEffectId ?? null,
+      armourSpecialEffectStartedAt: owner.armourSpecialEffectStartedAt ?? 0,
+      weaponGlowCssFilter: uniqueWeaponGlowCssFilterForItem(
+        bossPartyMemberEquippedVisualItem(owner, "weapon"),
+      ),
+    });
     ctx.restore();
     return;
   }
@@ -52958,16 +53477,18 @@ function drawWizardMirrorBodyCanvas(ctx, body, offsetY = 0) {
   const { x: anchorX, y: anchorY } = wizardMirrorAnchor(offsetY);
   ctx.save();
   ctx.globalAlpha = 0.88;
-  for (const layer of layerNames()) {
-    const atlas = state.atlases[layer];
-    const index = state.indexes[layer];
-    const clip = atlas?.actions?.[action];
-    const meta = clip?.frames?.[frame] ?? clip?.frames?.[0];
-    if (!atlas || !clip || !meta || meta.empty) continue;
-    const sheet = cachedImage(sheetUrl(state.spriteSet, layer, index));
-    if (!sheet) continue;
-    drawAtlasFrame(ctx, sheet, atlas.slotWidth, atlas.slotHeight, meta, anchorX, anchorY);
-  }
+  drawCharacterVisualLayers(ctx, {
+    action,
+    displayFrame: frame,
+    wingFrame: state.wingFrame,
+    anchorX,
+    anchorY,
+    indexes: state.indexes,
+    atlases: state.atlases,
+    armourSpecialEffectId: state.activeArmourSpecialEffectId,
+    armourSpecialEffectStartedAt: state.armourSpecialEffectStartedAt,
+    weaponGlowCssFilter: uniqueEquippedWeaponGlowCssFilter(),
+  });
   ctx.restore();
 }
 
@@ -54067,33 +54588,43 @@ function drawFloatingCombatText(ctx) {
   if (texts.length !== state.battle.floatingTexts.length) state.battle.floatingTexts = texts;
   if (!texts.length) return;
 
+  const critSizeCap = critTextStageMaxPx(state.stageHeight, compactUi);
+  const critMaxWidth = critTextMaxDrawWidth(state.stageWidth);
+
   ctx.save();
   ctx.textAlign = "center";
   ctx.textBaseline = "middle";
   for (const entry of texts) {
-    const age = now - entry.createdAt;
+    // Clamp age so a future/bad createdAt cannot explode the spawn-pop font size.
+    const age = Math.max(0, now - entry.createdAt);
     const t = Math.max(0, Math.min(1, age / duration));
     const x = entry.x;
-    const y = entry.y - t * 34;
+    const y = entry.y - t * 28;
     const alpha = t < 0.72 ? 1 : Math.max(0, 1 - (t - 0.72) / 0.28);
     // Crits read bigger based on damage vs recent/session baseline; gain a "!" suffix.
     const crit = entry.kind === "crit";
     const text = crit ? `${entry.text}!` : entry.text;
     const critScale = crit ? (entry.critScale ?? 0.35) : 0;
-    const baseFontSize = crit ? critTextFontSize(critScale) : 14;
+    const preferredSize = crit ? critTextFontSize(critScale) : 14;
+    const baseFontSize = crit ? Math.min(preferredSize, critSizeCap) : 14;
     const spawnPop = crit && age < 90
       ? 1 + 0.1 * (1 - age / 90) * smoothstep01(critScale)
       : 1;
-    const fontSize = Math.round(baseFontSize * spawnPop);
+    const fontSize = Math.min(critSizeCap, Math.round(baseFontSize * spawnPop));
     ctx.font = crit
       ? `800 ${fontSize}px Segoe UI, system-ui, sans-serif`
       : "700 14px Segoe UI, system-ui, sans-serif";
     ctx.globalAlpha = alpha;
-    ctx.lineWidth = crit ? Math.max(3, 3 + critScale * 2) : 3;
+    ctx.lineWidth = crit ? Math.max(2, 2 + critScale * 1.5) : 3;
     ctx.strokeStyle = "rgba(0, 0, 0, 0.72)";
     ctx.fillStyle = crit ? critTextFillColor(critScale) : combatTextColor(entry.kind);
-    ctx.strokeText(text, x, y);
-    ctx.fillText(text, x, y);
+    if (crit && critMaxWidth > 0) {
+      ctx.strokeText(text, x, y, critMaxWidth);
+      ctx.fillText(text, x, y, critMaxWidth);
+    } else {
+      ctx.strokeText(text, x, y);
+      ctx.fillText(text, x, y);
+    }
   }
   ctx.restore();
 }

@@ -3,13 +3,12 @@
 > **Private dev sheet** — not shipped to players. Regenerate after glyph changes:
 > `npm run glyph:ref`
 
-Last generated: 2026-07-27
+Last generated: 2026-08-03
 
 ## Drop rules
 
 - Empowered bosses: **10%** chance to drop one random glyph.
 - Ascended bosses: **15%** chance.
-- Awakened bosses: **20%** chance.
 - Equip slots: `glyph`, `glyph2`, `glyph3`, `glyph4`, `glyph5` (5 slots).
 - Pool size: **24** glyphs (uniform pick when a drop hits).
 
@@ -73,7 +72,7 @@ Last generated: 2026-07-27
 - Class: Wizard
 - Level: 35
 - Spells: FlameDisruptor
-- When Flame Disruptor lands the killing blow, the target explodes and deals that hit's full damage to every adjacent enemy (8 directions). Explosions chain on kills.
+- When Flame Disruptor lands the killing blow, the target explodes and deals that hit's damage to every adjacent enemy. Explosions chain on kills.
 
 #### Glyph of Eternal Firewall
 
@@ -114,7 +113,7 @@ Last generated: 2026-07-27
 - Item id: `glyph-buffing`
 - Class: Taoist
 - Level: 35
-- Spells: UltimateEnhancer, SoulShield, BlessedArmour
+- Spells: UltimateEnhancer
 - Ultimate Enhancer also applies Soul Shield and Blessed Armour to the same targets.
 
 #### Glyph of Improved Healing Circle

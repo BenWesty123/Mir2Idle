@@ -1,5 +1,390 @@
 # AI Task Log - LOM Idle V2
 
+## 2026-08-03 - Danmo lag: atlas split + stamp bake
+
+Danmo's room was laggy even on PC. Root cause was GPU texture size / VRAM,
+same class as the old Great Fox sheet:
+
+- `272.png` was **54616×600** (~125 MB) — wider than every common GPU max
+  (4096/8192/16384)
+- `namman-field-center-stamp.png` was **8160×6912** (~215 MB VRAM)
+
+### Fix
+1. **Danmo atlas split** (`tools/build-danmo-combat-atlas.mjs`):
+   - Body + on-mob blends shelf-packed into `272.png` → **8183×1844** (~58 MB)
+   - Travel / impact / heavy burst → companion `272-fx.png` → **7924×1775** (~54 MB)
+   - Both under the 8192 edge; `projectile.sheet` / `projectileHeavy.sheet` =
+     `272-fx.png` (same runtime path as Great Fox)
+2. **Namman field stamp bake** (`tools/optimize-namman-field-stamp.mjs`):
+   - Behind layers → `namman-field-center-backdrop.png` 1728×1152 (~7.6 MB)
+   - FG only → `namman-field-center-stamp.png` 2107×737 (~5.9 MB)
+   - Was one 215 MB sheet; now ~13.5 MB total
+3. Runtime: stamp `backdrop` draw + `sheetX`/`sheetY` layer sampling; asset
+   version bumps `20260803-danmo-atlas-split` / `20260803-danmo-stamp-bake`
+4. `build-namman-field-stamp.ps1` re-runs the optimizer after a full rebuild
+
+### Verify
+- `npm.cmd run check`
+- Manual: Teleport → Southern Barbarian Land → Danmo; confirm body/blends,
+  winged bolt, range2 crater, tree occlusion, and smoother frame times
+
+## 2026-08-03 - Fix Buffing + Spirit Wards defence buffs
+
+Soul Shield / Blessed Armour were weaker when Glyph of Buffing was equipped
+alongside Glyph of Spirit Wards. Buffing's Ultimate Enhancer chain could
+overwrite a stronger ward with a weaker roll (stale pre-UE caster SC), and
+Buffing listed SoulShield/BlessedArmour in `spellIds` so spell-scoped glyph
+lookup preferred Buffing over Spirit Wards. Spirit Wards also ignored Monk SC.
+
+### Changes
+- `src/glyphModifiers.js`: Buffing `spellIds` = UltimateEnhancer only
+- `src/app.monolith.js`: live caster after UE; keep max bonus on refresh;
+  Spirit Wards uses Monk (+ boss-party SC buffs); offline SS/BA cast fixed
+- tests + `docs/GLYPH_REFERENCE.md`
+
+### Verify
+- `npm.cmd run check`
+
+## 2026-08-02 - RMV empower (match BDD/Hell)
+
+Confirmed `groupDungeonEmpowerable` includes `"red-valley"` (Tree Path entry
+gets Empower/Ascend/Awaken, paid once, scales trash + bosses). Hardened
+persist/load so `empowerTier` is always saved and restored (and a stale 0
+save cannot wipe a live paid run).
+
+## 2026-08-02 - Frost Crunch → Crystal Spider
+
+Moved `book-frost-crunch` (20%) off Wooma Taurus onto Crystal Spider.
+
+## 2026-08-02 - Healing Circle → Red Moon Evil
+
+Moved `book-healing-circle` (10%) off King Hog onto Red Moon Evil.
+
+## 2026-08-02 - Red Moon Evil drops (Minotaur King minus book)
+
+Wired Red Moon Evil boss table as Minotaur King loot without
+book-mass-healing (25k gold, same gear/drugs/souls rates).
+
+## 2026-08-02 - Red Evil Ape drops (Zuma Taurus + Bone Lord)
+
+Wired Red Evil Ape boss table: shared ZT loot at Zuma rates + Bone Lord
+exclusives (death-gauntlet / smash-wheel / smash-ring). No books, no
+zuma-relic / zuma-branded weapons, no awakened uniques.
+
+## 2026-08-02 - Crystal Spider drops (WT + Evil Snake)
+
+Wired Crystal Spider boss table: shared WT/Evil Snake loot (no books, no
+Wooma Heart, no awakened uniques). Dragon Sword at WT 1/55; includes Black
+Dragon mythical armour from Evil Snake.
+
+## 2026-08-02 - RMV trash drops (gold only, WT/ST)
+
+Group-dungeon trash stays itemless. Spiders (455-460) use `killGold`
+[70, 130] (Wooma Temple 1); apes (461-463) use [95, 165] (Stone Temple 1).
+`awardBossPartyKillShare` prefers per-enemy `killGold` and skips zone item
+rolls on GD wave floors so mixed spider/ape rooms pay correctly.
+
+## 2026-08-02 - Red Moon Evil (Bone Lord ↔ Minotaur King)
+
+Retuned final RMV boss for felt difficulty between Bone Lord and Minotaur
+King. Always-on full-party mass AOE (vs BL single-target / MK occasional
+splash), so raw stats sit near Bone Lord: 11000 HP, DC 45-85, AC/AMC 30,
+XP 11000, attackMs 1200; no enrage. Gold [650, 1150].
+
+## 2026-08-02 - RMV ape difficulty (Stone Tomb / Zuma Taurus)
+
+Ape floors retuned to Stone Tomb Red/Black Boar band; Ape Den boss to Zuma
+Taurus:
+- Big/Evil/Grey Evil Ape (~320-400 HP, DC ~18-32, XP ~560-680).
+- Red Evil Ape matched Zuma Taurus (12000 HP, DC 40-80, MACAgility, no
+  enrage); Ape Den gold to Zuma KR band.
+- Floor 3 / 5 / Moon Door gold brought toward Stone Tomb / Zuma trash.
+
+## 2026-08-02 - RMV early difficulty (Wooma F1 / Taurus)
+
+Easiest-GD pass for floors through Crystal Nest:
+- Early spiders (Root/Bat/Venom/Gang/Great/Lure) retuned to Wooma Temple 1
+  trash band (~240-340 HP, DC ~12-30).
+- Crystal Spider retuned just under Wooma Taurus (2600 HP, DC 30-75, no
+  enrage) because line AOE hits the whole party.
+- Tree Path / RMV 1F gold brought toward Wooma F1; Crystal Nest gold near
+  Wooma KR.
+
+## 2026-08-02 - Moon Door floor (D10052)
+
+Crystal's Red Moon Evil door is on **D10052 (140, 23)**, not D10051.
+Added `zone-red-valley-gd-6` (Moon Door) with stamp at the door, bumped
+Red Moon Evil to GD floor 8, and built
+`tile-review/red-moon-door-spot-picker/` (`use red moon door spot …`).
+
+## 2026-08-02 - RedValley_5F stand (70, 18)
+
+Set `zone-red-valley-gd-5` arena to `(70, 18)` and rebuilt
+`red-valley-gd-5-center` stamp.
+
+## 2026-08-02 - RedValley_5F spot picker (D10051)
+
+Added `tools/build-red-valley-5f-spot-picker.ps1` →
+`tile-review/red-valley-5f-spot-picker/index.html` for the heavy ape/spider
+floor (`zone-red-valley-gd-5`). Reply `use red moon valley 5f spot <id>` or
+`use red moon valley 5f spot X, Y`.
+
+## 2026-08-02 - Red Evil Ape KR stand (78, 24)
+
+Set `zone-red-valley-gd-4` arena to `(78, 24)` and rebuilt
+`red-valley-gd-4-center` stamp.
+
+## 2026-08-02 - Red Evil Ape KR spot picker (D10053)
+
+Added `tools/build-red-evil-ape-spot-picker.ps1` →
+`tile-review/red-evil-ape-spot-picker/index.html` for the Ape Den KR
+(`zone-red-valley-gd-4`). Reply `use red evil ape spot <id>` or
+`use red evil ape spot X, Y`.
+
+## 2026-08-02 - RedValley_3F stand (187, 106)
+
+Set `zone-red-valley-gd-3` arena to `(187, 106)` and rebuilt
+`red-valley-gd-3-center` stamp (crop 169,88 / 36x36).
+
+## 2026-08-02 - RedValley_3F spot picker (D10031)
+
+Added `tools/build-red-valley-3f-spot-picker.ps1` →
+`tile-review/red-valley-3f-spot-picker/index.html` for the spider+ape mix
+floor after Crystal Spider (`zone-red-valley-gd-3`). Reply
+`use red moon valley 3f spot <id>` or `use red moon valley 3f spot X, Y`.
+
+## 2026-08-02 - Crystal Spider line AOE + poison + beam EFX
+
+Wired Crystal `CrystalSpider` kit for Red Moon Valley mid-boss:
+- Rebuilt Mon61 atlas with Attack2/`attackRange1` body + attached 644px line beam
+  (`tools/build-crystal-spider-combat-atlas.ps1`).
+- New `attackMode: "crystalSpider"`: adjacent melee (AC), else LineAttack DC+MAC
+  with staggered party hits, Attack2 anim, stretched beam VFX, attack SFX.
+- Green poison on hit (`PoisonTarget` 1/8, 5 ticks) via SC `[30, 60]`.
+
+## 2026-08-02 - Rename dungeon display to Red Moon Valley
+
+Player-facing zone labels now say **Red Moon Valley** (Crystal map titles
+remain RedValley_*). Spot picker moved to
+`tile-review/red-moon-valley-spot-picker/`; reply
+`use red moon valley spot <id>`.
+
+## 2026-08-02 - Tree Path GD floor 1 @ (221, 116)
+
+Inserted Crystal **Tree Path** (`12.map`) as red-valley GD floor 1 at
+stand `(221, 116)` (`tree-path-center` stamp). Wave trash is only Treepath
+hub spiders: Root / Venom / Gang / Great / Lure (no Spider Bat). Existing
+Red Valley floors shifted to 2–7.
+
+## 2026-08-02 - Tree Path spot picker
+
+Added `tools/build-tree-path-spot-picker.ps1` →
+`tile-review/tree-path-spot-picker/index.html` for Crystal `12.map`
+(Treepath) outdoor spider approach before Red Valley. Reply
+`use tree path spot <id>` or `use tree path spot X, Y`.
+
+## 2026-08-02 - Red Valley spot picker
+
+Added `tools/build-red-valley-spot-picker.ps1` →
+`tile-review/red-valley-spot-picker/index.html` with overviews + preset
+crops for all 6 GD floors (D10011 / D1004 / D10031 / D10053 / D10051 /
+D10062). Reply `use red valley spot <id>` or `use red valley gdN spot X, Y`.
+
+## 2026-08-02 - Tao Village: list all Red Valley floors (test)
+
+For testing, Tao Village teleporter now lists every Red Valley GD floor
+(gd-1…5 + Red Moon Room), not only the entrance.
+
+## 2026-08-02 - Tao Village teleport region
+
+Crystal puts Red Valley under province **Tao Village**
+(`TaoVillage\TreePath\RedValley\...`), not Woomyon Woods. Added teleport
+region `tao-village` between Woomyon Woods and Mongchon Province; moved
+`zone-red-valley-gd-1` there.
+
+### Verify
+- Teleporter: Bicheon → Woomyon → **Tao Village** → Mongchon
+- Tao Village lists Red Valley GD entry
+
+## 2026-08-02 - Red Valley group dungeon (→ Red Moon Evil)
+
+Built the full **Red Valley** group dungeon ending at Red Moon Evil, matching
+Crystal TreePath / RedValley progression:
+
+| Floor | Role | Map pocket | Enemies |
+|------|------|------------|---------|
+| 1 | Early spiders | D10011 | Root/Bat/Venom/Gang/Great/Lure Spider |
+| 2 | Mini-boss | D1004 | Crystal Spider |
+| 3 | Spider + ape mix | D10031 | Spiders + Big Ape |
+| 4 | Mini-boss | D10053 | Red Evil Ape |
+| 5 | Heavier ape/spider | D10051 | Evil/Grey Evil/Big Ape + spiders |
+| 6 | Final | D10062 | Red Moon Evil |
+
+### Changes
+- Templates **455–465** (Root Spider → Crystal Spider); RME **454** retuned for GD
+- Zones `zone-red-valley-gd-1`…`5` + `zone-red-moon-evil-kr` as floor 6
+  (`groupDungeon: "red-valley"`); Woomyon Woods teleport → gd-1
+- Stamps `red-valley-gd-*-center` + existing `red-moon-room-center`
+- Mon50–62 atlases/SFX; Root Spider marked `stationaryBoss` (no Crystal walk set)
+- `groupDungeonEmpowerable` includes `"red-valley"`; RME removed from `BOSS_ROOM_DEFS`
+
+### Verify
+- `npm.cmd run check`
+- `npm.cmd run smoke` (with `npm.cmd run dev` running)
+- Woomyon Woods → Red Valley; clear floors through RME
+
+## 2026-08-02 - Empower Hell Cavern (group dungeon)
+
+Extended Empowered / Ascended / Awakened to the **Hell Cavern** group dungeon
+(Hell → Ice Hell → Fire Hell), same as Black Dragon Dungeon: pay once at
+`zone-hell-gd-1` entrance; tier persists across all 10 floors; every monster
+(trash + Hell Keeper / Manectric King / Hell Lord) gets 2×/3×/4× HP, damage,
+XP, and gold. No extra enrage (Hell bosses keep their own).
+
+### Changes
+- `src/app.monolith.js`: `groupDungeonEmpowerable` now true for
+  `groupDungeon === "hell"` as well as `"bdd"` (combat/drop/UI/persistence
+  already shared)
+
+### Verify
+- `npm.cmd run check`
+- `npm.cmd run smoke` (with `npm.cmd run dev` running)
+- Hell Cavern entrance: Empower / Ascend / Awaken toggles; trash waves scale
+
+## 2026-08-02 - Group dungeon entry boss status roster
+
+Players entering a group dungeon can now see which bosses in that dungeon are
+alive and how long dead ones have left on their respawn timers.
+
+### Changes
+- `src/app.monolith.js`: `groupDungeonBossZones` / `groupDungeonBossRosterHtml`
+  on trash, boss, and boss-swarm entry panels; live timer refresh via
+  `refreshOpenSceneLiveText`
+- `src/styles.css`: roster layout (Alive green / cooldown gold)
+- `tests/groupDungeonSwarm.test.mjs`: every group-dungeon boss floor must have
+  a respawn minute value for the roster
+
+### Verify
+- `npm.cmd run check`
+- `npm.cmd run smoke` (with `npm.cmd run dev` running)
+- Enter BDD / Hell: entry panel lists each dungeon boss as Alive or a countdown
+
+## 2026-08-02 - Red Moon Evil SFX + target hit FX
+
+Wired Crystal audio and SpellEffect.RedMoonEvil for the KR test room.
+
+### Changes
+- `tools/build-sfx-assets.mjs`: `monsterSounds("Red Moon Evil", 62)` →
+  attack/flinch/death from `062-1/2/3.wav`; regenerated manifest
+- `tools/build-red-moon-evil-fx-atlas.ps1`: pack Mon62 frames 32–37 onto
+  atlas projectile (`anchor: "targets"`, Blend=false, 400ms)
+- `src/app.monolith.js`: per-target `redMoonEvilEffects` on massBurst resolve;
+  normal-alpha draw; skip boss-anchored projectile for `anchor: "targets"`
+
+### Verify
+- `npm.cmd run check`
+- `npm.cmd run smoke` (with `npm.cmd run dev` running)
+- Red Moon Room: attack/flinch/death SFX + red hit FX on each party member
+
+## 2026-08-02 - Moderation: remove Mulio and Aluv from Social leaderboard
+
+Manually excluded aliases from the live Social leaderboard via D1 integrity
+status `excluded` (no Worker redeploy needed; public `/leaderboard` already
+filters `integrity_status != 'excluded'`):
+
+- `Mulio` (`612bd7e8-6bff-4370-b339-4986eddaba87`) —
+  `purge-manual-exclude-mulio.sql`
+- `Aluv` (`cc5a74f0-e6e5-49c2-8c14-bee8a732ff6f`, old account before rename) —
+  `purge-manual-exclude-aluv.sql`
+
+## 2026-08-02 - Red Moon Evil boss room (spawn test)
+
+First-pass Red Moon Evil KR so we can validate Mon62 atlas + Crystal
+RedMoonRoom stamp before wiring a Red Valley group dungeon.
+
+### Changes
+- Exported `public/monsters/monster/62.*` (Crystal Mon062); stamp
+  `red-moon-room-center` from `D10062.map` focused on fixed spawn **(23, 18)**
+  (`tools/build-red-moon-room-stamp.ps1`)
+- `src/phase1Data.js`: enemy **454** Red Moon Evil (stationary always-AoE
+  massBurst, Crystal-raw stats); zone `zone-red-moon-evil-kr` +
+  `RED_MOON_ROOM_VISUALS`
+- `src/app.monolith.js`: `BOSS_ROOM_DEFS` + Woomyon Woods teleport entry;
+  bumped map-stamp / monster asset versions
+- Regenerated `src/data/zones.json`
+
+### Verify
+- `npm.cmd run check`
+- `npm.cmd run smoke` (with `npm.cmd run dev` running)
+- Teleport → Woomyon Woods → Red Moon Room; boss sits on Crystal spawn tile
+  and room-nukes (ViewRange 14)
+
+## 2026-08-02 - Crit floating text size clamp
+
+Players reported crit damage numbers looking screen-filling (especially on
+compact/mobile). Crit text was intentionally relative-sized up to 34px, which
+can dominate a short stage when overgeared hits always hit the max tier.
+
+### Changes
+- `src/core/combat.js`: kept crit font range **16–34px**; added
+  `critTextStageMaxPx` (≤10% stage height, ≤7% compact) and
+  `critTextMaxDrawWidth` (≤40% stage width) so size stays punchy on desktop
+  but cannot billboard on small stages
+- `src/app.monolith.js` `drawFloatingCombatText`: apply stage/width caps;
+  clamp float age ≥0 so spawn-pop cannot explode on bad timestamps
+- `tests/combat.test.mjs`: cover new caps / constants
+
+### Verify
+- `npm.cmd run check`
+- `npm.cmd run smoke` (with `npm.cmd run dev` running)
+- Crits still read larger/oranger than normal hits; phone stages stay capped
+
+## 2026-08-02 - Empower Beast King & Danmo
+
+Enabled Empowered / Ascended / Awakened for Namman bosses Beast King and Danmo
+(same pattern as Oma King Spirit / Great Fox Spirit).
+
+### Changes
+- `src/app.monolith.js`: `zone-namman-boss` + `zone-namman-danmo` in
+  `BOSS_EMPOWER_AVAILABLE_ZONE_IDS`; `isBeastKingEnemy` / `isDanmoEnemy` in
+  `supportsEmpoweredBossCombat` and the **2×** Empowered damage group
+
+### Verify
+- `npm.cmd run check`
+- `npm.cmd run smoke` (with `npm.cmd run dev` running)
+- Boss entry for Beast King's Lair / Danmo: Empower / Ascend / Awaken toggles
+  (not "coming soon"); fight applies 2×/3×/4× HP & damage + shared enrage
+
+## 2026-08-02 - Dark Devil AOE nerf (3× → 1× DC)
+
+Dark Devil's ranged party burst was dealing 3× DC ([225–600] effective).
+Nerfed to 1× DC so the AOE matches base melee damage ([75–200]), still vs MAC.
+
+### Changes
+- `src/phase1Data.js`: `darkDevilRangeDamageMultiplier: 3` → `1`
+
+### Verify
+- `npm.cmd run check`
+- Dark Devil Palace party fight: burst hits whole party at normal DC, not triple
+
+## 2026-08-01 - Warrior combat buffs outrank solo attacks
+
+Solo/lane warrior autocast was letting Blade Avalanche and Half Moon /
+Cross Half Moon fire every swing before Fury, Rage, Protection Field, and
+Immortal Skin — so those buffs rarely cast when attack skills were on Auto.
+Solo skill pick now matches boss-party: combat buffs first, then charges /
+attacks.
+
+### Changes
+- `src/app.monolith.js`: `usableWarriorAutoBuffSkill`; `usableWarriorAttackSkill`
+  casts ready combat buffs before BA, sweeps, and charged skills
+
+### Verify
+- `npm.cmd run check`
+- `npm.cmd run smoke` (with `npm.cmd run dev` running)
+- Warrior with Half Moon + Rage/Protection Field on Auto in a normal zone:
+  buffs should apply before attack spam
+
 ## 2026-08-01 - Spirit Box blocks Unique items
 
 Unique items can no longer be sealed in the Spirit Box (same as Ethereal).
