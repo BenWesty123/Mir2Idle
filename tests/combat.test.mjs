@@ -12,8 +12,10 @@ import {
   critMultiplier,
   critTextFillColor,
   critTextFontSize,
+  critTextMaxDrawWidth,
   critTextReferenceDamage,
   critTextScaleRatio,
+  critTextStageMaxPx,
   critTextZoneFloor,
   expectedCritMultiplier,
   rollCrit,
@@ -337,6 +339,18 @@ test("critTextFontSize and fill color tier with scale", () => {
   assert.equal(critTextFontSize(1), CRIT_TEXT_MAX_PX);
   assert.equal(critTextFillColor(0.5), "#ff6a2b");
   assert.equal(critTextFillColor(0.95), "#fff2d6");
+});
+
+test("critTextStageMaxPx respects stage height and absolute max", () => {
+  assert.equal(CRIT_TEXT_MAX_PX, 34);
+  assert.equal(CRIT_TEXT_MIN_PX, 16);
+  // Tall stages can still reach the tuned max; short/compact stages are clamped.
+  assert.equal(critTextStageMaxPx(360), 34);
+  assert.equal(critTextStageMaxPx(260), 26);
+  assert.equal(critTextStageMaxPx(180, true), 16);
+  assert.equal(critTextStageMaxPx(0), CRIT_TEXT_MAX_PX);
+  assert.equal(critTextMaxDrawWidth(520), 208);
+  assert.equal(critTextMaxDrawWidth(0), 0);
 });
 
 test("critTextScaleRatio uses a log curve", () => {

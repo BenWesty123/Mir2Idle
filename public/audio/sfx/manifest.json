@@ -540,6 +540,45 @@
         "monster.134.death",
         "monster.134.range",
         "monster.131.attack",
+        "monster.62.attack",
+        "monster.62.flinch",
+        "monster.62.death",
+        "monster.50.attack",
+        "monster.50.flinch",
+        "monster.50.death",
+        "monster.51.attack",
+        "monster.51.flinch",
+        "monster.51.death",
+        "monster.52.attack",
+        "monster.52.flinch",
+        "monster.52.death",
+        "monster.53.attack",
+        "monster.53.flinch",
+        "monster.53.death",
+        "monster.54.attack",
+        "monster.54.flinch",
+        "monster.54.death",
+        "monster.55.attack",
+        "monster.55.flinch",
+        "monster.55.death",
+        "monster.56.attack",
+        "monster.56.flinch",
+        "monster.56.death",
+        "monster.57.attack",
+        "monster.57.flinch",
+        "monster.57.death",
+        "monster.58.attack",
+        "monster.58.flinch",
+        "monster.58.death",
+        "monster.59.attack",
+        "monster.59.flinch",
+        "monster.59.death",
+        "monster.60.attack",
+        "monster.60.flinch",
+        "monster.60.death",
+        "monster.61.attack",
+        "monster.61.flinch",
+        "monster.61.death",
         "monster.267.attack",
         "monster.267.flinch",
         "monster.267.death",
@@ -4052,6 +4091,318 @@
       "group": "monster",
       "sourceFile": "131-1.wav",
       "src": "./public/audio/sfx/files/1311-131-1.wav"
+    },
+    "monster.62.attack": {
+      "key": "monster.62.attack",
+      "label": "Red Moon Evil attack",
+      "id": 621,
+      "group": "monster",
+      "sourceFile": "062-1.wav",
+      "src": "./public/audio/sfx/files/621-062-1.wav"
+    },
+    "monster.62.flinch": {
+      "key": "monster.62.flinch",
+      "label": "Red Moon Evil flinch",
+      "id": 622,
+      "group": "monster",
+      "sourceFile": "062-2.wav",
+      "src": "./public/audio/sfx/files/622-062-2.wav"
+    },
+    "monster.62.death": {
+      "key": "monster.62.death",
+      "label": "Red Moon Evil death",
+      "id": 623,
+      "group": "monster",
+      "sourceFile": "062-3.wav",
+      "src": "./public/audio/sfx/files/623-062-3.wav"
+    },
+    "monster.50.attack": {
+      "key": "monster.50.attack",
+      "label": "Bomb Spider attack",
+      "id": 501,
+      "group": "monster",
+      "sourceFile": "050-1.wav",
+      "src": "./public/audio/sfx/files/501-050-1.wav"
+    },
+    "monster.50.flinch": {
+      "key": "monster.50.flinch",
+      "label": "Bomb Spider flinch",
+      "id": 502,
+      "group": "monster",
+      "sourceFile": "050-2.wav",
+      "src": "./public/audio/sfx/files/502-050-2.wav"
+    },
+    "monster.50.death": {
+      "key": "monster.50.death",
+      "label": "Bomb Spider death",
+      "id": 503,
+      "group": "monster",
+      "sourceFile": "050-3.wav",
+      "src": "./public/audio/sfx/files/503-050-3.wav"
+    },
+    "monster.51.attack": {
+      "key": "monster.51.attack",
+      "label": "Root Spider attack",
+      "id": 511,
+      "group": "monster",
+      "sourceFile": "051-1.wav",
+      "src": "./public/audio/sfx/files/511-051-1.wav"
+    },
+    "monster.51.flinch": {
+      "key": "monster.51.flinch",
+      "label": "Root Spider flinch",
+      "id": 512,
+      "group": "monster",
+      "sourceFile": "051-2.wav",
+      "src": "./public/audio/sfx/files/512-051-2.wav"
+    },
+    "monster.51.death": {
+      "key": "monster.51.death",
+      "label": "Root Spider death",
+      "id": 513,
+      "group": "monster",
+      "sourceFile": "051-3.wav",
+      "src": "./public/audio/sfx/files/513-051-3.wav"
+    },
+    "monster.52.attack": {
+      "key": "monster.52.attack",
+      "label": "Spider Bat attack",
+      "id": 521,
+      "group": "monster",
+      "sourceFile": "052-1.wav",
+      "src": "./public/audio/sfx/files/521-052-1.wav"
+    },
+    "monster.52.flinch": {
+      "key": "monster.52.flinch",
+      "label": "Spider Bat flinch",
+      "id": 522,
+      "group": "monster",
+      "sourceFile": "052-2.wav",
+      "src": "./public/audio/sfx/files/522-052-2.wav"
+    },
+    "monster.52.death": {
+      "key": "monster.52.death",
+      "label": "Spider Bat death",
+      "id": 523,
+      "group": "monster",
+      "sourceFile": "052-3.wav",
+      "src": "./public/audio/sfx/files/523-052-3.wav"
+    },
+    "monster.53.attack": {
+      "key": "monster.53.attack",
+      "label": "Venom Spider attack",
+      "id": 531,
+      "group": "monster",
+      "sourceFile": "053-1.wav",
+      "src": "./public/audio/sfx/files/531-053-1.wav"
+    },
+    "monster.53.flinch": {
+      "key": "monster.53.flinch",
+      "label": "Venom Spider flinch",
+      "id": 532,
+      "group": "monster",
+      "sourceFile": "053-2.wav",
+      "src": "./public/audio/sfx/files/532-053-2.wav"
+    },
+    "monster.53.death": {
+      "key": "monster.53.death",
+      "label": "Venom Spider death",
+      "id": 533,
+      "group": "monster",
+      "sourceFile": "053-3.wav",
+      "src": "./public/audio/sfx/files/533-053-3.wav"
+    },
+    "monster.54.attack": {
+      "key": "monster.54.attack",
+      "label": "Gang Spider attack",
+      "id": 541,
+      "group": "monster",
+      "sourceFile": "054-1.wav",
+      "src": "./public/audio/sfx/files/541-054-1.wav"
+    },
+    "monster.54.flinch": {
+      "key": "monster.54.flinch",
+      "label": "Gang Spider flinch",
+      "id": 542,
+      "group": "monster",
+      "sourceFile": "054-2.wav",
+      "src": "./public/audio/sfx/files/542-054-2.wav"
+    },
+    "monster.54.death": {
+      "key": "monster.54.death",
+      "label": "Gang Spider death",
+      "id": 543,
+      "group": "monster",
+      "sourceFile": "054-3.wav",
+      "src": "./public/audio/sfx/files/543-054-3.wav"
+    },
+    "monster.55.attack": {
+      "key": "monster.55.attack",
+      "label": "Great Spider attack",
+      "id": 551,
+      "group": "monster",
+      "sourceFile": "055-1.wav",
+      "src": "./public/audio/sfx/files/551-055-1.wav"
+    },
+    "monster.55.flinch": {
+      "key": "monster.55.flinch",
+      "label": "Great Spider flinch",
+      "id": 552,
+      "group": "monster",
+      "sourceFile": "055-2.wav",
+      "src": "./public/audio/sfx/files/552-055-2.wav"
+    },
+    "monster.55.death": {
+      "key": "monster.55.death",
+      "label": "Great Spider death",
+      "id": 553,
+      "group": "monster",
+      "sourceFile": "055-3.wav",
+      "src": "./public/audio/sfx/files/553-055-3.wav"
+    },
+    "monster.56.attack": {
+      "key": "monster.56.attack",
+      "label": "Lure Spider attack",
+      "id": 561,
+      "group": "monster",
+      "sourceFile": "056-1.wav",
+      "src": "./public/audio/sfx/files/561-056-1.wav"
+    },
+    "monster.56.flinch": {
+      "key": "monster.56.flinch",
+      "label": "Lure Spider flinch",
+      "id": 562,
+      "group": "monster",
+      "sourceFile": "056-2.wav",
+      "src": "./public/audio/sfx/files/562-056-2.wav"
+    },
+    "monster.56.death": {
+      "key": "monster.56.death",
+      "label": "Lure Spider death",
+      "id": 563,
+      "group": "monster",
+      "sourceFile": "056-3.wav",
+      "src": "./public/audio/sfx/files/563-056-3.wav"
+    },
+    "monster.57.attack": {
+      "key": "monster.57.attack",
+      "label": "Big Ape attack",
+      "id": 571,
+      "group": "monster",
+      "sourceFile": "057-1.wav",
+      "src": "./public/audio/sfx/files/571-057-1.wav"
+    },
+    "monster.57.flinch": {
+      "key": "monster.57.flinch",
+      "label": "Big Ape flinch",
+      "id": 572,
+      "group": "monster",
+      "sourceFile": "057-2.wav",
+      "src": "./public/audio/sfx/files/572-057-2.wav"
+    },
+    "monster.57.death": {
+      "key": "monster.57.death",
+      "label": "Big Ape death",
+      "id": 573,
+      "group": "monster",
+      "sourceFile": "057-3.wav",
+      "src": "./public/audio/sfx/files/573-057-3.wav"
+    },
+    "monster.58.attack": {
+      "key": "monster.58.attack",
+      "label": "Evil Ape attack",
+      "id": 581,
+      "group": "monster",
+      "sourceFile": "058-1.wav",
+      "src": "./public/audio/sfx/files/581-058-1.wav"
+    },
+    "monster.58.flinch": {
+      "key": "monster.58.flinch",
+      "label": "Evil Ape flinch",
+      "id": 582,
+      "group": "monster",
+      "sourceFile": "058-2.wav",
+      "src": "./public/audio/sfx/files/582-058-2.wav"
+    },
+    "monster.58.death": {
+      "key": "monster.58.death",
+      "label": "Evil Ape death",
+      "id": 583,
+      "group": "monster",
+      "sourceFile": "058-3.wav",
+      "src": "./public/audio/sfx/files/583-058-3.wav"
+    },
+    "monster.59.attack": {
+      "key": "monster.59.attack",
+      "label": "Grey Evil Ape attack",
+      "id": 591,
+      "group": "monster",
+      "sourceFile": "058-1.wav",
+      "src": "./public/audio/sfx/files/591-058-1.wav"
+    },
+    "monster.59.flinch": {
+      "key": "monster.59.flinch",
+      "label": "Grey Evil Ape flinch",
+      "id": 592,
+      "group": "monster",
+      "sourceFile": "058-2.wav",
+      "src": "./public/audio/sfx/files/592-058-2.wav"
+    },
+    "monster.59.death": {
+      "key": "monster.59.death",
+      "label": "Grey Evil Ape death",
+      "id": 593,
+      "group": "monster",
+      "sourceFile": "058-3.wav",
+      "src": "./public/audio/sfx/files/593-058-3.wav"
+    },
+    "monster.60.attack": {
+      "key": "monster.60.attack",
+      "label": "Red Evil Ape attack",
+      "id": 601,
+      "group": "monster",
+      "sourceFile": "058-1.wav",
+      "src": "./public/audio/sfx/files/601-058-1.wav"
+    },
+    "monster.60.flinch": {
+      "key": "monster.60.flinch",
+      "label": "Red Evil Ape flinch",
+      "id": 602,
+      "group": "monster",
+      "sourceFile": "058-2.wav",
+      "src": "./public/audio/sfx/files/602-058-2.wav"
+    },
+    "monster.60.death": {
+      "key": "monster.60.death",
+      "label": "Red Evil Ape death",
+      "id": 603,
+      "group": "monster",
+      "sourceFile": "058-3.wav",
+      "src": "./public/audio/sfx/files/603-058-3.wav"
+    },
+    "monster.61.attack": {
+      "key": "monster.61.attack",
+      "label": "Crystal Spider attack",
+      "id": 611,
+      "group": "monster",
+      "sourceFile": "061-1.wav",
+      "src": "./public/audio/sfx/files/611-061-1.wav"
+    },
+    "monster.61.flinch": {
+      "key": "monster.61.flinch",
+      "label": "Crystal Spider flinch",
+      "id": 612,
+      "group": "monster",
+      "sourceFile": "061-2.wav",
+      "src": "./public/audio/sfx/files/612-061-2.wav"
+    },
+    "monster.61.death": {
+      "key": "monster.61.death",
+      "label": "Crystal Spider death",
+      "id": 613,
+      "group": "monster",
+      "sourceFile": "061-3.wav",
+      "src": "./public/audio/sfx/files/613-061-3.wav"
     },
     "monster.267.attack": {
       "key": "monster.267.attack",

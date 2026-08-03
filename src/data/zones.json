@@ -348,6 +348,41 @@
       "description": "Scaly Beast boss room — stomp AoE + paralysis"
     },
     {
+      "id": "zone-tree-path",
+      "label": "Tree Path",
+      "description": "Tao Village Tree Path (Crystal Treepath 12.map) — outdoor spiders before Red Moon Valley."
+    },
+    {
+      "id": "zone-red-moon-evil-kr",
+      "label": "Red Moon Room",
+      "description": "Red Moon Valley final boss — Red Moon Evil (Crystal RedMoonRoom D10062)"
+    },
+    {
+      "id": "zone-red-valley-gd-1",
+      "label": "Red Moon Valley",
+      "description": "Red Moon Valley 1F (Crystal D10011) — cave spiders after Tree Path."
+    },
+    {
+      "id": "zone-red-valley-gd-2",
+      "label": "Red Moon Valley — Crystal Nest",
+      "description": "Crystal Spider mini-boss — Crystal RedValley_4F hub (D1004)"
+    },
+    {
+      "id": "zone-red-valley-gd-3",
+      "label": "Red Moon Valley — Floor 3",
+      "description": "Spider and ape mix — Crystal RedValley_3F (D10031)"
+    },
+    {
+      "id": "zone-red-valley-gd-4",
+      "label": "Red Moon Valley — Ape Den",
+      "description": "Red Evil Ape mini-boss — Crystal RedValley_5F pocket (D10053)"
+    },
+    {
+      "id": "zone-red-valley-gd-5",
+      "label": "Red Moon Valley — Floor 5",
+      "description": "Heavier ape and spider mix — Crystal RedValley_5F (D10051)"
+    },
+    {
       "id": "zone-lab-stone-colossus",
       "label": "Lab: Stone Colossus",
       "description": "Decoded Mir3Mobs Mon1 test fight"

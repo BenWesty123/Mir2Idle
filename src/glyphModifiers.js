@@ -70,7 +70,9 @@ export const GLYPH_DEFS = [
     classId: "taoist",
     label: "Glyph of Buffing",
     description: "Ultimate Enhancer also applies Soul Shield and Blessed Armour to the same targets.",
-    spellIds: ["UltimateEnhancer", "SoulShield", "BlessedArmour"],
+    // Only UltimateEnhancer — listing SoulShield/BlessedArmour made spell-scoped glyph
+    // lookup return Buffing instead of Spirit Wards when Buffing was in an earlier slot.
+    spellIds: ["UltimateEnhancer"],
     kind: "taoUltimateBuffChain",
     implemented: true,
   },

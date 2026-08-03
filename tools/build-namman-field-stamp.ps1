@@ -40,3 +40,8 @@ if (-not (Test-Path $MapPath)) { throw "Missing Crystal map: $MapPath" }
   -CellWidth $CellWidth `
   -CellHeight $CellHeight `
   -FloorFillFrames $FloorFillFrames
+
+# Bake behind layers into a flat backdrop and pack only FG into a small sheet so
+# Danmo's room does not keep an 8160x6912 (~215 MB VRAM) stamp hot at runtime.
+node (Join-Path $PSScriptRoot "optimize-namman-field-stamp.mjs")
+if ($LASTEXITCODE -ne 0) { throw "optimize-namman-field-stamp.mjs failed" }

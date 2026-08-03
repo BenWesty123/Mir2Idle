@@ -69,6 +69,11 @@ export function expectedCritMultiplier(critChancePercent = 0, critDamagePercent 
 /** Floating crit text: min/max font size in px (drawFloatingCombatText). */
 export const CRIT_TEXT_MIN_PX = 16;
 export const CRIT_TEXT_MAX_PX = 34;
+/** Hard cap vs stage height so compact/mobile stages cannot look billboard-sized. */
+export const CRIT_TEXT_STAGE_HEIGHT_RATIO = 0.1;
+export const CRIT_TEXT_COMPACT_STAGE_HEIGHT_RATIO = 0.07;
+/** Max drawn width for crit numbers as a fraction of stage width. */
+export const CRIT_TEXT_MAX_WIDTH_STAGE_RATIO = 0.4;
 /** How quickly the "typical crit" baseline adapts to recent hits. */
 export const CRIT_TEXT_EMA_ALPHA = 0.15;
 /** Zone floor = enemy max HP × this ratio (warm start before EMA exists). */
@@ -109,6 +114,25 @@ export function smoothstep01(value) {
 
 export function critTextFontSize(scale, minPx = CRIT_TEXT_MIN_PX, maxPx = CRIT_TEXT_MAX_PX) {
   return minPx + (maxPx - minPx) * smoothstep01(scale);
+}
+
+/**
+ * Absolute font-size ceiling for crit floating text on the current stage.
+ * Prefers the tuned max, but never exceeds a fraction of stage height.
+ */
+export function critTextStageMaxPx(stageHeight, compact = false, maxPx = CRIT_TEXT_MAX_PX) {
+  const height = Math.max(0, Math.trunc(Number(stageHeight) || 0));
+  const absoluteMax = Math.max(CRIT_TEXT_MIN_PX, Math.trunc(Number(maxPx) || CRIT_TEXT_MAX_PX));
+  if (height <= 0) return absoluteMax;
+  const ratio = compact ? CRIT_TEXT_COMPACT_STAGE_HEIGHT_RATIO : CRIT_TEXT_STAGE_HEIGHT_RATIO;
+  const stageCap = Math.max(CRIT_TEXT_MIN_PX, Math.floor(height * ratio));
+  return Math.min(absoluteMax, stageCap);
+}
+
+export function critTextMaxDrawWidth(stageWidth, ratio = CRIT_TEXT_MAX_WIDTH_STAGE_RATIO) {
+  const width = Math.max(0, Math.trunc(Number(stageWidth) || 0));
+  if (width <= 0) return 0;
+  return Math.max(48, Math.floor(width * (Number(ratio) || CRIT_TEXT_MAX_WIDTH_STAGE_RATIO)));
 }
 
 export function critTextFillColor(scale) {

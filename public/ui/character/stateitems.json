@@ -1,4 +1,4 @@
-{
+﻿{
     "30":  {
                "src":  "./public/ui/character/stateitem-30.png",
                "x":  75,
@@ -922,5 +922,33 @@
                "y":  176,
                "w":  80,
                "h":  147
-           }
+           },
+    "1330":  {
+                 "src":  "./public/ui/character/stateitem-1330.png",
+                 "x":  115,
+                 "y":  159,
+                 "w":  44,
+                 "h":  36
+             },
+    "1331":  {
+                 "src":  "./public/ui/character/stateitem-1331.png",
+                 "x":  121,
+                 "y":  152,
+                 "w":  32,
+                 "h":  43
+             },
+    "1332":  {
+                 "src":  "./public/ui/character/stateitem-1332.png",
+                 "x":  124,
+                 "y":  164,
+                 "w":  28,
+                 "h":  30
+             },
+    "2241":  {
+                 "src":  "./public/ui/character/stateitem-2241.png",
+                 "x":  127,
+                 "y":  163,
+                 "w":  24,
+                 "h":  34
+             }
 }

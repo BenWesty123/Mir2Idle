@@ -126,6 +126,29 @@ test("every moving group-dungeon swarm monster has directional clips", () => {
   assert.deepEqual(missing, []);
 });
 
+test("every group-dungeon boss floor has a respawn timer", () => {
+  const bosses = PHASE1_ZONES.filter((zone) => (
+    zone.groupDungeon && (zone.groupDungeonBoss || zone.groupDungeonBossSwarm)
+  ));
+  assert.ok(bosses.length > 0, "expected at least one group-dungeon boss floor");
+  for (const zone of bosses) {
+    assert.ok(
+      Math.trunc(Number(zone.groupDungeonBossRespawnMinutes) || 0) > 0,
+      `${zone.id} needs groupDungeonBossRespawnMinutes for the entry roster`,
+    );
+  }
+
+  const byDungeon = new Map();
+  for (const zone of bosses) {
+    const list = byDungeon.get(zone.groupDungeon) ?? [];
+    list.push(zone.id);
+    byDungeon.set(zone.groupDungeon, list);
+  }
+  for (const [dungeonId, zoneIds] of byDungeon) {
+    assert.ok(zoneIds.length >= 1, `${dungeonId} should list bosses for the entry roster`);
+  }
+});
+
 test("Zuma Taurus attack blend FX sits after bodyWidth (sheetX, not stale slots)", () => {
   const atlasPath = path.join(root, "public", "monsters", "monster", "68.json");
   const atlas = JSON.parse(fs.readFileSync(atlasPath, "utf8"));

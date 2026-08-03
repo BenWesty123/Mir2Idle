@@ -1,17 +1,14 @@
-// Rebuild Danmo (AncientBringer / monster 272) body atlas + Crystal combat FX.
+// Rebuild Danmo (AncientBringer / monster 272) with GPU-safe shelf packing.
+//
+// Body + on-mob blends → 272.png (≤8192 edge)
+// Travel / impact / heavy burst → 272-fx.png companion (same pattern as Great Fox)
 //
 // Crystal Client (west / Direction 6):
 //   Attack1 blend:     512 + dir*6  ×6  → 548..553
 //   Attack2 blend:     568 + dir*10 ×10 → 628..637
-//   Range1 body blend: (648 + FI + dir*5) - 3 from FI≥3 → 678..682 (pad 3 empties)
-//   Range1 projectile: Missile.Draw() = base + frame + Direction*(Skip+FrameCount),
-//                      created with base 688, count 4, skip 0, direction16:false
-//                      → dir 6 travel = 712..715; impact 720 ×10 is not directional
-//   Range2 body blend: Crystal reads (730 + FI + dir*10) - 3, but 272.Lib only has
-//                      art at 730..753 and it is not per-direction: 730 ×10 is the
-//                      crescent that rises on the mob, 740 ×14 the ground crater.
-//                      So dir>=2 lands on empty frames; use the dir-0 slice 730..734.
-//   Range2 burst:      740 ×14 on target
+//   Range1 body blend: FI 0..2 empty, FI 3..7 → 678..682
+//   Range1 projectile: travel 712..715 (dir 6); impact 720 ×10
+//   Range2 body blend: 730..734 (dir-0 slice); burst 740 ×14 on target
 //
 //   node tools/build-danmo-combat-atlas.mjs
 import fs from "node:fs";
@@ -26,7 +23,11 @@ const ROOT = path.join(__dirname, "..");
 const LIB = "C:/Users/bb-we/Documents/Crystal-master/Next/NextClient/Data/Monster/272.Lib";
 const OUT_JSON = path.join(ROOT, "public/monsters/monster/272.json");
 const OUT_PNG = path.join(ROOT, "public/monsters/monster/272.png");
+const FX_SHEET_NAME = "272-fx.png";
+const OUT_FX_PNG = path.join(ROOT, "public/monsters/monster", FX_SHEET_NAME);
 const DIR = 6;
+const MAX_SHEET_EDGE = 8192;
+const PAD = 1;
 
 function readFrame(lib, srcFrame) {
   const img = lib.readFrame(srcFrame);
@@ -34,186 +35,222 @@ function readFrame(lib, srcFrame) {
   return img;
 }
 
-function packFxFrames(lib, specs) {
-  const packed = [];
-  for (const spec of specs) {
-    const frames = [];
-    for (let i = 0; i < spec.count; i++) {
-      const srcFrame = spec.start + i;
-      const img = readFrame(lib, srcFrame);
-      frames.push({ kind: spec.kind, srcFrame, img, empty: !img });
-    }
-    packed.push({ ...spec, frames });
+function emptyFrame(srcFrame = -1) {
+  return {
+    sheetX: 0,
+    sheetY: 0,
+    srcFrame,
+    w: 0,
+    h: 0,
+    offsetX: 0,
+    offsetY: 0,
+    empty: true,
+  };
+}
+
+function collectFrames(lib, start, count) {
+  const frames = [];
+  for (let i = 0; i < count; i++) {
+    const srcFrame = start + i;
+    const img = readFrame(lib, srcFrame);
+    frames.push({
+      srcFrame,
+      img,
+      empty: !img,
+      w: img?.width ?? 0,
+      h: img?.height ?? 0,
+      offsetX: img?.offsetX ?? 0,
+      offsetY: img?.offsetY ?? 0,
+    });
   }
-  return packed;
+  return frames;
+}
+
+/** Shelf-pack unique srcFrames under MaxSheetEdge; mutates frames with sheetX/sheetY. */
+function packFrameSheet(frames, pngPath) {
+  let cursorX = 0;
+  let cursorY = 0;
+  let rowHeight = 0;
+  let sheetWidth = 1;
+  let sheetHeight = 1;
+  const uniqueBySrc = new Map();
+
+  for (const frame of frames) {
+    if (frame.empty || !frame.img || frame.w <= 0 || frame.h <= 0) {
+      frame.sheetX = 0;
+      frame.sheetY = 0;
+      continue;
+    }
+    const key = String(frame.srcFrame);
+    const existing = uniqueBySrc.get(key);
+    if (existing) {
+      frame.sheetX = existing.sheetX;
+      frame.sheetY = existing.sheetY;
+      continue;
+    }
+    const placeW = frame.w + PAD;
+    const placeH = frame.h + PAD;
+    if (placeW > MAX_SHEET_EDGE || placeH > MAX_SHEET_EDGE) {
+      throw new Error(`Frame ${frame.srcFrame} (${frame.w}x${frame.h}) exceeds MaxSheetEdge ${MAX_SHEET_EDGE}`);
+    }
+    if (cursorX > 0 && cursorX + placeW > MAX_SHEET_EDGE) {
+      cursorX = 0;
+      cursorY += rowHeight;
+      rowHeight = 0;
+    }
+    frame.sheetX = cursorX;
+    frame.sheetY = cursorY;
+    cursorX += placeW;
+    rowHeight = Math.max(rowHeight, placeH);
+    sheetWidth = Math.max(sheetWidth, cursorX);
+    sheetHeight = Math.max(sheetHeight, cursorY + rowHeight);
+    uniqueBySrc.set(key, frame);
+  }
+
+  if (sheetWidth > MAX_SHEET_EDGE || sheetHeight > MAX_SHEET_EDGE) {
+    throw new Error(`Packed sheet ${sheetWidth}x${sheetHeight} exceeds MaxSheetEdge ${MAX_SHEET_EDGE}`);
+  }
+
+  const sheet = Buffer.alloc(sheetWidth * sheetHeight * 4);
+  for (const frame of uniqueBySrc.values()) {
+    if (!frame.img) continue;
+    blitScaled(sheet, sheetWidth, frame.img, frame.sheetX, frame.sheetY, frame.w, frame.h);
+  }
+  fs.writeFileSync(pngPath, writePng(sheetWidth, sheetHeight, sheet));
+  return { sheetWidth, sheetHeight, uniqueCount: uniqueBySrc.size };
+}
+
+function toJsonFrame(frame) {
+  if (frame.empty || !frame.img) return emptyFrame(frame.srcFrame);
+  return {
+    sheetX: frame.sheetX,
+    sheetY: frame.sheetY,
+    srcFrame: frame.srcFrame,
+    w: frame.w,
+    h: frame.h,
+    offsetX: frame.offsetX,
+    offsetY: frame.offsetY,
+  };
 }
 
 function main() {
   if (!fs.existsSync(LIB)) throw new Error(`Missing lib: ${LIB}`);
 
-  // 1) Body atlas with attack2 + attackRange1.
+  // Column-packed body first (FrameSet actions), then we re-shelf-pack with blends.
   buildAtlas({ lib: LIB, id: 272, frameLib: LIB, dir: DIR, scale: 1 });
-
   const atlas = JSON.parse(fs.readFileSync(OUT_JSON, "utf8"));
-  const bodyPng = fs.readFileSync(OUT_PNG);
-  // Minimal PNG size reader (IHDR).
-  const bodyW = bodyPng.readUInt32BE(16);
-  const bodyH = bodyPng.readUInt32BE(20);
-  // Decode body pixels via re-extracting from lib (same slots) — avoid PNG decode deps.
-  // Re-open and rebuild a working RGBA sheet from atlas frame metas + lib.
+
   const lib = new CrystalLibV3(LIB);
   try {
-    const slotW = atlas.slotWidth;
-    const slotH = atlas.slotHeight;
-    let maxSlot = 0;
-    for (const action of Object.values(atlas.actions)) {
-      for (const fr of action.frames ?? []) {
-        if (Number.isFinite(fr.slot)) maxSlot = Math.max(maxSlot, fr.slot + 1);
-      }
-    }
-    const bodyWidth = maxSlot * slotW;
-    // Recompose body from lib using atlas srcFrames (guarantees RGBA buffer).
-    let sheetH = slotH;
-    const bodyFrames = [];
-    for (const [actionName, action] of Object.entries(atlas.actions)) {
+    const bodyPacked = [];
+    let slotW = 1;
+    let slotH = 1;
+    for (const [actionName, action] of Object.entries(atlas.actions ?? {})) {
+      if (/Blend$/i.test(actionName)) continue;
       for (const fr of action.frames ?? []) {
         const img = fr.empty ? null : readFrame(lib, fr.srcFrame);
-        if (img) sheetH = Math.max(sheetH, img.height);
-        bodyFrames.push({ actionName, fr, img });
-      }
-    }
-
-    const fxSpecs = [
-      { kind: "attack1Blend", start: 512 + DIR * 6, count: 6, interval: 100 },
-      { kind: "attack2Blend", start: 568 + DIR * 10, count: 10, interval: 100 },
-      // Range1 on-mob blend: FI 0..2 empty, FI 3..7 → 678..682
-      {
-        kind: "attackRange1Blend",
-        start: 678,
-        count: 5,
-        interval: 100,
-        padEmptyFront: 3,
-      },
-      // Range2 on-mob blend: FI 0..2 empty, FI 3..7 → 730..734
-      {
-        kind: "attackRange2Blend",
-        start: 730,
-        count: 5,
-        interval: 100,
-        padEmptyFront: 3,
-      },
-      { kind: "travel", start: 688 + DIR * 4, count: 4, interval: 50 },
-      { kind: "impact", start: 720, count: 10, interval: 100 },
-      { kind: "heavyBurst", start: 740, count: 14, interval: 140 },
-    ];
-    const fxPacked = packFxFrames(lib, fxSpecs);
-    for (const group of fxPacked) {
-      for (const fr of group.frames) {
-        if (fr.img) sheetH = Math.max(sheetH, fr.img.height);
-      }
-    }
-
-    let fxWidth = 0;
-    for (const group of fxPacked) {
-      for (const fr of group.frames) {
-        if (fr.img) fxWidth += fr.img.width;
-      }
-    }
-    const sheetW = bodyWidth + fxWidth;
-    const sheet = Buffer.alloc(sheetW * sheetH * 4);
-
-    for (const { fr, img } of bodyFrames) {
-      if (!img) continue;
-      blitScaled(sheet, sheetW, img, fr.slot * slotW, 0, img.width, img.height);
-    }
-
-    const byKind = Object.fromEntries(fxPacked.map((g) => [g.kind, g]));
-    let sheetX = bodyWidth;
-    const toJsonFrames = (group, { padEmptyFront = 0 } = {}) => {
-      const out = [];
-      for (let i = 0; i < padEmptyFront; i++) {
-        out.push({ srcFrame: -1, w: 0, h: 0, offsetX: 0, offsetY: 0, empty: true });
-      }
-      for (const fr of group.frames) {
-        if (!fr.img) {
-          out.push({
-            srcFrame: fr.srcFrame,
-            w: 0,
-            h: 0,
-            offsetX: 0,
-            offsetY: 0,
-            empty: true,
-          });
-          continue;
+        if (img) {
+          slotW = Math.max(slotW, img.width);
+          slotH = Math.max(slotH, img.height);
         }
-        const { width: w, height: h, offsetX, offsetY } = fr.img;
-        blitScaled(sheet, sheetW, fr.img, sheetX, 0, w, h);
-        out.push({ sheetX, srcFrame: fr.srcFrame, w, h, offsetX, offsetY });
-        sheetX += w;
+        bodyPacked.push({
+          action: actionName,
+          interval: action.interval ?? 100,
+          srcFrame: fr.srcFrame,
+          img,
+          empty: !img,
+          w: img?.width ?? 0,
+          h: img?.height ?? 0,
+          offsetX: img?.offsetX ?? 0,
+          offsetY: img?.offsetY ?? 0,
+        });
       }
-      return out;
-    };
+    }
 
-    atlas.actions.attack1Blend = {
-      interval: byKind.attack1Blend.interval,
-      frames: toJsonFrames(byKind.attack1Blend),
-    };
-    atlas.actions.attack2Blend = {
-      interval: byKind.attack2Blend.interval,
-      frames: toJsonFrames(byKind.attack2Blend),
-    };
-    atlas.actions.attackRange1Blend = {
-      interval: byKind.attackRange1Blend.interval,
-      frames: toJsonFrames(byKind.attackRange1Blend, {
-        padEmptyFront: byKind.attackRange1Blend.padEmptyFront || 0,
-      }),
-    };
-    atlas.actions.attackRange2Blend = {
-      interval: byKind.attackRange2Blend.interval,
-      frames: toJsonFrames(byKind.attackRange2Blend, {
-        padEmptyFront: byKind.attackRange2Blend.padEmptyFront || 0,
-      }),
-    };
+    const blendSpecs = [
+      { action: "attack1Blend", start: 512 + DIR * 6, count: 6, interval: 100, padEmptyFront: 0 },
+      { action: "attack2Blend", start: 568 + DIR * 10, count: 10, interval: 100, padEmptyFront: 0 },
+      { action: "attackRange1Blend", start: 678, count: 5, interval: 100, padEmptyFront: 3 },
+      { action: "attackRange2Blend", start: 730, count: 5, interval: 100, padEmptyFront: 3 },
+    ];
+    for (const spec of blendSpecs) {
+      for (let i = 0; i < spec.padEmptyFront; i++) {
+        bodyPacked.push({
+          action: spec.action,
+          interval: spec.interval,
+          srcFrame: -1,
+          img: null,
+          empty: true,
+          w: 0,
+          h: 0,
+          offsetX: 0,
+          offsetY: 0,
+          pad: true,
+        });
+      }
+      for (const frame of collectFrames(lib, spec.start, spec.count)) {
+        bodyPacked.push({
+          action: spec.action,
+          interval: spec.interval,
+          ...frame,
+        });
+      }
+    }
 
-    const travelFrames = toJsonFrames(byKind.travel);
-    const impactFrames = toJsonFrames(byKind.impact);
-    const heavyFrames = toJsonFrames(byKind.heavyBurst);
+    const fxTravel = collectFrames(lib, 688 + DIR * 4, 4);
+    const fxImpact = collectFrames(lib, 720, 10);
+    const fxHeavy = collectFrames(lib, 740, 14);
+    const fxPacked = [...fxTravel, ...fxImpact, ...fxHeavy];
+
+    const bodySheet = packFrameSheet(bodyPacked, OUT_PNG);
+    const fxSheet = packFrameSheet(fxPacked, OUT_FX_PNG);
+
+    const actions = {};
+    for (const frame of bodyPacked) {
+      const bucket = (actions[frame.action] ??= { interval: frame.interval, frames: [] });
+      bucket.frames.push(frame.pad ? emptyFrame(-1) : toJsonFrame(frame));
+    }
+
+    atlas.actions = actions;
+    atlas.slotWidth = slotW;
+    atlas.slotHeight = slotH;
+    atlas.sheetWidth = bodySheet.sheetWidth;
+    atlas.sheetHeight = bodySheet.sheetHeight;
+    delete atlas.bodyWidth;
 
     atlas.projectile = {
       style: "travel",
       rotate: false,
+      sheet: FX_SHEET_NAME,
+      sheetWidth: fxSheet.sheetWidth,
+      sheetHeight: fxSheet.sheetHeight,
       interval: 50,
-      frames: travelFrames,
+      frames: fxTravel.map(toJsonFrame),
       impactInterval: 100,
       impactBurstDurationMs: 1000,
-      impactFrames,
+      impactFrames: fxImpact.map(toJsonFrame),
     };
     atlas.projectileHeavy = {
       style: "targetBurst",
       anchor: "target",
+      sheet: FX_SHEET_NAME,
+      sheetWidth: fxSheet.sheetWidth,
+      sheetHeight: fxSheet.sheetHeight,
       interval: 140,
       burstDelayMs: 500,
       burstDurationMs: 2000,
-      frames: heavyFrames,
+      frames: fxHeavy.map(toJsonFrame),
     };
 
-    atlas.bodyWidth = bodyWidth;
-    atlas.sheetHeight = sheetH;
-    // Drop unused bodyW note — keep slot sizes for body columns.
-    atlas.slotWidth = slotW;
-    atlas.slotHeight = slotH;
-
-    fs.writeFileSync(OUT_PNG, writePng(sheetW, sheetH, sheet));
     fs.writeFileSync(OUT_JSON, JSON.stringify(atlas));
     console.log(
-      `Danmo 272 combat atlas: body ${bodyWidth}px + FX → ${sheetW}x${sheetH}; ` +
-        `attack2=${atlas.actions.attack2?.frames?.length ?? 0}, ` +
-        `range1=${atlas.actions.attackRange1?.frames?.length ?? 0}, ` +
-        `blends a1/a2/r1/r2, travel+impact+heavyBurst`,
+      `Danmo 272 body+blends → ${bodySheet.sheetWidth}x${bodySheet.sheetHeight} ` +
+        `(${bodySheet.uniqueCount} unique); FX → ${FX_SHEET_NAME} ` +
+        `${fxSheet.sheetWidth}x${fxSheet.sheetHeight} (${fxSheet.uniqueCount} unique); ` +
+        `attack2=${actions.attack2?.frames?.length ?? 0}, ` +
+        `range1=${actions.attackRange1?.frames?.length ?? 0}, ` +
+        `blends a1/a2/r1/r2`,
     );
-    // Silence unused bodyW/H from PNG header (rebuild path doesn't need them).
-    void bodyW;
-    void bodyH;
   } finally {
     lib.close();
   }
