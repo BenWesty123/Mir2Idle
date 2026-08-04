@@ -258,6 +258,8 @@ import {
 } from "./core/empoweredItems.js";
 import {
   ADAMANTINE_ORE_ITEM_ID,
+  AMETHYST_ORE_ITEM_ID,
+  CRAFTING_CUBE_ATTUNEMENT_STONE_RECIPE_BY_ID,
   CRAFTING_CUBE_EMPOWER_REROLL_RECIPE_ID,
   CRAFTING_CUBE_EMPOWER_SWAP_CRYSTAL_COST,
   CRAFTING_CUBE_EMPOWER_SWAP_RECIPE_ID,
@@ -281,10 +283,13 @@ import {
   CRAFTING_CUBE_TARGETED_EMPOWER_SWAP_PRISM_COST,
   CRAFTING_CUBE_TARGETED_EMPOWER_SWAP_RECIPE_ID,
   DD_SOUL_ITEM_ID,
+  EMERALD_ORE_ITEM_ID,
   FOCUS_PRISM_ITEM_ID,
   HAVOC_CRYSTAL_ITEM_ID,
   IWT_SOUL_ITEM_ID,
   IZT_SOUL_ITEM_ID,
+  RUBY_ORE_ITEM_ID,
+  validateCraftingCubeAttunementStoneCraft,
   validateCraftingCubeDdSoulCraft,
   validateCraftingCubeEmpowerReroll,
   validateCraftingCubeEmpowerSwap,
@@ -450,6 +455,7 @@ import {
  *  saveGameState/loadSavedGameState/importGameSaveFromText  saves (~2458)
  *  sanitize... / restore... ...... save migration + load normalisation (~2500-3850)
  *  applyOfflineProgress/simulateOfflineProgress  offline progress (~3853-4900)
+ *  startSimulationMode/endSimulationMode  opt-in AFK arm (same offline path)
  *  playSfx / syncBackgroundMusic .. audio: sfx + music (~4900-5070)
  *  addInventoryItem / equipment ... inventory + equipment logic (~7306)
  *  renderGamePanel ............... side panel UI (~11314)
@@ -526,6 +532,17 @@ const ORGANISATION_SKILLS_STACK_SIZE = 99;
 function organisationSkillsUnlocked() {
   return accountUpgradePurchased("rebirth-organisation-skills")
     || Boolean(state.account?.ownedUnlocks?.[ORGANISATION_SKILLS_UNLOCK_KEY]);
+}
+// Ore Stacking: lets non-Black-Iron ores stack in the inventory. Buyable BOTH
+// with rebirth points (ACCOUNT_UPGRADE_DEFS "rebirth-ore-stacking") and with
+// tokens (this unlock key). Key + cost mirror UNLOCK_TOKEN_COSTS in
+// tools/stats-worker/worker.js. Black Iron keeps purity and stays 1-per-slot.
+const ORE_STACKING_UNLOCK_KEY = "ore-stacking";
+const ORE_STACKING_TOKEN_COST = 200;
+const ORE_STACKING_STACK_SIZE = 99;
+function oreStackingUnlocked() {
+  return accountUpgradePurchased("rebirth-ore-stacking")
+    || Boolean(state.account?.ownedUnlocks?.[ORE_STACKING_UNLOCK_KEY]);
 }
 // Time Logging: unlocks a window showing your live XP-per-hour in the current
 // zone. Buyable BOTH with rebirth points (ACCOUNT_UPGRADE_DEFS
@@ -974,6 +991,18 @@ const ACCOUNT_UPGRADE_DEFS = [
     summary: "Lets gems and orbs stack in your inventory. Also available in the Cash Shop for tokens.",
   },
   {
+    id: "rebirth-ore-stacking",
+    label: "Ore Stacking",
+    section: "rebirth",
+    category: "crafting",
+    currency: "rebirthPoints",
+    effect: "oreStackUnlock",
+    value: 1,
+    maxTier: 1,
+    rebirthCosts: [100],
+    summary: "Lets ores (except Black Iron Ore) stack in your inventory. Black Iron stays one per slot and keeps purity for refining. Also available in the Cash Shop for tokens.",
+  },
+  {
     id: "rebirth-time-logging",
     label: "Time Logging",
     section: "rebirth",
@@ -1064,7 +1093,7 @@ const ACCOUNT_UPGRADE_DEFS = [
     value: 1,
     maxTier: 4,
     rebirthCosts: [10, 20, 30, 40],
-    summary: "Stops low-purity ore from rolling (tier 1: no P1, tier 2: no P1–2, … max: purity 5–10 only).",
+    summary: "Stops low-purity Black Iron Ore from rolling (tier 1: no P1, tier 2: no P1–2, … max: purity 5–10 only). Other ores have no purity.",
   },
   {
     id: "rebirth-stat-dc",
@@ -1808,9 +1837,24 @@ const SMITH_COMBINE_STAT_CAP_ABSOLUTE_MAX = 10;
 const SMITH_DEFENSIVE_UPGRADE_SLOTS = new Set(["armour", "belt", "boots", "boot", "shoes", "shoe", "helmet"]);
 const SMITH_RANDOM_TRIPLE_STAT = "__random_triple__";
 const ORE_PURITY_UNIT = 1000;
-const ORE_ITEM_IDS = new Set(["gold-ore", "silver-ore", "copper-ore", "black-iron-ore", "adamantine-ore"]);
+const ORE_ITEM_IDS = new Set([
+  "gold-ore",
+  "silver-ore",
+  "copper-ore",
+  "black-iron-ore",
+  "adamantine-ore",
+  RUBY_ORE_ITEM_ID,
+  EMERALD_ORE_ITEM_ID,
+  AMETHYST_ORE_ITEM_ID,
+]);
 const REFINER_ORE_ITEM_ID = "black-iron-ore";
-const NON_JUNK_ORE_ITEM_IDS = new Set([REFINER_ORE_ITEM_ID, ADAMANTINE_ORE_ITEM_ID]);
+const NON_JUNK_ORE_ITEM_IDS = new Set([
+  REFINER_ORE_ITEM_ID,
+  ADAMANTINE_ORE_ITEM_ID,
+  RUBY_ORE_ITEM_ID,
+  EMERALD_ORE_ITEM_ID,
+  AMETHYST_ORE_ITEM_ID,
+]);
 const WEAPON_REFINE_ORE_SLOTS = 5;
 const WEAPON_REFINE_MATERIAL_SLOTS = 5;
 const REFINE_JEWELLERY_SLOTS = new Set(["ring", "bracelet", "necklace", "amulet"]);
@@ -1880,7 +1924,10 @@ const MINING_ORE_DROPS = [
   { itemId: "silver-ore", minSlot: 29, maxSlot: 57 },
   { itemId: "black-iron-ore", minSlot: 58, maxSlot: 86 },
   { itemId: "adamantine-ore", minSlot: 87, maxSlot: 89 },
-  { itemId: "copper-ore", minSlot: 90, maxSlot: 120 },
+  { itemId: RUBY_ORE_ITEM_ID, minSlot: 90, maxSlot: 91 },
+  { itemId: EMERALD_ORE_ITEM_ID, minSlot: 92, maxSlot: 93 },
+  { itemId: AMETHYST_ORE_ITEM_ID, minSlot: 94, maxSlot: 95 },
+  { itemId: "copper-ore", minSlot: 96, maxSlot: 120 },
 ];
 const AUTO_POTION_THRESHOLD = 0.5;
 const AUTO_POTION_COOLDOWN_MS = 1000;
@@ -3477,6 +3524,7 @@ const state = {
     selectedTownNpcId: null,
     hoveredTownNpcId: null,
     offlineReport: null,
+    simulationMode: null,
     miningNextRollAt: 0,
     miningSpotId: null,
     progress: {
@@ -3855,6 +3903,7 @@ function labShellHtml() {
     </section>
     <section id="sceneOverlay" class="scene-overlay" hidden></section>
     <section id="offlineReport" class="offline-report-overlay" hidden></section>
+    <section id="simulationModeOverlay" class="simulation-mode-overlay" hidden></section>
     <section id="damageReport" class="damage-report-overlay" hidden></section>
     <section id="prototypeStatsNotice" class="prototype-stats-notice-overlay" hidden></section>
     <aside id="itemTooltip" class="item-tooltip floating" hidden></aside>
@@ -3980,6 +4029,17 @@ function gameShellHtml() {
               >
                 <img src="./public/ui/spirit-box.png" alt="" aria-hidden="true" />
               </button>
+              <button
+                type="button"
+                id="simulationModeButton"
+                class="stage-corner-button simulation-mode-button"
+                data-start-simulation-mode
+                aria-label="Simulation Mode - hunt offline for up to 8 hours"
+                title="Simulation Mode"
+                hidden
+              >
+                <span aria-hidden="true">AFK</span>
+              </button>
             </div>
             <div class="stage" id="stage">
               <div class="crystal-hotbar" id="hotbar" aria-label="Potion hotbar"></div>
@@ -4036,6 +4096,7 @@ function gameShellHtml() {
 
     <section id="sceneOverlay" class="scene-overlay" hidden></section>
     <section id="offlineReport" class="offline-report-overlay" hidden></section>
+    <section id="simulationModeOverlay" class="simulation-mode-overlay" hidden></section>
     <section id="damageReport" class="damage-report-overlay" hidden></section>
     <section id="prototypeStatsNotice" class="prototype-stats-notice-overlay" hidden></section>
     <section id="demoLiveSiteBanner" class="prototype-stats-notice-overlay demo-live-site-banner-overlay" hidden aria-live="polite"></section>
@@ -4117,6 +4178,7 @@ const els = {
   coverage: document.querySelector("#coverage"),
   sceneOverlay: document.querySelector("#sceneOverlay"),
   offlineReport: document.querySelector("#offlineReport"),
+  simulationModeOverlay: document.querySelector("#simulationModeOverlay"),
   damageReport: document.querySelector("#damageReport"),
   prototypeStatsNotice: document.querySelector("#prototypeStatsNotice"),
   demoLiveSiteBanner: document.querySelector("#demoLiveSiteBanner"),
@@ -4233,6 +4295,7 @@ async function init() {
   renderGamePanel();
   renderSceneOverlay();
   renderOfflineReport();
+  renderSimulationModeOverlay();
   renderPrototypeStatsNotice();
   renderDemoLiveSiteBanner();
   renderDemoLiveSiteBar();
@@ -4368,6 +4431,14 @@ function installTestHarness() {
       return {
         owned: timeLoggingUnlocked(),
         buttonHidden: document.getElementById("timeLoggingButton")?.hidden ?? null,
+      };
+    },
+    grantOreStacking() {
+      markUnlockOwned(ORE_STACKING_UNLOCK_KEY);
+      applyOwnedUnlocks();
+      return {
+        owned: oreStackingUnlocked(),
+        stackSize: maxItemStack(itemDefinition("black-iron-ore")),
       };
     },
     grantGroupDungeonAutoAdvance() {
@@ -5459,6 +5530,7 @@ function createDefaultCharacterState(classId) {
       miningNextRollAt: 0,
       miningSpotId: null,
       groupDungeonRun: null,
+      simulationMode: null,
     },
     inventory,
     hotbar: { slots: Array(HOTBAR_SLOT_COUNT).fill(null) },
@@ -5678,6 +5750,7 @@ function sanitizeOwnedUnlocks(owned) {
     STORAGE_PAGE_UNLOCK_KEY,
     TELEPORT_RING_UNLOCK_KEY,
     ORGANISATION_SKILLS_UNLOCK_KEY,
+    ORE_STACKING_UNLOCK_KEY,
     TIME_LOGGING_UNLOCK_KEY,
     GROUP_DUNGEON_AUTO_ADVANCE_UNLOCK_KEY,
     ...CHARACTER_IDS.map((classId) => inventoryPageUnlockKey(classId)),
@@ -6486,6 +6559,9 @@ function applyCharacterState(classId, character = createDefaultCharacterState(cl
   state.game.miningNextRollAt = Math.max(0, Math.trunc(Number(character.game.miningNextRollAt) || 0));
   state.game.miningSpotId = miningSpotById(character.game.miningSpotId)?.id ?? null;
   state.game.groupDungeonRun = sanitizeGroupDungeonOfflineRun?.(character.game.groupDungeonRun, character.game.activeZoneId, safeClassId) ?? null;
+  state.game.simulationMode = character.game.simulationMode?.startedAt
+    ? { startedAt: Math.max(0, Math.trunc(Number(character.game.simulationMode.startedAt) || 0)) }
+    : null;
   state.groupDungeonEmpowerTier = clampGroupDungeonEmpowerTier(state.game.groupDungeonRun?.empowerTier);
   state.game.progress = { ...character.game.progress };
   state.inventory = cloneInventoryState(character.inventory);
@@ -6655,6 +6731,9 @@ function serializeCurrentCharacterState() {
       miningNextRollAt: Math.max(0, Math.trunc(Number(state.game.miningNextRollAt) || 0)),
       miningSpotId: state.game.miningSpotId ?? null,
       groupDungeonRun: state.game.groupDungeonRun ?? null,
+      simulationMode: simulationModeActive()
+        ? { startedAt: Math.trunc(Number(state.game.simulationMode.startedAt)) }
+        : null,
     },
     inventory: cloneInventoryStateIncludingWeaponRefineStaged(state.inventory),
     hotbar: cloneHotbarState(state.hotbar),
@@ -6854,7 +6933,13 @@ function restorePendingSavedPlayerResources() {
 }
 
 function createPendingOfflineProgress(snapshot) {
-  return resolvePendingOfflineProgress(snapshot, Date.now(), {
+  // If the player armed Simulation Mode, credit from that stamp — not the latest
+  // autosave — so closing the tab mid-sim still covers the full AFK window.
+  const simStartedAt = Math.max(0, Math.trunc(Number(snapshot?.game?.simulationMode?.startedAt) || 0));
+  const effectiveSnapshot = simStartedAt > 0
+    ? { ...snapshot, savedAt: simStartedAt }
+    : snapshot;
+  return resolvePendingOfflineProgress(effectiveSnapshot, Date.now(), {
     zoneIds: PROTOTYPE_ZONES.map((zone) => zone.id),
     miningZoneId: MINING_ZONE_ID,
     minMs: OFFLINE_PROGRESS_MIN_MS,
@@ -6867,6 +6952,8 @@ function createPendingOfflineProgress(snapshot) {
 function applyPendingOfflineProgress() {
   const pending = pendingOfflineProgress;
   pendingOfflineProgress = null;
+  // Pending already used simulationMode.startedAt when present; clear the arm.
+  state.game.simulationMode = null;
   if (!pending) return;
   if (pending.kind === "mining") applyOfflineMiningProgress(pending);
   else applyOfflineProgress(pending);
@@ -6933,23 +7020,158 @@ function refreshOfflineProgressUi() {
   saveGameState(true);
 }
 
+function simulationModeActive() {
+  return Math.max(0, Math.trunc(Number(state.game.simulationMode?.startedAt) || 0)) > 0;
+}
+
+/** Zones where the offline sim is supported (no KR / boss rooms / group dungeons). */
+function zoneAllowsSimulationMode(zone = activeZone()) {
+  if (!zone) return false;
+  if (groupDungeonZone(zone)) return false;
+  if (bossRoomDef(zone.id)) return false;
+  if (/-kr$/i.test(String(zone.id || ""))) return false;
+  return true;
+}
+
+function canStartSimulationMode() {
+  if (simulationModeActive()) return false;
+  if (state.paused) return false;
+  if (state.game.offlineReport) return false;
+  const zone = activeZone();
+  if (!zoneAllowsSimulationMode(zone)) return false;
+  if (state.game.mode === "mining") return true;
+  if (state.game.mode !== "zone") return false;
+  if (!state.battle.running || !state.battle.player || state.battle.player.hp <= 0) return false;
+  if (state.battle.bossParty?.active) return false;
+  return true;
+}
+
+function startSimulationMode() {
+  if (!canStartSimulationMode()) return;
+  state.game.simulationMode = { startedAt: Date.now() };
+  lastSimulationAt = performance.now();
+  lastSimulationWallClockAt = Date.now();
+  saveGameState(true);
+  renderSimulationModeOverlay();
+  gamePanelSignature = "";
+  renderGamePanel();
+  playSfx("ui.button", { volume: 0.35, throttleMs: 80 });
+}
+
+function cancelSimulationMode() {
+  endSimulationMode();
+}
+
+function endSimulationMode() {
+  const startedAt = Math.max(0, Math.trunc(Number(state.game.simulationMode?.startedAt) || 0));
+  state.game.simulationMode = null;
+  renderSimulationModeOverlay();
+  lastSimulationAt = performance.now();
+  lastSimulationWallClockAt = Date.now();
+  gamePanelSignature = "";
+  renderGamePanel();
+  if (!startedAt) return;
+
+  const elapsed = Math.max(0, Date.now() - startedAt);
+  if (elapsed < OFFLINE_PROGRESS_MIN_MS) {
+    pushBattleLog("Simulation Mode ended early — resuming live hunting.");
+    saveGameState(true);
+    return;
+  }
+
+  const pending = {
+    elapsedMs: Math.min(elapsed, OFFLINE_PROGRESS_CAP_MS),
+    rawElapsedMs: elapsed,
+    capped: elapsed > OFFLINE_PROGRESS_CAP_MS,
+    savedAt: startedAt,
+    kind: state.game.mode === "mining" ? "mining" : "zone",
+  };
+  if (pending.kind === "mining") applyOfflineMiningProgress(pending);
+  else applyOfflineProgress(pending);
+  saveGameState(true);
+}
+
+function simulationModeElapsedMs(nowMs = Date.now()) {
+  const startedAt = Math.max(0, Math.trunc(Number(state.game.simulationMode?.startedAt) || 0));
+  if (!startedAt) return 0;
+  return Math.max(0, nowMs - startedAt);
+}
+
+function tickSimulationMode(nowMs = Date.now()) {
+  if (!simulationModeActive()) return;
+  if (simulationModeElapsedMs(nowMs) >= OFFLINE_PROGRESS_CAP_MS) {
+    endSimulationMode();
+    return;
+  }
+  updateSimulationModeOverlayElapsed(nowMs);
+}
+
+function renderSimulationModeOverlay() {
+  if (!els.simulationModeOverlay) return;
+  if (!simulationModeActive()) {
+    els.simulationModeOverlay.hidden = true;
+    els.simulationModeOverlay.innerHTML = "";
+    return;
+  }
+  const elapsed = simulationModeElapsedMs();
+  const remaining = Math.max(0, OFFLINE_PROGRESS_CAP_MS - elapsed);
+  els.simulationModeOverlay.hidden = false;
+  els.simulationModeOverlay.innerHTML = `
+    <div class="simulation-mode-window offline-report-window" role="dialog" aria-modal="true" aria-labelledby="simulationModeTitle">
+      <header>
+        <div>
+          <p class="eyebrow">Idle Progress</p>
+          <h2 id="simulationModeTitle">Simulation Mode</h2>
+        </div>
+      </header>
+      <p class="simulation-mode-message offline-report-message">
+        Hunting continues offline while this screen is open. Leave the tab or stay here — same 8 hour cap as normal idle. Cancel anytime to claim progress and resume live combat.
+      </p>
+      <dl>
+        <dt>Away</dt>
+        <dd data-simulation-mode-elapsed>${escapeHtml(formatDuration(elapsed))}</dd>
+        <dt>Remaining</dt>
+        <dd data-simulation-mode-remaining>${escapeHtml(formatDuration(remaining))}</dd>
+        <dt>Cap</dt>
+        <dd>8 hours</dd>
+      </dl>
+      <button type="button" class="primary" data-cancel-simulation-mode>Cancel Simulation</button>
+    </div>
+  `;
+}
+
+function updateSimulationModeOverlayElapsed(nowMs = Date.now()) {
+  if (!els.simulationModeOverlay || els.simulationModeOverlay.hidden) return;
+  const elapsed = simulationModeElapsedMs(nowMs);
+  const remaining = Math.max(0, OFFLINE_PROGRESS_CAP_MS - elapsed);
+  const elapsedEl = els.simulationModeOverlay.querySelector("[data-simulation-mode-elapsed]");
+  const remainingEl = els.simulationModeOverlay.querySelector("[data-simulation-mode-remaining]");
+  if (elapsedEl) elapsedEl.textContent = formatDuration(elapsed);
+  if (remainingEl) remainingEl.textContent = formatDuration(remaining);
+}
+
 function simulateOfflineMining(pending) {
   const limitMs = Math.max(0, Math.trunc(Number(pending.elapsedMs) || 0));
   return simulateOfflineMiningSwings(limitMs, {
     swingCycleMs: effectiveMiningSwingCycleMs(),
     hitChance: MINING_HIT_CHANCE,
     capped: pending.capped,
-    rollOre: () => ({
-      itemId: rollMiningOreItemId(),
-      purity: rollMiningOrePurity(),
-    }),
+    rollOre: () => {
+      const itemId = rollMiningOreItemId();
+      const item = itemDefinition(itemId);
+      // Always roll purity so the mining RNG stream stays stable; only Black Iron uses it.
+      const purityRoll = rollMiningOrePurity();
+      return {
+        itemId,
+        purity: oreUsesPurity(item) ? purityRoll : 0,
+      };
+    },
     formatOreLabel: (ore) => offlineMiningOreLabel(ore.itemId, ore.purity),
     tryAddOre: (ore) => {
       syncInventoryCapacity();
       ensureInventorySlots();
       recordCodexDrop(ore.itemId, codexDropSource({ kind: "mining" }));
-      if (inventoryUsedSlots() >= state.inventory.maxSlots) return false;
-      state.inventory.items.push(createOreInventoryEntry(ore.itemId, ore.purity));
+      if (!tryAddOreInventoryEntry(ore.itemId, ore.purity)) return false;
       syncBossPartyControlledInventoryFromState();
       return true;
     },
@@ -6959,6 +7181,7 @@ function simulateOfflineMining(pending) {
 function offlineMiningOreLabel(itemId, purity) {
   const item = itemDefinition(itemId);
   if (!item) return itemId;
+  if (!oreUsesPurity(item)) return item.name;
   const purityLabel = purity > 0 ? ` P${purity}` : "";
   return `${item.name}${purityLabel}`;
 }
@@ -9724,6 +9947,7 @@ function resetRuntimeGameState() {
     selectedTownNpcId: null,
     hoveredTownNpcId: null,
     offlineReport: null,
+    simulationMode: null,
     miningNextRollAt: 0,
     miningSpotId: null,
     groupDungeonRun: null,
@@ -11223,16 +11447,43 @@ function tryAddMiningOre(itemId, purity) {
   syncInventoryCapacity();
   ensureInventorySlots();
   recordCodexDrop(itemId, codexDropSource({ kind: "mining" }));
-  if (inventoryUsedSlots() >= state.inventory.maxSlots) {
+  if (!tryAddOreInventoryEntry(itemId, purity)) {
     const item = itemDefinition(itemId);
     addLootNotice(`Inventory full: ${item?.name ?? itemId}`, "full");
     return false;
   }
-  state.inventory.items.push(createOreInventoryEntry(itemId, purity));
   syncBossPartyControlledInventoryFromState();
   gamePanelDynamicSignature = "";
   sceneSignature = "";
   hotbarSignature = "";
+  return true;
+}
+
+function tryAddOreInventoryEntry(itemId, purity) {
+  const item = itemDefinition(itemId);
+  if (!item || !isOreItem(item)) return false;
+  const purityClamped = oreUsesPurity(item)
+    ? (() => {
+      const maxPurity = Math.max(1, Math.floor(itemDefinitionMaxDura(item) / ORE_PURITY_UNIT));
+      return Math.max(1, Math.min(maxPurity, Math.trunc(Number(purity) || 1)));
+    })()
+    : 0;
+  if (oreStackingUnlocked() && isOreStackableItem(item)) {
+    const maxStack = maxItemStack(item);
+    const stackTarget = carriedInventoryEntries().find((entry) => (
+      entry.itemId === itemId
+      && Math.max(1, Math.trunc(Number(entry.quantity) || 1)) < maxStack
+    ));
+    if (stackTarget) {
+      stackTarget.quantity = Math.max(1, Math.trunc(Number(stackTarget.quantity) || 1)) + 1;
+      // Drop legacy purity fields so old P1/P5 piles of the same ore can merge.
+      delete stackTarget.currentDura;
+      delete stackTarget.maxDura;
+      return true;
+    }
+  }
+  if (inventoryUsedSlots() >= state.inventory.maxSlots) return false;
+  state.inventory.items.push(createOreInventoryEntry(itemId, purityClamped));
   return true;
 }
 
@@ -11250,13 +11501,17 @@ function rollMiningOreOnSwing() {
     return;
   }
   const itemId = rollMiningOreItemId();
-  const purity = rollMiningOrePurity();
   const item = itemDefinition(itemId);
+  // Always roll purity so the mining RNG stream stays stable; only Black Iron uses it.
+  const purityRoll = rollMiningOrePurity();
+  const purity = oreUsesPurity(item) ? purityRoll : 0;
   if (!tryAddMiningOre(itemId, purity)) {
     pushBattleLog("Inventory full.");
     return;
   }
-  const label = item ? `${item.name} (Purity ${purity})` : itemId;
+  const label = item
+    ? (oreUsesPurity(item) ? `${item.name} (Purity ${purity})` : item.name)
+    : itemId;
   pushBattleLog(`Mined ${label}.`);
   pushRecentLoot(label);
   addLootNotice(`Mined ${item?.name ?? itemId}`, "item");
@@ -11705,6 +11960,10 @@ function buyAccountUpgrade(upgradeId) {
     pushBattleLog(`${upgrade.label} is already maxed.`);
     return false;
   }
+  if (upgrade.effect === "oreStackUnlock" && oreStackingUnlocked()) {
+    pushBattleLog("Ore Stacking is already unlocked.");
+    return false;
+  }
   if (!canAffordAccountUpgrade(upgrade)) {
     pushBattleLog(`Need ${missingAccountUpgradeCostText(upgrade)} to unlock ${upgrade.label}.`);
     battlePanelSignature = "";
@@ -11795,6 +12054,7 @@ function accountUpgradeEffectLabel(upgrade) {
   if (upgrade?.effect === "dropChanceBonusPercent") return "All drop chances";
   if (upgrade?.effect === "poisonAmuletStackMultiplier") return "Poison & amulet stack size";
   if (upgrade?.effect === "gemOrbStackUnlock") return "Gem & orb stacking";
+  if (upgrade?.effect === "oreStackUnlock") return "Ore stacking";
   if (upgrade?.effect === "timeLoggingUnlock") return "XP per hour window";
   if (upgrade?.effect === "spiritBoxUnlock") return "Spirit Box";
   if (upgrade?.effect === "extraGlyphSlot") return "Glyph equip slots";
@@ -11804,7 +12064,7 @@ function accountUpgradeEffectLabel(upgrade) {
   if (upgrade?.effect === "bonusAwakeningSoulChancePercent") return "Extra Awakening Soul chance";
   if (upgrade?.effect === "bossRespawnReductionPercent") return "Boss respawn time";
   if (upgrade?.effect === "miningSpeedBonusPercent") return "Mining speed";
-  if (upgrade?.effect === "miningMinPurityFloor") return "Minimum ore purity";
+  if (upgrade?.effect === "miningMinPurityFloor") return "Black Iron min purity";
   if (upgrade?.effect === "baseStatBonus") return rebirthStatUpgradeEffectLabel(upgrade);
   if (upgrade?.effect === "baseLuck") return "Base luck";
   if (upgrade?.effect === "gemMerchantUnlock") return "Gem Merchant";
@@ -11856,6 +12116,9 @@ function accountUpgradeProgressText(upgrade) {
   }
   if (upgrade?.effect === "gemOrbStackUnlock") {
     return organisationSkillsUnlocked() ? "Stackable" : "1 per slot -> stackable";
+  }
+  if (upgrade?.effect === "oreStackUnlock") {
+    return oreStackingUnlocked() ? "Stackable (not Black Iron)" : "1 per slot -> stackable";
   }
   if (upgrade?.effect === "timeLoggingUnlock") {
     return tier >= 1 || timeLoggingUnlocked() ? "Unlocked" : "Locked -> Unlocked";
@@ -12182,7 +12445,15 @@ function addInventoryItem(itemId, quantity = 1, options = {}) {
 
   while (remaining > 0) {
     if (isStackableItem(item)) {
-      const existing = carriedInventoryEntries().find((entry) => entry.itemId === itemId && entry.quantity < maxStack);
+      const existing = carriedInventoryEntries().find((entry) => {
+        if (entry.itemId !== itemId || entry.quantity >= maxStack) return false;
+        if (oreUsesPurity(item)) {
+          const optionDura = options.entryOptions?.currentDura;
+          if (optionDura == null) return false;
+          return Number(entry.currentDura) === Number(optionDura);
+        }
+        return true;
+      });
       if (existing) {
         const add = Math.min(remaining, maxStack - existing.quantity);
         existing.quantity += add;
@@ -12192,7 +12463,7 @@ function addInventoryItem(itemId, quantity = 1, options = {}) {
       }
       const add = Math.min(remaining, maxStack);
       if (inventoryUsedSlots() >= state.inventory.maxSlots) break;
-      const entry = createInventoryEntry(itemId, add);
+      const entry = createInventoryEntry(itemId, add, options.entryOptions ?? {});
       state.inventory.items.push(entry);
       applyAutoJunkMarkIfEligible(entry);
       added.push(entry);
@@ -12344,6 +12615,7 @@ function createInventoryEntry(itemId, quantity = 1, options = {}) {
 function createOreInventoryEntry(itemId, purity) {
   const item = itemDefinition(itemId);
   if (!item || !isOreItem(item)) return createInventoryEntry(itemId, 1);
+  if (!oreUsesPurity(item)) return createInventoryEntry(itemId, 1);
   const maxPurity = Math.max(1, Math.floor(itemDefinitionMaxDura(item) / ORE_PURITY_UNIT));
   const purityClamped = Math.max(1, Math.min(maxPurity, Math.trunc(Number(purity) || 1)));
   return createInventoryEntry(itemId, 1, { currentDura: purityClamped * ORE_PURITY_UNIT });
@@ -12616,17 +12888,31 @@ function weaponRefineEntryById(entryId) {
 }
 
 function stageWeaponRefineEntry(entry) {
-  if (!entry || isWeaponRefineStagedEntry(entry.id)) return true;
-  if (isEquippedEntry(entry.id) || isHotbarEntry(entry.id)) return false;
+  if (!entry) return null;
+  if (isWeaponRefineStagedEntry(entry.id)) return entry.id;
+  if (isEquippedEntry(entry.id) || isHotbarEntry(entry.id)) return null;
   ensureInventorySlots();
   const index = state.inventory.items.findIndex((candidate) => candidate.id === entry.id);
-  if (index < 0) return false;
+  if (index < 0) return null;
   const returnSlot = Number.isInteger(entry.slot) ? entry.slot : null;
+  const item = itemDefinition(entry.itemId);
+  const qty = Math.max(1, Math.trunc(Number(entry.quantity) || 1));
+  // Ore stacks (not Black Iron) place one unit on the refine board so a whole
+  // purity stack is not consumed by a single refine.
+  if (isOreStackableItem(item) && qty > 1) {
+    entry.quantity = qty - 1;
+    const split = createOreInventoryEntry(entry.itemId, orePurity(entry, item));
+    split.slot = null;
+    if (!state.weaponRefine.stagedEntries) state.weaponRefine.stagedEntries = {};
+    state.weaponRefine.stagedEntries[split.id] = { entry: split, returnSlot };
+    gamePanelSignature = "";
+    return split.id;
+  }
   const [stagedEntry] = state.inventory.items.splice(index, 1);
   if (!state.weaponRefine.stagedEntries) state.weaponRefine.stagedEntries = {};
   state.weaponRefine.stagedEntries[stagedEntry.id] = { entry: stagedEntry, returnSlot };
   gamePanelSignature = "";
-  return true;
+  return stagedEntry.id;
 }
 
 function discardWeaponRefineStagedEntry(entryId) {
@@ -12640,6 +12926,24 @@ function unstageWeaponRefineEntry(entryId, targetSlot = null) {
   if (!staged) return false;
   delete state.weaponRefine.stagedEntries[entryId];
   const entry = staged.entry;
+  const item = itemDefinition(entry.itemId);
+  if (oreStackingUnlocked() && isOreStackableItem(item)) {
+    const maxStack = maxItemStack(item);
+    const match = carriedInventoryEntries().find((candidate) => (
+      candidate.id !== entry.id
+      && candidate.itemId === entry.itemId
+      && Math.max(1, Math.trunc(Number(candidate.quantity) || 1)) < maxStack
+    ));
+    if (match) {
+      match.quantity = Math.max(1, Math.trunc(Number(match.quantity) || 1)) + Math.max(1, Math.trunc(Number(entry.quantity) || 1));
+      delete match.currentDura;
+      delete match.maxDura;
+      ensureInventorySlots();
+      gamePanelSignature = "";
+      sceneSignature = "";
+      return true;
+    }
+  }
   const preferredSlot = Number.isInteger(targetSlot)
     ? targetSlot
     : (Number.isInteger(staged.returnSlot) ? staged.returnSlot : null);
@@ -12841,13 +13145,17 @@ function assignWeaponRefineSlot(kind, index, entryId, { fromRefine = null } = {}
   }
 
   const board = state.weaponRefine;
-  if (!isWeaponRefineStagedEntry(entryId) && !stageWeaponRefineEntry(entry)) return false;
+  let stagedEntryId = entryId;
+  if (!isWeaponRefineStagedEntry(entryId)) {
+    stagedEntryId = stageWeaponRefineEntry(entry);
+    if (!stagedEntryId) return false;
+  }
 
   let occupiedEntryId = null;
   if (kind === "weapon") occupiedEntryId = board.weaponEntryId;
   else if (kind === "ore") occupiedEntryId = board.oreEntryIds[slotIndex] ?? null;
   else if (kind === "material") occupiedEntryId = board.materialEntryIds[slotIndex] ?? null;
-  if (occupiedEntryId && occupiedEntryId !== entryId) {
+  if (occupiedEntryId && occupiedEntryId !== stagedEntryId) {
     if (kind === "weapon") board.weaponEntryId = null;
     else if (kind === "ore") board.oreEntryIds[slotIndex] = null;
     else board.materialEntryIds[slotIndex] = null;
@@ -12857,17 +13165,17 @@ function assignWeaponRefineSlot(kind, index, entryId, { fromRefine = null } = {}
   if (fromRefine?.kind === "ore") board.oreEntryIds[fromRefine.index] = null;
   if (fromRefine?.kind === "material") board.materialEntryIds[fromRefine.index] = null;
 
-  const prevOre = board.oreEntryIds.indexOf(entryId);
+  const prevOre = board.oreEntryIds.indexOf(stagedEntryId);
   if (prevOre >= 0 && (kind !== "ore" || prevOre !== slotIndex)) board.oreEntryIds[prevOre] = null;
-  const prevMaterial = board.materialEntryIds.indexOf(entryId);
+  const prevMaterial = board.materialEntryIds.indexOf(stagedEntryId);
   if (prevMaterial >= 0 && (kind !== "material" || prevMaterial !== slotIndex)) {
     board.materialEntryIds[prevMaterial] = null;
   }
-  if (board.weaponEntryId === entryId && kind !== "weapon") board.weaponEntryId = null;
+  if (board.weaponEntryId === stagedEntryId && kind !== "weapon") board.weaponEntryId = null;
 
-  if (kind === "weapon") board.weaponEntryId = entryId;
-  else if (kind === "ore") board.oreEntryIds[slotIndex] = entryId;
-  else board.materialEntryIds[slotIndex] = entryId;
+  if (kind === "weapon") board.weaponEntryId = stagedEntryId;
+  else if (kind === "ore") board.oreEntryIds[slotIndex] = stagedEntryId;
+  else board.materialEntryIds[slotIndex] = stagedEntryId;
 
   sceneSignature = "";
   gamePanelSignature = "";
@@ -13629,9 +13937,51 @@ function announceCraftingCubeEmpowerReroll(empoweredItem, empoweredEntry, reroll
   const addedLabel = formatEmpowerAppliedChangeLabel(reroll.newRoll, reroll.appliedAmount);
   state.craftingCube.lastRerollNotice = { removed: removedLabel, added: addedLabel };
   clearCraftingCubeTargetedSelections();
-  pushBattleLog(`${itemName}: removed ${removedLabel}. Added ${addedLabel}.`);
+  const attuneNote = reroll.attunementForced
+    ? ` (${reroll.attunementFamily} attunement)`
+    : "";
+  pushBattleLog(`${itemName}: removed ${removedLabel}. Added ${addedLabel}${attuneNote}.`);
   addLootNotice(`Removed ${removedLabel}`, "item");
   addLootNotice(`Added ${addedLabel}`, "level");
+}
+
+function attemptCraftingCubeAttunementStoneCraft(recipeId) {
+  if (state.craftingCube?.mode !== "craft") return false;
+  const validation = validateCraftingCubeAttunementStoneCraft(craftingCubeBoardEntries(), recipeId);
+  if (!validation.ok) {
+    setCraftingCubeFeedback(validation.error);
+    sceneSignature = "";
+    renderSceneOverlay();
+    playSfx("ui.button", { volume: 0.28, throttleMs: 120 });
+    return false;
+  }
+
+  if (!canAffordCraftingCubeGold(recipeId)) {
+    reportCraftingCubeGoldShortfall(recipeId);
+    return false;
+  }
+
+  const recipe = validation.recipe;
+  consumeStagedCraftingCubeEntryQuantity(validation.oreEntry.id, 1);
+  spendCraftingCubeGold(recipeId);
+  state.craftingCube.feedback = null;
+  state.craftingCube.feedbackKind = null;
+  state.craftingCube.lastRerollNotice = null;
+
+  const stoneItem = itemDefinition(recipe.stoneItemId);
+  addInventoryItem(recipe.stoneItemId, 1);
+  const stoneName = stoneItem?.name ?? recipe.label;
+  pushBattleLog(`Crafted 1 ${stoneName} from 1 ${recipe.oreLabel}.`);
+  addLootNotice(`1× ${stoneName}`, "item");
+
+  hideItemTooltip();
+  sceneSignature = "";
+  gamePanelSignature = "";
+  saveGameState(true);
+  renderSceneOverlay();
+  renderGamePanel();
+  playSfx("item.pickup", { volume: 0.42, throttleMs: 120 });
+  return true;
 }
 
 function announceCraftingCubeEmpowerSwap(swap) {
@@ -13788,7 +14138,12 @@ function attemptCraftingCubeEmpowerReroll() {
     return false;
   }
 
-  const reroll = rollEmpowermentReroll(validation.empoweredEntry, validation.empoweredItem);
+  const reroll = rollEmpowermentReroll(
+    validation.empoweredEntry,
+    validation.empoweredItem,
+    Math.random,
+    { attunementFamily: validation.attunementFamily || null },
+  );
   if (!reroll.ok) {
     setCraftingCubeFeedback(reroll.error);
     sceneSignature = "";
@@ -13799,6 +14154,9 @@ function attemptCraftingCubeEmpowerReroll() {
 
   if (validation.crystalEntry?.id) {
     consumeStagedCraftingCubeEntryQuantity(validation.crystalEntry.id, 1);
+  }
+  if (validation.attunementStoneEntry?.id) {
+    consumeStagedCraftingCubeEntryQuantity(validation.attunementStoneEntry.id, 1);
   }
   spendCraftingCubeGold(CRAFTING_CUBE_EMPOWER_REROLL_RECIPE_ID);
   state.craftingCube.feedback = null;
@@ -13847,6 +14205,8 @@ function attemptCraftingCubeTargetedEmpowerReroll() {
     validation.empoweredEntry,
     validation.empoweredItem,
     slotIndex,
+    Math.random,
+    { attunementFamily: validation.attunementFamily || null },
   );
   if (!reroll.ok) {
     setCraftingCubeFeedback(reroll.error);
@@ -13861,6 +14221,9 @@ function attemptCraftingCubeTargetedEmpowerReroll() {
     CRAFTING_CUBE_TARGETED_EMPOWER_REROLL_CRYSTAL_COST,
   );
   consumeStagedCraftingCubeEntryQuantity(validation.adamantineEntry.id, 1);
+  if (validation.attunementStoneEntry?.id) {
+    consumeStagedCraftingCubeEntryQuantity(validation.attunementStoneEntry.id, 1);
+  }
   spendCraftingCubeGold(CRAFTING_CUBE_TARGETED_EMPOWER_REROLL_RECIPE_ID);
   state.craftingCube.feedback = null;
   state.craftingCube.feedbackKind = null;
@@ -13881,6 +14244,9 @@ function attemptCraftingCubeTargetedEmpowerReroll() {
 function craftingCubeRecipeValidation(recipeId, boardEntries = craftingCubeBoardEntries()) {
   if (recipeId === CRAFTING_CUBE_FOCUS_PRISM_RECIPE_ID) {
     return validateCraftingCubeFocusPrismCraft(boardEntries);
+  }
+  if (CRAFTING_CUBE_ATTUNEMENT_STONE_RECIPE_BY_ID[recipeId]) {
+    return validateCraftingCubeAttunementStoneCraft(boardEntries, recipeId);
   }
   if (recipeId === CRAFTING_CUBE_IWT_SOUL_RECIPE_ID) {
     return validateCraftingCubeIwtSoulCraft(boardEntries);
@@ -13939,6 +14305,9 @@ function canAttemptCraftingCubeCraft() {
 function attemptCraftingCubeCraft() {
   const recipeId = state.craftingCube?.selectedRecipeId;
   if (recipeId === CRAFTING_CUBE_FOCUS_PRISM_RECIPE_ID) return attemptCraftingCubeFocusPrismCraft();
+  if (CRAFTING_CUBE_ATTUNEMENT_STONE_RECIPE_BY_ID[recipeId]) {
+    return attemptCraftingCubeAttunementStoneCraft(recipeId);
+  }
   if (recipeId === CRAFTING_CUBE_IWT_SOUL_RECIPE_ID) return attemptCraftingCubeIwtSoulCraft();
   if (recipeId === CRAFTING_CUBE_IZT_SOUL_RECIPE_ID) return attemptCraftingCubeIztSoulCraft();
   if (recipeId === CRAFTING_CUBE_DD_SOUL_RECIPE_ID) return attemptCraftingCubeDdSoulCraft();
@@ -16313,13 +16682,16 @@ function mergeStorageBagStacksForSort() {
 }
 
 function inventoryStackMergeKey(entry, item = itemDefinition(entry?.itemId)) {
+  const usesOrePurity = oreUsesPurity(item);
   return JSON.stringify({
     itemId: entry?.itemId ?? "",
     smithLevel: Math.max(0, Math.trunc(Number(entry?.smithLevel) || 0)),
     weaponRefineLevel: Math.max(0, Math.trunc(Number(entry?.weaponRefineLevel) || 0)),
     gemCount: Math.max(0, Math.trunc(Number(entry?.gemCount) || 0)),
-    currentDura: entry?.currentDura ?? null,
-    maxDura: entry?.maxDura ?? null,
+    // Only Black Iron Ore keeps purity; ignore leftover dura on other ores so
+    // old P1/P5 piles of Adamantine/Ruby/etc. merge when sorting.
+    currentDura: usesOrePurity ? (entry?.currentDura ?? null) : null,
+    maxDura: usesOrePurity ? (entry?.maxDura ?? null) : null,
     bonusStats: sanitizeItemBonusStats(entry?.bonusStats),
     smithBonusStats: sanitizeSmithBonusStats(entry?.smithBonusStats),
     maxStack: maxItemStack(item),
@@ -16471,7 +16843,9 @@ function allocateStorageEntryId() {
 function sameStackableItem(sourceEntry, targetEntry) {
   if (!sourceEntry || !targetEntry || sourceEntry.itemId !== targetEntry.itemId) return false;
   const item = itemDefinition(sourceEntry.itemId);
-  return isStackableItem(item) && targetEntry.quantity < maxItemStack(item);
+  if (!isStackableItem(item) || targetEntry.quantity >= maxItemStack(item)) return false;
+  // Black Iron is not stackable; other ores ignore legacy purity fields.
+  return true;
 }
 
 function mergeEntryIntoStack(sourceEntry, targetEntry) {
@@ -17061,7 +17435,7 @@ function itemDisplayName(item, entry = null) {
   if (smithLevel > 0) suffixParts.push(`+${smithLevel}`);
   if (weaponRefineLevel > 0) suffixParts.push(`Ref +${weaponRefineLevel}`);
   if (luckLabel) suffixParts.push(luckLabel);
-  if (entry && isOreItem(item)) {
+  if (entry && oreUsesPurity(item)) {
     const purity = orePurity(entry, item);
     if (purity > 0) suffixParts.push(`P${purity}`);
   }
@@ -17145,21 +17519,43 @@ function isPickaxeItem(item) {
 }
 
 function itemUsesEntryDurability(item) {
+  // Only Black Iron Ore stores purity in currentDura.
+  if (oreUsesPurity(item) && itemDefinitionMaxDura(item) > 0) return true;
+  // Other ores never keep entry dura (legacy purity is stripped on sanitize).
+  if (isOreItem(item)) return false;
   return itemUsesEntryDurabilityCore(item, isStackableItem);
 }
 
 function sanitizeEntryDurability(savedEntry, item) {
-  return sanitizeEntryDurabilityCore(savedEntry, item, isStackableItem);
+  // Black Iron: force-keep dura (core drops it on stackables).
+  // Other ores: force-drop dura so leftover purity does not block stacking.
+  return sanitizeEntryDurabilityCore(savedEntry, item, (candidate) => {
+    if (oreUsesPurity(candidate)) return false;
+    if (isOreItem(candidate)) return true;
+    return isStackableItem(candidate);
+  });
 }
 
 function normalizeInventoryEntryFields(savedEntry, item = null) {
   const resolvedItem = item ?? itemDefinition(savedEntry?.itemId);
-  return normalizeInventoryEntryFieldsCore(savedEntry, resolvedItem, isStackableItem);
+  return normalizeInventoryEntryFieldsCore(
+    savedEntry,
+    resolvedItem,
+    (candidate) => {
+      if (oreUsesPurity(candidate)) return false;
+      if (isOreItem(candidate)) return true;
+      return isStackableItem(candidate);
+    },
+  );
+}
+
+function oreUsesPurity(item) {
+  return Boolean(item) && isOreItem(item) && item.id === REFINER_ORE_ITEM_ID;
 }
 
 function orePurity(entry, item = null) {
   const resolvedItem = item ?? itemDefinition(entry?.itemId);
-  if (!isOreItem(resolvedItem) || entry?.currentDura == null) return 0;
+  if (!oreUsesPurity(resolvedItem) || entry?.currentDura == null) return 0;
   return Math.max(0, Math.floor(Number(entry.currentDura) / ORE_PURITY_UNIT));
 }
 
@@ -17170,7 +17566,13 @@ function entryDurabilityPercent(entry, item = null) {
   return Math.max(0, Math.min(100, Math.round((Number(entry.currentDura) / maxDura) * 100)));
 }
 
+/** Black iron stays 1-per-slot (refine ingredient); other ores can stack. */
+function isOreStackableItem(item) {
+  return Boolean(item) && isOreItem(item) && item.id !== REFINER_ORE_ITEM_ID;
+}
+
 function isStackableItem(item) {
+  if (oreStackingUnlocked() && isOreStackableItem(item)) return maxItemStack(item) > 1;
   return Boolean(item?.stackable) && maxItemStack(item) > 1;
 }
 
@@ -17178,6 +17580,9 @@ function maxItemStack(item) {
   const base = Math.max(1, Math.floor(Number(item?.maxStack) || 1));
   if (organisationSkillsUnlocked() && isGemUpgradeItem(item)) {
     return Math.max(base, ORGANISATION_SKILLS_STACK_SIZE);
+  }
+  if (oreStackingUnlocked() && isOreStackableItem(item)) {
+    return Math.max(base, ORE_STACKING_STACK_SIZE);
   }
   if (poisonAmuletStackMultiplier() <= 1) return base;
   const poisonOrAmulet = item?.type === "poison" || item?.type === "amulet" || item?.poison || item?.amulet;
@@ -19081,6 +19486,7 @@ function renderGamePanel() {
   syncTeleportRingButton();
   syncTimeLoggingButton();
   syncSpiritBoxButton();
+  syncSimulationModeButton();
   if (IS_GAME_UI) {
     renderGameUiPanel();
     return;
@@ -19155,11 +19561,13 @@ function renderGamePanel() {
         ${recentLootHtml()}
         <div class="battle-buttons">
           <button id="returnToTown" class="primary">Return To Town</button>
+          ${canStartSimulationMode() ? `<button id="startSimulationMode" type="button">Simulation Mode</button>` : ""}
         </div>
       </section>
     `;
     bindSceneButtons(els.gamePanel);
     els.gamePanel.querySelector("#returnToTown")?.addEventListener("click", () => returnToTown());
+    els.gamePanel.querySelector("#startSimulationMode")?.addEventListener("click", () => startSimulationMode());
     return;
   }
 
@@ -19175,12 +19583,14 @@ function renderGamePanel() {
       <div class="battle-buttons">
         <button id="testLevelUp">Level Up</button>
         <button id="returnToTown" class="primary">Return To Town</button>
+        ${canStartSimulationMode() ? `<button id="startSimulationMode" type="button">Simulation Mode</button>` : ""}
       </div>
     </section>
   `;
   bindSceneButtons(els.gamePanel);
   els.gamePanel.querySelector("#testLevelUp")?.addEventListener("click", () => testLevelUpCharacter());
   els.gamePanel.querySelector("#returnToTown")?.addEventListener("click", () => returnToTown());
+  els.gamePanel.querySelector("#startSimulationMode")?.addEventListener("click", () => startSimulationMode());
 }
 
 function setGamePanelText(selector, value) {
@@ -19283,6 +19693,7 @@ function renderGameUiPanel() {
     groupDungeonWaves: groupDungeonWaveSignature(),
     groupDungeonBossSwarm: groupDungeonBossSwarmSignature(),
     groupDungeonAutoAdvanceOwned: groupDungeonAutoAdvanceUnlocked(),
+    canStartSimulationMode: canStartSimulationMode(),
   });
   if (dynamicSignature === gamePanelDynamicSignature) return;
   // Defer interactive button HTML swaps while the pointer is down on them.
@@ -19307,6 +19718,7 @@ function renderGameUiPanel() {
   setGamePanelHtml("[data-game-ui-damage-report]", gamePanelDamageReportButtonHtml());
   setGamePanelHtml("[data-game-ui-recent-loot]", gameSideRecentLootHtml());
   setGamePanelHtml("[data-game-ui-activity-log]", activityLogHtml());
+  syncSimulationModeButton();
   renderBossDamageReport();
   maybeAutoAdvanceGroupDungeonFloor();
 }
@@ -19449,6 +19861,11 @@ function syncTimeLoggingButton() {
   const button = document.getElementById("timeLoggingButton");
   if (button) button.hidden = !show;
   if (!show && state.openScenes?.timeLogging) state.openScenes.timeLogging = false;
+}
+
+function syncSimulationModeButton() {
+  const button = document.getElementById("simulationModeButton");
+  if (button) button.hidden = !(UI_MODE === "game" && canStartSimulationMode());
 }
 
 function syncSpiritBoxButton() {
@@ -21763,7 +22180,8 @@ function upgradesSceneHtml() {
 function accountUpgradeHtml(upgrade) {
   const planned = Boolean(upgrade.planned);
   const tier = accountUpgradeTier(upgrade.id);
-  const maxed = !planned && accountUpgradeIsMaxed(upgrade);
+  const unlockedAlt = upgrade.effect === "oreStackUnlock" && oreStackingUnlocked();
+  const maxed = !planned && (accountUpgradeIsMaxed(upgrade) || unlockedAlt);
   const canAfford = !planned && !maxed && canAffordAccountUpgrade(upgrade);
   const prereqMet = !upgrade.requiresUpgradeId || accountUpgradePurchased(upgrade.requiresUpgradeId);
   const stateClass = planned ? "planned" : maxed ? "purchased" : canAfford ? "ready" : "locked";
@@ -21826,6 +22244,7 @@ function accountUpgradeIconText(upgrade) {
   if (upgrade?.effect === "dropChanceBonusPercent") return "DR";
   if (upgrade?.effect === "poisonAmuletStackMultiplier") return "ST";
   if (upgrade?.effect === "gemOrbStackUnlock") return "OS";
+  if (upgrade?.effect === "oreStackUnlock") return "OR";
   if (upgrade?.effect === "timeLoggingUnlock") return "XP";
   if (upgrade?.effect === "spiritBoxUnlock") return "SB";
   if (upgrade?.effect === "extraGlyphSlot") return "G+";
@@ -22667,6 +23086,15 @@ function confirmOrganisationSkillsPurchase() {
   });
 }
 
+function confirmOreStackingPurchase() {
+  if (oreStackingUnlocked() || state.tokens.buying) return;
+  purchasePageUnlock(ORE_STACKING_UNLOCK_KEY, () => {
+    pushBattleLog("Ore Stacking unlocked - ores (except Black Iron) now stack in your inventory.");
+    playSfx("ui.gold", { volume: 0.55, throttleMs: 80 });
+    saveGameState(true);
+  });
+}
+
 function confirmTimeLoggingPurchase() {
   if (timeLoggingUnlocked() || state.tokens.buying) return;
   purchasePageUnlock(TIME_LOGGING_UNLOCK_KEY, () => {
@@ -22964,6 +23392,13 @@ function cashShopSceneHtml() {
     : `<button type="button" class="primary" data-buy-unlock="${ORGANISATION_SKILLS_UNLOCK_KEY}" ${tokens.buying || !orgAffordable ? "disabled" : ""}>
           ${tokens.buying ? "Purchasing..." : `Buy for ${ORGANISATION_SKILLS_TOKEN_COST} tokens`}
         </button>${orgAffordable ? "" : `<small class="cash-shop-need">Need ${ORGANISATION_SKILLS_TOKEN_COST} tokens</small>`}`;
+  const oreStackOwned = oreStackingUnlocked();
+  const oreStackAffordable = balanceValue >= ORE_STACKING_TOKEN_COST;
+  const oreStackButtonHtml = oreStackOwned
+    ? `<button type="button" class="cash-shop-owned" disabled>Owned</button>`
+    : `<button type="button" class="primary" data-buy-unlock="${ORE_STACKING_UNLOCK_KEY}" ${tokens.buying || !oreStackAffordable ? "disabled" : ""}>
+          ${tokens.buying ? "Purchasing..." : `Buy for ${ORE_STACKING_TOKEN_COST} tokens`}
+        </button>${oreStackAffordable ? "" : `<small class="cash-shop-need">Need ${ORE_STACKING_TOKEN_COST} tokens</small>`}`;
   const supporterOn = supporterActive();
   const supporterDays = supporterDaysRemaining();
   const supporterAffordable = balanceValue >= MONTHLY_SUPPORTER_TOKEN_COST;
@@ -23018,6 +23453,13 @@ function cashShopSceneHtml() {
             <small>Lets gems and orbs stack in your inventory. Also available in the Rebirth shop for rebirth points.</small>
           </div>
           <div class="cash-shop-item-buy">${orgButtonHtml}</div>
+        </div>
+        <div class="cash-shop-item">
+          <div class="cash-shop-item-info">
+            <strong>Ore Stacking</strong>
+            <small>Lets ores (except Black Iron Ore) stack in your inventory. Black Iron stays one per slot and keeps purity for refining. Also in the Rebirth shop for 100 Souls.</small>
+          </div>
+          <div class="cash-shop-item-buy">${oreStackButtonHtml}</div>
         </div>
         <div class="cash-shop-item">
           <div class="cash-shop-item-info">
@@ -25237,8 +25679,8 @@ function itemTooltipHtml(item, entry = null) {
     ${entry?.smithLevel ? `<span>Smith: +${Math.max(0, Math.trunc(Number(entry.smithLevel) || 0))}</span>` : ""}
     ${entry?.gemCount ? `<span>Gem upgrades: ${Math.max(0, Math.trunc(Number(entry.gemCount) || 0))}</span>` : ""}
     ${entry?.weaponRefineLevel ? `<span>Refine: +${Math.max(0, Math.trunc(Number(entry.weaponRefineLevel) || 0))} / ${WEAPON_REFINE_MAX}</span>` : ""}
-    ${entry && isOreItem(item) ? itemOreTooltipHtml(entry, item) : ""}
-    ${entry && itemUsesEntryDurability(item) && !isOreItem(item) ? itemDurabilityTooltipHtml(entry, item) : ""}
+    ${entry && oreUsesPurity(item) ? itemOreTooltipHtml(entry, item) : ""}
+    ${entry && itemUsesEntryDurability(item) && !oreUsesPurity(item) ? itemDurabilityTooltipHtml(entry, item) : ""}
     ${itemSpellTooltipHtml(item)}
     ${itemGlyphTooltipHtml(item)}
     ${itemRequirementTooltipHtml(item)}
@@ -25758,6 +26200,10 @@ async function enterZone(zoneId, options = {}) {
   state.game.lastReward = null;
   state.game.recentLoot = [];
   state.game.lootToasts = [];
+  if (simulationModeActive()) {
+    state.game.simulationMode = null;
+    renderSimulationModeOverlay();
+  }
   state.game.dropPity[zone.id] = state.game.dropPity[zone.id] ?? 0;
   if (isRoomOnlyZone(zone)) {
     resetBattleForRoomOnly(zone);
@@ -25818,6 +26264,10 @@ async function enterZone(zoneId, options = {}) {
 }
 
 function returnToTown() {
+  if (simulationModeActive()) {
+    state.game.simulationMode = null;
+    renderSimulationModeOverlay();
+  }
   clearTransientCombatBuffs();
   state.bossDamageReportOpen = false;
   renderBossDamageReport();
@@ -29340,7 +29790,9 @@ function weaponRefineSlotHtml(kind, index, { large = false } = {}) {
     refineFx ? `weapon-refine-fx-${refineFx}` : "",
     refineFx ? "weapon-refine-fx-active" : "",
   ].filter(Boolean).join(" ");
-  const purity = entry && item && kind === "ore" ? `<span class="weapon-refine-purity">P${orePurity(entry, item)}</span>` : "";
+  const purity = entry && item && kind === "ore" && oreUsesPurity(item)
+    ? `<span class="weapon-refine-purity">P${orePurity(entry, item)}</span>`
+    : "";
   const filledContent = entry && item
     ? `
       <div
@@ -29381,7 +29833,7 @@ function weaponRefineSlotHtml(kind, index, { large = false } = {}) {
 }
 
 function weaponRefinePickerRowHtml(entry, item) {
-  const purity = isOreItem(item) ? ` | Purity ${orePurity(entry, item)}` : "";
+  const purity = oreUsesPurity(item) ? ` | Purity ${orePurity(entry, item)}` : "";
   const statHint = isRefineJewelleryItem(item) ? refineJewelleryStatHint(entry, item) : "";
   return `
     <div class="npc-shop-row weapon-refine-picker-row" data-tooltip-item="${escapeHtml(item.id)}" data-tooltip-entry="${escapeHtml(entry.id)}">
@@ -29919,6 +30371,17 @@ function bindControls() {
       closeOfflineReport();
       return;
     }
+    const cancelSimulationModeButton = event.target.closest("[data-cancel-simulation-mode]");
+    if (cancelSimulationModeButton && root.contains(cancelSimulationModeButton)) {
+      cancelSimulationMode();
+      playSfx("ui.button", { volume: 0.35, throttleMs: 80 });
+      return;
+    }
+    const startSimulationModeButton = event.target.closest("[data-start-simulation-mode]");
+    if (startSimulationModeButton && root.contains(startSimulationModeButton)) {
+      startSimulationMode();
+      return;
+    }
     const acceptPrototypeStatsButton = event.target.closest("[data-accept-prototype-stats]");
     if (acceptPrototypeStatsButton && root.contains(acceptPrototypeStatsButton)) {
       acceptPrototypeStatsNotice();
@@ -30005,6 +30468,7 @@ function bindControls() {
     if (buyUnlockButton && root.contains(buyUnlockButton)) {
       if (buyUnlockButton.dataset.buyUnlock === TELEPORT_RING_UNLOCK_KEY) confirmTeleportRingPurchase();
       else if (buyUnlockButton.dataset.buyUnlock === ORGANISATION_SKILLS_UNLOCK_KEY) confirmOrganisationSkillsPurchase();
+      else if (buyUnlockButton.dataset.buyUnlock === ORE_STACKING_UNLOCK_KEY) confirmOreStackingPurchase();
       else if (buyUnlockButton.dataset.buyUnlock === TIME_LOGGING_UNLOCK_KEY) confirmTimeLoggingPurchase();
       else if (buyUnlockButton.dataset.buyUnlock === GROUP_DUNGEON_AUTO_ADVANCE_UNLOCK_KEY) confirmGroupDungeonAutoAdvancePurchase();
       return;
@@ -30628,6 +31092,22 @@ async function reloadEnemyAtlas() {
 
 function tick(now) {
   updatePerfClock(now);
+  // Opt-in Simulation Mode parks live combat and stamps AFK time. Keep clocks
+  // fresh so tab-suspend catch-up does not also run offline for the same window.
+  if (simulationModeActive()) {
+    lastSimulationAt = now;
+    lastSimulationWallClockAt = Date.now();
+    maybeAutoSave(now);
+    maybeSubmitPrototypeStats(now);
+    maybeUploadCloudSave(now);
+    tickSimulationMode(Date.now());
+    if (now - lastRenderAt >= RENDER_MIN_INTERVAL_MS) {
+      lastRenderAt = now;
+      render();
+    }
+    requestAnimationFrame(tick);
+    return;
+  }
   if (!catchUpSimulation(now)) {
     // Still replaying missed steps in budgeted chunks; keep the frame short so
     // the page stays responsive and resume the live loop once caught up.
@@ -49687,6 +50167,7 @@ function render() {
   renderStageInfoZoneName();
   renderTimedEnrageHud();
   renderHotbar();
+  syncSimulationModeButton();
 
   if (!IS_GAME_UI && els.readout && els.frameMeta) {
     const srcFrame = sourceFrameFor(state.action, displayFrame);

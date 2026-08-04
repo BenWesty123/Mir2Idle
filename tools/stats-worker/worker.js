@@ -58,6 +58,7 @@ const UNLOCK_TOKEN_COSTS = {
   "inv-page-3:taoist": 250,
   "teleport-ring": 500,
   "organisation-skills": 200,
+  "ore-stacking": 200,
   "time-logging": 300,
   "group-dungeon-auto-advance": 200,
 };

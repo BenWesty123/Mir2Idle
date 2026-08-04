@@ -1,5 +1,81 @@
 # AI Task Log - LOM Idle V2
 
+## 2026-08-04 - Ore Stacking unlock (rebirth + Cash Shop)
+
+Permanent unlock so ores stack in inventory. Sold two ways (mirrors Organisation
+Skills): **100 rebirth points** in the Rebirth shop, or **200 tokens** in the
+Cash Shop.
+
+### Behaviour
+- Stackable ores share a stack by item id (max 99)
+- **Black Iron Ore is excluded** (stays 1 per slot) and is the **only** ore that
+  still has purity (for weapon refine)
+- Other ores no longer roll or show purity; legacy purity fields are ignored /
+  stripped so Adamantine/Ruby/etc. merge
+- Mining / offline mining fill matching stacks before taking a new slot
+
+### Files
+- `src/app.monolith.js` — upgrade def `rebirth-ore-stacking`, unlock key
+  `ore-stacking`, cash shop UI, stacking logic
+- `tools/stats-worker/worker.js` — `"ore-stacking": 200` in `UNLOCK_TOKEN_COSTS`
+- `tests/statsWorkerShop.test.mjs` — unlock-page charge test
+
+### Verify
+- `npm.cmd run check`
+- Worker must be redeployed for the Cash Shop token purchase; rebirth purchase is client-only
+
+## 2026-08-03 - Attunement Stones (empower reroll family bias)
+
+Mine three new rare ores and craft Attunement Stones that optionally bias
+crafting-cube empowerment rerolls toward Offensive / Defensive / Utility.
+
+### Behaviour
+- New ores: Ruby / Emerald / Amethyst (mined ~1.7% each, non-junk)
+- Craft: 1 matching ore → 1 Offensive / Defensive / Utility Attunement Stone (no gold)
+- Optional on random + targeted empower reroll (not swap): 50% force that family,
+  else normal pools; stone consumed when used
+- Families: offense (DC/MC/SC/crit/accuracy/AS/… + spell damage/crit), defense
+  (AC/AMC/HP/agi/DR/resists/… + heal/pet defense), utility (XP/gold/drop/soul/
+  skill/potion/MP + mana cost/CDR)
+
+### Files
+- `src/data/items.json` — 3 ores + 3 stones
+- `public/item-icons/items/frame_000{287,527,528,785,786,789}.png` + atlas rebuild
+- `src/core/empoweredItems.js` — family sets + force-on-reroll
+- `src/core/craftingCube.js` — stone craft + optional stone on reroll validators
+- `src/app.monolith.js` — mining table, craft/reroll wiring
+- `tests/craftingCubeSalvage.test.mjs`, `tests/empoweredItems.test.mjs`
+
+### Verify
+- `npm.cmd run check`
+- `npm.cmd run smoke` (with `npm.cmd run dev`)
+
+## 2026-08-03 - Opt-in Simulation Mode (manual AFK arm)
+
+Players can arm the existing offline sim on demand instead of only relying on
+tab suspend / close detection. Normal idle catch-up is unchanged.
+
+### Behaviour
+- **AFK** button in the stage corner cluster (with Teleport Ring / Spirit Box),
+  shown in eligible hunting/mining only (hidden in KR / boss rooms / group
+  dungeons). The dev/classic shell keeps a side-panel button — it has no corner
+  cluster.
+- Opens a cancelable overlay; live combat parks; wall clocks stay fresh so
+  catch-up does not double-credit the same window
+- Cancel (or 8h cap) runs the normal offline apply/report path
+- `startedAt` is persisted so closing mid-sim still credits from arm time
+
+### Files
+- `src/app.monolith.js` — arm/cancel/tick/UI + save wiring
+- `src/persistence/sanitizeGame.js` — `sanitizeSimulationMode`
+- `src/styles.css` — overlay styles
+- `tests/persistenceGame.test.mjs` — sanitizer coverage
+
+### Verify
+- `npm.cmd run check`
+- Manual: enter a normal zone → Simulation Mode → wait 30s+ → Cancel → offline
+  report; confirm button hidden in KR / group dungeon
+
 ## 2026-08-03 - Danmo lag: atlas split + stamp bake
 
 Danmo's room was laggy even on PC. Root cause was GPU texture size / VRAM,

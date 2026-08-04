@@ -4,6 +4,28 @@ import { isGlyphItem } from "../glyphModifiers.js";
 export const HAVOC_CRYSTAL_ITEM_ID = "havoc-crystal";
 export const ADAMANTINE_ORE_ITEM_ID = "adamantine-ore";
 export const FOCUS_PRISM_ITEM_ID = "focus-prism";
+export const RUBY_ORE_ITEM_ID = "ruby-ore";
+export const EMERALD_ORE_ITEM_ID = "emerald-ore";
+export const AMETHYST_ORE_ITEM_ID = "amethyst-ore";
+export const OFFENSIVE_ATTUNEMENT_STONE_ITEM_ID = "offensive-attunement-stone";
+export const DEFENSIVE_ATTUNEMENT_STONE_ITEM_ID = "defensive-attunement-stone";
+export const UTILITY_ATTUNEMENT_STONE_ITEM_ID = "utility-attunement-stone";
+export const ATTUNEMENT_STONE_ITEM_IDS = Object.freeze([
+  OFFENSIVE_ATTUNEMENT_STONE_ITEM_ID,
+  DEFENSIVE_ATTUNEMENT_STONE_ITEM_ID,
+  UTILITY_ATTUNEMENT_STONE_ITEM_ID,
+]);
+export const ATTUNEMENT_STONE_ITEM_ID_SET = new Set(ATTUNEMENT_STONE_ITEM_IDS);
+export const ATTUNEMENT_STONE_FAMILY_BY_ITEM_ID = Object.freeze({
+  [OFFENSIVE_ATTUNEMENT_STONE_ITEM_ID]: "offensive",
+  [DEFENSIVE_ATTUNEMENT_STONE_ITEM_ID]: "defensive",
+  [UTILITY_ATTUNEMENT_STONE_ITEM_ID]: "utility",
+});
+export const ATTUNEMENT_STONE_ORE_BY_ITEM_ID = Object.freeze({
+  [OFFENSIVE_ATTUNEMENT_STONE_ITEM_ID]: RUBY_ORE_ITEM_ID,
+  [DEFENSIVE_ATTUNEMENT_STONE_ITEM_ID]: EMERALD_ORE_ITEM_ID,
+  [UTILITY_ATTUNEMENT_STONE_ITEM_ID]: AMETHYST_ORE_ITEM_ID,
+});
 export const WOOMA_HEART_ITEM_ID = "wooma-heart";
 export const ZUMA_RELIC_ITEM_ID = "zuma-relic";
 export const IWT_SOUL_ITEM_ID = "iwt-soul";
@@ -18,6 +40,36 @@ export const CRAFTING_CUBE_FOCUS_PRISM_RECIPE_ID = "focus-prism";
 export const CRAFTING_CUBE_FOCUS_PRISM_LABEL = "Focus Prism";
 export const CRAFTING_CUBE_FOCUS_PRISM_CRYSTAL_COST = 4;
 export const CRAFTING_CUBE_FOCUS_PRISM_REQUIREMENTS_ERROR = "Place four Havoc Crystals in the cube.";
+
+export const CRAFTING_CUBE_OFFENSIVE_ATTUNEMENT_STONE_RECIPE_ID = "offensive-attunement-stone";
+export const CRAFTING_CUBE_DEFENSIVE_ATTUNEMENT_STONE_RECIPE_ID = "defensive-attunement-stone";
+export const CRAFTING_CUBE_UTILITY_ATTUNEMENT_STONE_RECIPE_ID = "utility-attunement-stone";
+export const CRAFTING_CUBE_ATTUNEMENT_STONE_RECIPES = Object.freeze([
+  {
+    recipeId: CRAFTING_CUBE_OFFENSIVE_ATTUNEMENT_STONE_RECIPE_ID,
+    stoneItemId: OFFENSIVE_ATTUNEMENT_STONE_ITEM_ID,
+    oreItemId: RUBY_ORE_ITEM_ID,
+    label: "Offensive Attunement Stone",
+    oreLabel: "Ruby Ore",
+  },
+  {
+    recipeId: CRAFTING_CUBE_DEFENSIVE_ATTUNEMENT_STONE_RECIPE_ID,
+    stoneItemId: DEFENSIVE_ATTUNEMENT_STONE_ITEM_ID,
+    oreItemId: EMERALD_ORE_ITEM_ID,
+    label: "Defensive Attunement Stone",
+    oreLabel: "Emerald Ore",
+  },
+  {
+    recipeId: CRAFTING_CUBE_UTILITY_ATTUNEMENT_STONE_RECIPE_ID,
+    stoneItemId: UTILITY_ATTUNEMENT_STONE_ITEM_ID,
+    oreItemId: AMETHYST_ORE_ITEM_ID,
+    label: "Utility Attunement Stone",
+    oreLabel: "Amethyst Ore",
+  },
+]);
+export const CRAFTING_CUBE_ATTUNEMENT_STONE_RECIPE_BY_ID = Object.freeze(
+  Object.fromEntries(CRAFTING_CUBE_ATTUNEMENT_STONE_RECIPES.map((row) => [row.recipeId, row])),
+);
 
 export const CRAFTING_CUBE_IWT_SOUL_RECIPE_ID = "iwt-soul";
 export const CRAFTING_CUBE_IWT_SOUL_LABEL = "IWT Soul";
@@ -47,6 +99,8 @@ export const TEMP_FREE_EMPOWER_REROLL = false;
 export const CRAFTING_CUBE_EMPOWER_REROLL_REQUIREMENTS_ERROR = TEMP_FREE_EMPOWER_REROLL
   ? "Place one empowered item."
   : "Place one empowered item and one Havoc Crystal.";
+export const CRAFTING_CUBE_EMPOWER_REROLL_OPTIONAL_STONE_HINT =
+  "Optional: add one Attunement Stone for a 50% chance to force that family.";
 
 export const CRAFTING_CUBE_TARGETED_EMPOWER_REROLL_RECIPE_ID = "empower-reroll-targeted";
 export const CRAFTING_CUBE_TARGETED_EMPOWER_REROLL_LABEL = "Targeted Empowerment Reroll";
@@ -75,6 +129,9 @@ export const CRAFTING_CUBE_GLYPH_RECYCLE_REQUIREMENTS_ERROR =
 /** Gold charged (in addition to materials) when a recipe is crafted. */
 export const CRAFTING_CUBE_RECIPE_GOLD_COSTS = {
   [CRAFTING_CUBE_FOCUS_PRISM_RECIPE_ID]: 25000,
+  [CRAFTING_CUBE_OFFENSIVE_ATTUNEMENT_STONE_RECIPE_ID]: 0,
+  [CRAFTING_CUBE_DEFENSIVE_ATTUNEMENT_STONE_RECIPE_ID]: 0,
+  [CRAFTING_CUBE_UTILITY_ATTUNEMENT_STONE_RECIPE_ID]: 0,
   [CRAFTING_CUBE_IWT_SOUL_RECIPE_ID]: 0,
   [CRAFTING_CUBE_IZT_SOUL_RECIPE_ID]: 0,
   [CRAFTING_CUBE_DD_SOUL_RECIPE_ID]: 0,
@@ -102,6 +159,11 @@ export const CRAFTING_CUBE_RECIPES = [
     label: CRAFTING_CUBE_FOCUS_PRISM_LABEL,
     summary: `${CRAFTING_CUBE_FOCUS_PRISM_CRYSTAL_COST} Havoc Crystals${goldSummary(CRAFTING_CUBE_FOCUS_PRISM_RECIPE_ID)}`,
   },
+  ...CRAFTING_CUBE_ATTUNEMENT_STONE_RECIPES.map((row) => ({
+    id: row.recipeId,
+    label: row.label,
+    summary: `1 ${row.oreLabel}${goldSummary(row.recipeId)}`,
+  })),
   {
     id: CRAFTING_CUBE_IWT_SOUL_RECIPE_ID,
     label: CRAFTING_CUBE_IWT_SOUL_LABEL,
@@ -126,13 +188,13 @@ export const CRAFTING_CUBE_RECIPES = [
     id: CRAFTING_CUBE_EMPOWER_REROLL_RECIPE_ID,
     label: CRAFTING_CUBE_EMPOWER_REROLL_LABEL,
     summary: TEMP_FREE_EMPOWER_REROLL
-      ? `1 empowered item${goldSummary(CRAFTING_CUBE_EMPOWER_REROLL_RECIPE_ID)}`
-      : `1 empowered item + 1 Havoc Crystal${goldSummary(CRAFTING_CUBE_EMPOWER_REROLL_RECIPE_ID)}`,
+      ? `1 empowered item (optional Attunement Stone)${goldSummary(CRAFTING_CUBE_EMPOWER_REROLL_RECIPE_ID)}`
+      : `1 empowered item + 1 Havoc Crystal (optional Attunement Stone)${goldSummary(CRAFTING_CUBE_EMPOWER_REROLL_RECIPE_ID)}`,
   },
   {
     id: CRAFTING_CUBE_TARGETED_EMPOWER_REROLL_RECIPE_ID,
     label: CRAFTING_CUBE_TARGETED_EMPOWER_REROLL_LABEL,
-    summary: `1 empowered item + ${CRAFTING_CUBE_TARGETED_EMPOWER_REROLL_CRYSTAL_COST} Havoc Crystals + 1 Adamantine Ore${goldSummary(CRAFTING_CUBE_TARGETED_EMPOWER_REROLL_RECIPE_ID)}`,
+    summary: `1 empowered item + ${CRAFTING_CUBE_TARGETED_EMPOWER_REROLL_CRYSTAL_COST} Havoc Crystals + 1 Adamantine Ore (optional Attunement Stone)${goldSummary(CRAFTING_CUBE_TARGETED_EMPOWER_REROLL_RECIPE_ID)}`,
   },
   {
     id: CRAFTING_CUBE_EMPOWER_SWAP_RECIPE_ID,
@@ -145,6 +207,16 @@ export const CRAFTING_CUBE_RECIPES = [
     summary: `2 empowered items + ${CRAFTING_CUBE_TARGETED_EMPOWER_SWAP_PRISM_COST} Focus Prisms + 1 Adamantine Ore${goldSummary(CRAFTING_CUBE_TARGETED_EMPOWER_SWAP_RECIPE_ID)}`,
   },
 ];
+
+/** @param {string | null | undefined} itemId */
+export function attunementFamilyForStoneItemId(itemId) {
+  return ATTUNEMENT_STONE_FAMILY_BY_ITEM_ID[itemId] || null;
+}
+
+/** @param {string | null | undefined} itemId */
+export function isAttunementStoneItemId(itemId) {
+  return ATTUNEMENT_STONE_ITEM_ID_SET.has(itemId);
+}
 
 /** @param {object | null | undefined} entry */
 export function isEmpoweredSalvageEntry(entry) {
@@ -180,12 +252,16 @@ export function validateCraftingCubeSalvageEntries(entries) {
  *   empoweredEntry?: object,
  *   empoweredItem?: object,
  *   crystalEntry?: object,
+ *   attunementStoneEntry?: object,
+ *   attunementFamily?: string | null,
  * }}
  */
 export function validateCraftingCubeEmpowerReroll(boardEntries) {
   let empoweredEntry = null;
   let empoweredItem = null;
   let crystalEntry = null;
+  let attunementStoneEntry = null;
+  let attunementFamily = null;
 
   for (const row of boardEntries) {
     const entry = row?.entry;
@@ -207,6 +283,15 @@ export function validateCraftingCubeEmpowerReroll(boardEntries) {
         return { ok: false, error: CRAFTING_CUBE_EMPOWER_REROLL_REQUIREMENTS_ERROR };
       }
       crystalEntry = entry;
+      continue;
+    }
+
+    if (isAttunementStoneItemId(item.id)) {
+      if (attunementStoneEntry) {
+        return { ok: false, error: "Place only one Attunement Stone." };
+      }
+      attunementStoneEntry = entry;
+      attunementFamily = attunementFamilyForStoneItemId(item.id);
       continue;
     }
 
@@ -232,6 +317,8 @@ export function validateCraftingCubeEmpowerReroll(boardEntries) {
     empoweredEntry,
     empoweredItem,
     crystalEntry,
+    attunementStoneEntry,
+    attunementFamily,
   };
 }
 
@@ -244,6 +331,8 @@ export function validateCraftingCubeEmpowerReroll(boardEntries) {
  *   empoweredItem?: object,
  *   crystalEntry?: object,
  *   adamantineEntry?: object,
+ *   attunementStoneEntry?: object,
+ *   attunementFamily?: string | null,
  * }}
  */
 export function validateCraftingCubeTargetedEmpowerReroll(boardEntries) {
@@ -251,6 +340,8 @@ export function validateCraftingCubeTargetedEmpowerReroll(boardEntries) {
   let empoweredItem = null;
   let crystalEntry = null;
   let adamantineEntry = null;
+  let attunementStoneEntry = null;
+  let attunementFamily = null;
 
   for (const row of boardEntries) {
     const entry = row?.entry;
@@ -270,6 +361,15 @@ export function validateCraftingCubeTargetedEmpowerReroll(boardEntries) {
         return { ok: false, error: "Place only one Adamantine Ore." };
       }
       adamantineEntry = entry;
+      continue;
+    }
+
+    if (isAttunementStoneItemId(item.id)) {
+      if (attunementStoneEntry) {
+        return { ok: false, error: "Place only one Attunement Stone." };
+      }
+      attunementStoneEntry = entry;
+      attunementFamily = attunementFamilyForStoneItemId(item.id);
       continue;
     }
 
@@ -304,7 +404,46 @@ export function validateCraftingCubeTargetedEmpowerReroll(boardEntries) {
     empoweredItem,
     crystalEntry,
     adamantineEntry,
+    attunementStoneEntry,
+    attunementFamily,
   };
+}
+
+/**
+ * @param {{ entry: object, item: object }[]} boardEntries
+ * @param {string} recipeId
+ * @returns {{ ok: boolean, error: string | null, oreEntry?: object, recipe?: object }}
+ */
+export function validateCraftingCubeAttunementStoneCraft(boardEntries, recipeId) {
+  const recipe = CRAFTING_CUBE_ATTUNEMENT_STONE_RECIPE_BY_ID[recipeId];
+  if (!recipe) {
+    return { ok: false, error: "Select an Attunement Stone recipe." };
+  }
+
+  let oreEntry = null;
+  const requirementsError = `Place one ${recipe.oreLabel} in the cube.`;
+
+  for (const row of boardEntries) {
+    const entry = row?.entry;
+    const item = row?.item;
+    if (!entry || !item) continue;
+
+    if (item.id === recipe.oreItemId) {
+      if (oreEntry) {
+        return { ok: false, error: `Place only one ${recipe.oreLabel}.` };
+      }
+      oreEntry = entry;
+      continue;
+    }
+
+    return { ok: false, error: requirementsError };
+  }
+
+  if (!oreEntry) {
+    return { ok: false, error: requirementsError };
+  }
+
+  return { ok: true, error: null, oreEntry, recipe };
 }
 
 /**
@@ -732,6 +871,11 @@ export function craftingCubeAutofillEntryIds(recipeId, inventoryEntries, resolve
   const crystalStacks = [];
   const focusPrismStacks = [];
   const adamantineOres = [];
+  const attunementOreById = {
+    [RUBY_ORE_ITEM_ID]: [],
+    [EMERALD_ORE_ITEM_ID]: [],
+    [AMETHYST_ORE_ITEM_ID]: [],
+  };
   const woomaHeartStacks = [];
   const zumaRelicStacks = [];
   const stoneHeartStacks = [];
@@ -753,6 +897,10 @@ export function craftingCubeAutofillEntryIds(recipeId, inventoryEntries, resolve
     }
     if (item.id === ADAMANTINE_ORE_ITEM_ID) {
       adamantineOres.push(entry);
+      continue;
+    }
+    if (attunementOreById[item.id]) {
+      attunementOreById[item.id].push(entry);
       continue;
     }
     if (item.id === WOOMA_HEART_ITEM_ID) {
@@ -786,11 +934,20 @@ export function craftingCubeAutofillEntryIds(recipeId, inventoryEntries, resolve
   crystalStacks.sort(byQtyThenId);
   focusPrismStacks.sort(byQtyThenId);
   adamantineOres.sort((a, b) => String(a.id).localeCompare(String(b.id)));
+  for (const oreId of Object.keys(attunementOreById)) {
+    attunementOreById[oreId].sort((a, b) => String(a.id).localeCompare(String(b.id)));
+  }
   woomaHeartStacks.sort(byQtyThenId);
   zumaRelicStacks.sort(byQtyThenId);
   stoneHeartStacks.sort(byQtyThenId);
   hogToothStacks.sort(byQtyThenId);
   glyphEntries.sort((a, b) => String(a.id).localeCompare(String(b.id)));
+
+  const attunementRecipe = CRAFTING_CUBE_ATTUNEMENT_STONE_RECIPE_BY_ID[recipeId];
+  if (attunementRecipe) {
+    const ores = attunementOreById[attunementRecipe.oreItemId] || [];
+    return ores[0] ? [ores[0].id] : [];
+  }
 
   if (
     recipeId === CRAFTING_CUBE_FOCUS_PRISM_RECIPE_ID

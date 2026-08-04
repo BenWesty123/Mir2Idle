@@ -63,5 +63,19 @@ export function sanitizeCharacterGameState(savedGame, options = {}) {
     game.activeZoneId,
     fallbackClassId,
   );
+  game.simulationMode = sanitizeSimulationMode(savedGame?.simulationMode);
   return game;
+}
+
+/**
+ * Opt-in AFK arm: only `startedAt` is persisted so a reload can credit time from
+ * when the player entered simulation mode (not from the latest autosave).
+ * @param {unknown} raw
+ * @returns {{ startedAt: number } | null}
+ */
+export function sanitizeSimulationMode(raw) {
+  if (!raw || typeof raw !== "object") return null;
+  const startedAt = Math.max(0, Math.trunc(Number(raw.startedAt) || 0));
+  if (!startedAt) return null;
+  return { startedAt };
 }

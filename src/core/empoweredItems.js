@@ -986,6 +986,116 @@ export const POTION_RESTORE_BONUS_CAP_PERCENT = 100;
 /** Each empowerment roll draws from the base pool with this probability, else the bonus pool. */
 export const EMPOWER_BASE_POOL_WEIGHT = 0.7;
 
+/** When an Attunement Stone is used on empower reroll, chance to force that family. */
+export const EMPOWER_ATTUNEMENT_FORCE_CHANCE = 0.5;
+
+export const EMPOWER_ATTUNEMENT_FAMILIES = Object.freeze({
+  offensive: "offensive",
+  defensive: "defensive",
+  utility: "utility",
+});
+
+/** Flat empower keys biased by Offensive Attunement Stones. */
+export const EMPOWER_OFFENSIVE_STAT_KEYS = new Set([
+  "dc",
+  "mc",
+  "sc",
+  "critChancePercent",
+  "critDamagePercent",
+  "accuracy",
+  "attackSpeed",
+  "freezing",
+  "poisonAttack",
+  "luck",
+]);
+
+/** Flat empower keys biased by Defensive Attunement Stones. */
+export const EMPOWER_DEFENSIVE_STAT_KEYS = new Set([
+  "ac",
+  "amc",
+  "hp",
+  "agility",
+  "damageTakenReductionPercent",
+  "poisonResist",
+  "magicResist",
+  "healthRecovery",
+  "poisonRecovery",
+  "strong",
+]);
+
+/** Flat empower keys biased by Utility Attunement Stones. */
+export const EMPOWER_UTILITY_STAT_KEYS = new Set([
+  "xpBonusPercent",
+  "goldBonusPercent",
+  "dropChanceBonusPercent",
+  "bonusAwakeningSoulChancePercent",
+  "skillLevelBonusPercent",
+  "potionRestoreBonusPercent",
+  "mp",
+]);
+
+/** Spell/skill empower kinds biased by Offensive Attunement Stones. */
+export const EMPOWER_OFFENSIVE_SPELL_KINDS = new Set([
+  "damagePercent",
+  "critChancePercent",
+  "critDamagePercent",
+]);
+
+/** Spell/skill empower kinds biased by Defensive Attunement Stones. */
+export const EMPOWER_DEFENSIVE_SPELL_KINDS = new Set([
+  "healingPercent",
+  "petHealthPercent",
+  "petDamageReductionPercent",
+]);
+
+/** Spell/skill empower kinds biased by Utility Attunement Stones. */
+export const EMPOWER_UTILITY_SPELL_KINDS = new Set([
+  "manaCostPercent",
+  "cooldownReductionSeconds",
+]);
+
+/**
+ * @param {"offensive" | "defensive" | "utility" | string | null | undefined} family
+ * @returns {{ stats: Set<string>, spellKinds: Set<string> } | null}
+ */
+export function empowerAttunementFamilySets(family) {
+  if (family === EMPOWER_ATTUNEMENT_FAMILIES.offensive) {
+    return { stats: EMPOWER_OFFENSIVE_STAT_KEYS, spellKinds: EMPOWER_OFFENSIVE_SPELL_KINDS };
+  }
+  if (family === EMPOWER_ATTUNEMENT_FAMILIES.defensive) {
+    return { stats: EMPOWER_DEFENSIVE_STAT_KEYS, spellKinds: EMPOWER_DEFENSIVE_SPELL_KINDS };
+  }
+  if (family === EMPOWER_ATTUNEMENT_FAMILIES.utility) {
+    return { stats: EMPOWER_UTILITY_STAT_KEYS, spellKinds: EMPOWER_UTILITY_SPELL_KINDS };
+  }
+  return null;
+}
+
+/**
+ * @param {{ key?: string, spellId?: string, kind?: string } | null | undefined} roll
+ * @param {"offensive" | "defensive" | "utility" | string | null | undefined} family
+ */
+export function empowerRollMatchesFamily(roll, family) {
+  const sets = empowerAttunementFamilySets(family);
+  if (!sets || !roll) return false;
+  if (roll.spellId && roll.kind) return sets.spellKinds.has(roll.kind);
+  return sets.stats.has(roll.key);
+}
+
+/**
+ * Filter base/bonus pools down to one attunement family.
+ * @param {object[]} basePool
+ * @param {object[]} bonusPool
+ * @param {"offensive" | "defensive" | "utility" | string | null | undefined} family
+ */
+export function filterEmpowerPoolsByFamily(basePool, bonusPool, family) {
+  const filter = (pool) => (pool || []).filter((roll) => empowerRollMatchesFamily(roll, family));
+  return {
+    basePool: filter(basePool),
+    bonusPool: filter(bonusPool),
+  };
+}
+
 const PRIMARY_STAT_KEYS = new Set(["dc", "mc", "sc"]);
 
 /** Primary damage stats a class may roll in its base pool (from natural DC/MC/SC). */
@@ -2043,8 +2153,9 @@ function empowerSlotRollDef(item, slot) {
  * @param {object | null | undefined} item Item definition for the entry.
  * @param {number} slotIndex Zero-based index into {@link listEmpowerSlotsFromEntry}.
  * @param {() => number} [rng]
+ * @param {{ attunementFamily?: string | null, attunementForceChance?: number }} [options]
  */
-export function rollEmpowermentRerollAtSlot(entry, item, slotIndex, rng = Math.random) {
+export function rollEmpowermentRerollAtSlot(entry, item, slotIndex, rng = Math.random, options = {}) {
   if (!entry || !item || !itemCanBeEmpowered(item)) {
     return { ok: false, error: "Invalid empowered item." };
   }
@@ -2068,7 +2179,21 @@ export function rollEmpowermentRerollAtSlot(entry, item, slotIndex, rng = Math.r
   const removedAmount = captureEmpowerSlotAmount(entry, removedSlot);
   removeEmpowerSlotFromEntry(entry, removedSlot);
 
-  const { basePool, bonusPool } = empowerRerollPools(item, entry);
+  let { basePool, bonusPool } = empowerRerollPools(item, entry);
+  const family = options?.attunementFamily || null;
+  const forceChance = Number.isFinite(Number(options?.attunementForceChance))
+    ? Math.max(0, Math.min(1, Number(options.attunementForceChance)))
+    : EMPOWER_ATTUNEMENT_FORCE_CHANCE;
+  let attunementForced = false;
+  if (family && empowerAttunementFamilySets(family) && rng() < forceChance) {
+    const filtered = filterEmpowerPoolsByFamily(basePool, bonusPool, family);
+    if (filtered.basePool.length + filtered.bonusPool.length > 0) {
+      basePool = filtered.basePool;
+      bonusPool = filtered.bonusPool;
+      attunementForced = true;
+    }
+  }
+
   const newRoll = pickWeightedEmpowerRoll(basePool, bonusPool, rng);
   if (!newRoll) {
     restoreEmpowerSlotAmount(entry, removedSlot, removedAmount);
@@ -2094,6 +2219,8 @@ export function rollEmpowermentRerollAtSlot(entry, item, slotIndex, rng = Math.r
     removedAmount,
     newRoll,
     appliedAmount,
+    attunementFamily: family,
+    attunementForced,
   };
 }
 
@@ -2148,8 +2275,9 @@ export function empowerSwapChoiceLabels(entry, item, targetItem) {
  * @param {object} entry Inventory entry (mutated in place).
  * @param {object | null | undefined} item Item definition for the entry.
  * @param {() => number} [rng]
+ * @param {{ attunementFamily?: string | null, attunementForceChance?: number }} [options]
  */
-export function rollEmpowermentReroll(entry, item, rng = Math.random) {
+export function rollEmpowermentReroll(entry, item, rng = Math.random, options = {}) {
   const slots = listEmpowerSlotsFromEntry(entry);
   if (!slots.length) {
     if (!entry?.empowered || Math.max(0, Math.trunc(Number(entry?.empowerTier) || 0)) < 1) {
@@ -2158,7 +2286,7 @@ export function rollEmpowermentReroll(entry, item, rng = Math.random) {
     return { ok: false, error: "Item has no empowerments to reroll." };
   }
   const slotIndex = Math.min(slots.length - 1, Math.floor(rng() * slots.length));
-  return rollEmpowermentRerollAtSlot(entry, item, slotIndex, rng);
+  return rollEmpowermentRerollAtSlot(entry, item, slotIndex, rng, options);
 }
 
 export const EMPOWER_SWAP_STAT_COLLISION_ERROR =
