@@ -80,6 +80,11 @@ import {
   EMPOWER_SWAP_STAT_COLLISION_ERROR,
   empowerSlotChoiceLabels,
   listEmpowerSlotsFromEntry,
+  EMPOWER_OFFENSIVE_STAT_KEYS,
+  EMPOWER_DEFENSIVE_STAT_KEYS,
+  EMPOWER_UTILITY_STAT_KEYS,
+  empowerRollMatchesFamily,
+  filterEmpowerPoolsByFamily,
 } from "../src/core/empoweredItems.js";
 import { sanitizeItemBonusStats } from "../src/battleData.js";
 
@@ -445,6 +450,49 @@ test("rollEmpowermentRerollAtSlot rerolls the chosen empowerment only", () => {
   assert.equal(result.removedAmount, 2);
   assert.equal(entry.empowerBonusStats.dc[1], 3);
   assert.notEqual(entry.empowerBonusStats.mc[1], 2);
+});
+
+test("attunement family classification covers core keys", () => {
+  assert.equal(empowerRollMatchesFamily({ key: "dc" }, "offensive"), true);
+  assert.equal(empowerRollMatchesFamily({ key: "ac" }, "defensive"), true);
+  assert.equal(empowerRollMatchesFamily({ key: "xpBonusPercent" }, "utility"), true);
+  assert.equal(empowerRollMatchesFamily({ spellId: "FireBall", kind: "damagePercent" }, "offensive"), true);
+  assert.equal(empowerRollMatchesFamily({ spellId: "Healing", kind: "healingPercent" }, "defensive"), true);
+  assert.equal(empowerRollMatchesFamily({ spellId: "FireBall", kind: "cooldownReductionSeconds" }, "utility"), true);
+  assert.equal(EMPOWER_OFFENSIVE_STAT_KEYS.has("critChancePercent"), true);
+  assert.equal(EMPOWER_DEFENSIVE_STAT_KEYS.has("damageTakenReductionPercent"), true);
+  assert.equal(EMPOWER_UTILITY_STAT_KEYS.has("dropChanceBonusPercent"), true);
+});
+
+test("forced offensive attunement reroll stays in offensive family", () => {
+  const entry = {
+    empowered: true,
+    empowerTier: 2,
+    empowerBonusStats: sanitizeItemBonusStats({ dc: [0, 3], xpBonusPercent: 10 }),
+    empowerSpellBonuses: {},
+  };
+  // First rng call: force chance (0 < 0.5 => force). Later calls pick pool/index/amounts.
+  const result = rollEmpowermentRerollAtSlot(
+    entry,
+    UNIVERSAL_WEAPON,
+    1,
+    () => 0,
+    { attunementFamily: "offensive", attunementForceChance: 1 },
+  );
+  assert.equal(result.ok, true);
+  assert.equal(result.attunementForced, true);
+  assert.equal(empowerRollMatchesFamily(result.newRoll, "offensive"), true);
+  assert.equal(entry.empowerBonusStats.xpBonusPercent, 0);
+});
+
+test("filterEmpowerPoolsByFamily empties mismatched pools", () => {
+  const filtered = filterEmpowerPoolsByFamily(
+    [{ key: "dc" }, { key: "ac" }],
+    [{ key: "xpBonusPercent" }, { key: "critChancePercent" }],
+    "utility",
+  );
+  assert.deepEqual(filtered.basePool, []);
+  assert.deepEqual(filtered.bonusPool, [{ key: "xpBonusPercent" }]);
 });
 
 test("empowerSlotChoiceLabels lists current empowerment amounts", () => {

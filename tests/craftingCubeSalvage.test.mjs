@@ -35,7 +35,12 @@ import {
   STONE_HEART_ITEM_ID,
   WOOMA_HEART_ITEM_ID,
   ZUMA_RELIC_ITEM_ID,
+  RUBY_ORE_ITEM_ID,
+  EMERALD_ORE_ITEM_ID,
+  OFFENSIVE_ATTUNEMENT_STONE_ITEM_ID,
+  CRAFTING_CUBE_OFFENSIVE_ATTUNEMENT_STONE_RECIPE_ID,
   craftingCubeAutofillEntryIds,
+  validateCraftingCubeAttunementStoneCraft,
   validateCraftingCubeDdSoulCraft,
   validateCraftingCubeEmpowerReroll,
   validateCraftingCubeEmpowerSwap,
@@ -617,4 +622,70 @@ test("autofill pulls focus prisms and adamantine for targeted empower swap", () 
     resolveItem,
   );
   assert.deepEqual(picks, ["e-prism", "e-ore"]);
+});
+
+test("empower reroll accepts optional attunement stone", () => {
+  const stone = { id: OFFENSIVE_ATTUNEMENT_STONE_ITEM_ID, name: "Offensive Attunement Stone" };
+  const result = validateCraftingCubeEmpowerReroll([
+    {
+      entry: { empowered: true, empowerTier: 2, itemId: EMPOWERED_WEAPON.id },
+      item: EMPOWERED_WEAPON,
+    },
+    { entry: { itemId: HAVOC_CRYSTAL_ITEM_ID, quantity: 2 }, item: HAVOC_CRYSTAL },
+    { entry: { itemId: OFFENSIVE_ATTUNEMENT_STONE_ITEM_ID, quantity: 1 }, item: stone },
+  ]);
+  assert.equal(result.ok, true);
+  assert.equal(result.attunementFamily, "offensive");
+  assert.equal(result.attunementStoneEntry?.itemId, OFFENSIVE_ATTUNEMENT_STONE_ITEM_ID);
+});
+
+test("empower reroll rejects two attunement stones", () => {
+  const stone = { id: OFFENSIVE_ATTUNEMENT_STONE_ITEM_ID, name: "Offensive Attunement Stone" };
+  const result = validateCraftingCubeEmpowerReroll([
+    {
+      entry: { empowered: true, empowerTier: 1, itemId: EMPOWERED_WEAPON.id },
+      item: EMPOWERED_WEAPON,
+    },
+    { entry: { itemId: HAVOC_CRYSTAL_ITEM_ID, quantity: 1 }, item: HAVOC_CRYSTAL },
+    { entry: { itemId: OFFENSIVE_ATTUNEMENT_STONE_ITEM_ID, quantity: 1 }, item: stone },
+    { entry: { itemId: OFFENSIVE_ATTUNEMENT_STONE_ITEM_ID, quantity: 1 }, item: stone },
+  ]);
+  assert.equal(result.ok, false);
+  assert.match(result.error, /Attunement Stone/i);
+});
+
+test("attunement stone craft accepts matching ore", () => {
+  const ruby = { id: RUBY_ORE_ITEM_ID, name: "Ruby Ore", type: "ore" };
+  const result = validateCraftingCubeAttunementStoneCraft(
+    [{ entry: { itemId: RUBY_ORE_ITEM_ID }, item: ruby }],
+    CRAFTING_CUBE_OFFENSIVE_ATTUNEMENT_STONE_RECIPE_ID,
+  );
+  assert.equal(result.ok, true);
+  assert.equal(result.recipe?.stoneItemId, OFFENSIVE_ATTUNEMENT_STONE_ITEM_ID);
+});
+
+test("attunement stone craft rejects wrong ore", () => {
+  const emerald = { id: EMERALD_ORE_ITEM_ID, name: "Emerald Ore", type: "ore" };
+  const result = validateCraftingCubeAttunementStoneCraft(
+    [{ entry: { itemId: EMERALD_ORE_ITEM_ID }, item: emerald }],
+    CRAFTING_CUBE_OFFENSIVE_ATTUNEMENT_STONE_RECIPE_ID,
+  );
+  assert.equal(result.ok, false);
+  assert.match(result.error, /Ruby Ore/i);
+});
+
+test("autofill pulls ruby ore for offensive attunement stone recipe", () => {
+  const ruby = { id: "ore-1", itemId: RUBY_ORE_ITEM_ID };
+  const emerald = { id: "ore-2", itemId: EMERALD_ORE_ITEM_ID };
+  const resolveItem = (itemId) => {
+    if (itemId === RUBY_ORE_ITEM_ID) return { id: RUBY_ORE_ITEM_ID };
+    if (itemId === EMERALD_ORE_ITEM_ID) return { id: EMERALD_ORE_ITEM_ID };
+    return null;
+  };
+  const picks = craftingCubeAutofillEntryIds(
+    CRAFTING_CUBE_OFFENSIVE_ATTUNEMENT_STONE_RECIPE_ID,
+    [emerald, ruby],
+    resolveItem,
+  );
+  assert.deepEqual(picks, ["ore-1"]);
 });

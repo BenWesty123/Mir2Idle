@@ -4,20 +4,14 @@
   "elapsedMs": 299200,
   "drops": {
     "Black Iron Ore P8": 1,
-    "Silver Ore P9": 1,
+    "Silver Ore": 3,
     "Black Iron Ore P7": 1,
     "Black Iron Ore P10": 1,
-    "Copper Ore P8": 2,
-    "Silver Ore P3": 1,
+    "Emerald Ore": 3,
     "Black Iron Ore P2": 1,
     "Black Iron Ore P3": 1,
-    "Gold Ore P1": 1,
-    "Gold Ore P10": 1,
-    "Copper Ore P7": 1,
-    "Gold Ore P6": 1,
-    "Silver Ore P1": 1,
-    "Copper Ore P1": 1,
-    "Copper Ore P10": 1
+    "Gold Ore": 3,
+    "Copper Ore": 2
   },
   "ignoredDrops": {},
   "inventoryItems": 18

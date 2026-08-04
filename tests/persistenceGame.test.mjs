@@ -73,3 +73,27 @@ test("sanitizeCharacterGameState: normalizes overflow experience on load", () =>
   assert.equal(game.progress.experience, 5);
   assert.equal(game.progress.gold, 99);
 });
+
+test("sanitizeCharacterGameState: preserves simulationMode startedAt", () => {
+  const game = sanitizeCharacterGameState(
+    {
+      mode: "zone",
+      activeZoneId: "zone-bicheon-1",
+      simulationMode: { startedAt: 1_700_000_000_000.7 },
+    },
+    { zoneIds },
+  );
+  assert.deepEqual(game.simulationMode, { startedAt: 1_700_000_000_000 });
+});
+
+test("sanitizeCharacterGameState: drops invalid simulationMode", () => {
+  const game = sanitizeCharacterGameState(
+    {
+      mode: "zone",
+      activeZoneId: "zone-bicheon-1",
+      simulationMode: { startedAt: "nope" },
+    },
+    { zoneIds },
+  );
+  assert.equal(game.simulationMode, null);
+});

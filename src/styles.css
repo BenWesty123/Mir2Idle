@@ -1640,6 +1640,14 @@ dd {
   color: #f0c979;
 }
 
+.simulation-mode-button {
+  font-family: inherit;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+  color: #f0c979;
+}
+
 .time-logging-panel {
   display: flex;
   flex-direction: column;
@@ -3650,6 +3658,81 @@ dd {
 
 .offline-report-overlay[hidden] {
   display: none;
+}
+
+.simulation-mode-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 39;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+  background: rgba(0, 0, 0, 0.56);
+}
+
+.simulation-mode-overlay[hidden] {
+  display: none;
+}
+
+.simulation-mode-window {
+  width: min(420px, calc(100vw - 32px));
+  padding: 18px 20px 20px;
+  border: 1px solid #5b4629;
+  background: #16110c;
+  color: #ecd6a3;
+  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.45);
+}
+
+.simulation-mode-window header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 10px;
+}
+
+.simulation-mode-window h2 {
+  margin: 0;
+  font-size: 20px;
+  color: #f3e2b8;
+}
+
+.simulation-mode-window .eyebrow {
+  margin: 0 0 4px;
+  color: #b79a6a;
+  font-size: 11px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.simulation-mode-message {
+  margin: 0 0 14px;
+  color: #d7c7a7;
+  font-size: 13px;
+  line-height: 1.45;
+}
+
+.simulation-mode-window dl {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: 6px 14px;
+  margin: 0 0 16px;
+  font-size: 13px;
+}
+
+.simulation-mode-window dt {
+  color: #b79a6a;
+}
+
+.simulation-mode-window dd {
+  margin: 0;
+  color: #f0e2c0;
+}
+
+.simulation-mode-window > .primary {
+  width: 100%;
+  min-height: 34px;
 }
 
 .prototype-stats-notice-overlay {

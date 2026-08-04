@@ -38431,6 +38431,342 @@
         "index": 22
       },
       "crystalType": "Weapon"
+    },
+    {
+      "id": "ruby-ore",
+      "name": "Ruby Ore",
+      "type": "ore",
+      "slot": "material",
+      "class": "any",
+      "source": {
+        "crystalIndex": 528,
+        "name": "Ruby"
+      },
+      "icon": {
+        "library": "Items",
+        "frame": 528,
+        "src": "./public/item-icons/items/frame_000528.png"
+      },
+      "requirements": {
+        "type": "none",
+        "amount": 0,
+        "classMask": 31,
+        "genderMask": 3
+      },
+      "stackable": false,
+      "maxStack": 1,
+      "durability": 10000,
+      "stats": {
+        "ac": [
+          0,
+          0
+        ],
+        "amc": [
+          0,
+          0
+        ],
+        "dc": [
+          0,
+          0
+        ],
+        "mc": [
+          0,
+          0
+        ],
+        "sc": [
+          0,
+          0
+        ],
+        "hp": 0,
+        "mp": 0,
+        "accuracy": 0,
+        "agility": 0,
+        "luck": 0,
+        "attackSpeed": 0
+      },
+      "shop": {
+        "buy": 50000,
+        "sell": 10000
+      },
+      "crystalType": "Ore"
+    },
+    {
+      "id": "emerald-ore",
+      "name": "Emerald Ore",
+      "type": "ore",
+      "slot": "material",
+      "class": "any",
+      "source": {
+        "crystalIndex": 287,
+        "name": "EmeraldOre"
+      },
+      "icon": {
+        "library": "Items",
+        "frame": 287,
+        "src": "./public/item-icons/items/frame_000287.png"
+      },
+      "requirements": {
+        "type": "none",
+        "amount": 0,
+        "classMask": 31,
+        "genderMask": 3
+      },
+      "stackable": false,
+      "maxStack": 1,
+      "durability": 10000,
+      "stats": {
+        "ac": [
+          0,
+          0
+        ],
+        "amc": [
+          0,
+          0
+        ],
+        "dc": [
+          0,
+          0
+        ],
+        "mc": [
+          0,
+          0
+        ],
+        "sc": [
+          0,
+          0
+        ],
+        "hp": 0,
+        "mp": 0,
+        "accuracy": 0,
+        "agility": 0,
+        "luck": 0,
+        "attackSpeed": 0
+      },
+      "shop": {
+        "buy": 50000,
+        "sell": 10000
+      },
+      "crystalType": "Ore"
+    },
+    {
+      "id": "amethyst-ore",
+      "name": "Amethyst Ore",
+      "type": "ore",
+      "slot": "material",
+      "class": "any",
+      "source": {
+        "crystalIndex": 527,
+        "name": "Amethyst"
+      },
+      "icon": {
+        "library": "Items",
+        "frame": 527,
+        "src": "./public/item-icons/items/frame_000527.png"
+      },
+      "requirements": {
+        "type": "none",
+        "amount": 0,
+        "classMask": 31,
+        "genderMask": 3
+      },
+      "stackable": false,
+      "maxStack": 1,
+      "durability": 10000,
+      "stats": {
+        "ac": [
+          0,
+          0
+        ],
+        "amc": [
+          0,
+          0
+        ],
+        "dc": [
+          0,
+          0
+        ],
+        "mc": [
+          0,
+          0
+        ],
+        "sc": [
+          0,
+          0
+        ],
+        "hp": 0,
+        "mp": 0,
+        "accuracy": 0,
+        "agility": 0,
+        "luck": 0,
+        "attackSpeed": 0
+      },
+      "shop": {
+        "buy": 50000,
+        "sell": 10000
+      },
+      "crystalType": "Ore"
+    },
+    {
+      "id": "offensive-attunement-stone",
+      "name": "Offensive Attunement Stone",
+      "type": "material",
+      "slot": "material",
+      "class": "any",
+      "source": {
+        "crystalIndex": 789,
+        "name": "EvasionMarble"
+      },
+      "icon": {
+        "library": "Items",
+        "frame": 789,
+        "src": "./public/item-icons/items/frame_000789.png"
+      },
+      "requirements": {
+        "type": "none",
+        "amount": 0,
+        "classMask": 31,
+        "genderMask": 3
+      },
+      "stackable": true,
+      "maxStack": 64,
+      "durability": 10000,
+      "stats": {
+        "ac": [
+          0,
+          0
+        ],
+        "amc": [
+          0,
+          0
+        ],
+        "dc": [
+          0,
+          0
+        ],
+        "mc": [
+          0,
+          0
+        ],
+        "sc": [
+          0,
+          0
+        ],
+        "hp": 0,
+        "mp": 0,
+        "accuracy": 0,
+        "agility": 0,
+        "luck": 0,
+        "attackSpeed": 0
+      },
+      "crystalType": "CraftingMaterial"
+    },
+    {
+      "id": "defensive-attunement-stone",
+      "name": "Defensive Attunement Stone",
+      "type": "material",
+      "slot": "material",
+      "class": "any",
+      "source": {
+        "crystalIndex": 785,
+        "name": "WillMarble"
+      },
+      "icon": {
+        "library": "Items",
+        "frame": 785,
+        "src": "./public/item-icons/items/frame_000785.png"
+      },
+      "requirements": {
+        "type": "none",
+        "amount": 0,
+        "classMask": 31,
+        "genderMask": 3
+      },
+      "stackable": true,
+      "maxStack": 64,
+      "durability": 10000,
+      "stats": {
+        "ac": [
+          0,
+          0
+        ],
+        "amc": [
+          0,
+          0
+        ],
+        "dc": [
+          0,
+          0
+        ],
+        "mc": [
+          0,
+          0
+        ],
+        "sc": [
+          0,
+          0
+        ],
+        "hp": 0,
+        "mp": 0,
+        "accuracy": 0,
+        "agility": 0,
+        "luck": 0,
+        "attackSpeed": 0
+      },
+      "crystalType": "CraftingMaterial"
+    },
+    {
+      "id": "utility-attunement-stone",
+      "name": "Utility Attunement Stone",
+      "type": "material",
+      "slot": "material",
+      "class": "any",
+      "source": {
+        "crystalIndex": 786,
+        "name": "FocusMarble"
+      },
+      "icon": {
+        "library": "Items",
+        "frame": 786,
+        "src": "./public/item-icons/items/frame_000786.png"
+      },
+      "requirements": {
+        "type": "none",
+        "amount": 0,
+        "classMask": 31,
+        "genderMask": 3
+      },
+      "stackable": true,
+      "maxStack": 64,
+      "durability": 10000,
+      "stats": {
+        "ac": [
+          0,
+          0
+        ],
+        "amc": [
+          0,
+          0
+        ],
+        "dc": [
+          0,
+          0
+        ],
+        "mc": [
+          0,
+          0
+        ],
+        "sc": [
+          0,
+          0
+        ],
+        "hp": 0,
+        "mp": 0,
+        "accuracy": 0,
+        "agility": 0,
+        "luck": 0,
+        "attackSpeed": 0
+      },
+      "crystalType": "CraftingMaterial"
     }
   ]
 }

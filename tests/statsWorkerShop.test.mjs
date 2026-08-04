@@ -342,6 +342,36 @@ test("unlock-page rejects the teleport ring when the balance is below 500", asyn
   assert.ok(!db.unlocks.has(`${VALID_CODE}::teleport-ring`));
 });
 
+test("unlock-page charges 200 tokens for organisation skills", async () => {
+  const db = new FakeDb({ balances: { [VALID_CODE]: 200 } });
+  const response = await request("/shop/unlock-page", {
+    method: "POST",
+    headers: { "content-type": "application/json" },
+    body: JSON.stringify({ recoveryCode: VALID_CODE, unlockKey: "organisation-skills" }),
+  }, { DB: db });
+  assert.equal(response.status, 200);
+  const data = await response.json();
+  assert.equal(data.ok, true);
+  assert.equal(data.unlockKey, "organisation-skills");
+  assert.equal(data.balance, 0);
+  assert.ok(db.unlocks.has(`${VALID_CODE}::organisation-skills`));
+});
+
+test("unlock-page charges 200 tokens for ore stacking", async () => {
+  const db = new FakeDb({ balances: { [VALID_CODE]: 200 } });
+  const response = await request("/shop/unlock-page", {
+    method: "POST",
+    headers: { "content-type": "application/json" },
+    body: JSON.stringify({ recoveryCode: VALID_CODE, unlockKey: "ore-stacking" }),
+  }, { DB: db });
+  assert.equal(response.status, 200);
+  const data = await response.json();
+  assert.equal(data.ok, true);
+  assert.equal(data.unlockKey, "ore-stacking");
+  assert.equal(data.balance, 0);
+  assert.ok(db.unlocks.has(`${VALID_CODE}::ore-stacking`));
+});
+
 test("unlock-page charges 300 tokens for time logging", async () => {
   const db = new FakeDb({ balances: { [VALID_CODE]: 300 } });
   const response = await request("/shop/unlock-page", {
