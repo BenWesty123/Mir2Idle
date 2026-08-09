@@ -3,18 +3,33 @@
 > **Private dev sheet** — not shipped to players. Regenerate after glyph changes:
 > `npm run glyph:ref`
 
-Last generated: 2026-08-03
+Last generated: 2026-08-09
+
+## Icon frames for new glyphs
+
+Matching Body Glyph frames **3200–3227 are all in use**. For new glyphs, pick an unused
+frame from **[`GLYPH_ICON_POOL.md`](./GLYPH_ICON_POOL.md)** (derived variants starting at
+**3230**). Preview: `docs/glyph-variant-preview/index.html`. Generate more with
+`npm run glyph:variants` / promote with `npm run glyph:variants:promote`.
 
 ## Drop rules
 
 - Empowered bosses: **10%** chance to drop one random glyph.
 - Ascended bosses: **15%** chance.
 - Equip slots: `glyph`, `glyph2`, `glyph3`, `glyph4`, `glyph5` (5 slots).
-- Pool size: **24** glyphs (uniform pick when a drop hits).
+- Pool size: **33** glyphs (uniform pick when a drop hits).
 
 ## Glyphs
 
 ### Warrior
+
+#### Glyph of Blade Momentum
+
+- Item id: `glyph-blade-momentum`
+- Class: Warrior
+- Level: 35
+- Spells: TwinDrakeBlade
+- Each Twin Drake Blade hit increases your attack speed by 1 (up to the normal attack-speed limit). Missing, using any other warrior skill, or swinging normally resets the bonus.
 
 #### Glyph of Bulwark Field
 
@@ -23,6 +38,14 @@ Last generated: 2026-08-03
 - Level: 35
 - Spells: ProtectionField
 - Protection Field grants a much stronger AC bonus for a short time.
+
+#### Glyph of Flaming Avalanche
+
+- Item id: `glyph-flaming-avalanche`
+- Class: Warrior
+- Level: 35
+- Spells: FlamingSword, BladeAvalanche
+- Flaming Sword also unleashes Blade Avalanche. Requires Blade Avalanche learned.
 
 #### Glyph of Flaming Bulwark
 
@@ -48,6 +71,14 @@ Last generated: 2026-08-03
 - Spells: ProtectionField
 - Protection Field buffs AMC (MAC) instead of AC.
 
+#### Glyph of Slow Destruction
+
+- Item id: `glyph-slow-destruction`
+- Class: Warrior
+- Level: 35
+- Spells: —
+- DC increased by 150%, but attack speed no longer affects you.
+
 #### Glyph of Twin Fury
 
 - Item id: `glyph-twin-fury`
@@ -66,6 +97,14 @@ Last generated: 2026-08-03
 - Spells: —
 - While in melee range of an enemy: +25% armour and damage. At range: −25% armour and damage.
 
+#### Glyph of Deep Frost
+
+- Item id: `glyph-deep-frost`
+- Class: Wizard
+- Level: 35
+- Spells: FrostCrunch
+- Frost Crunch is now effective against bosses, but at a significantly reduced rate
+
 #### Glyph of Disruptor Cascade
 
 - Item id: `glyph-disruptor-cascade`
@@ -82,6 +121,14 @@ Last generated: 2026-08-03
 - Spells: FireWall
 - Fire Wall lasts much longer.
 
+#### Glyph of Frenzied Disruptor
+
+- Item id: `glyph-frenzied-disruptor`
+- Class: Wizard
+- Level: 35
+- Spells: FlameDisruptor
+- When Flame Disruptor critically strikes, its casting speed doubles and then fades back to normal over 5 seconds.
+
 #### Glyph of Infinite Mana
 
 - Item id: `glyph-infinite-mana`
@@ -96,7 +143,7 @@ Last generated: 2026-08-03
 - Class: Wizard
 - Level: 35
 - Spells: MagicShield
-- Magic Shield no longer reduces damage. Instead, mana is drained before health.
+- Magic Shield is half as effective, and mana is drained before health.
 
 #### Glyph of Many Mirrors
 
@@ -108,6 +155,14 @@ Last generated: 2026-08-03
 
 ### Taoist
 
+#### Glyph of Angelic Deva
+
+- Item id: `glyph-angelic-deva`
+- Class: Taoist
+- Level: 35
+- Spells: SummonHolyDeva
+- Your Deva no longer attacks. Instead it casts Mass Healing at your proficiency.
+
 #### Glyph of Buffing
 
 - Item id: `glyph-buffing`
@@ -115,6 +170,14 @@ Last generated: 2026-08-03
 - Level: 35
 - Spells: UltimateEnhancer
 - Ultimate Enhancer also applies Soul Shield and Blessed Armour to the same targets.
+
+#### Glyph of Demonic Deva
+
+- Item id: `glyph-demonic-deva`
+- Class: Taoist
+- Level: 35
+- Spells: SummonHolyDeva
+- Your Deva hits harder and attacks multiple enemies at once, but you can no longer cast healing spells.
 
 #### Glyph of Improved Healing Circle
 
@@ -166,6 +229,14 @@ Last generated: 2026-08-03
 - Spells: —
 - Base critical strike damage is doubled, but Luck no longer affects you.
 
+#### Glyph of Efficient Learning
+
+- Item id: `glyph-efficient-learning`
+- Class: All classes
+- Level: 35
+- Spells: —
+- Spell skill practice experience gain is increased by 100%.
+
 #### Glyph of Fast Healing
 
 - Item id: `glyph-fast-healing`
@@ -213,4 +284,12 @@ Last generated: 2026-08-03
 - Level: 35
 - Spells: —
 - You take all damage your party members would receive.
+
+#### Glyph of Vitality
+
+- Item id: `glyph-vitality`
+- Class: All classes
+- Level: 35
+- Spells: —
+- Maximum health is doubled, but you cannot use Sun Potions (or similar restoratives).
 

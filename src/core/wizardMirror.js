@@ -91,6 +91,50 @@ export function resolveWizardMirrorUpkeep({ ownerMp, nextUpkeepAt, now } = {}) {
   };
 }
 
+/**
+ * Owner-motion latch for follower pets / mirrors.
+ *
+ * Arms a reaction delay only when the owner *starts* moving. A second call in
+ * the same frame with no further owner displacement must NOT clear
+ * `ownerWasMoving` — that used to re-arm Holy Deva's delay every frame during
+ * travel (double sync from advancePlayerTravel + updateLaneMotion) and freeze
+ * the pet until the player stopped.
+ */
+export function nextFollowerOwnerMotionState({
+  ownerWorldX,
+  lastOwnerWorldX,
+  ownerWasMoving = false,
+  now = 0,
+  followAfter = 0,
+  reactionDelayMs = 0,
+  motionFrameAt = null,
+} = {}) {
+  const ownerX = Number(ownerWorldX) || 0;
+  const frameAt = Number(now) || 0;
+  const priorFrameAt = Number(motionFrameAt);
+  if (Number.isFinite(priorFrameAt) && priorFrameAt === frameAt) {
+    return {
+      lastOwnerWorldX: Number.isFinite(Number(lastOwnerWorldX)) ? Number(lastOwnerWorldX) : ownerX,
+      ownerWasMoving: Boolean(ownerWasMoving),
+      followAfter,
+      motionFrameAt: frameAt,
+      ownerMoved: Boolean(ownerWasMoving),
+    };
+  }
+
+  const previousOwnerX = Number(lastOwnerWorldX);
+  const ownerMoved = Number.isFinite(previousOwnerX) && Math.abs(ownerX - previousOwnerX) > 0.1;
+  return {
+    lastOwnerWorldX: ownerX,
+    ownerWasMoving: ownerMoved,
+    followAfter: ownerMoved && !ownerWasMoving
+      ? frameAt + Math.max(0, Number(reactionDelayMs) || 0)
+      : followAfter,
+    motionFrameAt: frameAt,
+    ownerMoved,
+  };
+}
+
 export function advanceWizardMirrorFollow({
   worldX,
   desiredWorldX,

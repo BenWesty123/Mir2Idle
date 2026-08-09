@@ -273,6 +273,12 @@ const ZUMA_TAURUS_BOSS_DROPS = {
     ...bossGemDrops(0.05),
     ...bossOrbDrops(0.01),
   ],
+  // Awakened fights only — listed chance is exact (not multiplied by awaken 4×).
+  awakenedItems: [
+    { id: "awakened-war-spirit-blade", chance: 0.005 },
+    { id: "awakened-stone-bamboo-fan", chance: 0.005 },
+    { id: "awakened-magic-scythe", chance: 0.005 },
+  ],
 };
 // Red Evil Ape (RMV mid-boss) — Zuma Taurus + Bone Lord shared loot.
 // No books, no zuma-relic / zuma-branded weapons, no awakened uniques.

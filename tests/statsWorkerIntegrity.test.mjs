@@ -231,3 +231,87 @@ test("integrity review page contains no embedded admin secret", async () => {
   assert.match(html, /Integrity Review/);
   assert.doesNotMatch(html, /secret-value-must-not-leak/);
 });
+
+test("weaker character snapshots do not overwrite stronger Social progress", async () => {
+  const db = new FakeDb({
+    existing: {
+      boss_kills: "{}",
+      rebirth_count: 0,
+      rebirth_points_gained: 0,
+      rebirth_points_spent: 0,
+      character_levels: JSON.stringify({ Warrior: 58, Wizard: 50, Taoist: 49 }),
+      character_stats: JSON.stringify([{ characterClass: "Warrior", level: 58, equipment: {} }]),
+      combined_character_levels: 157,
+      integrity_status: "clear",
+      integrity_reason: "[]",
+      integrity_fingerprint: "",
+      integrity_approved_fingerprint: "",
+    },
+  });
+  const body = payload();
+  body.account.characterLevels = { Warrior: 1, Wizard: 1, Taoist: 1 };
+  body.account.highestCharacterLevel = 1;
+  body.account.rebirthCount = 0;
+  body.characters = [{ characterClass: "Warrior", level: 1, equipment: {} }];
+  const response = await postStats(db, body);
+  assert.equal(response.status, 200);
+  const result = await response.json();
+  assert.equal(result.characterSnapshotUpdated, false);
+  const insert = db.queries.find((query) => /INSERT INTO leaderboard/.test(query.sql));
+  assert.equal(insert.args[13], JSON.stringify({ Warrior: 58, Wizard: 50, Taoist: 49 }));
+  assert.equal(insert.args[16], 157);
+  assert.match(insert.args[14], /"level":58/);
+});
+
+test("equal or higher combined levels still refresh the Social character snapshot", async () => {
+  const db = new FakeDb({
+    existing: {
+      boss_kills: "{}",
+      rebirth_count: 0,
+      character_levels: JSON.stringify({ Warrior: 10, Wizard: 1, Taoist: 1 }),
+      character_stats: JSON.stringify([{ characterClass: "Warrior", level: 10, equipment: {} }]),
+      combined_character_levels: 12,
+      integrity_status: "clear",
+      integrity_reason: "[]",
+      integrity_fingerprint: "",
+      integrity_approved_fingerprint: "",
+    },
+  });
+  const body = payload(equipmentEntry({ smithLevel: 3 }));
+  body.account.characterLevels = { Warrior: 10, Wizard: 1, Taoist: 1 };
+  body.account.highestCharacterLevel = 10;
+  const response = await postStats(db, body);
+  assert.equal(response.status, 200);
+  const result = await response.json();
+  assert.equal(result.characterSnapshotUpdated, true);
+  const insert = db.queries.find((query) => /INSERT INTO leaderboard/.test(query.sql));
+  assert.match(insert.args[14], /"smithLevel":3/);
+});
+
+test("rebirth may reset Social character levels even when combined drops", async () => {
+  const db = new FakeDb({
+    existing: {
+      boss_kills: "{}",
+      rebirth_count: 1,
+      character_levels: JSON.stringify({ Warrior: 58, Wizard: 50, Taoist: 49 }),
+      character_stats: JSON.stringify([{ characterClass: "Warrior", level: 58, equipment: {} }]),
+      combined_character_levels: 157,
+      integrity_status: "clear",
+      integrity_reason: "[]",
+      integrity_fingerprint: "",
+      integrity_approved_fingerprint: "",
+    },
+  });
+  const body = payload();
+  body.account.characterLevels = { Warrior: 1, Wizard: 1, Taoist: 1 };
+  body.account.highestCharacterLevel = 1;
+  body.account.rebirthCount = 2;
+  body.characters = [{ characterClass: "Warrior", level: 1, equipment: {} }];
+  const response = await postStats(db, body);
+  assert.equal(response.status, 200);
+  const result = await response.json();
+  assert.equal(result.characterSnapshotUpdated, true);
+  const insert = db.queries.find((query) => /INSERT INTO leaderboard/.test(query.sql));
+  assert.equal(insert.args[13], JSON.stringify({ Warrior: 1, Wizard: 1, Taoist: 1 }));
+  assert.equal(insert.args[16], 3);
+});

@@ -3645,10 +3645,16 @@ dd {
   display: none;
 }
 
+/*
+ * Modal band: these must stay above `body.compact-ui .game-topbar` (z-index 50),
+ * or on mobile the topbar and its menu stay tappable straight through the
+ * "modal" and Simulation Mode is not actually blocking. Keep the band's internal
+ * order (simulation < offline report < damage report < notices) intact.
+ */
 .offline-report-overlay {
   position: fixed;
   inset: 0;
-  z-index: 40;
+  z-index: 52;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -3663,7 +3669,7 @@ dd {
 .simulation-mode-overlay {
   position: fixed;
   inset: 0;
-  z-index: 39;
+  z-index: 51;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -3738,7 +3744,7 @@ dd {
 .prototype-stats-notice-overlay {
   position: fixed;
   inset: 0;
-  z-index: 45;
+  z-index: 57;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -4275,7 +4281,7 @@ dd {
 .damage-report-overlay {
   position: fixed;
   inset: 0;
-  z-index: 41;
+  z-index: 53;
   display: flex;
   align-items: center;
   justify-content: center;

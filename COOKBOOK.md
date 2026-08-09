@@ -114,6 +114,13 @@ The regenerated `items-atlas.png` + `items-atlas.json` simply stay in `public/` 
 
 Why this matters: the atlas is built and tested in dev, so the itch release copies and renders the exact same file. Never let packaging rebuild it.
 
+### Glyph icons (spare frames)
+
+Body Glyph frames **3200–3227 are exhausted**. New glyphs should use an unused frame from
+[`docs/GLYPH_ICON_POOL.md`](docs/GLYPH_ICON_POOL.md) (variants from `3230` up). Set
+`icon.src` to that PNG, then `npm.cmd run build:item-atlas`. To generate more variants:
+`npm.cmd run glyph:variants` (preview) or `npm.cmd run glyph:variants:promote` (writes frames + refreshes this pool doc).
+
 ---
 
 ## 8. Build & deploy the website (Cloudflare Pages) safely

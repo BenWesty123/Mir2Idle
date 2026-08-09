@@ -1,5 +1,468 @@
 # AI Task Log - LOM Idle V2
 
+## 2026-08-09 - Frost Crunch Crystal projectile FX
+
+Frost Crunch now matches Crystal visually: cast (Magic2 400×10), travel
+projectile (Magic2 450–453, east dir16 bake of CreateProjectile 410/4/skip6),
+and impact burst (Magic2 570×8). Added to enemy-sprite-aim set with Fireballs.
+Export via `tools/export-frost-crunch-spellfx.ps1`.
+
+### Verify
+- `npm.cmd run check` (+ smoke in game)
+
+## 2026-08-09 - Mana Aegis half Magic Shield DR
+
+Glyph of Mana Aegis no longer zeroes Magic Shield damage reduction. Shield DR is
+halved instead, and MP-before-HP absorption is unchanged.
+
+### Verify
+- `npm.cmd run check` (+ smoke)
+
+## 2026-08-09 - Glyph of Angelic Deva
+
+Taoist glyph: Holy Deva stops attacking and instead casts Mass Healing on its
+attack cadence, using the Taoist's Mass Healing skill level and Spirit (no MP,
+no Mass Healing skill XP). Soft gold tint. Icon frame 3238.
+
+### Verify
+- `npm.cmd run check` (+ smoke)
+
+## 2026-08-09 - Glyph of Deep Frost
+
+Wizard glyph: Frost Crunch can CC bosses (bypasses the level+10 gate) at a fixed
+15% slow / 5% freeze on hit. Slow/freeze still cannot refresh while active.
+Normal (non-boss) Frost Crunch rolls are unchanged. Icon frame 3249.
+
+### Verify
+- `npm.cmd run check` (+ smoke)
+
+## 2026-08-09 - Glyph of Vitality
+
+All-class glyph: doubles max HP; blocks Sun Potion family consumables
+(`potionFamily: "sun"` / known ids). Future Old Ginseng can join the family
+by setting `potionFamily: "sun"`. Icon frame 3253.
+
+### Verify
+- `npm.cmd run check` (+ smoke)
+
+## 2026-08-08 - Fury idle cooldown retune
+
+Warrior Fury kept Crystal buff length (60–90s, +4 AS) but dropped the Crystal
+10–4 min recast. New `delayBase`/`delayReduction` 120000/10000 → CD 120–90s:
+~50% uptime at rank 0, 100% at rank 3. Immortal Skin left Crystal-accurate.
+
+### Verify
+- `npm.cmd run check`
+
+## 2026-08-08 - Glyph of Blade Momentum
+
+Warrior glyph: each successful Twin Drake Blade hit (including follow-up) grants
++1 attack speed (max 40 stacks; swing delay floor still applies). Resets on TDB
+miss, any other warrior skill/buff (incl. FS charge), or a normal weapon swing
+(incl. MP fallback). Icon frame 3261.
+
+### Verify
+- `npm.cmd run check` (+ smoke)
+
+## 2026-08-08 - Frenzied Disruptor icon (glyph spiral, not cube)
+
+Swapped Glyph of Frenzied Disruptor from cube frame 3305 to spiral glyph
+frame 3244 (3205 hue+180), matching the Body Glyph amulet style.
+
+### Verify
+- `npm.cmd run build:item-atlas`
+
+## 2026-08-08 - Glyph of Frenzied Disruptor
+
+Wizard glyph: Flame Disruptor crits grant +100% Flame Disruptor casting speed that
+decays linearly to normal over 5s (FD-only, no tradeoff). Wired live, offline, and
+boss-party. Icon frame 3305 from the variant pool.
+
+### Verify
+- `npm.cmd run check` (+ smoke)
+
+## 2026-08-08 - Glyph icon variant pool (frames 3230+)
+
+Added `tools/generate-glyph-variants.ps1` (`npm run glyph:variants` /
+`glyph:variants:promote`) to flip/hue/tint existing Body Glyph icons. Promoted
+88 unused frames into `public/item-icons/items/frame_003230+` and catalogued
+them in `docs/GLYPH_ICON_POOL.md` (linked from GLYPH_REFERENCE, COOKBOOK,
+AGENTS). Preview gallery: `docs/glyph-variant-preview/`.
+
+### Verify
+- Open `docs/glyph-variant-preview/index.html` / `docs/GLYPH_ICON_POOL.md`
+
+## 2026-08-08 - Remove experimental Swift Great Fire glyph
+
+Removed test-only Glyph of Swift Great Fire (Great Fire Ball cast-speed
+experiment). Cast-speed options for a real wizard glyph still TBD.
+
+### Verify
+- `npm.cmd run check`
+
+## 2026-08-08 - Flaming Avalanche red BA FX (filter, not wash)
+
+Replaced the flat red tint wash (looked like a red circle over the glow) with a
+CSS filter on the BA blade pixels only (`sepia/saturate/hue-rotate`). Manual BA
+unchanged.
+
+### Verify
+- `npm.cmd run check` (+ smoke)
+
+## 2026-08-08 - Flaming Avalanche FX lead-in
+
+Glyph Flaming Avalanche BA visuals started at the FS hit frame, so the long blade
+animation felt late. Glyph procs now start BA FX `250ms` earlier
+(`FLAMING_AVALANCHE_FX_LEAD_MS`); damage timing unchanged. Manual BA casts untouched.
+
+### Verify
+- `npm.cmd run check` (+ smoke)
+
+## 2026-08-08 - Glyph of Flaming Avalanche
+
+Warrior glyph: a successful Flaming Sword hit also unleashes Blade Avalanche if
+BA is learned. No extra MP, no BA cooldown, no BA skill XP, no tradeoff. Wired for
+solo live, offline, and boss-party.
+
+### Changes
+- `src/glyphModifiers.js`: `warriorFlamingAvalanche` + trigger helper
+- `src/app.monolith.js`: `maybeProcFlamingSwordBladeAvalanche` on FS hit paths
+- Item frame 3227, changelog, tests, atlas, integrity, glyph:ref
+
+### Verify
+- `npm.cmd run check` (+ smoke)
+
+## 2026-08-08 - Glyph of Slow Destruction
+
+Warrior glyph: **DC ×2.5**, but attack speed no longer affects swing timing (effective
+AS forced to 0 for autos, Twin Drake, Half Moon, Blade Avalanche, etc.). DC scale
+applies via `effectiveCombatStats` / character sheet so all DC-based warrior hits
+benefit. Tuned so Twin Drake–heavy play is still above a max-AS baseline.
+
+### Changes
+- `src/glyphModifiers.js`: `warriorSlowDestruction` + nullify/DC helpers
+- `src/app.monolith.js`: AS gate + warrior-only DC apply (no pet leak)
+- Item frame 3226, changelog, tests, atlas, integrity, glyph:ref
+
+### Verify
+- `npm.cmd run check` (+ smoke)
+
+## 2026-08-08 - Social character snapshot regression guard
+
+Stale tabs/devices under the same Social `playerId` were overwriting
+`character_levels` / `character_stats` with much lower progress (e.g.
+ImTheMeat cloud 188 vs Social 1/1/1). Same failure mode as the earlier Westy
+incident: kills/XP use `MAX`, but the character snapshot last-write-wins.
+
+### Fix (stats worker — needs redeploy)
+- `/stats`: keep the existing character snapshot when an incoming post has
+  lower combined levels and `rebirthCount` has not increased.
+- `/cloud-save`: reject weaker progress overwrites with HTTP 409
+  `stale_progress` (rebirth still allowed).
+- Client Options shows the clearer cloud-save message on that 409.
+
+### Live repair
+Re-synced 14 Social-behind-cloud accounts from their cloud backups (including
+ImTheMeat, Shane, Obi1, Prai, GodEater, STUZZZBOMB, JJLOL). Post-repair lag
+count is 0.
+
+### Verify
+- `node --test tests/statsWorkerIntegrity.test.mjs tests/statsWorkerCloudSave.test.mjs`
+- `npm.cmd run check`
+- **Redeploy worker** (manual): `npx wrangler deploy --keep-vars` from
+  `tools/stats-worker`
+
+## 2026-08-08 - Twin Fury glyph damage ×2.5
+
+Glyph of Twin Fury (`warriorTwinDrakeBurst`) Twin Drake Blade damage multiplier
+raised from 2 → 2.5. Cooldown remains 2000 ms. Updated glyph helper default,
+unit test, and `docs/GLYPH_REFERENCE.md`.
+
+### Verify
+- `npm.cmd run check`
+
+## 2026-08-07 - Holy Deva froze during solo travel (late to fights)
+
+Holy Deva stood still while the player ran between solo-zone enemies, then only
+started walking after engage — often arriving mid-fight.
+
+### Cause
+`syncTaoistFollowerPetPosition` ran twice per travel frame (`advancePlayerTravel`
++ end of `updateLaneMotion`). The second call saw no further owner movement,
+cleared `ownerWasMoving`, and the next frame re-armed the 500ms follow reaction
+delay every frame — so the pet never advanced during approach.
+
+### Fix
+- Sync follower once per frame (removed the call from `advancePlayerTravel`;
+  kept the shared end-of-frame sync, plus an explicit sync on the
+  `showEnemies=false` early-return path).
+- Extract `nextFollowerOwnerMotionState` in `src/core/wizardMirror.js` with a
+  same-frame guard; use it for Holy Deva and Wizard Mirror follow latches.
+- Unit tests cover continuous-travel arming and same-frame re-sync.
+
+### Verify
+- `npm.cmd run check`
+- `npm.cmd run smoke` (with `npm run dev`)
+
+## 2026-08-07 - Cloud restore grace period
+
+Automatic cloud uploads could last-write-wins overwrite a newer backup when a
+second device opened or tabbed back in with stale local progress (especially
+once the 10-minute interval was already due).
+
+### Fix
+- `CLOUD_SAVE_RESUME_GRACE_MS` (2 min) in `src/core/cloudSave.js`
+- On boot, tab visible, and bfcache `pageshow`, defer automatic uploads via
+  `suppressUploadUntil`. Manual "Save now" is unchanged.
+
+### Verify
+- `npm.cmd run check`
+
+## 2026-08-07 - Simulation Mode: stop losing armed AFK windows
+
+Three defects in the manual AFK arm, all reported as "simulation mode isn't
+working". An armed window could be thrown away entirely, or counted twice.
+
+### Fixes
+- `enterZone` / `returnToTown`: both nulled `state.game.simulationMode` without
+  crediting, discarding the whole window. Now call `endSimulationMode()`. In
+  `enterZone` the call moved to the top of the function so the credit lands in
+  the zone the player actually idled in, before `mode`/`activeZoneId` change.
+- Character switch (`selectPlayerClass`): `applyCharacterState` restores
+  `simulationMode.startedAt` verbatim, so parking an armed character and coming
+  back re-credited every second spent on the other one. The outgoing arm is now
+  cashed in before `captureActiveCharacterState()` serializes it.
+- `src/styles.css`: `body.compact-ui .game-topbar` is z-index 50 but the modal
+  band was 39-45, so on mobile the topbar stayed tappable straight through the
+  AFK overlay — which is how players reached the zone/town paths above. Lifted
+  the band above it, keeping its internal order: simulation 51, offline report
+  52, damage report 53, notices 57.
+
+### Also
+- `simulateOfflineFightLoop` secondary-cast regression tests (the Taoist
+  SoulFireBall/Plague/Curse fix): casts fire independently of the attack
+  cooldown, and a secondary cast can land the killing blow.
+- `tools/afk-sim-mode-flow-probe.mjs`: end-to-end probe with a `Date.now` shim
+  covering all three fixes (credit on town return, credit-once across a
+  character switch, mobile tap blocked).
+
+### Verify
+- `npm.cmd run check` + `npm.cmd run smoke`
+- `node tools/afk-sim-mode-flow-probe.mjs` (needs `npm run dev`)
+
+## 2026-08-07 - Offline combat pacing: casters now match live
+
+Measured one kill cycle (travel / fight / respawn) in live against the offline
+sim for all three classes. Respawn was already exact; travel and fight were both
+wrong, in opposite directions, so Warrior looked correct purely by cancellation
+while Wizard ran 21% behind live.
+
+### Fixes (`src/app.monolith.js`, `src/core/offlineProgress.js`)
+- **Travel**: `offlineTravelTimeMs` walked to `playerAttackRange()`, which falls
+  back to melee for casters because the range helpers only report a spell's
+  reach once that spell is usable at the current distance. Restored
+  `offlineActionRangePx`, which places the incoming enemy and lets the value
+  converge (live's `playerEngageRange` without its `LANE.aggroRange` floor, which
+  governs when combat starts rather than where the player stops). Melee classes
+  resolve to the same melee range as before, so Warrior is untouched.
+- **Kill latency**: live defers spell damage to `pendingImpact` and applies melee
+  instantly, so a spell kill registers later than the action causing it. Earlier
+  hits hide behind the attack-cooldown pipeline, so only the last is exposed —
+  `simulateOfflineFightLoop` now takes a `getKillLatencyMs` hook and charges that
+  one latency when the enemy dies. Melee reports zero.
+- **Recast gate**: mirrored live's `pendingImpact?.spellId === <spell>` refusal in
+  `offlineTaoistSecondaryCasts`, so a Taoist cannot chain SoulFireBall / Plague /
+  Curse faster than their projectiles land.
+
+Live's other Taoist gate (`activeTaoistSpellVisualBlocksSecondary`) is
+deliberately NOT mirrored — both its clauses hang off `activeTaoSpell`, which the
+sim never populates, and approximating either one measured 2-3x more blocking
+than live, costing a third of the Taoist's kills.
+
+### Result (kills over a 180s window, live vs offline)
+| class | before | after |
+|---|---|---|
+| Warrior | 31 / 29 | 31 / 29 |
+| Wizard | 28 / 22 | 26 / 29 |
+| Taoist | 24 / 22 | 27 / 28 |
+
+Live itself varies +/-2 kills between runs at this window length.
+
+### Notes
+- `tools/build-offline-spellkit-fixtures.mjs` now gives the Taoist spare amulet
+  stacks. SoulFireBall eats one per cast, and a single stack ran dry partway
+  through a long run, silently turning a combat-pacing measurement into an
+  ammo-supply one (fewer casts scored *better*).
+- Offline pins re-recorded: warrior unchanged (as intended - melee takes neither
+  the travel nor the latency change), taoist 38 -> 39 kills, wizard 32 -> 33.
+  The wizard fixture now ends with `playerDied: true`: reaching spell range
+  sooner means more fights and more incoming damage in the same window, which is
+  what that character does live too.
+
+### Verify
+- `npm.cmd run check` + `npm.cmd run smoke`
+
+## 2026-08-06 - Glyph of Demonic Deva
+
+Taoist glyph for Holy Deva: attacks deal **150%** damage, splash in an Ice Storm
+**3×3 bang** area (group-dungeon swarm), and replace the ThunderBolt impact bolt
+with cosmetic **MapLightning** FX (Oma King Spirit room bolts). Soft red tint on
+the Deva while equipped. **Tradeoff:** cannot cast Healing, Mass Healing, or
+Healing Circle.
+
+### Changes
+- `src/glyphModifiers.js`: `demonicDeva` + `glyphHasDemonicDeva` /
+  `applyGlyphDemonicDevaDamage` / `glyphBlocksTaoistHealingSpells`
+- `src/app.monolith.js`: damage scale in `rollTaoistPetAttackResult`; bang AOE on
+  pending Deva impact; `queueHolyDevaMapLightningFx`; red tint; heal spells gated
+  in `canUseTaoistSpell` / `bossPartyCanUseTaoistSpell`
+- Item frame 3225, changelog, tests, atlas, integrity, glyph:ref
+
+### Verify
+- `npm.cmd run check` (+ smoke)
+
+## 2026-08-06 - Glyph of Efficient Learning
+
+Any-class glyph that doubles spell skill practice XP per cast (+100% skill
+leveling). Stacks additively with Skill Leveling empowers via the same post-roll
+multiplier used by gear (`totalSkillLevelBonusPercent`). Joins the empowered /
+ascended / awakened boss glyph pool and recycle automatically.
+
+### Changes
+- `src/glyphModifiers.js`: `efficientLearning` + `glyphSkillLevelBonusPercent`
+- `src/app.monolith.js`: fold into `skillExperienceGain` + character Skill Leveling line
+- `src/data/items.json` frame 3223 (Body Glyph3), changelog, tests, atlas, integrity, glyph:ref
+
+### Verify
+- `npm.cmd run check`
+
+## 2026-08-06 - Fix gem/ore stack wipe from persist quantity clamp
+
+Regression from the 2026-08-05 glyph-recycle quantity clamp: save load
+sanitizes character inventories *before* account `ownedUnlocks` are restored.
+`inventoryEntryMaxStack` used live Organisation Skills / Ore Stacking checks, so
+gems (`stackable: true`, `maxStack: 1` in data; 99 with the unlock) and stacked
+ores were clamped to quantity 1 — permanent loss on the next save. Players saw
+stacks "unstack" / vanish on login.
+
+### Fix
+- Persist/sanitize/clone use `inventoryEntryPersistMaxStack` (unlock-agnostic:
+  gems 99, stackable ores 99, poison/amulet ×2, true non-stackables 1)
+- Live `inventoryEntryMaxStack` still used only for create/merge during play
+
+### Files
+- `src/app.monolith.js`, `tests/persistenceInventory.test.mjs`
+
+### Note
+Gems already wiped from saves that wrote after the bad clamp cannot be restored
+from those damaged saves.
+
+### Verify
+- `npm.cmd run check`
+
+## 2026-08-05 - AFK sim resumes mid-fight enemy (0 kills / almost dead)
+
+Warrior AFK in Red Cavern reported 0 kills after minutes while returning to an
+almost-dead mob. Offline always spawned a fresh full-HP enemy, discarding live
+mid-fight damage — so finishing a nearly-dead kill then spending the window on
+a new tanky trash mob looked like "no progress".
+
+### Fix
+- First offline fight continues the current engaged/damaged enemy (no travel)
+- Clear stuck Slashing Burst dash / pending impacts when sim starts
+- `createOfflineFightEnemy` accepts current HP / DoT state; `canResumeOfflineZoneEnemy` helper
+
+### Files
+- `src/core/offlineProgress.js`, `src/app.monolith.js`,
+  `tests/offlineProgress.test.mjs`
+
+### Verify
+- `npm.cmd run check`
+
+## 2026-08-05 - Tao AFK freeze + immortal Holy Deva
+
+Players reported tab freezes/crashes on Tao AFK, and Holy Deva never dying.
+
+### Root causes
+1. **Offline pet-impact thrash:** Shinsu/Deva delayed impacts set
+   `pendingPetAttack`, and `computeOfflinePetAttackDelayMs` returned a flat
+   `1` ms while pending. The fight loop then stepped one ms at a time through
+   the whole impact window, re-running full recovery twice per step — enough
+   to freeze long AFK / Simulation Mode catch-ups.
+2. **Holy Deva immortal to AOE:** splash/mass-burst/Fox/Danmo/Dark Devil /
+   Minotaur gatherers only considered the tank pet (`taoPet` /
+   `bossParty.pet`), so follower Deva never took splash damage. Death marking
+   on splash also defaulted to the tank pet slot.
+3. **Offline poison pet death:** poison could zero pet HP offline without
+   `markTaoistPetDead`, leaving `active` pets at 0 HP.
+
+### Fixes
+- Jump offline delay to `pendingPetAttack.at` (not 1 ms); min delay across
+  all living pets (tank + Deva)
+- Include Holy Deva in AOE splash target lists; mark/DR the correct pet entity
+- Offline poison deaths retire the pet properly
+
+### Files
+- `src/core/offlineProgress.js`, `src/app.monolith.js`,
+  `tests/offlineProgress.test.mjs`
+
+### Verify
+- `npm.cmd run check`
+
+## 2026-08-05 - Rich Veins (rare ore mining upgrade)
+
+Rebirth upgrade that raises Adamantine / Ruby / Emerald / Amethyst find weight.
+
+### Behaviour
+- `rebirth-mining-rare-ores` ("Rich Veins"): 5 tiers, costs `[15, 30, 45, 60, 75]`
+- Each tier: +1 slot to each of the four rares (stolen from Copper, then Gold)
+- Baseline rares 9/120 (7.5% of finds) → max 29/120 (~24% of finds)
+
+### Files
+- `src/core/offlineProgress.js` — `buildMiningOreDropsWithRareBonus`
+- `src/app.monolith.js` — upgrade def + mining roll wiring
+- `tests/offlineProgress.test.mjs` — weight math test
+
+### Verify
+- `npm.cmd run check`
+
+## 2026-08-05 - Glyph Recycle: stop free multi-crafts from qty>1 glyphs
+
+Player report: glyph recycle left the two board glyphs in place for ~8–9 Craft
+presses, each creating a new glyph, then finally consumed them. That matches
+`consumeStagedCraftingCubeEntryQuantity` decrementing a corrupted `quantity > 1`
+on non-stackable glyphs (no qty badge, so invisible).
+
+### Fix
+- Clamp entry quantity to max stack on sanitize/clone/create (`sanitizeEntryQuantity`)
+- Non-stackables always full-discard on cube consume (never partial qty)
+- Glyph recycle aborts if materials missing/duplicate before granting
+- Show qty badge on cube when quantity > 1 even for "non-stackable" items
+
+### Files
+- `src/persistence/sanitizeInventory.js`, `src/app.monolith.js`
+- `tests/persistenceInventory.test.mjs`
+
+### Verify
+- `npm.cmd run check`
+
+## 2026-08-04 - Heal absurd boss respawn timers after device switch
+
+Boss `readyAt` values are absolute wall-clock timestamps. After cloud restore /
+device switch with a skewed system clock (~14 days), every timer can show
+340+ hours even though the longest configured delay is 8 hours.
+
+### Fix
+- `clampBossRespawnReadyAt`: clear any readyAt past `now + baseDelay`
+- Heal on save load (`applySaveSnapshot`) and before every snapshot write
+- Read path also clamps so the UI is correct even before the next save
+
+### Files
+- `src/core/bossRespawn.js`, `src/app.monolith.js`, `tests/bossRespawn.test.mjs`
+
+### Verify
+- `npm.cmd run check`
+
 ## 2026-08-04 - Ore Stacking unlock (rebirth + Cash Shop)
 
 Permanent unlock so ores stack in inventory. Sold two ways (mirrors Organisation
@@ -23,6 +486,23 @@ Cash Shop.
 ### Verify
 - `npm.cmd run check`
 - Worker must be redeployed for the Cash Shop token purchase; rebirth purchase is client-only
+
+## 2026-08-04 - Attunement Stone tooltip descriptions
+
+Added `description` text on the three Attunement Stones and render
+`item.description` in inventory tooltips (glyphs still use their own path).
+
+### Wording
+- Offensive: chance to force offensive empowerments on Empowerment Reroll
+- Defensive: armour / HP / DR family
+- Utility: XP / gold / drops / cooldowns family
+
+### Files
+- `src/data/items.json`
+- `src/app.monolith.js` — `itemTooltipHtml`
+
+### Verify
+- `npm.cmd run check`
 
 ## 2026-08-03 - Attunement Stones (empower reroll family bias)
 

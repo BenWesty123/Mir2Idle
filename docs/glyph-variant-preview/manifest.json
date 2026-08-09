@@ -1,0 +1,674 @@
+﻿[
+    {
+        "sourceFrame":  3200,
+        "transform":  "orig",
+        "label":  "original",
+        "file":  "from_003200__orig.png",
+        "promotedFrame":  null
+    },
+    {
+        "sourceFrame":  3200,
+        "transform":  "flip",
+        "label":  "flip H",
+        "file":  "from_003200__flip.png",
+        "promotedFrame":  3230
+    },
+    {
+        "sourceFrame":  3200,
+        "transform":  "hue60",
+        "label":  "hue +60",
+        "file":  "from_003200__hue60.png",
+        "promotedFrame":  3231
+    },
+    {
+        "sourceFrame":  3200,
+        "transform":  "hue120",
+        "label":  "hue +120",
+        "file":  "from_003200__hue120.png",
+        "promotedFrame":  3232
+    },
+    {
+        "sourceFrame":  3200,
+        "transform":  "hue180",
+        "label":  "hue +180",
+        "file":  "from_003200__hue180.png",
+        "promotedFrame":  3233
+    },
+    {
+        "sourceFrame":  3200,
+        "transform":  "hue240",
+        "label":  "hue +240",
+        "file":  "from_003200__hue240.png",
+        "promotedFrame":  3234
+    },
+    {
+        "sourceFrame":  3200,
+        "transform":  "flip-hue90",
+        "label":  "flip + hue +90",
+        "file":  "from_003200__flip-hue90.png",
+        "promotedFrame":  3235
+    },
+    {
+        "sourceFrame":  3200,
+        "transform":  "flip-hue200",
+        "label":  "flip + hue +200",
+        "file":  "from_003200__flip-hue200.png",
+        "promotedFrame":  3236
+    },
+    {
+        "sourceFrame":  3200,
+        "transform":  "swap-rb",
+        "label":  "swap R/B",
+        "file":  "from_003200__swap-rb.png",
+        "promotedFrame":  3237
+    },
+    {
+        "sourceFrame":  3200,
+        "transform":  "cold",
+        "label":  "cold (sat+ light-)",
+        "file":  "from_003200__cold.png",
+        "promotedFrame":  3238
+    },
+    {
+        "sourceFrame":  3200,
+        "transform":  "fire",
+        "label":  "fire (hue+sat)",
+        "file":  "from_003200__fire.png",
+        "promotedFrame":  3239
+    },
+    {
+        "sourceFrame":  3200,
+        "transform":  "shadow",
+        "label":  "shadow",
+        "file":  "from_003200__shadow.png",
+        "promotedFrame":  3240
+    },
+    {
+        "sourceFrame":  3205,
+        "transform":  "orig",
+        "label":  "original",
+        "file":  "from_003205__orig.png",
+        "promotedFrame":  null
+    },
+    {
+        "sourceFrame":  3205,
+        "transform":  "flip",
+        "label":  "flip H",
+        "file":  "from_003205__flip.png",
+        "promotedFrame":  3241
+    },
+    {
+        "sourceFrame":  3205,
+        "transform":  "hue60",
+        "label":  "hue +60",
+        "file":  "from_003205__hue60.png",
+        "promotedFrame":  3242
+    },
+    {
+        "sourceFrame":  3205,
+        "transform":  "hue120",
+        "label":  "hue +120",
+        "file":  "from_003205__hue120.png",
+        "promotedFrame":  3243
+    },
+    {
+        "sourceFrame":  3205,
+        "transform":  "hue180",
+        "label":  "hue +180",
+        "file":  "from_003205__hue180.png",
+        "promotedFrame":  3244
+    },
+    {
+        "sourceFrame":  3205,
+        "transform":  "hue240",
+        "label":  "hue +240",
+        "file":  "from_003205__hue240.png",
+        "promotedFrame":  3245
+    },
+    {
+        "sourceFrame":  3205,
+        "transform":  "flip-hue90",
+        "label":  "flip + hue +90",
+        "file":  "from_003205__flip-hue90.png",
+        "promotedFrame":  3246
+    },
+    {
+        "sourceFrame":  3205,
+        "transform":  "flip-hue200",
+        "label":  "flip + hue +200",
+        "file":  "from_003205__flip-hue200.png",
+        "promotedFrame":  3247
+    },
+    {
+        "sourceFrame":  3205,
+        "transform":  "swap-rb",
+        "label":  "swap R/B",
+        "file":  "from_003205__swap-rb.png",
+        "promotedFrame":  3248
+    },
+    {
+        "sourceFrame":  3205,
+        "transform":  "cold",
+        "label":  "cold (sat+ light-)",
+        "file":  "from_003205__cold.png",
+        "promotedFrame":  3249
+    },
+    {
+        "sourceFrame":  3205,
+        "transform":  "fire",
+        "label":  "fire (hue+sat)",
+        "file":  "from_003205__fire.png",
+        "promotedFrame":  3250
+    },
+    {
+        "sourceFrame":  3205,
+        "transform":  "shadow",
+        "label":  "shadow",
+        "file":  "from_003205__shadow.png",
+        "promotedFrame":  3251
+    },
+    {
+        "sourceFrame":  3210,
+        "transform":  "orig",
+        "label":  "original",
+        "file":  "from_003210__orig.png",
+        "promotedFrame":  null
+    },
+    {
+        "sourceFrame":  3210,
+        "transform":  "flip",
+        "label":  "flip H",
+        "file":  "from_003210__flip.png",
+        "promotedFrame":  3252
+    },
+    {
+        "sourceFrame":  3210,
+        "transform":  "hue60",
+        "label":  "hue +60",
+        "file":  "from_003210__hue60.png",
+        "promotedFrame":  3253
+    },
+    {
+        "sourceFrame":  3210,
+        "transform":  "hue120",
+        "label":  "hue +120",
+        "file":  "from_003210__hue120.png",
+        "promotedFrame":  3254
+    },
+    {
+        "sourceFrame":  3210,
+        "transform":  "hue180",
+        "label":  "hue +180",
+        "file":  "from_003210__hue180.png",
+        "promotedFrame":  3255
+    },
+    {
+        "sourceFrame":  3210,
+        "transform":  "hue240",
+        "label":  "hue +240",
+        "file":  "from_003210__hue240.png",
+        "promotedFrame":  3256
+    },
+    {
+        "sourceFrame":  3210,
+        "transform":  "flip-hue90",
+        "label":  "flip + hue +90",
+        "file":  "from_003210__flip-hue90.png",
+        "promotedFrame":  3257
+    },
+    {
+        "sourceFrame":  3210,
+        "transform":  "flip-hue200",
+        "label":  "flip + hue +200",
+        "file":  "from_003210__flip-hue200.png",
+        "promotedFrame":  3258
+    },
+    {
+        "sourceFrame":  3210,
+        "transform":  "swap-rb",
+        "label":  "swap R/B",
+        "file":  "from_003210__swap-rb.png",
+        "promotedFrame":  3259
+    },
+    {
+        "sourceFrame":  3210,
+        "transform":  "cold",
+        "label":  "cold (sat+ light-)",
+        "file":  "from_003210__cold.png",
+        "promotedFrame":  3260
+    },
+    {
+        "sourceFrame":  3210,
+        "transform":  "fire",
+        "label":  "fire (hue+sat)",
+        "file":  "from_003210__fire.png",
+        "promotedFrame":  3261
+    },
+    {
+        "sourceFrame":  3210,
+        "transform":  "shadow",
+        "label":  "shadow",
+        "file":  "from_003210__shadow.png",
+        "promotedFrame":  3262
+    },
+    {
+        "sourceFrame":  3215,
+        "transform":  "orig",
+        "label":  "original",
+        "file":  "from_003215__orig.png",
+        "promotedFrame":  null
+    },
+    {
+        "sourceFrame":  3215,
+        "transform":  "flip",
+        "label":  "flip H",
+        "file":  "from_003215__flip.png",
+        "promotedFrame":  3263
+    },
+    {
+        "sourceFrame":  3215,
+        "transform":  "hue60",
+        "label":  "hue +60",
+        "file":  "from_003215__hue60.png",
+        "promotedFrame":  3264
+    },
+    {
+        "sourceFrame":  3215,
+        "transform":  "hue120",
+        "label":  "hue +120",
+        "file":  "from_003215__hue120.png",
+        "promotedFrame":  3265
+    },
+    {
+        "sourceFrame":  3215,
+        "transform":  "hue180",
+        "label":  "hue +180",
+        "file":  "from_003215__hue180.png",
+        "promotedFrame":  3266
+    },
+    {
+        "sourceFrame":  3215,
+        "transform":  "hue240",
+        "label":  "hue +240",
+        "file":  "from_003215__hue240.png",
+        "promotedFrame":  3267
+    },
+    {
+        "sourceFrame":  3215,
+        "transform":  "flip-hue90",
+        "label":  "flip + hue +90",
+        "file":  "from_003215__flip-hue90.png",
+        "promotedFrame":  3268
+    },
+    {
+        "sourceFrame":  3215,
+        "transform":  "flip-hue200",
+        "label":  "flip + hue +200",
+        "file":  "from_003215__flip-hue200.png",
+        "promotedFrame":  3269
+    },
+    {
+        "sourceFrame":  3215,
+        "transform":  "swap-rb",
+        "label":  "swap R/B",
+        "file":  "from_003215__swap-rb.png",
+        "promotedFrame":  3270
+    },
+    {
+        "sourceFrame":  3215,
+        "transform":  "cold",
+        "label":  "cold (sat+ light-)",
+        "file":  "from_003215__cold.png",
+        "promotedFrame":  3271
+    },
+    {
+        "sourceFrame":  3215,
+        "transform":  "fire",
+        "label":  "fire (hue+sat)",
+        "file":  "from_003215__fire.png",
+        "promotedFrame":  3272
+    },
+    {
+        "sourceFrame":  3215,
+        "transform":  "shadow",
+        "label":  "shadow",
+        "file":  "from_003215__shadow.png",
+        "promotedFrame":  3273
+    },
+    {
+        "sourceFrame":  3220,
+        "transform":  "orig",
+        "label":  "original",
+        "file":  "from_003220__orig.png",
+        "promotedFrame":  null
+    },
+    {
+        "sourceFrame":  3220,
+        "transform":  "flip",
+        "label":  "flip H",
+        "file":  "from_003220__flip.png",
+        "promotedFrame":  3274
+    },
+    {
+        "sourceFrame":  3220,
+        "transform":  "hue60",
+        "label":  "hue +60",
+        "file":  "from_003220__hue60.png",
+        "promotedFrame":  3275
+    },
+    {
+        "sourceFrame":  3220,
+        "transform":  "hue120",
+        "label":  "hue +120",
+        "file":  "from_003220__hue120.png",
+        "promotedFrame":  3276
+    },
+    {
+        "sourceFrame":  3220,
+        "transform":  "hue180",
+        "label":  "hue +180",
+        "file":  "from_003220__hue180.png",
+        "promotedFrame":  3277
+    },
+    {
+        "sourceFrame":  3220,
+        "transform":  "hue240",
+        "label":  "hue +240",
+        "file":  "from_003220__hue240.png",
+        "promotedFrame":  3278
+    },
+    {
+        "sourceFrame":  3220,
+        "transform":  "flip-hue90",
+        "label":  "flip + hue +90",
+        "file":  "from_003220__flip-hue90.png",
+        "promotedFrame":  3279
+    },
+    {
+        "sourceFrame":  3220,
+        "transform":  "flip-hue200",
+        "label":  "flip + hue +200",
+        "file":  "from_003220__flip-hue200.png",
+        "promotedFrame":  3280
+    },
+    {
+        "sourceFrame":  3220,
+        "transform":  "swap-rb",
+        "label":  "swap R/B",
+        "file":  "from_003220__swap-rb.png",
+        "promotedFrame":  3281
+    },
+    {
+        "sourceFrame":  3220,
+        "transform":  "cold",
+        "label":  "cold (sat+ light-)",
+        "file":  "from_003220__cold.png",
+        "promotedFrame":  3282
+    },
+    {
+        "sourceFrame":  3220,
+        "transform":  "fire",
+        "label":  "fire (hue+sat)",
+        "file":  "from_003220__fire.png",
+        "promotedFrame":  3283
+    },
+    {
+        "sourceFrame":  3220,
+        "transform":  "shadow",
+        "label":  "shadow",
+        "file":  "from_003220__shadow.png",
+        "promotedFrame":  3284
+    },
+    {
+        "sourceFrame":  3225,
+        "transform":  "orig",
+        "label":  "original",
+        "file":  "from_003225__orig.png",
+        "promotedFrame":  null
+    },
+    {
+        "sourceFrame":  3225,
+        "transform":  "flip",
+        "label":  "flip H",
+        "file":  "from_003225__flip.png",
+        "promotedFrame":  3285
+    },
+    {
+        "sourceFrame":  3225,
+        "transform":  "hue60",
+        "label":  "hue +60",
+        "file":  "from_003225__hue60.png",
+        "promotedFrame":  3286
+    },
+    {
+        "sourceFrame":  3225,
+        "transform":  "hue120",
+        "label":  "hue +120",
+        "file":  "from_003225__hue120.png",
+        "promotedFrame":  3287
+    },
+    {
+        "sourceFrame":  3225,
+        "transform":  "hue180",
+        "label":  "hue +180",
+        "file":  "from_003225__hue180.png",
+        "promotedFrame":  3288
+    },
+    {
+        "sourceFrame":  3225,
+        "transform":  "hue240",
+        "label":  "hue +240",
+        "file":  "from_003225__hue240.png",
+        "promotedFrame":  3289
+    },
+    {
+        "sourceFrame":  3225,
+        "transform":  "flip-hue90",
+        "label":  "flip + hue +90",
+        "file":  "from_003225__flip-hue90.png",
+        "promotedFrame":  3290
+    },
+    {
+        "sourceFrame":  3225,
+        "transform":  "flip-hue200",
+        "label":  "flip + hue +200",
+        "file":  "from_003225__flip-hue200.png",
+        "promotedFrame":  3291
+    },
+    {
+        "sourceFrame":  3225,
+        "transform":  "swap-rb",
+        "label":  "swap R/B",
+        "file":  "from_003225__swap-rb.png",
+        "promotedFrame":  3292
+    },
+    {
+        "sourceFrame":  3225,
+        "transform":  "cold",
+        "label":  "cold (sat+ light-)",
+        "file":  "from_003225__cold.png",
+        "promotedFrame":  3293
+    },
+    {
+        "sourceFrame":  3225,
+        "transform":  "fire",
+        "label":  "fire (hue+sat)",
+        "file":  "from_003225__fire.png",
+        "promotedFrame":  3294
+    },
+    {
+        "sourceFrame":  3225,
+        "transform":  "shadow",
+        "label":  "shadow",
+        "file":  "from_003225__shadow.png",
+        "promotedFrame":  3295
+    },
+    {
+        "sourceFrame":  3226,
+        "transform":  "orig",
+        "label":  "original",
+        "file":  "from_003226__orig.png",
+        "promotedFrame":  null
+    },
+    {
+        "sourceFrame":  3226,
+        "transform":  "flip",
+        "label":  "flip H",
+        "file":  "from_003226__flip.png",
+        "promotedFrame":  3296
+    },
+    {
+        "sourceFrame":  3226,
+        "transform":  "hue60",
+        "label":  "hue +60",
+        "file":  "from_003226__hue60.png",
+        "promotedFrame":  3297
+    },
+    {
+        "sourceFrame":  3226,
+        "transform":  "hue120",
+        "label":  "hue +120",
+        "file":  "from_003226__hue120.png",
+        "promotedFrame":  3298
+    },
+    {
+        "sourceFrame":  3226,
+        "transform":  "hue180",
+        "label":  "hue +180",
+        "file":  "from_003226__hue180.png",
+        "promotedFrame":  3299
+    },
+    {
+        "sourceFrame":  3226,
+        "transform":  "hue240",
+        "label":  "hue +240",
+        "file":  "from_003226__hue240.png",
+        "promotedFrame":  3300
+    },
+    {
+        "sourceFrame":  3226,
+        "transform":  "flip-hue90",
+        "label":  "flip + hue +90",
+        "file":  "from_003226__flip-hue90.png",
+        "promotedFrame":  3301
+    },
+    {
+        "sourceFrame":  3226,
+        "transform":  "flip-hue200",
+        "label":  "flip + hue +200",
+        "file":  "from_003226__flip-hue200.png",
+        "promotedFrame":  3302
+    },
+    {
+        "sourceFrame":  3226,
+        "transform":  "swap-rb",
+        "label":  "swap R/B",
+        "file":  "from_003226__swap-rb.png",
+        "promotedFrame":  3303
+    },
+    {
+        "sourceFrame":  3226,
+        "transform":  "cold",
+        "label":  "cold (sat+ light-)",
+        "file":  "from_003226__cold.png",
+        "promotedFrame":  3304
+    },
+    {
+        "sourceFrame":  3226,
+        "transform":  "fire",
+        "label":  "fire (hue+sat)",
+        "file":  "from_003226__fire.png",
+        "promotedFrame":  3305
+    },
+    {
+        "sourceFrame":  3226,
+        "transform":  "shadow",
+        "label":  "shadow",
+        "file":  "from_003226__shadow.png",
+        "promotedFrame":  3306
+    },
+    {
+        "sourceFrame":  3227,
+        "transform":  "orig",
+        "label":  "original",
+        "file":  "from_003227__orig.png",
+        "promotedFrame":  null
+    },
+    {
+        "sourceFrame":  3227,
+        "transform":  "flip",
+        "label":  "flip H",
+        "file":  "from_003227__flip.png",
+        "promotedFrame":  3307
+    },
+    {
+        "sourceFrame":  3227,
+        "transform":  "hue60",
+        "label":  "hue +60",
+        "file":  "from_003227__hue60.png",
+        "promotedFrame":  3308
+    },
+    {
+        "sourceFrame":  3227,
+        "transform":  "hue120",
+        "label":  "hue +120",
+        "file":  "from_003227__hue120.png",
+        "promotedFrame":  3309
+    },
+    {
+        "sourceFrame":  3227,
+        "transform":  "hue180",
+        "label":  "hue +180",
+        "file":  "from_003227__hue180.png",
+        "promotedFrame":  3310
+    },
+    {
+        "sourceFrame":  3227,
+        "transform":  "hue240",
+        "label":  "hue +240",
+        "file":  "from_003227__hue240.png",
+        "promotedFrame":  3311
+    },
+    {
+        "sourceFrame":  3227,
+        "transform":  "flip-hue90",
+        "label":  "flip + hue +90",
+        "file":  "from_003227__flip-hue90.png",
+        "promotedFrame":  3312
+    },
+    {
+        "sourceFrame":  3227,
+        "transform":  "flip-hue200",
+        "label":  "flip + hue +200",
+        "file":  "from_003227__flip-hue200.png",
+        "promotedFrame":  3313
+    },
+    {
+        "sourceFrame":  3227,
+        "transform":  "swap-rb",
+        "label":  "swap R/B",
+        "file":  "from_003227__swap-rb.png",
+        "promotedFrame":  3314
+    },
+    {
+        "sourceFrame":  3227,
+        "transform":  "cold",
+        "label":  "cold (sat+ light-)",
+        "file":  "from_003227__cold.png",
+        "promotedFrame":  3315
+    },
+    {
+        "sourceFrame":  3227,
+        "transform":  "fire",
+        "label":  "fire (hue+sat)",
+        "file":  "from_003227__fire.png",
+        "promotedFrame":  3316
+    },
+    {
+        "sourceFrame":  3227,
+        "transform":  "shadow",
+        "label":  "shadow",
+        "file":  "from_003227__shadow.png",
+        "promotedFrame":  3317
+    }
+]

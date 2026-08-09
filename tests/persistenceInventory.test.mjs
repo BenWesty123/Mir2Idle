@@ -3,6 +3,7 @@ import assert from "node:assert/strict";
 import { sanitizeItemBonusStats, sanitizeSmithBonusStats } from "../src/battleData.js";
 import {
   normalizeInventoryEntryFields,
+  sanitizeEntryQuantity,
   sanitizeInventoryMark,
   sanitizeInventoryState,
   sanitizeStorageState,
@@ -10,6 +11,14 @@ import {
 
 const equipmentSlotIds = ["weapon", "armour", "helmet"];
 const stackable = (item) => item?.stackable === true;
+
+test("sanitizeEntryQuantity: clamps non-stackables and oversized stacks", () => {
+  assert.equal(sanitizeEntryQuantity(9, 1), 1);
+  assert.equal(sanitizeEntryQuantity(99, 64), 64);
+  assert.equal(sanitizeEntryQuantity(3, 64), 3);
+  assert.equal(sanitizeEntryQuantity("8", 1), 1);
+  assert.equal(sanitizeEntryQuantity(null, 10), 1);
+});
 
 test("sanitizeInventoryMark: accepts junk and saved only", () => {
   assert.equal(sanitizeInventoryMark("junk"), "junk");
@@ -71,6 +80,59 @@ test("normalizeInventoryEntryFields: empty smithBonusStats with smithLevel re-sp
   );
   assert.equal(fields.smithBonusStats.mc[1], 5);
   assert.equal(fields.bonusStats.mc[1], 0);
+});
+
+test("sanitizeInventoryState: preserves Organisation Skills gem stacks (max 99)", () => {
+  const inventory = sanitizeInventoryState(
+    {
+      gold: 0,
+      items: [
+        { id: "item-1", itemId: "accuracygem", quantity: 47 },
+        { id: "item-2", itemId: "glyph-spirit-wards", quantity: 9 },
+      ],
+      equipment: {},
+    },
+    { slots: [] },
+    {
+      equipmentSlotIds,
+      pageSize: 40,
+      maxSlots: 80,
+      maxPages: 2,
+      normalizeEntryFields: () => ({}),
+      // Mirrors inventoryEntryPersistMaxStack: gems allow 99, glyphs clamp to 1.
+      maxStackForEntry: (savedEntry) => (
+        String(savedEntry.itemId).includes("glyph") ? 1 : 99
+      ),
+    },
+  );
+  assert.equal(inventory.items.find((entry) => entry.id === "item-1")?.quantity, 47);
+  assert.equal(inventory.items.find((entry) => entry.id === "item-2")?.quantity, 1);
+});
+
+test("sanitizeInventoryState: clamps non-stackable quantity via maxStackForEntry", () => {
+  const inventory = sanitizeInventoryState(
+    {
+      gold: 0,
+      items: [
+        { id: "item-1", itemId: "glyph-spirit-wards", quantity: 9 },
+        { id: "item-2", itemId: "hp-drug-small", quantity: 40 },
+      ],
+      equipment: {},
+    },
+    { slots: [] },
+    {
+      equipmentSlotIds,
+      pageSize: 40,
+      maxSlots: 80,
+      maxPages: 2,
+      normalizeEntryFields: () => ({}),
+      maxStackForEntry: (savedEntry) => (
+        savedEntry.itemId === "hp-drug-small" ? 64 : 1
+      ),
+    },
+  );
+  assert.equal(inventory.items.find((entry) => entry.id === "item-1")?.quantity, 1);
+  assert.equal(inventory.items.find((entry) => entry.id === "item-2")?.quantity, 40);
 });
 
 test("sanitizeInventoryState: dedupes ids and assigns equipment", () => {

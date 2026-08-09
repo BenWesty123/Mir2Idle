@@ -1256,6 +1256,10 @@ export function sanitizeInnateSpellBonuses(bonuses) {
     const entry = {};
     const damagePercent = Math.trunc(Number(row.damagePercent) || 0);
     if (damagePercent !== 0) entry.damagePercent = damagePercent;
+    const healingPercent = Math.trunc(Number(row.healingPercent) || 0);
+    if (healingPercent !== 0) entry.healingPercent = healingPercent;
+    const undeadDamagePercent = Math.trunc(Number(row.undeadDamagePercent) || 0);
+    if (undeadDamagePercent !== 0) entry.undeadDamagePercent = undeadDamagePercent;
     const petAttackSpeedPercent = Math.trunc(Number(row.petAttackSpeedPercent) || 0);
     if (petAttackSpeedPercent !== 0) entry.petAttackSpeedPercent = petAttackSpeedPercent;
     const critChancePercent = Math.trunc(Number(row.critChancePercent) || 0);
@@ -1270,7 +1274,7 @@ export function sanitizeInnateSpellBonuses(bonuses) {
 /**
  * Sum a field from equipped items' `innateSpellBonuses` (item definition, not entry empower).
  * @param {string | null | undefined} spellId
- * @param {"damagePercent" | "petAttackSpeedPercent" | "critChancePercent" | "critDamagePercent"} field
+ * @param {"damagePercent" | "healingPercent" | "undeadDamagePercent" | "petAttackSpeedPercent" | "critChancePercent" | "critDamagePercent"} field
  * @param {object | null | undefined} inventory
  * @param {(itemId: string) => object | null | undefined} [resolveItem]
  */
@@ -1707,6 +1711,21 @@ export function applyEquippedSpellDamageBonus(spellId, damage, inventory, resolv
   return Math.trunc(base * (1 + bonusPercent / 100));
 }
 
+/**
+ * Extra damage vs undead from item-def innate bonuses (not cube-transferable).
+ * Applied on top of spell-specific undead multipliers (e.g. Thunder Bolt skill level).
+ * @param {string | null | undefined} spellId
+ * @param {number} damage
+ * @param {object | null | undefined} inventory
+ * @param {(itemId: string) => object | null | undefined} [resolveItem]
+ */
+export function applyEquippedSpellUndeadDamageBonus(spellId, damage, inventory, resolveItem = null) {
+  const base = Math.trunc(Number(damage) || 0);
+  const bonusPercent = equippedInnateSpellBonusPercent(spellId, "undeadDamagePercent", inventory, resolveItem);
+  if (bonusPercent <= 0) return base;
+  return Math.trunc(base * (1 + bonusPercent / 100));
+}
+
 /** Floor for pet attack delay after attack-speed % (matches `PET_MIN_ATTACK_MS` in taoistPets). */
 const INNATE_PET_MIN_ATTACK_MS = 400;
 
@@ -1807,8 +1826,9 @@ export function applyEquippedSpellMpCostReduction(spellId, baseCost, inventory) 
 /**
  * @param {string | null | undefined} spellId
  * @param {object | null | undefined} inventory
+ * @param {(itemId: string) => object | null | undefined} [resolveItem] Needed to include item-def innate bonuses.
  */
-export function equippedSpellHealingBonusPercent(spellId, inventory) {
+export function equippedSpellHealingBonusPercent(spellId, inventory, resolveItem = null) {
   const id = String(spellId ?? "");
   if (!id) return 0;
   const equippedIds = new Set(Object.values(inventory?.equipment ?? {}).filter(Boolean));
@@ -1818,6 +1838,7 @@ export function equippedSpellHealingBonusPercent(spellId, inventory) {
     const bonus = sanitizeEmpowerSpellBonuses(entry.empowerSpellBonuses);
     total += Number(bonus[id]?.healingPercent) || 0;
   }
+  total += equippedInnateSpellBonusPercent(id, "healingPercent", inventory, resolveItem);
   return total;
 }
 
@@ -1825,10 +1846,11 @@ export function equippedSpellHealingBonusPercent(spellId, inventory) {
  * @param {string | null | undefined} spellId
  * @param {number} healing
  * @param {object | null | undefined} inventory
+ * @param {(itemId: string) => object | null | undefined} [resolveItem]
  */
-export function applyEquippedSpellHealingBonus(spellId, healing, inventory) {
+export function applyEquippedSpellHealingBonus(spellId, healing, inventory, resolveItem = null) {
   const base = Math.trunc(Number(healing) || 0);
-  const bonusPercent = equippedSpellHealingBonusPercent(spellId, inventory);
+  const bonusPercent = equippedSpellHealingBonusPercent(spellId, inventory, resolveItem);
   if (bonusPercent <= 0) return base;
   return Math.trunc(base * (1 + bonusPercent / 100));
 }
@@ -2563,6 +2585,10 @@ export function innateSpellBonusLines(innateSpellBonuses) {
   for (const [spellId, row] of Object.entries(bonuses)) {
     const label = SPELL_EMPOWER_LABELS[spellId] ?? spellId;
     if ((row.damagePercent || 0) !== 0) lines.push(`+${row.damagePercent}% ${label} damage`);
+    if ((row.healingPercent || 0) !== 0) lines.push(`+${row.healingPercent}% ${label} healing`);
+    if ((row.undeadDamagePercent || 0) !== 0) {
+      lines.push(`+${row.undeadDamagePercent}% ${label} damage vs undead`);
+    }
     if ((row.petAttackSpeedPercent || 0) !== 0) {
       lines.push(`+${row.petAttackSpeedPercent}% ${label} attack speed`);
     }
@@ -2587,6 +2613,12 @@ export function innateSpellBonusTooltipRows(innateSpellBonuses) {
     const label = SPELL_EMPOWER_LABELS[spellId] ?? spellId;
     if ((row.damagePercent || 0) !== 0) {
       rows.push({ label, value: `+${row.damagePercent}% damage` });
+    }
+    if ((row.healingPercent || 0) !== 0) {
+      rows.push({ label, value: `+${row.healingPercent}% healing` });
+    }
+    if ((row.undeadDamagePercent || 0) !== 0) {
+      rows.push({ label, value: `+${row.undeadDamagePercent}% damage vs undead` });
     }
     if ((row.petAttackSpeedPercent || 0) !== 0) {
       rows.push({ label, value: `+${row.petAttackSpeedPercent}% attack speed` });

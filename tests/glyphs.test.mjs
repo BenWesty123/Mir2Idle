@@ -4,10 +4,12 @@ import {
   GLYPH_DEFS,
   absorbDamageWithManaAegis,
   applyGlyphGroundDuration,
+  applyGlyphMagicShieldReductionPercent,
   applyGlyphProtectionFieldBonus,
   applyGlyphProtectionFieldDuration,
   glyphProtectionFieldStat,
   applyGlyphTwinDrakeDamage,
+  applyGlyphSlowDestructionCombatStats,
   equippedGlyphDef,
   equippedGlyphDefs,
   GLYPH_EQUIPMENT_SLOT_IDS,
@@ -15,10 +17,21 @@ import {
   glyphDefByItemId,
   glyphHasFlameDisruptorCascade,
   planFlameDisruptorCascadeChain,
+  glyphFrenziedDisruptorParams,
+  buildFrenziedDisruptorBuffState,
+  frenziedDisruptorCastSpeedBonus,
+  applyFrenziedDisruptorCastCooldownMs,
   glyphFlamingSwordDrParams,
   glyphImprovedFlamingSwordParams,
+  glyphFlamingSwordTriggersBladeAvalanche,
   glyphManyMirrorsParams,
   glyphGoldBonusPercent,
+  glyphSkillLevelBonusPercent,
+  glyphHasDemonicDeva,
+  glyphHasAngelicDeva,
+  glyphBlocksTaoistHealingSpells,
+  isDemonicDevaBlockedHealSpell,
+  applyGlyphDemonicDevaDamage,
   buildFlamingSwordBurnState,
   flamingSwordBurnTickDamage,
   flamingSwordBurnTotalDamage,
@@ -28,6 +41,11 @@ import {
   glyphManaRegenPerSecond,
   glyphPetOwnerDcBonus,
   glyphTwinDrakeCooldownMs,
+  glyphTwinDrakeMomentumParams,
+  nextTwinDrakeMomentumStacks,
+  twinDrakeMomentumAttackSpeedBonus,
+  glyphNullifiesAttackSpeed,
+  glyphSlowDestructionParams,
   hasGlyphModifier,
   isGlyphItem,
   glyphModifierForSpell,
@@ -42,6 +60,12 @@ import {
   rollTaoistDefenceBuffBonus,
   applyGlyphHealingAmount,
   applyGlyphHpPotionRestore,
+  applyGlyphVitalityCombatStats,
+  glyphBlocksSunPotions,
+  isSunPotionFamilyItem,
+  glyphVitalityParams,
+  glyphDeepFrostParams,
+  rollGlyphChancePercent,
   glyphExtraBaseCritDamagePercent,
   glyphNullifiesLuck,
   healingCircleTickHealAmount,
@@ -63,21 +87,27 @@ import { itemCanBeEmpowered } from "../src/core/empoweredItems.js";
 
 test("glyph defs cover all implemented items and unique item ids", () => {
   const implemented = GLYPH_DEFS.filter((def) => def.implemented);
-  assert.equal(implemented.length, 24);
+  assert.equal(implemented.length, 33);
   assert.ok(glyphDefByItemId("glyph-spirit-wards"));
   assert.ok(glyphDefByItemId("glyph-eternal-firewall"));
   assert.ok(glyphDefByItemId("glyph-bulwark-field"));
   assert.ok(glyphDefByItemId("glyph-magical-protection"));
   assert.ok(glyphDefByItemId("glyph-flaming-bulwark"));
   assert.ok(glyphDefByItemId("glyph-improved-flaming-sword"));
+  assert.ok(glyphDefByItemId("glyph-flaming-avalanche"));
   assert.ok(glyphDefByItemId("glyph-twin-fury"));
+  assert.ok(glyphDefByItemId("glyph-blade-momentum"));
+  assert.ok(glyphDefByItemId("glyph-slow-destruction"));
   assert.ok(glyphDefByItemId("glyph-pet-might"));
+  assert.ok(glyphDefByItemId("glyph-demonic-deva"));
+  assert.ok(glyphDefByItemId("glyph-angelic-deva"));
   assert.ok(glyphDefByItemId("glyph-instant-healing"));
   assert.ok(glyphDefByItemId("glyph-improved-healing-circle"));
   assert.ok(glyphDefByItemId("glyph-buffing"));
   assert.ok(glyphDefByItemId("glyph-infinite-mana"));
   assert.ok(glyphDefByItemId("glyph-glass-canon"));
   assert.ok(glyphDefByItemId("glyph-gold"));
+  assert.ok(glyphDefByItemId("glyph-efficient-learning"));
   assert.ok(glyphDefByItemId("glyph-tank"));
   assert.ok(glyphDefByItemId("glyph-hero"));
   assert.ok(glyphDefByItemId("glyph-revival"));
@@ -85,6 +115,9 @@ test("glyph defs cover all implemented items and unique item ids", () => {
   assert.ok(glyphDefByItemId("glyph-monk"));
   assert.ok(glyphDefByItemId("glyph-mana-aegis"));
   assert.ok(glyphDefByItemId("glyph-disruptor-cascade"));
+  assert.ok(glyphDefByItemId("glyph-frenzied-disruptor"));
+  assert.ok(glyphDefByItemId("glyph-deep-frost"));
+  assert.ok(glyphDefByItemId("glyph-vitality"));
   assert.ok(glyphDefByItemId("glyph-many-mirrors"));
   assert.ok(glyphDefByItemId("glyph-fast-healing"));
   assert.ok(glyphDefByItemId("glyph-critical-strikes"));
@@ -196,6 +229,42 @@ test("Glyph of Gold doubles monster and boss gold drops", () => {
   assert.equal(glyphGoldBonusPercent(null), 0);
 });
 
+test("Glyph of Efficient Learning doubles skill practice XP", () => {
+  const glyph = glyphDefById("efficientLearning");
+  assert.equal(glyph?.itemId, "glyph-efficient-learning");
+  assert.equal(glyphSkillLevelBonusPercent(glyph), 100);
+  assert.equal(glyphSkillLevelBonusPercent(null), 0);
+});
+
+test("Glyph of Demonic Deva boosts Holy Deva damage", () => {
+  const glyph = glyphDefById("demonicDeva");
+  assert.equal(glyph?.itemId, "glyph-demonic-deva");
+  assert.equal(glyph?.classId, "taoist");
+  assert.deepEqual(glyph?.spellIds, ["SummonHolyDeva"]);
+  assert.ok(glyphHasDemonicDeva(glyph));
+  assert.equal(glyphHasDemonicDeva(null), false);
+  assert.equal(applyGlyphDemonicDevaDamage(100, glyph), 150);
+  assert.equal(applyGlyphDemonicDevaDamage(0, glyph), 0);
+  assert.equal(applyGlyphDemonicDevaDamage(100, null), 100);
+  assert.ok(glyphBlocksTaoistHealingSpells(glyph));
+  assert.equal(glyphBlocksTaoistHealingSpells(null), false);
+  assert.ok(isDemonicDevaBlockedHealSpell("Healing"));
+  assert.ok(isDemonicDevaBlockedHealSpell("MassHealing"));
+  assert.ok(isDemonicDevaBlockedHealSpell("HealingCircle"));
+  assert.equal(isDemonicDevaBlockedHealSpell("SoulFireBall"), false);
+});
+
+test("Glyph of Angelic Deva turns Holy Deva into a Mass Healing support", () => {
+  const glyph = glyphDefById("angelicDeva");
+  assert.equal(glyph?.itemId, "glyph-angelic-deva");
+  assert.equal(glyph?.classId, "taoist");
+  assert.deepEqual(glyph?.spellIds, ["SummonHolyDeva"]);
+  assert.match(glyph?.description ?? "", /Mass Healing/i);
+  assert.ok(glyphHasAngelicDeva(glyph));
+  assert.equal(glyphHasAngelicDeva(null), false);
+  assert.equal(glyphBlocksTaoistHealingSpells(glyph), false);
+});
+
 test("equippedGlyphDefs reads multiple glyph slots", () => {
   const inventory = {
     equipment: { glyph: "entry-1", glyph2: "entry-2" },
@@ -268,13 +337,64 @@ test("Improved Flaming Sword glyph burns for half the hit over 5 seconds", () =>
   assert.equal(buildFlamingSwordBurnState(1, glyphImprovedFlamingSwordParams(glyph), 0), null);
 });
 
-test("Twin Fury glyph doubles Twin Drake damage and sets cooldown", () => {
+test("Flaming Avalanche glyph is identified by kind", () => {
+  const glyph = glyphDefById("warriorFlamingAvalanche");
+  assert.equal(glyph?.itemId, "glyph-flaming-avalanche");
+  assert.equal(glyph?.classId, "warrior");
+  assert.deepEqual(glyph?.spellIds, ["FlamingSword", "BladeAvalanche"]);
+  assert.ok(glyphFlamingSwordTriggersBladeAvalanche(glyph));
+  assert.equal(glyphFlamingSwordTriggersBladeAvalanche(null), false);
+});
+
+test("Twin Fury glyph multiplies Twin Drake damage by 2.5 and sets cooldown", () => {
   const glyph = glyphDefById("warriorTwinDrakeBurst");
-  assert.equal(applyGlyphTwinDrakeDamage(100, "TwinDrakeBlade", glyph), 200);
+  assert.equal(applyGlyphTwinDrakeDamage(100, "TwinDrakeBlade", glyph), 250);
   assert.equal(applyGlyphTwinDrakeDamage(100, "FlamingSword", glyph), 100);
   assert.equal(applyGlyphTwinDrakeDamage(100, "TwinDrakeBlade", null), 100);
   assert.equal(glyphTwinDrakeCooldownMs(glyph), 2000);
   assert.equal(glyphTwinDrakeCooldownMs(null), 0);
+});
+
+test("Blade Momentum glyph stacks AS on TDB hits and resets otherwise", () => {
+  const glyph = glyphDefById("warriorTwinDrakeMomentum");
+  assert.equal(glyph?.itemId, "glyph-blade-momentum");
+  const params = glyphTwinDrakeMomentumParams(glyph);
+  assert.deepEqual(params, { asPerHit: 1, maxStacks: 40 });
+  assert.equal(glyphTwinDrakeMomentumParams(null), null);
+
+  let stacks = 0;
+  stacks = nextTwinDrakeMomentumStacks(stacks, "TwinDrakeBlade", params, { hitSucceeded: true });
+  assert.equal(stacks, 1);
+  stacks = nextTwinDrakeMomentumStacks(stacks, "TwinDrakeBlade", params, { hitSucceeded: true });
+  assert.equal(stacks, 2);
+  assert.equal(twinDrakeMomentumAttackSpeedBonus(stacks), 2);
+
+  assert.equal(
+    nextTwinDrakeMomentumStacks(stacks, "TwinDrakeBlade", params, { hitSucceeded: false }),
+    0,
+  );
+  assert.equal(nextTwinDrakeMomentumStacks(5, "Rage", params, { hitSucceeded: false }), 0);
+  assert.equal(nextTwinDrakeMomentumStacks(5, "FlamingSword", params, { hitSucceeded: true }), 0);
+  assert.equal(nextTwinDrakeMomentumStacks(5, "None", params, { hitSucceeded: true }), 0);
+  assert.equal(nextTwinDrakeMomentumStacks(39, "TwinDrakeBlade", params, { hitSucceeded: true }), 40);
+  assert.equal(nextTwinDrakeMomentumStacks(40, "TwinDrakeBlade", params, { hitSucceeded: true }), 40);
+});
+
+test("Slow Destruction glyph multiplies DC and nullifies attack speed", () => {
+  const glyph = glyphDefById("warriorSlowDestruction");
+  assert.equal(glyph?.itemId, "glyph-slow-destruction");
+  assert.equal(glyph?.classId, "warrior");
+  assert.equal(glyphSlowDestructionParams(glyph)?.dcMultiplier, 2.5);
+  assert.ok(glyphNullifiesAttackSpeed(glyph));
+  assert.equal(glyphNullifiesAttackSpeed(null), false);
+  assert.deepEqual(
+    applyGlyphSlowDestructionCombatStats({ dc: [100, 200] }, glyph).dc,
+    [250, 500],
+  );
+  assert.deepEqual(
+    applyGlyphSlowDestructionCombatStats({ dc: [100, 200] }, null).dc,
+    [100, 200],
+  );
 });
 
 test("Pet Might glyph adds owner Max DC", () => {
@@ -315,6 +435,21 @@ test("Fast Healing glyph halves HP potion restore and shortens tick delay", () =
   assert.equal(glyphPotionTickDelayMs(200, glyph, { hpPending: true }), 150);
   assert.equal(glyphPotionTickDelayMs(200, glyph, { hpPending: false }), 200);
   assert.equal(glyphPotionTickDelayMs(200, null, { hpPending: true }), 200);
+});
+
+test("Vitality glyph doubles max HP and blocks sun potion family", () => {
+  const glyph = glyphDefById("vitality");
+  assert.equal(glyph?.itemId, "glyph-vitality");
+  assert.equal(glyph?.classId, "any");
+  assert.deepEqual(glyphVitalityParams(glyph), { maxHpMultiplier: 2 });
+  assert.equal(applyGlyphVitalityCombatStats({ maxHp: 500 }, glyph).maxHp, 1000);
+  assert.equal(applyGlyphVitalityCombatStats({ maxHp: 500 }, null).maxHp, 500);
+  assert.equal(glyphBlocksSunPotions(glyph), true);
+  assert.equal(glyphBlocksSunPotions(null), false);
+  assert.equal(isSunPotionFamilyItem({ id: "sun-potion" }), true);
+  assert.equal(isSunPotionFamilyItem({ id: "sun-potion-medium" }), true);
+  assert.equal(isSunPotionFamilyItem({ id: "old-ginseng", potionFamily: "sun" }), true);
+  assert.equal(isSunPotionFamilyItem({ id: "health-potion" }), false);
 });
 
 test("Critical Strikes glyph doubles base crit damage and nullifies luck", () => {
@@ -451,7 +586,13 @@ test("Monk glyph boosts DC/SC only while no pets are summoned", () => {
 
 test("Mana Aegis absorbs HP damage from MP at 2:1", () => {
   const glyph = glyphDefById("wizardMagicShieldMp");
-  assert.deepEqual(glyphMagicShieldMpParams(glyph), { mpPerHp: 2 });
+  assert.deepEqual(glyphMagicShieldMpParams(glyph), {
+    mpPerHp: 2,
+    damageReductionFraction: 0.5,
+  });
+  assert.equal(applyGlyphMagicShieldReductionPercent(50, glyph), 25);
+  assert.equal(applyGlyphMagicShieldReductionPercent(30, glyph), 15);
+  assert.equal(applyGlyphMagicShieldReductionPercent(50, null), 50);
   assert.deepEqual(absorbDamageWithManaAegis(10, 100, glyph.params), {
     hpDamage: 0,
     mpSpent: 20,
@@ -478,6 +619,41 @@ test("Disruptor Cascade glyph is a kill-explosion chain modifier", () => {
   assert.match(glyph?.description ?? "", /killing blow/i);
   assert.equal(glyphHasFlameDisruptorCascade(glyph), true);
   assert.equal(glyphHasFlameDisruptorCascade(null), false);
+});
+
+test("Frenzied Disruptor glyph halves FD cast time at proc then decays to normal", () => {
+  const glyph = glyphDefById("wizardFrenziedDisruptor");
+  assert.equal(glyph?.itemId, "glyph-frenzied-disruptor");
+  assert.match(glyph?.description ?? "", /casting speed/i);
+  const params = glyphFrenziedDisruptorParams(glyph);
+  assert.deepEqual(params, { castSpeedBonus: 1, durationMs: 5000 });
+  assert.equal(glyphFrenziedDisruptorParams(null), null);
+
+  const now = 1000;
+  const buff = buildFrenziedDisruptorBuffState(params, now);
+  assert.equal(frenziedDisruptorCastSpeedBonus(buff, now), 1);
+  assert.equal(applyFrenziedDisruptorCastCooldownMs(1800, buff, now), 900);
+  assert.equal(frenziedDisruptorCastSpeedBonus(buff, now + 2500), 0.5);
+  assert.equal(applyFrenziedDisruptorCastCooldownMs(1800, buff, now + 2500), 1200);
+  assert.equal(frenziedDisruptorCastSpeedBonus(buff, now + 5000), 0);
+  assert.equal(applyFrenziedDisruptorCastCooldownMs(1800, buff, now + 5000), 1800);
+  assert.equal(applyFrenziedDisruptorCastCooldownMs(1800, null, now), 1800);
+});
+
+test("Deep Frost glyph exposes boss Frost Crunch chances", () => {
+  const glyph = glyphDefById("wizardDeepFrost");
+  assert.equal(glyph?.itemId, "glyph-deep-frost");
+  assert.equal(glyph?.classId, "wizard");
+  assert.deepEqual(glyph?.spellIds, ["FrostCrunch"]);
+  assert.deepEqual(glyphDeepFrostParams(glyph), {
+    bossSlowChancePercent: 15,
+    bossFreezeChancePercent: 5,
+  });
+  assert.equal(glyphDeepFrostParams(null), null);
+  assert.equal(rollGlyphChancePercent(15, () => 0.149), true);
+  assert.equal(rollGlyphChancePercent(15, () => 0.15), false);
+  assert.equal(rollGlyphChancePercent(5, () => 0.049), true);
+  assert.equal(rollGlyphChancePercent(5, () => 0.05), false);
 });
 
 test("Disruptor Cascade chain explodes adjacent kills at full blast damage", () => {

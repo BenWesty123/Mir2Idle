@@ -1,6 +1,117 @@
 {
   "entries": [
     {
+      "id": "2026-08-09-mana-aegis-half-dr",
+      "date": "2026-08-09",
+      "title": "Mana Aegis retune",
+      "highlights": [
+        "Glyph of Mana Aegis now keeps Magic Shield at half damage reduction (instead of removing it) while still draining mana before health."
+      ]
+    },
+    {
+      "id": "2026-08-09-glyph-angelic-deva",
+      "date": "2026-08-09",
+      "title": "Glyph of Angelic Deva",
+      "highlights": [
+        "Added Glyph of Angelic Deva (Taoist) — Holy Deva no longer attacks; it casts Mass Healing using your Mass Healing proficiency instead."
+      ]
+    },
+    {
+      "id": "2026-08-09-glyph-deep-frost",
+      "date": "2026-08-09",
+      "title": "Glyph of Deep Frost",
+      "highlights": [
+        "Added Glyph of Deep Frost (Wizard) — Frost Crunch can slow/freeze bosses at 15%/5% on hit (no refresh while active)."
+      ]
+    },
+    {
+      "id": "2026-08-09-glyph-vitality",
+      "date": "2026-08-09",
+      "title": "Glyph of Vitality",
+      "highlights": [
+        "Added Glyph of Vitality (all classes) — doubles maximum health, but blocks Sun Potions (and future sun-family restoratives like Old Ginseng)."
+      ]
+    },
+    {
+      "id": "2026-08-08-glyph-blade-momentum",
+      "date": "2026-08-08",
+      "title": "Glyph of Blade Momentum",
+      "highlights": [
+        "Added Glyph of Blade Momentum (Warrior) — each Twin Drake Blade hit grants +1 attack speed (capped by the normal swing floor). Missing, casting any other warrior skill, or swinging normally resets the bonus."
+      ]
+    },
+    {
+      "id": "2026-08-08-glyph-frenzied-disruptor",
+      "date": "2026-08-08",
+      "title": "Glyph of Frenzied Disruptor",
+      "highlights": [
+        "Added Glyph of Frenzied Disruptor (Wizard) — Flame Disruptor crits grant +100% FD casting speed that fades back to normal over 5 seconds."
+      ]
+    },
+    {
+      "id": "2026-08-08-glyph-flaming-avalanche",
+      "date": "2026-08-08",
+      "title": "Glyph of Flaming Avalanche",
+      "highlights": [
+        "Added Glyph of Flaming Avalanche (Warrior) — Flaming Sword also unleashes Blade Avalanche if learned (no extra MP/cooldown)."
+      ]
+    },
+    {
+      "id": "2026-08-08-glyph-slow-destruction",
+      "date": "2026-08-08",
+      "title": "Glyph of Slow Destruction",
+      "highlights": [
+        "Added Glyph of Slow Destruction (Warrior) — DC ×2.5, but attack speed no longer affects swing timing (including Twin Drake / Half Moon)."
+      ]
+    },
+    {
+      "id": "2026-08-07-cloud-restore-grace",
+      "date": "2026-08-07",
+      "title": "Cloud restore grace period",
+      "highlights": [
+        "Automatic cloud backups now wait 2 minutes after opening the game or tabbing back in, so you can restore from another device first without overwriting the newer save."
+      ]
+    },
+    {
+      "id": "2026-08-06-glyph-demonic-deva",
+      "date": "2026-08-06",
+      "title": "Glyph of Demonic Deva",
+      "highlights": [
+        "Added Glyph of Demonic Deva (Taoist) — Holy Deva deals 150% damage in an Ice Storm-sized AOE with map lightning bolts. Tradeoff: cannot cast Healing, Mass Healing, or Healing Circle."
+      ]
+    },
+    {
+      "id": "2026-08-06-glyph-efficient-learning",
+      "date": "2026-08-06",
+      "title": "Glyph of Efficient Learning",
+      "highlights": [
+        "Added Glyph of Efficient Learning — doubles spell skill practice XP (stacks with Skill Leveling gear)."
+      ]
+    },
+    {
+      "id": "2026-08-05-glyphs-awakened-mining",
+      "date": "2026-08-05",
+      "title": "Glyph fix, Awakened drops & mining upgrades",
+      "highlights": [
+        "Fixed glyph crafting bug.",
+        "Fixed drops for a couple of Awakened weapons.",
+        "Added rebirth upgrades for better ore mining rates."
+      ]
+    },
+    {
+      "id": "2026-08-04-uniques-attunement-idle",
+      "date": "2026-08-04",
+      "title": "Unique weapons, Attunement Stones & Idle",
+      "highlights": [
+        "Added 3 new unique weapons.",
+        "Added Attunement Stones to the crafting recipes. These increase your chance of targeting their respective empowerment types when rerolling.",
+        "Fixed a few bugs.",
+        "Added a manual button to start Idle mode for more control.",
+        "Added ore stacking (doesn't work for Black Iron Ore) as both a rebirth point upgrade and a cash shop upgrade.",
+        "Nerfed Dark Devil AOE damage."
+      ]
+    },
+    {
       "id": "2026-08-01-awakened-namman-glyphs",
       "date": "2026-08-01",
       "title": "Awakened bosses, Namman & Glyphs",

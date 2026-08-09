@@ -348,8 +348,10 @@ export const CRYSTAL_WARRIOR_SPELLS = [
     need3: 20000,
     baseCost: 10,
     levelCost: 4,
-    delayBase: 600000,
-    delayReduction: 120000,
+    // Idle retune (Crystal was 600000/120000 = 10–4 min). Keep Crystal buff length;
+    // CD 120→90s so L0 ≈50% uptime and L3 can maintain 100%.
+    delayBase: 120000,
+    delayReduction: 10000,
     powerBase: 0,
     powerBonus: 0,
     mPowerBase: 0,
@@ -358,7 +360,7 @@ export const CRYSTAL_WARRIOR_SPELLS = [
     multiplierBonus: 0,
     range: 0,
     buff: true,
-    description: "Increases attack speed by 4 for 60–90s (10s per skill level). Recast cooldown 10–4 min by level.",
+    description: "Increases attack speed by 4 for 60–90s (10s per skill level). Recast cooldown 120–90s by level (~50% uptime at rank 0, full uptime at rank 3).",
   },
   {
     id: "ImmortalSkin",
