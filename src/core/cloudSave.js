@@ -1,6 +1,22 @@
 export const CLOUD_SAVE_INTERVAL_MS = 10 * 60 * 1000;
+/** After open / tab-back, block automatic cloud uploads so a restore can finish first. */
+export const CLOUD_SAVE_RESUME_GRACE_MS = 2 * 60 * 1000;
 export const CLOUD_RECOVERY_CODE_STORAGE_KEY = "lom-idle-v2-recovery-code";
 export const CLOUD_LAST_SAVED_AT_STORAGE_KEY = "lom-idle-v2-cloud-saved-at";
+
+export function nextCloudSaveSuppressUntil(
+  now,
+  currentSuppressUntil = 0,
+  graceMs = CLOUD_SAVE_RESUME_GRACE_MS,
+) {
+  const current = Math.max(0, Number(currentSuppressUntil) || 0);
+  const grace = Math.max(0, Math.trunc(Number(graceMs) || 0));
+  return Math.max(current, (Number(now) || 0) + grace);
+}
+
+export function shouldSuppressAutomaticCloudSave(now, suppressUntil) {
+  return (Number(now) || 0) < (Number(suppressUntil) || 0);
+}
 
 const RECOVERY_CODE_ALPHABET = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789";
 const RECOVERY_CODE_LENGTH = 16;

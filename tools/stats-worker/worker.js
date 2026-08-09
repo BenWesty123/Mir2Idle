@@ -327,6 +327,44 @@ async function handleCloudSavePost(request, env, headers) {
   if (saveSize > MAX_CLOUD_SAVE_REQUEST_BYTES) return json({ error: "Save is too large." }, 413, headers);
   const clientSavedAt = intValue(save.savedAt, 0, Number.MAX_SAFE_INTEGER);
   const playerId = await resolveCloudSavePlayerId(env, recoveryCode, parsed.value?.playerId);
+
+  // Refuse last-write-wins wipes: a fresh/low-progress device that shares the
+  // recovery code must not replace a stronger backup (same failure mode that
+  // also used to pin Social at level 1).
+  const existingCloud = await env.DB.prepare(
+    "SELECT save_data FROM cloud_saves WHERE recovery_code = ?",
+  ).bind(recoveryCode).first();
+  if (existingCloud?.save_data) {
+    let existingSave = null;
+    try {
+      existingSave = JSON.parse(existingCloud.save_data);
+    } catch {
+      existingSave = null;
+    }
+    if (existingSave && validCloudSaveSnapshot(existingSave)) {
+      const existingLevels = characterLevelsFromSave(existingSave);
+      const incomingLevels = characterLevelsFromSave(save);
+      if (isWeakerCharacterProgress(
+        {
+          combinedLevels: combinedCharacterLevels(existingLevels),
+          rebirthCount: rebirthCountFromSave(existingSave),
+        },
+        {
+          combinedLevels: combinedCharacterLevels(incomingLevels),
+          rebirthCount: rebirthCountFromSave(save),
+        },
+      )) {
+        return json({
+          error: "This recovery code already has higher character progress. Restore that backup on this device before cloud-saving, or keep playing where your progress is.",
+          code: "stale_progress",
+        }, 409, {
+          ...headers,
+          "cache-control": "no-store",
+        });
+      }
+    }
+  }
+
   await env.DB.prepare(`
     INSERT INTO cloud_saves (
       recovery_code, save_version, save_data, client_saved_at, save_size, player_id, created_at, saved_at
@@ -694,6 +732,76 @@ function combinedCharacterLevels(levels = {}) {
   return Object.values(parseJsonObject(levels)).reduce((sum, level) => sum + intValue(level), 0);
 }
 
+const CLOUD_SAVE_CHARACTER_IDS = ["Warrior", "Wizard", "Taoist"];
+
+/** Per-class levels from a cloud-save snapshot (missing classes stay absent). */
+function characterLevelsFromSave(save) {
+  const characters = save?.characters && typeof save.characters === "object" && !Array.isArray(save.characters)
+    ? save.characters
+    : {};
+  const levels = {};
+  for (const classId of CLOUD_SAVE_CHARACTER_IDS) {
+    const raw = characters[classId]?.game?.progress?.level;
+    if (raw == null) continue;
+    levels[classId] = Math.max(1, intValue(raw, 1, 200));
+  }
+  return levels;
+}
+
+function rebirthCountFromSave(save) {
+  const account = save?.account && typeof save.account === "object" ? save.account : {};
+  const stats = account.stats && typeof account.stats === "object" ? account.stats : {};
+  return intValue(stats.rebirthCount ?? account.rebirthCount);
+}
+
+/**
+ * True when an incoming snapshot would wipe higher Social/cloud character
+ * progress without a rebirth. Rebirth (higher rebirthCount) may reset levels.
+ */
+function isWeakerCharacterProgress(existing = {}, incoming = {}) {
+  const existingRebirth = intValue(existing.rebirthCount);
+  const incomingRebirth = intValue(incoming.rebirthCount);
+  if (incomingRebirth > existingRebirth) return false;
+  return intValue(incoming.combinedLevels) < intValue(existing.combinedLevels);
+}
+
+/**
+ * Keep the stronger character snapshot on Social when a stale tab/device posts
+ * lower combined levels under the same playerId (without a rebirth).
+ */
+function resolveCharacterSnapshotForUpsert(existing, stats, combinedLevels) {
+  const incomingLevelsJson = JSON.stringify(stats.account.characterLevels ?? {});
+  const incomingStatsJson = JSON.stringify(stats.characters ?? []);
+  if (!existing) {
+    return {
+      accepted: true,
+      characterLevelsJson: incomingLevelsJson,
+      characterStatsJson: incomingStatsJson,
+      combinedLevels,
+    };
+  }
+  const existingLevels = parseJsonObject(existing.character_levels);
+  const existingCombined = intValue(existing.combined_character_levels)
+    || combinedCharacterLevels(existingLevels);
+  if (!isWeakerCharacterProgress(
+    { combinedLevels: existingCombined, rebirthCount: existing.rebirth_count },
+    { combinedLevels, rebirthCount: stats.account.rebirthCount },
+  )) {
+    return {
+      accepted: true,
+      characterLevelsJson: incomingLevelsJson,
+      characterStatsJson: incomingStatsJson,
+      combinedLevels,
+    };
+  }
+  return {
+    accepted: false,
+    characterLevelsJson: JSON.stringify(existingLevels),
+    characterStatsJson: String(existing.character_stats ?? "[]"),
+    combinedLevels: existingCombined,
+  };
+}
+
 function levelExceedsLeaderboardCap(level) {
   return intValue(level) > LEADERBOARD_MAX_VALID_LEVEL;
 }
@@ -807,6 +915,9 @@ async function upsertLeaderboardRow(env, stats, integrity) {
       rebirth_count,
       rebirth_points_gained,
       rebirth_points_spent,
+      character_levels,
+      character_stats,
+      combined_character_levels,
       integrity_status,
       integrity_reason,
       integrity_fingerprint,
@@ -816,9 +927,11 @@ async function upsertLeaderboardRow(env, stats, integrity) {
   `).bind(stats.playerId).first();
   const bossKills = mergeBossKills(parseBossKills(existing?.boss_kills), stats.bossKills);
   const bossKillsJson = JSON.stringify(bossKills);
-  const characterLevelsJson = JSON.stringify(stats.account.characterLevels ?? {});
-  const characterStatsJson = JSON.stringify(stats.characters ?? []);
-  const combinedLevels = combinedCharacterLevels(stats.account.characterLevels);
+  const incomingCombinedLevels = combinedCharacterLevels(stats.account.characterLevels);
+  const snapshot = resolveCharacterSnapshotForUpsert(existing, stats, incomingCombinedLevels);
+  const characterLevelsJson = snapshot.characterLevelsJson;
+  const characterStatsJson = snapshot.characterStatsJson;
+  const combinedLevels = snapshot.combinedLevels;
   const awakeningSoulsHeld = intValue(stats.account.awakeningSoulsHeld);
   const integrityState = nextIntegrityState(existing, integrity);
   const flaggedAt = integrityState.status === "flagged" ? new Date().toISOString() : null;
@@ -903,7 +1016,7 @@ async function upsertLeaderboardRow(env, stats, integrity) {
     integrity.rulesVersion,
     flaggedAt,
   ).run();
-  return integrityState;
+  return { integrityState, characterSnapshotUpdated: snapshot.accepted };
 }
 
 async function handleStatsPost(request, env, headers) {
@@ -923,10 +1036,11 @@ async function handleStatsPost(request, env, headers) {
   }
 
   const integrity = statsIntegrityResult(stats, integrityVersionEnforcementActive(env));
-  await upsertLeaderboardRow(env, stats, integrity);
+  const { characterSnapshotUpdated } = await upsertLeaderboardRow(env, stats, integrity);
   return json({
     ok: true,
     characters: stats.characters.length,
+    characterSnapshotUpdated,
   }, 200, headers);
 }
 

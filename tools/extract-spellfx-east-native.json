@@ -429,7 +429,27 @@
           "count": 10,
           "totalDurationMs": 600
         }
-      ]
+      ],
+      "projectile": {
+        "file": "Magic2",
+        "baseIndex": 410,
+        "frameCount": 4,
+        "skip": 6,
+        "facing8": 2,
+        "interval": 30,
+        "moveDurationMs": 400,
+        "delayMs": 320,
+        "startOffsetX": 12,
+        "startOffsetY": 3,
+        "endOffsetX": 110,
+        "endOffsetY": -22
+      },
+      "impact": {
+        "file": "Magic2",
+        "start": 570,
+        "count": 8,
+        "interval": 75
+      }
     },
     {
       "id": "Purification",

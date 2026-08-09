@@ -13,9 +13,11 @@ import {
   computeOfflineGroupPartyDps,
   computeOfflineIncomingChunkDamage,
   computeOfflinePetAttackDelayMs,
+  computeOfflineLivingPetsAttackDelayMs,
   computeOfflineRespawnDelay,
   computeOfflineTravelTimeMs,
   createOfflineFightEnemy,
+  canResumeOfflineZoneEnemy,
   createOfflineZoneReport,
   DEFAULT_OFFLINE_PROGRESS_CAP_MS,
   DEFAULT_OFFLINE_PROGRESS_MIN_MS,
@@ -34,6 +36,7 @@ import {
   simulateOfflineZoneProgressLoop,
   rollMiningOreItemId,
   rollMiningOrePurity,
+  buildMiningOreDropsWithRareBonus,
   simulateOfflineMiningSwings,
   nextOfflineTaoistSupportSpellId,
   OFFLINE_TAOIST_PET_SUPPORT_SPELL_ORDER,
@@ -201,6 +204,35 @@ test("rollMiningOreItemId / rollMiningOrePurity with injected rng", () => {
   assert.equal(rollMiningOrePurity(() => 0), 1);
   assert.equal(rollMiningOrePurity(() => 0, 10, 5), 5);
   assert.equal(rollMiningOrePurity(() => 0.999, 10, 5), 10);
+});
+
+test("buildMiningOreDropsWithRareBonus expands rares from copper then gold", () => {
+  const base = [
+    { itemId: "gold-ore", minSlot: 1, maxSlot: 28 },
+    { itemId: "silver-ore", minSlot: 29, maxSlot: 57 },
+    { itemId: "black-iron-ore", minSlot: 58, maxSlot: 86 },
+    { itemId: "adamantine-ore", minSlot: 87, maxSlot: 89 },
+    { itemId: "ruby-ore", minSlot: 90, maxSlot: 91 },
+    { itemId: "emerald-ore", minSlot: 92, maxSlot: 93 },
+    { itemId: "amethyst-ore", minSlot: 94, maxSlot: 95 },
+    { itemId: "copper-ore", minSlot: 96, maxSlot: 120 },
+  ];
+  const rares = ["adamantine-ore", "ruby-ore", "emerald-ore", "amethyst-ore"];
+  const unchanged = buildMiningOreDropsWithRareBonus(base, rares, 0);
+  assert.deepEqual(unchanged, base);
+
+  const maxed = buildMiningOreDropsWithRareBonus(base, rares, 5);
+  const weight = (drops, id) => {
+    const drop = drops.find((entry) => entry.itemId === id);
+    return drop ? drop.maxSlot - drop.minSlot + 1 : 0;
+  };
+  assert.equal(weight(maxed, "adamantine-ore"), 8);
+  assert.equal(weight(maxed, "ruby-ore"), 7);
+  assert.equal(weight(maxed, "emerald-ore"), 7);
+  assert.equal(weight(maxed, "amethyst-ore"), 7);
+  assert.equal(weight(maxed, "copper-ore"), 5);
+  assert.equal(weight(maxed, "gold-ore"), 28);
+  assert.equal(maxed.at(-1).maxSlot, 120);
 });
 
 test("simulateOfflineMiningSwings: deterministic hits and inventory full", () => {
@@ -454,6 +486,15 @@ test("computeOfflinePetAttackDelayMs", () => {
     computeOfflinePetAttackDelayMs({ active: true, nextAttackAt: 900 }, 1000, { pendingPetAttack: true }),
     1,
   );
+  // Jump to the pending impact instead of thrashing 1ms steps through the delay.
+  assert.equal(
+    computeOfflinePetAttackDelayMs(
+      { active: true, nextAttackAt: 900 },
+      1000,
+      { pendingPetAttack: true, pendingPetAttackAt: 1500 },
+    ),
+    500,
+  );
   // A ready-but-blocked pet (paralyzed / follower mid-move) must never return 0,
   // or the fight loop spins at delta=0 until the guard trips.
   assert.equal(
@@ -463,6 +504,46 @@ test("computeOfflinePetAttackDelayMs", () => {
   assert.equal(
     computeOfflinePetAttackDelayMs({ active: true, nextAttackAt: 1500 }, 1000, { blocked: true }),
     Infinity,
+  );
+});
+
+test("computeOfflineLivingPetsAttackDelayMs: soonest living pet wins", () => {
+  assert.equal(
+    computeOfflineLivingPetsAttackDelayMs(
+      [
+        { active: true, nextAttackAt: 2000 },
+        { active: true, nextAttackAt: 1200 },
+      ],
+      1000,
+      (pet, now) => computeOfflinePetAttackDelayMs(pet, now),
+    ),
+    200,
+  );
+  assert.equal(
+    computeOfflineLivingPetsAttackDelayMs(
+      [
+        { active: true, nextAttackAt: 900 },
+        { active: true, nextAttackAt: 800 },
+      ],
+      1000,
+      (pet, now) => computeOfflinePetAttackDelayMs(pet, now, { outOfRange: true }),
+    ),
+    Infinity,
+  );
+  assert.equal(
+    computeOfflineLivingPetsAttackDelayMs(
+      [
+        { active: true, nextAttackAt: 2000 },
+        { active: true, nextAttackAt: 900 },
+      ],
+      1000,
+      (pet, now) => computeOfflinePetAttackDelayMs(
+        pet,
+        now,
+        { outOfRange: pet.nextAttackAt < 1000 },
+      ),
+    ),
+    1000,
   );
 });
 
@@ -481,6 +562,35 @@ test("createOfflineFightEnemy", () => {
   assert.equal(enemy.hp, 20);
   assert.equal(enemy.mp, 0);
   assert.deepEqual(enemy.poisons, []);
+});
+
+test("createOfflineFightEnemy: can continue from current HP", () => {
+  const enemy = createOfflineFightEnemy(
+    { id: "leecher", maxHp: 2500, maxMp: 0 },
+    { hp: 120, poisons: [{ kind: "green", ticksRemaining: 2 }] },
+  );
+  assert.equal(enemy.hp, 120);
+  assert.equal(enemy.maxHp, 2500);
+  assert.equal(enemy.poisons.length, 1);
+});
+
+test("canResumeOfflineZoneEnemy: only damaged living mobs resume", () => {
+  assert.equal(
+    canResumeOfflineZoneEnemy({ id: 1, hp: 40, maxHp: 2500 }),
+    true,
+  );
+  assert.equal(
+    canResumeOfflineZoneEnemy({ id: 1, hp: 2500, maxHp: 2500 }, { phase: "engaged" }),
+    false,
+  );
+  assert.equal(
+    canResumeOfflineZoneEnemy({ id: 1, hp: 0, maxHp: 2500 }),
+    false,
+  );
+  assert.equal(
+    canResumeOfflineZoneEnemy({ id: 1, hp: 10, maxHp: 2500 }, { trainingDummy: true }),
+    false,
+  );
 });
 
 test("simulateOfflineFightLoop: travel then kill", () => {
@@ -574,6 +684,58 @@ test("simulateOfflineFightLoop: hitting the time cap is not a stall", () => {
   });
   assert.equal(result.elapsedMs, 2500);
   assert.equal(result.stalled, undefined);
+});
+
+test("simulateOfflineFightLoop: secondary casts fire independently of the attack cooldown", () => {
+  // Live combat casts Taoist SoulFireBall/Plague/Curse every frame, gated only by
+  // each spell's own timer and never by the player attack cooldown. The offline
+  // sim used to take a single action per turn, which halved a Taoist's casts.
+  const enemy = createOfflineFightEnemy({ id: "wolf", maxHp: 100_000, maxMp: 0, attackMs: 900 });
+  let playerAttacks = 0;
+  let secondaryCasts = 0;
+  simulateOfflineFightLoop({
+    remainingMs: 10_000,
+    travelMs: 0,
+    enemy,
+    initialNextEnemyAttackMs: 900,
+    getPlayerHp: () => 50,
+    getPetAttackDelayMs: () => Infinity,
+    onPlayerAttack: () => {
+      playerAttacks += 1;
+      return true;
+    },
+    // Far longer than the enemy's swing timer, so most iterations do not act.
+    consumePlayerCooldownMs: () => 5000,
+    onSecondaryCasts: () => {
+      secondaryCasts += 1;
+    },
+    getNextEnemyAttackMs: () => 900,
+  });
+  assert.ok(playerAttacks > 0);
+  assert.ok(
+    secondaryCasts > playerAttacks,
+    `expected secondary casts (${secondaryCasts}) to outnumber attacks (${playerAttacks})`,
+  );
+});
+
+test("simulateOfflineFightLoop: a secondary cast can land the killing blow", () => {
+  const enemy = createOfflineFightEnemy({ id: "wolf", maxHp: 10, maxMp: 0, attackMs: 900 });
+  const result = simulateOfflineFightLoop({
+    remainingMs: 10_000,
+    travelMs: 0,
+    enemy,
+    initialNextEnemyAttackMs: 900,
+    getPlayerHp: () => 50,
+    getPetAttackDelayMs: () => Infinity,
+    onPlayerAttack: () => true,
+    consumePlayerCooldownMs: () => 5000,
+    onSecondaryCasts: () => {
+      enemy.hp = 0;
+    },
+    getNextEnemyAttackMs: () => 900,
+  });
+  assert.equal(result.killed, true);
+  assert.equal(result.playerDied, false);
 });
 
 test("processOfflineZoneFightCycle: stalled fight reports fight_stalled", () => {

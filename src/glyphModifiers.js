@@ -43,6 +43,28 @@ export const GLYPH_DEFS = [
     implemented: true,
   },
   {
+    id: "demonicDeva",
+    itemId: "glyph-demonic-deva",
+    classId: "taoist",
+    label: "Glyph of Demonic Deva",
+    description: "Your Deva hits harder and attacks multiple enemies at once, but you can no longer cast healing spells.",
+    spellIds: ["SummonHolyDeva"],
+    kind: "demonicDeva",
+    params: { damageMultiplier: 1.5 },
+    implemented: true,
+  },
+  {
+    id: "angelicDeva",
+    itemId: "glyph-angelic-deva",
+    classId: "taoist",
+    label: "Glyph of Angelic Deva",
+    description: "Your Deva no longer attacks. Instead it casts Mass Healing at your proficiency.",
+    spellIds: ["SummonHolyDeva"],
+    kind: "angelicDeva",
+    params: {},
+    implemented: true,
+  },
+  {
     id: "taoHealingInstant",
     itemId: "glyph-instant-healing",
     classId: "taoist",
@@ -81,10 +103,10 @@ export const GLYPH_DEFS = [
     itemId: "glyph-mana-aegis",
     classId: "wizard",
     label: "Glyph of Mana Aegis",
-    description: "Magic Shield no longer reduces damage. Instead, mana is drained before health.",
+    description: "Magic Shield is half as effective, and mana is drained before health.",
     spellIds: ["MagicShield"],
     kind: "wizardMagicShieldMp",
-    params: { mpPerHp: 2 },
+    params: { mpPerHp: 2, damageReductionFraction: 0.5 },
     implemented: true,
   },
   {
@@ -121,6 +143,28 @@ export const GLYPH_DEFS = [
     implemented: true,
   },
   {
+    id: "wizardFrenziedDisruptor",
+    itemId: "glyph-frenzied-disruptor",
+    classId: "wizard",
+    label: "Glyph of Frenzied Disruptor",
+    description: "When Flame Disruptor critically strikes, its casting speed doubles and then fades back to normal over 5 seconds.",
+    spellIds: ["FlameDisruptor"],
+    kind: "wizardFrenziedDisruptor",
+    params: { castSpeedBonus: 1, durationMs: 5000 },
+    implemented: true,
+  },
+  {
+    id: "wizardDeepFrost",
+    itemId: "glyph-deep-frost",
+    classId: "wizard",
+    label: "Glyph of Deep Frost",
+    description: "Frost Crunch is now effective against bosses, but at a significantly reduced rate",
+    spellIds: ["FrostCrunch"],
+    kind: "wizardDeepFrost",
+    params: { bossSlowChancePercent: 15, bossFreezeChancePercent: 5 },
+    implemented: true,
+  },
+  {
     id: "wizardManyMirrors",
     itemId: "glyph-many-mirrors",
     classId: "wizard",
@@ -154,6 +198,16 @@ export const GLYPH_DEFS = [
     implemented: true,
   },
   {
+    id: "warriorFlamingAvalanche",
+    itemId: "glyph-flaming-avalanche",
+    classId: "warrior",
+    label: "Glyph of Flaming Avalanche",
+    description: "Flaming Sword also unleashes Blade Avalanche. Requires Blade Avalanche learned.",
+    spellIds: ["FlamingSword", "BladeAvalanche"],
+    kind: "warriorFlamingAvalanche",
+    implemented: true,
+  },
+  {
     id: "warriorTwinDrakeBurst",
     itemId: "glyph-twin-fury",
     classId: "warrior",
@@ -161,7 +215,29 @@ export const GLYPH_DEFS = [
     description: "Twin Drake Blade hits much harder, but needs time to recover after each use.",
     spellIds: ["TwinDrakeBlade"],
     kind: "warriorTwinDrakeBurst",
-    params: { damageMultiplier: 2, cooldownMs: 2000 },
+    params: { damageMultiplier: 2.5, cooldownMs: 2000 },
+    implemented: true,
+  },
+  {
+    id: "warriorTwinDrakeMomentum",
+    itemId: "glyph-blade-momentum",
+    classId: "warrior",
+    label: "Glyph of Blade Momentum",
+    description: "Each Twin Drake Blade hit increases your attack speed by 1 (up to the normal attack-speed limit). Missing, using any other warrior skill, or swinging normally resets the bonus.",
+    spellIds: ["TwinDrakeBlade"],
+    kind: "warriorTwinDrakeMomentum",
+    params: { asPerHit: 1, maxStacks: 40 },
+    implemented: true,
+  },
+  {
+    id: "warriorSlowDestruction",
+    itemId: "glyph-slow-destruction",
+    classId: "warrior",
+    label: "Glyph of Slow Destruction",
+    description: "DC increased by 150%, but attack speed no longer affects you.",
+    spellIds: [],
+    kind: "warriorSlowDestruction",
+    params: { dcMultiplier: 2.5 },
     implemented: true,
   },
   {
@@ -205,6 +281,17 @@ export const GLYPH_DEFS = [
     description: "Gold drops from monsters and bosses are increased by 100%.",
     spellIds: [],
     kind: "goldDrops",
+    params: { bonusPercent: 100 },
+    implemented: true,
+  },
+  {
+    id: "efficientLearning",
+    itemId: "glyph-efficient-learning",
+    classId: "any",
+    label: "Glyph of Efficient Learning",
+    description: "Spell skill practice experience gain is increased by 100%.",
+    spellIds: [],
+    kind: "efficientLearning",
     params: { bonusPercent: 100 },
     implemented: true,
   },
@@ -275,6 +362,17 @@ export const GLYPH_DEFS = [
     spellIds: [],
     kind: "fastHealing",
     params: { healFraction: 0.5, tickDelayFraction: 0.75 },
+    implemented: true,
+  },
+  {
+    id: "vitality",
+    itemId: "glyph-vitality",
+    classId: "any",
+    label: "Glyph of Vitality",
+    description: "Maximum health is doubled, but you cannot use Sun Potions (or similar restoratives).",
+    spellIds: [],
+    kind: "vitality",
+    params: { maxHpMultiplier: 2 },
     implemented: true,
   },
   {
@@ -524,6 +622,19 @@ export function glyphGoldBonusPercent(glyph = null) {
 }
 
 /**
+ * Additive skill-practice XP bonus percent from Glyph of Efficient Learning
+ * (100 => double XP per cast). Stacks with Skill Leveling gear the same way
+ * Glyph of Gold stacks with gold-drop gear.
+ * @param {GlyphDef | GlyphDef[] | null | undefined} glyph
+ * @returns {number}
+ */
+export function glyphSkillLevelBonusPercent(glyph = null) {
+  const match = firstGlyphOfKind(glyph, "efficientLearning");
+  if (!match) return 0;
+  return Math.max(0, Math.trunc(Number(match.params?.bonusPercent) || 100));
+}
+
+/**
  * @param {number} bonus
  * @param {GlyphDef | GlyphDef[] | null | undefined} glyph
  * @returns {number}
@@ -571,6 +682,78 @@ export function glyphPetOwnerDcBonus(ownerMaxDc, glyph = null) {
   if (!match) return 0;
   const fraction = Math.max(0, Number(match.params?.ownerDcFraction) || 1);
   return Math.floor(Math.max(0, Math.trunc(Number(ownerMaxDc) || 0)) * fraction);
+}
+
+/**
+ * Glyph of Demonic Deva: Holy Deva attacks deal bonus damage and splash like Ice Storm.
+ * @param {GlyphDef | GlyphDef[] | null | undefined} glyph
+ * @returns {GlyphDef | null}
+ */
+export function glyphDemonicDevaParams(glyph = null) {
+  return firstGlyphOfKind(glyph, "demonicDeva");
+}
+
+/**
+ * @param {GlyphDef | GlyphDef[] | null | undefined} glyph
+ * @returns {boolean}
+ */
+export function glyphHasDemonicDeva(glyph = null) {
+  return Boolean(glyphDemonicDevaParams(glyph));
+}
+
+/**
+ * Glyph of Angelic Deva: Holy Deva stops attacking and casts Mass Healing instead.
+ * @param {GlyphDef | GlyphDef[] | null | undefined} glyph
+ * @returns {GlyphDef | null}
+ */
+export function glyphAngelicDevaParams(glyph = null) {
+  return firstGlyphOfKind(glyph, "angelicDeva");
+}
+
+/**
+ * @param {GlyphDef | GlyphDef[] | null | undefined} glyph
+ * @returns {boolean}
+ */
+export function glyphHasAngelicDeva(glyph = null) {
+  return Boolean(glyphAngelicDevaParams(glyph));
+}
+
+/** Healing spells blocked while Glyph of Demonic Deva is equipped. */
+export const DEMONIC_DEVA_BLOCKED_HEAL_SPELL_IDS = Object.freeze([
+  "Healing",
+  "MassHealing",
+  "HealingCircle",
+]);
+
+/**
+ * @param {string | null | undefined} spellId
+ * @returns {boolean}
+ */
+export function isDemonicDevaBlockedHealSpell(spellId) {
+  return DEMONIC_DEVA_BLOCKED_HEAL_SPELL_IDS.includes(String(spellId || ""));
+}
+
+/**
+ * Tradeoff: Taoist cannot cast Healing / Mass Healing / Healing Circle.
+ * @param {GlyphDef | GlyphDef[] | null | undefined} glyph
+ * @returns {boolean}
+ */
+export function glyphBlocksTaoistHealingSpells(glyph = null) {
+  return Boolean(glyphDemonicDevaParams(glyph));
+}
+
+/**
+ * Scale Holy Deva attack damage when Glyph of Demonic Deva is equipped (150% => ×1.5).
+ * @param {number} damage
+ * @param {GlyphDef | GlyphDef[] | null | undefined} glyph
+ * @returns {number}
+ */
+export function applyGlyphDemonicDevaDamage(damage, glyph = null) {
+  const base = Math.max(0, Math.trunc(Number(damage) || 0));
+  const match = glyphDemonicDevaParams(glyph);
+  if (!match || !(base > 0)) return base;
+  const mult = Math.max(0, Number(match.params?.damageMultiplier) || 1.5);
+  return Math.max(1, Math.round(base * mult));
 }
 
 /**
@@ -637,6 +820,59 @@ export function applyGlyphHpPotionRestore(amount, glyph = null) {
   return Math.max(0, Math.trunc(base * fraction));
 }
 
+/** Item ids in the Sun Potion restorative family (blocked by Glyph of Vitality). */
+export const SUN_POTION_FAMILY_ITEM_IDS = Object.freeze([
+  "sun-potion",
+  "sun-potion-medium",
+]);
+
+/**
+ * Sun Potion / future Old Ginseng-style restoratives.
+ * Prefer `item.potionFamily === "sun"`; fall back to known ids.
+ * @param {{ id?: string, potionFamily?: string } | null | undefined} item
+ * @returns {boolean}
+ */
+export function isSunPotionFamilyItem(item = null) {
+  if (!item) return false;
+  if (String(item.potionFamily || "") === "sun") return true;
+  return SUN_POTION_FAMILY_ITEM_IDS.includes(String(item.id || ""));
+}
+
+/**
+ * @param {GlyphDef | GlyphDef[] | null | undefined} glyph
+ * @returns {boolean}
+ */
+export function glyphBlocksSunPotions(glyph = null) {
+  return Boolean(firstGlyphOfKind(glyph, "vitality"));
+}
+
+/**
+ * @param {GlyphDef | GlyphDef[] | null | undefined} glyph
+ * @returns {{ maxHpMultiplier: number } | null}
+ */
+export function glyphVitalityParams(glyph = null) {
+  const match = firstGlyphOfKind(glyph, "vitality");
+  if (!match) return null;
+  return {
+    maxHpMultiplier: Math.max(1, Number(match.params?.maxHpMultiplier) || 2),
+  };
+}
+
+/**
+ * Double max HP while Glyph of Vitality is equipped.
+ * @param {{ maxHp?: number }} stats
+ * @param {GlyphDef | GlyphDef[] | null | undefined} glyph
+ * @returns {{ maxHp: number }}
+ */
+export function applyGlyphVitalityCombatStats(stats, glyph = null) {
+  const maxHp = Math.max(0, Math.trunc(Number(stats?.maxHp) || 0));
+  const params = glyphVitalityParams(glyph);
+  if (!params) return { maxHp };
+  return {
+    maxHp: Math.max(1, Math.trunc(maxHp * params.maxHpMultiplier)),
+  };
+}
+
 /**
  * Glyph of Fast Healing: shorten potion tick delay while HP restore is pending.
  * @param {number} baseDelayMs
@@ -674,15 +910,33 @@ export function glyphExtraBaseCritDamagePercent(glyph = null) {
 }
 
 /**
- * @param {GlyphDef | null | undefined} glyph
- * @returns {{ mpPerHp: number } | null}
+ * @param {GlyphDef | GlyphDef[] | null | undefined} glyph
+ * @returns {{ mpPerHp: number, damageReductionFraction: number } | null}
  */
 export function glyphMagicShieldMpParams(glyph = null) {
   const match = firstGlyphOfKind(glyph, "wizardMagicShieldMp");
   if (!match) return null;
+  const fractionRaw = match.params?.damageReductionFraction;
+  const damageReductionFraction = fractionRaw == null
+    ? 0.5
+    : Math.max(0, Math.min(1, Number(fractionRaw) || 0));
   return {
     mpPerHp: Math.max(1, Math.trunc(Number(match.params?.mpPerHp) || 2)),
+    damageReductionFraction,
   };
+}
+
+/**
+ * Scale Magic Shield damage-reduction percent for Glyph of Mana Aegis (half by default).
+ * @param {number} reductionPercent
+ * @param {GlyphDef | GlyphDef[] | null | undefined} glyph
+ * @returns {number}
+ */
+export function applyGlyphMagicShieldReductionPercent(reductionPercent, glyph = null) {
+  const base = Math.max(0, Math.trunc(Number(reductionPercent) || 0));
+  const params = glyphMagicShieldMpParams(glyph);
+  if (!params) return base;
+  return Math.max(0, Math.trunc(base * params.damageReductionFraction));
 }
 
 /**
@@ -774,6 +1028,94 @@ export function absorbDamageWithManaAegis(damage, currentMp, params = null) {
  */
 export function glyphHasFlameDisruptorCascade(glyph = null) {
   return Boolean(firstGlyphOfKind(glyph, "wizardFlameDisruptorSplash"));
+}
+
+/**
+ * @param {GlyphDef | GlyphDef[] | null | undefined} glyph
+ * @returns {{ castSpeedBonus: number, durationMs: number } | null}
+ */
+export function glyphFrenziedDisruptorParams(glyph = null) {
+  const match = firstGlyphOfKind(glyph, "wizardFrenziedDisruptor");
+  if (!match) return null;
+  return {
+    castSpeedBonus: Math.max(0, Number(match.params?.castSpeedBonus) || 1),
+    durationMs: Math.max(0, Math.trunc(Number(match.params?.durationMs) || 5000)),
+  };
+}
+
+/**
+ * Glyph of Deep Frost: Frost Crunch CC vs bosses at fixed (lower) chances.
+ * @param {GlyphDef | GlyphDef[] | null | undefined} glyph
+ * @returns {{ bossSlowChancePercent: number, bossFreezeChancePercent: number } | null}
+ */
+export function glyphDeepFrostParams(glyph = null) {
+  const match = firstGlyphOfKind(glyph, "wizardDeepFrost");
+  if (!match) return null;
+  return {
+    bossSlowChancePercent: Math.max(0, Math.min(100, Number(match.params?.bossSlowChancePercent) || 15)),
+    bossFreezeChancePercent: Math.max(0, Math.min(100, Number(match.params?.bossFreezeChancePercent) || 5)),
+  };
+}
+
+/**
+ * @param {number} chancePercent
+ * @param {() => number} [rng] returns [0, 1)
+ * @returns {boolean}
+ */
+export function rollGlyphChancePercent(chancePercent, rng = Math.random) {
+  const chance = Math.max(0, Math.min(100, Number(chancePercent) || 0));
+  if (chance <= 0) return false;
+  if (chance >= 100) return true;
+  return Number(rng()) * 100 < chance;
+}
+
+/**
+ * @param {{ castSpeedBonus: number, durationMs: number }} params
+ * @param {number} now
+ * @returns {{ startedAt: number, durationMs: number, peakCastSpeedBonus: number } | null}
+ */
+export function buildFrenziedDisruptorBuffState(params, now) {
+  if (!params || params.durationMs <= 0 || params.castSpeedBonus <= 0) return null;
+  return {
+    startedAt: now,
+    durationMs: params.durationMs,
+    peakCastSpeedBonus: params.castSpeedBonus,
+  };
+}
+
+/**
+ * Linear cast-speed bonus remaining: peak at start, 0 at duration end.
+ * +1.0 means +100% cast speed (cooldown / 2).
+ * @param {{ startedAt?: number, durationMs?: number, peakCastSpeedBonus?: number } | null | undefined} buff
+ * @param {number} now
+ * @returns {number}
+ */
+export function frenziedDisruptorCastSpeedBonus(buff, now) {
+  if (!buff) return 0;
+  const durationMs = Math.max(0, Math.trunc(Number(buff.durationMs) || 0));
+  const peak = Math.max(0, Number(buff.peakCastSpeedBonus) || 0);
+  if (durationMs <= 0 || peak <= 0) return 0;
+  const startedAt = Number(buff.startedAt);
+  if (!Number.isFinite(startedAt)) return 0;
+  const elapsed = now - startedAt;
+  if (elapsed < 0) return peak;
+  if (elapsed >= durationMs) return 0;
+  return peak * (1 - (elapsed / durationMs));
+}
+
+/**
+ * Apply Frenzied Disruptor cast-speed bonus to a Flame Disruptor cooldown.
+ * cast speed +100% => cooldown / 2.
+ * @param {number} baseMs
+ * @param {{ startedAt?: number, durationMs?: number, peakCastSpeedBonus?: number } | null | undefined} buff
+ * @param {number} now
+ * @returns {number}
+ */
+export function applyFrenziedDisruptorCastCooldownMs(baseMs, buff, now) {
+  const base = Math.max(0, Math.trunc(Number(baseMs) || 0));
+  const bonus = frenziedDisruptorCastSpeedBonus(buff, now);
+  if (bonus <= 0) return base;
+  return Math.max(0, Math.round(base / (1 + bonus)));
 }
 
 /**
@@ -883,6 +1225,15 @@ export function glyphImprovedFlamingSwordParams(glyph = null) {
 }
 
 /**
+ * Glyph of Flaming Avalanche: successful Flaming Sword hits also fire Blade Avalanche.
+ * @param {GlyphDef | GlyphDef[] | null | undefined} glyph
+ * @returns {boolean}
+ */
+export function glyphFlamingSwordTriggersBladeAvalanche(glyph = null) {
+  return Boolean(firstGlyphOfKind(glyph, "warriorFlamingAvalanche"));
+}
+
+/**
  * Total burn damage from a Flaming Sword hit (50% of dealt damage by default).
  * @param {number} hitDamage
  * @param {number} damageFraction
@@ -938,7 +1289,7 @@ export function applyGlyphTwinDrakeDamage(damage, spellId, glyph = null) {
   const match = firstGlyphOfKind(glyph, "warriorTwinDrakeBurst");
   if (!match) return base;
   if (String(spellId) !== "TwinDrakeBlade") return base;
-  const mult = Math.max(1, Number(match.params?.damageMultiplier) || 2);
+  const mult = Math.max(1, Number(match.params?.damageMultiplier) || 2.5);
   return Math.trunc(base * mult);
 }
 
@@ -950,6 +1301,87 @@ export function glyphTwinDrakeCooldownMs(glyph = null) {
   const match = firstGlyphOfKind(glyph, "warriorTwinDrakeBurst");
   if (!match) return 0;
   return Math.max(0, Math.trunc(Number(match.params?.cooldownMs) || 2000));
+}
+
+/**
+ * @param {GlyphDef | GlyphDef[] | null | undefined} glyph
+ * @returns {{ asPerHit: number, maxStacks: number } | null}
+ */
+export function glyphTwinDrakeMomentumParams(glyph = null) {
+  const match = firstGlyphOfKind(glyph, "warriorTwinDrakeMomentum");
+  if (!match) return null;
+  return {
+    asPerHit: Math.max(1, Math.trunc(Number(match.params?.asPerHit) || 1)),
+    maxStacks: Math.max(1, Math.trunc(Number(match.params?.maxStacks) || 40)),
+  };
+}
+
+/**
+ * Next Blade Momentum stack count after a warrior action.
+ * Only a successful Twin Drake Blade damaging hit builds stacks; anything else resets to 0.
+ * @param {number} prev
+ * @param {string | null | undefined} skillId
+ * @param {{ asPerHit?: number, maxStacks?: number } | null | undefined} params
+ * @param {{ hitSucceeded?: boolean }} [options]
+ * @returns {number}
+ */
+export function nextTwinDrakeMomentumStacks(prev, skillId, params, options = {}) {
+  if (!params) return 0;
+  const maxStacks = Math.max(1, Math.trunc(Number(params.maxStacks) || 40));
+  const asPerHit = Math.max(1, Math.trunc(Number(params.asPerHit) || 1));
+  const current = Math.max(0, Math.min(maxStacks, Math.trunc(Number(prev) || 0)));
+  if (String(skillId) === "TwinDrakeBlade" && options.hitSucceeded) {
+    return Math.min(maxStacks, current + asPerHit);
+  }
+  return 0;
+}
+
+/**
+ * @param {number} stacks
+ * @returns {number}
+ */
+export function twinDrakeMomentumAttackSpeedBonus(stacks) {
+  return Math.max(0, Math.trunc(Number(stacks) || 0));
+}
+
+/**
+ * Glyph of Slow Destruction: attack speed no longer reduces swing delay.
+ * @param {GlyphDef | GlyphDef[] | null | undefined} glyph
+ * @returns {boolean}
+ */
+export function glyphNullifiesAttackSpeed(glyph = null) {
+  return Boolean(firstGlyphOfKind(glyph, "warriorSlowDestruction"));
+}
+
+/**
+ * @param {GlyphDef | GlyphDef[] | null | undefined} glyph
+ * @returns {{ dcMultiplier: number } | null}
+ */
+export function glyphSlowDestructionParams(glyph = null) {
+  const match = firstGlyphOfKind(glyph, "warriorSlowDestruction");
+  if (!match) return null;
+  return {
+    dcMultiplier: Math.max(1, Number(match.params?.dcMultiplier) || 2.5),
+  };
+}
+
+/**
+ * Scale warrior DC while Glyph of Slow Destruction is equipped (×2.5 by default).
+ * @param {{ dc?: number[] }} stats
+ * @param {GlyphDef | GlyphDef[] | null | undefined} glyph
+ * @returns {{ dc: number[] }}
+ */
+export function applyGlyphSlowDestructionCombatStats(stats, glyph = null) {
+  const dc = Array.isArray(stats?.dc) ? [...stats.dc] : [0, 0];
+  const params = glyphSlowDestructionParams(glyph);
+  if (!params) return { dc };
+  const mult = params.dcMultiplier;
+  return {
+    dc: [
+      Math.max(0, Math.trunc((Number(dc[0]) || 0) * mult)),
+      Math.max(0, Math.trunc((Number(dc[1]) || 0) * mult)),
+    ],
+  };
 }
 
 const COMBAT_DAMAGE_GLYPH_DEFAULTS = {

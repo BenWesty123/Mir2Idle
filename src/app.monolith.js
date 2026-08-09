@@ -116,11 +116,14 @@ import {
   CLOUD_LAST_SAVED_AT_STORAGE_KEY,
   CLOUD_RECOVERY_CODE_STORAGE_KEY,
   CLOUD_SAVE_INTERVAL_MS,
+  CLOUD_SAVE_RESUME_GRACE_MS,
   cloudRestoreEndpoint,
   cloudSaveEndpointFromConfig,
   createRecoveryCode,
+  nextCloudSaveSuppressUntil,
   normalizeAccountPlayerId,
   normalizeRecoveryCode,
+  shouldSuppressAutomaticCloudSave,
 } from "./core/cloudSave.js";
 import {
   DROP_PITY_KILLS,
@@ -176,8 +179,10 @@ import {
   computeOfflineGroupPartyDps as computeOfflineGroupPartyDpsCore,
   computeOfflineIncomingChunkDamage,
   computeOfflinePetAttackDelayMs as computeOfflinePetAttackDelayMsCore,
+  computeOfflineLivingPetsAttackDelayMs as computeOfflineLivingPetsAttackDelayMsCore,
   computeOfflineTravelTimeMs,
   createOfflineFightEnemy,
+  canResumeOfflineZoneEnemy as canResumeOfflineZoneEnemyCore,
   createOfflineZoneReport,
   finalizeOfflineZoneReport,
   incrementReportCount,
@@ -192,6 +197,7 @@ import {
   resolvePendingOfflineProgress,
   rollMiningOreItemId as rollMiningOreItemIdCore,
   rollMiningOrePurity as rollMiningOrePurityCore,
+  buildMiningOreDropsWithRareBonus as buildMiningOreDropsWithRareBonusCore,
   simulateOfflineFightLoop,
   simulateOfflineGroupKillLoop,
   simulateOfflineMiningSwings,
@@ -204,7 +210,7 @@ import {
   resolveOfflineWizardTurnPhase,
   OFFLINE_WIZARD_DEFENCE_SPELL_ID,
 } from "./core/offlineProgress.js";
-import { adjustedBossRespawnMinutes } from "./core/bossRespawn.js";
+import { adjustedBossRespawnMinutes, clampBossRespawnReadyAt } from "./core/bossRespawn.js";
 import {
   advanceDropPity,
   applyDropChanceBonus,
@@ -237,6 +243,7 @@ import {
   applyEquippedSpellCooldownReductionMs,
   applyEquippedSpellHealingBonus,
   applyEquippedSpellMpCostReduction,
+  applyEquippedSpellUndeadDamageBonus,
   equippedSpellCritChanceBonusPercent,
   equippedSpellCritDamageBonusPercent,
   empowerCodexSlotCatalog,
@@ -269,6 +276,7 @@ import {
   CRAFTING_CUBE_DD_SOUL_RECIPE_ID,
   CRAFTING_CUBE_DD_SOUL_STONE_HEART_COST,
   CRAFTING_CUBE_GLYPH_RECYCLE_RECIPE_ID,
+  CRAFTING_CUBE_GLYPH_RECYCLE_REQUIREMENTS_ERROR,
   CRAFTING_CUBE_IWT_SOUL_HEART_COST,
   CRAFTING_CUBE_IWT_SOUL_RECIPE_ID,
   CRAFTING_CUBE_IWT_SOUL_RELIC_COST,
@@ -309,6 +317,7 @@ import {
   WIZARD_MIRROR_REACTION_DELAY_MS,
   WIZARD_MIRROR_UPKEEP_INTERVAL_MS,
   advanceWizardMirrorFollow,
+  nextFollowerOwnerMotionState,
   pickWizardMirrorAttackSpell,
   resolveWizardMirrorUpkeep,
   scaleWizardMirrorDamage,
@@ -345,10 +354,14 @@ import {
   applyGlyphGroundDuration,
   applyGlyphHealingAmount,
   applyGlyphMonkCombatStats,
+  applyGlyphSlowDestructionCombatStats,
   applyGlyphProtectionFieldBonus,
   applyGlyphProtectionFieldDuration,
   glyphProtectionFieldStat,
   applyGlyphHpPotionRestore,
+  applyGlyphVitalityCombatStats,
+  glyphBlocksSunPotions,
+  isSunPotionFamilyItem,
   applyGlyphTwinDrakeDamage,
   equippedGlyphDefs,
   GLYPH_EQUIPMENT_SLOT_IDS,
@@ -360,23 +373,40 @@ import {
   glyphDefById,
   glyphDefByItemId,
   glyphHasFlameDisruptorCascade,
+  glyphFrenziedDisruptorParams,
+  glyphDeepFrostParams,
+  rollGlyphChancePercent,
+  buildFrenziedDisruptorBuffState,
+  applyFrenziedDisruptorCastCooldownMs,
   glyphFlamingSwordDrParams,
   glyphImprovedFlamingSwordParams,
+  glyphFlamingSwordTriggersBladeAvalanche,
   glyphManyMirrorsParams,
   glyphGoldBonusPercent,
+  glyphSkillLevelBonusPercent,
   glyphCombatDamageParams,
   glyphHealingIsInstant,
   glyphChainsDefenceBuffsWithUltimate,
   glyphIsHero,
   glyphIsRevival,
   glyphMagicShieldMpParams,
+  applyGlyphMagicShieldReductionPercent,
   glyphManaRegenPerSecond,
   glyphMonkParams,
   glyphPetOwnerDcBonus,
+  glyphHasDemonicDeva,
+  glyphHasAngelicDeva,
+  glyphBlocksTaoistHealingSpells,
+  isDemonicDevaBlockedHealSpell,
+  applyGlyphDemonicDevaDamage,
   glyphPotionTickDelayMs,
   glyphExtraBaseCritDamagePercent,
   glyphNullifiesLuck,
+  glyphNullifiesAttackSpeed,
   glyphTwinDrakeCooldownMs,
+  glyphTwinDrakeMomentumParams,
+  nextTwinDrakeMomentumStacks,
+  twinDrakeMomentumAttackSpeedBonus,
   healingCircleTickHealAmount,
   isGlyphItem,
   isWithinMeleeRange,
@@ -427,6 +457,7 @@ import {
 } from "./core/combat.js";
 import {
   normalizeInventoryEntryFields as normalizeInventoryEntryFieldsCore,
+  sanitizeEntryQuantity,
   sanitizeInventoryState as sanitizeInventoryStateCore,
   sanitizeStorageState as sanitizeStorageStateCore,
 } from "./persistence/sanitizeInventory.js";
@@ -1094,6 +1125,18 @@ const ACCOUNT_UPGRADE_DEFS = [
     maxTier: 4,
     rebirthCosts: [10, 20, 30, 40],
     summary: "Stops low-purity Black Iron Ore from rolling (tier 1: no P1, tier 2: no P1–2, … max: purity 5–10 only). Other ores have no purity.",
+  },
+  {
+    id: "rebirth-mining-rare-ores",
+    label: "Rich Veins",
+    section: "rebirth",
+    category: "crafting",
+    currency: "rebirthPoints",
+    effect: "miningRareOreBonusSlots",
+    value: 1,
+    maxTier: 5,
+    rebirthCosts: [15, 30, 45, 60, 75],
+    summary: "Adds +1 drop weight to Adamantine, Ruby, Emerald, and Amethyst ore per purchase (taken from Copper, then Gold). Max +5 each (~7.5% → ~24% of finds).",
   },
   {
     id: "rebirth-stat-dc",
@@ -1929,6 +1972,13 @@ const MINING_ORE_DROPS = [
   { itemId: AMETHYST_ORE_ITEM_ID, minSlot: 94, maxSlot: 95 },
   { itemId: "copper-ore", minSlot: 96, maxSlot: 120 },
 ];
+const MINING_RARE_ORE_ITEM_IDS = [
+  ADAMANTINE_ORE_ITEM_ID,
+  RUBY_ORE_ITEM_ID,
+  EMERALD_ORE_ITEM_ID,
+  AMETHYST_ORE_ITEM_ID,
+];
+const MINING_RARE_ORE_DONOR_ITEM_IDS = ["copper-ore", "gold-ore", "silver-ore"];
 const AUTO_POTION_THRESHOLD = 0.5;
 const AUTO_POTION_COOLDOWN_MS = 1000;
 
@@ -1954,6 +2004,8 @@ const SLASHING_BURST_LEAP_BASE_MS = 160;
 const SLASHING_BURST_LEAP_MS_PER_TILE = 18;
 const BLADE_AVALANCHE_DEPTH_TILES = 3;
 const BLADE_AVALANCHE_MAX_RANGE_PX = LANE_TILE_PX * BLADE_AVALANCHE_DEPTH_TILES;
+/** Glyph Flaming Avalanche: start BA FX this far in the past so blades look mid-flight on FS hit. */
+const FLAMING_AVALANCHE_FX_LEAD_MS = 250;
 const TAOIST_PET_SUMMON_MIN_GAP = 16;
 const WIZARD_MIRROR_FOLLOW_GAP = LANE_TILE_PX;
 const CRYSTAL_MIRRORING_SUMMON_DELAY_MS = 600;
@@ -2318,6 +2370,7 @@ function offlineGroupAutoUsePotions(member, now, report) {
     if ((member.autoPotionReadyAt[kind] ?? 0) > now) continue;
     if (kind === "hp" && (member.potHealthAmount ?? 0) > 0) continue;
     if (kind === "mp" && (member.potManaAmount ?? 0) > 0) continue;
+    const blockSun = glyphBlocksSunPotions(equippedGlyphFor(member.inventory));
     const candidate = autoPotionSlots()
       .map((slot) => {
         const entryId = member.hotbar?.slots?.[slot] ?? null;
@@ -2326,6 +2379,7 @@ function offlineGroupAutoUsePotions(member, now, report) {
         return { entry, item, restore: potionRestoreAmount(item, kind), slot };
       })
       .filter((candidate) => candidate.entry && candidate.restore > 0)
+      .filter((candidate) => !(blockSun && isSunPotionFamilyItem(candidate.item)))
       .sort((a, b) => b.restore - a.restore || a.slot - b.slot)[0];
     if (!candidate) continue;
     if (!offlineGroupConsumeInventoryUnit(member, candidate.entry.id)) continue;
@@ -3433,6 +3487,8 @@ const state = {
     restoring: false,
     lastSavedAt: 0,
     lastAttemptAt: 0,
+    /** performance.now() deadline; automatic cloud uploads stay quiet until then. */
+    suppressUploadUntil: 0,
     restoreCodeInput: "",
     pendingRestore: null,
     statusText: "",
@@ -3661,6 +3717,7 @@ const state = {
     twinDrakeReadyAt: 0,
     twinDrakeChargeFxStartedAt: 0,
     twinDrakeChargeFxUntil: 0,
+    twinDrakeMomentumStacks: 0,
     pendingTwinDrakeHits: [],
     pendingDisruptorCascade: [],
     pendingSlashingBurst: null,
@@ -4327,6 +4384,7 @@ async function init() {
   saveReady = true;
   saveGameState(true);
   state.cloudSave.lastAttemptAt = performance.now();
+  deferAutomaticCloudSave();
   lastSimulationAt = performance.now();
   lastSimulationWallClockAt = Date.now();
   installTestHarness();
@@ -4688,6 +4746,7 @@ function resetBattleForCurrentMode(loadedSave = false) {
 }
 
 function createSaveSnapshot() {
+  healAccountBossRespawns();
   if (bossPartyOnField()) {
     const leaderClassId = bossPartyLeaderClassId();
     if (normalizeCharacterId(state.activeCharacterId) === leaderClassId) {
@@ -5123,6 +5182,7 @@ function applySaveSnapshot(snapshot) {
   const ranUnfairSkillPurge = maybePurgeUnfairSkills(snapshot);
   syncAccountBossKillsToCharacters();
   syncAccountBossRespawnsToCharacters();
+  healAccountBossRespawns();
   stampSharedGoldOnAllCharacters();
   const uiMeta = restoreSaveUiMeta(snapshot, {
     characterTabIds: CHARACTER_TABS.map((tab) => tab.id),
@@ -5728,6 +5788,7 @@ function sanitizeInventoryState(savedInventory = {}, savedHotbar = {}, fallbackG
     maxSlots: INVENTORY_MAX_SLOTS,
     maxPages: inventoryPageCount(),
     normalizeEntryFields: (savedEntry) => normalizeInventoryEntryFields(savedEntry),
+    maxStackForEntry: (savedEntry) => inventoryEntryPersistMaxStack(savedEntry?.itemId),
   });
 }
 
@@ -5737,10 +5798,44 @@ function sanitizeStorageState(savedStorage = {}) {
     baseSlots: STORAGE_BASE_SLOTS,
     maxPages: storagePageCount(),
     normalizeEntryFields: (savedEntry) => normalizeInventoryEntryFields(savedEntry),
+    maxStackForEntry: (savedEntry) => inventoryEntryPersistMaxStack(savedEntry?.itemId),
   });
   syncStorageCapacity(storage);
   ensureStorageSlots(storage);
   return storage;
+}
+
+/**
+ * Live gameplay stack cap (respects Organisation Skills / Ore Stacking unlocks).
+ * Used when creating or merging stacks during play.
+ */
+function inventoryEntryMaxStack(itemId) {
+  const item = itemDefinition(itemId);
+  if (!item || !isStackableItem(item)) return 1;
+  return maxItemStack(item);
+}
+
+/**
+ * Persist/sanitize stack cap — MUST NOT depend on account unlock state.
+ * Character inventories are sanitized in restoreCharactersState before
+ * restoreAccountFromSnapshot applies ownedUnlocks; using live unlock checks
+ * there crushed Organisation Skills gem stacks (and Ore Stacking ore stacks)
+ * down to 1 and permanently deleted the excess on the next save.
+ */
+function inventoryEntryPersistMaxStack(itemId) {
+  const item = itemDefinition(itemId);
+  if (!item) return Number.MAX_SAFE_INTEGER;
+  if (isGemUpgradeItem(item)) return ORGANISATION_SKILLS_STACK_SIZE;
+  if (isOreStackableItem(item)) return ORE_STACKING_STACK_SIZE;
+  const base = Math.max(1, Math.floor(Number(item.maxStack) || 1));
+  if (item.type === "poison" || item.type === "amulet" || item.poison || item.amulet) {
+    return base * 2;
+  }
+  if (Boolean(item.stackable) && base > 1) return base;
+  // Truly non-stackable (glyphs, gear, black iron): clamp corrupt qty > 1.
+  if (!item.stackable) return 1;
+  // stackable:true with maxStack 1 but not a gem — preserve quantity.
+  return Number.MAX_SAFE_INTEGER;
 }
 
 // Keeps only recognised one-off unlock keys (the account-wide storage page and
@@ -6793,7 +6888,7 @@ function cloneInventoryState(inventory) {
     items: (inventory?.items ?? []).map((entry) => ({
       id: entry.id,
       itemId: entry.itemId,
-      quantity: Math.max(1, Math.trunc(Number(entry.quantity) || 1)),
+      quantity: sanitizeEntryQuantity(entry.quantity, inventoryEntryPersistMaxStack(entry.itemId)),
       slot: Number.isInteger(entry.slot) ? entry.slot : null,
       ...normalizeInventoryEntryFields(entry),
     })),
@@ -6810,7 +6905,7 @@ function cloneInventoryStateIncludingWeaponRefineStaged(inventory) {
     cloned.items.push({
       id: staged.entry.id,
       itemId: staged.entry.itemId,
-      quantity: Math.max(1, Math.trunc(Number(staged.entry.quantity) || 1)),
+      quantity: sanitizeEntryQuantity(staged.entry.quantity, inventoryEntryPersistMaxStack(staged.entry.itemId)),
       slot: Number.isInteger(staged.returnSlot) ? staged.returnSlot : (
         Number.isInteger(staged.entry.slot) ? staged.entry.slot : null
       ),
@@ -6822,7 +6917,7 @@ function cloneInventoryStateIncludingWeaponRefineStaged(inventory) {
     cloned.items.push({
       id: staged.entry.id,
       itemId: staged.entry.itemId,
-      quantity: Math.max(1, Math.trunc(Number(staged.entry.quantity) || 1)),
+      quantity: sanitizeEntryQuantity(staged.entry.quantity, inventoryEntryPersistMaxStack(staged.entry.itemId)),
       slot: Number.isInteger(staged.returnSlot) ? staged.returnSlot : (
         Number.isInteger(staged.entry.slot) ? staged.entry.slot : null
       ),
@@ -6843,7 +6938,7 @@ function cloneStorageState(storage) {
     items: (storage?.items ?? []).map((entry) => ({
       id: entry.id,
       itemId: entry.itemId,
-      quantity: Math.max(1, Math.trunc(Number(entry.quantity) || 1)),
+      quantity: sanitizeEntryQuantity(entry.quantity, inventoryEntryPersistMaxStack(entry.itemId)),
       slot: Number.isInteger(entry.slot) ? entry.slot : null,
       ...normalizeInventoryEntryFields(entry),
     })),
@@ -7292,14 +7387,40 @@ function simulateOfflineProgress(zone, pending) {
     return simulateOfflineTrainingRoomProgress(zone, report, startedAt, limitMs);
   }
 
+  // Continue the mob you were already fighting — AFK used to always spawn a
+  // fresh full-HP enemy, so a nearly-dead kill + 4 minutes still reported 0 kills.
+  const resumeEnemyCandidate = state.battle.enemy;
+  const resumeEnemy = canResumeOfflineZoneEnemyCore(resumeEnemyCandidate, {
+    trainingDummy: isTrainingDummyEnemy(resumeEnemyCandidate),
+  })
+    ? resumeEnemyCandidate
+    : null;
+
+  // Drop live-combat transients that park during Simulation Mode and would
+  // otherwise block skill selection (stuck Slashing Burst dash) or apply late.
+  clearSlashingBurstPendingState();
+  state.battle.pendingImpact = null;
+  state.battle.pendingEnemyStrike = null;
+  state.battle.offlineImpact = null;
+  state.battle.offlineImpactDelayMs = 0;
+  state.battle.enemyRevealed = true;
   state.battle.phase = "engaged";
   state.battle.enemyAggro = true;
   state.battle.playerX = 0;
   state.battle.enemyX = playerAttackRange();
 
+  let pendingResumeEnemy = resumeEnemy;
+
   while (report.elapsedMs < limitMs && (state.battle.player?.hp ?? 0) > 0) {
-    const template = randomZoneEnemyTemplate(zone);
-    const result = simulateOfflineFight(template, startedAt + report.elapsedMs, limitMs - report.elapsedMs, report);
+    const template = pendingResumeEnemy ?? randomZoneEnemyTemplate(zone);
+    const result = simulateOfflineFight(
+      template,
+      startedAt + report.elapsedMs,
+      limitMs - report.elapsedMs,
+      report,
+      pendingResumeEnemy ? { resume: true, enemy: pendingResumeEnemy } : undefined,
+    );
+    pendingResumeEnemy = null;
     const step = processOfflineZoneFightCycle(report, result, limitMs, LANE.respawnDelayMs);
     if (step.status === "player_died" || step.status === "fight_incomplete") break;
     if (step.status === "fight_stalled") {
@@ -7348,7 +7469,7 @@ function rebaseOfflineTransientTimers(simulatedNow, actualNow = performance.now(
       learned.castReadyAt,
       simulatedNow,
       actualNow,
-      wizardCastCooldownMs(spell, learned),
+      wizardCastCooldownMs(spell, learned, simulatedNow),
     );
   }
 
@@ -7577,18 +7698,27 @@ function maxStatBuffRemainingMs(buff) {
   return BUFF_POTION_DURATION_MS;
 }
 
-function simulateOfflineFight(template, startedAt, remainingMs, report) {
-  const enemy = createOfflineFightEnemy(template);
+function simulateOfflineFight(template, startedAt, remainingMs, report, options = {}) {
+  const resume = Boolean(options.resume && options.enemy);
+  const enemy = resume
+    ? createOfflineFightEnemy(template, {
+      hp: options.enemy.hp,
+      poisons: options.enemy.poisons,
+      debuffs: options.enemy.debuffs,
+      flamingSwordBurn: options.enemy.flamingSwordBurn ?? null,
+    })
+    : createOfflineFightEnemy(template);
   return simulateOfflineFightLoop({
     remainingMs,
     startedAt,
-    travelMs: offlineTravelTimeMs(),
+    travelMs: resume ? 0 : offlineTravelTimeMs(enemy, startedAt),
     enemy,
     initialNextEnemyAttackMs: enemy.attackMs,
     getPlayerHp: () => state.battle.player?.hp ?? 0,
-    getPetAttackDelayMs: (simNow) => offlinePetAttackDelayMs(
-      livingTaoistTankPet() ?? livingTaoistHolyDeva(),
+    getPetAttackDelayMs: (simNow) => computeOfflineLivingPetsAttackDelayMsCore(
+      livingTaoistPets(),
       simNow,
+      offlinePetAttackDelayMs,
     ),
     isEnemyFrozen: (target, now) => enemyFrozenActive(target, now),
     onTravelComplete: (simNow) => {
@@ -7612,6 +7742,7 @@ function simulateOfflineFight(template, startedAt, remainingMs, report) {
     },
     onRecovery: (now) => offlineUpdateRecovery(now, report),
     onPlayerAttack: (target, now) => offlinePlayerAttack(target, now),
+    onSecondaryCasts: (now) => offlineTaoistSecondaryCasts(now),
     onPetAttack: (now) => {
       if (livingTaoistPets().some((pet) => (pet.nextAttackAt ?? 0) <= now)) {
         updateTaoistPetAttack(now, { offline: true });
@@ -7619,22 +7750,97 @@ function simulateOfflineFight(template, startedAt, remainingMs, report) {
     },
     onEnemyAttack: (target, now) => offlineEnemyAttack(target, now, report),
     consumePlayerCooldownMs: (now) => consumeLastPlayerAttackCooldown(now),
+    getKillLatencyMs: () => offlineKillLatencyMs(),
     getNextEnemyAttackMs: (target, now) => effectiveEnemyAttackMs(target, now),
   });
 }
 
-function offlineTravelTimeMs() {
-  const distance = Math.max(0, enemySpawnDistance() - playerAttackRange());
-  return computeOfflineTravelTimeMs(distance, {
+/**
+ * Distance at which the current class can actually start acting on `nextEnemy`.
+ *
+ * Mirrors live's playerEngageRange() minus its LANE.aggroRange floor, which only
+ * governs when combat "starts", not where the player stops walking. The range
+ * helpers report a spell's reach only once that spell is usable at the current
+ * distance, so — exactly like the live approach — place the incoming enemy and
+ * let the value converge. Asking playerAttackRange() cold instead makes casters
+ * fall back to LANE.warriorRange and walk all the way into melee every fight.
+ */
+function offlineActionRangePx(nextEnemy, now) {
+  const battle = state.battle;
+  const previousEnemy = battle.enemy;
+  const previousEnemyX = battle.enemyX;
+  const previousPlayerX = battle.playerX;
+  if (nextEnemy) battle.enemy = nextEnemy;
+  try {
+    let range = Math.max(1, LANE.warriorRange);
+    for (let i = 0; i < 3; i += 1) {
+      battle.playerX = 0;
+      battle.enemyX = range;
+      let next = playerAttackRange(now);
+      if (battle.combatClass === "Taoist") next = Math.max(next, taoistSpellEngageRange(now));
+      else if (battle.combatClass === "Wizard") next = Math.max(next, wizardSpellEngageRange(now));
+      next = Math.max(1, next);
+      if (next <= range) break;
+      range = next;
+    }
+    return range;
+  } finally {
+    battle.enemy = previousEnemy;
+    battle.enemyX = previousEnemyX;
+    battle.playerX = previousPlayerX;
+  }
+}
+
+function offlineWalkTimeMs(distance) {
+  return computeOfflineTravelTimeMs(Math.max(0, distance), {
     walkCap: TRAVEL_WALK_DISTANCE,
     playerSpeed: LANE.playerSpeed,
     runSpeed: LANE.runSpeed,
   });
 }
 
+function offlineTravelTimeMs(nextEnemy, now) {
+  const spawn = enemySpawnDistance();
+  // Spell availability is time-dependent, so ask about the moment the player
+  // would arrive rather than the moment it set off.
+  const arrivalAt = now + offlineWalkTimeMs(spawn - LANE.warriorRange);
+  return offlineWalkTimeMs(spawn - offlineActionRangePx(nextEnemy, arrivalAt));
+}
+
+/**
+ * Live defers spell damage to a `pendingImpact` (projectile flight or cast
+ * animation) and refuses to recast a spell while its own impact is still in the
+ * air; melee resolves instantly. The offline sim applies damage at cast time, so
+ * it has to account for that latency itself or casters kill measurably faster
+ * offline than they do live.
+ *
+ * Only one impact is tracked, mirroring live's single `battle.pendingImpact`
+ * slot that every cast overwrites.
+ */
+function noteOfflineSpellImpact(spell, now) {
+  // Deliberately no atlas: that path measures on-screen anchors, which are
+  // meaningless mid-simulation. This takes the constant projectile/cast delay.
+  const delay = Math.max(0, Math.trunc(Number(wizardImpactDelay(spell, null)) || 0));
+  state.battle.offlineImpact = { spellId: spell.id, at: now + delay };
+  state.battle.offlineImpactDelayMs = delay;
+  return delay;
+}
+
+function offlineSpellImpactInFlight(spellId, now) {
+  const impact = state.battle.offlineImpact;
+  return Boolean(impact && impact.spellId === spellId && now < impact.at);
+}
+
+function offlineKillLatencyMs() {
+  const delay = Math.max(0, Math.trunc(Number(state.battle.offlineImpactDelayMs) || 0));
+  state.battle.offlineImpactDelayMs = 0;
+  return delay;
+}
+
 function offlinePetAttackDelayMs(pet, simNow) {
   return computeOfflinePetAttackDelayMsCore(pet, simNow, {
     pendingPetAttack: Boolean(state.battle.pendingPetAttack),
+    pendingPetAttackAt: state.battle.pendingPetAttack?.at,
     shinsuShowPending: pet?.spellId === "SummonShinsu" && !pet?.shinsuVisible && pet?.action === "show",
     // Measure THIS pet's distance (the default arg is the tank pet, which can
     // disagree with a Holy Deva and stall the loop on a false "in range").
@@ -7714,6 +7920,8 @@ function offlinePlayerAttack(enemy, now) {
   state.battle.enemy = enemy;
   state.battle.enemyId = enemy.id;
   state.battle.enemyX = state.battle.playerX + playerAttackRange();
+  // Melee lands instantly in live; a spell cast below re-arms this.
+  state.battle.offlineImpactDelayMs = 0;
 
   if (state.battle.combatClass === "Wizard") {
     offlineWizardAttack(enemy, now);
@@ -7739,6 +7947,7 @@ function offlineWarriorAttack(enemy, now) {
   if (isBladeAvalancheSkill(skill)) {
     if (learned) commitWarriorSpellUse(skill, learned, cost, now);
     battle.lastPlayerAttackCooldownMs = playerWeaponAttackCooldownMs(now, skill);
+    noteWarriorActionForTwinDrakeMomentum("BladeAvalanche", { hitSucceeded: false });
     if (learned && rollHit(battle.player.accuracy, enemy.agility)) {
       const depthIndex = bladeAvalancheDepthIndexFromDistance(enemyDistance());
       if (depthIndex != null) {
@@ -7769,6 +7978,7 @@ function offlineWarriorAttack(enemy, now) {
   if (learned) {
     if (!rollHit(battle.player.accuracy, enemy.agility)) {
       consumeOutgoingCritFlag();
+      noteWarriorActionForTwinDrakeMomentum(skill?.id ?? "None", { hitSucceeded: false });
       rollSlayingChargeAfterAttack(now);
       maybeAutoWarriorCharge(now, { offline: true });
       return true;
@@ -7784,6 +7994,7 @@ function offlineWarriorAttack(enemy, now) {
       stats.luck,
     );
     if (!attack.hit) {
+      noteWarriorActionForTwinDrakeMomentum(skill?.id ?? "None", { hitSucceeded: false });
       rollSlayingChargeAfterAttack(now);
       maybeAutoWarriorCharge(now, { offline: true });
       return true;
@@ -7793,14 +8004,25 @@ function offlineWarriorAttack(enemy, now) {
   const scaled = scalePhysicalDamageForStun(damage, enemyStunned(enemy, now));
   if (scaled <= 0) {
     consumeOutgoingCritFlag();
+    noteWarriorActionForTwinDrakeMomentum(skill?.id ?? "None", { hitSucceeded: false });
     rollSlayingChargeAfterAttack(now);
     maybeAutoWarriorCharge(now, { offline: true });
     return true;
   }
   consumeOutgoingCritFlag();
   applyOfflineEnemyDamage(enemy, scaled, now, learned ? "magic" : "physical");
+  noteWarriorActionForTwinDrakeMomentum(skill?.id ?? "None", { hitSucceeded: true });
   if (skill.id === "FlamingSword" && enemy.hp > 0) {
     maybeApplyImprovedFlamingSwordBurn(enemy, scaled, state.inventory, now);
+  }
+  if (skill.id === "FlamingSword") {
+    maybeProcFlamingSwordBladeAvalanche({
+      player: battle.player,
+      inventory: state.inventory,
+      now,
+      offline: true,
+      enemy,
+    });
   }
   if (learned) levelWarriorMagic(skill, learned, now);
   levelPassiveWeaponMagic(now);
@@ -7831,14 +8053,14 @@ function offlineWizardAttack(enemy, now) {
     const mirrorCast = usableWizardMirroring(now, { requireAuto: false, ignorePhase: true });
     if (mirrorCast) {
       castWizardMirroring(mirrorCast, now, { offline: true });
-      battle.lastPlayerAttackCooldownMs = wizardCastCooldownMs(mirrorCast.spell, mirrorCast.learned);
+      battle.lastPlayerAttackCooldownMs = wizardCastCooldownMs(mirrorCast.spell, mirrorCast.learned, now);
       return;
     }
   } else if (!queued) {
     const mirrorCast = usableWizardMirroring(now);
     if (mirrorCast) {
       castWizardMirroring(mirrorCast, now, { offline: true });
-      battle.lastPlayerAttackCooldownMs = wizardCastCooldownMs(mirrorCast.spell, mirrorCast.learned);
+      battle.lastPlayerAttackCooldownMs = wizardCastCooldownMs(mirrorCast.spell, mirrorCast.learned, now);
       return;
     }
   }
@@ -7872,8 +8094,9 @@ function offlineWizardAttack(enemy, now) {
   if (phase !== "cast" || !attackSpell) return;
 
   const { spell, learned, cost } = attackSpell;
-  battle.lastPlayerAttackCooldownMs = wizardSpellActionLockMs(spell, learned);
+  battle.lastPlayerAttackCooldownMs = wizardSpellActionLockMs(spell, learned, now);
   commitWizardSpellUse(spell, learned, cost, now);
+  noteOfflineSpellImpact(spell, now);
   if (spell.id === "TurnUndead") {
     const result = rollTurnUndeadResult(spell, learned, battle.player, enemy);
     if (result.success) {
@@ -7884,8 +8107,13 @@ function offlineWizardAttack(enemy, now) {
   }
   if (!rollMagicHit(enemy)) return;
   const damage = rollWizardMagicDamage(spell, learned, battle.player, enemy);
-  if (damage <= 0) return;
+  if (damage <= 0) {
+    consumeOutgoingCritFlag();
+    return;
+  }
+  const damageCrit = consumeOutgoingCritFlag();
   applyOfflineEnemyDamage(enemy, damage, now, "magic");
+  maybeProcFrenziedDisruptor(spell, damageCrit, now, { silent: true });
   if (spell.id === "FrostCrunch") applyFrostCrunchEffects(enemy, learned, battle.player, now);
   if (spell.id === "Vampirism" && learned) queueVampirismRestore(vampirismRestoreAmount(damage, learned), now);
   if (learned) levelMagicSkill(spell, learned, now);
@@ -7977,6 +8205,48 @@ function offlineTaoistAttack(enemy, now) {
   taoistPlayerTankAttackOffline(enemy, now);
 }
 
+/**
+ * Offline mirror of the free secondary casts `updateBattle` runs every frame
+ * (maybeCastTaoistSoulFireBall / Plague / Curse). These never touch
+ * lastPlayerAttackCooldownMs, so they stack on top of the turn's main action.
+ * Each one refuses to fire while its own impact is still in flight, which is
+ * live's `battle.pendingImpact?.spellId === <spell>` gate; without it a Taoist
+ * chain-casts far faster offline than it can live.
+ *
+ * Live's other gate, activeTaoistSpellVisualBlocksSecondary, is deliberately NOT
+ * mirrored. Both of its clauses hang off `activeTaoSpell`, which the offline sim
+ * never populates, and approximating either one (cast-animation duration, or the
+ * outstanding-pending check) was measured blocking two to three times longer
+ * than live does, costing a Taoist a third of its kills.
+ */
+function offlineTaoistSecondaryCasts(now) {
+  const battle = state.battle;
+  if (battle.combatClass !== "Taoist" || battle.phase !== "engaged") return;
+  const enemy = battle.enemy;
+  if (!enemy || enemy.hp <= 0) return;
+
+  if (!offlineSpellImpactInFlight("SoulFireBall", now)) {
+    const soulFireBall = usableTaoistSoulFireBall(now);
+    if (soulFireBall) offlineTaoistSoulFireBall(enemy, now, soulFireBall, { secondary: true });
+    if (enemy.hp <= 0) return;
+  }
+
+  if (!offlineSpellImpactInFlight("Plague", now)) {
+    const plague = usableTaoistPlague(now);
+    if (plague && castTaoistPlague(plague, now, { offline: true, secondary: true })) {
+      noteOfflineSpellImpact(plague.spell, now);
+    }
+    if (enemy.hp <= 0) return;
+  }
+
+  if (!offlineSpellImpactInFlight("Curse", now)) {
+    const curse = usableTaoistCurse(now);
+    if (curse && castTaoistCurse(curse, now, { offline: true, secondary: true })) {
+      noteOfflineSpellImpact(curse.spell, now);
+    }
+  }
+}
+
 function taoistOfflineSupportAvailability(now) {
   return {
     Healing: Boolean(usableTaoistHealing(now)),
@@ -8060,6 +8330,7 @@ function offlineTaoistSoulFireBall(enemy, now, soulFireBall, options = {}) {
   if (!consumeOneInventoryUnit(entry.id)) return false;
   if (!options.secondary) battle.lastPlayerAttackCooldownMs = spellDelayMs(spell, learned);
   commitTaoistSpellUse(spell, learned, cost, now);
+  noteOfflineSpellImpact(spell, now);
   if (!rollMagicHit(enemy)) return true;
   const damage = rollTaoistMagicDamage(spell, learned, battle.player, enemy);
   if (damage <= 0) return true;
@@ -8201,6 +8472,9 @@ function finalizeOfflineBattleState(zone, report) {
     if (!taoistPetIsFollower(state.battle.taoPet) && !enemyUsesFixedArenaSpawn()) {
       state.battle.enemyX = Math.max(LANE.aggroRange, state.battle.enemyX);
     }
+  }
+  if (report.finalEnemy?.hp > 0 && state.battle.taoHolyDeva?.active) {
+    placeTaoistCombatPet(state.battle.taoHolyDeva);
   }
   state.battle.cameraX = state.battle.playerX - playerScreenX();
   state.battle.travelStartedAt = now;
@@ -8956,7 +9230,12 @@ async function uploadCloudSave(reason = "manual") {
     return true;
   } catch (err) {
     console.warn("Unable to upload cloud save", err);
-    setCloudSaveStatus(`Cloud save failed: ${err.message || "please try again"}. Your local save is safe.`);
+    const detail = String(err?.message || "").trim();
+    if (/stale_progress|higher character progress/i.test(detail)) {
+      setCloudSaveStatus(`${detail} Your local save is safe.`);
+    } else {
+      setCloudSaveStatus(`Cloud save failed: ${detail || "please try again"}. Your local save is safe.`);
+    }
     return false;
   } finally {
     state.cloudSave.saving = false;
@@ -8965,8 +9244,17 @@ async function uploadCloudSave(reason = "manual") {
   }
 }
 
+function deferAutomaticCloudSave(graceMs = CLOUD_SAVE_RESUME_GRACE_MS, now = performance.now()) {
+  state.cloudSave.suppressUploadUntil = nextCloudSaveSuppressUntil(
+    now,
+    state.cloudSave.suppressUploadUntil,
+    graceMs,
+  );
+}
+
 function maybeUploadCloudSave(now) {
   if (!saveReady || !state.cloudSave.configured || state.cloudSave.saving || state.cloudSave.restoring) return;
+  if (shouldSuppressAutomaticCloudSave(now, state.cloudSave.suppressUploadUntil)) return;
   if (now - state.cloudSave.lastAttemptAt < CLOUD_SAVE_INTERVAL_MS) return;
   void uploadCloudSave("interval");
 }
@@ -10511,6 +10799,7 @@ function resetBattle(enemyId = state.battle.enemyId) {
   state.battle.twinDrakeReadyAt = 0;
   state.battle.twinDrakeChargeFxStartedAt = 0;
   state.battle.twinDrakeChargeFxUntil = 0;
+  state.battle.twinDrakeMomentumStacks = 0;
   state.battle.pendingTwinDrakeHits = [];
   state.battle.pendingDisruptorCascade = [];
   clearSlashingBurstPendingState();
@@ -10616,6 +10905,7 @@ function resetBattleForRoomOnly(zone = activeZone()) {
   state.battle.twinDrakeReadyAt = 0;
   state.battle.twinDrakeChargeFxStartedAt = 0;
   state.battle.twinDrakeChargeFxUntil = 0;
+  state.battle.twinDrakeMomentumStacks = 0;
   state.battle.pendingTwinDrakeHits = [];
   state.battle.pendingDisruptorCascade = [];
   clearSlashingBurstPendingState();
@@ -11436,11 +11726,24 @@ function updateTrainingRoomBattle(now) {
 }
 
 function rollMiningOreItemId() {
-  return rollMiningOreItemIdCore(MINING_ORE_DROPS, MINING_TOTAL_SLOTS);
+  return rollMiningOreItemIdCore(activeMiningOreDrops(), MINING_TOTAL_SLOTS);
 }
 
 function rollMiningOrePurity() {
   return rollMiningOrePurityCore(undefined, 10, rebirthMiningMinPurity());
+}
+
+function rebirthMiningRareOreBonusSlots() {
+  return Math.max(0, Math.min(5, accountUpgradeTier("rebirth-mining-rare-ores")));
+}
+
+function activeMiningOreDrops() {
+  return buildMiningOreDropsWithRareBonusCore(
+    MINING_ORE_DROPS,
+    MINING_RARE_ORE_ITEM_IDS,
+    rebirthMiningRareOreBonusSlots(),
+    MINING_RARE_ORE_DONOR_ITEM_IDS,
+  );
 }
 
 function tryAddMiningOre(itemId, purity) {
@@ -12065,6 +12368,7 @@ function accountUpgradeEffectLabel(upgrade) {
   if (upgrade?.effect === "bossRespawnReductionPercent") return "Boss respawn time";
   if (upgrade?.effect === "miningSpeedBonusPercent") return "Mining speed";
   if (upgrade?.effect === "miningMinPurityFloor") return "Black Iron min purity";
+  if (upgrade?.effect === "miningRareOreBonusSlots") return "Rare ore find weight";
   if (upgrade?.effect === "baseStatBonus") return rebirthStatUpgradeEffectLabel(upgrade);
   if (upgrade?.effect === "baseLuck") return "Base luck";
   if (upgrade?.effect === "gemMerchantUnlock") return "Gem Merchant";
@@ -12174,6 +12478,12 @@ function accountUpgradeProgressText(upgrade) {
     if (accountUpgradeIsMaxed(upgrade)) return `Purity ${minPurity}-10 only`;
     if (tier <= 0) return `Purity 1-10 -> Purity ${nextMin}-10`;
     return `Purity ${minPurity}-10 -> Purity ${nextMin}-10`;
+  }
+  if (upgrade?.effect === "miningRareOreBonusSlots") {
+    const current = rebirthMiningRareOreBonusSlots();
+    const maxBonus = step * accountUpgradeMaxTier(upgrade);
+    if (accountUpgradeIsMaxed(upgrade)) return `+${current} slot each rare`;
+    return `+${current} -> +${Math.min(current + step, maxBonus)} slot each rare`;
   }
   if (upgrade?.effect === "baseStatBonus" || upgrade?.effect === "baseLuck") {
     const current = tier * step;
@@ -12581,7 +12891,7 @@ function createInventoryEntry(itemId, quantity = 1, options = {}) {
   const entry = {
     id: allocateInventoryEntryId(),
     itemId,
-    quantity: Math.max(1, Math.trunc(Number(quantity) || 1)),
+    quantity: sanitizeEntryQuantity(quantity, inventoryEntryMaxStack(itemId)),
     slot: Number.isInteger(slot) ? slot : null,
     ...normalizeInventoryEntryFields({}, item),
   };
@@ -13653,12 +13963,27 @@ function craftingCubeBoardEntries() {
 function consumeStagedCraftingCubeEntryQuantity(entryId, quantity = 1) {
   const entry = craftingCubeEntryById(entryId);
   if (!entry) return false;
+  const item = itemDefinition(entry.itemId);
   const qty = Math.max(1, Math.trunc(Number(entry.quantity) || 1));
-  const take = Math.min(qty, Math.max(1, Math.trunc(Number(quantity) || 1)));
+  // Non-stackable items (glyphs, gear, etc.) must never be partially consumed.
+  // A corrupted quantity > 1 would otherwise leave the icon on the board while
+  // each Craft still grants output — matching the reported glyph-recycle dupe.
+  const takeWhole = !item || !isStackableItem(item);
+  const take = takeWhole
+    ? qty
+    : Math.min(qty, Math.max(1, Math.trunc(Number(quantity) || 1)));
   if (take >= qty) {
-    const slotIndex = state.craftingCube.slotEntryIds.indexOf(entryId);
-    if (slotIndex >= 0) state.craftingCube.slotEntryIds[slotIndex] = null;
-    discardCraftingCubeStagedEntry(entryId);
+    if (state.craftingCube?.slotEntryIds) {
+      state.craftingCube.slotEntryIds = state.craftingCube.slotEntryIds.map((id) => (
+        id === entryId ? null : id
+      ));
+    }
+    if (isCraftingCubeStagedEntry(entryId)) {
+      discardCraftingCubeStagedEntry(entryId);
+    } else {
+      // Ghost board slot pointing at bag inventory — remove from bag too.
+      removeInventoryEntry(entryId, qty);
+    }
   } else {
     entry.quantity = qty - take;
   }
@@ -13838,8 +14163,31 @@ function attemptCraftingCubeGlyphRecycle() {
     return false;
   }
 
-  consumeStagedCraftingCubeEntryQuantity(validation.glyphEntryA.id, 1);
-  consumeStagedCraftingCubeEntryQuantity(validation.glyphEntryB.id, 1);
+  // Confirm both materials are still resolvable, and are distinct entries,
+  // before spending anything. Same entry in two slots would make the second
+  // consume fail after the first already discarded the glyph.
+  if (
+    !craftingCubeEntryById(validation.glyphEntryA.id)
+    || !craftingCubeEntryById(validation.glyphEntryB.id)
+    || String(validation.glyphEntryA.id) === String(validation.glyphEntryB.id)
+  ) {
+    setCraftingCubeFeedback(CRAFTING_CUBE_GLYPH_RECYCLE_REQUIREMENTS_ERROR);
+    sceneSignature = "";
+    renderSceneOverlay();
+    playSfx("ui.button", { volume: 0.28, throttleMs: 120 });
+    return false;
+  }
+
+  const consumedA = consumeStagedCraftingCubeEntryQuantity(validation.glyphEntryA.id, 1);
+  const consumedB = consumeStagedCraftingCubeEntryQuantity(validation.glyphEntryB.id, 1);
+  if (!consumedA || !consumedB) {
+    setCraftingCubeFeedback("Could not consume the glyphs for this craft.");
+    sceneSignature = "";
+    renderSceneOverlay();
+    playSfx("ui.button", { volume: 0.28, throttleMs: 120 });
+    return false;
+  }
+
   spendCraftingCubeGold(CRAFTING_CUBE_GLYPH_RECYCLE_RECIPE_ID);
   state.craftingCube.feedback = null;
   state.craftingCube.feedbackKind = null;
@@ -15856,6 +16204,11 @@ function equippedSkillLevelBonusPercent(inventory = state.inventory) {
   return equippedBonusFromStats(inventory, "skillLevelBonusPercent");
 }
 
+function totalSkillLevelBonusPercent(inventory = state.inventory) {
+  return equippedSkillLevelBonusPercent(inventory)
+    + glyphSkillLevelBonusPercent(equippedGlyphFor(inventory));
+}
+
 function totalGoldBonusPercent(inventory = state.inventory) {
   return rebirthGoldBonusPercent()
     + equippedBonusFromStats(inventory, "goldBonusPercent")
@@ -16369,6 +16722,46 @@ function applyTwinDrakeChargeState(target, now) {
   target.twinDrakeReady = true;
   target.twinDrakeReadyAt = now;
   beginTwinDrakeChargeFx(target, now);
+}
+
+function twinDrakeMomentumStacksFor(member = null) {
+  if (member?.classId) return Math.max(0, Math.trunc(Number(member.twinDrakeMomentumStacks) || 0));
+  return Math.max(0, Math.trunc(Number(state.battle.twinDrakeMomentumStacks) || 0));
+}
+
+function setTwinDrakeMomentumStacks(stacks, member = null) {
+  const value = Math.max(0, Math.trunc(Number(stacks) || 0));
+  if (member?.classId) {
+    member.twinDrakeMomentumStacks = value;
+    if (member.classId === bossPartyControlledClassId()) {
+      state.battle.twinDrakeMomentumStacks = value;
+    }
+    return;
+  }
+  state.battle.twinDrakeMomentumStacks = value;
+}
+
+/**
+ * Blade Momentum: +1 AS only on successful Twin Drake damage.
+ * Any other warrior skill (buffs, FS charge, BA, basic swing) or a TDB miss resets.
+ * Charging Twin Drake does not call this — stacks stay until the swing resolves.
+ */
+function noteWarriorActionForTwinDrakeMomentum(skillId, {
+  hitSucceeded = false,
+  member = null,
+  inventory = null,
+} = {}) {
+  const inv = inventory
+    ?? (member ? inventoryForCombatant(member) : state.inventory);
+  const params = glyphTwinDrakeMomentumParams(equippedGlyphFor(inv));
+  if (!params) return;
+  const next = nextTwinDrakeMomentumStacks(
+    twinDrakeMomentumStacksFor(member),
+    skillId,
+    params,
+    { hitSucceeded: Boolean(hitSucceeded) },
+  );
+  setTwinDrakeMomentumStacks(next, member);
 }
 
 function warriorFlamingSwordReady() {
@@ -18325,6 +18718,12 @@ function usePotionEntry(entryId, preferredKind = null, options = {}) {
   const player = state.battle.player;
   if (!entry || !item || !isPotionItem(item) || !player) return false;
   if (isBuffPotionItem(item)) return useBuffPotionEntry(entryId, options);
+  if (glyphBlocksSunPotions(equippedGlyphFor(state.inventory)) && isSunPotionFamilyItem(item)) {
+    pushBattleLog(`Glyph of Vitality prevents using ${item.name}.`);
+    battlePanelSignature = "";
+    renderBattlePanel();
+    return false;
+  }
   if (player.hp <= 0) {
     pushBattleLog(`Cannot use ${item.name} while defeated.`);
     battlePanelSignature = "";
@@ -18543,6 +18942,7 @@ function resourceRatio(kind) {
 }
 
 function autoPotionCandidates(kind) {
+  const blockSun = glyphBlocksSunPotions(equippedGlyphFor(state.inventory));
   return autoPotionSlots()
     .map((slot) => {
       const entry = hotbarEntryAtSlot(slot);
@@ -18551,6 +18951,7 @@ function autoPotionCandidates(kind) {
       return { slot, entry, item, restore };
     })
     .filter((candidate) => candidate.entry && candidate.item && candidate.restore > 0)
+    .filter((candidate) => !(blockSun && isSunPotionFamilyItem(candidate.item)))
     .sort((a, b) => b.restore - a.restore || a.slot - b.slot);
 }
 
@@ -22255,6 +22656,7 @@ function accountUpgradeIconText(upgrade) {
   if (upgrade?.effect === "bossRespawnReductionPercent") return "RS";
   if (upgrade?.effect === "miningSpeedBonusPercent") return "MN";
   if (upgrade?.effect === "miningMinPurityFloor") return "PV";
+  if (upgrade?.effect === "miningRareOreBonusSlots") return "RV";
   if (upgrade?.effect === "rebirthPointMultiplierBonus") return "RP";
   if (upgrade?.effect === "baseLuck") return "LK";
   if (upgrade?.effect === "gemMerchantUnlock") return "GM";
@@ -22855,7 +23257,7 @@ function crystalCharacterBonusRowsHtml() {
   const rows = [
     ["XP Gain", formatMultiplierLabel(totalExperienceMultiplier(inventory))],
     ["Gold", formatMultiplierLabel(totalGoldMultiplier(inventory))],
-    ["Skill Leveling", formatBonusPercentLabel(equippedSkillLevelBonusPercent(inventory))],
+    ["Skill Leveling", formatBonusPercentLabel(totalSkillLevelBonusPercent(inventory))],
     ["Soul Drop Chance", formatBonusPercentLabel(totalBonusAwakeningSoulChancePercent(inventory))],
     ["Item Drop Chance", formatBonusPercentLabel(totalDropChanceBonusPercent(inventory))],
     ["Mining Speed", formatBonusPercentLabel(rebirthMiningSpeedBonusPercent())],
@@ -24735,6 +25137,8 @@ function characterEquipmentStats() {
     if (item?.stats) addStats(stats, itemEntryStats(entry, item));
   }
   applyLearnedMagicStats(stats);
+  const vitality = applyGlyphVitalityCombatStats(stats, equippedGlyphFor(state.inventory));
+  stats.maxHp = vitality.maxHp;
   return stats;
 }
 
@@ -24756,6 +25160,14 @@ function characterTotalStats() {
     );
     stats.dc = monk.dc;
     stats.sc = monk.sc;
+  }
+  // UI only: show Slow Destruction DC on the Warrior's sheet.
+  if (combatantIsWarrior(state.battle.player) || state.battle.combatClass === "Warrior") {
+    const slowDestruction = applyGlyphSlowDestructionCombatStats(
+      stats,
+      equippedGlyphFor(state.battle.player),
+    );
+    stats.dc = slowDestruction.dc;
   }
   stats.hp = state.battle.player?.hp ?? stats.maxHp;
   stats.mp = state.battle.player?.mp ?? stats.maxMp;
@@ -24785,6 +25197,11 @@ function characterSnapshotTotalStats(classId, character, options = {}) {
   if (includeBuffs) {
     applyStatBuffsToStats(stats, sanitizeStatBuffs(character?.battle?.statBuffs));
   }
+  const vitality = applyGlyphVitalityCombatStats(
+    stats,
+    equippedGlyphDefs(inventory, itemDefinition),
+  );
+  stats.maxHp = vitality.maxHp;
   const savedHp = finiteNumberOrNull(character?.battle?.playerHp);
   const savedMp = finiteNumberOrNull(character?.battle?.playerMp);
   stats.hp = savedHp == null ? stats.maxHp : Math.max(0, Math.min(stats.maxHp, savedHp));
@@ -25676,6 +26093,7 @@ function itemTooltipHtml(item, entry = null) {
     <strong class="${isUniqueItem(item) ? "item-unique-name" : ""}">${escapeHtml(itemDisplayName(item, entry))}</strong>
     ${isUniqueItem(item) ? `<span class="item-unique-tag">Unique — cannot be stored in the Spirit Box</span>` : ""}
     ${isEtherealItem(item) ? `<span class="item-ethereal-tag">Ethereal — cannot be stored in the Spirit Box</span>` : ""}
+    ${item.description && !isGlyphItem(item) ? `<span>${escapeHtml(item.description)}</span>` : ""}
     ${entry?.smithLevel ? `<span>Smith: +${Math.max(0, Math.trunc(Number(entry.smithLevel) || 0))}</span>` : ""}
     ${entry?.gemCount ? `<span>Gem upgrades: ${Math.max(0, Math.trunc(Number(entry.gemCount) || 0))}</span>` : ""}
     ${entry?.weaponRefineLevel ? `<span>Refine: +${Math.max(0, Math.trunc(Number(entry.weaponRefineLevel) || 0))} / ${WEAPON_REFINE_MAX}</span>` : ""}
@@ -26041,6 +26459,11 @@ async function selectPlayerClass(classId) {
   if (Object.keys(state.weaponRefine?.stagedEntries ?? {}).length) {
     restoreAllWeaponRefineStagedEntries();
   }
+  // Cash in the outgoing character's armed AFK window before it is serialized.
+  // applyCharacterState restores simulationMode.startedAt verbatim, so parking an
+  // armed character and coming back later would re-credit every second spent
+  // playing the other one.
+  if (simulationModeActive()) endSimulationMode();
   captureActiveCharacterState();
   stopOneStepTest();
   state.continuousWalk = false;
@@ -26185,6 +26608,10 @@ async function confirmBossZoneEntry(zoneId) {
 async function enterZone(zoneId, options = {}) {
   const zone = PROTOTYPE_ZONES.find((entry) => entry.id === zoneId) ?? PROTOTYPE_ZONES[0];
   if (!zone || zone.miningOnly) return;
+  // Cash the armed AFK window in before mode/activeZoneId move, so the player is
+  // credited for the zone they were actually idling in instead of silently
+  // losing the whole window.
+  if (simulationModeActive()) endSimulationMode();
   if (!options.preview) state.zoneBuilderPreviewZoneId = null;
   stopOneStepTest();
   state.continuousWalk = false;
@@ -26200,10 +26627,6 @@ async function enterZone(zoneId, options = {}) {
   state.game.lastReward = null;
   state.game.recentLoot = [];
   state.game.lootToasts = [];
-  if (simulationModeActive()) {
-    state.game.simulationMode = null;
-    renderSimulationModeOverlay();
-  }
   state.game.dropPity[zone.id] = state.game.dropPity[zone.id] ?? 0;
   if (isRoomOnlyZone(zone)) {
     resetBattleForRoomOnly(zone);
@@ -26264,10 +26687,10 @@ async function enterZone(zoneId, options = {}) {
 }
 
 function returnToTown() {
-  if (simulationModeActive()) {
-    state.game.simulationMode = null;
-    renderSimulationModeOverlay();
-  }
+  // Same as enterZone: credit the AFK window instead of discarding it. This runs
+  // while mode is still the zone/mining one being left, which is what the
+  // offline sim needs.
+  if (simulationModeActive()) endSimulationMode();
   clearTransientCombatBuffs();
   state.bossDamageReportOpen = false;
   renderBossDamageReport();
@@ -29198,6 +29621,32 @@ function migrateAccountBossRespawns() {
     accountRestoreOptions(),
   );
   syncAccountBossRespawnsToCharacters();
+  healAccountBossRespawns();
+}
+
+/**
+ * Drop readyAt values that exceed the zone's configured base delay. Those only
+ * appear after device clock skew (common on cloud restore / device switch) and
+ * otherwise leave players staring at multi-day "respawn" timers.
+ */
+function healAccountBossRespawns(now = Date.now()) {
+  const current = accountBossRespawns();
+  const next = {};
+  let changed = false;
+  for (const [zoneId, readyAt] of Object.entries(current)) {
+    const healed = clampBossRespawnReadyAt(
+      readyAt,
+      now,
+      baseBossRespawnMinutesForZone(zoneId) * 60 * 1000,
+    );
+    if (healed !== Math.max(0, Math.trunc(Number(readyAt) || 0))) changed = true;
+    if (healed > 0) next[zoneId] = healed;
+    else if (readyAt) changed = true;
+  }
+  if (!changed) return false;
+  state.account.bossRespawns = next;
+  syncAccountBossRespawnsToCharacters();
+  return true;
 }
 
 function syncAccountBossRespawnsToCharacters() {
@@ -29245,8 +29694,12 @@ function bossRespawnDelayMs(zoneId) {
   return effectiveBossRespawnMinutesForZone(zoneId) * 60 * 1000;
 }
 
-function bossRespawnReadyAt(zoneId) {
-  return Math.max(0, Math.trunc(Number(accountBossRespawns()[zoneId]) || 0));
+function bossRespawnReadyAt(zoneId, now = Date.now()) {
+  return clampBossRespawnReadyAt(
+    accountBossRespawns()[zoneId],
+    now,
+    baseBossRespawnMinutesForZone(zoneId) * 60 * 1000,
+  );
 }
 
 function writeBossRespawnReadyAt(zoneId, defeatedAt = Date.now()) {
@@ -29589,7 +30042,9 @@ function craftingCubeSlotHtml(index) {
         title="${escapeHtml(itemDisplayName(item, entry))}"
       >
         ${itemIconHtml(item)}
-        ${isStackableItem(item) ? `<span class="crystal-item-qty">${Math.max(1, Math.trunc(Number(entry.quantity) || 1))}</span>` : ""}
+        ${Math.max(1, Math.trunc(Number(entry.quantity) || 1)) > 1
+          ? `<span class="crystal-item-qty">${Math.max(1, Math.trunc(Number(entry.quantity) || 1))}</span>`
+          : ""}
       </div>
     `
     : `<span class="crafting-cube-slot-empty">+</span>`;
@@ -30735,7 +31190,16 @@ function bindControls() {
       saveGameState(true);
       flushPrototypeStats("hidden");
       sendTelemetry(true);
+      return;
     }
+    if (document.visibilityState === "visible") {
+      // Give time to restore a newer cloud backup before this tab's stale
+      // local progress auto-uploads and last-write-wins over it.
+      deferAutomaticCloudSave();
+    }
+  });
+  window.addEventListener("pageshow", (event) => {
+    if (event.persisted) deferAutomaticCloudSave();
   });
   document.addEventListener("fullscreenchange", syncFullscreenToggle);
   document.addEventListener("webkitfullscreenchange", syncFullscreenToggle);
@@ -32079,6 +32543,7 @@ function bossPartyMemberFromCharacter(classId, character = createDefaultCharacte
     twinDrakeReadyAt: 0,
     twinDrakeChargeFxStartedAt: 0,
     twinDrakeChargeFxUntil: 0,
+    twinDrakeMomentumStacks: 0,
     slayingReady: false,
     slayingReadyAt: 0,
     wizardSpellLockUntil: 0,
@@ -32351,6 +32816,11 @@ function bossPartyChargeWarriorSkill(member, skill, learned, now) {
   if (skill.id === "FlamingSword") {
     applyFlamingSwordChargeState(member, now);
     if (member.classId === bossPartyControlledClassId()) applyFlamingSwordChargeState(state.battle, now);
+    noteWarriorActionForTwinDrakeMomentum("FlamingSword", {
+      hitSucceeded: false,
+      member,
+      inventory: member.inventory,
+    });
   } else if (skill.id === "TwinDrakeBlade") {
     applyTwinDrakeChargeState(member, now);
     if (member.classId === bossPartyControlledClassId()) applyTwinDrakeChargeState(state.battle, now);
@@ -32545,6 +33015,11 @@ function bossPartyWarriorAction(member, now) {
       attackerLabel: member.classId,
       member,
     });
+    noteWarriorActionForTwinDrakeMomentum("BladeAvalanche", {
+      hitSucceeded: false,
+      member,
+      inventory: member.inventory,
+    });
     if (trained) bossPartyLevelMagicSkill(member, attackSkill, learned, now);
     bossPartyLevelPassiveWeaponMagic(member, now);
     bossPartyRollSlayingCharge(member, now);
@@ -32593,6 +33068,14 @@ function bossPartyWarriorAction(member, now) {
     bossPartyLevelPassiveWeaponMagic(member, now);
     if (usingFlamingSword && enemy.hp > 0) {
       maybeApplyImprovedFlamingSwordBurn(enemy, damage, member, now);
+    }
+    if (usingFlamingSword) {
+      maybeProcFlamingSwordBladeAvalanche({
+        player: member,
+        inventory: member.inventory,
+        now,
+        member,
+      });
     }
     if (usingTwinDrake && enemy.hp > 0) queueTwinDrakeSecondHit(member, learned, twinDrakeRawDamage, now, crit);
     if (usingSweepAttack && learned) bossPartySweepSplash(member, attackSkill, learned, enemy, now);
@@ -33032,7 +33515,15 @@ function bossPartyTaoistAction(member, now) {
 function bossPartyAttackEnemy(member, label, rollDamageFn, kind, now, onHit, skill) {
   const enemy = state.battle.enemy;
   if (!enemy || enemy.hp <= 0 || !state.battle.enemyRevealed) return false;
+  const skillId = skill?.id ?? (member.classId === "Warrior" ? "None" : null);
   if (kind === "physical" && !rollHit(member.accuracy, enemy.agility)) {
+    if (member.classId === "Warrior" && skillId) {
+      noteWarriorActionForTwinDrakeMomentum(skillId, {
+        hitSucceeded: false,
+        member,
+        inventory: member.inventory,
+      });
+    }
     bossPartyShowEnemyMiss(member.classId, now);
     pushBattleLog(`${member.classId} ${label.toLowerCase()} misses ${enemy.name}.`);
     return true;
@@ -33041,12 +33532,26 @@ function bossPartyAttackEnemy(member, label, rollDamageFn, kind, now, onHit, ski
   const crit = consumeOutgoingCritFlag();
   const damage = scaleEnemyPhysicalDamage(rolled, enemy, now);
   if (damage <= 0) {
+    if (member.classId === "Warrior" && skillId) {
+      noteWarriorActionForTwinDrakeMomentum(skillId, {
+        hitSucceeded: false,
+        member,
+        inventory: member.inventory,
+      });
+    }
     bossPartyShowEnemyMiss(member.classId, now);
     pushBattleLog(`${member.classId} ${label.toLowerCase()} misses ${enemy.name}.`);
     return true;
   }
   recordBossCombatDamage(member.classId, skill?.id ?? "Attack", damage);
   applyCombatDamageEvent(enemyDamageEvent(damage), now, { enemy });
+  if (member.classId === "Warrior" && skillId) {
+    noteWarriorActionForTwinDrakeMomentum(skillId, {
+      hitSucceeded: true,
+      member,
+      inventory: member.inventory,
+    });
+  }
   syncBattleEnemyHpToSwarm();
   strikeGroupDungeonSwarmEnemy(enemy, now);
   playMonsterSfx("flinch", enemy, bossPartySfxParams(member, 0.42, 80));
@@ -33155,6 +33660,12 @@ function bossPartyCanUseWarriorSkill(member, skill, learned, now, options = {}) 
 
 function bossPartyCanUseTaoistSpell(member, spell, learned, now, options = {}) {
   if (!spell || !learned || spell.passive) return false;
+  if (
+    isDemonicDevaBlockedHealSpell(spell.id)
+    && glyphBlocksTaoistHealingSpells(equippedGlyphFor(member))
+  ) {
+    return false;
+  }
   if (options.requireAuto) {
     if (!learned.autoCast) return false;
     if (!bossPartyAutoSpells(member).some((autoSpell) => autoSpell.id === spell.id)) return false;
@@ -34317,7 +34828,10 @@ function bossPartyRefreshMemberStats(member) {
 }
 
 function bossPartyEffectiveAttackSpeed(member, now) {
-  return (Number(member.attackSpeed) || 0) + (now < (member.furyUntil ?? 0) ? Number(member.furyBonus) || 0 : 0);
+  if (glyphNullifiesAttackSpeed(equippedGlyphFor(member))) return 0;
+  const furyBonus = now < (member.furyUntil ?? 0) ? Number(member.furyBonus) || 0 : 0;
+  const momentum = twinDrakeMomentumAttackSpeedBonus(twinDrakeMomentumStacksFor(member));
+  return (Number(member.attackSpeed) || 0) + furyBonus + momentum;
 }
 
 function partyBossEffects() {
@@ -34855,6 +35369,10 @@ function updateBossPartyImpacts(now) {
   maybeKillGroupDungeonSwarmEnemy(enemy, now);
   const caster = state.battle.bossParty?.members.find((m) => m.classId === impact.casterClassId);
   const spell = combatAttackSpell(impact.spellId);
+  maybeProcFrenziedDisruptor(spell, Boolean(impact.crit), now, {
+    partyMember: caster,
+    silent: Boolean(impact.fromMirror),
+  });
   const learned = caster ? bossPartyLearned(caster, impact.spellId) : null;
   if (impact.spellId === "FrostCrunch" && impact.damage > 0 && caster && learned) {
     applyFrostCrunchEffects(enemy, learned, caster, now);
@@ -35094,6 +35612,7 @@ function splashTargetsNearWorldX(centerX, tiles = 4) {
   if (bossPartyActiveFight()) {
     const party = state.battle.bossParty;
     if (party?.pet?.active) consider("pet", party.pet, party.pet.name, party.pet.worldX);
+    if (party?.holyDeva?.active) consider("pet", party.holyDeva, party.holyDeva.name, party.holyDeva.worldX);
     for (const member of party?.members ?? []) {
       if (!member.alive || (member.hp ?? 0) <= 0) continue;
       consider("member", member, member.classId, member.worldX);
@@ -35103,6 +35622,14 @@ function splashTargetsNearWorldX(centerX, tiles = 4) {
   const battle = state.battle;
   if (taoistPetCanTank() && battle.taoPet?.active && (battle.taoPet.hp ?? 0) > 0) {
     consider("pet", battle.taoPet, battle.taoPet.name, battle.taoPet.worldX ?? taoistPetSummonWorldX());
+  }
+  if (battle.taoHolyDeva?.active && (battle.taoHolyDeva.hp ?? 0) > 0) {
+    consider(
+      "pet",
+      battle.taoHolyDeva,
+      battle.taoHolyDeva.name,
+      battle.taoHolyDeva.worldX ?? taoistPetFollowWorldX(battle.taoHolyDeva),
+    );
   }
   if ((battle.player?.hp ?? 0) > 0) {
     consider("player", battle.player, battle.combatClass, battle.playerX);
@@ -35458,6 +35985,7 @@ function darkDevilBurstTargets(enemy = state.battle.enemy) {
   if (bossPartyActiveFight()) {
     const party = state.battle.bossParty;
     if (party?.pet?.active) consider("pet", party.pet, party.pet.name);
+    if (party?.holyDeva?.active) consider("pet", party.holyDeva, party.holyDeva.name);
     for (const member of party?.members ?? []) {
       if (!member.alive || (member.hp ?? 0) <= 0) continue;
       consider("member", member, member.classId);
@@ -35467,6 +35995,9 @@ function darkDevilBurstTargets(enemy = state.battle.enemy) {
   const battle = state.battle;
   if (taoistPetCanTank() && battle.taoPet?.active && (battle.taoPet.hp ?? 0) > 0) {
     consider("pet", battle.taoPet, battle.taoPet.name);
+  }
+  if (battle.taoHolyDeva?.active && (battle.taoHolyDeva.hp ?? 0) > 0) {
+    consider("pet", battle.taoHolyDeva, battle.taoHolyDeva.name);
   }
   if ((battle.player?.hp ?? 0) > 0) {
     consider("player", battle.player, battle.combatClass);
@@ -35703,6 +36234,7 @@ function minotaurKingSplashTargets(primaryTarget, enemy = state.battle.enemy) {
     targets.push(entity);
   };
   consider(party.pet);
+  consider(party.holyDeva);
   for (const member of party.members ?? []) {
     if (member.alive && member.hp > 0) consider(member);
   }
@@ -36095,6 +36627,7 @@ function splashTargetsNearEnemy(enemy = state.battle.enemy, options = {}) {
   if (bossPartyActiveFight()) {
     const party = state.battle.bossParty;
     if (party?.pet?.active) consider("pet", party.pet, party.pet.name);
+    if (party?.holyDeva?.active) consider("pet", party.holyDeva, party.holyDeva.name);
     for (const member of party?.members ?? []) {
       if (!member.alive || (member.hp ?? 0) <= 0) continue;
       consider("member", member, member.classId);
@@ -36104,6 +36637,11 @@ function splashTargetsNearEnemy(enemy = state.battle.enemy, options = {}) {
   const battle = state.battle;
   if (taoistPetCanTank() && battle.taoPet?.active && (battle.taoPet.hp ?? 0) > 0) {
     consider("pet", battle.taoPet, battle.taoPet.name);
+  }
+  // Holy Deva is a follower (not a melee tank) but must still take AOE splash —
+  // previously it was omitted from every splash gatherer and was effectively immortal.
+  if (battle.taoHolyDeva?.active && (battle.taoHolyDeva.hp ?? 0) > 0) {
+    consider("pet", battle.taoHolyDeva, battle.taoHolyDeva.name);
   }
   if ((battle.player?.hp ?? 0) > 0 && Math.abs(centerX - Number(battle.playerX)) <= radiusPx) {
     consider("player", battle.player, battle.combatClass);
@@ -36129,6 +36667,7 @@ function massBurstTargetsInRange(enemy = state.battle.enemy) {
   if (bossPartyActiveFight()) {
     const party = state.battle.bossParty;
     if (party?.pet?.active) consider("pet", party.pet, party.pet.name);
+    if (party?.holyDeva?.active) consider("pet", party.holyDeva, party.holyDeva.name);
     for (const member of party?.members ?? []) {
       if (!member.alive || (member.hp ?? 0) <= 0) continue;
       consider("member", member, member.classId);
@@ -36138,6 +36677,9 @@ function massBurstTargetsInRange(enemy = state.battle.enemy) {
   const battle = state.battle;
   if (taoistPetCanTank() && battle.taoPet?.active && (battle.taoPet.hp ?? 0) > 0) {
     consider("pet", battle.taoPet, battle.taoPet.name);
+  }
+  if (battle.taoHolyDeva?.active && (battle.taoHolyDeva.hp ?? 0) > 0) {
+    consider("pet", battle.taoHolyDeva, battle.taoHolyDeva.name);
   }
   if ((battle.player?.hp ?? 0) > 0 && Math.abs(centerX - Number(battle.playerX)) <= range) {
     consider("player", battle.player, battle.combatClass);
@@ -36281,11 +36823,13 @@ function greatFoxSpiritTargets() {
       if (member.alive) consider("member", member, member.classId);
     }
     if (party?.pet?.active) consider("pet", party.pet, party.pet.name);
+    if (party?.holyDeva?.active) consider("pet", party.holyDeva, party.holyDeva.name);
     return targets;
   }
   const battle = state.battle;
   consider("player", battle.player, battle.combatClass);
   if (battle.taoPet?.active) consider("pet", battle.taoPet, battle.taoPet.name);
+  if (battle.taoHolyDeva?.active) consider("pet", battle.taoHolyDeva, battle.taoHolyDeva.name);
   return targets;
 }
 
@@ -37080,7 +37624,15 @@ function addCombatantPoisonText(targetKind, entity, text, kind, now, offsetX = 0
 
 function handleCombatantPoisonDeath(entity, targetKind, now, options = {}) {
   if ((entity?.hp ?? 0) > 0) return;
-  if (options.offline) return;
+  // Offline still needs to retire pets: leaving hp=0 + active=true wedges
+  // dual-pet delay / heal targeting during long AFK sims.
+  if (options.offline) {
+    if (targetKind === "pet") {
+      if (bossPartyActiveFight()) bossPartyMarkPetDead(now, entity);
+      else markTaoistPetDead(now, { pet: entity, sound: false, log: false });
+    }
+    return;
+  }
   if (targetKind === "pet") {
     if (bossPartyActiveFight()) bossPartyMarkPetDead(now, entity);
     else markTaoistPetDead(now, { pet: entity });
@@ -37268,8 +37820,14 @@ function resolveMinotaurKingSoloAoeStrike(enemy, now) {
   const battle = state.battle;
   const targets = [];
   if ((battle.player?.hp ?? 0) > 0) targets.push(enemyAttackTarget());
-  const pet = battle.taoPet;
-  if (pet?.active && (pet.hp ?? 0) > 0 && !taoistPetCanTank()) {
+  const splashPets = [];
+  if (battle.taoPet?.active && (battle.taoPet.hp ?? 0) > 0 && !taoistPetCanTank()) {
+    splashPets.push(battle.taoPet);
+  }
+  if (battle.taoHolyDeva?.active && (battle.taoHolyDeva.hp ?? 0) > 0) {
+    splashPets.push(battle.taoHolyDeva);
+  }
+  for (const pet of splashPets) {
     const defence = defenceStatsForEntity(pet);
     targets.push({
       kind: "pet",
@@ -37281,11 +37839,12 @@ function resolveMinotaurKingSoloAoeStrike(enemy, now) {
       agility: defence.agility,
       applyDamage: (damage, impactNow) => {
         pet.hp = Math.max(0, pet.hp - reduceTaoistPetIncomingDamage(pet, damage));
-        setTaoPetAction("struck", true, impactNow);
-        if (pet.hp <= 0) markTaoistPetDead(impactNow);
+        setTaoPetAction("struck", true, impactNow, pet);
+        if (pet.hp <= 0) markTaoistPetDead(impactNow, { pet });
       },
     });
-  } else if (pet?.active && (pet.hp ?? 0) > 0 && taoistPetCanTank() && (battle.player?.hp ?? 0) > 0) {
+  }
+  if (taoistPetCanTank() && (battle.player?.hp ?? 0) > 0) {
     const playerTarget = {
       kind: "player",
       name: battle.combatClass,
@@ -37645,12 +38204,21 @@ function bossPartyOnePetAttack(pet, now) {
   if (state.battle.pendingPetAttack) return false;
   if ((pet.nextAttackAt ?? 0) > now) return false;
   if (pet.spellId === "SummonShinsu" && !pet.shinsuVisible && pet.action === "show") return false;
-  if (bossPartyPetEnemyDistance(pet, enemy) > taoistPetAttackRangePx(pet)) {
+  const angelicDeva = pet.spellId === "SummonHolyDeva"
+    && glyphHasAngelicDeva(equippedGlyphFor(bossPartyTaoistMemberInventory()));
+  if (!angelicDeva && bossPartyPetEnemyDistance(pet, enemy) > taoistPetAttackRangePx(pet)) {
     setTaoPetAction("standing", false, now, pet);
     return false;
   }
   pet.nextAttackAt = now + Math.max(400, Math.trunc(Number(pet.attackMs) || 1200));
   revealTaoistShinsuPet(pet);
+  if (angelicDeva) {
+    return taoistHolyDevaAngelicMassHeal(pet, now, {
+      inventory: bossPartyTaoistMemberInventory(),
+      caster: state.battle.bossParty?.members?.find((row) => row.classId === "Taoist") ?? null,
+      bossParty: true,
+    });
+  }
   const result = rollTaoistPetAttackResult(pet, enemy, bossPartyTaoistMemberInventory());
   setTaoPetAction("attack1", true, now, pet);
 
@@ -38651,6 +39219,7 @@ function bossPartyAutoUsePotions(member, now) {
     if ((member.autoPotionReadyAt?.[kind] ?? 0) > now) continue;
     if (kind === "hp" && (member.potHealthAmount ?? 0) > 0) continue;
     if (kind === "mp" && (member.potManaAmount ?? 0) > 0) continue;
+    const blockSun = glyphBlocksSunPotions(equippedGlyphFor(member.inventory));
     const candidate = autoPotionSlots()
       .map((slot) => {
         const entry = bossPartyHotbarEntryAtSlot(member, slot);
@@ -38658,6 +39227,7 @@ function bossPartyAutoUsePotions(member, now) {
         return { entry, item, restore: potionRestoreAmount(item, kind), slot };
       })
       .filter((candidate) => candidate.entry && candidate.restore > 0)
+      .filter((candidate) => !(blockSun && isSunPotionFamilyItem(candidate.item)))
       .sort((a, b) => b.restore - a.restore || a.slot - b.slot)[0];
     if (!candidate || !bossPartyConsumeOneInventoryUnit(member, candidate.entry.id)) continue;
     const hpRestore = applyPotionHpRestoreWithGlyph(potionRestoreAmount(candidate.item, "hp"), member.inventory);
@@ -39024,6 +39594,8 @@ function updateLaneMotion(now) {
   if (!state.showEnemies) {
     battle.phase = "advance";
     advancePlayerTravel(now, dt);
+    // Early return skips the shared end-of-frame follower sync below.
+    syncTaoistFollowerPetPosition(now);
     battle.cameraX = battle.playerX - playerScreenX();
     return;
   }
@@ -39108,7 +39680,6 @@ function advancePlayerTravel(now, dt) {
   const speed = action === "running" ? LANE.runSpeed : LANE.playerSpeed;
   state.battle.playerX += speed * dt;
   setPlayerLocomotion(action, now);
-  syncTaoistFollowerPetPosition(now);
 }
 
 function travelAction(now) {
@@ -39304,6 +39875,8 @@ function queueAttachedSpellFx(spellId, options = {}) {
       layerEnd,
       layerDelayMs: options.layerDelayMs ?? null,
       frameIntervalMs: options.frameIntervalMs ?? null,
+      tint: options.tint ?? null,
+      cssFilter: options.cssFilter ?? null,
     },
   ].slice(-12);
 }
@@ -39487,7 +40060,10 @@ function bladeAvalancheLaneFxActive(now = performance.now()) {
   );
 }
 
-function queueBladeAvalancheLaneFx(now, worldX, memberClassId = null) {
+/** Recolor Glyph Flaming Avalanche BA blades (pixel filter — not a flat wash). */
+const FLAMING_AVALANCHE_FX_CSS_FILTER = "sepia(0.9) saturate(5.5) hue-rotate(-40deg) brightness(1.05)";
+
+function queueBladeAvalancheLaneFx(now, worldX, memberClassId = null, options = {}) {
   const layers = warriorSkillFxLayers("BladeAvalanche");
   const battle = state.battle;
   battle.attachedSpellFx = (battle.attachedSpellFx ?? []).filter((entry) => entry.spellId !== "BladeAvalanche");
@@ -39498,6 +40074,7 @@ function queueBladeAvalancheLaneFx(now, worldX, memberClassId = null) {
     layerStart: 0,
     layerEnd: Math.max(1, layers.length),
     durationMs: bladeAvalancheLaneFxDurationMs(),
+    cssFilter: options.cssFilter ?? null,
   });
 }
 
@@ -39681,12 +40258,29 @@ function updatePendingTwinDrakeHits(now) {
     queueTwinDrakeSwingFx(entry.memberClassId, now);
     if (!rollHit(attacker.accuracy, battle.enemy.agility)) {
       pushBattleLog(`Twin Drake Blade follow-up misses ${battle.enemy.name}.`);
+      noteWarriorActionForTwinDrakeMomentum("TwinDrakeBlade", {
+        hitSucceeded: false,
+        member: attacker?.classId ? attacker : null,
+        inventory: attacker?.inventory,
+      });
       continue;
     }
     const damage = scaleEnemyPhysicalDamage(entry.rawDamage, battle.enemy, now);
-    if (damage <= 0) continue;
+    if (damage <= 0) {
+      noteWarriorActionForTwinDrakeMomentum("TwinDrakeBlade", {
+        hitSucceeded: false,
+        member: attacker?.classId ? attacker : null,
+        inventory: attacker?.inventory,
+      });
+      continue;
+    }
     recordBossCombatDamage(entry.memberClassId, "TwinDrakeBlade", damage);
     applyCombatDamageEvent(enemyDamageEvent(damage), now, { enemy: battle.enemy });
+    noteWarriorActionForTwinDrakeMomentum("TwinDrakeBlade", {
+      hitSucceeded: true,
+      member: attacker?.classId ? attacker : null,
+      inventory: attacker?.inventory,
+    });
     syncBattleEnemyHpToSwarm();
     strikeGroupDungeonSwarmEnemy(battle.enemy, now);
     playMonsterSfx("flinch");
@@ -39741,6 +40335,7 @@ function castWarriorCharge(skill, learned, cost, now) {
   } else if (skill.id === "FlamingSword") {
     applyFlamingSwordChargeState(battle, now);
     if (battle.bossParty?.active) applyFlamingSwordChargeState(bossPartyControlledMember(), now);
+    noteWarriorActionForTwinDrakeMomentum("FlamingSword", { hitSucceeded: false });
   }
   sceneSignature = "";
   battle.pendingImpact = null;
@@ -39794,6 +40389,7 @@ function warriorApplyPhysicalHit(skill, learned, damage, now, crit = consumeOutg
   const attackerLabel = skill.id === "None" ? "Warrior" : skill.label;
   const scaled = scaleEnemyPhysicalDamage(damage, enemy, now);
   if (scaled <= 0) {
+    noteWarriorActionForTwinDrakeMomentum(skill?.id ?? "None", { hitSucceeded: false });
     applyCombatEvents(physicalAttackMissEvents(attackerLabel, enemy.name), now, { enemy });
     rollSlayingChargeAfterAttack(now);
     return false;
@@ -39803,8 +40399,16 @@ function warriorApplyPhysicalHit(skill, learned, damage, now, crit = consumeOutg
   if (skill.id === "TwinDrakeBlade" || skill.id === "FlamingSword" || skill.id === "None") playWeaponHitSfx();
   else if (!playSpellSfx(skill.id, "impact", { volume: 0.48 })) playWeaponHitSfx();
   applyCombatEvents(physicalAttackHitEvents(attackerLabel, enemy.name, scaled, "enemy", critDamageKind(crit)), now, { enemy });
+  noteWarriorActionForTwinDrakeMomentum(skill?.id ?? "None", { hitSucceeded: true });
   if (skill.id === "FlamingSword" && enemy.hp > 0) {
     maybeApplyImprovedFlamingSwordBurn(enemy, scaled, state.inventory, now);
+  }
+  if (skill.id === "FlamingSword") {
+    maybeProcFlamingSwordBladeAvalanche({
+      player: battle.player,
+      inventory: state.inventory,
+      now,
+    });
   }
   if (enemy.hp > 0) applyCrystalFreezingAttackProc(battle.player, enemy, now);
   if (learned) levelWarriorMagic(skill, learned, now);
@@ -39850,6 +40454,7 @@ function warriorAttack(now) {
   const useDelayedSlashingBurst = slashingBurstNeedsDelayedLaneCast(skill, now);
   if (useDelayedSlashingBurst) {
     if (learned) commitWarriorSpellUse(skill, learned, cost, now);
+    noteWarriorActionForTwinDrakeMomentum(skill?.id, { hitSucceeded: false });
     battle.lastPlayerAttackCooldownMs = playerWeaponAttackCooldownMs(now, skill);
     playWarriorSpellSwingSfx(skill, { volume: 0.5 });
     const castWorldX = battle.playerX;
@@ -39880,6 +40485,7 @@ function warriorAttack(now) {
       now,
       attackerLabel: skill.label,
     });
+    noteWarriorActionForTwinDrakeMomentum("BladeAvalanche", { hitSucceeded: false });
     if (learned && trained) levelWarriorMagic(skill, learned, now);
     levelPassiveWeaponMagic(now);
     rollSlayingChargeAfterAttack(now);
@@ -39897,6 +40503,7 @@ function warriorAttack(now) {
   let damage = 0;
   if (learned) {
     if (!rollHit(battle.player.accuracy, battle.enemy.agility)) {
+      noteWarriorActionForTwinDrakeMomentum(skill?.id ?? "None", { hitSucceeded: false });
       applyCombatEvents(physicalAttackMissEvents(attackerLabel, battle.enemy.name), now, { enemy: battle.enemy });
       rollSlayingChargeAfterAttack(now);
       return true;
@@ -39914,6 +40521,7 @@ function warriorAttack(now) {
       stats.luck,
     );
     if (!swing.hit) {
+      noteWarriorActionForTwinDrakeMomentum(skill?.id ?? "None", { hitSucceeded: false });
       applyCombatEvents(physicalAttackMissEvents(attackerLabel, battle.enemy.name), now, { enemy: battle.enemy });
       rollSlayingChargeAfterAttack(now);
       return true;
@@ -40216,6 +40824,72 @@ function bossPartySweepSplash(member, skill, learned, primaryEnemy, now) {
 
 function isBladeAvalancheSkill(skill) {
   return skill?.id === "BladeAvalanche";
+}
+
+/**
+ * Glyph of Flaming Avalanche: after a successful Flaming Sword hit, also fire
+ * Blade Avalanche (no extra MP, no BA cooldown, no BA skill XP). Requires BA learned.
+ */
+function maybeProcFlamingSwordBladeAvalanche({
+  player,
+  inventory = state.inventory,
+  now = performance.now(),
+  member = null,
+  offline = false,
+  enemy = null,
+} = {}) {
+  if (!glyphFlamingSwordTriggersBladeAvalanche(equippedGlyphFor(inventory))) return false;
+  const skill = warriorSpellById("BladeAvalanche");
+  const learned = member
+    ? bossPartyLearned(member, "BladeAvalanche")
+    : learnedMagic("BladeAvalanche");
+  if (!skill || !learned) return false;
+
+  if (offline) {
+    const target = enemy ?? state.battle.enemy;
+    if (!target?.hp) return false;
+    const depthIndex = bladeAvalancheDepthIndexFromDistance(enemyDistance());
+    if (depthIndex == null) return false;
+    if (!rollHit(player.accuracy, target.agility)) return false;
+    const damage = rollBladeAvalancheDamage(
+      skill,
+      learned,
+      player,
+      target,
+      inventory,
+      bladeAvalancheDepthDamageScale(depthIndex),
+    );
+    const scaled = scalePhysicalDamageForStun(damage, enemyStunned(target, now));
+    if (scaled <= 0) return false;
+    applyOfflineEnemyDamage(target, scaled, now, "magic");
+    noteWarriorActionForTwinDrakeMomentum("BladeAvalanche", {
+      hitSucceeded: false,
+      member,
+      inventory,
+    });
+    return true;
+  }
+
+  const worldX = member?.worldX ?? state.battle.playerX;
+  // Backdate FX so avalanche blades look mid-flight when Flaming Sword connects.
+  queueBladeAvalancheLaneFx(now - FLAMING_AVALANCHE_FX_LEAD_MS, worldX, member?.classId ?? null, {
+    cssFilter: FLAMING_AVALANCHE_FX_CSS_FILTER,
+  });
+  executeBladeAvalancheStrike({
+    skill,
+    learned,
+    player,
+    inventory,
+    now,
+    attackerLabel: member?.classId ?? skill.label,
+    member,
+  });
+  noteWarriorActionForTwinDrakeMomentum("BladeAvalanche", {
+    hitSucceeded: false,
+    member,
+    inventory,
+  });
+  return true;
 }
 
 function bladeAvalancheInRange(distancePx) {
@@ -40633,6 +41307,12 @@ function canAutoCastTaoistSpell(spell, learned, now) {
 
 function canUseTaoistSpell(spell, learned, now, options = {}) {
   if (!spell || !learned || spell.passive) return false;
+  if (
+    isDemonicDevaBlockedHealSpell(spell.id)
+    && glyphBlocksTaoistHealingSpells(equippedGlyphFor(state.inventory))
+  ) {
+    return false;
+  }
   if (options.requireAuto) {
     if (!learned.autoCast) return false;
     if (!autoTaoistCombatSpells().some((autoSpell) => autoSpell.id === spell.id)) return false;
@@ -40705,24 +41385,28 @@ function commitWarriorSpellUse(skill, learned, cost, now) {
   battlePanelSignature = "";
 }
 
-function wizardCastCooldownMs(spell, learned) {
-  return crystalSpellCastCooldownMs(spell, learned);
+function wizardCastCooldownMs(spell, learned, now = performance.now(), member = null) {
+  let ms = crystalSpellCastCooldownMs(spell, learned);
+  if (spell?.id === "FlameDisruptor") {
+    ms = applyFrenziedDisruptorCastCooldownMs(ms, frenziedDisruptorBuffFor(member), now);
+  }
+  return ms;
 }
 
 /** Per-spell recharge (castReadyAt). Channeled storms use a short global lock — channel timing handles the field. */
-function wizardSpellActionLockMs(spell, learned) {
+function wizardSpellActionLockMs(spell, learned, now = performance.now(), member = null) {
   if (spell?.groundChannel) {
     return Math.max(
       CRYSTAL_SPELL_GLOBAL_LOCK_MS,
       Math.trunc(Number(spell.castGlobalLockMs) || 0),
     );
   }
-  return wizardCastCooldownMs(spell, learned);
+  return wizardCastCooldownMs(spell, learned, now, member);
 }
 
 function applyWizardCastCooldown(spell, learned, now, member = null) {
-  const cooldown = wizardCastCooldownMs(spell, learned);
-  const actionLock = wizardSpellActionLockMs(spell, learned);
+  const cooldown = wizardCastCooldownMs(spell, learned, now, member);
+  const actionLock = wizardSpellActionLockMs(spell, learned, now, member);
   const inventory = member ? inventoryForCombatant(member) : state.inventory;
   if (learned) {
     learned.castReadyAt = now + applyEquippedSpellCooldownReductionMs(spell?.id, cooldown, inventory);
@@ -40734,6 +41418,46 @@ function applyWizardCastCooldown(spell, learned, now, member = null) {
     state.battle.wizardSpellLockUntil = now + actionLock;
   }
   return cooldown;
+}
+
+function frenziedDisruptorBuffFor(member = null) {
+  if (member?.frenziedDisruptor) return member.frenziedDisruptor;
+  return state.battle.frenziedDisruptor ?? null;
+}
+
+function setFrenziedDisruptorBuff(buff, member = null) {
+  if (member) {
+    member.frenziedDisruptor = buff;
+    if (member.classId === bossPartyControlledClassId()) {
+      state.battle.frenziedDisruptor = buff;
+    }
+    return;
+  }
+  state.battle.frenziedDisruptor = buff;
+}
+
+/**
+ * Flame Disruptor crit with Glyph of Frenzied Disruptor: refresh decaying cast-speed buff.
+ * @param {object | null | undefined} spell
+ * @param {boolean} crit
+ * @param {number} now
+ * @param {{ partyMember?: object | null, inventory?: object | null, silent?: boolean }} [options]
+ */
+function maybeProcFrenziedDisruptor(spell, crit, now, options = {}) {
+  if (spell?.id !== "FlameDisruptor" || !crit) return false;
+  const member = options.partyMember ?? null;
+  const inventory = options.inventory
+    ?? (member ? inventoryForCombatant(member) : state.inventory);
+  const params = glyphFrenziedDisruptorParams(equippedGlyphFor(inventory));
+  if (!params) return false;
+  const buff = buildFrenziedDisruptorBuffState(params, now);
+  if (!buff) return false;
+  setFrenziedDisruptorBuff(buff, member);
+  if (!options.silent && !suppressSimulationRender) {
+    pushBattleLog("Frenzied Disruptor: Flame Disruptor casting speed surges.");
+    addCombatText("player", "Frenzied!", "buff", now);
+  }
+  return true;
 }
 
 function wizardCastLocked(now, member = null) {
@@ -40911,9 +41635,13 @@ function rollWarriorMagicDamage(skill, learned, player, enemy, inventory = state
 
 function rollWizardMagicDamage(spell, learned, player, enemy, inventory = state.inventory) {
   const boosted = rollWizardMagicValue(spell, learned, player, inventory);
-  const adjusted = spell?.id === "ThunderBolt" && enemy?.undead
-    ? Math.trunc(boosted * thunderBoltUndeadMultiplier(learned?.level))
-    : boosted;
+  let adjusted = boosted;
+  if (enemy?.undead) {
+    if (spell?.id === "ThunderBolt") {
+      adjusted = Math.trunc(adjusted * thunderBoltUndeadMultiplier(learned?.level));
+    }
+    adjusted = applyEquippedSpellUndeadDamageBonus(spell?.id, adjusted, inventory, itemDefinition);
+  }
   return applyCritToOutgoingDamage(applyWizardMagicDefence(adjusted, enemy), player, spell?.id, inventory);
 }
 
@@ -40980,7 +41708,7 @@ function rollTaoistHealingAmount(spell, learned, player, inventory = state.inven
   const boosted = Math.trunc(((attack * 2) + crystalMagicPower(spell, learned)) * crystalMagicMultiplier(spell, learned));
   const level = Math.max(1, Math.trunc(Number(player?.level ?? state.game.progress.level) || 1));
   const base = Math.max(1, boosted + level);
-  const withGear = applyEquippedSpellHealingBonus(spell?.id, base, inventory);
+  const withGear = applyEquippedSpellHealingBonus(spell?.id, base, inventory, itemDefinition);
   return applyGlyphHealingAmount(withGear, spell?.id, equippedGlyphDefs(inventory, itemDefinition));
 }
 
@@ -41152,6 +41880,15 @@ function frostCrunchCanProc(player, enemy) {
   return playerLevel + 10 >= enemyLevel;
 }
 
+/** Bosses / boss-swarm targets that normally fail Frost Crunch's level gate. */
+function isFrostCrunchBossTarget(enemy) {
+  if (!enemy) return false;
+  if (enemy.isBossSwarm || enemy.stationaryBoss) return true;
+  if (bossDropTableForEnemy(enemy)) return true;
+  const zone = activeZone();
+  return Boolean(zone && (bossRoomDef(zone.id) || groupDungeonBossZone(zone) || groupDungeonBossSwarmZone(zone)));
+}
+
 function rollFrostCrunchSlow(skillLevel) {
   return randomInt(0, 19) <= Math.max(0, Math.min(3, Math.trunc(Number(skillLevel) || 0)));
 }
@@ -41218,16 +41955,28 @@ function applyEnemyFrozen(enemy, durationMs, now = performance.now()) {
 }
 
 function applyFrostCrunchEffects(enemy, learned, player, now = performance.now()) {
-  if (!enemy || enemy.hp <= 0 || !learned || !frostCrunchCanProc(player, enemy)) return false;
+  if (!enemy || enemy.hp <= 0 || !learned) return false;
+  const deepFrost = glyphDeepFrostParams(equippedGlyphFor(player));
+  const bossTarget = Boolean(deepFrost) && isFrostCrunchBossTarget(enemy);
+  if (!bossTarget && !frostCrunchCanProc(player, enemy)) return false;
+
   const skillLevel = Math.max(0, Math.min(3, Math.trunc(Number(learned.level) || 0)));
   const freezing = playerFreezingStat(player);
+  const shouldSlow = bossTarget
+    ? rollGlyphChancePercent(deepFrost.bossSlowChancePercent)
+    : rollFrostCrunchSlow(skillLevel);
+  const shouldFreeze = bossTarget
+    ? rollGlyphChancePercent(deepFrost.bossFreezeChancePercent)
+    : rollFrostCrunchFrozen(skillLevel);
+
   let applied = false;
-  if (rollFrostCrunchSlow(skillLevel) && applyEnemySlow(enemy, frostCrunchSlowDurationMs(), now)) {
+  // applyEnemySlow / applyEnemyFrozen refuse to refresh while the prior effect is active.
+  if (shouldSlow && applyEnemySlow(enemy, frostCrunchSlowDurationMs(), now)) {
     addCombatText("enemy", "Slowed", "frost", now);
     pushBattleLog(`${enemy.name} is slowed.`);
     applied = true;
   }
-  if (rollFrostCrunchFrozen(skillLevel) && applyEnemyFrozen(enemy, frostCrunchFrozenDurationMs(freezing), now)) {
+  if (shouldFreeze && applyEnemyFrozen(enemy, frostCrunchFrozenDurationMs(freezing), now)) {
     addCombatText("enemy", "Frozen", "frost", now);
     pushBattleLog(`${enemy.name} is frozen.`);
     applied = true;
@@ -41722,6 +42471,7 @@ function crystalRound(value) {
 
 function castWarriorBuff(skill, learned, cost, now) {
   commitWarriorSpellUse(skill, learned, cost, now);
+  noteWarriorActionForTwinDrakeMomentum(skill?.id, { hitSucceeded: false });
   if (applyWarriorCombatBuffToEntity(state.battle.player, skill, learned, now)) {
     playWarriorSpellSwingSfx(skill, { volume: 0.5 });
   }
@@ -42142,6 +42892,11 @@ function bossPartyCastWarriorBuff(member, skill, learned, cost, now, options = {
   member.mp -= cost;
   setWarriorSpellCastReadyAt(skill, learned, now, inventoryForCombatant(member));
   if (!applyWarriorCombatBuffToEntity(member, skill, learned, now)) return false;
+  noteWarriorActionForTwinDrakeMomentum(skill.id, {
+    hitSucceeded: false,
+    member,
+    inventory: member.inventory,
+  });
   member.nextActionAt = now + CRYSTAL_PLAYER_ACTION_LOCK_MS;
   if (options.manual) clearQueuedCombatSpell(skill.id);
   bossPartyControlledVisual(member, skill, skill.bodyAction ?? "spell", now);
@@ -42177,12 +42932,13 @@ function rollSkillExperienceGain() {
   return randomInt(1, skillExperienceGainMax());
 }
 
-// Rolls base skill practice XP, then scales it by equipped "Skill leveling" empowers.
-// The multiplier is applied after the roll so it never adds/removes RNG draws (keeps
-// offline simulation deterministic when no such gear is worn).
+// Rolls base skill practice XP, then scales it by equipped "Skill leveling" empowers
+// and Glyph of Efficient Learning. The multiplier is applied after the roll so it
+// never adds/removes RNG draws (keeps offline simulation deterministic when no such
+// gear/glyph is worn).
 function skillExperienceGain(inventory = state.inventory) {
   const base = rollSkillExperienceGain();
-  const bonus = equippedSkillLevelBonusPercent(inventory);
+  const bonus = totalSkillLevelBonusPercent(inventory);
   if (!(bonus > 0)) return base;
   return Math.max(1, Math.round(base * (1 + bonus / 100)));
 }
@@ -42237,7 +42993,7 @@ function wizardAttack(now) {
     return;
   }
 
-  battle.lastPlayerAttackCooldownMs = wizardSpellActionLockMs(spell, learned);
+  battle.lastPlayerAttackCooldownMs = wizardSpellActionLockMs(spell, learned, now);
   commitWizardSpellUse(spell, learned, cost, now);
   const groundSpell = spell.impactMode === "ground";
   const bangSpell = spell.impactMode === "bang";
@@ -42383,7 +43139,9 @@ function rollMagicShieldReductionPercent(learned) {
 
 function formatDefenceBuffApplied(spell, bonus, reductionPercent = 0, options = {}) {
   if (spell?.id === "MagicShield") {
-    if (options.manaAegis) return "MP absorbs damage (2 MP / 1 HP)";
+    if (options.manaAegis) {
+      return `${reductionPercent}% damage reduction; MP absorbs damage (2 MP / 1 HP)`;
+    }
     return `${reductionPercent}% damage reduction`;
   }
   const statTag = defenceBuffStat(spell.id) === "amc" ? "MAC" : "AC";
@@ -42909,6 +43667,14 @@ function combatantIsTaoist(entity) {
   return entity === state.battle.player && state.battle.combatClass === "Taoist";
 }
 
+/** Glyph of Slow Destruction: only the Warrior combatant — never pets or other party members. */
+function combatantIsWarrior(entity) {
+  if (!entity) return false;
+  if (entity.classId === "Warrior" || entity.class === "Warrior") return true;
+  if (entity.spellId) return false;
+  return entity === state.battle.player && state.battle.combatClass === "Warrior";
+}
+
 function effectiveCombatStats(entity) {
   const glyphs = equippedGlyphFor(entity);
   const stats = {
@@ -42928,6 +43694,11 @@ function effectiveCombatStats(entity) {
     );
     stats.dc = monk.dc;
     stats.sc = monk.sc;
+  }
+  // Same inventory-fallback risk for Slow Destruction — warriors only.
+  if (combatantIsWarrior(entity)) {
+    const slowDestruction = applyGlyphSlowDestructionCombatStats(stats, glyphs);
+    stats.dc = slowDestruction.dc;
   }
   return stats;
 }
@@ -43106,11 +43877,16 @@ function applyDefenceBuffEffect(spell, learned, caster, now, options = {}) {
     return applyTaoistPartyDefenceBuffToTargets(spell, learned, caster, now, options);
   }
   const bonus = rollDefenceBuffBonus(caster?.level ?? state.game.progress.level);
-  const manaAegis = spell?.id === "MagicShield"
-    && Boolean(glyphMagicShieldMpParams(equippedGlyphFor(caster)));
-  const reductionPercent = spell?.id === "MagicShield" && !manaAegis
+  const manaAegisParams = spell?.id === "MagicShield"
+    ? glyphMagicShieldMpParams(equippedGlyphFor(caster))
+    : null;
+  const manaAegis = Boolean(manaAegisParams);
+  let reductionPercent = spell?.id === "MagicShield"
     ? rollMagicShieldReductionPercent(learned)
     : 0;
+  if (manaAegisParams) {
+    reductionPercent = applyGlyphMagicShieldReductionPercent(reductionPercent, equippedGlyphFor(caster));
+  }
   const durationMs = spell?.id === "MagicShield"
     ? rollWizardDefenceBuffDurationMs(learned, caster)
     : rollTaoistDefenceBuffDurationMs(learned, caster);
@@ -43454,6 +44230,47 @@ function applyTaoistMassHealEffect(spell, learned, caster, now, options = {}) {
   if (!results.length) return null;
   if (learned && options.levelSkill !== false) levelMagicSkill(spell, learned, now);
   return { results };
+}
+
+/**
+ * Glyph of Angelic Deva: Holy Deva spends its attack tick casting Mass Healing
+ * using the Taoist's Mass Healing skill level and Spirit (no MP / no skill XP).
+ */
+function taoistHolyDevaAngelicMassHeal(pet, now, options = {}) {
+  if (!pet?.active || pet.spellId !== "SummonHolyDeva") return false;
+  const inventory = options.inventory
+    ?? inventoryForCombatant(taoistPetCritOwner())
+    ?? state.inventory;
+  if (!glyphHasAngelicDeva(equippedGlyphFor(inventory))) return false;
+
+  const spell = taoistCombatSpell("MassHealing");
+  const caster = options.caster
+    ?? taoistPetCritOwner()
+    ?? state.battle.player;
+  const learned = options.bossParty && caster
+    ? bossPartyLearned(caster, spell?.id)
+    : learnedMagic(spell?.id);
+  if (!spell || !learned || !caster) return false;
+  if (!needsTaoistMassHealing(now, { requireAuto: false })) return true;
+
+  const applied = applyTaoistMassHealEffect(spell, learned, caster, now, {
+    requireAuto: false,
+    levelSkill: false,
+  });
+  if (!applied) return true;
+
+  if (!options.offline) {
+    setTaoPetAction("attack1", true, now, pet);
+    showTaoistMassHealTexts(spell, applied, now, {
+      casterClassId: caster.classId ?? null,
+    });
+    queueMassHealImpactFx(now, {
+      worldX: Number(pet.worldX) || Number(state.battle.playerX) || 0,
+      memberClassId: options.bossParty ? (caster.classId ?? null) : null,
+    });
+    pushBattleLog(`${pet.name ?? "Holy Deva"} casts ${spell.label}.`);
+  }
+  return true;
 }
 
 function formatTaoistMassHealAppliedLog(spell, applied) {
@@ -43881,7 +44698,7 @@ function castWizardDefenceBuff(castBundle, now, options = {}) {
   const { spell, learned, cost } = castBundle;
   if (battle.pendingDefenceBuff && battle.pendingDefenceBuff.spellId !== spell.id) return false;
   if (battle.pendingWizardBuff) return false;
-  battle.lastPlayerAttackCooldownMs = wizardCastCooldownMs(spell, learned);
+  battle.lastPlayerAttackCooldownMs = wizardCastCooldownMs(spell, learned, now);
   commitWizardSpellUse(spell, learned, cost, now);
 
   if (options.offline) {
@@ -43968,7 +44785,7 @@ function castWizardMagicBooster(castBundle, now, options = {}) {
   const battle = state.battle;
   const { spell, learned, cost } = castBundle;
   if (battle.pendingWizardBuff || battle.pendingDefenceBuff) return false;
-  battle.lastPlayerAttackCooldownMs = wizardCastCooldownMs(spell, learned);
+  battle.lastPlayerAttackCooldownMs = wizardCastCooldownMs(spell, learned, now);
   commitWizardSpellUse(spell, learned, cost, now);
 
   if (options.offline) {
@@ -44800,6 +45617,7 @@ function createTaoistHolyDevaPet(spellLevel, now = performance.now()) {
     lastMoveAt: now,
     moving: false,
     followPending: false,
+    followMotionFrameAt: null,
   };
   return placeTaoistCombatPet(pet);
 }
@@ -44822,7 +45640,7 @@ function livingTaoistTankPet() {
     return pet?.active && (pet.hp ?? 0) > 0 && isTaoistTankSummonSpell(pet.spellId) ? pet : null;
   }
   const pet = state.battle.taoPet;
-  return pet?.active && (pet.hp ?? 0) > 0 ? pet : null;
+  return pet?.active && (pet.hp ?? 0) > 0 && isTaoistTankSummonSpell(pet.spellId) ? pet : null;
 }
 
 function livingTaoistHolyDeva() {
@@ -44927,13 +45745,19 @@ function syncTaoistFollowerPetPosition(now = performance.now()) {
   }
 
   const ownerWorldX = Number(state.battle.playerX) || 0;
-  const previousOwnerWorldX = Number(pet.lastOwnerWorldX);
-  const ownerMoved = Number.isFinite(previousOwnerWorldX) && Math.abs(ownerWorldX - previousOwnerWorldX) > 0.1;
-  if (ownerMoved && !pet.ownerWasMoving) {
-    pet.followAfter = now + CRYSTAL_HOLY_DEVA_FOLLOW_REACTION_MS;
-  }
-  pet.lastOwnerWorldX = ownerWorldX;
-  pet.ownerWasMoving = ownerMoved;
+  const motion = nextFollowerOwnerMotionState({
+    ownerWorldX,
+    lastOwnerWorldX: pet.lastOwnerWorldX,
+    ownerWasMoving: pet.ownerWasMoving,
+    now,
+    followAfter: pet.followAfter,
+    reactionDelayMs: CRYSTAL_HOLY_DEVA_FOLLOW_REACTION_MS,
+    motionFrameAt: pet.followMotionFrameAt,
+  });
+  pet.lastOwnerWorldX = motion.lastOwnerWorldX;
+  pet.ownerWasMoving = motion.ownerWasMoving;
+  pet.followAfter = motion.followAfter;
+  pet.followMotionFrameAt = motion.motionFrameAt;
 
   const result = advanceWizardMirrorFollow({
     worldX: pet.worldX,
@@ -45034,8 +45858,12 @@ function rollTaoistPetAttackResult(pet, enemy, inventory = state.inventory, owne
     : enemyPhysicalDefence(enemy);
   const rawDamage = rollDamage(attackWithGlyph, defence, pet.luck);
   const boosted = applyEquippedSpellDamageBonus(pet?.spellId, rawDamage, inventory, itemDefinition);
-  const damage = applyCritToOutgoingDamage(boosted, ownerEntity);
-  return { hit: damage > 0, damage, crit: consumeOutgoingCritFlag() };
+  let damage = applyCritToOutgoingDamage(boosted, ownerEntity);
+  const crit = consumeOutgoingCritFlag();
+  if (pet.spellId === "SummonHolyDeva") {
+    damage = applyGlyphDemonicDevaDamage(damage, equippedGlyphFor(ownerEntity ?? inventory));
+  }
+  return { hit: damage > 0, damage, crit };
 }
 
 function taoistPetCritOwner() {
@@ -45094,17 +45922,82 @@ function updatePendingPetAttack(now, options = {}) {
   const enemy = battle.enemy;
   if (!pet?.active || !enemy || enemy.hp <= 0) return true;
   const offline = Boolean(options.offline || impact.offline);
-  if (!offline && impact.spellId === "SummonHolyDeva") queueHolyDevaImpactFx(impact, now);
+  const bossParty = Boolean(impact.bossParty);
+  const glyphOwner = bossParty
+    ? (state.battle.bossParty?.members?.find((row) => row.classId === "Taoist") ?? null)
+    : taoistPetCritOwner();
+  const glyphs = equippedGlyphFor(glyphOwner ?? (bossParty ? bossPartyTaoistMemberInventory() : state.inventory));
+  const demonic = impact.spellId === "SummonHolyDeva" && glyphHasDemonicDeva(glyphs);
+  if (!offline && impact.spellId === "SummonHolyDeva") {
+    queueHolyDevaImpactFx(impact, now, { demonic });
+  }
   if (!offline) playTaoPetSfx("hit", { volume: 0.38, throttleMs: 120, pet });
-  applyTaoistPetAttackResult(pet, enemy, impact, now, {
-    offline,
-    bossParty: Boolean(impact.bossParty),
-    skipHitSfx: true,
-  });
+  if (demonic && groupDungeonSwarmSideActive()) {
+    applyDemonicDevaBangAttack(pet, enemy, impact, now, {
+      offline,
+      bossParty,
+      inventory: bossParty ? bossPartyTaoistMemberInventory() : state.inventory,
+      owner: glyphOwner,
+    });
+  } else {
+    applyTaoistPetAttackResult(pet, enemy, impact, now, {
+      offline,
+      bossParty,
+      skipHitSfx: true,
+    });
+  }
   return true;
 }
 
-function queueHolyDevaImpactFx(impact, now) {
+function applyDemonicDevaBangAttack(pet, primaryEnemy, impact, now, options = {}) {
+  const offline = Boolean(options.offline);
+  const bossParty = Boolean(options.bossParty);
+  const inventory = options.inventory ?? state.inventory;
+  const owner = options.owner ?? null;
+  const centerTile = {
+    worldX: impact.targetWorldX ?? state.battle.enemyX,
+    mapRow: impact.targetMapRow ?? 0,
+  };
+  const targets = enemiesInSpellBangArea(centerTile);
+  if (!targets.length) {
+    applyTaoistPetAttackResult(pet, primaryEnemy, impact, now, { offline, bossParty, skipHitSfx: true });
+    return;
+  }
+  const primaryId = primaryEnemy?.swarmId ?? primaryEnemy?.id ?? null;
+  for (const swarmEnemy of targets) {
+    const isPrimary = primaryId != null
+      && (swarmEnemy.id === primaryId || swarmEnemy.swarmId === primaryId);
+    const entity = swarmEnemyToBattleEntity(swarmEnemy);
+    const result = isPrimary
+      ? { hit: impact.hit, damage: impact.damage, crit: impact.crit }
+      : rollTaoistPetAttackResult(pet, entity, inventory, owner);
+    if (!result.hit || result.damage <= 0) {
+      if (!offline) {
+        pushBattleLog(`${pet.name} misses ${swarmEnemy.name}.`);
+      }
+      continue;
+    }
+    if (bossParty) recordBossCombatDamage("Pet", "PetAttack", result.damage);
+    if (!offline) {
+      applyCombatDamageEvent(swarmEnemyDamageEvent(swarmEnemy.id, result.damage), now, { swarmEnemy });
+      addSwarmEnemyCombatText(swarmEnemy, result.damage, critDamageKind(result.crit) ?? "damage", now);
+      strikeGroupDungeonSwarmEnemy(entity, now);
+      playMonsterSfx("flinch", swarmEnemy, { volume: 0.34, throttleMs: 80 });
+      pushBattleLog(`${pet.name} hits ${swarmEnemy.name} for ${result.damage}.`);
+      maybeKillGroupDungeonSwarmEnemy({ ...entity, hp: swarmEnemy.hp }, now);
+    } else {
+      applyCombatDamageEvent(swarmEnemyDamageEvent(swarmEnemy.id, result.damage), now, { swarmEnemy });
+      maybeKillGroupDungeonSwarmEnemy({ ...entity, hp: swarmEnemy.hp }, now);
+    }
+  }
+  syncGroupDungeonPrimaryEnemy();
+}
+
+function queueHolyDevaImpactFx(impact, now, options = {}) {
+  if (options.demonic) {
+    queueHolyDevaMapLightningFx(impact, now);
+    return;
+  }
   const atlas = state.wizardSpellAtlases?.ThunderBolt;
   const layerIndex = atlas?.layers?.findIndex(
     (layer) => layer.library === "Magic2" && Number(layer.baseIndex) === 10,
@@ -45121,6 +46014,39 @@ function queueHolyDevaImpactFx(impact, now) {
     layerDelayMs: 0,
     frameIntervalMs: CRYSTAL_HOLY_DEVA_ATTACK_FX_MS / frameCount,
   });
+}
+
+/** Cosmetic MapLightning bolts (Oma King Spirit room FX) for Glyph of Demonic Deva. */
+function queueHolyDevaMapLightningFx(impact, now) {
+  if (!state.mapLightningAtlas?.layers?.[0]) return;
+  const centerTile = {
+    worldX: impact.targetWorldX ?? state.battle.enemyX,
+    mapRow: impact.targetMapRow ?? 0,
+  };
+  const worldXs = [];
+  if (groupDungeonSwarmSideActive()) {
+    for (const swarmEnemy of enemiesInSpellBangArea(centerTile)) {
+      worldXs.push(swarmEnemyReservedTile(swarmEnemy).worldX);
+    }
+  }
+  if (!worldXs.length) worldXs.push(centerTile.worldX);
+  const effects = state.battle.mapLightningEffects ?? [];
+  for (const worldX of worldXs) {
+    effects.push({
+      id: `deva-lightning-${now}-${worldX}-${Math.random()}`,
+      worldX,
+      variantIndex: Math.floor(Math.random() * 3),
+      damage: 0,
+      createdAt: now,
+      expiresAt: now + MAP_LIGHTNING_EFFECT_MS,
+      resolveBy: now + MAP_LIGHTNING_EFFECT_MS,
+      hitAt: now,
+      resolved: true,
+      solo: false,
+    });
+  }
+  state.battle.mapLightningEffects = effects.slice(-12);
+  playSfx("map.lightning", { volume: 0.48, throttleMs: 80 });
 }
 
 function taoPetAtlasFor(pet) {
@@ -45250,6 +46176,7 @@ function createWizardMirror(spellLevel, now = performance.now(), options = {}) {
     moving: false,
     followPending: false,
     followRunning: false,
+    followMotionFrameAt: null,
     followAction: "stance",
     expiresAt: now + wizardMirrorDurationMs(spellLevel),
     nextActionAt: now + 800,
@@ -45330,14 +46257,20 @@ function updateWizardMirrorFollow(mirror, owner, now) {
     return false;
   }
 
-  const previousOwnerX = Number(mirror.lastOwnerWorldX);
-  const ownerMoved = Number.isFinite(previousOwnerX) && Math.abs(ownerX - previousOwnerX) > 0.1;
-  if (ownerMoved && !mirror.ownerWasMoving) {
-    mirror.followAfter = now + WIZARD_MIRROR_REACTION_DELAY_MS;
-  }
-  if (ownerMoved) mirror.followRunning = state.action === "running";
-  mirror.lastOwnerWorldX = ownerX;
-  mirror.ownerWasMoving = ownerMoved;
+  const motion = nextFollowerOwnerMotionState({
+    ownerWorldX: ownerX,
+    lastOwnerWorldX: mirror.lastOwnerWorldX,
+    ownerWasMoving: mirror.ownerWasMoving,
+    now,
+    followAfter: mirror.followAfter,
+    reactionDelayMs: WIZARD_MIRROR_REACTION_DELAY_MS,
+    motionFrameAt: mirror.followMotionFrameAt,
+  });
+  if (motion.ownerMoved) mirror.followRunning = state.action === "running";
+  mirror.lastOwnerWorldX = motion.lastOwnerWorldX;
+  mirror.ownerWasMoving = motion.ownerWasMoving;
+  mirror.followAfter = motion.followAfter;
+  mirror.followMotionFrameAt = motion.motionFrameAt;
 
   const result = advanceWizardMirrorFollow({
     worldX: mirror.worldX,
@@ -45536,6 +46469,11 @@ function applyWizardMirrorSpellImpact(mirror, impact, now) {
   queueEnemyStruck(now);
   playMonsterSfx("flinch");
   applyCombatEvents(magicAttackHitEvents(spell.label, enemy.name, impact.damage, "enemy", critDamageKind(impact.crit)), now, { enemy: enemy });
+  maybeProcFrenziedDisruptor(spell, Boolean(impact.crit), now, {
+    partyMember: owner?.classId ? owner : null,
+    inventory: wizardMirrorOwnerInventory(owner),
+    silent: true,
+  });
   if (enemy.hp <= 0) {
     if (groupDungeonSwarmSideActive() && enemy.swarmId) syncBattleEnemyHpToSwarm();
     maybeApplyFlameDisruptorCascade(spell, impact.damage, enemy, now, { partyMember: owner });
@@ -45577,7 +46515,7 @@ function wizardMirrorTryMagicShield(mirror, owner, now, options = {}) {
     spellId: spell.id,
   };
   const untilAt = mirror.pendingDefenceBuff.at;
-  const cooldownUntil = now + wizardCastCooldownMs(spell, learned);
+  const cooldownUntil = now + wizardCastCooldownMs(spell, learned, now);
   wizardMirrorBeginCastVisual(mirror, spell.id, now, untilAt);
   mirror.nextActionAt = cooldownUntil;
   // Many Mirrors extras share one shield buff, but each body should cast the visual.
@@ -45637,7 +46575,7 @@ function wizardMirrorTryAttack(mirror, owner, now, options = {}, body = mirror) 
     body.pendingImpact = impact;
   }
   wizardMirrorBeginCastVisual(body, spell.id, now, impactAt);
-  body.nextActionAt = now + wizardCastCooldownMs(spell, learned);
+  body.nextActionAt = now + wizardCastCooldownMs(spell, learned, now, owner?.classId ? owner : null);
   const castSfxPhase = wizardMirrorCastSfxPhase(spell.impactMode);
   if (!options.offline && !suppressSimulationRender && castSfxPhase) {
     wizardMirrorMirrorSfx(spell.id, castSfxPhase);
@@ -45700,7 +46638,7 @@ function castWizardMirroring(castBundle, now, options = {}) {
   const battle = state.battle;
   const { spell, learned, cost } = castBundle;
   if (wizardMirrorActive()) return false;
-  battle.lastPlayerAttackCooldownMs = wizardCastCooldownMs(spell, learned);
+  battle.lastPlayerAttackCooldownMs = wizardCastCooldownMs(spell, learned, now);
   commitWizardSpellUse(spell, learned, cost, now);
   levelMagicSkill(spell, learned, now);
 
@@ -46300,7 +47238,9 @@ function updateOneTaoistPetAttack(pet, now, options = {}) {
     pet.frame = 0;
     pet.oneShot = false;
   }
-  if (taoistPetEnemyDistance(pet) > taoistPetAttackRangePx(pet)) {
+  const angelicDeva = pet.spellId === "SummonHolyDeva"
+    && glyphHasAngelicDeva(equippedGlyphFor(inventoryForCombatant(taoistPetCritOwner()) ?? state.inventory));
+  if (!angelicDeva && taoistPetEnemyDistance(pet) > taoistPetAttackRangePx(pet)) {
     if (!options.offline && !taoistPetIsFollower(pet)) setTaoPetAction("standing", false, now, pet);
     return false;
   }
@@ -46316,6 +47256,16 @@ function taoistPetAttack(now, options = {}, petOverride = null) {
 
   battle.enemyAggro = true;
   revealTaoistShinsuPet(pet);
+  if (
+    pet.spellId === "SummonHolyDeva"
+    && glyphHasAngelicDeva(equippedGlyphFor(inventoryForCombatant(taoistPetCritOwner()) ?? state.inventory))
+  ) {
+    return taoistHolyDevaAngelicMassHeal(pet, now, {
+      inventory: inventoryForCombatant(taoistPetCritOwner()) ?? state.inventory,
+      caster: taoistPetCritOwner() ?? battle.player,
+      offline: Boolean(options.offline),
+    });
+  }
   const result = rollTaoistPetAttackResult(pet, enemy);
   if (!options.offline) {
     setTaoPetAction("attack1", true, now, pet);
@@ -46867,6 +47817,7 @@ function updatePendingImpact(now) {
   queueEnemyStruck(now);
   playMonsterSfx("flinch");
   applyCombatEvents(magicAttackHitEvents(spell.label, battle.enemy.name, impact.damage, "enemy", critDamageKind(impact.crit)), now, { enemy: battle.enemy });
+  maybeProcFrenziedDisruptor(spell, Boolean(impact.crit), now);
   const learned = learnedMagic(spell.id);
   if (spell.id === "FrostCrunch" && impact.damage > 0 && learned) {
     applyFrostCrunchEffects(battle.enemy, learned, battle.player, now);
@@ -47676,7 +48627,7 @@ function bossPartyIncomingStrikeTarget(partyEntity, now, options = {}) {
       anchor: "pet",
       applyDamage: (amount, impactNow) => {
         recordBossCombatDamageTaken("Pet", amount);
-        partyEntity.hp = Math.max(0, partyEntity.hp - amount);
+        partyEntity.hp = Math.max(0, partyEntity.hp - reduceTaoistPetIncomingDamage(partyEntity, amount));
         setTaoPetAction("struck", true, impactNow, partyEntity);
         if (partyEntity.hp <= 0) bossPartyMarkPetDead(impactNow, partyEntity);
       },
@@ -47728,11 +48679,11 @@ function strikeTargetRefToIncoming(targetRef, now, options = {}) {
       anchor: "pet",
       applyDamage: (amount, impactNow) => {
         recordBossCombatDamageTaken("Pet", amount);
-        entity.hp = Math.max(0, entity.hp - amount);
-        setTaoPetAction("struck", true, impactNow);
+        entity.hp = Math.max(0, entity.hp - reduceTaoistPetIncomingDamage(entity, amount));
+        setTaoPetAction("struck", true, impactNow, entity);
         if (entity.hp <= 0) {
-          if (bossPartyActiveFight()) bossPartyMarkPetDead(impactNow);
-          else markTaoistPetDead(impactNow);
+          if (bossPartyActiveFight()) bossPartyMarkPetDead(impactNow, entity);
+          else markTaoistPetDead(impactNow, { pet: entity });
         }
       },
     };
@@ -47900,10 +48851,10 @@ function incomingDamageReductionPercent(target, now = performance.now()) {
   let percent = 0;
   const buffs = pruneStatBuffs(entityStatBuffList(buffEntity), now);
   // Wizard Magic Shield buff (existing behaviour): pet/enemy entities have no classId.
-  // Mana Aegis glyph replaces Magic Shield DR with MP absorption.
+  // Mana Aegis keeps Magic Shield DR at half strength (stored on the buff) and adds MP absorption.
   if (!classId || classId === "Wizard") {
     const shield = buffs.find((buff) => buff.kind === "magicShield");
-    if (shield && !glyphMagicShieldMpParams(equippedGlyphFor(buffEntity))) {
+    if (shield) {
       percent += Math.max(0, Math.trunc(Number(shield?.reductionPercent) || 0));
     }
   }
@@ -48058,6 +49009,7 @@ function finishBattle(now) {
   state.battle.twinDrakeReadyAt = 0;
   state.battle.twinDrakeChargeFxStartedAt = 0;
   state.battle.twinDrakeChargeFxUntil = 0;
+  state.battle.twinDrakeMomentumStacks = 0;
   state.battle.pendingTwinDrakeHits = [];
   state.battle.pendingDisruptorCascade = [];
   clearSlashingBurstPendingState();
@@ -48810,7 +49762,7 @@ const COMBAT_PROJECTILE_TRAVEL_MAX_MS = 1200;
 // Fallback when the enemy atlas/frame is missing.
 const COMBAT_SPELL_TARGET_TORSO_OFFSET_Y = -28;
 // Only these spells use sprite-center aim / single impact path; other spells keep legacy FX.
-const ENEMY_SPRITE_AIM_SPELL_IDS = new Set(["FireBall", "GreatFireBall"]);
+const ENEMY_SPRITE_AIM_SPELL_IDS = new Set(["FireBall", "GreatFireBall", "FrostCrunch"]);
 
 function spellUsesEnemySpriteAim(spellId) {
   return ENEMY_SPRITE_AIM_SPELL_IDS.has(spellId);
@@ -49624,13 +50576,15 @@ function taoistSoulFireBallRangePx(spell) {
 }
 
 function effectivePlayerAttackSpeed(now = performance.now()) {
+  if (glyphNullifiesAttackSpeed(equippedGlyphFor(state.battle.player))) return 0;
   const player = state.battle.player;
   const base = Number(player?.attackSpeed) || 0;
   const furyUntil = Math.max(Number(state.battle.furyUntil) || 0, Number(player?.furyUntil) || 0);
   const furyBonus = now < furyUntil
     ? Number(state.battle.furyBonus ?? player?.furyBonus) || 0
     : 0;
-  return base + furyBonus;
+  const momentum = twinDrakeMomentumAttackSpeedBonus(twinDrakeMomentumStacksFor());
+  return base + furyBonus + momentum;
 }
 
 function playerCombatLevel() {
@@ -49652,6 +50606,9 @@ function characterAttackSpeedLabel(now = performance.now()) {
   const stats = characterTotalStats();
   const effective = effectivePlayerAttackSpeed(now);
   const delay = playerAttackDelayMs(now);
+  if (glyphNullifiesAttackSpeed(equippedGlyphFor(state.battle.player))) {
+    return `${stats.attackSpeed} (ignored) · ${delay}ms`;
+  }
   if (effective !== stats.attackSpeed) {
     return `${stats.attackSpeed} (+${effective - stats.attackSpeed}) · ${delay}ms`;
   }
@@ -53203,6 +54160,24 @@ function combatantPoisonTint(entity) {
   return null;
 }
 
+/** Soft red wash while Glyph of Demonic Deva is equipped (Holy Deva only). */
+function holyDevaDemonicTint(pet) {
+  if (!pet?.active || pet.spellId !== "SummonHolyDeva" || (pet.hp ?? 0) <= 0) return null;
+  const owner = taoistPetCritOwner();
+  const glyphs = equippedGlyphFor(owner ?? state.inventory);
+  if (!glyphHasDemonicDeva(glyphs)) return null;
+  return { mode: "tint", color: "#c62828", alpha: 0.46 };
+}
+
+/** Soft gold wash while Glyph of Angelic Deva is equipped (Holy Deva only). */
+function holyDevaAngelicTint(pet) {
+  if (!pet?.active || pet.spellId !== "SummonHolyDeva" || (pet.hp ?? 0) <= 0) return null;
+  const owner = taoistPetCritOwner();
+  const glyphs = equippedGlyphFor(owner ?? state.inventory);
+  if (!glyphHasAngelicDeva(glyphs)) return null;
+  return { mode: "tint", color: "#f0d878", alpha: 0.4 };
+}
+
 function drawEnemyDebuffTintCanvas(ctx, atlas, sheet, anchorX, anchorY, action, frame, tint, enemy = state.battle.enemy) {
   if (!tint) return;
   const actions = enemyVisualActions(atlas, enemy);
@@ -53532,6 +54507,9 @@ function drawOneTaoistPetCanvas(ctx, pet) {
   if (!sheet) return;
   const { x: anchorX, y: anchorY } = taoistPetAnchor(pet);
   const poisonTint = combatantPoisonTint(pet);
+  const glyphTint = poisonTint?.mode === "grayscale"
+    ? null
+    : (holyDevaAngelicTint(pet) ?? holyDevaDemonicTint(pet));
   const drawPetFrame = () => {
     if (poisonTint?.mode === "grayscale") {
       drawAtlasFrameGrayscale(ctx, sheet, atlas.slotWidth, atlas.slotHeight, meta, anchorX, anchorY);
@@ -53550,6 +54528,9 @@ function drawOneTaoistPetCanvas(ctx, pet) {
     drawMonsterOverlayCanvas(ctx, atlas, sheet, anchorX, anchorY, pet.action, pet.frame);
   } else {
     drawPetFrame();
+  }
+  if (glyphTint?.mode === "tint") {
+    drawAtlasFrameTint(ctx, sheet, atlas.slotWidth, atlas.slotHeight, meta, anchorX, anchorY, glyphTint);
   }
   if (poisonTint?.mode === "tint") {
     drawAtlasFrameTint(ctx, sheet, atlas.slotWidth, atlas.slotHeight, meta, anchorX, anchorY, poisonTint);
@@ -54341,12 +55322,10 @@ function drawAtlasFrameGrayscale(ctx, sheet, slotWidth, slotHeight, meta, anchor
 function drawAtlasFrameCssFilter(ctx, sheet, slotWidth, slotHeight, meta, anchorX, anchorY, cssFilter, scale = 1) {
   if (!sheet || !meta || meta.empty || !cssFilter) return;
   const drawScale = Math.max(0.1, Number(scale) || 1);
-  const w = Math.max(1, Math.trunc(Number(slotWidth) || 1));
-  const h = Math.max(1, Math.trunc(Number(slotHeight) || 1));
-  const scratch = ensureAtlasTintScratch(w, h);
-  if (!scratch) return;
   const { sx, sy, sourceWidth, sourceHeight } = atlasFrameSourceRect(meta, slotWidth, slotHeight);
-  scratch.clearRect(0, 0, w, h);
+  const scratch = ensureAtlasTintScratch(sourceWidth, sourceHeight);
+  if (!scratch) return;
+  scratch.clearRect(0, 0, sourceWidth, sourceHeight);
   scratch.globalCompositeOperation = "source-over";
   scratch.globalAlpha = 1;
   scratch.filter = String(cssFilter);
@@ -54556,7 +55535,7 @@ function drawAttachedSpellFxCanvas(ctx) {
       for (const layer of layers) {
         const frameIndex = attachedSpellFxFrameIndex(layer, entry, now);
         if (frameIndex < 0) continue;
-        drawSpellLayerCanvas(ctx, atlas.spellId, layer, frameIndex, anchorX, anchorY, scale);
+        drawSpellLayerCanvas(ctx, atlas.spellId, layer, frameIndex, anchorX, anchorY, scale, entry.cssFilter);
       }
     }
   });
@@ -55316,11 +56295,15 @@ function drawImpactFlashCanvas(ctx, atlas, t, enemyAnchor) {
   drawSpellLayerCanvas(ctx, atlas.spellId, layer, frameIndex, enemyAnchor.x, anchorY);
 }
 
-function drawSpellLayerCanvas(ctx, spellId, layer, frameIndex, anchorX, anchorY, scale = 1) {
+function drawSpellLayerCanvas(ctx, spellId, layer, frameIndex, anchorX, anchorY, scale = 1, cssFilter = null) {
   const meta = layer.frames[frameIndex] ?? layer.frames[0];
   if (!meta || meta.empty) return;
   const sheet = cachedImage(`./public/spellfx/${spellId}/${layer.sheet}`);
   if (!sheet) return;
+  if (cssFilter) {
+    drawAtlasFrameCssFilter(ctx, sheet, layer.slotWidth, layer.slotHeight, meta, anchorX, anchorY, cssFilter, scale);
+    return;
+  }
   // Crystal MLibrary.Draw(offSet: true): anchor at cell top, then per-frame mi.X/mi.Y and actual w/h.
   if (meta.w != null && meta.h != null) {
     drawAtlasFrameMeta(ctx, sheet, layer.slotWidth, meta, anchorX, anchorY, scale);

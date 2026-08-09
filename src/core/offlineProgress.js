@@ -154,6 +154,74 @@ export function rollMiningOreItemId(oreDrops, totalSlots, rng = Math.random, fal
 }
 
 /**
+ * Rebuild mining drop ranges after boosting rare ores.
+ * Each rare gains `bonusSlotsPerRare` weight; that weight is stolen from
+ * donor ores in order (typically copper, then gold) so the total slot count
+ * stays the same.
+ *
+ * @param {Array<{ itemId: string, minSlot: number, maxSlot: number }>} baseDrops
+ * @param {Iterable<string>} rareItemIds
+ * @param {number} bonusSlotsPerRare
+ * @param {string[]} [donorItemIds=["copper-ore","gold-ore","silver-ore"]]
+ * @returns {Array<{ itemId: string, minSlot: number, maxSlot: number }>}
+ */
+export function buildMiningOreDropsWithRareBonus(
+  baseDrops,
+  rareItemIds,
+  bonusSlotsPerRare,
+  donorItemIds = ["copper-ore", "gold-ore", "silver-ore"],
+) {
+  const rareIds = new Set(
+    [...(rareItemIds ?? [])].map((id) => String(id ?? "").trim()).filter(Boolean),
+  );
+  const bonus = Math.max(0, Math.trunc(Number(bonusSlotsPerRare) || 0));
+  const weights = new Map();
+  const order = [];
+  for (const drop of baseDrops ?? []) {
+    const itemId = String(drop?.itemId ?? "").trim();
+    if (!itemId) continue;
+    const minSlot = Math.trunc(Number(drop.minSlot) || 0);
+    const maxSlot = Math.trunc(Number(drop.maxSlot) || 0);
+    const weight = Math.max(0, maxSlot - minSlot + 1);
+    if (!weights.has(itemId)) order.push(itemId);
+    weights.set(itemId, (weights.get(itemId) ?? 0) + weight);
+  }
+  if (bonus <= 0 || rareIds.size === 0) {
+    return rebuildMiningOreDropRanges(order, weights);
+  }
+
+  let need = 0;
+  for (const itemId of rareIds) {
+    if (!weights.has(itemId)) continue;
+    weights.set(itemId, (weights.get(itemId) ?? 0) + bonus);
+    need += bonus;
+  }
+  for (const donorId of donorItemIds) {
+    if (need <= 0) break;
+    if (rareIds.has(donorId) || !weights.has(donorId)) continue;
+    const available = weights.get(donorId) ?? 0;
+    const take = Math.min(available, need);
+    weights.set(donorId, available - take);
+    need -= take;
+  }
+  return rebuildMiningOreDropRanges(order, weights);
+}
+
+function rebuildMiningOreDropRanges(order, weights) {
+  const drops = [];
+  let nextSlot = 1;
+  for (const itemId of order) {
+    const weight = Math.max(0, Math.trunc(Number(weights.get(itemId)) || 0));
+    if (weight <= 0) continue;
+    const minSlot = nextSlot;
+    const maxSlot = nextSlot + weight - 1;
+    drops.push({ itemId, minSlot, maxSlot });
+    nextSlot = maxSlot + 1;
+  }
+  return drops;
+}
+
+/**
  * @param {() => number} [rng]
  * @param {number} [maxPurity=10]
  * @param {number} [minPurity=1]
@@ -619,15 +687,46 @@ export function advanceOfflineFightTick(elapsedMs, delta, remainingMs) {
 
 /**
  * @param {object} template
+ * @param {object} [options]
+ * @param {number} [options.hp] continue from current HP instead of full maxHp
+ * @param {unknown[]} [options.poisons]
+ * @param {object} [options.debuffs]
+ * @param {object | null} [options.flamingSwordBurn]
  */
-export function createOfflineFightEnemy(template) {
+export function createOfflineFightEnemy(template, options = {}) {
+  const maxHp = Math.max(0, Math.trunc(Number(template?.maxHp) || 0));
+  const hp = options.hp != null
+    ? Math.max(0, Math.min(maxHp, Math.trunc(Number(options.hp) || 0)))
+    : maxHp;
   return {
     ...template,
-    hp: template.maxHp,
-    mp: template.maxMp,
-    poisons: [],
-    debuffs: { slowUntil: 0, frozenUntil: 0 },
+    hp,
+    mp: template?.maxMp,
+    poisons: Array.isArray(options.poisons) ? options.poisons : [],
+    debuffs: options.debuffs && typeof options.debuffs === "object"
+      ? { slowUntil: 0, frozenUntil: 0, ...options.debuffs }
+      : { slowUntil: 0, frozenUntil: 0 },
+    flamingSwordBurn: options.flamingSwordBurn ?? null,
   };
+}
+
+/**
+ * Whether a live battle enemy should be continued by the first offline fight
+ * instead of discarding mid-fight damage and spawning a fresh full-HP mob.
+ *
+ * @param {object | null | undefined} enemy
+ * @param {object} [options]
+ * @param {boolean} [options.trainingDummy]
+ */
+export function canResumeOfflineZoneEnemy(enemy, options = {}) {
+  if (!enemy || options.trainingDummy) return false;
+  const hp = Math.trunc(Number(enemy.hp) || 0);
+  const maxHp = Math.trunc(Number(enemy.maxHp) || 0);
+  if (hp <= 0 || maxHp <= 0 || hp > maxHp) return false;
+  // Full-HP enemies are treated as a fresh spawn (zone entry / respawn). Only
+  // continue when live combat already chipped the mob — otherwise AFK would
+  // skip the offline loop's first template roll and shift seeded fixtures.
+  return hp < maxHp;
 }
 
 /**
@@ -665,6 +764,7 @@ export function buildOfflineFightResult(elapsedMs, enemy, playerHp) {
  * @param {(enemy: object, now: number) => void} [options.onEnemyAttack]
  * @param {(now: number) => number} [options.consumePlayerCooldownMs]
  * @param {(enemy: object, now: number) => number} [options.getNextEnemyAttackMs]
+ * @param {() => number} [options.getKillLatencyMs]
  */
 export function simulateOfflineFightLoop(options) {
   const limit = Math.max(0, Math.trunc(Number(options.remainingMs) || 0));
@@ -711,6 +811,13 @@ export function simulateOfflineFightLoop(options) {
     }
     if ((enemy?.hp ?? 0) <= 0) break;
 
+    // Live combat fires "secondary" casts (Taoist SoulFireBall/Plague/Curse)
+    // every frame, gated only by each spell's own cast timer rather than by the
+    // player attack cooldown. Without the same step here a caster loses roughly
+    // half of its damage offline.
+    options.onSecondaryCasts?.(now);
+    if ((enemy?.hp ?? 0) <= 0) break;
+
     options.onPetAttack?.(now);
     if ((enemy?.hp ?? 0) <= 0) break;
 
@@ -722,6 +829,16 @@ export function simulateOfflineFightLoop(options) {
       );
       options.onRecovery?.(now);
     }
+  }
+
+  // Live spells land their damage when the projectile/cast impact resolves, not
+  // when the action fires, so the killing blow registers later than it does
+  // here. Earlier hits are hidden by the attack-cooldown pipeline; only the last
+  // one is exposed, so charge that single latency at the end of the fight.
+  // Melee reports zero because live applies it instantly.
+  if ((enemy?.hp ?? 0) <= 0) {
+    const latency = Math.max(0, Math.trunc(Number(options.getKillLatencyMs?.()) || 0));
+    if (latency > 0) elapsedMs = Math.min(limit, elapsedMs + latency);
   }
 
   const result = buildOfflineFightResult(elapsedMs, enemy, getPlayerHp());
@@ -824,6 +941,7 @@ export function simulateOfflineZoneProgressLoop(limitMs, options = {}) {
  * @param {number} simNow
  * @param {object} [options]
  * @param {boolean} [options.pendingPetAttack]
+ * @param {number} [options.pendingPetAttackAt] absolute sim time of the pending impact
  * @param {boolean} [options.shinsuShowPending]
  * @param {boolean} [options.outOfRange]
  * @param {boolean} [options.blocked] pet cannot act (paralyzed, mid-follow, ...)
@@ -836,8 +954,35 @@ export function computeOfflinePetAttackDelayMs(pet, simNow, options = {}) {
   if (options.blocked) return Infinity;
   const readyIn = Math.max(0, (pet.nextAttackAt ?? 0) - simNow);
   if (readyIn > 0) return readyIn;
-  if (options.pendingPetAttack) return 1;
+  // Jump to the pending impact time. Returning a flat 1ms here used to thrash
+  // the fight loop through the whole Shinsu/Deva impact delay one ms at a time
+  // (each step re-running full recovery) and freeze long Tao AFK sessions.
+  if (options.pendingPetAttack) {
+    const pendingAt = Number(options.pendingPetAttackAt);
+    if (Number.isFinite(pendingAt)) return Math.max(1, pendingAt - simNow);
+    return 1;
+  }
   if (options.shinsuShowPending) return 1;
   if (options.outOfRange) return Infinity;
   return 0;
+}
+
+/**
+ * Soonest offline pet-attack delay across every living pet (tank + Holy Deva).
+ * Using only the tank previously left Deva unable to swing when the tank was
+ * out of range / blocked, and hid pending-impact thrash behind the tank timer.
+ *
+ * @param {Iterable<object | null | undefined>} pets
+ * @param {number} simNow
+ * @param {(pet: object, simNow: number) => number} delayForPet
+ */
+export function computeOfflineLivingPetsAttackDelayMs(pets, simNow, delayForPet) {
+  let best = Infinity;
+  for (const pet of pets ?? []) {
+    if (!pet?.active) continue;
+    const delay = Number(delayForPet?.(pet, simNow));
+    if (!Number.isFinite(delay)) continue;
+    if (delay < best) best = delay;
+  }
+  return best;
 }

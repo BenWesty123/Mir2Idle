@@ -2,11 +2,14 @@ import assert from "node:assert/strict";
 import test from "node:test";
 
 import {
+  CLOUD_SAVE_RESUME_GRACE_MS,
   cloudRestoreEndpoint,
   cloudSaveEndpointFromConfig,
   createRecoveryCode,
+  nextCloudSaveSuppressUntil,
   normalizeAccountPlayerId,
   normalizeRecoveryCode,
+  shouldSuppressAutomaticCloudSave,
 } from "../src/core/cloudSave.js";
 
 test("recovery codes normalize into a readable stable format", () => {
@@ -43,4 +46,12 @@ test("cloud endpoints support explicit config and stats fallback", () => {
     "https://example.test/cloud-save",
   );
   assert.equal(cloudRestoreEndpoint("https://example.test/cloud-save/"), "https://example.test/cloud-save/restore");
+});
+
+test("resume grace suppresses automatic cloud uploads and extends existing deadlines", () => {
+  assert.equal(CLOUD_SAVE_RESUME_GRACE_MS, 2 * 60 * 1000);
+  assert.equal(nextCloudSaveSuppressUntil(1_000, 0, 5_000), 6_000);
+  assert.equal(nextCloudSaveSuppressUntil(1_000, 9_000, 5_000), 9_000);
+  assert.equal(shouldSuppressAutomaticCloudSave(5_999, 6_000), true);
+  assert.equal(shouldSuppressAutomaticCloudSave(6_000, 6_000), false);
 });

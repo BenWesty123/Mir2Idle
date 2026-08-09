@@ -20,10 +20,17 @@ Both routes accept JSON bodies, so recovery codes are not placed in URLs.
 `POST /cloud-save` accepts `{ recoveryCode, playerId?, save }` and binds the first
 valid Social `playerId` to that recovery code (`cloud_saves.player_id`). Later
 uploads keep the original binding even if a new device sends a different id.
+Uploads that would replace a stronger character-level backup with weaker
+progress (without a higher `rebirthCount`) are rejected with HTTP 409
+`stale_progress`, so a fresh tab/device cannot wipe the cloud save.
 `POST /cloud-save/restore` returns that canonical `playerId` so the client can
 re-adopt the same Social / leaderboard identity. If the column is still empty,
 restore falls back to the oldest `player_aliases` row claimed with that recovery
 code and backfills `cloud_saves.player_id`.
+
+Social `/stats` posts use the same rule for the character snapshot: kills/gold/
+playtime still take `MAX`, but `character_levels` / `character_stats` are not
+allowed to regress unless `rebirthCount` increased.
 
 Before deploying the cloud-save Worker changes to an existing database, run:
 

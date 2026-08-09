@@ -34,6 +34,7 @@ import {
   applyEquippedSpellCooldownReductionMs,
   applyEquippedSpellHealingBonus,
   applyEquippedSpellMpCostReduction,
+  applyEquippedSpellUndeadDamageBonus,
   equippedPetDamageReductionPercent,
   equippedPetHealthBonusPercent,
   PET_DAMAGE_REDUCTION_CAP_PERCENT,
@@ -1511,6 +1512,64 @@ test("applyEquippedSpellHealingBonus: applies percent increase", () => {
   assert.equal(applyEquippedSpellHealingBonus("MassHealing", 100, inventory), 100);
 });
 
+test("applyEquippedSpellHealingBonus: includes item-def innate with resolveItem", () => {
+  const inventory = {
+    equipment: { weapon: "entry-1" },
+    items: [{
+      id: "entry-1",
+      itemId: "awakened-stone-bamboo-fan",
+      empowerSpellBonuses: { MassHealing: { healingPercent: 10 } },
+    }],
+  };
+  const resolveItem = (id) => (id === "awakened-stone-bamboo-fan"
+    ? { innateSpellBonuses: { MassHealing: { healingPercent: 100 } } }
+    : null);
+  assert.equal(equippedSpellHealingBonusPercent("MassHealing", inventory), 10);
+  assert.equal(equippedSpellHealingBonusPercent("MassHealing", inventory, resolveItem), 110);
+  assert.equal(applyEquippedSpellHealingBonus("MassHealing", 100, inventory, resolveItem), 210);
+});
+
+test("innateSpellBonusLines: formats Mass Healing unique weapon bonus", () => {
+  assert.deepEqual(innateSpellBonusLines({
+    MassHealing: { healingPercent: 100 },
+  }), [
+    "+100% Mass Healing healing",
+  ]);
+  assert.deepEqual(innateSpellBonusTooltipRows({
+    MassHealing: { healingPercent: 100 },
+  }), [
+    { label: "Mass Healing", value: "+100% healing" },
+  ]);
+});
+
+test("innateSpellBonusLines: formats Thunder Bolt undead unique weapon bonus", () => {
+  assert.deepEqual(innateSpellBonusLines({
+    ThunderBolt: { damagePercent: 100, undeadDamagePercent: 100 },
+  }), [
+    "+100% Thunder Bolt damage",
+    "+100% Thunder Bolt damage vs undead",
+  ]);
+  assert.deepEqual(innateSpellBonusTooltipRows({
+    ThunderBolt: { damagePercent: 100, undeadDamagePercent: 100 },
+  }), [
+    { label: "Thunder Bolt", value: "+100% damage" },
+    { label: "Thunder Bolt", value: "+100% damage vs undead" },
+  ]);
+});
+
+test("applyEquippedSpellUndeadDamageBonus: doubles when innate undeadDamagePercent is 100", () => {
+  const inventory = {
+    equipment: { weapon: "entry-1" },
+    items: [{ id: "entry-1", itemId: "awakened-magic-scythe" }],
+  };
+  const resolveItem = (id) => (id === "awakened-magic-scythe"
+    ? { innateSpellBonuses: { ThunderBolt: { undeadDamagePercent: 100 } } }
+    : null);
+  assert.equal(applyEquippedSpellUndeadDamageBonus("ThunderBolt", 100, inventory), 100);
+  assert.equal(applyEquippedSpellUndeadDamageBonus("ThunderBolt", 100, inventory, resolveItem), 200);
+  assert.equal(applyEquippedSpellUndeadDamageBonus("FireBall", 100, inventory, resolveItem), 100);
+});
+
 test("equippedSpellDamageBonusPercent: sums equipped empower spell bonuses", () => {
   const inventory = {
     equipment: { ringL: "entry-1" },
@@ -1700,6 +1759,22 @@ test("sanitizeInnateSpellBonuses: keeps damage and pet attack speed only", () =>
     SummonHolyDeva: { damagePercent: 100, petAttackSpeedPercent: 100, manaCostPercent: 20 },
   }), {
     SummonHolyDeva: { damagePercent: 100, petAttackSpeedPercent: 100 },
+  });
+});
+
+test("sanitizeInnateSpellBonuses: keeps Mass Healing healingPercent", () => {
+  assert.deepEqual(sanitizeInnateSpellBonuses({
+    MassHealing: { healingPercent: 100, manaCostPercent: 20, damagePercent: 50 },
+  }), {
+    MassHealing: { healingPercent: 100, damagePercent: 50 },
+  });
+});
+
+test("sanitizeInnateSpellBonuses: keeps Thunder Bolt undeadDamagePercent", () => {
+  assert.deepEqual(sanitizeInnateSpellBonuses({
+    ThunderBolt: { damagePercent: 100, undeadDamagePercent: 100, manaCostPercent: 20 },
+  }), {
+    ThunderBolt: { damagePercent: 100, undeadDamagePercent: 100 },
   });
 });
 

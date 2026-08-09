@@ -3,6 +3,7 @@ import test from "node:test";
 
 import {
   advanceWizardMirrorFollow,
+  nextFollowerOwnerMotionState,
   pickWizardMirrorAttackSpell,
   resolveWizardMirrorUpkeep,
   scaleWizardMirrorDamage,
@@ -128,6 +129,59 @@ test("mirror waits for its reaction delay before following", () => {
     moving: false,
     action: "stance",
   });
+});
+
+test("follower owner-motion latch arms reaction only when movement starts", () => {
+  const start = nextFollowerOwnerMotionState({
+    ownerWorldX: 10,
+    lastOwnerWorldX: 0,
+    ownerWasMoving: false,
+    now: 1000,
+    followAfter: 0,
+    reactionDelayMs: 500,
+  });
+  assert.equal(start.followAfter, 1500);
+  assert.equal(start.ownerWasMoving, true);
+
+  const continued = nextFollowerOwnerMotionState({
+    ownerWorldX: 26,
+    lastOwnerWorldX: start.lastOwnerWorldX,
+    ownerWasMoving: start.ownerWasMoving,
+    now: 1016,
+    followAfter: start.followAfter,
+    reactionDelayMs: 500,
+    motionFrameAt: start.motionFrameAt,
+  });
+  assert.equal(continued.followAfter, 1500);
+  assert.equal(continued.ownerWasMoving, true);
+});
+
+test("same-frame follower re-sync does not clear ownerWasMoving or re-arm reaction", () => {
+  const first = nextFollowerOwnerMotionState({
+    ownerWorldX: 10,
+    lastOwnerWorldX: 0,
+    ownerWasMoving: false,
+    now: 2000,
+    followAfter: 0,
+    reactionDelayMs: 500,
+  });
+  assert.equal(first.followAfter, 2500);
+  assert.equal(first.ownerWasMoving, true);
+
+  // Second observation in the same frame: owner has not moved further (the
+  // old double-sync bug treated this as "owner stopped" and re-armed next frame).
+  const second = nextFollowerOwnerMotionState({
+    ownerWorldX: 10,
+    lastOwnerWorldX: first.lastOwnerWorldX,
+    ownerWasMoving: first.ownerWasMoving,
+    now: 2000,
+    followAfter: first.followAfter,
+    reactionDelayMs: 500,
+    motionFrameAt: first.motionFrameAt,
+  });
+  assert.equal(second.followAfter, 2500);
+  assert.equal(second.ownerWasMoving, true);
+  assert.equal(second.lastOwnerWorldX, first.lastOwnerWorldX);
 });
 
 test("mirror follows after reacting and stops exactly at its target", () => {

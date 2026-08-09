@@ -13684,6 +13684,62 @@
       "crystalType": "Ring"
     },
     {
+      "id": "glyph-angelic-deva",
+      "name": "Glyph of Angelic Deva",
+      "type": "glyph",
+      "slot": "glyph",
+      "class": "taoist",
+      "glyph": {
+        "modifier": "angelicDeva"
+      },
+      "icon": {
+        "library": "Items",
+        "frame": 3238,
+        "src": "./public/item-icons/items/frame_003238.png"
+      },
+      "requirements": {
+        "type": "level",
+        "amount": 35,
+        "classMask": 4,
+        "genderMask": 3
+      },
+      "stackable": false,
+      "maxStack": 1,
+      "stats": {
+        "ac": [
+          0,
+          0
+        ],
+        "amc": [
+          0,
+          0
+        ],
+        "dc": [
+          0,
+          0
+        ],
+        "mc": [
+          0,
+          0
+        ],
+        "sc": [
+          0,
+          0
+        ],
+        "hp": 0,
+        "mp": 0,
+        "accuracy": 0,
+        "agility": 0,
+        "luck": 0,
+        "attackSpeed": 0
+      },
+      "shop": {
+        "buy": 0,
+        "sell": 50000
+      },
+      "description": "Your Deva no longer attacks. Instead it casts Mass Healing at your proficiency."
+    },
+    {
       "id": "glyph-battle-wizard",
       "name": "Glyph of Battle Wizard",
       "type": "glyph",
@@ -13908,6 +13964,118 @@
       "description": "Base critical strike damage is doubled, but Luck no longer affects you."
     },
     {
+      "id": "glyph-deep-frost",
+      "name": "Glyph of Deep Frost",
+      "type": "glyph",
+      "slot": "glyph",
+      "class": "wizard",
+      "glyph": {
+        "modifier": "wizardDeepFrost"
+      },
+      "icon": {
+        "library": "Items",
+        "frame": 3249,
+        "src": "./public/item-icons/items/frame_003249.png"
+      },
+      "requirements": {
+        "type": "level",
+        "amount": 35,
+        "classMask": 2,
+        "genderMask": 3
+      },
+      "stackable": false,
+      "maxStack": 1,
+      "stats": {
+        "ac": [
+          0,
+          0
+        ],
+        "amc": [
+          0,
+          0
+        ],
+        "dc": [
+          0,
+          0
+        ],
+        "mc": [
+          0,
+          0
+        ],
+        "sc": [
+          0,
+          0
+        ],
+        "hp": 0,
+        "mp": 0,
+        "accuracy": 0,
+        "agility": 0,
+        "luck": 0,
+        "attackSpeed": 0
+      },
+      "shop": {
+        "buy": 0,
+        "sell": 50000
+      },
+      "description": "Frost Crunch is now effective against bosses, but at a significantly reduced rate"
+    },
+    {
+      "id": "glyph-demonic-deva",
+      "name": "Glyph of Demonic Deva",
+      "type": "glyph",
+      "slot": "glyph",
+      "class": "taoist",
+      "glyph": {
+        "modifier": "demonicDeva"
+      },
+      "icon": {
+        "library": "Items",
+        "frame": 3225,
+        "src": "./public/item-icons/items/frame_003225.png"
+      },
+      "requirements": {
+        "type": "level",
+        "amount": 35,
+        "classMask": 4,
+        "genderMask": 3
+      },
+      "stackable": false,
+      "maxStack": 1,
+      "stats": {
+        "ac": [
+          0,
+          0
+        ],
+        "amc": [
+          0,
+          0
+        ],
+        "dc": [
+          0,
+          0
+        ],
+        "mc": [
+          0,
+          0
+        ],
+        "sc": [
+          0,
+          0
+        ],
+        "hp": 0,
+        "mp": 0,
+        "accuracy": 0,
+        "agility": 0,
+        "luck": 0,
+        "attackSpeed": 0
+      },
+      "shop": {
+        "buy": 0,
+        "sell": 50000
+      },
+      "description": "Your Deva hits harder and attacks multiple enemies at once, but you can no longer cast healing spells."
+    },
+    {
       "id": "glyph-disruptor-cascade",
       "name": "Glyph of Disruptor Cascade",
       "type": "glyph",
@@ -13962,6 +14130,118 @@
         "sell": 50000
       },
       "description": "Flame Disruptor can also strike enemies next to the target for reduced damage."
+    },
+    {
+      "id": "glyph-frenzied-disruptor",
+      "name": "Glyph of Frenzied Disruptor",
+      "type": "glyph",
+      "slot": "glyph",
+      "class": "wizard",
+      "glyph": {
+        "modifier": "wizardFrenziedDisruptor"
+      },
+      "icon": {
+        "library": "Items",
+        "frame": 3244,
+        "src": "./public/item-icons/items/frame_003244.png"
+      },
+      "requirements": {
+        "type": "level",
+        "amount": 35,
+        "classMask": 2,
+        "genderMask": 3
+      },
+      "stackable": false,
+      "maxStack": 1,
+      "stats": {
+        "ac": [
+          0,
+          0
+        ],
+        "amc": [
+          0,
+          0
+        ],
+        "dc": [
+          0,
+          0
+        ],
+        "mc": [
+          0,
+          0
+        ],
+        "sc": [
+          0,
+          0
+        ],
+        "hp": 0,
+        "mp": 0,
+        "accuracy": 0,
+        "agility": 0,
+        "luck": 0,
+        "attackSpeed": 0
+      },
+      "shop": {
+        "buy": 0,
+        "sell": 50000
+      },
+      "description": "When Flame Disruptor critically strikes, its casting speed doubles and then fades back to normal over 5 seconds."
+    },
+    {
+      "id": "glyph-efficient-learning",
+      "name": "Glyph of Efficient Learning",
+      "type": "glyph",
+      "slot": "glyph",
+      "class": "any",
+      "glyph": {
+        "modifier": "efficientLearning"
+      },
+      "icon": {
+        "library": "Items",
+        "frame": 3223,
+        "src": "./public/item-icons/items/frame_003223.png"
+      },
+      "requirements": {
+        "type": "level",
+        "amount": 35,
+        "classMask": 31,
+        "genderMask": 3
+      },
+      "stackable": false,
+      "maxStack": 1,
+      "stats": {
+        "ac": [
+          0,
+          0
+        ],
+        "amc": [
+          0,
+          0
+        ],
+        "dc": [
+          0,
+          0
+        ],
+        "mc": [
+          0,
+          0
+        ],
+        "sc": [
+          0,
+          0
+        ],
+        "hp": 0,
+        "mp": 0,
+        "accuracy": 0,
+        "agility": 0,
+        "luck": 0,
+        "attackSpeed": 0
+      },
+      "shop": {
+        "buy": 0,
+        "sell": 50000
+      },
+      "description": "Spell skill practice experience gain is increased by 100%."
     },
     {
       "id": "glyph-eternal-firewall",
@@ -14074,6 +14354,62 @@
         "sell": 50000
       },
       "description": "HP potions heal 25% faster, but restore 50% less."
+    },
+    {
+      "id": "glyph-vitality",
+      "name": "Glyph of Vitality",
+      "type": "glyph",
+      "slot": "glyph",
+      "class": "any",
+      "glyph": {
+        "modifier": "vitality"
+      },
+      "icon": {
+        "library": "Items",
+        "frame": 3253,
+        "src": "./public/item-icons/items/frame_003253.png"
+      },
+      "requirements": {
+        "type": "level",
+        "amount": 35,
+        "classMask": 31,
+        "genderMask": 3
+      },
+      "stackable": false,
+      "maxStack": 1,
+      "stats": {
+        "ac": [
+          0,
+          0
+        ],
+        "amc": [
+          0,
+          0
+        ],
+        "dc": [
+          0,
+          0
+        ],
+        "mc": [
+          0,
+          0
+        ],
+        "sc": [
+          0,
+          0
+        ],
+        "hp": 0,
+        "mp": 0,
+        "accuracy": 0,
+        "agility": 0,
+        "luck": 0,
+        "attackSpeed": 0
+      },
+      "shop": {
+        "buy": 0,
+        "sell": 50000
+      },
+      "description": "Maximum health is doubled, but you cannot use Sun Potions (or similar restoratives)."
     },
     {
       "id": "glyph-flaming-bulwark",
@@ -14356,6 +14692,62 @@
       "description": "Flaming Sword burns the enemy for 5 seconds, dealing 50% of the hit as fire damage over time."
     },
     {
+      "id": "glyph-flaming-avalanche",
+      "name": "Glyph of Flaming Avalanche",
+      "type": "glyph",
+      "slot": "glyph",
+      "class": "warrior",
+      "glyph": {
+        "modifier": "warriorFlamingAvalanche"
+      },
+      "icon": {
+        "library": "Items",
+        "frame": 3227,
+        "src": "./public/item-icons/items/frame_003227.png"
+      },
+      "requirements": {
+        "type": "level",
+        "amount": 35,
+        "classMask": 1,
+        "genderMask": 3
+      },
+      "stackable": false,
+      "maxStack": 1,
+      "stats": {
+        "ac": [
+          0,
+          0
+        ],
+        "amc": [
+          0,
+          0
+        ],
+        "dc": [
+          0,
+          0
+        ],
+        "mc": [
+          0,
+          0
+        ],
+        "sc": [
+          0,
+          0
+        ],
+        "hp": 0,
+        "mp": 0,
+        "accuracy": 0,
+        "agility": 0,
+        "luck": 0,
+        "attackSpeed": 0
+      },
+      "shop": {
+        "buy": 0,
+        "sell": 50000
+      },
+      "description": "Flaming Sword also unleashes Blade Avalanche. Requires Blade Avalanche learned."
+    },
+    {
       "id": "glyph-improved-healing-circle",
       "name": "Glyph of Improved Healing Circle",
       "type": "glyph",
@@ -14633,7 +15025,7 @@
         "buy": 0,
         "sell": 50000
       },
-      "description": "Magic Shield no longer reduces damage. Instead, mana is drained before health."
+      "description": "Magic Shield is half as effective, and mana is drained before health."
     },
     {
       "id": "glyph-many-mirrors",
@@ -15026,6 +15418,118 @@
         "sell": 50000
       },
       "description": "Twin Drake Blade hits much harder, but needs time to recover after each use."
+    },
+    {
+      "id": "glyph-blade-momentum",
+      "name": "Glyph of Blade Momentum",
+      "type": "glyph",
+      "slot": "glyph",
+      "class": "warrior",
+      "glyph": {
+        "modifier": "warriorTwinDrakeMomentum"
+      },
+      "icon": {
+        "library": "Items",
+        "frame": 3261,
+        "src": "./public/item-icons/items/frame_003261.png"
+      },
+      "requirements": {
+        "type": "level",
+        "amount": 35,
+        "classMask": 1,
+        "genderMask": 3
+      },
+      "stackable": false,
+      "maxStack": 1,
+      "stats": {
+        "ac": [
+          0,
+          0
+        ],
+        "amc": [
+          0,
+          0
+        ],
+        "dc": [
+          0,
+          0
+        ],
+        "mc": [
+          0,
+          0
+        ],
+        "sc": [
+          0,
+          0
+        ],
+        "hp": 0,
+        "mp": 0,
+        "accuracy": 0,
+        "agility": 0,
+        "luck": 0,
+        "attackSpeed": 0
+      },
+      "shop": {
+        "buy": 0,
+        "sell": 50000
+      },
+      "description": "Each Twin Drake Blade hit increases your attack speed by 1 (up to the normal attack-speed limit). Missing, using any other warrior skill, or swinging normally resets the bonus."
+    },
+    {
+      "id": "glyph-slow-destruction",
+      "name": "Glyph of Slow Destruction",
+      "type": "glyph",
+      "slot": "glyph",
+      "class": "warrior",
+      "glyph": {
+        "modifier": "warriorSlowDestruction"
+      },
+      "icon": {
+        "library": "Items",
+        "frame": 3226,
+        "src": "./public/item-icons/items/frame_003226.png"
+      },
+      "requirements": {
+        "type": "level",
+        "amount": 35,
+        "classMask": 1,
+        "genderMask": 3
+      },
+      "stackable": false,
+      "maxStack": 1,
+      "stats": {
+        "ac": [
+          0,
+          0
+        ],
+        "amc": [
+          0,
+          0
+        ],
+        "dc": [
+          0,
+          0
+        ],
+        "mc": [
+          0,
+          0
+        ],
+        "sc": [
+          0,
+          0
+        ],
+        "hp": 0,
+        "mp": 0,
+        "accuracy": 0,
+        "agility": 0,
+        "luck": 0,
+        "attackSpeed": 0
+      },
+      "shop": {
+        "buy": 0,
+        "sell": 50000
+      },
+      "description": "DC increased by 150%, but attack speed no longer affects you."
     },
     {
       "id": "gold-bar",
@@ -34542,7 +35046,8 @@
           "zone-viper-cave-2": 0.00526
         }
       },
-      "crystalType": "Potion"
+      "crystalType": "Potion",
+      "potionFamily": "sun"
     },
     {
       "id": "sun-potion-medium",
@@ -34626,7 +35131,8 @@
           }
         }
       },
-      "crystalType": "Potion"
+      "crystalType": "Potion",
+      "potionFamily": "sun"
     },
     {
       "id": "superior-bronze-helmet",
@@ -37134,6 +37640,211 @@
       }
     },
     {
+      "id": "awakened-war-spirit-blade",
+      "name": "Awakened War Spirit Blade",
+      "type": "weapon",
+      "slot": "weapon",
+      "class": "any",
+      "source": {
+        "crystalIndex": 247,
+        "name": "WarSpiritBlade"
+      },
+      "icon": {
+        "library": "Items",
+        "frame": 69,
+        "src": "./public/item-icons/items/frame_000069.png"
+      },
+      "requirements": {
+        "type": "level",
+        "amount": 36,
+        "classMask": 7,
+        "genderMask": 3
+      },
+      "stackable": false,
+      "maxStack": 1,
+      "stats": {
+        "ac": [
+          0,
+          0
+        ],
+        "amc": [
+          0,
+          0
+        ],
+        "dc": [
+          5,
+          32
+        ],
+        "mc": [
+          0,
+          0
+        ],
+        "sc": [
+          0,
+          0
+        ],
+        "hp": 0,
+        "mp": 0,
+        "accuracy": 0,
+        "agility": 0,
+        "luck": 0,
+        "attackSpeed": 6
+      },
+      "shop": {
+        "buy": 0,
+        "sell": 11000
+      },
+      "visual": {
+        "layer": "weapon",
+        "index": 26
+      },
+      "crystalType": "Weapon",
+      "visualWeaponGlow": 3,
+      "unique": true,
+      "innateSpellBonuses": {
+        "TwinDrakeBlade": {
+          "damagePercent": 100
+        }
+      }
+    },
+    {
+      "id": "awakened-stone-bamboo-fan",
+      "name": "Awakened Stone Bamboo Fan",
+      "type": "weapon",
+      "slot": "weapon",
+      "class": "any",
+      "source": {
+        "crystalIndex": 274,
+        "name": "StoneBambooFan"
+      },
+      "icon": {
+        "library": "Items",
+        "frame": 71,
+        "src": "./public/item-icons/items/frame_000071.png"
+      },
+      "requirements": {
+        "type": "level",
+        "amount": 36,
+        "classMask": 7,
+        "genderMask": 3
+      },
+      "stackable": false,
+      "maxStack": 1,
+      "stats": {
+        "ac": [
+          0,
+          0
+        ],
+        "amc": [
+          0,
+          0
+        ],
+        "dc": [
+          2,
+          16
+        ],
+        "mc": [
+          0,
+          0
+        ],
+        "sc": [
+          3,
+          6
+        ],
+        "hp": 100,
+        "mp": 0,
+        "accuracy": 2,
+        "agility": 0,
+        "luck": 0,
+        "attackSpeed": 0
+      },
+      "shop": {
+        "buy": 0,
+        "sell": 11000
+      },
+      "visual": {
+        "layer": "weapon",
+        "index": 28
+      },
+      "crystalType": "Weapon",
+      "visualWeaponGlow": 5,
+      "unique": true,
+      "innateSpellBonuses": {
+        "MassHealing": {
+          "healingPercent": 100
+        }
+      }
+    },
+    {
+      "id": "awakened-magic-scythe",
+      "name": "Awakened Magic Scythe",
+      "type": "weapon",
+      "slot": "weapon",
+      "class": "any",
+      "source": {
+        "crystalIndex": 261,
+        "name": "MagicScythe"
+      },
+      "icon": {
+        "library": "Items",
+        "frame": 70,
+        "src": "./public/item-icons/items/frame_000070.png"
+      },
+      "requirements": {
+        "type": "level",
+        "amount": 36,
+        "classMask": 7,
+        "genderMask": 3
+      },
+      "stackable": false,
+      "maxStack": 1,
+      "stats": {
+        "ac": [
+          0,
+          0
+        ],
+        "amc": [
+          0,
+          0
+        ],
+        "dc": [
+          5,
+          16
+        ],
+        "mc": [
+          1,
+          8
+        ],
+        "sc": [
+          0,
+          0
+        ],
+        "hp": 0,
+        "mp": 0,
+        "accuracy": 0,
+        "agility": 0,
+        "luck": 0,
+        "attackSpeed": 0
+      },
+      "shop": {
+        "buy": 0,
+        "sell": 11000
+      },
+      "visual": {
+        "layer": "weapon",
+        "index": 27
+      },
+      "crystalType": "Weapon",
+      "visualWeaponGlow": 4,
+      "unique": true,
+      "innateSpellBonuses": {
+        "ThunderBolt": {
+          "damagePercent": 100,
+          "undeadDamagePercent": 100
+        }
+      }
+    },
+    {
       "id": "war-spirit-blade",
       "name": "War Spirit Blade",
       "type": "weapon",
@@ -38658,7 +39369,8 @@
         "luck": 0,
         "attackSpeed": 0
       },
-      "crystalType": "CraftingMaterial"
+      "crystalType": "CraftingMaterial",
+      "description": "Add to an Empowerment Reroll to increase your chances of getting an offensive empowerment (damage, crit, and related attack bonuses)."
     },
     {
       "id": "defensive-attunement-stone",
@@ -38712,7 +39424,8 @@
         "luck": 0,
         "attackSpeed": 0
       },
-      "crystalType": "CraftingMaterial"
+      "crystalType": "CraftingMaterial",
+      "description": "Add to an Empowerment Reroll to increase your chances of getting a defensive empowerment (armour, HP, damage reduction, and related defenses)."
     },
     {
       "id": "utility-attunement-stone",
@@ -38766,7 +39479,8 @@
         "luck": 0,
         "attackSpeed": 0
       },
-      "crystalType": "CraftingMaterial"
+      "crystalType": "CraftingMaterial",
+      "description": "Add to an Empowerment Reroll to increase your chances of getting a utility empowerment (XP, gold, drops, cooldowns, and related bonuses)."
     }
   ]
 }

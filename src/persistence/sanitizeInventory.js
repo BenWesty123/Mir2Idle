@@ -91,6 +91,19 @@ function migrateSmithBonusFields(savedEntry) {
 }
 
 /**
+ * Clamp a saved stack size. Non-stackables (maxStack <= 1) always become 1 so a
+ * corrupted quantity cannot be partially consumed by crafts that take 1/unit.
+ * @param {unknown} quantity
+ * @param {number} [maxStack=1]
+ * @returns {number}
+ */
+export function sanitizeEntryQuantity(quantity, maxStack = 1) {
+  const raw = Math.max(1, Math.trunc(Number(quantity) || 1));
+  const cap = Math.max(1, Math.trunc(Number(maxStack) || 1));
+  return Math.min(raw, cap);
+}
+
+/**
  * @param {object | null | undefined} savedEntry
  * @param {object | null | undefined} item
  * @param {(item: object) => boolean} isStackable
@@ -127,6 +140,7 @@ export function normalizeInventoryEntryFields(savedEntry, item, isStackable) {
  *   maxSlots: number,
  *   maxPages: number,
  *   normalizeEntryFields?: (savedEntry: object) => object,
+ *   maxStackForEntry?: (savedEntry: object) => number,
  * }} config
  */
 export function sanitizeInventoryState(savedInventory = {}, savedHotbar = {}, config) {
@@ -137,6 +151,7 @@ export function sanitizeInventoryState(savedInventory = {}, savedHotbar = {}, co
     maxSlots,
     maxPages,
     normalizeEntryFields = () => ({}),
+    maxStackForEntry = null,
   } = config;
 
   const usedIds = new Set();
@@ -150,10 +165,13 @@ export function sanitizeInventoryState(savedInventory = {}, savedHotbar = {}, co
     usedIds.add(id);
     const generatedId = /^item-(\d+)$/.exec(id)?.[1];
     if (generatedId) maxGeneratedId = Math.max(maxGeneratedId, Number(generatedId));
+    const quantity = typeof maxStackForEntry === "function"
+      ? sanitizeEntryQuantity(savedEntry.quantity, maxStackForEntry(savedEntry))
+      : Math.max(1, Math.trunc(Number(savedEntry.quantity) || 1));
     items.push({
       id,
       itemId: savedEntry.itemId,
-      quantity: Math.max(1, Math.trunc(Number(savedEntry.quantity) || 1)),
+      quantity,
       slot: Number.isInteger(savedEntry.slot) ? savedEntry.slot : null,
       ...normalizeEntryFields(savedEntry),
     });
@@ -204,6 +222,7 @@ export function sanitizeInventoryState(savedInventory = {}, savedHotbar = {}, co
  *   baseSlots: number,
  *   maxPages: number,
  *   normalizeEntryFields?: (savedEntry: object) => object,
+ *   maxStackForEntry?: (savedEntry: object) => number,
  * }} config
  */
 export function sanitizeStorageState(savedStorage = {}, config) {
@@ -212,6 +231,7 @@ export function sanitizeStorageState(savedStorage = {}, config) {
     baseSlots,
     maxPages,
     normalizeEntryFields = () => ({}),
+    maxStackForEntry = null,
   } = config;
 
   const usedIds = new Set();
@@ -228,10 +248,13 @@ export function sanitizeStorageState(savedStorage = {}, config) {
     usedIds.add(id);
     const generatedId = /^storage-item-(\d+)$/.exec(id)?.[1];
     if (generatedId) maxGeneratedId = Math.max(maxGeneratedId, Number(generatedId));
+    const quantity = typeof maxStackForEntry === "function"
+      ? sanitizeEntryQuantity(savedEntry.quantity, maxStackForEntry(savedEntry))
+      : Math.max(1, Math.trunc(Number(savedEntry.quantity) || 1));
     items.push({
       id,
       itemId: savedEntry.itemId,
-      quantity: Math.max(1, Math.trunc(Number(savedEntry.quantity) || 1)),
+      quantity,
       slot: Number.isInteger(savedEntry.slot) ? savedEntry.slot : null,
       ...normalizeEntryFields(savedEntry),
     });

@@ -18,10 +18,11 @@ class FakeStatement {
   async run() {
     this.db.queries.push(this);
     if (/INSERT INTO cloud_saves/.test(this.sql)) {
-      const [recoveryCode, , , , , playerId] = this.args;
+      const [recoveryCode, , saveData, , , playerId] = this.args;
       this.db.cloudSaves.set(recoveryCode, {
         ...(this.db.cloudSaves.get(recoveryCode) ?? {}),
         player_id: this.db.cloudSaves.get(recoveryCode)?.player_id || playerId || null,
+        save_data: saveData,
         saved_at: "2026-06-27 12:00:00",
       });
     }
@@ -38,6 +39,10 @@ class FakeStatement {
     if (/SELECT player_id FROM cloud_saves WHERE recovery_code/.test(this.sql)) {
       const row = this.db.cloudSaves.get(this.args[0]);
       return row ? { player_id: row.player_id ?? null } : null;
+    }
+    if (/SELECT save_data FROM cloud_saves WHERE recovery_code/.test(this.sql)) {
+      const row = this.db.cloudSaves.get(this.args[0]);
+      return row?.save_data != null ? { save_data: row.save_data } : null;
     }
     if (/SELECT player_id FROM player_aliases/.test(this.sql)) {
       const matches = this.db.aliases
@@ -175,4 +180,88 @@ test("cloud restore falls back to an alias claimed with the recovery code", asyn
 test("cloud restore reports an unknown code without creating data", async () => {
   const { response } = await post("/cloud-save/restore", { recoveryCode });
   assert.equal(response.status, 404);
+});
+
+test("cloud save rejects weaker progress overwriting a stronger backup", async () => {
+  const strongSave = {
+    version: 1,
+    savedAt: 2000,
+    activeCharacterId: "Warrior",
+    account: { stats: { rebirthCount: 0 } },
+    characters: {
+      Warrior: { game: { progress: { level: 58 } } },
+      Wizard: { game: { progress: { level: 50 } } },
+      Taoist: { game: { progress: { level: 49 } } },
+    },
+  };
+  const weakSave = {
+    version: 1,
+    savedAt: 3000,
+    activeCharacterId: "Warrior",
+    account: { stats: { rebirthCount: 0 } },
+    characters: {
+      Warrior: { game: { progress: { level: 1 } } },
+      Wizard: { game: { progress: { level: 1 } } },
+      Taoist: { game: { progress: { level: 1 } } },
+    },
+  };
+  const { response, db } = await post("/cloud-save", {
+    recoveryCode,
+    playerId,
+    save: weakSave,
+  }, new FakeDb({
+    cloudSaves: {
+      [recoveryCode]: {
+        player_id: playerId,
+        save_data: JSON.stringify(strongSave),
+        saved_at: "2026-08-05 12:00:00",
+      },
+    },
+  }));
+  assert.equal(response.status, 409);
+  const body = await response.json();
+  assert.equal(body.code, "stale_progress");
+  assert.equal(db.queries.some((query) => /INSERT INTO cloud_saves/.test(query.sql)), false);
+});
+
+test("cloud save accepts a rebirth reset that lowers character levels", async () => {
+  const beforeRebirth = {
+    version: 1,
+    savedAt: 2000,
+    activeCharacterId: "Warrior",
+    account: { stats: { rebirthCount: 1 } },
+    characters: {
+      Warrior: { game: { progress: { level: 58 } } },
+      Wizard: { game: { progress: { level: 50 } } },
+      Taoist: { game: { progress: { level: 49 } } },
+    },
+  };
+  const afterRebirth = {
+    version: 1,
+    savedAt: 3000,
+    activeCharacterId: "Warrior",
+    account: { stats: { rebirthCount: 2 } },
+    characters: {
+      Warrior: { game: { progress: { level: 1 } } },
+      Wizard: { game: { progress: { level: 1 } } },
+      Taoist: { game: { progress: { level: 1 } } },
+    },
+  };
+  const { response, db } = await post("/cloud-save", {
+    recoveryCode,
+    playerId,
+    save: afterRebirth,
+  }, new FakeDb({
+    cloudSaves: {
+      [recoveryCode]: {
+        player_id: playerId,
+        save_data: JSON.stringify(beforeRebirth),
+        saved_at: "2026-08-05 12:00:00",
+      },
+    },
+  }));
+  assert.equal(response.status, 200);
+  const upsert = db.queries.find((query) => /INSERT INTO cloud_saves/.test(query.sql));
+  assert.ok(upsert);
+  assert.deepEqual(JSON.parse(upsert.args[2]), afterRebirth);
 });
