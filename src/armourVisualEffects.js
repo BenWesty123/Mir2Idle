@@ -45,7 +45,7 @@ export const ARMOUR_WING_LAYER = "wing";
 const NATIVE_ARMOUR_SPECIAL_EFFECT_DEFS = {
   100: {
     id: 100,
-    label: "Oma King Robe",
+    label: "Oma King Armour",
     atlasPath: "./public/armour-effects/oma-king-robe/atlas.json",
     durationMs: 3600,
     blend: "screen",

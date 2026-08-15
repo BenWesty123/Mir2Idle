@@ -56,6 +56,11 @@ export function restoreCharacterSnapshot(savedCharacter, classId, defaultCharact
   character.hotbar = options.sanitizeHotbar(savedCharacter.hotbar, character.inventory);
   character.magic = options.sanitizeMagic(classId, savedCharacter.magic);
   character.battle = options.sanitizeBattle(savedCharacter.battle);
+  if (typeof options.sanitizeArmoury === "function") {
+    character.armoury = options.sanitizeArmoury(savedCharacter.armoury);
+  } else if (defaultCharacter.armoury) {
+    character.armoury = structuredClone(defaultCharacter.armoury);
+  }
   backfillStarterGear(character, classId, options);
   return character;
 }

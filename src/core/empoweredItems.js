@@ -1880,8 +1880,23 @@ export function equippedSpellCooldownReductionSeconds(spellId, inventory) {
 export function applyEquippedSpellCooldownReductionMs(spellId, cooldownMs, inventory) {
   const base = Math.max(0, Math.trunc(Number(cooldownMs) || 0));
   const reductionSeconds = equippedSpellCooldownReductionSeconds(spellId, inventory);
-  if (reductionSeconds <= 0) return base;
-  return Math.max(0, base - reductionSeconds * 1000);
+  const reduced = reductionSeconds <= 0 ? base : Math.max(0, base - reductionSeconds * 1000);
+  const floorMs = spellCooldownFloorMs(spellId);
+  return floorMs > 0 ? Math.max(floorMs, reduced) : reduced;
+}
+
+/**
+ * Per-spell minimum cooldown after empower reductions (ms). Missing spells have no floor.
+ * Flaming Sword: stacked cube-swapped CD rolls can otherwise push near 1s.
+ */
+export const SPELL_COOLDOWN_FLOOR_MS = Object.freeze({
+  FlamingSword: 3000,
+});
+
+/** @param {string | null | undefined} spellId */
+export function spellCooldownFloorMs(spellId) {
+  const floor = SPELL_COOLDOWN_FLOOR_MS[String(spellId ?? "")];
+  return floor > 0 ? Math.trunc(floor) : 0;
 }
 
 /** Hard cap on stacked pet damage-taken reduction so pets are never fully immune. */

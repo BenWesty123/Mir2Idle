@@ -34,7 +34,7 @@ LOM Idle V2 is a browser-based idle prototype inspired by the Crystal/Mir2 files
 - `src/battleData.js` - player/enemy stats and the damage / XP / stat-roll formulas, plus the stat-object arithmetic helpers (`cloneStats`, `addStats`, `addRange`, `sanitizeItemBonusStats`). Pure functions; unit-tested.
 - `src/warriorMagic.js`, `src/spellBodyActions.js` - spell/skill definitions and helpers.
 - `src/phase1Data.js` - zones, mining spots, monster/progression data.
-- `src/playerActions.js`, `src/groupDungeonSwarm.js`, `src/zumaArcherSwarm.js`, `src/buffPotions.js`, `src/atlas.js` - supporting data/logic imported by the monolith.
+- `src/playerActions.js`, `src/groupDungeonSwarm.js`, `src/zumaArcherSwarm.js`, `src/mysteryCave.js`, `src/buffPotions.js`, `src/atlas.js` - supporting data/logic imported by the monolith.
 - `src/core/` - pure simulation helpers extracted incrementally from the monolith (see `docs/core-migration-plan.md`). Includes `progress.js`, `offlineProgress.js`, `drops.js`, `party.js`, `combat.js` (hit rolls + combat events).
 - `src/persistence/` - save parsing and stat sanitizers extracted from the monolith. Includes `saveFormat.js`, `sanitizeStats.js`, `sanitizeCharacter.js`, `sanitizeSettings.js`, `sanitizeUpgrades.js`, `sanitizeInventory.js`, `sanitizeGame.js`, `restoreCharacter.js`, `restoreAccount.js`.
 - `docs/core-migration-plan.md` - phased plan for in-place core extraction (Phase 0–5); companion to `docs/season-play-architecture.md`.

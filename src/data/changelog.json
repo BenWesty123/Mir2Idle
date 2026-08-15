@@ -1,91 +1,75 @@
 {
   "entries": [
     {
-      "id": "2026-08-09-mana-aegis-half-dr",
-      "date": "2026-08-09",
-      "title": "Mana Aegis retune",
+      "id": "2026-08-15-mystery-cave",
+      "date": "2026-08-15",
+      "title": "Mystery Cave",
       "highlights": [
-        "Glyph of Mana Aegis now keeps Magic Shield at half damage reduction (instead of removing it) while still draining mana before health."
+        "Added Mystery Cave on the teleporter. Every moving boss spawns in order, one every 10 seconds. Difficulty is Empowered, Ascended, or Awakened.",
+        "Stationary bosses (Evil Centipede, Great Fox Spirit, Hell Keeper, Hell Lord, Red Moon Evil) stay out. Unique boss loot is off until the reward track is added; kills still grant XP and gold."
       ]
     },
     {
-      "id": "2026-08-09-glyph-angelic-deva",
-      "date": "2026-08-09",
-      "title": "Glyph of Angelic Deva",
+      "id": "2026-08-15-vampirism-heal-priority",
+      "date": "2026-08-15",
+      "title": "Wizard Vampirism",
       "highlights": [
-        "Added Glyph of Angelic Deva (Taoist) — Holy Deva no longer attacks; it casts Mass Healing using your Mass Healing proficiency instead."
+        "Vampirism now casts before other Wizard damage spells when you are below 80% HP. Above 80% HP it keeps its usual place in the autocast order.",
+        "Oma King's party burst now plays the explosion on the middle party member, covering the whole group.",
+        "Oma King's burst rolls one hit and splits it across living party members. Three alive share equally; if one falls, the next burst splits across the two remaining.",
+        "Oma King's burst is 1500–2200 MAC, split across the living party. A 90 AMC Wizard with Magic Shield still needs Healing Circle and Mass Healing; sun potions are the margin.",
+        "Past Bicheon oma trash XP/gold stepped up from Hell Cavern: ~16–17.5k XP and 720–1100 gold per kill (Hell Cavern peak was 11k XP and 320–480 gold).",
+        "Past Bicheon oma trash now swing 310–500 DC at ~1s with accuracy 52–55, so a ~200 AC Warrior actually takes hits. Crossbow Oma keep MAC-bolting casters instead of meleeing the tank.",
+        "Blood Gorge and Blood Pass (floors 3–4) spawn larger waves with more Crossbow Oma than floor 1.",
+        "Frost Tiger now uses Danmo-tier loot (no skill books, no Hell Yama Blade, no Green/Blue/Red Dark Armour).",
+        "Renamed Gon Ryun Holy Light Sword to Holy Light Sword (level 63). Warrior sits about 20% above Hell Yama Blade with +2 attack speed; Wizard/Taoist get a larger MC/SC jump (Wizard has no Acc/ASpd).",
+        "Frost Tiger drops Holy Light Sword (Warrior / Wizard / Taoist) at 2.5% each.",
+        "Frost Tiger drops Magic Booster, Energy Shield, and Slashing Burst at 5% each.",
+        "Added Tarragon Belt (level 55). Frost Tiger and Danmo drop it at 2.5%.",
+        "Added Evil Dragon Ring, Dragon Necklace, and Golden Dragon Bracelet (level 63 class trios). Frost Tiger drops each at 2.5%.",
+        "Frost Tiger no longer drops Heaven Robe. Gon Ryun Dragon Armour is 1% each; Tarragon Armour is 2.5% each.",
+        "Oma King now uses Frost Tiger loot (no skill books, no Oma King Robe, no Oma Spirit Ring, no Tarragon Armour).",
+        "Frost Tiger and Oma King: previous-tier jewellery (including Stone Golem Bracelet) is 2.5%; L63 chase (Holy Light Sword, Red Dragon Ring, Dragon Necklace, Golden Dragon Bracelet) is 1.25%.",
+        "Added Oma King Armour (level 63, any class): AC 17–44, AMC 11–20, HP 250, MP 50, with the looping Oma King visual effect. Oma King drops it at 1.25%. Oma King Robe stays on Oma King Spirit.",
+        "Retuned Barbarian Sword, Bone Carved Fan, and Slaughter Pike (renamed from Bluish Green Blood Slaughter Pike) to level 66 class weapons. Oma King drops each at 2.5%. Barbarian Sword (Wizard) DC 12–38 MC 14–41; Slaughter Pike (Warrior) DC 38–90 Acc 2 ASpd 2; Bone Carved Fan (Taoist) DC 15–48 SC 14–35 Acc 2 ASpd 2.",
+        "Added L66 Evil Dragon Ring / Bracelet / Necklace (Warrior, Wizard, Taoist). Oma King drops each at 1.25%. These sit about 20% above the L63 Red Dragon Ring, Dragon Necklace, and Golden Dragon Bracelet.",
+        "Renamed the level 63 Evil Dragon Ring to Red Dragon Ring. The level 66 ring keeps the Evil Dragon Ring name.",
+        "Oma King accessory rates: lowest tier 5% (Namman jewellery, Danmo/Tarragon/Stone Golem), L63 2.5% (Red Dragon Ring, Dragon Necklace, Golden Dragon Bracelet), L66 Evil Dragon jewellery 1.25%."
       ]
     },
     {
-      "id": "2026-08-09-glyph-deep-frost",
-      "date": "2026-08-09",
-      "title": "Glyph of Deep Frost",
+      "id": "2026-08-14-blood-gorge-gd-3",
+      "date": "2026-08-14",
+      "title": "Past Bicheon — Blood Gorge",
       "highlights": [
-        "Added Glyph of Deep Frost (Wizard) — Frost Crunch can slow/freeze bosses at 15%/5% on hit (no refresh while active)."
+        "Added Blood Gorge as Past Bicheon floor 3 (teleporter). Layout stand is Crystal 64.map (249, 76). Trash mix still matches floor 1 while the backdrop is tested.",
+        "Added Blood Pass as floor 4. Layout stand is Crystal 65.map (125, 84).",
+        "Added Blood Land (Oma King) as floor 5 — boss room, 60 minute respawn. Layout stand is Crystal 66.map (209, 71). Party-wide MAC bursts; HP sits above Frost Tiger.",
+        "Oma King's burst now plays Crystal's Attack2 overlay (the missing explosion FX)."
       ]
     },
     {
-      "id": "2026-08-09-glyph-vitality",
-      "date": "2026-08-09",
-      "title": "Glyph of Vitality",
+      "id": "2026-08-12-past-bicheon-gd-1",
+      "date": "2026-08-12",
+      "title": "Past Bicheon group dungeon",
       "highlights": [
-        "Added Glyph of Vitality (all classes) — doubles maximum health, but blocks Sun Potions (and future sun-family restoratives like Old Ginseng)."
+        "Added Past Bicheon as a new group dungeon (teleporter). Floor 1 is the south oma hub — Axe, Sword, Crossbow, and Winged Oma.",
+        "Floor 2 is Frost Tiger (mini-boss, 30 minute respawn). Every swing claws the Warrior and spits a MAC bolt — Wizard and Taoist soak the bolt while they live. A solo tank has to survive both through the 75% damage-reduction cap."
       ]
     },
     {
-      "id": "2026-08-08-glyph-blade-momentum",
-      "date": "2026-08-08",
-      "title": "Glyph of Blade Momentum",
+      "id": "2026-08-10-armoury-glyphs-balance",
+      "date": "2026-08-10",
+      "title": "Armoury, glyphs & balance",
       "highlights": [
-        "Added Glyph of Blade Momentum (Warrior) — each Twin Drake Blade hit grants +1 attack speed (capped by the normal swing floor). Missing, casting any other warrior skill, or swinging normally resets the bonus."
-      ]
-    },
-    {
-      "id": "2026-08-08-glyph-frenzied-disruptor",
-      "date": "2026-08-08",
-      "title": "Glyph of Frenzied Disruptor",
-      "highlights": [
-        "Added Glyph of Frenzied Disruptor (Wizard) — Flame Disruptor crits grant +100% FD casting speed that fades back to normal over 5 seconds."
-      ]
-    },
-    {
-      "id": "2026-08-08-glyph-flaming-avalanche",
-      "date": "2026-08-08",
-      "title": "Glyph of Flaming Avalanche",
-      "highlights": [
-        "Added Glyph of Flaming Avalanche (Warrior) — Flaming Sword also unleashes Blade Avalanche if learned (no extra MP/cooldown)."
-      ]
-    },
-    {
-      "id": "2026-08-08-glyph-slow-destruction",
-      "date": "2026-08-08",
-      "title": "Glyph of Slow Destruction",
-      "highlights": [
-        "Added Glyph of Slow Destruction (Warrior) — DC ×2.5, but attack speed no longer affects swing timing (including Twin Drake / Half Moon)."
-      ]
-    },
-    {
-      "id": "2026-08-07-cloud-restore-grace",
-      "date": "2026-08-07",
-      "title": "Cloud restore grace period",
-      "highlights": [
+        "Added Armoury kits at Blacksmith Bill — save and swap gear kits in town (2 free per character; 3rd kit in the Cash Shop for 300 tokens).",
+        "Added 9 new glyphs.",
+        "Added a fourth glyph equip slot (Rebirth upgrade, 750 RP).",
+        "Glyph of Mana Aegis now keeps Magic Shield at half damage reduction instead of removing it.",
+        "Flaming Sword cooldown can no longer drop below 3 seconds.",
+        "Holy Deva thunder now scales from your SC (×2) instead of a fixed pet DC.",
+        "Additive damage reduction is now capped at 75%.",
         "Automatic cloud backups now wait 2 minutes after opening the game or tabbing back in, so you can restore from another device first without overwriting the newer save."
-      ]
-    },
-    {
-      "id": "2026-08-06-glyph-demonic-deva",
-      "date": "2026-08-06",
-      "title": "Glyph of Demonic Deva",
-      "highlights": [
-        "Added Glyph of Demonic Deva (Taoist) — Holy Deva deals 150% damage in an Ice Storm-sized AOE with map lightning bolts. Tradeoff: cannot cast Healing, Mass Healing, or Healing Circle."
-      ]
-    },
-    {
-      "id": "2026-08-06-glyph-efficient-learning",
-      "date": "2026-08-06",
-      "title": "Glyph of Efficient Learning",
-      "highlights": [
-        "Added Glyph of Efficient Learning — doubles spell skill practice XP (stacks with Skill Leveling gear)."
       ]
     },
     {

@@ -1188,7 +1188,7 @@ export const CRYSTAL_TAOIST_SPELLS = [
     multiplierBonus: 0,
     range: 0,
     summon: true,
-    description: "Summons a Holy Deva to attack monsters with thunder.",
+    description: "Summons a Holy Deva to attack monsters with thunder. Damage scales with your SC.",
   },
   {
     id: "PetEnhancer",

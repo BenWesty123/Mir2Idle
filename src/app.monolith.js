@@ -100,6 +100,13 @@ import {
   isZumaArcherSwarmEnemy,
 } from "./zumaArcherSwarm.js";
 import {
+  MYSTERY_CAVE_BOSS_TEMPLATE_IDS,
+  MYSTERY_CAVE_SPAWN_INTERVAL_MS,
+  MYSTERY_CAVE_ZONE_ID,
+  buildMysteryCaveSpawnQueue,
+  isMysteryCaveZone,
+} from "./mysteryCave.js";
+import {
   BUFF_POTION_DURATION_MS,
   applyStatBuffsToStats,
   buffPotionDefForItem,
@@ -309,6 +316,21 @@ import {
   validateCraftingCubeTargetedEmpowerReroll,
   validateCraftingCubeTargetedEmpowerSwap,
 } from "./core/craftingCube.js";
+import {
+  ARMOURY_KIT_3_TOKEN_COST,
+  ARMOURY_KIT_3_UNLOCK_KEY,
+  ARMOURY_MAX_KIT_COUNT,
+  armouryKitIsEmpty,
+  armouryUnlockedKitCount,
+  clearArmouryEntryId,
+  cloneArmouryState,
+  createDefaultArmouryState,
+  isAccountScopedArmouryEntryId,
+  pruneArmouryUnknownEntries,
+  remappointArmouryEntryId,
+  sanitizeArmouryState,
+  snapshotEquipmentToArmouryKit,
+} from "./core/armoury.js";
 import { ITEM_INTEGRITY_RULES_VERSION } from "./core/itemIntegrityVersion.js";
 import {
   WIZARD_MIRROR_MANY_EXTRA_STAGGER_MS,
@@ -329,6 +351,7 @@ import {
 } from "./core/wizardMirror.js";
 import {
   crystalHolyDevaStats,
+  holyDevaAttackStatFromOwnerSc,
   isTaoistTankSummonSpellId,
   prepareTaoistTankPetRecall,
   prepareTaoistTankPetStash,
@@ -378,6 +401,7 @@ import {
   rollGlyphChancePercent,
   buildFrenziedDisruptorBuffState,
   applyFrenziedDisruptorCastCooldownMs,
+  frenziedDisruptorAdjustedReadyAt,
   glyphFlamingSwordDrParams,
   glyphImprovedFlamingSwordParams,
   glyphFlamingSwordTriggersBladeAvalanche,
@@ -417,10 +441,12 @@ import {
 } from "./glyphModifiers.js";
 import {
   CRIT_BASE_DAMAGE_PERCENT,
+  PLAYER_DAMAGE_REDUCTION_CAP_PERCENT,
   advanceCritTextTracking,
   applyIncomingDamageReduction as applyIncomingDamageReductionCore,
   applyOutgoingCrit,
   clampCritChancePercent,
+  clampIncomingDamageReductionPercent,
   critTextFillColor,
   critTextFontSize,
   critTextMaxDrawWidth,
@@ -445,6 +471,7 @@ import {
   poisonTickDamageEvents,
   resolveIncomingEnemyAttack as resolveIncomingEnemyAttackCore,
   resolveIncomingEnemyRangedAttack as resolveIncomingEnemyRangedAttackCore,
+  splitIntegerEvenly,
   resolveMagicAttack,
   resolvePhysicalAttack,
   resolveSpellCastWeaponFallback,
@@ -454,6 +481,8 @@ import {
   swarmEnemyDamageEvent,
   weaponSwingHitEvents,
   weaponSwingMissEvents,
+  wizardAutoPriority as wizardSpellAutoPriority,
+  wizardCombatAutoPriority,
 } from "./core/combat.js";
 import {
   normalizeInventoryEntryFields as normalizeInventoryEntryFieldsCore,
@@ -480,6 +509,7 @@ import {
  *  tuning constants .............. inventory/storage sizes, boss respawn, FX/timings (~124-640)
  *  ACCOUNT_UPGRADE_DEFS .......... account/rebirth upgrade defs (~163)
  *  BOSS_ROOM_DEFS ................ boss rooms + "empower" config (~353)
+ *  mysteryCave.js ................ Mystery Cave roster + swarm spawn queue
  *  BOSS DROP TABLES .............. moved OUT to src/bossDrops.js (tune drop rates there)
  *  glyphModifiers.js ............. Glyph slot spell modifiers (src/glyphModifiers.js)
  *  init() ........................ boot + asset loading (~2236)
@@ -595,6 +625,13 @@ function groupDungeonAutoAdvanceUnlocked() {
 }
 function groupDungeonAutoAdvanceEnabled() {
   return groupDungeonAutoAdvanceUnlocked() && state.settings.groupDungeonAutoAdvance === true;
+}
+// Armoury kit slot 3: account-wide cash-shop unlock. Base 2 kits are always free.
+function armouryKit3Owned() {
+  return Boolean(state.account?.ownedUnlocks?.[ARMOURY_KIT_3_UNLOCK_KEY]);
+}
+function armouryKitCount() {
+  return armouryUnlockedKitCount(armouryKit3Owned());
 }
 let groupDungeonAutoAdvancing = false;
 // Spirit Box: rebirth-only utility that holds one inventory entry across rebirth.
@@ -1065,9 +1102,9 @@ const ACCOUNT_UPGRADE_DEFS = [
     currency: "rebirthPoints",
     effect: "extraGlyphSlot",
     value: 1,
-    maxTier: 2,
-    rebirthCosts: [250, 500],
-    summary: "Unlocks one additional glyph equip slot on the Glyphs page per purchase (3 slots max).",
+    maxTier: 3,
+    rebirthCosts: [250, 500, 750],
+    summary: "Unlocks one additional glyph equip slot on the Glyphs page per purchase (4 slots max).",
   },
   {
     id: "rebirth-smith-combine-cap",
@@ -1363,6 +1400,7 @@ const BOSS_EMPOWER_AVAILABLE_ZONE_IDS = new Set([
   "zone-kings-tomb",
   "zone-namman-boss",
   "zone-namman-danmo",
+  MYSTERY_CAVE_ZONE_ID,
 ]);
 /** Per-boss empowered fight tuning (shared combat modifiers; expand boss list in supportsEmpoweredBossCombat). */
 const EMPOWERED_BOSS_HP_MULTIPLIER = 2;
@@ -1480,6 +1518,13 @@ const BOSS_ROOM_DEFS = {
     respawnMinutes: 120,
     unlockHint: "Select saved characters to call into the fight.",
     empowerLabel: "Empower Oma King Spirit for better drops",
+    empowerRequirement: BOSS_EMPOWER_UNLOCK_HINT,
+  },
+  [MYSTERY_CAVE_ZONE_ID]: {
+    bossName: "Mystery Cave",
+    respawnMinutes: 0,
+    unlockHint: "Select a difficulty, then call saved characters into the fight.",
+    empowerLabel: "Empower Mystery Cave for better drops",
     empowerRequirement: BOSS_EMPOWER_UNLOCK_HINT,
   },
 };
@@ -1812,6 +1857,9 @@ const DEFAULT_ARENA_BOSS_SPAWN_X = 300;
 const EVIL_CENTIPEDE_ENEMY_ID = 166;
 const EVIL_SNAKE_ENEMY_ID = 266;
 const CRYSTAL_SPIDER_ENEMY_ID = 465;
+const FROST_TIGER_ENEMY_ID = 471;
+const OMA_KING_ENEMY_ID = 472;
+const OMA_KING_BURST_FX_SCALE = 1.25;
 const RED_THUNDER_ZUMA_ENEMY_ID = 271;
 const ZUMA_TAURUS_ENEMY_ID = 272;
 const BONE_LORD_ENEMY_ID = 279;
@@ -2185,6 +2233,19 @@ const TELEPORT_REGIONS = [
       "zone-namman-danmo",
     ],
   },
+  {
+    // Crystal PastBichon (6.map) — floor 1 trash + Frost Tiger listed for testing;
+    // later floors (Blood stretch, Evil Mir) are reached via Advance.
+    id: "past-bicheon",
+    label: "Past Bicheon",
+    zoneIds: [
+      "zone-past-bicheon-gd-1",
+      "zone-past-bicheon-gd-2",
+      "zone-past-bicheon-gd-3",
+      "zone-past-bicheon-gd-4",
+      "zone-past-bicheon-gd-5",
+    ],
+  },
 ];
 const DEFAULT_TELEPORT_REGION_ID = TELEPORT_REGIONS[0].id;
 
@@ -2201,8 +2262,8 @@ const TOWN_VISUALS = {
   stageMaxHeight: 480,
 };
 
-const MAP_STAMP_ASSET_VERSION = "20260803-danmo-stamp-bake";
-const MONSTER_ASSET_VERSION = "20260803-danmo-atlas-split";
+const MAP_STAMP_ASSET_VERSION = "20260814-blood-land-gd-5c";
+const MONSTER_ASSET_VERSION = "20260815-oma-king-hitfx";
 const HELL_BOLT_MONSTER_INDEX = 219;
 const HELL_BOLT_TEMPLATE_ID = 429;
 const WITCH_DOCTOR_MONSTER_INDEX = 220;
@@ -3058,7 +3119,7 @@ const EQUIPMENT_SLOTS = [
 ];
 
 /** Max glyph equip slots unlockable today (base 1 + rebirth upgrade tiers). */
-const GLYPH_EQUIP_UNLOCK_CAP = 3;
+const GLYPH_EQUIP_UNLOCK_CAP = 4;
 
 function unlockedGlyphEquipSlotCount() {
   const bonus = accountUpgradeTier("rebirth-extra-glyph-slot");
@@ -3546,6 +3607,8 @@ const state = {
   pendingStorageUnlock: null,
   pendingInventoryTokenUnlock: false,
   pendingRebirthConfirm: false,
+  armourySelectedKitIndex: 0,
+  pendingArmourySaveKitIndex: null,
   spiritBoxDepositMode: null,
   upgradeSection: "normal",
   upgradeCategory: "combat",
@@ -3605,6 +3668,7 @@ const state = {
   magic: {
     learned: {},
   },
+  armoury: createDefaultArmouryState(EQUIPMENT_SLOTS.map((slot) => slot.id)),
   groundSpeedRatio: 1,
   showEnemies: false,
   continuousWalk: false,
@@ -4948,6 +5012,7 @@ function closeLiveCraftingScenesForSaveReplace() {
   if (state.activeScene === "craftingCubeRecipes") closeScene("craftingCubeRecipes", false);
   if (state.activeScene === "craftingCube") closeScene("craftingCube", false);
   if (state.activeScene === "weaponRefine") closeScene("weaponRefine", false);
+  if (state.activeScene === "armoury") closeScene("armoury", false);
 }
 
 async function replaceCurrentGameWithSnapshot(snapshot, successMessage) {
@@ -5607,6 +5672,7 @@ function createDefaultCharacterState(classId) {
       statBuffs: [],
       petStatBuffs: [],
     },
+    armoury: createDefaultArmouryState(EQUIPMENT_SLOTS.map((slot) => slot.id)),
   };
 }
 
@@ -5667,6 +5733,7 @@ function characterRestoreOptions() {
     sanitizeHotbar: sanitizeHotbarState,
     sanitizeMagic: (_classId, magic) => sanitizeMagicState(magic),
     sanitizeBattle: sanitizeCharacterBattleState,
+    sanitizeArmoury: (armoury) => sanitizeArmouryState(armoury, EQUIPMENT_SLOTS.map((slot) => slot.id)),
     retiredWizardSpells: RETIRED_TEST_DEFAULT_WIZARD_SPELLS,
   };
 }
@@ -5848,6 +5915,7 @@ function sanitizeOwnedUnlocks(owned) {
     ORE_STACKING_UNLOCK_KEY,
     TIME_LOGGING_UNLOCK_KEY,
     GROUP_DUNGEON_AUTO_ADVANCE_UNLOCK_KEY,
+    ARMOURY_KIT_3_UNLOCK_KEY,
     ...CHARACTER_IDS.map((classId) => inventoryPageUnlockKey(classId)),
   ]);
   const result = {};
@@ -6677,6 +6745,12 @@ function applyCharacterState(classId, character = createDefaultCharacterState(cl
     healAmount: Math.max(0, Math.trunc(Number(character.battle?.healAmount) || 0)),
     vampAmount: Math.max(0, Math.trunc(Number(character.battle?.vampAmount) || 0)),
   };
+  state.armoury = cloneArmouryState(
+    character.armoury,
+    EQUIPMENT_SLOTS.map((slot) => slot.id),
+  );
+  state.armourySelectedKitIndex = 0;
+  state.pendingArmourySaveKitIndex = null;
   syncInventoryCapacity();
   ensureInventorySlots();
   applyAccountGoldToLiveState();
@@ -6845,6 +6919,7 @@ function serializeCurrentCharacterState() {
       statBuffs: pruneStatBuffs(state.battle.statBuffs ?? []),
       petStatBuffs: pruneStatBuffs(state.battle.petStatBuffs ?? []),
     },
+    armoury: cloneArmouryState(state.armoury, EQUIPMENT_SLOTS.map((slot) => slot.id)),
   };
 }
 
@@ -6873,6 +6948,7 @@ function serializeCharactersState() {
       hotbar: cloneHotbarState(character.hotbar),
       magic: magicStateForPersistence(character.magic),
       battle: { ...character.battle },
+      armoury: cloneArmouryState(character.armoury, EQUIPMENT_SLOTS.map((slot) => slot.id)),
     }];
   }));
 }
@@ -9564,6 +9640,23 @@ function prototypeStatsCharacterSummaries() {
     .filter(Boolean);
 }
 
+// Every equipped item carries three bonus-stat objects, and the sanitizers fill in
+// all ~26 keys even when the value is 0. That padding was 82% of a fully geared
+// account's submission (~60 KB), which is what pushed it into the keepalive quota
+// above. The worker's normalizeBonusStatsPayload defaults any absent key to 0, so
+// dropping zeros here is wire-compatible in both directions.
+function prototypeStatsBonusStats(stats) {
+  const output = {};
+  for (const [key, value] of Object.entries(stats ?? {})) {
+    if (Array.isArray(value)) {
+      if (value.some((bound) => Number(bound) !== 0)) output[key] = value;
+      continue;
+    }
+    if (Number(value) !== 0) output[key] = value;
+  }
+  return output;
+}
+
 function prototypeStatsCharacterEquipment(character) {
   const equipment = {};
   const slotMap = character?.inventory?.equipment;
@@ -9582,9 +9675,9 @@ function prototypeStatsCharacterEquipment(character) {
       gemCount: Math.max(0, prototypeStatsInt(entry.gemCount)),
       empowered: Boolean(entry.empowered),
       empowerTier: Math.max(0, prototypeStatsInt(entry.empowerTier)),
-      bonusStats: sanitizeItemBonusStats(entry.bonusStats),
-      smithBonusStats: sanitizeSmithBonusStats(entry.smithBonusStats),
-      empowerBonusStats: sanitizeItemBonusStats(entry.empowerBonusStats),
+      bonusStats: prototypeStatsBonusStats(sanitizeItemBonusStats(entry.bonusStats)),
+      smithBonusStats: prototypeStatsBonusStats(sanitizeSmithBonusStats(entry.smithBonusStats)),
+      empowerBonusStats: prototypeStatsBonusStats(sanitizeItemBonusStats(entry.empowerBonusStats)),
       empowerSpellBonuses: sanitizeEmpowerSpellBonuses(entry.empowerSpellBonuses),
     };
   }
@@ -9660,6 +9753,13 @@ function prototypeStatsSnapshot() {
   };
 }
 
+// Browsers cap keepalive request bodies at 64 KiB TOTAL across every in-flight
+// keepalive request, and the telemetry heartbeat also uses one. A colliding
+// heartbeat used to push large snapshots over that quota, and the browser
+// rejected the stats POST before it left the tab ("Stats upload failed"). Only
+// unload-time sends, which must outlive the page, opt in.
+const KEEPALIVE_SUBMIT_REASONS = new Set(["session-end", "hidden"]);
+
 async function submitPrototypeStats(reason = "manual", now = performance.now()) {
   if (!prototypeStatsCanSubmit()) return false;
   const snapshot = prototypeStatsSnapshot();
@@ -9677,7 +9777,7 @@ async function submitPrototypeStats(reason = "manual", now = performance.now()) 
         reason,
         submittedAt: new Date().toISOString(),
       }),
-      keepalive: true,
+      keepalive: KEEPALIVE_SUBMIT_REASONS.has(reason),
     });
     if (!response.ok) throw new Error(`HTTP ${response.status}`);
     state.prototypeStats.lastPayloadHash = payloadHash;
@@ -12937,6 +13037,7 @@ function removeInventoryEntry(entryId, quantity = 1) {
   entry.quantity -= Math.max(1, Math.floor(Number(quantity) || 1));
   if (entry.quantity <= 0) {
     clearHotbarEntry(entry.id);
+    clearArmouryEntryIdEverywhere(entry.id);
     state.inventory.items = state.inventory.items.filter((candidate) => candidate.id !== entry.id);
   }
   ensureInventorySlots();
@@ -13228,6 +13329,7 @@ function stageWeaponRefineEntry(entry) {
 function discardWeaponRefineStagedEntry(entryId) {
   if (!weaponRefineStagedRecord(entryId)) return false;
   delete state.weaponRefine.stagedEntries[entryId];
+  clearArmouryEntryIdEverywhere(entryId);
   return true;
 }
 
@@ -14734,6 +14836,553 @@ function openCraftingCubeScene() {
   renderSceneOverlay();
   renderGamePanel();
   playSfx("ui.button", { volume: 0.35, throttleMs: 120 });
+}
+
+function equipmentSlotIdsList() {
+  return EQUIPMENT_SLOTS.map((slot) => slot.id);
+}
+
+function ensureArmouryState() {
+  state.armoury = sanitizeArmouryState(state.armoury, equipmentSlotIdsList());
+  return state.armoury;
+}
+
+// The active character's kits live in state.armoury; every character also keeps
+// a serialized copy in state.characters[classId].armoury that a reload can
+// restore from, so both must be rewritten together.
+function characterArmouryState(classId) {
+  const character = state.characters?.[classId];
+  if (!character) return null;
+  character.armoury = sanitizeArmouryState(character.armoury, equipmentSlotIdsList());
+  return character.armoury;
+}
+
+function inactiveCharacterArmouries() {
+  const activeId = normalizeCharacterId(state.activeCharacterId);
+  return CHARACTER_IDS
+    .filter((classId) => classId !== activeId)
+    .map((classId) => characterArmouryState(classId))
+    .filter(Boolean);
+}
+
+function remappointArmouryEntryIdEverywhere(oldId, newId) {
+  ensureArmouryState();
+  remappointArmouryEntryId(state.armoury, oldId, newId);
+  const activeStored = characterArmouryState(normalizeCharacterId(state.activeCharacterId));
+  if (activeStored) remappointArmouryEntryId(activeStored, oldId, newId);
+  // Bag ids come from a per-character counter, so `item-5` means a different
+  // object on every character and must never be rewritten account-wide.
+  if (!isAccountScopedArmouryEntryId(oldId)) return;
+  for (const armoury of inactiveCharacterArmouries()) {
+    if (isAccountScopedArmouryEntryId(newId)) {
+      remappointArmouryEntryId(armoury, oldId, newId);
+    } else {
+      // The item left shared storage for this character's bag, so the other
+      // characters lose their claim on it instead of following it.
+      clearArmouryEntryId(armoury, oldId);
+    }
+  }
+}
+
+function clearArmouryEntryIdEverywhere(entryId) {
+  ensureArmouryState();
+  clearArmouryEntryId(state.armoury, entryId);
+  const activeStored = characterArmouryState(normalizeCharacterId(state.activeCharacterId));
+  if (activeStored) clearArmouryEntryId(activeStored, entryId);
+  if (!isAccountScopedArmouryEntryId(entryId)) return;
+  for (const armoury of inactiveCharacterArmouries()) {
+    clearArmouryEntryId(armoury, entryId);
+  }
+}
+
+function armouryStagedEntry(entryId) {
+  return weaponRefineStagedRecord(entryId)?.entry ?? craftingCubeStagedRecord(entryId)?.entry ?? null;
+}
+
+function armouryKnownEntryIds() {
+  const ids = new Set();
+  for (const entry of state.inventory?.items ?? []) {
+    if (entry?.id) ids.add(entry.id);
+  }
+  for (const entry of state.account?.storage?.items ?? []) {
+    if (entry?.id) ids.add(entry.id);
+  }
+  // Items on the refine board / crafting cube are spliced out of the bag but
+  // still belong to the player and come back with the same id, so pruning them
+  // out of a kit would silently delete the kit slot.
+  for (const staged of Object.values(state.weaponRefine?.stagedEntries ?? {})) {
+    if (staged?.entry?.id) ids.add(staged.entry.id);
+  }
+  for (const staged of Object.values(state.craftingCube?.stagedEntries ?? {})) {
+    if (staged?.entry?.id) ids.add(staged.entry.id);
+  }
+  return ids;
+}
+
+function pruneLiveArmouryUnknownEntries() {
+  ensureArmouryState();
+  return pruneArmouryUnknownEntries(state.armoury, armouryKnownEntryIds());
+}
+
+function openArmouryScene() {
+  if (state.game.mode !== "town") return;
+  ensureArmouryState();
+  pruneLiveArmouryUnknownEntries();
+  const maxKits = armouryKitCount();
+  state.armourySelectedKitIndex = Math.max(0, Math.min(maxKits - 1, Math.trunc(Number(state.armourySelectedKitIndex) || 0)));
+  state.pendingArmourySaveKitIndex = null;
+  state.activeScene = "armoury";
+  state.openScenes.inventory = true;
+  pushSceneWindow("armoury");
+  sceneSignature = "";
+  gamePanelSignature = "";
+  renderSceneOverlay();
+  renderGamePanel();
+  playSfx("ui.button", { volume: 0.35, throttleMs: 120 });
+}
+
+function armourySelectedKitIndex() {
+  const maxKits = armouryKitCount();
+  return Math.max(0, Math.min(maxKits - 1, Math.trunc(Number(state.armourySelectedKitIndex) || 0)));
+}
+
+function selectArmouryKit(kitIndex) {
+  const maxKits = armouryKitCount();
+  const index = Math.trunc(Number(kitIndex));
+  if (!Number.isInteger(index) || index < 0 || index >= maxKits) return;
+  state.armourySelectedKitIndex = index;
+  state.pendingArmourySaveKitIndex = null;
+  sceneSignature = "";
+  renderSceneOverlay();
+  playSfx("ui.button", { volume: 0.28, throttleMs: 80 });
+}
+
+function parseArmouryKitIndex(value) {
+  if (value == null || value === "") return null;
+  const index = Math.trunc(Number(value));
+  if (!Number.isInteger(index) || index < 0 || index >= armouryKitCount()) return null;
+  return index;
+}
+
+function requestSaveArmouryKit(kitIndex = armourySelectedKitIndex()) {
+  if (state.game.mode !== "town") {
+    pushBattleLog("Armoury is only available in town.");
+    return;
+  }
+  ensureArmouryState();
+  const index = parseArmouryKitIndex(kitIndex);
+  if (index == null) return;
+  const kit = state.armoury.kits[index];
+  if (!armouryKitIsEmpty(kit, equipmentSlotIdsList())) {
+    state.armourySelectedKitIndex = index;
+    state.pendingArmourySaveKitIndex = index;
+    sceneSignature = "";
+    renderSceneOverlay();
+    return;
+  }
+  saveArmouryKit(index);
+}
+
+function cancelArmourySaveConfirm() {
+  state.pendingArmourySaveKitIndex = null;
+  sceneSignature = "";
+  renderSceneOverlay();
+}
+
+function confirmSaveArmouryKit(kitIndex = state.pendingArmourySaveKitIndex) {
+  const index = parseArmouryKitIndex(kitIndex);
+  state.pendingArmourySaveKitIndex = null;
+  if (index == null) {
+    sceneSignature = "";
+    renderSceneOverlay();
+    return;
+  }
+  saveArmouryKit(index);
+}
+
+function saveArmouryKit(kitIndex) {
+  if (state.game.mode !== "town") {
+    pushBattleLog("Armoury is only available in town.");
+    return false;
+  }
+  ensureArmouryState();
+  const index = parseArmouryKitIndex(kitIndex);
+  if (index == null) return false;
+  state.armoury.kits[index] = snapshotEquipmentToArmouryKit(state.inventory.equipment, equipmentSlotIdsList());
+  state.armoury.activeKitIndex = index;
+  state.armourySelectedKitIndex = index;
+  state.pendingArmourySaveKitIndex = null;
+  captureActiveCharacterState();
+  saveGameState(true);
+  pushBattleLog(`Armoury kit ${index + 1} saved.`);
+  playSfx("ui.button", { volume: 0.35, throttleMs: 80 });
+  sceneSignature = "";
+  renderSceneOverlay();
+  return true;
+}
+
+function armouryFindEntry(entryId) {
+  if (typeof entryId !== "string" || !entryId) return null;
+  const inventoryEntry = inventoryEntryById(entryId);
+  if (inventoryEntry) return { entry: inventoryEntry, location: "inventory" };
+  const storageEntry = storageEntryById(entryId);
+  if (storageEntry) return { entry: storageEntry, location: "storage" };
+  return null;
+}
+
+function armouryEntryIsBusy(entryId) {
+  if (isWeaponRefineStagedEntry(entryId)) return "Item is staged for weapon refine.";
+  if (isCraftingCubeStagedEntry(entryId)) return "Item is staged in the crafting cube.";
+  if (state.account?.spiritBox?.entry?.id === entryId) return "Item is sealed in the Spirit Box.";
+  return null;
+}
+
+function stowInventoryEntryToBagOrStorage(entry, onIdRemap = null) {
+  if (!entry) return { ok: false, reason: "missing item" };
+  ensureInventorySlots();
+  const bagSlot = nextFreeInventorySlot();
+  if (Number.isInteger(bagSlot) && bagSlot < state.inventory.maxSlots) {
+    entry.slot = bagSlot;
+    return { ok: true, location: "bag" };
+  }
+  ensureStorageSlots();
+  const storageSlot = nextFreeStorageSlot();
+  if (!Number.isInteger(storageSlot) || storageSlot >= state.account.storage.maxSlots) {
+    return { ok: false, reason: "Inventory and storage are full." };
+  }
+  clearHotbarEntry(entry.id);
+  state.inventory.items = state.inventory.items.filter((candidate) => candidate.id !== entry.id);
+  const previousEntryId = entry.id;
+  entry.id = allocateStorageEntryId();
+  remappointArmouryEntryIdEverywhere(previousEntryId, entry.id);
+  if (typeof onIdRemap === "function") onIdRemap(previousEntryId, entry.id);
+  entry.slot = storageSlot;
+  state.account.storage.items.push(entry);
+  return { ok: true, location: "storage", entryId: entry.id };
+}
+
+function pullStorageEntryIntoInventoryForEquip(entry, onIdRemap = null) {
+  ensureStorageSlots();
+  ensureInventorySlots();
+  if (!entry) return { ok: false, reason: "missing item" };
+  state.account.storage.items = state.account.storage.items.filter((candidate) => candidate.id !== entry.id);
+  const previousEntryId = entry.id;
+  entry.id = allocateInventoryEntryId();
+  remappointArmouryEntryIdEverywhere(previousEntryId, entry.id);
+  if (typeof onIdRemap === "function") onIdRemap(previousEntryId, entry.id);
+  entry.slot = null;
+  state.inventory.items.push(entry);
+  return { ok: true, entry };
+}
+
+// Reasons a kit slot cannot be filled that do not depend on what is worn at the
+// time. Checked before any gear moves, so a broken kit entry never strips the
+// slot it was meant to replace.
+function armouryDesiredSlotProblem(slotId, desiredId) {
+  const busy = armouryEntryIsBusy(desiredId);
+  if (busy) return `${slotLabel(slotId)}: ${busy}`;
+  const found = armouryFindEntry(desiredId);
+  if (!found) return `${slotLabel(slotId)}: item missing.`;
+  const item = itemDefinition(found.entry.itemId);
+  if (!item) return `${slotLabel(slotId)}: unknown item.`;
+  if (!compatibleEquipmentSlots(item).includes(slotId)) {
+    return `${itemDisplayName(item, found.entry)} cannot go in ${slotLabel(slotId)}.`;
+  }
+  const requirement = itemRequirementStatus(item);
+  if (!requirement.ok) return `Cannot equip ${itemDisplayName(item, found.entry)}: ${requirement.reason}.`;
+  return null;
+}
+
+let armouryEquipInFlight = false;
+
+async function equipArmouryKit(kitIndex = armourySelectedKitIndex()) {
+  if (state.game.mode !== "town") {
+    pushBattleLog("Armoury is only available in town.");
+    return false;
+  }
+  if (armouryEquipInFlight) return false;
+  ensureArmouryState();
+  pruneLiveArmouryUnknownEntries();
+  const index = parseArmouryKitIndex(kitIndex);
+  if (index == null) return false;
+  const kit = state.armoury.kits[index];
+  if (!kit) return false;
+
+  armouryEquipInFlight = true;
+  try {
+    const warnings = [];
+    const unlockedGlyphs = unlockedGlyphEquipSlotCount();
+    const desiredBySlot = { ...kit.equipment };
+    const noteDesiredRemap = (oldId, newId) => {
+      for (const slotId of Object.keys(desiredBySlot)) {
+        if (desiredBySlot[slotId] === oldId) desiredBySlot[slotId] = newId;
+      }
+    };
+
+    for (let glyphIndex = unlockedGlyphs; glyphIndex < GLYPH_EQUIPMENT_SLOT_IDS.length; glyphIndex += 1) {
+      const slotId = GLYPH_EQUIPMENT_SLOT_IDS[glyphIndex];
+      if (desiredBySlot[slotId]) {
+        warnings.push(`${slotLabel(slotId)} is locked - skipped.`);
+        desiredBySlot[slotId] = null;
+      }
+    }
+
+    // Validate the whole kit while the character is still fully geared, then
+    // fall back to keeping the worn piece wherever the kit cannot deliver one.
+    for (const slot of EQUIPMENT_SLOTS) {
+      const slotId = slot.id;
+      const desiredId = desiredBySlot[slotId] ?? null;
+      if (!desiredId) continue;
+      const currentId = state.inventory.equipment[slotId] ?? null;
+      if (desiredId === currentId) continue;
+      const problem = armouryDesiredSlotProblem(slotId, desiredId);
+      if (!problem) continue;
+      warnings.push(problem);
+      // Only keep the worn piece if the kit does not want it in another slot.
+      const keepCurrent = Boolean(currentId) && !Object.values(desiredBySlot).includes(currentId);
+      desiredBySlot[slotId] = keepCurrent ? currentId : null;
+    }
+
+    // Unequip slots that need to change.
+    for (const slot of EQUIPMENT_SLOTS) {
+      const slotId = slot.id;
+      const currentId = state.inventory.equipment[slotId] ?? null;
+      const desiredId = desiredBySlot[slotId] ?? null;
+      if (!currentId || currentId === desiredId) continue;
+      const entry = inventoryEntryById(currentId);
+      if (!entry) {
+        state.inventory.equipment[slotId] = null;
+        continue;
+      }
+      const busy = armouryEntryIsBusy(currentId);
+      if (busy) {
+        warnings.push(`${itemDisplayName(itemDefinition(entry.itemId), entry)}: ${busy}`);
+        desiredBySlot[slotId] = currentId;
+        continue;
+      }
+      state.inventory.equipment[slotId] = null;
+      const stow = stowInventoryEntryToBagOrStorage(entry, noteDesiredRemap);
+      if (!stow.ok) {
+        state.inventory.equipment[slotId] = currentId;
+        entry.slot = null;
+        warnings.push(`${itemDisplayName(itemDefinition(entry.itemId), entry)}: ${stow.reason}`);
+        desiredBySlot[slotId] = currentId;
+      }
+    }
+
+    // Equip desired pieces.
+    for (const slot of EQUIPMENT_SLOTS) {
+      const slotId = slot.id;
+      const desiredId = desiredBySlot[slotId] ?? null;
+      if (!desiredId) continue;
+      if (state.inventory.equipment[slotId] === desiredId) continue;
+
+      const found = armouryFindEntry(desiredId);
+      if (!found) {
+        warnings.push(`${slotLabel(slotId)}: item missing.`);
+        continue;
+      }
+      const item = itemDefinition(found.entry.itemId);
+      if (!item || !compatibleEquipmentSlots(item).includes(slotId)) {
+        warnings.push(`${slotLabel(slotId)}: item cannot be worn there.`);
+        continue;
+      }
+
+      // Pull out of storage only once the equip is guaranteed to land, so a
+      // rejected piece can never be left slotless in an already-full bag.
+      let entry = found.entry;
+      if (found.location === "storage") {
+        const pulled = pullStorageEntryIntoInventoryForEquip(entry, noteDesiredRemap);
+        if (!pulled.ok) {
+          warnings.push(`${slotLabel(slotId)}: ${pulled.reason}`);
+          continue;
+        }
+        entry = pulled.entry;
+      }
+
+      // If this entry is equipped elsewhere, free that slot first.
+      const otherSlot = equippedSlotForEntry(entry.id);
+      if (otherSlot && otherSlot !== slotId) {
+        state.inventory.equipment[otherSlot] = null;
+      }
+      clearHotbarEntry(entry.id);
+      entry.slot = null;
+      state.inventory.equipment[slotId] = entry.id;
+    }
+
+    ensureInventorySlots();
+    state.armoury.activeKitIndex = index;
+    state.armourySelectedKitIndex = index;
+    captureActiveCharacterState();
+    playSfx("item.move", { volume: 0.45, throttleMs: 80 });
+    await applyEquipmentChanges();
+    if (warnings.length) {
+      const shown = warnings.slice(0, 4);
+      pushBattleLog(`Armoury kit ${index + 1} equipped with warnings: ${shown.join(" ")}`);
+      for (const warning of shown) addLootNotice(warning, "full");
+    } else {
+      pushBattleLog(`Armoury kit ${index + 1} equipped.`);
+    }
+    return true;
+  } finally {
+    armouryEquipInFlight = false;
+  }
+}
+
+function armouryKitEntryView(entryId) {
+  const found = armouryFindEntry(entryId);
+  if (found) {
+    return {
+      entry: found.entry,
+      item: itemDefinition(found.entry.itemId),
+      missing: false,
+      busy: null,
+      location: found.location,
+    };
+  }
+  const staged = armouryStagedEntry(entryId);
+  if (staged) {
+    return {
+      entry: staged,
+      item: itemDefinition(staged.itemId),
+      missing: false,
+      busy: armouryEntryIsBusy(entryId),
+      location: "staged",
+    };
+  }
+  return { entry: null, item: null, missing: true, busy: null, location: null };
+}
+
+function armouryPaperDollHtml(kit) {
+  const weaponView = armouryKitEntryView(kit?.equipment?.weapon);
+  const armourView = armouryKitEntryView(kit?.equipment?.armour);
+  const helmetView = armouryKitEntryView(kit?.equipment?.helmet);
+  return `<div class="crystal-paper-doll armoury-paper-doll" aria-hidden="true">${crystalPaperDollLayersHtml(armourView.item, weaponView.item, helmetView.item)}</div>`;
+}
+
+function armouryPreviewSlotHtml(slot, kit) {
+  const position = CRYSTAL_EQUIPMENT_SLOT_POSITIONS[slot.id];
+  if (!position) return "";
+  const entryId = kit?.equipment?.[slot.id] ?? null;
+  const view = entryId ? armouryKitEntryView(entryId) : { entry: null, item: null, missing: false, busy: null };
+  const missingClass = entryId && view.missing ? " is-missing" : "";
+  const hasItem = Boolean(view.item && !view.missing && view.entry);
+  const busyClass = hasItem && view.busy ? " is-busy" : "";
+  const content = hasItem
+    ? `<div class="crystal-equipment-item has-tooltip${inventoryUniqueClass(view.item)}${inventoryEmpoweredClass(view.entry)}" data-tooltip-item="${escapeHtml(view.item.id)}" data-tooltip-entry="${escapeHtml(view.entry.id)}" title="${escapeHtml(itemDisplayName(view.item, view.entry))}">${itemIconHtml(view.item)}</div>`
+    : entryId
+      ? `<span class="armoury-slot-missing">?</span>`
+      : "";
+  const title = hasItem
+    ? `${itemDisplayName(view.item, view.entry)}${view.busy ? ` - ${view.busy}` : ""}`
+    : entryId
+      ? `${slot.label} (missing)`
+      : slot.label;
+  return `
+    <div
+      class="crystal-equipment-slot armoury-preview-slot${hasItem ? " has-item" : ""}${missingClass}${busyClass}"
+      title="${escapeHtml(title)}"
+      style="left:${8 + position.x}px; top:${90 + position.y}px;"
+    >${content}</div>
+  `;
+}
+
+function armouryExtraSlotsHtml(kit) {
+  const rows = EQUIPMENT_SLOTS.filter((slot) => GLYPH_EQUIPMENT_SLOT_IDS.includes(slot.id))
+    .map((slot) => {
+      const entryId = kit?.equipment?.[slot.id] ?? null;
+      const view = entryId ? armouryKitEntryView(entryId) : { entry: null, item: null, missing: false, busy: null };
+      const hasItem = Boolean(view.item && !view.missing && view.entry);
+      const label = hasItem
+        ? itemDisplayName(view.item, view.entry)
+        : entryId
+          ? "Missing"
+          : "Empty";
+      const slotLabelText = slot.id === "glyph" ? "Glyph 1" : slot.label;
+      const busyClass = hasItem && view.busy ? " is-busy" : "";
+      const titleAttr = hasItem && view.busy ? ` title="${escapeHtml(view.busy)}"` : "";
+      const tooltipAttrs = hasItem
+        ? ` data-tooltip-item="${escapeHtml(view.item.id)}" data-tooltip-entry="${escapeHtml(view.entry.id)}"`
+        : "";
+      return `<div class="armoury-extra-slot${hasItem ? " has-tooltip" : ""}${busyClass}"${titleAttr}${tooltipAttrs}><span>${escapeHtml(slotLabelText)}</span><strong>${escapeHtml(label)}</strong></div>`;
+    })
+    .join("");
+  return rows ? `<div class="armoury-extra-slots">${rows}</div>` : "";
+}
+
+function armourySaveConfirmHtml(kitIndex) {
+  const index = parseArmouryKitIndex(kitIndex);
+  if (index == null) return "";
+  return `
+    <div class="armoury-save-confirm" role="dialog" aria-label="Confirm Armoury overwrite">
+      <p class="armoury-save-confirm-text">
+        Kit ${index + 1} already has gear. Overwrite it with what you're wearing now?
+      </p>
+      <div class="armoury-save-confirm-actions">
+        <button type="button" class="refiner-action-button primary" data-confirm-armoury-save="${index}">Overwrite kit ${index + 1}</button>
+        <button type="button" class="refiner-action-button" data-cancel-armoury-save>Cancel</button>
+      </div>
+    </div>
+  `;
+}
+
+function armourySceneHtml() {
+  // Rendering must not prune: kit refs are kept in step by the equip/remove
+  // hooks, and pruning here would rewrite state the render signature was
+  // already computed from.
+  ensureArmouryState();
+  const selected = armourySelectedKitIndex();
+  const kit3Owned = armouryKit3Owned();
+  const kit = state.armoury.kits[selected] ?? createDefaultArmouryState(equipmentSlotIdsList()).kits[0];
+  const tabs = Array.from({ length: ARMOURY_MAX_KIT_COUNT }, (_, index) => {
+    const locked = index >= armouryKitCount();
+    if (locked) {
+      return `
+        <button
+          type="button"
+          class="armoury-kit-tab is-locked"
+          disabled
+          title="Unlock in the Cash Shop for ${ARMOURY_KIT_3_TOKEN_COST} tokens"
+        >Kit ${index + 1}</button>
+      `;
+    }
+    return `
+      <button
+        type="button"
+        class="armoury-kit-tab${index === selected ? " active" : ""}"
+        data-armoury-kit="${index}"
+      >Kit ${index + 1}</button>
+    `;
+  }).join("");
+  const lockedNote = kit3Owned
+    ? ""
+    : `<p class="armoury-locked-note">Kit 3 unlocks in the Cash Shop (${ARMOURY_KIT_3_TOKEN_COST} tokens).</p>`;
+  const empty = armouryKitIsEmpty(kit, equipmentSlotIdsList());
+  const pendingSave = parseArmouryKitIndex(state.pendingArmourySaveKitIndex);
+  const confirmHtml = pendingSave == null ? "" : armourySaveConfirmHtml(pendingSave);
+  const actionsHtml = confirmHtml || `
+    <button type="button" class="refiner-action-button" data-save-armoury-kit="${selected}">Save current gear to kit ${selected + 1}</button>
+    <button type="button" class="refiner-action-button primary" data-equip-armoury-kit="${selected}"${empty ? " disabled" : ""}>Equip kit ${selected + 1}</button>
+  `;
+  return `
+    <section class="npc-panel crystal-npc-text armoury-panel">
+      <div class="armoury-kit-tabs">${tabs}</div>
+      ${lockedNote}
+      <div class="armoury-preview">
+        <div class="armoury-preview-stage">
+          <div class="armoury-preview-stage-inner crystal-character" aria-hidden="true">
+            <div class="crystal-character-panel"></div>
+            ${armouryPaperDollHtml(kit)}
+            ${EQUIPMENT_SLOTS.filter((slot) => !GLYPH_EQUIPMENT_SLOT_IDS.includes(slot.id)).map((slot) => armouryPreviewSlotHtml(slot, kit)).join("")}
+          </div>
+        </div>
+        ${armouryExtraSlotsHtml(kit)}
+      </div>
+      <div class="armoury-actions">
+        ${actionsHtml}
+      </div>
+    </section>
+  `;
 }
 
 function finalizeWeaponRefineOutcome({
@@ -17588,7 +18237,9 @@ async function storeInventoryEntryInStorage(entryId, slot, sourceEquipmentSlot =
   if (actualEquipmentSlot) state.inventory.equipment[actualEquipmentSlot] = null;
   if (hotbarChanged) state.hotbar.slots[sourceHotbarSlot] = null;
   state.inventory.items = state.inventory.items.filter((candidate) => candidate.id !== entry.id);
+  const previousEntryId = entry.id;
   entry.id = allocateStorageEntryId();
+  remappointArmouryEntryIdEverywhere(previousEntryId, entry.id);
   entry.slot = destinationSlot;
   state.account.storage.items.push(entry);
 
@@ -17648,7 +18299,9 @@ function withdrawStorageEntryToInventorySlot(entryId, slot) {
   }
 
   state.account.storage.items = state.account.storage.items.filter((candidate) => candidate.id !== entry.id);
+  const previousEntryId = entry.id;
   entry.id = allocateInventoryEntryId();
+  remappointArmouryEntryIdEverywhere(previousEntryId, entry.id);
   entry.slot = destinationSlot;
   state.inventory.items.push(entry);
   renderStorageMove();
@@ -17671,13 +18324,17 @@ async function equipStorageEntryToSlot(entryId, slotId) {
   const targetEntry = targetEntryId ? inventoryEntryById(targetEntryId) : null;
 
   state.account.storage.items = state.account.storage.items.filter((candidate) => candidate.id !== entry.id);
+  const previousEntryId = entry.id;
   entry.id = allocateInventoryEntryId();
+  remappointArmouryEntryIdEverywhere(previousEntryId, entry.id);
   entry.slot = null;
   state.inventory.items.push(entry);
 
   if (targetEntry) {
     state.inventory.items = state.inventory.items.filter((candidate) => candidate.id !== targetEntry.id);
+    const previousTargetId = targetEntry.id;
     targetEntry.id = allocateStorageEntryId();
+    remappointArmouryEntryIdEverywhere(previousTargetId, targetEntry.id);
     targetEntry.slot = sourceStorageSlot < state.account.storage.maxSlots ? sourceStorageSlot : nextFreeStorageSlot();
     state.account.storage.items.push(targetEntry);
   }
@@ -18173,7 +18830,7 @@ function applyEmpoweredBossFightModifiers(enemy = state.battle.enemy) {
 // entrance; every monster (trash + bosses) scales for the whole run.
 function groupDungeonEmpowerable(zone = activeZone()) {
   const id = zone?.groupDungeon;
-  return id === "bdd" || id === "hell" || id === "red-valley";
+  return id === "bdd" || id === "hell" || id === "red-valley" || id === "past-bicheon";
 }
 
 // Live empower tier of the current group-dungeon fight: 0 none / 1 empowered / 2 ascended / 3 awakened.
@@ -18242,6 +18899,11 @@ function isIncarnatedZumaTaurusEnemy(enemy) {
 function isOmaKingSpiritEnemy(enemy) {
   if (!enemy) return false;
   return enemy.id === OMA_KING_SPIRIT_ENEMY_ID || enemy.crystalName === "OmaKingSpirit";
+}
+
+function isOmaKingEnemy(enemy = state.battle.enemy) {
+  if (!enemy) return false;
+  return enemy.id === OMA_KING_ENEMY_ID || enemy.crystalName === "OmaKing";
 }
 
 function enemyUsesFixedArenaSpawn(enemy = state.battle.enemy) {
@@ -20344,8 +21006,26 @@ function bindSceneButtons(rootEl) {
   rootEl.querySelectorAll("[data-open-weapon-refine]").forEach((button) => {
     button.addEventListener("click", () => openWeaponRefineScene());
   });
+  rootEl.querySelectorAll("[data-open-armoury]").forEach((button) => {
+    button.addEventListener("click", () => openArmouryScene());
+  });
   rootEl.querySelectorAll("[data-open-crafting-cube]").forEach((button) => {
     button.addEventListener("click", () => openCraftingCubeScene());
+  });
+  rootEl.querySelectorAll("[data-armoury-kit]").forEach((button) => {
+    button.addEventListener("click", () => selectArmouryKit(button.dataset.armouryKit));
+  });
+  rootEl.querySelectorAll("[data-save-armoury-kit]").forEach((button) => {
+    button.addEventListener("click", () => requestSaveArmouryKit(button.dataset.saveArmouryKit));
+  });
+  rootEl.querySelectorAll("[data-equip-armoury-kit]").forEach((button) => {
+    button.addEventListener("click", () => { void equipArmouryKit(button.dataset.equipArmouryKit); });
+  });
+  rootEl.querySelectorAll("[data-confirm-armoury-save]").forEach((button) => {
+    button.addEventListener("click", () => confirmSaveArmouryKit(button.dataset.confirmArmourySave));
+  });
+  rootEl.querySelectorAll("[data-cancel-armoury-save]").forEach((button) => {
+    button.addEventListener("click", () => cancelArmourySaveConfirm());
   });
   rootEl.querySelectorAll("[data-crafting-cube-mode]").forEach((button) => {
     button.addEventListener("click", () => setCraftingCubeMode(button.dataset.craftingCubeMode));
@@ -20536,7 +21216,7 @@ function craftingCubeCompanionScenes() {
 }
 
 function npcActiveScene() {
-  if (state.activeScene === "townNpc" || state.activeScene === "storage" || state.activeScene === "bossEntry" || state.activeScene === "weaponRefine" || state.activeScene === "craftingCube") {
+  if (state.activeScene === "townNpc" || state.activeScene === "storage" || state.activeScene === "bossEntry" || state.activeScene === "weaponRefine" || state.activeScene === "craftingCube" || state.activeScene === "armoury") {
     return state.activeScene;
   }
   return null;
@@ -20658,7 +21338,7 @@ function openScene(scene, updateUrl = true) {
   if (scene === "timeLogging" && !timeLoggingUnlocked()) return;
   if (scene === "spiritBox" && !spiritBoxUnlocked()) return;
   state.game.selectedTownNpcId = null;
-  if (state.activeScene === "townNpc" || state.activeScene === "storage" || state.activeScene === "bossEntry" || state.activeScene === "weaponRefine" || state.activeScene === "craftingCube") {
+  if (state.activeScene === "townNpc" || state.activeScene === "storage" || state.activeScene === "bossEntry" || state.activeScene === "weaponRefine" || state.activeScene === "craftingCube" || state.activeScene === "armoury") {
     removeSceneWindowFromStack(state.activeScene);
     state.activeScene = null;
   }
@@ -20715,6 +21395,10 @@ function closeScene(scene = null, updateUrl = true) {
     state.weaponRefine.picker = { kind: "weapon", index: 0 };
     state.activeScene = state.game.selectedTownNpcId ? "townNpc" : null;
     removeSceneWindowFromStack(scene);
+  } else if (scene === "armoury") {
+    state.pendingArmourySaveKitIndex = null;
+    state.activeScene = state.game.selectedTownNpcId ? "townNpc" : null;
+    removeSceneWindowFromStack(scene);
   } else if (scene === "craftingCube") {
     restoreAllCraftingCubeStagedEntries();
     if (state.craftingCube) state.craftingCube.recipesOpen = false;
@@ -20727,7 +21411,7 @@ function closeScene(scene = null, updateUrl = true) {
   } else if (scene === "townNpc" || scene === "storage" || scene === "bossEntry") {
     state.game.selectedTownNpcId = null;
     if (scene === "storage") state.pendingStorageUnlock = null;
-    if (state.activeScene === "townNpc" || state.activeScene === "storage" || state.activeScene === "bossEntry" || state.activeScene === "weaponRefine" || state.activeScene === "craftingCube") state.activeScene = null;
+    if (state.activeScene === "townNpc" || state.activeScene === "storage" || state.activeScene === "bossEntry" || state.activeScene === "weaponRefine" || state.activeScene === "craftingCube" || state.activeScene === "armoury") state.activeScene = null;
     if (scene === "bossEntry") {
       state.bossEntryZoneId = null;
       state.bossEntryFromGroupDungeonAdvance = false;
@@ -20749,11 +21433,12 @@ function closeScene(scene = null, updateUrl = true) {
     if (state.activeScene === "craftingCube" || Object.keys(state.craftingCube?.stagedEntries ?? {}).length) {
       restoreAllCraftingCubeStagedEntries();
     }
-    if (state.activeScene === "townNpc" || state.activeScene === "storage" || state.activeScene === "weaponRefine" || state.activeScene === "craftingCube") state.game.selectedTownNpcId = null;
+    if (state.activeScene === "townNpc" || state.activeScene === "storage" || state.activeScene === "weaponRefine" || state.activeScene === "craftingCube" || state.activeScene === "armoury") state.game.selectedTownNpcId = null;
     state.bossEntryZoneId = null;
     state.bossEntryFromGroupDungeonAdvance = false;
     clearPendingDungeonSoulEntry();
     state.activeScene = null;
+    state.pendingArmourySaveKitIndex = null;
     state.openScenes.character = false;
     state.openScenes.inventory = false;
     state.openScenes.codex = false;
@@ -21056,6 +21741,10 @@ function buildSceneOverlaySignature(openScenes, bossEntryZoneId) {
     inventoryPagesUnlocked: state.inventory.pagesUnlocked,
     pendingInventoryDestroyEntryId: state.pendingInventoryDestroyEntryId,
     pendingRebirthConfirm: state.pendingRebirthConfirm,
+    armourySelectedKitIndex: state.armourySelectedKitIndex,
+    pendingArmourySaveKitIndex: state.pendingArmourySaveKitIndex,
+    armouryKits: state.armoury?.kits ?? null,
+    armouryActiveKitIndex: state.armoury?.activeKitIndex ?? null,
     storagePage2Purchased: state.account.storage.page2Purchased,
     storageTokenPageUnlocked: state.account.storage.tokenPageUnlocked,
     tokens: { balance: state.tokens.balance, buying: state.tokens.buying, error: state.tokens.error },
@@ -21257,6 +21946,7 @@ function sceneClassName(scene) {
   if (scene === "weaponRefine") return "scene-window weapon-refine-window";
   if (scene === "craftingCube") return "scene-window crafting-cube-window";
   if (scene === "craftingCubeRecipes") return "scene-window crafting-cube-recipes-window";
+  if (scene === "armoury") return "scene-window armoury-window";
   if (scene === "inventory") return "scene-window inventory-window";
   if (scene === "codex") return "scene-window codex-window";
   if (scene === "achievements") return "scene-window achievements-window";
@@ -21285,6 +21975,7 @@ function sceneTitle(scene) {
   if (scene === "weaponRefine") return "Weapon Refine";
   if (scene === "craftingCube") return "Crafting Cube";
   if (scene === "craftingCubeRecipes") return "Recipes";
+  if (scene === "armoury") return "Armoury";
   if (scene === "upgrades") return "Upgrades";
   if (scene === "gettingStarted") return "Getting Started";
   if (scene === "changelog") return "What's New";
@@ -21326,6 +22017,7 @@ function sceneBodyHtml(scene) {
   if (scene === "weaponRefine") return weaponRefineSceneHtml();
   if (scene === "craftingCube") return craftingCubeSceneHtml();
   if (scene === "craftingCubeRecipes") return craftingCubeRecipesSceneHtml();
+  if (scene === "armoury") return armourySceneHtml();
   if (scene === "townNpc") return townNpcSceneHtml();
   return "";
 }
@@ -22427,9 +23119,52 @@ function bossEmpowerAscendControlsHtml(zone) {
   return `${empowerButtonHtml}${ascendButtonHtml}${awakenButtonHtml}<p class="boss-entry-note">${bossEmpowerAscendNote(zone, s, labels)}</p>`;
 }
 
+function mysteryCaveEntrySceneHtml(zone) {
+  const selected = selectedBossAssistIds();
+  const config = groupDungeonBossSwarmConfig(zone);
+  const empowerState = bossEmpowerAscendState(zone);
+  const canFight = !empowerState.needsGold || empowerState.goldMet;
+  const fightSuffix = bossEmpowerFightSuffix(empowerState);
+  const rosterHtml = MYSTERY_CAVE_BOSS_TEMPLATE_IDS.map((templateId, index) => {
+    const template = ENEMY_TEMPLATES.find((enemy) => enemy.id === templateId);
+    const delaySec = Math.round((index * MYSTERY_CAVE_SPAWN_INTERVAL_MS) / 1000);
+    const when = delaySec <= 0 ? "now" : `+${delaySec}s`;
+    return `<li><strong>${escapeHtml(template?.name ?? "Boss")}</strong> <span>${when}</span></li>`;
+  }).join("");
+  return `
+    <section class="boss-entry-panel">
+      <p class="boss-warning">
+        You're entering Mystery Cave with your ${escapeHtml(state.activeCharacterId)}.
+      </p>
+      <p class="boss-warning muted">
+        Every moving boss emerges in order, one every 10 seconds, from Wooma Taurus through Oma King. Stationary bosses stay out. Pick Empowered, Ascended, or Awakened to scale the whole gauntlet.
+      </p>
+      <ol class="mystery-cave-roster">${rosterHtml}</ol>
+      <dl class="boss-entry-stats">
+        <dt>Spawns</dt><dd>1 every 10s</dd>
+        <dt>Party</dt><dd>${1 + selected.size}</dd>
+        <dt>Bosses</dt><dd>${config.totalSpawns}</dd>
+      </dl>
+      ${partyAssistPickerHtml()}
+      ${bossEmpowerAscendControlsHtml(zone)}
+      <footer class="boss-entry-footer">
+        <button
+          type="button"
+          class="primary boss-entry-fight-button"
+          ${canFight ? "" : "disabled"}
+          data-confirm-boss-zone="${escapeHtml(zone.id)}"
+        >
+          Enter Mystery Cave${fightSuffix}
+        </button>
+      </footer>
+    </section>
+  `;
+}
+
 function bossEntrySceneHtml() {
   const zone = bossEntryZone();
   if (!zone) return `<p class="battle-state">Entry unavailable.</p>`;
+  if (isMysteryCaveZone(zone)) return mysteryCaveEntrySceneHtml(zone);
   if (groupDungeonZone(zone)) return groupDungeonEntrySceneHtml(zone);
   if (groupDungeonBossSwarmZone(zone)) return groupDungeonBossSwarmEntrySceneHtml(zone);
   const def = bossRoomDef(zone?.id);
@@ -22706,6 +23441,10 @@ function gettingStartedSceneHtml() {
         "<strong>SC</strong> — spell power for Taoist heals, buffs, and summons.",
         "Also check <strong>Attack Speed</strong>, <strong>Accuracy</strong>, and <strong>Agility</strong> on the Status tab — they affect how often you hit and dodge.",
       ])}
+      ${gettingStartedSectionHtml("Damage Reduction", [
+        `Gear empowerments that reduce damage taken, Wizard <strong>Magic Shield</strong>, and short glyph buffs like Warrior <strong>Flaming Bulwark</strong> all add together into one pool. That pool is capped at <strong>${PLAYER_DAMAGE_REDUCTION_CAP_PERCENT}%</strong> — stacking past the cap still works for build goals, but you never become fully immune.`,
+        "<strong>Glyph of Tank</strong> (and Glass Canon) apply afterward as a separate multiplier on whatever damage remains, so Tank still helps even when the additive pool is maxed. Push tanky gear and glyphs as hard as you like; enemies will always get some damage through.",
+      ])}
       ${gettingStartedSectionHtml("Inventory and Equipment", [
         "Open <strong>Inventory</strong> to manage items. Equip weapons and armour on the Character tab, or right-click / use items from the bag.",
         "Sell unwanted loot to <strong>Trader James</strong>. Store extras with <strong>Storage Jake</strong> — storage is shared across all characters on your account.",
@@ -22724,6 +23463,7 @@ function gettingStartedSceneHtml() {
         "Skills are learned from monster drops and level up through use. Open Character › <strong>Skill</strong> to see requirements, MP cost, and cooldown.",
         `Toggle <strong>Auto</strong> on a skill to let combat cast it for you. You begin with ${BASE_AUTOCAST_SLOTS} autocast slot; upgrades in the Upgrades window can unlock up to ${maxAutoCastSlotLimit()} (currently ${autoCastSlots} active).`,
         "<strong>Warriors</strong> use melee skills and toggles like Flaming Sword. <strong>Wizards</strong> cast ranged spells. <strong>Taoists</strong> heal, buff, summon pets, and apply poisons — keep amulets and poison vials in inventory for those spells.",
+        "Empowerments can shorten skill cooldowns, but <strong>Flaming Sword</strong> cannot go below <strong>3 seconds</strong> even if stacked reductions would go lower.",
         "Some skills are passive or manual-only. Click a queued skill in the skill bar to fire it immediately on your next action.",
       ])}
       ${gettingStartedSectionHtml("Characters and Upgrades", [
@@ -23519,6 +24259,17 @@ function confirmGroupDungeonAutoAdvancePurchase() {
   });
 }
 
+function confirmArmouryKit3Purchase() {
+  if (armouryKit3Owned() || state.tokens.buying) return;
+  purchasePageUnlock(ARMOURY_KIT_3_UNLOCK_KEY, () => {
+    pushBattleLog("Armoury Kit 3 unlocked - open Blacksmith Bill's Armoury to use the extra kit.");
+    playSfx("ui.gold", { volume: 0.55, throttleMs: 80 });
+    sceneSignature = "";
+    renderSceneOverlay();
+    saveGameState(true);
+  });
+}
+
 // Cash Shop purchase/renewal of the Monthly Supporter subscription (28 days).
 function confirmMonthlySupporterPurchase() {
   if (state.tokens.buying) return;
@@ -23824,6 +24575,13 @@ function cashShopSceneHtml() {
     : `<button type="button" class="primary" data-buy-unlock="${GROUP_DUNGEON_AUTO_ADVANCE_UNLOCK_KEY}" ${tokens.buying || !autoAdvanceAffordable ? "disabled" : ""}>
           ${tokens.buying ? "Purchasing..." : `Buy for ${GROUP_DUNGEON_AUTO_ADVANCE_TOKEN_COST} tokens`}
         </button>${autoAdvanceAffordable ? "" : `<small class="cash-shop-need">Need ${GROUP_DUNGEON_AUTO_ADVANCE_TOKEN_COST} tokens</small>`}`;
+  const armouryKit3OwnedFlag = armouryKit3Owned();
+  const armouryKit3Affordable = balanceValue >= ARMOURY_KIT_3_TOKEN_COST;
+  const armouryKit3ButtonHtml = armouryKit3OwnedFlag
+    ? `<button type="button" class="cash-shop-owned" disabled>Owned</button>`
+    : `<button type="button" class="primary" data-buy-unlock="${ARMOURY_KIT_3_UNLOCK_KEY}" ${tokens.buying || !armouryKit3Affordable ? "disabled" : ""}>
+          ${tokens.buying ? "Purchasing..." : `Buy for ${ARMOURY_KIT_3_TOKEN_COST} tokens`}
+        </button>${armouryKit3Affordable ? "" : `<small class="cash-shop-need">Need ${ARMOURY_KIT_3_TOKEN_COST} tokens</small>`}`;
   const spendHtml = `
       <div class="cash-shop-spend">
         <h3>Spend tokens</h3>
@@ -23869,6 +24627,13 @@ function cashShopSceneHtml() {
             <small>Adds an Auto advance checkbox next to the Advance button in multi-stage group dungeons (Black Dragon Dungeon, Hell Cavern, and future ones).</small>
           </div>
           <div class="cash-shop-item-buy">${autoAdvanceButtonHtml}</div>
+        </div>
+        <div class="cash-shop-item">
+          <div class="cash-shop-item-info">
+            <strong>Armoury Kit 3</strong>
+            <small>Adds a third Armoury kit at Blacksmith Bill. Two kits are free for every character.</small>
+          </div>
+          <div class="cash-shop-item-buy">${armouryKit3ButtonHtml}</div>
         </div>
       </div>
   `;
@@ -24445,8 +25210,7 @@ function openLeaderboardPlayer(index) {
   const row = lb.rows?.[index];
   if (!row) return;
   lb.selectedIndex = index;
-  const characters = leaderboardRowCharacters(row);
-  lb.detailClass = characters[0]?.characterClass ?? null;
+  lb.detailClass = leaderboardTopCharacter(row)?.characterClass ?? null;
   playSfx("ui.button", { volume: 0.3, throttleMs: 80 });
   refreshLeaderboardScene();
 }
@@ -24471,6 +25235,18 @@ function leaderboardRowCharacters(row) {
       characterClass: normalizeCharacterId(entry?.characterClass),
     }))
     .sort((left, right) => CHARACTER_IDS.indexOf(left.characterClass) - CHARACTER_IDS.indexOf(right.characterClass));
+}
+
+// Class / Lvl columns (and the default detail tab) show the highest-level character,
+// not Warrior-first from CHARACTER_IDS order. Ties keep the earlier class id.
+function leaderboardTopCharacter(row) {
+  const characters = leaderboardRowCharacters(row);
+  if (!characters.length) return null;
+  return characters.reduce((best, entry) => {
+    const level = Math.max(1, Math.trunc(Number(entry?.level) || 1));
+    const bestLevel = Math.max(1, Math.trunc(Number(best?.level) || 1));
+    return level > bestLevel ? entry : best;
+  });
 }
 
 function leaderboardSceneHtml() {
@@ -24536,7 +25312,7 @@ function leaderboardListHtml() {
 }
 
 function leaderboardRowHtml(row, index) {
-  const topChar = leaderboardRowCharacters(row)[0];
+  const topChar = leaderboardTopCharacter(row);
   const className = topChar ? String(topChar.characterClass ?? "") : "";
   const level = topChar ? String(Math.max(1, Math.trunc(Number(topChar.level) || 1))) : "";
   const rebirths = Math.max(0, Math.trunc(Number(row?.rebirthCount) || 0));
@@ -25862,6 +26638,7 @@ async function destroyInventoryEntry(entryId) {
   const equippedSlot = equippedSlotForEntry(entry.id);
   if (equippedSlot) state.inventory.equipment[equippedSlot] = null;
   clearHotbarEntry(entry.id);
+  clearArmouryEntryIdEverywhere(entry.id);
   state.inventory.items = state.inventory.items.filter((candidate) => candidate.id !== entry.id);
   ensureInventorySlots();
   syncBossPartyControlledInventoryFromState();
@@ -26879,7 +27656,15 @@ function resolveBossSwarmSpawnMapRow(planEntry, arenaSpawnRow, fallbackIndex = 0
 }
 
 function groupDungeonBossSwarmConfig(zone = activeZone()) {
-  const base = zone?.bossSwarmConfig ?? zone?.groupDungeonBossSwarmConfig ?? {};
+  let base = zone?.bossSwarmConfig ?? zone?.groupDungeonBossSwarmConfig ?? {};
+  if (isMysteryCaveZone(zone)) {
+    base = {
+      ...base,
+      spawnIntervalMs: MYSTERY_CAVE_SPAWN_INTERVAL_MS,
+      firstSpawnDelayMs: 0,
+      spawnQueue: buildMysteryCaveSpawnQueue(),
+    };
+  }
   const rawInterval = Math.trunc(Number(base.spawnIntervalMs));
   const spawnIntervalMs = Math.max(1000, Number.isFinite(rawInterval) ? rawInterval : 10000);
   const rawFirstDelay = base.firstSpawnDelayMs ?? base.spawnIntervalMs ?? spawnIntervalMs;
@@ -26909,6 +27694,7 @@ function groupDungeonBossSwarmSignature() {
 }
 
 function groupDungeonBossSwarmLabel(zone = groupDungeonWaveZone()) {
+  if (isMysteryCaveZone(zone)) return "Mystery Cave";
   const base = zone?.bossSwarmConfig ?? zone?.groupDungeonBossSwarmConfig ?? {};
   if (Array.isArray(base.spawnQueue) && base.spawnQueue.length) {
     const names = base.spawnQueue
@@ -26989,7 +27775,11 @@ function spawnGroupDungeonBossSwarmEnemy(now = performance.now()) {
   // supported swarm boss (e.g. the standalone Devourers) here so every member is
   // empowered. Group dungeons scale uniformly in buildSwarmEnemyFromTemplate, so skip
   // this boss-room hook there to avoid double-scaling and extra enrage.
-  if (!groupDungeonEmpowerable(activeZone()) && state.battle.bossEmpowered && supportsEmpoweredBossCombat(enemy)) {
+  if (
+    !groupDungeonEmpowerable(activeZone())
+    && state.battle.bossEmpowered
+    && (supportsEmpoweredBossCombat(enemy) || isMysteryCaveZone(activeZone()))
+  ) {
     applyEmpoweredBossCombatModifiers(enemy);
   }
   if (isDarkDevourerSwarmEnemy(enemy)) {
@@ -27073,7 +27863,11 @@ function finishGroupDungeonBossSwarmEncounter(now = performance.now()) {
     setBossRespawn(zone.id);
     pushBattleLog(`${bossLabel} will respawn in ${formatBossRespawnDelay(respawnMinutes)}.`);
   }
-  pushBattleLog(`All ${bossLabel} defeated.`);
+  if (isMysteryCaveZone(zone)) {
+    pushBattleLog(`Mystery Cave cleared — ${bossSwarm.killed} / ${bossSwarm.totalSpawns} bosses slain.`);
+  } else {
+    pushBattleLog(`All ${bossLabel} defeated.`);
+  }
   freezeBossPartyMembersForAftermath(party, now);
   if (party.pet?.active) {
     party.pet.nextAttackAt = Number.POSITIVE_INFINITY;
@@ -27111,8 +27905,9 @@ function groupDungeonBossSwarmSidePanelHtml() {
   const living = groupDungeonSwarmLivingCount();
   const spawned = Math.min(bossSwarm.totalSpawns, bossSwarm.spawned);
   const killed = Math.min(bossSwarm.totalSpawns, bossSwarm.killed);
+  const mysteryCave = isMysteryCaveZone(zone);
   let sub = bossSwarm.complete
-    ? "Room cleared"
+    ? (mysteryCave ? `${killed} defeated` : "Room cleared")
     : `${living} alive · ${killed} defeated`;
   if (!bossSwarm.complete && spawned < bossSwarm.totalSpawns && Number.isFinite(bossSwarm.nextSpawnAt)) {
     const remainingMs = Math.max(0, Math.ceil((bossSwarm.nextSpawnAt - performance.now()) / 1000));
@@ -27121,11 +27916,11 @@ function groupDungeonBossSwarmSidePanelHtml() {
   return `
     <section class="game-card group-dungeon-wave-card">
       <div class="game-card-title">
-        <strong>Boss Swarm</strong>
+        <strong>${mysteryCave ? "Mystery Cave" : "Boss Swarm"}</strong>
         <span>${escapeHtml(bossName)}</span>
       </div>
       <p class="group-dungeon-wave-status">
-        <strong>${spawned} / ${bossSwarm.totalSpawns} spawned</strong>
+        <strong>${mysteryCave ? `${killed} / ${bossSwarm.totalSpawns} slain` : `${spawned} / ${bossSwarm.totalSpawns} spawned`}</strong>
         <span>${escapeHtml(sub)}</span>
       </p>
     </section>
@@ -28738,7 +29533,7 @@ function onGroupDungeonSwarmEnemyKilled(swarmEnemy, now = performance.now()) {
   if (swarmEnemy.isBossSwarm) {
     const party = state.battle.bossParty;
     const entity = swarmEnemyToBattleEntity(swarmEnemy);
-    if (bossDropTableForEnemy(entity)) {
+    if (!isMysteryCaveZone(activeZone()) && bossDropTableForEnemy(entity)) {
       awardBossPartyBossKillShare(entity, now);
     } else {
       const savedEnemy = state.battle.enemy;
@@ -29919,6 +30714,7 @@ function refinerNpcSceneHtml(npc) {
       <p>${escapeHtml(npc.panel)} Black iron ore is kept for weapon refining.</p>
       <div class="refiner-actions">
         <button type="button" class="refiner-action-button primary" data-open-weapon-refine>Refine weapon</button>
+        <button type="button" class="refiner-action-button" data-open-armoury>Armoury</button>
         ${craftingCubeButton}
         <button type="button" class="refiner-action-button" data-head-to-mines>Head to the mines</button>
         <button type="button" class="refiner-action-button"${junk.count > 0 ? "" : " disabled"} data-sell-all-junk-ore>${escapeHtml(sellLabel)}</button>
@@ -30438,6 +31234,12 @@ function trainerNpcSceneHtml(npc) {
 function teleportNpcSceneHtml(npc) {
   const browseRegionId = state.teleportBrowseRegionId;
   if (!browseRegionId) {
+    const mysteryCaveButton = `
+        <button type="button" data-enter-zone="${escapeHtml(MYSTERY_CAVE_ZONE_ID)}" class="teleport-region-button teleport-mystery-cave-button">
+          <strong>Mystery Cave</strong>
+          <span>Boss gauntlet</span>
+        </button>
+      `;
     const regionButtons = TELEPORT_REGIONS.map((entry) => {
       const zoneCount = teleportRegionZones(entry).length;
       return `
@@ -30451,6 +31253,7 @@ function teleportNpcSceneHtml(npc) {
       <section class="npc-panel crystal-npc-text teleport-panel">
         <span>${escapeHtml(npc.panel)}</span>
         <div class="teleport-region-list" data-preserve-scroll="npc-teleport-regions">
+          ${mysteryCaveButton}
           ${regionButtons}
         </div>
       </section>
@@ -30926,6 +31729,7 @@ function bindControls() {
       else if (buyUnlockButton.dataset.buyUnlock === ORE_STACKING_UNLOCK_KEY) confirmOreStackingPurchase();
       else if (buyUnlockButton.dataset.buyUnlock === TIME_LOGGING_UNLOCK_KEY) confirmTimeLoggingPurchase();
       else if (buyUnlockButton.dataset.buyUnlock === GROUP_DUNGEON_AUTO_ADVANCE_UNLOCK_KEY) confirmGroupDungeonAutoAdvancePurchase();
+      else if (buyUnlockButton.dataset.buyUnlock === ARMOURY_KIT_3_UNLOCK_KEY) confirmArmouryKit3Purchase();
       return;
     }
     const buySubscriptionButton = event.target.closest("[data-buy-subscription]");
@@ -31430,7 +32234,7 @@ function closeTownNpc() {
   if (!state.game.selectedTownNpcId) return;
   const closingScene = state.activeScene;
   state.game.selectedTownNpcId = null;
-  if (state.activeScene === "townNpc" || state.activeScene === "storage" || state.activeScene === "weaponRefine" || state.activeScene === "craftingCube") state.activeScene = null;
+  if (state.activeScene === "townNpc" || state.activeScene === "storage" || state.activeScene === "weaponRefine" || state.activeScene === "craftingCube" || state.activeScene === "armoury") state.activeScene = null;
   if (closingScene) removeSceneWindowFromStack(closingScene);
   resetWeaponRefineState();
   resetCraftingCubeState();
@@ -33989,7 +34793,9 @@ function bossPartyMemberPlayerBuffs(member) {
 }
 
 function bossPartyWizardAttackSpells(member) {
-  return bossPartyAutoSpells(member).filter((spell) => isWizardAttackSpell(spell));
+  return bossPartyAutoSpells(member)
+    .filter((spell) => isWizardAttackSpell(spell))
+    .sort((a, b) => wizardCastAutoPriority(a, member) - wizardCastAutoPriority(b, member));
 }
 
 function bossPartyUsableTaoistDefenceBuff(member, spellId, now, options = {}) {
@@ -35504,6 +36310,137 @@ function isCrystalSpiderEnemy(enemy = state.battle.enemy) {
     || enemy?.crystalName === "CrystalSpider";
 }
 
+function isFrostTigerEnemy(enemy = state.battle.enemy) {
+  return enemy?.id === FROST_TIGER_ENEMY_ID || enemy?.crystalName === "FrostTiger";
+}
+
+function frostTigerAttackEnemy(ranged) {
+  const enemy = state.battle.enemy;
+  if (ranged) {
+    return {
+      ...enemy,
+      attackDefenceType: enemy.rangedAttackDefenceType || "MAC",
+    };
+  }
+  return {
+    ...enemy,
+    attackDefenceType: enemy.attackDefenceType || "ACAgility",
+  };
+}
+
+function frostTigerMeleePartyTarget() {
+  if (!bossPartyActiveFight()) return null;
+  const warrior = state.battle.bossParty?.members?.find(
+    (member) => member.classId === "Warrior" && member.alive && (member.hp ?? 0) > 0,
+  );
+  return warrior ?? bossPartyFrontTarget();
+}
+
+function frostTigerRangedPartyTarget() {
+  if (!bossPartyActiveFight()) return null;
+  const tank = frostTigerMeleePartyTarget();
+  const casters = (state.battle.bossParty?.members ?? []).filter((member) => (
+    member.alive
+    && (member.hp ?? 0) > 0
+    && member !== tank
+    && (member.classId === "Wizard" || member.classId === "Taoist")
+  ));
+  if (casters.length) return casters[Math.floor(Math.random() * casters.length)];
+  // Pet / leftover soak, then the Warrior if they are last alive (MAC, not AC).
+  return bossPartyRandomLivingRangedTarget() ?? tank;
+}
+
+function canFrostTigerAttack() {
+  const battle = state.battle;
+  if (battle.phase !== "engaged" || !battle.enemyRevealed || !battle.enemy?.hp) return false;
+  if (enemyFrozenActive(battle.enemy)) return false;
+  if (!battle.enemyAggro) return false;
+  return boneLordTargetDistance() <= boneLordAttackRange(battle.enemy);
+}
+
+function applyFrostTigerMeleeHit(now) {
+  const enemy = state.battle.enemy;
+  if (!enemy || enemy.hp <= 0 || !state.battle.enemyRevealed) return false;
+  if (bossPartyActiveFight()) {
+    const target = frostTigerMeleePartyTarget();
+    if (!target) return false;
+    if (bossPartyTargetEnemyDistance(target) > BOSS_PARTY_BOSS_REACH) return false;
+    applyBossPartyIncomingStrike(enemy.name, target, frostTigerAttackEnemy(false), now, { magicShield: true });
+    return true;
+  }
+  const target = enemyAttackTarget();
+  if (enemyTargetDistance() > LANE.enemyRange) return false;
+  const { hit, damage } = resolveIncomingEnemyAttack(frostTigerAttackEnemy(false), target);
+  if (!hit) {
+    applyIncomingTargetMiss(enemy.name, target, now);
+    return true;
+  }
+  applyIncomingTargetHit(enemy.name, target, damage, now);
+  maybeFinishBattleAfterPlayerHit(target, now);
+  return true;
+}
+
+function resolveFrostTigerRangeStrike(strike, now) {
+  const enemy = state.battle.enemy;
+  if (!enemy || enemy.hp <= 0 || !state.battle.enemyRevealed) return;
+  const target = strike?.target;
+  if (target && (target.hp ?? 0) > 0) {
+    applyBossPartyIncomingStrike(enemy.name, target, frostTigerAttackEnemy(true), now, {
+      ranged: true,
+      magicShield: true,
+    });
+    return;
+  }
+  const solo = enemyAttackTarget();
+  const { hit, damage } = resolveIncomingEnemyRangedAttack(frostTigerAttackEnemy(true), solo, { ranged: true });
+  if (!hit) {
+    applyIncomingTargetMiss(enemy.name, solo, now);
+    return;
+  }
+  applyIncomingTargetHit(enemy.name, solo, damage, now);
+  maybeFinishBattleAfterPlayerHit(solo, now);
+}
+
+function beginFrostTigerAttack(now) {
+  if (state.battle.pendingEnemyStrike) return false;
+  if (!canFrostTigerAttack()) return false;
+  const enemy = state.battle.enemy;
+  // Claw the Warrior every cycle, then spit the MAC bolt (backline soak, or
+  // the tank if they are last). One anim — attackRange1 — covers the spit.
+  applyFrostTigerMeleeHit(now);
+  if (state.battle.phase !== "engaged" || !state.battle.enemy?.hp) return true;
+
+  const target = frostTigerRangedPartyTarget();
+  const distancePx = target
+    ? bossPartyTargetEnemyDistance(target)
+    : boneLordTargetDistance();
+  // Crystal: AttackRange1 FrameIndex 4 spawns the missile; damage lands at dist*50+500.
+  const damageDelayMs = boneLordImpactDelay(distancePx, enemy);
+  const launchDelayMs = 400;
+  const startedAt = now + launchDelayMs;
+  const impactAt = now + damageDelayMs;
+  const moveDurationMs = Math.max(1, impactAt - startedAt);
+  const projectile = state.enemy.atlas?.projectile;
+  const animAction = enemyPrefersAttackRange1(state.enemy.atlas) ? "attackRange1" : "attack1";
+  state.battle.pendingEnemyStrike = {
+    kind: "frostTigerRange",
+    startedAt,
+    at: impactAt,
+    ranged: true,
+    moveDurationMs,
+    vfxUntil: Math.max(
+      impactAt,
+      enemyRangedStrikeVfxUntil(startedAt, moveDurationMs, projectile),
+      enemyTravelImpactVfxUntil(impactAt, projectile),
+    ),
+    target,
+    aimWorldX: target ? Math.round(Number(target.worldX) || 0) : null,
+  };
+  setEnemyAction(animAction, true, now);
+  playMonsterSfx(enemyAttackSfxKind(enemy, true), enemy, { force: true, throttleMs: 0 });
+  return true;
+}
+
 /** Crystal AncientBringer (Danmo) — line melee / heavy para / ranged MC AoE / bat summon. */
 function isDanmoEnemy(enemy = state.battle.enemy) {
   return enemy?.attackMode === "ancientBringer"
@@ -36214,10 +37151,8 @@ function enemyAttackDamageStat(enemy = state.battle.enemy, options = {}) {
   if (options.ranged && isFlamingMutantEnemy(enemy) && statRange(enemy?.mc)[1] > 0) {
     return effectiveEnemyOffenceStat(enemy, enemy.mc, now);
   }
-  if (isIncarnatedRedThunderZumaEnemy(enemy)) {
-    if (options.ranged && enemy.rangedDc) return effectiveEnemyOffenceStat(enemy, enemy.rangedDc, now);
-    if (enemy.meleeDc) return effectiveEnemyOffenceStat(enemy, enemy.meleeDc, now);
-  }
+  if (options.ranged && enemy.rangedDc) return effectiveEnemyOffenceStat(enemy, enemy.rangedDc, now);
+  if (enemy.meleeDc) return effectiveEnemyOffenceStat(enemy, enemy.meleeDc, now);
   return effectiveEnemyOffenceStat(enemy, enemy.dc, now);
 }
 
@@ -36723,6 +37658,75 @@ function applyFlamingMutantParalysis(enemy, combatant, now) {
   return applyScalyBeastParalysis(enemy, combatant, now);
 }
 
+function enemyMassBurstSplitsAmongParty(enemy = state.battle.enemy) {
+  return Boolean(enemy?.massBurstSplitAmongParty) || isOmaKingEnemy(enemy);
+}
+
+function massBurstSplitPartyTargets(targets) {
+  const party = (targets ?? []).filter((target) => target.kind === "member" || target.kind === "player");
+  const pool = party.length ? party : (targets ?? []);
+  return [...pool].sort((a, b) => {
+    const classA = a.entity?.classId ?? a.logName;
+    const classB = b.entity?.classId ?? b.logName;
+    const indexA = BOSS_PARTY_ORDER.indexOf(classA);
+    const indexB = BOSS_PARTY_ORDER.indexOf(classB);
+    return (indexA < 0 ? 99 : indexA) - (indexB < 0 ? 99 : indexB);
+  });
+}
+
+function resolveMassBurstSplitAmongParty(enemy, targets, now, options = {}) {
+  const splitTargets = massBurstSplitPartyTargets(targets);
+  if (!splitTargets.length) return;
+  const probe = splitTargets[0];
+  const resistProbe = probe.entity
+    ? defenceTargetForIncomingAttack(probe.entity)
+    : probe.stats;
+  const attackEntity = options.defenceType
+    ? { ...enemy, attackDefenceType: options.defenceType }
+    : enemy;
+  const packet = resolveIncomingEnemyRangedAttackCore({
+    ...attackEntity,
+    accuracy: effectiveEnemyAccuracy(enemy, now),
+  }, { ...resistProbe, ac: 0, amc: 0 }, {
+    now,
+    ranged: true,
+    aoe: true,
+    massBurst: true,
+    attackStat: enemyAttackDamageStat(enemy, { now, ranged: true, aoe: true, massBurst: true }),
+    damageReductionPercent: 0,
+    rangedAttackDefenceType: options.defenceType || enemy.rangedAttackDefenceType || "MAC",
+  });
+  if (!packet?.hit) {
+    splitTargets.forEach((target, index) => {
+      applyStrikeTargetIncoming(enemy.name, enemy, target, now, {
+        offsetX: index * 14,
+        magicShield: true,
+        ranged: true,
+        defenceType: options.defenceType,
+        skipHeroRedirect: true,
+        miss: true,
+      });
+    });
+    return;
+  }
+  const shares = splitIntegerEvenly(packet.damage, splitTargets.length);
+  splitTargets.forEach((target, index) => {
+    const targetDefence = target.entity
+      ? defenceTargetForIncomingAttack(target.entity)
+      : target.stats;
+    const afterAmc = Math.max(0, (shares[index] ?? 0) - rollStat(incomingAttackDefenceStat(targetDefence, "MAC")));
+    const reduced = applyIncomingDamageReduction(afterAmc, targetDefence, now);
+    applyStrikeTargetIncoming(enemy.name, enemy, target, now, {
+      offsetX: index * 14,
+      magicShield: true,
+      ranged: true,
+      defenceType: options.defenceType,
+      skipHeroRedirect: true,
+      fixedDamage: reduced,
+    });
+  });
+}
+
 function resolveSplashStrikeTarget(enemy, target, now, offsetIndex = 0, options = {}) {
   applyStrikeTargetIncoming(enemy.name, enemy, target, now, {
     offsetX: offsetIndex * 14,
@@ -36988,8 +37992,8 @@ function drawGreatFoxSpiritEffectsCanvas(ctx, now = performance.now()) {
   }
 }
 
-/** Crystal SpellEffect.RedMoonEvil — Mon62 frames 32..37 on each hit target (Blend=false). */
-function pushRedMoonEvilEffect({ frames, worldX, screenYOffset = 0, startedAt, durationMs, interval }) {
+/** Per-target mass-burst overlays (Red Moon SpellEffect, Oma King Attack2 bloom). */
+function pushRedMoonEvilEffect({ frames, worldX, screenYOffset = 0, startedAt, durationMs, interval, blend = false, scale = 1 }) {
   if (!Array.isArray(state.battle.redMoonEvilEffects)) state.battle.redMoonEvilEffects = [];
   state.battle.redMoonEvilEffects.push({
     frames,
@@ -36998,6 +38002,8 @@ function pushRedMoonEvilEffect({ frames, worldX, screenYOffset = 0, startedAt, d
     startedAt,
     expiresAt: startedAt + Math.max(1, Number(durationMs) || 400),
     interval: Math.max(1, Number(interval) || 67),
+    blend: Boolean(blend),
+    scale: Math.max(0.1, Number(scale) || 1),
   });
   if (state.battle.redMoonEvilEffects.length > 24) {
     state.battle.redMoonEvilEffects = state.battle.redMoonEvilEffects.slice(-24);
@@ -37022,7 +38028,30 @@ function spawnRedMoonEvilTargetHitFx(target, now) {
     startedAt: now,
     durationMs,
     interval: projectile.interval,
+    blend: Boolean(projectile.drawBlend),
+    scale: isOmaKingEnemy(state.battle.enemy)
+      ? (Number(projectile.scale) || OMA_KING_BURST_FX_SCALE)
+      : (Number(projectile.scale) || 1),
   });
+}
+
+function massBurstPartyCenterTarget(targets = massBurstTargetsInRange()) {
+  const members = targets.filter((target) => target.kind === "member" || target.kind === "player");
+  const pool = members.length ? members : targets;
+  if (!pool.length) return null;
+  const sorted = [...pool].sort((a, b) => {
+    const ax = Number(a.entity?.worldX ?? state.battle.playerX) || 0;
+    const bx = Number(b.entity?.worldX ?? state.battle.playerX) || 0;
+    return ax - bx;
+  });
+  return sorted[Math.floor(sorted.length / 2)];
+}
+
+function spawnMassBurstTargetAnchoredFx(now) {
+  const projectile = state.enemy.atlas?.projectile;
+  if (projectile?.anchor !== "targets" || !projectile?.frames?.length) return;
+  const target = massBurstPartyCenterTarget();
+  if (target) spawnRedMoonEvilTargetHitFx(target, now);
 }
 
 function pruneRedMoonEvilEffects(now = performance.now()) {
@@ -37052,15 +38081,11 @@ function drawRedMoonEvilEffectsCanvas(ctx, now = performance.now()) {
     if (!meta || meta.empty) continue;
     const x = Math.round(Number(effect.worldX) - state.battle.cameraX);
     const y = groundY + (Number(effect.screenYOffset) || 0);
-    // Crystal SpellEffect.RedMoonEvil uses Blend=false (normal alpha).
-    drawAtlasFrameMeta(
-      ctx,
-      sheet,
-      atlas.slotWidth,
-      { ...meta, offsetX: meta.offsetX + x, offsetY: meta.offsetY + y },
-      0,
-      0,
-    );
+    const scale = Math.max(0.1, Number(effect.scale) || 1);
+    const draw = () => drawAtlasFrameMeta(ctx, sheet, atlas.slotWidth, meta, x, y, scale);
+    // Crystal OmaKing Attack2 uses DrawBlend; RedMoonEvil SpellEffect is Blend=false.
+    if (effect.blend) withScreenBlend(ctx, draw);
+    else draw();
   }
 }
 
@@ -37248,6 +38273,9 @@ function beginMassBurstAttack(now) {
     const projectile = state.enemy.atlas?.projectile;
     const startedAt = now;
     const impactAt = startedAt + MASS_BURST_IMPACT_MS;
+    const targetFxUntil = projectile?.anchor === "targets"
+      ? enemyProjectileVfxUntil(projectile.spawnAt === "start" ? startedAt : impactAt, projectile)
+      : startedAt;
     state.battle.pendingEnemyStrike = {
       kind: "massBurst",
       at: impactAt,
@@ -37257,7 +38285,7 @@ function beginMassBurstAttack(now) {
       // Bosses without a projectile atlas (Hell Lord) used to set vfxUntil to
       // startedAt+600, which cleared the strike before MASS_BURST_IMPACT_MS and
       // silently dropped every hit. Keep VFX alive at least until impact.
-      vfxUntil: Math.max(impactAt, enemyProjectileVfxUntil(startedAt, projectile)),
+      vfxUntil: Math.max(impactAt, enemyProjectileVfxUntil(startedAt, projectile), targetFxUntil),
     };
     // Prefer a real body attack clip. Manectric King's atlas attackRange1 is a tiny
     // die-effect stub (~48px), so falling back to attack1 keeps the boss visible while
@@ -37266,6 +38294,9 @@ function beginMassBurstAttack(now) {
     setEnemyAction(animAction, true, now);
     // Crystal AttackRange1 only plays effect 720 (projectile) — not the Attack2 line beam.
     state.enemy.attackFxStartedAt = null;
+    if (projectile?.anchor === "targets" && projectile.spawnAt === "start") {
+      spawnMassBurstTargetAnchoredFx(now);
+    }
     playMonsterSfx(enemyAttackSfxKind(enemy, true), enemy, { force: true, throttleMs: 0 });
     return true;
   }
@@ -37417,6 +38448,10 @@ function boneLordProjectileTargetAnchor() {
   // spot, so the travel art, the impact art and the blast centre all agree.
   const aimX = Number(state.battle.pendingEnemyStrike?.aimWorldX);
   if (Number.isFinite(aimX)) {
+    const strike = state.battle.pendingEnemyStrike;
+    if (strike?.kind === "frostTigerRange" && strike.target) {
+      return zumaArcherProjectileTargetAnchor(strike.target);
+    }
     return {
       x: Math.round(aimX - state.battle.cameraX),
       y: Math.round(state.stageHeight * LANE.y + 2),
@@ -37998,6 +39033,14 @@ function updatePendingEnemyStrike(now) {
     if (now >= vfxUntil) state.battle.pendingEnemyStrike = null;
     return;
   }
+  if (strike.kind === "frostTigerRange") {
+    if (now >= strike.at && !strike.resolved) {
+      strike.resolved = true;
+      resolveFrostTigerRangeStrike(strike, now);
+    }
+    if (now >= vfxUntil) state.battle.pendingEnemyStrike = null;
+    return;
+  }
   if (strike.kind === "scalyStomp" || strike.kind === "scalyMelee") {
     if (now >= strike.at && !strike.resolved) {
       strike.resolved = true;
@@ -38113,16 +39156,24 @@ function updatePendingEnemyStrike(now) {
       const defenceType = massBurstStyle(enemy) === "line"
         ? (enemy.attackDefenceType || "ACAgility")
         : (enemy.rangedAttackDefenceType || "ACAgility");
-      targets.forEach((target, index) => {
-        if (isRedMoonEvilEnemy(enemy)) spawnRedMoonEvilTargetHitFx(target, now);
-        resolveSplashStrikeTarget(
-          enemy,
-          target,
-          now,
-          index,
-          { defenceType, massBurst: true, ranged: true },
-        );
-      });
+      if (enemyMassBurstSplitsAmongParty(enemy)) {
+        resolveMassBurstSplitAmongParty(enemy, targets, now, { defenceType });
+      } else {
+        targets.forEach((target, index) => {
+          const projectile = state.enemy.atlas?.projectile;
+          if (isRedMoonEvilEnemy(enemy)
+            || (projectile?.anchor === "targets" && projectile.spawnAt !== "start")) {
+            spawnRedMoonEvilTargetHitFx(target, now);
+          }
+          resolveSplashStrikeTarget(
+            enemy,
+            target,
+            now,
+            index,
+            { defenceType, massBurst: true, ranged: true },
+          );
+        });
+      }
     }
     if (strike.resolved && now >= vfxUntil) state.battle.pendingEnemyStrike = null;
     return;
@@ -38169,6 +39220,7 @@ function bossPartyEnemyAttack(now) {
   if (isDarkDevilEnemy(enemy)) return beginDarkDevilAttack(now);
   if (isKingScorpionEnemy(enemy)) return beginKingScorpionAttack(now);
   if (isCrystalSpiderEnemy(enemy)) return beginCrystalSpiderAttack(now);
+  if (isFrostTigerEnemy(enemy)) return beginFrostTigerAttack(now);
   if (isDanmoEnemy(enemy)) return beginDanmoAttack(now);
   if (enemyHasRangedMeleeAttack(enemy)) return beginBoneLordAttack(now);
   const target = bossPartyFrontTarget();
@@ -38736,6 +39788,8 @@ function bossDropTableForEnemy(enemy = state.battle.enemy) {
   if (isWoomaTaurusEnemy(enemy)) return BOSS_DROP_TABLE_BY_LABEL["Wooma Taurus"];
   if (isEvilSnakeEnemy(enemy)) return BOSS_DROP_TABLE_BY_LABEL["Evil Snake"];
   if (isCrystalSpiderEnemy(enemy)) return BOSS_DROP_TABLE_BY_LABEL["Crystal Spider"];
+  if (isFrostTigerEnemy(enemy)) return BOSS_DROP_TABLE_BY_LABEL["Frost Tiger"];
+  if (isOmaKingEnemy(enemy)) return BOSS_DROP_TABLE_BY_LABEL["Oma King"];
   if (isZumaTaurusEnemy(enemy)) return BOSS_DROP_TABLE_BY_LABEL["Zuma Taurus"];
   if (isRedEvilApeEnemy(enemy)) return BOSS_DROP_TABLE_BY_LABEL["Red Evil Ape"];
   if (isEvilCentipedeEnemy(enemy)) return BOSS_DROP_TABLE_BY_LABEL["Evil Centipede"];
@@ -38946,7 +40000,8 @@ function awardBossPartyKillShare(now = performance.now(), options = {}) {
   const totalGold = randomInt(goldRange[0], goldRange[1]) * rewardMult;
   const goldPerShare = splitPartyRewardAmount(totalGold, shareCount);
   // Group-dungeon wave trash is gold-only (boss floors use boss tables / zone rolls).
-  const gdTrash = groupDungeonZone(zone) && !groupDungeonBossZone(zone) && !groupDungeonBossSwarmZone(zone);
+  const gdTrash = (groupDungeonZone(zone) && !groupDungeonBossZone(zone) && !groupDungeonBossSwarmZone(zone))
+    || isMysteryCaveZone(zone);
 
   for (const member of recipients) {
     const xp = adjustedKillExperience(xpPerShare, member.game.progress.level, enemy.level ?? 0, member.inventory);
@@ -40637,7 +41692,9 @@ function usableWizardAttackSpell(now) {
   });
   if (!options.length) return null;
   const ready = options.filter((option) => !option.cooldownWaiting && wizardAttackSpellReady(option.spell, now));
-  const autoReady = ready.filter((option) => wizardAutoSpellEligible(option.spell));
+  const autoReady = ready
+    .filter((option) => wizardAutoSpellEligible(option.spell))
+    .sort((a, b) => wizardCastAutoPriority(a.spell) - wizardCastAutoPriority(b.spell));
   return autoReady.find((option) => (state.battle.player?.mp ?? 0) >= option.cost)
     ?? autoReady.find((option) => !option.cooldownWaiting)
     ?? null;
@@ -41329,9 +42386,13 @@ function warriorAutoPriority(skill) {
 }
 
 function wizardAutoPriority(spell) {
-  const order = ["MagicShield", "MagicBooster", "Mirroring", "TurnUndead", "MeteorStrike", "Blizzard", "FireWall", "IceStorm", "FlameField", "FlameDisruptor", "Vampirism", "GreatFireBall", "FrostCrunch", "FireBall", "ThunderBolt"];
-  const index = order.indexOf(spell?.id);
-  return index === -1 ? order.length : index;
+  return wizardSpellAutoPriority(spell?.id);
+}
+
+// HP-aware cast order only. Slot assignment still uses wizardAutoPriority so
+// dipping below 80% HP cannot disable other autocast spells.
+function wizardCastAutoPriority(spell, caster = state.battle.player) {
+  return wizardCombatAutoPriority(spell?.id, caster);
 }
 
 function taoistAutoPriority(spell) {
@@ -41408,14 +42469,27 @@ function applyWizardCastCooldown(spell, learned, now, member = null) {
   const cooldown = wizardCastCooldownMs(spell, learned, now, member);
   const actionLock = wizardSpellActionLockMs(spell, learned, now, member);
   const inventory = member ? inventoryForCombatant(member) : state.inventory;
+  const readyCd = applyEquippedSpellCooldownReductionMs(spell?.id, cooldown, inventory);
   if (learned) {
-    learned.castReadyAt = now + applyEquippedSpellCooldownReductionMs(spell?.id, cooldown, inventory);
+    learned.castReadyAt = now + readyCd;
   }
   if (member) {
     member.wizardSpellLockUntil = now + actionLock;
     member.nextActionAt = now + actionLock;
   } else {
     state.battle.wizardSpellLockUntil = now + actionLock;
+  }
+  if (spell?.id === "FlameDisruptor") {
+    // Snapshot the CD actually applied (may already include Frenzied). Re-crits
+    // retarget from castAt using this baseline — never assume the unbuffed CD.
+    const timing = {
+      castAt: now,
+      appliedReadyCd: readyCd,
+      appliedLockCd: actionLock,
+      crystalBase: crystalSpellCastCooldownMs(spell, learned),
+    };
+    if (member) member.frenziedDisruptorCastTiming = timing;
+    else state.battle.frenziedDisruptorCastTiming = timing;
   }
   return cooldown;
 }
@@ -41436,6 +42510,93 @@ function setFrenziedDisruptorBuff(buff, member = null) {
   state.battle.frenziedDisruptor = buff;
 }
 
+function frenziedDisruptorCastTimingFor(member = null) {
+  if (member?.frenziedDisruptorCastTiming) return member.frenziedDisruptorCastTiming;
+  return state.battle.frenziedDisruptorCastTiming ?? null;
+}
+
+function clearFrenziedDisruptorCastTiming(member = null) {
+  if (member) {
+    member.frenziedDisruptorCastTiming = null;
+    if (member.classId === bossPartyControlledClassId()) {
+      state.battle.frenziedDisruptorCastTiming = null;
+    }
+    return;
+  }
+  state.battle.frenziedDisruptorCastTiming = null;
+}
+
+/**
+ * After a Frenzied Disruptor crit, snap the in-progress Flame Disruptor recovery
+ * onto the buffed cast-speed schedule (so the next cast isn't stuck on the old CD).
+ * Only shortens toward castAt + peak-buffed CD — never collapses a cast that was
+ * already cast under the buff (that bug made boss multi-crits feel infinitely fast).
+ */
+function refreshFrenziedDisruptorCastTimingAfterProc(now, member = null) {
+  const timing = frenziedDisruptorCastTimingFor(member);
+  if (!timing) return false;
+  const spell = wizardCombatSpell("FlameDisruptor");
+  const learned = member
+    ? bossPartyLearned(member, spell?.id)
+    : learnedMagic(spell?.id);
+  if (!spell || !learned) return false;
+
+  const inventory = member ? inventoryForCombatant(member) : state.inventory;
+  const castAt = Number(timing.castAt) || now;
+  const appliedReadyCd = Math.max(
+    0,
+    Math.trunc(Number(timing.appliedReadyCd ?? timing.unbuffedReadyCd) || 0),
+  );
+  const appliedLockCd = Math.max(
+    0,
+    Math.trunc(Number(timing.appliedLockCd ?? timing.unbuffedLockCd) || 0),
+  );
+  // Ignore stale timings from an earlier FD cast (e.g. mirror crit much later).
+  if (now > castAt + Math.max(appliedReadyCd, appliedLockCd) + 50) {
+    clearFrenziedDisruptorCastTiming(member);
+    return false;
+  }
+
+  const crystalBase = Math.max(
+    0,
+    Math.trunc(Number(timing.crystalBase) || crystalSpellCastCooldownMs(spell, learned)),
+  );
+  const buffedBase = applyFrenziedDisruptorCastCooldownMs(
+    crystalBase,
+    frenziedDisruptorBuffFor(member),
+    now,
+  );
+  const buffedReadyCd = applyEquippedSpellCooldownReductionMs(spell.id, buffedBase, inventory);
+  const targetReadyAt = castAt + buffedReadyCd;
+  const targetLockUntil = castAt + buffedBase;
+
+  const currentReady = Number(learned.castReadyAt) || 0;
+  if (currentReady > targetReadyAt) learned.castReadyAt = targetReadyAt;
+
+  if (member) {
+    if ((Number(member.wizardSpellLockUntil) || 0) > targetLockUntil) {
+      member.wizardSpellLockUntil = targetLockUntil;
+    }
+    if ((Number(member.nextActionAt) || 0) > targetLockUntil) {
+      member.nextActionAt = targetLockUntil;
+    }
+    if (member.classId === bossPartyControlledClassId()) {
+      const live = learnedMagic(spell.id);
+      if (live && live !== learned) live.castReadyAt = learned.castReadyAt;
+      state.battle.wizardSpellLockUntil = member.wizardSpellLockUntil;
+      state.battle.lastPlayerAttackCooldownMs = buffedBase;
+    }
+  } else if ((Number(state.battle.wizardSpellLockUntil) || 0) > targetLockUntil) {
+    state.battle.wizardSpellLockUntil = targetLockUntil;
+    state.battle.lastPlayerAttackCooldownMs = buffedBase;
+  }
+  // Keep timing so a later re-crit on the same cast can re-evaluate; clear once ready.
+  if (now >= (Number(learned.castReadyAt) || 0)) {
+    clearFrenziedDisruptorCastTiming(member);
+  }
+  return true;
+}
+
 /**
  * Flame Disruptor crit with Glyph of Frenzied Disruptor: refresh decaying cast-speed buff.
  * @param {object | null | undefined} spell
@@ -41453,6 +42614,7 @@ function maybeProcFrenziedDisruptor(spell, crit, now, options = {}) {
   const buff = buildFrenziedDisruptorBuffState(params, now);
   if (!buff) return false;
   setFrenziedDisruptorBuff(buff, member);
+  refreshFrenziedDisruptorCastTimingAfterProc(now, member);
   if (!options.silent && !suppressSimulationRender) {
     pushBattleLog("Frenzied Disruptor: Flame Disruptor casting speed surges.");
     addCombatText("player", "Frenzied!", "buff", now);
@@ -45846,10 +47008,27 @@ function taoistPetAttackTargetPosition(enemy) {
 
 function rollTaoistPetAttackResult(pet, enemy, inventory = state.inventory, owner = null) {
   if (!rollHit(pet.accuracy, enemy.agility)) return { hit: false, damage: 0 };
-  const attackStat = effectiveCombatStats(pet).dc;
   const ownerEntity = owner ?? taoistPetCritOwner();
-  const ownerMaxDc = statRange(ownerEntity?.dc ?? [0, 0])[1];
-  const glyphBonus = glyphPetOwnerDcBonus(ownerMaxDc, equippedGlyphFor(ownerEntity ?? inventory));
+  const glyphs = equippedGlyphFor(ownerEntity ?? inventory);
+  let attackStat;
+  let glyphBonus = 0;
+  if (pet.spellId === "SummonHolyDeva") {
+    // Thunder scales with the Taoist's SC (×2), not the pet's fixed Crystal DC.
+    // Pet Might still adds owner DC (same as tank pets) — not SC again.
+    const ownerSc = ownerEntity ? effectiveCombatStats(ownerEntity).sc : [0, 0];
+    const [scMin, scMax] = statRange(ownerSc);
+    attackStat = holyDevaAttackStatFromOwnerSc(
+      scMax > 0 || scMin > 0 ? ownerSc : effectiveCombatStats(pet).dc,
+    );
+    const ownerMaxDc = ownerEntity
+      ? statRange(effectiveCombatStats(ownerEntity).dc)[1]
+      : 0;
+    glyphBonus = glyphPetOwnerDcBonus(ownerMaxDc, glyphs);
+  } else {
+    attackStat = effectiveCombatStats(pet).dc;
+    const ownerMaxDc = statRange(ownerEntity?.dc ?? [0, 0])[1];
+    glyphBonus = glyphPetOwnerDcBonus(ownerMaxDc, glyphs);
+  }
   const attackWithGlyph = glyphBonus > 0
     ? [attackStat[0] + glyphBonus, attackStat[1] + glyphBonus]
     : attackStat;
@@ -45861,7 +47040,7 @@ function rollTaoistPetAttackResult(pet, enemy, inventory = state.inventory, owne
   let damage = applyCritToOutgoingDamage(boosted, ownerEntity);
   const crit = consumeOutgoingCritFlag();
   if (pet.spellId === "SummonHolyDeva") {
-    damage = applyGlyphDemonicDevaDamage(damage, equippedGlyphFor(ownerEntity ?? inventory));
+    damage = applyGlyphDemonicDevaDamage(damage, glyphs);
   }
   return { hit: damage > 0, damage, crit };
 }
@@ -48541,6 +49720,7 @@ function enemyAttack(now) {
   if (isDarkDevilEnemy(battle.enemy)) return beginDarkDevilAttack(now);
   if (isKingScorpionEnemy(battle.enemy)) return beginKingScorpionAttack(now);
   if (isCrystalSpiderEnemy(battle.enemy)) return beginCrystalSpiderAttack(now);
+  if (isFrostTigerEnemy(battle.enemy)) return beginFrostTigerAttack(now);
   if (isDanmoEnemy(battle.enemy)) return beginDanmoAttack(now);
   if (enemyHasRangedMeleeAttack(battle.enemy)) return beginBoneLordAttack(now);
   const target = enemyAttackTarget();
@@ -48737,7 +49917,7 @@ function applyBossPartyIncomingStrike(attackerName, partyEntity, attackerEntity,
 
 function applyStrikeTargetIncoming(attackerName, attackerEntity, targetRef, now, options = {}) {
   let resolvedRef = targetRef;
-  if (targetRef?.kind === "member" && targetRef.entity) {
+  if (!options.skipHeroRedirect && targetRef?.kind === "member" && targetRef.entity) {
     const redirected = resolveBossPartyHeroRedirectTarget(targetRef.entity);
     if (redirected && redirected !== targetRef.entity) {
       resolvedRef = {
@@ -48757,12 +49937,23 @@ function applyStrikeTargetIncoming(attackerName, attackerEntity, targetRef, now,
   const attackEntity = options.defenceType
     ? { ...attackerEntity, attackDefenceType: options.defenceType }
     : attackerEntity;
+  const incoming = strikeTargetRefToIncoming(resolvedRef, now, options);
+  const presentation = { offsetX: options.offsetX ?? 0 };
+  if (options.miss) {
+    applyIncomingTargetMiss(attackerName, incoming, now, presentation);
+    return false;
+  }
+  if (options.fixedDamage != null) {
+    const damage = Math.max(0, Math.trunc(Number(options.fixedDamage) || 0));
+    applyIncomingTargetHit(attackerName, incoming, damage, now, presentation);
+    incoming.onAfterHit?.(now);
+    options.onHit?.({ entity: resolvedRef.entity, damage, now, targetRef: resolvedRef });
+    return true;
+  }
   const resolveOpts = { now, ...(options.resolveOptions ?? {}) };
   const { hit, damage } = options.ranged
     ? resolveIncomingEnemyRangedAttack(attackEntity, defence, resolveOpts)
     : resolveIncomingEnemyAttack(attackEntity, defence, resolveOpts);
-  const incoming = strikeTargetRefToIncoming(resolvedRef, now, options);
-  const presentation = { offsetX: options.offsetX ?? 0 };
   if (!hit) {
     applyIncomingTargetMiss(attackerName, incoming, now, presentation);
     return false;
@@ -48866,7 +50057,8 @@ function incomingDamageReductionPercent(target, now = performance.now()) {
   // Equipped "damage taken −%" empower (all classes) for player-owned entities.
   const inventory = damageReductionInventoryForEntity(buffEntity);
   if (inventory) percent += Math.max(0, equippedBonusFromStats(inventory, "damageTakenReductionPercent"));
-  return Math.max(0, Math.min(100, Math.trunc(percent)));
+  // Additive sources share one capped bucket; Tank/Glass Canon multiply after.
+  return clampIncomingDamageReductionPercent(percent);
 }
 
 function applyIncomingDamageReduction(damage, target, now = performance.now()) {
@@ -50663,6 +51855,7 @@ function canEnemyAttack() {
   if (isDarkDevilEnemy(battle.enemy)) return canDarkDevilAttack();
   if (isKingScorpionEnemy(battle.enemy)) return canKingScorpionAttack();
   if (isCrystalSpiderEnemy(battle.enemy)) return canCrystalSpiderAttack();
+  if (isFrostTigerEnemy(battle.enemy)) return canFrostTigerAttack();
   if (isDanmoEnemy(battle.enemy)) return canDanmoAttack();
   if (enemyHasRangedMeleeAttack(battle.enemy)) return canBoneLordAttack();
   return battle.enemyAggro && battle.enemy?.hp > 0 && enemyTargetDistance() <= enemyMeleeAttackRangePx(battle.enemy);
@@ -54224,6 +55417,7 @@ function enemyProjectileBurstAnchor(projectile, strike) {
 function strikeShowsEnemyProjectileVfx(strike = state.battle.pendingEnemyStrike) {
   if (!strike) return false;
   if (strike.kind === "danmoRange") return true;
+  if (strike.kind === "frostTigerRange") return true;
   if (strike.kind === "danmoMelee") return false;
   if (strike.kind === "kingScorpionLine") return Boolean(strike.ranged);
   if (strike.kind === "crystalSpiderLine") return true;

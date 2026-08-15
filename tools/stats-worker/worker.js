@@ -61,6 +61,7 @@ const UNLOCK_TOKEN_COSTS = {
   "ore-stacking": 200,
   "time-logging": 300,
   "group-dungeon-auto-advance": 200,
+  "armoury-kit-3": 300,
 };
 const PAGE_UNLOCK_KEYS = new Set(Object.keys(UNLOCK_TOKEN_COSTS));
 // Repeatable token spends (not unlocks). Keys and costs are server-owned.
@@ -537,6 +538,7 @@ const BONUS_STAT_SCALAR_KEYS = [
   "healthRecovery", "poisonRecovery", "strong", "xpBonusPercent",
   "goldBonusPercent", "bonusAwakeningSoulChancePercent", "damageTakenReductionPercent",
   "critChancePercent", "critDamagePercent", "skillLevelBonusPercent",
+  "potionRestoreBonusPercent",
 ];
 // dropChanceBonusPercent rolls in fractional 0.25 steps, so it must NOT be truncated.
 const BONUS_STAT_FRACTIONAL_KEYS = ["dropChanceBonusPercent"];

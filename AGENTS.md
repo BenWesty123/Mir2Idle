@@ -30,7 +30,7 @@ There is NO `src/game/` split anymore. It was a dead duplicate that the browser 
 - **Unused glyph icon frames** (for new glyphs; 3200–3227 are taken): [`docs/GLYPH_ICON_POOL.md`](docs/GLYPH_ICON_POOL.md) — generate more with `npm run glyph:variants`
 - Paper-doll stateitem atlas (built by `npm run build:stateitem-atlas`): `public/ui/character/stateitems-atlas.png` + `stateitems-atlas.json` (merged by `applyStateItemAtlas`)
 - Boss loot tables: `src/bossDrops.js`
-- Shared data/formulas: `src/battleData.js` (stats, damage, XP), `src/warriorMagic.js`, `src/phase1Data.js` (zones), `src/spellBodyActions.js`, `src/buffPotions.js`, `src/playerActions.js`, `src/groupDungeonSwarm.js`, `src/zumaArcherSwarm.js`, `src/atlas.js`
+- Shared data/formulas: `src/battleData.js` (stats, damage, XP), `src/warriorMagic.js`, `src/phase1Data.js` (zones), `src/spellBodyActions.js`, `src/buffPotions.js`, `src/playerActions.js`, `src/groupDungeonSwarm.js`, `src/zumaArcherSwarm.js`, `src/mysteryCave.js`, `src/atlas.js`
 - Build/release/dev tools: `tools/`
 - Unit tests: `tests/`
 - Generated release output: `dist/` (never edit as source)

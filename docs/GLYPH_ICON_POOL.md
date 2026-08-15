@@ -26,8 +26,13 @@ Last updated: 2026-08-08
 | `frame_003249.png` | 003249 | Glyph of Deep Frost (`glyph-deep-frost`) |
 | `frame_003261.png` | 003261 | Glyph of Blade Momentum (`glyph-blade-momentum`) |
 | `frame_003253.png` | 003253 | Glyph of Vitality (`glyph-vitality`) |
+| `frame_003243.png` | 003243 | Glyph of Slow Destruction (`glyph-slow-destruction`) |
 
-Original matching Body Glyph range **3200-3227 is exhausted** (all assigned to existing glyphs). Do not reuse those for new glyphs unless replacing an icon on purpose.
+Original matching Body Glyph range **3200-3227** is mostly assigned. Frames **3225–3227**
+(and their pool variants 3294–3317 / similar) are **glowing cubes**, not spiral glyphs —
+do not use them when you need an icon that reads as a Body Glyph rune. Frame **3226** was
+freed when Slow Destruction moved off the cube silhouette. Prefer unused spiral frames
+from sources **3205 / 3210 / 3215 / 3220** (see table below).
 
 ## Available (unused) frames 3230-3317
 
@@ -45,7 +50,6 @@ Original matching Body Glyph range **3200-3227 is exhausted** (all assigned to e
 | `frame_003240.png` | 003240 | 003200 | shadow | shadow |
 | `frame_003241.png` | 003241 | 003205 | flip | flip H |
 | `frame_003242.png` | 003242 | 003205 | hue60 | hue +60 |
-| `frame_003243.png` | 003243 | 003205 | hue120 | hue +120 |
 | `frame_003245.png` | 003245 | 003205 | hue240 | hue +240 |
 | `frame_003246.png` | 003246 | 003205 | flip-hue90 | flip + hue +90 |
 | `frame_003247.png` | 003247 | 003205 | flip-hue200 | flip + hue +200 |

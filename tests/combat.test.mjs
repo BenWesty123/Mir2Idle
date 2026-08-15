@@ -1,14 +1,18 @@
 import test from "node:test";
 import assert from "node:assert/strict";
+import { crystalPlayerVitals } from "../src/battleData.js";
+import { PHASE1_ENEMY_TEMPLATES } from "../src/phase1Data.js";
 import {
   CRIT_BASE_DAMAGE_PERCENT,
   CRIT_CHANCE_CAP_PERCENT,
   CRIT_TEXT_MAX_PX,
   CRIT_TEXT_MIN_PX,
+  PLAYER_DAMAGE_REDUCTION_CAP_PERCENT,
   advanceCritTextTracking,
   applyIncomingDamageReduction,
   applyOutgoingCrit,
   clampCritChancePercent,
+  clampIncomingDamageReductionPercent,
   critMultiplier,
   critTextFillColor,
   critTextFontSize,
@@ -39,10 +43,22 @@ import {
   rollHit,
   rollMagicHit,
   scalePhysicalDamageForStun,
+  splitIntegerEvenly,
   swarmEnemyDamageEvent,
   weaponSwingHitEvents,
   weaponSwingMissEvents,
+  wizardAutoPriority,
+  wizardCombatAutoPriority,
+  wizardNeedsVampirismHeal,
 } from "../src/core/combat.js";
+
+test("splitIntegerEvenly shares a packet across living party members", () => {
+  assert.deepEqual(splitIntegerEvenly(3000, 3), [1000, 1000, 1000]);
+  assert.deepEqual(splitIntegerEvenly(3000, 2), [1500, 1500]);
+  assert.deepEqual(splitIntegerEvenly(3000, 1), [3000]);
+  assert.deepEqual(splitIntegerEvenly(7, 3), [3, 2, 2]);
+  assert.equal(splitIntegerEvenly(3000, 3).reduce((sum, n) => sum + n, 0), 3000);
+});
 
 test("clampCritChancePercent caps at CRIT_CHANCE_CAP_PERCENT", () => {
   assert.equal(clampCritChancePercent(-10), 0);
@@ -93,7 +109,15 @@ test("incomingAttackDefenceStat", () => {
 test("applyIncomingDamageReduction", () => {
   assert.equal(applyIncomingDamageReduction(100, 0), 100);
   assert.equal(applyIncomingDamageReduction(100, 25), 75);
-  assert.equal(applyIncomingDamageReduction(100, 150), 0);
+  assert.equal(applyIncomingDamageReduction(100, 150), 100 - PLAYER_DAMAGE_REDUCTION_CAP_PERCENT);
+});
+
+test("clampIncomingDamageReductionPercent caps additive DR", () => {
+  assert.equal(clampIncomingDamageReductionPercent(-5), 0);
+  assert.equal(clampIncomingDamageReductionPercent(50), 50);
+  assert.equal(clampIncomingDamageReductionPercent(75), PLAYER_DAMAGE_REDUCTION_CAP_PERCENT);
+  assert.equal(clampIncomingDamageReductionPercent(100), PLAYER_DAMAGE_REDUCTION_CAP_PERCENT);
+  assert.equal(PLAYER_DAMAGE_REDUCTION_CAP_PERCENT, 75);
 });
 
 test("resolveIncomingEnemyAttack: agility miss", () => {
@@ -358,4 +382,131 @@ test("critTextScaleRatio uses a log curve", () => {
   assert.ok(critTextScaleRatio(500, ref) < critTextScaleRatio(1_000, ref));
   assert.ok(critTextScaleRatio(1_000, ref) < critTextScaleRatio(2_000, ref));
   assert.equal(critTextScaleRatio(0, ref), 0);
+});
+
+test("Frost Tiger melee+bolt beats 75% DR warrior; 50% Magic Shield wizard is not oneshot", () => {
+  const tiger = PHASE1_ENEMY_TEMPLATES.find((enemy) => enemy.id === 471);
+  assert.ok(tiger, "Frost Tiger template 471");
+  const wizardHp = crystalPlayerVitals("Wizard", 60).maxHp;
+  const taoistHp = crystalPlayerVitals("Taoist", 60).maxHp;
+  const potHpsAt60 = 5 + Math.floor(60 / 10); // party pot tick, per 200ms
+  const potHps = potHpsAt60 * 5;
+  const maxRoll = (_min, max) => max;
+  const minRoll = (min) => min;
+  const warrior = { ac: [60, 60], amc: [20, 20], agility: 0, magicResist: 0 };
+  const meleeAttacker = {
+    accuracy: 99,
+    luck: 0,
+    dc: tiger.meleeDc,
+    attackDefenceType: "ACAgility",
+  };
+  const boltAttacker = {
+    accuracy: 99,
+    luck: 0,
+    dc: tiger.rangedDc,
+    attackDefenceType: "ACAgility",
+    rangedAttackDefenceType: "MAC",
+  };
+  const meleeMax = resolveIncomingEnemyAttack(meleeAttacker, warrior, {
+    randomIntFn: maxRoll,
+    forceHit: true,
+    damageReductionPercent: PLAYER_DAMAGE_REDUCTION_CAP_PERCENT,
+  });
+  const boltMax = resolveIncomingEnemyRangedAttack(boltAttacker, warrior, {
+    randomIntFn: maxRoll,
+    forceHit: true,
+    damageReductionPercent: PLAYER_DAMAGE_REDUCTION_CAP_PERCENT,
+  });
+  const meleeMin = resolveIncomingEnemyAttack(meleeAttacker, warrior, {
+    randomIntFn: minRoll,
+    forceHit: true,
+    damageReductionPercent: PLAYER_DAMAGE_REDUCTION_CAP_PERCENT,
+  });
+  const boltMin = resolveIncomingEnemyRangedAttack(boltAttacker, warrior, {
+    randomIntFn: minRoll,
+    forceHit: true,
+    damageReductionPercent: PLAYER_DAMAGE_REDUCTION_CAP_PERCENT,
+  });
+  const shieldedWizardBolt = resolveIncomingEnemyRangedAttack(
+    boltAttacker,
+    { ac: [0, 0], amc: [0, 0], magicResist: 0 },
+    { randomIntFn: maxRoll, forceHit: true, damageReductionPercent: 50 },
+  );
+  const taoistBolt = resolveIncomingEnemyRangedAttack(
+    boltAttacker,
+    { ac: [0, 0], amc: [0, 0], magicResist: 0 },
+    { randomIntFn: maxRoll, forceHit: true, damageReductionPercent: 0 },
+  );
+  assert.ok(
+    meleeMin.damage + boltMin.damage > potHps,
+    `solo tank min melee+bolt (${meleeMin.damage + boltMin.damage}) should beat lv60 pot HPS (${potHps})`,
+  );
+  const meleeZeroDr = resolveIncomingEnemyAttack(meleeAttacker, warrior, {
+    randomIntFn: minRoll,
+    forceHit: true,
+    damageReductionPercent: 0,
+  });
+  assert.ok(
+    meleeZeroDr.damage >= 300,
+    `0% DR tank min claw (${meleeZeroDr.damage}) should outpace party heals`,
+  );
+  assert.ok(
+    meleeMax.damage + boltMax.damage > meleeMax.damage,
+    "bolt must add pressure on top of the claw",
+  );
+  assert.ok(
+    shieldedWizardBolt.damage < wizardHp,
+    `50% Magic Shield wizard must survive a max bolt (${shieldedWizardBolt.damage} vs ${wizardHp} HP)`,
+  );
+  assert.ok(
+    taoistBolt.damage < taoistHp,
+    `naked lv60 Taoist must survive one max bolt (${taoistBolt.damage} vs ${taoistHp} HP)`,
+  );
+});
+
+const WIZARD_DAMAGE_SPELLS = [
+  "TurnUndead",
+  "MeteorStrike",
+  "Blizzard",
+  "FireWall",
+  "IceStorm",
+  "FlameField",
+  "FlameDisruptor",
+  "GreatFireBall",
+  "FrostCrunch",
+  "FireBall",
+  "ThunderBolt",
+];
+
+test("wizardNeedsVampirismHeal is a strict below-80% HP check", () => {
+  assert.equal(wizardNeedsVampirismHeal({ hp: 80, maxHp: 100 }), false);
+  assert.equal(wizardNeedsVampirismHeal({ hp: 79, maxHp: 100 }), true);
+  assert.equal(wizardNeedsVampirismHeal({ hp: 100, maxHp: 100 }), false);
+  assert.equal(wizardNeedsVampirismHeal({ hp: 0, maxHp: 100 }), true);
+  assert.equal(wizardNeedsVampirismHeal(null), false);
+});
+
+test("wizardAutoPriority keeps Vampirism after Flame Disruptor for slot order", () => {
+  assert.ok(wizardAutoPriority("Vampirism") > wizardAutoPriority("FlameDisruptor"));
+  assert.ok(wizardAutoPriority("Vampirism") < wizardAutoPriority("GreatFireBall"));
+});
+
+test("wizardCombatAutoPriority: Vampirism stays mid-pack at 80%+ HP", () => {
+  const caster = { hp: 80, maxHp: 100 };
+  assert.equal(wizardCombatAutoPriority("Vampirism", caster), wizardAutoPriority("Vampirism"));
+  assert.ok(wizardCombatAutoPriority("Vampirism", caster) > wizardCombatAutoPriority("FlameDisruptor", caster));
+  assert.ok(wizardCombatAutoPriority("Vampirism", caster) < wizardCombatAutoPriority("GreatFireBall", caster));
+});
+
+test("wizardCombatAutoPriority: Vampirism outranks every damage spell below 80% HP", () => {
+  const caster = { hp: 79, maxHp: 100 };
+  for (const spellId of WIZARD_DAMAGE_SPELLS) {
+    assert.ok(
+      wizardCombatAutoPriority("Vampirism", caster) < wizardCombatAutoPriority(spellId, caster),
+      `${spellId} should yield to Vampirism below 80% HP`,
+    );
+  }
+  assert.ok(wizardCombatAutoPriority("MagicShield", caster) < wizardCombatAutoPriority("Vampirism", caster));
+  assert.ok(wizardCombatAutoPriority("MagicBooster", caster) < wizardCombatAutoPriority("Vampirism", caster));
+  assert.ok(wizardCombatAutoPriority("Mirroring", caster) < wizardCombatAutoPriority("Vampirism", caster));
 });

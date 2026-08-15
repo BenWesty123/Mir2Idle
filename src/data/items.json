@@ -833,6 +833,64 @@
       "crystalType": "Necklace"
     },
     {
+      "id": "amethyst-ore",
+      "name": "Amethyst Ore",
+      "type": "ore",
+      "slot": "material",
+      "class": "any",
+      "source": {
+        "crystalIndex": 527,
+        "name": "Amethyst"
+      },
+      "icon": {
+        "library": "Items",
+        "frame": 527,
+        "src": "./public/item-icons/items/frame_000527.png"
+      },
+      "requirements": {
+        "type": "none",
+        "amount": 0,
+        "classMask": 31,
+        "genderMask": 3
+      },
+      "stackable": false,
+      "maxStack": 1,
+      "durability": 10000,
+      "stats": {
+        "ac": [
+          0,
+          0
+        ],
+        "amc": [
+          0,
+          0
+        ],
+        "dc": [
+          0,
+          0
+        ],
+        "mc": [
+          0,
+          0
+        ],
+        "sc": [
+          0,
+          0
+        ],
+        "hp": 0,
+        "mp": 0,
+        "accuracy": 0,
+        "agility": 0,
+        "luck": 0,
+        "attackSpeed": 0
+      },
+      "shop": {
+        "buy": 50000,
+        "sell": 10000
+      },
+      "crystalType": "Ore"
+    },
+    {
       "id": "amulet-of-revival",
       "name": "Amulet of Revival",
       "type": "amulet",
@@ -891,6 +949,418 @@
       "shape": 3,
       "amulet": {
         "shape": 3
+      }
+    },
+    {
+      "id": "awakened-judgement-mace",
+      "name": "Awakened Judgement Mace",
+      "type": "weapon",
+      "slot": "weapon",
+      "class": "any",
+      "source": {
+        "crystalIndex": 244,
+        "name": "AwakenedJudgementMace"
+      },
+      "icon": {
+        "library": "Items",
+        "frame": 55,
+        "src": "./public/item-icons/items/frame_000055.png"
+      },
+      "requirements": {
+        "type": "level",
+        "amount": 30,
+        "classMask": 7,
+        "genderMask": 3
+      },
+      "stackable": false,
+      "maxStack": 1,
+      "stats": {
+        "ac": [
+          0,
+          0
+        ],
+        "amc": [
+          0,
+          0
+        ],
+        "dc": [
+          0,
+          33
+        ],
+        "mc": [
+          0,
+          0
+        ],
+        "sc": [
+          0,
+          0
+        ],
+        "hp": 0,
+        "mp": 0,
+        "accuracy": 0,
+        "agility": 0,
+        "luck": 0,
+        "attackSpeed": 0
+      },
+      "shop": {
+        "buy": 0,
+        "sell": 10000
+      },
+      "visual": {
+        "layer": "weapon",
+        "index": 21
+      },
+      "crystalType": "Weapon",
+      "visualWeaponGlow": 18,
+      "unique": true,
+      "innateSpellBonuses": {
+        "FlamingSword": {
+          "damagePercent": 100,
+          "critDamagePercent": 100
+        }
+      }
+    },
+    {
+      "id": "awakened-magic-scythe",
+      "name": "Awakened Magic Scythe",
+      "type": "weapon",
+      "slot": "weapon",
+      "class": "any",
+      "source": {
+        "crystalIndex": 261,
+        "name": "MagicScythe"
+      },
+      "icon": {
+        "library": "Items",
+        "frame": 70,
+        "src": "./public/item-icons/items/frame_000070.png"
+      },
+      "requirements": {
+        "type": "level",
+        "amount": 36,
+        "classMask": 7,
+        "genderMask": 3
+      },
+      "stackable": false,
+      "maxStack": 1,
+      "stats": {
+        "ac": [
+          0,
+          0
+        ],
+        "amc": [
+          0,
+          0
+        ],
+        "dc": [
+          5,
+          16
+        ],
+        "mc": [
+          1,
+          8
+        ],
+        "sc": [
+          0,
+          0
+        ],
+        "hp": 0,
+        "mp": 0,
+        "accuracy": 0,
+        "agility": 0,
+        "luck": 0,
+        "attackSpeed": 0
+      },
+      "shop": {
+        "buy": 0,
+        "sell": 11000
+      },
+      "visual": {
+        "layer": "weapon",
+        "index": 27
+      },
+      "crystalType": "Weapon",
+      "visualWeaponGlow": 4,
+      "unique": true,
+      "innateSpellBonuses": {
+        "ThunderBolt": {
+          "damagePercent": 100,
+          "undeadDamagePercent": 100
+        }
+      }
+    },
+    {
+      "id": "awakened-soul-spring-wand",
+      "name": "Awakened Soul Spring Wand",
+      "type": "weapon",
+      "slot": "weapon",
+      "class": "any",
+      "source": {
+        "crystalIndex": 272,
+        "name": "AwakenedSoulSpringWand"
+      },
+      "icon": {
+        "library": "Items",
+        "frame": 52,
+        "src": "./public/item-icons/items/frame_000052.png"
+      },
+      "requirements": {
+        "type": "level",
+        "amount": 30,
+        "classMask": 7,
+        "genderMask": 3
+      },
+      "stackable": false,
+      "maxStack": 1,
+      "stats": {
+        "ac": [
+          0,
+          0
+        ],
+        "amc": [
+          0,
+          0
+        ],
+        "dc": [
+          2,
+          18
+        ],
+        "mc": [
+          0,
+          0
+        ],
+        "sc": [
+          2,
+          4
+        ],
+        "hp": 0,
+        "mp": 0,
+        "accuracy": 1,
+        "agility": 0,
+        "luck": 0,
+        "attackSpeed": 0
+      },
+      "shop": {
+        "buy": 0,
+        "sell": 8000
+      },
+      "visual": {
+        "layer": "weapon",
+        "index": 23
+      },
+      "crystalType": "Weapon",
+      "visualWeaponGlow": 17,
+      "innateSpellBonuses": {
+        "SummonHolyDeva": {
+          "damagePercent": 100,
+          "petAttackSpeedPercent": 100
+        }
+      },
+      "unique": true
+    },
+    {
+      "id": "awakened-stone-bamboo-fan",
+      "name": "Awakened Stone Bamboo Fan",
+      "type": "weapon",
+      "slot": "weapon",
+      "class": "any",
+      "source": {
+        "crystalIndex": 274,
+        "name": "StoneBambooFan"
+      },
+      "icon": {
+        "library": "Items",
+        "frame": 71,
+        "src": "./public/item-icons/items/frame_000071.png"
+      },
+      "requirements": {
+        "type": "level",
+        "amount": 36,
+        "classMask": 7,
+        "genderMask": 3
+      },
+      "stackable": false,
+      "maxStack": 1,
+      "stats": {
+        "ac": [
+          0,
+          0
+        ],
+        "amc": [
+          0,
+          0
+        ],
+        "dc": [
+          2,
+          16
+        ],
+        "mc": [
+          0,
+          0
+        ],
+        "sc": [
+          3,
+          6
+        ],
+        "hp": 100,
+        "mp": 0,
+        "accuracy": 2,
+        "agility": 0,
+        "luck": 0,
+        "attackSpeed": 0
+      },
+      "shop": {
+        "buy": 0,
+        "sell": 11000
+      },
+      "visual": {
+        "layer": "weapon",
+        "index": 28
+      },
+      "crystalType": "Weapon",
+      "visualWeaponGlow": 5,
+      "unique": true,
+      "innateSpellBonuses": {
+        "MassHealing": {
+          "healingPercent": 100
+        }
+      }
+    },
+    {
+      "id": "awakened-war-mage-staff",
+      "name": "Awakened War Mage Staff",
+      "type": "weapon",
+      "slot": "weapon",
+      "class": "any",
+      "source": {
+        "crystalIndex": 259,
+        "name": "AwakenedWarMageStaff"
+      },
+      "icon": {
+        "library": "Items",
+        "frame": 59,
+        "src": "./public/item-icons/items/frame_000059.png"
+      },
+      "requirements": {
+        "type": "level",
+        "amount": 30,
+        "classMask": 7,
+        "genderMask": 3
+      },
+      "stackable": false,
+      "maxStack": 1,
+      "stats": {
+        "ac": [
+          0,
+          0
+        ],
+        "amc": [
+          0,
+          0
+        ],
+        "dc": [
+          6,
+          12
+        ],
+        "mc": [
+          1,
+          7
+        ],
+        "sc": [
+          0,
+          0
+        ],
+        "hp": 0,
+        "mp": 0,
+        "accuracy": 0,
+        "agility": 0,
+        "luck": 0,
+        "attackSpeed": 0
+      },
+      "shop": {
+        "buy": 0,
+        "sell": 10000
+      },
+      "visual": {
+        "layer": "weapon",
+        "index": 22
+      },
+      "crystalType": "Weapon",
+      "visualWeaponGlow": 2,
+      "unique": true,
+      "innateSpellBonuses": {
+        "FireBall": {
+          "damagePercent": 100,
+          "critDamagePercent": 100
+        }
+      }
+    },
+    {
+      "id": "awakened-war-spirit-blade",
+      "name": "Awakened War Spirit Blade",
+      "type": "weapon",
+      "slot": "weapon",
+      "class": "any",
+      "source": {
+        "crystalIndex": 247,
+        "name": "WarSpiritBlade"
+      },
+      "icon": {
+        "library": "Items",
+        "frame": 69,
+        "src": "./public/item-icons/items/frame_000069.png"
+      },
+      "requirements": {
+        "type": "level",
+        "amount": 36,
+        "classMask": 7,
+        "genderMask": 3
+      },
+      "stackable": false,
+      "maxStack": 1,
+      "stats": {
+        "ac": [
+          0,
+          0
+        ],
+        "amc": [
+          0,
+          0
+        ],
+        "dc": [
+          5,
+          32
+        ],
+        "mc": [
+          0,
+          0
+        ],
+        "sc": [
+          0,
+          0
+        ],
+        "hp": 0,
+        "mp": 0,
+        "accuracy": 0,
+        "agility": 0,
+        "luck": 0,
+        "attackSpeed": 6
+      },
+      "shop": {
+        "buy": 0,
+        "sell": 11000
+      },
+      "visual": {
+        "layer": "weapon",
+        "index": 26
+      },
+      "crystalType": "Weapon",
+      "visualWeaponGlow": 3,
+      "unique": true,
+      "innateSpellBonuses": {
+        "TwinDrakeBlade": {
+          "damagePercent": 100
+        }
       }
     },
     {
@@ -1119,7 +1589,7 @@
       "name": "Barbarian Sword",
       "type": "weapon",
       "slot": "weapon",
-      "class": "any",
+      "class": "wizard",
       "source": {
         "crystalIndex": 253,
         "name": "BarbarianSword"
@@ -1131,8 +1601,8 @@
       },
       "requirements": {
         "type": "level",
-        "amount": 65,
-        "classMask": 7,
+        "amount": 66,
+        "classMask": 2,
         "genderMask": 3
       },
       "stackable": false,
@@ -1147,12 +1617,12 @@
           0
         ],
         "dc": [
-          8,
-          56
+          12,
+          38
         ],
         "mc": [
-          0,
-          0
+          14,
+          41
         ],
         "sc": [
           0,
@@ -1166,8 +1636,8 @@
         "attackSpeed": 0
       },
       "shop": {
-        "buy": 250000,
-        "sell": 50000
+        "buy": 0,
+        "sell": 1
       },
       "visual": {
         "layer": "weapon",
@@ -3710,67 +4180,6 @@
       "crystalType": "Necklace"
     },
     {
-      "id": "bluish-green-blood-slaughter-pike",
-      "name": "Bluish Green Blood Slaughter Pike",
-      "type": "weapon",
-      "slot": "weapon",
-      "class": "warrior",
-      "source": {
-        "crystalIndex": 1372,
-        "name": "BluishGreenBloodSlaughterPike"
-      },
-      "icon": {
-        "library": "Items",
-        "frame": 2440,
-        "src": "./public/item-icons/items/frame_002440.png"
-      },
-      "requirements": {
-        "type": "level",
-        "amount": 60,
-        "classMask": 1,
-        "genderMask": 3
-      },
-      "stackable": false,
-      "maxStack": 1,
-      "stats": {
-        "ac": [
-          0,
-          0
-        ],
-        "amc": [
-          0,
-          0
-        ],
-        "dc": [
-          25,
-          48
-        ],
-        "mc": [
-          0,
-          0
-        ],
-        "sc": [
-          0,
-          0
-        ],
-        "hp": 0,
-        "mp": 0,
-        "accuracy": 0,
-        "agility": 0,
-        "luck": 0,
-        "attackSpeed": 0
-      },
-      "shop": {
-        "buy": 0,
-        "sell": 1
-      },
-      "visual": {
-        "layer": "weapon",
-        "index": 60
-      },
-      "crystalType": "Weapon"
-    },
-    {
       "id": "bok-ma-wheel",
       "name": "Bok Ma Wheel",
       "type": "bracelet",
@@ -3845,7 +4254,7 @@
       "name": "Bone Carved Fan",
       "type": "weapon",
       "slot": "weapon",
-      "class": "any",
+      "class": "taoist",
       "source": {
         "crystalIndex": 280,
         "name": "BoneCarvedFan"
@@ -3857,8 +4266,8 @@
       },
       "requirements": {
         "type": "level",
-        "amount": 65,
-        "classMask": 7,
+        "amount": 66,
+        "classMask": 4,
         "genderMask": 3
       },
       "stackable": false,
@@ -3873,27 +4282,27 @@
           0
         ],
         "dc": [
-          0,
-          0
+          15,
+          48
         ],
         "mc": [
           0,
           0
         ],
         "sc": [
-          5,
-          14
+          14,
+          35
         ],
         "hp": 0,
         "mp": 0,
-        "accuracy": 0,
+        "accuracy": 2,
         "agility": 0,
         "luck": 0,
-        "attackSpeed": 0
+        "attackSpeed": 2
       },
       "shop": {
-        "buy": 250000,
-        "sell": 50000
+        "buy": 0,
+        "sell": 1
       },
       "visual": {
         "layer": "weapon",
@@ -6202,6 +6611,67 @@
       "spell": {
         "id": "Reincarnation",
         "shape": 79
+      }
+    },
+    {
+      "id": "book-slashing-burst",
+      "name": "Slashing Burst",
+      "type": "book",
+      "slot": "book",
+      "class": "warrior",
+      "source": {
+        "crystalIndex": 987,
+        "name": "SlashingBurst"
+      },
+      "icon": {
+        "library": "Items",
+        "frame": 3640,
+        "src": "./public/item-icons/books/images/frame_003640.png"
+      },
+      "requirements": {
+        "type": "level",
+        "amount": 50,
+        "classMask": 1,
+        "genderMask": 3
+      },
+      "stackable": false,
+      "maxStack": 1,
+      "stats": {
+        "ac": [
+          0,
+          0
+        ],
+        "amc": [
+          0,
+          0
+        ],
+        "dc": [
+          0,
+          0
+        ],
+        "mc": [
+          0,
+          0
+        ],
+        "sc": [
+          0,
+          0
+        ],
+        "hp": 0,
+        "mp": 0,
+        "accuracy": 0,
+        "agility": 0,
+        "luck": 0,
+        "attackSpeed": 0
+      },
+      "shop": {
+        "buy": 100000,
+        "sell": 20000
+      },
+      "crystalType": "Book",
+      "spell": {
+        "id": "SlashingBurst",
+        "shape": 15
       }
     },
     {
@@ -10074,6 +10544,61 @@
       "crystalType": "Bracelet"
     },
     {
+      "id": "defensive-attunement-stone",
+      "name": "Defensive Attunement Stone",
+      "type": "material",
+      "slot": "material",
+      "class": "any",
+      "source": {
+        "crystalIndex": 785,
+        "name": "WillMarble"
+      },
+      "icon": {
+        "library": "Items",
+        "frame": 785,
+        "src": "./public/item-icons/items/frame_000785.png"
+      },
+      "requirements": {
+        "type": "none",
+        "amount": 0,
+        "classMask": 31,
+        "genderMask": 3
+      },
+      "stackable": true,
+      "maxStack": 64,
+      "durability": 10000,
+      "stats": {
+        "ac": [
+          0,
+          0
+        ],
+        "amc": [
+          0,
+          0
+        ],
+        "dc": [
+          0,
+          0
+        ],
+        "mc": [
+          0,
+          0
+        ],
+        "sc": [
+          0,
+          0
+        ],
+        "hp": 0,
+        "mp": 0,
+        "accuracy": 0,
+        "agility": 0,
+        "luck": 0,
+        "attackSpeed": 0
+      },
+      "crystalType": "CraftingMaterial",
+      "description": "Add to an Empowerment Reroll to increase your chances of getting a defensive empowerment (armour, HP, damage reduction, and related defenses)."
+    },
+    {
       "id": "demon-mask",
       "name": "Demon Mask",
       "type": "necklace",
@@ -10617,6 +11142,177 @@
         },
         "chance": 0.00167
       }
+    },
+    {
+      "id": "dragon-necklace-1",
+      "name": "Dragon Necklace",
+      "type": "necklace",
+      "slot": "necklace",
+      "class": "warrior",
+      "source": {
+        "crystalIndex": 582,
+        "name": "DragonNecklace1"
+      },
+      "icon": {
+        "library": "Items",
+        "frame": 3475,
+        "src": "./public/item-icons/items/frame_003475.png"
+      },
+      "requirements": {
+        "type": "level",
+        "amount": 63,
+        "classMask": 1,
+        "genderMask": 3
+      },
+      "stackable": false,
+      "maxStack": 1,
+      "stats": {
+        "ac": [
+          0,
+          0
+        ],
+        "amc": [
+          0,
+          0
+        ],
+        "dc": [
+          7,
+          16
+        ],
+        "mc": [
+          0,
+          0
+        ],
+        "sc": [
+          0,
+          0
+        ],
+        "hp": 0,
+        "mp": 0,
+        "accuracy": 0,
+        "agility": 0,
+        "luck": 0,
+        "attackSpeed": 0
+      },
+      "shop": {
+        "buy": 75000,
+        "sell": 15000
+      },
+      "crystalType": "Necklace"
+    },
+    {
+      "id": "dragon-necklace-2",
+      "name": "Dragon Necklace",
+      "type": "necklace",
+      "slot": "necklace",
+      "class": "wizard",
+      "source": {
+        "crystalIndex": 583,
+        "name": "DragonNecklace2"
+      },
+      "icon": {
+        "library": "Items",
+        "frame": 3478,
+        "src": "./public/item-icons/items/frame_003478.png"
+      },
+      "requirements": {
+        "type": "level",
+        "amount": 63,
+        "classMask": 2,
+        "genderMask": 3
+      },
+      "stackable": false,
+      "maxStack": 1,
+      "stats": {
+        "ac": [
+          0,
+          0
+        ],
+        "amc": [
+          0,
+          0
+        ],
+        "dc": [
+          0,
+          0
+        ],
+        "mc": [
+          5,
+          16
+        ],
+        "sc": [
+          0,
+          0
+        ],
+        "hp": 0,
+        "mp": 0,
+        "accuracy": 0,
+        "agility": 0,
+        "luck": 0,
+        "attackSpeed": 0
+      },
+      "shop": {
+        "buy": 75000,
+        "sell": 15000
+      },
+      "crystalType": "Necklace"
+    },
+    {
+      "id": "dragon-necklace-3",
+      "name": "Dragon Necklace",
+      "type": "necklace",
+      "slot": "necklace",
+      "class": "taoist",
+      "source": {
+        "crystalIndex": 584,
+        "name": "DragonNecklace3"
+      },
+      "icon": {
+        "library": "Items",
+        "frame": 3477,
+        "src": "./public/item-icons/items/frame_003477.png"
+      },
+      "requirements": {
+        "type": "level",
+        "amount": 63,
+        "classMask": 4,
+        "genderMask": 3
+      },
+      "stackable": false,
+      "maxStack": 1,
+      "stats": {
+        "ac": [
+          0,
+          0
+        ],
+        "amc": [
+          0,
+          0
+        ],
+        "dc": [
+          0,
+          0
+        ],
+        "mc": [
+          0,
+          0
+        ],
+        "sc": [
+          5,
+          16
+        ],
+        "hp": 0,
+        "mp": 0,
+        "accuracy": 0,
+        "agility": 0,
+        "luck": 0,
+        "attackSpeed": 0
+      },
+      "shop": {
+        "buy": 75000,
+        "sell": 15000
+      },
+      "crystalType": "Necklace"
     },
     {
       "id": "dragon-ring",
@@ -11544,6 +12240,64 @@
       "crystalType": "Necklace"
     },
     {
+      "id": "emerald-ore",
+      "name": "Emerald Ore",
+      "type": "ore",
+      "slot": "material",
+      "class": "any",
+      "source": {
+        "crystalIndex": 287,
+        "name": "EmeraldOre"
+      },
+      "icon": {
+        "library": "Items",
+        "frame": 287,
+        "src": "./public/item-icons/items/frame_000287.png"
+      },
+      "requirements": {
+        "type": "none",
+        "amount": 0,
+        "classMask": 31,
+        "genderMask": 3
+      },
+      "stackable": false,
+      "maxStack": 1,
+      "durability": 10000,
+      "stats": {
+        "ac": [
+          0,
+          0
+        ],
+        "amc": [
+          0,
+          0
+        ],
+        "dc": [
+          0,
+          0
+        ],
+        "mc": [
+          0,
+          0
+        ],
+        "sc": [
+          0,
+          0
+        ],
+        "hp": 0,
+        "mp": 0,
+        "accuracy": 0,
+        "agility": 0,
+        "luck": 0,
+        "attackSpeed": 0
+      },
+      "shop": {
+        "buy": 50000,
+        "sell": 10000
+      },
+      "crystalType": "Ore"
+    },
+    {
       "id": "endurancegem",
       "name": "Endurance  Gem",
       "type": "gem",
@@ -11754,6 +12508,519 @@
         }
       },
       "crystalType": "Bracelet"
+    },
+    {
+      "id": "evil-dragon-bracelet-1",
+      "name": "Evil Dragon Bracelet",
+      "type": "bracelet",
+      "slot": "bracelet",
+      "class": "warrior",
+      "source": {
+        "crystalIndex": 529,
+        "name": "EvilDragonBracelet1"
+      },
+      "icon": {
+        "library": "Items",
+        "frame": 3494,
+        "src": "./public/item-icons/items/frame_003494.png"
+      },
+      "requirements": {
+        "type": "level",
+        "amount": 66,
+        "classMask": 1,
+        "genderMask": 3
+      },
+      "stackable": false,
+      "maxStack": 1,
+      "stats": {
+        "ac": [
+          5,
+          8
+        ],
+        "amc": [
+          1,
+          3
+        ],
+        "dc": [
+          10,
+          20
+        ],
+        "mc": [
+          0,
+          0
+        ],
+        "sc": [
+          0,
+          0
+        ],
+        "hp": 0,
+        "mp": 0,
+        "accuracy": 0,
+        "agility": 0,
+        "luck": 0,
+        "attackSpeed": 0
+      },
+      "shop": {
+        "buy": 0,
+        "sell": 1
+      },
+      "crystalType": "Bracelet"
+    },
+    {
+      "id": "evil-dragon-bracelet-2",
+      "name": "Evil Dragon Bracelet",
+      "type": "bracelet",
+      "slot": "bracelet",
+      "class": "wizard",
+      "source": {
+        "crystalIndex": 530,
+        "name": "EvilDragonBracelet2"
+      },
+      "icon": {
+        "library": "Items",
+        "frame": 3491,
+        "src": "./public/item-icons/items/frame_003491.png"
+      },
+      "requirements": {
+        "type": "level",
+        "amount": 66,
+        "classMask": 2,
+        "genderMask": 3
+      },
+      "stackable": false,
+      "maxStack": 1,
+      "stats": {
+        "ac": [
+          4,
+          7
+        ],
+        "amc": [
+          1,
+          6
+        ],
+        "dc": [
+          0,
+          0
+        ],
+        "mc": [
+          8,
+          18
+        ],
+        "sc": [
+          0,
+          0
+        ],
+        "hp": 0,
+        "mp": 0,
+        "accuracy": 0,
+        "agility": 0,
+        "luck": 0,
+        "attackSpeed": 0
+      },
+      "shop": {
+        "buy": 0,
+        "sell": 1
+      },
+      "crystalType": "Bracelet"
+    },
+    {
+      "id": "evil-dragon-bracelet-3",
+      "name": "Evil Dragon Bracelet",
+      "type": "bracelet",
+      "slot": "bracelet",
+      "class": "taoist",
+      "source": {
+        "crystalIndex": 531,
+        "name": "EvilDragonBracelet3"
+      },
+      "icon": {
+        "library": "Items",
+        "frame": 3492,
+        "src": "./public/item-icons/items/frame_003492.png"
+      },
+      "requirements": {
+        "type": "level",
+        "amount": 66,
+        "classMask": 4,
+        "genderMask": 3
+      },
+      "stackable": false,
+      "maxStack": 1,
+      "stats": {
+        "ac": [
+          4,
+          7
+        ],
+        "amc": [
+          1,
+          4
+        ],
+        "dc": [
+          0,
+          0
+        ],
+        "mc": [
+          0,
+          0
+        ],
+        "sc": [
+          8,
+          18
+        ],
+        "hp": 0,
+        "mp": 0,
+        "accuracy": 0,
+        "agility": 0,
+        "luck": 0,
+        "attackSpeed": 0
+      },
+      "shop": {
+        "buy": 0,
+        "sell": 1
+      },
+      "crystalType": "Bracelet"
+    },
+    {
+      "id": "evil-dragon-necklace-1",
+      "name": "Evil Dragon Necklace",
+      "type": "necklace",
+      "slot": "necklace",
+      "class": "warrior",
+      "source": {
+        "crystalIndex": 588,
+        "name": "DragonPendant1"
+      },
+      "icon": {
+        "library": "Items",
+        "frame": 3489,
+        "src": "./public/item-icons/items/frame_003489.png"
+      },
+      "requirements": {
+        "type": "level",
+        "amount": 66,
+        "classMask": 1,
+        "genderMask": 3
+      },
+      "stackable": false,
+      "maxStack": 1,
+      "stats": {
+        "ac": [
+          2,
+          2
+        ],
+        "amc": [
+          0,
+          0
+        ],
+        "dc": [
+          8,
+          19
+        ],
+        "mc": [
+          0,
+          0
+        ],
+        "sc": [
+          0,
+          0
+        ],
+        "hp": 0,
+        "mp": 0,
+        "accuracy": 0,
+        "agility": 0,
+        "luck": 0,
+        "attackSpeed": 0
+      },
+      "shop": {
+        "buy": 0,
+        "sell": 1
+      },
+      "crystalType": "Necklace"
+    },
+    {
+      "id": "evil-dragon-necklace-2",
+      "name": "Evil Dragon Necklace",
+      "type": "necklace",
+      "slot": "necklace",
+      "class": "wizard",
+      "source": {
+        "crystalIndex": 589,
+        "name": "DragonPendant2"
+      },
+      "icon": {
+        "library": "Items",
+        "frame": 3486,
+        "src": "./public/item-icons/items/frame_003486.png"
+      },
+      "requirements": {
+        "type": "level",
+        "amount": 66,
+        "classMask": 2,
+        "genderMask": 3
+      },
+      "stackable": false,
+      "maxStack": 1,
+      "stats": {
+        "ac": [
+          0,
+          0
+        ],
+        "amc": [
+          0,
+          0
+        ],
+        "dc": [
+          0,
+          0
+        ],
+        "mc": [
+          6,
+          19
+        ],
+        "sc": [
+          0,
+          0
+        ],
+        "hp": 0,
+        "mp": 0,
+        "accuracy": 0,
+        "agility": 0,
+        "luck": 0,
+        "attackSpeed": 0
+      },
+      "shop": {
+        "buy": 0,
+        "sell": 1
+      },
+      "crystalType": "Necklace"
+    },
+    {
+      "id": "evil-dragon-necklace-3",
+      "name": "Evil Dragon Necklace",
+      "type": "necklace",
+      "slot": "necklace",
+      "class": "taoist",
+      "source": {
+        "crystalIndex": 590,
+        "name": "DragonPendant3"
+      },
+      "icon": {
+        "library": "Items",
+        "frame": 3487,
+        "src": "./public/item-icons/items/frame_003487.png"
+      },
+      "requirements": {
+        "type": "level",
+        "amount": 66,
+        "classMask": 4,
+        "genderMask": 3
+      },
+      "stackable": false,
+      "maxStack": 1,
+      "stats": {
+        "ac": [
+          0,
+          0
+        ],
+        "amc": [
+          0,
+          0
+        ],
+        "dc": [
+          0,
+          0
+        ],
+        "mc": [
+          0,
+          0
+        ],
+        "sc": [
+          6,
+          19
+        ],
+        "hp": 0,
+        "mp": 0,
+        "accuracy": 0,
+        "agility": 0,
+        "luck": 0,
+        "attackSpeed": 0
+      },
+      "shop": {
+        "buy": 0,
+        "sell": 1
+      },
+      "crystalType": "Necklace"
+    },
+    {
+      "id": "evil-dragon-ring-1",
+      "name": "Red Dragon Ring",
+      "type": "ring",
+      "slot": "ring",
+      "class": "warrior",
+      "source": {
+        "crystalIndex": 465,
+        "name": "EvilDragonRing1"
+      },
+      "icon": {
+        "library": "Items",
+        "frame": 3470,
+        "src": "./public/item-icons/items/frame_003470.png"
+      },
+      "requirements": {
+        "type": "level",
+        "amount": 63,
+        "classMask": 1,
+        "genderMask": 3
+      },
+      "stackable": false,
+      "maxStack": 1,
+      "stats": {
+        "ac": [
+          0,
+          0
+        ],
+        "amc": [
+          0,
+          0
+        ],
+        "dc": [
+          4,
+          19
+        ],
+        "mc": [
+          0,
+          0
+        ],
+        "sc": [
+          0,
+          0
+        ],
+        "hp": 0,
+        "mp": 0,
+        "accuracy": 0,
+        "agility": 0,
+        "luck": 0,
+        "attackSpeed": 0
+      },
+      "shop": {
+        "buy": 150000,
+        "sell": 30000
+      },
+      "crystalType": "Ring"
+    },
+    {
+      "id": "evil-dragon-ring-2",
+      "name": "Red Dragon Ring",
+      "type": "ring",
+      "slot": "ring",
+      "class": "wizard",
+      "source": {
+        "crystalIndex": 466,
+        "name": "EvilDragonRing2"
+      },
+      "icon": {
+        "library": "Items",
+        "frame": 3473,
+        "src": "./public/item-icons/items/frame_003473.png"
+      },
+      "requirements": {
+        "type": "level",
+        "amount": 63,
+        "classMask": 2,
+        "genderMask": 3
+      },
+      "stackable": false,
+      "maxStack": 1,
+      "stats": {
+        "ac": [
+          0,
+          0
+        ],
+        "amc": [
+          0,
+          0
+        ],
+        "dc": [
+          0,
+          0
+        ],
+        "mc": [
+          3,
+          19
+        ],
+        "sc": [
+          0,
+          0
+        ],
+        "hp": 0,
+        "mp": 0,
+        "accuracy": 0,
+        "agility": 0,
+        "luck": 0,
+        "attackSpeed": 0
+      },
+      "shop": {
+        "buy": 150000,
+        "sell": 30000
+      },
+      "crystalType": "Ring"
+    },
+    {
+      "id": "evil-dragon-ring-3",
+      "name": "Red Dragon Ring",
+      "type": "ring",
+      "slot": "ring",
+      "class": "taoist",
+      "source": {
+        "crystalIndex": 467,
+        "name": "EvilDragonRing3"
+      },
+      "icon": {
+        "library": "Items",
+        "frame": 3471,
+        "src": "./public/item-icons/items/frame_003471.png"
+      },
+      "requirements": {
+        "type": "level",
+        "amount": 63,
+        "classMask": 4,
+        "genderMask": 3
+      },
+      "stackable": false,
+      "maxStack": 1,
+      "stats": {
+        "ac": [
+          0,
+          0
+        ],
+        "amc": [
+          0,
+          0
+        ],
+        "dc": [
+          0,
+          0
+        ],
+        "mc": [
+          0,
+          0
+        ],
+        "sc": [
+          3,
+          16
+        ],
+        "hp": 0,
+        "mp": 0,
+        "accuracy": 0,
+        "agility": 0,
+        "luck": 0,
+        "attackSpeed": 0
+      },
+      "shop": {
+        "buy": 150000,
+        "sell": 30000
+      },
+      "crystalType": "Ring"
     },
     {
       "id": "evil-expel-ring",
@@ -13796,6 +15063,62 @@
       "description": "While in melee range of an enemy: +25% armour and damage. At range: -25% armour and damage."
     },
     {
+      "id": "glyph-blade-momentum",
+      "name": "Glyph of Blade Momentum",
+      "type": "glyph",
+      "slot": "glyph",
+      "class": "warrior",
+      "glyph": {
+        "modifier": "warriorTwinDrakeMomentum"
+      },
+      "icon": {
+        "library": "Items",
+        "frame": 3261,
+        "src": "./public/item-icons/items/frame_003261.png"
+      },
+      "requirements": {
+        "type": "level",
+        "amount": 35,
+        "classMask": 1,
+        "genderMask": 3
+      },
+      "stackable": false,
+      "maxStack": 1,
+      "stats": {
+        "ac": [
+          0,
+          0
+        ],
+        "amc": [
+          0,
+          0
+        ],
+        "dc": [
+          0,
+          0
+        ],
+        "mc": [
+          0,
+          0
+        ],
+        "sc": [
+          0,
+          0
+        ],
+        "hp": 0,
+        "mp": 0,
+        "accuracy": 0,
+        "agility": 0,
+        "luck": 0,
+        "attackSpeed": 0
+      },
+      "shop": {
+        "buy": 0,
+        "sell": 50000
+      },
+      "description": "Each Twin Drake Blade hit increases your attack speed by 1 (up to the normal attack-speed limit). Missing, using any other warrior skill, or swinging normally resets the bonus."
+    },
+    {
       "id": "glyph-buffing",
       "name": "Glyph of Buffing",
       "type": "glyph",
@@ -14132,62 +15455,6 @@
       "description": "Flame Disruptor can also strike enemies next to the target for reduced damage."
     },
     {
-      "id": "glyph-frenzied-disruptor",
-      "name": "Glyph of Frenzied Disruptor",
-      "type": "glyph",
-      "slot": "glyph",
-      "class": "wizard",
-      "glyph": {
-        "modifier": "wizardFrenziedDisruptor"
-      },
-      "icon": {
-        "library": "Items",
-        "frame": 3244,
-        "src": "./public/item-icons/items/frame_003244.png"
-      },
-      "requirements": {
-        "type": "level",
-        "amount": 35,
-        "classMask": 2,
-        "genderMask": 3
-      },
-      "stackable": false,
-      "maxStack": 1,
-      "stats": {
-        "ac": [
-          0,
-          0
-        ],
-        "amc": [
-          0,
-          0
-        ],
-        "dc": [
-          0,
-          0
-        ],
-        "mc": [
-          0,
-          0
-        ],
-        "sc": [
-          0,
-          0
-        ],
-        "hp": 0,
-        "mp": 0,
-        "accuracy": 0,
-        "agility": 0,
-        "luck": 0,
-        "attackSpeed": 0
-      },
-      "shop": {
-        "buy": 0,
-        "sell": 50000
-      },
-      "description": "When Flame Disruptor critically strikes, its casting speed doubles and then fades back to normal over 5 seconds."
-    },
-    {
       "id": "glyph-efficient-learning",
       "name": "Glyph of Efficient Learning",
       "type": "glyph",
@@ -14356,23 +15623,23 @@
       "description": "HP potions heal 25% faster, but restore 50% less."
     },
     {
-      "id": "glyph-vitality",
-      "name": "Glyph of Vitality",
+      "id": "glyph-flaming-avalanche",
+      "name": "Glyph of Flaming Avalanche",
       "type": "glyph",
       "slot": "glyph",
-      "class": "any",
+      "class": "warrior",
       "glyph": {
-        "modifier": "vitality"
+        "modifier": "warriorFlamingAvalanche"
       },
       "icon": {
         "library": "Items",
-        "frame": 3253,
-        "src": "./public/item-icons/items/frame_003253.png"
+        "frame": 3227,
+        "src": "./public/item-icons/items/frame_003227.png"
       },
       "requirements": {
         "type": "level",
         "amount": 35,
-        "classMask": 31,
+        "classMask": 1,
         "genderMask": 3
       },
       "stackable": false,
@@ -14409,7 +15676,7 @@
         "buy": 0,
         "sell": 50000
       },
-      "description": "Maximum health is doubled, but you cannot use Sun Potions (or similar restoratives)."
+      "description": "Flaming Sword also unleashes Blade Avalanche. Requires Blade Avalanche learned."
     },
     {
       "id": "glyph-flaming-bulwark",
@@ -14466,6 +15733,62 @@
         "sell": 50000
       },
       "description": "Activating Flaming Sword briefly reduces the damage you take."
+    },
+    {
+      "id": "glyph-frenzied-disruptor",
+      "name": "Glyph of Frenzied Disruptor",
+      "type": "glyph",
+      "slot": "glyph",
+      "class": "wizard",
+      "glyph": {
+        "modifier": "wizardFrenziedDisruptor"
+      },
+      "icon": {
+        "library": "Items",
+        "frame": 3244,
+        "src": "./public/item-icons/items/frame_003244.png"
+      },
+      "requirements": {
+        "type": "level",
+        "amount": 35,
+        "classMask": 2,
+        "genderMask": 3
+      },
+      "stackable": false,
+      "maxStack": 1,
+      "stats": {
+        "ac": [
+          0,
+          0
+        ],
+        "amc": [
+          0,
+          0
+        ],
+        "dc": [
+          0,
+          0
+        ],
+        "mc": [
+          0,
+          0
+        ],
+        "sc": [
+          0,
+          0
+        ],
+        "hp": 0,
+        "mp": 0,
+        "accuracy": 0,
+        "agility": 0,
+        "luck": 0,
+        "attackSpeed": 0
+      },
+      "shop": {
+        "buy": 0,
+        "sell": 50000
+      },
+      "description": "When Flame Disruptor critically strikes, its casting speed doubles and then fades back to normal over 5 seconds."
     },
     {
       "id": "glyph-glass-canon",
@@ -14690,62 +16013,6 @@
         "sell": 50000
       },
       "description": "Flaming Sword burns the enemy for 5 seconds, dealing 50% of the hit as fire damage over time."
-    },
-    {
-      "id": "glyph-flaming-avalanche",
-      "name": "Glyph of Flaming Avalanche",
-      "type": "glyph",
-      "slot": "glyph",
-      "class": "warrior",
-      "glyph": {
-        "modifier": "warriorFlamingAvalanche"
-      },
-      "icon": {
-        "library": "Items",
-        "frame": 3227,
-        "src": "./public/item-icons/items/frame_003227.png"
-      },
-      "requirements": {
-        "type": "level",
-        "amount": 35,
-        "classMask": 1,
-        "genderMask": 3
-      },
-      "stackable": false,
-      "maxStack": 1,
-      "stats": {
-        "ac": [
-          0,
-          0
-        ],
-        "amc": [
-          0,
-          0
-        ],
-        "dc": [
-          0,
-          0
-        ],
-        "mc": [
-          0,
-          0
-        ],
-        "sc": [
-          0,
-          0
-        ],
-        "hp": 0,
-        "mp": 0,
-        "accuracy": 0,
-        "agility": 0,
-        "luck": 0,
-        "attackSpeed": 0
-      },
-      "shop": {
-        "buy": 0,
-        "sell": 50000
-      },
-      "description": "Flaming Sword also unleashes Blade Avalanche. Requires Blade Avalanche learned."
     },
     {
       "id": "glyph-improved-healing-circle",
@@ -15252,6 +16519,62 @@
       "description": "Revives you to full health once, then breaks."
     },
     {
+      "id": "glyph-slow-destruction",
+      "name": "Glyph of Slow Destruction",
+      "type": "glyph",
+      "slot": "glyph",
+      "class": "warrior",
+      "glyph": {
+        "modifier": "warriorSlowDestruction"
+      },
+      "icon": {
+        "library": "Items",
+        "frame": 3243,
+        "src": "./public/item-icons/items/frame_003243.png"
+      },
+      "requirements": {
+        "type": "level",
+        "amount": 35,
+        "classMask": 1,
+        "genderMask": 3
+      },
+      "stackable": false,
+      "maxStack": 1,
+      "stats": {
+        "ac": [
+          0,
+          0
+        ],
+        "amc": [
+          0,
+          0
+        ],
+        "dc": [
+          0,
+          0
+        ],
+        "mc": [
+          0,
+          0
+        ],
+        "sc": [
+          0,
+          0
+        ],
+        "hp": 0,
+        "mp": 0,
+        "accuracy": 0,
+        "agility": 0,
+        "luck": 0,
+        "attackSpeed": 0
+      },
+      "shop": {
+        "buy": 0,
+        "sell": 50000
+      },
+      "description": "DC increased by 150%, but attack speed no longer affects you."
+    },
+    {
       "id": "glyph-spirit-wards",
       "name": "Glyph of Spirit Wards",
       "type": "glyph",
@@ -15420,23 +16743,23 @@
       "description": "Twin Drake Blade hits much harder, but needs time to recover after each use."
     },
     {
-      "id": "glyph-blade-momentum",
-      "name": "Glyph of Blade Momentum",
+      "id": "glyph-vitality",
+      "name": "Glyph of Vitality",
       "type": "glyph",
       "slot": "glyph",
-      "class": "warrior",
+      "class": "any",
       "glyph": {
-        "modifier": "warriorTwinDrakeMomentum"
+        "modifier": "vitality"
       },
       "icon": {
         "library": "Items",
-        "frame": 3261,
-        "src": "./public/item-icons/items/frame_003261.png"
+        "frame": 3253,
+        "src": "./public/item-icons/items/frame_003253.png"
       },
       "requirements": {
         "type": "level",
         "amount": 35,
-        "classMask": 1,
+        "classMask": 31,
         "genderMask": 3
       },
       "stackable": false,
@@ -15473,63 +16796,7 @@
         "buy": 0,
         "sell": 50000
       },
-      "description": "Each Twin Drake Blade hit increases your attack speed by 1 (up to the normal attack-speed limit). Missing, using any other warrior skill, or swinging normally resets the bonus."
-    },
-    {
-      "id": "glyph-slow-destruction",
-      "name": "Glyph of Slow Destruction",
-      "type": "glyph",
-      "slot": "glyph",
-      "class": "warrior",
-      "glyph": {
-        "modifier": "warriorSlowDestruction"
-      },
-      "icon": {
-        "library": "Items",
-        "frame": 3226,
-        "src": "./public/item-icons/items/frame_003226.png"
-      },
-      "requirements": {
-        "type": "level",
-        "amount": 35,
-        "classMask": 1,
-        "genderMask": 3
-      },
-      "stackable": false,
-      "maxStack": 1,
-      "stats": {
-        "ac": [
-          0,
-          0
-        ],
-        "amc": [
-          0,
-          0
-        ],
-        "dc": [
-          0,
-          0
-        ],
-        "mc": [
-          0,
-          0
-        ],
-        "sc": [
-          0,
-          0
-        ],
-        "hp": 0,
-        "mp": 0,
-        "accuracy": 0,
-        "agility": 0,
-        "luck": 0,
-        "attackSpeed": 0
-      },
-      "shop": {
-        "buy": 0,
-        "sell": 50000
-      },
-      "description": "DC increased by 150%, but attack speed no longer affects you."
+      "description": "Maximum health is doubled, but you cannot use Sun Potions (or similar restoratives)."
     },
     {
       "id": "gold-bar",
@@ -16000,6 +17267,177 @@
       "crystalType": "Ring"
     },
     {
+      "id": "golden-dragon-bracelet-1",
+      "name": "Golden Dragon Bracelet",
+      "type": "bracelet",
+      "slot": "bracelet",
+      "class": "warrior",
+      "source": {
+        "crystalIndex": 523,
+        "name": "GoldenDragonBrace1"
+      },
+      "icon": {
+        "library": "Items",
+        "frame": 3480,
+        "src": "./public/item-icons/items/frame_003480.png"
+      },
+      "requirements": {
+        "type": "level",
+        "amount": 63,
+        "classMask": 1,
+        "genderMask": 3
+      },
+      "stackable": false,
+      "maxStack": 1,
+      "stats": {
+        "ac": [
+          4,
+          7
+        ],
+        "amc": [
+          0,
+          2
+        ],
+        "dc": [
+          8,
+          17
+        ],
+        "mc": [
+          0,
+          0
+        ],
+        "sc": [
+          0,
+          0
+        ],
+        "hp": 0,
+        "mp": 0,
+        "accuracy": 0,
+        "agility": 0,
+        "luck": 0,
+        "attackSpeed": 0
+      },
+      "shop": {
+        "buy": 150000,
+        "sell": 30000
+      },
+      "crystalType": "Bracelet"
+    },
+    {
+      "id": "golden-dragon-bracelet-2",
+      "name": "Golden Dragon Bracelet",
+      "type": "bracelet",
+      "slot": "bracelet",
+      "class": "wizard",
+      "source": {
+        "crystalIndex": 524,
+        "name": "GoldenDragonBrace2"
+      },
+      "icon": {
+        "library": "Items",
+        "frame": 3483,
+        "src": "./public/item-icons/items/frame_003483.png"
+      },
+      "requirements": {
+        "type": "level",
+        "amount": 63,
+        "classMask": 2,
+        "genderMask": 3
+      },
+      "stackable": false,
+      "maxStack": 1,
+      "stats": {
+        "ac": [
+          3,
+          6
+        ],
+        "amc": [
+          1,
+          5
+        ],
+        "dc": [
+          0,
+          0
+        ],
+        "mc": [
+          7,
+          15
+        ],
+        "sc": [
+          0,
+          0
+        ],
+        "hp": 0,
+        "mp": 0,
+        "accuracy": 0,
+        "agility": 0,
+        "luck": 0,
+        "attackSpeed": 0
+      },
+      "shop": {
+        "buy": 150000,
+        "sell": 30000
+      },
+      "crystalType": "Bracelet"
+    },
+    {
+      "id": "golden-dragon-bracelet-3",
+      "name": "Golden Dragon Bracelet",
+      "type": "bracelet",
+      "slot": "bracelet",
+      "class": "taoist",
+      "source": {
+        "crystalIndex": 525,
+        "name": "GoldenDragonBrace3"
+      },
+      "icon": {
+        "library": "Items",
+        "frame": 3482,
+        "src": "./public/item-icons/items/frame_003482.png"
+      },
+      "requirements": {
+        "type": "level",
+        "amount": 63,
+        "classMask": 4,
+        "genderMask": 3
+      },
+      "stackable": false,
+      "maxStack": 1,
+      "stats": {
+        "ac": [
+          3,
+          6
+        ],
+        "amc": [
+          1,
+          3
+        ],
+        "dc": [
+          0,
+          0
+        ],
+        "mc": [
+          0,
+          0
+        ],
+        "sc": [
+          7,
+          15
+        ],
+        "hp": 0,
+        "mp": 0,
+        "accuracy": 0,
+        "agility": 0,
+        "luck": 0,
+        "attackSpeed": 0
+      },
+      "shop": {
+        "buy": 150000,
+        "sell": 30000
+      },
+      "crystalType": "Bracelet"
+    },
+    {
       "id": "golden-pendant",
       "name": "Golden Pendant",
       "type": "necklace",
@@ -16058,7 +17496,7 @@
     },
     {
       "id": "gon-ryun-holy-light-sword-1",
-      "name": "Gon Ryun Holy Light Sword (?)1",
+      "name": "Holy Light Sword",
       "type": "weapon",
       "slot": "weapon",
       "class": "warrior",
@@ -16073,7 +17511,7 @@
       },
       "requirements": {
         "type": "level",
-        "amount": 60,
+        "amount": 63,
         "classMask": 1,
         "genderMask": 3
       },
@@ -16089,8 +17527,8 @@
           0
         ],
         "dc": [
-          18,
-          71
+          17,
+          86
         ],
         "mc": [
           0,
@@ -16119,7 +17557,7 @@
     },
     {
       "id": "gon-ryun-holy-light-sword-2",
-      "name": "Gon Ryun Holy Light Sword (?)2",
+      "name": "Holy Light Sword",
       "type": "weapon",
       "slot": "weapon",
       "class": "wizard",
@@ -16134,7 +17572,7 @@
       },
       "requirements": {
         "type": "level",
-        "amount": 60,
+        "amount": 63,
         "classMask": 2,
         "genderMask": 3
       },
@@ -16150,12 +17588,12 @@
           0
         ],
         "dc": [
-          9,
-          22
+          10,
+          32
         ],
         "mc": [
-          17,
-          48
+          12,
+          34
         ],
         "sc": [
           0,
@@ -16163,10 +17601,10 @@
         ],
         "hp": 0,
         "mp": 0,
-        "accuracy": 2,
+        "accuracy": 0,
         "agility": 0,
         "luck": 0,
-        "attackSpeed": 2
+        "attackSpeed": 0
       },
       "shop": {
         "buy": 0,
@@ -16180,7 +17618,7 @@
     },
     {
       "id": "gon-ryun-holy-light-sword-3",
-      "name": "Gon Ryun Holy Light Sword (?)3",
+      "name": "Holy Light Sword",
       "type": "weapon",
       "slot": "weapon",
       "class": "taoist",
@@ -16195,7 +17633,7 @@
       },
       "requirements": {
         "type": "level",
-        "amount": 60,
+        "amount": 63,
         "classMask": 4,
         "genderMask": 3
       },
@@ -16211,16 +17649,16 @@
           0
         ],
         "dc": [
-          11,
-          26
+          12,
+          40
         ],
         "mc": [
           0,
           0
         ],
         "sc": [
-          17,
-          47
+          11,
+          28
         ],
         "hp": 0,
         "mp": 0,
@@ -20654,75 +22092,6 @@
         "index": 21
       },
       "crystalType": "Weapon"
-    },
-    {
-      "id": "awakened-judgement-mace",
-      "name": "Awakened Judgement Mace",
-      "type": "weapon",
-      "slot": "weapon",
-      "class": "any",
-      "source": {
-        "crystalIndex": 244,
-        "name": "AwakenedJudgementMace"
-      },
-      "icon": {
-        "library": "Items",
-        "frame": 55,
-        "src": "./public/item-icons/items/frame_000055.png"
-      },
-      "requirements": {
-        "type": "level",
-        "amount": 30,
-        "classMask": 7,
-        "genderMask": 3
-      },
-      "stackable": false,
-      "maxStack": 1,
-      "stats": {
-        "ac": [
-          0,
-          0
-        ],
-        "amc": [
-          0,
-          0
-        ],
-        "dc": [
-          0,
-          33
-        ],
-        "mc": [
-          0,
-          0
-        ],
-        "sc": [
-          0,
-          0
-        ],
-        "hp": 0,
-        "mp": 0,
-        "accuracy": 0,
-        "agility": 0,
-        "luck": 0,
-        "attackSpeed": 0
-      },
-      "shop": {
-        "buy": 0,
-        "sell": 10000
-      },
-      "visual": {
-        "layer": "weapon",
-        "index": 21
-      },
-      "crystalType": "Weapon",
-      "visualWeaponGlow": 18,
-      "unique": true,
-      "innateSpellBonuses": {
-        "FlamingSword": {
-          "damagePercent": 100,
-          "critDamagePercent": 100
-        }
-      }
     },
     {
       "id": "keen-kriss-sword",
@@ -25327,6 +26696,61 @@
       "crystalType": "Bracelet"
     },
     {
+      "id": "offensive-attunement-stone",
+      "name": "Offensive Attunement Stone",
+      "type": "material",
+      "slot": "material",
+      "class": "any",
+      "source": {
+        "crystalIndex": 789,
+        "name": "EvasionMarble"
+      },
+      "icon": {
+        "library": "Items",
+        "frame": 789,
+        "src": "./public/item-icons/items/frame_000789.png"
+      },
+      "requirements": {
+        "type": "none",
+        "amount": 0,
+        "classMask": 31,
+        "genderMask": 3
+      },
+      "stackable": true,
+      "maxStack": 64,
+      "durability": 10000,
+      "stats": {
+        "ac": [
+          0,
+          0
+        ],
+        "amc": [
+          0,
+          0
+        ],
+        "dc": [
+          0,
+          0
+        ],
+        "mc": [
+          0,
+          0
+        ],
+        "sc": [
+          0,
+          0
+        ],
+        "hp": 0,
+        "mp": 0,
+        "accuracy": 0,
+        "agility": 0,
+        "luck": 0,
+        "attackSpeed": 0
+      },
+      "crystalType": "CraftingMaterial",
+      "description": "Add to an Empowerment Reroll to increase your chances of getting an offensive empowerment (damage, crit, and related attack bonuses)."
+    },
+    {
       "id": "old-copper-ring",
       "name": "Old Copper Ring",
       "type": "ring",
@@ -25440,6 +26864,68 @@
       },
       "crystalType": "Potion",
       "shape": 1
+    },
+    {
+      "id": "oma-king-armour",
+      "name": "Oma King Armour",
+      "type": "armour",
+      "slot": "armour",
+      "class": "any",
+      "source": {
+        "crystalIndex": 383,
+        "name": "OmaKingRobe(M)"
+      },
+      "icon": {
+        "library": "Items",
+        "frame": 596,
+        "src": "./public/item-icons/items/frame_000596.png"
+      },
+      "requirements": {
+        "type": "level",
+        "amount": 63,
+        "classMask": 31,
+        "genderMask": 3
+      },
+      "stackable": false,
+      "maxStack": 1,
+      "stats": {
+        "ac": [
+          17,
+          44
+        ],
+        "amc": [
+          11,
+          20
+        ],
+        "dc": [
+          0,
+          0
+        ],
+        "mc": [
+          0,
+          0
+        ],
+        "sc": [
+          0,
+          0
+        ],
+        "hp": 250,
+        "mp": 50,
+        "accuracy": 0,
+        "agility": 0,
+        "luck": 0,
+        "attackSpeed": 0
+      },
+      "shop": {
+        "buy": 500000,
+        "sell": 100000
+      },
+      "visual": {
+        "layer": "armour",
+        "index": 11
+      },
+      "crystalType": "Armour",
+      "visualEffect": 100
     },
     {
       "id": "oma-king-robe",
@@ -28035,6 +29521,177 @@
       "crystalType": "Ring"
     },
     {
+      "id": "r-dragon-ring-1",
+      "name": "Evil Dragon Ring",
+      "type": "ring",
+      "slot": "ring",
+      "class": "warrior",
+      "source": {
+        "crystalIndex": 471,
+        "name": "RDragonRing1"
+      },
+      "icon": {
+        "library": "Items",
+        "frame": 3499,
+        "src": "./public/item-icons/items/frame_003499.png"
+      },
+      "requirements": {
+        "type": "level",
+        "amount": 66,
+        "classMask": 1,
+        "genderMask": 3
+      },
+      "stackable": false,
+      "maxStack": 1,
+      "stats": {
+        "ac": [
+          2,
+          2
+        ],
+        "amc": [
+          0,
+          0
+        ],
+        "dc": [
+          5,
+          23
+        ],
+        "mc": [
+          0,
+          0
+        ],
+        "sc": [
+          0,
+          0
+        ],
+        "hp": 0,
+        "mp": 0,
+        "accuracy": 0,
+        "agility": 0,
+        "luck": 0,
+        "attackSpeed": 0
+      },
+      "shop": {
+        "buy": 0,
+        "sell": 1
+      },
+      "crystalType": "Ring"
+    },
+    {
+      "id": "r-dragon-ring-2",
+      "name": "Evil Dragon Ring",
+      "type": "ring",
+      "slot": "ring",
+      "class": "wizard",
+      "source": {
+        "crystalIndex": 472,
+        "name": "RDragonRing2"
+      },
+      "icon": {
+        "library": "Items",
+        "frame": 3496,
+        "src": "./public/item-icons/items/frame_003496.png"
+      },
+      "requirements": {
+        "type": "level",
+        "amount": 66,
+        "classMask": 2,
+        "genderMask": 3
+      },
+      "stackable": false,
+      "maxStack": 1,
+      "stats": {
+        "ac": [
+          0,
+          0
+        ],
+        "amc": [
+          0,
+          0
+        ],
+        "dc": [
+          0,
+          0
+        ],
+        "mc": [
+          4,
+          23
+        ],
+        "sc": [
+          0,
+          0
+        ],
+        "hp": 0,
+        "mp": 0,
+        "accuracy": 0,
+        "agility": 0,
+        "luck": 0,
+        "attackSpeed": 0
+      },
+      "shop": {
+        "buy": 0,
+        "sell": 1
+      },
+      "crystalType": "Ring"
+    },
+    {
+      "id": "r-dragon-ring-3",
+      "name": "Evil Dragon Ring",
+      "type": "ring",
+      "slot": "ring",
+      "class": "taoist",
+      "source": {
+        "crystalIndex": 473,
+        "name": "RDragonRing3"
+      },
+      "icon": {
+        "library": "Items",
+        "frame": 3497,
+        "src": "./public/item-icons/items/frame_003497.png"
+      },
+      "requirements": {
+        "type": "level",
+        "amount": 66,
+        "classMask": 4,
+        "genderMask": 3
+      },
+      "stackable": false,
+      "maxStack": 1,
+      "stats": {
+        "ac": [
+          0,
+          0
+        ],
+        "amc": [
+          0,
+          0
+        ],
+        "dc": [
+          0,
+          0
+        ],
+        "mc": [
+          0,
+          0
+        ],
+        "sc": [
+          4,
+          19
+        ],
+        "hp": 0,
+        "mp": 0,
+        "accuracy": 0,
+        "agility": 0,
+        "luck": 0,
+        "attackSpeed": 0
+      },
+      "shop": {
+        "buy": 0,
+        "sell": 1
+      },
+      "crystalType": "Ring"
+    },
+    {
       "id": "raiders-armour-f-1",
       "name": "Raiders Armour (F)1",
       "type": "armour",
@@ -29771,6 +31428,64 @@
       }
     },
     {
+      "id": "ruby-ore",
+      "name": "Ruby Ore",
+      "type": "ore",
+      "slot": "material",
+      "class": "any",
+      "source": {
+        "crystalIndex": 528,
+        "name": "Ruby"
+      },
+      "icon": {
+        "library": "Items",
+        "frame": 528,
+        "src": "./public/item-icons/items/frame_000528.png"
+      },
+      "requirements": {
+        "type": "none",
+        "amount": 0,
+        "classMask": 31,
+        "genderMask": 3
+      },
+      "stackable": false,
+      "maxStack": 1,
+      "durability": 10000,
+      "stats": {
+        "ac": [
+          0,
+          0
+        ],
+        "amc": [
+          0,
+          0
+        ],
+        "dc": [
+          0,
+          0
+        ],
+        "mc": [
+          0,
+          0
+        ],
+        "sc": [
+          0,
+          0
+        ],
+        "hp": 0,
+        "mp": 0,
+        "accuracy": 0,
+        "agility": 0,
+        "luck": 0,
+        "attackSpeed": 0
+      },
+      "shop": {
+        "buy": 50000,
+        "sell": 10000
+      },
+      "crystalType": "Ore"
+    },
+    {
       "id": "ruby-ring",
       "name": "Ruby Ring",
       "type": "ring",
@@ -31347,6 +33062,67 @@
       "crystalType": "Necklace"
     },
     {
+      "id": "slaughter-pike",
+      "name": "Slaughter Pike",
+      "type": "weapon",
+      "slot": "weapon",
+      "class": "warrior",
+      "source": {
+        "crystalIndex": 1372,
+        "name": "BluishGreenBloodSlaughterPike"
+      },
+      "icon": {
+        "library": "Items",
+        "frame": 2440,
+        "src": "./public/item-icons/items/frame_002440.png"
+      },
+      "requirements": {
+        "type": "level",
+        "amount": 66,
+        "classMask": 1,
+        "genderMask": 3
+      },
+      "stackable": false,
+      "maxStack": 1,
+      "stats": {
+        "ac": [
+          0,
+          0
+        ],
+        "amc": [
+          0,
+          0
+        ],
+        "dc": [
+          38,
+          90
+        ],
+        "mc": [
+          0,
+          0
+        ],
+        "sc": [
+          0,
+          0
+        ],
+        "hp": 0,
+        "mp": 0,
+        "accuracy": 2,
+        "agility": 0,
+        "luck": 0,
+        "attackSpeed": 2
+      },
+      "shop": {
+        "buy": 0,
+        "sell": 1
+      },
+      "visual": {
+        "layer": "weapon",
+        "index": 60
+      },
+      "crystalType": "Weapon"
+    },
+    {
       "id": "smash-pendulum",
       "name": "Smash Pendulum",
       "type": "necklace",
@@ -32428,75 +34204,6 @@
         "index": 23
       },
       "crystalType": "Weapon"
-    },
-    {
-      "id": "awakened-soul-spring-wand",
-      "name": "Awakened Soul Spring Wand",
-      "type": "weapon",
-      "slot": "weapon",
-      "class": "any",
-      "source": {
-        "crystalIndex": 272,
-        "name": "AwakenedSoulSpringWand"
-      },
-      "icon": {
-        "library": "Items",
-        "frame": 52,
-        "src": "./public/item-icons/items/frame_000052.png"
-      },
-      "requirements": {
-        "type": "level",
-        "amount": 30,
-        "classMask": 7,
-        "genderMask": 3
-      },
-      "stackable": false,
-      "maxStack": 1,
-      "stats": {
-        "ac": [
-          0,
-          0
-        ],
-        "amc": [
-          0,
-          0
-        ],
-        "dc": [
-          2,
-          18
-        ],
-        "mc": [
-          0,
-          0
-        ],
-        "sc": [
-          2,
-          4
-        ],
-        "hp": 0,
-        "mp": 0,
-        "accuracy": 1,
-        "agility": 0,
-        "luck": 0,
-        "attackSpeed": 0
-      },
-      "shop": {
-        "buy": 0,
-        "sell": 8000
-      },
-      "visual": {
-        "layer": "weapon",
-        "index": 23
-      },
-      "crystalType": "Weapon",
-      "visualWeaponGlow": 17,
-      "innateSpellBonuses": {
-        "SummonHolyDeva": {
-          "damagePercent": 100,
-          "petAttackSpeedPercent": 100
-        }
-      },
-      "unique": true
     },
     {
       "id": "soulgem",
@@ -36443,6 +38150,63 @@
       "set": 26
     },
     {
+      "id": "tarragon-belt",
+      "name": "Tarragon Belt",
+      "type": "belt",
+      "slot": "belt",
+      "class": "any",
+      "source": {
+        "crystalIndex": 138,
+        "name": "TarragonBelt"
+      },
+      "icon": {
+        "library": "Items",
+        "frame": 2763,
+        "src": "./public/item-icons/items/frame_002763.png"
+      },
+      "requirements": {
+        "type": "level",
+        "amount": 55,
+        "classMask": 31,
+        "genderMask": 3
+      },
+      "stackable": false,
+      "maxStack": 1,
+      "stats": {
+        "ac": [
+          2,
+          4
+        ],
+        "amc": [
+          2,
+          4
+        ],
+        "dc": [
+          0,
+          0
+        ],
+        "mc": [
+          0,
+          0
+        ],
+        "sc": [
+          0,
+          0
+        ],
+        "hp": 0,
+        "mp": 0,
+        "accuracy": 0,
+        "agility": 0,
+        "luck": 0,
+        "attackSpeed": 0
+      },
+      "shop": {
+        "buy": 35000,
+        "sell": 7000
+      },
+      "crystalType": "Belt"
+    },
+    {
       "id": "tarragon-boots",
       "name": "Tarragon Boots",
       "type": "boots",
@@ -37368,6 +39132,61 @@
       "crystalType": "Ring"
     },
     {
+      "id": "utility-attunement-stone",
+      "name": "Utility Attunement Stone",
+      "type": "material",
+      "slot": "material",
+      "class": "any",
+      "source": {
+        "crystalIndex": 786,
+        "name": "FocusMarble"
+      },
+      "icon": {
+        "library": "Items",
+        "frame": 786,
+        "src": "./public/item-icons/items/frame_000786.png"
+      },
+      "requirements": {
+        "type": "none",
+        "amount": 0,
+        "classMask": 31,
+        "genderMask": 3
+      },
+      "stackable": true,
+      "maxStack": 64,
+      "durability": 10000,
+      "stats": {
+        "ac": [
+          0,
+          0
+        ],
+        "amc": [
+          0,
+          0
+        ],
+        "dc": [
+          0,
+          0
+        ],
+        "mc": [
+          0,
+          0
+        ],
+        "sc": [
+          0,
+          0
+        ],
+        "hp": 0,
+        "mp": 0,
+        "accuracy": 0,
+        "agility": 0,
+        "luck": 0,
+        "attackSpeed": 0
+      },
+      "crystalType": "CraftingMaterial",
+      "description": "Add to an Empowerment Reroll to increase your chances of getting a utility empowerment (XP, gold, drops, cooldowns, and related bonuses)."
+    },
+    {
       "id": "violet-orb",
       "name": "Violet Orb",
       "type": "necklace",
@@ -37569,280 +39388,6 @@
         "index": 22
       },
       "crystalType": "Weapon"
-    },
-    {
-      "id": "awakened-war-mage-staff",
-      "name": "Awakened War Mage Staff",
-      "type": "weapon",
-      "slot": "weapon",
-      "class": "any",
-      "source": {
-        "crystalIndex": 259,
-        "name": "AwakenedWarMageStaff"
-      },
-      "icon": {
-        "library": "Items",
-        "frame": 59,
-        "src": "./public/item-icons/items/frame_000059.png"
-      },
-      "requirements": {
-        "type": "level",
-        "amount": 30,
-        "classMask": 7,
-        "genderMask": 3
-      },
-      "stackable": false,
-      "maxStack": 1,
-      "stats": {
-        "ac": [
-          0,
-          0
-        ],
-        "amc": [
-          0,
-          0
-        ],
-        "dc": [
-          6,
-          12
-        ],
-        "mc": [
-          1,
-          7
-        ],
-        "sc": [
-          0,
-          0
-        ],
-        "hp": 0,
-        "mp": 0,
-        "accuracy": 0,
-        "agility": 0,
-        "luck": 0,
-        "attackSpeed": 0
-      },
-      "shop": {
-        "buy": 0,
-        "sell": 10000
-      },
-      "visual": {
-        "layer": "weapon",
-        "index": 22
-      },
-      "crystalType": "Weapon",
-      "visualWeaponGlow": 2,
-      "unique": true,
-      "innateSpellBonuses": {
-        "FireBall": {
-          "damagePercent": 100,
-          "critDamagePercent": 100
-        }
-      }
-    },
-    {
-      "id": "awakened-war-spirit-blade",
-      "name": "Awakened War Spirit Blade",
-      "type": "weapon",
-      "slot": "weapon",
-      "class": "any",
-      "source": {
-        "crystalIndex": 247,
-        "name": "WarSpiritBlade"
-      },
-      "icon": {
-        "library": "Items",
-        "frame": 69,
-        "src": "./public/item-icons/items/frame_000069.png"
-      },
-      "requirements": {
-        "type": "level",
-        "amount": 36,
-        "classMask": 7,
-        "genderMask": 3
-      },
-      "stackable": false,
-      "maxStack": 1,
-      "stats": {
-        "ac": [
-          0,
-          0
-        ],
-        "amc": [
-          0,
-          0
-        ],
-        "dc": [
-          5,
-          32
-        ],
-        "mc": [
-          0,
-          0
-        ],
-        "sc": [
-          0,
-          0
-        ],
-        "hp": 0,
-        "mp": 0,
-        "accuracy": 0,
-        "agility": 0,
-        "luck": 0,
-        "attackSpeed": 6
-      },
-      "shop": {
-        "buy": 0,
-        "sell": 11000
-      },
-      "visual": {
-        "layer": "weapon",
-        "index": 26
-      },
-      "crystalType": "Weapon",
-      "visualWeaponGlow": 3,
-      "unique": true,
-      "innateSpellBonuses": {
-        "TwinDrakeBlade": {
-          "damagePercent": 100
-        }
-      }
-    },
-    {
-      "id": "awakened-stone-bamboo-fan",
-      "name": "Awakened Stone Bamboo Fan",
-      "type": "weapon",
-      "slot": "weapon",
-      "class": "any",
-      "source": {
-        "crystalIndex": 274,
-        "name": "StoneBambooFan"
-      },
-      "icon": {
-        "library": "Items",
-        "frame": 71,
-        "src": "./public/item-icons/items/frame_000071.png"
-      },
-      "requirements": {
-        "type": "level",
-        "amount": 36,
-        "classMask": 7,
-        "genderMask": 3
-      },
-      "stackable": false,
-      "maxStack": 1,
-      "stats": {
-        "ac": [
-          0,
-          0
-        ],
-        "amc": [
-          0,
-          0
-        ],
-        "dc": [
-          2,
-          16
-        ],
-        "mc": [
-          0,
-          0
-        ],
-        "sc": [
-          3,
-          6
-        ],
-        "hp": 100,
-        "mp": 0,
-        "accuracy": 2,
-        "agility": 0,
-        "luck": 0,
-        "attackSpeed": 0
-      },
-      "shop": {
-        "buy": 0,
-        "sell": 11000
-      },
-      "visual": {
-        "layer": "weapon",
-        "index": 28
-      },
-      "crystalType": "Weapon",
-      "visualWeaponGlow": 5,
-      "unique": true,
-      "innateSpellBonuses": {
-        "MassHealing": {
-          "healingPercent": 100
-        }
-      }
-    },
-    {
-      "id": "awakened-magic-scythe",
-      "name": "Awakened Magic Scythe",
-      "type": "weapon",
-      "slot": "weapon",
-      "class": "any",
-      "source": {
-        "crystalIndex": 261,
-        "name": "MagicScythe"
-      },
-      "icon": {
-        "library": "Items",
-        "frame": 70,
-        "src": "./public/item-icons/items/frame_000070.png"
-      },
-      "requirements": {
-        "type": "level",
-        "amount": 36,
-        "classMask": 7,
-        "genderMask": 3
-      },
-      "stackable": false,
-      "maxStack": 1,
-      "stats": {
-        "ac": [
-          0,
-          0
-        ],
-        "amc": [
-          0,
-          0
-        ],
-        "dc": [
-          5,
-          16
-        ],
-        "mc": [
-          1,
-          8
-        ],
-        "sc": [
-          0,
-          0
-        ],
-        "hp": 0,
-        "mp": 0,
-        "accuracy": 0,
-        "agility": 0,
-        "luck": 0,
-        "attackSpeed": 0
-      },
-      "shop": {
-        "buy": 0,
-        "sell": 11000
-      },
-      "visual": {
-        "layer": "weapon",
-        "index": 27
-      },
-      "crystalType": "Weapon",
-      "visualWeaponGlow": 4,
-      "unique": true,
-      "innateSpellBonuses": {
-        "ThunderBolt": {
-          "damagePercent": 100,
-          "undeadDamagePercent": 100
-        }
-      }
     },
     {
       "id": "war-spirit-blade",
@@ -39142,345 +40687,6 @@
         "index": 22
       },
       "crystalType": "Weapon"
-    },
-    {
-      "id": "ruby-ore",
-      "name": "Ruby Ore",
-      "type": "ore",
-      "slot": "material",
-      "class": "any",
-      "source": {
-        "crystalIndex": 528,
-        "name": "Ruby"
-      },
-      "icon": {
-        "library": "Items",
-        "frame": 528,
-        "src": "./public/item-icons/items/frame_000528.png"
-      },
-      "requirements": {
-        "type": "none",
-        "amount": 0,
-        "classMask": 31,
-        "genderMask": 3
-      },
-      "stackable": false,
-      "maxStack": 1,
-      "durability": 10000,
-      "stats": {
-        "ac": [
-          0,
-          0
-        ],
-        "amc": [
-          0,
-          0
-        ],
-        "dc": [
-          0,
-          0
-        ],
-        "mc": [
-          0,
-          0
-        ],
-        "sc": [
-          0,
-          0
-        ],
-        "hp": 0,
-        "mp": 0,
-        "accuracy": 0,
-        "agility": 0,
-        "luck": 0,
-        "attackSpeed": 0
-      },
-      "shop": {
-        "buy": 50000,
-        "sell": 10000
-      },
-      "crystalType": "Ore"
-    },
-    {
-      "id": "emerald-ore",
-      "name": "Emerald Ore",
-      "type": "ore",
-      "slot": "material",
-      "class": "any",
-      "source": {
-        "crystalIndex": 287,
-        "name": "EmeraldOre"
-      },
-      "icon": {
-        "library": "Items",
-        "frame": 287,
-        "src": "./public/item-icons/items/frame_000287.png"
-      },
-      "requirements": {
-        "type": "none",
-        "amount": 0,
-        "classMask": 31,
-        "genderMask": 3
-      },
-      "stackable": false,
-      "maxStack": 1,
-      "durability": 10000,
-      "stats": {
-        "ac": [
-          0,
-          0
-        ],
-        "amc": [
-          0,
-          0
-        ],
-        "dc": [
-          0,
-          0
-        ],
-        "mc": [
-          0,
-          0
-        ],
-        "sc": [
-          0,
-          0
-        ],
-        "hp": 0,
-        "mp": 0,
-        "accuracy": 0,
-        "agility": 0,
-        "luck": 0,
-        "attackSpeed": 0
-      },
-      "shop": {
-        "buy": 50000,
-        "sell": 10000
-      },
-      "crystalType": "Ore"
-    },
-    {
-      "id": "amethyst-ore",
-      "name": "Amethyst Ore",
-      "type": "ore",
-      "slot": "material",
-      "class": "any",
-      "source": {
-        "crystalIndex": 527,
-        "name": "Amethyst"
-      },
-      "icon": {
-        "library": "Items",
-        "frame": 527,
-        "src": "./public/item-icons/items/frame_000527.png"
-      },
-      "requirements": {
-        "type": "none",
-        "amount": 0,
-        "classMask": 31,
-        "genderMask": 3
-      },
-      "stackable": false,
-      "maxStack": 1,
-      "durability": 10000,
-      "stats": {
-        "ac": [
-          0,
-          0
-        ],
-        "amc": [
-          0,
-          0
-        ],
-        "dc": [
-          0,
-          0
-        ],
-        "mc": [
-          0,
-          0
-        ],
-        "sc": [
-          0,
-          0
-        ],
-        "hp": 0,
-        "mp": 0,
-        "accuracy": 0,
-        "agility": 0,
-        "luck": 0,
-        "attackSpeed": 0
-      },
-      "shop": {
-        "buy": 50000,
-        "sell": 10000
-      },
-      "crystalType": "Ore"
-    },
-    {
-      "id": "offensive-attunement-stone",
-      "name": "Offensive Attunement Stone",
-      "type": "material",
-      "slot": "material",
-      "class": "any",
-      "source": {
-        "crystalIndex": 789,
-        "name": "EvasionMarble"
-      },
-      "icon": {
-        "library": "Items",
-        "frame": 789,
-        "src": "./public/item-icons/items/frame_000789.png"
-      },
-      "requirements": {
-        "type": "none",
-        "amount": 0,
-        "classMask": 31,
-        "genderMask": 3
-      },
-      "stackable": true,
-      "maxStack": 64,
-      "durability": 10000,
-      "stats": {
-        "ac": [
-          0,
-          0
-        ],
-        "amc": [
-          0,
-          0
-        ],
-        "dc": [
-          0,
-          0
-        ],
-        "mc": [
-          0,
-          0
-        ],
-        "sc": [
-          0,
-          0
-        ],
-        "hp": 0,
-        "mp": 0,
-        "accuracy": 0,
-        "agility": 0,
-        "luck": 0,
-        "attackSpeed": 0
-      },
-      "crystalType": "CraftingMaterial",
-      "description": "Add to an Empowerment Reroll to increase your chances of getting an offensive empowerment (damage, crit, and related attack bonuses)."
-    },
-    {
-      "id": "defensive-attunement-stone",
-      "name": "Defensive Attunement Stone",
-      "type": "material",
-      "slot": "material",
-      "class": "any",
-      "source": {
-        "crystalIndex": 785,
-        "name": "WillMarble"
-      },
-      "icon": {
-        "library": "Items",
-        "frame": 785,
-        "src": "./public/item-icons/items/frame_000785.png"
-      },
-      "requirements": {
-        "type": "none",
-        "amount": 0,
-        "classMask": 31,
-        "genderMask": 3
-      },
-      "stackable": true,
-      "maxStack": 64,
-      "durability": 10000,
-      "stats": {
-        "ac": [
-          0,
-          0
-        ],
-        "amc": [
-          0,
-          0
-        ],
-        "dc": [
-          0,
-          0
-        ],
-        "mc": [
-          0,
-          0
-        ],
-        "sc": [
-          0,
-          0
-        ],
-        "hp": 0,
-        "mp": 0,
-        "accuracy": 0,
-        "agility": 0,
-        "luck": 0,
-        "attackSpeed": 0
-      },
-      "crystalType": "CraftingMaterial",
-      "description": "Add to an Empowerment Reroll to increase your chances of getting a defensive empowerment (armour, HP, damage reduction, and related defenses)."
-    },
-    {
-      "id": "utility-attunement-stone",
-      "name": "Utility Attunement Stone",
-      "type": "material",
-      "slot": "material",
-      "class": "any",
-      "source": {
-        "crystalIndex": 786,
-        "name": "FocusMarble"
-      },
-      "icon": {
-        "library": "Items",
-        "frame": 786,
-        "src": "./public/item-icons/items/frame_000786.png"
-      },
-      "requirements": {
-        "type": "none",
-        "amount": 0,
-        "classMask": 31,
-        "genderMask": 3
-      },
-      "stackable": true,
-      "maxStack": 64,
-      "durability": 10000,
-      "stats": {
-        "ac": [
-          0,
-          0
-        ],
-        "amc": [
-          0,
-          0
-        ],
-        "dc": [
-          0,
-          0
-        ],
-        "mc": [
-          0,
-          0
-        ],
-        "sc": [
-          0,
-          0
-        ],
-        "hp": 0,
-        "mp": 0,
-        "accuracy": 0,
-        "agility": 0,
-        "luck": 0,
-        "attackSpeed": 0
-      },
-      "crystalType": "CraftingMaterial",
-      "description": "Add to an Empowerment Reroll to increase your chances of getting a utility empowerment (XP, gold, drops, cooldowns, and related bonuses)."
     }
   ]
 }

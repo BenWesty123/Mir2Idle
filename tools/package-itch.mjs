@@ -38,6 +38,7 @@ const sourceFiles = [
   "src/battleData.js",
   "src/bossDrops.js",
   "src/buffPotions.js",
+  "src/core/armoury.js",
   "src/core/bossRespawn.js",
   "src/core/cloudSave.js",
   "src/core/combat.js",
@@ -68,6 +69,7 @@ const sourceFiles = [
   "src/styles.css",
   "src/warriorMagic.js",
   "src/zumaArcherSwarm.js",
+  "src/mysteryCave.js",
   "src/data/items.json",
   "src/data/changelog.json",
 ];

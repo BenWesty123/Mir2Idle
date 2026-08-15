@@ -1499,6 +1499,22 @@ test("applyEquippedSpellCooldownReductionMs: subtracts equipped seconds", () => 
   assert.equal(applyEquippedSpellCooldownReductionMs("Slaying", 10000, inventory), 10000);
 });
 
+test("applyEquippedSpellCooldownReductionMs: Flaming Sword floors at 3 seconds", () => {
+  const inventory = {
+    equipment: { weapon: "a", armour: "b" },
+    items: [
+      { id: "a", empowerSpellBonuses: { FlamingSword: { cooldownReductionSeconds: 5 } } },
+      { id: "b", empowerSpellBonuses: { FlamingSword: { cooldownReductionSeconds: 5 } } },
+    ],
+  };
+  assert.equal(equippedSpellCooldownReductionSeconds("FlamingSword", inventory), 10);
+  assert.equal(applyEquippedSpellCooldownReductionMs("FlamingSword", 10000, inventory), 3000);
+  assert.equal(applyEquippedSpellCooldownReductionMs("FlamingSword", 10000, {
+    equipment: { weapon: "a" },
+    items: [{ id: "a", empowerSpellBonuses: { FlamingSword: { cooldownReductionSeconds: 9 } } }],
+  }), 3000);
+});
+
 test("applyEquippedSpellHealingBonus: applies percent increase", () => {
   const inventory = {
     equipment: { weapon: "entry-1" },

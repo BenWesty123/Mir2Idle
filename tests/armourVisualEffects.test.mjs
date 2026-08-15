@@ -1,5 +1,7 @@
 import test from "node:test";
 import assert from "node:assert/strict";
+import fs from "node:fs";
+import path from "node:path";
 import {
   ARMOUR_WING_EFFECT_ITEM_IDS,
   ARMOUR_VISUAL_EFFECT_ITEM_IDS,
@@ -12,12 +14,31 @@ import {
   levelEffectVisualIdForKey,
 } from "../src/levelVisualEffects.js";
 
+function loadItem(id) {
+  const data = JSON.parse(
+    fs.readFileSync(path.join(import.meta.dirname, "..", "src", "data", "items.json"), "utf8"),
+  );
+  return (data.items ?? []).find((item) => item.id === id) ?? null;
+}
+
 test("oma-king-robe has no native armour effect when visualEffect unset", () => {
   const effect = armourVisualEffectForItem({
     id: "oma-king-robe",
     slot: "armour",
   });
   assert.equal(effect, null);
+});
+
+test("oma-king-armour plays Crystal effect 100", () => {
+  const item = loadItem("oma-king-armour");
+  assert.ok(item, "expected oma-king-armour in items.json");
+  assert.equal(item.visualEffect, 100);
+  assert.equal(item.requirements?.amount, 63);
+  const effect = armourVisualEffectForItem(item);
+  assert.equal(effect?.kind, "special");
+  assert.equal(effect?.id, 100);
+  assert.equal(effect?.label, "Oma King Armour");
+  assert.equal(ARMOUR_SPECIAL_EFFECT_DEFS[100]?.atlasPath, "./public/armour-effects/oma-king-robe/atlas.json");
 });
 
 test("heaven-armour (Heaven Robe) wing effect stays disabled", () => {

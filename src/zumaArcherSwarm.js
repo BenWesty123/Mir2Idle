@@ -1,8 +1,8 @@
 import {
-  swarmAttackActionForLane,
   swarmEnemyRangedProjectileOrigin,
   swarmEnemyTilePosition,
   swarmLaneFromMapRow,
+  swarmRangeAttackActionForLane,
 } from "./groupDungeonSwarm.js";
 
 export const ZUMA_ARCHER_ATTACK_MODE = "zumaArcher";
@@ -38,25 +38,14 @@ export function createZumaArcherSwarmAttack(deps) {
     zumaArcherProjectileTargetAnchor,
     enemyProjectileVfxUntil,
     effectiveEnemyAttackMs,
-    applySwarmEnemyStrikeToTarget,
     enemyRevealed,
   } = deps;
-
-  function zumaArcherSwarmMeleeAttack(swarmEnemy, entity, target, tile, partyRow, now) {
-    const attackAction = swarmAttackActionForLane(swarmLaneFromMapRow(tile.mapRow, partyRow));
-    setSwarmEnemyAction(swarmEnemy, attackAction, true, now);
-    syncPrimarySwarmVisual(swarmEnemy, attackAction, now);
-    playMonsterSfx("attack", swarmEnemy);
-    applySwarmEnemyStrikeToTarget(swarmEnemy, entity, target, now, { ranged: false });
-    swarmEnemy.nextAttackAt = now + effectiveEnemyAttackMs(swarmEnemy, now);
-    return true;
-  }
 
   function zumaArcherSwarmRangedAttack(swarmEnemy, entity, target, now) {
     const { impactDelayMs, rangedExtraMs } = zumaArcherCombatStats(entity);
     const tile = swarmEnemyTilePosition(swarmEnemy);
     const partyRow = arenaSpawnMapRow();
-    const attackAction = swarmAttackActionForLane(swarmLaneFromMapRow(tile.mapRow, partyRow));
+    const attackAction = swarmRangeAttackActionForLane(swarmLaneFromMapRow(tile.mapRow, partyRow));
     setSwarmEnemyAction(swarmEnemy, attackAction, true, now);
     syncPrimarySwarmVisual(swarmEnemy, attackAction, now);
     const projectile = swarmEnemy.atlas?.projectile;
@@ -90,16 +79,13 @@ export function createZumaArcherSwarmAttack(deps) {
     const partyRow = arenaSpawnMapRow();
     const { rangeTiles } = zumaArcherCombatStats(entity);
 
-    const tank = bossPartyFrontTarget();
-    if (tank) {
-      const tankDistance = swarmRangeTilesBetween(tile.worldX, tile.mapRow, tank.worldX, partyRow);
-      if (tankDistance <= 1) {
-        return zumaArcherSwarmMeleeAttack(swarmEnemy, entity, tank, tile, partyRow, now);
-      }
-    }
-
-    const target = bossPartyRandomRangedTargetInSwarmRange(tile, partyRow, rangeTiles);
+    // Always MAC bolts (Hell Bolt analog). Melee-fallthrough used to dump them
+    // onto the Warrior's AC once they walked in, so casters never felt them.
+    const target = bossPartyRandomRangedTargetInSwarmRange(tile, partyRow, rangeTiles)
+      ?? bossPartyFrontTarget();
     if (!target) return false;
+    const dist = swarmRangeTilesBetween(tile.worldX, tile.mapRow, target.worldX, partyRow);
+    if (dist > rangeTiles) return false;
 
     return zumaArcherSwarmRangedAttack(swarmEnemy, entity, target, now);
   };
