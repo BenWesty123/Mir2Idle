@@ -22,7 +22,24 @@ const PAPER_DOLL_FALLBACK = {
   110: { x: 130, y: 172, w: 16, h: 20 },
 };
 
-const RECENT_GAME_IDS = new Set(["oma-king-robe", "heaven-armour", "oma-spirit-ring"]);
+const RECENT_GAME_IDS = new Set([
+  "oma-king-armour",
+  "oma-king-robe",
+  "heaven-armour",
+  "oma-spirit-ring",
+  "barbarian-sword",
+  "bone-carved-fan",
+  "slaughter-pike",
+  "r-dragon-ring-1",
+  "r-dragon-ring-2",
+  "r-dragon-ring-3",
+  "evil-dragon-bracelet-1",
+  "evil-dragon-bracelet-2",
+  "evil-dragon-bracelet-3",
+  "evil-dragon-necklace-1",
+  "evil-dragon-necklace-2",
+  "evil-dragon-necklace-3",
+]);
 const ASSASSIN = 8;
 const ARCHER = 16;
 

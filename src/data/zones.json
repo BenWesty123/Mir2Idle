@@ -383,6 +383,41 @@
       "description": "Heavier ape and spider mix — Crystal RedValley_5F (D10051)"
     },
     {
+      "id": "zone-red-valley-gd-6",
+      "label": "Red Moon Valley — Moon Door",
+      "description": "RedValley_5F pocket (D10052) — Crystal entrance to Red Moon Room at (140, 23)"
+    },
+    {
+      "id": "zone-past-bicheon-gd-1",
+      "label": "Past Bicheon",
+      "description": "Past Bicheon group dungeon — Crystal 6.map stand (117, 202)."
+    },
+    {
+      "id": "zone-past-bicheon-gd-2",
+      "label": "Past Bicheon — Frost Tiger",
+      "description": "Frost Tiger mini-boss — Crystal 6.map stand (115, 153)."
+    },
+    {
+      "id": "zone-past-bicheon-gd-3",
+      "label": "Past Bicheon — Blood Gorge",
+      "description": "Blood Gorge group dungeon floor 3 — Crystal 64.map stand (249, 76). Denser waves and more Crossbow Oma than floor 1."
+    },
+    {
+      "id": "zone-past-bicheon-gd-4",
+      "label": "Past Bicheon — Blood Pass",
+      "description": "Blood Pass group dungeon floor 4 — Crystal 65.map stand (125, 84). Heavier waves; Crossbow Oma are the bulk."
+    },
+    {
+      "id": "zone-past-bicheon-gd-5",
+      "label": "Past Bicheon — Oma King",
+      "description": "Oma King boss — Crystal 66.map stand (209, 71)."
+    },
+    {
+      "id": "zone-mystery-cave",
+      "label": "Mystery Cave",
+      "description": "Crystal M001 MysteryCave — timed boss gauntlet, one wave every 10 seconds"
+    },
+    {
       "id": "zone-lab-stone-colossus",
       "label": "Lab: Stone Colossus",
       "description": "Decoded Mir3Mobs Mon1 test fight"

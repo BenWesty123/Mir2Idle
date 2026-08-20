@@ -4,6 +4,25 @@ const HOLY_DEVA_MOVE_REDUCTION_PER_MAX_LEVEL_MS = 130;
 const PET_ATTACK_REDUCTION_PER_MAX_LEVEL_MS = 70;
 const PET_MIN_ATTACK_MS = 400;
 
+/** Holy Deva thunder hits scale from the Taoist's SC (not pet DC), then × this. */
+export const HOLY_DEVA_DAMAGE_MULTIPLIER = 2;
+
+/**
+ * Build Holy Deva's attack range from the owner's SC.
+ * @param {number[] | number | null | undefined} ownerSc
+ * @param {number} [multiplier]
+ * @returns {[number, number]}
+ */
+export function holyDevaAttackStatFromOwnerSc(ownerSc, multiplier = HOLY_DEVA_DAMAGE_MULTIPLIER) {
+  const min = Math.max(0, Math.trunc(Number(Array.isArray(ownerSc) ? ownerSc[0] : ownerSc) || 0));
+  const max = Math.max(
+    min,
+    Math.trunc(Number(Array.isArray(ownerSc) ? ownerSc[1] : ownerSc) || 0),
+  );
+  const mult = Math.max(0, Number(multiplier) || 0);
+  return [Math.trunc(min * mult), Math.trunc(max * mult)];
+}
+
 /** Summon spell skill level (0–3) → starting pet combat level. */
 export const TAOIST_PET_LEVEL_BY_SPELL_LEVEL = [0, 2, 4, 7];
 

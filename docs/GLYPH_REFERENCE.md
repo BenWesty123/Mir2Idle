@@ -3,7 +3,7 @@
 > **Private dev sheet** — not shipped to players. Regenerate after glyph changes:
 > `npm run glyph:ref`
 
-Last generated: 2026-08-09
+Last generated: 2026-08-10
 
 ## Icon frames for new glyphs
 
@@ -201,7 +201,7 @@ frame from **[`GLYPH_ICON_POOL.md`](./GLYPH_ICON_POOL.md)** (derived variants st
 - Class: Taoist
 - Level: 35
 - Spells: SummonSkeleton, SummonShinsu, SummonHolyDeva
-- Your pets add your physical power to their attacks.
+- Your pets add your physical power (DC) to their attacks. (Holy Deva base damage is still SC × 2; this glyph adds DC on top.)
 
 #### Glyph of Spirit Wards
 

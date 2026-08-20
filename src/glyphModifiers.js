@@ -36,7 +36,7 @@ export const GLYPH_DEFS = [
     itemId: "glyph-pet-might",
     classId: "taoist",
     label: "Glyph of Pet Might",
-    description: "Your pets add your physical power to their attacks.",
+    description: "Your pets add your physical power (DC) to their attacks.",
     spellIds: ["SummonSkeleton", "SummonShinsu", "SummonHolyDeva"],
     kind: "taoPetOwnerDc",
     params: { ownerDcFraction: 1 },
@@ -673,6 +673,8 @@ export function glyphProtectionFieldStat(glyph = null) {
 }
 
 /**
+ * Glyph of Pet Might flat bonus from the owner's max DC (all Taoist pets).
+ * Holy Deva's base attack is owner SC; this glyph still adds DC on top.
  * @param {number} ownerMaxDc
  * @param {GlyphDef | null | undefined} glyph
  * @returns {number}
@@ -1116,6 +1118,32 @@ export function applyFrenziedDisruptorCastCooldownMs(baseMs, buff, now) {
   const bonus = frenziedDisruptorCastSpeedBonus(buff, now);
   if (bonus <= 0) return base;
   return Math.max(0, Math.round(base / (1 + bonus)));
+}
+
+/**
+ * Recalculate a cast-ready timestamp after Frenzied Disruptor procs mid-recovery.
+ * `appliedCdMs` must be the cooldown that was actually applied at cast time (buffed
+ * or not). Using the unbuffed CD while the cast was already buffed collapses the
+ * remaining wait to ~0 on every re-crit.
+ *
+ * @param {number} readyAt
+ * @param {number} now
+ * @param {number} appliedCdMs cooldown that was applied at cast time
+ * @param {number} buffedCdMs cooldown with the refreshed cast-speed buff
+ * @returns {number}
+ */
+export function frenziedDisruptorAdjustedReadyAt(readyAt, now, appliedCdMs, buffedCdMs) {
+  const ready = Number(readyAt) || 0;
+  const t = Number(now) || 0;
+  if (!(ready > t)) return ready;
+  const applied = Math.max(0, Math.trunc(Number(appliedCdMs) || 0));
+  const buffed = Math.max(0, Math.trunc(Number(buffedCdMs) || 0));
+  if (applied <= 0) return ready;
+  const remaining = ready - t;
+  const elapsed = Math.max(0, applied - remaining);
+  const target = t + Math.max(0, buffed - elapsed);
+  // Only shorten — never extend past the current ready time.
+  return Math.min(ready, target);
 }
 
 /**

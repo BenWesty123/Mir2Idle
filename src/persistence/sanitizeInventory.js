@@ -4,6 +4,7 @@ import {
 } from "../battleData.js";
 import { sanitizeEmpowerSpellBonuses } from "../core/empoweredItems.js";
 import { sanitizeEntryDurability, sanitizeWeaponRefineLevel } from "./sanitizeCharacter.js";
+import { sanitizeMysteryCaveBestWave } from "../mysteryCave.js";
 
 const SMITH_RANGE_KEYS = ["dc", "mc", "sc", "ac", "amc"];
 const SMITH_SCALAR_KEYS = [
@@ -11,6 +12,16 @@ const SMITH_SCALAR_KEYS = [
   "poisonAttack", "freezing", "magicResist", "poisonResist",
   "healthRecovery", "poisonRecovery", "strong",
 ];
+
+const SAVED_ITEM_ID_ALIASES = Object.freeze({
+  "mystery-cave-soul": "mystery-cave-ticket",
+});
+
+/** @param {unknown} itemId */
+export function migrateSavedItemId(itemId) {
+  const id = String(itemId ?? "");
+  return SAVED_ITEM_ID_ALIASES[id] ?? id;
+}
 
 /** @param {unknown} mark */
 export function sanitizeInventoryMark(mark) {
@@ -122,6 +133,13 @@ export function normalizeInventoryEntryFields(savedEntry, item, isStackable) {
     empowerSpellBonuses: sanitizeEmpowerSpellBonuses(savedEntry?.empowerSpellBonuses),
     inventoryMark: sanitizeInventoryMark(savedEntry?.inventoryMark),
   };
+  const mysteryCaveKills = Math.max(0, Math.min(999, Math.trunc(Number(savedEntry?.mysteryCaveKills ?? savedEntry?.mysteryCaveWaves) || 0)));
+  if (mysteryCaveKills > 0) fields.mysteryCaveKills = mysteryCaveKills;
+  const mysteryCaveTier = Math.max(0, Math.min(3, Math.trunc(Number(savedEntry?.mysteryCaveTier) || 0)));
+  if (mysteryCaveTier > 0) fields.mysteryCaveTier = mysteryCaveTier;
+  if (savedEntry?.mysteryCaveBestWave != null && savedEntry?.mysteryCaveBestWave !== "") {
+    fields.mysteryCaveBestWave = sanitizeMysteryCaveBestWave(savedEntry.mysteryCaveBestWave, mysteryCaveKills);
+  }
   const dura = sanitizeEntryDurability(savedEntry, item, isStackable);
   if (dura) {
     fields.maxDura = dura.maxDura;
@@ -165,12 +183,13 @@ export function sanitizeInventoryState(savedInventory = {}, savedHotbar = {}, co
     usedIds.add(id);
     const generatedId = /^item-(\d+)$/.exec(id)?.[1];
     if (generatedId) maxGeneratedId = Math.max(maxGeneratedId, Number(generatedId));
+    const itemId = migrateSavedItemId(savedEntry.itemId);
     const quantity = typeof maxStackForEntry === "function"
-      ? sanitizeEntryQuantity(savedEntry.quantity, maxStackForEntry(savedEntry))
+      ? sanitizeEntryQuantity(savedEntry.quantity, maxStackForEntry({ ...savedEntry, itemId }))
       : Math.max(1, Math.trunc(Number(savedEntry.quantity) || 1));
     items.push({
       id,
-      itemId: savedEntry.itemId,
+      itemId,
       quantity,
       slot: Number.isInteger(savedEntry.slot) ? savedEntry.slot : null,
       ...normalizeEntryFields(savedEntry),
@@ -248,12 +267,13 @@ export function sanitizeStorageState(savedStorage = {}, config) {
     usedIds.add(id);
     const generatedId = /^storage-item-(\d+)$/.exec(id)?.[1];
     if (generatedId) maxGeneratedId = Math.max(maxGeneratedId, Number(generatedId));
+    const itemId = migrateSavedItemId(savedEntry.itemId);
     const quantity = typeof maxStackForEntry === "function"
-      ? sanitizeEntryQuantity(savedEntry.quantity, maxStackForEntry(savedEntry))
+      ? sanitizeEntryQuantity(savedEntry.quantity, maxStackForEntry({ ...savedEntry, itemId }))
       : Math.max(1, Math.trunc(Number(savedEntry.quantity) || 1));
     items.push({
       id,
-      itemId: savedEntry.itemId,
+      itemId,
       quantity,
       slot: Number.isInteger(savedEntry.slot) ? savedEntry.slot : null,
       ...normalizeEntryFields(savedEntry),

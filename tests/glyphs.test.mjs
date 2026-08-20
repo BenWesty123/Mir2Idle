@@ -21,6 +21,7 @@ import {
   buildFrenziedDisruptorBuffState,
   frenziedDisruptorCastSpeedBonus,
   applyFrenziedDisruptorCastCooldownMs,
+  frenziedDisruptorAdjustedReadyAt,
   glyphFlamingSwordDrParams,
   glyphImprovedFlamingSwordParams,
   glyphFlamingSwordTriggersBladeAvalanche,
@@ -397,8 +398,10 @@ test("Slow Destruction glyph multiplies DC and nullifies attack speed", () => {
   );
 });
 
-test("Pet Might glyph adds owner Max DC", () => {
+test("Pet Might glyph adds owner Max DC to all Taoist pets", () => {
   const glyph = glyphDefById("taoPetOwnerDc");
+  assert.deepEqual(glyph?.spellIds, ["SummonSkeleton", "SummonShinsu", "SummonHolyDeva"]);
+  assert.match(glyph?.description ?? "", /physical power \(DC\)/i);
   assert.equal(glyphPetOwnerDcBonus(50, glyph), 50);
   assert.equal(glyphPetOwnerDcBonus(51, glyph), 51);
   assert.equal(glyphPetOwnerDcBonus(50, null), 0);
@@ -638,6 +641,13 @@ test("Frenzied Disruptor glyph halves FD cast time at proc then decays to normal
   assert.equal(frenziedDisruptorCastSpeedBonus(buff, now + 5000), 0);
   assert.equal(applyFrenziedDisruptorCastCooldownMs(1800, buff, now + 5000), 1800);
   assert.equal(applyFrenziedDisruptorCastCooldownMs(1800, null, now), 1800);
+  // Crit mid-recovery on an unbuffed cast: elapsed 500 of 1800 → buffed 900 → 400 remaining.
+  assert.equal(frenziedDisruptorAdjustedReadyAt(now + 1300, now, 1800, 900), now + 400);
+  assert.equal(frenziedDisruptorAdjustedReadyAt(now + 200, now, 1800, 900), now);
+  assert.equal(frenziedDisruptorAdjustedReadyAt(now, now, 1800, 900), now);
+  // Re-crit while already on the buffed CD must not collapse remaining time.
+  assert.equal(frenziedDisruptorAdjustedReadyAt(now + 400, now, 900, 900), now + 400);
+  assert.equal(frenziedDisruptorAdjustedReadyAt(now + 600, now, 1200, 900), now + 300);
 });
 
 test("Deep Frost glyph exposes boss Frost Crunch chances", () => {

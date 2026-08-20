@@ -1262,6 +1262,8 @@ export function sanitizeInnateSpellBonuses(bonuses) {
     if (undeadDamagePercent !== 0) entry.undeadDamagePercent = undeadDamagePercent;
     const petAttackSpeedPercent = Math.trunc(Number(row.petAttackSpeedPercent) || 0);
     if (petAttackSpeedPercent !== 0) entry.petAttackSpeedPercent = petAttackSpeedPercent;
+    const castSpeedPercent = Math.trunc(Number(row.castSpeedPercent) || 0);
+    if (castSpeedPercent !== 0) entry.castSpeedPercent = castSpeedPercent;
     const critChancePercent = Math.trunc(Number(row.critChancePercent) || 0);
     if (critChancePercent !== 0) entry.critChancePercent = critChancePercent;
     const critDamagePercent = Math.trunc(Number(row.critDamagePercent) || 0);
@@ -1274,7 +1276,7 @@ export function sanitizeInnateSpellBonuses(bonuses) {
 /**
  * Sum a field from equipped items' `innateSpellBonuses` (item definition, not entry empower).
  * @param {string | null | undefined} spellId
- * @param {"damagePercent" | "healingPercent" | "undeadDamagePercent" | "petAttackSpeedPercent" | "critChancePercent" | "critDamagePercent"} field
+ * @param {"damagePercent" | "healingPercent" | "undeadDamagePercent" | "petAttackSpeedPercent" | "castSpeedPercent" | "critChancePercent" | "critDamagePercent"} field
  * @param {object | null | undefined} inventory
  * @param {(itemId: string) => object | null | undefined} [resolveItem]
  */
@@ -1290,6 +1292,32 @@ export function equippedInnateSpellBonusPercent(spellId, field, inventory, resol
     total += Number(innate[id]?.[field]) || 0;
   }
   return total;
+}
+
+/**
+ * Unique Dragon Slayer: equipped item definition spends Warrior skill costs from HP.
+ * @param {object | null | undefined} inventory
+ * @param {(itemId: string) => object | null | undefined} [resolveItem]
+ */
+export function equippedWarriorSkillsCostHp(inventory, resolveItem = null) {
+  if (typeof resolveItem !== "function") return false;
+  const equippedIds = new Set(Object.values(inventory?.equipment ?? {}).filter(Boolean));
+  for (const entry of inventory?.items ?? []) {
+    if (!equippedIds.has(entry.id)) continue;
+    if (resolveItem(entry.itemId)?.innateWarriorSkillsCostHp) return true;
+  }
+  return false;
+}
+
+/**
+ * @param {object | null | undefined} item
+ * @returns {{ label: string, value: string }[]}
+ */
+export function innateItemEffectTooltipRows(item) {
+  if (item?.innateWarriorSkillsCostHp) {
+    return [{ label: "Unique", value: "Warrior skills cost HP instead of MP" }];
+  }
+  return [];
 }
 
 /**
@@ -1753,6 +1781,33 @@ export function applyEquippedPetAttackSpeedBonus(spellId, attackMs, inventory, r
 }
 
 /**
+ * Equipped innate cast-speed % for a spell (100 = twice as fast → half delay).
+ * @param {string | null | undefined} spellId
+ * @param {object | null | undefined} inventory
+ * @param {(itemId: string) => object | null | undefined} [resolveItem]
+ */
+export function equippedSpellCastSpeedBonusPercent(spellId, inventory, resolveItem = null) {
+  return equippedInnateSpellBonusPercent(spellId, "castSpeedPercent", inventory, resolveItem);
+}
+
+/**
+ * Apply innate cast-speed % to a spell's action lock / recharge.
+ * Floors at {@link spellCooldownFloorMs} so recasts cannot clip the body animation.
+ * @param {string | null | undefined} spellId
+ * @param {number} cooldownMs
+ * @param {object | null | undefined} inventory
+ * @param {(itemId: string) => object | null | undefined} [resolveItem]
+ */
+export function applyEquippedSpellCastSpeedMs(spellId, cooldownMs, inventory, resolveItem = null) {
+  const base = Math.max(0, Math.trunc(Number(cooldownMs) || 0));
+  const bonusPercent = equippedSpellCastSpeedBonusPercent(spellId, inventory, resolveItem);
+  if (bonusPercent <= 0) return base;
+  const sped = Math.trunc(base / (1 + bonusPercent / 100));
+  const floorMs = spellCooldownFloorMs(spellId);
+  return floorMs > 0 ? Math.max(floorMs, sped) : sped;
+}
+
+/**
  * Total per-spell crit-chance bonus (%) from equipped items for a given spell/skill.
  * Stacks on top of the character's global crit chance for that spell only.
  * @param {string | null | undefined} spellId
@@ -1880,8 +1935,26 @@ export function equippedSpellCooldownReductionSeconds(spellId, inventory) {
 export function applyEquippedSpellCooldownReductionMs(spellId, cooldownMs, inventory) {
   const base = Math.max(0, Math.trunc(Number(cooldownMs) || 0));
   const reductionSeconds = equippedSpellCooldownReductionSeconds(spellId, inventory);
-  if (reductionSeconds <= 0) return base;
-  return Math.max(0, base - reductionSeconds * 1000);
+  const reduced = reductionSeconds <= 0 ? base : Math.max(0, base - reductionSeconds * 1000);
+  const floorMs = spellCooldownFloorMs(spellId);
+  return floorMs > 0 ? Math.max(floorMs, reduced) : reduced;
+}
+
+/**
+ * Per-spell minimum cooldown after empower reductions (ms). Missing spells have no floor.
+ * Flaming Sword: stacked cube-swapped CD rolls can otherwise push near 1s.
+ */
+export const SPELL_COOLDOWN_FLOOR_MS = Object.freeze({
+  FlamingSword: 3000,
+  // Spell body clip is 6×100ms. Faster than this restarts the one-shot mid-pose.
+  GreatFireBall: 600,
+  SoulFireBall: 600,
+});
+
+/** @param {string | null | undefined} spellId */
+export function spellCooldownFloorMs(spellId) {
+  const floor = SPELL_COOLDOWN_FLOOR_MS[String(spellId ?? "")];
+  return floor > 0 ? Math.trunc(floor) : 0;
 }
 
 /** Hard cap on stacked pet damage-taken reduction so pets are never fully immune. */
@@ -2592,6 +2665,9 @@ export function innateSpellBonusLines(innateSpellBonuses) {
     if ((row.petAttackSpeedPercent || 0) !== 0) {
       lines.push(`+${row.petAttackSpeedPercent}% ${label} attack speed`);
     }
+    if ((row.castSpeedPercent || 0) !== 0) {
+      lines.push(`+${row.castSpeedPercent}% ${label} cast speed`);
+    }
     if ((row.critChancePercent || 0) !== 0) {
       lines.push(`+${row.critChancePercent}% ${label} crit chance`);
     }
@@ -2622,6 +2698,9 @@ export function innateSpellBonusTooltipRows(innateSpellBonuses) {
     }
     if ((row.petAttackSpeedPercent || 0) !== 0) {
       rows.push({ label, value: `+${row.petAttackSpeedPercent}% attack speed` });
+    }
+    if ((row.castSpeedPercent || 0) !== 0) {
+      rows.push({ label, value: `+${row.castSpeedPercent}% cast speed` });
     }
     if ((row.critChancePercent || 0) !== 0) {
       rows.push({ label, value: `+${row.critChancePercent}% crit chance` });

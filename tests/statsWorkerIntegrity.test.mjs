@@ -16,6 +16,20 @@ function emptyStats() {
   };
 }
 
+// The shape the worker stores: every bonus-stat key present, zero-filled.
+function emptyStoredStats() {
+  return {
+    dc: [0, 0], mc: [0, 0], sc: [0, 0], ac: [0, 0], amc: [0, 0],
+    hp: 0, mp: 0, accuracy: 0, agility: 0, luck: 0, attackSpeed: 0,
+    poisonAttack: 0, freezing: 0, magicResist: 0, poisonResist: 0,
+    healthRecovery: 0, poisonRecovery: 0, strong: 0, xpBonusPercent: 0,
+    goldBonusPercent: 0, bonusAwakeningSoulChancePercent: 0,
+    damageTakenReductionPercent: 0, critChancePercent: 0, critDamagePercent: 0,
+    skillLevelBonusPercent: 0, potionRestoreBonusPercent: 0,
+    dropChanceBonusPercent: 0,
+  };
+}
+
 const weaponId = Object.keys(ITEM_RULES).find((id) => ITEM_RULES[id].slots.includes("weapon"));
 
 function equipmentEntry(overrides = {}) {
@@ -90,6 +104,32 @@ test("legal current payload is stored as clear", async () => {
   const response = await postStats(db, payload());
   assert.equal(response.status, 200);
   assert.equal(insertStatus(db), "clear");
+});
+
+// The client omits zero-valued bonus stats to stay under the browser's 64 KiB
+// keepalive quota, so a sparse payload must round-trip to the same stored gear
+// and must not read as a different (cheating) item than the padded form did.
+test("omitted zero-valued bonus stats round-trip to zero defaults and stay clear", async () => {
+  const db = new FakeDb();
+  const entry = equipmentEntry({ bonusStats: {}, smithBonusStats: {}, empowerBonusStats: {} });
+  const response = await postStats(db, payload(entry));
+  assert.equal(response.status, 200);
+  assert.equal(insertStatus(db), "clear");
+  const insert = db.queries.find((query) => /INSERT INTO leaderboard/.test(query.sql));
+  const stored = JSON.parse(insert.args[14])[0].equipment.weapon;
+  assert.deepEqual(stored.bonusStats, emptyStoredStats());
+  assert.deepEqual(stored.smithBonusStats, emptyStoredStats());
+  assert.deepEqual(stored.empowerBonusStats, emptyStoredStats());
+});
+
+test("potionRestoreBonusPercent survives into another player's Social view", async () => {
+  const db = new FakeDb();
+  const entry = equipmentEntry({ bonusStats: { potionRestoreBonusPercent: 15 } });
+  const response = await postStats(db, payload(entry));
+  assert.equal(response.status, 200);
+  const insert = db.queries.find((query) => /INSERT INTO leaderboard/.test(query.sql));
+  const stored = JSON.parse(insert.args[14])[0].equipment.weapon;
+  assert.equal(stored.bonusStats.potionRestoreBonusPercent, 15);
 });
 
 test("awakening souls upsert stores the current held count, not a lifetime max", async () => {

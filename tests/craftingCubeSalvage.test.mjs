@@ -13,6 +13,9 @@ import {
   CRAFTING_CUBE_EMPOWER_SWAP_REQUIREMENTS_ERROR,
   CRAFTING_CUBE_DD_SOUL_RECIPE_ID,
   CRAFTING_CUBE_DD_SOUL_REQUIREMENTS_ERROR,
+  CRAFTING_CUBE_MYSTERY_CAVE_TICKET_MATERIALS,
+  CRAFTING_CUBE_MYSTERY_CAVE_TICKET_RECIPE_ID,
+  CRAFTING_CUBE_MYSTERY_CAVE_TICKET_REQUIREMENTS_ERROR,
   CRAFTING_CUBE_GLYPH_RECYCLE_RECIPE_ID,
   CRAFTING_CUBE_GLYPH_RECYCLE_REQUIREMENTS_ERROR,
   CRAFTING_CUBE_IWT_SOUL_HEART_COST,
@@ -37,6 +40,7 @@ import {
   ZUMA_RELIC_ITEM_ID,
   RUBY_ORE_ITEM_ID,
   EMERALD_ORE_ITEM_ID,
+  SILVER_ORE_ITEM_ID,
   OFFENSIVE_ATTUNEMENT_STONE_ITEM_ID,
   CRAFTING_CUBE_OFFENSIVE_ATTUNEMENT_STONE_RECIPE_ID,
   craftingCubeAutofillEntryIds,
@@ -48,6 +52,7 @@ import {
   validateCraftingCubeGlyphRecycle,
   validateCraftingCubeIwtSoulCraft,
   validateCraftingCubeIztSoulCraft,
+  validateCraftingCubeMysteryCaveTicketCraft,
   validateCraftingCubeSalvageEntries,
   validateCraftingCubeTargetedEmpowerReroll,
   validateCraftingCubeTargetedEmpowerSwap,
@@ -414,6 +419,62 @@ test("autofill pulls materials for dd soul recipe", () => {
     resolveItem,
   );
   assert.deepEqual(picks, ["e-stone", "e-tooth"]);
+});
+
+function mysteryCaveSoulBoard(missingId = null, extra = null) {
+  const defs = {
+    [WOOMA_HEART_ITEM_ID]: WOOMA_HEART,
+    [ZUMA_RELIC_ITEM_ID]: ZUMA_RELIC,
+  };
+  const rows = CRAFTING_CUBE_MYSTERY_CAVE_TICKET_MATERIALS
+    .filter((mat) => mat.itemId !== missingId)
+    .map((mat, index) => {
+      const item = defs[mat.itemId] ?? { id: mat.itemId, name: mat.label, type: "ore" };
+      return { entry: { id: `e-${index}`, itemId: mat.itemId, quantity: 1 }, item };
+    });
+  if (extra) rows.push(extra);
+  return rows;
+}
+
+test("mystery cave ticket craft accepts heart, relic, and one of each listed ore", () => {
+  const result = validateCraftingCubeMysteryCaveTicketCraft(mysteryCaveSoulBoard());
+  assert.equal(result.ok, true);
+  assert.equal(Object.keys(result.entriesByItemId).length, 9);
+});
+
+test("mystery cave ticket craft rejects a missing ore", () => {
+  const result = validateCraftingCubeMysteryCaveTicketCraft(mysteryCaveSoulBoard(SILVER_ORE_ITEM_ID));
+  assert.equal(result.ok, false);
+  assert.equal(result.error, CRAFTING_CUBE_MYSTERY_CAVE_TICKET_REQUIREMENTS_ERROR);
+});
+
+test("mystery cave ticket craft rejects extra items", () => {
+  const result = validateCraftingCubeMysteryCaveTicketCraft(mysteryCaveSoulBoard(null, {
+    entry: { id: "e-extra", itemId: HAVOC_CRYSTAL_ITEM_ID, quantity: 1 },
+    item: HAVOC_CRYSTAL,
+  }));
+  assert.equal(result.ok, false);
+  assert.equal(result.error, CRAFTING_CUBE_MYSTERY_CAVE_TICKET_REQUIREMENTS_ERROR);
+});
+
+test("autofill pulls all nine mystery cave ticket materials", () => {
+  const extra = { id: "e-crystal", itemId: HAVOC_CRYSTAL_ITEM_ID, quantity: 4 };
+  const entries = CRAFTING_CUBE_MYSTERY_CAVE_TICKET_MATERIALS.map((mat, index) => ({
+    id: `e-${mat.itemId}`,
+    itemId: mat.itemId,
+    quantity: 1,
+  }));
+  entries.push(extra);
+  const resolveItem = (itemId) => ({ id: itemId });
+  const picks = craftingCubeAutofillEntryIds(
+    CRAFTING_CUBE_MYSTERY_CAVE_TICKET_RECIPE_ID,
+    entries,
+    resolveItem,
+  );
+  assert.deepEqual(
+    picks,
+    CRAFTING_CUBE_MYSTERY_CAVE_TICKET_MATERIALS.map((mat) => `e-${mat.itemId}`),
+  );
 });
 
 const GLYPH_A = { id: "glyph-spirit-wards", slot: "glyph", type: "glyph", name: "Glyph of Spirit Wards" };

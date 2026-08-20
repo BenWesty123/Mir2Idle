@@ -34,6 +34,19 @@ test("normalizeInventoryEntryFields: preserves inventory mark", () => {
   assert.equal(normalizeInventoryEntryFields({ inventoryMark: "bogus" }, item, stackable).inventoryMark, null);
 });
 
+test("normalizeInventoryEntryFields: preserves Mystery Cave chest kills and tier", () => {
+  const item = { id: "mystery-cave-chest", stackable: false };
+  const awakened = normalizeInventoryEntryFields({ mysteryCaveKills: 23, mysteryCaveTier: 3 }, item, stackable);
+  assert.equal(awakened.mysteryCaveKills, 23);
+  assert.equal(awakened.mysteryCaveTier, 3);
+  assert.equal(normalizeInventoryEntryFields({ mysteryCaveWaves: 18 }, item, stackable).mysteryCaveKills, 18);
+  assert.equal(normalizeInventoryEntryFields({ mysteryCaveWaves: 18 }, item, stackable).mysteryCaveTier, undefined);
+  assert.equal(normalizeInventoryEntryFields({ mysteryCaveKills: 2.9 }, item, stackable).mysteryCaveKills, 2);
+  assert.equal(normalizeInventoryEntryFields({}, item, stackable).mysteryCaveKills, undefined);
+  assert.equal(normalizeInventoryEntryFields({ mysteryCaveKills: 6, mysteryCaveBestWave: 5 }, item, stackable).mysteryCaveBestWave, 5);
+  assert.equal(normalizeInventoryEntryFields({ mysteryCaveKills: 1, mysteryCaveBestWave: 0 }, item, stackable).mysteryCaveBestWave, 0);
+});
+
 test("normalizeInventoryEntryFields: bonus stats and durability", () => {
   const item = { id: "sword", durability: 100, stackable: false };
   const fields = normalizeInventoryEntryFields(
@@ -107,6 +120,27 @@ test("sanitizeInventoryState: preserves Organisation Skills gem stacks (max 99)"
   );
   assert.equal(inventory.items.find((entry) => entry.id === "item-1")?.quantity, 47);
   assert.equal(inventory.items.find((entry) => entry.id === "item-2")?.quantity, 1);
+});
+
+test("sanitizeInventoryState: remaps mystery-cave-soul to mystery-cave-ticket", () => {
+  const inventory = sanitizeInventoryState(
+    {
+      gold: 0,
+      items: [{ id: "item-1", itemId: "mystery-cave-soul", quantity: 3 }],
+      equipment: {},
+    },
+    { slots: [] },
+    {
+      equipmentSlotIds,
+      pageSize: 40,
+      maxSlots: 80,
+      maxPages: 2,
+      normalizeEntryFields: () => ({}),
+      maxStackForEntry: (savedEntry) => (savedEntry.itemId === "mystery-cave-ticket" ? 64 : 1),
+    },
+  );
+  assert.equal(inventory.items[0]?.itemId, "mystery-cave-ticket");
+  assert.equal(inventory.items[0]?.quantity, 3);
 });
 
 test("sanitizeInventoryState: clamps non-stackable quantity via maxStackForEntry", () => {

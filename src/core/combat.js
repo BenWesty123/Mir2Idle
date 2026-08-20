@@ -267,8 +267,24 @@ function withEnemyDamage(events, amount, kind = "physical", options = {}) {
   return [...damageEvents, ...events];
 }
 
+/**
+ * Hard cap on stacked player/party additive damage reduction (gear empower
+ * "damage taken −%", Magic Shield, Flaming Bulwark, etc.). Glyph of Tank /
+ * Glass Canon apply as a separate multiplier after this bucket. Matches the
+ * Tao pet DR philosophy: stack deep, never reach full immunity.
+ */
+export const PLAYER_DAMAGE_REDUCTION_CAP_PERCENT = 75;
+
+/** Clamp additive incoming DR percent points to [0, {@link PLAYER_DAMAGE_REDUCTION_CAP_PERCENT}]. */
+export function clampIncomingDamageReductionPercent(reductionPercent) {
+  return Math.max(
+    0,
+    Math.min(PLAYER_DAMAGE_REDUCTION_CAP_PERCENT, Math.trunc(Number(reductionPercent) || 0)),
+  );
+}
+
 export function applyIncomingDamageReduction(damage, reductionPercent) {
-  const percent = Math.max(0, Math.min(100, Math.trunc(Number(reductionPercent) || 0)));
+  const percent = clampIncomingDamageReductionPercent(reductionPercent);
   if (percent <= 0) return Math.max(0, Math.trunc(Number(damage) || 0));
   const amount = Math.max(0, Math.trunc(Number(damage) || 0));
   return Math.max(0, Math.trunc(amount - (amount * percent) / 100));
@@ -352,6 +368,15 @@ export function resolveIncomingEnemyRangedAttack(attacker, target, options = {})
     ...options,
     rangedAttackDefenceType: rangedType,
   });
+}
+
+/** Split a damage packet into `count` integer shares that sum back to `total`. */
+export function splitIntegerEvenly(total, count) {
+  const n = Math.max(1, Math.trunc(Number(count) || 0));
+  const amount = Math.max(0, Math.trunc(Number(total) || 0));
+  const base = Math.floor(amount / n);
+  const remainder = amount % n;
+  return Array.from({ length: n }, (_, index) => base + (index < remainder ? 1 : 0));
 }
 
 /**
@@ -632,4 +657,60 @@ export function poisonResistedEvents(spellLabel, targetName, poisonKind) {
 export function poisonTickDamageEvents(poisonKind, damage) {
   if (poisonKind !== "green" || damage <= 0) return [];
   return [enemyDamageEvent(damage, { kind: "poison" })];
+}
+
+/** Static wizard autocast order (also used for slot assignment). */
+export const WIZARD_AUTO_SPELL_ORDER = [
+  "MagicShield",
+  "MagicBooster",
+  "Mirroring",
+  "TurnUndead",
+  "MeteorStrike",
+  "Blizzard",
+  "FireWall",
+  "IceStorm",
+  "FlameField",
+  "FlameDisruptor",
+  "Vampirism",
+  "GreatFireBall",
+  "FrostCrunch",
+  "FireBall",
+  "ThunderBolt",
+];
+
+/** Below this HP ratio, Vampirism outranks every other wizard damage spell. */
+export const WIZARD_VAMPIRISM_PRIORITY_HP_RATIO = 0.8;
+
+/**
+ * @param {string} spellId
+ * @param {string[]} [order]
+ */
+export function wizardAutoPriority(spellId, order = WIZARD_AUTO_SPELL_ORDER) {
+  const index = order.indexOf(spellId);
+  return index === -1 ? order.length : index;
+}
+
+/**
+ * @param {{ hp?: number, maxHp?: number } | null | undefined} entity
+ * @param {number} [hpRatio]
+ */
+export function wizardNeedsVampirismHeal(entity, hpRatio = WIZARD_VAMPIRISM_PRIORITY_HP_RATIO) {
+  const hp = Number(entity?.hp) || 0;
+  const maxHp = Number(entity?.maxHp) || 0;
+  return maxHp > 0 && hp / maxHp < hpRatio;
+}
+
+/**
+ * Combat-time wizard autocast order. Support buffs stay first. Below 80% HP,
+ * Vampirism jumps ahead of every damage spell (TurnUndead and below).
+ *
+ * @param {string} spellId
+ * @param {{ hp?: number, maxHp?: number } | null | undefined} entity
+ * @param {string[]} [order]
+ */
+export function wizardCombatAutoPriority(spellId, entity, order = WIZARD_AUTO_SPELL_ORDER) {
+  const base = wizardAutoPriority(spellId, order);
+  if (spellId !== "Vampirism" || !wizardNeedsVampirismHeal(entity)) return base;
+  const firstDamageIndex = order.indexOf("TurnUndead");
+  return (firstDamageIndex === -1 ? 0 : firstDamageIndex) - 0.5;
 }

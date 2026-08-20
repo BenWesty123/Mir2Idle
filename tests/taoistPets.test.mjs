@@ -4,6 +4,8 @@ import test from "node:test";
 
 import {
   crystalHolyDevaStats,
+  HOLY_DEVA_DAMAGE_MULTIPLIER,
+  holyDevaAttackStatFromOwnerSc,
   isTaoistTankSummonSpellId,
   prepareTaoistTankPetRecall,
   prepareTaoistTankPetStash,
@@ -72,6 +74,14 @@ test("Holy Deva spell level three summons pet level seven with 25% buff", () => 
 test("Holy Deva spell levels are clamped to Crystal's zero-to-three range", () => {
   assert.equal(crystalHolyDevaStats(baseStats, -4).level, 0);
   assert.equal(crystalHolyDevaStats(baseStats, 99).level, 7);
+});
+
+test("Holy Deva attack range is owner SC times the damage multiplier", () => {
+  assert.equal(HOLY_DEVA_DAMAGE_MULTIPLIER, 2);
+  assert.deepEqual(holyDevaAttackStatFromOwnerSc([40, 80]), [80, 160]);
+  assert.deepEqual(holyDevaAttackStatFromOwnerSc([0, 0]), [0, 0]);
+  assert.deepEqual(holyDevaAttackStatFromOwnerSc([25, 25], 2), [50, 50]);
+  assert.deepEqual(holyDevaAttackStatFromOwnerSc([10, 5]), [20, 20]);
 });
 
 test("living and pending Holy Devas persist between solo enemies", () => {

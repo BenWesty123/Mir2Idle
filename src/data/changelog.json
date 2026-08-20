@@ -1,91 +1,53 @@
 {
   "entries": [
     {
-      "id": "2026-08-09-mana-aegis-half-dr",
-      "date": "2026-08-09",
-      "title": "Mana Aegis retune",
+      "id": "2026-08-20-awakened-dragon-slayer",
+      "date": "2026-08-20",
+      "title": "Awakened Dragon Slayer",
       "highlights": [
-        "Glyph of Mana Aegis now keeps Magic Shield at half damage reduction (instead of removing it) while still draining mana before health."
+        "Added Awakened Dragon Slayer, a Minotaur King Awakened exclusive. While equipped, every hit crits and Warrior skills spend HP instead of MP."
       ]
     },
     {
-      "id": "2026-08-09-glyph-angelic-deva",
-      "date": "2026-08-09",
-      "title": "Glyph of Angelic Deva",
+      "id": "2026-08-20-awakened-soul-sabre",
+      "date": "2026-08-20",
+      "title": "Awakened Soul Sabre",
       "highlights": [
-        "Added Glyph of Angelic Deva (Taoist) — Holy Deva no longer attacks; it casts Mass Healing using your Mass Healing proficiency instead."
+        "Added Awakened Soul Sabre, a Bone Lord Awakened exclusive. Soul Fire Ball deals +100% damage and casts at the fastest speed the animation can hold."
       ]
     },
     {
-      "id": "2026-08-09-glyph-deep-frost",
-      "date": "2026-08-09",
-      "title": "Glyph of Deep Frost",
+      "id": "2026-08-20-awakened-dragon-staff",
+      "date": "2026-08-20",
+      "title": "Awakened Dragon Staff",
       "highlights": [
-        "Added Glyph of Deep Frost (Wizard) — Frost Crunch can slow/freeze bosses at 15%/5% on hit (no refresh while active)."
+        "Added Awakened Dragon Staff, a Bone Lord Awakened exclusive. Great Fire Ball deals +100% damage and casts at the fastest speed the animation can hold."
       ]
     },
     {
-      "id": "2026-08-09-glyph-vitality",
-      "date": "2026-08-09",
-      "title": "Glyph of Vitality",
+      "id": "2026-08-19-past-bicheon-mystery-cave",
+      "date": "2026-08-19",
+      "title": "Past Bicheon & Mystery Cave",
       "highlights": [
-        "Added Glyph of Vitality (all classes) — doubles maximum health, but blocks Sun Potions (and future sun-family restoratives like Old Ginseng)."
+        "Added Past Bicheon group dungeon with Frost Tiger and Oma King. Designed to be incredibly difficult and end game. Evil Mir to come soon.",
+        "Added new items and spell books for Frost Tiger and Oma King drops.",
+        "Added Mystery Cave. Craft a Mystery Cave Ticket to run a boss swarm. Wipe or clear for a chest with a choice of rewards.",
+        "Vampirism casts first when the Wizard is below 80% HP."
       ]
     },
     {
-      "id": "2026-08-08-glyph-blade-momentum",
-      "date": "2026-08-08",
-      "title": "Glyph of Blade Momentum",
+      "id": "2026-08-10-armoury-glyphs-balance",
+      "date": "2026-08-10",
+      "title": "Armoury, glyphs & balance",
       "highlights": [
-        "Added Glyph of Blade Momentum (Warrior) — each Twin Drake Blade hit grants +1 attack speed (capped by the normal swing floor). Missing, casting any other warrior skill, or swinging normally resets the bonus."
-      ]
-    },
-    {
-      "id": "2026-08-08-glyph-frenzied-disruptor",
-      "date": "2026-08-08",
-      "title": "Glyph of Frenzied Disruptor",
-      "highlights": [
-        "Added Glyph of Frenzied Disruptor (Wizard) — Flame Disruptor crits grant +100% FD casting speed that fades back to normal over 5 seconds."
-      ]
-    },
-    {
-      "id": "2026-08-08-glyph-flaming-avalanche",
-      "date": "2026-08-08",
-      "title": "Glyph of Flaming Avalanche",
-      "highlights": [
-        "Added Glyph of Flaming Avalanche (Warrior) — Flaming Sword also unleashes Blade Avalanche if learned (no extra MP/cooldown)."
-      ]
-    },
-    {
-      "id": "2026-08-08-glyph-slow-destruction",
-      "date": "2026-08-08",
-      "title": "Glyph of Slow Destruction",
-      "highlights": [
-        "Added Glyph of Slow Destruction (Warrior) — DC ×2.5, but attack speed no longer affects swing timing (including Twin Drake / Half Moon)."
-      ]
-    },
-    {
-      "id": "2026-08-07-cloud-restore-grace",
-      "date": "2026-08-07",
-      "title": "Cloud restore grace period",
-      "highlights": [
+        "Added Armoury kits at Blacksmith Bill — save and swap gear kits in town (2 free per character; 3rd kit in the Cash Shop for 300 tokens).",
+        "Added 9 new glyphs.",
+        "Added a fourth glyph equip slot (Rebirth upgrade, 750 RP).",
+        "Glyph of Mana Aegis now keeps Magic Shield at half damage reduction instead of removing it.",
+        "Flaming Sword cooldown can no longer drop below 3 seconds.",
+        "Holy Deva thunder now scales from your SC (×2) instead of a fixed pet DC.",
+        "Additive damage reduction is now capped at 75%.",
         "Automatic cloud backups now wait 2 minutes after opening the game or tabbing back in, so you can restore from another device first without overwriting the newer save."
-      ]
-    },
-    {
-      "id": "2026-08-06-glyph-demonic-deva",
-      "date": "2026-08-06",
-      "title": "Glyph of Demonic Deva",
-      "highlights": [
-        "Added Glyph of Demonic Deva (Taoist) — Holy Deva deals 150% damage in an Ice Storm-sized AOE with map lightning bolts. Tradeoff: cannot cast Healing, Mass Healing, or Healing Circle."
-      ]
-    },
-    {
-      "id": "2026-08-06-glyph-efficient-learning",
-      "date": "2026-08-06",
-      "title": "Glyph of Efficient Learning",
-      "highlights": [
-        "Added Glyph of Efficient Learning — doubles spell skill practice XP (stacks with Skill Leveling gear)."
       ]
     },
     {

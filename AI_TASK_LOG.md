@@ -1,5 +1,857 @@
 # AI Task Log - LOM Idle V2
 
+## 2026-08-20 - Unique awakened boss drops
+
+Awakened Soul Sabre 1% on Bone Lord `awakenedItems` (exact, not ×4), sharing
+that pool with Awakened Dragon Staff. Awakened Dragon Slayer 1% on Minotaur
+King only — not copied onto Red Moon Evil.
+
+### Verify
+- `npm.cmd run check`
+
+## 2026-08-20 - Awakened Dragon Slayer
+
+Warrior unique (glow 20, weapon shape 29). Same DC 5–40 as Dragon Slayer, plus
+`stats.critChancePercent: 100` (existing combat cap). `innateWarriorSkillsCostHp`
+makes every Warrior skill pay HP instead of MP while equipped — solo, party,
+offline, and the training room. Afford/spend go through `warriorCanPaySkillCost`
+/ `spendWarriorSkillCost`. Spending HP to 0 kills (party marks the member dead;
+offline sim just stops). No boss drop yet.
+
+### Verify
+- `npm.cmd run check` (+ smoke)
+
+## 2026-08-20 - Awakened Soul Sabre
+
+Taoist sibling of Awakened Dragon Staff. **Awakened Soul Sabre** (glow 19,
+weapon shape 31). Flat SC 20–20 (base is 3–5). Innate Soul Fire Ball +100%
+damage and +200% cast speed (1800ms → 600ms spell-body floor). Recharge goes
+through `setLearnedSpellCastReadyAt`; live/offline/boss-party action locks use
+`taoistSpellActionLockMs`. Secondary SFB already waits on the in-flight
+projectile. No boss drop yet.
+
+### Verify
+- `npm.cmd run check` (+ smoke)
+
+## 2026-08-20 - Awakened Dragon Staff
+
+Added the next Unique / Awakened weapon: **Awakened Dragon Staff** (glow 1,
+weapon shape 30). Flat MC 20–20. Innate Great Fire Ball +100% damage and
++200% cast speed (Crystal 1800ms lock down to the 6×100ms spell-body floor).
+Recasting sooner restarts the one-shot pose, so live combat skips the GFB impact-flash
+lock and waits on the in-flight projectile instead of falling through to melee.
+
+Bone Lord `awakenedItems` at 1% (exact, not ×4). Temp Alchemist test stock
+(staff + Great Fire Ball book) was removed after testing.
+
+### Verify
+- `npm.cmd run check` (+ smoke)
+
+## 2026-08-19 - Taoist offline pin was mis-recorded, not a regression
+
+`npm run check` failed on `taoist-bicheon` (expected 40 kills, got 39; xp/gold/
+damage all follow from the one kill). Bisected by reverting files and re-running
+the fixture:
+
+- Modified data files reverted -> still 39. Monolith reverted -> still 39.
+- **Clean HEAD -> still 39**, so nothing in the Past Bicheon / Mystery Cave work
+  touched it.
+- The current run matches the pin committed on Aug 9 (`066bed9`) byte for byte:
+  39 / 433 / 207 / hp 119 / damage 11.
+- Commit `7706990` (Aug 15, "as branch name suggests") re-recorded the pin to
+  40 / 434 / 210 / hp 116 / damage 14 alongside 1,328 lines of monolith changes.
+  That value does not reproduce at that commit either - it was recorded from an
+  intermediate state that did not survive to the commit.
+
+Restored the pin from `066bed9`. Offline Taoist behaviour is unchanged since
+Aug 9; only the expected file was out of step. All four offline pins pass.
+
+## 2026-08-19 - Pages deploy rejected: 30 MiB mapstamps index
+
+`wrangler pages deploy` failed with "Pages only supports files up to 25 MiB in
+size — public/mapstamps/index.json is 30.2 MiB" *after* a green
+`release:itch`. The stamp builders write that index with `ConvertTo-Json`, which
+pretty-prints; 61 stamps of per-cell `layers`/`assets` made indentation ~83% of
+the file. The game fetches the whole index at boot, so this was also 26 MiB of
+dead weight per player.
+
+- `tools/compact-mapstamps-index.mjs` + `npm run compact:mapstamps`: minifies
+  the index in place (30.21 MiB -> 5.17 MiB, verified data-identical).
+- `tools/package-itch.mjs`: `PAGES_MAX_FILE_BYTES` (25 MiB) now fails packaging
+  per file and names the offender; the old itch 200 MB per-file check was
+  useless for Pages. "Largest file" log line now prints the path.
+- `AGENTS.md` / `COOKBOOK.md`: run `compact:mapstamps` after rebuilding a stamp.
+- `MAP_STAMP_ASSET_VERSION` needs no bump: it already reads
+  `20260819-mystery-cave-161-81`, which is new since the last deploy.
+
+Note: `git checkout -- public/mapstamps/index.json` while A/B testing dropped
+the uncommitted `mystery-cave-center` entry. Recovered byte-identical from
+`dist/lom-idle-v2-itch-20260819-172208.zip` (61 stamps, entry present).
+
+## 2026-08-19 - What's New collapsed for release
+
+Replaced the five post-Armoury changelog entries with one player-facing
+`Past Bicheon & Mystery Cave` note (Past Bicheon, loot, Mystery Cave ticket
+chest, Vampirism).
+
+## 2026-08-19 - Past Bicheon teleporter chain
+
+Mysterious Stone `TELEPORT_REGIONS.past-bicheon` now lists only
+`zone-past-bicheon-gd-1`. Floors 2–5 stay on `groupDungeon: "past-bicheon"`
+and are reached with Advance (`groupDungeonNextFloorZone`), same as Hell
+Cavern.
+
+## 2026-08-19 - Mystery Cave off the Mystery Stone
+
+Mystery Cave is no longer a top-level Mystery Stone destination. Entry is
+the crafted Mystery Cave Ticket.
+
+## 2026-08-19 - Mystery Cave chest tooltip
+
+Chest hover is short: choose a reward from this run, plus “11 Ascended bosses slain.”
+
+## 2026-08-19 - Mystery Cave Ticket craft
+
+Crafting Cube recipe `mystery-cave-ticket` (KR 입장권 icon, Items frame 3110):
+1 Wooma Heart, 1 Zuma Relic, and 1 of each Ruby / Emerald / Amethyst /
+Adamantine / Gold / Copper / Silver Ore. Double-click opens Mystery Cave;
+consumed on Enter. Saves with `mystery-cave-soul` remap to the ticket.
+
+## 2026-08-19 - Mystery Cave stand (161, 81)
+
+Nudged the M001 party stand 2 tiles east of (159, 81). Rebuilt
+`mystery-cave-center` with crop (143, 63) 36x36.
+
+## 2026-08-19 - Mystery Cave stand (159, 81)
+
+Nudged the M001 party stand 3 tiles south of (159, 78). Rebuilt
+`mystery-cave-center` with crop (141, 63) 36x36.
+
+## 2026-08-19 - Mystery Cave stand (159, 78)
+
+Nudged the M001 party stand 5 tiles east of (154, 78). Rebuilt
+`mystery-cave-center` with crop (141, 60) 36x36.
+
+## 2026-08-19 - Mystery Cave stand (154, 78)
+
+Moved the M001 party stand from (42, 158) to picker pick (154, 78). Rebuilt
+`mystery-cave-center` with crop (136, 60) 36x36.
+
+## 2026-08-19 - Mystery Cave uses Crystal M001
+
+The gauntlet was standing on Red Cavern KR (`RCK.map` 63, 85). It now uses
+Crystal `M001.map` (MysteryCave) at a cave pocket (42, 158) with a clear east
+walk-in. Stamp: `mystery-cave-center` from `tools/build-mystery-cave-stamp.ps1`.
+
+## 2026-08-19 - Mystery Cave difficulties are free
+
+Empowered / Ascended / Awakened Mystery Cave no longer charges gold. Cost
+helpers return 0 only for `zone-mystery-cave`; solo bosses and group dungeons
+keep 100k/300k/1M and 300k/1M/3M. Entry note and combat log skip the paid line.
+
+## 2026-08-19 - Mystery Cave teleport entry trimmed
+
+The boss-entry popup no longer dumps spawn timers, live HP, pack notes, or the
+Spawns/Party/Bosses strip. Players see a one-line how-it-works line, a
+name-only roster, then party and Empowered/Ascended/Awakened as before.
+
+## 2026-08-18 - Mystery Cave chest can pay Havoc Crystals
+
+Chest picker now includes Havoc Crystals: 1 per boss slain, then ×2 / ×3 / ×4
+for Empowered / Ascended / Awakened. Stacks to 64. Bag-full leaves the chest
+unopened.
+
+## 2026-08-18 - Mystery Cave EXP uses player XP rate, 10x sheet
+
+Chest EXP is kills × furthest-boss XP × difficulty × 10, then the same XP
+rate as kills: rebirth, achievements, equipped xpBonusPercent, supporter, and
+the testing multiplier. No monster-level penalty. The picker shows the
+modified amount. 10× (not 25×) because those bonuses already inflate a
+finished character's payout.
+
+## 2026-08-18 - Mystery Cave EXP chest is 25x sheet XP
+
+Chest EXP is now kills × furthest-boss template XP × difficulty × 25. A full
+Awakened clear is 92M, about one level 50 bar (87.5M). An 8-kill Yimoogi run
+is 4M Normal / 16M Awakened.
+
+## 2026-08-18 - Mystery Cave chest can pay EXP
+
+Chest picker now includes EXP: kills × the template XP of the furthest boss
+slain that run, then ×2 / ×3 / ×4 for Empowered / Ascended / Awakened. 8 kills
+is 8 × Yimoogi (20,000) = 160,000 on Normal. Pack waves use the highest XP on
+that wave (Dark Devourer over Dream, IZT over the Red Thunder adds). No
+level-diff or gear XP bonus — the sheet value times kills times tier. Goes to
+the character opening the chest.
+
+## 2026-08-18 - Mystery Cave empowered equipment was auto-junked
+
+Equipment from the chest was added as a plain item, auto-junk marked it, then
+the empower roll ran on the already-tagged entry. Empower now rolls first and
+is written onto the entry before it enters the bag, so auto-junk sees the
+stars and skips it.
+
+## 2026-08-18 - Mystery Cave chest can pay equipment
+
+Chest picker now includes Equipment: 1 equipable item per boss slain, all
+rolled from the drop table of the furthest (highest-wave) boss killed that
+run. Full clear = 23 rolls from Oma King; 6 kills = 6 rolls from Minotaur
+King. Pool is weapons/armour/jewellery/stones/etc — no souls, potions, books,
+gems, or orbs. Glyphs use the live boss chances (Empowered 10% / Ascended 15%
+/ Awakened 20%) and replace that kill's table pick so the grant stays 1 per
+kill. Item empower uses the live boss chances too (20% / 30% / 40% plus the
+rebirth empower-drop upgrade) and the Ascended/Awakened star tables.
+
+The chest stores `mysteryCaveBestWave` so out-of-order pack kills still use
+the hardest boss actually slain. Old chests without that field infer the wave
+from kill count (spawn order).
+
+## 2026-08-18 - Mystery Cave waves reordered by difficulty
+
+`MYSTERY_CAVE_SPAWN_WAVES` was ordered roughly by overworld zone, which left
+four waves badly out of place: the Devourers (5th hardest wave) sat 7th between
+two sub-1,400 fights, King Scorpion (4th easiest) sat 8th right after them, the
+mechanic-less Oma King Spirit sat 13th, and Danmo came before Beast King despite
+8.7x the threat.
+
+Waves are now sorted by pack HP x sustained DPS (biggest damage line / attack
+speed, summed across the pack). Drop-table gold was checked as a reward signal
+and rejected — it flattens at 35,000 from Oma King Spirit upward and Dark Devil
+is the highest at 45,000, so it does not track difficulty.
+
+New order: Evil Snake, Wooma Taurus, Bone Lord, Zuma Taurus, King Scorpion,
+Minotaur King, Oma King Spirit, Yimoogi, 3x IWT, King Hog, IZT pack,
+Devourers, Dark Devil, Manectric King, Beast King, Danmo, Frost Tiger,
+Oma King. IWT sits immediately before King Hog and IZT immediately after.
+
+Three hand-placed exceptions to the raw score: King Scorpion sits above Zuma
+Taurus for its enrage kit; the Devourers drop from a raw 5th to mid-pack because
+they are only 10k HP each and melt; Beast King is placed next to Danmo on time
+cost (150k HP, ~28 DPS) rather than by its low damage score.
+
+Also updated the `zone-mystery-cave` `enemyIds` list to match (cosmetic —
+spawning is driven by the wave queue) and regenerated `src/data/zones.json`.
+The test that pinned BDD floor order was replaced with one pinning the new
+difficulty order.
+
+## 2026-08-18 - Mystery Cave chest can pay Black Iron Ore
+
+Chest picker now includes Black Iron: 1 piece per boss slain. Difficulty
+raises purity instead of count — Normal P7–10, Empowered P8–10, Ascended
+P9–10, Awakened P10. Each piece needs its own bag slot.
+
+## 2026-08-18 - Mystery Cave chest can pay Awakening Souls
+
+Chest picker now has Gold, Ores, Suns, Gems, Oils, or Souls. Souls grant 2
+Awakening Souls per boss slain, then ×2 / ×3 / ×4 for Empowered / Ascended /
+Awakened. Bag-full leaves the chest unopened.
+
+## 2026-08-18 - Mystery Cave chest can pay Benediction Oils
+
+Chest picker now has Gold, Ores, Suns, Gems, or Oils. Oils grant 1 Benediction
+Oil per boss slain, then ×2 / ×3 / ×4 for Empowered / Ascended / Awakened.
+Bag-full leaves the chest unopened.
+
+## 2026-08-18 - Mystery Cave chest can pay gems and orbs
+
+Chest picker now has Gold, Ores, Suns, or Gems. Gems grant 1 random boss-pool
+gem per kill and 1 random orb per 3 kills, then ×2 / ×3 / ×4 for Empowered /
+Ascended / Awakened. Bag-full leaves the chest unopened.
+
+## 2026-08-18 - Mystery Cave chest can pay sun potions
+
+Chest picker now has Gold, Ores, or Suns. Suns grant 2 Sun Potions and 1
+Medium Sun Potion per boss slain, then ×2 / ×3 / ×4 for Empowered / Ascended /
+Awakened. Bag-full leaves the chest unopened.
+
+## 2026-08-18 - Mystery Cave chest can pay rare ores
+
+Chest picker now has Gold or Ores. Ores grant 5 Adamantine / Ruby / Emerald /
+Amethyst each per boss slain, then ×2 / ×3 / ×4 for Empowered / Ascended /
+Awakened. Packed into 99-stacks; bag-full leaves the chest unopened.
+
+## 2026-08-18 - Mystery Cave gold scales with kills and difficulty
+
+Chest gold is 100,000 × bosses slain, then ×2 / ×3 / ×4 for Empowered /
+Ascended / Awakened. Unopened chests store kills and tier; old wave-only
+chests load as kills at Normal.
+
+## 2026-08-17 - Danmo swarm walk uses moveMs
+
+Danmo's AncientBringer walk clip is 8×200ms. Swarm (and his walk-in) now plays
+those frames at 100ms — twice as fast, 0.8s per tile — instead of packing the
+whole cycle into 400ms.
+
+## 2026-08-16 - Mystery Cave reward chest
+
+Wipe or full clear puts a Mystery Cave Chest (Crystal GoldChest icon) in the
+bag. Double-click / Use opens a reward picker; Gold is the only option for now
+at 100,000 × completed waves (packs count as one wave). Bag-full falls back to
+paying the gold immediately.
+
+## 2026-08-16 - Danmo / Beast King walk-in
+
+Beast King `moveMs` 1800→600, Danmo 700→400 (enrage 550→300). Mystery Cave
+and other swarms step one tile per `moveMs` from offscreen, so they were
+crawling. Danmo also waits until melee before using his 12-tile kit so
+ranged casts stop cancelling walk steps.
+
+## 2026-08-16 - Mystery Cave pack waves
+
+Mystery Cave pack rooms spawn together on one 10s tick: Dream + Dark
+Devourer, three Incarnated Wooma Taurus (lanes -1/0/1), and IZT with both
+Incarnated Red Thunder Zuma (center + side lanes). Empty-field skip still
+waits until the whole pack is dead, then pulls the next wave.
+
+## 2026-08-15 - Swarm bosses use room AoE kits
+
+Boss-swarm enemies (Mystery Cave, Devourers, IWT/IZT rooms) now fire
+`bossPartyEnemyAttack` kits instead of generic melee. Oma King party burst,
+Manectric King line, Bone Lord bolts, King Scorpion, Dark Devil, Danmo, Frost
+Tiger, and Minotaur King splash match their standalone rooms. Kit cooldowns
+stick on the swarm enemy across primary resyncs.
+
+## 2026-08-15 - Mystery Cave BDD bosses
+
+Mystery Cave roster now includes Incarnated Wooma Taurus, Incarnated Zuma
+Taurus, and Dark Devil, inserted in Black Dragon Dungeon order after King
+Scorpion / King Hog. Dark Devil uses his melee/ranged burst kit in the swarm.
+Incarnated Red Thunder Zuma stay out (IZT-room adds, not a standalone boss).
+
+## 2026-08-15 - Mystery Cave empty-field spawn skip
+
+Killing the last living Mystery Cave boss before the 10s timer now pulls the
+spawn clock forward so the next boss appears immediately. Later bosses keep
+their 10s gaps (the rest of the roster is not dumped). Other boss-swarm rooms
+are unchanged.
+
+## 2026-08-15 - Wizard swarm cast after death
+
+Wizard attack spells now wait when no living swarm target remains (gap
+between Mystery Cave spawns, or a kill in the same tick). Cast FX uses the
+wizard's world X even when `state.battle.enemy` is null, so the sparkle no
+longer jumps to a leftover screen-percentage anchor to the left of the body.
+Taoist Soul FireBall / Poison Cloud / Curse / Plague use the same wait;
+heals, summons, and buffs still go out.
+
+## 2026-08-15 - Mystery Cave plain HP
+
+Mystery Cave no longer seeds a random roster boss on entry (that pool includes
+Oma King at 200k HP). Swarm HP is pinned to each template × the paid tier
+(plain 1× / Empowered 2× / Ascended 3× / Awakened 4×). Zuma Taurus is 12,000
+plain and 48,000 awakened. Roster and spawn log show the live HP; leftover
+group-dungeon empower tier is cleared on a plain boss-room entry.
+
+## 2026-08-15 - Mystery Cave swarm (first slice)
+
+Teleporter top-level **Mystery Cave** opens a boss-entry popup with Empowered /
+Ascended / Awakened. Every run is the full moving-boss roster (`src/mysteryCave.js`):
+one boss every 10 seconds, easiest to hardest. Stationary bosses are excluded.
+Unique boss drop tables are suppressed until the kill-count reward track exists.
+No respawn lock.
+
+## 2026-08-15 - Oma King accessory drop tiers
+
+Oma King jewellery only (weapons/armour/gems unchanged). Lowest 5%: Namman
+accessories, Danmo set, Tarragon belt/boots/helmet/bracelet/ring, Stone Golem
+Bracelet. Lower 2.5%: L63 Red Dragon Ring, Dragon Necklace, Golden Dragon
+Bracelet. Highest 1.25%: L66 Evil Dragon Ring/Bracelet/Necklace. Frost Tiger
+rates unchanged. Namman weapons stay 7.5%.
+
+## 2026-08-15 - L63 ring renamed Red Dragon Ring
+
+`evil-dragon-ring-1/2/3` display name is now **Red Dragon Ring** (ids unchanged).
+L66 `r-dragon-ring-1/2/3` stays **Evil Dragon Ring**.
+
+## 2026-08-15 - L66 Evil Dragon jewellery
+
+Imported unused Crystal `RDragonRing` / `EvilDragonBracelet` / `DragonPendant`
+(War/Wiz/Tao only). Display names are **Evil Dragon Ring**, **Evil Dragon
+Bracelet**, **Evil Dragon Necklace**. Level 66, ~20% above the L63 slot
+(Red Dragon Ring / Dragon Necklace / Golden Dragon Bracelet). Crystal Acc/Agi
+stripped. Oma King 2.5% each; not on Frost Tiger.
+
+- Ring: W DC 5–23 AC 2; Wiz MC 4–23; Tao SC 4–19
+- Bracelet: W DC 10–20 AC 5–8 AMC 1–3; Wiz MC 8–18 AC 4–7 AMC 1–6; Tao SC 8–18 AC 4–7 AMC 1–4
+- Necklace: W DC 8–19 AC 2; Wiz MC 6–19; Tao SC 6–19
+
+L63 Red Dragon Ring (`evil-dragon-ring-1/2/3`) keeps those ids; L66 uses
+`r-dragon-ring-1/2/3`.
+
+## 2026-08-15 - Oma King L66 weapons at 2.5%
+
+Barbarian Sword, Bone Carved Fan, and Slaughter Pike on Oma King are 2.5%
+each (was 1.25%). Still not on Frost Tiger.
+
+## 2026-08-15 - Slaughter Pike buff
+
+Pike was losing to Holy Light Sword on max DC (78 vs 86) and had no attack
+speed. Buffed to DC 38–90, Acc 2, ASpd 2. Still the high-floor warrior stick.
+
+## 2026-08-15 - L66 weapons class-locked
+
+Barbarian Sword is Wizard (DC 12–38, MC 14–41, no Acc/ASpd — same pattern as
+Holy Light Wizard, ~20% above). Slaughter Pike stays Warrior. Bone Carved Fan
+is Taoist. No other unused impressive L65 wizard Crystal weapon: the only
+unused wizard rod is garbled `(????)IceDragonSkyRod`, a duplicate of Ice
+Dragon Sky Rod already in the game at L55.
+
+## 2026-08-15 - Oma King L66 weapons
+
+Renamed Bluish Green Blood Slaughter Pike → **Slaughter Pike** (`slaughter-pike`).
+Retuned it, Barbarian Sword, and Bone Carved Fan to level 66 (~20% above Holy
+Light Sword). Oma King drops each at 2.5%. Not on Frost Tiger.
+
+- Barbarian Sword (Wizard): DC 12–38, MC 14–41
+- Slaughter Pike (Warrior): DC 38–90, Acc 2, ASpd 2 — still a high floor vs Holy Light
+- Bone Carved Fan (Taoist): DC 15–48, SC 14–35, Acc 2, ASpd 2
+
+## 2026-08-15 - Remove Oma King Armour from Alchemist
+
+Took `oma-king-armour` off `ALCHEMIST_STOCK_IDS` and restored shop to
+500000 / 100000.
+
+## 2026-08-15 - Oma King Armour
+
+New L63 any-class tank unique `oma-king-armour` (same body/icon as Oma King
+Robe, visual index 11). Stats: AC 17–44, AMC 11–20, HP 250, MP 50. Assigns
+Crystal special effect 100 (the looping overlay the robe never used). Oma King
+drops it at 1.25% (current L63 chase). Not on Frost Tiger. Robe stays OKS-only.
+
+## 2026-08-15 - Frost Tiger / Oma King tier rates
+
+Previous-tier jewellery (Stone Golem Bracelet, Danmo L58 set) is 2.5%.
+L63 chase (Holy Light Sword, Evil Dragon Ring, Dragon Necklace, Golden Dragon
+Bracelet) is 1.25%. Applied on Frost Tiger and Oma King. Danmo Stone Golem
+stays 1.25% (that is Danmo's current bracelet tier).
+
+## 2026-08-15 - Oma King drop table (Frost Tiger copy, no books)
+
+Oma King now copies Frost Tiger (35k gold, 2 oils, guaranteed Awakening Soul,
+same jewellery/armour chase) minus Magic Booster / Energy Shield / Slashing
+Burst, Oma King Robe, Oma Spirit Ring, and Tarragon Armour.
+
+## 2026-08-15 - Frost Tiger armour chase retune
+
+Dropped Heaven Robe from Frost Tiger. Gon Ryun Dragon Armour 0.5% → **1%**
+each. Tarragon Armour 0.5% → **2.5%** each. Heaven Armour stays at 0.1%.
+
+## 2026-08-15 - Frost Tiger L63 jewellery (Crystal missing sheet)
+
+Imported War/Wiz/Tao Crystal `EvilDragonRing` / `DragonNecklace` /
+`GoldenDragonBrace` (skipped assassin/archer + empty stubs). Display names
+**Evil Dragon Ring**, **Dragon Necklace**, **Golden Dragon Bracelet**. Required
+level 63. Crystal L65 bands lost to Agony / Stone Golem, so combat was retuned
+~20% above the current slot ceiling (casters a bit more):
+
+- Evil Dragon Ring: W DC 4–19; Wiz MC 3–19; Tao SC 3–16
+- Dragon Necklace: W DC 7–16; Wiz MC 5–16; Tao SC 5–16
+- Golden Dragon Bracelet: W DC 8–17 AC 4–7 AMC 0–2; Wiz MC 7–15 AC 3–6 AMC 1–5; Tao SC 7–15 AC 3–6 AMC 1–3
+
+Frost Tiger 2.5% each. Atlas rebuilt for new icon frames.
+
+## 2026-08-15 - Tarragon Belt (Crystal 138)
+
+Imported missing Crystal `TarragonBelt` as `tarragon-belt` (L55, any class).
+Crystal was AC 2–3 / AMC 1–2, which lost to Adamantine Belt L39 (AC 1–3 /
+AMC 1–3). Retuned to AC 2–4 / AMC 2–4 so it sits one step above Adamantine,
+same pattern as the other Tarragon accessories. Icon frame 2763. Frost Tiger
+and Danmo drop it at 2.5% with the rest of the Tarragon jewellery.
+
+Tarragon Necklace (Crystal 139) is still missing.
+
+## 2026-08-15 - Holy Light Sword L63 (Hell Yama +20%)
+
+Renamed `gon-ryun-holy-light-sword-1/2/3` display name to **Holy Light Sword**
+(ids unchanged). Required level 63. Warrior is ~20% above Hell Yama Blade L60,
+plus +2 attack speed. Wizard/Taoist primary magic is ~50%+ above Hell Yama
+(Crystal's MC 17–48 / SC 17–47 were not kept). Wizard has no Acc/ASpd.
+
+- Warrior: DC 17–86, Acc 2, ASpd 2 (Hell Yama 14–72, Acc 2)
+- Wizard: DC 10–32, MC 12–34 (Hell Yama DC 8–27, MC 7–21)
+- Taoist: DC 12–40, SC 11–28, Acc 2, ASpd 2 (Hell Yama DC 10–33, SC 7–18, Acc 2)
+
+Frost Tiger drops the trio at 2.5% each (`gon-ryun-holy-light-sword-1/2/3`).
+Books at 5% each: Magic Booster, Energy Shield, Slashing Burst
+(`book-slashing-burst` added as L50 warrior book; Crystal was L53).
+
+## 2026-08-15 - Frost Tiger drop table (Danmo chassis)
+
+Frost Tiger now copies Danmo's table minus Fury, Hell Yama Blade 1/2/3, and
+Green/Blue/Red Dark Armour. Gold 35k, 2 Benediction Oils, guaranteed
+Awakening Soul. Oma King still uses the old Crystal Spider-style floor loot
+(Tiger Necklace / starter weapons / Black Dragon) so this does not upgrade F5.
+
+## 2026-08-15 - Past Bicheon F3/F4 denser Crossbow waves
+
+Floor 1 mix unchanged. Blood Gorge (F3): waves 15/21/27/33/39, 50% Crossbow
+(cap 14). Blood Pass (F4): 18/25/32/39/46, ~62% Crossbow (cap 22). Field cap
+is still 20 living; extra quota refills as they die.
+
+## 2026-08-15 - Past Bicheon oma still too easy vs 203 AC
+
+200–360 DC still lost to 203 AC + potions, and Crossbows melee-fell onto the
+tank so Ice Hell (Claw MAC on casters) felt harder. Buffed melee to 310–500
+DC, ~1.0–1.1s swings, acc 52–55, HP 16–18k. Crossbows always MAC-bolt
+casters (Hell Bolt analog); mix 25% capped at 6/wave.
+
+## 2026-08-15 - Past Bicheon oma DC / accuracy
+
+Geared Warriors (~203 AC) were seeing almost only Miss: old DC 120–260 lost
+to armour (0 damage counts as miss) and accuracy 36 lost to agility. Buffed
+to Axe 220–360, Sword 205–345, Winged 210–350, Crossbow 200–335 MAC; accuracy
+48–50 (Hell Lord band).
+
+## 2026-08-15 - Past Bicheon trash XP and gold
+
+Oma trash (Axe/Sword/Crossbow/Winged) were sitting on Hell Cavern F1 gold
+(`killGold` 280–420) even though zone fallback was higher. XP was only ~15%
+above Fire Hell Elite. Raised to 16200–17500 XP and 720–1100 gold — about
+1.5× Hell Cavern peak XP (11k) and ~2.25× Hell Cavern F2 gold (320–480).
+Floors 1/3/4 zone gold matches. Frost Tiger / Oma King still untouched.
+
+## 2026-08-15 - Oma King burst splits across the party
+
+Oma King's mass burst rolls one MAC packet and splits it evenly among living
+party members (pets do not take a share or change the divisor). 3 alive →
+⅓ each; 2 → ½; 1 → full packet. Flag: `massBurstSplitAmongParty` on template
+472. Helper: `splitIntegerEvenly` in `src/core/combat.js`.
+
+MC is 1500–2200 (eased from 2000–2700). Packet is raw MAC (no AMC), split
+across living members, then each share subtracts that person's AMC before
+Magic Shield. A 90 AMC lv3-shield Wizard takes ~260 HP/s.
+
+## 2026-08-15 - Oma King burst FX on the party
+
+Crystal only DrawBlends Attack2 (656-675) at the king's tile. Idle parks the
+party on the left, so that overlay never reached them. Mass burst now replays
+the same blend once on the middle living party member (`projectile.anchor:
+"targets"`, `spawnAt: "start"`, screen-blend). Rebuild via
+`tools/build-oma-king-combat-atlas.ps1`.
+
+## 2026-08-15 - Wizard Vampirism heal priority
+
+When a Wizard is below 80% HP, Vampirism now outranks every other damage
+spell in combat autocast (solo, offline, and boss-party). Support buffs
+(Magic Shield / Magic Booster / Mirroring) still come first. At 80% HP and
+above the old order is unchanged (after Flame Disruptor). Slot assignment
+still uses the static order so low HP cannot kick other autocast spells.
+
+Helpers: `wizardNeedsVampirismHeal` / `wizardCombatAutoPriority` in
+`src/core/combat.js`.
+
+## 2026-08-14 - Oma King attack FX
+
+Packed Crystal Attack2 body (584-603) + DrawBlend 656-675 onto Mon126 as
+`attackRange1` / `attackRange1Blend`, plus Attack1 blend 648-650. Rebuild with
+`tools/build-oma-king-combat-atlas.ps1`. Mass-burst now plays Attack2 so the
+AOE overlay shows.
+
+## 2026-08-14 - Blood Land F5 stand in-game
+
+Wired `zone-past-bicheon-gd-5` as an Oma King boss floor at Crystal `66.map`
+(209, 71), stamp `blood-land-gd-5-center`, template 472 (Mon126). 200k HP,
+party-wide MAC burst (Crystal CompleteAttack analog), 60 min respawn. Rebuild
+stamp: `tools/build-blood-land-gd-5-stamp.ps1`.
+
+## 2026-08-14 - Blood Land / Oma King spot picker
+
+Crystal `66.map` (BloodLand, 300x300) picker at
+`tile-review/blood-land-spot-picker/index.html`. Rebuild with
+`tools/build-blood-land-spot-picker.ps1`. Not wired yet.
+
+## 2026-08-14 - Blood Pass F4 stand in-game
+
+Wired `zone-past-bicheon-gd-4` at Crystal `65.map` (125, 84), stamp
+`blood-pass-gd-4-center`. Teleporter lists it under Past Bicheon. Trash
+mix is still F1 oma while the backdrop is visually tested. Rebuild stamp:
+`tools/build-blood-pass-gd-4-stamp.ps1`.
+
+## 2026-08-14 - Blood Pass spot picker
+
+Crystal `65.map` (BloodPass, 300x200) picker at
+`tile-review/blood-pass-spot-picker/index.html`. Rebuild with
+`tools/build-blood-pass-spot-picker.ps1`. Not wired yet.
+
+## 2026-08-14 - Blood Gorge F3 stand in-game
+
+Wired `zone-past-bicheon-gd-3` at Crystal `64.map` (249, 76), stamp
+`blood-gorge-gd-3-center`. Teleporter lists it under Past Bicheon. Trash
+mix is still F1 oma while the backdrop is visually tested. Rebuild stamp:
+`tools/build-blood-gorge-gd-3-stamp.ps1`.
+
+## 2026-08-14 - Blood Gorge spot picker
+
+Crystal `64.map` (BloodGorge, 300x300) picker at
+`tile-review/blood-gorge-spot-picker/index.html`. Rebuild with
+`tools/build-blood-gorge-spot-picker.ps1`. Recommended F3 stand is the
+farm centroid `(150, 150)`. Not wired yet.
+
+## 2026-08-13 - Past Bicheon F1 no Lure Spider
+
+Floor 1 is oma-only (Axe/Sword/Crossbow/Winged). Removed template 470.
+
+## 2026-08-13 - Past Bicheon F1 trash vs Hell Cavern
+
+Oma pack (466-469) retuned ~15% above Fire Hell F2 Hell Knight Elite
+(12.5k HP / DC 115-215): Axe 15k 140-260, Sword 14k 130-240, Crossbow
+13k MAC 120-220, Winged 13.5k 125-230. Lure Spider is a 4k glass rare.
+Zone gold 650-980. Crystal oma sheet was ~2.6k HP and far below Hell.
+
+## 2026-08-13 - Frost Tiger bolt for Magic Shield
+
+Bolt 500-680 so a lv3 Magic Shield Wizard (50% DR) still takes ~250-340.
+Unshielded wizards can be oneshot; naked lv60 Taoist (764 HP) survives one
+max hit. Claw unchanged (420-680).
+
+## 2026-08-13 - Frost Tiger damage up
+
+Claw 420-680 / bolt 250-340 / 850ms / acc 42. 0% DR tank min claw stays
+above ~300 after AC 60 so Taoist+pots cannot casually hold. Bolt max 340
+still under naked lv60 Wizard HP (362).
+
+## 2026-08-13 - Frost Tiger spell FX vs Crystal
+
+Mon102 304x10 is Crystal's Die overlay, not the spit — dropped that caster
+burst. Bolt is Magic2 CreateProjectile(410, 4, 30, skip 6) facing west
+(dir16=12 → frames 530-533), launched at AttackRange1 frame 4. Rebuild with
+`tools/build-frost-tiger-combat-atlas.ps1`.
+
+## 2026-08-13 - Frost Tiger dual kit + welcome-dungeon balance
+
+Every swing claws the Warrior (AC, meleeDc 240-380) and spits a MAC bolt
+(rangedDc 140-175). Wizard/Taoist soak the bolt; a solo 75% DR Warrior eats
+both. Bolt max stays under naked lv60 Wizard HP (362). HP 150k / AC 50 / acc 36
+/ 30k XP — a whole step above Hell Lord (97.5k). Combat test pins the damage band.
+
+## 2026-08-13 - Frost Tiger keeps ranging a solo Warrior
+
+Party Frost Tiger always fires the MAC bolt: Wizard/Taoist while they live,
+then the Warrior if they are the last one up. Melee is not a fallback for a
+solo tank — they need magic defence to survive.
+
+## 2026-08-13 - Frost Tiger ranged bolt at the back line
+
+Crystal Frost Tiger AttackRange: melee the tank when nobody else is alive;
+otherwise fire Magic2 bolt 410 (MAC) at a random non-tank. Packed atlas 102
+`attackRange1` + caster FX 304 + travel projectile. Rebuild with
+`tools/build-frost-tiger-combat-atlas.ps1`.
+
+## 2026-08-13 - Past Bicheon Frost Tiger on teleporter
+
+Listed `zone-past-bicheon-gd-2` on the Past Bicheon teleporter region so Frost
+Tiger can be entered directly for testing (same as floor 1).
+
+## 2026-08-13 - Past Bicheon GD floor 2 Frost Tiger
+
+Wired Frost Tiger mini-boss as `past-bicheon` floor 2 at Crystal `6.map`
+`(115, 153)`. Template 471 (atlas 102), stamp `past-bicheon-gd-2-center`
+(crop 97,135 + 36x36), 30 min respawn. Advance from floor 1. Boss table is
+Crystal Spider loot with Tiger Necklace instead of Frost Crunch. Crystal
+sit/hide + ranged bleed not ported — melee party fight.
+
+## 2026-08-13 - Past Bicheon GD floor 1 stand (117, 202)
+
+Relocked floor 1 to Crystal `6.map` `(117, 202)` (player-specified). Rebuilt
+`past-bicheon-gd-1-center` (crop 99,184 + 36x36) and bumped
+`MAP_STAMP_ASSET_VERSION`.
+
+## 2026-08-13 - Past Bicheon GD floor 1 stand 5 tiles north
+
+Moved floor 1 stand from `(205, 325)` to `(205, 320)` (Crystal Y decreases
+north). Rebuilt `past-bicheon-gd-1-center` (crop 187,302 + 36x36) and bumped
+`MAP_STAMP_ASSET_VERSION`.
+
+## 2026-08-12 - Past Bicheon GD floor 1 wired
+
+Enterable group dungeon `past-bicheon` floor 1 at Crystal `6.map` south hub
+`(205, 325)`. Templates 466–470 (Axe/Sword/Crossbow/Winged Oma + Lure Spider
+reuse of atlas 56). Stamp `past-bicheon-gd-1-center`. Teleporter region
+`past-bicheon` (entrance only). `groupDungeonEmpowerable` includes
+`"past-bicheon"`. CrossbowOma (120) aliases `attackRange*` to `attackNorthWest` /
+`attackSouthWest` so the swarm directional test passes. Later floors (Frost
+Tiger, Blood stretch, Evil Mir) not wired yet.
+
+## 2026-08-12 - Past Bicheon GD floor 1 stamp (205, 325)
+
+Locked floor 1 stand to Crystal `6.map` south oma hub `(205, 325)` from the
+spot picker. Stamp `past-bicheon-gd-1-center` (crop 187,307 + 36x36) via
+`tools/build-past-bicheon-gd-1-stamp.ps1`. Zone wiring still pending.
+
+## 2026-08-12 - Past Bicheon GD floor 1 spot picker
+
+Added `tools/build-past-bicheon-spot-picker.ps1` for the planned Past Bicheon
+group-dungeon floor 1 (Crystal `6.map` / PastBichon). Output is gitignored
+`tile-review/past-bicheon-spot-picker/index.html`. Recommended stand: south oma
+hub `(205, 325)`. Frost Tiger tiles marked as floor 2 reference only.
+
+## 2026-08-11 - Social pages stopped updating (keepalive quota)
+
+Geared players' Social pages froze; Options showed "Stats upload failed". The
+POST never left the browser, so the worker and the D1 row were never involved.
+
+### Cause
+`submitPrototypeStats` posted with `keepalive: true`. Browsers cap keepalive
+bodies at **64 KiB total across all in-flight keepalive requests**, and the
+telemetry heartbeat (45s) uses one too, colliding with the stats submit (60s).
+Payloads had grown to 55-68 KB because every equipped item ships three
+bonus-stat objects with all ~26 keys even when 0 — 82% of the body was zero
+padding (~1,545 bytes per item; 15.3 KB of glyph slots alone on a 3-glyph
+account). Chromium 149, verified against a local server:
+- 63.3 KB keepalive alone → 200; **+ a 400-byte concurrent keepalive → rejected**
+  (`TypeError: Failed to fetch`, which surfaces as the "upload failed" status)
+- 70.7 KB keepalive alone → rejected; same body **without** keepalive → 200
+- `sendBeacon` at 63.3 KB → returns `false`, so the tab-hide flush never sent
+  either (why stored gear lagged even behind `last_seen`)
+
+Newer accounts stayed under the cap and kept updating, which made this look like
+a leaderboard-wide staleness problem rather than a size cliff.
+
+### Fix
+- `src/app.monolith.js`: `KEEPALIVE_SUBMIT_REASONS` — only unload-time sends
+  (`session-end` / `hidden`) use `keepalive`; periodic submits use a normal fetch.
+- `src/app.monolith.js`: `prototypeStatsBonusStats` drops zero-valued bonus stats
+  from the submission. Wire-compatible both ways — the worker's
+  `normalizeBonusStatsPayload` already defaults absent keys to 0. Live top-250
+  accounts: **68,163 → 18,432 bytes worst case (-78/-80%), 0 over quota, 3.6x
+  headroom.**
+- `tools/stats-worker/worker.js`: `BONUS_STAT_SCALAR_KEYS` was missing
+  `potionRestoreBonusPercent`, so it was silently stripped from other players'
+  gear (same class of bug as the 2026-07-08 empower-swap fix).
+
+### Verify
+- `npm.cmd run check`, `npm.cmd run smoke`
+- `tests/statsWorkerIntegrity.test.mjs`: sparse bonus stats round-trip to zero
+  defaults and still read as `clear`; `potionRestoreBonusPercent` survives
+- **Redeploy worker** (manual) for the `potionRestoreBonusPercent` fix. The two
+  client fixes ship with the next website build and need no worker change.
+
+## 2026-08-10 - Armoury pre-release safety audit (kit loss / corruption fixes)
+
+Defect review of the Armoury kit feature before shipping. Four real data-safety
+bugs found and fixed.
+
+### Fixed
+- **Kit slots silently wiped by the refine board.** `armouryKnownEntryIds` only
+  looked at the bag + storage, but staged refine/crafting-cube entries are
+  spliced out of `state.inventory.items`. Prune runs on every Armoury open, and
+  the refiner and Armoury share Blacksmith Bill, so staging a kit weapon deleted
+  it from the kit. Staged ids are now known ids; the preview shows them dimmed
+  with the reason instead of "missing".
+- **Cross-character kit corruption.** Bag ids (`item-N`) come from a
+  per-character counter, so `remappointArmouryEntryIdEverywhere` /
+  `clearArmouryEntryIdEverywhere` were rewriting other characters' kits from an
+  id that means a different item there — destroying one character's `item-12`
+  cleared another's kit slot, and a storage deposit repointed it at the wrong
+  item. Rewrites are now scoped by id namespace (`isAccountScopedArmouryEntryId`);
+  only storage ids are account-wide, and a storage→bag move clears other
+  characters' refs instead of following them. Both the live and the active
+  character's serialized copy are kept in step.
+- **Equip could strip a slot / strand an item.** Kit equip unequipped first and
+  validated after, so a missing or unwearable kit piece left the slot empty, and
+  a piece pulled from storage that then failed validation was left slotless
+  (invisible) in a full bag. Equip now pre-validates the whole kit while fully
+  geared, keeps the worn piece where the kit cannot deliver one, and only pulls
+  from storage once the equip is guaranteed to land.
+- Added an in-flight guard on kit equip and removed the state mutation from
+  `armourySceneHtml` (it pruned during render, after the render signature had
+  already been computed).
+
+### Changes
+- `src/core/armoury.js`: `isAccountScopedArmouryEntryId`
+- `src/app.monolith.js`: armoury id-rewrite scoping, known-id set, equip flow,
+  `armouryKitEntryView` busy state
+- `src/styles.css`: `.armoury-preview-slot.is-busy`, `.armoury-extra-slot.is-busy`
+- `tests/armoury.test.mjs`: entry-id scoping test
+
+### Verify
+- `npm.cmd run check`, `npm.cmd run smoke`
+
+## 2026-08-10 - Fourth Glyph slot (rebirth upgrade tier 3)
+
+**Add Additional Glyph Slot** now goes to max tier 3 (4 equip slots total).
+Tier 3 costs **750 RP**; tiers 1–2 stay 250 / 500 RP.
+
+### Changes
+- `src/app.monolith.js`: `rebirth-extra-glyph-slot` maxTier/costs/summary,
+  `GLYPH_EQUIP_UNLOCK_CAP = 4`
+
+### Verify
+- `npm.cmd run check`
+
+## 2026-08-10 - Flaming Sword 3s cooldown floor
+
+Stacked Flaming Sword cooldown empowerments (esp. cube-swapped across gear)
+could push CD near 1s. `applyEquippedSpellCooldownReductionMs` now respects
+`SPELL_COOLDOWN_FLOOR_MS.FlamingSword = 3000`. Guide Skills section + changelog
+updated.
+
+### Verify
+- `npm.cmd run check`
+
+## 2026-08-10 - Holy Deva SC damage (+2×)
+
+Holy Deva thunder no longer rolls the pet's fixed Crystal DC (which fell off vs
+mid/late MAC). Attacks use the Taoist's effective SC × `HOLY_DEVA_DAMAGE_MULTIPLIER`
+(2), still vs enemy MAC. Attack speed unchanged. Glyph of Pet Might still adds
+owner max DC to Deva (same as Skeleton/Shinsu) — base is SC, glyph is DC, no SC
+double-count. Helper + tests in `src/core/taoistPets.js` /
+`tests/taoistPets.test.mjs`.
+
+### Verify
+- `npm.cmd run check` (+ smoke)
+
+## 2026-08-10 - Player additive damage-reduction cap (75%)
+
+Additive incoming DR (gear `damageTakenReductionPercent`, Magic Shield, Flaming
+Bulwark, etc.) now hard-caps at `PLAYER_DAMAGE_REDUCTION_CAP_PERCENT = 75` in
+`src/core/combat.js` (`clampIncomingDamageReductionPercent` /
+`applyIncomingDamageReduction`). Monolith `incomingDamageReductionPercent` uses
+the same clamp. Glyph of Tank / Glass Canon stay a post-cap multiplier.
+Getting Started Guide gained a "Damage Reduction" section; changelog entry added.
+
+### Verify
+- `npm.cmd run check` (+ smoke)
+
+## 2026-08-10 - Frenzied Disruptor re-crit CD collapse
+
+Refreshing Flame Disruptor cast timing after a Frenzied crit assumed the cast used
+the unbuffed CD. Re-crits during an already-buffed recovery treated most of the wait
+as elapsed and zeroed remaining CD (felt infinitely fast on bosses). Snapshot the
+applied CD instead and only shorten toward castAt + peak-buffed CD.
+
+### Verify
+- `npm.cmd run check` (glyphs.test) (+ smoke)
+
+## 2026-08-10 - Slow Destruction glyph icon
+
+Glyph of Slow Destruction icon moved off cube frames (3226 → 3294 was still a cube
+recolor of 3225) to spiral Body Glyph pool frame **3243**.
+
+### Verify
+- `npm.cmd run build:item-atlas`
+- `npm.cmd run glyph:ref`
+
+## 2026-08-09 - Armoury kits (Blacksmith Bill)
+
+Added town-only Armoury at Blacksmith Bill: save/equip equipment presets with
+paper-doll preview. 2 kits free per character (account feature); kit 3 is a
+300-token cash-shop unlock (`armoury-kit-3`). Kits are shared-reference presets
+(same item can appear on multiple kits). Equip pulls from bag/storage; unequip
+overflow goes bag then storage. Contents wipe on rebirth with character gear.
+
+### Verify
+- `npm.cmd run check` (+ smoke)
+
+## 2026-08-09 - Frenzied Disruptor mid-cast CD refresh
+
+Flame Disruptor crits with Glyph of Frenzied Disruptor now retarget the in-progress
+castReadyAt / spell lock onto the buffed cast-speed schedule, so the cast right
+after the crit benefits instead of waiting out the pre-buff cooldown.
+
+### Verify
+- `npm.cmd run check` (+ smoke)
+
 ## 2026-08-09 - Frost Crunch Crystal projectile FX
 
 Frost Crunch now matches Crystal visually: cast (Magic2 400×10), travel

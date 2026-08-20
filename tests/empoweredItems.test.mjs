@@ -29,6 +29,7 @@ import {
   applyEquippedPotionRestoreBonus,
   applyEquippedSpellDamageBonus,
   applyEquippedPetAttackSpeedBonus,
+  applyEquippedSpellCastSpeedMs,
   equippedPotionRestoreBonusPercent,
   POTION_RESTORE_BONUS_CAP_PERCENT,
   applyEquippedSpellCooldownReductionMs,
@@ -50,8 +51,12 @@ import {
   empowerSpellBonusTooltipRows,
   innateSpellBonusLines,
   innateSpellBonusTooltipRows,
+  innateItemEffectTooltipRows,
+  equippedWarriorSkillsCostHp,
   sanitizeInnateSpellBonuses,
   equippedPetAttackSpeedBonusPercent,
+  equippedSpellCastSpeedBonusPercent,
+  SPELL_COOLDOWN_FLOOR_MS,
   empoweredItemStarSuffix,
   empoweredStatLabel,
   equippedSpellCooldownReductionSeconds,
@@ -1499,6 +1504,22 @@ test("applyEquippedSpellCooldownReductionMs: subtracts equipped seconds", () => 
   assert.equal(applyEquippedSpellCooldownReductionMs("Slaying", 10000, inventory), 10000);
 });
 
+test("applyEquippedSpellCooldownReductionMs: Flaming Sword floors at 3 seconds", () => {
+  const inventory = {
+    equipment: { weapon: "a", armour: "b" },
+    items: [
+      { id: "a", empowerSpellBonuses: { FlamingSword: { cooldownReductionSeconds: 5 } } },
+      { id: "b", empowerSpellBonuses: { FlamingSword: { cooldownReductionSeconds: 5 } } },
+    ],
+  };
+  assert.equal(equippedSpellCooldownReductionSeconds("FlamingSword", inventory), 10);
+  assert.equal(applyEquippedSpellCooldownReductionMs("FlamingSword", 10000, inventory), 3000);
+  assert.equal(applyEquippedSpellCooldownReductionMs("FlamingSword", 10000, {
+    equipment: { weapon: "a" },
+    items: [{ id: "a", empowerSpellBonuses: { FlamingSword: { cooldownReductionSeconds: 9 } } }],
+  }), 3000);
+});
+
 test("applyEquippedSpellHealingBonus: applies percent increase", () => {
   const inventory = {
     equipment: { weapon: "entry-1" },
@@ -1762,6 +1783,14 @@ test("sanitizeInnateSpellBonuses: keeps damage and pet attack speed only", () =>
   });
 });
 
+test("sanitizeInnateSpellBonuses: keeps Great Fire Ball castSpeedPercent", () => {
+  assert.deepEqual(sanitizeInnateSpellBonuses({
+    GreatFireBall: { castSpeedPercent: 200, manaCostPercent: 20 },
+  }), {
+    GreatFireBall: { castSpeedPercent: 200 },
+  });
+});
+
 test("sanitizeInnateSpellBonuses: keeps Mass Healing healingPercent", () => {
   assert.deepEqual(sanitizeInnateSpellBonuses({
     MassHealing: { healingPercent: 100, manaCostPercent: 20, damagePercent: 50 },
@@ -1858,6 +1887,66 @@ test("applyEquippedPetAttackSpeedBonus: 100 percent halves attack delay with 400
   assert.equal(applyEquippedPetAttackSpeedBonus("SummonHolyDeva", 2000, inventory, null), 2000);
 });
 
+test("applyEquippedSpellCastSpeedMs: 200 percent brings Great Fire Ball to the 600ms body-clip floor", () => {
+  const inventory = {
+    equipment: { weapon: "entry-1" },
+    items: [{ id: "entry-1", itemId: "awakened-dragon-staff" }],
+  };
+  const resolveItem = () => ({
+    innateSpellBonuses: { GreatFireBall: { castSpeedPercent: 200 } },
+  });
+  assert.equal(SPELL_COOLDOWN_FLOOR_MS.GreatFireBall, 600);
+  assert.equal(equippedSpellCastSpeedBonusPercent("GreatFireBall", inventory, resolveItem), 200);
+  assert.equal(applyEquippedSpellCastSpeedMs("GreatFireBall", 1800, inventory, resolveItem), 600);
+  assert.equal(applyEquippedSpellCastSpeedMs("GreatFireBall", 900, inventory, resolveItem), 600);
+  assert.equal(applyEquippedSpellCastSpeedMs("GreatFireBall", 1800, inventory, null), 1800);
+});
+
+test("innateSpellBonusLines: formats Great Fire Ball unique weapon bonus", () => {
+  assert.deepEqual(innateSpellBonusLines({
+    GreatFireBall: { damagePercent: 100, castSpeedPercent: 200 },
+  }), [
+    "+100% Great Fire Ball damage",
+    "+200% Great Fire Ball cast speed",
+  ]);
+  assert.deepEqual(innateSpellBonusTooltipRows({
+    GreatFireBall: { damagePercent: 100, castSpeedPercent: 200 },
+  }), [
+    { label: "Great Fire Ball", value: "+100% damage" },
+    { label: "Great Fire Ball", value: "+200% cast speed" },
+  ]);
+});
+
+test("applyEquippedSpellCastSpeedMs: 200 percent brings Soul Fire Ball to the 600ms body-clip floor", () => {
+  const inventory = {
+    equipment: { weapon: "entry-1" },
+    items: [{ id: "entry-1", itemId: "awakened-soul-sabre" }],
+  };
+  const resolveItem = () => ({
+    innateSpellBonuses: { SoulFireBall: { castSpeedPercent: 200 } },
+  });
+  assert.equal(SPELL_COOLDOWN_FLOOR_MS.SoulFireBall, 600);
+  assert.equal(equippedSpellCastSpeedBonusPercent("SoulFireBall", inventory, resolveItem), 200);
+  assert.equal(applyEquippedSpellCastSpeedMs("SoulFireBall", 1800, inventory, resolveItem), 600);
+  assert.equal(applyEquippedSpellCastSpeedMs("SoulFireBall", 900, inventory, resolveItem), 600);
+  assert.equal(applyEquippedSpellCastSpeedMs("SoulFireBall", 1800, inventory, null), 1800);
+});
+
+test("innateSpellBonusLines: formats Soul Fire Ball unique weapon bonus", () => {
+  assert.deepEqual(innateSpellBonusLines({
+    SoulFireBall: { damagePercent: 100, castSpeedPercent: 200 },
+  }), [
+    "+100% Soul Fire Ball damage",
+    "+200% Soul Fire Ball cast speed",
+  ]);
+  assert.deepEqual(innateSpellBonusTooltipRows({
+    SoulFireBall: { damagePercent: 100, castSpeedPercent: 200 },
+  }), [
+    { label: "Soul Fire Ball", value: "+100% damage" },
+    { label: "Soul Fire Ball", value: "+200% cast speed" },
+  ]);
+});
+
 test("innateSpellBonuses are not cube-transferable via listEmpowerSlotsFromEntry", () => {
   assert.equal(listEmpowerSlotsFromEntry({
     empowerBonusStats: {},
@@ -1867,5 +1956,25 @@ test("innateSpellBonuses are not cube-transferable via listEmpowerSlotsFromEntry
   assert.equal(listEmpowerSlotsFromEntry({
     empowerSpellBonuses: { SummonHolyDeva: { damagePercent: 100, petAttackSpeedPercent: 100 } },
   }).length, 1);
+});
+
+test("equippedWarriorSkillsCostHp: unique Dragon Slayer flag is equipped-only", () => {
+  const inventory = {
+    equipment: { weapon: "entry-1" },
+    items: [{ id: "entry-1", itemId: "awakened-dragon-slayer" }],
+  };
+  const resolveItem = (id) => (id === "awakened-dragon-slayer"
+    ? { innateWarriorSkillsCostHp: true }
+    : null);
+  assert.equal(equippedWarriorSkillsCostHp(inventory, resolveItem), true);
+  assert.equal(equippedWarriorSkillsCostHp({
+    equipment: {},
+    items: [{ id: "entry-1", itemId: "awakened-dragon-slayer" }],
+  }, resolveItem), false);
+  assert.equal(equippedWarriorSkillsCostHp(inventory, null), false);
+  assert.deepEqual(innateItemEffectTooltipRows({ innateWarriorSkillsCostHp: true }), [
+    { label: "Unique", value: "Warrior skills cost HP instead of MP" },
+  ]);
+  assert.deepEqual(innateItemEffectTooltipRows({}), []);
 });
 

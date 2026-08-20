@@ -2473,6 +2473,174 @@ dd {
   filter: none;
 }
 
+.armoury-window {
+  width: min(300px, calc(100vw - 24px));
+  max-height: min(640px, calc(100vh - 32px));
+}
+
+.armoury-panel {
+  display: grid;
+  gap: 6px;
+  min-height: 0;
+}
+
+.armoury-locked-note {
+  margin: 0;
+  color: #9f8660;
+  font-size: 10px;
+  line-height: 1.3;
+  text-align: center;
+}
+
+.armoury-kit-tabs {
+  display: flex;
+  gap: 4px;
+  flex-wrap: wrap;
+}
+
+.armoury-kit-tab {
+  flex: 1 1 0;
+  min-width: 0;
+  min-height: 26px;
+  padding: 4px 8px;
+  border: 1px solid rgba(86, 65, 37, 0.75);
+  background: rgba(22, 15, 8, 0.68);
+  color: #e7d2a4;
+  font-size: 11px;
+}
+
+.armoury-kit-tab.active {
+  border-color: rgba(188, 132, 58, 0.95);
+  background: rgba(120, 62, 24, 0.88);
+  color: #fff2d8;
+}
+
+.armoury-kit-tab.is-locked,
+.armoury-kit-tab:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+  color: #8f7a52;
+  border-color: rgba(86, 65, 37, 0.45);
+  background: rgba(14, 10, 6, 0.55);
+}
+
+.armoury-preview {
+  display: grid;
+  gap: 6px;
+  justify-items: center;
+}
+
+/* Crop the unused Character name/guild band so the doll isn't floating in empty space. */
+.armoury-preview-stage {
+  position: relative;
+  width: 264px;
+  height: 284px;
+  overflow: hidden;
+  border: 1px solid rgba(86, 65, 37, 0.55);
+  background: rgba(12, 8, 5, 0.55);
+}
+
+.armoury-preview-stage-inner.crystal-character {
+  position: absolute;
+  left: 0;
+  top: -90px;
+  width: 264px;
+  height: 380px;
+  pointer-events: none;
+}
+
+.armoury-preview-stage .armoury-preview-slot .crystal-equipment-item.has-tooltip {
+  pointer-events: auto;
+  cursor: help;
+}
+
+.armoury-extra-slot.has-tooltip {
+  cursor: help;
+}
+
+.armoury-preview-slot.is-missing {
+  outline: 1px solid rgba(190, 70, 50, 0.85);
+}
+
+/* Saved piece is on the refine board / crafting cube, not lost. */
+.armoury-preview-slot.is-busy {
+  outline: 1px solid rgba(206, 158, 60, 0.85);
+}
+
+.armoury-preview-slot.is-busy .crystal-equipment-item {
+  opacity: 0.55;
+}
+
+.armoury-extra-slot.is-busy strong {
+  color: #d3ab5c;
+}
+
+.armoury-slot-missing {
+  display: grid;
+  place-items: center;
+  width: 100%;
+  height: 100%;
+  color: #d88a72;
+  font-size: 14px;
+  font-weight: 700;
+}
+
+.armoury-extra-slots {
+  display: grid;
+  gap: 2px;
+  width: 100%;
+}
+
+.armoury-extra-slot {
+  display: flex;
+  justify-content: space-between;
+  gap: 8px;
+  padding: 2px 6px;
+  border: 1px solid rgba(86, 65, 37, 0.45);
+  background: rgba(16, 11, 7, 0.45);
+  color: #cbb892;
+  font-size: 10px;
+}
+
+.armoury-extra-slot strong {
+  color: #e7d2a4;
+  font-weight: 600;
+  text-align: right;
+}
+
+.armoury-actions {
+  display: grid;
+  gap: 4px;
+  position: relative;
+  z-index: 2;
+}
+
+.armoury-save-confirm {
+  display: grid;
+  gap: 6px;
+  padding: 8px;
+  border: 1px solid rgba(185, 149, 69, 0.75);
+  background: linear-gradient(#2a1c0d, #120a05);
+  text-align: center;
+}
+
+.armoury-save-confirm-text {
+  margin: 0;
+  color: #e8d8b8;
+  font-size: 11px;
+  line-height: 1.35;
+}
+
+.armoury-save-confirm-text strong {
+  color: #ffe39a;
+}
+
+.armoury-save-confirm-actions {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 4px;
+}
+
 .weapon-refine-window {
   width: min(460px, calc(100vw - 24px));
 }
@@ -3156,6 +3324,46 @@ dd {
 .boss-entry-stats dd {
   margin: 0;
   color: #ecd091;
+}
+
+.mystery-cave-roster {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1px 14px;
+  margin: 0;
+  padding: 7px 8px;
+  list-style: none;
+  border: 1px solid rgba(105, 77, 39, 0.72);
+  background: rgba(11, 8, 5, 0.72);
+  font-size: 11px;
+  line-height: 1.35;
+  color: #ecd091;
+}
+
+.mystery-cave-reward-window {
+  width: min(560px, calc(100vw - 24px));
+}
+
+.mystery-cave-reward-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin: 0;
+  padding: 8px;
+  border: 1px solid rgba(105, 77, 39, 0.72);
+  background: rgba(11, 8, 5, 0.72);
+  color: #ecd091;
+  font-size: 13px;
+}
+
+.mystery-cave-reward-actions {
+  grid-template-columns: 1fr 1fr;
+}
+
+.mystery-cave-reward-actions button {
+  white-space: normal;
+  line-height: 1.2;
+  padding: 6px 8px;
 }
 
 .boss-entry-actions {
