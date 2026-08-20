@@ -1296,6 +1296,221 @@
       }
     },
     {
+      "id": "awakened-dragon-staff",
+      "name": "Awakened Dragon Staff",
+      "type": "weapon",
+      "slot": "weapon",
+      "class": "any",
+      "source": {
+        "crystalIndex": 259,
+        "name": "AwakenedWarMageStaff"
+      },
+      "icon": {
+        "library": "Items",
+        "frame": 58,
+        "src": "./public/item-icons/items/frame_000058.png"
+      },
+      "requirements": {
+        "type": "level",
+        "amount": 40,
+        "classMask": 7,
+        "genderMask": 3
+      },
+      "stackable": false,
+      "maxStack": 1,
+      "stats": {
+        "ac": [
+          0,
+          0
+        ],
+        "amc": [
+          0,
+          0
+        ],
+        "dc": [
+          6,
+          13
+        ],
+        "mc": [
+          20,
+          20
+        ],
+        "sc": [
+          0,
+          0
+        ],
+        "hp": 0,
+        "mp": 0,
+        "accuracy": 0,
+        "agility": 0,
+        "luck": 0,
+        "attackSpeed": 0
+      },
+      "shop": {
+        "buy": 0,
+        "sell": 0
+      },
+      "visual": {
+        "layer": "weapon",
+        "index": 30
+      },
+      "crystalType": "Weapon",
+      "visualWeaponGlow": 1,
+      "unique": true,
+      "innateSpellBonuses": {
+        "GreatFireBall": {
+          "damagePercent": 100,
+        "castSpeedPercent": 200
+        }
+      },
+      "drop": {
+        "zones": [],
+        "chances": {}
+      }
+    },
+    {
+      "id": "awakened-soul-sabre",
+      "name": "Awakened Soul Sabre",
+      "type": "weapon",
+      "slot": "weapon",
+      "class": "any",
+      "source": {
+        "crystalIndex": 259,
+        "name": "AwakenedWarMageStaff"
+      },
+      "icon": {
+        "library": "Items",
+        "frame": 56,
+        "src": "./public/item-icons/items/frame_000056.png"
+      },
+      "requirements": {
+        "type": "level",
+        "amount": 40,
+        "classMask": 7,
+        "genderMask": 3
+      },
+      "stackable": false,
+      "maxStack": 1,
+      "stats": {
+        "ac": [
+          0,
+          0
+        ],
+        "amc": [
+          0,
+          0
+        ],
+        "dc": [
+          8,
+          22
+        ],
+        "mc": [
+          0,
+          0
+        ],
+        "sc": [
+          20,
+          20
+        ],
+        "hp": 0,
+        "mp": 0,
+        "accuracy": 1,
+        "agility": 0,
+        "luck": 0,
+        "attackSpeed": 0
+      },
+      "shop": {
+        "buy": 0,
+        "sell": 0
+      },
+      "visual": {
+        "layer": "weapon",
+        "index": 31
+      },
+      "crystalType": "Weapon",
+      "visualWeaponGlow": 19,
+      "unique": true,
+      "innateSpellBonuses": {
+        "SoulFireBall": {
+          "damagePercent": 100,
+          "castSpeedPercent": 200
+        }
+      },
+      "drop": {
+        "zones": [],
+        "chances": {}
+      }
+    },
+    {
+      "id": "awakened-dragon-slayer",
+      "name": "Awakened Dragon Slayer",
+      "type": "weapon",
+      "slot": "weapon",
+      "class": "any",
+      "source": {
+        "crystalIndex": 248,
+        "name": "DragonSlayer"
+      },
+      "icon": {
+        "library": "Items",
+        "frame": 57,
+        "src": "./public/item-icons/items/frame_000057.png"
+      },
+      "requirements": {
+        "type": "level",
+        "amount": 40,
+        "classMask": 7,
+        "genderMask": 3
+      },
+      "stackable": false,
+      "maxStack": 1,
+      "stats": {
+        "ac": [
+          0,
+          0
+        ],
+        "amc": [
+          0,
+          0
+        ],
+        "dc": [
+          5,
+          40
+        ],
+        "mc": [
+          0,
+          0
+        ],
+        "sc": [
+          0,
+          0
+        ],
+        "hp": 0,
+        "mp": 0,
+        "accuracy": 0,
+        "agility": 0,
+        "luck": 0,
+        "attackSpeed": 0,
+        "critChancePercent": 100
+      },
+      "shop": {
+        "buy": 0,
+        "sell": 0
+      },
+      "visual": {
+        "layer": "weapon",
+        "index": 29
+      },
+      "crystalType": "Weapon",
+      "drop": {
+        "zones": [],
+        "chances": {}
+      },
+      "visualWeaponGlow": 20,
+      "unique": true,
+      "innateWarriorSkillsCostHp": true
+    },
+    {
       "id": "awakened-war-spirit-blade",
       "name": "Awakened War Spirit Blade",
       "type": "weapon",
@@ -10450,6 +10665,67 @@
         "kind": "dd-soul"
       },
       "crystalType": "Scroll"
+    },
+    {
+      "id": "mystery-cave-ticket",
+      "name": "Mystery Cave Ticket",
+      "type": "scroll",
+      "slot": "consumable",
+      "class": "any",
+      "source": {
+        "crystalIndex": 3110,
+        "name": "MysteryCaveTicket"
+      },
+      "icon": {
+        "library": "Items",
+        "frame": 3110,
+        "src": "./public/item-icons/items/mystery-cave-ticket.png"
+      },
+      "requirements": {
+        "type": "none",
+        "amount": 0,
+        "classMask": 31,
+        "genderMask": 3
+      },
+      "stackable": true,
+      "maxStack": 64,
+      "stats": {
+        "ac": [
+          0,
+          0
+        ],
+        "amc": [
+          0,
+          0
+        ],
+        "dc": [
+          0,
+          0
+        ],
+        "mc": [
+          0,
+          0
+        ],
+        "sc": [
+          0,
+          0
+        ],
+        "hp": 0,
+        "mp": 0,
+        "accuracy": 0,
+        "agility": 0,
+        "luck": 0,
+        "attackSpeed": 0
+      },
+      "shop": {
+        "buy": 0,
+        "sell": 0
+      },
+      "scroll": {
+        "kind": "mystery-cave-ticket"
+      },
+      "crystalType": "Scroll",
+      "description": "Opens a path to Mystery Cave. Double-click to enter."
     },
     {
       "id": "death-gauntlet",
@@ -26017,6 +26293,67 @@
       },
       "set": 9,
       "crystalType": "Ring"
+    },
+    {
+      "id": "mystery-cave-chest",
+      "name": "Mystery Cave Chest",
+      "type": "scroll",
+      "slot": "consumable",
+      "class": "any",
+      "description": "A reward from Mystery Cave. Double-click to choose one reward.",
+      "source": {
+        "crystalIndex": 841,
+        "name": "GoldChest"
+      },
+      "icon": {
+        "library": "Items",
+        "frame": 122,
+        "src": "./public/item-icons/items/frame_000122.png"
+      },
+      "requirements": {
+        "type": "none",
+        "amount": 0,
+        "classMask": 31,
+        "genderMask": 3
+      },
+      "stackable": false,
+      "maxStack": 1,
+      "stats": {
+        "ac": [
+          0,
+          0
+        ],
+        "amc": [
+          0,
+          0
+        ],
+        "dc": [
+          0,
+          0
+        ],
+        "mc": [
+          0,
+          0
+        ],
+        "sc": [
+          0,
+          0
+        ],
+        "hp": 0,
+        "mp": 0,
+        "accuracy": 0,
+        "agility": 0,
+        "luck": 0,
+        "attackSpeed": 0
+      },
+      "shop": {
+        "buy": 0,
+        "sell": 0
+      },
+      "scroll": {
+        "kind": "mystery-cave-chest"
+      },
+      "crystalType": "Nothing"
     },
     {
       "id": "naga-necklace",

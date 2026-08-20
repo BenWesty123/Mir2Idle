@@ -101,10 +101,43 @@ import {
 } from "./zumaArcherSwarm.js";
 import {
   MYSTERY_CAVE_BOSS_TEMPLATE_IDS,
+  MYSTERY_CAVE_CHEST_ITEM_ID,
+  MYSTERY_CAVE_RARE_ORE_ITEM_IDS,
   MYSTERY_CAVE_SPAWN_INTERVAL_MS,
+  MYSTERY_CAVE_SPAWN_WAVES,
+  MYSTERY_CAVE_SUN_POTION_MEDIUM_ITEM_ID,
+  MYSTERY_CAVE_SUN_POTION_SMALL_ITEM_ID,
+  MYSTERY_CAVE_BENEDICTION_OIL_ITEM_ID,
+  MYSTERY_CAVE_AWAKENING_SOUL_ITEM_ID,
+  MYSTERY_CAVE_HAVOC_CRYSTAL_ITEM_ID,
+  MYSTERY_CAVE_BLACK_IRON_ORE_ITEM_ID,
   MYSTERY_CAVE_ZONE_ID,
   buildMysteryCaveSpawnQueue,
+  clampMysteryCaveFightTier,
   isMysteryCaveZone,
+  mysteryCaveBossMaxHp,
+  mysteryCaveGoldReward,
+  mysteryCavePulledFightStartAt,
+  mysteryCaveRareOreCount,
+  mysteryCaveStatMultiplier,
+  mysteryCaveSunPotionCounts,
+  mysteryCaveGemOrbCounts,
+  mysteryCaveBenedictionOilCount,
+  mysteryCaveAwakeningSoulCount,
+  mysteryCaveHavocCrystalCount,
+  mysteryCaveBlackIronCount,
+  mysteryCaveBlackIronPurityLabel,
+  rollMysteryCaveBlackIronPurity,
+  rollMysteryCaveGemOrbReward,
+  tallyMysteryCaveItemIds,
+  mysteryCaveTierLabel,
+  mysteryCaveWaveIndexForPlanEntry,
+  sanitizeMysteryCaveKills,
+  sanitizeMysteryCaveBestWave,
+  mysteryCaveDropLabelForRun,
+  rollMysteryCaveEquipmentReward,
+  mysteryCaveExperienceReward,
+  mysteryCaveFurthestBossExperienceSource,
 } from "./mysteryCave.js";
 import {
   BUFF_POTION_DURATION_MS,
@@ -247,7 +280,9 @@ import {
   equippedPetDamageReductionPercent,
   applyEquippedSpellDamageBonus,
   applyEquippedPetAttackSpeedBonus,
+  applyEquippedSpellCastSpeedMs,
   applyEquippedSpellCooldownReductionMs,
+  equippedSpellCastSpeedBonusPercent,
   applyEquippedSpellHealingBonus,
   applyEquippedSpellMpCostReduction,
   applyEquippedSpellUndeadDamageBonus,
@@ -259,11 +294,14 @@ import {
   empoweredStatLabel,
   empowerSpellBonusTooltipRows,
   innateSpellBonusTooltipRows,
+  innateItemEffectTooltipRows,
+  equippedWarriorSkillsCostHp,
   empowerSlotChoiceLabels,
   empowerSwapChoiceLabels,
   formatEmpowerRollDescription,
   formatEmpowerAppliedChangeLabel,
   rollEmpoweredItemDrop,
+  itemCanBeEmpowered,
   rollEmpowermentReroll,
   rollEmpowermentRerollAtSlot,
   swapRandomEmpowermentsBetweenEntries,
@@ -290,6 +328,8 @@ import {
   CRAFTING_CUBE_IZT_SOUL_HEART_COST,
   CRAFTING_CUBE_IZT_SOUL_RECIPE_ID,
   CRAFTING_CUBE_IZT_SOUL_RELIC_COST,
+  CRAFTING_CUBE_MYSTERY_CAVE_TICKET_MATERIALS,
+  CRAFTING_CUBE_MYSTERY_CAVE_TICKET_RECIPE_ID,
   CRAFTING_CUBE_RECIPES,
   craftingCubeAutofillEntryIds,
   craftingCubeRecipeGoldCost,
@@ -303,6 +343,7 @@ import {
   HAVOC_CRYSTAL_ITEM_ID,
   IWT_SOUL_ITEM_ID,
   IZT_SOUL_ITEM_ID,
+  MYSTERY_CAVE_TICKET_ITEM_ID,
   RUBY_ORE_ITEM_ID,
   validateCraftingCubeAttunementStoneCraft,
   validateCraftingCubeDdSoulCraft,
@@ -312,6 +353,7 @@ import {
   validateCraftingCubeGlyphRecycle,
   validateCraftingCubeIwtSoulCraft,
   validateCraftingCubeIztSoulCraft,
+  validateCraftingCubeMysteryCaveTicketCraft,
   validateCraftingCubeSalvageEntries,
   validateCraftingCubeTargetedEmpowerReroll,
   validateCraftingCubeTargetedEmpowerSwap,
@@ -1523,7 +1565,7 @@ const BOSS_ROOM_DEFS = {
   [MYSTERY_CAVE_ZONE_ID]: {
     bossName: "Mystery Cave",
     respawnMinutes: 0,
-    unlockHint: "Select a difficulty, then call saved characters into the fight.",
+    unlockHint: "Select saved characters to call into the fight.",
     empowerLabel: "Empower Mystery Cave for better drops",
     empowerRequirement: BOSS_EMPOWER_UNLOCK_HINT,
   },
@@ -1548,6 +1590,8 @@ const BOSS_PARTY_ENEMY_APPROACH_GAP = 144; // boss spawns this far out, then ste
 const BOSS_PARTY_BOSS_APPROACH_SPEED = 52; // slower walk-in than LANE.enemySpeed so the boss does not snap closed
 // Crystal MonsterObject.Walk: snap 1 cell, ActionTime += 300, MoveTime += MoveSpeed.
 const CRYSTAL_MONSTER_WALK_ACTION_MS = 300;
+// AncientBringer walk atlas is 8×200ms. Play it at 100ms so Danmo closes without a 1.6s/tile crawl.
+const DANMO_WALK_FRAME_MS = 100;
 const BOSS_PARTY_BOSS_REACH = 56; // boss may melee its front target within this range
 const BOSS_PARTY_WARRIOR_REACH = 52; // member weapon reach (matches LANE.warriorRange)
 const BOSS_PARTY_THRUSTING_REACH = 100; // Warrior 2-tile Thrusting reach (matches THRUSTING_RANGE)
@@ -2234,16 +2278,12 @@ const TELEPORT_REGIONS = [
     ],
   },
   {
-    // Crystal PastBichon (6.map) — floor 1 trash + Frost Tiger listed for testing;
-    // later floors (Blood stretch, Evil Mir) are reached via Advance.
+    // Crystal PastBichon — Mysterious Stone lists floor 1 only.
+    // Frost Tiger, Blood Gorge, Blood Pass, and Oma King are reached via Advance.
     id: "past-bicheon",
     label: "Past Bicheon",
     zoneIds: [
       "zone-past-bicheon-gd-1",
-      "zone-past-bicheon-gd-2",
-      "zone-past-bicheon-gd-3",
-      "zone-past-bicheon-gd-4",
-      "zone-past-bicheon-gd-5",
     ],
   },
 ];
@@ -2262,7 +2302,7 @@ const TOWN_VISUALS = {
   stageMaxHeight: 480,
 };
 
-const MAP_STAMP_ASSET_VERSION = "20260814-blood-land-gd-5c";
+const MAP_STAMP_ASSET_VERSION = "20260819-mystery-cave-161-81";
 const MONSTER_ASSET_VERSION = "20260815-oma-king-hitfx";
 const HELL_BOLT_MONSTER_INDEX = 219;
 const HELL_BOLT_TEMPLATE_ID = 429;
@@ -3577,6 +3617,7 @@ const state = {
   bossEntryZoneId: null,
   bossEntryFromGroupDungeonAdvance: false,
   pendingDungeonSoulEntryId: null,
+  pendingMysteryCaveChestEntryId: null,
   bossAssistSelection: [],
   bossEmpowerSelected: false,
   bossAscendSelected: false,
@@ -7454,6 +7495,15 @@ function simulateOfflineTrainingRoomProgress(zone, report, startedAt, limitMs) {
 }
 
 function simulateOfflineProgress(zone, pending) {
+  state.battle.offlineSimulation = true;
+  try {
+    return runSimulateOfflineProgress(zone, pending);
+  } finally {
+    state.battle.offlineSimulation = false;
+  }
+}
+
+function runSimulateOfflineProgress(zone, pending) {
   const report = createOfflineZoneReport(pending);
   const startedAt = performance.now();
   report.simulatedStartedAt = startedAt;
@@ -8404,7 +8454,7 @@ function offlineTaoistSoulFireBall(enemy, now, soulFireBall, options = {}) {
   const battle = state.battle;
   const { spell, learned, cost, entry } = soulFireBall;
   if (!consumeOneInventoryUnit(entry.id)) return false;
-  if (!options.secondary) battle.lastPlayerAttackCooldownMs = spellDelayMs(spell, learned);
+  if (!options.secondary) battle.lastPlayerAttackCooldownMs = taoistSpellActionLockMs(spell, learned);
   commitTaoistSpellUse(spell, learned, cost, now);
   noteOfflineSpellImpact(spell, now);
   if (!rollMagicHit(enemy)) return true;
@@ -11308,7 +11358,7 @@ function pushRecentLoot(text) {
 
 function combatPlayableZones() {
   return PROTOTYPE_ZONES.filter((zone) => (
-    !zone.miningOnly && !zone.trainingRoom && !zone.testingRoom && !zone.roomOnly
+    !zone.miningOnly && !zone.trainingRoom && !zone.testingRoom && !zone.roomOnly && !zone.mysteryCave
   ));
 }
 
@@ -11425,7 +11475,11 @@ function trainingRoomAutocastEntries() {
 
 function trainingRoomSpendMp(spell, learned, cost) {
   const battle = state.battle;
-  battle.player.mp = Math.max(0, battle.player.mp - cost);
+  if (battle.combatClass === "Warrior") {
+    spendWarriorSkillCost(battle.player, cost);
+  } else {
+    battle.player.mp = Math.max(0, battle.player.mp - cost);
+  }
   if (learned) learned.castReadyAt = 0;
   battle.wizardSpellLockUntil = 0;
   if (spell?.id) clearQueuedCombatSpell(spell.id);
@@ -11768,7 +11822,9 @@ function trainingRoomCastTaoist(spell, learned, cost, now) {
 function trainingRoomTryCast(spell, learned, now) {
   if (!spell || !learned) return false;
   const cost = effectiveSpellMpCost(spell, learned);
-  if ((state.battle.player?.mp ?? 0) < cost) return false;
+  if (state.battle.combatClass === "Warrior") {
+    if (!warriorCanPaySkillCost(state.battle.player, spell, learned)) return false;
+  } else if ((state.battle.player?.mp ?? 0) < cost) return false;
 
   const classId = state.battle.combatClass;
   if (classId === "Warrior") return trainingRoomCastWarrior(spell, learned, cost, now);
@@ -13019,6 +13075,13 @@ function createInventoryEntry(itemId, quantity = 1, options = {}) {
     entry.maxDura = dura.maxDura;
     entry.currentDura = dura.currentDura;
   }
+  const mysteryCaveKills = sanitizeMysteryCaveKills(options.mysteryCaveKills ?? options.mysteryCaveWaves);
+  if (mysteryCaveKills > 0) entry.mysteryCaveKills = mysteryCaveKills;
+  const mysteryCaveTier = clampMysteryCaveFightTier(options.mysteryCaveTier);
+  if (mysteryCaveTier > 0) entry.mysteryCaveTier = mysteryCaveTier;
+  if (options.mysteryCaveBestWave != null && options.mysteryCaveBestWave !== "") {
+    entry.mysteryCaveBestWave = sanitizeMysteryCaveBestWave(options.mysteryCaveBestWave, mysteryCaveKills);
+  }
   return entry;
 }
 
@@ -14240,6 +14303,21 @@ function attemptCraftingCubeDdSoulCraft() {
   });
 }
 
+function attemptCraftingCubeMysteryCaveTicketCraft() {
+  return attemptCraftingCubeTwoMaterialSoulCraft({
+    recipeId: CRAFTING_CUBE_MYSTERY_CAVE_TICKET_RECIPE_ID,
+    itemId: MYSTERY_CAVE_TICKET_ITEM_ID,
+    validate: validateCraftingCubeMysteryCaveTicketCraft,
+    defaultName: "Mystery Cave Ticket",
+    consume: (validation) => {
+      for (const mat of CRAFTING_CUBE_MYSTERY_CAVE_TICKET_MATERIALS) {
+        consumeStagedCraftingCubeEntryQuantity(validation.entriesByItemId[mat.itemId].id, mat.cost);
+      }
+    },
+    logMaterials: "1 Wooma Heart, 1 Zuma Relic, and 1 of each rare ore",
+  });
+}
+
 function attemptCraftingCubeGlyphRecycle() {
   if (state.craftingCube?.mode !== "craft") return false;
   const validation = validateCraftingCubeGlyphRecycle(craftingCubeBoardEntries());
@@ -14707,6 +14785,9 @@ function craftingCubeRecipeValidation(recipeId, boardEntries = craftingCubeBoard
   if (recipeId === CRAFTING_CUBE_DD_SOUL_RECIPE_ID) {
     return validateCraftingCubeDdSoulCraft(boardEntries);
   }
+  if (recipeId === CRAFTING_CUBE_MYSTERY_CAVE_TICKET_RECIPE_ID || recipeId === "mystery-cave-soul") {
+    return validateCraftingCubeMysteryCaveTicketCraft(boardEntries);
+  }
   if (recipeId === CRAFTING_CUBE_GLYPH_RECYCLE_RECIPE_ID) {
     return validateCraftingCubeGlyphRecycle(boardEntries);
   }
@@ -14761,6 +14842,9 @@ function attemptCraftingCubeCraft() {
   if (recipeId === CRAFTING_CUBE_IWT_SOUL_RECIPE_ID) return attemptCraftingCubeIwtSoulCraft();
   if (recipeId === CRAFTING_CUBE_IZT_SOUL_RECIPE_ID) return attemptCraftingCubeIztSoulCraft();
   if (recipeId === CRAFTING_CUBE_DD_SOUL_RECIPE_ID) return attemptCraftingCubeDdSoulCraft();
+  if (recipeId === CRAFTING_CUBE_MYSTERY_CAVE_TICKET_RECIPE_ID || recipeId === "mystery-cave-soul") {
+    return attemptCraftingCubeMysteryCaveTicketCraft();
+  }
   if (recipeId === CRAFTING_CUBE_GLYPH_RECYCLE_RECIPE_ID) return attemptCraftingCubeGlyphRecycle();
   if (recipeId === CRAFTING_CUBE_EMPOWER_REROLL_RECIPE_ID) return attemptCraftingCubeEmpowerReroll();
   if (recipeId === CRAFTING_CUBE_TARGETED_EMPOWER_REROLL_RECIPE_ID) return attemptCraftingCubeTargetedEmpowerReroll();
@@ -17015,15 +17099,19 @@ function bossAwakenGoldCost() {
 }
 
 // Group dungeons cost more than a single boss room (paid once for the whole run).
+// Mystery Cave difficulties are free; every other empowerable fight still pays.
 function bossEmpowerGoldCostForZone(zone) {
+  if (isMysteryCaveZone(zone)) return 0;
   return groupDungeonEmpowerable(zone) ? GROUP_DUNGEON_EMPOWER_GOLD_COST : bossEmpowerGoldCost();
 }
 
 function bossAscendGoldCostForZone(zone) {
+  if (isMysteryCaveZone(zone)) return 0;
   return groupDungeonEmpowerable(zone) ? GROUP_DUNGEON_ASCEND_GOLD_COST : bossAscendGoldCost();
 }
 
 function bossAwakenGoldCostForZone(zone) {
+  if (isMysteryCaveZone(zone)) return 0;
   return groupDungeonEmpowerable(zone) ? GROUP_DUNGEON_AWAKEN_GOLD_COST : bossAwakenGoldCost();
 }
 
@@ -18667,19 +18755,37 @@ function isDdSoulItem(item) {
   return Boolean(item) && (item.scroll?.kind === "dd-soul" || item.id === DD_SOUL_ITEM_ID);
 }
 
+function isMysteryCaveTicketItem(item) {
+  return Boolean(item) && (
+    item.scroll?.kind === "mystery-cave-ticket"
+    || item.scroll?.kind === "mystery-cave-soul"
+    || item.id === MYSTERY_CAVE_TICKET_ITEM_ID
+    || item.id === "mystery-cave-soul"
+  );
+}
+
 function isDungeonSoulPortalItem(item) {
-  return isIwtSoulItem(item) || isIztSoulItem(item) || isDdSoulItem(item);
+  return isIwtSoulItem(item) || isIztSoulItem(item) || isDdSoulItem(item) || isMysteryCaveTicketItem(item);
+}
+
+function isMysteryCaveChestItem(item) {
+  return Boolean(item) && (item.scroll?.kind === "mystery-cave-chest" || item.id === MYSTERY_CAVE_CHEST_ITEM_ID);
 }
 
 function dungeonSoulPortalZoneId(item) {
   if (isIwtSoulItem(item)) return IWT_SOUL_ZONE_ID;
   if (isIztSoulItem(item)) return IZT_SOUL_ZONE_ID;
   if (isDdSoulItem(item)) return DD_SOUL_ZONE_ID;
+  if (isMysteryCaveTicketItem(item)) return MYSTERY_CAVE_ZONE_ID;
   return null;
 }
 
 function clearPendingDungeonSoulEntry() {
   state.pendingDungeonSoulEntryId = null;
+}
+
+function clearPendingMysteryCaveChest() {
+  state.pendingMysteryCaveChestEntryId = null;
 }
 
 // Set while resolving group-dungeon trash (wave) drops so their items never roll
@@ -18824,6 +18930,55 @@ function applyEmpoweredBossFightModifiers(enemy = state.battle.enemy) {
     return true;
   }
   return false;
+}
+
+function selectedBossFightTier() {
+  if (state.bossAwakenSelected && bossAwakeningUnlocked()) return 3;
+  if (state.bossAscendSelected && bossAscensionUnlocked()) return 2;
+  if (state.bossEmpowerSelected && bossEmpowermentUnlocked()) return 1;
+  return 0;
+}
+
+function liveBossFightTier() {
+  if (state.battle.bossAwakened) return 3;
+  if (state.battle.bossAscended) return 2;
+  if (state.battle.bossEmpowered) return 1;
+  return 0;
+}
+
+function cloneEnemyStatRange(range) {
+  if (!Array.isArray(range)) return range;
+  return [Number(range[0]) || 0, Number(range[1]) || 0];
+}
+
+// Pin Mystery Cave HP/damage to the template × the paid tier so a leftover
+// dummy enemy (Oma King is 200k) or a shared template array cannot inflate a spawn.
+function applyMysteryCaveBossCombatModifiers(enemy, template) {
+  if (!enemy) return false;
+  const source = template ?? enemy;
+  const tier = liveBossFightTier();
+  const hpMult = mysteryCaveStatMultiplier(tier);
+  const dmgMult = hpMult;
+  enemy.maxHp = mysteryCaveBossMaxHp(source, tier);
+  enemy.hp = enemy.maxHp;
+  enemy.dc = scaleEnemyDamageRange(cloneEnemyStatRange(source.dc), dmgMult);
+  enemy.mc = scaleEnemyDamageRange(cloneEnemyStatRange(source.mc), dmgMult);
+  enemy.sc = scaleEnemyDamageRange(cloneEnemyStatRange(source.sc), dmgMult);
+  if (source.meleeDc || enemy.meleeDc) {
+    enemy.meleeDc = scaleEnemyDamageRange(cloneEnemyStatRange(source.meleeDc ?? enemy.meleeDc), dmgMult);
+  }
+  if (source.rangedDc || enemy.rangedDc) {
+    enemy.rangedDc = scaleEnemyDamageRange(cloneEnemyStatRange(source.rangedDc ?? enemy.rangedDc), dmgMult);
+  }
+  enemy.ac = cloneEnemyStatRange(source.ac ?? enemy.ac);
+  enemy.amc = cloneEnemyStatRange(source.amc ?? enemy.amc);
+  if (tier > 0) {
+    Object.assign(enemy, EMPOWERED_BOSS_ENRAGE);
+    enemy.bossEmpowered = true;
+    enemy.bossAscended = tier >= 2;
+    enemy.bossAwakened = tier >= 3;
+  }
+  return true;
 }
 
 // Group dungeons that support Empowered/Ascended/Awakened entry. Paid once at the
@@ -19243,7 +19398,10 @@ function equippedEntry(slotId) {
 
 function inventoryEntrySignature(entry) {
   const duraPart = entry.currentDura != null ? `:${entry.currentDura}/${entry.maxDura ?? ""}` : "";
-  return `${entry.id}:${entry.itemId}:${entry.quantity}:${entry.slot ?? ""}:${entry.smithLevel ?? 0}:${entry.weaponRefineLevel ?? 0}:${entry.gemCount ?? 0}:${entry.empowered ? 1 : 0}:${entry.empowerTier ?? 0}${duraPart}:${JSON.stringify(sanitizeItemBonusStats(entry.bonusStats))}:${JSON.stringify(sanitizeSmithBonusStats(entry.smithBonusStats))}:${JSON.stringify(sanitizeItemBonusStats(entry.empowerBonusStats))}:${JSON.stringify(sanitizeEmpowerSpellBonuses(entry.empowerSpellBonuses))}`;
+  const chestPart = (entry.mysteryCaveKills || entry.mysteryCaveTier)
+    ? `:mck${entry.mysteryCaveKills ?? 0}:mct${entry.mysteryCaveTier ?? 0}`
+    : "";
+  return `${entry.id}:${entry.itemId}:${entry.quantity}:${entry.slot ?? ""}:${entry.smithLevel ?? 0}:${entry.weaponRefineLevel ?? 0}:${entry.gemCount ?? 0}:${entry.empowered ? 1 : 0}:${entry.empowerTier ?? 0}${duraPart}${chestPart}:${JSON.stringify(sanitizeItemBonusStats(entry.bonusStats))}:${JSON.stringify(sanitizeSmithBonusStats(entry.smithBonusStats))}:${JSON.stringify(sanitizeItemBonusStats(entry.empowerBonusStats))}:${JSON.stringify(sanitizeEmpowerSpellBonuses(entry.empowerSpellBonuses))}`;
 }
 
 async function useInventoryEntry(entryId) {
@@ -19264,6 +19422,10 @@ async function useInventoryEntry(entryId) {
   }
   if (isDungeonSoulPortalItem(item)) {
     useDungeonSoulPortalEntry(entryId);
+    return;
+  }
+  if (isMysteryCaveChestItem(item)) {
+    useMysteryCaveChestEntry(entryId);
     return;
   }
   await equipInventoryEntry(entryId);
@@ -19300,6 +19462,580 @@ function useDungeonSoulPortalEntry(entryId) {
   renderSceneOverlay();
   playSfx("ui.teleport", { volume: 0.42, throttleMs: 300 });
   pushBattleLog(`${item.name} opens a path to ${zone.label}.`);
+  return true;
+}
+
+function mysteryCaveChestReward(entry) {
+  const kills = sanitizeMysteryCaveKills(entry?.mysteryCaveKills ?? entry?.mysteryCaveWaves);
+  const tier = clampMysteryCaveFightTier(entry?.mysteryCaveTier);
+  const bestWave = sanitizeMysteryCaveBestWave(entry?.mysteryCaveBestWave, kills);
+  const equipmentLabel = mysteryCaveDropLabelForRun(kills, bestWave);
+  return {
+    kills,
+    tier,
+    bestWave,
+    equipmentLabel,
+    equipmentCount: kills,
+    xp: Math.max(0, Math.trunc(mysteryCaveExperienceReward(kills, bestWave, tier) * totalExperienceMultiplier())),
+    xpBossName: mysteryCaveFurthestBossExperienceSource(kills, bestWave).name,
+    gold: mysteryCaveGoldReward(kills, tier),
+    oresEach: mysteryCaveRareOreCount(kills, tier),
+    sunPotions: mysteryCaveSunPotionCounts(kills, tier),
+    gemOrbs: mysteryCaveGemOrbCounts(kills, tier),
+    oils: mysteryCaveBenedictionOilCount(kills, tier),
+    souls: mysteryCaveAwakeningSoulCount(kills, tier),
+    havocCrystals: mysteryCaveHavocCrystalCount(kills, tier),
+    blackIron: mysteryCaveBlackIronCount(kills),
+    blackIronPurity: mysteryCaveBlackIronPurityLabel(tier),
+    tierLabel: mysteryCaveTierLabel(tier),
+  };
+}
+
+function mysteryCaveStackableItemSlotsNeeded(itemId, quantity) {
+  const qty = Math.max(0, Math.trunc(Number(quantity) || 0));
+  const item = itemDefinition(itemId);
+  if (!item || qty <= 0) return 0;
+  const maxStack = Math.max(1, maxItemStack(item));
+  let remaining = qty;
+  for (const entry of carriedInventoryEntries()) {
+    if (entry.itemId !== itemId) continue;
+    const have = Math.max(1, Math.trunc(Number(entry.quantity) || 1));
+    remaining -= Math.max(0, maxStack - have);
+    if (remaining <= 0) return 0;
+  }
+  return Math.ceil(remaining / maxStack);
+}
+
+function mysteryCaveSunPotionSlotsNeeded(smallQty, mediumQty) {
+  return mysteryCaveStackableItemSlotsNeeded(MYSTERY_CAVE_SUN_POTION_SMALL_ITEM_ID, smallQty)
+    + mysteryCaveStackableItemSlotsNeeded(MYSTERY_CAVE_SUN_POTION_MEDIUM_ITEM_ID, mediumQty);
+}
+
+function addMysteryCaveSunPotionReward(smallQty, mediumQty) {
+  const grants = [
+    { itemId: MYSTERY_CAVE_SUN_POTION_SMALL_ITEM_ID, qty: Math.max(0, Math.trunc(Number(smallQty) || 0)) },
+    { itemId: MYSTERY_CAVE_SUN_POTION_MEDIUM_ITEM_ID, qty: Math.max(0, Math.trunc(Number(mediumQty) || 0)) },
+  ];
+  for (const grant of grants) {
+    if (grant.qty <= 0) continue;
+    const item = itemDefinition(grant.itemId);
+    if (!item) return false;
+    const before = inventoryQuantityForItem(grant.itemId);
+    addInventoryItem(grant.itemId, grant.qty);
+    if (inventoryQuantityForItem(grant.itemId) - before < grant.qty) return false;
+  }
+  ensureInventorySlots();
+  syncBossPartyControlledInventoryFromState();
+  gamePanelDynamicSignature = "";
+  sceneSignature = "";
+  hotbarSignature = "";
+  return true;
+}
+
+function mysteryCaveCountedItemSlotsNeeded(itemQtyById) {
+  let need = 0;
+  for (const [itemId, qty] of itemQtyById ?? []) {
+    need += mysteryCaveStackableItemSlotsNeeded(itemId, qty);
+  }
+  return need;
+}
+
+function addMysteryCaveBenedictionOilReward(quantity) {
+  const qty = Math.max(0, Math.trunc(Number(quantity) || 0));
+  if (qty <= 0) return true;
+  if (!itemDefinition(MYSTERY_CAVE_BENEDICTION_OIL_ITEM_ID)) return false;
+  const before = inventoryQuantityForItem(MYSTERY_CAVE_BENEDICTION_OIL_ITEM_ID);
+  addInventoryItem(MYSTERY_CAVE_BENEDICTION_OIL_ITEM_ID, qty);
+  if (inventoryQuantityForItem(MYSTERY_CAVE_BENEDICTION_OIL_ITEM_ID) - before < qty) return false;
+  ensureInventorySlots();
+  syncBossPartyControlledInventoryFromState();
+  gamePanelDynamicSignature = "";
+  sceneSignature = "";
+  hotbarSignature = "";
+  return true;
+}
+
+function addMysteryCaveBlackIronReward(quantity, tier, rng = Math.random) {
+  const qty = Math.max(0, Math.trunc(Number(quantity) || 0));
+  if (qty <= 0) return true;
+  if (!itemDefinition(MYSTERY_CAVE_BLACK_IRON_ORE_ITEM_ID)) return false;
+  for (let i = 0; i < qty; i++) {
+    const purity = rollMysteryCaveBlackIronPurity(tier, rng);
+    if (!tryAddOreInventoryEntry(MYSTERY_CAVE_BLACK_IRON_ORE_ITEM_ID, purity)) return false;
+  }
+  ensureInventorySlots();
+  syncBossPartyControlledInventoryFromState();
+  gamePanelDynamicSignature = "";
+  sceneSignature = "";
+  hotbarSignature = "";
+  return true;
+}
+
+function addMysteryCaveAwakeningSoulReward(quantity) {
+  const qty = Math.max(0, Math.trunc(Number(quantity) || 0));
+  if (qty <= 0) return true;
+  if (!itemDefinition(MYSTERY_CAVE_AWAKENING_SOUL_ITEM_ID)) return false;
+  const before = inventoryQuantityForItem(MYSTERY_CAVE_AWAKENING_SOUL_ITEM_ID);
+  addInventoryItem(MYSTERY_CAVE_AWAKENING_SOUL_ITEM_ID, qty);
+  if (inventoryQuantityForItem(MYSTERY_CAVE_AWAKENING_SOUL_ITEM_ID) - before < qty) return false;
+  ensureInventorySlots();
+  syncBossPartyControlledInventoryFromState();
+  gamePanelDynamicSignature = "";
+  sceneSignature = "";
+  hotbarSignature = "";
+  return true;
+}
+
+function addMysteryCaveHavocCrystalReward(quantity) {
+  const qty = Math.max(0, Math.trunc(Number(quantity) || 0));
+  if (qty <= 0) return true;
+  if (!itemDefinition(MYSTERY_CAVE_HAVOC_CRYSTAL_ITEM_ID)) return false;
+  const before = inventoryQuantityForItem(MYSTERY_CAVE_HAVOC_CRYSTAL_ITEM_ID);
+  addInventoryItem(MYSTERY_CAVE_HAVOC_CRYSTAL_ITEM_ID, qty);
+  if (inventoryQuantityForItem(MYSTERY_CAVE_HAVOC_CRYSTAL_ITEM_ID) - before < qty) return false;
+  ensureInventorySlots();
+  syncBossPartyControlledInventoryFromState();
+  gamePanelDynamicSignature = "";
+  sceneSignature = "";
+  hotbarSignature = "";
+  return true;
+}
+
+function mysteryCaveEmpowerDropOptions(tier) {
+  const clamped = clampMysteryCaveFightTier(tier);
+  if (clamped <= 0) return null;
+  const baseChance = clamped >= 3
+    ? BOSS_AWAKEN_ITEM_CHANCE
+    : clamped >= 2
+      ? BOSS_ASCEND_ITEM_CHANCE
+      : (BOSS_EMPOWER_ITEM_CHANCE_DEV ?? BOSS_EMPOWER_ITEM_CHANCE);
+  const tierWeights = clamped >= 3
+    ? AWAKEN_TIER_WEIGHTS
+    : clamped >= 2
+      ? ASCEND_TIER_WEIGHTS
+      : null;
+  return {
+    itemChance: baseChance + accountUpgradeValue("empowerDropChance"),
+    ...(tierWeights ? { tierWeights } : {}),
+  };
+}
+
+function mysteryCaveEquipmentSlotsNeeded(itemIds) {
+  let need = 0;
+  const extraStacks = new Map();
+  for (const raw of itemIds ?? []) {
+    const itemId = String(raw ?? "").trim();
+    if (!itemId) continue;
+    const item = itemDefinition(itemId);
+    if (!item) continue;
+    if (isStackableItem(item)) {
+      extraStacks.set(itemId, (extraStacks.get(itemId) ?? 0) + 1);
+    } else {
+      need += 1;
+    }
+  }
+  return need + mysteryCaveCountedItemSlotsNeeded(extraStacks);
+}
+
+function addMysteryCaveEquipmentReward(itemIds, tier, rng = Math.random) {
+  const options = mysteryCaveEmpowerDropOptions(tier);
+  for (const raw of itemIds ?? []) {
+    const itemId = String(raw ?? "").trim();
+    if (!itemId) continue;
+    const item = itemDefinition(itemId);
+    if (!item) return false;
+    const entryOptions = {};
+    if (options && itemCanBeEmpowered(item)) {
+      const roll = rollEmpoweredItemDrop(item, rng, options);
+      if (roll) {
+        entryOptions.empowered = true;
+        entryOptions.empowerTier = roll.empowerTier;
+        entryOptions.empowerBonusStats = roll.empowerBonusStats;
+        entryOptions.empowerSpellBonuses = roll.empowerSpellBonuses;
+      }
+    }
+    const added = addInventoryItem(itemId, 1, { entryOptions });
+    if (!added[0]) return false;
+  }
+  ensureInventorySlots();
+  syncBossPartyControlledInventoryFromState();
+  gamePanelDynamicSignature = "";
+  sceneSignature = "";
+  hotbarSignature = "";
+  return true;
+}
+
+function addMysteryCaveCountedItems(itemQtyById) {
+  for (const [itemId, qty] of itemQtyById ?? []) {
+    const amount = Math.max(0, Math.trunc(Number(qty) || 0));
+    if (amount <= 0) continue;
+    if (!itemDefinition(itemId)) return false;
+    const before = inventoryQuantityForItem(itemId);
+    addInventoryItem(itemId, amount);
+    if (inventoryQuantityForItem(itemId) - before < amount) return false;
+  }
+  ensureInventorySlots();
+  syncBossPartyControlledInventoryFromState();
+  gamePanelDynamicSignature = "";
+  sceneSignature = "";
+  hotbarSignature = "";
+  return true;
+}
+
+function mysteryCaveOreRewardSlotsNeeded(quantity) {
+  const qty = Math.max(0, Math.trunc(Number(quantity) || 0));
+  if (qty <= 0) return 0;
+  const stackSize = ORE_STACKING_STACK_SIZE;
+  let need = 0;
+  for (const itemId of MYSTERY_CAVE_RARE_ORE_ITEM_IDS) {
+    let remaining = qty;
+    if (oreStackingUnlocked()) {
+      for (const entry of carriedInventoryEntries()) {
+        if (remaining <= 0) break;
+        if (entry.itemId !== itemId) continue;
+        const have = Math.max(1, Math.trunc(Number(entry.quantity) || 1));
+        remaining -= Math.max(0, stackSize - have);
+      }
+    }
+    if (remaining > 0) need += Math.ceil(remaining / stackSize);
+  }
+  return need;
+}
+
+function addMysteryCaveRareOreReward(quantity) {
+  const qty = Math.max(0, Math.trunc(Number(quantity) || 0));
+  if (qty <= 0) return true;
+  const stackSize = ORE_STACKING_STACK_SIZE;
+  for (const itemId of MYSTERY_CAVE_RARE_ORE_ITEM_IDS) {
+    const item = itemDefinition(itemId);
+    if (!item || !isOreItem(item)) return false;
+    let remaining = qty;
+    if (oreStackingUnlocked()) {
+      for (const entry of carriedInventoryEntries()) {
+        if (remaining <= 0) break;
+        if (entry.itemId !== itemId) continue;
+        const have = Math.max(1, Math.trunc(Number(entry.quantity) || 1));
+        const room = Math.max(0, stackSize - have);
+        if (room <= 0) continue;
+        const add = Math.min(remaining, room);
+        entry.quantity = have + add;
+        delete entry.currentDura;
+        delete entry.maxDura;
+        remaining -= add;
+      }
+    }
+    while (remaining > 0) {
+      if (inventoryUsedSlots() >= state.inventory.maxSlots) return false;
+      const add = Math.min(remaining, stackSize);
+      const entry = createInventoryEntry(itemId, 1);
+      entry.quantity = add;
+      delete entry.currentDura;
+      delete entry.maxDura;
+      state.inventory.items.push(entry);
+      remaining -= add;
+    }
+  }
+  ensureInventorySlots();
+  syncBossPartyControlledInventoryFromState();
+  gamePanelDynamicSignature = "";
+  sceneSignature = "";
+  hotbarSignature = "";
+  return true;
+}
+
+function mysteryCaveRewardRunLabel(kills, tier) {
+  const count = sanitizeMysteryCaveKills(kills);
+  const noun = count === 1 ? "boss" : "bosses";
+  const clamped = clampMysteryCaveFightTier(tier);
+  if (clamped > 0) return `${count.toLocaleString()} ${mysteryCaveTierLabel(clamped)} ${noun}`;
+  return `${count.toLocaleString()} ${noun}`;
+}
+
+function useMysteryCaveChestEntry(entryId) {
+  const entry = inventoryEntryById(entryId);
+  const item = entry ? itemDefinition(entry.itemId) : null;
+  if (!entry || !item || !isMysteryCaveChestItem(item)) return false;
+  state.pendingMysteryCaveChestEntryId = entry.id;
+  if (state.activeScene === "townNpc" || state.activeScene === "storage" || state.activeScene === "bossEntry" || state.activeScene === "weaponRefine" || state.activeScene === "craftingCube" || state.activeScene === "armoury") {
+    removeSceneWindowFromStack(state.activeScene);
+  }
+  state.activeScene = "mysteryCaveReward";
+  pushSceneWindow("mysteryCaveReward");
+  hideItemTooltip();
+  sceneSignature = "";
+  renderSceneOverlay();
+  playSfx("ui.button", { volume: 0.35, throttleMs: 80 });
+  return true;
+}
+
+function mysteryCaveRewardSceneHtml() {
+  const entry = inventoryEntryById(state.pendingMysteryCaveChestEntryId);
+  const item = entry ? itemDefinition(entry.itemId) : null;
+  if (!entry || !item || !isMysteryCaveChestItem(item)) {
+    return `<p class="battle-state">That chest is no longer in your bag.</p>`;
+  }
+  const reward = mysteryCaveChestReward(entry);
+  const gold = reward.gold;
+  const oresEach = reward.oresEach;
+  const suns = reward.sunPotions;
+  const gemOrbs = reward.gemOrbs;
+  const oils = reward.oils;
+  const souls = reward.souls;
+  const blackIron = reward.blackIron;
+  const blackIronPurity = reward.blackIronPurity;
+  const itemHtml = itemIconHtml(item, 36);
+  return `
+    <section class="boss-entry-panel mystery-cave-reward-panel">
+      <p class="boss-warning">Choose a reward from Mystery Cave.</p>
+      <p class="boss-warning muted">${escapeHtml(mysteryCaveRewardRunLabel(reward.kills, reward.tier))} slain.</p>
+      <div class="mystery-cave-reward-item">
+        ${itemHtml}
+        <strong>${escapeHtml(item.name)}</strong>
+      </div>
+      <footer class="boss-entry-footer mystery-cave-reward-actions">
+        <button type="button" class="primary" data-claim-mystery-cave-reward="gold">
+          Gold (${gold.toLocaleString()})
+        </button>
+        <button type="button" class="primary" data-claim-mystery-cave-reward="xp">
+          EXP (${reward.xp.toLocaleString()})
+        </button>
+        <button type="button" class="primary" data-claim-mystery-cave-reward="ores">
+          Rare Ores (${oresEach.toLocaleString()} each)
+        </button>
+        <button type="button" class="primary" data-claim-mystery-cave-reward="suns">
+          Sun Potions (${suns.small.toLocaleString()} / ${suns.medium.toLocaleString()} M)
+        </button>
+        <button type="button" class="primary" data-claim-mystery-cave-reward="gems">
+          Gems (${gemOrbs.gems.toLocaleString()} / ${gemOrbs.orbs.toLocaleString()} orbs)
+        </button>
+        <button type="button" class="primary" data-claim-mystery-cave-reward="oils">
+          Benediction Oils (${oils.toLocaleString()})
+        </button>
+        <button type="button" class="primary" data-claim-mystery-cave-reward="souls">
+          Souls (${souls.toLocaleString()})
+        </button>
+        <button type="button" class="primary" data-claim-mystery-cave-reward="havoc">
+          Havoc Crystals (${reward.havocCrystals.toLocaleString()})
+        </button>
+        <button type="button" class="primary" data-claim-mystery-cave-reward="iron">
+          Black Iron Ore (${blackIron.toLocaleString()} ${escapeHtml(blackIronPurity)})
+        </button>
+        <button type="button" class="primary" data-claim-mystery-cave-reward="equipment">
+          Equipment (${reward.equipmentCount.toLocaleString()} ${escapeHtml(reward.equipmentLabel ?? "boss")})
+        </button>
+      </footer>
+    </section>
+  `;
+}
+
+function claimMysteryCaveChestReward(kind = "gold") {
+  const entry = inventoryEntryById(state.pendingMysteryCaveChestEntryId);
+  const item = entry ? itemDefinition(entry.itemId) : null;
+  if (!entry || !item || !isMysteryCaveChestItem(item)) {
+    clearPendingMysteryCaveChest();
+    if (state.activeScene === "mysteryCaveReward") closeScene("mysteryCaveReward");
+    pushBattleLog("That Mystery Cave chest is gone.");
+    return false;
+  }
+  if (kind !== "gold" && kind !== "xp" && kind !== "ores" && kind !== "suns" && kind !== "gems" && kind !== "oils" && kind !== "souls" && kind !== "havoc" && kind !== "iron" && kind !== "equipment") return false;
+  const reward = mysteryCaveChestReward(entry);
+  const runLabel = mysteryCaveRewardRunLabel(reward.kills, reward.tier);
+  let gemOrbRoll = null;
+  let equipmentRoll = null;
+  if (kind === "ores") {
+    const need = mysteryCaveOreRewardSlotsNeeded(reward.oresEach);
+    const free = Math.max(0, state.inventory.maxSlots - inventoryUsedSlots());
+    if (need > free + 1) {
+      pushBattleLog(`Bag is too full for Mystery Cave ores — need ${need} empty slot${need === 1 ? "" : "s"}.`);
+      return false;
+    }
+  }
+  if (kind === "suns") {
+    const need = mysteryCaveSunPotionSlotsNeeded(reward.sunPotions.small, reward.sunPotions.medium);
+    const free = Math.max(0, state.inventory.maxSlots - inventoryUsedSlots());
+    if (need > free + 1) {
+      pushBattleLog(`Bag is too full for Mystery Cave sun potions — need ${need} empty slot${need === 1 ? "" : "s"}.`);
+      return false;
+    }
+  }
+  if (kind === "gems") {
+    gemOrbRoll = rollMysteryCaveGemOrbReward(reward.kills, reward.tier);
+    const tally = tallyMysteryCaveItemIds([...gemOrbRoll.gems, ...gemOrbRoll.orbs]);
+    const need = mysteryCaveCountedItemSlotsNeeded(tally);
+    const free = Math.max(0, state.inventory.maxSlots - inventoryUsedSlots());
+    if (need > free + 1) {
+      pushBattleLog(`Bag is too full for Mystery Cave gems and orbs — need ${need} empty slot${need === 1 ? "" : "s"}.`);
+      return false;
+    }
+  }
+  if (kind === "oils") {
+    const need = mysteryCaveStackableItemSlotsNeeded(MYSTERY_CAVE_BENEDICTION_OIL_ITEM_ID, reward.oils);
+    const free = Math.max(0, state.inventory.maxSlots - inventoryUsedSlots());
+    if (need > free + 1) {
+      pushBattleLog(`Bag is too full for Mystery Cave Benediction Oils — need ${need} empty slot${need === 1 ? "" : "s"}.`);
+      return false;
+    }
+  }
+  if (kind === "souls") {
+    const need = mysteryCaveStackableItemSlotsNeeded(MYSTERY_CAVE_AWAKENING_SOUL_ITEM_ID, reward.souls);
+    const free = Math.max(0, state.inventory.maxSlots - inventoryUsedSlots());
+    if (need > free + 1) {
+      pushBattleLog(`Bag is too full for Mystery Cave Awakening Souls — need ${need} empty slot${need === 1 ? "" : "s"}.`);
+      return false;
+    }
+  }
+  if (kind === "havoc") {
+    const need = mysteryCaveStackableItemSlotsNeeded(MYSTERY_CAVE_HAVOC_CRYSTAL_ITEM_ID, reward.havocCrystals);
+    const free = Math.max(0, state.inventory.maxSlots - inventoryUsedSlots());
+    if (need > free + 1) {
+      pushBattleLog(`Bag is too full for Mystery Cave Havoc Crystals — need ${need} empty slot${need === 1 ? "" : "s"}.`);
+      return false;
+    }
+  }
+  if (kind === "iron") {
+    const need = reward.blackIron;
+    const free = Math.max(0, state.inventory.maxSlots - inventoryUsedSlots());
+    if (need > free + 1) {
+      pushBattleLog(`Bag is too full for Mystery Cave Black Iron Ore — need ${need} empty slot${need === 1 ? "" : "s"}.`);
+      return false;
+    }
+  }
+  if (kind === "equipment") {
+    equipmentRoll = rollMysteryCaveEquipmentReward(
+      reward.kills,
+      reward.bestWave,
+      reward.tier,
+      (itemId) => itemDefinition(itemId),
+    );
+    const need = mysteryCaveEquipmentSlotsNeeded(equipmentRoll.itemIds);
+    const free = Math.max(0, state.inventory.maxSlots - inventoryUsedSlots());
+    if (need > free + 1) {
+      pushBattleLog(`Bag is too full for Mystery Cave equipment — need ${need} empty slot${need === 1 ? "" : "s"}.`);
+      return false;
+    }
+  }
+  if (!removeInventoryEntry(entry.id, 1)) {
+    pushBattleLog("Could not open the Mystery Cave chest.");
+    return false;
+  }
+  if (kind === "gold") {
+    if (reward.gold > 0) creditSharedGold(reward.gold);
+    playSfx("ui.gold", { volume: 0.55, throttleMs: 80 });
+    pushBattleLog(reward.gold > 0
+      ? `Opened Mystery Cave Chest — ${reward.gold.toLocaleString()} gold (${runLabel}).`
+      : "Opened Mystery Cave Chest — no gold (no bosses slain).");
+  } else if (kind === "xp") {
+    const xp = Math.max(0, Math.trunc(Number(reward.xp) || 0));
+    const levels = xp > 0 ? applyExperienceReward(xp) : [];
+    state.battle.experience = state.game.progress.experience;
+    playSfx("ui.gold", { volume: 0.45, throttleMs: 80 });
+    const from = reward.xpBossName ? ` from ${reward.xpBossName}` : "";
+    if (xp <= 0) {
+      pushBattleLog("Opened Mystery Cave Chest — no EXP (no bosses slain).");
+    } else if (levels.length) {
+      pushBattleLog(`Opened Mystery Cave Chest — ${xp.toLocaleString()} EXP${from} (${runLabel}). Reached level ${levels[levels.length - 1]}.`);
+    } else {
+      pushBattleLog(`Opened Mystery Cave Chest — ${xp.toLocaleString()} EXP${from} (${runLabel}).`);
+    }
+  } else if (kind === "ores") {
+    const added = addMysteryCaveRareOreReward(reward.oresEach);
+    playSfx("item.pickup", { volume: 0.42, throttleMs: 120 });
+    if (!added) {
+      pushBattleLog(`Opened Mystery Cave Chest — bag filled before all rare ores could be added (${runLabel}).`);
+    } else if (reward.oresEach > 0) {
+      pushBattleLog(`Opened Mystery Cave Chest — ${reward.oresEach.toLocaleString()} of each rare ore (${runLabel}).`);
+    } else {
+      pushBattleLog("Opened Mystery Cave Chest — no ores (no bosses slain).");
+    }
+  } else if (kind === "suns") {
+    const added = addMysteryCaveSunPotionReward(reward.sunPotions.small, reward.sunPotions.medium);
+    playSfx("item.pickup", { volume: 0.42, throttleMs: 120 });
+    if (!added) {
+      pushBattleLog(`Opened Mystery Cave Chest — bag filled before all sun potions could be added (${runLabel}).`);
+    } else if (reward.sunPotions.small > 0 || reward.sunPotions.medium > 0) {
+      pushBattleLog(`Opened Mystery Cave Chest — ${reward.sunPotions.small.toLocaleString()} Sun Potions and ${reward.sunPotions.medium.toLocaleString()} Medium Sun Potions (${runLabel}).`);
+    } else {
+      pushBattleLog("Opened Mystery Cave Chest — no sun potions (no bosses slain).");
+    }
+  } else if (kind === "gems") {
+    const rolled = gemOrbRoll ?? rollMysteryCaveGemOrbReward(reward.kills, reward.tier);
+    const added = addMysteryCaveCountedItems(tallyMysteryCaveItemIds([...rolled.gems, ...rolled.orbs]));
+    playSfx("item.pickup", { volume: 0.42, throttleMs: 120 });
+    if (!added) {
+      pushBattleLog(`Opened Mystery Cave Chest — bag filled before all gems and orbs could be added (${runLabel}).`);
+    } else if (rolled.gems.length > 0 || rolled.orbs.length > 0) {
+      pushBattleLog(`Opened Mystery Cave Chest — ${rolled.gems.length.toLocaleString()} gems and ${rolled.orbs.length.toLocaleString()} orbs (${runLabel}).`);
+    } else {
+      pushBattleLog("Opened Mystery Cave Chest — no gems or orbs (need 1 boss for a gem, 3 for an orb).");
+    }
+  } else if (kind === "oils") {
+    const added = addMysteryCaveBenedictionOilReward(reward.oils);
+    playSfx("item.pickup", { volume: 0.42, throttleMs: 120 });
+    if (!added) {
+      pushBattleLog(`Opened Mystery Cave Chest — bag filled before all Benediction Oils could be added (${runLabel}).`);
+    } else if (reward.oils > 0) {
+      pushBattleLog(`Opened Mystery Cave Chest — ${reward.oils.toLocaleString()} Benediction Oil${reward.oils === 1 ? "" : "s"} (${runLabel}).`);
+    } else {
+      pushBattleLog("Opened Mystery Cave Chest — no Benediction Oils (no bosses slain).");
+    }
+  } else if (kind === "souls") {
+    const added = addMysteryCaveAwakeningSoulReward(reward.souls);
+    playSfx("item.pickup", { volume: 0.42, throttleMs: 120 });
+    if (!added) {
+      pushBattleLog(`Opened Mystery Cave Chest — bag filled before all Awakening Souls could be added (${runLabel}).`);
+    } else if (reward.souls > 0) {
+      pushBattleLog(`Opened Mystery Cave Chest — ${reward.souls.toLocaleString()} Awakening Soul${reward.souls === 1 ? "" : "s"} (${runLabel}).`);
+    } else {
+      pushBattleLog("Opened Mystery Cave Chest — no Awakening Souls (no bosses slain).");
+    }
+  } else if (kind === "havoc") {
+    const added = addMysteryCaveHavocCrystalReward(reward.havocCrystals);
+    playSfx("item.pickup", { volume: 0.42, throttleMs: 120 });
+    if (!added) {
+      pushBattleLog(`Opened Mystery Cave Chest — bag filled before all Havoc Crystals could be added (${runLabel}).`);
+    } else if (reward.havocCrystals > 0) {
+      pushBattleLog(`Opened Mystery Cave Chest — ${reward.havocCrystals.toLocaleString()} Havoc Crystal${reward.havocCrystals === 1 ? "" : "s"} (${runLabel}).`);
+    } else {
+      pushBattleLog("Opened Mystery Cave Chest — no Havoc Crystals (no bosses slain).");
+    }
+  } else if (kind === "equipment") {
+    const rolled = equipmentRoll ?? rollMysteryCaveEquipmentReward(
+      reward.kills,
+      reward.bestWave,
+      reward.tier,
+      (itemId) => itemDefinition(itemId),
+    );
+    const added = addMysteryCaveEquipmentReward(rolled.itemIds, reward.tier);
+    playSfx("item.pickup", { volume: 0.42, throttleMs: 120 });
+    if (!added) {
+      pushBattleLog(`Opened Mystery Cave Chest — bag filled before all equipment could be added (${runLabel}).`);
+    } else if (rolled.itemIds.length > 0) {
+      const from = rolled.label ?? reward.equipmentLabel ?? "boss";
+      pushBattleLog(`Opened Mystery Cave Chest — ${rolled.itemIds.length.toLocaleString()} equipment from ${from} (${runLabel}).`);
+    } else {
+      pushBattleLog("Opened Mystery Cave Chest — no equipment (no bosses slain).");
+    }
+  } else {
+    const added = addMysteryCaveBlackIronReward(reward.blackIron, reward.tier);
+    playSfx("item.pickup", { volume: 0.42, throttleMs: 120 });
+    if (!added) {
+      pushBattleLog(`Opened Mystery Cave Chest — bag filled before all Black Iron Ore could be added (${runLabel}).`);
+    } else if (reward.blackIron > 0) {
+      pushBattleLog(`Opened Mystery Cave Chest — ${reward.blackIron.toLocaleString()} Black Iron Ore (${reward.blackIronPurity}) (${runLabel}).`);
+    } else {
+      pushBattleLog("Opened Mystery Cave Chest — no Black Iron Ore (no bosses slain).");
+    }
+  }
+  clearPendingMysteryCaveChest();
+  if (state.activeScene === "mysteryCaveReward") closeScene("mysteryCaveReward");
+  hideItemTooltip();
+  sceneSignature = "";
+  gamePanelSignature = "";
+  battlePanelSignature = "";
+  saveGameState(true);
+  renderSceneOverlay();
+  renderGamePanel();
+  renderBattlePanel();
   return true;
 }
 
@@ -21146,6 +21882,9 @@ function bindSceneButtons(rootEl) {
       renderSceneOverlay();
     });
   });
+  rootEl.querySelectorAll("[data-claim-mystery-cave-reward]").forEach((button) => {
+    button.addEventListener("click", () => claimMysteryCaveChestReward(button.dataset.claimMysteryCaveReward));
+  });
   rootEl.querySelectorAll("[data-claim-achievement]").forEach((row) => {
     const claim = () => claimAchievementReward(row.dataset.claimAchievement);
     row.addEventListener("click", claim);
@@ -21216,7 +21955,7 @@ function craftingCubeCompanionScenes() {
 }
 
 function npcActiveScene() {
-  if (state.activeScene === "townNpc" || state.activeScene === "storage" || state.activeScene === "bossEntry" || state.activeScene === "weaponRefine" || state.activeScene === "craftingCube" || state.activeScene === "armoury") {
+  if (state.activeScene === "townNpc" || state.activeScene === "storage" || state.activeScene === "bossEntry" || state.activeScene === "weaponRefine" || state.activeScene === "craftingCube" || state.activeScene === "armoury" || state.activeScene === "mysteryCaveReward") {
     return state.activeScene;
   }
   return null;
@@ -21338,8 +22077,9 @@ function openScene(scene, updateUrl = true) {
   if (scene === "timeLogging" && !timeLoggingUnlocked()) return;
   if (scene === "spiritBox" && !spiritBoxUnlocked()) return;
   state.game.selectedTownNpcId = null;
-  if (state.activeScene === "townNpc" || state.activeScene === "storage" || state.activeScene === "bossEntry" || state.activeScene === "weaponRefine" || state.activeScene === "craftingCube" || state.activeScene === "armoury") {
+  if (state.activeScene === "townNpc" || state.activeScene === "storage" || state.activeScene === "bossEntry" || state.activeScene === "weaponRefine" || state.activeScene === "craftingCube" || state.activeScene === "armoury" || state.activeScene === "mysteryCaveReward") {
     removeSceneWindowFromStack(state.activeScene);
+    if (state.activeScene === "mysteryCaveReward") clearPendingMysteryCaveChest();
     state.activeScene = null;
   }
   if (scene === "characterSelect") {
@@ -21407,6 +22147,10 @@ function closeScene(scene = null, updateUrl = true) {
     removeSceneWindowFromStack("craftingCubeRecipes");
   } else if (scene === "craftingCubeRecipes") {
     if (state.craftingCube) state.craftingCube.recipesOpen = false;
+    removeSceneWindowFromStack(scene);
+  } else if (scene === "mysteryCaveReward") {
+    clearPendingMysteryCaveChest();
+    if (state.activeScene === "mysteryCaveReward") state.activeScene = null;
     removeSceneWindowFromStack(scene);
   } else if (scene === "townNpc" || scene === "storage" || scene === "bossEntry") {
     state.game.selectedTownNpcId = null;
@@ -21761,6 +22505,7 @@ function buildSceneOverlaySignature(openScenes, bossEntryZoneId) {
     autoJunkItemIds: state.account?.autoJunkItemIds ?? [],
     weaponRefine: state.weaponRefine,
     craftingCube: state.craftingCube,
+    pendingMysteryCaveChestEntryId: state.pendingMysteryCaveChestEntryId,
     combatClass: state.battle.combatClass,
     accountUpgrades: state.account.upgrades,
     autoCastSlotLimit: autoCastSlotLimit(),
@@ -21942,6 +22687,7 @@ function sceneClassName(scene) {
   if (scene === "characterSelect") return "scene-window character-select-window";
   if (scene === "townNpc") return "scene-window npc-dialog-window";
   if (scene === "bossEntry") return "scene-window boss-entry-window";
+  if (scene === "mysteryCaveReward") return "scene-window boss-entry-window mystery-cave-reward-window";
   if (scene === "storage") return "scene-window storage-window";
   if (scene === "weaponRefine") return "scene-window weapon-refine-window";
   if (scene === "craftingCube") return "scene-window crafting-cube-window";
@@ -21987,6 +22733,7 @@ function sceneTitle(scene) {
   if (scene === "spiritBox") return "Spirit Box";
   if (scene === "autoJunk") return "Auto-Junk Filters";
   if (scene === "glyphs") return "Glyphs";
+  if (scene === "mysteryCaveReward") return "Mystery Cave Reward";
   if (scene === "bossEntry") {
     const zone = bossEntryZone();
     if (groupDungeonZone(zone)) return zone?.label ?? "Group Dungeon";
@@ -22013,6 +22760,7 @@ function sceneBodyHtml(scene) {
   if (scene === "spiritBox") return spiritBoxSceneHtml();
   if (scene === "autoJunk") return autoJunkFiltersSceneHtml();
   if (scene === "glyphs") return glyphsSceneHtml();
+  if (scene === "mysteryCaveReward") return mysteryCaveRewardSceneHtml();
   if (scene === "bossEntry") return bossEntrySceneHtml();
   if (scene === "weaponRefine") return weaponRefineSceneHtml();
   if (scene === "craftingCube") return craftingCubeSceneHtml();
@@ -23039,14 +23787,12 @@ function bossEmpowerAscendState(zone) {
   const empowerCost = bossEmpowerGoldCostForZone(zone);
   const ascendCost = bossAscendGoldCostForZone(zone);
   const awakenCost = bossAwakenGoldCostForZone(zone);
-  const needsGold = (awakenSelected && awakenUnlocked)
-    || (ascendSelected && ascendUnlocked)
-    || (empowerSelected && empowerUnlocked);
   const activeCost = awakenSelected && awakenUnlocked
     ? awakenCost
     : ascendSelected && ascendUnlocked
       ? ascendCost
       : (empowerSelected && empowerUnlocked ? empowerCost : 0);
+  const needsGold = activeCost > 0;
   const goldMet = goldOwned >= activeCost;
   return {
     available, empowerUnlocked, ascendUnlocked, awakenUnlocked,
@@ -23062,18 +23808,17 @@ function bossEmpowerFightSuffix(s) {
   return "";
 }
 
+function bossEmpowerPaidTierNote(kind, tierWord, cost, s) {
+  if (cost <= 0) return `${tierWord} ${kind}. Tougher monsters and better rewards — no gold cost.`;
+  return `${tierWord} ${kind} costs ${cost.toLocaleString()} gold when you enter (spent even if you die). You have ${s.goldOwned.toLocaleString()} gold.${s.goldMet ? "" : ` Not enough gold to fight ${tierWord.toLowerCase()}.`}`;
+}
+
 function bossEmpowerAscendNote(zone, s, labels) {
   const kind = labels.isGroupDungeon ? "dungeon" : "fight";
   if (!s.available) return "Empowered fights for this boss are coming soon.";
-  if (s.awakenSelected && s.awakenUnlocked) {
-    return `Awakened ${kind} costs ${s.awakenCost.toLocaleString()} gold when you enter (spent even if you die). You have ${s.goldOwned.toLocaleString()} gold.${s.goldMet ? "" : ` Not enough gold to fight awakened.`}`;
-  }
-  if (s.ascendSelected && s.ascendUnlocked) {
-    return `Ascended ${kind} costs ${s.ascendCost.toLocaleString()} gold when you enter (spent even if you die). You have ${s.goldOwned.toLocaleString()} gold.${s.goldMet ? "" : ` Not enough gold to fight ascended.`}`;
-  }
-  if (s.empowerSelected && s.empowerUnlocked) {
-    return `Empowered ${kind} costs ${s.empowerCost.toLocaleString()} gold when you enter (spent even if you die). You have ${s.goldOwned.toLocaleString()} gold.${s.goldMet ? "" : ` Not enough gold to fight empowered.`}`;
-  }
+  if (s.awakenSelected && s.awakenUnlocked) return bossEmpowerPaidTierNote(kind, "Awakened", s.awakenCost, s);
+  if (s.ascendSelected && s.ascendUnlocked) return bossEmpowerPaidTierNote(kind, "Ascended", s.ascendCost, s);
+  if (s.empowerSelected && s.empowerUnlocked) return bossEmpowerPaidTierNote(kind, "Empowered", s.empowerCost, s);
   if (!s.empowerUnlocked) return escapeHtml(labels.empowerRequirement);
   if (s.awakenUnlocked) return "Toggle empowered, ascended, or awakened mode before entering for tougher monsters and improved drops.";
   if (s.ascendUnlocked) return `Toggle empowered or ascended mode before entering for tougher monsters and improved drops. ${escapeHtml(BOSS_AWAKEN_UNLOCK_HINT)}`;
@@ -23120,16 +23865,19 @@ function bossEmpowerAscendControlsHtml(zone) {
 }
 
 function mysteryCaveEntrySceneHtml(zone) {
-  const selected = selectedBossAssistIds();
-  const config = groupDungeonBossSwarmConfig(zone);
   const empowerState = bossEmpowerAscendState(zone);
   const canFight = !empowerState.needsGold || empowerState.goldMet;
   const fightSuffix = bossEmpowerFightSuffix(empowerState);
-  const rosterHtml = MYSTERY_CAVE_BOSS_TEMPLATE_IDS.map((templateId, index) => {
-    const template = ENEMY_TEMPLATES.find((enemy) => enemy.id === templateId);
-    const delaySec = Math.round((index * MYSTERY_CAVE_SPAWN_INTERVAL_MS) / 1000);
-    const when = delaySec <= 0 ? "now" : `+${delaySec}s`;
-    return `<li><strong>${escapeHtml(template?.name ?? "Boss")}</strong> <span>${when}</span></li>`;
+  const rosterHtml = MYSTERY_CAVE_SPAWN_WAVES.map((wave) => {
+    const counts = new Map();
+    for (const templateId of wave.templateIds ?? []) {
+      counts.set(templateId, (counts.get(templateId) || 0) + 1);
+    }
+    const parts = [...counts.entries()].map(([templateId, count]) => {
+      const name = escapeHtml(ENEMY_TEMPLATES.find((enemy) => enemy.id === templateId)?.name ?? "Boss");
+      return count > 1 ? `${count}× ${name}` : name;
+    });
+    return `<li>${parts.join(" & ")}</li>`;
   }).join("");
   return `
     <section class="boss-entry-panel">
@@ -23137,14 +23885,9 @@ function mysteryCaveEntrySceneHtml(zone) {
         You're entering Mystery Cave with your ${escapeHtml(state.activeCharacterId)}.
       </p>
       <p class="boss-warning muted">
-        Every moving boss emerges in order, one every 10 seconds, from Wooma Taurus through Oma King. Stationary bosses stay out. Pick Empowered, Ascended, or Awakened to scale the whole gauntlet.
+        Bosses arrive one wave every 10 seconds, easiest first. Wipe or clear for a chest.
       </p>
       <ol class="mystery-cave-roster">${rosterHtml}</ol>
-      <dl class="boss-entry-stats">
-        <dt>Spawns</dt><dd>1 every 10s</dd>
-        <dt>Party</dt><dd>${1 + selected.size}</dd>
-        <dt>Bosses</dt><dd>${config.totalSpawns}</dd>
-      </dl>
       ${partyAssistPickerHtml()}
       ${bossEmpowerAscendControlsHtml(zone)}
       <footer class="boss-entry-footer">
@@ -24124,7 +24867,7 @@ function crystalSkillRowHtml(spell, learned) {
       ? `${level >= 3 ? "Done" : `Req ${nextLevel}`} | Passive | ${spellDropZoneText(spell)}`
       : spell.toggle
       ? `${level >= 3 ? "Done" : `Req ${nextLevel}`} | Toggle | 2 tiles | ${spellDropZoneText(spell)}`
-      : `${level >= 3 ? "Done" : `Req ${nextLevel}`} | MP ${mp} | ${Math.round(cooldown / 1000)}s | ${spellDropZoneText(spell)}`
+      : `${level >= 3 ? "Done" : `Req ${nextLevel}`} | ${combatClass === "Warrior" ? warriorSkillCostResourceLabel() : "MP"} ${mp} | ${Math.round(cooldown / 1000)}s | ${spellDropZoneText(spell)}`
     : spellDropZoneText(spell);
   return `
     <div class="crystal-skill-row ${spell.passive ? "passive" : ""} ${learned?.autoCast ? "auto" : ""} ${queued ? "queued" : ""} ${isLearned ? "" : "unlearned"}">
@@ -25725,7 +26468,7 @@ function crystalStorageSlotHtml(slot, displayIndex = slot) {
 }
 
 function crystalStorageItemHtml(entry, item) {
-  const stack = isStackableItem(item) && entry.quantity > 1 ? `<span class="crystal-item-qty">${entry.quantity}</span>` : "";
+  const stack = entry.quantity > 1 ? `<span class="crystal-item-qty">${entry.quantity}</span>` : "";
   return `
     <div
       class="crystal-storage-item has-tooltip${inventoryEmpoweredClass(entry)}${inventoryUniqueClass(item)}"
@@ -25883,7 +26626,7 @@ function crystalInventorySlotHtml(slot, displaySlot = slot) {
 function crystalInventoryItemHtml(entry, item) {
   const equipped = isEquippedEntry(entry.id);
   const requirement = itemRequirementStatus(item, characterEquipmentStats());
-  const stack = isStackableItem(item) && entry.quantity > 1 ? `<span class="crystal-item-qty">${entry.quantity}</span>` : "";
+  const stack = entry.quantity > 1 ? `<span class="crystal-item-qty">${entry.quantity}</span>` : "";
   const locked = !requirement.ok && (isEquipableItem(item) || isBookItem(item));
   return `
     <div
@@ -26850,7 +27593,7 @@ function inventoryItemHtml(entry) {
   const tag = equipped ? "Equipped" : isStackableItem(item) ? `Stack ${entry.quantity}/${maxItemStack(item)}` : "Item";
   const command = isEquipableItem(item)
     ? `<button data-equip-entry="${entry.id}" ${equipped || !requirement.ok ? "disabled" : ""}>${equipped ? "Equipped" : requirement.ok ? "Equip" : "Locked"}</button>`
-    : isPotionItem(item) || isBenedictionOilItem(item) || isDungeonSoulPortalItem(item)
+    : isPotionItem(item) || isBenedictionOilItem(item) || isDungeonSoulPortalItem(item) || isMysteryCaveChestItem(item)
     ? `<button data-use-entry="${entry.id}">Use</button>`
     : "";
   return `
@@ -26880,7 +27623,7 @@ function itemTooltipHtml(item, entry = null) {
     ${itemGlyphTooltipHtml(item)}
     ${itemRequirementTooltipHtml(item)}
     ${isGemUpgradeItem(item) ? itemGemTooltipHtml(item) : ""}
-    ${isBookItem(item) || isGlyphItem(item) ? "" : isBenedictionOilItem(item) ? itemBenedictionTooltipHtml(item, entry) : isDungeonSoulPortalItem(item) ? itemDungeonSoulPortalTooltipHtml(item) : isPotionItem(item) ? itemPotionTooltipHtml(item) : isPoisonItem(item) ? itemPoisonTooltipHtml(item) : isTaoistAmuletItem(item) ? itemAmuletTooltipHtml(item) : itemEquipmentStatsTooltipHtml(entry, item)}
+    ${isBookItem(item) || isGlyphItem(item) ? "" : isBenedictionOilItem(item) ? itemBenedictionTooltipHtml(item, entry) : isDungeonSoulPortalItem(item) ? itemDungeonSoulPortalTooltipHtml(item) : isMysteryCaveChestItem(item) ? itemMysteryCaveChestTooltipHtml(item, entry) : isPotionItem(item) ? itemPotionTooltipHtml(item) : isPoisonItem(item) ? itemPoisonTooltipHtml(item) : isTaoistAmuletItem(item) ? itemAmuletTooltipHtml(item) : itemEquipmentStatsTooltipHtml(entry, item)}
     ${item.stackable ? `<span>Stack: ${maxItemStack(item)}</span>` : ""}
     ${entry ? itemTooltipMarkHtml(entry) : ""}
   `;
@@ -26967,6 +27710,9 @@ function itemBenedictionTooltipHtml(item, entry = null) {
 }
 
 function itemDungeonSoulPortalTooltipHtml(item) {
+  if (isMysteryCaveTicketItem(item)) {
+    return `<span>Use to open the Mystery Cave entry window.</span>`;
+  }
   if (isDdSoulItem(item)) {
     return `<span>Use to open the Dark Devil Palace entry window and skip to Dark Devil.</span>`;
   }
@@ -26974,6 +27720,13 @@ function itemDungeonSoulPortalTooltipHtml(item) {
     return `<span>Use to open the Zuma Palace entry window and skip to Incarnated Zuma Taurus.</span>`;
   }
   return `<span>Use to open the Wooma Palace (South) entry window and skip early Black Dragon Dungeon floors.</span>`;
+}
+
+function itemMysteryCaveChestTooltipHtml(item, entry = null) {
+  const reward = mysteryCaveChestReward(entry);
+  if (reward.kills <= 0) return "";
+  const runLabel = mysteryCaveRewardRunLabel(reward.kills, reward.tier);
+  return `<span>${escapeHtml(runLabel)} slain.</span>`;
 }
 
 function itemOreTooltipHtml(entry, item) {
@@ -27091,6 +27844,10 @@ function itemEquipmentStatsTooltipHtml(entry, item) {
     const formatted = formatItemBonusPercentValue(key, value);
     const empowered = empowerBonusAffectsScalarStat(empowerBonus, key);
     rows.push(itemStatsTooltipRow(empoweredStatLabel(label, empowered), formatted, empowered ? "empower-stat" : ""));
+  }
+
+  for (const effectRow of innateItemEffectTooltipRows(item)) {
+    rows.push(itemStatsTooltipRow(effectRow.label, effectRow.value, "innate-spell-stat"));
   }
 
   for (const spellRow of innateSpellBonusTooltipRows(item?.innateSpellBonuses)) {
@@ -27331,7 +28088,7 @@ async function confirmBossZoneEntry(zoneId) {
   const goldOwned = Math.max(0, Number(state.inventory.gold) || 0);
   if (empowerEligible && bossAwakenFightSelected(zoneId)) {
     const cost = bossAwakenGoldCostForZone(zone);
-    if (goldOwned < cost || !chargeBossFightGold(cost)) {
+    if (cost > 0 && (goldOwned < cost || !chargeBossFightGold(cost))) {
       sceneSignature = "";
       renderSceneOverlay();
       playSfx("ui.button", { volume: 0.25, throttleMs: 120 });
@@ -27344,7 +28101,7 @@ async function confirmBossZoneEntry(zoneId) {
     gamePanelSignature = "";
   } else if (empowerEligible && bossAscendFightSelected(zoneId)) {
     const cost = bossAscendGoldCostForZone(zone);
-    if (goldOwned < cost || !chargeBossFightGold(cost)) {
+    if (cost > 0 && (goldOwned < cost || !chargeBossFightGold(cost))) {
       sceneSignature = "";
       renderSceneOverlay();
       playSfx("ui.button", { volume: 0.25, throttleMs: 120 });
@@ -27357,7 +28114,7 @@ async function confirmBossZoneEntry(zoneId) {
     gamePanelSignature = "";
   } else if (empowerEligible && bossEmpowerFightSelected(zoneId)) {
     const cost = bossEmpowerGoldCostForZone(zone);
-    if (goldOwned < cost || !chargeBossFightGold(cost)) {
+    if (cost > 0 && (goldOwned < cost || !chargeBossFightGold(cost))) {
       sceneSignature = "";
       renderSceneOverlay();
       playSfx("ui.button", { volume: 0.25, throttleMs: 120 });
@@ -27372,7 +28129,7 @@ async function confirmBossZoneEntry(zoneId) {
     state.pendingBossEmpowered = false;
     state.pendingBossAscended = false;
     state.pendingBossAwakened = false;
-    if (isGroupDungeon) state.groupDungeonEmpowerTier = 0;
+    state.groupDungeonEmpowerTier = 0;
   }
   captureActiveCharacterState();
   state.pendingBossAssistSelection = [...selectedBossAssistIds()];
@@ -27407,6 +28164,9 @@ async function enterZone(zoneId, options = {}) {
   state.game.dropPity[zone.id] = state.game.dropPity[zone.id] ?? 0;
   if (isRoomOnlyZone(zone)) {
     resetBattleForRoomOnly(zone);
+  } else if (groupDungeonBossSwarmZone(zone)) {
+    const firstSwarmId = zone.enemyIds?.[0] ?? randomZoneEnemyTemplate(zone).id;
+    resetBattle(firstSwarmId);
   } else {
     resetBattle(randomZoneEnemyTemplate(zone).id);
   }
@@ -27421,7 +28181,7 @@ async function enterZone(zoneId, options = {}) {
   state.pendingBossEmpowered = false;
   state.pendingBossAscended = false;
   state.pendingBossAwakened = false;
-  if (state.battle.bossEmpowered && state.battle.enemy) {
+  if (state.battle.bossEmpowered && state.battle.enemy && !groupDungeonBossSwarmZone(zone)) {
     applyEmpoweredBossFightModifiers(state.battle.enemy);
   }
   state.battle.log = [`Teleported to ${zone.label}.`];
@@ -27436,12 +28196,14 @@ async function enterZone(zoneId, options = {}) {
       : state.battle.bossAscended
         ? bossAscendGoldCostForZone(zone)
         : bossEmpowerGoldCostForZone(zone);
-    if (groupDungeonEmpowerable(zone)) {
-      const mult = state.battle.bossAwakened
-        ? AWAKENED_BOSS_HP_MULTIPLIER
-        : state.battle.bossAscended
-          ? ASCENDED_BOSS_HP_MULTIPLIER
-          : EMPOWERED_BOSS_HP_MULTIPLIER;
+    const mult = state.battle.bossAwakened
+      ? AWAKENED_BOSS_HP_MULTIPLIER
+      : state.battle.bossAscended
+        ? ASCENDED_BOSS_HP_MULTIPLIER
+        : EMPOWERED_BOSS_HP_MULTIPLIER;
+    if (isMysteryCaveZone(zone)) {
+      state.battle.log.push(`${fightLabel} Mystery Cave — ${mult}× HP and damage.`);
+    } else if (groupDungeonEmpowerable(zone)) {
       state.battle.log.push(
         `${fightLabel} dungeon — paid ${goldPaid.toLocaleString()} gold. All monsters: ${mult}× HP, damage, XP, and gold.`,
       );
@@ -27603,6 +28365,8 @@ function cloneBossSwarmPlanEntry(entry = {}) {
   if (entry.mapRowOffset != null) cloned.mapRowOffset = Math.trunc(Number(entry.mapRowOffset));
   if (entry.lane != null) cloned.lane = Math.trunc(Number(entry.lane));
   if (entry.mapRow != null) cloned.mapRow = Math.trunc(Number(entry.mapRow));
+  if (entry.spawnColOffset != null) cloned.spawnColOffset = Math.trunc(Number(entry.spawnColOffset));
+  if (entry.waveIndex != null) cloned.waveIndex = Math.max(0, Math.trunc(Number(entry.waveIndex) || 0));
   return cloned;
 }
 
@@ -27627,6 +28391,7 @@ function buildBossSwarmSpawnPlan(base, zone) {
         plan.push({
           templateId,
           spawnAtMs,
+          waveIndex: entry.waveIndex != null ? Math.max(0, Math.trunc(Number(entry.waveIndex) || 0)) : undefined,
           mapRow: entry.mapRow != null ? Math.trunc(Number(entry.mapRow)) : undefined,
           mapRowOffset: entry.mapRowOffset != null ? Math.trunc(Number(entry.mapRowOffset)) : undefined,
           lane: lane != null ? Math.trunc(Number(lane)) : undefined,
@@ -27727,6 +28492,7 @@ function resetGroupDungeonBossSwarmRun(now = performance.now(), zone = groupDung
       nextSpawnAt: now,
       complete: false,
       waitingForRespawn: skipInitialSpawn,
+      rewardGranted: false,
     },
   };
   state.battle.enemy = null;
@@ -27775,14 +28541,17 @@ function spawnGroupDungeonBossSwarmEnemy(now = performance.now()) {
   // supported swarm boss (e.g. the standalone Devourers) here so every member is
   // empowered. Group dungeons scale uniformly in buildSwarmEnemyFromTemplate, so skip
   // this boss-room hook there to avoid double-scaling and extra enrage.
-  if (
+  // Mystery Cave always pins HP/damage from the template × the paid tier (plain = 1×).
+  if (isMysteryCaveZone(activeZone())) {
+    applyMysteryCaveBossCombatModifiers(enemy, template);
+  } else if (
     !groupDungeonEmpowerable(activeZone())
     && state.battle.bossEmpowered
-    && (supportsEmpoweredBossCombat(enemy) || isMysteryCaveZone(activeZone()))
+    && supportsEmpoweredBossCombat(enemy)
   ) {
     applyEmpoweredBossCombatModifiers(enemy);
   }
-  if (isDarkDevourerSwarmEnemy(enemy)) {
+  if (isDarkDevourerSwarmEnemy(enemy) || isDarkDevilSwarmEnemy(enemy)) {
     enemy._darkDevilRangeReadyAt = now;
   }
   if (spawnColOffset == null) {
@@ -27792,10 +28561,30 @@ function spawnGroupDungeonBossSwarmEnemy(now = performance.now()) {
   }
   swarm.enemies.push(enemy);
   bossSwarm.spawned += 1;
+  if (isMysteryCaveZone(activeZone())) {
+    enemy.mysteryCaveWaveIndex = mysteryCaveWaveIndexForPlanEntry(planEntry, bossSwarm.spawned - 1);
+  }
   void ensureSwarmEnemyAtlas(enemy);
   syncGroupDungeonPrimaryEnemy();
   markGroupDungeonWaveUiDirty();
   return enemy;
+}
+
+function maybePullForwardMysteryCaveSpawn(now = performance.now()) {
+  if (!isMysteryCaveZone(activeZone())) return false;
+  const bossSwarm = groupDungeonBossSwarmState();
+  if (!bossSwarm || bossSwarm.complete || bossSwarm.waitingForRespawn) return false;
+  if (bossSwarm.spawned >= bossSwarm.totalSpawns) return false;
+  if (groupDungeonSwarmLivingCount() > 0) return false;
+  const next = bossSwarm.spawnPlan?.[bossSwarm.spawned];
+  const spawnAtMs = Math.max(0, Math.trunc(Number(next?.spawnAtMs) || 0));
+  const parsedStart = Number(bossSwarm.fightStartAt);
+  const fightStart = Number.isFinite(parsedStart) ? parsedStart : now;
+  const pulled = mysteryCavePulledFightStartAt(fightStart, spawnAtMs, now);
+  if (pulled === fightStart) return false;
+  bossSwarm.fightStartAt = pulled;
+  bossSwarm.nextSpawnAt = now;
+  return true;
 }
 
 function spawnPendingGroupDungeonBossSwarmEnemies(now = performance.now()) {
@@ -27827,6 +28616,7 @@ function spawnPendingGroupDungeonBossSwarmEnemies(now = performance.now()) {
     bossSwarm.nextSpawnAt = Number.POSITIVE_INFINITY;
     return;
   }
+  maybePullForwardMysteryCaveSpawn(now);
   const fightStart = bossSwarm.fightStartAt ?? now;
   while (bossSwarm.spawned < bossSwarm.totalSpawns) {
     const next = bossSwarm.spawnPlan?.[bossSwarm.spawned];
@@ -27840,13 +28630,57 @@ function spawnPendingGroupDungeonBossSwarmEnemies(now = performance.now()) {
       bossSwarm.nextSpawnAt = spawnAt;
       return;
     }
-    pushBattleLog(`${enemy.name} approaches (${bossSwarm.spawned}/${bossSwarm.totalSpawns}).`);
+    pushBattleLog(
+      isMysteryCaveZone(activeZone())
+        ? `${enemy.name} approaches (${bossSwarm.spawned}/${bossSwarm.totalSpawns}) — ${Math.trunc(Number(enemy.maxHp) || 0).toLocaleString()} HP.`
+        : `${enemy.name} approaches (${bossSwarm.spawned}/${bossSwarm.totalSpawns}).`,
+    );
   }
   bossSwarm.nextSpawnAt = Number.POSITIVE_INFINITY;
 }
 
 function updateGroupDungeonBossSwarmSpawns(now) {
   spawnPendingGroupDungeonBossSwarmEnemies(now);
+}
+
+function awardMysteryCaveRunReward() {
+  if (!isMysteryCaveZone(activeZone())) return false;
+  const bossSwarm = groupDungeonBossSwarmState();
+  if (!bossSwarm || bossSwarm.rewardGranted) return false;
+  bossSwarm.rewardGranted = true;
+  const kills = sanitizeMysteryCaveKills(bossSwarm.killed);
+  if (kills <= 0) return false;
+  const tier = liveBossFightTier();
+  const bestWave = sanitizeMysteryCaveBestWave(bossSwarm.mysteryCaveBestWave, kills);
+  const gold = mysteryCaveGoldReward(kills, tier);
+  const runLabel = mysteryCaveRewardRunLabel(kills, tier);
+  if (!itemDefinition(MYSTERY_CAVE_CHEST_ITEM_ID)) {
+    if (gold > 0) creditSharedGold(gold);
+    pushBattleLog(`Mystery Cave reward: ${gold.toLocaleString()} gold (${runLabel}).`);
+    return true;
+  }
+  if (!hasInventorySpaceFor(MYSTERY_CAVE_CHEST_ITEM_ID)) {
+    if (gold > 0) creditSharedGold(gold);
+    pushBattleLog(`Bag full — claimed ${gold.toLocaleString()} gold from Mystery Cave (${runLabel}).`);
+    return true;
+  }
+  const added = addInventoryItem(MYSTERY_CAVE_CHEST_ITEM_ID, 1, {
+    entryOptions: { mysteryCaveKills: kills, mysteryCaveTier: tier, mysteryCaveBestWave: bestWave },
+  });
+  const chest = added[0];
+  if (!chest) {
+    if (gold > 0) creditSharedGold(gold);
+    pushBattleLog(`Bag full — claimed ${gold.toLocaleString()} gold from Mystery Cave (${runLabel}).`);
+    return true;
+  }
+  chest.mysteryCaveKills = kills;
+  chest.mysteryCaveBestWave = bestWave;
+  if (tier > 0) chest.mysteryCaveTier = tier;
+  else delete chest.mysteryCaveTier;
+  pushBattleLog(`Mystery Cave Chest added to your bag (${runLabel}).`);
+  sceneSignature = "";
+  gamePanelSignature = "";
+  return true;
 }
 
 function finishGroupDungeonBossSwarmEncounter(now = performance.now()) {
@@ -27864,6 +28698,7 @@ function finishGroupDungeonBossSwarmEncounter(now = performance.now()) {
     pushBattleLog(`${bossLabel} will respawn in ${formatBossRespawnDelay(respawnMinutes)}.`);
   }
   if (isMysteryCaveZone(zone)) {
+    awardMysteryCaveRunReward();
     pushBattleLog(`Mystery Cave cleared — ${bossSwarm.killed} / ${bossSwarm.totalSpawns} bosses slain.`);
   } else {
     pushBattleLog(`All ${bossLabel} defeated.`);
@@ -28643,6 +29478,7 @@ function groupDungeonSwarmBangCandidateCentersForTile(tile) {
 }
 
 function groupDungeonSwarmBangInRange(center, spell, member) {
+  if (!center || !Number.isFinite(Number(center.worldX))) return false;
   const casterX = Number(member?.worldX ?? state.battle.playerX);
   if (!Number.isFinite(casterX)) return true;
   const rangeTiles = Math.max(1, Math.trunc(Number(spell?.range) || 9));
@@ -28737,18 +29573,19 @@ function buildSwarmEnemyFromTemplate(template, now, options = {}) {
     maxMp: template.maxMp,
     hp: template.maxHp,
     mp: template.maxMp,
-    dc: template.dc,
-    meleeDc: template.meleeDc,
-    rangedDc: template.rangedDc,
-    mc: template.mc,
-    sc: template.sc,
-    ac: template.ac,
-    amc: template.amc,
+    dc: cloneEnemyStatRange(template.dc),
+    meleeDc: cloneEnemyStatRange(template.meleeDc),
+    rangedDc: cloneEnemyStatRange(template.rangedDc),
+    mc: cloneEnemyStatRange(template.mc),
+    sc: cloneEnemyStatRange(template.sc),
+    ac: cloneEnemyStatRange(template.ac),
+    amc: cloneEnemyStatRange(template.amc),
     accuracy: template.accuracy,
     agility: template.agility,
     luck: template.luck,
     attackMs: template.attackMs,
     moveMs: template.moveMs,
+    enrageMoveMs: template.enrageMoveMs,
     experience: template.experience,
     monsterIndex: template.monsterIndex,
     crystalName: template.crystalName,
@@ -28759,7 +29596,7 @@ function buildSwarmEnemyFromTemplate(template, now, options = {}) {
     rangedAttackDefenceType: template.rangedAttackDefenceType,
     rangedAttackExtraMs: template.rangedAttackExtraMs,
     stationaryBoss: Boolean(template.stationaryBoss),
-    enrageHpStages: template.enrageHpStages,
+    enrageHpStages: Array.isArray(template.enrageHpStages) ? [...template.enrageHpStages] : template.enrageHpStages,
     enrageDurationMs: template.enrageDurationMs,
     enrageAttackMs: template.enrageAttackMs,
     poisons: [],
@@ -28895,6 +29732,7 @@ function swarmEnemyToBattleEntity(swarmEnemy) {
     luck: swarmEnemy.luck,
     attackMs: swarmEnemy.attackMs,
     moveMs: swarmEnemy.moveMs,
+    enrageMoveMs: swarmEnemy.enrageMoveMs ?? template?.enrageMoveMs,
     experience: swarmEnemy.experience,
     monsterIndex: swarmEnemy.monsterIndex,
     crystalName: swarmEnemy.crystalName ?? template?.crystalName,
@@ -28910,6 +29748,10 @@ function swarmEnemyToBattleEntity(swarmEnemy) {
     enrageUntil: swarmEnemy.enrageUntil,
     enrageStage: swarmEnemy.enrageStage,
     _enrageStagesTriggered: swarmEnemy._enrageStagesTriggered,
+    _massBurstCooldownUntil: swarmEnemy._massBurstCooldownUntil,
+    _darkDevilRangeReadyAt: swarmEnemy._darkDevilRangeReadyAt,
+    _danmoAoeReadyAt: swarmEnemy._danmoAoeReadyAt,
+    minotaurKingAttackCount: swarmEnemy.minotaurKingAttackCount,
     poisons: swarmEnemy.poisons,
     flamingSwordBurn: swarmEnemy.flamingSwordBurn ?? null,
     debuffs: swarmEnemy.debuffs,
@@ -29215,10 +30057,14 @@ function maybeKillGroupDungeonSwarmEnemy(enemy, now) {
   if (swarmEnemy && !swarmEnemy.dying) onGroupDungeonSwarmEnemyKilled(swarmEnemy, now);
 }
 
-function syncGroupDungeonPrimaryEnemy() {
+function syncGroupDungeonPrimaryEnemy(preferred = null) {
   const swarm = state.battle.swarm;
   if (!swarm || swarm.bossReinforcements) return;
-  const primary = groupDungeonPrimarySwarmEnemy();
+  const strikeLocked = findGroupDungeonSwarmEnemy(state.battle.pendingEnemyStrike?.swarmId);
+  const locked = (preferred && preferred.hp > 0 && !preferred.dying)
+    ? preferred
+    : ((strikeLocked && strikeLocked.hp > 0 && !strikeLocked.dying) ? strikeLocked : null);
+  const primary = locked ?? groupDungeonPrimarySwarmEnemy();
   if (!primary) {
     if (groupDungeonBossSwarmState()) {
       state.battle.enemy = null;
@@ -29452,12 +30298,19 @@ function updateGroupDungeonSwarmMovement(now) {
   }
 }
 
+function swarmEnemyActionFrameInterval(enemy, clip) {
+  const base = Math.max(1, Math.trunc(Number(clip?.interval) || 100));
+  if (!isDanmoEnemy(enemy) || !swarmIsWalkAction(enemy.action)) return base;
+  return Math.min(base, DANMO_WALK_FRAME_MS);
+}
+
 function updateGroupDungeonSwarmEnemyFrame(enemy, now) {
   const clip = enemy.atlas?.actions?.[enemy.action];
   if (state.paused || !clip?.frames?.length) return;
+  const interval = swarmEnemyActionFrameInterval(enemy, clip);
   const dt = now - (enemy.lastTick ?? now);
-  if (dt < clip.interval) return;
-  const steps = Math.floor(dt / clip.interval);
+  if (dt < interval) return;
+  const steps = Math.floor(dt / interval);
   const terminal = enemy.oneShot || enemy.action === "struck" || enemy.action === "die";
   if (terminal) {
     const nextFrame = enemy.frame + steps;
@@ -29496,7 +30349,7 @@ function updateGroupDungeonSwarmEnemyFrame(enemy, now) {
   } else {
     enemy.frame = (enemy.frame + steps) % clip.frames.length;
   }
-  enemy.lastTick += steps * clip.interval;
+  enemy.lastTick += steps * interval;
 }
 
 function updateGroupDungeonSwarmFrames(now) {
@@ -29544,6 +30397,15 @@ function onGroupDungeonSwarmEnemyKilled(swarmEnemy, now = performance.now()) {
     addLootNotice(`${swarmEnemy.name} defeated`, "boss");
     if (bossSwarm) {
       bossSwarm.killed += 1;
+      if (isMysteryCaveZone(activeZone())) {
+        const wave = Math.trunc(Number(swarmEnemy.mysteryCaveWaveIndex));
+        if (Number.isFinite(wave)) {
+          const previous = bossSwarm.mysteryCaveBestWave;
+          bossSwarm.mysteryCaveBestWave = previous == null || previous === ""
+            ? wave
+            : Math.max(Math.trunc(Number(previous) || 0), wave);
+        }
+      }
       // Start the room cooldown on the first swarm boss kill so leaving after a
       // partial clear (e.g. one Devourer) cannot re-enter immediately. Kill credit
       // / achievements still wait for a full clear via setBossRespawn.
@@ -29574,6 +30436,7 @@ function onGroupDungeonSwarmEnemyKilled(swarmEnemy, now = performance.now()) {
     if (waves && !groupDungeonBossReinforcementsActive()) waves.killedThisWave += 1;
     markGroupDungeonWaveUiDirty();
     syncGroupDungeonPrimaryEnemy();
+    if (isMysteryCaveZone(activeZone())) spawnPendingGroupDungeonBossSwarmEnemies(now);
     return;
   }
   setSwarmEnemyAction(swarmEnemy, "die", true, now);
@@ -29589,6 +30452,7 @@ function onGroupDungeonSwarmEnemyKilled(swarmEnemy, now = performance.now()) {
   if (waves && !groupDungeonBossReinforcementsActive()) waves.killedThisWave += 1;
   markGroupDungeonWaveUiDirty();
   syncGroupDungeonPrimaryEnemy();
+  if (isMysteryCaveZone(activeZone())) spawnPendingGroupDungeonBossSwarmEnemies(now);
 }
 
 
@@ -29941,6 +30805,13 @@ function beginDarkDevourerSwarmAttack(swarmEnemy, now) {
   return true;
 }
 
+function isDarkDevilSwarmEnemy(swarmEnemy) {
+  if (!swarmEnemy) return false;
+  if (swarmEnemy.attackMode === "darkDevil" || swarmEnemy.crystalName === "DarkDevil") return true;
+  const templateId = Math.trunc(Number(swarmEnemy.templateId ?? swarmEnemy.id) || 0);
+  return templateId === DARK_DEVIL_ENEMY_ID;
+}
+
 function isManectricClawSwarmEnemy(swarmEnemy) {
   const templateId = Math.trunc(Number(swarmEnemy?.templateId ?? swarmEnemy?.id) || 0);
   const monsterIndex = Math.trunc(Number(swarmEnemy?.monsterIndex) || 0);
@@ -30252,7 +31123,71 @@ function beginHellBoltSwarmAttack(swarmEnemy, now) {
   return true;
 }
 
+function persistSwarmBossKitRuntime(swarmEnemy = null, battleEnemy = state.battle.enemy) {
+  const target = swarmEnemy
+    ?? findGroupDungeonSwarmEnemy(battleEnemy?.swarmId ?? state.battle.pendingEnemyStrike?.swarmId);
+  if (!target || !battleEnemy) return;
+  if (battleEnemy._massBurstCooldownUntil != null) target._massBurstCooldownUntil = battleEnemy._massBurstCooldownUntil;
+  if (battleEnemy._darkDevilRangeReadyAt != null) target._darkDevilRangeReadyAt = battleEnemy._darkDevilRangeReadyAt;
+  if (battleEnemy._danmoAoeReadyAt != null) target._danmoAoeReadyAt = battleEnemy._danmoAoeReadyAt;
+  if (battleEnemy.minotaurKingAttackCount != null) target.minotaurKingAttackCount = battleEnemy.minotaurKingAttackCount;
+  if (battleEnemy.enrageUntil != null) target.enrageUntil = battleEnemy.enrageUntil;
+  if (battleEnemy.enrageStage != null) target.enrageStage = battleEnemy.enrageStage;
+  if (battleEnemy._enrageStagesTriggered != null) target._enrageStagesTriggered = battleEnemy._enrageStagesTriggered;
+}
+
+function copyPrimaryVisualToSwarmEnemy(swarmEnemy) {
+  if (!swarmEnemy) return;
+  swarmEnemy.action = state.enemy.action;
+  swarmEnemy.frame = state.enemy.frame;
+  swarmEnemy.oneShot = state.enemy.oneShot;
+  swarmEnemy.lastTick = state.enemy.lastTick;
+  swarmEnemy.attackFxStartedAt = state.enemy.attackFxStartedAt ?? null;
+  if (state.enemy.attackFlinchLockUntil != null) swarmEnemy.attackFlinchLockUntil = state.enemy.attackFlinchLockUntil;
+}
+
+function swarmEnemyHasBossPartyKit(swarmEnemy) {
+  const enemy = swarmEnemyToBattleEntity(swarmEnemy);
+  if (!enemy) return false;
+  return isGreatFoxSpiritEnemy(enemy)
+    || isEvilCentipedeEnemy(enemy)
+    || isMassBurstEnemy(enemy)
+    || isScalyBeastEnemy(enemy)
+    || isThunderElementEnemy(enemy)
+    || isGuardianRockEnemy(enemy)
+    || isDarkDevilEnemy(enemy)
+    || isKingScorpionEnemy(enemy)
+    || isCrystalSpiderEnemy(enemy)
+    || isFrostTigerEnemy(enemy)
+    || isDanmoEnemy(enemy)
+    || enemyHasRangedMeleeAttack(enemy);
+}
+
+function beginSwarmBossKitAttack(swarmEnemy, now) {
+  if (!swarmEnemy || swarmEnemy.hp <= 0) return false;
+  if (!state.battle.enemyRevealed) return false;
+  if (state.battle.pendingEnemyStrike) return false;
+  const entity = swarmEnemyToBattleEntity(swarmEnemy);
+  // Danmo's kit reaches 12 tiles, so firing on the walk-in cancels steps and he never arrives.
+  if (isDanmoEnemy(entity)) {
+    const meleeCol = swarmSnapTileX(groupDungeonSwarmMeleeWorldX());
+    if (!swarmEnemyInAttackRange(swarmEnemy, meleeCol)) return false;
+  }
+  state.battle.enemyAggro = true;
+  syncGroupDungeonPrimaryEnemy(swarmEnemy);
+  const ok = bossPartyEnemyAttack(now);
+  persistSwarmBossKitRuntime(swarmEnemy);
+  if (!ok) return false;
+  copyPrimaryVisualToSwarmEnemy(swarmEnemy);
+  swarmEnemy.nextAttackAt = now + effectiveEnemyAttackMs(state.battle.enemy, now);
+  if (state.battle.pendingEnemyStrike) state.battle.pendingEnemyStrike.swarmId = swarmEnemy.id;
+  return true;
+}
+
 function groupDungeonSwarmEnemyAttack(swarmEnemy, now) {
+  if (swarmEnemyHasBossPartyKit(swarmEnemy)) {
+    return beginSwarmBossKitAttack(swarmEnemy, now);
+  }
   if (isHellKeeperSwarmEnemy(swarmEnemy)) {
     return beginHellKeeperSwarmAttack(swarmEnemy, now);
   }
@@ -30297,11 +31232,12 @@ function runGroupDungeonSwarmAttackPass(now) {
     if (swarmEnemy.hp <= 0 || swarmEnemy.dying) continue;
     if (enemyFrozenActive(swarmEnemy, now)) continue;
     if (swarmEnemy.pendingStrike) continue;
-    if (swarmEnemy.stepToX != null) continue;
+    if (swarmEnemy.stepToX != null && !swarmEnemyHasBossPartyKit(swarmEnemy)) continue;
     if (swarmEnemy.oneShot && swarmEnemy.action !== "standing") continue;
     if (now < (swarmEnemy.nextAttackAt ?? 0)) continue;
     if (groupDungeonSwarmEnemyAttack(swarmEnemy, now)) {
-      if (!isHellKeeperSwarmEnemy(swarmEnemy)
+      if (!swarmEnemyHasBossPartyKit(swarmEnemy)
+        && !isHellKeeperSwarmEnemy(swarmEnemy)
         && !isHellBombSwarmEnemy(swarmEnemy)
         && !isHellBoltSwarmEnemy(swarmEnemy)
         && !isWitchDoctorSwarmEnemy(swarmEnemy)
@@ -30344,6 +31280,7 @@ function updateGroupDungeonBossPartyBattle(now) {
   updatePendingDisruptorCascade(now);
   updateAttachedSpellFx(now);
   updatePendingEnemyStrike(now);
+  persistSwarmBossKitRuntime();
   updatePendingPetAttack(now);
   updatePendingTaoPet(now);
   updatePendingWizardMirror(now);
@@ -30379,6 +31316,7 @@ function updateGroupDungeonBossPartyBattle(now) {
       if (!member.alive || member.hp <= 0 || now < (member.nextActionAt ?? 0)) continue;
       if (bossPartyMemberIsWalkingToMelee(member)) continue;
       bossPartyMemberAction(member, now);
+      syncGroupDungeonPrimaryEnemy();
     }
 
     runGroupDungeonSwarmAttackPass(now);
@@ -31234,12 +32172,6 @@ function trainerNpcSceneHtml(npc) {
 function teleportNpcSceneHtml(npc) {
   const browseRegionId = state.teleportBrowseRegionId;
   if (!browseRegionId) {
-    const mysteryCaveButton = `
-        <button type="button" data-enter-zone="${escapeHtml(MYSTERY_CAVE_ZONE_ID)}" class="teleport-region-button teleport-mystery-cave-button">
-          <strong>Mystery Cave</strong>
-          <span>Boss gauntlet</span>
-        </button>
-      `;
     const regionButtons = TELEPORT_REGIONS.map((entry) => {
       const zoneCount = teleportRegionZones(entry).length;
       return `
@@ -31253,7 +32185,6 @@ function teleportNpcSceneHtml(npc) {
       <section class="npc-panel crystal-npc-text teleport-panel">
         <span>${escapeHtml(npc.panel)}</span>
         <div class="teleport-region-list" data-preserve-scroll="npc-teleport-regions">
-          ${mysteryCaveButton}
           ${regionButtons}
         </div>
       </section>
@@ -32024,6 +32955,17 @@ function bindControls() {
       return;
     }
     useInventoryEntry(inventoryItem.dataset.inventoryEntry);
+  });
+  root.addEventListener("click", (event) => {
+    if (event.target.closest("[data-use-entry], [data-equip-entry], [data-sell-entry]")) return;
+    if (inventoryDragState) return;
+    const inventoryItem = event.target.closest("[data-inventory-entry]");
+    if (!inventoryItem || !root.contains(inventoryItem)) return;
+    if (inventoryItem.closest("[data-hotbar-slot]") || inventoryItem.dataset.equippedSlot) return;
+    const entry = inventoryEntryById(inventoryItem.dataset.inventoryEntry);
+    const item = entry ? itemDefinition(entry.itemId) : null;
+    if (!isMysteryCaveChestItem(item)) return;
+    useMysteryCaveChestEntry(entry.id);
   });
   root.addEventListener("click", (event) => {
     const tabButton = event.target.closest("[data-character-tab]");
@@ -33615,7 +34557,7 @@ function bossPartyMemberAction(member, now) {
 
 function bossPartyChargeWarriorSkill(member, skill, learned, now) {
   const cost = effectiveSpellMpCost(skill, learned, member.inventory);
-  member.mp -= cost;
+  spendWarriorSkillCost(member, cost, member.inventory, now);
   bossPartySetWarriorSpellCastReadyAt(member, skill, learned, now);
   if (skill.id === "FlamingSword") {
     applyFlamingSwordChargeState(member, now);
@@ -33662,13 +34604,13 @@ function bossPartyWarriorAction(member, now) {
   const autoSkills = bossPartyAutoSpells(member);
   const fury = autoSkills.find((skill) => skill.id === "Fury");
   const furyLearned = bossPartyLearned(member, "Fury");
-  if (fury && furyLearned && now >= (furyLearned.castReadyAt ?? 0) && !hasActiveFuryBuff(member, now) && member.mp >= effectiveSpellMpCost(fury, furyLearned, member.inventory)) {
+  if (fury && furyLearned && now >= (furyLearned.castReadyAt ?? 0) && !hasActiveFuryBuff(member, now) && warriorCanPaySkillCost(member, fury, furyLearned, member.inventory)) {
     return bossPartyCastWarriorBuff(member, fury, furyLearned, effectiveSpellMpCost(fury, furyLearned, member.inventory), now);
   }
 
   const rage = autoSkills.find((skill) => skill.id === "Rage");
   const rageLearned = bossPartyLearned(member, "Rage");
-  if (rage && rageLearned && now >= (rageLearned.castReadyAt ?? 0) && !hasActiveRageBuff(member, now) && member.mp >= effectiveSpellMpCost(rage, rageLearned, member.inventory)) {
+  if (rage && rageLearned && now >= (rageLearned.castReadyAt ?? 0) && !hasActiveRageBuff(member, now) && warriorCanPaySkillCost(member, rage, rageLearned, member.inventory)) {
     return bossPartyCastWarriorBuff(member, rage, rageLearned, effectiveSpellMpCost(rage, rageLearned, member.inventory), now);
   }
 
@@ -33676,7 +34618,7 @@ function bossPartyWarriorAction(member, now) {
   const protectionFieldLearned = bossPartyLearned(member, "ProtectionField");
   if (protectionField && protectionFieldLearned && now >= (protectionFieldLearned.castReadyAt ?? 0)
     && !hasActiveProtectionFieldBuff(member, now)
-    && member.mp >= effectiveSpellMpCost(protectionField, protectionFieldLearned, member.inventory)) {
+    && warriorCanPaySkillCost(member, protectionField, protectionFieldLearned, member.inventory)) {
     return bossPartyCastWarriorBuff(member, protectionField, protectionFieldLearned, effectiveSpellMpCost(protectionField, protectionFieldLearned, member.inventory), now);
   }
 
@@ -33684,7 +34626,7 @@ function bossPartyWarriorAction(member, now) {
   const immortalSkinLearned = bossPartyLearned(member, "ImmortalSkin");
   if (immortalSkin && immortalSkinLearned && now >= (immortalSkinLearned.castReadyAt ?? 0)
     && !hasActiveImmortalSkinBuff(member, now)
-    && member.mp >= effectiveSpellMpCost(immortalSkin, immortalSkinLearned, member.inventory)) {
+    && warriorCanPaySkillCost(member, immortalSkin, immortalSkinLearned, member.inventory)) {
     return bossPartyCastWarriorBuff(member, immortalSkin, immortalSkinLearned, effectiveSpellMpCost(immortalSkin, immortalSkinLearned, member.inventory), now);
   }
 
@@ -33733,7 +34675,7 @@ function bossPartyWarriorAction(member, now) {
   } else if (member.twinDrakeReady) {
     const twinDrake = warriorSpellById("TwinDrakeBlade");
     const twinDrakeLearned = bossPartyLearned(member, "TwinDrakeBlade");
-    if (twinDrake && twinDrakeLearned && member.mp >= effectiveSpellMpCost(twinDrake, twinDrakeLearned, member.inventory)) {
+    if (twinDrake && twinDrakeLearned && warriorCanPaySkillCost(member, twinDrake, twinDrakeLearned, member.inventory)) {
       attackSkill = twinDrake;
       learned = twinDrakeLearned;
       cost = effectiveSpellMpCost(twinDrake, twinDrakeLearned, member.inventory);
@@ -33789,7 +34731,7 @@ function bossPartyWarriorAction(member, now) {
         const skillLearned = bossPartyLearned(member, skill.id);
         if (skill.buff || skill.toggle
           || bossPartySpellOnCooldown(member, skill, skillLearned, now)
-          || member.mp < effectiveSpellMpCost(skill, skillLearned, member.inventory)) return false;
+          || !warriorCanPaySkillCost(member, skill, skillLearned, member.inventory)) return false;
         if (isBladeAvalancheSkill(skill)) {
           return bossPartyCanUseWarriorSkill(member, skill, skillLearned, now, { requireAuto: true });
         }
@@ -33803,7 +34745,7 @@ function bossPartyWarriorAction(member, now) {
   }
   if (!cost && attackSkill && learned) cost = effectiveSpellMpCost(attackSkill, learned, member.inventory);
   if (isBladeAvalancheSkill(attackSkill) && learned && !usingSlaying) {
-    member.mp -= cost;
+    spendWarriorSkillCost(member, cost, member.inventory, now);
     bossPartySetWarriorSpellCastReadyAt(member, attackSkill, learned, now);
     if (queuedWarrior?.queued && attackSkill.id === queuedWarrior.skill.id) clearQueuedCombatSpell(attackSkill.id);
     member.nextActionAt = now + attackDelayMs(bossPartyEffectiveAttackSpeed(member, now), member.level);
@@ -33839,10 +34781,10 @@ function bossPartyWarriorAction(member, now) {
   } else if (usingTwinDrake) {
     clearTwinDrakeChargeState(member);
     if (member.classId === bossPartyControlledClassId()) clearTwinDrakeChargeState(state.battle);
-    member.mp -= cost;
+    spendWarriorSkillCost(member, cost, member.inventory, now);
     bossPartySetWarriorSpellCastReadyAt(member, attackSkill, learned, now);
   } else if (learned) {
-    member.mp -= cost;
+    spendWarriorSkillCost(member, cost, member.inventory, now);
     if (!attackSkill.toggle) bossPartySetWarriorSpellCastReadyAt(member, attackSkill, learned, now);
   }
   usingSweepAttack = isSweepAttackSkill(attackSkill);
@@ -33934,8 +34876,16 @@ function bossPartyQueuedWizardSpell(member, now) {
   };
 }
 
-function bossPartyWizardAction(member, now) {
+function bossPartyHasLivingAttackTarget() {
+  if (groupDungeonSwarmSideActive()) {
+    syncGroupDungeonPrimaryEnemy();
+    return groupDungeonSwarmLivingCount() > 0;
+  }
   const enemy = state.battle.enemy;
+  return Boolean(enemy && enemy.hp > 0 && state.battle.enemyRevealed);
+}
+
+function bossPartyWizardAction(member, now) {
   const queuedMirror = bossPartyUsableQueuedWizardMirroring(member, now);
   if (queuedMirror && bossPartyCastWizardMirroring(member, queuedMirror, now)) return true;
   const mirroring = bossPartyUsableWizardMirroring(member, now);
@@ -33948,10 +34898,16 @@ function bossPartyWizardAction(member, now) {
   if (queuedBooster && bossPartyCastWizardMagicBooster(member, queuedBooster, now)) return true;
   const magicBooster = bossPartyUsableWizardMagicBooster(member, now);
   if (magicBooster && bossPartyCastWizardMagicBooster(member, magicBooster, now)) return true;
+  if (!bossPartyHasLivingAttackTarget()) {
+    if (wizardStormChannelActive(now, member)) return false;
+    return bossPartyWait(member, now);
+  }
+  const enemy = state.battle.enemy;
   const spells = bossPartyWizardAttackSpells(member);
   const queuedWizard = bossPartyQueuedWizardSpell(member, now);
   if (queuedWizard?.cooldownWaiting) {
     if (wizardStormChannelActive(now, member)) return false;
+    if (equippedGreatFireBallCastSpeedUnlocked(member) && wizardGreatFireBallProjectileInFlight(now)) return false;
     return bossPartyWeaponAttack(member, now);
   }
   const queuedSpell = queuedWizard?.spell
@@ -33973,6 +34929,7 @@ function bossPartyWizardAction(member, now) {
   });
   if (!spell) {
     if (wizardStormChannelActive(now, member)) return false;
+    if (equippedGreatFireBallCastSpeedUnlocked(member) && wizardGreatFireBallProjectileInFlight(now)) return false;
     return bossPartyWeaponAttack(member, now);
   }
   const learned = bossPartyLearned(member, spell.id);
@@ -34061,7 +35018,10 @@ function bossPartyTaoistAction(member, now) {
     const queuedRequest = queuedCombatSpell("Taoist");
     const queued = bossPartyUsableQueuedTaoistSpell(member, now);
     if (queued && bossPartyCastQueuedTaoistSpell(member, queued, now)) return true;
-    if (queuedRequest) return bossPartyWeaponAttack(member, now);
+    if (queuedRequest) {
+      if (!bossPartyHasLivingAttackTarget()) return bossPartyWait(member, now);
+      return bossPartyWeaponAttack(member, now);
+    }
   }
 
   const spells = bossPartyAutoSpells(member);
@@ -34195,6 +35155,8 @@ function bossPartyTaoistAction(member, now) {
   const petEnhancer = bossPartyUsableTaoistPetEnhancer(member, now);
   if (petEnhancer && bossPartyCastPetEnhancer(member, petEnhancer, now)) return true;
 
+  if (!bossPartyHasLivingAttackTarget()) return bossPartyWait(member, now);
+
   const poison = spells.find((spell) => spell.id === "Poisoning");
   if (poison && !state.battle.bossParty.pendingPoison && bossPartyCanCast(member, poison, now)) {
     const target = groupDungeonSwarmSideActive()
@@ -34297,12 +35259,13 @@ function bossPartyTaoistAction(member, now) {
 
   const soulFireBall = spells.find((spell) => spell.id === "SoulFireBall");
   if (soulFireBall && bossPartyCanCast(member, soulFireBall, now)) {
+    const enemy = state.battle.enemy;
     const amulet = bossPartyAmuletCandidate(member);
-    if (amulet && bossPartyConsumeOneInventoryUnit(member, amulet.id)) {
+    if (enemy?.hp > 0 && amulet && bossPartyConsumeOneInventoryUnit(member, amulet.id)) {
       const learned = bossPartyLearned(member, soulFireBall.id);
       member.mp -= effectiveSpellMpCost(soulFireBall, learned, member.inventory);
       setLearnedSpellCastReadyAt(learned, soulFireBall, now, member.inventory);
-      member.nextActionAt = now + spellDelayMs(soulFireBall, learned);
+      member.nextActionAt = now + taoistSpellActionLockMs(soulFireBall, learned, member.inventory);
       bossPartyControlledVisual(member, soulFireBall, soulFireBall.bodyAction ?? "spell", now);
       bossPartyCastSfx(member, soulFireBall.id, 0.38, 160);
       playSpellSfx(soulFireBall.id, "fly", bossPartySfxParams(member, 0.38, 120));
@@ -34438,7 +35401,7 @@ function bossPartyCanUseWarriorSkill(member, skill, learned, now, options = {}) 
       return distance > BOSS_PARTY_WARRIOR_REACH && distance <= BOSS_PARTY_THRUSTING_REACH;
     }
     if (isSweepAttackSkill(skill)) {
-      return canUseSweepAttack(distance, member.mp ?? 0, skill, learned, member.inventory);
+      return canUseSweepAttack(distance, member, skill, learned, member.inventory);
     }
     return false;
   }
@@ -34459,7 +35422,7 @@ function bossPartyCanUseWarriorSkill(member, skill, learned, now, options = {}) 
   if (skill.id === "ProtectionField" && hasActiveProtectionFieldBuff(member, now)) return false;
   if (skill.id === "ImmortalSkin" && hasActiveImmortalSkinBuff(member, now)) return false;
   if (bossPartySpellOnCooldown(member, skill, learned, now)) return false;
-  return member.mp >= effectiveSpellMpCost(skill, learned, member.inventory);
+  return warriorCanPaySkillCost(member, skill, learned, member.inventory);
 }
 
 function bossPartyCanUseTaoistSpell(member, spell, learned, now, options = {}) {
@@ -35206,7 +36169,7 @@ function bossPartyCastQueuedTaoistSpell(member, queued, now) {
     if (!bossPartyConsumeOneInventoryUnit(member, queued.entry.id)) return false;
     member.mp -= queued.cost;
     setLearnedSpellCastReadyAt(queued.learned, queued.spell, now, member.inventory);
-    member.nextActionAt = now + spellDelayMs(queued.spell, queued.learned);
+    member.nextActionAt = now + taoistSpellActionLockMs(queued.spell, queued.learned, member.inventory);
     clearQueuedCombatSpell(queued.spell.id);
     bossPartyControlledVisual(member, queued.spell, queued.spell.bodyAction ?? "spell", now);
     bossPartyCastSfx(member, queued.spell.id, 0.38, 160);
@@ -38980,6 +39943,10 @@ function resolveEvilCentipedeStrikeTarget(enemy, target, now, offsetIndex = 0) {
 function updatePendingEnemyStrike(now) {
   const strike = state.battle.pendingEnemyStrike;
   if (!strike) return;
+  if (strike.swarmId != null) {
+    const locked = findGroupDungeonSwarmEnemy(strike.swarmId);
+    if (locked && locked.hp > 0 && !locked.dying) syncGroupDungeonPrimaryEnemy(locked);
+  }
   const vfxUntil = Number(strike.vfxUntil) || strike.at;
   if (strike.kind === "kingScorpionLine") {
     for (const hit of strike.hits ?? []) {
@@ -39749,6 +40716,7 @@ function finishBossPartyEnemy(now) {
 function finishBossPartyDefeat(now) {
   const party = state.battle.bossParty;
   if (!party?.active || party.finished) return;
+  awardMysteryCaveRunReward();
   finalizeBossCombatReportOutcome("defeat");
   party.finished = true;
   party.active = false;
@@ -40782,7 +41750,7 @@ function setLearnedSpellCastReadyAt(learned, spell, now, inventory = state.inven
   if (!learned) return;
   learned.castReadyAt = now + applyEquippedSpellCooldownReductionMs(
     spell?.id,
-    spellDelayMs(spell, learned),
+    taoistSpellActionLockMs(spell, learned, inventory),
     inventory,
   );
 }
@@ -41367,7 +42335,7 @@ function updatePendingTwinDrakeHits(now) {
 
 function castWarriorCharge(skill, learned, cost, now) {
   const battle = state.battle;
-  battle.player.mp = Math.max(0, battle.player.mp - cost);
+  spendWarriorSkillCost(battle.player, cost, state.inventory, now);
   setWarriorSpellCastReadyAt(skill, learned, now);
   clearQueuedCombatSpell(skill.id);
   if (battle.bossParty?.active) {
@@ -41418,7 +42386,7 @@ function warriorPendingChargeAttack(now = performance.now(), member = null) {
     if (member.twinDrakeReady) {
       const twinDrake = warriorSpellById("TwinDrakeBlade");
       const learned = bossPartyLearned(member, "TwinDrakeBlade");
-      if (twinDrake && learned && member.mp >= effectiveSpellMpCost(twinDrake, learned, member.inventory)) return true;
+      if (twinDrake && learned && warriorCanPaySkillCost(member, twinDrake, learned, member.inventory)) return true;
     }
     return false;
   }
@@ -41752,13 +42720,13 @@ function resolveActiveSweepAttack(member = null, now = performance.now()) {
     ? (skillId) => bossPartyLearned(member, skillId)
     : (skillId) => learnedMagic(skillId);
   const distance = member ? bossPartyMemberEnemyDistance(member) : enemyDistance();
-  const mp = member ? (member.mp ?? 0) : (state.battle.player?.mp ?? 0);
+  const combatant = member ?? state.battle.player;
   const inventory = member?.inventory ?? state.inventory;
   for (const skillId of SWEEP_ATTACK_SKILL_PRIORITY) {
     const skill = spells.find((entry) => entry.id === skillId);
     if (!skill) continue;
     const learned = learnedFor(skillId);
-    if (!canUseSweepAttack(distance, mp, skill, learned, inventory)) continue;
+    if (!canUseSweepAttack(distance, combatant, skill, learned, inventory)) continue;
     return { skill, learned };
   }
   return null;
@@ -41813,19 +42781,58 @@ function crossHalfMoonOverridesHalfMoon(now = performance.now()) {
   if (!autoWarriorCombatSkills().some((skill) => skill.id === "CrossHalfMoon")) return false;
   return canUseSweepAttack(
     enemyDistance(),
-    state.battle.player?.mp ?? 0,
+    state.battle.player,
     cross,
     crossLearned,
   );
 }
 
-function canUseSweepAttack(distancePx, mp, skill, learned, inventory = state.inventory) {
-  if (!skill || !learned || !isSweepAttackSkill(skill)) return false;
-  return distancePx <= LANE.warriorRange && mp >= effectiveSpellMpCost(skill, learned, inventory);
+function warriorSkillsSpendHp(inventory = state.inventory) {
+  return equippedWarriorSkillsCostHp(inventory, itemDefinition);
 }
 
-function canUseHalfMoonAttack(distancePx, mp, learned, inventory = state.inventory) {
-  return canUseSweepAttack(distancePx, mp, warriorSpellById("HalfMoon"), learned, inventory);
+function warriorCanPaySkillCost(combatant, skill, learned, inventory = combatant?.inventory ?? state.inventory) {
+  const cost = effectiveSpellMpCost(skill, learned, inventory);
+  if (cost <= 0) return true;
+  if (warriorSkillsSpendHp(inventory)) return (combatant?.hp ?? 0) >= cost;
+  return (combatant?.mp ?? 0) >= cost;
+}
+
+function warriorSkillCostResourceLabel(inventory = state.inventory) {
+  return warriorSkillsSpendHp(inventory) ? "HP" : "MP";
+}
+
+function maybeHandleWarriorSkillHpDeath(combatant, now = performance.now()) {
+  if ((combatant?.hp ?? 0) > 0) return;
+  if (state.battle.offlineSimulation) {
+    state.battle.running = false;
+    return;
+  }
+  if (state.battle.bossParty?.active && combatant?.classId) {
+    bossPartyMarkMemberDead(combatant, now);
+    return;
+  }
+  maybeFinishBattleAfterPlayerHit({ kind: "player" }, now);
+}
+
+function spendWarriorSkillCost(combatant, cost, inventory = combatant?.inventory ?? state.inventory, now = performance.now()) {
+  const amount = Math.max(0, Math.trunc(Number(cost) || 0));
+  if (!combatant || amount <= 0) return;
+  if (warriorSkillsSpendHp(inventory)) {
+    combatant.hp = Math.max(0, Math.trunc(Number(combatant.hp) || 0) - amount);
+    maybeHandleWarriorSkillHpDeath(combatant, now);
+    return;
+  }
+  combatant.mp = Math.max(0, Math.trunc(Number(combatant.mp) || 0) - amount);
+}
+
+function canUseSweepAttack(distancePx, combatant, skill, learned, inventory = state.inventory) {
+  if (!skill || !learned || !isSweepAttackSkill(skill)) return false;
+  return distancePx <= LANE.warriorRange && warriorCanPaySkillCost(combatant, skill, learned, inventory);
+}
+
+function canUseHalfMoonAttack(distancePx, combatant, learned, inventory = state.inventory) {
+  return canUseSweepAttack(distancePx, combatant, warriorSpellById("HalfMoon"), learned, inventory);
 }
 
 function rollSweepPrimaryDamage(skill, learned, player, enemy, inventory = state.inventory) {
@@ -42140,7 +43147,7 @@ function warriorSlashingBurstSkillReady(skill, learned, now = performance.now())
   if (!skill || !learned) return false;
   if (slashingBurstCastBusy(now)) return false;
   if (warriorSpellCastOnCooldown(skill, learned, now)) return false;
-  return (state.battle.player?.mp ?? 0) >= effectiveSpellMpCost(skill, learned);
+  return warriorCanPaySkillCost(state.battle.player, skill, learned);
 }
 
 function warriorSlashingBurstSelected(now = performance.now()) {
@@ -42284,7 +43291,7 @@ function canUseWarriorSkill(skill, learned, now, options = {}) {
   if (skill.toggle) {
     if (skill.id === "Thrusting") return isThrustingAttackWindow();
     if (isSweepAttackSkill(skill)) {
-      if (!canUseSweepAttack(enemyDistance(), state.battle.player?.mp ?? 0, skill, learned)) return false;
+      if (!canUseSweepAttack(enemyDistance(), state.battle.player, skill, learned)) return false;
       if (skill.id === "HalfMoon" && crossHalfMoonOverridesHalfMoon(now)) return false;
       return true;
     }
@@ -42309,7 +43316,7 @@ function canUseWarriorSkill(skill, learned, now, options = {}) {
   if (skill.id === "ProtectionField" && hasActiveProtectionFieldBuff(state.battle.player, now)) return false;
   if (skill.id === "ImmortalSkin" && hasActiveImmortalSkinBuff(state.battle.player, now)) return false;
   if (warriorSpellCastOnCooldown(skill, learned, now)) return false;
-  return (state.battle.player?.mp ?? 0) >= effectiveSpellMpCost(skill, learned);
+  return warriorCanPaySkillCost(state.battle.player, skill, learned);
 }
 
 function canAutoCastWizardSpell(spell, learned, now) {
@@ -42434,12 +43441,12 @@ function commitWarriorSpellUse(skill, learned, cost, now) {
   }
   if (skill.toggle) {
     if (isSweepAttackSkill(skill)) {
-      state.battle.player.mp = Math.max(0, state.battle.player.mp - cost);
+      spendWarriorSkillCost(state.battle.player, cost);
     }
     clearQueuedCombatSpell(skill.id);
     return;
   }
-  state.battle.player.mp = Math.max(0, state.battle.player.mp - cost);
+  spendWarriorSkillCost(state.battle.player, cost);
   setWarriorSpellCastReadyAt(skill, learned, now);
   clearQueuedCombatSpell(skill.id);
   sceneSignature = "";
@@ -42451,7 +43458,22 @@ function wizardCastCooldownMs(spell, learned, now = performance.now(), member = 
   if (spell?.id === "FlameDisruptor") {
     ms = applyFrenziedDisruptorCastCooldownMs(ms, frenziedDisruptorBuffFor(member), now);
   }
-  return ms;
+  const inventory = member ? inventoryForCombatant(member) : state.inventory;
+  return applyEquippedSpellCastSpeedMs(spell?.id, ms, inventory, itemDefinition);
+}
+
+function equippedGreatFireBallCastSpeedUnlocked(member = null) {
+  const inventory = member ? inventoryForCombatant(member) : state.inventory;
+  return equippedSpellCastSpeedBonusPercent("GreatFireBall", inventory, itemDefinition) > 0;
+}
+
+function taoistSpellActionLockMs(spell, learned, inventory = state.inventory) {
+  return applyEquippedSpellCastSpeedMs(
+    spell?.id,
+    spellDelayMs(spell, learned),
+    inventory,
+    itemDefinition,
+  );
 }
 
 /** Per-spell recharge (castReadyAt). Channeled storms use a short global lock — channel timing handles the field. */
@@ -42622,6 +43644,11 @@ function maybeProcFrenziedDisruptor(spell, crit, now, options = {}) {
   return true;
 }
 
+function wizardGreatFireBallProjectileInFlight(now) {
+  const pending = state.battle.pendingImpact;
+  return Boolean(pending && pending.spellId === "GreatFireBall" && now < pending.at);
+}
+
 function wizardCastLocked(now, member = null) {
   if (wizardStormChannelActive(now, member)) return true;
   if (member) {
@@ -42634,6 +43661,11 @@ function wizardCastLocked(now, member = null) {
   const pending = battle.pendingImpact;
   if (pending && isWizardCombatSpellId(pending.spellId) && now < pending.at) return true;
   if (!member && battle.activeWizardSpell && battle.activeWizardSpellStartedAt) {
+    // Unique Dragon Staff recasts GFB at the 600ms body-clip floor. Waiting out
+    // the impact flash would miss that window and fall through to a melee swing.
+    if (battle.activeWizardSpell === "GreatFireBall" && equippedGreatFireBallCastSpeedUnlocked(member)) {
+      return false;
+    }
     const atlas = battle.activeWizardSpellAtlas ?? state.wizardSpellAtlases[battle.activeWizardSpell];
     const elapsed = now - battle.activeWizardSpellStartedAt;
     if (elapsed >= 0 && elapsed < combatSpellVisualDurationMs(atlas)) return true;
@@ -44051,7 +45083,7 @@ function levelWarriorMagicForEntity(entity, spell, learned, now) {
 function bossPartyCastWarriorBuff(member, skill, learned, cost, now, options = {}) {
   if (!member || !skill?.buff || !learned) return false;
   if (!bossPartyCanUseWarriorSkill(member, skill, learned, now, { requireAuto: !options.manual })) return false;
-  member.mp -= cost;
+  spendWarriorSkillCost(member, cost, member.inventory, now);
   setWarriorSpellCastReadyAt(skill, learned, now, inventoryForCombatant(member));
   if (!applyWarriorCombatBuffToEntity(member, skill, learned, now)) return false;
   noteWarriorActionForTwinDrakeMomentum(skill.id, {
@@ -44141,10 +45173,14 @@ function wizardAttack(now) {
   if (queuedBooster && castWizardMagicBooster(queuedBooster, now)) return;
   const attackSpell = usableWizardAttackSpell(now);
   if (!attackSpell) {
+    if (equippedGreatFireBallCastSpeedUnlocked() && wizardGreatFireBallProjectileInFlight(now)) return;
     wizardWeaponAttack(now);
     return;
   }
   const { spell, learned, cost, cooldownWaiting } = attackSpell;
+  if (spell.id === "GreatFireBall" && equippedGreatFireBallCastSpeedUnlocked() && wizardGreatFireBallProjectileInFlight(now)) {
+    return;
+  }
   const atlas = state.wizardSpellAtlases[spell.id] ?? null;
   if (resolveSpellCastWeaponFallback({
     cooldownWaiting,
@@ -48370,7 +49406,7 @@ function castTaoistSoulFireBall(soulFireBall, now, options = {}) {
   const damageCrit = damage > 0 && consumeOutgoingCritFlag();
   const impactAt = now + wizardImpactDelay(spell, atlas);
 
-  if (!secondary) battle.lastPlayerAttackCooldownMs = spellDelayMs(spell, learned);
+  if (!secondary) battle.lastPlayerAttackCooldownMs = taoistSpellActionLockMs(spell, learned);
   commitTaoistSpellUse(spell, learned, cost, now);
   battle.activeWizardSpell = null;
   battle.activeWizardSpellAtlas = null;
@@ -48622,10 +49658,12 @@ function wizardStormCenterTile(enemy = null, member = null) {
     if (best) return best;
     if (enemy?.swarmId) {
       const swarmEnemy = findGroupDungeonSwarmEnemy(enemy.swarmId);
-      if (swarmEnemy) return swarmEnemyTilePosition(swarmEnemy);
+      if (swarmEnemy && swarmEnemy.hp > 0 && !swarmEnemy.dying) return swarmEnemyTilePosition(swarmEnemy);
     }
     if (groupDungeonSwarmLivingEnemies().length) return groupDungeonSwarmFireWallCenterTile();
+    return null;
   }
+  if (battle.enemyX == null || !Number.isFinite(Number(battle.enemyX))) return null;
   return { worldX: swarmSnapTileX(battle.enemyX), mapRow: 0 };
 }
 
@@ -48638,14 +49676,17 @@ function wizardBangCenterTile(enemy = null, spell = null, member = null) {
     }
     if (enemy?.swarmId) {
       const swarmEnemy = findGroupDungeonSwarmEnemy(enemy.swarmId);
-      if (swarmEnemy) return swarmEnemyTilePosition(swarmEnemy);
+      if (swarmEnemy && swarmEnemy.hp > 0 && !swarmEnemy.dying) return swarmEnemyTilePosition(swarmEnemy);
     }
     if (groupDungeonSwarmLivingEnemies().length) return groupDungeonSwarmFireWallCenterTile();
+    return null;
   }
+  if (battle.enemyX == null || !Number.isFinite(Number(battle.enemyX))) return null;
   return { worldX: swarmSnapTileX(battle.enemyX), mapRow: 0 };
 }
 
 function enemiesInSpellBangArea(centerTile) {
+  if (!centerTile) return [];
   if (groupDungeonSwarmSideActive()) {
     const tiles = spellBangAreaTiles(centerTile.worldX, centerTile.mapRow);
     const swarmEnemies = (state.battle.swarm?.enemies ?? []).filter((swarmEnemy) => {
@@ -48661,6 +49702,7 @@ function enemiesInSpellBangArea(centerTile) {
 }
 
 function enemiesInSpellGroundArea(centerTile, radius = 2) {
+  if (!centerTile) return [];
   if (groupDungeonSwarmSideActive()) {
     const tiles = spellGroundAreaTiles(centerTile.worldX, centerTile.mapRow, radius);
     return (state.battle.swarm?.enemies ?? []).filter((swarmEnemy) => {
@@ -49783,6 +50825,7 @@ function applyCombatDamageEvent(event, now = performance.now(), context = {}) {
     const enemy = context.enemy ?? state.battle.enemy;
     recordTestingRoomDamage(amount);
     reduceEnemyHp(enemy, amount);
+    if (enemy?.swarmId != null) syncBattleEnemyRuntimeToSwarm();
     return;
   }
   if (event.target === "swarmEnemy") {
@@ -50750,12 +51793,14 @@ function updateCombatSkillBarCooldowns(skills, now = performance.now()) {
   }
 }
 
-// True when the player currently has the MP and consumables to cast this skill.
+// True when the player currently has the resource and consumables to cast this skill.
 // Shared by the skill bar's structural signature and its "no-mp" class so the two
-// never drift; the raw MP value is deliberately not part of the signature.
+// never drift; the raw pool value is deliberately not part of the signature.
 function combatSkillUsable(skill, learned = learnedMagic(skill.id)) {
   const mpCost = effectiveSpellMpCost(skill, learned);
-  const enoughMp = (state.battle.player?.mp ?? 0) >= mpCost;
+  const enoughResource = state.battle.combatClass === "Warrior"
+    ? warriorCanPaySkillCost(state.battle.player, skill, learned)
+    : (state.battle.player?.mp ?? 0) >= mpCost;
   const hasPoison = skill.id !== "Poisoning" || poisonInventoryCount() > 0;
   const hasPoisonCloudSupplies = skill.id !== "PoisonCloud"
     || (amuletInventoryCount() >= POISON_CLOUD_AMULET_COST && poisonInventoryCount("green") >= POISON_CLOUD_GREEN_POISON_COST);
@@ -50764,7 +51809,7 @@ function combatSkillUsable(skill, learned = learnedMagic(skill.id)) {
   const needsAmulet = skill.id === "SoulFireBall" || skill.id === "Plague" || skill.id === "Curse" || skill.id === "SummonSkeleton" || skill.id === "SummonShinsu" || skill.id === "SummonHolyDeva";
   const amuletCost = taoistSummonAmuletCost(skill.id);
   const hasAmulet = !needsAmulet || amuletInventoryCount() >= (skill.id === "SoulFireBall" ? 1 : amuletCost);
-  return enoughMp && hasPoison && hasPoisonCloudSupplies && hasPlagueSupplies && hasCurseSupplies && hasAmulet;
+  return enoughResource && hasPoison && hasPoisonCloudSupplies && hasPlagueSupplies && hasCurseSupplies && hasAmulet;
 }
 
 function combatSkillButtonHtml(skill, learned, now) {
@@ -50794,6 +51839,7 @@ function combatSkillButtonHtml(skill, learned, now) {
     : needsAmulet
     ? ` | Amulets ${amuletInventoryCount()}${amuletCost > 1 ? ` (need ${amuletCost})` : ""}`
     : "";
+  const costLabel = combatClass === "Warrior" ? warriorSkillCostResourceLabel() : "MP";
   const castTitle = chargeReady && skill.id === "TwinDrakeBlade"
     ? `${skill.label} Lv ${learned?.level ?? 0} | charged — next attack releases twin drake | click to cancel`
     : chargeReady && skill.id === "FlamingSword"
@@ -50801,8 +51847,8 @@ function combatSkillButtonHtml(skill, learned, now) {
     : queued
     ? `${skill.label} Lv ${learned?.level ?? 0} | queued as next manual cast`
     : isWarriorChargeSkill(skill)
-    ? `${skill.label} Lv ${learned?.level ?? 0} | MP ${mpCost} | click to charge for next attack`
-    : `${skill.label} Lv ${learned?.level ?? 0} | ${skill.toggle ? (skill.id === "Thrusting" ? "2 tile reach" : `MP ${mpCost} per swing`) : `MP ${mpCost}`}${consumableText} | click to cast manually`;
+    ? `${skill.label} Lv ${learned?.level ?? 0} | ${costLabel} ${mpCost} | click to charge for next attack`
+    : `${skill.label} Lv ${learned?.level ?? 0} | ${skill.toggle ? (skill.id === "Thrusting" ? "2 tile reach" : `${costLabel} ${mpCost} per swing`) : `${costLabel} ${mpCost}`}${consumableText} | click to cast manually`;
   const autoTitle = auto
     ? `Disable ${skill.label} auto`
     : autoLimitReached
@@ -55776,7 +56822,8 @@ function drawGroupDungeonSwarmHealthBars(ctx) {
   const swarm = state.battle.swarm;
   if (!swarm?.enemies?.length) return;
   for (const enemy of swarm.enemies) {
-    if (enemy.dying || enemy.hp <= 0 || enemy.hp >= enemy.maxHp) continue;
+    if (enemy.dying || enemy.hp <= 0) continue;
+    if (!isMysteryCaveZone() && enemy.hp >= enemy.maxHp) continue;
     drawUnitHealthBar(ctx, swarmEnemyFrameBounds(enemy), enemy.hp, enemy.maxHp);
   }
 }
@@ -58260,6 +59307,23 @@ function combatAnchor(name) {
   const isEnemy = name === "enemy";
   const laneY = isEnemy ? arenaCombatLaneYPx() : arenaPartyCombatLaneYPx();
   const enemyOffsetY = isEnemy ? Math.trunc(Number(activeZone()?.arenaEnemyOffsetY) || 0) : 0;
+  if (state.game.mode === "zone" && battle.player) {
+    if (!isEnemy) {
+      const member = bossPartyOnField() ? bossPartyControlledMember() : null;
+      const worldX = Number(member?.worldX ?? battle.playerX);
+      if (Number.isFinite(worldX)) {
+        return {
+          x: Math.floor(worldX - battle.cameraX),
+          y: laneY,
+        };
+      }
+    } else if (battle.enemy || Number.isFinite(Number(battle.enemyX))) {
+      return {
+        x: Math.floor((Number(battle.enemyX) || 0) - battle.cameraX),
+        y: laneY + enemyOffsetY,
+      };
+    }
+  }
   if (battle.player && battle.enemy) {
     const worldX = isEnemy ? battle.enemyX : battle.playerX;
     return {

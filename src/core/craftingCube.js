@@ -7,6 +7,9 @@ export const FOCUS_PRISM_ITEM_ID = "focus-prism";
 export const RUBY_ORE_ITEM_ID = "ruby-ore";
 export const EMERALD_ORE_ITEM_ID = "emerald-ore";
 export const AMETHYST_ORE_ITEM_ID = "amethyst-ore";
+export const GOLD_ORE_ITEM_ID = "gold-ore";
+export const COPPER_ORE_ITEM_ID = "copper-ore";
+export const SILVER_ORE_ITEM_ID = "silver-ore";
 export const OFFENSIVE_ATTUNEMENT_STONE_ITEM_ID = "offensive-attunement-stone";
 export const DEFENSIVE_ATTUNEMENT_STONE_ITEM_ID = "defensive-attunement-stone";
 export const UTILITY_ATTUNEMENT_STONE_ITEM_ID = "utility-attunement-stone";
@@ -31,6 +34,8 @@ export const ZUMA_RELIC_ITEM_ID = "zuma-relic";
 export const IWT_SOUL_ITEM_ID = "iwt-soul";
 export const IZT_SOUL_ITEM_ID = "izt-soul";
 export const DD_SOUL_ITEM_ID = "dd-soul";
+export const MYSTERY_CAVE_TICKET_ITEM_ID = "mystery-cave-ticket";
+export const MYSTERY_CAVE_SOUL_ITEM_ID = MYSTERY_CAVE_TICKET_ITEM_ID;
 export const STONE_HEART_ITEM_ID = "stone-heart";
 export const HOG_TOOTH_ITEM_ID = "hog-tooth";
 
@@ -92,6 +97,22 @@ export const CRAFTING_CUBE_DD_SOUL_HOG_TOOTH_COST = 1;
 export const CRAFTING_CUBE_DD_SOUL_REQUIREMENTS_ERROR =
   "Place one Stone Heart and one Hog Tooth in the cube.";
 
+export const CRAFTING_CUBE_MYSTERY_CAVE_TICKET_RECIPE_ID = "mystery-cave-ticket";
+export const CRAFTING_CUBE_MYSTERY_CAVE_TICKET_LABEL = "Mystery Cave Ticket";
+export const CRAFTING_CUBE_MYSTERY_CAVE_TICKET_MATERIALS = Object.freeze([
+  { itemId: WOOMA_HEART_ITEM_ID, cost: 1, label: "Wooma Heart" },
+  { itemId: ZUMA_RELIC_ITEM_ID, cost: 1, label: "Zuma Relic" },
+  { itemId: RUBY_ORE_ITEM_ID, cost: 1, label: "Ruby Ore" },
+  { itemId: EMERALD_ORE_ITEM_ID, cost: 1, label: "Emerald Ore" },
+  { itemId: AMETHYST_ORE_ITEM_ID, cost: 1, label: "Amethyst Ore" },
+  { itemId: ADAMANTINE_ORE_ITEM_ID, cost: 1, label: "Adamantine Ore" },
+  { itemId: GOLD_ORE_ITEM_ID, cost: 1, label: "Gold Ore" },
+  { itemId: COPPER_ORE_ITEM_ID, cost: 1, label: "Copper Ore" },
+  { itemId: SILVER_ORE_ITEM_ID, cost: 1, label: "Silver Ore" },
+]);
+export const CRAFTING_CUBE_MYSTERY_CAVE_TICKET_REQUIREMENTS_ERROR =
+  "Place 1 Wooma Heart, 1 Zuma Relic, and 1 of each ore (Ruby, Emerald, Amethyst, Adamantine, Gold, Copper, Silver).";
+
 export const CRAFTING_CUBE_EMPOWER_REROLL_RECIPE_ID = "empower-reroll";
 export const CRAFTING_CUBE_EMPOWER_REROLL_LABEL = "Random Empowerment Reroll";
 // TEMP free random empower reroll — undo after testing (no crystal, no gold).
@@ -135,6 +156,7 @@ export const CRAFTING_CUBE_RECIPE_GOLD_COSTS = {
   [CRAFTING_CUBE_IWT_SOUL_RECIPE_ID]: 0,
   [CRAFTING_CUBE_IZT_SOUL_RECIPE_ID]: 0,
   [CRAFTING_CUBE_DD_SOUL_RECIPE_ID]: 0,
+  [CRAFTING_CUBE_MYSTERY_CAVE_TICKET_RECIPE_ID]: 0,
   [CRAFTING_CUBE_GLYPH_RECYCLE_RECIPE_ID]: 100000,
   [CRAFTING_CUBE_EMPOWER_REROLL_RECIPE_ID]: TEMP_FREE_EMPOWER_REROLL ? 0 : 10000,
   [CRAFTING_CUBE_TARGETED_EMPOWER_REROLL_RECIPE_ID]: 25000,
@@ -178,6 +200,11 @@ export const CRAFTING_CUBE_RECIPES = [
     id: CRAFTING_CUBE_DD_SOUL_RECIPE_ID,
     label: CRAFTING_CUBE_DD_SOUL_LABEL,
     summary: `${CRAFTING_CUBE_DD_SOUL_STONE_HEART_COST} Stone Heart + ${CRAFTING_CUBE_DD_SOUL_HOG_TOOTH_COST} Hog Tooth${goldSummary(CRAFTING_CUBE_DD_SOUL_RECIPE_ID)}`,
+  },
+  {
+    id: CRAFTING_CUBE_MYSTERY_CAVE_TICKET_RECIPE_ID,
+    label: CRAFTING_CUBE_MYSTERY_CAVE_TICKET_LABEL,
+    summary: `1 Wooma Heart + 1 Zuma Relic + 1 Ruby, Emerald, Amethyst, Adamantine, Gold, Copper, and Silver Ore${goldSummary(CRAFTING_CUBE_MYSTERY_CAVE_TICKET_RECIPE_ID)}`,
   },
   {
     id: CRAFTING_CUBE_GLYPH_RECYCLE_RECIPE_ID,
@@ -669,6 +696,44 @@ export function validateCraftingCubeDdSoulCraft(boardEntries) {
  * @returns {{
  *   ok: boolean,
  *   error: string | null,
+ *   entriesByItemId?: Record<string, object>,
+ * }}
+ */
+export function validateCraftingCubeMysteryCaveTicketCraft(boardEntries) {
+  const byId = new Map();
+  for (const row of boardEntries) {
+    const entry = row?.entry;
+    const item = row?.item;
+    if (!entry || !item) continue;
+    if (byId.has(item.id)) {
+      return { ok: false, error: `Place only one ${item.name || item.id} stack.` };
+    }
+    byId.set(item.id, entry);
+  }
+
+  const required = new Set(CRAFTING_CUBE_MYSTERY_CAVE_TICKET_MATERIALS.map((mat) => mat.itemId));
+  for (const itemId of byId.keys()) {
+    if (!required.has(itemId)) {
+      return { ok: false, error: CRAFTING_CUBE_MYSTERY_CAVE_TICKET_REQUIREMENTS_ERROR };
+    }
+  }
+
+  const entriesByItemId = {};
+  for (const mat of CRAFTING_CUBE_MYSTERY_CAVE_TICKET_MATERIALS) {
+    const entry = byId.get(mat.itemId);
+    if (!entry) return { ok: false, error: CRAFTING_CUBE_MYSTERY_CAVE_TICKET_REQUIREMENTS_ERROR };
+    const qty = Math.max(1, Math.trunc(Number(entry.quantity) || 1));
+    if (qty < mat.cost) return { ok: false, error: `Need at least ${mat.cost} ${mat.label}.` };
+    entriesByItemId[mat.itemId] = entry;
+  }
+  return { ok: true, error: null, entriesByItemId };
+}
+
+/**
+ * @param {{ entry: object, item: object }[]} boardEntries Staged cube entries with item defs.
+ * @returns {{
+ *   ok: boolean,
+ *   error: string | null,
  *   glyphEntryA?: object,
  *   glyphItemA?: object,
  *   glyphEntryB?: object,
@@ -868,6 +933,28 @@ export function validateCraftingCubeTargetedEmpowerSwap(boardEntries) {
  * @returns {string[]}
  */
 export function craftingCubeAutofillEntryIds(recipeId, inventoryEntries, resolveItem) {
+  if (recipeId === CRAFTING_CUBE_MYSTERY_CAVE_TICKET_RECIPE_ID || recipeId === "mystery-cave-soul") {
+    const byId = new Map();
+    for (const entry of inventoryEntries) {
+      if (!entry?.id || !entry.itemId) continue;
+      if (!resolveItem(entry.itemId)) continue;
+      if (!byId.has(entry.itemId)) byId.set(entry.itemId, []);
+      byId.get(entry.itemId).push(entry);
+    }
+    const byQtyThenId = (a, b) => {
+      const qtyDelta = Math.max(1, Math.trunc(Number(b.quantity) || 1))
+        - Math.max(1, Math.trunc(Number(a.quantity) || 1));
+      if (qtyDelta !== 0) return qtyDelta;
+      return String(a.id).localeCompare(String(b.id));
+    };
+    for (const list of byId.values()) list.sort(byQtyThenId);
+    const picks = [];
+    for (const mat of CRAFTING_CUBE_MYSTERY_CAVE_TICKET_MATERIALS) {
+      const hit = byId.get(mat.itemId)?.[0];
+      if (hit) picks.push(hit.id);
+    }
+    return picks;
+  }
   const crystalStacks = [];
   const focusPrismStacks = [];
   const adamantineOres = [];

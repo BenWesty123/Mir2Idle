@@ -1,5 +1,347 @@
 # AI Task Log - LOM Idle V2
 
+## 2026-08-20 - Unique awakened boss drops
+
+Awakened Soul Sabre 1% on Bone Lord `awakenedItems` (exact, not ×4), sharing
+that pool with Awakened Dragon Staff. Awakened Dragon Slayer 1% on Minotaur
+King only — not copied onto Red Moon Evil.
+
+### Verify
+- `npm.cmd run check`
+
+## 2026-08-20 - Awakened Dragon Slayer
+
+Warrior unique (glow 20, weapon shape 29). Same DC 5–40 as Dragon Slayer, plus
+`stats.critChancePercent: 100` (existing combat cap). `innateWarriorSkillsCostHp`
+makes every Warrior skill pay HP instead of MP while equipped — solo, party,
+offline, and the training room. Afford/spend go through `warriorCanPaySkillCost`
+/ `spendWarriorSkillCost`. Spending HP to 0 kills (party marks the member dead;
+offline sim just stops). No boss drop yet.
+
+### Verify
+- `npm.cmd run check` (+ smoke)
+
+## 2026-08-20 - Awakened Soul Sabre
+
+Taoist sibling of Awakened Dragon Staff. **Awakened Soul Sabre** (glow 19,
+weapon shape 31). Flat SC 20–20 (base is 3–5). Innate Soul Fire Ball +100%
+damage and +200% cast speed (1800ms → 600ms spell-body floor). Recharge goes
+through `setLearnedSpellCastReadyAt`; live/offline/boss-party action locks use
+`taoistSpellActionLockMs`. Secondary SFB already waits on the in-flight
+projectile. No boss drop yet.
+
+### Verify
+- `npm.cmd run check` (+ smoke)
+
+## 2026-08-20 - Awakened Dragon Staff
+
+Added the next Unique / Awakened weapon: **Awakened Dragon Staff** (glow 1,
+weapon shape 30). Flat MC 20–20. Innate Great Fire Ball +100% damage and
++200% cast speed (Crystal 1800ms lock down to the 6×100ms spell-body floor).
+Recasting sooner restarts the one-shot pose, so live combat skips the GFB impact-flash
+lock and waits on the in-flight projectile instead of falling through to melee.
+
+Bone Lord `awakenedItems` at 1% (exact, not ×4). Temp Alchemist test stock
+(staff + Great Fire Ball book) was removed after testing.
+
+### Verify
+- `npm.cmd run check` (+ smoke)
+
+## 2026-08-19 - Taoist offline pin was mis-recorded, not a regression
+
+`npm run check` failed on `taoist-bicheon` (expected 40 kills, got 39; xp/gold/
+damage all follow from the one kill). Bisected by reverting files and re-running
+the fixture:
+
+- Modified data files reverted -> still 39. Monolith reverted -> still 39.
+- **Clean HEAD -> still 39**, so nothing in the Past Bicheon / Mystery Cave work
+  touched it.
+- The current run matches the pin committed on Aug 9 (`066bed9`) byte for byte:
+  39 / 433 / 207 / hp 119 / damage 11.
+- Commit `7706990` (Aug 15, "as branch name suggests") re-recorded the pin to
+  40 / 434 / 210 / hp 116 / damage 14 alongside 1,328 lines of monolith changes.
+  That value does not reproduce at that commit either - it was recorded from an
+  intermediate state that did not survive to the commit.
+
+Restored the pin from `066bed9`. Offline Taoist behaviour is unchanged since
+Aug 9; only the expected file was out of step. All four offline pins pass.
+
+## 2026-08-19 - Pages deploy rejected: 30 MiB mapstamps index
+
+`wrangler pages deploy` failed with "Pages only supports files up to 25 MiB in
+size — public/mapstamps/index.json is 30.2 MiB" *after* a green
+`release:itch`. The stamp builders write that index with `ConvertTo-Json`, which
+pretty-prints; 61 stamps of per-cell `layers`/`assets` made indentation ~83% of
+the file. The game fetches the whole index at boot, so this was also 26 MiB of
+dead weight per player.
+
+- `tools/compact-mapstamps-index.mjs` + `npm run compact:mapstamps`: minifies
+  the index in place (30.21 MiB -> 5.17 MiB, verified data-identical).
+- `tools/package-itch.mjs`: `PAGES_MAX_FILE_BYTES` (25 MiB) now fails packaging
+  per file and names the offender; the old itch 200 MB per-file check was
+  useless for Pages. "Largest file" log line now prints the path.
+- `AGENTS.md` / `COOKBOOK.md`: run `compact:mapstamps` after rebuilding a stamp.
+- `MAP_STAMP_ASSET_VERSION` needs no bump: it already reads
+  `20260819-mystery-cave-161-81`, which is new since the last deploy.
+
+Note: `git checkout -- public/mapstamps/index.json` while A/B testing dropped
+the uncommitted `mystery-cave-center` entry. Recovered byte-identical from
+`dist/lom-idle-v2-itch-20260819-172208.zip` (61 stamps, entry present).
+
+## 2026-08-19 - What's New collapsed for release
+
+Replaced the five post-Armoury changelog entries with one player-facing
+`Past Bicheon & Mystery Cave` note (Past Bicheon, loot, Mystery Cave ticket
+chest, Vampirism).
+
+## 2026-08-19 - Past Bicheon teleporter chain
+
+Mysterious Stone `TELEPORT_REGIONS.past-bicheon` now lists only
+`zone-past-bicheon-gd-1`. Floors 2–5 stay on `groupDungeon: "past-bicheon"`
+and are reached with Advance (`groupDungeonNextFloorZone`), same as Hell
+Cavern.
+
+## 2026-08-19 - Mystery Cave off the Mystery Stone
+
+Mystery Cave is no longer a top-level Mystery Stone destination. Entry is
+the crafted Mystery Cave Ticket.
+
+## 2026-08-19 - Mystery Cave chest tooltip
+
+Chest hover is short: choose a reward from this run, plus “11 Ascended bosses slain.”
+
+## 2026-08-19 - Mystery Cave Ticket craft
+
+Crafting Cube recipe `mystery-cave-ticket` (KR 입장권 icon, Items frame 3110):
+1 Wooma Heart, 1 Zuma Relic, and 1 of each Ruby / Emerald / Amethyst /
+Adamantine / Gold / Copper / Silver Ore. Double-click opens Mystery Cave;
+consumed on Enter. Saves with `mystery-cave-soul` remap to the ticket.
+
+## 2026-08-19 - Mystery Cave stand (161, 81)
+
+Nudged the M001 party stand 2 tiles east of (159, 81). Rebuilt
+`mystery-cave-center` with crop (143, 63) 36x36.
+
+## 2026-08-19 - Mystery Cave stand (159, 81)
+
+Nudged the M001 party stand 3 tiles south of (159, 78). Rebuilt
+`mystery-cave-center` with crop (141, 63) 36x36.
+
+## 2026-08-19 - Mystery Cave stand (159, 78)
+
+Nudged the M001 party stand 5 tiles east of (154, 78). Rebuilt
+`mystery-cave-center` with crop (141, 60) 36x36.
+
+## 2026-08-19 - Mystery Cave stand (154, 78)
+
+Moved the M001 party stand from (42, 158) to picker pick (154, 78). Rebuilt
+`mystery-cave-center` with crop (136, 60) 36x36.
+
+## 2026-08-19 - Mystery Cave uses Crystal M001
+
+The gauntlet was standing on Red Cavern KR (`RCK.map` 63, 85). It now uses
+Crystal `M001.map` (MysteryCave) at a cave pocket (42, 158) with a clear east
+walk-in. Stamp: `mystery-cave-center` from `tools/build-mystery-cave-stamp.ps1`.
+
+## 2026-08-19 - Mystery Cave difficulties are free
+
+Empowered / Ascended / Awakened Mystery Cave no longer charges gold. Cost
+helpers return 0 only for `zone-mystery-cave`; solo bosses and group dungeons
+keep 100k/300k/1M and 300k/1M/3M. Entry note and combat log skip the paid line.
+
+## 2026-08-19 - Mystery Cave teleport entry trimmed
+
+The boss-entry popup no longer dumps spawn timers, live HP, pack notes, or the
+Spawns/Party/Bosses strip. Players see a one-line how-it-works line, a
+name-only roster, then party and Empowered/Ascended/Awakened as before.
+
+## 2026-08-18 - Mystery Cave chest can pay Havoc Crystals
+
+Chest picker now includes Havoc Crystals: 1 per boss slain, then ×2 / ×3 / ×4
+for Empowered / Ascended / Awakened. Stacks to 64. Bag-full leaves the chest
+unopened.
+
+## 2026-08-18 - Mystery Cave EXP uses player XP rate, 10x sheet
+
+Chest EXP is kills × furthest-boss XP × difficulty × 10, then the same XP
+rate as kills: rebirth, achievements, equipped xpBonusPercent, supporter, and
+the testing multiplier. No monster-level penalty. The picker shows the
+modified amount. 10× (not 25×) because those bonuses already inflate a
+finished character's payout.
+
+## 2026-08-18 - Mystery Cave EXP chest is 25x sheet XP
+
+Chest EXP is now kills × furthest-boss template XP × difficulty × 25. A full
+Awakened clear is 92M, about one level 50 bar (87.5M). An 8-kill Yimoogi run
+is 4M Normal / 16M Awakened.
+
+## 2026-08-18 - Mystery Cave chest can pay EXP
+
+Chest picker now includes EXP: kills × the template XP of the furthest boss
+slain that run, then ×2 / ×3 / ×4 for Empowered / Ascended / Awakened. 8 kills
+is 8 × Yimoogi (20,000) = 160,000 on Normal. Pack waves use the highest XP on
+that wave (Dark Devourer over Dream, IZT over the Red Thunder adds). No
+level-diff or gear XP bonus — the sheet value times kills times tier. Goes to
+the character opening the chest.
+
+## 2026-08-18 - Mystery Cave empowered equipment was auto-junked
+
+Equipment from the chest was added as a plain item, auto-junk marked it, then
+the empower roll ran on the already-tagged entry. Empower now rolls first and
+is written onto the entry before it enters the bag, so auto-junk sees the
+stars and skips it.
+
+## 2026-08-18 - Mystery Cave chest can pay equipment
+
+Chest picker now includes Equipment: 1 equipable item per boss slain, all
+rolled from the drop table of the furthest (highest-wave) boss killed that
+run. Full clear = 23 rolls from Oma King; 6 kills = 6 rolls from Minotaur
+King. Pool is weapons/armour/jewellery/stones/etc — no souls, potions, books,
+gems, or orbs. Glyphs use the live boss chances (Empowered 10% / Ascended 15%
+/ Awakened 20%) and replace that kill's table pick so the grant stays 1 per
+kill. Item empower uses the live boss chances too (20% / 30% / 40% plus the
+rebirth empower-drop upgrade) and the Ascended/Awakened star tables.
+
+The chest stores `mysteryCaveBestWave` so out-of-order pack kills still use
+the hardest boss actually slain. Old chests without that field infer the wave
+from kill count (spawn order).
+
+## 2026-08-18 - Mystery Cave waves reordered by difficulty
+
+`MYSTERY_CAVE_SPAWN_WAVES` was ordered roughly by overworld zone, which left
+four waves badly out of place: the Devourers (5th hardest wave) sat 7th between
+two sub-1,400 fights, King Scorpion (4th easiest) sat 8th right after them, the
+mechanic-less Oma King Spirit sat 13th, and Danmo came before Beast King despite
+8.7x the threat.
+
+Waves are now sorted by pack HP x sustained DPS (biggest damage line / attack
+speed, summed across the pack). Drop-table gold was checked as a reward signal
+and rejected — it flattens at 35,000 from Oma King Spirit upward and Dark Devil
+is the highest at 45,000, so it does not track difficulty.
+
+New order: Evil Snake, Wooma Taurus, Bone Lord, Zuma Taurus, King Scorpion,
+Minotaur King, Oma King Spirit, Yimoogi, 3x IWT, King Hog, IZT pack,
+Devourers, Dark Devil, Manectric King, Beast King, Danmo, Frost Tiger,
+Oma King. IWT sits immediately before King Hog and IZT immediately after.
+
+Three hand-placed exceptions to the raw score: King Scorpion sits above Zuma
+Taurus for its enrage kit; the Devourers drop from a raw 5th to mid-pack because
+they are only 10k HP each and melt; Beast King is placed next to Danmo on time
+cost (150k HP, ~28 DPS) rather than by its low damage score.
+
+Also updated the `zone-mystery-cave` `enemyIds` list to match (cosmetic —
+spawning is driven by the wave queue) and regenerated `src/data/zones.json`.
+The test that pinned BDD floor order was replaced with one pinning the new
+difficulty order.
+
+## 2026-08-18 - Mystery Cave chest can pay Black Iron Ore
+
+Chest picker now includes Black Iron: 1 piece per boss slain. Difficulty
+raises purity instead of count — Normal P7–10, Empowered P8–10, Ascended
+P9–10, Awakened P10. Each piece needs its own bag slot.
+
+## 2026-08-18 - Mystery Cave chest can pay Awakening Souls
+
+Chest picker now has Gold, Ores, Suns, Gems, Oils, or Souls. Souls grant 2
+Awakening Souls per boss slain, then ×2 / ×3 / ×4 for Empowered / Ascended /
+Awakened. Bag-full leaves the chest unopened.
+
+## 2026-08-18 - Mystery Cave chest can pay Benediction Oils
+
+Chest picker now has Gold, Ores, Suns, Gems, or Oils. Oils grant 1 Benediction
+Oil per boss slain, then ×2 / ×3 / ×4 for Empowered / Ascended / Awakened.
+Bag-full leaves the chest unopened.
+
+## 2026-08-18 - Mystery Cave chest can pay gems and orbs
+
+Chest picker now has Gold, Ores, Suns, or Gems. Gems grant 1 random boss-pool
+gem per kill and 1 random orb per 3 kills, then ×2 / ×3 / ×4 for Empowered /
+Ascended / Awakened. Bag-full leaves the chest unopened.
+
+## 2026-08-18 - Mystery Cave chest can pay sun potions
+
+Chest picker now has Gold, Ores, or Suns. Suns grant 2 Sun Potions and 1
+Medium Sun Potion per boss slain, then ×2 / ×3 / ×4 for Empowered / Ascended /
+Awakened. Bag-full leaves the chest unopened.
+
+## 2026-08-18 - Mystery Cave chest can pay rare ores
+
+Chest picker now has Gold or Ores. Ores grant 5 Adamantine / Ruby / Emerald /
+Amethyst each per boss slain, then ×2 / ×3 / ×4 for Empowered / Ascended /
+Awakened. Packed into 99-stacks; bag-full leaves the chest unopened.
+
+## 2026-08-18 - Mystery Cave gold scales with kills and difficulty
+
+Chest gold is 100,000 × bosses slain, then ×2 / ×3 / ×4 for Empowered /
+Ascended / Awakened. Unopened chests store kills and tier; old wave-only
+chests load as kills at Normal.
+
+## 2026-08-17 - Danmo swarm walk uses moveMs
+
+Danmo's AncientBringer walk clip is 8×200ms. Swarm (and his walk-in) now plays
+those frames at 100ms — twice as fast, 0.8s per tile — instead of packing the
+whole cycle into 400ms.
+
+## 2026-08-16 - Mystery Cave reward chest
+
+Wipe or full clear puts a Mystery Cave Chest (Crystal GoldChest icon) in the
+bag. Double-click / Use opens a reward picker; Gold is the only option for now
+at 100,000 × completed waves (packs count as one wave). Bag-full falls back to
+paying the gold immediately.
+
+## 2026-08-16 - Danmo / Beast King walk-in
+
+Beast King `moveMs` 1800→600, Danmo 700→400 (enrage 550→300). Mystery Cave
+and other swarms step one tile per `moveMs` from offscreen, so they were
+crawling. Danmo also waits until melee before using his 12-tile kit so
+ranged casts stop cancelling walk steps.
+
+## 2026-08-16 - Mystery Cave pack waves
+
+Mystery Cave pack rooms spawn together on one 10s tick: Dream + Dark
+Devourer, three Incarnated Wooma Taurus (lanes -1/0/1), and IZT with both
+Incarnated Red Thunder Zuma (center + side lanes). Empty-field skip still
+waits until the whole pack is dead, then pulls the next wave.
+
+## 2026-08-15 - Swarm bosses use room AoE kits
+
+Boss-swarm enemies (Mystery Cave, Devourers, IWT/IZT rooms) now fire
+`bossPartyEnemyAttack` kits instead of generic melee. Oma King party burst,
+Manectric King line, Bone Lord bolts, King Scorpion, Dark Devil, Danmo, Frost
+Tiger, and Minotaur King splash match their standalone rooms. Kit cooldowns
+stick on the swarm enemy across primary resyncs.
+
+## 2026-08-15 - Mystery Cave BDD bosses
+
+Mystery Cave roster now includes Incarnated Wooma Taurus, Incarnated Zuma
+Taurus, and Dark Devil, inserted in Black Dragon Dungeon order after King
+Scorpion / King Hog. Dark Devil uses his melee/ranged burst kit in the swarm.
+Incarnated Red Thunder Zuma stay out (IZT-room adds, not a standalone boss).
+
+## 2026-08-15 - Mystery Cave empty-field spawn skip
+
+Killing the last living Mystery Cave boss before the 10s timer now pulls the
+spawn clock forward so the next boss appears immediately. Later bosses keep
+their 10s gaps (the rest of the roster is not dumped). Other boss-swarm rooms
+are unchanged.
+
+## 2026-08-15 - Wizard swarm cast after death
+
+Wizard attack spells now wait when no living swarm target remains (gap
+between Mystery Cave spawns, or a kill in the same tick). Cast FX uses the
+wizard's world X even when `state.battle.enemy` is null, so the sparkle no
+longer jumps to a leftover screen-percentage anchor to the left of the body.
+Taoist Soul FireBall / Poison Cloud / Curse / Plague use the same wait;
+heals, summons, and buffs still go out.
+
+## 2026-08-15 - Mystery Cave plain HP
+
+Mystery Cave no longer seeds a random roster boss on entry (that pool includes
+Oma King at 200k HP). Swarm HP is pinned to each template × the paid tier
+(plain 1× / Empowered 2× / Ascended 3× / Awakened 4×). Zuma Taurus is 12,000
+plain and 48,000 awakened. Roster and spawn log show the live HP; leftover
+group-dungeon empower tier is cleared on a plain boss-room entry.
+
 ## 2026-08-15 - Mystery Cave swarm (first slice)
 
 Teleporter top-level **Mystery Cave** opens a boss-entry popup with Empowered /

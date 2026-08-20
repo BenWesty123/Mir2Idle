@@ -607,6 +607,11 @@ const BONE_LORD_BOSS_DROPS = {
     ...bossGemDrops(0.05),
     ...bossOrbDrops(0.01),
   ],
+  // Awakened fights only — listed chance is exact (not multiplied by awaken 4×).
+  awakenedItems: [
+    { id: "awakened-dragon-staff", chance: 0.01 },
+    { id: "awakened-soul-sabre", chance: 0.01 },
+  ],
 };
 const KING_SCORPION_BOSS_DROPS = {
   gold: 16000,
@@ -759,6 +764,10 @@ const MINOTAUR_KING_BOSS_DROPS = {
     ...BLACK_DRAGON_ARMOR_MYTHICAL_DROPS,
     ...bossGemDrops(0.05),
     ...bossOrbDrops(0.01),
+  ],
+  // Awakened fights only — listed chance is exact (not multiplied by awaken 4×).
+  awakenedItems: [
+    { id: "awakened-dragon-slayer", chance: 0.01 },
   ],
 };
 // Red Moon Evil (RMV final) — Minotaur King table without Mass Healing;

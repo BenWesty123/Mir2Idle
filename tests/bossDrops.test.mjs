@@ -82,6 +82,60 @@ test("Wooma Taurus awakened exclusives include Awakened Soul Spring Wand at 1%",
   assert.equal(wand.chance, 0.01);
 });
 
+test("Bone Lord awakened exclusives include Awakened Dragon Staff and Soul Sabre at 1%", () => {
+  const table = BOSS_DROP_TABLE_BY_LABEL["Bone Lord"];
+  const staff = (table.awakenedItems ?? []).find((entry) => entry.id === "awakened-dragon-staff");
+  const sabre = (table.awakenedItems ?? []).find((entry) => entry.id === "awakened-soul-sabre");
+  assert.ok(staff, "expected awakened-dragon-staff on Bone Lord awakenedItems");
+  assert.equal(staff.chance, 0.01);
+  assert.ok(sabre, "expected awakened-soul-sabre on Bone Lord awakenedItems");
+  assert.equal(sabre.chance, 0.01);
+});
+
+test("Awakened Dragon Staff is a unique with Great Fire Ball cast-speed innate", () => {
+  const item = loadItemsById().get("awakened-dragon-staff");
+  assert.ok(item, "expected awakened-dragon-staff in items.json");
+  assert.equal(item.unique, true);
+  assert.equal(item.visualWeaponGlow, 1);
+  assert.equal(item.visual?.layer, "weapon");
+  assert.equal(item.innateSpellBonuses?.GreatFireBall?.castSpeedPercent, 200);
+  assert.equal(item.innateSpellBonuses?.GreatFireBall?.damagePercent, 100);
+  assert.deepEqual(item.stats?.mc, [20, 20]);
+});
+
+test("Awakened Soul Sabre is a unique with Soul Fire Ball innate", () => {
+  const item = loadItemsById().get("awakened-soul-sabre");
+  assert.ok(item, "expected awakened-soul-sabre in items.json");
+  assert.equal(item.unique, true);
+  assert.equal(item.visualWeaponGlow, 19);
+  assert.equal(item.visual?.layer, "weapon");
+  assert.equal(item.innateSpellBonuses?.SoulFireBall?.castSpeedPercent, 200);
+  assert.equal(item.innateSpellBonuses?.SoulFireBall?.damagePercent, 100);
+  assert.deepEqual(item.stats?.sc, [20, 20]);
+});
+
+test("Awakened Dragon Slayer is a unique with 100% crit and HP skill costs", () => {
+  const item = loadItemsById().get("awakened-dragon-slayer");
+  assert.ok(item, "expected awakened-dragon-slayer in items.json");
+  assert.equal(item.unique, true);
+  assert.equal(item.visualWeaponGlow, 20);
+  assert.equal(item.visual?.layer, "weapon");
+  assert.equal(item.visual?.index, 29);
+  assert.equal(item.innateWarriorSkillsCostHp, true);
+  assert.equal(item.stats?.critChancePercent, 100);
+  assert.deepEqual(item.stats?.dc, [5, 40]);
+});
+
+test("Minotaur King awakened exclusives include Awakened Dragon Slayer at 1%", () => {
+  const table = BOSS_DROP_TABLE_BY_LABEL["Minotaur King"];
+  const slayer = (table.awakenedItems ?? []).find((entry) => entry.id === "awakened-dragon-slayer");
+  assert.ok(slayer, "expected awakened-dragon-slayer on Minotaur King awakenedItems");
+  assert.equal(slayer.chance, 0.01);
+  const rme = (BOSS_DROP_TABLE_BY_LABEL["Red Moon Evil"].awakenedItems ?? [])
+    .some((entry) => entry.id === "awakened-dragon-slayer");
+  assert.equal(rme, false, "Awakened Dragon Slayer is Minotaur King only, not Red Moon Evil");
+});
+
 test("Evil Centipede / Evil Snake awakened exclusives for Judgement Mace and War Mage Staff", () => {
   const centipede = BOSS_DROP_TABLE_BY_LABEL["Evil Centipede"];
   const snake = BOSS_DROP_TABLE_BY_LABEL["Evil Snake"];

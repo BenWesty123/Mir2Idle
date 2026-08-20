@@ -141,3 +141,4 @@ npx wrangler pages deploy dist/itch --project-name=lom2idle --branch=main
 
 - **`--branch=main` is required** - it targets the production branch. Without it, wrangler uses your current git branch name and Cloudflare creates a *preview* deploy (a `<branch>.lom2idle.pages.dev` URL), so `lom2idle.com` won't change.
 - Do NOT use the Pages dashboard drag-and-drop - it caps at **1,000 files** and the build is ~1,067; the Wrangler CLI allows up to 20,000. (The packager's file-count warning is expected and fine.)
+- Cloudflare Pages also rejects any **single file over 25 MiB**, and `wrangler` only reports it after a green build. Packaging now fails on this instead. If it names `public/mapstamps/index.json`, run `npm.cmd run compact:mapstamps` - the stamp builders pretty-print that index (30 MiB vs 5 MiB), and the game fetches it whole at boot.

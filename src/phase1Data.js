@@ -266,7 +266,8 @@
     agility: 20,
     luck: 0,
     attackMs: 2200,
-    moveMs: 1800,
+    // Was 1800 — swarm/Mystery Cave walks one tile per moveMs from offscreen.
+    moveMs: 600,
     // Large winged sprite (stand offset ~-59, walk ~-187). Rest farther from the
     // tank so bodies don't overlap; bossParty*Reach helpers stretch swing range to match.
     bossMeleeGap: 120,
@@ -306,7 +307,8 @@
     agility: 14,
     luck: 0,
     attackMs: 850,
-    moveMs: 700,
+    // Walk art is 8×200ms in the atlas; swarm plays it at 100ms (see DANMO_WALK_FRAME_MS).
+    moveMs: 800,
     experience: 58000,
     undead: false,
     monsterIndex: 272,
@@ -328,7 +330,7 @@
     enrageHpStages: [0.7, 0.4, 0.15],
     enrageDurationMs: 10000,
     enrageAttackMs: 650,
-    enrageMoveMs: 550,
+    enrageMoveMs: 300,
   },
   {
     id: 29,
@@ -4776,6 +4778,18 @@ const RED_CAVERN_KINGS_ROOM_VISUALS = {
   stageMaxHeight: 540,
 };
 
+// Crystal M001.map MysteryCave — party stand at map (161, 81); tools/build-mystery-cave-stamp.ps1
+const MYSTERY_CAVE_ROOM_VISUALS = {
+  backdrop: "cave",
+  decorations: [],
+  objectPattern: [],
+  mapStamp: "mystery-cave-center",
+  mapStampOnly: true,
+  stageMinWidth: 780,
+  stageMinHeight: 480,
+  stageMaxHeight: 540,
+};
+
 // Crystal FOX01 corridor region (36,257)-(61,270) — Tiles.Lib frames → fox-cave mapSet slots.
 const FOX_CAVE_TILE_PATTERN = [
   [0, 0, 0, 0, 2, 2, 2, 2, 0, 0, 1, 1, 1, 1, 3, 3, 3, 3, 0, 0, 0, 0, 0, 0, 0, 0],
@@ -6671,22 +6685,23 @@ export const PHASE1_ZONES = [
   {
     id: "zone-mystery-cave",
     label: "Mystery Cave",
-    description: "Timed boss gauntlet — one moving boss every 10 seconds, easiest to hardest",
+    description: "Crystal M001 MysteryCave — timed boss gauntlet, one wave every 10 seconds",
     mysteryCave: true,
     bossSwarm: true,
     enemyIds: [
-      256, 266, 272, 279, 414, 287, 445, 446,
-      292, 316, 291, 293, 997, 994, 471, 472,
+      266, 256, 279, 272, 292, 287, 291, 414, 306, 316, 317, 318,
+      445, 446, 319, 293, 994, 997, 471, 472,
     ],
     rewards: { gold: [650, 1100] },
     arenaSpawnDistance: 180,
-    arenaSpawnMap: { x: 63, y: 85 },
-    arenaFocusMap: { x: 63, y: 85 },
+    // Crystal M001.map — party stand (161, 81)
+    arenaSpawnMap: { x: 161, y: 81 },
+    arenaFocusMap: { x: 161, y: 81 },
     bossSwarmConfig: {
       spawnIntervalMs: 10000,
       firstSpawnDelayMs: 0,
     },
-    ...RED_CAVERN_KINGS_ROOM_VISUALS,
+    ...MYSTERY_CAVE_ROOM_VISUALS,
   },
   {
     id: "zone-lab-stone-colossus",

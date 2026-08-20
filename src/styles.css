@@ -3329,22 +3329,41 @@ dd {
 .mystery-cave-roster {
   display: grid;
   grid-template-columns: 1fr 1fr;
-  gap: 2px 12px;
+  gap: 1px 14px;
   margin: 0;
-  padding: 7px 8px 7px 22px;
+  padding: 7px 8px;
+  list-style: none;
   border: 1px solid rgba(105, 77, 39, 0.72);
   background: rgba(11, 8, 5, 0.72);
   font-size: 11px;
+  line-height: 1.35;
   color: #ecd091;
 }
 
-.mystery-cave-roster li span {
-  color: #8f784f;
+.mystery-cave-reward-window {
+  width: min(560px, calc(100vw - 24px));
 }
 
-.teleport-mystery-cave-button {
-  border-color: rgba(180, 120, 40, 0.95);
-  background: rgba(50, 28, 8, 0.82);
+.mystery-cave-reward-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin: 0;
+  padding: 8px;
+  border: 1px solid rgba(105, 77, 39, 0.72);
+  background: rgba(11, 8, 5, 0.72);
+  color: #ecd091;
+  font-size: 13px;
+}
+
+.mystery-cave-reward-actions {
+  grid-template-columns: 1fr 1fr;
+}
+
+.mystery-cave-reward-actions button {
+  white-space: normal;
+  line-height: 1.2;
+  padding: 6px 8px;
 }
 
 .boss-entry-actions {

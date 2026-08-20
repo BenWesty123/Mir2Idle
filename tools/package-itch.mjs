@@ -15,6 +15,8 @@ import { ARMOUR_SPECIAL_EFFECT_DEFS } from "../src/armourVisualEffects.js";
 const root = path.resolve(import.meta.dirname, "..");
 const outputRoot = path.join(root, "dist");
 const packageRoot = path.join(outputRoot, "itch");
+/** Cloudflare Pages refuses any single file larger than this at upload time. */
+const PAGES_MAX_FILE_BYTES = 25 * 1024 * 1024;
 const itemData = JSON.parse(fs.readFileSync(path.join(root, "src/data/items.json"), "utf8"));
 
 // A fresh stamp per build so itch.io's long-lived caches always re-fetch the
@@ -515,11 +517,28 @@ function measureBuild() {
   };
   walk(packageRoot);
   const bytes = files.reduce((sum, file) => sum + fs.statSync(file).size, 0);
-  const maxFileBytes = files.reduce((max, file) => Math.max(max, fs.statSync(file).size), 0);
+  let largestFile = null;
+  let maxFileBytes = 0;
+  for (const file of files) {
+    const size = fs.statSync(file).size;
+    if (size > maxFileBytes) {
+      maxFileBytes = size;
+      largestFile = path.relative(packageRoot, file).replace(/\\/g, "/");
+    }
+  }
+  const oversized = files
+    .map((file) => ({
+      relativePath: path.relative(packageRoot, file).replace(/\\/g, "/"),
+      bytes: fs.statSync(file).size,
+    }))
+    .filter((file) => file.bytes > PAGES_MAX_FILE_BYTES)
+    .sort((a, b) => b.bytes - a.bytes);
   return {
     files: files.length,
     mb: Number((bytes / 1024 / 1024).toFixed(2)),
     maxFileMb: Number((maxFileBytes / 1024 / 1024).toFixed(2)),
+    largestFile,
+    oversized,
   };
 }
 
@@ -580,8 +599,14 @@ function validateItchLimits(metrics, zipPath = null) {
   if (metrics.mb > 500) {
     issues.push(`Package too large (${metrics.mb} MB). limit is 500 MB.`);
   }
-  if (metrics.maxFileMb > 200) {
-    issues.push(`Largest file is ${metrics.maxFileMb} MB. single-file limit is 200 MB.`);
+  // Cloudflare Pages rejects any single file over 25 MiB at upload time, so this
+  // has to fail the build - a "green" package that wrangler refuses is worse.
+  for (const file of metrics.oversized) {
+    issues.push(
+      `${file.relativePath} is ${(file.bytes / 1024 / 1024).toFixed(1)} MiB. Cloudflare Pages ` +
+        "rejects files over 25 MiB. Shrink it before deploying (for public/mapstamps/index.json " +
+        "run `npm run compact:mapstamps`).",
+    );
   }
   if (issues.length) {
     throw new Error(`Packaging checks failed:\n- ${issues.join("\n- ")}`);
@@ -669,7 +694,7 @@ console.log(`Prepared itch package folder: ${path.relative(root, packageRoot)}`)
 console.log(`Prepared itch upload zip: ${path.relative(root, zipPath)}`);
 console.log(`Cache-bust version: ${buildVersion}`);
 console.log(`Extracted size: ${metrics.mb} MB`);
-console.log(`Largest file: ${metrics.maxFileMb} MB`);
+console.log(`Largest file: ${metrics.maxFileMb} MB (${metrics.largestFile})`);
 console.log(`Extracted files: ${metrics.files}`);
 console.log(`Zip entries: ${countZipEntries(zipPath)}`);
 console.log("Upload checklist:");

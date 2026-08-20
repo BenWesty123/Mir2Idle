@@ -1,60 +1,38 @@
 {
   "entries": [
     {
-      "id": "2026-08-15-mystery-cave",
-      "date": "2026-08-15",
-      "title": "Mystery Cave",
+      "id": "2026-08-20-awakened-dragon-slayer",
+      "date": "2026-08-20",
+      "title": "Awakened Dragon Slayer",
       "highlights": [
-        "Added Mystery Cave on the teleporter. Every moving boss spawns in order, one every 10 seconds. Difficulty is Empowered, Ascended, or Awakened.",
-        "Stationary bosses (Evil Centipede, Great Fox Spirit, Hell Keeper, Hell Lord, Red Moon Evil) stay out. Unique boss loot is off until the reward track is added; kills still grant XP and gold."
+        "Added Awakened Dragon Slayer, a Minotaur King Awakened exclusive. While equipped, every hit crits and Warrior skills spend HP instead of MP."
       ]
     },
     {
-      "id": "2026-08-15-vampirism-heal-priority",
-      "date": "2026-08-15",
-      "title": "Wizard Vampirism",
+      "id": "2026-08-20-awakened-soul-sabre",
+      "date": "2026-08-20",
+      "title": "Awakened Soul Sabre",
       "highlights": [
-        "Vampirism now casts before other Wizard damage spells when you are below 80% HP. Above 80% HP it keeps its usual place in the autocast order.",
-        "Oma King's party burst now plays the explosion on the middle party member, covering the whole group.",
-        "Oma King's burst rolls one hit and splits it across living party members. Three alive share equally; if one falls, the next burst splits across the two remaining.",
-        "Oma King's burst is 1500–2200 MAC, split across the living party. A 90 AMC Wizard with Magic Shield still needs Healing Circle and Mass Healing; sun potions are the margin.",
-        "Past Bicheon oma trash XP/gold stepped up from Hell Cavern: ~16–17.5k XP and 720–1100 gold per kill (Hell Cavern peak was 11k XP and 320–480 gold).",
-        "Past Bicheon oma trash now swing 310–500 DC at ~1s with accuracy 52–55, so a ~200 AC Warrior actually takes hits. Crossbow Oma keep MAC-bolting casters instead of meleeing the tank.",
-        "Blood Gorge and Blood Pass (floors 3–4) spawn larger waves with more Crossbow Oma than floor 1.",
-        "Frost Tiger now uses Danmo-tier loot (no skill books, no Hell Yama Blade, no Green/Blue/Red Dark Armour).",
-        "Renamed Gon Ryun Holy Light Sword to Holy Light Sword (level 63). Warrior sits about 20% above Hell Yama Blade with +2 attack speed; Wizard/Taoist get a larger MC/SC jump (Wizard has no Acc/ASpd).",
-        "Frost Tiger drops Holy Light Sword (Warrior / Wizard / Taoist) at 2.5% each.",
-        "Frost Tiger drops Magic Booster, Energy Shield, and Slashing Burst at 5% each.",
-        "Added Tarragon Belt (level 55). Frost Tiger and Danmo drop it at 2.5%.",
-        "Added Evil Dragon Ring, Dragon Necklace, and Golden Dragon Bracelet (level 63 class trios). Frost Tiger drops each at 2.5%.",
-        "Frost Tiger no longer drops Heaven Robe. Gon Ryun Dragon Armour is 1% each; Tarragon Armour is 2.5% each.",
-        "Oma King now uses Frost Tiger loot (no skill books, no Oma King Robe, no Oma Spirit Ring, no Tarragon Armour).",
-        "Frost Tiger and Oma King: previous-tier jewellery (including Stone Golem Bracelet) is 2.5%; L63 chase (Holy Light Sword, Red Dragon Ring, Dragon Necklace, Golden Dragon Bracelet) is 1.25%.",
-        "Added Oma King Armour (level 63, any class): AC 17–44, AMC 11–20, HP 250, MP 50, with the looping Oma King visual effect. Oma King drops it at 1.25%. Oma King Robe stays on Oma King Spirit.",
-        "Retuned Barbarian Sword, Bone Carved Fan, and Slaughter Pike (renamed from Bluish Green Blood Slaughter Pike) to level 66 class weapons. Oma King drops each at 2.5%. Barbarian Sword (Wizard) DC 12–38 MC 14–41; Slaughter Pike (Warrior) DC 38–90 Acc 2 ASpd 2; Bone Carved Fan (Taoist) DC 15–48 SC 14–35 Acc 2 ASpd 2.",
-        "Added L66 Evil Dragon Ring / Bracelet / Necklace (Warrior, Wizard, Taoist). Oma King drops each at 1.25%. These sit about 20% above the L63 Red Dragon Ring, Dragon Necklace, and Golden Dragon Bracelet.",
-        "Renamed the level 63 Evil Dragon Ring to Red Dragon Ring. The level 66 ring keeps the Evil Dragon Ring name.",
-        "Oma King accessory rates: lowest tier 5% (Namman jewellery, Danmo/Tarragon/Stone Golem), L63 2.5% (Red Dragon Ring, Dragon Necklace, Golden Dragon Bracelet), L66 Evil Dragon jewellery 1.25%."
+        "Added Awakened Soul Sabre, a Bone Lord Awakened exclusive. Soul Fire Ball deals +100% damage and casts at the fastest speed the animation can hold."
       ]
     },
     {
-      "id": "2026-08-14-blood-gorge-gd-3",
-      "date": "2026-08-14",
-      "title": "Past Bicheon — Blood Gorge",
+      "id": "2026-08-20-awakened-dragon-staff",
+      "date": "2026-08-20",
+      "title": "Awakened Dragon Staff",
       "highlights": [
-        "Added Blood Gorge as Past Bicheon floor 3 (teleporter). Layout stand is Crystal 64.map (249, 76). Trash mix still matches floor 1 while the backdrop is tested.",
-        "Added Blood Pass as floor 4. Layout stand is Crystal 65.map (125, 84).",
-        "Added Blood Land (Oma King) as floor 5 — boss room, 60 minute respawn. Layout stand is Crystal 66.map (209, 71). Party-wide MAC bursts; HP sits above Frost Tiger.",
-        "Oma King's burst now plays Crystal's Attack2 overlay (the missing explosion FX)."
+        "Added Awakened Dragon Staff, a Bone Lord Awakened exclusive. Great Fire Ball deals +100% damage and casts at the fastest speed the animation can hold."
       ]
     },
     {
-      "id": "2026-08-12-past-bicheon-gd-1",
-      "date": "2026-08-12",
-      "title": "Past Bicheon group dungeon",
+      "id": "2026-08-19-past-bicheon-mystery-cave",
+      "date": "2026-08-19",
+      "title": "Past Bicheon & Mystery Cave",
       "highlights": [
-        "Added Past Bicheon as a new group dungeon (teleporter). Floor 1 is the south oma hub — Axe, Sword, Crossbow, and Winged Oma.",
-        "Floor 2 is Frost Tiger (mini-boss, 30 minute respawn). Every swing claws the Warrior and spits a MAC bolt — Wizard and Taoist soak the bolt while they live. A solo tank has to survive both through the 75% damage-reduction cap."
+        "Added Past Bicheon group dungeon with Frost Tiger and Oma King. Designed to be incredibly difficult and end game. Evil Mir to come soon.",
+        "Added new items and spell books for Frost Tiger and Oma King drops.",
+        "Added Mystery Cave. Craft a Mystery Cave Ticket to run a boss swarm. Wipe or clear for a chest with a choice of rewards.",
+        "Vampirism casts first when the Wizard is below 80% HP."
       ]
     },
     {

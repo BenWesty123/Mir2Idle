@@ -34,6 +34,7 @@
     "integrity:rules": "node tools/generate-item-integrity-rules.mjs",
     "integrity:rules:check": "node tools/generate-item-integrity-rules.mjs --check",
     "build:zones-json": "node tools/build-zones-json.mjs",
+    "compact:mapstamps": "node tools/compact-mapstamps-index.mjs",
     "drops:merge": "node tools/merge-item-drops.mjs",
     "build:crystal-item-catalog": "node tools/build-crystal-item-catalog.mjs",
     "build:missing-items-picker": "node tools/build-missing-crystal-items-picker.mjs",
