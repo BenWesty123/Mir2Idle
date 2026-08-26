@@ -99,6 +99,28 @@ export const GLYPH_DEFS = [
     implemented: true,
   },
   {
+    id: "taoEnergyShieldLastStand",
+    itemId: "glyph-last-stand",
+    classId: "taoist",
+    label: "Glyph of Last Stand",
+    description: "Energy Shield no longer heals. It saves each player from one fatal blow, then breaks. That player cannot receive Energy Shield again for 5 minutes.",
+    spellIds: ["EnergyShield"],
+    kind: "taoEnergyShieldLastStand",
+    params: { cooldownMs: 300000 },
+    implemented: true,
+  },
+  {
+    id: "taoPlagueChainsCurse",
+    itemId: "glyph-blight",
+    classId: "taoist",
+    label: "Glyph of Blight",
+    description: "Plague also attempts Curse on the same targets, using Curse's duration, power, and chances. Requires Curse learned.",
+    // Only Plague — listing Curse would steal a later Curse-only glyph from spell-scoped lookup.
+    spellIds: ["Plague"],
+    kind: "taoPlagueChainsCurse",
+    implemented: true,
+  },
+  {
     id: "wizardMagicShieldMp",
     itemId: "glyph-mana-aegis",
     classId: "wizard",
@@ -162,6 +184,28 @@ export const GLYPH_DEFS = [
     spellIds: ["FrostCrunch"],
     kind: "wizardDeepFrost",
     params: { bossSlowChancePercent: 15, bossFreezeChancePercent: 5 },
+    implemented: true,
+  },
+  {
+    id: "wizardMeteorStrikeSingle",
+    itemId: "glyph-focused-meteor",
+    classId: "wizard",
+    label: "Glyph of Focused Meteor",
+    description: "Meteor Strike hits a single target and deals double damage.",
+    spellIds: ["MeteorStrike"],
+    kind: "wizardMeteorStrikeSingle",
+    params: { damageMultiplier: 2 },
+    implemented: true,
+  },
+  {
+    id: "wizardVampirismHealthShield",
+    itemId: "glyph-blood-shield",
+    classId: "wizard",
+    label: "Glyph of Blood Shield",
+    description: "Vampirism can heal you up to 150% of your maximum HP. The extra 50% is a health buffer.",
+    spellIds: ["Vampirism"],
+    kind: "wizardVampirismHealthShield",
+    params: { maxHpRatio: 1.5 },
     implemented: true,
   },
   {
@@ -230,6 +274,23 @@ export const GLYPH_DEFS = [
     implemented: true,
   },
   {
+    id: "warriorSlayingExecution",
+    itemId: "glyph-execution",
+    classId: "warrior",
+    label: "Glyph of Execution",
+    description: "Slaying always readies after you strike, takes priority over other weapon skills, and cannot miss. The blow deals 2.5× damage, or 9× if the target is at or below 50% HP.",
+    spellIds: ["Slaying"],
+    kind: "warriorSlayingExecution",
+    params: {
+      damageMultiplier: 2.5,
+      executeMultiplier: 9,
+      executeHpRatio: 0.5,
+      alwaysReady: true,
+      cannotMiss: true,
+    },
+    implemented: true,
+  },
+  {
     id: "warriorSlowDestruction",
     itemId: "glyph-slow-destruction",
     classId: "warrior",
@@ -263,6 +324,17 @@ export const GLYPH_DEFS = [
     implemented: true,
   },
   {
+    id: "warriorImmortalSkinParty",
+    itemId: "glyph-shared-skin",
+    classId: "warrior",
+    label: "Glyph of Shared Skin",
+    description: "Immortal Skin also buffs your party with your AC and MAC. Your DC penalty is doubled.",
+    spellIds: ["ImmortalSkin"],
+    kind: "warriorImmortalSkinParty",
+    params: { casterDcPenaltyMultiplier: 2 },
+    implemented: true,
+  },
+  {
     id: "glassCannon",
     itemId: "glyph-glass-canon",
     classId: "any",
@@ -282,6 +354,16 @@ export const GLYPH_DEFS = [
     spellIds: [],
     kind: "goldDrops",
     params: { bonusPercent: 100 },
+    implemented: true,
+  },
+  {
+    id: "potionBagRefill",
+    itemId: "glyph-provision",
+    classId: "any",
+    label: "Glyph of Provision",
+    description: "Matching potions in your bag are used before the hotbar stack. You no longer gain gold.",
+    spellIds: [],
+    kind: "potionBagRefill",
     implemented: true,
   },
   {
@@ -622,6 +704,55 @@ export function glyphGoldBonusPercent(glyph = null) {
 }
 
 /**
+ * Glyph of Provision: consume a matching bag stack before the hotbar stack.
+ * @param {GlyphDef | GlyphDef[] | null | undefined} glyph
+ * @returns {boolean}
+ */
+export function glyphHasPotionBagRefill(glyph = null) {
+  return Boolean(firstGlyphOfKind(glyph, "potionBagRefill"));
+}
+
+/**
+ * Glyph of Provision: no gold from kills, chests, or other credits while equipped.
+ * @param {GlyphDef | GlyphDef[] | null | undefined} glyph
+ * @returns {boolean}
+ */
+export function glyphBlocksGoldGains(glyph = null) {
+  return Boolean(firstGlyphOfKind(glyph, "potionBagRefill"));
+}
+
+/**
+ * @param {number} gold
+ * @param {GlyphDef | GlyphDef[] | null | undefined} glyph
+ * @returns {number}
+ */
+export function applyGlyphKillGold(gold, glyph = null) {
+  if (glyphBlocksGoldGains(glyph)) return 0;
+  return Math.max(0, Math.trunc(Number(gold) || 0));
+}
+
+/**
+ * First bag stack of `itemId` that is not equipped and not on the hotbar.
+ * @param {{ id?: string, itemId?: string, quantity?: number }[] | null | undefined} items
+ * @param {(string | null)[] | null | undefined} hotbarSlots
+ * @param {Record<string, string | null> | null | undefined} equipment
+ * @param {string} itemId
+ * @returns {{ id?: string, itemId?: string, quantity?: number } | null}
+ */
+export function potionBagRefillSourceEntry(items, hotbarSlots, equipment, itemId) {
+  const wanted = String(itemId || "");
+  if (!wanted) return null;
+  const onHotbar = new Set((hotbarSlots ?? []).filter(Boolean));
+  const equipped = new Set(Object.values(equipment ?? {}).filter(Boolean));
+  return (items ?? []).find((entry) => (
+    String(entry?.itemId || "") === wanted
+    && !onHotbar.has(entry.id)
+    && !equipped.has(entry.id)
+    && Math.max(0, Math.trunc(Number(entry.quantity) || 0)) > 0
+  )) ?? null;
+}
+
+/**
  * Additive skill-practice XP bonus percent from Glyph of Efficient Learning
  * (100 => double XP per cast). Stacks with Skill Leveling gear the same way
  * Glyph of Gold stacks with gold-drop gear.
@@ -670,6 +801,39 @@ export function glyphProtectionFieldStat(glyph = null) {
   if (!match) return "ac";
   const stat = String(match.params?.stat || "amc").toLowerCase();
   return stat === "amc" ? "amc" : "ac";
+}
+
+/**
+ * Glyph of Shared Skin: Immortal Skin also applies to the party; caster DC penalty is multiplied.
+ * @param {GlyphDef | GlyphDef[] | null | undefined} glyph
+ * @returns {{ casterDcPenaltyMultiplier: number } | null}
+ */
+export function glyphImmortalSkinGroupParams(glyph = null) {
+  const match = firstGlyphOfKind(glyph, "warriorImmortalSkinParty");
+  if (!match) return null;
+  return {
+    casterDcPenaltyMultiplier: Math.max(1, Number(match.params?.casterDcPenaltyMultiplier) || 2),
+  };
+}
+
+/**
+ * @param {GlyphDef | GlyphDef[] | null | undefined} glyph
+ * @returns {boolean}
+ */
+export function glyphImmortalSkinBuffsParty(glyph = null) {
+  return Boolean(glyphImmortalSkinGroupParams(glyph));
+}
+
+/**
+ * @param {number} penalty
+ * @param {GlyphDef | GlyphDef[] | null | undefined} glyph
+ * @returns {number}
+ */
+export function applyGlyphImmortalSkinDcPenalty(penalty, glyph = null) {
+  const base = Math.max(0, Math.trunc(Number(penalty) || 0));
+  const params = glyphImmortalSkinGroupParams(glyph);
+  if (!params || !(base > 0)) return base;
+  return Math.max(0, Math.round(base * params.casterDcPenaltyMultiplier));
 }
 
 /**
@@ -773,6 +937,36 @@ export function glyphHealingIsInstant(glyph = null) {
  */
 export function glyphChainsDefenceBuffsWithUltimate(glyph = null) {
   return Boolean(firstGlyphOfKind(glyph, "taoUltimateBuffChain"));
+}
+
+/**
+ * Glyph of Last Stand: Energy Shield becomes a one-shot fatal save per player.
+ * @param {GlyphDef | GlyphDef[] | null | undefined} glyph
+ * @returns {{ cooldownMs: number } | null}
+ */
+export function glyphEnergyShieldLastStandParams(glyph = null) {
+  const match = firstGlyphOfKind(glyph, "taoEnergyShieldLastStand");
+  if (!match) return null;
+  return {
+    cooldownMs: Math.max(0, Math.trunc(Number(match.params?.cooldownMs) || 300000)),
+  };
+}
+
+/**
+ * @param {GlyphDef | GlyphDef[] | null | undefined} glyph
+ * @returns {boolean}
+ */
+export function glyphEnergyShieldIsLastStand(glyph = null) {
+  return Boolean(glyphEnergyShieldLastStandParams(glyph));
+}
+
+/**
+ * Glyph of Blight: Plague also rolls a normal Curse attempt on the same targets.
+ * @param {GlyphDef | GlyphDef[] | null | undefined} glyph
+ * @returns {boolean}
+ */
+export function glyphPlagueChainsCurse(glyph = null) {
+  return Boolean(firstGlyphOfKind(glyph, "taoPlagueChainsCurse"));
 }
 
 /**
@@ -1060,6 +1254,67 @@ export function glyphDeepFrostParams(glyph = null) {
 }
 
 /**
+ * Glyph of Focused Meteor: Meteor Strike becomes single-target with a damage multiplier.
+ * @param {GlyphDef | GlyphDef[] | null | undefined} glyph
+ * @returns {{ damageMultiplier: number } | null}
+ */
+export function glyphMeteorStrikeParams(glyph = null) {
+  const match = firstGlyphOfKind(glyph, "wizardMeteorStrikeSingle");
+  if (!match) return null;
+  return {
+    damageMultiplier: Math.max(0, Number(match.params?.damageMultiplier) || 2),
+  };
+}
+
+/**
+ * @param {GlyphDef | GlyphDef[] | null | undefined} glyph
+ * @returns {boolean}
+ */
+export function glyphMeteorStrikeIsSingleTarget(glyph = null) {
+  return Boolean(glyphMeteorStrikeParams(glyph));
+}
+
+/**
+ * @param {number} value
+ * @param {string | null | undefined} spellId
+ * @param {GlyphDef | GlyphDef[] | null | undefined} glyph
+ * @returns {number}
+ */
+export function applyGlyphMeteorStrikeDamage(value, spellId, glyph = null) {
+  const base = Math.max(0, Math.trunc(Number(value) || 0));
+  if (String(spellId || "") !== "MeteorStrike") return base;
+  const params = glyphMeteorStrikeParams(glyph);
+  if (!params || !(base > 0)) return base;
+  return Math.max(1, Math.round(base * params.damageMultiplier));
+}
+
+/**
+ * Glyph of Blood Shield: Vampirism may overheal into an HP buffer above max HP.
+ * @param {GlyphDef | GlyphDef[] | null | undefined} glyph
+ * @returns {{ maxHpRatio: number } | null}
+ */
+export function glyphVampirismHealthShieldParams(glyph = null) {
+  const match = firstGlyphOfKind(glyph, "wizardVampirismHealthShield");
+  if (!match) return null;
+  return {
+    maxHpRatio: Math.max(1, Number(match.params?.maxHpRatio) || 1.5),
+  };
+}
+
+/**
+ * Highest HP Vampirism may restore to (max HP, or 150% of max with Blood Shield).
+ * @param {number} maxHp
+ * @param {GlyphDef | GlyphDef[] | null | undefined} glyph
+ * @returns {number}
+ */
+export function vampirismHealHpCap(maxHp, glyph = null) {
+  const max = Math.max(0, Math.trunc(Number(maxHp) || 0));
+  const params = glyphVampirismHealthShieldParams(glyph);
+  if (!params) return max;
+  return Math.max(max, Math.trunc(max * params.maxHpRatio));
+}
+
+/**
  * @param {number} chancePercent
  * @param {() => number} [rng] returns [0, 1)
  * @returns {boolean}
@@ -1319,6 +1574,84 @@ export function applyGlyphTwinDrakeDamage(damage, spellId, glyph = null) {
   if (String(spellId) !== "TwinDrakeBlade") return base;
   const mult = Math.max(1, Number(match.params?.damageMultiplier) || 2.5);
   return Math.trunc(base * mult);
+}
+
+/**
+ * Glyph of Execution: charged Slaying hits much harder, especially vs wounded targets.
+ * @param {GlyphDef | GlyphDef[] | null | undefined} glyph
+ * @returns {{
+ *   damageMultiplier: number,
+ *   executeMultiplier: number,
+ *   executeHpRatio: number,
+ *   alwaysReady: boolean,
+ *   cannotMiss: boolean,
+ * } | null}
+ */
+export function glyphSlayingExecutionParams(glyph = null) {
+  const match = firstGlyphOfKind(glyph, "warriorSlayingExecution");
+  if (!match) return null;
+  const damageMultiplier = Math.max(1, Number(match.params?.damageMultiplier) || 2.5);
+  const executeMultiplier = Math.max(damageMultiplier, Number(match.params?.executeMultiplier) || 9);
+  return {
+    damageMultiplier,
+    executeMultiplier,
+    executeHpRatio: Math.max(0, Math.min(1, Number(match.params?.executeHpRatio) || 0.5)),
+    alwaysReady: match.params?.alwaysReady !== false,
+    cannotMiss: match.params?.cannotMiss !== false,
+  };
+}
+
+/**
+ * @param {GlyphDef | GlyphDef[] | null | undefined} glyph
+ * @returns {boolean}
+ */
+export function glyphSlayingTakesPriority(glyph = null) {
+  return Boolean(glyphSlayingExecutionParams(glyph));
+}
+
+/**
+ * @param {GlyphDef | GlyphDef[] | null | undefined} glyph
+ * @returns {boolean}
+ */
+export function glyphSlayingAlwaysReadies(glyph = null) {
+  return Boolean(glyphSlayingExecutionParams(glyph)?.alwaysReady);
+}
+
+/**
+ * @param {GlyphDef | GlyphDef[] | null | undefined} glyph
+ * @returns {boolean}
+ */
+export function glyphSlayingCannotMiss(glyph = null) {
+  return Boolean(glyphSlayingExecutionParams(glyph)?.cannotMiss);
+}
+
+/**
+ * @param {{ hp?: number, maxHp?: number } | null | undefined} enemy
+ * @param {GlyphDef | GlyphDef[] | null | undefined} glyph
+ * @returns {number}
+ */
+export function slayingExecutionDamageMultiplier(enemy, glyph = null) {
+  const params = glyphSlayingExecutionParams(glyph);
+  if (!params) return 1;
+  const maxHp = Math.max(0, Number(enemy?.maxHp) || 0);
+  const hp = Math.max(0, Number(enemy?.hp) || 0);
+  if (maxHp > 0 && hp <= maxHp * params.executeHpRatio) return params.executeMultiplier;
+  return params.damageMultiplier;
+}
+
+/**
+ * @param {number} damage
+ * @param {string | null | undefined} spellId
+ * @param {{ hp?: number, maxHp?: number } | null | undefined} enemy
+ * @param {GlyphDef | GlyphDef[] | null | undefined} glyph
+ * @returns {number}
+ */
+export function applyGlyphSlayingDamage(damage, spellId, enemy, glyph = null) {
+  const base = Math.max(0, Math.trunc(Number(damage) || 0));
+  if (String(spellId) !== "Slaying") return base;
+  const mult = slayingExecutionDamageMultiplier(enemy, glyph);
+  if (!(mult > 1) || !(base > 0)) return base;
+  return Math.max(1, Math.round(base * mult));
 }
 
 /**

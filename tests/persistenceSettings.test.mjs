@@ -10,6 +10,7 @@ import {
   DEFAULT_SFX_ENABLED,
   DEFAULT_SHOW_ACTIVITY_LOG,
   DEFAULT_SHOW_RECENT_LOOT,
+  DEFAULT_BOSS_JUNK_FILTER_ENABLED,
   MUSIC_MODE_PLAYLIST,
   MUSIC_MODE_TRACK,
   MUSIC_SETTINGS_VERSION,
@@ -52,6 +53,7 @@ test("sanitizeSettingsState: defaults when music settings version is old", () =>
   assert.equal(result.sfxEnabled, DEFAULT_SFX_ENABLED);
   assert.equal(result.showRecentLoot, DEFAULT_SHOW_RECENT_LOOT);
   assert.equal(result.showActivityLog, DEFAULT_SHOW_ACTIVITY_LOG);
+  assert.equal(result.bossJunkFilterEnabled, DEFAULT_BOSS_JUNK_FILTER_ENABLED);
   assert.equal(result.autoPotionHpThreshold, DEFAULT_AUTO_POTION_HP_THRESHOLD);
   assert.equal(result.autoPotionMpThreshold, DEFAULT_AUTO_POTION_MP_THRESHOLD);
   assert.deepEqual(result.autoPotionThresholdsByCharacter, createDefaultAutoPotionThresholdsByCharacter());
@@ -88,6 +90,12 @@ test("sanitizeSettingsState: honors explicit flags at current version", () => {
   assert.equal(result.prototypeStatsNoticeVersion, 2);
   assert.equal(result.cloudBackupNoticeVersion, 1);
   assert.equal(result.cloudBackupNoticeLastSeenAt, 123456);
+});
+
+test("sanitizeSettingsState: boss junk filter defaults on and honors an explicit off", () => {
+  assert.equal(sanitizeSettingsState({}).bossJunkFilterEnabled, DEFAULT_BOSS_JUNK_FILTER_ENABLED);
+  assert.equal(sanitizeSettingsState({ bossJunkFilterEnabled: false }).bossJunkFilterEnabled, false);
+  assert.equal(sanitizeSettingsState({ bossJunkFilterEnabled: true }).bossJunkFilterEnabled, true);
 });
 
 test("sanitizeAutoPotionThresholdsByCharacter: seeds from legacy flat thresholds", () => {

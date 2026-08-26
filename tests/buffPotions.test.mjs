@@ -77,6 +77,22 @@ test("sanitizeStatBuffs keeps valid future buffs and rebuilds damageReduction", 
   assert.deepEqual(sanitizeStatBuffs("not-an-array", now), []);
 });
 
+test("sanitizeStatBuffs keeps Last Stand Energy Shield flags", () => {
+  const now = 1_000_000;
+  const buffs = sanitizeStatBuffs([{
+    kind: "energyShield",
+    label: "Energy Shield",
+    stat: "energyShield",
+    lastStand: true,
+    lastStandCooldownMs: 300000,
+    expiresAt: now + 60_000,
+  }], now);
+  assert.equal(buffs.length, 1);
+  assert.equal(buffs[0].lastStand, true);
+  assert.equal(buffs[0].lastStandCooldownMs, 300000);
+  assert.equal(statBuffBonusLabel(buffs[0]), "Last Stand");
+});
+
 test("formatBuffRemaining", () => {
   assert.equal(formatBuffRemaining(65000), "1m 5s");
   assert.equal(formatBuffRemaining(5000), "5s");
@@ -90,6 +106,8 @@ test("statBuffBonusLabel", () => {
   assert.equal(statBuffBonusLabel({ stat: "attackSpeed", minBonus: 4, maxBonus: 4 }), "+4 AS");
   assert.equal(statBuffBonusLabel({ stat: "dc", minBonus: 2, maxBonus: 5 }), "+2-5 DC");
   assert.equal(statBuffBonusLabel({ stat: "damageReduction", reductionPercent: 30 }), "30% DR");
+  assert.equal(statBuffBonusLabel({ stat: "energyShield", procPercent: 25, hpGain: 12 }), "25% +12 HP");
+  assert.equal(statBuffBonusLabel({ stat: "energyShield", lastStand: true }), "Last Stand");
 });
 
 test("sanitizeStatBuffs keeps Fury attack-speed buffs", () => {

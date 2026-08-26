@@ -486,6 +486,12 @@ test("wizardNeedsVampirismHeal is a strict below-80% HP check", () => {
   assert.equal(wizardNeedsVampirismHeal(null), false);
 });
 
+test("wizardAutoPriority keeps Magic Shield first among wizard spells", () => {
+  assert.equal(wizardAutoPriority("MagicShield"), 0);
+  assert.ok(wizardAutoPriority("MagicShield") < wizardAutoPriority("MagicBooster"));
+  assert.ok(wizardAutoPriority("MagicBooster") < wizardAutoPriority("Mirroring"));
+});
+
 test("wizardAutoPriority keeps Vampirism after Flame Disruptor for slot order", () => {
   assert.ok(wizardAutoPriority("Vampirism") > wizardAutoPriority("FlameDisruptor"));
   assert.ok(wizardAutoPriority("Vampirism") < wizardAutoPriority("GreatFireBall"));

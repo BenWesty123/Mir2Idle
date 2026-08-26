@@ -418,6 +418,11 @@
       "description": "Crystal M001 MysteryCave — timed boss gauntlet, one wave every 10 seconds"
     },
     {
+      "id": "zone-mystery-cave-random",
+      "label": "Random Mystery Cave",
+      "description": "Ticket entry only. Infinite escalating remix of Mystery Cave"
+    },
+    {
       "id": "zone-lab-stone-colossus",
       "label": "Lab: Stone Colossus",
       "description": "Decoded Mir3Mobs Mon1 test fight"

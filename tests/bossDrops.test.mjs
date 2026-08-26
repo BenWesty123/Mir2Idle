@@ -217,12 +217,16 @@ test("Frost Tiger and Danmo drop Tarragon Belt at 2.5%", () => {
   }
 });
 
-test("Oma King copies Frost Tiger loot without books, robe, spirit ring, or Tarragon Armour", () => {
+test("Oma King copies Frost Tiger loot without Frost Tiger books, robe, spirit ring, or Tarragon Armour", () => {
   const table = BOSS_DROP_TABLE_BY_LABEL["Oma King"];
   const ids = table.items.map((entry) => entry.id);
   assert.equal(table.gold, 35000);
   assert.equal(table.benedictionOils, 2);
-  assert.equal(ids.some((id) => id.startsWith("book-")), false);
+  assert.equal(table.items.find((item) => item.id === "book-immortal-skin")?.chance, 0.1);
+  assert.equal(
+    ids.filter((id) => id.startsWith("book-")).join(","),
+    "book-immortal-skin",
+  );
   assert.equal(ids.includes("oma-king-robe"), false);
   assert.equal(ids.includes("oma-spirit-ring"), false);
   assert.equal(ids.some((id) => id.startsWith("tarragon-armour")), false);

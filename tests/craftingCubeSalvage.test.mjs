@@ -16,6 +16,9 @@ import {
   CRAFTING_CUBE_MYSTERY_CAVE_TICKET_MATERIALS,
   CRAFTING_CUBE_MYSTERY_CAVE_TICKET_RECIPE_ID,
   CRAFTING_CUBE_MYSTERY_CAVE_TICKET_REQUIREMENTS_ERROR,
+  CRAFTING_CUBE_MYSTERY_CAVE_RANDOM_TICKET_RECIPE_ID,
+  CRAFTING_CUBE_MYSTERY_CAVE_RANDOM_TICKET_REQUIREMENTS_ERROR,
+  BLACK_IRON_ORE_ITEM_ID,
   CRAFTING_CUBE_GLYPH_RECYCLE_RECIPE_ID,
   CRAFTING_CUBE_GLYPH_RECYCLE_REQUIREMENTS_ERROR,
   CRAFTING_CUBE_IWT_SOUL_HEART_COST,
@@ -53,6 +56,7 @@ import {
   validateCraftingCubeIwtSoulCraft,
   validateCraftingCubeIztSoulCraft,
   validateCraftingCubeMysteryCaveTicketCraft,
+  validateCraftingCubeMysteryCaveRandomTicketCraft,
   validateCraftingCubeSalvageEntries,
   validateCraftingCubeTargetedEmpowerReroll,
   validateCraftingCubeTargetedEmpowerSwap,
@@ -475,6 +479,37 @@ test("autofill pulls all nine mystery cave ticket materials", () => {
     picks,
     CRAFTING_CUBE_MYSTERY_CAVE_TICKET_MATERIALS.map((mat) => `e-${mat.itemId}`),
   );
+});
+
+test("random mystery cave ticket craft accepts a wooma heart and any black iron ore", () => {
+  const result = validateCraftingCubeMysteryCaveRandomTicketCraft([
+    { entry: { id: "e-heart", itemId: WOOMA_HEART_ITEM_ID, quantity: 1 }, item: WOOMA_HEART },
+    { entry: { id: "e-iron", itemId: BLACK_IRON_ORE_ITEM_ID, quantity: 1, currentDura: 1 }, item: { id: BLACK_IRON_ORE_ITEM_ID, name: "Black Iron Ore" } },
+  ]);
+  assert.equal(result.ok, true);
+  assert.equal(result.heartEntry.id, "e-heart");
+  assert.equal(result.ironEntry.id, "e-iron");
+});
+
+test("random mystery cave ticket craft rejects missing black iron", () => {
+  const result = validateCraftingCubeMysteryCaveRandomTicketCraft([
+    { entry: { id: "e-heart", itemId: WOOMA_HEART_ITEM_ID, quantity: 1 }, item: WOOMA_HEART },
+  ]);
+  assert.equal(result.ok, false);
+  assert.equal(result.error, CRAFTING_CUBE_MYSTERY_CAVE_RANDOM_TICKET_REQUIREMENTS_ERROR);
+});
+
+test("autofill pulls wooma heart and black iron for the random ticket", () => {
+  const picks = craftingCubeAutofillEntryIds(
+    CRAFTING_CUBE_MYSTERY_CAVE_RANDOM_TICKET_RECIPE_ID,
+    [
+      { id: "e-iron", itemId: BLACK_IRON_ORE_ITEM_ID, quantity: 1 },
+      { id: "e-heart", itemId: WOOMA_HEART_ITEM_ID, quantity: 2 },
+      { id: "e-crystal", itemId: HAVOC_CRYSTAL_ITEM_ID, quantity: 4 },
+    ],
+    (itemId) => ({ id: itemId }),
+  );
+  assert.deepEqual(picks, ["e-heart", "e-iron"]);
 });
 
 const GLYPH_A = { id: "glyph-spirit-wards", slot: "glyph", type: "glyph", name: "Glyph of Spirit Wards" };

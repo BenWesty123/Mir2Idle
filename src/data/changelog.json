@@ -1,6 +1,138 @@
 {
   "entries": [
     {
+      "id": "2026-08-24-random-mystery-cave",
+      "date": "2026-08-24",
+      "title": "Random Mystery Cave",
+      "highlights": [
+        "New Crafting Cube recipe: 1 Wooma Heart + 1 Black Iron Ore (any purity) makes a Random Mystery Cave Ticket.",
+        "Random Cave is infinite and gets stronger each spawn. Bodies and stats can mismatch, and some hits steal another boss's attack effect.",
+        "Bodies and stat donors are drawn from the whole walking roster (Chicken through Oma King), and borrowed attack effects now come from any of 22 monsters that have one, not just four bosses.",
+        "Difficulty is a widening range instead of a ramp. Waves 1–5 can never roll worse than Wooma Taurus, the ceiling then climbs one small step at a time until anything up to Oma King is possible around wave 45, and the pick inside that range is flat — so a lucky run can stay easy well past wave 50, and an unlucky one can meet something nasty at wave 10. Stats no longer scale with the ceiling; they only start escalating once the range has fully opened, which is what eventually ends a run.",
+        "Empowered / Ascended / Awakened apply 2× / 3× / 4× HP and damage (and gold/EXP) for free, same as Mystery Cave.",
+        "The chest pays one prize per 5 kills, from a sun potion up to a 4★ item — including Wooden Sword. Equipment rolls only use items that already drop from zones or bosses.",
+        "Gold and EXP are a single roll for the whole run. Each kill raises the ceiling — 25,000 gold per kill, so 10 kills means \"up to 250,000\" — and the run pays out anything from 1 up to that ceiling. EXP works the same way, so a long run can still pay almost nothing. Deep runs are a bigger gamble, not a bigger salary.",
+        "Fixed Random Cave EXP going backwards: at certain kill counts one extra kill lowered the EXP ceiling instead of raising it — 24 kills paid 46% less than 23, with smaller drops at 10, 11 and 15. Killing more now never pays less.",
+        "A ticket run is once per day. Entering starts a 24 hour cooldown shared across all your characters, so extra tickets stockpile for tomorrow instead of stacking runs today. Using a ticket during the cooldown still opens the entry page and shows the time remaining, and the ticket is not spent.",
+        "Random Mystery Cave is reached with the ticket only. It is no longer listed in Teleport (Past Bicheon) or the Teleport Ring."
+      ]
+    },
+    {
+      "id": "2026-08-23-fifth-glyph-slot",
+      "date": "2026-08-23",
+      "title": "Fifth glyph slot",
+      "highlights": [
+        "Add Additional Glyph Slot can be bought a fourth time for 1000 rebirth points, unlocking a 5th glyph equip slot."
+      ]
+    },
+    {
+      "id": "2026-08-23-blight-glyph",
+      "date": "2026-08-23",
+      "title": "Glyph of Blight",
+      "highlights": [
+        "New Taoist glyph: Plague also attempts Curse on the same targets, using Curse's duration, power, and hit chances. Requires Curse learned."
+      ]
+    },
+    {
+      "id": "2026-08-23-last-stand-glyph",
+      "date": "2026-08-23",
+      "title": "Glyph of Last Stand",
+      "highlights": [
+        "New Taoist glyph: Energy Shield no longer heals. It saves each player from one fatal blow, then breaks. That player cannot receive Energy Shield again for 5 minutes."
+      ]
+    },
+    {
+      "id": "2026-08-23-shared-skin-glyph",
+      "date": "2026-08-23",
+      "title": "Glyph of Shared Skin",
+      "highlights": [
+        "New Warrior glyph: Immortal Skin also buffs your party with your AC and MAC. Your DC penalty is doubled."
+      ]
+    },
+    {
+      "id": "2026-08-23-oma-king-immortal-skin",
+      "date": "2026-08-23",
+      "title": "Immortal Skin from Oma King",
+      "highlights": [
+        "Oma King now drops the Immortal Skin book at 10%."
+      ]
+    },
+    {
+      "id": "2026-08-23-energy-shield-buff-label",
+      "date": "2026-08-23",
+      "title": "Energy Shield buff text",
+      "highlights": [
+        "The Energy Shield HUD buff now shows proc chance and HP instead of the internal ENERGYSHIELD tag."
+      ]
+    },
+    {
+      "id": "2026-08-23-magic-shield-priority",
+      "date": "2026-08-23",
+      "title": "Magic Shield first",
+      "highlights": [
+        "Wizard autocast now keeps Magic Shield above Magic Booster and Mirroring in combat and boss parties, so the shield goes up before other support spells."
+      ]
+    },
+    {
+      "id": "2026-08-23-provision-glyph",
+      "date": "2026-08-23",
+      "title": "Glyph of Provision",
+      "highlights": [
+        "New glyph: matching potions in your bag are used before the hotbar stack. You no longer gain gold while it is equipped."
+      ]
+    },
+    {
+      "id": "2026-08-23-execution-glyph",
+      "date": "2026-08-23",
+      "title": "Glyph of Execution",
+      "highlights": [
+        "New Warrior glyph: Slaying always readies after you strike, takes priority over other weapon skills, and cannot miss. The blow deals 2.5× damage while the target is above 50% HP, or 9× at or below 50% HP."
+      ]
+    },
+    {
+      "id": "2026-08-22-blood-shield-glyph",
+      "date": "2026-08-22",
+      "title": "Glyph of Blood Shield",
+      "highlights": [
+        "New Wizard glyph: Vampirism can heal you up to 150% of your maximum HP. The extra 50% is a health buffer that damage eats first."
+      ]
+    },
+    {
+      "id": "2026-08-22-focused-meteor-glyph",
+      "date": "2026-08-22",
+      "title": "Glyph of Focused Meteor",
+      "highlights": [
+        "New Wizard glyph: Meteor Strike hits a single target and deals double damage."
+      ]
+    },
+    {
+      "id": "2026-08-21-mystery-cave-rmv-bosses",
+      "date": "2026-08-21",
+      "title": "Two more bosses in Mystery Cave",
+      "highlights": [
+        "Crystal Spider and Red Evil Ape now join the Mystery Cave gauntlet — they were missing even though every other roaming boss was in. A full clear is 25 bosses over 20 waves.",
+        "Crystal Spider arrives 2nd and Red Evil Ape 6th, so both sit early in the run and each drops from its own loot table."
+      ]
+    },
+    {
+      "id": "2026-08-21-party-item-give",
+      "date": "2026-08-21",
+      "title": "Pass items in group dungeons",
+      "highlights": [
+        "While out of combat in a group dungeon or KR, drag an item from your bag onto another character's paper doll or nameplate to put it in their inventory.",
+        "If that character's bag is full, you get a notice and keep the item."
+      ]
+    },
+    {
+      "id": "2026-08-21-boss-junk-filter",
+      "date": "2026-08-21",
+      "title": "Boss Junk Filter",
+      "highlights": [
+        "Added Boss Junk Filter — a toggle on Auto-Junk Filters. When on, bosses stop dropping plain copies of those items so you clear your bag far less often. Empowered and Awakened drops always still land.",
+        "Buy it in the Rebirth shop for 100 rebirth points or in the Cash Shop for 300 tokens."
+      ]
+    },
+    {
       "id": "2026-08-20-awakened-dragon-slayer",
       "date": "2026-08-20",
       "title": "Awakened Dragon Slayer",

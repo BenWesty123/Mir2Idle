@@ -4,7 +4,7 @@ import {
 } from "../battleData.js";
 import { sanitizeEmpowerSpellBonuses } from "../core/empoweredItems.js";
 import { sanitizeEntryDurability, sanitizeWeaponRefineLevel } from "./sanitizeCharacter.js";
-import { sanitizeMysteryCaveBestWave } from "../mysteryCave.js";
+import { sanitizeMysteryCaveBestWave, sanitizeMysteryCaveKills } from "../mysteryCave.js";
 
 const SMITH_RANGE_KEYS = ["dc", "mc", "sc", "ac", "amc"];
 const SMITH_SCALAR_KEYS = [
@@ -133,13 +133,16 @@ export function normalizeInventoryEntryFields(savedEntry, item, isStackable) {
     empowerSpellBonuses: sanitizeEmpowerSpellBonuses(savedEntry?.empowerSpellBonuses),
     inventoryMark: sanitizeInventoryMark(savedEntry?.inventoryMark),
   };
-  const mysteryCaveKills = Math.max(0, Math.min(999, Math.trunc(Number(savedEntry?.mysteryCaveKills ?? savedEntry?.mysteryCaveWaves) || 0)));
+  const mysteryCaveKills = sanitizeMysteryCaveKills(savedEntry?.mysteryCaveKills ?? savedEntry?.mysteryCaveWaves);
   if (mysteryCaveKills > 0) fields.mysteryCaveKills = mysteryCaveKills;
   const mysteryCaveTier = Math.max(0, Math.min(3, Math.trunc(Number(savedEntry?.mysteryCaveTier) || 0)));
   if (mysteryCaveTier > 0) fields.mysteryCaveTier = mysteryCaveTier;
   if (savedEntry?.mysteryCaveBestWave != null && savedEntry?.mysteryCaveBestWave !== "") {
     fields.mysteryCaveBestWave = sanitizeMysteryCaveBestWave(savedEntry.mysteryCaveBestWave, mysteryCaveKills);
   }
+  if (savedEntry?.mysteryCaveRandom) fields.mysteryCaveRandom = true;
+  const randomSeed = Math.trunc(Number(savedEntry?.mysteryCaveRandomSeed) || 0);
+  if (fields.mysteryCaveRandom && randomSeed) fields.mysteryCaveRandomSeed = randomSeed >>> 0;
   const dura = sanitizeEntryDurability(savedEntry, item, isStackable);
   if (dura) {
     fields.maxDura = dura.maxDura;

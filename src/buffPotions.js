@@ -116,6 +116,18 @@ export function sanitizeStatBuffs(saved = [], now = performance.now()) {
         };
       }
       if (entry?.stat === "energyShield") {
+        if (entry.lastStand) {
+          return {
+            kind,
+            label: String(entry?.label ?? kind),
+            stat: "energyShield",
+            lastStand: true,
+            lastStandCooldownMs: Math.max(0, Math.trunc(Number(entry?.lastStandCooldownMs) || 300000)),
+            hpGain: 0,
+            procPercent: 0,
+            expiresAt,
+          };
+        }
         const hpGain = Math.max(1, Math.trunc(Number(entry?.hpGain) || 0));
         const procPercent = Math.max(1, Math.min(100, Math.trunc(Number(entry?.procPercent) || 0)));
         return {
@@ -190,6 +202,12 @@ export function formatBuffRemaining(ms) {
 export function statBuffBonusLabel(buff) {
   if (buff?.stat === "damageReduction") {
     return `${Math.max(0, Math.trunc(Number(buff.reductionPercent) || 0))}% DR`;
+  }
+  if (buff?.stat === "energyShield") {
+    if (buff.lastStand) return "Last Stand";
+    const procPercent = Math.max(0, Math.min(100, Math.trunc(Number(buff.procPercent) || 0)));
+    const hpGain = Math.max(0, Math.trunc(Number(buff.hpGain) || 0));
+    return `${procPercent}% +${hpGain} HP`;
   }
   const min = buff.minBonus;
   const max = buff.maxBonus;

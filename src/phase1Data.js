@@ -6689,12 +6689,33 @@ export const PHASE1_ZONES = [
     mysteryCave: true,
     bossSwarm: true,
     enemyIds: [
-      266, 256, 279, 272, 292, 287, 291, 414, 306, 316, 317, 318,
+      266, 465, 256, 279, 272, 464, 292, 287, 291, 414, 306, 316, 317, 318,
       445, 446, 319, 293, 994, 997, 471, 472,
     ],
     rewards: { gold: [650, 1100] },
     arenaSpawnDistance: 180,
     // Crystal M001.map — party stand (161, 81)
+    arenaSpawnMap: { x: 161, y: 81 },
+    arenaFocusMap: { x: 161, y: 81 },
+    bossSwarmConfig: {
+      spawnIntervalMs: 10000,
+      firstSpawnDelayMs: 0,
+    },
+    ...MYSTERY_CAVE_ROOM_VISUALS,
+  },
+  {
+    id: "zone-mystery-cave-random",
+    label: "Random Mystery Cave",
+    description: "Ticket entry only. Infinite escalating remix of Mystery Cave",
+    mysteryCave: true,
+    mysteryCaveRandom: true,
+    bossSwarm: true,
+    enemyIds: [
+      266, 465, 256, 279, 272, 464, 292, 287, 291, 414, 306, 316, 317, 318,
+      445, 446, 319, 293, 994, 997, 471, 472,
+    ],
+    rewards: { gold: [650, 1100] },
+    arenaSpawnDistance: 180,
     arenaSpawnMap: { x: 161, y: 81 },
     arenaFocusMap: { x: 161, y: 81 },
     bossSwarmConfig: {

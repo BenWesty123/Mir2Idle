@@ -60,6 +60,7 @@ const UNLOCK_TOKEN_COSTS = {
   "organisation-skills": 200,
   "ore-stacking": 200,
   "time-logging": 300,
+  "boss-junk-filter": 300,
   "group-dungeon-auto-advance": 200,
   "armoury-kit-3": 300,
 };
