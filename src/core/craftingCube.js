@@ -36,6 +36,8 @@ export const IZT_SOUL_ITEM_ID = "izt-soul";
 export const DD_SOUL_ITEM_ID = "dd-soul";
 export const MYSTERY_CAVE_TICKET_ITEM_ID = "mystery-cave-ticket";
 export const MYSTERY_CAVE_SOUL_ITEM_ID = MYSTERY_CAVE_TICKET_ITEM_ID;
+export const MYSTERY_CAVE_RANDOM_TICKET_ITEM_ID = "mystery-cave-random-ticket";
+export const BLACK_IRON_ORE_ITEM_ID = "black-iron-ore";
 export const STONE_HEART_ITEM_ID = "stone-heart";
 export const HOG_TOOTH_ITEM_ID = "hog-tooth";
 
@@ -113,6 +115,13 @@ export const CRAFTING_CUBE_MYSTERY_CAVE_TICKET_MATERIALS = Object.freeze([
 export const CRAFTING_CUBE_MYSTERY_CAVE_TICKET_REQUIREMENTS_ERROR =
   "Place 1 Wooma Heart, 1 Zuma Relic, and 1 of each ore (Ruby, Emerald, Amethyst, Adamantine, Gold, Copper, Silver).";
 
+export const CRAFTING_CUBE_MYSTERY_CAVE_RANDOM_TICKET_RECIPE_ID = "mystery-cave-random-ticket";
+export const CRAFTING_CUBE_MYSTERY_CAVE_RANDOM_TICKET_LABEL = "Random Mystery Cave Ticket";
+export const CRAFTING_CUBE_MYSTERY_CAVE_RANDOM_TICKET_HEART_COST = 1;
+export const CRAFTING_CUBE_MYSTERY_CAVE_RANDOM_TICKET_IRON_COST = 1;
+export const CRAFTING_CUBE_MYSTERY_CAVE_RANDOM_TICKET_REQUIREMENTS_ERROR =
+  "Place 1 Wooma Heart and 1 Black Iron Ore (any purity).";
+
 export const CRAFTING_CUBE_EMPOWER_REROLL_RECIPE_ID = "empower-reroll";
 export const CRAFTING_CUBE_EMPOWER_REROLL_LABEL = "Random Empowerment Reroll";
 // TEMP free random empower reroll — undo after testing (no crystal, no gold).
@@ -157,6 +166,7 @@ export const CRAFTING_CUBE_RECIPE_GOLD_COSTS = {
   [CRAFTING_CUBE_IZT_SOUL_RECIPE_ID]: 0,
   [CRAFTING_CUBE_DD_SOUL_RECIPE_ID]: 0,
   [CRAFTING_CUBE_MYSTERY_CAVE_TICKET_RECIPE_ID]: 0,
+  [CRAFTING_CUBE_MYSTERY_CAVE_RANDOM_TICKET_RECIPE_ID]: 0,
   [CRAFTING_CUBE_GLYPH_RECYCLE_RECIPE_ID]: 100000,
   [CRAFTING_CUBE_EMPOWER_REROLL_RECIPE_ID]: TEMP_FREE_EMPOWER_REROLL ? 0 : 10000,
   [CRAFTING_CUBE_TARGETED_EMPOWER_REROLL_RECIPE_ID]: 25000,
@@ -205,6 +215,11 @@ export const CRAFTING_CUBE_RECIPES = [
     id: CRAFTING_CUBE_MYSTERY_CAVE_TICKET_RECIPE_ID,
     label: CRAFTING_CUBE_MYSTERY_CAVE_TICKET_LABEL,
     summary: `1 Wooma Heart + 1 Zuma Relic + 1 Ruby, Emerald, Amethyst, Adamantine, Gold, Copper, and Silver Ore${goldSummary(CRAFTING_CUBE_MYSTERY_CAVE_TICKET_RECIPE_ID)}`,
+  },
+  {
+    id: CRAFTING_CUBE_MYSTERY_CAVE_RANDOM_TICKET_RECIPE_ID,
+    label: CRAFTING_CUBE_MYSTERY_CAVE_RANDOM_TICKET_LABEL,
+    summary: `1 Wooma Heart + 1 Black Iron Ore (any purity)${goldSummary(CRAFTING_CUBE_MYSTERY_CAVE_RANDOM_TICKET_RECIPE_ID)}`,
   },
   {
     id: CRAFTING_CUBE_GLYPH_RECYCLE_RECIPE_ID,
@@ -730,6 +745,43 @@ export function validateCraftingCubeMysteryCaveTicketCraft(boardEntries) {
 }
 
 /**
+ * @param {{ entry: object, item: object }[]} boardEntries
+ * @returns {{
+ *   ok: boolean,
+ *   error: string | null,
+ *   heartEntry?: object,
+ *   ironEntry?: object,
+ * }}
+ */
+export function validateCraftingCubeMysteryCaveRandomTicketCraft(boardEntries) {
+  const result = validateCraftingCubeTwoMaterialCraft(
+    boardEntries,
+    {
+      itemId: WOOMA_HEART_ITEM_ID,
+      cost: CRAFTING_CUBE_MYSTERY_CAVE_RANDOM_TICKET_HEART_COST,
+      singular: "Wooma Heart",
+      plural: "Wooma Hearts",
+      onlyOneStackError: "Place only one Wooma Heart stack.",
+    },
+    {
+      itemId: BLACK_IRON_ORE_ITEM_ID,
+      cost: CRAFTING_CUBE_MYSTERY_CAVE_RANDOM_TICKET_IRON_COST,
+      singular: "Black Iron Ore",
+      plural: "Black Iron Ore",
+      onlyOneStackError: "Place only one Black Iron Ore.",
+    },
+    CRAFTING_CUBE_MYSTERY_CAVE_RANDOM_TICKET_REQUIREMENTS_ERROR,
+  );
+  if (!result.ok) return { ok: false, error: result.error };
+  return {
+    ok: true,
+    error: null,
+    heartEntry: result.entryA,
+    ironEntry: result.entryB,
+  };
+}
+
+/**
  * @param {{ entry: object, item: object }[]} boardEntries Staged cube entries with item defs.
  * @returns {{
  *   ok: boolean,
@@ -953,6 +1005,28 @@ export function craftingCubeAutofillEntryIds(recipeId, inventoryEntries, resolve
       const hit = byId.get(mat.itemId)?.[0];
       if (hit) picks.push(hit.id);
     }
+    return picks;
+  }
+  if (recipeId === CRAFTING_CUBE_MYSTERY_CAVE_RANDOM_TICKET_RECIPE_ID) {
+    const byId = new Map();
+    for (const entry of inventoryEntries) {
+      if (!entry?.id || !entry.itemId) continue;
+      if (!resolveItem(entry.itemId)) continue;
+      if (!byId.has(entry.itemId)) byId.set(entry.itemId, []);
+      byId.get(entry.itemId).push(entry);
+    }
+    const byQtyThenId = (a, b) => {
+      const qtyDelta = Math.max(1, Math.trunc(Number(b.quantity) || 1))
+        - Math.max(1, Math.trunc(Number(a.quantity) || 1));
+      if (qtyDelta !== 0) return qtyDelta;
+      return String(a.id).localeCompare(String(b.id));
+    };
+    for (const list of byId.values()) list.sort(byQtyThenId);
+    const picks = [];
+    const heart = byId.get(WOOMA_HEART_ITEM_ID)?.[0];
+    const iron = byId.get(BLACK_IRON_ORE_ITEM_ID)?.[0];
+    if (heart) picks.push(heart.id);
+    if (iron) picks.push(iron.id);
     return picks;
   }
   const crystalStacks = [];

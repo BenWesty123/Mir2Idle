@@ -26,7 +26,14 @@ Last updated: 2026-08-08
 | `frame_003249.png` | 003249 | Glyph of Deep Frost (`glyph-deep-frost`) |
 | `frame_003261.png` | 003261 | Glyph of Blade Momentum (`glyph-blade-momentum`) |
 | `frame_003253.png` | 003253 | Glyph of Vitality (`glyph-vitality`) |
+| `frame_003272.png` | 003272 | Glyph of Focused Meteor (`glyph-focused-meteor`) |
+| `frame_003250.png` | 003250 | Glyph of Blood Shield (`glyph-blood-shield`) |
+| `frame_003239.png` | 003239 | Glyph of Execution (`glyph-execution`) |
+| `frame_003242.png` | 003242 | Glyph of Provision (`glyph-provision`) |
+| `frame_003245.png` | 003245 | Glyph of Shared Skin (`glyph-shared-skin`) |
 | `frame_003243.png` | 003243 | Glyph of Slow Destruction (`glyph-slow-destruction`) |
+| `frame_003246.png` | 003246 | Glyph of Last Stand (`glyph-last-stand`) |
+| `frame_003247.png` | 003247 | Glyph of Blight (`glyph-blight`) |
 
 Original matching Body Glyph range **3200-3227** is mostly assigned. Frames **3225–3227**
 (and their pool variants 3294–3317 / similar) are **glowing cubes**, not spiral glyphs —
@@ -46,15 +53,9 @@ from sources **3205 / 3210 / 3215 / 3220** (see table below).
 | `frame_003235.png` | 003235 | 003200 | flip-hue90 | flip + hue +90 |
 | `frame_003236.png` | 003236 | 003200 | flip-hue200 | flip + hue +200 |
 | `frame_003237.png` | 003237 | 003200 | swap-rb | swap R/B |
-| `frame_003239.png` | 003239 | 003200 | fire | fire (hue+sat) |
 | `frame_003240.png` | 003240 | 003200 | shadow | shadow |
 | `frame_003241.png` | 003241 | 003205 | flip | flip H |
-| `frame_003242.png` | 003242 | 003205 | hue60 | hue +60 |
-| `frame_003245.png` | 003245 | 003205 | hue240 | hue +240 |
-| `frame_003246.png` | 003246 | 003205 | flip-hue90 | flip + hue +90 |
-| `frame_003247.png` | 003247 | 003205 | flip-hue200 | flip + hue +200 |
 | `frame_003248.png` | 003248 | 003205 | swap-rb | swap R/B |
-| `frame_003250.png` | 003250 | 003205 | fire | fire (hue+sat) |
 | `frame_003251.png` | 003251 | 003205 | shadow | shadow |
 | `frame_003252.png` | 003252 | 003210 | flip | flip H |
 | `frame_003254.png` | 003254 | 003210 | hue120 | hue +120 |
@@ -74,7 +75,6 @@ from sources **3205 / 3210 / 3215 / 3220** (see table below).
 | `frame_003269.png` | 003269 | 003215 | flip-hue200 | flip + hue +200 |
 | `frame_003270.png` | 003270 | 003215 | swap-rb | swap R/B |
 | `frame_003271.png` | 003271 | 003215 | cold | cold (sat+ light-) |
-| `frame_003272.png` | 003272 | 003215 | fire | fire (hue+sat) |
 | `frame_003273.png` | 003273 | 003215 | shadow | shadow |
 | `frame_003274.png` | 003274 | 003220 | flip | flip H |
 | `frame_003275.png` | 003275 | 003220 | hue60 | hue +60 |
@@ -123,7 +123,7 @@ from sources **3205 / 3210 / 3215 / 3220** (see table below).
 
 ## Quick pick list
 
-Frames: `3230, 3231, 3232, 3233, 3234, 3235, 3236, 3237, 3238, 3239, 3240, 3241, 3242, 3243, 3245, 3246, 3247, 3248, 3249, 3250, 3251, 3252, 3254, 3255, 3256, 3257, 3258, 3259, 3260, 3262, 3263, 3264, 3265, 3266, 3267, 3268, 3269, 3270, 3271, 3272, 3273, 3274, 3275, 3276, 3277, 3278, 3279, 3280, 3281, 3282, 3283, 3284, 3285, 3286, 3287, 3288, 3289, 3290, 3291, 3292, 3293, 3294, 3295, 3296, 3297, 3298, 3299, 3300, 3301, 3302, 3303, 3304, 3305, 3306, 3307, 3308, 3309, 3310, 3311, 3312, 3313, 3314, 3315, 3316, 3317`
+Frames: `3230, 3231, 3232, 3233, 3234, 3235, 3236, 3237, 3238, 3239, 3240, 3241, 3242, 3243, 3245, 3246, 3247, 3248, 3249, 3251, 3252, 3254, 3255, 3256, 3257, 3258, 3259, 3260, 3262, 3263, 3264, 3265, 3266, 3267, 3268, 3269, 3270, 3271, 3273, 3274, 3275, 3276, 3277, 3278, 3279, 3280, 3281, 3282, 3283, 3284, 3285, 3286, 3287, 3288, 3289, 3290, 3291, 3292, 3293, 3294, 3295, 3296, 3297, 3298, 3299, 3300, 3301, 3302, 3303, 3304, 3305, 3306, 3307, 3308, 3309, 3310, 3311, 3312, 3313, 3314, 3315, 3316, 3317`
 
 ## Notes
 

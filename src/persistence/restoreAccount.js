@@ -80,6 +80,7 @@ export function resolveAccountGold(snapshotAccount, characters, characterIds) {
  * @param {(storage: unknown) => object} options.sanitizeStorage
  * @param {(upgrades: unknown) => object} options.sanitizeUpgrades
  * @param {(respawns: unknown) => Record<string, number>} options.sanitizeBossRespawns
+ * @param {(readyAt: unknown) => number} [options.sanitizeMysteryCaveRandomReadyAt]
  * @param {(stats: unknown) => object} options.sanitizeAccountStats
  * @param {(codex: unknown) => object} [options.sanitizeCodex]
  * @param {(achievements: unknown) => object} [options.sanitizeAchievements]
@@ -104,6 +105,11 @@ export function restoreAccountFromSnapshot(snapshot, characters, options) {
       characters,
       options,
     ),
+    // Absent on saves from before the Random Cave daily limit, which correctly
+    // reads as "no run used yet".
+    randomMysteryCaveReadyAt: typeof options.sanitizeMysteryCaveRandomReadyAt === "function"
+      ? options.sanitizeMysteryCaveRandomReadyAt(snapshot.account?.randomMysteryCaveReadyAt)
+      : 0,
     stats: options.sanitizeAccountStats(snapshot.account?.stats),
     codex: typeof options.sanitizeCodex === "function"
       ? options.sanitizeCodex(snapshot.account?.codex)

@@ -3,7 +3,7 @@
 > **Private dev sheet** — not shipped to players. Regenerate after glyph changes:
 > `npm run glyph:ref`
 
-Last generated: 2026-08-10
+Last generated: 2026-08-23
 
 ## Icon frames for new glyphs
 
@@ -17,7 +17,7 @@ frame from **[`GLYPH_ICON_POOL.md`](./GLYPH_ICON_POOL.md)** (derived variants st
 - Empowered bosses: **10%** chance to drop one random glyph.
 - Ascended bosses: **15%** chance.
 - Equip slots: `glyph`, `glyph2`, `glyph3`, `glyph4`, `glyph5` (5 slots).
-- Pool size: **33** glyphs (uniform pick when a drop hits).
+- Pool size: **40** glyphs (uniform pick when a drop hits).
 
 ## Glyphs
 
@@ -38,6 +38,14 @@ frame from **[`GLYPH_ICON_POOL.md`](./GLYPH_ICON_POOL.md)** (derived variants st
 - Level: 35
 - Spells: ProtectionField
 - Protection Field grants a much stronger AC bonus for a short time.
+
+#### Glyph of Execution
+
+- Item id: `glyph-execution`
+- Class: Warrior
+- Level: 35
+- Spells: Slaying
+- Slaying always readies after you strike, takes priority over other weapon skills, and cannot miss. The blow deals 2.5× damage, or 9× if the target is at or below 50% HP.
 
 #### Glyph of Flaming Avalanche
 
@@ -71,6 +79,14 @@ frame from **[`GLYPH_ICON_POOL.md`](./GLYPH_ICON_POOL.md)** (derived variants st
 - Spells: ProtectionField
 - Protection Field buffs AMC (MAC) instead of AC.
 
+#### Glyph of Shared Skin
+
+- Item id: `glyph-shared-skin`
+- Class: Warrior
+- Level: 35
+- Spells: ImmortalSkin
+- Immortal Skin also buffs your party with your AC and MAC. Your DC penalty is doubled.
+
 #### Glyph of Slow Destruction
 
 - Item id: `glyph-slow-destruction`
@@ -97,6 +113,14 @@ frame from **[`GLYPH_ICON_POOL.md`](./GLYPH_ICON_POOL.md)** (derived variants st
 - Spells: —
 - While in melee range of an enemy: +25% armour and damage. At range: −25% armour and damage.
 
+#### Glyph of Blood Shield
+
+- Item id: `glyph-blood-shield`
+- Class: Wizard
+- Level: 35
+- Spells: Vampirism
+- Vampirism can heal you up to 150% of your maximum HP. The extra 50% is a health buffer.
+
 #### Glyph of Deep Frost
 
 - Item id: `glyph-deep-frost`
@@ -120,6 +144,14 @@ frame from **[`GLYPH_ICON_POOL.md`](./GLYPH_ICON_POOL.md)** (derived variants st
 - Level: 35
 - Spells: FireWall
 - Fire Wall lasts much longer.
+
+#### Glyph of Focused Meteor
+
+- Item id: `glyph-focused-meteor`
+- Class: Wizard
+- Level: 35
+- Spells: MeteorStrike
+- Meteor Strike hits a single target and deals double damage.
 
 #### Glyph of Frenzied Disruptor
 
@@ -163,6 +195,14 @@ frame from **[`GLYPH_ICON_POOL.md`](./GLYPH_ICON_POOL.md)** (derived variants st
 - Spells: SummonHolyDeva
 - Your Deva no longer attacks. Instead it casts Mass Healing at your proficiency.
 
+#### Glyph of Blight
+
+- Item id: `glyph-blight`
+- Class: Taoist
+- Level: 35
+- Spells: Plague
+- Plague also attempts Curse on the same targets, using Curse's duration, power, and chances. Requires Curse learned.
+
 #### Glyph of Buffing
 
 - Item id: `glyph-buffing`
@@ -195,13 +235,21 @@ frame from **[`GLYPH_ICON_POOL.md`](./GLYPH_ICON_POOL.md)** (derived variants st
 - Spells: Healing
 - Healing restores health instantly, but only for half the usual amount.
 
+#### Glyph of Last Stand
+
+- Item id: `glyph-last-stand`
+- Class: Taoist
+- Level: 35
+- Spells: EnergyShield
+- Energy Shield no longer heals. It saves each player from one fatal blow, then breaks. That player cannot receive Energy Shield again for 5 minutes.
+
 #### Glyph of Pet Might
 
 - Item id: `glyph-pet-might`
 - Class: Taoist
 - Level: 35
 - Spells: SummonSkeleton, SummonShinsu, SummonHolyDeva
-- Your pets add your physical power (DC) to their attacks. (Holy Deva base damage is still SC × 2; this glyph adds DC on top.)
+- Your pets add your physical power (DC) to their attacks.
 
 #### Glyph of Spirit Wards
 
@@ -260,6 +308,14 @@ frame from **[`GLYPH_ICON_POOL.md`](./GLYPH_ICON_POOL.md)** (derived variants st
 - Level: 35
 - Spells: —
 - Gold drops from monsters and bosses are increased by 100%.
+
+#### Glyph of Provision
+
+- Item id: `glyph-provision`
+- Class: All classes
+- Level: 35
+- Spells: —
+- Matching potions in your bag are used before the hotbar stack. You no longer gain gold.
 
 #### Glyph of Revival
 

@@ -1,5 +1,352 @@
 # AI Task Log - LOM Idle V2
 
+## 2026-08-24 - Random Mystery Cave
+
+Separate ticket (`mystery-cave-random-ticket`): cube recipe is 1 Wooma Heart + 1
+Black Iron Ore of any purity. Using it opens infinite Random Cave. Each spawn
+remixes a body with an unrelated statline.
+
+Difficulty is a **widening window**, not a ramp. `mysteryCaveRandomCombatDonorIds`
+ranks every eligible walking monster (177 of them, Chicken → Oma King) by a threat
+score (`maxHp × (dps + lane cost)`; the lane-cost term stops tanky-but-feeble
+monsters from ranking as harmless when they can still bury you by clogging a
+lane). Non-combat dummies are filtered out — `MYSTERY_CAVE_RANDOM_EXCLUDED_TEMPLATE_IDS`
+plus a zero-experience check, which is what keeps the immortal Trainer
+(id 290, 9999 HP / 1 damage / 0 XP) out of the pool.
+`mysteryCaveRandomCombatWindow` then returns a
+floor/ceiling into that ladder: the ceiling is pinned to Wooma Taurus for spawns
+1–5, climbs one small step at a time, and reaches the top of the ladder at spawn
+45; the floor stays at 0 until then and only climbs afterwards. The pick inside
+the window is **flat** — that is what makes lucky runs (easy donors past wave 50)
+and unlucky spikes (something nasty at wave 10) both possible.
+`mysteryCaveRandomStatMultiplier` is deliberately flat jitter (0.75–1.25×) for the
+whole ramp and only escalates once the window has topped out — the previous version
+scaled with the spawn index too, and the two ramps compounding is what made every
+run die on a cliff around wave 20. Emp/Asc/Awk multiply HP/damage 2×/3×/4× on top
+(free, same as Mystery Cave). Borrowed attack FX come from
+`MYSTERY_CAVE_RANDOM_ATTACK_FX_TEMPLATE_IDS` — every monster with a
+`projectile.frames` block in its atlas (22, deduped by `monsterIndex`); the draw
+path skips any donor whose atlas lacks one, so the list is safe to extend.
+Chest: one silly prize per 5 kills (sun potion through 4★, including Wooden
+Sword if it is a real drop). `pickMysteryCaveRandomEquipId` is a **flat** pick —
+no item is weighted. Do not re-add a Wooden Sword bias: an earlier version forced
+it on 45% of 3★+ rolls, which made 3★ Wooden Sword the most common high-star drop
+by a wide margin. The point is only that the cheapest gear in the game shares the
+pool with endgame gear and can come out at 4★, not that it is special.
+Equipment is only items that already drop from
+zone or boss tables — no shop-only / unused gear.
+
+Gold and EXP are **one seeded roll for the whole run**, from 1 up to a ceiling
+that each kill raises by a flat amount: `MYSTERY_CAVE_RANDOM_GOLD_MAX_PER_KILL`
+(25,000) for gold, and `kills × mysteryCaveBestBossExperienceUpToKills(kills) ×
+MYSTERY_CAVE_RANDOM_XP_MAX_FACTOR` (0.86) for EXP. So 10 kills means "up to
+250,000 gold", not 250,000 gold — a
+40-kill run can pay 502. Averages are half the ceiling: gold ~12,500/kill
+(0.12× the normal cave's flat 100,000/kill) and EXP ~0.63× the normal cave at
+every run length. Note what multiplies on top of the EXP number: the fight tier
+(up to 4× — and the tier is free to pick) and then the account XP rate on claim
+(rebirth + gear + supporter, easily 5×). The XP factor was 2.5 until a 55-kill
+Awakened run on a 5.5× account banked 1.1B; halving it was the fix.
+
+The EXP anchor **must stay monotonic**. `mysteryCaveFurthestBossExperienceSource`
+returns the best XP in the one wave a kill count lands on, and the wave ladder is
+ordered by fight difficulty, not by XP — so anchoring on it directly made extra
+kills *reduce* the payout (24 kills paid 46% less than 23; smaller dips at 10, 11
+and 15). `mysteryCaveBestBossExperienceUpToKills` takes the running maximum
+instead, which is non-decreasing by construction and cached (the prefix is built
+once over the spawn queue). That raised the saturated anchor from 40,000 to
+58,000, so the factor dropped 1.25 → 0.86 to hold payouts where they were tuned;
+change one and you must re-check the other. The normal cave still reads a single
+wave via the old helper — it has the same dip, deliberately left alone so this
+fix did not silently retune normal Mystery Cave XP.
+Do **not** convert this back to a per-kill roll that
+gets summed — an earlier version did that and it was both quadratic in kills
+(5× normal cave gold by wave 80, and climbing) and low-variance, which killed
+the point of the roll. Seeded on the run seed so a reopened chest is stable.
+Leave or die cashes the chest. Normal Mystery Cave ticket is unchanged.
+
+**The ticket must route to `MYSTERY_CAVE_RANDOM_ZONE_ID`, not the normal cave.**
+`dungeonSoulPortalZoneId` originally sent both tickets to `MYSTERY_CAVE_ZONE_ID`
+and relied on `state.pendingMysteryCaveRandom` to switch the mode — but
+`confirmBossZoneEntry` calls `clearPendingDungeonSoulEntry()` (which zeroes that
+flag and the seed) *before* `enterZone`, so the flag was always false by the time
+`enterZone` read it and a real ticket dropped you into **normal** Mystery Cave.
+It went unnoticed because every playtest used the (then available) teleporter
+entry, which lands on the random zone directly and gets the mode from
+`zone.mysteryCaveRandom`. Note the ordering: `isMysteryCaveTicketItem` matches
+the random ticket too, so the random check has to come first. Keep the zone as
+the source of truth for the mode; the pending flag only exists to render the
+entry window before the zone is entered.
+
+**Entry is the ticket only.** `zone-mystery-cave-random` was dropped from the
+`past-bicheon` region in `TELEPORT_REGIONS`, which also removes it from the
+Teleport Ring (`teleportRingBossZoneIds` intersects `BOSS_ROOM_DEFS` with the
+teleport regions). The zone keeps its `BOSS_ROOM_DEFS` entry — that is what makes
+the boss-entry window and party picker work for the ticket — so do not delete
+that to "finish" the removal.
+
+**One ticket run per day.** `MYSTERY_CAVE_RANDOM_COOLDOWN_MS` (24h) with the
+ready-at stamp on `state.account.randomMysteryCaveReadyAt`, i.e. **account-wide**
+so swapping characters does not hand out a second run. Saves from before this
+have no field, which `sanitizeMysteryCaveRandomReadyAt` reads as 0 / ready — the
+migration is "no run used yet", nothing is dropped. That sanitizer also zeroes a
+stamp further out than one full cooldown, so a clock change or a save moved
+between machines cannot lock the cave for longer than a day. The stamp is written
+in `confirmBossZoneEntry` at the same point the ticket is consumed (not when the
+entry window opens, so backing out costs nothing). Using a ticket during the
+lockout still **opens** the entry window and shows the remaining time the way a
+boss room shows its respawn (`.boss-entry-respawn-status` + a disabled
+`is-respawning` fight button); a refusal that only wrote to the battle log was
+too easy to miss. The countdown ticks because `randomCaveLockoutSec` is in the
+scene signature next to `bossEntryRespawnSec`, which rebuilds the open overlay
+once a second. `mysteryCaveRandomLockoutMs` returns 0 unless a random **ticket**
+is the pending entry, so any future non-ticket entry point stays ungated.
+`confirmBossZoneEntry` still re-checks, so the disabled button is presentation
+and not the enforcement.
+
+### Verify
+- Craft the Random ticket, enter, confirm escalating HP in the log and that
+  Return To Town / wipe grants a chest. Open chest: Gold / EXP / Loot only.
+- Waves 1–5 must never spawn anything above Wooma Taurus on threat, and waves
+  should feel mostly harmless with occasional spikes rather than a wall at ~20.
+- After entering with a ticket, a second ticket must open the entry window with a
+  live "Ready in" countdown and a disabled Enter button, and must NOT be spent;
+  reload to confirm the cooldown persisted.
+- Random Mystery Cave must not appear in Teleport (Past Bicheon) or the Teleport
+  Ring; the ticket is the only way in.
+- `__lomTest.clearRandomCaveCooldown()` drops the daily lockout so the ticket
+  path can be retested immediately instead of waiting out the 24 hours.
+
+## 2026-08-23 - Remove temp Alchemist glyph stock
+
+Cleared test glyphs from `ALCHEMIST_STOCK_IDS` and dropped the 1g fallback
+in `alchemistShopBuyPrice` that only existed for 0-buy Crystal glyphs.
+
+## 2026-08-23 - Fifth glyph slot (rebirth upgrade)
+
+`rebirth-extra-glyph-slot` now has 4 tiers (`maxTier` 4, costs 250 / 500 / 750 / 1000).
+`GLYPH_EQUIP_UNLOCK_CAP` is 5. The 5th slot (`glyph5`) was already in the equipment
+id list and Glyphs grid CSS.
+
+### Verify
+- Rebirth upgrades: Add Additional Glyph Slot can be bought a 4th time for 1000 RP
+  after the 750 RP tier, then the Glyphs page shows 5 / 5.
+
+## 2026-08-23 - Glyph of Blight (Taoist)
+
+`glyph-blight` makes Plague also roll a normal Curse attempt on each living
+target in the bang: Curse fizzle chance once per Plague, then Curse's per-target
+hit roll, duration, and damage reduction. Requires Curse learned. No extra
+amulets, MP, or Curse XP. Temp Alchemist stock at 1g.
+
+### Verify
+- Equip on a Taoist with Curse and Plague learned. Cast Plague: some hits also
+  show `Cursed -X%` with the same odds as a standalone Curse.
+- Without Curse learned, Plague is unchanged.
+
+## 2026-08-23 - Glyph of Last Stand (Taoist)
+
+`glyph-last-stand` rewrites Energy Shield: no on-hit heal. A shielded player
+survives one fatal hit at 1 HP, then the shield breaks and that player cannot
+be Energy Shielded again for 5 minutes (per-player lockout, survives save/reload).
+Temp Alchemist stock at 1g.
+
+### Verify
+- Equip on Taoist, cast Energy Shield: HUD says Last Stand, no heal procs on hit.
+- Take a killing blow: survive at 1 HP, shield gone, recast skipped for 5 minutes.
+- In a party, each class can be saved once independently.
+
+## 2026-08-23 - Glyph of Shared Skin (Warrior)
+
+`glyph-shared-skin` makes Immortal Skin apply the Warrior's AC/MAC bonus to
+living party members and pets (same target list as Ultimate Enhancer) without
+the DC penalty. The Warrior's DC penalty is doubled. Solo still only buffs the
+Warrior. Temp Alchemist stock at 1g.
+
+### Verify
+- Group dungeon / boss room: cast Immortal Skin — Wizard, Taoist, and pets
+  get the same AC/MAC numbers as the Warrior. Warrior shows ~2× the usual
+  max-DC cut.
+- Solo: no extra targets; still the doubled DC penalty.
+
+## 2026-08-23 - Immortal Skin book on Oma King
+
+`OMA_KING_BOSS_DROPS` now includes `book-immortal-skin` at 10%. Magic UI drop
+text comes from `SKILL_BOOK_BOSS_DROP_BY_ITEM_ID`, which is built from boss
+tables, so no monolith map change.
+
+### Verify
+- Kill Oma King (Past Bicheon / Mystery Cave): Immortal Skin can drop at 10%.
+- Warrior Magic panel should list Drops: Oma King for Immortal Skin.
+
+## 2026-08-23 - Energy Shield HUD no longer shows ENERGYSHIELD
+
+`statBuffBonusLabel` treated Energy Shield like a numbered stat and uppercased
+the `energyShield` key. It now prints proc chance and HP gain (`25% +12 HP`),
+matching Magic Shield's `50% DR` style on the resource HUD.
+
+### Verify
+- Cast Energy Shield: HUD should read like `Energy Shield 25% +12 HP · 13s`,
+  not `Energy Shield ENERGYSHIELD`.
+
+## 2026-08-23 - Magic Shield highest wizard support priority
+
+Live combat and boss-party wizard actions were casting Mirroring before Magic
+Shield even though `WIZARD_AUTO_SPELL_ORDER` already listed Shield first. Solo
+tick, `wizardAttack` queued support, and `bossPartyWizardAction` now follow
+Magic Shield → Magic Booster → Mirroring.
+
+### Verify
+- Wizard with Magic Shield, Magic Booster, and Mirroring all autocast and
+  expired: first cast after aggro should be Magic Shield.
+- Same order for a wizard party member in a group dungeon.
+
+## 2026-08-23 - Glyph of Provision (any class)
+
+`glyph-provision` spends a matching potion stack in the bag before the hotbar
+stack (live auto/manual, boss-party, and offline). While equipped, kill gold and
+other gold credits (`creditSharedGold`) are 0. Selling items still pays gold.
+Temp Alchemist stock at 1g.
+
+### Verify
+- Hotbar HP pots + bag HP pots: auto-drink should drain the bag first; hotbar
+  quantity stays put until the bag is empty. Offline report should show potions
+  used from bag. No gold from kills while equipped.
+
+## 2026-08-23 - Glyph of Execution (Warrior)
+
+Slaying with `glyph-execution` always readies after a strike, takes priority over
+Flaming Sword / Twin Drake / sweeps, cannot miss, and hits for 2.5× above 50% HP
+or 9× at or below 50% HP. Temp Alchemist stock at 1g.
+
+### Verify
+- Equip Glyph of Execution with Slaying learned. After any swing, the next
+  attack should be Slaying even if Flaming Sword or Twin Drake is charged.
+- Above 50% HP: ~2.5× a normal swing, Slaying FX a mild crimson. At 50% HP
+  or less: ~9× and a stronger blood-red FX. Hits should not miss.
+
+## 2026-08-22 - Glyph of Blood Shield (Wizard)
+
+Vampirism with `glyph-blood-shield` can overheal to 150% of max HP. The extra
+is stored as HP above max (damage drains it first). Potions and other heals
+still stop at 100%. HP bars show a gold overlay for the buffer. Save/load and
+stat refresh keep overheal up to the glyph cap. Temp Alchemist stock at 1g.
+
+### Verify
+- Equip Glyph of Blood Shield, Vampirism at high HP until the bar reads over
+  max (e.g. 1500/1000). Take a hit: HP falls from the buffer before real HP.
+- Unequip the glyph: next stat refresh / heal dump should clamp back to max HP.
+
+## 2026-08-22 - Temp Alchemist stock: Focused Meteor
+
+Added `glyph-focused-meteor` to `ALCHEMIST_STOCK_IDS` for testing. Crystal
+`shop.buy` is 0, so `alchemistShopBuyPrice` sells 0-buy alchemist stock at 1g.
+Remove before release.
+
+## 2026-08-22 - Glyph of Focused Meteor (Wizard)
+
+Meteor Strike stays a 3s channeled storm (same ticks, cooldown, mana, lockout),
+but equipped `glyph-focused-meteor` locks damage to one swarm enemy (the current
+primary / aimed target) on a 1×1 cell and doubles each tick via
+`applyGlyphMeteorStrikeDamage` inside `rollWizardMagicValue`. Blizzard is
+unchanged. Solo already hit one target; the glyph is a pack-clearing trade for
+boss / single-target damage.
+
+### Verify
+- Equip Glyph of Focused Meteor, cast Meteor Strike in a group dungeon pack: only
+  one enemy takes ticks, those ticks are ~2× a normal Meteor tick.
+- Without the glyph, Meteor still hits everyone in the 5×5.
+
+## 2026-08-21 - Crystal Spider and Red Evil Ape join the Mystery Cave swarm
+
+Both Red Moon Valley mid-bosses were missing from `MYSTERY_CAVE_SPAWN_WAVES`
+even though they are walking bosses with their own tables in `bossDrops.js` —
+the same class as King Scorpion / King Hog / Frost Tiger / Oma King, which were
+already in. Neither is in `MYSTERY_CAVE_EXCLUDED_STATIONARY_TEMPLATE_IDS`, and
+`isMysteryCaveIneligibleBoss` already returned `false` for both, so this was an
+omission rather than a rule.
+
+Placed by the roster's own metric (pack HP x sustained DPS), next to the bosses
+their statlines were copied from: Crystal Spider (465, score 68) at wave 1
+between Evil Snake (64) and Wooma Taurus (75); Red Evil Ape (464, score 720,
+an exact Zuma Taurus statline) at wave 5 between Zuma Taurus and the
+hand-placed King Scorpion. Added both to
+`MYSTERY_CAVE_DROP_LABEL_BY_TEMPLATE_ID` (chest rewards resolve `null` without
+a label) and to `zone-mystery-cave` `enemyIds` in `phase1Data.js`.
+
+A full clear is now 25 bodies over 20 waves (was 23 over 18), so the spawn
+window runs 190s instead of 170s. `totalSpawns` is derived from the spawn plan,
+so no other constant moved. No save migration: unclaimed chests store
+`mysteryCaveBestWave` as a raw index, so held chests re-map to whatever the new
+index says (owner's call — a held late-run chest can drop back a couple of
+waves' worth of table quality, one time only).
+
+No new combat code needed: Crystal Spider's lane-AOE kit already routes through
+`swarmEnemyHasBossPartyKit` -> `bossPartyEnemyAttack` -> `beginCrystalSpiderAttack`,
+and Red Evil Ape is plain melee. Monster atlases 60/61 already have the
+`walking`/`attack1`/`standing` actions the roster test requires.
+
+New test pin `every Mystery Cave wave resolves to a real boss drop table` so a
+future roster addition can't ship a wave with no drop table.
+
+### Verify
+- `npm.cmd run check` + `npm.cmd run smoke` (both green)
+- Enter Mystery Cave: Crystal Spider walks in as the 2nd boss (lane AOE intact),
+  Red Evil Ape as the 6th; chest label tracks the furthest wave reached.
+
+## 2026-08-21 - Pass items to party members
+
+Out of combat in group content (group dungeons and KR rooms), click-carry an
+inventory item onto another party member's paper doll or nameplate to move it
+into their bag. Uses the existing `isCombatEquipmentChangeBlocked()` lock (same
+1s combat-stance hold as gear swaps). Full bags fail with loot notice
+"Not enough room in character inventory" and the item stays on the giver.
+Stacks merge into matching piles first; leftover needs a free slot or the
+whole give is refused. Live `state.inventory` is the giver; the target is the
+non-controlled `member.inventory`. Paper-doll boxes now take pointer events so
+the drop can hit them (the bar itself stays `pointer-events: none`).
+
+### Verify
+- `npm.cmd run check` + `npm.cmd run smoke`
+- In a group dungeon: out of combat, drag a bag item onto another paper doll /
+  nameplate — it appears in their bag after switching. Full bag shows the
+  notice. In combat (within 1s of a hit) the give is refused like equipping.
+
+## 2026-08-21 - Boss Junk Filter
+
+Account-wide unlock: boss kills refuse plain copies of anything on
+`account.autoJunkItemIds`, so bags stop filling with vendor trash. Dual-shop
+like Organisation Skills / Ore Stacking — rebirth upgrade
+`rebirth-boss-junk-filter` (effect `bossJunkFilterUnlock`, 100 RP) OR unlock key
+`boss-junk-filter` (300 tokens, added to `UNLOCK_TOKEN_COSTS` in
+`tools/stats-worker/worker.js`), unified by `bossJunkFilterUnlocked()`. Toggle lives in settings
+(`bossJunkFilterEnabled`, default on) and is gated by
+`bossJunkFilterEnabled()` so you can switch it off on the Auto-Junk Filters
+window without losing the unlock. Buying it turns the toggle on.
+
+Gate is `bossJunkFilterRefusesDrop(item, source)` in `addZoneDropItem` and
+`addBossPartyZoneDropItem`: needs the unlock, `isBossDropSource(source)` (codex
+source id `boss:*`, so Red Thunder Zuma counts and normal mobs never do), the
+item on the auto-junk list, and not an awakened boss unique
+(`awakenedBossItemIds()` reads the `awakenedItems` pools from `bossDrops.js`).
+
+Two-branch refusal because the star roll happens inside `addInventoryItem`:
+non-empowerable drops are refused *before* the bag is touched (so a full bag
+can't defeat the filter), while empowerable drops on an Empowered/Ascended/
+Awakened fight are added, then pulled back out if they rolled plain. Refusals
+are tallied by `rollWithBossJunkFilterTally` (wraps `rollBossSoloDrops`,
+`rollBossPartyDrops`, `rollRedThunderZumaDrops`) and reported as `drops.junked`
+— one combat-log line per kill, no loot toasts. Mystery Cave chests are
+untouched. Offline sim never rolls boss tables, so it needs no change.
+
+### Verify
+- `npm.cmd run check` + `npm.cmd run smoke`
+- Playwright via `__lomTest.addAutoJunkFilter` / `grantBossJunkFilter` /
+  `awardTestDrop(itemId, kind, empowered)`: filtered boss drop refused only once
+  unlocked, non-boss drop still lands, and over 40 empowered-fight rolls of
+  filtered gear every surviving copy was starred (5 kept / 35 refused, 0 lost to
+  a full bag).
+
 ## 2026-08-20 - Unique awakened boss drops
 
 Awakened Soul Sabre 1% on Bone Lord `awakenedItems` (exact, not ×4), sharing

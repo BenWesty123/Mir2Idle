@@ -102,6 +102,20 @@ export function sanitizeMagicState(savedMagic, isValidSpellId, maxLevel = MAGIC_
 /**
  * @param {object | null | undefined} savedBattle
  */
+/**
+ * Wall-clock time when Energy Shield Last Stand lockout ends.
+ * Drops expired or absurd-future values so saves stay valid.
+ * @param {unknown} value
+ * @param {number} [now]
+ * @returns {number}
+ */
+export function sanitizeEnergyShieldLastStandReadyAt(value, now = Date.now()) {
+  const at = Math.trunc(Number(value) || 0);
+  if (!Number.isFinite(at) || at <= now) return 0;
+  const max = now + (10 * 60 * 1000);
+  return Math.min(at, max);
+}
+
 export function sanitizeCharacterBattleState(savedBattle = {}) {
   return {
     running: savedBattle?.running !== false,
@@ -112,6 +126,7 @@ export function sanitizeCharacterBattleState(savedBattle = {}) {
     potManaAmount: Math.max(0, Math.trunc(Number(savedBattle?.potManaAmount) || 0)),
     healAmount: Math.max(0, Math.trunc(Number(savedBattle?.healAmount) || 0)),
     vampAmount: Math.max(0, Math.trunc(Number(savedBattle?.vampAmount) || 0)),
+    energyShieldLastStandReadyAt: sanitizeEnergyShieldLastStandReadyAt(savedBattle?.energyShieldLastStandReadyAt),
     statBuffs: sanitizeStatBuffs(savedBattle?.statBuffs),
     petStatBuffs: sanitizeStatBuffs(savedBattle?.petStatBuffs),
   };

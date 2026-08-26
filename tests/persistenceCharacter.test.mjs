@@ -84,6 +84,19 @@ test("sanitizeCharacterBattleState: normalizes battle snapshot fields", () => {
   assert.equal(result.vampAmount, 4);
 });
 
+test("sanitizeCharacterBattleState: keeps Last Stand recast lockout", () => {
+  const now = Date.now();
+  const readyAt = now + 180_000;
+  const result = sanitizeCharacterBattleState({
+    energyShieldLastStandReadyAt: readyAt,
+  });
+  assert.equal(result.energyShieldLastStandReadyAt, readyAt);
+  const expired = sanitizeCharacterBattleState({
+    energyShieldLastStandReadyAt: now - 1000,
+  });
+  assert.equal(expired.energyShieldLastStandReadyAt, 0);
+});
+
 test("itemUsesEntryDurability", () => {
   const stackable = (item) => item.type === "stack";
   assert.equal(itemUsesEntryDurability({ type: "stack", durability: 10 }, stackable), false);

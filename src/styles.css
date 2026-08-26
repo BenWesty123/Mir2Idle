@@ -700,6 +700,13 @@ button.active,
   background: linear-gradient(#c84a3d, #76241f);
 }
 
+.player-resource-row.hp .player-resource-fill.shield {
+  position: absolute;
+  left: 0;
+  top: 0;
+  background: linear-gradient(#e8c86a, #8a6a18);
+}
+
 .player-resource-row.mp .player-resource-fill {
   background: linear-gradient(#477fc9, #21426f);
 }
@@ -1003,6 +1010,7 @@ body.combat-skill-bar-drag-active {
   overflow: hidden;
   border: 1px solid rgba(40, 32, 22, 0.95);
   background: #000;
+  pointer-events: auto;
 }
 
 .party-paperdoll-box.controlled {
@@ -1976,7 +1984,7 @@ dd {
 
 .auto-junk-panel {
   display: grid;
-  grid-template-rows: auto auto auto minmax(0, 1fr);
+  grid-template-rows: auto auto auto auto minmax(0, 1fr);
   gap: 8px;
   min-height: 0;
 }
@@ -1986,6 +1994,24 @@ dd {
   color: #b6a279;
   font-size: 11px;
   line-height: 1.4;
+}
+
+.auto-junk-boss-filter {
+  display: grid;
+  gap: 6px;
+}
+
+.auto-junk-toggle {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin: 0;
+  color: #d8c89a;
+  font-size: 12px;
+}
+
+.auto-junk-toggle input {
+  margin: 0;
 }
 
 .auto-junk-drop-slot {
@@ -8178,7 +8204,9 @@ body.scene-window-drag-active {
 .crystal-storage-slot.drag-over,
 .equipment-slot.drag-over,
 .crystal-equipment-slot.drag-over,
-.hotbar-slot.drag-over {
+.hotbar-slot.drag-over,
+.party-paperdoll-box.drag-over,
+.party-switch-button.drag-over {
   outline: 1px solid rgba(255, 230, 150, 0.9);
   outline-offset: -1px;
 }
@@ -8187,7 +8215,9 @@ body.scene-window-drag-active {
 .crystal-storage-slot.drag-invalid,
 .equipment-slot.drag-invalid,
 .crystal-equipment-slot.drag-invalid,
-.hotbar-slot.drag-invalid {
+.hotbar-slot.drag-invalid,
+.party-paperdoll-box.drag-invalid,
+.party-switch-button.drag-invalid {
   outline: 1px solid rgba(205, 70, 55, 0.9);
   outline-offset: -1px;
 }
@@ -9232,6 +9262,7 @@ body[data-ui="game"] .game-activity-panel {
 }
 
 .game-resource-track {
+  position: relative;
   height: 9px;
   border: 1px solid #1b120c;
   background: #070605;
@@ -9247,6 +9278,13 @@ body[data-ui="game"] .game-activity-panel {
 .game-resource-meter.hp .game-resource-fill,
 .game-resource-meter.enemy .game-resource-fill {
   background: linear-gradient(#b94a3f, #6f201c);
+}
+
+.game-resource-meter.hp .game-resource-fill.shield {
+  position: absolute;
+  left: 0;
+  top: 0;
+  background: linear-gradient(#e8c86a, #8a6a18);
 }
 
 .game-resource-meter.mp .game-resource-fill {

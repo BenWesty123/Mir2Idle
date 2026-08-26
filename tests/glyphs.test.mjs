@@ -8,7 +8,16 @@ import {
   applyGlyphProtectionFieldBonus,
   applyGlyphProtectionFieldDuration,
   glyphProtectionFieldStat,
+  glyphImmortalSkinBuffsParty,
+  glyphImmortalSkinGroupParams,
+  applyGlyphImmortalSkinDcPenalty,
   applyGlyphTwinDrakeDamage,
+  applyGlyphSlayingDamage,
+  slayingExecutionDamageMultiplier,
+  glyphSlayingExecutionParams,
+  glyphSlayingTakesPriority,
+  glyphSlayingAlwaysReadies,
+  glyphSlayingCannotMiss,
   applyGlyphSlowDestructionCombatStats,
   equippedGlyphDef,
   equippedGlyphDefs,
@@ -27,6 +36,13 @@ import {
   glyphFlamingSwordTriggersBladeAvalanche,
   glyphManyMirrorsParams,
   glyphGoldBonusPercent,
+  glyphHasPotionBagRefill,
+  glyphBlocksGoldGains,
+  applyGlyphKillGold,
+  potionBagRefillSourceEntry,
+  glyphEnergyShieldLastStandParams,
+  glyphEnergyShieldIsLastStand,
+  glyphPlagueChainsCurse,
   glyphSkillLevelBonusPercent,
   glyphHasDemonicDeva,
   glyphHasAngelicDeva,
@@ -66,6 +82,10 @@ import {
   isSunPotionFamilyItem,
   glyphVitalityParams,
   glyphDeepFrostParams,
+  glyphMeteorStrikeIsSingleTarget,
+  applyGlyphMeteorStrikeDamage,
+  vampirismHealHpCap,
+  glyphVampirismHealthShieldParams,
   rollGlyphChancePercent,
   glyphExtraBaseCritDamagePercent,
   glyphNullifiesLuck,
@@ -88,11 +108,12 @@ import { itemCanBeEmpowered } from "../src/core/empoweredItems.js";
 
 test("glyph defs cover all implemented items and unique item ids", () => {
   const implemented = GLYPH_DEFS.filter((def) => def.implemented);
-  assert.equal(implemented.length, 33);
+  assert.equal(implemented.length, 40);
   assert.ok(glyphDefByItemId("glyph-spirit-wards"));
   assert.ok(glyphDefByItemId("glyph-eternal-firewall"));
   assert.ok(glyphDefByItemId("glyph-bulwark-field"));
   assert.ok(glyphDefByItemId("glyph-magical-protection"));
+  assert.ok(glyphDefByItemId("glyph-shared-skin"));
   assert.ok(glyphDefByItemId("glyph-flaming-bulwark"));
   assert.ok(glyphDefByItemId("glyph-improved-flaming-sword"));
   assert.ok(glyphDefByItemId("glyph-flaming-avalanche"));
@@ -118,6 +139,12 @@ test("glyph defs cover all implemented items and unique item ids", () => {
   assert.ok(glyphDefByItemId("glyph-disruptor-cascade"));
   assert.ok(glyphDefByItemId("glyph-frenzied-disruptor"));
   assert.ok(glyphDefByItemId("glyph-deep-frost"));
+  assert.ok(glyphDefByItemId("glyph-focused-meteor"));
+  assert.ok(glyphDefByItemId("glyph-blood-shield"));
+  assert.ok(glyphDefByItemId("glyph-execution"));
+  assert.ok(glyphDefByItemId("glyph-provision"));
+  assert.ok(glyphDefByItemId("glyph-last-stand"));
+  assert.ok(glyphDefByItemId("glyph-blight"));
   assert.ok(glyphDefByItemId("glyph-vitality"));
   assert.ok(glyphDefByItemId("glyph-many-mirrors"));
   assert.ok(glyphDefByItemId("glyph-fast-healing"));
@@ -208,6 +235,49 @@ test("Fire Wall duration doubles with glyph", () => {
   assert.equal(applyGlyphGroundDuration(10500, "FireWall", null), 10500);
 });
 
+test("Focused Meteor doubles Meteor Strike and leaves other spells alone", () => {
+  const glyph = glyphDefById("wizardMeteorStrikeSingle");
+  assert.equal(glyph?.itemId, "glyph-focused-meteor");
+  assert.deepEqual(glyph?.spellIds, ["MeteorStrike"]);
+  assert.ok(glyphMeteorStrikeIsSingleTarget(glyph));
+  assert.equal(glyphMeteorStrikeIsSingleTarget(null), false);
+  assert.equal(applyGlyphMeteorStrikeDamage(100, "MeteorStrike", glyph), 200);
+  assert.equal(applyGlyphMeteorStrikeDamage(0, "MeteorStrike", glyph), 0);
+  assert.equal(applyGlyphMeteorStrikeDamage(100, "Blizzard", glyph), 100);
+  assert.equal(applyGlyphMeteorStrikeDamage(100, "MeteorStrike", null), 100);
+});
+
+test("Blood Shield lets Vampirism overheal to 150% max HP", () => {
+  const glyph = glyphDefById("wizardVampirismHealthShield");
+  assert.equal(glyph?.itemId, "glyph-blood-shield");
+  assert.deepEqual(glyph?.spellIds, ["Vampirism"]);
+  assert.equal(glyphVampirismHealthShieldParams(glyph)?.maxHpRatio, 1.5);
+  assert.equal(vampirismHealHpCap(1000, glyph), 1500);
+  assert.equal(vampirismHealHpCap(1000, null), 1000);
+  assert.equal(vampirismHealHpCap(0, glyph), 0);
+});
+
+test("Execution makes charged Slaying a guaranteed high-damage blow", () => {
+  const glyph = glyphDefById("warriorSlayingExecution");
+  assert.equal(glyph?.itemId, "glyph-execution");
+  assert.deepEqual(glyph?.spellIds, ["Slaying"]);
+  assert.ok(glyphSlayingTakesPriority(glyph));
+  assert.ok(glyphSlayingAlwaysReadies(glyph));
+  assert.ok(glyphSlayingCannotMiss(glyph));
+  assert.equal(glyphSlayingTakesPriority(null), false);
+  const healthy = { hp: 100, maxHp: 100 };
+  const wounded = { hp: 50, maxHp: 100 };
+  const barelyHealthy = { hp: 51, maxHp: 100 };
+  assert.equal(slayingExecutionDamageMultiplier(healthy, glyph), 2.5);
+  assert.equal(slayingExecutionDamageMultiplier(wounded, glyph), 9);
+  assert.equal(slayingExecutionDamageMultiplier(barelyHealthy, glyph), 2.5);
+  assert.equal(applyGlyphSlayingDamage(100, "Slaying", healthy, glyph), 250);
+  assert.equal(applyGlyphSlayingDamage(100, "Slaying", wounded, glyph), 900);
+  assert.equal(applyGlyphSlayingDamage(100, "FlamingSword", healthy, glyph), 100);
+  assert.equal(applyGlyphSlayingDamage(100, "Slaying", healthy, null), 100);
+  assert.equal(glyphSlayingExecutionParams(glyph)?.executeHpRatio, 0.5);
+});
+
 test("Protection Field glyph doubles bonus and fixes duration", () => {
   const glyph = glyphDefById("warriorProtectionFieldBurst");
   assert.equal(applyGlyphProtectionFieldBonus(10, glyph), 20);
@@ -223,11 +293,66 @@ test("Magical Protection glyph switches Protection Field to AMC", () => {
   assert.equal(glyphProtectionFieldStat([glyphDefById("warriorProtectionFieldBurst")]), "ac");
 });
 
+test("Shared Skin doubles Immortal Skin DC penalty and marks it as a party buff", () => {
+  const glyph = glyphDefById("warriorImmortalSkinParty");
+  assert.equal(glyph?.itemId, "glyph-shared-skin");
+  assert.deepEqual(glyph?.spellIds, ["ImmortalSkin"]);
+  assert.ok(glyphImmortalSkinBuffsParty(glyph));
+  assert.equal(glyphImmortalSkinBuffsParty(null), false);
+  assert.equal(glyphImmortalSkinGroupParams(glyph)?.casterDcPenaltyMultiplier, 2);
+  assert.equal(applyGlyphImmortalSkinDcPenalty(8, glyph), 16);
+  assert.equal(applyGlyphImmortalSkinDcPenalty(8, null), 8);
+});
+
 test("Glyph of Gold doubles monster and boss gold drops", () => {
   const glyph = glyphDefById("goldDrops");
   assert.equal(glyph?.itemId, "glyph-gold");
   assert.equal(glyphGoldBonusPercent(glyph), 100);
   assert.equal(glyphGoldBonusPercent(null), 0);
+});
+
+test("Glyph of Last Stand rewrites Energy Shield into a fatal save", () => {
+  const glyph = glyphDefById("taoEnergyShieldLastStand");
+  assert.equal(glyph?.itemId, "glyph-last-stand");
+  assert.deepEqual(glyph?.spellIds, ["EnergyShield"]);
+  assert.ok(glyphEnergyShieldIsLastStand(glyph));
+  assert.equal(glyphEnergyShieldIsLastStand(null), false);
+  assert.equal(glyphEnergyShieldLastStandParams(glyph)?.cooldownMs, 300000);
+  assert.equal(glyphEnergyShieldLastStandParams(null), null);
+});
+
+test("Glyph of Blight chains a normal Curse attempt off Plague", () => {
+  const glyph = glyphDefById("taoPlagueChainsCurse");
+  assert.equal(glyph?.itemId, "glyph-blight");
+  assert.deepEqual(glyph?.spellIds, ["Plague"]);
+  assert.ok(glyphPlagueChainsCurse(glyph));
+  assert.equal(glyphPlagueChainsCurse(null), false);
+});
+
+test("Glyph of Provision uses bag potions first and blocks gold", () => {
+  const glyph = glyphDefById("potionBagRefill");
+  assert.equal(glyph?.itemId, "glyph-provision");
+  assert.ok(glyphHasPotionBagRefill(glyph));
+  assert.ok(glyphBlocksGoldGains(glyph));
+  assert.equal(glyphHasPotionBagRefill(null), false);
+  assert.equal(applyGlyphKillGold(250, glyph), 0);
+  assert.equal(applyGlyphKillGold(250, null), 250);
+  const bag = { id: "bag-hp", itemId: "hp-drug-small", quantity: 20 };
+  const hot = { id: "hot-hp", itemId: "hp-drug-small", quantity: 6 };
+  const other = { id: "bag-mp", itemId: "mp-drug-small", quantity: 4 };
+  assert.equal(
+    potionBagRefillSourceEntry(
+      [hot, bag, other],
+      ["hot-hp"],
+      { weapon: "sword-1" },
+      "hp-drug-small",
+    )?.id,
+    "bag-hp",
+  );
+  assert.equal(
+    potionBagRefillSourceEntry([hot], ["hot-hp"], {}, "hp-drug-small"),
+    null,
+  );
 });
 
 test("Glyph of Efficient Learning doubles skill practice XP", () => {

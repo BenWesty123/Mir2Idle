@@ -291,7 +291,8 @@ const FROST_TIGER_BOSS_DROPS = {
   ],
 };
 const OMA_KING_BOSS_DROPS = {
-  // Frost Tiger copy without books, Oma King Robe, Oma Spirit Ring, or Tarragon Armour.
+  // Frost Tiger copy without Frost Tiger books, Oma King Robe, Oma Spirit Ring,
+  // or Tarragon Armour. Immortal Skin book 10%.
   // Accessory tiers: lowest ~5% (Namman/Danmo/Tarragon/Stone Golem), L63 2.5%
   // (Red Dragon Ring / Dragon Necklace / Golden Dragon Bracelet), L66 Evil
   // Dragon jewellery 1.25%. L66 weapons stay 2.5%; Oma King Armour 1.25%.
@@ -299,6 +300,7 @@ const OMA_KING_BOSS_DROPS = {
   benedictionOils: 2,
   items: [
     { id: "awakening-soul", chance: 1 },
+    { id: "book-immortal-skin", chance: 0.1 },
     { id: "oma-king-armour", chance: 0.0125 },
     { id: "barbarian-sword", chance: 0.025 },
     { id: "bone-carved-fan", chance: 0.025 },
