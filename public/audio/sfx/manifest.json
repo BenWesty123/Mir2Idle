@@ -618,6 +618,10 @@
         "monster.272.range",
         "monster.272.attack2",
         "monster.272.range2",
+        "monster.900.attack",
+        "monster.900.range",
+        "monster.900.death",
+        "monster.900.appear",
         "monster.994.attack",
         "monster.994.flinch",
         "monster.994.death",
@@ -4715,6 +4719,38 @@
       "group": "monster",
       "sourceFile": "272-8.wav",
       "src": "./public/audio/sfx/files/2728-272-8.wav"
+    },
+    "monster.900.attack": {
+      "key": "monster.900.attack",
+      "label": "Evil Mir attack",
+      "id": 9001,
+      "group": "monster",
+      "sourceFile": "900-1.wav",
+      "src": "./public/audio/sfx/files/9001-900-1.wav"
+    },
+    "monster.900.range": {
+      "key": "monster.900.range",
+      "label": "Evil Mir bolt",
+      "id": 9005,
+      "group": "monster",
+      "sourceFile": "900-5.wav",
+      "src": "./public/audio/sfx/files/9005-900-5.wav"
+    },
+    "monster.900.death": {
+      "key": "monster.900.death",
+      "label": "Evil Mir death",
+      "id": 9003,
+      "group": "monster",
+      "sourceFile": "900-3.wav",
+      "src": "./public/audio/sfx/files/9003-900-3.wav"
+    },
+    "monster.900.appear": {
+      "key": "monster.900.appear",
+      "label": "Evil Mir appear / phase 2 rise",
+      "id": 9000,
+      "group": "monster",
+      "sourceFile": "900-0.wav",
+      "src": "./public/audio/sfx/files/9000-900-0.wav"
     },
     "monster.994.attack": {
       "key": "monster.994.attack",

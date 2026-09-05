@@ -309,6 +309,27 @@ const groups = [
         range: 2727,
         range2: 2728,
       }),
+      // Evil Mir (900) is spelled out rather than run through monsterSounds because
+      // his set is bespoke and, critically, he must have NO flinch.
+      //
+      // Crystal: PlayAttackSound → +1, PlayDieSound → +3, PlayAppearSound falls
+      // through to the default → +0. He ships no 900-2, so he has no flinch voice.
+      // The tempting `SoundList.StruckEvilMir` (10090 = 900-struck.wav) is NOT a
+      // flinch: the client calls PlayFlinchSound (the monster's voice) and
+      // PlayStruckSound (the material impact) as two separate things, and 10090 is
+      // the second kind — the weapon-on-hide clink, a sibling of StruckWooden. It is
+      // also unreachable for him: EvilMir.Struck() returns 0, so the server never
+      // puts him in a struck action and that call site never runs. He is silent when
+      // hit, by design.
+      //
+      // 900-5 ships in the client but NO code path plays it: PlayDeadSound's +5 case
+      // does not list him and PlayReviveSound only covers zombies. It is the audio
+      // twin of the unreferenced 50-59 head frames. We give it to the bolt so his two
+      // attacks are distinguishable by ear.
+      sound("monster.900.attack", "Evil Mir attack", 9001),
+      sound("monster.900.range", "Evil Mir bolt", 9005),
+      sound("monster.900.death", "Evil Mir death", 9003),
+      sound("monster.900.appear", "Evil Mir appear / phase 2 rise", 9000),
       // Beast King art is WingedBullLord (178) which has no WAVs; use WingedTigerLord (184).
       ...monsterSoundsByImage("Beast King", 994, 184, { range: 1845 }),
     ],

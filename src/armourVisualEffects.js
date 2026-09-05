@@ -73,8 +73,16 @@ export const ARMOUR_SPECIAL_EFFECT_DEFS = {
 /**
  * Wing overlays (Crystal CHumEffect, effect ids 1–99). Opt-in per item —
  * Heaven Robe stays wingless; Heaven Armour uses Crystal effect 1 → wing 0.
+ * The Mir Armour trio uses effect 2 → wing 1, so the endgame set does not reuse
+ * Heaven's wings. Six wing sets ship (0–5) and only these two are claimed.
+ * Mir Robe (mir-armour-m-*) is deliberately absent so it stays wingless.
  */
-export const ARMOUR_WING_EFFECT_ITEM_IDS = new Set(["winged-heaven-armour"]);
+export const ARMOUR_WING_EFFECT_ITEM_IDS = new Set([
+  "winged-heaven-armour",
+  "mir-armour-f-1",
+  "mir-armour-f-2",
+  "mir-armour-f-3",
+]);
 
 /** Items that receive visualEffect from Crystal or level-aura assignments at build. */
 export const ARMOUR_VISUAL_EFFECT_ITEM_IDS = new Set(Object.keys(LEVEL_EFFECT_ARMOUR_ASSIGNMENTS));

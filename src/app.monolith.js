@@ -289,6 +289,8 @@ import {
   ASCEND_TIER_WEIGHTS,
   AWAKEN_TIER_WEIGHTS,
   BOSS_EMPOWER_ITEM_CHANCE,
+  normalMobEmpowerDenominator,
+  normalMobEmpowerItemChance,
   applyEquippedPetHealthBonus,
   applyEquippedPotionRestoreBonus,
   equippedPetDamageReductionPercent,
@@ -1446,6 +1448,18 @@ const ACCOUNT_UPGRADE_DEFS = [
     rebirthCosts: [15],
     summary: "Unlocks the crafting cube at Blacksmith Bill to salvage, craft, and combine empowered gear.",
   },
+  {
+    id: "rebirth-mob-empower-drops",
+    label: "Empowered Harvest",
+    section: "rebirth",
+    category: "utility",
+    currency: "rebirthPoints",
+    effect: "normalMobEmpowerChance",
+    value: 1,
+    maxTier: 4,
+    rebirthCosts: [25, 50, 75, 100],
+    summary: "Non-boss equipment drops can roll empowered, using the same star odds as Empowered bosses. 1 in 100, then 1 in 75, 1 in 50, and 1 in 25.",
+  },
 ];
 const REBIRTH_BASE_STAT_UPGRADE_IDS = [
   "rebirth-stat-dc",
@@ -1973,6 +1987,7 @@ const EVIL_SNAKE_ENEMY_ID = 266;
 const CRYSTAL_SPIDER_ENEMY_ID = 465;
 const FROST_TIGER_ENEMY_ID = 471;
 const OMA_KING_ENEMY_ID = 472;
+const EVIL_MIR_ENEMY_ID = 473;
 const OMA_KING_BURST_FX_SCALE = 1.25;
 const RED_THUNDER_ZUMA_ENEMY_ID = 271;
 const ZUMA_TAURUS_ENEMY_ID = 272;
@@ -2349,7 +2364,8 @@ const TELEPORT_REGIONS = [
   },
   {
     // Crystal PastBichon — Mysterious Stone lists floor 1 only.
-    // Frost Tiger, Blood Gorge, Blood Pass, and Oma King are reached via Advance.
+    // Floors 2-9 (Frost Tiger, Blood Gorge, Blood Pass, Oma King, Lightning Cave,
+    // Molten Rock Cave, Evil Mir Palace, Evil Mir) are reached via Advance.
     id: "past-bicheon",
     label: "Past Bicheon",
     zoneIds: [
@@ -2372,8 +2388,8 @@ const TOWN_VISUALS = {
   stageMaxHeight: 480,
 };
 
-const MAP_STAMP_ASSET_VERSION = "20260819-mystery-cave-161-81";
-const MONSTER_ASSET_VERSION = "20260815-oma-king-hitfx";
+const MAP_STAMP_ASSET_VERSION = "20260827-evil-mir-test";
+const MONSTER_ASSET_VERSION = "20260829-evil-mir-fx";
 const HELL_BOLT_MONSTER_INDEX = 219;
 const HELL_BOLT_TEMPLATE_ID = 429;
 const WITCH_DOCTOR_MONSTER_INDEX = 220;
@@ -2713,7 +2729,10 @@ function offlineGroupSimulateKill(zone, template, startedAt, remainingMs, report
       if (target.classId === bossPartyLeaderClassId()) {
         report.damageTaken += Math.max(0, before - Math.max(0, Math.trunc(Number(target.hp) || 0)));
       }
-      if ((target.hp ?? 0) <= 0) target.alive = false;
+      if ((target.hp ?? 0) <= 0) {
+        target.alive = false;
+        bossPartyMarkSummonedPetsDead(target, now, { sound: false, log: false });
+      }
     },
   });
 }
@@ -11615,6 +11634,7 @@ function isTrainingDummyEnemy(enemy = state.battle?.enemy) {
 function reduceEnemyHp(enemy, damage) {
   if (!enemy || damage <= 0) return;
   if (isTrainingDummyEnemy(enemy)) return;
+  if (evilMirPhase2Transitioning(enemy)) return;
   enemy.hp = Math.max(0, enemy.hp - damage);
   maybeTriggerEnemyEnrage(enemy);
 }
@@ -11753,12 +11773,9 @@ function trainingRoomCastWarrior(spell, learned, cost, now) {
 
   if (spell.buff) {
     if (spell.id === "Fury" || spell.id === "Rage" || spell.id === "ProtectionField" || spell.id === "ImmortalSkin") {
-      if (spell.id === "Fury" && hasActiveFuryBuff(battle.player, now)) return false;
-      if (spell.id === "Rage" && hasActiveRageBuff(battle.player, now)) return false;
-      if (spell.id === "ProtectionField" && hasActiveProtectionFieldBuff(battle.player, now)) return false;
-      if (spell.id === "ImmortalSkin" && hasActiveImmortalSkinBuff(battle.player, now)) return false;
+      // Academy is practice: recast even while the buff is up (same as Magic Shield / Soul Shield).
       trainingRoomSpendMp(spell, learned, cost);
-      applyWarriorCombatBuffToEntity(battle.player, spell, learned, now);
+      applyWarriorCombatBuffToEntity(battle.player, spell, learned, now, { allowRefresh: true });
       trainingRoomPlayCastVisual(spell, now);
       playWarriorSpellSwingSfx(spell, { volume: 0.5 });
       return true;
@@ -12714,6 +12731,7 @@ function accountUpgradeEffectLabel(upgrade) {
   if (upgrade?.effect === "bossAscension") return "Boss ascension";
   if (upgrade?.effect === "bossAwakening") return "Boss awakening";
   if (upgrade?.effect === "empoweredCraftingUnlock") return "Crafting cube";
+  if (upgrade?.effect === "normalMobEmpowerChance") return "Non-boss empowered drops";
   return "Upgrade";
 }
 
@@ -12841,6 +12859,13 @@ function accountUpgradeProgressText(upgrade) {
   }
   if (upgrade?.effect === "empoweredCraftingUnlock") {
     return tier >= 1 ? "Unlocked" : "Locked -> Unlocked";
+  }
+  if (upgrade?.effect === "normalMobEmpowerChance") {
+    const format = (value) => (value == null ? "Off" : `1 in ${value}`);
+    const current = normalMobEmpowerDenominator(tier);
+    if (accountUpgradeIsMaxed(upgrade)) return format(current);
+    const next = normalMobEmpowerDenominator(tier + 1);
+    return `${format(current)} -> ${format(next)}`;
   }
   if (upgrade?.effect === "gemMerchantUnlock") {
     return tier >= 1 ? "Unlocked" : "Locked -> Unlocked";
@@ -13123,7 +13148,7 @@ function addInventoryItem(itemId, quantity = 1, options = {}) {
 
     if (inventoryUsedSlots() >= state.inventory.maxSlots) break;
     const entry = createInventoryEntry(itemId, 1, options.entryOptions ?? {});
-    if (options.empowerDrop) applyEmpoweredDropRoll(entry, item);
+    if (options.empowerDrop) applyEmpoweredDropRoll(entry, item, options.empowerDropOptions);
     state.inventory.items.push(entry);
     applyAutoJunkMarkIfEligible(entry);
     added.push(entry);
@@ -19088,13 +19113,31 @@ function clearPendingMysteryCaveChest() {
   state.pendingMysteryCaveChestEntryId = null;
 }
 
-// Set while resolving group-dungeon trash (wave) drops so their items never roll
-// empowered/glyph bonuses — only bosses in an empowered run get empowered loot.
+// Set while resolving group-dungeon trash (wave) drops so they never use
+// empowered-boss star rates or glyph bonuses. Empowered Harvest can still
+// apply its own non-boss chance on those drops.
 let suppressEmpoweredZoneDropRoll = false;
 
-function applyEmpoweredDropRoll(entry, item) {
-  if (!state.battle.bossEmpowered || !entry || !item || isStackableItem(item) || !isEquipableItem(item)) return false;
-  const roll = rollEmpoweredItemDrop(item, Math.random, empoweredBossDropRollOptions());
+function zoneDropEmpowerRollOptions(source) {
+  if (Boolean(state.battle.bossEmpowered) && !suppressEmpoweredZoneDropRoll) {
+    return empoweredBossDropRollOptions();
+  }
+  if (isBossDropSource(source)) return null;
+  const itemChance = normalMobEmpowerItemChance(accountUpgradeTier("rebirth-mob-empower-drops"));
+  if (itemChance <= 0) return null;
+  return { itemChance };
+}
+
+function zoneDropEmpowerInventoryOptions(source) {
+  const empowerDropOptions = zoneDropEmpowerRollOptions(source);
+  return { empowerDrop: Boolean(empowerDropOptions), empowerDropOptions };
+}
+
+function applyEmpoweredDropRoll(entry, item, rollOptions) {
+  if (!entry || !item || isStackableItem(item) || !isEquipableItem(item)) return false;
+  const options = rollOptions ?? (state.battle.bossEmpowered ? empoweredBossDropRollOptions() : null);
+  if (!options) return false;
+  const roll = rollEmpoweredItemDrop(item, Math.random, options);
   if (!roll) return false;
   entry.empowered = true;
   entry.empowerTier = roll.empowerTier;
@@ -19150,6 +19193,29 @@ function scaleEnemyDamageRange(range, multiplier) {
   ];
 }
 
+// Shared HP/damage apply for empowered fights. Dedicated bands (boltDc /
+// lightningDc / phase2LightningDc) must be scaled too: Evil Mir's attacks
+// read those instead of dc/mc, so skipping them left 2–4× HP with plain hits.
+// phase2Hp is a second pool, not a fraction of maxHp, so it needs the HP
+// multiplier on its own.
+function scaleEnemyEmpowerCombatStats(enemy, hpMult, dmgMult) {
+  if (!enemy) return;
+  enemy.maxHp = Math.max(1, Math.round((Number(enemy.maxHp) || 0) * hpMult));
+  enemy.hp = enemy.maxHp;
+  const phase2Hp = Math.trunc(Number(enemy.phase2Hp) || 0);
+  if (phase2Hp > 0) enemy.phase2Hp = Math.max(1, Math.round(phase2Hp * hpMult));
+  enemy.dc = scaleEnemyDamageRange(enemy.dc, dmgMult);
+  enemy.mc = scaleEnemyDamageRange(enemy.mc, dmgMult);
+  enemy.sc = scaleEnemyDamageRange(enemy.sc, dmgMult);
+  if (Array.isArray(enemy.meleeDc)) enemy.meleeDc = scaleEnemyDamageRange(enemy.meleeDc, dmgMult);
+  if (Array.isArray(enemy.rangedDc)) enemy.rangedDc = scaleEnemyDamageRange(enemy.rangedDc, dmgMult);
+  if (Array.isArray(enemy.boltDc)) enemy.boltDc = scaleEnemyDamageRange(enemy.boltDc, dmgMult);
+  if (Array.isArray(enemy.lightningDc)) enemy.lightningDc = scaleEnemyDamageRange(enemy.lightningDc, dmgMult);
+  if (Array.isArray(enemy.phase2LightningDc)) {
+    enemy.phase2LightningDc = scaleEnemyDamageRange(enemy.phase2LightningDc, dmgMult);
+  }
+}
+
 function empoweredBossPreviewMaxHp(
   enemy,
   empowerSelected = state.bossEmpowerSelected,
@@ -19197,13 +19263,7 @@ function applyEmpoweredBossCombatModifiers(enemy) {
       ? ASCENDED_BOSS_HP_MULTIPLIER
       : EMPOWERED_BOSS_HP_MULTIPLIER;
   const dmgMult = empoweredBossDamageMultiplier(enemy);
-  enemy.maxHp = Math.max(1, Math.round((Number(enemy.maxHp) || 0) * hpMult));
-  enemy.hp = enemy.maxHp;
-  enemy.dc = scaleEnemyDamageRange(enemy.dc, dmgMult);
-  enemy.mc = scaleEnemyDamageRange(enemy.mc, dmgMult);
-  enemy.sc = scaleEnemyDamageRange(enemy.sc, dmgMult);
-  if (Array.isArray(enemy.meleeDc)) enemy.meleeDc = scaleEnemyDamageRange(enemy.meleeDc, dmgMult);
-  if (Array.isArray(enemy.rangedDc)) enemy.rangedDc = scaleEnemyDamageRange(enemy.rangedDc, dmgMult);
+  scaleEnemyEmpowerCombatStats(enemy, hpMult, dmgMult);
   Object.assign(enemy, EMPOWERED_BOSS_ENRAGE);
   enemy.bossEmpowered = true;
   enemy.bossAscended = Boolean(state.battle.bossAscended);
@@ -19370,13 +19430,7 @@ function applyGroupDungeonEmpowerCombatModifiers(enemy) {
     : tier >= 2
       ? ASCENDED_BOSS_DAMAGE_MULTIPLIER
       : GROUP_DUNGEON_EMPOWER_DAMAGE_MULTIPLIER;
-  enemy.maxHp = Math.max(1, Math.round((Number(enemy.maxHp) || 0) * hpMult));
-  enemy.hp = enemy.maxHp;
-  enemy.dc = scaleEnemyDamageRange(enemy.dc, dmgMult);
-  enemy.mc = scaleEnemyDamageRange(enemy.mc, dmgMult);
-  enemy.sc = scaleEnemyDamageRange(enemy.sc, dmgMult);
-  if (Array.isArray(enemy.meleeDc)) enemy.meleeDc = scaleEnemyDamageRange(enemy.meleeDc, dmgMult);
-  if (Array.isArray(enemy.rangedDc)) enemy.rangedDc = scaleEnemyDamageRange(enemy.rangedDc, dmgMult);
+  scaleEnemyEmpowerCombatStats(enemy, hpMult, dmgMult);
   enemy.bossEmpowered = true;
   enemy.bossAscended = tier >= 2;
   enemy.bossAwakened = tier >= 3;
@@ -19426,6 +19480,13 @@ function bossPartyEnemyMeleeGap(enemy = state.battle.enemy) {
     if (fromTemplate > 0) return fromTemplate;
   }
   return BOSS_PARTY_ENEMY_MELEE_GAP;
+}
+
+function applyFixedArenaMeleeStandOff(rangePx) {
+  if (!enemyUsesFixedArenaSpawn()) return rangePx;
+  const gap = bossPartyEnemyMeleeGap();
+  if (!(gap > 0)) return rangePx;
+  return Math.max(rangePx, gap);
 }
 
 /** How far the boss may melee its front target (covers custom bossMeleeGap). */
@@ -21798,7 +21859,7 @@ function renderGamePanel() {
           <span>Refiner</span>
           <span>Storage</span>
         </div>
-        <p class="battle-state">Level ${game.progress.level} | ${xpProgressText()} | Gold ${state.inventory.gold} | Kills ${game.kills}</p>
+        <p class="battle-state">Level ${game.progress.level} | ${xpProgressText()} | Gold ${Math.max(0, Math.trunc(Number(state.inventory.gold) || 0)).toLocaleString()} | Kills ${game.kills}</p>
         <p class="battle-state">Hover an NPC to see their name. Click to open their window.</p>
         ${sceneButtonsHtml()}
         ${recentLootHtml()}
@@ -21839,7 +21900,7 @@ function renderGamePanel() {
       <p class="battle-state">
         Endless run | ${game.zoneKills} kills | ${Math.floor(game.distance / LANE_TILE_PX)} tiles travelled
       </p>
-      ${game.lastReward ? `<p class="battle-state">Last reward: +${game.lastReward.xp} XP, +${game.lastReward.gold} gold</p>` : ""}
+      ${game.lastReward ? `<p class="battle-state">Last reward: +${Number(game.lastReward.xp || 0).toLocaleString()} XP, +${Number(game.lastReward.gold || 0).toLocaleString()} gold</p>` : ""}
       ${sceneButtonsHtml()}
       ${recentLootHtml()}
       <div class="battle-buttons">
@@ -21969,7 +22030,7 @@ function renderGameUiPanel() {
   gamePanelDynamicSignature = dynamicSignature;
 
   setGamePanelText("[data-game-ui-zone-label]", zone?.label ?? (game.mode === "mining" ? "Mine" : "Hunting Zone"));
-  setGamePanelText("[data-game-ui-gold]", `${state.inventory.gold}g`);
+  setGamePanelText("[data-game-ui-gold]", `${Math.max(0, Math.trunc(Number(state.inventory.gold) || 0)).toLocaleString()}g`);
   setGamePanelText("[data-game-ui-level]", `Level ${game.progress.level}`);
   setGamePanelText("[data-game-ui-xp]", xpProgressText());
   setGamePanelText("[data-game-ui-zone-kills]", game.zoneKills);
@@ -24654,6 +24715,7 @@ function accountUpgradeIconText(upgrade) {
   if (upgrade?.effect === "bossAscension") return "A";
   if (upgrade?.effect === "bossAwakening") return "W";
   if (upgrade?.effect === "empoweredCraftingUnlock") return "CC";
+  if (upgrade?.effect === "normalMobEmpowerChance") return "EH";
   if (upgrade?.effect === "baseStatBonus") return String(upgrade?.stat ?? "S").toUpperCase().slice(0, 3);
   return "UP";
 }
@@ -26974,7 +27036,7 @@ function inventorySceneHtml() {
     <section class="crystal-inventory" aria-label="Inventory">
       ${inventoryPageTabsHtml()}
       ${inventoryPageUnlockConfirmHtml()}
-      <span class="crystal-inventory-gold">${state.inventory.gold}</span>
+      <span class="crystal-inventory-gold">${Math.max(0, Math.trunc(Number(state.inventory.gold) || 0)).toLocaleString()}</span>
       ${inventoryBagUsageHtml("crystal-inventory-bag-usage")}
       <button type="button" class="crystal-inventory-sort" data-sort-inventory title="Sort inventory">Sort</button>
       ${Array.from({ length: visibleSlots }, (_, index) => crystalInventorySlotHtml(pageStart + index, index)).join("")}
@@ -34409,9 +34471,19 @@ function beginBossPartyFight(zoneId, now = performance.now()) {
         initGroupDungeonBossReinforcements(now, entryZone);
       }
     }
-  } else if (enemy?.monsterIndex) {
-    state.enemy.index = enemy.monsterIndex;
-    void reloadEnemyAtlas();
+  } else {
+    if (applyArenaEnemyStampMapCombat(entryZone, members, controlledClassId)) {
+      state.battle.cameraX = (groupDungeonCameraAnchorWorldX() ?? state.battle.playerX) - playerScreenX();
+      if (!enemyUsesFixedArenaSpawn(enemy) || enemy?.spawnAction !== "show") {
+        state.battle.enemyRevealed = true;
+      }
+      state.battle.nextEnemyAttackAt = now + Math.max(400, Math.trunc(Number(enemy?.attackMs) || 1400));
+      setEnemyLocomotion("standing", now);
+    }
+    if (enemy?.monsterIndex) {
+      state.enemy.index = enemy.monsterIndex;
+      void reloadEnemyAtlas();
+    }
   }
   void preloadBossPartyVisualAtlases(members);
   if (resumeGroupDungeon && (isBossSwarm || isGroupDungeon)) {
@@ -35195,8 +35267,11 @@ function updateBossPartyBattle(now) {
   updateCombatantPoisons(now);
   updateWarriorChargeExpiry(now);
   if (enemy.hp <= 0) {
-    finishBossPartyEnemy(now);
-    return true;
+    if (!bossPartyAllMembersDead() && updateEvilMirPhase2(enemy, now)) return true;
+    if (enemy.hp <= 0) {
+      finishBossPartyEnemy(now);
+      return true;
+    }
   }
   updateTimedEnrage(enemy, now);
   if (bossPartyAllMembersDead()) {
@@ -37990,6 +38065,145 @@ function isFrostTigerEnemy(enemy = state.battle.enemy) {
   return enemy?.id === FROST_TIGER_ENEMY_ID || enemy?.crystalName === "FrostTiger";
 }
 
+function isEvilMirEnemy(enemy = state.battle.enemy) {
+  return enemy?.id === EVIL_MIR_ENEMY_ID || enemy?.crystalName === "EvilMir";
+}
+
+// Evil Mir's two attacks need separate damage bands: the bolt splits one packet
+// across the living party, the lightning gives every member the full packet, so
+// the same numbers would land ~3x harder on one than the other.
+function evilMirBoltAttackStat(enemy, now) {
+  return effectiveEnemyOffenceStat(enemy, enemy?.boltDc ?? enemy?.dc, now);
+}
+
+function evilMirLightningAttackStat(enemy, now) {
+  const band = evilMirPhase2Active(enemy) && enemy?.phase2LightningDc
+    ? enemy.phase2LightningDc
+    : (enemy?.lightningDc ?? enemy?.dc);
+  return effectiveEnemyOffenceStat(enemy, band, now);
+}
+
+/* --- Phase 2: he dies, reverses the death animation, and comes back --- */
+
+// Death to first phase-2 cast. The collapse and the rise only fill ~1.8s of it; all
+// the remaining slack is spent lying dead, so the party gets a clear beat to read
+// the kill, top up and re-shield before he comes back. Sized long on purpose — the
+// fake-out only lands if players have time to believe the fight is over.
+const EVIL_MIR_PHASE2_TRANSITION_MS = 5000;
+
+function evilMirPhase2Pool(enemy) {
+  return Math.max(0, Math.trunc(Number(enemy?.phase2Hp) || 0));
+}
+
+function evilMirPhase2Active(enemy = state.battle.enemy) {
+  return Boolean(enemy?._phase2Active) && isEvilMirEnemy(enemy);
+}
+
+// True only while the phase-1 death is mid-conversion into phase 2. Damage is
+// ignored for this window so in-flight hits cannot chew the small phase-2 pool
+// before the revive has visually finished.
+function evilMirPhase2Transitioning(enemy = state.battle.enemy) {
+  return Boolean(enemy?._phase2State) && isEvilMirEnemy(enemy);
+}
+
+// Crystal never drew him a dead pose (see updateEvilMirPhase2), and no better art
+// exists to import — Dragon.Lib's only unreferenced head frames are a second idle.
+// So the dormancy is sold with draw colour instead: he cools to near-black across
+// the collapse and the hold, then brightens back up as he rises.
+const EVIL_MIR_DORMANT_TINT_ALPHA = 0.62;
+
+/** 0 while lively, 1 at fully dormant. Ramps up to the rise, then back down. */
+function evilMirDormancyFade(enemy, now = performance.now()) {
+  const phase = enemy?._phase2State;
+  if (!phase) return 0;
+  const startedAt = Number(enemy._phase2StartedAt) || 0;
+  const riseAt = Number(enemy._phase2RiseAt) || 0;
+  const resumeAt = Number(enemy._phase2ResumeAt) || 0;
+  // Darkening tracks the collapse rather than the whole hold: he goes cold as he
+  // settles and then lies fully dark, instead of dimming imperceptibly for seconds
+  // and only hitting black on the frame he starts to rise.
+  const darkAt = Number(enemy._phase2DarkAt) || riseAt;
+  const progress = phase === "dying"
+    ? (now - startedAt) / Math.max(1, darkAt - startedAt)
+    : 1 - (now - riseAt) / Math.max(1, resumeAt - riseAt);
+  return Math.max(0, Math.min(1, progress));
+}
+
+// Returns true while the transition is running, which tells both death paths not
+// to finalize the kill (no drops, no kill credit, no respawn lock, no victory).
+function updateEvilMirPhase2(enemy, now = performance.now()) {
+  if (!enemy || !isEvilMirEnemy(enemy)) return false;
+  if (!enemy._phase2State && (enemy.hp > 0 || enemy._phase2Done)) return false;
+  const pool = evilMirPhase2Pool(enemy);
+  if (!pool) return false;
+
+  if (!enemy._phase2State) {
+    enemy._phase2Done = true;
+    enemy._phase2State = "dying";
+    enemy._phase2StartedAt = now;
+    const fallMs = Math.max(200, enemyAttackAnimationMs(state.enemy.atlas, "collapse", 960));
+    const riseMs = Math.max(200, enemyAttackAnimationMs(state.enemy.atlas, "revive", 840));
+    enemy._phase2ResumeAt = now + Math.max(EVIL_MIR_PHASE2_TRANSITION_MS, fallMs + riseMs);
+    // Back-timed off the resume so he rises straight into his first cast instead
+    // of standing up early and freezing until the window closes.
+    enemy._phase2RiseAt = enemy._phase2ResumeAt - riseMs;
+    // Fully cold a beat after he finishes settling, never later than the rise.
+    enemy._phase2DarkAt = Math.min(now + fallMs + 400, enemy._phase2RiseAt);
+    state.battle.pendingEnemyStrike = null;
+    // Drive the animation here rather than leaning on the caller: the party path
+    // detects the kill in `updateBossPartyBattle` and we return before
+    // `finishBossPartyEnemy` (which is what normally sets it), so relying on the
+    // call site left him standing perfectly still through the whole window.
+    //
+    // `collapse`, not `die`. Crystal has no dead pose for him — Die truncates the
+    // attack clip and freezes him reared up at 357px — because EvilMir.Die() never
+    // kills him on the DragonLink path, it just sets Sleeping and restores full HP
+    // 5 minutes later. He is meant to go dormant, so we play the final settle frame
+    // too and let his head come back down to standing height.
+    setEnemyAction("collapse", true, now);
+    playMonsterSfx("death");
+    pushBattleLog(`${enemy.name} falls dormant...`);
+    return true;
+  }
+
+  if (enemy._phase2State === "dying") {
+    if (now < enemy._phase2RiseAt) return true;
+    enemy._phase2State = "reviving";
+    // Crystal's Revive for him is the die frames played FORWARD — Dragon.Lib sets
+    // no Reverse flag for this monster, unlike Player/DefaultMonster/GreatFoxSpirit.
+    setEnemyAction("revive", true, now);
+    // His appear roar (900-0), not the attack one — Crystal plays it when he enters
+    // the world, which is exactly what coming back from dormant is.
+    playMonsterSfx("appear", enemy, { force: true, throttleMs: 0, volume: 0.6 });
+    pushBattleLog(`${enemy.name} stirs back to life!`);
+    return true;
+  }
+
+  if (now < enemy._phase2ResumeAt) return true;
+
+  enemy._phase2State = null;
+  enemy._phase2Active = true;
+  enemy.maxHp = pool;
+  enemy.hp = pool;
+  setEnemyAction("standing", false, now);
+  state.battle.phase = "engaged";
+  state.battle.enemyAggro = true;
+  state.battle.enemyRevealed = true;
+  state.battle.nextEnemyAttackAt = now + effectiveEnemyAttackMs(enemy, now);
+  pushBattleLog(`${enemy.name} burns with everything it has left!`);
+  return false;
+}
+
+function arenaVisualScale(zone = activeZone()) {
+  const scale = Number(zone?.arenaVisualScale);
+  return Number.isFinite(scale) && scale > 0.1 ? scale : 1;
+}
+
+function enemyVisualDrawScale(enemy = state.battle.enemy) {
+  if (!isEvilMirEnemy(enemy)) return 1;
+  return arenaVisualScale();
+}
+
 function frostTigerAttackEnemy(ranged) {
   const enemy = state.battle.enemy;
   if (ranged) {
@@ -38059,6 +38273,13 @@ function applyFrostTigerMeleeHit(now) {
 function resolveFrostTigerRangeStrike(strike, now) {
   const enemy = state.battle.enemy;
   if (!enemy || enemy.hp <= 0 || !state.battle.enemyRevealed) return;
+  if (isEvilMirEnemy(enemy)) {
+    resolveMassBurstSplitAmongParty(enemy, massBurstTargetsInRange(enemy), now, {
+      defenceType: enemy.rangedAttackDefenceType || enemy.attackDefenceType || "MAC",
+      attackStat: evilMirBoltAttackStat(enemy, now),
+    });
+    return;
+  }
   const target = strike?.target;
   if (target && (target.hp ?? 0) > 0) {
     applyBossPartyIncomingStrike(enemy.name, target, frostTigerAttackEnemy(true), now, {
@@ -38075,6 +38296,99 @@ function resolveFrostTigerRangeStrike(strike, now) {
   }
   applyIncomingTargetHit(enemy.name, solo, damage, now);
   maybeFinishBattleAfterPlayerHit(solo, now);
+}
+
+/** Crystal Attack1: 8–14 rain bursts (230+rand*10, 5 frames, 400ms) around the party. */
+function spawnEvilMirMassRain(now) {
+  const rain = state.enemy.atlas?.massRain;
+  const variants = rain?.variants;
+  if (!Array.isArray(variants) || !variants.length) return;
+  const extra = Math.floor(Math.random() * 7);
+  const count = 8 + extra;
+  const durationMs = Math.max(1, Number(rain.durationMs) || 400);
+  const members = (state.battle.bossParty?.members ?? []).filter(
+    (member) => member.alive && (member.hp ?? 0) > 0,
+  );
+  const anchors = members.length
+    ? members.map((member) => Number(member.worldX) || 0)
+    : [Number(state.battle.playerX) || 0];
+  for (let i = 0; i < count; i += 1) {
+    const variant = variants[Math.floor(Math.random() * variants.length)];
+    if (!variant?.length) continue;
+    const anchorX = anchors[Math.floor(Math.random() * anchors.length)];
+    pushGreatFoxSpiritEffect({
+      frames: variant,
+      worldX: anchorX + (Math.floor(Math.random() * 15) - 7) * LANE_TILE_PX,
+      screenYOffset: (Math.floor(Math.random() * 15) - 7) * 8,
+      startedAt: now + Math.floor(Math.random() * 1000),
+      durationMs,
+    });
+  }
+}
+
+function canEvilMirAttack() {
+  const battle = state.battle;
+  if (battle.phase !== "engaged" || !battle.enemyRevealed || !battle.enemy?.hp) return false;
+  if (enemyFrozenActive(battle.enemy)) return false;
+  if (!battle.enemyAggro) return false;
+  return boneLordTargetDistance() <= boneLordAttackRange(battle.enemy);
+}
+
+function beginEvilMirAttack(now) {
+  if (state.battle.pendingEnemyStrike) return false;
+  if (!canEvilMirAttack()) return false;
+  const enemy = state.battle.enemy;
+  // Crystal is Next(8) > 0 bolt, else Attack1. Tuned to 1-in-4 lightning so the
+  // spike lands often enough to matter at a 1500ms cadence. Phase 2 drops the
+  // bolt entirely and does nothing but the lightning dump.
+  const massBreath = evilMirPhase2Active(enemy) || randomInt(0, 3) === 0;
+  if (massBreath) {
+    const startedAt = now;
+    const impactAt = startedAt + 500;
+    const castMs = 14 * 120;
+    state.battle.pendingEnemyStrike = {
+      kind: "massBurst",
+      at: impactAt,
+      startedAt,
+      ranged: true,
+      aoe: true,
+      vfxUntil: Math.max(impactAt, startedAt + castMs),
+    };
+    setEnemyAction("attack1", true, now);
+    state.enemy.attackFxStartedAt = now;
+    playMonsterSfx(enemyAttackSfxKind(enemy, true), enemy, { force: true, throttleMs: 0 });
+    spawnEvilMirMassRain(now);
+    return true;
+  }
+  const target = frostTigerRangedPartyTarget();
+  const distancePx = target
+    ? bossPartyTargetEnemyDistance(target)
+    : boneLordTargetDistance();
+  const damageDelayMs = boneLordImpactDelay(distancePx, enemy);
+  const launchDelayMs = 400;
+  const startedAt = now + launchDelayMs;
+  const impactAt = now + damageDelayMs;
+  const moveDurationMs = Math.max(1, impactAt - startedAt);
+  const projectile = state.enemy.atlas?.projectile;
+  const animAction = enemyPrefersAttackRange1(state.enemy.atlas) ? "attackRange1" : "attack1";
+  state.battle.pendingEnemyStrike = {
+    kind: "frostTigerRange",
+    startedAt,
+    at: impactAt,
+    ranged: true,
+    moveDurationMs,
+    vfxUntil: Math.max(
+      impactAt,
+      enemyRangedStrikeVfxUntil(startedAt, moveDurationMs, projectile),
+      enemyTravelImpactVfxUntil(impactAt, projectile),
+    ),
+    target,
+    aimWorldX: target ? Math.round(Number(target.worldX) || 0) : null,
+  };
+  setEnemyAction(animAction, true, now);
+  state.enemy.attackFxStartedAt = null;
+  playMonsterSfx(enemyAttackSfxKind(enemy, true), enemy, { force: true, throttleMs: 0 });
+  return true;
 }
 
 function beginFrostTigerAttack(now) {
@@ -39351,6 +39665,7 @@ function massBurstSplitPartyTargets(targets) {
 }
 
 function resolveMassBurstSplitAmongParty(enemy, targets, now, options = {}) {
+  // Pets never take a share and never take a packet, on either path.
   const splitTargets = massBurstSplitPartyTargets(targets);
   if (!splitTargets.length) return;
   const probe = splitTargets[0];
@@ -39368,7 +39683,8 @@ function resolveMassBurstSplitAmongParty(enemy, targets, now, options = {}) {
     ranged: true,
     aoe: true,
     massBurst: true,
-    attackStat: enemyAttackDamageStat(enemy, { now, ranged: true, aoe: true, massBurst: true }),
+    attackStat: options.attackStat
+      ?? enemyAttackDamageStat(enemy, { now, ranged: true, aoe: true, massBurst: true }),
     damageReductionPercent: 0,
     rangedAttackDefenceType: options.defenceType || enemy.rangedAttackDefenceType || "MAC",
   });
@@ -39385,7 +39701,9 @@ function resolveMassBurstSplitAmongParty(enemy, targets, now, options = {}) {
     });
     return;
   }
-  const shares = splitIntegerEvenly(packet.damage, splitTargets.length);
+  const shares = options.fullPacketEach
+    ? splitTargets.map(() => packet.damage)
+    : splitIntegerEvenly(packet.damage, splitTargets.length);
   splitTargets.forEach((target, index) => {
     const targetDefence = target.entity
       ? defenceTargetForIncomingAttack(target.entity)
@@ -39641,8 +39959,14 @@ function drawGreatFoxSpiritEffectsCanvas(ctx, now = performance.now()) {
   const sheet = cachedImage(monsterProjectilePngUrl(atlas, state.enemy.index));
   if (!atlas || !sheet) return;
   const projectile = atlas.projectile;
-  const interval = Math.max(1, Number(projectile?.interval) || 70);
-  const groundY = Math.round(state.stageHeight * LANE.y + 2);
+  const rain = atlas.massRain;
+  const interval = isEvilMirEnemy()
+    ? Math.max(1, Number(rain?.interval) || 80)
+    : Math.max(1, Number(projectile?.interval) || 70);
+  const groundY = isEvilMirEnemy()
+    ? Math.round(arenaPartyCombatLaneYPx() + 2)
+    : Math.round(state.stageHeight * LANE.y + 2);
+  const scale = isEvilMirEnemy() ? enemyVisualDrawScale() : 1;
   for (const effect of effects) {
     if (now < effect.startedAt || now > effect.expiresAt) continue;
     const frames = effect.frames;
@@ -39656,6 +39980,10 @@ function drawGreatFoxSpiritEffectsCanvas(ctx, now = performance.now()) {
     const x = Math.round(Number(effect.worldX) - state.battle.cameraX);
     const y = groundY + (Number(effect.screenYOffset) || 0);
     withScreenBlend(ctx, () => {
+      if (scale !== 1) {
+        drawAtlasFrameMeta(ctx, sheet, atlas.slotWidth, meta, x, y, scale);
+        return;
+      }
       drawAtlasFrameMeta(
         ctx,
         sheet,
@@ -40901,7 +41229,13 @@ function updatePendingEnemyStrike(now) {
       const defenceType = massBurstStyle(enemy) === "line"
         ? (enemy.attackDefenceType || "ACAgility")
         : (enemy.rangedAttackDefenceType || "ACAgility");
-      if (enemyMassBurstSplitsAmongParty(enemy)) {
+      if (isEvilMirEnemy(enemy)) {
+        resolveMassBurstSplitAmongParty(enemy, targets, now, {
+          defenceType,
+          fullPacketEach: true,
+          attackStat: evilMirLightningAttackStat(enemy, now),
+        });
+      } else if (enemyMassBurstSplitsAmongParty(enemy)) {
         resolveMassBurstSplitAmongParty(enemy, targets, now, { defenceType });
       } else {
         targets.forEach((target, index) => {
@@ -40965,6 +41299,7 @@ function bossPartyEnemyAttack(now) {
   if (isDarkDevilEnemy(enemy)) return beginDarkDevilAttack(now);
   if (isKingScorpionEnemy(enemy)) return beginKingScorpionAttack(now);
   if (isCrystalSpiderEnemy(enemy)) return beginCrystalSpiderAttack(now);
+  if (isEvilMirEnemy(enemy)) return beginEvilMirAttack(now);
   if (isFrostTigerEnemy(enemy)) return beginFrostTigerAttack(now);
   if (isDanmoEnemy(enemy)) return beginDanmoAttack(now);
   if (enemyHasRangedMeleeAttack(enemy)) return beginBoneLordAttack(now);
@@ -41053,6 +41388,23 @@ function bossPartyMarkPetDead(now, pet = state.battle.bossParty?.pet) {
   }
 }
 
+// A summon cannot outlive its summoner: the party's pets belong to the Taoist member.
+function bossPartyMarkSummonedPetsDead(member, now, options = {}) {
+  const party = state.battle.bossParty;
+  if (!party || member?.classId !== "Taoist") return;
+  if (state.battle.pendingTaoPet?.bossParty) state.battle.pendingTaoPet = null;
+  party.pendingTaoPet = null;
+  for (const pet of [party.pet, party.holyDeva]) {
+    if (!pet || pet.dead) continue;
+    markTaoistPetDead(now, {
+      pet,
+      sound: options.sound,
+      log: options.log,
+      message: `${pet.name} fades without its summoner.`,
+    });
+  }
+}
+
 function bossPartyMarkMemberDead(member, now) {
   member.alive = false;
   member.hp = 0;
@@ -41064,6 +41416,7 @@ function bossPartyMarkMemberDead(member, now) {
   member.visualOneShot = true;
   member.visualLastTick = now;
   pushBattleLog(`${member.classId} falls.`);
+  bossPartyMarkSummonedPetsDead(member, now);
   const steppedUp = refreshBossPartyMeleePositions({ now });
   if (steppedUp) {
     updateBossPartyMeleeAdvance(now);
@@ -41558,6 +41911,7 @@ function bossDropTableForEnemy(enemy = state.battle.enemy) {
   if (isHellKeeperEnemy(enemy)) return BOSS_DROP_TABLE_BY_LABEL["Hell Keeper"];
   if (isManectricKingEnemy(enemy)) return BOSS_DROP_TABLE_BY_LABEL["Manectric King"];
   if (isHellLordEnemy(enemy)) return BOSS_DROP_TABLE_BY_LABEL["Hell Lord"];
+  if (isEvilMirEnemy(enemy)) return BOSS_DROP_TABLE_BY_LABEL["Evil Mir"];
   return null;
 }
 
@@ -41702,7 +42056,7 @@ function applyBossPartyMemberKillReward(member, {
     ...drops.ignored.map((item) => `No room for ${item.name}`),
     ...member.game.recentLoot,
   ].slice(0, 8);
-  pushBattleLog(`${member.classId} gained ${xp} XP and ${gold} gold.`);
+  pushBattleLog(`${member.classId} gained ${Number(xp).toLocaleString()} XP and ${Number(gold).toLocaleString()} gold.`);
   if (includeItems) {
     for (const summary of dropSummaries) {
       pushBattleLog(formatClassDropLogLine(member.classId, summary, "received"));
@@ -41716,8 +42070,8 @@ function applyBossPartyMemberKillReward(member, {
     for (const item of drops.ignored) pushBattleLog(`${member.classId} had no room for ${item.name}.`);
   }
   if (member.classId === bossPartyControlledClassId() || includeItems) {
-    if (xp > 0) addLootNotice(`+${xp} XP`, "level");
-    if (gold > 0) addLootNotice(`+${gold} gold`, "gold");
+    if (xp > 0) addLootNotice(`+${Number(xp).toLocaleString()} XP`, "level");
+    if (gold > 0) addLootNotice(`+${Number(gold).toLocaleString()} gold`, "gold");
     for (const summary of dropSummaries) addLootNotice(formatDropSummaryLine(summary, "Found"), "item");
     for (const item of drops.ignored) addLootNotice(`Inventory full: ${item.name}`, "full");
     for (const level of leveledTo) addLootNotice(`Level ${level}`, "level");
@@ -41816,8 +42170,9 @@ function rollBossPartyZoneDrops(member, zone, enemy) {
   const ignored = [];
   const candidates = zoneDropCandidates(zone, enemy, member.inventory);
   const source = codexDropSource({ zone, enemy, kind: "zone" });
-  // Group-dungeon trash never rolls empowered items or glyphs even when the run is
-  // empowered/ascended — only bosses do. Suppress empowered rolls for these zone drops.
+  // Group-dungeon trash never uses empowered-boss rates or glyphs even when the
+  // run is empowered/ascended — only bosses do. Suppress those rates here;
+  // Empowered Harvest can still roll on these non-boss drops.
   const prevSuppress = suppressEmpoweredZoneDropRoll;
   if (groupDungeonEmpowerable(zone)) suppressEmpoweredZoneDropRoll = true;
   try {
@@ -41866,8 +42221,7 @@ function addBossPartyZoneDropItem(member, item, added, ignored, source = codexDr
     return false;
   }
   const before = bossPartyInventoryItemQuantity(member, item.id);
-  const empowerDrop = Boolean(state.battle.bossEmpowered) && !suppressEmpoweredZoneDropRoll;
-  const entries = bossPartyAddInventoryItem(member, item.id, 1, { empowerDrop });
+  const entries = bossPartyAddInventoryItem(member, item.id, 1, zoneDropEmpowerInventoryOptions(source));
   const after = bossPartyInventoryItemQuantity(member, item.id);
   if (entries.length && after > before) {
     const entry = entries[0] ?? null;
@@ -42051,7 +42405,7 @@ function bossPartyAddInventoryItem(member, itemId, quantity = 1, options = {}) {
     }
     if (bossPartyInventoryUsedSlots(member) >= member.inventory.maxSlots) break;
     const entry = bossPartyCreateInventoryEntry(member, itemId, 1);
-    if (options.empowerDrop) applyEmpoweredDropRoll(entry, item);
+    if (options.empowerDrop) applyEmpoweredDropRoll(entry, item, options.empowerDropOptions);
     member.inventory.items.push(entry);
     added.push(entry);
     remaining -= 1;
@@ -42419,6 +42773,8 @@ function updateBattle(now) {
   }
 
   updateTestingRoomDpsMeter(now);
+
+  if (updateEvilMirPhase2(battle.enemy, now)) return;
 
   updatePendingEnemyStrike(now);
   updateDanmoBats(now);
@@ -44887,10 +45243,12 @@ function ensureEnemyDebuffs(enemy) {
 }
 
 function enemySlowActive(enemy, now = performance.now()) {
+  if (enemy?.slowImmune) return false;
   return (ensureEnemyDebuffs(enemy).slowUntil ?? 0) > now;
 }
 
 function enemyFrozenActive(enemy, now = performance.now()) {
+  if (enemy?.freezeImmune) return false;
   return (ensureEnemyDebuffs(enemy).frozenUntil ?? 0) > now;
 }
 
@@ -44920,6 +45278,9 @@ function effectiveEnemyAccuracy(enemy, now = performance.now()) {
 
 function effectiveEnemyAttackMs(enemy, now = performance.now()) {
   let base = Math.max(400, Math.trunc(Number(enemy?.attackMs) || 2500));
+  if (evilMirPhase2Active(enemy) && Number(enemy?.phase2AttackMs) > 0) {
+    base = Math.max(400, Math.trunc(Number(enemy.phase2AttackMs)));
+  }
   if (isGreatFoxSpiritEnemy(enemy)) {
     const stageAttackMs = Array.isArray(enemy?.stageAttackMs)
       ? enemy.stageAttackMs
@@ -45059,13 +45420,15 @@ function maybeApplyBlizzardSlowTick(spell, enemy, player, now, options = {}) {
 }
 
 function applyEnemySlow(enemy, durationMs, now = performance.now()) {
-  if (!enemy || enemy.hp <= 0 || enemySlowActive(enemy, now)) return false;
+  if (!enemy || enemy.hp <= 0 || enemy.slowImmune) return false;
+  if (enemySlowActive(enemy, now)) return false;
   ensureEnemyDebuffs(enemy).slowUntil = now + Math.max(1000, Math.trunc(Number(durationMs) || 0));
   return true;
 }
 
 function applyEnemyFrozen(enemy, durationMs, now = performance.now()) {
-  if (!enemy || enemy.hp <= 0 || enemyFrozenActive(enemy, now)) return false;
+  if (!enemy || enemy.hp <= 0 || enemy.freezeImmune) return false;
+  if (enemyFrozenActive(enemy, now)) return false;
   ensureEnemyDebuffs(enemy).frozenUntil = now + Math.max(1000, Math.trunc(Number(durationMs) || 0));
   return true;
 }
@@ -46051,25 +46414,26 @@ function applyImmortalSkinBuffToEntity(skill, learned, entity, now, options = {}
   return { durationMs, bonusText: parts.join(", "), acBonus, amcBonus };
 }
 
-function applyWarriorCombatBuffToEntity(entity, skill, learned, now) {
+function applyWarriorCombatBuffToEntity(entity, skill, learned, now, options = {}) {
   if (!skill || !learned) return false;
+  const allowRefresh = Boolean(options.allowRefresh);
   if (skill.id === "Fury") {
-    if (hasActiveFuryBuff(entity, now)) return false;
+    if (!allowRefresh && hasActiveFuryBuff(entity, now)) return false;
     levelWarriorMagicForEntity(entity, skill, learned, now);
     return applyFuryBuffToEntity(entity, learned, now, skill.label);
   }
   if (skill.id === "Rage") {
-    if (hasActiveRageBuff(entity, now)) return false;
+    if (!allowRefresh && hasActiveRageBuff(entity, now)) return false;
     levelWarriorMagicForEntity(entity, skill, learned, now);
     return applyRageBuffEffect(skill, learned, entity, now);
   }
   if (skill.id === "ProtectionField") {
-    if (hasActiveProtectionFieldBuff(entity, now)) return false;
+    if (!allowRefresh && hasActiveProtectionFieldBuff(entity, now)) return false;
     levelWarriorMagicForEntity(entity, skill, learned, now);
     return applyProtectionFieldBuffEffect(skill, learned, entity, now);
   }
   if (skill.id === "ImmortalSkin") {
-    if (hasActiveImmortalSkinBuff(entity, now)) return false;
+    if (!allowRefresh && hasActiveImmortalSkinBuff(entity, now)) return false;
     levelWarriorMagicForEntity(entity, skill, learned, now);
     return applyImmortalSkinBuffEffect(skill, learned, entity, now);
   }
@@ -51891,6 +52255,7 @@ function enemyAttack(now) {
   if (isDarkDevilEnemy(battle.enemy)) return beginDarkDevilAttack(now);
   if (isKingScorpionEnemy(battle.enemy)) return beginKingScorpionAttack(now);
   if (isCrystalSpiderEnemy(battle.enemy)) return beginCrystalSpiderAttack(now);
+  if (isEvilMirEnemy(battle.enemy)) return beginEvilMirAttack(now);
   if (isFrostTigerEnemy(battle.enemy)) return beginFrostTigerAttack(now);
   if (isDanmoEnemy(battle.enemy)) return beginDanmoAttack(now);
   if (enemyHasRangedMeleeAttack(battle.enemy)) return beginBoneLordAttack(now);
@@ -52393,6 +52758,8 @@ function finishEnemy(now) {
     if (battle.enemy) battle.enemy.hp = battle.enemy.maxHp;
     return;
   }
+  // Evil Mir's first death is not a kill — hold the rewards until phase 2 ends.
+  if (updateEvilMirPhase2(battle.enemy, now)) return;
   const zone = activeZone();
   const bossDef = bossRoomDef(zone?.id);
   const trainingRoom = isTrainingRoomZone(zone);
@@ -52461,13 +52828,13 @@ function awardEnemyRewards() {
   state.battle.gold = state.game.progress.gold;
   state.battle.level = state.game.progress.level;
   if (gold > 0) playSfx("ui.gold", { volume: 0.34, throttleMs: 250 });
-  pushBattleLog(`Gained ${xp} XP and ${gold} gold.`);
+  pushBattleLog(`Gained ${Number(xp).toLocaleString()} XP and ${Number(gold).toLocaleString()} gold.`);
   if (leveledTo.length) pushBattleLog(`Level up: ${leveledTo.at(-1)}.`);
   const dropSummaries = summarizeDropResults(drops.added);
   for (const summary of dropSummaries) pushBattleLog(`${formatDropSummaryLine(summary, "Received")}.`);
   for (const item of drops.ignored) pushBattleLog(`No room for ${item.name}.`);
   if (drops.junked > 0) pushBattleLog(bossJunkFilterSkipLogLine(drops.junked));
-  addLootNotice(`+${gold} gold`, "gold");
+  addLootNotice(`+${Number(gold).toLocaleString()} gold`, "gold");
   for (const level of leveledTo) addLootNotice(`Level ${level}`, "level");
   for (const summary of dropSummaries) addLootNotice(formatDropSummaryLine(summary, "Found"), "item");
   for (const item of drops.ignored) addLootNotice(`Inventory full: ${item.name}`, "full");
@@ -52550,7 +52917,8 @@ function xpForNextLevel(level) {
 
 function xpProgressText() {
   const needed = xpForNextLevel(state.game.progress.level);
-  return Number.isFinite(needed) ? `XP ${state.game.progress.experience}/${needed}` : "XP Max";
+  const current = Math.max(0, Math.trunc(Number(state.game.progress.experience) || 0));
+  return Number.isFinite(needed) ? `XP ${current.toLocaleString()}/${needed.toLocaleString()}` : "XP Max";
 }
 
 function restoreBattlePlayerResources() {
@@ -52671,8 +53039,7 @@ function addZoneDropItem(item, added, ignored, source = codexDropSource()) {
     return false;
   }
   const before = state.inventory.items.reduce((sum, entry) => sum + (entry.itemId === item.id ? entry.quantity : 0), 0);
-  const empowerDrop = Boolean(state.battle.bossEmpowered) && !suppressEmpoweredZoneDropRoll;
-  const addedEntries = addInventoryItem(item.id, 1, { empowerDrop });
+  const addedEntries = addInventoryItem(item.id, 1, zoneDropEmpowerInventoryOptions(source));
   const after = state.inventory.items.reduce((sum, entry) => sum + (entry.itemId === item.id ? entry.quantity : 0), 0);
   if (addedEntries.length && after > before) {
     const entry = addedEntries[0] ?? null;
@@ -52745,6 +53112,10 @@ function spawnNextEnemy(now) {
   state.enemy.oneShot = false;
   state.enemy.lastTick = now;
   reloadEnemyAtlas();
+  if (applyFixedArenaEnemySpawn(now)) {
+    pushBattleLog(`${template.name} holds position.`);
+    return;
+  }
   pushBattleLog(`A ${template.name} appears ahead.`);
   setPlayerLocomotion("walking", now);
 }
@@ -53801,6 +54172,10 @@ function combatantInMeleeRangeOfEnemy(entity = state.battle.player) {
 }
 
 function playerAttackRange(now = performance.now()) {
+  return applyFixedArenaMeleeStandOff(playerAttackRangeRaw(now));
+}
+
+function playerAttackRangeRaw(now = performance.now()) {
   if (state.battle.combatClass === "Wizard") return wizardAttackRange(now);
   if (state.battle.combatClass === "Taoist") return taoistAttackRange(now);
   const thrustingReach = thrustingEnabled() ? THRUSTING_RANGE : LANE.warriorRange;
@@ -54043,6 +54418,7 @@ function canEnemyAttack() {
   if (isDarkDevilEnemy(battle.enemy)) return canDarkDevilAttack();
   if (isKingScorpionEnemy(battle.enemy)) return canKingScorpionAttack();
   if (isCrystalSpiderEnemy(battle.enemy)) return canCrystalSpiderAttack();
+  if (isEvilMirEnemy(battle.enemy)) return canEvilMirAttack();
   if (isFrostTigerEnemy(battle.enemy)) return canFrostTigerAttack();
   if (isDanmoEnemy(battle.enemy)) return canDanmoAttack();
   if (enemyHasRangedMeleeAttack(battle.enemy)) return canBoneLordAttack();
@@ -54722,7 +55098,7 @@ function renderStageXpBar() {
     </span>
   `;
   els.stageXpBar.title = Number.isFinite(needed)
-    ? `Level ${level} · ${pctLabel} · XP ${experience}/${needed}`
+    ? `Level ${level} · ${pctLabel} · XP ${Number(experience).toLocaleString()}/${needed.toLocaleString()}`
     : `Level ${level} · XP Max`;
 }
 
@@ -54735,7 +55111,7 @@ function formatInfoBarCompactAmount(value) {
 
 function formatInfoBarAmount(value, maxChars) {
   const n = Math.max(0, Math.floor(Number(value) || 0));
-  const full = String(n);
+  const full = n.toLocaleString();
   if (full.length <= maxChars) return full;
   return formatInfoBarCompactAmount(n);
 }
@@ -54775,7 +55151,7 @@ function renderStageInfoGold() {
   if (signature === stageInfoGoldSignature) return;
   stageInfoGoldSignature = signature;
   els.stageInfoGoldText.textContent = label;
-  els.stageInfoGoldText.title = `Gold ${gold}`;
+  els.stageInfoGoldText.title = `Gold ${gold.toLocaleString()}`;
 }
 
 function renderStageInfoZoneName() {
@@ -56023,6 +56399,8 @@ function zoneStampBehindBackgroundCacheKey(stamp = currentZoneMapStamp()) {
     state.smooth ? 1 : 0,
     MAP_STAMP_ASSET_VERSION,
     arenaSpawnMapRow(),
+    Number(stamp.scale) || 1,
+    zoneMapStampOffsetY(),
     anchor.x,
     anchor.y,
   ].join("|");
@@ -56769,14 +57147,14 @@ function buildStampArenaDrawList(displayFrame) {
     const mirror = state.battle.wizardMirror;
     if (mirror?.active && state.battle.combatClass === "Wizard") {
       entities.push({
-        zRow: spawnRow,
+        zRow: arenaStampPartyMapRow(),
         worldX: wizardMirrorWorldX(mirror),
         kindRank: STAMP_ARENA_KIND_RANK.pet,
         draw: (ctx) => drawWizardMirrorCanvas(ctx, displayFrame),
       });
     }
     entities.push({
-      zRow: spawnRow,
+      zRow: arenaStampPartyMapRow(),
       worldX: Number(state.battle.playerX) || 0,
       kindRank: STAMP_ARENA_KIND_RANK.player,
       draw: (ctx) => drawPlayerCanvas(ctx, displayFrame),
@@ -57430,7 +57808,8 @@ function drawEnemyCanvas(ctx) {
 
 /** Crystal DrawBlend body (e.g. Hell Bombs): screen-blend so dark outline pixels disappear. */
 function drawEnemyBodyAtlasFrame(ctx, atlas, sheet, meta, anchorX, anchorY) {
-  const draw = () => drawAtlasFrame(ctx, sheet, atlas.slotWidth, atlas.slotHeight, meta, anchorX, anchorY);
+  const scale = enemyVisualDrawScale();
+  const draw = () => drawAtlasFrame(ctx, sheet, atlas.slotWidth, atlas.slotHeight, meta, anchorX, anchorY, scale);
   if (atlas?.drawBlend || meta?.drawBlend) withScreenBlend(ctx, draw);
   else draw();
 }
@@ -57493,7 +57872,7 @@ function drawMonsterCastEffectCanvas(ctx, atlas, sheet, anchorX, anchorY, attack
   const meta = cast.frames[idx];
   if (!meta || meta.empty) return;
   withScreenBlend(ctx, () => {
-    drawAtlasFrameMeta(ctx, sheet, atlas.slotWidth, meta, anchorX, anchorY);
+    drawAtlasFrameMeta(ctx, sheet, atlas.slotWidth, meta, anchorX, anchorY, enemyVisualDrawScale());
   });
 }
 
@@ -57506,7 +57885,7 @@ function drawMonsterDieEffectCanvas(ctx, atlas, sheet, anchorX, anchorY, dieEffe
   const meta = fx.frames[idx];
   if (!meta || meta.empty) return;
   withScreenBlend(ctx, () => {
-    drawAtlasFrameMeta(ctx, sheet, atlas.slotWidth, meta, anchorX, anchorY);
+    drawAtlasFrameMeta(ctx, sheet, atlas.slotWidth, meta, anchorX, anchorY, enemyVisualDrawScale());
   });
 }
 
@@ -57520,11 +57899,15 @@ function drawEnemyActionBlendCanvas(ctx, atlas, sheet, anchorX, anchorY, action,
   const blendMeta = blendClip.frames[frameIndex];
   if (!blendMeta || blendMeta.empty) return;
   withScreenBlend(ctx, () => {
-    drawAtlasFrameMeta(ctx, sheet, atlas.slotWidth, blendMeta, anchorX, anchorY);
+    drawAtlasFrameMeta(ctx, sheet, atlas.slotWidth, blendMeta, anchorX, anchorY, enemyVisualDrawScale(enemy));
   });
 }
 
 function enemyDebuffTint(enemy, now = performance.now()) {
+  // Checked before the hp guard on purpose: he sits at 0 hp for the whole
+  // phase-2 transition, which is exactly when the dormancy wash has to show.
+  const dormant = isEvilMirEnemy(enemy) ? evilMirDormancyFade(enemy, now) : 0;
+  if (dormant > 0) return { color: "#05070d", alpha: dormant * EVIL_MIR_DORMANT_TINT_ALPHA };
   if (!enemy || enemy.hp <= 0) return null;
   if (enemyFrozenActive(enemy, now)) return { color: "#3b6dff", alpha: 0.5 };
   if (enemySlowActive(enemy, now)) return { color: "#7b3fd1", alpha: 0.42 };
@@ -57567,14 +57950,15 @@ function drawEnemyDebuffTintCanvas(ctx, atlas, sheet, anchorX, anchorY, action, 
   const actions = enemyVisualActions(atlas, enemy);
   const clip = actions?.[action];
   const meta = clip?.frames?.[frame] ?? clip?.frames?.[0];
-  if (meta && !meta.empty) drawAtlasFrameTint(ctx, sheet, atlas.slotWidth, atlas.slotHeight, meta, anchorX, anchorY, tint);
+  const scale = enemyVisualDrawScale(enemy);
+  if (meta && !meta.empty) drawAtlasFrameTint(ctx, sheet, atlas.slotWidth, atlas.slotHeight, meta, anchorX, anchorY, tint, scale);
   const blendKey = enemyActionBlendKey(action, atlas, enemy);
   const blendClip = blendKey ? actions?.[blendKey] : null;
   if (!blendClip?.frames?.length) return;
   if (action === "die" && frame >= blendClip.frames.length) return;
   const frameIndex = Math.max(0, Math.min(frame, blendClip.frames.length - 1));
   const blendMeta = blendClip.frames[frameIndex];
-  if (blendMeta && !blendMeta.empty) drawAtlasFrameTint(ctx, sheet, atlas.slotWidth, atlas.slotHeight, blendMeta, anchorX, anchorY, tint);
+  if (blendMeta && !blendMeta.empty) drawAtlasFrameTint(ctx, sheet, atlas.slotWidth, atlas.slotHeight, blendMeta, anchorX, anchorY, tint, scale);
 }
 
 function enemyProjectileVfxUntil(startedAt, projectile) {
@@ -57614,6 +57998,7 @@ function strikeShowsEnemyProjectileVfx(strike = state.battle.pendingEnemyStrike)
   if (strike.kind === "crystalSpiderLine") return true;
   if (strike.kind === "massBurst" || strike.kind === "scalyStomp" || strike.kind === "darkDevilBurst") {
     // Red Moon Evil SpellEffect is drawn per-target via redMoonEvilEffects, not on the boss.
+    if (strike.kind === "massBurst" && isEvilMirEnemy()) return false;
     if (strike.kind === "massBurst" && state.enemy.atlas?.projectile?.anchor === "targets") return false;
     return true;
   }
@@ -57788,6 +58173,7 @@ function drawEnemyRangeProjectileCanvas(ctx) {
   const enemyAnchor = combatAnchor("enemy");
   const targetAnchor = boneLordProjectileTargetAnchor();
   const impactFrames = Array.isArray(projectile.impactFrames) ? projectile.impactFrames : null;
+  const scale = enemyVisualDrawScale();
   if (now >= strike.at && impactFrames?.length) {
     const impactInterval = Math.max(1, Number(projectile.impactInterval) || 60);
     const frameIndex = Math.min(
@@ -57797,14 +58183,7 @@ function drawEnemyRangeProjectileCanvas(ctx) {
     const meta = impactFrames[frameIndex] ?? impactFrames[0];
     if (!meta || meta.empty) return;
     withScreenBlend(ctx, () => {
-      drawAtlasFrameMeta(
-        ctx,
-        sheet,
-        slotWidth,
-        { ...meta, offsetX: meta.offsetX + targetAnchor.x, offsetY: meta.offsetY + targetAnchor.y },
-        0,
-        0,
-      );
+      drawAtlasFrameMeta(ctx, sheet, slotWidth, meta, targetAnchor.x, targetAnchor.y, scale);
     });
     return;
   }
@@ -57822,7 +58201,7 @@ function drawEnemyRangeProjectileCanvas(ctx) {
       : Math.PI;
     const angleRad = travelProjectileAngleRad(enemyAnchor.x, enemyAnchor.y, targetAnchor.x, targetAnchor.y, baseAngleRad);
     withScreenBlend(ctx, () => {
-      drawRotatedAtlasSprite(ctx, sheet, slotWidth, slotHeight, baseFrame, x, y, angleRad, 1, "anchor");
+      drawRotatedAtlasSprite(ctx, sheet, slotWidth, slotHeight, baseFrame, x, y, angleRad, scale, "anchor");
     });
     return;
   }
@@ -57833,14 +58212,7 @@ function drawEnemyRangeProjectileCanvas(ctx) {
   const meta = projectile.frames[frameIndex] ?? projectile.frames[0];
   if (!meta || meta.empty) return;
   withScreenBlend(ctx, () => {
-    drawAtlasFrameMeta(
-      ctx,
-      sheet,
-      slotWidth,
-      { ...meta, offsetX: meta.offsetX + x, offsetY: meta.offsetY + y },
-      0,
-      0,
-    );
+    drawAtlasFrameMeta(ctx, sheet, slotWidth, meta, x, y, scale);
   });
 }
 
@@ -58094,11 +58466,12 @@ function enemyFrameBounds() {
   if (!atlas || !meta || meta.empty) {
     return { centerX: anchor.x, topY: anchor.y - 64, width: 96, height: 112 };
   }
-  const width = meta.w || atlas.slotWidth;
-  const height = meta.h || atlas.slotHeight;
+  const scale = enemyVisualDrawScale();
+  const width = (meta.w || atlas.slotWidth) * scale;
+  const height = (meta.h || atlas.slotHeight) * scale;
   return {
-    centerX: anchor.x + meta.offsetX + width / 2,
-    topY: anchor.y + meta.offsetY,
+    centerX: anchor.x + meta.offsetX * scale + width / 2,
+    topY: anchor.y + meta.offsetY * scale,
     width,
     height,
   };
@@ -59846,7 +60219,7 @@ function renderBattlePanel() {
       ${statBlock(e.name, e)}
     </div>
     <p class="battle-state">
-      Level ${battle.level} | ${xpProgressText()} | Gold ${battle.gold}
+      Level ${battle.level} | ${xpProgressText()} | Gold ${Number(battle.gold || 0).toLocaleString()}
     </p>
     <label>
       Attack speed: ${p.attackSpeed}${effectivePlayerAttackSpeed() !== p.attackSpeed ? ` +${effectivePlayerAttackSpeed() - p.attackSpeed}` : ""} (${playerAttackDelayMs()}ms)
@@ -60239,14 +60612,20 @@ function currentBackdropKind() {
 function currentZoneMapStamp() {
   const zone = activeZone();
   const draft = zoneVisualDraft(zone);
+  let stamp = null;
   if (state.game.mode === "mining") {
     const spot = activeMiningSpot();
     const stampId = spot?.mapStamp ?? null;
-    return stampId ? state.mapStampIndex.stamps.find((stamp) => stamp.id === stampId) ?? null : null;
+    stamp = stampId ? state.mapStampIndex.stamps.find((entry) => entry.id === stampId) ?? null : null;
+  } else if (state.game.mode === "zone") {
+    const stampId = draft?.mapStamp ?? zone?.mapStamp ?? null;
+    stamp = stampId ? state.mapStampIndex.stamps.find((entry) => entry.id === stampId) ?? null : null;
   }
-  if (state.game.mode !== "zone") return null;
-  const stampId = draft?.mapStamp ?? zone?.mapStamp ?? null;
-  return stampId ? state.mapStampIndex.stamps.find((stamp) => stamp.id === stampId) ?? null : null;
+  if (!stamp) return null;
+  if (state.game.mode !== "zone") return stamp;
+  const scale = arenaVisualScale(zone);
+  if (scale === 1) return stamp;
+  return { ...stamp, scale };
 }
 
 function currentZoneEdgeSet() {
@@ -60344,9 +60723,10 @@ function arenaLaneYPx(zone = activeZone()) {
 
 // Visual-only nudge for stamp-arena bosses (sprite draw + z-row); combatAnchor / enemyX unchanged.
 function arenaEnemyVisualDrawOffset(zone = activeZone()) {
+  const scale = arenaVisualScale(zone);
   return {
-    x: Math.trunc(Number(zone?.arenaEnemyVisualOffsetX) || 0),
-    y: Math.trunc(Number(zone?.arenaEnemyVisualOffsetY) || 0),
+    x: Math.round((Number(zone?.arenaEnemyVisualOffsetX) || 0) * scale),
+    y: Math.round((Number(zone?.arenaEnemyVisualOffsetY) || 0) * scale),
     mapRow: Math.trunc(Number(zone?.arenaEnemyMapRowOffset) || 0),
   };
 }

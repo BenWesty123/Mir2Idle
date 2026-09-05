@@ -31,6 +31,7 @@ const EXPECTED_LABELS = [
   "Hell Keeper",
   "Manectric King",
   "Hell Lord",
+  "Evil Mir",
 ];
 
 function loadItemsById() {
