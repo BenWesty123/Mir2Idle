@@ -1,5 +1,688 @@
 # AI Task Log - LOM Idle V2
 
+## 2026-09-05 - Taoist summons outlived their summoner in party fights
+
+Solo already handled this: a solo death runs `finishBattle`, which calls
+`dismissBattleCompanions`. Party fights have no equivalent - `bossPartyMarkMemberDead`
+only flipped `member.alive`, so when the party Taoist fell, `party.pet` /
+`party.holyDeva` stayed `active` and kept swinging (and tanking) for the rest of
+the fight, since the pet-attack gates in `updateBossPartyBattle` and the group-dungeon
+swarm loop only check `pet.active`.
+
+Fix: new `bossPartyMarkSummonedPetsDead` marks both party summons dead through
+`markTaoistPetDead` (so the die animation, the `*DiedThisFight` re-summon locks and
+the melee-position refresh all run) and drops any in-flight `pendingTaoPet`. Called
+from `bossPartyMarkMemberDead` - the single funnel for every party member death,
+including hazards and poison - and from `offlineGroupSimulateKill`, which kills
+members by hand and so needs the same call (silent: no sfx/log during a sim).
+
+Keyed on `member.classId === "Taoist"` because only the Taoist member summons;
+`party.pet` / `party.holyDeva` are single slots with no owner field.
+
+## 2026-09-05 - Empowered Past Bicheon was scaling Evil Mir HP, not his hits
+
+`applyGroupDungeonEmpowerCombatModifiers` multiplied `dc`/`mc`/`sc` (and optional
+`meleeDc`/`rangedDc`). Evil Mir's attacks do not read those: bolt uses `boltDc`,
+lightning uses `lightningDc`, and phase 2 uses `phase2LightningDc` + a separate
+`phase2Hp` pool. Empowered/Ascended/Awakened runs therefore gave him 2–4× HP with
+plain damage, and an unscaled 250k phase 2 after a much longer phase 1.
+
+Fix: `scaleEnemyEmpowerCombatStats` now scales those dedicated bands with the
+damage multiplier and `phase2Hp` with the HP multiplier. Shared by the group-
+dungeon path (Past Bicheon) and `applyEmpoweredBossCombatModifiers` so a future
+boss-room hook cannot repeat the miss.
+
+## 2026-09-05 - Past Bicheon: floors 6-9 wired into the Advance chain
+
+Closed out the new-floor work by putting Lightning Cave, Molten Rock Cave, Evil
+Mir Palace and Evil Mir on the progression path, so the dungeon now runs
+1 -> 2 (Frost Tiger) -> 3 -> 4 -> 5 (Oma King) -> 6 -> 7 -> 8 -> 9 (Evil Mir).
+
+**Floors 6-8 needed no wiring.** `groupDungeonNextFloorZone` derives the chain
+purely from `groupDungeon` + `groupDungeonFloor`, taking the lowest floor above
+the current one. Adding the zones with `groupDungeon: "past-bicheon"` had
+already put them after Oma King; the Lab teleport entries were *extra* direct
+access, not the link.
+
+**Evil Mir is now floor 9.** Added `groupDungeon` / `groupDungeonFloor: 9` /
+`groupDungeonBoss` / `groupDungeonBossRespawnMinutes: 120` to the zone, relabeled
+it "Past Bicheon - Evil Mir", and gave it real `rewards.gold` ([2500, 3800],
+above floor 8's [1700, 2600]) in place of the [0, 0] test value.
+
+- **Zone id stays `zone-lab-evil-mir`.** It is the save key for boss respawn
+  timers and persisted character location, and the codebase has no zone-id
+  migration path, so renaming it would strand anyone parked there. Only the
+  label and floor number are player-visible. Comment in `phase1Data.js` says so.
+- **Removed its `BOSS_ROOM_DEFS` entry.** `baseBossRespawnMinutesForZone` checks
+  `bossRoomDef(zoneId)` *first*, so that entry's `respawnMinutes: 0` would have
+  overridden the new 120 and left the final boss with no respawn timer. The
+  other group-dungeon bosses (floors 2 and 5) are absent from `BOSS_ROOM_DEFS`
+  entirely - Evil Mir now matches. Empower still works: `bossEmpowerAvailableForZone`
+  falls back to `groupDungeonEmpowerable`, which allows all of `past-bicheon`.
+
+**Deleted the whole `lab` teleport region.** It listed Evil Mir plus floors 6-8,
+and it is on the player-facing Mysterious Stone, so leaving it would have let
+anyone warp straight past floors 1-8 to the dragon. Removing the region also
+drops Evil Mir from the Teleport Ring, which only offers zones reachable through
+`TELEPORT_REGIONS`. Saves holding `teleportRegionId: "lab"` fall back to the
+first region. The other `zone-lab-*` rooms were never in a region and are
+unaffected. Testing floors 6-9 now means walking the chain from floor 1.
+
+`npm run check` and `npm run smoke` both green.
+
+## 2026-09-05 - Past Bicheon floor 8: Evil Mir Palace trash room
+
+New trash floor *inside* the Evil Mir palace so players see more of that room
+than the boss crop shows. Numbering: floor 8 = trash, Evil Mir boss becomes
+floor 9 (re-homing `zone-lab-evil-mir` is still open).
+
+**The room.** Crystal `D2083.map` (EvilMirPalace) is 200x200 but only **4%
+walkable** - a narrow processional approach, not a hall. Only 275 tiles map-wide
+have a clear 3-lane arena corridor outside the boss crop, thinning to six
+distinct stands. The arrival tile from Molten Rock Cave (39, 89) is walkable but
+its corridor is blocked, so the arena cannot sit at the door. Owner picked
+**(57, 74)** - 97% open, 3-lane corridor clear. Crop is x39-74 / y56-91 against
+the boss stamp's x64-99 / y26-61, so it shows genuinely new geography.
+Picker: `tools/build-evil-mir-palace-spot-picker.ps1` ->
+`tile-review/evil-mir-palace-spot-picker/index.html`. Note the `../tile-review`
+output root resolves to the REPO ROOT, not `tools/tile-review`.
+
+**Roster is a deliberate divergence.** Crystal spawns only `MirStatue` x6 (394,
+AI 54) in D2083 and nothing else. Atlas 902 already exists and has walk frames,
+but the Crystal statline is decorative (DC 10-50 vs Oma Guard's 54-79), and more
+importantly a statue-only floor is *structurally* capped near 1,300 DC/s by the
+3-melee-slot limit - it could never exceed floor 7 no matter how it was tuned.
+Owner chose the Oma roster instead ("the host that followed you in"), which also
+means zero new monster work.
+
+**Tuning.** 13/16 archers (81.3%), melee reduced to Guard x2 + Flail x1 - just
+enough to fill the 3 contact slots. Peak 5,799 DC/s, +15% over floor 7, in line
+with the dungeon's other steps. Waves 26->50 (190 kills), archer quota 42, set
+above the largest wave's demand (50 x 13/16 = 40.6) so it never binds.
+
+Full trash curve is now 2,267 / 3,386 / 3,945 / 4,325 / 5,063 / 5,799 across
+floors 1/3/4/6/7/8 - every floor harder than the last.
+
+Also fixed two now-false claims on floor 7 ("hardest trash room in Past
+Bicheon", "peak of the curve") in both `phase1Data.js` and `data/zones.json`.
+Added floor 8 to the `lab` teleport region alongside 6 and 7. Stamp
+`evil-mir-palace-gd-8-center` built (422 assets) and `index.json` re-compacted
+to 5.60 MiB. Verified with `npm run check` and `npm run smoke`; canvas
+`past-bicheon-trash-damage` updated.
+
+## 2026-09-05 - Evil Mir drop table + the Mir set promoted to L70 endgame
+
+Crystal ships a **complete** Mir set (set 12): Sword, Armour (M+F), Helmet, Necklace,
+Wheel, Ring, Belt, Boots, each with `1/2/3` class variants. Only the sword and armour
+had ever been imported into `items.json`, and they sat at L20 with no drop source and
+no boss-table reference — dead data. The rest existed only in `crystal-items.json`.
+
+So this was a promotion, not an invention. All the icon frames (821, 823–827) were
+already in the `tile-review` dump, so `copyItemIcon` + `build:item-atlas` wired them
+up with no new art.
+
+**The gender split was dead weight.** `mir-armour-m-*` and `mir-armour-f-*` both use
+`visual.index: 10`, and `loadCatalogue` picks the sprite set by CLASS (`common` /
+`archer` / `assassin`), never by gender — so the male and female items rendered
+identical art and the `genderMask` lock bought nothing. Both trios are now
+`genderMask: 3`, which frees the two icon frames to carry the tiers instead:
+
+| | id | icon | level | AC / AMC | wings |
+| --- | --- | --- | --- | --- | --- |
+| Mir Robe | `mir-armour-m-1/2/3` | frame 595 | 70 | 20–50 / 13–24 | no |
+| Mir Armour | `mir-armour-f-1/2/3` | frame 605 | 70 | 25–58 / 16–30 | **yes** |
+
+This matches the Heaven/Oma precedent, and inherits its one wart: the `m-`/`f-` ids no
+longer describe their names. Accepted deliberately — the alternative left three dead
+items behind.
+
+**Wings.** Six wing sets ship (`public/sprite-sets/common/wing/0..5`) and all six are
+in the catalogue's `indexes`, but only 0 was ever claimed (Heaven Armour). Mir Armour
+takes `visualEffect: 2` → wing **1**, so the endgame set does not reuse Heaven's wings.
+Note `armourVisualEffectForItem` ignores effect ids 1–99 unless the item id is in
+`ARMOUR_WING_EFFECT_ITEM_IDS`, so the three ids had to be added there or the field
+would have silently done nothing. Mir Robe is deliberately absent from that set.
+
+**`EVIL_MIR_BOSS_DROPS`.** Every other endgame boss is 35000 gold / 2 oils (Dark Devil
+was the ceiling at 45000/3); Evil Mir is **75000 / 4** so the kill reads as terminal.
+The Mir set is exclusive to this table, which is the real lever: `winged-heaven-armour`
+is nominally the rarest item in the game at 0.1%, but it drops from six bosses.
+
+`awakening-soul` sits at `chance: 1` for a second, non-obvious reason — with any
+`chance: 1` entry, `poolDropped` in `rollBossTableDropSelection` is always true, which
+disables the all-rolls-failed fallback. That fallback force-picks one pool item
+**uniformly, ignoring `chance`**, so without it a 0.35% unique would occasionally be
+handed out at the same odds as a gem.
+
+Shop values are `{ buy: 0, sell: 1 }` matching the `evil-dragon-*` tier. Gear is not
+purchasable anyway (the only shop is the alchemist's potion stock), but it keeps the
+highest-gold boss in the game from doubling as a vendor-trash farm.
+
+**The legacy tier ladder.** The first cut of the table had only the Mir set plus
+materials, which skipped the broad tiered pool every other endgame boss has. It now
+carries Oma King's ladder with each tier shifted one step looser (7.5→10, 5→7.5,
+2.5→4, 1.25→2.5, 1→1.5), on the rule that for anything the two share, the strictly
+harder boss should not be the worse source.
+
+**It is deliberately NOT a full superset of Oma King.** Skill books, the Heaven pair
+and the Oma King pair were all pulled back out by request: those are other bosses'
+signature drops, and Evil Mir has his own in the Mir set, so they stay exclusive to
+their own encounters instead of being power-crept off the final boss. Gon Ryun Dragon
+Armour is now the only non-Mir armour on the table, which leaves the Mir Robe/Armour
+pair unopposed as this fight's armour reward — and leaves **Mir Armour the rarest entry
+on the table outright** at 0.35%, so the rarest item is also the best one. Anything
+added here later should preserve that.
+
+Totals: 107 entries, 6.10 expected items per kill, against Oma King's 87 / 4.35.
+
+**Still lab-only.** Evil Mir lives in `zone-lab-evil-mir`, so nothing here is reachable
+in normal play yet; his home zone is an open decision. Rewards also fire only on the
+true (post-phase-2) death, since `awardEnemyRewards` is gated behind
+`updateEvilMirPhase2`, so one kill pays out once.
+
+`npm run check` + `npm run smoke` green. `integrity:rules` regenerated (519 rules).
+
+## 2026-09-05 - Evil Mir had NO sound at all; wired his full Crystal set
+
+He shipped silent. `monsterIndex: 900` but the sfx manifest had zero `monster.900.*`
+keys, so every `playMonsterSfx` call on him — attacks included, not just the phase-2
+ones — was resolving to null and returning false. Crystal does have his audio; we had
+simply never added him to `tools/build-sfx-assets.mjs`.
+
+None of the `monsterSounds` +1/+2/+3 defaults fit, because his set is bespoke:
+
+| key | Crystal source | file | len |
+| --- | --- | --- | --- |
+| `attack` | `PlayAttackSound` → +1 | `900-1.wav` | 2.00s |
+| `death` | `PlayDieSound` → +3 | `900-3.wav` | 2.58s |
+| `appear` | `PlayAppearSound` falls through → +0 | `900-0.wav` | 2.10s |
+| `range` | **nothing plays it** | `900-5.wav` | 2.44s |
+
+**No flinch, deliberately.** First pass mapped `flinch` to `SoundList.StruckEvilMir`
+(10090 = `900-struck.wav`) and it was an audible "clink" on every hit. That was a
+category error: the client calls `PlayFlinchSound` (the monster's *voice*, +2) and
+`PlayStruckSound` (the *material impact*) as two separate things, and 10090 is the
+second kind — a sibling of `StruckWooden`, the weapon-on-hide sound. He ships no
+`900-2`, so he has no flinch voice at all. It is unreachable for him regardless:
+`EvilMir.Struck()` returns 0, so the server never puts him in a struck action and
+that call site never runs. He is silent when hit by design. His entries are therefore
+spelled out with `sound()` instead of `monsterSounds`, which always emits a flinch.
+
+`900-5` is an orphan — `PlayDeadSound`'s +5 case does not list him, `PlayReviveSound`
+only covers zombies — the audio twin of the unreferenced 50-59 head frames. Gave it
+to the bolt so his two attacks differ by ear.
+
+Phase-2 rise now plays `appear` rather than a forced `attack`: Crystal plays +0 when
+he enters the world, which is what returning from dormant is. The collapse's existing
+`playMonsterSfx("death")` call starts working for the first time.
+
+1.63 MB across 5 wavs. The packager builds its copy list from the manifest `src`
+values, so they ship without touching `package-itch.mjs`. `check` + `smoke` green.
+
+## 2026-09-05 - Evil Mir phase-2 hold 3s -> 5s
+
+`EVIL_MIR_PHASE2_TRANSITION_MS` 3000 -> 5000. The collapse and rise are fixed-length
+and the rise is back-timed off the resume, so the whole +2s lands in the dead hold
+(~1.4s -> ~3.4s lying still). Retimed the dormancy wash to match: it now completes
+400ms after the collapse settles (`_phase2DarkAt`) and holds at full dark, instead
+of stretching across the whole window and only reaching black on the frame he rises.
+`npm run check` and `npm run smoke` green.
+
+## 2026-09-05 - No better Evil Mir art exists; sell the dormancy with draw colour
+
+Researched whether any file anywhere has a fuller Evil Mir. **Conclusion: no, and
+`Dragon.Lib` is provably complete.** Cross-referenced all 527 slots against every
+`Libraries.Dragon` reference in the client, and there are no unexplained gaps — his
+body is frames 0-49 and everything else belongs to something else:
+
+- 60-81 / 90-119 / 180-219 / 230-274 — his own overlays, bolt projectile, mass rain
+- 300-339 / 350-384 — `DragonStatue` standing, attack overlays and beam-on-target
+- 400-424 — **`Spell.MapLightning`** (also `RedThunderZuma`), not a body. These are
+  the 452x1302 frames previously guessed to be "EvilMirBody"; they are a
+  full-height strike pillar. `EvilMirBody` (enum 901) has no library at all.
+- 440-459 + 470-479 — `Spell.MapLava`, unblended base plus blended overlay
+
+Only 50-59 (the second idle) and 280-284 are referenced by nothing. Corrected the
+mislabelled blocks in `tools/build-evil-mir-animation-reference.mjs` and regenerated.
+
+Dead ends ruled out: **Zircon is Mir 3** (different game, `.zl` libraries, different
+dragons). LOMCN's HD mob packs are ~90% complete, need every image reprocessed
+because Crystal treats empty transparency as a targetable sprite, and are upscales
+carrying *fewer* animations than the originals — none include Evil Mir. Community
+threads independently corroborate the server code: he is a static boss with no death
+state, his drops gated behind invisible wall mobs.
+
+So the awkward pose is missing art, not a bug. Sold the dormancy with draw colour
+instead: `evilMirDormancyFade` returns 0..1 across the transition and
+`enemyDebuffTint` turns it into a near-black wash (`#05070d`, up to 0.62 alpha), so
+he cools to almost black through the collapse and hold, then brightens as he rises.
+Reuses `drawEnemyDebuffTintCanvas`, which already tints both the body and blend
+layers. The dormancy check sits *before* the `hp <= 0` guard in `enemyDebuffTint` —
+he is at 0 hp for the whole transition, which is exactly when the wash must show.
+`npm run check` and `npm run smoke` both green, no console errors.
+
+## 2026-09-05 - Evil Mir animation reference page (+ 10 unwired head frames found)
+
+Stopped inferring animations from frame geometry and built a page that shows all of
+them. `npm run evilmir:anim` (`tools/build-evil-mir-animation-reference.mjs`) reads
+`Dragon.Lib`, exports all 316 drawable frames as PNGs, and generates a viewer at
+`tools/generated-data/evil-mir-anim/index.html` (gitignored; data is inlined so it
+opens straight off disk). The exporter is dependency-free — it decodes the lib's
+gzipped BGRA frames and writes PNGs with a small built-in encoder over `node:zlib`.
+
+The page has three sections: the declared clips expanded per direction, every
+contiguous frame block in all 527 slots, and — the useful one — **head frames the
+FrameSet never references**. Frames are absolutely positioned by their real
+`offsetX/offsetY` against the shared `oy + h = 158` baseline, so playback matches
+`DrawFrame = Start + (Count + Skip) * Direction + FrameIndex` rather than jittering.
+
+**Finding: frames 50-59 are a complete 10-frame head clip that nothing points at.**
+Same 320px width and same 158 baseline as the confirmed head clips, and the exact
+height profile of `Standing` 0..9 (333,332,331,331,331,331,331,332,333,333) — a
+second idle. Given `EvilMir.Die()` sets `Sleeping = true`, a dormant/asleep idle is
+the obvious candidate, which is what our phase 2 needs. 62-63 are also flagged but
+sit inside the 60-67 attack overlay. Verified in-browser: no console errors, 9 + 2 +
+22 cards, animations playing, head-only filter cuts 33 cards to 15.
+
+**What Crystal actually does on death** (read `Server/MirObjects/Monsters/EvilMir.cs`
+end to end). Of the 7 declared clips, only `Standing`, `Attack1` and `AttackRange1`
+are reachable in the intended encounter — the rest are inherited boilerplate:
+
+- `Die()` on the `DragonLink` path never calls `base.Die()`, so `Dead` is never set
+  and `S.ObjectDied` is never broadcast: **the client is never told he died and never
+  plays `Die`, `Dead` or `Revive` at all.** He becomes `Sleeping` — `CanAttack`
+  false, `IsAttackTarget` false, `Attacked()` returns 0 — standing in his idle for
+  5 minutes, then `HP = Stats[Stat.HP]`.
+- Off that path `base.Die()` runs, so the client plays `Die` (840ms) and holds
+  `Dead` (frame 48, head raised) as a corpse for `DeadDelay`. Evil Mir is **AI 52**,
+  which is not special-cased, so DeadDelay is the `default: 180000` — the awkward
+  raised pose sits there for **3 minutes**.
+- `Struck()` is overridden to `return 0`, so the `Struck` clip (40-41) never plays
+  either — he never flinches.
+- `SetDirection` only ever returns `Up`, `UpRight` or `Right`, which is exactly the
+  3 usable `AttackRange1` direction blocks (10..15 / 20..25 / 30..35). Independent
+  confirmation that the stride-10 reading and our Direction 2 choice are right.
+
+Two correctness fixes came out of building it:
+
+- Direction-block expansion cannot just test "do these frames decode". `AttackRange1`
+  has stride 10 from 10, so "direction 3" resolves to 40..45 — really `Struck` +
+  `Attack1`, which decode fine and wrongly yielded 7 direction blocks. Blocks that
+  collide with a stride-0 clip's frames are now rejected, giving the correct 3.
+- Also added `npm run lib:frames` for the raw FrameSet dump.
+
+## 2026-09-04 - Evil Mir animation audit: stop guessing body clips
+
+His revive looked awkward, so I stopped inferring frame ranges and read them from
+the source. **Crystal `.Lib` v3 files embed their own `FrameSet`**
+(`MLibrary.Initialize` seeks `frameSeek`, then `frameCount` ×
+`{byte MirAction, Frame(BinaryReader)}`). Our PowerShell lib reader parses that
+offset and throws it away. New `tools/dump-lib-frames.mjs` decodes it for any v3
+lib.
+
+Dragon.Lib's authoritative table for Evil Mir:
+
+```
+Standing     start= 0 count=10 skip=-10 @1000
+AttackRange1 start=10 count= 6 skip=  4 @120
+Struck       start=40 count= 2 skip= -2 @200
+Attack1      start=42 count= 8 skip= -8 @120
+Die          start=42 count= 7 skip= -7 @120
+Dead         start=48 count= 1 skip= -1 @1000
+Revive       start=42 count= 7 skip= -7 @120   (no Reverse flag)
+```
+
+**`skip` is load-bearing.** The client draws
+`DrawFrame = Start + (Count + Skip) * Direction + FrameIndex`, so `Count + Skip` is
+the per-direction stride. Every clip above is stride 0 (direction-independent)
+except **AttackRange1, stride 10**. We render Direction 2 (Right, matching the
+`90 + 2*10 = 110` overlay), so its body block is **30..35** — 10..15 is Direction 0.
+The three blocks 10..15 / 20..25 / 30..35 are each padded to 10 with 4×1 stubs, and
+32/33 reach 392-400px wide where Direction 0's 12/13 are only 332, so the wrong
+block visibly misaligns the bolt against its overlay. (I got this wrong once
+mid-session — went 42..49 → 10..15 → 30..35.)
+
+Conclusions:
+
+- **Bug: `attackRange1`'s body clip was wrong.** Originally
+  `start=42 count=10 clampSrc=49`, i.e. the Attack1/Die frames, so the bolt — 3 of
+  every 4 swings — animated identically to his death. Now `start=30 count=6`.
+- **The revive plays FORWARD, not reversed.** He is the exception:
+  `DefaultMonster`, `Player` and `GreatFoxSpirit` all declare
+  `Revive ... { Reverse = true }`, but his entry carries no flag. Swapped
+  `updateEvilMirPhase2` onto a real `revive` clip via `setEnemyAction("revive")`
+  and deleted the `state.enemy.reverse` playback flag added the day before.
+- **There is no death animation, by design.** Body frames are fully accounted for
+  (0-9 standing, 10-39 AttackRange1 ×3 directions, 40-41 struck, 42-49 attack1);
+  nothing else in the lib is head-sized. Die/Dead just truncate the attack clip and
+  freeze him reared up at 357px vs the 333px standing height. The reason is in
+  `Server/MirObjects/Monsters/EvilMir.cs`: `Die()` never kills him on the
+  `DragonLink` path — it sets `Sleeping = true`, and `ProcessAI` later restores
+  `HP = Stats[Stat.HP]` after 5 minutes. **The original boss goes dormant and
+  reawakens at full HP**, which is the same mechanic as our phase 2, so the
+  animators never needed a dead pose.
+- Given that, the transition now uses a new `collapse` alias (the full 42..49
+  including the final settle frame) instead of `die`, so his head comes back down to
+  standing height and goes still — dormant — rather than freezing mid-rear. `die`
+  and `dead` stay in the atlas at their canonical ranges.
+
+**Follow-up bug from the phase-2 work: the death clip never played in a party
+fight.** Every solo death path is `finishEnemy(now); setEnemyAction("die", ...)`
+at the call site, so intercepting inside `finishEnemy` still left the caller to
+start the animation. The party path is not shaped that way — `updateBossPartyBattle`
+detects `enemy.hp <= 0` itself and it is `finishBossPartyEnemy` that sets the
+action, which my interception returns before. He therefore stood perfectly still
+for the whole 3s window and then played `revive` out of nowhere.
+`updateEvilMirPhase2` now drives `setEnemyAction("die", true, now)` and
+`playMonsterSfx("death")` itself instead of depending on which caller noticed.
+
+Rebuilt `public/monsters/monster/900.{json,png}` with added `revive` and `collapse`
+clips (free — frames dedupe by `srcFrame`). `slotWidth` 320 → 400 from the wide
+Direction-2 lunge frames. The build script header now records the dumped table and
+the stride maths so the next edit does not re-guess.
+
+`npm run check` and `npm run smoke` green.
+
+## 2026-09-03 - Past Bicheon 6/7: teleporter test access, spawn nudge, ranged tier
+
+Follow-ups on the two new floors, all before integration.
+
+**Teleporter test access.** Added `zone-past-bicheon-gd-6` / `-7` to the `lab`
+region in `TELEPORT_REGIONS` (`app.monolith.js`), not to `past-bicheon` - that
+region intentionally lists floor 1 only because deeper floors come via Advance.
+`lab` is the existing "reachable for testing, not integrated" bucket. Both lines
+come back out when the floors join the Advance chain. No gating to work around:
+`teleportRegionZones` just resolves IDs against `PROTOTYPE_ZONES`. Neither zone
+is in `BOSS_ROOM_DEFS`, so `teleportRingBossZoneIds` is unaffected.
+
+**Lightning Cave spawn moved (27,50) -> (27,55).** The spot is baked into four
+places and they must move together: `arenaSpawnMap`/`arenaFocusMap` +
+description in `phase1Data.js`, the description in `data/zones.json`, the
+`FocusMapY` default in `tools/build-lightning-cave-gd-6-stamp.ps1` (otherwise a
+later rebuild silently reverts the stamp to 50), and the regenerated stamp
+itself. Rebuilt the stamp (crop now starts at map row 37) and re-ran
+`npm run compact:mapstamps` - the build script pretty-prints
+`mapstamps/index.json` to 32 MiB and it must go back to ~5.5 MiB compact.
+
+**Added Oma Marksman (id 476) to both floors.** Crystal's own respawn tables
+have no ranged monster in either room: D2081 is WingedOma/FlailOma/OmaGuard 40
+each, D2082 is FlailOma/OmaGuard 50 each, all AI 0. CrossbowOma (380 / Mon120,
+AI 8) is the only ranged Oma in the family and Crystal stops spawning it after
+Blood Pass. Faithful to the source, that made floors 6-7 a pure Warrior-AC check
+and dropped the backline threat that gives floors 3-4 their texture, so we
+deliberately diverge from Crystal here.
+
+Reusing template 468 as-is would not have worked - level 70 / 16k HP against
+floor 6-7 trash at level 72 / 21-22k means it melts before it matters. 476 is an
+elite re-tier instead: Crossbow Oma's ratios against Axe Oma (HP x0.89, DC x0.91,
+AC x0.78, AMC x1.36) reapplied to the floor 6-7 melee mean, so it stays the
+squishy high-MAC archer *relative to its own floor*. No `killGold`, matching
+474/475, because these floors pay `rewards.gold`.
+
+Weighting: 4/16 on floor 6 with `waveEnemyCaps: { 476: 14 }`, 5/16 on floor 7
+with a cap of 20 - the last room before Evil Mir should peak on backline
+pressure, not only on wave size. Floor 6's marksman slots were taken from the
+melee share, leaving Winged Oma at 3/16 (owner chose to keep the existing
+weighting rather than match Crystal's even three-way split). No new art needed:
+atlas 120 already carries the `attackRange*` frames from floors 3-4.
+
+Verified with `npm run check` and `npm run smoke`.
+
+**Retuned floors 6-7 after a damage audit.** Two engine constraints dominate all
+Past Bicheon trash balance and are worth writing down:
+
+1. `GROUP_DUNGEON_SWARM_LANES.length` = 3, and monsters stop one cell east of
+   the front liner, so **exactly 3 melee can ever be swinging**. The offline
+   model agrees (`attackers: min(3 lanes, field cap)`). Melee output is
+   therefore near-flat dungeon-wide: 1,149 DC/s on floor 1 to 1,313 on floor 7,
+   +14% over six floors, despite Oma Guard hitting 25% harder per swing than
+   Axe Oma.
+2. `GROUP_DUNGEON_WAVE_FIELD_CAP` = 20. Past that the surplus queues offscreen,
+   so **wave size sets fight length, not difficulty**.
+
+Consequence: archer share is the entire difficulty curve, because archers never
+queue for a slot (they fire from up to 7 tiles at a random party member, vs MAC,
+so they bypass the tank). As first built, floors 6-7 at 25% / 31% archers peaked
+at 2,638 / 3,022 DC/s against Blood Gorge's 3,386 and Blood Pass's 3,945 - both
+new floors were *easier* than both existing ranged floors, a 33% regression at
+floor 6. Bigger monsters could not fix this; only 3 of them ever connect.
+
+Fix: archer share 4/16 -> 9/16 on floor 6 and 5/16 -> 11/16 on floor 7, taken
+out of the Flail/Guard share (Winged Oma held at 3/16 on floor 6 by owner
+preference). Curve is now 2,267 / 3,386 / 3,945 / 4,325 / 5,063 across floors
+1/3/4/6/7. Wave sizes trimmed 20->52 to 20->40 and 24->60 to 24->48, since the
+extra spawns only added length: ~1/6 off clear time at no cost to pressure.
+
+Archer quotas set *above* the largest wave's expected demand (24 and 34) so they
+never bind. Floors 1/3/4 all sag on their final waves as their quota runs dry
+while the wave keeps growing - floors 6-7 hold flat to the end instead. Worth
+revisiting on the older floors.
+
+Numbers are raw DC before mitigation; melee checks AC and archers MAC, so the
+real ranged share is higher still. Full breakdown in the
+`past-bicheon-trash-damage` canvas. Still open: confirm a Wizard/Taoist is not
+simply deleted at 69% archers, re-home `zone-lab-evil-mir` to
+`zone-past-bicheon-gd-8`, and playtest tuning.
+
+## 2026-09-02 - Past Bicheon floors 6 and 7 (Oma King -> Evil Mir)
+
+Two connecting swarm floors between Oma King (floor 5) and the Evil Mir palace.
+The route is not a design choice: in `crystal-maps.json`, `D2082 MoltenRockCave`
+is the only map with a movement into `D2083 EvilMirPalace` (374,273 -> 39,89),
+and `D2081 LightningCave` is the only map linking into `D2082`. So Blood Land
+-> Lightning Cave -> Molten Rock Cave -> Evil Mir Palace is exactly two rooms.
+
+- **Floor 6 `zone-past-bicheon-gd-6`** — Crystal `D2081.map` stand (27, 50).
+  Pool is Oma Guard / Flail Oma / Winged Oma, matching Crystal's respawns.
+  Waves 20 / 28 / 36 / 44 / 52.
+- **Floor 7 `zone-past-bicheon-gd-7`** — Crystal `D2082.map` stand (108, 39).
+  Crystal spawns only Flail Oma and Oma Guard here, so this is the one room with
+  no flyers and no ranged pressure. Heaviest waves in the dungeon: 24 / 33 / 42
+  / 51 / 60.
+
+Floor progression needed no code: `groupDungeonNextFloorZone` already picks the
+next-highest `groupDungeonFloor` for the same `groupDungeon` id. The Mysterious
+Stone still lists floor 1 only; 6 and 7 are Advance-only like 2-5.
+
+New trash templates **474 Flail Oma** (Mon122) and **475 Oma Guard** (Mon123),
+scaled by the factors the floor 1 trash already uses (Crystal 1170 HP -> 18000
+is x15.4; DC 42-64 -> 330-500 is x7.8). Level 72 rather than 70 because Crystal
+puts them three levels above Axe/Sword Oma. Deliberately **no `killGold`** on
+either template: `resolveEnemyKillGoldRange` prefers template `killGold` over
+`zone.rewards.gold`, and floors 6 and 7 pay different rates.
+
+Atlases via the standard pipeline — `export-monster-atlases.ps1 -Indexes
+@(122,123)` then `append-monster-swarm-directions.ps1`. The `Missing
+attackRange1` warning is expected for melee-only mobs. Both landed with all 16
+clips and no empty frames. Packaging needs no change: `buildUsedMonsterIndices`
+reads `monsterIndex` straight off `PHASE1_ENEMY_TEMPLATES`.
+
+**Devil Nodes were considered and rejected.** Crystal parks Yin/Yang Devil Node
+(388/389) on Blood Land as stationary AI-42 turrets, which looked like a good
+objective-room mechanic. They are L60 *trash*, not bosses, and the engine cannot
+express stationary trash: `spawnGroupDungeonSwarmEnemy` passes only `mapRow` to
+`buildSwarmEnemyFromTemplate`, so wave spawns always fall back to
+`groupDungeonSwarmOffscreenSpawnX()` — off the east edge. A `stationaryBoss`
+wave mob would never walk in, never be reachable, and the wave's outstanding
+count would never reach zero, so the floor could never clear. Only the
+boss-swarm path sets `spawnX` relative to the party front, which is why all
+seven `stationaryBoss` templates in the game are bosses (Hell Keeper, Hell Lord,
+Great Fox Spirit, Guardian Rock, Red Moon Evil, Root Spider, Evil Mir).
+
+### Files
+- `src/phase1Data.js` — templates 474/475, `PAST_BICHEON_GD_6/7_ROOM_VISUALS`,
+  two `PHASE1_ZONES` entries.
+- `src/data/zones.json` — label/description mirror.
+- `public/monsters/monster/122.{json,png}`, `123.{json,png}` — new atlases.
+- `public/mapstamps/lightning-cave-gd-6-center-stamp.png`,
+  `molten-rock-gd-7-center-stamp.png` + `index.json` (recompacted to 5.53 MiB).
+- `tools/build-lightning-cave-gd-6-stamp.ps1`,
+  `tools/build-molten-rock-gd-7-stamp.ps1` — stamp wrappers.
+- `tools/build-lightning-cave-spot-picker.ps1`,
+  `tools/build-molten-rock-spot-picker.ps1` — spot pickers. Unlike the older
+  pickers these scan for tiles whose 3-lane arena corridor (y-1..y+1,
+  x-3..x+13) is fully walkable, then rank by openness, rather than dropping
+  presets on a fixed grid. Both maps are 400x400 and ~26% walkable.
+
+### Verified
+- `npm run check` green (675/675 tests, source verify, offline fixtures).
+- `npm run smoke` green, no console errors.
+- In the running dev build: the 7-floor chain resolves in order, both templates
+  resolve to Mon122/123, both stamps resolve from `index.json` with their sheets
+  returning 200, and both atlases load with 16 actions.
+
+### Not done
+- Evil Mir is still `zone-lab-evil-mir` on the `lab` teleport region, not floor
+  8. Re-homing it is data-only (add `groupDungeon` / `groupDungeonFloor` /
+  `groupDungeonBoss`, drop the `lab` region), but **keep the existing zone id** —
+  renaming it strands any save whose `activeZoneId` points at it.
+- Neither new floor has been played end to end; wave counts and the 474/475
+  statlines are unplayed first-pass numbers.
+
+## 2026-08-30 - Glyph of Infinite Mana is all-class
+
+**Glyph of Infinite Mana** can be equipped by Warrior, Wizard, and Taoist
+(`classId: any`, item `classMask` 31). Effect is unchanged: +5 MP/s.
+
+## 2026-08-29 - Empowered Harvest (non-boss AFK empowered drops)
+
+Rebirth upgrade `rebirth-mob-empower-drops` ("Empowered Harvest"): four tiers at
+25/50/75/100 RP. Non-boss equipment drops roll empowered at 1/100, 1/75, 1/50,
+then 1/25, using `EMPOWER_TIER_WEIGHTS` (Empowered star odds, not
+Ascended/Awakened). Boss tables stay on their own empower path. Group-dungeon
+trash still cannot use empowered-boss rates; Harvest can still hit those
+non-boss drops. Offline zone kills go through `rollZoneDrops` / `addZoneDropItem`,
+so AFK is covered. Chance table lives in `src/core/empoweredItems.js`.
+
+## 2026-08-29 - Evil Mir phase 2 (death reversal)
+
+At 0 HP Evil Mir no longer dies. He plays his death clip, reverses it, and comes
+back with a small pool for a lightning-only burn that outpaces healing, so the
+party has to spend potions to finish him.
+
+Sequencing lives in `updateEvilMirPhase2`, driven per-tick from `updateBattle`
+(solo) and from the `enemy.hp <= 0` branch of the boss-party loop. Both death
+paths (`finishEnemy`, `finishBossPartyEnemy`) return early while it is running,
+which is what holds back drops, kill credit, the respawn lock and the victory
+state in one place — every one of the ~15 scattered
+`if (enemy.hp <= 0) { finishEnemy(); setEnemyAction("die"); ... }` call sites
+funnels through those two functions, so the `die` animation and the "is defeated"
+log still fire and read as flavour before the revive.
+
+Notes on the pieces:
+
+- **No atlas rebuild.** `public/monsters/monster/900.json` already ships `die`
+  (7 frames @120ms) and `dead`. The revive is the same clip played backwards via
+  a new `state.enemy.reverse` flag in the enemy frame advancer, which walks
+  frames down and holds on 0. `setEnemyAction` clears the flag so it cannot stick.
+- **3s from death to first phase-2 cast** (`EVIL_MIR_PHASE2_TRANSITION_MS`). The
+  die clip and its reverse only fill ~1.7s, so the reverse is back-timed off the
+  resume and the ~1.3s of slack is spent holding the dead pose — he rises straight
+  into his opening cast instead of standing up early and freezing.
+- **Untargetable for the whole transition.** Gated in `reduceEnemyHp`, the single
+  choke point for enemy damage, so in-flight hits cannot chew the small phase-2
+  pool before the revive visually lands. HP is restored at the end of the window.
+- **A phase-2 wipe already leaves the boss unlocked** — `finishBossPartyDefeat`
+  never calls `setBossRespawn`, so retries need no new code.
+- `_phase2Done` makes it fire once; the second death is a real kill. The flags
+  live on `battle.enemy`, which is rebuilt from the template on spawn/entry, so
+  nothing leaks into a fresh attempt and no save migration is needed.
+- Phase 1 was left untouched at 1M HP, so total fight length grows by phase 2.
+
+Stats on template 473: `phase2Hp` **250000** (~6-12s at 20-40k party DPS),
+`phase2AttackMs` **1000**, `phase2LightningDc` **1600-2450**. That is ~500 per
+hit on a 1000 HP Wizard at the 75% DR cap, so 500 HP/s against a ~300 HP/s heal
+ceiling — a ~200 HP/s bleed, roughly 2000 HP of potions over the phase. Per-hit
+is held at half his pool so it can never one-shot from full. `attackMs`,
+`beginEvilMirAttack` (lightning every swing) and `evilMirLightningAttackStat` all
+branch on `evilMirPhase2Active`.
+
+Caveat carried forward: with `CRYSTAL_POT_DELAY_MS` at 200ms the potion
+throughput ceiling is far above this bleed, so phase 2 is a potion-stock tax
+rather than a reaction test. Making it a skill check needs a potion cooldown or a
+spike above max throughput.
+
+`npm run check` and `npm run smoke` green.
+
+## 2026-08-29 - Evil Mir first balance pass
+
+Audited against the real formulas (canvas `evil-mir-balance-audit`). Two bugs
+found first:
+
+- **His damage read `dc`, not `mc`.** Both attacks hit
+  `enemyAttackDamageStat` with `{ranged, aoe, massBurst}`, but the `mc` branch is
+  gated on `isMinotaurKingEnemy` / `isMassBurstEnemy` / `isFlamingMutantEnemy` and
+  he is none of those (his `attackMode` is not `massBurst`). With no `rangedDc` or
+  `meleeDc` it fell through to `dc`. Tuning `mc` would have been discarded.
+- **The lightning hit pets, the bolt did not.** The split path filters through
+  `massBurstSplitPartyTargets` (member/player only); the `fullPacketEach` path used
+  the raw `massBurstTargetsInRange` list, so Shinsu and Holy Deva ate a full
+  undivided packet. `resolveMassBurstSplitAmongParty` now filters on both paths.
+
+The two attacks cannot share a damage stat — the bolt splits one packet across the
+party, the lightning gives everyone the full packet, so identical numbers land ~3×
+harder on the lightning. Added `boltDc` / `lightningDc` on template 473, read by
+`evilMirBoltAttackStat` / `evilMirLightningAttackStat` and passed through the new
+`options.attackStat` on `resolveMassBurstSplitAmongParty` (other bosses keep the
+old routing). `beginEvilMirAttack` no longer forces the lab lightning-only mode:
+1-in-4 swings are lightning.
+
+Stats: `attackMs` 3000 → **1500**, `boltDc` **2900–4300**, `lightningDc`
+**1250–1950**. Sized against the binding constraint, a ~1000 HP Wizard at the 75%
+DR cap: ~292 per bolt, ~392 per lightning (39% of pool), **~212 HP/s sustained**
+against a ~300 HP/s heal ceiling. Per-hit is deliberately kept survivable so a
+lapsed Magic Shield is not an instant death; pressure comes from cadence.
+
+Notes for the next tuner:
+- **`accuracy: 25` is inert.** `resolveIncomingEnemyAttack` skips the
+  accuracy-vs-agility roll entirely when the defence type is `MAC`. He cannot miss.
+- **Magic resist can null a whole packet.** `rollMagicHit` is rolled once against
+  the first target only; at the 10-point cap that is a flat 25% chance the attack
+  does nothing to anyone.
+- **The old "total damage absorbed" index (Hell Lord = 100%) is unusable here.**
+  It multiplies incoming DPS by fight length and ignores the 75%-capped DR bucket,
+  so at 1,000,000 HP it scores builds at 2,000–4,800% that a modern party heals
+  through untouched. Oma King measures 662%. Tune on sustained-vs-heal margin and
+  burst-vs-Wizard-pool instead.
+
+### Verify
+- `npm.cmd run check`, `npm.cmd run smoke` — both green.
+- Lab: Evil Mir with a full party; bolt should chunk everyone evenly, lightning
+  should hit each member for the same larger number and skip pets.
+
+## 2026-08-29 - Academy warrior buffs can be practised
+
+Training-room Auto skipped Immortal Skin / Fury / Protection Field / Rage while
+the buff was still up, so they only gained XP once per duration (wizard/tao
+shields already recast). Academy now refreshes those four and grants skill XP
+each practice cast. Zone/boss combat still waits for the buff to expire.
+
+## 2026-08-27 - Lab: Evil Mir visual test
+
+Standalone test room `zone-lab-evil-mir` (not Past Bicheon). Crystal `Dragon.Lib`
+atlas `900` + `D2083` stamp at (82, 44). Bolt = AttackRange1 overlay + travel
+projectile/hit; 1/8 mass breath uses Attack1 blend + castEffect. No loot wiring.
+Mysterious Stone: `TELEPORT_REGIONS` now has a Lab region listing this zone.
+Pinned as `fixedArenaSpawn` on D2083 (82, 44) so the head sits on the palace
+stamp focus instead of the walk-in lane. Crystal draw nudge −21/−15.
+Lab-only `arenaVisualScale` 1.25 on stamp + dragon (player stays 1×).
+Attack FX: bolt 180–189, range overlay 110–119, Attack1 rain 230–270.
+Stand-off `bossMeleeGap` 144 (one tile east of the previous 192) and one tile south
+(`arenaPartyStampMapRowOffset` 2). Solo player z-sorts on that row so they draw
+in front of the dragon instead of under it. Lab `mapStampOffsetY` −32 (camera down). Standalone boss room (`BOSS_ROOM_DEFS`,
+party entry, no respawn wait). Slow- and freeze-immune (`slowImmune` /
+`freezeImmune` on template 473). Both attacks: bolt splits one MAC packet across
+living party (Oma King); lightning is one full MAC packet on everyone in range
+(personal AMC). Superseded by the 2026-08-29 balance pass above (per-attack damage
+stats, 1-in-4 lightning; the lab-only lightning-every-swing mode is gone).
+
+## 2026-08-26 - What's New collapsed for release
+
+Replaced the post–Past Bicheon changelog entries with one player-facing
+`Random Mystery Cave, glyphs & Awakened weapons` note (Random Cave, Mystery
+Cave bosses, 7 glyphs + 5th slot, Immortal Skin, Awakened weapons, Boss Junk
+Filter, party item pass).
+
 ## 2026-08-24 - Random Mystery Cave
 
 Separate ticket (`mystery-cave-random-ticket`): cube recipe is 1 Wooma Heart + 1

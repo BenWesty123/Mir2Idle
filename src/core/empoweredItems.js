@@ -7,6 +7,30 @@ import { sanitizeItemBonusStats } from "../battleData.js";
 /** Base chance an equippable boss drop becomes empowered (before future rebirth bonuses). */
 export const BOSS_EMPOWER_ITEM_CHANCE = 0.2;
 
+/** Rebirth upgrade: non-boss equippable drop becomes empowered. Index 0 = tier 1. */
+export const NORMAL_MOB_EMPOWER_DENOMINATORS = Object.freeze([100, 75, 50, 25]);
+
+/**
+ * @param {number} tier purchased rebirth-mob-empower-drops tiers (0 = locked)
+ * @returns {number} chance in 0..1
+ */
+export function normalMobEmpowerItemChance(tier) {
+  const t = Math.max(0, Math.trunc(Number(tier) || 0));
+  if (t <= 0) return 0;
+  const index = Math.min(t, NORMAL_MOB_EMPOWER_DENOMINATORS.length) - 1;
+  return 1 / NORMAL_MOB_EMPOWER_DENOMINATORS[index];
+}
+
+/**
+ * @param {number} tier
+ * @returns {number | null} 100/75/50/25, or null when locked
+ */
+export function normalMobEmpowerDenominator(tier) {
+  const t = Math.max(0, Math.trunc(Number(tier) || 0));
+  if (t <= 0) return null;
+  return NORMAL_MOB_EMPOWER_DENOMINATORS[Math.min(t, NORMAL_MOB_EMPOWER_DENOMINATORS.length) - 1];
+}
+
 /** Given empowered, weighted tier roll (1–4 stat empowerments) — Empowered bosses. */
 export const EMPOWER_TIER_WEIGHTS = [
   { tier: 1, weight: 60 },

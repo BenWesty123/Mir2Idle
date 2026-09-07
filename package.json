@@ -31,6 +31,8 @@
     "glyph:ref": "node tools/generate-glyph-reference.mjs",
     "glyph:variants": "powershell -ExecutionPolicy Bypass -File tools/generate-glyph-variants.ps1",
     "glyph:variants:promote": "powershell -ExecutionPolicy Bypass -File tools/generate-glyph-variants.ps1 -Promote",
+    "lib:frames": "node tools/dump-lib-frames.mjs",
+    "evilmir:anim": "node tools/build-evil-mir-animation-reference.mjs",
     "integrity:rules": "node tools/generate-item-integrity-rules.mjs",
     "integrity:rules:check": "node tools/generate-item-integrity-rules.mjs --check",
     "build:zones-json": "node tools/build-zones-json.mjs",

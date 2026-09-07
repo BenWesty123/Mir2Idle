@@ -1465,6 +1465,132 @@ const DANMO_BOSS_DROPS = {
   ],
 };
 
+// Final boss. Deliberately breaks the 35000/2-oil mould every other endgame boss
+// shares (Dark Devil was the ceiling at 45000/3) so the kill feels terminal.
+//
+// The Mir set (Crystal set 12, rebalanced to L70) is EXCLUSIVE to this table. That
+// exclusivity is the point: `winged-heaven-armour` is nominally the rarest item in
+// the game at 0.1%, but it drops from six different bosses, so being the only
+// source does more for a chase item than a smaller number would.
+//
+// Tiers: Mir Armour (winged, best in game) 0.35%; Mir Sword 1%; Mir Robe 2%;
+// jewellery 2%, with belt/boots/helmet a little looser since they are the least
+// contested slots. `awakening-soul` at 1 also disables the all-rolls-failed
+// fallback in rollBossTableDropSelection, which would otherwise hand out a 0.35%
+// unique at the same odds as a gem.
+const EVIL_MIR_BOSS_DROPS = {
+  gold: 75000,
+  benedictionOils: 4,
+  items: [
+    { id: "awakening-soul", chance: 1 },
+
+    // --- Legacy ladder: Oma King's tiers, each shifted one step looser -------
+    // He is strictly harder than Oma King, so for anything he shares he should
+    // not be a worse source. Chances below mirror Oma King 7.5→10, 5→7.5,
+    // 2.5→4, 1.25→2.5, 1→1.5.
+    //
+    // Deliberately NOT a full superset of Oma King: no skill books, and no
+    // Heaven or Oma King armour. Those are other bosses' signature drops, and
+    // Evil Mir has his own (the Mir set), so they stay exclusive to their own
+    // encounters rather than being power-crept off the final boss.
+
+    // L50 weapons (Oma King 7.5%)
+    { id: "black-tiger-hammer", chance: 0.1 },
+    { id: "fan-of-crane", chance: 0.1 },
+    { id: "staff-of-lotus", chance: 0.1 },
+
+    // L46–L58 accessories and helmets (Oma King 5%)
+    { id: "cloud-ring", chance: 0.075 },
+    { id: "demon-mask", chance: 0.075 },
+    { id: "kunroon-tear", chance: 0.075 },
+    { id: "poison-ring", chance: 0.075 },
+    { id: "red-demon-ring", chance: 0.075 },
+    { id: "violet-orb", chance: 0.075 },
+    { id: "adamant-torque", chance: 0.075 },
+    { id: "cross-purified", chance: 0.075 },
+    { id: "evil-triangle", chance: 0.075 },
+    { id: "helmet-of-kings", chance: 0.075 },
+    { id: "helmet-of-sorcery", chance: 0.075 },
+    { id: "purified-mask", chance: 0.075 },
+    { id: "tarragon-helmet", chance: 0.075 },
+    { id: "tarragon-boots", chance: 0.075 },
+    { id: "tarragon-belt", chance: 0.075 },
+    { id: "tarragon-bracelet", chance: 0.075 },
+    { id: "tarragon-ring", chance: 0.075 },
+    { id: "demon-ruby-ring", chance: 0.075 },
+    { id: "gold-dragon-ring", chance: 0.075 },
+    { id: "evil-expel-ring", chance: 0.075 },
+    { id: "stone-golem-bracelet1", chance: 0.075 },
+    { id: "stone-golem-bracelet2", chance: 0.075 },
+    { id: "stone-golem-bracelet3", chance: 0.075 },
+
+    // L66 weapons + L63 jewellery (Oma King 2.5%)
+    { id: "barbarian-sword", chance: 0.04 },
+    { id: "bone-carved-fan", chance: 0.04 },
+    { id: "slaughter-pike", chance: 0.04 },
+    { id: "evil-dragon-ring-1", chance: 0.04 },
+    { id: "evil-dragon-ring-2", chance: 0.04 },
+    { id: "evil-dragon-ring-3", chance: 0.04 },
+    { id: "dragon-necklace-1", chance: 0.04 },
+    { id: "dragon-necklace-2", chance: 0.04 },
+    { id: "dragon-necklace-3", chance: 0.04 },
+    { id: "golden-dragon-bracelet-1", chance: 0.04 },
+    { id: "golden-dragon-bracelet-2", chance: 0.04 },
+    { id: "golden-dragon-bracelet-3", chance: 0.04 },
+
+    // L66 Evil Dragon jewellery + Holy Light Swords (Oma King 1.25%)
+    { id: "r-dragon-ring-1", chance: 0.025 },
+    { id: "r-dragon-ring-2", chance: 0.025 },
+    { id: "r-dragon-ring-3", chance: 0.025 },
+    { id: "evil-dragon-bracelet-1", chance: 0.025 },
+    { id: "evil-dragon-bracelet-2", chance: 0.025 },
+    { id: "evil-dragon-bracelet-3", chance: 0.025 },
+    { id: "evil-dragon-necklace-1", chance: 0.025 },
+    { id: "evil-dragon-necklace-2", chance: 0.025 },
+    { id: "evil-dragon-necklace-3", chance: 0.025 },
+    { id: "gon-ryun-holy-light-sword-1", chance: 0.025 },
+    { id: "gon-ryun-holy-light-sword-2", chance: 0.025 },
+    { id: "gon-ryun-holy-light-sword-3", chance: 0.025 },
+
+    // Gon Ryun Dragon Armour (Oma King 1%) — the only non-Mir armour here, so
+    // the Mir pair is unopposed as the armour reward for this fight.
+    { id: "gonryunyongdrama-m-1", chance: 0.015 },
+    { id: "gonryunyongdrama-m-2", chance: 0.015 },
+    { id: "gonryunyongdrama-m-3", chance: 0.015 },
+
+    // --- Mir set (L70), exclusive to this table -----------------------------
+    { id: "mir-belt", chance: 0.04 },
+    { id: "mir-boots", chance: 0.04 },
+    { id: "mir-helmet-1", chance: 0.03 },
+    { id: "mir-helmet-2", chance: 0.03 },
+    { id: "mir-helmet-3", chance: 0.03 },
+    { id: "mir-necklace-1", chance: 0.02 },
+    { id: "mir-necklace-2", chance: 0.02 },
+    { id: "mir-necklace-3", chance: 0.02 },
+    { id: "mir-bracelet-1", chance: 0.02 },
+    { id: "mir-bracelet-2", chance: 0.02 },
+    { id: "mir-bracelet-3", chance: 0.02 },
+    { id: "mir-ring-1", chance: 0.02 },
+    { id: "mir-ring-2", chance: 0.02 },
+    { id: "mir-ring-3", chance: 0.02 },
+    // Wingless armour tier, the reliable version of the chase.
+    { id: "mir-armour-m-1", chance: 0.02 },
+    { id: "mir-armour-m-2", chance: 0.02 },
+    { id: "mir-armour-m-3", chance: 0.02 },
+    { id: "mir-sword1", chance: 0.01 },
+    { id: "mir-sword2", chance: 0.01 },
+    { id: "mir-sword3", chance: 0.01 },
+    // Winged top tier — the rarest thing in the game.
+    { id: "mir-armour-f-1", chance: 0.0035 },
+    { id: "mir-armour-f-2", chance: 0.0035 },
+    { id: "mir-armour-f-3", chance: 0.0035 },
+
+    ...bossTopTierStoneDrops(0.04),
+    ...bossGemDrops(0.1),
+    ...bossOrbDrops(0.03),
+  ],
+};
+
 const BOSS_DROP_TABLE_BY_LABEL = {
   "Wooma Taurus": WOMA_TAURUS_BOSS_DROPS,
   "Incarnated Wooma Taurus": INCARNATED_WT_BOSS_DROPS,
@@ -1492,6 +1618,7 @@ const BOSS_DROP_TABLE_BY_LABEL = {
   "Hell Keeper": HELL_KEEPER_BOSS_DROPS,
   "Manectric King": MANECTRIC_KING_BOSS_DROPS,
   "Hell Lord": HELL_LORD_BOSS_DROPS,
+  "Evil Mir": EVIL_MIR_BOSS_DROPS,
 };
 
 export function clampChance(value) {

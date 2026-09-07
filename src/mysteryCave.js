@@ -163,6 +163,7 @@ export const MYSTERY_CAVE_EXCLUDED_STATIONARY_TEMPLATE_IDS = [
   452, // Great Fox Spirit
   453, // Guardian Rock
   454, // Red Moon Evil
+  473, // Evil Mir (lab test)
 ];
 
 /**

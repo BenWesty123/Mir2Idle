@@ -77,6 +77,8 @@ import {
   pickEmpowerRollsWithoutReplacement,
   rollEmpowerTier,
   rollEmpoweredItemDrop,
+  normalMobEmpowerDenominator,
+  normalMobEmpowerItemChance,
   rollEmpowermentReroll,
   rollEmpowermentRerollAtSlot,
   swapRandomEmpowermentsBetweenEntries,
@@ -378,6 +380,20 @@ test("rollEmpoweredItemDrop: applies one stat roll per empowerment tier", () => 
 test("rollEmpoweredItemDrop: null when empower roll fails", () => {
   const result = rollEmpoweredItemDrop(WARRIOR_WEAPON, () => 1);
   assert.equal(result, null);
+});
+
+test("normalMobEmpowerItemChance: 1/100, 1/75, 1/50, 1/25 by tier", () => {
+  assert.equal(normalMobEmpowerItemChance(0), 0);
+  assert.equal(normalMobEmpowerDenominator(0), null);
+  assert.equal(normalMobEmpowerItemChance(1), 1 / 100);
+  assert.equal(normalMobEmpowerDenominator(1), 100);
+  assert.equal(normalMobEmpowerItemChance(2), 1 / 75);
+  assert.equal(normalMobEmpowerDenominator(2), 75);
+  assert.equal(normalMobEmpowerItemChance(3), 1 / 50);
+  assert.equal(normalMobEmpowerDenominator(3), 50);
+  assert.equal(normalMobEmpowerItemChance(4), 1 / 25);
+  assert.equal(normalMobEmpowerDenominator(4), 25);
+  assert.equal(normalMobEmpowerItemChance(9), 1 / 25);
 });
 
 test("legacy single-stat item: star count never exceeds distinct empowered stats", () => {

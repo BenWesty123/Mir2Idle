@@ -4286,6 +4286,144 @@
     massBurstSplitAmongParty: true,
   },
   {
+    // Lab / visual test — Crystal EvilMir (image 900, Dragon.Lib). Stationary
+    // head. 3-in-4 swings are a MAC bolt that splits one packet across the living
+    // party (Oma King style, `boltDc`); 1-in-4 is a lightning dump that gives every
+    // living member the full packet (`lightningDc`). Pets are excluded from both.
+    // At 0 HP he does not die: he reverses his death animation and opens phase 2
+    // (`phase2*`), a short lightning-only burn that outpaces healing.
+    id: 473,
+    name: "Evil Mir",
+    crystalName: "EvilMir",
+    level: 99,
+    maxHp: 1000000,
+    maxMp: 0,
+    // Sized against the binding constraint: a ~1000 HP Wizard at the 75% DR cap.
+    // Bolt lands ~292 per hit on him, lightning ~392 (39% of his pool), for ~212
+    // HP/s sustained against a ~300 HP/s heal ceiling. Every individual hit stays
+    // survivable so a lapsed Magic Shield is not an instant death.
+    boltDc: [2900, 4300],
+    lightningDc: [1250, 1950],
+    // Phase 2: ~6-12s at 20-40k party DPS. Lightning only, ~500 per hit on a
+    // 1000 HP Wizard at the 75% DR cap every 1000ms — 500 HP/s against a ~300
+    // HP/s heal ceiling, so the party bleeds ~200 HP/s and must drink. Per-hit
+    // stays at half his pool so it can never one-shot from full.
+    phase2Hp: 250000,
+    phase2AttackMs: 1000,
+    phase2LightningDc: [1600, 2450],
+    dc: [2900, 4300],
+    mc: [2900, 4300],
+    sc: [0, 0],
+    ac: [80, 80],
+    amc: [80, 80],
+    // MAC skips the accuracy-vs-agility roll entirely, so this is inert.
+    accuracy: 25,
+    agility: 30,
+    luck: 0,
+    attackMs: 1500,
+    moveMs: 800,
+    experience: 32000,
+    monsterIndex: 900,
+    stationaryBoss: true,
+    fixedArenaSpawn: true,
+    slowImmune: true,
+    freezeImmune: true,
+    // 1.25× body overhangs the default 1-tile stand; keep the player west of the head.
+    bossMeleeGap: 144,
+    attackDefenceType: "MAC",
+    rangedAttackDefenceType: "MAC",
+    attackRangeTiles: 14,
+    massBurstTiles: 14,
+    attackImpactDelayMs: 620,
+  },
+  {
+    // Past Bicheon GD floors 6-7 (Lightning Cave / Molten Rock Cave). Crystal
+    // FlailOma (384 / Mon122) is a straight melee Oma, three Crystal levels above
+    // Axe/Sword Oma. Scaled by the same factors the floor 1 trash already uses
+    // (Crystal 1170 HP -> 18000 is x15.4; DC 42-64 -> 330-500 is x7.8).
+    // No killGold: floors 6 and 7 pay different zone rewards.gold.
+    id: 474,
+    name: "Flail Oma",
+    crystalName: "FlailOma",
+    level: 72,
+    maxHp: 22000,
+    maxMp: 0,
+    dc: [390, 590],
+    mc: [0, 0],
+    sc: [0, 0],
+    ac: [78, 78],
+    amc: [22, 22],
+    accuracy: 58,
+    agility: 20,
+    luck: 0,
+    attackMs: 1200,
+    moveMs: 900,
+    experience: 19800,
+    dropPath: "PastBichon\\OmaValley\\FlailOma",
+    monsterIndex: 122,
+  },
+  {
+    // Past Bicheon GD floors 6-7. Crystal OmaGuard (386 / Mon123) — the hardest
+    // hitting Oma trash (DC 54-79 vs Axe Oma's 42-64) but slightly less HP than
+    // Flail Oma. Same scaling as 474.
+    id: 475,
+    name: "Oma Guard",
+    crystalName: "OmaGuard",
+    level: 72,
+    maxHp: 21000,
+    maxMp: 0,
+    dc: [420, 620],
+    mc: [0, 0],
+    sc: [0, 0],
+    ac: [71, 71],
+    amc: [24, 24],
+    accuracy: 60,
+    agility: 19,
+    luck: 0,
+    attackMs: 1100,
+    moveMs: 850,
+    experience: 19000,
+    dropPath: "PastBichon\\OmaValley\\OmaGuard",
+    monsterIndex: 123,
+  },
+  {
+    // Past Bicheon GD floors 6-7 backline. NOT a Crystal monster: D2081/D2082
+    // respawn only FlailOma/OmaGuard/WingedOma, all AI 0, so the source maps
+    // have no ranged threat at all. CrossbowOma (380 / Mon120) is the only
+    // ranged Oma in the family and Crystal stops spawning it after Blood Pass;
+    // dropping it entirely made floors 6-7 a pure AC check, so this is an
+    // elite re-tier of it that keeps the backline pressure escalating.
+    // Stats are Crossbow Oma's ratios against Axe Oma (HP x0.89, DC x0.91,
+    // AC x0.78, AMC x1.36) reapplied to the floor 6-7 melee mean, so it stays
+    // the squishy high-MAC archer relative to its own floor.
+    // No killGold: floors 6 and 7 pay different zone rewards.gold.
+    id: 476,
+    name: "Oma Marksman",
+    crystalName: "CrossbowOma",
+    level: 72,
+    maxHp: 19000,
+    maxMp: 0,
+    dc: [370, 560],
+    mc: [0, 0],
+    sc: [0, 0],
+    ac: [58, 58],
+    amc: [31, 31],
+    accuracy: 56,
+    agility: 18,
+    luck: 0,
+    attackMs: 1400,
+    moveMs: 1000,
+    experience: 18000,
+    dropPath: "PastBichon\\OmaValley\\CrossbowOma",
+    monsterIndex: 120,
+    attackMode: "zumaArcher",
+    attackDefenceType: "MACAgility",
+    rangedAttackDefenceType: "MACAgility",
+    attackRangeTiles: 7,
+    attackImpactDelayMs: 400,
+    rangedAttackExtraMs: 300,
+  },
+  {
     id: 901,
     name: "Lab Stone Colossus",
     crystalName: "Mir3StoneColossus",
@@ -5327,6 +5465,21 @@ const TREE_PATH_ROOM_VISUALS = {
   stageMaxHeight: 540,
 };
 
+const EVIL_MIR_TEST_ROOM_VISUALS = {
+  backdrop: "cave",
+  decorations: [],
+  objectPattern: [],
+  mapStamp: "evil-mir-test-center",
+  mapStampOnly: true,
+  stageMinWidth: 780,
+  stageMinHeight: 480,
+  stageMaxHeight: 540,
+  // Lab zoom: stamp + dragon share this factor (player stays 1×).
+  arenaVisualScale: 1.25,
+  // Negative = camera down (fight sits higher on the stage). One iso row = 32px.
+  mapStampOffsetY: -32,
+};
+
 const PAST_BICHEON_GD_1_ROOM_VISUALS = {
   backdrop: "field",
   decorations: [],
@@ -5376,6 +5529,42 @@ const PAST_BICHEON_GD_5_ROOM_VISUALS = {
   decorations: [],
   objectPattern: [],
   mapStamp: "blood-land-gd-5-center",
+  mapStampOnly: true,
+  stageMinWidth: 780,
+  stageMinHeight: 480,
+  stageMaxHeight: 540,
+};
+
+const PAST_BICHEON_GD_6_ROOM_VISUALS = {
+  backdrop: "cave",
+  decorations: [],
+  objectPattern: [],
+  mapStamp: "lightning-cave-gd-6-center",
+  mapStampOnly: true,
+  stageMinWidth: 780,
+  stageMinHeight: 480,
+  stageMaxHeight: 540,
+};
+
+const PAST_BICHEON_GD_7_ROOM_VISUALS = {
+  backdrop: "cave",
+  decorations: [],
+  objectPattern: [],
+  mapStamp: "molten-rock-gd-7-center",
+  mapStampOnly: true,
+  stageMinWidth: 780,
+  stageMinHeight: 480,
+  stageMaxHeight: 540,
+};
+
+// Same Crystal map as the Evil Mir boss room (D2083), but crop x39-74 / y56-91
+// instead of the dragon's x64-99 / y26-61 — the point of the floor is to show
+// the approach players never see during the boss fight.
+const PAST_BICHEON_GD_8_ROOM_VISUALS = {
+  backdrop: "cave",
+  decorations: [],
+  objectPattern: [],
+  mapStamp: "evil-mir-palace-gd-8-center",
   mapStampOnly: true,
   stageMinWidth: 780,
   stageMinHeight: 480,
@@ -6683,6 +6872,96 @@ export const PHASE1_ZONES = [
     ...PAST_BICHEON_GD_5_ROOM_VISUALS,
   },
   {
+    id: "zone-past-bicheon-gd-6",
+    label: "Past Bicheon — Lightning Cave",
+    description: "Lightning Cave group dungeon floor 6 — Crystal D2081.map stand (27, 55). A wall of Oma Marksman bolts behind Flail Oma and Oma Guard; heavier backline pressure than Blood Pass.",
+    groupDungeon: "past-bicheon",
+    groupDungeonFloor: 6,
+    groupDungeonWavesPerFloor: 5,
+    // Wave size does NOT set difficulty: past the 20-monster field cap the
+    // surplus queues offscreen, so bigger waves only run longer. Sized for
+    // length only; the archer share below is what makes the floor hard.
+    groupDungeonWaveSpawnBase: 20,
+    groupDungeonWaveSpawnStep: 5,
+    groupDungeonWaveSpawnCap: 40,
+    // Only 3 melee can ever be in contact (3 lanes), so melee output is near
+    // flat dungeon-wide and archer share is the whole difficulty curve. 9/16
+    // archers puts this floor above Blood Pass (62.5% archers) as it should be.
+    // Winged Oma stays at 3/16 by choice (Crystal weights D2081 evenly three
+    // ways); the marksman slots come out of the Flail/Guard share.
+    enemyIds: [
+      476, 474, 476, 469,
+      476, 475, 476, 474,
+      476, 469, 476, 475,
+      476, 469, 476, 476,
+    ],
+    // Set just above the largest wave's expected archer count (40 x 9/16 = 22.5)
+    // so the quota never binds. A binding quota makes a floor get *easier* on
+    // its later waves, which is what floors 1/3/4 currently do.
+    waveEnemyCaps: { 476: 24 },
+    rewards: { gold: [1200, 1900] },
+    arenaSpawnDistance: 180,
+    arenaSpawnMap: { x: 27, y: 55 },
+    arenaFocusMap: { x: 27, y: 55 },
+    ...PAST_BICHEON_GD_6_ROOM_VISUALS,
+  },
+  {
+    id: "zone-past-bicheon-gd-7",
+    label: "Past Bicheon — Molten Rock Cave",
+    description: "Molten Rock Cave group dungeon floor 7 — Crystal D2082.map stand (108, 39). No flyers, no respite: a heavy Oma Marksman backline behind Flail Oma and Oma Guard.",
+    groupDungeon: "past-bicheon",
+    groupDungeonFloor: 7,
+    groupDungeonWavesPerFloor: 5,
+    // Length only — see the note on floor 6. Slightly longer than floor 6.
+    groupDungeonWaveSpawnBase: 24,
+    groupDungeonWaveSpawnStep: 6,
+    groupDungeonWaveSpawnCap: 48,
+    // 11/16 archers — a step above floor 6, and a step below the palace floor
+    // that follows. No Winged Oma here, matching Crystal D2082.
+    enemyIds: [
+      476, 474, 476, 475,
+      476, 474, 476, 476,
+      476, 475, 476, 474,
+      476, 476, 476, 476,
+    ],
+    // Above the largest wave's expected archer count (48 x 11/16 = 33): never binds.
+    waveEnemyCaps: { 476: 34 },
+    rewards: { gold: [1400, 2200] },
+    arenaSpawnDistance: 180,
+    arenaSpawnMap: { x: 108, y: 39 },
+    arenaFocusMap: { x: 108, y: 39 },
+    ...PAST_BICHEON_GD_7_ROOM_VISUALS,
+  },
+  {
+    id: "zone-past-bicheon-gd-8",
+    label: "Past Bicheon — Evil Mir Palace",
+    description: "Evil Mir Palace group dungeon floor 8 — Crystal D2083.map stand (57, 74). The Oma host that followed the party into the palace, almost all archers. Last room before the dragon.",
+    groupDungeon: "past-bicheon",
+    groupDungeonFloor: 8,
+    groupDungeonWavesPerFloor: 5,
+    // Length only — see the note on floor 6. Longest trash floor in the dungeon.
+    groupDungeonWaveSpawnBase: 26,
+    groupDungeonWaveSpawnStep: 6,
+    groupDungeonWaveSpawnCap: 50,
+    // 13/16 archers, the peak of the curve. Crystal spawns only MirStatue here,
+    // so this roster is a deliberate divergence: the Oma host that chased the
+    // party in from Molten Rock Cave, with barely enough melee to fill the
+    // 3 contact slots.
+    enemyIds: [
+      476, 476, 475, 476,
+      476, 474, 476, 476,
+      476, 475, 476, 476,
+      476, 476, 476, 476,
+    ],
+    // Above the largest wave's expected archer count (50 x 13/16 = 40.6): never binds.
+    waveEnemyCaps: { 476: 42 },
+    rewards: { gold: [1700, 2600] },
+    arenaSpawnDistance: 180,
+    arenaSpawnMap: { x: 57, y: 74 },
+    arenaFocusMap: { x: 57, y: 74 },
+    ...PAST_BICHEON_GD_8_ROOM_VISUALS,
+  },
+  {
     id: "zone-mystery-cave",
     label: "Mystery Cave",
     description: "Crystal M001 MysteryCave — timed boss gauntlet, one wave every 10 seconds",
@@ -6723,6 +7002,34 @@ export const PHASE1_ZONES = [
       firstSpawnDelayMs: 0,
     },
     ...MYSTERY_CAVE_ROOM_VISUALS,
+  },
+  {
+    // Zone id keeps its old "lab" name on purpose: it is the save key for boss
+    // respawn timers and character location, and there is no zone-id migration
+    // path, so renaming it would strand anyone parked here. Player-facing label
+    // and floor number are what matter.
+    id: "zone-lab-evil-mir",
+    label: "Past Bicheon — Evil Mir",
+    description: "Evil Mir boss — Crystal D2083 Evil Mir Palace (82, 44). Final floor of the Past Bicheon group dungeon.",
+    groupDungeon: "past-bicheon",
+    groupDungeonFloor: 9,
+    groupDungeonBoss: true,
+    groupDungeonBossRespawnMinutes: 120,
+    enemyIds: [473],
+    rewards: { gold: [2500, 3800] },
+    arenaSpawnDistance: 180,
+    arenaBossSpawnX: 300,
+    // Crystal D2083 (82, 44) — stamp focus is the dragon cell; pin the sprite there
+    // (same pattern as Great Fox / Evil Centipede). Do not leave him on the walk-in lane.
+    arenaSpawnMap: { x: 82, y: 44 },
+    arenaFocusMap: { x: 82, y: 44 },
+    // Player one tile south of the dragon foot (Hell Lord-style row offset).
+    arenaEnemyStampMap: { x: 82, y: 44 },
+    arenaPartyStampMapRowOffset: 2,
+    // Crystal MonsterObject.ManualLocationOffset for EvilMir.
+    arenaEnemyVisualOffsetX: -21,
+    arenaEnemyVisualOffsetY: -15,
+    ...EVIL_MIR_TEST_ROOM_VISUALS,
   },
   {
     id: "zone-lab-stone-colossus",

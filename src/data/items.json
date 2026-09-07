@@ -16692,7 +16692,7 @@
       "name": "Glyph of Infinite Mana",
       "type": "glyph",
       "slot": "glyph",
-      "class": "wizard",
+      "class": "any",
       "glyph": {
         "modifier": "wizardManaRegen"
       },
@@ -16704,7 +16704,7 @@
       "requirements": {
         "type": "level",
         "amount": 35,
-        "classMask": 2,
+        "classMask": 31,
         "genderMask": 3
       },
       "stackable": false,
@@ -25541,7 +25541,7 @@
     },
     {
       "id": "mir-armour-f-1",
-      "name": "Mir Armour (F)1",
+      "name": "Mir Armour",
       "type": "armour",
       "slot": "armour",
       "class": "warrior",
@@ -25556,24 +25556,24 @@
       },
       "requirements": {
         "type": "level",
-        "amount": 20,
+        "amount": 70,
         "classMask": 1,
-        "genderMask": 2
+        "genderMask": 3
       },
       "stackable": false,
       "maxStack": 1,
       "stats": {
         "ac": [
-          16,
-          25
+          25,
+          58
         ],
         "amc": [
-          7,
-          15
+          16,
+          30
         ],
         "dc": [
           2,
-          7
+          10
         ],
         "mc": [
           0,
@@ -25583,27 +25583,28 @@
           0,
           0
         ],
-        "hp": 0,
-        "mp": 0,
+        "hp": 400,
+        "mp": 80,
         "accuracy": 0,
         "agility": 0,
-        "luck": 1,
+        "luck": 0,
         "attackSpeed": 0
       },
       "shop": {
-        "buy": 1000000,
-        "sell": 200000
+        "buy": 0,
+        "sell": 1
       },
       "visual": {
         "layer": "armour",
         "index": 10
       },
       "crystalType": "Armour",
-      "set": 12
+      "set": 12,
+      "visualEffect": 2
     },
     {
       "id": "mir-armour-f-2",
-      "name": "Mir Armour (F)2",
+      "name": "Mir Armour",
       "type": "armour",
       "slot": "armour",
       "class": "wizard",
@@ -25618,20 +25619,20 @@
       },
       "requirements": {
         "type": "level",
-        "amount": 20,
+        "amount": 70,
         "classMask": 2,
-        "genderMask": 2
+        "genderMask": 3
       },
       "stackable": false,
       "maxStack": 1,
       "stats": {
         "ac": [
-          16,
-          25
+          25,
+          58
         ],
         "amc": [
-          7,
-          15
+          16,
+          30
         ],
         "dc": [
           0,
@@ -25639,33 +25640,34 @@
         ],
         "mc": [
           2,
-          9
+          10
         ],
         "sc": [
           0,
           0
         ],
-        "hp": 0,
-        "mp": 0,
+        "hp": 400,
+        "mp": 80,
         "accuracy": 0,
         "agility": 0,
-        "luck": 1,
+        "luck": 0,
         "attackSpeed": 0
       },
       "shop": {
-        "buy": 1000000,
-        "sell": 200000
+        "buy": 0,
+        "sell": 1
       },
       "visual": {
         "layer": "armour",
         "index": 10
       },
       "crystalType": "Armour",
-      "set": 12
+      "set": 12,
+      "visualEffect": 2
     },
     {
       "id": "mir-armour-f-3",
-      "name": "Mir Armour (F)3",
+      "name": "Mir Armour",
       "type": "armour",
       "slot": "armour",
       "class": "taoist",
@@ -25680,20 +25682,20 @@
       },
       "requirements": {
         "type": "level",
-        "amount": 20,
+        "amount": 70,
         "classMask": 4,
-        "genderMask": 2
+        "genderMask": 3
       },
       "stackable": false,
       "maxStack": 1,
       "stats": {
         "ac": [
-          16,
-          25
+          25,
+          58
         ],
         "amc": [
-          7,
-          15
+          16,
+          30
         ],
         "dc": [
           0,
@@ -25705,29 +25707,30 @@
         ],
         "sc": [
           2,
-          9
+          10
         ],
-        "hp": 0,
-        "mp": 0,
+        "hp": 400,
+        "mp": 80,
         "accuracy": 0,
         "agility": 0,
-        "luck": 1,
+        "luck": 0,
         "attackSpeed": 0
       },
       "shop": {
-        "buy": 1000000,
-        "sell": 200000
+        "buy": 0,
+        "sell": 1
       },
       "visual": {
         "layer": "armour",
         "index": 10
       },
       "crystalType": "Armour",
-      "set": 12
+      "set": 12,
+      "visualEffect": 2
     },
     {
       "id": "mir-armour-m-1",
-      "name": "Mir Armour (M)1",
+      "name": "Mir Robe",
       "type": "armour",
       "slot": "armour",
       "class": "warrior",
@@ -25742,24 +25745,24 @@
       },
       "requirements": {
         "type": "level",
-        "amount": 20,
+        "amount": 70,
         "classMask": 1,
-        "genderMask": 1
+        "genderMask": 3
       },
       "stackable": false,
       "maxStack": 1,
       "stats": {
         "ac": [
-          16,
-          25
+          20,
+          50
         ],
         "amc": [
-          7,
-          15
+          13,
+          24
         ],
         "dc": [
-          2,
-          7
+          0,
+          6
         ],
         "mc": [
           0,
@@ -25769,16 +25772,16 @@
           0,
           0
         ],
-        "hp": 0,
-        "mp": 0,
+        "hp": 300,
+        "mp": 60,
         "accuracy": 0,
         "agility": 0,
-        "luck": 1,
+        "luck": 0,
         "attackSpeed": 0
       },
       "shop": {
-        "buy": 1000000,
-        "sell": 200000
+        "buy": 0,
+        "sell": 1
       },
       "visual": {
         "layer": "armour",
@@ -25789,7 +25792,7 @@
     },
     {
       "id": "mir-armour-m-2",
-      "name": "Mir Armour (M)2",
+      "name": "Mir Robe",
       "type": "armour",
       "slot": "armour",
       "class": "wizard",
@@ -25804,43 +25807,43 @@
       },
       "requirements": {
         "type": "level",
-        "amount": 20,
+        "amount": 70,
         "classMask": 2,
-        "genderMask": 1
+        "genderMask": 3
       },
       "stackable": false,
       "maxStack": 1,
       "stats": {
         "ac": [
-          16,
-          25
+          20,
+          50
         ],
         "amc": [
-          7,
-          15
+          13,
+          24
         ],
         "dc": [
           0,
           0
         ],
         "mc": [
-          2,
-          9
+          0,
+          6
         ],
         "sc": [
           0,
           0
         ],
-        "hp": 0,
-        "mp": 0,
+        "hp": 300,
+        "mp": 60,
         "accuracy": 0,
         "agility": 0,
-        "luck": 1,
+        "luck": 0,
         "attackSpeed": 0
       },
       "shop": {
-        "buy": 1000000,
-        "sell": 200000
+        "buy": 0,
+        "sell": 1
       },
       "visual": {
         "layer": "armour",
@@ -25851,7 +25854,7 @@
     },
     {
       "id": "mir-armour-m-3",
-      "name": "Mir Armour (M)3",
+      "name": "Mir Robe",
       "type": "armour",
       "slot": "armour",
       "class": "taoist",
@@ -25866,20 +25869,20 @@
       },
       "requirements": {
         "type": "level",
-        "amount": 20,
+        "amount": 70,
         "classMask": 4,
-        "genderMask": 1
+        "genderMask": 3
       },
       "stackable": false,
       "maxStack": 1,
       "stats": {
         "ac": [
-          16,
-          25
+          20,
+          50
         ],
         "amc": [
-          7,
-          15
+          13,
+          24
         ],
         "dc": [
           0,
@@ -25890,19 +25893,19 @@
           0
         ],
         "sc": [
-          2,
-          9
+          0,
+          6
         ],
-        "hp": 0,
-        "mp": 0,
+        "hp": 300,
+        "mp": 60,
         "accuracy": 0,
         "agility": 0,
-        "luck": 1,
+        "luck": 0,
         "attackSpeed": 0
       },
       "shop": {
-        "buy": 1000000,
-        "sell": 200000
+        "buy": 0,
+        "sell": 1
       },
       "visual": {
         "layer": "armour",
@@ -25913,7 +25916,7 @@
     },
     {
       "id": "mir-sword1",
-      "name": "Mir Sword1",
+      "name": "Mir Sword",
       "type": "weapon",
       "slot": "weapon",
       "class": "warrior",
@@ -25928,7 +25931,7 @@
       },
       "requirements": {
         "type": "level",
-        "amount": 20,
+        "amount": 70,
         "classMask": 1,
         "genderMask": 3
       },
@@ -25944,8 +25947,8 @@
           0
         ],
         "dc": [
-          10,
-          60
+          45,
+          105
         ],
         "mc": [
           0,
@@ -25957,14 +25960,14 @@
         ],
         "hp": 0,
         "mp": 0,
-        "accuracy": 1,
+        "accuracy": 3,
         "agility": 0,
         "luck": 1,
         "attackSpeed": 2
       },
       "shop": {
-        "buy": 1000000,
-        "sell": 200000
+        "buy": 0,
+        "sell": 1
       },
       "visual": {
         "layer": "weapon",
@@ -25975,7 +25978,7 @@
     },
     {
       "id": "mir-sword2",
-      "name": "Mir Sword2",
+      "name": "Mir Sword",
       "type": "weapon",
       "slot": "weapon",
       "class": "wizard",
@@ -25990,7 +25993,7 @@
       },
       "requirements": {
         "type": "level",
-        "amount": 20,
+        "amount": 70,
         "classMask": 2,
         "genderMask": 3
       },
@@ -26006,12 +26009,12 @@
           0
         ],
         "dc": [
-          9,
-          32
+          15,
+          45
         ],
         "mc": [
-          6,
-          18
+          18,
+          50
         ],
         "sc": [
           0,
@@ -26019,14 +26022,14 @@
         ],
         "hp": 0,
         "mp": 0,
-        "accuracy": 1,
+        "accuracy": 2,
         "agility": 0,
         "luck": 1,
-        "attackSpeed": 0
+        "attackSpeed": 2
       },
       "shop": {
-        "buy": 1000000,
-        "sell": 200000
+        "buy": 0,
+        "sell": 1
       },
       "visual": {
         "layer": "weapon",
@@ -26037,7 +26040,7 @@
     },
     {
       "id": "mir-sword3",
-      "name": "Mir Sword3",
+      "name": "Mir Sword",
       "type": "weapon",
       "slot": "weapon",
       "class": "taoist",
@@ -26052,7 +26055,7 @@
       },
       "requirements": {
         "type": "level",
-        "amount": 20,
+        "amount": 70,
         "classMask": 4,
         "genderMask": 3
       },
@@ -26068,27 +26071,27 @@
           0
         ],
         "dc": [
-          11,
-          42
+          18,
+          56
         ],
         "mc": [
           0,
           0
         ],
         "sc": [
-          5,
-          13
+          17,
+          43
         ],
         "hp": 0,
         "mp": 0,
-        "accuracy": 1,
+        "accuracy": 3,
         "agility": 0,
         "luck": 1,
         "attackSpeed": 2
       },
       "shop": {
-        "buy": 1000000,
-        "sell": 200000
+        "buy": 0,
+        "sell": 1
       },
       "visual": {
         "layer": "weapon",
@@ -41477,6 +41480,818 @@
         "index": 22
       },
       "crystalType": "Weapon"
+    },
+    {
+      "id": "mir-helmet-1",
+      "name": "Mir Helmet",
+      "type": "helmet",
+      "slot": "helmet",
+      "class": "warrior",
+      "source": {
+        "crystalIndex": 58,
+        "name": "MirHelmet1"
+      },
+      "icon": {
+        "library": "Items",
+        "frame": 827,
+        "src": "./public/item-icons/items/frame_000827.png"
+      },
+      "requirements": {
+        "type": "level",
+        "amount": 70,
+        "classMask": 1,
+        "genderMask": 3
+      },
+      "stackable": false,
+      "maxStack": 1,
+      "stats": {
+        "ac": [
+          8,
+          18
+        ],
+        "amc": [
+          6,
+          12
+        ],
+        "dc": [
+          2,
+          6
+        ],
+        "mc": [
+          0,
+          0
+        ],
+        "sc": [
+          0,
+          0
+        ],
+        "hp": 0,
+        "mp": 0,
+        "accuracy": 0,
+        "agility": 0,
+        "luck": 0,
+        "attackSpeed": 0
+      },
+      "shop": {
+        "buy": 0,
+        "sell": 1
+      },
+      "crystalType": "Helmet",
+      "set": 12
+    },
+    {
+      "id": "mir-helmet-2",
+      "name": "Mir Helmet",
+      "type": "helmet",
+      "slot": "helmet",
+      "class": "wizard",
+      "source": {
+        "crystalIndex": 59,
+        "name": "MirHelmet2"
+      },
+      "icon": {
+        "library": "Items",
+        "frame": 827,
+        "src": "./public/item-icons/items/frame_000827.png"
+      },
+      "requirements": {
+        "type": "level",
+        "amount": 70,
+        "classMask": 2,
+        "genderMask": 3
+      },
+      "stackable": false,
+      "maxStack": 1,
+      "stats": {
+        "ac": [
+          8,
+          18
+        ],
+        "amc": [
+          6,
+          12
+        ],
+        "dc": [
+          0,
+          0
+        ],
+        "mc": [
+          2,
+          6
+        ],
+        "sc": [
+          0,
+          0
+        ],
+        "hp": 0,
+        "mp": 0,
+        "accuracy": 0,
+        "agility": 0,
+        "luck": 0,
+        "attackSpeed": 0
+      },
+      "shop": {
+        "buy": 0,
+        "sell": 1
+      },
+      "crystalType": "Helmet",
+      "set": 12
+    },
+    {
+      "id": "mir-helmet-3",
+      "name": "Mir Helmet",
+      "type": "helmet",
+      "slot": "helmet",
+      "class": "taoist",
+      "source": {
+        "crystalIndex": 60,
+        "name": "MirHelmet3"
+      },
+      "icon": {
+        "library": "Items",
+        "frame": 827,
+        "src": "./public/item-icons/items/frame_000827.png"
+      },
+      "requirements": {
+        "type": "level",
+        "amount": 70,
+        "classMask": 4,
+        "genderMask": 3
+      },
+      "stackable": false,
+      "maxStack": 1,
+      "stats": {
+        "ac": [
+          8,
+          18
+        ],
+        "amc": [
+          6,
+          12
+        ],
+        "dc": [
+          0,
+          0
+        ],
+        "mc": [
+          0,
+          0
+        ],
+        "sc": [
+          2,
+          6
+        ],
+        "hp": 0,
+        "mp": 0,
+        "accuracy": 0,
+        "agility": 0,
+        "luck": 0,
+        "attackSpeed": 0
+      },
+      "shop": {
+        "buy": 0,
+        "sell": 1
+      },
+      "crystalType": "Helmet",
+      "set": 12
+    },
+    {
+      "id": "mir-necklace-1",
+      "name": "Mir Necklace",
+      "type": "necklace",
+      "slot": "necklace",
+      "class": "warrior",
+      "source": {
+        "crystalIndex": 64,
+        "name": "MirNecklace1"
+      },
+      "icon": {
+        "library": "Items",
+        "frame": 823,
+        "src": "./public/item-icons/items/frame_000823.png"
+      },
+      "requirements": {
+        "type": "level",
+        "amount": 70,
+        "classMask": 1,
+        "genderMask": 3
+      },
+      "stackable": false,
+      "maxStack": 1,
+      "stats": {
+        "ac": [
+          2,
+          3
+        ],
+        "amc": [
+          0,
+          0
+        ],
+        "dc": [
+          12,
+          26
+        ],
+        "mc": [
+          0,
+          0
+        ],
+        "sc": [
+          0,
+          0
+        ],
+        "hp": 0,
+        "mp": 0,
+        "accuracy": 0,
+        "agility": 0,
+        "luck": 0,
+        "attackSpeed": 0
+      },
+      "shop": {
+        "buy": 0,
+        "sell": 1
+      },
+      "crystalType": "Necklace",
+      "set": 12
+    },
+    {
+      "id": "mir-necklace-2",
+      "name": "Mir Necklace",
+      "type": "necklace",
+      "slot": "necklace",
+      "class": "wizard",
+      "source": {
+        "crystalIndex": 65,
+        "name": "MirNecklace2"
+      },
+      "icon": {
+        "library": "Items",
+        "frame": 823,
+        "src": "./public/item-icons/items/frame_000823.png"
+      },
+      "requirements": {
+        "type": "level",
+        "amount": 70,
+        "classMask": 2,
+        "genderMask": 3
+      },
+      "stackable": false,
+      "maxStack": 1,
+      "stats": {
+        "ac": [
+          0,
+          0
+        ],
+        "amc": [
+          0,
+          0
+        ],
+        "dc": [
+          0,
+          0
+        ],
+        "mc": [
+          10,
+          26
+        ],
+        "sc": [
+          0,
+          0
+        ],
+        "hp": 0,
+        "mp": 0,
+        "accuracy": 0,
+        "agility": 0,
+        "luck": 0,
+        "attackSpeed": 0
+      },
+      "shop": {
+        "buy": 0,
+        "sell": 1
+      },
+      "crystalType": "Necklace",
+      "set": 12
+    },
+    {
+      "id": "mir-necklace-3",
+      "name": "Mir Necklace",
+      "type": "necklace",
+      "slot": "necklace",
+      "class": "taoist",
+      "source": {
+        "crystalIndex": 66,
+        "name": "MirNecklace3"
+      },
+      "icon": {
+        "library": "Items",
+        "frame": 823,
+        "src": "./public/item-icons/items/frame_000823.png"
+      },
+      "requirements": {
+        "type": "level",
+        "amount": 70,
+        "classMask": 4,
+        "genderMask": 3
+      },
+      "stackable": false,
+      "maxStack": 1,
+      "stats": {
+        "ac": [
+          0,
+          0
+        ],
+        "amc": [
+          0,
+          0
+        ],
+        "dc": [
+          0,
+          0
+        ],
+        "mc": [
+          0,
+          0
+        ],
+        "sc": [
+          10,
+          26
+        ],
+        "hp": 0,
+        "mp": 0,
+        "accuracy": 0,
+        "agility": 0,
+        "luck": 0,
+        "attackSpeed": 0
+      },
+      "shop": {
+        "buy": 0,
+        "sell": 1
+      },
+      "crystalType": "Necklace",
+      "set": 12
+    },
+    {
+      "id": "mir-bracelet-1",
+      "name": "Mir Bracelet",
+      "type": "bracelet",
+      "slot": "bracelet",
+      "class": "warrior",
+      "source": {
+        "crystalIndex": 70,
+        "name": "MirWheel1"
+      },
+      "icon": {
+        "library": "Items",
+        "frame": 826,
+        "src": "./public/item-icons/items/frame_000826.png"
+      },
+      "requirements": {
+        "type": "level",
+        "amount": 70,
+        "classMask": 1,
+        "genderMask": 3
+      },
+      "stackable": false,
+      "maxStack": 1,
+      "stats": {
+        "ac": [
+          7,
+          11
+        ],
+        "amc": [
+          2,
+          5
+        ],
+        "dc": [
+          14,
+          27
+        ],
+        "mc": [
+          0,
+          0
+        ],
+        "sc": [
+          0,
+          0
+        ],
+        "hp": 0,
+        "mp": 80,
+        "accuracy": 0,
+        "agility": 2,
+        "luck": 0,
+        "attackSpeed": 0
+      },
+      "shop": {
+        "buy": 0,
+        "sell": 1
+      },
+      "crystalType": "Bracelet",
+      "set": 12
+    },
+    {
+      "id": "mir-bracelet-2",
+      "name": "Mir Bracelet",
+      "type": "bracelet",
+      "slot": "bracelet",
+      "class": "wizard",
+      "source": {
+        "crystalIndex": 71,
+        "name": "MirWheel2"
+      },
+      "icon": {
+        "library": "Items",
+        "frame": 826,
+        "src": "./public/item-icons/items/frame_000826.png"
+      },
+      "requirements": {
+        "type": "level",
+        "amount": 70,
+        "classMask": 2,
+        "genderMask": 3
+      },
+      "stackable": false,
+      "maxStack": 1,
+      "stats": {
+        "ac": [
+          6,
+          10
+        ],
+        "amc": [
+          2,
+          8
+        ],
+        "dc": [
+          0,
+          0
+        ],
+        "mc": [
+          12,
+          25
+        ],
+        "sc": [
+          0,
+          0
+        ],
+        "hp": 0,
+        "mp": 80,
+        "accuracy": 0,
+        "agility": 2,
+        "luck": 0,
+        "attackSpeed": 0
+      },
+      "shop": {
+        "buy": 0,
+        "sell": 1
+      },
+      "crystalType": "Bracelet",
+      "set": 12
+    },
+    {
+      "id": "mir-bracelet-3",
+      "name": "Mir Bracelet",
+      "type": "bracelet",
+      "slot": "bracelet",
+      "class": "taoist",
+      "source": {
+        "crystalIndex": 72,
+        "name": "MirWheel3"
+      },
+      "icon": {
+        "library": "Items",
+        "frame": 826,
+        "src": "./public/item-icons/items/frame_000826.png"
+      },
+      "requirements": {
+        "type": "level",
+        "amount": 70,
+        "classMask": 4,
+        "genderMask": 3
+      },
+      "stackable": false,
+      "maxStack": 1,
+      "stats": {
+        "ac": [
+          6,
+          10
+        ],
+        "amc": [
+          2,
+          6
+        ],
+        "dc": [
+          0,
+          0
+        ],
+        "mc": [
+          0,
+          0
+        ],
+        "sc": [
+          12,
+          25
+        ],
+        "hp": 0,
+        "mp": 80,
+        "accuracy": 0,
+        "agility": 2,
+        "luck": 0,
+        "attackSpeed": 0
+      },
+      "shop": {
+        "buy": 0,
+        "sell": 1
+      },
+      "crystalType": "Bracelet",
+      "set": 12
+    },
+    {
+      "id": "mir-ring-1",
+      "name": "Mir Ring",
+      "type": "ring",
+      "slot": "ring",
+      "class": "warrior",
+      "source": {
+        "crystalIndex": 76,
+        "name": "MirRing1"
+      },
+      "icon": {
+        "library": "Items",
+        "frame": 824,
+        "src": "./public/item-icons/items/frame_000824.png"
+      },
+      "requirements": {
+        "type": "level",
+        "amount": 70,
+        "classMask": 1,
+        "genderMask": 3
+      },
+      "stackable": false,
+      "maxStack": 1,
+      "stats": {
+        "ac": [
+          3,
+          4
+        ],
+        "amc": [
+          0,
+          0
+        ],
+        "dc": [
+          8,
+          30
+        ],
+        "mc": [
+          0,
+          0
+        ],
+        "sc": [
+          0,
+          0
+        ],
+        "hp": 60,
+        "mp": 0,
+        "accuracy": 0,
+        "agility": 0,
+        "luck": 0,
+        "attackSpeed": 0
+      },
+      "shop": {
+        "buy": 0,
+        "sell": 1
+      },
+      "crystalType": "Ring",
+      "set": 12
+    },
+    {
+      "id": "mir-ring-2",
+      "name": "Mir Ring",
+      "type": "ring",
+      "slot": "ring",
+      "class": "wizard",
+      "source": {
+        "crystalIndex": 77,
+        "name": "MirRing2"
+      },
+      "icon": {
+        "library": "Items",
+        "frame": 824,
+        "src": "./public/item-icons/items/frame_000824.png"
+      },
+      "requirements": {
+        "type": "level",
+        "amount": 70,
+        "classMask": 2,
+        "genderMask": 3
+      },
+      "stackable": false,
+      "maxStack": 1,
+      "stats": {
+        "ac": [
+          0,
+          0
+        ],
+        "amc": [
+          0,
+          0
+        ],
+        "dc": [
+          0,
+          0
+        ],
+        "mc": [
+          7,
+          30
+        ],
+        "sc": [
+          0,
+          0
+        ],
+        "hp": 60,
+        "mp": 0,
+        "accuracy": 0,
+        "agility": 0,
+        "luck": 0,
+        "attackSpeed": 0
+      },
+      "shop": {
+        "buy": 0,
+        "sell": 1
+      },
+      "crystalType": "Ring",
+      "set": 12
+    },
+    {
+      "id": "mir-ring-3",
+      "name": "Mir Ring",
+      "type": "ring",
+      "slot": "ring",
+      "class": "taoist",
+      "source": {
+        "crystalIndex": 78,
+        "name": "MirRing3"
+      },
+      "icon": {
+        "library": "Items",
+        "frame": 824,
+        "src": "./public/item-icons/items/frame_000824.png"
+      },
+      "requirements": {
+        "type": "level",
+        "amount": 70,
+        "classMask": 4,
+        "genderMask": 3
+      },
+      "stackable": false,
+      "maxStack": 1,
+      "stats": {
+        "ac": [
+          0,
+          0
+        ],
+        "amc": [
+          0,
+          0
+        ],
+        "dc": [
+          0,
+          0
+        ],
+        "mc": [
+          0,
+          0
+        ],
+        "sc": [
+          7,
+          26
+        ],
+        "hp": 60,
+        "mp": 0,
+        "accuracy": 0,
+        "agility": 0,
+        "luck": 0,
+        "attackSpeed": 0
+      },
+      "shop": {
+        "buy": 0,
+        "sell": 1
+      },
+      "crystalType": "Ring",
+      "set": 12
+    },
+    {
+      "id": "mir-belt",
+      "name": "Mir Belt",
+      "type": "belt",
+      "slot": "belt",
+      "class": "any",
+      "source": {
+        "crystalIndex": 81,
+        "name": "MirBelt"
+      },
+      "icon": {
+        "library": "Items",
+        "frame": 825,
+        "src": "./public/item-icons/items/frame_000825.png"
+      },
+      "requirements": {
+        "type": "level",
+        "amount": 70,
+        "classMask": 31,
+        "genderMask": 3
+      },
+      "stackable": false,
+      "maxStack": 1,
+      "stats": {
+        "ac": [
+          6,
+          12
+        ],
+        "amc": [
+          5,
+          10
+        ],
+        "dc": [
+          0,
+          0
+        ],
+        "mc": [
+          0,
+          0
+        ],
+        "sc": [
+          0,
+          0
+        ],
+        "hp": 80,
+        "mp": 0,
+        "accuracy": 0,
+        "agility": 0,
+        "luck": 0,
+        "attackSpeed": 0
+      },
+      "shop": {
+        "buy": 0,
+        "sell": 1
+      },
+      "crystalType": "Belt",
+      "set": 12
+    },
+    {
+      "id": "mir-boots",
+      "name": "Mir Boots",
+      "type": "boots",
+      "slot": "boots",
+      "class": "any",
+      "source": {
+        "crystalIndex": 82,
+        "name": "MirBoots"
+      },
+      "icon": {
+        "library": "Items",
+        "frame": 821,
+        "src": "./public/item-icons/items/frame_000821.png"
+      },
+      "requirements": {
+        "type": "level",
+        "amount": 70,
+        "classMask": 31,
+        "genderMask": 3
+      },
+      "stackable": false,
+      "maxStack": 1,
+      "stats": {
+        "ac": [
+          5,
+          10
+        ],
+        "amc": [
+          4,
+          8
+        ],
+        "dc": [
+          0,
+          0
+        ],
+        "mc": [
+          0,
+          0
+        ],
+        "sc": [
+          0,
+          0
+        ],
+        "hp": 0,
+        "mp": 0,
+        "accuracy": 4,
+        "agility": 4,
+        "luck": 0,
+        "attackSpeed": 0
+      },
+      "shop": {
+        "buy": 0,
+        "sell": 1
+      },
+      "crystalType": "Boots",
+      "set": 12
     }
   ]
 }

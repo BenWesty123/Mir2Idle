@@ -413,6 +413,21 @@
       "description": "Oma King boss — Crystal 66.map stand (209, 71)."
     },
     {
+      "id": "zone-past-bicheon-gd-6",
+      "label": "Past Bicheon — Lightning Cave",
+      "description": "Lightning Cave group dungeon floor 6 — Crystal D2081.map stand (27, 55). A wall of Oma Marksman bolts behind Flail Oma and Oma Guard; heavier backline pressure than Blood Pass."
+    },
+    {
+      "id": "zone-past-bicheon-gd-7",
+      "label": "Past Bicheon — Molten Rock Cave",
+      "description": "Molten Rock Cave group dungeon floor 7 — Crystal D2082.map stand (108, 39). No flyers, no respite: a heavy Oma Marksman backline behind Flail Oma and Oma Guard."
+    },
+    {
+      "id": "zone-past-bicheon-gd-8",
+      "label": "Past Bicheon — Evil Mir Palace",
+      "description": "Evil Mir Palace group dungeon floor 8 — Crystal D2083.map stand (57, 74). The Oma host that followed the party into the palace, almost all archers. Last room before the dragon."
+    },
+    {
       "id": "zone-mystery-cave",
       "label": "Mystery Cave",
       "description": "Crystal M001 MysteryCave — timed boss gauntlet, one wave every 10 seconds"
@@ -421,6 +436,11 @@
       "id": "zone-mystery-cave-random",
       "label": "Random Mystery Cave",
       "description": "Ticket entry only. Infinite escalating remix of Mystery Cave"
+    },
+    {
+      "id": "zone-lab-evil-mir",
+      "label": "Past Bicheon — Evil Mir",
+      "description": "Evil Mir boss — Crystal D2083 Evil Mir Palace (82, 44). Final floor of the Past Bicheon group dungeon."
     },
     {
       "id": "zone-lab-stone-colossus",
