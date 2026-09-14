@@ -283,14 +283,20 @@ export function sanitizeStorageState(savedStorage = {}, config) {
     });
   }
 
-  // Storage pages are derived from two independent unlock flags: the gold page
-  // (page2Purchased) and the 250-token page. Any item sitting on a page the
+  // Storage pages are derived from independent unlock flags: the gold page
+  // (page2Purchased) and each token page. Any item sitting on a page the
   // account does not own is knocked loose so it cannot be accessed for free.
   const page2Purchased = Boolean(savedStorage.page2Purchased);
   const tokenPageUnlocked = Boolean(savedStorage.tokenPageUnlocked);
+  const tokenPage4Unlocked = Boolean(savedStorage.tokenPage4Unlocked);
+  const tokenPage5Unlocked = Boolean(savedStorage.tokenPage5Unlocked);
   const pagesUnlocked = Math.min(
     maxPages,
-    1 + (page2Purchased ? 1 : 0) + (tokenPageUnlocked ? 1 : 0),
+    1
+      + (page2Purchased ? 1 : 0)
+      + (tokenPageUnlocked ? 1 : 0)
+      + (tokenPage4Unlocked ? 1 : 0)
+      + (tokenPage5Unlocked ? 1 : 0),
   );
   const usableSlots = pagesUnlocked * pageSize;
   for (const entry of items) {
@@ -303,6 +309,8 @@ export function sanitizeStorageState(savedStorage = {}, config) {
     pagesUnlocked,
     page2Purchased,
     tokenPageUnlocked,
+    tokenPage4Unlocked,
+    tokenPage5Unlocked,
     maxSlots: baseSlots,
     nextInstanceId: Math.max(maxGeneratedId + 1, Math.trunc(Number(savedStorage.nextInstanceId) || 1), 1),
     items,

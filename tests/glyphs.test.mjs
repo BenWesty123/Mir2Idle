@@ -591,6 +591,7 @@ test("Critical Strikes glyph doubles base crit damage and nullifies luck", () =>
 
 test("Infinite Mana glyph accrues 5 MP/s across uneven offline steps", () => {
   const glyph = glyphDefById("wizardManaRegen");
+  assert.equal(glyph?.classId, "any");
   assert.equal(glyphManaRegenPerSecond(glyph), 5);
   assert.equal(glyphManaRegenPerSecond(null), 0);
 

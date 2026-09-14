@@ -3,7 +3,7 @@
 > **Private dev sheet** — not shipped to players. Regenerate after glyph changes:
 > `npm run glyph:ref`
 
-Last generated: 2026-08-23
+Last generated: 2026-08-30
 
 ## Icon frames for new glyphs
 
@@ -161,14 +161,6 @@ frame from **[`GLYPH_ICON_POOL.md`](./GLYPH_ICON_POOL.md)** (derived variants st
 - Spells: FlameDisruptor
 - When Flame Disruptor critically strikes, its casting speed doubles and then fades back to normal over 5 seconds.
 
-#### Glyph of Infinite Mana
-
-- Item id: `glyph-infinite-mana`
-- Class: Wizard
-- Level: 35
-- Spells: —
-- You regenerate 5 mana every second.
-
 #### Glyph of Mana Aegis
 
 - Item id: `glyph-mana-aegis`
@@ -308,6 +300,14 @@ frame from **[`GLYPH_ICON_POOL.md`](./GLYPH_ICON_POOL.md)** (derived variants st
 - Level: 35
 - Spells: —
 - Gold drops from monsters and bosses are increased by 100%.
+
+#### Glyph of Infinite Mana
+
+- Item id: `glyph-infinite-mana`
+- Class: All classes
+- Level: 35
+- Spells: —
+- You regenerate 5 mana every second.
 
 #### Glyph of Provision
 

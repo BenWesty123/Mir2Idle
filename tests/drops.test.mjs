@@ -17,8 +17,12 @@ import {
   rollChanceTable,
   rollRedThunderZumaDropIds,
   scaleBossDropTableChances,
+  scaleDropCandidates,
   shouldForceDropPity,
   weightedDropCandidate,
+  itemHasZoneDrop,
+  collectBossTableItemIds,
+  itemCanDrop,
 } from "../src/core/drops.js";
 
 test("rollBossTableDropSelection: empty table", () => {
@@ -182,6 +186,40 @@ test("weightedDropCandidate: respects weights with deterministic rng", () => {
   const candidates = [{ id: "a", chance: 0.1 }, { id: "b", chance: 0.9 }];
   assert.equal(weightedDropCandidate(candidates, () => 0).id, "a");
   assert.equal(weightedDropCandidate(candidates, () => 0.5).id, "b");
+});
+
+test("scaleDropCandidates: Hard turns 1% into 1.25%", () => {
+  const candidates = [{ item: { id: "x" }, chance: 0.01 }];
+  assert.equal(scaleDropCandidates(candidates, 1.25)[0].chance, 0.0125);
+  assert.equal(scaleDropCandidates(candidates, 1), candidates);
+  assert.equal(scaleDropCandidates(candidates, 2)[0].chance, 0.02);
+});
+
+test("scaleBossDropTableChances: Impossible doubles listed chances and caps at 100%", () => {
+  const table = { items: [{ id: "a", chance: 0.01 }, { id: "b", chance: 0.8 }] };
+  const scaled = scaleBossDropTableChances(table, 2);
+  assert.equal(scaled.items[0].chance, 0.02);
+  assert.equal(scaled.items[1].chance, 1);
+  assert.equal(scaleBossDropTableChances(table, 1), table);
+});
+
+test("itemHasZoneDrop: zone list, per-zone chances, or per-enemy chances", () => {
+  assert.equal(itemHasZoneDrop({ drop: { chance: 0.01, zones: ["zone-a"] } }), true);
+  assert.equal(itemHasZoneDrop({ drop: { chances: { "zone-a": 0.02 } } }), true);
+  assert.equal(itemHasZoneDrop({ drop: { enemyChances: { "12": { "zone-a": 0.5 } } } }), true);
+  assert.equal(itemHasZoneDrop({ drop: { chance: 0, zones: ["zone-a"] } }), false);
+  assert.equal(itemHasZoneDrop({}), false);
+});
+
+test("collectBossTableItemIds / itemCanDrop: boss tables count as a drop source", () => {
+  const ids = collectBossTableItemIds({
+    Boss: { items: [{ id: "axe", chance: 0.1 }], awakenedItems: [{ id: "star-axe", chance: 0.05 }] },
+  });
+  assert.equal(ids.has("axe"), true);
+  assert.equal(ids.has("star-axe"), true);
+  assert.equal(itemCanDrop({ id: "shop-only" }, ids), false);
+  assert.equal(itemCanDrop({ id: "axe" }, ids), true);
+  assert.equal(itemCanDrop({ id: "shop-only", drop: { chance: 0.01, zones: ["z"] } }, ids), true);
 });
 
 test("rollRedThunderZumaDropIds: deterministic with seeded rng", () => {

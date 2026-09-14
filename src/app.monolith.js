@@ -269,6 +269,7 @@ import {
   advanceDropPity,
   applyDropChanceBonus,
   applyDropChanceBonusToBossTable,
+  scaleDropCandidates,
   adjustedDropChance,
   awakeningSoulBossDropRollCount,
   bossDropTableHasItem,
@@ -284,6 +285,8 @@ import {
   scaleBossDropTableChances,
   shouldForceDropPity,
   weightedDropCandidate,
+  collectBossTableItemIds,
+  itemCanDrop,
 } from "./core/drops.js";
 import {
   ASCEND_TIER_WEIGHTS,
@@ -428,6 +431,27 @@ import {
   clampTaoistSpellLevel,
 } from "./core/taoistPets.js";
 import { splitPartyRewardAmount } from "./core/party.js";
+import {
+  ascensionTierOf,
+  sanitizeAscensionTiers,
+  ascensionPointsSpentFor,
+  canBuyAscensionTier,
+  buyAscensionTier,
+  refundAscensionTier,
+  ascensionNextTierCost,
+  ascensionSalvageExtraChancePercent,
+  applyAscensionSalvageBonus,
+  previewAscensionSalvageBonus,
+  sanitizeAscensionClearTimes,
+  recordAscensionClearTime,
+  mergeAscensionBestClearTimes,
+  WORLD_DIFFICULTY_DEFS,
+  WORLD_DIFFICULTY_DEFAULT,
+  worldDifficultyDef,
+  worldDifficultyMultiplier,
+  sanitizeWorldDifficulty,
+  backfillStandardJourneyPayout,
+} from "./core/ascension.js";
 import { socialEquipmentEntry } from "./core/socialEquipment.js";
 import {
   absorbDamageWithManaAegis,
@@ -642,7 +666,7 @@ const INVENTORY_MAX_SLOTS = INVENTORY_PAGE_SIZE * 3;
 const INVENTORY_PAGE_2_UNLOCK_COST = 100000;
 const STORAGE_PAGE_SIZE = 80;
 const STORAGE_BASE_SLOTS = STORAGE_PAGE_SIZE;
-const STORAGE_MAX_SLOTS = STORAGE_PAGE_SIZE * 3;
+const STORAGE_MAX_SLOTS = STORAGE_PAGE_SIZE * 5;
 const STORAGE_PAGE_2_UNLOCK_COST = 1000000;
 const STORAGE_SLOT_COUNT = STORAGE_MAX_SLOTS;
 const STORAGE_COLUMNS = 10;
@@ -650,10 +674,21 @@ const STORAGE_COLUMNS = 10;
 // recorded server-side (see /shop/unlock-page). Keys match PAGE_UNLOCK_KEYS in
 // tools/stats-worker/worker.js. Inventory is per-character; storage is account-wide.
 const PAGE_UNLOCK_TOKEN_COST = 250;
+const STORAGE_EXTRA_TOKEN_PAGE_COST = 100;
 function inventoryPageUnlockKey(classId = state.activeCharacterId) {
   return `inv-page-3:${String(normalizeCharacterId(classId)).toLowerCase()}`;
 }
 const STORAGE_PAGE_UNLOCK_KEY = "storage-page-3";
+const STORAGE_PAGE_4_UNLOCK_KEY = "storage-page-4";
+const STORAGE_PAGE_5_UNLOCK_KEY = "storage-page-5";
+const STORAGE_TOKEN_PAGE_UNLOCKS = [
+  { type: "token", key: STORAGE_PAGE_UNLOCK_KEY, cost: PAGE_UNLOCK_TOKEN_COST, flag: "tokenPageUnlocked" },
+  { type: "token4", key: STORAGE_PAGE_4_UNLOCK_KEY, cost: STORAGE_EXTRA_TOKEN_PAGE_COST, flag: "tokenPage4Unlocked" },
+  { type: "token5", key: STORAGE_PAGE_5_UNLOCK_KEY, cost: STORAGE_EXTRA_TOKEN_PAGE_COST, flag: "tokenPage5Unlocked" },
+];
+function storageTokenUnlockByType(type) {
+  return STORAGE_TOKEN_PAGE_UNLOCKS.find((entry) => entry.type === type) ?? null;
+}
 // Account-wide Cash Shop unlock: a top-right ring button that opens a boss-room
 // teleport menu. Key + cost mirror UNLOCK_TOKEN_COSTS in tools/stats-worker/worker.js.
 const TELEPORT_RING_UNLOCK_KEY = "teleport-ring";
@@ -1988,6 +2023,10 @@ const CRYSTAL_SPIDER_ENEMY_ID = 465;
 const FROST_TIGER_ENEMY_ID = 471;
 const OMA_KING_ENEMY_ID = 472;
 const EVIL_MIR_ENEMY_ID = 473;
+// Every zone that can award an Evil Mir kill. A list, not a string, because his
+// zone id is still the old lab one (renaming it would strand saved characters)
+// and a second Evil Mir room would otherwise silently miss the ascension gate.
+const EVIL_MIR_BOSS_ZONE_IDS = ["zone-lab-evil-mir"];
 const OMA_KING_BURST_FX_SCALE = 1.25;
 const RED_THUNDER_ZUMA_ENEMY_ID = 271;
 const ZUMA_TAURUS_ENEMY_ID = 272;
@@ -2715,6 +2754,7 @@ function offlineGroupResourceRatio(member, kind) {
 
 function offlineGroupSimulateKill(zone, template, startedAt, remainingMs, report) {
   const enemy = { ...template, hp: template.maxHp, mp: template.maxMp, poisons: [], debuffs: { slowUntil: 0, frozenUntil: 0 } };
+  applyWorldDifficultyCombatModifiers(enemy);
   return simulateOfflineGroupKillLoop({
     remainingMs,
     startedAt,
@@ -3145,6 +3185,25 @@ const TOWN_NPCS = [
     height: 136,
     drawShadow: false,
     panel: "Read the latest patch notes.",
+  },
+  // Front row, in the gap between Blacksmith Vincent and the Mysterious Stone.
+  // The gap is narrower than his sprite, so his click box unavoidably overlaps
+  // both of theirs; he is listed LAST because townNpcAt returns the first match,
+  // which keeps Vincent and the stone clickable where they overlap him.
+  // Hidden until the first Evil Mir kill of the run - see visibleTownNpcs().
+  {
+    id: "ascension",
+    label: "Traveller",
+    role: "Ascension",
+    sprite: "traveller",
+    x: 0.345,
+    y: 0.55,
+    width: 68,
+    height: 72,
+    // His cane is planted forward of his feet, so it occupies the bottom 17
+    // rows of the slot - see townNpcFootInset().
+    spriteFootInsetPx: 17,
+    panel: "Begin again, and keep what you have learned.",
   },
 ];
 
@@ -3587,6 +3646,8 @@ const state = {
       pagesUnlocked: 1,
       page2Purchased: false,
       tokenPageUnlocked: false,
+      tokenPage4Unlocked: false,
+      tokenPage5Unlocked: false,
       maxSlots: STORAGE_BASE_SLOTS,
       nextInstanceId: 1,
       items: [],
@@ -3603,6 +3664,7 @@ const state = {
     subscriptions: {},
     spiritBox: createDefaultSpiritBoxState(),
     autoJunkItemIds: [],
+    ascension: createDefaultAscensionState(),
   },
   settings: {
     musicEnabled: DEFAULT_MUSIC_ENABLED,
@@ -3631,6 +3693,7 @@ const state = {
       codex: null,
       upgrades: null,
       leaderboard: null,
+      timeLogging: null,
     },
   },
   demoLiveSiteBanner: {
@@ -3723,6 +3786,27 @@ const state = {
   pendingBossAssistSelection: [],
   teleportRegionId: DEFAULT_TELEPORT_REGION_ID,
   teleportBrowseRegionId: null,
+  // Which page of the Traveller's speech is showing. View-only, like
+  // teleportBrowseRegionId - deliberately not in the save, and reset every time
+  // his panel is opened.
+  ascensionDialoguePage: 0,
+  // Whether the Traveller's panel is showing his supplies instead of his
+  // speech. View-only and reset with the page above, so closing him always
+  // returns to the dialogue.
+  travellerSuppliesOpen: false,
+  // Tiers being picked during an ascension, or null when no ascension is under
+  // way. Deliberately NOT saved and never written straight to the account:
+  // spending edits this copy, and it only lands in account.ascension.tiers as
+  // part of the wipe. That way there is no state where a journey already under
+  // way is holding powers it bought mid-flight, and a reload part-way through
+  // choosing simply drops the draft.
+  ascensionDraft: null,
+  // Whether the final "this cannot be undone" step is showing. View-only, and
+  // not saved, so a reload backs out of the confirm rather than into it.
+  ascensionConfirmOpen: false,
+  // The Traveller's send-off after a wipe: null, or { lastJourneyMs }. Not
+  // saved - it is a one-off moment, so a reload drops it rather than replaying it.
+  ascensionWelcome: null,
   openScenes: initialOpenScenesFromUrl(),
   changelog: { entries: [] },
   characterTab: "character",
@@ -3962,7 +4046,7 @@ let sceneSignature = "";
 let sceneOverlayLiveSignature = "";
 let accountCodexRevision = 0;
 let sceneWindowStack = [];
-const DRAGGABLE_SCENE_WINDOWS = new Set(["character", "inventory", "codex", "upgrades", "leaderboard"]);
+const DRAGGABLE_SCENE_WINDOWS = new Set(["character", "inventory", "codex", "upgrades", "leaderboard", "timeLogging"]);
 let sceneWindowDragState = null;
 let hotbarDragState = null;
 let hotbarWindowPosition = null;
@@ -4038,8 +4122,13 @@ const root = document.querySelector("#app");
 const query = new URLSearchParams(window.location.search);
 const UI_MODE = query.get("ui") === "lab" ? "lab" : "game";
 const IS_GAME_UI = UI_MODE === "game";
-const TEST_HARNESS = query.get("testHarness") === "1"
-  || location.hostname === "localhost"
+// Local hosts only, deliberately NOT openable with a query param. The harness
+// mints items, boss kills, Ascension Points and local Cash Shop tokens - and
+// `chargeSpiritBoxTokens` will spend those fake tokens without the worker - so
+// a URL switch on www.lom2idle.com would hand out paid unlocks and pollute the
+// leaderboard. Every script in tools/ passes ?testHarness=1 against
+// localhost:4177 and still gets the harness from the hostname check below.
+const TEST_HARNESS = location.hostname === "localhost"
   || location.hostname === "127.0.0.1";
 
 document.body.dataset.ui = UI_MODE;
@@ -4196,6 +4285,8 @@ function gameShellHtml() {
         <button type="button" data-open-scene="achievements" data-achievements-nav hidden>Achievements</button>
         <button type="button" data-open-scene="upgrades">Upgrades</button>
         <button type="button" data-open-scene="characterSelect">Characters</button>
+        <button type="button" data-open-scene="journey" data-journey-nav hidden>Journey</button>
+        <button type="button" data-open-scene="difficulty" data-difficulty-nav hidden>Difficulty</button>
         <button type="button" data-open-scene="gettingStarted">Guide</button>
         <button type="button" data-open-scene="leaderboard">Social</button>
         <button type="button" data-open-scene="cashShop" data-cash-shop-nav hidden>Cash Shop</button>
@@ -4356,6 +4447,9 @@ function gameShellHtml() {
     <section id="prototypeStatsNotice" class="prototype-stats-notice-overlay" hidden></section>
     <section id="demoLiveSiteBanner" class="prototype-stats-notice-overlay demo-live-site-banner-overlay" hidden aria-live="polite"></section>
     <section id="demoImportWindow" class="prototype-stats-notice-overlay demo-import-overlay" hidden></section>
+    <!-- Own host rather than sharing #prototypeStatsNotice: that one runs a
+         priority chain of boot notices, and this fires mid-session. -->
+    <section id="ascensionWelcomeNotice" class="prototype-stats-notice-overlay ascension-welcome-overlay" hidden></section>
     <aside id="itemTooltip" class="item-tooltip floating" hidden></aside>
     <button
       type="button"
@@ -4441,6 +4535,7 @@ const els = {
   updateAvailableBar: document.querySelector("#updateAvailableBar"),
   saveHealthBar: document.querySelector("#saveHealthBar"),
   demoImportWindow: document.querySelector("#demoImportWindow"),
+  ascensionWelcomeNotice: document.querySelector("#ascensionWelcomeNotice"),
   fullscreenToggle: document.querySelector("#fullscreenToggle"),
   itemTooltip: document.querySelector("#itemTooltip"),
   scale: document.querySelector("#scale"),
@@ -4537,6 +4632,9 @@ async function init() {
   if (!loadedSave) {
     state.characters = createDefaultCharacterStates();
     applyCharacterState("Warrior", state.characters.Warrior);
+    // A brand new account is the only fresh journey whose start we can honestly
+    // know. Saves made before this tracking existed keep 0 and report no time.
+    ensureAccountAscensionState().journeyStartedAt = Date.now();
   }
   resetBattleForCurrentMode(loadedSave);
   applyPendingOfflineProgress();
@@ -4710,6 +4808,212 @@ function installTestHarness() {
     addAutoJunkFilter(itemId) {
       addAutoJunkItemId(itemId);
       return { autoJunkItemIds: [...ensureAutoJunkItemIds()] };
+    },
+    // Credits an Evil Mir kill through the real accounting path so the ascension
+    // unlock can be exercised without a two-hour boss respawn wait. `tier` fakes
+    // the empower flags the payout reads (0 plain to 3 awakened).
+    grantEvilMirKill(count = 1, tier = 0) {
+      const zoneId = EVIL_MIR_BOSS_ZONE_IDS[0];
+      const prev = {
+        empowered: state.battle.bossEmpowered,
+        ascended: state.battle.bossAscended,
+        awakened: state.battle.bossAwakened,
+      };
+      const wanted = Math.max(0, Math.min(3, Math.trunc(Number(tier) || 0)));
+      state.battle.bossEmpowered = wanted >= 1;
+      state.battle.bossAscended = wanted >= 2;
+      state.battle.bossAwakened = wanted >= 3;
+      try {
+        for (let i = 0; i < Math.max(1, Math.trunc(Number(count) || 1)); i += 1) {
+          incrementAccountBossKill(zoneId);
+        }
+      } finally {
+        state.battle.bossEmpowered = prev.empowered;
+        state.battle.bossAscended = prev.ascended;
+        state.battle.bossAwakened = prev.awakened;
+      }
+      saveGameState(true);
+      return {
+        zoneId,
+        zoneTracksBossRespawn: zoneTracksBossRespawn(zoneId),
+        baseRespawnMinutes: baseBossRespawnMinutesForZone(zoneId),
+        evilMirRunKills: evilMirRunKills(),
+        ascensionUnlocked: ascensionUnlocked(),
+        ascensionPointsEarned: ascensionPointsEarned(),
+        ascensionPoints: accountAscensionPoints(),
+      };
+    },
+    grantAscensionPoints(amount = 7) {
+      const add = Math.max(0, Math.trunc(Number(amount) || 0));
+      const ascension = ensureAccountAscensionState();
+      ascension.pointsEarned = ascensionPointsEarned() + add;
+      saveGameState(true);
+      refreshAscensionPanel();
+      return this.ascensionState();
+    },
+    clearEvilMirKills() {
+      const kills = { ...accountBossKills() };
+      for (const zoneId of EVIL_MIR_BOSS_ZONE_IDS) delete kills[zoneId];
+      ensureAccountStats();
+      state.account.stats.bossKills = kills;
+      syncAccountBossKillsToCharacters();
+      state.account.ascension = createDefaultAscensionState();
+      saveGameState(true);
+      return { evilMirRunKills: evilMirRunKills(), ascensionUnlocked: ascensionUnlocked() };
+    },
+    ascensionState() {
+      return {
+        pointsEarned: ascensionPointsEarned(),
+        runPointsAwarded: ascensionRunPointsAwarded(),
+        runBestTier: ascensionRunBestTier(),
+        pointsSpent: ascensionPointsSpent(),
+        pointsAvailable: accountAscensionPoints(),
+        respecOpen: ascensionRespecOpen(),
+        bankedTiers: { ...ensureAccountAscensionState().tiers },
+        draftTiers: state.ascensionDraft ? { ...state.ascensionDraft } : null,
+        canAscend: canPerformAscension(),
+        journeyStartedAt: ensureAccountAscensionState().journeyStartedAt,
+        journeyClearedAt: ensureAccountAscensionState().journeyClearedAt,
+        journeyElapsedMs: ascensionJourneyElapsedMs(),
+        lastJourneyMs: ensureAccountAscensionState().lastJourneyMs,
+        bestJourneyMs: ensureAccountAscensionState().bestJourneyMs,
+        runClears: ascensionClearTimes("runClears"),
+        lastClears: ascensionClearTimes("lastClears"),
+        bestClears: ascensionClearTimes("bestClears"),
+        dialogue: ascensionDialoguePages(),
+        ascensionCount: state.account?.stats?.ascensionCount ?? 0,
+      };
+    },
+    // What the banked powers actually do, read from the same functions gameplay
+    // reads, so a wiring regression shows up here rather than in a play session.
+    ascensionEffects() {
+      return {
+        xpRequirementScale: ascensionXpRequirementScale(),
+        xpNeededAtLevel10: xpForNextLevel(10),
+        soulBonusPercent: totalBonusAwakeningSoulChancePercent(),
+        bossEmpowermentUnlocked: bossEmpowermentUnlocked(),
+        rebirthPointMultiplier: rebirthPointMultiplier(),
+        rebirthPointsFor100Souls: Math.trunc(100 * rebirthPointMultiplier()),
+        travellerSuppliesLevelCap: travellerSuppliesLevelCap(),
+        travellerSuppliesStockCount: travellerSuppliesStock().length,
+        salvageSurplusChance: ascensionSalvageChancePercent(),
+        worldDifficulty: selectedWorldDifficultyId(),
+        worldDifficultyRate: worldDifficultyRate(),
+        steeperPathOwned: steeperPathOwned(),
+      };
+    },
+    // The Traveller's stock at whatever tier is banked, so the level cap and the
+    // exclusion of stat-gated items can be checked without walking to him.
+    travellerSupplies() {
+      const stock = travellerSuppliesStock();
+      return {
+        levelCap: travellerSuppliesLevelCap(),
+        open: travellerSuppliesOpen(),
+        count: stock.length,
+        books: stock.filter((item) => item.type === "book").length,
+        highestLevel: stock.reduce((max, item) => Math.max(max, Number(item.requirements?.amount) || 0), 0),
+        statGated: stock.filter((item) => ["maxDC", "maxMC", "maxSC"].includes(item.requirements?.type)).length,
+        unpriced: stock.filter((item) => itemBuyValue(item) <= 0).length,
+        wrongClass: stock.filter((item) => !classRequirementMet(item.requirements?.classMask)).length,
+        first: stock.slice(0, 3).map((item) => `${item.name} L${item.requirements.amount} ${itemBuyValue(item)}g`),
+      };
+    },
+    // Drives the choosing window before the wipe exists. openAscensionRespec()
+    // starts a draft from the banked build, commit banks it, cancel throws it
+    // away - which is exactly what performAscension will call in that order.
+    openAscensionRespec() {
+      beginAscensionRespec();
+      return this.ascensionState();
+    },
+    // Opens a town NPC's panel without hunting for his hit box on the canvas.
+    openTownNpc(npcId) {
+      openTownNpc(npcId);
+      return { selectedTownNpcId: state.game.selectedTownNpcId, activeScene: state.activeScene };
+    },
+    // Skips walking to the Traveller and paging his dialogue.
+    chooseWorldDifficulty(difficultyId) {
+      const previousMode = state.game.mode;
+      state.game.mode = "town";
+      const ok = setWorldDifficulty(difficultyId);
+      state.game.mode = previousMode;
+      return { ok, difficulty: selectedWorldDifficultyId(), rate: worldDifficultyRate() };
+    },
+    inspectWorldDifficulty() {
+      const zone = activeZone();
+      const enemy = state.battle.enemy;
+      const templateId = enemy?.id ?? enemy?.templateId;
+      const template = ENEMY_TEMPLATES.find((entry) => entry.id === templateId) ?? null;
+      const rawCandidates = zone
+        ? buildZoneDropCandidates(state.itemData.items, zone.id, enemy?.id)
+        : [];
+      const scaledCandidates = zone ? zoneDropCandidates(zone, enemy) : [];
+      const sample = rawCandidates[0] ?? null;
+      const scaledSample = sample
+        ? scaledCandidates.find((entry) => entry.item?.id === sample.item?.id)
+        : null;
+      return {
+        owned: steeperPathOwned(),
+        difficulty: selectedWorldDifficultyId(),
+        rate: worldDifficultyRate(),
+        mode: state.game.mode,
+        zoneId: zone?.id ?? null,
+        zoneLabel: zoneLabelWithDifficulty(zone),
+        enemyName: enemy?.name ?? null,
+        templateMaxHp: template?.maxHp ?? null,
+        enemyMaxHp: enemy?.maxHp ?? null,
+        templateDc: template?.dc ?? null,
+        enemyDc: enemy?.dc ?? null,
+        goldFor100: awardedCombatGold(100),
+        sampleDropId: sample?.item?.id ?? null,
+        sampleDropRaw: sample?.chance ?? null,
+        sampleDropScaled: scaledSample?.chance ?? null,
+      };
+    },
+    async enterZone(zoneId) {
+      await enterZone(zoneId);
+      return this.inspectWorldDifficulty();
+    },
+    returnToTown() {
+      returnToTown();
+      return { mode: state.game.mode };
+    },
+    openAscensionPanel() {
+      openAscensionUpgradesScene();
+      return this.ascensionState();
+    },
+    // Destructive - this is the real wipe, not a simulation.
+    performAscension() {
+      const ascended = performAscension();
+      return {
+        ascended,
+        bossJunkFilterEnabled: bossJunkFilterEnabled(),
+        bossJunkFilterSetting: state.settings.bossJunkFilterEnabled === true,
+        ...this.ascensionState(),
+      };
+    },
+    setJourneyStartedAt(epochMs) {
+      ensureAccountAscensionState().journeyStartedAt = Math.max(0, Math.trunc(Number(epochMs) || 0));
+      return this.ascensionState();
+    },
+    buyAscensionUpgrade(upgradeId) {
+      const bought = buyAscensionUpgrade(upgradeId);
+      return { bought, ...this.ascensionState() };
+    },
+    refundAscensionUpgrade(upgradeId) {
+      const refunded = refundAscensionUpgrade(upgradeId);
+      return { refunded, ...this.ascensionState() };
+    },
+    clearAscensionDraft() {
+      clearAscensionDraft();
+      return this.ascensionState();
+    },
+    commitAscensionRespec() {
+      const committed = commitAscensionRespec();
+      return { committed, ...this.ascensionState() };
+    },
+    cancelAscensionRespec() {
+      const cancelled = cancelAscensionRespec();
+      return { cancelled, ...this.ascensionState() };
     },
     // Awards one drop of itemId as if a boss had dropped it (kind "zone" for the
     // control case), so the Boss Junk Filter can be exercised without a boss kill.
@@ -5037,6 +5341,7 @@ function createSaveSnapshot() {
       subscriptions: sanitizeSubscriptions(state.account.subscriptions),
       spiritBox: sanitizeSpiritBoxState(state.account.spiritBox),
       autoJunkItemIds: sanitizeAutoJunkItemIds(state.account.autoJunkItemIds),
+      ascension: sanitizeAccountAscensionState(state.account.ascension),
     },
     game: {
       ...activeCharacter.game,
@@ -5100,6 +5405,7 @@ function createSaveSnapshot() {
         codex: state.settings.sceneWindowPositions?.codex ?? null,
         upgrades: state.settings.sceneWindowPositions?.upgrades ?? null,
         leaderboard: state.settings.sceneWindowPositions?.leaderboard ?? null,
+        timeLogging: state.settings.sceneWindowPositions?.timeLogging ?? null,
       },
     },
   };
@@ -5337,6 +5643,7 @@ function accountRestoreOptions() {
     sanitizeSpiritBox: sanitizeSpiritBoxState,
     sanitizeAutoJunkItemIds,
     sanitizeBossKills,
+    sanitizeAscension: sanitizeAccountAscensionState,
   };
 }
 
@@ -5514,6 +5821,8 @@ function createDefaultStorageState() {
     pagesUnlocked: 1,
     page2Purchased: false,
     tokenPageUnlocked: false,
+    tokenPage4Unlocked: false,
+    tokenPage5Unlocked: false,
     maxSlots: STORAGE_BASE_SLOTS,
     nextInstanceId: 1,
     items: [],
@@ -5525,6 +5834,7 @@ function createDefaultAccountStats() {
     rebirthCount: 0,
     rebirthPointsGained: 0,
     rebirthPointsSpent: 0,
+    ascensionCount: 0,
     bossKills: {},
   };
 }
@@ -6104,7 +6414,7 @@ function inventoryEntryPersistMaxStack(itemId) {
 // each character's inventory page). Server reconciliation is the real authority.
 function sanitizeOwnedUnlocks(owned) {
   const valid = new Set([
-    STORAGE_PAGE_UNLOCK_KEY,
+    ...STORAGE_TOKEN_PAGE_UNLOCKS.map((entry) => entry.key),
     TELEPORT_RING_UNLOCK_KEY,
     ORGANISATION_SKILLS_UNLOCK_KEY,
     ORE_STACKING_UNLOCK_KEY,
@@ -6311,6 +6621,8 @@ function unlockAchievementsFeature() {
   battlePanelSignature = "";
   syncAchievementsNavigation();
   syncCashShopNavigation();
+  syncJourneyNavigation();
+  syncDifficultyNavigation();
   renderSceneOverlay();
   renderGamePanel();
   renderBattlePanel();
@@ -6511,6 +6823,20 @@ function claimAchievementReward(achievementId) {
 function checkAchievementsForCurrentCharacter() {
   if (!achievementsEnabled()) return;
   captureActiveCharacterState();
+  // A world-wipe left the board empty, then this scan used to refill it from
+  // all-time kills. Drop any leftover unclaimed party-boss unlock that this
+  // journey has not earned.
+  const achievements = ensureAccountAchievements();
+  if (Math.trunc(Number(state.account?.stats?.ascensionCount) || 0) > 0) {
+    for (const def of ACHIEVEMENT_DEFS) {
+      if (def.trigger?.type !== "bossKill" || def.trigger.solo) continue;
+      if (normalizeAchievementCategory(def.category) !== "party") continue;
+      const record = achievements.unlocked?.[def.id];
+      if (!record || record.rewardClaimed === true) continue;
+      if (ascensionRunBossKillCount(def.trigger.zoneId) > 0) continue;
+      delete achievements.unlocked[def.id];
+    }
+  }
   for (const classId of CHARACTER_IDS) {
     checkLevelAchievements(characterLevelForAchievements(classId), classId);
   }
@@ -6518,7 +6844,7 @@ function checkAchievementsForCurrentCharacter() {
     if (achievementUnlocked(def.id)) continue;
     // Class-specific boss kills are not retroactive: historic party composition was not saved.
     if (normalizeAchievementCategory(def.category) !== "party") continue;
-    if (def.trigger?.type === "bossKill" && !def.trigger.solo && bossKillCount(def.trigger.zoneId) > 0) {
+    if (def.trigger?.type === "bossKill" && !def.trigger.solo && ascensionRunBossKillCount(def.trigger.zoneId) > 0) {
       unlockAchievement(def);
     }
   }
@@ -6813,6 +7139,341 @@ function performAccountRebirth() {
   return true;
 }
 
+// Live switch for the Traveller's send-off. The wipe and the spend both read
+// this, so flipping it false is enough to shut the feature without a revert.
+const ASCENSION_ENABLED = true;
+
+// Taking the Traveller up on his offer. Wipes nothing - it unlocks the choosing
+// window and shows the powers, and performAscension waits behind a confirm.
+function beginAscension() {
+  if (!ASCENSION_ENABLED || !canPerformAscension()) return false;
+  beginAscensionRespec();
+  state.ascensionConfirmOpen = false;
+  openAscensionUpgradesScene();
+  return true;
+}
+
+function journeyRowHtml(label, value, attrs = "") {
+  return `
+    <div class="journey-row">
+      <span>${escapeHtml(label)}</span>
+      <strong ${attrs}>${escapeHtml(value)}</strong>
+    </div>
+  `;
+}
+
+// One row per difficulty, so a harder kill is its own record rather than being
+// hidden behind whichever tier happened to fall first.
+function journeyClearsHtml(timed) {
+  const run = ascensionClearTimes("runClears");
+  const best = ascensionClearTimes("bestClears");
+  const rows = BOSS_FIGHT_TIER_LABELS.map((label, tier) => {
+    if (run[tier] == null && best[tier] == null) return "";
+    return `
+      <div class="journey-clear-row">
+        <span>${escapeHtml(label)}</span>
+        <strong>${escapeHtml(run[tier] != null ? formatAscensionDuration(run[tier]) : "-")}</strong>
+        <em>${escapeHtml(best[tier] != null ? formatAscensionDuration(best[tier]) : "-")}</em>
+      </div>
+    `;
+  }).join("");
+  if (!rows) {
+    // On an untimed world the closing note already explains why there is nothing
+    // here; saying it twice in different words just reads as broken.
+    if (!timed) return "";
+    return `<p class="journey-clears-empty">The red dragon has not fallen in this world yet.</p>`;
+  }
+  return `
+    <div class="journey-clears">
+      <div class="journey-clear-head">
+        <span>Red dragon felled</span>
+        <strong>This world</strong>
+        <em>Best</em>
+      </div>
+      ${rows}
+    </div>
+  `;
+}
+
+// The record the ascension loop is played against: how long this world has been
+// running, and the times to beat.
+function journeySceneHtml() {
+  const ascension = ensureAccountAscensionState();
+  const startedAt = sanitizeAscensionTimestamp(ascension.journeyStartedAt);
+  const clearedAt = sanitizeAscensionTimestamp(ascension.journeyClearedAt);
+  const lastMs = Math.max(0, Math.trunc(Number(ascension.lastJourneyMs) || 0));
+  const bestMs = Math.max(0, Math.trunc(Number(ascension.bestJourneyMs) || 0));
+  const worldsCompleted = Math.max(0, Math.trunc(Number(state.account?.stats?.ascensionCount) || 0));
+
+  const thisWorld = startedAt ? formatJourneyClock(ascensionJourneyLiveElapsedMs()) : "Not timed";
+  // Rows appear as they are earned. A row of dashes tells the player nothing
+  // except that the feature exists, and on a first journey that is every row.
+  const rows = [
+    journeyRowHtml("This world", thisWorld, "data-journey-elapsed"),
+    bestMs > 0 ? journeyRowHtml("Best world", formatAscensionDuration(bestMs)) : "",
+    lastMs > 0 ? journeyRowHtml("Last world", formatAscensionDuration(lastMs)) : "",
+    worldsCompleted > 0 ? journeyRowHtml("Worlds left behind", String(worldsCompleted)) : "",
+  ].join("");
+  const clearsHtml = journeyClearsHtml(startedAt > 0);
+
+  const note = startedAt
+    ? "The clock starts when the Traveller sends you back, and stops the first time you fell the red dragon."
+    // Every save made before journey tracking existed lands here. Stamping one now
+    // would record a bogus short time as the record to beat, so it stays untimed.
+    : "This world began before the Traveller started keeping time, so it cannot be measured. Ascend once and the next world will be timed from its first step.";
+
+  return `
+    <section class="journey-panel" data-preserve-scroll="journey">
+      <div class="journey-rows">${rows}</div>
+      ${clearsHtml}
+      <small class="muted">${escapeHtml(note)}</small>
+    </section>
+  `;
+}
+
+function difficultySceneHtml() {
+  const current = selectedWorldDifficultyId();
+  const inTown = state.game.mode === "town";
+  const rows = WORLD_DIFFICULTY_DEFS.map((entry) => {
+    const selected = entry.id === current;
+    const rate = entry.multiplier;
+    const rateText = rate === 1 ? "No change to monsters or rewards." : `${rate}× monster HP and damage. ${rate}× XP, gold, and drop rates.`;
+    return `
+      <button
+        type="button"
+        class="difficulty-choice ${selected ? "selected" : ""}"
+        data-set-world-difficulty="${escapeHtml(entry.id)}"
+        ${inTown ? "" : "disabled"}
+      >
+        <strong>${escapeHtml(entry.label)}</strong>
+        <span>${escapeHtml(rateText)}</span>
+      </button>
+    `;
+  }).join("");
+  const note = inTown
+    ? "Change this whenever you like. It applies to the next fight you walk into, including bosses, before empowered or awakened buffs."
+    : "Return to town to change difficulty. The next fight you enter will use whatever you leave selected.";
+  return `
+    <section class="difficulty-panel" data-preserve-scroll="difficulty">
+      <p class="difficulty-intro">A steeper path. Every monster in the world answers to this, not only the red dragon.</p>
+      <div class="difficulty-choices">${rows}</div>
+      <small class="muted">${escapeHtml(note)}</small>
+    </section>
+  `;
+}
+
+// The Traveller's send-off, shown once straight after the wipe. Deliberately
+// transient: it is a moment, not a notice to re-show, so a reload drops it and
+// nothing about it is saved.
+function showAscensionWelcome(lastJourneyMs) {
+  state.ascensionWelcome = { lastJourneyMs: Math.max(0, Math.trunc(Number(lastJourneyMs) || 0)) };
+  renderAscensionWelcomeNotice();
+}
+
+function dismissAscensionWelcome() {
+  state.ascensionWelcome = null;
+  renderAscensionWelcomeNotice();
+}
+
+function ascensionWelcomeLastWorldText() {
+  const lastMs = Math.max(0, Math.trunc(Number(state.ascensionWelcome?.lastJourneyMs) || 0));
+  // Every save that predates journey tracking has no start stamp, so the first
+  // ascension anyone makes lands here rather than reporting a bogus duration.
+  if (lastMs <= 0) return "No time was recorded for the last world. This one I shall be counting.";
+  return `You completed the last world in ${formatAscensionDuration(lastMs)}. Can you do it faster this time?`;
+}
+
+function renderAscensionWelcomeNotice() {
+  if (!els.ascensionWelcomeNotice) return;
+  if (!state.ascensionWelcome) {
+    els.ascensionWelcomeNotice.hidden = true;
+    els.ascensionWelcomeNotice.innerHTML = "";
+    return;
+  }
+  els.ascensionWelcomeNotice.hidden = false;
+  els.ascensionWelcomeNotice.innerHTML = `
+    <div class="prototype-stats-notice-window ascension-welcome-window" role="dialog" aria-modal="true" aria-labelledby="ascensionWelcomeTitle">
+      <strong id="ascensionWelcomeTitle" class="cloud-backup-notice-eyebrow">The Traveller</strong>
+      <p>You have made the right choice. Welcome to the new world.</p>
+      <p>${escapeHtml(ascensionWelcomeLastWorldText())}</p>
+      <p class="ascension-welcome-omen">The red dragon awaits...</p>
+      <div class="ascension-welcome-clock">
+        <span>This world</span>
+        <strong data-ascension-welcome-elapsed>${escapeHtml(formatJourneyClock(ascensionJourneyLiveElapsedMs()))}</strong>
+      </div>
+      <div class="prototype-stats-notice-actions">
+        <button type="button" class="primary" data-dismiss-ascension-welcome>Begin</button>
+      </div>
+    </div>
+  `;
+}
+
+// Targeted textContent update rather than a re-render, the same way the
+// simulation overlay's elapsed line ticks. Keeping the value out of any
+// signature stops it rebuilding the dialog under the player's cursor.
+function updateAscensionWelcomeElapsed(nowMs = Date.now()) {
+  if (!els.ascensionWelcomeNotice || els.ascensionWelcomeNotice.hidden) return;
+  const el = els.ascensionWelcomeNotice.querySelector("[data-ascension-welcome-elapsed]");
+  if (!el) return;
+  const text = formatJourneyClock(ascensionJourneyLiveElapsedMs(nowMs));
+  if (el.textContent !== text) el.textContent = text;
+}
+
+function openAscensionConfirm() {
+  if (!ascensionRespecOpen()) return;
+  state.ascensionConfirmOpen = true;
+  refreshAscensionPanel();
+}
+
+function closeAscensionConfirm() {
+  state.ascensionConfirmOpen = false;
+  refreshAscensionPanel();
+}
+
+// Killing Evil Mir this journey is the price of admission. Without the check a
+// player could wipe everything and get nothing for it, since the payout is what
+// funds the powers. ensureAccountAscensionState pays a pre-update kill that is
+// already on this journey, so Accept does not wait on the 2-hour respawn.
+function canPerformAscension() {
+  ensureAccountAscensionState();
+  return ascensionRunPointsAwarded() > 0;
+}
+
+// A harder reset than rebirth, which keeps the rebirth upgrades, the codex and
+// the achievements. Ascension keeps only three kinds of thing: what was paid for
+// with real money, the all-time counters, and the ascension bank itself.
+// Everything reset here is reset explicitly, so anything added to the save later
+// survives by default - the safe direction for a destructive operation.
+function performAscension() {
+  if (!ASCENSION_ENABLED) {
+    pushBattleLog("Ascension is not open yet.");
+    return false;
+  }
+  if (!canPerformAscension()) {
+    pushBattleLog("Evil Mir must fall this journey before the Traveller will send you back.");
+    battlePanelSignature = "";
+    renderBattlePanel();
+    return false;
+  }
+  captureActiveCharacterState();
+  ensureAccountStats();
+  ensureAccountAscensionState();
+
+  // Banked before the wipe, not after: the draft IS the build for the journey
+  // about to start, and losing it here would wipe the player for nothing.
+  if (ascensionRespecOpen()) commitAscensionRespec();
+
+  const ascension = state.account.ascension;
+  // Steeper Path is gone if they spent the points elsewhere; a leftover Hard
+  // must not keep paying after they walk out without it.
+  ascension.worldDifficulty = sanitizeWorldDifficulty(
+    ascension.worldDifficulty,
+    ascensionTierOf(ascension.tiers, "ascension-difficulty") >= 1,
+  );
+  // Prefer the recorded clear over the clearedAt stamp: both are written on the
+  // same kill, but the clear time is the one the per-difficulty table reports,
+  // and quoting a different number in the Traveller's mouth would be a bug.
+  const journeyMs = ascensionFastestClearMs("runClears") || ascensionJourneyElapsedMs();
+
+  state.account.storage = createDefaultStorageState();
+  // Every tier, including the rebirth section that a rebirth would keep.
+  state.account.upgrades = createDefaultAccountUpgradeState();
+  state.account.rebirthPoints = 0;
+  state.account.gold = 0;
+  state.account.codex = createDefaultAccountCodexState();
+  // The page stays if it was paid for; the board itself does not. All-time
+  // boss kills survive and must not re-unlock Kill Bone Lord on a fresh world.
+  const achievementsPaid = ensureAccountAchievements().enabled === true;
+  state.account.achievements = createDefaultAccountAchievementState();
+  if (achievementsPaid) state.account.achievements.enabled = true;
+  state.account.bossRespawns = {};
+  // Auto-junk ids survive (they are a list, not a run), but the Boss Junk
+  // Filter toggle does not: a fresh world should drop gear again until the
+  // player turns the filter back on at the trader. The cash-shop / rebirth
+  // unlock is left in place so the checkbox is still there to tick.
+  state.settings.bossJunkFilterEnabled = false;
+  // The Spirit Box exists to carry one item through a rebirth, and its unlock is
+  // a rebirth upgrade being wiped here. "You will start with nothing" is the
+  // Traveller's promise, so the sealed item goes too.
+  const spiritBox = ensureSpiritBoxState();
+  spiritBox.paid = false;
+  spiritBox.entry = null;
+  clearSpiritBoxDepositMode();
+  noteAccountCodexChanged();
+
+  for (const classId of CHARACTER_IDS) {
+    state.characters[classId] = createDefaultCharacterState(classId);
+  }
+
+  // All-time counters survive - they are the "All Time Stats" half of the split,
+  // and run-scoped numbers already live on the characters that were just wiped.
+  // rebirthCount MUST keep climbing: the cloud worker rejects a save whose
+  // combined levels dropped unless it also carries a higher rebirthCount, so
+  // without this the post-ascension upload 409s and the cloud keeps the
+  // pre-ascension save - which a restore would then use to undo the ascension.
+  state.account.stats.rebirthCount += 1;
+  state.account.stats.ascensionCount += 1;
+
+  ascension.runPointsAwarded = 0;
+  ascension.runBestTier = -1;
+  ascension.journeyStartedAt = Date.now();
+  ascension.journeyClearedAt = 0;
+  if (journeyMs > 0) {
+    ascension.lastJourneyMs = journeyMs;
+    ascension.bestJourneyMs = ascension.bestJourneyMs > 0
+      ? Math.min(ascension.bestJourneyMs, journeyMs)
+      : journeyMs;
+  }
+  // Per-difficulty times roll over even when journeyMs is 0, because a journey
+  // can be left without ever felling him and the tiers it DID clear still count.
+  ascension.bestClears = mergeAscensionBestClearTimes(ascension.bestClears, ascension.runClears, BOSS_FIGHT_TIER_COUNT);
+  ascension.lastClears = sanitizeAscensionClearTimes(ascension.runClears, BOSS_FIGHT_TIER_COUNT);
+  ascension.runClears = {};
+  ascension.runBossKills = {};
+
+  state.game.mode = "town";
+  state.game.activeZoneId = null;
+  state.showEnemies = false;
+  state.continuousWalk = false;
+  state.paused = false;
+  state.bossEmpowerSelected = false;
+  state.bossAscendSelected = false;
+  state.bossAwakenSelected = false;
+  state.groupDungeonEmpowerTier = 0;
+  state.activeScene = null;
+  state.ascensionDialoguePage = 0;
+  state.travellerSuppliesOpen = false;
+  state.ascensionConfirmOpen = false;
+  applyCharacterState(state.activeCharacterId, state.characters[state.activeCharacterId]);
+  // Token-bought pages are real money and must survive.
+  applyOwnedUnlocks();
+  normalizeAutoCastSpellsForClass(state.battle.combatClass);
+  resetBattleForCurrentMode(false);
+
+  pushBattleLog(
+    `The Traveller sends you back. ${journeyMs > 0 ? `That journey took ${formatAscensionDuration(journeyMs)}. ` : ""}`
+    + `Your powers remain: ${ascensionPointsEarned()} Ascension Point${ascensionPointsEarned() === 1 ? "" : "s"} banked.`,
+  );
+  // Passed the finished journey's time explicitly - the account's clock has
+  // already been restarted above, so it can no longer be read from state.
+  showAscensionWelcome(journeyMs);
+  playSfx("ui.gold", { volume: 0.55, throttleMs: 80 });
+  sceneSignature = "";
+  gamePanelSignature = "";
+  battlePanelSignature = "";
+  renderSceneOverlay();
+  renderGamePanel();
+  renderBattlePanel();
+  renderMapControls();
+  render();
+  saveGameState(true);
+  // Push straight away rather than waiting up to CLOUD_SAVE_INTERVAL_MS. Until
+  // this lands, the cloud still holds the pre-ascension save and a restore in
+  // that window would resurrect it.
+  if (state.cloudSave?.configured) void uploadCloudSave("ascension");
+  return true;
+}
+
 function confirmPerformRebirth() {
   if (!canPerformRebirth()) {
     pushBattleLog("Need at least 1 Awakening Soul to rebirth.");
@@ -6830,6 +7491,16 @@ function cancelRebirthConfirm() {
   state.pendingRebirthConfirm = false;
   sceneSignature = "";
   renderSceneOverlay();
+}
+
+function openSpiritBoxFromRebirthConfirm() {
+  if (!spiritBoxUnlocked()) {
+    cancelRebirthConfirm();
+    return false;
+  }
+  state.pendingRebirthConfirm = false;
+  openScene("spiritBox");
+  return true;
 }
 
 function confirmPendingRebirth() {
@@ -6856,6 +7527,20 @@ function rebirthConfirmHtml() {
   const soulConvertLine = souls > 0
     ? `<li>${souls} Awakening Soul${souls === 1 ? "" : "s"} converting into ${pointsFromSouls} Rebirth Point${pointsFromSouls === 1 ? "" : "s"}</li>`
     : "";
+  const storedSpirit = spiritBoxUnlocked() ? spiritBoxStoredEntry() : null;
+  const storedSpiritName = storedSpirit
+    ? itemDisplayName(itemDefinition(storedSpirit.itemId), storedSpirit)
+    : "";
+  const spiritKeepLine = storedSpirit && storedSpiritName
+    ? `<li>The item in your Spirit Box (${escapeHtml(storedSpiritName)})</li>`
+    : "";
+  const emptySpiritBox = spiritBoxUnlocked() && !storedSpirit;
+  const emptySpiritWarning = emptySpiritBox
+    ? `<p class="rebirth-confirm-spirit-warning" role="status">Your Spirit Box is empty. Store an item first if you want to keep one through this rebirth.</p>`
+    : "";
+  const openSpiritBoxButton = emptySpiritBox
+    ? `<button type="button" data-rebirth-open-spirit-box>Open Spirit Box</button>`
+    : "";
   return `
     <div class="rebirth-confirm inventory-destroy-confirm" role="dialog" aria-modal="true" aria-labelledby="rebirthConfirmTitle">
       <div class="rebirth-confirm-window inventory-destroy-confirm-window">
@@ -6877,11 +7562,14 @@ function rebirthConfirmHtml() {
               <li>Rebirth upgrades already purchased</li>
               ${keptPointsLine}
               ${soulConvertLine}
+              ${spiritKeepLine}
             </ul>
           </div>
         </div>
+        ${emptySpiritWarning}
         <div class="inventory-destroy-actions rebirth-confirm-actions">
           <button type="button" class="danger" data-confirm-rebirth>Rebirth</button>
+          ${openSpiritBoxButton}
           <button type="button" data-cancel-rebirth-confirm>Cancel</button>
         </div>
       </div>
@@ -7220,6 +7908,8 @@ function cloneStorageState(storage) {
     pagesUnlocked: Math.max(1, Math.min(storagePageCount(), Math.trunc(Number(storage?.pagesUnlocked) || 1))),
     page2Purchased: Boolean(storage?.page2Purchased),
     tokenPageUnlocked: Boolean(storage?.tokenPageUnlocked),
+    tokenPage4Unlocked: Boolean(storage?.tokenPage4Unlocked),
+    tokenPage5Unlocked: Boolean(storage?.tokenPage5Unlocked),
     maxSlots: STORAGE_BASE_SLOTS,
     nextInstanceId: Math.max(1, Math.trunc(Number(storage?.nextInstanceId) || 1)),
     items: (storage?.items ?? []).map((entry) => ({
@@ -7231,11 +7921,8 @@ function cloneStorageState(storage) {
     })),
   };
   // Knock loose any item on a page the account does not own (derive usable
-  // pages from the two independent unlock flags).
-  const usablePages = Math.min(
-    storagePageCount(),
-    1 + (cloned.page2Purchased ? 1 : 0) + (cloned.tokenPageUnlocked ? 1 : 0),
-  );
+  // pages from the independent unlock flags).
+  const usablePages = storageOwnedPageCount(cloned);
   const usableSlots = usablePages * STORAGE_PAGE_SIZE;
   for (const entry of cloned.items) {
     if (Number.isInteger(entry.slot) && entry.slot >= usableSlots) {
@@ -8002,14 +8689,16 @@ function maxStatBuffRemainingMs(buff) {
 
 function simulateOfflineFight(template, startedAt, remainingMs, report, options = {}) {
   const resume = Boolean(options.resume && options.enemy);
+  const source = resume ? template : { ...template };
+  if (!resume) applyWorldDifficultyCombatModifiers(source);
   const enemy = resume
-    ? createOfflineFightEnemy(template, {
+    ? createOfflineFightEnemy(source, {
       hp: options.enemy.hp,
       poisons: options.enemy.poisons,
       debuffs: options.enemy.debuffs,
       flamingSwordBurn: options.enemy.flamingSwordBurn ?? null,
     })
-    : createOfflineFightEnemy(template);
+    : createOfflineFightEnemy(source);
   return simulateOfflineFightLoop({
     remainingMs,
     startedAt,
@@ -8759,6 +9448,7 @@ function finalizeOfflineBattleState(zone, report) {
   const enemy = report.finalEnemy?.hp > 0
     ? report.finalEnemy
     : { ...randomZoneEnemyTemplate(zone), hp: undefined, mp: undefined };
+  if (!(report.finalEnemy?.hp > 0)) applyWorldDifficultyCombatModifiers(enemy);
   if (!(report.finalEnemy?.hp > 0)) dismissBattleCompanions();
   enemy.hp = enemy.hp ?? enemy.maxHp;
   enemy.mp = enemy.mp ?? enemy.maxMp;
@@ -10472,6 +11162,35 @@ function formatDuration(ms) {
   return `${seconds}s`;
 }
 
+// For a journey clock the player watches tick. Seconds are shown for the first
+// day, which is when anyone is actually looking at it; past that they are noise
+// and days matter instead.
+function formatJourneyClock(ms) {
+  const totalSeconds = Math.max(0, Math.floor(Number(ms) / 1000));
+  const days = Math.floor(totalSeconds / 86400);
+  const hours = Math.floor((totalSeconds % 86400) / 3600);
+  const minutes = Math.floor((totalSeconds % 3600) / 60);
+  const seconds = totalSeconds % 60;
+  if (days > 0) return `${days}d ${hours}h ${minutes}m`;
+  if (hours > 0) return `${hours}h ${minutes}m ${seconds}s`;
+  if (minutes > 0) return `${minutes}m ${seconds}s`;
+  return `${seconds}s`;
+}
+
+// A journey is measured in wall-clock time and routinely runs into days, which
+// formatDuration tops out below.
+function formatAscensionDuration(ms) {
+  const totalMinutes = Math.max(0, Math.floor(Number(ms) / 60000));
+  const days = Math.floor(totalMinutes / 1440);
+  const hours = Math.floor((totalMinutes % 1440) / 60);
+  const minutes = totalMinutes % 60;
+  // Trailing zero units are dropped - the Traveller saying "9h 0m" reads as a
+  // machine reading out a field rather than a man telling you how long it took.
+  if (days > 0) return hours > 0 ? `${days}d ${hours}h` : `${days}d`;
+  if (hours > 0) return minutes > 0 ? `${hours}h ${minutes}m` : `${hours}h`;
+  return `${minutes}m`;
+}
+
 function formatBossRespawnDelay(minutes) {
   const value = Math.max(0, Math.trunc(Number(minutes) || 0));
   if (value >= 60 && value % 60 === 0) {
@@ -11080,6 +11799,7 @@ function resetBattle(enemyId = state.battle.enemyId) {
     mp: template.maxMp,
     poisons: [],
   };
+  applyWorldDifficultyCombatModifiers(state.battle.enemy);
   state.battle.running = false;
   state.battle.nextPlayerAttackAt = 0;
   state.battle.nextEnemyAttackAt = 0;
@@ -12437,14 +13157,19 @@ function storagePageCount() {
   return Math.max(1, Math.ceil(STORAGE_MAX_SLOTS / STORAGE_PAGE_SIZE));
 }
 
+function storageOwnedPageCount(storage = state.account.storage) {
+  let extras = storage?.page2Purchased ? 1 : 0;
+  for (const def of STORAGE_TOKEN_PAGE_UNLOCKS) {
+    if (storage?.[def.flag]) extras += 1;
+  }
+  return Math.max(1, Math.min(storagePageCount(), 1 + extras));
+}
+
 function syncStorageCapacity(storage = state.account.storage) {
   if (!storage) return;
-  // Storage pages are fully derived from the two independent unlock flags:
-  // the 1,000,000-gold page (page2Purchased) and the 250-token page.
-  const pages = Math.max(1, Math.min(
-    storagePageCount(),
-    1 + (storage.page2Purchased ? 1 : 0) + (storage.tokenPageUnlocked ? 1 : 0),
-  ));
+  // Storage pages are fully derived from independent unlock flags:
+  // the 1,000,000-gold page (page2Purchased) and each token page.
+  const pages = storageOwnedPageCount(storage);
   storage.pagesUnlocked = pages;
   storage.maxSlots = Math.min(STORAGE_MAX_SLOTS, pages * STORAGE_PAGE_SIZE);
   if (storage === state.account.storage && state.storagePage >= pages) {
@@ -12462,11 +13187,13 @@ function storagePageUnlocked(page) {
 // always the LAST tab; a bought token page packs to the front.
 function storagePageDescriptors() {
   syncStorageCapacity();
-  const token = Boolean(state.account.storage.tokenPageUnlocked);
   const gold = Boolean(state.account.storage.page2Purchased);
   const extras = [
     { type: "gold", unlocked: gold },
-    { type: "token", unlocked: token },
+    ...STORAGE_TOKEN_PAGE_UNLOCKS.map((def) => ({
+      type: def.type,
+      unlocked: Boolean(state.account.storage[def.flag]),
+    })),
   ];
   const tabs = [{ type: "base", unlocked: true }];
   for (const extra of extras) if (extra.unlocked) tabs.push({ type: extra.type, unlocked: true });
@@ -12509,15 +13236,18 @@ function unlockStorageGoldPage() {
   return true;
 }
 
-// Buys the 250-token storage page (account-wide, server-authoritative).
+// Buys a token storage page (account-wide, server-authoritative).
 function confirmStorageTokenPageUnlock() {
+  const kind = state.pendingStorageUnlock;
   state.pendingStorageUnlock = null;
-  purchasePageUnlock(STORAGE_PAGE_UNLOCK_KEY, () => {
-    state.account.storage.tokenPageUnlocked = true;
+  const def = storageTokenUnlockByType(kind);
+  if (!def || state.account.storage[def.flag]) return;
+  purchasePageUnlock(def.key, () => {
+    state.account.storage[def.flag] = true;
     syncStorageCapacity();
     ensureStorageSlots();
     syncBossPartyInventoryCapacityFromState();
-    state.storagePage = storagePageIndexForType("token");
+    state.storagePage = storagePageIndexForType(def.type);
     pushBattleLog("Unlocked a new storage page with tokens.");
     playSfx("ui.gold", { volume: 0.55, throttleMs: 80 });
     gamePanelSignature = "";
@@ -12544,8 +13274,8 @@ function triggerInventoryPageUnlock(type) {
 
 // A locked storage tab was clicked: both gold and token show a confirm dialog.
 function triggerStoragePageUnlock(type) {
-  state.pendingStorageUnlock = type === "token" ? "token" : "gold";
-  if (type === "token") {
+  state.pendingStorageUnlock = type === "gold" ? "gold" : type;
+  if (type !== "gold") {
     state.tokens.error = "";
     void fetchTokenBalance(true);
   }
@@ -14423,7 +15153,8 @@ function consumeStagedCraftingCubeEntryQuantity(entryId, quantity = 1) {
 
 function attemptCraftingCubeSalvage() {
   if (state.craftingCube?.mode !== "salvage") return false;
-  const validation = validateCraftingCubeSalvageEntries(craftingCubeSalvageEntries());
+  const entries = craftingCubeSalvageEntries();
+  const validation = validateCraftingCubeSalvageEntries(entries);
   if (!validation.ok) {
     setCraftingCubeFeedback(validation.error);
     sceneSignature = "";
@@ -14431,6 +15162,17 @@ function attemptCraftingCubeSalvage() {
     playSfx("ui.button", { volume: 0.28, throttleMs: 120 });
     return false;
   }
+
+  // Roll extras against the staged items before they are discarded, so a
+  // per-item chance still sees each empowerment tier.
+  const chance = ascensionSalvageChancePercent();
+  const crystals = entries.reduce(
+    (sum, entry) => sum + applyAscensionSalvageBonus(
+      Math.max(0, Math.trunc(Number(entry?.empowerTier) || 0)),
+      chance,
+    ),
+    0,
+  );
 
   const entryIds = state.craftingCube.slotEntryIds.filter(Boolean);
   for (const entryId of entryIds) {
@@ -14441,12 +15183,15 @@ function attemptCraftingCubeSalvage() {
   state.craftingCube.feedbackKind = null;
 
   const crystalItem = itemDefinition(HAVOC_CRYSTAL_ITEM_ID);
-  addInventoryItem(HAVOC_CRYSTAL_ITEM_ID, validation.totalCrystals);
+  addInventoryItem(HAVOC_CRYSTAL_ITEM_ID, crystals);
   const crystalName = crystalItem?.name ?? "Havoc Crystal";
   const itemLabel = entryIds.length === 1 ? "item" : "items";
-  const crystalLabel = validation.totalCrystals === 1 ? crystalName : `${crystalName}s`;
-  pushBattleLog(`Salvaged ${entryIds.length} empowered ${itemLabel} for ${validation.totalCrystals} ${crystalLabel}.`);
-  addLootNotice(`${validation.totalCrystals}× ${crystalName}`, "item");
+  const crystalLabel = crystals === 1 ? crystalName : `${crystalName}s`;
+  const extra = crystals - validation.totalCrystals;
+  pushBattleLog(extra > 0
+    ? `Salvaged ${entryIds.length} empowered ${itemLabel} for ${crystals} ${crystalLabel} (${extra} extra from Havoc Surplus).`
+    : `Salvaged ${entryIds.length} empowered ${itemLabel} for ${crystals} ${crystalLabel}.`);
+  addLootNotice(`${crystals}× ${crystalName}`, "item");
 
   hideItemTooltip();
   sceneSignature = "";
@@ -16492,8 +17237,273 @@ function convertSameGemsToOrb(gemId) {
   return true;
 }
 
+// Evil Mir kills for the current run. Reads the raw counter rather than
+// accountBossKills() because visibleTownNpcs() runs this every frame.
+function evilMirRunKills() {
+  const kills = state.account?.stats?.bossKills;
+  if (!kills) return 0;
+  let total = 0;
+  for (const zoneId of EVIL_MIR_BOSS_ZONE_IDS) {
+    total += Math.max(0, Math.trunc(Number(kills[zoneId]) || 0));
+  }
+  return total;
+}
+
+function ascensionUnlocked() {
+  return evilMirRunKills() > 0 || ascensionPointsEarned() > 0;
+}
+
+// Effect sizes for the ascension powers. Kept next to the payout table because
+// the two are balanced against each other: a first journey earns 5 to 11
+// points, so these are what those points buy.
+const ASCENSION_XP_COST_STEP = 0.1;
+const ASCENSION_XP_COST_MAX_TIER = 5;
+const ASCENSION_SOUL_YIELD_STEP = 0.2;
+
+// A journey pays for Evil Mir once, at the tier of the hardest version of him
+// you beat in it - not once per kill.
+const ASCENSION_POINTS_BY_BOSS_TIER = [5, 7, 9, 11];
+const ASCENSION_POINTS_PER_RUN_MAX = ASCENSION_POINTS_BY_BOSS_TIER[ASCENSION_POINTS_BY_BOSS_TIER.length - 1];
+
+// Indexed by liveBossFightTier(). Tier 0 has no name in the fight UI (it is just
+// "the boss"), but a times table needs a row label for it.
+const BOSS_FIGHT_TIER_LABELS = ["Standard", "Empowered", "Ascended", "Awakened"];
+const BOSS_FIGHT_TIER_COUNT = BOSS_FIGHT_TIER_LABELS.length;
+
+function createDefaultAscensionState() {
+  return {
+    pointsEarned: 0,
+    runPointsAwarded: 0,
+    runBestTier: -1,
+    tiers: {},
+    journeyStartedAt: 0,
+    journeyClearedAt: 0,
+    lastJourneyMs: 0,
+    bestJourneyMs: 0,
+    runClears: {},
+    lastClears: {},
+    bestClears: {},
+    worldDifficulty: WORLD_DIFFICULTY_DEFAULT,
+    runBossKills: {},
+  };
+}
+
+// Wall-clock epoch ms, not playtime: the question is "could you do it faster",
+// and a save that has been idle for a week has not been played for a week. 0
+// means unknown - every save that predates this, including the first journey
+// anyone is on now, has no start stamp and must report no time rather than a
+// wrong one measured from the epoch.
+function sanitizeAscensionTimestamp(value) {
+  const stamp = Math.trunc(Number(value) || 0);
+  return stamp > 0 ? stamp : 0;
+}
+
+// Points earned are banked for the life of the account; `tiers` only records
+// how they are currently spent, so a respec is just clearing `tiers`.
+// `runPointsAwarded` is what the current journey has already been paid, and
+// ascension MUST zero it (and `runBestTier`) or the next journey pays nothing.
+// `runBestTier` is the hardest Evil Mir beaten this journey, -1 for none. It is
+// the only record of the difficulty of a boss kill anywhere in the save -
+// `stats.bossKills` is a bare count - so without it a change to the payout table
+// could never be applied to a journey already in progress.
+function sanitizeAccountAscensionState(saved = {}) {
+  const raw = saved && typeof saved === "object" ? saved : {};
+  const tiers = sanitizeAscensionTiers(raw.tiers, ASCENSION_UPGRADE_DEFS);
+  const savedBestTier = Math.trunc(Number(raw.runBestTier));
+  return {
+    pointsEarned: Math.max(0, Math.trunc(Number(raw.pointsEarned) || 0)),
+    runPointsAwarded: Math.max(
+      0,
+      Math.min(ASCENSION_POINTS_PER_RUN_MAX, Math.trunc(Number(raw.runPointsAwarded) || 0)),
+    ),
+    runBestTier: Number.isFinite(savedBestTier)
+      ? Math.max(-1, Math.min(ASCENSION_POINTS_BY_BOSS_TIER.length - 1, savedBestTier))
+      : -1,
+    tiers,
+    journeyStartedAt: sanitizeAscensionTimestamp(raw.journeyStartedAt),
+    journeyClearedAt: sanitizeAscensionTimestamp(raw.journeyClearedAt),
+    lastJourneyMs: sanitizeAscensionTimestamp(raw.lastJourneyMs),
+    bestJourneyMs: sanitizeAscensionTimestamp(raw.bestJourneyMs),
+    runClears: sanitizeAscensionClearTimes(raw.runClears, BOSS_FIGHT_TIER_COUNT),
+    lastClears: sanitizeAscensionClearTimes(raw.lastClears, BOSS_FIGHT_TIER_COUNT),
+    bestClears: sanitizeAscensionClearTimes(raw.bestClears, BOSS_FIGHT_TIER_COUNT),
+    worldDifficulty: sanitizeWorldDifficulty(
+      raw.worldDifficulty,
+      ascensionTierOf(tiers, "ascension-difficulty") >= 1,
+    ),
+    // Missing on older saves: leave unset so ensureAccountAscensionState can
+    // seed first-journey kills without gifting a post-ascension board.
+    ...(Object.prototype.hasOwnProperty.call(raw, "runBossKills")
+      ? { runBossKills: sanitizeBossKills(raw.runBossKills) }
+      : {}),
+  };
+}
+
+function ensureAccountAscensionState() {
+  if (!state.account.ascension || typeof state.account.ascension !== "object") {
+    state.account.ascension = createDefaultAscensionState();
+  }
+  if (!state.account.ascension.tiers || typeof state.account.ascension.tiers !== "object") {
+    state.account.ascension.tiers = {};
+  }
+  const ascended = Math.trunc(Number(state.account?.stats?.ascensionCount) || 0) > 0;
+  const runKills = state.account.ascension.runBossKills;
+  const runMissing = !runKills || typeof runKills !== "object";
+  const runEmpty = !runMissing && Object.keys(sanitizeBossKills(runKills)).length === 0;
+  // An empty {} is how createDefaultAscensionState writes the field, so treating
+  // that as "already seeded" left first-journey kills stranded on all-time stats.
+  // After an ascension the board is supposed to be empty, even though all-time
+  // kills still list the dragon.
+  if (runMissing || (runEmpty && !ascended)) {
+    state.account.ascension.runBossKills = sanitizeBossKills(
+      ascended ? {} : (state.account?.stats?.bossKills ?? {}),
+    );
+  }
+  applyUnpaidEvilMirJourneyPayout(state.account.ascension);
+  return state.account.ascension;
+}
+
+function applyUnpaidEvilMirJourneyPayout(ascension) {
+  let runEvilMirKills = 0;
+  for (const zoneId of EVIL_MIR_BOSS_ZONE_IDS) {
+    runEvilMirKills += Math.max(0, Math.trunc(Number(ascension?.runBossKills?.[zoneId]) || 0));
+  }
+  const next = backfillStandardJourneyPayout({
+    runPointsAwarded: ascension.runPointsAwarded,
+    pointsEarned: ascension.pointsEarned,
+    runBestTier: ascension.runBestTier,
+    hasJourneyKill: runEvilMirKills > 0,
+    standardPayout: ASCENSION_POINTS_BY_BOSS_TIER[0],
+  });
+  if (!next.changed) return false;
+  ascension.runPointsAwarded = next.runPointsAwarded;
+  ascension.pointsEarned = next.pointsEarned;
+  ascension.runBestTier = next.runBestTier;
+  return true;
+}
+
+function ascensionRunBossKillCount(zoneId) {
+  const kills = ensureAccountAscensionState().runBossKills;
+  return Math.max(0, Math.trunc(Number(kills?.[zoneId]) || 0));
+}
+
+function incrementAscensionRunBossKill(zoneId) {
+  if (!zoneTracksBossRespawn(zoneId)) return;
+  const ascension = ensureAccountAscensionState();
+  const kills = sanitizeBossKills(ascension.runBossKills);
+  kills[zoneId] = Math.max(0, Math.trunc(Number(kills[zoneId]) || 0)) + 1;
+  ascension.runBossKills = kills;
+}
+
+function ascensionPointsEarned() {
+  return Math.max(0, Math.trunc(Number(state.account?.ascension?.pointsEarned) || 0));
+}
+
+function ascensionPointsSpent() {
+  return ascensionPointsSpentFor(activeAscensionTiers(), ASCENSION_UPGRADE_DEFS);
+}
+
+function ascensionUpgradeById(upgradeId) {
+  return ASCENSION_UPGRADE_DEFS.find((upgrade) => upgrade.id === upgradeId) ?? null;
+}
+
+function ascensionPointsForBossTier(tier) {
+  const index = Math.max(
+    0,
+    Math.min(ASCENSION_POINTS_BY_BOSS_TIER.length - 1, Math.trunc(Number(tier) || 0)),
+  );
+  return ASCENSION_POINTS_BY_BOSS_TIER[index];
+}
+
+function ascensionRunPointsAwarded() {
+  return Math.max(
+    0,
+    Math.min(
+      ASCENSION_POINTS_PER_RUN_MAX,
+      Math.trunc(Number(state.account?.ascension?.runPointsAwarded) || 0),
+    ),
+  );
+}
+
+function ascensionRunBestTier() {
+  const tier = Math.trunc(Number(state.account?.ascension?.runBestTier));
+  if (!Number.isFinite(tier)) return -1;
+  return Math.max(-1, Math.min(ASCENSION_POINTS_BY_BOSS_TIER.length - 1, tier));
+}
+
+// Killing him again only pays the difference, so the hundredth plain kill pays
+// nothing and beating a harder version later tops the journey up to that tier.
+// Called from the single kill-accounting path, so it sees every Evil Mir kill
+// whichever battle loop reported it.
+// Stamped on the TRUE kill only. Evil Mir's first collapse is a phase change,
+// not a death: updateEvilMirPhase2 returns true there and both death paths bail
+// before setBossRespawn, so this never runs for it.
+function recordEvilMirClearTime(zoneId) {
+  if (!EVIL_MIR_BOSS_ZONE_IDS.includes(zoneId)) return;
+  const elapsed = ascensionJourneyLiveElapsedMs();
+  // Untimed journey (a save older than the tracking) - no honest time to record.
+  if (elapsed <= 0) return;
+  const ascension = ensureAccountAscensionState();
+  ascension.runClears = recordAscensionClearTime(
+    ascension.runClears,
+    liveBossFightTier(),
+    elapsed,
+    BOSS_FIGHT_TIER_COUNT,
+  );
+  // Stamped here rather than with the points award, which returns early once a
+  // journey is paid out - a kill that earns nothing still finished the world, and
+  // leaving the stamp behind meant runClears and journeyClearedAt disagreeing.
+  // First kill only, so beating a harder tier later cannot move the finish line.
+  if (!ascension.journeyClearedAt) ascension.journeyClearedAt = Date.now();
+}
+
+function ascensionClearTimes(key) {
+  return sanitizeAscensionClearTimes(state.account?.ascension?.[key], BOSS_FIGHT_TIER_COUNT);
+}
+
+// The headline time for a journey: the first kill at any difficulty.
+function ascensionFastestClearMs(key) {
+  const times = Object.values(ascensionClearTimes(key));
+  return times.length ? Math.min(...times) : 0;
+}
+
+function awardEvilMirAscensionPoints(zoneId) {
+  if (!EVIL_MIR_BOSS_ZONE_IDS.includes(zoneId)) return 0;
+  const tier = liveBossFightTier();
+  const target = ascensionPointsForBossTier(tier);
+  const award = target - ascensionRunPointsAwarded();
+  if (award <= 0) return 0;
+  const ascension = ensureAccountAscensionState();
+  ascension.runPointsAwarded = target;
+  ascension.runBestTier = Math.max(ascensionRunBestTier(), tier);
+  ascension.pointsEarned = ascensionPointsEarned() + award;
+  return award;
+}
+
+// How long the CURRENT journey has been running, for the ticking clock. 0 when
+// there is no start stamp, which is every save made before the tracking existed.
+function ascensionJourneyLiveElapsedMs(nowMs = Date.now()) {
+  const startedAt = sanitizeAscensionTimestamp(state.account?.ascension?.journeyStartedAt);
+  if (!startedAt) return 0;
+  return Math.max(0, nowMs - startedAt);
+}
+
+// 0 when this journey has no start stamp (pre-tracking saves) or has not killed
+// him yet - callers must treat 0 as "no time to report", never as instant.
+function ascensionJourneyElapsedMs() {
+  const ascension = state.account?.ascension;
+  const startedAt = sanitizeAscensionTimestamp(ascension?.journeyStartedAt);
+  const clearedAt = sanitizeAscensionTimestamp(ascension?.journeyClearedAt);
+  if (!startedAt || !clearedAt || clearedAt <= startedAt) return 0;
+  return clearedAt - startedAt;
+}
+
 function visibleTownNpcs() {
-  return TOWN_NPCS.filter((npc) => npc.id !== "gem-merchant" || gemMerchantUnlocked());
+  return TOWN_NPCS.filter((npc) => {
+    if (npc.id === "gem-merchant") return gemMerchantUnlocked();
+    if (npc.id === "ascension") return ascensionUnlocked();
+    return true;
+  });
 }
 
 function equipmentSlotToGemSlot(slotId) {
@@ -17192,7 +18202,9 @@ function accountUpgradeValue(effect) {
 }
 
 function rebirthPointMultiplier() {
-  return 1 + accountUpgradeValue("rebirthPointMultiplierBonus");
+  // Soul Exchange stacks additively with the rebirth upgrade of the same shape,
+  // so 100 souls at one ascension tier is 120 Rebirth Points.
+  return 1 + accountUpgradeValue("rebirthPointMultiplierBonus") + ascensionSoulYieldBonus();
 }
 
 function achievementExperienceBonusPercent() {
@@ -17246,8 +18258,9 @@ function totalGoldBonusPercent(inventory = state.inventory) {
 }
 
 function awardedCombatGold(baseGold, inventory = state.inventory) {
+  const scaled = Math.round((Number(baseGold) || 0) * worldDifficultyRate());
   return applyGlyphKillGold(
-    applySupporterGold(adjustedKillGold(baseGold, totalGoldBonusPercent(inventory))),
+    applySupporterGold(adjustedKillGold(scaled, totalGoldBonusPercent(inventory))),
     equippedGlyphFor(inventory),
   );
 }
@@ -17257,6 +18270,10 @@ function totalDropChanceBonusPercent(inventory = state.inventory) {
 }
 
 function totalBonusAwakeningSoulChancePercent(inventory = state.inventory) {
+  // Soul Beacon is the whole 100%: every boss table lists awakening-soul, and
+  // rollBonusBossDropItem treats 100 as certain, so this alone guarantees a
+  // soul per kill on the plain path and one per roll slot on the empowered one.
+  if (ascensionSoulBeaconOwned()) return 100;
   return Math.min(
     100,
     rebirthBonusAwakeningSoulChancePercent()
@@ -17302,7 +18319,7 @@ function formatMultiplierLabel(value) {
 
 function adjustedKillExperience(amount, playerLevel, monsterLevel, inventory = state.inventory) {
   return crystalAdjustedExperience(
-    amount,
+    Math.round((Number(amount) || 0) * worldDifficultyRate()),
     playerLevel,
     monsterLevel,
     true,
@@ -17365,6 +18382,9 @@ function applyAchievementStats(stats) {
 
 function bossEmpowermentUnlocked() {
   if (BOSS_EMPOWER_SKIP_REBIRTH_UNLOCK) return true;
+  // Empowered Start replaces the 10-point rebirth unlock for the whole journey,
+  // so a fresh run can fight empowered bosses before it can afford anything.
+  if (ascensionEmpoweredStartOwned()) return true;
   return accountUpgradeTier("boss-empowerment") >= 1;
 }
 
@@ -19198,6 +20218,22 @@ function scaleEnemyDamageRange(range, multiplier) {
 // read those instead of dc/mc, so skipping them left 2–4× HP with plain hits.
 // phase2Hp is a second pool, not a fraction of maxHp, so it needs the HP
 // multiplier on its own.
+// World difficulty is a base modifier: apply this BEFORE empowered / ascended /
+// awakened boss scaling so Hard 1.25× then Empowered 2× is 2.5×, not the reverse
+// with a rounding step in between.
+function applyWorldDifficultyCombatModifiers(enemy) {
+  if (!enemy || enemy.worldDifficultyScaled) return false;
+  if (isTrainingDummyEnemy(enemy)) {
+    enemy.worldDifficultyScaled = true;
+    return false;
+  }
+  const rate = worldDifficultyRate();
+  enemy.worldDifficultyScaled = true;
+  if (rate === 1) return false;
+  scaleEnemyEmpowerCombatStats(enemy, rate, rate);
+  return true;
+}
+
 function scaleEnemyEmpowerCombatStats(enemy, hpMult, dmgMult) {
   if (!enemy) return;
   enemy.maxHp = Math.max(1, Math.round((Number(enemy.maxHp) || 0) * hpMult));
@@ -19226,16 +20262,20 @@ function empoweredBossPreviewMaxHp(
   const awaken = Boolean(awakenSelected) && bossAwakeningUnlocked();
   const ascend = Boolean(ascendSelected) && bossAscensionUnlocked();
   const empower = Boolean(empowerSelected) && bossEmpowermentUnlocked();
-  if (!enemy || (!awaken && !ascend && !empower)) return base || null;
+  const difficulty = worldDifficultyRate();
+  if (!enemy || (!awaken && !ascend && !empower)) {
+    if (!enemy || difficulty === 1) return base || null;
+    return Math.max(1, Math.round(base * difficulty));
+  }
   if (supportsEmpoweredBossCombat(enemy)) {
     const mult = awaken
       ? AWAKENED_BOSS_HP_MULTIPLIER
       : ascend
         ? ASCENDED_BOSS_HP_MULTIPLIER
         : EMPOWERED_BOSS_HP_MULTIPLIER;
-    return Math.max(1, Math.round(base * mult));
+    return Math.max(1, Math.round(base * difficulty * mult));
   }
-  return base || null;
+  return difficulty === 1 ? (base || null) : Math.max(1, Math.round(base * difficulty));
 }
 
 function empoweredBossDamageMultiplier(enemy) {
@@ -19317,9 +20357,9 @@ function applyMysteryCaveBossCombatModifiers(enemy, template) {
   if (!enemy) return false;
   const source = template ?? enemy;
   const tier = liveBossFightTier();
-  const hpMult = mysteryCaveStatMultiplier(tier);
+  const hpMult = mysteryCaveStatMultiplier(tier) * worldDifficultyRate();
   const dmgMult = hpMult;
-  enemy.maxHp = mysteryCaveBossMaxHp(source, tier);
+  enemy.maxHp = Math.max(1, Math.round(mysteryCaveBossMaxHp(source, tier) * worldDifficultyRate()));
   enemy.hp = enemy.maxHp;
   enemy.dc = scaleEnemyDamageRange(cloneEnemyStatRange(source.dc), dmgMult);
   enemy.mc = scaleEnemyDamageRange(cloneEnemyStatRange(source.mc), dmgMult);
@@ -19338,6 +20378,7 @@ function applyMysteryCaveBossCombatModifiers(enemy, template) {
     enemy.bossAscended = tier >= 2;
     enemy.bossAwakened = tier >= 3;
   }
+  enemy.worldDifficultyScaled = true;
   return true;
 }
 
@@ -19348,7 +20389,7 @@ function applyMysteryCaveRandomCombatModifiers(enemy, planEntry) {
   const tier = liveBossFightTier();
   const multiplier = Math.max(
     0.05,
-    (Number(planEntry?.statMultiplier) || 1) * mysteryCaveStatMultiplier(tier),
+    (Number(planEntry?.statMultiplier) || 1) * mysteryCaveStatMultiplier(tier) * worldDifficultyRate(),
   );
   enemy.maxHp = Math.max(1, Math.round(Math.max(0, Math.trunc(Number(source.maxHp) || 0)) * multiplier));
   enemy.hp = enemy.maxHp;
@@ -19375,6 +20416,7 @@ function applyMysteryCaveRandomCombatModifiers(enemy, planEntry) {
     enemy.bossAscended = tier >= 2;
     enemy.bossAwakened = tier >= 3;
   }
+  enemy.worldDifficultyScaled = true;
   const fxId = Math.trunc(Number(planEntry?.attackFxTemplateId) || 0);
   if (fxId > 0) {
     enemy.mysteryCaveAttackFxTemplateId = fxId;
@@ -20198,7 +21240,7 @@ function useMysteryCaveChestEntry(entryId) {
   const item = entry ? itemDefinition(entry.itemId) : null;
   if (!entry || !item || !isMysteryCaveChestItem(item)) return false;
   state.pendingMysteryCaveChestEntryId = entry.id;
-  if (state.activeScene === "townNpc" || state.activeScene === "storage" || state.activeScene === "bossEntry" || state.activeScene === "weaponRefine" || state.activeScene === "craftingCube" || state.activeScene === "armoury") {
+  if (state.activeScene === "townNpc" || state.activeScene === "storage" || state.activeScene === "bossEntry" || state.activeScene === "weaponRefine" || state.activeScene === "craftingCube" || state.activeScene === "armoury" || state.activeScene === "ascensionUpgrades") {
     removeSceneWindowFromStack(state.activeScene);
   }
   state.activeScene = "mysteryCaveReward";
@@ -21806,6 +22848,8 @@ function updateEnemyActionButtons() {
 function renderGamePanel() {
   syncAchievementsNavigation();
   syncCashShopNavigation();
+  syncJourneyNavigation();
+  syncDifficultyNavigation();
   syncTeleportRingButton();
   syncTimeLoggingButton();
   syncSpiritBoxButton();
@@ -22017,6 +23061,7 @@ function renderGameUiPanel() {
     groupDungeonBossSwarm: groupDungeonBossSwarmSignature(),
     groupDungeonAutoAdvanceOwned: groupDungeonAutoAdvanceUnlocked(),
     canStartSimulationMode: canStartSimulationMode(),
+    worldDifficulty: selectedWorldDifficultyId(),
   });
   if (dynamicSignature === gamePanelDynamicSignature) return;
   // Defer interactive button HTML swaps while the pointer is down on them.
@@ -22029,7 +23074,7 @@ function renderGameUiPanel() {
   }
   gamePanelDynamicSignature = dynamicSignature;
 
-  setGamePanelText("[data-game-ui-zone-label]", zone?.label ?? (game.mode === "mining" ? "Mine" : "Hunting Zone"));
+  setGamePanelText("[data-game-ui-zone-label]", zoneLabelWithDifficulty(zone, game.mode));
   setGamePanelText("[data-game-ui-gold]", `${Math.max(0, Math.trunc(Number(state.inventory.gold) || 0)).toLocaleString()}g`);
   setGamePanelText("[data-game-ui-level]", `Level ${game.progress.level}`);
   setGamePanelText("[data-game-ui-xp]", xpProgressText());
@@ -22139,6 +23184,8 @@ function sceneButtonsHtml() {
       ${achievementsEnabled() ? `<button data-open-scene="achievements" data-achievements-nav class="${state.openScenes.achievements ? "active" : ""}">Achievements</button>` : ""}
       <button data-open-scene="upgrades" class="${state.openScenes.upgrades ? "active" : ""}">Upgrades</button>
       <button data-open-scene="characterSelect" class="${state.openScenes.characterSelect ? "active" : ""}">Characters</button>
+      ${ascensionUnlocked() ? `<button data-open-scene="journey" data-journey-nav class="${state.openScenes.journey ? "active" : ""}">Journey</button>` : ""}
+      ${steeperPathOwned() ? `<button data-open-scene="difficulty" data-difficulty-nav class="${state.openScenes.difficulty ? "active" : ""}">Difficulty</button>` : ""}
       <button data-open-scene="gettingStarted" class="${state.openScenes.gettingStarted ? "active" : ""}">Guide</button>
       <button data-open-scene="leaderboard" class="${state.openScenes.leaderboard ? "active" : ""}">Social</button>
       ${cashShopEnabled() ? `<button data-open-scene="cashShop" data-cash-shop-nav class="${state.openScenes.cashShop ? "active" : ""}">Cash Shop</button>` : ""}
@@ -22151,6 +23198,24 @@ function syncAchievementsNavigation() {
   const enabled = achievementsEnabled();
   if (!enabled) state.openScenes.achievements = false;
   document.querySelectorAll("[data-achievements-nav]").forEach((button) => {
+    button.hidden = !enabled;
+  });
+}
+
+// Hidden until the Traveller exists, for the same reason he is: before the first
+// Evil Mir kill there is no journey to report on.
+function syncJourneyNavigation() {
+  const enabled = ascensionUnlocked();
+  if (!enabled) state.openScenes.journey = false;
+  document.querySelectorAll("[data-journey-nav]").forEach((button) => {
+    button.hidden = !enabled;
+  });
+}
+
+function syncDifficultyNavigation() {
+  const enabled = steeperPathOwned();
+  if (!enabled) state.openScenes.difficulty = false;
+  document.querySelectorAll("[data-difficulty-nav]").forEach((button) => {
     button.hidden = !enabled;
   });
 }
@@ -22208,6 +23273,9 @@ function bindSceneButtons(rootEl) {
   rootEl.querySelectorAll("[data-open-scene]").forEach((button) => {
     button.addEventListener("click", () => openScene(button.dataset.openScene));
   });
+  rootEl.querySelectorAll("[data-set-world-difficulty]").forEach((button) => {
+    button.addEventListener("click", () => setWorldDifficulty(button.dataset.setWorldDifficulty));
+  });
   rootEl.querySelectorAll("[data-toggle-scene]").forEach((button) => {
     button.addEventListener("click", () => toggleOpenScene(button.dataset.toggleScene));
   });
@@ -22226,6 +23294,56 @@ function bindSceneButtons(rootEl) {
       sceneSignature = "";
       renderSceneOverlay();
     });
+  });
+  rootEl.querySelectorAll("[data-ascension-dialogue-next]").forEach((button) => {
+    button.addEventListener("click", () => {
+      state.ascensionDialoguePage = ascensionDialoguePageIndex() + 1;
+      sceneSignature = "";
+      renderSceneOverlay();
+    });
+  });
+  rootEl.querySelectorAll("[data-ascension-dialogue-back]").forEach((button) => {
+    button.addEventListener("click", () => {
+      state.ascensionDialoguePage = ascensionDialoguePageIndex() - 1;
+      sceneSignature = "";
+      renderSceneOverlay();
+    });
+  });
+  rootEl.querySelectorAll("[data-ascension-decline]").forEach((button) => {
+    button.addEventListener("click", () => closeTownNpc());
+  });
+  rootEl.querySelectorAll("[data-open-traveller-supplies]").forEach((button) => {
+    button.addEventListener("click", () => {
+      state.travellerSuppliesOpen = true;
+      sceneSignature = "";
+      renderSceneOverlay();
+      playSfx("ui.button", { volume: 0.35, throttleMs: 120 });
+    });
+  });
+  rootEl.querySelectorAll("[data-close-traveller-supplies]").forEach((button) => {
+    button.addEventListener("click", () => {
+      state.travellerSuppliesOpen = false;
+      sceneSignature = "";
+      renderSceneOverlay();
+      playSfx("ui.button", { volume: 0.35, throttleMs: 120 });
+    });
+  });
+  rootEl.querySelectorAll("[data-open-ascension-upgrades]").forEach((button) => {
+    button.addEventListener("click", () => openAscensionUpgradesScene());
+  });
+  // Accepting only opens the choosing window - the wipe is behind the confirm
+  // inside the panel.
+  rootEl.querySelectorAll("[data-ascension-accept]").forEach((button) => {
+    button.addEventListener("click", () => beginAscension());
+  });
+  rootEl.querySelectorAll("[data-open-ascension-confirm]").forEach((button) => {
+    button.addEventListener("click", () => openAscensionConfirm());
+  });
+  rootEl.querySelectorAll("[data-cancel-ascension-confirm]").forEach((button) => {
+    button.addEventListener("click", () => closeAscensionConfirm());
+  });
+  rootEl.querySelectorAll("[data-confirm-ascension]").forEach((button) => {
+    button.addEventListener("click", () => performAscension());
   });
   rootEl.querySelectorAll("[data-enter-zone]").forEach((button) => {
     button.addEventListener("click", async () => {
@@ -22470,6 +23588,8 @@ function initialOpenScenesFromUrl() {
     spiritBox: scenes.has("spiritBox"),
     autoJunk: scenes.has("autoJunk"),
     glyphs: scenes.has("glyphs"),
+    journey: scenes.has("journey"),
+    difficulty: scenes.has("difficulty"),
   };
 }
 
@@ -22479,14 +23599,14 @@ function craftingCubeCompanionScenes() {
 }
 
 function npcActiveScene() {
-  if (state.activeScene === "townNpc" || state.activeScene === "storage" || state.activeScene === "bossEntry" || state.activeScene === "weaponRefine" || state.activeScene === "craftingCube" || state.activeScene === "armoury" || state.activeScene === "mysteryCaveReward") {
+  if (state.activeScene === "townNpc" || state.activeScene === "storage" || state.activeScene === "bossEntry" || state.activeScene === "weaponRefine" || state.activeScene === "craftingCube" || state.activeScene === "armoury" || state.activeScene === "ascensionUpgrades" || state.activeScene === "mysteryCaveReward") {
     return state.activeScene;
   }
   return null;
 }
 
 function currentOverlayScenes() {
-  const openScenes = ["characterSelect", "character", "inventory", "codex", "achievements", "upgrades", "gettingStarted", "changelog", "options", "leaderboard", "cashShop", "teleportRing", "timeLogging", "spiritBox", "autoJunk", "glyphs"].filter((scene) => state.openScenes[scene]);
+  const openScenes = ["characterSelect", "character", "inventory", "codex", "achievements", "upgrades", "gettingStarted", "changelog", "options", "leaderboard", "cashShop", "teleportRing", "timeLogging", "spiritBox", "autoJunk", "glyphs", "journey", "difficulty"].filter((scene) => state.openScenes[scene]);
   const npcScene = npcActiveScene();
   const overlayScenes = npcScene ? [...openScenes, npcScene] : openScenes;
   return [...overlayScenes, ...craftingCubeCompanionScenes()];
@@ -22496,7 +23616,7 @@ function isSceneWindowOpen(scene) {
   if (scene === "craftingCubeRecipes") {
     return state.activeScene === "craftingCube" && Boolean(state.craftingCube?.recipesOpen);
   }
-  if (scene === "character" || scene === "inventory" || scene === "codex" || scene === "achievements" || scene === "upgrades" || scene === "characterSelect" || scene === "gettingStarted" || scene === "changelog" || scene === "options" || scene === "leaderboard" || scene === "cashShop" || scene === "teleportRing" || scene === "timeLogging" || scene === "spiritBox" || scene === "autoJunk" || scene === "glyphs") {
+  if (scene === "character" || scene === "inventory" || scene === "codex" || scene === "achievements" || scene === "upgrades" || scene === "characterSelect" || scene === "gettingStarted" || scene === "changelog" || scene === "options" || scene === "leaderboard" || scene === "cashShop" || scene === "teleportRing" || scene === "timeLogging" || scene === "spiritBox" || scene === "autoJunk" || scene === "glyphs" || scene === "journey" || scene === "difficulty") {
     return Boolean(state.openScenes[scene]);
   }
   return state.activeScene === scene;
@@ -22559,6 +23679,10 @@ function closeMostRecentSceneWindow() {
     cancelInventoryDestroyConfirm();
     return;
   }
+  if (state.pendingRebirthConfirm) {
+    cancelRebirthConfirm();
+    return;
+  }
   if (state.pendingStorageUnlock || state.pendingInventoryTokenUnlock) {
     state.pendingStorageUnlock = null;
     state.pendingInventoryTokenUnlock = false;
@@ -22595,13 +23719,17 @@ function toggleOpenScene(scene, options = {}) {
 }
 
 function openScene(scene, updateUrl = true) {
-  if (!["character", "inventory", "codex", "achievements", "upgrades", "characterSelect", "gettingStarted", "changelog", "options", "leaderboard", "cashShop", "teleportRing", "timeLogging", "spiritBox"].includes(scene)) return;
+  if (!["character", "inventory", "codex", "achievements", "upgrades", "characterSelect", "gettingStarted", "changelog", "options", "leaderboard", "cashShop", "teleportRing", "timeLogging", "spiritBox", "journey", "difficulty"].includes(scene)) return;
   if (scene === "achievements" && !achievementsEnabled()) return;
   if (scene === "teleportRing" && !teleportRingOwned()) return;
   if (scene === "timeLogging" && !timeLoggingUnlocked()) return;
   if (scene === "spiritBox" && !spiritBoxUnlocked()) return;
+  // Same gate as the Traveller himself - the window is meaningless before he
+  // exists, since nothing has been timed.
+  if (scene === "journey" && !ascensionUnlocked()) return;
+  if (scene === "difficulty" && !steeperPathOwned()) return;
   state.game.selectedTownNpcId = null;
-  if (state.activeScene === "townNpc" || state.activeScene === "storage" || state.activeScene === "bossEntry" || state.activeScene === "weaponRefine" || state.activeScene === "craftingCube" || state.activeScene === "armoury" || state.activeScene === "mysteryCaveReward") {
+  if (state.activeScene === "townNpc" || state.activeScene === "storage" || state.activeScene === "bossEntry" || state.activeScene === "weaponRefine" || state.activeScene === "craftingCube" || state.activeScene === "armoury" || state.activeScene === "ascensionUpgrades" || state.activeScene === "mysteryCaveReward") {
     removeSceneWindowFromStack(state.activeScene);
     if (state.activeScene === "mysteryCaveReward") clearPendingMysteryCaveChest();
     state.activeScene = null;
@@ -22622,6 +23750,8 @@ function openScene(scene, updateUrl = true) {
     state.openScenes.spiritBox = false;
     state.openScenes.autoJunk = false;
     state.openScenes.glyphs = false;
+    state.openScenes.journey = false;
+    state.openScenes.difficulty = false;
   } else {
     state.openScenes.characterSelect = false;
   }
@@ -22648,7 +23778,7 @@ function closeScene(scene = null, updateUrl = true) {
     updateUrl = scene;
     scene = null;
   }
-  if (scene === "character" || scene === "inventory" || scene === "codex" || scene === "achievements" || scene === "upgrades" || scene === "characterSelect" || scene === "gettingStarted" || scene === "changelog" || scene === "options" || scene === "leaderboard" || scene === "cashShop" || scene === "teleportRing" || scene === "timeLogging" || scene === "spiritBox" || scene === "autoJunk" || scene === "glyphs") {
+  if (scene === "character" || scene === "inventory" || scene === "codex" || scene === "achievements" || scene === "upgrades" || scene === "characterSelect" || scene === "gettingStarted" || scene === "changelog" || scene === "options" || scene === "leaderboard" || scene === "cashShop" || scene === "teleportRing" || scene === "timeLogging" || scene === "spiritBox" || scene === "autoJunk" || scene === "glyphs" || scene === "journey" || scene === "difficulty") {
     state.openScenes[scene] = false;
     if (scene === "inventory") state.pendingInventoryDestroyEntryId = null;
     if (scene === "upgrades") state.pendingRebirthConfirm = false;
@@ -22661,6 +23791,9 @@ function closeScene(scene = null, updateUrl = true) {
     removeSceneWindowFromStack(scene);
   } else if (scene === "armoury") {
     state.pendingArmourySaveKitIndex = null;
+    state.activeScene = state.game.selectedTownNpcId ? "townNpc" : null;
+    removeSceneWindowFromStack(scene);
+  } else if (scene === "ascensionUpgrades") {
     state.activeScene = state.game.selectedTownNpcId ? "townNpc" : null;
     removeSceneWindowFromStack(scene);
   } else if (scene === "craftingCube") {
@@ -22679,7 +23812,7 @@ function closeScene(scene = null, updateUrl = true) {
   } else if (scene === "townNpc" || scene === "storage" || scene === "bossEntry") {
     state.game.selectedTownNpcId = null;
     if (scene === "storage") state.pendingStorageUnlock = null;
-    if (state.activeScene === "townNpc" || state.activeScene === "storage" || state.activeScene === "bossEntry" || state.activeScene === "weaponRefine" || state.activeScene === "craftingCube" || state.activeScene === "armoury") state.activeScene = null;
+    if (state.activeScene === "townNpc" || state.activeScene === "storage" || state.activeScene === "bossEntry" || state.activeScene === "weaponRefine" || state.activeScene === "craftingCube" || state.activeScene === "armoury" || state.activeScene === "ascensionUpgrades") state.activeScene = null;
     if (scene === "bossEntry") {
       state.bossEntryZoneId = null;
       state.bossEntryFromGroupDungeonAdvance = false;
@@ -22701,7 +23834,7 @@ function closeScene(scene = null, updateUrl = true) {
     if (state.activeScene === "craftingCube" || Object.keys(state.craftingCube?.stagedEntries ?? {}).length) {
       restoreAllCraftingCubeStagedEntries();
     }
-    if (state.activeScene === "townNpc" || state.activeScene === "storage" || state.activeScene === "weaponRefine" || state.activeScene === "craftingCube" || state.activeScene === "armoury") state.game.selectedTownNpcId = null;
+    if (state.activeScene === "townNpc" || state.activeScene === "storage" || state.activeScene === "weaponRefine" || state.activeScene === "craftingCube" || state.activeScene === "armoury" || state.activeScene === "ascensionUpgrades") state.game.selectedTownNpcId = null;
     state.bossEntryZoneId = null;
     state.bossEntryFromGroupDungeonAdvance = false;
     clearPendingDungeonSoulEntry();
@@ -22723,6 +23856,8 @@ function closeScene(scene = null, updateUrl = true) {
     state.openScenes.spiritBox = false;
     state.openScenes.autoJunk = false;
     state.openScenes.glyphs = false;
+    state.openScenes.journey = false;
+    state.openScenes.difficulty = false;
     state.pendingInventoryDestroyEntryId = null;
     state.pendingRebirthConfirm = false;
     sceneWindowStack = [];
@@ -22753,7 +23888,7 @@ function renderSceneOverlay(options = {}) {
     state.openScenes.spiritBox = false;
     clearSpiritBoxDepositMode();
   }
-  const openScenes = ["characterSelect", "character", "inventory", "codex", "achievements", "upgrades", "gettingStarted", "changelog", "options", "leaderboard", "cashShop", "teleportRing", "timeLogging", "spiritBox", "autoJunk", "glyphs"].filter((scene) => state.openScenes[scene]);
+  const openScenes = ["characterSelect", "character", "inventory", "codex", "achievements", "upgrades", "gettingStarted", "changelog", "options", "leaderboard", "cashShop", "teleportRing", "timeLogging", "spiritBox", "autoJunk", "glyphs", "journey", "difficulty"].filter((scene) => state.openScenes[scene]);
   const overlayScenes = layoutOverlayScenes();
   const destroyConfirmHtml = inventoryDestroyConfirmHtml();
   const rebirthConfirmHtmlContent = rebirthConfirmHtml();
@@ -22816,6 +23951,7 @@ function setSceneWindowPosition(scene, x, y) {
       codex: null,
       upgrades: null,
       leaderboard: null,
+      timeLogging: null,
     };
   }
   state.settings.sceneWindowPositions[scene] = { x: Math.round(x), y: Math.round(y) };
@@ -23015,6 +24151,8 @@ function buildSceneOverlaySignature(openScenes, bossEntryZoneId) {
     armouryActiveKitIndex: state.armoury?.activeKitIndex ?? null,
     storagePage2Purchased: state.account.storage.page2Purchased,
     storageTokenPageUnlocked: state.account.storage.tokenPageUnlocked,
+    storageTokenPage4Unlocked: state.account.storage.tokenPage4Unlocked,
+    storageTokenPage5Unlocked: state.account.storage.tokenPage5Unlocked,
     tokens: { balance: state.tokens.balance, buying: state.tokens.buying, error: state.tokens.error },
     upgradeSection: state.upgradeSection,
     upgradeCategory: state.upgradeCategory,
@@ -23025,6 +24163,12 @@ function buildSceneOverlaySignature(openScenes, bossEntryZoneId) {
     bossKills: state.game.bossKills,
     teleportRegionId: state.teleportRegionId,
     teleportBrowseRegionId: state.teleportBrowseRegionId,
+    ascensionDialoguePage: state.ascensionDialoguePage,
+    travellerSuppliesOpen: state.travellerSuppliesOpen,
+    ascensionPoints: accountAscensionPoints(),
+    ascensionTiers: activeAscensionTiers(),
+    ascensionRespecOpen: ascensionRespecOpen(),
+    ascensionConfirmOpen: state.ascensionConfirmOpen,
     selectedTownNpcId: state.game.selectedTownNpcId,
     autoJunkItemIds: state.account?.autoJunkItemIds ?? [],
     weaponRefine: state.weaponRefine,
@@ -23054,6 +24198,24 @@ function buildSceneOverlaySignature(openScenes, bossEntryZoneId) {
   }
   // Teleport-ring respawn timers tick every second; they are refreshed in place by
   // refreshOpenSceneLiveText so they must NOT force a full overlay rebuild here.
+  if (openScenes.includes("difficulty")) {
+    payload.difficulty = selectedWorldDifficultyId();
+    payload.difficultyTown = state.game.mode === "town";
+  }
+  if (openScenes.includes("journey")) {
+    // The settled records only, so the window rebuilds when the dragon falls or a
+    // new world begins. The running clock is refreshed in place and stays out.
+    const ascension = state.account?.ascension;
+    payload.journey = {
+      startedAt: ascension?.journeyStartedAt ?? 0,
+      clearedAt: ascension?.journeyClearedAt ?? 0,
+      lastMs: ascension?.lastJourneyMs ?? 0,
+      bestMs: ascension?.bestJourneyMs ?? 0,
+      count: state.account?.stats?.ascensionCount ?? 0,
+      runClears: ascension?.runClears ?? null,
+      bestClears: ascension?.bestClears ?? null,
+    };
+  }
   if (openScenes.includes("character")) {
     payload.level = state.game.progress.level;
     // Live XP is refreshed in place (refreshOpenSceneLiveText); excluding it keeps
@@ -23219,6 +24381,7 @@ function sceneClassName(scene) {
   if (scene === "craftingCube") return "scene-window crafting-cube-window";
   if (scene === "craftingCubeRecipes") return "scene-window crafting-cube-recipes-window";
   if (scene === "armoury") return "scene-window armoury-window";
+  if (scene === "ascensionUpgrades") return "scene-window ascension-upgrades-window";
   if (scene === "inventory") return "scene-window inventory-window";
   if (scene === "codex") return "scene-window codex-window";
   if (scene === "achievements") return "scene-window achievements-window";
@@ -23234,6 +24397,8 @@ function sceneClassName(scene) {
   if (scene === "spiritBox") return "scene-window spirit-box-window";
   if (scene === "autoJunk") return "scene-window auto-junk-window";
   if (scene === "glyphs") return "scene-window glyphs-window";
+  if (scene === "journey") return "scene-window journey-window";
+  if (scene === "difficulty") return "scene-window difficulty-window";
   return "scene-window";
 }
 
@@ -23248,6 +24413,7 @@ function sceneTitle(scene) {
   if (scene === "craftingCube") return "Crafting Cube";
   if (scene === "craftingCubeRecipes") return "Recipes";
   if (scene === "armoury") return "Armoury";
+  if (scene === "ascensionUpgrades") return "Ascension";
   if (scene === "upgrades") return "Upgrades";
   if (scene === "gettingStarted") return "Getting Started";
   if (scene === "changelog") return "What's New";
@@ -23259,6 +24425,8 @@ function sceneTitle(scene) {
   if (scene === "spiritBox") return "Spirit Box";
   if (scene === "autoJunk") return "Auto-Junk Filters";
   if (scene === "glyphs") return "Glyphs";
+  if (scene === "journey") return "Journey";
+  if (scene === "difficulty") return "Difficulty";
   if (scene === "mysteryCaveReward") return "Mystery Cave Reward";
   if (scene === "bossEntry") {
     const zone = bossEntryZone();
@@ -23286,12 +24454,15 @@ function sceneBodyHtml(scene) {
   if (scene === "spiritBox") return spiritBoxSceneHtml();
   if (scene === "autoJunk") return autoJunkFiltersSceneHtml();
   if (scene === "glyphs") return glyphsSceneHtml();
+  if (scene === "journey") return journeySceneHtml();
+  if (scene === "difficulty") return difficultySceneHtml();
   if (scene === "mysteryCaveReward") return mysteryCaveRewardSceneHtml();
   if (scene === "bossEntry") return bossEntrySceneHtml();
   if (scene === "weaponRefine") return weaponRefineSceneHtml();
   if (scene === "craftingCube") return craftingCubeSceneHtml();
   if (scene === "craftingCubeRecipes") return craftingCubeRecipesSceneHtml();
   if (scene === "armoury") return armourySceneHtml();
+  if (scene === "ascensionUpgrades") return ascensionUpgradesSceneHtml();
   if (scene === "townNpc") return townNpcSceneHtml();
   return "";
 }
@@ -23343,9 +24514,15 @@ function compareCodexItems(a, b) {
   return String(a.name).localeCompare(String(b.name));
 }
 
+/** Item Codex lists droppable loot only (zone/enemy tables + boss tables). */
+function isCodexListedItem(item) {
+  return itemCanDrop(item, monsterAndBossDropItemIds());
+}
+
 function codexCategoryItems(categoryId = state.codexCategory) {
   const category = normalizeCodexCategory(categoryId);
   return [...(state.itemData.items ?? [])]
+    .filter((item) => isCodexListedItem(item))
     .filter((item) => category === "all" || codexCategoryForItem(item) === category)
     .sort(compareCodexItems);
 }
@@ -23356,6 +24533,7 @@ function codexProgressByCategory() {
   );
   const discoveries = ensureAccountCodex().items;
   for (const item of state.itemData.items ?? []) {
+    if (!isCodexListedItem(item)) continue;
     const category = codexCategoryForItem(item);
     const discovered = Boolean(discoveries[item.id]);
     progress.all.total += 1;
@@ -25778,8 +26956,13 @@ function applyOwnedUnlocks() {
   const owned = state.account.ownedUnlocks && typeof state.account.ownedUnlocks === "object"
     ? state.account.ownedUnlocks
     : {};
-  if (owned[STORAGE_PAGE_UNLOCK_KEY]) {
-    state.account.storage.tokenPageUnlocked = true;
+  let storageUnlockChanged = false;
+  for (const def of STORAGE_TOKEN_PAGE_UNLOCKS) {
+    if (!owned[def.key]) continue;
+    state.account.storage[def.flag] = true;
+    storageUnlockChanged = true;
+  }
+  if (storageUnlockChanged) {
     syncStorageCapacity();
     ensureStorageSlots();
   }
@@ -27130,10 +28313,12 @@ function storagePageTabsHtml() {
     let actionAttr = tab.unlocked ? ` data-storage-page="${tab.index}"` : "";
     if (tab.index > 0 && tab.unlocked) {
       label = String(tab.index + 1);
-    } else if (!tab.unlocked && tab.type === "token") {
-      title = `Unlock a new storage page for ${PAGE_UNLOCK_TOKEN_COST} tokens`;
-      label = `${PAGE_UNLOCK_TOKEN_COST} Tok`;
-      actionAttr = ` data-unlock-storage="token"`;
+    } else if (!tab.unlocked && tab.type !== "gold") {
+      const def = storageTokenUnlockByType(tab.type);
+      const cost = def?.cost ?? PAGE_UNLOCK_TOKEN_COST;
+      title = `Unlock a new storage page for ${cost} tokens`;
+      label = `${cost} Tok`;
+      actionAttr = ` data-unlock-storage="${tab.type}"`;
     } else if (!tab.unlocked) {
       title = `Unlock a new storage page for ${STORAGE_PAGE_2_UNLOCK_COST.toLocaleString()} gold`;
       label = `${STORAGE_PAGE_2_UNLOCK_COST.toLocaleString()}g`;
@@ -27152,10 +28337,11 @@ function storagePageTabsHtml() {
 
 // Shared confirm dialog for a real-money token page unlock. Shows the live
 // balance and blocks the buy button until the player can afford it.
-function tokenUnlockConfirmHtml({ text, confirmAttr, cancelAttr }) {
+function tokenUnlockConfirmHtml({ text, confirmAttr, cancelAttr, cost = PAGE_UNLOCK_TOKEN_COST }) {
   const balance = Math.max(0, Math.trunc(Number(state.tokens.balance) || 0));
   const buying = Boolean(state.tokens.buying);
-  const canAfford = balance >= PAGE_UNLOCK_TOKEN_COST;
+  const need = Math.max(0, Math.trunc(Number(cost) || 0));
+  const canAfford = balance >= need;
   const errorHtml = state.tokens.error
     ? `<p class="crystal-storage-unlock-note">${escapeHtml(state.tokens.error)}</p>`
     : "";
@@ -27167,7 +28353,7 @@ function tokenUnlockConfirmHtml({ text, confirmAttr, cancelAttr }) {
         <button type="button" class="crystal-storage-unlock-confirm-btn" ${confirmAttr} ${buying || !canAfford ? "disabled" : ""}>${buying ? "..." : "Buy"}</button>
         <button type="button" class="crystal-storage-unlock-cancel-btn" ${cancelAttr}>Cancel</button>
       </div>
-      ${canAfford ? "" : `<p class="crystal-storage-unlock-note">Need ${PAGE_UNLOCK_TOKEN_COST} tokens - open the Cash Shop to buy more.</p>`}
+      ${canAfford ? "" : `<p class="crystal-storage-unlock-note">Need ${need} tokens - open the Cash Shop to buy more.</p>`}
       ${errorHtml}
     </div>
   `;
@@ -27206,10 +28392,12 @@ function storagePageUnlockConfirmHtml() {
       </div>
     `;
   }
-  if (kind === "token") {
-    if (state.account.storage.tokenPageUnlocked) return "";
+  const def = storageTokenUnlockByType(kind);
+  if (def) {
+    if (state.account.storage[def.flag]) return "";
     return tokenUnlockConfirmHtml({
-      text: `Unlock a new storage page for <strong>${PAGE_UNLOCK_TOKEN_COST}</strong> tokens?`,
+      text: `Unlock a new storage page for <strong>${def.cost}</strong> tokens?`,
+      cost: def.cost,
       confirmAttr: "data-confirm-storage-token-unlock",
       cancelAttr: "data-cancel-storage-page-unlock",
     });
@@ -30331,6 +31519,7 @@ function buildSwarmEnemyFromTemplate(template, now, options = {}) {
   // Empowered/Ascended/Awakened group dungeons scale every monster (trash + bosses). Boss-swarm
   // members that also match supportsEmpoweredBossCombat are handled here instead of the
   // boss-room hook (which would add enrage and double-scale) — see spawnGroupDungeonBossSwarmEnemy.
+  applyWorldDifficultyCombatModifiers(enemy);
   applyGroupDungeonEmpowerCombatModifiers(enemy);
   return enemy;
 }
@@ -32215,7 +33404,20 @@ function incrementAccountBossKill(zoneId) {
   kills[zoneId] = Math.max(0, Math.trunc(Number(kills[zoneId]) || 0)) + 1;
   ensureAccountStats();
   state.account.stats.bossKills = kills;
+  incrementAscensionRunBossKill(zoneId);
   syncAccountBossKillsToCharacters();
+  // Before the payout, which returns early on a re-kill that earns nothing - a
+  // first clear at a LOWER tier than one already beaten still deserves its time.
+  recordEvilMirClearTime(zoneId);
+  const ascensionPoints = awardEvilMirAscensionPoints(zoneId);
+  if (ascensionPoints > 0) {
+    const runTotal = ascensionRunPointsAwarded();
+    const plural = ascensionPoints === 1 ? "" : "s";
+    pushBattleLog(ascensionPoints === runTotal
+      ? `The Traveller waits in town. You gained ${ascensionPoints} Ascension Point${plural}.`
+      : `A harder Evil Mir falls. You gained ${ascensionPoints} more Ascension Point${plural}, ${runTotal} for this journey.`);
+    sceneSignature = "";
+  }
 }
 
 function incrementBossKill(zoneId, gameState = null) {
@@ -32229,8 +33431,10 @@ function bossKillCount(zoneId) {
   return Math.max(0, Math.trunc(Number(accountBossKills()[zoneId]) || 0));
 }
 
+// Filtered, so an NPC that locks while its own panel is open (ascension wipes
+// the run's Evil Mir kills) cannot leave a stale panel behind.
 function selectedTownNpc() {
-  return TOWN_NPCS.find((npc) => npc.id === state.game.selectedTownNpcId) ?? null;
+  return visibleTownNpcs().find((npc) => npc.id === state.game.selectedTownNpcId) ?? null;
 }
 
 function townNpcSceneHtml() {
@@ -32245,6 +33449,7 @@ function townNpcSceneHtml() {
   if (npc.role === "Smith") return smithNpcSceneHtml(npc);
   if (npc.role === "Refiner") return refinerNpcSceneHtml(npc);
   if (npc.role === "GemMerchant") return gemMerchantNpcSceneHtml(npc);
+  if (npc.role === "Ascension") return ascensionNpcSceneHtml();
   if (npc.role === "Storage") return storageSceneHtml();
   if (npc.role === "MessageBoard") return townMessageBoardSceneHtml();
   return `
@@ -32256,6 +33461,735 @@ function townNpcSceneHtml() {
       </div>
     </section>
   `;
+}
+
+// The Traveller's speech, one page per click of Next. The last page is the ask,
+// and carries the accept/decline buttons instead. These two opening pages are the
+// first meeting; once he has a time to quote, ascensionReturnOpeningPages replaces
+// them.
+const ASCENSION_DIALOGUE_PAGES = [
+  [
+    "You have walked to the end of this world and killed the dragon at its heart.",
+    "That is not the end of your journey. It is one step along it.",
+  ],
+  [
+    "It took you a long time to bring the red dragon down, and his corruption spread far and wide across the land.",
+    "If I were to send you back, to the very beginning, could you do it faster?",
+  ],
+];
+
+// Shared by both scripts - only the opening changes once he has a time to quote.
+const ASCENSION_DIALOGUE_CLOSING_PAGES = [
+  ["Agree to walk the journey again from its first steps, and I shall imbue you with powers not yet available to you."],
+  [
+    "You will start with nothing. But with your new powers, you may be able to kill the red dragon faster than before.",
+    "And when you stand in front of me next time, you shall be more powerful than ever.",
+  ],
+  ["Do you accept my terms?"],
+];
+
+// The hardest version of him felled in this world, so he can name it rather than
+// just quoting the first kill.
+function ascensionHardestClearThisWorld() {
+  const run = ascensionClearTimes("runClears");
+  let best = null;
+  for (const [tier, ms] of Object.entries(run)) {
+    const index = Number(tier);
+    if (!best || index > best.tier) best = { tier: index, ms };
+  }
+  return best;
+}
+
+// Null on a first journey, or on one the Traveller could not time - the caller
+// falls back to the original script, which promises nothing it cannot deliver.
+function ascensionReturnOpeningPages() {
+  const worlds = Math.max(0, Math.trunc(Number(state.account?.stats?.ascensionCount) || 0));
+  if (worlds <= 0) return null;
+  const ascension = state.account?.ascension;
+  const thisMs = ascensionFastestClearMs("runClears") || ascensionJourneyElapsedMs();
+  if (thisMs <= 0) return null;
+  const lastMs = Math.max(0, Math.trunc(Number(ascension?.lastJourneyMs) || 0));
+  const bestMs = Math.max(0, Math.trunc(Number(ascension?.bestJourneyMs) || 0));
+
+  const first = [
+    "You have felled the red dragon again, and returned to me as you said you would.",
+    `This world you did it in ${formatAscensionDuration(thisMs)}.`,
+  ];
+  const hardest = ascensionHardestClearThisWorld();
+  if (hardest && hardest.tier > 0) {
+    first.push(`And not the lesser beast, either - you put down his ${BOSS_FIGHT_TIER_LABELS[hardest.tier].toLowerCase()} form in ${formatAscensionDuration(hardest.ms)}.`);
+  }
+
+  const second = [];
+  if (lastMs > 0) {
+    const diff = lastMs - thisMs;
+    if (diff > 0) second.push(`The world before took you ${formatAscensionDuration(lastMs)}. You have cut ${formatAscensionDuration(diff)} from it.`);
+    else if (diff < 0) second.push(`The world before took you ${formatAscensionDuration(lastMs)}. This one cost you ${formatAscensionDuration(-diff)} more.`);
+    else second.push(`The world before took you ${formatAscensionDuration(lastMs)} exactly. Not a moment gained, nor lost.`);
+  } else {
+    second.push("I hold no record of the world before this one, so this time is the mark all others will answer to.");
+  }
+  // Only worth saying when it is not the number he has just quoted.
+  if (bestMs > 0 && thisMs > bestMs) {
+    second.push(`Your swiftest remains ${formatAscensionDuration(bestMs)}.`);
+  }
+  second.push("If I were to send you back once more, could you do it faster still?");
+
+  return [first, second];
+}
+
+function ascensionDialoguePages() {
+  return [...(ascensionReturnOpeningPages() ?? ASCENSION_DIALOGUE_PAGES), ...ASCENSION_DIALOGUE_CLOSING_PAGES];
+}
+
+function ascensionDialoguePageIndex() {
+  const raw = Math.trunc(Number(state.ascensionDialoguePage) || 0);
+  return Math.min(Math.max(raw, 0), ascensionDialoguePages().length - 1);
+}
+
+function ascensionAcceptNote() {
+  if (!ASCENSION_ENABLED) return "Ascension is not open yet.";
+  if (!canPerformAscension()) return "Evil Mir must fall this journey before he will send you back.";
+  return "You choose your powers before you go.";
+}
+
+function travellerSuppliesSceneHtml() {
+  const cap = travellerSuppliesLevelCap();
+  const stock = travellerSuppliesStock();
+  const tier = ascensionEffectTier("ascension-starter-shop");
+  const nextCap = TRAVELLER_SUPPLIES_LEVEL_CAPS[tier];
+  const rows = stock.map(shopBuyRowHtml).join("");
+  // No flavour prose and only one header row: the list runs to 190 items at the
+  // last tier and the NPC window is a fixed height, so the space goes to rows.
+  const capNote = nextCap
+    ? `Stock to level ${cap}, next tier ${nextCap}`
+    : `Stock to level ${cap} - all he carries`;
+  return `
+    <section class="npc-panel crystal-npc-text npc-shop-panel traveller-supplies-panel">
+      <div class="npc-shop-summary">
+        <span>Your gold</span>
+        <strong>${state.inventory.gold}g</strong>
+      </div>
+      <div class="npc-shop-list" data-preserve-scroll="npc-traveller-supplies">
+        ${rows || `<span class="trader-empty">Nothing here suits your class.</span>`}
+      </div>
+      <div class="traveller-supplies-footer">
+        <small class="muted">${escapeHtml(capNote)} - ${stock.length} items</small>
+        <button type="button" class="ascension-dialogue-button" data-close-traveller-supplies>Let us talk instead.</button>
+      </div>
+    </section>
+  `;
+}
+
+function ascensionNpcSceneHtml() {
+  if (state.travellerSuppliesOpen && travellerSuppliesOpen()) return travellerSuppliesSceneHtml();
+  const pages = ascensionDialoguePages();
+  const page = ascensionDialoguePageIndex();
+  const lastPage = pages.length - 1;
+  const speech = pages[page].map((line) => `<p>${escapeHtml(line)}</p>`).join("");
+  const backButton = page > 0
+    ? `<button type="button" class="ascension-dialogue-button" data-ascension-dialogue-back>Back</button>`
+    : "";
+  // Accepting does not wipe anything. It opens the powers panel with the
+  // choosing window unlocked, and the wipe waits behind a confirm in there, so
+  // there is no single click anywhere that can destroy a save.
+  const canAscend = ASCENSION_ENABLED && canPerformAscension();
+  const actions = page === lastPage
+    ? `
+        <button type="button" class="ascension-dialogue-button primary" data-ascension-accept ${canAscend ? "" : "disabled"}>Yes. Send me back.</button>
+        <button type="button" class="ascension-dialogue-button" data-ascension-decline>Not yet. There is more I must do.</button>
+        ${backButton}
+      `
+    : `
+        <button type="button" class="ascension-dialogue-button primary" data-ascension-dialogue-next>Next</button>
+        ${backButton}
+      `;
+  const note = page === lastPage ? ascensionAcceptNote() : `${page + 1} of ${lastPage + 1}`;
+  // He offers the powers on the page where he mentions them, and again at the
+  // ask, so the list can be read without clicking all the way through.
+  const powersButton = page >= 2
+    ? `<button type="button" class="ascension-dialogue-button" data-open-ascension-upgrades>Show me these powers.</button>`
+    : "";
+  // Offered on every page: the supplies are the point of visiting him mid-journey,
+  // so they should not be buried behind clicking through the speech.
+  const suppliesButton = travellerSuppliesOpen()
+    ? `<button type="button" class="ascension-dialogue-button" data-open-traveller-supplies>Show me your supplies.</button>`
+    : "";
+  return `
+    <section class="npc-panel crystal-npc-text ascension-panel">
+      ${speech}
+      <div class="ascension-dialogue-actions">${actions}${powersButton}${suppliesButton}</div>
+      <small class="muted ascension-dialogue-note">${escapeHtml(note)}</small>
+    </section>
+  `;
+}
+
+// Ascension upgrades. Spending is gated on ascensionRespecOpen(), and the ones
+// without `planned: true` are wired to real effects - see ascensionEffectTier
+// and its callers. Costs are sized against the income of 5 points for a base
+// Evil Mir kill, 7 empowered, 9 ascended, 11 awakened, so a first ascension buys
+// roughly one cheap tier.
+// maxTier null means unlimited tiers. costPerTier is flat - no escalation - so
+// the total spend to max a capped upgrade is just costPerTier * maxTier. An
+// upgrade can instead give a costByTier schedule when its tiers escalate.
+
+// The item level the Traveller will sell up to, one entry per tier of
+// Traveller's Supplies. Index 0 is tier 1.
+const TRAVELLER_SUPPLIES_LEVEL_CAPS = [11, 16, 22, 28, 33];
+
+const ASCENSION_UPGRADE_DEFS = [
+  {
+    id: "ascension-xp-cost",
+    label: "Swift Learning",
+    icon: "XP",
+    effectLabel: "Level XP required",
+    effectText: "-10% per tier, to -50%",
+    maxTier: 5,
+    costPerTier: 1,
+    summary: "Each level needs less XP. Five tiers cuts the requirement in half.",
+  },
+  {
+    id: "ascension-skill-cap",
+    label: "Deeper Mastery",
+    icon: "SK",
+    effectLabel: "Skill level cap",
+    effectText: "Level 3 to level 4",
+    maxTier: 1,
+    costPerTier: 4,
+    planned: true,
+    summary: "Lets combat skills reach level 4.",
+  },
+  {
+    id: "ascension-soul-drops",
+    label: "Soul Beacon",
+    icon: "AS",
+    effectLabel: "Boss soul drop chance",
+    effectText: "100% from every boss",
+    maxTier: 1,
+    costPerTier: 2,
+    summary: "Every boss drops an Awakened Soul.",
+  },
+  {
+    id: "ascension-soul-yield",
+    label: "Soul Exchange",
+    icon: "RP",
+    effectLabel: "Rebirth Points per soul",
+    effectText: "+20% per tier, no cap",
+    maxTier: null,
+    costPerTier: 3,
+    summary: "Souls are worth more Rebirth Points. 100 souls become 120 at one tier, 200 at five.",
+  },
+  {
+    id: "ascension-empowered-start",
+    label: "Empowered Start",
+    icon: "EM",
+    effectLabel: "Boss Empowerment",
+    effectText: "Unlocked from the start",
+    maxTier: 1,
+    costPerTier: 2,
+    summary: "Boss Empowerment is unlocked from the moment you set out.",
+  },
+  {
+    id: "ascension-difficulty",
+    label: "Steeper Path",
+    icon: "DF",
+    effectLabel: "World difficulty",
+    effectText: "Normal to Impossible",
+    maxTier: 1,
+    costPerTier: 2,
+    summary: "Choose a world difficulty in town. Harder monsters, more XP, gold, and drops.",
+  },
+  {
+    id: "ascension-starter-shop",
+    label: "Traveller's Supplies",
+    icon: "SH",
+    effectLabel: "Shop stock",
+    effectText: `Level ${TRAVELLER_SUPPLIES_LEVEL_CAPS[0]} to ${TRAVELLER_SUPPLIES_LEVEL_CAPS[TRAVELLER_SUPPLIES_LEVEL_CAPS.length - 1]}`,
+    effectTextFor: (tier) => {
+      const owned = TRAVELLER_SUPPLIES_LEVEL_CAPS[tier - 1];
+      if (!owned) return `Level ${TRAVELLER_SUPPLIES_LEVEL_CAPS[0]} to ${TRAVELLER_SUPPLIES_LEVEL_CAPS[TRAVELLER_SUPPLIES_LEVEL_CAPS.length - 1]}`;
+      const next = TRAVELLER_SUPPLIES_LEVEL_CAPS[tier];
+      return next ? `Level ${owned}, then ${next}` : `Level ${owned}, all stock`;
+    },
+    maxTier: TRAVELLER_SUPPLIES_LEVEL_CAPS.length,
+    // Each tier costs more than the last, so the full five run to 15 points.
+    costByTier: [1, 2, 3, 4, 5],
+    summary: "Buy gear and skill books from the Traveller. Each tier raises the level of what he sells.",
+  },
+  {
+    id: "ascension-salvage-surplus",
+    label: "Havoc Surplus",
+    icon: "HC",
+    effectLabel: "Extra salvage crystals",
+    effectText: "+25% chance per tier, no cap",
+    effectTextFor: (tier) => {
+      const chance = ascensionSalvageExtraChancePercent(tier);
+      if (chance <= 0) return "+25% chance per tier, no cap";
+      return chance < 100
+        ? `${chance}% chance of extra crystals`
+        : `${chance}% extra crystals`;
+    },
+    maxTier: null,
+    costEqualsTier: true,
+    summary: "Salvaging can pay extra Havoc Crystals. +25% chance per tier, with no limit.",
+  },
+];
+
+function accountAscensionPoints() {
+  return Math.max(0, ascensionPointsEarned() - ascensionPointsSpent());
+}
+
+// The draft while ascending, the banked tiers otherwise. Everything that reads
+// a tier or prices the balance goes through here, so the panel shows the build
+// being assembled without it having been bought yet.
+function activeAscensionTiers() {
+  if (state.ascensionDraft) return state.ascensionDraft;
+  return state.account?.ascension?.tiers ?? {};
+}
+
+function ascensionUpgradeTier(upgradeId) {
+  return ascensionTierOf(activeAscensionTiers(), upgradeId);
+}
+
+// Most upgrades describe their whole progression in one static line. Ones whose
+// wording depends on how many tiers are owned supply effectTextFor instead.
+function ascensionUpgradeEffectText(upgrade, tier) {
+  if (typeof upgrade?.effectTextFor === "function") return upgrade.effectTextFor(tier);
+  return upgrade?.effectText ?? "";
+}
+
+// Gameplay reads THIS, never ascensionUpgradeTier: a power only takes effect
+// once it is banked. The draft is a shopping list, so pricing it off the draft
+// (as the panel does) would otherwise hand out the effect before the wipe.
+function ascensionEffectTier(upgradeId) {
+  return ascensionTierOf(state.account?.ascension?.tiers, upgradeId);
+}
+
+// -10% of the XP needed per level per tier, floored at half. Applied as a
+// multiplier on the requirement so the XP bar visibly shortens.
+function ascensionXpRequirementScale() {
+  const tier = Math.min(ASCENSION_XP_COST_MAX_TIER, ascensionEffectTier("ascension-xp-cost"));
+  return Math.max(0.5, 1 - ASCENSION_XP_COST_STEP * tier);
+}
+
+function ascensionSoulYieldBonus() {
+  return ASCENSION_SOUL_YIELD_STEP * ascensionEffectTier("ascension-soul-yield");
+}
+
+function steeperPathOwned() {
+  return ascensionEffectTier("ascension-difficulty") >= 1;
+}
+
+function selectedWorldDifficultyId() {
+  return sanitizeWorldDifficulty(ensureAccountAscensionState().worldDifficulty, steeperPathOwned());
+}
+
+function selectedWorldDifficulty() {
+  return worldDifficultyDef(selectedWorldDifficultyId());
+}
+
+function worldDifficultyRate() {
+  return worldDifficultyMultiplier(selectedWorldDifficultyId());
+}
+
+function zoneLabelWithDifficulty(zone, mode = state.game.mode) {
+  const base = zone?.label ?? (mode === "mining" ? "Mine" : "Hunting Zone");
+  const difficulty = selectedWorldDifficulty();
+  if (difficulty.id === WORLD_DIFFICULTY_DEFAULT) return base;
+  return `${base} (${difficulty.label})`;
+}
+
+function setWorldDifficulty(difficultyId) {
+  if (!steeperPathOwned()) return false;
+  if (state.game.mode !== "town") return false;
+  const next = sanitizeWorldDifficulty(difficultyId, true);
+  const ascension = ensureAccountAscensionState();
+  if (ascension.worldDifficulty === next) return true;
+  ascension.worldDifficulty = next;
+  sceneSignature = "";
+  gamePanelSignature = "";
+  saveGameState(true);
+  renderSceneOverlay();
+  renderGamePanel();
+  playSfx("ui.button", { volume: 0.35, throttleMs: 120 });
+  return true;
+}
+
+function ascensionSalvageChancePercent() {
+  return ascensionSalvageExtraChancePercent(ascensionEffectTier("ascension-salvage-surplus"));
+}
+
+function salvageCrystalPreview(baseCrystals) {
+  return previewAscensionSalvageBonus(baseCrystals, ascensionSalvageChancePercent());
+}
+
+function salvageCrystalPreviewLabel(baseCrystals) {
+  const preview = salvageCrystalPreview(baseCrystals);
+  if (preview.min === preview.max) {
+    return `${preview.min} Havoc Crystal${preview.min === 1 ? "" : "s"}`;
+  }
+  return `${preview.min}-${preview.max} Havoc Crystals`;
+}
+
+// Traveller's Supplies. Each tier raises the item level he will sell up to.
+const TRAVELLER_SUPPLIES_GEAR_TYPES = new Set([
+  "weapon",
+  "armour",
+  "helmet",
+  "boots",
+  "belt",
+  "ring",
+  "bracelet",
+  "necklace",
+  "amulet",
+]);
+
+// Still catalogue items, just not things the Traveller will sell.
+const TRAVELLER_SUPPLIES_EXCLUDED_IDS = new Set([
+  "paralysis-ring",
+  "protection-ring",
+  "recovery-ring",
+  "skill-necklace",
+  "sharp-bracelet",
+  "gale-ring",
+  "medium-armour",
+]);
+
+/** The item level the banked tiers let him sell up to, or 0 when he sells nothing. */
+function travellerSuppliesLevelCap() {
+  const tier = ascensionEffectTier("ascension-starter-shop");
+  if (tier <= 0) return 0;
+  const index = Math.min(TRAVELLER_SUPPLIES_LEVEL_CAPS.length, tier) - 1;
+  return TRAVELLER_SUPPLIES_LEVEL_CAPS[index];
+}
+
+function travellerSuppliesOpen() {
+  return travellerSuppliesLevelCap() > 0;
+}
+
+let monsterAndBossDropItemIdsCache = null;
+
+function monsterAndBossDropItemIds() {
+  if (!monsterAndBossDropItemIdsCache) {
+    monsterAndBossDropItemIdsCache = collectBossTableItemIds(BOSS_DROP_TABLE_BY_LABEL);
+    for (const id of ZUMA_THUNDER_GUARANTEED_DROP_IDS) monsterAndBossDropItemIdsCache.add(id);
+    for (const id of RED_THUNDER_ZUMA_BONUS_WEAPON_IDS) monsterAndBossDropItemIdsCache.add(id);
+    for (const id of RED_THUNDER_ZUMA_ZUMA_WEAPON_IDS) monsterAndBossDropItemIdsCache.add(id);
+  }
+  return monsterAndBossDropItemIdsCache;
+}
+
+// Catalogue-derived, but only what can actually drop. Shop-only variants,
+// gender flips with no table, and craft/NPC leftovers stay out. Boss-table
+// skill books stay on the bosses. The excluded ids are still withheld even
+// if they drop.
+function travellerSuppliesStock() {
+  const cap = travellerSuppliesLevelCap();
+  if (cap <= 0) return [];
+  const dropIds = monsterAndBossDropItemIds();
+  return (state.itemData?.items ?? [])
+    .filter((item) => {
+      if (!TRAVELLER_SUPPLIES_GEAR_TYPES.has(item?.type) && item?.type !== "book") return false;
+      if (TRAVELLER_SUPPLIES_EXCLUDED_IDS.has(item?.id)) return false;
+      if (item?.type === "book" && dropIds.has(item.id)) return false;
+      if (!itemCanDrop(item, dropIds)) return false;
+      if (itemBuyValue(item) <= 0) return false;
+      const req = item?.requirements;
+      if (req?.type !== "level" || (Number(req.amount) || 0) > cap) return false;
+      return classRequirementMet(req.classMask);
+    })
+    .sort(
+      (a, b) =>
+        (Number(a.requirements.amount) || 0) - (Number(b.requirements.amount) || 0) ||
+        itemBuyValue(a) - itemBuyValue(b) ||
+        String(a.name ?? "").localeCompare(String(b.name ?? "")),
+    );
+}
+
+function ascensionSoulBeaconOwned() {
+  return ascensionEffectTier("ascension-soul-drops") >= 1;
+}
+
+function ascensionEmpoweredStartOwned() {
+  return ascensionEffectTier("ascension-empowered-start") >= 1;
+}
+
+// Powers may only be chosen or respecced during the ascension itself, so a run
+// can never be re-tuned mid-flight.
+function ascensionRespecOpen() {
+  return state.ascensionDraft != null;
+}
+
+// Opens the choosing window on a copy of the banked build, so a player who
+// ascends again can keep what they had or hand it all back.
+function beginAscensionRespec() {
+  ensureAccountAscensionState();
+  state.ascensionDraft = sanitizeAscensionTiers(
+    state.account.ascension.tiers,
+    ASCENSION_UPGRADE_DEFS,
+  );
+  refreshAscensionPanel();
+  return state.ascensionDraft;
+}
+
+function cancelAscensionRespec() {
+  if (!ascensionRespecOpen()) return false;
+  state.ascensionDraft = null;
+  state.ascensionConfirmOpen = false;
+  refreshAscensionPanel();
+  return true;
+}
+
+// Banks the draft. Called by the ascension itself as part of the wipe, so the
+// powers and the reset land together or not at all.
+function commitAscensionRespec() {
+  if (!ascensionRespecOpen()) return false;
+  const ascension = ensureAccountAscensionState();
+  ascension.tiers = sanitizeAscensionTiers(state.ascensionDraft, ASCENSION_UPGRADE_DEFS);
+  state.ascensionDraft = null;
+  refreshAscensionPanel();
+  saveGameState(true);
+  return true;
+}
+
+function refreshAscensionPanel() {
+  sceneSignature = "";
+  gamePanelSignature = "";
+  renderSceneOverlay();
+  renderGamePanel();
+}
+
+function buyAscensionUpgrade(upgradeId) {
+  if (!ascensionRespecOpen()) return false;
+  const upgrade = ascensionUpgradeById(upgradeId);
+  if (!upgrade) return false;
+  const check = canBuyAscensionTier(
+    state.ascensionDraft,
+    ASCENSION_UPGRADE_DEFS,
+    upgradeId,
+    ascensionPointsEarned(),
+  );
+  if (!check.ok) {
+    if (check.reason === "planned") pushBattleLog(`${upgrade.label} is not ready yet.`);
+    else if (check.reason === "maxed") pushBattleLog(`${upgrade.label} is already at its highest tier.`);
+    else if (check.reason === "points") {
+      pushBattleLog(`Need ${check.shortBy} more Ascension Point${check.shortBy === 1 ? "" : "s"} for ${upgrade.label}.`);
+    }
+    battlePanelSignature = "";
+    renderBattlePanel();
+    return false;
+  }
+  state.ascensionDraft = buyAscensionTier(
+    state.ascensionDraft,
+    ASCENSION_UPGRADE_DEFS,
+    upgradeId,
+    ascensionPointsEarned(),
+  );
+  playSfx("ui.gold", { volume: 0.5, throttleMs: 80 });
+  refreshAscensionPanel();
+  return true;
+}
+
+function refundAscensionUpgrade(upgradeId) {
+  if (!ascensionRespecOpen()) return false;
+  const next = refundAscensionTier(state.ascensionDraft, ASCENSION_UPGRADE_DEFS, upgradeId);
+  if (!next) return false;
+  state.ascensionDraft = next;
+  playSfx("ui.button", { volume: 0.35, throttleMs: 80 });
+  refreshAscensionPanel();
+  return true;
+}
+
+function clearAscensionDraft() {
+  if (!ascensionRespecOpen()) return false;
+  if (!Object.keys(state.ascensionDraft).length) return false;
+  state.ascensionDraft = {};
+  playSfx("ui.button", { volume: 0.35, throttleMs: 80 });
+  refreshAscensionPanel();
+  return true;
+}
+
+function ascensionUpgradeCardHtml(upgrade) {
+  const tier = ascensionUpgradeTier(upgrade.id);
+  // Tiers can escalate in price, so quote the one about to be bought.
+  const cost = ascensionNextTierCost(activeAscensionTiers(), ASCENSION_UPGRADE_DEFS, upgrade.id);
+  const points = accountAscensionPoints();
+  const respec = ascensionRespecOpen();
+  const planned = upgrade.planned === true;
+  const maxed = upgrade.maxTier != null && tier >= upgrade.maxTier;
+  const affordable = !planned && !maxed && points >= cost;
+  const tierText = upgrade.maxTier == null ? `Tier ${tier}` : `Tier ${tier}/${upgrade.maxTier}`;
+  const stateClass = tier > 0 && maxed ? "purchased" : affordable ? "ready" : "locked";
+  const status = planned ? "Not ready" : maxed ? "Maxed" : affordable ? "Affordable" : "Not enough points";
+  const buyLabel = planned
+    ? "Coming soon"
+    : maxed ? "Maxed" : respec ? (tier > 0 ? "Add tier" : "Choose") : "While ascending";
+  const actionsHtml = respec
+    ? `
+      <div class="ascension-card-actions">
+        <button type="button" data-buy-ascension-upgrade="${escapeHtml(upgrade.id)}" ${affordable ? "" : "disabled"}>${escapeHtml(buyLabel)}</button>
+        ${tier > 0
+          ? `<button type="button" class="ascension-refund" data-refund-ascension-upgrade="${escapeHtml(upgrade.id)}">Give back</button>`
+          : `<span aria-hidden="true"></span>`}
+      </div>
+    `
+    : `<button type="button" data-buy-ascension-upgrade="${escapeHtml(upgrade.id)}" disabled>${escapeHtml(buyLabel)}</button>`;
+  return `
+    <article class="upgrade-card ${stateClass}">
+      <div class="upgrade-card-icon" aria-hidden="true">${escapeHtml(upgrade.icon)}</div>
+      <div class="upgrade-card-main">
+        <div class="upgrade-card-title">
+          <div>
+            <strong>${escapeHtml(upgrade.label)}</strong>
+            <small>${escapeHtml(tierText)}</small>
+          </div>
+          <span>${escapeHtml(status)}</span>
+        </div>
+        <span class="upgrade-card-summary">${escapeHtml(upgrade.summary)}</span>
+        <div class="upgrade-progress">
+          <span>${escapeHtml(upgrade.effectLabel)}</span>
+          <strong>${escapeHtml(ascensionUpgradeEffectText(upgrade, tier))}</strong>
+        </div>
+      </div>
+      <div class="upgrade-requirements">
+        <div class="upgrade-material ${points >= cost ? "met" : "missing"}">
+          <span class="upgrade-material-icon ascension">A</span>
+          <span>Ascension Points</span>
+          <strong>${points}/${cost}</strong>
+        </div>
+      </div>
+      ${actionsHtml}
+    </article>
+  `;
+}
+
+function ascensionPointsEarnedText() {
+  const tiers = ASCENSION_POINTS_BY_BOSS_TIER;
+  return `Each journey pays for Evil Mir once, at the hardest version of him you beat: ${tiers[0]} points plain, ${tiers[1]} empowered, ${tiers[2]} ascended, ${tiers[3]} awakened. Killing him again only pays the difference, so no journey is worth more than ${tiers[3]}.`;
+}
+
+function ascensionRunProgressText() {
+  const awarded = ascensionRunPointsAwarded();
+  if (awarded >= ASCENSION_POINTS_PER_RUN_MAX) return "This journey has been paid in full.";
+  if (awarded <= 0) return `This journey has not killed him yet, so all ${ASCENSION_POINTS_PER_RUN_MAX} are still on the table.`;
+  return `This journey has been paid ${awarded} of ${ASCENSION_POINTS_PER_RUN_MAX}. Beat a harder Evil Mir before you ascend to claim the rest.`;
+}
+
+// Counted from live state rather than written as prose, so the warning cannot
+// drift from what the wipe actually does.
+function ascensionLossLines() {
+  captureActiveCharacterState();
+  const levels = CHARACTER_IDS
+    .map((classId) => `${classId} ${Math.max(1, Math.trunc(Number(state.characters[classId]?.game?.progress?.level) || 1))}`)
+    .join(", ");
+  const gold = Math.max(0, Math.trunc(Number(state.account?.gold) || 0))
+    + CHARACTER_IDS.reduce((sum, classId) => sum + Math.max(0, Math.trunc(Number(state.characters[classId]?.inventory?.gold) || 0)), 0);
+  const upgradeTiers = Object.values(state.account?.upgrades?.tiers ?? {})
+    .reduce((sum, tier) => sum + Math.max(0, Math.trunc(Number(tier) || 0)), 0);
+  const codexCount = Object.keys(state.account?.codex?.items ?? {}).length;
+  const achievementCount = Object.keys(state.account?.achievements?.unlocked ?? {}).length;
+  const lines = [
+    `Every character back to level 1 with starter gear (${levels})`,
+    `${gold.toLocaleString()} gold, every item carried, and everything in storage`,
+    `${accountRebirthPoints().toLocaleString()} Rebirth Points and ${upgradeTiers} upgrade tier${upgradeTiers === 1 ? "" : "s"}`,
+  ];
+  if (codexCount > 0 || achievementCount > 0) {
+    lines.push(`${codexCount} codex discover${codexCount === 1 ? "y" : "ies"} and ${achievementCount} achievement${achievementCount === 1 ? "" : "s"}`);
+  }
+  if (state.account?.spiritBox?.entry?.itemId) {
+    const sealed = itemDefinition(state.account.spiritBox.entry.itemId);
+    lines.push(`The ${sealed?.name ?? "item"} sealed in your Spirit Box`);
+  }
+  return lines;
+}
+
+function ascensionConfirmHtml() {
+  const spent = ascensionPointsSpent();
+  const unspent = accountAscensionPoints();
+  const lossHtml = ascensionLossLines().map((line) => `<li>${escapeHtml(line)}</li>`).join("");
+  // Unspent points are not destroyed, but powers can only be chosen while
+  // ascending - so leaving any behind means playing the whole next world without
+  // them. Worth stopping for, since the window closes the moment they set out.
+  const unspentWarningHtml = unspent > 0
+    ? `<p class="ascension-confirm-warning">You still have ${unspent} Ascension Point${unspent === 1 ? "" : "s"} to spend. ${unspent === 1 ? "It is" : "They are"} not lost, but powers can only be chosen while you are ascending - leave ${unspent === 1 ? "it" : "them"} behind and you will walk the whole next world without ${unspent === 1 ? "it" : "them"}.</p>`
+    : "";
+  return `
+    <div class="ascension-confirm">
+      <strong class="ascension-confirm-title">This cannot be undone. You will lose:</strong>
+      <ul class="ascension-confirm-losses">${lossHtml}</ul>
+      <p class="ascension-confirm-keep">You keep your ${spent} spent Ascension Point${spent === 1 ? "" : "s"} as the powers above${unspent > 0 ? `, and ${unspent} still unspent` : ""}. Anything bought with tokens or a supporter month stays too.</p>
+      ${unspentWarningHtml}
+      <div class="ascension-confirm-backup">
+        <p>Ascending is brand new and wipes almost everything. Download a copy of your save first - if anything goes wrong you can import it in Options and come back to this moment.</p>
+        <button type="button" class="ascension-dialogue-button" data-export-save>Download backup</button>
+      </div>
+      <div class="ascension-confirm-actions">
+        <button type="button" class="ascension-dialogue-button primary" data-confirm-ascension>Send me back</button>
+        <button type="button" class="ascension-dialogue-button" data-cancel-ascension-confirm>Wait</button>
+      </div>
+    </div>
+  `;
+}
+
+function ascensionUpgradesSceneHtml() {
+  const points = accountAscensionPoints();
+  const earned = ascensionPointsEarned();
+  const spent = ascensionPointsSpent();
+  const respec = ascensionRespecOpen();
+  const balanceText = spent > 0 ? `${points} of ${earned}` : String(points);
+  const notesHtml = respec
+    ? `
+      <p class="ascension-upgrades-note respec">Choose your powers. Nothing is spent for good until you set out, so hand them back and pick again as often as you like.</p>
+      ${spent > 0 ? `<p class="ascension-upgrades-note">${spent} of your ${earned} points are committed to this build.</p>` : ""}
+    `
+    : `
+      <p class="ascension-upgrades-note preview">Ascension is not open yet - this is a preview of what is coming. Points you earn now are saved and will be waiting for you.</p>
+      <p class="ascension-upgrades-note">${escapeHtml(ascensionPointsEarnedText())}</p>
+      <p class="ascension-upgrades-note">${escapeHtml(ascensionRunProgressText())}</p>
+      <p class="ascension-upgrades-note">Powers can only be chosen, and freely re-chosen, while you are ascending. Once a journey is under way the list is fixed.</p>
+    `;
+  // The wipe lives behind this footer, never behind the Traveller's accept, so
+  // the player sees the full cost with their chosen build in front of them.
+  const footerHtml = !respec
+    ? ""
+    : state.ascensionConfirmOpen
+      ? ascensionConfirmHtml()
+      : `
+        <div class="ascension-setout">
+          <button type="button" class="ascension-dialogue-button primary" data-open-ascension-confirm>I am ready. Send me back.</button>
+          <small class="${points > 0 ? "ascension-setout-warning" : "muted"}">${escapeHtml(points > 0
+            ? `${points} point${points === 1 ? "" : "s"} still unspent - spend ${points === 1 ? "it" : "them"} now, as powers cannot be chosen once the journey is under way.`
+            : "Every point is spent.")}</small>
+        </div>
+      `;
+  return `
+    <section class="npc-panel crystal-npc-text ascension-upgrades-panel">
+      <div class="ascension-balance">
+        <span>Ascension Points to spend</span>
+        <strong>${escapeHtml(balanceText)}</strong>
+        ${respec && spent > 0
+          ? `<button type="button" class="ascension-reset-all" data-reset-ascension-draft>Start over</button>`
+          : ""}
+      </div>
+      <div class="ascension-upgrades-notes">${notesHtml}</div>
+      <div class="upgrade-list ascension-upgrade-list" data-preserve-scroll="ascension-upgrades">
+        ${ASCENSION_UPGRADE_DEFS.map((upgrade) => ascensionUpgradeCardHtml(upgrade)).join("")}
+      </div>
+      ${footerHtml}
+    </section>
+  `;
+}
+
+function openAscensionUpgradesScene() {
+  if (state.game.mode !== "town" || !ascensionUnlocked()) return;
+  ensureAccountAscensionState();
+  state.activeScene = "ascensionUpgrades";
+  pushSceneWindow("ascensionUpgrades");
+  sceneSignature = "";
+  gamePanelSignature = "";
+  renderSceneOverlay();
+  renderGamePanel();
+  playSfx("ui.button", { volume: 0.35, throttleMs: 120 });
 }
 
 function traderNpcSceneHtml(npc) {
@@ -32477,7 +34411,11 @@ function craftingCubeModeHint(mode) {
     const recipeHint = recipe ? `Selected recipe: ${recipe.label}.` : "Open Recipes to choose a recipe.";
     return `${recipeHint} Place the ingredients in the cube, then click Craft.`;
   }
-  return "Drag empowered gear into the cube, then salvage for Havoc Crystals (1 per empowerment tier).";
+  const chance = ascensionSalvageChancePercent();
+  const surplus = chance > 0
+    ? ` Havoc Surplus: ${chance}% chance of another copy of those crystals.`
+    : "";
+  return `Drag empowered gear into the cube, then salvage for Havoc Crystals (1 per empowerment tier).${surplus}`;
 }
 
 function craftingCubeRerollNoticeHtml() {
@@ -32671,7 +34609,7 @@ function craftingCubeSceneHtml() {
           class="refiner-action-button primary${canSalvage ? "" : " disabled"}"
           data-attempt-crafting-cube-salvage
         >${salvagePreview?.ok
-          ? `Salvage (${salvagePreview.totalCrystals} Havoc Crystal${salvagePreview.totalCrystals === 1 ? "" : "s"})`
+          ? `Salvage (${salvageCrystalPreviewLabel(salvagePreview.totalCrystals)})`
           : "Salvage"}</button>
       </div>
     `
@@ -33378,6 +35316,11 @@ function bindControls() {
       disablePrototypeStatsFromNotice();
       return;
     }
+    const dismissAscensionWelcomeButton = event.target.closest("[data-dismiss-ascension-welcome]");
+    if (dismissAscensionWelcomeButton && root.contains(dismissAscensionWelcomeButton)) {
+      dismissAscensionWelcome();
+      return;
+    }
     const closeButton = event.target.closest("[data-close-scene]");
     if (closeButton && root.contains(closeButton)) {
       closeScene(closeButton.dataset.closeScene || null);
@@ -33474,6 +35417,11 @@ function bindControls() {
       confirmPendingRebirth();
       return;
     }
+    const openSpiritBoxFromRebirthButton = event.target.closest("[data-rebirth-open-spirit-box]");
+    if (openSpiritBoxFromRebirthButton && root.contains(openSpiritBoxFromRebirthButton)) {
+      openSpiritBoxFromRebirthConfirm();
+      return;
+    }
     const cancelRebirthConfirmButton = event.target.closest("[data-cancel-rebirth-confirm]");
     if (cancelRebirthConfirmButton && root.contains(cancelRebirthConfirmButton)) {
       cancelRebirthConfirm();
@@ -33519,6 +35467,21 @@ function bindControls() {
     const accountUpgradeButton = event.target.closest("[data-buy-account-upgrade]");
     if (accountUpgradeButton && root.contains(accountUpgradeButton)) {
       buyAccountUpgrade(accountUpgradeButton.dataset.buyAccountUpgrade);
+      return;
+    }
+    const ascensionBuyButton = event.target.closest("[data-buy-ascension-upgrade]");
+    if (ascensionBuyButton && root.contains(ascensionBuyButton)) {
+      buyAscensionUpgrade(ascensionBuyButton.dataset.buyAscensionUpgrade);
+      return;
+    }
+    const ascensionRefundButton = event.target.closest("[data-refund-ascension-upgrade]");
+    if (ascensionRefundButton && root.contains(ascensionRefundButton)) {
+      refundAscensionUpgrade(ascensionRefundButton.dataset.refundAscensionUpgrade);
+      return;
+    }
+    const ascensionResetButton = event.target.closest("[data-reset-ascension-draft]");
+    if (ascensionResetButton && root.contains(ascensionResetButton)) {
+      clearAscensionDraft();
       return;
     }
     const spiritBoxOpenSlotButton = event.target.closest("[data-spirit-box-open-slot]");
@@ -33913,6 +35876,10 @@ function openTownNpc(npcId) {
   }
   state.game.selectedTownNpcId = npc?.id ?? null;
   if (npc?.role === "Teleport") state.teleportBrowseRegionId = null;
+  if (npc?.role === "Ascension") {
+    state.ascensionDialoguePage = 0;
+    state.travellerSuppliesOpen = false;
+  }
   state.activeScene = npc?.role === "Storage" ? "storage" : state.game.selectedTownNpcId ? "townNpc" : null;
   if (npc?.role === "Storage") state.openScenes.inventory = true;
   if (state.activeScene) pushSceneWindow(state.activeScene);
@@ -33928,7 +35895,7 @@ function closeTownNpc() {
   if (!state.game.selectedTownNpcId) return;
   const closingScene = state.activeScene;
   state.game.selectedTownNpcId = null;
-  if (state.activeScene === "townNpc" || state.activeScene === "storage" || state.activeScene === "weaponRefine" || state.activeScene === "craftingCube" || state.activeScene === "armoury") state.activeScene = null;
+  if (state.activeScene === "townNpc" || state.activeScene === "storage" || state.activeScene === "weaponRefine" || state.activeScene === "craftingCube" || state.activeScene === "armoury" || state.activeScene === "ascensionUpgrades") state.activeScene = null;
   if (closingScene) removeSceneWindowFromStack(closingScene);
   resetWeaponRefineState();
   resetCraftingCubeState();
@@ -34054,6 +36021,10 @@ async function reloadEnemyAtlas() {
 
 function tick(now) {
   updatePerfClock(now);
+  // Driven from the frame loop, not render(): the send-off appears in town,
+  // where runSimulationStep often reports nothing to draw and render() is
+  // skipped entirely - which would leave the clock frozen at 0s.
+  updateAscensionWelcomeElapsed();
   // Opt-in Simulation Mode parks live combat and stamps AFK time. Keep clocks
   // fresh so tab-suspend catch-up does not also run offline for the same window.
   if (simulationModeActive()) {
@@ -35177,6 +37148,7 @@ function spawnGroupDungeonBossEnemy(now, zone = activeZone()) {
     poisons: [],
     debuffs: [],
   };
+  applyWorldDifficultyCombatModifiers(state.battle.enemy);
   applyGroupDungeonEmpowerCombatModifiers(state.battle.enemy);
   state.battle.phase = "engaged";
   state.battle.enemyAggro = true;
@@ -41937,6 +43909,7 @@ function rollBossTableDrops(dropTable, awardItem, inventory = state.inventory) {
   let table = empowered
     ? omitBossDropTableItem(dropTable, AWAKENING_SOUL_ITEM_ID)
     : dropTable;
+  table = scaleBossDropTableChances(table, worldDifficultyRate());
   if (empowered) {
     table = scaleBossDropTableChances(table, dropMultiplier);
   }
@@ -41954,7 +43927,10 @@ function rollBossTableDrops(dropTable, awardItem, inventory = state.inventory) {
   // Awakened-only exclusives: listed chance is exact (not scaled by awaken 4× rate).
   if (awakened) {
     const awakenedTable = applyDropChanceBonusToBossTable(
-      { items: Array.isArray(dropTable.awakenedItems) ? dropTable.awakenedItems : [] },
+      scaleBossDropTableChances(
+        { items: Array.isArray(dropTable.awakenedItems) ? dropTable.awakenedItems : [] },
+        worldDifficultyRate(),
+      ),
       dropChanceBonus,
     );
     for (const itemId of rollBossAwakenedDropSelection({ awakenedItems: awakenedTable?.items })) {
@@ -42147,7 +44123,11 @@ function awardBossPartyBossKillShare(enemy, now = performance.now()) {
 }
 
 function applyBossPartyExperienceReward(member, xp, now) {
-  const { progress, levels } = applyExperienceToProgress(member.game.progress, xp);
+  const { progress, levels } = applyExperienceToProgress(
+    member.game.progress,
+    xp,
+    ascensionXpRequirementScale(),
+  );
   member.game.progress.level = progress.level;
   member.game.progress.experience = progress.experience;
   for (const level of levels) {
@@ -52898,7 +54878,11 @@ function currentZoneXpRate(now = performance.now()) {
 }
 
 function applyExperienceReward(xp) {
-  const { progress, levels } = applyExperienceToProgress(state.game.progress, xp);
+  const { progress, levels } = applyExperienceToProgress(
+    state.game.progress,
+    xp,
+    ascensionXpRequirementScale(),
+  );
   state.game.progress.level = progress.level;
   state.game.progress.experience = progress.experience;
   for (const level of levels) {
@@ -52911,8 +54895,11 @@ function applyExperienceReward(xp) {
   return levels;
 }
 
+// The single requirement read for the UI's XP bar AND the offline group-dungeon
+// level-up loop, so both follow Swift Learning without threading the scale
+// through offlineGroupApplyExperience.
 function xpForNextLevel(level) {
-  return crystalExperienceForLevel(level);
+  return crystalExperienceForLevel(level, ascensionXpRequirementScale());
 }
 
 function xpProgressText() {
@@ -52972,9 +54959,9 @@ function rollRedThunderZumaDrops() {
     const itemIds = rollRedThunderZumaDropIds({
       guaranteedIds: ZUMA_THUNDER_GUARANTEED_DROP_IDS,
       bonusWeaponIds: RED_THUNDER_ZUMA_BONUS_WEAPON_IDS,
-      bonusWeaponChance: adjustedDropChance(RED_THUNDER_ZUMA_BONUS_WEAPON_CHANCE, dropBonus),
+      bonusWeaponChance: adjustedDropChance(RED_THUNDER_ZUMA_BONUS_WEAPON_CHANCE * worldDifficultyRate(), dropBonus),
       zumaWeaponIds: RED_THUNDER_ZUMA_ZUMA_WEAPON_IDS,
-      zumaWeaponChance: adjustedDropChance(RED_THUNDER_ZUMA_ZUMA_WEAPON_CHANCE, dropBonus),
+      zumaWeaponChance: adjustedDropChance(RED_THUNDER_ZUMA_ZUMA_WEAPON_CHANCE * worldDifficultyRate(), dropBonus),
     });
     for (const itemId of itemIds) {
       const item = itemDefinition(itemId);
@@ -52999,7 +54986,10 @@ function rollZoneDrops(zone, enemy = state.battle.enemy) {
 
 function zoneDropCandidates(zone, enemy = null, inventory = state.inventory) {
   return applyDropChanceBonus(
-    buildZoneDropCandidates(state.itemData.items, zone.id, enemy?.id),
+    scaleDropCandidates(
+      buildZoneDropCandidates(state.itemData.items, zone.id, enemy?.id),
+      worldDifficultyRate(),
+    ),
     totalDropChanceBonusPercent(inventory),
   );
 }
@@ -53080,6 +55070,7 @@ function spawnNextEnemy(now) {
     : ENEMY_TEMPLATES[(currentIndex + 1 + ENEMY_TEMPLATES.length) % ENEMY_TEMPLATES.length];
   battle.enemyId = template.id;
   battle.enemy = { ...template, hp: template.maxHp, mp: template.maxMp, poisons: [], debuffs: { slowUntil: 0, frozenUntil: 0 } };
+  applyWorldDifficultyCombatModifiers(battle.enemy);
   battle.enemyX = battle.playerX + enemySpawnDistance();
   battle.enemyAggro = false;
   battle.phase = "advance";
@@ -54941,6 +56932,15 @@ function refreshOpenSceneLiveText() {
       if (status.textContent !== text) status.textContent = text;
     }
   }
+  if (state.openScenes.journey) {
+    const el = els.sceneOverlay.querySelector("[data-journey-elapsed]");
+    // Untimed worlds render fixed text, so leave it alone rather than replacing
+    // it with a clock counting from the epoch.
+    if (el && sanitizeAscensionTimestamp(state.account?.ascension?.journeyStartedAt)) {
+      const text = formatJourneyClock(ascensionJourneyLiveElapsedMs());
+      if (el.textContent !== text) el.textContent = text;
+    }
+  }
   if (state.openScenes.timeLogging) {
     const rateEl = els.sceneOverlay.querySelector("[data-xp-per-hour]");
     if (rateEl) {
@@ -56524,7 +58524,7 @@ function drawTownNpcSprite(ctx, npc, bounds) {
     layer.slotWidth,
     layer.slotHeight,
     Math.round(bounds.centerX - layer.slotWidth / 2 + offsetX),
-    Math.round(bounds.bottomY - layer.slotHeight + offsetY),
+    Math.round(bounds.bottomY - layer.slotHeight + offsetY + townNpcFootInset(npc)),
     layer.slotWidth,
     layer.slotHeight,
   );
@@ -56592,11 +58592,21 @@ function townNpcBounds(npc) {
   };
 }
 
+// Sprites are bottom-aligned to bounds.bottomY, which assumes the figure's feet
+// sit on the last row of its slot. A few Crystal sprites draw something below
+// the feet (the Traveller's cane is planted forward of him, so it hangs lower on
+// screen), which would lift the whole figure off its shadow. spriteFootInsetPx
+// is how many rows of that slack there are: it shortens the click box to the
+// body and drawTownNpcSprite pushes the art back down by the same amount.
+function townNpcFootInset(npc) {
+  return Math.max(0, Number(npc.spriteFootInsetPx) || 0);
+}
+
 function townNpcSpriteSize(npc) {
   const layer = state.townNpcAtlases[npc.sprite]?.layers?.[0];
   return {
     width: layer?.slotWidth ?? npc.width,
-    height: layer?.slotHeight ?? npc.height,
+    height: (layer?.slotHeight ?? npc.height) - townNpcFootInset(npc),
   };
 }
 

@@ -48,11 +48,19 @@ export function applyDropChanceBonusToBossTable(dropTable, bonusPercentPoints = 
 }
 
 /**
- * Multiplies each boss-table item chance (e.g. empowered fights at 2×).
- * @param {{ benedictionOils?: number, items?: { id: string, chance: number }[] } | null | undefined} dropTable
+ * Multiplicative drop-rate scale (Hard 1.25 turns 1% into 1.25%). Caps at 100%.
+ * @param {{ item: object, chance: number }[]} candidates
  * @param {number} multiplier
- * @returns {{ benedictionOils?: number, items?: { id: string, chance: number }[] } | null | undefined}
  */
+export function scaleDropCandidates(candidates, multiplier = 1) {
+  const scale = Number(multiplier) || 1;
+  if (!candidates?.length || scale === 1) return candidates ?? [];
+  return candidates.map((candidate) => ({
+    ...candidate,
+    chance: Number(Math.min(1, Math.max(0, (Number(candidate.chance) || 0) * scale)).toFixed(5)),
+  }));
+}
+
 export function scaleBossDropTableChances(dropTable, multiplier = 1) {
   const scale = Number(multiplier) || 1;
   if (!dropTable || scale <= 0 || scale === 1) return dropTable;
@@ -217,6 +225,55 @@ export function rollChanceTable(candidates, rng = Math.random) {
     if (rng() < candidate.chance) hits.push(candidate);
   }
   return hits;
+}
+
+/**
+ * True when the item has a zone or per-enemy drop chance above 0.
+ * @param {object | null | undefined} item
+ */
+export function itemHasZoneDrop(item) {
+  const drop = item?.drop;
+  if (!drop) return false;
+  if (Number(drop.chance) > 0 && Array.isArray(drop.zones) && drop.zones.length) return true;
+  if (drop.chances && typeof drop.chances === "object") {
+    if (Object.values(drop.chances).some((chance) => Number(chance) > 0)) return true;
+  }
+  const enemyChances = drop.enemyChances;
+  if (enemyChances && typeof enemyChances === "object") {
+    for (const byZone of Object.values(enemyChances)) {
+      if (!byZone || typeof byZone !== "object") continue;
+      if (Object.values(byZone).some((chance) => Number(chance) > 0)) return true;
+    }
+  }
+  return false;
+}
+
+/**
+ * @param {Record<string, { items?: { id?: string, chance?: number }[], awakenedItems?: { id?: string, chance?: number }[] }> | null | undefined} tables
+ * @returns {Set<string>}
+ */
+export function collectBossTableItemIds(tables) {
+  const ids = new Set();
+  for (const table of Object.values(tables ?? {})) {
+    for (const pool of [table?.items, table?.awakenedItems]) {
+      if (!Array.isArray(pool)) continue;
+      for (const entry of pool) {
+        const id = String(entry?.id ?? "").trim();
+        if (id && Number(entry.chance) > 0) ids.add(id);
+      }
+    }
+  }
+  return ids;
+}
+
+/**
+ * @param {object | null | undefined} item
+ * @param {Set<string> | null | undefined} extraDropIds
+ */
+export function itemCanDrop(item, extraDropIds = null) {
+  if (itemHasZoneDrop(item)) return true;
+  const id = String(item?.id ?? "").trim();
+  return Boolean(id && extraDropIds?.has(id));
 }
 
 /**

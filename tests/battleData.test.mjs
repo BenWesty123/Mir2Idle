@@ -31,6 +31,25 @@ test("crystalExperienceForLevel: known values and clamping", () => {
   assert.equal(crystalExperienceForLevel(CRYSTAL_MAX_LEVEL), Infinity);
 });
 
+test("crystalExperienceForLevel: requirementScale discounts the requirement", () => {
+  // Swift Learning: -10% per tier down to -50%.
+  assert.equal(crystalExperienceForLevel(10, 1), 1500);
+  assert.equal(crystalExperienceForLevel(10, 0.9), 1350);
+  assert.equal(crystalExperienceForLevel(10, 0.5), 750);
+  // Max level stays unreachable however big the discount.
+  assert.equal(crystalExperienceForLevel(CRYSTAL_MAX_LEVEL, 0.5), Infinity);
+});
+
+test("crystalExperienceForLevel: requirementScale defaults to no discount and never returns 0", () => {
+  assert.equal(crystalExperienceForLevel(10), crystalExperienceForLevel(10, 1));
+  assert.equal(crystalExperienceForLevel(10, undefined), 1500);
+  assert.equal(crystalExperienceForLevel(10, Number.NaN), 1500);
+  // A pathological scale must still cost at least 1 XP, or the level-up loop
+  // in applyExperienceToProgress would never terminate.
+  assert.equal(crystalExperienceForLevel(10, 0), 1);
+  assert.equal(crystalExperienceForLevel(10, -5), 1);
+});
+
 test("crystalExperienceForLevel: strictly increasing across the curve", () => {
   for (let level = 1; level < 120; level += 1) {
     assert.ok(

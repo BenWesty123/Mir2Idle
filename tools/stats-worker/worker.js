@@ -21,7 +21,7 @@ const BOSS_ZONE_IDS = new Set([
 ]);
 
 // No legitimate character can exceed this level in the current prototype content.
-const LEADERBOARD_MAX_VALID_LEVEL = 100;
+const LEADERBOARD_MAX_VALID_LEVEL = 150;
 // The whole save is stored as a single D1 row value, whose hard ceiling is 2 MB
 // ("Maximum string, BLOB or table row size"). Cap below that with margin for the
 // other small row columns (version, timestamps, recovery code) + JSON wrapper.
@@ -53,6 +53,8 @@ const MESSAGE_TOKEN_COST = 50;
 // per-character; storage is account-wide; the Teleport Ring is account-wide.
 const UNLOCK_TOKEN_COSTS = {
   "storage-page-3": 250,
+  "storage-page-4": 100,
+  "storage-page-5": 100,
   "inv-page-3:warrior": 250,
   "inv-page-3:wizard": 250,
   "inv-page-3:taoist": 250,
@@ -862,11 +864,32 @@ function hasInvalidLevelViolation(integrity) {
   return (integrity?.violations ?? []).some((violation) => violation?.code === "invalid_level");
 }
 
+function existingHasManualExclusion(existing) {
+  return parseJsonArray(existing?.integrity_reason).some((violation) => violation?.code === "manual_exclusion");
+}
+
+function existingExceedsLeaderboardCap(existing) {
+  for (const level of Object.values(parseJsonObject(existing?.character_levels))) {
+    if (levelExceedsLeaderboardCap(level)) return true;
+  }
+  return false;
+}
+
 function nextIntegrityState(existing, integrity) {
   const previousStatus = textValue(existing?.integrity_status, 24) ?? "legacy";
   const fingerprint = integrityFingerprint(integrity);
   if (previousStatus === "excluded") {
-    return { status: "excluded", fingerprint, reason: JSON.stringify(integrity.violations) };
+    const stickyExclusion = existingHasManualExclusion(existing)
+      || hasInvalidLevelViolation(integrity)
+      || existingExceedsLeaderboardCap(existing);
+    if (stickyExclusion) {
+      // Keep the admin reason so a later legal ping cannot drop `manual_exclusion`
+      // and then un-hide the row on the following submission.
+      const reason = existingHasManualExclusion(existing)
+        ? String(existing.integrity_reason)
+        : JSON.stringify(integrity.violations);
+      return { status: "excluded", fingerprint, reason };
+    }
   }
   // Impossible levels are unambiguous cheats — hide immediately, no review queue.
   if (hasInvalidLevelViolation(integrity)) {

@@ -153,12 +153,14 @@ test("sanitizeSceneWindowPositions", () => {
     codex: { x: 80, y: 90 },
     upgrades: { x: 64, y: 72 },
     leaderboard: { x: 12, y: 34 },
+    timeLogging: { x: 18, y: 44 },
   }), {
     character: { x: 10, y: 20 },
     inventory: null,
     codex: { x: 80, y: 90 },
     upgrades: { x: 64, y: 72 },
     leaderboard: { x: 12, y: 34 },
+    timeLogging: { x: 18, y: 44 },
   });
   assert.deepEqual(sanitizeSceneWindowPositions(undefined), {
     character: null,
@@ -166,6 +168,7 @@ test("sanitizeSceneWindowPositions", () => {
     codex: null,
     upgrades: null,
     leaderboard: null,
+    timeLogging: null,
   });
 });
 
@@ -177,6 +180,7 @@ test("sanitizeSettingsState: includes scene window positions", () => {
       codex: { x: 120, y: 80 },
       upgrades: { x: 90, y: 60 },
       leaderboard: { x: 15, y: 25 },
+      timeLogging: { x: 22, y: 48 },
     },
   });
   assert.deepEqual(result.sceneWindowPositions, {
@@ -185,5 +189,6 @@ test("sanitizeSettingsState: includes scene window positions", () => {
     codex: { x: 120, y: 80 },
     upgrades: { x: 90, y: 60 },
     leaderboard: { x: 15, y: 25 },
+    timeLogging: { x: 22, y: 48 },
   });
 });

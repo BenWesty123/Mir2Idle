@@ -186,6 +186,7 @@ export function sanitizeSceneWindowPositions(saved) {
     codex: sanitizeSceneWindowPosition(positions.codex),
     upgrades: sanitizeSceneWindowPosition(positions.upgrades),
     leaderboard: sanitizeSceneWindowPosition(positions.leaderboard),
+    timeLogging: sanitizeSceneWindowPosition(positions.timeLogging),
   };
 }
 

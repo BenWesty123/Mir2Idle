@@ -73,6 +73,24 @@ test("applyExperienceToProgress: multi level-up in one grant", () => {
   assert.deepEqual(levels, [4, 5]);
 });
 
+test("applyExperienceToProgress: requirementScale levels up sooner", () => {
+  const halved = crystalExperienceForLevel(3, 0.5);
+  // The same XP that is one short at full price clears the level at half.
+  const full = applyExperienceToProgress({ level: 3, experience: 0 }, halved);
+  assert.equal(full.progress.level, 3);
+  const discounted = applyExperienceToProgress({ level: 3, experience: 0 }, halved, 0.5);
+  assert.equal(discounted.progress.level, 4);
+  assert.equal(discounted.progress.experience, 0);
+  assert.deepEqual(discounted.levels, [4]);
+});
+
+test("applyExperienceToProgress: omitting requirementScale keeps the old curve", () => {
+  const need = crystalExperienceForLevel(3);
+  const before = applyExperienceToProgress({ level: 3, experience: 1 }, need);
+  const after = applyExperienceToProgress({ level: 3, experience: 1 }, need, 1);
+  assert.deepEqual(before, after);
+});
+
 test("applyExperienceToProgress: clamps bad input", () => {
   const { progress, levels } = applyExperienceToProgress({ level: 0, experience: -5 }, -10);
   assert.deepEqual(progress, { level: 1, experience: 0 });

@@ -1,4 +1,4 @@
-﻿{
+{
     "30":  {
                "src":  "./public/ui/character/stateitem-30.png",
                "x":  75,
@@ -950,5 +950,12 @@
                  "y":  163,
                  "w":  24,
                  "h":  34
-             }
+             },
+    "827":  {
+                "src":  "./public/ui/character/stateitem-827.png",
+                "x":  127,
+                "y":  161,
+                "w":  20,
+                "h":  33
+            }
 }

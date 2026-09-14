@@ -134,7 +134,7 @@ export const GLYPH_DEFS = [
   {
     id: "wizardManaRegen",
     itemId: "glyph-infinite-mana",
-    classId: "wizard",
+    classId: "any",
     label: "Glyph of Infinite Mana",
     description: "You regenerate 5 mana every second.",
     spellIds: [],

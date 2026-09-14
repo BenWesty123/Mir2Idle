@@ -116,13 +116,21 @@ export function crystalPlayerBaseStats(className = "Warrior", level = 1) {
   };
 }
 
-export function crystalExperienceForLevel(level) {
+/**
+ * XP needed to leave `level`. `requirementScale` is the Ascension "Swift
+ * Learning" discount (1 = no discount, 0.5 = half the XP); it is a parameter
+ * rather than read from account state so this stays a pure data module.
+ */
+export function crystalExperienceForLevel(level, requirementScale = 1) {
   const safeLevel = Math.max(1, Math.trunc(Number(level) || 1));
   if (safeLevel >= CRYSTAL_MAX_LEVEL) return Infinity;
   const crystalRequirement = safeLevel <= CRYSTAL_EXP_LEVELS_1_TO_60.length
     ? CRYSTAL_EXP_LEVELS_1_TO_60[safeLevel - 1]
     : (safeLevel - 46) * 100000000;
-  return Math.max(1, Math.round(crystalRequirement * PROTOTYPE_EXP_REQUIREMENT_SCALE));
+  const scale = Number.isFinite(Number(requirementScale))
+    ? Math.max(0, Number(requirementScale))
+    : 1;
+  return Math.max(1, Math.round(crystalRequirement * PROTOTYPE_EXP_REQUIREMENT_SCALE * scale));
 }
 
 export function crystalAdjustedExperience(amount, playerLevel, monsterLevel, mobLevelDifference = true, expRate = 1) {

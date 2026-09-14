@@ -157,13 +157,21 @@ npx wrangler d1 execute lom-idle-v2-stats --file .\reset-leaderboard.sql --remot
 
 This deletes all rows. New submissions will repopulate the board using the current account-only format.
 
-To remove existing rows with impossible character levels (any class above level 100):
+To remove existing rows with impossible character levels (any class above level 150):
 
 ```powershell
 npx wrangler d1 execute lom-idle-v2-stats --file .\purge-cheater-levels.sql --remote
 ```
 
-New submissions above that cap are automatically marked `excluded` (hidden from Social). The public `/leaderboard` query also filters `highest_level > 100` so already-stored cheater rows disappear as soon as the Worker is redeployed, even before the purge SQL runs.
+New submissions above that cap are automatically marked `excluded` (hidden from Social). The public `/leaderboard` query also filters `highest_level > 150` so already-stored cheater rows disappear as soon as the Worker is redeployed, even before the purge SQL runs.
+
+To restore accounts that were auto-hidden only for passing the old level-100 cap (now legal at 101–150), redeploy the Worker and then:
+
+```powershell
+npx wrangler d1 execute lom-idle-v2-stats --file .\restore-level-cap-exclusions.sql --remote
+```
+
+That UPDATE leaves manual exclusions and anyone still above 150 hidden. If a row was fully deleted by the old purge, it will reappear on that player's next stats ping.
 
 To remove the anonymous EvertonHero save-clone rows (level 55 / 369 souls) while keeping the real `EvertonHero` alias:
 

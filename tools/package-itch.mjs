@@ -41,6 +41,7 @@ const sourceFiles = [
   "src/bossDrops.js",
   "src/buffPotions.js",
   "src/core/armoury.js",
+  "src/core/ascension.js",
   "src/core/bossRespawn.js",
   "src/core/cloudSave.js",
   "src/core/combat.js",
@@ -113,6 +114,7 @@ const PACKAGE_TOWN_NPC_SPRITES = [
   "teleporter",
   "gem-merchant",
   "message-board",
+  "traveller",
 ];
 
 const SUMMON_SKELETON_PET_MONSTER_INDEX = 78;

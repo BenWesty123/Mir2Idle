@@ -36,6 +36,7 @@ export function sanitizeAccountStats(saved = {}, zoneFilter = () => false) {
     rebirthCount: Math.max(0, Math.trunc(Number(saved?.rebirthCount) || 0)),
     rebirthPointsGained: Math.max(0, Math.trunc(Number(saved?.rebirthPointsGained) || 0)),
     rebirthPointsSpent: Math.max(0, Math.trunc(Number(saved?.rebirthPointsSpent) || 0)),
+    ascensionCount: Math.max(0, Math.trunc(Number(saved?.ascensionCount) || 0)),
     bossKills: sanitizeBossKills(saved?.bossKills, zoneFilter),
   };
 }

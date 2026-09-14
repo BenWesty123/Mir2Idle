@@ -48,8 +48,18 @@ test("sanitizeAccountStats: normalizes rebirth counters and nested boss kills", 
     rebirthCount: 0,
     rebirthPointsGained: 5,
     rebirthPointsSpent: 2,
+    ascensionCount: 0,
     bossKills: { "zone-bug-cave-kr": 1 },
   });
+});
+
+test("sanitizeAccountStats: ascensionCount defaults to 0 on saves without it", () => {
+  // Every save today predates ascension, so a missing counter must read 0
+  // rather than NaN - performAscension increments it.
+  const old = sanitizeAccountStats({ rebirthCount: 3 }, zoneFilter);
+  assert.equal(old.ascensionCount, 0);
+  assert.equal(sanitizeAccountStats({ ascensionCount: 2.9 }, zoneFilter).ascensionCount, 2);
+  assert.equal(sanitizeAccountStats({ ascensionCount: -4 }, zoneFilter).ascensionCount, 0);
 });
 
 test("sanitizeDropPity: clamps per zone and ignores invalid root", () => {

@@ -88,6 +88,7 @@ export function resolveAccountGold(snapshotAccount, characters, characterIds) {
  * @param {(subscriptions: unknown) => object} [options.sanitizeSubscriptions]
  * @param {(spiritBox: unknown) => object} [options.sanitizeSpiritBox]
  * @param {(autoJunkItemIds: unknown) => string[]} [options.sanitizeAutoJunkItemIds]
+ * @param {(ascension: unknown) => object} [options.sanitizeAscension]
  * @param {string[]} options.characterIds
  * @param {(kills: unknown) => Record<string, number>} options.sanitizeBossKills
  */
@@ -129,6 +130,11 @@ export function restoreAccountFromSnapshot(snapshot, characters, options) {
     autoJunkItemIds: typeof options.sanitizeAutoJunkItemIds === "function"
       ? options.sanitizeAutoJunkItemIds(snapshot.account?.autoJunkItemIds)
       : [],
+    // Absent on saves from before Ascension, which correctly reads as "no
+    // Ascension Points earned and nothing spent".
+    ascension: typeof options.sanitizeAscension === "function"
+      ? options.sanitizeAscension(snapshot.account?.ascension)
+      : { pointsEarned: 0, tiers: {} },
   };
 
   account.stats = {

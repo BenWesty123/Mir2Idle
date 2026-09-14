@@ -264,6 +264,22 @@ test("sanitizeStorageState: gold + token flags open all three pages", () => {
   assert.equal(storage.tokenPageUnlocked, true);
 });
 
+test("sanitizeStorageState: extra 100-token pages add two more tabs", () => {
+  const storage = sanitizeStorageState(
+    {
+      page2Purchased: true,
+      tokenPageUnlocked: true,
+      tokenPage4Unlocked: true,
+      tokenPage5Unlocked: true,
+      items: [],
+    },
+    { pageSize: 80, baseSlots: 80, maxPages: 5, normalizeEntryFields: () => ({}) },
+  );
+  assert.equal(storage.pagesUnlocked, 5);
+  assert.equal(storage.tokenPage4Unlocked, true);
+  assert.equal(storage.tokenPage5Unlocked, true);
+});
+
 test("sanitizeStorageState: reassigns duplicate ids and strips unpurchased page 2 slots", () => {
   const storage = sanitizeStorageState(
     {

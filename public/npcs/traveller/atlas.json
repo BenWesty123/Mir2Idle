@@ -1,0 +1,54 @@
+{
+    "npcId":  "traveller",
+    "source":  "Crystal MirDB NPC: WoomyonWoods/TaoistVillage/MasterMK, image 68, NPC/68.Lib",
+    "layers":  [
+                   {
+                       "sheet":  "standing.png",
+                       "interval":  450,
+                       "slotWidth":  68,
+                       "slotHeight":  72,
+                       "library":  "68",
+                       "baseIndex":  0,
+                       "anchor":  "player",
+                       "delayMs":  0,
+                       "frames":  [
+                                      {
+                                          "slot":  0,
+                                          "srcFrame":  0,
+                                          "w":  68,
+                                          "h":  72,
+                                          "offsetX":  1,
+                                          "offsetY":  -27,
+                                          "empty":  false
+                                      },
+                                      {
+                                          "slot":  1,
+                                          "srcFrame":  1,
+                                          "w":  68,
+                                          "h":  72,
+                                          "offsetX":  1,
+                                          "offsetY":  -27,
+                                          "empty":  false
+                                      },
+                                      {
+                                          "slot":  2,
+                                          "srcFrame":  2,
+                                          "w":  68,
+                                          "h":  72,
+                                          "offsetX":  1,
+                                          "offsetY":  -27,
+                                          "empty":  false
+                                      },
+                                      {
+                                          "slot":  3,
+                                          "srcFrame":  3,
+                                          "w":  68,
+                                          "h":  72,
+                                          "offsetX":  1,
+                                          "offsetY":  -27,
+                                          "empty":  false
+                                      }
+                                  ]
+                   }
+               ]
+}

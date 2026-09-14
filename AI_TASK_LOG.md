@@ -1,5 +1,709 @@
 # AI Task Log - LOM Idle V2
 
+## 2026-09-14 - Time Logging window is draggable
+
+The XP/h Time Logging window can now be dragged by its title bar, same as Character / Inventory / Codex / Upgrades / Leaderboard. Position is saved in `settings.sceneWindowPositions.timeLogging`.
+
+## 2026-09-12 - Moderation: remove "my left nut" from Social
+
+Manually excluded alias `my left nut`
+(`b6183a24-c6ca-4538-9141-06e153e767f8`) via `integrity_status = 'excluded'`.
+No Worker redeploy required for the hide.
+
+- `tools/stats-worker/purge-manual-exclude-myleftnut.sql`
+
+## 2026-09-12 - Moderation: remove BackInSaigon from Social
+
+Manually excluded alias `BackInSaigon`
+(`d2706dac-f8c7-4450-abe0-5ba43194b3a2`) — Warrior 122 / 993 souls /
+~115M gold in ~6.9h. There is no separate Social alias named `Back`.
+Public `/leaderboard` already hides `integrity_status = 'excluded'`.
+
+Also keep `manual_exclusion` on later legal `/stats` pings so the row
+cannot un-hide after two submissions.
+
+- `tools/stats-worker/purge-manual-exclude-backinsaigon.sql`
+- `tools/stats-worker/worker.js` — preserve admin reason when sticky-excluded
+- `tests/statsWorkerIntegrity.test.mjs`
+
+Redeploy Worker when convenient: `npx wrangler deploy --keep-vars` from
+`tools/stats-worker` (site package not required).
+
+## 2026-09-11 - What's New: one entry since Evil Mir
+
+Folded the post-Evil-Mir notes (Ascension, Steeper Path, storage tabs, Codex
+filter) into a single `2026-09-11-ascension` changelog so What's New matches
+the launch. Social cap 150 is in there too.
+
+## 2026-09-11 - Pre-update Evil Mir kills count
+
+Accept was keyed off `runPointsAwarded`, which only stamps inside
+`incrementAccountBossKill`. First-journey saves already have the kill on
+all-time `bossKills` (and now on `runBossKills` even when that field was saved
+as `{}`), so the send-off pays the standard 5 and unlocks without a second kill.
+A later harder form still pays the difference. The save has no empower-tier
+record for a kill that predates the payout field.
+
+### Files
+- `src/core/ascension.js`
+- `src/app.monolith.js`
+- `tests/ascension.test.mjs`
+- `src/data/changelog.json`
+
+## 2026-09-11 - Ascension is live
+
+`ASCENSION_ENABLED` is `true` instead of `TEST_HARNESS`, so the Traveller's
+send-off works on lom2idle.com, not only localhost. Changelog has a launch
+entry.
+
+### Files
+- `src/app.monolith.js`
+- `src/data/changelog.json`
+
+## 2026-09-11 - Item Codex: droppable items only
+
+The Items section of the Codex is drop discovery, so it now skips anything with
+no zone/enemy drop and no boss-table entry (same source set as Traveller stock,
+including Red Thunder Zuma extras). Shop-only variants, unused gender flips,
+glyphs, ores, tickets, and similar leftovers came off (~178 of 645). Uniques
+and Empowerments are unchanged.
+
+### Files
+- `src/app.monolith.js`
+- `src/data/changelog.json`
+
+### Verify
+- `npm.cmd run check`
+- `npm.cmd run smoke` with `?scene=codex` if the dev server is up
+
+## 2026-09-10 - Two extra storage tabs (100 tokens each)
+
+Storage now has 5 pages (400 slots). The original gold page and 250-token
+`storage-page-3` are unchanged. New account-wide unlocks `storage-page-4` and
+`storage-page-5` cost 100 tokens each (worker-authoritative). Flags
+`tokenPage4Unlocked` / `tokenPage5Unlocked` persist through sanitize/clone.
+
+### Files
+- `src/app.monolith.js`
+- `src/persistence/sanitizeInventory.js`
+- `src/styles.css`
+- `tools/stats-worker/worker.js`
+- `tests/persistenceInventory.test.mjs`
+- `tests/statsWorkerShop.test.mjs`
+- `src/data/changelog.json`
+
+### Verify
+- `npm.cmd run check`
+- Worker must be redeployed before the new tabs can be purchased live
+
+## 2026-09-09 - Boss Junk Filter off after ascension
+
+`performAscension` now sets `settings.bossJunkFilterEnabled` to false. The
+unlock and Auto-Junk list stay; the player has to tick the filter on again at
+the trader. Stops a fresh world silently eating WT / Evil Snake gear because
+the previous journey's junk list was still live.
+
+## 2026-09-09 - Achievements after ascension
+
+Party boss achievements were unlocking again on a fresh world because the
+panel's retroactive scan read all-time `stats.bossKills`, which survive the
+wipe. Journey kills now live on `account.ascension.runBossKills` (reset with
+the world). The Achievements page stays unlocked if it was already paid for;
+the board itself still starts empty. Unclaimed leftovers from the old scan
+are dropped when the panel opens.
+
+## 2026-09-09 - Social level cap 100 → 150
+
+Players now reach 100 legitimately, so the Social hide/exclude cap moved to 150.
+Accounts auto-excluded only for `invalid_level` at 101–150 can return (SQL restore
+plus a legal resubmit); manual exclusions and >150 stay hidden.
+
+### Files
+- `tools/stats-worker/worker.js`
+- `tools/stats-worker/purge-cheater-levels.sql`
+- `tools/stats-worker/restore-level-cap-exclusions.sql`
+- `tools/stats-worker/README.md`
+- `tests/statsWorkerIntegrity.test.mjs`
+
+### Verify
+- `node --test tests/statsWorkerIntegrity.test.mjs`
+- Redeploy Worker, then run `restore-level-cap-exclusions.sql` on remote D1
+
+## 2026-09-08 - Traveller stock: only items that can drop
+
+Traveller's Supplies now skips anything with no zone drop and no boss-table
+entry (plus the seven items already withheld). Shop-only variants, unused
+gender flips, Pickaxe, amulets, and spirit blades came off. 54 of 204 gone.
+
+## 2026-09-08 - Soul Beacon and Steeper Path 2 points
+
+Soul Beacon and Steeper Path are 2 points, same as Empowered Start. Spend is
+derived from the defs, so a save that already bought them at the old prices
+gets the difference back.
+
+## 2026-09-08 - Steeper Path: world difficulty
+
+The 2-point unlock opens a Difficulty window (town can change it, a zone can
+only read it). Five settings: Normal 1×, Hard 1.25×, Extreme 1.5×, Insane 1.75×,
+Impossible 2×. Monster HP and damage take the multiplier first, then empowered /
+ascended / awakened boss scaling. XP, gold, and drop chances use the same rate
+(1% becomes 1.25% on Hard). Saved on `account.ascension.worldDifficulty`; without
+the upgrade it sanitizes back to Normal.
+
+## 2026-09-08 - Havoc Surplus: extra crystals when salvaging
+
+Unlimited ascension upgrade. Each tier adds 25% chance that a salvaged item
+pays another copy of its Havoc Crystals (double on the first proc, triple past
+100%). The Nth tier costs N points (`costEqualsTier`), so 1 / 2 / 3 / 4… with
+no last price to hold. Four tiers is 10 points for a guaranteed double.
+
+The roll is per item, against the staged cube entries, before they are
+discarded. Preview shows a range (`3-6`) when the remainder is a chance, and
+the battle log names the extra when it lands. Deeper Mastery is still planned.
+
+## 2026-09-08 - Traveller's Supplies: a level-capped shop on the Traveller
+
+Five tiers costing 1/2/3/4/5 points, each raising the item level he will sell up
+to: 11, 16, 22, 28, 33 (`TRAVELLER_SUPPLIES_LEVEL_CAPS`). Fifteen points for the
+lot, which is more than one journey can earn.
+
+That escalation broke an assumption in `src/core/ascension.js`: cost was a single
+`costPerTier` and spend was `tier * cost`. Upgrades may now carry a `costByTier`
+schedule instead, read through `tierCostAt`/`tiersTotalCost`, and
+`canBuyAscensionTier` prices the tier about to be bought rather than a flat one.
+Flat upgrades are untouched. `ascensionNextTierCost` is exported so the card can
+quote the next tier; tiers past the end of a schedule hold its last price rather
+than becoming free.
+
+Stock is derived from the item catalogue, not a hand-kept ID list, so new gear
+and books land in the right tier by themselves: gear slots plus `type: "book"`,
+must have a `shop.buy`, must pass `classRequirementMet`, and must gate on a
+character LEVEL at or under the cap. 36 items at tier 1 rising to ~190 at tier 5
+for one class.
+
+Deliberately excluded: the 39 items that gate on a stat (`maxDC`/`maxMC`/`maxSC`,
+nearly all jewellery). Four ways of dating them were tried and all failed - base
+stats from `crystalPlayerBaseStats` never reach the gate numbers because the
+gates assume geared totals; `shop.buy` has flat spots that put a 74 DC ring
+beside a 17 MC one; peer power scores tie constantly because jewellery has tiny
+combat numbers; rank-matching is monotone but drops a 30 DC helmet into tier 1.
+Zones carry no level field either. Since the stat gate still applies at equip
+time a misplacement only wastes gold, so precision bought little - they stay
+drop-only rewards.
+
+The shop renders inside the Traveller's existing `townNpc` panel as a sub-view
+behind `state.travellerSuppliesOpen`, the same shape as `ascensionDialoguePage`:
+view-only, reset when his panel opens and by `performAscension`. A separate
+`activeScene` would have meant editing about ten `||` chains for no gain. Buying
+reuses `shopBuyRowHtml` and `buyShopItem` unmodified - non-alchemist items price
+through `npcShopUnitPrice`.
+
+`.npc-dialog-window .npc-panel` is a hard 200px inside a 317px frame whose
+background is artwork stretched to 100%, so the window cannot grow without
+distorting it. The panel is pinned to 249px, the most that clears the frame, and
+the header is one row with the cap note demoted to the footer so the space goes
+to stock rows.
+
+Verified through the harness at every tier: caps 11/16/22/28/33, highest stocked
+level matching each cap exactly, and zero stat-gated, unpriced or wrong-class
+items throughout. Bought a Dagger and a Fencing book with gold deducted
+correctly, and confirmed the shop survives `performAscension` into a fresh
+journey (cap and stock intact, though gold is 0 after a wipe, so nothing is
+affordable until the new character earns some). 712 tests pass, smoke clean.
+`fixture:offline-taoist` fails "kills: expected 39, got 40" - reproduced
+identically in a clean worktree at HEAD, so it predates this work.
+
+## 2026-09-08 - Per-difficulty clear times, and the Traveller's second script
+
+Checked first, because everything here rests on it: Evil Mir's phase-1 collapse
+does NOT count as a kill. `updateEvilMirPhase2` returns true on the first 0 HP
+and both death paths (`updateBossPartyBattle` and `finishEnemy`) bail before
+`setBossRespawn`, so `incrementAccountBossKill` only ever runs on the phase-2
+death. The `_phase2Done` flag is what distinguishes the two.
+
+`account.ascension` gains `runClears`, `lastClears` and `bestClears`: sparse maps
+of boss tier ("0" standard through "3" awakened) to how far into the journey he
+first fell at that difficulty. Sparse rather than zero-filled because most
+journeys never see the top tiers, and 0 there would read as an instant kill. The
+pure parts (`sanitizeAscensionClearTimes`, `recordAscensionClearTime`,
+`mergeAscensionBestClearTimes`) live in `src/core/ascension.js` with tests.
+
+`recordEvilMirClearTime` runs BEFORE `awardEvilMirAscensionPoints` in
+`incrementAccountBossKill`, because the payout returns early on a re-kill that
+earns nothing and a first clear at a lower tier than one already beaten still
+deserves its time. That ordering exposed a pre-existing bug: `journeyClearedAt`
+was stamped inside the payout, after its early return, so a kill that earned no
+points recorded no clear stamp and `lastJourneyMs` silently kept a stale value.
+The stamp moved into `recordEvilMirClearTime` with the rest of the timing, and
+`performAscension` now takes `journeyMs` from the recorded clear so the number
+the Traveller quotes cannot drift from the table.
+
+The Traveller's opening two pages are now generated by
+`ascensionReturnOpeningPages()` once `ascensionCount > 0` and there is a time to
+quote; it returns null otherwise and the original first-meeting script stands.
+He gives the headline time, names the hardest form he saw felled if it was above
+standard, and compares against the previous world. The full per-difficulty table
+is in the Journey window instead of his mouth.
+
+`formatAscensionDuration` now drops trailing zero units - he was saying "9h 0m",
+which reads like a machine reciting a field.
+
+Verified by simulating two journeys through the harness: a 30h standard clear,
+ascend, then a second world clearing standard at 9h and empowered at 12h. Bests
+and lasts rolled over correctly and the script read "This world you did it in 9h
+... you put down his empowered form in 12h ... The world before took you 1d 6h.
+You have cut 21h from it." 706 tests pass, smoke clean.
+
+## 2026-09-08 - Ascension: the Traveller's send-off, with a live journey clock
+
+A one-off dialog after the wipe, on its own `#ascensionWelcomeNotice` host rather
+than sharing `#prototypeStatsNotice` - that one runs a priority chain of boot
+notices and this fires mid-session, so sharing it would make the two compete.
+`state.ascensionWelcome` is transient like `ascensionDraft`, so a reload drops the
+moment instead of replaying it, and nothing about it reaches the save.
+
+`showAscensionWelcome(journeyMs)` takes the finished journey's time as an
+argument because `performAscension` has already restarted the account's clock by
+that point - reading it from state would report the new journey as instant. When
+it is 0, which is every save that predates journey tracking, the copy switches to
+"No time was recorded for the last world" rather than printing a duration.
+
+The clock ticks from `tick()`, NOT from `render()`. The send-off appears in town,
+where `runSimulationStep` routinely reports nothing to draw and `render()` is
+skipped entirely, which would leave the clock frozen at 0s. It updates one node's
+`textContent`, the way `updateSimulationModeOverlayElapsed` does, and the value
+is kept out of every signature so the dialog is never rebuilt under the player's
+cursor. `formatJourneyClock` shows seconds for the first day - when anyone is
+actually watching - and switches to days and hours after that.
+
+Verified both wordings, sampled the clock across four seconds to confirm it
+counts (24s, 26s, 29s), and confirmed a reload leaves it hidden.
+
+## 2026-09-08 - Journey window, and two warnings before the wipe
+
+A `Journey` nav window (`state.openScenes.journey`, `journeySceneHtml`) holding
+the running clock, the clear time, and the best/last records. Hidden behind
+`ascensionUnlocked()` via `syncJourneyNavigation()` for the same reason the
+Traveller is: before the first Evil Mir kill there is nothing to report. Note
+that the "this world" row reads "Not timed" for every save that predates journey
+tracking - stamping `journeyStartedAt` on load instead would have recorded a
+bogus short time as the record to beat.
+
+The settled fields go in `buildSceneOverlaySignature`, so the window rebuilds
+when the dragon falls; the running clock does NOT, and is refreshed in place by
+`refreshOpenSceneLiveText` like the teleport-ring timers.
+
+Two warnings added to `ascensionConfirmHtml`. Unspent points are not destroyed,
+but powers can only be chosen while ascending, so leaving any behind means
+playing the whole next world without them - the set-out footer now says so in
+amber instead of the old reassuring "they keep until you want them". The backup
+prompt reuses `data-export-save`, which the delegated handler in `bindControls`
+already serves, so the button works with no new wiring and writes a live
+`createSaveSnapshot()`.
+
+That taller footer exposed a layout bug: `.scene-window` is `overflow: auto`, so
+the panel grew to its content height and the confirm buttons sat below the fold
+(measured at 1097px against a 1064px window). `.ascension-upgrades-window` is now
+`grid-template-rows: auto minmax(0, 1fr)` with `overflow: hidden`, which caps the
+panel so its upgrade list scrolls and the footer stays pinned.
+
+## 2026-09-07 - Ascension step 3: the wipe, and the journey timer
+
+`performAscension()` sits next to `performAccountRebirth()` and is deliberately
+harsher: rebirth keeps the rebirth upgrades, the codex and the achievements, and
+this keeps none of them. Only three kinds of thing survive - anything bought with
+real money (`ownedUnlocks`, `subscriptions`), the all-time counters
+(`account.stats`), and the ascension bank (`pointsEarned` plus committed
+`tiers`). Everything else is reset by an explicit line, so a field added to the
+save later survives by default, which is the safe direction for a destructive
+operation.
+
+`state.account.stats.rebirthCount += 1` is not cosmetic and must not be removed.
+`isWeakerCharacterProgress` in `tools/stats-worker/worker.js` rejects an upload
+whose combined character levels dropped unless it also carries a higher
+`rebirthCount`. Ascension drops every character to level 1, so without the bump
+the upload 409s as `stale_progress`, the cloud keeps the PRE-ascension save, and
+a restore later resurrects the wiped account. Bumping it keeps this working with
+no worker change, so there is no deploy-ordering hazard. `ascensionCount` is
+added alongside for display and is the honest counter. This is also why
+`account.stats` survives at all - it doubles as the "All Time Stats" half of the
+split, with run-scoped numbers already living on the characters that get wiped.
+Also uploads immediately rather than waiting out `CLOUD_SAVE_INTERVAL_MS`,
+because the cloud holds the old save until it lands.
+
+Two things are deliberately NOT wiped beyond the paid list.
+`randomMysteryCaveReadyAt` stays because the cave is on a daily timer and
+clearing it would make ascension a way to re-roll it. `stats.bossKills` stays
+because it is all-time; the per-character copies are wiped with the characters.
+The Spirit Box, by contrast, IS emptied - `paid = false` and `entry = null` -
+because its unlock is a rebirth upgrade being wiped and the Traveller's script
+promises "you will start with nothing". That is the one place a player can lose
+something they might expect to keep.
+
+Journey timing is wall-clock epoch ms (`journeyStartedAt` / `journeyClearedAt`,
+plus `lastJourneyMs` / `bestJourneyMs`), not playtime: the question is "could you
+do it faster", and a save idle for a week has not been played for a week. 0 means
+unknown and must render as no time rather than a duration measured from the
+epoch - every existing save has no start stamp, so only brand new accounts and
+post-ascension journeys can be timed. `journeyClearedAt` is stamped on the first
+Evil Mir kill of a journey only, so beating a harder tier later still pays the
+extra points without moving the finish line.
+
+Gated by `ASCENSION_ENABLED = TEST_HARNESS`, so it is dev-only; flip to `true` to
+open it. `canPerformAscension()` requires the journey to have killed Evil Mir, or
+a player could wipe everything for nothing. Verified over two full ascensions:
+rebirth points 50 to 0, all upgrade tiers cleared, inventory back to starter
+gear, playtime reset, codex emptied - while supporter, token unlocks, the cave
+timer, all-time boss kills and the banked build all survived, points accrued
+11 then +7 for an empowered kill, and `bestJourneyMs` kept the faster of a 50h
+and a 10h journey across a reload.
+
+## 2026-09-07 - Ascension step 4: the accept flow
+
+The Traveller's accept button is live (behind `ASCENSION_ENABLED`) but it wipes
+nothing. `beginAscension()` only opens the choosing window and shows the powers;
+the wipe sits behind a second confirm in the panel footer. So there is no single
+click anywhere that can destroy a save, and the player reads the full cost with
+their chosen build in front of them rather than before seeing it.
+
+The warning counts its loss list from live state - character levels, gold across
+the shared wallet, upgrade tiers, codex entries, achievements, and the Spirit Box
+item by name - instead of describing it in prose, so it cannot drift from what
+`performAscension` actually does. Verified by granting a spirit box tier and a
+codex entry mid-flow and watching the list pick both up.
+
+`state.ascensionConfirmOpen` is transient like `ascensionDraft`, so a reload
+backs out of the confirm rather than into it. The panel grid gained a fourth
+`auto` row for the footer, with the upgrade list still the only row taking the
+slack so the footer cannot be pushed out of reach.
+
+Walked the whole thing through the real UI: found the Traveller by canvas sweep,
+paged his dialogue to the ask, accepted, bought two tiers, opened the confirm,
+cancelled it, granted more to lose, reopened it, and sent myself back. The build
+chosen during the ascension banked (Swift Learning 1 to 2, Soul Exchange added),
+`ascensionCount` moved 2 to 3, upgrade tiers and codex emptied, token unlocks
+survived, and the effects were live immediately - XP at level 10 down to 1200 and
+Rebirth Points at 1.2x.
+
+## 2026-09-07 - Ascension step 2: four powers wired to real effects
+
+Swift Learning, Soul Beacon, Soul Exchange and Empowered Start now do something.
+Each reads `ascensionEffectTier()`, which is banked tiers only - the existing
+`ascensionUpgradeTier()` resolves the draft, so gameplay reading it would hand
+out the effect while the shopping list was still open, before the wipe. Verified
+via `__lomTest.ascensionEffects()`: drafting Swift Learning 5 leaves the level-10
+requirement at 1500, committing drops it to 750.
+
+Swift Learning was the only one with more than one hook. `crystalExperienceForLevel`
+is the sole definition of the requirement, but two loops read it -
+`applyExperienceToProgress` (live, offline solo, boss party) and the duplicate
+inside `offlineGroupApplyExperience`. Both now take a `requirementScale`,
+defaulted to 1, passed as a parameter rather than read from account state so
+`battleData.js` stays a pure data module. The group-dungeon loop needed no change
+because it reads through `xpForNextLevel`, so scaling that one function covered
+the loop and the XP bar together. `normalizeSavedProgress` deliberately keeps the
+undiscounted curve: the sanitizers have no account state, and the live loop
+already levels up on reaching the discounted requirement, so a save can only hold
+experience below it and there is nothing for load to collapse either way.
+
+Soul Beacon is `totalBonusAwakeningSoulChancePercent()` returning 100 rather than
+a new branch in `rollBossTableDrops`. `rollBonusBossDropItem` treats 100 as
+certain and all 27 tables in `bossDrops.js` list `awakening-soul` (checked, not
+assumed), so one soul per plain kill and one per empowered roll slot follow from
+the existing paths. Returning instead of adding costs nothing - the sum was
+already capped at 100 - and the Character stats row reads "+100%" correctly.
+
+Deeper Mastery, Steeper Path and Traveller's Supplies are now `planned: true`,
+refused by `canBuyAscensionTier` with reason `"planned"` and shown as "Not ready
+/ Coming soon". They were buyable with no effect behind them, so points could be
+sunk into nothing. Deeper Mastery is not the cheap cap flip it looks like: spell
+data stops at `need3`/`level3` and ~40 `Math.min(3, ...)` clamps feed combat
+maths, so level 4 needs new data per spell, not a constant.
+
+`fixture:offline-taoist` fails roughly one run in four on untouched code (39 vs
+40 kills, damage taken varying) - confirmed by running it four times on this
+tree. Pre-existing nondeterminism, not these edits, which are deterministic.
+
+## 2026-09-07 - Ascension step 1: spending and respec
+
+Spending edits `state.ascensionDraft`, never `account.ascension.tiers`. The
+draft is cloned from the banked build when the choosing window opens, and only
+`commitAscensionRespec()` writes it back - which `performAscension` will call as
+part of the wipe once that exists. Chose this over a saved "respec is open" flag
+because the flag version has a hole: buy tiers, reload or wander off before the
+wipe runs, and you are mid-run holding powers you bought mid-run. With a draft
+there is simply no such state, so "no changes during a run" holds by
+construction rather than by remembering to close a window. Verified by leaving a
+draft open and reloading: the extra tier is gone, the banked build intact.
+
+The maths lives in `src/core/ascension.js` with `ASCENSION_UPGRADE_DEFS`
+injected, the same shape as `sanitizeAccountStatsCore(saved, zoneFilter)`, so
+the defs stay with the game data but the rules get 17 unit tests (caps,
+uncapped Soul Exchange, affordability against points already committed,
+refunds). `sanitizeAccountAscensionState` now delegates tier clamping to the
+module so the save path and the buy path cannot disagree. A new module means
+`sourceFiles` in `tools/package-itch.mjs` needs the entry or the build's
+import-closure check fails.
+
+`activeAscensionTiers()` is the single read point - draft while ascending,
+banked otherwise - so the cards, the balance and the scene signature all follow
+the build being assembled without it being bought. Card actions are a fixed
+two-column grid with an empty cell where there is no refund: measured 68px vs
+132px between cards otherwise, which dragged each card's status pill sideways.
+
+Still shut to players: the Traveller's "Yes. Send me back." is still disabled
+and nothing but `__lomTest.openAscensionRespec()` opens the window.
+
+## 2026-09-06 - Test harness is localhost-only
+
+`?testHarness=1` used to switch on `window.__lomTest` from any host, including
+www.lom2idle.com, and the unminified bundle names every helper. That is not just
+a single-player cheat: tokens are real money (Stripe checkout), and
+`chargeSpiritBoxTokens` spends `state.tokens.allowLocalSpend` balances *without
+the worker*, so `grantLocalTokens()` bought the Spirit Box slot for free.
+`setSupporter()` faked the paid perks locally, and `grantItem` / `awardTestDrop`
+/ `grantEvilMirKill` feed the public leaderboard. Ascension Points were the
+prompt for the review - a self-granted balance would have been honoured by every
+later spend - but they were the smallest part of it.
+
+`TEST_HARNESS` now keys off hostname alone. This costs nothing locally: every
+script in `tools/` that passes `?testHarness=1` targets `localhost:4177` and
+still gets the harness from the hostname check. Verified both directions -
+`http://192.168.68.124:4177/?testHarness=1` (a non-local hostname, same as
+production) leaves `window.__lomTest` undefined, while plain
+`http://localhost:4177/` exposes all 24 helpers with no param at all.
+
+Also folded the three unreleased changelog entries (Evil Mir/Ascension, Spirit
+Box warning, Empowered Harvest) into one post, matching how the release before
+it was handled - `git show HEAD:src/data/changelog.json` still has the Random
+Mystery Cave release as seven separate per-feature entries, consolidated in the
+working copy at ship time. So the convention is one post per *release*, not per
+change, written at release time. Picked up one player-facing change that had
+never been written down at all: Glyph of Infinite Mana went from `classId:
+"wizard"` to `"any"`. Worth diffing `src/glyphModifiers.js` and the data modules
+against HEAD when writing these, not just re-titling the entries that exist.
+
+Left alone deliberately: the Traveller's ~24x68 click target. Mapping the click
+grid showed he is not being clipped - Vincent's box ends at x~106 and the
+Mysterious Stone's starts at x~133, and he gets the whole gap between them. So
+there is nothing to reclaim by nudging him; widening him means a different spot,
+and the alternative (ordering him ahead of the Stone in `TOWN_NPCS`) would steal
+clicks from the teleport stone to help a once-per-journey NPC.
+
+## 2026-09-06 - Release prep: Evil Mir + Ascension preview
+
+**Release blocker found by `audit:release`, unrelated to Ascension:** the Mir set
+helmets (`mir-helmet-1/2/3`, added with Evil Mir in 0530cbb) point at icon frame
+827, and only frame 828 (Mir Sword) had ever been exported - so equipping a Mir
+Helmet would have shown no paper-doll art. Fixed by
+`tools/append-stateitem-frames.ps1 -FrameList 827` (a real 20x33 frame exists in
+`Stateitem.Lib`) plus `npm run build:stateitem-atlas`; the atlas is now 137
+frames and `release:itch` is green end to end. Lesson for future item sets:
+`audit:release` only catches this at package time, so run it after adding
+equipment, not on release day.
+
+Added `runBestTier` to `account.ascension` **before** shipping, because it is the
+only place the save records the *difficulty* of a boss kill (`stats.bossKills` is
+a bare count). Without it, a later change to the payout table could never be
+applied to a journey already under way, and the tier could not be reconstructed
+after the fact - the same trap that makes retroactively crediting pre-Ascension
+kills impossible. Cheap to add now, impossible to add retroactively once players
+start beating Mir.
+
+Two UI fixes on the ascension window. The panel's `grid-template-rows` defines
+three rows and the notes had grown it to five children, so `minmax(0, 1fr)` -
+the row that makes the card list scroll instead of stretching the window - had
+drifted onto a paragraph; the notes now live in one `.ascension-upgrades-notes`
+wrapper so the row count is stable however many notes it gains. Also learned the
+hard way that a single-class window selector cannot set its own width here:
+`.scene-window` is declared later in `styles.css` with equal specificity and
+`body.compact-ui .scene-window` outranks both, which is why the window is
+viewport-height by design. It now deliberately inherits that width - narrowing it
+to 460px truncated every card title, since these are the same wide
+`upgrade-card`s the Upgrades window uses.
+
+Changelog entry added (`2026-09-06-evil-mir-and-ascension-preview`). Evil Mir had
+no entry at all despite being promised as "coming soon" in the 2026-08-19 entry,
+and the release also needs to state plainly that Ascension is a preview while
+still telling players their points are being banked.
+
+## 2026-09-06 - Ascension step 3: Ascension Points are real currency
+
+Evil Mir now pays Ascension Points into the save, but **once per journey, not
+once per kill**: 5 plain, 7 empowered, 9 ascended, 11 awakened
+(`ASCENSION_POINTS_BY_BOSS_TIER`, indexed by `liveBossFightTier()`), so a run is
+worth at most 11 however many times he dies. `awardEvilMirAscensionPoints`
+compares the tier payout against `runPointsAwarded` and banks only the
+difference, which makes a hundred plain kills worth 5 and a later empowered kill
+worth +2 on top - the journey ratchets up to its best tier rather than paying per
+corpse. Hung off `incrementAccountBossKill` because that is the single chokepoint
+every battle loop funnels kills through. Group dungeons mirror their paid entry
+tier onto the same `state.battle.bossEmpowered/Ascended/Awakened` flags in
+`beginBossPartyFight`, so the tier reads correctly for Evil Mir as a floor boss.
+
+The currency is three numbers: `account.ascension.pointsEarned` is banked for the
+life of the account and never decreases, `tiers` records only how those points
+are currently spent, and `runPointsAwarded` is what this journey has already been
+paid. `accountAscensionPoints()` is earned minus spent, so a respec is just
+clearing `tiers` - there is no separate "spent" counter that can drift out of
+sync with the tiers it is supposed to describe. **Ascension must zero
+`runPointsAwarded`** or the next journey pays nothing; it is deliberately in the
+save rather than in memory because a journey spans reloads and rebirths.
+
+Save wiring, which `restoreAccountFromSnapshot` makes easy to get half-right:
+`sanitizeAccountAscensionState` in `accountRestoreOptions`, an `ascension` key in
+`restoreAccount.js`, AND `ascension` in `createSaveSnapshot`. Miss the snapshot
+half and points vanish on the next save; miss the restore half and they vanish on
+load. Pre-Ascension saves have no `account.ascension`, which the sanitizer reads
+as zero earned and nothing spent, so nothing is dropped and no migration flag is
+needed. Tiers are clamped against `ASCENSION_UPGRADE_DEFS` on both ends, so an
+upgrade whose `maxTier` we lower later cannot leave an over-spent save.
+
+Spending is gated on `ascensionRespecOpen()` (`state.ascensionRespecOpen`, not
+saved - an interrupted ascension must not leave the window open). Nothing sets it
+yet, so every button stays disabled and reads "While ascending"; the cards do
+still colour by affordability, which is the useful half of the page today. The
+gate deliberately lives in one predicate rather than inline in the click handler,
+because the ascend flow will need the same answer.
+
+`ascensionUnlocked()` now also accepts `pointsEarned > 0`, so the Traveller
+cannot disappear from town once he has paid you - the run's Evil Mir kills are
+exactly what ascension wipes.
+
+Renamed the ascension "Soul Harvest" to **Soul Exchange** - the rebirth tree
+already had a "Soul Harvest" (`rebirth-bonus-soul`, chance of an extra Awakening
+Soul). Checked all seven ascension labels against the 34 rebirth/account upgrade
+labels; that was the only exact collision. Worth knowing that the neighbouring
+rebirth upgrade "Soul Resonance" (`rebirth-soul-yield`,
+`rebirthPointMultiplierBonus`) already does what Soul Exchange is meant to do -
+raise Rebirth Points per soul - so whoever implements the effect should decide
+how the two stack rather than adding a second independent multiplier.
+
+Seventh upgrade added to `ASCENSION_UPGRADE_DEFS`: "Steeper Path"
+(`ascension-difficulty`), a one-off 3-point unlock for selecting a higher
+difficulty in exchange for a base modifier. Read as 3 points total rather than 3
+per difficulty level, so `maxTier: 1`; the levels and their modifiers are still
+to be decided, and none of the defs do anything yet.
+
+Harness: `__lomTest.ascensionState()` returns earned/run-paid/spent/available/
+tiers and the gate, `grantEvilMirKill(count, tier)` fakes the empower flags
+around the real kill path so tier payouts can be exercised without paying for a
+group-dungeon entry, and `clearEvilMirKills()` now also resets the ascension
+state so kills and points cannot be left disagreeing mid-test.
+
+## 2026-09-06 - Ascension step 1: the Traveller appears after Evil Mir dies
+
+First slice of the Ascension feature - the town NPC only, no ascension mechanic
+yet. New `TOWN_NPCS` entry `ascension` ("Traveller"), gated in `visibleTownNpcs()`
+on `ascensionUnlocked()` -> `evilMirRunKills() > 0`, the same hook the Gem Merchant
+uses. `visibleTownNpcs()` is the single chokepoint for drawing, nameplates,
+click hit-testing (`townNpcAt`) and `openTownNpc`, so the gate hides him
+completely rather than leaving an invisible click target.
+
+`evilMirRunKills()` sums `state.account.stats.bossKills` over
+`EVIL_MIR_BOSS_ZONE_IDS`. A list because his zone id is still `zone-lab-evil-mir`
+(saves key respawn timers and character location on it, with no migration path)
+and a second Evil Mir room would otherwise miss the gate. It reads the raw
+counter instead of `bossKillCount()` / `accountBossKills()` because
+`visibleTownNpcs()` runs every frame and those sanitize-and-spread per call.
+
+Kill tracking needed no changes: Evil Mir is now Past Bicheon floor 9 with
+`groupDungeonBossRespawnMinutes: 120`, so `zoneTracksBossRespawn` passes him
+even though his `BOSS_ROOM_DEFS` entry is gone, and `incrementAccountBossKill`
+already fires from `finishBossPartyEnemy`.
+
+Also fixed: `selectedTownNpc()` read the unfiltered `TOWN_NPCS`, so an NPC that
+locked while its own panel was open left a stale panel up. Harmless today, but
+ascension wiping the run's Evil Mir kills is exactly that case. Now filtered.
+
+Sprite: `public/npcs/traveller/` exported from Crystal `NPC/68.Lib`
+(TaoistVillage/MasterMK) via `tools/export-npc-atlas.ps1` - 68x72, 4 frames,
+450ms, matching the other town NPCs. Added to `PACKAGE_TOWN_NPC_SPRITES` in
+`tools/package-itch.mjs`; without that the NPC renders in dev and is invisible
+in production, which the boot check cannot catch.
+
+New `tools/build-ascension-npc-candidates.ps1` renders a contact sheet of NPC
+sprite candidates to the gitignored `tile-review/`, following
+`build-crafting-cube-sprite-candidates.ps1`. Worth knowing for future NPC art:
+the Timestone libs (`NPC/33`, `NPC/34`) hold their frames at index 12+, and
+`export-npc-atlas.ps1` hardcodes `baseIndex = 0`, so exporting those today
+yields blank frames until it takes a `-BaseIndex`.
+
+Dev harness: `__lomTest.grantEvilMirKill()` / `clearEvilMirKills()`, since a real
+kill otherwise means a 120-minute respawn wait between tests.
+
+Placement: front row at `x: 0.345`, in the gap between Blacksmith Vincent and the
+Mysterious Stone. That gap is only ~27px of clear space and his slot is 68px, so
+his hit box unavoidably overlaps both of theirs. `townNpcAt` returns the *first*
+match in `TOWN_NPCS` order, so he is listed **last** - which keeps Vincent and the
+stone clickable where they overlap him. All three were verified to open their own
+panel. The cost is that he draws over them (draw order is also array order),
+which reads fine since he shares their baseline.
+
+His panel is now a five-page speech (`ASCENSION_DIALOGUE_PAGES`) with Next/Back,
+ending on "Do you accept my terms?" and the two replies. Page index lives in
+`state.ascensionDialoguePage` - top-level and unsaved, mirroring
+`teleportBrowseRegionId`, which is the same in-panel pagination pattern. Two
+things are easy to miss when copying it: the field must be added to
+`buildSceneOverlaySignature` or `renderSceneOverlay` early-returns and the page
+never changes on screen, and it must be reset in `openTownNpc` so he does not
+reopen mid-speech. `ascensionDialoguePageIndex()` clamps the stored value, so the
+Next/Back handlers cannot walk it out of range.
+
+"Yes. Send me back." is rendered `disabled` on purpose - the wipe does not exist
+yet, and a live button there could half-reset a save. "Not yet." just calls
+`closeTownNpc()`. The panel drops the `<strong>` name the default NPC panel
+carries, because the window title bar already shows "Traveller".
+
+The Ascension upgrades window is a new scene `"ascensionUpgrades"`, opened from
+"Show me these powers." on his dialogue (shown from page 3, where he offers
+them). It lists six costed upgrades - all `disabled`, button text "Coming soon"
+- plus an Ascension Points balance. It is a plan we can argue with before any of
+it touches gameplay, not a working shop. Costs are sized against the intended
+income of 5/7/9/11 points per Evil Mir kill by tier, so a first ascension buys
+about one cheap tier.
+
+Upgrade defs use a flat `costPerTier` (no escalation, so maxing a capped upgrade
+costs `costPerTier * maxTier`) and `maxTier: null` for uncapped. Only Soul
+Harvest is uncapped today, at +20% Rebirth Points per soul per tier - additive on
+the base, so 100 souls pay 120 points at one tier and 200 at five. The card
+renderer prints "Tier 0" rather than "Tier 0/N" when `maxTier` is null.
+
+Scene ids in the monolith are enumerated by hand in **eight** places, and missing
+one leaves a window that cannot open or cannot be dismissed. For the record, all
+of them: `npcActiveScene`, `openScene`'s pre-close list, a dedicated
+`closeScene` branch (returns to `"townNpc"` if the NPC is still selected, so Back
+lands back on his speech), `closeScene`'s `townNpc/storage/bossEntry` branch and
+its trailing `else`, `closeTownNpc`, the Mystery Cave chest handler, plus
+`sceneClassName` / `sceneTitle` / `sceneBodyHtml`. Modelled on `armoury`, the
+simplest existing NPC sub-scene. It deliberately gets no `state.openScenes` entry
+and nothing in `initialOpenScenesFromUrl` - those are for nav-bar windows.
+
+`accountAscensionPoints()` and `ascensionUpgradeTier()` read
+`state.account?.ascension?...` through optional chaining, so both returned 0
+while the currency was unimplemented and started returning real numbers when it
+landed later the same day, with no change to the render code. Note
+`restoreAccountFromSnapshot` rebuilds `account` from a fixed key list, so adding
+`account.ascension` needed a sanitizer wired into `accountRestoreOptions` AND an
+entry in `createSaveSnapshot` or it would be silently dropped on load.
+
+New optional NPC field `spriteFootInsetPx` (`townNpcFootInset()`), set to 17 for
+the Traveller. `drawTownNpcSprite` bottom-aligns the whole slot to
+`bounds.bottomY`, which assumes the figure's feet occupy the last row. This
+sprite's cane is planted *forward* of his feet, so it hangs 17px lower on screen
+and the alignment lifted his body clear of its shadow ellipse. The inset shortens
+the box to the body (`townNpcSpriteSize` subtracts it) and pushes the art back
+down by the same amount, so his feet land 2px above the ellipse centre - matching
+the Shopkeeper. Only the Traveller sets the field, so no other NPC moves.
+
+## 2026-09-06 - Warn when rebirthing with an empty Spirit Box
+
+Players with Spirit Box unlocked were confirming rebirth without storing an
+item. `rebirthConfirmHtml` now shows a warning when the box is unlocked and
+empty, with an Open Spirit Box button that dismisses the confirm and opens
+the box. Occupied boxes list the stored item under You will keep. Esc also
+cancels the rebirth confirm first, matching the destroy-item dialog.
+
 ## 2026-09-05 - Taoist summons outlived their summoner in party fights
 
 Solo already handled this: a solo death runs `finishBattle`, which calls

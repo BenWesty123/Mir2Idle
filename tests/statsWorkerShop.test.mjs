@@ -298,6 +298,26 @@ test("create-checkout returns a Stripe session url on success", async () => {
   }
 });
 
+test("unlock-page charges 100 tokens for extra storage pages", async () => {
+  const db = new FakeDb({ balances: { [VALID_CODE]: 250 } });
+  const first = await request("/shop/unlock-page", {
+    method: "POST",
+    headers: { "content-type": "application/json" },
+    body: JSON.stringify({ recoveryCode: VALID_CODE, unlockKey: "storage-page-4" }),
+  }, { DB: db });
+  assert.equal(first.status, 200);
+  assert.equal((await first.json()).balance, 150);
+  const second = await request("/shop/unlock-page", {
+    method: "POST",
+    headers: { "content-type": "application/json" },
+    body: JSON.stringify({ recoveryCode: VALID_CODE, unlockKey: "storage-page-5" }),
+  }, { DB: db });
+  assert.equal(second.status, 200);
+  assert.equal((await second.json()).balance, 50);
+  assert.ok(db.unlocks.has(`${VALID_CODE}::storage-page-4`));
+  assert.ok(db.unlocks.has(`${VALID_CODE}::storage-page-5`));
+});
+
 test("unlock-page charges 250 tokens and records the unlock", async () => {
   const db = new FakeDb({ balances: { [VALID_CODE]: 300 } });
   const response = await request("/shop/unlock-page", {

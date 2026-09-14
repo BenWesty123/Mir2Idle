@@ -1326,6 +1326,22 @@ dd {
   grid-template-rows: auto auto minmax(0, 1fr);
 }
 
+/* Gold, scrolling stock, then the cap note and the way back to his speech. */
+.traveller-supplies-panel {
+  grid-template-rows: auto minmax(0, 1fr) auto;
+}
+
+.traveller-supplies-footer {
+  display: grid;
+  gap: 4px;
+  justify-items: center;
+}
+
+.traveller-supplies-footer small {
+  color: #9f8757;
+  font-size: 10px;
+}
+
 .town-message-board-panel {
   display: grid;
   grid-template-rows: 24px minmax(0, 1fr) 50px;
@@ -1654,6 +1670,30 @@ dd {
   font-weight: 700;
   letter-spacing: 0.02em;
   color: #f0c979;
+}
+
+.time-logging-window {
+  position: relative;
+}
+
+.time-logging-window .scene-window-drag-handle {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 88px;
+  height: 72px;
+  z-index: 4;
+  cursor: grab;
+  touch-action: none;
+}
+
+.time-logging-window.scene-window-dragging .scene-window-drag-handle {
+  cursor: grabbing;
+}
+
+.time-logging-window .scene-header button {
+  position: relative;
+  z-index: 5;
 }
 
 .time-logging-panel {
@@ -2497,6 +2537,225 @@ dd {
   opacity: 0.55;
   cursor: not-allowed;
   filter: none;
+}
+
+.ascension-dialogue-actions {
+  display: grid;
+  gap: 4px;
+  margin-top: 4px;
+}
+
+.ascension-dialogue-button {
+  display: block;
+  width: 100%;
+  min-height: 26px;
+  padding: 4px 8px;
+  border: 1px solid rgba(86, 65, 37, 0.75);
+  background: rgba(22, 15, 8, 0.68);
+  color: #e7d2a4;
+  font-size: 11px;
+  line-height: 1.2;
+  text-align: center;
+}
+
+.ascension-dialogue-button.primary {
+  border-color: rgba(188, 132, 58, 0.95);
+  background: rgba(120, 62, 24, 0.88);
+  color: #fff2d8;
+}
+
+.ascension-dialogue-button:hover:not(:disabled) {
+  border-color: rgba(214, 166, 88, 0.95);
+  filter: brightness(1.06);
+}
+
+.ascension-dialogue-button:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+  filter: none;
+}
+
+.ascension-dialogue-note {
+  color: #9f8660;
+  font-size: 10px;
+  text-align: center;
+}
+
+/* Deliberately inherits `.scene-window`'s width. These are the same wide
+   `upgrade-card`s the Upgrades window uses, and narrowing the window truncates
+   their titles. A single-class selector could not override that width anyway -
+   the base `.scene-window` rule is declared later in this file with equal
+   specificity, and `body.compact-ui .scene-window` outranks both. */
+/* Header, then the panel taking the rest. Without this the window falls back to
+   scrolling as one block, the panel grows to its content height, and the
+   confirmation's buttons end up below the fold. */
+.ascension-upgrades-window {
+  display: grid;
+  grid-template-rows: auto minmax(0, 1fr);
+  overflow: hidden;
+  font-size: 10px;
+}
+
+/* Balance, notes, scrolling upgrade list, then the set-out footer. The list is
+   the only row allowed to take the slack, so the footer stays reachable. */
+.ascension-upgrades-panel {
+  grid-template-rows: auto auto minmax(0, 1fr) auto;
+  min-height: 0;
+}
+
+.ascension-balance {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 6px;
+  border: 1px solid rgba(159, 127, 229, 0.22);
+  background: rgba(10, 7, 12, 0.48);
+  padding: 4px 7px;
+}
+
+.ascension-balance span {
+  color: #d7bd82;
+  font-size: 10px;
+}
+
+.ascension-balance strong {
+  color: #d8b4ff;
+  font-size: 13px;
+}
+
+/* One wrapper so the panel keeps its three grid rows however many notes it
+   grows - the last row is what makes the upgrade list scroll instead of
+   pushing the window past its max-height. */
+.ascension-upgrades-notes {
+  display: grid;
+  gap: 3px;
+}
+
+.ascension-upgrades-note {
+  margin: 0;
+  color: #9f8660;
+  font-size: 10px;
+  line-height: 1.3;
+}
+
+.ascension-upgrades-note.preview,
+.ascension-upgrades-note.respec {
+  border-left: 2px solid rgba(159, 127, 229, 0.5);
+  padding-left: 5px;
+  color: #d8b4ff;
+}
+
+/* Two equal columns always, with an empty cell standing in when there is no
+   refund to offer. Otherwise the action column changes width as tiers are taken
+   and given back, which drags the card's status pill sideways with it. */
+.ascension-card-actions {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 4px;
+  align-items: start;
+}
+
+.ascension-card-actions button {
+  width: 100%;
+}
+
+.ascension-refund,
+.ascension-reset-all {
+  border-color: rgba(159, 127, 229, 0.4);
+  color: #c8a9f0;
+  background: rgba(24, 16, 32, 0.6);
+  white-space: nowrap;
+}
+
+.ascension-reset-all {
+  padding: 1px 6px;
+  font-size: 9px;
+}
+
+.ascension-upgrade-list {
+  min-height: 0;
+  overflow-y: auto;
+}
+
+.ascension-setout {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  margin-top: 6px;
+}
+
+.ascension-confirm {
+  display: grid;
+  gap: 4px;
+  margin-top: 6px;
+  padding: 8px;
+  border: 1px solid rgba(214, 106, 106, 0.45);
+  border-radius: 4px;
+  background: rgba(38, 14, 14, 0.55);
+}
+
+.ascension-confirm-title {
+  color: #e79a9a;
+  font-size: 11px;
+}
+
+.ascension-confirm-losses {
+  margin: 0;
+  padding-left: 16px;
+  color: #d9c8c8;
+  font-size: 10px;
+  line-height: 1.45;
+}
+
+.ascension-confirm-keep {
+  margin: 0;
+  color: #b9a6d6;
+  font-size: 10px;
+}
+
+.ascension-confirm-warning {
+  margin: 0;
+  border: 1px solid rgba(214, 149, 74, 0.5);
+  border-radius: 4px;
+  padding: 6px 8px;
+  background: rgba(58, 34, 12, 0.5);
+  color: #e8b877;
+  font-size: 10px;
+  line-height: 1.5;
+}
+
+.ascension-confirm-backup {
+  display: grid;
+  gap: 6px;
+  justify-items: start;
+  margin: 0;
+  border: 1px solid #3a2c1a;
+  border-radius: 4px;
+  padding: 7px 8px;
+  background: rgba(20, 15, 9, 0.55);
+}
+
+.ascension-confirm-backup p {
+  margin: 0;
+  color: #a98d5d;
+  font-size: 10px;
+  line-height: 1.5;
+}
+
+.ascension-setout-warning {
+  color: #e8b877;
+}
+
+.ascension-confirm-actions {
+  display: flex;
+  gap: 6px;
+  margin-top: 2px;
+}
+
+.upgrade-material-icon.ascension {
+  border-color: rgba(147, 112, 219, 0.55);
+  color: #d8b4ff;
 }
 
 .armoury-window {
@@ -4385,6 +4644,56 @@ dd {
   width: min(480px, calc(100vw - 32px));
 }
 
+.ascension-welcome-window {
+  width: min(460px, calc(100vw - 32px));
+  border-color: rgba(159, 127, 229, 0.45);
+}
+
+.ascension-welcome-window .cloud-backup-notice-eyebrow {
+  margin-bottom: 8px;
+  color: #b48ee8;
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.ascension-welcome-window p {
+  margin: 0 0 8px;
+  color: #d7c7a7;
+  font-size: 13px;
+  line-height: 1.5;
+}
+
+.ascension-welcome-omen {
+  color: #d98c8c !important;
+  font-style: italic;
+}
+
+.ascension-welcome-clock {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 8px;
+  margin: 12px 0 4px;
+  border: 1px solid rgba(159, 127, 229, 0.28);
+  border-radius: 4px;
+  padding: 7px 10px;
+  background: rgba(24, 16, 32, 0.55);
+  color: #a98d5d;
+  font-size: 10px;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+.ascension-welcome-clock strong {
+  color: #e6d8b5;
+  font-size: 15px;
+  font-variant-numeric: tabular-nums;
+  letter-spacing: normal;
+  text-transform: none;
+}
+
 .cloud-backup-notice-window .cloud-backup-notice-eyebrow {
   margin-bottom: 5px;
   color: #52cdb1;
@@ -4625,6 +4934,160 @@ dd {
   width: min(300px, calc(100vw - 24px));
 }
 
+.scene-window.journey-window,
+.scene-window.difficulty-window {
+  width: min(380px, calc(100vw - 24px));
+}
+
+.difficulty-panel {
+  display: grid;
+  gap: 10px;
+  padding: 12px;
+}
+
+.difficulty-intro {
+  margin: 0;
+  color: #d5c6aa;
+  font-size: 12px;
+  line-height: 1.4;
+}
+
+.difficulty-choices {
+  display: grid;
+  gap: 6px;
+}
+
+.difficulty-choice {
+  display: grid;
+  gap: 2px;
+  text-align: left;
+  padding: 8px 10px;
+  border: 1px solid rgba(120, 88, 42, 0.7);
+  background: rgba(18, 13, 8, 0.74);
+  color: #e7d2a4;
+}
+
+.difficulty-choice strong {
+  font-size: 13px;
+}
+
+.difficulty-choice span {
+  color: #9f8757;
+  font-size: 11px;
+  line-height: 1.35;
+}
+
+.difficulty-choice.selected {
+  border-color: rgba(220, 178, 90, 0.95);
+  background: linear-gradient(180deg, rgba(78, 48, 14, 0.96) 0%, rgba(42, 26, 10, 0.94) 100%);
+}
+
+.difficulty-choice:disabled {
+  opacity: 0.72;
+}
+
+.journey-panel {
+  display: grid;
+  gap: 10px;
+  padding: 12px;
+}
+
+.journey-rows {
+  display: grid;
+  gap: 4px;
+}
+
+.journey-row {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 10px;
+  border: 1px solid #3a2c1a;
+  border-radius: 4px;
+  padding: 6px 9px;
+  background: rgba(20, 15, 9, 0.6);
+  color: #a98d5d;
+  font-size: 10px;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+}
+
+.journey-row strong {
+  color: #ecd6a3;
+  font-size: 14px;
+  font-variant-numeric: tabular-nums;
+  letter-spacing: normal;
+  text-transform: none;
+}
+
+.journey-panel small {
+  font-size: 11px;
+  line-height: 1.5;
+}
+
+.journey-clears {
+  display: grid;
+  gap: 2px;
+  border: 1px solid #3a2c1a;
+  border-radius: 4px;
+  padding: 6px 8px;
+  background: rgba(20, 15, 9, 0.6);
+}
+
+.journey-clear-head,
+.journey-clear-row {
+  display: grid;
+  grid-template-columns: 1fr auto auto;
+  align-items: baseline;
+  gap: 10px;
+}
+
+.journey-clear-head {
+  margin-bottom: 2px;
+  border-bottom: 1px solid #3a2c1a;
+  padding-bottom: 4px;
+  color: #a98d5d;
+  font-size: 9px;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+}
+
+.journey-clear-head strong,
+.journey-clear-head em {
+  min-width: 62px;
+  color: #a98d5d;
+  font-style: normal;
+  font-weight: 400;
+  text-align: right;
+}
+
+.journey-clear-row {
+  color: #d7c7a7;
+  font-size: 11px;
+}
+
+.journey-clear-row strong,
+.journey-clear-row em {
+  min-width: 62px;
+  font-variant-numeric: tabular-nums;
+  text-align: right;
+}
+
+.journey-clear-row strong {
+  color: #ecd6a3;
+}
+
+.journey-clear-row em {
+  color: #8fbf8f;
+  font-style: normal;
+}
+
+.journey-clears-empty {
+  margin: 0;
+  color: #a98d5d;
+  font-size: 11px;
+}
+
 .scene-window.auto-junk-window {
   max-height: min(420px, calc(100vh - 48px));
 }
@@ -4821,7 +5284,8 @@ dd {
 .character-window[data-scene-window-positioned],
 .codex-window[data-scene-window-positioned],
 .upgrades-window[data-scene-window-positioned],
-.leaderboard-window[data-scene-window-positioned] {
+.leaderboard-window[data-scene-window-positioned],
+.time-logging-window[data-scene-window-positioned] {
   position: fixed;
   z-index: 21;
   margin: 0;
@@ -5810,6 +6274,14 @@ body.scene-window-drag-active {
   overflow: visible;
 }
 
+/* Taller than the shared 200px, because this shop lists up to 190 items where
+   the alchemist lists 11. 249px is the most that clears the window's frame art
+   (317px tall, less 8px top padding, the 42px header, and 18px bottom padding);
+   anything more pushes the footer button out through the bottom of the frame. */
+.npc-dialog-window .traveller-supplies-panel {
+  height: 249px;
+}
+
 .npc-dialog-window .scene-header h2 {
   color: #deb887;
   font-size: 15px;
@@ -6042,7 +6514,7 @@ body.scene-window-drag-active {
   width: min(460px, calc(100vw - 28px));
   height: auto;
   min-height: 0;
-  max-height: min(420px, calc(100vh - 32px));
+  max-height: min(480px, calc(100vh - 32px));
   overflow-y: auto;
   padding-bottom: 24px;
 }
@@ -6087,6 +6559,16 @@ body.scene-window-drag-active {
 
 .rebirth-confirm-section-keep ul {
   color: #c8dcc0;
+}
+
+.rebirth-confirm-spirit-warning {
+  margin: 12px 0 0;
+  padding: 8px 10px;
+  border: 1px solid rgba(232, 176, 80, 0.55);
+  background: rgba(90, 48, 10, 0.42);
+  color: #ffd28a;
+  font-size: 12px;
+  line-height: 1.4;
 }
 
 .rebirth-confirm-actions {
@@ -7892,9 +8374,19 @@ body.scene-window-drag-active {
   left: 152px;
 }
 
-/* Page 3 has no bespoke art, and any locked tab needs to show its cost, so
+.crystal-storage-page.page-4 {
+  left: 224px;
+}
+
+.crystal-storage-page.page-5 {
+  left: 296px;
+}
+
+/* Pages 3+ have no bespoke art, and any locked tab needs to show its cost, so
    render those as text tabs (matching the inventory secondary tabs). */
 .crystal-storage-page.page-3,
+.crystal-storage-page.page-4,
+.crystal-storage-page.page-5,
 .crystal-storage-page.locked {
   background-image: none;
   background: linear-gradient(#23180b, #0f0905);
@@ -7906,7 +8398,9 @@ body.scene-window-drag-active {
   text-shadow: 1px 1px #000;
 }
 
-.crystal-storage-page.page-3.active {
+.crystal-storage-page.page-3.active,
+.crystal-storage-page.page-4.active,
+.crystal-storage-page.page-5.active {
   background: linear-gradient(#4b3414, #1c1108);
   border-color: #b99545;
   color: #ffe39a;
@@ -8011,6 +8505,28 @@ body.scene-window-drag-active {
 .crystal-inventory-tab.active {
   background: url("../public/ui/inventory/tabs.png") 0 0 / 72px 24px no-repeat;
   color: transparent;
+}
+
+.crystal-inventory-tab.active:not(.locked),
+.crystal-storage-page.active:not(.locked) {
+  z-index: 6;
+  filter: brightness(1.06) drop-shadow(0 0 1px rgba(255, 248, 220, 0.5)) drop-shadow(0 0 2px rgba(255, 208, 96, 0.5));
+}
+
+.crystal-inventory-tab.active:not(.locked)::after,
+.crystal-storage-page.active:not(.locked)::after {
+  content: "";
+  position: absolute;
+  inset: -1px;
+  border-radius: 3px;
+  pointer-events: none;
+  box-shadow:
+    0 0 0 1px rgba(255, 236, 180, 0.42),
+    0 0 4px 1px rgba(255, 208, 96, 0.35);
+}
+
+.crystal-storage-page.active:not(.locked) {
+  overflow: visible;
 }
 
 .crystal-inventory-tab.secondary {

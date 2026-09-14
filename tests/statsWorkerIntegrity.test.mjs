@@ -155,7 +155,7 @@ test("impossible equipment is flagged but not automatically excluded", async () 
   assert.notEqual(insertStatus(db), "excluded");
 });
 
-test("impossible character levels are automatically excluded from Social", async () => {
+test("character levels through the Social cap stay visible", async () => {
   const db = new FakeDb();
   const body = payload();
   body.account.characterLevels = { Warrior: 130, Wizard: 1, Taoist: 1 };
@@ -163,7 +163,69 @@ test("impossible character levels are automatically excluded from Social", async
   body.characters = [{ characterClass: "Warrior", level: 130, equipment: {} }];
   const response = await postStats(db, body);
   assert.equal(response.status, 200);
+  assert.equal(insertStatus(db), "clear");
+});
+
+test("impossible character levels are automatically excluded from Social", async () => {
+  const db = new FakeDb();
+  const body = payload();
+  body.account.characterLevels = { Warrior: 160, Wizard: 1, Taoist: 1 };
+  body.account.highestCharacterLevel = 160;
+  body.characters = [{ characterClass: "Warrior", level: 160, equipment: {} }];
+  const response = await postStats(db, body);
+  assert.equal(response.status, 200);
   assert.equal(insertStatus(db), "excluded");
+});
+
+test("auto-hidden level-cap exclusions can return once they are legal again", async () => {
+  const db = new FakeDb({
+    existing: {
+      boss_kills: "{}",
+      rebirth_count: 0,
+      character_levels: JSON.stringify({ Warrior: 105, Wizard: 1, Taoist: 1 }),
+      character_stats: JSON.stringify([{ characterClass: "Warrior", level: 105, equipment: {} }]),
+      combined_character_levels: 107,
+      integrity_status: "excluded",
+      integrity_reason: JSON.stringify([{
+        code: "invalid_level",
+        detail: "A submitted character level exceeds the current cap of 100.",
+      }]),
+      integrity_fingerprint: "",
+      integrity_approved_fingerprint: "",
+    },
+  });
+  const body = payload();
+  body.account.characterLevels = { Warrior: 105, Wizard: 1, Taoist: 1 };
+  body.account.highestCharacterLevel = 105;
+  body.characters = [{ characterClass: "Warrior", level: 105, equipment: {} }];
+  const response = await postStats(db, body);
+  assert.equal(response.status, 200);
+  assert.equal(insertStatus(db), "clear");
+});
+
+test("manual Social exclusions stay hidden after a later legal submission", async () => {
+  const db = new FakeDb({
+    existing: {
+      boss_kills: "{}",
+      rebirth_count: 0,
+      character_levels: JSON.stringify({ Warrior: 80, Wizard: 1, Taoist: 1 }),
+      character_stats: JSON.stringify([{ characterClass: "Warrior", level: 80, equipment: {} }]),
+      combined_character_levels: 82,
+      integrity_status: "excluded",
+      integrity_reason: JSON.stringify([{
+        code: "manual_exclusion",
+        detail: "Manually removed from Social by an administrator.",
+      }]),
+      integrity_fingerprint: "",
+      integrity_approved_fingerprint: "",
+    },
+  });
+  const response = await postStats(db, payload());
+  assert.equal(response.status, 200);
+  assert.equal(insertStatus(db), "excluded");
+  const insert = db.queries.find((query) => /INSERT INTO leaderboard/.test(query.sql));
+  const reason = JSON.parse(insert.args[19]);
+  assert.equal(reason[0]?.code, "manual_exclusion");
 });
 
 test("missing integrity version enters review instead of bypassing validation", async () => {
@@ -256,7 +318,7 @@ test("public leaderboard hides excluded rows and levels above the cap", async ()
   assert.equal(response.status, 200);
   const select = db.queries.find((query) => /FROM leaderboard/.test(query.sql));
   assert.match(select.sql, /integrity_status, 'legacy'\) != 'excluded'/);
-  assert.match(select.sql, /highest_level <= 100/);
+  assert.match(select.sql, /highest_level <= 150/);
   assert.doesNotMatch(select.sql, /integrity_status\s*=\s*'flagged'/);
 });
 
