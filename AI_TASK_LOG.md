@@ -1,6 +1,595 @@
 # AI Task Log - LOM Idle V2
 
+## 2026-09-28 - Craft all for attunement stones
+
+Selecting an Attunement Stone recipe in the crafting cube shows a Craft all
+button beside Craft. It consumes the ore stack in the cube (capped by bag
+space, and by gold if that recipe ever costs gold) and grants that many stones
+in one click.
+
+### Verify
+- Select Offensive, Defensive, or Utility Attunement Stone with a stack of ore in the cube. Craft all should match the stack size on the button.
+- A full bag crafts only what fits and leaves the rest of the ore in the cube.
+- Other recipes still show only Craft.
+
+## 2026-09-26 - Deeper Mastery starts spells higher
+
+Deeper Mastery is no longer a planned level-4 cap. It is three buyable tiers.
+A newly learned spell starts at skill level 1, 2, or 3 (mastered). Costs are
+1, then 2, then 3 points. The starting rank is read from the banked tier only,
+inside `learnSpellFromBook`.
+
+### Verify
+- With the upgrade banked, learn a skill book and confirm the spell opens at that level.
+- Tier 3 shows Mastered and does not take skill XP.
+
+## 2026-09-24 - Glyphs section in the Codex
+
+The Codex has a fourth tab, Glyphs, beside Items, Uniques, and Empowerments.
+It lists every glyph by class (All, Warrior, Wizard, Taoist, Any), the effect,
+the spells it changes, and the boss / recycling drop sources. Found uses the
+existing drop record for that glyph item.
+
+### Verify
+- Open the Codex and switch to Glyphs. Filter by class and select a row.
+
+## 2026-09-24 - What's New collapsed for release
+
+Folded notes after the 2026-09-22 Awakened weapons & Ascension powers entry
+(Plague mana, Glyph of Execution) into one `2026-09-24-plague-execution`
+changelog. The Ascended Social board is left out of What's New. The
+2026-09-22 note stays as the previous update.
+
+## 2026-09-24 - Glyph of Execution nerf
+
+Charged Slaying still always readies, takes priority, and cannot miss. The
+healthy hit stays 2.5×. The execute hit is 7×, and only while the target is
+strictly below 40% HP (exactly 40% stays 2.5×). The blood-red FX uses the
+same line.
+
+### Verify
+- `node --test tests/glyphs.test.mjs`
+
+## 2026-09-23 - Ascended board RP is this world
+
+The RP column was lifetime Rebirth Points gained. It now shows Rebirth Points
+held, which ascension replaces with the new world's bank. Spending lowers it.
+Stored in `rebirth_points_held`. Run `migrate-ascension-rp-held.sql` before
+deploying the Worker that selects the column.
+
+### Verify
+- `node --test tests/statsWorkerIntegrity.test.mjs`
+
+## 2026-09-23 - Ascended Social board
+
+Social has a second scoreboard beside the existing one. Standard stays ranked
+by combined levels and souls. Ascended (`GET /leaderboard?board=ascended`)
+lists only `ascension_count > 0`, ranked by ascensions, then fastest
+`best_journey_ms` (untimed last), then current level and combined levels.
+
+The client now posts ascension count, ascension points earned, the live
+journey clock, and best finished-world time with the regular stats upload.
+Count and points only climb. Best time only gets faster. Current level and
+the live clock follow the character snapshot, so a stale tab cannot paint
+the pre-ascension world back on. Older clients that omit the fields leave
+the stored values alone.
+
+The Ascended columns are not on D1 until `migrate-ascension-board.sql` is
+run. That migration has to land before the Worker that selects the columns
+is deployed. This change does not deploy the Worker.
+
+### Verify
+- `npm.cmd run check`
+- `node --test tests/statsWorkerIntegrity.test.mjs`
+
+## 2026-09-23 - Plague mana-cost empowerment
+
+SC weapons (and Universal weapons, which share the Tao spell pool) can roll
+`spell:Plague:mana`: −10–40% Plague mana cost, in 5% steps. Armour and
+jewellery pick it up through the existing non-weapon spell pool, scaled to
+5–20% and 5–15%. Combat already applies `manaCostPercent` in
+`effectiveSpellMpCost`, including Plague's SC-based cost.
+
+### Verify
+- `npm.cmd run check`
+
+## 2026-09-23 - Blade Avalanche no longer lends its range
+
+Turning Blade Avalanche on opened a 3-tile swing window, and other warrior
+melee skills could connect inside it. Solo: a queued BA kept `playerAttackRange`
+at 3 tiles even on cooldown, Slaying had no melee check, and a waiting manual
+queue substituted a basic attack before BA. Boss party: the "BA is reachable"
+gate let Slaying, charged Flaming Sword, Twin Drake, Slashing Burst, and a
+basic-attack fallthrough land with no reach check.
+
+Approach range now stays at 3 tiles only while BA can actually be cast. Slaying
+refuses past melee, same as Flaming Sword / Twin Drake. A waiting queue fills
+with basic attacks only in weapon reach. In boss fights, charges and other
+melee skills wait for weapon reach; BA still fires from 3 tiles, and an empty
+selection waits instead of basic-attacking.
+
+### Verify
+- `npm.cmd run check`
+- `npm.cmd run smoke` with `npm.cmd run dev` running
+
+## 2026-09-22 - Moderation: remove Sifu from Social leaderboard
+
+Manually excluded alias `Sifu` (`1036cc44-a68d-460a-b8bb-66c4620ff9bb`)
+from the live Social leaderboard via D1 integrity status `excluded`
+(`purge-manual-exclude-sifu.sql`). No Worker redeploy needed.
+
+## 2026-09-22 - What's New collapsed for release
+
+Folded notes after the 2026-09-17 Smaller saves / Options / Taoist entry
+(Blade of Sorcery through Mega Formula) into one
+`2026-09-22-awakened-weapons-ascension` changelog. The 2026-09-17 QoL note
+stays as the previous update.
+
+## 2026-09-21 - Mega Formula (Mega / Ultra Potion)
+
+Two-tier Ascension power (`ascension-mega-potion`, cost 2 then 3). Tier 1
+adds `mega-potion` to Samuel (200 HP + 250 MP over time, 350g). Tier 2 adds
+`ultra-potion` (250 HP + 300 MP, 450g). Last Mega/Ultra drink sets
+`potionTickBonusPercent` to 25 or 50 so ticks run at 160ms / 133ms instead
+of 200ms. Any other HP/MP potion, or emptying both queues, clears it. Not
+Sun-family. Not in the starter bag. Icons: Mega frame 1705 (Health Wine),
+Ultra frame 3319 (White Wine).
+
+### Verify
+- `npm.cmd run check`
+- `npm.cmd run smoke` with `npm.cmd run dev` running
+- Harness: buy tier 1, set out, Samuel has Mega not Ultra, drink Mega delay
+  160; buy tier 2, Ultra at 450g, drink delay 133; XL drink clears the bonus
+
+## 2026-09-20 - Dragon Sword Max DC requirement
+
+Crystal `DragonSword` (index 245) is `RequiredType.MaxDC` / amount 30, not
+level 30. Idle `dragon-sword` had been imported as a level gate. Changed
+`requirements.type` to `maxDC` so equip uses the existing DC check
+(`itemRequirementStatus` / `Max DC 30` tooltip). Other equipment already
+matched Crystal requirement *types*; this was the only gear mismatch.
+
+### Verify
+- `npm.cmd run check`
+- `tests/dragonSword.test.mjs` pins idle + Crystal values
+
+## 2026-09-20 - Greater DC / MC / SC / AC / AMC
+
+Five uncapped Ascension powers. The Nth tier costs N (`costEqualsTier`). Each
+tier adds 20% to that assembled combat range (base, rebirth, gear, skills,
+uniques) via `applyAscensionCombatStatPercents` on `characterEquipmentStats`
+and `characterSnapshotTotalStats`. Buffs are applied after the percent so a
+potion does not get the multiplier twice. Four DC tiers cost 10 points and
+give +80%.
+
+### Verify
+- `npm.cmd run check`
+- `npm.cmd run smoke` with `npm.cmd run dev` running
+- Harness: buy Greater DC four times, set out, `combatStatBonusPercent.dc` is 80
+  and Warrior L10 DC preview is `[4, 4]` (naked 2-2 × 1.8)
+
+## 2026-09-20 - Resonant Start (Soul Resonance from the start)
+
+6-point one-off Ascension power. `soulResonanceOwned()` is true if Resonant
+Start is banked or Soul Resonance was bought with RP, and
+`rebirthSoulYieldBonus()` adds that +1 only once so the two cannot stack.
+Soul Exchange still adds 20% per tier on top. The rebirth card shows as
+Unlocked and `buyAccountUpgrade` refuses the 200-RP purchase.
+
+### Verify
+- `npm.cmd run check`
+- `npm.cmd run smoke` with `npm.cmd run dev` running
+- Harness: buy Resonant Start, set out, 100 souls = 200 RP; buying Soul
+  Resonance with RP is refused and the multiplier stays 2
+
+## 2026-09-20 - Head Start (starting Rebirth Points)
+
+Uncapped Ascension power. The Nth tier costs N points (`costEqualsTier`, same
+as Havoc Surplus). Each owned tier grants 10 Rebirth Points when
+`performAscension` wipes the world, after the banked build is committed.
+Regular rebirth is unchanged. `rebirthPointsGained` counts the grant so the
+all-time stats stay consistent with the wallet. Deeper Mastery is still planned.
+
+### Verify
+- `npm.cmd run check`
+- `npm.cmd run smoke` with `npm.cmd run dev` running
+- Harness: buy Head Start 2 while ascending, set out, confirm the new world
+  holds 20 Rebirth Points
+
+## 2026-09-20 - Nav buttons toggle windows closed
+
+Top-bar `.game-top-actions` (and prototype `.scene-buttons`) now use
+`data-toggle-scene`, so clicking an already-open window's nav button closes it.
+`bindSceneButtons` stops those clicks from also bubbling into `bindControls`,
+which would have toggled twice.
+
+### Verify
+- `npm.cmd run check`
+- Browser: open Character from the top nav, click Character again to close
+
+## 2026-09-20 - Awakened Mir Sword (aggression)
+
+Mir Sword has Crystal glow 9 (shape 41). One unique `awakened-mir-sword`
+for every class (`classMask` 7). Doubled merged Mir stats: DC 90–210 /
+MC 36–100 / SC 34–86, Acc 6, ASpd 4, Luck 2. Innate (not cube-transferable)
+`innateCritChancePercent` 100 and `innateCritDamagePercent` 100 apply through
+`applyUniqueEquippedCombatStatMultipliers` (capped at 100% crit chance).
+Awakened Evil Mir drops it at 1%. Oma King / Frost Tiger / Danmo do not.
+
+### Verify
+- `npm.cmd run check`
+
+## 2026-09-20 - Awakened Holy Light Sword (survivability)
+
+Holy Light Sword has Crystal glow 55 (shape 78 / in-game weapon index 77).
+One unique `awakened-holy-light-sword` for every class (`classMask` 7):
+DC 17–86 / MC 12–34 / SC 11–28, Acc 2, ASpd 2, plus innate (not cube-transferable)
+`innateHp` 300, `innateDamageTakenReductionPercent` 25, and
+`innatePotionRestoreBonusPercent` 50. Combat potion scaling reads that innate
+field through `resolveItem` as well as armour-slot empower rolls, still capped
+at 100%. Awakened Oma King drops it at 1%.
+Frost Tiger / Evil Mir / Danmo do not.
+
+### Verify
+- `npm.cmd run check`
+
+## 2026-09-20 - Group dungeon Fire Wall extra pluses
+
+Hellfire unique added a `createWizardGroundSpellEffect` early-return whenever
+any Fire Wall was already on the ground. That also blocked normal group-dungeon
+Fire Wall from dropping extra pluses on uncovered monsters, so the wizard kept
+recasting the first spot. The guard now only applies when Hellfire is equipped
+(`wizardFireWallBlocksAdditionalGroundEffect`). Poison Cloud stay-put and
+Hellfire's one-blanket targeting are unchanged.
+
+### Verify
+- `npm.cmd run check`
+
+## 2026-09-19 - Danmo L50 awakened uniques
+
+Awakened Danmo `awakenedItems` now rolls Black Tiger Hammer, Staff of Lotus,
+and Fan of Crane at 1% each (exact chance, not awaken 4×). Independent rolls,
+same as Beast King's L45 trio. Frost Tiger does not.
+
+### Verify
+- `npm.cmd run check`
+
+## 2026-09-19 - Awakened Fan of Crane (Healing Circle)
+
+Fan of Crane has Crystal glow 15 (shape 40). Unique
+`awakened-fan-of-crane` is SC 10–26 / DC 8–28 (weapon SC doubled from 5–13)
+and sets `innateSpellBonuses.HealingCircle` `{ healingPercent: 100 }`. Circle
+ticks (25 HP / 400ms, plus the SC glyph) go through
+`applyEquippedSpellHealingBonus` in `healingCircleTickAmountForEffect`.
+No mana cut. Awakened Danmo drops it at 1%.
+
+### Verify
+- `npm.cmd run check` (+ smoke)
+
+## 2026-09-19 - Awakened Staff of Lotus (Flame Field)
+
+Staff of Lotus has Crystal glow 14 (shape 39). Unique
+`awakened-staff-of-lotus` keeps MC 5–16 / DC 6–21 and sets
+`innateSpellBonuses.FlameField`
+`{ damagePercent: 100, critDamagePercent: 100, manaCostPercent: 50 }`.
+Innate mana reduction flows through
+`equippedSpellManaCostReductionPercent` / `applyEquippedSpellMpCostReduction`.
+The 2.5s Flame Field lock is unchanged. Ice Storm still outranks Flame Field
+in autocast; turn Ice Storm off when using this staff. Awakened Danmo drops it at 1%.
+
+### Verify
+- `npm.cmd run check` (+ smoke)
+
+## 2026-09-19 - Awakened Black Tiger Hammer (warrior buffs)
+
+Black Tiger Hammer has Crystal glow 13 (shape 51). Unique
+`awakened-black-tiger-hammer` keeps DC 7–60 and sets
+`innateWarriorBuffEffectivenessPercent: 100`. Combat apply for Fury, Rage,
+Protection Field, and Immortal Skin doubles the bonus via
+`applyInnateWarriorBuffEffectiveness` (Fury +4→+8 AS, Rage/PF/IS percents
+×2). Immortal Skin's DC penalty is not doubled. Awakened Danmo drops it at 1%.
+
+### Verify
+- `npm.cmd run check` (+ smoke)
+
+## 2026-09-19 - Awakened Holy Blood Spear (Flame Disruptor)
+
+Holy Blood Spear has Crystal glow 12 (shape 36). Unique
+`awakened-holy-blood-spear` keeps MC 4–15 / DC 6–17 and sets
+`innateSpellBonuses.FlameDisruptor` `{ damagePercent: 100, critDamagePercent: 100 }`
+(same package as Awakened Judgement Mace Flaming Sword). Wizard damage already
+applies innate damage and spell crit through `rollWizardMagicDamage`. Awakened
+Beast King drops it at 1% (exact chance, not awaken 4×), same independent roll
+as Burst Sword and Dragon Blood Sword. Danmo does not.
+
+### Verify
+- `npm.cmd run check`
+
+## 2026-09-19 - Poison Cloud duration empower
+
+Added `spell:PoisonCloud:duration` (`durationSeconds`, 1–6 on weapons).
+Jewellery/accessory SC gear uses the existing 0.35 taper (1–2s); armour 0.5
+(1–3s). Combat and offline apply it via `applyEquippedSpellGroundDurationMs`
+on the 6s field. Green poison ticks stay 12. Utility attunement family.
+
+### Verify
+- `npm.cmd run check`
+
+## 2026-09-19 - Poison Cloud damage empower
+
+Added `spell:PoisonCloud:damage` to `SC_WEAPON_SPELL_EMPOWER_ROLL_DEFS`
+(5–25% in steps of 5), same `damagePercent` kind as Fire Wall. Combat already
+applies it through `applyEquippedSpellDamageBonus` on ground ticks. Armour /
+accessory SC gear gets the existing 50% / 35% tapered ranges.
+
+### Verify
+- `npm.cmd run check`
+
+## 2026-09-19 - Poison Cloud stays like Fire Wall
+
+Recast was clearing the live 6s field and dropping a new 3×3 on the current
+target (unique Dragon Blood Sword, 0 recharge, made this hop every GCD).
+Poison Cloud now keeps existing fields: solo/boss blocks while one is active;
+group dungeons pick the next uncovered 3×3 via
+`pickBestUncoveredGroundAreaCenter` and leave old clouds ticking.
+
+### Verify
+- `npm.cmd run check` (+ smoke)
+
+## 2026-09-19 - Awakened Dragon Blood Sword (Poison Cloud)
+
+Dragon Blood Sword has Crystal glow 11 (shape 37). Unique
+`awakened-dragon-blood-sword` keeps SC 4–12 / DC 8–25 and sets
+`innateSpellBonuses.PoisonCloud` `{ damagePercent: 100, cooldownReductionSeconds: 18 }`
+and `innatePoisonCloudNoSupplies`. Innate cooldown now flows through
+`equippedSpellCooldownReductionSeconds` / `applyEquippedSpellCooldownReductionMs`
+(18s → 0). The 1.8s `delayBase` action lock is unchanged. With recharge
+cleared, `poisonCloudGroundBlocksCast` stops treating the live 6s field as a
+second cooldown, and a new cloud replaces the old one (no stacked fields).
+Casts skip amulet and green-poison checks/consumes (solo, boss-party, training
+room, skill bar). Offline still dumps a full 6s of ticks per cast, so unique
+offline uses the field duration as the gap instead of recasting every GCD.
+Awakened Beast King drops it at 1% (exact chance, not awaken 4×), same
+independent roll as Burst Sword. Danmo does not.
+
+### Verify
+- `npm.cmd run check` (+ smoke)
+
+## 2026-09-19 - Awakened Burst Sword (Slashing Burst)
+
+Burst Sword has Crystal glow 10 (shape 35). Unique `awakened-burst-sword`
+keeps DC 8–56 and sets `innateSlashingBurstMelee` plus
+`innateSpellBonuses.SlashingBurst` `{ damagePercent: 100, critDamagePercent: 100 }`
+(same package as Awakened Judgement Mace Flaming Sword). Zones normally
+block melee Slashing Burst (`slashingBurstInCastRange` requires distance >
+`LANE.warriorRange`); the unique allows melee via `slashingBurstMeleeCastAllowed`
+in `canUseWarriorSkill` / `warriorAttack`. Auto-pick in
+`usableWarriorAttackSkill` (and boss-party after FS/TDB charges) sits above
+Blade Avalanche / sweeps so it actually fires. Leap still works out of melee.
+Awakened Beast King drops it at 1% (exact chance, not awaken 4×). Danmo does not.
+
+### Verify
+- `npm.cmd run check` (+ smoke)
+
+## 2026-09-19 - Awakened Sword of War God
+
+Sword of War God has Crystal glow 6 (shape 32). Unique
+`awakened-sword-of-war-god` is DC 0–80 with `innateDoubleMaxHpAndAccuracy`.
+Equipped, `applyInnateDoubleHpAndAccuracyCombatStats` doubles assembled max
+HP (after Glyph of Vitality) and accuracy in `characterEquipmentStats` and
+`characterSnapshotTotalStats`. Base Crystal weapon has 0 HP / 0 accuracy, so
+this cannot be a flat item stat. Awakened Dream and Dark Devourer share
+`RED_CAVERN_DEVOURER_BOSS_DROPS` and now roll `awakened-sword-of-war-god` at
+1% (exact chance, not awaken 4×). Each devourer death rolls independently.
+
+### Verify
+- `npm.cmd run check`
+
+## 2026-09-19 - Evil Mir Ascension Points 8/9/10/11
+
+`ASCENSION_POINTS_BY_BOSS_TIER` is now `[8, 9, 10, 11]` (was 5/7/9/11).
+The Traveller panel already reads that table. In-progress journeys top up
+through `syncAscensionPayoutForBestTier` in `ensureAccountAscensionState`
+(Standard 5→8, Empowered 7→9, Ascended 9→10). Worlds that have already
+ascended are unchanged; the next kill uses the new table.
+
+### Verify
+- `npm.cmd run check` (+ smoke)
+
+## 2026-09-19 - Awakened Heaven Sword (Healing)
+
+Heaven Sword has Crystal glow 8 (`weapon-glow-mappings.json` shape 34).
+New unique `awakened-heaven-sword`: `innateSpellBonuses.Healing` is
+`healingPercent: 100` and `castSpeedPercent: 50` (1800ms → 1200ms). Healing
+action lock now uses `taoistSpellActionLockMs` (solo, boss-party auto, and
+queued) so the speed bonus actually shortens recast, same path as Soul Fire
+Ball. Awakened Great Fox Spirit drops it at 1%, same independent roll as
+Blade of Sorcery.
+
+### Verify
+- `npm.cmd run check`
+
+## 2026-09-19 - Awakened Blade of Sorcery on Great Fox Spirit
+
+Awakened Great Fox Spirit now has `awakenedItems` with
+`awakened-blade-of-sorcery` at 1%, same exact-chance pool as the other
+awakened uniques. King Hog stays empty.
+
+### Verify
+- `npm.cmd run check`
+
+## 2026-09-19 - Awakened Blade of Sorcery +100% Fire Wall damage
+
+Hellfire is still spell id `FireWall`, so the unique now has
+`innateSpellBonuses.FireWall.damagePercent: 100`. Carpet ticks (and duration,
+which uses the same magic roll) go through `rollWizardMagicValue` →
+`applyEquippedSpellDamageBonus`. Tooltip shows Fire Wall +100% damage.
+
+### Verify
+- `npm.cmd run check`
+
+## 2026-09-19 - Past Bicheon monster SFX
+
+Past Bicheon templates use Crystal image index as `monsterIndex` (Axe/Sword
+Oma 118–119, Crossbow 120, Winged 121, Flail 122, Guard 123, King 126, Frost
+Tiger 102). Those keys were never in `tools/build-sfx-assets.mjs`, so
+`playMonsterSfx("flinch")` found no clip and stayed silent.
+
+Added Crystal `image * 10 + 1/2/3` attack/flinch/death for the Oma family
+and Frost Tiger, plus Frost Tiger range (`102-5`). CrossbowOma has no `120-5`;
+range still falls back to attack. Evil Mir stays flinchless by design.
+
+### Verify
+- `npm.cmd run build:sfx` (new clips not in the missing list)
+- `npm.cmd run check`
+
+## 2026-09-18 - Standard Evil Mir paid 10 Ascension Points
+
+A first Standard kill on an untimed journey (no `journeyStartedAt`) was
+running the unpaid-kill backfill after the death was already on
+`runBossKills`, then adding the live 5 on top of that 5. Bank showed 10,
+journey note still said paid 5 of 11.
+
+`awardEvilMirAscensionPoints` and `recordEvilMirClearTime` no longer call
+`ensureAccountAscensionState()` after the kill is counted — that helper's
+backfill is load/migration only. Live kills go through `payAscensionForKill`,
+which only banks `target - alreadyAwarded`. The battle log uses the net
+change on `pointsEarned` so a Standard kill that is paid by seeding still
+announces 5.
+
+Without this, a later timed journey would also have been marked paid by the
+backfill without adding to a non-zero bank, so a Standard kill would grant 0
+new points.
+
+### Verify
+- `npm.cmd run check` (+ smoke)
+
+## 2026-09-17 - Hellfire tick SFX sounded like recasts
+
+Fire Wall/Hellfire ground ticks played impact SFX, then fell back to the
+cast clip when impact was throttled (Hellfire hits many swarm enemies at
+once). Ticks are silent now; the cast sound only plays when Hellfire is
+actually laid. A second Fire Wall cannot be created while one is still down.
+
+### Verify
+- `npm.cmd run check` (+ smoke)
+
+## 2026-09-17 - Hellfire range from the party front
+
+Group-dungeon Hellfire measured Fire Wall's 9 tiles from the Wizard, then
+started the wave at the melee column, so most of the range was already spent.
+Range now starts at the melee line, same place the carpets start.
+
+### Verify
+- `npm.cmd run check` (+ smoke)
+
+## 2026-09-17 - Hellfire waits until a target is in range
+
+Hellfire no longer auto-casts as soon as any swarm/boss enemy exists. It waits
+until at least one living enemy is inside the on-screen / 9-tile coverage.
+
+### Verify
+- `npm.cmd run check` (+ smoke)
+
+## 2026-09-17 - Hellfire max range / on-screen cap
+
+Hellfire no longer carpets off-screen spawn tiles. East bound is the nearer
+of the visible screen edge and Fire Wall's 9-tile range.
+
+### Verify
+- `npm.cmd run check` (+ smoke)
+
+## 2026-09-17 - Hellfire carpets follow the attack wave
+
+Hellfire Fire Wall tiles ignite on the same 50ms-per-column stagger as the
+Crystal Magic 930 cell bursts, so the looping flames follow the attack EFX
+instead of appearing on every tile at once. Unignited tiles do not tick.
+
+### Verify
+- `npm.cmd run check` (+ smoke)
+
+## 2026-09-17 - Hellfire attack EFX (Magic 930)
+
+Awakened Blade of Sorcery Hellfire was only playing the caster strip
+(Magic 920). Crystal's HellFire attack EFX is Magic 930 x6 on each cell
+(500ms, Rate 0.7, 50ms stagger). Exported `impact.png` and play those
+bursts on every Fire Wall tile Hellfire lays.
+
+### Verify
+- `npm.cmd run check` (+ smoke)
+
+## 2026-09-17 - Awakened Blade of Sorcery / Hellfire
+
+Unique wizard weapon (glow 7, shape 33). Same DC/MC as Blade of Sorcery.
+`innateFireWallHellfire` turns Fire Wall into Hellfire: the unused HellFire
+cast atlas, and one Fire Wall ground effect covering every swarm walkable
+cell (3 lanes, melee column to the visible/eastmost enemy) or a 3-wide
+player-to-enemy strip in solo/boss. Skill UI and combat log say Hellfire. No boss drop yet.
+
+### Verify
+- `npm.cmd run check` (+ smoke)
+
+## 2026-09-17 - What's New: saves, Options, Time Logging, Taoist sliders
+
+Player-facing changelog for the unreleased QoL batch: compact saves, draggable
+Time Logging, Options tabs, and Taoist Healing / Mass Healing sliders.
+
+- `src/data/changelog.json`
+
+## 2026-09-17 - Taoist Healing / Mass Healing sliders
+
+Options > Gameplay now has Healing % and Mass Healing % sliders (same 5–100%
+range as auto potions). Auto Healing and Mass Healing use those thresholds
+instead of a hardcoded 50%. Mass Healing is still tried first. Defaults stay
+50% so existing saves behave the same.
+
+- `src/persistence/sanitizeSettings.js`: `taoistHealingThreshold` / `taoistMassHealingThreshold`
+- `src/app.monolith.js`: options UI, save/load, auto-cast checks
+- `src/styles.css`: slightly wider options slider labels
+
+## 2026-09-16 - Empowered Start counts for Boss Ascension
+
+Boss Ascension's rebirth purchase required the Boss Empowerment upgrade even
+when Empowered Start already unlocked empowered fights. The purchase/UI
+prerequisite now treats Empowered Start (and the debug skip) as satisfying
+that requirement. The 10-point Empowerment upgrade remains buyable for later
+journeys that do not take the power.
+
+- `src/app.monolith.js`: `accountUpgradePrerequisiteMet`
+
+## 2026-09-15 - No native browser tooltip on items
+
+Hovering bag/equipped items showed the black game tooltip, then the OS/browser
+`title` tooltip a second later. Native `title` is now omitted on custom
+item-tooltip targets (and on parent slots while an item is in them). Empty
+slots still use `title` for slot names.
+
+- `src/app.monolith.js`: inventory, storage, equipment, hotbar, cube, refine, armoury
+
+## 2026-09-14 - Options window tabs
+
+Split the Options window into Gameplay, Saves/Backups, and Audio tabs so cloud backup / import / reset are no longer mixed with music tracks and auto-potion sliders. Selected tab is session-only (not saved). Recovery-code copy now points at Options > Saves/Backups.
+
+- `src/app.monolith.js`: `OPTIONS_TABS`, `optionsSceneHtml` + tab bodies, `setOptionsTab`
+- `src/styles.css`: Options tab bar
+
+## 2026-09-14 - Compact inventory fields in save snapshots
+
+Cloud uploads were hitting the Worker 1.8 MB cap ("Save is too large") once bags
+and storage filled, because every item persisted three full zeroed bonus-stat
+objects. Saves now omit default item fields at snapshot time only. Live inventory
+stays fully expanded. Smithed items always keep `smithBonusStats` so gem stats
+are not re-split on load.
+
+Players can keep using full bags. After a local reload, the rewritten save
+should fit cloud backup again. Not published yet.
+
+- `src/persistence/sanitizeInventory.js`: `compactSaveSnapshotForPersist`
+- `src/app.monolith.js`: compact only inside `createSaveSnapshot`
+- `tests/persistenceInventory.test.mjs`: round-trip and size tests
+
 ## 2026-09-14 - Time Logging window is draggable
+
 
 The XP/h Time Logging window can now be dragged by its title bar, same as Character / Inventory / Codex / Upgrades / Leaderboard. Position is saved in `settings.sceneWindowPositions.timeLogging`.
 

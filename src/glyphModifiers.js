@@ -278,13 +278,13 @@ export const GLYPH_DEFS = [
     itemId: "glyph-execution",
     classId: "warrior",
     label: "Glyph of Execution",
-    description: "Slaying always readies after you strike, takes priority over other weapon skills, and cannot miss. The blow deals 2.5× damage, or 9× if the target is at or below 50% HP.",
+    description: "Slaying always readies after you strike, takes priority over other weapon skills, and cannot miss. The blow deals 2.5× damage, or 7× if the target is below 40% HP.",
     spellIds: ["Slaying"],
     kind: "warriorSlayingExecution",
     params: {
       damageMultiplier: 2.5,
-      executeMultiplier: 9,
-      executeHpRatio: 0.5,
+      executeMultiplier: 7,
+      executeHpRatio: 0.4,
       alwaysReady: true,
       cannotMiss: true,
     },
@@ -1591,11 +1591,11 @@ export function glyphSlayingExecutionParams(glyph = null) {
   const match = firstGlyphOfKind(glyph, "warriorSlayingExecution");
   if (!match) return null;
   const damageMultiplier = Math.max(1, Number(match.params?.damageMultiplier) || 2.5);
-  const executeMultiplier = Math.max(damageMultiplier, Number(match.params?.executeMultiplier) || 9);
+  const executeMultiplier = Math.max(damageMultiplier, Number(match.params?.executeMultiplier) || 7);
   return {
     damageMultiplier,
     executeMultiplier,
-    executeHpRatio: Math.max(0, Math.min(1, Number(match.params?.executeHpRatio) || 0.5)),
+    executeHpRatio: Math.max(0, Math.min(1, Number(match.params?.executeHpRatio) || 0.4)),
     alwaysReady: match.params?.alwaysReady !== false,
     cannotMiss: match.params?.cannotMiss !== false,
   };
@@ -1635,7 +1635,7 @@ export function slayingExecutionDamageMultiplier(enemy, glyph = null) {
   if (!params) return 1;
   const maxHp = Math.max(0, Number(enemy?.maxHp) || 0);
   const hp = Math.max(0, Number(enemy?.hp) || 0);
-  if (maxHp > 0 && hp <= maxHp * params.executeHpRatio) return params.executeMultiplier;
+  if (maxHp > 0 && hp < maxHp * params.executeHpRatio) return params.executeMultiplier;
   return params.damageMultiplier;
 }
 

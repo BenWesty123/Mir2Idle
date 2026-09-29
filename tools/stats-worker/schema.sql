@@ -16,6 +16,12 @@ CREATE TABLE IF NOT EXISTS leaderboard (
   character_stats TEXT NOT NULL DEFAULT '[]',
   awakening_souls_held INTEGER NOT NULL DEFAULT 0,
   combined_character_levels INTEGER NOT NULL DEFAULT 0,
+  ascension_count INTEGER NOT NULL DEFAULT 0,
+  ascension_points INTEGER NOT NULL DEFAULT 0,
+  current_highest_level INTEGER NOT NULL DEFAULT 1,
+  current_journey_ms INTEGER NOT NULL DEFAULT 0,
+  best_journey_ms INTEGER NOT NULL DEFAULT 0,
+  rebirth_points_held INTEGER NOT NULL DEFAULT 0,
   last_reason TEXT,
   integrity_status TEXT NOT NULL DEFAULT 'legacy',
   integrity_reason TEXT,
@@ -30,6 +36,9 @@ CREATE TABLE IF NOT EXISTS leaderboard (
 
 CREATE INDEX IF NOT EXISTS leaderboard_rank_idx
 ON leaderboard (combined_character_levels DESC, awakening_souls_held DESC, highest_level DESC);
+
+CREATE INDEX IF NOT EXISTS leaderboard_ascension_idx
+ON leaderboard (ascension_count DESC, best_journey_ms ASC, current_highest_level DESC);
 
 CREATE INDEX IF NOT EXISTS leaderboard_integrity_idx
 ON leaderboard (integrity_status, integrity_flagged_at DESC);

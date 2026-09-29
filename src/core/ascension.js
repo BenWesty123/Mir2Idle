@@ -31,8 +31,8 @@ function tierCap(upgrade) {
  * What the Nth tier costs, 1-based. Most upgrades charge the same for every
  * tier (`costPerTier`). Traveller's Supplies uses a finite `costByTier`
  * schedule; tiers past the end of that list hold its last price rather than
- * becoming free. Havoc Surplus has no last price: `costEqualsTier` makes the
- * Nth tier cost N, forever.
+ * becoming free. Havoc Surplus and Head Start have no last price:
+ * `costEqualsTier` makes the Nth tier cost N, forever.
  * @param {AscensionUpgradeDef} upgrade
  * @param {number} tier
  */
@@ -234,6 +234,90 @@ export function refundAscensionTier(tiers, defs, upgradeId) {
 /** Each Havoc Surplus tier adds this many percentage points of extra-crystal chance. */
 export const ASCENSION_SALVAGE_CHANCE_STEP = 25;
 
+/** Each Head Start tier grants this many Rebirth Points at the start of a world. */
+export const ASCENSION_STARTING_REBIRTH_POINTS_STEP = 10;
+
+/** Each Greater DC/MC/SC/AC/AMC tier adds this many percentage points to that stat. */
+export const ASCENSION_COMBAT_STAT_PERCENT_STEP = 20;
+
+/** Deeper Mastery tier is the skill level a newly learned spell starts at. 3 is mastered. */
+export function ascensionStartingSpellLevel(tier) {
+  return Math.max(0, Math.min(3, Math.trunc(Number(tier) || 0)));
+}
+
+export const MEGA_POTION_ITEM_ID = "mega-potion";
+export const ULTRA_POTION_ITEM_ID = "ultra-potion";
+export const MEGA_POTION_TICK_BONUS_PERCENT = 25;
+export const ULTRA_POTION_TICK_BONUS_PERCENT = 50;
+
+/**
+ * Extra potion tick speed from the last Mega/Ultra drink. 25% is Mega, 50% is Ultra.
+ * @param {unknown} itemId
+ * @returns {number}
+ */
+export function potionTickBonusPercentForItemId(itemId) {
+  const id = String(itemId || "");
+  if (id === ULTRA_POTION_ITEM_ID) return ULTRA_POTION_TICK_BONUS_PERCENT;
+  if (id === MEGA_POTION_ITEM_ID) return MEGA_POTION_TICK_BONUS_PERCENT;
+  return 0;
+}
+
+/**
+ * @param {unknown} value
+ * @returns {number}
+ */
+export function sanitizePotionTickBonusPercent(value) {
+  const n = Math.max(0, Math.trunc(Number(value) || 0));
+  if (n === ULTRA_POTION_TICK_BONUS_PERCENT) return ULTRA_POTION_TICK_BONUS_PERCENT;
+  if (n === MEGA_POTION_TICK_BONUS_PERCENT) return MEGA_POTION_TICK_BONUS_PERCENT;
+  return 0;
+}
+
+/**
+ * Shorter delay for a +percent tick-speed bonus. 25% of 200ms is 160ms; 50% is 133ms.
+ * @param {number} baseDelayMs
+ * @param {number} bonusPercent
+ * @returns {number}
+ */
+export function potionTickDelayMsForBonus(baseDelayMs, bonusPercent) {
+  const base = Math.max(1, Math.trunc(Number(baseDelayMs) || 0));
+  const bonus = Math.max(0, Number(bonusPercent) || 0);
+  if (bonus <= 0) return base;
+  return Math.max(1, Math.round(base / (1 + bonus / 100)));
+}
+
+/**
+ * @param {number} tier
+ * @returns {number}
+ */
+export function ascensionStartingRebirthPoints(tier) {
+  return Math.max(0, Math.trunc(Number(tier) || 0)) * ASCENSION_STARTING_REBIRTH_POINTS_STEP;
+}
+
+/**
+ * @param {number} tier
+ * @returns {number}
+ */
+export function ascensionCombatStatBonusPercent(tier) {
+  return Math.max(0, Math.trunc(Number(tier) || 0)) * ASCENSION_COMBAT_STAT_PERCENT_STEP;
+}
+
+/**
+ * +percent on a [min, max] combat range. Independent round, then max is at least min.
+ * @param {unknown} range
+ * @param {number} percent
+ * @returns {[number, number]}
+ */
+export function scaleStatRangeByBonusPercent(range, percent) {
+  const min = Math.trunc(Number(range?.[0]) || 0);
+  const max = Math.trunc(Number(range?.[1]) || 0);
+  const bonus = Math.max(0, Number(percent) || 0);
+  if (bonus <= 0) return [min, max];
+  const scaledMin = Math.round(min * (1 + bonus / 100));
+  const scaledMax = Math.round(max * (1 + bonus / 100));
+  return [scaledMin, Math.max(scaledMin, scaledMax)];
+}
+
 /**
  * @param {number} tier
  * @returns {number}
@@ -308,15 +392,14 @@ export function worldDifficultyMultiplier(id) {
 }
 
 /**
- * Guaranteed and best-case crystals for the cube's preview button, without rolling.
- * @param {number} baseCrystals
- * @param {number} chancePercent
- * @returns {{ min: number, max: number, remainder: number }}
- */
-/**
  * A kill from before payout tracking is still this journey's kill. The save
  * does not record which empower tier it was, so the standard journey is all
  * we can grant; a later harder kill still pays the difference.
+ *
+ * This is a load/migration helper, not a live-kill payer. After the kill has
+ * already been counted on this journey, calling it will mark the run paid. If
+ * the account already has a bank from a previous journey it will not add
+ * points, and the live payout then has nothing left to grant.
  * @param {{
  *   runPointsAwarded?: unknown,
  *   pointsEarned?: unknown,
@@ -348,6 +431,91 @@ export function backfillStandardJourneyPayout(input = {}) {
   };
 }
 
+/**
+ * Pay a live Evil Mir kill. Only banks `target - alreadyAwarded`, so a Standard
+ * backfill that already ran leaves nothing to add, and a harder kill still
+ * pays the difference.
+ * @param {{
+ *   runPointsAwarded?: unknown,
+ *   pointsEarned?: unknown,
+ *   runBestTier?: unknown,
+ *   target?: unknown,
+ *   tier?: unknown,
+ * }} [input]
+ * @returns {{
+ *   runPointsAwarded: number,
+ *   pointsEarned: number,
+ *   runBestTier: number,
+ *   award: number,
+ *   changed: boolean,
+ * }}
+ */
+export function payAscensionForKill(input = {}) {
+  const awarded = Math.max(0, Math.trunc(Number(input.runPointsAwarded) || 0));
+  const banked = Math.max(0, Math.trunc(Number(input.pointsEarned) || 0));
+  const target = Math.max(0, Math.trunc(Number(input.target) || 0));
+  const tier = Math.trunc(Number(input.tier));
+  const best = Math.trunc(Number(input.runBestTier));
+  const currentBest = Number.isFinite(best) ? best : -1;
+  const award = target - awarded;
+  if (award <= 0) {
+    return {
+      runPointsAwarded: awarded,
+      pointsEarned: banked,
+      runBestTier: currentBest,
+      award: 0,
+      changed: false,
+    };
+  }
+  return {
+    runPointsAwarded: target,
+    pointsEarned: banked + award,
+    runBestTier: Number.isFinite(tier) ? Math.max(currentBest, tier) : currentBest,
+    award,
+    changed: true,
+  };
+}
+
+/**
+ * When the payout table changes, top a journey already in progress up to what
+ * its recorded best tier is now worth. No best tier means nothing to retcon.
+ * @param {{
+ *   runPointsAwarded?: unknown,
+ *   pointsEarned?: unknown,
+ *   runBestTier?: unknown,
+ * }} [input]
+ * @param {number[]} payoutByTier
+ */
+export function syncAscensionPayoutForBestTier(input = {}, payoutByTier) {
+  const best = Math.trunc(Number(input.runBestTier));
+  const currentBest = Number.isFinite(best) ? best : -1;
+  const awarded = Math.max(0, Math.trunc(Number(input.runPointsAwarded) || 0));
+  const banked = Math.max(0, Math.trunc(Number(input.pointsEarned) || 0));
+  if (currentBest < 0 || !Array.isArray(payoutByTier) || !payoutByTier.length) {
+    return {
+      runPointsAwarded: awarded,
+      pointsEarned: banked,
+      runBestTier: currentBest,
+      award: 0,
+      changed: false,
+    };
+  }
+  const index = Math.max(0, Math.min(payoutByTier.length - 1, currentBest));
+  return payAscensionForKill({
+    runPointsAwarded: awarded,
+    pointsEarned: banked,
+    runBestTier: currentBest,
+    target: payoutByTier[index],
+    tier: currentBest,
+  });
+}
+
+/**
+ * Guaranteed and best-case crystals for the cube's preview button, without rolling.
+ * @param {number} baseCrystals
+ * @param {number} chancePercent
+ * @returns {{ min: number, max: number, remainder: number }}
+ */
 export function previewAscensionSalvageBonus(baseCrystals, chancePercent) {
   const base = Math.max(0, Math.trunc(Number(baseCrystals) || 0));
   const chance = Math.max(0, Number(chancePercent) || 0);

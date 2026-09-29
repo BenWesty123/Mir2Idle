@@ -60,6 +60,12 @@ import {
   ensureSwarmDirectionalActions,
   adjacentEightTiles,
   fireWallCrossTiles,
+  fireWallLaneStripTiles,
+  wizardFireWallBlocksAdditionalGroundEffect,
+  pickBestUncoveredGroundAreaCenter,
+  swarmCellKey,
+  clampHellfireEastBound,
+  swarmWalkableTiles,
   resolveSwarmEnemyAction,
   spellBangAreaTiles,
   spellGroundAreaTiles,
@@ -199,6 +205,8 @@ import {
 import {
   DEFAULT_AUTO_POTION_HP_THRESHOLD,
   DEFAULT_AUTO_POTION_MP_THRESHOLD,
+  DEFAULT_TAOIST_HEALING_THRESHOLD,
+  DEFAULT_TAOIST_MASS_HEALING_THRESHOLD,
   DEFAULT_MUSIC_ENABLED,
   DEFAULT_MUSIC_VOLUME,
   DEFAULT_PROTOTYPE_STATS_ENABLED,
@@ -301,6 +309,7 @@ import {
   applyEquippedPetAttackSpeedBonus,
   applyEquippedSpellCastSpeedMs,
   applyEquippedSpellCooldownReductionMs,
+  applyEquippedSpellGroundDurationMs,
   equippedSpellCastSpeedBonusPercent,
   applyEquippedSpellHealingBonus,
   applyEquippedSpellMpCostReduction,
@@ -315,6 +324,16 @@ import {
   innateSpellBonusTooltipRows,
   innateItemEffectTooltipRows,
   equippedWarriorSkillsCostHp,
+  equippedInnateFireWallHellfire,
+  applyInnateDoubleHpAndAccuracyCombatStats,
+  equippedInnateHpBonus,
+  equippedInnateDamageTakenReductionPercent,
+  equippedInnateCritChancePercent,
+  equippedInnateCritDamagePercent,
+  equippedPotionRestoreBonusPercent,
+  equippedInnateSlashingBurstMelee,
+  equippedInnatePoisonCloudNoSupplies,
+  applyInnateWarriorBuffEffectiveness,
   empowerSlotChoiceLabels,
   empowerSwapChoiceLabels,
   formatEmpowerRollDescription,
@@ -353,6 +372,7 @@ import {
   CRAFTING_CUBE_MYSTERY_CAVE_RANDOM_TICKET_IRON_COST,
   CRAFTING_CUBE_MYSTERY_CAVE_RANDOM_TICKET_RECIPE_ID,
   CRAFTING_CUBE_RECIPES,
+  craftingCubeAttunementStoneCraftAllCount,
   craftingCubeAutofillEntryIds,
   craftingCubeRecipeGoldCost,
   CRAFTING_CUBE_TARGETED_EMPOWER_REROLL_CRYSTAL_COST,
@@ -440,6 +460,15 @@ import {
   refundAscensionTier,
   ascensionNextTierCost,
   ascensionSalvageExtraChancePercent,
+  ascensionStartingRebirthPoints,
+  ascensionStartingSpellLevel,
+  ascensionCombatStatBonusPercent,
+  scaleStatRangeByBonusPercent,
+  MEGA_POTION_ITEM_ID,
+  ULTRA_POTION_ITEM_ID,
+  potionTickBonusPercentForItemId,
+  sanitizePotionTickBonusPercent,
+  potionTickDelayMsForBonus,
   applyAscensionSalvageBonus,
   previewAscensionSalvageBonus,
   sanitizeAscensionClearTimes,
@@ -451,6 +480,8 @@ import {
   worldDifficultyMultiplier,
   sanitizeWorldDifficulty,
   backfillStandardJourneyPayout,
+  payAscensionForKill,
+  syncAscensionPayoutForBestTier,
 } from "./core/ascension.js";
 import { socialEquipmentEntry } from "./core/socialEquipment.js";
 import {
@@ -476,7 +507,11 @@ import {
   applyGlyphTwinDrakeDamage,
   applyGlyphSlayingDamage,
   equippedGlyphDefs,
+  GLYPH_DEFS,
   GLYPH_EQUIPMENT_SLOT_IDS,
+  EMPOWERED_BOSS_GLYPH_DROP_CHANCE,
+  ASCENDED_BOSS_GLYPH_DROP_CHANCE,
+  AWAKENED_BOSS_GLYPH_DROP_CHANCE,
   FLAMING_SWORD_GLYPH_DR_KIND,
   buildFlamingSwordBurnState,
   flamingSwordBurnTickDamage,
@@ -588,6 +623,7 @@ import {
   wizardCombatAutoPriority,
 } from "./core/combat.js";
 import {
+  compactSaveSnapshotForPersist,
   normalizeInventoryEntryFields as normalizeInventoryEntryFieldsCore,
   sanitizeEntryQuantity,
   sanitizeInventoryState as sanitizeInventoryStateCore,
@@ -834,6 +870,14 @@ const CODEX_CATEGORY_DEFS = [
   { id: "other", label: "Other" },
 ];
 const CODEX_CATEGORY_ORDER = new Map(CODEX_CATEGORY_DEFS.map((category, index) => [category.id, index]));
+const CODEX_GLYPH_CLASS_DEFS = [
+  { id: "all", label: "All" },
+  { id: "warrior", label: "Warrior" },
+  { id: "wizard", label: "Wizard" },
+  { id: "taoist", label: "Taoist" },
+  { id: "any", label: "Any" },
+];
+const CODEX_GLYPH_CLASS_ORDER = new Map(CODEX_GLYPH_CLASS_DEFS.map((entry, index) => [entry.id, index]));
 const ACHIEVEMENT_UNLOCK_SOUL_COST = 10;
 const ACHIEVEMENTS_TEST_ACCESS = false;
 const ACHIEVEMENT_CATEGORY_DEFS = [
@@ -1457,7 +1501,7 @@ const ACCOUNT_UPGRADE_DEFS = [
     value: 1,
     rebirthCosts: [100],
     requiresUpgradeId: "boss-empowerment",
-    summary: "Unlock ascended boss fights (requires Boss Empowerment). Each attempt costs 300,000 gold for 3× HP, damage, and drops, a higher empowered-item drop chance, and a 15% glyph drop chance.",
+    summary: "Unlock ascended boss fights (requires Boss Empowerment, or Empowered Start). Each attempt costs 300,000 gold for 3× HP, damage, and drops, a higher empowered-item drop chance, and a 15% glyph drop chance.",
   },
   {
     id: "boss-awakening",
@@ -1737,6 +1781,11 @@ const MAP_HELL_FIRE_HIT_DELAY_MS = 500;
 const MAP_HELL_FIRE_RESOLVE_GRACE_MS = 1500;
 const MAP_HELL_FIRE_SPREAD_TILES = 10;
 const MAP_HELL_FIRE_HIT_RADIUS_PX = LANE_TILE_PX * 1.5;
+// Crystal Spell.HellFire attack EFX (PlayerObject): Magic 930 x6, 500ms, Rate 0.7, stagger i*50 per cell.
+const HELLFIRE_SPELL_FX_ID = "HellFire";
+const HELLFIRE_ATTACK_FX_DURATION_MS = 500;
+const HELLFIRE_ATTACK_FX_STAGGER_MS = 50;
+const HELLFIRE_ATTACK_FX_BLEND_RATE = 0.7;
 // Crystal RedThunderZuma: Libraries.Dragon 400+(Random(3)*10), 5 frames, 300ms on target (AttackRange1 frame 4).
 const RED_THUNDER_ZUMA_LIGHTNING_DELAY_MS = 400;
 const RED_THUNDER_ZUMA_LIGHTNING_DURATION_MS = 300;
@@ -1750,13 +1799,33 @@ const TAOIST_DEFENCE_BUFF_IMPACT_FX = {
 };
 const CRYSTAL_POT_DELAY_MS = 200;
 
-function crystalPotDelayMs(inventory = state.inventory, hpPending = false) {
-  return glyphPotionTickDelayMs(CRYSTAL_POT_DELAY_MS, equippedGlyphFor(inventory), { hpPending });
+function crystalPotDelayMs(inventory = state.inventory, hpPending = false, bonusPercent = state.battle?.potionTickBonusPercent) {
+  const base = potionTickDelayMsForBonus(CRYSTAL_POT_DELAY_MS, bonusPercent);
+  return glyphPotionTickDelayMs(base, equippedGlyphFor(inventory), { hpPending });
 }
 
 function applyPotionHpRestoreWithGlyph(amount, inventory = state.inventory) {
-  const withGear = applyEquippedPotionRestoreBonus(amount, inventory);
+  const withGear = applyEquippedPotionRestoreBonus(amount, inventory, itemDefinition);
   return applyGlyphHpPotionRestore(withGear, equippedGlyphFor(inventory));
+}
+
+function applyPotionTickBonusFromItem(item, target = state.battle) {
+  if (!target) return;
+  const bonus = potionTickBonusPercentForItemId(item?.id);
+  if (bonus > 0) {
+    target.potionTickBonusPercent = bonus;
+    return;
+  }
+  if (potionRestoreAmount(item, "hp") > 0 || potionRestoreAmount(item, "mp") > 0) {
+    target.potionTickBonusPercent = 0;
+  }
+}
+
+function clearPotionTickBonusIfQueuesEmpty(target = state.battle) {
+  if (!target) return;
+  if ((target.potHealthAmount ?? 0) <= 0 && (target.potManaAmount ?? 0) <= 0) {
+    target.potionTickBonusPercent = 0;
+  }
 }
 const CRYSTAL_HEAL_DELAY_MS = 600;
 const CRYSTAL_HEAL_APPLY_DELAY_MS = 500;
@@ -2195,7 +2264,6 @@ const MINING_RARE_ORE_ITEM_IDS = [
   AMETHYST_ORE_ITEM_ID,
 ];
 const MINING_RARE_ORE_DONOR_ITEM_IDS = ["copper-ore", "gold-ore", "silver-ore"];
-const AUTO_POTION_THRESHOLD = 0.5;
 const AUTO_POTION_COOLDOWN_MS = 1000;
 
 const LANE = {
@@ -2610,15 +2678,16 @@ function offlineGroupAutoUsePotions(member, now, report) {
     if (!candidate) continue;
     const consumeEntry = potionConsumeEntryFromHotbarOrBag(candidate.entry, member.inventory, member.hotbar);
     if (!offlineGroupConsumeInventoryUnit(member, consumeEntry.id)) continue;
+    applyPotionTickBonusFromItem(candidate.item, member);
     const hpRestore = applyPotionHpRestoreWithGlyph(potionRestoreAmount(candidate.item, "hp"), member.inventory);
-    const mpRestore = applyEquippedPotionRestoreBonus(potionRestoreAmount(candidate.item, "mp"), member.inventory);
+    const mpRestore = applyEquippedPotionRestoreBonus(potionRestoreAmount(candidate.item, "mp"), member.inventory, itemDefinition);
     if (potionRestoreMode(candidate.item) === "instant") {
       member.hp = Math.min(member.maxHp, member.hp + hpRestore);
       member.mp = Math.min(member.maxMp, member.mp + mpRestore);
     } else {
       member.potHealthAmount = Math.min(65535, (member.potHealthAmount ?? 0) + hpRestore);
       member.potManaAmount = Math.min(65535, (member.potManaAmount ?? 0) + mpRestore);
-      member.potTickAt = member.potTickAt || now + crystalPotDelayMs(member.inventory, hpRestore > 0);
+      member.potTickAt = member.potTickAt || now + crystalPotDelayMs(member.inventory, hpRestore > 0, member.potionTickBonusPercent);
     }
     member.autoPotionReadyAt[kind] = now + AUTO_POTION_COOLDOWN_MS;
     incrementReportCount(report.potionsUsed, candidate.item.name);
@@ -3244,6 +3313,14 @@ const ALCHEMIST_STOCK_IDS = [
   "taoist-amulet",
 ];
 
+function alchemistStockIds() {
+  const ids = [...ALCHEMIST_STOCK_IDS];
+  const tier = ascensionEffectTier("ascension-mega-potion");
+  if (tier >= 1) ids.push(MEGA_POTION_ITEM_ID);
+  if (tier >= 2) ids.push(ULTRA_POTION_ITEM_ID);
+  return ids;
+}
+
 function npcShopUnitPrice(item) {
   return itemBuyValue(item, 1);
 }
@@ -3323,6 +3400,12 @@ const CHARACTER_TABS = [
   { id: "status", label: "Status", slot: 1, x: 70 },
   { id: "state", label: "State", slot: 2, x: 132 },
   { id: "skill", label: "Skill", slot: 3, x: 194 },
+];
+
+const OPTIONS_TABS = [
+  { id: "gameplay", label: "Gameplay" },
+  { id: "saves", label: "Saves/Backups" },
+  { id: "audio", label: "Audio" },
 ];
 
 const CRYSTAL_EQUIPMENT_SLOT_POSITIONS = {
@@ -3679,6 +3762,8 @@ const state = {
     autoPotionHpThreshold: DEFAULT_AUTO_POTION_HP_THRESHOLD,
     autoPotionMpThreshold: DEFAULT_AUTO_POTION_MP_THRESHOLD,
     autoPotionThresholdsByCharacter: createDefaultAutoPotionThresholdsByCharacter(),
+    taoistHealingThreshold: DEFAULT_TAOIST_HEALING_THRESHOLD,
+    taoistMassHealingThreshold: DEFAULT_TAOIST_MASS_HEALING_THRESHOLD,
     prototypeStatsEnabled: DEFAULT_PROTOTYPE_STATS_ENABLED,
     prototypeStatsNoticeVersion: 0,
     prototypeResetNoticeVersion: 0,
@@ -3765,6 +3850,8 @@ const state = {
   activeScene: null,
   /** Options UI: which class's auto-potion sliders are being edited (not persisted). */
   optionsAutoPotionClassId: null,
+  /** Options UI: Gameplay / Saves/Backups / Audio tab (not persisted). */
+  optionsTab: "gameplay",
   bossDamageReportOpen: false,
   weaponRefine: createDefaultWeaponRefineState(),
   craftingCube: createDefaultCraftingCubeState(),
@@ -3815,6 +3902,9 @@ const state = {
     rows: [],
     error: "",
     fetchedAt: 0,
+    board: "standard",
+    cache: {},
+    fetchToken: 0,
     selectedIndex: null,
     detailClass: null,
     foreignEntries: {},
@@ -3836,6 +3926,8 @@ const state = {
   codexSearchQuery: "",
   codexSelectedItemId: null,
   codexEmpowerSlotId: "weapon",
+  codexGlyphClass: "all",
+  codexSelectedGlyphId: null,
   achievementCategory: "party",
   townPartyIdleMembers: [],
   townPartyIdleEvent: null,
@@ -3983,6 +4075,7 @@ const state = {
     nextMapLightningAt: 0,
     mapHellFireEffects: [],
     nextMapHellFireAt: 0,
+    hellfireAttackFx: [],
     greatFoxSpiritEffects: [],
     redMoonEvilEffects: [],
     lastPlayerAttackCooldownMs: 0,
@@ -4008,6 +4101,7 @@ const state = {
     potHealthAmount: 0,
     potManaAmount: 0,
     potTickAt: 0,
+    potionTickBonusPercent: 0,
     healAmount: 0,
     healTickAt: 0,
     vampAmount: 0,
@@ -4279,18 +4373,18 @@ function gameShellHtml() {
         <h1>Legend of Mir Idle</h1>
       </div>
       <nav class="game-top-actions" id="gameTopActions" aria-label="Game windows">
-        <button type="button" data-open-scene="character">Character</button>
-        <button type="button" data-open-scene="inventory">Inventory</button>
-        <button type="button" data-open-scene="codex">Codex</button>
-        <button type="button" data-open-scene="achievements" data-achievements-nav hidden>Achievements</button>
-        <button type="button" data-open-scene="upgrades">Upgrades</button>
-        <button type="button" data-open-scene="characterSelect">Characters</button>
-        <button type="button" data-open-scene="journey" data-journey-nav hidden>Journey</button>
-        <button type="button" data-open-scene="difficulty" data-difficulty-nav hidden>Difficulty</button>
-        <button type="button" data-open-scene="gettingStarted">Guide</button>
-        <button type="button" data-open-scene="leaderboard">Social</button>
-        <button type="button" data-open-scene="cashShop" data-cash-shop-nav hidden>Cash Shop</button>
-        <button type="button" data-open-scene="options">Options</button>
+        <button type="button" data-toggle-scene="character">Character</button>
+        <button type="button" data-toggle-scene="inventory">Inventory</button>
+        <button type="button" data-toggle-scene="codex">Codex</button>
+        <button type="button" data-toggle-scene="achievements" data-achievements-nav hidden>Achievements</button>
+        <button type="button" data-toggle-scene="upgrades">Upgrades</button>
+        <button type="button" data-toggle-scene="characterSelect">Characters</button>
+        <button type="button" data-toggle-scene="journey" data-journey-nav hidden>Journey</button>
+        <button type="button" data-toggle-scene="difficulty" data-difficulty-nav hidden>Difficulty</button>
+        <button type="button" data-toggle-scene="gettingStarted">Guide</button>
+        <button type="button" data-toggle-scene="leaderboard">Social</button>
+        <button type="button" data-toggle-scene="cashShop" data-cash-shop-nav hidden>Cash Shop</button>
+        <button type="button" data-toggle-scene="options">Options</button>
       </nav>
       <div class="status" id="status">Loading atlases...</div>
     </header>
@@ -4568,6 +4662,13 @@ async function init() {
   state.mapSet = state.mapTileIndex.sets.find((set) => set.id === state.mapSet)?.id ?? state.mapTileIndex.sets[0]?.id ?? state.mapSet;
   state.warriorSkillAtlases = await loadWarriorSkillAtlases();
   state.wizardSpellAtlases = await loadCombatSpellAtlases(WIZARD_COMBAT_SPELLS);
+  {
+    const hellFireAtlas = await loadJson("./public/spellfx/HellFire/atlas.json").catch(() => null);
+    if (hellFireAtlas) {
+      await preloadSpellAtlasSheets("HellFire", hellFireAtlas);
+      state.wizardSpellAtlases.HellFire = hellFireAtlas;
+    }
+  }
   state.taoistSpellAtlases = await loadCombatSpellAtlases(TAOIST_COMBAT_SPELLS);
   state.taoistDefenceBuffImpactAtlases = Object.fromEntries(
     (await Promise.all(
@@ -4894,12 +4995,35 @@ function installTestHarness() {
         bossEmpowermentUnlocked: bossEmpowermentUnlocked(),
         rebirthPointMultiplier: rebirthPointMultiplier(),
         rebirthPointsFor100Souls: Math.trunc(100 * rebirthPointMultiplier()),
+        soulResonanceOwned: soulResonanceOwned(),
         travellerSuppliesLevelCap: travellerSuppliesLevelCap(),
         travellerSuppliesStockCount: travellerSuppliesStock().length,
         salvageSurplusChance: ascensionSalvageChancePercent(),
+        startingRebirthPoints: ascensionStartingRebirthPointGrant(),
+        rebirthPointsHeld: accountRebirthPoints(),
+        combatStatBonusPercent: Object.fromEntries(
+          ASCENSION_COMBAT_STAT_DEFS.map((entry) => [
+            entry.stat,
+            ascensionCombatStatBonusPercent(ascensionEffectTier(entry.id)),
+          ]),
+        ),
+        equipmentDc: characterEquipmentStats().dc,
+        // Warrior L1 DC is 0-0 (naked, formula trunc(level/5)). L10 is 2-2,
+        // so this proves applyAscensionCombatStatPercents on a non-zero range.
+        previewWarriorDcAtLevel10: (() => {
+          const stats = cloneStats({
+            ...PLAYER_TEMPLATE,
+            ...crystalPlayerBaseStats("Warrior", 10),
+          });
+          applyAscensionCombatStatPercents(stats);
+          return [...(stats.dc ?? [0, 0])];
+        })(),
         worldDifficulty: selectedWorldDifficultyId(),
         worldDifficultyRate: worldDifficultyRate(),
         steeperPathOwned: steeperPathOwned(),
+        alchemistStock: alchemistStockIds(),
+        potionTickBonusPercent: state.battle.potionTickBonusPercent ?? 0,
+        potionTickDelayMs: crystalPotDelayMs(state.inventory, true),
       };
     },
     // The Traveller's stock at whatever tier is banked, so the level cap and the
@@ -4998,6 +5122,15 @@ function installTestHarness() {
     buyAscensionUpgrade(upgradeId) {
       const bought = buyAscensionUpgrade(upgradeId);
       return { bought, ...this.ascensionState() };
+    },
+    buyAccountUpgrade(upgradeId) {
+      const bought = buyAccountUpgrade(upgradeId);
+      return {
+        bought,
+        rebirthPoints: accountRebirthPoints(),
+        soulResonanceOwned: soulResonanceOwned(),
+        rebirthPointMultiplier: rebirthPointMultiplier(),
+      };
     },
     refundAscensionUpgrade(upgradeId) {
       const refunded = refundAscensionUpgrade(upgradeId);
@@ -5192,6 +5325,23 @@ function installTestHarness() {
         inventoryItemIds: carriedInventoryEntries().map((entry) => entry.itemId),
       };
     },
+    drinkPotion(itemId) {
+      const player = state.battle.player;
+      if (player) {
+        if (player.maxHp > 1) player.hp = Math.max(1, Math.min(player.hp, player.maxHp - 1));
+        if (player.maxMp > 0) player.mp = Math.max(0, Math.min(player.mp, player.maxMp - 1));
+      }
+      const entry = (state.inventory.items ?? []).find((candidate) => candidate.itemId === itemId) ?? null;
+      if (!entry) return { ok: false, error: `No ${itemId} in inventory.` };
+      const used = usePotionEntry(entry.id);
+      return {
+        ok: used,
+        bonusPercent: state.battle.potionTickBonusPercent ?? 0,
+        delayMs: crystalPotDelayMs(state.inventory, true),
+        queuedHp: state.battle.potHealthAmount ?? 0,
+        queuedMp: state.battle.potManaAmount ?? 0,
+      };
+    },
     // Grant local-only tokens for Spirit Box testing (does not touch the live balance).
     grantLocalTokens(amount = 400) {
       state.tokens.balance = Math.max(0, Math.trunc(Number(amount) || 0));
@@ -5321,7 +5471,7 @@ function createSaveSnapshot() {
   const groupDungeonRun = groupDungeonOfflineRunSnapshot?.()
     ?? sanitizeGroupDungeonOfflineRun?.(activeCharacter.game?.groupDungeonRun, activeCharacter.game?.activeZoneId, state.activeCharacterId)
     ?? null;
-  return {
+  return compactSaveSnapshotForPersist({
     version: SAVE_VERSION,
     savedAt: Date.now(),
     activeCharacterId: state.activeCharacterId,
@@ -5391,6 +5541,14 @@ function createSaveSnapshot() {
           ?? state.settings.autoPotionMpThreshold,
         DEFAULT_AUTO_POTION_MP_THRESHOLD,
       ),
+      taoistHealingThreshold: normalizedAutoPotionThreshold(
+        state.settings.taoistHealingThreshold,
+        DEFAULT_TAOIST_HEALING_THRESHOLD,
+      ),
+      taoistMassHealingThreshold: normalizedAutoPotionThreshold(
+        state.settings.taoistMassHealingThreshold,
+        DEFAULT_TAOIST_MASS_HEALING_THRESHOLD,
+      ),
       prototypeStatsEnabled: Boolean(state.settings.prototypeStatsEnabled),
       prototypeStatsNoticeVersion: Math.max(0, Math.trunc(Number(state.settings.prototypeStatsNoticeVersion) || 0)),
       prototypeResetNoticeVersion: Math.max(0, Math.trunc(Number(state.settings.prototypeResetNoticeVersion) || 0)),
@@ -5408,7 +5566,7 @@ function createSaveSnapshot() {
         timeLogging: state.settings.sceneWindowPositions?.timeLogging ?? null,
       },
     },
-  };
+  });
 }
 
 function saveGameState(force = false) {
@@ -5492,6 +5650,7 @@ function clearTransientBattleForSaveImport() {
   clearSlashingBurstPendingState();
   state.battle.groundSpellEffects = [];
   state.battle.attachedSpellFx = [];
+  state.battle.hellfireAttackFx = [];
   clearTwinDrakePendingState();
 }
 
@@ -6171,6 +6330,7 @@ function createDefaultCharacterState(classId) {
       playerMp: null,
       potHealthAmount: 0,
       potManaAmount: 0,
+      potionTickBonusPercent: 0,
       healAmount: 0,
       vampAmount: 0,
       energyShieldLastStandReadyAt: 0,
@@ -6311,6 +6471,8 @@ function trackRebirthPointsGained(quantity) {
   if (amount <= 0) return;
   ensureAccountStats();
   state.account.stats.rebirthPointsGained += amount;
+  const ascension = ensureAccountAscensionState();
+  ascension.runRebirthPointsGained = Math.max(0, Math.trunc(Number(ascension.runRebirthPointsGained) || 0)) + amount;
 }
 
 function trackRebirthPointsSpent(quantity) {
@@ -6327,6 +6489,7 @@ function accountTotalGold() {
 
 function accountStatsSnapshot() {
   ensureAccountStats();
+  ensureAccountAscensionState();
   captureActiveCharacterState();
   const bossKills = accountBossKills();
   const characterLevels = {};
@@ -6334,12 +6497,18 @@ function accountStatsSnapshot() {
     const progress = state.characters[classId]?.game?.progress;
     characterLevels[classId] = Math.max(1, Math.trunc(Number(progress?.level) || 1));
   }
+  const ascension = state.account.ascension;
   return {
     rebirthCount: state.account.stats.rebirthCount,
     rebirthPointsGained: state.account.stats.rebirthPointsGained,
     rebirthPointsSpent: state.account.stats.rebirthPointsSpent,
     rebirthPointsHeld: accountRebirthPoints(),
+    runRebirthPointsGained: Math.max(0, Math.trunc(Number(ascension?.runRebirthPointsGained) || 0)),
     awakeningSoulsHeld: accountAwakenedSoulCount(),
+    ascensionCount: Math.max(0, Math.trunc(Number(state.account.stats.ascensionCount) || 0)),
+    ascensionPoints: Math.max(0, Math.trunc(Number(ascension?.pointsEarned) || 0)),
+    currentJourneyMs: ascensionJourneyLiveElapsedMs(),
+    bestJourneyMs: Math.max(0, Math.trunc(Number(ascension?.bestJourneyMs) || 0)),
     totalGold: accountTotalGold(),
     bossKills,
     bossKillsTotal: Object.values(bossKills).reduce((sum, count) => sum + Math.max(0, Math.trunc(Number(count) || 0)), 0),
@@ -7378,7 +7547,13 @@ function performAscension() {
   state.account.storage = createDefaultStorageState();
   // Every tier, including the rebirth section that a rebirth would keep.
   state.account.upgrades = createDefaultAccountUpgradeState();
-  state.account.rebirthPoints = 0;
+  // Head Start lands after the wipe, from the build just banked above. Regular
+  // rebirth does not grant this: it is the new world's starting hand, not a
+  // bonus on every soul conversion.
+  // Zero before Head Start so that grant counts as gained this world, and
+  // points already spent this world stay in the total.
+  ascension.runRebirthPointsGained = 0;
+  const startingRebirthPoints = grantAscensionStartingRebirthPoints();
   state.account.gold = 0;
   state.account.codex = createDefaultAccountCodexState();
   // The page stays if it was paid for; the board itself does not. All-time
@@ -7452,7 +7627,10 @@ function performAscension() {
 
   pushBattleLog(
     `The Traveller sends you back. ${journeyMs > 0 ? `That journey took ${formatAscensionDuration(journeyMs)}. ` : ""}`
-    + `Your powers remain: ${ascensionPointsEarned()} Ascension Point${ascensionPointsEarned() === 1 ? "" : "s"} banked.`,
+    + `Your powers remain: ${ascensionPointsEarned()} Ascension Point${ascensionPointsEarned() === 1 ? "" : "s"} banked.`
+    + (startingRebirthPoints > 0
+      ? ` You set out with ${startingRebirthPoints.toLocaleString()} Rebirth Point${startingRebirthPoints === 1 ? "" : "s"}.`
+      : ""),
   );
   // Passed the finished journey's time explicitly - the account's clock has
   // already been restarted above, so it can no longer be read from state.
@@ -7636,6 +7814,7 @@ function applyCharacterState(classId, character = createDefaultCharacterState(cl
     mp: finiteNumberOrNull(character.battle?.playerMp),
     potHealthAmount: Math.max(0, Math.trunc(Number(character.battle?.potHealthAmount) || 0)),
     potManaAmount: Math.max(0, Math.trunc(Number(character.battle?.potManaAmount) || 0)),
+    potionTickBonusPercent: sanitizePotionTickBonusPercent(character.battle?.potionTickBonusPercent),
     healAmount: Math.max(0, Math.trunc(Number(character.battle?.healAmount) || 0)),
     vampAmount: Math.max(0, Math.trunc(Number(character.battle?.vampAmount) || 0)),
     energyShieldLastStandReadyAt: sanitizeEnergyShieldLastStandReadyAt(character.battle?.energyShieldLastStandReadyAt),
@@ -7809,6 +7988,9 @@ function serializeCurrentCharacterState() {
       playerMp: state.battle.player?.mp ?? pendingSavedPlayerResources?.mp ?? null,
       potHealthAmount: state.battle.potHealthAmount ?? pendingSavedPlayerResources?.potHealthAmount ?? 0,
       potManaAmount: state.battle.potManaAmount ?? pendingSavedPlayerResources?.potManaAmount ?? 0,
+      potionTickBonusPercent: sanitizePotionTickBonusPercent(
+        state.battle.potionTickBonusPercent ?? pendingSavedPlayerResources?.potionTickBonusPercent,
+      ),
       healAmount: state.battle.healAmount ?? pendingSavedPlayerResources?.healAmount ?? 0,
       vampAmount: state.battle.vampAmount ?? pendingSavedPlayerResources?.vampAmount ?? 0,
       energyShieldLastStandReadyAt: sanitizeEnergyShieldLastStandReadyAt(
@@ -7988,6 +8170,7 @@ function restorePendingSavedPlayerResources() {
   }
   state.battle.potHealthAmount = Math.max(0, Math.trunc(Number(pendingSavedPlayerResources.potHealthAmount) || 0));
   state.battle.potManaAmount = Math.max(0, Math.trunc(Number(pendingSavedPlayerResources.potManaAmount) || 0));
+  state.battle.potionTickBonusPercent = sanitizePotionTickBonusPercent(pendingSavedPlayerResources.potionTickBonusPercent);
   state.battle.potTickAt = state.battle.potHealthAmount > 0 || state.battle.potManaAmount > 0
     ? performance.now() + crystalPotDelayMs(state.inventory, state.battle.potHealthAmount > 0)
     : 0;
@@ -8895,9 +9078,18 @@ function offlineAutoUsePotions(now, report) {
     if (!candidate) continue;
     const consumeEntry = potionConsumeEntryFromHotbarOrBag(candidate.entry);
     const hpRestore = applyPotionHpRestoreWithGlyph(potionRestoreAmount(candidate.item, "hp"), state.inventory);
-    const mpRestore = applyEquippedPotionRestoreBonus(potionRestoreAmount(candidate.item, "mp"), state.inventory);
+    const mpRestore = applyEquippedPotionRestoreBonus(potionRestoreAmount(candidate.item, "mp"), state.inventory, itemDefinition);
     if (!removeInventoryEntry(consumeEntry.id, 1)) continue;
-    queuePotionRestore(hpRestore, mpRestore, now);
+    applyPotionTickBonusFromItem(candidate.item, state.battle);
+    if (potionRestoreMode(candidate.item) === "instant") {
+      const player = state.battle.player;
+      if (player) {
+        player.hp = Math.min(player.maxHp, player.hp + hpRestore);
+        player.mp = Math.min(player.maxMp, player.mp + mpRestore);
+      }
+    } else {
+      queuePotionRestore(hpRestore, mpRestore, now);
+    }
     state.battle.autoPotionReadyAt[kind] = now + AUTO_POTION_COOLDOWN_MS;
     incrementReportCount(report.potionsUsed, candidate.item.name);
   }
@@ -9851,6 +10043,51 @@ function setOptionsAutoPotionClassId(classId) {
   renderSceneOverlay();
 }
 
+function taoistHealingThreshold() {
+  return normalizedAutoPotionThreshold(
+    state.settings.taoistHealingThreshold,
+    DEFAULT_TAOIST_HEALING_THRESHOLD,
+  );
+}
+
+function taoistMassHealingThreshold() {
+  return normalizedAutoPotionThreshold(
+    state.settings.taoistMassHealingThreshold,
+    DEFAULT_TAOIST_MASS_HEALING_THRESHOLD,
+  );
+}
+
+function setTaoistHealThreshold(kind, value) {
+  if (kind === "mass") {
+    state.settings.taoistMassHealingThreshold = normalizedAutoPotionThreshold(
+      value,
+      DEFAULT_TAOIST_MASS_HEALING_THRESHOLD,
+    );
+  } else {
+    state.settings.taoistHealingThreshold = normalizedAutoPotionThreshold(
+      value,
+      DEFAULT_TAOIST_HEALING_THRESHOLD,
+    );
+  }
+  saveGameState(true);
+  sceneSignature = "";
+  renderSceneOverlay();
+}
+
+function normalizeOptionsTab(tabId = state.optionsTab) {
+  return OPTIONS_TABS.some((tab) => tab.id === tabId) ? tabId : "gameplay";
+}
+
+function setOptionsTab(tabId) {
+  const next = normalizeOptionsTab(tabId);
+  if (next === normalizeOptionsTab(state.optionsTab)) return;
+  state.optionsTab = next;
+  sceneScrollPositions.set("scene-options", { left: 0, top: 0 });
+  playSfx("ui.button", { volume: 0.35, throttleMs: 80 });
+  sceneSignature = "";
+  renderSceneOverlay();
+}
+
 function loadPrototypeStatsPlayerId() {
   try {
     const existing = localStorage.getItem(STATS_PLAYER_ID_KEY);
@@ -10783,7 +11020,7 @@ function renderDemoLiveSiteBanner() {
       <p class="demo-live-site-banner-body">
         Development has moved on from this demo build.
         <a href="${escapeHtml(demoLiveSiteLinkUrl(banner.url))}" target="_blank" rel="noopener noreferrer">Visit ${escapeHtml(linkLabel)}</a>
-        for the full game. You can import your save without losing progress — use your recovery code under Options &gt; Cloud Save.
+        for the full game. You can import your save without losing progress — use your recovery code under Options &gt; Saves/Backups.
       </p>
       <div class="demo-live-site-banner-foot">
         <p class="prototype-reset-notice-note">Thanks for playing. This reminder appears at most once per day.</p>
@@ -11077,9 +11314,9 @@ function renderCloudBackupNotice() {
       <p class="cloud-backup-code-warning"><strong>Keep this code private.</strong> Anyone with it can download and overwrite your cloud backup. Sharing it may cause conflicting saves or lost progress.</p>
       <div class="cloud-backup-notice-restore">
         <strong>How to recover your save</strong>
-        <p>Open <b>Options</b>, go to <b>Cloud Save</b>, enter this code under <b>Restore using another recovery code</b>, then select <b>Find Backup</b> and <b>Restore Backup</b>.</p>
+        <p>Open <b>Options</b> → <b>Saves/Backups</b>, go to <b>Cloud Save</b>, enter this code under <b>Restore using another recovery code</b>, then select <b>Find Backup</b> and <b>Restore Backup</b>.</p>
       </div>
-      <p class="cloud-backup-notice-hint">Your code is always available under Options &gt; Cloud Save.</p>
+      <p class="cloud-backup-notice-hint">Your code is always available under Options &gt; Saves/Backups.</p>
       <div class="prototype-stats-notice-actions cloud-backup-notice-actions">
         <button type="button" data-copy-cloud-backup-notice>${state.cloudSave.noticeCopied ? "Copied" : "Copy Code"}</button>
         <button type="button" class="primary" data-accept-cloud-backup-notice>I've Saved It</button>
@@ -11312,7 +11549,10 @@ function resetRuntimeGameState() {
   state.settings.autoPotionHpThreshold = DEFAULT_AUTO_POTION_HP_THRESHOLD;
   state.settings.autoPotionMpThreshold = DEFAULT_AUTO_POTION_MP_THRESHOLD;
   state.settings.autoPotionThresholdsByCharacter = createDefaultAutoPotionThresholdsByCharacter();
+  state.settings.taoistHealingThreshold = DEFAULT_TAOIST_HEALING_THRESHOLD;
+  state.settings.taoistMassHealingThreshold = DEFAULT_TAOIST_MASS_HEALING_THRESHOLD;
   state.optionsAutoPotionClassId = null;
+  state.optionsTab = "gameplay";
   state.settings.prototypeStatsEnabled = DEFAULT_PROTOTYPE_STATS_ENABLED;
   state.settings.prototypeStatsNoticeVersion = 0;
   state.settings.prototypeResetNoticeVersion = 0;
@@ -11843,6 +12083,7 @@ function resetBattle(enemyId = state.battle.enemyId) {
   state.battle.nextMapLightningAt = 0;
   state.battle.mapHellFireEffects = [];
   state.battle.nextMapHellFireAt = 0;
+  state.battle.hellfireAttackFx = [];
   state.battle.greatFoxSpiritEffects = [];
   state.battle.redMoonEvilEffects = [];
   clearTransientCombatBuffs();
@@ -11865,6 +12106,7 @@ function resetBattle(enemyId = state.battle.enemyId) {
   state.battle.potHealthAmount = 0;
   state.battle.potManaAmount = 0;
   state.battle.potTickAt = 0;
+  state.battle.potionTickBonusPercent = 0;
   state.battle.healAmount = 0;
   state.battle.healTickAt = 0;
   state.battle.vampAmount = 0;
@@ -11952,6 +12194,7 @@ function resetBattleForRoomOnly(zone = activeZone()) {
   state.battle.nextMapLightningAt = 0;
   state.battle.mapHellFireEffects = [];
   state.battle.nextMapHellFireAt = 0;
+  state.battle.hellfireAttackFx = [];
   state.battle.greatFoxSpiritEffects = [];
   state.battle.redMoonEvilEffects = [];
   clearTransientCombatBuffs();
@@ -11974,6 +12217,7 @@ function resetBattleForRoomOnly(zone = activeZone()) {
   state.battle.potHealthAmount = 0;
   state.battle.potManaAmount = 0;
   state.battle.potTickAt = 0;
+  state.battle.potionTickBonusPercent = 0;
   state.battle.healAmount = 0;
   state.battle.healTickAt = 0;
   state.battle.vampAmount = 0;
@@ -12427,7 +12671,7 @@ function trainingRoomPlayCastVisual(spell, now) {
   }
   if (battle.combatClass === "Wizard") {
     battle.activeWizardSpell = spell.id;
-    battle.activeWizardSpellAtlas = state.wizardSpellAtlases[spell.id] ?? null;
+    battle.activeWizardSpellAtlas = wizardSpellFxAtlas(spell.id);
     battle.activeWizardSpellStartedAt = now;
     setPlayerAction(bodyAction, now, true);
     return;
@@ -12677,8 +12921,10 @@ function trainingRoomCastTaoist(spell, learned, cost, now) {
   }
 
   if (spell.id === "PoisonCloud") {
-    if (amuletInventoryCount() < POISON_CLOUD_AMULET_COST || poisonInventoryCount("green") < POISON_CLOUD_GREEN_POISON_COST) return false;
-    if (!consumeAmuletInventoryUnits(POISON_CLOUD_AMULET_COST) || !consumeGreenPoisonUnits(POISON_CLOUD_GREEN_POISON_COST)) return false;
+    if (poisonCloudNeedsSupplies()) {
+      if (amuletInventoryCount() < POISON_CLOUD_AMULET_COST || poisonInventoryCount("green") < POISON_CLOUD_GREEN_POISON_COST) return false;
+      if (!consumeAmuletInventoryUnits(POISON_CLOUD_AMULET_COST) || !consumeGreenPoisonUnits(POISON_CLOUD_GREEN_POISON_COST)) return false;
+    }
     trainingRoomSpendMp(spell, learned, cost);
     levelMagicSkill(spell, learned, now);
     trainingRoomPlayCastVisual(spell, now);
@@ -13068,6 +13314,7 @@ function syncBossPartyControlledRecoveryFromState(member = bossPartyLeaderMember
   if (!member || member.classId !== bossPartyLeaderClassId()) return;
   member.potHealthAmount = Math.max(0, Math.trunc(Number(state.battle.potHealthAmount) || 0));
   member.potManaAmount = Math.max(0, Math.trunc(Number(state.battle.potManaAmount) || 0));
+  member.potionTickBonusPercent = sanitizePotionTickBonusPercent(state.battle.potionTickBonusPercent);
   member.potTickAt = state.battle.potTickAt ?? 0;
   member.healAmount = Math.max(0, Math.trunc(Number(state.battle.healAmount) || 0));
   member.healTickAt = state.battle.healTickAt ?? 0;
@@ -13084,6 +13331,7 @@ function syncBossPartyControlledRecoveryToState(member = bossPartyLeaderMember()
   if (!member || member.classId !== bossPartyLeaderClassId()) return;
   state.battle.potHealthAmount = Math.max(0, Math.trunc(Number(member.potHealthAmount) || 0));
   state.battle.potManaAmount = Math.max(0, Math.trunc(Number(member.potManaAmount) || 0));
+  state.battle.potionTickBonusPercent = sanitizePotionTickBonusPercent(member.potionTickBonusPercent);
   state.battle.potTickAt = member.potTickAt ?? 0;
   state.battle.healAmount = Math.max(0, Math.trunc(Number(member.healAmount) || 0));
   state.battle.healTickAt = member.healTickAt ?? 0;
@@ -13318,6 +13566,14 @@ function handlePageUnlockConfirmClick(event) {
   return false;
 }
 
+function accountUpgradePrerequisiteMet(upgrade) {
+  if (!upgrade?.requiresUpgradeId) return true;
+  if (accountUpgradePurchased(upgrade.requiresUpgradeId)) return true;
+  // Empowered Start stands in for the Boss Empowerment rebirth purchase,
+  // so Boss Ascension can be bought without spending the 10-point unlock.
+  return upgrade.requiresUpgradeId === "boss-empowerment" && bossEmpowermentUnlocked();
+}
+
 function buyAccountUpgrade(upgradeId) {
   state.account.upgrades = sanitizeAccountUpgradeState(state.account.upgrades);
   const upgrade = accountUpgradeById(upgradeId);
@@ -13328,7 +13584,7 @@ function buyAccountUpgrade(upgradeId) {
     renderBattlePanel();
     return false;
   }
-  if (upgrade.requiresUpgradeId && !accountUpgradePurchased(upgrade.requiresUpgradeId)) {
+  if (!accountUpgradePrerequisiteMet(upgrade)) {
     const prereq = accountUpgradeById(upgrade.requiresUpgradeId);
     pushBattleLog(`Unlock ${prereq?.label ?? "the prerequisite upgrade"} first.`);
     battlePanelSignature = "";
@@ -13345,6 +13601,10 @@ function buyAccountUpgrade(upgradeId) {
   }
   if (upgrade.effect === "bossJunkFilterUnlock" && bossJunkFilterUnlocked()) {
     pushBattleLog("Boss Junk Filter is already unlocked.");
+    return false;
+  }
+  if (upgrade.id === "rebirth-soul-yield" && ascensionResonantStartOwned()) {
+    pushBattleLog("Soul Resonance is already unlocked by Resonant Start.");
     return false;
   }
   if (!canAffordAccountUpgrade(upgrade)) {
@@ -13409,8 +13669,9 @@ function inventoryItemQuantity(itemId) {
 
 function canAffordAccountUpgrade(upgrade) {
   if (upgrade?.planned) return false;
-  if (upgrade?.requiresUpgradeId && !accountUpgradePurchased(upgrade.requiresUpgradeId)) return false;
+  if (!accountUpgradePrerequisiteMet(upgrade)) return false;
   if (accountUpgradeIsMaxed(upgrade)) return false;
+  if (upgrade?.id === "rebirth-soul-yield" && ascensionResonantStartOwned()) return false;
   if (accountUpgradeUsesRebirthPoints(upgrade)) {
     const cost = accountUpgradeRebirthCost(upgrade);
     return cost != null && accountRebirthPoints() >= cost;
@@ -13578,6 +13839,9 @@ function accountUpgradeProgressText(upgrade) {
     if (accountUpgradeIsMaxed(upgrade)) return `+${current}`;
     return `+${current} -> +${current + step}`;
   }
+  if (upgrade?.effect === "rebirthPointMultiplierBonus") {
+    return soulResonanceOwned() ? "2 Rebirth Points per soul" : "1 -> 2 Rebirth Points per soul";
+  }
   if (upgrade?.effect === "bossEmpowerment") {
     return tier >= 1 ? "Unlocked" : "Locked -> Unlocked";
   }
@@ -13625,7 +13889,7 @@ function accountUpgradeRequirementHtml(upgrade) {
       </div>
     `;
   }
-  if (upgrade?.requiresUpgradeId && !accountUpgradePurchased(upgrade.requiresUpgradeId)) {
+  if (upgrade?.requiresUpgradeId && !accountUpgradePrerequisiteMet(upgrade)) {
     const prereq = accountUpgradeById(upgrade.requiresUpgradeId);
     return `
       <div class="upgrade-material missing">
@@ -13678,6 +13942,9 @@ function accountUpgradeRequirementHtml(upgrade) {
 
 function accountUpgradeSourceText(upgrade) {
   if (upgrade?.planned && upgrade.sourceHint) return upgrade.sourceHint;
+  if (upgrade?.id === "rebirth-soul-yield" && ascensionResonantStartOwned()) {
+    return "Granted by Resonant Start.";
+  }
   if (upgrade?.currency === "rebirthPoints") return "";
   const zones = [
     ...new Set(accountUpgradeItemCosts(upgrade).flatMap((cost) => {
@@ -13693,7 +13960,7 @@ function accountUpgradeSourceText(upgrade) {
 }
 
 function missingAccountUpgradeItemLabel(upgrade) {
-  if (upgrade?.requiresUpgradeId && !accountUpgradePurchased(upgrade.requiresUpgradeId)) {
+  if (upgrade?.requiresUpgradeId && !accountUpgradePrerequisiteMet(upgrade)) {
     return accountUpgradeById(upgrade.requiresUpgradeId)?.label ?? "Unlock";
   }
   if (accountUpgradeUsesRebirthPoints(upgrade)) return "Rebirth Points";
@@ -15217,8 +15484,9 @@ function reportCraftingCubeGoldShortfall(recipeId) {
   playSfx("ui.button", { volume: 0.28, throttleMs: 120 });
 }
 
-function spendCraftingCubeGold(recipeId) {
-  const cost = craftingCubeRecipeGoldCost(recipeId);
+function spendCraftingCubeGold(recipeId, times = 1) {
+  const crafts = Math.max(1, Math.trunc(Number(times) || 1));
+  const cost = craftingCubeRecipeGoldCost(recipeId) * crafts;
   if (cost <= 0) return;
   state.inventory.gold = Math.max(0, (Number(state.inventory?.gold) || 0) - cost);
   state.game.progress.gold = state.inventory.gold;
@@ -15504,7 +15772,24 @@ function announceCraftingCubeEmpowerReroll(empoweredItem, empoweredEntry, reroll
   addLootNotice(`Added ${addedLabel}`, "level");
 }
 
-function attemptCraftingCubeAttunementStoneCraft(recipeId) {
+function craftingCubeAttunementCraftAllPreview(recipeId = state.craftingCube?.selectedRecipeId) {
+  if (!CRAFTING_CUBE_ATTUNEMENT_STONE_RECIPE_BY_ID[recipeId]) return null;
+  const validation = craftingCubeRecipeValidation(recipeId);
+  if (!validation.ok || !validation.oreEntry || !validation.recipe) {
+    return { count: 0, limitedBy: null, oreQuantity: 0 };
+  }
+  const oreQuantity = Math.max(1, Math.trunc(Number(validation.oreEntry.quantity) || 1));
+  const stoneItem = itemDefinition(validation.recipe.stoneItemId);
+  const preview = craftingCubeAttunementStoneCraftAllCount({
+    oreQuantity,
+    gold: Number(state.inventory?.gold) || 0,
+    goldCostPerCraft: craftingCubeRecipeGoldCost(recipeId),
+    inventoryCapacity: availableInventoryCapacityForItem(stoneItem),
+  });
+  return { ...preview, oreQuantity };
+}
+
+function attemptCraftingCubeAttunementStoneCraft(recipeId, { craftAll = false } = {}) {
   if (state.craftingCube?.mode !== "craft") return false;
   const validation = validateCraftingCubeAttunementStoneCraft(craftingCubeBoardEntries(), recipeId);
   if (!validation.ok) {
@@ -15515,23 +15800,40 @@ function attemptCraftingCubeAttunementStoneCraft(recipeId) {
     return false;
   }
 
-  if (!canAffordCraftingCubeGold(recipeId)) {
-    reportCraftingCubeGoldShortfall(recipeId);
+  const preview = craftingCubeAttunementCraftAllPreview(recipeId);
+  const oreQuantity = preview?.oreQuantity || Math.max(1, Math.trunc(Number(validation.oreEntry.quantity) || 1));
+  const count = craftAll ? (preview?.count || 0) : ((preview?.count || 0) >= 1 ? 1 : 0);
+  if (count <= 0) {
+    if (!canAffordCraftingCubeGold(recipeId)) {
+      reportCraftingCubeGoldShortfall(recipeId);
+      return false;
+    }
+    setCraftingCubeFeedback("Not enough inventory space.");
+    sceneSignature = "";
+    renderSceneOverlay();
+    playSfx("ui.button", { volume: 0.28, throttleMs: 120 });
     return false;
   }
 
   const recipe = validation.recipe;
-  consumeStagedCraftingCubeEntryQuantity(validation.oreEntry.id, 1);
-  spendCraftingCubeGold(recipeId);
-  state.craftingCube.feedback = null;
-  state.craftingCube.feedbackKind = null;
+  consumeStagedCraftingCubeEntryQuantity(validation.oreEntry.id, count);
+  spendCraftingCubeGold(recipeId, count);
   state.craftingCube.lastRerollNotice = null;
 
   const stoneItem = itemDefinition(recipe.stoneItemId);
-  addInventoryItem(recipe.stoneItemId, 1);
+  addInventoryItem(recipe.stoneItemId, count);
   const stoneName = stoneItem?.name ?? recipe.label;
-  pushBattleLog(`Crafted 1 ${stoneName} from 1 ${recipe.oreLabel}.`);
-  addLootNotice(`1× ${stoneName}`, "item");
+  if (craftAll) {
+    const limitNote = count < oreQuantity
+      ? (preview?.limitedBy === "gold" ? " Not enough gold for the rest." : " Inventory is full.")
+      : "";
+    setCraftingCubeFeedback(`Crafted ${count}× ${stoneName}.${limitNote}`, "success");
+  } else {
+    state.craftingCube.feedback = null;
+    state.craftingCube.feedbackKind = null;
+  }
+  pushBattleLog(`Crafted ${count}× ${stoneName} from ${count}× ${recipe.oreLabel}.`);
+  addLootNotice(`${count}× ${stoneName}`, "item");
 
   hideItemTooltip();
   sceneSignature = "";
@@ -15892,6 +16194,18 @@ function attemptCraftingCubeCraft() {
   renderSceneOverlay();
   playSfx("ui.button", { volume: 0.28, throttleMs: 120 });
   return false;
+}
+
+function attemptCraftingCubeCraftAll() {
+  const recipeId = state.craftingCube?.selectedRecipeId;
+  if (!CRAFTING_CUBE_ATTUNEMENT_STONE_RECIPE_BY_ID[recipeId]) {
+    setCraftingCubeFeedback("Select an Attunement Stone recipe.");
+    sceneSignature = "";
+    renderSceneOverlay();
+    playSfx("ui.button", { volume: 0.28, throttleMs: 120 });
+    return false;
+  }
+  return attemptCraftingCubeAttunementStoneCraft(recipeId, { craftAll: true });
 }
 
 function setCraftingCubeMode(mode) {
@@ -16390,19 +16704,19 @@ function armouryPreviewSlotHtml(slot, kit) {
   const hasItem = Boolean(view.item && !view.missing && view.entry);
   const busyClass = hasItem && view.busy ? " is-busy" : "";
   const content = hasItem
-    ? `<div class="crystal-equipment-item has-tooltip${inventoryUniqueClass(view.item)}${inventoryEmpoweredClass(view.entry)}" data-tooltip-item="${escapeHtml(view.item.id)}" data-tooltip-entry="${escapeHtml(view.entry.id)}" title="${escapeHtml(itemDisplayName(view.item, view.entry))}">${itemIconHtml(view.item)}</div>`
+    ? `<div class="crystal-equipment-item has-tooltip${inventoryUniqueClass(view.item)}${inventoryEmpoweredClass(view.entry)}" data-tooltip-item="${escapeHtml(view.item.id)}" data-tooltip-entry="${escapeHtml(view.entry.id)}">${itemIconHtml(view.item)}</div>`
     : entryId
       ? `<span class="armoury-slot-missing">?</span>`
       : "";
   const title = hasItem
-    ? `${itemDisplayName(view.item, view.entry)}${view.busy ? ` - ${view.busy}` : ""}`
+    ? ""
     : entryId
       ? `${slot.label} (missing)`
       : slot.label;
   return `
     <div
       class="crystal-equipment-slot armoury-preview-slot${hasItem ? " has-item" : ""}${missingClass}${busyClass}"
-      title="${escapeHtml(title)}"
+      ${title ? `title="${escapeHtml(title)}"` : ""}
       style="left:${8 + position.x}px; top:${90 + position.y}px;"
     >${content}</div>
   `;
@@ -16421,11 +16735,10 @@ function armouryExtraSlotsHtml(kit) {
           : "Empty";
       const slotLabelText = slot.id === "glyph" ? "Glyph 1" : slot.label;
       const busyClass = hasItem && view.busy ? " is-busy" : "";
-      const titleAttr = hasItem && view.busy ? ` title="${escapeHtml(view.busy)}"` : "";
       const tooltipAttrs = hasItem
         ? ` data-tooltip-item="${escapeHtml(view.item.id)}" data-tooltip-entry="${escapeHtml(view.entry.id)}"`
         : "";
-      return `<div class="armoury-extra-slot${hasItem ? " has-tooltip" : ""}${busyClass}"${titleAttr}${tooltipAttrs}><span>${escapeHtml(slotLabelText)}</span><strong>${escapeHtml(label)}</strong></div>`;
+      return `<div class="armoury-extra-slot${hasItem ? " has-tooltip" : ""}${busyClass}"${tooltipAttrs}><span>${escapeHtml(slotLabelText)}</span><strong>${escapeHtml(label)}</strong></div>`;
     })
     .join("");
   return rows ? `<div class="armoury-extra-slots">${rows}</div>` : "";
@@ -16757,7 +17070,11 @@ function sellAllJunkOre() {
 function buyShopItem(itemId, quantity = 1) {
   const item = itemDefinition(itemId);
   const requestedQuantity = Math.max(1, Math.floor(Number(quantity) || 1));
-  const unitPrice = ALCHEMIST_STOCK_IDS.includes(itemId)
+  if ((itemId === MEGA_POTION_ITEM_ID || itemId === ULTRA_POTION_ITEM_ID)
+    && !alchemistStockIds().includes(itemId)) {
+    return false;
+  }
+  const unitPrice = alchemistStockIds().includes(itemId)
     ? alchemistShopBuyPrice(item, 1)
     : npcShopUnitPrice(item);
   if (!item || unitPrice <= 0) return false;
@@ -16794,7 +17111,7 @@ function buyShopItem(itemId, quantity = 1) {
     return false;
   }
 
-  const value = ALCHEMIST_STOCK_IDS.includes(itemId)
+  const value = alchemistStockIds().includes(itemId)
     ? alchemistShopBuyPrice(item, addedQuantity)
     : npcShopBuyPrice(item, addedQuantity);
   state.inventory.gold -= value;
@@ -17254,7 +17571,7 @@ function ascensionUnlocked() {
 }
 
 // Effect sizes for the ascension powers. Kept next to the payout table because
-// the two are balanced against each other: a first journey earns 5 to 11
+// the two are balanced against each other: a first journey earns 8 to 11
 // points, so these are what those points buy.
 const ASCENSION_XP_COST_STEP = 0.1;
 const ASCENSION_XP_COST_MAX_TIER = 5;
@@ -17262,7 +17579,7 @@ const ASCENSION_SOUL_YIELD_STEP = 0.2;
 
 // A journey pays for Evil Mir once, at the tier of the hardest version of him
 // you beat in it - not once per kill.
-const ASCENSION_POINTS_BY_BOSS_TIER = [5, 7, 9, 11];
+const ASCENSION_POINTS_BY_BOSS_TIER = [8, 9, 10, 11];
 const ASCENSION_POINTS_PER_RUN_MAX = ASCENSION_POINTS_BY_BOSS_TIER[ASCENSION_POINTS_BY_BOSS_TIER.length - 1];
 
 // Indexed by liveBossFightTier(). Tier 0 has no name in the fight UI (it is just
@@ -17285,6 +17602,7 @@ function createDefaultAscensionState() {
     bestClears: {},
     worldDifficulty: WORLD_DIFFICULTY_DEFAULT,
     runBossKills: {},
+    runRebirthPointsGained: 0,
   };
 }
 
@@ -17327,6 +17645,7 @@ function sanitizeAccountAscensionState(saved = {}) {
     runClears: sanitizeAscensionClearTimes(raw.runClears, BOSS_FIGHT_TIER_COUNT),
     lastClears: sanitizeAscensionClearTimes(raw.lastClears, BOSS_FIGHT_TIER_COUNT),
     bestClears: sanitizeAscensionClearTimes(raw.bestClears, BOSS_FIGHT_TIER_COUNT),
+    runRebirthPointsGained: Math.max(0, Math.trunc(Number(raw.runRebirthPointsGained) || 0)),
     worldDifficulty: sanitizeWorldDifficulty(
       raw.worldDifficulty,
       ascensionTierOf(tiers, "ascension-difficulty") >= 1,
@@ -17359,7 +17678,11 @@ function ensureAccountAscensionState() {
       ascended ? {} : (state.account?.stats?.bossKills ?? {}),
     );
   }
+  // Migration only: pays a pre-update Evil Mir kill already on this journey.
+  // Must not run after a live kill has been counted and before it is paid -
+  // on a later journey that marks the run paid without adding to the bank.
   applyUnpaidEvilMirJourneyPayout(state.account.ascension);
+  applyCurrentJourneyPayoutTable(state.account.ascension);
   return state.account.ascension;
 }
 
@@ -17375,6 +17698,19 @@ function applyUnpaidEvilMirJourneyPayout(ascension) {
     hasJourneyKill: runEvilMirKills > 0,
     standardPayout: ASCENSION_POINTS_BY_BOSS_TIER[0],
   });
+  if (!next.changed) return false;
+  ascension.runPointsAwarded = next.runPointsAwarded;
+  ascension.pointsEarned = next.pointsEarned;
+  ascension.runBestTier = next.runBestTier;
+  return true;
+}
+
+function applyCurrentJourneyPayoutTable(ascension) {
+  const next = syncAscensionPayoutForBestTier({
+    runPointsAwarded: ascension.runPointsAwarded,
+    pointsEarned: ascension.pointsEarned,
+    runBestTier: ascension.runBestTier,
+  }, ASCENSION_POINTS_BY_BOSS_TIER);
   if (!next.changed) return false;
   ascension.runPointsAwarded = next.runPointsAwarded;
   ascension.pointsEarned = next.pointsEarned;
@@ -17431,10 +17767,6 @@ function ascensionRunBestTier() {
   return Math.max(-1, Math.min(ASCENSION_POINTS_BY_BOSS_TIER.length - 1, tier));
 }
 
-// Killing him again only pays the difference, so the hundredth plain kill pays
-// nothing and beating a harder version later tops the journey up to that tier.
-// Called from the single kill-accounting path, so it sees every Evil Mir kill
-// whichever battle loop reported it.
 // Stamped on the TRUE kill only. Evil Mir's first collapse is a phase change,
 // not a death: updateEvilMirPhase2 returns true there and both death paths bail
 // before setBossRespawn, so this never runs for it.
@@ -17443,7 +17775,10 @@ function recordEvilMirClearTime(zoneId) {
   const elapsed = ascensionJourneyLiveElapsedMs();
   // Untimed journey (a save older than the tracking) - no honest time to record.
   if (elapsed <= 0) return;
-  const ascension = ensureAccountAscensionState();
+  // incrementAscensionRunBossKill already ensured this object. Calling
+  // ensureAccountAscensionState() again would backfill this live kill.
+  const ascension = state.account?.ascension;
+  if (!ascension) return;
   ascension.runClears = recordAscensionClearTime(
     ascension.runClears,
     liveBossFightTier(),
@@ -17467,17 +17802,30 @@ function ascensionFastestClearMs(key) {
   return times.length ? Math.min(...times) : 0;
 }
 
+// Killing him again only pays the difference, so the hundredth plain kill pays
+// nothing and beating a harder version later tops the journey up to that tier.
+// Called from the single kill-accounting path, so it sees every Evil Mir kill
+// whichever battle loop reported it.
 function awardEvilMirAscensionPoints(zoneId) {
   if (!EVIL_MIR_BOSS_ZONE_IDS.includes(zoneId)) return 0;
+  // incrementAscensionRunBossKill already ensured this object. Do not call
+  // ensureAccountAscensionState() here: the kill is already on runBossKills,
+  // and the unpaid-kill backfill would stack with (or steal) this payout.
+  const ascension = state.account?.ascension;
+  if (!ascension) return 0;
   const tier = liveBossFightTier();
-  const target = ascensionPointsForBossTier(tier);
-  const award = target - ascensionRunPointsAwarded();
-  if (award <= 0) return 0;
-  const ascension = ensureAccountAscensionState();
-  ascension.runPointsAwarded = target;
-  ascension.runBestTier = Math.max(ascensionRunBestTier(), tier);
-  ascension.pointsEarned = ascensionPointsEarned() + award;
-  return award;
+  const next = payAscensionForKill({
+    runPointsAwarded: ascension.runPointsAwarded,
+    pointsEarned: ascension.pointsEarned,
+    runBestTier: ascension.runBestTier,
+    target: ascensionPointsForBossTier(tier),
+    tier,
+  });
+  if (!next.changed) return 0;
+  ascension.runPointsAwarded = next.runPointsAwarded;
+  ascension.runBestTier = next.runBestTier;
+  ascension.pointsEarned = next.pointsEarned;
+  return next.award;
 }
 
 // How long the CURRENT journey has been running, for the ticking clock. 0 when
@@ -18201,10 +18549,20 @@ function accountUpgradeValue(effect) {
   }, 0);
 }
 
+function soulResonanceOwned() {
+  // Resonant Start and the 200-RP purchase are the same +1. Never both.
+  return ascensionResonantStartOwned() || accountUpgradeTier("rebirth-soul-yield") >= 1;
+}
+
+function rebirthSoulYieldBonus() {
+  if (!soulResonanceOwned()) return 0;
+  return Math.max(0, Math.trunc(Number(accountUpgradeById("rebirth-soul-yield")?.value) || 0));
+}
+
 function rebirthPointMultiplier() {
-  // Soul Exchange stacks additively with the rebirth upgrade of the same shape,
-  // so 100 souls at one ascension tier is 120 Rebirth Points.
-  return 1 + accountUpgradeValue("rebirthPointMultiplierBonus") + ascensionSoulYieldBonus();
+  // Soul Exchange still stacks on top of the double. Resonant Start is the same
+  // +1 as Soul Resonance, so 100 souls are 200, then 220 at one Exchange tier.
+  return 1 + rebirthSoulYieldBonus() + ascensionSoulYieldBonus();
 }
 
 function achievementExperienceBonusPercent() {
@@ -18624,9 +18982,10 @@ function learnSpellFromBook(entryId) {
     return false;
   }
 
+  const startLevel = ascensionSpellStartLevel();
   state.magic.learned[spell.id] = {
     spellId: spell.id,
-    level: 0,
+    level: startLevel,
     experience: 0,
     key: null,
     autoCast: false,
@@ -18640,8 +18999,8 @@ function learnSpellFromBook(entryId) {
   }
   state.characterTab = "skill";
   playSfx("item.move", { volume: 0.44, throttleMs: 80 });
-  pushBattleLog(`Learned ${spell.label}.`);
-  addLootNotice(`Learned ${spell.label}`, "level");
+  pushBattleLog(startLevel > 0 ? `Learned ${spell.label} at level ${startLevel}.` : `Learned ${spell.label}.`);
+  addLootNotice(startLevel > 0 ? `${spell.label} Lv ${startLevel}` : `Learned ${spell.label}`, "level");
   sceneSignature = "";
   battlePanelSignature = "";
   combatSkillBarSignature = "";
@@ -21681,7 +22040,7 @@ function usePotionEntry(entryId, preferredKind = null, options = {}) {
   }
 
   const hpRestore = applyPotionHpRestoreWithGlyph(potionRestoreAmount(item, "hp"), state.inventory);
-  const mpRestore = applyEquippedPotionRestoreBonus(potionRestoreAmount(item, "mp"), state.inventory);
+  const mpRestore = applyEquippedPotionRestoreBonus(potionRestoreAmount(item, "mp"), state.inventory, itemDefinition);
   const canRestoreHp = hpRestore > 0 && player.hp < player.maxHp;
   const canRestoreMp = mpRestore > 0 && player.mp < player.maxMp;
   if (!canRestoreHp && !canRestoreMp) {
@@ -21695,6 +22054,7 @@ function usePotionEntry(entryId, preferredKind = null, options = {}) {
     ? potionConsumeEntryFromHotbarOrBag(entry)
     : entry;
   if (!removeInventoryEntry(consumeEntry.id, 1)) return false;
+  applyPotionTickBonusFromItem(item, state.battle);
   const parts = potionRestoreParts(hpRestore, mpRestore);
   if (potionRestoreMode(item) === "instant") {
     const hpBefore = player.hp;
@@ -21967,6 +22327,7 @@ function updatePotionRegen(now) {
 
   if (state.battle.potHealthAmount <= 0 && state.battle.potManaAmount <= 0) {
     state.battle.potTickAt = 0;
+    clearPotionTickBonusIfQueuesEmpty(state.battle);
     return changed;
   }
 
@@ -22015,7 +22376,10 @@ function updatePotionRegen(now) {
   if (steps >= 20 && (state.battle.potHealthAmount > 0 || state.battle.potManaAmount > 0)) {
     state.battle.potTickAt = now + crystalPotDelayMs(state.inventory, state.battle.potHealthAmount > 0);
   }
-  if (state.battle.potHealthAmount <= 0 && state.battle.potManaAmount <= 0) state.battle.potTickAt = 0;
+  if (state.battle.potHealthAmount <= 0 && state.battle.potManaAmount <= 0) {
+    state.battle.potTickAt = 0;
+    clearPotionTickBonusIfQueuesEmpty(state.battle);
+  }
   if (changed) {
     playerHudSignature = "";
     battlePanelSignature = "";
@@ -23178,18 +23542,18 @@ function activityLogHtml() {
 function sceneButtonsHtml() {
   return `
     <div class="scene-buttons">
-      <button data-open-scene="character" class="${state.openScenes.character ? "active" : ""}">Character</button>
-      <button data-open-scene="inventory" class="${state.openScenes.inventory ? "active" : ""}">Inventory</button>
-      <button data-open-scene="codex" class="${state.openScenes.codex ? "active" : ""}">Codex</button>
-      ${achievementsEnabled() ? `<button data-open-scene="achievements" data-achievements-nav class="${state.openScenes.achievements ? "active" : ""}">Achievements</button>` : ""}
-      <button data-open-scene="upgrades" class="${state.openScenes.upgrades ? "active" : ""}">Upgrades</button>
-      <button data-open-scene="characterSelect" class="${state.openScenes.characterSelect ? "active" : ""}">Characters</button>
-      ${ascensionUnlocked() ? `<button data-open-scene="journey" data-journey-nav class="${state.openScenes.journey ? "active" : ""}">Journey</button>` : ""}
-      ${steeperPathOwned() ? `<button data-open-scene="difficulty" data-difficulty-nav class="${state.openScenes.difficulty ? "active" : ""}">Difficulty</button>` : ""}
-      <button data-open-scene="gettingStarted" class="${state.openScenes.gettingStarted ? "active" : ""}">Guide</button>
-      <button data-open-scene="leaderboard" class="${state.openScenes.leaderboard ? "active" : ""}">Social</button>
-      ${cashShopEnabled() ? `<button data-open-scene="cashShop" data-cash-shop-nav class="${state.openScenes.cashShop ? "active" : ""}">Cash Shop</button>` : ""}
-      <button data-open-scene="options" class="${state.openScenes.options ? "active" : ""}">Options</button>
+      <button data-toggle-scene="character" class="${state.openScenes.character ? "active" : ""}">Character</button>
+      <button data-toggle-scene="inventory" class="${state.openScenes.inventory ? "active" : ""}">Inventory</button>
+      <button data-toggle-scene="codex" class="${state.openScenes.codex ? "active" : ""}">Codex</button>
+      ${achievementsEnabled() ? `<button data-toggle-scene="achievements" data-achievements-nav class="${state.openScenes.achievements ? "active" : ""}">Achievements</button>` : ""}
+      <button data-toggle-scene="upgrades" class="${state.openScenes.upgrades ? "active" : ""}">Upgrades</button>
+      <button data-toggle-scene="characterSelect" class="${state.openScenes.characterSelect ? "active" : ""}">Characters</button>
+      ${ascensionUnlocked() ? `<button data-toggle-scene="journey" data-journey-nav class="${state.openScenes.journey ? "active" : ""}">Journey</button>` : ""}
+      ${steeperPathOwned() ? `<button data-toggle-scene="difficulty" data-difficulty-nav class="${state.openScenes.difficulty ? "active" : ""}">Difficulty</button>` : ""}
+      <button data-toggle-scene="gettingStarted" class="${state.openScenes.gettingStarted ? "active" : ""}">Guide</button>
+      <button data-toggle-scene="leaderboard" class="${state.openScenes.leaderboard ? "active" : ""}">Social</button>
+      ${cashShopEnabled() ? `<button data-toggle-scene="cashShop" data-cash-shop-nav class="${state.openScenes.cashShop ? "active" : ""}">Cash Shop</button>` : ""}
+      <button data-toggle-scene="options" class="${state.openScenes.options ? "active" : ""}">Options</button>
     </div>
   `;
 }
@@ -23271,13 +23635,19 @@ function syncSpiritBoxButton() {
 
 function bindSceneButtons(rootEl) {
   rootEl.querySelectorAll("[data-open-scene]").forEach((button) => {
-    button.addEventListener("click", () => openScene(button.dataset.openScene));
+    button.addEventListener("click", (event) => {
+      event.stopPropagation();
+      openScene(button.dataset.openScene);
+    });
   });
   rootEl.querySelectorAll("[data-set-world-difficulty]").forEach((button) => {
     button.addEventListener("click", () => setWorldDifficulty(button.dataset.setWorldDifficulty));
   });
   rootEl.querySelectorAll("[data-toggle-scene]").forEach((button) => {
-    button.addEventListener("click", () => toggleOpenScene(button.dataset.toggleScene));
+    button.addEventListener("click", (event) => {
+      event.stopPropagation();
+      toggleOpenScene(button.dataset.toggleScene);
+    });
   });
   rootEl.querySelectorAll("[data-teleport-region]").forEach((button) => {
     button.addEventListener("click", () => {
@@ -23420,6 +23790,9 @@ function bindSceneButtons(rootEl) {
   rootEl.querySelectorAll("[data-attempt-crafting-cube-craft]").forEach((button) => {
     button.addEventListener("click", () => attemptCraftingCubeCraft());
   });
+  rootEl.querySelectorAll("[data-attempt-crafting-cube-craft-all]").forEach((button) => {
+    button.addEventListener("click", () => attemptCraftingCubeCraftAll());
+  });
   rootEl.querySelectorAll("[data-crafting-cube-empower-pick]").forEach((button) => {
     button.addEventListener("click", () => setCraftingCubeTargetedEmpowerSlot(button.dataset.craftingCubeEmpowerPick));
   });
@@ -23483,6 +23856,21 @@ function bindSceneButtons(rootEl) {
       renderSceneOverlay();
     });
   });
+  rootEl.querySelectorAll("[data-codex-glyph-class]").forEach((button) => {
+    button.addEventListener("click", () => {
+      state.codexGlyphClass = normalizeCodexGlyphClass(button.dataset.codexGlyphClass);
+      state.codexSelectedGlyphId = null;
+      sceneSignature = "";
+      renderSceneOverlay();
+    });
+  });
+  rootEl.querySelectorAll("[data-codex-glyph]").forEach((button) => {
+    button.addEventListener("click", () => {
+      state.codexSelectedGlyphId = button.dataset.codexGlyph || null;
+      sceneSignature = "";
+      renderSceneOverlay();
+    });
+  });
   rootEl.querySelectorAll("[data-codex-toggle-unfound]").forEach((button) => {
     button.addEventListener("click", () => {
       state.codexHideUnfound = !state.codexHideUnfound;
@@ -23538,6 +23926,9 @@ function bindSceneButtons(rootEl) {
   });
   rootEl.querySelectorAll("[data-leaderboard-refresh]").forEach((button) => {
     button.addEventListener("click", () => void ensureLeaderboardData(true));
+  });
+  rootEl.querySelectorAll("[data-leaderboard-board]").forEach((button) => {
+    button.addEventListener("click", () => setLeaderboardBoard(button.dataset.leaderboardBoard));
   });
   rootEl.querySelectorAll("[data-leaderboard-player]").forEach((button) => {
     button.addEventListener("click", () => openLeaderboardPlayer(Number(button.dataset.leaderboardPlayer)));
@@ -24130,6 +24521,7 @@ function buildSceneOverlaySignature(openScenes, bossEntryZoneId) {
     scene: state.activeScene,
     openScenes: state.openScenes,
     characterTab: state.characterTab,
+    optionsTab: normalizeOptionsTab(),
     inventoryPage: state.inventoryPage,
     codexSection: state.codexSection,
     codexCategory: state.codexCategory,
@@ -24137,6 +24529,8 @@ function buildSceneOverlaySignature(openScenes, bossEntryZoneId) {
     codexSearchQuery: state.codexSearchQuery,
     codexSelectedItemId: state.codexSelectedItemId,
     codexEmpowerSlotId: state.codexEmpowerSlotId,
+    codexGlyphClass: state.codexGlyphClass,
+    codexSelectedGlyphId: state.codexSelectedGlyphId,
     achievementCategory: state.achievementCategory,
     storagePage: state.storagePage,
     pendingStorageUnlock: state.pendingStorageUnlock,
@@ -24470,6 +24864,7 @@ function sceneBodyHtml(scene) {
 function normalizeCodexSection(sectionId) {
   if (sectionId === "empowerments") return "empowerments";
   if (sectionId === "uniques") return "uniques";
+  if (sectionId === "glyphs") return "glyphs";
   return "items";
 }
 
@@ -24573,7 +24968,9 @@ function codexSceneHtml() {
     ? "codex-panel-empowerments"
     : section === "uniques"
       ? "codex-panel-uniques"
-      : "";
+      : section === "glyphs"
+        ? "codex-panel-glyphs"
+        : "";
   return `
     <section class="codex-panel ${panelClass}">
       <div class="codex-section-tabs" role="tablist" aria-label="Codex sections">
@@ -24601,12 +24998,22 @@ function codexSceneHtml() {
           <span>Empowerments</span>
           <small>Slot roll ranges</small>
         </button>
+        <button
+          type="button"
+          class="codex-section-tab ${section === "glyphs" ? "active" : ""}"
+          data-codex-section="glyphs"
+        >
+          <span>Glyphs</span>
+          <small>Spell modifiers</small>
+        </button>
       </div>
       ${section === "empowerments"
         ? codexEmpowermentsSceneHtml()
         : section === "uniques"
           ? codexUniquesSceneHtml()
-          : codexItemsSceneHtml()}
+          : section === "glyphs"
+            ? codexGlyphsSceneHtml()
+            : codexItemsSceneHtml()}
     </section>
   `;
 }
@@ -24800,6 +25207,169 @@ function codexEmpowerDetailPanelHtml(slot) {
           </ul>
         </section>
       `).join("")}
+    </aside>
+  `;
+}
+
+function normalizeCodexGlyphClass(classId) {
+  return CODEX_GLYPH_CLASS_DEFS.some((entry) => entry.id === classId) ? classId : "all";
+}
+
+function glyphCodexClassLabel(classId) {
+  if (classId === "warrior") return "Warrior";
+  if (classId === "wizard") return "Wizard";
+  if (classId === "taoist") return "Taoist";
+  return "Any class";
+}
+
+function compareCodexGlyphs(a, b) {
+  const classOrder = (CODEX_GLYPH_CLASS_ORDER.get(a.classId) ?? 99)
+    - (CODEX_GLYPH_CLASS_ORDER.get(b.classId) ?? 99);
+  if (classOrder !== 0) return classOrder;
+  return String(a.label).localeCompare(String(b.label));
+}
+
+function codexGlyphsForClass(classId = state.codexGlyphClass) {
+  const filter = normalizeCodexGlyphClass(classId);
+  return GLYPH_DEFS
+    .filter((def) => filter === "all" || def.classId === filter)
+    .slice()
+    .sort(compareCodexGlyphs);
+}
+
+function codexGlyphProgress() {
+  let discovered = 0;
+  for (const def of GLYPH_DEFS) {
+    if (codexItemDiscovery(def.itemId)) discovered += 1;
+  }
+  return { discovered, total: GLYPH_DEFS.length };
+}
+
+function codexSelectedGlyph(glyphs) {
+  const visible = Array.isArray(glyphs) ? glyphs : [];
+  if (!visible.length) return null;
+  const selected = visible.find((def) => def.id === state.codexSelectedGlyphId);
+  if (selected) return selected;
+  const firstFound = visible.find((def) => codexItemDiscovery(def.itemId));
+  return firstFound ?? visible[0];
+}
+
+function glyphCodexDropLines() {
+  const empowered = Math.round(EMPOWERED_BOSS_GLYPH_DROP_CHANCE * 100);
+  const ascended = Math.round(ASCENDED_BOSS_GLYPH_DROP_CHANCE * 100);
+  const awakened = Math.round(AWAKENED_BOSS_GLYPH_DROP_CHANCE * 100);
+  return [
+    `Empowered bosses (${empowered}%)`,
+    `Ascended bosses (${ascended}%)`,
+    `Awakened bosses (${awakened}%)`,
+    "Glyph Recycling in the crafting cube",
+  ];
+}
+
+function codexGlyphsSceneHtml() {
+  const classId = normalizeCodexGlyphClass(state.codexGlyphClass);
+  const glyphs = codexGlyphsForClass(classId);
+  const selected = codexSelectedGlyph(glyphs);
+  const progress = codexGlyphProgress();
+  const classProgress = {
+    discovered: glyphs.filter((def) => codexItemDiscovery(def.itemId)).length,
+    total: glyphs.length,
+  };
+  const classLabel = CODEX_GLYPH_CLASS_DEFS.find((entry) => entry.id === classId)?.label ?? "All";
+  return `
+      <div class="codex-summary">
+        <div>
+          <p class="eyebrow">Glyph Codex</p>
+          <strong>${progress.discovered}/${progress.total} found</strong>
+        </div>
+        <div class="codex-summary-actions">
+          <span>${classProgress.discovered}/${classProgress.total} in ${escapeHtml(classLabel)}</span>
+        </div>
+      </div>
+      <div class="codex-category-tabs codex-glyph-class-tabs">
+        ${CODEX_GLYPH_CLASS_DEFS.map((entry) => `
+          <button
+            type="button"
+            class="codex-category-tab ${entry.id === classId ? "active" : ""}"
+            data-codex-glyph-class="${escapeHtml(entry.id)}"
+          >
+            <span>${escapeHtml(entry.label)}</span>
+          </button>
+        `).join("")}
+      </div>
+      <div class="codex-browser codex-glyph-browser">
+        <div class="codex-list" data-preserve-scroll="codex-glyph-list">
+          ${glyphs.length
+            ? glyphs.map((def) => codexGlyphRowHtml(def, selected)).join("")
+            : `<div class="codex-empty">No glyphs in this class.</div>`}
+        </div>
+        ${codexGlyphDetailPanelHtml(selected)}
+      </div>
+  `;
+}
+
+function codexGlyphRowHtml(def, selected) {
+  const item = itemDefinition(def.itemId);
+  const discovered = Boolean(codexItemDiscovery(def.itemId));
+  const active = selected?.id === def.id;
+  return `
+    <button
+      type="button"
+      class="codex-row discovered ${active ? "active" : ""} ${discovered ? "" : "codex-row-glyph-unfound"}"
+      data-codex-glyph="${escapeHtml(def.id)}"
+    >
+      <span class="codex-row-icon glyph">${item ? itemIconHtml(item, 28) : "?"}</span>
+      <span class="codex-row-main">
+        <span class="codex-row-title">${escapeHtml(def.label)}</span>
+        <span class="codex-row-meta">${escapeHtml(glyphCodexClassLabel(def.classId))}</span>
+      </span>
+      <span class="codex-row-status">${discovered ? "Found" : "Unfound"}</span>
+    </button>
+  `;
+}
+
+function codexGlyphDetailPanelHtml(def) {
+  if (!def) {
+    return `
+      <aside class="codex-detail">
+        <div class="codex-detail-empty">No glyphs to show.</div>
+      </aside>
+    `;
+  }
+  const item = itemDefinition(def.itemId);
+  const discovered = Boolean(codexItemDiscovery(def.itemId));
+  const spells = (def.spellIds ?? []).map((spellId) => spellLabel(spellId));
+  const description = glyphDescription(def) || item?.description || "Glyph";
+  return `
+    <aside class="codex-detail discovered codex-glyph-detail" data-preserve-scroll="codex-glyph-detail">
+      <header>
+        <div class="codex-detail-icon glyph">${item ? itemIconHtml(item, 30) : "?"}</div>
+        <div>
+          <p class="eyebrow">${escapeHtml(glyphCodexClassLabel(def.classId))}</p>
+          <h3>${escapeHtml(def.label)}</h3>
+          ${discovered
+            ? `<span class="codex-unique-found">Found in your Codex</span>`
+            : `<span class="codex-unique-unfound-note">Not found yet</span>`}
+        </div>
+      </header>
+      <section class="codex-detail-section">
+        <strong>Effect</strong>
+        <p class="codex-glyph-description">${escapeHtml(description)}</p>
+      </section>
+      <section class="codex-detail-section">
+        <strong>Spells</strong>
+        <ul class="codex-empower-roll-list">
+          ${spells.length
+            ? spells.map((label) => `<li>${escapeHtml(label)}</li>`).join("")
+            : `<li class="codex-empower-roll-empty">No spell listed.</li>`}
+        </ul>
+      </section>
+      <section class="codex-detail-section">
+        <strong>How they drop</strong>
+        <ul class="codex-source-list">
+          ${glyphCodexDropLines().map((line) => `<li><span>${escapeHtml(line)}</span></li>`).join("")}
+        </ul>
+      </section>
     </aside>
   `;
 }
@@ -25808,10 +26378,11 @@ function accountUpgradeHtml(upgrade) {
   const planned = Boolean(upgrade.planned);
   const tier = accountUpgradeTier(upgrade.id);
   const unlockedAlt = (upgrade.effect === "oreStackUnlock" && oreStackingUnlocked())
-    || (upgrade.effect === "bossJunkFilterUnlock" && bossJunkFilterUnlocked());
+    || (upgrade.effect === "bossJunkFilterUnlock" && bossJunkFilterUnlocked())
+    || (upgrade.id === "rebirth-soul-yield" && ascensionResonantStartOwned());
   const maxed = !planned && (accountUpgradeIsMaxed(upgrade) || unlockedAlt);
   const canAfford = !planned && !maxed && canAffordAccountUpgrade(upgrade);
-  const prereqMet = !upgrade.requiresUpgradeId || accountUpgradePurchased(upgrade.requiresUpgradeId);
+  const prereqMet = accountUpgradePrerequisiteMet(upgrade);
   const stateClass = planned ? "planned" : maxed ? "purchased" : canAfford ? "ready" : "locked";
   const disabled = maxed || !canAfford ? "disabled" : "";
   const maxTier = accountUpgradeMaxTier(upgrade);
@@ -26043,26 +26614,45 @@ function playerAliasSectionHtml() {
 }
 
 function optionsSceneHtml() {
-  const track = currentMusicTrack();
-  const volume = Math.round(normalizedVolume(state.settings.musicVolume) * 100);
-  const sfxVolume = Math.round(normalizedVolume(state.settings.sfxVolume) * 100);
+  const currentTab = normalizeOptionsTab();
+  const tabBody = currentTab === "saves"
+    ? optionsSavesTabHtml()
+    : currentTab === "audio"
+      ? optionsAudioTabHtml()
+      : optionsGameplayTabHtml();
+  return `
+    <section class="options-panel">
+      <div class="options-tabs" role="tablist" aria-label="Options sections">
+        ${OPTIONS_TABS.map((tab) => `
+          <button
+            type="button"
+            role="tab"
+            class="options-tab ${tab.id === currentTab ? "active" : ""}"
+            id="options-tab-${escapeHtml(tab.id)}"
+            aria-selected="${tab.id === currentTab ? "true" : "false"}"
+            aria-controls="options-tabpanel"
+            data-options-tab="${escapeHtml(tab.id)}"
+          >
+            ${escapeHtml(tab.label)}
+          </button>
+        `).join("")}
+      </div>
+      <div class="options-tab-panel" role="tabpanel" id="options-tabpanel" aria-labelledby="options-tab-${escapeHtml(currentTab)}">
+        ${tabBody}
+      </div>
+    </section>
+  `;
+}
+
+function optionsGameplayTabHtml() {
   const autoPotionClassId = optionsAutoPotionClassId();
   const autoPotionHpPercent = Math.round(autoPotionThreshold("hp", autoPotionClassId) * 100);
   const autoPotionMpPercent = Math.round(autoPotionThreshold("mp", autoPotionClassId) * 100);
-  const musicMode = normalizedMusicMode(state.settings.musicMode);
+  const taoistHealingPercent = Math.round(taoistHealingThreshold() * 100);
+  const taoistMassHealingPercent = Math.round(taoistMassHealingThreshold() * 100);
   const statsReady = state.prototypeStats.configured;
   const statsEnabled = statsReady && state.settings.prototypeStatsEnabled;
-  const cloudSaveReady = state.cloudSave.configured;
-  const cloudSaveIntervalMinutes = Math.round(CLOUD_SAVE_INTERVAL_MS / 60_000);
-  const pendingCloudRestore = state.cloudSave.pendingRestore;
-  const pendingCloudLevels = pendingCloudRestore
-    ? CHARACTER_IDS.map((classId) => {
-        const level = Math.max(1, Math.trunc(Number(pendingCloudRestore.snapshot?.characters?.[classId]?.game?.progress?.level) || 1));
-        return `${classId} ${level}`;
-      }).join(" | ")
-    : "";
   return `
-    <section class="options-panel">
       <div class="options-row">
         <div>
           <strong>Getting Started Guide</strong>
@@ -26096,6 +26686,82 @@ function optionsSceneHtml() {
       ${statsReady && state.prototypeStats.playerId ? playerAliasSectionHtml() : ""}
       ${state.prototypeStats.statusText ? `<p class="options-note">${escapeHtml(state.prototypeStats.statusText)}</p>` : ""}
       ${state.prototypeStats.panelUrl ? `<p class="options-note"><a href="${escapeHtml(state.prototypeStats.panelUrl)}" target="_blank" rel="noopener noreferrer">Open Stats Leaderboard</a></p>` : ""}
+      <div class="options-row">
+        <div>
+          <strong>Auto Potions</strong>
+          <span>Pick a character, then set when that class drinks from Auto hotbar slots.</span>
+        </div>
+      </div>
+      <div class="options-auto-potion-characters" role="group" aria-label="Auto potion character">
+        ${CHARACTER_IDS.map((classId) => `
+          <button
+            type="button"
+            class="${classId === autoPotionClassId ? "active" : ""}"
+            data-options-auto-potion-class="${escapeHtml(classId)}"
+          >
+            ${escapeHtml(classId)}
+          </button>
+        `).join("")}
+      </div>
+      <p class="options-note">Editing thresholds for <strong>${escapeHtml(autoPotionClassId)}</strong>.</p>
+      <label class="options-volume">
+        <span>Auto HP %</span>
+        <input type="range" min="5" max="100" step="5" value="${autoPotionHpPercent}" data-auto-potion-hp />
+        <strong>${autoPotionHpPercent}%</strong>
+      </label>
+      <label class="options-volume">
+        <span>Auto MP %</span>
+        <input type="range" min="5" max="100" step="5" value="${autoPotionMpPercent}" data-auto-potion-mp />
+        <strong>${autoPotionMpPercent}%</strong>
+      </label>
+      <div class="options-row">
+        <div>
+          <strong>Taoist Healing</strong>
+          <span>Auto-cast Healing and Mass Healing when an ally is below these HP %. Mass Healing is tried first.</span>
+        </div>
+      </div>
+      <label class="options-volume">
+        <span>Healing %</span>
+        <input type="range" min="5" max="100" step="5" value="${taoistHealingPercent}" data-taoist-healing />
+        <strong>${taoistHealingPercent}%</strong>
+      </label>
+      <label class="options-volume">
+        <span>Mass Healing %</span>
+        <input type="range" min="5" max="100" step="5" value="${taoistMassHealingPercent}" data-taoist-mass-healing />
+        <strong>${taoistMassHealingPercent}%</strong>
+      </label>
+      <div class="options-row">
+        <div>
+          <strong>Recent Loot</strong>
+          <span>${state.settings.showRecentLoot !== false ? "Shown in the side panel while hunting" : "Hidden from the side panel"}</span>
+        </div>
+        <button type="button" class="${state.settings.showRecentLoot !== false ? "active" : ""}" data-toggle-recent-loot>
+          ${state.settings.showRecentLoot !== false ? "On" : "Off"}
+        </button>
+      </div>
+      <div class="options-row">
+        <div>
+          <strong>Activity Log</strong>
+          <span>${state.settings.showActivityLog !== false ? "Shown in the side panel while hunting" : "Hidden from the side panel"}</span>
+        </div>
+        <button type="button" class="${state.settings.showActivityLog !== false ? "active" : ""}" data-toggle-activity-log>
+          ${state.settings.showActivityLog !== false ? "On" : "Off"}
+        </button>
+      </div>
+  `;
+}
+
+function optionsSavesTabHtml() {
+  const cloudSaveReady = state.cloudSave.configured;
+  const cloudSaveIntervalMinutes = Math.round(CLOUD_SAVE_INTERVAL_MS / 60_000);
+  const pendingCloudRestore = state.cloudSave.pendingRestore;
+  const pendingCloudLevels = pendingCloudRestore
+    ? CHARACTER_IDS.map((classId) => {
+        const level = Math.max(1, Math.trunc(Number(pendingCloudRestore.snapshot?.characters?.[classId]?.game?.progress?.level) || 1));
+        return `${classId} ${level}`;
+      }).join(" | ")
+    : "";
+  return `
       <section class="options-cloud-save" aria-label="Cloud save recovery">
         <div class="options-save-transfer-header">
           <div>
@@ -26150,32 +26816,41 @@ function optionsSceneHtml() {
       </section>
       <div class="options-row">
         <div>
-          <strong>Auto Potions</strong>
-          <span>Pick a character, then set when that class drinks from Auto hotbar slots.</span>
+          <strong>Export Save</strong>
+          <span>Download your progress as a file to back up or play on another PC.</span>
         </div>
+        <button type="button" data-export-save>Download</button>
       </div>
-      <div class="options-auto-potion-characters" role="group" aria-label="Auto potion character">
-        ${CHARACTER_IDS.map((classId) => `
-          <button
-            type="button"
-            class="${classId === autoPotionClassId ? "active" : ""}"
-            data-options-auto-potion-class="${escapeHtml(classId)}"
-          >
-            ${escapeHtml(classId)}
-          </button>
-        `).join("")}
+      <div class="options-save-transfer">
+        <div class="options-save-transfer-header">
+          <div>
+            <strong>Import Save</strong>
+            <span>Replace this browser&apos;s progress with a save from another device.</span>
+          </div>
+          <label class="options-save-transfer-file">
+            <input type="file" accept=".json,application/json" data-import-save-file hidden />
+            <span>Choose File</span>
+          </label>
+        </div>
+        <textarea id="saveImportText" spellcheck="false" placeholder="Paste save JSON here, or choose a file above."></textarea>
+        <button type="button" class="primary" data-import-save>Import Save</button>
       </div>
-      <p class="options-note">Editing thresholds for <strong>${escapeHtml(autoPotionClassId)}</strong>.</p>
-      <label class="options-volume">
-        <span>Auto HP %</span>
-        <input type="range" min="5" max="100" step="5" value="${autoPotionHpPercent}" data-auto-potion-hp />
-        <strong>${autoPotionHpPercent}%</strong>
-      </label>
-      <label class="options-volume">
-        <span>Auto MP %</span>
-        <input type="range" min="5" max="100" step="5" value="${autoPotionMpPercent}" data-auto-potion-mp />
-        <strong>${autoPotionMpPercent}%</strong>
-      </label>
+      <div class="options-row options-row-danger">
+        <div>
+          <strong>Reset Save</strong>
+          <span>Permanently delete all saved progress and start fresh.</span>
+        </div>
+        <button type="button" data-reset-save>Reset Save</button>
+      </div>
+  `;
+}
+
+function optionsAudioTabHtml() {
+  const track = currentMusicTrack();
+  const volume = Math.round(normalizedVolume(state.settings.musicVolume) * 100);
+  const sfxVolume = Math.round(normalizedVolume(state.settings.sfxVolume) * 100);
+  const musicMode = normalizedMusicMode(state.settings.musicMode);
+  return `
       <div class="options-row">
         <div>
           <strong>Music</strong>
@@ -26212,24 +26887,6 @@ function optionsSceneHtml() {
         <input type="range" min="0" max="100" step="1" value="${sfxVolume}" data-sfx-volume />
         <strong>${sfxVolume}%</strong>
       </label>
-      <div class="options-row">
-        <div>
-          <strong>Recent Loot</strong>
-          <span>${state.settings.showRecentLoot !== false ? "Shown in the side panel while hunting" : "Hidden from the side panel"}</span>
-        </div>
-        <button type="button" class="${state.settings.showRecentLoot !== false ? "active" : ""}" data-toggle-recent-loot>
-          ${state.settings.showRecentLoot !== false ? "On" : "Off"}
-        </button>
-      </div>
-      <div class="options-row">
-        <div>
-          <strong>Activity Log</strong>
-          <span>${state.settings.showActivityLog !== false ? "Shown in the side panel while hunting" : "Hidden from the side panel"}</span>
-        </div>
-        <button type="button" class="${state.settings.showActivityLog !== false ? "active" : ""}" data-toggle-activity-log>
-          ${state.settings.showActivityLog !== false ? "On" : "Off"}
-        </button>
-      </div>
       <div class="music-track-list">
         ${BACKGROUND_MUSIC_TRACKS.map((entry, index) => `
           <button
@@ -26242,35 +26899,6 @@ function optionsSceneHtml() {
           </button>
         `).join("")}
       </div>
-      <div class="options-row">
-        <div>
-          <strong>Export Save</strong>
-          <span>Download your progress as a file to back up or play on another PC.</span>
-        </div>
-        <button type="button" data-export-save>Download</button>
-      </div>
-      <div class="options-save-transfer">
-        <div class="options-save-transfer-header">
-          <div>
-            <strong>Import Save</strong>
-            <span>Replace this browser&apos;s progress with a save from another device.</span>
-          </div>
-          <label class="options-save-transfer-file">
-            <input type="file" accept=".json,application/json" data-import-save-file hidden />
-            <span>Choose File</span>
-          </label>
-        </div>
-        <textarea id="saveImportText" spellcheck="false" placeholder="Paste save JSON here, or choose a file above."></textarea>
-        <button type="button" class="primary" data-import-save>Import Save</button>
-      </div>
-      <div class="options-row options-row-danger">
-        <div>
-          <strong>Reset Save</strong>
-          <span>Permanently delete all saved progress and start fresh.</span>
-        </div>
-        <button type="button" data-reset-save>Reset Save</button>
-      </div>
-    </section>
   `;
 }
 
@@ -26486,8 +27114,9 @@ function crystalStateRowHtml(label, value) {
 function crystalCharacterBonusRowsHtml() {
   const inventory = state.inventory;
   const classLabel = state.battle.combatClass || "Character";
-  const potionRestore = equippedBonusFromStats(inventory, "potionRestoreBonusPercent");
-  const damageTaken = equippedBonusFromStats(inventory, "damageTakenReductionPercent");
+  const potionRestore = equippedPotionRestoreBonusPercent(inventory, itemDefinition);
+  const damageTaken = equippedBonusFromStats(inventory, "damageTakenReductionPercent")
+    + equippedInnateDamageTakenReductionPercent(inventory, itemDefinition);
   const rows = [
     ["XP Gain", formatMultiplierLabel(totalExperienceMultiplier(inventory))],
     ["Gold", formatMultiplierLabel(totalGoldMultiplier(inventory))],
@@ -26623,7 +27252,7 @@ function crystalSkillRowHtml(spell, learned) {
   return `
     <div class="crystal-skill-row ${spell.passive ? "passive" : ""} ${learned?.autoCast ? "auto" : ""} ${queued ? "queued" : ""} ${isLearned ? "" : "unlearned"}">
       <img src="${escapeHtml(magicIconSrc(spell))}" alt="" />
-      <span class="crystal-skill-name">${escapeHtml(spell.label)}</span>
+      <span class="crystal-skill-name">${escapeHtml(combatSpellDisplayLabel(spell))}</span>
       <span class="crystal-skill-level">${isLearned ? `Lv ${level}` : "Lv -"}</span>
       ${autoControl}
       <span class="crystal-skill-exp" data-skill-exp="${escapeHtml(spell.id)}">${escapeHtml(progress)}</span>
@@ -27345,7 +27974,6 @@ function glyphsSceneHtml() {
           data-inventory-entry="${escapeHtml(entry.id)}"
           data-equipped-slot="${escapeHtml(slotId)}"
           draggable="false"
-          title="${escapeHtml(itemDisplayName(item, entry))}"
         >
           ${itemIconHtml(item)}
         </div>
@@ -27355,7 +27983,7 @@ function glyphsSceneHtml() {
       <div
         class="glyphs-equip-slot open ${item ? "occupied" : ""}"
         data-equipment-slot="${escapeHtml(slotId)}"
-        title="Glyph slot ${index + 1}"
+        ${item ? "" : `title="Glyph slot ${index + 1}"`}
         aria-label="Glyph slot ${index + 1}"
       >
         <span class="glyphs-equip-slot-index">${index + 1}</span>
@@ -27710,26 +28338,73 @@ async function ensureLeaderboardData(force = false) {
     return;
   }
   const lb = state.leaderboard;
-  if (!force && lb.status === "ready" && performance.now() - lb.fetchedAt < LEADERBOARD_CACHE_MS) return;
-  if (lb.status === "loading") return;
+  const board = lb.board === "ascended" ? "ascended" : "standard";
+  if (!lb.cache) lb.cache = {};
+  const cached = lb.cache[board];
+  if (!force && cached && performance.now() - cached.fetchedAt < LEADERBOARD_CACHE_MS) {
+    lb.rows = cached.rows;
+    lb.status = "ready";
+    lb.error = "";
+    lb.fetchedAt = cached.fetchedAt;
+    refreshLeaderboardScene();
+    return;
+  }
+  const token = (lb.fetchToken || 0) + 1;
+  lb.fetchToken = token;
   lb.status = "loading";
   lb.error = "";
+  if (!cached) lb.rows = [];
   refreshLeaderboardScene();
   try {
-    const response = await fetch(`${base}/leaderboard?scope=accounts&limit=100`, {
+    const response = await fetch(`${base}/leaderboard?scope=accounts&limit=100&board=${board}`, {
       method: "GET",
       headers: { Accept: "application/json" },
     });
     if (!response.ok) throw new Error(`HTTP ${response.status}`);
     const data = await response.json();
-    lb.rows = Array.isArray(data?.rows) ? data.rows : [];
+    if (lb.fetchToken !== token) return;
+    if (board === "ascended" && data?.board !== "ascended") {
+      lb.rows = [];
+      lb.status = "error";
+      lb.error = "The ascended board is not on the server yet.";
+      refreshLeaderboardScene();
+      return;
+    }
+    const rows = Array.isArray(data?.rows) ? data.rows : [];
+    lb.cache[board] = { rows, fetchedAt: performance.now() };
+    if (lb.board !== board) return;
+    lb.rows = rows;
     lb.status = "ready";
-    lb.fetchedAt = performance.now();
+    lb.fetchedAt = lb.cache[board].fetchedAt;
   } catch (err) {
+    if (lb.fetchToken !== token || (lb.board === "ascended" ? "ascended" : "standard") !== board) return;
     lb.status = "error";
-    lb.error = "Could not load the leaderboard. Check your connection and try again.";
+    lb.error = board === "ascended"
+      ? "Could not load the ascended board. Check your connection and try again."
+      : "Could not load the leaderboard. Check your connection and try again.";
   }
-  refreshLeaderboardScene();
+  if (lb.fetchToken === token) refreshLeaderboardScene();
+}
+
+function setLeaderboardBoard(board) {
+  const next = board === "ascended" ? "ascended" : "standard";
+  const lb = state.leaderboard;
+  if (lb.board === next) return;
+  lb.board = next;
+  lb.selectedIndex = null;
+  lb.detailClass = null;
+  playSfx("ui.button", { volume: 0.3, throttleMs: 80 });
+  const cached = lb.cache?.[next];
+  if (cached && performance.now() - cached.fetchedAt < LEADERBOARD_CACHE_MS) {
+    lb.rows = cached.rows;
+    lb.status = "ready";
+    lb.error = "";
+    lb.fetchedAt = cached.fetchedAt;
+    refreshLeaderboardScene();
+    return;
+  }
+  lb.rows = [];
+  void ensureLeaderboardData(false);
 }
 
 function refreshLeaderboardScene() {
@@ -27789,6 +28464,7 @@ function leaderboardSceneHtml() {
 
 function leaderboardListHtml() {
   const lb = state.leaderboard;
+  const ascended = lb.board === "ascended";
   const searchQuery = String(lb.searchQuery ?? "");
   const playerName = prototypeStatsDisplayName();
   const searchHtml = `
@@ -27806,6 +28482,12 @@ function leaderboardListHtml() {
       />
     </label>
   `;
+  const boardToggle = `
+    <div class="leaderboard-boards" role="tablist" aria-label="Scoreboards">
+      <button type="button" class="leaderboard-board ${ascended ? "" : "active"}" data-leaderboard-board="standard" role="tab" aria-selected="${ascended ? "false" : "true"}">Standard</button>
+      <button type="button" class="leaderboard-board ${ascended ? "active" : ""}" data-leaderboard-board="ascended" role="tab" aria-selected="${ascended ? "true" : "false"}">Ascended</button>
+    </div>
+  `;
   let body = "";
   if (lb.status === "unconfigured") {
     body = `<p class="leaderboard-note">The leaderboard is not configured in this build.</p>`;
@@ -27814,7 +28496,7 @@ function leaderboardListHtml() {
   } else if (lb.status === "error") {
     body = `<p class="leaderboard-note">${escapeHtml(lb.error)}</p>`;
   } else if (!lb.rows.length) {
-    body = `<p class="leaderboard-note">No ranked players yet.</p>`;
+    body = `<p class="leaderboard-note">${ascended ? "No ascended players yet." : "No ranked players yet."}</p>`;
   } else {
     const needle = searchQuery.trim().toLowerCase();
     const entries = lb.rows
@@ -27822,8 +28504,8 @@ function leaderboardListHtml() {
       .filter(({ row }) => !needle || String(row?.player ?? "").toLowerCase().includes(needle));
     body = entries.length
       ? `
-      <div class="leaderboard-list" data-preserve-scroll="leaderboard-list">
-        ${entries.map(({ row, index }) => leaderboardRowHtml(row, index)).join("")}
+      <div class="leaderboard-list ${ascended ? "leaderboard-list-ascended" : ""}" data-preserve-scroll="leaderboard-list">
+        ${entries.map(({ row, index }) => ascended ? leaderboardAscendedRowHtml(row, index) : leaderboardRowHtml(row, index)).join("")}
       </div>
       <div class="leaderboard-scroll" aria-label="Leaderboard scroll">
         <button type="button" class="leaderboard-scroll-btn leaderboard-scroll-up" data-leaderboard-scroll="-1" aria-label="Scroll up"></button>
@@ -27836,11 +28518,65 @@ function leaderboardListHtml() {
       : `<p class="leaderboard-note">No players match “${escapeHtml(searchQuery.trim())}”.</p>`;
   }
   return `
-    <div class="leaderboard-body">
+    <div class="leaderboard-body ${ascended ? "leaderboard-body-ascended" : ""}">
       ${searchHtml}
+      ${boardToggle}
       <button type="button" class="leaderboard-refresh" data-leaderboard-refresh ${lb.status === "loading" ? "disabled" : ""} title="Refresh">Refresh</button>
+      ${ascended ? leaderboardAscendedHeaderHtml() : ""}
       ${body}
     </div>
+  `;
+}
+
+function leaderboardAscendedHeaderHtml() {
+  const columns = [
+    ["#", "Rank. More ascensions first, then the fastest best time."],
+    ["Name", "Player"],
+    ["Asc", "Worlds ascended"],
+    ["Lvl", "Highest character level right now"],
+    ["Comb", "Warrior, Wizard, and Taoist levels added together"],
+    ["RP", "Rebirth Points gained this world"],
+    ["Now", "This world's time when they last checked in"],
+    ["Best", "Fastest finished world"],
+    ["AP", "Ascension Points earned"],
+  ];
+  return `
+    <div class="leaderboard-columns" aria-hidden="true">
+      ${columns.map(([label, title]) => `<span title="${escapeHtml(title)}">${escapeHtml(label)}</span>`).join("")}
+    </div>
+  `;
+}
+
+function leaderboardDurationLabel(ms) {
+  const value = Math.max(0, Math.trunc(Number(ms) || 0));
+  if (value <= 0) return "—";
+  if (value < 60000) return "<1m";
+  return formatAscensionDuration(value);
+}
+
+function leaderboardCurrentMaxLevel(row) {
+  const stored = Math.trunc(Number(row?.currentHighestLevel) || 0);
+  if (stored > 0) return stored;
+  const top = leaderboardTopCharacter(row);
+  return Math.max(1, Math.trunc(Number(top?.level) || 1));
+}
+
+function leaderboardAscendedRowHtml(row, index) {
+  const cells = [
+    String(Math.max(0, Math.trunc(Number(row?.ascensionCount) || 0))),
+    String(leaderboardCurrentMaxLevel(row)),
+    String(Math.max(0, Math.trunc(Number(row?.combinedCharacterLevels) || 0))),
+    Math.max(0, Math.trunc(Number(row?.runRebirthPointsGained) || 0)).toLocaleString(),
+    leaderboardDurationLabel(row?.currentJourneyMs),
+    leaderboardDurationLabel(row?.bestJourneyMs),
+    Math.max(0, Math.trunc(Number(row?.ascensionPoints) || 0)).toLocaleString(),
+  ];
+  return `
+    <button type="button" class="leaderboard-row leaderboard-row-ascended" data-leaderboard-player="${index}">
+      <span class="leaderboard-rank">${Math.max(1, Math.trunc(Number(row?.rank) || index + 1))}</span>
+      <span class="leaderboard-player" title="${escapeHtml(row?.player ?? "Player")}">${escapeHtml(row?.player ?? "Player")}</span>
+      ${cells.map((value) => `<span class="leaderboard-cell">${escapeHtml(value)}</span>`).join("")}
+    </button>
   `;
 }
 
@@ -27967,6 +28703,9 @@ function leaderboardDetailHtml() {
   const rebirths = Math.max(0, Math.trunc(Number(row?.rebirthCount) || 0));
   const souls = Math.max(0, Math.trunc(Number(row?.awakeningSoulsHeld) || 0));
   const combined = Math.max(0, Math.trunc(Number(row?.combinedCharacterLevels) || 0));
+  const ascendedNote = state.leaderboard.board === "ascended"
+    ? `Ascensions ${Math.max(0, Math.trunc(Number(row?.ascensionCount) || 0))} · Level ${leaderboardCurrentMaxLevel(row)} · RP ${Math.max(0, Math.trunc(Number(row?.runRebirthPointsGained) || 0)).toLocaleString()} · Now ${leaderboardDurationLabel(row?.currentJourneyMs)} · Best ${leaderboardDurationLabel(row?.bestJourneyMs)} · AP ${Math.max(0, Math.trunc(Number(row?.ascensionPoints) || 0)).toLocaleString()} · `
+    : "";
   const classTabs = characters.map((entry) => `
     <button type="button" class="leaderboard-class-tab ${entry.characterClass === activeClass ? "active" : ""}" data-leaderboard-class="${escapeHtml(entry.characterClass)}">
       ${escapeHtml(entry.characterClass)} Lv ${Math.max(1, Math.trunc(Number(entry.level) || 1))}
@@ -27978,7 +28717,7 @@ function leaderboardDetailHtml() {
         <button type="button" class="leaderboard-back" data-leaderboard-back>Back to list</button>
         <span class="leaderboard-detail-name">${escapeHtml(row?.player ?? "Player")}</span>
       </div>
-      <p class="leaderboard-note leaderboard-snapshot">Levels ${combined} · Rebirths ${rebirths} · Souls ${souls}${lastSeen ? ` · as of ${escapeHtml(lastSeen)}` : ""}.</p>
+      <p class="leaderboard-note leaderboard-snapshot">${ascendedNote}Levels ${combined} · Rebirths ${rebirths} · Souls ${souls}${lastSeen ? ` · as of ${escapeHtml(lastSeen)}` : ""}.</p>
       <div class="leaderboard-class-tabs">${classTabs}</div>
       ${view ? foreignCharacterPageHtml(view) : `<p class="leaderboard-note">No character data for this player.</p>`}
     </div>
@@ -28043,14 +28782,14 @@ function foreignEquipmentSlotHtml(slot, view) {
   const item = foreignEquippedItem(view, slot.id);
   const entry = item ? foreignRegisterEntry(view, slot.id) : null;
   const content = item
-    ? `<div class="crystal-equipment-item has-tooltip${inventoryUniqueClass(item)}" data-tooltip-item="${escapeHtml(item.id)}" ${entry ? `data-tooltip-entry="${escapeHtml(entry.id)}"` : ""} title="${escapeHtml(itemDisplayName(item, entry))}">${itemIconHtml(item)}</div>`
+    ? `<div class="crystal-equipment-item has-tooltip${inventoryUniqueClass(item)}" data-tooltip-item="${escapeHtml(item.id)}" ${entry ? `data-tooltip-entry="${escapeHtml(entry.id)}"` : ""}>${itemIconHtml(item)}</div>`
     : "";
   return `
     <div
       class="crystal-equipment-slot ${item ? "has-tooltip" : ""}"
       ${item ? `data-tooltip-item="${escapeHtml(item.id)}"` : ""}
       ${entry ? `data-tooltip-entry="${escapeHtml(entry.id)}"` : ""}
-      title="${escapeHtml(slot.label)}"
+      ${item ? "" : `title="${escapeHtml(slot.label)}"`}
       style="left:${8 + position.x}px; top:${90 + position.y}px;"
     >
       ${content}
@@ -28078,14 +28817,14 @@ function foreignGlyphsPreviewHtml(view) {
   const names = equipped.map(({ item, entry }) => itemDisplayName(item, entry));
   const title = names.length ? `Glyphs: ${names.join(", ")}` : "Glyphs";
   const content = preview
-    ? `<div class="crystal-equipment-item has-tooltip" data-tooltip-item="${escapeHtml(preview.item.id)}" ${preview.entry ? `data-tooltip-entry="${escapeHtml(preview.entry.id)}"` : ""} title="${escapeHtml(itemDisplayName(preview.item, preview.entry))}">${itemIconHtml(preview.item)}</div>`
+    ? `<div class="crystal-equipment-item has-tooltip" data-tooltip-item="${escapeHtml(preview.item.id)}" ${preview.entry ? `data-tooltip-entry="${escapeHtml(preview.entry.id)}"` : ""}>${itemIconHtml(preview.item)}</div>`
     : `<span class="crystal-glyphs-button-label">Glyphs</span>`;
   return `
     <div
       class="crystal-equipment-slot crystal-glyphs-button leaderboard-glyphs-preview ${preview ? "has-item" : ""}"
       ${preview ? `data-tooltip-item="${escapeHtml(preview.item.id)}"` : ""}
       ${preview?.entry ? `data-tooltip-entry="${escapeHtml(preview.entry.id)}"` : ""}
-      title="${escapeHtml(title)}"
+      ${preview ? "" : `title="${escapeHtml(title)}"`}
       style="left:${8 + position.x}px; top:${90 + position.y}px;"
     >
       ${content}
@@ -28186,7 +28925,7 @@ function crystalEquipmentSlotHtml(slot) {
       data-equipment-slot="${slot.id}"
       ${item ? `data-tooltip-item="${item.id}"` : ""}
       ${entry ? `data-tooltip-entry="${entry.id}"` : ""}
-      title="${escapeHtml(slot.label)}"
+      ${item ? "" : `title="${escapeHtml(slot.label)}"`}
       style="left:${8 + position.x}px; top:${90 + position.y}px;"
     >
       ${content}
@@ -28203,7 +28942,6 @@ function crystalEquipmentItemHtml(entry, item, slotId) {
       data-inventory-entry="${entry.id}"
       data-equipped-slot="${slotId}"
       draggable="false"
-      title="${escapeHtml(itemDisplayName(item, entry))}"
     >
       ${itemIconHtml(item)}
     </div>
@@ -28266,7 +29004,6 @@ function crystalStorageItemHtml(entry, item) {
       data-tooltip-entry="${entry.id}"
       data-storage-entry="${entry.id}"
       draggable="false"
-      title="${escapeHtml(itemDisplayName(item, entry))}"
     >
       ${itemIconHtml(item)}
       ${stack}
@@ -28430,7 +29167,6 @@ function crystalInventoryItemHtml(entry, item) {
       data-tooltip-entry="${entry.id}"
       data-inventory-entry="${entry.id}"
       draggable="false"
-      title="${escapeHtml(itemDisplayName(item, entry))}"
     >
       ${itemIconHtml(item)}
       ${stack}
@@ -28453,7 +29189,18 @@ function characterEquipmentStats() {
   applyLearnedMagicStats(stats);
   const vitality = applyGlyphVitalityCombatStats(stats, equippedGlyphFor(state.inventory));
   stats.maxHp = vitality.maxHp;
+  applyUniqueEquippedCombatStatMultipliers(stats, state.inventory);
+  applyAscensionCombatStatPercents(stats);
   return stats;
+}
+
+function applyUniqueEquippedCombatStatMultipliers(stats, inventory) {
+  const warGod = applyInnateDoubleHpAndAccuracyCombatStats(stats, inventory, itemDefinition);
+  stats.maxHp = warGod.maxHp;
+  stats.accuracy = warGod.accuracy;
+  stats.maxHp += equippedInnateHpBonus(inventory, itemDefinition);
+  stats.critChancePercent += equippedInnateCritChancePercent(inventory, itemDefinition);
+  stats.critDamagePercent += equippedInnateCritDamagePercent(inventory, itemDefinition);
 }
 
 /** Equipment + active stat buffs, without Glyph of the Monk (applied at roll time). */
@@ -28508,14 +29255,16 @@ function characterSnapshotTotalStats(classId, character, options = {}) {
     if (item?.stats) addStats(stats, itemEntryStats(entry, item));
   }
   applyLearnedMagicStatsForClass(stats, classId, character?.magic ?? { learned: {} });
-  if (includeBuffs) {
-    applyStatBuffsToStats(stats, sanitizeStatBuffs(character?.battle?.statBuffs));
-  }
   const vitality = applyGlyphVitalityCombatStats(
     stats,
     equippedGlyphDefs(inventory, itemDefinition),
   );
   stats.maxHp = vitality.maxHp;
+  applyUniqueEquippedCombatStatMultipliers(stats, inventory);
+  applyAscensionCombatStatPercents(stats);
+  if (includeBuffs) {
+    applyStatBuffsToStats(stats, sanitizeStatBuffs(character?.battle?.statBuffs));
+  }
   const savedHp = finiteNumberOrNull(character?.battle?.playerHp);
   const savedMp = finiteNumberOrNull(character?.battle?.playerMp);
   const hpCap = vampirismHealHpCap(stats.maxHp, equippedGlyphDefs(inventory, itemDefinition));
@@ -31430,6 +32179,40 @@ function canUseGroupDungeonSwarmFireWall(spell, member, now) {
   return Boolean(groupDungeonSwarmBestFireWallCenterTile(spell, member, now));
 }
 
+function activeGroupDungeonPoisonCloudTileKeys(now) {
+  const keys = new Set();
+  for (const effect of state.battle.groundSpellEffects ?? []) {
+    if (effect.spellId !== "PoisonCloud" || now >= effect.expiresAt) continue;
+    for (const tile of effect.tiles ?? []) keys.add(swarmCellKey(tile));
+  }
+  return keys;
+}
+
+function groupDungeonSwarmBestPoisonCloudCenterTile(spell, member, now) {
+  if (!groupDungeonSwarmSideActive()) return null;
+  const enemies = groupDungeonSwarmLivingEnemies();
+  if (!enemies.length) return null;
+  return pickBestUncoveredGroundAreaCenter({
+    enemyTiles: enemies.map((enemy) => swarmEnemyReservedTile(enemy)),
+    activeTileKeys: activeGroupDungeonPoisonCloudTileKeys(now),
+    radius: Math.max(0, Math.trunc(Number(spell?.groundAreaRadius) || 1)),
+    inRange: (center) => groupDungeonSwarmFireWallInRange(center, spell, member),
+    meleeWorldX: groupDungeonSwarmMeleeWorldX(),
+  });
+}
+
+function poisonCloudCenterTile(member = null, now = performance.now()) {
+  if (groupDungeonSwarmSideActive()) {
+    const best = groupDungeonSwarmBestPoisonCloudCenterTile(taoistCombatSpell("PoisonCloud"), member, now);
+    if (best) return best;
+    if (activeGroupDungeonPoisonCloudTileKeys(now).size > 0) return null;
+    return wizardStormCenterTile(state.battle.enemy, member);
+  }
+  const battle = state.battle;
+  if (battle.enemyX == null || !Number.isFinite(Number(battle.enemyX))) return null;
+  return { worldX: swarmSnapTileX(battle.enemyX), mapRow: 0 };
+}
+
 function snapBossPartyMembersToSwarmGrid(members) {
   const front = BOSS_PARTY_ORDER
     .map((classId) => members.find((member) => member.classId === classId && member.alive && member.hp > 0))
@@ -33400,6 +34183,8 @@ function bossRespawnRemainingMs(zoneId, now = Date.now()) {
 
 function incrementAccountBossKill(zoneId) {
   if (!zoneTracksBossRespawn(zoneId)) return;
+  const logAscension = EVIL_MIR_BOSS_ZONE_IDS.includes(zoneId);
+  const pointsBefore = logAscension ? ascensionPointsEarned() : 0;
   const kills = accountBossKills();
   kills[zoneId] = Math.max(0, Math.trunc(Number(kills[zoneId]) || 0)) + 1;
   ensureAccountStats();
@@ -33409,7 +34194,10 @@ function incrementAccountBossKill(zoneId) {
   // Before the payout, which returns early on a re-kill that earns nothing - a
   // first clear at a LOWER tier than one already beaten still deserves its time.
   recordEvilMirClearTime(zoneId);
-  const ascensionPoints = awardEvilMirAscensionPoints(zoneId);
+  awardEvilMirAscensionPoints(zoneId);
+  const ascensionPoints = logAscension
+    ? Math.max(0, ascensionPointsEarned() - pointsBefore)
+    : 0;
   if (ascensionPoints > 0) {
     const runTotal = ascensionRunPointsAwarded();
     const plural = ascensionPoints === 1 ? "" : "s";
@@ -33637,6 +34425,14 @@ function ascensionNpcSceneHtml() {
 // Traveller's Supplies. Index 0 is tier 1.
 const TRAVELLER_SUPPLIES_LEVEL_CAPS = [11, 16, 22, 28, 33];
 
+const ASCENSION_COMBAT_STAT_DEFS = [
+  { id: "ascension-stat-dc", stat: "dc", label: "Greater DC", icon: "DC" },
+  { id: "ascension-stat-sc", stat: "sc", label: "Greater SC", icon: "SC" },
+  { id: "ascension-stat-mc", stat: "mc", label: "Greater MC", icon: "MC" },
+  { id: "ascension-stat-ac", stat: "ac", label: "Greater AC", icon: "AC" },
+  { id: "ascension-stat-amc", stat: "amc", label: "Greater AMC", icon: "AM" },
+];
+
 const ASCENSION_UPGRADE_DEFS = [
   {
     id: "ascension-xp-cost",
@@ -33652,12 +34448,18 @@ const ASCENSION_UPGRADE_DEFS = [
     id: "ascension-skill-cap",
     label: "Deeper Mastery",
     icon: "SK",
-    effectLabel: "Skill level cap",
-    effectText: "Level 3 to level 4",
-    maxTier: 1,
-    costPerTier: 4,
-    planned: true,
-    summary: "Lets combat skills reach level 4.",
+    effectLabel: "Starting skill level",
+    effectText: "Level 1, then 2, then mastered",
+    effectTextFor: (tier) => {
+      if (tier <= 0) return "Level 1, then 2, then mastered";
+      if (tier === 1) return "Spells start at level 1";
+      if (tier === 2) return "Spells start at level 2";
+      return "Spells start mastered";
+    },
+    maxTier: 3,
+    // 1 + 2 + 3. The last tier is the one that skips skill training entirely.
+    costByTier: [1, 2, 3],
+    summary: "Combat skills start higher. At three tiers they are mastered the moment you learn them.",
   },
   {
     id: "ascension-soul-drops",
@@ -33680,6 +34482,16 @@ const ASCENSION_UPGRADE_DEFS = [
     summary: "Souls are worth more Rebirth Points. 100 souls become 120 at one tier, 200 at five.",
   },
   {
+    id: "ascension-resonant-start",
+    label: "Resonant Start",
+    icon: "SR",
+    effectLabel: "Soul Resonance",
+    effectText: "Unlocked from the start",
+    maxTier: 1,
+    costPerTier: 6,
+    summary: "Soul Resonance is unlocked from the moment you set out. Each Awakening Soul is worth 2 Rebirth Points. The 200-point rebirth purchase cannot be bought on top.",
+  },
+  {
     id: "ascension-empowered-start",
     label: "Empowered Start",
     icon: "EM",
@@ -33687,7 +34499,22 @@ const ASCENSION_UPGRADE_DEFS = [
     effectText: "Unlocked from the start",
     maxTier: 1,
     costPerTier: 2,
-    summary: "Boss Empowerment is unlocked from the moment you set out.",
+    summary: "Boss Empowerment is unlocked from the moment you set out. This also counts toward unlocking Boss Ascension.",
+  },
+  {
+    id: "ascension-starting-rp",
+    label: "Head Start",
+    icon: "HS",
+    effectLabel: "Starting Rebirth Points",
+    effectText: "+10 per tier, no cap",
+    effectTextFor: (tier) => {
+      const points = ascensionStartingRebirthPoints(tier);
+      if (points <= 0) return "+10 Rebirth Points per tier, no cap";
+      return `${points} Rebirth Points at the start of each world`;
+    },
+    maxTier: null,
+    costEqualsTier: true,
+    summary: "Each new world begins with Rebirth Points already in hand. Ten per tier, with no limit.",
   },
   {
     id: "ascension-difficulty",
@@ -33733,6 +34560,39 @@ const ASCENSION_UPGRADE_DEFS = [
     costEqualsTier: true,
     summary: "Salvaging can pay extra Havoc Crystals. +25% chance per tier, with no limit.",
   },
+  {
+    id: "ascension-mega-potion",
+    label: "Mega Formula",
+    icon: "PT",
+    effectLabel: "Alchemist stock",
+    effectText: "Mega Potion, then Ultra Potion",
+    effectTextFor: (tier) => {
+      if (tier <= 0) return "Mega Potion, then Ultra Potion";
+      if (tier === 1) return "Mega Potion at Samuel, then Ultra Potion";
+      return "Ultra Potion at Samuel";
+    },
+    maxTier: 2,
+    costByTier: [2, 3],
+    summary: "Samuel sells Mega Potion, then Ultra Potion. Each restores HP and MP over time, and potion ticks run faster while they recover.",
+  },
+  ...ASCENSION_COMBAT_STAT_DEFS.map((entry) => {
+    const statName = entry.stat.toUpperCase();
+    return {
+      id: entry.id,
+      label: entry.label,
+      icon: entry.icon,
+      effectLabel: statName,
+      effectText: "+20% per tier, no cap",
+      effectTextFor: (tier) => {
+        const percent = ascensionCombatStatBonusPercent(tier);
+        if (percent <= 0) return "+20% per tier, no cap";
+        return `+${percent}% ${statName}`;
+      },
+      maxTier: null,
+      costEqualsTier: true,
+      summary: `Your ${statName} is increased by 20% per tier, with no limit.`,
+    };
+  }),
 ];
 
 function accountAscensionPoints() {
@@ -33817,6 +34677,27 @@ function setWorldDifficulty(difficultyId) {
 
 function ascensionSalvageChancePercent() {
   return ascensionSalvageExtraChancePercent(ascensionEffectTier("ascension-salvage-surplus"));
+}
+
+function draftedStartingRebirthPoints() {
+  return ascensionStartingRebirthPoints(ascensionUpgradeTier("ascension-starting-rp"));
+}
+
+function ascensionStartingRebirthPointGrant() {
+  return ascensionStartingRebirthPoints(ascensionEffectTier("ascension-starting-rp"));
+}
+
+// Banked Deeper Mastery only. A shopping-list draft must not hand a fresh
+// spell its starting rank before the world is wiped.
+function ascensionSpellStartLevel() {
+  return ascensionStartingSpellLevel(ascensionEffectTier("ascension-skill-cap"));
+}
+
+function grantAscensionStartingRebirthPoints() {
+  const amount = ascensionStartingRebirthPointGrant();
+  state.account.rebirthPoints = amount;
+  if (amount > 0) trackRebirthPointsGained(amount);
+  return amount;
 }
 
 function salvageCrystalPreview(baseCrystals) {
@@ -33912,6 +34793,22 @@ function ascensionSoulBeaconOwned() {
 
 function ascensionEmpoweredStartOwned() {
   return ascensionEffectTier("ascension-empowered-start") >= 1;
+}
+
+function ascensionResonantStartOwned() {
+  return ascensionEffectTier("ascension-resonant-start") >= 1;
+}
+
+function applyAscensionCombatStatPercents(stats) {
+  if (!stats) return stats;
+  for (const entry of ASCENSION_COMBAT_STAT_DEFS) {
+    const percent = ascensionCombatStatBonusPercent(ascensionEffectTier(entry.id));
+    if (percent <= 0 || !Array.isArray(stats[entry.stat])) continue;
+    const next = scaleStatRangeByBonusPercent(stats[entry.stat], percent);
+    stats[entry.stat][0] = next[0];
+    stats[entry.stat][1] = next[1];
+  }
+  return stats;
 }
 
 // Powers may only be chosen or respecced during the ascension itself, so a run
@@ -34106,6 +35003,7 @@ function ascensionLossLines() {
 function ascensionConfirmHtml() {
   const spent = ascensionPointsSpent();
   const unspent = accountAscensionPoints();
+  const startingRp = draftedStartingRebirthPoints();
   const lossHtml = ascensionLossLines().map((line) => `<li>${escapeHtml(line)}</li>`).join("");
   // Unspent points are not destroyed, but powers can only be chosen while
   // ascending - so leaving any behind means playing the whole next world without
@@ -34117,7 +35015,7 @@ function ascensionConfirmHtml() {
     <div class="ascension-confirm">
       <strong class="ascension-confirm-title">This cannot be undone. You will lose:</strong>
       <ul class="ascension-confirm-losses">${lossHtml}</ul>
-      <p class="ascension-confirm-keep">You keep your ${spent} spent Ascension Point${spent === 1 ? "" : "s"} as the powers above${unspent > 0 ? `, and ${unspent} still unspent` : ""}. Anything bought with tokens or a supporter month stays too.</p>
+      <p class="ascension-confirm-keep">You keep your ${spent} spent Ascension Point${spent === 1 ? "" : "s"} as the powers above${unspent > 0 ? `, and ${unspent} still unspent` : ""}. Anything bought with tokens or a supporter month stays too.${startingRp > 0 ? ` Head Start will put ${startingRp.toLocaleString()} Rebirth Point${startingRp === 1 ? "" : "s"} in your hand the moment you set out.` : ""}</p>
       ${unspentWarningHtml}
       <div class="ascension-confirm-backup">
         <p>Ascending is brand new and wipes almost everything. Download a copy of your save first - if anything goes wrong you can import it in Options and come back to this moment.</p>
@@ -34250,7 +35148,7 @@ function itemSellValue(item, quantity = 1) {
 }
 
 function alchemistNpcSceneHtml(npc) {
-  const rows = ALCHEMIST_STOCK_IDS.map((itemId) => itemDefinition(itemId))
+  const rows = alchemistStockIds().map((itemId) => itemDefinition(itemId))
     .filter(Boolean)
     .map(shopBuyRowHtml)
     .join("");
@@ -34409,7 +35307,10 @@ function craftingCubeModeHint(mode) {
   if (mode === "craft") {
     const recipe = craftingCubeSelectedRecipeDef();
     const recipeHint = recipe ? `Selected recipe: ${recipe.label}.` : "Open Recipes to choose a recipe.";
-    return `${recipeHint} Place the ingredients in the cube, then click Craft.`;
+    const craftHint = CRAFTING_CUBE_ATTUNEMENT_STONE_RECIPE_BY_ID[recipe?.id]
+      ? "Place the ore in the cube, then click Craft or Craft all."
+      : "Place the ingredients in the cube, then click Craft.";
+    return `${recipeHint} ${craftHint}`;
   }
   const chance = ascensionSalvageChancePercent();
   const surplus = chance > 0
@@ -34456,7 +35357,6 @@ function craftingCubeSlotHtml(index) {
         data-crafting-cube-board-index="${index}"
         data-tooltip-item="${escapeHtml(item.id)}"
         data-tooltip-entry="${escapeHtml(entry.id)}"
-        title="${escapeHtml(itemDisplayName(item, entry))}"
       >
         ${itemIconHtml(item)}
         ${Math.max(1, Math.trunc(Number(entry.quantity) || 1)) > 1
@@ -34615,14 +35515,27 @@ function craftingCubeSceneHtml() {
     `
     : "";
   const targetedChoiceHtml = mode === "craft" ? craftingCubeTargetedChoiceHtml() : "";
+  const craftAllPreview = mode === "craft" ? craftingCubeAttunementCraftAllPreview() : null;
+  const craftAllButton = craftAllPreview
+    ? `
+        <button
+          type="button"
+          class="refiner-action-button${canCraft ? "" : " disabled"}"
+          data-attempt-crafting-cube-craft-all
+        >${craftAllPreview.count > 0 ? `Craft all (${craftAllPreview.count})` : "Craft all"}</button>
+      `
+    : "";
   const craftActions = mode === "craft"
     ? `
       <div class="crafting-cube-actions">
-        <button
-          type="button"
-          class="refiner-action-button primary${canCraft ? "" : " disabled"}"
-          data-attempt-crafting-cube-craft
-        >Craft</button>
+        <div class="crafting-cube-craft-buttons${craftAllPreview ? " has-craft-all" : ""}">
+          <button
+            type="button"
+            class="refiner-action-button primary${canCraft ? "" : " disabled"}"
+            data-attempt-crafting-cube-craft
+          >Craft</button>
+          ${craftAllButton}
+        </div>
         ${targetedChoiceHtml}
       </div>
     `
@@ -34672,7 +35585,6 @@ function weaponRefineSlotHtml(kind, index, { large = false } = {}) {
         ${kind === "weapon" ? "" : `data-refine-board-entry="${escapeHtml(entry.id)}" data-refine-board-kind="${escapeHtml(kind)}" data-refine-board-index="${index}"`}
         data-tooltip-item="${escapeHtml(item.id)}"
         data-tooltip-entry="${escapeHtml(entry.id)}"
-        title="${escapeHtml(itemDisplayName(item, entry))}"
       >
         ${itemIconHtml(item)}
         ${purity}
@@ -34689,7 +35601,7 @@ function weaponRefineSlotHtml(kind, index, { large = false } = {}) {
         data-refine-slot="${escapeHtml(kind)}"
         data-refine-index="${index}"
         ${refineFx ? "disabled" : ""}
-        title="${entry && item ? escapeHtml(itemDisplayName(item, entry)) : "Select weapon slot"}"
+        ${entry && item ? "" : `title="Select weapon slot"`}
       >${filledContent}</button>
     `;
   }
@@ -34699,7 +35611,7 @@ function weaponRefineSlotHtml(kind, index, { large = false } = {}) {
       class="${slotClass}"
       data-refine-slot="${escapeHtml(kind)}"
       data-refine-index="${index}"
-      title="${kind === "ore" ? "Drop black iron ore here" : "Drop jewellery here"}"
+      ${entry && item ? "" : `title="${kind === "ore" ? "Drop black iron ore here" : "Drop jewellery here"}"`}
     >${filledContent}</div>
   `;
 }
@@ -35095,6 +36007,11 @@ function bindControls() {
     const switchPartyMemberButton = event.target.closest("[data-switch-party-member]");
     if (switchPartyMemberButton && root.contains(switchPartyMemberButton)) {
       switchControlledPartyMember(switchPartyMemberButton.dataset.switchPartyMember);
+      return;
+    }
+    const optionsTabButton = event.target.closest("[data-options-tab]");
+    if (optionsTabButton && root.contains(optionsTabButton)) {
+      setOptionsTab(optionsTabButton.dataset.optionsTab);
       return;
     }
     const exportSaveButton = event.target.closest("[data-export-save]");
@@ -35572,6 +36489,16 @@ function bindControls() {
     const autoPotionMpInput = event.target.closest("[data-auto-potion-mp]");
     if (autoPotionMpInput && root.contains(autoPotionMpInput)) {
       setAutoPotionThreshold("mp", Number(autoPotionMpInput.value) / 100);
+      return;
+    }
+    const taoistHealingInput = event.target.closest("[data-taoist-healing]");
+    if (taoistHealingInput && root.contains(taoistHealingInput)) {
+      setTaoistHealThreshold("healing", Number(taoistHealingInput.value) / 100);
+      return;
+    }
+    const taoistMassHealingInput = event.target.closest("[data-taoist-mass-healing]");
+    if (taoistMassHealingInput && root.contains(taoistMassHealingInput)) {
+      setTaoistHealThreshold("mass", Number(taoistMassHealingInput.value) / 100);
     }
   });
   root.addEventListener("change", (event) => {
@@ -37007,6 +37934,7 @@ function bossPartyMemberFromCharacter(classId, character = createDefaultCharacte
     autoPotionReadyAt: { hp: 0, mp: 0 },
     potHealthAmount: Math.max(0, Math.trunc(Number(character.battle?.potHealthAmount) || 0)),
     potManaAmount: Math.max(0, Math.trunc(Number(character.battle?.potManaAmount) || 0)),
+    potionTickBonusPercent: sanitizePotionTickBonusPercent(character.battle?.potionTickBonusPercent),
     potTickAt: 0,
     healAmount: Math.max(0, Math.trunc(Number(character.battle?.healAmount) || 0)),
     healTickAt: 0,
@@ -37368,8 +38296,9 @@ function bossPartyWarriorAction(member, now) {
     return bossPartyCastWarriorBuff(member, immortalSkin, immortalSkinLearned, effectiveSpellMpCost(immortalSkin, immortalSkinLearned, member.inventory), now);
   }
 
-  // Out of reach (boss still closing the gap, or a pet is tanking and the
-  // Warrior lacks Thrusting): hold position rather than swinging at air.
+  // Out of weapon reach, only Blade Avalanche may swing (boss still closing,
+  // or a pet is tanking and the Warrior lacks Thrusting). Other melee skills
+  // wait for weapon reach instead of borrowing BA's 3-tile window.
   if (!bossPartyCanWeaponReach(member) && !bladeAvalancheActionReachable(member, now)) {
     return bossPartyWait(member, now);
   }
@@ -37398,9 +38327,13 @@ function bossPartyWarriorAction(member, now) {
   let usingSlaying = false;
   let usingSweepAttack = false;
 
+  const inWeaponReach = bossPartyCanWeaponReach(member);
   const slayingTakesPriority = glyphSlayingTakesPriority(equippedGlyphDefs(member.inventory, itemDefinition));
+  // Blade Avalanche's 3-tile gate only lets BA itself connect. Charged blows
+  // stay charged and fire once the boss is in weapon reach.
   if (
     slayingTakesPriority
+    && inWeaponReach
     && warriorSlayingPending(member)
     && bossPartyLearned(member, "Slaying")
   ) {
@@ -37408,7 +38341,7 @@ function bossPartyWarriorAction(member, now) {
     learned = bossPartyLearned(member, "Slaying");
     cost = 0;
     usingSlaying = Boolean(attackSkill);
-  } else if (member.flamingSwordReady) {
+  } else if (member.flamingSwordReady && inWeaponReach) {
     const flaming = warriorSpellById("FlamingSword");
     const flamingLearned = bossPartyLearned(member, "FlamingSword");
     if (flaming && flamingLearned) {
@@ -37420,7 +38353,7 @@ function bossPartyWarriorAction(member, now) {
       clearFlamingSwordChargeState(member);
       if (member.classId === bossPartyControlledClassId()) clearFlamingSwordChargeState(state.battle);
     }
-  } else if (member.twinDrakeReady) {
+  } else if (member.twinDrakeReady && inWeaponReach) {
     const twinDrake = warriorSpellById("TwinDrakeBlade");
     const twinDrakeLearned = bossPartyLearned(member, "TwinDrakeBlade");
     if (twinDrake && twinDrakeLearned && warriorCanPaySkillCost(member, twinDrake, twinDrakeLearned, member.inventory)) {
@@ -37432,13 +38365,26 @@ function bossPartyWarriorAction(member, now) {
       clearTwinDrakeChargeState(member);
       if (member.classId === bossPartyControlledClassId()) clearTwinDrakeChargeState(state.battle);
     }
+  } else if (equippedInnateSlashingBurstMelee(member.inventory, itemDefinition)
+    && bossPartyAutoSpells(member).some((entry) => entry.id === "SlashingBurst")
+    && bossPartyCanUseWarriorSkill(
+      member,
+      warriorSpellById("SlashingBurst"),
+      bossPartyLearned(member, "SlashingBurst"),
+      now,
+      { requireAuto: true },
+    )) {
+    attackSkill = warriorSpellById("SlashingBurst");
+    learned = bossPartyLearned(member, "SlashingBurst");
+    cost = effectiveSpellMpCost(attackSkill, learned, member.inventory);
   } else if (useSweepAttack && sweepAttack) {
     attackSkill = sweepAttack.skill;
     learned = sweepAttack.learned;
     cost = effectiveSpellMpCost(sweepAttack.skill, sweepAttack.learned, member.inventory);
     usingSweepAttack = true;
   } else if (
-    warriorSlayingPending(member)
+    inWeaponReach
+    && warriorSlayingPending(member)
     && bossPartyLearned(member, "Slaying")
     // Even when BA is ready (which suppresses the sweep branch above), do not
     // let Slaying replace Half Moon / Cross Half Moon while those can fire.
@@ -37483,7 +38429,7 @@ function bossPartyWarriorAction(member, now) {
         if (isBladeAvalancheSkill(skill)) {
           return bossPartyCanUseWarriorSkill(member, skill, skillLearned, now, { requireAuto: true });
         }
-        return true;
+        return inWeaponReach;
       });
   }
   if (!attackSkill && !usingSlaying) {
@@ -37520,6 +38466,9 @@ function bossPartyWarriorAction(member, now) {
     bossPartyMaybeAutoChargeWarriorSkill(member, now);
     return true;
   }
+  // No Blade Avalanche this swing. A basic attack or other melee skill must
+  // not connect just because BA opened the 3-tile window.
+  if (!inWeaponReach) return bossPartyWait(member, now);
   if (usingSlaying) {
     clearWarriorSlayingReady(member);
   } else if (usingFlamingSword) {
@@ -37699,12 +38648,13 @@ function bossPartyWizardAction(member, now) {
 
   if (spell.id === "FireWall") {
     const value = rollWizardMagicValue(spell, learned, member, member.inventory);
+    const hellfire = fireWallHellfireActive(member);
     const centerTile = groupDungeonSwarmSideActive()
-      ? groupDungeonSwarmBestFireWallCenterTile(spell, member, now)
+      ? (hellfire ? groupDungeonSwarmFireWallCenterTile() : groupDungeonSwarmBestFireWallCenterTile(spell, member, now))
       : null;
     if (groupDungeonSwarmSideActive() && !centerTile) return false;
     createWizardGroundSpellEffect(spell, { value, worldX: state.battle.enemyX, centerTile }, now, member, learned);
-    pushBattleLog(`${member.classId} casts ${spell.label}${centerTile ? " into the swarm" : ` under ${enemy.name}`}.`);
+    pushBattleLog(`${member.classId} casts ${combatSpellDisplayLabel(spell, member)}${centerTile ? " into the swarm" : ` under ${enemy.name}`}.`);
     return true;
   }
   if (spell.groundChannel) {
@@ -37791,7 +38741,7 @@ function bossPartyTaoistAction(member, now) {
     const amount = rollTaoistHealingAmount(healing, learned, member, member.inventory);
     member.mp -= effectiveSpellMpCost(healing, learned, member.inventory);
     setLearnedSpellCastReadyAt(learned, healing, now, member.inventory);
-    member.nextActionAt = now + spellDelayMs(healing, learned);
+    member.nextActionAt = now + taoistSpellActionLockMs(healing, learned, member.inventory);
     if (glyphHealingIsInstant(equippedGlyphFor(member))) {
       applyInstantTaoistHealingRestore(healTarget, amount, now);
       bossPartyQueueHealFx(member, healTarget, healing, now, { instant: true });
@@ -37927,25 +38877,28 @@ function bossPartyTaoistAction(member, now) {
   }
 
   const poisonCloud = spells.find((spell) => spell.id === "PoisonCloud");
-  if (poisonCloud && bossPartyCanCast(member, poisonCloud, now) && !bossPartyGroundEffectActive("PoisonCloud", now)) {
-    if (bossPartyAmuletInventoryCount(member) >= POISON_CLOUD_AMULET_COST
-      && bossPartyGreenPoisonInventoryCount(member) >= POISON_CLOUD_GREEN_POISON_COST
-      && bossPartyConsumeAmuletInventoryUnits(member, POISON_CLOUD_AMULET_COST)
-      && bossPartyConsumeGreenPoisonUnits(member, POISON_CLOUD_GREEN_POISON_COST)) {
+  if (poisonCloud && bossPartyCanCast(member, poisonCloud, now)
+    && !poisonCloudGroundBlocksCast(now, member.inventory, bossPartyLearned(member, "PoisonCloud"), member)) {
+    const skipSupplies = !poisonCloudNeedsSupplies(member.inventory);
+    if (skipSupplies
+      || (bossPartyAmuletInventoryCount(member) >= POISON_CLOUD_AMULET_COST
+        && bossPartyGreenPoisonInventoryCount(member) >= POISON_CLOUD_GREEN_POISON_COST
+        && bossPartyConsumeAmuletInventoryUnits(member, POISON_CLOUD_AMULET_COST)
+        && bossPartyConsumeGreenPoisonUnits(member, POISON_CLOUD_GREEN_POISON_COST))) {
       const learned = bossPartyLearned(member, poisonCloud.id);
       member.mp -= effectiveSpellMpCost(poisonCloud, learned, member.inventory);
       setLearnedSpellCastReadyAt(learned, poisonCloud, now, member.inventory);
       member.nextActionAt = now + spellActionDelayMs(poisonCloud, learned);
       bossPartyControlledVisual(member, poisonCloud, poisonCloud.bodyAction ?? "spell", now);
       bossPartyCastSfx(member, poisonCloud.id, 0.38, 160);
-      const centerTile = wizardStormCenterTile(state.battle.enemy, member);
+      const centerTile = poisonCloudCenterTile(member, now);
       partyBossImpacts().push({
         at: now + wizardImpactDelay(poisonCloud, state.taoistSpellAtlases[poisonCloud.id] ?? null),
         spellId: poisonCloud.id,
         stormGround: true,
         value: 0,
         centerTile,
-        worldX: state.battle.enemyX,
+        worldX: centerTile?.worldX ?? state.battle.enemyX,
         casterClassId: member.classId,
       });
       pushBattleLog(`${member.classId} casts ${poisonCloud.label}.`);
@@ -38128,7 +39081,7 @@ function bossPartyControlledVisual(member, skill, bodyAction, now, options = {})
   state.battle.activeSkillAtlas = member.classId === "Warrior" ? (state.warriorSkillAtlases[skill?.id] ?? null) : null;
   state.battle.activeSkillStartedAt = now;
   state.battle.activeWizardSpell = member.classId === "Wizard" ? skill?.id ?? null : null;
-  state.battle.activeWizardSpellAtlas = member.classId === "Wizard" ? (state.wizardSpellAtlases[skill?.id] ?? null) : null;
+  state.battle.activeWizardSpellAtlas = member.classId === "Wizard" ? wizardSpellFxAtlas(skill?.id, member) : null;
   state.battle.activeWizardSpellStartedAt = now;
   state.battle.activeWizardSpellCenterTile = member.classId === "Wizard" ? (options.centerTile ?? null) : null;
   state.battle.activeTaoSpell = member.classId === "Taoist" ? skill?.id ?? null : null;
@@ -38290,10 +39243,21 @@ function bossPartyUsableTaoistPoisonCloud(member, now, options = {}) {
   const spell = taoistCombatSpell("PoisonCloud");
   const learned = bossPartyLearned(member, spell.id);
   if (!bossPartyCanUseTaoistSpell(member, spell, learned, now, { requireAuto: options.requireAuto !== false })) return null;
-  if (bossPartyGroundEffectActive("PoisonCloud", now)) return null;
+  if (poisonCloudGroundBlocksCast(now, member.inventory, learned, member)) return null;
   const enemy = state.battle.enemy;
   if (!enemy || enemy.hp <= 0) return null;
   if (!options.ignoreRange && bossPartyMemberEnemyDistance(member) > crystalSpellRangePx(spell)) return null;
+  if (!poisonCloudNeedsSupplies(member.inventory)) {
+    return {
+      spell,
+      learned,
+      cost: effectiveSpellMpCost(spell, learned, member.inventory),
+      amulet: null,
+      poison: null,
+      amuletItem: null,
+      poisonItem: null,
+    };
+  }
   if (bossPartyAmuletInventoryCount(member) < POISON_CLOUD_AMULET_COST) return null;
   if (bossPartyGreenPoisonInventoryCount(member) < POISON_CLOUD_GREEN_POISON_COST) return null;
   const amulet = bossPartyAmuletCandidate(member);
@@ -38661,7 +39625,7 @@ function bossPartyCastWizardMagicBooster(member, castBundle, now) {
   bossPartyCastSfx(partyMember, castBundle.spell.id, 0.38, 160);
   if (partyMember.classId === bossPartyControlledClassId()) {
     state.battle.activeWizardSpell = castBundle.spell.id;
-    state.battle.activeWizardSpellAtlas = state.wizardSpellAtlases[castBundle.spell.id] ?? null;
+    state.battle.activeWizardSpellAtlas = wizardSpellFxAtlas(castBundle.spell.id, partyMember);
     state.battle.activeWizardSpellStartedAt = now;
   }
   const bonusText = formatMagicBoosterApplied(applied);
@@ -38809,7 +39773,7 @@ function bossPartyCastQueuedTaoistSpell(member, queued, now) {
     const amount = rollTaoistHealingAmount(queued.spell, learned, member, member.inventory);
     member.mp -= queued.cost;
     setLearnedSpellCastReadyAt(learned, queued.spell, now, member.inventory);
-    member.nextActionAt = now + spellDelayMs(queued.spell, learned);
+    member.nextActionAt = now + taoistSpellActionLockMs(queued.spell, learned, member.inventory);
     if (glyphHealingIsInstant(equippedGlyphFor(member))) {
       applyInstantTaoistHealingRestore(queued.target, amount, now);
       bossPartyQueueHealFx(member, queued.target, queued.spell, now, { instant: true });
@@ -38834,22 +39798,25 @@ function bossPartyCastQueuedTaoistSpell(member, queued, now) {
     return true;
   }
   if (queued.spell.id === "PoisonCloud") {
-    if (!bossPartyConsumeAmuletInventoryUnits(member, POISON_CLOUD_AMULET_COST)
-      || !bossPartyConsumeGreenPoisonUnits(member, POISON_CLOUD_GREEN_POISON_COST)) return false;
+    if (poisonCloudNeedsSupplies(member.inventory)
+      && (!bossPartyConsumeAmuletInventoryUnits(member, POISON_CLOUD_AMULET_COST)
+        || !bossPartyConsumeGreenPoisonUnits(member, POISON_CLOUD_GREEN_POISON_COST))) {
+      return false;
+    }
     member.mp -= queued.cost;
     setLearnedSpellCastReadyAt(queued.learned, queued.spell, now, member.inventory);
     member.nextActionAt = now + spellActionDelayMs(queued.spell, queued.learned);
     clearQueuedCombatSpell(queued.spell.id);
     bossPartyControlledVisual(member, queued.spell, queued.spell.bodyAction ?? "spell", now);
     bossPartyCastSfx(member, queued.spell.id, 0.38, 160);
-    const centerTile = wizardStormCenterTile(state.battle.enemy, member);
+    const centerTile = poisonCloudCenterTile(member, now);
     partyBossImpacts().push({
       at: now + wizardImpactDelay(queued.spell, state.taoistSpellAtlases[queued.spell.id] ?? null),
       spellId: queued.spell.id,
       stormGround: true,
       value: 0,
       centerTile,
-      worldX: state.battle.enemyX,
+      worldX: centerTile?.worldX ?? state.battle.enemyX,
       casterClassId: member.classId,
     });
     pushBattleLog(`${member.classId} casts ${queued.spell.label}.`);
@@ -39246,6 +40213,7 @@ function resetBossPartySoloRecoveryState() {
   state.battle.potHealthAmount = 0;
   state.battle.potManaAmount = 0;
   state.battle.potTickAt = 0;
+  state.battle.potionTickBonusPercent = 0;
   state.battle.pendingHeal = null;
 }
 
@@ -39377,6 +40345,10 @@ function bossPartyGroundEffectActive(spellId, now) {
 }
 
 function bossPartyFireWallHasUsefulTarget(spell, member, now) {
+  if (fireWallHellfireActive(member)) {
+    if (bossPartyGroundEffectActive("FireWall", now)) return false;
+    return hellfireHasInRangeTarget(spell, member);
+  }
   if (groupDungeonSwarmSideActive()) return canUseGroupDungeonSwarmFireWall(spell, member, now);
   return !bossPartyGroundEffectActive("FireWall", now);
 }
@@ -39949,8 +40921,8 @@ function bossPartyAoeRangedTarget() {
   return bossPartyFrontTarget();
 }
 
-// Heal whoever in the party is most hurt (below 50%), not just the front
-// tank: the pet, the Warrior, the casting Taoist itself, or the Wizard behind.
+// Heal whoever in the party is most hurt (below the Healing slider), not just
+// the front tank: the pet, the Warrior, the casting Taoist itself, or the Wizard behind.
 // Mirrors the solo Taoist, which heals itself/its pet rather than only a tank.
 function bossPartyHealTarget(manual = false) {
   const party = state.battle.bossParty;
@@ -39971,7 +40943,7 @@ function bossPartyHealTarget(manual = false) {
     // Skip if a heal already in flight will close the gap.
     if (Math.max(0, Number(target.healAmount) || 0) >= maxHp - target.hp) continue;
     const ratio = target.hp / maxHp;
-    if (!manual && ratio >= AUTO_POTION_THRESHOLD) continue;
+    if (!manual && ratio >= taoistHealingThreshold()) continue;
     if (ratio < bestRatio) {
       bestRatio = ratio;
       best = target;
@@ -44478,8 +45450,9 @@ function bossPartyAutoUsePotions(member, now) {
     if (!candidate) continue;
     const consumeEntry = potionConsumeEntryFromHotbarOrBag(candidate.entry, member.inventory, member.hotbar);
     if (!bossPartyConsumeOneInventoryUnit(member, consumeEntry.id)) continue;
+    applyPotionTickBonusFromItem(candidate.item, member);
     const hpRestore = applyPotionHpRestoreWithGlyph(potionRestoreAmount(candidate.item, "hp"), member.inventory);
-    const mpRestore = applyEquippedPotionRestoreBonus(potionRestoreAmount(candidate.item, "mp"), member.inventory);
+    const mpRestore = applyEquippedPotionRestoreBonus(potionRestoreAmount(candidate.item, "mp"), member.inventory, itemDefinition);
     if (potionRestoreMode(candidate.item) === "instant") {
       const hpBefore = member.hp;
       member.hp = Math.min(member.maxHp, member.hp + hpRestore);
@@ -44488,7 +45461,7 @@ function bossPartyAutoUsePotions(member, now) {
     } else {
       member.potHealthAmount = Math.min(65535, (member.potHealthAmount ?? 0) + hpRestore);
       member.potManaAmount = Math.min(65535, (member.potManaAmount ?? 0) + mpRestore);
-      member.potTickAt = member.potTickAt || now + crystalPotDelayMs(member.inventory, hpRestore > 0);
+      member.potTickAt = member.potTickAt || now + crystalPotDelayMs(member.inventory, hpRestore > 0, member.potionTickBonusPercent);
     }
     member.autoPotionReadyAt[kind] = now + AUTO_POTION_COOLDOWN_MS;
     pushBattleLog(`${member.classId} auto used ${candidate.item.name}.`);
@@ -44503,14 +45476,20 @@ function bossPartyResourceRatio(member, kind) {
 }
 
 function updateBossPartyMemberPotionRegen(member, now) {
-  if (!member.alive || member.hp <= 0 || (!member.potHealthAmount && !member.potManaAmount)) return false;
+  if (!member.alive || member.hp <= 0) return false;
+  if (!member.potHealthAmount && !member.potManaAmount) {
+    member.potTickAt = 0;
+    clearPotionTickBonusIfQueuesEmpty(member);
+    return false;
+  }
   const inventory = member.inventory ?? state.inventory;
-  if (!member.potTickAt) member.potTickAt = now + crystalPotDelayMs(inventory, (member.potHealthAmount ?? 0) > 0);
+  const delayMs = () => crystalPotDelayMs(inventory, (member.potHealthAmount ?? 0) > 0, member.potionTickBonusPercent);
+  if (!member.potTickAt) member.potTickAt = now + delayMs();
   let changed = false;
   let steps = 0;
   while (now >= member.potTickAt && steps < 20 && (member.potHealthAmount > 0 || member.potManaAmount > 0)) {
     steps += 1;
-    member.potTickAt += crystalPotDelayMs(inventory, (member.potHealthAmount ?? 0) > 0);
+    member.potTickAt += delayMs();
     const tickAmount = 5 + Math.floor((member.game.progress.level ?? 1) / 10);
     if (member.potHealthAmount > 0) {
       const amount = Math.min(tickAmount, member.potHealthAmount);
@@ -44527,7 +45506,10 @@ function updateBossPartyMemberPotionRegen(member, now) {
       changed = true;
     }
   }
-  if (member.potHealthAmount <= 0 && member.potManaAmount <= 0) member.potTickAt = 0;
+  if (member.potHealthAmount <= 0 && member.potManaAmount <= 0) {
+    member.potTickAt = 0;
+    clearPotionTickBonusIfQueuesEmpty(member);
+  }
   return changed;
 }
 
@@ -44713,6 +45695,7 @@ function syncBossPartyMembersToCharacters(party, options = {}) {
       playerMp: Math.max(0, member.mp),
       potHealthAmount: Math.max(0, member.potHealthAmount ?? 0),
       potManaAmount: Math.max(0, member.potManaAmount ?? 0),
+      potionTickBonusPercent: sanitizePotionTickBonusPercent(member.potionTickBonusPercent),
       healAmount: Math.max(0, member.healAmount ?? 0),
       vampAmount: Math.max(0, member.vampAmount ?? 0),
       energyShieldLastStandReadyAt: sanitizeEnergyShieldLastStandReadyAt(member.energyShieldLastStandReadyAt),
@@ -44982,6 +45965,7 @@ function setLearnedSpellCastReadyAt(learned, spell, now, inventory = state.inven
     spell?.id,
     taoistSpellActionLockMs(spell, learned, inventory),
     inventory,
+    itemDefinition,
   );
 }
 
@@ -44995,7 +45979,7 @@ function setWarriorSpellCastReadyAt(skill, learned, now, inventory = state.inven
     const glyphCd = glyphTwinDrakeCooldownMs(equippedGlyphDefs(inventory, itemDefinition));
     if (glyphCd > 0) delayMs = Math.max(delayMs, glyphCd);
   }
-  learned.castReadyAt = now + applyEquippedSpellCooldownReductionMs(skill?.id, delayMs, inventory);
+  learned.castReadyAt = now + applyEquippedSpellCooldownReductionMs(skill?.id, delayMs, inventory, itemDefinition);
 }
 
 function bossPartySetWarriorSpellCastReadyAt(member, skill, learned, now) {
@@ -45315,7 +46299,7 @@ function bladeAvalancheLaneFxActive(now = performance.now()) {
 
 /** Recolor Glyph Flaming Avalanche BA blades (pixel filter — not a flat wash). */
 const FLAMING_AVALANCHE_FX_CSS_FILTER = "sepia(0.9) saturate(5.5) hue-rotate(-40deg) brightness(1.05)";
-/** Glyph of Execution: mild crimson while the target is healthy, heavier blood-red below 50% HP. */
+/** Glyph of Execution: mild crimson while the target is healthy, heavier blood-red below 40% HP. */
 const SLAYING_EXECUTION_FX_CSS_FILTER_HEALTHY = "sepia(0.5) saturate(2.6) hue-rotate(-22deg) brightness(1.04)";
 const SLAYING_EXECUTION_FX_CSS_FILTER_EXECUTE = "sepia(1) saturate(6.8) hue-rotate(-34deg) brightness(1.02)";
 
@@ -45325,7 +46309,7 @@ function slayingExecutionFxCssFilter(inventory = state.inventory, enemy = state.
   if (!params) return null;
   const maxHp = Math.max(0, Number(enemy?.maxHp) || 0);
   const hp = Math.max(0, Number(enemy?.hp) || 0);
-  if (maxHp > 0 && hp <= maxHp * params.executeHpRatio) return SLAYING_EXECUTION_FX_CSS_FILTER_EXECUTE;
+  if (maxHp > 0 && hp < maxHp * params.executeHpRatio) return SLAYING_EXECUTION_FX_CSS_FILTER_EXECUTE;
   return SLAYING_EXECUTION_FX_CSS_FILTER_HEALTHY;
 }
 
@@ -45713,7 +46697,12 @@ function warriorAttack(now) {
   battle.pendingImpact = null;
   battle.pendingEnemyStrike = null;
 
-  if (isSlashingBurstSkill(skill) && slashingBurstDashEnabled() && !slashingBurstInCastRange(enemyDistance(), now)) {
+  if (
+    isSlashingBurstSkill(skill)
+    && slashingBurstDashEnabled()
+    && !slashingBurstInCastRange(enemyDistance(), now)
+    && !slashingBurstMeleeCastAllowed()
+  ) {
     return false;
   }
 
@@ -45836,7 +46825,21 @@ function usableWarriorAttackSkill(now) {
 
   if (charged) return charged;
 
-  if (queued) return queued;
+  // A queued spell that cannot fire yet used to substitute a basic attack.
+  // Past melee reach that basic attack connected inside Blade Avalanche's
+  // 3-tile window. Keep filling with basics only in weapon reach; otherwise
+  // let Blade Avalanche (or another in-range skill) take the swing.
+  if (queued && (!queued.queuedWaiting || enemyDistance() <= LANE.warriorRange)) return queued;
+
+  // Unique Burst Sword: melee Slashing Burst outranks Blade Avalanche / sweeps
+  // so the unique actually fires instead of being starved by Half Moon farming.
+  if (slashingBurstMeleeCastAllowed()) {
+    const skill = warriorSpellById("SlashingBurst");
+    const learned = learnedMagic("SlashingBurst");
+    if (skill && learned && canAutoCastWarriorSkill(skill, learned, now)) {
+      return { skill, learned, cost: effectiveSpellMpCost(skill, learned) };
+    }
+  }
 
   // Blade Avalanche slightly above Half Moon / Cross Half Moon: cast BA whenever
   // it is ready, and let sweep attacks fill the gaps while it is on cooldown.
@@ -45943,6 +46946,7 @@ function chargedSlayingAttack(now = performance.now()) {
   const skill = warriorSpellById("Slaying");
   const learned = learnedMagic("Slaying");
   if (!skill || !learned) return null;
+  if (enemyDistance() > LANE.warriorRange) return null;
   return { skill, learned, cost: 0, slaying: true };
 }
 
@@ -46041,6 +47045,122 @@ function crossHalfMoonOverridesHalfMoon(now = performance.now()) {
 
 function warriorSkillsSpendHp(inventory = state.inventory) {
   return equippedWarriorSkillsCostHp(inventory, itemDefinition);
+}
+
+function fireWallHellfireActive(member = null) {
+  return equippedInnateFireWallHellfire(member?.inventory ?? state.inventory, itemDefinition);
+}
+
+function combatSpellDisplayLabel(spell, member = null) {
+  if (spell?.id === "FireWall" && fireWallHellfireActive(member)) return "Hellfire";
+  return spell?.label ?? spell?.id ?? "";
+}
+
+function wizardSpellFxAtlas(spellId, member = null) {
+  if (spellId === "FireWall" && fireWallHellfireActive(member)) {
+    return state.wizardSpellAtlases.HellFire ?? state.wizardSpellAtlases.FireWall ?? null;
+  }
+  return state.wizardSpellAtlases[spellId] ?? null;
+}
+
+function hellfireVisibleEastWorldX() {
+  const cameraX = Number(state.battle.cameraX);
+  const resolvedCamera = Number.isFinite(cameraX)
+    ? cameraX
+    : (Number(state.battle.playerX) || 0) - playerScreenX();
+  return resolvedCamera + (Number(state.stageWidth) || 0) - 32;
+}
+
+function hellfireRangeEastWorldX(spell, originWorldX) {
+  const origin = Number(originWorldX) || 0;
+  const rangeTiles = Math.max(1, Math.trunc(Number(spell?.range) || 9));
+  return origin + rangeTiles * GROUP_DUNGEON_SWARM_TILE_PX;
+}
+
+function hellfireCoverageWestWorldX(partyCaster = null) {
+  if (groupDungeonSwarmSideActive()) return groupDungeonSwarmMeleeWorldX();
+  return Number(partyCaster?.worldX ?? state.battle.playerX) || 0;
+}
+
+function hellfireCoverageEastWorldX(spell, partyCaster = null) {
+  const westBound = hellfireCoverageWestWorldX(partyCaster);
+  return clampHellfireEastBound(
+    westBound,
+    hellfireVisibleEastWorldX(),
+    hellfireRangeEastWorldX(spell, westBound),
+  );
+}
+
+function hellfireHasInRangeTarget(spell, partyCaster = null) {
+  const eastBound = hellfireCoverageEastWorldX(spell, partyCaster);
+  if (groupDungeonSwarmSideActive()) {
+    const meleeX = swarmSnapTileX(groupDungeonSwarmMeleeWorldX());
+    return groupDungeonSwarmLivingEnemies().some((enemy) => {
+      const x = swarmSnapTileX(swarmEnemyReservedTile(enemy).worldX);
+      return x >= meleeX && x <= eastBound;
+    });
+  }
+  const enemy = state.battle.enemy;
+  if (!enemy || enemy.hp <= 0 || !state.battle.enemyRevealed) return false;
+  return swarmSnapTileX(Number(state.battle.enemyX) || 0) <= eastBound;
+}
+
+function hellfireFireWallTiles(spell, partyCaster = null) {
+  const eastBound = hellfireCoverageEastWorldX(spell, partyCaster);
+  if (groupDungeonSwarmSideActive()) {
+    return swarmWalkableTiles(
+      groupDungeonSwarmMeleeWorldX(),
+      arenaSpawnMapRow(),
+      eastBound,
+    );
+  }
+  const casterX = Number(partyCaster?.worldX ?? state.battle.playerX) || 0;
+  const targetX = Number(state.battle.enemyX) || casterX;
+  const widthTiles = Math.max(1, Math.trunc(Number(spell?.groundWidthTiles) || 3));
+  return fireWallLaneStripTiles(casterX, Math.min(targetX, eastBound), 0, widthTiles);
+}
+
+function hellfireGroundOriginWorldX(partyCaster = null) {
+  return Number(partyCaster?.worldX ?? state.battle.playerX) || 0;
+}
+
+function hellfireAttackFxDelayMs(tile, originWorldX) {
+  const tilePx = GROUP_DUNGEON_SWARM_TILE_PX;
+  const origin = swarmSnapTileX(originWorldX);
+  const x = swarmSnapTileX(tile.worldX);
+  return Math.max(0, Math.round((x - origin) / tilePx)) * HELLFIRE_ATTACK_FX_STAGGER_MS;
+}
+
+function hellfireTileIgniteAt(effect, tile) {
+  if (!effect?.hellfireSpread) return Number(effect?.createdAt) || 0;
+  return Number(effect.createdAt) + hellfireAttackFxDelayMs(tile, effect.hellfireOriginWorldX);
+}
+
+function hellfireTileHasIgnited(effect, tile, now) {
+  if (!effect?.hellfireSpread) return true;
+  return now >= hellfireTileIgniteAt(effect, tile);
+}
+
+function queueHellfireAttackFx(tiles, partyCaster = null, now = performance.now()) {
+  const layer = state.wizardSpellAtlases?.HellFire?.impact;
+  if (!layer?.frames?.length || !tiles?.length) return;
+  const interval = Math.max(1, Math.trunc(Number(layer.interval) || 83));
+  const durationMs = Math.max(HELLFIRE_ATTACK_FX_DURATION_MS, layer.frames.length * interval);
+  const originWorldX = hellfireGroundOriginWorldX(partyCaster);
+  const next = tiles.map((tile) => {
+    const delayMs = hellfireAttackFxDelayMs(tile, originWorldX);
+    return {
+      worldX: tile.worldX,
+      mapRow: Math.trunc(Number(tile.mapRow) || 0),
+      startedAt: now + delayMs,
+      expiresAt: now + delayMs + durationMs,
+    };
+  });
+  const battle = state.battle;
+  battle.hellfireAttackFx = [
+    ...(battle.hellfireAttackFx ?? []).filter((entry) => now <= entry.expiresAt),
+    ...next,
+  ];
 }
 
 function warriorCanPaySkillCost(combatant, skill, learned, inventory = combatant?.inventory ?? state.inventory) {
@@ -46479,6 +47599,11 @@ function slashingBurstInCastRange(distance = enemyDistance(), now = performance.
   return distance > LANE.warriorRange && distance <= slashingBurstMaxCastRangePx(now);
 }
 
+function slashingBurstMeleeCastAllowed(inventory = state.inventory, distance = enemyDistance()) {
+  if (!equippedInnateSlashingBurstMelee(inventory, itemDefinition)) return false;
+  return distance <= LANE.warriorRange;
+}
+
 function applySlashingBurstDash(now = performance.now(), dashPx = null, durationMs = null) {
   if (!slashingBurstDashEnabled()) return 0;
   const battle = state.battle;
@@ -46558,7 +47683,11 @@ function canUseWarriorSkill(skill, learned, now, options = {}) {
         return false;
       }
     } else if (isSlashingBurstSkill(skill) && slashingBurstDashEnabled()) {
-      if (!options.ignoreDistance && !slashingBurstInCastRange(enemyDistance(), now)) return false;
+      if (!options.ignoreDistance) {
+        const leapOk = slashingBurstInCastRange(enemyDistance(), now);
+        const meleeOk = slashingBurstMeleeCastAllowed();
+        if (!leapOk && !meleeOk) return false;
+      }
     } else if (!options.ignoreDistance && enemyDistance() > LANE.warriorRange) {
       return false;
     }
@@ -46603,6 +47732,7 @@ function wizardFireWallMeleeReady() {
 
 function canUseWizardFireWall(now) {
   if (bossPartyGroundEffectActive("FireWall", now)) return false;
+  if (fireWallHellfireActive() && !hellfireHasInRangeTarget(wizardCombatSpell("FireWall"))) return false;
   if (!wizardFireWallRequiresMeleeRange()) return true;
   return wizardFireWallMeleeReady();
 }
@@ -46639,7 +47769,7 @@ function canUseTaoistSpell(spell, learned, now, options = {}) {
 
 function warriorAutoPriority(skill) {
   // Combat buffs stay first so solo + boss-party share the same cast order.
-  const order = ["Fury", "Rage", "ProtectionField", "ImmortalSkin", "FlamingSword", "TwinDrakeBlade", "BladeAvalanche", "Thrusting", "CrossHalfMoon", "HalfMoon"];
+  const order = ["Fury", "Rage", "ProtectionField", "ImmortalSkin", "FlamingSword", "SlashingBurst", "TwinDrakeBlade", "BladeAvalanche", "Thrusting", "CrossHalfMoon", "HalfMoon"];
   const index = order.indexOf(skill?.id);
   return index === -1 ? order.length : index;
 }
@@ -46743,7 +47873,7 @@ function applyWizardCastCooldown(spell, learned, now, member = null) {
   const cooldown = wizardCastCooldownMs(spell, learned, now, member);
   const actionLock = wizardSpellActionLockMs(spell, learned, now, member);
   const inventory = member ? inventoryForCombatant(member) : state.inventory;
-  const readyCd = applyEquippedSpellCooldownReductionMs(spell?.id, cooldown, inventory);
+  const readyCd = applyEquippedSpellCooldownReductionMs(spell?.id, cooldown, inventory, itemDefinition);
   if (learned) {
     learned.castReadyAt = now + readyCd;
   }
@@ -46840,7 +47970,7 @@ function refreshFrenziedDisruptorCastTimingAfterProc(now, member = null) {
     frenziedDisruptorBuffFor(member),
     now,
   );
-  const buffedReadyCd = applyEquippedSpellCooldownReductionMs(spell.id, buffedBase, inventory);
+  const buffedReadyCd = applyEquippedSpellCooldownReductionMs(spell.id, buffedBase, inventory, itemDefinition);
   const targetReadyAt = castAt + buffedReadyCd;
   const targetLockUntil = castAt + buffedBase;
 
@@ -47142,7 +48272,7 @@ function effectiveSpellMpCost(spell, learned, inventory = state.inventory, caste
   let cost = spell?.id === "Plague"
     ? plagueSpellMpCost(entity)
     : spellMpCost(spell, learned);
-  cost = applyEquippedSpellMpCostReduction(spell?.id, cost, inventory);
+  cost = applyEquippedSpellMpCostReduction(spell?.id, cost, inventory, itemDefinition);
   const penalty = activeMagicBoosterManaPenaltyPercent(entity);
   if (penalty > 0) cost = Math.trunc(cost * (1 + penalty / 100));
   return cost;
@@ -47792,7 +48922,13 @@ function healingCircleTickAmountForEffect(effect = null) {
   const glyph = equippedGlyphFor(caster);
   const stats = combatantForMagicRoll(caster);
   const [, maxSc] = statRange(stats?.sc ?? [0, 0]);
-  return healingCircleTickHealAmount(HEALING_CIRCLE_HEAL_PER_TICK, maxSc, glyph);
+  const base = healingCircleTickHealAmount(HEALING_CIRCLE_HEAL_PER_TICK, maxSc, glyph);
+  return applyEquippedSpellHealingBonus(
+    "HealingCircle",
+    base,
+    inventoryForCombatant(caster),
+    itemDefinition,
+  );
 }
 
 function poisonCandidateForEntries(enemy, entries, now = performance.now()) {
@@ -48235,7 +49371,11 @@ function syncWarriorBuffStateFromEntity(entity, buffList) {
 function applyFuryBuffToEntity(entity, learned, now, skillLabel = "Fury") {
   const durationMs = furyDurationMs(learned);
   const until = now + durationMs;
-  const bonus = FURY_ATTACK_SPEED_BONUS;
+  const bonus = applyInnateWarriorBuffEffectiveness(
+    FURY_ATTACK_SPEED_BONUS,
+    inventoryForGlyph(entity),
+    itemDefinition,
+  );
   if (entity?.classId) {
     entity.furyUntil = until;
     entity.furyBonus = bonus;
@@ -48262,7 +49402,11 @@ function applyFuryBuffToEntity(entity, learned, now, skillLabel = "Fury") {
 }
 
 function applyRageBuffEffect(skill, learned, entity, now) {
-  const bonus = rageDcBonus(warriorMaxDcForRageBonus(entity), learned);
+  const bonus = applyInnateWarriorBuffEffectiveness(
+    rageDcBonus(warriorMaxDcForRageBonus(entity), learned),
+    inventoryForGlyph(entity),
+    itemDefinition,
+  );
   if (bonus <= 0) {
     pushBattleLog(`${skill.label} had no effect.`);
     return false;
@@ -48288,9 +49432,13 @@ function applyProtectionFieldBuffEffect(skill, learned, entity, now) {
   const baseStatMax = buffStat === "amc"
     ? warriorMaxAmcForProtectionField(entity)
     : warriorMaxAcForProtectionField(entity);
-  const bonus = applyGlyphProtectionFieldBonus(
-    protectionFieldAcBonus(baseStatMax, learned),
-    glyph,
+  const bonus = applyInnateWarriorBuffEffectiveness(
+    applyGlyphProtectionFieldBonus(
+      protectionFieldAcBonus(baseStatMax, learned),
+      glyph,
+    ),
+    inventoryForGlyph(entity),
+    itemDefinition,
   );
   if (bonus <= 0) {
     pushBattleLog(`${skill.label} had no effect.`);
@@ -48364,10 +49512,18 @@ function applyImmortalSkinBuffToEntity(skill, learned, entity, now, options = {}
   const { dcMax, acMax, amcMax } = warriorDefenseStatsForImmortalSkin(entity);
   const acBonus = options.acBonus != null
     ? Math.max(0, Math.trunc(Number(options.acBonus) || 0))
-    : immortalSkinDefenseBonus(acMax, learned);
+    : applyInnateWarriorBuffEffectiveness(
+      immortalSkinDefenseBonus(acMax, learned),
+      inventoryForGlyph(entity),
+      itemDefinition,
+    );
   const amcBonus = options.amcBonus != null
     ? Math.max(0, Math.trunc(Number(options.amcBonus) || 0))
-    : immortalSkinDefenseBonus(amcMax, learned);
+    : applyInnateWarriorBuffEffectiveness(
+      immortalSkinDefenseBonus(amcMax, learned),
+      inventoryForGlyph(entity),
+      itemDefinition,
+    );
   const basePenalty = immortalSkinDcPenalty(dcMax, learned);
   const dcPenalty = options.skipDcPenalty
     ? 0
@@ -48527,7 +49683,7 @@ function wizardAttack(now) {
   if (spell.id === "GreatFireBall" && equippedGreatFireBallCastSpeedUnlocked() && wizardGreatFireBallProjectileInFlight(now)) {
     return;
   }
-  const atlas = state.wizardSpellAtlases[spell.id] ?? null;
+  const atlas = wizardSpellFxAtlas(spell.id);
   if (resolveSpellCastWeaponFallback({
     cooldownWaiting,
     playerMp: battle.player?.mp ?? 0,
@@ -48601,7 +49757,7 @@ function wizardAttack(now) {
   if (spell.impactMode !== "target") playSpellSfx(spell.id, "cast");
   if (spell.id === "Vampirism") playSpellSfx(spell.id, "cast");
   if (spell.impactMode === "projectile") playSpellSfx(spell.id, "fly", { volume: 0.38, throttleMs: 120 });
-  pushBattleLog(`Wizard casts ${spell.label}.`);
+  pushBattleLog(`Wizard casts ${combatSpellDisplayLabel(spell)}.`);
 }
 
 function wizardWeaponAttack(now, failedSpell = null) {
@@ -49825,7 +50981,7 @@ function taoistMassHealInjuredTargets(now = performance.now(), options = {}) {
   const manual = options.requireAuto === false;
   return taoistMassHealTargets(now).filter(({ entity }) => {
     if (!entity || entity.hp <= 0 || entity.hp >= entity.maxHp) return false;
-    if (!manual && entity.hp / Math.max(1, entity.maxHp) >= AUTO_POTION_THRESHOLD) return false;
+    if (!manual && entity.hp / Math.max(1, entity.maxHp) >= taoistMassHealingThreshold()) return false;
     return entityQueuedHealAmount(entity) < entity.maxHp - entity.hp;
   });
 }
@@ -50584,7 +51740,7 @@ function usableTaoistHealing(now, options = {}) {
   }
   const player = state.battle.player;
   if (!player || player.hp <= 0 || player.hp >= player.maxHp) return null;
-  if (!manual && player.hp / Math.max(1, player.maxHp) >= AUTO_POTION_THRESHOLD) return null;
+  if (!manual && player.hp / Math.max(1, player.maxHp) >= taoistHealingThreshold()) return null;
   const pendingAmount = Math.max(0, Number(state.battle.healAmount) || 0)
     + (state.battle.pendingHeal?.target === "pet" ? 0 : Math.max(0, Number(state.battle.pendingHeal?.amount) || 0));
   if (pendingAmount >= player.maxHp - player.hp) return null;
@@ -50625,15 +51781,37 @@ function usableTaoistPoisoning(now, options = {}) {
   };
 }
 
+function poisonCloudNeedsSupplies(inventory = state.inventory) {
+  return !equippedInnatePoisonCloudNoSupplies(inventory, itemDefinition);
+}
+
+function poisonCloudGroundBlocksCast(now, inventory = state.inventory, learned = learnedMagic("PoisonCloud"), member = null) {
+  if (groupDungeonSwarmSideActive()) {
+    return !groupDungeonSwarmBestPoisonCloudCenterTile(taoistCombatSpell("PoisonCloud"), member, now);
+  }
+  return combatGroundEffectActive("PoisonCloud", now);
+}
+
 function usableTaoistPoisonCloud(now, options = {}) {
   const spell = taoistCombatSpell("PoisonCloud");
   const learned = learnedMagic(spell.id);
   if (!canUseTaoistSpell(spell, learned, now, { requireAuto: options.requireAuto !== false })) return null;
-  if (combatGroundEffectActive("PoisonCloud", now)) return null;
+  if (poisonCloudGroundBlocksCast(now, state.inventory, learned)) return null;
   if (state.battle.pendingImpact?.spellId === "PoisonCloud") return null;
   const enemy = state.battle.enemy;
   if (!enemy || enemy.hp <= 0) return null;
   if (!options.ignoreRange && enemyDistance() > crystalSpellRangePx(spell)) return null;
+  if (!poisonCloudNeedsSupplies()) {
+    return {
+      spell,
+      learned,
+      cost: effectiveSpellMpCost(spell, learned),
+      amuletEntry: null,
+      poisonEntry: null,
+      amuletItem: null,
+      poisonItem: null,
+    };
+  }
   if (amuletInventoryCount() < POISON_CLOUD_AMULET_COST) return null;
   if (poisonInventoryCount("green") < POISON_CLOUD_GREEN_POISON_COST) return null;
   const amuletEntry = amuletCandidate(0);
@@ -50655,7 +51833,10 @@ function usableTaoistPoisonCloud(now, options = {}) {
 function castTaoistPoisonCloud(poisonCloud, now, options = {}) {
   const battle = state.battle;
   const { spell, learned, cost, amuletItem, poisonItem } = poisonCloud;
-  if (!consumeAmuletInventoryUnits(POISON_CLOUD_AMULET_COST) || !consumeGreenPoisonUnits(POISON_CLOUD_GREEN_POISON_COST)) return false;
+  if (poisonCloudNeedsSupplies()
+    && (!consumeAmuletInventoryUnits(POISON_CLOUD_AMULET_COST) || !consumeGreenPoisonUnits(POISON_CLOUD_GREEN_POISON_COST))) {
+    return false;
+  }
   const atlas = state.taoistSpellAtlases[spell.id] ?? null;
   const impactAt = now + wizardImpactDelay(spell, atlas);
   // Action lock uses delayBase (~1.8s); spellDelayMs is the 18s recharge via autoCooldownMs.
@@ -50664,9 +51845,14 @@ function castTaoistPoisonCloud(poisonCloud, now, options = {}) {
 
   if (options.offline) {
     const enemy = battle.enemy;
+    const durationMs = applyEquippedSpellGroundDurationMs(
+      spell.id,
+      Math.trunc(Number(spell.groundFixedDurationMs) || 6000),
+      state.inventory,
+      itemDefinition,
+    );
     const tickCount = Math.max(1, Math.floor(
-      Math.trunc(Number(spell.groundFixedDurationMs) || 6000)
-      / Math.max(1, Math.trunc(Number(spell.groundTickMs) || POISON_CLOUD_TICK_MS)),
+      durationMs / Math.max(1, Math.trunc(Number(spell.groundTickMs) || POISON_CLOUD_TICK_MS)),
     ));
     for (let i = 0; i < tickCount && enemy?.hp > 0; i += 1) {
       const damage = rollTaoistMagicDamage(spell, learned, battle.player, enemy);
@@ -50674,6 +51860,19 @@ function castTaoistPoisonCloud(poisonCloud, now, options = {}) {
       maybeApplyPoisonCloudTickPoison(spell, enemy, battle.player, now, { offline: true });
     }
     if (learned) levelMagicSkill(spell, learned, now);
+    // Unique 0-recharge would otherwise dump a full field every 1.8s GCD.
+    // Live recast is blocked while the field is up; offline pays the field duration instead.
+    if (applyEquippedSpellCooldownReductionMs(
+      spell.id,
+      spellDelayMs(spell, learned),
+      state.inventory,
+      itemDefinition,
+    ) <= 0) {
+      battle.lastPlayerAttackCooldownMs = Math.max(
+        Number(battle.lastPlayerAttackCooldownMs) || 0,
+        durationMs,
+      );
+    }
     return true;
   }
 
@@ -50691,11 +51890,15 @@ function castTaoistPoisonCloud(poisonCloud, now, options = {}) {
     spellId: spell.id,
     value: 0,
     worldX: battle.enemyX,
-    centerTile: wizardStormCenterTile(null, null),
+    centerTile: poisonCloudCenterTile(null, now),
   };
   setPlayerAction(spell.bodyAction ?? "spell", now, true);
   playSpellSfx(spell.id, "cast");
-  pushBattleLog(`Taoist casts ${spell.label} with ${POISON_CLOUD_AMULET_COST} ${amuletItem.name}s and ${POISON_CLOUD_GREEN_POISON_COST} ${poisonItem.name}.`);
+  if (amuletItem && poisonItem) {
+    pushBattleLog(`Taoist casts ${spell.label} with ${POISON_CLOUD_AMULET_COST} ${amuletItem.name}s and ${POISON_CLOUD_GREEN_POISON_COST} ${poisonItem.name}.`);
+  } else {
+    pushBattleLog(`Taoist casts ${spell.label}.`);
+  }
   return true;
 }
 
@@ -51356,7 +52559,7 @@ function mostHurtHealableTaoistPet(manual = false) {
     const pendingAmount = Math.max(0, Number(pet.healAmount) || 0);
     if (pendingAmount >= maxHp - pet.hp) continue;
     const ratio = pet.hp / maxHp;
-    if (!manual && ratio >= AUTO_POTION_THRESHOLD) continue;
+    if (!manual && ratio >= taoistHealingThreshold()) continue;
     if (ratio < bestRatio) {
       bestRatio = ratio;
       best = pet;
@@ -52687,7 +53890,7 @@ function castTaoistHealing(healing, now, options = {}) {
   const { spell, learned, cost, target = "player", pet = null } = healing;
   const atlas = state.taoistSpellAtlases[spell.id] ?? null;
   const amount = rollTaoistHealingAmount(spell, learned, battle.player);
-  battle.lastPlayerAttackCooldownMs = spellDelayMs(spell, learned);
+  battle.lastPlayerAttackCooldownMs = taoistSpellActionLockMs(spell, learned);
   commitTaoistSpellUse(spell, learned, cost, now);
 
   const healPet = target === "pet" ? (pet ?? mostHurtHealableTaoistPet(true) ?? battle.taoPet) : null;
@@ -53525,6 +54728,11 @@ function updatePendingImpact(now) {
 }
 
 function createWizardGroundSpellEffect(spell, impact, now, partyCaster = null, partyLearned = null) {
+  if (spell?.id === "FireWall" && wizardFireWallBlocksAdditionalGroundEffect(
+    fireWallHellfireActive(partyCaster),
+    bossPartyGroundEffectActive("FireWall", now),
+  )) return;
+  if (spell?.id === "PoisonCloud" && !groupDungeonSwarmSideActive() && combatGroundEffectActive("PoisonCloud", now)) return;
   const battle = state.battle;
   const durationPower = Math.max(0, Math.trunc(Number(impact.durationLevel ?? impact.value) || 0));
   const value = impact.damageValue != null
@@ -53541,27 +54749,42 @@ function createWizardGroundSpellEffect(spell, impact, now, partyCaster = null, p
       && glyphMeteorStrikeIsSingleTarget(equippedGlyphFor(partyCaster));
     centerTile = impact.centerTile ?? (spell.groundHealOnly
       ? healingCircleCenterTile(partyCaster)
-      : wizardStormCenterTile(null, partyCaster, spell));
+      : spell.id === "PoisonCloud"
+        ? poisonCloudCenterTile(partyCaster, now)
+        : wizardStormCenterTile(null, partyCaster, spell));
     const radius = channelStorm
       ? (meteorSingle ? 0 : 2)
       : Math.max(0, Math.trunc(Number(spell.groundAreaRadius) || 0));
     tiles = centerTile ? spellGroundAreaTiles(centerTile.worldX, centerTile.mapRow, radius) : [];
+    if (spell.id === "PoisonCloud" && !centerTile) return;
   } else {
     const widthTiles = Math.max(1, Math.trunc(Number(spell.groundWidthTiles) || 1));
     const halfWidth = Math.floor(widthTiles / 2);
     offsets = Array.from({ length: widthTiles }, (_, index) => (index - halfWidth) * LANE_TILE_PX);
     if (swarmActive) {
       centerTile = impact.centerTile ?? groupDungeonSwarmBestFireWallCenterTile(spell, partyCaster, now) ?? groupDungeonSwarmFireWallCenterTile();
-      tiles = fireWallCrossTiles(centerTile.worldX, centerTile.mapRow);
+      tiles = fireWallHellfireActive(partyCaster)
+        ? hellfireFireWallTiles(spell, partyCaster)
+        : fireWallCrossTiles(centerTile.worldX, centerTile.mapRow);
       offsets = [];
+    } else if (fireWallHellfireActive(partyCaster)) {
+      tiles = hellfireFireWallTiles(spell, partyCaster);
+      offsets = [];
+      centerTile = { worldX: tiles[0]?.worldX ?? (Number(impact.worldX) || battle.enemyX), mapRow: 0 };
     }
   }
-  const durationMs = channelStorm
-    ? wizardStormFieldDurationMs(spell)
-    : areaField && spell.groundFixedDurationMs != null
+  const durationMs = applyEquippedSpellGroundDurationMs(
+    spell.id,
+    channelStorm
       ? wizardStormFieldDurationMs(spell)
-      : wizardGroundEffectDurationMs(spell, durationPower, partyCaster ?? state.battle.player);
+      : areaField && spell.groundFixedDurationMs != null
+        ? wizardStormFieldDurationMs(spell)
+        : wizardGroundEffectDurationMs(spell, durationPower, partyCaster ?? state.battle.player),
+    partyCaster?.inventory ?? state.inventory,
+    itemDefinition,
+  );
   const tickStartDelayMs = Math.max(0, Math.trunc(Number(spell.groundTickStartDelayMs) || 0));
+  const hellfireSpread = spell.id === "FireWall" && fireWallHellfireActive(partyCaster);
   const effect = {
     id: `${spell.id}-${now}-${Math.random()}`,
     spellId: spell.id,
@@ -53569,18 +54792,23 @@ function createWizardGroundSpellEffect(spell, impact, now, partyCaster = null, p
     worldX: channelStorm || areaField ? (centerTile?.worldX ?? (Number(impact.worldX) || battle.enemyX)) : (swarmActive ? centerTile.worldX : (Number(impact.worldX) || battle.enemyX)),
     stormCenter: channelStorm ? centerTile : null,
     fieldCenter: areaField && !channelStorm ? centerTile : null,
-    offsets: swarmActive && !channelStorm && !areaField ? [] : offsets,
-    tiles: swarmActive || channelStorm || areaField ? tiles : null,
+    offsets: (swarmActive || hellfireSpread) && !channelStorm && !areaField ? [] : offsets,
+    tiles: swarmActive || channelStorm || areaField || hellfireSpread ? tiles : null,
     value,
     createdAt: now,
     expiresAt: now + durationMs,
     nextTickAt: now + tickStartDelayMs,
     tickMs: Math.max(250, Math.trunc(Number(spell.groundTickMs) || 2000)),
+    hellfireSpread,
+    hellfireOriginWorldX: hellfireSpread ? hellfireGroundOriginWorldX(partyCaster) : null,
     focusSwarmId: channelStorm
       ? (impact.focusSwarmId ?? meteorStrikeFocusSwarmId(spell, null, partyCaster))
       : null,
   };
   battle.groundSpellEffects = [...(battle.groundSpellEffects ?? []), effect].slice(-8);
+  if (hellfireSpread) {
+    queueHellfireAttackFx(effect.tiles ?? [], partyCaster, now);
+  }
   if (spell.groundChannel) {
     beginWizardStormChannel(now + durationMs, partyCaster);
   }
@@ -53607,7 +54835,9 @@ function createWizardGroundSpellEffect(spell, impact, now, partyCaster = null, p
   } else if (areaField && spell.id === "HealingCircle") {
     pushBattleLog(`${spell.label} settles beneath the Taoist.`);
   } else {
-    pushBattleLog(`${spell.label} burns on the ground.`);
+    pushBattleLog(fireWallHellfireActive(partyCaster)
+      ? `${combatSpellDisplayLabel(spell, partyCaster)} blankets every walkable path in range.`
+      : `${spell.label} burns on the ground.`);
   }
   if (partyCaster && partyLearned) {
     bossPartyLevelMagicSkill(partyCaster, spell, partyLearned, now);
@@ -54078,11 +55308,11 @@ function updateGroundSpellEffects(now) {
         const swarmEnemies = battle.swarm?.enemies ?? [];
         for (const swarmEnemy of swarmEnemies) {
           if (swarmEnemy.hp <= 0 || swarmEnemy.dying) continue;
-          if (!groundSpellEffectHitsSwarmEnemy(effect, swarmEnemy)) continue;
+          if (!groundSpellEffectHitsSwarmEnemy(effect, swarmEnemy, effect.nextTickAt)) continue;
           applyGroundSpellTickToSwarmEnemy(effect, swarmEnemy, effect.nextTickAt);
           changed = true;
         }
-      } else if (battle.enemy?.hp > 0 && groundSpellEffectHitsEnemy(effect)) {
+      } else if (battle.enemy?.hp > 0 && groundSpellEffectHitsEnemy(effect, effect.nextTickAt)) {
         applyGroundSpellTick(effect, effect.nextTickAt);
         changed = true;
         if ((battle.enemy?.hp ?? 0) <= 0) break;
@@ -54093,15 +55323,17 @@ function updateGroundSpellEffects(now) {
   return changed;
 }
 
-function groundSpellEffectHitsSwarmEnemy(effect, swarmEnemy) {
+function groundSpellEffectHitsSwarmEnemy(effect, swarmEnemy, now = performance.now()) {
   if (effect.focusSwarmId) return swarmEnemy.id === effect.focusSwarmId;
   const tile = swarmEnemyReservedTile(swarmEnemy);
-  return (effect.tiles ?? []).some(
-    (fireTile) => fireTile.worldX === tile.worldX && fireTile.mapRow === tile.mapRow,
-  );
+  return (effect.tiles ?? []).some((fireTile) => (
+    fireTile.worldX === tile.worldX
+    && fireTile.mapRow === tile.mapRow
+    && hellfireTileHasIgnited(effect, fireTile, now)
+  ));
 }
 
-function groundSpellEffectHitsEnemy(effect) {
+function groundSpellEffectHitsEnemy(effect, now = performance.now()) {
   const spell = combatGroundSpell(effect.spellId);
   if (spell?.groundHealOnly) return false;
   const battle = state.battle;
@@ -54109,11 +55341,20 @@ function groundSpellEffectHitsEnemy(effect) {
   // Solo / single-boss: targeted area fields always hit the current enemy.
   if ((effect.fieldCenter || effect.stormCenter) && !groupDungeonSwarmSideActive()) return true;
   if (effect.tiles?.length) {
+    if (!groupDungeonSwarmSideActive()) {
+      const hitRadius = LANE_TILE_PX * 0.55;
+      return effect.tiles.some((entry) => (
+        Math.abs(battle.enemyX - entry.worldX) <= hitRadius
+        && hellfireTileHasIgnited(effect, entry, now)
+      ));
+    }
     const mapRow = Math.trunc(Number(effect.fieldCenter?.mapRow ?? effect.stormCenter?.mapRow) || 0);
     const tile = { worldX: swarmSnapTileX(battle.enemyX), mapRow };
-    return effect.tiles.some(
-      (entry) => entry.worldX === tile.worldX && entry.mapRow === tile.mapRow,
-    );
+    return effect.tiles.some((entry) => (
+      entry.worldX === tile.worldX
+      && entry.mapRow === tile.mapRow
+      && hellfireTileHasIgnited(effect, entry, now)
+    ));
   }
   const hitRadius = LANE_TILE_PX * 0.55;
   return (effect.offsets ?? [0]).some((offset) => Math.abs(battle.enemyX - (effect.worldX + offset)) <= hitRadius);
@@ -54152,6 +55393,17 @@ function groundSpellTickValue(effect, spell) {
   return rollWizardMagicValue(spell, learned, player, inventory);
 }
 
+function playGroundSpellTickSfx(spell) {
+  if (!spell?.id || spell.groundChannel) return;
+  // Fire Wall / Hellfire already played placement SFX; ticks must not fall back to the cast clip.
+  if (spell.id === "FireWall") return;
+  if (sfxEntry(`spell.${spell.id}.impact`)?.src) {
+    playSpellSfx(spell.id, "impact", { volume: 0.42, throttleMs: 160 });
+    return;
+  }
+  playSpellSfx(spell.id, "cast", { volume: 0.38, throttleMs: 160 });
+}
+
 function applyGroundSpellTick(effect, now) {
   const battle = state.battle;
   const spell = combatGroundSpell(effect.spellId);
@@ -54164,9 +55416,7 @@ function applyGroundSpellTick(effect, now) {
   } else {
     queueEnemyStruck(now);
     playMonsterSfx("flinch");
-    if (!spell?.groundChannel) {
-      playSpellSfx(spell.id, "impact", { volume: 0.42, throttleMs: 160 }) || playSpellSfx(spell.id, "cast", { volume: 0.38, throttleMs: 160 });
-    }
+    playGroundSpellTickSfx(spell);
     if (effect.casterClassId) recordBossCombatDamage(effect.casterClassId, effect.spellId, damage);
     applyCombatEvents(magicBurnEvents(spell.label, battle.enemy.name, damage, "enemy", critDamageKind(crit)), now, { enemy: battle.enemy });
 
@@ -54203,9 +55453,7 @@ function applyGroundSpellTickToSwarmEnemy(effect, swarmEnemy, now) {
     }
     queueSwarmEnemyStruck(swarmEnemy, now);
     playMonsterSfx("flinch", swarmEnemy);
-    if (!spell?.groundChannel) {
-      playSpellSfx(spell.id, "impact", { volume: 0.42, throttleMs: 160 }) || playSpellSfx(spell.id, "cast", { volume: 0.38, throttleMs: 160 });
-    }
+    playGroundSpellTickSfx(spell);
     if (effect.casterClassId) recordBossCombatDamage(effect.casterClassId, effect.spellId, damage);
     addSwarmEnemyCombatText(swarmEnemy, damage, critDamageKind(crit), now);
     applyCombatEvents(
@@ -54574,6 +55822,7 @@ function incomingDamageReductionPercent(target, now = performance.now()) {
   // Equipped "damage taken −%" empower (all classes) for player-owned entities.
   const inventory = damageReductionInventoryForEntity(buffEntity);
   if (inventory) percent += Math.max(0, equippedBonusFromStats(inventory, "damageTakenReductionPercent"));
+  if (inventory) percent += equippedInnateDamageTakenReductionPercent(inventory, itemDefinition);
   // Additive sources share one capped bucket; Tank/Glass Canon multiply after.
   return clampIncomingDamageReductionPercent(percent);
 }
@@ -54729,6 +55978,7 @@ function finishBattle(now) {
   state.battle.nextMapLightningAt = 0;
   state.battle.mapHellFireEffects = [];
   state.battle.nextMapHellFireAt = 0;
+  state.battle.hellfireAttackFx = [];
   state.battle.returnToStandAt = (state.battle.player?.hp ?? 0) > 0 ? now + COMBAT_STANCE_HOLD_MS : 0;
 }
 
@@ -55252,6 +56502,7 @@ function renderCombatSkillBar(now = performance.now()) {
     magic: magicSignature(),
     autoCastSlotLimit: autoCastSlotLimit(),
     queuedCombatSpellId: state.battle.queuedCombatSpellId ?? "",
+    hellfire: fireWallHellfireActive() ? 1 : 0,
     flamingSwordReady: warriorFlamingSwordReady(),
     twinDrakeReady: warriorTwinDrakeReady(),
     // Only the affordability flip (usable <-> not) is structural; the raw MP value is not.
@@ -55307,6 +56558,7 @@ function combatSkillUsable(skill, learned = learnedMagic(skill.id)) {
     : (state.battle.player?.mp ?? 0) >= mpCost;
   const hasPoison = skill.id !== "Poisoning" || poisonInventoryCount() > 0;
   const hasPoisonCloudSupplies = skill.id !== "PoisonCloud"
+    || !poisonCloudNeedsSupplies()
     || (amuletInventoryCount() >= POISON_CLOUD_AMULET_COST && poisonInventoryCount("green") >= POISON_CLOUD_GREEN_POISON_COST);
   const hasPlagueSupplies = skill.id !== "Plague" || amuletInventoryCount() >= PLAGUE_AMULET_COST;
   const hasCurseSupplies = skill.id !== "Curse" || amuletInventoryCount() >= CURSE_AMULET_COST;
@@ -55320,6 +56572,7 @@ function combatSkillButtonHtml(skill, learned, now) {
   const remainingMs = skill.toggle ? 0 : Math.max(0, (learned?.castReadyAt ?? 0) - now);
   const remainingSeconds = Math.ceil(remainingMs / 1000);
   const mpCost = effectiveSpellMpCost(skill, learned);
+  const skillLabel = combatSpellDisplayLabel(skill);
   const needsAmulet = skill.id === "SoulFireBall" || skill.id === "Plague" || skill.id === "Curse" || skill.id === "SummonSkeleton" || skill.id === "SummonShinsu" || skill.id === "SummonHolyDeva";
   const amuletCost = taoistSummonAmuletCost(skill.id);
   const usable = combatSkillUsable(skill, learned);
@@ -55335,7 +56588,9 @@ function combatSkillButtonHtml(skill, learned, now) {
   const consumableText = skill.id === "Poisoning"
     ? ` | Green ${poisonInventoryCount("green")} Yellow ${poisonInventoryCount("yellow")}`
     : skill.id === "PoisonCloud"
-    ? ` | Amulets ${amuletInventoryCount()} (need ${POISON_CLOUD_AMULET_COST}) Green ${poisonInventoryCount("green")} (need ${POISON_CLOUD_GREEN_POISON_COST})`
+    ? (poisonCloudNeedsSupplies()
+      ? ` | Amulets ${amuletInventoryCount()} (need ${POISON_CLOUD_AMULET_COST}) Green ${poisonInventoryCount("green")} (need ${POISON_CLOUD_GREEN_POISON_COST})`
+      : "")
     : skill.id === "Plague"
     ? ` | Amulets ${amuletInventoryCount()} (need ${PLAGUE_AMULET_COST}) Green ${poisonInventoryCount("green")} Yellow ${poisonInventoryCount("yellow")}`
     : skill.id === "Curse"
@@ -55345,19 +56600,19 @@ function combatSkillButtonHtml(skill, learned, now) {
     : "";
   const costLabel = combatClass === "Warrior" ? warriorSkillCostResourceLabel() : "MP";
   const castTitle = chargeReady && skill.id === "TwinDrakeBlade"
-    ? `${skill.label} Lv ${learned?.level ?? 0} | charged — next attack releases twin drake | click to cancel`
+    ? `${skillLabel} Lv ${learned?.level ?? 0} | charged — next attack releases twin drake | click to cancel`
     : chargeReady && skill.id === "FlamingSword"
-    ? `${skill.label} Lv ${learned?.level ?? 0} | charged — next attack unleashes fire | click to cancel`
+    ? `${skillLabel} Lv ${learned?.level ?? 0} | charged — next attack unleashes fire | click to cancel`
     : queued
-    ? `${skill.label} Lv ${learned?.level ?? 0} | queued as next manual cast`
+    ? `${skillLabel} Lv ${learned?.level ?? 0} | queued as next manual cast`
     : isWarriorChargeSkill(skill)
-    ? `${skill.label} Lv ${learned?.level ?? 0} | ${costLabel} ${mpCost} | click to charge for next attack`
-    : `${skill.label} Lv ${learned?.level ?? 0} | ${skill.toggle ? (skill.id === "Thrusting" ? "2 tile reach" : `${costLabel} ${mpCost} per swing`) : `${costLabel} ${mpCost}`}${consumableText} | click to cast manually`;
+    ? `${skillLabel} Lv ${learned?.level ?? 0} | ${costLabel} ${mpCost} | click to charge for next attack`
+    : `${skillLabel} Lv ${learned?.level ?? 0} | ${skill.toggle ? (skill.id === "Thrusting" ? "2 tile reach" : `${costLabel} ${mpCost} per swing`) : `${costLabel} ${mpCost}`}${consumableText} | click to cast manually`;
   const autoTitle = auto
-    ? `Disable ${skill.label} auto`
+    ? `Disable ${skillLabel} auto`
     : autoLimitReached
     ? `Autocast slots full (${autoCastSlotsUsed(combatClass)}/${autoCastSlotLimit()})`
-    : `Enable ${skill.label} auto`;
+    : `Enable ${skillLabel} auto`;
   return `
     <div class="combat-skill-control ${auto ? "active" : ""} ${queued || chargeReady ? "queued" : ""}" data-skill-id="${escapeHtml(skill.id)}">
       <button
@@ -55430,7 +56685,6 @@ function hotbarSlotHtml(slot) {
         data-tooltip-item="${escapeHtml(item.id)}"
         data-tooltip-entry="${escapeHtml(entry.id)}"
         draggable="false"
-        title="${escapeHtml(itemDisplayName(item, entry))}"
       >
         ${itemIconHtml(item)}
         ${isStackableItem(item) && entry.quantity > 1 ? `<span class="hotbar-qty">${entry.quantity}</span>` : ""}
@@ -55442,7 +56696,7 @@ function hotbarSlotHtml(slot) {
       class="hotbar-slot ${item ? "filled" : ""} ${autoSlot ? "auto-slot" : ""}"
       data-hotbar-slot="${slot}"
       style="left:${x}px; top:${y}px;"
-      title="Hotbar ${key}${autoSlot ? " auto potion" : ""}"
+      ${item ? "" : `title="Hotbar ${key}${autoSlot ? " auto potion" : ""}"`}
     >
       <span class="hotbar-key">${key}</span>
       ${autoSlot ? `<span class="hotbar-auto">Auto</span>` : ""}
@@ -56171,7 +57425,15 @@ function playerAttackRangeRaw(now = performance.now()) {
   if (state.battle.combatClass === "Taoist") return taoistAttackRange(now);
   const thrustingReach = thrustingEnabled() ? THRUSTING_RANGE : LANE.warriorRange;
   const queuedWarriorSkill = queuedCombatSpell("Warrior")?.spell;
-  if (queuedWarriorSkill?.id === "BladeAvalanche" && warriorBladeAvalancheSelected()) {
+  // Same usability check as autocast. A queued Blade Avalanche that is on
+  // cooldown or unpaid must not keep the warrior stopped at 3 tiles, or the
+  // filler basic attack connects from there.
+  if (queuedWarriorSkill?.id === "BladeAvalanche" && canUseWarriorSkill(
+    queuedWarriorSkill,
+    learnedMagic("BladeAvalanche"),
+    now,
+    { requireAuto: false },
+  )) {
     return BLADE_AVALANCHE_MAX_RANGE_PX;
   }
   if (queuedWarriorSkill?.id === "SlashingBurst" && slashingBurstLaneEnabled()) {
@@ -57280,6 +58542,7 @@ function renderCanvasStage(displayFrame, frameCount) {
   drawEnemyPoisonDots(ctx);
   drawSpellFxCanvas(ctx, displayFrame, frameCount);
   drawAttachedSpellFxCanvas(ctx);
+  drawHellfireAttackFxCanvas(ctx);
   drawTwinDrakeReadyFxCanvas(ctx);
   drawCombatSkillFxCanvas(ctx);
   drawCombatWizardFxCanvas(ctx);
@@ -60738,7 +62001,7 @@ function drawWizardMirrorCanvas(ctx) {
 function drawWizardMirrorBodySpellFxCanvas(ctx, body, offsetY, now) {
   if (!body?.fxSpellId) return;
   const spellId = body.fxSpellId;
-  const atlas = state.wizardSpellAtlases[spellId];
+  const atlas = wizardSpellFxAtlas(spellId);
   const spell = wizardCombatSpell(spellId);
   if (!atlas || !spell) return;
   const t = now - (body.fxStartedAt ?? 0);
@@ -60895,7 +62158,7 @@ function drawBossPartyMemberSpellFx(ctx, member, now) {
   }
 
   const atlas = member.classId === "Wizard"
-    ? state.wizardSpellAtlases[spellId]
+    ? wizardSpellFxAtlas(spellId, member)
     : member.classId === "Taoist" ? state.taoistSpellAtlases[spellId] : null;
   const spell = member.classId === "Wizard" ? wizardCombatSpell(spellId)
     : member.classId === "Taoist" ? taoistCombatSpell(spellId) : null;
@@ -61615,6 +62878,31 @@ function drawDefenceBuffFxCanvas(ctx) {
   }
 }
 
+function drawHellfireAttackFxCanvas(ctx) {
+  const battle = state.battle;
+  const now = performance.now();
+  const effects = (battle.hellfireAttackFx ?? []).filter((entry) => now <= entry.expiresAt);
+  if (effects.length !== (battle.hellfireAttackFx ?? []).length) {
+    battle.hellfireAttackFx = effects;
+  }
+  const layer = state.wizardSpellAtlases?.HellFire?.impact;
+  if (!layer?.frames?.length || !effects.length) return;
+  const interval = Math.max(1, Math.trunc(Number(layer.interval) || 83));
+  withScreenBlend(ctx, () => {
+    ctx.globalAlpha = HELLFIRE_ATTACK_FX_BLEND_RATE;
+    for (const entry of effects) {
+      if (now < entry.startedAt) continue;
+      const elapsed = now - entry.startedAt;
+      const frameIndex = Math.min(layer.frames.length - 1, Math.floor(elapsed / interval));
+      const x = Math.floor(Number(entry.worldX) - battle.cameraX);
+      const y = groupDungeonSwarmSideActive()
+        ? swarmGroundSpellAnchorY(entry.mapRow)
+        : Math.floor(state.stageHeight * LANE.y);
+      drawSpellLayerCanvas(ctx, HELLFIRE_SPELL_FX_ID, layer, frameIndex, x, y);
+    }
+  });
+}
+
 function drawGroundSpellEffectsCanvas(ctx, options = {}) {
   const aboveEntities = Boolean(options.aboveEntities);
   const now = performance.now();
@@ -61684,12 +62972,16 @@ function drawGroundSpellEffectsCanvas(ctx, options = {}) {
         }
       } else if (effect.tiles?.length) {
         for (const tile of effect.tiles) {
+          if (!hellfireTileHasIgnited(effect, tile, now)) continue;
+          const igniteAt = hellfireTileIgniteAt(effect, tile);
+          const tileAge = Math.max(0, now - igniteAt);
+          const tileFrame = Math.min(layer.frames.length - 1, Math.floor((tileAge % duration) / interval));
           const x = Math.floor(tile.worldX - state.battle.cameraX);
           if (x < -layer.slotWidth || x > state.stageWidth + layer.slotWidth) continue;
           const y = groupDungeonSwarmSideActive()
             ? swarmGroundSpellAnchorY(tile.mapRow)
             : groundY;
-          drawSpellLayerCanvas(ctx, effect.spellId, layer, frameIndex, x, y);
+          drawSpellLayerCanvas(ctx, effect.spellId, layer, tileFrame, x, y);
         }
       } else {
         for (const offset of effect.offsets ?? [0]) {
@@ -62051,6 +63343,7 @@ function spellImpactVisualDurationMs(spell, atlas) {
 }
 
 function spellDrawsImpactVisual(spell, atlas) {
+  if (spell?.impactMode === "ground") return false;
   return spell?.impactMode === "projectile"
     || spell?.impactMode === "plague"
     || spell?.impactMode === "curse"

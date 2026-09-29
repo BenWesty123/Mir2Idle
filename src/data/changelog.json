@@ -1,6 +1,56 @@
 {
   "entries": [
     {
+      "id": "2026-09-28-attunement-craft-all",
+      "date": "2026-09-28",
+      "title": "Attunement stones",
+      "highlights": [
+        "Attunement Stone recipes in the crafting cube have a Craft all button. It turns the whole ore stack in the cube into stones in one click."
+      ]
+    },
+    {
+      "id": "2026-09-26-deeper-mastery",
+      "date": "2026-09-26",
+      "title": "Deeper Mastery",
+      "highlights": [
+        "Deeper Mastery is three tiers. Spells start at skill level 1, then 2, then already mastered. Costs 1, then 2, then 3 Ascension Points."
+      ]
+    },
+    {
+      "id": "2026-09-24-plague-execution",
+      "date": "2026-09-24",
+      "title": "Plague & Execution",
+      "highlights": [
+        "Tao and Universal weapons can roll a Plague mana-cost reduction (10–40%). Armour and jewellery can roll a smaller version.",
+        "Glyph of Execution still hits for 2.5× damage. The heavier blow is now 7×, and only while the target is below 40% HP.",
+        "The Codex has a Glyphs section. It lists every glyph by class, what it changes, and whether you have found it."
+      ]
+    },
+    {
+      "id": "2026-09-22-awakened-weapons-ascension",
+      "date": "2026-09-22",
+      "title": "Awakened weapons & Ascension powers",
+      "highlights": [
+        "New Ascension powers: Head Start (each new world begins with 10 Rebirth Points per tier, uncapped), Resonant Start (Soul Resonance from the start, 6 points; the 200 RP purchase cannot stack), Greater DC/MC/SC/AC/AMC (uncapped, +20% per tier), and Mega Formula (Samuel sells Mega Potion, then Ultra Potion, with faster potion ticks while they recover).",
+        "Each Evil Mir journey now pays 8 Standard, 9 Empowered, 10 Ascended, 11 Awakened.",
+        "Poison Cloud stays on the ground like Fire Wall. Weapons can roll extra Poison Cloud damage and duration; jewellery can roll a little duration.",
+        "Added Awakened Blade of Sorcery, Heaven Sword, Burst Sword, Dragon Blood Sword, Holy Blood Spear, Black Tiger Hammer, Staff of Lotus, Fan of Crane, Sword of War God, Holy Light Sword, and Mir Sword.",
+        "Dragon Sword now requires Max DC 30 to equip, matching Crystal. Past Bicheon mobs play their attack, flinch, and death sounds.",
+        "Blade Avalanche no longer lets other warrior melee attacks hit from 3 tiles away. Those skills close to melee again. Blade Avalanche itself is unchanged."
+      ]
+    },
+    {
+      "id": "2026-09-17-options-saves-taoist",
+      "date": "2026-09-17",
+      "title": "Smaller saves, Options tabs & Taoist healing",
+      "highlights": [
+        "Saves are much smaller. Full bags and storage should fit cloud backup again.",
+        "The Time Logging (XP/h) window can be dragged by its title bar. Its position is remembered.",
+        "Options is split into Gameplay, Saves/Backups, and Audio tabs.",
+        "Taoists can set Healing and Mass Healing HP thresholds in Options > Gameplay, same as auto potions."
+      ]
+    },
+    {
       "id": "2026-09-11-ascension",
       "date": "2026-09-11",
       "title": "Ascension",

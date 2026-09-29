@@ -3436,6 +3436,12 @@ dd {
   gap: 10px;
 }
 
+.crafting-cube-craft-buttons.has-craft-all {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 6px;
+}
+
 .crafting-cube-targeted-choices {
   display: grid;
   gap: 10px;
@@ -5381,8 +5387,56 @@ body.scene-window-drag-active {
   grid-template-rows: auto auto minmax(0, 1fr);
 }
 
-.codex-panel-uniques {
+.codex-panel-uniques,
+.codex-panel-glyphs {
   grid-template-rows: auto auto minmax(0, 1fr);
+}
+
+.codex-panel-glyphs {
+  grid-template-rows: auto auto auto minmax(0, 1fr);
+}
+
+.codex-section-tab[data-codex-section="glyphs"].active,
+.codex-section-tab[data-codex-section="glyphs"]:hover,
+.codex-section-tab[data-codex-section="glyphs"]:focus-visible {
+  border-color: rgba(96, 168, 186, 0.78);
+  background:
+    linear-gradient(180deg, rgba(28, 58, 72, 0.72), rgba(10, 16, 22, 0.96));
+  box-shadow: inset 0 -2px 0 rgba(120, 196, 214, 0.72);
+  color: #c8eef6;
+}
+
+.codex-glyph-class-tabs {
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+}
+
+.codex-row-icon.glyph,
+.codex-detail-icon.glyph {
+  box-shadow:
+    0 0 6px rgba(72, 168, 196, 0.4),
+    0 0 12px rgba(40, 120, 150, 0.24);
+  border-radius: 4px;
+}
+
+.codex-row-glyph-unfound {
+  opacity: 0.88;
+}
+
+.codex-glyph-detail {
+  display: block;
+  overflow: auto;
+}
+
+.codex-glyph-detail .codex-detail-section + .codex-detail-section {
+  margin-top: 6px;
+}
+
+.codex-glyph-description {
+  margin: 2px 0 0;
+  color: #e6d3b0;
+  font-size: 11px;
+  line-height: 1.35;
+  white-space: normal;
 }
 
 .codex-section-tab[data-codex-section="uniques"].active,
@@ -6704,7 +6758,7 @@ body.scene-window-drag-active {
 }
 
 .options-window {
-  width: min(480px, calc(100vw - 32px));
+  width: min(520px, calc(100vw - 32px));
 }
 
 .upgrades-window {
@@ -7553,6 +7607,41 @@ body.scene-window-drag-active {
   gap: 12px;
 }
 
+.options-tabs {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 4px;
+}
+
+.options-tab {
+  min-width: 0;
+  min-height: 0;
+  padding: 8px 6px;
+  border: 1px solid rgba(95, 73, 39, 0.82);
+  background:
+    linear-gradient(180deg, rgba(28, 20, 12, 0.96), rgba(10, 8, 6, 0.96));
+  color: #b89d6a;
+  text-align: center;
+  font-size: 11px;
+  font-weight: 700;
+  line-height: 1.2;
+}
+
+.options-tabs .options-tab.active,
+.options-tabs .options-tab:hover,
+.options-tabs .options-tab:focus-visible {
+  border-color: rgba(226, 181, 83, 0.78);
+  background:
+    linear-gradient(180deg, rgba(84, 53, 21, 0.72), rgba(24, 16, 10, 0.96));
+  box-shadow: inset 0 -2px 0 rgba(226, 181, 83, 0.72);
+  color: #ffe0a0;
+}
+
+.options-tab-panel {
+  display: grid;
+  gap: 12px;
+}
+
 .options-row {
   display: grid;
   grid-template-columns: 1fr auto;
@@ -7618,7 +7707,7 @@ body.scene-window-drag-active {
 
 .options-volume {
   display: grid;
-  grid-template-columns: 112px 1fr 48px;
+  grid-template-columns: 128px 1fr 48px;
   align-items: center;
   gap: 10px;
   border: 1px solid var(--line);
@@ -10360,6 +10449,70 @@ body.compact-ui .scene-window {
   pointer-events: none;
 }
 
+.leaderboard-boards {
+  position: absolute;
+  left: 8px;
+  top: 5px;
+  z-index: 11;
+  display: flex;
+  gap: 4px;
+}
+
+.leaderboard-board {
+  min-height: 14px;
+  margin: 0;
+  padding: 1px 6px;
+  border: 1px solid #b99545;
+  border-radius: 0;
+  background: rgba(18, 14, 10, 0.72);
+  color: #f3e0ae;
+  font-size: 9px;
+  font-weight: 700;
+  line-height: 1.1;
+  text-shadow: 1px 1px 0 #000, -1px 0 0 #000, 0 -1px 0 #000;
+  cursor: pointer;
+  box-shadow: none;
+}
+
+.leaderboard-board.active {
+  border-color: #f0d080;
+  background: rgba(185, 149, 69, 0.45);
+  color: #fff3c8;
+}
+
+.leaderboard-board:hover,
+.leaderboard-board:focus-visible {
+  outline: 0;
+  border-color: #f0d080;
+  color: #fff3c8;
+}
+
+.leaderboard-columns {
+  position: absolute;
+  left: 12px;
+  top: 78px;
+  z-index: 4;
+  display: grid;
+  grid-template-columns: 22px 86px 28px 28px 36px 50px 62px 62px 65px;
+  width: 439px;
+  height: 20px;
+  align-items: center;
+  background: #1a140f;
+  color: #f3e0ae;
+  font-size: 8px;
+  font-weight: 700;
+  line-height: 1;
+  text-shadow: 1px 1px 0 #000, -1px 0 0 #000, 0 -1px 0 #000;
+}
+
+.leaderboard-columns > span {
+  min-width: 0;
+  padding: 0 2px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
 .leaderboard-search-label {
   position: absolute;
   width: 1px;
@@ -10504,6 +10657,11 @@ body.compact-ui .scene-window {
   text-shadow: 1px 1px 0 #000, -1px 0 0 #000, 0 -1px 0 #000;
   box-shadow: none;
   cursor: pointer;
+}
+
+.leaderboard-row.leaderboard-row-ascended {
+  grid-template-columns: 22px 86px 28px 28px 36px 50px 62px 62px 65px;
+  font-size: 8px;
 }
 
 .leaderboard-row > span {

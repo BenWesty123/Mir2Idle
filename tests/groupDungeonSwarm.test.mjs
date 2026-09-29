@@ -7,8 +7,15 @@ import { fileURLToPath } from "node:url";
 import {
   GROUP_DUNGEON_SWARM_TILE_PX,
   adjacentEightTiles,
+  fireWallLaneStripTiles,
+  wizardFireWallBlocksAdditionalGroundEffect,
+  clampHellfireEastBound,
+  pickBestUncoveredGroundAreaCenter,
+  spellGroundAreaTiles,
+  swarmCellKey,
   swarmLaneMapRow,
   swarmPickCenterLaneStep,
+  swarmWalkableTiles,
 } from "../src/groupDungeonSwarm.js";
 import { PHASE1_ENEMY_TEMPLATES, PHASE1_ZONES } from "../src/phase1Data.js";
 
@@ -33,12 +40,81 @@ function enemy(id, lane, overrides = {}) {
   };
 }
 
+test("normal Fire Wall may add another ground effect; Hellfire may not", () => {
+  assert.equal(wizardFireWallBlocksAdditionalGroundEffect(false, true), false);
+  assert.equal(wizardFireWallBlocksAdditionalGroundEffect(false, false), false);
+  assert.equal(wizardFireWallBlocksAdditionalGroundEffect(true, false), false);
+  assert.equal(wizardFireWallBlocksAdditionalGroundEffect(true, true), true);
+});
+
+test("pickBestUncoveredGroundAreaCenter keeps an existing 3x3 and only shifts to uncovered tiles", () => {
+  const tile = GROUP_DUNGEON_SWARM_TILE_PX;
+  const firstEnemy = { worldX: meleeCol, mapRow: arenaRow };
+  const secondEnemy = { worldX: meleeCol + tile * 4, mapRow: arenaRow };
+  const first = pickBestUncoveredGroundAreaCenter({
+    enemyTiles: [firstEnemy, secondEnemy],
+    radius: 1,
+    meleeWorldX: meleeCol,
+  });
+  assert.ok(first);
+  const covered = new Set(spellGroundAreaTiles(first.worldX, first.mapRow, 1).map(swarmCellKey));
+  assert.ok(covered.has(swarmCellKey(firstEnemy)));
+
+  const next = pickBestUncoveredGroundAreaCenter({
+    enemyTiles: [firstEnemy, secondEnemy],
+    activeTileKeys: covered,
+    radius: 1,
+    meleeWorldX: meleeCol,
+  });
+  assert.ok(next);
+  assert.notEqual(swarmCellKey(next), swarmCellKey(first));
+  const nextCovered = new Set(spellGroundAreaTiles(next.worldX, next.mapRow, 1).map(swarmCellKey));
+  assert.ok(nextCovered.has(swarmCellKey(secondEnemy)));
+  assert.equal(nextCovered.has(swarmCellKey(firstEnemy)), false);
+
+  const none = pickBestUncoveredGroundAreaCenter({
+    enemyTiles: [firstEnemy, secondEnemy],
+    activeTileKeys: new Set([...covered, ...nextCovered]),
+    radius: 1,
+    meleeWorldX: meleeCol,
+  });
+  assert.equal(none, null);
+});
+
 test("adjacentEightTiles is the 8 neighbours around a cell", () => {
   const tiles = adjacentEightTiles(meleeCol, arenaRow);
   assert.equal(tiles.length, 8);
   assert.equal(tiles.some((t) => t.worldX === meleeCol && t.mapRow === arenaRow), false);
   assert.ok(tiles.some((t) => t.worldX === meleeCol + GROUP_DUNGEON_SWARM_TILE_PX && t.mapRow === arenaRow));
   assert.ok(tiles.some((t) => t.worldX === meleeCol + GROUP_DUNGEON_SWARM_TILE_PX && t.mapRow === arenaRow + 1));
+});
+
+test("swarmWalkableTiles carpets 3 lanes from melee to eastmost", () => {
+  const east = meleeCol + GROUP_DUNGEON_SWARM_TILE_PX * 2;
+  const tiles = swarmWalkableTiles(meleeCol, arenaRow, east);
+  assert.equal(tiles.length, 9);
+  assert.ok(tiles.every((tile) => tile.worldX >= meleeCol && tile.worldX <= east));
+  const rows = new Set(tiles.map((tile) => tile.mapRow));
+  assert.deepEqual([...rows].sort((a, b) => a - b), [arenaRow - 1, arenaRow, arenaRow + 1]);
+});
+
+test("clampHellfireEastBound stays on-screen and in spell range", () => {
+  const tile = GROUP_DUNGEON_SWARM_TILE_PX;
+  const melee = tile * 10;
+  const rangeEast = melee + tile * 9;
+  const farVisible = melee + tile * 20;
+  assert.equal(clampHellfireEastBound(melee, farVisible, rangeEast), rangeEast);
+  const shortVisible = melee + tile * 3;
+  assert.equal(clampHellfireEastBound(melee, shortVisible, rangeEast), shortVisible);
+  assert.equal(clampHellfireEastBound(melee, melee - tile, melee - tile), melee);
+});
+
+test("fireWallLaneStripTiles is 3-wide along the lane", () => {
+  const tiles = fireWallLaneStripTiles(0, GROUP_DUNGEON_SWARM_TILE_PX * 2, 0, 3);
+  assert.equal(tiles.length, 5);
+  assert.ok(tiles.some((tile) => tile.worldX === 0 && tile.mapRow === 0));
+  assert.ok(tiles.some((tile) => tile.worldX === -GROUP_DUNGEON_SWARM_TILE_PX));
+  assert.ok(tiles.some((tile) => tile.worldX === GROUP_DUNGEON_SWARM_TILE_PX * 3));
 });
 
 test("split final enemies close the empty centre melee lane", () => {
@@ -124,6 +200,16 @@ test("every moving group-dungeon swarm monster has directional clips", () => {
   }
 
   assert.deepEqual(missing, []);
+});
+
+test("HellFire atlas includes Crystal attack EFX (Magic 930)", () => {
+  const atlasPath = path.join(root, "public", "spellfx", "HellFire", "atlas.json");
+  const sheetPath = path.join(root, "public", "spellfx", "HellFire", "impact.png");
+  const atlas = JSON.parse(fs.readFileSync(atlasPath, "utf8"));
+  assert.equal(atlas.impact?.baseIndex, 930);
+  assert.equal(atlas.impact?.frames?.length, 6);
+  assert.equal(atlas.impact?.sheet, "impact.png");
+  assert.ok(fs.existsSync(sheetPath));
 });
 
 test("every group-dungeon boss floor has a respawn timer", () => {

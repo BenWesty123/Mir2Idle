@@ -84,6 +84,12 @@ test("sanitizeCharacterBattleState: normalizes battle snapshot fields", () => {
   assert.equal(result.vampAmount, 4);
 });
 
+test("sanitizeCharacterBattleState: keeps Mega/Ultra potion tick bonus", () => {
+  assert.equal(sanitizeCharacterBattleState({ potionTickBonusPercent: 25 }).potionTickBonusPercent, 25);
+  assert.equal(sanitizeCharacterBattleState({ potionTickBonusPercent: 50 }).potionTickBonusPercent, 50);
+  assert.equal(sanitizeCharacterBattleState({ potionTickBonusPercent: 12 }).potionTickBonusPercent, 0);
+});
+
 test("sanitizeCharacterBattleState: keeps Last Stand recast lockout", () => {
   const now = Date.now();
   const readyAt = now + 180_000;

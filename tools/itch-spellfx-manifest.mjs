@@ -3,6 +3,7 @@ import path from "node:path";
 import { WARRIOR_COMBAT_SKILLS } from "../src/warriorMagic.js";
 
 export const WIZARD_COMBAT_SPELL_IDS = ["FireBall", "GreatFireBall", "ThunderBolt", "TurnUndead", "Vampirism", "FireWall", "FrostCrunch", "IceStorm", "FlameField", "FlameDisruptor", "MagicShield", "Mirroring", "MagicBooster", "Blizzard", "MeteorStrike"];
+export const HELLFIRE_FX_ID = "HellFire";
 export const TAOIST_COMBAT_SPELL_IDS = [
   "Healing",
   "Poisoning",
@@ -49,6 +50,7 @@ export function packagedSpellfxSpellIds() {
       MAP_LIGHTNING_FX_ID,
       MAP_HELL_FIRE_FX_ID,
       MAP_QUAKE_FX_ID,
+      HELLFIRE_FX_ID,
       TOWN_IDLE_TELEPORT_FX_ID,
     ]),
   ];

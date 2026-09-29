@@ -106,10 +106,21 @@ function json(data, status = 200, headers = {}) {
   });
 }
 
+// A journey is wall-clock and can sit idle for months. The default int cap
+// (~24 days) would freeze those clocks.
+const JOURNEY_MS_MAX = 10 * 365 * 24 * 60 * 60 * 1000;
+
 function intValue(value, fallback = 0, max = 2147483647) {
   const number = Math.trunc(Number(value));
   if (!Number.isFinite(number)) return fallback;
   return Math.max(0, Math.min(max, number));
+}
+
+// null when the client omitted the field, so an older build cannot zero a
+// value the server already stored.
+function optionalInt(value, max = 2147483647) {
+  if (value == null || value === "") return null;
+  return intValue(value, 0, max);
 }
 
 function textValue(value, maxLength = 80) {
@@ -679,13 +690,18 @@ function normalizeAccountStatsPayload(payload = {}) {
     rebirthCount: intValue(account?.rebirthCount),
     rebirthPointsGained: intValue(account?.rebirthPointsGained),
     rebirthPointsSpent: intValue(account?.rebirthPointsSpent),
-    rebirthPointsHeld: intValue(account?.rebirthPointsHeld),
+    rebirthPointsHeld: optionalInt(account?.rebirthPointsHeld),
+    runRebirthPointsGained: optionalInt(account?.runRebirthPointsGained),
     awakeningSoulsHeld: intValue(account?.awakeningSoulsHeld),
     totalGold: intValue(account?.totalGold ?? payload?.gold),
     bossKills: sanitizeBossKills(account?.bossKills ?? payload?.bossKills),
     bossKillsTotal: intValue(account?.bossKillsTotal),
     characterLevels: normalizedLevels,
     highestCharacterLevel: Math.max(1, intValue(account?.highestCharacterLevel ?? payload?.highestLevel, 1, 200)),
+    ascensionCount: optionalInt(account?.ascensionCount, 100000),
+    ascensionPoints: optionalInt(account?.ascensionPoints),
+    currentJourneyMs: optionalInt(account?.currentJourneyMs, JOURNEY_MS_MAX),
+    bestJourneyMs: optionalInt(account?.bestJourneyMs, JOURNEY_MS_MAX),
   };
 }
 
@@ -804,6 +820,46 @@ function resolveCharacterSnapshotForUpsert(existing, stats, combinedLevels) {
     characterLevelsJson: JSON.stringify(existingLevels),
     characterStatsJson: String(existing.character_stats ?? "[]"),
     combinedLevels: existingCombined,
+  };
+}
+
+// Ascension count and points only climb. Best time only gets faster. Current
+// level and the live journey clock follow the character snapshot, so a stale
+// tab cannot paint a wiped world back onto the Ascended board.
+function resolveAscensionBoardFields(existing, stats, snapshot) {
+  const account = stats.account ?? {};
+  const ascensionCount = account.ascensionCount == null
+    ? intValue(existing?.ascension_count, 0, 100000)
+    : Math.max(intValue(existing?.ascension_count, 0, 100000), account.ascensionCount);
+  const ascensionPoints = account.ascensionPoints == null
+    ? intValue(existing?.ascension_points)
+    : Math.max(intValue(existing?.ascension_points), account.ascensionPoints);
+  let currentHighestLevel = stats.account.highestCharacterLevel;
+  if (!snapshot.accepted) {
+    const kept = Object.values(parseJsonObject(snapshot.characterLevelsJson));
+    currentHighestLevel = kept.length
+      ? Math.max(...kept.map((level) => intValue(level, 1, 200)))
+      : Math.max(1, intValue(existing?.current_highest_level, 1, 200));
+  }
+  const currentJourneyMs = snapshot.accepted && account.currentJourneyMs != null
+    ? account.currentJourneyMs
+    : intValue(existing?.current_journey_ms, 0, JOURNEY_MS_MAX);
+  const existingBest = intValue(existing?.best_journey_ms, 0, JOURNEY_MS_MAX);
+  const incomingBest = account.bestJourneyMs;
+  const bestJourneyMs = incomingBest != null && incomingBest > 0 && (existingBest === 0 || incomingBest < existingBest)
+    ? incomingBest
+    : existingBest;
+  const runRebirthPointsGained = snapshot.accepted && account.runRebirthPointsGained != null
+    ? account.runRebirthPointsGained
+    : intValue(existing?.rebirth_points_held);
+  return {
+    ascensionCount,
+    ascensionPoints,
+    currentHighestLevel: Math.max(1, intValue(currentHighestLevel, 1, 200)),
+    currentJourneyMs,
+    bestJourneyMs,
+    rebirthPointsHeld: runRebirthPointsGained,
+    runRebirthPointsGained,
   };
 }
 
@@ -944,6 +1000,12 @@ async function upsertLeaderboardRow(env, stats, integrity) {
       character_levels,
       character_stats,
       combined_character_levels,
+      ascension_count,
+      ascension_points,
+      current_highest_level,
+      current_journey_ms,
+      best_journey_ms,
+      rebirth_points_held,
       integrity_status,
       integrity_reason,
       integrity_fingerprint,
@@ -958,6 +1020,7 @@ async function upsertLeaderboardRow(env, stats, integrity) {
   const characterLevelsJson = snapshot.characterLevelsJson;
   const characterStatsJson = snapshot.characterStatsJson;
   const combinedLevels = snapshot.combinedLevels;
+  const ascensionBoard = resolveAscensionBoardFields(existing, stats, snapshot);
   const awakeningSoulsHeld = intValue(stats.account.awakeningSoulsHeld);
   const integrityState = nextIntegrityState(existing, integrity);
   const flaggedAt = integrityState.status === "flagged" ? new Date().toISOString() : null;
@@ -986,9 +1049,15 @@ async function upsertLeaderboardRow(env, stats, integrity) {
       integrity_reason,
       integrity_fingerprint,
       integrity_rules_version,
-      integrity_flagged_at
+      integrity_flagged_at,
+      ascension_count,
+      ascension_points,
+      current_highest_level,
+      current_journey_ms,
+      best_journey_ms,
+      rebirth_points_held
     )
-    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
     ON CONFLICT(player_id) DO UPDATE SET
       highest_level = MAX(leaderboard.highest_level, excluded.highest_level),
       experience = MAX(leaderboard.experience, excluded.experience),
@@ -1016,6 +1085,12 @@ async function upsertLeaderboardRow(env, stats, integrity) {
           THEN excluded.integrity_flagged_at
         ELSE leaderboard.integrity_flagged_at
       END,
+      ascension_count = excluded.ascension_count,
+      ascension_points = excluded.ascension_points,
+      current_highest_level = excluded.current_highest_level,
+      current_journey_ms = excluded.current_journey_ms,
+      best_journey_ms = excluded.best_journey_ms,
+      rebirth_points_held = excluded.rebirth_points_held,
       last_seen = CURRENT_TIMESTAMP
   `).bind(
     stats.playerId,
@@ -1041,6 +1116,12 @@ async function upsertLeaderboardRow(env, stats, integrity) {
     integrityState.fingerprint,
     integrity.rulesVersion,
     flaggedAt,
+    ascensionBoard.ascensionCount,
+    ascensionBoard.ascensionPoints,
+    ascensionBoard.currentHighestLevel,
+    ascensionBoard.currentJourneyMs,
+    ascensionBoard.bestJourneyMs,
+    ascensionBoard.runRebirthPointsGained,
   ).run();
   return { integrityState, characterSnapshotUpdated: snapshot.accepted };
 }
@@ -1361,12 +1442,25 @@ function leaderboardScopeValue(value) {
   return ["characters", "accounts", "all"].includes(scope) ? scope : "accounts";
 }
 
-async function leaderboardRows(env, scope, limit) {
+function leaderboardBoardValue(value) {
+  return String(value ?? "standard").toLowerCase() === "ascended" ? "ascended" : "standard";
+}
+
+async function leaderboardRows(env, scope, limit, board = "standard") {
   const scopeWhere = {
     accounts: "instr(player_id, ':') = 0",
     characters: "instr(player_id, ':') > 0",
     all: "1 = 1",
   }[scope] ?? "1 = 1";
+  const ascended = board === "ascended";
+  const ascendedWhere = ascended ? "AND ascension_count > 0" : "";
+  const orderBy = ascended
+    ? `ascension_count DESC,
+      CASE WHEN best_journey_ms > 0 THEN 0 ELSE 1 END,
+      CASE WHEN best_journey_ms > 0 THEN best_journey_ms ELSE 0 END,
+      current_highest_level DESC,
+      combined_character_levels DESC`
+    : "combined_character_levels DESC, awakening_souls_held DESC, highest_level DESC, experience DESC, kills DESC";
   return env.DB.prepare(`
     SELECT
       player_id,
@@ -1385,12 +1479,19 @@ async function leaderboardRows(env, scope, limit) {
       character_stats,
       awakening_souls_held,
       combined_character_levels,
+      ascension_count,
+      ascension_points,
+      current_highest_level,
+      current_journey_ms,
+      best_journey_ms,
+      rebirth_points_held,
       last_seen
     FROM leaderboard
     WHERE ${scopeWhere}
+      ${ascendedWhere}
       AND COALESCE(integrity_status, 'legacy') != 'excluded'
       AND highest_level <= ${LEADERBOARD_MAX_VALID_LEVEL}
-    ORDER BY combined_character_levels DESC, awakening_souls_held DESC, highest_level DESC, experience DESC, kills DESC
+    ORDER BY ${orderBy}
     LIMIT ?
   `).bind(limit).all();
 }
@@ -1543,11 +1644,12 @@ async function handleLeaderboardGet(request, env, headers) {
 
   const url = new URL(request.url);
   const limit = leaderboardLimitValue(url.searchParams.get("limit"));
+  const board = leaderboardBoardValue(url.searchParams.get("board"));
   let scope = leaderboardScopeValue(url.searchParams.get("scope"));
-  let results = await leaderboardRows(env, scope, limit);
-  if ((results.results ?? []).length === 0 && scope === "accounts") {
+  let results = await leaderboardRows(env, scope, limit, board);
+  if ((results.results ?? []).length === 0 && scope === "accounts" && board !== "ascended") {
     scope = "characters";
-    results = await leaderboardRows(env, scope, limit);
+    results = await leaderboardRows(env, scope, limit, board);
   }
 
   const leaderboardRowsRaw = results.results ?? [];
@@ -1576,6 +1678,13 @@ async function handleLeaderboardGet(request, env, headers) {
         rebirthCount: intValue(row.rebirth_count),
         rebirthPointsGained: intValue(row.rebirth_points_gained),
         rebirthPointsSpent: intValue(row.rebirth_points_spent),
+        ascensionCount: intValue(row.ascension_count, 0, 100000),
+        ascensionPoints: intValue(row.ascension_points),
+        currentHighestLevel: Math.max(1, intValue(row.current_highest_level, 1, 200)),
+        currentJourneyMs: intValue(row.current_journey_ms, 0, JOURNEY_MS_MAX),
+        bestJourneyMs: intValue(row.best_journey_ms, 0, JOURNEY_MS_MAX),
+        rebirthPointsHeld: intValue(row.rebirth_points_held),
+        runRebirthPointsGained: intValue(row.rebirth_points_held),
         characterLevels,
         characterStats,
         characters: formatLeaderboardCharacters(characterLevels, characterStats),
@@ -1583,7 +1692,7 @@ async function handleLeaderboardGet(request, env, headers) {
       };
     });
 
-  return json({ scope, limit, rows }, 200, headers);
+  return json({ scope, board, limit, rows }, 200, headers);
 }
 
 function timingSafeEqual(a, b) {

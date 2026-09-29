@@ -46,6 +46,7 @@ import {
   SILVER_ORE_ITEM_ID,
   OFFENSIVE_ATTUNEMENT_STONE_ITEM_ID,
   CRAFTING_CUBE_OFFENSIVE_ATTUNEMENT_STONE_RECIPE_ID,
+  craftingCubeAttunementStoneCraftAllCount,
   craftingCubeAutofillEntryIds,
   validateCraftingCubeAttunementStoneCraft,
   validateCraftingCubeDdSoulCraft,
@@ -784,4 +785,39 @@ test("autofill pulls ruby ore for offensive attunement stone recipe", () => {
     resolveItem,
   );
   assert.deepEqual(picks, ["ore-1"]);
+});
+
+test("attunement craft all uses the whole ore stack when gold and bag space allow it", () => {
+  const result = craftingCubeAttunementStoneCraftAllCount({
+    oreQuantity: 99,
+    gold: 0,
+    goldCostPerCraft: 0,
+    inventoryCapacity: 500,
+  });
+  assert.deepEqual(result, { count: 99, limitedBy: null });
+});
+
+test("attunement craft all stops at bag space and at gold", () => {
+  assert.deepEqual(
+    craftingCubeAttunementStoneCraftAllCount({
+      oreQuantity: 99,
+      gold: 0,
+      goldCostPerCraft: 0,
+      inventoryCapacity: 12,
+    }),
+    { count: 12, limitedBy: "inventory" },
+  );
+  assert.deepEqual(
+    craftingCubeAttunementStoneCraftAllCount({
+      oreQuantity: 40,
+      gold: 25000,
+      goldCostPerCraft: 10000,
+      inventoryCapacity: 40,
+    }),
+    { count: 2, limitedBy: "gold" },
+  );
+  assert.deepEqual(
+    craftingCubeAttunementStoneCraftAllCount({ oreQuantity: 0, inventoryCapacity: 10 }),
+    { count: 0, limitedBy: null },
+  );
 });

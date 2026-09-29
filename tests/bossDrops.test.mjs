@@ -127,6 +127,244 @@ test("Awakened Dragon Slayer is a unique with 100% crit and HP skill costs", () 
   assert.deepEqual(item.stats?.dc, [5, 40]);
 });
 
+test("Awakened Blade of Sorcery is a unique Hellfire Fire Wall weapon", () => {
+  const item = loadItemsById().get("awakened-blade-of-sorcery");
+  assert.ok(item, "expected awakened-blade-of-sorcery in items.json");
+  assert.equal(item.unique, true);
+  assert.equal(item.visualWeaponGlow, 7);
+  assert.equal(item.visual?.layer, "weapon");
+  assert.equal(item.visual?.index, 33);
+  assert.equal(item.innateFireWallHellfire, true);
+  assert.equal(item.innateSpellBonuses?.FireWall?.damagePercent, 100);
+  assert.deepEqual(item.stats?.mc, [3, 13]);
+  assert.deepEqual(item.stats?.dc, [7, 25]);
+});
+
+test("Awakened Heaven Sword is a unique Healing weapon", () => {
+  const item = loadItemsById().get("awakened-heaven-sword");
+  assert.ok(item, "expected awakened-heaven-sword in items.json");
+  assert.equal(item.unique, true);
+  assert.equal(item.visualWeaponGlow, 8);
+  assert.equal(item.visual?.layer, "weapon");
+  assert.equal(item.visual?.index, 34);
+  assert.equal(item.innateSpellBonuses?.Healing?.healingPercent, 100);
+  assert.equal(item.innateSpellBonuses?.Healing?.castSpeedPercent, 50);
+  assert.deepEqual(item.stats?.sc, [3, 10]);
+  assert.deepEqual(item.stats?.dc, [8, 31]);
+});
+
+test("Awakened Sword of War God is a unique 0-80 DC HP/accuracy weapon", () => {
+  const item = loadItemsById().get("awakened-sword-of-war-god");
+  assert.ok(item, "expected awakened-sword-of-war-god in items.json");
+  assert.equal(item.unique, true);
+  assert.equal(item.visualWeaponGlow, 6);
+  assert.equal(item.visual?.layer, "weapon");
+  assert.equal(item.visual?.index, 32);
+  assert.equal(item.innateDoubleMaxHpAndAccuracy, true);
+  assert.deepEqual(item.stats?.dc, [0, 80]);
+});
+
+test("Awakened Burst Sword is a unique melee Slashing Burst weapon", () => {
+  const item = loadItemsById().get("awakened-burst-sword");
+  assert.ok(item, "expected awakened-burst-sword in items.json");
+  assert.equal(item.unique, true);
+  assert.equal(item.visualWeaponGlow, 10);
+  assert.equal(item.visual?.layer, "weapon");
+  assert.equal(item.visual?.index, 35);
+  assert.equal(item.innateSlashingBurstMelee, true);
+  assert.equal(item.innateSpellBonuses?.SlashingBurst?.damagePercent, 100);
+  assert.equal(item.innateSpellBonuses?.SlashingBurst?.critDamagePercent, 100);
+  assert.deepEqual(item.stats?.dc, [8, 56]);
+});
+
+test("Awakened Dragon Blood Sword is a unique Poison Cloud weapon", () => {
+  const item = loadItemsById().get("awakened-dragon-blood-sword");
+  assert.ok(item, "expected awakened-dragon-blood-sword in items.json");
+  assert.equal(item.unique, true);
+  assert.equal(item.visualWeaponGlow, 11);
+  assert.equal(item.visual?.layer, "weapon");
+  assert.equal(item.visual?.index, 37);
+  assert.equal(item.innateSpellBonuses?.PoisonCloud?.damagePercent, 100);
+  assert.equal(item.innateSpellBonuses?.PoisonCloud?.cooldownReductionSeconds, 18);
+  assert.equal(item.innatePoisonCloudNoSupplies, true);
+  assert.deepEqual(item.stats?.sc, [4, 12]);
+  assert.deepEqual(item.stats?.dc, [8, 25]);
+});
+
+test("Awakened Holy Blood Spear is a unique Flame Disruptor weapon", () => {
+  const item = loadItemsById().get("awakened-holy-blood-spear");
+  assert.ok(item, "expected awakened-holy-blood-spear in items.json");
+  assert.equal(item.unique, true);
+  assert.equal(item.visualWeaponGlow, 12);
+  assert.equal(item.visual?.layer, "weapon");
+  assert.equal(item.visual?.index, 36);
+  assert.equal(item.innateSpellBonuses?.FlameDisruptor?.damagePercent, 100);
+  assert.equal(item.innateSpellBonuses?.FlameDisruptor?.critDamagePercent, 100);
+  assert.deepEqual(item.stats?.mc, [4, 15]);
+  assert.deepEqual(item.stats?.dc, [6, 17]);
+});
+
+test("Awakened Black Tiger Hammer is a unique warrior-buff weapon", () => {
+  const item = loadItemsById().get("awakened-black-tiger-hammer");
+  assert.ok(item, "expected awakened-black-tiger-hammer in items.json");
+  assert.equal(item.unique, true);
+  assert.equal(item.visualWeaponGlow, 13);
+  assert.equal(item.visual?.layer, "weapon");
+  assert.equal(item.visual?.index, 51);
+  assert.equal(item.innateWarriorBuffEffectivenessPercent, 100);
+  assert.deepEqual(item.stats?.dc, [7, 60]);
+});
+
+test("Awakened Staff of Lotus is a unique Flame Field weapon", () => {
+  const item = loadItemsById().get("awakened-staff-of-lotus");
+  assert.ok(item, "expected awakened-staff-of-lotus in items.json");
+  assert.equal(item.unique, true);
+  assert.equal(item.visualWeaponGlow, 14);
+  assert.equal(item.visual?.layer, "weapon");
+  assert.equal(item.visual?.index, 39);
+  assert.equal(item.innateSpellBonuses?.FlameField?.damagePercent, 100);
+  assert.equal(item.innateSpellBonuses?.FlameField?.critDamagePercent, 100);
+  assert.equal(item.innateSpellBonuses?.FlameField?.manaCostPercent, 50);
+  assert.deepEqual(item.stats?.mc, [5, 16]);
+  assert.deepEqual(item.stats?.dc, [6, 21]);
+});
+
+test("Awakened Fan of Crane is a unique Healing Circle weapon", () => {
+  const item = loadItemsById().get("awakened-fan-of-crane");
+  assert.ok(item, "expected awakened-fan-of-crane in items.json");
+  assert.equal(item.unique, true);
+  assert.equal(item.visualWeaponGlow, 15);
+  assert.equal(item.visual?.layer, "weapon");
+  assert.equal(item.visual?.index, 40);
+  assert.equal(item.innateSpellBonuses?.HealingCircle?.healingPercent, 100);
+  assert.deepEqual(item.stats?.sc, [10, 26]);
+  assert.deepEqual(item.stats?.dc, [8, 28]);
+});
+
+test("Awakened Holy Light Sword is a unique survivability weapon for every class", () => {
+  const item = loadItemsById().get("awakened-holy-light-sword");
+  assert.ok(item, "expected awakened-holy-light-sword in items.json");
+  assert.equal(item.unique, true);
+  assert.equal(item.class, "any");
+  assert.equal(item.requirements?.classMask, 7);
+  assert.equal(item.visualWeaponGlow, 55);
+  assert.equal(item.visual?.layer, "weapon");
+  assert.equal(item.visual?.index, 77);
+  assert.equal(item.stats?.hp, 0);
+  assert.equal(item.stats?.damageTakenReductionPercent, undefined);
+  assert.equal(item.stats?.potionRestoreBonusPercent, undefined);
+  assert.equal(item.innateHp, 300);
+  assert.equal(item.innateDamageTakenReductionPercent, 25);
+  assert.equal(item.innatePotionRestoreBonusPercent, 50);
+  assert.deepEqual(item.stats?.dc, [17, 86]);
+  assert.deepEqual(item.stats?.mc, [12, 34]);
+  assert.deepEqual(item.stats?.sc, [11, 28]);
+});
+
+test("Awakened Mir Sword is a unique crit weapon for every class", () => {
+  const item = loadItemsById().get("awakened-mir-sword");
+  assert.ok(item, "expected awakened-mir-sword in items.json");
+  assert.equal(item.unique, true);
+  assert.equal(item.class, "any");
+  assert.equal(item.requirements?.classMask, 7);
+  assert.equal(item.visualWeaponGlow, 9);
+  assert.equal(item.visual?.layer, "weapon");
+  assert.equal(item.visual?.index, 41);
+  assert.equal(item.innateCritChancePercent, 100);
+  assert.equal(item.innateCritDamagePercent, 100);
+  assert.equal(item.stats?.critChancePercent, undefined);
+  assert.equal(item.stats?.critDamagePercent, undefined);
+  assert.deepEqual(item.stats?.dc, [90, 210]);
+  assert.deepEqual(item.stats?.mc, [36, 100]);
+  assert.deepEqual(item.stats?.sc, [34, 86]);
+  assert.equal(item.stats?.accuracy, 6);
+  assert.equal(item.stats?.attackSpeed, 4);
+  assert.equal(item.stats?.luck, 2);
+});
+
+test("Beast King awakened exclusives include the L45 Burst, Dragon Blood, and Holy Blood uniques at 1%", () => {
+  const table = BOSS_DROP_TABLE_BY_LABEL["Beast King"];
+  for (const id of ["awakened-burst-sword", "awakened-dragon-blood-sword", "awakened-holy-blood-spear"]) {
+    const entry = (table.awakenedItems ?? []).find((row) => row.id === id);
+    assert.ok(entry, `expected ${id} on Beast King awakenedItems`);
+    assert.equal(entry.chance, 0.01);
+  }
+  const danmo = (BOSS_DROP_TABLE_BY_LABEL["Danmo"].awakenedItems ?? [])
+    .some((entry) => [
+      "awakened-burst-sword",
+      "awakened-dragon-blood-sword",
+      "awakened-holy-blood-spear",
+    ].includes(entry.id));
+  assert.equal(danmo, false, "Beast King L45 awakened uniques are not on Danmo");
+});
+
+test("Danmo awakened exclusives include the L50 Black Tiger, Staff of Lotus, and Fan of Crane uniques at 1%", () => {
+  const table = BOSS_DROP_TABLE_BY_LABEL["Danmo"];
+  for (const id of ["awakened-black-tiger-hammer", "awakened-staff-of-lotus", "awakened-fan-of-crane"]) {
+    const entry = (table.awakenedItems ?? []).find((row) => row.id === id);
+    assert.ok(entry, `expected ${id} on Danmo awakenedItems`);
+    assert.equal(entry.chance, 0.01);
+  }
+  const frost = (BOSS_DROP_TABLE_BY_LABEL["Frost Tiger"].awakenedItems ?? [])
+    .some((entry) => [
+      "awakened-black-tiger-hammer",
+      "awakened-staff-of-lotus",
+      "awakened-fan-of-crane",
+    ].includes(entry.id));
+  assert.equal(frost, false, "Danmo L50 awakened uniques are not on Frost Tiger");
+});
+
+test("Oma King awakened exclusives include Awakened Holy Light Sword at 1%", () => {
+  const table = BOSS_DROP_TABLE_BY_LABEL["Oma King"];
+  const sword = (table.awakenedItems ?? []).find((entry) => entry.id === "awakened-holy-light-sword");
+  assert.ok(sword, "expected awakened-holy-light-sword on Oma King awakenedItems");
+  assert.equal(sword.chance, 0.01);
+  for (const label of ["Frost Tiger", "Danmo", "Evil Mir"]) {
+    const has = (BOSS_DROP_TABLE_BY_LABEL[label].awakenedItems ?? [])
+      .some((entry) => entry.id === "awakened-holy-light-sword");
+    assert.equal(has, false, `Awakened Holy Light Sword is Oma King only, not ${label}`);
+  }
+});
+
+test("Evil Mir awakened exclusives include Awakened Mir Sword at 1%", () => {
+  const table = BOSS_DROP_TABLE_BY_LABEL["Evil Mir"];
+  const sword = (table.awakenedItems ?? []).find((entry) => entry.id === "awakened-mir-sword");
+  assert.ok(sword, "expected awakened-mir-sword on Evil Mir awakenedItems");
+  assert.equal(sword.chance, 0.01);
+  for (const label of ["Oma King", "Frost Tiger", "Danmo"]) {
+    const has = (BOSS_DROP_TABLE_BY_LABEL[label].awakenedItems ?? [])
+      .some((entry) => entry.id === "awakened-mir-sword");
+    assert.equal(has, false, `Awakened Mir Sword is Evil Mir only, not ${label}`);
+  }
+});
+
+test("Dream and Dark Devourer awakened exclusives include Awakened Sword of War God at 1%", () => {
+  const dream = BOSS_DROP_TABLE_BY_LABEL["Dream Devourer"];
+  const dark = BOSS_DROP_TABLE_BY_LABEL["Dark Devourer"];
+  const dreamSword = (dream.awakenedItems ?? []).find((entry) => entry.id === "awakened-sword-of-war-god");
+  const darkSword = (dark.awakenedItems ?? []).find((entry) => entry.id === "awakened-sword-of-war-god");
+  assert.ok(dreamSword, "expected awakened-sword-of-war-god on Dream Devourer awakenedItems");
+  assert.equal(dreamSword.chance, 0.01);
+  assert.ok(darkSword, "expected awakened-sword-of-war-god on Dark Devourer awakenedItems");
+  assert.equal(darkSword.chance, 0.01);
+  const fox = (BOSS_DROP_TABLE_BY_LABEL["Great Fox Spirit"].awakenedItems ?? [])
+    .some((entry) => entry.id === "awakened-sword-of-war-god");
+  assert.equal(fox, false, "Awakened Sword of War God is Devourer-only, not Great Fox Spirit");
+});
+
+test("Great Fox Spirit awakened exclusives include Blade of Sorcery and Heaven Sword at 1%", () => {
+  const table = BOSS_DROP_TABLE_BY_LABEL["Great Fox Spirit"];
+  const blade = (table.awakenedItems ?? []).find((entry) => entry.id === "awakened-blade-of-sorcery");
+  const heaven = (table.awakenedItems ?? []).find((entry) => entry.id === "awakened-heaven-sword");
+  assert.ok(blade, "expected awakened-blade-of-sorcery on Great Fox Spirit awakenedItems");
+  assert.equal(blade.chance, 0.01);
+  assert.ok(heaven, "expected awakened-heaven-sword on Great Fox Spirit awakenedItems");
+  assert.equal(heaven.chance, 0.01);
+  const hog = (BOSS_DROP_TABLE_BY_LABEL["King Hog"].awakenedItems ?? [])
+    .some((entry) => entry.id === "awakened-blade-of-sorcery" || entry.id === "awakened-heaven-sword");
+  assert.equal(hog, false, "Great Fox Spirit awakened uniques are not on King Hog");
+});
+
 test("Minotaur King awakened exclusives include Awakened Dragon Slayer at 1%", () => {
   const table = BOSS_DROP_TABLE_BY_LABEL["Minotaur King"];
   const slayer = (table.awakenedItems ?? []).find((entry) => entry.id === "awakened-dragon-slayer");

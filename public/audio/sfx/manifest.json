@@ -618,6 +618,31 @@
         "monster.272.range",
         "monster.272.attack2",
         "monster.272.range2",
+        "monster.118.attack",
+        "monster.118.flinch",
+        "monster.118.death",
+        "monster.119.attack",
+        "monster.119.flinch",
+        "monster.119.death",
+        "monster.120.attack",
+        "monster.120.flinch",
+        "monster.120.death",
+        "monster.121.attack",
+        "monster.121.flinch",
+        "monster.121.death",
+        "monster.122.attack",
+        "monster.122.flinch",
+        "monster.122.death",
+        "monster.123.attack",
+        "monster.123.flinch",
+        "monster.123.death",
+        "monster.126.attack",
+        "monster.126.flinch",
+        "monster.126.death",
+        "monster.102.attack",
+        "monster.102.flinch",
+        "monster.102.death",
+        "monster.102.range",
         "monster.900.attack",
         "monster.900.range",
         "monster.900.death",
@@ -4719,6 +4744,206 @@
       "group": "monster",
       "sourceFile": "272-8.wav",
       "src": "./public/audio/sfx/files/2728-272-8.wav"
+    },
+    "monster.118.attack": {
+      "key": "monster.118.attack",
+      "label": "Axe Oma attack",
+      "id": 1181,
+      "group": "monster",
+      "sourceFile": "118-1.wav",
+      "src": "./public/audio/sfx/files/1181-118-1.wav"
+    },
+    "monster.118.flinch": {
+      "key": "monster.118.flinch",
+      "label": "Axe Oma flinch",
+      "id": 1182,
+      "group": "monster",
+      "sourceFile": "118-2.wav",
+      "src": "./public/audio/sfx/files/1182-118-2.wav"
+    },
+    "monster.118.death": {
+      "key": "monster.118.death",
+      "label": "Axe Oma death",
+      "id": 1183,
+      "group": "monster",
+      "sourceFile": "118-3.wav",
+      "src": "./public/audio/sfx/files/1183-118-3.wav"
+    },
+    "monster.119.attack": {
+      "key": "monster.119.attack",
+      "label": "Sword Oma attack",
+      "id": 1191,
+      "group": "monster",
+      "sourceFile": "119-1.wav",
+      "src": "./public/audio/sfx/files/1191-119-1.wav"
+    },
+    "monster.119.flinch": {
+      "key": "monster.119.flinch",
+      "label": "Sword Oma flinch",
+      "id": 1192,
+      "group": "monster",
+      "sourceFile": "119-2.wav",
+      "src": "./public/audio/sfx/files/1192-119-2.wav"
+    },
+    "monster.119.death": {
+      "key": "monster.119.death",
+      "label": "Sword Oma death",
+      "id": 1193,
+      "group": "monster",
+      "sourceFile": "119-3.wav",
+      "src": "./public/audio/sfx/files/1193-119-3.wav"
+    },
+    "monster.120.attack": {
+      "key": "monster.120.attack",
+      "label": "Crossbow Oma attack",
+      "id": 1201,
+      "group": "monster",
+      "sourceFile": "120-1.wav",
+      "src": "./public/audio/sfx/files/1201-120-1.wav"
+    },
+    "monster.120.flinch": {
+      "key": "monster.120.flinch",
+      "label": "Crossbow Oma flinch",
+      "id": 1202,
+      "group": "monster",
+      "sourceFile": "120-2.wav",
+      "src": "./public/audio/sfx/files/1202-120-2.wav"
+    },
+    "monster.120.death": {
+      "key": "monster.120.death",
+      "label": "Crossbow Oma death",
+      "id": 1203,
+      "group": "monster",
+      "sourceFile": "120-3.wav",
+      "src": "./public/audio/sfx/files/1203-120-3.wav"
+    },
+    "monster.121.attack": {
+      "key": "monster.121.attack",
+      "label": "Winged Oma attack",
+      "id": 1211,
+      "group": "monster",
+      "sourceFile": "121-1.wav",
+      "src": "./public/audio/sfx/files/1211-121-1.wav"
+    },
+    "monster.121.flinch": {
+      "key": "monster.121.flinch",
+      "label": "Winged Oma flinch",
+      "id": 1212,
+      "group": "monster",
+      "sourceFile": "121-2.wav",
+      "src": "./public/audio/sfx/files/1212-121-2.wav"
+    },
+    "monster.121.death": {
+      "key": "monster.121.death",
+      "label": "Winged Oma death",
+      "id": 1213,
+      "group": "monster",
+      "sourceFile": "121-3.wav",
+      "src": "./public/audio/sfx/files/1213-121-3.wav"
+    },
+    "monster.122.attack": {
+      "key": "monster.122.attack",
+      "label": "Flail Oma attack",
+      "id": 1221,
+      "group": "monster",
+      "sourceFile": "122-1.wav",
+      "src": "./public/audio/sfx/files/1221-122-1.wav"
+    },
+    "monster.122.flinch": {
+      "key": "monster.122.flinch",
+      "label": "Flail Oma flinch",
+      "id": 1222,
+      "group": "monster",
+      "sourceFile": "122-2.wav",
+      "src": "./public/audio/sfx/files/1222-122-2.wav"
+    },
+    "monster.122.death": {
+      "key": "monster.122.death",
+      "label": "Flail Oma death",
+      "id": 1223,
+      "group": "monster",
+      "sourceFile": "122-3.wav",
+      "src": "./public/audio/sfx/files/1223-122-3.wav"
+    },
+    "monster.123.attack": {
+      "key": "monster.123.attack",
+      "label": "Oma Guard attack",
+      "id": 1231,
+      "group": "monster",
+      "sourceFile": "123-1.wav",
+      "src": "./public/audio/sfx/files/1231-123-1.wav"
+    },
+    "monster.123.flinch": {
+      "key": "monster.123.flinch",
+      "label": "Oma Guard flinch",
+      "id": 1232,
+      "group": "monster",
+      "sourceFile": "123-2.wav",
+      "src": "./public/audio/sfx/files/1232-123-2.wav"
+    },
+    "monster.123.death": {
+      "key": "monster.123.death",
+      "label": "Oma Guard death",
+      "id": 1233,
+      "group": "monster",
+      "sourceFile": "123-3.wav",
+      "src": "./public/audio/sfx/files/1233-123-3.wav"
+    },
+    "monster.126.attack": {
+      "key": "monster.126.attack",
+      "label": "Oma King attack",
+      "id": 1261,
+      "group": "monster",
+      "sourceFile": "126-1.wav",
+      "src": "./public/audio/sfx/files/1261-126-1.wav"
+    },
+    "monster.126.flinch": {
+      "key": "monster.126.flinch",
+      "label": "Oma King flinch",
+      "id": 1262,
+      "group": "monster",
+      "sourceFile": "126-2.wav",
+      "src": "./public/audio/sfx/files/1262-126-2.wav"
+    },
+    "monster.126.death": {
+      "key": "monster.126.death",
+      "label": "Oma King death",
+      "id": 1263,
+      "group": "monster",
+      "sourceFile": "126-3.wav",
+      "src": "./public/audio/sfx/files/1263-126-3.wav"
+    },
+    "monster.102.attack": {
+      "key": "monster.102.attack",
+      "label": "Frost Tiger attack",
+      "id": 1021,
+      "group": "monster",
+      "sourceFile": "102-1.wav",
+      "src": "./public/audio/sfx/files/1021-102-1.wav"
+    },
+    "monster.102.flinch": {
+      "key": "monster.102.flinch",
+      "label": "Frost Tiger flinch",
+      "id": 1022,
+      "group": "monster",
+      "sourceFile": "102-2.wav",
+      "src": "./public/audio/sfx/files/1022-102-2.wav"
+    },
+    "monster.102.death": {
+      "key": "monster.102.death",
+      "label": "Frost Tiger death",
+      "id": 1023,
+      "group": "monster",
+      "sourceFile": "102-3.wav",
+      "src": "./public/audio/sfx/files/1023-102-3.wav"
+    },
+    "monster.102.range": {
+      "key": "monster.102.range",
+      "label": "Frost Tiger range attack",
+      "id": 1025,
+      "group": "monster",
+      "sourceFile": "102-5.wav",
+      "src": "./public/audio/sfx/files/1025-102-5.wav"
     },
     "monster.900.attack": {
       "key": "monster.900.attack",

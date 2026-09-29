@@ -309,6 +309,16 @@ const groups = [
         range: 2727,
         range2: 2728,
       }),
+      // Past Bicheon GD — Idle `monsterIndex` is Crystal image (not crystalIndex).
+      // BaseSound = image * 10. CrossbowOma ships no 120-5; range falls back to attack.
+      ...monsterSounds("Axe Oma", 118),
+      ...monsterSounds("Sword Oma", 119),
+      ...monsterSounds("Crossbow Oma", 120),
+      ...monsterSounds("Winged Oma", 121),
+      ...monsterSounds("Flail Oma", 122),
+      ...monsterSounds("Oma Guard", 123),
+      ...monsterSounds("Oma King", 126),
+      ...monsterSounds("Frost Tiger", 102, { range: 1025 }),
       // Evil Mir (900) is spelled out rather than run through monsterSounds because
       // his set is bespoke and, critically, he must have NO flinch.
       //

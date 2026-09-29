@@ -2,6 +2,9 @@ import test from "node:test";
 import assert from "node:assert/strict";
 import { sanitizeItemBonusStats, sanitizeSmithBonusStats } from "../src/battleData.js";
 import {
+  compactBonusStatsForPersist,
+  compactInventoryEntryForPersist,
+  compactSaveSnapshotForPersist,
   normalizeInventoryEntryFields,
   sanitizeEntryQuantity,
   sanitizeInventoryMark,
@@ -302,3 +305,173 @@ test("sanitizeStorageState: reassigns duplicate ids and strips unpurchased page 
   assert.notEqual(storage.items[0].id, storage.items[1].id);
   assert.equal(storage.items[0].slot, null);
 });
+
+function persistedEntryRoundtrip(raw, item = { id: "sword", durability: 20, stackable: false }) {
+  const normalized = {
+    id: raw.id ?? "item-1",
+    itemId: raw.itemId ?? item.id,
+    quantity: Math.max(1, Math.trunc(Number(raw.quantity) || 1)),
+    slot: Number.isInteger(raw.slot) ? raw.slot : null,
+    ...normalizeInventoryEntryFields(raw, item, stackable),
+  };
+  const compacted = compactInventoryEntryForPersist(normalized);
+  const reloaded = {
+    id: compacted.id,
+    itemId: compacted.itemId,
+    quantity: compacted.quantity,
+    slot: Number.isInteger(compacted.slot) ? compacted.slot : null,
+    ...normalizeInventoryEntryFields(compacted, item, stackable),
+  };
+  return { normalized, compacted, reloaded };
+}
+
+test("compactInventoryEntryForPersist: potions omit empty bonus blobs", () => {
+  const { normalized, compacted, reloaded } = persistedEntryRoundtrip({
+    id: "item-1",
+    itemId: "hp-drug-small",
+    quantity: 40,
+    slot: 3,
+  }, { id: "hp-drug-small", stackable: true });
+  assert.equal("bonusStats" in compacted, false);
+  assert.equal("smithBonusStats" in compacted, false);
+  assert.equal("empowerBonusStats" in compacted, false);
+  assert.equal("empowerSpellBonuses" in compacted, false);
+  assert.equal("smithLevel" in compacted, false);
+  assert.equal("empowered" in compacted, false);
+  assert.deepEqual(reloaded, normalized);
+});
+
+test("compactInventoryEntryForPersist: keeps gem and smith stats distinct", () => {
+  const { normalized, compacted, reloaded } = persistedEntryRoundtrip({
+    id: "item-9",
+    itemId: "sword",
+    quantity: 1,
+    slot: 0,
+    smithLevel: 5,
+    smithBonusStats: { dc: [0, 5] },
+    bonusStats: { accuracy: 2, dc: [1, 2] },
+    weaponRefineLevel: 7,
+    gemCount: 2,
+    empowered: true,
+    empowerTier: 2,
+    empowerBonusStats: { dc: [0, 3], critChancePercent: 4 },
+    empowerSpellBonuses: { FireBall: { damagePercent: 10 } },
+    inventoryMark: "saved",
+    maxDura: 20,
+    currentDura: 18,
+  });
+  assert.equal(compacted.smithLevel, 5);
+  assert.deepEqual(compacted.smithBonusStats, { dc: [0, 5] });
+  assert.deepEqual(compacted.bonusStats, { dc: [1, 2], accuracy: 2 });
+  assert.equal(compacted.weaponRefineLevel, 7);
+  assert.equal(compacted.empowered, true);
+  assert.deepEqual(compacted.empowerSpellBonuses, { FireBall: { damagePercent: 10 } });
+  assert.deepEqual(reloaded, normalized);
+});
+
+test("compactInventoryEntryForPersist: legacy combined smith stats round-trip after migrate", () => {
+  const { normalized, compacted, reloaded } = persistedEntryRoundtrip({
+    id: "item-3",
+    itemId: "sword",
+    smithLevel: 8,
+    bonusStats: { dc: [0, 8] },
+  });
+  assert.deepEqual(compacted.smithBonusStats, { dc: [0, 8] });
+  assert.equal("bonusStats" in compacted, false);
+  assert.deepEqual(reloaded, normalized);
+});
+
+
+test("compactInventoryEntryForPersist: always writes smithBonusStats when smithLevel > 0", () => {
+  const compacted = compactInventoryEntryForPersist({
+    id: "item-2",
+    itemId: "sword",
+    quantity: 1,
+    smithLevel: 4,
+    smithBonusStats: sanitizeSmithBonusStats({}),
+    bonusStats: sanitizeItemBonusStats({}),
+  });
+  assert.equal(compacted.smithLevel, 4);
+  assert.equal("smithBonusStats" in compacted, true);
+  assert.deepEqual(compacted.smithBonusStats, {});
+});
+
+test("compactInventoryEntryForPersist: does not mutate the live entry", () => {
+  const live = {
+    id: "item-1",
+    itemId: "hp-drug-small",
+    quantity: 8,
+    slot: 1,
+    ...normalizeInventoryEntryFields({}, { id: "hp-drug-small", stackable: true }, stackable),
+  };
+  const before = JSON.stringify(live);
+  compactInventoryEntryForPersist(live);
+  assert.equal(JSON.stringify(live), before);
+});
+
+test("compactBonusStatsForPersist: keeps negative luck", () => {
+  assert.deepEqual(compactBonusStatsForPersist({ luck: -1 }), { luck: -1 });
+});
+
+test("compactSaveSnapshotForPersist: walks bags, storage, and every character", () => {
+  const snapshot = compactSaveSnapshotForPersist({
+    version: 1,
+    inventory: {
+      items: [{
+        id: "item-1",
+        itemId: "hp-drug-small",
+        quantity: 4,
+        slot: 0,
+        ...normalizeInventoryEntryFields({}, { id: "hp-drug-small", stackable: true }, stackable),
+      }],
+    },
+    account: {
+      storage: {
+        items: [{
+          id: "storage-item-1",
+          itemId: "gold-ore",
+          quantity: 2,
+          slot: 1,
+          ...normalizeInventoryEntryFields({}, { id: "gold-ore", stackable: true }, stackable),
+        }],
+      },
+    },
+    characters: {
+      Warrior: {
+        inventory: {
+          items: [{
+            id: "item-2",
+            itemId: "sword",
+            quantity: 1,
+            smithLevel: 3,
+            smithBonusStats: sanitizeSmithBonusStats({ dc: [0, 3] }),
+            bonusStats: sanitizeItemBonusStats({}),
+          }],
+        },
+      },
+    },
+  });
+  assert.equal("bonusStats" in snapshot.inventory.items[0], false);
+  assert.equal("bonusStats" in snapshot.account.storage.items[0], false);
+  assert.equal(snapshot.characters.Warrior.inventory.items[0].smithLevel, 3);
+  assert.deepEqual(snapshot.characters.Warrior.inventory.items[0].smithBonusStats, { dc: [0, 3] });
+});
+
+test("compactInventoryEntryForPersist: full bags stay far under the cloud cap", () => {
+  const item = { id: "hp-drug-small", stackable: true };
+  const fat = {
+    id: "item-1",
+    itemId: "hp-drug-small",
+    quantity: 64,
+    slot: 0,
+    ...normalizeInventoryEntryFields({}, item, stackable),
+  };
+  const compact = compactInventoryEntryForPersist(fat);
+  const slots = 400 + 120 * 3 + 120;
+  const fatBytes = Buffer.byteLength(JSON.stringify(fat)) * slots;
+  const compactBytes = Buffer.byteLength(JSON.stringify(compact)) * slots;
+  assert.ok(compactBytes < 200_000, `compact bags should stay tiny, got ${compactBytes}`);
+  assert.ok(compactBytes < fatBytes / 5, `compact should be much smaller than fat (${compactBytes} vs ${fatBytes})`);
+  assert.ok(compactBytes < 1_800_000);
+});
+

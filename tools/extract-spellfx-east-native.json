@@ -176,7 +176,13 @@
           "count": 10,
           "totalDurationMs": 600
         }
-      ]
+      ],
+      "impact": {
+        "file": "Magic",
+        "start": 930,
+        "count": 6,
+        "totalDurationMs": 500
+      }
     },
     {
       "id": "ThunderBolt",

@@ -718,6 +718,24 @@ export const SC_WEAPON_SPELL_EMPOWER_ROLL_DEFS = [
     label: "Holy Deva",
   },
   {
+    key: "spell:PoisonCloud:damage",
+    spellId: "PoisonCloud",
+    kind: "damagePercent",
+    min: 5,
+    max: 25,
+    step: 5,
+    label: "Poison Cloud",
+  },
+  {
+    key: "spell:PoisonCloud:duration",
+    spellId: "PoisonCloud",
+    kind: "durationSeconds",
+    min: 1,
+    max: 6,
+    step: 1,
+    label: "Poison Cloud",
+  },
+  {
     key: "spell:PoisonCloud:cooldown",
     spellId: "PoisonCloud",
     kind: "cooldownReductionSeconds",
@@ -725,6 +743,15 @@ export const SC_WEAPON_SPELL_EMPOWER_ROLL_DEFS = [
     max: 5,
     step: 1,
     label: "Poison Cloud",
+  },
+  {
+    key: "spell:Plague:mana",
+    spellId: "Plague",
+    kind: "manaCostPercent",
+    min: 10,
+    max: 40,
+    step: 5,
+    label: "Plague",
   },
   ...spellCritEmpowerRollDefs(TAO_CRIT_SPELL_IDS),
 ];
@@ -742,6 +769,7 @@ const SPELL_EMPOWER_LABELS = {
   Blizzard: "Blizzard",
   Healing: "Healing",
   MassHealing: "Mass Healing",
+  HealingCircle: "Healing Circle",
   SoulFireBall: "Soul Fire Ball",
   SummonSkeleton: "Skeleton",
   SummonShinsu: "Shinsu",
@@ -752,6 +780,7 @@ const SPELL_EMPOWER_LABELS = {
   BladeAvalanche: "Blade Avalanche",
   SlashingBurst: "Slashing Burst",
   PoisonCloud: "Poison Cloud",
+  Plague: "Plague",
 };
 
 const RANGE_KEYS = ["dc", "mc", "sc", "ac", "amc"];
@@ -778,6 +807,7 @@ const EMPOWER_SPELL_KINDS = [
   "manaCostPercent",
   "healingPercent",
   "cooldownReductionSeconds",
+  "durationSeconds",
   "petHealthPercent",
   "petDamageReductionPercent",
   "critChancePercent",
@@ -1076,6 +1106,7 @@ export const EMPOWER_DEFENSIVE_SPELL_KINDS = new Set([
 export const EMPOWER_UTILITY_SPELL_KINDS = new Set([
   "manaCostPercent",
   "cooldownReductionSeconds",
+  "durationSeconds",
 ]);
 
 /**
@@ -1254,6 +1285,8 @@ export function sanitizeEmpowerSpellBonuses(bonuses) {
     if (healingPercent !== 0) entry.healingPercent = healingPercent;
     const cooldownReductionSeconds = Math.trunc(Number(row.cooldownReductionSeconds) || 0);
     if (cooldownReductionSeconds !== 0) entry.cooldownReductionSeconds = cooldownReductionSeconds;
+    const durationSeconds = Math.trunc(Number(row.durationSeconds) || 0);
+    if (durationSeconds !== 0) entry.durationSeconds = durationSeconds;
     const petHealthPercent = Math.trunc(Number(row.petHealthPercent) || 0);
     if (petHealthPercent !== 0) entry.petHealthPercent = petHealthPercent;
     const petDamageReductionPercent = Math.trunc(Number(row.petDamageReductionPercent) || 0);
@@ -1288,10 +1321,16 @@ export function sanitizeInnateSpellBonuses(bonuses) {
     if (petAttackSpeedPercent !== 0) entry.petAttackSpeedPercent = petAttackSpeedPercent;
     const castSpeedPercent = Math.trunc(Number(row.castSpeedPercent) || 0);
     if (castSpeedPercent !== 0) entry.castSpeedPercent = castSpeedPercent;
+    const cooldownReductionSeconds = Math.trunc(Number(row.cooldownReductionSeconds) || 0);
+    if (cooldownReductionSeconds !== 0) entry.cooldownReductionSeconds = cooldownReductionSeconds;
+    const durationSeconds = Math.trunc(Number(row.durationSeconds) || 0);
+    if (durationSeconds !== 0) entry.durationSeconds = durationSeconds;
     const critChancePercent = Math.trunc(Number(row.critChancePercent) || 0);
     if (critChancePercent !== 0) entry.critChancePercent = critChancePercent;
     const critDamagePercent = Math.trunc(Number(row.critDamagePercent) || 0);
     if (critDamagePercent !== 0) entry.critDamagePercent = critDamagePercent;
+    const manaCostPercent = Math.trunc(Number(row.manaCostPercent) || 0);
+    if (manaCostPercent !== 0) entry.manaCostPercent = manaCostPercent;
     if (Object.keys(entry).length) sanitized[spellId] = entry;
   }
   return sanitized;
@@ -1300,7 +1339,7 @@ export function sanitizeInnateSpellBonuses(bonuses) {
 /**
  * Sum a field from equipped items' `innateSpellBonuses` (item definition, not entry empower).
  * @param {string | null | undefined} spellId
- * @param {"damagePercent" | "healingPercent" | "undeadDamagePercent" | "petAttackSpeedPercent" | "castSpeedPercent" | "critChancePercent" | "critDamagePercent"} field
+ * @param {"damagePercent" | "healingPercent" | "undeadDamagePercent" | "petAttackSpeedPercent" | "castSpeedPercent" | "cooldownReductionSeconds" | "durationSeconds" | "critChancePercent" | "critDamagePercent" | "manaCostPercent"} field
  * @param {object | null | undefined} inventory
  * @param {(itemId: string) => object | null | undefined} [resolveItem]
  */
@@ -1334,14 +1373,203 @@ export function equippedWarriorSkillsCostHp(inventory, resolveItem = null) {
 }
 
 /**
+ * Unique Blade of Sorcery: Fire Wall becomes Hellfire (walkable tiles in range).
+ * @param {object | null | undefined} inventory
+ * @param {(itemId: string) => object | null | undefined} [resolveItem]
+ */
+export function equippedInnateFireWallHellfire(inventory, resolveItem = null) {
+  if (typeof resolveItem !== "function") return false;
+  const equippedIds = new Set(Object.values(inventory?.equipment ?? {}).filter(Boolean));
+  for (const entry of inventory?.items ?? []) {
+    if (!equippedIds.has(entry.id)) continue;
+    if (resolveItem(entry.itemId)?.innateFireWallHellfire) return true;
+  }
+  return false;
+}
+
+/**
+ * Unique Sword of War God: equipped item definition doubles max HP and accuracy.
+ * @param {object | null | undefined} inventory
+ * @param {(itemId: string) => object | null | undefined} [resolveItem]
+ */
+export function equippedInnateDoubleMaxHpAndAccuracy(inventory, resolveItem = null) {
+  if (typeof resolveItem !== "function") return false;
+  const equippedIds = new Set(Object.values(inventory?.equipment ?? {}).filter(Boolean));
+  for (const entry of inventory?.items ?? []) {
+    if (!equippedIds.has(entry.id)) continue;
+    if (resolveItem(entry.itemId)?.innateDoubleMaxHpAndAccuracy) return true;
+  }
+  return false;
+}
+
+/**
+ * @param {{ maxHp?: number, accuracy?: number } | null | undefined} stats
+ * @param {object | null | undefined} inventory
+ * @param {(itemId: string) => object | null | undefined} [resolveItem]
+ * @returns {{ maxHp: number, accuracy: number }}
+ */
+export function applyInnateDoubleHpAndAccuracyCombatStats(stats, inventory, resolveItem = null) {
+  const maxHp = Math.max(0, Math.trunc(Number(stats?.maxHp) || 0));
+  const accuracy = Math.max(0, Math.trunc(Number(stats?.accuracy) || 0));
+  if (!equippedInnateDoubleMaxHpAndAccuracy(inventory, resolveItem)) {
+    return { maxHp, accuracy };
+  }
+  return {
+    maxHp: Math.max(1, Math.trunc(maxHp * 2)),
+    accuracy: Math.trunc(accuracy * 2),
+  };
+}
+
+/**
+ * Unique Burst Sword: Slashing Burst can be used in melee (zones normally leap-only).
+ * @param {object | null | undefined} inventory
+ * @param {(itemId: string) => object | null | undefined} [resolveItem]
+ */
+export function equippedInnateSlashingBurstMelee(inventory, resolveItem = null) {
+  if (typeof resolveItem !== "function") return false;
+  const equippedIds = new Set(Object.values(inventory?.equipment ?? {}).filter(Boolean));
+  for (const entry of inventory?.items ?? []) {
+    if (!equippedIds.has(entry.id)) continue;
+    if (resolveItem(entry.itemId)?.innateSlashingBurstMelee) return true;
+  }
+  return false;
+}
+
+/**
+ * Unique Black Tiger Hammer: warrior combat buffs (Fury, Rage, Protection Field,
+ * Immortal Skin) have their bonuses increased. Immortal Skin's DC penalty is unchanged.
+ * @param {object | null | undefined} inventory
+ * @param {(itemId: string) => object | null | undefined} [resolveItem]
+ */
+export function equippedInnateWarriorBuffEffectivenessPercent(inventory, resolveItem = null) {
+  if (typeof resolveItem !== "function") return 0;
+  const equippedIds = new Set(Object.values(inventory?.equipment ?? {}).filter(Boolean));
+  let total = 0;
+  for (const entry of inventory?.items ?? []) {
+    if (!equippedIds.has(entry.id)) continue;
+    total += Math.trunc(Number(resolveItem(entry.itemId)?.innateWarriorBuffEffectivenessPercent) || 0);
+  }
+  return total;
+}
+
+/**
+ * @param {number} bonus
+ * @param {object | null | undefined} inventory
+ * @param {(itemId: string) => object | null | undefined} [resolveItem]
+ */
+export function applyInnateWarriorBuffEffectiveness(bonus, inventory, resolveItem = null) {
+  const base = Math.trunc(Number(bonus) || 0);
+  const percent = equippedInnateWarriorBuffEffectivenessPercent(inventory, resolveItem);
+  if (percent === 0) return base;
+  return Math.trunc((base * (100 + percent)) / 100);
+}
+
+/**
+ * Sum a non-negative integer from equipped item definitions (not cube-transferable).
+ * @param {object | null | undefined} inventory
+ * @param {(itemId: string) => object | null | undefined} resolveItem
+ * @param {string} key
+ */
+function equippedInnateNumber(inventory, resolveItem, key) {
+  if (typeof resolveItem !== "function") return 0;
+  const equippedIds = new Set(Object.values(inventory?.equipment ?? {}).filter(Boolean));
+  let total = 0;
+  for (const entry of inventory?.items ?? []) {
+    if (!equippedIds.has(entry.id)) continue;
+    total += Math.max(0, Math.trunc(Number(resolveItem(entry.itemId)?.[key]) || 0));
+  }
+  return total;
+}
+
+/** Unique Holy Light Sword: flat max HP on the item definition. */
+export function equippedInnateHpBonus(inventory, resolveItem = null) {
+  return equippedInnateNumber(inventory, resolveItem, "innateHp");
+}
+
+/** Unique Holy Light Sword: damage-taken reduction on the item definition. */
+export function equippedInnateDamageTakenReductionPercent(inventory, resolveItem = null) {
+  return equippedInnateNumber(inventory, resolveItem, "innateDamageTakenReductionPercent");
+}
+
+/** Unique Holy Light Sword: Potion Restore on the item definition. */
+export function equippedInnatePotionRestoreBonusPercent(inventory, resolveItem = null) {
+  return equippedInnateNumber(inventory, resolveItem, "innatePotionRestoreBonusPercent");
+}
+
+/** Unique Mir Sword: global crit chance on the item definition. */
+export function equippedInnateCritChancePercent(inventory, resolveItem = null) {
+  return equippedInnateNumber(inventory, resolveItem, "innateCritChancePercent");
+}
+
+/** Unique Mir Sword: global crit damage on the item definition. */
+export function equippedInnateCritDamagePercent(inventory, resolveItem = null) {
+  return equippedInnateNumber(inventory, resolveItem, "innateCritDamagePercent");
+}
+
+/**
+ * Unique Dragon Blood Sword: Poison Cloud does not consume amulets or poisons.
+ * @param {object | null | undefined} inventory
+ * @param {(itemId: string) => object | null | undefined} [resolveItem]
+ */
+export function equippedInnatePoisonCloudNoSupplies(inventory, resolveItem = null) {
+  if (typeof resolveItem !== "function") return false;
+  const equippedIds = new Set(Object.values(inventory?.equipment ?? {}).filter(Boolean));
+  for (const entry of inventory?.items ?? []) {
+    if (!equippedIds.has(entry.id)) continue;
+    if (resolveItem(entry.itemId)?.innatePoisonCloudNoSupplies) return true;
+  }
+  return false;
+}
+
+/**
  * @param {object | null | undefined} item
  * @returns {{ label: string, value: string }[]}
  */
 export function innateItemEffectTooltipRows(item) {
+  const rows = [];
   if (item?.innateWarriorSkillsCostHp) {
-    return [{ label: "Unique", value: "Warrior skills cost HP instead of MP" }];
+    rows.push({ label: "Unique", value: "Warrior skills cost HP instead of MP" });
   }
-  return [];
+  if (item?.innateFireWallHellfire) {
+    rows.push({
+      label: "Unique",
+      value: "Fire Wall becomes Hellfire and covers every walkable tile in range",
+    });
+  }
+  if (item?.innateDoubleMaxHpAndAccuracy) {
+    rows.push({ label: "Unique", value: "Maximum HP and Accuracy are doubled" });
+  }
+  if (item?.innateSlashingBurstMelee) {
+    rows.push({ label: "Unique", value: "Slashing Burst can be used in melee" });
+  }
+  if (item?.innatePoisonCloudNoSupplies) {
+    rows.push({ label: "Unique", value: "Poison Cloud does not require amulets or poisons" });
+  }
+  const warriorBuffPercent = Math.trunc(Number(item?.innateWarriorBuffEffectivenessPercent) || 0);
+  if (warriorBuffPercent !== 0) {
+    rows.push({ label: "Unique", value: `Warrior buffs are ${warriorBuffPercent}% more effective` });
+  }
+  const innateHp = Math.trunc(Number(item?.innateHp) || 0);
+  if (innateHp !== 0) {
+    rows.push({ label: "Unique", value: `+${innateHp} HP` });
+  }
+  const innateDr = Math.trunc(Number(item?.innateDamageTakenReductionPercent) || 0);
+  if (innateDr !== 0) {
+    rows.push({ label: "Unique", value: `${innateDr}% damage reduction` });
+  }
+  const innatePotion = Math.trunc(Number(item?.innatePotionRestoreBonusPercent) || 0);
+  if (innatePotion !== 0) {
+    rows.push({ label: "Unique", value: `+${innatePotion}% Potion Restore` });
+  }
+  const innateCritChance = Math.trunc(Number(item?.innateCritChancePercent) || 0);
+  if (innateCritChance !== 0) {
+    rows.push({ label: "Unique", value: `+${innateCritChance}% Crit Rate` });
+  }
+  const innateCritDamage = Math.trunc(Number(item?.innateCritDamagePercent) || 0);
+  if (innateCritDamage !== 0) {
+    rows.push({ label: "Unique", value: `+${innateCritDamage}% Crit Damage` });
+  }
+  return rows;
 }
 
 /**
@@ -1428,6 +1656,13 @@ export function formatEmpowerRollDescription(roll) {
     const max = Math.trunc(Number(roll.max) || min);
     if (min === max) return `Reduce ${label} cooldown by ${min} second${min === 1 ? "" : "s"}`;
     return `Reduce ${label} cooldown by ${min}–${max} seconds`;
+  }
+  if (roll.spellId && roll.kind === "durationSeconds") {
+    const label = SPELL_EMPOWER_LABELS[roll.spellId] ?? roll.label ?? roll.spellId;
+    const min = Math.trunc(Number(roll.min) || 1);
+    const max = Math.trunc(Number(roll.max) || min);
+    if (min === max) return `Increase ${label} duration by ${min} second${min === 1 ? "" : "s"}`;
+    return `Increase ${label} duration by ${min}–${max} seconds`;
   }
   if (roll.spellId && roll.kind === "petHealthPercent") {
     const label = SPELL_EMPOWER_LABELS[roll.spellId] ?? roll.label ?? roll.spellId;
@@ -1539,7 +1774,7 @@ export function empowerReferenceCatalog() {
       "Warrior and Universal weapons roll DC empower plus Acc, A Speed, Freezing, and Poison.",
       "Warrior weapons also roll warrior skill damage and Flaming Sword cooldown empowers.",
       "Wizard and Universal weapons roll MC empower; MC weapons also roll wizard spell damage, mana cost, and Blizzard / Meteor Strike cooldown empowers.",
-      "Tao and Universal weapons roll SC empower; SC weapons also roll tao spell healing, damage, pet damage / health / damage-taken, and Poison Cloud cooldown empowers.",
+      "Tao and Universal weapons roll SC empower; SC weapons also roll tao spell healing, damage, pet damage / health / damage-taken, Poison Cloud damage / duration / cooldown, and Plague mana cost empowers.",
       "All weapons may roll gold drop, bonus XP, item drop chance, and Awakening Soul drop chance empowers.",
       "Luck — all weapon classes.",
     ],
@@ -1717,6 +1952,8 @@ export function applyEmpowerSpellRoll(empowerSpellBonuses, roll, rng = Math.rand
     empowerSpellBonuses[spellId].healingPercent = (empowerSpellBonuses[spellId].healingPercent || 0) + amount;
   } else if (roll.kind === "cooldownReductionSeconds") {
     empowerSpellBonuses[spellId].cooldownReductionSeconds = (empowerSpellBonuses[spellId].cooldownReductionSeconds || 0) + amount;
+  } else if (roll.kind === "durationSeconds") {
+    empowerSpellBonuses[spellId].durationSeconds = (empowerSpellBonuses[spellId].durationSeconds || 0) + amount;
   } else if (roll.kind === "petHealthPercent") {
     empowerSpellBonuses[spellId].petHealthPercent = (empowerSpellBonuses[spellId].petHealthPercent || 0) + amount;
   } else if (roll.kind === "petDamageReductionPercent") {
@@ -1876,8 +2113,9 @@ export function equippedSpellCritDamageBonusPercent(spellId, inventory, resolveI
 /**
  * @param {string | null | undefined} spellId
  * @param {object | null | undefined} inventory
+ * @param {(itemId: string) => object | null | undefined} [resolveItem] Needed to include item-def innate bonuses.
  */
-export function equippedSpellManaCostReductionPercent(spellId, inventory) {
+export function equippedSpellManaCostReductionPercent(spellId, inventory, resolveItem = null) {
   const id = String(spellId ?? "");
   if (!id) return 0;
   const equippedIds = new Set(Object.values(inventory?.equipment ?? {}).filter(Boolean));
@@ -1887,6 +2125,7 @@ export function equippedSpellManaCostReductionPercent(spellId, inventory) {
     const bonus = sanitizeEmpowerSpellBonuses(entry.empowerSpellBonuses);
     total += Number(bonus[id]?.manaCostPercent) || 0;
   }
+  total += equippedInnateSpellBonusPercent(id, "manaCostPercent", inventory, resolveItem);
   return total;
 }
 
@@ -1894,10 +2133,11 @@ export function equippedSpellManaCostReductionPercent(spellId, inventory) {
  * @param {string | null | undefined} spellId
  * @param {number} baseCost
  * @param {object | null | undefined} inventory
+ * @param {(itemId: string) => object | null | undefined} [resolveItem]
  */
-export function applyEquippedSpellMpCostReduction(spellId, baseCost, inventory) {
+export function applyEquippedSpellMpCostReduction(spellId, baseCost, inventory, resolveItem = null) {
   const cost = Math.max(0, Math.trunc(Number(baseCost) || 0));
-  const reductionPercent = equippedSpellManaCostReductionPercent(spellId, inventory);
+  const reductionPercent = equippedSpellManaCostReductionPercent(spellId, inventory, resolveItem);
   if (reductionPercent <= 0) return cost;
   return Math.max(0, Math.trunc(cost * (1 - reductionPercent / 100)));
 }
@@ -1938,7 +2178,7 @@ export function applyEquippedSpellHealingBonus(spellId, healing, inventory, reso
  * @param {string | null | undefined} spellId
  * @param {object | null | undefined} inventory
  */
-export function equippedSpellCooldownReductionSeconds(spellId, inventory) {
+export function equippedSpellCooldownReductionSeconds(spellId, inventory, resolveItem = null) {
   const id = String(spellId ?? "");
   if (!id) return 0;
   const equippedIds = new Set(Object.values(inventory?.equipment ?? {}).filter(Boolean));
@@ -1948,6 +2188,7 @@ export function equippedSpellCooldownReductionSeconds(spellId, inventory) {
     const bonus = sanitizeEmpowerSpellBonuses(entry.empowerSpellBonuses);
     total += Number(bonus[id]?.cooldownReductionSeconds) || 0;
   }
+  total += equippedInnateSpellBonusPercent(id, "cooldownReductionSeconds", inventory, resolveItem);
   return total;
 }
 
@@ -1955,13 +2196,46 @@ export function equippedSpellCooldownReductionSeconds(spellId, inventory) {
  * @param {string | null | undefined} spellId
  * @param {number} cooldownMs
  * @param {object | null | undefined} inventory
+ * @param {(itemId: string) => object | null | undefined} [resolveItem] Needed to include item-def innate bonuses.
  */
-export function applyEquippedSpellCooldownReductionMs(spellId, cooldownMs, inventory) {
+export function applyEquippedSpellCooldownReductionMs(spellId, cooldownMs, inventory, resolveItem = null) {
   const base = Math.max(0, Math.trunc(Number(cooldownMs) || 0));
-  const reductionSeconds = equippedSpellCooldownReductionSeconds(spellId, inventory);
+  const reductionSeconds = equippedSpellCooldownReductionSeconds(spellId, inventory, resolveItem);
   const reduced = reductionSeconds <= 0 ? base : Math.max(0, base - reductionSeconds * 1000);
   const floorMs = spellCooldownFloorMs(spellId);
   return floorMs > 0 ? Math.max(floorMs, reduced) : reduced;
+}
+
+/**
+ * @param {string | null | undefined} spellId
+ * @param {object | null | undefined} inventory
+ * @param {(itemId: string) => object | null | undefined} [resolveItem]
+ */
+export function equippedSpellDurationBonusSeconds(spellId, inventory, resolveItem = null) {
+  const id = String(spellId ?? "");
+  if (!id) return 0;
+  const equippedIds = new Set(Object.values(inventory?.equipment ?? {}).filter(Boolean));
+  let total = 0;
+  for (const entry of inventory?.items ?? []) {
+    if (!equippedIds.has(entry.id)) continue;
+    const bonus = sanitizeEmpowerSpellBonuses(entry.empowerSpellBonuses);
+    total += Number(bonus[id]?.durationSeconds) || 0;
+  }
+  total += equippedInnateSpellBonusPercent(id, "durationSeconds", inventory, resolveItem);
+  return total;
+}
+
+/**
+ * @param {string | null | undefined} spellId
+ * @param {number} durationMs
+ * @param {object | null | undefined} inventory
+ * @param {(itemId: string) => object | null | undefined} [resolveItem]
+ */
+export function applyEquippedSpellGroundDurationMs(spellId, durationMs, inventory, resolveItem = null) {
+  const base = Math.max(0, Math.trunc(Number(durationMs) || 0));
+  const bonusSeconds = equippedSpellDurationBonusSeconds(spellId, inventory, resolveItem);
+  if (bonusSeconds <= 0) return base;
+  return base + bonusSeconds * 1000;
 }
 
 /**
@@ -1985,11 +2259,14 @@ export function spellCooldownFloorMs(spellId) {
 export const PET_DAMAGE_REDUCTION_CAP_PERCENT = 75;
 
 /**
- * Total potion restore bonus (%) from equipped armour-kind empowerments.
- * Stacks across armour/helmet/belt/boots and caps at {@link POTION_RESTORE_BONUS_CAP_PERCENT}.
+ * Total potion restore bonus (%) from equipped items.
+ * Stacks armour/helmet/belt/boots empower rolls plus innate item-definition
+ * bonuses (e.g. Awakened Holy Light Sword) and caps at {@link POTION_RESTORE_BONUS_CAP_PERCENT}.
+ * Innate bonuses are not stored on `empowerBonusStats`, so the crafting cube cannot move them.
  * @param {object | null | undefined} inventory
+ * @param {(itemId: string) => object | null | undefined} [resolveItem]
  */
-export function equippedPotionRestoreBonusPercent(inventory) {
+export function equippedPotionRestoreBonusPercent(inventory, resolveItem = null) {
   const equippedIds = new Set(Object.values(inventory?.equipment ?? {}).filter(Boolean));
   let total = 0;
   for (const entry of inventory?.items ?? []) {
@@ -1997,19 +2274,21 @@ export function equippedPotionRestoreBonusPercent(inventory) {
     const bonus = sanitizeItemBonusStats(entry.empowerBonusStats);
     total += Math.max(0, Math.trunc(Number(bonus.potionRestoreBonusPercent) || 0));
   }
+  total += equippedInnatePotionRestoreBonusPercent(inventory, resolveItem);
   return Math.max(0, Math.min(POTION_RESTORE_BONUS_CAP_PERCENT, total));
 }
 
 /**
- * Scale a Health/Mana potion restore amount by equipped potion-restore empower.
+ * Scale a Health/Mana potion restore amount by equipped potion-restore bonus.
  * At 100% bonus, 100 HP becomes 200 HP.
  * @param {number} amount
  * @param {object | null | undefined} inventory
+ * @param {(itemId: string) => object | null | undefined} [resolveItem]
  */
-export function applyEquippedPotionRestoreBonus(amount, inventory) {
+export function applyEquippedPotionRestoreBonus(amount, inventory, resolveItem = null) {
   const base = Math.max(0, Math.trunc(Number(amount) || 0));
   if (base <= 0) return 0;
-  const bonusPercent = equippedPotionRestoreBonusPercent(inventory);
+  const bonusPercent = equippedPotionRestoreBonusPercent(inventory, resolveItem);
   if (bonusPercent <= 0) return base;
   return Math.trunc(base * (1 + bonusPercent / 100));
 }
@@ -2557,6 +2836,9 @@ export function formatEmpowerAppliedChangeLabel(roll, amount) {
     if (roll.kind === "cooldownReductionSeconds") {
       return `−${value}s ${label} cooldown`;
     }
+    if (roll.kind === "durationSeconds") {
+      return `+${value}s ${label} duration`;
+    }
     if (roll.kind === "petHealthPercent") return `+${value}% ${label} health`;
     if (roll.kind === "petDamageReductionPercent") return `−${value}% ${label} damage taken`;
     if (roll.kind === "critChancePercent") return `+${value}% ${label} crit chance`;
@@ -2626,6 +2908,9 @@ export function empowerSpellBonusLines(empowerSpellBonuses) {
       const seconds = row.cooldownReductionSeconds;
       lines.push(`−${seconds}s ${label} cooldown`);
     }
+    if ((row.durationSeconds || 0) !== 0) {
+      lines.push(`+${row.durationSeconds}s ${label} duration`);
+    }
     if ((row.petHealthPercent || 0) !== 0) lines.push(`+${row.petHealthPercent}% ${label} health`);
     if ((row.petDamageReductionPercent || 0) !== 0) lines.push(`−${row.petDamageReductionPercent}% ${label} damage taken`);
     if ((row.critChancePercent || 0) !== 0) lines.push(`+${row.critChancePercent}% ${label} crit chance`);
@@ -2655,6 +2940,9 @@ export function empowerSpellBonusTooltipRows(empowerSpellBonuses) {
     if ((row.cooldownReductionSeconds || 0) !== 0) {
       rows.push({ label, value: `−${row.cooldownReductionSeconds}s cooldown` });
     }
+    if ((row.durationSeconds || 0) !== 0) {
+      rows.push({ label, value: `+${row.durationSeconds}s duration` });
+    }
     if ((row.petHealthPercent || 0) !== 0) {
       rows.push({ label, value: `+${row.petHealthPercent}% health` });
     }
@@ -2682,6 +2970,7 @@ export function innateSpellBonusLines(innateSpellBonuses) {
   for (const [spellId, row] of Object.entries(bonuses)) {
     const label = SPELL_EMPOWER_LABELS[spellId] ?? spellId;
     if ((row.damagePercent || 0) !== 0) lines.push(`+${row.damagePercent}% ${label} damage`);
+    if ((row.manaCostPercent || 0) !== 0) lines.push(`−${row.manaCostPercent}% ${label} mana cost`);
     if ((row.healingPercent || 0) !== 0) lines.push(`+${row.healingPercent}% ${label} healing`);
     if ((row.undeadDamagePercent || 0) !== 0) {
       lines.push(`+${row.undeadDamagePercent}% ${label} damage vs undead`);
@@ -2691,6 +2980,12 @@ export function innateSpellBonusLines(innateSpellBonuses) {
     }
     if ((row.castSpeedPercent || 0) !== 0) {
       lines.push(`+${row.castSpeedPercent}% ${label} cast speed`);
+    }
+    if ((row.cooldownReductionSeconds || 0) !== 0) {
+      lines.push(`−${row.cooldownReductionSeconds}s ${label} cooldown`);
+    }
+    if ((row.durationSeconds || 0) !== 0) {
+      lines.push(`+${row.durationSeconds}s ${label} duration`);
     }
     if ((row.critChancePercent || 0) !== 0) {
       lines.push(`+${row.critChancePercent}% ${label} crit chance`);
@@ -2714,6 +3009,9 @@ export function innateSpellBonusTooltipRows(innateSpellBonuses) {
     if ((row.damagePercent || 0) !== 0) {
       rows.push({ label, value: `+${row.damagePercent}% damage` });
     }
+    if ((row.manaCostPercent || 0) !== 0) {
+      rows.push({ label, value: `−${row.manaCostPercent}% mana cost` });
+    }
     if ((row.healingPercent || 0) !== 0) {
       rows.push({ label, value: `+${row.healingPercent}% healing` });
     }
@@ -2725,6 +3023,12 @@ export function innateSpellBonusTooltipRows(innateSpellBonuses) {
     }
     if ((row.castSpeedPercent || 0) !== 0) {
       rows.push({ label, value: `+${row.castSpeedPercent}% cast speed` });
+    }
+    if ((row.cooldownReductionSeconds || 0) !== 0) {
+      rows.push({ label, value: `−${row.cooldownReductionSeconds}s cooldown` });
+    }
+    if ((row.durationSeconds || 0) !== 0) {
+      rows.push({ label, value: `+${row.durationSeconds}s duration` });
     }
     if ((row.critChancePercent || 0) !== 0) {
       rows.push({ label, value: `+${row.critChancePercent}% crit chance` });

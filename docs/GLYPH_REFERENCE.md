@@ -45,7 +45,7 @@ frame from **[`GLYPH_ICON_POOL.md`](./GLYPH_ICON_POOL.md)** (derived variants st
 - Class: Warrior
 - Level: 35
 - Spells: Slaying
-- Slaying always readies after you strike, takes priority over other weapon skills, and cannot miss. The blow deals 2.5× damage, or 9× if the target is at or below 50% HP.
+- Slaying always readies after you strike, takes priority over other weapon skills, and cannot miss. The blow deals 2.5× damage, or 7× if the target is below 40% HP.
 
 #### Glyph of Flaming Avalanche
 

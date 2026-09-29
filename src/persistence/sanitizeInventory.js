@@ -316,3 +316,124 @@ export function sanitizeStorageState(savedStorage = {}, config) {
     items,
   };
 }
+
+const BONUS_RANGE_KEYS = ["dc", "mc", "sc", "ac", "amc"];
+
+/**
+ * Persist only non-zero bonus keys. Load fills the rest back to 0.
+ * @param {object | null | undefined} stats
+ * @returns {object | null}
+ */
+export function compactBonusStatsForPersist(stats) {
+  const bonus = sanitizeItemBonusStats(stats);
+  const compact = {};
+  for (const [key, value] of Object.entries(bonus)) {
+    if (BONUS_RANGE_KEYS.includes(key)) {
+      const min = Math.trunc(Number(value?.[0]) || 0);
+      const max = Math.trunc(Number(value?.[1]) || 0);
+      if (min !== 0 || max !== 0) compact[key] = [min, max];
+      continue;
+    }
+    if (value !== 0) compact[key] = value;
+  }
+  return Object.keys(compact).length ? compact : null;
+}
+
+/**
+ * Snapshot-only: drop default item fields so full bags fit under the cloud
+ * 1.8 MB cap. Do not use this on live inventory — combat expects full objects.
+ * When smithLevel > 0, smithBonusStats is always written so load does not
+ * treat gem bonusStats as a legacy combined smith blob.
+ * @param {object | null | undefined} entry
+ */
+export function compactInventoryEntryForPersist(entry) {
+  if (!entry || typeof entry !== "object") return entry;
+  const compacted = {
+    id: entry.id,
+    itemId: migrateSavedItemId(entry.itemId),
+    quantity: Math.max(1, Math.trunc(Number(entry.quantity) || 1)),
+  };
+  if (Number.isInteger(entry.slot)) compacted.slot = entry.slot;
+
+  const smithLevel = sanitizeSmithLevel(entry);
+  const weaponRefineLevel = sanitizeWeaponRefineLevel(entry.weaponRefineLevel);
+  const gemCount = Math.max(0, Math.trunc(Number(entry.gemCount) || 0));
+  const empowered = Boolean(entry.empowered);
+  const empowerTier = Math.max(0, Math.min(4, Math.trunc(Number(entry.empowerTier) || 0)));
+  const mark = sanitizeInventoryMark(entry.inventoryMark);
+  const bonusStats = compactBonusStatsForPersist(entry.bonusStats);
+  const smithBonusStats = compactBonusStatsForPersist(entry.smithBonusStats);
+  const empowerBonusStats = compactBonusStatsForPersist(entry.empowerBonusStats);
+  const empowerSpellBonuses = sanitizeEmpowerSpellBonuses(entry.empowerSpellBonuses);
+
+  if (smithLevel > 0) compacted.smithLevel = smithLevel;
+  if (weaponRefineLevel > 0) compacted.weaponRefineLevel = weaponRefineLevel;
+  if (gemCount > 0) compacted.gemCount = gemCount;
+  if (empowered) compacted.empowered = true;
+  if (empowerTier > 0) compacted.empowerTier = empowerTier;
+  if (bonusStats) compacted.bonusStats = bonusStats;
+  if (smithLevel > 0) compacted.smithBonusStats = smithBonusStats ?? {};
+  else if (smithBonusStats) compacted.smithBonusStats = smithBonusStats;
+  if (empowerBonusStats) compacted.empowerBonusStats = empowerBonusStats;
+  if (Object.keys(empowerSpellBonuses).length) compacted.empowerSpellBonuses = empowerSpellBonuses;
+  if (mark) compacted.inventoryMark = mark;
+
+  const mysteryCaveKills = sanitizeMysteryCaveKills(entry.mysteryCaveKills ?? entry.mysteryCaveWaves);
+  if (mysteryCaveKills > 0) compacted.mysteryCaveKills = mysteryCaveKills;
+  const mysteryCaveTier = Math.max(0, Math.min(3, Math.trunc(Number(entry.mysteryCaveTier) || 0)));
+  if (mysteryCaveTier > 0) compacted.mysteryCaveTier = mysteryCaveTier;
+  if (entry.mysteryCaveBestWave != null && entry.mysteryCaveBestWave !== "") {
+    compacted.mysteryCaveBestWave = sanitizeMysteryCaveBestWave(entry.mysteryCaveBestWave, mysteryCaveKills);
+  }
+  if (entry.mysteryCaveRandom) compacted.mysteryCaveRandom = true;
+  const randomSeed = Math.trunc(Number(entry.mysteryCaveRandomSeed) || 0);
+  if (compacted.mysteryCaveRandom && randomSeed) compacted.mysteryCaveRandomSeed = randomSeed >>> 0;
+
+  const maxDura = Math.trunc(Number(entry.maxDura));
+  const currentDura = Math.trunc(Number(entry.currentDura));
+  if (Number.isFinite(maxDura) && maxDura > 0) compacted.maxDura = maxDura;
+  if (Number.isFinite(currentDura)) compacted.currentDura = currentDura;
+
+  return compacted;
+}
+
+/**
+ * @param {object | null | undefined} inventory
+ */
+export function compactInventoryStateForPersist(inventory) {
+  if (!inventory || typeof inventory !== "object") return inventory;
+  return {
+    ...inventory,
+    items: Array.isArray(inventory.items)
+      ? inventory.items.map((entry) => compactInventoryEntryForPersist(entry))
+      : inventory.items,
+  };
+}
+
+/**
+ * Compact bag/storage items on a save snapshot. Live character state is untouched.
+ * @param {object | null | undefined} snapshot
+ */
+export function compactSaveSnapshotForPersist(snapshot) {
+  if (!snapshot || typeof snapshot !== "object") return snapshot;
+  const next = { ...snapshot };
+  if (next.inventory && typeof next.inventory === "object") {
+    next.inventory = compactInventoryStateForPersist(next.inventory);
+  }
+  if (next.account && typeof next.account === "object") {
+    next.account = { ...next.account };
+    if (next.account.storage && typeof next.account.storage === "object") {
+      next.account.storage = compactInventoryStateForPersist(next.account.storage);
+    }
+  }
+  if (next.characters && typeof next.characters === "object" && !Array.isArray(next.characters)) {
+    next.characters = Object.fromEntries(Object.entries(next.characters).map(([classId, character]) => {
+      if (!character || typeof character !== "object" || !character.inventory) return [classId, character];
+      return [classId, {
+        ...character,
+        inventory: compactInventoryStateForPersist(character.inventory),
+      }];
+    }));
+  }
+  return next;
+}

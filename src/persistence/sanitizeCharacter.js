@@ -1,4 +1,5 @@
 import { sanitizeStatBuffs } from "../buffPotions.js";
+import { sanitizePotionTickBonusPercent } from "../core/ascension.js";
 
 export const WEAPON_REFINE_MAX = 10;
 export const MAGIC_SPELL_MAX_LEVEL = 3;
@@ -124,6 +125,7 @@ export function sanitizeCharacterBattleState(savedBattle = {}) {
     playerMp: finiteNumberOrNull(savedBattle?.playerMp),
     potHealthAmount: Math.max(0, Math.trunc(Number(savedBattle?.potHealthAmount) || 0)),
     potManaAmount: Math.max(0, Math.trunc(Number(savedBattle?.potManaAmount) || 0)),
+    potionTickBonusPercent: sanitizePotionTickBonusPercent(savedBattle?.potionTickBonusPercent),
     healAmount: Math.max(0, Math.trunc(Number(savedBattle?.healAmount) || 0)),
     vampAmount: Math.max(0, Math.trunc(Number(savedBattle?.vampAmount) || 0)),
     energyShieldLastStandReadyAt: sanitizeEnergyShieldLastStandReadyAt(savedBattle?.energyShieldLastStandReadyAt),

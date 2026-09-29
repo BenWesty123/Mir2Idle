@@ -33,6 +33,7 @@ import {
   equippedPotionRestoreBonusPercent,
   POTION_RESTORE_BONUS_CAP_PERCENT,
   applyEquippedSpellCooldownReductionMs,
+  applyEquippedSpellGroundDurationMs,
   applyEquippedSpellHealingBonus,
   applyEquippedSpellMpCostReduction,
   applyEquippedSpellUndeadDamageBonus,
@@ -53,12 +54,25 @@ import {
   innateSpellBonusTooltipRows,
   innateItemEffectTooltipRows,
   equippedWarriorSkillsCostHp,
+  equippedInnateFireWallHellfire,
+  equippedInnateDoubleMaxHpAndAccuracy,
+  applyInnateDoubleHpAndAccuracyCombatStats,
+  equippedInnateSlashingBurstMelee,
+  equippedInnatePoisonCloudNoSupplies,
+  equippedInnateWarriorBuffEffectivenessPercent,
+  applyInnateWarriorBuffEffectiveness,
+  equippedInnateHpBonus,
+  equippedInnateDamageTakenReductionPercent,
+  equippedInnatePotionRestoreBonusPercent,
+  equippedInnateCritChancePercent,
+  equippedInnateCritDamagePercent,
   sanitizeInnateSpellBonuses,
   equippedPetAttackSpeedBonusPercent,
   equippedSpellCastSpeedBonusPercent,
   SPELL_COOLDOWN_FLOOR_MS,
   empoweredItemStarSuffix,
   empoweredStatLabel,
+  equippedSpellDurationBonusSeconds,
   equippedSpellCooldownReductionSeconds,
   equippedSpellCritChanceBonusPercent,
   equippedSpellCritDamageBonusPercent,
@@ -131,6 +145,14 @@ const MC_RING = {
   type: "ring",
   requirements: { level: 31 },
   stats: { dc: [0, 0], mc: [0, 8], sc: [0, 0], ac: [0, 0], amc: [0, 0] },
+};
+
+const SC_RING = {
+  id: "sc-ring",
+  slot: "ring",
+  type: "ring",
+  requirements: { level: 31 },
+  stats: { dc: [0, 0], mc: [0, 0], sc: [0, 8], ac: [0, 0], amc: [0, 0] },
 };
 
 const HEAVY_ARMOUR = {
@@ -481,6 +503,7 @@ test("attunement family classification covers core keys", () => {
   assert.equal(empowerRollMatchesFamily({ spellId: "FireBall", kind: "damagePercent" }, "offensive"), true);
   assert.equal(empowerRollMatchesFamily({ spellId: "Healing", kind: "healingPercent" }, "defensive"), true);
   assert.equal(empowerRollMatchesFamily({ spellId: "FireBall", kind: "cooldownReductionSeconds" }, "utility"), true);
+  assert.equal(empowerRollMatchesFamily({ spellId: "PoisonCloud", kind: "durationSeconds" }, "utility"), true);
   assert.equal(EMPOWER_OFFENSIVE_STAT_KEYS.has("critChancePercent"), true);
   assert.equal(EMPOWER_DEFENSIVE_STAT_KEYS.has("damageTakenReductionPercent"), true);
   assert.equal(EMPOWER_UTILITY_STAT_KEYS.has("dropChanceBonusPercent"), true);
@@ -1090,6 +1113,91 @@ test("potion-restore empower rolls on armour/helmet/belt/boots only and caps at 
   assert.equal(applyEquippedPotionRestoreBonus(100, { equipment: {}, items: [] }), 100);
 });
 
+test("innate Potion Restore on a unique weapon stacks with empower rolls and is capped", () => {
+  const resolveItem = (id) => (id === "awakened-holy-light-sword"
+    ? { innatePotionRestoreBonusPercent: 50 }
+    : null);
+  const inventory = {
+    equipment: { weapon: "w1", armour: "a1" },
+    items: [
+      { id: "w1", itemId: "awakened-holy-light-sword" },
+      { id: "a1", empowerBonusStats: { potionRestoreBonusPercent: 35 } },
+    ],
+  };
+  assert.equal(equippedPotionRestoreBonusPercent(inventory), 35);
+  assert.equal(equippedPotionRestoreBonusPercent(inventory, resolveItem), 85);
+  assert.equal(applyEquippedPotionRestoreBonus(100, inventory, resolveItem), 185);
+  assert.equal(applyEquippedPotionRestoreBonus(100, {
+    equipment: { weapon: "w1", armour: "a1" },
+    items: [
+      { id: "w1", itemId: "awakened-holy-light-sword" },
+      { id: "a1", empowerBonusStats: { potionRestoreBonusPercent: 60 } },
+    ],
+  }, resolveItem), 200);
+  assert.equal(applyEquippedPotionRestoreBonus(100, {
+    equipment: {},
+    items: [{ id: "w1", itemId: "awakened-holy-light-sword" }],
+  }, resolveItem), 100);
+});
+
+test("innate Holy Light survivability bonuses are equipped-only Unique effects", () => {
+  const inventory = {
+    equipment: { weapon: "entry-1" },
+    items: [{ id: "entry-1", itemId: "awakened-holy-light-sword" }],
+  };
+  const resolveItem = (id) => (id === "awakened-holy-light-sword"
+    ? {
+      innateHp: 300,
+      innateDamageTakenReductionPercent: 25,
+      innatePotionRestoreBonusPercent: 50,
+    }
+    : null);
+  assert.equal(equippedInnateHpBonus(inventory, resolveItem), 300);
+  assert.equal(equippedInnateDamageTakenReductionPercent(inventory, resolveItem), 25);
+  assert.equal(equippedInnatePotionRestoreBonusPercent(inventory, resolveItem), 50);
+  assert.equal(equippedInnateHpBonus({
+    equipment: {},
+    items: [{ id: "entry-1", itemId: "awakened-holy-light-sword" }],
+  }, resolveItem), 0);
+  assert.equal(equippedInnateHpBonus(inventory, null), 0);
+  assert.deepEqual(innateItemEffectTooltipRows({
+    innateHp: 300,
+    innateDamageTakenReductionPercent: 25,
+    innatePotionRestoreBonusPercent: 50,
+  }), [
+    { label: "Unique", value: "+300 HP" },
+    { label: "Unique", value: "25% damage reduction" },
+    { label: "Unique", value: "+50% Potion Restore" },
+  ]);
+});
+
+test("innate Mir Sword crit bonuses are equipped-only Unique effects", () => {
+  const inventory = {
+    equipment: { weapon: "entry-1" },
+    items: [{ id: "entry-1", itemId: "awakened-mir-sword" }],
+  };
+  const resolveItem = (id) => (id === "awakened-mir-sword"
+    ? {
+      innateCritChancePercent: 100,
+      innateCritDamagePercent: 100,
+    }
+    : null);
+  assert.equal(equippedInnateCritChancePercent(inventory, resolveItem), 100);
+  assert.equal(equippedInnateCritDamagePercent(inventory, resolveItem), 100);
+  assert.equal(equippedInnateCritChancePercent({
+    equipment: {},
+    items: [{ id: "entry-1", itemId: "awakened-mir-sword" }],
+  }, resolveItem), 0);
+  assert.equal(equippedInnateCritChancePercent(inventory, null), 0);
+  assert.deepEqual(innateItemEffectTooltipRows({
+    innateCritChancePercent: 100,
+    innateCritDamagePercent: 100,
+  }), [
+    { label: "Unique", value: "+100% Crit Rate" },
+    { label: "Unique", value: "+100% Crit Damage" },
+  ]);
+});
+
 test("skill-leveling empower is global, rolls on every worn slot, sums to ~200%", () => {
   assert.ok(GLOBAL_EMPOWER_KEYS.has("skillLevelBonusPercent"));
 
@@ -1335,8 +1443,22 @@ test("empowerCandidateRolls: tao weapons include tao spell empower rolls", () =>
   assert.ok(rolls.some((roll) => roll.spellId === "SoulFireBall" && roll.kind === "damagePercent"));
   assert.ok(rolls.some((roll) => roll.spellId === "SummonSkeleton" && roll.kind === "damagePercent"));
   assert.ok(rolls.some((roll) => roll.spellId === "SummonShinsu" && roll.kind === "damagePercent"));
+  assert.ok(rolls.some((roll) => roll.spellId === "PoisonCloud" && roll.kind === "damagePercent"));
+  assert.ok(rolls.some((roll) => roll.spellId === "PoisonCloud" && roll.kind === "durationSeconds"));
   assert.ok(rolls.some((roll) => roll.spellId === "PoisonCloud" && roll.kind === "cooldownReductionSeconds"));
+  assert.ok(rolls.some((roll) => roll.spellId === "Plague" && roll.kind === "manaCostPercent"));
   assert.equal(rolls.filter((roll) => roll.spellId).length, SC_WEAPON_SPELL_EMPOWER_ROLL_DEFS.length);
+});
+
+test("Plague mana empower scales down on Tao armour and jewellery", () => {
+  const armour = empowerBonusPool(TAO_ARMOUR).find((roll) => roll.spellId === "Plague" && roll.kind === "manaCostPercent");
+  const ring = empowerBonusPool(SC_RING).find((roll) => roll.spellId === "Plague" && roll.kind === "manaCostPercent");
+  assert.deepEqual({ min: armour.min, max: armour.max, step: armour.step }, { min: 5, max: 20, step: 5 });
+  assert.deepEqual({ min: ring.min, max: ring.max, step: ring.step }, { min: 5, max: 15, step: 5 });
+  assert.equal(
+    empowerBonusPool(WARRIOR_ARMOUR).find((roll) => roll.spellId === "Plague"),
+    undefined,
+  );
 });
 
 test("empowerCandidateRolls: tao weapons include pet health and damage-reduction empowers", () => {
@@ -1487,6 +1609,77 @@ test("applyEmpowerSpellRoll: Flaming Sword cooldown rolls 1-5 seconds", () => {
   assert.equal(applyEmpowerSpellRoll({}, roll, () => 0.999), 5);
 });
 
+test("applyEmpowerSpellRoll: Poison Cloud duration rolls 1-6 seconds on weapons", () => {
+  const roll = SC_WEAPON_SPELL_EMPOWER_ROLL_DEFS.find((row) => row.key === "spell:PoisonCloud:duration");
+  const bonuses = {};
+  assert.equal(applyEmpowerSpellRoll(bonuses, roll, () => 0), 1);
+  assert.equal(bonuses.PoisonCloud.durationSeconds, 1);
+  assert.equal(applyEmpowerSpellRoll({}, roll, () => 0.999), 6);
+});
+
+test("SC jewellery rolls a tapered Poison Cloud duration empower", () => {
+  const weapon = SC_WEAPON_SPELL_EMPOWER_ROLL_DEFS.find((row) => row.key === "spell:PoisonCloud:duration");
+  const ring = empowerCandidateRolls(SC_RING).find((row) => row.spellId === "PoisonCloud" && row.kind === "durationSeconds");
+  const necklace = empowerCandidateRolls({
+    id: "sc-necklace",
+    slot: "necklace",
+    type: "necklace",
+    requirements: { level: 31 },
+    stats: { dc: [0, 0], mc: [0, 0], sc: [0, 8], ac: [0, 0], amc: [0, 0] },
+  }).find((row) => row.spellId === "PoisonCloud" && row.kind === "durationSeconds");
+  const bracelet = empowerCandidateRolls({
+    id: "sc-bracelet",
+    slot: "bracelet",
+    type: "bracelet",
+    requirements: { level: 31 },
+    stats: { dc: [0, 0], mc: [0, 0], sc: [0, 8], ac: [0, 0], amc: [0, 0] },
+  }).find((row) => row.spellId === "PoisonCloud" && row.kind === "durationSeconds");
+  assert.equal(weapon.min, 1);
+  assert.equal(weapon.max, 6);
+  assert.ok(ring);
+  assert.equal(ring.min, 1);
+  assert.equal(ring.max, 2);
+  assert.ok(necklace);
+  assert.equal(necklace.min, 1);
+  assert.equal(necklace.max, 2);
+  assert.ok(bracelet);
+  assert.equal(bracelet.min, 1);
+  assert.equal(bracelet.max, 2);
+});
+
+test("applyEquippedSpellGroundDurationMs: adds equipped seconds to the 6s field", () => {
+  const inventory = {
+    equipment: { weapon: "w", ringL: "r" },
+    items: [
+      { id: "w", empowerSpellBonuses: { PoisonCloud: { durationSeconds: 6 } } },
+      { id: "r", empowerSpellBonuses: { PoisonCloud: { durationSeconds: 2 } } },
+    ],
+  };
+  assert.equal(equippedSpellDurationBonusSeconds("PoisonCloud", inventory), 8);
+  assert.equal(applyEquippedSpellGroundDurationMs("PoisonCloud", 6000, inventory), 14000);
+  assert.equal(applyEquippedSpellGroundDurationMs("FireWall", 6000, inventory), 6000);
+});
+
+test("applyEmpowerSpellRoll: Poison Cloud damage rolls 5-25% in steps of 5", () => {
+  const roll = SC_WEAPON_SPELL_EMPOWER_ROLL_DEFS.find((row) => row.key === "spell:PoisonCloud:damage");
+  const bonuses = {};
+  assert.equal(applyEmpowerSpellRoll(bonuses, roll, () => 0), 5);
+  assert.equal(bonuses.PoisonCloud.damagePercent, 5);
+  assert.equal(applyEmpowerSpellRoll({}, roll, () => 0.999), 25);
+});
+
+test("applyEquippedSpellDamageBonus: Poison Cloud uses the same percent hook as other spells", () => {
+  const inventory = {
+    equipment: { weapon: "entry-1" },
+    items: [{
+      id: "entry-1",
+      empowerSpellBonuses: { PoisonCloud: { damagePercent: 25 } },
+    }],
+  };
+  assert.equal(equippedSpellDamageBonusPercent("PoisonCloud", inventory), 25);
+  assert.equal(applyEquippedSpellDamageBonus("PoisonCloud", 40, inventory), 50);
+});
+
 test("applyEmpowerSpellRoll: Blizzard / Meteor Strike / Poison Cloud cooldown rolls 1-5 seconds", () => {
   for (const [defs, key, spellId] of [
     [MC_WEAPON_SPELL_EMPOWER_ROLL_DEFS, "spell:Blizzard:cooldown", "Blizzard"],
@@ -1564,6 +1757,58 @@ test("applyEquippedSpellHealingBonus: includes item-def innate with resolveItem"
   assert.equal(equippedSpellHealingBonusPercent("MassHealing", inventory), 10);
   assert.equal(equippedSpellHealingBonusPercent("MassHealing", inventory, resolveItem), 110);
   assert.equal(applyEquippedSpellHealingBonus("MassHealing", 100, inventory, resolveItem), 210);
+});
+
+test("applyEquippedSpellCastSpeedMs: 50 percent speeds Healing 1800ms to 1200ms", () => {
+  const inventory = {
+    equipment: { weapon: "entry-1" },
+    items: [{ id: "entry-1", itemId: "awakened-heaven-sword" }],
+  };
+  const resolveItem = () => ({
+    innateSpellBonuses: { Healing: { healingPercent: 100, castSpeedPercent: 50 } },
+  });
+  assert.equal(equippedSpellCastSpeedBonusPercent("Healing", inventory, resolveItem), 50);
+  assert.equal(applyEquippedSpellCastSpeedMs("Healing", 1800, inventory, resolveItem), 1200);
+  assert.equal(applyEquippedSpellHealingBonus("Healing", 100, inventory, resolveItem), 200);
+  assert.equal(applyEquippedSpellCastSpeedMs("Healing", 1800, inventory, null), 1800);
+});
+
+test("applyEquippedSpellHealingBonus: unique Fan of Crane doubles Healing Circle ticks", () => {
+  const inventory = {
+    equipment: { weapon: "entry-1" },
+    items: [{ id: "entry-1", itemId: "awakened-fan-of-crane" }],
+  };
+  const resolveItem = (id) => (id === "awakened-fan-of-crane"
+    ? { innateSpellBonuses: { HealingCircle: { healingPercent: 100 } } }
+    : null);
+  assert.equal(equippedSpellHealingBonusPercent("HealingCircle", inventory, resolveItem), 100);
+  assert.equal(applyEquippedSpellHealingBonus("HealingCircle", 25, inventory, resolveItem), 50);
+  assert.equal(applyEquippedSpellHealingBonus("HealingCircle", 25, inventory, null), 25);
+  assert.deepEqual(innateSpellBonusLines({
+    HealingCircle: { healingPercent: 100 },
+  }), [
+    "+100% Healing Circle healing",
+  ]);
+  assert.deepEqual(innateSpellBonusTooltipRows({
+    HealingCircle: { healingPercent: 100 },
+  }), [
+    { label: "Healing Circle", value: "+100% healing" },
+  ]);
+});
+
+test("innateSpellBonusLines: formats Healing unique weapon bonus", () => {
+  assert.deepEqual(innateSpellBonusLines({
+    Healing: { healingPercent: 100, castSpeedPercent: 50 },
+  }), [
+    "+100% Healing healing",
+    "+50% Healing cast speed",
+  ]);
+  assert.deepEqual(innateSpellBonusTooltipRows({
+    Healing: { healingPercent: 100, castSpeedPercent: 50 },
+  }), [
+    { label: "Healing", value: "+100% healing" },
+    { label: "Healing", value: "+50% cast speed" },
+  ]);
 });
 
 test("innateSpellBonusLines: formats Mass Healing unique weapon bonus", () => {
@@ -1709,8 +1954,20 @@ test("formatEmpowerRollDescription: formats stat and spell rolls", () => {
     "Reduce Meteor Strike cooldown by 1–5 seconds",
   );
   assert.equal(
+    formatEmpowerRollDescription(SC_WEAPON_SPELL_EMPOWER_ROLL_DEFS.find((row) => row.key === "spell:PoisonCloud:damage")),
+    "Increase Poison Cloud damage by 5–25%",
+  );
+  assert.equal(
+    formatEmpowerRollDescription(SC_WEAPON_SPELL_EMPOWER_ROLL_DEFS.find((row) => row.key === "spell:PoisonCloud:duration")),
+    "Increase Poison Cloud duration by 1–6 seconds",
+  );
+  assert.equal(
     formatEmpowerRollDescription(SC_WEAPON_SPELL_EMPOWER_ROLL_DEFS.find((row) => row.key === "spell:PoisonCloud:cooldown")),
     "Reduce Poison Cloud cooldown by 1–5 seconds",
+  );
+  assert.equal(
+    formatEmpowerRollDescription(SC_WEAPON_SPELL_EMPOWER_ROLL_DEFS.find((row) => row.key === "spell:Plague:mana")),
+    "Reduce mana cost of Plague by 10–40%",
   );
 });
 
@@ -1726,6 +1983,8 @@ test("empowerRollDescriptionsForItem: tao weapon includes spell rolls", () => {
   const lines = empowerRollDescriptionsForItem(TAO_WEAPON);
   assert.ok(lines.includes("Increase Healing healing by 5–25%"));
   assert.ok(lines.includes("Increase Skeleton damage by 10–50%"));
+  assert.ok(lines.includes("Increase Poison Cloud damage by 5–25%"));
+  assert.ok(lines.includes("Increase Poison Cloud duration by 1–6 seconds"));
   assert.ok(lines.includes("Reduce Poison Cloud cooldown by 1–5 seconds"));
   assert.ok(lines.includes("+1–3 SC"));
   assert.equal(lines.includes("+1–3 MC"), false);
@@ -1760,6 +2019,8 @@ test("empowerReferenceCatalog: exposes weapon classes and tier weights", () => {
   assert.ok(wizard.rolls.includes("Reduce mana cost of Fire Wall by 10–40%"));
   assert.ok(wizard.rolls.includes("Reduce Blizzard cooldown by 1–5 seconds"));
   assert.ok(wizard.rolls.includes("Reduce Meteor Strike cooldown by 1–5 seconds"));
+  assert.ok(tao.rolls.includes("Increase Poison Cloud damage by 5–25%"));
+  assert.ok(tao.rolls.includes("Increase Poison Cloud duration by 1–6 seconds"));
   assert.ok(tao.rolls.includes("Reduce Poison Cloud cooldown by 1–5 seconds"));
   assert.ok(tao.rolls.includes("+1–3 SC"));
   assert.ok(tao.rolls.includes("Increase Healing healing by 5–25%"));
@@ -1793,7 +2054,7 @@ test("empowerCodexSlotCatalog: flat slot lists include weapon union and armour r
 
 test("sanitizeInnateSpellBonuses: keeps damage and pet attack speed only", () => {
   assert.deepEqual(sanitizeInnateSpellBonuses({
-    SummonHolyDeva: { damagePercent: 100, petAttackSpeedPercent: 100, manaCostPercent: 20 },
+    SummonHolyDeva: { damagePercent: 100, petAttackSpeedPercent: 100, notAField: 20 },
   }), {
     SummonHolyDeva: { damagePercent: 100, petAttackSpeedPercent: 100 },
   });
@@ -1801,7 +2062,7 @@ test("sanitizeInnateSpellBonuses: keeps damage and pet attack speed only", () =>
 
 test("sanitizeInnateSpellBonuses: keeps Great Fire Ball castSpeedPercent", () => {
   assert.deepEqual(sanitizeInnateSpellBonuses({
-    GreatFireBall: { castSpeedPercent: 200, manaCostPercent: 20 },
+    GreatFireBall: { castSpeedPercent: 200, notAField: 20 },
   }), {
     GreatFireBall: { castSpeedPercent: 200 },
   });
@@ -1809,7 +2070,7 @@ test("sanitizeInnateSpellBonuses: keeps Great Fire Ball castSpeedPercent", () =>
 
 test("sanitizeInnateSpellBonuses: keeps Mass Healing healingPercent", () => {
   assert.deepEqual(sanitizeInnateSpellBonuses({
-    MassHealing: { healingPercent: 100, manaCostPercent: 20, damagePercent: 50 },
+    MassHealing: { healingPercent: 100, notAField: 20, damagePercent: 50 },
   }), {
     MassHealing: { healingPercent: 100, damagePercent: 50 },
   });
@@ -1817,7 +2078,7 @@ test("sanitizeInnateSpellBonuses: keeps Mass Healing healingPercent", () => {
 
 test("sanitizeInnateSpellBonuses: keeps Thunder Bolt undeadDamagePercent", () => {
   assert.deepEqual(sanitizeInnateSpellBonuses({
-    ThunderBolt: { damagePercent: 100, undeadDamagePercent: 100, manaCostPercent: 20 },
+    ThunderBolt: { damagePercent: 100, undeadDamagePercent: 100, notAField: 20 },
   }), {
     ThunderBolt: { damagePercent: 100, undeadDamagePercent: 100 },
   });
@@ -1825,9 +2086,25 @@ test("sanitizeInnateSpellBonuses: keeps Thunder Bolt undeadDamagePercent", () =>
 
 test("sanitizeInnateSpellBonuses: keeps Flaming Sword damage and crit fields", () => {
   assert.deepEqual(sanitizeInnateSpellBonuses({
-    FlamingSword: { critChancePercent: 100, critDamagePercent: 100, damagePercent: 50, manaCostPercent: 20 },
+    FlamingSword: { critChancePercent: 100, critDamagePercent: 100, damagePercent: 50, notAField: 20 },
   }), {
     FlamingSword: { damagePercent: 50, critChancePercent: 100, critDamagePercent: 100 },
+  });
+});
+
+test("sanitizeInnateSpellBonuses: keeps Poison Cloud damage and cooldown reduction", () => {
+  assert.deepEqual(sanitizeInnateSpellBonuses({
+    PoisonCloud: { damagePercent: 100, cooldownReductionSeconds: 18, durationSeconds: 4, notAField: 20 },
+  }), {
+    PoisonCloud: { damagePercent: 100, cooldownReductionSeconds: 18, durationSeconds: 4 },
+  });
+});
+
+test("sanitizeInnateSpellBonuses: keeps manaCostPercent", () => {
+  assert.deepEqual(sanitizeInnateSpellBonuses({
+    FlameField: { damagePercent: 100, manaCostPercent: 50, notAField: 20 },
+  }), {
+    FlameField: { damagePercent: 100, manaCostPercent: 50 },
   });
 });
 
@@ -1854,6 +2131,34 @@ test("innateSpellBonusLines: formats Flaming Sword unique weapon bonuses", () =>
   }), [
     "+100% Flaming Sword damage",
     "+100% Flaming Sword crit damage",
+  ]);
+});
+
+test("innateSpellBonusLines: formats Flame Disruptor unique weapon bonuses", () => {
+  assert.deepEqual(innateSpellBonusLines({
+    FlameDisruptor: { damagePercent: 100, critDamagePercent: 100 },
+  }), [
+    "+100% Flame Disruptor damage",
+    "+100% Flame Disruptor crit damage",
+  ]);
+  const inventory = {
+    equipment: { weapon: "entry-1" },
+    items: [{ id: "entry-1", itemId: "awakened-holy-blood-spear" }],
+  };
+  const resolveItem = (id) => (id === "awakened-holy-blood-spear"
+    ? { innateSpellBonuses: { FlameDisruptor: { damagePercent: 100, critDamagePercent: 100 } } }
+    : null);
+  assert.equal(equippedSpellDamageBonusPercent("FlameDisruptor", inventory, resolveItem), 100);
+  assert.equal(equippedSpellCritDamageBonusPercent("FlameDisruptor", inventory, resolveItem), 100);
+  assert.equal(applyEquippedSpellDamageBonus("FlameDisruptor", 50, inventory, resolveItem), 100);
+});
+
+test("innateSpellBonusLines: formats Slashing Burst unique weapon bonuses", () => {
+  assert.deepEqual(innateSpellBonusLines({
+    SlashingBurst: { damagePercent: 100, critDamagePercent: 100 },
+  }), [
+    "+100% Slashing Burst damage",
+    "+100% Slashing Burst crit damage",
   ]);
 });
 
@@ -1992,5 +2297,191 @@ test("equippedWarriorSkillsCostHp: unique Dragon Slayer flag is equipped-only", 
     { label: "Unique", value: "Warrior skills cost HP instead of MP" },
   ]);
   assert.deepEqual(innateItemEffectTooltipRows({}), []);
+});
+
+test("equippedInnateFireWallHellfire: unique Blade of Sorcery flag is equipped-only", () => {
+  const inventory = {
+    equipment: { weapon: "entry-1" },
+    items: [{ id: "entry-1", itemId: "awakened-blade-of-sorcery" }],
+  };
+  const resolveItem = (id) => (id === "awakened-blade-of-sorcery"
+    ? {
+      innateFireWallHellfire: true,
+      innateSpellBonuses: { FireWall: { damagePercent: 100 } },
+    }
+    : null);
+  assert.equal(equippedInnateFireWallHellfire(inventory, resolveItem), true);
+  assert.equal(equippedInnateFireWallHellfire({
+    equipment: {},
+    items: [{ id: "entry-1", itemId: "awakened-blade-of-sorcery" }],
+  }, resolveItem), false);
+  assert.equal(equippedInnateFireWallHellfire(inventory, null), false);
+  assert.equal(equippedSpellDamageBonusPercent("FireWall", inventory, resolveItem), 100);
+  assert.equal(applyEquippedSpellDamageBonus("FireWall", 90, inventory, resolveItem), 180);
+  assert.deepEqual(innateItemEffectTooltipRows({ innateFireWallHellfire: true }), [
+    { label: "Unique", value: "Fire Wall becomes Hellfire and covers every walkable tile in range" },
+  ]);
+  assert.deepEqual(innateSpellBonusTooltipRows({ FireWall: { damagePercent: 100 } }), [
+    { label: "Fire Wall", value: "+100% damage" },
+  ]);
+});
+
+test("equippedInnateDoubleMaxHpAndAccuracy: unique Sword of War God doubles HP and accuracy", () => {
+  const inventory = {
+    equipment: { weapon: "entry-1" },
+    items: [{ id: "entry-1", itemId: "awakened-sword-of-war-god" }],
+  };
+  const resolveItem = (id) => (id === "awakened-sword-of-war-god"
+    ? { innateDoubleMaxHpAndAccuracy: true }
+    : null);
+  assert.equal(equippedInnateDoubleMaxHpAndAccuracy(inventory, resolveItem), true);
+  assert.equal(equippedInnateDoubleMaxHpAndAccuracy({
+    equipment: {},
+    items: [{ id: "entry-1", itemId: "awakened-sword-of-war-god" }],
+  }, resolveItem), false);
+  assert.equal(equippedInnateDoubleMaxHpAndAccuracy(inventory, null), false);
+  assert.deepEqual(
+    applyInnateDoubleHpAndAccuracyCombatStats({ maxHp: 500, accuracy: 20 }, inventory, resolveItem),
+    { maxHp: 1000, accuracy: 40 },
+  );
+  assert.deepEqual(
+    applyInnateDoubleHpAndAccuracyCombatStats({ maxHp: 500, accuracy: 20 }, inventory, null),
+    { maxHp: 500, accuracy: 20 },
+  );
+  assert.deepEqual(innateItemEffectTooltipRows({ innateDoubleMaxHpAndAccuracy: true }), [
+    { label: "Unique", value: "Maximum HP and Accuracy are doubled" },
+  ]);
+});
+
+test("equippedInnateSlashingBurstMelee: unique Burst Sword flag is equipped-only", () => {
+  const inventory = {
+    equipment: { weapon: "entry-1" },
+    items: [{ id: "entry-1", itemId: "awakened-burst-sword" }],
+  };
+  const resolveItem = (id) => (id === "awakened-burst-sword"
+    ? {
+      innateSlashingBurstMelee: true,
+      innateSpellBonuses: { SlashingBurst: { damagePercent: 100, critDamagePercent: 100 } },
+    }
+    : null);
+  assert.equal(equippedInnateSlashingBurstMelee(inventory, resolveItem), true);
+  assert.equal(equippedInnateSlashingBurstMelee({
+    equipment: {},
+    items: [{ id: "entry-1", itemId: "awakened-burst-sword" }],
+  }, resolveItem), false);
+  assert.equal(equippedInnateSlashingBurstMelee(inventory, null), false);
+  assert.equal(equippedSpellDamageBonusPercent("SlashingBurst", inventory, resolveItem), 100);
+  assert.equal(applyEquippedSpellDamageBonus("SlashingBurst", 80, inventory, resolveItem), 160);
+  assert.equal(equippedSpellCritDamageBonusPercent("SlashingBurst", inventory, resolveItem), 100);
+  assert.deepEqual(innateItemEffectTooltipRows({ innateSlashingBurstMelee: true }), [
+    { label: "Unique", value: "Slashing Burst can be used in melee" },
+  ]);
+  assert.deepEqual(innateSpellBonusTooltipRows({
+    SlashingBurst: { damagePercent: 100, critDamagePercent: 100 },
+  }), [
+    { label: "Slashing Burst", value: "+100% damage" },
+    { label: "Slashing Burst", value: "+100% crit damage" },
+  ]);
+});
+
+test("equipped innate Poison Cloud: unique Dragon Blood Sword zeros 18s recharge and doubles damage", () => {
+  const inventory = {
+    equipment: { weapon: "entry-1" },
+    items: [{
+      id: "entry-1",
+      itemId: "awakened-dragon-blood-sword",
+      empowerSpellBonuses: { PoisonCloud: { cooldownReductionSeconds: 5 } },
+    }],
+  };
+  const resolveItem = (id) => (id === "awakened-dragon-blood-sword"
+    ? { innateSpellBonuses: { PoisonCloud: { damagePercent: 100, cooldownReductionSeconds: 18 } } }
+    : null);
+  assert.equal(equippedSpellCooldownReductionSeconds("PoisonCloud", inventory), 5);
+  assert.equal(equippedSpellCooldownReductionSeconds("PoisonCloud", inventory, resolveItem), 23);
+  assert.equal(applyEquippedSpellCooldownReductionMs("PoisonCloud", 18000, inventory, resolveItem), 0);
+  assert.equal(applyEquippedSpellCooldownReductionMs("PoisonCloud", 18000, inventory, null), 13000);
+  assert.equal(equippedSpellDamageBonusPercent("PoisonCloud", inventory, resolveItem), 100);
+  assert.equal(applyEquippedSpellDamageBonus("PoisonCloud", 40, inventory, resolveItem), 80);
+  assert.deepEqual(innateSpellBonusLines({
+    PoisonCloud: { damagePercent: 100, cooldownReductionSeconds: 18 },
+  }), [
+    "+100% Poison Cloud damage",
+    "−18s Poison Cloud cooldown",
+  ]);
+  assert.deepEqual(innateSpellBonusTooltipRows({
+    PoisonCloud: { damagePercent: 100, cooldownReductionSeconds: 18 },
+  }), [
+    { label: "Poison Cloud", value: "+100% damage" },
+    { label: "Poison Cloud", value: "−18s cooldown" },
+  ]);
+  assert.equal(equippedInnatePoisonCloudNoSupplies(inventory, (id) => (id === "awakened-dragon-blood-sword"
+    ? { innatePoisonCloudNoSupplies: true }
+    : null)), true);
+  assert.equal(equippedInnatePoisonCloudNoSupplies({
+    equipment: {},
+    items: [{ id: "entry-1", itemId: "awakened-dragon-blood-sword" }],
+  }, () => ({ innatePoisonCloudNoSupplies: true })), false);
+  assert.deepEqual(innateItemEffectTooltipRows({ innatePoisonCloudNoSupplies: true }), [
+    { label: "Unique", value: "Poison Cloud does not require amulets or poisons" },
+  ]);
+});
+
+test("equipped innate warrior buffs: unique Black Tiger Hammer doubles Fury/Rage/Protection Field/Immortal Skin bonuses", () => {
+  const inventory = {
+    equipment: { weapon: "entry-1" },
+    items: [{ id: "entry-1", itemId: "awakened-black-tiger-hammer" }],
+  };
+  const resolveItem = (id) => (id === "awakened-black-tiger-hammer"
+    ? { innateWarriorBuffEffectivenessPercent: 100 }
+    : null);
+  assert.equal(equippedInnateWarriorBuffEffectivenessPercent(inventory, resolveItem), 100);
+  assert.equal(equippedInnateWarriorBuffEffectivenessPercent({
+    equipment: {},
+    items: [{ id: "entry-1", itemId: "awakened-black-tiger-hammer" }],
+  }, resolveItem), 0);
+  assert.equal(equippedInnateWarriorBuffEffectivenessPercent(inventory, null), 0);
+  assert.equal(applyInnateWarriorBuffEffectiveness(4, inventory, resolveItem), 8);
+  assert.equal(applyInnateWarriorBuffEffectiveness(21, inventory, resolveItem), 42);
+  assert.equal(applyInnateWarriorBuffEffectiveness(4, inventory, null), 4);
+  assert.deepEqual(innateItemEffectTooltipRows({ innateWarriorBuffEffectivenessPercent: 100 }), [
+    { label: "Unique", value: "Warrior buffs are 100% more effective" },
+  ]);
+});
+
+test("equipped innate Flame Field: unique Staff of Lotus doubles damage/crit and halves mana", () => {
+  const inventory = {
+    equipment: { weapon: "entry-1" },
+    items: [{
+      id: "entry-1",
+      itemId: "awakened-staff-of-lotus",
+      empowerSpellBonuses: { FlameField: { manaCostPercent: 10 } },
+    }],
+  };
+  const resolveItem = (id) => (id === "awakened-staff-of-lotus"
+    ? {
+      innateSpellBonuses: { FlameField: { damagePercent: 100, critDamagePercent: 100, manaCostPercent: 50 } },
+    }
+    : null);
+  assert.equal(equippedSpellDamageBonusPercent("FlameField", inventory, resolveItem), 100);
+  assert.equal(applyEquippedSpellDamageBonus("FlameField", 80, inventory, resolveItem), 160);
+  assert.equal(equippedSpellCritDamageBonusPercent("FlameField", inventory, resolveItem), 100);
+  assert.equal(equippedSpellManaCostReductionPercent("FlameField", inventory), 10);
+  assert.equal(equippedSpellManaCostReductionPercent("FlameField", inventory, resolveItem), 60);
+  assert.equal(applyEquippedSpellMpCostReduction("FlameField", 100, inventory, resolveItem), 40);
+  assert.equal(applyEquippedSpellMpCostReduction("FlameField", 100, inventory, null), 90);
+  assert.deepEqual(innateSpellBonusLines({
+    FlameField: { damagePercent: 100, critDamagePercent: 100, manaCostPercent: 50 },
+  }), [
+    "+100% Flame Field damage",
+    "−50% Flame Field mana cost",
+    "+100% Flame Field crit damage",
+  ]);
+  assert.deepEqual(innateSpellBonusTooltipRows({
+    FlameField: { damagePercent: 100, critDamagePercent: 100, manaCostPercent: 50 },
+  }), [
+    { label: "Flame Field", value: "+100% damage" },
+    { label: "Flame Field", value: "−50% mana cost" },
+    { label: "Flame Field", value: "+100% crit damage" },
+  ]);
 });
 

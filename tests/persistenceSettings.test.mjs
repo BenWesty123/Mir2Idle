@@ -6,6 +6,8 @@ import {
   AUTO_POTION_THRESHOLD_MIN,
   DEFAULT_AUTO_POTION_HP_THRESHOLD,
   DEFAULT_AUTO_POTION_MP_THRESHOLD,
+  DEFAULT_TAOIST_HEALING_THRESHOLD,
+  DEFAULT_TAOIST_MASS_HEALING_THRESHOLD,
   DEFAULT_MUSIC_ENABLED,
   DEFAULT_SFX_ENABLED,
   DEFAULT_SHOW_ACTIVITY_LOG,
@@ -57,6 +59,8 @@ test("sanitizeSettingsState: defaults when music settings version is old", () =>
   assert.equal(result.autoPotionHpThreshold, DEFAULT_AUTO_POTION_HP_THRESHOLD);
   assert.equal(result.autoPotionMpThreshold, DEFAULT_AUTO_POTION_MP_THRESHOLD);
   assert.deepEqual(result.autoPotionThresholdsByCharacter, createDefaultAutoPotionThresholdsByCharacter());
+  assert.equal(result.taoistHealingThreshold, DEFAULT_TAOIST_HEALING_THRESHOLD);
+  assert.equal(result.taoistMassHealingThreshold, DEFAULT_TAOIST_MASS_HEALING_THRESHOLD);
 });
 
 test("sanitizeSettingsState: honors explicit flags at current version", () => {
@@ -71,6 +75,8 @@ test("sanitizeSettingsState: honors explicit flags at current version", () => {
     showActivityLog: false,
     autoPotionHpThreshold: 0.35,
     autoPotionMpThreshold: 0.7,
+    taoistHealingThreshold: 0.8,
+    taoistMassHealingThreshold: 0.25,
     prototypeStatsEnabled: false,
     prototypeStatsNoticeVersion: 2,
     cloudBackupNoticeVersion: 1,
@@ -86,6 +92,8 @@ test("sanitizeSettingsState: honors explicit flags at current version", () => {
   assert.equal(result.autoPotionHpThreshold, 0.35);
   assert.equal(result.autoPotionMpThreshold, 0.7);
   assert.deepEqual(result.autoPotionThresholdsByCharacter, createDefaultAutoPotionThresholdsByCharacter(0.35, 0.7));
+  assert.equal(result.taoistHealingThreshold, 0.8);
+  assert.equal(result.taoistMassHealingThreshold, 0.25);
   assert.equal(result.prototypeStatsEnabled, false);
   assert.equal(result.prototypeStatsNoticeVersion, 2);
   assert.equal(result.cloudBackupNoticeVersion, 1);
@@ -96,6 +104,11 @@ test("sanitizeSettingsState: boss junk filter defaults on and honors an explicit
   assert.equal(sanitizeSettingsState({}).bossJunkFilterEnabled, DEFAULT_BOSS_JUNK_FILTER_ENABLED);
   assert.equal(sanitizeSettingsState({ bossJunkFilterEnabled: false }).bossJunkFilterEnabled, false);
   assert.equal(sanitizeSettingsState({ bossJunkFilterEnabled: true }).bossJunkFilterEnabled, true);
+});
+
+test("sanitizeSettingsState: clamps taoist healing sliders", () => {
+  assert.equal(sanitizeSettingsState({ taoistHealingThreshold: 0 }).taoistHealingThreshold, AUTO_POTION_THRESHOLD_MIN);
+  assert.equal(sanitizeSettingsState({ taoistMassHealingThreshold: 2 }).taoistMassHealingThreshold, AUTO_POTION_THRESHOLD_MAX);
 });
 
 test("sanitizeAutoPotionThresholdsByCharacter: seeds from legacy flat thresholds", () => {

@@ -489,6 +489,39 @@ export function validateCraftingCubeAttunementStoneCraft(boardEntries, recipeId)
 }
 
 /**
+ * How many attunement stones Craft All can make from the ore stack in the cube.
+ * Stops at ore quantity, gold, or free bag space for the stones.
+ * @param {{
+ *   oreQuantity?: number,
+ *   gold?: number,
+ *   goldCostPerCraft?: number,
+ *   inventoryCapacity?: number,
+ * }} [input]
+ * @returns {{ count: number, limitedBy: "gold" | "inventory" | null }}
+ */
+export function craftingCubeAttunementStoneCraftAllCount({
+  oreQuantity = 0,
+  gold = 0,
+  goldCostPerCraft = 0,
+  inventoryCapacity = 0,
+} = {}) {
+  const oreQty = Math.max(0, Math.trunc(Number(oreQuantity) || 0));
+  if (oreQty <= 0) return { count: 0, limitedBy: null };
+
+  const cost = Math.max(0, Math.trunc(Number(goldCostPerCraft) || 0));
+  const affordable = cost > 0
+    ? Math.floor(Math.max(0, Number(gold) || 0) / cost)
+    : oreQty;
+  const space = Math.max(0, Math.trunc(Number(inventoryCapacity) || 0));
+  const count = Math.max(0, Math.min(oreQty, affordable, space));
+  let limitedBy = null;
+  if (count < oreQty) {
+    limitedBy = affordable <= space ? "gold" : "inventory";
+  }
+  return { count, limitedBy };
+}
+
+/**
  * @param {{ entry: object, item: object }[]} boardEntries Staged cube entries with item defs.
  * @returns {{ ok: boolean, error: string | null, crystalEntry?: object }}
  */

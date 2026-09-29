@@ -88,6 +88,7 @@ Useful leaderboard URLs:
 /panel
 /leaderboard
 /leaderboard?scope=accounts
+/leaderboard?board=ascended
 /leaderboard?scope=characters
 /leaderboard?scope=all
 /leaderboard?limit=500
@@ -104,6 +105,15 @@ Each account leaderboard row now includes:
 - `characterStats`: raw per-class stat summaries
 - `bossKills`: per-boss counts keyed by zone id, e.g. `{ "zone-wooma-temple-kr": 12, "zone-bug-cave-kr": 3 }`
 - `bossKillsTotal`: sum of all boss kill counts on that row
+- `ascensionCount`, `ascensionPoints`, `currentHighestLevel`, `currentJourneyMs`, `bestJourneyMs`, `runRebirthPointsGained`: filled in once a current client has checked in. `runRebirthPointsGained` is Rebirth Points gained this world, including Head Start, and it does not drop when they are spent. `GET /leaderboard?board=ascended` returns only rows with `ascensionCount > 0`, ranked by ascensions, then fastest best time.
+
+If you already deployed the Worker before the ascended board columns existed, run this against the live D1 database **before** deploying the Worker that reads them:
+
+```powershell
+npx wrangler d1 execute lom-idle-v2-stats --file .\migrate-ascension-board.sql --remote
+```
+
+Then redeploy the Worker. Until that migration has run, a Worker that selects the new columns will fail both boards.
 
 If you already deployed the Worker before account ranking fields were added, run the migrations against the live D1 database:
 

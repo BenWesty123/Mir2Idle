@@ -266,16 +266,16 @@ test("Execution makes charged Slaying a guaranteed high-damage blow", () => {
   assert.ok(glyphSlayingCannotMiss(glyph));
   assert.equal(glyphSlayingTakesPriority(null), false);
   const healthy = { hp: 100, maxHp: 100 };
-  const wounded = { hp: 50, maxHp: 100 };
-  const barelyHealthy = { hp: 51, maxHp: 100 };
+  const atThreshold = { hp: 40, maxHp: 100 };
+  const wounded = { hp: 39, maxHp: 100 };
   assert.equal(slayingExecutionDamageMultiplier(healthy, glyph), 2.5);
-  assert.equal(slayingExecutionDamageMultiplier(wounded, glyph), 9);
-  assert.equal(slayingExecutionDamageMultiplier(barelyHealthy, glyph), 2.5);
+  assert.equal(slayingExecutionDamageMultiplier(atThreshold, glyph), 2.5);
+  assert.equal(slayingExecutionDamageMultiplier(wounded, glyph), 7);
   assert.equal(applyGlyphSlayingDamage(100, "Slaying", healthy, glyph), 250);
-  assert.equal(applyGlyphSlayingDamage(100, "Slaying", wounded, glyph), 900);
+  assert.equal(applyGlyphSlayingDamage(100, "Slaying", wounded, glyph), 700);
   assert.equal(applyGlyphSlayingDamage(100, "FlamingSword", healthy, glyph), 100);
   assert.equal(applyGlyphSlayingDamage(100, "Slaying", healthy, null), 100);
-  assert.equal(glyphSlayingExecutionParams(glyph)?.executeHpRatio, 0.5);
+  assert.equal(glyphSlayingExecutionParams(glyph)?.executeHpRatio, 0.4);
 });
 
 test("Protection Field glyph doubles bonus and fixes duration", () => {

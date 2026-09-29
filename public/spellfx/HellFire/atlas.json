@@ -103,5 +103,71 @@
         }
       ]
     }
-  ]
+  ],
+  "impact": {
+    "sheet": "impact.png",
+    "interval": 83,
+    "slotWidth": 124,
+    "slotHeight": 122,
+    "library": "Magic",
+    "baseIndex": 930,
+    "anchor": "cell",
+    "delayMs": 0,
+    "frames": [
+      {
+        "slot": 0,
+        "srcFrame": 930,
+        "w": 88,
+        "h": 86,
+        "offsetX": -13,
+        "offsetY": -67,
+        "empty": false
+      },
+      {
+        "slot": 1,
+        "srcFrame": 931,
+        "w": 92,
+        "h": 80,
+        "offsetX": -17,
+        "offsetY": -66,
+        "empty": false
+      },
+      {
+        "slot": 2,
+        "srcFrame": 932,
+        "w": 108,
+        "h": 108,
+        "offsetX": -20,
+        "offsetY": -77,
+        "empty": false
+      },
+      {
+        "slot": 3,
+        "srcFrame": 933,
+        "w": 112,
+        "h": 113,
+        "offsetX": -28,
+        "offsetY": -82,
+        "empty": false
+      },
+      {
+        "slot": 4,
+        "srcFrame": 934,
+        "w": 124,
+        "h": 122,
+        "offsetX": -33,
+        "offsetY": -85,
+        "empty": false
+      },
+      {
+        "slot": 5,
+        "srcFrame": 935,
+        "w": 116,
+        "h": 118,
+        "offsetX": -30,
+        "offsetY": -83,
+        "empty": false
+      }
+    ]
+  }
 }

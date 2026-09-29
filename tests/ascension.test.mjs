@@ -14,6 +14,19 @@ import {
   rollAscensionSalvageExtras,
   applyAscensionSalvageBonus,
   previewAscensionSalvageBonus,
+  ASCENSION_STARTING_REBIRTH_POINTS_STEP,
+  ascensionStartingRebirthPoints,
+  ascensionStartingSpellLevel,
+  ASCENSION_COMBAT_STAT_PERCENT_STEP,
+  ascensionCombatStatBonusPercent,
+  scaleStatRangeByBonusPercent,
+  MEGA_POTION_ITEM_ID,
+  ULTRA_POTION_ITEM_ID,
+  MEGA_POTION_TICK_BONUS_PERCENT,
+  ULTRA_POTION_TICK_BONUS_PERCENT,
+  potionTickBonusPercentForItemId,
+  sanitizePotionTickBonusPercent,
+  potionTickDelayMsForBonus,
   WORLD_DIFFICULTY_DEFS,
   WORLD_DIFFICULTY_DEFAULT,
   sanitizeWorldDifficulty,
@@ -22,6 +35,8 @@ import {
   recordAscensionClearTime,
   mergeAscensionBestClearTimes,
   backfillStandardJourneyPayout,
+  payAscensionForKill,
+  syncAscensionPayoutForBestTier,
 } from "../src/core/ascension.js";
 
 // plain / empowered / ascended / awakened
@@ -241,7 +256,7 @@ test("refundAscensionTier: hands back the schedule price, not a flat one", () =>
   assert.equal(ascensionPointsSpentFor(tiers, SCHEDULE_DEFS), 3);
 });
 
-// Havoc Surplus: the Nth tier costs N, with no last price to hold.
+// Havoc Surplus and Head Start: the Nth tier costs N, with no last price to hold.
 const EQUALS_TIER_DEFS = [
   { id: "surplus", costEqualsTier: true, maxTier: null },
 ];
@@ -296,6 +311,76 @@ test("previewAscensionSalvageBonus: shows the range without rolling", () => {
   assert.deepEqual(previewAscensionSalvageBonus(3, 125), { min: 6, max: 9, remainder: 25 });
 });
 
+test("ascensionStartingSpellLevel: tier is the rank a new spell starts at, capped at mastered", () => {
+  assert.equal(ascensionStartingSpellLevel(0), 0);
+  assert.equal(ascensionStartingSpellLevel(1), 1);
+  assert.equal(ascensionStartingSpellLevel(2), 2);
+  assert.equal(ascensionStartingSpellLevel(3), 3);
+  assert.equal(ascensionStartingSpellLevel(9), 3);
+  assert.equal(ascensionStartingSpellLevel(null), 0);
+});
+
+test("ascensionStartingRebirthPoints: 10 per tier, uncapped", () => {
+  assert.equal(ASCENSION_STARTING_REBIRTH_POINTS_STEP, 10);
+  assert.equal(ascensionStartingRebirthPoints(0), 0);
+  assert.equal(ascensionStartingRebirthPoints(1), 10);
+  assert.equal(ascensionStartingRebirthPoints(2), 20);
+  assert.equal(ascensionStartingRebirthPoints(3), 30);
+  assert.equal(ascensionStartingRebirthPoints(8), 80);
+});
+
+test("ascensionCombatStatBonusPercent: 20% per tier, uncapped", () => {
+  assert.equal(ASCENSION_COMBAT_STAT_PERCENT_STEP, 20);
+  assert.equal(ascensionCombatStatBonusPercent(0), 0);
+  assert.equal(ascensionCombatStatBonusPercent(1), 20);
+  assert.equal(ascensionCombatStatBonusPercent(4), 80);
+});
+
+test("scaleStatRangeByBonusPercent: four DC tiers are +80%", () => {
+  assert.deepEqual(scaleStatRangeByBonusPercent([10, 20], 0), [10, 20]);
+  assert.deepEqual(scaleStatRangeByBonusPercent([10, 20], 20), [12, 24]);
+  assert.deepEqual(scaleStatRangeByBonusPercent([10, 20], 80), [18, 36]);
+});
+
+test("costEqualsTier: four Greater DC tiers cost 10 points", () => {
+  const defs = [{ id: "ascension-stat-dc", costEqualsTier: true, maxTier: null }];
+  let tiers = {};
+  for (let n = 0; n < 4; n += 1) tiers = buyAscensionTier(tiers, defs, "ascension-stat-dc", 10);
+  assert.deepEqual(tiers, { "ascension-stat-dc": 4 });
+  assert.equal(ascensionPointsSpentFor(tiers, defs), 10);
+  assert.equal(ascensionCombatStatBonusPercent(4), 80);
+});
+
+test("Mega Formula: two tiers cost 2 then 3", () => {
+  const defs = [{ id: "ascension-mega-potion", costByTier: [2, 3], maxTier: 2 }];
+  let tiers = buyAscensionTier({}, defs, "ascension-mega-potion", 5);
+  assert.deepEqual(tiers, { "ascension-mega-potion": 1 });
+  assert.equal(ascensionPointsSpentFor(tiers, defs), 2);
+  tiers = buyAscensionTier(tiers, defs, "ascension-mega-potion", 5);
+  assert.deepEqual(tiers, { "ascension-mega-potion": 2 });
+  assert.equal(ascensionPointsSpentFor(tiers, defs), 5);
+  assert.equal(buyAscensionTier(tiers, defs, "ascension-mega-potion", 5), null);
+});
+
+test("potionTickDelayMsForBonus: Mega is 160ms, Ultra is 133ms", () => {
+  assert.equal(potionTickDelayMsForBonus(200, 0), 200);
+  assert.equal(potionTickDelayMsForBonus(200, MEGA_POTION_TICK_BONUS_PERCENT), 160);
+  assert.equal(potionTickDelayMsForBonus(200, ULTRA_POTION_TICK_BONUS_PERCENT), 133);
+});
+
+test("potionTickBonusPercentForItemId: last Mega/Ultra drink sets 25 or 50", () => {
+  assert.equal(potionTickBonusPercentForItemId(MEGA_POTION_ITEM_ID), 25);
+  assert.equal(potionTickBonusPercentForItemId(ULTRA_POTION_ITEM_ID), 50);
+  assert.equal(potionTickBonusPercentForItemId("hp-drug-xl"), 0);
+});
+
+test("sanitizePotionTickBonusPercent: only 0, 25, or 50", () => {
+  assert.equal(sanitizePotionTickBonusPercent(25), 25);
+  assert.equal(sanitizePotionTickBonusPercent(50), 50);
+  assert.equal(sanitizePotionTickBonusPercent(12), 0);
+  assert.equal(sanitizePotionTickBonusPercent(null), 0);
+});
+
 test("worldDifficultyMultiplier: Normal through Impossible", () => {
   assert.equal(WORLD_DIFFICULTY_DEFS.length, 5);
   assert.equal(worldDifficultyMultiplier("normal"), 1);
@@ -346,6 +431,115 @@ test("backfillStandardJourneyPayout: a pre-update kill pays the standard journey
   assert.equal(keepBank.changed, true);
   assert.equal(keepBank.pointsEarned, 11);
   assert.equal(keepBank.runPointsAwarded, 5);
+});
+
+test("payAscensionForKill: a live Standard kill pays 5", () => {
+  const paid = payAscensionForKill({
+    runPointsAwarded: 0,
+    pointsEarned: 0,
+    runBestTier: -1,
+    target: 5,
+    tier: 0,
+  });
+  assert.equal(paid.changed, true);
+  assert.equal(paid.award, 5);
+  assert.equal(paid.pointsEarned, 5);
+  assert.equal(paid.runPointsAwarded, 5);
+  assert.equal(paid.runBestTier, 0);
+});
+
+test("payAscensionForKill: does not stack on top of the Standard backfill", () => {
+  const backfilled = backfillStandardJourneyPayout({
+    runPointsAwarded: 0,
+    pointsEarned: 0,
+    runBestTier: -1,
+    hasJourneyKill: true,
+    standardPayout: 5,
+  });
+  const standard = payAscensionForKill({ ...backfilled, target: 5, tier: 0 });
+  assert.equal(standard.award, 0);
+  assert.equal(standard.pointsEarned, 5);
+  assert.equal(standard.runPointsAwarded, 5);
+
+  const empowered = payAscensionForKill({ ...backfilled, target: 7, tier: 1 });
+  assert.equal(empowered.award, 2);
+  assert.equal(empowered.pointsEarned, 7);
+  assert.equal(empowered.runBestTier, 1);
+});
+
+test("payAscensionForKill: a later journey still pays on top of the bank", () => {
+  const paid = payAscensionForKill({
+    runPointsAwarded: 0,
+    pointsEarned: 5,
+    runBestTier: -1,
+    target: 5,
+    tier: 0,
+  });
+  assert.equal(paid.award, 5);
+  assert.equal(paid.pointsEarned, 10);
+  assert.equal(paid.runPointsAwarded, 5);
+});
+
+test("backfillStandardJourneyPayout: a later journey's live kill must not be backfilled", () => {
+  // If ensure/backfill runs after the kill is counted, it marks the run paid
+  // without adding to a non-zero bank, and the live payout then adds nothing.
+  const stolen = backfillStandardJourneyPayout({
+    runPointsAwarded: 0,
+    pointsEarned: 5,
+    runBestTier: -1,
+    hasJourneyKill: true,
+    standardPayout: 5,
+  });
+  assert.equal(stolen.changed, true);
+  assert.equal(stolen.runPointsAwarded, 5);
+  assert.equal(stolen.pointsEarned, 5);
+  const tooLate = payAscensionForKill({ ...stolen, target: 5, tier: 0 });
+  assert.equal(tooLate.award, 0);
+  assert.equal(tooLate.pointsEarned, 5);
+});
+
+test("syncAscensionPayoutForBestTier: a table raise tops up the current journey", () => {
+  const table = [8, 9, 10, 11];
+  const none = syncAscensionPayoutForBestTier({
+    runPointsAwarded: 0,
+    pointsEarned: 0,
+    runBestTier: -1,
+  }, table);
+  assert.equal(none.changed, false);
+  assert.equal(none.pointsEarned, 0);
+
+  const standard = syncAscensionPayoutForBestTier({
+    runPointsAwarded: 5,
+    pointsEarned: 5,
+    runBestTier: 0,
+  }, table);
+  assert.equal(standard.award, 3);
+  assert.equal(standard.pointsEarned, 8);
+  assert.equal(standard.runPointsAwarded, 8);
+
+  const empowered = syncAscensionPayoutForBestTier({
+    runPointsAwarded: 7,
+    pointsEarned: 7,
+    runBestTier: 1,
+  }, table);
+  assert.equal(empowered.award, 2);
+  assert.equal(empowered.pointsEarned, 9);
+
+  const ascended = syncAscensionPayoutForBestTier({
+    runPointsAwarded: 9,
+    pointsEarned: 9,
+    runBestTier: 2,
+  }, table);
+  assert.equal(ascended.award, 1);
+  assert.equal(ascended.pointsEarned, 10);
+
+  const awakened = syncAscensionPayoutForBestTier({
+    runPointsAwarded: 11,
+    pointsEarned: 11,
+    runBestTier: 3,
+  }, table);
+  assert.equal(awakened.changed, false);
+  assert.equal(awakened.pointsEarned, 11);
 });
 
 test("sanitizeWorldDifficulty: unknown and locked both become Normal", () => {

@@ -3551,6 +3551,74 @@
       }
     },
     {
+      "id": "awakened-black-tiger-hammer",
+      "name": "Awakened Black Tiger Hammer",
+      "type": "weapon",
+      "slot": "weapon",
+      "class": "any",
+      "source": {
+        "crystalIndex": 252,
+        "name": "BlackTigerHammer"
+      },
+      "icon": {
+        "library": "Items",
+        "frame": 1150,
+        "src": "./public/item-icons/items/frame_001150.png"
+      },
+      "requirements": {
+        "type": "level",
+        "amount": 50,
+        "classMask": 7,
+        "genderMask": 3
+      },
+      "stackable": false,
+      "maxStack": 1,
+      "stats": {
+        "ac": [
+          0,
+          0
+        ],
+        "amc": [
+          0,
+          0
+        ],
+        "dc": [
+          7,
+          60
+        ],
+        "mc": [
+          0,
+          0
+        ],
+        "sc": [
+          0,
+          0
+        ],
+        "hp": 0,
+        "mp": 0,
+        "accuracy": 0,
+        "agility": 0,
+        "luck": 0,
+        "attackSpeed": 0
+      },
+      "shop": {
+        "buy": 0,
+        "sell": 0
+      },
+      "visual": {
+        "layer": "weapon",
+        "index": 51
+      },
+      "crystalType": "Weapon",
+      "drop": {
+        "zones": [],
+        "chances": {}
+      },
+      "visualWeaponGlow": 13,
+      "unique": true,
+      "innateWarriorBuffEffectivenessPercent": 100
+    },
+    {
       "id": "blade-of-sorcery",
       "name": "Blade Of Sorcery",
       "type": "weapon",
@@ -3619,6 +3687,220 @@
         },
         "chance": 0.1
       }
+    },
+    {
+      "id": "awakened-blade-of-sorcery",
+      "name": "Awakened Blade Of Sorcery",
+      "type": "weapon",
+      "slot": "weapon",
+      "class": "any",
+      "source": {
+        "crystalIndex": 263,
+        "name": "BladeOfSorcery"
+      },
+      "icon": {
+        "library": "Items",
+        "frame": 73,
+        "src": "./public/item-icons/items/frame_000073.png"
+      },
+      "requirements": {
+        "type": "level",
+        "amount": 43,
+        "classMask": 7,
+        "genderMask": 3
+      },
+      "stackable": false,
+      "maxStack": 1,
+      "stats": {
+        "ac": [
+          0,
+          0
+        ],
+        "amc": [
+          0,
+          0
+        ],
+        "dc": [
+          7,
+          25
+        ],
+        "mc": [
+          3,
+          13
+        ],
+        "sc": [
+          0,
+          0
+        ],
+        "hp": 0,
+        "mp": 0,
+        "accuracy": 0,
+        "agility": 0,
+        "luck": 0,
+        "attackSpeed": 0
+      },
+      "shop": {
+        "buy": 0,
+        "sell": 0
+      },
+      "visual": {
+        "layer": "weapon",
+        "index": 33
+      },
+      "crystalType": "Weapon",
+      "drop": {
+        "zones": [],
+        "chances": {}
+      },
+      "visualWeaponGlow": 7,
+      "unique": true,
+      "innateFireWallHellfire": true,
+      "innateSpellBonuses": {
+        "FireWall": {
+          "damagePercent": 100
+        }
+      }
+    },
+    {
+      "id": "awakened-heaven-sword",
+      "name": "Awakened Heaven Sword",
+      "type": "weapon",
+      "slot": "weapon",
+      "class": "any",
+      "source": {
+        "crystalIndex": 276,
+        "name": "HeavenSword"
+      },
+      "icon": {
+        "library": "Items",
+        "frame": 74,
+        "src": "./public/item-icons/items/frame_000074.png"
+      },
+      "requirements": {
+        "type": "level",
+        "amount": 43,
+        "classMask": 7,
+        "genderMask": 3
+      },
+      "stackable": false,
+      "maxStack": 1,
+      "stats": {
+        "ac": [
+          0,
+          0
+        ],
+        "amc": [
+          0,
+          0
+        ],
+        "dc": [
+          8,
+          31
+        ],
+        "mc": [
+          0,
+          0
+        ],
+        "sc": [
+          3,
+          10
+        ],
+        "hp": 0,
+        "mp": 0,
+        "accuracy": 1,
+        "agility": 0,
+        "luck": 0,
+        "attackSpeed": 0
+      },
+      "shop": {
+        "buy": 0,
+        "sell": 0
+      },
+      "visual": {
+        "layer": "weapon",
+        "index": 34
+      },
+      "crystalType": "Weapon",
+      "drop": {
+        "zones": [],
+        "chances": {}
+      },
+      "visualWeaponGlow": 8,
+      "unique": true,
+      "innateSpellBonuses": {
+        "Healing": {
+          "healingPercent": 100,
+          "castSpeedPercent": 50
+        }
+      }
+    },
+    {
+      "id": "awakened-sword-of-war-god",
+      "name": "Awakened Sword Of War God",
+      "type": "weapon",
+      "slot": "weapon",
+      "class": "any",
+      "source": {
+        "crystalIndex": 249,
+        "name": "SwordOfWarGod"
+      },
+      "icon": {
+        "library": "Items",
+        "frame": 72,
+        "src": "./public/item-icons/items/frame_000072.png"
+      },
+      "requirements": {
+        "type": "level",
+        "amount": 43,
+        "classMask": 7,
+        "genderMask": 3
+      },
+      "stackable": false,
+      "maxStack": 1,
+      "stats": {
+        "ac": [
+          0,
+          0
+        ],
+        "amc": [
+          0,
+          0
+        ],
+        "dc": [
+          0,
+          80
+        ],
+        "mc": [
+          0,
+          0
+        ],
+        "sc": [
+          0,
+          0
+        ],
+        "hp": 0,
+        "mp": 0,
+        "accuracy": 0,
+        "agility": 0,
+        "luck": 0,
+        "attackSpeed": 0
+      },
+      "shop": {
+        "buy": 0,
+        "sell": 0
+      },
+      "visual": {
+        "layer": "weapon",
+        "index": 32
+      },
+      "crystalType": "Weapon",
+      "drop": {
+        "zones": [],
+        "chances": {}
+      },
+      "visualWeaponGlow": 6,
+      "unique": true,
+      "innateDoubleMaxHpAndAccuracy": true
     },
     {
       "id": "blades-of-darkness",
@@ -9133,6 +9415,80 @@
       }
     },
     {
+      "id": "awakened-burst-sword",
+      "name": "Awakened Burst Sword",
+      "type": "weapon",
+      "slot": "weapon",
+      "class": "any",
+      "source": {
+        "crystalIndex": 250,
+        "name": "BurstSword"
+      },
+      "icon": {
+        "library": "Items",
+        "frame": 75,
+        "src": "./public/item-icons/items/frame_000075.png"
+      },
+      "requirements": {
+        "type": "level",
+        "amount": 45,
+        "classMask": 7,
+        "genderMask": 3
+      },
+      "stackable": false,
+      "maxStack": 1,
+      "stats": {
+        "ac": [
+          0,
+          0
+        ],
+        "amc": [
+          0,
+          0
+        ],
+        "dc": [
+          8,
+          56
+        ],
+        "mc": [
+          0,
+          0
+        ],
+        "sc": [
+          0,
+          0
+        ],
+        "hp": 0,
+        "mp": 0,
+        "accuracy": 0,
+        "agility": 0,
+        "luck": 0,
+        "attackSpeed": 0
+      },
+      "shop": {
+        "buy": 0,
+        "sell": 0
+      },
+      "visual": {
+        "layer": "weapon",
+        "index": 35
+      },
+      "crystalType": "Weapon",
+      "drop": {
+        "zones": [],
+        "chances": {}
+      },
+      "visualWeaponGlow": 10,
+      "unique": true,
+      "innateSlashingBurstMelee": true,
+      "innateSpellBonuses": {
+        "SlashingBurst": {
+          "damagePercent": 100,
+          "critDamagePercent": 100
+        }
+      }
+    },
+    {
       "id": "chain-belt",
       "name": "Chain Belt",
       "type": "belt",
@@ -11347,6 +11703,80 @@
       }
     },
     {
+      "id": "awakened-dragon-blood-sword",
+      "name": "Awakened Dragon Blood Sword",
+      "type": "weapon",
+      "slot": "weapon",
+      "class": "any",
+      "source": {
+        "crystalIndex": 277,
+        "name": "DragonBloodSword"
+      },
+      "icon": {
+        "library": "Items",
+        "frame": 76,
+        "src": "./public/item-icons/items/frame_000076.png"
+      },
+      "requirements": {
+        "type": "level",
+        "amount": 45,
+        "classMask": 7,
+        "genderMask": 3
+      },
+      "stackable": false,
+      "maxStack": 1,
+      "stats": {
+        "ac": [
+          0,
+          0
+        ],
+        "amc": [
+          0,
+          0
+        ],
+        "dc": [
+          8,
+          25
+        ],
+        "mc": [
+          0,
+          0
+        ],
+        "sc": [
+          4,
+          12
+        ],
+        "hp": 0,
+        "mp": 0,
+        "accuracy": 1,
+        "agility": 0,
+        "luck": 0,
+        "attackSpeed": 0
+      },
+      "shop": {
+        "buy": 0,
+        "sell": 0
+      },
+      "visual": {
+        "layer": "weapon",
+        "index": 37
+      },
+      "crystalType": "Weapon",
+      "drop": {
+        "zones": [],
+        "chances": {}
+      },
+      "visualWeaponGlow": 11,
+      "unique": true,
+      "innateSpellBonuses": {
+        "PoisonCloud": {
+          "damagePercent": 100,
+          "cooldownReductionSeconds": 18
+        }
+      },
+      "innatePoisonCloudNoSupplies": true
+    },
+    {
       "id": "dragon-boots",
       "name": "Dragon Boots",
       "type": "boots",
@@ -12012,7 +12442,7 @@
         "src": "./public/item-icons/items/frame_000048.png"
       },
       "requirements": {
-        "type": "level",
+        "type": "maxDC",
         "amount": 30,
         "classMask": 7,
         "genderMask": 3
@@ -13913,6 +14343,78 @@
           "zone-hell-gd-3": 0.01
         },
         "chance": 0.01
+      }
+    },
+    {
+      "id": "awakened-fan-of-crane",
+      "name": "Awakened Fan Of Crane",
+      "type": "weapon",
+      "slot": "weapon",
+      "class": "any",
+      "source": {
+        "crystalIndex": 279,
+        "name": "FanOfCrane"
+      },
+      "icon": {
+        "library": "Items",
+        "frame": 1152,
+        "src": "./public/item-icons/items/frame_001152.png"
+      },
+      "requirements": {
+        "type": "level",
+        "amount": 50,
+        "classMask": 7,
+        "genderMask": 3
+      },
+      "stackable": false,
+      "maxStack": 1,
+      "stats": {
+        "ac": [
+          0,
+          0
+        ],
+        "amc": [
+          0,
+          0
+        ],
+        "dc": [
+          8,
+          28
+        ],
+        "mc": [
+          0,
+          0
+        ],
+        "sc": [
+          10,
+          26
+        ],
+        "hp": 0,
+        "mp": 0,
+        "accuracy": 1,
+        "agility": 0,
+        "luck": 0,
+        "attackSpeed": 0
+      },
+      "shop": {
+        "buy": 0,
+        "sell": 0
+      },
+      "visual": {
+        "layer": "weapon",
+        "index": 40
+      },
+      "crystalType": "Weapon",
+      "drop": {
+        "zones": [],
+        "chances": {}
+      },
+      "visualWeaponGlow": 15,
+      "unique": true,
+      "innateSpellBonuses": {
+        "HealingCircle": {
+          "healingPercent": 100
+        }
       }
     },
     {
@@ -18407,6 +18909,76 @@
       "crystalType": "Weapon"
     },
     {
+      "id": "awakened-holy-light-sword",
+      "name": "Awakened Holy Light Sword",
+      "type": "weapon",
+      "slot": "weapon",
+      "class": "any",
+      "source": {
+        "crystalIndex": 1411,
+        "name": "GonRyunHolyLightSword(?)1"
+      },
+      "icon": {
+        "library": "Items",
+        "frame": 5131,
+        "src": "./public/item-icons/items/frame_005131.png"
+      },
+      "requirements": {
+        "type": "level",
+        "amount": 63,
+        "classMask": 7,
+        "genderMask": 3
+      },
+      "stackable": false,
+      "maxStack": 1,
+      "stats": {
+        "ac": [
+          0,
+          0
+        ],
+        "amc": [
+          0,
+          0
+        ],
+        "dc": [
+          17,
+          86
+        ],
+        "mc": [
+          12,
+          34
+        ],
+        "sc": [
+          11,
+          28
+        ],
+        "hp": 0,
+        "mp": 0,
+        "accuracy": 2,
+        "agility": 0,
+        "luck": 0,
+        "attackSpeed": 2
+      },
+      "shop": {
+        "buy": 0,
+        "sell": 0
+      },
+      "visual": {
+        "layer": "weapon",
+        "index": 77
+      },
+      "crystalType": "Weapon",
+      "drop": {
+        "zones": [],
+        "chances": {}
+      },
+      "visualWeaponGlow": 55,
+      "unique": true,
+      "innateHp": 300,
+      "innateDamageTakenReductionPercent": 25,
+      "innatePotionRestoreBonusPercent": 50
+    },
+    {
       "id": "gonryunyongdrama-m-1",
       "name": "Gon Ryun Dragon Armour",
       "type": "armour",
@@ -20914,6 +21486,79 @@
           "zone-hell-gd-3": 0.05
         },
         "chance": 0.05
+      }
+    },
+    {
+      "id": "awakened-holy-blood-spear",
+      "name": "Awakened Holy Blood Spear",
+      "type": "weapon",
+      "slot": "weapon",
+      "class": "any",
+      "source": {
+        "crystalIndex": 264,
+        "name": "HolyBloodSpear"
+      },
+      "icon": {
+        "library": "Items",
+        "frame": 77,
+        "src": "./public/item-icons/items/frame_000077.png"
+      },
+      "requirements": {
+        "type": "level",
+        "amount": 45,
+        "classMask": 7,
+        "genderMask": 3
+      },
+      "stackable": false,
+      "maxStack": 1,
+      "stats": {
+        "ac": [
+          0,
+          0
+        ],
+        "amc": [
+          0,
+          0
+        ],
+        "dc": [
+          6,
+          17
+        ],
+        "mc": [
+          4,
+          15
+        ],
+        "sc": [
+          0,
+          0
+        ],
+        "hp": 0,
+        "mp": 0,
+        "accuracy": 0,
+        "agility": 0,
+        "luck": 0,
+        "attackSpeed": 0
+      },
+      "shop": {
+        "buy": 0,
+        "sell": 0
+      },
+      "visual": {
+        "layer": "weapon",
+        "index": 36
+      },
+      "crystalType": "Weapon",
+      "drop": {
+        "zones": [],
+        "chances": {}
+      },
+      "visualWeaponGlow": 12,
+      "unique": true,
+      "innateSpellBonuses": {
+        "FlameDisruptor": {
+          "damagePercent": 100,
+          "critDamagePercent": 100
+        }
       }
     },
     {
@@ -26099,6 +26744,75 @@
       },
       "crystalType": "Weapon",
       "set": 12
+    },
+    {
+      "id": "awakened-mir-sword",
+      "name": "Awakened Mir Sword",
+      "type": "weapon",
+      "slot": "weapon",
+      "class": "any",
+      "source": {
+        "crystalIndex": 40,
+        "name": "MirSword1"
+      },
+      "icon": {
+        "library": "Items",
+        "frame": 828,
+        "src": "./public/item-icons/items/frame_000828.png"
+      },
+      "requirements": {
+        "type": "level",
+        "amount": 70,
+        "classMask": 7,
+        "genderMask": 3
+      },
+      "stackable": false,
+      "maxStack": 1,
+      "stats": {
+        "ac": [
+          0,
+          0
+        ],
+        "amc": [
+          0,
+          0
+        ],
+        "dc": [
+          90,
+          210
+        ],
+        "mc": [
+          36,
+          100
+        ],
+        "sc": [
+          34,
+          86
+        ],
+        "hp": 0,
+        "mp": 0,
+        "accuracy": 6,
+        "agility": 0,
+        "luck": 2,
+        "attackSpeed": 4
+      },
+      "shop": {
+        "buy": 0,
+        "sell": 0
+      },
+      "visual": {
+        "layer": "weapon",
+        "index": 41
+      },
+      "crystalType": "Weapon",
+      "drop": {
+        "zones": [],
+        "chances": {}
+      },
+      "visualWeaponGlow": 9,
+      "unique": true,
+      "innateCritChancePercent": 100,
+      "innateCritDamagePercent": 100
     },
     {
       "id": "monk-bangle",
@@ -35874,6 +36588,80 @@
       }
     },
     {
+      "id": "awakened-staff-of-lotus",
+      "name": "Awakened Staff Of Lotus",
+      "type": "weapon",
+      "slot": "weapon",
+      "class": "any",
+      "source": {
+        "crystalIndex": 266,
+        "name": "StaffOfLotus"
+      },
+      "icon": {
+        "library": "Items",
+        "frame": 1151,
+        "src": "./public/item-icons/items/frame_001151.png"
+      },
+      "requirements": {
+        "type": "level",
+        "amount": 50,
+        "classMask": 7,
+        "genderMask": 3
+      },
+      "stackable": false,
+      "maxStack": 1,
+      "stats": {
+        "ac": [
+          0,
+          0
+        ],
+        "amc": [
+          0,
+          0
+        ],
+        "dc": [
+          6,
+          21
+        ],
+        "mc": [
+          5,
+          16
+        ],
+        "sc": [
+          0,
+          0
+        ],
+        "hp": 0,
+        "mp": 0,
+        "accuracy": 0,
+        "agility": 0,
+        "luck": 0,
+        "attackSpeed": 0
+      },
+      "shop": {
+        "buy": 0,
+        "sell": 0
+      },
+      "visual": {
+        "layer": "weapon",
+        "index": 39
+      },
+      "crystalType": "Weapon",
+      "drop": {
+        "zones": [],
+        "chances": {}
+      },
+      "visualWeaponGlow": 14,
+      "unique": true,
+      "innateSpellBonuses": {
+        "FlameField": {
+          "damagePercent": 100,
+          "critDamagePercent": 100,
+          "manaCostPercent": 50
+        }
+      }
+    },
+    {
       "id": "steel-armour",
       "name": "Steel Armour",
       "type": "armour",
@@ -42292,6 +43080,114 @@
       },
       "crystalType": "Boots",
       "set": 12
+    },
+    {
+      "id": "mega-potion",
+      "name": "Mega Potion",
+      "type": "potion",
+      "slot": "consumable",
+      "class": "any",
+      "icon": {
+        "library": "Items",
+        "frame": 1705,
+        "src": "./public/item-icons/items/frame_001705.png"
+      },
+      "requirements": {
+        "type": "none",
+        "amount": 0,
+        "classMask": 31,
+        "genderMask": 3
+      },
+      "stackable": true,
+      "maxStack": 64,
+      "stats": {
+        "ac": [
+          0,
+          0
+        ],
+        "amc": [
+          0,
+          0
+        ],
+        "dc": [
+          0,
+          0
+        ],
+        "mc": [
+          0,
+          0
+        ],
+        "sc": [
+          0,
+          0
+        ],
+        "hp": 200,
+        "mp": 250,
+        "accuracy": 0,
+        "agility": 0,
+        "luck": 0,
+        "attackSpeed": 0
+      },
+      "shop": {
+        "buy": 350,
+        "sell": 70
+      },
+      "shape": 0,
+      "crystalType": "Potion"
+    },
+    {
+      "id": "ultra-potion",
+      "name": "Ultra Potion",
+      "type": "potion",
+      "slot": "consumable",
+      "class": "any",
+      "icon": {
+        "library": "Items",
+        "frame": 3319,
+        "src": "./public/item-icons/items/frame_003319.png"
+      },
+      "requirements": {
+        "type": "none",
+        "amount": 0,
+        "classMask": 31,
+        "genderMask": 3
+      },
+      "stackable": true,
+      "maxStack": 64,
+      "stats": {
+        "ac": [
+          0,
+          0
+        ],
+        "amc": [
+          0,
+          0
+        ],
+        "dc": [
+          0,
+          0
+        ],
+        "mc": [
+          0,
+          0
+        ],
+        "sc": [
+          0,
+          0
+        ],
+        "hp": 250,
+        "mp": 300,
+        "accuracy": 0,
+        "agility": 0,
+        "luck": 0,
+        "attackSpeed": 0
+      },
+      "shop": {
+        "buy": 450,
+        "sell": 90
+      },
+      "shape": 0,
+      "crystalType": "Potion"
     }
   ]
 }

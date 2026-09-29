@@ -177,9 +177,73 @@ export function spellGroundAreaTiles(centerWorldX, centerMapRow, radius = 2) {
   return tiles;
 }
 
+export function swarmCellKey(tile) {
+  return `${swarmSnapTileX(tile.worldX)}:${Math.trunc(Number(tile.mapRow) || 0)}`;
+}
+
+/**
+ * Next Fire Wall-style ground field: stay put on covered cells and only pick a
+ * new center when it would hit at least one uncovered enemy tile.
+ */
+export function pickBestUncoveredGroundAreaCenter({
+  enemyTiles = [],
+  activeTileKeys = [],
+  radius = 1,
+  inRange = () => true,
+  meleeWorldX = 0,
+} = {}) {
+  const active = activeTileKeys instanceof Set ? activeTileKeys : new Set(activeTileKeys ?? []);
+  const uncovered = enemyTiles.filter((tile) => !active.has(swarmCellKey(tile)));
+  if (!uncovered.length) return null;
+
+  const candidates = new Map();
+  for (const tile of uncovered) {
+    for (const center of spellGroundAreaTiles(tile.worldX, tile.mapRow, radius)) {
+      if (!inRange(center)) continue;
+      candidates.set(swarmCellKey(center), {
+        worldX: swarmSnapTileX(center.worldX),
+        mapRow: Math.trunc(Number(center.mapRow) || 0),
+      });
+    }
+  }
+
+  let best = null;
+  let bestScore = -Infinity;
+  const meleeX = swarmSnapTileX(meleeWorldX);
+  for (const center of candidates.values()) {
+    const areaKeys = new Set(
+      spellGroundAreaTiles(center.worldX, center.mapRow, radius).map(swarmCellKey),
+    );
+    let uncoveredHits = 0;
+    let totalHits = 0;
+    for (const tile of enemyTiles) {
+      const key = swarmCellKey(tile);
+      if (!areaKeys.has(key)) continue;
+      totalHits += 1;
+      if (!active.has(key)) uncoveredHits += 1;
+    }
+    if (uncoveredHits <= 0) continue;
+    const distancePenalty = Math.abs(center.worldX - meleeX) / GROUP_DUNGEON_SWARM_TILE_PX;
+    const score = uncoveredHits * 100 + totalHits * 5 - distancePenalty;
+    if (score > bestScore) {
+      best = center;
+      bestScore = score;
+    }
+  }
+  return best;
+}
+
 /** Crystal Blizzard / MeteorStrike: 5×5 square centered on the target cell. */
 export function spellStormAreaTiles(centerWorldX, centerMapRow) {
   return spellGroundAreaTiles(centerWorldX, centerMapRow, 2);
+}
+
+/**
+ * Hellfire is one blanket. Extra Fire Wall placements must not replace it.
+ * Normal group-dungeon Fire Wall may add another plus while the first is live.
+ */
+export function wizardFireWallBlocksAdditionalGroundEffect(hellfireActive, fireWallAlreadyOnGround) {
+  return Boolean(hellfireActive) && Boolean(fireWallAlreadyOnGround);
 }
 
 /** Crystal FireWall: center cell plus four orthogonal neighbours. */
@@ -194,6 +258,53 @@ export function fireWallCrossTiles(centerWorldX, centerMapRow) {
     { worldX: cx, mapRow: row - step },
     { worldX: cx, mapRow: row + step },
   ];
+}
+
+/** Hellfire east cap: start column, but never past the screen or spell range from that column. */
+export function clampHellfireEastBound(meleeWorldX, visibleEastWorldX, rangeEastWorldX) {
+  const melee = swarmSnapTileX(meleeWorldX);
+  const visible = swarmSnapTileX(visibleEastWorldX);
+  const rangeEast = swarmSnapTileX(rangeEastWorldX);
+  return Math.max(melee, Math.min(visible, rangeEast));
+}
+
+/** Every swarm cell enemies can walk: 3 lanes from the melee column to eastmost. */
+export function swarmWalkableTiles(meleeWorldX, arenaSpawnRow, eastmostWorldX, options = {}) {
+  const tile = GROUP_DUNGEON_SWARM_TILE_PX;
+  const minX = swarmSnapTileX(meleeWorldX);
+  let maxX = swarmSnapTileX(eastmostWorldX);
+  if (maxX < minX) maxX = minX;
+  const maxCols = Math.max(1, Math.trunc(Number(options.maxColumns) || 24));
+  const colCount = Math.floor((maxX - minX) / tile) + 1;
+  if (colCount > maxCols) maxX = minX + (maxCols - 1) * tile;
+  const tiles = [];
+  for (let worldX = minX; worldX <= maxX; worldX += tile) {
+    for (const lane of GROUP_DUNGEON_SWARM_LANES) {
+      tiles.push({ worldX, mapRow: swarmLaneMapRow(lane, arenaSpawnRow) });
+    }
+  }
+  return tiles;
+}
+
+/** Solo / single-boss Fire Wall strip: widthTiles wide from fromX to toX. */
+export function fireWallLaneStripTiles(fromWorldX, toWorldX, mapRow = 0, widthTiles = 3) {
+  const tile = GROUP_DUNGEON_SWARM_TILE_PX;
+  const start = swarmSnapTileX(Math.min(Number(fromWorldX) || 0, Number(toWorldX) || 0));
+  const end = swarmSnapTileX(Math.max(Number(fromWorldX) || 0, Number(toWorldX) || 0));
+  const half = Math.floor(Math.max(1, Math.trunc(Number(widthTiles) || 1)) / 2);
+  const row = Math.trunc(Number(mapRow) || 0);
+  const tiles = [];
+  const seen = new Set();
+  for (let worldX = start; worldX <= end; worldX += tile) {
+    for (let i = -half; i <= half; i += 1) {
+      const x = worldX + i * tile;
+      const key = `${x}:${row}`;
+      if (seen.has(key)) continue;
+      seen.add(key);
+      tiles.push({ worldX: x, mapRow: row });
+    }
+  }
+  return tiles;
 }
 
 /** Eight tiles around a cell (N/NE/E/SE/S/SW/W/NW) — excludes the center. */

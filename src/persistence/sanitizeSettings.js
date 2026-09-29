@@ -10,6 +10,8 @@ export const DEFAULT_GROUP_DUNGEON_AUTO_ADVANCE = false;
 export const DEFAULT_BOSS_JUNK_FILTER_ENABLED = true;
 export const DEFAULT_AUTO_POTION_HP_THRESHOLD = 0.5;
 export const DEFAULT_AUTO_POTION_MP_THRESHOLD = 0.5;
+export const DEFAULT_TAOIST_HEALING_THRESHOLD = 0.5;
+export const DEFAULT_TAOIST_MASS_HEALING_THRESHOLD = 0.5;
 /** Lowest allowed auto-potion trigger (5%). */
 export const AUTO_POTION_THRESHOLD_MIN = 0.05;
 /** Highest allowed auto-potion trigger (100% = drink whenever not full). */
@@ -219,6 +221,14 @@ export function sanitizeSettingsState(savedSettings = {}) {
     autoPotionHpThreshold: legacyMirror.hp,
     autoPotionMpThreshold: legacyMirror.mp,
     autoPotionThresholdsByCharacter,
+    taoistHealingThreshold: normalizedAutoPotionThreshold(
+      savedSettings.taoistHealingThreshold,
+      DEFAULT_TAOIST_HEALING_THRESHOLD,
+    ),
+    taoistMassHealingThreshold: normalizedAutoPotionThreshold(
+      savedSettings.taoistMassHealingThreshold,
+      DEFAULT_TAOIST_MASS_HEALING_THRESHOLD,
+    ),
     prototypeStatsEnabled: Object.prototype.hasOwnProperty.call(savedSettings, "prototypeStatsEnabled")
       ? savedSettings.prototypeStatsEnabled === true
       : DEFAULT_PROTOTYPE_STATS_ENABLED,

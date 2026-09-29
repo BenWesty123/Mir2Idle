@@ -296,6 +296,7 @@ const OMA_KING_BOSS_DROPS = {
   // Accessory tiers: lowest ~5% (Namman/Danmo/Tarragon/Stone Golem), L63 2.5%
   // (Red Dragon Ring / Dragon Necklace / Golden Dragon Bracelet), L66 Evil
   // Dragon jewellery 1.25%. L66 weapons stay 2.5%; Oma King Armour 1.25%.
+  // Awakened exclusive: Holy Light Sword unique (1%).
   gold: 35000,
   benedictionOils: 2,
   items: [
@@ -359,6 +360,10 @@ const OMA_KING_BOSS_DROPS = {
     ...bossTopTierStoneDrops(0.03),
     ...bossGemDrops(0.08),
     ...bossOrbDrops(0.02),
+  ],
+  // Awakened fights only — listed chance is exact (not multiplied by awaken 4×).
+  awakenedItems: [
+    { id: "awakened-holy-light-sword", chance: 0.01 },
   ],
 };
 const ZUMA_TAURUS_BOSS_DROPS = {
@@ -1021,6 +1026,10 @@ const RED_CAVERN_DEVOURER_BOSS_DROPS = {
     ...bossGemDrops(0.03),
     ...bossOrbDrops(0.01),
   ],
+  // Awakened fights only — listed chance is exact (not multiplied by awaken 4×).
+  awakenedItems: [
+    { id: "awakened-sword-of-war-god", chance: 0.01 },
+  ],
 };
 const GREAT_FOX_SPIRIT_BOSS_DROPS = {
   gold: 20000,
@@ -1096,6 +1105,11 @@ const GREAT_FOX_SPIRIT_BOSS_DROPS = {
     { id: "red-dark-armour", chance: 0.01 },
     ...bossGemDrops(0.03),
     ...bossOrbDrops(0.01),
+  ],
+  // Awakened fights only — listed chance is exact (not multiplied by awaken 4×).
+  awakenedItems: [
+    { id: "awakened-blade-of-sorcery", chance: 0.01 },
+    { id: "awakened-heaven-sword", chance: 0.01 },
   ],
 };
 const DARK_DEVIL_BOSS_DROPS = {
@@ -1410,6 +1424,12 @@ const BEAST_KING_BOSS_DROPS = {
     ...bossGemDrops(0.08),
     ...bossOrbDrops(0.02),
   ],
+  // Awakened fights only — listed chance is exact (not multiplied by awaken 4×).
+  awakenedItems: [
+    { id: "awakened-burst-sword", chance: 0.01 },
+    { id: "awakened-dragon-blood-sword", chance: 0.01 },
+    { id: "awakened-holy-blood-spear", chance: 0.01 },
+  ],
 };
 const DANMO_BOSS_DROPS = {
   // Beast King chassis shifted one step: BK's 2.5% Namman rares → 7.5%;
@@ -1463,6 +1483,12 @@ const DANMO_BOSS_DROPS = {
     ...bossGemDrops(0.08),
     ...bossOrbDrops(0.02),
   ],
+  // Awakened fights only — listed chance is exact (not multiplied by awaken 4×).
+  awakenedItems: [
+    { id: "awakened-black-tiger-hammer", chance: 0.01 },
+    { id: "awakened-staff-of-lotus", chance: 0.01 },
+    { id: "awakened-fan-of-crane", chance: 0.01 },
+  ],
 };
 
 // Final boss. Deliberately breaks the 35000/2-oil mould every other endgame boss
@@ -1493,6 +1519,7 @@ const EVIL_MIR_BOSS_DROPS = {
     // Heaven or Oma King armour. Those are other bosses' signature drops, and
     // Evil Mir has his own (the Mir set), so they stay exclusive to their own
     // encounters rather than being power-crept off the final boss.
+    // Awakened exclusive: Mir Sword unique (1%).
 
     // L50 weapons (Oma King 7.5%)
     { id: "black-tiger-hammer", chance: 0.1 },
@@ -1588,6 +1615,10 @@ const EVIL_MIR_BOSS_DROPS = {
     ...bossTopTierStoneDrops(0.04),
     ...bossGemDrops(0.1),
     ...bossOrbDrops(0.03),
+  ],
+  // Awakened fights only — listed chance is exact (not multiplied by awaken 4×).
+  awakenedItems: [
+    { id: "awakened-mir-sword", chance: 0.01 },
   ],
 };
 

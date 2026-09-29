@@ -1,0 +1,292 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Mega / Ultra Potion icon options</title>
+  <style>
+    :root {
+      color-scheme: dark;
+      --bg: #10131a;
+      --panel: #1a2130;
+      --border: #2d3648;
+      --text: #e8edf7;
+      --muted: #9aa8c0;
+      --accent: #d4b45a;
+      --mega: #e07a5f;
+      --ultra: #7aa2ff;
+      --ok: #7dcea0;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font: 14px/1.45 system-ui, Segoe UI, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+    }
+    header {
+      position: sticky;
+      top: 0;
+      z-index: 5;
+      background: #121722;
+      border-bottom: 1px solid var(--border);
+      padding: 14px 20px 12px;
+    }
+    h1 { margin: 0 0 6px; font-size: 20px; }
+    .sub { margin: 0 0 12px; color: var(--muted); max-width: 90ch; }
+    .picks {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      align-items: center;
+      margin-bottom: 10px;
+    }
+    .pick {
+      display: flex;
+      gap: 10px;
+      align-items: center;
+      background: var(--panel);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 8px 12px 8px 8px;
+      min-width: 220px;
+    }
+    .pick img, .pick .empty {
+      width: 48px;
+      height: 48px;
+      image-rendering: pixelated;
+      background: #0b0e14;
+      border-radius: 6px;
+    }
+    .pick .empty { display: grid; place-items: center; color: var(--muted); }
+    .pick b { display: block; font-size: 12px; letter-spacing: 0.04em; text-transform: uppercase; }
+    .pick.mega b { color: var(--mega); }
+    .pick.ultra b { color: var(--ultra); }
+    .filters { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
+    .filters input[type="search"] {
+      background: #0d1118;
+      border: 1px solid var(--border);
+      color: var(--text);
+      border-radius: 8px;
+      padding: 6px 10px;
+      min-width: 220px;
+    }
+    button {
+      background: #243049;
+      color: var(--text);
+      border: 1px solid var(--border);
+      border-radius: 999px;
+      padding: 5px 10px;
+      cursor: pointer;
+    }
+    button.active { background: #3a4d72; border-color: #6f86b3; }
+    button.mega { border-color: var(--mega); }
+    button.ultra { border-color: var(--ultra); }
+    main { padding: 16px 20px 80px; }
+    section h2 {
+      margin: 18px 0 10px;
+      font-size: 13px;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: var(--muted);
+    }
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(148px, 1fr));
+      gap: 10px;
+    }
+    article {
+      background: var(--panel);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 10px;
+      display: grid;
+      gap: 6px;
+    }
+    article.selected-mega { outline: 2px solid var(--mega); }
+    article.selected-ultra { outline: 2px solid var(--ultra); }
+    article.current { border-color: var(--accent); }
+    .icon {
+      height: 84px;
+      display: grid;
+      place-items: center;
+      background: #0b0e14;
+      border-radius: 8px;
+    }
+    .icon img {
+      max-width: 72px;
+      max-height: 72px;
+      image-rendering: pixelated;
+    }
+    .missing { color: var(--muted); font-weight: 700; }
+    .name { font-weight: 650; font-size: 13px; }
+    .meta, .used { color: var(--muted); font-size: 11px; }
+    .badges { display: flex; flex-wrap: wrap; gap: 4px; }
+    .badge {
+      font-size: 10px;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      padding: 2px 6px;
+      border-radius: 999px;
+      background: #2a3344;
+      color: var(--muted);
+    }
+    .badge.ok { background: rgba(125,206,160,.15); color: var(--ok); }
+    .badge.warn { background: rgba(212,180,90,.15); color: var(--accent); }
+    .actions { display: flex; gap: 6px; }
+    .actions button { flex: 1; font-size: 11px; padding: 4px 6px; }
+    .hidden { display: none !important; }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>Mega / Ultra Potion — icon options</h1>
+    <p class="sub">
+      Unused Crystal flasks first. Click <b>Mega</b> or <b>Ultra</b> on a card, then tell me the two frame numbers.
+      Current stand-ins are XL HP Drug (813) and Medium Sun Potion (312).
+    </p>
+    <div class="picks">
+      <div class="pick mega" id="megaPick"></div>
+      <div class="pick ultra" id="ultraPick"></div>
+      <button type="button" id="copyBtn">Copy frame numbers</button>
+    </div>
+    <div class="filters">
+      <input id="search" type="search" placeholder="Search name or frame">
+      <button type="button" class="chip active" data-view="unused">Unused flasks</button>
+      <button type="button" class="chip" data-view="used">Already in game</button>
+      <button type="button" class="chip" data-view="other">Food / pills / oils</button>
+      <button type="button" class="chip" data-view="all">Everything</button>
+    </div>
+  </header>
+  <main id="main"></main>
+  <script>
+    const DATA = {"megaFrame":813,"ultraFrame":312,"cards":[{"frame":14,"title":"SpencerDrug","family":"SpencerDrug","names":["SpencerDrug"],"types":["Potion"],"bucket":"flask","stats":"","instant":false,"usedBy":[],"unused":true,"isCurrentMega":false,"isCurrentUltra":false,"hasIcon":true},{"frame":16,"title":"SunPotion","family":"SunPotion","names":["SunPotion"],"types":["Potion"],"bucket":"flask","stats":"70 HP + 110 MP","instant":true,"usedBy":["Sun Potion"],"unused":false,"isCurrentMega":false,"isCurrentUltra":false,"hasIcon":true},{"frame":28,"title":"(HP)DrugLarge","family":"DrugLarge","names":["(HP)DrugLarge"],"types":["Potion"],"bucket":"flask","stats":"110 HP","instant":false,"usedBy":["Large HP Drug"],"unused":false,"isCurrentMega":false,"isCurrentUltra":false,"hasIcon":true},{"frame":29,"title":"(MP)DrugLarge","family":"DrugLarge","names":["(MP)DrugLarge"],"types":["Potion"],"bucket":"flask","stats":"180 MP","instant":false,"usedBy":["Large MP Drug"],"unused":false,"isCurrentMega":false,"isCurrentUltra":false,"hasIcon":true},{"frame":119,"title":"MysteryWater","family":"MysteryWater","names":["MysteryWater"],"types":["Potion"],"bucket":"flask","stats":"","instant":false,"usedBy":[],"unused":true,"isCurrentMega":false,"isCurrentUltra":false,"hasIcon":true},{"frame":260,"title":"OldGinseng","family":"OldGinseng","names":["OldGinseng","Ginseng"],"types":["Potion"],"bucket":"flask","stats":"150 HP + 250 MP","instant":true,"usedBy":["Old Ginseng"],"unused":false,"isCurrentMega":false,"isCurrentUltra":false,"hasIcon":true},{"frame":312,"title":"SunPotion(M)","family":"SunPotion","names":["SunPotion(M)"],"types":["Potion"],"bucket":"flask","stats":"110 HP + 180 MP","instant":true,"usedBy":["Medium Sun Potion"],"unused":false,"isCurrentMega":false,"isCurrentUltra":true,"hasIcon":true},{"frame":315,"title":"(HP)PotionMedium","family":"PotionMedium","names":["(HP)PotionMedium","(HP)PotionSmall"],"types":["Potion"],"bucket":"flask","stats":"300 HP","instant":true,"usedBy":[],"unused":true,"isCurrentMega":false,"isCurrentUltra":false,"hasIcon":true},{"frame":316,"title":"(MP)PotionMedium","family":"PotionMedium","names":["(MP)PotionMedium","(MP)PotionSmall"],"types":["Potion"],"bucket":"flask","stats":"410 MP","instant":true,"usedBy":[],"unused":true,"isCurrentMega":false,"isCurrentUltra":false,"hasIcon":true},{"frame":394,"title":"(MP)DrugSmall","family":"DrugSmall","names":["(MP)DrugSmall"],"types":["Potion"],"bucket":"flask","stats":"40 MP","instant":false,"usedBy":["Small MP Drug"],"unused":false,"isCurrentMega":false,"isCurrentUltra":false,"hasIcon":true},{"frame":396,"title":"(MP)DrugMedium","family":"DrugMedium","names":["(MP)DrugMedium"],"types":["Potion"],"bucket":"flask","stats":"110 MP","instant":false,"usedBy":["Medium MP Drug"],"unused":false,"isCurrentMega":false,"isCurrentUltra":false,"hasIcon":true},{"frame":398,"title":"(HP)DrugSmall","family":"DrugSmall","names":["(HP)DrugSmall"],"types":["Potion"],"bucket":"flask","stats":"30 HP","instant":false,"usedBy":["Small HP Drug"],"unused":false,"isCurrentMega":false,"isCurrentUltra":false,"hasIcon":true},{"frame":400,"title":"(HP)DrugMedium","family":"DrugMedium","names":["(HP)DrugMedium"],"types":["Potion"],"bucket":"flask","stats":"70 HP","instant":false,"usedBy":["Medium HP Drug"],"unused":false,"isCurrentMega":false,"isCurrentUltra":false,"hasIcon":true},{"frame":420,"title":"StormDrug(L)","family":"StormDrug","names":["StormDrug(L)","StormDrug(M)","StormDrug(S)"],"types":["Potion"],"bucket":"flask","stats":"","instant":false,"usedBy":["Storm Drug (L)"],"unused":false,"isCurrentMega":false,"isCurrentUltra":false,"hasIcon":true},{"frame":421,"title":"TaoistDrug(L)","family":"TaoistDrug","names":["TaoistDrug(L)","TaoistDrug(M)","TaoistDrug(S)"],"types":["Potion"],"bucket":"flask","stats":"","instant":false,"usedBy":["Taoist Drug (L)","Taoist Drug (M)","Taoist Drug (S)"],"unused":false,"isCurrentMega":false,"isCurrentUltra":false,"hasIcon":true},{"frame":422,"title":"MagicAid(L)","family":"MagicAid","names":["MagicAid(L)","MagicAid(M)","MagicAid(S)"],"types":["Potion"],"bucket":"flask","stats":"150 MP","instant":false,"usedBy":[],"unused":true,"isCurrentMega":false,"isCurrentUltra":false,"hasIcon":true},{"frame":423,"title":"MagicDrug(L)","family":"MagicDrug","names":["MagicDrug(L)","MagicDrug(M)","MagicDrug(S)"],"types":["Potion"],"bucket":"flask","stats":"","instant":false,"usedBy":["Magic Drug (L)","Magic Drug (M)","Magic Drug (S)"],"unused":false,"isCurrentMega":false,"isCurrentUltra":false,"hasIcon":true},{"frame":424,"title":"StaminaAid(L)","family":"StaminaAid","names":["StaminaAid(L)","StaminaAid(M)","StaminaAid(S)"],"types":["Potion"],"bucket":"flask","stats":"150 HP","instant":false,"usedBy":[],"unused":true,"isCurrentMega":false,"isCurrentUltra":false,"hasIcon":true},{"frame":425,"title":"ImpactDrug(L)","family":"ImpactDrug","names":["ImpactDrug(L)","ImpactDrug(M)","ImpactDrug(S)"],"types":["Potion"],"bucket":"flask","stats":"","instant":false,"usedBy":["Impact Drug (L)","Impact Drug (M)","Impact Drug (S)"],"unused":false,"isCurrentMega":false,"isCurrentUltra":false,"hasIcon":true},{"frame":426,"title":"Apple","family":"Apple","names":["Apple"],"types":["Potion"],"bucket":"food","stats":"50 HP + 50 MP","instant":false,"usedBy":[],"unused":true,"isCurrentMega":false,"isCurrentUltra":false,"hasIcon":true},{"frame":790,"title":"MeatSoup","family":"MeatSoup","names":["MeatSoup"],"types":["Potion"],"bucket":"food","stats":"100 HP","instant":false,"usedBy":[],"unused":true,"isCurrentMega":false,"isCurrentUltra":false,"hasIcon":true},{"frame":791,"title":"ZerkSoup","family":"ZerkSoup","names":["ZerkSoup"],"types":["Potion"],"bucket":"food","stats":"100 MP","instant":false,"usedBy":[],"unused":true,"isCurrentMega":false,"isCurrentUltra":false,"hasIcon":true},{"frame":792,"title":"EggBroth","family":"EggBroth","names":["EggBroth"],"types":["Potion"],"bucket":"food","stats":"","instant":false,"usedBy":[],"unused":true,"isCurrentMega":false,"isCurrentUltra":false,"hasIcon":true},{"frame":793,"title":"CannibalFruitTea","family":"CannibalFruitTea","names":["CannibalFruitTea"],"types":["Potion"],"bucket":"food","stats":"150 HP + 240 MP","instant":true,"usedBy":[],"unused":true,"isCurrentMega":false,"isCurrentUltra":false,"hasIcon":true},{"frame":794,"title":"ChickenBroth","family":"ChickenBroth","names":["ChickenBroth"],"types":["Potion"],"bucket":"food","stats":"","instant":false,"usedBy":[],"unused":true,"isCurrentMega":false,"isCurrentUltra":false,"hasIcon":true},{"frame":795,"title":"BoneBroth","family":"BoneBroth","names":["BoneBroth"],"types":["Potion"],"bucket":"food","stats":"","instant":false,"usedBy":[],"unused":true,"isCurrentMega":false,"isCurrentUltra":false,"hasIcon":true},{"frame":796,"title":"HerbalTea","family":"HerbalTea","names":["HerbalTea"],"types":["Potion"],"bucket":"food","stats":"","instant":true,"usedBy":[],"unused":true,"isCurrentMega":false,"isCurrentUltra":false,"hasIcon":true},{"frame":797,"title":"Dumpling","family":"Dumpling","names":["Dumpling"],"types":["Potion"],"bucket":"food","stats":"50 HP","instant":false,"usedBy":[],"unused":true,"isCurrentMega":false,"isCurrentUltra":false,"hasIcon":true},{"frame":798,"title":"BeefDumpling","family":"BeefDumpling","names":["BeefDumpling"],"types":["Potion"],"bucket":"food","stats":"50 MP","instant":false,"usedBy":[],"unused":true,"isCurrentMega":false,"isCurrentUltra":false,"hasIcon":true},{"frame":799,"title":"ChickenDumpling","family":"ChickenDumpling","names":["ChickenDumpling"],"types":["Potion"],"bucket":"food","stats":"","instant":false,"usedBy":[],"unused":true,"isCurrentMega":false,"isCurrentUltra":false,"hasIcon":true},{"frame":800,"title":"BoneDumpling","family":"BoneDumpling","names":["BoneDumpling"],"types":["Potion"],"bucket":"food","stats":"","instant":false,"usedBy":[],"unused":true,"isCurrentMega":false,"isCurrentUltra":false,"hasIcon":true},{"frame":801,"title":"EggDumpling","family":"EggDumpling","names":["EggDumpling"],"types":["Potion"],"bucket":"food","stats":"","instant":false,"usedBy":[],"unused":true,"isCurrentMega":false,"isCurrentUltra":false,"hasIcon":true},{"frame":813,"title":"(HP)DrugXL","family":"DrugXL","names":["(HP)DrugXL"],"types":["Potion"],"bucket":"flask","stats":"150 HP","instant":false,"usedBy":["XL HP Drug"],"unused":false,"isCurrentMega":true,"isCurrentUltra":false,"hasIcon":true},{"frame":814,"title":"(MP)DrugXL","family":"DrugXL","names":["(MP)DrugXL"],"types":["Potion"],"bucket":"flask","stats":"240 MP","instant":false,"usedBy":["XL MP Drug"],"unused":false,"isCurrentMega":false,"isCurrentUltra":false,"hasIcon":true},{"frame":1110,"title":"PinkMarshmallow","family":"PinkMarshmallow","names":["PinkMarshmallow"],"types":["Potion"],"bucket":"food","stats":"","instant":true,"usedBy":[],"unused":true,"isCurrentMega":false,"isCurrentUltra":false,"hasIcon":true},{"frame":1111,"title":"BlueMarshmallow","family":"BlueMarshmallow","names":["BlueMarshmallow"],"types":["Potion"],"bucket":"food","stats":"","instant":true,"usedBy":[],"unused":true,"isCurrentMega":false,"isCurrentUltra":false,"hasIcon":true},{"frame":1693,"title":"DestructionLiquor1","family":"DestructionLiquor","names":["DestructionLiquor1"],"types":["Potion"],"bucket":"flask","stats":"","instant":false,"usedBy":[],"unused":true,"isCurrentMega":false,"isCurrentUltra":false,"hasIcon":true},{"frame":1694,"title":"DestructionLiquor3","family":"DestructionLiquor","names":["DestructionLiquor3"],"types":["Potion"],"bucket":"flask","stats":"","instant":false,"usedBy":[],"unused":true,"isCurrentMega":false,"isCurrentUltra":false,"hasIcon":true},{"frame":1695,"title":"DestructionLiquor","family":"DestructionLiquor","names":["DestructionLiquor"],"types":["Potion"],"bucket":"flask","stats":"","instant":false,"usedBy":[],"unused":true,"isCurrentMega":false,"isCurrentUltra":false,"hasIcon":true},{"frame":1696,"title":"MagicalLiquor1","family":"MagicalLiquor","names":["MagicalLiquor1"],"types":["Potion"],"bucket":"flask","stats":"","instant":false,"usedBy":[],"unused":true,"isCurrentMega":false,"isCurrentUltra":false,"hasIcon":true},{"frame":1697,"title":"MagicalLiquor3","family":"MagicalLiquor","names":["MagicalLiquor3"],"types":["Potion"],"bucket":"flask","stats":"","instant":false,"usedBy":[],"unused":true,"isCurrentMega":false,"isCurrentUltra":false,"hasIcon":true},{"frame":1698,"title":"MagicalLiquor","family":"MagicalLiquor","names":["MagicalLiquor"],"types":["Potion"],"bucket":"flask","stats":"","instant":false,"usedBy":[],"unused":true,"isCurrentMega":false,"isCurrentUltra":false,"hasIcon":true},{"frame":1699,"title":"SoulLiquor1","family":"SoulLiquor","names":["SoulLiquor1"],"types":["Potion"],"bucket":"flask","stats":"","instant":false,"usedBy":[],"unused":true,"isCurrentMega":false,"isCurrentUltra":false,"hasIcon":true},{"frame":1701,"title":"SoulLiquor","family":"SoulLiquor","names":["SoulLiquor"],"types":["Potion"],"bucket":"flask","stats":"","instant":false,"usedBy":[],"unused":true,"isCurrentMega":false,"isCurrentUltra":false,"hasIcon":true},{"frame":1705,"title":"HealthWine","family":"HealthWine","names":["HealthWine"],"types":["Potion"],"bucket":"flask","stats":"180 HP","instant":false,"usedBy":[],"unused":true,"isCurrentMega":false,"isCurrentUltra":false,"hasIcon":true},{"frame":1707,"title":"GalePotion1","family":"GalePotion","names":["GalePotion1"],"types":["Potion"],"bucket":"flask","stats":"","instant":false,"usedBy":[],"unused":true,"isCurrentMega":false,"isCurrentUltra":false,"hasIcon":true},{"frame":1718,"title":"GalePotion","family":"GalePotion","names":["GalePotion","GalePotion2"],"types":["Potion"],"bucket":"flask","stats":"","instant":false,"usedBy":[],"unused":true,"isCurrentMega":false,"isCurrentUltra":false,"hasIcon":true},{"frame":1719,"title":"GalePotion3","family":"GalePotion","names":["GalePotion3"],"types":["Potion"],"bucket":"flask","stats":"","instant":false,"usedBy":[],"unused":true,"isCurrentMega":false,"isCurrentUltra":false,"hasIcon":true},{"frame":1988,"title":"AccuracyPotion","family":"AccuracyPotion","names":["AccuracyPotion"],"types":["Potion"],"bucket":"flask","stats":"","instant":false,"usedBy":[],"unused":true,"isCurrentMega":false,"isCurrentUltra":false,"hasIcon":true},{"frame":2391,"title":"Tinker","family":"Tinker","names":["Tinker"],"types":["Potion"],"bucket":"food","stats":"40 HP","instant":true,"usedBy":[],"unused":true,"isCurrentMega":false,"isCurrentUltra":false,"hasIcon":true},{"frame":2398,"title":"Mackeral","family":"Mackeral","names":["Mackeral"],"types":["Potion"],"bucket":"food","stats":"120 HP","instant":true,"usedBy":[],"unused":true,"isCurrentMega":false,"isCurrentUltra":false,"hasIcon":true},{"frame":2399,"title":"Gobby","family":"Gobby","names":["Gobby"],"types":["Potion"],"bucket":"food","stats":"240 MP","instant":true,"usedBy":[],"unused":true,"isCurrentMega":false,"isCurrentUltra":false,"hasIcon":true},{"frame":2400,"title":"SmallGobby","family":"SmallGobby","names":["SmallGobby"],"types":["Potion"],"bucket":"food","stats":"80 MP","instant":true,"usedBy":[],"unused":true,"isCurrentMega":false,"isCurrentUltra":false,"hasIcon":true},{"frame":3319,"title":"Wine","family":"Wine","names":["Wine"],"types":["Nothing"],"bucket":"flask","stats":"","instant":false,"usedBy":[],"unused":true,"isCurrentMega":false,"isCurrentUltra":false,"hasIcon":true},{"frame":3614,"title":"Redrecoverywater","family":"Redrecoverywater","names":["Redrecoverywater"],"types":["Potion"],"bucket":"flask","stats":"","instant":true,"usedBy":[],"unused":true,"isCurrentMega":false,"isCurrentUltra":false,"hasIcon":true},{"frame":3615,"title":"Bluerecoverywater","family":"Bluerecoverywater","names":["Bluerecoverywater"],"types":["Potion"],"bucket":"flask","stats":"","instant":true,"usedBy":[],"unused":true,"isCurrentMega":false,"isCurrentUltra":false,"hasIcon":true},{"frame":3699,"title":"DestructionLiquor5","family":"DestructionLiquor","names":["DestructionLiquor5"],"types":["Potion"],"bucket":"flask","stats":"","instant":false,"usedBy":[],"unused":true,"isCurrentMega":false,"isCurrentUltra":false,"hasIcon":true},{"frame":3700,"title":"MagicalLiquor5","family":"MagicalLiquor","names":["MagicalLiquor5"],"types":["Potion"],"bucket":"flask","stats":"","instant":false,"usedBy":[],"unused":true,"isCurrentMega":false,"isCurrentUltra":false,"hasIcon":true},{"frame":3701,"title":"SoulLiquor3","family":"SoulLiquor","names":["SoulLiquor3"],"types":["Potion"],"bucket":"flask","stats":"","instant":false,"usedBy":[],"unused":true,"isCurrentMega":false,"isCurrentUltra":false,"hasIcon":true},{"frame":3702,"title":"SoulLiquor5","family":"SoulLiquor","names":["SoulLiquor5"],"types":["Potion"],"bucket":"flask","stats":"","instant":false,"usedBy":[],"unused":true,"isCurrentMega":false,"isCurrentUltra":false,"hasIcon":true},{"frame":3706,"title":"HealthWine5","family":"HealthWine","names":["HealthWine5","HealthWine3","HealthWine1"],"types":["Potion"],"bucket":"flask","stats":"220 HP","instant":false,"usedBy":[],"unused":true,"isCurrentMega":false,"isCurrentUltra":false,"hasIcon":true},{"frame":3707,"title":"MagicWine5","family":"MagicWine","names":["MagicWine5","MagicWine3","MagicWine1"],"types":["Potion"],"bucket":"flask","stats":"220 MP","instant":false,"usedBy":[],"unused":true,"isCurrentMega":false,"isCurrentUltra":false,"hasIcon":true},{"frame":3708,"title":"ElixirOfGinseng[1d]","family":"ElixirOfGinseng","names":["ElixirOfGinseng[1d]"],"types":["Potion"],"bucket":"flask","stats":"50 HP + 70 MP","instant":false,"usedBy":[],"unused":true,"isCurrentMega":false,"isCurrentUltra":false,"hasIcon":true},{"frame":3709,"title":"ElixirOfDefensive[1d]","family":"ElixirOfDefensive","names":["ElixirOfDefensive[1d]"],"types":["Potion"],"bucket":"flask","stats":"","instant":false,"usedBy":[],"unused":true,"isCurrentMega":false,"isCurrentUltra":false,"hasIcon":true},{"frame":3710,"title":"ElixirOfMight[1d]","family":"ElixirOfMight","names":["ElixirOfMight[1d]"],"types":["Potion"],"bucket":"flask","stats":"","instant":false,"usedBy":[],"unused":true,"isCurrentMega":false,"isCurrentUltra":false,"hasIcon":true},{"frame":3711,"title":"ElixirOfPhysical","family":"ElixirOfPhysical","names":["ElixirOfPhysical"],"types":["Potion"],"bucket":"flask","stats":"","instant":false,"usedBy":[],"unused":true,"isCurrentMega":false,"isCurrentUltra":false,"hasIcon":true},{"frame":3712,"title":"MagicalWater7","family":"MagicalWater","names":["MagicalWater7","MagicalWater3"],"types":["Potion"],"bucket":"flask","stats":"80 MP","instant":false,"usedBy":[],"unused":true,"isCurrentMega":false,"isCurrentUltra":false,"hasIcon":true},{"frame":3721,"title":"EXP20%[1d]","family":"EXP20","names":["EXP20%[1d]","EXP30%24","EXP30%5","EXP30%3","EXP30%1"],"types":["Potion"],"bucket":"other","stats":"","instant":false,"usedBy":[],"unused":true,"isCurrentMega":false,"isCurrentUltra":false,"hasIcon":true},{"frame":3734,"title":"EXP50%24","family":"EXP50","names":["EXP50%24","EXP50%5","EXP50%3","EXP50%1"],"types":["Potion"],"bucket":"other","stats":"","instant":false,"usedBy":[],"unused":true,"isCurrentMega":false,"isCurrentUltra":false,"hasIcon":true},{"frame":3747,"title":"DestructionWater7","family":"DestructionWater","names":["DestructionWater7","DestructionWater3"],"types":["Potion"],"bucket":"flask","stats":"80 HP","instant":false,"usedBy":[],"unused":true,"isCurrentMega":false,"isCurrentUltra":false,"hasIcon":true},{"frame":3748,"title":"SoulWater7","family":"SoulWater","names":["SoulWater7","SoulWater3"],"types":["Potion"],"bucket":"flask","stats":"80 MP","instant":false,"usedBy":[],"unused":true,"isCurrentMega":false,"isCurrentUltra":false,"hasIcon":true},{"frame":3749,"title":"StrengthWater7","family":"StrengthWater","names":["StrengthWater7","StrengthWater3"],"types":["Potion"],"bucket":"flask","stats":"80 HP","instant":false,"usedBy":[],"unused":true,"isCurrentMega":false,"isCurrentUltra":false,"hasIcon":true}]};
+    const state = {
+      view: "unused",
+      search: "",
+      mega: DATA.megaFrame,
+      ultra: DATA.ultraFrame,
+    };
+
+    const main = document.getElementById("main");
+    const megaPick = document.getElementById("megaPick");
+    const ultraPick = document.getElementById("ultraPick");
+    const copyBtn = document.getElementById("copyBtn");
+
+    function cardByFrame(frame) {
+      return DATA.cards.find((c) => c.frame === frame);
+    }
+
+    function iconTag(frame) {
+      const card = cardByFrame(frame);
+      if (!card?.hasIcon) return '<div class="empty">?</div>';
+      return '<img src="./icons/frame_' + String(frame).padStart(6, "0") + '.png" alt="">';
+    }
+
+    function renderPick(el, label, frame) {
+      const card = cardByFrame(frame);
+      el.innerHTML = iconTag(frame) +
+        "<div><b>" + label + "</b><span>" +
+        (card ? ("frame " + frame + " · " + card.title) : "not set") +
+        "</span></div>";
+    }
+
+    function visible(card) {
+      const q = state.search.trim().toLowerCase();
+      if (q) {
+        const hay = [card.title, card.family, card.frame, ...(card.names || []), ...(card.usedBy || [])].join(" ").toLowerCase();
+        if (!hay.includes(q)) return false;
+      }
+      if (state.view === "all") return true;
+      if (state.view === "used") return !card.unused;
+      if (state.view === "other") return card.bucket !== "flask";
+      return card.unused && card.bucket === "flask";
+    }
+
+    function groups(list) {
+      if (state.view === "unused" || state.view === "all") {
+        return [["All matching icons", list]];
+      }
+      const map = new Map();
+      for (const card of list) {
+        const key = card.unused ? card.family : (card.usedBy[0] || card.family);
+        if (!map.has(key)) map.set(key, []);
+        map.get(key).push(card);
+      }
+      return [...map.entries()];
+    }
+
+    function render() {
+      renderPick(megaPick, "Mega Potion", state.mega);
+      renderPick(ultraPick, "Ultra Potion", state.ultra);
+      const list = DATA.cards.filter(visible);
+      const html = groups(list).map(([title, cards]) => {
+        const arts = cards.map((card) => {
+          const cls = [
+            card.frame === state.mega ? "selected-mega" : "",
+            card.frame === state.ultra ? "selected-ultra" : "",
+            card.isCurrentMega || card.isCurrentUltra ? "current" : "",
+          ].filter(Boolean).join(" ");
+          const badges = [];
+          if (card.unused) badges.push('<span class="badge ok">Unused</span>');
+          if (card.isCurrentMega) badges.push('<span class="badge warn">Current Mega</span>');
+          if (card.isCurrentUltra) badges.push('<span class="badge warn">Current Ultra</span>');
+          if (card.instant) badges.push('<span class="badge">Instant</span>');
+          if (card.usedBy.length) badges.push('<span class="badge">In game</span>');
+          const used = card.usedBy.length ? '<div class="used">Used by ' + card.usedBy.join(", ") + "</div>" : "";
+          const img = card.hasIcon
+            ? '<img src="./icons/frame_' + String(card.frame).padStart(6, "0") + '.png" alt="">'
+            : '<span class="missing">?</span>';
+          return '<article class="' + cls + '" data-frame="' + card.frame + '">' +
+            '<div class="icon">' + img + "</div>" +
+            '<div class="name">' + card.title + "</div>" +
+            '<div class="meta">frame ' + card.frame + (card.stats ? " · " + card.stats : "") + "</div>" +
+            '<div class="badges">' + badges.join("") + "</div>" +
+            used +
+            '<div class="actions">' +
+              '<button type="button" class="mega" data-assign="mega">Mega</button>' +
+              '<button type="button" class="ultra" data-assign="ultra">Ultra</button>' +
+            "</div></article>";
+        }).join("");
+        return "<section><h2>" + title + " · " + cards.length + "</h2><div class=\"grid\">" + arts + "</div></section>";
+      }).join("");
+      main.innerHTML = html || "<p class=\"sub\">No icons match.</p>";
+    }
+
+    document.querySelectorAll(".chip").forEach((btn) => {
+      btn.addEventListener("click", () => {
+        document.querySelectorAll(".chip").forEach((b) => b.classList.remove("active"));
+        btn.classList.add("active");
+        state.view = btn.dataset.view;
+        render();
+      });
+    });
+    document.getElementById("search").addEventListener("input", (e) => {
+      state.search = e.target.value;
+      render();
+    });
+    main.addEventListener("click", (e) => {
+      const btn = e.target.closest("button[data-assign]");
+      if (!btn) return;
+      const frame = Number(e.target.closest("article")?.dataset.frame);
+      if (!frame) return;
+      const which = btn.dataset.assign;
+      if (which === "mega") {
+        if (state.ultra === frame) state.ultra = null;
+        state.mega = frame;
+      } else {
+        if (state.mega === frame) state.mega = null;
+        state.ultra = frame;
+      }
+      render();
+    });
+    copyBtn.addEventListener("click", async () => {
+      const text = "Mega frame " + state.mega + ", Ultra frame " + state.ultra;
+      try { await navigator.clipboard.writeText(text); copyBtn.textContent = "Copied"; }
+      catch { copyBtn.textContent = text; }
+      setTimeout(() => { copyBtn.textContent = "Copy frame numbers"; }, 1500);
+    });
+    render();
+  </script>
+</body>
+</html>

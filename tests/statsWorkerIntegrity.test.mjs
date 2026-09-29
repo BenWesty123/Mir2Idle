@@ -417,3 +417,171 @@ test("rebirth may reset Social character levels even when combined drops", async
   assert.equal(insert.args[13], JSON.stringify({ Warrior: 1, Wizard: 1, Taoist: 1 }));
   assert.equal(insert.args[16], 3);
 });
+
+test("ascended board ranks only players who have ascended", async () => {
+  const db = new FakeDb({ results: [] });
+  const response = await worker.fetch(new Request("https://stats.example/leaderboard?scope=accounts&board=ascended"), {
+    DB: db,
+    ADMIN_TOKEN: "secret",
+    ALLOWED_ORIGIN: "*",
+  });
+  assert.equal(response.status, 200);
+  const data = await response.json();
+  assert.equal(data.board, "ascended");
+  const select = db.queries.find((query) => /FROM leaderboard/.test(query.sql));
+  assert.match(select.sql, /ascension_count > 0/);
+  assert.match(select.sql, /ORDER BY ascension_count DESC/);
+  assert.match(select.sql, /integrity_status, 'legacy'\) != 'excluded'/);
+});
+
+test("standard board stays ranked by combined levels", async () => {
+  const db = new FakeDb({ results: [] });
+  const response = await worker.fetch(new Request("https://stats.example/leaderboard?scope=accounts"), {
+    DB: db,
+    ADMIN_TOKEN: "secret",
+    ALLOWED_ORIGIN: "*",
+  });
+  const data = await response.json();
+  assert.equal(data.board, "standard");
+  const select = db.queries.find((query) => /FROM leaderboard/.test(query.sql));
+  assert.doesNotMatch(select.sql, /ascension_count > 0/);
+  assert.match(select.sql, /ORDER BY combined_character_levels DESC/);
+});
+
+test("ascension stats climb, and a slower best time does not replace a faster one", async () => {
+  const day = 24 * 60 * 60 * 1000;
+  const db = new FakeDb({
+    existing: {
+      boss_kills: "{}",
+      rebirth_count: 2,
+      character_levels: JSON.stringify({ Warrior: 20, Wizard: 1, Taoist: 1 }),
+      character_stats: "[]",
+      combined_character_levels: 22,
+      ascension_count: 4,
+      ascension_points: 30,
+      current_highest_level: 20,
+      current_journey_ms: 2 * day,
+      best_journey_ms: 5 * day,
+      integrity_status: "clear",
+      integrity_reason: "[]",
+      integrity_fingerprint: "",
+      integrity_approved_fingerprint: "",
+    },
+  });
+  const body = payload();
+  body.account.characterLevels = { Warrior: 21, Wizard: 1, Taoist: 1 };
+  body.account.highestCharacterLevel = 21;
+  body.account.rebirthCount = 2;
+  body.account.ascensionCount = 3;
+  body.account.ascensionPoints = 24;
+  body.account.currentJourneyMs = 3 * day;
+  body.account.bestJourneyMs = 9 * day;
+  body.characters = [{ characterClass: "Warrior", level: 21, equipment: {} }];
+  const response = await postStats(db, body);
+  assert.equal(response.status, 200);
+  const insert = db.queries.find((query) => /INSERT INTO leaderboard/.test(query.sql));
+  assert.equal(insert.args[23], 4);
+  assert.equal(insert.args[24], 30);
+  assert.equal(insert.args[25], 21);
+  assert.equal(insert.args[26], 3 * day);
+  assert.equal(insert.args[27], 5 * day);
+});
+
+test("a faster best time is kept, and ascension may reset the current level and clock", async () => {
+  const day = 24 * 60 * 60 * 1000;
+  const db = new FakeDb({
+    existing: {
+      boss_kills: "{}",
+      rebirth_count: 2,
+      character_levels: JSON.stringify({ Warrior: 80, Wizard: 70, Taoist: 60 }),
+      character_stats: "[]",
+      combined_character_levels: 210,
+      ascension_count: 4,
+      ascension_points: 30,
+      current_highest_level: 80,
+      current_journey_ms: 12 * day,
+      best_journey_ms: 9 * day,
+      integrity_status: "clear",
+      integrity_reason: "[]",
+      integrity_fingerprint: "",
+      integrity_approved_fingerprint: "",
+    },
+  });
+  const body = payload();
+  body.account.characterLevels = { Warrior: 1, Wizard: 1, Taoist: 1 };
+  body.account.highestCharacterLevel = 1;
+  body.account.rebirthCount = 3;
+  body.account.ascensionCount = 5;
+  body.account.ascensionPoints = 38;
+  body.account.currentJourneyMs = 60 * 1000;
+  body.account.bestJourneyMs = 4 * day;
+  body.characters = [{ characterClass: "Warrior", level: 1, equipment: {} }];
+  const response = await postStats(db, body);
+  assert.equal(response.status, 200);
+  const result = await response.json();
+  assert.equal(result.characterSnapshotUpdated, true);
+  const insert = db.queries.find((query) => /INSERT INTO leaderboard/.test(query.sql));
+  assert.equal(insert.args[23], 5);
+  assert.equal(insert.args[24], 38);
+  assert.equal(insert.args[25], 1);
+  assert.equal(insert.args[26], 60 * 1000);
+  assert.equal(insert.args[27], 4 * day);
+});
+
+test("an older client that omits ascension fields does not wipe them", async () => {
+  const db = new FakeDb({
+    existing: {
+      boss_kills: "{}",
+      rebirth_count: 1,
+      character_levels: JSON.stringify({ Warrior: 10 }),
+      character_stats: "[]",
+      combined_character_levels: 10,
+      ascension_count: 2,
+      ascension_points: 16,
+      current_journey_ms: 5000,
+      best_journey_ms: 80000,
+      integrity_status: "clear",
+      integrity_reason: "[]",
+      integrity_fingerprint: "",
+      integrity_approved_fingerprint: "",
+    },
+  });
+  const response = await postStats(db, payload());
+  assert.equal(response.status, 200);
+  const insert = db.queries.find((query) => /INSERT INTO leaderboard/.test(query.sql));
+  assert.equal(insert.args[23], 2);
+  assert.equal(insert.args[24], 16);
+  assert.equal(insert.args[26], 5000);
+  assert.equal(insert.args[27], 80000);
+});
+
+test("ascended RP stores points gained this world, not the lifetime total or the balance", async () => {
+  const db = new FakeDb({
+    existing: {
+      boss_kills: "{}",
+      rebirth_count: 3,
+      rebirth_points_gained: 9000,
+      character_levels: JSON.stringify({ Warrior: 20, Wizard: 1, Taoist: 1 }),
+      character_stats: "[]",
+      combined_character_levels: 22,
+      rebirth_points_held: 400,
+      integrity_status: "clear",
+      integrity_reason: "[]",
+      integrity_fingerprint: "",
+      integrity_approved_fingerprint: "",
+    },
+  });
+  const body = payload();
+  body.account.characterLevels = { Warrior: 21, Wizard: 1, Taoist: 1 };
+  body.account.highestCharacterLevel = 21;
+  body.account.rebirthCount = 3;
+  body.account.rebirthPointsGained = 9000;
+  body.account.rebirthPointsHeld = 40;
+  body.account.runRebirthPointsGained = 150;
+  body.characters = [{ characterClass: "Warrior", level: 21, equipment: {} }];
+  const response = await postStats(db, body);
+  assert.equal(response.status, 200);
+  const insert = db.queries.find((query) => /INSERT INTO leaderboard/.test(query.sql));
+  assert.equal(insert.args[11], 9000);
+  assert.equal(insert.args[28], 150);
+});
